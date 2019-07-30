@@ -28,7 +28,3 @@ This project is to deploy public basemaps of New Zealand, developed by LINZ usin
 
 ## License
 This system is under the 3-clause BSD License, except where otherwise specified. See the [LICENSE](https://github.com/linz/basemaps/blob/master/LICENSE) file for more details.
-
-
-
-git config --global user.email "ireese@linz.govt.nz"
