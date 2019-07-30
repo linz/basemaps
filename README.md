@@ -15,6 +15,8 @@ This project is to deploy public basemaps of New Zealand, developed by LINZ usin
 
 - Tile Cache: Collection of very small tiled images in the three dimensional file structure.
 
+- Aerial Imagery: Imagery take from satellite or aircraft, specific for collecting geographic data.
+
 
 ## Features
 
@@ -22,6 +24,7 @@ This project is to deploy public basemaps of New Zealand, developed by LINZ usin
 
 ## Components
 
+- AWS S3 raster data storage
 - AWS S3 raster data storage
 - A PostgreSQL/PostGIS database schema for vector data storage (TODO: determine what our PostgreSQL structure will be.)
 - AWS Cloudfront delivery
