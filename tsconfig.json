@@ -1,6 +1,8 @@
 {
-    "compilerOptions": {
-        "composite": true
-    },
-    "references": [{"path": "./tsconfig.build.json"}]
+    "files": [],
+    "references": [{
+        "path": "./packages/const"
+    }, {
+        "path": "./packages/lambda-api-tracker"
+    }]
 }

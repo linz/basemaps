@@ -17,4 +17,6 @@ export async function handler(
     console.log(x);
 }
 
-export async function queryStringExtractor(queryString: string) {}
+export async function queryStringExtractor(queryString: string) {
+    console.log(queryString + 'bar');
+}
