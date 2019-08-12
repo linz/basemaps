@@ -9,7 +9,7 @@
     "@basemaps/const": "^0.0.1"
   },
   "scripts": {
-    "build": "tsc"
+    "test": "jest"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.31",

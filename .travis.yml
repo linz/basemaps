@@ -7,3 +7,4 @@ script:
   - yarn
   - yarn run build
   - yarn run lint
+  - yarn run test

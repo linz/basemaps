@@ -1,5 +1,4 @@
 import { DB_NAME } from '@basemaps/const';
-
 import {
     CloudFrontRequestEvent,
     CloudFrontRequestHandler,
@@ -17,6 +16,6 @@ export async function handler(
     console.log(x);
 }
 
-export async function queryStringExtractor(queryString: string) {
-    console.log(queryString + 'bar');
+export function queryStringExtractor(queryString: string) {
+    return 'qs:' + queryString;
 }
