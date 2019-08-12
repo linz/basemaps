@@ -1,0 +1,11 @@
+{
+  "name": "@basemaps/const",
+  "version": "0.0.1",
+  "private": true,
+  "repository": "git@github.com:linz/basemaps.git",
+  "author": "",
+  "license": "BSD 3-Clause",
+  "scripts": {
+    "build": "tsc -b src/"
+  }
+}

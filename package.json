@@ -1,13 +1,17 @@
 {
-  "name": "basemaps",
+  "name": "@basemaps/core",
   "version": "0.0.1",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
-  "author": "Blayne Chard <bchard@linz.govt.nz>",
+  "author": "",
   "license": "BSD 3-Clause",
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.1.0",
-    "@commitlint/travis-cli": "^8.1.0"
-  }
+    "@commitlint/travis-cli": "^8.1.0",
+    "lerna": "^3.16.4"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
