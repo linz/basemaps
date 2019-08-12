@@ -2,6 +2,10 @@
 
 We would love for you to contribute to basemaps and help make it even better than it is today! As a contributor, here are the guidelines we would like you to follow:
 
+## Monorepo
+
+this repository is a monorepo for everything related to basemaps
+for explanations for each component look for the README.md inside each package.
 
 ## Commit message
 

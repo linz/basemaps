@@ -1,2 +1,1 @@
-export const DB_NAME = "apitracker";
-
+export const DB_NAME = 'apitracker';

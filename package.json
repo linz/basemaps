@@ -5,11 +5,24 @@
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "BSD 3-Clause",
+  "scripts": {
+    "lint": "eslint 'packages/*/{src,test}/**/*.ts' --quiet --fix",
+    "build": "lerna run build --stream"
+  },
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.1.0",
     "@commitlint/travis-cli": "^8.1.0",
-    "lerna": "^3.16.4"
+    "@types/aws-lambda": "^8.10.27",
+    "@types/node": "^12.0.12",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^5.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "lerna": "^3.16.4",
+    "prettier": "^1.18.2",
+    "typescript": "^3.5.3"
   },
   "workspaces": [
     "packages/*"
