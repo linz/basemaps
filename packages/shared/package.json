@@ -1,5 +1,5 @@
 {
-  "name": "@basemaps/const",
+  "name": "@basemaps/shared",
   "version": "0.0.1",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
@@ -10,5 +10,8 @@
   "scripts": {
     "build": "tsc",
     "build-watch": "tsc"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.508.0"
   }
 }

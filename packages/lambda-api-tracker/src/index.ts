@@ -1,4 +1,3 @@
-import { DB_NAME } from '@basemaps/const';
 import {
     CloudFrontRequestEvent,
     CloudFrontRequestHandler,
