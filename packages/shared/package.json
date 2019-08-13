@@ -13,5 +13,10 @@
   },
   "dependencies": {
     "aws-sdk": "^2.508.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.31",
+    "@types/pino": "^5.8.8",
+    "pino": "^5.13.2"
   }
 }
