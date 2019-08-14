@@ -16,7 +16,4 @@ describe('QueryString', () => {
     it('should return null on "val of key3 in ?key1=foo&key2=bar"', () => {
         expect(queryStringExtractor('?key1=foo&key2=bar', 'key3')).toBe(null);
     });
-    it('should return null on invalid "val of abc in ?abc=foo&def=bar"', () => {
-        expect(queryStringExtractor('?abc=foo&def=bar', 'abc')).toBe(null);
-    });
 });

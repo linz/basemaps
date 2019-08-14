@@ -1,18 +1,4 @@
-import { Const } from '../../shared/src/const';
-//TODO get @shared to work
-
-/**
- * Checks key name against allowed list of acceptable values
- *
- * @param keyString parameter key string to validate
- * @returns true if key name is valid and false if its not
- */
-export function validateQueryParameters(keyString: string) : boolean {
-    return (Const.QueryParameters.AllowedKeys
-                .map((val:string) => (new RegExp(val)).test(keyString)))
-                .reduce((orSum:boolean, inc:boolean) => orSum||inc);
-}
-
+import { Const } from '@basemaps/shared';
 
 /**
  * Extracts a named value from a query string but defaults to the key 'api' if none provided
@@ -25,12 +11,12 @@ export function queryStringExtractor(queryString: string, key: string = Const.Ap
     if (queryString.startsWith('?')) {
         queryString = queryString.substring(1);
     }
+
     for (const keyPair of queryString.split('&')) {
         const keyAndPair: string[] = keyPair.split('=');
-        if (keyAndPair[0] === key && validateQueryParameters(key)) {
+        if (keyAndPair[0] === key) {
             return keyAndPair[1];
         }
     }
     return null;
 }
-

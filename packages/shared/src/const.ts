@@ -8,7 +8,7 @@ export const Const = {
         TableName: 'ApiKey',
         RequestLimitMinute: 1000,
     },
-    QueryParameters:{
-        AllowedKeys: ['key','api','map']
-    }
+    QueryParameters: {
+        AllowedKeys: ['key', 'api', 'map'],
+    },
 };
