@@ -1,3 +1,6 @@
+import { Const } from '../../shared/src/const';
+//TODO get @shared to work
+
 /**
  * Checks key name against allowed list of acceptable values
  *
@@ -5,9 +8,9 @@
  * @returns true if key name is valid and false if its not
  */
 export function validateQueryParameters(keyString: string) : boolean {
-    const acceptableValues: string[] = ['key','api','map','bbox'];
-    return (acceptableValues.map(val => (new RegExp(val)).test(keyString))).reduce((orsum, inc) => orsum||inc);
-    
+    return (Const.QueryParameters.AllowedKeys
+                .map((val:string) => (new RegExp(val)).test(keyString)))
+                .reduce((orSum:boolean, inc:boolean) => orSum||inc);
 }
 
 
@@ -18,7 +21,7 @@ export function validateQueryParameters(keyString: string) : boolean {
  * @param key key to extract
  * @returns key value if exists, null otherwise
  */
-export function queryStringExtractor(queryString: string, key: string = 'api'): string | null {
+export function queryStringExtractor(queryString: string, key: string = Const.ApiKey.QueryString): string | null {
     if (queryString.startsWith('?')) {
         queryString = queryString.substring(1);
     }
