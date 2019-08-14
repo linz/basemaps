@@ -9,7 +9,7 @@ export class LambdaFunction {
      * - Log metadata about the call on every request
      * - Catch errors and log them before exiting
      */
-    static wrap<T, K>(fn: (event: T, context: Context, logger: pino.Logger) => Promise<K>, logger = Logger) {
+    public static wrap<T, K>(fn: (event: T, context: Context, logger: pino.Logger) => Promise<K>, logger = Logger) {
         return async (event: T, context: Context, callback: Callback<K>) => {
             const startTime = Date.now();
 

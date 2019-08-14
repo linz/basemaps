@@ -23,9 +23,9 @@ export interface ApiKeyTableRecord extends BaseDynamoTable {
 }
 
 export class ApiKeyTable {
-    dynamo: AWS.DynamoDB;
+    private dynamo: AWS.DynamoDB;
 
-    constructor() {
+    public constructor() {
         this.dynamo = new AWS.DynamoDB({});
     }
 
@@ -33,7 +33,7 @@ export class ApiKeyTable {
      * Fetch a ApiKey Record from the database
      * @param apiKey The API Key to fetch
      */
-    async get(apiKey: string): Promise<ApiKeyTableRecord | null> {
+    public async get(apiKey: string): Promise<ApiKeyTableRecord | null> {
         const res = await this.dynamo
             .getItem({
                 TableName: Const.ApiKey.TableName,
