@@ -1,0 +1,22 @@
+{
+  "name": "@basemaps/shared",
+  "version": "0.0.1",
+  "private": true,
+  "repository": "git@github.com:linz/basemaps.git",
+  "author": "",
+  "license": "BSD 3-Clause",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build-watch": "tsc"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.508.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.31",
+    "@types/pino": "^5.8.8",
+    "pino": "^5.13.2"
+  }
+}

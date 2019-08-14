@@ -3,3 +3,8 @@ node_js:
   - 12
 script:
   - commitlint-travis
+  - yarn
+  - yarn run build
+  - yarn run lint
+  - yarn run test
+  - yarn audit

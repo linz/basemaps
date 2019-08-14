@@ -1,13 +1,35 @@
 {
-  "name": "basemaps",
+  "name": "@basemaps/core",
   "version": "0.0.1",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
-  "author": "Blayne Chard <bchard@linz.govt.nz>",
+  "author": "",
   "license": "BSD 3-Clause",
+  "scripts": {
+    "lint": "eslint 'packages/*/{src,test}/**/*.ts' --quiet --fix",
+    "test": "jest",
+    "build": "tsc -b",
+    "build-watch": "tsc -b --watch"
+  },
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.1.0",
-    "@commitlint/travis-cli": "^8.1.0"
-  }
+    "@commitlint/travis-cli": "^8.1.0",
+    "@types/aws-lambda": "^8.10.27",
+    "@types/jest": "^24.0.17",
+    "@types/node": "^12.0.12",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^5.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "jest": "^24.8.0",
+    "lerna": "^3.16.4",
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
