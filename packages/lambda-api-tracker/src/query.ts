@@ -11,9 +11,21 @@ export function queryStringExtractor(queryString: string, key: string = 'api'): 
     }
     for (const keyPair of queryString.split('&')) {
         const keyAndPair: string[] = keyPair.split('=');
-        if (keyAndPair[0] === key) {
+        if (keyAndPair[0] === key && validateQueryParameters(key)) {
             return keyAndPair[1];
         }
     }
     return null;
+}
+
+/**
+ * Checks key name against allowed list of acceptable values
+ *
+ * @param keyString parameter key string to validate
+ * @returns true if key name is valid and false if its not
+ */
+export function validateQueryParameters(keyString: string) : boolean {
+    const acceptableValues: string[] = ['key','api','map','bbox'];
+    return (acceptableValues.map(val => (new RegExp(val)).test(keyString))).reduce((orsum, inc) => orsum||inc);
+    
 }
