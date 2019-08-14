@@ -1,4 +1,17 @@
 /**
+ * Checks key name against allowed list of acceptable values
+ *
+ * @param keyString parameter key string to validate
+ * @returns true if key name is valid and false if its not
+ */
+export function validateQueryParameters(keyString: string) : boolean {
+    const acceptableValues: string[] = ['key','api','map','bbox'];
+    return (acceptableValues.map(val => (new RegExp(val)).test(keyString))).reduce((orsum, inc) => orsum||inc);
+    
+}
+
+
+/**
  * Extracts a named value from a query string but defaults to the key 'api' if none provided
  *
  * @param queryString query to extract from
@@ -18,14 +31,3 @@ export function queryStringExtractor(queryString: string, key: string = 'api'): 
     return null;
 }
 
-/**
- * Checks key name against allowed list of acceptable values
- *
- * @param keyString parameter key string to validate
- * @returns true if key name is valid and false if its not
- */
-export function validateQueryParameters(keyString: string) : boolean {
-    const acceptableValues: string[] = ['key','api','map','bbox'];
-    return (acceptableValues.map(val => (new RegExp(val)).test(keyString))).reduce((orsum, inc) => orsum||inc);
-    
-}
