@@ -1,0 +1,13 @@
+name: Build/Test
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@master
+    - name: Build & Test
+      run: docker build . --file Dockerfile --tag basemaps:$GITHUB_SHA-$(date +%s)

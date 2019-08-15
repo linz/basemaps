@@ -1,10 +1,12 @@
-language: node_js
-node_js:
-  - 12
+language: minimal
+
+services:
+  - docker
+
+# always test things that aren't pushes (like PRs)
+# never test tags or pushes to non-master branches (wait for PR)
+# https://github.com/travis-ci/travis-ci/issues/2200#issuecomment-441395545)
+if: type != push OR (tag IS blank AND branch = master)
+
 script:
-  - commitlint-travis
-  - yarn
-  - yarn run build
-  - yarn run lint
-  - yarn run test
-  - yarn audit
+  - docker build . --file Dockerfile --tag basemaps:$TRAVIS_COMMIT-$(date +%s)
