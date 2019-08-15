@@ -9,4 +9,4 @@ services:
 if: type != push OR (tag IS blank AND branch = master)
 
 script:
-  - docker build . --file Dockerfile --tag basemaps:$GITHUB_SHA-$(date +%s)
+  - docker build . --file Dockerfile --tag basemaps:$TRAVIS_COMMIT-$(date +%s)
