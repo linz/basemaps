@@ -3,6 +3,8 @@
     "references": [{
         "path": "./packages/shared"
     }, {
+        "path": "./packages/_infra"
+    },{
         "path": "./packages/lambda-api-tracker"
     }]
 }

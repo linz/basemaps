@@ -25,9 +25,12 @@
     "eslint-config-prettier": "^5.1.0",
     "eslint-plugin-prettier": "^3.1.0",
     "jest": "^24.8.0",
+    "lerna": "^3.16.4",
     "prettier": "^1.18.2",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.7"
   },
   "workspaces": [
     "packages/*"
