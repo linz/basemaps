@@ -1,10 +1,13 @@
-name: Build
+name: Package and deploy
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -21,8 +24,14 @@ jobs:
     - name: Build
       run: yarn build
 
-    - name: Deploy - Bundle
+    - name: Deploy - Create Bundles
       run: npx lerna run deploy:bundle --stream
 
     - name: Deploy - Create Template
       run: npx lerna run deploy:synth --stream
+
+    - name: Deploy - Show Diff
+      run: npx lerna run deploy:diff --stream
+
+    - name: Deploy!
+      run: npx lerna run deploy:deploy --stream

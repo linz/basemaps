@@ -9,7 +9,8 @@
     "@basemaps/shared": "^0.0.1"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "deploy:bundle": "webpack"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.31",
