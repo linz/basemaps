@@ -5,6 +5,7 @@
         "module": "commonjs",
         "lib": [],
         "declaration": true,
+        "declarationMap": true,
         "strict": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
