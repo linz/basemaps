@@ -6,5 +6,7 @@
         "path": "./packages/_infra"
     },{
         "path": "./packages/lambda-api-tracker"
+    },{
+        "path": "./packages/lambda-xyz"
     }]
 }

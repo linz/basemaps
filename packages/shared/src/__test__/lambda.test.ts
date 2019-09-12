@@ -2,7 +2,7 @@ import { LambdaFunction } from '../lambda';
 
 describe('LambdaFunction', () => {
     it('should callback on success', async () => {
-        const testFunc = LambdaFunction.wrap(async (a: any, b: any, c: any) => 'Done');
+        const testFunc = LambdaFunction.wrap(async (a: any, b: any, c: any) => 'Done' as any);
 
         const cbSpy = jest.fn();
         await testFunc(null, null as any, cbSpy);

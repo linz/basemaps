@@ -5,6 +5,7 @@ module.exports = {
     mode: 'development',
     externals: {
         'aws-sdk': 'aws-sdk',
+        'pino-pretty': 'pino-pretty',
     },
     output: {
         libraryTarget: 'umd',

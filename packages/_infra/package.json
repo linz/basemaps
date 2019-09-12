@@ -12,11 +12,13 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@aws-cdk/aws-cloudfront": "^1.4.0",
-    "@aws-cdk/aws-dynamodb": "^1.4.0",
-    "@aws-cdk/aws-s3": "^1.4.0",
-    "@aws-cdk/core": "^1.4.0",
+    "@aws-cdk/aws-cloudfront": "^1.8.0",
+    "@aws-cdk/aws-dynamodb": "^1.8.0",
+    "@aws-cdk/aws-elasticloadbalancingv2": "^1.8.0",
+    "@aws-cdk/aws-elasticloadbalancingv2-targets": "^1.8.0",
+    "@aws-cdk/aws-s3": "^1.8.0",
+    "@aws-cdk/core": "^1.8.0",
     "@basemaps/shared": "^0.0.1",
-    "aws-cdk": "^1.4.0"
+    "aws-cdk": "^1.8.0"
   }
 }
