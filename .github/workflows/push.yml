@@ -25,9 +25,14 @@ jobs:
 
       - name: Deploy - Create Template
         run: npx lerna run deploy:synth --stream
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{secrets.CDK_DEFAULT_ACCOUNT}}
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
 
       - name: Deploy - Test Deploy
         run: npx lerna run deploy:diff --stream
         env:
+          CDK_DEFAULT_ACCOUNT: ${{secrets.CDK_DEFAULT_ACCOUNT}}
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}

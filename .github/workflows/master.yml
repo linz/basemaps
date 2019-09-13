@@ -32,11 +32,13 @@ jobs:
       - name: Deploy - Show Diff
         run: npx lerna run deploy:diff --stream
         env:
+          CDK_DEFAULT_ACCOUNT: ${{secrets.CDK_DEFAULT_ACCOUNT}}
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
 
       - name: Deploy!
         run: npx lerna run deploy:deploy --stream
         env:
+          CDK_DEFAULT_ACCOUNT: ${{secrets.CDK_DEFAULT_ACCOUNT}}
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
