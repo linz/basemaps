@@ -10,7 +10,7 @@ function makeResponse(response: ValidateRequestResponse): CloudFrontResultRespon
     const cfResponse: CloudFrontResultResponse = {
         status: String(response.status),
         statusDescription: response.reason,
-        body: JSON.stringify({ status: response.status, reason: response.reason }),
+        body: JSON.stringify({ status: response.status, message: response.reason }),
         bodyEncoding: 'text',
     };
     if (response.headers) {

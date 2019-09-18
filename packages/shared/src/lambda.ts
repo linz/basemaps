@@ -1,7 +1,15 @@
 import { Logger } from './log';
-import { Context, Callback } from 'aws-lambda';
+import { Context, Callback, ALBResult, CloudFrontRequestResult } from 'aws-lambda';
 import * as pino from 'pino';
 
+export interface HttpStatus {
+    statusCode: string;
+    statusDescription: string;
+}
+export function hasStatus(x: any): x is HttpStatus {
+    return x != null && x['statusCode'] != null;
+}
+export type LambdaHttpReturnType = ALBResult | CloudFrontRequestResult;
 export class LambdaFunction {
     /**
      *  Wrap a lambda function to provide extra functionality
@@ -9,8 +17,11 @@ export class LambdaFunction {
      * - Log metadata about the call on every request
      * - Catch errors and log them before exiting
      */
-    public static wrap<T, K>(fn: (event: T, context: Context, logger: pino.Logger) => Promise<K>, logger = Logger) {
-        return async (event: T, context: Context, callback: Callback<K>) => {
+    public static wrap<T, K extends LambdaHttpReturnType>(
+        fn: (event: T, context: Context, logger: pino.Logger) => Promise<K>,
+        logger = Logger,
+    ): (event: T, context: Context, callback: Callback<K>) => Promise<void> {
+        return async (event: T, context: Context, callback: Callback<K>): Promise<void> => {
             const startTime = Date.now();
 
             const lambda = {
@@ -24,7 +35,13 @@ export class LambdaFunction {
 
             try {
                 const res = await fn(event, context, logger);
-                logger.info({ lambda, duration: Date.now() - startTime, status: 200 }, 'LambdaDone');
+                let status = 200;
+                let statusDescription = 'ok';
+                if (hasStatus(res)) {
+                    status = parseInt(res.statusCode, 10);
+                    statusDescription = res.statusDescription;
+                }
+                logger.info({ lambda, duration: Date.now() - startTime, status, statusDescription }, 'LambdaDone');
                 callback(null, res);
             } catch (error) {
                 logger.info({ lambda, duration: Date.now() - startTime, status: 500, error: error }, 'LambdaError');

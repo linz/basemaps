@@ -1,0 +1,20 @@
+{
+  "name": "@basemaps/lambda-xyz",
+  "version": "0.0.1",
+  "private": true,
+  "repository": "git@github.com:linz/basemaps.git",
+  "author": "",
+  "license": "BSD 3-Clause",
+  "dependencies": {
+    "@basemaps/shared": "^0.0.1",
+    "path-to-regexp": "^3.1.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "deploy:bundle": "webpack"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.31",
+    "@types/node": "^12.7.1"
+  }
+}
