@@ -8,7 +8,7 @@
   "scripts": {
     "deploy:synth": "cdk synth",
     "deploy:diff": "cdk diff || true",
-    "deploy:deploy": "cdk deploy '*' -y"
+    "deploy:deploy": "cdk deploy '*' -y --require-approval never"
   },
   "dependencies": {},
   "devDependencies": {
