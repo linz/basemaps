@@ -1,11 +1,10 @@
 import cdk = require('@aws-cdk/core');
-import iam = require('@aws-cdk/aws-iam');
 import lambda = require('@aws-cdk/aws-lambda');
-import dynamoDb = require('@aws-cdk/aws-dynamodb');
+import s3 = require('@aws-cdk/aws-s3');
+
 import { RetentionDays } from '@aws-cdk/aws-logs';
-import { Const } from '@basemaps/shared';
 import { VersionUtil } from '../version';
-import { ApiKeyTableArn } from '../api.key.db';
+import { Duration } from '@aws-cdk/core';
 
 const CODE_PATH = '../lambda-xyz/dist';
 /**
@@ -18,12 +17,20 @@ export class LambdaXyz extends cdk.Construct {
     public constructor(scope: cdk.Stack, id: string) {
         super(scope, id);
 
+        const cogBucket = s3.Bucket.fromBucketName(this, 'CogBucket', 'basemaps-cog-test');
         this.lambda = new lambda.Function(this, 'Tiler', {
-            runtime: lambda.Runtime.NODEJS_8_10,
+            runtime: lambda.Runtime.NODEJS_10_X,
+            memorySize: 1536,
+            timeout: Duration.seconds(10),
             handler: 'index.handler',
             code: lambda.Code.asset(CODE_PATH),
+            environment: {
+                COG_BUCKET: cogBucket.bucketName,
+            },
             logRetention: RetentionDays.ONE_MONTH,
         });
+
+        cogBucket.grantRead(this.lambda);
 
         // CloudFront requires a specific version for a lambda,
         // so using a hash of the source code create a version

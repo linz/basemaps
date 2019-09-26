@@ -12,7 +12,8 @@
     "build-watch": "tsc"
   },
   "dependencies": {
-    "aws-sdk": "^2.508.0"
+    "aws-sdk": "^2.508.0",
+    "ulid": "^2.3.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.31",

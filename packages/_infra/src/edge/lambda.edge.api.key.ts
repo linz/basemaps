@@ -1,11 +1,9 @@
 import cdk = require('@aws-cdk/core');
 import iam = require('@aws-cdk/aws-iam');
 import lambda = require('@aws-cdk/aws-lambda');
-import dynamoDb = require('@aws-cdk/aws-dynamodb');
 import { RetentionDays } from '@aws-cdk/aws-logs';
-import { Const } from '@basemaps/shared';
-import { VersionUtil } from '../version';
 import { ApiKeyTableArn } from '../api.key.db';
+import { VersionUtil } from '../version';
 
 const CODE_PATH = '../lambda-api-tracker/dist';
 /**
@@ -28,7 +26,7 @@ export class LambdaApiKeyValidator extends cdk.Construct {
         });
 
         this.lambda = new lambda.Function(this, 'ApiValidatorFunction', {
-            runtime: lambda.Runtime.NODEJS_8_10,
+            runtime: lambda.Runtime.NODEJS_10_X,
             handler: 'index.handler',
             code: lambda.Code.asset(CODE_PATH),
             role: lambdaRole,

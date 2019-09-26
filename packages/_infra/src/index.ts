@@ -13,7 +13,7 @@ const account = process.env.CDK_DEFAULT_ACCOUNT;
  */
 const table = new ApiKeyTableStack(basemaps, 'ApiKeyTable', { env: { region: 'ap-southeast-2', account } });
 const edge = new EdgeStack(basemaps, 'Edge', { env: { region: 'us-east-1', account } });
-const serve = new ServeStack(basemaps, 'Serve', { env: { region: 'ap-southeast-2', account } });
+new ServeStack(basemaps, 'Serve', { env: { region: 'ap-southeast-2', account } });
 
 edge.addDependency(table);
 // edge.addDependency(serve);
