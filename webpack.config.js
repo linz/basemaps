@@ -6,6 +6,7 @@ module.exports = {
     externals: {
         'aws-sdk': 'aws-sdk',
         'pino-pretty': 'pino-pretty',
+        sharp: 'sharp',
     },
     output: {
         libraryTarget: 'umd',

@@ -17,8 +17,17 @@ jobs:
       - name: Install
         run: yarn
 
+      - name: Audit
+        run: yarn audit
+
       - name: Build
-        run: yarn build
+        run: yarn run build
+
+      - name: Lint
+        run: yarn run lint
+
+      - name: Test
+        run: yarn run test
 
       - name: Deploy - Bundle
         run: npx lerna run deploy:bundle --stream
