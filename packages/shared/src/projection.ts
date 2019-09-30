@@ -1,4 +1,10 @@
 import { Bounds, Point } from './bounds';
+import * as Mercator from 'global-mercator';
+
+export interface LatLon {
+    lat: number;
+    lon: number;
+}
 
 export class Projection {
     /** Size of the earth ESPG:900913 constant */
@@ -24,21 +30,35 @@ export class Projection {
     }
 
     /** Convert a XYZ tile into a screen bounding box */
-    public getPixelsFromXYZ(x: number, y: number): Bounds {
+    public getPixelsFromTile(x: number, y: number): Bounds {
         return new Bounds(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
     }
 
     /**
      * Convert a XYZ tile into the raster bounds for the tile
-     * @param x tile X offset
-     * @param y tile Y offset
+     * @param tX tile X offset
+     * @param tY tile Y offset
      * @param zoom WebMercator zoom level
      */
-    public getPixelsFromMeters(x: number, y: number, zoom: number): Point {
+    public getPixelsFromMeters(tX: number, tY: number, zoom: number): Point {
         const res = this.getResolution(zoom);
-        const px = (x + Projection.OriginShift) / res;
-        const py = (y + Projection.OriginShift) / res;
-        return { x: px, y: py };
+        const pX = (tX + Projection.OriginShift) / res;
+        const pY = (tY + Projection.OriginShift) / res;
+        return { x: pX, y: pY };
+    }
+
+    /**
+     * Get the center of a XYZ tile in LatLon
+     * @param tX Tile X offset
+     * @param tY Tile Y offset
+     * @param zoom
+     */
+    public getLatLonCenterFromTile(tX: number, tY: number, zoom: number): LatLon {
+        const [minX, minY, maxX, maxY] = Mercator.googleToBBox([tX, tY, zoom]);
+        return {
+            lat: (maxY + minY) / 2,
+            lon: (maxX + minX) / 2,
+        };
     }
 
     /**
@@ -47,7 +67,7 @@ export class Projection {
      * @param extent Extent in meters in the format of [minX,minY,maxX,maxY]
      * @param zoom Web mercator zoom level
      */
-    public getPixelBoundsFromMeters(extent: [number, number, number, number], zoom: number): Bounds {
+    public getPixelsBoundsFromMeters(extent: [number, number, number, number], zoom: number): Bounds {
         const upperLeftMeters = this.getPixelsFromMeters(extent[0], -extent[3], zoom);
         const lowerRightMeters = this.getPixelsFromMeters(extent[2], -extent[1], zoom);
         return Bounds.fromUpperLeftLowerRight(upperLeftMeters, lowerRightMeters);

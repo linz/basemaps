@@ -53,9 +53,9 @@ export class Tiler {
     protected getRasterTiffIntersection(tiff: CogTiff, x: number, y: number, z: number): RasterPixelBounds | null {
         const extentMeters = tiff.images[0].bbox;
         /** Raster pixels of the output tile */
-        const screenBoundsPx = this.projection.getPixelsFromXYZ(x, y);
+        const screenBoundsPx = this.projection.getPixelsFromTile(x, y);
         /** Raster pixels of the input geotiff */
-        const tiffBoundsPx = this.projection.getPixelBoundsFromMeters(extentMeters, z);
+        const tiffBoundsPx = this.projection.getPixelsBoundsFromMeters(extentMeters, z);
 
         /** Raster pixels that need to be filled by this tiff */
         const intersectionPx = tiffBoundsPx.intersection(screenBoundsPx);
@@ -137,7 +137,10 @@ export class Tiler {
         if (rasterBounds == null) {
             return null;
         }
-        logger.info({ x, y, z, tiff: tiff.source.name, inBounds: true, duration: Date.now() - startIntersectionTime }, 'TiffBoundsCheck');
+        logger.info(
+            { x, y, z, tiff: tiff.source.name, inBounds: true, duration: Date.now() - startIntersectionTime },
+            'TiffBoundsCheck',
+        );
         // Find the best internal overview tiff to use with the desired XYZ resolution
         const targetResolution = this.projection.getResolution(z);
         const img = tiff.getImageByResolution(targetResolution);

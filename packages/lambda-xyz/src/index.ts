@@ -54,7 +54,9 @@ export async function handleRequest(event: ALBEvent, context: Context, logger: t
     if (pathMatch == null) {
         return makeResponse(404, 'Path not found');
     }
+    const latLon = tile256.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
 
+    logger.info({ latLon }, 'RenderTile');
     const tiffs = await Promise.all(Tiffs);
     const buffer = await tile256.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z, logger);
 
