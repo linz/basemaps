@@ -30,6 +30,7 @@ const Tiffs: Promise<CogTiff>[] = [
         bucketName,
         '2019-09-20-2019-NZ-Sentinel-3band-alpha.compress_webp.align_google.aligned_3.bs_512.tif',
     ),
+    CogSourceAwsS3.create(bucketName, '2019-09-30-bg43.webp.google.aligned.cog.tif'),
 ];
 
 export async function handleRequest(event: ALBEvent, context: Context, logger: typeof Logger): Promise<ALBResult> {
