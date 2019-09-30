@@ -1,4 +1,4 @@
-import { Logger } from '@basemaps/shared';
+import { Logger, LambdaSession } from '@basemaps/shared';
 import { BoundingBox, Size } from '@basemaps/shared/build/bounds';
 import * as Sharp from 'sharp';
 
@@ -16,7 +16,7 @@ export interface Composition {
     crop?: BoundingBox;
 }
 
-export type SharpOverlay = { input: string | Buffer } & Sharp.OverlayOptions & { duration: number };
+export type SharpOverlay = { input: string | Buffer } & Sharp.OverlayOptions;
 
 const SharpScaleOptions = { fit: Sharp.fit.cover };
 
@@ -30,26 +30,26 @@ export class Raster {
     public async compose(composition: Composition[], logger: typeof Logger): Promise<Buffer> {
         const sharp = this.createImage();
 
+        const timer = LambdaSession.get().timer;
         // TODO to prevent too many of these running, it should ideally be inside of a two step promise queue
         // 1. Load all image bytes
         // 2. Create image overlays
-        const overlayTimeStart = Date.now();
+        timer.start('compose:overlay');
         const overlays = await Promise.all(composition.map(this.composeTile.bind(this)));
-        const overlayTime = Date.now() - overlayTimeStart;
+        const overlayDuration = timer.end('compose:overlay');
 
-        const pngTimeStart = Date.now();
+        timer.start('compose:compress');
         const output = await sharp
             .composite(overlays)
             .png() // TODO should we configure output options (eg WebP/Png/Jpeg)
             .toBuffer();
+        const compressDuration = timer.start('compose:compress');
+        logger.info({ compressDuration, overlayDuration }, 'TileCompose');
 
-        const pngTime = Date.now() - pngTimeStart;
-        logger.info({ pngTime, overlayTime, overlays: overlays.map(m => m.duration) }, 'CompositionDone');
         return output;
     }
 
     private async composeTile(composition: Composition): Promise<SharpOverlay> {
-        const startTime = Date.now();
         const bytes = await composition.getBuffer();
         const sharp = Sharp(Buffer.from(bytes));
 
@@ -75,7 +75,6 @@ export class Raster {
             input,
             top: composition.y,
             left: composition.x,
-            duration: Date.now() - startTime,
         };
     }
 

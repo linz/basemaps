@@ -1,4 +1,4 @@
-import { Logger } from '@basemaps/shared';
+import { LambdaSession, Logger } from '@basemaps/shared';
 import { Bounds } from '@basemaps/shared/build/bounds';
 import { Projection } from '@basemaps/shared/build/projection';
 import { CogTiff, CogTiffImage } from '@cogeotiff/core';
@@ -32,22 +32,29 @@ export class Tiler {
         logger: typeof Logger,
     ): Promise<Buffer | null> {
         let layers: Composition[] = [];
+        const timer = LambdaSession.get().timer;
+        timer.start('tile:get');
         for (const tiff of tiffs) {
-            const tileOverlays = this.getTiles(tiff, x, y, z, logger);
+            const tileOverlays = this.getTiles(tiff, x, y, z, logger.child({ tiff: tiff.source.name }));
             if (tileOverlays == null) {
                 continue;
             }
             layers = layers.concat(tileOverlays);
         }
+        timer.start('tile:get');
 
-        logger.info({ x, y, z, layers: layers.length }, 'Composing');
+        logger.info({ layers: layers.length }, 'Composing');
+        timer.start('tile:compose');
         if (layers.length === 0) {
+            timer.end('tile:compose');
             return null;
         }
-        return this.raster.compose(
+        const raster = await this.raster.compose(
             layers,
             logger,
         );
+        timer.end('tile:compose');
+        return raster;
     }
 
     protected getRasterTiffIntersection(tiff: CogTiff, x: number, y: number, z: number): RasterPixelBounds | null {
@@ -132,15 +139,11 @@ export class Tiler {
     }
 
     protected getTiles(tiff: CogTiff, x: number, y: number, z: number, logger: typeof Logger): Composition[] | null {
-        const startIntersectionTime = Date.now();
         const rasterBounds = this.getRasterTiffIntersection(tiff, x, y, z);
         if (rasterBounds == null) {
             return null;
         }
-        logger.info(
-            { x, y, z, tiff: tiff.source.name, inBounds: true, duration: Date.now() - startIntersectionTime },
-            'TiffBoundsCheck',
-        );
+        logger.info({ inBounds: true }, 'TiffBoundsCheck');
         // Find the best internal overview tiff to use with the desired XYZ resolution
         const targetResolution = this.projection.getResolution(z);
         const img = tiff.getImageByResolution(targetResolution);
@@ -168,17 +171,9 @@ export class Tiler {
                 }
             }
         }
-        logger.info(
-            {
-                x,
-                y,
-                z,
-                tiff: tiff.source.name,
-                tiffTileCount: (endX - startX) * (endY - startY),
-                tiffTileUsed: composites.length,
-            },
-            'TiffInBounds',
-        );
+
+        const tiffTileCount = (endX - startX) * (endY - startY);
+        logger.info({ tiffTileCount, tiffTileUsed: composites.length }, 'TiffInBounds');
 
         if (composites.length === 0) {
             return null;

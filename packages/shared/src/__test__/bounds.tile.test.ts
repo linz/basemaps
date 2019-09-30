@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Bounds } from '../bounds';
 import { Projection } from '../projection';
 
