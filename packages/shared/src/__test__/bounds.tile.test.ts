@@ -4,7 +4,7 @@ import { Projection } from '../projection';
 export function approxEqual(numA: number, numB: number, text: string, variance = 0.001): void {
     const diff = Math.abs(numA - numB);
     if (diff > variance) {
-        throw new Error(`${text} (${numA - numB} < ${variance})`);
+        throw new Error(`${text} (${numA} vs ${numB}) should be less than ${variance}`);
     }
 }
 export function approxBounds(boundsA: Bounds | null, boundsB: Bounds | null): void {
@@ -32,10 +32,10 @@ describe('TilingBounds', () => {
     const expectedBaseSize = Bounds.fromJson({ width: 9.53125, height: 13, y: 153.65625, x: 246.14062500000006 });
 
     it('should tile 0,0,0', () => {
-        const bounds = projection.getPixelBoundsFromMeters(tifBoundingBox, 0);
+        const bounds = projection.getPixelsBoundsFromMeters(tifBoundingBox, 0);
         approxBounds(bounds, expectedBaseSize);
 
-        const screenBounds = projection.getPixelsFromXYZ(0, 0);
+        const screenBounds = projection.getPixelsFromTile(0, 0);
         const intersection = bounds.intersection(screenBounds);
 
         approxBounds(intersection, expectedBaseSize);
@@ -43,12 +43,12 @@ describe('TilingBounds', () => {
 
     it('should tile 1,1,1', () => {
         const [x, y, z] = [1, 1, 1];
-        const bounds = projection.getPixelBoundsFromMeters(tifBoundingBox, z);
+        const bounds = projection.getPixelsBoundsFromMeters(tifBoundingBox, z);
         const expectedBaseSizeScaled = expectedBaseSize.scale(2, 2);
 
         approxBounds(bounds, expectedBaseSizeScaled);
 
-        const screenBounds = projection.getPixelsFromXYZ(x, y);
+        const screenBounds = projection.getPixelsFromTile(x, y);
         const intersection = bounds.intersection(screenBounds);
 
         approxBounds(intersection, expectedBaseSizeScaled);
@@ -66,13 +66,13 @@ describe('TilingBounds', () => {
      */
     it('should tile [15, 9, 4] & [15, 10, 4]', () => {
         const [x, z] = [15, 4];
-        const bounds = projection.getPixelBoundsFromMeters(tifBoundingBox, z);
+        const bounds = projection.getPixelsBoundsFromMeters(tifBoundingBox, z);
         const expectedBaseSizeScaled = expectedBaseSize.scale(2 ** z, 2 ** z);
 
         approxBounds(bounds, expectedBaseSizeScaled);
 
-        const screenBounds9 = projection.getPixelsFromXYZ(x, 9);
-        const screenBounds10 = projection.getPixelsFromXYZ(x, 10);
+        const screenBounds9 = projection.getPixelsFromTile(x, 9);
+        const screenBounds10 = projection.getPixelsFromTile(x, 10);
         expect(screenBounds9.toJson()).toEqual({ width: 256, height: 256, y: 2304, x: 3840 });
         expect(screenBounds10.toJson()).toEqual({ width: 256, height: 256, y: 2560, x: 3840 });
 
@@ -109,13 +109,13 @@ describe('TilingBounds', () => {
         const z = 5;
 
         const tileBounds = new Bounds(30, 19, 1, 1);
-        const bounds = projection.getPixelBoundsFromMeters(tifBoundingBox, z);
+        const bounds = projection.getPixelsBoundsFromMeters(tifBoundingBox, z);
         const expectedBaseSizeScaled = expectedBaseSize.scale(2 ** z, 2 ** z);
 
         approxBounds(bounds, expectedBaseSizeScaled);
 
-        const screenTopLeft = projection.getPixelsFromXYZ(tileBounds.x, tileBounds.y);
-        const screenTopRight = projection.getPixelsFromXYZ(tileBounds.right, tileBounds.y);
+        const screenTopLeft = projection.getPixelsFromTile(tileBounds.x, tileBounds.y);
+        const screenTopRight = projection.getPixelsFromTile(tileBounds.right, tileBounds.y);
 
         expect(screenTopLeft.toJson()).toEqual({ width: 256, height: 256, y: 4864, x: 7680 });
         expect(screenTopRight.toJson()).toEqual({ width: 256, height: 256, y: 4864, x: 7936 });
@@ -131,8 +131,8 @@ describe('TilingBounds', () => {
         expect(intersectionTopLeft.height).toEqual(203);
         expect(intersectionTopRight.height).toEqual(203);
 
-        const screenBottomLeft = projection.getPixelsFromXYZ(tileBounds.x, tileBounds.bottom);
-        const screenBottomRight = projection.getPixelsFromXYZ(tileBounds.right, tileBounds.bottom);
+        const screenBottomLeft = projection.getPixelsFromTile(tileBounds.x, tileBounds.bottom);
+        const screenBottomRight = projection.getPixelsFromTile(tileBounds.right, tileBounds.bottom);
 
         expect(screenBottomLeft.toJson()).toEqual({ width: 256, height: 256, y: 5120, x: 7680 });
         expect(screenBottomRight.toJson()).toEqual({ width: 256, height: 256, y: 5120, x: 7936 });
