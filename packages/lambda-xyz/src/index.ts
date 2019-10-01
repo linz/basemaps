@@ -34,8 +34,13 @@ const Tiffs: Promise<CogTiff>[] = [
 ];
 
 export async function handleRequest(event: ALBEvent, context: Context, logger: typeof Logger): Promise<ALBResult> {
+    const session = LambdaSession.get();
+
     Log.set(logger);
     const httpMethod = event.httpMethod.toLowerCase();
+
+    session.set('method', httpMethod);
+    session.set('path', event.path);
 
     // Allow cross origin requests
     if (httpMethod === 'options') {
@@ -55,7 +60,6 @@ export async function handleRequest(event: ALBEvent, context: Context, logger: t
         return makeResponse(404, 'Path not found');
     }
 
-    const session = LambdaSession.get();
     const latLon = tile256.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
     session.set('xyz', { x: pathMatch.x, y: pathMatch.y, z: pathMatch.z });
     session.set('location', latLon);
