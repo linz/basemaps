@@ -250,16 +250,16 @@
     table "^5.4.6"
 
 "@aws-cdk/core@^1.8.0", "@aws-cdk/core@^1.9.0":
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.9.0.tgz#8426ac4c56ea410c5664e30eb2a017b5783d5a89"
-  integrity sha512-f+2jy8IntW6e5j77vp6Gu2Zmbd9MwQ9r9n1ExL8uQa+3/3Ha53B7ZqTxB94SIei7CFY06+kxZHXXHVVJcYdHQQ==
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.10.0.tgz#827a0b09135e18e94047521ac434e64deec902b5"
+  integrity sha512-rb9zD9B0IFvV5RQevv8EuXNyydGuqDkvSG3aMr+rH+jYgR4rEakP+cc+SOUjR+ZNVzPOzVfq1kDqNYaqVMwzVA==
   dependencies:
-    "@aws-cdk/cx-api" "^1.9.0"
+    "@aws-cdk/cx-api" "^1.10.0"
 
-"@aws-cdk/cx-api@^1.9.0":
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.9.0.tgz#5eb2a5fc2a402342d37a80ea83155ddc306381a1"
-  integrity sha512-MASIUcOo0JtAZ5nLcuH6YmPrN6Q1s3QQsx7Ta0RVzbbiyfZxEMJkX70wkDY0NwaMJc8Rw2P36yj7PwSo27OU2w==
+"@aws-cdk/cx-api@^1.10.0", "@aws-cdk/cx-api@^1.9.0":
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.10.0.tgz#c3ab3b9e6b85dfbeb1503c180e3914b60f658be1"
+  integrity sha512-mPDApbsJpJiTWDI+u0lgwjmigsgGWvviTH2nuwNY9Si9bIv9BaKCVldVwCdYHui0jsPWcAzLb+XCecMGu3u+Tg==
   dependencies:
     semver "^6.3.0"
 
