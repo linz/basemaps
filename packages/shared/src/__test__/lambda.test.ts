@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { LambdaFunction } from '../lambda';
 
 describe('LambdaFunction', () => {
@@ -7,7 +8,7 @@ describe('LambdaFunction', () => {
         const cbSpy = jest.fn();
         await testFunc(null, null as any, cbSpy);
         expect(cbSpy).toBeCalledTimes(1);
-        expect(cbSpy).toBeCalledWith(null, 'Done');
+        expect(cbSpy).toBeCalledWith(undefined, 'Done');
     });
 
     it('should callback on error', async () => {
@@ -19,6 +20,6 @@ describe('LambdaFunction', () => {
         const cbSpy = jest.fn();
         await testFunc(null, null as any, cbSpy);
         expect(cbSpy).toBeCalledTimes(1);
-        expect(cbSpy).toBeCalledWith(err);
+        expect(cbSpy).toBeCalledWith(err, undefined);
     });
 });

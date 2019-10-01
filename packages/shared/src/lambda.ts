@@ -1,7 +1,7 @@
-import { Logger } from './log';
-import { Context, Callback, ALBResult, CloudFrontRequestResult } from 'aws-lambda';
+import { ALBResult, Callback, CloudFrontRequestResult, Context } from 'aws-lambda';
 import * as pino from 'pino';
-import * as ulid from 'ulid';
+import { Logger } from './log';
+import { LambdaSession } from './session';
 
 export interface HttpStatus {
     statusCode: string;
@@ -23,9 +23,12 @@ export class LambdaFunction {
         logger = Logger,
     ): (event: T, context: Context, callback: Callback<K>) => Promise<void> {
         return async (event: T, context: Context, callback: Callback<K>): Promise<void> => {
-            const correlationId = ulid.ulid();
-            const startTime = Date.now();
-            const log = logger.child({ correlationId });
+            const session = LambdaSession.reset();
+            session.timer.start('lambda');
+
+            // TODO pull a correlationId from `x-linz-correlation-id` header
+            // const correlationId = (session.correlationId = ulid.ulid());
+            const log = logger.child({ id: session.id });
 
             const lambda = {
                 name: process.env['AWS_LAMBDA_FUNCTION_NAME'],
@@ -35,21 +38,31 @@ export class LambdaFunction {
             };
 
             log.info({ lambda }, 'LambdaStart');
+            session.set('lambda', lambda);
+            session.set('status', 200);
+            session.set('statusDescription', 'ok');
+
+            let res: K | undefined = undefined;
+            let err: Error | undefined = undefined;
 
             try {
-                const res = await fn(event, context, log);
-                let status = 200;
-                let statusDescription = 'ok';
+                res = await fn(event, context, log);
                 if (hasStatus(res)) {
-                    status = parseInt(res.statusCode, 10);
-                    statusDescription = res.statusDescription;
+                    session.set('status', parseInt(res.statusCode, 10));
+                    session.set('statusDescription', res.statusDescription);
                 }
-                log.info({ lambda, duration: Date.now() - startTime, status, statusDescription }, 'LambdaDone');
-                callback(null, res);
             } catch (error) {
-                log.info({ lambda, duration: Date.now() - startTime, status: 500, error: error }, 'LambdaError');
-                callback(error);
+                session.set('status', 500);
+                session.set('error', error);
+                err = error;
             }
+
+            session.set('duration', session.timer.end('lambda'));
+            session.set('metrics', session.timer.metrics);
+            session.set('unfinished', session.timer.unfinished);
+
+            log.info(session.logContext, 'LambdaDone');
+            callback(err, res);
         };
     }
 }

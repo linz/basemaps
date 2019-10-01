@@ -1,4 +1,4 @@
-import { LambdaFunction, Logger } from '@basemaps/shared';
+import { LambdaFunction, Logger, LambdaSession } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { ALBEvent, ALBResult, Context } from 'aws-lambda';
 import { getXyzFromPath } from './path';
@@ -54,9 +54,12 @@ export async function handleRequest(event: ALBEvent, context: Context, logger: t
     if (pathMatch == null) {
         return makeResponse(404, 'Path not found');
     }
-    const latLon = tile256.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
 
-    logger.info({ latLon }, 'RenderTile');
+    const session = LambdaSession.get();
+    const latLon = tile256.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
+    session.set('xyz', { x: pathMatch.x, y: pathMatch.y, z: pathMatch.z });
+    session.set('location', latLon);
+
     const tiffs = await Promise.all(Tiffs);
     const buffer = await tile256.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z, logger);
 
