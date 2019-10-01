@@ -59,6 +59,8 @@ export class LambdaFunction {
 
             session.set('duration', session.timer.end('lambda'));
             session.set('metrics', session.timer.metrics);
+            session.set('unfinished', session.timer.unfinished);
+
             log.info(session.logContext, 'LambdaDone');
             callback(err, res);
         };

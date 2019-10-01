@@ -43,7 +43,7 @@ export class Raster {
             .composite(overlays)
             .png() // TODO should we configure output options (eg WebP/Png/Jpeg)
             .toBuffer();
-        const compressDuration = timer.start('compose:compress');
+        const compressDuration = timer.end('compose:compress');
         logger.info({ compressDuration, overlayDuration }, 'TileCompose');
 
         return output;

@@ -16,6 +16,9 @@ export class Metrics {
      * @param timeName
      */
     public start(timeName: string): void {
+        if (this.timers[timeName] != null) {
+            throw new Error(`Duplicate startTime for "${timeName}"`);
+        }
         this.timers[timeName] = Date.now();
     }
 
@@ -33,9 +36,28 @@ export class Metrics {
     }
 
     public get metrics(): Record<string, number> | undefined {
-        if (Object.keys(this.time).length === 0) {
+        const endTimes = Object.keys(this.time);
+        // No metrics were started
+        if (endTimes.length === 0) {
             return undefined;
         }
+
         return this.time;
+    }
+
+    /** Get a list of timers that never finished */
+    public get unfinished(): string[] | undefined {
+        const startTimes = Object.keys(this.timers);
+        const endTimes = Object.keys(this.time);
+        // Some metrics did not finish
+        if (startTimes.length === endTimes.length) {
+            return undefined;
+        }
+
+        const st = new Set(startTimes);
+        for (const endTime of endTimes) {
+            st.delete(endTime);
+        }
+        return Array.from(st.keys());
     }
 }

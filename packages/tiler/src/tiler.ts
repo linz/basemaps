@@ -41,7 +41,7 @@ export class Tiler {
             }
             layers = layers.concat(tileOverlays);
         }
-        timer.start('tile:get');
+        timer.end('tile:get');
 
         logger.info({ layers: layers.length }, 'Composing');
         timer.start('tile:compose');
