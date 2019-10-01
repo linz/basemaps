@@ -13,9 +13,14 @@ let currentSession: LambdaSession | null = null;
 
 export class LambdaSession {
     public id: string = ulid.ulid();
-    public correlationId: string = this.id;
+    public correlationId: string;
     public logContext: Record<string, any> = {};
     public timer: Metrics = new Metrics();
+
+    public constructor(correlationId: string) {
+        this.correlationId = correlationId;
+        this.set('correlationId', correlationId);
+    }
 
     /**
      * Set a key to be logged out at the end of the function call
@@ -37,8 +42,8 @@ export class LambdaSession {
         return currentSession;
     }
 
-    public static reset(): LambdaSession {
-        currentSession = new LambdaSession();
+    public static reset(correlationId?: string | null): LambdaSession {
+        currentSession = new LambdaSession(correlationId || ulid.ulid());
         return currentSession;
     }
 }

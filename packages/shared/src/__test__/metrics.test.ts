@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Metrics } from '../metrics';
 
 describe('Metrics', () => {

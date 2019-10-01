@@ -5,11 +5,11 @@ function getTile(x = 0, y = 0): Bounds {
     return new Bounds(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 }
 
-describe('Bounds', () => {
+describe('Bounds', (): void => {
     const tileZero = getTile(0, 0);
     const tileMiddle = new Bounds(128, 128, 256, 256);
 
-    it('intersects', () => {
+    it('intersects', (): void => {
         expect(tileZero.intersects(tileZero)).toEqual(true);
         expect(tileZero.intersects(new Bounds(0, 0, 10, 10))).toEqual(true);
         expect(tileZero.intersects(new Bounds(-10, -10, 10, 10))).toEqual(false);
@@ -18,7 +18,7 @@ describe('Bounds', () => {
         expect(tileZero.intersects(getTile(1, 1))).toEqual(false);
     });
 
-    it('intersects bounds', () => {
+    it('intersects bounds', (): void => {
         expect(tileZero.intersection(new Bounds(-10, -10, 10, 10))).toEqual(null);
         expect(tileZero.intersection(getTile(0, 1))).toEqual(null);
         expect(tileZero.intersection(getTile(1, 0))).toEqual(null);
