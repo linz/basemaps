@@ -53,7 +53,7 @@ export class LambdaFunction {
                 }
             } catch (error) {
                 session.set('status', 500);
-                session.set('error', error);
+                session.set('err', error);
                 err = error;
             }
 
