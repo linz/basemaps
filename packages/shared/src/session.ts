@@ -13,7 +13,7 @@ let currentSession: LambdaSession | null = null;
 
 export class LambdaSession {
     public id: string = ulid.ulid();
-    public correlationId: string | null = null;
+    public correlationId: string = this.id;
     public logContext: Record<string, any> = {};
     public timer: Metrics = new Metrics();
 

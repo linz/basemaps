@@ -1,4 +1,4 @@
-import { LambdaFunction, Logger, LambdaSession } from '@basemaps/shared';
+import { LambdaFunction, Logger, LambdaSession, HttpHeader } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { ALBEvent, ALBResult, Context } from 'aws-lambda';
 import { getXyzFromPath } from './path';
@@ -9,7 +9,12 @@ function makeResponse(statusCode: number, message: string, headers?: { [key: str
     if (headers == null) {
         headers = {};
     }
-    headers['content-type'] = 'application/json';
+    const session = LambdaSession.get();
+    headers[HttpHeader.ContentType] = 'application/json';
+    headers[HttpHeader.RequestId] = session.id;
+    if (session.correlationId) {
+        headers[HttpHeader.CorrelationId] = session.correlationId;
+    }
     return {
         statusCode,
         statusDescription: message,
@@ -75,7 +80,10 @@ export async function handleRequest(event: ALBEvent, context: Context, logger: t
     return {
         statusCode: 200,
         statusDescription: 'ok',
-        headers: { 'content-type': 'image/png' },
+        headers: {
+            [HttpHeader.ContentType]: 'image/png',
+            [HttpHeader.RequestId]: session.id,
+        },
         body: buffer.toString('base64'),
         isBase64Encoded: true,
     };

@@ -1,4 +1,4 @@
-import { Const, LambdaFunction, Logger } from '@basemaps/shared';
+import { Const, LambdaFunction, Logger, HttpHeader, LambdaSession } from '@basemaps/shared';
 import { CloudFrontRequestEvent, CloudFrontRequestResult, CloudFrontResultResponse, Context } from 'aws-lambda';
 import { ValidateRequest, ValidateRequestResponse } from './validate';
 import { queryStringExtractor } from './query';
@@ -41,6 +41,15 @@ export async function handleRequest(
     const result = await ValidateRequest.validate(apiKey, logger);
     // API Key validated allow request
     if (result.status === 200) {
+        // Insert a CorrelationId into the next request
+        if (request.headers[HttpHeader.CorrelationId] == null) {
+            request.headers[HttpHeader.CorrelationId] = [
+                {
+                    key: HttpHeader.CorrelationId,
+                    value: LambdaSession.get().correlationId,
+                },
+            ];
+        }
         return request;
     }
     // Failed to validate send a error back
