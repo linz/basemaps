@@ -3,6 +3,7 @@ import {
     HttpHeader,
     LambdaFunction,
     LambdaHttpResponse,
+    LambdaHttpResponseCloudFront,
     LambdaHttpResponseCloudFrontRequest,
     LambdaSession,
     LambdaType,
@@ -24,11 +25,15 @@ export async function handleRequest(
     const [record] = event.Records;
     const request = record.cf.request;
     const queryString = request.querystring;
+
     // Log the entire request
     // TODO this may be too much data, we should possibly limit how much we log out (ip/useragent etc..)
     logger.info({ request }, 'HandleRequest');
 
     const apiKey = queryStringExtractor(queryString, Const.ApiKey.QueryString);
+    if (apiKey == null) {
+        return new LambdaHttpResponseCloudFront(400, 'Invalid API Key');
+    }
 
     // Validate the request throwing an error if anything goes wrong
     session.timer.start('validate');
@@ -41,6 +46,7 @@ export async function handleRequest(
 
     const response = new LambdaHttpResponseCloudFrontRequest(request);
     response.header(HttpHeader.CorrelationId, session.correlationId);
+    response.header(HttpHeader.ApiKey, apiKey); // Api key will be trimmed from the forwarded request
     return response;
 }
 
