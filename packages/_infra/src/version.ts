@@ -33,6 +33,7 @@ export interface VersionInfo {
     hash: string;
 }
 
+let versionInfo: VersionInfo | null = null;
 export const VersionUtil = {
     /**
      * Generate a hash of all files inside the source directory
@@ -49,9 +50,14 @@ export const VersionUtil = {
      *
      */
     version(): VersionInfo {
-        return {
-            version: gitRev.tag() || 'HEAD',
-            hash: gitRev.long(),
-        };
+        if (versionInfo == null) {
+            let version = gitRev.tag();
+            const hash = gitRev.long();
+            if (version === hash) {
+                version = 'HEAD';
+            }
+            versionInfo = { version, hash };
+        }
+        return versionInfo;
     },
 };
