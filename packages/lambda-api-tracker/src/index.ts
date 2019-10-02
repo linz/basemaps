@@ -1,5 +1,7 @@
 import {
     Const,
+    Projection,
+    getXyzFromPath,
     HttpHeader,
     LambdaFunction,
     LambdaHttpResponse,
@@ -13,6 +15,7 @@ import { CloudFrontRequestEvent, Context } from 'aws-lambda';
 import { queryStringExtractor } from './query';
 import { ValidateRequest } from './validate';
 
+const projection = new Projection(256);
 /**
  * Validate a CloudFront request has a valid API key and is not abusing the system
  */
@@ -25,6 +28,17 @@ export async function handleRequest(
     const [record] = event.Records;
     const request = record.cf.request;
     const queryString = request.querystring;
+
+    session.set('method', request.method.toLowerCase());
+    session.set('path', request.uri);
+
+    // Expose some debugging metrics so we can plot tile requests onto a map
+    const pathMatch = getXyzFromPath(request.uri);
+    if (pathMatch != null) {
+        const latLon = projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
+        session.set('xyz', { x: pathMatch.x, y: pathMatch.y, z: pathMatch.z });
+        session.set('location', latLon);
+    }
 
     // Log the entire request
     // TODO this may be too much data, we should possibly limit how much we log out (ip/useragent etc..)
@@ -46,7 +60,8 @@ export async function handleRequest(
 
     const response = new LambdaHttpResponseCloudFrontRequest(request);
     response.header(HttpHeader.CorrelationId, session.correlationId);
-    response.header(HttpHeader.ApiKey, apiKey); // Api key will be trimmed from the forwarded request
+    // Api key will be trimmed from the forwarded request so pass it via a well known header
+    response.header(HttpHeader.ApiKey, apiKey);
     return response;
 }
 

@@ -1,10 +1,10 @@
-import { LambdaFunction, LambdaHttpResponseAlb, LambdaSession, LambdaType, Logger, HttpHeader } from '@basemaps/shared';
+import { HttpHeader, LambdaFunction, LambdaHttpResponseAlb, LambdaSession, LambdaType, Logger } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff, Log } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { ALBEvent, Context } from 'aws-lambda';
-import { getXyzFromPath, route } from './path';
 import { createHash } from 'crypto';
+import { route } from './router';
 
 const bucketName = process.env['COG_BUCKET'];
 if (bucketName == null) {
