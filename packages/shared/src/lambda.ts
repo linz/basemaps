@@ -67,10 +67,12 @@ export class LambdaFunction {
             session.set('status', res.status);
             session.set('description', res.statusDescription);
             session.set('metrics', session.timer.metrics);
-            session.set('unfinished', session.timer.unfinished);
-            session.set('duration', session.timer.end('lambda'));
 
             res.header(HttpHeader.RequestId, session.id);
+
+            const duration = session.timer.end('lambda');
+            session.set('unfinished', session.timer.unfinished);
+            session.set('duration', duration);
 
             log.info(session.logContext, 'LambdaDone');
             // There will always be a response
