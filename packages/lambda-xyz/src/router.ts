@@ -1,4 +1,4 @@
-import { LambdaHttpResponseAlb, PathData, getXyzFromPath } from '@basemaps/shared';
+import { LambdaHttpResponseAlb, PathData, getXyzFromPath, Env } from '@basemaps/shared';
 
 export function route(httpMethod: string, path: string): PathData | LambdaHttpResponseAlb {
     // Allow cross origin requests
@@ -26,7 +26,7 @@ export function route(httpMethod: string, path: string): PathData | LambdaHttpRe
 
     if (path === '/version') {
         const response = new LambdaHttpResponseAlb(200, 'ok');
-        response.json({ version: 1, hash: 'hash' });
+        response.json({ version: process.env[Env.Version], hash: process.env[Env.Hash] });
         return response;
     }
 

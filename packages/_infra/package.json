@@ -10,7 +10,9 @@
     "deploy:diff": "cdk diff || true",
     "deploy:deploy": "cdk deploy '*' -y --require-approval never"
   },
-  "dependencies": {},
+  "dependencies": {
+    "git-rev-sync": "^1.12.0"
+  },
   "devDependencies": {
     "@aws-cdk/aws-cloudfront": "^1.8.0",
     "@aws-cdk/aws-dynamodb": "^1.8.0",
@@ -19,6 +21,7 @@
     "@aws-cdk/aws-s3": "^1.8.0",
     "@aws-cdk/core": "^1.8.0",
     "@basemaps/shared": "^0.0.1",
+    "@types/git-rev-sync": "^1.12.0",
     "aws-cdk": "^1.8.0"
   }
 }
