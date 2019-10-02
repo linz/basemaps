@@ -31,6 +31,8 @@ export class LambdaApiKeyValidator extends cdk.Construct {
             code: lambda.Code.asset(CODE_PATH),
             role: lambdaRole,
             logRetention: RetentionDays.ONE_MONTH,
+            // Lambda@Edge only allows 128mb of ram
+            memorySize: 128,
         });
 
         // Allow access to all dynamoDb tables with the same name
