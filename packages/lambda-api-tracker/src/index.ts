@@ -49,6 +49,9 @@ export async function handleRequest(
         return new LambdaHttpResponseCloudFront(400, 'Invalid API Key');
     }
 
+    // Include the APIKey in the final log entry
+    session.set(Const.ApiKey.QueryString, apiKey);
+
     // Validate the request throwing an error if anything goes wrong
     session.timer.start('validate');
     const res = await ValidateRequest.validate(apiKey, logger);
