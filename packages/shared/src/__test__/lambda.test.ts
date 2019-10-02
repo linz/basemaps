@@ -28,7 +28,9 @@ describe('LambdaFunction', () => {
         expect(res.isBase64Encoded).toEqual(false);
         expect(res.headers).not.toEqual(null);
         if (res.headers == null) return; // Typeguard to make typescript happy
-        expect(res.headers[HttpHeader.CorrelationId]).not.toEqual(null);
+
+        const requestId = res.headers[HttpHeader.RequestId.toLowerCase()];
+        expect(typeof requestId).toEqual('string');
     });
 
     it('should generate a cloudfront response on error', async () => {
@@ -48,7 +50,9 @@ describe('LambdaFunction', () => {
         expect(res.bodyEncoding).toEqual('text');
         expect(res.headers).not.toEqual(null);
         if (res.headers == null) return; // Typeguard to make typescript happy
-        expect(res.headers[HttpHeader.CorrelationId]).not.toEqual(null);
+
+        const requestId = res.headers[HttpHeader.RequestId.toLowerCase()];
+        expect(Array.isArray(requestId)).toEqual(true);
     });
 
     it('should callback on success', async () => {
