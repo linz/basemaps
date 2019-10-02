@@ -19,6 +19,10 @@ export class LambdaHttpResponseAlb extends LambdaHttpResponse {
         this.headers[key.toLowerCase()] = value;
     }
 
+    public json(object: Record<string, any>): void {
+        this.body = JSON.stringify(object);
+    }
+
     public get isBase64Encoded(): boolean {
         if (Buffer.isBuffer(this.body)) {
             return true;

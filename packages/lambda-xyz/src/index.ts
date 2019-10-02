@@ -3,7 +3,7 @@ import { Tiler } from '@basemaps/tiler';
 import { CogTiff, Log } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { ALBEvent, Context } from 'aws-lambda';
-import { getXyzFromPath } from './path';
+import { getXyzFromPath, route } from './path';
 import { createHash } from 'crypto';
 
 const bucketName = process.env['COG_BUCKET'];
@@ -43,22 +43,9 @@ export async function handleRequest(
     session.set('method', httpMethod);
     session.set('path', event.path);
 
-    // Allow cross origin requests
-    if (httpMethod === 'options') {
-        throw new LambdaHttpResponseAlb(200, 'Options', {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': 'false',
-            'Access-Control-Allow-Methods': 'OPTIONS,GET,PUT,POST,DELETE',
-        });
-    }
-
-    if (httpMethod !== 'get') {
-        throw new LambdaHttpResponseAlb(405, 'Method not allowed');
-    }
-
-    const pathMatch = getXyzFromPath(event.path);
-    if (pathMatch == null) {
-        throw new LambdaHttpResponseAlb(404, 'Path not found');
+    const pathMatch = route(httpMethod, event.path);
+    if (LambdaHttpResponseAlb.isHttpResponse(pathMatch)) {
+        return pathMatch;
     }
 
     const latLon = tile256.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
