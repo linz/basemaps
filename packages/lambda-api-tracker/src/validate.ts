@@ -5,14 +5,7 @@ export const ValidateRequest = {
      * Validate that a API Key is valid
      * @param apiKey API key to validate
      */
-    async validate(
-        apiKey: string | null | undefined,
-        log: typeof Logger,
-    ): Promise<LambdaHttpResponseCloudFront | void> {
-        if (apiKey == null) {
-            return new LambdaHttpResponseCloudFront(400, 'Invalid API Key');
-        }
-
+    async validate(apiKey: string, log: typeof Logger): Promise<LambdaHttpResponseCloudFront | void> {
         const timer = LambdaSession.get().timer;
         // TODO increment the api counter
         timer.start('validate:db');

@@ -5,6 +5,7 @@ import { LambdaHttpResponse, LambdaType } from './lambda.response.http';
 import { Logger } from './log';
 import { LambdaSession } from './session';
 import { LambdaHttp } from './lambda.response';
+import { Const } from './const';
 
 export interface HttpStatus {
     statusCode: string;
@@ -30,6 +31,10 @@ export class LambdaFunction {
             const correlationId = LambdaHttp.getHeader(type, event, HttpHeader.CorrelationId);
             const session = LambdaSession.reset(correlationId);
             session.timer.start('lambda');
+
+            // If a API Key exists in the headers, include it in the log output
+            const apiKey = LambdaHttp.getHeader(type, event, HttpHeader.ApiKey);
+            session.set(Const.ApiKey.QueryString, apiKey);
 
             // TODO pull a correlationId from `x-linz-correlation-id` header
             // const correlationId = (session.correlationId = ulid.ulid());
@@ -62,10 +67,12 @@ export class LambdaFunction {
             session.set('status', res.status);
             session.set('description', res.statusDescription);
             session.set('metrics', session.timer.metrics);
-            session.set('unfinished', session.timer.unfinished);
-            session.set('duration', session.timer.end('lambda'));
 
             res.header(HttpHeader.RequestId, session.id);
+
+            const duration = session.timer.end('lambda');
+            session.set('unfinished', session.timer.unfinished);
+            session.set('duration', duration);
 
             log.info(session.logContext, 'LambdaDone');
             // There will always be a response

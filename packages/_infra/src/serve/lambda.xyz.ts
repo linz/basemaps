@@ -5,6 +5,7 @@ import s3 = require('@aws-cdk/aws-s3');
 import { RetentionDays } from '@aws-cdk/aws-logs';
 import { VersionUtil } from '../version';
 import { Duration } from '@aws-cdk/core';
+import { Env } from '@basemaps/shared';
 
 const CODE_PATH = '../lambda-xyz/dist';
 /**
@@ -17,6 +18,7 @@ export class LambdaXyz extends cdk.Construct {
     public constructor(scope: cdk.Stack, id: string) {
         super(scope, id);
 
+        const version = VersionUtil.version();
         const cogBucket = s3.Bucket.fromBucketName(this, 'CogBucket', 'basemaps-cog-test');
         this.lambda = new lambda.Function(this, 'Tiler', {
             runtime: lambda.Runtime.NODEJS_10_X,
@@ -26,6 +28,8 @@ export class LambdaXyz extends cdk.Construct {
             code: lambda.Code.asset(CODE_PATH),
             environment: {
                 COG_BUCKET: cogBucket.bucketName,
+                [Env.Hash]: version.hash,
+                [Env.Version]: version.version,
             },
             logRetention: RetentionDays.ONE_MONTH,
         });
@@ -34,7 +38,12 @@ export class LambdaXyz extends cdk.Construct {
 
         // CloudFront requires a specific version for a lambda,
         // so using a hash of the source code create a version
-        this.version = this.lambda.addVersion(':sha256:' + VersionUtil.hash(CODE_PATH));
+        const lambdaHash = VersionUtil.hash(CODE_PATH);
+        this.version = this.lambda.addVersion(
+            ':sha256:' + lambdaHash,
+            undefined,
+            `${version.version} - ${version.hash}`,
+        );
 
         // Output the edge lambda's ARN
         new cdk.CfnOutput(this, 'LambdaXyz', {

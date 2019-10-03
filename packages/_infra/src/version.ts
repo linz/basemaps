@@ -1,6 +1,7 @@
 import { createHash, Hash } from 'crypto';
 import fs = require('fs');
 import path = require('path');
+import gitRev = require('git-rev-sync');
 
 /**
  * Hash a tree of files returning a single hash
@@ -25,6 +26,14 @@ function hashTree(folder: string, hash: Hash): void {
     }
 }
 
+export interface VersionInfo {
+    /** Current git tag */
+    version: string;
+    /** Current commit hash  */
+    hash: string;
+}
+
+let versionInfo: VersionInfo | null = null;
 export const VersionUtil = {
     /**
      * Generate a hash of all files inside the source directory
@@ -34,5 +43,21 @@ export const VersionUtil = {
         const hash = createHash('sha256');
         hashTree(srcPath, hash);
         return hash.digest('base64');
+    },
+
+    /**
+     * Get version information about the current build
+     *
+     */
+    version(): VersionInfo {
+        if (versionInfo == null) {
+            let version = gitRev.tag();
+            const hash = gitRev.long();
+            if (version === hash) {
+                version = 'HEAD';
+            }
+            versionInfo = { version, hash };
+        }
+        return versionInfo;
     },
 };

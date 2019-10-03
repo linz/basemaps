@@ -3,6 +3,8 @@ import { BoundingBox, Size } from '@basemaps/shared/build/bounds';
 import * as Sharp from 'sharp';
 
 export interface Composition {
+    /** Tiff Id */
+    id: string;
     /** Image buffer */
     getBuffer: () => Promise<Buffer>;
     /** Point to draw the image at on the output bounds */

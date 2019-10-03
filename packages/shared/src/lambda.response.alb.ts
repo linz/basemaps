@@ -1,22 +1,32 @@
-import { LambdaHttpResponse } from './lambda.response.http';
-
-import { ALBResult, ALBEvent } from 'aws-lambda';
+import { ALBEvent, ALBResult } from 'aws-lambda';
 import { HttpHeader } from './header';
+import { LambdaHttpResponse, ApplicationJson } from './lambda.response.http';
 
 /**
  * ALB response that will return either a JSON object representing the error
- * or
+ * or success
  */
 export class LambdaHttpResponseAlb extends LambdaHttpResponse {
-    public headers: Record<string, string | number | boolean> = {};
+    public headers: Record<string, string> = {};
 
     public buffer(buffer: Buffer, contentType: string): void {
         this.body = buffer;
         this.header(HttpHeader.ContentType, contentType);
     }
 
-    public header(key: string, value: string | number | boolean): void {
-        this.headers[key.toLowerCase()] = value;
+    public header(key: string): string | null;
+    public header(key: string, value: string): void;
+    public header(key: string, value?: string): void | string | null {
+        const headerKey = key.toLowerCase();
+        if (value === undefined) {
+            return this.headers[headerKey];
+        }
+
+        this.headers[headerKey] = value;
+    }
+
+    public json(object: Record<string, any>): void {
+        this.body = JSON.stringify(object);
     }
 
     public get isBase64Encoded(): boolean {
@@ -28,16 +38,15 @@ export class LambdaHttpResponseAlb extends LambdaHttpResponse {
 
     public toResponse(): ALBResult {
         const isBase64Encoded = this.isBase64Encoded;
-        const headers = this.headers;
-        // Force the response into application/json if the resposne type is not set
-        if (!isBase64Encoded && headers[HttpHeader.ContentType]) {
-            headers[HttpHeader.ContentType] = 'application/json';
+        // Force the response into application/json if the response type is not set
+        if (!isBase64Encoded && this.header(HttpHeader.ContentType) == null) {
+            this.header(HttpHeader.ContentType, ApplicationJson);
         }
         return {
             statusCode: this.status,
             statusDescription: this.statusDescription,
             body: this.getBody(),
-            headers,
+            headers: this.headers,
             isBase64Encoded,
         };
     }

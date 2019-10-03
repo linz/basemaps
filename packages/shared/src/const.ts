@@ -9,3 +9,8 @@ export const Const = {
         RequestLimitMinute: 1000,
     },
 };
+
+export const Env = {
+    Version: 'BASEMAPS_VERSION',
+    Hash: 'BASEMAPS_HASH',
+};

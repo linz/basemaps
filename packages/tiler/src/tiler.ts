@@ -24,18 +24,27 @@ export class Tiler {
         this.raster = new Raster(tileSize);
     }
 
+    /**
+     * Generate a list of compositions from a list of tiffs for the provided web mercator XYZ
+     *
+     * @param tiffs List of tiffs to use in composition
+     * @param x WebMercator X
+     * @param y WebMercator Y
+     * @param zoom WebMercator Zoom
+     * @param logger
+     */
     public async tile(
         tiffs: CogTiff[],
         x: number,
         y: number,
-        z: number,
+        zoom: number,
         logger: typeof Logger,
-    ): Promise<Buffer | null> {
+    ): Promise<Composition[] | null> {
         let layers: Composition[] = [];
         const timer = LambdaSession.get().timer;
         timer.start('tile:get');
         for (const tiff of tiffs) {
-            const tileOverlays = this.getTiles(tiff, x, y, z, logger.child({ tiff: tiff.source.name }));
+            const tileOverlays = this.getTiles(tiff, x, y, zoom, logger.child({ tiff: tiff.source.name }));
             if (tileOverlays == null) {
                 continue;
             }
@@ -43,26 +52,27 @@ export class Tiler {
         }
         timer.end('tile:get');
 
-        logger.info({ layers: layers.length }, 'Composing');
-        timer.start('tile:compose');
         if (layers.length === 0) {
-            timer.end('tile:compose');
             return null;
         }
-        const raster = await this.raster.compose(
-            layers,
-            logger,
-        );
-        timer.end('tile:compose');
-        return raster;
+
+        return layers;
     }
 
-    protected getRasterTiffIntersection(tiff: CogTiff, x: number, y: number, z: number): RasterPixelBounds | null {
+    /**
+     * Does this tiff have any imagery inside the WebMercator XYZ tile
+     *
+     * @param tiff CoGeoTiff to check bounds of
+     * @param x WebMercator x
+     * @param y WebMercator y
+     * @param zoom WebMercator zoom
+     */
+    public getRasterTiffIntersection(tiff: CogTiff, x: number, y: number, zoom: number): RasterPixelBounds | null {
         const extentMeters = tiff.images[0].bbox;
         /** Raster pixels of the output tile */
         const screenBoundsPx = this.projection.getPixelsFromTile(x, y);
         /** Raster pixels of the input geotiff */
-        const tiffBoundsPx = this.projection.getPixelsBoundsFromMeters(extentMeters, z);
+        const tiffBoundsPx = this.projection.getPixelsBoundsFromMeters(extentMeters, zoom);
 
         /** Raster pixels that need to be filled by this tiff */
         const intersectionPx = tiffBoundsPx.intersection(screenBoundsPx);
@@ -107,6 +117,7 @@ export class Tiler {
 
         const drawAtRegion = target.subtract(raster.tile);
         const composition: Composition = {
+            id: img.tif.source.name,
             getBuffer: async (): Promise<Buffer> => Buffer.from((await img.getTile(x, y)).bytes),
             y: Math.max(0, Math.round(drawAtRegion.y)),
             x: Math.max(0, Math.round(drawAtRegion.x)),

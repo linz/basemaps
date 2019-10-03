@@ -8,6 +8,8 @@ export enum LambdaType {
     CloudFront,
 }
 
+export const ApplicationJson = 'application/json';
+
 /**
  * Generic Lambda response, all lambda's should return one of these.
  */
@@ -32,7 +34,7 @@ export abstract class LambdaHttpResponse {
      */
     protected body: string | Buffer | null = null;
 
-    public constructor(status: number, description: string, headers?: Record<string, string | number | boolean>) {
+    public constructor(status: number, description: string, headers?: Record<string, string>) {
         this.status = status;
         this.statusDescription = description;
         if (headers != null) {
@@ -55,6 +57,9 @@ export abstract class LambdaHttpResponse {
 
     /** Convert this response object to the format that is expected by lambda */
     public abstract toResponse(): ALBResult | CloudFrontRequestResult;
+
+    /** Get a header inside the response */
+    public abstract header(key: string): string | null;
     /** Set a header inside inside the response */
-    public abstract header(key: string, value: string | number | boolean): void;
+    public abstract header(key: string, value: string): void;
 }

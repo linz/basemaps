@@ -1,5 +1,6 @@
-import { LambdaHttpResponse } from './lambda.response.http';
+import { LambdaHttpResponse, ApplicationJson } from './lambda.response.http';
 import { CloudFrontResultResponse, CloudFrontRequestEvent, CloudFrontRequest } from 'aws-lambda';
+import { HttpHeader } from './header';
 
 /**
  * Create a json (generally error) response for CloudFront requests
@@ -7,11 +8,25 @@ import { CloudFrontResultResponse, CloudFrontRequestEvent, CloudFrontRequest } f
 export class LambdaHttpResponseCloudFront extends LambdaHttpResponse {
     public headers: Record<string, { key: string; value: string }[]> = {};
 
-    public header(key: string, value: string | number | boolean): void {
-        this.headers[key.toLowerCase()] = [{ key, value: String(value) }];
+    public header(key: string): string | null;
+    public header(key: string, value: string): void;
+    public header(key: string, value?: string): void | null | string {
+        const headerKey = key.toLowerCase();
+        if (value === undefined) {
+            const value = this.headers[headerKey];
+            if (value == null) {
+                return null;
+            }
+            return value[0].value;
+        }
+
+        this.headers[headerKey] = [{ key, value: String(value) }];
     }
 
     public toResponse(): CloudFrontResultResponse {
+        if (this.header(HttpHeader.ContentType) == null) {
+            this.header(HttpHeader.ContentType, ApplicationJson);
+        }
         return {
             status: String(this.status),
             statusDescription: this.statusDescription,
@@ -50,8 +65,19 @@ export class LambdaHttpResponseCloudFrontRequest extends LambdaHttpResponse {
         this.req = req;
     }
 
-    public header(key: string, value: string | number | boolean): void {
-        this.req.headers[key.toLowerCase()] = [{ key, value: String(value) }];
+    public header(key: string): string | null;
+    public header(key: string, value: string): void;
+    public header(key: string, value?: string): void | null | string {
+        const headerKey = key.toLowerCase();
+        if (value === undefined) {
+            const value = this.req.headers[headerKey];
+            if (value == null) {
+                return null;
+            }
+            return value[0].value;
+        }
+
+        this.req.headers[headerKey] = [{ key, value: String(value) }];
     }
 
     public toResponse(): CloudFrontRequest {

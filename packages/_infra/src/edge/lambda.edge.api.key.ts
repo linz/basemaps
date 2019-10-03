@@ -31,6 +31,8 @@ export class LambdaApiKeyValidator extends cdk.Construct {
             code: lambda.Code.asset(CODE_PATH),
             role: lambdaRole,
             logRetention: RetentionDays.ONE_MONTH,
+            // Lambda@Edge only allows 128mb of ram
+            memorySize: 128,
         });
 
         // Allow access to all dynamoDb tables with the same name
@@ -41,7 +43,13 @@ export class LambdaApiKeyValidator extends cdk.Construct {
 
         // CloudFront requires a specific version for a lambda,
         // so using a hash of the source code create a version
-        this.version = this.lambda.addVersion(':sha256:' + VersionUtil.hash(CODE_PATH));
+        const lambdaHash = VersionUtil.hash(CODE_PATH);
+        const version = VersionUtil.version();
+        this.version = this.lambda.addVersion(
+            ':sha256:' + lambdaHash,
+            undefined,
+            `${version.version} - ${version.hash}`,
+        );
 
         // Output the edge lambda's ARN
         new cdk.CfnOutput(this, 'LambdaApiKeyValidator', {
