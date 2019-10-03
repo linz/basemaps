@@ -25,7 +25,7 @@ const Tiffs: Promise<CogTiff>[] = [
 
 function getHeader(evt: ALBEvent, header: string): string | null {
     if (evt.headers) {
-        return evt.headers[header];
+        return evt.headers[header.toLowerCase()];
     }
     return null;
 }
