@@ -27,7 +27,7 @@ export class LambdaXyz extends cdk.Construct {
             handler: 'index.handler',
             code: lambda.Code.asset(CODE_PATH),
             environment: {
-                COG_BUCKET: cogBucket.bucketName,
+                [Env.CogBucket]: cogBucket.bucketName,
                 [Env.Hash]: version.hash,
                 [Env.Version]: version.version,
             },

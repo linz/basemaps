@@ -13,4 +13,5 @@ export const Const = {
 export const Env = {
     Version: 'BASEMAPS_VERSION',
     Hash: 'BASEMAPS_HASH',
+    CogBucket: 'COG_BUCKET',
 };

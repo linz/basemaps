@@ -1,34 +1,13 @@
 import { HttpHeader, LambdaFunction, LambdaHttpResponseAlb, LambdaSession, LambdaType, Logger } from '@basemaps/shared';
-import { Tiler } from '@basemaps/tiler';
-import { CogTiff, Log } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
+import { Log } from '@cogeotiff/core';
 import { ALBEvent, Context } from 'aws-lambda';
 import { createHash } from 'crypto';
 import { route } from './router';
+import { TiffUtil } from './tiff';
 import { Tilers } from './tiler';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
-
-let Tiffs: Promise<CogTiff>[] = [];
-function getTiffs(): Promise<CogTiff>[] {
-    if (Tiffs.length > 0) {
-        return Tiffs;
-    }
-    const bucketName = process.env['COG_BUCKET'];
-    if (bucketName == null) {
-        throw new Error('Invalid environment missing "COG_BUCKET"');
-    }
-
-    Tiffs = [
-        CogSourceAwsS3.create(
-            bucketName,
-            '2019-09-20-2019-NZ-Sentinel-3band-alpha.compress_webp.align_google.aligned_3.bs_512.tif',
-        ),
-        CogSourceAwsS3.create(bucketName, '2019-09-30-bg43.webp.google.aligned.cog.tif'),
-    ];
-    return Tiffs;
-}
 
 function getHeader(evt: ALBEvent, header: string): string | null {
     if (evt.headers) {
@@ -59,7 +38,7 @@ export async function handleRequest(
     session.set('xyz', { x: pathMatch.x, y: pathMatch.y, z: pathMatch.z });
     session.set('location', latLon);
 
-    const tiffs = await Promise.all(getTiffs());
+    const tiffs = await Promise.all(TiffUtil.load());
     const layers = await tiler.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z, logger);
 
     if (layers == null) {
