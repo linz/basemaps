@@ -5,23 +5,30 @@ import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { ALBEvent, Context } from 'aws-lambda';
 import { createHash } from 'crypto';
 import { route } from './router';
-
-const bucketName = process.env['COG_BUCKET'];
-if (bucketName == null) {
-    throw new Error('Invalid environment "COG_BUCKET"');
-}
+import { Tilers } from './tiler';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
 
-const tile256 = new Tiler(256);
-const Tiffs: Promise<CogTiff>[] = [
-    CogSourceAwsS3.create(
-        bucketName,
-        '2019-09-20-2019-NZ-Sentinel-3band-alpha.compress_webp.align_google.aligned_3.bs_512.tif',
-    ),
-    CogSourceAwsS3.create(bucketName, '2019-09-30-bg43.webp.google.aligned.cog.tif'),
-];
+let Tiffs: Promise<CogTiff>[] = [];
+function getTiffs(): Promise<CogTiff>[] {
+    if (Tiffs.length > 0) {
+        return Tiffs;
+    }
+    const bucketName = process.env['COG_BUCKET'];
+    if (bucketName == null) {
+        throw new Error('Invalid environment missing "COG_BUCKET"');
+    }
+
+    Tiffs = [
+        CogSourceAwsS3.create(
+            bucketName,
+            '2019-09-20-2019-NZ-Sentinel-3band-alpha.compress_webp.align_google.aligned_3.bs_512.tif',
+        ),
+        CogSourceAwsS3.create(bucketName, '2019-09-30-bg43.webp.google.aligned.cog.tif'),
+    ];
+    return Tiffs;
+}
 
 function getHeader(evt: ALBEvent, header: string): string | null {
     if (evt.headers) {
@@ -36,7 +43,7 @@ export async function handleRequest(
     logger: typeof Logger,
 ): Promise<LambdaHttpResponseAlb> {
     const session = LambdaSession.get();
-
+    const tiler = Tilers.tile256;
     Log.set(logger);
     const httpMethod = event.httpMethod.toLowerCase();
 
@@ -48,15 +55,16 @@ export async function handleRequest(
         return pathMatch;
     }
 
-    const latLon = tile256.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
+    const latLon = tiler.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
     session.set('xyz', { x: pathMatch.x, y: pathMatch.y, z: pathMatch.z });
     session.set('location', latLon);
 
-    const tiffs = await Promise.all(Tiffs);
-    const layers = await tile256.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z, logger);
+    const tiffs = await Promise.all(getTiffs());
+    const layers = await tiler.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z, logger);
+
     if (layers == null) {
         // TODO serve empty PNG?
-        throw new LambdaHttpResponseAlb(404, 'Tile not found');
+        return new LambdaHttpResponseAlb(404, 'Tile not found');
     }
 
     // Generate a unique hash given the full URI, the layers used and a renderId
@@ -73,7 +81,7 @@ export async function handleRequest(
 
     logger.info({ layers: layers.length }, 'Composing');
     session.timer.start('tile:compose');
-    const buf = await tile256.raster.compose(
+    const buf = await tiler.raster.compose(
         layers,
         logger,
     );
@@ -81,7 +89,7 @@ export async function handleRequest(
 
     if (buf == null) {
         // TODO serve empty PNG?
-        throw new LambdaHttpResponseAlb(404, 'Tile not found');
+        return new LambdaHttpResponseAlb(404, 'Tile not found');
     }
 
     const response = new LambdaHttpResponseAlb(200, 'ok');
