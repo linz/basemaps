@@ -1,23 +1,9 @@
-import { LambdaFunction, Logger, LambdaSession } from '@basemaps/shared';
+import { LambdaFunction, LambdaHttpResponseAlb, LambdaSession, LambdaType, Logger } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
-import { ALBEvent, ALBResult, Context } from 'aws-lambda';
-import { getXyzFromPath } from './path';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogTiff, Log } from '@cogeotiff/core';
-
-function makeResponse(statusCode: number, message: string, headers?: { [key: string]: string }): ALBResult {
-    if (headers == null) {
-        headers = {};
-    }
-    headers['content-type'] = 'application/json';
-    return {
-        statusCode,
-        statusDescription: message,
-        body: JSON.stringify({ status: statusCode, message }),
-        headers,
-        isBase64Encoded: false,
-    };
-}
+import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
+import { ALBEvent, Context } from 'aws-lambda';
+import { getXyzFromPath } from './path';
 
 const bucketName = process.env['COG_BUCKET'];
 if (bucketName == null) {
@@ -33,13 +19,22 @@ const Tiffs: Promise<CogTiff>[] = [
     CogSourceAwsS3.create(bucketName, '2019-09-30-bg43.webp.google.aligned.cog.tif'),
 ];
 
-export async function handleRequest(event: ALBEvent, context: Context, logger: typeof Logger): Promise<ALBResult> {
+export async function handleRequest(
+    event: ALBEvent,
+    context: Context,
+    logger: typeof Logger,
+): Promise<LambdaHttpResponseAlb> {
+    const session = LambdaSession.get();
+
     Log.set(logger);
     const httpMethod = event.httpMethod.toLowerCase();
 
+    session.set('method', httpMethod);
+    session.set('path', event.path);
+
     // Allow cross origin requests
     if (httpMethod === 'options') {
-        return makeResponse(200, 'Options', {
+        throw new LambdaHttpResponseAlb(200, 'Options', {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': 'false',
             'Access-Control-Allow-Methods': 'OPTIONS,GET,PUT,POST,DELETE',
@@ -47,15 +42,14 @@ export async function handleRequest(event: ALBEvent, context: Context, logger: t
     }
 
     if (httpMethod !== 'get') {
-        return makeResponse(405, 'Method not allowed');
+        throw new LambdaHttpResponseAlb(405, 'Method not allowed');
     }
 
     const pathMatch = getXyzFromPath(event.path);
     if (pathMatch == null) {
-        return makeResponse(404, 'Path not found');
+        throw new LambdaHttpResponseAlb(404, 'Path not found');
     }
 
-    const session = LambdaSession.get();
     const latLon = tile256.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
     session.set('xyz', { x: pathMatch.x, y: pathMatch.y, z: pathMatch.z });
     session.set('location', latLon);
@@ -65,16 +59,12 @@ export async function handleRequest(event: ALBEvent, context: Context, logger: t
 
     if (buffer == null) {
         // TODO serve empty PNG?
-        return makeResponse(404, 'Tile not found');
+        throw new LambdaHttpResponseAlb(404, 'Tile not found');
     }
 
-    return {
-        statusCode: 200,
-        statusDescription: 'ok',
-        headers: { 'content-type': 'image/png' },
-        body: buffer.toString('base64'),
-        isBase64Encoded: true,
-    };
+    const response = new LambdaHttpResponseAlb(200, 'ok');
+    response.buffer(buffer, 'image/png');
+    return response;
 }
 
-export const handler = LambdaFunction.wrap<ALBEvent, ALBResult>(handleRequest);
+export const handler = LambdaFunction.wrap<ALBEvent>(LambdaType.Alb, handleRequest);

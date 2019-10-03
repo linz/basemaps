@@ -1,15 +1,17 @@
-import { ALBResult, Callback, CloudFrontRequestResult, Context } from 'aws-lambda';
+import { ALBEvent, ALBResult, Callback, CloudFrontRequestEvent, CloudFrontRequestResult, Context } from 'aws-lambda';
 import * as pino from 'pino';
+import { HttpHeader } from './header';
+import { LambdaHttpResponse, LambdaType } from './lambda.response.http';
 import { Logger } from './log';
 import { LambdaSession } from './session';
+import { LambdaHttp } from './lambda.response';
 
 export interface HttpStatus {
     statusCode: string;
     statusDescription: string;
 }
-export function hasStatus(x: any): x is HttpStatus {
-    return x != null && x['statusCode'] != null;
-}
+
+export type LambdaHttpRequestType = ALBEvent | CloudFrontRequestEvent;
 export type LambdaHttpReturnType = ALBResult | CloudFrontRequestResult;
 export class LambdaFunction {
     /**
@@ -18,12 +20,15 @@ export class LambdaFunction {
      * - Log metadata about the call on every request
      * - Catch errors and log them before exiting
      */
-    public static wrap<T, K extends LambdaHttpReturnType>(
-        fn: (event: T, context: Context, logger: pino.Logger) => Promise<K>,
+    public static wrap<T extends LambdaHttpRequestType>(
+        type: LambdaType,
+        fn: (event: T, context: Context, logger: pino.Logger) => Promise<LambdaHttpResponse>,
         logger = Logger,
-    ): (event: T, context: Context, callback: Callback<K>) => Promise<void> {
-        return async (event: T, context: Context, callback: Callback<K>): Promise<void> => {
-            const session = LambdaSession.reset();
+    ): (event: T, context: Context, callback: Callback<LambdaHttpReturnType>) => Promise<void> {
+        return async (event: T, context: Context, callback: Callback<LambdaHttpReturnType>): Promise<void> => {
+            // Extract the correlationId from the provided http headers
+            const correlationId = LambdaHttp.getHeader(type, event, HttpHeader.CorrelationId);
+            const session = LambdaSession.reset(correlationId);
             session.timer.start('lambda');
 
             // TODO pull a correlationId from `x-linz-correlation-id` header
@@ -38,31 +43,33 @@ export class LambdaFunction {
             };
 
             log.info({ lambda }, 'LambdaStart');
-            session.set('lambda', lambda);
-            session.set('status', 200);
-            session.set('statusDescription', 'ok');
 
-            let res: K | undefined = undefined;
-            let err: Error | undefined = undefined;
-
+            let res: LambdaHttpResponse | undefined = undefined;
             try {
                 res = await fn(event, context, log);
-                if (hasStatus(res)) {
-                    session.set('status', parseInt(res.statusCode, 10));
-                    session.set('statusDescription', res.statusDescription);
-                }
             } catch (error) {
-                session.set('status', 500);
-                session.set('err', error);
-                err = error;
+                // If a LambdaHttpResponse was thrown, just reuse it as a response
+                if (LambdaHttpResponse.isHttpResponse(error)) {
+                    res = error;
+                } else {
+                    // Unhandled exception was thrown
+                    session.set('err', error);
+                    res = LambdaHttp.create(type, 500, 'Internal Server Error');
+                }
             }
 
-            session.set('duration', session.timer.end('lambda'));
+            session.set('lambda', lambda);
+            session.set('status', res.status);
+            session.set('description', res.statusDescription);
             session.set('metrics', session.timer.metrics);
             session.set('unfinished', session.timer.unfinished);
+            session.set('duration', session.timer.end('lambda'));
+
+            res.header(HttpHeader.RequestId, session.id);
 
             log.info(session.logContext, 'LambdaDone');
-            callback(err, res);
+            // There will always be a response
+            callback(null, res.toResponse());
         };
     }
 }
