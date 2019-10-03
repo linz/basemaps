@@ -68,7 +68,7 @@ export async function handleRequest(
     const ifNoneMatch = getHeader(event, HttpHeader.IfNoneMatch);
     if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
         session.set('cache', { key: cacheKey, hit: true, match: ifNoneMatch });
-        return new LambdaHttpResponseAlb(304, 'Tile not found');
+        return new LambdaHttpResponseAlb(304, 'Not modified');
     }
 
     logger.info({ layers: layers.length }, 'Composing');
