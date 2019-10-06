@@ -55,10 +55,11 @@ describe('TileCreation', () => {
     ].forEach(({ tileSize, zoom }) => {
         it(`should render a tile zoom:${zoom} tile: ${tileSize}`, async () => {
             const center = 2 ** zoom;
-
             const centerTile = center / 2;
-
             const tiler = new Tiler(tileSize);
+
+            // Make the background black to easily spot flaws
+            tiler.raster.background.alpha = 1;
             const layers = await tiler.tile([tiff], centerTile, centerTile, zoom, Logger);
             expect(layers).not.toEqual(null);
             if (layers == null) throw new Error('Tile is null');

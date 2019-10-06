@@ -23,6 +23,8 @@ const SharpScaleOptions = { fit: Sharp.fit.cover };
 
 export class Raster {
     private tileSize: number;
+    /** The background of all tiles that are created */
+    public background = { r: 0, g: 0, b: 0, alpha: 0 };
 
     public constructor(tileSize: number) {
         this.tileSize = tileSize;
@@ -90,7 +92,7 @@ export class Raster {
                 width: this.tileSize,
                 height: this.tileSize,
                 channels: 4,
-                background: { r: 0, g: 0, b: 0, alpha: 0 },
+                background: this.background,
             },
         });
     }
