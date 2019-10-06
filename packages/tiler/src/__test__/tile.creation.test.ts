@@ -74,6 +74,12 @@ describe('TileCreation', () => {
             const expectedImage = await getExpectedTile(tileSize, centerTile, centerTile, zoom);
 
             const missMatchedPixels = PixelMatch(expectedImage.data, newImage.data, null, tileSize, tileSize);
+            if (missMatchedPixels > 0) {
+                const fileName = getExpectedTileName(tileSize, centerTile, centerTile, zoom) + '.diff.png';
+                const output = new PNG({ width: tileSize, height: tileSize });
+                PixelMatch(expectedImage.data, newImage.data, output.data, tileSize, tileSize);
+                writeFileSync(fileName, PNG.sync.write(output));
+            }
             expect(missMatchedPixels).toEqual(0);
         });
     });
