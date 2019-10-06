@@ -158,7 +158,8 @@ export class Tiler {
         if (rasterBounds == null) {
             return null;
         }
-        logger.info({ inBounds: true }, 'TiffBoundsCheck');
+        const tiffName = tiff.source.name;
+        logger.info({ tiffName, inBounds: true }, 'TiffBoundsCheck');
         // Find the best internal overview tiff to use with the desired XYZ resolution
         const targetResolution = this.projection.getResolution(z);
         const img = tiff.getImageByResolution(targetResolution);
@@ -188,7 +189,7 @@ export class Tiler {
         }
 
         const tiffTileCount = (endX - startX) * (endY - startY);
-        logger.info({ tiffTileCount, tiffTileUsed: composites.length }, 'TiffInBounds');
+        logger.info({ tiffName, tiffTileCount, tiffTileUsed: composites.length }, 'TiffInBounds');
 
         if (composites.length === 0) {
             return null;
