@@ -11,3 +11,4 @@ export { Logger } from './log';
 export { getXyzFromPath, PathData } from './path';
 export { Projection } from './projection';
 export { LambdaSession } from './session';
+export { Bounds, BoundingBox, Size } from './bounds';

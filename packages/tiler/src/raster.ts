@@ -1,5 +1,4 @@
-import { Logger, LambdaSession } from '@basemaps/shared';
-import { BoundingBox, Size } from '@basemaps/shared/build/bounds';
+import { Logger, LambdaSession, BoundingBox, Size } from '@basemaps/shared';
 import * as Sharp from 'sharp';
 
 export interface Composition {
@@ -37,7 +36,11 @@ export class Raster {
         // 1. Load all image bytes
         // 2. Create image overlays
         timer.start('compose:overlay');
-        const overlays = await Promise.all(composition.map(this.composeTile.bind(this)));
+        const todo: Promise<SharpOverlay>[] = [];
+        for (const comp of composition) {
+            todo.push(this.composeTile(comp));
+        }
+        const overlays = await Promise.all(todo);
         const overlayDuration = timer.end('compose:overlay');
 
         timer.start('compose:compress');
@@ -45,6 +48,7 @@ export class Raster {
             .composite(overlays)
             .png() // TODO should we configure output options (eg WebP/Png/Jpeg)
             .toBuffer();
+
         const compressDuration = timer.end('compose:compress');
         logger.info({ compressDuration, overlayDuration }, 'TileCompose');
 

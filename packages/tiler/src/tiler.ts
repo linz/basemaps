@@ -19,7 +19,11 @@ export class Tiler {
     public projection: Projection;
     public raster: Raster;
 
+    /** Tile size for the tiler and sub objects */
+    public readonly tileSize: number;
+
     public constructor(tileSize: number) {
+        this.tileSize = tileSize;
         this.projection = new Projection(tileSize);
         this.raster = new Raster(tileSize);
     }
@@ -44,7 +48,7 @@ export class Tiler {
         const timer = LambdaSession.get().timer;
         timer.start('tile:get');
         for (const tiff of tiffs) {
-            const tileOverlays = this.getTiles(tiff, x, y, zoom, logger.child({ tiff: tiff.source.name }));
+            const tileOverlays = this.getTiles(tiff, x, y, zoom, logger);
             if (tileOverlays == null) {
                 continue;
             }
