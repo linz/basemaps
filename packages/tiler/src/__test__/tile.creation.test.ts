@@ -50,6 +50,8 @@ describe('TileCreation', () => {
         { tileSize: 256, zoom: 19 },
         { tileSize: 512, zoom: 19 },
         { tileSize: 1024, zoom: 19 },
+        { tileSize: 2048, zoom: 19 },
+        { tileSize: 4096, zoom: 19 },
     ].forEach(({ tileSize, zoom }) => {
         it(`should render a tile zoom:${zoom} tile: ${tileSize}`, async () => {
             const center = 2 ** zoom;
