@@ -20,7 +20,8 @@ function getExpectedTile(tileSize: number, x: number, y: number, zoom: number): 
 }
 
 describe('TileCreation', () => {
-    const tiffPath = path.join(__dirname, '../../data/rgba8_tiled.tiff');
+    // Tiff that is tiled and has WebMercator alignment for its resolution levels
+    const tiffPath = path.join(__dirname, '../../data/rgba8_tiled.wm.tiff');
     const tiff = new CogTiff(new CogSourceFile(tiffPath));
 
     beforeEach(async () => {
@@ -39,7 +40,7 @@ describe('TileCreation', () => {
         expect(layers.length).toEqual(1);
         const [layer] = layers;
         expect(layer.id).toEqual(tiff.source.name);
-        expect(layer.extract).toEqual({ height: 4, width: 4 });
+        expect(layer.extract).toEqual({ height: 16, width: 16 });
         expect(layer.resize).toEqual({ height: 2, width: 2 });
         expect(layer.x).toEqual(tiler.tileSize / 2);
         expect(layer.y).toEqual(tiler.tileSize / 2);
