@@ -17,6 +17,7 @@
         "noFallthroughCasesInSwitch": false,
         "inlineSourceMap": true,
         "inlineSources": true,
+        "noEmitOnError": false,
         "experimentalDecorators": true,
         "strictPropertyInitialization": false,
         "resolveJsonModule": true,
