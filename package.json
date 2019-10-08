@@ -8,6 +8,7 @@
   "scripts": {
     "lint": "eslint 'packages/*/{src,test}/**/*.ts' --quiet --fix",
     "test": "jest",
+    "clean": "tsc -b --clean && rimraf 'packages/*/build'",
     "build": "tsc -b",
     "build-watch": "tsc -b --watch"
   },
@@ -27,6 +28,7 @@
     "jest": "^24.8.0",
     "lerna": "^3.16.4",
     "prettier": "^1.18.2",
+    "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.3",
     "webpack": "^4.39.2",
