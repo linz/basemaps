@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@basemaps/shared": "^0.0.1",
-    "@cogeotiff/core": "0.4.0",
+    "@cogeotiff/core": "0.4.1",
     "sharp": "^0.23.1"
   },
   "devDependencies": {

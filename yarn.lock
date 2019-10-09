@@ -421,10 +421,10 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@cogeotiff/core@0.4.0", "@cogeotiff/core@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-0.4.0.tgz#2edd02a7b5646ca11a952861a509b45ffe65facc"
-  integrity sha512-7hAtoJOZZ+vRPfCq+xjPNCdRVdwK1EfjNnFePUiQIM4YVc0qzq7yMFsTKpSW/RG236mT6EZw852636qwq5n32w==
+"@cogeotiff/core@0.4.1", "@cogeotiff/core@^0.4.0":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-0.4.1.tgz#8bb406d915e3f7f6dd0d41c4a95b8e376e573c86"
+  integrity sha512-u9BiDA+8BeqHMwDDokT3VYpKscb65vjZkrSXKyPZm7zvziktL0qsnqCMbVD3rn2cMROM+cRU0LIdHkeonRLRbw==
   dependencies:
     ieee754 "^1.1.13"
 
