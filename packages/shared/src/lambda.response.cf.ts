@@ -6,11 +6,14 @@ import { HttpHeader } from './header';
  * Create a json (generally error) response for CloudFront requests
  */
 export class LambdaHttpResponseCloudFront extends LambdaHttpResponse {
-    public headers: Record<string, { key: string; value: string }[]> = {};
+    public headers: Record<string, { key: string; value: string }[]> | null;
 
     public header(key: string): string | null;
     public header(key: string, value: string): void;
     public header(key: string, value?: string): void | null | string {
+        if (this.headers == null) {
+            this.headers = {};
+        }
         const headerKey = key.toLowerCase();
         if (value === undefined) {
             const value = this.headers[headerKey];
@@ -19,7 +22,6 @@ export class LambdaHttpResponseCloudFront extends LambdaHttpResponse {
             }
             return value[0].value;
         }
-
         this.headers[headerKey] = [{ key, value: String(value) }];
     }
 
@@ -31,7 +33,7 @@ export class LambdaHttpResponseCloudFront extends LambdaHttpResponse {
             status: String(this.status),
             statusDescription: this.statusDescription,
             body: this.getBody(),
-            headers: this.headers,
+            headers: this.headers || {},
             bodyEncoding: 'text',
         };
     }

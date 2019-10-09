@@ -28,4 +28,11 @@ describe('Bounds', (): void => {
         expect(tileMiddle.intersection(getTile(1, 1))!.toJson()).toEqual(new Bounds(256, 256, 128, 128).toJson());
         expect(tileMiddle.intersection(getTile(0, 1))!.toJson()).toEqual(new Bounds(128, 256, 128, 128).toJson());
     });
+
+    it('shift intersects', (): void => {
+        expect(tileZero.intersects(tileZero.subtract(tileZero))).toEqual(true);
+        expect(tileZero.intersects(tileZero.add(tileZero).subtract(tileZero))).toEqual(true);
+        expect(tileZero.intersects(tileZero.subtract(tileMiddle))).toEqual(true);
+        expect(tileZero.intersects(tileZero.add(tileMiddle))).toEqual(true);
+    });
 });

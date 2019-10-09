@@ -7,7 +7,7 @@ import { LambdaHttpResponse, ApplicationJson } from './lambda.response.http';
  * or success
  */
 export class LambdaHttpResponseAlb extends LambdaHttpResponse {
-    public headers: Record<string, string> = {};
+    public headers: Record<string, string> | null;
 
     public buffer(buffer: Buffer, contentType: string): void {
         this.body = buffer;
@@ -17,6 +17,9 @@ export class LambdaHttpResponseAlb extends LambdaHttpResponse {
     public header(key: string): string | null;
     public header(key: string, value: string): void;
     public header(key: string, value?: string): void | string | null {
+        if (this.headers == null) {
+            this.headers = {};
+        }
         const headerKey = key.toLowerCase();
         if (value === undefined) {
             return this.headers[headerKey];
@@ -46,7 +49,7 @@ export class LambdaHttpResponseAlb extends LambdaHttpResponse {
             statusCode: this.status,
             statusDescription: this.statusDescription,
             body: this.getBody(),
-            headers: this.headers,
+            headers: this.headers || undefined,
             isBase64Encoded,
         };
     }
