@@ -45,3 +45,11 @@ jobs:
           CDK_DEFAULT_ACCOUNT: ${{secrets.CDK_DEFAULT_ACCOUNT}}
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+
+      - name: Deploy!
+        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
+        run: npx lerna run deploy:deploy --stream
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{secrets.CDK_DEFAULT_ACCOUNT}}
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
