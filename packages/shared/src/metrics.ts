@@ -5,11 +5,15 @@ export class Metrics {
     /**
      * Start time of all timers
      */
-    private timers: Record<string, number> = {};
+    private timers: Record<string, bigint> = {};
     /**
      * List of time recordings
      */
-    private time: Record<string, number> = {};
+    private time: Record<string, bigint> = {};
+
+    private getTime(): bigint {
+        return process.hrtime.bigint();
+    }
 
     /**
      * Start a timer at the current time
@@ -19,23 +23,23 @@ export class Metrics {
         if (this.timers[timeName] != null) {
             throw new Error(`Duplicate startTime for "${timeName}"`);
         }
-        this.timers[timeName] = Date.now();
+        this.timers[timeName] = this.getTime();
     }
 
     /**
      * End the timer, returning the duration in milliseconds
      * @param timeName timer to end
      */
-    public end(timeName: string): number {
+    public end(timeName: string): bigint {
         if (this.timers[timeName] == null) {
             throw new Error(`Missing startTime information for "${timeName}"`);
         }
-        const duration = Date.now() - this.timers[timeName];
+        const duration = this.getTime() - this.timers[timeName];
         this.time[timeName] = duration;
         return duration;
     }
 
-    public get metrics(): Record<string, number> | undefined {
+    public get metrics(): Record<string, bigint> | undefined {
         const endTimes = Object.keys(this.time);
         // No metrics were started
         if (endTimes.length === 0) {
