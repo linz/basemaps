@@ -1,4 +1,4 @@
-import { LambdaSession, Logger } from '@basemaps/shared';
+import { LambdaSession, LogConfig } from '@basemaps/shared';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { readFileSync, writeFileSync } from 'fs';
 import * as path from 'path';
@@ -27,12 +27,13 @@ describe('TileCreation', () => {
     beforeEach(async () => {
         await tiff.init();
         LambdaSession.reset();
+        jest.spyOn(LogConfig.getOutputStream(), 'write').mockImplementation();
     });
 
     it('should generate a tile', async () => {
         // Make a really large tile so this image will be visible at zoom zero
         const tiler = new Tiler(2 ** 20);
-        const layers = await tiler.tile([tiff], 0, 0, 0, Logger);
+        const layers = await tiler.tile([tiff], 0, 0, 0, LogConfig.get());
 
         expect(layers).not.toEqual(null);
         if (layers == null) throw new Error('Tile is null');
@@ -61,13 +62,13 @@ describe('TileCreation', () => {
 
             // Make the background black to easily spot flaws
             tiler.raster.background.alpha = 1;
-            const layers = await tiler.tile([tiff], centerTile, centerTile, zoom, Logger);
+            const layers = await tiler.tile([tiff], centerTile, centerTile, zoom, LogConfig.get());
             expect(layers).not.toEqual(null);
             if (layers == null) throw new Error('Tile is null');
 
             const png = await tiler.raster.compose(
                 layers,
-                Logger,
+                LogConfig.get(),
             );
             const newImage = PNG.sync.read(png);
             if (WRITE_IMAGES) {

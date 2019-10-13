@@ -1,4 +1,4 @@
-import { Logger, LambdaSession, BoundingBox, Size } from '@basemaps/shared';
+import { LogType, LambdaSession, BoundingBox, Size } from '@basemaps/shared';
 import * as Sharp from 'sharp';
 
 export interface Composition {
@@ -30,7 +30,7 @@ export class Raster {
         this.tileSize = tileSize;
     }
 
-    public async compose(composition: Composition[], logger: typeof Logger): Promise<Buffer> {
+    public async compose(composition: Composition[], logger: LogType): Promise<Buffer> {
         const sharp = this.createImage();
 
         const timer = LambdaSession.get().timer;

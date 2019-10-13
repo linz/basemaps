@@ -2,7 +2,7 @@ process.env['COG_BUCKET'] = 'fake-bucket';
 
 jest.mock('@cogeotiff/source-aws');
 
-import { Logger, Env, LambdaSession } from '@basemaps/shared';
+import { Env, LambdaSession, LogConfig } from '@basemaps/shared';
 import { ALBEvent } from 'aws-lambda';
 import { handleRequest } from '../index';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
@@ -45,10 +45,12 @@ describe('LambdaXyz', () => {
         }
         // For each tiff created generate a unique number
         createMock.mockImplementation(() => counter++);
+
+        jest.spyOn(LogConfig.getOutputStream(), 'write').mockImplementation();
     });
 
     it('should generate a tile 0,0,0', async () => {
-        const res = await handleRequest(req('/0/0/0/0.png'), null as any, Logger);
+        const res = await handleRequest(req('/0/0/0/0.png'), null as any, LogConfig.get());
         expect(res.status).toEqual(200);
         expect(res.headers).toEqual({
             'content-type': 'image/png',
@@ -76,7 +78,7 @@ describe('LambdaXyz', () => {
 
     it('should 404 if a tile is in bounds', async () => {
         tileMock.mockReset();
-        const res = await handleRequest(req('/0/0/0/0.png'), null as any, Logger);
+        const res = await handleRequest(req('/0/0/0/0.png'), null as any, LogConfig.get());
         expect(res.status).toEqual(404);
         expect(tileMock.mock.calls.length).toEqual(1);
         expect(rasterMock.mock.calls.length).toEqual(0);
@@ -85,7 +87,7 @@ describe('LambdaXyz', () => {
     it('should 304 if a tile is not modified', async () => {
         const request = req('/0/0/0/0.png');
         request.headers = { 'if-none-match': '"IIasQDnNSdw55Q4npcCyYmLmkWB8vBbemMiDIdAgqC4="' };
-        const res = await handleRequest(request, null as any, Logger);
+        const res = await handleRequest(request, null as any, LogConfig.get());
         expect(res.status).toEqual(304);
         expect(tileMock.mock.calls.length).toEqual(1);
         expect(rasterMock.mock.calls.length).toEqual(0);
@@ -96,7 +98,7 @@ describe('LambdaXyz', () => {
 
     ['/favicon.ico', '/index.html', '/foo/bar'].forEach(path => {
         it('should error on invalid paths: ' + path, async () => {
-            const res = await handleRequest(req(path), null as any, Logger);
+            const res = await handleRequest(req(path), null as any, LogConfig.get());
             expect(res.status).toEqual(404);
         });
     });
@@ -104,7 +106,7 @@ describe('LambdaXyz', () => {
     it('should respond to /version', async () => {
         process.env[Env.Version] = 'version';
         process.env[Env.Hash] = 'hash';
-        const res = await handleRequest(req('/version'), null as any, Logger);
+        const res = await handleRequest(req('/version'), null as any, LogConfig.get());
         expect(res.statusDescription).toEqual('ok');
         expect(res.status).toEqual(200);
         expect(res.toResponse().body).toEqual(JSON.stringify({ version: 'version', hash: 'hash' }));
@@ -112,7 +114,7 @@ describe('LambdaXyz', () => {
     });
 
     it('should respond to /health', async () => {
-        const res = await handleRequest(req('/health'), null as any, Logger);
+        const res = await handleRequest(req('/health'), null as any, LogConfig.get());
         expect(res.statusDescription).toEqual('ok');
         expect(res.status).toEqual(200);
         expect(res.toResponse().body).toEqual(JSON.stringify({ status: 200, message: 'ok' }));
@@ -120,7 +122,7 @@ describe('LambdaXyz', () => {
     });
 
     it('should respond to /ping', async () => {
-        const res = await handleRequest(req('/ping'), null as any, Logger);
+        const res = await handleRequest(req('/ping'), null as any, LogConfig.get());
         expect(res.statusDescription).toEqual('ok');
         expect(res.status).toEqual(200);
         expect(res.toResponse().body).toEqual(JSON.stringify({ status: 200, message: 'ok' }));

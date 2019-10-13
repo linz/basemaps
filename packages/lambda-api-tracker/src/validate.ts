@@ -1,11 +1,11 @@
-import { Aws, Logger, Const, LambdaHttpResponseCloudFront, HttpHeader, LambdaSession } from '@basemaps/shared';
+import { Aws, LogType, Const, LambdaHttpResponseCloudFront, HttpHeader, LambdaSession } from '@basemaps/shared';
 
 export const ValidateRequest = {
     /**
      * Validate that a API Key is valid
      * @param apiKey API key to validate
      */
-    async validate(apiKey: string, log: typeof Logger): Promise<LambdaHttpResponseCloudFront | void> {
+    async validate(apiKey: string, log: LogType): Promise<LambdaHttpResponseCloudFront | void> {
         const timer = LambdaSession.get().timer;
         // TODO increment the api counter
         timer.start('validate:db');

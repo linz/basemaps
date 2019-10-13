@@ -1,5 +1,11 @@
-import { HttpHeader, LambdaFunction, LambdaHttpResponseAlb, LambdaSession, LambdaType, Logger } from '@basemaps/shared';
-import { Log } from '@cogeotiff/core';
+import {
+    HttpHeader,
+    LambdaFunction,
+    LambdaHttpResponseAlb,
+    LambdaSession,
+    LambdaType,
+    LogType,
+} from '@basemaps/shared';
 import { ALBEvent, Context } from 'aws-lambda';
 import { createHash } from 'crypto';
 import { route } from './router';
@@ -19,11 +25,11 @@ function getHeader(evt: ALBEvent, header: string): string | null {
 export async function handleRequest(
     event: ALBEvent,
     context: Context,
-    logger: typeof Logger,
+    logger: LogType,
 ): Promise<LambdaHttpResponseAlb> {
     const session = LambdaSession.get();
     const tiler = Tilers.tile256;
-    Log.set(logger);
+
     const httpMethod = event.httpMethod.toLowerCase();
 
     session.set('method', httpMethod);
