@@ -1,4 +1,4 @@
-import { LambdaSession, Logger } from '@basemaps/shared';
+import { LambdaSession, LogType } from '@basemaps/shared';
 import { Bounds } from '@basemaps/shared/build/bounds';
 import { Projection } from '@basemaps/shared/build/projection';
 import { CogTiff, CogTiffImage } from '@cogeotiff/core';
@@ -42,7 +42,7 @@ export class Tiler {
         x: number,
         y: number,
         zoom: number,
-        logger: typeof Logger,
+        logger: LogType,
     ): Promise<Composition[] | null> {
         let layers: Composition[] = [];
         const timer = LambdaSession.get().timer;
@@ -153,7 +153,7 @@ export class Tiler {
         return composition;
     }
 
-    protected getTiles(tiff: CogTiff, x: number, y: number, z: number, logger: typeof Logger): Composition[] | null {
+    protected getTiles(tiff: CogTiff, x: number, y: number, z: number, logger: LogType): Composition[] | null {
         const rasterBounds = this.getRasterTiffIntersection(tiff, x, y, z);
         if (rasterBounds == null) {
             return null;

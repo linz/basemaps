@@ -30,23 +30,30 @@ export class Metrics {
      * End the timer, returning the duration in milliseconds
      * @param timeName timer to end
      */
-    public end(timeName: string): bigint {
+    public end(timeName: string): number {
         if (this.timers[timeName] == null) {
             throw new Error(`Missing startTime information for "${timeName}"`);
         }
         const duration = this.getTime() - this.timers[timeName];
         this.time[timeName] = duration;
-        return duration;
+        return Number(duration);
     }
 
-    public get metrics(): Record<string, bigint> | undefined {
+    /**
+     * Convert all the times to Number so that they can be used
+     */
+    public get metrics(): Record<string, number> | undefined {
         const endTimes = Object.keys(this.time);
         // No metrics were started
         if (endTimes.length === 0) {
             return undefined;
         }
+        const output: Record<string, number> = {};
+        for (const key of endTimes) {
+            output[key] = Number(this.time[key]);
+        }
 
-        return this.time;
+        return output;
     }
 
     /** Get a list of timers that never finished */

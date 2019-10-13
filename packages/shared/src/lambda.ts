@@ -1,8 +1,7 @@
 import { ALBEvent, ALBResult, Callback, CloudFrontRequestEvent, CloudFrontRequestResult, Context } from 'aws-lambda';
-import * as pino from 'pino';
 import { HttpHeader } from './header';
 import { LambdaHttpResponse, LambdaType } from './lambda.response.http';
-import { Logger } from './log';
+import { LogConfig, LogType } from './log';
 import { LambdaSession } from './session';
 import { LambdaHttp } from './lambda.response';
 import { Const } from './const';
@@ -23,10 +22,10 @@ export class LambdaFunction {
      */
     public static wrap<T extends LambdaHttpRequestType>(
         type: LambdaType,
-        fn: (event: T, context: Context, logger: pino.Logger) => Promise<LambdaHttpResponse>,
-        logger = Logger,
+        fn: (event: T, context: Context, logger: LogType) => Promise<LambdaHttpResponse>,
     ): (event: T, context: Context, callback: Callback<LambdaHttpReturnType>) => Promise<void> {
         return async (event: T, context: Context, callback: Callback<LambdaHttpReturnType>): Promise<void> => {
+            const logger = LogConfig.get();
             // Extract the correlationId from the provided http headers
             const correlationId = LambdaHttp.getHeader(type, event, HttpHeader.CorrelationId);
             const session = LambdaSession.reset(correlationId);
@@ -75,6 +74,7 @@ export class LambdaFunction {
             session.set('duration', duration);
 
             log.info(session.logContext, 'LambdaDone');
+
             // There will always be a response
             callback(null, res.toResponse());
         };

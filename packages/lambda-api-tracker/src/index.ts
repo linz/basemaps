@@ -1,6 +1,5 @@
 import {
     Const,
-    Projection,
     getXyzFromPath,
     HttpHeader,
     LambdaFunction,
@@ -9,7 +8,8 @@ import {
     LambdaHttpResponseCloudFrontRequest,
     LambdaSession,
     LambdaType,
-    Logger,
+    Projection,
+    LogType,
 } from '@basemaps/shared';
 import { CloudFrontRequestEvent, Context } from 'aws-lambda';
 import { queryStringExtractor } from './query';
@@ -22,7 +22,7 @@ const projection = new Projection(256);
 export async function handleRequest(
     event: CloudFrontRequestEvent,
     context: Context,
-    logger: typeof Logger,
+    logger: LogType,
 ): Promise<LambdaHttpResponse> {
     const session = LambdaSession.get();
     const [record] = event.Records;
