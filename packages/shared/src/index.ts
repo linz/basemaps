@@ -3,6 +3,7 @@ export { Aws } from './aws/index';
 // --
 export { Const, Env } from './const';
 export { HttpHeader } from './header';
+export { ApiKeyTable, ApiKeyTableRecord } from './aws/api.key.table';
 export { LambdaFunction } from './lambda';
 export { LambdaHttpResponseAlb } from './lambda.response.alb';
 export { LambdaHttpResponseCloudFront, LambdaHttpResponseCloudFrontRequest } from './lambda.response.cf';
