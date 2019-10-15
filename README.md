@@ -1,6 +1,6 @@
 # Basemaps
 
-[![Build Status](https://action-badges.now.sh/linz/basemaps)](https://github.com/linz/basemaps/actions)
+[![Build Status](https://github.com/linz/basemaps/workflows/Build/badge.svg)](https://github.com/linz/basemaps/actions)
 [![License](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://github.com/linz/basemaps/blob/master/LICENSE)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/linz/basemaps.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/linz/basemaps/context:javascript)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=linz/basemaps)](https://dependabot.com)

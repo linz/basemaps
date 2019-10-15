@@ -21,7 +21,7 @@ export const TiffUtil = {
                 bucketName,
                 '2019-09-20-2019-NZ-Sentinel-3band-alpha.compress_webp.align_google.aligned_3.bs_512.tif',
             ),
-            CogSourceAwsS3.create(bucketName, '2019-09-30-bg43.webp.google.aligned.cog.tif'),
+            CogSourceAwsS3.create(bucketName, '2019-10-15.bg43.webp.google.aligned.cogrs_lan.bs_512.ali_3.alp_y.tif'),
         ];
         return Tiffs;
     },
