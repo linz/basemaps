@@ -26,7 +26,7 @@
     "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-prettier": "^3.1.0",
     "jest": "^24.8.0",
-    "lerna": "^3.16.4",
+    "lerna": "^3.18.2",
     "prettier": "^1.18.2",
     "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
@@ -36,5 +36,8 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "resolutions": {
+    "https-proxy-agent": "^3.0.0"
+  }
 }
