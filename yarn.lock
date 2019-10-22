@@ -230,20 +230,20 @@
     "@aws-cdk/core" "1.13.1"
     "@aws-cdk/cx-api" "1.13.1"
 
-"@aws-cdk/cfnspec@1.13.1":
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.13.1.tgz#1f2d8bd7d9ff74baeba9b2aa0d0b72c1f3c42245"
-  integrity sha512-UN4RP3UJ0GdHjNmr9CTAw4pnQfMJE+kiqvCFiS1cCeGrgHEsm40mYCIgetOmOMHgKcPaXCQ4sSSXvM7pviKdjQ==
+"@aws-cdk/cfnspec@1.14.0":
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-1.14.0.tgz#5a9161d917ae5b48fa9ebe1656c61f2d68221757"
+  integrity sha512-7/8IzdqIBVzdyRK53y38CmNJ1q07o/QmzjkoG6xXuzrH+JQo8NgxqaejzSM1tu48PAdMWhqBFtULFmA0rmyqCw==
   dependencies:
     md5 "^2.2.1"
 
-"@aws-cdk/cloudformation-diff@1.13.1":
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.13.1.tgz#19dbc4fa6197d4027879a7ddbfaab15ba6360d51"
-  integrity sha512-/QoPlBfpx3kDHzYtAts48TVAGsfrjV7e02Pd+f9/YnBFwQ00qcG58x8UtdeFIPyYVei90yUU1LBmSuCJDbBXUA==
+"@aws-cdk/cloudformation-diff@1.14.0":
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cloudformation-diff/-/cloudformation-diff-1.14.0.tgz#912f0c3172072a4587ef2cbdac4b78ad297acdef"
+  integrity sha512-8KEJYMZ2cXlJV3FBlKvdOkMlfnITFMa8wsjDEZgYhVLroUCHeFGWjiCy42PG2N3zXehzpkvOc0Z9Pxkc4+u4uA==
   dependencies:
-    "@aws-cdk/cfnspec" "1.13.1"
-    "@aws-cdk/cx-api" "1.13.1"
+    "@aws-cdk/cfnspec" "1.14.0"
+    "@aws-cdk/cx-api" "1.14.0"
     colors "^1.4.0"
     diff "^4.0.1"
     fast-deep-equal "^2.0.1"
@@ -265,10 +265,22 @@
   dependencies:
     semver "^6.3.0"
 
+"@aws-cdk/cx-api@1.14.0":
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.14.0.tgz#365c8cd21edac65f7d5674a2d718602175040727"
+  integrity sha512-bTe6OPexb4FdN02GM42Af80Uf1qF/viC3FPwzhkVRdk31ZrSKbxNgh7Ys9OtVTp91U06RNpfWrTjob+DLQJmoQ==
+  dependencies:
+    semver "^6.3.0"
+
 "@aws-cdk/region-info@1.13.1":
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/@aws-cdk/region-info/-/region-info-1.13.1.tgz#ad973db69767c76455e4f5d68b755c8206f79ac4"
   integrity sha512-JdTlOW3Ku7RVH3rY+rxhAGX4afyALmtCchIlRnCqqYZb+sj/7V086UauCsAKP4A31EitxMca/BWMDGInTBLGyg==
+
+"@aws-cdk/region-info@1.14.0":
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/region-info/-/region-info-1.14.0.tgz#d090b505dec08e9a1cd0d4bfa56afe7e930bc05f"
+  integrity sha512-Yw/BuOSh39QelX9X4Hik0Cuq8WFm1KYDU2CJyEnzMrP9dVhlLTrsUnZcQM4kZ8LqY624QmMI1lsq0SE0A1fyeA==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.5.5":
   version "7.5.5"
@@ -2246,15 +2258,15 @@ atob@^2.1.1:
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
 aws-cdk@^1.13.1:
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-1.13.1.tgz#f0f54a2408faaa2669c465a080fc717f09243e4b"
-  integrity sha512-+M79n4iPUItH7zyq+UE/gUDp9Of4sA70Dk6u9obIjs7AgjTJVDIEAKZ70dLThnb7nzJuBLl7ATrwm5YoN2uG3Q==
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-1.14.0.tgz#f811d459905aa13130d4eec11c4d582d1ac8ee4a"
+  integrity sha512-R9jNioMaKBoPo7Kegjm0rOOBdWACRBC3prt9tPTYMrN8r7bmpAxw0UkAYFEYp1nV3+DfZ0s+YMzABjUqKP12iw==
   dependencies:
-    "@aws-cdk/cloudformation-diff" "1.13.1"
-    "@aws-cdk/cx-api" "1.13.1"
-    "@aws-cdk/region-info" "1.13.1"
+    "@aws-cdk/cloudformation-diff" "1.14.0"
+    "@aws-cdk/cx-api" "1.14.0"
+    "@aws-cdk/region-info" "1.14.0"
     archiver "^3.1.1"
-    aws-sdk "^2.548.0"
+    aws-sdk "^2.553.0"
     camelcase "^5.3.1"
     colors "^1.4.0"
     decamelize "^3.2.0"
@@ -2263,30 +2275,15 @@ aws-cdk@^1.13.1:
     json-diff "^0.5.4"
     minimatch ">=3.0"
     promptly "^3.0.3"
-    proxy-agent "^3.1.0"
+    proxy-agent "^3.1.1"
     request "^2.88.0"
     semver "^6.3.0"
     source-map-support "^0.5.13"
     table "^5.4.6"
-    yaml "^1.7.1"
+    yaml "^1.7.2"
     yargs "^14.2.0"
 
-aws-sdk@^2.508.0, aws-sdk@^2.524.0:
-  version "2.545.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.545.0.tgz#98c50ddfc806376a18cf72f4d4c3d2fdfe25046d"
-  integrity sha512-oQjpvvTkh2a7CvWhSUcFQWkpfkM3wVpzvLgGMInoZ6QIOsuQ+oNKz+zq48yQ619/GP8XnOh0zBQJLcYaa3XAKw==
-  dependencies:
-    buffer "4.9.1"
-    events "1.1.1"
-    ieee754 "1.1.13"
-    jmespath "0.15.0"
-    querystring "0.2.0"
-    sax "1.2.1"
-    url "0.10.3"
-    uuid "3.3.2"
-    xml2js "0.4.19"
-
-aws-sdk@^2.548.0:
+aws-sdk@^2.508.0, aws-sdk@^2.524.0, aws-sdk@^2.553.0:
   version "2.553.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.553.0.tgz#a82c611015138db8f720e0079fe929a65b359a8e"
   integrity sha512-tcITF/3ijBumvP13Qrq/VB1eRWW6szKF0xVwZ/ch0MGkaEiTQ9n3zNRPtQc1drllsVEm5u5aXp3inoi5zmq0xg==
@@ -5891,14 +5888,6 @@ loud-rejection@^1.0.0:
     currently-unhandled "^0.4.1"
     signal-exit "^3.0.0"
 
-lru-cache@^4.1.2:
-  version "4.1.5"
-  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-4.1.5.tgz#8bbe50ea85bed59bc9e33dcab8235ee9bcf443cd"
-  integrity sha512-sWZlbEP2OsHNkXrMl5GYk/jKk70MBng6UU4YI/qGDYbgf6YbP4EvmqISbXCoJiRKs+1bSpFHVgQxvJ17F2li5g==
-  dependencies:
-    pseudomap "^1.0.2"
-    yallist "^2.1.2"
-
 lru-cache@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-5.1.1.tgz#1da27e6710271947695daf6848e847f01d84b920"
@@ -6796,16 +6785,16 @@ p-waterfall@^1.0.0:
   dependencies:
     p-reduce "^1.0.0"
 
-pac-proxy-agent@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/pac-proxy-agent/-/pac-proxy-agent-3.0.0.tgz#11d578b72a164ad74bf9d5bac9ff462a38282432"
-  integrity sha512-AOUX9jES/EkQX2zRz0AW7lSx9jD//hQS8wFXBvcnd/J2Py9KaMJMqV/LPqJssj1tgGufotb2mmopGPR15ODv1Q==
+pac-proxy-agent@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/pac-proxy-agent/-/pac-proxy-agent-3.0.1.tgz#115b1e58f92576cac2eba718593ca7b0e37de2ad"
+  integrity sha512-44DUg21G/liUZ48dJpUSjZnFfZro/0K5JTyFYLBcmh9+T6Ooi4/i4efwUiEy0+4oQusCBqWdhv16XohIj1GqnQ==
   dependencies:
     agent-base "^4.2.0"
-    debug "^3.1.0"
+    debug "^4.1.1"
     get-uri "^2.0.0"
     http-proxy-agent "^2.1.0"
-    https-proxy-agent "^2.2.1"
+    https-proxy-agent "^3.0.0"
     pac-resolver "^3.0.0"
     raw-body "^2.2.0"
     socks-proxy-agent "^4.0.1"
@@ -7182,17 +7171,17 @@ protoduck@^5.0.1:
   dependencies:
     genfun "^5.0.0"
 
-proxy-agent@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/proxy-agent/-/proxy-agent-3.1.0.tgz#3cf86ee911c94874de4359f37efd9de25157c113"
-  integrity sha512-IkbZL4ClW3wwBL/ABFD2zJ8iP84CY0uKMvBPk/OceQe/cEjrxzN1pMHsLwhbzUoRhG9QbSxYC+Z7LBkTiBNvrA==
+proxy-agent@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/proxy-agent/-/proxy-agent-3.1.1.tgz#7e04e06bf36afa624a1540be247b47c970bd3014"
+  integrity sha512-WudaR0eTsDx33O3EJE16PjBRZWcX8GqCEeERw1W3hZJgH/F2a46g7jty6UGty6NeJ4CKQy8ds2CJPMiyeqaTvw==
   dependencies:
     agent-base "^4.2.0"
-    debug "^3.1.0"
+    debug "4"
     http-proxy-agent "^2.1.0"
-    https-proxy-agent "^2.2.1"
-    lru-cache "^4.1.2"
-    pac-proxy-agent "^3.0.0"
+    https-proxy-agent "^3.0.0"
+    lru-cache "^5.1.1"
+    pac-proxy-agent "^3.0.1"
     proxy-from-env "^1.0.0"
     socks-proxy-agent "^4.0.1"
 
@@ -7205,11 +7194,6 @@ prr@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/prr/-/prr-1.0.1.tgz#d3fc114ba06995a45ec6893f484ceb1d78f5f476"
   integrity sha1-0/wRS6BplaRexok/SEzrHXj19HY=
-
-pseudomap@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/pseudomap/-/pseudomap-1.0.2.tgz#f052a28da70e618917ef0a8ac34c1ae5a68286b3"
-  integrity sha1-8FKijacOYYkX7wqKw0wa5aaChrM=
 
 psl@^1.1.24, psl@^1.1.28:
   version "1.4.0"
@@ -9135,17 +9119,12 @@ y18n@^4.0.0:
   resolved "https://registry.yarnpkg.com/y18n/-/y18n-4.0.0.tgz#95ef94f85ecc81d007c264e190a120f0a3c8566b"
   integrity sha512-r9S/ZyXu/Xu9q1tYlpsLIsa3EeLXXk0VwlxqTcFRfg9EhMW+17kbt9G0NrgCmhGb5vT2hyhJZLfDGx+7+5Uj/w==
 
-yallist@^2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/yallist/-/yallist-2.1.2.tgz#1c11f9218f076089a47dd512f93c6699a6a81d52"
-  integrity sha1-HBH5IY8HYImkfdUS+TxmmaaoHVI=
-
 yallist@^3.0.0, yallist@^3.0.2, yallist@^3.0.3:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-3.1.1.tgz#dbb7daf9bfd8bac9ab45ebf602b8cbad0d5d08fd"
   integrity sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==
 
-yaml@^1.7.1:
+yaml@^1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.7.2.tgz#f26aabf738590ab61efaca502358e48dc9f348b2"
   integrity sha512-qXROVp90sb83XtAoqE8bP9RwAkTTZbugRUTm5YeFCBfNRPEp2YzTeqWiz7m5OORHzEvrA/qcGS8hp/E+MMROYw==
