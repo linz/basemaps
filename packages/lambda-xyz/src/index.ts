@@ -11,6 +11,7 @@ import { createHash } from 'crypto';
 import { route } from './router';
 import { TiffUtil } from './tiff';
 import { Tilers } from './tiler';
+import { EmptyPng } from './png';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
@@ -72,14 +73,14 @@ export async function handleRequest(
     );
     session.timer.end('tile:compose');
 
+    const response = new LambdaHttpResponseAlb(200, 'ok');
+    response.header(HttpHeader.ETag, cacheKey);
     if (buf == null) {
-        // TODO serve empty PNG?
-        return new LambdaHttpResponseAlb(404, 'Tile not found');
+        response.buffer(EmptyPng, 'image/png');
+        return response;
     }
 
-    const response = new LambdaHttpResponseAlb(200, 'ok');
     response.buffer(buf, 'image/png');
-    response.header(HttpHeader.ETag, cacheKey);
     return response;
 }
 
