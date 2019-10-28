@@ -59,6 +59,6 @@ export class LambdaHttpResponseAlb extends LambdaHttpResponse {
         if (req.headers == null) {
             return null;
         }
-        return req.headers[header];
+        return req.headers[header.toLowerCase()];
     }
 }

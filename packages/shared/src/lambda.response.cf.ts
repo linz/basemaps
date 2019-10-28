@@ -48,7 +48,7 @@ export class LambdaHttpResponseCloudFront extends LambdaHttpResponse {
             return null;
         }
 
-        const value = headers[key];
+        const value = headers[key.toLowerCase()];
         if (value == null || value.length == 0) {
             return null;
         }
