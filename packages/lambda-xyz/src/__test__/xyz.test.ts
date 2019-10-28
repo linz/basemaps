@@ -76,10 +76,10 @@ describe('LambdaXyz', () => {
         expect(session.logContext['location']).toEqual({ lat: 0, lon: 0 });
     });
 
-    it('should 404 if a tile is in bounds', async () => {
+    it('should 200 with empty png if a tile is out of bounds', async () => {
         tileMock.mockReset();
         const res = await handleRequest(req('/0/0/0/0.png'), null as any, LogConfig.get());
-        expect(res.status).toEqual(404);
+        expect(res.status).toEqual(200);
         expect(tileMock.mock.calls.length).toEqual(1);
         expect(rasterMock.mock.calls.length).toEqual(0);
     });
