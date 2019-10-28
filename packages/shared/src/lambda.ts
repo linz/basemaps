@@ -4,7 +4,7 @@ import { LambdaHttpResponse, LambdaType } from './lambda.response.http';
 import { LogConfig, LogType } from './log';
 import { LambdaSession } from './session';
 import { LambdaHttp } from './lambda.response';
-import { Const } from './const';
+import { Const, Env } from './const';
 
 export interface HttpStatus {
     statusCode: string;
@@ -49,6 +49,12 @@ export class LambdaFunction {
                 version: process.env['AWS_LAMBDA_FUNCTION_VERSION'],
                 region: process.env['AWS_REGION'],
             };
+
+            const version = {
+                version: process.env[Env.Version],
+                hash: process.env[Env.Hash],
+            };
+            session.set('version', version);
 
             log.info({ lambda }, 'LambdaStart');
 
