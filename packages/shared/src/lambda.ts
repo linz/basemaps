@@ -26,6 +26,12 @@ export class LambdaFunction {
     ): (event: T, context: Context, callback: Callback<LambdaHttpReturnType>) => Promise<void> {
         return async (event: T, context: Context, callback: Callback<LambdaHttpReturnType>): Promise<void> => {
             const logger = LogConfig.get();
+
+            // Log the lambda event for debugging
+            if (process.env['DEBUG']) {
+                logger.debug({ event }, 'LambdaDebug');
+            }
+
             // Extract the correlationId from the provided http headers
             const correlationId = LambdaHttp.getHeader(type, event, HttpHeader.CorrelationId);
             const session = LambdaSession.reset(correlationId);
@@ -35,8 +41,6 @@ export class LambdaFunction {
             const apiKey = LambdaHttp.getHeader(type, event, HttpHeader.ApiKey);
             session.set(Const.ApiKey.QueryString, apiKey);
 
-            // TODO pull a correlationId from `x-linz-correlation-id` header
-            // const correlationId = (session.correlationId = ulid.ulid());
             const log = logger.child({ id: session.id });
 
             const lambda = {

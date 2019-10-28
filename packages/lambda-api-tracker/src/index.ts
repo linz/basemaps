@@ -11,11 +11,28 @@ import {
     Projection,
     LogType,
 } from '@basemaps/shared';
-import { CloudFrontRequestEvent, Context } from 'aws-lambda';
+import { CloudFrontRequestEvent, Context, CloudFrontHeaders } from 'aws-lambda';
 import { queryStringExtractor } from './query';
 import { ValidateRequest } from './validate';
 
 const projection = new Projection(256);
+
+/**
+ * Load a header value from CloudFront headers
+ *
+ * @param headers CloudFrontHeaders
+ * @param key header key to load (lower case)
+ */
+function getHeader(headers: CloudFrontHeaders, key: string): string | null {
+    const headerVal = headers[key];
+    if (headerVal == null) {
+        return null;
+    }
+    if (headerVal.length < 1) {
+        return null;
+    }
+    return headerVal[0].value;
+}
 /**
  * Validate a CloudFront request has a valid API key and is not abusing the system
  */
@@ -29,8 +46,14 @@ export async function handleRequest(
     const request = record.cf.request;
     const queryString = request.querystring;
 
+    session.set('name', 'LambdaApiTracker');
     session.set('method', request.method.toLowerCase());
     session.set('path', request.uri);
+
+    // Extract request information
+    session.set('clientIp', request.clientIp);
+    session.set('referer', getHeader(request.headers, 'referer'));
+    session.set('userAgent', getHeader(request.headers, 'user-agent'));
 
     // Expose some debugging metrics so we can plot tile requests onto a map
     const pathMatch = getXyzFromPath(request.uri);

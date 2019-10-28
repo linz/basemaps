@@ -8,10 +8,10 @@ import {
 } from '@basemaps/shared';
 import { ALBEvent, Context } from 'aws-lambda';
 import { createHash } from 'crypto';
+import { EmptyPng } from './png';
 import { route } from './router';
 import { TiffUtil } from './tiff';
 import { Tilers } from './tiler';
-import { EmptyPng } from './png';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
@@ -21,6 +21,20 @@ function getHeader(evt: ALBEvent, header: string): string | null {
         return evt.headers[header.toLowerCase()];
     }
     return null;
+}
+
+/**
+ * Serve a empty PNG response
+ * @param session session to store metrics in
+ * @param cacheKey ETag of the request
+ */
+function emptyPng(session: LambdaSession, cacheKey: string): LambdaHttpResponseAlb {
+    session.set('bytes', EmptyPng.byteLength);
+    session.set('emptyPng', true);
+    const response = new LambdaHttpResponseAlb(200, 'ok');
+    response.header(HttpHeader.ETag, cacheKey);
+    response.buffer(EmptyPng, 'image/png');
+    return response;
 }
 
 export async function handleRequest(
@@ -33,6 +47,7 @@ export async function handleRequest(
 
     const httpMethod = event.httpMethod.toLowerCase();
 
+    session.set('name', 'LambdaXyzTiler');
     session.set('method', httpMethod);
     session.set('path', event.path);
 
@@ -48,15 +63,14 @@ export async function handleRequest(
     const tiffs = await Promise.all(TiffUtil.load());
     const layers = await tiler.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z, logger);
 
-    if (layers == null) {
-        // TODO serve empty PNG?
-        return new LambdaHttpResponseAlb(404, 'Tile not found');
-    }
-
     // Generate a unique hash given the full URI, the layers used and a renderId
     const cacheKey = createHash('sha256')
         .update(JSON.stringify({ pathMatch, layers, RenderId }))
         .digest('base64');
+
+    if (layers == null) {
+        return emptyPng(session, cacheKey);
+    }
 
     // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our etag this tile has not been modified.
     const ifNoneMatch = getHeader(event, HttpHeader.IfNoneMatch);
@@ -73,13 +87,12 @@ export async function handleRequest(
     );
     session.timer.end('tile:compose');
 
+    if (buf == null) {
+        return emptyPng(session, cacheKey);
+    }
+    session.set('bytes', buf.byteLength);
     const response = new LambdaHttpResponseAlb(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
-    if (buf == null) {
-        response.buffer(EmptyPng, 'image/png');
-        return response;
-    }
-
     response.buffer(buf, 'image/png');
     return response;
 }
