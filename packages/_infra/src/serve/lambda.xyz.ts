@@ -35,19 +35,5 @@ export class LambdaXyz extends cdk.Construct {
         });
 
         cogBucket.grantRead(this.lambda);
-
-        // CloudFront requires a specific version for a lambda,
-        // so using a hash of the source code create a version
-        const lambdaHash = VersionUtil.hash(CODE_PATH);
-        this.version = this.lambda.addVersion(
-            ':sha256:' + lambdaHash,
-            undefined,
-            `${version.version} - ${version.hash}`,
-        );
-
-        // Output the edge lambda's ARN
-        new cdk.CfnOutput(this, 'LambdaXyz', {
-            value: cdk.Fn.join(':', [this.lambda.functionArn, this.version.version]),
-        });
     }
 }
