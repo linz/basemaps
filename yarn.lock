@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@arkweid/lefthook@^0.6.3":
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/@arkweid/lefthook/-/lefthook-0.6.3.tgz#59ed1e2861ec924181b40c4edd8f60c720df42f6"
-  integrity sha512-mKtMBRAs2YgH9J49KogVSAJWI9WJQdJkoH8LfMfHNs+foDOgLqFLEngPI8XiekHupHDH6YF5ZInbvm2ndc2uug==
-
 "@aws-cdk/assets@1.16.3":
   version "1.16.3"
   resolved "https://registry.yarnpkg.com/@aws-cdk/assets/-/assets-1.16.3.tgz#9f39b5867ff6e9a9985b036fc12b17c5a282c78c"

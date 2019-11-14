@@ -1,4 +1,0 @@
-commit-msg:
-  commands:
-    commitlint:
-      run: commitlint -e
