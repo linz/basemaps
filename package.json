@@ -38,5 +38,8 @@
   ],
   "resolutions": {
     "https-proxy-agent": "^3.0.0"
+  },
+  "dependencies": {
+    "https-proxy-agent": "^3.0.0"
   }
 }
