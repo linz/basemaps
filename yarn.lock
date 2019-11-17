@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@aws-cdk/assets@1.16.3":
-  version "1.16.3"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/assets/-/assets-1.16.3.tgz#9f39b5867ff6e9a9985b036fc12b17c5a282c78c"
-  integrity sha512-i3ntGvFEYl19owSYuOGU+hFqrOyc0EzhXGhoGTKKB8z8TutgBnEkVUNg5JECg4GEfhOS0cRdXNWCmC29sVYzBg==
+"@aws-cdk/assets@1.15.0", "@aws-cdk/assets@1.16.3":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/assets/-/assets-1.15.0.tgz#a63d6ddf04fe5edf28b39a5d17259f333c7f8e7e"
+  integrity sha512-zQGaQxlIt+ddWIxeLRFhInC3XiJ73jv84uLXp5R7X3+86q6LZzw9BeFjMTwigt/5UFYMprt3JvVP71fJ3tmEbA==
   dependencies:
-    "@aws-cdk/core" "1.16.3"
-    "@aws-cdk/cx-api" "1.16.3"
+    "@aws-cdk/core" "1.15.0"
+    "@aws-cdk/cx-api" "1.15.0"
     minimatch "^3.0.4"
 
 "@aws-cdk/aws-applicationautoscaling@1.16.3":
@@ -247,12 +247,26 @@
     string-width "^4.2.0"
     table "^5.4.6"
 
+"@aws-cdk/core@1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.15.0.tgz#b14ac205b160a92218996101ef428c0053172e57"
+  integrity sha512-3AIuxumb+6VAowGpSUc6s84WVJYHV1lVjECJWlvzvQP2ObPKq46HzoUnBoGKEf2IlG3l7zr2q1spFHRO+fmaZQ==
+  dependencies:
+    "@aws-cdk/cx-api" "1.15.0"
+
 "@aws-cdk/core@1.16.3", "@aws-cdk/core@^1.16.3":
   version "1.16.3"
   resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.16.3.tgz#ad2dcfad0fbe1751933eadc83b70ba7d1dd1f554"
   integrity sha512-S1OfvtDVhg1iijH4elzy+cjcvdDitVgwyydnSBxueai1ryuHv5Nhrmg9e8t9KsF552Fa01gzuQ/z2wuVzRSYpw==
   dependencies:
     "@aws-cdk/cx-api" "1.16.3"
+
+"@aws-cdk/cx-api@1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.15.0.tgz#641d9f6d6bd9343f2e465ea8dc2f47cec3ce5189"
+  integrity sha512-VSR+OQ7x/mMiyXgiqREraSGs00v9W/h2jXW1jCIxfcWTBWAEAVvRE5dsR8CHf6NyH/+6pq5YN6rUzEpwyd2UCA==
+  dependencies:
+    semver "^6.3.0"
 
 "@aws-cdk/cx-api@1.16.3":
   version "1.16.3"

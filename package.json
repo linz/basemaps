@@ -37,6 +37,7 @@
     "packages/*"
   ],
   "resolutions": {
+    "@aws-cdk/assets": "1.15.0",
     "https-proxy-agent": "^3.0.0"
   },
   "dependencies": {
