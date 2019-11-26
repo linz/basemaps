@@ -424,6 +424,13 @@
   dependencies:
     ieee754 "^1.1.13"
 
+"@cogeotiff/core@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-0.6.0.tgz#160839111903f943b7049275161d20d5f131f3a4"
+  integrity sha512-rbp3/fjOwrgFPPnxLrAPCXaUsJjRQ2EmK01vpppfavkDMQ9xBCb3f51arHUZPGY2vgsz6vX8YIip3UESpA10fA==
+  dependencies:
+    ieee754 "^1.1.13"
+
 "@cogeotiff/source-aws@^0.4.1":
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-0.4.1.tgz#5cb59d47436b39c0cf708fdaf14261c933ca6e37"
@@ -432,12 +439,12 @@
     "@cogeotiff/core" "^0.4.1"
     aws-sdk "^2.524.0"
 
-"@cogeotiff/source-file@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-0.4.1.tgz#bce0058df0b1ae67710c34f842bb6c1b9c5e3dac"
-  integrity sha512-UW1ChlofKR8h07O33e8QxgvH86zzAssGwI9oBIBc2b4+KcRlcoeRHj16Hd3aMLuIN6y0/jZuN9eSzZLGx2Fu0g==
+"@cogeotiff/source-file@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-0.6.0.tgz#9215c5ee378cc4bf805d64f6234a53692d80874e"
+  integrity sha512-yWGpCwmqf0Sld2v2ZKv/lXr3LWHvZE0H25RQap4rXE6Ufa9OCCSnf2d3QiLGHrfFw2IlS6CizW+WARx/SlknLQ==
   dependencies:
-    "@cogeotiff/core" "^0.4.1"
+    "@cogeotiff/core" "^0.6.0"
 
 "@commitlint/cli@^8.1.0", "@commitlint/cli@^8.2.0":
   version "8.2.0"
