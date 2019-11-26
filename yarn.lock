@@ -29,7 +29,7 @@
     "@aws-cdk/aws-iam" "1.18.0"
     "@aws-cdk/core" "1.18.0"
 
-"@aws-cdk/aws-certificatemanager@1.18.0", "@aws-cdk/aws-certificatemanager@^1.16.3":
+"@aws-cdk/aws-certificatemanager@1.18.0", "@aws-cdk/aws-certificatemanager@^1.18.0":
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-certificatemanager/-/aws-certificatemanager-1.18.0.tgz#45ad15789fddce5fd55e487811b9bf53b600e81d"
   integrity sha512-JXrXJkw6y0J8wiIBUmhMO4icKyILRBm8r2WPjGcep28oF+FYBQGYbD97R5z/5+NJAdb4r06Bu/cNmgleNR4kTw==
@@ -52,7 +52,7 @@
     "@aws-cdk/core" "1.18.0"
     "@aws-cdk/cx-api" "1.18.0"
 
-"@aws-cdk/aws-cloudfront@^1.16.3":
+"@aws-cdk/aws-cloudfront@^1.18.0":
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-cloudfront/-/aws-cloudfront-1.18.0.tgz#85504103f924c0784ea0aeb7007b45482c85858e"
   integrity sha512-xqxECDkUQcj5SHsZ4FGKDd9l9MYRzzHNL/Wb+Hbj2WHJKOrM0YLFmvEfAr/hLhVk5fC98JUAXkXAXbkL19jmtw==
@@ -72,7 +72,7 @@
     "@aws-cdk/aws-iam" "1.18.0"
     "@aws-cdk/core" "1.18.0"
 
-"@aws-cdk/aws-dynamodb@^1.16.3":
+"@aws-cdk/aws-dynamodb@^1.18.0":
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-dynamodb/-/aws-dynamodb-1.18.0.tgz#dd6617963ba73bc43abbfecf90fdebef6040f178"
   integrity sha512-LUTNaZ5J894kT88MNKWkqQFxxfjDj9AV7qle1U7lIxq18B9At9O0pNY74ayZF7TZQlPk3ra9Cu5fjFeKpx0Ukg==
@@ -92,7 +92,7 @@
     "@aws-cdk/core" "1.18.0"
     "@aws-cdk/cx-api" "1.18.0"
 
-"@aws-cdk/aws-elasticloadbalancingv2-targets@^1.16.3":
+"@aws-cdk/aws-elasticloadbalancingv2-targets@^1.18.0":
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-elasticloadbalancingv2-targets/-/aws-elasticloadbalancingv2-targets-1.18.0.tgz#b96ed317ad662b55ee9d4f49bafc17fcd4e6d922"
   integrity sha512-WsPR0dPgYKR1F02ppKEn1EPCHR+Et0CdD1WYNXopmM6RcJE7Zq/nZ0Va1Z5H+IkLCyasZaRhlNYsJXsjDqYBeg==
@@ -103,7 +103,7 @@
     "@aws-cdk/aws-lambda" "1.18.0"
     "@aws-cdk/core" "1.18.0"
 
-"@aws-cdk/aws-elasticloadbalancingv2@1.18.0", "@aws-cdk/aws-elasticloadbalancingv2@^1.16.3":
+"@aws-cdk/aws-elasticloadbalancingv2@1.18.0", "@aws-cdk/aws-elasticloadbalancingv2@^1.18.0":
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-elasticloadbalancingv2/-/aws-elasticloadbalancingv2-1.18.0.tgz#1bc2f862e8565afb64a0c3f14b131956f9bb1110"
   integrity sha512-ZsquayhYGkCQDa2SgziseuCc4g7vA3iIWWk/IYd7wBjQhmTbnjSjgn+DemOZJpNHU6oCZizIlJGP0dXoykFczw==
@@ -186,7 +186,7 @@
     "@aws-cdk/core" "1.18.0"
     "@aws-cdk/cx-api" "1.18.0"
 
-"@aws-cdk/aws-s3@1.18.0", "@aws-cdk/aws-s3@^1.16.3":
+"@aws-cdk/aws-s3@1.18.0", "@aws-cdk/aws-s3@^1.18.0":
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-s3/-/aws-s3-1.18.0.tgz#bfc28b49f91a3f6dfe54151054b6ab1f92d0dc83"
   integrity sha512-i50+7AEC8bMrxhB/0/eCg+JgiQTsvTEkZK1PPP1dncYQPi73uq9vk5RRVicdOtX6jvFz2aKUxWiVc3PdVuXRyQ==
@@ -247,7 +247,7 @@
     string-width "^4.2.0"
     table "^5.4.6"
 
-"@aws-cdk/core@1.18.0", "@aws-cdk/core@^1.16.3":
+"@aws-cdk/core@1.18.0", "@aws-cdk/core@^1.18.0":
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.18.0.tgz#0cf75353772fdf7f34e4a3de6510a8881fd75eb5"
   integrity sha512-9/VCu0X/McR/VPpEnFLKQ08Nc6xsjwJEA5LA3yIh6RSnFpIcQhu4IhDcoRG6OXjiOIDXk1rFf1Tu8pHevame6g==
@@ -2273,7 +2273,7 @@ atob@^2.1.1:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-aws-cdk@^1.16.3:
+aws-cdk@^1.18.0:
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-1.18.0.tgz#a04e0e02d7825a86858227bf657b65239e02b9d3"
   integrity sha512-3sSLFOode5che27HXvgDkaw5596UYhnUPLDGli8ieaHtJ6Hl44DHVTMXUwEugk8XmJiRzqPRgJG1pKsUD7wAiA==
