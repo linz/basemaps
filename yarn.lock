@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@aws-cdk/assets@1.15.0", "@aws-cdk/assets@1.18.0":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/assets/-/assets-1.15.0.tgz#a63d6ddf04fe5edf28b39a5d17259f333c7f8e7e"
-  integrity sha512-zQGaQxlIt+ddWIxeLRFhInC3XiJ73jv84uLXp5R7X3+86q6LZzw9BeFjMTwigt/5UFYMprt3JvVP71fJ3tmEbA==
+"@aws-cdk/assets@1.18.0":
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/assets/-/assets-1.18.0.tgz#c6859dc82c43864dd9a52f3cac32dd4e66023936"
+  integrity sha512-mkb4lR3JzWoQyKdHbkri5v6NuKEQNJ9gbbyoad61nTCfdRbpKfJ8agEzhT/9F7FdsPdCZuDFGAxxRYOBw5B1Jw==
   dependencies:
-    "@aws-cdk/core" "1.15.0"
-    "@aws-cdk/cx-api" "1.15.0"
+    "@aws-cdk/core" "1.18.0"
+    "@aws-cdk/cx-api" "1.18.0"
     minimatch "^3.0.4"
 
 "@aws-cdk/aws-applicationautoscaling@1.18.0":
@@ -247,26 +247,12 @@
     string-width "^4.2.0"
     table "^5.4.6"
 
-"@aws-cdk/core@1.15.0":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.15.0.tgz#b14ac205b160a92218996101ef428c0053172e57"
-  integrity sha512-3AIuxumb+6VAowGpSUc6s84WVJYHV1lVjECJWlvzvQP2ObPKq46HzoUnBoGKEf2IlG3l7zr2q1spFHRO+fmaZQ==
-  dependencies:
-    "@aws-cdk/cx-api" "1.15.0"
-
 "@aws-cdk/core@1.18.0", "@aws-cdk/core@^1.16.3":
   version "1.18.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.18.0.tgz#0cf75353772fdf7f34e4a3de6510a8881fd75eb5"
   integrity sha512-9/VCu0X/McR/VPpEnFLKQ08Nc6xsjwJEA5LA3yIh6RSnFpIcQhu4IhDcoRG6OXjiOIDXk1rFf1Tu8pHevame6g==
   dependencies:
     "@aws-cdk/cx-api" "1.18.0"
-
-"@aws-cdk/cx-api@1.15.0":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.15.0.tgz#641d9f6d6bd9343f2e465ea8dc2f47cec3ce5189"
-  integrity sha512-VSR+OQ7x/mMiyXgiqREraSGs00v9W/h2jXW1jCIxfcWTBWAEAVvRE5dsR8CHf6NyH/+6pq5YN6rUzEpwyd2UCA==
-  dependencies:
-    semver "^6.3.0"
 
 "@aws-cdk/cx-api@1.18.0":
   version "1.18.0"
