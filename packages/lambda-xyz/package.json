@@ -9,7 +9,7 @@
     "@basemaps/shared": "^0.0.1",
     "@basemaps/tiler": "^0.0.1",
     "@cogeotiff/core": "^0.4.1",
-    "@cogeotiff/source-aws": "^0.4.1",
+    "@cogeotiff/source-aws": "^0.6.0",
     "path-to-regexp": "^3.1.0",
     "sharp": "^0.23.1"
   },
