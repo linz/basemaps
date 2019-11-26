@@ -14,15 +14,15 @@
     "git-rev-sync": "^1.12.0"
   },
   "devDependencies": {
-    "@aws-cdk/aws-cloudfront": "^1.16.3",
-    "@aws-cdk/aws-dynamodb": "^1.16.3",
-    "@aws-cdk/aws-elasticloadbalancingv2": "^1.16.3",
-    "@aws-cdk/aws-elasticloadbalancingv2-targets": "^1.16.3",
-    "@aws-cdk/aws-certificatemanager": "^1.16.3",
-    "@aws-cdk/aws-s3": "^1.16.3",
-    "@aws-cdk/core": "^1.16.3",
+    "@aws-cdk/aws-cloudfront": "^1.18.0",
+    "@aws-cdk/aws-dynamodb": "^1.18.0",
+    "@aws-cdk/aws-elasticloadbalancingv2": "^1.18.0",
+    "@aws-cdk/aws-elasticloadbalancingv2-targets": "^1.18.0",
+    "@aws-cdk/aws-certificatemanager": "^1.18.0",
+    "@aws-cdk/aws-s3": "^1.18.0",
+    "@aws-cdk/core": "^1.18.0",
     "@basemaps/shared": "^0.0.1",
     "@types/git-rev-sync": "^1.12.0",
-    "aws-cdk": "^1.16.3"
+    "aws-cdk": "^1.18.0"
   }
 }
