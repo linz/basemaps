@@ -13,11 +13,11 @@
   },
   "dependencies": {
     "@basemaps/shared": "^0.0.1",
-    "@cogeotiff/core": "^0.4.1",
+    "@cogeotiff/core": "^0.6.0",
     "sharp": "^0.23.1"
   },
   "devDependencies": {
-    "@cogeotiff/source-file": "^0.4.1",
+    "@cogeotiff/source-file": "^0.6.0",
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
     "@types/sharp": "^0.22.3",

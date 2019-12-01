@@ -417,27 +417,27 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@cogeotiff/core@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-0.4.1.tgz#8bb406d915e3f7f6dd0d41c4a95b8e376e573c86"
-  integrity sha512-u9BiDA+8BeqHMwDDokT3VYpKscb65vjZkrSXKyPZm7zvziktL0qsnqCMbVD3rn2cMROM+cRU0LIdHkeonRLRbw==
+"@cogeotiff/core@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-0.6.0.tgz#160839111903f943b7049275161d20d5f131f3a4"
+  integrity sha512-rbp3/fjOwrgFPPnxLrAPCXaUsJjRQ2EmK01vpppfavkDMQ9xBCb3f51arHUZPGY2vgsz6vX8YIip3UESpA10fA==
   dependencies:
     ieee754 "^1.1.13"
 
-"@cogeotiff/source-aws@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-0.4.1.tgz#5cb59d47436b39c0cf708fdaf14261c933ca6e37"
-  integrity sha512-pecJK10h1DcTByzr3LyrZOz18+y/70K+FjmWZevGe2dH81cek9HdfBuok/IeJVIJkurulQ993UnTZdJOeQIAzw==
+"@cogeotiff/source-aws@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-0.6.0.tgz#d6362c5e1c5c7eaecd346eda15f089b8da6dd418"
+  integrity sha512-/TeT46sWfdGnbwtti9XLxJOYJaEehxPgnj/pWzc+1GIB3NcYTuFC6j5IIYdpoRlizeQRW1I4675Qn3u8pISjuA==
   dependencies:
-    "@cogeotiff/core" "^0.4.1"
+    "@cogeotiff/core" "^0.6.0"
     aws-sdk "^2.524.0"
 
-"@cogeotiff/source-file@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-0.4.1.tgz#bce0058df0b1ae67710c34f842bb6c1b9c5e3dac"
-  integrity sha512-UW1ChlofKR8h07O33e8QxgvH86zzAssGwI9oBIBc2b4+KcRlcoeRHj16Hd3aMLuIN6y0/jZuN9eSzZLGx2Fu0g==
+"@cogeotiff/source-file@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-0.6.0.tgz#9215c5ee378cc4bf805d64f6234a53692d80874e"
+  integrity sha512-yWGpCwmqf0Sld2v2ZKv/lXr3LWHvZE0H25RQap4rXE6Ufa9OCCSnf2d3QiLGHrfFw2IlS6CizW+WARx/SlknLQ==
   dependencies:
-    "@cogeotiff/core" "^0.4.1"
+    "@cogeotiff/core" "^0.6.0"
 
 "@commitlint/cli@^8.1.0", "@commitlint/cli@^8.2.0":
   version "8.2.0"
