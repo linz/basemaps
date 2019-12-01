@@ -1,0 +1,16 @@
+{
+  "name": "@basemaps/cog",
+  "version": "0.0.1",
+  "private": true,
+  "repository": "git@github.com:linz/basemaps.git",
+  "author": "",
+  "license": "BSD 3-Clause",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
