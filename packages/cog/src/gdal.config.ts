@@ -7,7 +7,7 @@ export interface GdalCogBuilderOptions {
 
     /** Limit the output to a bounding box
      */
-    bbox?: number;
+    bbox?: [number, number, number, number];
 
     /**
      * Compression to use for the cog

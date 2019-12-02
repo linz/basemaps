@@ -12,6 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@basemaps/shared": "^0.0.1",
     "@cogeotiff/core": "^0.6.0",
     "@cogeotiff/source-aws": "^0.6.0",
     "@cogeotiff/source-file": "^0.6.0",

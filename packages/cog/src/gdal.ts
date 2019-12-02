@@ -52,6 +52,14 @@ export class GdalCogBuilder {
         this.parser = new GdalProgressParser();
     }
 
+    getBounds(): string[] {
+        if (this.config.bbox == null) {
+            return [];
+        }
+        const bbox = this.config.bbox.map(s => String(s));
+        return ['-projwin', bbox[0], bbox[1], bbox[2], bbox[3], '-projwin_srs', 'EPSG:900913'];
+    }
+
     getMount(source: string): string[] {
         if (source == null) {
             return [];
@@ -104,6 +112,11 @@ export class GdalCogBuilder {
             // User configured compression
             '-co',
             `COMPRESS=${this.config.compression}`,
+            // Number of levels to align to web mercator
+            '-co',
+            `ALIGNED_LEVELS=${this.config.alignmentLevels}`,
+            ...this.getBounds(),
+
             this.source,
             this.target,
         ];
