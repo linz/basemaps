@@ -13,6 +13,9 @@
   },
   "dependencies": {
     "@cogeotiff/core": "^0.6.0",
+    "@cogeotiff/source-aws": "^0.6.0",
+    "@cogeotiff/source-file": "^0.6.0",
+    "@cogeotiff/source-url": "^0.6.0",
     "@mapbox/tile-cover": "^3.0.2",
     "p-limit": "^2.2.1",
     "proj4": "^2.6.0"

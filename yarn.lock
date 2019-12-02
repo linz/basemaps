@@ -439,6 +439,14 @@
   dependencies:
     "@cogeotiff/core" "^0.6.0"
 
+"@cogeotiff/source-url@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-0.6.0.tgz#87fb2fad656e6f3c4afaa5591b0ba0fadc290734"
+  integrity sha512-qql3bD9AiNHepY8oq7fhgEgY3Do42W9LxU8jJxZwfVGEsAFZigDMtioP1jPQA7cSbc3lLinsmf8GInkWZSAnIg==
+  dependencies:
+    "@cogeotiff/core" "^0.6.0"
+    node-fetch "^2.6.0"
+
 "@commitlint/cli@^8.1.0", "@commitlint/cli@^8.2.0":
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-8.2.0.tgz#fbf9969e04e2162d985eaa644fdad6ce807aadb6"
@@ -6492,7 +6500,7 @@ node-fetch-npm@^2.0.2:
     json-parse-better-errors "^1.0.0"
     safe-buffer "^5.1.1"
 
-node-fetch@^2.3.0, node-fetch@^2.5.0:
+node-fetch@^2.3.0, node-fetch@^2.5.0, node-fetch@^2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
   integrity sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
