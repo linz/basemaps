@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import * as MapBoxCover from '@mapbox/tile-cover';
+import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
+import { Proj2193 } from './proj';
 
 export class TileCover {
     /** Max number of tiles to be a "valid" covering */
@@ -10,6 +12,31 @@ export class TileCover {
     constructor(maxTiles: number, maxZoom: number) {
         this.maxTiles = maxTiles;
         this.maxZoom = maxZoom;
+    }
+
+    async bounds(tif: CogTiff): Promise<GeoJSON.Position[][]> {
+        await tif.init();
+        const image = tif.getImage(0);
+        const bbox = image.bbox;
+        const topLeft = [bbox[0], bbox[3]];
+        const topRight = [bbox[2], bbox[3]];
+        const bottomRight = [bbox[2], bbox[1]];
+        const bottomLeft = [bbox[0], bbox[1]];
+
+        const projection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey);
+        if (projection != 2193) {
+            throw new Error('Invalid tiff projection: ' + projection);
+        }
+
+        return [
+            [
+                Proj2193.inverse(topLeft),
+                Proj2193.inverse(bottomLeft),
+                Proj2193.inverse(bottomRight),
+                Proj2193.inverse(topRight),
+                Proj2193.inverse(topLeft),
+            ],
+        ];
     }
 
     /**
