@@ -11,6 +11,11 @@
     "build": "tsc",
     "test": "jest"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "p-limit": "^2.2.1",
+    "proj4": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/proj4": "^2.5.0"
+  }
 }
