@@ -12,10 +12,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@mapbox/tile-cover": "^3.0.2",
     "p-limit": "^2.2.1",
     "proj4": "^2.6.0"
   },
   "devDependencies": {
+    "@types/mapbox__tile-cover": "^3.0.0",
     "@types/proj4": "^2.5.0"
   }
 }
