@@ -81,10 +81,7 @@ export async function handleRequest(
 
     logger.info({ layers: layers.length }, 'Composing');
     session.timer.start('tile:compose');
-    const buf = await tiler.raster.compose(
-        layers,
-        logger,
-    );
+    const buf = await tiler.raster.compose(layers, logger);
     session.timer.end('tile:compose');
 
     if (buf == null) {

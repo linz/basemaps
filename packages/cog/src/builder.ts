@@ -7,6 +7,15 @@ import { TileCover } from './cover';
 import { Proj2193 } from './proj';
 import { Projection } from '@basemaps/shared';
 
+export interface CogBuilderMetadata {
+    /** Bounding boxes for all polygons */
+    bounds: GeoJSON.MultiPolygon;
+    /** Quadkey indexes for the covering tiles */
+    covering: string[];
+    /** Lowest quality resolution for images */
+    resolution: number | -1;
+}
+
 const proj256 = new Projection(256);
 export class CogBuilder {
     q: Limit;
@@ -27,11 +36,19 @@ export class CogBuilder {
      * Get the source bounds a collection of tiffs
      * @param tiffs
      */
-    async bounds(tiffs: string[]): Promise<GeoJSON.MultiPolygon> {
+    async bounds(tiffs: string[]): Promise<{ bounds: GeoJSON.MultiPolygon; resolution: number }> {
+        let resolution = -1;
         const coordinates = tiffs.map(tiffPath => {
             return this.q(async () => {
                 const source = CogBuilder.createTiffSource(tiffPath);
                 const tiff = new CogTiff(source);
+                await tiff.init();
+
+                const tiffRes = await this.getTiffResolution(tiff);
+                if (tiffRes > resolution) {
+                    resolution = tiffRes;
+                }
+
                 const output = await this.getTifBounds(tiff);
                 if (CogSourceFile.isSource(source)) {
                     await source.close();
@@ -41,24 +58,21 @@ export class CogBuilder {
         });
 
         return {
-            type: 'MultiPolygon' as const,
-            coordinates: await Promise.all(coordinates),
+            bounds: {
+                type: 'MultiPolygon' as const,
+                coordinates: await Promise.all(coordinates),
+            },
+            resolution,
         };
     }
-    /**
-     * Generate the bounding boxes for a GeoTiff converting to WGS84
-     * @param tif
-     */
-    async getTifBounds(tif: CogTiff): Promise<GeoJSON.Position[][]> {
-        await tif.init();
-        const image = tif.getImage(0);
-        const bbox = image.bbox;
-        const topLeft = [bbox[0], bbox[3]];
-        const topRight = [bbox[2], bbox[3]];
-        const bottomRight = [bbox[2], bbox[1]];
-        const bottomLeft = [bbox[0], bbox[1]];
 
-        await image.fetch(TiffTag.GeoKeyDirectory);
+    /**
+     * Find the closest resolution to the tiff image
+     * @param tiff
+     */
+    async getTiffResolution(tiff: CogTiff): Promise<number> {
+        const image = tiff.getImage(0);
+
         // Get best image resolution
         const [resX] = image.resolution;
         let z = 30;
@@ -69,6 +83,22 @@ export class CogBuilder {
             }
             z--;
         }
+        return z;
+    }
+
+    /**
+     * Generate the bounding boxes for a GeoTiff converting to WGS84
+     * @param tiff
+     */
+    async getTifBounds(tiff: CogTiff): Promise<GeoJSON.Position[][]> {
+        const image = tiff.getImage(0);
+        const bbox = image.bbox;
+        const topLeft = [bbox[0], bbox[3]];
+        const topRight = [bbox[2], bbox[3]];
+        const bottomRight = [bbox[2], bbox[1]];
+        const bottomLeft = [bbox[0], bbox[1]];
+
+        await image.fetch(TiffTag.GeoKeyDirectory);
 
         const projection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey);
 
@@ -92,10 +122,10 @@ export class CogBuilder {
      * @param tiffs list of tiffs to be generated
      * @returns List of QuadKey indexes for
      */
-    async build(tiffs: string[]): Promise<string[]> {
-        const bounds = await this.bounds(tiffs);
+    async build(tiffs: string[]): Promise<CogBuilderMetadata> {
+        const { bounds, resolution } = await this.bounds(tiffs);
         const covering = TileCover.cover(bounds, 1, this.maxTileZoom, this.maxTileCount);
-        return covering;
+        return { bounds, resolution, covering };
     }
 
     static createTiffSource(tiff: string): CogSource {

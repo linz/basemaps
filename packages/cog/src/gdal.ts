@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { GdalCogBuilderOptions } from './gdal.config';
 import { GdalProgressParser } from './gdal.progress';
+import { LogType } from '@basemaps/shared';
 
 const DOCKER_CONTAINER = 'osgeo/gdal';
 const DOCKER_CONTAINER_TAG = 'ubuntu-small-latest';
@@ -71,8 +72,9 @@ export class GdalCogBuilder {
         return [];
     }
 
-    get args(): string[] {
+    getDockerArgs(): string[] {
         const userInfo = os.userInfo();
+
         return [
             'run',
             // Config the container to be run as the current user
@@ -85,7 +87,12 @@ export class GdalCogBuilder {
             // Docker container
             '-i',
             `${DOCKER_CONTAINER}:${DOCKER_CONTAINER_TAG}`,
+        ];
+    }
 
+    get args(): string[] {
+        return [
+            ...this.getDockerArgs(),
             // GDAL Arguments
             `gdal_translate`,
             // Force output using COG Driver
@@ -122,7 +129,7 @@ export class GdalCogBuilder {
         ];
     }
 
-    convert(): Promise<void> {
+    convert(log?: LogType): Promise<void> {
         if (this.promise != null) {
             return this.promise;
         }
@@ -138,14 +145,14 @@ export class GdalCogBuilder {
         this.promise = new Promise((resolve, reject) => {
             child.on('exit', (code: number) => {
                 if (code != 0) {
-                    // TODO log out errorBuff
+                    log?.error({ code, log: errorBuff.join('').trim() }, 'FailedToConvert');
                     return reject(new Error('Failed to execute GDAL: ' + errorBuff.join('').trim()));
                 }
                 return resolve();
             });
-            child.on('error', (err: Error) => {
-                // TODO log out errorBuff
-                reject(err);
+            child.on('error', (error: Error) => {
+                log?.error({ error, log: errorBuff.join('').trim() }, 'FailedToConvert');
+                reject(error);
             });
         });
 

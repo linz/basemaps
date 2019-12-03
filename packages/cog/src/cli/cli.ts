@@ -1,15 +1,52 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-
-import * as fs from 'fs';
-import * as path from 'path';
-import { CogBuilder } from '../builder';
-import { TileCover } from '../cover';
-
-import { LogConfig } from '@basemaps/shared';
-import { GdalCogBuilder } from '../gdal';
-import * as Mercator from 'global-mercator';
+import { LogConfig, LogType } from '@basemaps/shared';
 import { randomBytes } from 'crypto';
+import * as fs from 'fs';
+import * as Mercator from 'global-mercator';
+import * as path from 'path';
+import 'source-map-support/register';
+import { CogBuilder, CogBuilderMetadata } from '../builder';
+import { GdalCogBuilder } from '../gdal';
+import pLimit from 'p-limit';
+
+async function processQuadKey(
+    quadKey: string,
+    filePath: string,
+    metadata: CogBuilderMetadata,
+    logger: LogType,
+): Promise<void> {
+    const startTime = Date.now();
+    const google = Mercator.quadkeyToGoogle(quadKey);
+    const [minX, minY, maxX, maxY] = Mercator.googleToBBoxMeters(google);
+    const alignmentLevels = metadata.resolution - google[2];
+    const gdal = new GdalCogBuilder(
+        filePath + '.3857.vrt',
+        `${filePath}.${quadKey}.cog.${randomBytes(6).toString('hex')}.tiff`,
+        {
+            bbox: [minX, maxY, maxX, minY],
+            alignmentLevels, // TODO this level should be calculated from tile - best image zoom level
+        },
+    );
+
+    gdal.parser.on('progress', p =>
+        logger.info(
+            { quadKey, target: gdal.target, progress: p.toFixed(2), duration: Date.now() - startTime },
+            'Progress',
+        ),
+    );
+
+    logger.info(
+        {
+            quadKey,
+            tile: { x: google[0], y: google[1], z: google[2] },
+            alignmentLevels,
+            cmd: 'docker ' + gdal.args.join(' '),
+        },
+        'command',
+    );
+
+    await gdal.convert();
+}
 
 /**
  * Dump a covering for a folder full of tiffs
@@ -21,6 +58,8 @@ export async function main(): Promise<void> {
         return;
     }
 
+    const Q = pLimit(4);
+
     const filePath = process.argv[2];
     const maxTiles = parseInt(process.argv[3] ?? '50', 10);
     const files = fs
@@ -28,10 +67,10 @@ export async function main(): Promise<void> {
         .filter((f: string): boolean => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'))
         .map((f: string): string => path.join(filePath, f));
 
-    const builder = new CogBuilder(5);
-    const geometry = await builder.bounds(files);
-    const covering = TileCover.cover(geometry, 1, 13, maxTiles);
-    const coveringBounds: GeoJSON.Feature[] = covering.map((quadKey: string, index: number) => {
+    const builder = new CogBuilder(5, maxTiles);
+    const metadata = await builder.build(files);
+
+    const coveringBounds: GeoJSON.Feature[] = metadata.covering.map((quadKey: string, index: number) => {
         const bbox = Mercator.googleToBBox(Mercator.quadkeyToGoogle(quadKey));
         return {
             type: 'Feature',
@@ -56,7 +95,7 @@ export async function main(): Promise<void> {
         features: [
             {
                 type: 'Feature',
-                geometry,
+                geometry: metadata.bounds,
                 properties: {
                     name: 'SourceBounds',
                 },
@@ -66,28 +105,13 @@ export async function main(): Promise<void> {
     };
 
     fs.writeFileSync('./output.geojson', JSON.stringify(geoJson, null, 2));
-    logger.info({ count: coveringBounds.length, indexes: covering.join(', ') }, 'Covered');
+    logger.info({ count: coveringBounds.length, indexes: metadata.covering.join(', ') }, 'Covered');
 
-    for (const quadKey of covering) {
-        const startTime = Date.now();
-        const google = Mercator.quadkeyToGoogle(quadKey);
-        const [minX, minY, maxX, maxY] = Mercator.googleToBBoxMeters(google);
-        const gdal = new GdalCogBuilder(
-            filePath + '.3857.vrt',
-            `${filePath}.${quadKey}.cog.${randomBytes(6).toString('hex')}.tiff`,
-            {
-                bbox: [minX, maxY, maxX, minY],
-                alignmentLevels: 6, // TODO this level should be calculated from tile - best image zoom level
-            },
-        );
+    const todo = metadata.covering.map(async quadKey => {
+        return await Q(() => processQuadKey(quadKey, filePath, metadata, logger));
+    });
 
-        gdal.parser.on('progress', p =>
-            logger.info({ target: gdal.target, progress: p.toFixed(2), duration: Date.now() - startTime }, 'Progress'),
-        );
-
-        // await gdal.convert();
-        logger.info({ cmd: 'docker ' + gdal.args.join(' ') }, 'command');
-    }
+    Promise.all(todo);
 }
 
 main().catch(e => console.error(e));
