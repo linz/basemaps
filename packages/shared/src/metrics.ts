@@ -1,3 +1,4 @@
+const NanoSecondsToMs = BigInt(1000000);
 /**
  * Utility to record some metrics about the execution of the function
  */
@@ -9,7 +10,7 @@ export class Metrics {
     /**
      * List of time recordings
      */
-    private time: Record<string, bigint> = {};
+    private time: Record<string, number> = {};
 
     private getTime(): bigint {
         return process.hrtime.bigint();
@@ -35,8 +36,8 @@ export class Metrics {
             throw new Error(`Missing startTime information for "${timeName}"`);
         }
         const duration = this.getTime() - this.timers[timeName];
-        this.time[timeName] = duration;
-        return Number(duration);
+        this.time[timeName] = Number(duration / NanoSecondsToMs);
+        return Number(this.time[timeName]);
     }
 
     /**
