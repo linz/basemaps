@@ -1,48 +1,69 @@
 #!/usr/bin/env node
 import { LogConfig, LogType } from '@basemaps/shared';
-import { randomBytes } from 'crypto';
 import * as fs from 'fs';
 import * as Mercator from 'global-mercator';
+import pLimit from 'p-limit';
 import * as path from 'path';
 import 'source-map-support/register';
 import { CogBuilder, CogBuilderMetadata } from '../builder';
 import { GdalCogBuilder } from '../gdal';
-import pLimit from 'p-limit';
+import { GdalDocker } from '../gdal.docker';
+
+async function buildVrt(filePath: string, tiffFiles: string[], logger: LogType): Promise<string> {
+    const vrtPath = path.join(filePath, '.vrt');
+    const vrtWarpedPath = path.join(filePath, '.3857.vrt');
+
+    if (fs.existsSync(vrtPath)) {
+        fs.unlinkSync(vrtPath);
+    }
+    const gdalDocker = new GdalDocker(filePath);
+
+    // TODO -addalpha adds a 2nd alpha layer if one exists
+    logger.info({ path: vrtPath }, 'BuildVrt');
+    await gdalDocker.run(['gdalbuildvrt', '-addalpha', '-hidenodata', vrtPath, ...tiffFiles]);
+
+    if (fs.existsSync(vrtWarpedPath)) {
+        fs.unlinkSync(vrtWarpedPath);
+    }
+
+    logger.info({ path: vrtWarpedPath }, 'BuildVrtWarped');
+    await gdalDocker.run(['gdalwarp', '-of', 'VRT', '-t_srs', 'EPSG:3857', vrtPath, vrtWarpedPath]);
+    return vrtWarpedPath;
+}
 
 async function processQuadKey(
     quadKey: string,
-    filePath: string,
+    source: string,
+    target: string,
     metadata: CogBuilderMetadata,
     logger: LogType,
 ): Promise<void> {
-    const startTime = Date.now();
+    let startTime = Date.now();
     const google = Mercator.quadkeyToGoogle(quadKey);
     const [minX, minY, maxX, maxY] = Mercator.googleToBBoxMeters(google);
     const alignmentLevels = metadata.resolution - google[2];
-    const gdal = new GdalCogBuilder(
-        filePath + '.3857.vrt',
-        `${filePath}.${quadKey}.cog.${randomBytes(6).toString('hex')}.tiff`,
-        {
-            bbox: [minX, maxY, maxX, minY],
-            alignmentLevels, // TODO this level should be calculated from tile - best image zoom level
-        },
-    );
 
-    gdal.parser.on('progress', p =>
-        logger.info(
-            { quadKey, target: gdal.target, progress: p.toFixed(2), duration: Date.now() - startTime },
+    const gdal = new GdalCogBuilder(source, path.join(target, `${quadKey}.tiff`), {
+        bbox: [minX, maxY, maxX, minY],
+        alignmentLevels,
+    });
+
+    gdal.gdal.parser.on('progress', p => {
+        logger.debug(
+            { quadKey, target: gdal.target, progress: p.toFixed(2), progressTime: Date.now() - startTime },
             'Progress',
-        ),
-    );
+        );
+        startTime = Date.now();
+    });
 
-    logger.info(
+    logger.debug(
         {
             quadKey,
             tile: { x: google[0], y: google[1], z: google[2] },
             alignmentLevels,
             cmd: 'docker ' + gdal.args.join(' '),
         },
-        'command',
+        'GdalTranslate',
     );
 
     await gdal.convert();
@@ -68,7 +89,15 @@ export async function main(): Promise<void> {
         .map((f: string): string => path.join(filePath, f));
 
     const builder = new CogBuilder(5, maxTiles);
+    logger.info({ fileCount: files.length }, 'BoundingBox');
     const metadata = await builder.build(files);
+
+    const inputVrt = await buildVrt(filePath, files, logger);
+
+    const outputPath = path.join(filePath, 'cog');
+    if (!fs.existsSync(outputPath)) {
+        fs.mkdirSync(outputPath);
+    }
 
     const coveringBounds: GeoJSON.Feature[] = metadata.covering.map((quadKey: string, index: number) => {
         const bbox = Mercator.googleToBBox(Mercator.quadkeyToGoogle(quadKey));
@@ -107,8 +136,13 @@ export async function main(): Promise<void> {
     fs.writeFileSync('./output.geojson', JSON.stringify(geoJson, null, 2));
     logger.info({ count: coveringBounds.length, indexes: metadata.covering.join(', ') }, 'Covered');
 
-    const todo = metadata.covering.map(async quadKey => {
-        return await Q(() => processQuadKey(quadKey, filePath, metadata, logger));
+    const todo = metadata.covering.map((quadKey: string, index: number) => {
+        return Q(async () => {
+            const startTime = Date.now();
+            logger.info({ quadKey, index }, 'Start');
+            await processQuadKey(quadKey, inputVrt, outputPath, metadata, logger);
+            logger.info({ quadKey, duration: Date.now() - startTime, index }, 'Done');
+        });
     });
 
     Promise.all(todo);

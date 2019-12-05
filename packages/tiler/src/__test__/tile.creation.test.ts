@@ -66,10 +66,7 @@ describe('TileCreation', () => {
             expect(layers).not.toEqual(null);
             if (layers == null) throw new Error('Tile is null');
 
-            const png = await tiler.raster.compose(
-                layers,
-                LogConfig.get(),
-            );
+            const png = await tiler.raster.compose(layers, LogConfig.get());
             const newImage = PNG.sync.read(png);
             if (WRITE_IMAGES) {
                 const fileName = getExpectedTileName(tileSize, centerTile, centerTile, zoom);

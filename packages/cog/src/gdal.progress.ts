@@ -9,6 +9,13 @@ export class GdalProgressParser extends EventEmitter {
     dotCount = 0;
     byteCount = 0;
 
+    /** Reset the progress counter */
+    reset(): void {
+        this.waitNewLine = true;
+        this.dotCount = 0;
+        this.byteCount = 0;
+    }
+
     get progress(): number {
         return this.dotCount * (100 / 31);
     }

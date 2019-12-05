@@ -1,12 +1,8 @@
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
-import * as os from 'os';
+import { LogType } from '@basemaps/shared';
+import { ChildProcessWithoutNullStreams } from 'child_process';
 import * as path from 'path';
 import { GdalCogBuilderOptions } from './gdal.config';
-import { GdalProgressParser } from './gdal.progress';
-import { LogType } from '@basemaps/shared';
-
-const DOCKER_CONTAINER = 'osgeo/gdal';
-const DOCKER_CONTAINER_TAG = 'ubuntu-small-latest';
+import { GdalDocker } from './gdal.docker';
 
 /**
  * A docker based GDAL Cog Builder
@@ -38,11 +34,12 @@ export class GdalCogBuilder {
     /** When the process started */
     startTime: number;
     /** Parse the output looking for "." */
-    parser: GdalProgressParser;
+    gdal: GdalDocker;
 
     constructor(source: string, target: string, config: Partial<GdalCogBuilderOptions> = {}) {
         this.source = source;
         this.target = target;
+
         this.config = {
             bbox: config.bbox,
             alignmentLevels: config.alignmentLevels ?? 1,
@@ -50,7 +47,8 @@ export class GdalCogBuilder {
             resampling: config.resampling ?? 'lanczos',
             blockSize: config.blockSize ?? 512,
         };
-        this.parser = new GdalProgressParser();
+
+        this.gdal = new GdalDocker(path.dirname(source));
     }
 
     getBounds(): string[] {
@@ -61,38 +59,8 @@ export class GdalCogBuilder {
         return ['-projwin', bbox[0], bbox[1], bbox[2], bbox[3], '-projwin_srs', 'EPSG:900913'];
     }
 
-    getMount(source: string): string[] {
-        if (source == null) {
-            return [];
-        }
-        if (this.source.startsWith('/')) {
-            const sourcePath = path.dirname(source);
-            return ['-v', `${sourcePath}:${sourcePath}`];
-        }
-        return [];
-    }
-
-    getDockerArgs(): string[] {
-        const userInfo = os.userInfo();
-
-        return [
-            'run',
-            // Config the container to be run as the current user
-            '--user',
-            `${userInfo.uid}:${userInfo.gid}`,
-
-            ...this.getMount(this.source),
-            ...this.getMount(this.target),
-
-            // Docker container
-            '-i',
-            `${DOCKER_CONTAINER}:${DOCKER_CONTAINER_TAG}`,
-        ];
-    }
-
     get args(): string[] {
         return [
-            ...this.getDockerArgs(),
             // GDAL Arguments
             `gdal_translate`,
             // Force output using COG Driver
@@ -130,32 +98,6 @@ export class GdalCogBuilder {
     }
 
     convert(log?: LogType): Promise<void> {
-        if (this.promise != null) {
-            return this.promise;
-        }
-        this.startTime = Date.now();
-
-        const child = spawn('docker', this.args);
-        this.child = child;
-
-        const errorBuff: Buffer[] = [];
-        child.stderr.on('data', (data: Buffer) => errorBuff.push(data));
-        child.stdout.on('data', (data: Buffer) => this.parser.data(data));
-
-        this.promise = new Promise((resolve, reject) => {
-            child.on('exit', (code: number) => {
-                if (code != 0) {
-                    log?.error({ code, log: errorBuff.join('').trim() }, 'FailedToConvert');
-                    return reject(new Error('Failed to execute GDAL: ' + errorBuff.join('').trim()));
-                }
-                return resolve();
-            });
-            child.on('error', (error: Error) => {
-                log?.error({ error, log: errorBuff.join('').trim() }, 'FailedToConvert');
-                reject(error);
-            });
-        });
-
-        return this.promise;
+        return this.gdal.run(this.args, log);
     }
 }
