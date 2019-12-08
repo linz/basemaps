@@ -18,10 +18,6 @@ describe('GdalCogBuilder', () => {
 
         const args = builder.args;
 
-        // Should mount the source and target folders
-        expect(args.includes('/foo:/foo')).toEqual(true);
-        expect(args.includes('/bar:/bar')).toEqual(true);
-
         expect(args.includes('TILING_SCHEME=GoogleMapsCompatible')).toEqual(true);
         expect(args.includes('COMPRESS=webp')).toEqual(true);
         expect(builder.args.includes('BLOCKSIZE=512')).toEqual(true);
