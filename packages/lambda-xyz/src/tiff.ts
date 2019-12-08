@@ -1,11 +1,15 @@
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogTiff } from '@cogeotiff/core';
 import { Env } from '@basemaps/shared';
+import * as path from 'path';
 
 let Tiffs: Promise<CogTiff>[] = [];
 
-function createTiffs(bucketName: string, path: string, files: string[]): Promise<CogTiff>[] {
-    return files.map(f => CogSourceAwsS3.create(bucketName, path + '/' + f));
+function createTiffs(bucketName: string, basePath: string, files: string[]): Promise<CogTiff>[] {
+    return files.map(f => {
+        const fileKey = path.join(basePath, f);
+        return CogSourceAwsS3.create(bucketName, fileKey);
+    });
 }
 
 export const TiffUtil = {
@@ -32,6 +36,7 @@ export const TiffUtil = {
             ]),
             CogSourceAwsS3.create(bucketName, '2019-10-15.bg43.webp.google.aligned.cogrs_lan.bs_512.ali_3.alp_y.tif'),
         ];
+
         return Tiffs;
     },
 };
