@@ -75,7 +75,7 @@ describe('LambdaFunction', () => {
         expect(LogSpy.mock.calls.length).toBeGreaterThan(1);
         const lastCall = LogSpy.mock.calls[LogSpy.mock.calls.length - 1];
         const json = JSON.parse(lastCall[0]);
-        expect(json.duration).toBeGreaterThan(0);
-        expect(json.metrics.xxx).toBeGreaterThan(0);
+        expect(json.duration).toBeGreaterThan(-1);
+        expect(json.metrics.xxx).toBeGreaterThan(-1);
     });
 });

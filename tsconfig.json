@@ -5,6 +5,8 @@
     }, {
         "path": "./packages/tiler"
     }, {
+        "path": "./packages/cog"
+    },{
         "path": "./packages/_infra"
     },{
         "path": "./packages/lambda-api-tracker"

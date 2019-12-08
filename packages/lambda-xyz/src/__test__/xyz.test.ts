@@ -63,7 +63,7 @@ describe('LambdaXyz', () => {
         const [firstCall] = tileMock.mock.calls;
 
         const [tifs, x, y, z] = firstCall;
-        expect(tifs).toEqual([0, 1]);
+        expect(tifs).toEqual([0, 1, 2, 3, 4, 5, 6]);
         expect(x).toEqual(0);
         expect(y).toEqual(0);
         expect(z).toEqual(0);

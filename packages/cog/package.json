@@ -1,5 +1,5 @@
 {
-  "name": "@basemaps/tiler",
+  "name": "@basemaps/cog",
   "version": "0.0.1",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
@@ -9,19 +9,20 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "build-watch": "tsc"
+    "test": "jest"
   },
   "dependencies": {
     "@basemaps/shared": "^0.0.1",
     "@cogeotiff/core": "^0.7.0",
-    "sharp": "^0.23.1"
+    "@cogeotiff/source-aws": "^0.7.0",
+    "@cogeotiff/source-file": "^0.7.0",
+    "@cogeotiff/source-url": "^0.7.0",
+    "@mapbox/tile-cover": "^3.0.2",
+    "p-limit": "^2.2.1",
+    "proj4": "^2.6.0"
   },
   "devDependencies": {
-    "@cogeotiff/source-file": "^0.7.0",
-    "@types/pixelmatch": "^5.0.0",
-    "@types/pngjs": "^3.3.2",
-    "@types/sharp": "^0.22.3",
-    "pixelmatch": "^5.1.0",
-    "pngjs": "^3.4.0"
+    "@types/mapbox__tile-cover": "^3.0.0",
+    "@types/proj4": "^2.5.0"
   }
 }

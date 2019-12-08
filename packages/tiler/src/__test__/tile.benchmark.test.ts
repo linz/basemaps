@@ -30,10 +30,7 @@ describe('TileCreationBenchmark', () => {
         timer.end('tiler:tile');
 
         if (layers == null) throw new Error('Tile is null');
-        await tiler.raster.compose(
-            layers,
-            LogConfig.get(),
-        );
+        await tiler.raster.compose(layers, LogConfig.get());
     }
     const results: Record<string, Record<string, number[]>> = {};
 

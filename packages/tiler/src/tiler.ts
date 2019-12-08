@@ -159,7 +159,6 @@ export class Tiler {
             return null;
         }
         const tiffName = tiff.source.name;
-        logger.info({ tiffName, inBounds: true }, 'TiffBoundsCheck');
         // Find the best internal overview tiff to use with the desired XYZ resolution
         const targetResolution = this.projection.getResolution(z);
         const img = tiff.getImageByResolution(targetResolution);
