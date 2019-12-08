@@ -130,8 +130,11 @@ export class CogBuilder {
 
     static createTiffSource(tiff: string): CogSource {
         if (tiff.startsWith('s3://')) {
-            const parts = tiff.split('/');
-            return new CogSourceAwsS3(parts[2], parts.slice(2).join('/'));
+            const source = CogSourceAwsS3.createFromUri(tiff);
+            if (source == null) {
+                throw new Error('Invalid URI: ' + tiff);
+            }
+            return source;
         } else if (tiff.startsWith('http://') || tiff.startsWith('https://')) {
             return new CogSourceUrl(tiff);
         } else {
