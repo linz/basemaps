@@ -14,31 +14,28 @@ const q = pLimit(5);
 
 async function main(): Promise<void> {
     const filePath = process.argv[2];
-    if (filePath == null) {
-        console.log('Usage: cli.js <tiffPath>');
-        process.exit(1);
+    if (filePath != null) {
+        const files = fs
+            .readdirSync(filePath)
+            .filter(f => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'))
+            .map(f => path.join(filePath, f));
+
+        const allTiffs = files.map(
+            (tiffPath): Promise<CogTiff> => {
+                return q(async () => {
+                    const source = new CogSourceFile(tiffPath);
+                    const tiff = new CogTiff(source);
+                    await tiff.init();
+                    return tiff;
+                });
+            },
+        );
+
+        TiffUtil.load = (): Promise<CogTiff>[] => allTiffs;
     }
 
-    const files = fs
-        .readdirSync(filePath)
-        .filter(f => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'))
-        .map(f => path.join(filePath, f));
-
-    const allTiffs = files.map(
-        (tiffPath): Promise<CogTiff> => {
-            return q(async () => {
-                const source = new CogSourceFile(tiffPath);
-                const tiff = new CogTiff(source);
-                await tiff.init();
-                return tiff;
-            });
-        },
-    );
-
-    TiffUtil.load = (): Promise<CogTiff>[] => allTiffs;
-
     console.time('LoadTiff');
-    await Promise.all(allTiffs);
+    await Promise.all(TiffUtil.load()).catch(e => console.log(e));
     console.timeEnd('LoadTiff');
 
     app.get('/:z/:x/:y.png', async (req: express.Request, res: express.Response) => {
