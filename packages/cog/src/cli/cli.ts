@@ -36,6 +36,7 @@ async function processQuadKey(
     source: string,
     target: string,
     metadata: CogBuilderMetadata,
+    index: number,
     logger: LogType,
 ): Promise<void> {
     let startTime = Date.now();
@@ -50,7 +51,7 @@ async function processQuadKey(
 
     gdal.gdal.parser.on('progress', p => {
         logger.debug(
-            { quadKey, target: gdal.target, progress: p.toFixed(2), progressTime: Date.now() - startTime },
+            { quadKey, target: gdal.target, progress: p.toFixed(2), progressTime: Date.now() - startTime, index },
             'Progress',
         );
         startTime = Date.now();
@@ -140,7 +141,7 @@ export async function main(): Promise<void> {
         return Q(async () => {
             const startTime = Date.now();
             logger.info({ quadKey, index }, 'Start');
-            await processQuadKey(quadKey, inputVrt, outputPath, metadata, logger);
+            await processQuadKey(quadKey, inputVrt, outputPath, metadata, index, logger);
             logger.info({ quadKey, duration: Date.now() - startTime, index }, 'Done');
         });
     });

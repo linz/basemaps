@@ -4,6 +4,9 @@ import * as path from 'path';
 import { GdalCogBuilderOptions } from './gdal.config';
 import { GdalDocker } from './gdal.docker';
 
+/** 1% Buffer to the tiff to help prevent gaps between tiles */
+const TiffBuffer = 1.01;
+
 /**
  * A docker based GDAL Cog Builder
  *
@@ -55,8 +58,9 @@ export class GdalCogBuilder {
         if (this.config.bbox == null) {
             return [];
         }
-        const bbox = this.config.bbox.map(s => String(s));
-        return ['-projwin', bbox[0], bbox[1], bbox[2], bbox[3], '-projwin_srs', 'EPSG:900913'];
+
+        const [ulX, ulY, lrX, llY] = this.config.bbox;
+        return ['-projwin', ulX, ulY, lrX * TiffBuffer, llY * TiffBuffer, '-projwin_srs', 'EPSG:900913'].map(String);
     }
 
     get args(): string[] {

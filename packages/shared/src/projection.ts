@@ -40,7 +40,7 @@ export class Projection {
      * @param tY tile Y offset
      * @param zoom WebMercator zoom level
      */
-    public toQuadKey(tX: number, tY: number, zoom: number): string {
+    public getQuadKeyFromTile(tX: number, tY: number, zoom: number): string {
         return Mercator.googleToQuadkey([tX, tY, zoom]);
     }
     /**
@@ -60,7 +60,7 @@ export class Projection {
      * Get the center of a XYZ tile in LatLon
      * @param tX Tile X offset
      * @param tY Tile Y offset
-     * @param zoom
+     * @param zoom WebMercator zoom level
      */
     public getLatLonCenterFromTile(tX: number, tY: number, zoom: number): LatLon {
         const [minX, minY, maxX, maxY] = Mercator.googleToBBox([tX, tY, zoom]);

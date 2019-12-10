@@ -10,7 +10,6 @@ import * as lambda from '../index';
 import { TiffUtil } from '../tiff';
 
 const app = express();
-const q = pLimit(5);
 
 async function main(): Promise<void> {
     const filePath = process.argv[2];
@@ -21,17 +20,15 @@ async function main(): Promise<void> {
             .map(f => path.join(filePath, f));
 
         const allTiffs = files.map(
-            (tiffPath): Promise<CogTiff> => {
-                return q(async () => {
-                    const source = new CogSourceFile(tiffPath);
-                    const tiff = new CogTiff(source);
-                    await tiff.init();
-                    return tiff;
-                });
+            (tiffPath): CogTiff => {
+                const source = new CogSourceFile(tiffPath);
+                const tiff = new CogTiff(source);
+                return tiff;
             },
         );
 
-        TiffUtil.load = (): Promise<CogTiff>[] => allTiffs;
+        // TODO Should convert tiff into quadkey bounding boxes
+        TiffUtil.getTiffsForQuadKey = (): CogTiff[] => allTiffs;
     }
 
     console.time('LoadTiff');

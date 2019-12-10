@@ -1,20 +1,78 @@
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogTiff } from '@cogeotiff/core';
-import { Env } from '@basemaps/shared';
+import { Env, QuadKey } from '@basemaps/shared';
 import * as path from 'path';
 
-let Tiffs: Promise<CogTiff>[] = [];
+let Tiffs: MosaicCog[] = [];
 
-function createTiffs(bucketName: string, basePath: string, files: string[]): Promise<CogTiff>[] {
-    return files.map(f => {
-        const fileKey = path.join(basePath, f);
-        return CogSourceAwsS3.create(bucketName, fileKey);
-    });
+/**
+ * Collections of COGs representing a imagery set
+ *
+ * All COGs should be QuadKey aligned which allows for efficent searching for required COGs
+ *
+ * @see GdalCogDriver https://gdal.org/drivers/raster/cog.html
+ */
+export class MosaicCog {
+    basePath: string;
+    bucket: string;
+    quadKeys: string[];
+    sources: Map<string, CogTiff>;
+    zoom = { min: 0, max: 32 };
+
+    constructor(bucket: string, basePath: string, quadKeys: string[], zoomMin = 0, zoomMax = 32) {
+        this.bucket = bucket;
+        this.basePath = basePath;
+        this.quadKeys = quadKeys;
+        this.sources = new Map();
+        this.zoom.min = zoomMin;
+        this.zoom.max = zoomMax;
+    }
+
+    getSource(quadKey: string): CogTiff {
+        let existing = this.sources.get(quadKey);
+        if (existing == null) {
+            if (!this.quadKeys.includes(quadKey)) {
+                throw new Error(`QuadKey: ${quadKey} not found in source`);
+            }
+            existing = new CogTiff(new CogSourceAwsS3(this.bucket, path.join(this.basePath, `${quadKey}.tiff`)));
+            this.sources.set(quadKey, existing);
+        }
+        return existing;
+    }
+
+    getTiffsForQuadKey(qk: string): CogTiff[] {
+        const output: CogTiff[] = [];
+        for (const tiffQk of this.quadKeys) {
+            if (QuadKey.intersects(tiffQk, qk)) {
+                output.push(this.getSource(tiffQk));
+            }
+        }
+        return output;
+    }
 }
 
 export const TiffUtil = {
+    getTiffsForQuadKey(qk: string, zoom: number): CogTiff[] {
+        const tiffs = TiffUtil.load();
+        const output: CogTiff[] = [];
+        for (const mosaic of tiffs) {
+            if (zoom > mosaic.zoom.max) {
+                continue;
+            }
+
+            if (zoom < mosaic.zoom.min) {
+                continue;
+            }
+
+            for (const tiff of mosaic.getTiffsForQuadKey(qk)) {
+                output.push(tiff);
+            }
+        }
+        return output;
+    },
+
     /** Load all the tiffs needed for the tiler */
-    load(): Promise<CogTiff>[] {
+    load(): MosaicCog[] {
         if (Tiffs.length > 0) {
             return Tiffs;
         }
@@ -25,16 +83,41 @@ export const TiffUtil = {
         }
 
         Tiffs = [
-            CogSourceAwsS3.create(bucketName, '2019/new-zealand/new_zealand_sentinel_2018-19_10m/2019-12-04/31.tiff'),
-            // TODO list folder and load everything in folder
-            ...createTiffs(bucketName, '2019/new-zealand/gisborne_rural_2017-18_0.3m/2019-12-06/', [
-                '3113331221.tiff',
-                '3113331222.tiff',
-                '3113331223.tiff',
-                '3113331230.tiff',
-                '3113331212.tiff',
-            ]),
-            CogSourceAwsS3.create(bucketName, '2019-10-15.bg43.webp.google.aligned.cogrs_lan.bs_512.ali_3.alp_y.tif'),
+            new MosaicCog(bucketName, '2019/new-zealand/new_zealand_sentinel_2018-19_10m/2019-12-04/', ['31'], 0, 32),
+            new MosaicCog(
+                bucketName,
+                '2019/new-zealand/gisborne_rural_2017-18_0.3m/2019-12-06/',
+                [
+                    '31133310323',
+                    '31133310332',
+                    '31133310333',
+                    '31133312031',
+                    '31133312033',
+                    '3113331210',
+                    '3113331211',
+                    '3113331212',
+                    '31133312130',
+                    '31133312132',
+                    '31133312201',
+                    '31133312203',
+                    '3113331221',
+                    '3113331222',
+                    '3113331223',
+                    '3113331230',
+                    '31133312310',
+                    '31133312312',
+                    '3113331232',
+                    '31133312330',
+                    '31133330000',
+                    '31133330001',
+                    '31133330010',
+                    '31133330011',
+                    '31133330013',
+                    '31133330100',
+                    '31133330102',
+                ],
+                13,
+            ),
         ];
 
         return Tiffs;

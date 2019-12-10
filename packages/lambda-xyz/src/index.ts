@@ -5,6 +5,7 @@ import {
     LambdaSession,
     LambdaType,
     LogType,
+    Env,
 } from '@basemaps/shared';
 import { ALBEvent, Context } from 'aws-lambda';
 import { createHash } from 'crypto';
@@ -12,6 +13,7 @@ import { EmptyPng } from './png';
 import { route } from './router';
 import { TiffUtil } from './tiff';
 import { Tilers } from './tiler';
+import pLimit from 'p-limit';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
@@ -37,6 +39,8 @@ function emptyPng(session: LambdaSession, cacheKey: string): LambdaHttpResponseA
     return response;
 }
 
+const LoadingQueue = pLimit(parseInt(process.env[Env.TiffConcurrency] ?? '5'));
+
 export async function handleRequest(
     event: ALBEvent,
     context: Context,
@@ -57,10 +61,15 @@ export async function handleRequest(
     }
 
     const latLon = tiler.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
+    const qk = tiler.projection.getQuadKeyFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
     session.set('xyz', { x: pathMatch.x, y: pathMatch.y, z: pathMatch.z });
     session.set('location', latLon);
+    session.set('quadKey', qk);
 
-    const tiffs = await Promise.all(TiffUtil.load());
+    const tiffs = TiffUtil.getTiffsForQuadKey(qk, pathMatch.z);
+    // Wait for the tiffs to load
+    await Promise.all(tiffs.map(c => LoadingQueue(() => c.init())));
+
     const layers = await tiler.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z, logger);
 
     // Generate a unique hash given the full URI, the layers used and a renderId
