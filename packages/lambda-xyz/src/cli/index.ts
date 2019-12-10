@@ -3,7 +3,6 @@ import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import * as express from 'express';
 import * as fs from 'fs';
-import pLimit from 'p-limit';
 import * as path from 'path';
 import * as ulid from 'ulid';
 import * as lambda from '../index';
