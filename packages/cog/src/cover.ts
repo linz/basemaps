@@ -9,7 +9,7 @@ export class TileCover {
      * @param maxZoom Highest zoom level of tile to use
      * @param maxTiles Max number of tiles to be a "valid" covering
      */
-    static cover(geometry: GeoJSON.MultiPolygon, minZoom = 1, maxZoom = 13, maxTiles = 25): string[] {
+    static cover(geometry: GeoJSON.MultiPolygon, minZoom = 1, maxZoom = 13, maxTiles = 5): string[] {
         const limits = { min_zoom: minZoom, max_zoom: maxZoom };
 
         for (let i = maxZoom; i > minZoom; i--) {

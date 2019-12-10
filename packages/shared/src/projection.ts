@@ -35,6 +35,15 @@ export class Projection {
     }
 
     /**
+     * Convert a google tile index into a quad key
+     * @param tX tile X offset
+     * @param tY tile Y offset
+     * @param zoom WebMercator zoom level
+     */
+    public toQuadKey(tX: number, tY: number, zoom: number): string {
+        return Mercator.googleToQuadkey([tX, tY, zoom]);
+    }
+    /**
      * Convert a XYZ tile into the raster bounds for the tile
      * @param tX tile X offset
      * @param tY tile Y offset

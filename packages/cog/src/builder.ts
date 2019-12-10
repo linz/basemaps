@@ -4,7 +4,7 @@ import { CogSourceFile } from '@cogeotiff/source-file';
 import { CogSourceUrl } from '@cogeotiff/source-url';
 import pLimit, { Limit } from 'p-limit';
 import { TileCover } from './cover';
-import { Proj2193 } from './proj';
+import { getProjection } from './proj';
 import { Projection } from '@basemaps/shared';
 
 export interface CogBuilderMetadata {
@@ -100,21 +100,21 @@ export class CogBuilder {
 
         await image.fetch(TiffTag.GeoKeyDirectory);
 
-        const projection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey);
-
-        if (projection != 2193) {
+        const projection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+        const projProjection = getProjection(projection);
+        if (projProjection == null) {
             throw new Error('Invalid tiff projection: ' + projection);
         }
 
-        return [
-            [
-                Proj2193.inverse(topLeft),
-                Proj2193.inverse(bottomLeft),
-                Proj2193.inverse(bottomRight),
-                Proj2193.inverse(topRight),
-                Proj2193.inverse(topLeft),
-            ],
+        const points = [
+            projProjection.inverse(topLeft),
+            projProjection.inverse(bottomLeft),
+            projProjection.inverse(bottomRight),
+            projProjection.inverse(topRight),
+            projProjection.inverse(topLeft),
         ];
+        console.log(points);
+        return [points];
     }
 
     /**
@@ -124,7 +124,7 @@ export class CogBuilder {
      */
     async build(tiffs: string[]): Promise<CogBuilderMetadata> {
         const { bounds, resolution } = await this.bounds(tiffs);
-        const covering = TileCover.cover(bounds, 1, this.maxTileZoom, this.maxTileCount);
+        const covering = TileCover.cover(bounds, 1, Math.min(this.maxTileZoom, 3), this.maxTileCount);
         return { bounds, resolution, covering };
     }
 
