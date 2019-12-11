@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { LogConfig, LogType, GeoJson } from '@basemaps/shared';
+import { LogConfig, LogType, GeoJson, Projection, EPSG } from '@basemaps/shared';
 import * as fs from 'fs';
 import * as Mercator from 'global-mercator';
 import pLimit from 'p-limit';
@@ -13,7 +13,7 @@ const isDryRun = (): boolean => process.argv.indexOf('--commit') == -1;
 
 async function buildVrt(filePath: string, tiffFiles: string[], logger: LogType): Promise<string> {
     const vrtPath = path.join(filePath, '.vrt');
-    const vrtWarpedPath = path.join(filePath, '.3857.vrt');
+    const vrtWarpedPath = path.join(filePath, `.epsg${EPSG.Google}.vrt`);
 
     if (fs.existsSync(vrtPath)) {
         fs.unlinkSync(vrtPath);
@@ -32,7 +32,15 @@ async function buildVrt(filePath: string, tiffFiles: string[], logger: LogType):
     }
 
     logger.info({ path: vrtWarpedPath }, 'BuildVrtWarped');
-    await gdalDocker.run(['gdalwarp', '-of', 'VRT', '-t_srs', 'EPSG:3857', vrtPath, vrtWarpedPath]);
+    await gdalDocker.run([
+        'gdalwarp',
+        '-of',
+        'VRT',
+        '-t_srs',
+        Projection.toEpsgString(EPSG.Google),
+        vrtPath,
+        vrtWarpedPath,
+    ]);
     return vrtWarpedPath;
 }
 

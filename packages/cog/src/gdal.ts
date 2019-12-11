@@ -1,4 +1,4 @@
-import { LogType } from '@basemaps/shared';
+import { LogType, Projection, EPSG } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import * as path from 'path';
 import { GdalCogBuilderOptions } from './gdal.config';
@@ -60,7 +60,15 @@ export class GdalCogBuilder {
         }
 
         const [ulX, ulY, lrX, llY] = this.config.bbox;
-        return ['-projwin', ulX, ulY, lrX * TiffBuffer, llY * TiffBuffer, '-projwin_srs', 'EPSG:900913'].map(String);
+        return [
+            '-projwin',
+            ulX,
+            ulY,
+            lrX * TiffBuffer,
+            llY * TiffBuffer,
+            '-projwin_srs',
+            Projection.toEpsgString(EPSG.Google),
+        ].map(String);
     }
 
     get args(): string[] {

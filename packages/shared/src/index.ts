@@ -10,7 +10,7 @@ export { LambdaHttpResponseCloudFront, LambdaHttpResponseCloudFrontRequest } fro
 export { LambdaHttpResponse, LambdaType } from './lambda.response.http';
 export { LogConfig, LogType } from './log';
 export { getXyzFromPath, PathData } from './path';
-export { Projection } from './projection';
+export { Projection, EPSG } from './projection';
 export { LambdaSession } from './session';
 export { Bounds, BoundingBox, Size } from './bounds';
 export { QuadKey } from './quad.key';
