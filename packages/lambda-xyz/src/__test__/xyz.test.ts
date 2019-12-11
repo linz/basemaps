@@ -1,13 +1,13 @@
 process.env['COG_BUCKET'] = 'fake-bucket';
 
-jest.mock('@cogeotiff/source-aws');
+jest.mock('@cogeotiff/core');
 
 import { Env, LambdaSession, LogConfig } from '@basemaps/shared';
 import { ALBEvent } from 'aws-lambda';
 import { handleRequest } from '../index';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { Tilers } from '../tiler';
 import { Tiler } from '@basemaps/tiler';
+import { TiffUtil } from '../tiff';
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 describe('LambdaXyz', () => {
@@ -22,7 +22,6 @@ describe('LambdaXyz', () => {
         };
     }
 
-    let counter = 0;
     const tileMock = jest.fn();
     const rasterMock = jest.fn();
     const rasterMockBuffer = Buffer.from([1]);
@@ -39,12 +38,9 @@ describe('LambdaXyz', () => {
         tileMock.mockReturnValue(['TileMock']);
         rasterMock.mockReturnValue(rasterMockBuffer);
 
-        const createMock = CogSourceAwsS3.create;
-        if (!jest.isMockFunction(createMock)) {
-            throw new Error('Mock did not work');
-        }
-        // For each tiff created generate a unique number
-        createMock.mockImplementation(() => counter++);
+        jest.spyOn(TiffUtil, 'getTiffsForQuadKey')
+            .mockImplementation()
+            .mockReturnValue([]);
 
         jest.spyOn(LogConfig.getOutputStream(), 'write').mockImplementation();
     });
@@ -62,8 +58,8 @@ describe('LambdaXyz', () => {
         expect(tileMock.mock.calls.length).toEqual(1);
         const [firstCall] = tileMock.mock.calls;
 
-        const [tifs, x, y, z] = firstCall;
-        expect(tifs).toEqual([0, 1, 2, 3, 4, 5, 6]);
+        const [tiffs, x, y, z] = firstCall;
+        expect(tiffs).toEqual([]);
         expect(x).toEqual(0);
         expect(y).toEqual(0);
         expect(z).toEqual(0);

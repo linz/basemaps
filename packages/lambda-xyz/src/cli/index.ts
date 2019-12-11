@@ -3,14 +3,12 @@ import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import * as express from 'express';
 import * as fs from 'fs';
-import pLimit from 'p-limit';
 import * as path from 'path';
 import * as ulid from 'ulid';
 import * as lambda from '../index';
 import { TiffUtil } from '../tiff';
 
 const app = express();
-const q = pLimit(5);
 
 async function main(): Promise<void> {
     const filePath = process.argv[2];
@@ -21,17 +19,15 @@ async function main(): Promise<void> {
             .map(f => path.join(filePath, f));
 
         const allTiffs = files.map(
-            (tiffPath): Promise<CogTiff> => {
-                return q(async () => {
-                    const source = new CogSourceFile(tiffPath);
-                    const tiff = new CogTiff(source);
-                    await tiff.init();
-                    return tiff;
-                });
+            (tiffPath): CogTiff => {
+                const source = new CogSourceFile(tiffPath);
+                const tiff = new CogTiff(source);
+                return tiff;
             },
         );
 
-        TiffUtil.load = (): Promise<CogTiff>[] => allTiffs;
+        // TODO Should convert tiff into quadkey bounding boxes
+        TiffUtil.getTiffsForQuadKey = (): CogTiff[] => allTiffs;
     }
 
     console.time('LoadTiff');

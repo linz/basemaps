@@ -15,6 +15,9 @@ export const Env = {
     Hash: 'BASEMAPS_HASH',
     CogBucket: 'COG_BUCKET',
 
+    /** How many tiffs to load at one time */
+    TiffConcurrency: 'TIFF_CONCURRENCY',
+
     Gdal: {
         /** GDAL container information to use when building cogs */
         DockerContainer: 'GDAL_DOCKER_CONTAINER',

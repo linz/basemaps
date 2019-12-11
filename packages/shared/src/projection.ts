@@ -6,11 +6,19 @@ export interface LatLon {
     lon: number;
 }
 
+/** EPSG codes for commonly used projections */
+export enum EPSG {
+    /** Pseudo WebMercator */
+    Google = 3857,
+    Wgs84 = 4326,
+    Nztm = 2193,
+}
+
 export class Projection {
-    /** Size of the earth ESPG:900913 constant */
+    /** Size of the earth EPSG:3857 constant */
     public static readonly A = 6378137.0;
 
-    /** ESPG:900913 origin shift */
+    /** EPSG:3857 origin shift */
     public static readonly OriginShift = (2 * Math.PI * Projection.A) / 2.0;
 
     /** Tile size in pixels (Generally 256 or 512) */
@@ -35,6 +43,15 @@ export class Projection {
     }
 
     /**
+     * Convert a google tile index into a quad key
+     * @param tX tile X offset
+     * @param tY tile Y offset
+     * @param zoom WebMercator zoom level
+     */
+    public getQuadKeyFromTile(tX: number, tY: number, zoom: number): string {
+        return Mercator.googleToQuadkey([tX, tY, zoom]);
+    }
+    /**
      * Convert a XYZ tile into the raster bounds for the tile
      * @param tX tile X offset
      * @param tY tile Y offset
@@ -51,7 +68,7 @@ export class Projection {
      * Get the center of a XYZ tile in LatLon
      * @param tX Tile X offset
      * @param tY Tile Y offset
-     * @param zoom
+     * @param zoom WebMercator zoom level
      */
     public getLatLonCenterFromTile(tX: number, tY: number, zoom: number): LatLon {
         const [minX, minY, maxX, maxY] = Mercator.googleToBBox([tX, tY, zoom]);
@@ -71,5 +88,10 @@ export class Projection {
         const upperLeftMeters = this.getPixelsFromMeters(extent[0], -extent[3], zoom);
         const lowerRightMeters = this.getPixelsFromMeters(extent[2], -extent[1], zoom);
         return Bounds.fromUpperLeftLowerRight(upperLeftMeters, lowerRightMeters);
+    }
+
+    /** Convert a EPSG code into `EPSG:<code>` */
+    public static toEpsgString(epsg: EPSG): string {
+        return `EPSG:${epsg}`;
     }
 }

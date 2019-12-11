@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { LogConfig, LogType } from '@basemaps/shared';
+import { LogConfig, LogType, GeoJson, Projection, EPSG } from '@basemaps/shared';
 import * as fs from 'fs';
 import * as Mercator from 'global-mercator';
 import pLimit from 'p-limit';
@@ -9,9 +9,11 @@ import { CogBuilder, CogBuilderMetadata } from '../builder';
 import { GdalCogBuilder } from '../gdal';
 import { GdalDocker } from '../gdal.docker';
 
+const isDryRun = (): boolean => process.argv.indexOf('--commit') == -1;
+
 async function buildVrt(filePath: string, tiffFiles: string[], logger: LogType): Promise<string> {
     const vrtPath = path.join(filePath, '.vrt');
-    const vrtWarpedPath = path.join(filePath, '.3857.vrt');
+    const vrtWarpedPath = path.join(filePath, `.epsg${EPSG.Google}.vrt`);
 
     if (fs.existsSync(vrtPath)) {
         fs.unlinkSync(vrtPath);
@@ -20,6 +22,9 @@ async function buildVrt(filePath: string, tiffFiles: string[], logger: LogType):
 
     // TODO -addalpha adds a 2nd alpha layer if one exists
     logger.info({ path: vrtPath }, 'BuildVrt');
+    if (isDryRun()) {
+        return vrtWarpedPath;
+    }
     await gdalDocker.run(['gdalbuildvrt', '-addalpha', '-hidenodata', vrtPath, ...tiffFiles]);
 
     if (fs.existsSync(vrtWarpedPath)) {
@@ -27,7 +32,15 @@ async function buildVrt(filePath: string, tiffFiles: string[], logger: LogType):
     }
 
     logger.info({ path: vrtWarpedPath }, 'BuildVrtWarped');
-    await gdalDocker.run(['gdalwarp', '-of', 'VRT', '-t_srs', 'EPSG:3857', vrtPath, vrtWarpedPath]);
+    await gdalDocker.run([
+        'gdalwarp',
+        '-of',
+        'VRT',
+        '-t_srs',
+        Projection.toEpsgString(EPSG.Google),
+        vrtPath,
+        vrtWarpedPath,
+    ]);
     return vrtWarpedPath;
 }
 
@@ -36,6 +49,7 @@ async function processQuadKey(
     source: string,
     target: string,
     metadata: CogBuilderMetadata,
+    index: number,
     logger: LogType,
 ): Promise<void> {
     let startTime = Date.now();
@@ -50,7 +64,7 @@ async function processQuadKey(
 
     gdal.gdal.parser.on('progress', p => {
         logger.debug(
-            { quadKey, target: gdal.target, progress: p.toFixed(2), progressTime: Date.now() - startTime },
+            { quadKey, target: gdal.target, progress: p.toFixed(2), progressTime: Date.now() - startTime, index },
             'Progress',
         );
         startTime = Date.now();
@@ -66,7 +80,9 @@ async function processQuadKey(
         'GdalTranslate',
     );
 
-    await gdal.convert();
+    if (!isDryRun()) {
+        await gdal.convert();
+    }
 }
 
 /**
@@ -77,6 +93,11 @@ export async function main(): Promise<void> {
     if (process.argv.length < 3) {
         console.error('Usage: ./cli.js <tiff-path> <max-tiles>');
         return;
+    }
+    if (isDryRun()) {
+        logger.warn('DryRun');
+    } else {
+        logger.warn('Commit');
     }
 
     const Q = pLimit(4);
@@ -101,38 +122,17 @@ export async function main(): Promise<void> {
 
     const coveringBounds: GeoJSON.Feature[] = metadata.covering.map((quadKey: string, index: number) => {
         const bbox = Mercator.googleToBBox(Mercator.quadkeyToGoogle(quadKey));
-        return {
-            type: 'Feature',
-            properties: { name: `covering-${index}`, fill: '#e76868', 'fill-opacity': 0.5 },
-            geometry: {
-                type: 'Polygon',
-                coordinates: [
-                    [
-                        [bbox[0], bbox[1]],
-                        [bbox[0], bbox[3]],
-                        [bbox[2], bbox[3]],
-                        [bbox[2], bbox[1]],
-                        [bbox[0], bbox[1]],
-                    ],
-                ],
-            },
-        };
+        return GeoJson.toFeaturePolygon(GeoJson.toPositionPolygon(bbox), {
+            name: `covering-${index}`,
+            fill: '#e76868',
+            'fill-opacity': 0.5,
+        });
     });
 
-    const geoJson: GeoJSON.FeatureCollection = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                geometry: metadata.bounds,
-                properties: {
-                    name: 'SourceBounds',
-                },
-            },
-            ...coveringBounds,
-        ],
-    };
-
+    const geoJson: GeoJSON.FeatureCollection = GeoJson.toFeatureCollection([
+        ...metadata.bounds.features,
+        ...coveringBounds,
+    ]);
     fs.writeFileSync('./output.geojson', JSON.stringify(geoJson, null, 2));
     logger.info({ count: coveringBounds.length, indexes: metadata.covering.join(', ') }, 'Covered');
 
@@ -140,7 +140,7 @@ export async function main(): Promise<void> {
         return Q(async () => {
             const startTime = Date.now();
             logger.info({ quadKey, index }, 'Start');
-            await processQuadKey(quadKey, inputVrt, outputPath, metadata, logger);
+            await processQuadKey(quadKey, inputVrt, outputPath, metadata, index, logger);
             logger.info({ quadKey, duration: Date.now() - startTime, index }, 'Done');
         });
     });
