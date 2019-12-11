@@ -9,6 +9,8 @@ import { CogBuilder, CogBuilderMetadata } from '../builder';
 import { GdalCogBuilder } from '../gdal';
 import { GdalDocker } from '../gdal.docker';
 
+const isDryRun = (): boolean => process.argv.indexOf('--commit') == -1;
+
 async function buildVrt(filePath: string, tiffFiles: string[], logger: LogType): Promise<string> {
     const vrtPath = path.join(filePath, '.vrt');
     const vrtWarpedPath = path.join(filePath, '.3857.vrt');
@@ -20,6 +22,9 @@ async function buildVrt(filePath: string, tiffFiles: string[], logger: LogType):
 
     // TODO -addalpha adds a 2nd alpha layer if one exists
     logger.info({ path: vrtPath }, 'BuildVrt');
+    if (isDryRun()) {
+        return vrtWarpedPath;
+    }
     await gdalDocker.run(['gdalbuildvrt', '-addalpha', '-hidenodata', vrtPath, ...tiffFiles]);
 
     if (fs.existsSync(vrtWarpedPath)) {
@@ -67,7 +72,9 @@ async function processQuadKey(
         'GdalTranslate',
     );
 
-    await gdal.convert();
+    if (!isDryRun()) {
+        await gdal.convert();
+    }
 }
 
 /**
@@ -78,6 +85,11 @@ export async function main(): Promise<void> {
     if (process.argv.length < 3) {
         console.error('Usage: ./cli.js <tiff-path> <max-tiles>');
         return;
+    }
+    if (isDryRun()) {
+        logger.warn('DryRun');
+    } else {
+        logger.warn('Commit');
     }
 
     const Q = pLimit(4);

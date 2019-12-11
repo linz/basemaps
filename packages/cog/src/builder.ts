@@ -113,7 +113,6 @@ export class CogBuilder {
             projProjection.inverse(topRight),
             projProjection.inverse(topLeft),
         ];
-        console.log(points);
         return [points];
     }
 
