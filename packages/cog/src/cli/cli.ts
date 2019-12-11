@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { LogConfig, LogType } from '@basemaps/shared';
+import { LogConfig, LogType, GeoJson } from '@basemaps/shared';
 import * as fs from 'fs';
 import * as Mercator from 'global-mercator';
 import pLimit from 'p-limit';
@@ -114,38 +114,17 @@ export async function main(): Promise<void> {
 
     const coveringBounds: GeoJSON.Feature[] = metadata.covering.map((quadKey: string, index: number) => {
         const bbox = Mercator.googleToBBox(Mercator.quadkeyToGoogle(quadKey));
-        return {
-            type: 'Feature',
-            properties: { name: `covering-${index}`, fill: '#e76868', 'fill-opacity': 0.5 },
-            geometry: {
-                type: 'Polygon',
-                coordinates: [
-                    [
-                        [bbox[0], bbox[1]],
-                        [bbox[0], bbox[3]],
-                        [bbox[2], bbox[3]],
-                        [bbox[2], bbox[1]],
-                        [bbox[0], bbox[1]],
-                    ],
-                ],
-            },
-        };
+        return GeoJson.toFeaturePolygon(GeoJson.toPositionPolygon(bbox), {
+            name: `covering-${index}`,
+            fill: '#e76868',
+            'fill-opacity': 0.5,
+        });
     });
 
-    const geoJson: GeoJSON.FeatureCollection = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                geometry: metadata.bounds,
-                properties: {
-                    name: 'SourceBounds',
-                },
-            },
-            ...coveringBounds,
-        ],
-    };
-
+    const geoJson: GeoJSON.FeatureCollection = GeoJson.toFeatureCollection([
+        ...metadata.bounds.features,
+        ...coveringBounds,
+    ]);
     fs.writeFileSync('./output.geojson', JSON.stringify(geoJson, null, 2));
     logger.info({ count: coveringBounds.length, indexes: metadata.covering.join(', ') }, 'Covered');
 
