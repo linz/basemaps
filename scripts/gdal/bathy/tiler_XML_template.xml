@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Map[]>
+<Map background-color="#2a383e" srs="PROJECTION_STRING">
+
+  <Style comp-op="color-dodge" filter-mode="first" name="gebco2019webmercator2">
+    <Rule>
+      <RasterSymbolizer default-color="rgba(0, 0, 0, 0)" default-mode="linear" scaling="bilinear">
+        <stop color="#222222" value="0" />
+        <stop color="#ebebeb" value="255" />
+      </RasterSymbolizer>
+    </Rule>
+  </Style>
+  <Layer name="gebco2019webmercator2" srs="PROJECTION_STRING">
+    <StyleName><![CDATA[gebco2019webmercator2]]></StyleName>
+    <Datasource>
+      <Parameter name="file"><![CDATA[HILLSHADE]]></Parameter>
+      <Parameter name="band"><![CDATA[1]]></Parameter>
+      <Parameter name="type"><![CDATA[gdal]]></Parameter>
+    </Datasource>
+  </Layer>
+  <Style comp-op="color-dodge" filter-mode="first" name="gebco2019webmercator-deuce">
+    <Rule>
+      <RasterSymbolizer default-color="rgba(0, 0, 0, 0)" default-mode="linear" opacity="0.75" scaling="bilinear">
+        <stop color="rgba(0, 0, 0, 0)" value="-350" />
+        <stop color="#88b3ac" value="0" />
+        <stop color="#e7f0ef" value="200" />
+      </RasterSymbolizer>
+    </Rule>
+  </Style>
+  <Style comp-op="multiply" filter-mode="first" name="gebco2019webmercator">
+    <Rule>
+      <RasterSymbolizer default-color="rgba(0, 0, 0, 0)" default-mode="linear" scaling="bilinear">
+        <stop color="#000000" value="-10881" />
+        <stop color="#ffffff" value="100" />
+        <stop color="rgba(0, 0, 0, 0)" value="101" />
+      </RasterSymbolizer>
+    </Rule>
+  </Style>
+  <Layer name="gebco2019webmercator" srs="PROJECTION_STRING">
+    <StyleName><![CDATA[gebco2019webmercator]]></StyleName>
+    <StyleName><![CDATA[gebco2019webmercator-deuce]]></StyleName>
+    <Datasource>
+      <Parameter name="file"><![CDATA[FILENAME]]></Parameter>
+      <Parameter name="band"><![CDATA[1]]></Parameter>
+      <Parameter name="type"><![CDATA[gdal]]></Parameter>
+    </Datasource>
+  </Layer>
+</Map>
