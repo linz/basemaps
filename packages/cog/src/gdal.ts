@@ -109,7 +109,7 @@ export class GdalCogBuilder {
         ];
     }
 
-    convert(log?: LogType): Promise<void> {
+    convert(log: LogType): Promise<void> {
         return this.gdal.run(this.args, log);
     }
 }

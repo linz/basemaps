@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { LogConfig, LogType, GeoJson, Projection, EPSG } from '@basemaps/shared';
+import { LogConfig, LogType, GeoJson, Projection, EPSG, Env } from '@basemaps/shared';
 import * as fs from 'fs';
 import * as Mercator from 'global-mercator';
 import pLimit from 'p-limit';
@@ -8,39 +8,60 @@ import 'source-map-support/register';
 import { CogBuilder, CogBuilderMetadata } from '../builder';
 import { GdalCogBuilder } from '../gdal';
 import { GdalDocker } from '../gdal.docker';
+import { createHash } from 'crypto';
+
+// At most TiffConcurrency will be built at one time.
+const LoadingQueue = pLimit(parseInt(process.env[Env.TiffConcurrency] ?? '4'));
 
 const isDryRun = (): boolean => process.argv.indexOf('--commit') == -1;
 
-async function buildVrt(filePath: string, tiffFiles: string[], logger: LogType): Promise<string> {
-    const vrtPath = path.join(filePath, '.vrt');
-    const vrtWarpedPath = path.join(filePath, `.epsg${EPSG.Google}.vrt`);
+interface VrtOptions {
+    /** Vrts will add a second alpha layer if one exists, so dont always add one */
+    addAlpha: boolean;
+    /** No need to force a reprojection to 3857 if source imagery is in 3857 */
+    forceEpsg3857: boolean;
+}
+
+async function buildVrt(filePath: string, tiffFiles: string[], options: VrtOptions, logger: LogType): Promise<string> {
+    // Create a somewhat unique name for the vrts
+    const vrtName = createHash('sha256')
+        .update(tiffFiles.join(''))
+        .digest('hex');
+
+    const vrtPath = path.join(filePath, `.__${vrtName}.vrt`);
+    const vrtWarpedPath = path.join(filePath, `.__${vrtName}.epsg${EPSG.Google}.vrt`);
 
     if (fs.existsSync(vrtPath)) {
         fs.unlinkSync(vrtPath);
     }
     const gdalDocker = new GdalDocker(filePath);
 
-    // TODO -addalpha adds a 2nd alpha layer if one exists
     logger.info({ path: vrtPath }, 'BuildVrt');
     if (isDryRun()) {
         return vrtWarpedPath;
     }
-    await gdalDocker.run(['gdalbuildvrt', '-addalpha', '-hidenodata', vrtPath, ...tiffFiles]);
+
+    // -addalpha adds a 2nd alpha layer if one exists
+    const buildVrtCmd = ['gdalbuildvrt', '-hidenodata'];
+    if (options.addAlpha) {
+        buildVrtCmd.push('-addalpha');
+    }
+    await gdalDocker.run([...buildVrtCmd, vrtPath, ...tiffFiles], logger);
+
+    /** Force a reprojection to 3857 if required */
+    if (!options.forceEpsg3857) {
+        return vrtPath;
+    }
 
     if (fs.existsSync(vrtWarpedPath)) {
         fs.unlinkSync(vrtWarpedPath);
     }
 
-    logger.info({ path: vrtWarpedPath }, 'BuildVrtWarped');
-    await gdalDocker.run([
-        'gdalwarp',
-        '-of',
-        'VRT',
-        '-t_srs',
-        Projection.toEpsgString(EPSG.Google),
-        vrtPath,
-        vrtWarpedPath,
-    ]);
+    logger.info({ path: vrtWarpedPath }, 'BuildVrt:Warped');
+    await gdalDocker.run(
+        ['gdalwarp', '-of', 'VRT', '-t_srs', Projection.toEpsgString(EPSG.Google), vrtPath, vrtWarpedPath],
+        logger,
+    );
     return vrtWarpedPath;
 }
 
@@ -81,7 +102,7 @@ async function processQuadKey(
     );
 
     if (!isDryRun()) {
-        await gdal.convert();
+        await gdal.convert(logger.child({ quadKey }));
     }
 }
 
@@ -100,8 +121,6 @@ export async function main(): Promise<void> {
         logger.warn('Commit');
     }
 
-    const Q = pLimit(4);
-
     const filePath = process.argv[2];
     const maxTiles = parseInt(process.argv[3] ?? '50', 10);
     const files = fs
@@ -110,10 +129,24 @@ export async function main(): Promise<void> {
         .map((f: string): string => path.join(filePath, f));
 
     const builder = new CogBuilder(5, maxTiles);
-    logger.info({ fileCount: files.length }, 'BoundingBox');
+    logger.info({ tiffCount: files.length }, 'CreateBoundingBox');
     const metadata = await builder.build(files);
 
-    const inputVrt = await buildVrt(filePath, files, logger);
+    const vrtOptions = { addAlpha: true, forceEpsg3857: true };
+
+    // -addalpha to vrt adds extra alpha layers even if one already exist
+    if (metadata.bands > 3) {
+        logger.warn({ bandCount: metadata.bands }, 'Vrt:DetectedAlpha, Disabling -addalpha');
+        vrtOptions.addAlpha = false;
+    }
+
+    // If the source imagery is in 900931, no need to force a warp
+    if (metadata.projection == EPSG.Google) {
+        logger.warn({ bandCount: metadata.bands }, 'Vrt:GoogleProjection, Disabling warp');
+        vrtOptions.forceEpsg3857 = false;
+    }
+
+    const inputVrt = await buildVrt(filePath, files, vrtOptions, logger);
 
     const outputPath = path.join(filePath, 'cog');
     if (!fs.existsSync(outputPath)) {
@@ -137,7 +170,7 @@ export async function main(): Promise<void> {
     logger.info({ count: coveringBounds.length, indexes: metadata.covering.join(', ') }, 'Covered');
 
     const todo = metadata.covering.map((quadKey: string, index: number) => {
-        return Q(async () => {
+        return LoadingQueue(async () => {
             const startTime = Date.now();
             logger.info({ quadKey, index }, 'Start');
             await processQuadKey(quadKey, inputVrt, outputPath, metadata, index, logger);

@@ -7,13 +7,21 @@ import pLimit, { Limit } from 'p-limit';
 import { TileCover } from './cover';
 import { getProjection } from './proj';
 
-export interface CogBuilderMetadata {
-    /** Bounding boxes for all polygons */
-    bounds: GeoJSON.FeatureCollection;
+export interface CogBuilderMetadata extends CogBuilderBounds {
     /** Quadkey indexes for the covering tiles */
     covering: string[];
-    /** Lowest quality resolution for images */
+}
+
+export interface CogBuilderBounds {
+    /** Number of imagery bands generally RGB (3) or RGBA (4) */
+    bands: number;
+    /** Bounding box for polygons */
+    bounds: GeoJSON.FeatureCollection;
+    /** Lowest quality resolution of image */
     resolution: number | -1;
+
+    /** EPSG projection number */
+    projection: number;
 }
 
 const proj256 = new Projection(256);
@@ -36,29 +44,46 @@ export class CogBuilder {
      * Get the source bounds a collection of tiffs
      * @param tiffs
      */
-    async bounds(tiffs: string[]): Promise<{ bounds: GeoJSON.FeatureCollection; resolution: number }> {
+    async bounds(tiffs: string[]): Promise<CogBuilderBounds> {
         let resolution = -1;
+        let bandCount = -1;
+        let projection = -1;
         const coordinates = tiffs.map(tiffPath => {
             return this.q(async () => {
                 const source = CogBuilder.createTiffSource(tiffPath);
                 const tiff = new CogTiff(source);
                 await tiff.init();
-
+                const image = tiff.getImage(0);
                 const tiffRes = await this.getTiffResolution(tiff);
                 if (tiffRes > resolution) {
                     resolution = tiffRes;
+                }
+                const tiffBandCount = image.value(TiffTag.BitsPerSample) as number[] | null;
+                if (tiffBandCount != null && tiffBandCount.length > bandCount) {
+                    bandCount = tiffBandCount.length;
                 }
 
                 const output = await this.getTifBounds(tiff);
                 if (CogSourceFile.isSource(source)) {
                     await source.close();
                 }
+
+                const imageProjection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+                if (imageProjection != null && imageProjection != projection) {
+                    if (projection != -1) {
+                        throw new Error('Multiple projections');
+                    }
+                    projection = imageProjection;
+                }
+
                 return output;
             });
         });
 
         const polygons = await Promise.all(coordinates);
         return {
+            projection,
+            bands: bandCount,
             bounds: GeoJson.toFeatureCollection(polygons),
             resolution,
         };
@@ -123,9 +148,14 @@ export class CogBuilder {
      * @returns List of QuadKey indexes for
      */
     async build(tiffs: string[]): Promise<CogBuilderMetadata> {
-        const { bounds, resolution } = await this.bounds(tiffs);
-        const covering = TileCover.cover(bounds, 1, Math.min(this.maxTileZoom, resolution - 2), this.maxTileCount);
-        return { bounds, resolution, covering };
+        const metadata = await this.bounds(tiffs);
+        const covering = TileCover.cover(
+            metadata.bounds,
+            1,
+            Math.min(this.maxTileZoom, metadata.resolution - 2),
+            this.maxTileCount,
+        );
+        return { ...metadata, covering };
     }
 
     static createTiffSource(tiff: string): CogSource {

@@ -47,7 +47,7 @@ export class GdalDocker {
         ];
     }
 
-    run(args: string[], log?: LogType): Promise<void> {
+    run(args: string[], log: LogType): Promise<void> {
         if (this.promise != null) {
             return this.promise;
         }
@@ -64,14 +64,17 @@ export class GdalDocker {
         this.promise = new Promise((resolve, reject) => {
             child.on('exit', (code: number) => {
                 if (code != 0) {
-                    log?.error({ code, log: errorBuff.join('').trim() }, 'FailedToConvert');
+                    log.error({ code, log: errorBuff.join('').trim() }, 'FailedToConvert');
                     return reject(new Error('Failed to execute GDAL: ' + errorBuff.join('').trim()));
+                }
+                if (errorBuff.length > 0) {
+                    log.warn({ log: errorBuff.join('').trim() }, 'CogWarnings');
                 }
                 this.promise = null;
                 return resolve();
             });
             child.on('error', (error: Error) => {
-                log?.error({ error, log: errorBuff.join('').trim() }, 'FailedToConvert');
+                log.error({ error, log: errorBuff.join('').trim() }, 'FailedToConvert');
                 this.promise = null;
                 reject(error);
             });
