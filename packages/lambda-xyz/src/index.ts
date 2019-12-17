@@ -39,7 +39,7 @@ function emptyPng(session: LambdaSession, cacheKey: string): LambdaHttpResponseA
     return response;
 }
 
-const LoadingQueue = pLimit(parseInt(process.env[Env.TiffConcurrency] ?? '5'));
+const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
 export async function handleRequest(
     event: ALBEvent,

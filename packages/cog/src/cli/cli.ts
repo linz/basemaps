@@ -11,7 +11,7 @@ import { GdalDocker } from '../gdal.docker';
 import { createHash } from 'crypto';
 
 // At most TiffConcurrency will be built at one time.
-const LoadingQueue = pLimit(parseInt(process.env[Env.TiffConcurrency] ?? '4'));
+const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 4));
 
 const isDryRun = (): boolean => process.argv.indexOf('--commit') == -1;
 
