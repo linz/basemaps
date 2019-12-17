@@ -1,4 +1,4 @@
-####BASH scripts for producing GEBCO bathymetry
+#### BASH scripts for producing GEBCO bathymetry
 
 Script will take GEBCO input tiff:
 
@@ -9,6 +9,6 @@ Script will take GEBCO input tiff:
 1. Georeference the png and export a styled geotiff
 
 
-##run script 
+## run script 
 
 bash tiler_georef_fullprocess.sh GEBCO.tiff
