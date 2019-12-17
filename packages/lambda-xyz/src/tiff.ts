@@ -83,6 +83,7 @@ export const TiffUtil = {
         }
 
         Tiffs = [
+            new MosaicCog(bucketName, '2019/world/bathy-gebco/2019-12-17/', ['0', '1', '2', '3']),
             new MosaicCog(bucketName, '2019/new-zealand/new_zealand_sentinel_2018-19_10m/2019-12-04/', ['31'], 0, 32),
             new MosaicCog(
                 bucketName,
