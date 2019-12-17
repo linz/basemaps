@@ -9,7 +9,7 @@ export class TileCover {
      * @param maxZoom Highest zoom level of tile to use
      * @param maxTiles Max number of tiles to be a "valid" covering
      */
-    static cover(featureCollection: GeoJSON.FeatureCollection, minZoom = 1, maxZoom = 13, maxTiles = 25): string[] {
+    static cover(featureCollection: GeoJSON.FeatureCollection, minZoom = 2, maxZoom = 13, maxTiles = 25): string[] {
         /* eslint-disable @typescript-eslint/camelcase */
         const limits = { min_zoom: minZoom, max_zoom: maxZoom };
 
@@ -30,7 +30,9 @@ export class TileCover {
                         }
                     }
                     return true;
-                });
+                })
+                // make the output go from 0 -> 3
+                .sort();
 
             if (indexes.length < maxTiles) {
                 return indexes;
