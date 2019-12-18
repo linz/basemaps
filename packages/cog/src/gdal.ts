@@ -1,6 +1,5 @@
-import { LogType, Projection, EPSG } from '@basemaps/shared';
+import { EPSG, LogType, Projection } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
-import * as path from 'path';
 import { GdalCogBuilderOptions } from './gdal.config';
 import { GdalDocker } from './gdal.docker';
 
@@ -51,7 +50,9 @@ export class GdalCogBuilder {
             blockSize: config.blockSize ?? 512,
         };
 
-        this.gdal = new GdalDocker(path.dirname(source));
+        this.gdal = new GdalDocker();
+        this.gdal.mount(source);
+        this.gdal.mount(target);
     }
 
     getBounds(): string[] {
