@@ -51,8 +51,8 @@ export class LambdaFunction {
             };
 
             const version = {
-                version: process.env[Env.Version],
-                hash: process.env[Env.Hash],
+                version: Env.get(Env.Version, 'HEAD'),
+                hash: Env.get(Env.Hash, 'HEAD'),
             };
             session.set('version', version);
 

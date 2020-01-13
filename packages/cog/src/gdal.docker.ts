@@ -4,8 +4,8 @@ import * as os from 'os';
 import * as path from 'path';
 import { GdalProgressParser } from './gdal.progress';
 
-const DOCKER_CONTAINER = process.env[Env.Gdal.DockerContainer] ?? 'osgeo/gdal';
-const DOCKER_CONTAINER_TAG = process.env[Env.Gdal.DockerContainerTag] ?? 'ubuntu-small-latest';
+const DOCKER_CONTAINER = Env.get(Env.Gdal.DockerContainer, 'osgeo/gdal');
+const DOCKER_CONTAINER_TAG = Env.get(Env.Gdal.DockerContainerTag, 'ubuntu-small-latest');
 
 export class GdalDocker {
     promise: Promise<void> | null;
