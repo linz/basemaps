@@ -48,7 +48,6 @@ export const FileOperatorS3 = {
             // Abort if too many lists
             if (count > MaxListCount) {
                 throw new Error(`Failed to finish listing within ${MaxListCount} list attempts`);
-                break;
             }
             ContinuationToken = res.NextContinuationToken;
         }
