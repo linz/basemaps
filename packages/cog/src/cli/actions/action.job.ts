@@ -1,11 +1,17 @@
 import { EPSG, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
+import {
+    CommandLineAction,
+    CommandLineFlagParameter,
+    CommandLineIntegerParameter,
+    CommandLineStringParameter,
+} from '@microsoft/ts-command-line';
 import { promises as fs } from 'fs';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../../builder';
 import { CogJob } from '../../cog';
+import { buildVrtForTiffs, VrtOptions } from '../../cog.vrt';
 import { FileOperator } from '../../file/file';
-import { VrtOptions, buildVrtForTiffs } from '../../cog.vrt';
+import { TileCover } from '../../cover';
 
 const ProcessId = ulid.ulid();
 
@@ -21,6 +27,8 @@ export class ActionCogJobCreate extends CommandLineAction {
     private maxCogs: CommandLineIntegerParameter | null = null;
     private maxConcurrency: CommandLineIntegerParameter | null = null;
     private imageryName: CommandLineStringParameter | null = null;
+    private geoJsonOutput: CommandLineFlagParameter | null = null;
+    private generateVrt: CommandLineFlagParameter | null = null;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -53,6 +61,7 @@ export class ActionCogJobCreate extends CommandLineAction {
             this.minZoom?.value ?? this.MinZoomDefault,
         );
         const metadata = await builder.build(tiffList);
+        logger.info({ covering: metadata.covering }, 'CoveringGenerated');
 
         const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist
@@ -81,12 +90,35 @@ export class ActionCogJobCreate extends CommandLineAction {
         const tmpFolder = `/tmp/basemaps-${job.id}`;
         await fs.mkdir(tmpFolder, { recursive: true });
         try {
-            const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);
+            const outputFs = FileOperator.get(this.output.value);
+            // Local file systems need directories to be created before writing to them
+            if (!FileOperator.isS3(this.output.value)) {
+                await fs.mkdir(FileOperator.join(this.output.value, ProcessId), { recursive: true });
+            }
 
-            await FileOperator.copy(vrtTmp, job.source.vrt, logger);
+            if (this.generateVrt?.value) {
+                const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);
+                await FileOperator.copy(vrtTmp, job.source.vrt, logger);
+            }
 
             const jobFile = FileOperator.join(this.output.value, `${ProcessId}/job.json`);
-            await FileOperator.get(jobFile).write(jobFile, Buffer.from(JSON.stringify(job)), logger);
+            await outputFs.write(jobFile, Buffer.from(JSON.stringify(job, null, 2)), logger);
+
+            if (this.geoJsonOutput?.value) {
+                const geoJsonSourceOutput = FileOperator.join(this.output.value, `${ProcessId}/source.geojson`);
+                await outputFs.write(
+                    geoJsonSourceOutput,
+                    Buffer.from(JSON.stringify(metadata.bounds, null, 2)),
+                    logger,
+                );
+
+                const geoJsonCoveringOutput = FileOperator.join(this.output.value, `${ProcessId}/covering.geojson`);
+                await outputFs.write(
+                    geoJsonCoveringOutput,
+                    Buffer.from(JSON.stringify(TileCover.toGeoJson(metadata.covering), null, 2)),
+                    logger,
+                );
+            }
 
             logger.info({ job: jobFile }, 'Done');
         } catch (e) {
@@ -143,6 +175,18 @@ export class ActionCogJobCreate extends CommandLineAction {
             parameterShortName: '-n',
             description: 'Name of imagery set',
             required: true,
+        });
+
+        this.geoJsonOutput = this.defineFlagParameter({
+            parameterLongName: '--geojson',
+            description: 'Export GeoJSON bounding boxes of source tiffs and generated COGs',
+            required: false,
+        });
+
+        this.generateVrt = this.defineFlagParameter({
+            parameterLongName: '--vrt',
+            description: 'Generate the source vrt for the COGs',
+            required: false,
         });
     }
 }

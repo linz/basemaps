@@ -1,5 +1,6 @@
 import * as MapBoxCover from '@mapbox/tile-cover';
 import { QuadKey, GeoJson } from '@basemaps/shared';
+import * as Mercator from 'global-mercator';
 
 export class TileCover {
     /**
@@ -31,13 +32,30 @@ export class TileCover {
                     }
                     return true;
                 })
-                // make the output go from 0 -> 3
-                .sort();
+                // make the output go from 0 -> 3 and 001 -> 000111
+                .sort((a: string, b: string): number => {
+                    if (a.length == b.length) {
+                        return a.localeCompare(b);
+                    }
+                    return a.length - b.length;
+                });
 
             if (indexes.length < maxTiles) {
                 return indexes;
             }
         }
         throw new Error('Unable to find a tile covering');
+    }
+
+    /** Convert a quadkey covering to a GeoJSON FeatureCollection */
+    static toGeoJson(covering: string[]): GeoJSON.FeatureCollection {
+        const polygons: GeoJSON.Feature[] = [];
+        for (const quadKey of covering) {
+            const bbox = Mercator.googleToBBox(Mercator.quadkeyToGoogle(quadKey));
+            const polygon = GeoJson.toFeaturePolygon(GeoJson.toPositionPolygon(bbox), { quadKey });
+            polygons.push(polygon);
+        }
+
+        return GeoJson.toFeatureCollection(polygons);
     }
 }
