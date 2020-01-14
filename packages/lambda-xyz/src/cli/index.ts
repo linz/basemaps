@@ -1,4 +1,4 @@
-import { LogConfig, LambdaSession } from '@basemaps/shared';
+import { LogConfig, LambdaSession, Env } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import * as express from 'express';
@@ -9,6 +9,7 @@ import * as lambda from '../index';
 import { TiffUtil } from '../tiff';
 
 const app = express();
+const port = Env.getNumber('PORT', 5050);
 
 async function main(): Promise<void> {
     const filePath = process.argv[2];
@@ -60,8 +61,9 @@ async function main(): Promise<void> {
         logger.info({ tile: { x, y, z }, duration }, 'Done');
     });
 
-    await new Promise(resolve => app.listen(5050, resolve));
-    console.log('Listen', 'http://localhost:5050');
+    app.use(express.static('./static/'));
+    await new Promise(resolve => app.listen(port, resolve));
+    console.log('Listen', `http://localhost:${port}`);
 }
 
 main().catch(e => console.error(e));
