@@ -3,6 +3,7 @@ import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
 import { GdalProgressParser } from './gdal.progress';
+import { FileOperator } from './file/file';
 
 const DOCKER_CONTAINER = Env.get(Env.Gdal.DockerContainer, 'osgeo/gdal');
 const DOCKER_CONTAINER_TAG = Env.get(Env.Gdal.DockerContainerTag, 'ubuntu-small-latest');
@@ -10,24 +11,36 @@ const DOCKER_CONTAINER_TAG = Env.get(Env.Gdal.DockerContainerTag, 'ubuntu-small-
 export class GdalDocker {
     promise: Promise<void> | null;
     startTime: number;
-    mount: string;
+    mounts: string[];
     child: ChildProcessWithoutNullStreams;
     parser: GdalProgressParser;
 
-    constructor(mount: string) {
-        this.mount = mount;
+    constructor() {
+        this.mounts = [];
         this.parser = new GdalProgressParser();
     }
 
-    getMount(mount: string): string[] {
-        if (mount == null) {
+    mount(filePath: string): void {
+        if (FileOperator.isS3(filePath)) {
+            return;
+        }
+        const basePath = path.dirname(filePath);
+        if (this.mounts.includes(basePath)) {
+            return;
+        }
+        this.mounts.push(basePath);
+    }
+
+    private getMounts(): string[] {
+        if (this.mounts.length == 0) {
             return [];
         }
-        if (mount.startsWith('/')) {
-            const sourcePath = path.dirname(mount);
-            return ['-v', `${sourcePath}:${sourcePath}`];
+        const output: string[] = [];
+        for (const mount of this.mounts) {
+            output.push('-v');
+            output.push(`${mount}:${mount}`);
         }
-        return [];
+        return output;
     }
 
     getDockerArgs(): string[] {
@@ -39,7 +52,7 @@ export class GdalDocker {
             '--user',
             `${userInfo.uid}:${userInfo.gid}`,
 
-            ...this.getMount(this.mount),
+            ...this.getMounts(),
 
             // Docker container
             '-i',
@@ -53,6 +66,7 @@ export class GdalDocker {
         }
         this.parser.reset();
         this.startTime = Date.now();
+        log.info({ mounts: this.mounts, docker: this.getDockerArgs().join(' ') }, 'SpawnDocker');
 
         const child = spawn('docker', [...this.getDockerArgs(), ...args]);
         this.child = child;

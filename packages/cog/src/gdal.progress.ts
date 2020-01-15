@@ -27,6 +27,10 @@ export class GdalProgressParser extends EventEmitter {
         if (this.byteCount > 1024) {
             throw new Error('Too much data: ' + str);
         }
+        if (str === '0') {
+            this.waitNewLine = false;
+            return;
+        }
 
         if (this.waitNewLine) {
             const newLine = str.indexOf('\n');
