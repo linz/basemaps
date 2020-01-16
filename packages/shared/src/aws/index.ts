@@ -11,7 +11,7 @@ import { Const } from '../const';
  *
  * **This needs to happen before anything tries to use the AWS SDK**
  */
-const sslAgent = new Agent({
+const agent = new Agent({
     keepAlive: true,
     maxSockets: 50,
     rejectUnauthorized: true,
@@ -19,15 +19,29 @@ const sslAgent = new Agent({
 
 AWS.config.update({
     region: Const.Aws.Region,
-    httpOptions: {
-        agent: sslAgent,
-    },
+    httpOptions: { agent },
 });
 
 import { ApiKeyTable } from './api.key.table';
+import { S3Cache, CredentialsCache, StsAssumeRoleConfig } from './credentials';
 
+const s3 = new AWS.S3();
 export const Aws = {
     sdk: AWS,
+    credentials: {
+        /**
+         * Get a s3 that is bound to a specific role
+         */
+        getS3ForRole(opts?: StsAssumeRoleConfig): AWS.S3 {
+            if (opts == null) {
+                return s3;
+            }
+            return S3Cache.getOrMake(opts.roleArn, opts);
+        },
+        getCredentialsForRole(roleArn: string, externalId: string): AWS.ChainableTemporaryCredentials {
+            return CredentialsCache.getOrMake(roleArn, { roleArn, externalId });
+        },
+    },
     api: {
         db: new ApiKeyTable(),
     },

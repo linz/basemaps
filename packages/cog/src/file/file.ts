@@ -1,7 +1,9 @@
+import { LogType } from '@basemaps/shared';
+import { StsAssumeRoleConfig } from '@basemaps/shared/build/aws/credentials';
 import { Readable } from 'stream';
+import { FileConfig } from './file.config';
 import { FileOperatorSimple } from './file.local';
 import { FileOperatorS3 } from './file.s3';
-import { LogType } from '@basemaps/shared';
 
 export interface FileProcessor {
     read(filePath: string): Promise<Buffer>;
@@ -18,25 +20,26 @@ export const FileOperator = {
         return filePathA.replace(/\/$/, '') + '/' + filePathB.replace(/^\//, '');
     },
 
-    isS3(filePath: string): boolean {
+    isS3(filePath?: string): boolean {
+        if (filePath == null) {
+            return false;
+        }
         return filePath.startsWith('s3://');
     },
 
-    get(filePath: string): FileProcessor {
-        if (FileOperator.isS3(filePath)) {
-            return FileOperatorS3;
+    create(cfg: string | FileConfig): FileProcessor {
+        if (typeof cfg == 'string') {
+            if (FileOperator.isS3(cfg)) {
+                return new FileOperatorS3();
+            }
+            return FileOperatorSimple;
+        }
+        if (cfg.type == 's3') {
+            if ('roleArn' in cfg) {
+                return new FileOperatorS3(cfg as StsAssumeRoleConfig);
+            }
+            return new FileOperatorS3();
         }
         return FileOperatorSimple;
-    },
-
-    /**
-     * Copy a file from one location to another
-     * @param sourcePath
-     * @param targetPath
-     * @param logger Optional logger to log progress
-     */
-    async copy(sourcePath: string, targetPath: string, logger?: LogType): Promise<void> {
-        const data = this.get(sourcePath).readStream(sourcePath);
-        await this.get(targetPath).write(targetPath, data, logger);
     },
 };

@@ -1,8 +1,6 @@
 import { GeoJson, Projection } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
-import { CogSourceUrl } from '@cogeotiff/source-url';
 import pLimit, { Limit } from 'p-limit';
 import { TileCover } from './cover';
 import { getProjection } from './proj';
@@ -44,13 +42,12 @@ export class CogBuilder {
      * Get the source bounds a collection of tiffs
      * @param tiffs
      */
-    async bounds(tiffs: string[]): Promise<CogBuilderBounds> {
+    async bounds(sources: CogSource[]): Promise<CogBuilderBounds> {
         let resolution = -1;
         let bandCount = -1;
         let projection = -1;
-        const coordinates = tiffs.map(tiffPath => {
+        const coordinates = sources.map(source => {
             return this.q(async () => {
-                const source = CogBuilder.createTiffSource(tiffPath);
                 const tiff = new CogTiff(source);
                 await tiff.init();
                 const image = tiff.getImage(0);
@@ -147,7 +144,7 @@ export class CogBuilder {
      * @param tiffs list of tiffs to be generated
      * @returns List of QuadKey indexes for
      */
-    async build(tiffs: string[]): Promise<CogBuilderMetadata> {
+    async build(tiffs: CogSource[]): Promise<CogBuilderMetadata> {
         const metadata = await this.bounds(tiffs);
         const covering = TileCover.cover(
             metadata.bounds,
@@ -156,19 +153,5 @@ export class CogBuilder {
             this.maxTileCount,
         );
         return { ...metadata, covering };
-    }
-
-    static createTiffSource(tiff: string): CogSource {
-        if (tiff.startsWith('s3://')) {
-            const source = CogSourceAwsS3.createFromUri(tiff);
-            if (source == null) {
-                throw new Error('Invalid URI: ' + tiff);
-            }
-            return source;
-        } else if (tiff.startsWith('http://') || tiff.startsWith('https://')) {
-            return new CogSourceUrl(tiff);
-        } else {
-            return new CogSourceFile(tiff);
-        }
     }
 }
