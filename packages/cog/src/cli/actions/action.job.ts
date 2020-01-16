@@ -100,7 +100,7 @@ export class ActionCogJobCreate extends CommandLineAction {
         const logger = LogConfig.get().child({ id: ProcessId });
         LogConfig.set(logger);
 
-        // // Make typescript happy with all the undefined
+        // Make typescript happy with all the undefined
         if (this.source == null || this.output == null) {
             throw new Error('Failed to read parameters');
         }
@@ -116,10 +116,8 @@ export class ActionCogJobCreate extends CommandLineAction {
         if (sourceFs instanceof FileOperatorS3) {
             tiffSource = tiffList.map(path => {
                 const { bucket, key } = FileOperatorS3.parse(path);
-                const source = new CogSourceAwsS3(bucket, key);
-                // Use the same credentials to access the files that were used to list them
-                source.s3 = sourceFs.s3;
-                return source;
+                // Use the same s3 credentials to access the files that were used to list them
+                return new CogSourceAwsS3(bucket, key, sourceFs.s3);
             });
         } else {
             tiffSource = tiffList.map(path => new CogSourceFile(path));

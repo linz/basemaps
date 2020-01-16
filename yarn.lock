@@ -417,34 +417,34 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@cogeotiff/core@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-0.7.0.tgz#5d66ed46a525e34ea1e92295477414c15eccdf6c"
-  integrity sha512-wgSEKkDrwhPfZdfsHekEB955nsbPbF1pOu+eVpsjBj5gOTqQ8eEgJvvIic+4JjsoUPf7TyTAd7fsndhXj4VNeQ==
+"@cogeotiff/core@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-0.8.0.tgz#ba807968b35d1862a316c0a825bbaa739aa3e1a8"
+  integrity sha512-CBjy+iAXy6jFlyXhc5u6Cwe0FB3kO003eVokZ6WDJ/Td5HZcQrmk7ojmATjx8B21h44OjXBwVlPd4ujRnXg+aA==
   dependencies:
     ieee754 "^1.1.13"
 
-"@cogeotiff/source-aws@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-0.7.0.tgz#513af58d9c8cad6dc295409fb20f729c5e5b35c3"
-  integrity sha512-2I3/6n6zzgtFVy5asoemibhRfHy7f1aljj/aT/XFFCcSiiwWfymb9DD+p/6F2TSHIOKMDscH4ZmrAT1oXe8pjw==
+"@cogeotiff/source-aws@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-0.8.0.tgz#d9d0933405eec8b3f7d1a3160eac3690a3ecf29e"
+  integrity sha512-MhDeBS+FFVuLm3hziR4wqFOl6TfxT5v0haEUYLDvFb9q05tv5ijwtZt+pXFRa6uX1Ij2UWfZ7m/MFV9T3djSZg==
   dependencies:
-    "@cogeotiff/core" "^0.7.0"
+    "@cogeotiff/core" "^0.8.0"
     aws-sdk "^2.524.0"
 
-"@cogeotiff/source-file@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-0.7.0.tgz#fef79376c2eddb12056d233c6b9c407514e512ee"
-  integrity sha512-9MP1wSgNNCdvf0ENc4ssL+IswykjtjaOdV4E9aYV8vHwjE8/bkxrN4PEl2l/sjXV+ZRlc+eGmR7IfqLtq809sQ==
+"@cogeotiff/source-file@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-0.8.0.tgz#63843b5ffb55dfeccbce34d6e38802a3c36cf297"
+  integrity sha512-PxeqPZ+DNYpZogWl7m3fDHVZBx6EE/IIQSrmWE4RCysqAMwwPtKgOesYI3dt3554sNbC5mO5CzpYV+odPjPGhA==
   dependencies:
-    "@cogeotiff/core" "^0.7.0"
+    "@cogeotiff/core" "^0.8.0"
 
-"@cogeotiff/source-url@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-0.7.0.tgz#ad754f9f24fc6cf2bbb58a1e7fa63a9d40d715e6"
-  integrity sha512-icFDq62XDcBBTwJ8spM6e5cs+ztsVvzTIdTDImkF23/awI2TPS2MBWK+9N4wmlIFMQJbIEMblx8er/f6Cx5sOA==
+"@cogeotiff/source-url@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-0.8.0.tgz#2cd9afdfd7f7aece9afe767ca68c76cedfc5b994"
+  integrity sha512-Rr8trxN7bewz6NCxRIpu4jMn8uzLv8AfVDWAuyPOvwqHkZhH3wvY2+i/dwNwM9e0LWBY2KA01vBBno+k5Bigeg==
   dependencies:
-    "@cogeotiff/core" "^0.7.0"
+    "@cogeotiff/core" "^0.8.0"
     node-fetch "^2.6.0"
 
 "@commitlint/cli@^8.1.0", "@commitlint/cli@^8.2.0":
@@ -4994,15 +4994,7 @@ https-browserify@^1.0.0:
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
   integrity sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM=
 
-https-proxy-agent@^2.2.3:
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-2.2.4.tgz#4ee7a737abd92678a293d9b34a1af4d0d08c787b"
-  integrity sha512-OmvfoQ53WLjtA9HeYP9RNrWMJzzAz1JGaSFr1nijg0PVR1JaD/xbJq1mdEIIlxGpXp9eSe/O2LgU9DJmTPd0Eg==
-  dependencies:
-    agent-base "^4.3.0"
-    debug "^3.1.0"
-
-https-proxy-agent@^3.0.0:
+https-proxy-agent@^2.2.3, https-proxy-agent@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-3.0.1.tgz#b8c286433e87602311b01c8ea34413d856a4af81"
   integrity sha512-+ML2Rbh6DAuee7d07tYGEKOEi2voWPUGan+ExdPbPW6Z3svq+JCqr0v8WmKPOkz1vOVykPCBSuobe7G8GJUtVg==
