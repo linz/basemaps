@@ -26,7 +26,6 @@ export async function buildVrtForTiffs(
     logger: LogType,
 ): Promise<string> {
     const vrtPath = FileOperator.join(tmpTarget, `${job.id}.vrt`);
-    const vrtWarpedPath = FileOperator.join(tmpTarget, `${job.id}.${EPSG.Google}.vrt`);
 
     logger.info({ path: vrtPath }, 'BuildVrt');
     const gdalDocker = new GdalDocker();
@@ -49,9 +48,28 @@ export async function buildVrtForTiffs(
     const sourceFiles = job.source.files.map(c => c.replace('s3://', '/vsis3/'));
     await gdalDocker.run([...buildVrtCmd, vrtPath, ...sourceFiles], logger);
 
+    return vrtPath;
+}
+
+/**
+ * Warp an existing vrt into EPSG3857 if required
+ * @param job
+ * @param vrtPath
+ * @param options
+ * @param tmpTarget
+ * @param logger
+ */
+export async function buildWarpedVrt(
+    job: CogJob,
+    vrtPath: string,
+    options: VrtOptions,
+    tmpTarget: string,
+    logger: LogType,
+): Promise<string> {
     if (!options.forceEpsg3857) {
         return vrtPath;
     }
+    const vrtWarpedPath = FileOperator.join(tmpTarget, `${job.id}.${EPSG.Google}.vrt`);
 
     logger.info({ path: vrtWarpedPath }, 'BuildVrt:Warped');
     const gdalWarpDocker = new GdalDocker();

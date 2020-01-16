@@ -2,6 +2,7 @@ import { Aws, LogType } from '@basemaps/shared';
 import * as Mercator from 'global-mercator';
 import { FileConfig, isConfigS3Role } from './file/file.config';
 import { GdalCogBuilder } from './gdal';
+import { VrtOptions } from './cog.vrt';
 
 export interface CogJob {
     /** Unique processing Id */
@@ -22,8 +23,11 @@ export interface CogJob {
 
     /** Folder/S3 bucket to store the output */
     output: {
-        /** VRT path */
-        vrt: string;
+        vrt: {
+            /** VRT path */
+            path: string;
+            options: VrtOptions;
+        };
     } & FileConfig;
 
     /** List of quadkeys to generate */

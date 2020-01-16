@@ -146,7 +146,13 @@ export class ActionCogJobCreate extends CommandLineAction {
         }
         const job: CogJob = {
             id: ProcessId,
-            output: { ...outputConfig, vrt: FileOperator.join(outputConfig.path, `${ProcessId}/.vrt`) },
+            output: {
+                ...outputConfig,
+                vrt: {
+                    path: FileOperator.join(outputConfig.path, `${ProcessId}/.vrt`),
+                    options: vrtOptions,
+                },
+            },
             source: {
                 ...sourceConfig,
                 resolution: metadata.resolution,
@@ -164,10 +170,11 @@ export class ActionCogJobCreate extends CommandLineAction {
                 await fs.mkdir(FileOperator.join(outputConfig.path, ProcessId), { recursive: true });
             }
 
+            // TODO should this be done here, it could be done for each COG builder
             if (this.generateVrt?.value) {
                 const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);
                 const readStream = createReadStream(vrtTmp);
-                await outputFs.write(job.output.vrt, readStream, logger);
+                await outputFs.write(job.output.vrt.path, readStream, logger);
             }
 
             const jobFile = FileOperator.join(outputConfig.path, `${ProcessId}/job.json`);
