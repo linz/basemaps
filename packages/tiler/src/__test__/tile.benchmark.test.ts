@@ -35,7 +35,7 @@ describe('TileCreationBenchmark', () => {
     const results: Record<string, Record<string, number[]>> = {};
 
     beforeEach(() => {
-        jest.spyOn(LogConfig.getOutputStream(), 'write').mockImplementation();
+        LogConfig.disable();
     });
 
     [256, 512].forEach(tileSize => {
