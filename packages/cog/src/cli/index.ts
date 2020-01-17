@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+import 'source-map-support/register';
 import { CommandLineParser } from '@microsoft/ts-command-line';
 import { LogConfig } from '@basemaps/shared';
 import { ActionCogCreate } from './actions/action.cog';
