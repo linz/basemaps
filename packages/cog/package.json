@@ -7,6 +7,9 @@
   "license": "BSD 3-Clause",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
+  "bin": {
+    "cogify": "./cogify"
+  },
   "scripts": {
     "build": "tsc",
     "deploy:bundle": "ncc build build/cli/index.js -o dist -s",
