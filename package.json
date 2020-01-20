@@ -6,9 +6,10 @@
   "author": "",
   "license": "BSD 3-Clause",
   "scripts": {
-    "lint": "eslint 'packages/*/{src,test}/**/*.ts' --quiet --fix",
+    "lint": "eslint 'packages/*/src/**/*.ts' --quiet --fix",
     "test": "jest",
-    "clean": "tsc -b --clean && rimraf 'packages/*/build'",
+    "clean": "tsc -b --clean && rimraf 'packages/*/build' && yarn clean:dist",
+    "clean:dist": "rimraf 'packages/*/dist' && rimraf 'packages/_infra/cdk.out'",
     "build": "tsc -b",
     "build-watch": "tsc -b --watch"
   },

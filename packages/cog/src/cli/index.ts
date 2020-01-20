@@ -4,7 +4,8 @@ import { CommandLineParser } from '@microsoft/ts-command-line';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import { ActionCogCreate } from './actions/action.cog';
-import { ActionCogJobCreate } from './actions/action.job';
+import { ActionJobCreate } from './actions/action.job';
+import { ActionBatchJob } from './actions/action.batch';
 
 export class CogifyCommandLine extends CommandLineParser {
     verbose = this.defineFlagParameter({
@@ -24,23 +25,22 @@ export class CogifyCommandLine extends CommandLineParser {
             toolDescription: 'Cloud optimized geotiff utilities',
         });
         this.addAction(new ActionCogCreate());
-        this.addAction(new ActionCogJobCreate());
+        this.addAction(new ActionJobCreate());
+        this.addAction(new ActionBatchJob());
     }
 
     protected onExecute(): Promise<void> {
-        const logger = LogConfig.get();
-
         // If the console is a tty pretty print the output
         if (process.stdout.isTTY) {
             LogConfig.setOutputStream(PrettyTransform.stream());
         }
 
         if (this.verbose.value) {
-            logger.level = 'info';
+            LogConfig.get().level = 'info';
         } else if (this.extraVerbose.value) {
-            logger.level = 'trace';
+            LogConfig.get().level = 'trace';
         } else {
-            logger.level = 'warn';
+            LogConfig.get().level = 'warn';
         }
 
         return super.onExecute();
@@ -50,6 +50,7 @@ export class CogifyCommandLine extends CommandLineParser {
     }
 }
 
-new CogifyCommandLine()
-    .executeWithoutErrorHandling()
-    .catch(err => LogConfig.get().fatal({ err }, 'Failed to run command'));
+new CogifyCommandLine().executeWithoutErrorHandling().catch(err => {
+    LogConfig.get().fatal({ err }, 'Failed to run command');
+    process.exit(1);
+});

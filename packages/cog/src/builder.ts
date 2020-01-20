@@ -22,7 +22,7 @@ export interface CogBuilderBounds {
     projection: number;
 }
 
-const proj256 = new Projection(256);
+export const proj256 = new Projection(256);
 export class CogBuilder {
     q: Limit;
     cover: TileCover;

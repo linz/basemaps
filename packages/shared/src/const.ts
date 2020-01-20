@@ -21,7 +21,12 @@ export const Env = {
     /** How many tiffs to load at one time */
     TiffConcurrency: 'TIFF_CONCURRENCY',
 
+    /** Batch Index offset used to controll mutliple batch jobs */
+    BatchIndex: 'AWS_BATCH_JOB_ARRAY_INDEX',
+
     Gdal: {
+        /** Should the gdal docker container be used? */
+        UseDocker: 'GDAL_DOCKER',
         /** GDAL container information to use when building cogs */
         DockerContainer: 'GDAL_DOCKER_CONTAINER',
         DockerContainerTag: 'GDAL_DOCKER_CONTAINER_TAG',

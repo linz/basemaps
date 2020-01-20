@@ -5,6 +5,7 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@microsoft/ts-command-line';
+import * as Mercator from 'global-mercator';
 import { promises as fs, createReadStream } from 'fs';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../../builder';
@@ -54,7 +55,7 @@ export class CLiInputData {
     }
 }
 
-export class ActionCogJobCreate extends CommandLineAction {
+export class ActionJobCreate extends CommandLineAction {
     private source?: CLiInputData;
     private output?: CLiInputData;
     private minZoom?: CommandLineIntegerParameter;
@@ -130,7 +131,13 @@ export class ActionCogJobCreate extends CommandLineAction {
 
         const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom);
         const metadata = await builder.build(tiffSource);
-        logger.info({ covering: metadata.covering }, 'CoveringGenerated');
+
+        const logObj = { ...metadata };
+        delete logObj.bounds; // Don't log bounds as it is huge
+        logObj.covering = logObj.covering.map(c => {
+            return { qk: c, tile: Mercator.quadkeyToGoogle(c) };
+        }) as any;
+        logger.info(logObj, 'CoveringGenerated');
 
         const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist
@@ -197,8 +204,6 @@ export class ActionCogJobCreate extends CommandLineAction {
             }
 
             logger.info({ job: jobFile }, 'Done');
-        } catch (err) {
-            logger.error({ err }, 'FailedToConvert');
         } finally {
             // Cleanup
             await fs.rmdir(tmpFolder, { recursive: true });
