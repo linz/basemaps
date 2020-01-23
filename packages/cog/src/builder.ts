@@ -1,9 +1,12 @@
-import { GeoJson, Projection } from '@basemaps/shared';
+import { GeoJson, Projection, LogType } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import pLimit, { Limit } from 'p-limit';
 import { TileCover } from './cover';
 import { getProjection } from './proj';
+import { createHash } from 'crypto';
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
+import * as path from 'path';
 
 export interface CogBuilderMetadata extends CogBuilderBounds {
     /** Quadkey indexes for the covering tiles */
@@ -22,7 +25,8 @@ export interface CogBuilderBounds {
     projection: number;
 }
 
-const proj256 = new Projection(256);
+export const CacheFolder = './.cache';
+export const proj256 = new Projection(256);
 export class CogBuilder {
     q: Limit;
     cover: TileCover;
@@ -42,12 +46,17 @@ export class CogBuilder {
      * Get the source bounds a collection of tiffs
      * @param tiffs
      */
-    async bounds(sources: CogSource[]): Promise<CogBuilderBounds> {
+    async bounds(sources: CogSource[], logger: LogType): Promise<CogBuilderBounds> {
         let resolution = -1;
         let bandCount = -1;
         let projection = -1;
+        let count = 0;
         const coordinates = sources.map(source => {
             return this.q(async () => {
+                count++;
+                if (count % 50 == 0) {
+                    logger.info({ count, total: sources.length }, 'BoundsProgress');
+                }
                 const tiff = new CogTiff(source);
                 await tiff.init();
                 const image = tiff.getImage(0);
@@ -139,13 +148,37 @@ export class CogBuilder {
         return GeoJson.toFeaturePolygon(points, { tiff: tiff.source.name });
     }
 
+    /** Cache the bounds lookup so we do not have to requery the bounds between CLI calls */
+    private async getMetadata(tiffs: CogSource[], logger: LogType): Promise<CogBuilderBounds> {
+        const cacheKey =
+            path.join(
+                CacheFolder,
+                createHash('sha256')
+                    .update(tiffs.map(c => c.name).join('\n'))
+                    .digest('hex'),
+            ) + '.json';
+
+        if (existsSync(cacheKey)) {
+            logger.debug({ path: cacheKey }, 'MetadataCacheHit');
+            return JSON.parse(readFileSync(cacheKey).toString()) as CogBuilderBounds;
+        }
+
+        const metadata = await this.bounds(tiffs, logger);
+
+        mkdirSync(CacheFolder, { recursive: true });
+        writeFileSync(cacheKey, JSON.stringify(metadata, null, 2));
+        logger.debug({ path: cacheKey }, 'MetadataCacheMiss');
+
+        return metadata;
+    }
+
     /**
      * Generate a list of WebMercator tiles that need to be generated to cover the source tiffs
      * @param tiffs list of tiffs to be generated
      * @returns List of QuadKey indexes for
      */
-    async build(tiffs: CogSource[]): Promise<CogBuilderMetadata> {
-        const metadata = await this.bounds(tiffs);
+    async build(tiffs: CogSource[], logger: LogType): Promise<CogBuilderMetadata> {
+        const metadata = await this.getMetadata(tiffs, logger);
         const covering = TileCover.cover(
             metadata.bounds,
             1,

@@ -1,8 +1,9 @@
 import { Aws, LogType } from '@basemaps/shared';
 import * as Mercator from 'global-mercator';
+import { proj256 } from './builder';
+import { VrtOptions } from './cog.vrt';
 import { FileConfig, isConfigS3Role } from './file/file.config';
 import { GdalCogBuilder } from './gdal';
-import { VrtOptions } from './cog.vrt';
 
 export interface CogJob {
     /** Unique processing Id */
@@ -11,7 +12,10 @@ export interface CogJob {
     source: {
         /** List of input files */
         files: string[];
-        /** Lowest quality resolution */
+        /**
+         * The google zoom level that corresponds approximately what the resolution of the source  is
+         * for high quality aerial imagery this is generally 20-22
+         */
         resolution: number;
 
         options: {
@@ -42,7 +46,6 @@ export interface CogJob {
  */
 export function onProgress(keys: Record<string, any>, logger: LogType): (p: number) => void {
     let lastTime = Date.now();
-
     return (p: number): void => {
         logger.trace({ ...keys, progress: p.toFixed(2), progressTime: Date.now() - lastTime }, 'Progress');
         lastTime = Date.now();
@@ -69,19 +72,29 @@ export async function buildCogForQuadKey(
 ): Promise<void> {
     const startTime = Date.now();
     const google = Mercator.quadkeyToGoogle(quadKey);
-    const [minX, minY, maxX, maxY] = Mercator.googleToBBoxMeters(google);
+    const [minX, maxY, maxX, minY] = Mercator.googleToBBoxMeters(google);
     const alignmentLevels = job.source.resolution - google[2];
 
+    // TODO this math is not right
+    const pixelsPerMeter = proj256.getResolution(job.source.resolution);
+    const imageSize = {
+        width: Math.floor(Math.abs(minX - maxX) / pixelsPerMeter),
+        height: Math.floor(Math.abs(minY - maxY) / pixelsPerMeter),
+    };
+
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
-        bbox: [minX, maxY, maxX, minY],
+        bbox: [minX, minY, maxX, maxY],
         alignmentLevels,
     });
-    job.source.files.forEach(f => cogBuild.gdal.mount(f));
+    if (cogBuild.gdal.mount) {
+        job.source.files.forEach(f => cogBuild.gdal.mount?.(f));
+    }
 
     cogBuild.gdal.parser.on('progress', onProgress({ quadKey, target: 'tiff' }, logger));
 
     logger.info(
         {
+            imageSize,
             quadKey,
             tile: { x: google[0], y: google[1], z: google[2] },
             alignmentLevels,

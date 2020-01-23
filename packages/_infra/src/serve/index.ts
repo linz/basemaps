@@ -16,9 +16,7 @@ export class ServeStack extends cdk.Stack {
 
         const lambda = new LambdaXyz(this, 'LambdaXyz');
 
-        // TODO if/when the default VPC is set to default we can switch this to 'isDefault: true'
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        const vpc = ec2.Vpc.fromLookup(this, 'AlbVpc', { tags: { AWS_Solutions: 'LandingZoneStackSet' } });
+        const vpc = ec2.Vpc.fromLookup(this, 'AlbVpc', { tags: { default: 'true' } });
         const lb = new elbv2.ApplicationLoadBalancer(this, 'LB', { vpc, internetFacing: false });
 
         const targetLambda = new targets.LambdaTarget(lambda.lambda);

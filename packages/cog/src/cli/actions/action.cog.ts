@@ -1,5 +1,10 @@
-import { LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
+import { LogConfig, LogType, Env } from '@basemaps/shared';
+import {
+    CommandLineAction,
+    CommandLineFlagParameter,
+    CommandLineStringParameter,
+    CommandLineIntegerParameter,
+} from '@microsoft/ts-command-line';
 import { promises as fs, createReadStream } from 'fs';
 import * as ulid from 'ulid';
 import { buildCogForQuadKey, CogJob } from '../../cog';
@@ -8,16 +13,51 @@ import { FileOperatorSimple } from '../../file/file.local';
 import { buildWarpedVrt } from '../../cog.vrt';
 
 export class ActionCogCreate extends CommandLineAction {
-    private job: CommandLineStringParameter | null = null;
-    private quadKey: CommandLineStringParameter | null = null;
-    private commit: CommandLineFlagParameter | null = null;
+    private job?: CommandLineStringParameter;
+    private quadKey?: CommandLineStringParameter;
+    private commit?: CommandLineFlagParameter;
+    private quadKeyIndex?: CommandLineIntegerParameter;
 
     public constructor() {
         super({
-            actionName: 'create-cog',
+            actionName: 'cog',
             summary: 'create a COG',
             documentation: 'Create a COG from a vrt for the specified quadkey',
         });
+    }
+
+    getQuadKey(job: CogJob, logger: LogType): string | null {
+        const batchIndex = Env.getNumber(Env.BatchIndex, -1);
+        if (batchIndex > -1) {
+            const qk = job.quadkeys[batchIndex];
+            if (qk == null) {
+                logger.fatal(
+                    { quadKeyIndex: batchIndex, quadKeyMax: job.quadkeys.length - 1 },
+                    'Failed to find quadkey from batch index',
+                );
+                return null;
+            }
+            return qk;
+        }
+
+        const quadKey = this.quadKey?.value;
+        const quadKeyIndex = this.quadKeyIndex?.value;
+        if (quadKeyIndex != null) {
+            const qk = job.quadkeys[quadKeyIndex];
+            if (qk == null) {
+                logger.fatal(
+                    { quadKeyIndex, quadKeyMax: job.quadkeys.length - 1 },
+                    'Failed to find quadkey from index',
+                );
+                return null;
+            }
+            return qk;
+        }
+        if (quadKey == null || !job.quadkeys.includes(quadKey)) {
+            logger.fatal({ quadKey, quadKeys: job.quadkeys.join(', ') }, 'Quadkey does not existing inside job');
+            return null;
+        }
+        return quadKey;
     }
 
     async onExecute(): Promise<void> {
@@ -33,9 +73,8 @@ export class ActionCogCreate extends CommandLineAction {
         const logger = LogConfig.get().child({ id: processId, correlationId: job.id });
         LogConfig.set(logger);
 
-        const quadKey = this.quadKey?.value;
-        if (quadKey == null || !job.quadkeys.includes(quadKey)) {
-            logger.error({ quadKey, quadKeys: job.quadkeys.join(', ') }, 'Quadkey does not existing inside job');
+        const quadKey = this.getQuadKey(job, logger);
+        if (quadKey == null) {
             return;
         }
 
@@ -58,8 +97,6 @@ export class ActionCogCreate extends CommandLineAction {
             if (isCommit) {
                 await outputFs.write(targetPath, createReadStream(tmpTiff), logger);
             }
-        } catch (err) {
-            logger.error({ err }, 'FailedToConvert');
         } finally {
             // Cleanup!
             await fs.rmdir(tmpFolder, { recursive: true });
@@ -78,7 +115,14 @@ export class ActionCogCreate extends CommandLineAction {
             argumentName: 'QUADKEY',
             parameterLongName: '--quadkey',
             description: 'quadkey to process',
-            required: true,
+            required: false,
+        });
+
+        this.quadKeyIndex = this.defineIntegerParameter({
+            argumentName: 'QUADKEY_INDEX',
+            parameterLongName: '--quadkey-index',
+            description: 'quadkey index to process',
+            required: false,
         });
 
         this.commit = this.defineFlagParameter({

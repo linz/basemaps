@@ -2,7 +2,7 @@ import { Aws, EPSG, LogType, Projection } from '@basemaps/shared';
 import { CogJob, onProgress } from './cog';
 import { FileOperator } from './file/file';
 import { isConfigS3Role } from './file/file.config';
-import { GdalDocker } from './gdal.docker';
+import { GdalCogBuilder } from './gdal';
 
 export interface VrtOptions {
     /** Vrts will add a second alpha layer if one exists, so dont always add one */
@@ -28,25 +28,31 @@ export async function buildVrtForTiffs(
     const vrtPath = FileOperator.join(tmpTarget, `${job.id}.vrt`);
 
     logger.info({ path: vrtPath }, 'BuildVrt');
-    const gdalDocker = new GdalDocker();
-    gdalDocker.mount(vrtPath);
-    gdalDocker.parser.on('progress', onProgress({ target: 'vrt' }, logger));
+    const gdalCommand = GdalCogBuilder.getGdal();
+    gdalCommand.parser.on('progress', onProgress({ target: 'vrt' }, logger));
 
-    const buildVrtCmd = ['gdalbuildvrt', '-hidenodata'];
+    const buildVrtCmd = ['-hidenodata'];
     if (options.addAlpha) {
         buildVrtCmd.push('-addalpha');
+    }
+    if (gdalCommand.mount) {
+        gdalCommand.mount(vrtPath);
     }
 
     // If required assume role
     if (isConfigS3Role(job.source)) {
         const credentials = Aws.credentials.getCredentialsForRole(job.source.roleArn, job.source.externalId);
-        await gdalDocker.setCredentials(credentials);
+        await gdalCommand.setCredentials(credentials);
     } else {
-        job.source.files.forEach(fileName => gdalDocker.mount(fileName));
+        if (gdalCommand.mount) {
+            for (const file of job.source.files) {
+                gdalCommand.mount(file);
+            }
+        }
     }
 
     const sourceFiles = job.source.files.map(c => c.replace('s3://', '/vsis3/'));
-    await gdalDocker.run([...buildVrtCmd, vrtPath, ...sourceFiles], logger);
+    await gdalCommand.run('gdalbuildvrt', [...buildVrtCmd, vrtPath, ...sourceFiles], logger);
 
     return vrtPath;
 }
@@ -72,13 +78,18 @@ export async function buildWarpedVrt(
     const vrtWarpedPath = FileOperator.join(tmpTarget, `${job.id}.${EPSG.Google}.vrt`);
 
     logger.info({ path: vrtWarpedPath }, 'BuildVrt:Warped');
-    const gdalWarpDocker = new GdalDocker();
-    gdalWarpDocker.mount(vrtWarpedPath);
-    job.source.files.forEach(fileName => gdalWarpDocker.mount(fileName));
-    gdalWarpDocker.parser.on('progress', onProgress({ target: `vrt.${EPSG.Google}` }, logger));
+    const gdalCommand = GdalCogBuilder.getGdal();
+    if (gdalCommand.mount) {
+        gdalCommand.mount(vrtWarpedPath);
+        for (const file of job.source.files) {
+            gdalCommand.mount(file);
+        }
+    }
+    gdalCommand.parser.on('progress', onProgress({ target: `vrt.${EPSG.Google}` }, logger));
 
-    await gdalWarpDocker.run(
-        ['gdalwarp', '-of', 'VRT', '-t_srs', Projection.toEpsgString(EPSG.Google), vrtPath, vrtWarpedPath],
+    await gdalCommand.run(
+        'gdalwarp',
+        ['-of', 'VRT', '-t_srs', Projection.toEpsgString(EPSG.Google), vrtPath, vrtWarpedPath],
         logger,
     );
 
