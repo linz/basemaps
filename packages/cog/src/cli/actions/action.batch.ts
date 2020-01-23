@@ -4,6 +4,7 @@ import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';
 import { CogJob } from '../../cog';
 import { FileOperator } from '../../file/file';
+import * as path from 'path';
 
 export class ActionBatchJob extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -33,8 +34,9 @@ export class ActionBatchJob extends CommandLineAction {
         const isCommit = this.commit?.value ?? false;
 
         const batch = new aws.Batch({ region });
-        const jobName = 'BatchConvert';
-        const jobQueue = this.queue?.value ?? 'CogBatchJobQueue';
+        const lastFolderName = path.basename(job.source.path);
+        const jobName = `Cog-${lastFolderName}`;
+        const jobQueue = 'CogBatchJobQueue';
         const jobDefinition = 'CogBatchJob';
         logger.info({ jobs: job.quadkeys.length, jobName, jobQueue, jobDefinition }, 'JobSubmit');
 
@@ -49,7 +51,7 @@ export class ActionBatchJob extends CommandLineAction {
                 jobDefinition,
                 arrayProperties: { size: job.quadkeys.length },
                 containerOverrides: {
-                    command: ['-V', 'create-cog', '--job', this.job.value /* '--commit' */],
+                    command: ['-V', 'cog', '--job', this.job.value, '--commit'],
                 },
             })
             .promise();

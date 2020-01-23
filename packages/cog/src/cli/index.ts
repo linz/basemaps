@@ -36,11 +36,11 @@ export class CogifyCommandLine extends CommandLineParser {
         }
 
         if (this.verbose.value) {
-            LogConfig.get().level = 'info';
+            LogConfig.get().level = 'debug';
         } else if (this.extraVerbose.value) {
             LogConfig.get().level = 'trace';
         } else {
-            LogConfig.get().level = 'warn';
+            LogConfig.get().level = 'info';
         }
 
         return super.onExecute();

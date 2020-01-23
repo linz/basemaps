@@ -130,7 +130,7 @@ export class ActionJobCreate extends CommandLineAction {
         logger.info({ source: this.source.path.value, tiffCount: tiffList.length }, 'LoadingTiffs');
 
         const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom);
-        const metadata = await builder.build(tiffSource);
+        const metadata = await builder.build(tiffSource, logger);
 
         const logObj = { ...metadata };
         delete logObj.bounds; // Don't log bounds as it is huge

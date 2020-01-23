@@ -23,5 +23,12 @@ cogify -V job --source ./source_folder/ --output ./source_folder/cogify/
 Build a specific COG
 
 ```bash
-cogify -V create-cog --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --quadkey 0
+cogify -V cog --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --quadkey 0 --commit
+```
+
+
+Build all the COGs using aws BATCH
+
+```bash
+cogify -V batch --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --commit
 ```
