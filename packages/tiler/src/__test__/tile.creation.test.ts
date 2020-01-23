@@ -1,11 +1,11 @@
 import { LambdaSession, LogConfig } from '@basemaps/shared';
+import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { readFileSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import { PNG } from 'pngjs';
 import { Tiler } from '../tiler';
 import PixelMatch = require('pixelmatch');
-import { CogTiff } from '@cogeotiff/core';
 
 // To regenerate all the expected images set this to true and run the tests
 const WRITE_IMAGES = false;
@@ -27,7 +27,7 @@ describe('TileCreation', () => {
     beforeEach(async () => {
         await tiff.init();
         LambdaSession.reset();
-        jest.spyOn(LogConfig.getOutputStream(), 'write').mockImplementation();
+        LogConfig.disable();
     });
 
     it('should generate a tile', async () => {

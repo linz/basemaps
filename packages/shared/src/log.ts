@@ -12,30 +12,29 @@ export type LogType = pino.Logger;
  * Encapsulate the logger so that it can be swapped out
  */
 export const LogConfig = {
-    /**
-     * Getting access to the current log stream is hard,
-     *
-     * Pino uses Symbols for all its internal functions,
-     * getting access to them without knowing the logger is a pino logger is difficult
-     *
-     * **Used for testing**
-     * To allow overwriting of the .write() to get access to the output logs
-     */
-    getOutputStream(): Writable {
-        // There are no types for pino.symbols
-        const streamSym = (pino as any).symbols.streamSym;
-        // there is no type for pino['Symbol(stream)']
-        return LogConfig.get()[streamSym] as any;
-    },
-
     /** Get the currently configured logger */
-    get: (): pino.Logger => {
+    get(): pino.Logger {
         if (currentLog == null) {
             currentLog = pino({ level: 'debug' });
         }
         return currentLog;
     },
-    set: (log: pino.Logger): void => {
+
+    set(log: pino.Logger): void {
         currentLog = log;
+    },
+
+    /** Overwrite the logger with a new logger that outputs to the provided stream*/
+    setOutputStream(stream: Writable): void {
+        let level = 'debug';
+        if (currentLog) {
+            level = currentLog.level;
+        }
+        currentLog = pino({ level }, stream);
+    },
+
+    /** Disable the logger */
+    disable(): void {
+        LogConfig.get().level = 'silent';
     },
 };

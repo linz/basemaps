@@ -1,5 +1,8 @@
-import { CommandLineParser } from '@microsoft/ts-command-line';
+#!/usr/bin/env node
 import { LogConfig } from '@basemaps/shared';
+import { CommandLineParser } from '@microsoft/ts-command-line';
+import { PrettyTransform } from 'pretty-json-log';
+import 'source-map-support/register';
 import { ActionCogCreate } from './actions/action.cog';
 import { ActionCogJobCreate } from './actions/action.job';
 
@@ -26,6 +29,12 @@ export class CogifyCommandLine extends CommandLineParser {
 
     protected onExecute(): Promise<void> {
         const logger = LogConfig.get();
+
+        // If the console is a tty pretty print the output
+        if (process.stdout.isTTY) {
+            LogConfig.setOutputStream(PrettyTransform.stream());
+        }
+
         if (this.verbose.value) {
             logger.level = 'info';
         } else if (this.extraVerbose.value) {
@@ -41,4 +50,6 @@ export class CogifyCommandLine extends CommandLineParser {
     }
 }
 
-new CogifyCommandLine().execute();
+new CogifyCommandLine()
+    .executeWithoutErrorHandling()
+    .catch(err => LogConfig.get().fatal({ err }, 'Failed to run command'));

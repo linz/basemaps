@@ -14,6 +14,8 @@ export class GdalDocker {
     mounts: string[];
     child: ChildProcessWithoutNullStreams;
     parser: GdalProgressParser;
+    /** AWS Access  */
+    private credentials?: AWS.Credentials;
 
     constructor() {
         this.mounts = [];
@@ -43,9 +45,36 @@ export class GdalDocker {
         return output;
     }
 
-    getDockerArgs(): string[] {
-        const userInfo = os.userInfo();
+    /** Pass AWS credentials into the container */
+    setCredentials(credentials?: AWS.Credentials): void {
+        if (credentials == null) {
+            return;
+        }
 
+        this.credentials = credentials;
+    }
+
+    private async getCredentials(): Promise<string[]> {
+        if (this.credentials == null) {
+            return [];
+        }
+        if (this.credentials.needsRefresh()) {
+            await this.credentials.refreshPromise();
+        }
+        return [
+            '--env',
+            `AWS_ACCESS_KEY_ID=${this.credentials.accessKeyId}`,
+            '--env',
+            `AWS_SECRET_ACCESS_KEY=${this.credentials.secretAccessKey}`,
+            '--env',
+            `AWS_SESSION_TOKEN=${this.credentials.sessionToken}`,
+        ];
+    }
+
+    /** this could contain sensitive info like AWS access keys */
+    private async getDockerArgs(): Promise<string[]> {
+        const userInfo = os.userInfo();
+        const credentials = await this.getCredentials();
         return [
             'run',
             // Config the container to be run as the current user
@@ -53,6 +82,7 @@ export class GdalDocker {
             `${userInfo.uid}:${userInfo.gid}`,
 
             ...this.getMounts(),
+            ...credentials,
 
             // Docker container
             '-i',
@@ -60,15 +90,26 @@ export class GdalDocker {
         ];
     }
 
-    run(args: string[], log: LogType): Promise<void> {
+    /** Provide redacted argument string for logging which removes sensitive information */
+    maskArgs(args: string[]): string {
+        const argsStr = args.join(' ');
+        if (this.credentials) {
+            return argsStr
+                .replace(this.credentials.secretAccessKey, '****')
+                .replace(this.credentials.sessionToken, '****');
+        }
+        return argsStr;
+    }
+
+    async run(args: string[], log: LogType): Promise<void> {
         if (this.promise != null) {
             return this.promise;
         }
         this.parser.reset();
         this.startTime = Date.now();
-        log.info({ mounts: this.mounts, docker: this.getDockerArgs().join(' ') }, 'SpawnDocker');
-
-        const child = spawn('docker', [...this.getDockerArgs(), ...args]);
+        const dockerArgs = await this.getDockerArgs();
+        log.info({ mounts: this.mounts, docker: this.maskArgs(dockerArgs) }, 'SpawnDocker');
+        const child = spawn('docker', [...dockerArgs, ...args]);
         this.child = child;
 
         const errorBuff: Buffer[] = [];

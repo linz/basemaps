@@ -5,13 +5,18 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@microsoft/ts-command-line';
-import { promises as fs } from 'fs';
+import { promises as fs, createReadStream } from 'fs';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../../builder';
 import { CogJob } from '../../cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog.vrt';
 import { FileOperator } from '../../file/file';
 import { TileCover } from '../../cover';
+import { FileConfig } from '../../file/file.config';
+import { FileOperatorS3 } from '../../file/file.s3';
+import { CogSource } from '@cogeotiff/core';
+import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
+import { CogSourceFile } from '@cogeotiff/source-file';
 
 const ProcessId = ulid.ulid();
 
@@ -20,15 +25,43 @@ function filterTiff(a: string): boolean {
     return lowerA.endsWith('.tiff') || lowerA.endsWith('.tif');
 }
 
+export class CLiInputData {
+    path: CommandLineStringParameter;
+    roleArn: CommandLineStringParameter;
+    externalId: CommandLineStringParameter;
+
+    constructor(parent: CommandLineAction, prefix: string) {
+        this.path = parent.defineStringParameter({
+            argumentName: prefix.toUpperCase(),
+            parameterLongName: `--${prefix}`,
+            description: 'Folder or S3 Bucket location to use',
+            required: true,
+        });
+
+        this.roleArn = parent.defineStringParameter({
+            argumentName: prefix.toUpperCase() + '_ARN',
+            parameterLongName: `--${prefix}-role-arn`,
+            description: 'Role to be assumed to access the data',
+            required: false,
+        });
+
+        this.externalId = parent.defineStringParameter({
+            argumentName: prefix.toUpperCase() + '_EXTERNAL_ID',
+            parameterLongName: `--${prefix}-role-external-id`,
+            description: 'Role external id to be assumed to access the data',
+            required: false,
+        });
+    }
+}
+
 export class ActionCogJobCreate extends CommandLineAction {
-    private source: CommandLineStringParameter | null = null;
-    private output: CommandLineStringParameter | null = null;
-    private minZoom: CommandLineIntegerParameter | null = null;
-    private maxCogs: CommandLineIntegerParameter | null = null;
-    private maxConcurrency: CommandLineIntegerParameter | null = null;
-    private imageryName: CommandLineStringParameter | null = null;
-    private geoJsonOutput: CommandLineFlagParameter | null = null;
-    private generateVrt: CommandLineFlagParameter | null = null;
+    private source?: CLiInputData;
+    private output?: CLiInputData;
+    private minZoom?: CommandLineIntegerParameter;
+    private maxCogs?: CommandLineIntegerParameter;
+    private maxConcurrency?: CommandLineIntegerParameter;
+    private geoJsonOutput?: CommandLineFlagParameter;
+    private generateVrt?: CommandLineFlagParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -42,25 +75,61 @@ export class ActionCogJobCreate extends CommandLineAction {
         });
     }
 
+    fsConfig(source: CLiInputData): FileConfig {
+        if (source.path.value == null) {
+            throw new Error('Invalid path');
+        }
+        if (!FileOperator.isS3(source.path.value)) {
+            return { type: 'local', path: source.path.value };
+        }
+        if (source.roleArn.value == null) {
+            return { type: 's3', path: source.path.value };
+        }
+        if (source.externalId.value == null) {
+            throw new Error('External Id is required if roleArn is provided.');
+        }
+        return {
+            path: source.path.value,
+            type: 's3',
+            roleArn: source.roleArn.value,
+            externalId: source.externalId.value,
+        };
+    }
+
     async onExecute(): Promise<void> {
         const logger = LogConfig.get().child({ id: ProcessId });
         LogConfig.set(logger);
 
         // Make typescript happy with all the undefined
-        if (this.source?.value == null || this.output?.value == null || this.imageryName?.value == null) {
+        if (this.source == null || this.output == null) {
             throw new Error('Failed to read parameters');
         }
 
-        logger.info({ source: this.source.value }, 'ListTiffs');
-        const tiffList = (await FileOperator.get(this.source.value).list(this.source.value)).filter(filterTiff);
+        logger.info({ source: this.source.path.value, sourceRole: this.source.roleArn.value }, 'ListTiffs');
+        const sourceConfig = this.fsConfig(this.source);
+        const outputConfig = this.fsConfig(this.output);
+        const sourceFs = FileOperator.create(sourceConfig);
+        const outputFs = FileOperator.create(outputConfig);
+        const tiffList = (await sourceFs.list(sourceConfig.path)).filter(filterTiff);
 
-        logger.info({ source: this.source.value, tiffCount: tiffList.length }, 'LoadingTiffs');
-        const builder = new CogBuilder(
-            this.maxConcurrency?.value ?? this.MaxConcurrencyDefault,
-            this.maxCogs?.value ?? this.MaxCogsDefault,
-            this.minZoom?.value ?? this.MinZoomDefault,
-        );
-        const metadata = await builder.build(tiffList);
+        let tiffSource: CogSource[];
+        if (sourceFs instanceof FileOperatorS3) {
+            tiffSource = tiffList.map(path => {
+                const { bucket, key } = FileOperatorS3.parse(path);
+                // Use the same s3 credentials to access the files that were used to list them
+                return new CogSourceAwsS3(bucket, key, sourceFs.s3);
+            });
+        } else {
+            tiffSource = tiffList.map(path => new CogSourceFile(path));
+        }
+        const maxConcurrency = this.maxConcurrency?.value ?? this.MaxConcurrencyDefault;
+        const maxCogs = this.maxCogs?.value ?? this.MaxCogsDefault;
+        const minZoom = this.minZoom?.value ?? this.MinZoomDefault;
+
+        logger.info({ source: this.source.path.value, tiffCount: tiffList.length }, 'LoadingTiffs');
+
+        const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom);
+        const metadata = await builder.build(tiffSource);
         logger.info({ covering: metadata.covering }, 'CoveringGenerated');
 
         const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
@@ -77,12 +146,18 @@ export class ActionCogJobCreate extends CommandLineAction {
         }
         const job: CogJob = {
             id: ProcessId,
-            output: this.output.value,
+            output: {
+                ...outputConfig,
+                vrt: {
+                    path: FileOperator.join(outputConfig.path, `${ProcessId}/.vrt`),
+                    options: vrtOptions,
+                },
+            },
             source: {
-                name: this.imageryName.value,
+                ...sourceConfig,
                 resolution: metadata.resolution,
                 files: tiffList,
-                vrt: FileOperator.join(this.output.value, `${ProcessId}/.vrt`),
+                options: { maxConcurrency, maxCogs, minZoom },
             },
             quadkeys: metadata.covering,
         };
@@ -90,29 +165,30 @@ export class ActionCogJobCreate extends CommandLineAction {
         const tmpFolder = `/tmp/basemaps-${job.id}`;
         await fs.mkdir(tmpFolder, { recursive: true });
         try {
-            const outputFs = FileOperator.get(this.output.value);
             // Local file systems need directories to be created before writing to them
-            if (!FileOperator.isS3(this.output.value)) {
-                await fs.mkdir(FileOperator.join(this.output.value, ProcessId), { recursive: true });
+            if (!FileOperatorS3.isS3(outputFs)) {
+                await fs.mkdir(FileOperator.join(outputConfig.path, ProcessId), { recursive: true });
             }
 
+            // TODO should this be done here, it could be done for each COG builder
             if (this.generateVrt?.value) {
                 const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);
-                await FileOperator.copy(vrtTmp, job.source.vrt, logger);
+                const readStream = createReadStream(vrtTmp);
+                await outputFs.write(job.output.vrt.path, readStream, logger);
             }
 
-            const jobFile = FileOperator.join(this.output.value, `${ProcessId}/job.json`);
+            const jobFile = FileOperator.join(outputConfig.path, `${ProcessId}/job.json`);
             await outputFs.write(jobFile, Buffer.from(JSON.stringify(job, null, 2)), logger);
 
             if (this.geoJsonOutput?.value) {
-                const geoJsonSourceOutput = FileOperator.join(this.output.value, `${ProcessId}/source.geojson`);
+                const geoJsonSourceOutput = FileOperator.join(outputConfig.path, `${ProcessId}/source.geojson`);
                 await outputFs.write(
                     geoJsonSourceOutput,
                     Buffer.from(JSON.stringify(metadata.bounds, null, 2)),
                     logger,
                 );
 
-                const geoJsonCoveringOutput = FileOperator.join(this.output.value, `${ProcessId}/covering.geojson`);
+                const geoJsonCoveringOutput = FileOperator.join(outputConfig.path, `${ProcessId}/covering.geojson`);
                 await outputFs.write(
                     geoJsonCoveringOutput,
                     Buffer.from(JSON.stringify(TileCover.toGeoJson(metadata.covering), null, 2)),
@@ -121,8 +197,8 @@ export class ActionCogJobCreate extends CommandLineAction {
             }
 
             logger.info({ job: jobFile }, 'Done');
-        } catch (e) {
-            logger.error({ error: e }, 'FailedToConvert');
+        } catch (err) {
+            logger.error({ err }, 'FailedToConvert');
         } finally {
             // Cleanup
             await fs.rmdir(tmpFolder, { recursive: true });
@@ -130,20 +206,8 @@ export class ActionCogJobCreate extends CommandLineAction {
     }
 
     protected onDefineParameters(): void {
-        this.source = this.defineStringParameter({
-            argumentName: 'SOURCE',
-            parameterLongName: '--source',
-            description: 'Folder or S3 Bucket to load from',
-            required: true,
-        });
-
-        this.output = this.defineStringParameter({
-            argumentName: 'SOURCE',
-            parameterLongName: '--output',
-            description: 'Folder or S3 Bucket to store results in',
-            required: true,
-        });
-
+        this.source = new CLiInputData(this, 'source');
+        this.output = new CLiInputData(this, 'output');
         this.minZoom = this.defineIntegerParameter({
             argumentName: 'MIN_ZOOM',
             parameterLongName: '--min-zoom',
@@ -167,14 +231,6 @@ export class ActionCogJobCreate extends CommandLineAction {
             description: 'Maximum number of requests to use at one time',
             defaultValue: this.MaxConcurrencyDefault,
             required: false,
-        });
-
-        this.imageryName = this.defineStringParameter({
-            argumentName: 'IMAGERY_SET_NAME',
-            parameterLongName: '--name',
-            parameterShortName: '-n',
-            description: 'Name of imagery set',
-            required: true,
         });
 
         this.geoJsonOutput = this.defineFlagParameter({

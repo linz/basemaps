@@ -8,7 +8,7 @@ describe('QueryString', (): void => {
 
     beforeEach(() => {
         LambdaSession.reset();
-        jest.spyOn(LogConfig.getOutputStream(), 'write').mockImplementation();
+        LogConfig.disable();
     });
 
     it('tests that apikeytable gets called', (): void => {
