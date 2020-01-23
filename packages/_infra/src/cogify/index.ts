@@ -60,7 +60,7 @@ export class CogBuilderStack extends cdk.Stack {
                 desiredvCpus: 4,
                 spotIamFleetRole: spotFleetRole.roleArn,
                 instanceRole: batchInstanceRole.roleName,
-                instanceTypes: ['c5'],
+                instanceTypes: ['c5.xlarge', 'c5.2xlarge'],
                 subnets: vpc.privateSubnets.map(c => c.subnetId),
                 securityGroupIds: [sg.securityGroupId],
                 tags: {
@@ -87,7 +87,7 @@ export class CogBuilderStack extends cdk.Stack {
                  *
                  * Eg a instance with 8192MB allocates 7953MB usable
                  */
-                memory: 3900,
+                memory: 7900,
                 environment: [],
             },
         });
