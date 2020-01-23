@@ -70,6 +70,7 @@ export class GdalCogBuilder {
             return [];
         }
 
+        // TODO in theory this should be clamped to the lower right of the imagery, as there is no point generating large empty tiffs
         const [ulX, ulY, lrX, lrY] = this.config.bbox;
         return ['-projwin', ulX, ulY, lrX, lrY, '-projwin_srs', Projection.toEpsgString(EPSG.Google)].map(String);
     }
