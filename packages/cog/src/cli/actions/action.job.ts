@@ -18,6 +18,7 @@ import { FileOperatorS3 } from '../../file/file.s3';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
+import { basename } from 'path';
 
 const ProcessId = ulid.ulid();
 
@@ -98,7 +99,9 @@ export class ActionJobCreate extends CommandLineAction {
     }
 
     async onExecute(): Promise<void> {
-        const logger = LogConfig.get().child({ id: ProcessId });
+        const imageryName = basename(this.source?.path.value ?? '').replace(/\./g, '-'); // batch does not allow '.' in names
+
+        const logger = LogConfig.get().child({ id: ProcessId, imageryName });
         LogConfig.set(logger);
 
         // Make typescript happy with all the undefined
@@ -135,7 +138,7 @@ export class ActionJobCreate extends CommandLineAction {
         const logObj = { ...metadata };
         delete logObj.bounds; // Don't log bounds as it is huge
         logObj.covering = logObj.covering.map(c => {
-            return { qk: c, tile: Mercator.quadkeyToGoogle(c) };
+            return { qk: c, tile: Mercator.quadkeyToGoogle(c).join(', ') };
         }) as any;
         logger.info(logObj, 'CoveringGenerated');
 
@@ -153,6 +156,7 @@ export class ActionJobCreate extends CommandLineAction {
         }
         const job: CogJob = {
             id: ProcessId,
+            name: imageryName,
             output: {
                 ...outputConfig,
                 vrt: {

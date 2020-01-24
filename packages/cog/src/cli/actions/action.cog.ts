@@ -70,7 +70,7 @@ export class ActionCogCreate extends CommandLineAction {
 
         const isCommit = this.commit?.value ?? false;
 
-        const logger = LogConfig.get().child({ id: processId, correlationId: job.id });
+        const logger = LogConfig.get().child({ id: processId, correlationId: job.id, imageryName: job.name });
         LogConfig.set(logger);
 
         const quadKey = this.getQuadKey(job, logger);
@@ -96,6 +96,8 @@ export class ActionCogCreate extends CommandLineAction {
             logger.info({ target: targetPath }, 'StoreTiff');
             if (isCommit) {
                 await outputFs.write(targetPath, createReadStream(tmpTiff), logger);
+            } else {
+                logger.warn('DryRun:Done');
             }
         } finally {
             // Cleanup!
