@@ -50,6 +50,32 @@ export class CogBuilderStack extends cdk.Stack {
         const vpc = ec2.Vpc.fromLookup(this, 'AlbVpc', { tags: { default: 'true' } });
         const sg = new ec2.SecurityGroup(this, 'CogBatchSecurity', { vpc });
 
+        const launchTemplateName = 'CogBatchLaunchTemplate';
+        new ec2.CfnLaunchTemplate(this, 'CogBatchLaunchTemplate', {
+            launchTemplateData: {
+                /**
+                 * This only resizes the HOST's file system, which default's to 22GB
+                 *
+                 * Each container is still limited to 8GB of storage but this allows
+                 * more containers to be run on each hos
+                 *
+                 * TODO we could mount a new drive `/dev/sda` and then share that
+                 * to all the containers, a file system will need be created on boot `mkfs.ext4`
+                 * Which could be done inside of a `launchTemplateData.userData` bash script
+                 */
+                blockDeviceMappings: [
+                    {
+                        deviceName: '/dev/xvdcz',
+                        ebs: {
+                            volumeSize: 128,
+                            volumeType: 'gp2',
+                        },
+                    },
+                ],
+            },
+            launchTemplateName,
+        });
+
         const computeEnv = new batch.CfnComputeEnvironment(this, 'CogBatchCompute', {
             type: 'MANAGED',
             serviceRole: batchServiceRole.roleArn,
@@ -60,11 +86,15 @@ export class CogBuilderStack extends cdk.Stack {
                 desiredvCpus: 4,
                 spotIamFleetRole: spotFleetRole.roleArn,
                 instanceRole: batchInstanceRole.roleName,
-                instanceTypes: ['c5'],
+                instanceTypes: ['c5.xlarge', 'c5.2xlarge', 'c5.4xlarge'],
                 subnets: vpc.privateSubnets.map(c => c.subnetId),
                 securityGroupIds: [sg.securityGroupId],
                 tags: {
                     CogBuilder: 'true',
+                },
+                launchTemplate: {
+                    launchTemplateName,
+                    version: '$Latest',
                 },
             },
         });
@@ -102,7 +132,5 @@ export class CogBuilderStack extends cdk.Stack {
             ],
             priority: 1,
         });
-
-        // new cdk.CfnOutput(this, 'CogBuilderQueue', { value: queue.jobQueueName });
     }
 }
