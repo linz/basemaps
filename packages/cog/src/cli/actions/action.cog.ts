@@ -11,6 +11,7 @@ import { buildCogForQuadKey, CogJob } from '../../cog';
 import { FileOperator } from '../../file/file';
 import { FileOperatorSimple } from '../../file/file.local';
 import { buildWarpedVrt } from '../../cog.vrt';
+import { makeTempFolder } from '../../file/temp.folder';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -85,11 +86,10 @@ export class ActionCogCreate extends CommandLineAction {
             return;
         }
 
-        const tmpFolder = `/tmp/basemaps-${job.id}-${processId}`;
+        const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${processId}`);
 
         const tmpTiff = FileOperator.join(tmpFolder, `${quadKey}.tiff`);
         const tmpVrt = FileOperator.join(tmpFolder, `${job.id}.vrt`);
-        await fs.mkdir(tmpFolder, { recursive: true });
 
         try {
             logger.info({ path: job.output.vrt.path }, 'FetchVrt');

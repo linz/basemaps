@@ -1,4 +1,4 @@
-import { EPSG, LogConfig } from '@basemaps/shared';
+import { EPSG, LogConfig, Env } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -19,7 +19,8 @@ import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { basename } from 'path';
-
+import { makeTempFolder } from '../../file/temp.folder';
+																																																																																																																																																																																																																																																																																																																												
 const ProcessId = ulid.ulid();
 
 function filterTiff(a: string): boolean {
@@ -173,8 +174,7 @@ export class ActionJobCreate extends CommandLineAction {
             quadkeys: metadata.covering,
         };
 
-        const tmpFolder = `/tmp/basemaps-${job.id}`;
-        await fs.mkdir(tmpFolder, { recursive: true });
+        const tmpFolder = await makeTempFolder(`basemaps-${job.id}`);
         try {
             // Local file systems need directories to be created before writing to them
             if (!FileOperatorS3.isS3(outputFs)) {

@@ -21,6 +21,9 @@ export const Env = {
     /** How many tiffs to load at one time */
     TiffConcurrency: 'TIFF_CONCURRENCY',
 
+    /** Temporary folder used for processing, @default /tmp */
+    TempFolder: 'TEMP_FOLDER',
+
     /** Batch Index offset used to controll mutliple batch jobs */
     BatchIndex: 'AWS_BATCH_JOB_ARRAY_INDEX',
 
