@@ -80,8 +80,11 @@ export class ActionCogCreate extends CommandLineAction {
         }
         const targetPath = FileOperator.join(job.output.path, `${job.id}/${quadKey}.tiff`);
         const outputFs = FileOperator.create(job.output);
+
+        const outputExists = await outputFs.exists(targetPath);
+        logger.info({ targetPath, outputExists }, 'CheckExists');
         // Output file exists don't try and overwrite it
-        if (await outputFs.exists(targetPath)) {
+        if (outputExists) {
             logger.warn({ targetPath }, 'OutputExists');
             return;
         }
