@@ -1,10 +1,10 @@
 import { Env, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
 import * as aws from 'aws-sdk';
+import * as path from 'path';
 import * as ulid from 'ulid';
 import { CogJob } from '../../cog';
 import { FileOperator } from '../../file/file';
-import * as path from 'path';
 
 export class ActionBatchJob extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -35,7 +35,7 @@ export class ActionBatchJob extends CommandLineAction {
 
         const batch = new aws.Batch({ region });
         const lastFolderName = path.basename(job.source.path);
-        const jobName = `Cog-${lastFolderName}`;
+        const jobName = `Cog-${lastFolderName.replace('.', '_')}`;
         const jobQueue = 'CogBatchJobQueue';
         const jobDefinition = 'CogBatchJob';
         logger.info({ jobs: job.quadkeys.length, jobName, jobQueue, jobDefinition }, 'JobSubmit');
