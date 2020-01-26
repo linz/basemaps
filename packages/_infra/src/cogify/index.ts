@@ -3,6 +3,8 @@ import iam = require('@aws-cdk/aws-iam');
 import batch = require('@aws-cdk/aws-batch');
 import ec2 = require('@aws-cdk/aws-ec2');
 import ecrAssets = require('@aws-cdk/aws-ecr-assets');
+import { Env } from '@basemaps/shared';
+import { ScratchData } from './mount.folder';
 
 /**
  * Cogification infrastructure
@@ -71,7 +73,16 @@ export class CogBuilderStack extends cdk.Stack {
                             volumeType: 'gp2',
                         },
                     },
+                    {
+                        deviceName: `/dev/${ScratchData.Device}`,
+                        ebs: {
+                            volumeSize: 256,
+                            volumeType: 'gp2',
+                        },
+                    },
                 ],
+                // Make a file system and mount the folder
+                userData: ScratchData.UserData,
             },
             launchTemplateName,
         });
@@ -118,7 +129,14 @@ export class CogBuilderStack extends cdk.Stack {
                  * Eg a instance with 8192MB allocates 7953MB usable
                  */
                 memory: 3900,
-                environment: [],
+                environment: [
+                    {
+                        name: Env.TempFolder,
+                        value: ScratchData.Folder,
+                    },
+                ],
+                mountPoints: [{ containerPath: ScratchData.Folder, sourceVolume: 'scratch' }],
+                volumes: [{ name: 'scratch', host: { sourcePath: ScratchData.Folder } }],
             },
         });
 
