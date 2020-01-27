@@ -1,6 +1,5 @@
 import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/shared';
 import * as Mercator from 'global-mercator';
-import { proj256 } from './builder';
 import { VrtOptions } from './cog.vrt';
 import { GdalCogBuilder } from './gdal';
 
@@ -55,6 +54,16 @@ export function onProgress(keys: Record<string, any>, logger: LogType): (p: numb
 }
 
 /**
+ * Return the width/height of the quadkey in pixels at the target resolution
+ * @param quadKey
+ * @param targetResolution
+ * @param tileSize (Optional) size of each tile
+ */
+export function getTileSize(quadKey: string, targetResolution: number, tileSize = 256): number {
+    return tileSize * Math.pow(2, targetResolution - quadKey.length);
+}
+
+/**
  * Build a COG for a given collection of tiffs restricted to a WebMercator quadkey
  *
  * @param job the job to process
@@ -77,13 +86,6 @@ export async function buildCogForQuadKey(
     const [minX, maxY, maxX, minY] = Mercator.googleToBBoxMeters(google);
     const alignmentLevels = job.source.resolution - google[2];
 
-    // TODO this math is not right
-    const pixelsPerMeter = proj256.getResolution(job.source.resolution);
-    const imageSize = {
-        width: Math.floor(Math.abs(minX - maxX) / pixelsPerMeter),
-        height: Math.floor(Math.abs(minY - maxY) / pixelsPerMeter),
-    };
-
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [minX, minY, maxX, maxY],
         alignmentLevels,
@@ -96,7 +98,7 @@ export async function buildCogForQuadKey(
 
     logger.info(
         {
-            imageSize,
+            imageSize: getTileSize(quadKey, job.source.resolution),
             quadKey,
             tile: { x: google[0], y: google[1], z: google[2] },
             alignmentLevels,
