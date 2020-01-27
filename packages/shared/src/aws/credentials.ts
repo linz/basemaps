@@ -7,6 +7,8 @@ export interface StsAssumeRoleConfig {
     externalId: string;
 }
 
+const OneHourSeconds = 60 * 60;
+
 /**
  * Credentials need to be cached or a separate assume role will be called for each individual
  * instance of the credential chain
@@ -18,6 +20,7 @@ class CredentialObjectCache extends ObjectCache<AWS.ChainableTemporaryCredential
                 RoleArn: opts.roleArn,
                 ExternalId: opts.externalId,
                 RoleSessionName: `bm-${hostname()}-${Date.now()}`,
+                DurationSeconds: 8 * OneHourSeconds,
             },
             masterCredentials: AWS.config.credentials as AWS.Credentials,
         });
