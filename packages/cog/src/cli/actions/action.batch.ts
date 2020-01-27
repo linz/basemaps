@@ -4,7 +4,6 @@ import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';
 import { CogJob } from '../../cog';
 import { FileOperator } from '../../file/file';
-import * as path from 'path';
 
 export class ActionBatchJob extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -28,19 +27,19 @@ export class ActionBatchJob extends CommandLineAction {
         const jobData = await FileOperator.create(this.job.value).read(this.job.value);
         const job = JSON.parse(jobData.toString()) as CogJob;
         const processId = ulid.ulid();
-        const logger = LogConfig.get().child({ id: processId, correlationId: job.id });
+        const logger = LogConfig.get().child({ id: processId, correlationId: job.id, imageryName: job.name });
         LogConfig.set(logger);
 
         const isCommit = this.commit?.value ?? false;
 
         const batch = new aws.Batch({ region });
-        const lastFolderName = path.basename(job.source.path);
-        const jobName = `Cog-${lastFolderName}`;
+        const jobName = `Cog-${job.name}`;
         const jobQueue = 'CogBatchJobQueue';
         const jobDefinition = 'CogBatchJob';
         logger.info({ jobs: job.quadkeys.length, jobName, jobQueue, jobDefinition }, 'JobSubmit');
 
         if (!isCommit) {
+            logger.warn('DryRun:Done');
             return;
         }
         // TODO these names are taken from the deployment script maybe they should be looked up

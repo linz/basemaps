@@ -9,6 +9,9 @@ export interface CogJob {
     /** Unique processing Id */
     id: string;
 
+    /** Imagery set name */
+    name: string;
+
     source: {
         /** List of input files */
         files: string[];

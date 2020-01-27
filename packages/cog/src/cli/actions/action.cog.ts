@@ -70,11 +70,18 @@ export class ActionCogCreate extends CommandLineAction {
 
         const isCommit = this.commit?.value ?? false;
 
-        const logger = LogConfig.get().child({ id: processId, correlationId: job.id });
+        const logger = LogConfig.get().child({ id: processId, correlationId: job.id, imageryName: job.name });
         LogConfig.set(logger);
 
         const quadKey = this.getQuadKey(job, logger);
         if (quadKey == null) {
+            return;
+        }
+        const targetPath = FileOperator.join(job.output.path, `${job.id}/${quadKey}.tiff`);
+        const outputFs = FileOperator.create(job.output);
+        // Output file exists don't try and overwrite it
+        if (await outputFs.exists(targetPath)) {
+            logger.warn({ targetPath }, 'OutputExists');
             return;
         }
 
@@ -86,16 +93,16 @@ export class ActionCogCreate extends CommandLineAction {
 
         try {
             logger.info({ path: job.output.vrt.path }, 'FetchVrt');
-            const outputFs = FileOperator.create(job.output);
             await FileOperatorSimple.write(tmpVrt, outputFs.readStream(job.output.vrt.path), logger);
             // Sometimes we need to force a epsg3857 projection to get the COG to build since its fast just do it locally
             const vrtPath = await buildWarpedVrt(job, tmpVrt, job.output.vrt.options, tmpFolder, logger);
 
             await buildCogForQuadKey(job, quadKey, vrtPath, tmpTiff, logger, isCommit);
-            const targetPath = FileOperator.join(job.output.path, `${job.id}/${quadKey}.tiff`);
             logger.info({ target: targetPath }, 'StoreTiff');
             if (isCommit) {
                 await outputFs.write(targetPath, createReadStream(tmpTiff), logger);
+            } else {
+                logger.warn('DryRun:Done');
             }
         } finally {
             // Cleanup!
