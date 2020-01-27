@@ -75,7 +75,7 @@ export class CogBuilderStack extends cdk.Stack {
                 {
                     deviceName: `/dev/${ScratchData.Device}`,
                     ebs: {
-                        volumeSize: 256,
+                        volumeSize: 512,
                         volumeType: 'gp2',
                     },
                 },
