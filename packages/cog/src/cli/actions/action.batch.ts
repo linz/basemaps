@@ -4,6 +4,8 @@ import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';
 import { CogJob } from '../../cog';
 import { FileOperator } from '../../file/file';
+const JobQueue = 'CogBatchJobQueue';
+const JobDefinition = 'CogBatchJob';
 
 export class ActionBatchJob extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -19,6 +21,48 @@ export class ActionBatchJob extends CommandLineAction {
         });
     }
 
+    async batchOne(
+        job: CogJob,
+        batch: AWS.Batch,
+        quadKey: string,
+        isCommit: boolean,
+    ): Promise<{ jobName: string; jobId: string }> {
+        const jobName = `Cog-${job.name}-${quadKey}`;
+        if (!isCommit || this.job?.value == null) {
+            return { jobName, jobId: '' };
+        }
+
+        const batchJob = await batch
+            .submitJob({
+                jobName,
+                jobQueue: JobQueue,
+                jobDefinition: JobDefinition,
+                containerOverrides: {
+                    command: ['-V', 'cog', '--job', this.job.value, '--commit', '--quadkey', quadKey],
+                },
+            })
+            .promise();
+        return { jobName, jobId: batchJob.jobId };
+    }
+    async batchAll(job: CogJob, batch: AWS.Batch, isCommit: boolean): Promise<{ jobName: string; jobId: string }> {
+        const jobName = `Cog-${job.name}`;
+        if (!isCommit || this.job?.value == null) {
+            return { jobName, jobId: '' };
+        }
+        const batchJob = await batch
+            .submitJob({
+                jobName,
+                jobQueue: JobQueue,
+                jobDefinition: JobDefinition,
+                arrayProperties: { size: job.quadkeys.length },
+                containerOverrides: {
+                    command: ['-V', 'cog', '--job', this.job.value, '--commit'],
+                },
+            })
+            .promise();
+        return { jobName, jobId: batchJob.jobId };
+    }
+
     async onExecute(): Promise<void> {
         if (this.job?.value == null) {
             throw new Error('Failed to read parameters');
@@ -32,30 +76,49 @@ export class ActionBatchJob extends CommandLineAction {
 
         const isCommit = this.commit?.value ?? false;
 
-        const batch = new aws.Batch({ region });
-        const jobName = `Cog-${job.name}`;
-        const jobQueue = 'CogBatchJobQueue';
-        const jobDefinition = 'CogBatchJob';
-        logger.info({ jobs: job.quadkeys.length, jobName, jobQueue, jobDefinition }, 'JobSubmit');
+        const outputFs = FileOperator.create(job.output);
 
+        let isPartial = false;
+        let todoCount = job.quadkeys.length;
+        const stats = await Promise.all(
+            job.quadkeys.map(async quadKey => {
+                const targetPath = FileOperator.join(job.output.path, `${job.id}/${quadKey}.tiff`);
+                const exists = await outputFs.exists(targetPath);
+                if (exists) {
+                    logger.info({ targetPath }, 'FileExists');
+                    isPartial = true;
+                    todoCount--;
+                }
+                return { quadKey, exists };
+            }),
+        );
+
+        logger.info(
+            {
+                jobTotal: job.quadkeys.length,
+                jobLeft: todoCount,
+                jobQueue: JobQueue,
+                jobDefinition: JobDefinition,
+                isPartial,
+            },
+            'JobSubmit',
+        );
+
+        const batch = new aws.Batch({ region });
+        if (isPartial) {
+            const toSubmit = stats.filter(f => f.exists == false).map(c => c.quadKey);
+            for (const quadKey of toSubmit) {
+                const jobStatus = await this.batchOne(job, batch, quadKey, isCommit);
+                logger.info(jobStatus, 'JobSubmitted');
+            }
+        } else {
+            const jobStatus = await this.batchAll(job, batch, isCommit);
+            logger.info(jobStatus, 'JobSubmitted');
+        }
         if (!isCommit) {
             logger.warn('DryRun:Done');
             return;
         }
-        // TODO these names are taken from the deployment script maybe they should be looked up
-        const batchJob = await batch
-            .submitJob({
-                jobName,
-                jobQueue,
-                jobDefinition,
-                arrayProperties: { size: job.quadkeys.length },
-                containerOverrides: {
-                    command: ['-V', 'cog', '--job', this.job.value, '--commit'],
-                },
-            })
-            .promise();
-
-        logger.info({ batch: batchJob }, 'JobSubmitted');
     }
 
     protected onDefineParameters(): void {
