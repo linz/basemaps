@@ -81,11 +81,17 @@ export class FileOperatorS3 implements FileProcessor {
             .promise();
     }
 
-    async exists(): Promise<boolean> {
-        // TODO does heading a missing object error
-        // const opts = FileOperatorS3.parse(filePath);
-        // await s3.headObject({ Bucket: opts.bucket, Key: opts.key }).promise();
-        throw new Error('Not yet implemented');
+    async exists(filePath: string): Promise<boolean> {
+        const opts = FileOperatorS3.parse(filePath);
+        try {
+            await this.s3.headObject({ Bucket: opts.bucket, Key: opts.key }).promise();
+            return true;
+        } catch (e) {
+            if (e.code == 'NotFound') {
+                return false;
+            }
+            throw e;
+        }
     }
 
     readStream(filePath: string): Readable {

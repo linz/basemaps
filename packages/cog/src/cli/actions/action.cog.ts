@@ -11,6 +11,7 @@ import { buildCogForQuadKey, CogJob } from '../../cog';
 import { FileOperator } from '../../file/file';
 import { FileOperatorSimple } from '../../file/file.local';
 import { buildWarpedVrt } from '../../cog.vrt';
+import { makeTempFolder } from '../../file/temp.folder';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -79,17 +80,19 @@ export class ActionCogCreate extends CommandLineAction {
         }
         const targetPath = FileOperator.join(job.output.path, `${job.id}/${quadKey}.tiff`);
         const outputFs = FileOperator.create(job.output);
+
+        const outputExists = await outputFs.exists(targetPath);
+        logger.info({ targetPath, outputExists }, 'CheckExists');
         // Output file exists don't try and overwrite it
-        if (await outputFs.exists(targetPath)) {
+        if (outputExists) {
             logger.warn({ targetPath }, 'OutputExists');
             return;
         }
 
-        const tmpFolder = `/tmp/basemaps-${job.id}-${processId}`;
+        const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${processId}`);
 
         const tmpTiff = FileOperator.join(tmpFolder, `${quadKey}.tiff`);
         const tmpVrt = FileOperator.join(tmpFolder, `${job.id}.vrt`);
-        await fs.mkdir(tmpFolder, { recursive: true });
 
         try {
             logger.info({ path: job.output.vrt.path }, 'FetchVrt');

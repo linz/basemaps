@@ -3,6 +3,9 @@ import iam = require('@aws-cdk/aws-iam');
 import batch = require('@aws-cdk/aws-batch');
 import ec2 = require('@aws-cdk/aws-ec2');
 import ecrAssets = require('@aws-cdk/aws-ecr-assets');
+import { Env } from '@basemaps/shared';
+import { ScratchData } from './mount.folder';
+import { createHash } from 'crypto';
 
 /**
  * Cogification infrastructure
@@ -50,31 +53,42 @@ export class CogBuilderStack extends cdk.Stack {
         const vpc = ec2.Vpc.fromLookup(this, 'AlbVpc', { tags: { default: 'true' } });
         const sg = new ec2.SecurityGroup(this, 'CogBatchSecurity', { vpc });
 
-        const launchTemplateName = 'CogBatchLaunchTemplate';
-        new ec2.CfnLaunchTemplate(this, 'CogBatchLaunchTemplate', {
-            launchTemplateData: {
-                /**
-                 * This only resizes the HOST's file system, which default's to 22GB
-                 *
-                 * Each container is still limited to 8GB of storage but this allows
-                 * more containers to be run on each hos
-                 *
-                 * TODO we could mount a new drive `/dev/sda` and then share that
-                 * to all the containers, a file system will need be created on boot `mkfs.ext4`
-                 * Which could be done inside of a `launchTemplateData.userData` bash script
-                 */
-                blockDeviceMappings: [
-                    {
-                        deviceName: '/dev/xvdcz',
-                        ebs: {
-                            volumeSize: 128,
-                            volumeType: 'gp2',
-                        },
+        const launchTemplateData = {
+            /**
+             * This only resizes the HOST's file system, which default's to 22GB
+             *
+             * Each container is still limited to 8GB of storage but this allows
+             * more containers to be run on each host
+             */
+            blockDeviceMappings: [
+                {
+                    deviceName: '/dev/xvdcz',
+                    ebs: {
+                        volumeSize: 128,
+                        volumeType: 'gp2',
                     },
-                ],
-            },
-            launchTemplateName,
-        });
+                },
+                /**
+                 * Provide a scratch folder for more temporary storage
+                 * This will be mounted into each container
+                 */
+                {
+                    deviceName: `/dev/${ScratchData.Device}`,
+                    ebs: {
+                        volumeSize: 256,
+                        volumeType: 'gp2',
+                    },
+                },
+            ],
+            // Make a file system and mount the folder
+            userData: ScratchData.UserData,
+        };
+        const launchTemplateDataId = createHash('sha256')
+            .update(JSON.stringify(launchTemplateData))
+            .digest('hex')
+            .substr(0, 10);
+        const launchTemplateName = `CogBatchLaunchTemplate-${launchTemplateDataId}`;
+        new ec2.CfnLaunchTemplate(this, 'CogBatchLaunchTemplate', { launchTemplateData, launchTemplateName });
 
         const computeEnv = new batch.CfnComputeEnvironment(this, 'CogBatchCompute', {
             type: 'MANAGED',
@@ -118,7 +132,14 @@ export class CogBuilderStack extends cdk.Stack {
                  * Eg a instance with 8192MB allocates 7953MB usable
                  */
                 memory: 3900,
-                environment: [],
+                environment: [
+                    {
+                        name: Env.TempFolder,
+                        value: ScratchData.Folder,
+                    },
+                ],
+                mountPoints: [{ containerPath: ScratchData.Folder, sourceVolume: 'scratch' }],
+                volumes: [{ name: 'scratch', host: { sourcePath: ScratchData.Folder } }],
             },
         });
 

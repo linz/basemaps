@@ -1,24 +1,25 @@
 import { EPSG, LogConfig } from '@basemaps/shared';
+import { CogSource } from '@cogeotiff/core';
+import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
+import { CogSourceFile } from '@cogeotiff/source-file';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@microsoft/ts-command-line';
+import { createReadStream, promises as fs } from 'fs';
 import * as Mercator from 'global-mercator';
-import { promises as fs, createReadStream } from 'fs';
+import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../../builder';
 import { CogJob } from '../../cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog.vrt';
-import { FileOperator } from '../../file/file';
 import { TileCover } from '../../cover';
+import { FileOperator } from '../../file/file';
 import { FileConfig } from '../../file/file.config';
 import { FileOperatorS3 } from '../../file/file.s3';
-import { CogSource } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-import { CogSourceFile } from '@cogeotiff/source-file';
-import { basename } from 'path';
+import { makeTempFolder } from '../../file/temp.folder';
 
 const ProcessId = ulid.ulid();
 
@@ -173,8 +174,7 @@ export class ActionJobCreate extends CommandLineAction {
             quadkeys: metadata.covering,
         };
 
-        const tmpFolder = `/tmp/basemaps-${job.id}`;
-        await fs.mkdir(tmpFolder, { recursive: true });
+        const tmpFolder = await makeTempFolder(`basemaps-${job.id}`);
         try {
             // Local file systems need directories to be created before writing to them
             if (!FileOperatorS3.isS3(outputFs)) {
