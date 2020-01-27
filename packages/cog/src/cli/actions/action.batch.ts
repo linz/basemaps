@@ -1,9 +1,8 @@
-import { Env, LogConfig } from '@basemaps/shared';
+import { Env, FileOperator, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
 import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';
 import { CogJob } from '../../cog';
-import { FileOperator } from '../../file/file';
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
 

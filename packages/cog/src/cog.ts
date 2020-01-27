@@ -1,8 +1,7 @@
-import { Aws, LogType } from '@basemaps/shared';
+import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/shared';
 import * as Mercator from 'global-mercator';
 import { proj256 } from './builder';
 import { VrtOptions } from './cog.vrt';
-import { FileConfig, isConfigS3Role } from './file/file.config';
 import { GdalCogBuilder } from './gdal';
 
 export interface CogJob {

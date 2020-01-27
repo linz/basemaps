@@ -1,5 +1,5 @@
-import { LogType } from '@basemaps/shared';
-import { StsAssumeRoleConfig } from '@basemaps/shared/build/aws/credentials';
+import { LogType } from '../log';
+import { StsAssumeRoleConfig } from '../aws/credentials';
 import { Readable } from 'stream';
 import { FileConfig } from './file.config';
 import { FileOperatorSimple } from './file.local';

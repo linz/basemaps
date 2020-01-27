@@ -1,8 +1,9 @@
-import { Aws, LogType } from '@basemaps/shared';
+import { Aws } from '../aws';
 import { S3 } from 'aws-sdk';
 import { Stream, Readable } from 'stream';
 import { FileProcessor } from './file';
-import { StsAssumeRoleConfig } from '@basemaps/shared/build/aws/credentials';
+import { StsAssumeRoleConfig } from '../aws/credentials';
+import { LogType } from '../log';
 
 const MaxListCount = 100;
 export class FileOperatorS3 implements FileProcessor {

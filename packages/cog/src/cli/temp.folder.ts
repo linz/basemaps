@@ -1,6 +1,6 @@
-import * as path from 'path';
 import { Env } from '@basemaps/shared';
 import { promises as fs } from 'fs';
+import * as path from 'path';
 
 /** Make a temp folder inside TEMP_FOLDER's path */
 export async function makeTempFolder(folder: string): Promise<string> {

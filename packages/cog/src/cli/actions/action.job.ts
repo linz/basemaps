@@ -1,4 +1,4 @@
-import { EPSG, LogConfig } from '@basemaps/shared';
+import { EPSG, FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -16,10 +16,7 @@ import { CogBuilder } from '../../builder';
 import { CogJob } from '../../cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog.vrt';
 import { TileCover } from '../../cover';
-import { FileOperator } from '../../file/file';
-import { FileConfig } from '../../file/file.config';
-import { FileOperatorS3 } from '../../file/file.s3';
-import { makeTempFolder } from '../../file/temp.folder';
+import { makeTempFolder } from '../temp.folder';
 
 const ProcessId = ulid.ulid();
 
