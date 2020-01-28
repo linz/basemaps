@@ -1,6 +1,6 @@
 import { MosaicCog } from '../../tiff.mosaic';
 
-export const MosaicGisborneRural = new MosaicCog(
+MosaicCog.create(
     '2019/new-zealand/gisborne_rural_2017-18_0.3m/2019-12-06/',
     [
         '31133310323',
@@ -33,7 +33,7 @@ export const MosaicGisborneRural = new MosaicCog(
     ],
     { minZoom: 13, priority: 100 },
 );
-export const MosaicGisborneUrban = new MosaicCog(
+MosaicCog.create(
     '2019/new-zealand/gisborne_0.1m_urban_2017-2018/2019-12-11/',
     [
         '3113331033200',

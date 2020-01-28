@@ -1,6 +1,6 @@
 import { Env } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
-import { Mosaics } from './imagery';
+import { Mosaics } from './imagery/mosaics';
 import { MosaicCog } from './tiff.mosaic';
 
 export const TiffUtil = {
@@ -32,6 +32,6 @@ export const TiffUtil = {
         for (const tiff of Mosaics) {
             tiff.bucket = bucketName;
         }
-        return Mosaics;
+        return Mosaics.sort((a, b) => a.priority - b.priority);
     },
 };
