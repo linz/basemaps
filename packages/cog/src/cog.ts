@@ -60,7 +60,7 @@ export function onProgress(keys: Record<string, any>, logger: LogType): (p: numb
  * @param tileSize (Optional) size of each tile
  */
 export function getTileSize(quadKey: string, targetResolution: number, tileSize = 256): number {
-    return tileSize * Math.pow(2, targetResolution - quadKey.length);
+    return tileSize * Math.pow(2, targetResolution - quadKey.length + 1);
 }
 
 /**
