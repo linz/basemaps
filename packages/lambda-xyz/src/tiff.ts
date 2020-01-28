@@ -3,6 +3,8 @@ import { CogTiff } from '@cogeotiff/core';
 import { Mosaics } from './imagery/mosaics';
 import { MosaicCog } from './tiff.mosaic';
 
+import './imagery';
+
 export const TiffUtil = {
     getTiffsForQuadKey(qk: string, zoom: number): CogTiff[] {
         const tiffs = TiffUtil.load();
