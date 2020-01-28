@@ -47,7 +47,7 @@ async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<Cog
     let failed = false;
     // Remove any tiffs that failed to load
     const promises = tiffs.map(c => {
-        LoadingQueue(async () => {
+        return LoadingQueue(async () => {
             try {
                 await c.init();
             } catch (error) {
