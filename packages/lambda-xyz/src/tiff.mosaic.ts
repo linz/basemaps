@@ -2,6 +2,7 @@ import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { QuadKey } from '@basemaps/shared';
 import * as path from 'path';
+import { Mosaics } from './imagery/mosaics';
 
 export interface MosaicCogOptions {
     /** Minimal zoom to show the layer @default 0 */
@@ -38,6 +39,11 @@ export class MosaicCog {
         this.zoom.min = opts.minZoom ?? 0;
         this.zoom.max = opts.maxZoom ?? 32;
         this.priority = opts.priority ?? 100;
+    }
+
+    static create(basePath: string, quadKeys: string[], opts: MosaicCogOptions = {}): void {
+        const mosaic = new MosaicCog(basePath, quadKeys, opts);
+        Mosaics.push(mosaic);
     }
 
     getSource(quadKey: string): CogTiff {
