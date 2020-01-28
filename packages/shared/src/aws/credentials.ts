@@ -1,6 +1,7 @@
 import { ObjectCache } from './object.cache';
 import * as AWS from 'aws-sdk';
 import { hostname } from 'os';
+import { Env } from '../const';
 
 export interface StsAssumeRoleConfig {
     roleArn: string;
@@ -8,6 +9,7 @@ export interface StsAssumeRoleConfig {
 }
 
 const OneHourSeconds = 60 * 60;
+const AwsRoleDurationSeconds = Env.getNumber(Env.AwsRoleDurationHours, 8) * OneHourSeconds;
 
 /**
  * Credentials need to be cached or a separate assume role will be called for each individual
@@ -20,7 +22,7 @@ class CredentialObjectCache extends ObjectCache<AWS.ChainableTemporaryCredential
                 RoleArn: opts.roleArn,
                 ExternalId: opts.externalId,
                 RoleSessionName: `bm-${hostname()}-${Date.now()}`,
-                DurationSeconds: 8 * OneHourSeconds,
+                DurationSeconds: AwsRoleDurationSeconds,
             },
             masterCredentials: AWS.config.credentials as AWS.Credentials,
         });

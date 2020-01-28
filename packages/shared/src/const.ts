@@ -27,6 +27,9 @@ export const Env = {
     /** Batch Index offset used to controll mutliple batch jobs */
     BatchIndex: 'AWS_BATCH_JOB_ARRAY_INDEX',
 
+    /** Number of hours to assume a role for, @default 8 */
+    AwsRoleDurationHours: 'AWS_ROLE_DURATION_HOURS',
+
     Gdal: {
         /** Should the gdal docker container be used? */
         UseDocker: 'GDAL_DOCKER',
