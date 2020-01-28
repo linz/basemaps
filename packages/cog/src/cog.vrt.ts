@@ -1,7 +1,5 @@
-import { Aws, EPSG, LogType, Projection } from '@basemaps/shared';
+import { Aws, EPSG, FileOperator, isConfigS3Role, LogType, Projection } from '@basemaps/shared';
 import { CogJob, onProgress } from './cog';
-import { FileOperator } from './file/file';
-import { isConfigS3Role } from './file/file.config';
 import { GdalCogBuilder } from './gdal';
 
 export interface VrtOptions {

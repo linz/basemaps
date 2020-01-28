@@ -1,4 +1,4 @@
-import { EPSG, LogConfig } from '@basemaps/shared';
+import { EPSG, FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -9,17 +9,13 @@ import {
     CommandLineStringParameter,
 } from '@microsoft/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
-import * as Mercator from 'global-mercator';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../../builder';
-import { CogJob } from '../../cog';
+import { CogJob, getTileSize } from '../../cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog.vrt';
 import { TileCover } from '../../cover';
-import { FileOperator } from '../../file/file';
-import { FileConfig } from '../../file/file.config';
-import { FileOperatorS3 } from '../../file/file.s3';
-import { makeTempFolder } from '../../file/temp.folder';
+import { makeTempFolder } from '../temp.folder';
 
 const ProcessId = ulid.ulid();
 
@@ -138,10 +134,21 @@ export class ActionJobCreate extends CommandLineAction {
 
         const logObj = { ...metadata };
         delete logObj.bounds; // Don't log bounds as it is huge
-        logObj.covering = logObj.covering.map(c => {
-            return { qk: c, tile: Mercator.quadkeyToGoogle(c).join(', ') };
-        }) as any;
         logger.info(logObj, 'CoveringGenerated');
+
+        if (metadata.covering.length > 0) {
+            const firstQk = metadata.covering[0];
+            const lastQk = metadata.covering[metadata.covering.length - 1];
+            logger.info(
+                {
+                    // Size of the biggest image
+                    big: getTileSize(firstQk, metadata.resolution),
+                    // Size of the smallest image
+                    small: getTileSize(lastQk, metadata.resolution),
+                },
+                'Covers',
+            );
+        }
 
         const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist

@@ -1,7 +1,6 @@
-import { Env, LogType } from '@basemaps/shared';
+import { Env, FileOperator, LogType } from '@basemaps/shared';
 import * as os from 'os';
 import * as path from 'path';
-import { FileOperator } from './file/file';
 import { GdalCommand } from './gdal.command';
 
 const DOCKER_CONTAINER = Env.get(Env.Gdal.DockerContainer, 'osgeo/gdal');

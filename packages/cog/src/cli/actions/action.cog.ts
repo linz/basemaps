@@ -1,17 +1,15 @@
-import { LogConfig, LogType, Env } from '@basemaps/shared';
+import { Env, FileOperator, FileOperatorSimple, LogConfig, LogType } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
-    CommandLineStringParameter,
     CommandLineIntegerParameter,
+    CommandLineStringParameter,
 } from '@microsoft/ts-command-line';
-import { promises as fs, createReadStream } from 'fs';
+import { createReadStream, promises as fs } from 'fs';
 import * as ulid from 'ulid';
 import { buildCogForQuadKey, CogJob } from '../../cog';
-import { FileOperator } from '../../file/file';
-import { FileOperatorSimple } from '../../file/file.local';
 import { buildWarpedVrt } from '../../cog.vrt';
-import { makeTempFolder } from '../../file/temp.folder';
+import { makeTempFolder } from '../temp.folder';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
