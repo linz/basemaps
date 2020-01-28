@@ -1,4 +1,4 @@
-import { MosaicCog } from '../tiff';
+import { MosaicCog } from '../tiff.mosaic';
 
 export const MosaicGeboBathy = new MosaicCog(
     '2019/world/bathy-gebco/01DYE4EGR92TNMV16AHXSR45JH/',

@@ -1,4 +1,4 @@
-import { MosaicCog } from '../../tiff';
+import { MosaicCog } from '../../tiff.mosaic';
 
 export const MosaicBayOfPlentyUrban = new MosaicCog(
     'new-zealand/bay-of-plenty_urban_2018-19_0.1m/01DZJ75Q4JSFJWYS6E0AAXE84M/',

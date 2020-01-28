@@ -1,4 +1,4 @@
-import { MosaicCog } from '../../tiff';
+import { MosaicCog } from '../../tiff.mosaic';
 
 export const MosaicDunedinUrban2018 = new MosaicCog(
     'new-zealand/dunedin_urban_2018-19_0.1m/01DZJ6K7H3F8EQ9CC5VZXJY80N/',

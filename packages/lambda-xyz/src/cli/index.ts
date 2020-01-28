@@ -5,7 +5,8 @@ import { CogSourceFile } from '@cogeotiff/source-file';
 import * as express from 'express';
 import * as ulid from 'ulid';
 import * as lambda from '../index';
-import { TiffUtil, MosaicCog } from '../tiff';
+import { TiffUtil } from '../tiff';
+import { MosaicCog } from '../tiff.mosaic';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);

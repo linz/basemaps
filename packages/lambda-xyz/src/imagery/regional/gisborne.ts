@@ -1,4 +1,4 @@
-import { MosaicCog } from '../../tiff';
+import { MosaicCog } from '../../tiff.mosaic';
 
 export const MosaicGisborneRural = new MosaicCog(
     '2019/new-zealand/gisborne_rural_2017-18_0.3m/2019-12-06/',
