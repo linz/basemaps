@@ -1,7 +1,7 @@
 import { MosaicCog } from '../../tiff';
 
 export const MosaicWellingtonUrban2017 = new MosaicCog(
-    'new-zealand/wellington_urban_2017_0.10m/01DZMDXXEA1DEQDRY2F56PQ8EE',
+    'new-zealand/wellington_urban_2017_0.10m/01DZMDXXEA1DEQDRY2F56PQ8EE/',
     [
         '313111000300',
         '313111000302',
