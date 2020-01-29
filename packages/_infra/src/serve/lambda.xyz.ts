@@ -19,7 +19,7 @@ export class LambdaXyz extends cdk.Construct {
         super(scope, id);
 
         const version = VersionUtil.version();
-        const cogBucket = s3.Bucket.fromBucketName(this, 'CogBucket', 'basemaps-cog-test');
+        const cogBucket = s3.Bucket.fromBucketName(this, 'CogBucket', Env.get(Env.CogBucket, 'basemaps-cog-test'));
         this.lambda = new lambda.Function(this, 'Tiler', {
             runtime: lambda.Runtime.NODEJS_10_X,
             memorySize: 1536,
