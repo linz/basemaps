@@ -45,12 +45,12 @@ describe('LambdaXyz', () => {
     });
 
     it('should generate a tile 0,0,0', async () => {
-        const res = await handleRequest(req('/0/0/0/0.png'), null as any, LogConfig.get());
+        const res = await handleRequest(req('/v1/group/0/0/0.png'), null as any, LogConfig.get());
         expect(res.status).toEqual(200);
         expect(res.headers).toEqual({
             'content-type': 'image/png',
             // TODO Should we hardcode a base64'd hash here?
-            etag: 'IIasQDnNSdw55Q4npcCyYmLmkWB8vBbemMiDIdAgqC4=',
+            etag: 'RnwuOlJd5MP0v69ddXhE66PUZyoKGfHTzBI1JMq7sMU=',
         });
         expect(res.toResponse().body).toEqual(rasterMockBuffer.toString('base64'));
 
@@ -65,7 +65,7 @@ describe('LambdaXyz', () => {
 
         // Validate the session information has been set correctly
         const session = LambdaSession.get();
-        expect(session.logContext['path']).toEqual('/0/0/0/0.png');
+        expect(session.logContext['path']).toEqual('/v1/group/0/0/0.png');
         expect(session.logContext['method']).toEqual('get');
         expect(session.logContext['xyz']).toEqual({ x: 0, y: 0, z: 0 });
         expect(session.logContext['location']).toEqual({ lat: 0, lon: 0 });
@@ -73,15 +73,15 @@ describe('LambdaXyz', () => {
 
     it('should 200 with empty png if a tile is out of bounds', async () => {
         tileMock.mockReset();
-        const res = await handleRequest(req('/0/0/0/0.png'), null as any, LogConfig.get());
+        const res = await handleRequest(req('/v1/group/0/0/0.png'), null as any, LogConfig.get());
         expect(res.status).toEqual(200);
         expect(tileMock.mock.calls.length).toEqual(1);
         expect(rasterMock.mock.calls.length).toEqual(0);
     });
 
     it('should 304 if a tile is not modified', async () => {
-        const request = req('/0/0/0/0.png');
-        request.headers = { 'if-none-match': '"IIasQDnNSdw55Q4npcCyYmLmkWB8vBbemMiDIdAgqC4="' };
+        const request = req('/v1/group/0/0/0.png');
+        request.headers = { 'if-none-match': '"RnwuOlJd5MP0v69ddXhE66PUZyoKGfHTzBI1JMq7sMU="' };
         const res = await handleRequest(request, null as any, LogConfig.get());
         expect(res.status).toEqual(304);
         expect(tileMock.mock.calls.length).toEqual(1);

@@ -31,7 +31,7 @@ MosaicCog.create(
         '31133330100',
         '31133330102',
     ],
-    { minZoom: 13, priority: 100 },
+    { minZoom: 13, priority: 100, year: 2017, resolution: 300 },
 );
 MosaicCog.create(
     '2019/new-zealand/gisborne_0.1m_urban_2017-2018/2019-12-11/',
@@ -72,5 +72,5 @@ MosaicCog.create(
         '3113331232221',
         '3113331232300',
     ],
-    { minZoom: 14, priority: 150 },
+    { minZoom: 14, priority: 150, year: 2018, resolution: 100 },
 );

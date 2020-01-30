@@ -23,7 +23,7 @@ MosaicCog.create(
         '3131110003030',
         '3131110003032',
     ],
-    { minZoom: 14, priority: 150 },
+    { minZoom: 14, priority: 150, year: 2017, resolution: 100 },
 );
 
 MosaicCog.create(
@@ -59,7 +59,7 @@ MosaicCog.create(
         '31311101021',
         '31311101022',
     ],
-    { minZoom: 13, priority: 100 },
+    { minZoom: 13, priority: 100, year: 2016, resolution: 300 },
 );
 
 MosaicCog.create(
@@ -75,7 +75,7 @@ MosaicCog.create(
         '3131110001203',
         '3131110001300',
     ],
-    { minZoom: 14, priority: 150 },
+    { minZoom: 14, priority: 150, year: 2016, resolution: 75 },
 );
 
 MosaicCog.create(
@@ -118,7 +118,7 @@ MosaicCog.create(
         '31311100031032',
         '31311100031201',
     ],
-    { minZoom: 14, priority: 150 },
+    { minZoom: 14, priority: 150, year: 2017, resolution: 100 },
 );
 
 MosaicCog.create(
@@ -140,7 +140,7 @@ MosaicCog.create(
         '31311100102002',
         '31311100102010',
     ],
-    { minZoom: 14, priority: 150 },
+    { minZoom: 14, priority: 150, year: 2017, resolution: 100 },
 );
 
 MosaicCog.create(
@@ -172,5 +172,5 @@ MosaicCog.create(
         '3131110001103',
         '3131110001110',
     ],
-    { minZoom: 14, priority: 150 },
+    { minZoom: 14, priority: 150, year: 2017, resolution: 100 },
 );

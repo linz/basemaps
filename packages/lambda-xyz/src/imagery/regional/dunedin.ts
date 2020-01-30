@@ -47,5 +47,5 @@ MosaicCog.create(
         '3131120123020',
         '3131120123021',
     ],
-    { minZoom: 14, priority: 150 },
+    { minZoom: 14, priority: 150, year: 2018, resolution: 100 },
 );

@@ -15,6 +15,12 @@ export interface MosaicCogOptions {
      * @default 100
      */
     priority?: number;
+
+    /** Year the imagery was acquired */
+    year: number;
+
+    /** Resolution of imagery in MM */
+    resolution: number;
 }
 
 /**
@@ -30,18 +36,22 @@ export class MosaicCog {
     quadKeys: string[];
     sources: Map<string, CogTiff>;
     priority: number;
+    year: number;
+    resolution: number;
     zoom = { min: 0, max: 32 };
 
-    constructor(basePath: string, quadKeys: string[], opts: MosaicCogOptions = {}) {
+    constructor(basePath: string, quadKeys: string[], opts: MosaicCogOptions) {
         this.basePath = basePath;
         this.quadKeys = quadKeys;
         this.sources = new Map();
         this.zoom.min = opts.minZoom ?? 0;
         this.zoom.max = opts.maxZoom ?? 32;
         this.priority = opts.priority ?? 100;
+        this.year = opts.year;
+        this.resolution = opts.resolution;
     }
 
-    static create(basePath: string, quadKeys: string[], opts: MosaicCogOptions = {}): void {
+    static create(basePath: string, quadKeys: string[], opts: MosaicCogOptions): void {
         const mosaic = new MosaicCog(basePath, quadKeys, opts);
         Mosaics.push(mosaic);
     }
