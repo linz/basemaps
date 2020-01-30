@@ -1,45 +1,71 @@
-import { LogType, Env } from '@basemaps/shared';
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import { Env, FileOperator, LogType } from '@basemaps/shared';
 import * as os from 'os';
 import * as path from 'path';
-import { GdalProgressParser } from './gdal.progress';
+import { GdalCommand } from './gdal.command';
 
-const DOCKER_CONTAINER = process.env[Env.Gdal.DockerContainer] ?? 'osgeo/gdal';
-const DOCKER_CONTAINER_TAG = process.env[Env.Gdal.DockerContainerTag] ?? 'ubuntu-small-latest';
+const DOCKER_CONTAINER = Env.get(Env.Gdal.DockerContainer, 'osgeo/gdal');
+const DOCKER_CONTAINER_TAG = Env.get(Env.Gdal.DockerContainerTag, 'ubuntu-small-latest');
 
-export class GdalDocker {
-    promise: Promise<void> | null;
-    startTime: number;
-    mount: string;
-    child: ChildProcessWithoutNullStreams;
-    parser: GdalProgressParser;
+export class GdalDocker extends GdalCommand {
+    mounts: string[];
 
-    constructor(mount: string) {
-        this.mount = mount;
-        this.parser = new GdalProgressParser();
+    constructor() {
+        super();
+        this.mounts = [];
     }
 
-    getMount(mount: string): string[] {
-        if (mount == null) {
+    mount = (filePath: string): void => {
+        if (FileOperator.isS3(filePath)) {
+            return;
+        }
+        const basePath = path.dirname(filePath);
+        if (this.mounts.includes(basePath)) {
+            return;
+        }
+        this.mounts.push(basePath);
+    };
+
+    private getMounts(): string[] {
+        if (this.mounts.length == 0) {
             return [];
         }
-        if (mount.startsWith('/')) {
-            const sourcePath = path.dirname(mount);
-            return ['-v', `${sourcePath}:${sourcePath}`];
+        const output: string[] = [];
+        for (const mount of this.mounts) {
+            output.push('-v');
+            output.push(`${mount}:${mount}`);
         }
-        return [];
+        return output;
     }
 
-    getDockerArgs(): string[] {
-        const userInfo = os.userInfo();
+    private async getCredentials(): Promise<string[]> {
+        if (this.credentials == null) {
+            return [];
+        }
+        if (this.credentials.needsRefresh()) {
+            await this.credentials.refreshPromise();
+        }
+        return [
+            '--env',
+            `AWS_ACCESS_KEY_ID=${this.credentials.accessKeyId}`,
+            '--env',
+            `AWS_SECRET_ACCESS_KEY=${this.credentials.secretAccessKey}`,
+            '--env',
+            `AWS_SESSION_TOKEN=${this.credentials.sessionToken}`,
+        ];
+    }
 
+    /** this could contain sensitive info like AWS access keys */
+    private async getDockerArgs(): Promise<string[]> {
+        const userInfo = os.userInfo();
+        const credentials = await this.getCredentials();
         return [
             'run',
             // Config the container to be run as the current user
             '--user',
             `${userInfo.uid}:${userInfo.gid}`,
 
-            ...this.getMount(this.mount),
+            ...this.getMounts(),
+            ...credentials,
 
             // Docker container
             '-i',
@@ -47,36 +73,21 @@ export class GdalDocker {
         ];
     }
 
-    run(args: string[], log?: LogType): Promise<void> {
-        if (this.promise != null) {
-            return this.promise;
+    /** Provide redacted argument string for logging which removes sensitive information */
+    maskArgs(args: string[]): string {
+        const argsStr = args.join(' ');
+        if (this.credentials) {
+            return argsStr
+                .replace(this.credentials.secretAccessKey, '****')
+                .replace(this.credentials.sessionToken, '****');
         }
-        this.parser.reset();
-        this.startTime = Date.now();
+        return argsStr;
+    }
 
-        const child = spawn('docker', [...this.getDockerArgs(), ...args]);
-        this.child = child;
+    async run(cmd: string, args: string[], log: LogType): Promise<void> {
+        const dockerArgs = await this.getDockerArgs();
+        log.info({ mounts: this.mounts, docker: this.maskArgs(dockerArgs) }, 'SpawnDocker');
 
-        const errorBuff: Buffer[] = [];
-        child.stderr.on('data', (data: Buffer) => errorBuff.push(data));
-        child.stdout.on('data', (data: Buffer) => this.parser.data(data));
-
-        this.promise = new Promise((resolve, reject) => {
-            child.on('exit', (code: number) => {
-                if (code != 0) {
-                    log?.error({ code, log: errorBuff.join('').trim() }, 'FailedToConvert');
-                    return reject(new Error('Failed to execute GDAL: ' + errorBuff.join('').trim()));
-                }
-                this.promise = null;
-                return resolve();
-            });
-            child.on('error', (error: Error) => {
-                log?.error({ error, log: errorBuff.join('').trim() }, 'FailedToConvert');
-                this.promise = null;
-                reject(error);
-            });
-        });
-
-        return this.promise;
+        return super.run('docker', [...dockerArgs, cmd, ...args], log);
     }
 }

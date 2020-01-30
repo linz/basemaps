@@ -17,3 +17,17 @@ export function getProjection(epsg: EPSG): proj4.Converter | null {
         return null;
     }
 }
+
+/**
+ * Attempt to guess the projection based off the WKT
+ * @param wkt
+ */
+export function guessProjection(wkt: string): EPSG | null {
+    if (wkt == null) {
+        return null;
+    }
+    if (wkt.includes('NZGD2000')) {
+        return EPSG.Nztm;
+    }
+    return null;
+}

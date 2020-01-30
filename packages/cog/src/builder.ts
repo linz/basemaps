@@ -1,22 +1,32 @@
-import { GeoJson, Projection } from '@basemaps/shared';
+import { GeoJson, Projection, LogType } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
-import { CogSourceUrl } from '@cogeotiff/source-url';
 import pLimit, { Limit } from 'p-limit';
 import { TileCover } from './cover';
-import { getProjection } from './proj';
+import { getProjection, guessProjection } from './proj';
+import { createHash } from 'crypto';
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
+import * as path from 'path';
 
-export interface CogBuilderMetadata {
-    /** Bounding boxes for all polygons */
-    bounds: GeoJSON.FeatureCollection;
+export interface CogBuilderMetadata extends CogBuilderBounds {
     /** Quadkey indexes for the covering tiles */
     covering: string[];
-    /** Lowest quality resolution for images */
-    resolution: number | -1;
 }
 
-const proj256 = new Projection(256);
+export interface CogBuilderBounds {
+    /** Number of imagery bands generally RGB (3) or RGBA (4) */
+    bands: number;
+    /** Bounding box for polygons */
+    bounds: GeoJSON.FeatureCollection;
+    /** Lowest quality resolution of image */
+    resolution: number | -1;
+
+    /** EPSG projection number */
+    projection: number;
+}
+export const InvalidProjectionCode = 32767;
+export const CacheFolder = './.cache';
+export const proj256 = new Projection(256);
 export class CogBuilder {
     q: Limit;
     cover: TileCover;
@@ -36,29 +46,50 @@ export class CogBuilder {
      * Get the source bounds a collection of tiffs
      * @param tiffs
      */
-    async bounds(tiffs: string[]): Promise<{ bounds: GeoJSON.FeatureCollection; resolution: number }> {
+    async bounds(sources: CogSource[], logger: LogType): Promise<CogBuilderBounds> {
         let resolution = -1;
-        const coordinates = tiffs.map(tiffPath => {
+        let bandCount = -1;
+        let projection = -1;
+        let count = 0;
+        const coordinates = sources.map(source => {
             return this.q(async () => {
-                const source = CogBuilder.createTiffSource(tiffPath);
+                count++;
+                if (count % 50 == 0) {
+                    logger.info({ count, total: sources.length }, 'BoundsProgress');
+                }
                 const tiff = new CogTiff(source);
                 await tiff.init();
-
+                const image = tiff.getImage(0);
                 const tiffRes = await this.getTiffResolution(tiff);
                 if (tiffRes > resolution) {
                     resolution = tiffRes;
                 }
+                const tiffBandCount = image.value(TiffTag.BitsPerSample) as number[] | null;
+                if (tiffBandCount != null && tiffBandCount.length > bandCount) {
+                    bandCount = tiffBandCount.length;
+                }
 
-                const output = await this.getTifBounds(tiff);
+                const output = await this.getTifBounds(tiff, logger);
                 if (CogSourceFile.isSource(source)) {
                     await source.close();
                 }
+
+                const imageProjection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+                if (imageProjection != null && imageProjection != projection) {
+                    if (projection != -1) {
+                        throw new Error('Multiple projections');
+                    }
+                    projection = imageProjection;
+                }
+
                 return output;
             });
         });
 
         const polygons = await Promise.all(coordinates);
         return {
+            projection,
+            bands: bandCount,
             bounds: GeoJson.toFeatureCollection(polygons),
             resolution,
         };
@@ -88,7 +119,7 @@ export class CogBuilder {
      * Generate the bounding boxes for a GeoTiff converting to WGS84
      * @param tiff
      */
-    async getTifBounds(tiff: CogTiff): Promise<GeoJSON.Feature> {
+    async getTifBounds(tiff: CogTiff, logger: LogType): Promise<GeoJSON.Feature> {
         const image = tiff.getImage(0);
         const bbox = image.bbox;
         const topLeft = [bbox[0], bbox[3]];
@@ -98,9 +129,17 @@ export class CogBuilder {
 
         await image.fetch(TiffTag.GeoKeyDirectory);
 
-        const projection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+        let projection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+        if (projection == InvalidProjectionCode) {
+            const imgWkt = image.value(TiffTag.GeoAsciiParams);
+            projection = guessProjection(imgWkt) as number;
+            if (projection) {
+                logger.trace({ imgWkt, projection }, 'GuessingProjection');
+            }
+        }
         const projProjection = getProjection(projection);
         if (projProjection == null) {
+            logger.error({ tiff: tiff.source.name }, 'Failed to get tiff projection');
             throw new Error('Invalid tiff projection: ' + projection);
         }
 
@@ -117,28 +156,43 @@ export class CogBuilder {
         return GeoJson.toFeaturePolygon(points, { tiff: tiff.source.name });
     }
 
+    /** Cache the bounds lookup so we do not have to requery the bounds between CLI calls */
+    private async getMetadata(tiffs: CogSource[], logger: LogType): Promise<CogBuilderBounds> {
+        const cacheKey =
+            path.join(
+                CacheFolder,
+                createHash('sha256')
+                    .update(tiffs.map(c => c.name).join('\n'))
+                    .digest('hex'),
+            ) + '.json';
+
+        if (existsSync(cacheKey)) {
+            logger.debug({ path: cacheKey }, 'MetadataCacheHit');
+            return JSON.parse(readFileSync(cacheKey).toString()) as CogBuilderBounds;
+        }
+
+        const metadata = await this.bounds(tiffs, logger);
+
+        mkdirSync(CacheFolder, { recursive: true });
+        writeFileSync(cacheKey, JSON.stringify(metadata, null, 2));
+        logger.debug({ path: cacheKey }, 'MetadataCacheMiss');
+
+        return metadata;
+    }
+
     /**
      * Generate a list of WebMercator tiles that need to be generated to cover the source tiffs
      * @param tiffs list of tiffs to be generated
      * @returns List of QuadKey indexes for
      */
-    async build(tiffs: string[]): Promise<CogBuilderMetadata> {
-        const { bounds, resolution } = await this.bounds(tiffs);
-        const covering = TileCover.cover(bounds, 1, Math.min(this.maxTileZoom, resolution - 2), this.maxTileCount);
-        return { bounds, resolution, covering };
-    }
-
-    static createTiffSource(tiff: string): CogSource {
-        if (tiff.startsWith('s3://')) {
-            const source = CogSourceAwsS3.createFromUri(tiff);
-            if (source == null) {
-                throw new Error('Invalid URI: ' + tiff);
-            }
-            return source;
-        } else if (tiff.startsWith('http://') || tiff.startsWith('https://')) {
-            return new CogSourceUrl(tiff);
-        } else {
-            return new CogSourceFile(tiff);
-        }
+    async build(tiffs: CogSource[], logger: LogType): Promise<CogBuilderMetadata> {
+        const metadata = await this.getMetadata(tiffs, logger);
+        const covering = TileCover.cover(
+            metadata.bounds,
+            1,
+            Math.min(this.maxTileZoom, metadata.resolution - 2),
+            this.maxTileCount,
+        );
+        return { ...metadata, covering };
     }
 }

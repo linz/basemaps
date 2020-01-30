@@ -1,19 +1,20 @@
 import {
+    Env,
     HttpHeader,
     LambdaFunction,
     LambdaHttpResponseAlb,
     LambdaSession,
     LambdaType,
     LogType,
-    Env,
 } from '@basemaps/shared';
 import { ALBEvent, Context } from 'aws-lambda';
 import { createHash } from 'crypto';
+import pLimit from 'p-limit';
 import { EmptyPng } from './png';
 import { route } from './router';
 import { TiffUtil } from './tiff';
 import { Tilers } from './tiler';
-import pLimit from 'p-limit';
+import { CogTiff } from '@cogeotiff/core';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
@@ -38,8 +39,29 @@ function emptyPng(session: LambdaSession, cacheKey: string): LambdaHttpResponseA
     response.buffer(EmptyPng, 'image/png');
     return response;
 }
+const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
-const LoadingQueue = pLimit(parseInt(process.env[Env.TiffConcurrency] ?? '5'));
+/** Initialize the tiffs before reading */
+async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<CogTiff[]> {
+    const tiffs = TiffUtil.getTiffsForQuadKey(qk, zoom);
+    let failed = false;
+    // Remove any tiffs that failed to load
+    const promises = tiffs.map(c => {
+        return LoadingQueue(async () => {
+            try {
+                await c.init();
+            } catch (error) {
+                logger.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
+                failed = true;
+            }
+        });
+    });
+    await Promise.all(promises);
+    if (failed) {
+        return tiffs.filter(f => f.images.length > 0);
+    }
+    return tiffs;
+}
 
 export async function handleRequest(
     event: ALBEvent,
@@ -66,10 +88,7 @@ export async function handleRequest(
     session.set('location', latLon);
     session.set('quadKey', qk);
 
-    const tiffs = TiffUtil.getTiffsForQuadKey(qk, pathMatch.z);
-    // Wait for the tiffs to load
-    await Promise.all(tiffs.map(c => LoadingQueue(() => c.init())));
-
+    const tiffs = await initTiffs(qk, pathMatch.z, logger);
     const layers = await tiler.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z, logger);
 
     // Generate a unique hash given the full URI, the layers used and a renderId

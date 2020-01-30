@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/css/ol.css" type="text/css">
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/build/ol.js"></script>
+
+    <style>
+        #map {
+            height: calc(100vh - 52px);
+            width: 100%;
+        }
+    </style>
+    <title>Basemaps example</title>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script type="text/javascript">
+        const basemapLayer = new ol.layer.Tile({
+            source: new ol.source.XYZ({
+                url: '/{z}/{x}/{y}.png'
+            })
+        })
+        const map = new ol.Map({
+            target: 'map',
+            layers: [basemapLayer],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([174.7763921, -41.277848]),
+                zoom: 8
+            })
+        });
+    </script>
+</body>
+
+</html>

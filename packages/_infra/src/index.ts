@@ -1,6 +1,7 @@
 import { App } from '@aws-cdk/core';
-import { EdgeStack } from './edge';
 import { ApiKeyTableStack } from './api.key.db';
+import { CogBuilderStack } from './cogify';
+import { EdgeStack } from './edge';
 import { ServeStack } from './serve';
 
 const basemaps = new App();
@@ -17,3 +18,5 @@ new ServeStack(basemaps, 'Serve', { env: { region: 'ap-southeast-2', account } }
 
 edge.addDependency(table);
 // edge.addDependency(serve);
+
+new CogBuilderStack(basemaps, 'CogBuilder', { env: { region: 'ap-southeast-2', account } });

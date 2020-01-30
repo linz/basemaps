@@ -1,11 +1,12 @@
-import { LogType, Projection, EPSG } from '@basemaps/shared';
+import { EPSG, LogType, Projection, Env } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
-import * as path from 'path';
 import { GdalCogBuilderOptions } from './gdal.config';
 import { GdalDocker } from './gdal.docker';
+import { GdalLocal } from './gdal.local';
+import { GdalCommand } from './gdal.command';
 
 /** 1% Buffer to the tiff to help prevent gaps between tiles */
-const TiffBuffer = 1.01;
+// const TiffBuffer = 1.01;
 
 /**
  * A docker based GDAL Cog Builder
@@ -36,8 +37,15 @@ export class GdalCogBuilder {
     promise: Promise<void> | null;
     /** When the process started */
     startTime: number;
-    /** Parse the output looking for "." */
-    gdal: GdalDocker;
+    /** Gdal process */
+    gdal: GdalCommand;
+
+    static getGdal(): GdalCommand {
+        if (Env.get(Env.Gdal.UseDocker, undefined)) {
+            return new GdalDocker();
+        }
+        return new GdalLocal();
+    }
 
     constructor(source: string, target: string, config: Partial<GdalCogBuilderOptions> = {}) {
         this.source = source;
@@ -51,7 +59,10 @@ export class GdalCogBuilder {
             blockSize: config.blockSize ?? 512,
         };
 
-        this.gdal = new GdalDocker(path.dirname(source));
+        this.gdal = GdalCogBuilder.getGdal();
+
+        this.gdal.mount?.(source);
+        this.gdal.mount?.(target);
     }
 
     getBounds(): string[] {
@@ -59,22 +70,13 @@ export class GdalCogBuilder {
             return [];
         }
 
-        const [ulX, ulY, lrX, llY] = this.config.bbox;
-        return [
-            '-projwin',
-            ulX,
-            ulY,
-            lrX * TiffBuffer,
-            llY * TiffBuffer,
-            '-projwin_srs',
-            Projection.toEpsgString(EPSG.Google),
-        ].map(String);
+        // TODO in theory this should be clamped to the lower right of the imagery, as there is no point generating large empty tiffs
+        const [ulX, ulY, lrX, lrY] = this.config.bbox;
+        return ['-projwin', ulX, ulY, lrX, lrY, '-projwin_srs', Projection.toEpsgString(EPSG.Google)].map(String);
     }
 
     get args(): string[] {
         return [
-            // GDAL Arguments
-            `gdal_translate`,
             // Force output using COG Driver
             '-of',
             'COG',
@@ -109,7 +111,7 @@ export class GdalCogBuilder {
         ];
     }
 
-    convert(log?: LogType): Promise<void> {
-        return this.gdal.run(this.args, log);
+    convert(log: LogType): Promise<void> {
+        return this.gdal.run('gdal_translate', this.args, log);
     }
 }
