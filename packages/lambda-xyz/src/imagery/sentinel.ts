@@ -1,6 +1,12 @@
 import { MosaicCog } from '../tiff.mosaic';
+import { EPSG } from '@basemaps/shared';
 
-MosaicCog.create('2019/new-zealand/new_zealand_sentinel_2018-19_10m/2019-12-04/', ['31'], {
+MosaicCog.create({
+    id: '2019-12-04',
+    name: 'new_zealand_sentinel_2018-19_10m',
+    quadKeys: ['31'],
+    projection: EPSG.Wgs84,
+
     minZoom: 0,
     maxZoom: 32,
     priority: 50,

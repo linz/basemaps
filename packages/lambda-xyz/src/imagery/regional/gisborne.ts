@@ -1,8 +1,16 @@
 import { MosaicCog } from '../../tiff.mosaic';
+import { EPSG } from '@basemaps/shared';
 
-MosaicCog.create(
-    '2019/new-zealand/gisborne_rural_2017-18_0.3m/2019-12-06/',
-    [
+MosaicCog.create({
+    id: '2019-12-06',
+    name: 'gisborne_rural_2017-18_0.3m',
+    projection: EPSG.Wgs84,
+
+    minZoom: 13,
+    priority: 100,
+    year: 2017,
+    resolution: 300,
+    quadKeys: [
         '31133310323',
         '31133310332',
         '31133310333',
@@ -31,11 +39,17 @@ MosaicCog.create(
         '31133330100',
         '31133330102',
     ],
-    { minZoom: 13, priority: 100, year: 2017, resolution: 300 },
-);
-MosaicCog.create(
-    '2019/new-zealand/gisborne_0.1m_urban_2017-2018/2019-12-11/',
-    [
+});
+MosaicCog.create({
+    id: '2019-12-11',
+    name: 'gisborne_0.1m_urban_2017-2018',
+    projection: EPSG.Wgs84,
+
+    minZoom: 14,
+    priority: 150,
+    year: 2018,
+    resolution: 100,
+    quadKeys: [
         '3113331033200',
         '3113331033201',
         '3113331033212',
@@ -72,5 +86,4 @@ MosaicCog.create(
         '3113331232221',
         '3113331232300',
     ],
-    { minZoom: 14, priority: 150, year: 2018, resolution: 100 },
-);
+});

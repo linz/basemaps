@@ -1,8 +1,16 @@
 import { MosaicCog } from '../../tiff.mosaic';
+import { EPSG } from '@basemaps/shared';
 
-MosaicCog.create(
-    'new-zealand/wellington_urban_2017_0.10m/01DZMDXXEA1DEQDRY2F56PQ8EE/',
-    [
+MosaicCog.create({
+    id: '01DZMDXXEA1DEQDRY2F56PQ8EE',
+    name: 'wellington_urban_2017_0.10m',
+    projection: EPSG.Wgs84,
+
+    minZoom: 14,
+    priority: 150,
+    year: 2017,
+    resolution: 100,
+    quadKeys: [
         '313111000300',
         '313111000302',
         '3131110000333',
@@ -23,12 +31,18 @@ MosaicCog.create(
         '3131110003030',
         '3131110003032',
     ],
-    { minZoom: 14, priority: 150, year: 2017, resolution: 100 },
-);
+});
 
-MosaicCog.create(
-    'new-zealand/wellington_rural_2016-17_0.3m/01DZMMW8RCCMGBXE3M2G465K3X',
-    [
+MosaicCog.create({
+    id: '01DZMMW8RCCMGBXE3M2G465K3X',
+    name: 'wellington_rural_2016-17_0.3m',
+    projection: EPSG.Wgs84,
+
+    minZoom: 13,
+    priority: 100,
+    year: 2016,
+    resolution: 300,
+    quadKeys: [
         '313111001',
         '3113332223',
         '3113332232',
@@ -59,12 +73,18 @@ MosaicCog.create(
         '31311101021',
         '31311101022',
     ],
-    { minZoom: 13, priority: 100, year: 2016, resolution: 300 },
-);
+});
 
-MosaicCog.create(
-    'new-zealand/porirua_urban_2016_0.075m/01DZMWWNB6QXV49QWVG53CWJXK/',
-    [
+MosaicCog.create({
+    id: '01DZMWWNB6QXV49QWVG53CWJXK',
+    name: 'porirua_urban_2016_0.075m',
+    projection: EPSG.Wgs84,
+
+    minZoom: 14,
+    priority: 150,
+    year: 2016,
+    resolution: 75,
+    quadKeys: [
         '313111000103',
         '313111000121',
         '3131110001013',
@@ -75,12 +95,18 @@ MosaicCog.create(
         '3131110001203',
         '3131110001300',
     ],
-    { minZoom: 14, priority: 150, year: 2016, resolution: 75 },
-);
+});
 
-MosaicCog.create(
-    'new-zealand/hutt-city_urban_2017_0.10m/01DZMWKRGQ5JVKYEFNV2A4RSYP/',
-    [
+MosaicCog.create({
+    id: '01DZMWKRGQ5JVKYEFNV2A4RSYP',
+    name: 'hutt-city_urban_2017_0.10m',
+    projection: EPSG.Wgs84,
+
+    minZoom: 14,
+    priority: 150,
+    year: 2017,
+    resolution: 100,
+    quadKeys: [
         '3131110001233',
         '3131110001303',
         '3131110001320',
@@ -118,12 +144,18 @@ MosaicCog.create(
         '31311100031032',
         '31311100031201',
     ],
-    { minZoom: 14, priority: 150, year: 2017, resolution: 100 },
-);
+});
 
-MosaicCog.create(
-    'new-zealand/upper-hutt_urban_2017_0.10m/01DZMWE0WKA1YCCDXCEK8EED7B/',
-    [
+MosaicCog.create({
+    id: '01DZMWE0WKA1YCCDXCEK8EED7B',
+    name: 'upper-hutt_urban_2017_0.10m',
+    projection: EPSG.Wgs84,
+
+    minZoom: 14,
+    priority: 150,
+    year: 2017,
+    resolution: 100,
+    quadKeys: [
         '3131110001311',
         '3131110001312',
         '3131110010022',
@@ -140,12 +172,18 @@ MosaicCog.create(
         '31311100102002',
         '31311100102010',
     ],
-    { minZoom: 14, priority: 150, year: 2017, resolution: 100 },
-);
+});
 
-MosaicCog.create(
-    'new-zealand/kapiti-coast_urban_2017_0.10m/01DZMTHD32HRY2YJ31XCPZ4QBQ/',
-    [
+MosaicCog.create({
+    id: '01DZMTHD32HRY2YJ31XCPZ4QBQ',
+    name: 'kapiti-coast_urban_2017_0.10m',
+    projection: EPSG.Wgs84,
+
+    minZoom: 14,
+    priority: 150,
+    year: 2017,
+    resolution: 100,
+    quadKeys: [
         '311333222331',
         '311333223200',
         '311333223202',
@@ -172,5 +210,4 @@ MosaicCog.create(
         '3131110001103',
         '3131110001110',
     ],
-    { minZoom: 14, priority: 150, year: 2017, resolution: 100 },
-);
+});
