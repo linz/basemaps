@@ -3,7 +3,6 @@ import iam = require('@aws-cdk/aws-iam');
 import lambda = require('@aws-cdk/aws-lambda');
 import { RetentionDays } from '@aws-cdk/aws-logs';
 import { ApiKeyTableArn } from '../api.key.db';
-import { VersionUtil } from '../version';
 
 const CODE_PATH = '../lambda-api-tracker/dist';
 /**
@@ -11,7 +10,6 @@ const CODE_PATH = '../lambda-api-tracker/dist';
  */
 export class LambdaApiKeyValidator extends cdk.Construct {
     public lambda: lambda.Function;
-    public version: lambda.Version;
 
     public constructor(scope: cdk.Stack, id: string) {
         super(scope, id);
@@ -41,19 +39,9 @@ export class LambdaApiKeyValidator extends cdk.Construct {
         dynamoPolicy.addResources(ApiKeyTableArn.getArn(scope));
         lambdaRole.addToPolicy(dynamoPolicy);
 
-        // CloudFront requires a specific version for a lambda,
-        // so using a hash of the source code create a version
-        const lambdaHash = VersionUtil.hash(CODE_PATH);
-        const version = VersionUtil.version();
-        this.version = this.lambda.addVersion(
-            ':sha256:' + lambdaHash,
-            undefined,
-            `${version.version} - ${version.hash}`,
-        );
-
         // Output the edge lambda's ARN
         new cdk.CfnOutput(this, 'LambdaApiKeyValidator', {
-            value: cdk.Fn.join(':', [this.lambda.functionArn, this.version.version]),
+            value: cdk.Fn.join(':', [this.lambda.functionArn]),
         });
     }
 }

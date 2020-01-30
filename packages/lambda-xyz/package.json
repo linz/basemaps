@@ -1,15 +1,15 @@
 {
   "name": "@basemaps/lambda-xyz",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "BSD 3-Clause",
   "dependencies": {
-    "@basemaps/shared": "^0.0.1",
-    "@basemaps/tiler": "^0.0.1",
-    "@cogeotiff/core": "^0.7.0",
-    "@cogeotiff/source-aws": "^0.7.0",
+    "@basemaps/shared": "^0.2.0",
+    "@basemaps/tiler": "^0.2.0",
+    "@cogeotiff/core": "^0.9.0",
+    "@cogeotiff/source-aws": "^0.9.0",
     "path-to-regexp": "^3.1.0",
     "sharp": "^0.23.1"
   },

@@ -28,6 +28,7 @@ describe('LambdaXyz', () => {
 
     beforeEach(() => {
         LambdaSession.reset();
+        LogConfig.disable();
 
         // Mock the tile generation
         Tilers.tile256 = new Tiler(256);
@@ -41,8 +42,6 @@ describe('LambdaXyz', () => {
         jest.spyOn(TiffUtil, 'getTiffsForQuadKey')
             .mockImplementation()
             .mockReturnValue([]);
-
-        jest.spyOn(LogConfig.getOutputStream(), 'write').mockImplementation();
     });
 
     it('should generate a tile 0,0,0', async () => {

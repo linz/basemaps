@@ -1,28 +1,35 @@
 {
   "name": "@basemaps/cog",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "BSD 3-Clause",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
+  "bin": {
+    "cogify": "./cogify"
+  },
   "scripts": {
     "build": "tsc",
+    "deploy:bundle": "ncc build build/cli/index.js -o dist -s",
     "test": "jest"
   },
   "dependencies": {
-    "@basemaps/shared": "^0.0.1",
-    "@cogeotiff/core": "^0.7.0",
-    "@cogeotiff/source-aws": "^0.7.0",
-    "@cogeotiff/source-file": "^0.7.0",
-    "@cogeotiff/source-url": "^0.7.0",
+    "@basemaps/shared": "^0.2.0",
+    "@cogeotiff/core": "^0.9.0",
+    "@cogeotiff/source-aws": "^0.9.0",
+    "@cogeotiff/source-file": "^0.9.0",
+    "@cogeotiff/source-url": "^0.9.0",
     "@mapbox/tile-cover": "^3.0.2",
     "p-limit": "^2.2.1",
+    "pretty-json-log": "^0.2.2",
     "proj4": "^2.6.0"
   },
   "devDependencies": {
+    "@microsoft/ts-command-line": "^4.3.5",
     "@types/mapbox__tile-cover": "^3.0.0",
-    "@types/proj4": "^2.5.0"
+    "@types/proj4": "^2.5.0",
+    "@zeit/ncc": "^0.21.0"
   }
 }

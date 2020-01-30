@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/tiler",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -12,12 +12,12 @@
     "build-watch": "tsc"
   },
   "dependencies": {
-    "@basemaps/shared": "^0.0.1",
-    "@cogeotiff/core": "^0.7.0",
+    "@basemaps/shared": "^0.2.0",
+    "@cogeotiff/core": "^0.9.0",
     "sharp": "^0.23.1"
   },
   "devDependencies": {
-    "@cogeotiff/source-file": "^0.7.0",
+    "@cogeotiff/source-file": "^0.9.0",
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
     "@types/sharp": "^0.22.3",
