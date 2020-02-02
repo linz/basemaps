@@ -9,7 +9,7 @@ import { createReadStream, promises as fs } from 'fs';
 import * as ulid from 'ulid';
 import { buildCogForQuadKey, CogJob } from '../../cog';
 import { buildWarpedVrt } from '../../cog.vrt';
-import { makeTempFolder } from '../temp.folder';
+import { makeTempFolder, getJobPath } from '../folder';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -76,7 +76,7 @@ export class ActionCogCreate extends CommandLineAction {
         if (quadKey == null) {
             return;
         }
-        const targetPath = FileOperator.join(job.output.path, `${job.id}/${quadKey}.tiff`);
+        const targetPath = getJobPath(job, `${quadKey}.tiff`);
         const outputFs = FileOperator.create(job.output);
 
         const outputExists = await outputFs.exists(targetPath);
@@ -93,8 +93,8 @@ export class ActionCogCreate extends CommandLineAction {
         const tmpVrt = FileOperator.join(tmpFolder, `${job.id}.vrt`);
 
         try {
-            logger.info({ path: job.output.vrt.path }, 'FetchVrt');
-            await FileOperatorSimple.write(tmpVrt, outputFs.readStream(job.output.vrt.path), logger);
+            logger.info({ path: getJobPath(job, '.vrt') }, 'FetchVrt');
+            await FileOperatorSimple.write(tmpVrt, outputFs.readStream(getJobPath(job, '.vrt')), logger);
             // Sometimes we need to force a epsg3857 projection to get the COG to build since its fast just do it locally
             const vrtPath = await buildWarpedVrt(job, tmpVrt, job.output.vrt.options, tmpFolder, logger);
 

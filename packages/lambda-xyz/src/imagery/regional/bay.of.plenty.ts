@@ -1,8 +1,16 @@
 import { MosaicCog } from '../../tiff.mosaic';
+import { EPSG } from '@basemaps/shared';
 
-MosaicCog.create(
-    'new-zealand/bay-of-plenty_urban_2018-19_0.1m/01DZJ75Q4JSFJWYS6E0AAXE84M/',
-    [
+MosaicCog.create({
+    id: '01DZJ75Q4JSFJWYS6E0AAXE84M',
+    name: 'bay-of-plenty_urban_2018-19_0.1m',
+    projection: EPSG.Wgs84,
+
+    minZoom: 14,
+    priority: 150,
+    year: 2018,
+    resolution: 100,
+    quadKeys: [
         '31133301223',
         '31133303010',
         '31133303011',
@@ -54,5 +62,4 @@ MosaicCog.create(
         '311333120200',
         '311333120201',
     ],
-    { minZoom: 14, priority: 150 },
-);
+});

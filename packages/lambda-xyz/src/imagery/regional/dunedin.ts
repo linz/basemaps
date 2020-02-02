@@ -1,8 +1,15 @@
 import { MosaicCog } from '../../tiff.mosaic';
+import { EPSG } from '@basemaps/shared';
 
-MosaicCog.create(
-    'new-zealand/dunedin_urban_2018-19_0.1m/01DZJ6K7H3F8EQ9CC5VZXJY80N/',
-    [
+MosaicCog.create({
+    id: '01DZJ6K7H3F8EQ9CC5VZXJY80N',
+    name: 'dunedin_urban_2018-19_0.1m',
+    projection: EPSG.Wgs84,
+    minZoom: 14,
+    priority: 150,
+    year: 2018,
+    resolution: 100,
+    quadKeys: [
         '31311201221',
         '313112012101',
         '313112012121',
@@ -47,5 +54,4 @@ MosaicCog.create(
         '3131120123020',
         '3131120123021',
     ],
-    { minZoom: 14, priority: 150 },
-);
+});

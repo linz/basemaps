@@ -1,6 +1,6 @@
 import * as Path from 'path-to-regexp';
 
-const XyzPath = Path('/:group/:z/:x/:y\\.:ext');
+const XyzPath = Path('/v1/:group/:z/:x/:y\\.:ext');
 
 export interface PathData {
     group: string;

@@ -15,6 +15,7 @@ export const Env = {
     Version: 'BASEMAPS_VERSION',
     /** Current git commit hash */
     Hash: 'BASEMAPS_HASH',
+
     /** S3 bucket where all the COGS are stored */
     CogBucket: 'COG_BUCKET',
 

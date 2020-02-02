@@ -1,4 +1,4 @@
-import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/shared';
+import { Aws, FileConfig, isConfigS3Role, LogType, EPSG } from '@basemaps/shared';
 import * as Mercator from 'global-mercator';
 import { VrtOptions } from './cog.vrt';
 import { GdalCogBuilder } from './gdal';
@@ -9,6 +9,9 @@ export interface CogJob {
 
     /** Imagery set name */
     name: string;
+
+    /** Output projection */
+    projection: EPSG.Wgs84;
 
     source: {
         /** List of input files */
@@ -29,8 +32,6 @@ export interface CogJob {
     /** Folder/S3 bucket to store the output */
     output: {
         vrt: {
-            /** VRT path */
-            path: string;
             options: VrtOptions;
         };
     } & FileConfig;

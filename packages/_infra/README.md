@@ -28,8 +28,9 @@ The infrastructure needs a number of environment variables to run
 // The accountId that will be used to deploy into
 CDK_DEFAULT_ACCOUNT
 
-// Due to the convoluted way that TLS certificates are made inside LINZ a hard coded TLS ARN is needed for the load balancer
+// Due to the convoluted way that TLS certificates are made inside LINZ a hard coded TLS ARN is needed for the load balancer and Cloudfront
 ALB_CERTIFICATE_ARN
+CLOUDFRONT_CERTIFICATE_ARN
 ```
 
 

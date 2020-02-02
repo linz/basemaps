@@ -15,7 +15,7 @@ import { CogBuilder } from '../../builder';
 import { CogJob, getTileSize } from '../../cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog.vrt';
 import { TileCover } from '../../cover';
-import { makeTempFolder } from '../temp.folder';
+import { makeTempFolder, getJobPath } from '../folder';
 
 const ProcessId = ulid.ulid();
 
@@ -165,10 +165,10 @@ export class ActionJobCreate extends CommandLineAction {
         const job: CogJob = {
             id: ProcessId,
             name: imageryName,
+            projection: EPSG.Wgs84,
             output: {
                 ...outputConfig,
                 vrt: {
-                    path: FileOperator.join(outputConfig.path, `${ProcessId}/.vrt`),
                     options: vrtOptions,
                 },
             },
@@ -185,28 +185,28 @@ export class ActionJobCreate extends CommandLineAction {
         try {
             // Local file systems need directories to be created before writing to them
             if (!FileOperatorS3.isS3(outputFs)) {
-                await fs.mkdir(FileOperator.join(outputConfig.path, ProcessId), { recursive: true });
+                await fs.mkdir(getJobPath(job), { recursive: true });
             }
 
             // TODO should this be done here, it could be done for each COG builder
             if (this.generateVrt?.value) {
                 const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);
                 const readStream = createReadStream(vrtTmp);
-                await outputFs.write(job.output.vrt.path, readStream, logger);
+                await outputFs.write(getJobPath(job, '.vrt'), readStream, logger);
             }
 
-            const jobFile = FileOperator.join(outputConfig.path, `${ProcessId}/job.json`);
+            const jobFile = getJobPath(job, `job.json`);
             await outputFs.write(jobFile, Buffer.from(JSON.stringify(job, null, 2)), logger);
 
             if (this.geoJsonOutput?.value) {
-                const geoJsonSourceOutput = FileOperator.join(outputConfig.path, `${ProcessId}/source.geojson`);
+                const geoJsonSourceOutput = getJobPath(job, `source.geojson`);
                 await outputFs.write(
                     geoJsonSourceOutput,
                     Buffer.from(JSON.stringify(metadata.bounds, null, 2)),
                     logger,
                 );
 
-                const geoJsonCoveringOutput = FileOperator.join(outputConfig.path, `${ProcessId}/covering.geojson`);
+                const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
                 await outputFs.write(
                     geoJsonCoveringOutput,
                     Buffer.from(JSON.stringify(TileCover.toGeoJson(metadata.covering), null, 2)),

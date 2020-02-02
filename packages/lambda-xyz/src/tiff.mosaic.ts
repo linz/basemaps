@@ -1,6 +1,6 @@
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-import { QuadKey } from '@basemaps/shared';
+import { QuadKey, EPSG } from '@basemaps/shared';
 import * as path from 'path';
 import { Mosaics } from './imagery/mosaics';
 
@@ -15,6 +15,24 @@ export interface MosaicCogOptions {
      * @default 100
      */
     priority?: number;
+
+    /** Year the imagery was acquired */
+    year: number;
+
+    /** Resolution of imagery in MM */
+    resolution: number;
+
+    /** Imagery projection */
+    projection: EPSG;
+
+    /** Imagery set name */
+    name: string;
+
+    /** list of quad keys the imagery contains */
+    quadKeys: string[];
+
+    /** Unique imagery id */
+    id: string;
 }
 
 /**
@@ -30,19 +48,30 @@ export class MosaicCog {
     quadKeys: string[];
     sources: Map<string, CogTiff>;
     priority: number;
+    year: number;
+    resolution: number;
     zoom = { min: 0, max: 32 };
+    projection: EPSG;
+    name: string;
+    id: string;
 
-    constructor(basePath: string, quadKeys: string[], opts: MosaicCogOptions = {}) {
-        this.basePath = basePath;
-        this.quadKeys = quadKeys;
+    constructor(opts: MosaicCogOptions) {
         this.sources = new Map();
         this.zoom.min = opts.minZoom ?? 0;
         this.zoom.max = opts.maxZoom ?? 32;
         this.priority = opts.priority ?? 100;
+
+        this.year = opts.year;
+        this.resolution = opts.resolution;
+        this.projection = opts.projection;
+        this.name = opts.name;
+        this.id = opts.id;
+        this.basePath = [this.projection, this.name, this.id].join('/');
+        this.quadKeys = opts.quadKeys;
     }
 
-    static create(basePath: string, quadKeys: string[], opts: MosaicCogOptions = {}): void {
-        const mosaic = new MosaicCog(basePath, quadKeys, opts);
+    static create(opts: MosaicCogOptions): void {
+        const mosaic = new MosaicCog(opts);
         Mosaics.push(mosaic);
     }
 

@@ -6,6 +6,7 @@ import { RetentionDays } from '@aws-cdk/aws-logs';
 import { VersionUtil } from '../version';
 import { Duration } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
+import { getConfig } from '../config';
 
 const CODE_PATH = '../lambda-xyz/dist';
 /**
@@ -18,11 +19,12 @@ export class LambdaXyz extends cdk.Construct {
     public constructor(scope: cdk.Stack, id: string) {
         super(scope, id);
 
+        const config = getConfig();
         const version = VersionUtil.version();
-        const cogBucket = s3.Bucket.fromBucketName(this, 'CogBucket', 'basemaps-cog-test');
+        const cogBucket = s3.Bucket.fromBucketName(this, 'CogBucket', config.CogBucket);
         this.lambda = new lambda.Function(this, 'Tiler', {
             runtime: lambda.Runtime.NODEJS_10_X,
-            memorySize: 1536,
+            memorySize: 2048,
             timeout: Duration.seconds(10),
             handler: 'index.handler',
             code: lambda.Code.asset(CODE_PATH),

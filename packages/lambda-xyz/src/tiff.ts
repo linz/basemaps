@@ -5,6 +5,31 @@ import { MosaicCog } from './tiff.mosaic';
 
 import './imagery';
 
+/**
+ * Sort a collection of mosaics based on our predetermined priority
+ *
+ * This needs to be a stable sort or imagery will generate weird
+ */
+export function MosaicSort(a: MosaicCog, b: MosaicCog): number {
+    // Sort by priority, highest on top
+    if (a.priority != b.priority) {
+        return a.priority - b.priority;
+    }
+
+    // Sort by year, newest on top
+    if (a.year != b.year) {
+        return a.year - b.year;
+    }
+
+    // Resolution, highest resolution (lowest number) on top
+    if (a.resolution != b.resolution) {
+        return b.resolution - a.resolution;
+    }
+
+    // If everything is equal use the name to force a stable sort
+    return a.basePath.localeCompare(b.basePath);
+}
+
 export const TiffUtil = {
     getTiffsForQuadKey(qk: string, zoom: number): CogTiff[] {
         const tiffs = TiffUtil.load();
@@ -34,6 +59,6 @@ export const TiffUtil = {
         for (const tiff of Mosaics) {
             tiff.bucket = bucketName;
         }
-        return Mosaics.sort((a, b) => a.priority - b.priority);
+        return Mosaics.sort(MosaicSort);
     },
 };

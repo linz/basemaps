@@ -3,9 +3,13 @@ import ec2 = require('@aws-cdk/aws-ec2');
 import elbv2 = require('@aws-cdk/aws-elasticloadbalancingv2');
 import targets = require('@aws-cdk/aws-elasticloadbalancingv2-targets');
 import cert = require('@aws-cdk/aws-certificatemanager');
+import r53 = require('@aws-cdk/aws-route53');
 
 import { LambdaXyz } from './lambda.xyz';
 import { ApplicationProtocol, SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
+import { DeployEnv } from '../deploy.env';
+import { Env } from '@basemaps/shared';
+import { getConfig } from '../config';
 
 /**
  * Tile serving infrastructure
@@ -14,6 +18,7 @@ export class ServeStack extends cdk.Stack {
     public constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
+        const config = getConfig();
         const lambda = new LambdaXyz(this, 'LambdaXyz');
 
         const vpc = ec2.Vpc.fromLookup(this, 'AlbVpc', { tags: { default: 'true' } });
@@ -31,7 +36,7 @@ export class ServeStack extends cdk.Stack {
 
         // Due to the convoluted way of getting SSL certificates, we have a provisioned certificate
         // in our account we need to look it up
-        const certArn = process.env.ALB_CERTIFICATE_ARN;
+        const certArn = Env.get(DeployEnv.AlbTlsCertArn);
         if (certArn == null) {
             console.error('No ALB certificate provided, falling back to listening on port 80 only');
         } else {
@@ -46,6 +51,17 @@ export class ServeStack extends cdk.Stack {
             });
         }
 
+        const dnsZone = r53.HostedZone.fromLookup(this, 'AlbDnsZone', {
+            domainName: config.Route53Zone,
+            privateZone: true,
+        });
+        const albDns = new r53.CnameRecord(this, 'AlbDnsInternal', {
+            zone: dnsZone,
+            recordName: 'tiles',
+            domainName: lb.loadBalancerDnsName,
+        });
+
         new cdk.CfnOutput(this, 'LambdaXyzAlb', { value: lb.loadBalancerDnsName });
+        new cdk.CfnOutput(this, 'LambdaXyzDns', { value: albDns.domainName });
     }
 }
