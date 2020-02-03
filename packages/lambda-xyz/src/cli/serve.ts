@@ -39,16 +39,16 @@ async function main(): Promise<void> {
     }
 
     app.get('/:z/:x/:y.png', async (req: express.Request, res: express.Response) => {
-        const startTime = Date.now();
+        const session = LambdaSession.reset();
+        session.timer.start('lambda');
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
-        LambdaSession.reset();
         const { x, y, z } = req.params;
 
         const data = await lambda.handleRequest(
             {
                 httpMethod: 'get',
-                path: `/foo/${z}/${x}/${y}.png`,
+                path: `/v1/foo/${z}/${x}/${y}.png`,
             } as any,
             {} as any,
             logger,
@@ -60,8 +60,11 @@ async function main(): Promise<void> {
             }
         }
         res.end(Buffer.from(data.toResponse().body, 'base64'));
-        const duration = Date.now() - startTime;
-        logger.info({ tile: { x, y, z }, duration }, 'Done');
+        session.set('metrics', session.timer.metrics);
+
+        const duration = session.timer.end('lambda');
+        session.set('duration', duration);
+        logger.info(session.logContext, 'Done');
     });
 
     app.use(express.static('./static/'));
