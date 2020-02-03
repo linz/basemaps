@@ -22,7 +22,15 @@ export const BaseMapsProdConfig: BaseMapsConfig = {
     CogBucket: 'linz-basemaps',
     Route53Zone: 'prod.basemaps.awsint.linz.govt.nz.',
     AlbPublicDns: 'int.tiles.basemaps.linz.govt.nz',
-    CloudFrontDns: ['tiles.basemaps.linz.govt.nz', 'basemaps.linz.govt.nz'],
+    CloudFrontDns: [
+        'a.tiles.basemaps.linz.govt.nz',
+        'b.tiles.basemaps.linz.govt.nz',
+        'c.tiles.basemaps.linz.govt.nz',
+        'd.tiles.basemaps.linz.govt.nz',
+        'e.tiles.basemaps.linz.govt.nz',
+        'tiles.basemaps.linz.govt.nz',
+        'basemaps.linz.govt.nz',
+    ],
 };
 
 export function getConfig(): BaseMapsConfig {
