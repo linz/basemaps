@@ -95,12 +95,12 @@ export class CogBuilderStack extends cdk.Stack {
             serviceRole: batchServiceRole.roleArn,
             computeResources: {
                 type: 'SPOT',
-                maxvCpus: 512,
+                maxvCpus: 768,
                 minvCpus: 0,
                 desiredvCpus: 16,
                 spotIamFleetRole: spotFleetRole.roleArn,
                 instanceRole: batchInstanceRole.roleName,
-                instanceTypes: ['c5.xlarge', 'c5.2xlarge', 'c5.4xlarge', 'c5.9xlarge'],
+                instanceTypes: ['c5.xlarge', 'c5.2xlarge', 'c5.4xlarge', 'c5.9xlarge', 'c5.12xlarge'],
                 subnets: vpc.privateSubnets.map(c => c.subnetId),
                 securityGroupIds: [sg.securityGroupId],
                 tags: {
