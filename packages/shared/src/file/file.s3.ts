@@ -76,7 +76,7 @@ export class FileOperatorS3 implements FileProcessor {
         await this.s3
             .upload({ Bucket: opts.bucket, Key: opts.key, Body: buf })
             .on('httpUploadProgress', evt => {
-                const progress = ((evt.loaded / evt.total) * 100).toFixed(2);
+                const progress = parseFloat(((evt.loaded / evt.total) * 100).toFixed(2));
                 logger?.debug({ progress, size: evt.total, ...opts }, 'UploadProgress');
             })
             .promise();

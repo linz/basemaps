@@ -49,7 +49,7 @@ export interface CogJob {
 export function onProgress(keys: Record<string, any>, logger: LogType): (p: number) => void {
     let lastTime = Date.now();
     return (p: number): void => {
-        logger.trace({ ...keys, progress: p.toFixed(2), progressTime: Date.now() - lastTime }, 'Progress');
+        logger.trace({ ...keys, progress: parseFloat(p.toFixed(2)), progressTime: Date.now() - lastTime }, 'Progress');
         lastTime = Date.now();
     };
 }
