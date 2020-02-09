@@ -3,6 +3,7 @@ import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter
 import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';
 import { CogJob } from '../../cog';
+import { getJobPath } from '../folder';
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
 
@@ -81,10 +82,10 @@ export class ActionBatchJob extends CommandLineAction {
         let todoCount = job.quadkeys.length;
         const stats = await Promise.all(
             job.quadkeys.map(async quadKey => {
-                const targetPath = FileOperator.join(job.output.path, `${job.id}/${quadKey}.tiff`);
+                const targetPath = getJobPath(job, `${quadKey}.tiff`);
                 const exists = await outputFs.exists(targetPath);
                 if (exists) {
-                    logger.info({ targetPath }, 'FileExists');
+                    logger.debug({ targetPath }, 'FileExists');
                     isPartial = true;
                     todoCount--;
                 }
