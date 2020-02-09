@@ -1,4 +1,4 @@
-import { GeoJson, Projection, LogType } from '@basemaps/shared';
+import { GeoJson, Projection, LogType, EPSG } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import pLimit, { Limit } from 'p-limit';
@@ -115,6 +115,25 @@ export class CogBuilder {
         return z;
     }
 
+    findProjection(tiff: CogTiff, logger: LogType): EPSG {
+        const image = tiff.getImage(0);
+
+        let projection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+        if (projection != InvalidProjectionCode) {
+            return projection;
+        }
+
+        const imgWkt = image.value(TiffTag.GeoAsciiParams);
+        projection = guessProjection(imgWkt) as number;
+        if (projection) {
+            logger.trace({ tiff: tiff.source.name, imgWkt, projection }, 'GuessingProjection from GeoAsciiParams');
+            return projection;
+        }
+
+        logger.error({ tiff: tiff.source.name }, 'Failed find projection');
+        throw new Error('Failed to find projection');
+    }
+
     /**
      * Generate the bounding boxes for a GeoTiff converting to WGS84
      * @param tiff
@@ -127,16 +146,8 @@ export class CogBuilder {
         const bottomRight = [bbox[2], bbox[1]];
         const bottomLeft = [bbox[0], bbox[1]];
 
-        await image.fetch(TiffTag.GeoKeyDirectory);
-
-        let projection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
-        if (projection == InvalidProjectionCode) {
-            const imgWkt = image.value(TiffTag.GeoAsciiParams);
-            projection = guessProjection(imgWkt) as number;
-            if (projection) {
-                logger.trace({ imgWkt, projection }, 'GuessingProjection');
-            }
-        }
+        await Promise.all([image.fetch(TiffTag.GeoKeyDirectory), image.fetch(TiffTag.GeoAsciiParams)]);
+        const projection = this.findProjection(tiff, logger);
         const projProjection = getProjection(projection);
         if (projProjection == null) {
             logger.error({ tiff: tiff.source.name }, 'Failed to get tiff projection');
