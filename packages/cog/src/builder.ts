@@ -1,12 +1,12 @@
-import { GeoJson, Projection, LogType, EPSG } from '@basemaps/shared';
+import { EPSG, GeoJson, LogType, Projection } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
+import { createHash } from 'crypto';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import pLimit, { Limit } from 'p-limit';
+import * as path from 'path';
 import { TileCover } from './cover';
 import { getProjection, guessProjection } from './proj';
-import { createHash } from 'crypto';
-import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
-import * as path from 'path';
 
 export interface CogBuilderMetadata extends CogBuilderBounds {
     /** Quadkey indexes for the covering tiles */
@@ -74,7 +74,7 @@ export class CogBuilder {
                     await source.close();
                 }
 
-                const imageProjection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+                const imageProjection = this.findProjection(tiff, logger);
                 if (imageProjection != null && imageProjection != projection) {
                     if (projection != -1) {
                         throw new Error('Multiple projections');
