@@ -7,10 +7,11 @@ import { getJobPath } from '../folder';
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
 
+/** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
+const MagicAlignmentLevel = 7;
+
 export class ActionBatchJob extends CommandLineAction {
     private job?: CommandLineStringParameter;
-    private region?: CommandLineStringParameter;
-    private queue?: CommandLineStringParameter;
     private commit?: CommandLineFlagParameter;
 
     public constructor() {
@@ -26,10 +27,15 @@ export class ActionBatchJob extends CommandLineAction {
         batch: AWS.Batch,
         quadKey: string,
         isCommit: boolean,
-    ): Promise<{ jobName: string; jobId: string }> {
+    ): Promise<{ jobName: string; jobId: string; memory: number }> {
         const jobName = `Cog-${job.name}-${quadKey}`;
+
+        const alignmentLevels = job.source.resolution - quadKey.length;
+        // Give 25% more memory to larger jobs
+        const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
+        const memory = 3900 * resDiff;
         if (!isCommit || this.job?.value == null) {
-            return { jobName, jobId: '' };
+            return { jobName, jobId: '', memory };
         }
 
         const batchJob = await batch
@@ -38,36 +44,19 @@ export class ActionBatchJob extends CommandLineAction {
                 jobQueue: JobQueue,
                 jobDefinition: JobDefinition,
                 containerOverrides: {
+                    memory,
                     command: ['-V', 'cog', '--job', this.job.value, '--commit', '--quadkey', quadKey],
                 },
             })
             .promise();
-        return { jobName, jobId: batchJob.jobId };
-    }
-    async batchAll(job: CogJob, batch: AWS.Batch, isCommit: boolean): Promise<{ jobName: string; jobId: string }> {
-        const jobName = `Cog-${job.name}`;
-        if (!isCommit || this.job?.value == null) {
-            return { jobName, jobId: '' };
-        }
-        const batchJob = await batch
-            .submitJob({
-                jobName,
-                jobQueue: JobQueue,
-                jobDefinition: JobDefinition,
-                arrayProperties: { size: job.quadkeys.length },
-                containerOverrides: {
-                    command: ['-V', 'cog', '--job', this.job.value, '--commit'],
-                },
-            })
-            .promise();
-        return { jobName, jobId: batchJob.jobId };
+        return { jobName, jobId: batchJob.jobId, memory };
     }
 
     async onExecute(): Promise<void> {
         if (this.job?.value == null) {
             throw new Error('Failed to read parameters');
         }
-        const region = this.region?.value ?? Env.get('AWS_DEFAULT_REGION', 'ap-southeast-2');
+        const region = Env.get('AWS_DEFAULT_REGION', 'ap-southeast-2');
         const jobData = await FileOperator.create(this.job.value).read(this.job.value);
         const job = JSON.parse(jobData.toString()) as CogJob;
         const processId = ulid.ulid();
@@ -105,16 +94,12 @@ export class ActionBatchJob extends CommandLineAction {
         );
 
         const batch = new aws.Batch({ region });
-        if (isPartial) {
-            const toSubmit = stats.filter(f => f.exists == false).map(c => c.quadKey);
-            for (const quadKey of toSubmit) {
-                const jobStatus = await this.batchOne(job, batch, quadKey, isCommit);
-                logger.info(jobStatus, 'JobSubmitted');
-            }
-        } else {
-            const jobStatus = await this.batchAll(job, batch, isCommit);
+        const toSubmit = stats.filter(f => f.exists == false).map(c => c.quadKey);
+        for (const quadKey of toSubmit) {
+            const jobStatus = await this.batchOne(job, batch, quadKey, isCommit);
             logger.info(jobStatus, 'JobSubmitted');
         }
+
         if (!isCommit) {
             logger.warn('DryRun:Done');
             return;
@@ -127,20 +112,6 @@ export class ActionBatchJob extends CommandLineAction {
             parameterLongName: '--job',
             description: 'Job config source to access',
             required: true,
-        });
-
-        this.queue = this.defineStringParameter({
-            argumentName: 'QUEUE',
-            parameterLongName: '--queue',
-            description: 'AWS Batch Queue to use',
-            required: false,
-        });
-
-        this.region = this.defineStringParameter({
-            argumentName: 'REGION',
-            parameterLongName: '--region',
-            description: 'AWS region to use, defaults to $AWS_DEFAULT_REGION',
-            required: false,
         });
 
         this.commit = this.defineFlagParameter({
