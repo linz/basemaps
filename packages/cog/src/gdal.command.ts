@@ -35,7 +35,20 @@ export abstract class GdalCommand {
         this.child = child;
 
         const outputBuff: Buffer[] = [];
-        child.stderr.on('data', (data: Buffer) => log.warn({ data: data.toString() }, 'GdalWarn'));
+        const errBuff: Buffer[] = [];
+        child.stderr.on('data', (data: Buffer) => {
+            const buf = data.toString();
+            /**
+             * Example error line
+             * `ERROR 1: TIFFReadEncodedTile:Read error at row 4294967295, col 4294967295; got 49005 bytes, expected 49152`
+             */
+            if (buf.includes('ERROR 1')) {
+                log.error({ data: buf }, 'GdalError');
+            } else {
+                log.warn({ data: buf }, 'GdalWarn');
+            }
+            errBuff.push(data);
+        });
         child.stdout.on('data', (data: Buffer) => {
             outputBuff.push(data);
             this.parser.data(data);
@@ -43,18 +56,22 @@ export abstract class GdalCommand {
 
         this.promise = new Promise((resolve, reject) => {
             child.on('exit', (code: number) => {
-                const output = outputBuff.join('').trim();
+                const stdout = outputBuff.join('').trim();
+                const stderr = errBuff.join('').trim();
+
                 if (code != 0) {
-                    log.error({ code, output }, 'FailedToConvert');
-                    return reject(new Error('Failed to execute GDAL: ' + output));
+                    log.error({ code, stdout, stderr }, 'FailedToConvert');
+                    return reject(new Error('Failed to execute GDAL command'));
                 }
-                log.warn({ output }, 'CogWarnings');
+                log.warn({ stdout, stderr }, 'CogWarnings');
 
                 delete this.promise;
                 return resolve();
             });
             child.on('error', (error: Error) => {
-                log.error({ error, output: outputBuff.join('').trim() }, 'FailedToConvert');
+                const stdout = outputBuff.join('').trim();
+                const stderr = errBuff.join('').trim();
+                log.error({ stdout, stderr }, 'FailedToConvert');
                 delete this.promise;
                 reject(error);
             });
