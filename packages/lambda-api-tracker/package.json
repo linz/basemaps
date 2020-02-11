@@ -1,12 +1,12 @@
 {
   "name": "@basemaps/lambda-api-tracker",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "BSD 3-Clause",
   "dependencies": {
-    "@basemaps/shared": "^0.2.0"
+    "@basemaps/shared": "^0.3.0"
   },
   "scripts": {
     "test": "jest",
