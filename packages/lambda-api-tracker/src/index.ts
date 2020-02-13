@@ -8,9 +8,9 @@ import {
     LambdaHttpResponseCloudFrontRequest,
     LambdaSession,
     LambdaType,
-    Projection,
     LogType,
-} from '@basemaps/shared';
+} from '@basemaps/lambda-shared';
+import { Projection } from '@basemaps/geo';
 import { CloudFrontRequestEvent, Context, CloudFrontHeaders } from 'aws-lambda';
 import { queryStringExtractor } from './query';
 import { ValidateRequest } from './validate';

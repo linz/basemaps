@@ -1,9 +1,10 @@
-import { LambdaSession, LogConfig } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { writeFileSync } from 'fs';
 import * as path from 'path';
-import { Tiler } from '../tiler';
+import { Tiler } from '@basemaps/tiler';
+import { Metrics } from '@basemaps/metrics';
+import { TileMakerSharp } from '..';
 
 describe('TileCreationBenchmark', () => {
     const NanoSecondToMillisecond = 1e6;
@@ -15,10 +16,11 @@ describe('TileCreationBenchmark', () => {
     const CenterTile = Center / 2;
 
     const TiffPath = path.join(__dirname, '../../data/rgba8_tiled.wm.tiff');
+    const timer = new Metrics();
 
     async function renderTile(tileSize: number): Promise<void> {
-        const { timer } = LambdaSession.get();
         const tiler = new Tiler(tileSize);
+        const tileMaker = new TileMakerSharp(tileSize);
 
         timer.start('tiff:init');
         const tiff = new CogTiff(new CogSourceFile(TiffPath));
@@ -26,17 +28,13 @@ describe('TileCreationBenchmark', () => {
         timer.end('tiff:init');
 
         timer.start('tiler:tile');
-        const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom, LogConfig.get());
+        const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom);
         timer.end('tiler:tile');
 
         if (layers == null) throw new Error('Tile is null');
-        await tiler.raster.compose(layers, LogConfig.get());
+        await tileMaker.compose(layers);
     }
     const results: Record<string, Record<string, number[]>> = {};
-
-    beforeEach(() => {
-        LogConfig.disable();
-    });
 
     [256, 512].forEach(tileSize => {
         it(`should render ${RenderCount}x${tileSize} tiles`, async () => {
@@ -45,8 +43,6 @@ describe('TileCreationBenchmark', () => {
             const metrics: Record<string, number[]> = {};
 
             for (let i = 0; i < RenderCount; i++) {
-                const { timer } = LambdaSession.reset();
-
                 timer.start('total');
                 await renderTile(tileSize);
                 timer.end('total');

@@ -1,4 +1,5 @@
-import { EPSG, GeoJson, LogType, Projection } from '@basemaps/shared';
+import { EPSG, GeoJson, Projection } from '@basemaps/geo';
+import { LogType } from '@basemaps/lambda-shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';

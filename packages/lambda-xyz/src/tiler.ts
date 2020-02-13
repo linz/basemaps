@@ -1,5 +1,5 @@
 import { Tiler } from '@basemaps/tiler';
-
+import { TileMakerSharp } from '@basemaps/tiler-sharp';
 /**
  * Most tiles will be created by either a 256x256 tile or 512x512 tile
  *
@@ -9,6 +9,7 @@ import { Tiler } from '@basemaps/tiler';
 export const Tilers = {
     /** 256x256 Tiler */
     tile256: new Tiler(256),
+    compose256: new TileMakerSharp(256),
     /** 512x512 Tiler */
     tile512: new Tiler(512),
 };

@@ -1,6 +1,6 @@
 import { MosaicSort } from '../tiff';
 import { MosaicCog, MosaicCogOptions } from '../tiff.mosaic';
-import { EPSG } from '@basemaps/shared';
+import { EPSG } from '@basemaps/geo';
 
 describe('MosaicSort', () => {
     const base: MosaicCogOptions = {

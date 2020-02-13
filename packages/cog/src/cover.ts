@@ -1,5 +1,5 @@
 import * as MapBoxCover from '@mapbox/tile-cover';
-import { QuadKey, GeoJson } from '@basemaps/shared';
+import { QuadKey, GeoJson } from '@basemaps/geo';
 import * as Mercator from 'global-mercator';
 
 export class TileCover {

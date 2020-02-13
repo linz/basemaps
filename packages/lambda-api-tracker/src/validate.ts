@@ -1,4 +1,4 @@
-import { Aws, LogType, Const, LambdaHttpResponseCloudFront, HttpHeader, LambdaSession } from '@basemaps/shared';
+import { Aws, LogType, Const, LambdaHttpResponseCloudFront, HttpHeader, LambdaSession } from '@basemaps/lambda-shared';
 
 export const ValidateRequest = {
     /**

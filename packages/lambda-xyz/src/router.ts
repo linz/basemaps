@@ -1,4 +1,4 @@
-import { LambdaHttpResponseAlb, PathData, getXyzFromPath, Env } from '@basemaps/shared';
+import { LambdaHttpResponseAlb, PathData, getXyzFromPath, Env } from '@basemaps/lambda-shared';
 
 export function route(httpMethod: string, path: string): PathData | LambdaHttpResponseAlb {
     // Allow cross origin requests

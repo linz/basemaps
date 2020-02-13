@@ -1,4 +1,5 @@
-import { Aws, FileConfig, isConfigS3Role, LogType, EPSG } from '@basemaps/shared';
+import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
+import { EPSG } from '@basemaps/geo';
 import * as Mercator from 'global-mercator';
 import { VrtOptions } from './cog.vrt';
 import { GdalCogBuilder } from './gdal';

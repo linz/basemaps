@@ -2,7 +2,7 @@ process.env['COG_BUCKET'] = 'fake-bucket';
 
 jest.mock('@cogeotiff/core');
 
-import { Env, LambdaSession, LogConfig } from '@basemaps/shared';
+import { Env, LambdaSession, LogConfig } from '@basemaps/lambda-shared';
 import { ALBEvent } from 'aws-lambda';
 import { handleRequest } from '../index';
 import { Tilers } from '../tiler';
@@ -33,11 +33,11 @@ describe('LambdaXyz', () => {
         // Mock the tile generation
         Tilers.tile256 = new Tiler(256);
         Tilers.tile256.tile = tileMock;
-        Tilers.tile256.raster.compose = rasterMock;
+        Tilers.compose256 = { compose: rasterMock } as any;
         tileMock.mockReset();
         rasterMock.mockReset();
         tileMock.mockReturnValue(['TileMock']);
-        rasterMock.mockReturnValue(rasterMockBuffer);
+        rasterMock.mockReturnValue({ buffer: rasterMockBuffer });
 
         jest.spyOn(TiffUtil, 'getTiffsForQuadKey')
             .mockImplementation()

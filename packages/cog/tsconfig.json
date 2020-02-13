@@ -5,5 +5,7 @@
         "outDir": "./build"
     },
     "include": ["src/**/*"],
-    "references": []
+    "references": [{
+        "path": "../lambda-shared"
+    }]
 }

@@ -1,4 +1,5 @@
-import { EPSG, FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/shared';
+import { FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/lambda-shared';
+import { EPSG } from '@basemaps/geo';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';

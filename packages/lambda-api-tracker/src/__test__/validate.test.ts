@@ -1,4 +1,4 @@
-import { ApiKeyTableRecord, Aws, LambdaSession, LogConfig } from '@basemaps/shared';
+import { ApiKeyTableRecord, Aws, LambdaSession, LogConfig } from '@basemaps/lambda-shared';
 import { ValidateRequest } from '../validate';
 
 describe('QueryString', (): void => {

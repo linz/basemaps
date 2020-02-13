@@ -1,4 +1,4 @@
-import { EPSG, Projection } from '@basemaps/shared';
+import { EPSG, Projection } from '@basemaps/geo';
 import * as proj4 from 'proj4';
 import { NZGD2000 } from './nzgd2000';
 

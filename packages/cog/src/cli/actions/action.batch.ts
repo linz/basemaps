@@ -1,4 +1,4 @@
-import { Env, FileOperator, LogConfig } from '@basemaps/shared';
+import { Env, FileOperator, LogConfig } from '@basemaps/lambda-shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
 import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';

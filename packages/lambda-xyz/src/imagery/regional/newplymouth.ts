@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/shared';
+import { EPSG } from '@basemaps/geo';
 import { MosaicCog } from '../../tiff.mosaic';
 
 MosaicCog.create({

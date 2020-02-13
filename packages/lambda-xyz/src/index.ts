@@ -6,7 +6,7 @@ import {
     LambdaSession,
     LambdaType,
     LogType,
-} from '@basemaps/shared';
+} from '@basemaps/lambda-shared';
 import { ALBEvent, Context } from 'aws-lambda';
 import { createHash } from 'crypto';
 import pLimit from 'p-limit';
@@ -70,6 +70,7 @@ export async function handleRequest(
 ): Promise<LambdaHttpResponseAlb> {
     const session = LambdaSession.get();
     const tiler = Tilers.tile256;
+    const tileMaker = Tilers.compose256;
 
     const httpMethod = event.httpMethod.toLowerCase();
 
@@ -89,7 +90,7 @@ export async function handleRequest(
     session.set('quadKey', qk);
 
     const tiffs = await initTiffs(qk, pathMatch.z, logger);
-    const layers = await tiler.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z, logger);
+    const layers = await tiler.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId
     const cacheKey = createHash('sha256')
@@ -99,6 +100,7 @@ export async function handleRequest(
     if (layers == null) {
         return emptyPng(session, cacheKey);
     }
+    session.set('layers', layers.length);
 
     // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our etag this tile has not been modified.
     const ifNoneMatch = getHeader(event, HttpHeader.IfNoneMatch);
@@ -109,16 +111,16 @@ export async function handleRequest(
 
     logger.info({ layers: layers.length }, 'Composing');
     session.timer.start('tile:compose');
-    const buf = await tiler.raster.compose(layers, logger);
+    const res = await tileMaker.compose(layers);
     session.timer.end('tile:compose');
 
-    if (buf == null) {
+    if (res == null) {
         return emptyPng(session, cacheKey);
     }
-    session.set('bytes', buf.byteLength);
+    session.set('bytes', res.buffer.byteLength);
     const response = new LambdaHttpResponseAlb(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
-    response.buffer(buf, 'image/png');
+    response.buffer(res.buffer, 'image/png');
     return response;
 }
 

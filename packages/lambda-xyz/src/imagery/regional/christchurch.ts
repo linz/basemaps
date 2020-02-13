@@ -1,5 +1,5 @@
 import { MosaicCog } from '../../tiff.mosaic';
-import { EPSG } from '@basemaps/shared';
+import { EPSG } from '@basemaps/geo';
 
 MosaicCog.create({
     id: '01DZ550FDD4B6726WSPKRQFCWN',

@@ -1,11 +1,11 @@
-import { LambdaSession, LogConfig } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { readFileSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import { PNG } from 'pngjs';
-import { Tiler } from '../tiler';
+import { Tiler } from '@basemaps/tiler';
 import PixelMatch = require('pixelmatch');
+import { TileMakerSharp } from '..';
 
 // To regenerate all the expected images set this to true and run the tests
 const WRITE_IMAGES = false;
@@ -26,14 +26,12 @@ describe('TileCreation', () => {
 
     beforeEach(async () => {
         await tiff.init();
-        LambdaSession.reset();
-        LogConfig.disable();
     });
 
     it('should generate a tile', async () => {
         // Make a really large tile so this image will be visible at zoom zero
         const tiler = new Tiler(2 ** 20);
-        const layers = await tiler.tile([tiff], 0, 0, 0, LogConfig.get());
+        const layers = await tiler.tile([tiff], 0, 0, 0);
 
         expect(layers).not.toEqual(null);
         if (layers == null) throw new Error('Tile is null');
@@ -60,14 +58,16 @@ describe('TileCreation', () => {
             const centerTile = center / 2;
             const tiler = new Tiler(tileSize);
 
+            const tileMaker = new TileMakerSharp(tileSize);
+
             // Make the background black to easily spot flaws
-            tiler.raster.background.alpha = 1;
-            const layers = await tiler.tile([tiff], centerTile, centerTile, zoom, LogConfig.get());
+            tileMaker.background.alpha = 1;
+            const layers = await tiler.tile([tiff], centerTile, centerTile, zoom);
             expect(layers).not.toEqual(null);
             if (layers == null) throw new Error('Tile is null');
 
-            const png = await tiler.raster.compose(layers, LogConfig.get());
-            const newImage = PNG.sync.read(png);
+            const png = await tileMaker.compose(layers);
+            const newImage = PNG.sync.read(png.buffer);
             if (WRITE_IMAGES) {
                 const fileName = getExpectedTileName(tileSize, centerTile, centerTile, zoom);
                 writeFileSync(fileName, png);

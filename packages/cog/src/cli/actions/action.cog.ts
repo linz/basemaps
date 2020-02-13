@@ -1,4 +1,4 @@
-import { Env, FileOperator, FileOperatorSimple, LogConfig, LogType } from '@basemaps/shared';
+import { Env, FileOperator, FileOperatorSimple, LogConfig, LogType } from '@basemaps/lambda-shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,

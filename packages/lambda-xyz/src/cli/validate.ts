@@ -1,7 +1,7 @@
 import '../imagery';
 import { Mosaics } from '../imagery/mosaics';
 import pLimit from 'p-limit';
-import { Env, LogConfig } from '@basemaps/shared';
+import { Env, LogConfig } from '@basemaps/lambda-shared';
 
 const Q = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
 const bucket = Env.get(Env.CogBucket, undefined);

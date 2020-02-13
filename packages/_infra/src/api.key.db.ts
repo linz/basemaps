@@ -1,6 +1,6 @@
 import cdk = require('@aws-cdk/core');
 import dynamoDb = require('@aws-cdk/aws-dynamodb');
-import { Const } from '@basemaps/shared';
+import { Const } from '@basemaps/lambda-shared';
 
 /**
  * We need the API Key table to deployed in ap-southeast-2 Lambda@Edge has to be deployed in us-east-1

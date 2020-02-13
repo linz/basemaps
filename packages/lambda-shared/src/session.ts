@@ -1,5 +1,5 @@
 import * as ulid from 'ulid';
-import { Metrics } from './metrics';
+import { Metrics } from '@basemaps/metrics';
 
 /**
  * Because Lambda is single threaded only one request can execute at a time
