@@ -7,14 +7,14 @@ import {
     LambdaType,
     LogType,
 } from '@basemaps/lambda-shared';
-import { ALBEvent, Context } from 'aws-lambda';
+import { CogTiff } from '@cogeotiff/core';
+import { ALBEvent } from 'aws-lambda';
 import { createHash } from 'crypto';
 import pLimit from 'p-limit';
 import { EmptyPng } from './png';
 import { route } from './router';
 import { TiffUtil } from './tiff';
 import { Tilers } from './tiler';
-import { CogTiff } from '@cogeotiff/core';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
@@ -65,10 +65,9 @@ async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<Cog
 
 export async function handleRequest(
     event: ALBEvent,
-    context: Context,
+    session: LambdaSession,
     logger: LogType,
 ): Promise<LambdaHttpResponseAlb> {
-    const session = LambdaSession.get();
     const tiler = Tilers.tile256;
     const tileMaker = Tilers.compose256;
 

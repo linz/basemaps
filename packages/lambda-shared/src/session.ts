@@ -1,24 +1,15 @@
 import * as ulid from 'ulid';
 import { Metrics } from '@basemaps/metrics';
 
-/**
- * Because Lambda is single threaded only one request can execute at a time
- * A global session object is "ok", however not ideal.
- *
- * There exists a `async_hooks` which can be used to generate a thread local context.
- *
- * TODO if we move away from lambda either stop using this or switch to `async_hooks`
- */
-let currentSession: LambdaSession | null = null;
-
 export class LambdaSession {
-    public id: string = ulid.ulid();
+    public id: string;
     public correlationId: string;
     public logContext: Record<string, any> = {};
     public timer: Metrics = new Metrics();
 
-    public constructor(correlationId: string) {
-        this.correlationId = correlationId;
+    public constructor(correlationId?: string) {
+        this.id = ulid.ulid();
+        this.correlationId = correlationId ?? ulid.ulid();
         this.set('correlationId', correlationId);
     }
 
@@ -33,17 +24,5 @@ export class LambdaSession {
         } else {
             this.logContext[key] = val;
         }
-    }
-
-    public static get(): LambdaSession {
-        if (currentSession == null) {
-            return LambdaSession.reset();
-        }
-        return currentSession;
-    }
-
-    public static reset(correlationId?: string | null): LambdaSession {
-        currentSession = new LambdaSession(correlationId || ulid.ulid());
-        return currentSession;
     }
 }

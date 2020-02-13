@@ -16,9 +16,8 @@ describe('TileCreationBenchmark', () => {
     const CenterTile = Center / 2;
 
     const TiffPath = path.join(__dirname, '../../data/rgba8_tiled.wm.tiff');
-    const timer = new Metrics();
 
-    async function renderTile(tileSize: number): Promise<void> {
+    async function renderTile(tileSize: number, timer: Metrics): Promise<void> {
         const tiler = new Tiler(tileSize);
         const tileMaker = new TileMakerSharp(tileSize);
 
@@ -43,8 +42,9 @@ describe('TileCreationBenchmark', () => {
             const metrics: Record<string, number[]> = {};
 
             for (let i = 0; i < RenderCount; i++) {
+                const timer = new Metrics();
                 timer.start('total');
-                await renderTile(tileSize);
+                await renderTile(tileSize, timer);
                 timer.end('total');
 
                 const m = timer.metrics;

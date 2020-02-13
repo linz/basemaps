@@ -44,16 +44,26 @@ describe('TileCreation', () => {
         expect(layer.x).toEqual(tiler.tileSize / 2);
         expect(layer.y).toEqual(tiler.tileSize / 2);
     });
-
-    [
+    const RenderTests = [
         { tileSize: 256, zoom: 18 },
         { tileSize: 256, zoom: 19 },
         { tileSize: 512, zoom: 19 },
         { tileSize: 1024, zoom: 19 },
         { tileSize: 2048, zoom: 19 },
         { tileSize: 4096, zoom: 19 },
-    ].forEach(({ tileSize, zoom }) => {
+    ];
+
+    // No need to run larger tile tests locally
+    if (!process.env.GITHUB_ACTIONS) {
+        RenderTests.pop();
+        RenderTests.pop();
+        RenderTests.pop();
+        RenderTests.pop();
+    }
+
+    RenderTests.forEach(({ tileSize, zoom }) => {
         it(`should render a tile zoom:${zoom} tile: ${tileSize}`, async () => {
+            console.time(`Render zoom:${zoom} size:${tileSize}`);
             const center = 2 ** zoom;
             const centerTile = center / 2;
             const tiler = new Tiler(tileSize);
@@ -83,6 +93,7 @@ describe('TileCreation', () => {
                 writeFileSync(fileName, PNG.sync.write(output));
             }
             expect(missMatchedPixels).toEqual(0);
+            console.timeEnd(`Render zoom:${zoom} size:${tileSize}`);
         });
     });
 });
