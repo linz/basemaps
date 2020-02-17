@@ -1,0 +1,22 @@
+{
+  "name": "@basemaps/tiler-sharp",
+  "version": "0.3.0",
+  "private": true,
+  "repository": "git@github.com:linz/basemaps.git",
+  "author": "",
+  "license": "BSD 3-Clause",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {},
+  "dependencies": {
+    "@basemaps/tiler": "^0.3.0",
+    "sharp": "^0.23.1"
+  },
+  "devDependencies": {
+    "@types/pixelmatch": "^5.0.0",
+    "@types/pngjs": "^3.3.2",
+    "@types/sharp": "^0.22.3",
+    "pixelmatch": "^5.1.0",
+    "pngjs": "^3.4.0"
+  }
+}

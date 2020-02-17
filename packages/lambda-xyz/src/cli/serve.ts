@@ -1,4 +1,4 @@
-import { Env, FileOperator, FileOperatorS3, FileProcessor, LambdaSession, LogConfig } from '@basemaps/shared';
+import { Env, FileOperator, FileOperatorS3, FileProcessor, LambdaSession, LogConfig } from '@basemaps/lambda-shared';
 import { CogSource, CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -42,7 +42,7 @@ async function main(): Promise<void> {
         const startTime = Date.now();
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
-        const ctx = LambdaSession.reset();
+        const ctx = new LambdaSession();
         const { x, y, z } = req.params;
 
         const data = await lambda.handleRequest(
@@ -50,7 +50,7 @@ async function main(): Promise<void> {
                 httpMethod: 'get',
                 path: `/v1/foo/${z}/${x}/${y}.png`,
             } as any,
-            {} as any,
+            ctx,
             logger,
         );
 

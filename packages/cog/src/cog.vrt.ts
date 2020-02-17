@@ -1,4 +1,5 @@
-import { Aws, EPSG, FileOperator, isConfigS3Role, LogType, Projection } from '@basemaps/shared';
+import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
+import { EPSG, Projection } from '@basemaps/geo';
 import { CogJob, onProgress } from './cog';
 import { GdalCogBuilder } from './gdal';
 

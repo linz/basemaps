@@ -4,7 +4,7 @@ import { CogBuilderStack } from './cogify';
 import { EdgeStack } from './edge';
 import { ServeStack } from './serve';
 import { DeployEnv } from './deploy.env';
-import { Env } from '@basemaps/shared';
+import { Env } from '@basemaps/lambda-shared';
 
 const basemaps = new App();
 

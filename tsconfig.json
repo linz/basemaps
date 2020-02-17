@@ -1,16 +1,22 @@
 {
     "files": [],
     "references": [{
-        "path": "./packages/shared"
+        "path": "./packages/metrics"
+    },{
+        "path": "./packages/geo"
     }, {
         "path": "./packages/tiler"
     }, {
+        "path": "./packages/tiler-sharp"
+    }, {
         "path": "./packages/cog"
-    },{
+    }, {
         "path": "./packages/_infra"
-    },{
+    }, {
+        "path": "./packages/lambda-shared"
+    }, {
         "path": "./packages/lambda-api-tracker"
-    },{
+    }, {
         "path": "./packages/lambda-xyz"
     }]
 }

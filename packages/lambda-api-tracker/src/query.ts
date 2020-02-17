@@ -1,4 +1,4 @@
-import { Const } from '@basemaps/shared';
+import { Const } from '@basemaps/lambda-shared';
 
 /**
  * Extracts a named value from a query string but defaults to the key 'api' if none provided

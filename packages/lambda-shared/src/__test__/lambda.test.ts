@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { LambdaFunction } from '../lambda';
-import { LambdaType } from '../lambda.response.http';
 import { ALBResult, CloudFrontResultResponse } from 'aws-lambda';
 import { HttpHeader } from '../header';
+import { LambdaFunction } from '../lambda';
 import { LambdaHttpResponseAlb } from '../lambda.response.alb';
-import { LambdaSession } from '../session';
+import { LambdaType } from '../lambda.response.http';
 import { LogSpy } from './log.spy';
 
 describe('LambdaFunction', () => {
@@ -60,8 +59,8 @@ describe('LambdaFunction', () => {
     it('should callback on success', async () => {
         const albOk = new LambdaHttpResponseAlb(200, 'ok');
 
-        const testFunc = LambdaFunction.wrap(LambdaType.Alb, async () => {
-            const { timer } = LambdaSession.get();
+        const testFunc = LambdaFunction.wrap(LambdaType.Alb, async (args, session) => {
+            const { timer } = session;
             timer.start('xxx');
             timer.end('xxx');
             return albOk;

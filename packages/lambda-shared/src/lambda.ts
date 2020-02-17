@@ -5,6 +5,7 @@ import { LogConfig, LogType } from './log';
 import { LambdaSession } from './session';
 import { LambdaHttp } from './lambda.response';
 import { Const, Env } from './const';
+import { ulid } from 'ulid';
 
 export interface HttpStatus {
     statusCode: string;
@@ -22,7 +23,7 @@ export class LambdaFunction {
      */
     public static wrap<T extends LambdaHttpRequestType>(
         type: LambdaType,
-        fn: (event: T, context: Context, logger: LogType) => Promise<LambdaHttpResponse>,
+        fn: (event: T, session: LambdaSession, logger: LogType) => Promise<LambdaHttpResponse>,
     ): (event: T, context: Context, callback: Callback<LambdaHttpReturnType>) => Promise<void> {
         return async (event: T, context: Context, callback: Callback<LambdaHttpReturnType>): Promise<void> => {
             const logger = LogConfig.get();
@@ -34,7 +35,7 @@ export class LambdaFunction {
 
             // Extract the correlationId from the provided http headers
             const correlationId = LambdaHttp.getHeader(type, event, HttpHeader.CorrelationId);
-            const session = LambdaSession.reset(correlationId);
+            const session = new LambdaSession(correlationId ?? ulid());
             session.timer.start('lambda');
 
             // If a API Key exists in the headers, include it in the log output
@@ -60,7 +61,7 @@ export class LambdaFunction {
 
             let res: LambdaHttpResponse | undefined = undefined;
             try {
-                res = await fn(event, context, log);
+                res = await fn(event, session, log);
             } catch (error) {
                 // If a LambdaHttpResponse was thrown, just reuse it as a response
                 if (LambdaHttpResponse.isHttpResponse(error)) {

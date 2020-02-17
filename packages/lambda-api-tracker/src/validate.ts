@@ -1,12 +1,12 @@
-import { Aws, LogType, Const, LambdaHttpResponseCloudFront, HttpHeader, LambdaSession } from '@basemaps/shared';
+import { Aws, LogType, Const, LambdaHttpResponseCloudFront, HttpHeader, LambdaSession } from '@basemaps/lambda-shared';
 
 export const ValidateRequest = {
     /**
      * Validate that a API Key is valid
      * @param apiKey API key to validate
      */
-    async validate(apiKey: string, log: LogType): Promise<LambdaHttpResponseCloudFront | null> {
-        const timer = LambdaSession.get().timer;
+    async validate(apiKey: string, session: LambdaSession, log: LogType): Promise<LambdaHttpResponseCloudFront | null> {
+        const timer = session.timer;
         // TODO increment the api counter
         timer.start('validate:db');
         const record = await Aws.api.db.get(apiKey);

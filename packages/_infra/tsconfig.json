@@ -6,6 +6,6 @@
     },
     "include": ["src/**/*"],
     "references": [{
-        "path": "../shared"
+        "path": "../lambda-shared"
     }]
 }

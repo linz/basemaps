@@ -1,4 +1,5 @@
-import { EPSG, LogType, Projection, Env } from '@basemaps/shared';
+import { EPSG, Projection } from '@basemaps/geo';
+import { Env, LogType } from '@basemaps/lambda-shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { GdalCogBuilderOptions } from './gdal.config';
 import { GdalDocker } from './gdal.docker';

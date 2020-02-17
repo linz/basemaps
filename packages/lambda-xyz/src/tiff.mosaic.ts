@@ -1,6 +1,6 @@
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-import { QuadKey, EPSG } from '@basemaps/shared';
+import { QuadKey, EPSG } from '@basemaps/geo';
 import * as path from 'path';
 import { Mosaics } from './imagery/mosaics';
 

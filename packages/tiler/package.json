@@ -7,20 +7,15 @@
   "license": "BSD 3-Clause",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "build-watch": "tsc"
-  },
+  "scripts": {},
   "dependencies": {
-    "@basemaps/shared": "^0.3.0",
-    "@cogeotiff/core": "^0.9.0",
-    "sharp": "^0.23.1"
+    "@basemaps/metrics": "^0.3.0",
+    "@cogeotiff/core": "^0.9.0"
   },
   "devDependencies": {
     "@cogeotiff/source-file": "^0.9.0",
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
-    "@types/sharp": "^0.22.3",
     "pixelmatch": "^5.1.0",
     "pngjs": "^3.4.0"
   }

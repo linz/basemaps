@@ -1,3 +1,4 @@
+import { Projection } from '@basemaps/geo';
 import {
     Const,
     getXyzFromPath,
@@ -8,10 +9,9 @@ import {
     LambdaHttpResponseCloudFrontRequest,
     LambdaSession,
     LambdaType,
-    Projection,
     LogType,
-} from '@basemaps/shared';
-import { CloudFrontRequestEvent, Context, CloudFrontHeaders } from 'aws-lambda';
+} from '@basemaps/lambda-shared';
+import { CloudFrontHeaders, CloudFrontRequestEvent } from 'aws-lambda';
 import { queryStringExtractor } from './query';
 import { ValidateRequest } from './validate';
 
@@ -38,10 +38,9 @@ function getHeader(headers: CloudFrontHeaders, key: string): string | null {
  */
 export async function handleRequest(
     event: CloudFrontRequestEvent,
-    context: Context,
+    session: LambdaSession,
     logger: LogType,
 ): Promise<LambdaHttpResponse> {
-    const session = LambdaSession.get();
     const [record] = event.Records;
     const request = record.cf.request;
     const queryString = request.querystring;
@@ -77,7 +76,7 @@ export async function handleRequest(
 
     // Validate the request throwing an error if anything goes wrong
     session.timer.start('validate');
-    const res = await ValidateRequest.validate(apiKey, logger);
+    const res = await ValidateRequest.validate(apiKey, session, logger);
     session.timer.end('validate');
 
     if (res != null) {

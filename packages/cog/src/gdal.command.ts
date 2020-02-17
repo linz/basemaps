@@ -1,4 +1,4 @@
-import { LogType } from '@basemaps/shared';
+import { LogType } from '@basemaps/lambda-shared';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { GdalProgressParser } from './gdal.progress';
 

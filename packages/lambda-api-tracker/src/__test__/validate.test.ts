@@ -1,4 +1,4 @@
-import { ApiKeyTableRecord, Aws, LambdaSession, LogConfig } from '@basemaps/shared';
+import { ApiKeyTableRecord, Aws, LambdaSession, LogConfig } from '@basemaps/lambda-shared';
 import { ValidateRequest } from '../validate';
 
 describe('QueryString', (): void => {
@@ -7,13 +7,12 @@ describe('QueryString', (): void => {
     const mockApiKey = 'mock1';
 
     beforeEach(() => {
-        LambdaSession.reset();
         LogConfig.disable();
     });
 
     it('tests that apikeytable gets called', (): void => {
         const spy = jest.spyOn(Aws.api.db, 'get').mockImplementation();
-        ValidateRequest.validate(dummyApiKey, LogConfig.get());
+        ValidateRequest.validate(dummyApiKey, new LambdaSession(), LogConfig.get());
 
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledWith(dummyApiKey);
@@ -31,7 +30,7 @@ describe('QueryString', (): void => {
             };
             return record;
         });
-        const result = await ValidateRequest.validate(faultyApiKey, LogConfig.get());
+        const result = await ValidateRequest.validate(faultyApiKey, new LambdaSession(), LogConfig.get());
         expect(result).not.toBe(null);
         if (result == null) throw new Error('Validate returns null result');
 
@@ -44,7 +43,7 @@ describe('QueryString', (): void => {
         const spy = jest.spyOn(Aws.api.db, 'get').mockImplementation(async () => {
             return null;
         });
-        const result = await ValidateRequest.validate(dummyApiKey, LogConfig.get());
+        const result = await ValidateRequest.validate(dummyApiKey, new LambdaSession(), LogConfig.get());
         expect(result).not.toBe(null);
         if (result == null) throw new Error('Validate returns null result');
 
@@ -67,7 +66,7 @@ describe('QueryString', (): void => {
             };
             return record;
         });
-        const result = await ValidateRequest.validate(mockApiKey, LogConfig.get());
+        const result = await ValidateRequest.validate(mockApiKey, new LambdaSession(), LogConfig.get());
         expect(result).not.toBe(null);
         if (result == null) throw new Error('Validate returns null result');
 

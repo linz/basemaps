@@ -2,7 +2,7 @@ process.env['COG_BUCKET'] = 'fake-bucket';
 
 jest.mock('@cogeotiff/core');
 
-import { Env, LambdaSession, LogConfig } from '@basemaps/shared';
+import { Env, LambdaSession, LogConfig } from '@basemaps/lambda-shared';
 import { ALBEvent } from 'aws-lambda';
 import { handleRequest } from '../index';
 import { Tilers } from '../tiler';
@@ -27,17 +27,16 @@ describe('LambdaXyz', () => {
     const rasterMockBuffer = Buffer.from([1]);
 
     beforeEach(() => {
-        LambdaSession.reset();
         LogConfig.disable();
 
         // Mock the tile generation
         Tilers.tile256 = new Tiler(256);
         Tilers.tile256.tile = tileMock;
-        Tilers.tile256.raster.compose = rasterMock;
+        Tilers.compose256 = { compose: rasterMock } as any;
         tileMock.mockReset();
         rasterMock.mockReset();
         tileMock.mockReturnValue(['TileMock']);
-        rasterMock.mockReturnValue(rasterMockBuffer);
+        rasterMock.mockReturnValue({ buffer: rasterMockBuffer });
 
         jest.spyOn(TiffUtil, 'getTiffsForQuadKey')
             .mockImplementation()
@@ -45,7 +44,8 @@ describe('LambdaXyz', () => {
     });
 
     it('should generate a tile 0,0,0', async () => {
-        const res = await handleRequest(req('/v1/group/0/0/0.png'), null as any, LogConfig.get());
+        const session = new LambdaSession();
+        const res = await handleRequest(req('/v1/group/0/0/0.png'), session, LogConfig.get());
         expect(res.status).toEqual(200);
         expect(res.headers).toEqual({
             'content-type': 'image/png',
@@ -64,7 +64,7 @@ describe('LambdaXyz', () => {
         expect(z).toEqual(0);
 
         // Validate the session information has been set correctly
-        const session = LambdaSession.get();
+
         expect(session.logContext['path']).toEqual('/v1/group/0/0/0.png');
         expect(session.logContext['method']).toEqual('get');
         expect(session.logContext['xyz']).toEqual({ x: 0, y: 0, z: 0 });
@@ -73,7 +73,7 @@ describe('LambdaXyz', () => {
 
     it('should 200 with empty png if a tile is out of bounds', async () => {
         tileMock.mockReset();
-        const res = await handleRequest(req('/v1/group/0/0/0.png'), null as any, LogConfig.get());
+        const res = await handleRequest(req('/v1/group/0/0/0.png'), new LambdaSession(), LogConfig.get());
         expect(res.status).toEqual(200);
         expect(tileMock.mock.calls.length).toEqual(1);
         expect(rasterMock.mock.calls.length).toEqual(0);
@@ -81,19 +81,20 @@ describe('LambdaXyz', () => {
 
     it('should 304 if a tile is not modified', async () => {
         const request = req('/v1/group/0/0/0.png');
+        const session = new LambdaSession();
+
         request.headers = { 'if-none-match': '"RnwuOlJd5MP0v69ddXhE66PUZyoKGfHTzBI1JMq7sMU="' };
-        const res = await handleRequest(request, null as any, LogConfig.get());
+        const res = await handleRequest(request, session, LogConfig.get());
         expect(res.status).toEqual(304);
         expect(tileMock.mock.calls.length).toEqual(1);
         expect(rasterMock.mock.calls.length).toEqual(0);
 
-        const session = LambdaSession.get();
         expect(session.logContext['cache'].hit).toEqual(true);
     });
 
     ['/favicon.ico', '/index.html', '/foo/bar'].forEach(path => {
         it('should error on invalid paths: ' + path, async () => {
-            const res = await handleRequest(req(path), null as any, LogConfig.get());
+            const res = await handleRequest(req(path), new LambdaSession(), LogConfig.get());
             expect(res.status).toEqual(404);
         });
     });
@@ -101,7 +102,7 @@ describe('LambdaXyz', () => {
     it('should respond to /version', async () => {
         process.env[Env.Version] = 'version';
         process.env[Env.Hash] = 'hash';
-        const res = await handleRequest(req('/version'), null as any, LogConfig.get());
+        const res = await handleRequest(req('/version'), new LambdaSession(), LogConfig.get());
         expect(res.statusDescription).toEqual('ok');
         expect(res.status).toEqual(200);
         expect(res.toResponse().body).toEqual(JSON.stringify({ version: 'version', hash: 'hash' }));
@@ -109,7 +110,7 @@ describe('LambdaXyz', () => {
     });
 
     it('should respond to /health', async () => {
-        const res = await handleRequest(req('/health'), null as any, LogConfig.get());
+        const res = await handleRequest(req('/health'), new LambdaSession(), LogConfig.get());
         expect(res.statusDescription).toEqual('ok');
         expect(res.status).toEqual(200);
         expect(res.toResponse().body).toEqual(JSON.stringify({ status: 200, message: 'ok' }));
@@ -117,7 +118,7 @@ describe('LambdaXyz', () => {
     });
 
     it('should respond to /ping', async () => {
-        const res = await handleRequest(req('/ping'), null as any, LogConfig.get());
+        const res = await handleRequest(req('/ping'), new LambdaSession(), LogConfig.get());
         expect(res.statusDescription).toEqual('ok');
         expect(res.status).toEqual(200);
         expect(res.toResponse().body).toEqual(JSON.stringify({ status: 200, message: 'ok' }));

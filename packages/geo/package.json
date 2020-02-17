@@ -1,0 +1,15 @@
+{
+  "name": "@basemaps/geo",
+  "version": "0.3.0",
+  "private": true,
+  "repository": "git@github.com:linz/basemaps.git",
+  "author": "",
+  "license": "BSD 3-Clause",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {},
+  "dependencies": {
+    "global-mercator": "^3.1.0"
+  },
+  "devDependencies": {}
+}

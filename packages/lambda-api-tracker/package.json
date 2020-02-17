@@ -6,7 +6,7 @@
   "author": "",
   "license": "BSD 3-Clause",
   "dependencies": {
-    "@basemaps/shared": "^0.3.0"
+    "@basemaps/lambda-shared": "^0.3.0"
   },
   "scripts": {
     "test": "jest",

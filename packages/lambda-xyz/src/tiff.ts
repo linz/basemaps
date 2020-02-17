@@ -1,4 +1,4 @@
-import { Env } from '@basemaps/shared';
+import { Env } from '@basemaps/lambda-shared';
 import { CogTiff } from '@cogeotiff/core';
 import { Mosaics } from './imagery/mosaics';
 import { MosaicCog } from './tiff.mosaic';

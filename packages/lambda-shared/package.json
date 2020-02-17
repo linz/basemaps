@@ -1,5 +1,5 @@
 {
-  "name": "@basemaps/shared",
+  "name": "@basemaps/lambda-shared",
   "version": "0.3.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
@@ -7,13 +7,9 @@
   "license": "BSD 3-Clause",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "build-watch": "tsc"
-  },
+  "scripts": {},
   "dependencies": {
     "aws-sdk": "^2.508.0",
-    "global-mercator": "^3.1.0",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
