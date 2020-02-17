@@ -1,14 +1,16 @@
 import { Env } from '../const';
+import * as o from 'ospec';
+import 'source-map-support/register';
 
-describe('Environment', () => {
-    it('should load a number from environment var', () => {
+o.spec('Environment', () => {
+    o('should load a number from environment var', () => {
         process.env[Env.TiffConcurrency] = '5';
-        expect(Env.getNumber(Env.TiffConcurrency, -1)).toEqual(5);
+        o(Env.getNumber(Env.TiffConcurrency, -1)).equals(5);
     });
 
-    it('should default from environment var', () => {
+    o('should default from environment var', () => {
         delete process.env[Env.TiffConcurrency];
-        expect(Env.getNumber(Env.TiffConcurrency, -1)).toEqual(-1);
-        expect(Env.get(Env.TiffConcurrency, 'foo')).toEqual('foo');
+        o(Env.getNumber(Env.TiffConcurrency, -1)).equals(-1);
+        o(Env.get(Env.TiffConcurrency, 'foo')).equals('foo');
     });
 });

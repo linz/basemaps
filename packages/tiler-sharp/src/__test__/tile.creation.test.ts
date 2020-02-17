@@ -6,8 +6,8 @@ import { PNG } from 'pngjs';
 import { Tiler } from '@basemaps/tiler';
 import PixelMatch = require('pixelmatch');
 import { TileMakerSharp } from '..';
-
-// To regenerate all the expected images set this to true and run the tests
+import * as o from 'ospec';
+// To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;
 
 function getExpectedTileName(tileSize: number, x: number, y: number, zoom: number): string {
@@ -19,30 +19,37 @@ function getExpectedTile(tileSize: number, x: number, y: number, zoom: number): 
     return PNG.sync.read(bytes);
 }
 
-describe('TileCreation', () => {
+o.spec('TileCreation', () => {
     // Tiff that is tiled and has WebMercator alignment for its resolution levels
     const tiffPath = path.join(__dirname, '../../data/rgba8_tiled.wm.tiff');
-    const tiff = new CogTiff(new CogSourceFile(tiffPath));
+    let tiff: CogTiff;
+    let tiffSource: CogSourceFile;
 
-    beforeEach(async () => {
+    o.beforeEach(async () => {
+        tiffSource = new CogSourceFile(tiffPath);
+        tiff = new CogTiff(tiffSource);
         await tiff.init();
     });
 
-    it('should generate a tile', async () => {
+    o.afterEach(async () => {
+        await tiffSource.close();
+    });
+
+    o('should generate a tile', async () => {
         // Make a really large tile so this image will be visible at zoom zero
         const tiler = new Tiler(2 ** 20);
         const layers = await tiler.tile([tiff], 0, 0, 0);
 
-        expect(layers).not.toEqual(null);
+        o(layers).notEquals(null);
         if (layers == null) throw new Error('Tile is null');
 
-        expect(layers.length).toEqual(1);
+        o(layers.length).equals(1);
         const [layer] = layers;
-        expect(layer.id).toEqual(tiff.source.name);
-        expect(layer.extract).toEqual({ height: 16, width: 16 });
-        expect(layer.resize).toEqual({ height: 2, width: 2 });
-        expect(layer.x).toEqual(tiler.tileSize / 2);
-        expect(layer.y).toEqual(tiler.tileSize / 2);
+        o(layer.id).equals(tiff.source.name);
+        o(layer.extract).deepEquals({ height: 16, width: 16 });
+        o(layer.resize).deepEquals({ height: 2, width: 2 });
+        o(layer.x).equals(tiler.tileSize / 2);
+        o(layer.y).equals(tiler.tileSize / 2);
     });
     const RenderTests = [
         { tileSize: 256, zoom: 18 },
@@ -62,7 +69,9 @@ describe('TileCreation', () => {
     }
 
     RenderTests.forEach(({ tileSize, zoom }) => {
-        it(`should render a tile zoom:${zoom} tile: ${tileSize}`, async () => {
+        o(`should render a tile zoom:${zoom} tile: ${tileSize}`, async () => {
+            o.timeout(30 * 1000);
+
             console.time(`Render zoom:${zoom} size:${tileSize}`);
             const center = 2 ** zoom;
             const centerTile = center / 2;
@@ -73,7 +82,7 @@ describe('TileCreation', () => {
             // Make the background black to easily spot flaws
             tileMaker.background.alpha = 1;
             const layers = await tiler.tile([tiff], centerTile, centerTile, zoom);
-            expect(layers).not.toEqual(null);
+            o(layers).notEquals(null);
             if (layers == null) throw new Error('Tile is null');
 
             const png = await tileMaker.compose(layers);
@@ -83,16 +92,16 @@ describe('TileCreation', () => {
                 writeFileSync(fileName, png);
             }
 
-            const expectedImage = await getExpectedTile(tileSize, centerTile, centerTile, zoom);
+            const oedImage = await getExpectedTile(tileSize, centerTile, centerTile, zoom);
 
-            const missMatchedPixels = PixelMatch(expectedImage.data, newImage.data, null, tileSize, tileSize);
+            const missMatchedPixels = PixelMatch(oedImage.data, newImage.data, null, tileSize, tileSize);
             if (missMatchedPixels > 0) {
                 const fileName = getExpectedTileName(tileSize, centerTile, centerTile, zoom) + '.diff.png';
                 const output = new PNG({ width: tileSize, height: tileSize });
-                PixelMatch(expectedImage.data, newImage.data, output.data, tileSize, tileSize);
+                PixelMatch(oedImage.data, newImage.data, output.data, tileSize, tileSize);
                 writeFileSync(fileName, PNG.sync.write(output));
             }
-            expect(missMatchedPixels).toEqual(0);
+            o(missMatchedPixels).equals(0);
             console.timeEnd(`Render zoom:${zoom} size:${tileSize}`);
         });
     });

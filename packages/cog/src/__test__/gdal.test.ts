@@ -1,31 +1,30 @@
 import { GdalCogBuilder } from '../gdal';
+import * as o from 'ospec';
 
-jest.mock('child_process');
-
-describe('GdalCogBuilder', () => {
-    it('should default all options', () => {
+o.spec('GdalCogBuilder', () => {
+    o('should default all options', () => {
         const builder = new GdalCogBuilder('/foo', 'bar.tiff');
 
-        expect(builder.config.bbox).toEqual(undefined);
-        expect(builder.config.compression).toEqual('webp');
-        expect(builder.config.resampling).toEqual('lanczos');
-        expect(builder.config.blockSize).toEqual(512);
-        expect(builder.config.alignmentLevels).toEqual(1);
+        o(builder.config.bbox).equals(undefined);
+        o(builder.config.compression).equals('webp');
+        o(builder.config.resampling).equals('lanczos');
+        o(builder.config.blockSize).equals(512);
+        o(builder.config.alignmentLevels).equals(1);
     });
 
-    it('should create a docker command', () => {
+    o('should create a docker command', () => {
         const builder = new GdalCogBuilder('/foo/foo.tiff', '/bar/bar.tiff');
 
         const args = builder.args;
 
-        expect(args.includes('TILING_SCHEME=GoogleMapsCompatible')).toEqual(true);
-        expect(args.includes('COMPRESS=webp')).toEqual(true);
-        expect(builder.args.includes('BLOCKSIZE=512')).toEqual(true);
+        o(args.includes('TILING_SCHEME=GoogleMapsCompatible')).equals(true);
+        o(args.includes('COMPRESS=webp')).equals(true);
+        o(builder.args.includes('BLOCKSIZE=512')).equals(true);
 
         builder.config.compression = 'jpeg';
-        expect(builder.args.includes('COMPRESS=jpeg')).toEqual(true);
+        o(builder.args.includes('COMPRESS=jpeg')).equals(true);
 
         builder.config.blockSize = 256;
-        expect(builder.args.includes('BLOCKSIZE=256')).toEqual(true);
+        o(builder.args.includes('BLOCKSIZE=256')).equals(true);
     });
 });

@@ -5,10 +5,12 @@ import * as path from 'path';
 import { Tiler } from '@basemaps/tiler';
 import { Metrics } from '@basemaps/metrics';
 import { TileMakerSharp } from '..';
+import * as o from 'ospec';
+import 'source-map-support/register';
 
-describe('TileCreationBenchmark', () => {
+o.spec('TileCreationBenchmark', () => {
     const NanoSecondToMillisecond = 1e6;
-    const RenderCount = 5;
+    const RenderCount = process.env.GITHUB_ACTIONS ? 5 : 1;
     const TimeoutSeconds = 30 * 1000;
     const Zoom = 19;
 
@@ -22,7 +24,8 @@ describe('TileCreationBenchmark', () => {
         const tileMaker = new TileMakerSharp(tileSize);
 
         timer.start('tiff:init');
-        const tiff = new CogTiff(new CogSourceFile(TiffPath));
+        const source = new CogSourceFile(TiffPath);
+        const tiff = new CogTiff(source);
         await tiff.init();
         timer.end('tiff:init');
 
@@ -32,13 +35,14 @@ describe('TileCreationBenchmark', () => {
 
         if (layers == null) throw new Error('Tile is null');
         await tileMaker.compose(layers);
+
+        await source.close();
     }
     const results: Record<string, Record<string, number[]>> = {};
 
     [256, 512].forEach(tileSize => {
-        it(`should render ${RenderCount}x${tileSize} tiles`, async () => {
-            jest.setTimeout(TimeoutSeconds);
-
+        o(`should render ${RenderCount}x${tileSize} tiles`, async () => {
+            o.timeout(TimeoutSeconds);
             const metrics: Record<string, number[]> = {};
 
             for (let i = 0; i < RenderCount; i++) {
@@ -77,10 +81,10 @@ describe('TileCreationBenchmark', () => {
     }
 
     // TODO logging this out is not ideal, we should look into publishing the results of the benchmarks somewhere
-    afterAll(() => {
+    o.after(() => {
         for (const key of Object.keys(results)) {
             console.log(key, results[key], computeStats(results[key]));
         }
-        writeFileSync('./benchmarks.json', JSON.stringify(results, null, 2));
+        writeFileSync('./benchmarks.dat', JSON.stringify(results, null, 2));
     });
 });

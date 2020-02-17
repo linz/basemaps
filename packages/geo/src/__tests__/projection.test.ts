@@ -1,24 +1,25 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { LatLon, Projection } from '../projection';
 import { approxEqual } from './bounds.tile.test';
+import * as o from 'ospec';
 
 const Wgs84Bound = { lat: 85.0511287798066, lon: 180 };
 
-describe('Projection', () => {
+o.spec('Projection', () => {
     const proj256 = new Projection(256);
     const proj512 = new Projection(512);
 
-    it('should create tile sized bounds', () => {
+    o('should create tile sized bounds', () => {
         const bounds256 = proj256.getPixelsFromTile(1, 2);
-        expect(bounds256.toJson()).toEqual({ x: 256, y: 512, width: 256, height: 256 });
+        o(bounds256.toJson()).deepEquals({ x: 256, y: 512, width: 256, height: 256 });
 
         const bounds512 = proj512.getPixelsFromTile(1, 2);
-        expect(bounds512.toJson()).toEqual({ x: 512, y: 1024, width: 512, height: 512 });
+        o(bounds512.toJson()).deepEquals({ x: 512, y: 1024, width: 512, height: 512 });
     });
 
-    it('should get center of tile', () => {
+    o('should get center of tile', () => {
         const latLon0 = proj256.getLatLonCenterFromTile(0, 0, 0);
-        expect(latLon0).toEqual({ lat: 0, lon: 0 });
+        o(latLon0).deepEquals({ lat: 0, lon: 0 });
 
         const latLonA = proj256.getLatLonCenterFromTile(0, 0, 1);
         const latLonB = proj256.getLatLonCenterFromTile(0, 1, 1);

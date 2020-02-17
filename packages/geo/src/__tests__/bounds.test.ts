@@ -1,38 +1,40 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Bounds } from '../bounds';
+import * as o from 'ospec';
+
 const TILE_SIZE = 256;
 function getTile(x = 0, y = 0): Bounds {
     return new Bounds(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 }
 
-describe('Bounds', (): void => {
+o.spec('Bounds', (): void => {
     const tileZero = getTile(0, 0);
     const tileMiddle = new Bounds(128, 128, 256, 256);
 
-    it('intersects', (): void => {
-        expect(tileZero.intersects(tileZero)).toEqual(true);
-        expect(tileZero.intersects(new Bounds(0, 0, 10, 10))).toEqual(true);
-        expect(tileZero.intersects(new Bounds(-10, -10, 10, 10))).toEqual(false);
-        expect(tileZero.intersects(getTile(0, 1))).toEqual(false);
-        expect(tileZero.intersects(getTile(1, 0))).toEqual(false);
-        expect(tileZero.intersects(getTile(1, 1))).toEqual(false);
+    o('intersects', (): void => {
+        o(tileZero.intersects(tileZero)).equals(true);
+        o(tileZero.intersects(new Bounds(0, 0, 10, 10))).equals(true);
+        o(tileZero.intersects(new Bounds(-10, -10, 10, 10))).equals(false);
+        o(tileZero.intersects(getTile(0, 1))).equals(false);
+        o(tileZero.intersects(getTile(1, 0))).equals(false);
+        o(tileZero.intersects(getTile(1, 1))).equals(false);
     });
 
-    it('intersects bounds', (): void => {
-        expect(tileZero.intersection(new Bounds(-10, -10, 10, 10))).toEqual(null);
-        expect(tileZero.intersection(getTile(0, 1))).toEqual(null);
-        expect(tileZero.intersection(getTile(1, 0))).toEqual(null);
-        expect(tileZero.intersection(getTile(1, 1))).toEqual(null);
-        expect(tileMiddle.intersection(getTile(0, 0))!.toJson()).toEqual(new Bounds(128, 128, 128, 128).toJson());
-        expect(tileMiddle.intersection(getTile(1, 0))!.toJson()).toEqual(new Bounds(256, 128, 128, 128).toJson());
-        expect(tileMiddle.intersection(getTile(1, 1))!.toJson()).toEqual(new Bounds(256, 256, 128, 128).toJson());
-        expect(tileMiddle.intersection(getTile(0, 1))!.toJson()).toEqual(new Bounds(128, 256, 128, 128).toJson());
+    o('intersects bounds', (): void => {
+        o(tileZero.intersection(new Bounds(-10, -10, 10, 10))).equals(null);
+        o(tileZero.intersection(getTile(0, 1))).equals(null);
+        o(tileZero.intersection(getTile(1, 0))).equals(null);
+        o(tileZero.intersection(getTile(1, 1))).equals(null);
+        o(tileMiddle.intersection(getTile(0, 0))!.toJson()).deepEquals(new Bounds(128, 128, 128, 128).toJson());
+        o(tileMiddle.intersection(getTile(1, 0))!.toJson()).deepEquals(new Bounds(256, 128, 128, 128).toJson());
+        o(tileMiddle.intersection(getTile(1, 1))!.toJson()).deepEquals(new Bounds(256, 256, 128, 128).toJson());
+        o(tileMiddle.intersection(getTile(0, 1))!.toJson()).deepEquals(new Bounds(128, 256, 128, 128).toJson());
     });
 
-    it('shift intersects', (): void => {
-        expect(tileZero.intersects(tileZero.subtract(tileZero))).toEqual(true);
-        expect(tileZero.intersects(tileZero.add(tileZero).subtract(tileZero))).toEqual(true);
-        expect(tileZero.intersects(tileZero.subtract(tileMiddle))).toEqual(true);
-        expect(tileZero.intersects(tileZero.add(tileMiddle))).toEqual(true);
+    o('shift intersects', (): void => {
+        o(tileZero.intersects(tileZero.subtract(tileZero))).equals(true);
+        o(tileZero.intersects(tileZero.add(tileZero).subtract(tileZero))).equals(true);
+        o(tileZero.intersects(tileZero.subtract(tileMiddle))).equals(true);
+        o(tileZero.intersects(tileZero.add(tileMiddle))).equals(true);
     });
 });
