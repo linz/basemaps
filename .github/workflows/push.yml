@@ -29,6 +29,9 @@ jobs:
       - name: Test
         run: yarn run test
 
+      - name: Benchmark
+        run: yarn run benchmark
+
       - name: Deploy - Bundle
         run: npx lerna run deploy:bundle --stream
 
