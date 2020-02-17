@@ -1,36 +1,37 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Metrics } from '../metrics';
+import * as o from 'ospec';
 
-describe('Metrics', () => {
-    it('should give a empty object if no metrics were recorded', () => {
+o.spec('Metrics', () => {
+    o('should give a empty object if no metrics were recorded', () => {
         const metrics = new Metrics();
-        expect(metrics.metrics).toEqual(undefined);
+        o(metrics.metrics).equals(undefined);
     });
 
-    it('should throw if start/end mismatch', () => {
+    o('should throw if start/end mismatch', () => {
         const metrics = new Metrics();
         metrics.start('foo');
-        expect(metrics.unfinished).toEqual(['foo']);
+        o(metrics.unfinished).deepEquals(['foo']);
     });
 
-    it('should throw an Error if end before start', () => {
+    o('should throw an Error if end before start', () => {
         const metrics = new Metrics();
-        expect(function() {
+        o(function() {
             metrics.end('bar');
-        }).toThrow(Error);
+        }).throws(Error);
     });
 
-    it('should return two unfinished entries', () => {
+    o('should return two unfinished entries', () => {
         const metrics = new Metrics();
         metrics.start('foo');
         metrics.start('bar');
-        expect(metrics.unfinished).toEqual(['foo', 'bar']);
+        o(metrics.unfinished).deepEquals(['foo', 'bar']);
     });
 
-    it('should return empty unfinished metric list using start/end', () => {
+    o('should return empty unfinished metric list using start/end', () => {
         const metrics = new Metrics();
         metrics.start('foo');
         metrics.end('foo');
-        expect(metrics.unfinished).toEqual(undefined);
+        o(metrics.unfinished).equals(undefined);
     });
 });

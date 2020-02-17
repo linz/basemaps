@@ -1,63 +1,74 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { ALBResult, CloudFrontResultResponse } from 'aws-lambda';
+import * as o from 'ospec';
+import 'source-map-support/register';
 import { HttpHeader } from '../header';
 import { LambdaFunction } from '../lambda';
 import { LambdaHttpResponseAlb } from '../lambda.response.alb';
 import { LambdaType } from '../lambda.response.http';
-import { LogSpy } from './log.spy';
+import { LogConfig } from '../log';
 
-describe('LambdaFunction', () => {
+o.spec('LambdaFunction', () => {
     const DoneError = new Error('Done');
     const asyncThrow = async () => {
         throw DoneError;
     };
 
-    it('should generate a alb response on error', async () => {
+    o.beforeEach(() => {
+        LogConfig.disable();
+    });
+
+    o('should generate a alb response on error', async () => {
         const testFunc = LambdaFunction.wrap(LambdaType.Alb, asyncThrow);
 
-        const cb = jest.fn();
-        await testFunc(null as any, null as any, cb);
-        expect(cb).toBeCalledTimes(1);
-        const [firstCall] = cb.mock.calls;
-        const err = firstCall[0];
-        const res = firstCall[1] as ALBResult;
+        const spy = o.spy();
+        await testFunc(null as any, null as any, spy);
+        o(spy.calls.length).equals(1);
+        const err = spy.args[0];
+        const res = spy.args[1] as ALBResult;
 
-        expect(err).toEqual(null);
-        expect(res.statusCode).toEqual(500);
-        expect(res.statusDescription).toEqual('Internal Server Error');
-        expect(res.body).toEqual(JSON.stringify({ status: res.statusCode, message: res.statusDescription }));
-        expect(res.isBase64Encoded).toEqual(false);
-        expect(res.headers).not.toEqual(null);
+        o(err).equals(null);
+        o(res.statusCode).equals(500);
+        o(res.statusDescription).equals('Internal Server Error');
+        o(res.body).equals(JSON.stringify({ status: res.statusCode, message: res.statusDescription }));
+        o(res.isBase64Encoded).equals(false);
+        o(res.headers).notEquals(undefined);
         if (res.headers == null) return; // Typeguard to make typescript happy
 
         const requestId = res.headers[HttpHeader.RequestId.toLowerCase()];
-        expect(typeof requestId).toEqual('string');
+        o(typeof requestId).equals('string');
     });
 
-    it('should generate a cloudfront response on error', async () => {
+    o('should generate a cloudfront response on error', async () => {
         const testFunc = LambdaFunction.wrap(LambdaType.CloudFront, asyncThrow);
 
-        const cb = jest.fn();
-        await testFunc(null as any, null as any, cb);
-        expect(cb).toBeCalledTimes(1);
-        const [firstCall] = cb.mock.calls;
-        const err = firstCall[0];
-        const res = firstCall[1] as CloudFrontResultResponse;
+        const spy = o.spy();
+        await testFunc(null as any, null as any, spy);
+        o(spy.calls.length).equals(1);
+        const err = spy.args[0];
+        const res = spy.args[1] as CloudFrontResultResponse;
 
-        expect(err).toEqual(null);
-        expect(res.status).toEqual('500');
-        expect(res.statusDescription).toEqual('Internal Server Error');
-        expect(res.body).toEqual(JSON.stringify({ status: 500, message: res.statusDescription }));
-        expect(res.bodyEncoding).toEqual('text');
-        expect(res.headers).not.toEqual(null);
+        o(err).equals(null);
+        o(res.status).equals('500');
+        o(res.statusDescription).equals('Internal Server Error');
+        o(res.body).equals(JSON.stringify({ status: 500, message: res.statusDescription }));
+        o(res.bodyEncoding).equals('text');
+        o(res.headers).notEquals(undefined);
         if (res.headers == null) return; // Typeguard to make typescript happy
 
         const requestId = res.headers[HttpHeader.RequestId.toLowerCase()];
-        expect(Array.isArray(requestId)).toEqual(true);
+        o(Array.isArray(requestId)).equals(true);
     });
 
-    it('should callback on success', async () => {
+    o('should callback on success', async () => {
         const albOk = new LambdaHttpResponseAlb(200, 'ok');
+        const logs: [Record<string, any>, string][] = [];
+        LogConfig.set({
+            info: (a: Record<string, any>, b: string) => logs.push([a, b]),
+            child: function() {
+                return this;
+            },
+        } as any);
 
         const testFunc = LambdaFunction.wrap(LambdaType.Alb, async (args, session) => {
             const { timer } = session;
@@ -66,15 +77,15 @@ describe('LambdaFunction', () => {
             return albOk;
         });
 
-        const cbSpy = jest.fn();
-        await testFunc(null as any, null as any, cbSpy);
-        expect(cbSpy).toBeCalledTimes(1);
-        expect(cbSpy).toBeCalledWith(null, albOk.toResponse());
+        const spy = o.spy();
+        await testFunc(null as any, null as any, spy);
+        o(spy.calls.length).equals(1);
+        o(spy.args[1]).deepEquals(albOk.toResponse());
 
-        expect(LogSpy.mock.calls.length).toBeGreaterThan(1);
-        const lastCall = LogSpy.mock.calls[LogSpy.mock.calls.length - 1];
-        const json = JSON.parse(lastCall[0]);
-        expect(json.duration).toBeGreaterThan(-1);
-        expect(json.metrics.xxx).toBeGreaterThan(-1);
+        o(logs.length > 1).equals(true);
+        const lastCall = logs[logs.length - 1];
+        const json = lastCall[0];
+        o(json.duration > -1).equals(true);
+        o(json.metrics.xxx > -1).equals(true);
     });
 });

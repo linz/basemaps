@@ -1,28 +1,29 @@
 import { QuadKey } from '../quad.key';
+import * as o from 'ospec';
 
-describe('QuadKey', () => {
-    it('should intersect big to small', () => {
-        expect(QuadKey.intersects('', '30003303')).toEqual(true);
+o.spec('QuadKey', () => {
+    o('should intersect big to small', () => {
+        o(QuadKey.intersects('', '30003303')).equals(true);
 
-        expect(QuadKey.intersects('3', '30')).toEqual(true);
-        expect(QuadKey.intersects('3', '301')).toEqual(true);
-        expect(QuadKey.intersects('3', '333')).toEqual(true);
-        expect(QuadKey.intersects('33', '30')).toEqual(false);
-        expect(QuadKey.intersects('33', '301')).toEqual(false);
-        expect(QuadKey.intersects('33', '333')).toEqual(true);
+        o(QuadKey.intersects('3', '30')).equals(true);
+        o(QuadKey.intersects('3', '301')).equals(true);
+        o(QuadKey.intersects('3', '333')).equals(true);
+        o(QuadKey.intersects('33', '30')).equals(false);
+        o(QuadKey.intersects('33', '301')).equals(false);
+        o(QuadKey.intersects('33', '333')).equals(true);
     });
 
-    it('should not intersect other cells', () => {
-        expect(QuadKey.intersects('0', '30003303')).toEqual(false);
-        expect(QuadKey.intersects('1', '30003303')).toEqual(false);
-        expect(QuadKey.intersects('2', '30003303')).toEqual(false);
-        expect(QuadKey.intersects('31', '30003303')).toEqual(false);
+    o('should not intersect other cells', () => {
+        o(QuadKey.intersects('0', '30003303')).equals(false);
+        o(QuadKey.intersects('1', '30003303')).equals(false);
+        o(QuadKey.intersects('2', '30003303')).equals(false);
+        o(QuadKey.intersects('31', '30003303')).equals(false);
     });
 
-    it('should intersect small to big', () => {
-        expect(QuadKey.intersects('331', '3')).toEqual(true);
-        expect(QuadKey.intersects('331', '30')).toEqual(false);
-        expect(QuadKey.intersects('331', '301')).toEqual(false);
-        expect(QuadKey.intersects('331', '333')).toEqual(false);
+    o('should intersect small to big', () => {
+        o(QuadKey.intersects('331', '3')).equals(true);
+        o(QuadKey.intersects('331', '30')).equals(false);
+        o(QuadKey.intersects('331', '301')).equals(false);
+        o(QuadKey.intersects('331', '333')).equals(false);
     });
 });

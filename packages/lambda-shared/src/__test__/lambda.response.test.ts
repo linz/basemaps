@@ -3,11 +3,13 @@ import { LambdaHttp } from '../lambda.response';
 import { LambdaHttpResponseAlb } from '../lambda.response.alb';
 import { LambdaHttpResponseCloudFront } from '../lambda.response.cf';
 import { LambdaType } from '../lambda.response.http';
+import * as o from 'ospec';
+import 'source-map-support/register';
 
-describe('LambdaResponse', () => {
-    it('should create a cloudfront response', () => {
+o.spec('LambdaResponse', () => {
+    o('should create a cloudfront response', () => {
         const res = new LambdaHttpResponseCloudFront(200, 'ok');
-        expect(res.toResponse()).toEqual({
+        o(res.toResponse()).deepEquals({
             status: '200',
             statusDescription: 'ok',
             headers: { 'content-type': [{ key: 'Content-Type', value: 'application/json' }] },
@@ -16,9 +18,9 @@ describe('LambdaResponse', () => {
         });
     });
 
-    it('should create a cloudfront response [using LambdaHttp.create]', () => {
+    o('should create a cloudfront response [using LambdaHttp.create]', () => {
         const res = LambdaHttp.create(LambdaType.CloudFront, 200, 'ok');
-        expect(res.toResponse()).toEqual({
+        o(res.toResponse()).deepEquals({
             status: '200',
             statusDescription: 'ok',
             headers: { 'content-type': [{ key: 'Content-Type', value: 'application/json' }] },
@@ -27,10 +29,10 @@ describe('LambdaResponse', () => {
         });
     });
 
-    it('should create a alb response', () => {
+    o('should create a alb response', () => {
         const res = new LambdaHttpResponseAlb(200, 'ok');
 
-        expect(res.toResponse()).toEqual({
+        o(res.toResponse()).deepEquals({
             statusCode: 200,
             statusDescription: 'ok',
             headers: { 'content-type': 'application/json' },
@@ -39,10 +41,10 @@ describe('LambdaResponse', () => {
         });
     });
 
-    it('should create a alb response [using LambdaHttp.create]', () => {
+    o('should create a alb response [using LambdaHttp.create]', () => {
         const res = LambdaHttp.create(LambdaType.Alb, 200, 'ok');
 
-        expect(res.toResponse()).toEqual({
+        o(res.toResponse()).deepEquals({
             statusCode: 200,
             statusDescription: 'ok',
             headers: { 'content-type': 'application/json' },
@@ -51,11 +53,11 @@ describe('LambdaResponse', () => {
         });
     });
 
-    it('should create a json alb response', () => {
+    o('should create a json alb response', () => {
         const res = new LambdaHttpResponseAlb(200, 'ok');
         res.json({ foo: 'bar' });
 
-        expect(res.toResponse()).toEqual({
+        o(res.toResponse()).deepEquals({
             statusCode: 200,
             statusDescription: 'ok',
             body: JSON.stringify({ foo: 'bar' }),
@@ -64,12 +66,12 @@ describe('LambdaResponse', () => {
         });
     });
 
-    it('should create a binary alb response', () => {
+    o('should create a binary alb response', () => {
         const res = new LambdaHttpResponseAlb(200, 'ok');
         const buff = Buffer.from([123]);
         res.buffer(buff, 'image/png');
 
-        expect(res.toResponse()).toEqual({
+        o(res.toResponse()).deepEquals({
             statusCode: 200,
             statusDescription: 'ok',
             body: buff.toString('base64'),

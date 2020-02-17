@@ -7,7 +7,9 @@
   "license": "BSD 3-Clause",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
-  "scripts": {},
+  "scripts": {
+    "test": "ospec build/**/*.test.js"
+  },
   "dependencies": {
     "global-mercator": "^3.1.0"
   },

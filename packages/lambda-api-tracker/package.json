@@ -9,7 +9,7 @@
     "@basemaps/lambda-shared": "^0.3.0"
   },
   "scripts": {
-    "test": "jest",
+    "test": "ospec build/**/*.test.js",
     "deploy:bundle": "webpack"
   },
   "devDependencies": {

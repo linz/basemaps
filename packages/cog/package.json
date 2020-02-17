@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "deploy:bundle": "ncc build build/cli/index.js -o dist -s",
-    "test": "jest"
+    "test": "ospec build/**/*.test.js"
   },
   "dependencies": {
     "@basemaps/lambda-shared": "^0.3.0",

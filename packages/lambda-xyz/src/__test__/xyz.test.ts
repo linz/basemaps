@@ -1,16 +1,16 @@
-process.env['COG_BUCKET'] = 'fake-bucket';
-
-jest.mock('@cogeotiff/core');
-
+// process.env['COG_BUCKET'] = 'fake-bucket';
 import { Env, LambdaSession, LogConfig } from '@basemaps/lambda-shared';
-import { ALBEvent } from 'aws-lambda';
-import { handleRequest } from '../index';
-import { Tilers } from '../tiler';
 import { Tiler } from '@basemaps/tiler';
+import { TileMakerSharp } from '@basemaps/tiler-sharp';
+import { ALBEvent } from 'aws-lambda';
+import * as o from 'ospec';
+import 'source-map-support/register';
+import { handleRequest } from '../index';
 import { TiffUtil } from '../tiff';
+import { Tilers } from '../tiler';
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-describe('LambdaXyz', () => {
+o.spec('LambdaXyz', () => {
     /** Generate mock ALBEvent */
     function req(path: string, method = 'get'): ALBEvent {
         return {
@@ -22,106 +22,110 @@ describe('LambdaXyz', () => {
         };
     }
 
-    const tileMock = jest.fn();
-    const rasterMock = jest.fn();
+    let tileMock = o.spy();
+    let rasterMock = o.spy();
     const rasterMockBuffer = Buffer.from([1]);
 
-    beforeEach(() => {
+    o.beforeEach(() => {
         LogConfig.disable();
+        tileMock = o.spy(() => ['TileMock']) as any;
+        rasterMock = o.spy(() => {
+            return {
+                buffer: rasterMockBuffer,
+            };
+        }) as any;
 
         // Mock the tile generation
         Tilers.tile256 = new Tiler(256);
-        Tilers.tile256.tile = tileMock;
+        Tilers.tile256.tile = tileMock as any;
         Tilers.compose256 = { compose: rasterMock } as any;
-        tileMock.mockReset();
-        rasterMock.mockReset();
-        tileMock.mockReturnValue(['TileMock']);
-        rasterMock.mockReturnValue({ buffer: rasterMockBuffer });
 
-        jest.spyOn(TiffUtil, 'getTiffsForQuadKey')
-            .mockImplementation()
-            .mockReturnValue([]);
+        // tileMock.mockReturnValue(['TileMock']);
+        // rasterMock.mockReturnValue({ buffer: rasterMockBuffer });
+
+        TiffUtil.getTiffsForQuadKey = () => [];
     });
 
-    it('should generate a tile 0,0,0', async () => {
+    o.afterEach(() => {
+        Tilers.tile256 = new Tiler(256);
+        Tilers.compose256 = new TileMakerSharp(256);
+    });
+
+    o('should generate a tile 0,0,0', async () => {
         const session = new LambdaSession();
         const res = await handleRequest(req('/v1/group/0/0/0.png'), session, LogConfig.get());
-        expect(res.status).toEqual(200);
-        expect(res.headers).toEqual({
+        o(res.status).equals(200);
+        o(res.headers).deepEquals({
             'content-type': 'image/png',
             // TODO Should we hardcode a base64'd hash here?
             etag: 'RnwuOlJd5MP0v69ddXhE66PUZyoKGfHTzBI1JMq7sMU=',
         });
-        expect(res.toResponse().body).toEqual(rasterMockBuffer.toString('base64'));
+        o(res.toResponse().body).equals(rasterMockBuffer.toString('base64'));
 
-        expect(tileMock.mock.calls.length).toEqual(1);
-        const [firstCall] = tileMock.mock.calls;
-
-        const [tiffs, x, y, z] = firstCall;
-        expect(tiffs).toEqual([]);
-        expect(x).toEqual(0);
-        expect(y).toEqual(0);
-        expect(z).toEqual(0);
+        o(tileMock.calls.length).equals(1);
+        const [tiffs, x, y, z] = tileMock.args;
+        o(tiffs).deepEquals([]);
+        o(x).equals(0);
+        o(y).equals(0);
+        o(z).equals(0);
 
         // Validate the session information has been set correctly
-
-        expect(session.logContext['path']).toEqual('/v1/group/0/0/0.png');
-        expect(session.logContext['method']).toEqual('get');
-        expect(session.logContext['xyz']).toEqual({ x: 0, y: 0, z: 0 });
-        expect(session.logContext['location']).toEqual({ lat: 0, lon: 0 });
+        o(session.logContext['path']).equals('/v1/group/0/0/0.png');
+        o(session.logContext['method']).equals('get');
+        o(session.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
+        o(session.logContext['location']).deepEquals({ lat: 0, lon: 0 });
     });
 
-    it('should 200 with empty png if a tile is out of bounds', async () => {
-        tileMock.mockReset();
+    o('should 200 with empty png if a tile is out of bounds', async () => {
+        Tilers.tile256.tile = async () => null;
         const res = await handleRequest(req('/v1/group/0/0/0.png'), new LambdaSession(), LogConfig.get());
-        expect(res.status).toEqual(200);
-        expect(tileMock.mock.calls.length).toEqual(1);
-        expect(rasterMock.mock.calls.length).toEqual(0);
+        o(res.status).equals(200);
+        o(rasterMock.calls.length).equals(0);
     });
 
-    it('should 304 if a tile is not modified', async () => {
+    o('should 304 if a tile is not modified', async () => {
         const request = req('/v1/group/0/0/0.png');
         const session = new LambdaSession();
 
         request.headers = { 'if-none-match': '"RnwuOlJd5MP0v69ddXhE66PUZyoKGfHTzBI1JMq7sMU="' };
         const res = await handleRequest(request, session, LogConfig.get());
-        expect(res.status).toEqual(304);
-        expect(tileMock.mock.calls.length).toEqual(1);
-        expect(rasterMock.mock.calls.length).toEqual(0);
+        o(res.status).equals(304);
+        o(tileMock.calls.length).equals(1);
+        o(rasterMock.calls.length).equals(0);
 
-        expect(session.logContext['cache'].hit).toEqual(true);
+        o(session.logContext['cache'].hit).equals(true);
     });
 
     ['/favicon.ico', '/index.html', '/foo/bar'].forEach(path => {
-        it('should error on invalid paths: ' + path, async () => {
+        o('should error on invalid paths: ' + path, async () => {
             const res = await handleRequest(req(path), new LambdaSession(), LogConfig.get());
-            expect(res.status).toEqual(404);
+            o(res.status).equals(404);
         });
     });
 
-    it('should respond to /version', async () => {
+    o('should respond to /version', async () => {
         process.env[Env.Version] = 'version';
         process.env[Env.Hash] = 'hash';
         const res = await handleRequest(req('/version'), new LambdaSession(), LogConfig.get());
-        expect(res.statusDescription).toEqual('ok');
-        expect(res.status).toEqual(200);
-        expect(res.toResponse().body).toEqual(JSON.stringify({ version: 'version', hash: 'hash' }));
-        expect(res.toResponse().headers).toEqual({ 'content-type': 'application/json' });
+        o(res.statusDescription).equals('ok');
+        o(res.status).equals(200);
+        o(res.toResponse().body).equals(JSON.stringify({ version: 'version', hash: 'hash' }));
+        o(res.toResponse().headers).deepEquals({ 'content-type': 'application/json' });
     });
 
-    it('should respond to /health', async () => {
+    o('should respond to /health', async () => {
         const res = await handleRequest(req('/health'), new LambdaSession(), LogConfig.get());
-        expect(res.statusDescription).toEqual('ok');
-        expect(res.status).toEqual(200);
-        expect(res.toResponse().body).toEqual(JSON.stringify({ status: 200, message: 'ok' }));
-        expect(res.toResponse().headers).toEqual({ 'content-type': 'application/json' });
+        o(res.statusDescription).equals('ok');
+        o(res.status).equals(200);
+        o(res.toResponse().body).equals(JSON.stringify({ status: 200, message: 'ok' }));
+        o(res.toResponse().headers).deepEquals({ 'content-type': 'application/json' });
     });
 
-    it('should respond to /ping', async () => {
+    o('should respond to /ping', async () => {
         const res = await handleRequest(req('/ping'), new LambdaSession(), LogConfig.get());
-        expect(res.statusDescription).toEqual('ok');
-        expect(res.status).toEqual(200);
-        expect(res.toResponse().body).toEqual(JSON.stringify({ status: 200, message: 'ok' }));
-        expect(res.toResponse().headers).toEqual({ 'content-type': 'application/json' });
+        o(res.statusDescription).equals('ok');
+        o(res.status).equals(200);
+        o(res.toResponse().body).equals(JSON.stringify({ status: 200, message: 'ok' }));
+        o(res.toResponse().headers).deepEquals({ 'content-type': 'application/json' });
     });
 });
