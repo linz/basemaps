@@ -18,12 +18,13 @@ import './regional/auckland_urban_2017_0-075m';
 import './regional/hastings-district_urban_2017-18_0-1m';
 import './regional/manawatu-whanganui_rural_2015-16_0-3m';
 import './regional/manawatu-whanganui_rural_2016-17_0-3m';
-import './regional/northland_rural_2014-16_0-4m';
-import './regional/otago_rural_2017-19_0-3m';
-import './regional/otago_rural_2017-19_0-3m';
 import './regional/taranaki_rural_2016-17_0-3m';
 import './regional/thames-coromandel_urban_2015_0-05m';
-import './regional/west-coast_rural_2015-16_0-3m';
-import './regional/whanganui_urban_2017-18_0-075m';
+
+// Disabled 2020-02-19 - due to white border areas
+// import './regional/whanganui_urban_2017-18_0-075m';
+// import './regional/west-coast_rural_2015-16_0-3m';
+// import './regional/otago_rural_2017-19_0-3m';
+// import './regional/northland_rural_2014-16_0-4m';
 
 import './sentinel';
