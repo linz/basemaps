@@ -51,7 +51,8 @@ o.spec('TileCreation', () => {
         o(layer.x).equals(tiler.tileSize / 2);
         o(layer.y).equals(tiler.tileSize / 2);
     });
-    const RenderTests = [
+
+    let RenderTests = [
         { tileSize: 256, zoom: 18 },
         { tileSize: 256, zoom: 19 },
         { tileSize: 512, zoom: 19 },
@@ -62,10 +63,7 @@ o.spec('TileCreation', () => {
 
     // No need to run larger tile tests locally
     if (!process.env.GITHUB_ACTIONS) {
-        RenderTests.pop();
-        RenderTests.pop();
-        RenderTests.pop();
-        RenderTests.pop();
+        RenderTests = RenderTests.slice(0, 1);
     }
 
     RenderTests.forEach(({ tileSize, zoom }) => {

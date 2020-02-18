@@ -9,8 +9,7 @@ import * as o from 'ospec';
 import 'source-map-support/register';
 
 o.spec('TileCreationBenchmark', () => {
-    const NanoSecondToMillisecond = 1e6;
-    const RenderCount = process.env.GITHUB_ACTIONS ? 5 : 1;
+    const RenderCount = 5;
     const TimeoutSeconds = 30 * 1000;
     const Zoom = 19;
 
@@ -40,7 +39,7 @@ o.spec('TileCreationBenchmark', () => {
     }
     const results: Record<string, Record<string, number[]>> = {};
 
-    [256, 512].forEach(tileSize => {
+    [256, 512, 1024].forEach(tileSize => {
         o(`should render ${RenderCount}x${tileSize} tiles`, async () => {
             o.timeout(TimeoutSeconds);
             const metrics: Record<string, number[]> = {};
@@ -72,7 +71,7 @@ o.spec('TileCreationBenchmark', () => {
             const values = records[key];
             let total = 0;
             for (const val of values) {
-                total += val / NanoSecondToMillisecond;
+                total += val;
             }
 
             output[key] = parseFloat((total / values.length).toFixed(3));
