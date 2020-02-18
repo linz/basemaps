@@ -1,7 +1,6 @@
 {
   "name": "@basemaps/tiler",
   "version": "1.0.0",
-  "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "BSD 3-Clause",
@@ -18,5 +17,11 @@
     "@types/pngjs": "^3.3.2",
     "pixelmatch": "^5.1.0",
     "pngjs": "^3.4.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/"
+  ]
 }

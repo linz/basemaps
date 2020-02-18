@@ -1,7 +1,6 @@
 {
   "name": "@basemaps/metrics",
   "version": "1.0.0",
-  "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "BSD 3-Clause",
@@ -9,5 +8,11 @@
   "types": "./build/metrics.d.ts",
   "scripts": {
     "test": "ospec build/**/*.test.js"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/"
+  ]
 }
