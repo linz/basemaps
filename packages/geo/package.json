@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/geo",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "BSD 3-Clause",
@@ -12,7 +12,6 @@
   "dependencies": {
     "global-mercator": "^3.1.0"
   },
-  "devDependencies": {},
   "publishConfig": {
     "access": "public"
   },

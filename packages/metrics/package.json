@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/metrics",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -9,7 +9,5 @@
   "types": "./build/metrics.d.ts",
   "scripts": {
     "test": "ospec build/**/*.test.js"
-  },
-  "dependencies": {},
-  "devDependencies": {}
+  }
 }
