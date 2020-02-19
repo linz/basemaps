@@ -43,25 +43,32 @@ async function main(): Promise<void> {
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
         const ctx = new LambdaSession();
-        const { x, y, z } = req.params;
 
-        const data = await lambda.handleRequest(
-            {
-                httpMethod: 'get',
-                path: `/v1/foo/${z}/${x}/${y}.png`,
-            } as any,
-            ctx,
-            logger,
-        );
+        try {
+            const { x, y, z } = req.params;
 
-        if (data.headers) {
-            for (const header of Object.keys(data.headers)) {
-                res.header(header, data.headers[header]);
+            const data = await lambda.handleRequest(
+                {
+                    httpMethod: 'get',
+                    path: `/v1/foo/${z}/${x}/${y}.png`,
+                } as any,
+                ctx,
+                logger,
+            );
+
+            if (data.headers) {
+                for (const header of Object.keys(data.headers)) {
+                    res.header(header, data.headers[header]);
+                }
             }
+            res.end(Buffer.from(data.toResponse().body, 'base64'));
+            const duration = Date.now() - startTime;
+            logger.info({ ...ctx.logContext, tile: { x, y, z }, duration }, 'Done');
+        } catch (e) {
+            logger.fatal({ ...ctx.logContext, err: e }, 'FailedToRender');
+            res.status(500);
+            res.end();
         }
-        res.end(Buffer.from(data.toResponse().body, 'base64'));
-        const duration = Date.now() - startTime;
-        logger.info({ ...ctx.logContext, tile: { x, y, z }, duration }, 'Done');
     });
 
     app.use(express.static('./static/'));

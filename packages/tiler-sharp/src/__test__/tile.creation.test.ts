@@ -1,3 +1,5 @@
+import 'source-map-support/register';
+
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { readFileSync, writeFileSync } from 'fs';
@@ -76,9 +78,9 @@ o.spec('TileCreation', () => {
             const tiler = new Tiler(tileSize);
 
             const tileMaker = new TileMakerSharp(tileSize);
-
             // Make the background black to easily spot flaws
-            tileMaker.background.alpha = 1;
+            tileMaker.background = { r: 0, g: 0, b: 0, alpha: 1 };
+
             const layers = await tiler.tile([tiff], centerTile, centerTile, zoom);
             o(layers).notEquals(null);
             if (layers == null) throw new Error('Tile is null');

@@ -99,6 +99,7 @@ export async function handleRequest(
     if (layers == null) {
         return emptyPng(session, cacheKey);
     }
+
     session.set('layers', layers.length);
 
     // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our etag this tile has not been modified.
@@ -112,6 +113,7 @@ export async function handleRequest(
     session.timer.start('tile:compose');
     const res = await tileMaker.compose(layers);
     session.timer.end('tile:compose');
+    session.set('layersUsed', res.layers);
 
     if (res == null) {
         return emptyPng(session, cacheKey);
