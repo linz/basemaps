@@ -48,4 +48,14 @@ export class ApiKeyTable {
 
         return AWS.DynamoDB.Converter.unmarshall(res.Item) as ApiKeyTableRecord;
     }
+
+    public async create(apiKey: string): Promise<string> {
+        await this.dynamo
+            .putItem({
+                TableName: Const.ApiKey.TableName,
+                Item: { id: { S: apiKey } },
+            })
+            .promise();
+        return apiKey;
+    }
 }
