@@ -109,11 +109,17 @@ export async function handleRequest(
         return new LambdaHttpResponseAlb(304, 'Not modified');
     }
 
-    logger.info({ layers: layers.length }, 'Composing');
+    if (!Env.isProduction()) {
+        for (const layer of layers) {
+            logger.debug({ layerId: layer.id, layerSource: layer.source }, 'Compose');
+        }
+    }
+
     session.timer.start('tile:compose');
     const res = await tileMaker.compose(layers);
     session.timer.end('tile:compose');
     session.set('layersUsed', res.layers);
+    session.set('allLayersUsed', res.layers == layers.length);
 
     if (res == null) {
         return emptyPng(session, cacheKey);

@@ -11,8 +11,12 @@ export const Const = {
 };
 
 export const Env = {
+    /** Environment in use "dev" | "production" */
+    NodeEnv: 'NODE_ENV',
+
     /** Current version number for basemaps */
     Version: 'BASEMAPS_VERSION',
+
     /** Current git commit hash */
     Hash: 'BASEMAPS_HASH',
 
@@ -56,5 +60,9 @@ export const Env = {
             return defaultNumber;
         }
         return output;
+    },
+
+    isProduction(): boolean {
+        return Env.get(Env.NodeEnv, 'dev') != 'dev';
     },
 };

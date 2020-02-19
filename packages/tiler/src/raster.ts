@@ -8,6 +8,13 @@ export interface TileMaker {
 export interface Composition {
     /** Tiff Id */
     id: string;
+    /** Source tile used */
+    source: {
+        x: number;
+        y: number;
+        /** Internal tiff image used */
+        imageId: number;
+    };
     /** Image buffer */
     getBuffer: () => Promise<Buffer>;
     /** Point to draw the image at on the output bounds */
