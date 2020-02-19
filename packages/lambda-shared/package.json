@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.508.0",
+    "base-x": "^3.0.7",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
