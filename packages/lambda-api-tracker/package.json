@@ -13,7 +13,7 @@
     "deploy:bundle": "webpack"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.31",
+    "@types/aws-lambda": "^8.10.43",
     "@types/node": "^12.7.1"
   }
 }

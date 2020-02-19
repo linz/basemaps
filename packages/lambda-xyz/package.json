@@ -18,7 +18,7 @@
     "deploy:bundle": "./bundle.sh"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.31",
+    "@types/aws-lambda": "^8.10.43",
     "@types/express": "^4.17.2",
     "@types/node": "^12.7.1",
     "express": "^4.17.1"

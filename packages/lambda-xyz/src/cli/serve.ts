@@ -61,7 +61,7 @@ async function main(): Promise<void> {
                     res.header(header, data.headers[header]);
                 }
             }
-            res.end(Buffer.from(data.toResponse().body, 'base64'));
+            res.end(Buffer.from(data.toResponse().body ?? '', 'base64'));
             const duration = Date.now() - startTime;
             logger.info({ ...ctx.logContext, tile: { x, y, z }, duration }, 'Done');
         } catch (e) {
