@@ -110,6 +110,7 @@ export class Tiler {
         const drawAtRegion = target.subtract(raster.tile);
         const composition: Composition = {
             id: img.tif.source.name,
+            source: { x, y, imageId: img.id },
             getBuffer: async (): Promise<Buffer> => Buffer.from((await img.getTile(x, y)).bytes),
             y: Math.max(0, Math.round(drawAtRegion.y)),
             x: Math.max(0, Math.round(drawAtRegion.x)),
