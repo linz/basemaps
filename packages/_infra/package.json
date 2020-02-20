@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/infra",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -24,7 +24,7 @@
     "@aws-cdk/aws-elasticloadbalancingv2-targets": "^1.21.1",
     "@aws-cdk/aws-s3": "^1.21.1",
     "@aws-cdk/core": "^1.21.1",
-    "@basemaps/lambda-shared": "^1.0.0",
+    "@basemaps/lambda-shared": "^1.1.0",
     "@types/git-rev-sync": "^1.12.0",
     "aws-cdk": "^1.21.1"
   }
