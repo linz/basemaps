@@ -1,10 +1,10 @@
 import { EPSG, Projection } from '@basemaps/geo';
 import { Env, LogType } from '@basemaps/lambda-shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
+import { GdalCommand } from './gdal.command';
 import { GdalCogBuilderOptions } from './gdal.config';
 import { GdalDocker } from './gdal.docker';
 import { GdalLocal } from './gdal.local';
-import { GdalCommand } from './gdal.command';
 
 /** 1% Buffer to the tiff to help prevent gaps between tiles */
 // const TiffBuffer = 1.01;
@@ -113,6 +113,7 @@ export class GdalCogBuilder {
     }
 
     convert(log: LogType): Promise<void> {
+        console.log(this.args);
         return this.gdal.run('gdal_translate', this.args, log);
     }
 }
