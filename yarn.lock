@@ -446,12 +446,19 @@
     string-width "^4.2.0"
     table "^5.4.6"
 
-"@aws-cdk/core@1.25.0", "@aws-cdk/core@^1.25.0":
+"@aws-cdk/core@1.25.0":
   version "1.25.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.25.0.tgz#489a7bffad08915acd1dd0039fe1304df568d9ab"
   integrity sha512-9N6Y9OI/2uVE1SNMB19N0mLaz2X6EzVg0uQnkesrDWd9YYJ43FmsVl79rQYvhwqqCktV2/wQ6DvY2y02RMWp6g==
   dependencies:
     "@aws-cdk/cx-api" "1.25.0"
+
+"@aws-cdk/core@^1.25.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.26.0.tgz#72069b930be02ad8a7c1c36ce1803d291b48eb36"
+  integrity sha512-VeCFrLf45+3WiVjgMUwjGnEhBf9wcTVf6WXNHJybBZaxlQjQGhoKaE2GscknATb7SwR1GXxHyXDEvfCz90A5JQ==
+  dependencies:
+    "@aws-cdk/cx-api" "1.26.0"
 
 "@aws-cdk/custom-resources@1.25.0":
   version "1.25.0"
@@ -470,6 +477,13 @@
   version "1.25.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.25.0.tgz#b8f9e39ad3bbc07a7855fb9f912f9466fe7896ed"
   integrity sha512-DAsBhBtYf6KKGANd++AS9Q10Yqhuin4QR4Y0/85yYPWMdb5G5J/fvk9R6kiBkDom0Mac4gA+tJZdphTa3YNjMw==
+  dependencies:
+    semver "^7.1.3"
+
+"@aws-cdk/cx-api@1.26.0":
+  version "1.26.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.26.0.tgz#768ef69f7158b7657720aa2a3f2a84775056fbfd"
+  integrity sha512-/u+CI5TEiZV75AOCmYT1rhlASyKDy1No8zdwyN9rWoHKKQLTwz7e94niqvhvQKijrf7Vg9i3Ygz1yorCip4q3w==
   dependencies:
     semver "^7.1.3"
 
