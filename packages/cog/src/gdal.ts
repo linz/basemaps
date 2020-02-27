@@ -113,7 +113,6 @@ export class GdalCogBuilder {
     }
 
     convert(log: LogType): Promise<void> {
-        console.log(this.args);
         return this.gdal.run('gdal_translate', this.args, log);
     }
 }
