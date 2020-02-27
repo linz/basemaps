@@ -17,9 +17,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: Who Am I
-        run: npm whoami
-
       - name: Install
         run: yarn
 
