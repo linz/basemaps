@@ -1,14 +1,9 @@
-import { FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/lambda-shared';
 import { EPSG } from '@basemaps/geo';
+import { FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/lambda-shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
-import {
-    CommandLineAction,
-    CommandLineFlagParameter,
-    CommandLineIntegerParameter,
-    CommandLineStringParameter,
-} from '@microsoft/ts-command-line';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineIntegerParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
@@ -16,7 +11,7 @@ import { CogBuilder } from '../../builder';
 import { CogJob, getTileSize } from '../../cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog.vrt';
 import { TileCover } from '../../cover';
-import { makeTempFolder, getJobPath } from '../folder';
+import { getJobPath, makeTempFolder } from '../folder';
 
 const ProcessId = ulid.ulid();
 
@@ -151,7 +146,7 @@ export class ActionJobCreate extends CommandLineAction {
             );
         }
 
-        const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
+        const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true, forceNoData255: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist
         if (metadata.bands > 3) {
             logger.warn({ bandCount: metadata.bands }, 'Vrt:DetectedAlpha, Disabling -addalpha');

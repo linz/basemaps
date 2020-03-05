@@ -1,5 +1,5 @@
-import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import { EPSG, Projection } from '@basemaps/geo';
+import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import { CogJob, onProgress } from './cog';
 import { GdalCogBuilder } from './gdal';
 
@@ -8,6 +8,9 @@ export interface VrtOptions {
     addAlpha: boolean;
     /** No need to force a reprojection to 3857 if source imagery is in 3857 */
     forceEpsg3857: boolean;
+
+    /** Force no data values to 255 on src and dst */
+    forceNoData255: boolean;
 }
 
 /**
@@ -86,11 +89,11 @@ export async function buildWarpedVrt(
     }
     gdalCommand.parser.on('progress', onProgress({ target: `vrt.${EPSG.Google}` }, logger));
 
-    await gdalCommand.run(
-        'gdalwarp',
-        ['-of', 'VRT', '-t_srs', Projection.toEpsgString(EPSG.Google), vrtPath, vrtWarpedPath],
-        logger,
-    );
+    const warpOpts = ['-of', 'VRT', '-t_srs', Projection.toEpsgString(EPSG.Google), vrtPath, vrtWarpedPath];
+    if (!options.forceNoData255) {
+        warpOpts.splice(2, 0, '-srcnodata', '255', '-dstnodata', '255');
+    }
+    await gdalCommand.run('gdalwarp', warpOpts, logger);
 
     return vrtWarpedPath;
 }
