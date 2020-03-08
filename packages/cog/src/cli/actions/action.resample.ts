@@ -6,7 +6,7 @@ import { buildCogForQuadKey, CogJob } from '../../cog rst';
 import { buildWarpedVrt } from '../../cog.vrt';
 import { getJobPath, makeTempFolder } from '../folder';
 
-export class ActionResampleJob extends CommandLineAction {
+export class ActionResampleCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
     private quadKey?: CommandLineStringParameter;
     private commit?: CommandLineFlagParameter;
