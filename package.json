@@ -34,6 +34,7 @@
     "packages/*"
   ],
   "resolutions": {
+    "acorn": "^7.1.1",
     "https-proxy-agent": "^3.0.0"
   },
   "dependencies": {
