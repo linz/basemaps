@@ -1,9 +1,9 @@
-import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import { EPSG } from '@basemaps/geo';
+import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import * as Mercator from 'global-mercator';
 import { VrtOptions } from './cog.vrt';
 import { GdalCogBuilder } from './gdal';
-
+import { getResample } from './gdal.config';
 export interface CogJob {
     /** Unique processing Id */
     id: string;
@@ -74,6 +74,7 @@ export function getTileSize(quadKey: string, targetResolution: number, tileSize 
  * @param outputTiffPath Path to where the output tiff will be stored
  * @param logger Logger to use
  * @param execute Whether to actually execute the transformation,
+ * @param resampling Which resampling method to use,
  */
 export async function buildCogForQuadKey(
     job: CogJob,
@@ -82,15 +83,18 @@ export async function buildCogForQuadKey(
     outputTiffPath: string,
     logger: LogType,
     execute = false,
+    resampling: string,
 ): Promise<void> {
     const startTime = Date.now();
     const google = Mercator.quadkeyToGoogle(quadKey);
     const [minX, maxY, maxX, minY] = Mercator.googleToBBoxMeters(google);
     const alignmentLevels = job.source.resolution - google[2];
+    const resampletype = getResample(resampling);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [minX, minY, maxX, maxY],
         alignmentLevels,
+        resampling: resampletype,
     });
     if (cogBuild.gdal.mount) {
         job.source.files.forEach(f => cogBuild.gdal.mount?.(f));

@@ -70,7 +70,7 @@ export class ActionBatchJob extends CommandLineAction {
         LogConfig.set(logger);
 
         const isCommit = this.commit?.value ?? false;
-        const resampleMethod = this.resampleMethod?.value ?? null; //'lanczos';
+        const resampleMethod = this.resampleMethod?.value ?? null; //'cubic';
         const outputFs = FileOperator.create(job.output);
 
         let isPartial = false;

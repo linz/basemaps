@@ -17,7 +17,7 @@ export interface GdalCogBuilderOptions {
 
     /**
      * Resampling method to use
-     * @default 'lanczos'
+     * @default 'cubic'
      */
     resampling: GdalCogBuilderOptionsResampling;
     /**

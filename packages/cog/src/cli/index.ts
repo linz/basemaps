@@ -6,7 +6,6 @@ import 'source-map-support/register';
 import { ActionBatchJob } from './actions/action.batch';
 import { ActionCogCreate } from './actions/action.cog';
 import { ActionJobCreate } from './actions/action.job';
-import { ActionResampleCreate } from './actions/action.resample';
 
 export class CogifyCommandLine extends CommandLineParser {
     verbose = this.defineFlagParameter({
@@ -28,7 +27,6 @@ export class CogifyCommandLine extends CommandLineParser {
         this.addAction(new ActionCogCreate());
         this.addAction(new ActionJobCreate());
         this.addAction(new ActionBatchJob());
-        this.addAction(new ActionResampleCreate());
     }
 
     protected onExecute(): Promise<void> {
