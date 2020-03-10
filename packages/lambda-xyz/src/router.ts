@@ -35,5 +35,9 @@ export function route(httpMethod: string, path: string): PathData | LambdaHttpRe
         return new LambdaHttpResponseAlb(404, 'Path not found');
     }
 
+    if (isNaN(pathMatch.x) || isNaN(pathMatch.y) || isNaN(pathMatch.z)) {
+        return new LambdaHttpResponseAlb(404, 'Path not found');
+    }
+
     return pathMatch;
 }
