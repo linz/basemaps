@@ -56,14 +56,19 @@ async function main(): Promise<void> {
                 logger,
             );
 
+            res.status(data.status);
             if (data.headers) {
                 for (const header of Object.keys(data.headers)) {
                     res.header(header, data.headers[header]);
                 }
             }
-            res.end(Buffer.from(data.toResponse().body ?? '', 'base64'));
+            if (data.status < 299 && data.status > 199) {
+                res.end(Buffer.from(data.toResponse().body ?? '', 'base64'));
+            } else {
+                res.end();
+            }
             const duration = Date.now() - startTime;
-            logger.info({ ...ctx.logContext, tile: { x, y, z }, duration }, 'Done');
+            logger.info({ ...ctx.logContext, tile: { x, y, z }, status: data.status, duration }, 'Done');
         } catch (e) {
             logger.fatal({ ...ctx.logContext, err: e }, 'FailedToRender');
             res.status(500);
