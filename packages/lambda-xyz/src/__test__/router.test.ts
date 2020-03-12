@@ -4,6 +4,28 @@ import { route } from '../router';
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('router', () => {
+    o('should allow registration of a handler', () => {
+        o.after(() => {
+            route.deregisterGet('/my-path');
+        });
+
+        const expectedRet = new LambdaHttpResponseAlb(200, 'stub');
+        let expectedArgs: any;
+
+        const stub = (...actual: any) => {
+            expectedArgs = actual;
+            return expectedRet;
+        };
+
+        route.registerGet('/my-path', stub);
+
+        const response: any = route('get', '/my-path');
+
+        o(response).equals(expectedRet);
+
+        o(expectedArgs && expectedArgs[0]).equals('/my-path');
+    });
+
     o('should allow only get and options methods', () => {
         const response: any = route('post', '/');
         o(LambdaHttpResponseAlb.isHttpResponse(response)).equals(true);
@@ -37,8 +59,7 @@ o.spec('router', () => {
         o(response.statusDescription).equals('ok');
     });
 
-
-    o('should get version', () => {
+    o.spec('get version', () => {
         const origVersion: any = process.env[Env.Version];
         const origHash: any = process.env[Env.Hash];
         o.after(() => {

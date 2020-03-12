@@ -1,5 +1,7 @@
 import { LambdaHttpResponseAlb, PathData, getXyzFromPath, Env } from '@basemaps/lambda-shared';
 
+const getRegistry: any = {};
+
 export function route(httpMethod: string, path: string): PathData | LambdaHttpResponseAlb {
     // Allow cross origin requests
     if (httpMethod === 'options') {
@@ -14,19 +16,9 @@ export function route(httpMethod: string, path: string): PathData | LambdaHttpRe
         return new LambdaHttpResponseAlb(405, 'Method not allowed');
     }
 
-    // TODO this is getting slightly messy, maybe we should move it into a
-    // full express application so we can `app.get('/ping', () => ok);`
-    if (path === '/ping') {
-        return new LambdaHttpResponseAlb(200, 'ok');
-    }
-
-    if (path === '/health') {
-        return new LambdaHttpResponseAlb(200, 'ok');
-    }
-
-    if (path === '/version') {
-        const response = new LambdaHttpResponseAlb(200, 'ok');
-        response.json({ version: process.env[Env.Version], hash: process.env[Env.Hash] });
+    const handler: any = getRegistry[path];
+    if (handler !== undefined) {
+        const response = handler(path);
         return response;
     }
 
@@ -41,3 +33,23 @@ export function route(httpMethod: string, path: string): PathData | LambdaHttpRe
 
     return pathMatch;
 }
+
+route.registerGet = (path: string, handler: (path: string) => LambdaHttpResponseAlb): void => {
+    if (getRegistry[path] !== undefined) throw new Error(path + ' already registered');
+    getRegistry[path] = handler;
+};
+
+route.deregisterGet = (path: string): void => {
+    delete getRegistry[path];
+};
+
+const okResponse = (): LambdaHttpResponseAlb => new LambdaHttpResponseAlb(200, 'ok');
+
+route.registerGet('/ping', okResponse);
+route.registerGet('/health', okResponse);
+
+route.registerGet('/version', () => {
+    const response = new LambdaHttpResponseAlb(200, 'ok');
+    response.json({ version: process.env[Env.Version], hash: process.env[Env.Hash] });
+    return response;
+});
