@@ -71,6 +71,7 @@ export async function buildWarpedVrt(
     job: CogJob,
     vrtPath: string,
     options: VrtOptions,
+    resampling: string | null,
     tmpTarget: string,
     logger: LogType,
 ): Promise<string> {
@@ -92,6 +93,9 @@ export async function buildWarpedVrt(
     const warpOpts = ['-of', 'VRT', '-t_srs', Projection.toEpsgString(EPSG.Google), vrtPath, vrtWarpedPath];
     if (options.forceNoData255) {
         warpOpts.splice(2, 0, '-srcnodata', '255', '-dstnodata', '255');
+    }
+    if (resampling) {
+        warpOpts.splice(2, 0, '-r', resampling);
     }
     await gdalCommand.run('gdalwarp', warpOpts, logger);
 

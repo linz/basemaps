@@ -94,7 +94,14 @@ export class ActionCogCreate extends CommandLineAction {
             logger.info({ path: getJobPath(job, '.vrt') }, 'FetchVrt');
             await FileOperatorSimple.write(tmpVrt, outputFs.readStream(getJobPath(job, '.vrt')), logger);
             // Sometimes we need to force a epsg3857 projection to get the COG to build since its fast just do it locally
-            const vrtPath = await buildWarpedVrt(job, tmpVrt, job.output.vrt.options, tmpFolder, logger);
+            const vrtPath = await buildWarpedVrt(
+                job,
+                tmpVrt,
+                job.output.vrt.options,
+                resampleMethod,
+                tmpFolder,
+                logger,
+            );
 
             await buildCogForQuadKey(job, quadKey, vrtPath, tmpTiff, logger, isCommit, resampleMethod);
             logger.info({ target: targetPath }, 'StoreTiff');
