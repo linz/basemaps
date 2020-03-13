@@ -59,7 +59,7 @@ export class CogBuilder {
                     logger.info({ count, total: sources.length }, 'BoundsProgress');
                 }
                 const tiff = new CogTiff(source);
-                await tiff.init();
+                await tiff.init(true);
                 const image = tiff.getImage(0);
                 const tiffRes = await this.getTiffResolution(tiff);
                 if (tiffRes > resolution) {
@@ -119,7 +119,7 @@ export class CogBuilder {
     findProjection(tiff: CogTiff, logger: LogType): EPSG {
         const image = tiff.getImage(0);
 
-        let projection = image.geoTiffTag(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+        let projection = image.valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
         if (projection != InvalidProjectionCode) {
             return projection;
         }
@@ -147,7 +147,6 @@ export class CogBuilder {
         const bottomRight = [bbox[2], bbox[1]];
         const bottomLeft = [bbox[0], bbox[1]];
 
-        await Promise.all([image.fetch(TiffTag.GeoKeyDirectory), image.fetch(TiffTag.GeoAsciiParams)]);
         const projection = this.findProjection(tiff, logger);
         const projProjection = getProjection(projection);
         if (projProjection == null) {
