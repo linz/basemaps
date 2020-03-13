@@ -65,8 +65,6 @@ export class ActionCogCreate extends CommandLineAction {
 
         const isCommit = this.commit?.value ?? false;
 
-        const resampleMethod = this.resampleMethod?.value ?? 'cubic';
-
         const logger = LogConfig.get().child({ id: processId, correlationId: job.id, imageryName: job.name });
         LogConfig.set(logger);
 
