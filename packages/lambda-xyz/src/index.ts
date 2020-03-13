@@ -1,67 +1,40 @@
-import {
-    Env,
-    HttpHeader,
-    LambdaFunction,
-    LambdaHttpResponseAlb,
-    LambdaSession,
-    LambdaType,
-    LogType,
-} from '@basemaps/lambda-shared';
-import { CogTiff } from '@cogeotiff/core';
+import { LambdaHttpResponseAlb, LambdaSession, LogType, ReqInfo, Router } from '@basemaps/lambda-shared';
 import { ALBEvent } from 'aws-lambda';
-import { createHash } from 'crypto';
-import pLimit from 'p-limit';
-import { EmptyPng } from './png';
-import { route } from './router';
-import { TiffUtil } from './tiff';
-import { Tilers } from './tiler';
-import { ImageFormat } from '@basemaps/tiler';
+import health from './health';
+import ping from './ping';
+import tile from './tile-request';
+import version from './version';
 
-// To force a full cache invalidation change this number
-const RenderId = 1;
+const app = new Router(
+    (status: number, description: string, headers?: Record<string, string>): LambdaHttpResponseAlb =>
+        new LambdaHttpResponseAlb(status, description, headers),
+);
 
-function getHeader(evt: ALBEvent, header: string): string | null {
-    if (evt.headers) {
-        return evt.headers[header.toLowerCase()];
+app.get('ping', ping);
+app.get('health', health);
+app.get('version', version);
+app.get('tiles', tile);
+
+class ReqInfoAlb extends ReqInfo {
+    event: ALBEvent;
+    private _httpMethod: string;
+
+    constructor(event: ALBEvent, session: LambdaSession, logger: LogType) {
+        super(session, logger);
+        this.event = event;
+        this._httpMethod = event.httpMethod.toLowerCase();
     }
-    return null;
-}
 
-/**
- * Serve a empty PNG response
- * @param session session to store metrics in
- * @param cacheKey ETag of the request
- */
-function emptyPng(session: LambdaSession, cacheKey: string): LambdaHttpResponseAlb {
-    session.set('bytes', EmptyPng.byteLength);
-    session.set('emptyPng', true);
-    const response = new LambdaHttpResponseAlb(200, 'ok');
-    response.header(HttpHeader.ETag, cacheKey);
-    response.buffer(EmptyPng, 'image/png');
-    return response;
-}
-const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
-
-/** Initialize the tiffs before reading */
-async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<CogTiff[]> {
-    const tiffs = TiffUtil.getTiffsForQuadKey(qk, zoom);
-    let failed = false;
-    // Remove any tiffs that failed to load
-    const promises = tiffs.map(c => {
-        return LoadingQueue(async () => {
-            try {
-                await c.init();
-            } catch (error) {
-                logger.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
-                failed = true;
-            }
-        });
-    });
-    await Promise.all(promises);
-    if (failed) {
-        return tiffs.filter(f => f.images.length > 0);
+    get httpMethod(): string {
+        return this._httpMethod;
     }
-    return tiffs;
+    get urlPath(): string {
+        return this.event.path;
+    }
+    getHeader(key: string): string | null {
+        const { headers } = this.event;
+        return headers ? headers[key.toLowerCase()] : null;
+    }
 }
 
 export async function handleRequest(
@@ -69,67 +42,11 @@ export async function handleRequest(
     session: LambdaSession,
     logger: LogType,
 ): Promise<LambdaHttpResponseAlb> {
-    const tiler = Tilers.tile256;
-    const tileMaker = Tilers.compose256;
-
-    const httpMethod = event.httpMethod.toLowerCase();
+    const info = new ReqInfoAlb(event, session, logger);
 
     session.set('name', 'LambdaXyzTiler');
-    session.set('method', httpMethod);
+    session.set('method', info.httpMethod);
     session.set('path', event.path);
 
-    const pathMatch = route(httpMethod, event.path);
-    if (LambdaHttpResponseAlb.isHttpResponse(pathMatch)) {
-        return pathMatch;
-    }
-
-    const latLon = tiler.projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
-    const qk = tiler.projection.getQuadKeyFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
-    session.set('xyz', { x: pathMatch.x, y: pathMatch.y, z: pathMatch.z });
-    session.set('location', latLon);
-    session.set('quadKey', qk);
-
-    const tiffs = await initTiffs(qk, pathMatch.z, logger);
-    const layers = await tiler.tile(tiffs, pathMatch.x, pathMatch.y, pathMatch.z);
-
-    // Generate a unique hash given the full URI, the layers used and a renderId
-    const cacheKey = createHash('sha256')
-        .update(JSON.stringify({ pathMatch, layers, RenderId }))
-        .digest('base64');
-
-    if (layers == null) {
-        return emptyPng(session, cacheKey);
-    }
-
-    session.set('layers', layers.length);
-
-    // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our etag this tile has not been modified.
-    const ifNoneMatch = getHeader(event, HttpHeader.IfNoneMatch);
-    if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
-        session.set('cache', { key: cacheKey, hit: true, match: ifNoneMatch });
-        return new LambdaHttpResponseAlb(304, 'Not modified');
-    }
-
-    if (!Env.isProduction()) {
-        for (const layer of layers) {
-            logger.debug({ layerId: layer.id, layerSource: layer.source }, 'Compose');
-        }
-    }
-
-    session.timer.start('tile:compose');
-    const res = await tileMaker.compose({ layers, format: ImageFormat.PNG });
-    session.timer.end('tile:compose');
-    session.set('layersUsed', res.layers);
-    session.set('allLayersUsed', res.layers == layers.length);
-
-    if (res == null) {
-        return emptyPng(session, cacheKey);
-    }
-    session.set('bytes', res.buffer.byteLength);
-    const response = new LambdaHttpResponseAlb(200, 'ok');
-    response.header(HttpHeader.ETag, cacheKey);
-    response.buffer(res.buffer, 'image/png');
-    return response;
+    return (await app.handle(info)) as LambdaHttpResponseAlb;
 }
-
-export const handler = LambdaFunction.wrap<ALBEvent>(LambdaType.Alb, handleRequest);
