@@ -13,7 +13,6 @@ const MagicAlignmentLevel = 7;
 export class ActionBatchJob extends CommandLineAction {
     private job?: CommandLineStringParameter;
     private commit?: CommandLineFlagParameter;
-    private resampleMethod?: CommandLineStringParameter;
 
     public constructor() {
         super({
@@ -28,7 +27,6 @@ export class ActionBatchJob extends CommandLineAction {
         batch: AWS.Batch,
         quadKey: string,
         isCommit: boolean,
-        resample: string | null,
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
         const jobName = `Cog-${job.name}-${quadKey}`;
 
@@ -36,14 +34,17 @@ export class ActionBatchJob extends CommandLineAction {
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;
+
         if (!isCommit || this.job?.value == null) {
             return { jobName, jobId: '', memory };
         }
 
         const commandStr = ['-V', 'cog', '--job', this.job.value, '--commit', '--quadkey', quadKey];
-        if (resample) {
-            commandStr.splice(2, 0, '--resample-method', resample);
+
+        if (job.output.resample) {
+            commandStr.push('--resample', job.output.resample);
         }
+
         const batchJob = await batch
             .submitJob({
                 jobName,
@@ -70,7 +71,7 @@ export class ActionBatchJob extends CommandLineAction {
         LogConfig.set(logger);
 
         const isCommit = this.commit?.value ?? false;
-        const resampleMethod = this.resampleMethod?.value ?? null; //'cubic';
+
         const outputFs = FileOperator.create(job.output);
 
         let isPartial = false;
@@ -102,7 +103,7 @@ export class ActionBatchJob extends CommandLineAction {
         const batch = new aws.Batch({ region });
         const toSubmit = stats.filter(f => f.exists == false).map(c => c.quadKey);
         for (const quadKey of toSubmit) {
-            const jobStatus = await this.batchOne(job, batch, quadKey, isCommit, resampleMethod);
+            const jobStatus = await this.batchOne(job, batch, quadKey, isCommit);
             logger.info(jobStatus, 'JobSubmitted');
         }
 
@@ -123,13 +124,6 @@ export class ActionBatchJob extends CommandLineAction {
         this.commit = this.defineFlagParameter({
             parameterLongName: '--commit',
             description: 'Begin the transformation',
-            required: false,
-        });
-
-        this.resampleMethod = this.defineStringParameter({
-            argumentName: 'RESAMPLE',
-            parameterLongName: '--resample-method',
-            description: 'Resampling method to use',
             required: false,
         });
     }

@@ -35,6 +35,8 @@ export type GdalCogBuilderOptionsResampling =
     | 'average'
     | 'mode';
 
+export const gdalCogBuilderOptionsResamplingDefault: GdalCogBuilderOptionsResampling = 'cubic';
+
 const resampleMap: Record<string, GdalCogBuilderOptionsResampling> = {
     nearest: 'nearest',
     bilinear: 'bilinear',
@@ -45,6 +47,6 @@ const resampleMap: Record<string, GdalCogBuilderOptionsResampling> = {
     mode: 'mode',
 };
 
-export function getResample(t: string): GdalCogBuilderOptionsResampling {
-    return resampleMap[t];
+export function getResample(t: string | undefined): GdalCogBuilderOptionsResampling {
+    return resampleMap[t ?? gdalCogBuilderOptionsResamplingDefault];
 }

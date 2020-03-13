@@ -11,6 +11,7 @@ import { CogBuilder } from '../../builder';
 import { CogJob, getTileSize } from '../../cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog.vrt';
 import { TileCover } from '../../cover';
+import { getResample } from '../../gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';
 
 const ProcessId = ulid.ulid();
@@ -57,6 +58,7 @@ export class ActionJobCreate extends CommandLineAction {
     private maxConcurrency?: CommandLineIntegerParameter;
     private geoJsonOutput?: CommandLineFlagParameter;
     private generateVrt?: CommandLineFlagParameter;
+    private resample?: CommandLineStringParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -164,6 +166,7 @@ export class ActionJobCreate extends CommandLineAction {
             projection: EPSG.Wgs84,
             output: {
                 ...outputConfig,
+                resample: getResample(this.resample?.value),
                 vrt: {
                     options: vrtOptions,
                 },
@@ -254,6 +257,13 @@ export class ActionJobCreate extends CommandLineAction {
         this.generateVrt = this.defineFlagParameter({
             parameterLongName: '--vrt',
             description: 'Generate the source vrt for the COGs',
+            required: false,
+        });
+
+        this.resample = this.defineStringParameter({
+            argumentName: 'RESAMPLE',
+            parameterLongName: '--resample',
+            description: 'Resampling method to use',
             required: false,
         });
     }
