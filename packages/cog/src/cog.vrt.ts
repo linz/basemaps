@@ -10,7 +10,7 @@ export interface VrtOptions {
     forceEpsg3857: boolean;
 
     /** Force no data values to 255 on src and dst */
-    forceNoData255: boolean;
+    forceNoData: boolean;
 }
 
 /**
