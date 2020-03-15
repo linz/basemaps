@@ -1,6 +1,6 @@
 import { BoundingBox, Size } from '@basemaps/geo';
 import * as Sharp from 'sharp';
-import { TileMaker } from '@basemaps/tiler';
+import { TileMaker, ImageFormat, TileMakerContext } from '@basemaps/tiler';
 import { Metrics } from '@basemaps/metrics';
 
 export interface Composition {
@@ -49,15 +49,28 @@ export class TileMakerSharp implements TileMaker {
         return false;
     }
 
-    public async compose(composition: Composition[]): Promise<{ buffer: Buffer; metrics: Metrics; layers: number }> {
-        const sharp = this.createImage();
+    private async getImageBuffer(layers: SharpOverlay[], format: ImageFormat): Promise<Buffer> {
+        const pipeline = this.createImage().composite(layers);
+        switch (format) {
+            case ImageFormat.JPEG:
+                return pipeline.jpeg().toBuffer();
+            case ImageFormat.PNG:
+                return pipeline.png().toBuffer();
+            case ImageFormat.WEBP:
+                return pipeline.webp().toBuffer();
+            default:
+                throw new Error(`Invalid image format "${format}"`);
+        }
+    }
+
+    public async compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics; layers: number }> {
         const metrics = new Metrics();
         // TODO to prevent too many of these running, it should ideally be inside of a two step promise queue
         // 1. Load all image bytes
         // 2. Create image overlays
         metrics.start('compose:overlay');
         const todo: Promise<SharpOverlay | null>[] = [];
-        for (const comp of composition) {
+        for (const comp of ctx.layers) {
             if (this.isTooLarge(comp)) {
                 continue;
             }
@@ -67,11 +80,7 @@ export class TileMakerSharp implements TileMaker {
         metrics.end('compose:overlay');
 
         metrics.start('compose:compress');
-        const buffer = await sharp
-            .composite(overlays)
-            .png() // TODO should we configure output options (eg WebP/Png/Jpeg)
-            .toBuffer();
-
+        const buffer = await this.getImageBuffer(overlays, ctx.format);
         metrics.end('compose:compress');
 
         return { buffer, metrics, layers: overlays.length };
