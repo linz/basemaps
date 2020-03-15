@@ -24,6 +24,9 @@ export interface CogBuilderBounds {
 
     /** EPSG projection number */
     projection: number;
+
+    /** GDAL_NODATA value */
+    nodata: number;
 }
 export const InvalidProjectionCode = 32767;
 export const CacheFolder = './.cache';
@@ -51,6 +54,7 @@ export class CogBuilder {
         let resolution = -1;
         let bandCount = -1;
         let projection = -1;
+        let nodata = -1;
         let count = 0;
         const coordinates = sources.map(source => {
             return this.q(async () => {
@@ -83,6 +87,14 @@ export class CogBuilder {
                     projection = imageProjection;
                 }
 
+                const noData = this.findNoData(tiff);
+                if (noData != null && noData != projection) {
+                    if (nodata != -1) {
+                        throw new Error('Multiple No Data values');
+                    }
+                    nodata = noData;
+                }
+
                 return output;
             });
         });
@@ -90,6 +102,7 @@ export class CogBuilder {
         const polygons = await Promise.all(coordinates);
         return {
             projection,
+            nodata,
             bands: bandCount,
             bounds: GeoJson.toFeatureCollection(polygons),
             resolution,
@@ -133,6 +146,14 @@ export class CogBuilder {
 
         logger.error({ tiff: tiff.source.name }, 'Failed find projection');
         throw new Error('Failed to find projection');
+    }
+
+    /**
+     * Get the nodata value stored in the source tiff
+     * @param tiff
+     */
+    findNoData(tiff: CogTiff): number {
+        return tiff.getImage(0).value(TiffTag.GDAL_NODATA) ?? 255;
     }
 
     /**

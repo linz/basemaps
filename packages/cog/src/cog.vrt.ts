@@ -90,8 +90,8 @@ export async function buildWarpedVrt(
     gdalCommand.parser.on('progress', onProgress({ target: `vrt.${EPSG.Google}` }, logger));
 
     const warpOpts = ['-of', 'VRT', '-t_srs', Projection.toEpsgString(EPSG.Google), vrtPath, vrtWarpedPath];
-    if (options.forceNoData255) {
-        warpOpts.push('-srcnodata', '255', '-dstnodata', '255');
+    if (options.forceNoData) {
+        warpOpts.push('-srcnodata', String(job.output.nodata), '-dstnodata', String(job.output.nodata));
     }
     if (job.output.resample) {
         warpOpts.push('-r', job.output.resample);

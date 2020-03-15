@@ -11,7 +11,6 @@ export class ActionCogCreate extends CommandLineAction {
     private quadKey?: CommandLineStringParameter;
     private commit?: CommandLineFlagParameter;
     private quadKeyIndex?: CommandLineIntegerParameter;
-    private resampleMethod?: CommandLineStringParameter;
 
     public constructor() {
         super({

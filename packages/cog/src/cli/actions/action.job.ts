@@ -3,7 +3,12 @@ import { FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/l
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineIntegerParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
+import {
+    CommandLineAction,
+    CommandLineFlagParameter,
+    CommandLineIntegerParameter,
+    CommandLineStringParameter,
+} from '@microsoft/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
@@ -131,6 +136,7 @@ export class ActionJobCreate extends CommandLineAction {
         const metadata = await builder.build(tiffSource, logger);
 
         const logObj = { ...metadata };
+        const nodata = metadata.nodata;
         delete logObj.bounds; // Don't log bounds as it is huge
         logger.info(logObj, 'CoveringGenerated');
 
@@ -148,7 +154,7 @@ export class ActionJobCreate extends CommandLineAction {
             );
         }
 
-        const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true, forceNoData255: true };
+        const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true, forceNoData: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist
         if (metadata.bands > 3) {
             logger.warn({ bandCount: metadata.bands }, 'Vrt:DetectedAlpha, Disabling -addalpha');
@@ -167,6 +173,7 @@ export class ActionJobCreate extends CommandLineAction {
             output: {
                 ...outputConfig,
                 resample: getResample(this.resample?.value),
+                nodata: nodata,
                 vrt: {
                     options: vrtOptions,
                 },
