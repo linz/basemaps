@@ -2,7 +2,12 @@ import { BoundingBox, Size } from '@basemaps/geo';
 import { Metrics } from '@basemaps/metrics';
 
 export interface TileMaker {
-    compose(composition: Composition[]): Promise<{ buffer: Buffer; metrics: Metrics }>;
+    compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics }>;
+}
+
+export interface TileMakerContext {
+    layers: Composition[];
+    format: ImageFormat;
 }
 
 export interface Composition {
@@ -26,4 +31,25 @@ export interface Composition {
     resize?: Size;
     /** Crop after the resize */
     crop?: BoundingBox;
+}
+
+export enum ImageFormat {
+    PNG = 'png',
+    JPEG = 'jpeg',
+    WEBP = 'webp',
+}
+
+/** Guess the image format based on the file extension */
+export function getImageFormat(ext: string): ImageFormat | null {
+    const search = ext.toLowerCase();
+    if (search == 'png') {
+        return ImageFormat.PNG;
+    }
+    if (search == 'webp') {
+        return ImageFormat.WEBP;
+    }
+    if (search == 'jpeg' || search == 'jpg') {
+        return ImageFormat.JPEG;
+    }
+    return null;
 }

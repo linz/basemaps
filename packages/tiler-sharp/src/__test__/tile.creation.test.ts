@@ -5,7 +5,7 @@ import { CogSourceFile } from '@cogeotiff/source-file';
 import { readFileSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import { PNG } from 'pngjs';
-import { Tiler } from '@basemaps/tiler';
+import { Tiler, ImageFormat } from '@basemaps/tiler';
 import PixelMatch = require('pixelmatch');
 import { TileMakerSharp } from '..';
 import * as o from 'ospec';
@@ -54,6 +54,33 @@ o.spec('TileCreation', () => {
         o(layer.y).equals(tiler.tileSize / 2);
     });
 
+    o('should generate webp', async () => {
+        const tileMaker = new TileMakerSharp(256);
+        const res = await tileMaker.compose({ layers: [], format: ImageFormat.WEBP });
+        // Image format `R I F F <fileSize (int32)> W E B P`
+        const magicBytes = res.buffer.slice(0, 4);
+        const magicWebP = res.buffer.slice(8, 12);
+        o(magicBytes.toString()).equals('RIFF');
+        o(magicWebP.toString()).equals('WEBP');
+    });
+
+    o('should generate jpeg', async () => {
+        const tileMaker = new TileMakerSharp(256);
+        const res = await tileMaker.compose({ layers: [], format: ImageFormat.JPEG });
+        const magicBytes = res.buffer.slice(0, 4);
+        o(magicBytes.toJSON().data).deepEquals([0xff, 0xd8, 0xff, 0xdb]);
+    });
+
+    o('should error when provided invalid image formats', async () => {
+        const tileMaker = new TileMakerSharp(256);
+        try {
+            await tileMaker.compose({ layers: [] } as any);
+            o(true).equals(false)('invalid format');
+        } catch (e) {
+            o(e.message.includes('Invalid image')).equals(true);
+        }
+    });
+
     let RenderTests = [
         { tileSize: 256, zoom: 18 },
         { tileSize: 256, zoom: 19 },
@@ -85,7 +112,7 @@ o.spec('TileCreation', () => {
             o(layers).notEquals(null);
             if (layers == null) throw new Error('Tile is null');
 
-            const png = await tileMaker.compose(layers);
+            const png = await tileMaker.compose({ layers, format: ImageFormat.PNG });
             const newImage = PNG.sync.read(png.buffer);
             if (WRITE_IMAGES) {
                 const fileName = getExpectedTileName(tileSize, centerTile, centerTile, zoom);

@@ -2,7 +2,7 @@ import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { writeFileSync } from 'fs';
 import * as path from 'path';
-import { Tiler } from '@basemaps/tiler';
+import { Tiler, ImageFormat } from '@basemaps/tiler';
 import { Metrics } from '@basemaps/metrics';
 import { TileMakerSharp } from '..';
 import * as o from 'ospec';
@@ -33,7 +33,7 @@ o.spec('TileCreationBenchmark', () => {
         timer.end('tiler:tile');
 
         if (layers == null) throw new Error('Tile is null');
-        await tileMaker.compose(layers);
+        await tileMaker.compose({ layers, format: ImageFormat.PNG });
 
         await source.close();
     }
