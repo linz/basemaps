@@ -3,12 +3,7 @@ import { FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/l
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
-import {
-    CommandLineAction,
-    CommandLineFlagParameter,
-    CommandLineIntegerParameter,
-    CommandLineStringParameter,
-} from '@microsoft/ts-command-line';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineIntegerParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
@@ -137,6 +132,7 @@ export class ActionJobCreate extends CommandLineAction {
 
         const logObj = { ...metadata };
         const nodata = metadata.nodata;
+
         delete logObj.bounds; // Don't log bounds as it is huge
         logger.info(logObj, 'CoveringGenerated');
 

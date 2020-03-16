@@ -88,7 +88,7 @@ export class CogBuilder {
                 }
 
                 const noData = this.findNoData(tiff);
-                if (noData != null && noData != projection) {
+                if (noData != null && noData != nodata) {
                     if (nodata != -1) {
                         throw new Error('Multiple No Data values');
                     }
@@ -153,7 +153,8 @@ export class CogBuilder {
      * @param tiff
      */
     findNoData(tiff: CogTiff): number {
-        return tiff.getImage(0).value(TiffTag.GDAL_NODATA) ?? 255;
+        const gdalNoData: string = tiff.getImage(0).value(TiffTag.GDAL_NODATA);
+        return parseInt(gdalNoData) ?? 255;
     }
 
     /**
