@@ -15,6 +15,7 @@ import { EmptyPng } from './png';
 import { route } from './router';
 import { TiffUtil } from './tiff';
 import { Tilers } from './tiler';
+import { ImageFormat } from '@basemaps/tiler';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
@@ -116,7 +117,7 @@ export async function handleRequest(
     }
 
     session.timer.start('tile:compose');
-    const res = await tileMaker.compose(layers);
+    const res = await tileMaker.compose({ layers, format: ImageFormat.PNG });
     session.timer.end('tile:compose');
     session.set('layersUsed', res.layers);
     session.set('allLayersUsed', res.layers == layers.length);
