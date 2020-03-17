@@ -1,27 +1,91 @@
 export type VNodeInput = string | number | VNode;
+
+const indent = (level: number): string => '  '.repeat(level);
+
 /**
- * Two types of virtual nodes are required raw text and actual elements
- */
-export enum VNodeType {
-    Raw = 'raw',
-    Node = 'node',
+ * Virtual Node for storing `sgml` style documents
+ **/
+export abstract class VNode {
+    /**
+     * Convert a virtual dom node to sgml text
+     * @param level current indentation level
+     */
+    toString(level = 0): string {
+        return indent(level) + '[VNode]';
+    }
+
+    /** Find elements with `tag` */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    *tags(tag: string): Generator<VNode, void, void> {
+        return;
+    }
 }
 
-export type VNode = VNodeElement | VNodeText;
-/** Virtual node */
-export interface VNodeElement {
-    type: VNodeType.Node;
-    /** XML tag to use eg "div" */
+/**
+ * Virtual Text Node for storing text leaf nodes
+ **/
+export class VNodeText extends VNode {
+    text: string;
+
+    constructor(text: string) {
+        super();
+        this.text = text;
+    }
+
+    toString(level = 0): string {
+        return indent(level) + this.text;
+    }
+}
+
+/**
+ * Virtual Element Node for storing tagged elements
+ **/
+export class VNodeElement extends VNode {
     tag: string;
     attrs: Record<string, string>;
     children: VNode[];
-}
 
-/** Text virtual node */
-export interface VNodeText {
-    type: VNodeType.Raw;
-    /** Value of the text */
-    text: string;
+    constructor(tag: string, attrs: Record<string, string>, children: VNode[]) {
+        super();
+        this.tag = tag;
+        this.attrs = attrs;
+        this.children = children;
+    }
+
+    toString(level = 0): string {
+        const attrs = this.toStringAttrs();
+        const padding = indent(level);
+        return `${padding}<${this.tag}${attrs}>${this.toStringChildren(level)}</${this.tag}>`;
+    }
+
+    *tags(tag: string): Generator<VNode, void, void> {
+        if (this.tag === tag) yield this;
+
+        for (const child of this.children) yield* child.tags(tag);
+    }
+
+    private toStringAttrs(): string {
+        const keys = Object.keys(this.attrs);
+        if (keys.length == 0) {
+            return '';
+        }
+        let out = '';
+        for (const key of keys) {
+            const val = this.attrs[key];
+            if (val == null) continue;
+            out += ` ${key}="${val}"`;
+        }
+        return out;
+    }
+
+    private toStringChildren(level = 0): string {
+        if (this.children.length == 0) return '';
+        if (this.children.length == 1) {
+            const n1 = this.children[0];
+            if (n1 instanceof VNodeText) return n1.text;
+        }
+        return `\n${this.children.map(c => c.toString(level + 1)).join(`\n`)}\n${indent(level)}`;
+    }
 }
 
 /**
@@ -38,7 +102,7 @@ function normalizeChildren(children?: VNodeInput[] | VNodeInput): VNode[] {
         for (const c of children) {
             if (c == null) continue;
             if (typeof c == 'string' || typeof c == 'number') {
-                childNodes.push({ type: VNodeType.Raw, text: String(c) });
+                childNodes.push(new VNodeText(String(c)));
                 continue;
             }
 
@@ -46,7 +110,7 @@ function normalizeChildren(children?: VNodeInput[] | VNodeInput): VNode[] {
         }
         return childNodes;
     } else if (typeof children == 'string' || typeof children == 'number') {
-        return [{ type: VNodeType.Raw, text: String(children) }];
+        return [new VNodeText(String(children))];
     }
     return [children];
 }
@@ -56,53 +120,24 @@ function normalizeChildren(children?: VNodeInput[] | VNodeInput): VNode[] {
  *
  * @example
  * ```typescript
- * V('div', {style: 'color:red'},'Hello World')
+ * V('div', {style: 'color:red'}, 'Hello World')
+ * V('div', ['one', V('b', 'two')])
+ * V('p')
  * ```
  *
  * @param tag DOM tag to use
  * @param attrs DOM attributes
  * @param children DOM children
  */
-export function V(tag: string, attrs?: Record<string, any>, children?: VNodeInput[] | VNodeInput): VNodeElement {
-    return {
-        type: VNodeType.Node,
-        tag,
-        attrs: attrs ?? {},
-        children: normalizeChildren(children),
-    };
-}
-
-function VDomToStringAttrs(n: VNodeElement): string {
-    const keys = Object.keys(n.attrs);
-    if (keys.length == 0) {
-        return '';
+export function V(tag: string): VNodeElement;
+export function V(tag: string, children: VNodeInput[] | VNodeInput): VNodeElement;
+export function V(tag: string, attrs: Record<string, any>, children?: VNodeInput[] | VNodeInput): VNodeElement;
+export function V(tag: string, arg1?: any, children?: VNodeInput[] | VNodeInput): VNodeElement {
+    const hasAttrs = typeof arg1 === 'object' && !Array.isArray(arg1);
+    if (!hasAttrs) {
+        if (children != null) throw new Error('Invalid input');
+        children = arg1;
     }
-    let out = '';
-    for (const key of keys) {
-        const val = n.attrs[key];
-        if (val == null) continue;
-        out += ` ${key}="${val}"`;
-    }
-    return out;
-}
 
-function VDomToStringChildren(n: VNodeElement, level = 0): string {
-    if (n.children.length == 0) return '';
-    const lastIndent = '  '.repeat(level);
-    const indent = lastIndent + '  ';
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    return `\n${indent}${n.children.map(c => VToString(c, level + 1)).join(`\n${indent}`)}\n${lastIndent}`;
-}
-
-/**
- * Convert a virtual dom node to text
- * @param node Root virtual node
- * @param level current indentation level
- */
-export function VToString(node: VNode, level = 0): string {
-    if (node.type == VNodeType.Raw) {
-        return node.text;
-    }
-    const attrs = VDomToStringAttrs(node);
-    return `<${node.tag}${attrs}>${VDomToStringChildren(node, level)}</${node.tag}>`;
+    return new VNodeElement(tag, hasAttrs ? arg1 : {}, normalizeChildren(children));
 }

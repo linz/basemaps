@@ -11,7 +11,7 @@ export { LambdaHttpResponse, LambdaType } from './lambda.response.http';
 export { LogConfig, LogType } from './log';
 export { tileFromPath } from './api-path';
 export { LambdaSession } from './session';
-export { V, VToString } from './vdom';
+export { V, VNode, VNodeElement, VNodeText } from './vdom';
 
 export * from './router';
 export * from './file';
