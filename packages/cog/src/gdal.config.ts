@@ -51,5 +51,5 @@ export function getResample(t: string | undefined): GdalCogBuilderOptionsResampl
     if (t && resampleMap[t]) {
         return resampleMap[t];
     }
-    resampleMap[gdalCogBuilderOptionsResamplingDefault];
+    return resampleMap[gdalCogBuilderOptionsResamplingDefault];
 }
