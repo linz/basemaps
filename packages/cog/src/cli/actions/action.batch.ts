@@ -41,10 +41,6 @@ export class ActionBatchJob extends CommandLineAction {
 
         const commandStr = ['-V', 'cog', '--job', this.job.value, '--commit', '--quadkey', quadKey];
 
-        if (job.output.resample) {
-            commandStr.push('--resample', job.output.resample);
-        }
-
         const batchJob = await batch
             .submitJob({
                 jobName,
