@@ -9,7 +9,7 @@ export interface VrtOptions {
     /** No need to force a reprojection to 3857 if source imagery is in 3857 */
     forceEpsg3857: boolean;
 
-    /** Force no data values to 255 on src and dst */
+    /** Force no data values on src and dst */
     forceNoData: boolean;
 }
 

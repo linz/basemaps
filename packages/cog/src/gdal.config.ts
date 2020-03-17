@@ -48,5 +48,8 @@ const resampleMap: Record<string, GdalCogBuilderOptionsResampling> = {
 };
 
 export function getResample(t: string | undefined): GdalCogBuilderOptionsResampling {
-    return resampleMap[t ?? gdalCogBuilderOptionsResamplingDefault];
+    if (t && resampleMap[t]) {
+        return resampleMap[t];
+    }
+    resampleMap[gdalCogBuilderOptionsResamplingDefault];
 }
