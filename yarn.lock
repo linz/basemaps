@@ -237,6 +237,14 @@
     "@aws-cdk/aws-iam" "1.25.0"
     "@aws-cdk/core" "1.25.0"
 
+"@aws-cdk/aws-events@1.28.0":
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-events/-/aws-events-1.28.0.tgz#07310c329278a6ea336c2b69952e9b04757e61c0"
+  integrity sha512-u3FZITeo5RpDnJxZQcijFaCkjPPFj6EmozQrBLjiDGBFau/lRwooMqJPoElsiqrhh45YGhb6aSTAoDc15IF76w==
+  dependencies:
+    "@aws-cdk/aws-iam" "1.28.0"
+    "@aws-cdk/core" "1.28.0"
+
 "@aws-cdk/aws-iam@1.25.0":
   version "1.25.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-iam/-/aws-iam-1.25.0.tgz#f1c724ad1d1db6f900c329cffcc5257750a866e1"
@@ -245,6 +253,14 @@
     "@aws-cdk/core" "1.25.0"
     "@aws-cdk/region-info" "1.25.0"
 
+"@aws-cdk/aws-iam@1.28.0":
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-iam/-/aws-iam-1.28.0.tgz#1177fcf9c078e8836a8796da6db159d7348e3907"
+  integrity sha512-KrIbYl8Qu7l9nNDmo4Bf0x24wsyd68VKZI9nkhGyzmxOmDAp1mD1W8BhWhXih6N3J3Av4HUm3k5aXljSjeLHRA==
+  dependencies:
+    "@aws-cdk/core" "1.28.0"
+    "@aws-cdk/region-info" "1.28.0"
+
 "@aws-cdk/aws-kms@1.25.0":
   version "1.25.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-kms/-/aws-kms-1.25.0.tgz#a41224b7b55cf0606817cb4a729d728c69bfd1e7"
@@ -252,6 +268,14 @@
   dependencies:
     "@aws-cdk/aws-iam" "1.25.0"
     "@aws-cdk/core" "1.25.0"
+
+"@aws-cdk/aws-kms@1.28.0":
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-kms/-/aws-kms-1.28.0.tgz#8db5d012e27cbb66875c7dc5cde7dff175f9ad27"
+  integrity sha512-3WEk+Fndm096b5f8YTT2+Ojw381t6ygm5cVmE1eU2/aybwt45UdHbRNcywkaJPdDJhvbPQF6rR646eiq6UJx9Q==
+  dependencies:
+    "@aws-cdk/aws-iam" "1.28.0"
+    "@aws-cdk/core" "1.28.0"
 
 "@aws-cdk/aws-lambda@1.25.0":
   version "1.25.0"
@@ -315,7 +339,7 @@
     "@aws-cdk/core" "1.25.0"
     "@aws-cdk/cx-api" "1.25.0"
 
-"@aws-cdk/aws-s3@1.25.0", "@aws-cdk/aws-s3@^1.25.0":
+"@aws-cdk/aws-s3@1.25.0":
   version "1.25.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-s3/-/aws-s3-1.25.0.tgz#7dcf8de1940a37f6d581e46702687f0405b59268"
   integrity sha512-pqgaIvX3O/WA347XBd+/5d/XimJQ9QB8SwktP8j1IM/gnr1VFWbER0GB+WCjE4q4zd8NP9eAX73gKGW7Sj6ZLA==
@@ -324,6 +348,16 @@
     "@aws-cdk/aws-iam" "1.25.0"
     "@aws-cdk/aws-kms" "1.25.0"
     "@aws-cdk/core" "1.25.0"
+
+"@aws-cdk/aws-s3@^1.25.0":
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-s3/-/aws-s3-1.28.0.tgz#b9b6eab2f461a52bf4f1d7853d80decbf31ddb88"
+  integrity sha512-Ln6fdeJh8jEnS4YH5vi0tUdScYXsKAgQR4/clNIZ0YKgJiNwnBdkLll9VAvVM4qCpOQelRj6HjrhWhUF16h0Dg==
+  dependencies:
+    "@aws-cdk/aws-events" "1.28.0"
+    "@aws-cdk/aws-iam" "1.28.0"
+    "@aws-cdk/aws-kms" "1.28.0"
+    "@aws-cdk/core" "1.28.0"
 
 "@aws-cdk/aws-sam@1.25.0":
   version "1.25.0"
@@ -446,12 +480,19 @@
     string-width "^4.2.0"
     table "^5.4.6"
 
-"@aws-cdk/core@1.25.0", "@aws-cdk/core@^1.25.0":
+"@aws-cdk/core@1.25.0":
   version "1.25.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.25.0.tgz#489a7bffad08915acd1dd0039fe1304df568d9ab"
   integrity sha512-9N6Y9OI/2uVE1SNMB19N0mLaz2X6EzVg0uQnkesrDWd9YYJ43FmsVl79rQYvhwqqCktV2/wQ6DvY2y02RMWp6g==
   dependencies:
     "@aws-cdk/cx-api" "1.25.0"
+
+"@aws-cdk/core@1.28.0", "@aws-cdk/core@^1.25.0":
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/core/-/core-1.28.0.tgz#86c3076b3180bbff4d0ba87c2d063800f062b21a"
+  integrity sha512-MOvDUcv5UkIioVAiZxFmR1fuY2YnR/yhYv/xp2UPLC0bHW+HgkuF3ccdumTRR/W2LxxL7hjo4+2mSP6kuflxBg==
+  dependencies:
+    "@aws-cdk/cx-api" "1.28.0"
 
 "@aws-cdk/custom-resources@1.25.0":
   version "1.25.0"
@@ -473,10 +514,22 @@
   dependencies:
     semver "^7.1.3"
 
+"@aws-cdk/cx-api@1.28.0":
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/cx-api/-/cx-api-1.28.0.tgz#4153cca28f6dab6101c46864e0eb94340f055182"
+  integrity sha512-FwjifjofFmM5W6N8TG2x5EeHfCHvsKNaQ8p+4XdmjdEGw5hyiqNRROFphLI+fqrrKoABoUO5E4Cal8nGy7uq5g==
+  dependencies:
+    semver "^7.1.3"
+
 "@aws-cdk/region-info@1.25.0":
   version "1.25.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/region-info/-/region-info-1.25.0.tgz#fdf2696ba3347b7679c60a7993cfc455e16043aa"
   integrity sha512-A39nDwkqfYCqoBgqyyOs70yrSCLnfgkuiZlKPsj28lTZkwyKyqszBdJCXsICt/7dG/Gz7iIEmkD/pPBfqNjygA==
+
+"@aws-cdk/region-info@1.28.0":
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/region-info/-/region-info-1.28.0.tgz#18e0b5e1f9d8566eab5b35c91fe20a62fe3ab08e"
+  integrity sha512-Qosfl9H7o2HoEUOoC0aUUoIyv5BwT9ijZgxAQGhJbfRqXdkb2SVtzAMQ7bj+l7wBLPfPbaLFS+DBnR2+GxUR+g==
 
 "@babel/code-frame@^7.0.0":
   version "7.8.3"
