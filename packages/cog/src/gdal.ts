@@ -1,10 +1,10 @@
 import { EPSG, Projection } from '@basemaps/geo';
 import { Env, LogType } from '@basemaps/lambda-shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
+import { GdalCommand } from './gdal.command';
 import { GdalCogBuilderOptions } from './gdal.config';
 import { GdalDocker } from './gdal.docker';
 import { GdalLocal } from './gdal.local';
-import { GdalCommand } from './gdal.command';
 
 /** 1% Buffer to the tiff to help prevent gaps between tiles */
 // const TiffBuffer = 1.01;
@@ -56,7 +56,7 @@ export class GdalCogBuilder {
             bbox: config.bbox,
             alignmentLevels: config.alignmentLevels ?? 1,
             compression: config.compression ?? 'webp',
-            resampling: config.resampling ?? 'lanczos',
+            resampling: config.resampling ?? 'cubic',
             blockSize: config.blockSize ?? 512,
         };
 

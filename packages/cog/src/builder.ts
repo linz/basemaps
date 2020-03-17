@@ -24,6 +24,9 @@ export interface CogBuilderBounds {
 
     /** EPSG projection number */
     projection: number;
+
+    /** GDAL_NODATA value */
+    nodata: number;
 }
 export const InvalidProjectionCode = 32767;
 export const CacheFolder = './.cache';
@@ -51,6 +54,7 @@ export class CogBuilder {
         let resolution = -1;
         let bandCount = -1;
         let projection = -1;
+        let nodata = -1;
         let count = 0;
         const coordinates = sources.map(source => {
             return this.q(async () => {
@@ -83,6 +87,14 @@ export class CogBuilder {
                     projection = imageProjection;
                 }
 
+                const tiffNoData = this.findNoData(tiff, logger);
+                if (tiffNoData != null && tiffNoData != nodata) {
+                    if (nodata != -1) {
+                        throw new Error('Multiple No Data values');
+                    }
+                    nodata = tiffNoData;
+                }
+
                 return output;
             });
         });
@@ -90,6 +102,7 @@ export class CogBuilder {
         const polygons = await Promise.all(coordinates);
         return {
             projection,
+            nodata,
             bands: bandCount,
             bounds: GeoJson.toFeatureCollection(polygons),
             resolution,
@@ -133,6 +146,27 @@ export class CogBuilder {
 
         logger.error({ tiff: tiff.source.name }, 'Failed find projection');
         throw new Error('Failed to find projection');
+    }
+
+    /**
+     * Get the nodata value stored in the source tiff
+     * @param tiff
+     * @param logger
+     */
+    findNoData(tiff: CogTiff, logger: LogType): number {
+        const gdalNoData: string = tiff.getImage(0).value(TiffTag.GDAL_NODATA);
+        /* can't read GDAL_NODATA value*/
+        if (gdalNoData) {
+            const noDataNum = parseInt(gdalNoData);
+            /* can't parse GDAL_NODATA value or its invalid */
+            if (noDataNum && -1 < noDataNum && noDataNum < 256) {
+                return noDataNum;
+            }
+            logger.warn({ tiff: tiff.source.name }, 'Failed converting GDAL_NODATA, defaulting to 255');
+            return 255;
+        }
+        logger.warn({ tiff: tiff.source.name }, 'Failed reading GDAL_NODATA, defaulting to 255');
+        return 255;
     }
 
     /**

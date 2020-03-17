@@ -1,15 +1,10 @@
 import { Env, FileOperator, FileOperatorSimple, LogConfig, LogType } from '@basemaps/lambda-shared';
-import {
-    CommandLineAction,
-    CommandLineFlagParameter,
-    CommandLineIntegerParameter,
-    CommandLineStringParameter,
-} from '@microsoft/ts-command-line';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineIntegerParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import * as ulid from 'ulid';
 import { buildCogForQuadKey, CogJob } from '../../cog';
 import { buildWarpedVrt } from '../../cog.vrt';
-import { makeTempFolder, getJobPath } from '../folder';
+import { getJobPath, makeTempFolder } from '../folder';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;

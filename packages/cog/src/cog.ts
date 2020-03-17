@@ -1,9 +1,9 @@
-import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import { EPSG } from '@basemaps/geo';
+import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import * as Mercator from 'global-mercator';
 import { VrtOptions } from './cog.vrt';
 import { GdalCogBuilder } from './gdal';
-
+import { GdalCogBuilderOptionsResampling, getResample } from './gdal.config';
 export interface CogJob {
     /** Unique processing Id */
     id: string;
@@ -32,6 +32,8 @@ export interface CogJob {
 
     /** Folder/S3 bucket to store the output */
     output: {
+        resample: GdalCogBuilderOptionsResampling;
+        nodata: number;
         vrt: {
             options: VrtOptions;
         };
@@ -91,6 +93,7 @@ export async function buildCogForQuadKey(
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [minX, minY, maxX, maxY],
         alignmentLevels,
+        resampling: getResample(job.output.resample),
     });
     if (cogBuild.gdal.mount) {
         job.source.files.forEach(f => cogBuild.gdal.mount?.(f));

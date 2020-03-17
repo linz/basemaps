@@ -3,9 +3,9 @@ import { LogConfig } from '@basemaps/lambda-shared';
 import { CommandLineParser } from '@microsoft/ts-command-line';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
+import { ActionBatchJob } from './actions/action.batch';
 import { ActionCogCreate } from './actions/action.cog';
 import { ActionJobCreate } from './actions/action.job';
-import { ActionBatchJob } from './actions/action.batch';
 
 export class CogifyCommandLine extends CommandLineParser {
     verbose = this.defineFlagParameter({

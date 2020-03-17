@@ -34,8 +34,15 @@ export class ActionBatchJob extends CommandLineAction {
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;
+
         if (!isCommit || this.job?.value == null) {
             return { jobName, jobId: '', memory };
+        }
+
+        const commandStr = ['-V', 'cog', '--job', this.job.value, '--commit', '--quadkey', quadKey];
+
+        if (job.output.resample) {
+            commandStr.push('--resample', job.output.resample);
         }
 
         const batchJob = await batch
@@ -45,7 +52,7 @@ export class ActionBatchJob extends CommandLineAction {
                 jobDefinition: JobDefinition,
                 containerOverrides: {
                     memory,
-                    command: ['-V', 'cog', '--job', this.job.value, '--commit', '--quadkey', quadKey],
+                    command: commandStr,
                 },
             })
             .promise();
