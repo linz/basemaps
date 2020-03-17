@@ -11,5 +11,6 @@ export { LambdaHttpResponse, LambdaType } from './lambda.response.http';
 export { LogConfig, LogType } from './log';
 export { getXyzFromPath, PathData } from './path';
 export { LambdaSession } from './session';
+export { V, VToString } from './vdom';
 
 export * from './file';
