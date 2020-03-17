@@ -35,7 +35,8 @@
   ],
   "resolutions": {
     "acorn": "^7.1.1",
-    "https-proxy-agent": "^3.0.0"
+    "https-proxy-agent": "^3.0.0",
+    "minimist": "^1.2.3"
   },
   "dependencies": {
     "https-proxy-agent": "^5.0.0"
