@@ -131,7 +131,6 @@ export class ActionJobCreate extends CommandLineAction {
         const metadata = await builder.build(tiffSource, logger);
 
         const logObj = { ...metadata };
-        const nodata = metadata.nodata;
 
         delete logObj.bounds; // Don't log bounds as it is huge
         logger.info(logObj, 'CoveringGenerated');
@@ -169,7 +168,7 @@ export class ActionJobCreate extends CommandLineAction {
             output: {
                 ...outputConfig,
                 resample: getResample(this.resample?.value),
-                nodata: nodata,
+                nodata: metadata.nodata,
                 vrt: {
                     options: vrtOptions,
                 },

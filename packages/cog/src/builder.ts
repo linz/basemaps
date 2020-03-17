@@ -87,12 +87,12 @@ export class CogBuilder {
                     projection = imageProjection;
                 }
 
-                const noData = this.findNoData(tiff, logger);
-                if (noData != null && noData != nodata) {
+                const tiffNoData = this.findNoData(tiff, logger);
+                if (tiffNoData != null && tiffNoData != nodata) {
                     if (nodata != -1) {
                         throw new Error('Multiple No Data values');
                     }
-                    nodata = noData;
+                    nodata = tiffNoData;
                 }
 
                 return output;

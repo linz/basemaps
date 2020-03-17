@@ -89,12 +89,11 @@ export async function buildCogForQuadKey(
     const google = Mercator.quadkeyToGoogle(quadKey);
     const [minX, maxY, maxX, minY] = Mercator.googleToBBoxMeters(google);
     const alignmentLevels = job.source.resolution - google[2];
-    const resampletype = getResample(job.output.resample);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [minX, minY, maxX, maxY],
         alignmentLevels,
-        resampling: resampletype,
+        resampling: getResample(job.output.resample),
     });
     if (cogBuild.gdal.mount) {
         job.source.files.forEach(f => cogBuild.gdal.mount?.(f));
