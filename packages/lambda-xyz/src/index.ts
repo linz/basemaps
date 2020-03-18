@@ -1,4 +1,12 @@
-import { LambdaHttpResponseAlb, LambdaSession, LogType, ReqInfo, Router } from '@basemaps/lambda-shared';
+import {
+    LambdaHttpResponseAlb,
+    LambdaSession,
+    LogType,
+    ReqInfo,
+    Router,
+    LambdaType,
+    LambdaFunction,
+} from '@basemaps/lambda-shared';
 import { ALBEvent } from 'aws-lambda';
 import health from './health';
 import ping from './ping';
@@ -50,3 +58,5 @@ export async function handleRequest(
 
     return (await app.handle(info)) as LambdaHttpResponseAlb;
 }
+
+export const handler = LambdaFunction.wrap(LambdaType.Alb, handleRequest);
