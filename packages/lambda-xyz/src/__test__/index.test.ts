@@ -15,6 +15,12 @@ o.spec('LambdaXyz index', () => {
         };
     }
 
+    o('should export handler', () => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const foo = require('../index');
+        o(typeof foo.handler).equals('function');
+    });
+
     o.spec('version', () => {
         const origVersion: any = process.env[Env.Version];
         const origHash: any = process.env[Env.Hash];
