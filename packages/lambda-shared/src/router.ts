@@ -1,4 +1,4 @@
-import { ActionData, extractAction } from './api-path';
+import { ActionData, populateAction } from './api-path';
 import { LambdaHttpResponse } from './lambda.response.http';
 import { LogType } from './log';
 import { LambdaSession } from './session';
@@ -49,7 +49,7 @@ export class Router {
             return this.newResponse(405, 'Method not allowed');
         }
 
-        extractAction(info);
+        populateAction(info);
         const handler = info.version === 'v1' ? this.handlers[info.action] : null;
         if (handler == null) {
             return this.notFound();

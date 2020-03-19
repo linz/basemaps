@@ -39,16 +39,15 @@ o.spec('xyz-request', () => {
         ValidateRequest.validate = origValidate;
     });
 
-    o('should catch invalid URLS', async () => {
-        const session = new LambdaSession();
-        const res = await handleRequest(req('/v1/foo'), session, mockLogger);
-
-        o(res.status).equals(404);
+    o('should export handler', () => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const foo = require('../index');
+        o(typeof foo.handler).equals('function');
     });
 
     o('should catch missing api key', async () => {
         const session = new LambdaSession();
-        const res = await handleRequest(req('/v1/tiles/1/2/3.png', ''), session, mockLogger);
+        const res = await handleRequest(req('/v1/tiles/aerial/global-mercator/1/2/3.png', ''), session, mockLogger);
 
         o(res.status).equals(400);
         o(res.statusDescription).equals('Invalid API Key');
@@ -58,7 +57,11 @@ o.spec('xyz-request', () => {
         ValidateRequest.validate = async (): Promise<LambdaHttpResponseCloudFront | null> => null;
 
         const session = new LambdaSession();
-        const res = (await handleRequest(req('/v1/tiles/1/2/3.png'), session, mockLogger)) as any;
+        const res = (await handleRequest(
+            req('/v1/tiles/aerial/global-mercator/1/2/3.png'),
+            session,
+            mockLogger,
+        )) as any;
 
         o(res.status).equals(200);
         const corrId = res.req.headers['x-linz-correlation-id'][0].value;

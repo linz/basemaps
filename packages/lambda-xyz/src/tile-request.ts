@@ -6,6 +6,9 @@ import {
     LogType,
     ReqInfo,
     tileFromPath,
+    TileType,
+    TileDataXyz,
+    TileDataWmts,
 } from '@basemaps/lambda-shared';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -14,9 +17,12 @@ import { EmptyPng } from './png';
 import { TiffUtil } from './tiff';
 import { Tilers } from './tiler';
 import { ImageFormat } from '@basemaps/tiler';
+import { buildWmtsCapability } from './wmts-capability';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
+
+const notFound = (): LambdaHttpResponseAlb => new LambdaHttpResponseAlb(404, 'Not Found');
 
 /**
  * Serve a empty PNG response
@@ -55,13 +61,11 @@ async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<Cog
     return tiffs;
 }
 
-export default async (info: ReqInfo): Promise<LambdaHttpResponseAlb> => {
+const image = async (info: ReqInfo, xyzData: TileDataXyz): Promise<LambdaHttpResponseAlb> => {
     const { session, logger } = info;
     const tiler = Tilers.tile256;
     const tileMaker = Tilers.compose256;
 
-    const xyzData = tileFromPath(info.rest);
-    if (xyzData == null) return new LambdaHttpResponseAlb(404, 'Not Found');
     const { x, y, z } = xyzData;
 
     const latLon = tiler.projection.getLatLonCenterFromTile(x, y, z);
@@ -111,4 +115,34 @@ export default async (info: ReqInfo): Promise<LambdaHttpResponseAlb> => {
     response.header(HttpHeader.ETag, cacheKey);
     response.buffer(res.buffer, 'image/png');
     return response;
+};
+
+const wmts = (info: ReqInfo, wmtsData: TileDataWmts): LambdaHttpResponseAlb => {
+    const response = new LambdaHttpResponseAlb(200, 'ok');
+
+    const host = ''; // TODO get the full protocol + host.
+
+    const xml = buildWmtsCapability(host, wmtsData.tileSet, wmtsData.projection);
+
+    if (xml == null) return notFound();
+
+    const data = Buffer.from(xml);
+
+    const cacheKey = createHash('sha256')
+        .update(data)
+        .digest('base64');
+
+    response.header(HttpHeader.ETag, cacheKey);
+    response.buffer(data, 'text/xml');
+    return response;
+};
+
+export default async (info: ReqInfo): Promise<LambdaHttpResponseAlb> => {
+    const xyzData = tileFromPath(info.rest);
+    if (xyzData == null) return notFound();
+    if (xyzData.type === TileType.WMTS) {
+        return wmts(info, xyzData);
+    } else {
+        return await image(info, xyzData);
+    }
 };

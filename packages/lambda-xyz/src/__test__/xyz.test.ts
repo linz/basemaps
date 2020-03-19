@@ -17,6 +17,7 @@ o.spec('LambdaXyz', () => {
             httpMethod: method.toUpperCase(),
             path,
             body: null,
+            headers: { host: 'basemaps.test' },
             isBase64Encoded: false,
         };
     }
@@ -57,12 +58,12 @@ o.spec('LambdaXyz', () => {
 
     o('should generate a tile 0,0,0', async () => {
         const session = new LambdaSession();
-        const res = await makeReq('/v1/tiles/0/0/0.png', session);
+        const res = await makeReq('/v1/tiles/aerial/global-mercator/0/0/0.png', session);
         o(res.status).equals(200);
         o(res.headers).deepEquals({
             'content-type': 'image/png',
             // TODO Should we hardcode a base64'd hash here?
-            etag: 'kEi8hQnoaOvZhjvAztE/AiUM1UfQsRJfCNIDw7idC7Y=',
+            etag: 'Je+AcRSzbjT8XIAe/VK/Sfh9KlDHPAmq3BkBbpnN3/Q=',
         });
         o(res.toResponse().body).equals(rasterMockBuffer.toString('base64'));
 
@@ -74,7 +75,7 @@ o.spec('LambdaXyz', () => {
         o(z).equals(0);
 
         // Validate the session information has been set correctly
-        o(session.logContext['path']).equals('/v1/tiles/0/0/0.png');
+        o(session.logContext['path']).equals('/v1/tiles/aerial/global-mercator/0/0/0.png');
         o(session.logContext['method']).equals('get');
         o(session.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
         o(session.logContext['location']).deepEquals({ lat: 0, lon: 0 });
@@ -82,22 +83,49 @@ o.spec('LambdaXyz', () => {
 
     o('should 200 with empty png if a tile is out of bounds', async () => {
         Tilers.tile256.tile = async () => null;
-        const res = await handleRequest(req('/v1/tiles/0/0/0.png'), new LambdaSession(), LogConfig.get());
+        const res = await handleRequest(
+            req('/v1/tiles/aerial/global-mercator/0/0/0.png'),
+            new LambdaSession(),
+            LogConfig.get(),
+        );
         o(res.status).equals(200);
         o(rasterMock.calls.length).equals(0);
     });
 
     o('should 304 if a tile is not modified', async () => {
-        const request = req('/v1/tiles/0/0/0.png');
+        const request = req('/v1/tiles/aerial/global-mercator/0/0/0.png');
         const session = new LambdaSession();
 
-        request.headers = { 'if-none-match': 'kEi8hQnoaOvZhjvAztE/AiUM1UfQsRJfCNIDw7idC7Y=' };
+        request.headers = { 'if-none-match': 'Je+AcRSzbjT8XIAe/VK/Sfh9KlDHPAmq3BkBbpnN3/Q=' };
         const res = await handleRequest(request, session, LogConfig.get());
         o(res.status).equals(304);
         o(tileMock.calls.length).equals(1);
         o(rasterMock.calls.length).equals(0);
 
         o(session.logContext['cache'].hit).equals(true);
+    });
+
+    o('should serve WMTSCapabilities for tile_set', async () => {
+        const request = req('/v1/tiles/aerial/WMTSCapabilities.xml');
+        const session = new LambdaSession();
+
+        const res = await handleRequest(request, session, LogConfig.get());
+        o(res.status).equals(200);
+        o(res.headers).deepEquals({
+            'content-type': 'text/xml',
+            etag: '9XoLDZpV6tWcS5MWKL6J6WvQ2Rl9WVyyP9Lk/1JuMWU=',
+        });
+
+        const body = Buffer.from(res.toResponse().body || '', 'base64').toString();
+        o(body.slice(0, 100)).equals(
+            '<?xml version="1.0"?>\n' +
+                '<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.op',
+        );
+        const resIdx = body.indexOf('ResourceURL');
+        o(body.slice(resIdx, body.indexOf('</ResourceURL>', resIdx))).equals(
+            'ResourceURL format="image/png" resourceType="tile" ' +
+                'template="/tiles/aerial/{TileMatrix}/{TileCol}/{TileRow}.png">',
+        );
     });
 
     ['/favicon.ico', '/index.html', '/foo/bar'].forEach(path => {
