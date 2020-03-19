@@ -55,9 +55,6 @@ export async function handleRequest(
 
     const { request } = info as ReqInfoCloudFront;
 
-    // Log the request uri and headers
-    logger.info({ uri: request.uri, headers: request.headers }, 'HandleRequest');
-
     const apiKey = queryStringExtractor(request.querystring, Const.ApiKey.QueryString);
     if (apiKey == null) {
         return new LambdaHttpResponseCloudFront(400, 'Invalid API Key');
