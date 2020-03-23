@@ -1,65 +1,32 @@
-import { ActionData, populateAction } from './api-path';
-import { LambdaHttpResponse } from './lambda.response.http';
-import { LogType } from './log';
-import { LambdaSession } from './session';
+import { LambdaContext } from './lambda.context';
+import { LambdaHttpResponse } from './lambda.response';
 
-export abstract class ReqInfo implements ActionData {
-    version: string;
-    action: string;
-    rest: string[];
-    session: LambdaSession;
-    logger: LogType;
-    constructor(session: LambdaSession, logger: LogType) {
-        this.session = session;
-        this.logger = logger;
-    }
-
-    get httpMethod(): string {
-        return '';
-    }
-    get urlPath(): string {
-        return '';
-    }
-    abstract getHeader(_key: string): string | null;
-}
-
-export type ReqCallback = (info: ReqInfo) => Promise<LambdaHttpResponse>;
-
-type NewResponse = (status: number, description: string, headers?: Record<string, string>) => LambdaHttpResponse;
+export type ReqCallback = (req: LambdaContext) => Promise<LambdaHttpResponse>;
 
 export class Router {
-    newResponse: NewResponse;
     private handlers: Record<string, ReqCallback> = {};
 
-    constructor(newResponse: NewResponse) {
-        this.newResponse = newResponse;
-    }
-
-    async handle(info: ReqInfo): Promise<LambdaHttpResponse> {
+    async handle(req: LambdaContext): Promise<LambdaHttpResponse> {
         // Allow cross origin requests
-        if (info.httpMethod === 'options') {
-            return this.newResponse(200, 'Options', {
+        if (req.method === 'options') {
+            return new LambdaHttpResponse(200, 'Options', {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Credentials': 'false',
                 'Access-Control-Allow-Methods': 'OPTIONS,GET,PUT,POST,DELETE',
             });
         }
 
-        if (info.httpMethod !== 'get') {
-            return this.newResponse(405, 'Method not allowed');
+        if (req.method !== 'get') {
+            return new LambdaHttpResponse(405, 'Method not allowed');
         }
 
-        populateAction(info);
-        const handler = info.version === 'v1' ? this.handlers[info.action] : null;
+        const action = req.action;
+        const handler = action.version === 'v1' ? this.handlers[action.name] : null;
         if (handler == null) {
-            return this.notFound();
+            return new LambdaHttpResponse(404, 'Not Found');
         }
 
-        return await handler(info);
-    }
-
-    notFound(): LambdaHttpResponse {
-        return this.newResponse(404, 'Not Found');
+        return await handler(req);
     }
 
     get(path: string, handler: ReqCallback): void {

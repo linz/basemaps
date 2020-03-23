@@ -1,18 +1,20 @@
-import { Env, LambdaHttpResponseAlb, LambdaSession, LogConfig } from '@basemaps/lambda-shared';
-import { ALBEvent } from 'aws-lambda';
+import { Env, LambdaContext, LogConfig } from '@basemaps/lambda-shared';
 import * as o from 'ospec';
 import 'source-map-support/register';
 import { handleRequest } from '../index';
 
 o.spec('LambdaXyz index', () => {
-    function req(path: string, method = 'get'): ALBEvent {
-        return {
-            requestContext: null as any,
-            httpMethod: method.toUpperCase(),
-            path,
-            body: null,
-            isBase64Encoded: false,
-        };
+    function req(path: string, method = 'get'): LambdaContext {
+        return new LambdaContext(
+            {
+                requestContext: null as any,
+                httpMethod: method.toUpperCase(),
+                path,
+                body: null,
+                isBase64Encoded: false,
+            },
+            LogConfig.get(),
+        );
     }
 
     o('should export handler', () => {
@@ -33,9 +35,8 @@ o.spec('LambdaXyz index', () => {
             process.env[Env.Version] = '1.2.3';
             process.env[Env.Hash] = 'abc456';
 
-            const response: any = await handleRequest(req('/version'), new LambdaSession(), LogConfig.get());
+            const response: any = await handleRequest(req('/version'));
 
-            o(LambdaHttpResponseAlb.isHttpResponse(response)).equals(true);
             o(response.status).equals(200);
             o(response.statusDescription).equals('ok');
             o(JSON.parse(response.body)).deepEquals({
@@ -46,13 +47,13 @@ o.spec('LambdaXyz index', () => {
     });
 
     o('should respond to /health', async () => {
-        const res = await handleRequest(req('/health'), new LambdaSession(), LogConfig.get());
+        const res = await handleRequest(req('/health'));
         o(res.status).equals(200);
         o(res.statusDescription).equals('ok');
     });
 
     o('should respond to /ping', async () => {
-        const res = await handleRequest(req('/ping'), new LambdaSession(), LogConfig.get());
+        const res = await handleRequest(req('/ping'));
         o(res.status).equals(200);
         o(res.statusDescription).equals('ok');
     });

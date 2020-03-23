@@ -1,19 +1,15 @@
-import { ALBEvent, ALBResult, Callback, CloudFrontRequestEvent, CloudFrontRequestResult, Context } from 'aws-lambda';
-import { HttpHeader } from './header';
-import { LambdaHttpResponse, LambdaType } from './lambda.response.http';
-import { LogConfig, LogType } from './log';
-import { LambdaSession } from './session';
-import { LambdaHttp } from './lambda.response';
+import { Callback, Context } from 'aws-lambda';
 import { Const, Env } from './const';
-import { ulid } from 'ulid';
+import { HttpHeader } from './header';
+import { LambdaContext, LambdaHttpReturnType, LambdaHttpRequestType } from './lambda.context';
+import { ApplicationJson, LambdaHttpResponse } from './lambda.response';
+import { LogConfig } from './log';
 
 export interface HttpStatus {
     statusCode: string;
     statusDescription: string;
 }
 
-export type LambdaHttpRequestType = ALBEvent | CloudFrontRequestEvent;
-export type LambdaHttpReturnType = ALBResult | CloudFrontRequestResult;
 export class LambdaFunction {
     /**
      *  Wrap a lambda function to provide extra functionality
@@ -21,11 +17,14 @@ export class LambdaFunction {
      * - Log metadata about the call on every request
      * - Catch errors and log them before exiting
      */
-    public static wrap<T extends LambdaHttpRequestType>(
-        type: LambdaType,
-        fn: (event: T, session: LambdaSession, logger: LogType) => Promise<LambdaHttpResponse>,
-    ): (event: T, context: Context, callback: Callback<LambdaHttpReturnType>) => Promise<void> {
-        return async (event: T, context: Context, callback: Callback<LambdaHttpReturnType>): Promise<void> => {
+    public static wrap(
+        fn: (req: LambdaContext) => Promise<LambdaHttpResponse>,
+    ): (event: LambdaHttpRequestType, context: Context, callback: Callback<LambdaHttpReturnType>) => Promise<void> {
+        return async (
+            event: LambdaHttpRequestType,
+            context: Context,
+            callback: Callback<LambdaHttpReturnType>,
+        ): Promise<void> => {
             const logger = LogConfig.get();
 
             // Log the lambda event for debugging
@@ -33,16 +32,12 @@ export class LambdaFunction {
                 logger.debug({ event }, 'LambdaDebug');
             }
 
-            // Extract the correlationId from the provided http headers
-            const correlationId = LambdaHttp.getHeader(type, event, HttpHeader.CorrelationId);
-            const session = new LambdaSession(correlationId ?? ulid());
-            session.timer.start('lambda');
+            const ctx = new LambdaContext(event, logger);
+            ctx.timer.start('lambda');
 
             // If a API Key exists in the headers, include it in the log output
-            const apiKey = LambdaHttp.getHeader(type, event, HttpHeader.ApiKey);
-            session.set(Const.ApiKey.QueryString, apiKey);
-
-            const log = logger.child({ id: session.id });
+            const apiKey = ctx.header(HttpHeader.ApiKey);
+            ctx.set(Const.ApiKey.QueryString, apiKey);
 
             const lambda = {
                 name: process.env['AWS_LAMBDA_FUNCTION_NAME'],
@@ -55,39 +50,43 @@ export class LambdaFunction {
                 version: Env.get(Env.Version, 'HEAD'),
                 hash: Env.get(Env.Hash, 'HEAD'),
             };
-            session.set('version', version);
+            ctx.set('version', version);
 
-            log.info({ lambda }, 'LambdaStart');
+            ctx.log.info({ lambda }, 'LambdaStart');
 
-            let res: LambdaHttpResponse | undefined = undefined;
+            let res: LambdaHttpResponse;
             try {
-                res = await fn(event, session, log);
+                res = await fn(ctx);
             } catch (error) {
                 // If a LambdaHttpResponse was thrown, just reuse it as a response
                 if (LambdaHttpResponse.isHttpResponse(error)) {
                     res = error;
                 } else {
                     // Unhandled exception was thrown
-                    session.set('err', error);
-                    res = LambdaHttp.create(type, 500, 'Internal Server Error');
+                    ctx.set('err', error);
+                    res = new LambdaHttpResponse(500, 'Internal Server Error');
                 }
             }
 
-            session.set('lambda', lambda);
-            session.set('status', res.status);
-            session.set('description', res.statusDescription);
-            session.set('metrics', session.timer.metrics);
+            ctx.set('lambda', lambda);
+            ctx.set('status', res.status);
+            ctx.set('description', res.statusDescription);
+            ctx.set('metrics', ctx.timer.metrics);
 
-            res.header(HttpHeader.RequestId, session.id);
+            res.header(HttpHeader.RequestId, ctx.id);
+            res.header(HttpHeader.CorrelationId, ctx.correlationId);
 
-            const duration = session.timer.end('lambda');
-            session.set('unfinished', session.timer.unfinished);
-            session.set('duration', duration);
+            const duration = ctx.timer.end('lambda');
+            ctx.set('unfinished', ctx.timer.unfinished);
+            ctx.set('duration', duration);
 
-            log.info(session.logContext, 'LambdaDone');
+            ctx.log.info(ctx.logContext, 'LambdaDone');
 
-            // There will always be a response
-            callback(null, res.toResponse());
+            if (!res.isBase64Encoded && res.header(HttpHeader.ContentType) == null) {
+                res.header(HttpHeader.ContentType, ApplicationJson);
+            }
+
+            callback(null, LambdaContext.toResponse(ctx, res));
         };
     }
 }
