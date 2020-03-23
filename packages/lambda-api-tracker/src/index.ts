@@ -1,38 +1,36 @@
 import { Projection } from '@basemaps/geo';
 import {
     Const,
-    getXyzFromPath,
     HttpHeader,
-    LambdaFunction,
     LambdaHttpResponse,
     LambdaHttpResponseCloudFront,
     LambdaHttpResponseCloudFrontRequest,
     LambdaSession,
-    LambdaType,
     LogType,
+    tileFromPath,
+    populateAction,
+    TileType,
+    LambdaType,
+    LambdaFunction,
 } from '@basemaps/lambda-shared';
-import { CloudFrontHeaders, CloudFrontRequestEvent } from 'aws-lambda';
+import { CloudFrontRequestEvent } from 'aws-lambda';
 import { queryStringExtractor } from './query';
+import { ReqInfoCloudFront } from './req-info-cloudfront';
 import { ValidateRequest } from './validate';
 
 const projection = new Projection(256);
 
-/**
- * Load a header value from CloudFront headers
- *
- * @param headers CloudFrontHeaders
- * @param key header key to load (lower case)
- */
-function getHeader(headers: CloudFrontHeaders, key: string): string | null {
-    const headerVal = headers[key];
-    if (headerVal == null) {
-        return null;
+const setTileSession = (info: ReqInfoCloudFront): void => {
+    const xyzData = tileFromPath(info.rest);
+    if (xyzData?.type === TileType.Image) {
+        const { x, y, z } = xyzData;
+        const latLon = projection.getLatLonCenterFromTile(x, y, z);
+        const { session } = info;
+        session.set('xyz', { x, y, z });
+        session.set('location', latLon);
     }
-    if (headerVal.length < 1) {
-        return null;
-    }
-    return headerVal[0].value;
-}
+};
+
 /**
  * Validate a CloudFront request has a valid API key and is not abusing the system
  */
@@ -41,32 +39,23 @@ export async function handleRequest(
     session: LambdaSession,
     logger: LogType,
 ): Promise<LambdaHttpResponse> {
-    const [record] = event.Records;
-    const request = record.cf.request;
-    const queryString = request.querystring;
+    const info = new ReqInfoCloudFront(event, session, logger);
+    populateAction(info);
 
     session.set('name', 'LambdaApiTracker');
-    session.set('method', request.method.toLowerCase());
-    session.set('path', request.uri);
+    session.set('method', info.httpMethod);
+    session.set('path', info.urlPath);
 
     // Extract request information
-    session.set('clientIp', request.clientIp);
-    session.set('referer', getHeader(request.headers, 'referer'));
-    session.set('userAgent', getHeader(request.headers, 'user-agent'));
+    session.set('clientIp', info.request.clientIp);
+    session.set('referer', info.getHeader('referer'));
+    session.set('userAgent', info.getHeader('user-agent'));
 
-    // Expose some debugging metrics so we can plot tile requests onto a map
-    const pathMatch = getXyzFromPath(request.uri);
-    if (pathMatch != null) {
-        const latLon = projection.getLatLonCenterFromTile(pathMatch.x, pathMatch.y, pathMatch.z);
-        session.set('xyz', { x: pathMatch.x, y: pathMatch.y, z: pathMatch.z });
-        session.set('location', latLon);
-    }
+    if (info.action === 'tiles') setTileSession(info);
 
-    // Log the entire request
-    // TODO this may be too much data, we should possibly limit how much we log out (ip/useragent etc..)
-    logger.info({ request }, 'HandleRequest');
+    const { request } = info as ReqInfoCloudFront;
 
-    const apiKey = queryStringExtractor(queryString, Const.ApiKey.QueryString);
+    const apiKey = queryStringExtractor(request.querystring, Const.ApiKey.QueryString);
     if (apiKey == null) {
         return new LambdaHttpResponseCloudFront(400, 'Invalid API Key');
     }

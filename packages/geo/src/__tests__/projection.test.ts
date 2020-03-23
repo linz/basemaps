@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { LatLon, Projection } from '../projection';
+import { LatLon, Projection, EPSG } from '../projection';
 import { approxEqual } from './bounds.tile.test';
 import * as o from 'ospec';
 
-const Wgs84Bound = { lat: 85.0511287798066, lon: 180 };
+const { Wgs84Bound } = Projection;
 
 o.spec('Projection', () => {
     const proj256 = new Projection(256);
@@ -35,5 +35,27 @@ o.spec('Projection', () => {
         compareLatLon(latLonB, { lat: -Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
         compareLatLon(latLonC, { lat: -Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
         compareLatLon(latLonD, { lat: Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
+    });
+
+    o('should parseEpsgString', () => {
+        o(Projection.parseEpsgString('Gogle')).equals(null);
+        o(Projection.parseEpsgString('google')).equals(EPSG.Google);
+        o(Projection.parseEpsgString('3857')).equals(EPSG.Google);
+        o(Projection.parseEpsgString('EpSg:3857')).equals(EPSG.Google);
+        o(Projection.parseEpsgString('global--mercator')).equals(EPSG.Google);
+        o(Projection.parseEpsgString('global_mercator')).equals(EPSG.Google);
+
+        o(Projection.parseEpsgString('wgs84')).equals(EPSG.Wgs84);
+        o(Projection.parseEpsgString('epsg:4326')).equals(EPSG.Wgs84);
+        o(Projection.parseEpsgString('4326')).equals(EPSG.Wgs84);
+
+        o(Projection.parseEpsgString('nztm')).equals(EPSG.Nztm);
+        o(Projection.parseEpsgString('epsg:2193')).equals(EPSG.Nztm);
+        o(Projection.parseEpsgString('2193')).equals(EPSG.Nztm);
+    });
+
+    o('constants', () => {
+        o(Wgs84Bound).deepEquals({ lat: 85.0511287798066, lon: 180 });
+        o(Projection.GoogleScaleDenominator).equals(559082264.029);
     });
 });

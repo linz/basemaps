@@ -9,7 +9,9 @@ export { LambdaHttpResponseAlb } from './lambda.response.alb';
 export { LambdaHttpResponseCloudFront, LambdaHttpResponseCloudFrontRequest } from './lambda.response.cf';
 export { LambdaHttpResponse, LambdaType } from './lambda.response.http';
 export { LogConfig, LogType } from './log';
-export { getXyzFromPath, PathData } from './path';
+export { tileFromPath, TileType, TileData, TileDataWmts, TileDataXyz, populateAction, TileSetType } from './api-path';
 export { LambdaSession } from './session';
+export { V, VNode, VNodeElement, VNodeText } from './vdom';
 
+export * from './router';
 export * from './file';
