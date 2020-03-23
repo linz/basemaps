@@ -2,7 +2,7 @@ import { EPSG } from '@basemaps/geo';
 import { MosaicCog } from '../../tiff.mosaic';
 
 MosaicCog.create({
-    id: '01E095SXRG0Q0TV5DGDKBR24V2',
+    id: '01E3NFVEFRE332V08RP2YBNQSX',
     name: 'west-coast_rural_2015-16_0-3m',
     projection: EPSG.Wgs84,
 
