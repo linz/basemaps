@@ -135,4 +135,16 @@ o.spec('wmts', () => {
                 .digest('base64'),
         ).equals('sdDWwHqM7SzcV9dL1dQ0Kp8QqulUSdk/n1vQ/a3UgN4=');
     });
+
+    o('should allow empty api key', () => {
+        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', '', TileSetType.aerial, EPSG.Google);
+
+        const urls = Array.from(raw ? raw.tags('ResourceURL') : []);
+        o(urls.length).equals(3);
+        o(urls[0].toString()).deepEquals(
+            '<ResourceURL format="image/png" resourceType="tile" ' +
+                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png">' +
+                '</ResourceURL>',
+        );
+    });
 });

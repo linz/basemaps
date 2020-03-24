@@ -148,7 +148,9 @@ export function buildWmtsCapabilityToVNode(
             V('ResourceURL', {
                 format: 'image/' + suffix,
                 resourceType: 'tile',
-                template: `${httpBase}/v1/tiles/${tileSet}/${projection}/{TileMatrix}/{TileCol}/{TileRow}.${suffix}?api=${apiKey}`,
+                template: `${httpBase}/v1/tiles/${tileSet}/${projection}/{TileMatrix}/{TileCol}/{TileRow}.${suffix}${
+                    apiKey ? '?api=' + apiKey : ''
+                }`,
             }),
         );
     }
