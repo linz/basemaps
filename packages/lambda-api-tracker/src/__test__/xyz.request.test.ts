@@ -47,7 +47,7 @@ o.spec('xyz-request', () => {
     });
 
     o('should catch missing api key', async () => {
-        const res = await handleRequest(req('/v1/tiles/1/2/3.png', ''));
+        const res = await handleRequest(req('/v1/tiles/aerial/3857/1/2/3.png', ''));
 
         o(res.status).equals(400);
         o(res.statusDescription).equals('Invalid API Key');
@@ -56,7 +56,7 @@ o.spec('xyz-request', () => {
     o('should return LambdaHttpResponseCloudFrontRequest on success', async () => {
         ValidateRequest.validate = async (): Promise<LambdaHttpResponse | null> => null;
 
-        const request = req('/v1/tiles/1/2/3.png');
+        const request = req('/v1/tiles/aerial/3857/1/2/3.png');
         const res = await handleRequest(request);
 
         o(res.status).equals(100);
@@ -66,6 +66,36 @@ o.spec('xyz-request', () => {
         o(response?.headers).deepEquals({
             referer: [{ key: 'Referer', value: 'from/url' }],
             'user-agent': [{ key: 'User-Agent', value: 'test browser' }],
+            'x-linz-correlation-id': [
+                {
+                    key: 'x-linz-correlation-id',
+                    value: corrId,
+                },
+            ],
+            'x-linz-api-key': [{ key: 'x-linz-api-key', value: '12345' }],
+            'x-linz-request-id': [{ key: 'x-linz-request-id', value: String(res.header(HttpHeader.RequestId)) }],
+        });
+    });
+
+    o('should not cache WMTSCapabilities', async () => {
+        ValidateRequest.validate = async (): Promise<LambdaHttpResponse | null> => null;
+
+        const request = req('/v1/tiles/aerial/3857/WMTSCapabilities.xml');
+        const res = await handleRequest(request);
+
+        o(res.status).equals(100);
+        const response = LambdaContext.toResponse(request, res) as CloudFrontRequestResult;
+
+        const corrId = String(res.header(HttpHeader.CorrelationId));
+        o(response?.headers).deepEquals({
+            referer: [{ key: 'Referer', value: 'from/url' }],
+            'user-agent': [{ key: 'User-Agent', value: 'test browser' }],
+            'cache-control': [
+                {
+                    key: 'cache-control',
+                    value: 'max-age=0',
+                },
+            ],
             'x-linz-correlation-id': [
                 {
                     key: 'x-linz-correlation-id',

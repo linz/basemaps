@@ -128,6 +128,7 @@ export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
         .digest('base64');
 
     response.header(HttpHeader.ETag, cacheKey);
+    response.header(HttpHeader.CacheControl, 'max-age=0');
     response.buffer(data, 'text/xml');
     return response;
 }
