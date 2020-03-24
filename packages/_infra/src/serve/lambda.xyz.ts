@@ -33,6 +33,7 @@ export class LambdaXyz extends cdk.Construct {
                 [Env.CogBucket]: cogBucket.bucketName,
                 [Env.Hash]: version.hash,
                 [Env.Version]: version.version,
+                [Env.PublicUrlBase]: config.PublicUrlBase,
             },
             logRetention: RetentionDays.ONE_MONTH,
         });

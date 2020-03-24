@@ -1,6 +1,6 @@
-import { ApiKeyTableRecord, Aws, LambdaSession, LogConfig } from '@basemaps/lambda-shared';
-import { ValidateRequest } from '../validate';
+import { ApiKeyTableRecord, Aws, LogConfig, LambdaContext } from '@basemaps/lambda-shared';
 import * as o from 'ospec';
+import { ValidateRequest } from '../validate';
 
 o.spec('ApiValidate', (): void => {
     const dummyApiKey = 'dummy1';
@@ -15,6 +15,10 @@ o.spec('ApiValidate', (): void => {
         Aws.api.db.get = oldGet;
     });
 
+    function makeContext(): LambdaContext {
+        return new LambdaContext({} as any, LogConfig.get());
+    }
+
     o('validate should fail on faulty apikey', async () => {
         let lastApiKey = '';
         Aws.api.db.get = async (apiKey): Promise<ApiKeyTableRecord> => {
@@ -28,7 +32,7 @@ o.spec('ApiValidate', (): void => {
                 minuteCount: 100,
             } as ApiKeyTableRecord;
         };
-        const result = await ValidateRequest.validate(faultyApiKey, new LambdaSession(), LogConfig.get());
+        const result = await ValidateRequest.validate(faultyApiKey, makeContext());
         o(result).notEquals(null);
         if (result == null) throw new Error('Validate returns null result');
 
@@ -39,7 +43,7 @@ o.spec('ApiValidate', (): void => {
 
     o('validate should fail on null record', async () => {
         Aws.api.db.get = async (): Promise<null> => null;
-        const result = await ValidateRequest.validate(dummyApiKey, new LambdaSession(), LogConfig.get());
+        const result = await ValidateRequest.validate(dummyApiKey, makeContext());
         o(result).notEquals(null);
         if (result == null) throw new Error('Validate returns null result');
 
@@ -60,7 +64,7 @@ o.spec('ApiValidate', (): void => {
                 minuteCount: mockMinuteCount,
             } as ApiKeyTableRecord;
         };
-        const result = await ValidateRequest.validate(mockApiKey, new LambdaSession(), LogConfig.get());
+        const result = await ValidateRequest.validate(mockApiKey, makeContext());
         o(result).notEquals(null);
         if (result == null) throw new Error('Validate returns null result');
 

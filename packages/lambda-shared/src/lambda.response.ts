@@ -1,32 +1,71 @@
-import { ALBEvent, CloudFrontRequestEvent } from 'aws-lambda';
-import { LambdaHttpRequestType } from './lambda';
-import { LambdaHttpResponse, LambdaType } from './lambda.response.http';
-import { LambdaHttpResponseAlb } from './lambda.response.alb';
-import { LambdaHttpResponseCloudFront } from './lambda.response.cf';
+import { HttpHeader } from './header';
 
-export const LambdaHttp = {
-    getHeader(type: LambdaType, req: LambdaHttpRequestType, header: string): string | null {
-        if (req == null) {
-            return null;
-        }
-        switch (type) {
-            case LambdaType.Alb:
-                return LambdaHttpResponseAlb.getHeader(req as ALBEvent, header);
-            case LambdaType.CloudFront:
-                return LambdaHttpResponseCloudFront.getHeader(req as CloudFrontRequestEvent, header);
-            default:
-                throw new Error('Invalid lambda type');
-        }
-    },
+export const ApplicationJson = 'application/json';
 
-    create(type: LambdaType, status: number, description: string): LambdaHttpResponse {
-        switch (type) {
-            case LambdaType.Alb:
-                return new LambdaHttpResponseAlb(status, description);
-            case LambdaType.CloudFront:
-                return new LambdaHttpResponseCloudFront(status, description);
-            default:
-                throw new Error('Invalid lambda type');
+export class LambdaHttpResponse {
+    static isHttpResponse(t: unknown): t is LambdaHttpResponse {
+        return t instanceof LambdaHttpResponse;
+    }
+
+    /**
+     * Http status code
+     */
+    public status: number;
+    /**
+     * Text description for the status code
+     */
+    public statusDescription: string;
+    /**
+     * Raw body object
+     */
+    private body: string | Buffer | null = null;
+
+    headers: Map<string, string | number | boolean> = new Map();
+
+    public constructor(status: number, description: string, headers?: Record<string, string>) {
+        this.status = status;
+        this.statusDescription = description;
+        if (headers != null) {
+            for (const key of Object.keys(headers)) {
+                const value = headers[key];
+                this.header(key, value);
+            }
         }
-    },
-};
+    }
+
+    header(key: string): string | number | boolean | undefined;
+    header(key: string, value: string | number | boolean): void;
+    header(key: string, value?: string | number | boolean): string | number | boolean | undefined | void {
+        if (value == null) {
+            return this.headers.get(key.toLowerCase());
+        }
+        this.headers.set(key.toLowerCase(), value);
+    }
+
+    public get isBase64Encoded(): boolean {
+        if (Buffer.isBuffer(this.body)) {
+            return true;
+        }
+        return false;
+    }
+
+    json(obj: Record<string, unknown>): void {
+        this.buffer(JSON.stringify(obj), ApplicationJson);
+    }
+
+    buffer(buf: Buffer | string, contentType = ApplicationJson): void {
+        this.header(HttpHeader.ContentType, contentType);
+        this.body = buf;
+    }
+
+    getBody(): string {
+        if (this.body == null) {
+            this.header(HttpHeader.ContentType, ApplicationJson);
+            return JSON.stringify({ status: this.status, message: this.statusDescription });
+        }
+        if (Buffer.isBuffer(this.body)) {
+            return this.body.toString('base64');
+        }
+        return this.body;
+    }
+}

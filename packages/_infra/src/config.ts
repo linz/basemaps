@@ -10,12 +10,17 @@ export interface BaseMapsConfig {
 
     /** Domain name for CloudFront to use */
     AlbPublicDns: string;
+
+    /** Public URL base that tiles are served from */
+    PublicUrlBase: string;
 }
 
 export const BaseMapsDevConfig: BaseMapsConfig = {
     CogBucket: 'basemaps-cog-test',
     Route53Zone: 'nonprod.basemaps.awsint.linz.govt.nz',
     AlbPublicDns: 'dev.int.tiles.basemaps.linz.govt.nz',
+    CloudFrontDns: ['tiles.dev.basemaps.linz.govt.nz', 'dev.basemaps.linz.govt.nz'],
+    PublicUrlBase: 'https://tiles.dev.basemaps.linz.govt.nz',
 };
 
 export const BaseMapsProdConfig: BaseMapsConfig = {
@@ -23,6 +28,7 @@ export const BaseMapsProdConfig: BaseMapsConfig = {
     Route53Zone: 'prod.basemaps.awsint.linz.govt.nz.',
     AlbPublicDns: 'int.tiles.basemaps.linz.govt.nz',
     CloudFrontDns: ['tiles.basemaps.linz.govt.nz', 'basemaps.linz.govt.nz'],
+    PublicUrlBase: 'https://tiles.basemaps.linz.govt.nz',
 };
 
 export function getConfig(): BaseMapsConfig {

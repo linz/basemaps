@@ -1,62 +1,20 @@
-import {
-    LambdaHttpResponseAlb,
-    LambdaSession,
-    LogType,
-    ReqInfo,
-    Router,
-    LambdaType,
-    LambdaFunction,
-} from '@basemaps/lambda-shared';
-import { ALBEvent } from 'aws-lambda';
-import health from './health';
-import ping from './ping';
-import tile from './tile-request';
-import version from './version';
+import { LambdaContext, LambdaFunction, LambdaHttpResponse, Router } from '@basemaps/lambda-shared';
+import { Health, Ping, Version } from './routes/api';
+import { TileOrWmts } from './routes/tile';
 
-const app = new Router(
-    (status: number, description: string, headers?: Record<string, string>): LambdaHttpResponseAlb =>
-        new LambdaHttpResponseAlb(status, description, headers),
-);
+const app = new Router();
 
-app.get('ping', ping);
-app.get('health', health);
-app.get('version', version);
-app.get('tiles', tile);
+app.get('ping', Ping);
+app.get('health', Health);
+app.get('version', Version);
+app.get('tiles', TileOrWmts);
 
-class ReqInfoAlb extends ReqInfo {
-    event: ALBEvent;
-    private _httpMethod: string;
+export async function handleRequest(req: LambdaContext): Promise<LambdaHttpResponse> {
+    req.set('name', 'LambdaXyzTiler');
+    req.set('method', req.method);
+    req.set('path', req.path);
 
-    constructor(event: ALBEvent, session: LambdaSession, logger: LogType) {
-        super(session, logger);
-        this.event = event;
-        this._httpMethod = event.httpMethod.toLowerCase();
-    }
-
-    get httpMethod(): string {
-        return this._httpMethod;
-    }
-    get urlPath(): string {
-        return this.event.path;
-    }
-    getHeader(key: string): string | null {
-        const { headers } = this.event;
-        return headers ? headers[key.toLowerCase()] : null;
-    }
+    return await app.handle(req);
 }
 
-export async function handleRequest(
-    event: ALBEvent,
-    session: LambdaSession,
-    logger: LogType,
-): Promise<LambdaHttpResponseAlb> {
-    const info = new ReqInfoAlb(event, session, logger);
-
-    session.set('name', 'LambdaXyzTiler');
-    session.set('method', info.httpMethod);
-    session.set('path', event.path);
-
-    return (await app.handle(info)) as LambdaHttpResponseAlb;
-}
-
-export const handler = LambdaFunction.wrap(LambdaType.Alb, handleRequest);
+export const handler = LambdaFunction.wrap(handleRequest);

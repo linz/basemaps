@@ -1,4 +1,4 @@
-import { Env, FileOperator, FileOperatorS3, FileProcessor, LambdaSession, LogConfig } from '@basemaps/lambda-shared';
+import { Env, FileOperator, FileOperatorS3, FileProcessor, LogConfig, LambdaContext } from '@basemaps/lambda-shared';
 import { CogSource, CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -42,28 +42,25 @@ async function main(): Promise<void> {
         const startTime = Date.now();
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
-        const ctx = new LambdaSession();
-
+        const { x, y, z } = req.params;
+        const ctx = new LambdaContext(
+            {
+                httpMethod: 'get',
+                path: `/v1/tiles/aerial/3857/${z}/${x}/${y}.png`,
+            } as any,
+            logger,
+        );
         try {
-            const { x, y, z } = req.params;
-
-            const data = await lambda.handleRequest(
-                {
-                    httpMethod: 'get',
-                    path: `/v1/tiles/aerial/3857/${z}/${x}/${y}.png`,
-                } as any,
-                ctx,
-                logger,
-            );
+            const data = await lambda.handleRequest(ctx);
 
             res.status(data.status);
             if (data.headers) {
-                for (const header of Object.keys(data.headers)) {
-                    res.header(header, data.headers[header]);
+                for (const [header, value] of data.headers) {
+                    res.header(header, String(value));
                 }
             }
             if (data.status < 299 && data.status > 199) {
-                res.end(Buffer.from(data.toResponse().body ?? '', 'base64'));
+                res.end(Buffer.from(data.getBody() ?? '', 'base64'));
             } else {
                 res.end();
             }

@@ -2,81 +2,62 @@ import { Projection } from '@basemaps/geo';
 import {
     Const,
     HttpHeader,
-    LambdaHttpResponse,
-    LambdaHttpResponseCloudFront,
-    LambdaHttpResponseCloudFrontRequest,
-    LambdaSession,
-    LogType,
-    tileFromPath,
-    populateAction,
-    TileType,
-    LambdaType,
+    LambdaContext,
     LambdaFunction,
+    LambdaHttpResponse,
+    tileFromPath,
+    TileType,
 } from '@basemaps/lambda-shared';
-import { CloudFrontRequestEvent } from 'aws-lambda';
-import { queryStringExtractor } from './query';
-import { ReqInfoCloudFront } from './req-info-cloudfront';
 import { ValidateRequest } from './validate';
 
 const projection = new Projection(256);
 
-const setTileSession = (info: ReqInfoCloudFront): void => {
-    const xyzData = tileFromPath(info.rest);
+function setTileInfo(ctx: LambdaContext): void {
+    const xyzData = tileFromPath(ctx.action.rest);
     if (xyzData?.type === TileType.Image) {
         const { x, y, z } = xyzData;
         const latLon = projection.getLatLonCenterFromTile(x, y, z);
-        const { session } = info;
-        session.set('xyz', { x, y, z });
-        session.set('location', latLon);
+        ctx.set('xyz', { x, y, z });
+        ctx.set('location', latLon);
     }
-};
+}
 
 /**
  * Validate a CloudFront request has a valid API key and is not abusing the system
  */
-export async function handleRequest(
-    event: CloudFrontRequestEvent,
-    session: LambdaSession,
-    logger: LogType,
-): Promise<LambdaHttpResponse> {
-    const info = new ReqInfoCloudFront(event, session, logger);
-    populateAction(info);
-
-    session.set('name', 'LambdaApiTracker');
-    session.set('method', info.httpMethod);
-    session.set('path', info.urlPath);
+export async function handleRequest(req: LambdaContext): Promise<LambdaHttpResponse> {
+    req.set('name', 'LambdaApiTracker');
+    req.set('method', req.method);
+    req.set('path', req.path);
 
     // Extract request information
-    session.set('clientIp', info.request.clientIp);
-    session.set('referer', info.getHeader('referer'));
-    session.set('userAgent', info.getHeader('user-agent'));
+    // ctx.set('clientIp', ctx.evt.clientIp); FIXME
+    req.set('referer', req.header('referer'));
+    req.set('userAgent', req.header('user-agent'));
 
-    if (info.action === 'tiles') setTileSession(info);
+    if (req.action.name === 'tiles') setTileInfo(req);
 
-    const { request } = info as ReqInfoCloudFront;
-
-    const apiKey = queryStringExtractor(request.querystring, Const.ApiKey.QueryString);
-    if (apiKey == null) {
-        return new LambdaHttpResponseCloudFront(400, 'Invalid API Key');
+    const apiKey = req.query[Const.ApiKey.QueryString];
+    if (apiKey == null || Array.isArray(apiKey)) {
+        return new LambdaHttpResponse(400, 'Invalid API Key');
     }
 
     // Include the APIKey in the final log entry
-    session.set(Const.ApiKey.QueryString, apiKey);
+    req.set(Const.ApiKey.QueryString, apiKey);
 
     // Validate the request throwing an error if anything goes wrong
-    session.timer.start('validate');
-    const res = await ValidateRequest.validate(apiKey, session, logger);
-    session.timer.end('validate');
+    req.timer.start('validate');
+    const res = await ValidateRequest.validate(apiKey, req);
+    req.timer.end('validate');
 
     if (res != null) {
         return res;
     }
 
-    const response = new LambdaHttpResponseCloudFrontRequest(request);
-    response.header(HttpHeader.CorrelationId, session.correlationId);
+    const response = new LambdaHttpResponse(100, 'Continue');
     // Api key will be trimmed from the forwarded request so pass it via a well known header
     response.header(HttpHeader.ApiKey, apiKey);
     return response;
 }
 
-export const handler = LambdaFunction.wrap<CloudFrontRequestEvent>(LambdaType.CloudFront, handleRequest);
+export const handler = LambdaFunction.wrap(handleRequest);

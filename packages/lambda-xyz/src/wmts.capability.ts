@@ -84,9 +84,11 @@ const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
         EPSG.Google,
         (tileSet: TileSetType, projection: EPSG): VNode => {
             const matrices = [];
-            let scale = 559082264.029;
+            let scale = 559082264.029,
+                size = 1;
             for (let i = 0; i < 20; ++i, scale *= 0.5) {
-                const dim = String(i + 1);
+                const dim = String(size);
+                size *= 2;
                 matrices.push(
                     V('TileMatrix', [
                         V('ows:Identifier', i),
@@ -97,7 +99,11 @@ const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
                     ]),
                 );
             }
-            return V('TileMatrixSet', [V('ows:Identifier', tileSet), V('ows:SupportedCRS', projection), ...matrices]);
+            return V('TileMatrixSet', [
+                V('ows:Identifier', tileSet),
+                V('ows:SupportedCRS', Projection.toEpsgString(projection)),
+                ...matrices,
+            ]);
         },
     );
 }
@@ -124,11 +130,13 @@ const tileMatrixSets = (tileSet: TileSetType, projection: EPSG | null): VNode[] 
 /**
  * Generate the WMTSCapabilities.xml file for a given `tileSet` and `projection`
  **/
-export const buildWmtsCapabilityToVNode = (
+export function buildWmtsCapabilityToVNode(
     httpBase: string,
+    apiKey: string,
     tileSet: TileSetType,
     projection: EPSG | null,
-): VNode | null => {
+): VNode | null {
+    if (projection == null) projection = EPSG.Google;
     const preambleXml = layerPreamble(tileSet);
     if (preambleXml == null) return null;
     const tileSets = tileMatrixSets(tileSet, projection);
@@ -140,9 +148,9 @@ export const buildWmtsCapabilityToVNode = (
             V('ResourceURL', {
                 format: 'image/' + suffix,
                 resourceType: 'tile',
-                template: `${httpBase}/tiles/${tileSet}/${
-                    projection ? projection + '/' : ''
-                }{TileMatrix}/{TileCol}/{TileRow}.${suffix}`,
+                template: `${httpBase}/v1/tiles/${tileSet}/${projection}/{TileMatrix}/{TileCol}/{TileRow}.${suffix}${
+                    apiKey ? '?api=' + apiKey : ''
+                }`,
             }),
         );
     }
@@ -154,9 +162,14 @@ export const buildWmtsCapabilityToVNode = (
             ...tileSets,
         ]),
     ]);
-};
+}
 
-export const buildWmtsCapability = (httpBase: string, tileSet: TileSetType, projection: EPSG | null): string | null => {
-    const vnode = buildWmtsCapabilityToVNode(httpBase, tileSet, projection);
+export function buildWmtsCapability(
+    httpBase: string,
+    apiKey: string,
+    tileSet: TileSetType,
+    projection: EPSG | null,
+): string | null {
+    const vnode = buildWmtsCapabilityToVNode(httpBase, apiKey, tileSet, projection);
     return vnode && '<?xml version="1.0"?>\n' + vnode.toString();
-};
+}
