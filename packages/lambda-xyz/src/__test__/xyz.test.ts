@@ -134,6 +134,7 @@ o.spec('LambdaXyz', () => {
             const res = await handleRequest(request);
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
+            o(res.header('cache-control')).equals('max-age=0');
             o(res.header('eTaG')).equals('4hPFjntF8bG9stOVb3kMxU0+MXhrdXfiDbsSjoOeu2A=');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();

@@ -3,6 +3,7 @@ export const HttpHeader = {
     CorrelationId: 'X-LINZ-Correlation-Id',
     RequestId: 'X-LINZ-Request-Id',
     ApiKey: 'X-LINZ-Api-Key',
+    CacheControl: 'Cache-Control',
     ContentType: 'Content-Type',
     ETag: 'ETag',
     IfNoneMatch: 'If-None-Match',
