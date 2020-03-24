@@ -8,7 +8,7 @@ const listTag = (node: VNode, tag: string): string[] => Array.from(node.tags(tag
 
 o.spec('wmts', () => {
     o('should build capabiltiy xml for tileset and projection', () => {
-        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', TileSetType.aerial, EPSG.Google);
+        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', 'secret1234', TileSetType.aerial, EPSG.Google);
 
         if (raw == null) {
             o(raw).notEquals(null);
@@ -36,9 +36,15 @@ o.spec('wmts', () => {
         o(urls.length).equals(3);
         o(urls[0].toString()).deepEquals(
             '<ResourceURL format="image/png" resourceType="tile" ' +
-                'template="https://basemaps.test/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png">' +
+                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234">' +
                 '</ResourceURL>',
         );
+
+        const tileMatrixSet = Array.from(raw.tags('TileMatrixSet'));
+        o(tileMatrixSet.length).equals(2);
+
+        o(listTag(tileMatrixSet[1], 'ows:Identifier')[0]).equals('<ows:Identifier>aerial</ows:Identifier>');
+        o(listTag(tileMatrixSet[1], 'ows:SupportedCRS')).deepEquals(['<ows:SupportedCRS>EPSG:3857</ows:SupportedCRS>']);
 
         const tileMatrices = Array.from(raw.tags('TileMatrix'));
 
@@ -63,18 +69,18 @@ o.spec('wmts', () => {
                 '  <TopLeftCorner>-20037508.342789244 20037508.342789244</TopLeftCorner>\n' +
                 '  <TileWidth>256</TileWidth>\n' +
                 '  <TileHeight>256</TileHeight>\n' +
-                '  <MatrixWidth>11</MatrixWidth>\n' +
-                '  <MatrixHeight>11</MatrixHeight>\n' +
+                '  <MatrixWidth>1024</MatrixWidth>\n' +
+                '  <MatrixHeight>1024</MatrixHeight>\n' +
                 '</TileMatrix>',
         );
     });
 
     o('should return null if not found', () => {
-        o(buildWmtsCapability('basemaps.test', TileSetType.aerial, EPSG.Wgs84)).equals(null);
+        o(buildWmtsCapability('basemaps.test', 's123', TileSetType.aerial, EPSG.Wgs84)).equals(null);
     });
 
     o('should build capabiltiy xml for tileset and all projections', () => {
-        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', TileSetType.aerial, null);
+        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', '1a2p3i', TileSetType.aerial, null);
 
         if (raw == null) {
             o(raw).notEquals(null);
@@ -83,7 +89,7 @@ o.spec('wmts', () => {
 
         o(listTag(raw, 'ResourceURL')[0]).deepEquals(
             '<ResourceURL format="image/png" resourceType="tile" ' +
-                'template="https://basemaps.test/tiles/aerial/{TileMatrix}/{TileCol}/{TileRow}.png">' +
+                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=1a2p3i">' +
                 '</ResourceURL>',
         );
 
@@ -114,12 +120,12 @@ o.spec('wmts', () => {
                 '  <TopLeftCorner>-20037508.342789244 20037508.342789244</TopLeftCorner>\n' +
                 '  <TileWidth>256</TileWidth>\n' +
                 '  <TileHeight>256</TileHeight>\n' +
-                '  <MatrixWidth>20</MatrixWidth>\n' +
-                '  <MatrixHeight>20</MatrixHeight>\n' +
+                '  <MatrixWidth>524288</MatrixWidth>\n' +
+                '  <MatrixHeight>524288</MatrixHeight>\n' +
                 '</TileMatrix>',
         );
 
-        const xml = buildWmtsCapability('https://basemaps.test', TileSetType.aerial, null) || '';
+        const xml = buildWmtsCapability('https://basemaps.test', '1a2p3i', TileSetType.aerial, null) || '';
 
         o(xml).equals('<?xml version="1.0"?>\n' + raw.toString());
 
@@ -127,6 +133,6 @@ o.spec('wmts', () => {
             createHash('sha256')
                 .update(Buffer.from(xml))
                 .digest('base64'),
-        ).equals('ZFDOSpWK2PHHS/ITbcWBEctM/ekO8CIBfk3KSbKdFfo=');
+        ).equals('sdDWwHqM7SzcV9dL1dQ0Kp8QqulUSdk/n1vQ/a3UgN4=');
     });
 });
