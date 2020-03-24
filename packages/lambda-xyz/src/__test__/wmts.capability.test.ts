@@ -1,7 +1,7 @@
 import { EPSG } from '@basemaps/geo';
 import { TileSetType, VNode } from '@basemaps/lambda-shared';
 import * as o from 'ospec';
-import { buildWmtsCapability, buildWmtsCapabilityToVNode } from '../wmts-capability';
+import { buildWmtsCapability, buildWmtsCapabilityToVNode } from '../wmts.capability';
 import { createHash } from 'crypto';
 
 const listTag = (node: VNode, tag: string): string[] => Array.from(node.tags(tag)).map(n => n.toString());

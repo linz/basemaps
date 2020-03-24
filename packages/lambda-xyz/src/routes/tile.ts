@@ -1,39 +1,36 @@
 import {
     Env,
     HttpHeader,
-    LambdaHttpResponseAlb,
-    LambdaSession,
+    LambdaContext,
+    LambdaHttpResponse,
     LogType,
-    ReqInfo,
     tileFromPath,
     TileType,
-    TileDataXyz,
     TileDataWmts,
+    TileDataXyz,
 } from '@basemaps/lambda-shared';
+import { ImageFormat } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import pLimit from 'p-limit';
-import { EmptyPng } from './png';
-import { TiffUtil } from './tiff';
-import { Tilers } from './tiler';
-import { ImageFormat } from '@basemaps/tiler';
-import { buildWmtsCapability } from './wmts-capability';
+import { EmptyPng } from '../png';
+import { TiffUtil } from '../tiff';
+import { Tilers } from '../tiler';
+import { buildWmtsCapability } from '../wmts.capability';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
 
-const notFound = (): LambdaHttpResponseAlb => new LambdaHttpResponseAlb(404, 'Not Found');
-
 /**
  * Serve a empty PNG response
- * @param session session to store metrics in
+ * @param req req to store metrics in
  * @param cacheKey ETag of the request
  */
-function emptyPng(session: LambdaSession, cacheKey: string): LambdaHttpResponseAlb {
-    session.set('bytes', EmptyPng.byteLength);
-    session.set('emptyPng', true);
-    const response = new LambdaHttpResponseAlb(200, 'ok');
-    response.header(HttpHeader.ETag, cacheKey);
+function emptyPng(req: LambdaContext, cacheKey: string): LambdaHttpResponse {
+    req.set('bytes', EmptyPng.byteLength);
+    req.set('emptyPng', true);
+    const response = new LambdaHttpResponse(200, 'ok');
+    response.headers.set(HttpHeader.ETag, cacheKey);
     response.buffer(EmptyPng, 'image/png');
     return response;
 }
@@ -61,8 +58,7 @@ async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<Cog
     return tiffs;
 }
 
-const image = async (info: ReqInfo, xyzData: TileDataXyz): Promise<LambdaHttpResponseAlb> => {
-    const { session, logger } = info;
+export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
     const tiler = Tilers.tile256;
     const tileMaker = Tilers.compose256;
 
@@ -70,11 +66,11 @@ const image = async (info: ReqInfo, xyzData: TileDataXyz): Promise<LambdaHttpRes
 
     const latLon = tiler.projection.getLatLonCenterFromTile(x, y, z);
     const qk = tiler.projection.getQuadKeyFromTile(x, y, z);
-    session.set('xyz', { x, y, z });
-    session.set('location', latLon);
-    session.set('quadKey', qk);
+    req.set('xyz', { x, y, z });
+    req.set('location', latLon);
+    req.set('quadKey', qk);
 
-    const tiffs = await initTiffs(qk, z, logger);
+    const tiffs = await initTiffs(qk, z, req.log);
     const layers = await tiler.tile(tiffs, x, y, z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId
@@ -83,48 +79,48 @@ const image = async (info: ReqInfo, xyzData: TileDataXyz): Promise<LambdaHttpRes
         .digest('base64');
 
     if (layers == null) {
-        return emptyPng(session, cacheKey);
+        return emptyPng(req, cacheKey);
     }
 
-    session.set('layers', layers.length);
+    req.set('layers', layers.length);
 
     // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our etag this tile has not been modified.
-    const ifNoneMatch = info.getHeader(HttpHeader.IfNoneMatch);
+    const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
     if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
-        session.set('cache', { key: cacheKey, hit: true, match: ifNoneMatch });
-        return new LambdaHttpResponseAlb(304, 'Not modified');
+        req.set('cache', { key: cacheKey, hit: true, match: ifNoneMatch });
+        return new LambdaHttpResponse(304, 'Not modified');
     }
 
     if (!Env.isProduction()) {
         for (const layer of layers) {
-            logger.debug({ layerId: layer.id, layerSource: layer.source }, 'Compose');
+            req.log.debug({ layerId: layer.id, layerSource: layer.source }, 'Compose');
         }
     }
 
-    session.timer.start('tile:compose');
+    req.timer.start('tile:compose');
     const res = await tileMaker.compose({ layers, format: ImageFormat.PNG });
-    session.timer.end('tile:compose');
-    session.set('layersUsed', res.layers);
-    session.set('allLayersUsed', res.layers == layers.length);
+    req.timer.end('tile:compose');
+    req.set('layersUsed', res.layers);
+    req.set('allLayersUsed', res.layers == layers.length);
 
     if (res == null) {
-        return emptyPng(session, cacheKey);
+        return emptyPng(req, cacheKey);
     }
-    session.set('bytes', res.buffer.byteLength);
-    const response = new LambdaHttpResponseAlb(200, 'ok');
+    req.set('bytes', res.buffer.byteLength);
+    const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
     response.buffer(res.buffer, 'image/png');
     return response;
-};
+}
 
-const wmts = (info: ReqInfo, wmtsData: TileDataWmts): LambdaHttpResponseAlb => {
-    const response = new LambdaHttpResponseAlb(200, 'ok');
+export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<LambdaHttpResponse> {
+    const response = new LambdaHttpResponse(200, 'ok');
 
     const host = ''; // TODO get the full protocol + host.
 
     const xml = buildWmtsCapability(host, wmtsData.tileSet, wmtsData.projection);
 
-    if (xml == null) return notFound();
+    if (xml == null) return new LambdaHttpResponse(404, 'Not Found');
 
     const data = Buffer.from(xml);
 
@@ -135,14 +131,14 @@ const wmts = (info: ReqInfo, wmtsData: TileDataWmts): LambdaHttpResponseAlb => {
     response.header(HttpHeader.ETag, cacheKey);
     response.buffer(data, 'text/xml');
     return response;
-};
+}
 
-export default async (info: ReqInfo): Promise<LambdaHttpResponseAlb> => {
-    const xyzData = tileFromPath(info.rest);
-    if (xyzData == null) return notFound();
+export async function TileOrWmts(req: LambdaContext): Promise<LambdaHttpResponse> {
+    const xyzData = tileFromPath(req.action.rest);
+    if (xyzData == null) return new LambdaHttpResponse(404, 'Not Found');
     if (xyzData.type === TileType.WMTS) {
-        return wmts(info, xyzData);
+        return Wmts(req, xyzData);
     } else {
-        return await image(info, xyzData);
+        return await Tile(req, xyzData);
     }
-};
+}

@@ -124,11 +124,11 @@ const tileMatrixSets = (tileSet: TileSetType, projection: EPSG | null): VNode[] 
 /**
  * Generate the WMTSCapabilities.xml file for a given `tileSet` and `projection`
  **/
-export const buildWmtsCapabilityToVNode = (
+export function buildWmtsCapabilityToVNode(
     httpBase: string,
     tileSet: TileSetType,
     projection: EPSG | null,
-): VNode | null => {
+): VNode | null {
     const preambleXml = layerPreamble(tileSet);
     if (preambleXml == null) return null;
     const tileSets = tileMatrixSets(tileSet, projection);
@@ -154,9 +154,9 @@ export const buildWmtsCapabilityToVNode = (
             ...tileSets,
         ]),
     ]);
-};
+}
 
-export const buildWmtsCapability = (httpBase: string, tileSet: TileSetType, projection: EPSG | null): string | null => {
+export function buildWmtsCapability(httpBase: string, tileSet: TileSetType, projection: EPSG | null): string | null {
     const vnode = buildWmtsCapabilityToVNode(httpBase, tileSet, projection);
     return vnode && '<?xml version="1.0"?>\n' + vnode.toString();
-};
+}

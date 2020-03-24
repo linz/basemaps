@@ -4,9 +4,9 @@ import * as o from 'ospec';
 import 'source-map-support/register';
 import { HttpHeader } from '../header';
 import { LambdaFunction } from '../lambda';
-import { LambdaHttpResponseAlb } from '../lambda.response.alb';
-import { LambdaType } from '../lambda.response.http';
 import { LogConfig } from '../log';
+import { LambdaContext } from '../lambda.context';
+import { LambdaHttpResponse } from '../lambda.response';
 
 o.spec('LambdaFunction', () => {
     const DoneError = new Error('Done');
@@ -19,10 +19,10 @@ o.spec('LambdaFunction', () => {
     });
 
     o('should generate a alb response on error', async () => {
-        const testFunc = LambdaFunction.wrap(LambdaType.Alb, asyncThrow);
+        const testFunc = LambdaFunction.wrap(asyncThrow);
 
         const spy = o.spy();
-        await testFunc(null as any, null as any, spy);
+        await testFunc({} as any, null as any, spy);
         o(spy.calls.length).equals(1);
         const err = spy.args[0];
         const res = spy.args[1] as ALBResult;
@@ -40,10 +40,10 @@ o.spec('LambdaFunction', () => {
     });
 
     o('should generate a cloudfront response on error', async () => {
-        const testFunc = LambdaFunction.wrap(LambdaType.CloudFront, asyncThrow);
+        const testFunc = LambdaFunction.wrap(asyncThrow);
 
         const spy = o.spy();
-        await testFunc(null as any, null as any, spy);
+        await testFunc({ Records: [{ cf: { request: { headers: {} } } }] } as any, null as any, spy);
         o(spy.calls.length).equals(1);
         const err = spy.args[0];
         const res = spy.args[1] as CloudFrontResultResponse;
@@ -61,7 +61,7 @@ o.spec('LambdaFunction', () => {
     });
 
     o('should callback on success', async () => {
-        const albOk = new LambdaHttpResponseAlb(200, 'ok');
+        const albOk = new LambdaHttpResponse(200, 'ok');
         const logs: [Record<string, any>, string][] = [];
         LogConfig.set({
             info: (a: Record<string, any>, b: string) => logs.push([a, b]),
@@ -70,17 +70,17 @@ o.spec('LambdaFunction', () => {
             },
         } as any);
 
-        const testFunc = LambdaFunction.wrap(LambdaType.Alb, async (args, session) => {
-            const { timer } = session;
+        const testFunc = LambdaFunction.wrap(async (ctx: LambdaContext) => {
+            const { timer } = ctx;
             timer.start('xxx');
             timer.end('xxx');
             return albOk;
         });
 
         const spy = o.spy();
-        await testFunc(null as any, null as any, spy);
+        await testFunc({} as any, null as any, spy);
         o(spy.calls.length).equals(1);
-        o(spy.args[1]).deepEquals(albOk.toResponse());
+        o(spy.args[1]).deepEquals(LambdaContext.toAlbResponse(albOk));
 
         o(logs.length > 1).equals(true);
         const lastCall = logs[logs.length - 1];
