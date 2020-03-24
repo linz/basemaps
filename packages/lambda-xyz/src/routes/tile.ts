@@ -116,9 +116,9 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
 export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<LambdaHttpResponse> {
     const response = new LambdaHttpResponse(200, 'ok');
 
-    const host = ''; // TODO get the full protocol + host.
+    const host = Env.get(Env.PublicUrlBase);
 
-    const xml = buildWmtsCapability(host, wmtsData.tileSet, wmtsData.projection);
+    const xml = buildWmtsCapability(host, req.apiKey || '', wmtsData.tileSet, wmtsData.projection);
 
     if (xml == null) return new LambdaHttpResponse(404, 'Not Found');
 

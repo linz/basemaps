@@ -20,6 +20,9 @@ export const Env = {
     /** Current git commit hash */
     Hash: 'BASEMAPS_HASH',
 
+    /** Public URL base that tiles are served from */
+    PublicUrlBase: 'BASEMAPS_PUBLIC_URL',
+
     /** S3 bucket where all the COGS are stored */
     CogBucket: 'COG_BUCKET',
 

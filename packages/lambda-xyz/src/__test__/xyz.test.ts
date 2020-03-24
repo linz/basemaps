@@ -1,4 +1,4 @@
-import { LambdaContext, LogConfig } from '@basemaps/lambda-shared';
+import { Env, LambdaContext, LogConfig } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import * as o from 'ospec';
@@ -98,24 +98,33 @@ o.spec('LambdaXyz', () => {
         o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
     });
 
-    o('should serve WMTSCapabilities for tile_set', async () => {
-        const request = req('/v1/tiles/aerial/WMTSCapabilities.xml');
+    o.spec('WMTSCapabilities', () => {
+        const origPublicUrlBase = process.env[Env.PublicUrlBase];
+        o.after(() => {
+            process.env[Env.PublicUrlBase] = origPublicUrlBase;
+        });
+        o('should serve WMTSCapabilities for tile_set', async () => {
+            process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
-        const res = await handleRequest(request);
-        o(res.status).equals(200);
-        o(res.header('content-type')).equals('text/xml');
-        o(res.header('eTaG')).equals('9XoLDZpV6tWcS5MWKL6J6WvQ2Rl9WVyyP9Lk/1JuMWU=');
+            const request = req('/v1/tiles/aerial/WMTSCapabilities.xml');
+            request.apiKey = 'secretKey';
 
-        const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
-        o(body.slice(0, 100)).equals(
-            '<?xml version="1.0"?>\n' +
-                '<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.op',
-        );
-        const resIdx = body.indexOf('ResourceURL');
-        o(body.slice(resIdx, body.indexOf('</ResourceURL>', resIdx))).equals(
-            'ResourceURL format="image/png" resourceType="tile" ' +
-                'template="/tiles/aerial/{TileMatrix}/{TileCol}/{TileRow}.png">',
-        );
+            const res = await handleRequest(request);
+            o(res.status).equals(200);
+            o(res.header('content-type')).equals('text/xml');
+            o(res.header('eTaG')).equals('4hPFjntF8bG9stOVb3kMxU0+MXhrdXfiDbsSjoOeu2A=');
+
+            const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
+            o(body.slice(0, 100)).equals(
+                '<?xml version="1.0"?>\n' +
+                    '<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.op',
+            );
+            const resIdx = body.indexOf('ResourceURL');
+            o(body.slice(resIdx, body.indexOf('</ResourceURL>', resIdx))).equals(
+                'ResourceURL format="image/png" resourceType="tile" ' +
+                    'template="https://tiles.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secretKey">',
+            );
+        });
     });
 
     ['/favicon.ico', '/index.html', '/foo/bar'].forEach(path => {
