@@ -50,7 +50,7 @@ async function main(): Promise<void> {
             const data = await lambda.handleRequest(
                 {
                     httpMethod: 'get',
-                    path: `/v1/foo/${z}/${x}/${y}.png`,
+                    path: `/v1/tiles/aerial/3857/${z}/${x}/${y}.png`,
                 } as any,
                 ctx,
                 logger,

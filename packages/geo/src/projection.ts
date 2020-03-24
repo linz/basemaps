@@ -14,9 +14,28 @@ export enum EPSG {
     Nztm = 2193,
 }
 
+const EPSGTextMap: Record<string, EPSG> = {
+    google: EPSG.Google,
+    epsg3857: EPSG.Google,
+    '3857': EPSG.Google,
+    globalmercator: EPSG.Google,
+
+    wgs84: EPSG.Wgs84,
+    epsg4326: EPSG.Wgs84,
+    '4326': EPSG.Wgs84,
+
+    nztm: EPSG.Nztm,
+    epsg2193: EPSG.Nztm,
+    '2193': EPSG.Nztm,
+};
+
 export class Projection {
     /** Size of the earth EPSG:3857 constant */
     public static readonly A = 6378137.0;
+
+    public static readonly GoogleScaleDenominator = 559082264.029;
+
+    public static readonly Wgs84Bound = { lat: 85.0511287798066, lon: 180 };
 
     /** EPSG:3857 origin shift */
     public static readonly OriginShift = (2 * Math.PI * Projection.A) / 2.0;
@@ -93,5 +112,10 @@ export class Projection {
     /** Convert a EPSG code into `EPSG:<code>` */
     public static toEpsgString(epsg: EPSG): string {
         return `EPSG:${epsg}`;
+    }
+
+    /** parse a string returning the `EPSG` code **/
+    public static parseEpsgString(text: string): EPSG | null {
+        return EPSGTextMap[text.replace(/[\W_]/g, '').toLowerCase()] || null;
     }
 }
