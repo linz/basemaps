@@ -1,4 +1,6 @@
 import { Projection, EPSG } from '@basemaps/geo';
+import { getImageFormat, ImageFormat } from '@basemaps/tiler';
+
 export interface ActionData {
     version: string;
     action: string;
@@ -24,7 +26,7 @@ export interface TileDataXyz {
     x: number;
     y: number;
     z: number;
-    ext: string;
+    ext: ImageFormat;
 }
 
 export interface TileDataWmts {
@@ -42,12 +44,13 @@ function tileXyzFromPath(path: string[], tileSet: TileSetType): TileData | null 
     if (projection == null) return null;
     const z = parseInt(path[2], 10);
     const x = parseInt(path[3], 10);
-    const [ystr, ext] = path[4].split('.', 2);
+    const [ystr, extStr] = path[4].split('.', 2);
     const y = parseInt(ystr, 10);
 
     if (isNaN(x) || isNaN(y) || isNaN(z)) return null;
-    // TODO
-    // if (getImageFormat(ext) == null) return null;
+
+    const ext = getImageFormat(extStr);
+    if (ext == null) return null;
 
     return { type: TileType.Image, tileSet, projection, x, y, z, ext };
 }

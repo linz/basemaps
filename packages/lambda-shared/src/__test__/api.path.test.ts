@@ -2,6 +2,7 @@ import { EPSG } from '@basemaps/geo';
 import * as o from 'ospec';
 import { tileFromPath, TileSetType, TileType } from '../api.path';
 import { LambdaContext } from '../lambda.context';
+import { ImageFormat } from '@basemaps/tiler';
 import { LogConfig } from '../log';
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -35,19 +36,31 @@ o.spec('api.path', () => {
             o(ans).equals(null);
         });
 
-        o('should extract variables', () => {
+        o('should extract variables png', () => {
             const ctx = makeContext('/v1/tiles/aerial/global-mercator/1/2/3.png');
 
-            const ans = tileFromPath(ctx.action.rest);
-
-            o(ans).deepEquals({
+            o(tileFromPath(ctx.action.rest)).deepEquals({
                 type: TileType.Image,
                 tileSet: TileSetType.aerial,
                 projection: EPSG.Google,
                 x: 2,
                 y: 3,
                 z: 1,
-                ext: 'png',
+                ext: ImageFormat.PNG,
+            });
+        });
+
+        o('should extract variables webp', () => {
+            const ctx = makeContext('/v1/tiles/aerial/3857/4/5/6.webp');
+
+            o(tileFromPath(ctx.action.rest)).deepEquals({
+                type: TileType.Image,
+                tileSet: TileSetType.aerial,
+                projection: EPSG.Google,
+                x: 5,
+                y: 6,
+                z: 4,
+                ext: ImageFormat.WEBP,
             });
         });
 

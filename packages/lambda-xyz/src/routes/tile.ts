@@ -9,7 +9,6 @@ import {
     TileDataWmts,
     TileDataXyz,
 } from '@basemaps/lambda-shared';
-import { ImageFormat } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import pLimit from 'p-limit';
@@ -62,7 +61,7 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     const tiler = Tilers.tile256;
     const tileMaker = Tilers.compose256;
 
-    const { x, y, z } = xyzData;
+    const { x, y, z, ext } = xyzData;
 
     const latLon = tiler.projection.getLatLonCenterFromTile(x, y, z);
     const qk = tiler.projection.getQuadKeyFromTile(x, y, z);
@@ -98,7 +97,7 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     }
 
     req.timer.start('tile:compose');
-    const res = await tileMaker.compose({ layers, format: ImageFormat.PNG });
+    const res = await tileMaker.compose({ layers, format: ext });
     req.timer.end('tile:compose');
     req.set('layersUsed', res.layers);
     req.set('allLayersUsed', res.layers == layers.length);
@@ -109,7 +108,7 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     req.set('bytes', res.buffer.byteLength);
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
-    response.buffer(res.buffer, 'image/png');
+    response.buffer(res.buffer, 'image/' + ext);
     return response;
 }
 
