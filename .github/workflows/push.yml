@@ -48,6 +48,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN}}
+          CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN}}
 
       - name: Deploy - Test Deploy
         run: npx lerna run deploy:diff --stream
@@ -56,6 +57,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN}}
+          CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN}}
 
       - name: Deploy!
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
@@ -65,6 +67,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN}}
+          CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN}}
 
       - name: Publish NPM
         if: startsWith(github.ref, 'refs/tags/v')

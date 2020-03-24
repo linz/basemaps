@@ -19,6 +19,7 @@ export const BaseMapsDevConfig: BaseMapsConfig = {
     CogBucket: 'basemaps-cog-test',
     Route53Zone: 'nonprod.basemaps.awsint.linz.govt.nz',
     AlbPublicDns: 'dev.int.tiles.basemaps.linz.govt.nz',
+    CloudFrontDns: ['dev.tiles.basemaps.linz.govt.nz', 'dev.basemaps.linz.govt.nz'],
     PublicUrlBase: 'https://dev.tiles.basemaps.linz.govt.nz',
 };
 
