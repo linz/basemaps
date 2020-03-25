@@ -12,14 +12,19 @@ import { ValidateRequest } from './validate';
 
 const projection = new Projection(256);
 
-function setTileInfo(ctx: LambdaContext): void {
+function setTileInfo(ctx: LambdaContext): boolean {
     const xyzData = tileFromPath(ctx.action.rest);
+    if (xyzData?.type === TileType.WMTS) {
+        return true;
+    }
+
     if (xyzData?.type === TileType.Image) {
         const { x, y, z } = xyzData;
         const latLon = projection.getLatLonCenterFromTile(x, y, z);
         ctx.set('xyz', { x, y, z });
         ctx.set('location', latLon);
     }
+    return false;
 }
 
 /**
@@ -35,7 +40,7 @@ export async function handleRequest(req: LambdaContext): Promise<LambdaHttpRespo
     req.set('referer', req.header('referer'));
     req.set('userAgent', req.header('user-agent'));
 
-    if (req.action.name === 'tiles') setTileInfo(req);
+    const doNotCache = req.action.name === 'tiles' && setTileInfo(req);
 
     const apiKey = req.query[Const.ApiKey.QueryString];
     if (apiKey == null || Array.isArray(apiKey)) {
@@ -57,6 +62,7 @@ export async function handleRequest(req: LambdaContext): Promise<LambdaHttpRespo
     const response = new LambdaHttpResponse(100, 'Continue');
     // Api key will be trimmed from the forwarded request so pass it via a well known header
     response.header(HttpHeader.ApiKey, apiKey);
+    if (doNotCache) response.header(HttpHeader.CacheControl, 'max-age=0');
     return response;
 }
 
