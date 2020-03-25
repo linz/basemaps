@@ -57,6 +57,17 @@ async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<Cog
     return tiffs;
 }
 
+function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpResponse | null {
+    // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our
+    // etag this tile has not been modified.
+    const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
+    if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
+        req.set('cache', { key: cacheKey, hit: true, match: ifNoneMatch });
+        return new LambdaHttpResponse(304, 'Not modified');
+    }
+    return null;
+}
+
 export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
     const tiler = Tilers.tile256;
     const tileMaker = Tilers.compose256;
@@ -83,12 +94,8 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
 
     req.set('layers', layers.length);
 
-    // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our etag this tile has not been modified.
-    const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
-    if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
-        req.set('cache', { key: cacheKey, hit: true, match: ifNoneMatch });
-        return new LambdaHttpResponse(304, 'Not modified');
-    }
+    const respNotMod = checkNotModified(req, cacheKey);
+    if (respNotMod != null) return respNotMod;
 
     if (!Env.isProduction()) {
         for (const layer of layers) {
@@ -126,6 +133,9 @@ export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
     const cacheKey = createHash('sha256')
         .update(data)
         .digest('base64');
+
+    const respNotMod = checkNotModified(req, cacheKey);
+    if (respNotMod != null) return respNotMod;
 
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'max-age=0');
