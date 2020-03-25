@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@basemaps/tiler": "^1.1.0",
-    "sharp": "^0.23.1"
+    "sharp": "^0.25.2"
   },
   "devDependencies": {
     "@types/pixelmatch": "^5.0.0",
