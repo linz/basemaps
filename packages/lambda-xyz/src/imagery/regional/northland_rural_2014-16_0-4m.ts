@@ -2,7 +2,7 @@ import { EPSG } from '@basemaps/geo';
 import { MosaicCog } from '../../tiff.mosaic';
 
 MosaicCog.create({
-    id: '01E095KKBEY4GPJF9CJ98T333T',
+    id: '01E3N4FQ7CKMS59BHBFY5RS0PN',
     name: 'northland_rural_2014-16_0-4m',
     projection: EPSG.Wgs84,
 
@@ -17,8 +17,8 @@ MosaicCog.create({
         '3113303011',
         '3113303102',
         '3113303130',
-        // '3113303132', // Missing
-        // '3113303133', // Missing
+        '3113303132',
+        '3113303133',
         '3113303301',
         '3113303330',
         '3113303331',

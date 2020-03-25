@@ -2,11 +2,11 @@ import { EPSG } from '@basemaps/geo';
 import { MosaicCog } from '../../tiff.mosaic';
 
 MosaicCog.create({
-    id: '01E0955R8T5NPQTMC2J2TFQNB5',
+    id: '01E3K92T58WMRBBZ4FVNW8YPTR',
     name: 'whanganui_urban_2017-18_0-075m',
     projection: EPSG.Wgs84,
 
-    minZoom: 14,
+    minZoom: 13,
     priority: 150,
     year: 2017,
     resolution: 75,
