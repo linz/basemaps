@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/linz/basemaps/compare/v1.1.0...v1.2.0) (2020-03-25)
+
+
+### Bug Fixes
+
+* **api-tracker:** remove logging request ([51b0c7d](https://github.com/linz/basemaps/commit/51b0c7d8d7b5b6b2ca20f224cd45befe454cc7b3))
+* regressions in api-tracker server ([339142e](https://github.com/linz/basemaps/commit/339142e0df704033603e5749026d371c6ee40854))
+
+
+### Features
+
+* **wmts:** set cache-control max-age=0 for WMTSCapabilities.xml ([3e2c008](https://github.com/linz/basemaps/commit/3e2c0080faadf15e31d7646b8b711e4510313600))
+
+
+
+
+
 # [1.1.0](https://github.com/linz/basemaps/compare/v1.0.0...v1.1.0) (2020-02-20)
 
 **Note:** Version bump only for package @basemaps/lambda-api-tracker

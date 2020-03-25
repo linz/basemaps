@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cog",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -16,7 +16,7 @@
     "test": "ospec build/**/*.test.js"
   },
   "dependencies": {
-    "@basemaps/lambda-shared": "^1.1.0",
+    "@basemaps/lambda-shared": "^1.2.0",
     "@cogeotiff/core": "^1.0.3",
     "@cogeotiff/source-aws": "^1.0.3",
     "@cogeotiff/source-file": "^1.0.3",

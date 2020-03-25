@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/tiler-sharp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
@@ -10,7 +10,7 @@
     "test": "ospec build/**/*.test.js"
   },
   "dependencies": {
-    "@basemaps/tiler": "^1.1.0",
+    "@basemaps/tiler": "^1.2.0",
     "sharp": "^0.25.2"
   },
   "devDependencies": {
