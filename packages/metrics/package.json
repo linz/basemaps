@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
-  "license": "BSD 3-Clause",
+  "license": "MIT",
   "main": "./build/metrics.js",
   "types": "./build/metrics.d.ts",
   "scripts": {
