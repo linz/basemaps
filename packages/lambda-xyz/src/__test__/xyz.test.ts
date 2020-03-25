@@ -125,6 +125,20 @@ o.spec('LambdaXyz', () => {
         o.after(() => {
             process.env[Env.PublicUrlBase] = origPublicUrlBase;
         });
+
+        o('should 304 if a xml is not modified', async () => {
+            const key = 'AUjdJhRzn4qFv9um0D0/k+8IRxdI4jgzO+QUg/aaMxw=';
+            const request = req('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
+                'if-none-match': key,
+            });
+
+            const res = await handleRequest(request);
+            o(res.status).equals(304);
+            o(rasterMock.calls.length).equals(0);
+
+            o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
+        });
+
         o('should serve WMTSCapabilities for tile_set', async () => {
             process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
