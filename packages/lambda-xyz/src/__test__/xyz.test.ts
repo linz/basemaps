@@ -4,8 +4,10 @@ import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import * as o from 'ospec';
 import 'source-map-support/register';
 import { handleRequest } from '../index';
-import { TiffUtil } from '../tiff';
 import { Tilers } from '../tiler';
+import { EPSG } from '@basemaps/geo';
+import { TileSets } from '../routes/tile';
+import { TileSet } from '../tile.set';
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('LambdaXyz', () => {
@@ -42,10 +44,14 @@ o.spec('LambdaXyz', () => {
         Tilers.tile256.tile = tileMock as any;
         Tilers.compose256 = { compose: rasterMock } as any;
 
-        TiffUtil.getTiffsForQuadKey = () => [];
+        const tileSet = new TileSet('aerial', EPSG.Google, 'bucket');
+        TileSets.set(tileSet.id, tileSet);
+        tileSet.load = () => Promise.resolve();
+        tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
     });
 
     o.afterEach(() => {
+        TileSets.clear();
         Tilers.tile256 = new Tiler(256);
         Tilers.compose256 = new TileMakerSharp(256);
     });

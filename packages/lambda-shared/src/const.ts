@@ -8,6 +8,10 @@ export const Const = {
         TableName: 'ApiKey',
         RequestLimitMinute: 1000,
     },
+    TileMetadata: {
+        TableName: 'TileMetadata',
+        RequestLimitMinute: 1000,
+    },
 };
 
 export const Env = {

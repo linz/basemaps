@@ -1,7 +1,9 @@
-import '../imagery';
-import { Mosaics } from '../imagery/mosaics';
 import pLimit from 'p-limit';
 import { Env, LogConfig } from '@basemaps/lambda-shared';
+import { TileSet } from '../tile.set';
+import { EPSG } from '@basemaps/geo';
+import { CogTiff } from '@cogeotiff/core';
+import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 
 const Q = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
 const bucket = Env.get(Env.CogBucket, undefined);
@@ -13,21 +15,30 @@ async function main(): Promise<void> {
     if (bucket == null || bucket == '') {
         throw new Error(`$${Env.CogBucket} is not defined`);
     }
-    const logger = LogConfig.get();
-    for (const cog of Mosaics) {
-        cog.bucket = bucket;
-        logger.info({ cog: cog.basePath, quadKeys: cog.quadKeys.length }, 'TestingMosaic');
+    const tileSet = new TileSet('aerial', EPSG.Google);
+    await tileSet.load();
 
-        const promises = cog.quadKeys.map((qk) => {
+    let errorCount = 0;
+    const logger = LogConfig.get();
+    for (const { imagery } of tileSet.allImagery()) {
+        const path = TileSet.BasePath(imagery);
+        logger.info({ path, quadKeys: imagery.quadKeys.length }, 'TestingMosaic');
+
+        const promises = imagery.quadKeys.map((qk) => {
             return Q(async () => {
                 try {
-                    const source = cog.getSource(qk);
+                    const source = new CogTiff(new CogSourceAwsS3(bucket, TileSet.BasePath(imagery, qk)));
                     await source.init();
                     if (!source.options.isCogOptimized) {
-                        logger.error({ cog: cog.basePath, qk }, 'NotOptimized');
+                        logger.error({ path, qk }, 'NotOptimized');
                     }
                 } catch (e) {
-                    logger.error({ err: e, cog: cog.basePath, qk }, 'Failed');
+                    logger.error({ err: e, bucket, path, qk }, 'Failed');
+                    errorCount++;
+                    if (errorCount > 10) {
+                        logger.fatal('Too many errors');
+                        process.exit(1);
+                    }
                 }
             });
         });
