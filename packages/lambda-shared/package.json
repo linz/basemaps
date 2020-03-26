@@ -11,6 +11,7 @@
     "test": "ospec 'build/**/*.test.js'"
   },
   "dependencies": {
+    "@basemaps/tiler": "^1.2.0",
     "aws-sdk": "^2.508.0",
     "base-x": "^3.0.7",
     "ulid": "^2.3.0"
