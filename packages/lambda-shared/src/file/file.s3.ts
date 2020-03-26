@@ -61,7 +61,7 @@ export class FileOperatorS3 implements FileProcessor {
             ContinuationToken = res.NextContinuationToken;
         }
 
-        return list.map(c => `s3://${Bucket}/${c.Key}`);
+        return list.map((c) => `s3://${Bucket}/${c.Key}`);
     }
 
     async read(filePath: string): Promise<Buffer> {
@@ -75,7 +75,7 @@ export class FileOperatorS3 implements FileProcessor {
         const opts = FileOperatorS3.parse(filePath);
         await this.s3
             .upload({ Bucket: opts.bucket, Key: opts.key, Body: buf })
-            .on('httpUploadProgress', evt => {
+            .on('httpUploadProgress', (evt) => {
                 const progress = parseFloat(((evt.loaded / evt.total) * 100).toFixed(2));
                 logger?.debug({ progress, size: evt.total, ...opts }, 'UploadProgress');
             })

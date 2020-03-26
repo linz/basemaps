@@ -23,7 +23,7 @@ o.spec('router', () => {
         o(response.statusDescription).equals('stub');
     });
 
-    ['delete', 'post', 'head', 'put'].forEach(method => {
+    ['delete', 'post', 'head', 'put'].forEach((method) => {
         o(`should disallow "${method}"`, async () => {
             const myInfo = makeContext(method, '/v1/test-path/rest/of/path');
 

@@ -22,7 +22,7 @@ o.spec('MosaicSort', () => {
             new MosaicCog({ ...base, id: 'b' }),
         ];
         mosaics.sort(MosaicSort);
-        o(mosaics.map(c => c.id)).deepEquals(['a', 'b', 'c']);
+        o(mosaics.map((c) => c.id)).deepEquals(['a', 'b', 'c']);
     });
 
     o('should sort by resolution', () => {
@@ -32,7 +32,7 @@ o.spec('MosaicSort', () => {
             new MosaicCog({ ...base, id: 'c', resolution: 100 }),
         ];
         mosaics.sort(MosaicSort);
-        o(mosaics.map(c => c.id)).deepEquals(['c', 'b', 'a']);
+        o(mosaics.map((c) => c.id)).deepEquals(['c', 'b', 'a']);
     });
 
     o('should sort by year', () => {
@@ -42,7 +42,7 @@ o.spec('MosaicSort', () => {
             new MosaicCog({ ...base, id: 'c', year: 2018, resolution: 1 }),
         ];
         mosaics.sort(MosaicSort);
-        o(mosaics.map(c => c.id)).deepEquals(['b', 'c', 'a']);
+        o(mosaics.map((c) => c.id)).deepEquals(['b', 'c', 'a']);
     });
 
     o('should sort by priority', () => {
@@ -52,6 +52,6 @@ o.spec('MosaicSort', () => {
             new MosaicCog({ ...base, id: 'c', year: 2019, priority: 100 }),
         ];
         mosaics.sort(MosaicSort);
-        o(mosaics.map(c => c.id)).deepEquals(['b', 'a', 'c']);
+        o(mosaics.map((c) => c.id)).deepEquals(['b', 'a', 'c']);
     });
 });

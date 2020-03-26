@@ -14,6 +14,6 @@ o.spec('Proj2193', () => {
         o(output.map(toFixed)).deepEquals([167.454458, -47.1970753].map(toFixed));
 
         const reverse = Proj2193.forward(output);
-        o(reverse.map(f => Math.floor(f))).deepEquals([1180000.0, 4758000.0]);
+        o(reverse.map((f) => Math.floor(f))).deepEquals([1180000.0, 4758000.0]);
     });
 });

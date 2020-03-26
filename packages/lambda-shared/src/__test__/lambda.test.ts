@@ -65,7 +65,7 @@ o.spec('LambdaFunction', () => {
         const logs: [Record<string, any>, string][] = [];
         LogConfig.set({
             info: (a: Record<string, any>, b: string) => logs.push([a, b]),
-            child: function() {
+            child: function () {
                 return this;
             },
         } as any);

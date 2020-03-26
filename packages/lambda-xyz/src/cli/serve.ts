@@ -15,13 +15,13 @@ if (Env.get(Env.CogBucket, undefined) == null) {
 }
 function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
     if (fs instanceof FileOperatorS3) {
-        return tiffList.map(path => {
+        return tiffList.map((path) => {
             const { bucket, key } = FileOperatorS3.parse(path);
             // Use the same s3 credentials to access the files that were used to list them
             return new CogSourceAwsS3(bucket, key, fs.s3);
         });
     }
-    return tiffList.map(path => new CogSourceFile(path));
+    return tiffList.map((path) => new CogSourceFile(path));
 }
 
 async function main(): Promise<void> {
@@ -30,8 +30,8 @@ async function main(): Promise<void> {
         const tiffFs = FileOperator.create(filePath);
 
         const fileList = await tiffFs.list(filePath);
-        const files = fileList.filter(f => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'));
-        const allTiffs = getTiffs(tiffFs, files).map(c => new CogTiff(c));
+        const files = fileList.filter((f) => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'));
+        const allTiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
 
         // TODO Should convert tiff into quadkey bounding boxes
         TiffUtil.getTiffsForQuadKey = (): CogTiff[] => allTiffs;
@@ -74,8 +74,8 @@ async function main(): Promise<void> {
     });
 
     app.use(express.static('./static/'));
-    await new Promise(resolve => app.listen(port, resolve));
+    await new Promise((resolve) => app.listen(port, resolve));
     console.log('Listen', `http://localhost:${port}`);
 }
 
-main().catch(e => console.error(e));
+main().catch((e) => console.error(e));

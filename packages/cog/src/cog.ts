@@ -96,7 +96,7 @@ export async function buildCogForQuadKey(
         resampling: getResample(job.output.resample),
     });
     if (cogBuild.gdal.mount) {
-        job.source.files.forEach(f => cogBuild.gdal.mount?.(f));
+        job.source.files.forEach((f) => cogBuild.gdal.mount?.(f));
     }
 
     cogBuild.gdal.parser.on('progress', onProgress({ quadKey, target: 'tiff' }, logger));

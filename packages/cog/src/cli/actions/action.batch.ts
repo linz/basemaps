@@ -73,7 +73,7 @@ export class ActionBatchJob extends CommandLineAction {
         let isPartial = false;
         let todoCount = job.quadkeys.length;
         const stats = await Promise.all(
-            job.quadkeys.map(async quadKey => {
+            job.quadkeys.map(async (quadKey) => {
                 const targetPath = getJobPath(job, `${quadKey}.tiff`);
                 const exists = await outputFs.exists(targetPath);
                 if (exists) {
@@ -97,7 +97,7 @@ export class ActionBatchJob extends CommandLineAction {
         );
 
         const batch = new aws.Batch({ region });
-        const toSubmit = stats.filter(f => f.exists == false).map(c => c.quadKey);
+        const toSubmit = stats.filter((f) => f.exists == false).map((c) => c.quadKey);
         for (const quadKey of toSubmit) {
             const jobStatus = await this.batchOne(job, batch, quadKey, isCommit);
             logger.info(jobStatus, 'JobSubmitted');

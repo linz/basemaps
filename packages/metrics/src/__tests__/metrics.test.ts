@@ -16,7 +16,7 @@ o.spec('Metrics', () => {
 
     o('should throw an Error if end before start', () => {
         const metrics = new Metrics();
-        o(function() {
+        o(function () {
             metrics.end('bar');
         }).throws(Error);
     });

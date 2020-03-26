@@ -50,7 +50,7 @@ export class CogifyCommandLine extends CommandLineParser {
     }
 }
 
-new CogifyCommandLine().executeWithoutErrorHandling().catch(err => {
+new CogifyCommandLine().executeWithoutErrorHandling().catch((err) => {
     LogConfig.get().fatal({ err }, 'Failed to run command');
     process.exit(1);
 });

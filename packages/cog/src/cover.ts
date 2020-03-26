@@ -20,7 +20,7 @@ export class TileCover {
             limits.max_zoom = i;
             const indexes = MapBoxCover.indexes(searchGeom, limits)
                 // Remove invalid tiles
-                .filter(f => f != '')
+                .filter((f) => f != '')
                 // Make sure the biggest tiles are first
                 .sort((a: string, b: string) => a.length - b.length)
                 // If an earlier tile already covers this region, we don't need this tile
