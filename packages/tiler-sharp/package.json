@@ -10,6 +10,8 @@
     "test": "ospec build/**/*.test.js"
   },
   "dependencies": {
+    "@basemaps/geo": "1.2.0",
+    "@basemaps/metrics": "1.2.0",
     "@basemaps/tiler": "^1.2.0",
     "sharp": "^0.25.2"
   },
