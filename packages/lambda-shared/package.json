@@ -11,6 +11,8 @@
     "test": "ospec 'build/**/*.test.js'"
   },
   "dependencies": {
+    "@basemaps/geo": "1.2.0",
+    "@basemaps/metrics": "1.2.0",
     "@basemaps/tiler": "^1.2.0",
     "aws-sdk": "^2.508.0",
     "base-x": "^3.0.7",

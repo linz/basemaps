@@ -17,6 +17,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
+      - name: Check Dependencies
+        run: node scripts/detect.unlinked.dep.js
+
       - name: Install
         run: yarn
 

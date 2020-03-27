@@ -6,6 +6,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@basemaps/geo": "1.2.0",
     "@basemaps/lambda-shared": "^1.2.0"
   },
   "scripts": {

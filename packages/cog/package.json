@@ -16,6 +16,7 @@
     "test": "ospec build/**/*.test.js"
   },
   "dependencies": {
+    "@basemaps/geo": "1.2.0",
     "@basemaps/lambda-shared": "^1.2.0",
     "@cogeotiff/core": "^1.0.3",
     "@cogeotiff/source-aws": "^1.0.3",

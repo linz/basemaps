@@ -32,6 +32,7 @@ function getAllImports(path) {
 async function main() {
     const packages = await fs.readdir('./packages');
 
+    let hasFailures = false;
     for (const pkg of packages) {
         const pkgPath = `./packages/${pkg}`;
         const pkgJson = JSON.parse(await fs.readFile(`${pkgPath}/package.json`));
@@ -47,8 +48,12 @@ async function main() {
         for (const importedPackage of allImports) {
             if (!localDeps.has(importedPackage)) {
                 console.error(`${pkg}: Missing import "${importedPackage}"`);
+                hasFailures = true;
             }
         }
+    }
+    if (hasFailures) {
+        process.exit(1);
     }
 }
 
