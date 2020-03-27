@@ -78,6 +78,7 @@ export class EdgeStack extends cdk.Stack {
             originConfigs: [s3Source, tileSource],
         });
 
+        new cdk.CfnOutput(this, 'CloudFrontBucket', { value: s3BucketSource.bucketName });
         new cdk.CfnOutput(this, 'CloudFrontDomain', { value: dist.domainName });
     }
 }

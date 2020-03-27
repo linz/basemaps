@@ -8,6 +8,13 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "ospec 'build/**/*.test.js'"
+    "test": "ospec 'build/**/*.test.js'",
+    "deploy:deploy": "./deploy.js"
+  },
+  "dependencies": {
+    "@basemaps/infra": "^1.2.0"
+  },
+  "devDependencies": {
+    "mime-types": "^2.1.26"
   }
 }
