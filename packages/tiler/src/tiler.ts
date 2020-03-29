@@ -90,10 +90,7 @@ export class Tiler {
             tileSourceBounds.height,
         );
 
-        const target = source
-            .scale(scaleFactor, scaleFactor)
-            .add(raster.tiff)
-            .round();
+        const target = source.scale(scaleFactor, scaleFactor).add(raster.tiff).round();
 
         // Validate that the requested COG tile actually intersects with the output raster
         const tileIntersection = target.intersection(raster.tile);

@@ -4,7 +4,7 @@ import * as o from 'ospec';
 import { buildWmtsCapability, buildWmtsCapabilityToVNode } from '../wmts.capability';
 import { createHash } from 'crypto';
 
-const listTag = (node: VNode, tag: string): string[] => Array.from(node.tags(tag)).map(n => n.toString());
+const listTag = (node: VNode, tag: string): string[] => Array.from(node.tags(tag)).map((n) => n.toString());
 
 o.spec('wmts', () => {
     o('should build capabiltiy xml for tileset and projection', () => {
@@ -129,11 +129,9 @@ o.spec('wmts', () => {
 
         o(xml).equals('<?xml version="1.0"?>\n' + raw.toString());
 
-        o(
-            createHash('sha256')
-                .update(Buffer.from(xml))
-                .digest('base64'),
-        ).equals('sdDWwHqM7SzcV9dL1dQ0Kp8QqulUSdk/n1vQ/a3UgN4=');
+        o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
+            'sdDWwHqM7SzcV9dL1dQ0Kp8QqulUSdk/n1vQ/a3UgN4=',
+        );
     });
 
     o('should allow empty api key', () => {

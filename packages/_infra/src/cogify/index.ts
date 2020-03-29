@@ -101,7 +101,7 @@ export class CogBuilderStack extends cdk.Stack {
                 spotIamFleetRole: spotFleetRole.roleArn,
                 instanceRole: batchInstanceRole.roleName,
                 instanceTypes: ['c5.xlarge', 'c5.2xlarge', 'c5.4xlarge', 'c5.9xlarge'],
-                subnets: vpc.privateSubnets.map(c => c.subnetId),
+                subnets: vpc.privateSubnets.map((c) => c.subnetId),
                 securityGroupIds: [sg.securityGroupId],
                 tags: {
                     CogBuilder: 'true',

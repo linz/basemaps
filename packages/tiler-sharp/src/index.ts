@@ -76,7 +76,7 @@ export class TileMakerSharp implements TileMaker {
             }
             todo.push(this.composeTile(comp));
         }
-        const overlays = await Promise.all(todo).then(items => items.filter(notEmpty));
+        const overlays = await Promise.all(todo).then((items) => items.filter(notEmpty));
         metrics.end('compose:overlay');
 
         metrics.start('compose:compress');

@@ -164,7 +164,7 @@ o.spec('LambdaXyz', () => {
         });
     });
 
-    ['/favicon.ico', '/index.html', '/foo/bar'].forEach(path => {
+    ['/favicon.ico', '/index.html', '/foo/bar'].forEach((path) => {
         o('should error on invalid paths: ' + path, async () => {
             const res = await handleRequest(req(path));
             o(res.status).equals(404);

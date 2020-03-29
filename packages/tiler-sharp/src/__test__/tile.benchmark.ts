@@ -39,7 +39,7 @@ o.spec('TileCreationBenchmark', () => {
     }
     const results: Record<string, Record<string, number[]>> = {};
 
-    [256, 512, 1024].forEach(tileSize => {
+    [256, 512, 1024].forEach((tileSize) => {
         o(`should render ${RenderCount}x${tileSize} tiles`, async () => {
             o.timeout(TimeoutSeconds);
             const metrics: Record<string, number[]> = {};

@@ -18,7 +18,7 @@ async function main(): Promise<void> {
         cog.bucket = bucket;
         logger.info({ cog: cog.basePath, quadKeys: cog.quadKeys.length }, 'TestingMosaic');
 
-        const promises = cog.quadKeys.map(qk => {
+        const promises = cog.quadKeys.map((qk) => {
             return Q(async () => {
                 try {
                     const source = cog.getSource(qk);

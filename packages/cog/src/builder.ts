@@ -56,7 +56,7 @@ export class CogBuilder {
         let projection = -1;
         let nodata = -1;
         let count = 0;
-        const coordinates = sources.map(source => {
+        const coordinates = sources.map((source) => {
             return this.q(async () => {
                 count++;
                 if (count % 50 == 0) {
@@ -207,7 +207,7 @@ export class CogBuilder {
             path.join(
                 CacheFolder,
                 createHash('sha256')
-                    .update(tiffs.map(c => c.name).join('\n'))
+                    .update(tiffs.map((c) => c.name).join('\n'))
                     .digest('hex'),
             ) + '.json';
 

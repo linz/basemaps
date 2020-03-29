@@ -40,7 +40,7 @@ async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<Cog
     const tiffs = TiffUtil.getTiffsForQuadKey(qk, zoom);
     let failed = false;
     // Remove any tiffs that failed to load
-    const promises = tiffs.map(c => {
+    const promises = tiffs.map((c) => {
         return LoadingQueue(async () => {
             try {
                 await c.init();
@@ -52,7 +52,7 @@ async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<Cog
     });
     await Promise.all(promises);
     if (failed) {
-        return tiffs.filter(f => f.images.length > 0);
+        return tiffs.filter((f) => f.images.length > 0);
     }
     return tiffs;
 }
@@ -84,9 +84,7 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     const layers = await tiler.tile(tiffs, x, y, z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId
-    const cacheKey = createHash('sha256')
-        .update(JSON.stringify({ xyzData, layers, RenderId }))
-        .digest('base64');
+    const cacheKey = createHash('sha256').update(JSON.stringify({ xyzData, layers, RenderId })).digest('base64');
 
     if (layers == null) {
         return emptyPng(req, cacheKey);
@@ -130,9 +128,7 @@ export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
 
     const data = Buffer.from(xml);
 
-    const cacheKey = createHash('sha256')
-        .update(data)
-        .digest('base64');
+    const cacheKey = createHash('sha256').update(data).digest('base64');
 
     const respNotMod = checkNotModified(req, cacheKey);
     if (respNotMod != null) return respNotMod;

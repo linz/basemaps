@@ -53,7 +53,7 @@ export async function buildVrtForTiffs(
         }
     }
 
-    const sourceFiles = job.source.files.map(c => c.replace('s3://', '/vsis3/'));
+    const sourceFiles = job.source.files.map((c) => c.replace('s3://', '/vsis3/'));
     await gdalCommand.run('gdalbuildvrt', [...buildVrtCmd, vrtPath, ...sourceFiles], logger);
 
     return vrtPath;

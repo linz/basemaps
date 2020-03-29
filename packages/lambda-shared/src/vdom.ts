@@ -84,7 +84,7 @@ export class VNodeElement extends VNode {
             const n1 = this.children[0];
             if (n1 instanceof VNodeText) return n1.text;
         }
-        return `\n${this.children.map(c => c.toString(level + 1)).join(`\n`)}\n${indent(level)}`;
+        return `\n${this.children.map((c) => c.toString(level + 1)).join(`\n`)}\n${indent(level)}`;
     }
 }
 

@@ -118,13 +118,13 @@ export class ActionJobCreate extends CommandLineAction {
 
         let tiffSource: CogSource[];
         if (sourceFs instanceof FileOperatorS3) {
-            tiffSource = tiffList.map(path => {
+            tiffSource = tiffList.map((path) => {
                 const { bucket, key } = FileOperatorS3.parse(path);
                 // Use the same s3 credentials to access the files that were used to list them
                 return new CogSourceAwsS3(bucket, key, sourceFs.s3);
             });
         } else {
-            tiffSource = tiffList.map(path => new CogSourceFile(path));
+            tiffSource = tiffList.map((path) => new CogSourceFile(path));
         }
         const maxConcurrency = this.maxConcurrency?.value ?? this.MaxConcurrencyDefault;
         const maxCogs = this.maxCogs?.value ?? this.MaxCogsDefault;
