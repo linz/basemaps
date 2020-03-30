@@ -26,7 +26,7 @@ o.spec('wmts', () => {
         ]);
 
         o(listTag(raw, 'ows:WGS84BoundingBox')).deepEquals([
-            '<ows:WGS84BoundingBox>\n' +
+            '<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84">\n' +
                 '  <ows:LowerCorner>-180 -85.0511287798066</ows:LowerCorner>\n' +
                 '  <ows:UpperCorner>180 85.0511287798066</ows:UpperCorner>\n' +
                 '</ows:WGS84BoundingBox>',
@@ -44,7 +44,13 @@ o.spec('wmts', () => {
         o(tileMatrixSet.length).equals(2);
 
         o(listTag(tileMatrixSet[1], 'ows:Identifier')[0]).equals('<ows:Identifier>aerial</ows:Identifier>');
-        o(listTag(tileMatrixSet[1], 'ows:SupportedCRS')).deepEquals(['<ows:SupportedCRS>EPSG:3857</ows:SupportedCRS>']);
+        o(listTag(tileMatrixSet[1], 'ows:SupportedCRS')).deepEquals([
+            '<ows:SupportedCRS>urn:ogc:def:crs:EPSG:6.18:3:3857</ows:SupportedCRS>',
+        ]);
+
+        o(listTag(tileMatrixSet[1], 'WellKnownScaleSet')).deepEquals([
+            '<WellKnownScaleSet>urn:ogc:def:wkss:OGC:1.0:GoogleMapsCompatible</WellKnownScaleSet>',
+        ]);
 
         const tileMatrices = Array.from(raw.tags('TileMatrix'));
 
@@ -130,7 +136,7 @@ o.spec('wmts', () => {
         o(xml).equals('<?xml version="1.0"?>\n' + raw.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            '6/LJ2nPrCPTiMt4dteMk46hq/80JbFZEH4GMrHG3eaU=',
+            'c6nAkVgp2YR1JKfamidVGZh4mY8LOhWmjOqf9u/T/kk=',
         );
     });
 

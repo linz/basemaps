@@ -127,12 +127,13 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = 'BVnuCvMWJ1PBIIa/D2s3swuKNR/TY3xHkgzM7MMWjho=';
+            const key = 'uv2XFvwiRkvhkPbj+QazOpYj7X0TjB5IBIIJPNGkLr8=';
             const request = req('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
                 'if-none-match': key,
             });
 
             const res = await handleRequest(request);
+            if (res.status == 200) o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
             o(res.status).equals(304);
             o(rasterMock.calls.length).equals(0);
 
@@ -149,7 +150,7 @@ o.spec('LambdaXyz', () => {
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
             o(res.header('cache-control')).equals('max-age=0');
-            o(res.header('eTaG')).equals('g2Z5qHK7nkoMcmA0VQ/c/O5FEgcYEvpAxtQWyN+dmt4=');
+            o(res.header('eTaG')).equals('EM2yWCUl7sdJudnCwYslzX8SGyW6fpwQUnAqNEJAST4=');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(body.slice(0, 100)).equals(
