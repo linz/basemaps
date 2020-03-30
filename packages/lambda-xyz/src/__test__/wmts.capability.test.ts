@@ -48,7 +48,7 @@ o.spec('wmts', () => {
 
         const tileMatrices = Array.from(raw.tags('TileMatrix'));
 
-        o(tileMatrices.length).equals(20);
+        o(tileMatrices.length).equals(25);
 
         o(tileMatrices[0].toString()).equals(
             '<TileMatrix>\n' +
@@ -99,7 +99,7 @@ o.spec('wmts', () => {
 
         const tileMatrices = Array.from(raw.tags('TileMatrix'));
 
-        o(tileMatrices.length).equals(20);
+        o(tileMatrices.length).equals(25);
 
         o(tileMatrices[0].toString()).equals(
             '<TileMatrix>\n' +
@@ -130,7 +130,7 @@ o.spec('wmts', () => {
         o(xml).equals('<?xml version="1.0"?>\n' + raw.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            'sdDWwHqM7SzcV9dL1dQ0Kp8QqulUSdk/n1vQ/a3UgN4=',
+            '6/LJ2nPrCPTiMt4dteMk46hq/80JbFZEH4GMrHG3eaU=',
         );
     });
 

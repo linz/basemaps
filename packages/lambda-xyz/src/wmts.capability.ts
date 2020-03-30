@@ -4,6 +4,8 @@ import { ImageFormat } from '@basemaps/tiler';
 
 const { lat, lon } = Projection.Wgs84Bound;
 
+const MaxZoomLevel = 25;
+
 const CapabilitiesAttrs = {
     xmlns: 'http://www.opengis.net/wmts/1.0',
     'xmlns:ows': 'http://www.opengis.net/ows/1.1',
@@ -86,7 +88,7 @@ const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
             const matrices = [];
             let scale = 559082264.029,
                 size = 1;
-            for (let i = 0; i < 20; ++i, scale *= 0.5) {
+            for (let i = 0; i < MaxZoomLevel; ++i, scale *= 0.5) {
                 const dim = String(size);
                 size *= 2;
                 matrices.push(
