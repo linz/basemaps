@@ -17,7 +17,7 @@ export class TileSet {
     projection: EPSG;
     tileSet: TileMetadataSetRecord;
     imagery: Map<string, TileMetadataImageryRecord>;
-    sources: Map<string, CogTiff>;
+    sources: Map<string, CogTiff> = new Map();
     bucket: string;
 
     static BasePath(record: TileMetadataImageryRecord, quadKey?: string): string {
