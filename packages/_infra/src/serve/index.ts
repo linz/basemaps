@@ -10,6 +10,7 @@ import { ApplicationProtocol, SslPolicy } from '@aws-cdk/aws-elasticloadbalancin
 import { DeployEnv } from '../deploy.env';
 import { Env } from '@basemaps/lambda-shared';
 import { getConfig } from '../config';
+import { TileMetadataTable } from './db';
 
 /**
  * Tile serving infrastructure
@@ -20,6 +21,8 @@ export class ServeStack extends cdk.Stack {
 
         const config = getConfig();
         const lambda = new LambdaXyz(this, 'LambdaXyz');
+        const table = new TileMetadataTable(this, 'TileMetadata');
+        table.table.grantReadData(lambda.lambda);
 
         const vpc = ec2.Vpc.fromLookup(this, 'AlbVpc', { tags: { default: 'true' } });
         const lb = new elbv2.ApplicationLoadBalancer(this, 'LB', { vpc, internetFacing: false });
