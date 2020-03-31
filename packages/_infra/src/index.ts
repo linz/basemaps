@@ -21,6 +21,5 @@ const serve = new ServeStack(basemaps, 'Serve', { env: { region: 'ap-southeast-2
 
 edge.addDependency(table);
 edge.addDependency(serve);
-// edge.addDependency(serve);
 
 new CogBuilderStack(basemaps, 'CogBuilder', { env: { region: 'ap-southeast-2', account } });
