@@ -28,7 +28,7 @@
     "proj4": "^2.6.0"
   },
   "devDependencies": {
-    "@microsoft/ts-command-line": "^4.3.5",
+    "@microsoft/ts-command-line": "^5.0.1",
     "@types/mapbox__tile-cover": "^3.0.0",
     "@types/proj4": "^2.5.0",
     "@zeit/ncc": "^0.22.0"
