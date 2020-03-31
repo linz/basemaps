@@ -21,6 +21,6 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",
     "@types/pino": "^5.8.8",
-    "pino": "^5.13.2"
+    "pino": "^6.0.0"
   }
 }
