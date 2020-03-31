@@ -169,7 +169,7 @@ export class ActionJobCreate extends CommandLineAction {
         const job: CogJob = {
             id: ProcessId,
             name: imageryName,
-            projection: EPSG.Wgs84,
+            projection: EPSG.Google,
             output: {
                 ...outputConfig,
                 resample: getResample(this.resample?.value),
