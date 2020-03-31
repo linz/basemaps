@@ -5,8 +5,9 @@ import { CogSourceFile } from '@cogeotiff/source-file';
 import * as express from 'express';
 import * as ulid from 'ulid';
 import * as lambda from '../index';
-import { TiffUtil } from '../tiff';
-import { MosaicCog } from '../tiff.mosaic';
+import { TileSet } from '../tile.set';
+import { EPSG } from '@basemaps/geo';
+import { TileSets } from '../routes/tile';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
@@ -24,18 +25,34 @@ function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
     return tiffList.map((path) => new CogSourceFile(path));
 }
 
+export class TileSetLocal extends TileSet {
+    tiffs: CogTiff[];
+    filePath: string;
+
+    constructor(name: string, projection: EPSG, path: string) {
+        super(name, projection);
+        this.filePath = path;
+    }
+
+    async load(): Promise<void> {
+        if (this.tiffs != null) return;
+        const tiffFs = FileOperator.create(this.filePath);
+
+        const fileList = await tiffFs.list(this.filePath);
+        const files = fileList.filter((f) => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'));
+        this.tiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
+    }
+
+    async getTiffsForQuadKey(): Promise<CogTiff[]> {
+        return this.tiffs;
+    }
+}
+
 async function main(): Promise<void> {
     const filePath = process.argv[2];
     if (filePath != null) {
-        const tiffFs = FileOperator.create(filePath);
-
-        const fileList = await tiffFs.list(filePath);
-        const files = fileList.filter((f) => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'));
-        const allTiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
-
-        // TODO Should convert tiff into quadkey bounding boxes
-        TiffUtil.getTiffsForQuadKey = (): CogTiff[] => allTiffs;
-        TiffUtil.load = (): MosaicCog[] => [];
+        const tileSet = new TileSetLocal('aerial', EPSG.Google, filePath);
+        TileSets.set(tileSet.id, tileSet);
     }
 
     app.get('/:z/:x/:y.png', async (req: express.Request, res: express.Response) => {
@@ -46,7 +63,7 @@ async function main(): Promise<void> {
         const ctx = new LambdaContext(
             {
                 httpMethod: 'get',
-                path: `/v1/tiles/aerial/3857/${z}/${x}/${y}.png`,
+                path: `/v1/tiles/aerial/${EPSG.Google}/${z}/${x}/${y}.png`,
             } as any,
             logger,
         );

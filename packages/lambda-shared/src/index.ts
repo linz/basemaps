@@ -11,5 +11,7 @@ export { LogConfig, LogType } from './log';
 export { tileFromPath, TileType, TileData, TileDataWmts, TileDataXyz, TileSetType } from './api.path';
 export { V, VNode, VNodeElement, VNodeText } from './vdom';
 
+export * from './aws/tile.metadata.table';
+
 export * from './router';
 export * from './file';

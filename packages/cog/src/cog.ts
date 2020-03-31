@@ -12,7 +12,7 @@ export interface CogJob {
     name: string;
 
     /** Output projection */
-    projection: EPSG.Wgs84;
+    projection: EPSG.Google;
 
     source: {
         /** List of input files */
