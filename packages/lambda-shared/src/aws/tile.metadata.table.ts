@@ -99,8 +99,7 @@ export class TileMetadataTable {
         }
 
         if (imageList.size > 0) {
-            const keys = Array.from(imageList.values());
-            await this.fetchImagery(keys, output);
+            await this.fetchImagery(imageList, output);
         }
 
         return output;
@@ -111,8 +110,8 @@ export class TileMetadataTable {
      * @param keys Imagery ids (already prefixed `im_${key}`)
      * @param output Adds fetched imagery to output
      */
-    private async fetchImagery(keys: string[], output: Map<string, TileMetadataImageryRecord>): Promise<void> {
-        let mappedKeys = keys.map(toId);
+    private async fetchImagery(keys: Set<string>, output: Map<string, TileMetadataImageryRecord>): Promise<void> {
+        let mappedKeys = Array.from(keys, toId);
 
         const origSize = output.size;
 
@@ -138,8 +137,13 @@ export class TileMetadataTable {
             }
         }
 
-        if (output.size - origSize < keys.length) {
-            throw new Error('Missing fetched items\n' + keys.filter((i) => !output.has(i)).join(', '));
+        if (output.size - origSize < keys.size) {
+            throw new Error(
+                'Missing fetched items\n' +
+                    Array.from(keys.values())
+                        .filter((i) => !output.has(i))
+                        .join(', '),
+            );
         }
     }
 
