@@ -4,16 +4,16 @@ import {
     LambdaContext,
     LambdaHttpResponse,
     LogType,
-    tileFromPath,
-    TileType,
     TileDataWmts,
     TileDataXyz,
+    tileFromPath,
+    TileType,
 } from '@basemaps/lambda-shared';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import pLimit from 'p-limit';
 import { EmptyPng } from '../png';
-import { TiffUtil } from '../tiff';
+import { TileSet } from '../tile.set';
 import { Tilers } from '../tiler';
 import { buildWmtsCapability } from '../wmts.capability';
 
@@ -36,8 +36,8 @@ function emptyPng(req: LambdaContext, cacheKey: string): LambdaHttpResponse {
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
 /** Initialize the tiffs before reading */
-async function initTiffs(qk: string, zoom: number, logger: LogType): Promise<CogTiff[]> {
-    const tiffs = TiffUtil.getTiffsForQuadKey(qk, zoom);
+async function initTiffs(tileSet: TileSet, qk: string, zoom: number, logger: LogType): Promise<CogTiff[]> {
+    const tiffs = await tileSet.getTiffsForQuadKey(qk, zoom);
     let failed = false;
     // Remove any tiffs that failed to load
     const promises = tiffs.map((c) => {
@@ -68,6 +68,8 @@ function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpRespo
     return null;
 }
 
+export const TileSets = new Map<string, TileSet>();
+
 export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
     const tiler = Tilers.tile256;
     const tileMaker = Tilers.compose256;
@@ -80,7 +82,16 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     req.set('location', latLon);
     req.set('quadKey', qk);
 
-    const tiffs = await initTiffs(qk, z, req.log);
+    const tileSetId = `${xyzData.tileSet}_${xyzData.projection}`;
+    req.set('tileSet', tileSetId);
+    const tileSet = TileSets.get(tileSetId) ?? new TileSet(xyzData.tileSet, xyzData.projection);
+    TileSets.set(tileSet.id, tileSet);
+
+    req.timer.start('tileset:load');
+    await tileSet.load();
+    req.timer.end('tileset:load');
+
+    const tiffs = await initTiffs(tileSet, qk, z, req.log);
     const layers = await tiler.tile(tiffs, x, y, z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId

@@ -4,8 +4,10 @@ import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import * as o from 'ospec';
 import 'source-map-support/register';
 import { handleRequest } from '../index';
-import { TiffUtil } from '../tiff';
 import { Tilers } from '../tiler';
+import { EPSG } from '@basemaps/geo';
+import { TileSets } from '../routes/tile';
+import { TileSet } from '../tile.set';
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('LambdaXyz', () => {
@@ -42,10 +44,14 @@ o.spec('LambdaXyz', () => {
         Tilers.tile256.tile = tileMock as any;
         Tilers.compose256 = { compose: rasterMock } as any;
 
-        TiffUtil.getTiffsForQuadKey = () => [];
+        const tileSet = new TileSet('aerial', EPSG.Google, 'bucket');
+        TileSets.set(tileSet.id, tileSet);
+        tileSet.load = () => Promise.resolve();
+        tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
     });
 
     o.afterEach(() => {
+        TileSets.clear();
         Tilers.tile256 = new Tiler(256);
         Tilers.compose256 = new TileMakerSharp(256);
     });
@@ -127,12 +133,13 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = 'AUjdJhRzn4qFv9um0D0/k+8IRxdI4jgzO+QUg/aaMxw=';
+            const key = 'uv2XFvwiRkvhkPbj+QazOpYj7X0TjB5IBIIJPNGkLr8=';
             const request = req('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
                 'if-none-match': key,
             });
 
             const res = await handleRequest(request);
+            if (res.status == 200) o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
             o(res.status).equals(304);
             o(rasterMock.calls.length).equals(0);
 
@@ -149,7 +156,7 @@ o.spec('LambdaXyz', () => {
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
             o(res.header('cache-control')).equals('max-age=0');
-            o(res.header('eTaG')).equals('4hPFjntF8bG9stOVb3kMxU0+MXhrdXfiDbsSjoOeu2A=');
+            o(res.header('eTaG')).equals('EM2yWCUl7sdJudnCwYslzX8SGyW6fpwQUnAqNEJAST4=');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(body.slice(0, 100)).equals(
