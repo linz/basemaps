@@ -31,6 +31,6 @@
     "@microsoft/ts-command-line": "^4.3.5",
     "@types/mapbox__tile-cover": "^3.0.0",
     "@types/proj4": "^2.5.0",
-    "@zeit/ncc": "^0.21.0"
+    "@zeit/ncc": "^0.22.0"
   }
 }
