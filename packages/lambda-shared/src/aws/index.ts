@@ -23,6 +23,7 @@ AWS.config.update({
 });
 
 import { ApiKeyTable } from './api.key.table';
+import { TileMetadataTable } from './tile.metadata.table';
 import { S3Cache, CredentialsCache, StsAssumeRoleConfig } from './credentials';
 
 const s3 = new AWS.S3();
@@ -44,5 +45,8 @@ export const Aws = {
     },
     api: {
         db: new ApiKeyTable(),
+    },
+    tileMetadata: {
+        db: new TileMetadataTable(),
     },
 };
