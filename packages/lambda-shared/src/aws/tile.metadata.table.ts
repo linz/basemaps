@@ -99,8 +99,8 @@ export class TileMetadataTable {
         }
 
         if (imageList.size > 0) {
-            const items = await this.fetchImagery(Array.from(imageList.values()));
-            for (const item of items) output.set(item.id, item);
+            const keys = Array.from(imageList.values());
+            await this.fetchImagery(keys, output);
         }
 
         return output;
@@ -108,32 +108,39 @@ export class TileMetadataTable {
 
     /**
      * Fetch imagery from the store
-     * @param Keys Imagery ids (already prefixed `im_${key}`)
+     * @param keys Imagery ids (already prefixed `im_${key}`)
+     * @param output Adds fetched imagery to output
      */
-    private async fetchImagery(keys: string[]): Promise<TileMetadataImageryRecord[]> {
-        // TODO run multiple requests
-        if (keys.length > 100) throw new Error('BatchGet only allows 100 keys');
+    private async fetchImagery(keys: string[], output: Map<string, TileMetadataImageryRecord>): Promise<void> {
+        let mappedKeys = keys.map(toId);
 
-        const Keys = keys.map(toId);
-        const items = await this.dynamo
-            .batchGetItem({
-                RequestItems: {
-                    [Const.TileMetadata.TableName]: { Keys },
-                },
-            })
-            .promise();
+        const origSize = output.size;
 
-        const metadataItems = items.Responses?.[Const.TileMetadata.TableName];
-        if (metadataItems == null) throw new Error('Failed to fetch tile metadata');
+        while (mappedKeys.length > 0) {
+            const Keys = mappedKeys.length > 100 ? mappedKeys.slice(0, 100) : mappedKeys;
+            mappedKeys = mappedKeys.length > 100 ? mappedKeys.slice(100) : [];
 
-        // TODO diff the arrays see what is missing?
-        if (metadataItems.length < Keys.length) throw new Error('Missing fetched items');
+            const items = await this.dynamo
+                .batchGetItem({
+                    RequestItems: {
+                        [Const.TileMetadata.TableName]: { Keys },
+                    },
+                })
+                .promise();
 
-        const results = metadataItems.map((c) => DynamoDB.Converter.unmarshall(c)) as TileMetadataImageryRecord[];
+            const metadataItems = items.Responses?.[Const.TileMetadata.TableName];
+            if (metadataItems == null) throw new Error('Failed to fetch tile metadata');
 
-        for (const result of results) this.imagery.set(result.id, result);
+            for (const row of metadataItems) {
+                const item = DynamoDB.Converter.unmarshall(row) as TileMetadataImageryRecord;
+                this.imagery.set(item.id, item);
+                output.set(item.id, item);
+            }
+        }
 
-        return results;
+        if (output.size - origSize < keys.length) {
+            throw new Error('Missing fetched items\n' + keys.filter((i) => !output.has(i)).join(', '));
+        }
     }
 
     public async create(record: TileMetadataRecord): Promise<string> {
