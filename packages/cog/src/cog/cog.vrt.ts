@@ -1,7 +1,7 @@
 import { EPSG, Projection } from '@basemaps/geo';
 import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import { CogJob, onProgress } from './cog';
-import { GdalCogBuilder } from './gdal';
+import { GdalCogBuilder } from '../gdal/gdal';
 
 export interface VrtOptions {
     /** Vrts will add a second alpha layer if one exists, so dont always add one */

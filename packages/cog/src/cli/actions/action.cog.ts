@@ -7,8 +7,8 @@ import {
 } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import * as ulid from 'ulid';
-import { buildCogForQuadKey, CogJob } from '../../cog';
-import { buildWarpedVrt } from '../../cog.vrt';
+import { buildCogForQuadKey, CogJob } from '../../cog/cog';
+import { buildWarpedVrt } from '../../cog/cog.vrt';
 import { getJobPath, makeTempFolder } from '../folder';
 
 export class ActionCogCreate extends CommandLineAction {
