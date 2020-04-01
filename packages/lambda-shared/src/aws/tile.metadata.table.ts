@@ -89,18 +89,16 @@ export class TileMetadataTable {
     }
 
     public async getAllImagery(record: TileMetadataSetRecord): Promise<Map<string, TileMetadataImageryRecord>> {
-        const imageList = new Set(record.imagery.map((c) => c.id));
+        const unfetched = new Set<string>();
         const output = new Map<string, TileMetadataImageryRecord>();
         for (const r of record.imagery) {
             const existing = this.imagery.get(r.id);
-            if (existing == null) continue;
-            imageList.delete(r.id);
-            output.set(existing.id, existing);
+            if (existing == null) unfetched.add(r.id);
+            else output.set(existing.id, existing);
         }
 
-        if (imageList.size > 0) {
-            const keys = Array.from(imageList.values());
-            await this.fetchImagery(keys, output);
+        if (unfetched.size > 0) {
+            await this.fetchImagery(unfetched, output);
         }
 
         return output;
@@ -111,8 +109,8 @@ export class TileMetadataTable {
      * @param keys Imagery ids (already prefixed `im_${key}`)
      * @param output Adds fetched imagery to output
      */
-    private async fetchImagery(keys: string[], output: Map<string, TileMetadataImageryRecord>): Promise<void> {
-        let mappedKeys = keys.map(toId);
+    private async fetchImagery(keys: Set<string>, output: Map<string, TileMetadataImageryRecord>): Promise<void> {
+        let mappedKeys = Array.from(keys, toId);
 
         const origSize = output.size;
 
@@ -138,8 +136,13 @@ export class TileMetadataTable {
             }
         }
 
-        if (output.size - origSize < keys.length) {
-            throw new Error('Missing fetched items\n' + keys.filter((i) => !output.has(i)).join(', '));
+        if (output.size - origSize < keys.size) {
+            throw new Error(
+                'Missing fetched items\n' +
+                    Array.from(keys.values())
+                        .filter((i) => !output.has(i))
+                        .join(', '),
+            );
         }
     }
 
