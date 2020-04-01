@@ -4,7 +4,7 @@ import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
-} from '@microsoft/ts-command-line';
+} from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import * as ulid from 'ulid';
 import { buildCogForQuadKey, CogJob } from '../../cog';

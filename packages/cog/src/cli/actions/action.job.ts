@@ -8,7 +8,7 @@ import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
-} from '@microsoft/ts-command-line';
+} from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
