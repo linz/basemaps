@@ -45,7 +45,7 @@ o.spec('wmts', () => {
 
         o(listTag(tileMatrixSet[1], 'ows:Identifier')[0]).equals('<ows:Identifier>aerial</ows:Identifier>');
         o(listTag(tileMatrixSet[1], 'ows:SupportedCRS')).deepEquals([
-            '<ows:SupportedCRS>urn:ogc:def:crs:EPSG:6.18:3:3857</ows:SupportedCRS>',
+            '<ows:SupportedCRS>urn:ogc:def:crs:EPSG::3857</ows:SupportedCRS>',
         ]);
 
         o(listTag(tileMatrixSet[1], 'WellKnownScaleSet')).deepEquals([
@@ -136,7 +136,7 @@ o.spec('wmts', () => {
         o(xml).equals('<?xml version="1.0"?>\n' + raw.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            'c6nAkVgp2YR1JKfamidVGZh4mY8LOhWmjOqf9u/T/kk=',
+            'kMLRNdtC0vFE+7wr01w5k0BNHNyPEO8rr1YL3UB4fS0=',
         );
     });
 
