@@ -116,7 +116,7 @@ export class Projection {
 
     /** convert a EPSG code into a URN */
     public static toUrn(epsg: EPSG): string {
-        return `urn:ogc:def:crs:EPSG:6.18:3:${epsg}`;
+        return `urn:ogc:def:crs:EPSG::${epsg}`;
     }
 
     /** parse a string returning the `EPSG` code **/
