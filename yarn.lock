@@ -6616,12 +6616,12 @@ progress@^2.0.0:
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
 proj4@^2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/proj4/-/proj4-2.6.0.tgz#154c0e8eeb1aaae9914ec387753396cbc003ae72"
-  integrity sha512-ll2WyehUFOyzEZtN8hAiOTmZpuDCN5V+4A/HjhPbhlwVwlsFKnIHSZ3l3uhzgDndHjoL2MyERFGe9VmXN4rYUg==
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/proj4/-/proj4-2.6.1.tgz#c07a32cd4a38a82515aae3b54363669896641dd6"
+  integrity sha512-RP5EcrfrLcARy+Zjjz1wIeqZzZdPtQNl685asHcwdU/MQ/dvydmf1XWM4mgok6wPaNsXZ8IFrM4qadO3g46PiQ==
   dependencies:
     mgrs "1.0.0"
-    wkt-parser "^1.2.0"
+    wkt-parser "^1.2.4"
 
 promise-inflight@^1.0.1:
   version "1.0.1"
@@ -8397,10 +8397,10 @@ windows-release@^3.1.0:
   dependencies:
     execa "^1.0.0"
 
-wkt-parser@^1.2.0:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/wkt-parser/-/wkt-parser-1.2.3.tgz#240fe1dacc816bfe5674b66180041059eaa9a9ba"
-  integrity sha512-s7zrOedGuHbbzMaQOuf8HacuCYp3LmmrHjkkN//7UEAzsYz7xJ6J+j/84ZWZkQcrRqi3xXyuc4odPHj7PEB0bw==
+wkt-parser@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/wkt-parser/-/wkt-parser-1.2.4.tgz#e42ba7b96f13aef82a2da9056e2d87da0fec5393"
+  integrity sha512-ZzKnc7ml/91fOPh5bANBL4vUlWPIYYv11waCtWTkl2TRN+LEmBg60Q1MA8gqV4hEp4MGfSj9JiHz91zw/gTDXg==
 
 word-wrap@~1.2.3:
   version "1.2.3"
