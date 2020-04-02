@@ -8,15 +8,15 @@ import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
-} from '@microsoft/ts-command-line';
+} from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
-import { CogBuilder } from '../../builder';
-import { CogJob, getTileSize } from '../../cog';
-import { buildVrtForTiffs, VrtOptions } from '../../cog.vrt';
-import { TileCover } from '../../cover';
-import { getResample } from '../../gdal.config';
+import { CogBuilder } from '../../cog/builder';
+import { CogJob, getTileSize } from '../../cog/cog';
+import { buildVrtForTiffs, VrtOptions } from '../../cog/cog.vrt';
+import { TileCover } from '../../cog/cover';
+import { getResample } from '../../gdal/gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';
 
 const ProcessId = ulid.ulid();

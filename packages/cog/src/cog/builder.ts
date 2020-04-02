@@ -7,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import pLimit, { Limit } from 'p-limit';
 import * as path from 'path';
 import { TileCover } from './cover';
-import { getProjection, guessProjection } from './proj';
+import { getProjection, guessProjection } from '../proj';
 
 export interface CogBuilderMetadata extends CogBuilderBounds {
     /** Quadkey indexes for the covering tiles */

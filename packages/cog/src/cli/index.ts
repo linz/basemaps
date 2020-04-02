@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { LogConfig } from '@basemaps/lambda-shared';
-import { CommandLineParser } from '@microsoft/ts-command-line';
+import { CommandLineParser } from '@rushstack/ts-command-line';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import { ActionBatchJob } from './actions/action.batch';

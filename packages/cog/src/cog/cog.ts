@@ -2,8 +2,8 @@ import { EPSG } from '@basemaps/geo';
 import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import * as Mercator from 'global-mercator';
 import { VrtOptions } from './cog.vrt';
-import { GdalCogBuilder } from './gdal';
-import { GdalCogBuilderOptionsResampling, getResample } from './gdal.config';
+import { GdalCogBuilder } from '../gdal/gdal';
+import { GdalCogBuilderOptionsResampling, getResample } from '../gdal/gdal.config';
 export interface CogJob {
     /** Unique processing Id */
     id: string;

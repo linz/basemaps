@@ -1,8 +1,8 @@
 import { Env, FileOperator, LogConfig } from '@basemaps/lambda-shared';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@microsoft/ts-command-line';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';
-import { CogJob } from '../../cog';
+import { CogJob } from '../../cog/cog';
 import { getJobPath } from '../folder';
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
