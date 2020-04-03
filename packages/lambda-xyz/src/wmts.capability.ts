@@ -4,7 +4,7 @@ import { ImageFormat } from '@basemaps/tiler';
 
 const { lat, lon } = Projection.Wgs84Bound;
 
-const MaxZoomLevel = 25;
+const MaxZoomLevel = 22;
 
 const CapabilitiesAttrs = {
     xmlns: 'http://www.opengis.net/wmts/1.0',
