@@ -1,4 +1,4 @@
-import { Env, FileOperator, LogConfig } from '@basemaps/lambda-shared';
+import { Env, FileOperator, LogConfig, TileMetadataTable } from '@basemaps/lambda-shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';
@@ -9,6 +9,33 @@ const JobDefinition = 'CogBatchJob';
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
+
+export function extractYearFromName(name: string): number {
+    const re = /(?:^|\D)(\d{4})(?:$|\D)/g;
+
+    let year = -1;
+
+    for (let m = re.exec(name); m != null; m = re.exec(name)) {
+        const t = parseInt(m[1]);
+        if (t > year) year = t;
+    }
+
+    return year;
+}
+
+export function storeImage(job: CogJob): Promise<string> {
+    const now = Date.now();
+    return new TileMetadataTable().create({
+        id: `im_${job.id}`,
+        name: job.name,
+        createdAt: now,
+        updatedAt: now,
+        projection: job.projection,
+        year: extractYearFromName(job.name),
+        resolution: job.source.resolution,
+        quadKeys: job.quadkeys,
+    });
+}
 
 export class ActionBatchJob extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -95,6 +122,8 @@ export class ActionBatchJob extends CommandLineAction {
             },
             'JobSubmit',
         );
+
+        if (isCommit) storeImage(job);
 
         const batch = new aws.Batch({ region });
         const toSubmit = stats.filter((f) => f.exists == false).map((c) => c.quadKey);
