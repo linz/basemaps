@@ -6550,9 +6550,9 @@ pino-std-serializers@^2.4.2:
   integrity sha512-WaL504dO8eGs+vrK+j4BuQQq6GLKeCCcHaMB2ItygzVURcL1CycwNEUHTD/lHFHs/NL5qAz2UKrjYWXKSf4aMQ==
 
 pino@^6.0.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/pino/-/pino-6.1.0.tgz#22e3208d93f4a08955e0f7a19cdc172e105c9397"
-  integrity sha512-Tj7n1ru29gHiJWC48U6/dEuc1q2Ba92a+t0Zt3NIqpRmw4TDOPp0BStKVUzx//t2+7sZbNaaBJaZOp+ZZuIlmw==
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/pino/-/pino-6.1.1.tgz#445151a1456635b3a056ed15dae1b3d16b599a43"
+  integrity sha512-enLaR5hDiiegrbh5q4vfiO9aaNrG8EDB7vfPihEmQ/TfLBacnkV3mw2RikAm16UE4OQahnw1en0j/B3+ypNImA==
   dependencies:
     fast-redact "^2.0.0"
     fast-safe-stringify "^2.0.7"
