@@ -88,6 +88,23 @@ export class TileMetadataTable {
         return DynamoDB.Converter.unmarshall(item.Item) as TileMetadataSetRecord;
     }
 
+    public async getImagery(imgId: string): Promise<TileMetadataImageryRecord> {
+        const existing = this.imagery.get(imgId);
+        if (existing) return existing;
+
+        const item = await this.dynamo
+            .getItem({
+                Key: toId(imgId),
+                TableName: Const.TileMetadata.TableName,
+            })
+            .promise();
+        if (item == null || item.Item == null) throw new Error(`Unable to find tile set: ${imgId}`);
+
+        const res = DynamoDB.Converter.unmarshall(item.Item) as TileMetadataImageryRecord;
+        this.imagery.set(imgId, res);
+        return res;
+    }
+
     public async getAllImagery(record: TileMetadataSetRecord): Promise<Map<string, TileMetadataImageryRecord>> {
         const unfetched = new Set<string>();
         const output = new Map<string, TileMetadataImageryRecord>();
@@ -147,6 +164,7 @@ export class TileMetadataTable {
     }
 
     public async create(record: TileMetadataRecord): Promise<string> {
+        record.updatedAt = Date.now();
         await this.dynamo
             .putItem({
                 TableName: Const.TileMetadata.TableName,
