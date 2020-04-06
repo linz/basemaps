@@ -123,7 +123,7 @@ export class ActionBatchJob extends CommandLineAction {
             'JobSubmit',
         );
 
-        if (isCommit) storeImage(job);
+        if (isCommit) await storeImage(job);
 
         const batch = new aws.Batch({ region });
         const toSubmit = stats.filter((f) => f.exists == false).map((c) => c.quadKey);
