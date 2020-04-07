@@ -16,13 +16,15 @@ o.spec('wmts', () => {
         }
 
         o(listTag(raw, 'TileMatrixSetLink')).deepEquals([
-            '<TileMatrixSetLink>\n' + '  <TileMatrixSet>aerial</TileMatrixSet>\n' + '</TileMatrixSetLink>',
+            '<TileMatrixSetLink>\n' +
+                '  <TileMatrixSet>GoogleMapsCompatible</TileMatrixSet>\n' +
+                '</TileMatrixSetLink>',
         ]);
 
         o(listTag(raw, 'Format')).deepEquals([
             '<Format>image/png</Format>',
-            '<Format>image/jpeg</Format>',
             '<Format>image/webp</Format>',
+            '<Format>image/jpeg</Format>',
         ]);
 
         o(listTag(raw, 'ows:WGS84BoundingBox')).deepEquals([
@@ -43,7 +45,9 @@ o.spec('wmts', () => {
         const tileMatrixSet = Array.from(raw.tags('TileMatrixSet'));
         o(tileMatrixSet.length).equals(2);
 
-        o(listTag(tileMatrixSet[1], 'ows:Identifier')[0]).equals('<ows:Identifier>aerial</ows:Identifier>');
+        o(listTag(tileMatrixSet[1], 'ows:Identifier')[0]).equals(
+            '<ows:Identifier>GoogleMapsCompatible</ows:Identifier>',
+        );
         o(listTag(tileMatrixSet[1], 'ows:SupportedCRS')).deepEquals([
             '<ows:SupportedCRS>urn:ogc:def:crs:EPSG::3857</ows:SupportedCRS>',
         ]);
@@ -100,7 +104,9 @@ o.spec('wmts', () => {
         );
 
         o(listTag(raw, 'TileMatrixSetLink')).deepEquals([
-            '<TileMatrixSetLink>\n' + '  <TileMatrixSet>aerial</TileMatrixSet>\n' + '</TileMatrixSetLink>',
+            '<TileMatrixSetLink>\n' +
+                '  <TileMatrixSet>GoogleMapsCompatible</TileMatrixSet>\n' +
+                '</TileMatrixSetLink>',
         ]);
 
         const tileMatrices = Array.from(raw.tags('TileMatrix'));
@@ -136,7 +142,7 @@ o.spec('wmts', () => {
         o(xml).equals('<?xml version="1.0"?>\n' + raw.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            '7KnOltdFMTqLAxdohlvpGz6EDhp4TCsHfkpKcii3FxQ=',
+            'TVC+AvvAGcQBIsTa2lgbD3CrAn2jruPyuqVglM46D+o=',
         );
     });
 
