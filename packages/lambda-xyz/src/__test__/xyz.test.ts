@@ -133,7 +133,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = '7j85JRqMNzbxW7jhKStV/BUj5Cmd2g4CddCDDc6szX8=';
+            const key = '+YQQBzXrZis6og9dRrC55qPE9rYjjywpwUq+KYuTuFw=';
             const request = req('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
                 'if-none-match': key,
             });
@@ -156,7 +156,7 @@ o.spec('LambdaXyz', () => {
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
             o(res.header('cache-control')).equals('max-age=0');
-            o(res.header('eTaG')).equals('Rh06Txcp7+na/8CspwrgzfQ3qIOT+UOS9EQNROX/iiE=');
+            o(res.header('eTaG')).equals('sAHdnZjjoU0lWK2oD5YPC1C6rJ/z5FDW69GiyHtN7QY=');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(body.slice(0, 100)).equals(

@@ -1,6 +1,6 @@
 import { V, VNode, TileSetType, VNodeElement } from '@basemaps/lambda-shared';
 import { EPSG, Projection } from '@basemaps/geo';
-import { ImageFormat } from '@basemaps/tiler';
+import { ImageFormatOrder } from '@basemaps/tiler';
 
 const { lat, lon } = Projection.Wgs84Bound;
 
@@ -18,7 +18,13 @@ const CapabilitiesAttrs = {
 };
 
 const formats: VNode[] = [];
-for (const k in ImageFormat) formats.push(V('Format', 'image/' + ImageFormat[k as keyof typeof ImageFormat]));
+for (const k of ImageFormatOrder) {
+    formats.push(V('Format', 'image/' + k));
+}
+
+const tileMatrixSetId: Record<TileSetType, string> = {
+    [TileSetType.aerial]: 'GoogleMapsCompatible',
+};
 
 const LayerPreamble: Record<TileSetType, VNode[]> = {
     [TileSetType.aerial]: [
@@ -130,7 +136,7 @@ const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
                 );
             }
             return V('TileMatrixSet', [
-                V('ows:Identifier', tileSet),
+                V('ows:Identifier', tileMatrixSetId[tileSet]),
                 V('ows:SupportedCRS', Projection.toUrn(projection)),
                 ...wellKnownScaleSet(projection),
                 ...matrices,
@@ -173,8 +179,7 @@ export function buildWmtsCapabilityToVNode(
     const tileSets = tileMatrixSets(tileSet, projection);
     if (tileSets == null) return null;
     const resUrls: VNode[] = [];
-    for (const k in ImageFormat) {
-        const suffix = ImageFormat[k as keyof typeof ImageFormat];
+    for (const suffix of ImageFormatOrder) {
         resUrls.push(
             V('ResourceURL', {
                 format: 'image/' + suffix,
@@ -189,7 +194,11 @@ export function buildWmtsCapabilityToVNode(
     return V('Capabilities', CapabilitiesAttrs, [
         ...ProviderInfo,
         V('Contents', [
-            V('Layer', [...preambleXml, V('TileMatrixSetLink', [V('TileMatrixSet', String(tileSet))]), ...resUrls]),
+            V('Layer', [
+                ...preambleXml,
+                V('TileMatrixSetLink', [V('TileMatrixSet', tileMatrixSetId[tileSet])]),
+                ...resUrls,
+            ]),
             ...tileSets,
         ]),
     ]);
