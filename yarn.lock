@@ -6197,9 +6197,9 @@ osenv@^0.1.4, osenv@^0.1.5:
     os-tmpdir "^1.0.0"
 
 ospec@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/ospec/-/ospec-4.0.1.tgz#175c225bda63c464be1eea6b0cfa563d4c8d2a20"
-  integrity sha512-iHx5jkuXh/hU4eEFFf6FH/4vj5RH7041jhuJw7WnqIPHDJgEXkSBdmuD644I/qQm8s5aZEPOpSoVagGCr8ebag==
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/ospec/-/ospec-4.1.1.tgz#52faa97b2de3bec5b447795b0b460da5c0ebb4a9"
+  integrity sha512-fgWIk1eLDidfB+ixTo3PL3HuuO6iX2LhgWxdnWwqRu2rJdpTowgeAP0RHgt3DSUVyszs964fMuq1tB7Ov2C38A==
   dependencies:
     glob "^7.1.3"
 
