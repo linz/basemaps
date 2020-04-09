@@ -1,15 +1,31 @@
-import { Env, FileOperator, LogConfig, TileMetadataTable } from '@basemaps/lambda-shared';
+import {
+    Env,
+    FileOperator,
+    LogConfig,
+    TileMetadataTable,
+    RecordPrefix,
+    Aws,
+    TileMetadataImageryRecord,
+} from '@basemaps/lambda-shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';
 import { CogJob } from '../../cog/cog';
 import { getJobPath } from '../folder';
+import { EPSG } from '@basemaps/geo';
+
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
 
+/**
+ * Attempt to parse a year from a imagery name
+ * @example wellington_urban_2017_0.10m -> 2017
+ * @param name Imagery name to parse
+ * @return imagery year, -1 for failure to parse
+ */
 export function extractYearFromName(name: string): number {
     const re = /(?:^|\D)(\d{4})(?:$|\D)/g;
 
@@ -23,18 +39,32 @@ export function extractYearFromName(name: string): number {
     return year;
 }
 
-export function storeImage(job: CogJob): Promise<string> {
+const ResolutionRegex = /(\d[\.\-]\d+)m/;
+/**
+ * Attempt to parse a resolution from a imagery name
+ * @example `wellington_urban_2017_0.10m` -> 100
+ * @param name Imagery name to parse
+ * @returns resolution (millimeters), -1 for failure to parse
+ */
+export function extractResolutionFromName(name: string): number {
+    const matches = name.match(ResolutionRegex);
+    if (matches == null) return -1;
+    return parseFloat(matches[1].replace('-', '.')) * 1000;
+}
+
+export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecord {
     const now = Date.now();
-    return new TileMetadataTable().create({
-        id: `im_${job.id}`,
+
+    return {
+        id: TileMetadataTable.prefix(RecordPrefix.Imagery, job.id),
         name: job.name,
         createdAt: now,
         updatedAt: now,
-        projection: job.projection,
+        projection: job.projection ?? EPSG.Google, // TODO a lot of old imagery does not have this value set.
         year: extractYearFromName(job.name),
-        resolution: job.source.resolution,
+        resolution: extractResolutionFromName(job.name),
         quadKeys: job.quadkeys,
-    });
+    };
 }
 
 export class ActionBatchJob extends CommandLineAction {
@@ -123,7 +153,10 @@ export class ActionBatchJob extends CommandLineAction {
             'JobSubmit',
         );
 
-        if (isCommit) await storeImage(job);
+        if (isCommit) {
+            const img = createImageryRecordFromJob(job);
+            await Aws.tileMetadata.db.create(img);
+        }
 
         const batch = new aws.Batch({ region });
         const toSubmit = stats.filter((f) => f.exists == false).map((c) => c.quadKey);
