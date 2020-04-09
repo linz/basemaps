@@ -63,7 +63,7 @@ export class TileMetadataTable {
 
     static prefix(prefix: RecordPrefix, id: string): string {
         if (id.startsWith(prefix)) return id;
-        return `${id}_${prefix}`;
+        return `${prefix}_${id}`;
     }
 
     static unprefix(prefix: RecordPrefix, id: string): string {

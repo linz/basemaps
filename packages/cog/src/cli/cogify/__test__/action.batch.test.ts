@@ -1,7 +1,8 @@
-import { TileMetadataTable } from '@basemaps/lambda-shared';
+import 'source-map-support/register';
+
 import * as o from 'ospec';
 import { CogJob } from '../../../cog/cog';
-import { extractYearFromName, storeImage } from '../action.batch';
+import { extractResolutionFromName, extractYearFromName, createImageryRecordFromJob } from '../action.batch';
 
 o.spec('action.cog', () => {
     o('extractYearFromName', () => {
@@ -13,9 +14,17 @@ o.spec('action.cog', () => {
         o(extractYearFromName('2020_abc2019')).equals(2020);
     });
 
-    o('storeImage', () => {
+    o('extractResolutionFromName', () => {
+        o(extractResolutionFromName('2013')).equals(-1);
+        o(extractResolutionFromName('abc2017def_1.00m')).equals(1000);
+        o(extractResolutionFromName('wellington_urban_2017_0.10m')).equals(100);
+        o(extractResolutionFromName('wellington_urban_2017_0-10m')).equals(100);
+        o(extractResolutionFromName('wellington_urban_2017_1.00m')).equals(1000);
+        o(extractResolutionFromName('wellington_urban_2017_0.025m')).equals(25);
+    });
+
+    o('createImageryRecordFromJob', () => {
         const origNow = Date.now;
-        const origCreate = TileMetadataTable.prototype.create;
 
         const job: CogJob = {
             id: 'abc123',
@@ -30,26 +39,21 @@ o.spec('action.cog', () => {
 
         const mockNow = Date.now();
         try {
-            const create = o.spy();
             Date.now = (): number => mockNow;
-            TileMetadataTable.prototype.create = create as any;
 
-            storeImage(job);
+            const imagery = createImageryRecordFromJob(job);
 
-            o(create.args).deepEquals([
-                {
-                    id: 'im_abc123',
-                    name: '2019-new-zealand-sentinel',
-                    createdAt: mockNow,
-                    updatedAt: mockNow,
-                    projection: 3857,
-                    year: 2019,
-                    resolution: 13,
-                    quadKeys: ['311333222331', '311333223200', '311333223202', '3113332223131'],
-                },
-            ]);
+            o(imagery).deepEquals({
+                id: 'im_abc123',
+                name: '2019-new-zealand-sentinel',
+                createdAt: mockNow,
+                updatedAt: mockNow,
+                projection: 3857,
+                year: 2019,
+                resolution: -1,
+                quadKeys: ['311333222331', '311333223200', '311333223202', '3113332223131'],
+            });
         } finally {
-            TileMetadataTable.prototype.create = origCreate;
             Date.now = origNow;
         }
     });
