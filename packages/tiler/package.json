@@ -17,7 +17,7 @@
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
     "pixelmatch": "^5.1.0",
-    "pngjs": "^3.4.0"
+    "pngjs": "^4.0.0"
   },
   "publishConfig": {
     "access": "public"
