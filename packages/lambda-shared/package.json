@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",
-    "@types/pino": "^5.8.8",
+    "@types/pino": "^6.0.0",
     "pino": "^6.0.0"
   }
 }
