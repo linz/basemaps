@@ -134,10 +134,8 @@ export class ActionJobCreate extends CommandLineAction {
         const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom);
         const metadata = await builder.build(tiffSource, logger);
 
-        const logObj = { ...metadata };
-
-        delete logObj.bounds; // Don't log bounds as it is huge
-        logger.info(logObj, 'CoveringGenerated');
+        // Don't log bounds as it is huge
+        logger.info({ ...metadata, bounds: undefined }, 'CoveringGenerated');
 
         if (metadata.covering.length > 0) {
             const firstQk = metadata.covering[0];
