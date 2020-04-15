@@ -76,7 +76,7 @@ export class ImageryImportAction extends CommandLineAction {
 
         logger.info({ imagery: job.name }, 'Importing');
 
-        const imgRecord = await createImageryRecordFromJob(job);
+        const imgRecord = createImageryRecordFromJob(job);
 
         if (imgRecord.year == -1) logger.warn({ imagery: job.name }, 'Failed to parse year');
         if (imgRecord.resolution == -1) logger.warn({ imagery: job.name }, 'Failed to parse resolution');
