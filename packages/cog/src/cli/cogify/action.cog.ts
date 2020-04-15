@@ -53,7 +53,7 @@ export class ActionCogCreate extends CommandLineAction {
             return qk;
         }
         if (quadKey == null || !job.quadkeys.includes(quadKey)) {
-            logger.fatal({ quadKey, quadKeys: job.quadkeys.join(', ') }, 'Quadkey does not existing inside job');
+            logger.fatal({ quadKey, quadKeys: job.quadkeys.join(', ') }, 'Quadkey does not exist inside job');
             return null;
         }
         return quadKey;
