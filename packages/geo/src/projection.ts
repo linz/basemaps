@@ -121,6 +121,7 @@ export class Projection {
 
     /** parse a string returning the `EPSG` code **/
     public static parseEpsgString(text: string): EPSG | null {
+        if (text.slice(0, 4) === 'urn:') return EPSGTextMap[text.slice(text.lastIndexOf(':') + 1)];
         return EPSGTextMap[text.replace(/[\W_]/g, '').toLowerCase()] || null;
     }
 }
