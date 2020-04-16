@@ -63,6 +63,8 @@ export class ActionJobCreate extends CommandLineAction {
     private maxConcurrency?: CommandLineIntegerParameter;
     private generateVrt?: CommandLineFlagParameter;
     private resample?: CommandLineStringParameter;
+    private cutline?: CommandLineStringParameter;
+    private cutlineBlend?: CommandLineIntegerParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -170,6 +172,8 @@ export class ActionJobCreate extends CommandLineAction {
             output: {
                 ...outputConfig,
                 resample: getResample(this.resample?.value),
+                cutline: this.cutline?.value,
+                cutlineBlend: this.cutlineBlend?.value,
                 nodata: metadata.nodata,
                 vrt: {
                     options: vrtOptions,
@@ -256,6 +260,20 @@ export class ActionJobCreate extends CommandLineAction {
             argumentName: 'RESAMPLE',
             parameterLongName: '--resample',
             description: 'Resampling method to use',
+            required: false,
+        });
+
+        this.cutline = this.defineStringParameter({
+            argumentName: 'CUTLINE',
+            parameterLongName: '--cutline',
+            description: 'use a shapefile to crop the COGs',
+            required: false,
+        });
+
+        this.cutlineBlend = this.defineIntegerParameter({
+            argumentName: 'CUTLINE_BLEND',
+            parameterLongName: '--cblend',
+            description: 'Set a blend distance to use to blend over cutlines (in pixels)',
             required: false,
         });
     }
