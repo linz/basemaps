@@ -14,8 +14,10 @@
     "@basemaps/geo": "1.2.0",
     "@basemaps/metrics": "1.2.0",
     "@basemaps/tiler": "^1.2.0",
+    "@types/sax": "^1.2.1",
     "aws-sdk": "^2.508.0",
     "base-x": "^3.0.7",
+    "sax": "^1.2.4",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
