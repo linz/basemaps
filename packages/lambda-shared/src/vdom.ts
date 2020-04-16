@@ -19,6 +19,9 @@ export abstract class VNode {
     *tags(tag: string): Generator<VNode, void, void> {
         return;
     }
+
+    abstract get textContent(): string;
+    abstract set textContent(v: string);
 }
 
 /**
@@ -35,6 +38,14 @@ export class VNodeText extends VNode {
     toString(level = 0): string {
         return indent(level) + this.text;
     }
+
+    get textContent(): string {
+        return this.text;
+    }
+
+    set textContent(v: string) {
+        this.text = v;
+    }
 }
 
 /**
@@ -50,6 +61,18 @@ export class VNodeElement extends VNode {
         this.tag = tag;
         this.attrs = attrs;
         this.children = children;
+    }
+
+    get textContent(): string {
+        if (this.children.length == 0) return '';
+        if (this.children.length == 1) {
+            return this.children[0].textContent;
+        }
+        return this.children.map((c) => c.textContent).join('');
+    }
+
+    set textContent(v: string) {
+        this.children = [new VNodeText(v)];
     }
 
     toString(level = 0): string {
