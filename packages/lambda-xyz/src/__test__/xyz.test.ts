@@ -1,4 +1,5 @@
 import { Env, LambdaContext, LogConfig } from '@basemaps/lambda-shared';
+import { VNodeParser } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import * as o from 'ospec';
@@ -133,7 +134,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = '+YQQBzXrZis6og9dRrC55qPE9rYjjywpwUq+KYuTuFw=';
+            const key = 'y9mUSt9dBu+bfVfBUQWpUzogbxkshoeDUSi/Gkn2zpA=';
             const request = req('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
                 'if-none-match': key,
             });
@@ -156,17 +157,21 @@ o.spec('LambdaXyz', () => {
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
             o(res.header('cache-control')).equals('max-age=0');
-            o(res.header('eTaG')).equals('sAHdnZjjoU0lWK2oD5YPC1C6rJ/z5FDW69GiyHtN7QY=');
+            o(res.header('eTaG')).equals('DvrjCQ7yeedJe1HuhvSTGw8EdEcOmytydeqsY9rzz8E=');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(body.slice(0, 100)).equals(
                 '<?xml version="1.0"?>\n' +
                     '<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.op',
             );
-            const resIdx = body.indexOf('ResourceURL');
-            o(body.slice(resIdx, body.indexOf('</ResourceURL>', resIdx))).equals(
-                'ResourceURL format="image/png" resourceType="tile" ' +
-                    'template="https://tiles.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secretKey">',
+
+            const vdom = await VNodeParser.parse(body);
+            const { value, done } = vdom.tags('ResourceURL').next();
+            o(done).equals(false);
+            if (value == null) throw Error('Invalid');
+            o(value.toString()).equals(
+                '<ResourceURL format="image/png" resourceType="tile" ' +
+                    'template="https://tiles.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secretKey" />',
             );
         });
     });

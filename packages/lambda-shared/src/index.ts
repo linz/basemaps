@@ -10,6 +10,7 @@ export { LambdaContext } from './lambda.context';
 export { LogConfig, LogType } from './log';
 export { tileFromPath, TileType, TileData, TileDataWmts, TileDataXyz, TileSetType } from './api.path';
 export { V, VNode, VNodeElement, VNodeText } from './vdom';
+export { VNodeParser } from './vdom.parse';
 
 export * from './aws/tile.metadata.table';
 
