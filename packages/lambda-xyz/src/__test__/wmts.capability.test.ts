@@ -38,8 +38,7 @@ o.spec('wmts', () => {
         o(urls.length).equals(3);
         o(urls[0].toString()).deepEquals(
             '<ResourceURL format="image/png" resourceType="tile" ' +
-                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234">' +
-                '</ResourceURL>',
+                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234" />',
         );
 
         const tileMatrixSet = Array.from(raw.tags('TileMatrixSet'));
@@ -99,8 +98,7 @@ o.spec('wmts', () => {
 
         o(listTag(raw, 'ResourceURL')[0]).deepEquals(
             '<ResourceURL format="image/png" resourceType="tile" ' +
-                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=1a2p3i">' +
-                '</ResourceURL>',
+                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=1a2p3i" />',
         );
 
         o(listTag(raw, 'TileMatrixSetLink')).deepEquals([
@@ -142,7 +140,7 @@ o.spec('wmts', () => {
         o(xml).equals('<?xml version="1.0"?>\n' + raw.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            'TVC+AvvAGcQBIsTa2lgbD3CrAn2jruPyuqVglM46D+o=',
+            'FyD/mReE3wahdDQKl7qG32P+FfzpZzA/BVtMJkCKdTI=',
         );
     });
 
@@ -153,8 +151,7 @@ o.spec('wmts', () => {
         o(urls.length).equals(3);
         o(urls[0].toString()).deepEquals(
             '<ResourceURL format="image/png" resourceType="tile" ' +
-                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png">' +
-                '</ResourceURL>',
+                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png" />',
         );
     });
 });

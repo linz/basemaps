@@ -55,7 +55,11 @@ export class VNodeElement extends VNode {
     toString(level = 0): string {
         const attrs = this.toStringAttrs();
         const padding = indent(level);
-        return `${padding}<${this.tag}${attrs}>${this.toStringChildren(level)}</${this.tag}>`;
+        const children = this.toStringChildren(level);
+        const result = `${padding}<${this.tag}${attrs}`;
+
+        if (children == '') return `${result} />`;
+        return `${result}>${children}</${this.tag}>`;
     }
 
     *tags(tag: string): Generator<VNode, void, void> {
