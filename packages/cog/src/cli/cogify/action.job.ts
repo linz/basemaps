@@ -61,7 +61,6 @@ export class ActionJobCreate extends CommandLineAction {
     private minZoom?: CommandLineIntegerParameter;
     private maxCogs?: CommandLineIntegerParameter;
     private maxConcurrency?: CommandLineIntegerParameter;
-    private geoJsonOutput?: CommandLineFlagParameter;
     private generateVrt?: CommandLineFlagParameter;
     private resample?: CommandLineStringParameter;
 
@@ -204,21 +203,15 @@ export class ActionJobCreate extends CommandLineAction {
             const jobFile = getJobPath(job, `job.json`);
             await outputFs.write(jobFile, Buffer.from(JSON.stringify(job, null, 2)), logger);
 
-            if (this.geoJsonOutput?.value) {
-                const geoJsonSourceOutput = getJobPath(job, `source.geojson`);
-                await outputFs.write(
-                    geoJsonSourceOutput,
-                    Buffer.from(JSON.stringify(metadata.bounds, null, 2)),
-                    logger,
-                );
+            const geoJsonSourceOutput = getJobPath(job, `source.geojson`);
+            await outputFs.write(geoJsonSourceOutput, Buffer.from(JSON.stringify(metadata.bounds, null, 2)), logger);
 
-                const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
-                await outputFs.write(
-                    geoJsonCoveringOutput,
-                    Buffer.from(JSON.stringify(TileCover.toGeoJson(metadata.covering), null, 2)),
-                    logger,
-                );
-            }
+            const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
+            await outputFs.write(
+                geoJsonCoveringOutput,
+                Buffer.from(JSON.stringify(TileCover.toGeoJson(metadata.covering), null, 2)),
+                logger,
+            );
 
             logger.info({ job: jobFile }, 'Done');
         } finally {
@@ -252,12 +245,6 @@ export class ActionJobCreate extends CommandLineAction {
             parameterShortName: '-c',
             description: 'Maximum number of requests to use at one time',
             defaultValue: this.MaxConcurrencyDefault,
-            required: false,
-        });
-
-        this.geoJsonOutput = this.defineFlagParameter({
-            parameterLongName: '--geojson',
-            description: 'Export GeoJSON bounding boxes of source tiffs and generated COGs',
             required: false,
         });
 
