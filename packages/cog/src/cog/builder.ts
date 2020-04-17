@@ -153,20 +153,20 @@ export class CogBuilder {
      * @param tiff
      * @param logger
      */
-    findNoData(tiff: CogTiff, logger: LogType): number {
-        const gdalNoData: string = tiff.getImage(0).value(TiffTag.GDAL_NODATA);
-        /* can't read GDAL_NODATA value*/
-        if (gdalNoData) {
-            const noDataNum = parseInt(gdalNoData);
-            /* can't parse GDAL_NODATA value or its invalid */
-            if (noDataNum && -1 < noDataNum && noDataNum < 256) {
-                return noDataNum;
-            }
-            logger.warn({ tiff: tiff.source.name }, 'Failed converting GDAL_NODATA, defaulting to 255');
-            return 255;
+    findNoData(tiff: CogTiff, logger: LogType): number | null {
+        const noData: string = tiff.getImage(0).value(TiffTag.GDAL_NODATA);
+        if (noData == null) {
+            return null;
         }
-        logger.warn({ tiff: tiff.source.name }, 'Failed reading GDAL_NODATA, defaulting to 255');
-        return 255;
+
+        const noDataNum = parseInt(noData);
+
+        if (isNaN(noDataNum) || noDataNum < 0 || noDataNum > 256) {
+            logger.fatal({ tiff: tiff.source.name, noData }, 'Failed converting GDAL_NODATA, defaulting to 255');
+            throw new Error(`Invalid GDAL_NODATA: ${noData}`);
+        }
+
+        return noDataNum;
     }
 
     /**
