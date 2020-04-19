@@ -120,7 +120,7 @@ const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
         EPSG.Google,
         (tileSet: TileSetType, projection: EPSG): VNode => {
             const matrices = [];
-            let scale = 559082264.029,
+            let scale = Projection.GoogleScaleDenominator,
                 size = 1;
             for (let i = 0; i < MaxZoomLevel; ++i, scale *= 0.5) {
                 const dim = String(size);
