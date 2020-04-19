@@ -33,7 +33,7 @@ export interface CogJob {
     /** Folder/S3 bucket to store the output */
     output: {
         resample: GdalCogBuilderOptionsResampling;
-        nodata: number;
+        nodata?: number;
         vrt: {
             options: VrtOptions;
         };

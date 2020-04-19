@@ -20,13 +20,13 @@ export interface CogBuilderBounds {
     /** Bounding box for polygons */
     bounds: GeoJSON.FeatureCollection;
     /** Lowest quality resolution of image */
-    resolution: number | -1;
+    resolution: number;
 
     /** EPSG projection number */
     projection: number;
 
     /** GDAL_NODATA value */
-    nodata: number;
+    nodata?: number;
 }
 export const InvalidProjectionCode = 32767;
 export const CacheFolder = './.cache';
@@ -52,9 +52,9 @@ export class CogBuilder {
      */
     async bounds(sources: CogSource[], logger: LogType): Promise<CogBuilderBounds> {
         let resolution = -1;
-        let bandCount = -1;
-        let projection = -1;
-        let nodata = -1;
+        let bands = -1;
+        let projection: number | undefined;
+        let nodata: number | undefined;
         let count = 0;
         const coordinates = sources.map((source) => {
             return this.q(async () => {
@@ -65,13 +65,13 @@ export class CogBuilder {
                 const tiff = new CogTiff(source);
                 await tiff.init(true);
                 const image = tiff.getImage(0);
-                const tiffRes = await this.getTiffResolution(tiff);
+                const tiffRes = this.getTiffResolution(tiff);
                 if (tiffRes > resolution) {
                     resolution = tiffRes;
                 }
                 const tiffBandCount = image.value(TiffTag.BitsPerSample) as number[] | null;
-                if (tiffBandCount != null && tiffBandCount.length > bandCount) {
-                    bandCount = tiffBandCount.length;
+                if (tiffBandCount != null && tiffBandCount.length > bands) {
+                    bands = tiffBandCount.length;
                 }
 
                 const output = await this.getTifBounds(tiff, logger);
@@ -80,18 +80,14 @@ export class CogBuilder {
                 }
 
                 const imageProjection = this.findProjection(tiff, logger);
-                if (imageProjection != null && imageProjection != projection) {
-                    if (projection != -1) {
-                        throw new Error('Multiple projections');
-                    }
+                if (imageProjection != null && projection != imageProjection) {
+                    if (projection != null) throw new Error('Multiple projections');
                     projection = imageProjection;
                 }
 
                 const tiffNoData = this.findNoData(tiff, logger);
                 if (tiffNoData != null && tiffNoData != nodata) {
-                    if (nodata != -1) {
-                        throw new Error('Multiple No Data values');
-                    }
+                    if (nodata != null) throw new Error('Multiple No Data values');
                     nodata = tiffNoData;
                 }
 
@@ -99,11 +95,15 @@ export class CogBuilder {
             });
         });
 
+        if (projection == null) throw new Error('No projection detected');
+        if (resolution == -1) throw new Error('No resolution detected');
+        if (bands == -1) throw new Error('No image bands detected');
+
         const polygons = await Promise.all(coordinates);
         return {
             projection,
             nodata,
-            bands: bandCount,
+            bands,
             bounds: GeoJson.toFeatureCollection(polygons),
             resolution,
         };
@@ -113,7 +113,7 @@ export class CogBuilder {
      * Find the closest resolution to the tiff image
      * @param tiff
      */
-    async getTiffResolution(tiff: CogTiff): Promise<number> {
+    getTiffResolution(tiff: CogTiff): number {
         const image = tiff.getImage(0);
 
         // Get best image resolution
