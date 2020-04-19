@@ -153,7 +153,7 @@ export class ActionJobCreate extends CommandLineAction {
             );
         }
 
-        const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true, forceNoData: true };
+        const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist
         if (metadata.bands > 3) {
             logger.warn({ bandCount: metadata.bands }, 'Vrt:DetectedAlpha, Disabling -addalpha');

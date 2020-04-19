@@ -8,9 +8,6 @@ export interface VrtOptions {
     addAlpha: boolean;
     /** No need to force a reprojection to 3857 if source imagery is in 3857 */
     forceEpsg3857: boolean;
-
-    /** Force no data values on src and dst */
-    forceNoData: boolean;
 }
 
 /**
@@ -90,7 +87,7 @@ export async function buildWarpedVrt(
     gdalCommand.parser.on('progress', onProgress({ target: `vrt.${EPSG.Google}` }, logger));
 
     const warpOpts = ['-of', 'VRT', '-t_srs', Projection.toEpsgString(EPSG.Google), vrtPath, vrtWarpedPath];
-    if (options.forceNoData) {
+    if (job.output.nodata != null) {
         warpOpts.push('-srcnodata', String(job.output.nodata), '-dstnodata', String(job.output.nodata));
     }
     if (job.output.resample) {
