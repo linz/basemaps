@@ -1,10 +1,10 @@
 import { EPSG } from '@basemaps/geo';
-import { TileSetType, VNode } from '@basemaps/lambda-shared';
+import { TileSetType, VNodeElement } from '@basemaps/lambda-shared';
 import * as o from 'ospec';
 import { buildWmtsCapability, buildWmtsCapabilityToVNode } from '../wmts.capability';
 import { createHash } from 'crypto';
 
-const listTag = (node: VNode, tag: string): string[] => Array.from(node.tags(tag)).map((n) => n.toString());
+const listTag = (node: VNodeElement, tag: string): string[] => Array.from(node.tags(tag)).map((n) => n.toString());
 
 o.spec('wmts', () => {
     o('should build capabiltiy xml for tileset and projection', () => {

@@ -63,6 +63,8 @@ export class ActionJobCreate extends CommandLineAction {
     private maxConcurrency?: CommandLineIntegerParameter;
     private generateVrt?: CommandLineFlagParameter;
     private resample?: CommandLineStringParameter;
+    private cutline?: CommandLineStringParameter;
+    private cutlineBlend?: CommandLineIntegerParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -134,10 +136,8 @@ export class ActionJobCreate extends CommandLineAction {
         const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom);
         const metadata = await builder.build(tiffSource, logger);
 
-        const logObj = { ...metadata };
-
-        delete logObj.bounds; // Don't log bounds as it is huge
-        logger.info(logObj, 'CoveringGenerated');
+        // Don't log bounds as it is huge
+        logger.info({ ...metadata, bounds: undefined }, 'CoveringGenerated');
 
         if (metadata.covering.length > 0) {
             const firstQk = metadata.covering[0];
@@ -172,6 +172,8 @@ export class ActionJobCreate extends CommandLineAction {
             output: {
                 ...outputConfig,
                 resample: getResample(this.resample?.value),
+                cutline: this.cutline?.value,
+                cutlineBlend: this.cutlineBlend?.value,
                 nodata: metadata.nodata,
                 vrt: {
                     options: vrtOptions,
@@ -258,6 +260,20 @@ export class ActionJobCreate extends CommandLineAction {
             argumentName: 'RESAMPLE',
             parameterLongName: '--resample',
             description: 'Resampling method to use',
+            required: false,
+        });
+
+        this.cutline = this.defineStringParameter({
+            argumentName: 'CUTLINE',
+            parameterLongName: '--cutline',
+            description: 'use a shapefile to crop the COGs',
+            required: false,
+        });
+
+        this.cutlineBlend = this.defineIntegerParameter({
+            argumentName: 'CUTLINE_BLEND',
+            parameterLongName: '--cblend',
+            description: 'Set a blend distance to use to blend over cutlines (in pixels)',
             required: false,
         });
     }

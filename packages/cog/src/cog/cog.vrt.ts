@@ -79,20 +79,37 @@ export async function buildWarpedVrt(
     logger.info({ path: vrtWarpedPath }, 'BuildVrt:Warped');
     const gdalCommand = GdalCogBuilder.getGdal();
     if (gdalCommand.mount) {
-        gdalCommand.mount(vrtWarpedPath);
+        gdalCommand.mount(tmpTarget);
         for (const file of job.source.files) {
             gdalCommand.mount(file);
         }
     }
     gdalCommand.parser.on('progress', onProgress({ target: `vrt.${EPSG.Google}` }, logger));
 
-    const warpOpts = ['-of', 'VRT', '-t_srs', Projection.toEpsgString(EPSG.Google), vrtPath, vrtWarpedPath];
+    const warpOpts = [
+        '-of',
+        'VRT',
+        '-multi',
+        '-wo',
+        'NUM_THREADS=ALL_CPUS',
+        '-t_srs',
+        Projection.toEpsgString(EPSG.Google),
+        vrtPath,
+        vrtWarpedPath,
+    ];
+    if (job.output.cutline != null) {
+        warpOpts.push('-cutline', job.output.cutline);
+        const cutlineBlend = job.output.cutlineBlend ?? 0;
+        if (cutlineBlend != 0) warpOpts.push('-cblend', String(cutlineBlend));
+    }
     if (job.output.nodata != null) {
         warpOpts.push('-srcnodata', String(job.output.nodata), '-dstnodata', String(job.output.nodata));
     }
     if (job.output.resample) {
         warpOpts.push('-r', job.output.resample);
     }
+
+    logger.debug({ warpOpts: warpOpts.join(' ') }, 'gdalwarp');
     await gdalCommand.run('gdalwarp', warpOpts, logger);
 
     return vrtWarpedPath;

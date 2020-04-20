@@ -19,6 +19,20 @@ o.spec('VDom', () => {
         o(res.toString()).equals('<div>\n  <b>\n    <span style="color:red">text</span>\n  </b>\n</div>');
     });
 
+    o('should get set textContent', () => {
+        const span = V('span', { style: 'color:red' }, 'in span');
+        const res = V('div', {}, V('b', [span, 'more text', V('b')]));
+        o(span.textContent).equals('in span');
+
+        span.textContent = 'changed';
+        o(res.textContent).equals('changedmore text');
+
+        res.textContent = 'replace';
+        o(res.textContent).equals('replace');
+        o(res.children.length).equals(1);
+        o(res.children[0] instanceof VNodeText).equals(true);
+    });
+
     o('should find tags', () => {
         const res = V('div', {}, V('b', [V('span', { style: 'color:red' }, 'text'), V('b'), V('i'), V('b')]));
 
