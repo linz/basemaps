@@ -1,4 +1,4 @@
-import { V, VNode, TileSetType, VNodeElement } from '@basemaps/lambda-shared';
+import { V, TileSetType, VNodeElement } from '@basemaps/lambda-shared';
 import { EPSG, Projection } from '@basemaps/geo';
 import { ImageFormatOrder } from '@basemaps/tiler';
 
@@ -17,7 +17,7 @@ const CapabilitiesAttrs = {
     version: '1.0.0',
 };
 
-const formats: VNode[] = [];
+const formats: VNodeElement[] = [];
 for (const k of ImageFormatOrder) {
     formats.push(V('Format', 'image/' + k));
 }
@@ -26,7 +26,7 @@ const tileMatrixSetId: Record<TileSetType, string> = {
     [TileSetType.aerial]: 'GoogleMapsCompatible',
 };
 
-const LayerPreamble: Record<TileSetType, VNode[]> = {
+const LayerPreamble: Record<TileSetType, VNodeElement[]> = {
     [TileSetType.aerial]: [
         V('ows:Title', 'NZ Aerial Imagery Basemap'),
         V(
@@ -108,17 +108,17 @@ const CommonGlobalMercator = [
     V('TileHeight', '256'),
 ];
 
-type EPSGToGenerator = Map<EPSG, (tileSet: TileSetType, projection: EPSG) => VNode>;
+type EPSGToGenerator = Map<EPSG, (tileSet: TileSetType, projection: EPSG) => VNodeElement>;
 
 const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
 
 {
-    const AerialMap = new Map<EPSG, (tileSet: TileSetType, projection: EPSG) => VNode>();
+    const AerialMap = new Map<EPSG, (tileSet: TileSetType, projection: EPSG) => VNodeElement>();
     MatrixSets.set(TileSetType.aerial, AerialMap);
 
     AerialMap.set(
         EPSG.Google,
-        (tileSet: TileSetType, projection: EPSG): VNode => {
+        (tileSet: TileSetType, projection: EPSG): VNodeElement => {
             const matrices = [];
             let scale = Projection.GoogleScaleDenominator,
                 size = 1;
@@ -145,8 +145,8 @@ const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
     );
 }
 
-const layerPreamble = (tileSet: TileSetType): VNode[] | null => LayerPreamble[tileSet];
-const tileMatrixSets = (tileSet: TileSetType, projection: EPSG | null): VNode[] | null => {
+const layerPreamble = (tileSet: TileSetType): VNodeElement[] | null => LayerPreamble[tileSet];
+const tileMatrixSets = (tileSet: TileSetType, projection: EPSG | null): VNodeElement[] | null => {
     const sets = MatrixSets.get(tileSet);
     if (sets == null) return null;
 
@@ -172,13 +172,13 @@ export function buildWmtsCapabilityToVNode(
     apiKey: string,
     tileSet: TileSetType,
     projection: EPSG | null,
-): VNode | null {
+): VNodeElement | null {
     if (projection == null) projection = EPSG.Google;
     const preambleXml = layerPreamble(tileSet);
     if (preambleXml == null) return null;
     const tileSets = tileMatrixSets(tileSet, projection);
     if (tileSets == null) return null;
-    const resUrls: VNode[] = [];
+    const resUrls: VNodeElement[] = [];
     for (const suffix of ImageFormatOrder) {
         resUrls.push(
             V('ResourceURL', {

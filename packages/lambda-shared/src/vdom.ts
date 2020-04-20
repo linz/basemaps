@@ -14,12 +14,6 @@ export abstract class VNode {
         return indent(level) + '[VNode]';
     }
 
-    /** Find elements with `tag` */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    *tags(tag: string): Generator<VNode, void, void> {
-        return;
-    }
-
     abstract get textContent(): string;
     abstract set textContent(v: string);
 }
@@ -85,10 +79,22 @@ export class VNodeElement extends VNode {
         return `${result}>${children}</${this.tag}>`;
     }
 
-    *tags(tag: string): Generator<VNode, void, void> {
+    /** Iterate over sub elements with `tag`
+     * @param tag
+     */
+    *tags(tag: string): Generator<VNodeElement, null, void> {
         if (this.tag === tag) yield this;
 
-        for (const child of this.children) yield* child.tags(tag);
+        for (const child of this.elementChildren()) yield* child.tags(tag);
+
+        return null;
+    }
+
+    /** Iterate over VNodeElement children */
+    *elementChildren(): Generator<VNodeElement, null, void> {
+        for (const child of this.children) if (child instanceof VNodeElement) yield child;
+
+        return null;
     }
 
     private toStringAttrs(): string {
