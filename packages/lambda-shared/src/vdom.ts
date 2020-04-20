@@ -14,11 +14,8 @@ export abstract class VNode {
         return indent(level) + '[VNode]';
     }
 
-    /** Find elements with `tag` */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    *tags(tag: string): Generator<VNode, void, void> {
-        return;
-    }
+    abstract get textContent(): string;
+    abstract set textContent(v: string);
 }
 
 /**
@@ -34,6 +31,14 @@ export class VNodeText extends VNode {
 
     toString(level = 0): string {
         return indent(level) + this.text;
+    }
+
+    get textContent(): string {
+        return this.text;
+    }
+
+    set textContent(v: string) {
+        this.text = v;
     }
 }
 
@@ -52,6 +57,18 @@ export class VNodeElement extends VNode {
         this.children = children;
     }
 
+    get textContent(): string {
+        if (this.children.length == 0) return '';
+        if (this.children.length == 1) {
+            return this.children[0].textContent;
+        }
+        return this.children.map((c) => c.textContent).join('');
+    }
+
+    set textContent(v: string) {
+        this.children = [new VNodeText(v)];
+    }
+
     toString(level = 0): string {
         const attrs = this.toStringAttrs();
         const padding = indent(level);
@@ -62,10 +79,22 @@ export class VNodeElement extends VNode {
         return `${result}>${children}</${this.tag}>`;
     }
 
-    *tags(tag: string): Generator<VNode, void, void> {
+    /** Iterate over sub elements with `tag`
+     * @param tag
+     */
+    *tags(tag: string): Generator<VNodeElement, null, void> {
         if (this.tag === tag) yield this;
 
-        for (const child of this.children) yield* child.tags(tag);
+        for (const child of this.elementChildren()) yield* child.tags(tag);
+
+        return null;
+    }
+
+    /** Iterate over VNodeElement children */
+    *elementChildren(): Generator<VNodeElement, null, void> {
+        for (const child of this.children) if (child instanceof VNodeElement) yield child;
+
+        return null;
     }
 
     private toStringAttrs(): string {

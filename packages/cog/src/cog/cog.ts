@@ -34,6 +34,8 @@ export interface CogJob {
     output: {
         resample: GdalCogBuilderOptionsResampling;
         nodata?: number;
+        cutline?: string;
+        cutlineBlend?: number;
         vrt: {
             options: VrtOptions;
         };
