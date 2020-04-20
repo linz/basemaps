@@ -1,3 +1,5 @@
+import * as Mercator from 'global-mercator';
+
 export interface Point {
     x: number;
     y: number;
@@ -67,14 +69,38 @@ export class Bounds {
     }
 
     /**
+     * Convert to Mercator.BBox
+     */
+    public toBbox(): Mercator.BBox {
+        const { right } = this;
+        return [this.x, this.y, right, this.bottom];
+    }
+
+    /**
      * Scale the bounding box adjusting top, left, width & height
      *
      * @param scaleX scale x parameters (left, width)
      * @param scaleY scale of y parameters (top, height)
      * @returns new bounds that has been scaled
      */
-    public scale(scaleX: number, scaleY: number): Bounds {
+    public scale(scaleX: number, scaleY: number = scaleX): Bounds {
         return new Bounds(this.x * scaleX, this.y * scaleY, this.width * scaleX, this.height * scaleY);
+    }
+
+    /**
+     * Scale by a factor about center
+     * @param scaleX scale of x parameters (left, width)
+     * @param scaleY scale of y parameters (top, height)
+     */
+    public scaleFromCenter(scaleX: number, scaleY: number = scaleX): Bounds {
+        const newWidth = this.width * scaleX;
+        const newHeight = this.height * scaleY;
+        return new Bounds(
+            this.x - 0.5 * (newWidth - this.width),
+            this.y - 0.5 * (newHeight - this.height),
+            newWidth,
+            newHeight,
+        );
     }
 
     public round(): Bounds {
@@ -87,6 +113,16 @@ export class Bounds {
 
     public subtract(bounds: Point): Bounds {
         return new Bounds(this.x - bounds.x, this.y - bounds.y, this.width, this.height);
+    }
+
+    /**
+     * Convert a Mercator.BBox(east, north, west, south) to Bounds(x,y, width, height).
+     * Takes into account the antimeridian.
+     * @param bbox
+     */
+    static fromBbox(bbox: Mercator.BBox): Bounds {
+        const right = bbox[2] >= bbox[0] ? bbox[2] : bbox[2] + 360;
+        return new Bounds(bbox[0], bbox[1], right - bbox[0], Math.abs(bbox[3] - bbox[1]));
     }
 
     /** */
