@@ -166,10 +166,8 @@ o.spec('LambdaXyz', () => {
             );
 
             const vdom = await VNodeParser.parse(body);
-            const { value, done } = vdom.tags('ResourceURL').next();
-            o(done).equals(false);
-            if (value == null) throw Error('Invalid');
-            o(value.toString()).equals(
+            const url = vdom.tags('ResourceURL').next().value!;
+            o(url.toString()).equals(
                 '<ResourceURL format="image/png" resourceType="tile" ' +
                     'template="https://tiles.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secretKey" />',
             );

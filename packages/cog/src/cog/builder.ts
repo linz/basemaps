@@ -95,11 +95,12 @@ export class CogBuilder {
             });
         });
 
+        const polygons = await Promise.all(coordinates);
+
         if (projection == null) throw new Error('No projection detected');
         if (resolution == -1) throw new Error('No resolution detected');
         if (bands == -1) throw new Error('No image bands detected');
 
-        const polygons = await Promise.all(coordinates);
         return {
             projection,
             nodata,

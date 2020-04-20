@@ -24,9 +24,11 @@
     "@cogeotiff/source-file": "^1.0.3",
     "@cogeotiff/source-url": "^1.0.3",
     "@mapbox/tile-cover": "^3.0.2",
+    "@turf/turf": "^5.1.6",
     "chalk": "^4.0.0",
     "p-limit": "^2.2.1",
     "pretty-json-log": "^0.2.2",
+    "global-mercator": "^3.1.0",
     "proj4": "^2.6.0"
   },
   "devDependencies": {

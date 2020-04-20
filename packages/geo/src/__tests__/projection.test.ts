@@ -41,6 +41,7 @@ o.spec('Projection', () => {
         o(Projection.parseEpsgString('Gogle')).equals(null);
         o(Projection.parseEpsgString('google')).equals(EPSG.Google);
         o(Projection.parseEpsgString('3857')).equals(EPSG.Google);
+        o(Projection.parseEpsgString('urn:ogc:def:crs:EPSG::3857')).equals(EPSG.Google);
         o(Projection.parseEpsgString('EpSg:3857')).equals(EPSG.Google);
         o(Projection.parseEpsgString('global--mercator')).equals(EPSG.Google);
         o(Projection.parseEpsgString('global_mercator')).equals(EPSG.Google);

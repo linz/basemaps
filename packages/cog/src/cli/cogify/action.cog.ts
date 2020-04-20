@@ -6,8 +6,10 @@ import {
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
+import { FeatureCollection } from 'geojson';
 import * as ulid from 'ulid';
 import { buildCogForQuadKey, CogJob } from '../../cog/cog';
+import { Cutline } from '../../cog/cog.cutline';
 import { buildWarpedVrt } from '../../cog/cog.vrt';
 import { getJobPath, makeTempFolder } from '../folder';
 
@@ -53,18 +55,17 @@ export class ActionCogCreate extends CommandLineAction {
             return qk;
         }
         if (quadKey == null || !job.quadkeys.includes(quadKey)) {
-            logger.fatal({ quadKey, quadKeys: job.quadkeys.join(', ') }, 'Quadkey does not existing inside job');
+            logger.fatal({ quadKey, quadKeys: job.quadkeys.join(', ') }, 'Quadkey does not exist inside job');
             return null;
         }
         return quadKey;
     }
 
     async onExecute(): Promise<void> {
-        if (this.job?.value == null) {
-            throw new Error('Failed to read parameters');
-        }
-        const jobData = await FileOperator.create(this.job.value).read(this.job.value);
-        const job = JSON.parse(jobData.toString()) as CogJob;
+        const jobFn = this.job?.value!;
+
+        const inFp = FileOperator.create(jobFn);
+        const job = JSON.parse((await inFp.read(jobFn)).toString()) as CogJob;
         const processId = ulid.ulid();
 
         const isCommit = this.commit?.value ?? false;
@@ -89,16 +90,24 @@ export class ActionCogCreate extends CommandLineAction {
 
         const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${processId}`);
 
-        const tmpTiff = FileOperator.join(tmpFolder, `${quadKey}.tiff`);
-        const tmpVrt = FileOperator.join(tmpFolder, `${job.id}.vrt`);
-
         try {
-            logger.info({ path: getJobPath(job, '.vrt') }, 'FetchVrt');
-            await FileOperatorSimple.write(tmpVrt, outputFs.readStream(getJobPath(job, '.vrt')), logger);
-            // Sometimes we need to force a epsg3857 projection to get the COG to build since its fast just do it locally
-            const vrtPath = await buildWarpedVrt(job, tmpVrt, job.output.vrt.options, tmpFolder, logger);
+            const sourceGeo = JSON.parse(
+                (await inFp.read(getJobPath(job, 'source.geojson'))).toString(),
+            ) as FeatureCollection;
 
-            await buildCogForQuadKey(job, quadKey, vrtPath, tmpTiff, logger, isCommit);
+            const vrtString = await outputFs.read(getJobPath(job, '.vrt'));
+
+            const vrt = await Cutline.buildVrt(tmpFolder, job, sourceGeo, vrtString, quadKey, logger);
+
+            const tmpTiff = FileOperator.join(tmpFolder, `${quadKey}.tiff`);
+            const tmpVrt = FileOperator.join(tmpFolder, `${job.id}.vrt`);
+
+            await FileOperatorSimple.write(tmpVrt, Buffer.from(vrt.toString()), logger);
+
+            // Sometimes we need to force a epsg3857 projection to get the COG to build since its fast just do it locally
+            const warpedVrtPath = await buildWarpedVrt(job, tmpVrt, job.output.vrt.options, tmpFolder, logger);
+
+            await buildCogForQuadKey(job, quadKey, warpedVrtPath, tmpTiff, logger, isCommit);
             logger.info({ target: targetPath }, 'StoreTiff');
             if (isCommit) {
                 await outputFs.write(targetPath, createReadStream(tmpTiff), logger);

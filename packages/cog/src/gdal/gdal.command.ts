@@ -65,14 +65,14 @@ export abstract class GdalCommand {
                 }
                 log.warn({ stdout, stderr }, 'CogWarnings');
 
-                delete this.promise;
+                this.promise = undefined;
                 return resolve();
             });
             child.on('error', (error: Error) => {
                 const stdout = outputBuff.join('').trim();
                 const stderr = errBuff.join('').trim();
                 log.error({ stdout, stderr }, 'FailedToConvert');
-                delete this.promise;
+                this.promise = undefined;
                 reject(error);
             });
         });
