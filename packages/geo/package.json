@@ -7,7 +7,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "ospec build/**/*.test.js"
+    "test": "ospec build/**/*.test.js --preload ../../test-support.js"
   },
   "dependencies": {
     "@mapbox/tilebelt": "^1.0.1"

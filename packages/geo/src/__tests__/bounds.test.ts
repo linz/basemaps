@@ -1,5 +1,4 @@
 import * as o from 'ospec';
-import 'source-map-support/register';
 import { Bounds } from '../bounds';
 
 const TILE_SIZE = 256;

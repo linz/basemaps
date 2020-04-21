@@ -1,5 +1,4 @@
 import * as o from 'ospec';
-import 'source-map-support/register';
 import { LambdaHttpResponse } from '../lambda.response';
 import { LambdaContext } from '../lambda.context';
 

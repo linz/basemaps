@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc",
     "deploy:bundle": "ncc build build/cli/cogify/index.js -o dist -s",
-    "test": "ospec build/**/*.test.js"
+    "test": "ospec build/**/*.test.js --preload ../../test-support.js"
   },
   "dependencies": {
     "@basemaps/geo": "1.2.0",

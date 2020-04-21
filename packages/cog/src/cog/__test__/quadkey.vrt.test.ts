@@ -3,7 +3,6 @@ import { FileOperatorSimple, LogConfig } from '@basemaps/lambda-shared';
 import { polygon } from '@turf/helpers';
 import { FeatureCollection, Position, MultiPolygon } from 'geojson';
 import * as o from 'ospec';
-import 'source-map-support/register';
 import { CogJob } from '../cog';
 import { QuadKeyVrt } from '../quadkey.vrt';
 

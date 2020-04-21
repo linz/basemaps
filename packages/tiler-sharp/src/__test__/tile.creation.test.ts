@@ -1,5 +1,3 @@
-import 'source-map-support/register';
-
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { readFileSync, writeFileSync } from 'fs';

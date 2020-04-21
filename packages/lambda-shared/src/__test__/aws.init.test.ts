@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import 'source-map-support/register';
 import * as AWS from 'aws-sdk';
 import * as o from 'ospec';
 
