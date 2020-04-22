@@ -81,7 +81,18 @@ export class CogBuilder {
 
                 const imageProjection = this.findProjection(tiff, logger);
                 if (imageProjection != null && projection != imageProjection) {
-                    if (projection != null) throw new Error('Multiple projections');
+                    if (projection != null) {
+                        logger.error(
+                            {
+                                firstImage: sources[0].name,
+                                projection,
+                                currentImage: source.name,
+                                currentProjection: imageProjection,
+                            },
+                            'Multiple projections',
+                        );
+                        throw new Error('Multiple projections');
+                    }
                     projection = imageProjection;
                 }
 
