@@ -6,6 +6,7 @@ import ecrAssets = require('@aws-cdk/aws-ecr-assets');
 import { Env } from '@basemaps/lambda-shared';
 import { ScratchData } from './mount.folder';
 import { createHash } from 'crypto';
+import { TileMetadataTableArn } from '../serve/db';
 
 /**
  * Cogification infrastructure
@@ -40,6 +41,13 @@ export class CogBuilderStack extends cdk.Stack {
             iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonEC2ContainerServiceforEC2Role'),
         );
         batchInstanceRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'));
+        batchInstanceRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
+
+        // Allow access to all add meetadata to the metadata table
+        const dynamoPolicy = new iam.PolicyStatement();
+        dynamoPolicy.addActions('dynamoDB:getItem', 'dynamoDB:putItem');
+        dynamoPolicy.addResources(TileMetadataTableArn.getArn(this));
+        batchInstanceRole.addToPolicy(dynamoPolicy);
 
         new iam.CfnInstanceProfile(this, 'CogBatchInstanceProfile', {
             instanceProfileName: batchInstanceRole.roleName,
