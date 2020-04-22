@@ -12,6 +12,7 @@ o.spec('cog.cutline', () => {
     const job = {
         source: {
             files: [] as string[],
+            path: '',
             options: {
                 maxConcurrency: 3,
                 maxCogs: 3,
@@ -60,6 +61,9 @@ o.spec('cog.cutline', () => {
 
         const [tif1, tif2] = [1, 2].map((i) => `${testDir}/tif${i}.tiff`);
 
+        const vtif1 = '/vsis3/' + tif1,
+            vtif2 = '/vsis3/' + tif2;
+
         const tif1Poly = [
             [174.56568549279925, -40.83842049282911],
             [174.57337757492053, -41.162595138463644],
@@ -92,7 +96,7 @@ o.spec('cog.cutline', () => {
   <VRTRasterBand dataType="Byte" band="${i + 1}">
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>${c}</ColorInterp>
-    ${tifs.map((n) => (c === 'alpha' ? complexSource(n) : simpleSource(n, i + 1))).join('\n')}
+    ${tifs.map((n) => (c === 'alpha' ? complexSource(n) : simpleSource('/vsis3/' + n, i + 1))).join('\n')}
   </VRTRasterBand>`,
             );
 
@@ -124,7 +128,7 @@ o.spec('cog.cutline', () => {
 
             const vrt = await Cutline.buildVrt(tmpFolder, job, sourceGeo, makeVrtString(), '313', logger);
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([tif2, tif2]);
+            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([vtif2, vtif2]);
         });
 
         o('not within quadKey', async () => {
@@ -139,7 +143,12 @@ o.spec('cog.cutline', () => {
         o('no cutline', async () => {
             const vrt = await Cutline.buildVrt(tmpFolder, job, sourceGeo, makeVrtString(), '31', logger);
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([tif1, tif2, tif1, tif2]);
+            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([
+                vtif1,
+                vtif2,
+                vtif1,
+                vtif2,
+            ]);
             o(cutTiffArgs.length).equals(0);
         });
 
@@ -150,7 +159,7 @@ o.spec('cog.cutline', () => {
 
             const vrt = await Cutline.buildVrt(tmpFolder, job, sourceGeo, makeVrtString(), qkey, logger);
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([tif2, tif2]);
+            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([vtif2, vtif2]);
             o(cutTiffArgs.length).equals(0);
         });
 
@@ -178,7 +187,7 @@ o.spec('cog.cutline', () => {
                 ]);
             }
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([tif1, tif1]);
+            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([vtif1, vtif1]);
         });
     });
 
