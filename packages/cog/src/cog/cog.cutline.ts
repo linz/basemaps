@@ -69,7 +69,7 @@ function makeSourceMap(inp: FeatureCollection): Record<string, SourceMapAttrs> {
 
     for (const poly of inp.features) {
         if (poly.geometry.type === 'Polygon') {
-            map[poly.properties?.tiff] = {
+            map[basename(poly.properties?.tiff)] = {
                 bounds: Bounds.fromBbox(bbox(poly.geometry) as Mercator.BBox),
                 poly: poly as Feature<Polygon>,
             };

@@ -3,7 +3,6 @@ import { polygon } from '@turf/helpers';
 import { FeatureCollection, Position } from 'geojson';
 import * as o from 'ospec';
 import 'source-map-support/register';
-import { basename } from 'path';
 import { CogJob } from '../cog';
 import { Cutline } from '../cog.cutline';
 
@@ -77,7 +76,7 @@ o.spec('cog.cutline', () => {
             [174.85022498195937, -40.834206771481526],
         ];
 
-        const makePoly = (poly: Position[], path: string): any => polygon([poly], { tiff: basename(path) });
+        const makePoly = (poly: Position[], path: string): any => polygon([poly], { tiff: path });
 
         const sourceGeo = {
             type: 'FeatureCollection',
