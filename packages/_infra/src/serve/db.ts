@@ -16,3 +16,22 @@ export class TileMetadataTable extends cdk.Construct {
         new cdk.CfnOutput(this, 'TileMetadataTable', { value: this.table.tableArn });
     }
 }
+
+export const TileMetadataTableArn = {
+    /**
+     * get the ARN for the TileMetadata table
+     *
+     * @returns ARN of the TileMetadata table
+     */
+    getArn(scope: cdk.Stack): string {
+        return cdk.Arn.format(
+            {
+                service: 'dynamodb',
+                region: '*',
+                resource: 'table',
+                resourceName: Const.TileMetadata.TableName,
+            },
+            scope,
+        );
+    },
+};
