@@ -142,7 +142,7 @@ export const Cutline = {
             if (!imgBounds.intersects(tiffBounds.bounds)) continue; // image outside quadKey
 
             if (cutline == null) {
-                useTifs.add(path);
+                useTifs.add(tiffName);
                 continue;
             }
 
@@ -150,7 +150,7 @@ export const Cutline = {
 
             for (const p of polygons) {
                 if (booleanWithin(tiffBounds.poly, p)) {
-                    useTifs.add(path);
+                    useTifs.add(tiffName);
                     foundp.length = 0;
                     break;
                 }
@@ -161,12 +161,12 @@ export const Cutline = {
 
             if (foundp.length != 0) {
                 ++cropped;
-                useTifs.add(path);
+                useTifs.add(tiffName);
                 for (const p of foundp) usePolys.add(p);
             }
         }
 
-        job.source.files = Array.from(useTifs.values());
+        job.source.files = Array.from(useTifs.values()).map((n) => FileOperator.join(job.source.path, n));
 
         if (usePolys.size == 0) {
             job.output.cutline = undefined;
@@ -179,8 +179,8 @@ export const Cutline = {
             for (const elm of b.elementChildren()) {
                 if (elm.tag === 'SimpleSource' || elm.tag === 'ComplexSource') {
                     const sf = elm.tags('SourceFilename').next().value!;
-                    const path = sf.textContent;
-                    if (!useTifs.has(path)) continue;
+                    const name = basename(sf.textContent);
+                    if (!useTifs.has(name)) continue;
                 }
                 children.push(elm);
             }
