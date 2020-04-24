@@ -9,7 +9,7 @@ import { createReadStream, promises as fs } from 'fs';
 import { FeatureCollection } from 'geojson';
 import * as ulid from 'ulid';
 import { buildCogForQuadKey, CogJob } from '../../cog/cog';
-import { Cutline } from '../../cog/cog.cutline';
+import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { buildWarpedVrt } from '../../cog/cog.vrt';
 import { getJobPath, makeTempFolder } from '../folder';
 
@@ -97,7 +97,15 @@ export class ActionCogCreate extends CommandLineAction {
 
             const vrtString = await outputFs.read(getJobPath(job, '.vrt'));
 
-            const vrt = await Cutline.buildVrt(tmpFolder, job, sourceGeo, vrtString, quadKey, logger);
+            let cutline: FeatureCollection | null = null;
+            if (job.output.cutlineBlend != null) {
+                const cutlinePath = getJobPath(job, 'cutline.geojson');
+                cutline = JSON.parse(
+                    (await FileOperator.create(cutlinePath).read(cutlinePath)).toString(),
+                ) as FeatureCollection;
+            }
+
+            const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, vrtString, quadKey, logger);
 
             const tmpTiff = FileOperator.join(tmpFolder, `${quadKey}.tiff`);
             const tmpVrt = FileOperator.join(tmpFolder, `${job.id}.vrt`);

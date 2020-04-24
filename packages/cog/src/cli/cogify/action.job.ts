@@ -2,6 +2,7 @@ import { EPSG } from '@basemaps/geo';
 import { FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/lambda-shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
+import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import {
     CommandLineAction,
@@ -137,6 +138,9 @@ export class ActionJobCreate extends CommandLineAction {
         const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom);
         const metadata = await builder.build(tiffSource, logger);
 
+        const cutlinePath = this.cutline?.value;
+        const cutline = cutlinePath == null ? null : await QuadKeyVrt.loadCutline(cutlinePath);
+
         // Don't log bounds as it is huge
         logger.info({ ...metadata, bounds: undefined }, 'CoveringGenerated');
 
@@ -173,8 +177,7 @@ export class ActionJobCreate extends CommandLineAction {
             output: {
                 ...outputConfig,
                 resample: getResample(this.resample?.value),
-                cutline: this.cutline?.value,
-                cutlineBlend: this.cutlineBlend?.value,
+                cutlineBlend: cutline != null ? this.cutlineBlend?.value ?? 0 : undefined,
                 nodata: metadata.nodata,
                 vrt: {
                     options: vrtOptions,
@@ -205,6 +208,11 @@ export class ActionJobCreate extends CommandLineAction {
 
             const jobFile = getJobPath(job, `job.json`);
             await outputFs.write(jobFile, Buffer.from(JSON.stringify(job, null, 2)), logger);
+
+            if (cutline != null) {
+                const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson`);
+                await outputFs.write(geoJsonCutlineOutput, Buffer.from(JSON.stringify(cutline, null, 2)), logger);
+            }
 
             const geoJsonSourceOutput = getJobPath(job, `source.geojson`);
             await outputFs.write(geoJsonSourceOutput, Buffer.from(JSON.stringify(metadata.bounds, null, 2)), logger);

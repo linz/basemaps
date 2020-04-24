@@ -79,7 +79,7 @@ function makeSourceMap(inp: FeatureCollection): Record<string, SourceMapAttrs> {
     return map;
 }
 
-export const Cutline = {
+export const QuadKeyVrt = {
     /**
      * Build a vrt file for a tiff set with some tiffs transformed with a cutline
      *
@@ -96,6 +96,7 @@ export const Cutline = {
         tmpFolder: string,
         job: CogJob,
         sourceGeo: FeatureCollection,
+        cutline: FeatureCollection | null,
         inputVrt: Buffer | string | VNodeElement,
         quadKey: string,
         logger: LogType,
@@ -104,12 +105,8 @@ export const Cutline = {
 
         const vrt = inputVrt instanceof VNodeElement ? inputVrt : await VNodeParser.parse(inputVrt.toString());
 
-        const cutlinePath = job.output.cutline;
-        const cutlineData = cutlinePath ? (await FileOperator.create(cutlinePath).read(cutlinePath)).toString() : '';
-        let cutline: FeatureCollection | null =
-            cutlineData == '' ? null : (JSON.parse(cutlineData) as FeatureCollection);
         if (findGeoJsonProjection(cutline) !== EPSG.Wgs84) {
-            throw new Error('Invalid geojson; CRS may not be set! ' + cutlinePath);
+            throw new Error('Invalid geojson; CRS may not be set in cutline!');
         }
         const sourceMap = makeSourceMap(sourceGeo);
 
@@ -171,7 +168,7 @@ export const Cutline = {
         if (usePolys.size == 0) {
             job.output.cutline = undefined;
         } else {
-            job.output.cutline = await Cutline.writeCutline(makeCutline(Array.from(usePolys.values())), tmpFolder);
+            job.output.cutline = await QuadKeyVrt.writeCutline(makeCutline(Array.from(usePolys.values())), tmpFolder);
         }
 
         for (const b of vrt.tags('VRTRasterBand')) {
@@ -208,5 +205,22 @@ export const Cutline = {
         await FileOperator.create(target).write(target, Buffer.from(JSON.stringify(cutline)));
 
         return target;
+    },
+
+    /**
+     * Load a geojson cutline from the file-system and convert to one multi-polygon with any holes removed
+     *
+     * @param path the path of the cutline to load. Can be `s3://` or local file path.
+     */
+    async loadCutline(path: string): Promise<FeatureCollection> {
+        const inCutline = JSON.parse((await FileOperator.create(path).read(path)).toString());
+
+        if (findGeoJsonProjection(inCutline) !== EPSG.Wgs84) {
+            throw new Error('Invalid geojson; CRS may not be set! ' + path);
+        }
+
+        return GeoJson.toFeatureCollection([
+            GeoJson.toFeatureMultiPolygon(GeoJson.toMultiPolygon(inCutline.features).coordinates),
+        ]);
     },
 };
