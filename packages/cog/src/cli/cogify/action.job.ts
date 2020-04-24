@@ -19,8 +19,6 @@ import { TileCover } from '../../cog/cover';
 import { getResample } from '../../gdal/gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';
 
-const ProcessId = ulid.ulid();
-
 function filterTiff(a: string): boolean {
     const lowerA = a.toLowerCase();
     return lowerA.endsWith('.tiff') || lowerA.endsWith('.tif');
@@ -65,6 +63,7 @@ export class ActionJobCreate extends CommandLineAction {
     private resample?: CommandLineStringParameter;
     private cutline?: CommandLineStringParameter;
     private cutlineBlend?: CommandLineIntegerParameter;
+    private overrideId?: CommandLineStringParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -102,7 +101,9 @@ export class ActionJobCreate extends CommandLineAction {
     async onExecute(): Promise<void> {
         const imageryName = basename(this.source?.path.value ?? '').replace(/\./g, '-'); // batch does not allow '.' in names
 
-        const logger = LogConfig.get().child({ id: ProcessId, imageryName });
+        const processId = this.overrideId?.value ?? ulid.ulid();
+
+        const logger = LogConfig.get().child({ id: processId, imageryName });
         LogConfig.set(logger);
 
         // Make typescript happy with all the undefined
@@ -166,7 +167,7 @@ export class ActionJobCreate extends CommandLineAction {
             vrtOptions.forceEpsg3857 = false;
         }
         const job: CogJob = {
-            id: ProcessId,
+            id: processId,
             name: imageryName,
             projection: EPSG.Google,
             output: {
@@ -274,6 +275,13 @@ export class ActionJobCreate extends CommandLineAction {
             argumentName: 'CUTLINE_BLEND',
             parameterLongName: '--cblend',
             description: 'Set a blend distance to use to blend over cutlines (in pixels)',
+            required: false,
+        });
+
+        this.overrideId = this.defineStringParameter({
+            argumentName: 'OVERRIDE_ID',
+            parameterLongName: '--override-id',
+            description: 'used mainly for debugging to create with a pre determined job id',
             required: false,
         });
     }
