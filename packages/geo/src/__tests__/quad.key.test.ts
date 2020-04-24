@@ -60,8 +60,19 @@ o.spec('QuadKey', () => {
         });
 
         o('should node simplify complete groups', () => {
-            // TODO this is not goode behaviour, this should really deep equal `''`
-            o(QuadKey.simplify(['0', '1', '2', ...QuadKey.children('3')])).deepEquals(['0', '1', '2', '3']);
+            o(QuadKey.simplify(['0', '1', '2', ...QuadKey.children('3')])).deepEquals(['']);
+
+            o(
+                QuadKey.simplify([
+                    '33',
+                    '32',
+                    '31',
+                    ...QuadKey.children('303'),
+                    ...QuadKey.children('302'),
+                    ...QuadKey.children('301'),
+                    ...QuadKey.children('300'),
+                ]),
+            ).deepEquals(['3']);
         });
     });
 

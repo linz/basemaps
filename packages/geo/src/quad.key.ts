@@ -1,20 +1,10 @@
+import { QuadKeyTrie } from './quad.key.trie';
+
 /** Percentage of the world covered by a quadkey at zoom level z */
 const ResolutionInverse = new Array(32).fill(32).map((c, i) => 1 / 4 ** i);
 
-/**
- * Does any of this quad key's parents exist in the set
- * @param quadKeys Set to check
- * @param qk quadkey to check
- */
-function hasParent(quadKeys: Set<string>, qk: string): boolean {
-    while (qk.length > 0) {
-        if (quadKeys.has(qk)) return true;
-        qk = qk.substr(0, qk.length - 1);
-    }
-    return false;
-}
-
 export const QuadKey = {
+    Keys: ['0', '1', '2', '3'],
     /**
      * Simple intersection of quad keys
      * @param qkA QuadKey A
@@ -34,7 +24,7 @@ export const QuadKey = {
      * @param qk
      */
     children(qk: string): string[] {
-        return ['0', '1', '2', '3'].map((c) => qk + c);
+        return QuadKey.Keys.map((c) => qk + c);
     },
 
     /**
@@ -51,34 +41,34 @@ export const QuadKey = {
     /**
      * Find duplicate quadkeys and remove them while simplifying groupings
      *
-     * TODO is there a faster way to do this
-     *
      * @param quadKeys
      */
     simplify(quadKeys: string[]): string[] {
-        const output = new Set<string>();
-        const counter = new Map<string, number>();
-
+        const index = new QuadKeyTrie();
         for (const qk of quadKeys) {
-            if (output.has(qk)) continue;
-            if (hasParent(output, qk)) continue;
+            const currentSize = index.size;
+            const node = index.add(qk);
+            // Node was a duplicate so ignore
+            if (currentSize == index.size) continue;
 
-            const parent = QuadKey.parent(qk);
-            const existing = counter.get(parent) ?? 0;
-            counter.set(parent, existing + 1);
-            if (existing < 3) {
-                output.add(qk);
-            } else if (existing == 3) {
-                for (const child of QuadKey.children(parent)) output.delete(child);
-                output.add(parent);
-                /**
-                 * TODO recurse upwards if this new quadkey fills it's parent's qk
-                 * eg if this adds `3` and `0`,`1`,`2` already exist, this should squash those down.
-                 */
+            // Check if the quad key can collapse down
+            let parentNode = QuadKeyTrie.parent(node);
+            let parentQk = QuadKey.parent(qk);
+            while (parentNode != null) {
+                let count = 0;
+                for (const key of QuadKey.Keys) {
+                    if (QuadKeyTrie.has(parentNode, key)) count++;
+                }
+
+                if (count != 4) break;
+
+                index.add(parentQk);
+                parentNode = QuadKeyTrie.parent(parentNode);
+                parentQk = QuadKey.parent(parentQk);
             }
         }
 
-        return [...output.keys()];
+        return index.toList();
     },
 
     /**
@@ -90,9 +80,9 @@ export const QuadKey = {
     coveringPercent(rootQuadKey: string, quadKeys: string[]): number {
         let percent = 0;
 
+        const applied = new QuadKeyTrie();
         const sortedNodes = quadKeys.slice().sort((a, b) => a.length - b.length);
 
-        const applied: Set<string> = new Set();
         for (const qk of sortedNodes) {
             /** Not intersecting */
             if (!QuadKey.intersects(rootQuadKey, qk)) continue;
@@ -101,9 +91,8 @@ export const QuadKey = {
             /** This qk is bigger than the root qk, so its fully covered */
             if (resolutionDiff == 0) return 1;
 
-            // TODO is there a faster way of doing this? This could also assume that `simplify` is called first
             /** Ignore child nodes eg `31` means `313` is ignored */
-            if (hasParent(applied, qk)) continue;
+            if (applied.intersects(qk)) continue;
             applied.add(qk);
 
             percent += ResolutionInverse[resolutionDiff];
