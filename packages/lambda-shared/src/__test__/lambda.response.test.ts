@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as o from 'ospec';
 import 'source-map-support/register';
 import { LambdaHttpResponse } from '../lambda.response';

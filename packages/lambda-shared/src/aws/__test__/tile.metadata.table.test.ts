@@ -6,7 +6,6 @@ import { TileMetadataImageryRecord, TileMetadataTable } from '../tile.metadata.t
 
 const { marshall } = AWS.DynamoDB.Converter;
 
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('tile.metadata.table', () => {
     const { now } = Date;
     const mockNow = Date.now();
