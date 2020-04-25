@@ -4,14 +4,15 @@ import { QuadKey } from '../quad.key';
 
 o.spec('QuadKeyTrie', () => {
     function makeIndex(qk: string | string[]): QuadKeyTrie {
-        const index = new QuadKeyTrie();
         if (Array.isArray(qk)) {
-            qk.forEach((k) => index.add(k));
+            return QuadKeyTrie.fromList(qk);
         } else {
+            const index = new QuadKeyTrie();
             index.add(qk);
+            return index;
         }
-        return index;
     }
+
     o.spec('intersect', () => {
         o('should intersect big to small', () => {
             o(makeIndex('').intersects('30')).equals(true);
@@ -37,11 +38,38 @@ o.spec('QuadKeyTrie', () => {
             o(makeIndex('331').intersects('333')).equals(false);
         });
     });
+
     o('should create a list', () => {
         o(makeIndex(QuadKey.children('31')).toList()).deepEquals(['310', '311', '312', '313']);
+        o(makeIndex(['000', '3120', '3122', '311']).toList()).deepEquals(['000', '311', '3120', '3122']);
     });
 
     o('should remove unneeded keys', () => {
         o(makeIndex(['31', ...QuadKey.children('31')]).toList()).deepEquals(['31']);
+    });
+
+    o('iterators', () => {
+        const trie = makeIndex(['0', '3113', '31131']);
+        const list = Array.from(trie);
+        o(list).deepEquals(['0', '3113']);
+    });
+
+    o('nodes', () => {
+        o(Array.from(new QuadKeyTrie().nodes())).deepEquals([]);
+        o(Array.from(makeIndex('31').nodes())).deepEquals([['31', {}]] as any);
+
+        const trie = makeIndex(['0', '3113', '31131']);
+
+        const node = trie.get('3113') as any;
+        node.foo = 'bar';
+        o(Array.from(trie.nodes()).map(([s]) => s)).deepEquals(['0', '3113', '31131']);
+        o(Array.from(trie.nodes(undefined, false))).deepEquals([
+            ['0', {}],
+            ['3113', { foo: 'bar', '1': {} }],
+        ] as any);
+        o(Array.from(trie.nodes(node, true))).deepEquals([
+            ['', { foo: 'bar', '1': {} }],
+            ['1', {}],
+        ] as any);
     });
 });
