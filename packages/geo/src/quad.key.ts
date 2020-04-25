@@ -72,6 +72,16 @@ export const QuadKey = {
     },
 
     /**
+     * Compare quadkeys such that using with sort will result in a list from Biggest coverage to smallest.
+     * @param a
+     * @param b
+     * @retun < 0, = 0 or > 0
+     */
+    compareKeys(a: string, b: string): number {
+        return a == b ? 0 : a.length == b.length ? (a < b ? -1 : 1) : a.length - b.length;
+    },
+
+    /**
      * calculate the covering percentage of a quadkey from other quadkeys
      *
      * @param rootQuadKey the root quadkey to check
@@ -81,7 +91,7 @@ export const QuadKey = {
         let percent = 0;
 
         const applied = new QuadKeyTrie();
-        const sortedNodes = quadKeys.slice().sort((a, b) => a.length - b.length);
+        const sortedNodes = quadKeys.slice().sort(QuadKey.compareKeys);
 
         for (const qk of sortedNodes) {
             /** Not intersecting */

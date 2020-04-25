@@ -76,6 +76,14 @@ o.spec('QuadKey', () => {
         });
     });
 
+    o('compareKeys', () => {
+        o(QuadKey.compareKeys('3201', '33')).equals(2);
+        o(QuadKey.compareKeys('33', '3201')).equals(-2);
+        o(QuadKey.compareKeys('33', '33')).equals(0);
+        o(QuadKey.compareKeys('31', '33')).equals(-1);
+        o(QuadKey.compareKeys('31', '22')).equals(1);
+    });
+
     o.spec('covering percent', () => {
         o('should calculate covering', () => {
             o(QuadKey.coveringPercent('', ['3'])).equals(1 / 4);
