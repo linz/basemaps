@@ -1,8 +1,7 @@
-import { EPSG } from '@basemaps/geo';
+import { EPSG, QuadKey } from '@basemaps/geo';
 import { FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/lambda-shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import {
     CommandLineAction,
@@ -14,9 +13,11 @@ import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../../cog/builder';
-import { CogJob, getTileSize } from '../../cog/cog';
+import { getTileSize } from '../../cog/cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog/cog.vrt';
-import { TileCover } from '../../cog/cover';
+import { JobCutline } from '../../cog/job.cutline';
+import { TileCover } from '../../cog/tile.cover';
+import { CogJob } from '../../cog/types';
 import { getResample } from '../../gdal/gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';
 
@@ -135,18 +136,16 @@ export class ActionJobCreate extends CommandLineAction {
 
         logger.info({ source: this.source.path.value, tiffCount: tiffList.length }, 'LoadingTiffs');
 
-        const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom);
-        const metadata = await builder.build(tiffSource, logger);
-
         const cutlinePath = this.cutline?.value;
-        const cutline = cutlinePath == null ? null : await QuadKeyVrt.loadCutline(cutlinePath);
+        const cutline = cutlinePath == null ? new JobCutline() : await JobCutline.loadCutline(cutlinePath, minZoom);
 
-        // Don't log bounds as it is huge
-        logger.info({ ...metadata, bounds: undefined }, 'CoveringGenerated');
+        const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom, logger);
+        const metadata = await builder.build(tiffSource, cutline);
 
-        if (metadata.covering.length > 0) {
-            const firstQk = metadata.covering[0];
-            const lastQk = metadata.covering[metadata.covering.length - 1];
+        const quadkeys = metadata.covering.toList().sort(QuadKey.compareKeys);
+        if (quadkeys.length > 0) {
+            const firstQk = quadkeys[0];
+            const lastQk = quadkeys[quadkeys.length - 1];
             logger.info(
                 {
                     // Size of the biggest image
@@ -157,6 +156,12 @@ export class ActionJobCreate extends CommandLineAction {
                 'Covers',
             );
         }
+
+        // Don't log bounds as it is huge
+        logger.info(
+            { ...metadata, bounds: undefined, covering: undefined, quadkeys: quadkeys.join(' ') },
+            'CoveringGenerated',
+        );
 
         const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist
@@ -189,7 +194,7 @@ export class ActionJobCreate extends CommandLineAction {
                 files: tiffList,
                 options: { maxConcurrency, maxCogs, minZoom },
             },
-            quadkeys: metadata.covering,
+            quadkeys,
         };
 
         const tmpFolder = await makeTempFolder(`basemaps-${job.id}`);
@@ -211,7 +216,11 @@ export class ActionJobCreate extends CommandLineAction {
 
             if (cutline != null) {
                 const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson`);
-                await outputFs.write(geoJsonCutlineOutput, Buffer.from(JSON.stringify(cutline, null, 2)), logger);
+                await outputFs.write(
+                    geoJsonCutlineOutput,
+                    Buffer.from(JSON.stringify(cutline.toGeoJson(), null, 2)),
+                    logger,
+                );
             }
 
             const geoJsonSourceOutput = getJobPath(job, `source.geojson`);
@@ -220,7 +229,7 @@ export class ActionJobCreate extends CommandLineAction {
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
             await outputFs.write(
                 geoJsonCoveringOutput,
-                Buffer.from(JSON.stringify(TileCover.toGeoJson(metadata.covering), null, 2)),
+                Buffer.from(JSON.stringify(TileCover.toGeoJson(quadkeys), null, 2)),
                 logger,
             );
 

@@ -1,10 +1,10 @@
-import * as fs from 'fs';
-import { FileOperatorSimple, LogConfig } from '@basemaps/lambda-shared';
+import { LogConfig } from '@basemaps/lambda-shared';
 import { polygon } from '@turf/helpers';
-import { FeatureCollection, Position, MultiPolygon } from 'geojson';
+import { FeatureCollection, Position } from 'geojson';
 import * as o from 'ospec';
-import { CogJob } from '../cog';
+import { QuadKeyCutline } from '../quadkey.cutline';
 import { QuadKeyVrt } from '../quadkey.vrt';
+import { CogJob } from '../types';
 
 o.spec('quadkey.vrt', () => {
     const tmpFolder = '/tmp/my-tmp-folder';
@@ -19,20 +19,13 @@ o.spec('quadkey.vrt', () => {
                 minZoom: 1,
             },
         },
-        output: {
-            cutline: '',
-        },
+        output: {},
     } as CogJob;
 
     const logger = LogConfig.get();
     LogConfig.disable();
 
-    function readCutline(path: string): FeatureCollection {
-        return JSON.parse(fs.readFileSync(path).toString()) as FeatureCollection;
-    }
-
     o.afterEach(() => {
-        job.output.cutline = '';
         job.source.files = [];
     });
 
@@ -106,10 +99,10 @@ o.spec('quadkey.vrt', () => {
             return `<VRTDataset rasterXSize="24" rasterYSize="36"><SRS />${rasterBands}</VRTDataset>`;
         }
 
-        const origWriteCutline = QuadKeyVrt.writeCutline;
+        const origWriteCutline = QuadKeyCutline.prototype.writeCutline;
 
         o.after(() => {
-            QuadKeyVrt.writeCutline = origWriteCutline;
+            QuadKeyCutline.prototype.writeCutline = origWriteCutline;
         });
 
         let cutTiffArgs: Array<Array<any>> = [];
@@ -118,16 +111,16 @@ o.spec('quadkey.vrt', () => {
             sourceGeo.features = [makePoly(tif1Poly, tif1), makePoly(tif2Poly, tif2)] as any;
 
             cutTiffArgs = [];
-            QuadKeyVrt.writeCutline = ((...args: any): string => {
+            QuadKeyCutline.prototype.writeCutline = ((...args: any): string => {
                 cutTiffArgs.push(args);
                 return 'cut//' + args[0];
             }) as any;
 
-            job.output.cutline = job.output.cutlineBlend = undefined;
+            job.output.cutlineBlend = undefined;
         });
 
         o('1 crosses, 1 outside', async () => {
-            const cutline = readCutline(testDir + '/kapiti.geojson');
+            const cutline = await QuadKeyCutline.loadCutline(testDir + '/kapiti.geojson');
 
             const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, makeVrtString(), '313', logger);
 
@@ -135,7 +128,7 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('not within quadKey', async () => {
-            const cutline = readCutline(testDir + '/kapiti.geojson');
+            const cutline = await QuadKeyCutline.loadCutline(testDir + '/kapiti.geojson');
 
             const vrt = await QuadKeyVrt.buildVrt(
                 tmpFolder,
@@ -152,7 +145,15 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('no cutline', async () => {
-            const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, null, makeVrtString(), '31', logger);
+            const vrt = await QuadKeyVrt.buildVrt(
+                tmpFolder,
+                job,
+                sourceGeo,
+                new QuadKeyCutline(),
+                makeVrtString(),
+                '31',
+                logger,
+            );
 
             o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([
                 vtif1,
@@ -164,7 +165,7 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('fully within', async () => {
-            const cutline = readCutline(testDir + '/kapiti.geojson');
+            const cutline = await QuadKeyCutline.loadCutline(testDir + '/kapiti.geojson');
 
             const qkey = '3113332223211133012';
 
@@ -176,83 +177,40 @@ o.spec('quadkey.vrt', () => {
 
         o('1 surrounded', async () => {
             job.output.cutlineBlend = 10;
+            const cutline = await QuadKeyCutline.loadCutline(testDir + '/mana.geojson');
 
             const vrt = await QuadKeyVrt.buildVrt(
                 tmpFolder,
                 job,
                 sourceGeo,
-                readCutline(testDir + '/mana.geojson'),
+                cutline,
                 makeVrtString(),
                 '3131110001',
                 logger,
             );
 
             o(cutTiffArgs.length).equals(1);
-            o(cutTiffArgs[0][1]).equals(tmpFolder);
-            const cutline = cutTiffArgs[0][0] as FeatureCollection;
+            o(cutTiffArgs[0][0]).equals(tmpFolder + '/cutline.geojson');
 
-            o(cutline.type).equals('FeatureCollection');
-            if (cutline.type === 'FeatureCollection') {
-                o(cutline.features).deepEquals([
+            o(cutline.polyCount).equals(1);
+
+            const geo = cutline.toGeoJson();
+
+            o(geo.type).equals('FeatureCollection');
+            if (geo.type === 'FeatureCollection') {
+                o(geo.features).deepEquals([
                     {
                         type: 'Feature',
                         properties: {},
                         geometry: {
-                            type: 'Polygon',
-                            coordinates: (cutline.features[0].geometry as any).coordinates,
+                            type: 'MultiPolygon',
+                            coordinates: (geo.features[0].geometry as any).coordinates,
                         },
                     },
                 ]);
             }
 
             o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([vtif1, vtif1]);
-        });
-    });
-
-    o('loadCutline', async () => {
-        const cutline = await QuadKeyVrt.loadCutline(testDir + '/mana.geojson');
-
-        const mp = cutline.features[0].geometry as MultiPolygon;
-        const { coordinates } = mp;
-
-        mp.coordinates = [];
-
-        o(cutline).deepEquals({
-            type: 'FeatureCollection',
-            features: [
-                {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'MultiPolygon',
-                        coordinates: [],
-                    },
-                    properties: {},
-                },
-            ],
-        });
-
-        o(coordinates.length).equals(2);
-        o(coordinates[1][0][0]).deepEquals([174.54458264066457, -40.97378843820782]);
-    });
-
-    o.spec('writeCutline', () => {
-        const origWrite = FileOperatorSimple.write;
-        o.afterEach(() => {
-            FileOperatorSimple.write = origWrite;
-        });
-
-        o('writeCutline', async () => {
-            const cutline = { name: 'my-cutline' } as any;
-            const write = o.spy();
-            FileOperatorSimple.write = write as any;
-            const tmpFolder = '/tmp/basemaps-123';
-            const cutPath = await QuadKeyVrt.writeCutline(cutline, tmpFolder);
-
-            const expPath = '/tmp/basemaps-123/cutline.geojson';
-
-            o(cutPath).equals(expPath);
-
-            o(write.args).deepEquals([expPath, Buffer.from(JSON.stringify(cutline))]);
         });
     });
 });

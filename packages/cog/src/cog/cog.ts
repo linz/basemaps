@@ -1,49 +1,8 @@
-import { EPSG } from '@basemaps/geo';
-import { Aws, FileConfig, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
+import { Aws, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import * as Mercator from 'global-mercator';
-import { VrtOptions } from './cog.vrt';
 import { GdalCogBuilder } from '../gdal/gdal';
-import { GdalCogBuilderOptionsResampling, getResample } from '../gdal/gdal.config';
-export interface CogJob {
-    /** Unique processing Id */
-    id: string;
-
-    /** Imagery set name */
-    name: string;
-
-    /** Output projection */
-    projection: EPSG.Google;
-
-    source: {
-        /** List of input files */
-        files: string[];
-        /**
-         * The google zoom level that corresponds approximately what the resolution of the source  is
-         * for high quality aerial imagery this is generally 20-22
-         */
-        resolution: number;
-
-        options: {
-            maxCogs: number;
-            maxConcurrency: number;
-            minZoom: number;
-        };
-    } & FileConfig;
-
-    /** Folder/S3 bucket to store the output */
-    output: {
-        resample: GdalCogBuilderOptionsResampling;
-        nodata?: number;
-        cutline?: string;
-        cutlineBlend?: number;
-        vrt: {
-            options: VrtOptions;
-        };
-    } & FileConfig;
-
-    /** List of quadkeys to generate */
-    quadkeys: string[];
-}
+import { getResample } from '../gdal/gdal.config';
+import { CogJob } from './types';
 
 /**
  * Create a onProgress logger

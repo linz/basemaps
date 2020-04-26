@@ -1,7 +1,7 @@
 import { Env, FileOperator } from '@basemaps/lambda-shared';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { CogJob } from '../cog/cog';
+import { CogJob } from '../cog/types';
 
 /** Make a temp folder inside TEMP_FOLDER's path */
 export async function makeTempFolder(folder: string): Promise<string> {

@@ -8,7 +8,7 @@ import {
     TileMetadataTable,
 } from '@basemaps/lambda-shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { CogJob } from '../../cog/cog';
+import { CogJob } from '../../cog/types';
 import { createImageryRecordFromJob } from '../cogify/action.batch';
 import { EPSG } from '@basemaps/geo';
 

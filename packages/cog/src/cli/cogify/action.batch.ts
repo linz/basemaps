@@ -10,7 +10,7 @@ import {
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
 import * as ulid from 'ulid';
-import { CogJob } from '../../cog/cog';
+import { CogJob } from '../../cog/types';
 import { getJobPath } from '../folder';
 import { EPSG } from '@basemaps/geo';
 
