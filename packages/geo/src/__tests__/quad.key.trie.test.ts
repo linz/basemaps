@@ -72,4 +72,12 @@ o.spec('QuadKeyTrie', () => {
             ['1', {}],
         ] as any);
     });
+
+    o('getPoint', () => {
+        const trie = makeIndex(['0', '3113', '31231', '31232', '312321']);
+
+        o(trie.getPoint(QuadKey.toBbox('31232103').slice(2))).deepEquals(['31232', '312321']);
+        o(trie.getPoint(QuadKey.toBbox('3003').slice(2))).deepEquals([]);
+        o(trie.getPoint(QuadKey.toBbox('3113').slice(2))).deepEquals(['3113']);
+    });
 });

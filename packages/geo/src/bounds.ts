@@ -1,4 +1,4 @@
-import * as Mercator from 'global-mercator';
+import { QuadKey } from './quad.key';
 
 export interface Point {
     x: number;
@@ -44,6 +44,13 @@ export class Bounds {
     }
 
     /**
+     * Does this bounds contain point
+     */
+    public containsPoint(point: number[]): boolean {
+        return this.x <= point[0] && this.right >= point[0] && this.y <= point[1] && this.bottom >= point[1];
+    }
+
+    /**
      * Create a new bounds that is the intersection of the two bounds
      *
      * @param other Bounds to calculate intersection with
@@ -69,9 +76,9 @@ export class Bounds {
     }
 
     /**
-     * Convert to Mercator.BBox
+     * Convert to BBox
      */
-    public toBbox(): Mercator.BBox {
+    public toBbox(): [number, number, number, number] {
         const { right } = this;
         return [this.x, this.y, right, this.bottom];
     }
@@ -116,13 +123,22 @@ export class Bounds {
     }
 
     /**
-     * Convert a Mercator.BBox(east, north, west, south) to Bounds(x,y, width, height).
+     * Convert a BBox(east, north, west, south) to Bounds(x,y, width, height).
      * Takes into account the antimeridian.
      * @param bbox
      */
-    static fromBbox(bbox: Mercator.BBox): Bounds {
+    static fromBbox(bbox: number[]): Bounds {
         const right = bbox[2] >= bbox[0] ? bbox[2] : bbox[2] + 360;
         return new Bounds(bbox[0], bbox[1], right - bbox[0], Math.abs(bbox[3] - bbox[1]));
+    }
+
+    /**
+     * Convert a quadKey to its bounding box
+     * @param quadKey
+     * @return The bounds in `EPSG.Wgs84`
+     */
+    static fromQuadKey(quadKey: string): Bounds {
+        return Bounds.fromBbox(QuadKey.toBbox(quadKey));
     }
 
     /** */

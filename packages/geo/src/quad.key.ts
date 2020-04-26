@@ -1,7 +1,8 @@
 import { QuadKeyTrie } from './quad.key.trie';
+import { quadkeyToTile, tileToBBOX, tileToQuadkey, pointToTile } from '@mapbox/tilebelt';
 
 /** Percentage of the world covered by a quadkey at zoom level z */
-const ResolutionInverse = new Array(32).fill(32).map((c, i) => 1 / 4 ** i);
+const ResolutionInverse = new Array(32).fill(0).map((_, i) => 1 / 4 ** i);
 
 export const QuadKey = {
     Keys: ['0', '1', '2', '3'],
@@ -36,6 +37,27 @@ export const QuadKey = {
      */
     parent(qk: string): string {
         return qk.substr(0, qk.length - 1);
+    },
+
+    toBbox(quadKey: string): [number, number, number, number] {
+        return tileToBBOX(quadkeyToTile(quadKey));
+    },
+
+    /**
+     * Convert a point to a quadKey at a given zoom level
+     * @param point at lat, lon pair
+     * @param zoom the number of digits in the resulting quadkey
+     */
+    pointToQuadKey([lon, lat]: number[], zoom: number): string {
+        return tileToQuadkey(pointToTile(lon, lat, zoom));
+    },
+
+    /**
+     * Lat, lng point is within QuadKey
+     */
+    containsPoint(quadKey: string, point: number[]): boolean {
+        const bbox = QuadKey.toBbox(quadKey);
+        return bbox[0] <= point[0] && bbox[2] >= point[0] && bbox[1] <= point[1] && bbox[3] >= point[1];
     },
 
     /**

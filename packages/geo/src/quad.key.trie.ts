@@ -15,9 +15,19 @@ function* iterate(
     }
     for (const key of QuadKey.Keys) {
         const newCurrent = node[key];
-        if (newCurrent) yield* iterate(newCurrent, currentStr + key, full);
+        if (newCurrent != null) yield* iterate(newCurrent, currentStr + key, full);
     }
     return null;
+}
+
+function collectForPoint(quadKeys: string[], point: number[], node: QuadKeyTrieNode, currentStr = ''): void {
+    if (QuadKey.containsPoint(currentStr, point)) {
+        if (node[QkIndexKey]) quadKeys.push(currentStr);
+        for (const key of QuadKey.Keys) {
+            const newCurrent = node[key];
+            if (newCurrent != null) collectForPoint(quadKeys, point, newCurrent, currentStr + key);
+        }
+    }
 }
 
 export interface QuadKeyTrieNode {
@@ -103,6 +113,15 @@ export class QuadKeyTrie {
             if (current == null) return null;
         }
         return current;
+    }
+
+    /**
+     * Get all Quadkeys for the given point
+     */
+    getPoint(point: number[]): string[] {
+        const quadKeys: string[] = [];
+        collectForPoint(quadKeys, point, this.trie, '');
+        return quadKeys;
     }
 
     /**

@@ -67,4 +67,24 @@ o.spec('Bounds', () => {
         o(tileZero.intersects(tileZero.subtract(tileMiddle))).equals(true);
         o(tileZero.intersects(tileZero.add(tileMiddle))).equals(true);
     });
+
+    o('fromQuadKey', () => {
+        assertBounds(Bounds.fromQuadKey('3113323113203'), new Bounds(174.067383, -39.300299, 0.043945, 0.034015));
+        assertBounds(Bounds.fromQuadKey('3'), new Bounds(0, -85.051129, 180, 85.051129));
+        assertBounds(Bounds.fromQuadKey(''), new Bounds(-180, -85.051129, 360, 170.102258));
+    });
+
+    o('containsPoint', () => {
+        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 5.5])).equals(true);
+
+        o(new Bounds(4, 5, 1, 1).containsPoint([4, 5.5])).equals(true);
+        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 5])).equals(true);
+        o(new Bounds(4, 5, 1, 1).containsPoint([5, 5.5])).equals(true);
+        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 6])).equals(true);
+
+        o(new Bounds(4, 5, 1, 1).containsPoint([3.9, 5.5])).equals(false);
+        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 6.1])).equals(false);
+        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 4.9])).equals(false);
+        o(new Bounds(4, 5, 1, 1).containsPoint([5.1, 5.5])).equals(false);
+    });
 });
