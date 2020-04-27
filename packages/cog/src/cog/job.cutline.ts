@@ -78,7 +78,7 @@ export class JobCutline {
      * @return the path of the cutline file
      */
     async writeCutline(target: string): Promise<string> {
-        await FileOperator.create(target).write(target, Buffer.from(JSON.stringify(this.toGeoJson())));
+        await FileOperator.create(target).writeJson(target, this.toGeoJson());
 
         return target;
     }
@@ -101,7 +101,7 @@ export class JobCutline {
      * @param path the path of the cutline to load. Can be `s3://` or local file path.
      */
     static async loadCutline(path: string, maxZoom: number): Promise<JobCutline> {
-        const geojson = JSON.parse((await FileOperator.create(path).read(path)).toString()) as FeatureCollection;
+        const geojson = (await FileOperator.create(path).readJson(path)) as FeatureCollection;
         return new JobCutline(geojson, maxZoom);
     }
 }

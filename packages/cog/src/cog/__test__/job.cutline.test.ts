@@ -49,7 +49,7 @@ o.spec('job.cutline', () => {
             const cutPath = await cutline.writeCutline(tmpFolder + '/cutline.geojson');
             const expPath = '/tmp/basemaps-123/cutline.geojson';
             o(cutPath).equals(expPath);
-            o(write.args).deepEquals([expPath, Buffer.from(JSON.stringify(cutline.toGeoJson()))]);
+            o(write.args).deepEquals([expPath, Buffer.from(JSON.stringify(cutline.toGeoJson(), null, 2))]);
         });
     });
 });

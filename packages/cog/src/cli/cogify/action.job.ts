@@ -212,26 +212,18 @@ export class ActionJobCreate extends CommandLineAction {
             }
 
             const jobFile = getJobPath(job, `job.json`);
-            await outputFs.write(jobFile, Buffer.from(JSON.stringify(job, null, 2)), logger);
+            await outputFs.writeJson(jobFile, job, logger);
 
             if (cutline != null) {
                 const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson`);
-                await outputFs.write(
-                    geoJsonCutlineOutput,
-                    Buffer.from(JSON.stringify(cutline.toGeoJson(), null, 2)),
-                    logger,
-                );
+                await outputFs.writeJson(geoJsonCutlineOutput, cutline.toGeoJson(), logger);
             }
 
             const geoJsonSourceOutput = getJobPath(job, `source.geojson`);
-            await outputFs.write(geoJsonSourceOutput, Buffer.from(JSON.stringify(metadata.bounds, null, 2)), logger);
+            await outputFs.writeJson(geoJsonSourceOutput, metadata.bounds, logger);
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
-            await outputFs.write(
-                geoJsonCoveringOutput,
-                Buffer.from(JSON.stringify(TileCover.toGeoJson(quadkeys), null, 2)),
-                logger,
-            );
+            await outputFs.writeJson(geoJsonCoveringOutput, TileCover.toGeoJson(quadkeys), logger);
 
             logger.info({ job: jobFile }, 'Done');
         } finally {

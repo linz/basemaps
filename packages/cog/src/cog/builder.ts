@@ -1,9 +1,9 @@
 import { EPSG, GeoJson, Projection } from '@basemaps/geo';
-import { LogType } from '@basemaps/lambda-shared';
+import { FileOperatorSimple, LogType } from '@basemaps/lambda-shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import pLimit, { Limit } from 'p-limit';
 import * as path from 'path';
 import { getProjection, guessProjection } from '../proj';
@@ -209,13 +209,13 @@ export class CogBuilder {
 
         if (existsSync(cacheKey)) {
             this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
-            return JSON.parse(readFileSync(cacheKey).toString()) as SourceMetadata;
+            return (await FileOperatorSimple.readJson(cacheKey)) as SourceMetadata;
         }
 
         const metadata = await this.bounds(tiffs);
 
         mkdirSync(CacheFolder, { recursive: true });
-        writeFileSync(cacheKey, JSON.stringify(metadata, null, 2));
+        await FileOperatorSimple.writeJson(cacheKey, metadata);
         this.logger.debug({ path: cacheKey }, 'MetadataCacheMiss');
 
         return metadata;

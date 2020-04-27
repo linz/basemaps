@@ -67,7 +67,7 @@ export class ActionCogCreate extends CommandLineAction {
         const jobFn = this.job?.value!;
 
         const inFp = FileOperator.create(jobFn);
-        const job = JSON.parse((await inFp.read(jobFn)).toString()) as CogJob;
+        const job = (await inFp.readJson(jobFn)) as CogJob;
         const processId = ulid.ulid();
 
         const isCommit = this.commit?.value ?? false;
@@ -93,9 +93,7 @@ export class ActionCogCreate extends CommandLineAction {
         const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${processId}`);
 
         try {
-            const sourceGeo = JSON.parse(
-                (await inFp.read(getJobPath(job, 'source.geojson'))).toString(),
-            ) as FeatureCollection;
+            const sourceGeo = (await inFp.readJson(getJobPath(job, 'source.geojson'))) as FeatureCollection;
 
             const vrtString = await outputFs.read(getJobPath(job, '.vrt'));
 

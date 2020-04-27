@@ -117,8 +117,7 @@ export class ActionBatchJob extends CommandLineAction {
             throw new Error('Failed to read parameters');
         }
         const region = Env.get('AWS_DEFAULT_REGION', 'ap-southeast-2');
-        const jobData = await FileOperator.create(this.job.value).read(this.job.value);
-        const job = JSON.parse(jobData.toString()) as CogJob;
+        const job = (await FileOperator.create(this.job.value).readJson(this.job.value)) as CogJob;
         const processId = ulid.ulid();
         const logger = LogConfig.get().child({ id: processId, correlationId: job.id, imageryName: job.name });
         LogConfig.set(logger);
