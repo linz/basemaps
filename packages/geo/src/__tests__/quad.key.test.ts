@@ -93,6 +93,12 @@ o.spec('QuadKey', () => {
         o(QuadKey.toBbox('31021')).deepEquals([101.25, -31.95216223802496, 112.5, -21.943045533438177]);
     });
 
+    o('toXYZ', () => {
+        o(QuadKey.toXYZ('')).deepEquals([0, 0, 0]);
+        o(QuadKey.toXYZ('31')).deepEquals([3, 2, 2]);
+        o(QuadKey.toXYZ('31021')).deepEquals([25, 18, 5]);
+    });
+
     o('compareKeys', () => {
         o(QuadKey.compareKeys('3201', '33')).equals(2);
         o(QuadKey.compareKeys('33', '3201')).equals(-2);

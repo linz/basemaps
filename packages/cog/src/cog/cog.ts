@@ -1,7 +1,8 @@
+import { QuadKey } from '@basemaps/geo';
 import { Aws, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
-import * as Mercator from 'global-mercator';
 import { GdalCogBuilder } from '../gdal/gdal';
 import { getResample } from '../gdal/gdal.config';
+import { Wgs84ToGoogle } from '../proj';
 import { CogJob } from './types';
 
 /**
@@ -47,12 +48,18 @@ export async function buildCogForQuadKey(
     execute = false,
 ): Promise<void> {
     const startTime = Date.now();
-    const google = Mercator.quadkeyToGoogle(quadKey);
-    const [minX, maxY, maxX, minY] = Mercator.googleToBBoxMeters(google);
-    const alignmentLevels = job.source.resolution - google[2];
+
+    const bbox = QuadKey.toBbox(quadKey);
+    const { forward } = Wgs84ToGoogle;
+    const [east, north] = forward(bbox.slice(0, 2));
+    const [west, south] = forward(bbox.slice(2));
+
+    const [x, y, z] = QuadKey.toXYZ(quadKey);
+
+    const alignmentLevels = job.source.resolution - z;
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
-        bbox: [minX, minY, maxX, maxY],
+        bbox: [east, south, west, north],
         alignmentLevels,
         resampling: getResample(job.output.resample),
     });
@@ -66,7 +73,7 @@ export async function buildCogForQuadKey(
         {
             imageSize: getTileSize(quadKey, job.source.resolution),
             quadKey,
-            tile: { x: google[0], y: google[1], z: google[2] },
+            tile: { x, y, z },
             alignmentLevels,
         },
         'CreateCog',

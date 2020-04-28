@@ -50,6 +50,7 @@ o.spec('Projection', () => {
         o(Projection.parseEpsgString('epsg:4326')).equals(EPSG.Wgs84);
         o(Projection.parseEpsgString('4326')).equals(EPSG.Wgs84);
 
+        o(Projection.parseEpsgString('NZGD_2000')).equals(EPSG.Nztm);
         o(Projection.parseEpsgString('nztm')).equals(EPSG.Nztm);
         o(Projection.parseEpsgString('epsg:2193')).equals(EPSG.Nztm);
         o(Projection.parseEpsgString('2193')).equals(EPSG.Nztm);

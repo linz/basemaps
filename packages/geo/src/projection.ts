@@ -27,6 +27,7 @@ const EPSGTextMap: Record<string, EPSG> = {
     nztm: EPSG.Nztm,
     epsg2193: EPSG.Nztm,
     '2193': EPSG.Nztm,
+    nzgd2000: EPSG.Nztm,
 };
 
 export class Projection {
