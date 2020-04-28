@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { EPSG, QuadKey, TileCover } from '@basemaps/geo';
 import { FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/lambda-shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
@@ -13,13 +13,12 @@ import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../../cog/builder';
-import { CogJob, getTileSize } from '../../cog/cog';
+import { getTileSize } from '../../cog/cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog/cog.vrt';
-import { TileCover } from '../../cog/cover';
+import { JobCutline } from '../../cog/job.cutline';
+import { CogJob } from '../../cog/types';
 import { getResample } from '../../gdal/gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';
-
-const ProcessId = ulid.ulid();
 
 function filterTiff(a: string): boolean {
     const lowerA = a.toLowerCase();
@@ -65,6 +64,7 @@ export class ActionJobCreate extends CommandLineAction {
     private resample?: CommandLineStringParameter;
     private cutline?: CommandLineStringParameter;
     private cutlineBlend?: CommandLineIntegerParameter;
+    private overrideId?: CommandLineStringParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -102,7 +102,9 @@ export class ActionJobCreate extends CommandLineAction {
     async onExecute(): Promise<void> {
         const imageryName = basename(this.source?.path.value ?? '').replace(/\./g, '-'); // batch does not allow '.' in names
 
-        const logger = LogConfig.get().child({ id: ProcessId, imageryName });
+        const processId = this.overrideId?.value ?? ulid.ulid();
+
+        const logger = LogConfig.get().child({ id: processId, imageryName });
         LogConfig.set(logger);
 
         // Make typescript happy with all the undefined
@@ -133,15 +135,16 @@ export class ActionJobCreate extends CommandLineAction {
 
         logger.info({ source: this.source.path.value, tiffCount: tiffList.length }, 'LoadingTiffs');
 
-        const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom);
-        const metadata = await builder.build(tiffSource, logger);
+        const cutlinePath = this.cutline?.value;
+        const cutline = cutlinePath == null ? new JobCutline() : await JobCutline.loadCutline(cutlinePath, minZoom);
 
-        // Don't log bounds as it is huge
-        logger.info({ ...metadata, bounds: undefined }, 'CoveringGenerated');
+        const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom, logger);
+        const metadata = await builder.build(tiffSource, cutline);
 
-        if (metadata.covering.length > 0) {
-            const firstQk = metadata.covering[0];
-            const lastQk = metadata.covering[metadata.covering.length - 1];
+        const quadkeys = metadata.covering.toList().sort(QuadKey.compareKeys);
+        if (quadkeys.length > 0) {
+            const firstQk = quadkeys[0];
+            const lastQk = quadkeys[quadkeys.length - 1];
             logger.info(
                 {
                     // Size of the biggest image
@@ -152,6 +155,12 @@ export class ActionJobCreate extends CommandLineAction {
                 'Covers',
             );
         }
+
+        // Don't log bounds as it is huge
+        logger.info(
+            { ...metadata, bounds: undefined, covering: undefined, quadkeys: quadkeys.join(' ') },
+            'CoveringGenerated',
+        );
 
         const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist
@@ -166,14 +175,13 @@ export class ActionJobCreate extends CommandLineAction {
             vrtOptions.forceEpsg3857 = false;
         }
         const job: CogJob = {
-            id: ProcessId,
+            id: processId,
             name: imageryName,
             projection: EPSG.Google,
             output: {
                 ...outputConfig,
                 resample: getResample(this.resample?.value),
-                cutline: this.cutline?.value,
-                cutlineBlend: this.cutlineBlend?.value,
+                cutlineBlend: cutline != null ? this.cutlineBlend?.value ?? 0 : undefined,
                 nodata: metadata.nodata,
                 vrt: {
                     options: vrtOptions,
@@ -185,7 +193,7 @@ export class ActionJobCreate extends CommandLineAction {
                 files: tiffList,
                 options: { maxConcurrency, maxCogs, minZoom },
             },
-            quadkeys: metadata.covering,
+            quadkeys,
         };
 
         const tmpFolder = await makeTempFolder(`basemaps-${job.id}`);
@@ -203,17 +211,18 @@ export class ActionJobCreate extends CommandLineAction {
             }
 
             const jobFile = getJobPath(job, `job.json`);
-            await outputFs.write(jobFile, Buffer.from(JSON.stringify(job, null, 2)), logger);
+            await outputFs.writeJson(jobFile, job, logger);
+
+            if (cutline != null) {
+                const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson`);
+                await outputFs.writeJson(geoJsonCutlineOutput, cutline.toGeoJson(), logger);
+            }
 
             const geoJsonSourceOutput = getJobPath(job, `source.geojson`);
-            await outputFs.write(geoJsonSourceOutput, Buffer.from(JSON.stringify(metadata.bounds, null, 2)), logger);
+            await outputFs.writeJson(geoJsonSourceOutput, metadata.bounds, logger);
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
-            await outputFs.write(
-                geoJsonCoveringOutput,
-                Buffer.from(JSON.stringify(TileCover.toGeoJson(metadata.covering), null, 2)),
-                logger,
-            );
+            await outputFs.writeJson(geoJsonCoveringOutput, TileCover.toGeoJson(quadkeys), logger);
 
             logger.info({ job: jobFile }, 'Done');
         } finally {
@@ -274,6 +283,13 @@ export class ActionJobCreate extends CommandLineAction {
             argumentName: 'CUTLINE_BLEND',
             parameterLongName: '--cblend',
             description: 'Set a blend distance to use to blend over cutlines (in pixels)',
+            required: false,
+        });
+
+        this.overrideId = this.defineStringParameter({
+            argumentName: 'OVERRIDE_ID',
+            parameterLongName: '--override-id',
+            description: 'used mainly for debugging to create with a pre determined job id',
             required: false,
         });
     }

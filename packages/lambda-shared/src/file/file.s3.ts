@@ -71,6 +71,10 @@ export class FileOperatorS3 implements FileProcessor {
         return res.Body as Buffer;
     }
 
+    async readJson(filePath: string): Promise<any> {
+        return JSON.parse((await this.read(filePath)).toString());
+    }
+
     async write(filePath: string, buf: Buffer | Stream, logger?: LogType): Promise<void> {
         const opts = FileOperatorS3.parse(filePath);
         await this.s3
@@ -80,6 +84,10 @@ export class FileOperatorS3 implements FileProcessor {
                 logger?.debug({ progress, size: evt.total, ...opts }, 'UploadProgress');
             })
             .promise();
+    }
+
+    writeJson(filePath: string, obj: any, logger?: LogType): Promise<void> {
+        return this.write(filePath, Buffer.from(JSON.stringify(obj, undefined, 2)), logger);
     }
 
     async exists(filePath: string): Promise<boolean> {

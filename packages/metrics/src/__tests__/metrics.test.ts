@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Metrics } from '../metrics';
 import * as o from 'ospec';
 

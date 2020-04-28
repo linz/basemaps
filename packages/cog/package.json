@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc",
     "deploy:bundle": "ncc build build/cli/cogify/index.js -o dist -s",
-    "test": "ospec build/**/*.test.js"
+    "test": "ospec build/**/*.test.js --preload ../../test-support.js"
   },
   "dependencies": {
     "@basemaps/geo": "1.2.0",
@@ -23,7 +23,6 @@
     "@cogeotiff/source-aws": "^1.0.3",
     "@cogeotiff/source-file": "^1.0.3",
     "@cogeotiff/source-url": "^1.0.3",
-    "@mapbox/tile-cover": "^3.0.2",
     "@turf/turf": "^5.1.6",
     "chalk": "^4.0.0",
     "p-limit": "^2.2.1",

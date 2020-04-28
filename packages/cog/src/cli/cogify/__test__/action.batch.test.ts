@@ -1,7 +1,5 @@
-import 'source-map-support/register';
-
 import * as o from 'ospec';
-import { CogJob } from '../../../cog/cog';
+import { CogJob } from '../../../cog/types';
 import { extractResolutionFromName, extractYearFromName, createImageryRecordFromJob } from '../action.batch';
 
 o.spec('action.cog', () => {

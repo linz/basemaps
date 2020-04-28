@@ -1,5 +1,3 @@
-import 'source-map-support/register';
-
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { readFileSync, writeFileSync } from 'fs';
@@ -99,7 +97,8 @@ o.spec('TileCreation', () => {
         o(`should render a tile zoom:${zoom} tile: ${tileSize}`, async () => {
             o.timeout(30 * 1000);
 
-            console.time(`Render zoom:${zoom} size:${tileSize}`);
+            const timeStr = `RenderTests: zoom ${zoom}, Size ${tileSize}, time`;
+            console.time(timeStr);
             const center = 2 ** zoom;
             const centerTile = center / 2;
             const tiler = new Tiler(tileSize);
@@ -129,7 +128,7 @@ o.spec('TileCreation', () => {
                 writeFileSync(fileName, PNG.sync.write(output));
             }
             o(missMatchedPixels).equals(0);
-            console.timeEnd(`Render zoom:${zoom} size:${tileSize}`);
+            console.timeEnd(timeStr);
         });
     });
 });

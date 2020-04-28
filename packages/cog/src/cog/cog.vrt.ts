@@ -1,7 +1,8 @@
 import { EPSG, Projection } from '@basemaps/geo';
 import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
-import { CogJob, onProgress } from './cog';
+import { onProgress } from './cog';
 import { GdalCogBuilder } from '../gdal/gdal';
+import { CogJob } from './types';
 
 export interface VrtOptions {
     /** Vrts will add a second alpha layer if one exists, so dont always add one */
@@ -97,9 +98,9 @@ export async function buildWarpedVrt(
         vrtPath,
         vrtWarpedPath,
     ];
-    if (job.output.cutline != null) {
-        warpOpts.push('-cutline', job.output.cutline);
-        const cutlineBlend = job.output.cutlineBlend ?? 0;
+    const { cutlineBlend } = job.output;
+    if (cutlineBlend != null) {
+        warpOpts.push('-cutline', FileOperator.join(tmpTarget, 'cutline.geojson'));
         if (cutlineBlend != 0) warpOpts.push('-cblend', String(cutlineBlend));
     }
     if (job.output.nodata != null) {

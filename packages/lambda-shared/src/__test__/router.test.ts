@@ -4,7 +4,6 @@ import { Router } from '../router';
 import * as o from 'ospec';
 import { LogConfig } from '../log';
 
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('router', () => {
     function makeContext(httpMethod: string, path: string): LambdaContext {
         return new LambdaContext({ path, httpMethod } as any, LogConfig.get());

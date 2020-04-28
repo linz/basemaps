@@ -42,6 +42,17 @@ o.spec('QuadKey', () => {
         o(QuadKey.parent('3001')).equals('300');
     });
 
+    o('containsPoint', () => {
+        o(QuadKey.containsPoint('31311', [174, -41])).equals(true);
+        o(QuadKey.containsPoint('313110', [174, -41])).equals(true);
+        o(QuadKey.containsPoint('31310', [174, -41])).equals(false);
+    });
+
+    o('pointToQuadKey', () => {
+        o(QuadKey.pointToQuadKey([174, -41], 5)).equals('31311');
+        o(QuadKey.pointToQuadKey([-174, -41], 7)).equals('2020010');
+    });
+
     o.spec('simplify', () => {
         o('should simplify children', () => {
             o(QuadKey.simplify(QuadKey.children('31'))).deepEquals(['31']);
@@ -74,6 +85,20 @@ o.spec('QuadKey', () => {
                 ]),
             ).deepEquals(['3']);
         });
+    });
+
+    o('toBbox', () => {
+        o(QuadKey.toBbox('')).deepEquals([-180, -85.0511287798066, 180, 85.0511287798066]);
+        o(QuadKey.toBbox('31')).deepEquals([90, -66.51326044311186, 180, 0]);
+        o(QuadKey.toBbox('31021')).deepEquals([101.25, -31.95216223802496, 112.5, -21.943045533438177]);
+    });
+
+    o('compareKeys', () => {
+        o(QuadKey.compareKeys('3201', '33')).equals(2);
+        o(QuadKey.compareKeys('33', '3201')).equals(-2);
+        o(QuadKey.compareKeys('33', '33')).equals(0);
+        o(QuadKey.compareKeys('31', '33')).equals(-1);
+        o(QuadKey.compareKeys('31', '22')).equals(1);
     });
 
     o.spec('covering percent', () => {

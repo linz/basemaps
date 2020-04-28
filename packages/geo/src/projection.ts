@@ -1,5 +1,5 @@
 import { Bounds, Point } from './bounds';
-import * as Mercator from 'global-mercator';
+import { tileToQuadkey, tileToBBOX } from '@mapbox/tilebelt';
 
 export interface LatLon {
     lat: number;
@@ -68,7 +68,7 @@ export class Projection {
      * @param zoom WebMercator zoom level
      */
     public getQuadKeyFromTile(tX: number, tY: number, zoom: number): string {
-        return Mercator.googleToQuadkey([tX, tY, zoom]);
+        return tileToQuadkey([tX, tY, zoom]);
     }
     /**
      * Convert a XYZ tile into the raster bounds for the tile
@@ -90,7 +90,7 @@ export class Projection {
      * @param zoom WebMercator zoom level
      */
     public getLatLonCenterFromTile(tX: number, tY: number, zoom: number): LatLon {
-        const [minX, minY, maxX, maxY] = Mercator.googleToBBox([tX, tY, zoom]);
+        const [minX, minY, maxX, maxY] = tileToBBOX([tX, tY, zoom]);
         return {
             lat: (maxY + minY) / 2,
             lon: (maxX + minX) / 2,
