@@ -1,5 +1,5 @@
 import * as o from 'ospec';
-import { getProjection } from '../index';
+import { getProjection, Wgs84ToGoogle } from '../index';
 
 function toFixed(f: number): string {
     return f.toFixed(6);
@@ -16,5 +16,9 @@ o.spec('Proj2193', () => {
 
         const reverse = Proj2193.forward(output);
         o(reverse.map((f) => Math.floor(f))).deepEquals([1180000.0, 4758000.0]);
+    });
+
+    o('Wgs84ToGoogle', () => {
+        o(Wgs84ToGoogle.forward([167.454458, -47.1970753])).deepEquals([18640944.995623615, -5974301.313247106]);
     });
 });

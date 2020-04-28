@@ -6,7 +6,7 @@ import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import pLimit, { Limit } from 'p-limit';
 import * as path from 'path';
-import { getProjection, guessProjection } from '../proj';
+import { getProjection } from '../proj';
 import { Covering } from './covering';
 import { JobCutline } from './job.cutline';
 import { CogBuilderMetadata, SourceMetadata } from './types';
@@ -134,7 +134,7 @@ export class CogBuilder {
         }
 
         const imgWkt = image.value(TiffTag.GeoAsciiParams);
-        projection = guessProjection(imgWkt) as number;
+        projection = Projection.parseEpsgString(imgWkt) as number;
         if (projection) {
             this.logger.trace({ tiff: tiff.source.name, imgWkt, projection }, 'GuessingProjection from GeoAsciiParams');
             return projection;
