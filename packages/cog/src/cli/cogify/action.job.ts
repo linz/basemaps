@@ -1,4 +1,4 @@
-import { EPSG, QuadKey } from '@basemaps/geo';
+import { EPSG, QuadKey, TileCover } from '@basemaps/geo';
 import { FileConfig, FileOperator, FileOperatorS3, LogConfig } from '@basemaps/lambda-shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
@@ -16,7 +16,6 @@ import { CogBuilder } from '../../cog/builder';
 import { getTileSize } from '../../cog/cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog/cog.vrt';
 import { JobCutline } from '../../cog/job.cutline';
-import { TileCover } from '../../cog/tile.cover';
 import { CogJob } from '../../cog/types';
 import { getResample } from '../../gdal/gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';

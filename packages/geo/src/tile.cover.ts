@@ -1,5 +1,6 @@
-import { GeoJson, QuadKey } from '@basemaps/geo';
 import * as MapBoxCover from '@mapbox/tile-cover';
+import { GeoJson } from './geo.json';
+import { QuadKey } from './quad.key';
 
 export const TileCover = {
     /**
@@ -9,7 +10,7 @@ export const TileCover = {
      * @param maxZoom Highest zoom level of tile to use
      * @param maxTiles Max number of tiles to be a "valid" covering
      */
-    cover(polygons: GeoJSON.Geometry, minZoom = 2, maxZoom = 13): string[] {
+    cover(polygons: GeoJSON.Geometry, minZoom: number, maxZoom: number): string[] {
         /* eslint-disable @typescript-eslint/camelcase */
         return MapBoxCover.indexes(polygons, { min_zoom: minZoom, max_zoom: maxZoom });
     },

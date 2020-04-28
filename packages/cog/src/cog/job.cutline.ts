@@ -1,7 +1,6 @@
-import { Bounds, EPSG, GeoJson, Projection, QuadKeyTrie } from '@basemaps/geo';
+import { Bounds, EPSG, GeoJson, Projection, QuadKeyTrie, TileCover } from '@basemaps/geo';
 import { FileOperator } from '@basemaps/lambda-shared';
 import { Feature, FeatureCollection, Polygon, Position } from 'geojson';
-import { TileCover } from './tile.cover';
 
 function findGeoJsonProjection(geojson: any | null): EPSG {
     return Projection.parseEpsgString(geojson?.crs?.properties?.name ?? '') ?? EPSG.Wgs84;

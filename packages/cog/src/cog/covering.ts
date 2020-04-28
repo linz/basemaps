@@ -1,5 +1,4 @@
-import { GeoJson, QuadKey, QuadKeyTrie } from '@basemaps/geo';
-import * as MapBoxCover from '@mapbox/tile-cover';
+import { GeoJson, QuadKey, QuadKeyTrie, TileCover } from '@basemaps/geo';
 import { JobCutline } from './job.cutline';
 import { SourceMetadata } from './types';
 
@@ -13,14 +12,11 @@ export const Covering = {
      */
     optimize(sourceMetadata: SourceMetadata, cutline: JobCutline, maxZoom = 13, maxTiles = 25): QuadKeyTrie {
         const featureCollection = sourceMetadata.bounds;
-        /* eslint-disable @typescript-eslint/camelcase */
-        const limits = { min_zoom: 1, max_zoom: maxZoom };
 
         const searchGeom: GeoJSON.MultiPolygon = GeoJson.toMultiPolygon(featureCollection.features);
 
         for (let i = maxZoom; i >= 1; i--) {
-            limits.max_zoom = i;
-            let covering = MapBoxCover.indexes(searchGeom, limits);
+            let covering = TileCover.cover(searchGeom, 1, i);
             // Remove invalid tiles
             covering = covering
                 .filter((f) => f != '')
