@@ -1,6 +1,5 @@
 import { Env } from '../const';
 import * as o from 'ospec';
-import 'source-map-support/register';
 
 o.spec('Environment', () => {
     o('should load a number from environment var', () => {

@@ -5,7 +5,6 @@ import { LambdaContext } from '../lambda.context';
 import { ImageFormat } from '@basemaps/tiler';
 import { LogConfig } from '../log';
 
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('api.path', () => {
     function makeContext(path: string): LambdaContext {
         return new LambdaContext({ path } as any, LogConfig.get());

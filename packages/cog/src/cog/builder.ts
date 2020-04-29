@@ -1,56 +1,40 @@
 import { EPSG, GeoJson, Projection } from '@basemaps/geo';
-import { LogType } from '@basemaps/lambda-shared';
+import { FileOperatorSimple, LogType } from '@basemaps/lambda-shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import pLimit, { Limit } from 'p-limit';
 import * as path from 'path';
-import { TileCover } from './cover';
-import { getProjection, guessProjection } from '../proj';
+import { getProjection } from '../proj';
+import { Covering } from './covering';
+import { JobCutline } from './job.cutline';
+import { CogBuilderMetadata, SourceMetadata } from './types';
 
-export interface CogBuilderMetadata extends CogBuilderBounds {
-    /** Quadkey indexes for the covering tiles */
-    covering: string[];
-}
-
-export interface CogBuilderBounds {
-    /** Number of imagery bands generally RGB (3) or RGBA (4) */
-    bands: number;
-    /** Bounding box for polygons */
-    bounds: GeoJSON.FeatureCollection;
-    /** Lowest quality resolution of image */
-    resolution: number;
-
-    /** EPSG projection number */
-    projection: number;
-
-    /** GDAL_NODATA value */
-    nodata?: number;
-}
 export const InvalidProjectionCode = 32767;
 export const CacheFolder = './.cache';
 export const proj256 = new Projection(256);
 export class CogBuilder {
     q: Limit;
-    cover: TileCover;
     maxTileCount: number;
     maxTileZoom: number;
+    logger: LogType;
 
     /**
      * @param concurrency number of requests to run at a time
      */
-    constructor(concurrency: number, tileCountMax = 25, tileZoomMax = 13) {
+    constructor(concurrency: number, maxTileCount = 25, maxTileZoom = 13, logger: LogType) {
+        this.maxTileCount = maxTileCount;
+        this.maxTileZoom = maxTileZoom;
+        this.logger = logger;
         this.q = pLimit(concurrency);
-        this.maxTileCount = tileCountMax;
-        this.maxTileZoom = tileZoomMax;
     }
 
     /**
      * Get the source bounds a collection of tiffs
      * @param tiffs
      */
-    async bounds(sources: CogSource[], logger: LogType): Promise<CogBuilderBounds> {
+    async bounds(sources: CogSource[]): Promise<SourceMetadata> {
         let resolution = -1;
         let bands = -1;
         let projection: number | undefined;
@@ -60,7 +44,7 @@ export class CogBuilder {
             return this.q(async () => {
                 count++;
                 if (count % 50 == 0) {
-                    logger.info({ count, total: sources.length }, 'BoundsProgress');
+                    this.logger.info({ count, total: sources.length }, 'BoundsProgress');
                 }
                 const tiff = new CogTiff(source);
                 await tiff.init(true);
@@ -74,15 +58,15 @@ export class CogBuilder {
                     bands = tiffBandCount.length;
                 }
 
-                const output = await this.getTifBounds(tiff, logger);
+                const output = await this.getTifBounds(tiff);
                 if (CogSourceFile.isSource(source)) {
                     await source.close();
                 }
 
-                const imageProjection = this.findProjection(tiff, logger);
+                const imageProjection = this.findProjection(tiff);
                 if (imageProjection != null && projection != imageProjection) {
                     if (projection != null) {
-                        logger.error(
+                        this.logger.error(
                             {
                                 firstImage: sources[0].name,
                                 projection,
@@ -96,7 +80,7 @@ export class CogBuilder {
                     projection = imageProjection;
                 }
 
-                const tiffNoData = this.findNoData(tiff, logger);
+                const tiffNoData = this.findNoData(tiff);
                 if (tiffNoData != null && tiffNoData != nodata) {
                     if (nodata != null) throw new Error('Multiple No Data values');
                     nodata = tiffNoData;
@@ -141,7 +125,7 @@ export class CogBuilder {
         return z;
     }
 
-    findProjection(tiff: CogTiff, logger: LogType): EPSG {
+    findProjection(tiff: CogTiff): EPSG {
         const image = tiff.getImage(0);
 
         let projection = image.valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
@@ -150,13 +134,13 @@ export class CogBuilder {
         }
 
         const imgWkt = image.value(TiffTag.GeoAsciiParams);
-        projection = guessProjection(imgWkt) as number;
+        projection = Projection.parseEpsgString(imgWkt) as number;
         if (projection) {
-            logger.trace({ tiff: tiff.source.name, imgWkt, projection }, 'GuessingProjection from GeoAsciiParams');
+            this.logger.trace({ tiff: tiff.source.name, imgWkt, projection }, 'GuessingProjection from GeoAsciiParams');
             return projection;
         }
 
-        logger.error({ tiff: tiff.source.name }, 'Failed find projection');
+        this.logger.error({ tiff: tiff.source.name }, 'Failed find projection');
         throw new Error('Failed to find projection');
     }
 
@@ -165,7 +149,7 @@ export class CogBuilder {
      * @param tiff
      * @param logger
      */
-    findNoData(tiff: CogTiff, logger: LogType): number | null {
+    findNoData(tiff: CogTiff): number | null {
         const noData: string = tiff.getImage(0).value(TiffTag.GDAL_NODATA);
         if (noData == null) {
             return null;
@@ -174,7 +158,7 @@ export class CogBuilder {
         const noDataNum = parseInt(noData);
 
         if (isNaN(noDataNum) || noDataNum < 0 || noDataNum > 256) {
-            logger.fatal({ tiff: tiff.source.name, noData }, 'Failed converting GDAL_NODATA, defaulting to 255');
+            this.logger.fatal({ tiff: tiff.source.name, noData }, 'Failed converting GDAL_NODATA, defaulting to 255');
             throw new Error(`Invalid GDAL_NODATA: ${noData}`);
         }
 
@@ -185,7 +169,7 @@ export class CogBuilder {
      * Generate the bounding boxes for a GeoTiff converting to WGS84
      * @param tiff
      */
-    async getTifBounds(tiff: CogTiff, logger: LogType): Promise<GeoJSON.Feature> {
+    async getTifBounds(tiff: CogTiff): Promise<GeoJSON.Feature> {
         const image = tiff.getImage(0);
         const bbox = image.bbox;
         const topLeft = [bbox[0], bbox[3]];
@@ -193,10 +177,10 @@ export class CogBuilder {
         const bottomRight = [bbox[2], bbox[1]];
         const bottomLeft = [bbox[0], bbox[1]];
 
-        const projection = this.findProjection(tiff, logger);
+        const projection = this.findProjection(tiff);
         const projProjection = getProjection(projection);
         if (projProjection == null) {
-            logger.error({ tiff: tiff.source.name }, 'Failed to get tiff projection');
+            this.logger.error({ tiff: tiff.source.name }, 'Failed to get tiff projection');
             throw new Error('Invalid tiff projection: ' + projection);
         }
 
@@ -214,7 +198,7 @@ export class CogBuilder {
     }
 
     /** Cache the bounds lookup so we do not have to requery the bounds between CLI calls */
-    private async getMetadata(tiffs: CogSource[], logger: LogType): Promise<CogBuilderBounds> {
+    private async getMetadata(tiffs: CogSource[]): Promise<SourceMetadata> {
         const cacheKey =
             path.join(
                 CacheFolder,
@@ -224,15 +208,15 @@ export class CogBuilder {
             ) + '.json';
 
         if (existsSync(cacheKey)) {
-            logger.debug({ path: cacheKey }, 'MetadataCacheHit');
-            return JSON.parse(readFileSync(cacheKey).toString()) as CogBuilderBounds;
+            this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
+            return (await FileOperatorSimple.readJson(cacheKey)) as SourceMetadata;
         }
 
-        const metadata = await this.bounds(tiffs, logger);
+        const metadata = await this.bounds(tiffs);
 
         mkdirSync(CacheFolder, { recursive: true });
-        writeFileSync(cacheKey, JSON.stringify(metadata, null, 2));
-        logger.debug({ path: cacheKey }, 'MetadataCacheMiss');
+        await FileOperatorSimple.writeJson(cacheKey, metadata);
+        this.logger.debug({ path: cacheKey }, 'MetadataCacheMiss');
 
         return metadata;
     }
@@ -242,14 +226,9 @@ export class CogBuilder {
      * @param tiffs list of tiffs to be generated
      * @returns List of QuadKey indexes for
      */
-    async build(tiffs: CogSource[], logger: LogType): Promise<CogBuilderMetadata> {
-        const metadata = await this.getMetadata(tiffs, logger);
-        const covering = TileCover.cover(
-            metadata.bounds,
-            1,
-            Math.min(this.maxTileZoom, metadata.resolution - 2),
-            this.maxTileCount,
-        );
+    async build(tiffs: CogSource[], cutline: JobCutline): Promise<CogBuilderMetadata> {
+        const metadata = await this.getMetadata(tiffs);
+        const covering = Covering.optimize(metadata, cutline, this.maxTileZoom, this.maxTileCount);
         return { ...metadata, covering };
     }
 }

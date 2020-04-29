@@ -1,6 +1,5 @@
 import { Env, LambdaContext, LogConfig } from '@basemaps/lambda-shared';
 import * as o from 'ospec';
-import 'source-map-support/register';
 import { handleRequest } from '../index';
 
 o.spec('LambdaXyz index', () => {

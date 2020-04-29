@@ -3,7 +3,6 @@ import { VNodeParser } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import * as o from 'ospec';
-import 'source-map-support/register';
 import { handleRequest } from '../index';
 import { Tilers } from '../tiler';
 import { EPSG } from '@basemaps/geo';

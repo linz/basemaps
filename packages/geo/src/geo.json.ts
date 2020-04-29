@@ -35,20 +35,38 @@ export const GeoJson = {
     },
 
     /**
+     * Create a feature mult-polygon
+     */
+    toFeatureMultiPolygon(coordinates: GeoJSON.Position[][][], properties = {}): GeoJSON.Feature {
+        return {
+            type: 'Feature',
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates,
+            },
+            properties,
+        };
+    },
+
+    /**
      * Convert polygons inside features to one MultiPolygon
      *
      * **This only converts Polygon or MultiPolygon**
      *
      * @param features list of features to convert
+     * @param removeHoles remove any holes in the polygons
      */
-    toMultiPolygon(features: GeoJSON.Feature[]): GeoJSON.MultiPolygon {
-        let coordinates: GeoJSON.Position[][][] = [];
+    toMultiPolygon(features: GeoJSON.Feature[], removeHoles = false): GeoJSON.MultiPolygon {
+        const coordinates: GeoJSON.Position[][][] = [];
         for (const feature of features) {
             if (feature.geometry.type == 'Polygon') {
-                coordinates.push(feature.geometry.coordinates);
+                const poly = feature.geometry.coordinates;
+                coordinates.push(removeHoles ? [poly[0]] : poly);
             }
             if (feature.geometry.type == 'MultiPolygon') {
-                coordinates = coordinates.concat(feature.geometry.coordinates);
+                for (const poly of feature.geometry.coordinates) {
+                    coordinates.push(removeHoles ? [poly[0]] : poly);
+                }
             }
         }
 

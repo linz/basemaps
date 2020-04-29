@@ -10,7 +10,7 @@
     "@basemaps/lambda-shared": "^1.2.0"
   },
   "scripts": {
-    "test": "ospec build/**/*.test.js",
+    "test": "ospec build/**/*.test.js --preload ../../test-support.js",
     "deploy:bundle": "webpack"
   },
   "devDependencies": {
