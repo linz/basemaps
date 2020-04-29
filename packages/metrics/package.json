@@ -7,7 +7,7 @@
   "main": "./build/metrics.js",
   "types": "./build/metrics.d.ts",
   "scripts": {
-    "test": "ospec build/**/*.test.js --preload ../../test-support.js"
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../test-support.js"
   },
   "publishConfig": {
     "access": "public"

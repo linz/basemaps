@@ -108,5 +108,3 @@ o.spec('TileSetUpdateAction', () => {
         });
     });
 });
-
-o.run();

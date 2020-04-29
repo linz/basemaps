@@ -16,7 +16,7 @@
     "sharp": "^0.25.2"
   },
   "scripts": {
-    "test": "ospec build/**/*.test.js --preload ../../test-support.js",
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../test-support.js",
     "deploy:bundle": "./bundle.sh"
   },
   "devDependencies": {
