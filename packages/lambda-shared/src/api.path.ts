@@ -10,6 +10,8 @@ export interface ActionData {
 
 export enum TileSetType {
     aerial = 'aerial',
+    aerialHead = 'aerial@head',
+    aerialBeta = 'aerial@beta',
 }
 
 export enum TileType {
@@ -37,6 +39,8 @@ export interface TileDataWmts {
 
 const TileSets: Record<string, TileSetType> = {
     aerial: TileSetType.aerial,
+    'aerial@head': TileSetType.aerialHead,
+    'aerial@beta': TileSetType.aerialBeta,
 };
 
 function tileXyzFromPath(path: string[], tileSet: TileSetType): TileData | null {

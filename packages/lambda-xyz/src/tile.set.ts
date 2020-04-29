@@ -42,7 +42,8 @@ export class TileSet {
     }
 
     get id(): string {
-        return `${this.name}_${this.projection}`;
+        if (this.tag == TileSetTag.Production) return `${this.name}_${this.projection}`;
+        return `${this.name}@${this.tag}_${this.projection}`;
     }
 
     async load(): Promise<void> {

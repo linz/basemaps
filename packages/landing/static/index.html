@@ -1,103 +1,110 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.0.1/css/ol.css" type="text/css">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <style>
-        body {
-            margin: 0
-        }
-
-        .map {
-            height: 100vh;
-            width: 100%;
-            position: fixed;
-        }
-
-        #zoom {
-            width: 25px;
-            height: 25px;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.0.1/build/ol.js"></script>
-    <title>Basemaps | Land Information New Zealand (LINZ)</title>
-</head>
-
-<body>
-    <div id="map" class="map"></div>
-    <div id="debug" class="ol-control ol-unselectable" style="top: 4.5em; left: .5em; z-index: 900;">
-        <button id="zoom" title="Current zoom level"></button>
-    </div>
-
-    <script type="text/javascript">
-        const basemapLayer = new ol.layer.Tile({
-            source: new ol.source.XYZ({
-                url: '/v1/tiles/aerial/3857/{z}/{x}/{y}.png?api=SZguJbyxMjMZqZ0A7SoTAyF3Y6g8Otdd'
-            })
-        })
-
-        let center = ol.proj.fromLonLat([174.7763921, -41.277848]);
-        let zoom = 8
-        if (window.location.hash) {
-            const hash = window.location.hash.replace('#@', '');
-            const [latS, lonS, zoomS] = hash.split(',');
-            const newCenter = ol.proj.fromLonLat([parseFloat(lonS), parseFloat(latS)]);
-            if (!isNaN(newCenter[0]) && !isNaN(newCenter[1])) {
-                center = newCenter;
-            }
-            const newZoom = parseFloat((zoomS || '').substr(1))
-            if (!isNaN(newZoom)) {
-                zoom = newZoom;
-            }
-        }
-
-        const map = new ol.Map({
-            target: 'map',
-            layers: [basemapLayer],
-            view: new ol.View({
-                center,
-                zoom
-            })
-        });
-
-        let lastZoom = 0;
-        let updateTimer = null;
-
-        function updateDebug() {
-            const properties = map.getProperties();
-            if (properties == null) {
-                return
-            }
-            if (updateTimer == null) {
-                updateTimer = setTimeout(updateUrl, 1000);
-            }
-            const zoom = Math.round(properties.view.getZoom())
-            if (zoom == lastZoom) {
-                return;
+    <head>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.0.1/css/ol.css"
+            type="text/css"
+        />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <style>
+            body {
+                margin: 0;
             }
 
-            document.getElementById('zoom').innerHTML = zoom;
-            lastZoom = zoom;
-        }
-
-        function updateUrl() {
-            updateTimer = null;
-            const properties = map.getProperties();
-            if (properties == null) {
-                return
+            .map {
+                height: 100vh;
+                width: 100%;
+                position: fixed;
             }
-            const zoom = Math.round(properties.view.getZoom())
-            const [lon, lat] = ol.proj.toLonLat(properties.view.getCenter()).map(c => c.toFixed(7));
-            const path = `#@${lat},${lon},z${zoom}`
-            window.history.replaceState(null, null, path)
-        }
 
-        map.addEventListener('postrender', updateDebug)
-        window.map = map
-    </script>
-</body>
+            #zoom {
+                width: 25px;
+                height: 25px;
+            }
+        </style>
+        <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.0.1/build/ol.js"></script>
+        <title>Basemaps | Land Information New Zealand (LINZ)</title>
+    </head>
 
+    <body>
+        <div id="map" class="map"></div>
+        <div id="debug" class="ol-control ol-unselectable" style="top: 4.5em; left: 0.5em; z-index: 900;">
+            <button id="zoom" title="Current zoom level"></button>
+        </div>
+
+        <script type="text/javascript">
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlTag = urlParams.get('v');
+            let imagerySet = `aerial`;
+            if (urlTag != null) imagerySet = imagerySet + '@' + urlTag;
+
+            const basemapLayer = new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                    url: `/v1/tiles/${imagerySet}/3857/{z}/{x}/{y}.png?api=SZguJbyxMjMZqZ0A7SoTAyF3Y6g8Otdd`,
+                }),
+            });
+
+            let center = ol.proj.fromLonLat([174.7763921, -41.277848]);
+            let zoom = 8;
+
+            if (window.location.hash) {
+                const hash = window.location.hash.replace('#@', '');
+                const [latS, lonS, zoomS] = hash.split(',');
+                const newCenter = ol.proj.fromLonLat([parseFloat(lonS), parseFloat(latS)]);
+                if (!isNaN(newCenter[0]) && !isNaN(newCenter[1])) {
+                    center = newCenter;
+                }
+                const newZoom = parseFloat((zoomS || '').substr(1));
+                if (!isNaN(newZoom)) {
+                    zoom = newZoom;
+                }
+            }
+
+            const map = new ol.Map({
+                target: 'map',
+                layers: [basemapLayer],
+                view: new ol.View({
+                    center,
+                    zoom,
+                }),
+            });
+
+            let lastZoom = 0;
+            let updateTimer = null;
+
+            function updateDebug() {
+                const properties = map.getProperties();
+                if (properties == null) {
+                    return;
+                }
+                if (updateTimer == null) {
+                    updateTimer = setTimeout(updateUrl, 1000);
+                }
+                const zoom = Math.round(properties.view.getZoom());
+                if (zoom == lastZoom) {
+                    return;
+                }
+
+                document.getElementById('zoom').innerHTML = zoom;
+                lastZoom = zoom;
+            }
+
+            function updateUrl() {
+                updateTimer = null;
+                const properties = map.getProperties();
+                if (properties == null) {
+                    return;
+                }
+                const zoom = Math.round(properties.view.getZoom());
+                const [lon, lat] = ol.proj.toLonLat(properties.view.getCenter()).map((c) => c.toFixed(7));
+                const path = `#@${lat},${lon},z${zoom}`;
+                window.history.replaceState(null, null, path);
+            }
+
+            map.addEventListener('postrender', updateDebug);
+            window.map = map;
+        </script>
+    </body>
 </html>

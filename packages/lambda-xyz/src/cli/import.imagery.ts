@@ -43,7 +43,7 @@ async function main(): Promise<void> {
 
     const AerialTileSet: TileMetadataSetRecord = {
         id: '',
-        name: 'tags',
+        name: 'aerial',
         projection: EPSG.Google,
         createdAt: nowIsh,
         updatedAt: nowIsh,
@@ -68,9 +68,8 @@ async function main(): Promise<void> {
             maxZoom: mosaic.zoom.max,
             minZoom: mosaic.zoom.min,
         });
-        // logger.info({ record: record.id }, 'Insert');
-
-        // await Aws.tileMetadata.put(record);
+        logger.info({ record: record.id }, 'Insert');
+        await Aws.tileMetadata.put(record);
     }
 
     logger.info(

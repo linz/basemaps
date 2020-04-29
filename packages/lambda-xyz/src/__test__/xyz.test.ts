@@ -9,6 +9,7 @@ import { EPSG } from '@basemaps/geo';
 import { TileSets } from '../routes/tile';
 import { TileSet } from '../tile.set';
 
+const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('LambdaXyz', () => {
     /** Generate mock ALBEvent */
@@ -44,10 +45,12 @@ o.spec('LambdaXyz', () => {
         Tilers.tile256.tile = tileMock as any;
         Tilers.compose256 = { compose: rasterMock } as any;
 
-        const tileSet = new TileSet('aerial', EPSG.Google, 'bucket');
-        TileSets.set(tileSet.id, tileSet);
-        tileSet.load = () => Promise.resolve();
-        tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
+        for (const tileSetName of TileSetNames) {
+            const tileSet = new TileSet(tileSetName, EPSG.Google, 'bucket');
+            TileSets.set(tileSet.id, tileSet);
+            tileSet.load = () => Promise.resolve();
+            tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
+        }
     });
 
     o.afterEach(() => {
@@ -62,26 +65,29 @@ o.spec('LambdaXyz', () => {
         o(typeof base.handler).equals('function');
     });
 
-    o('should generate a tile 0,0,0 for png', async () => {
-        const request = req('/v1/tiles/aerial/global-mercator/0/0/0.png');
-        const res = await handleRequest(request);
-        o(res.status).equals(200);
-        o(res.header('content-type')).equals('image/png');
-        o(res.header('eTaG')).equals('Je+AcRSzbjT8XIAe/VK/Sfh9KlDHPAmq3BkBbpnN3/Q=');
-        o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
+    TileSetNames.forEach((tileSetName) => {
+        o(`should generate a tile 0,0,0 for ${tileSetName}.png`, async () => {
+            const request = req(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`);
+            const res = await handleRequest(request);
+            o(res.status).equals(200);
+            o(res.header('content-type')).equals('image/png');
+            o(typeof res.header('eTaG')).equals('string');
+            o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
 
-        o(tileMock.calls.length).equals(1);
-        const [tiffs, x, y, z] = tileMock.args;
-        o(tiffs).deepEquals([]);
-        o(x).equals(0);
-        o(y).equals(0);
-        o(z).equals(0);
+            o(tileMock.calls.length).equals(1);
+            const [tiffs, x, y, z] = tileMock.args;
+            o(tiffs).deepEquals([]);
+            o(x).equals(0);
+            o(y).equals(0);
+            o(z).equals(0);
 
-        // Validate the session information has been set correctly
-        o(request.logContext['path']).equals('/v1/tiles/aerial/global-mercator/0/0/0.png');
-        o(request.logContext['method']).equals('get');
-        o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
-        o(request.logContext['location']).deepEquals({ lat: 0, lon: 0 });
+            // Validate the session information has been set correctly
+            o(request.logContext['path']).equals(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`);
+            o(request.logContext['tileSet']).equals(tileSetName);
+            o(request.logContext['method']).equals('get');
+            o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
+            o(request.logContext['location']).deepEquals({ lat: 0, lon: 0 });
+        });
     });
 
     o('should generate a tile 0,0,0 for webp', async () => {

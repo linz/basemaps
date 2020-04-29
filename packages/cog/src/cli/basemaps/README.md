@@ -1,30 +1,32 @@
 # Basemaps Configuration utility
 
-This tool is designed to configure the basemaps rendering engine prority.
+This tool is designed to configure the basemaps rendering engine priority.
 
-### TileSets
+### Tile Sets
 
 To render a basemap, a collection of imagery needs to be configured, basemaps uses a 'TileSet' for this configuration.
 
-A tileset is a list of imgagery along with the zoom levels to render at and the priority for rendering. The higher the number, the later the imagery will be layered onto the canvas. So bigger number means it will be ontop when viewed.
+A tile set is a list of imagery along with the zoom levels to render at and the priority for rendering. The higher the number, the later the imagery will be layered onto the canvas. So bigger number means it will be on top when viewed.
 
-The entire history of the tileset is stored inside the metadata database and version tags are used to configure what is rendered to the user
+The entire history of the tile set is stored inside the metadata database and version tags are used to configure what is rendered to the user
 
 Common tags:
 
--   Head - The most recent tile set configuration
--   Production - The tile set configuration which is rendered by default to the user
+-   `head` - The most recent tile set configuration
+-   `production` - The tile set configuration which is rendered by default to the user
 
 ## Info
 
-To retrieve information about a tile set, use `info`
+To retrieve information about a tile set,
 
-This will dump the current version
+_This by default will show the current version_
+
+To see a specific version use `-v :versionNumber`
 
 ```
-./basemaps info -n tags -p 3857
+./basemaps info -n aerial -p 3857
 
-TileSet: tags
+TileSet: aerial
 CreatedAt: Wed Apr 29 2020 12:32:46 GMT+1200 (New Zealand Standard Time)
 UpdatedAt: Wed Apr 29 2020 12:48:20 GMT+1200 (New Zealand Standard Time)
 Version: v3 (3)
@@ -39,12 +41,12 @@ Imagery:
 
 ## Log
 
-To see a history of changes for a tileset as well as what version each tag is assigned to
+To see a history of changes for a tile set as well as what version each tag is assigned to
 
 ```
-./basemaps log -n tags -p 3857
+./basemaps log -n aerial -p 3857
 
-TileSet: tags
+TileSet: aerial
 CreatedAt: Wed Apr 29 2020 12:32:46 GMT+1200 (New Zealand Standard Time)
 UpdatedAt: Wed Apr 29 2020 12:48:20 GMT+1200 (New Zealand Standard Time)
 Version: v3 (3)
@@ -64,5 +66,22 @@ To change the version a tag is using
 ```
 # Update tag production to v3
 
-./basemaps tag -n tags -p 3857 -t production -v 3 --commit
+./basemaps tag -n aerial -p 3857 -t production -v 3 --commit
 ```
+
+## Updating
+
+To update command can be used to configure the rendering of a tile set, each time the `--commit` is used a new version is created and the `head` tag is updated to point at it.
+
+```
+# Make gebco priority 2
+./basemaps update -n aerial -p 3857 -i im_01DYE4EGR92TNMV16AHXSR45JH --priority 2 --commit
+
+# Remove gebco from rendering
+./basemaps update -n aerial -p 3857 -i im_01DYE4EGR92TNMV16AHXSR45JH --priority -1 --commit
+
+# Change zoom levels gebco is rendered at
+./basemaps update -n aerial -p 3857 -i im_01DYE4EGR92TNMV16AHXSR45JH --max-zoom 5 --min-zoom 2 --commit
+```
+
+To cause the production rendering to be updated the `production` tag will need to be set to the new version after the version is validated.

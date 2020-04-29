@@ -1,8 +1,14 @@
 import { EPSG } from '@basemaps/geo';
 import { TileMetadataSetRecord, TileMetadataTable, TileSetTag } from './tile.metadata';
+import { DynamoDB } from 'aws-sdk';
+
+function clone(rec: TileMetadataSetRecord): TileMetadataSetRecord {
+    return DynamoDB.Converter.unmarshall(DynamoDB.Converter.marshall(rec)) as TileMetadataSetRecord;
+}
 
 export class TileMetadataTileSet {
     metadata: TileMetadataTable;
+
     constructor(metadata: TileMetadataTable) {
         this.metadata = metadata;
     }
@@ -66,12 +72,22 @@ export class TileMetadataTileSet {
         record.version = record.revisions;
 
         // Insert the history record first
-        record.id = this.id(record.name, record.projection, record.revisions);
-        await this.metadata.put(record);
+        const historyRecord = clone(record);
+        historyRecord.id = this.id(record.name, record.projection, record.revisions);
+        await this.metadata.put(historyRecord);
+
+        if (v0 == null) {
+            // Fresh new record, has no history so lets add the production tag too
+            const productionRecord = clone(record);
+            productionRecord.id = this.id(record.name, record.projection, TileSetTag.Production);
+            await this.metadata.put(productionRecord);
+        }
 
         // Update the head to put to the new record
-        record.id = this.id(record.name, record.projection, TileSetTag.Head);
-        await this.metadata.put(record);
-        return record;
+        const headRecord = clone(record);
+        headRecord.id = this.id(record.name, record.projection, TileSetTag.Head);
+        await this.metadata.put(headRecord);
+
+        return headRecord;
     }
 }

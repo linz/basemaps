@@ -6,6 +6,8 @@ import { TileSetInfoAction } from './action.tileset.info';
 import { ImageryImportAction } from './action.imagery.import';
 import { TileSetUpdateTagAction } from './action.tileset.tag';
 import { TileSetHistoryAction } from './action.tileset.history';
+import { PrettyTransform } from 'pretty-json-log';
+import { LogConfig } from '@basemaps/lambda-shared';
 
 export class BasemapsCommandLine extends BaseCommandLine {
     constructor() {
@@ -18,6 +20,10 @@ export class BasemapsCommandLine extends BaseCommandLine {
         this.addAction(new ImageryImportAction());
         this.addAction(new TileSetUpdateTagAction());
         this.addAction(new TileSetHistoryAction());
+
+        if (process.stdout.isTTY) {
+            LogConfig.setOutputStream(PrettyTransform.stream());
+        }
     }
 }
 

@@ -8,12 +8,18 @@ import * as lambda from '../index';
 import { TileSet } from '../tile.set';
 import { EPSG } from '@basemaps/geo';
 import { TileSets } from '../routes/tile';
+import { PrettyTransform } from 'pretty-json-log';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
 if (Env.get(Env.CogBucket, undefined) == null) {
     process.env[Env.CogBucket] = '';
 }
+
+if (process.stdout.isTTY) {
+    LogConfig.setOutputStream(PrettyTransform.stream());
+}
+
 function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
     if (fs instanceof FileOperatorS3) {
         return tiffList.map((path) => {
@@ -55,21 +61,20 @@ async function main(): Promise<void> {
         TileSets.set(tileSet.id, tileSet);
     }
 
-    app.get('/:z/:x/:y.png', async (req: express.Request, res: express.Response) => {
+    app.get('/v1/tiles/:imageryName/:projection/:z/:x/:y.png', async (req: express.Request, res: express.Response) => {
         const startTime = Date.now();
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
-        const { x, y, z } = req.params;
+        const { x, y, z, imageryName, projection } = req.params;
         const ctx = new LambdaContext(
             {
                 httpMethod: 'get',
-                path: `/v1/tiles/aerial/${EPSG.Google}/${z}/${x}/${y}.png`,
+                path: `/v1/tiles/${imageryName}/${projection}/${z}/${x}/${y}.png`,
             } as any,
             logger,
         );
         try {
             const data = await lambda.handleRequest(ctx);
-
             res.status(data.status);
             if (data.headers) {
                 for (const [header, value] of data.headers) {
@@ -90,7 +95,7 @@ async function main(): Promise<void> {
         }
     });
 
-    app.use(express.static('./static/'));
+    app.use(express.static('../landing/static/'));
     await new Promise((resolve) => app.listen(port, resolve));
     console.log('Listen', `http://localhost:${port}`);
 }

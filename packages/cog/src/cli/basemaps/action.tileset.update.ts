@@ -9,12 +9,12 @@ import { TileSetBaseAction } from './tileset.action';
 import { printTileSet } from './tileset.util';
 
 export class TileSetUpdateAction extends TileSetBaseAction {
-    private priority: CommandLineIntegerParameter;
-    private imageryId: CommandLineStringParameter;
-    private commit: CommandLineFlagParameter;
+    priority: CommandLineIntegerParameter;
+    imageryId: CommandLineStringParameter;
+    commit: CommandLineFlagParameter;
 
-    private minZoom: CommandLineIntegerParameter;
-    private maxZoom: CommandLineIntegerParameter;
+    minZoom: CommandLineIntegerParameter;
+    maxZoom: CommandLineIntegerParameter;
 
     public constructor() {
         super({
