@@ -1,16 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataSetRecord } from '@basemaps/lambda-shared';
+import { Aws, LogConfig, TileMetadataSetRecord, TileSetTag } from '@basemaps/lambda-shared';
 import {
-    CommandLineAction,
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
+import { TileSetBaseAction } from './tileset.action';
 import { printTileSet } from './tileset.util';
 
-export class TileSetUpdateAction extends CommandLineAction {
-    private tileSet: CommandLineStringParameter;
-    private projection: CommandLineIntegerParameter;
+export class TileSetUpdateAction extends TileSetBaseAction {
     private priority: CommandLineIntegerParameter;
     private imageryId: CommandLineStringParameter;
     private commit: CommandLineFlagParameter;
@@ -27,21 +25,7 @@ export class TileSetUpdateAction extends CommandLineAction {
     }
 
     protected onDefineParameters(): void {
-        this.tileSet = this.defineStringParameter({
-            argumentName: 'TILE_SET',
-            parameterLongName: '--tileset',
-            parameterShortName: '-t',
-            description: 'Tileset name to use',
-            required: true,
-        });
-
-        this.projection = this.defineIntegerParameter({
-            argumentName: 'PROJECTION',
-            parameterLongName: '--projection',
-            parameterShortName: '-p',
-            description: 'Projection to use',
-            required: true,
-        });
+        super.onDefineParameters();
 
         this.imageryId = this.defineStringParameter({
             argumentName: 'IMAGERY',
@@ -83,14 +67,14 @@ export class TileSetUpdateAction extends CommandLineAction {
         const projection = this.projection.value!;
         const imgId = this.imageryId.value!;
 
-        const tsData = await Aws.tileMetadata.db.getTileSet(tileSet, projection);
+        const tsData = await Aws.tileMetadata.TileSet.get(tileSet, projection, TileSetTag.Head);
 
         if (tsData == null) {
             LogConfig.get().fatal({ tileSet, projection }, 'Failed to find tile set');
             process.exit(1);
         }
 
-        await Aws.tileMetadata.db.getAllImagery(tsData);
+        await Aws.tileMetadata.Imagery.getAll(tsData);
 
         const priorityUpdate = await this.updatePriority(tsData, imgId);
         const zoomUpdate = await this.updateZoom(tsData, imgId);
@@ -99,7 +83,7 @@ export class TileSetUpdateAction extends CommandLineAction {
 
         if (priorityUpdate || zoomUpdate) {
             if (this.commit.value) {
-                await Aws.tileMetadata.db.create(tsData);
+                await Aws.tileMetadata.TileSet.create(tsData);
             } else {
                 LogConfig.get().warn('DryRun:Done');
             }
@@ -120,7 +104,7 @@ export class TileSetUpdateAction extends CommandLineAction {
         }
         const logger = LogConfig.get();
 
-        const img = await Aws.tileMetadata.db.getImagery(imgId);
+        const img = await Aws.tileMetadata.Imagery.get(imgId);
 
         logger.info(
             {
@@ -149,7 +133,7 @@ export class TileSetUpdateAction extends CommandLineAction {
             // Remove imagery
             if (existingIndex == -1) throw new Error('Failed to find imagery: ' + imgId);
             tsData.imagery.splice(existingIndex, 1);
-            const img = await Aws.tileMetadata.db.getImagery(imgId);
+            const img = await Aws.tileMetadata.Imagery.get(imgId);
 
             logger.info({ imgId, imagery: img?.name, priority: existingIndex + 1 }, 'Removing Imagery');
             return true;
@@ -158,9 +142,9 @@ export class TileSetUpdateAction extends CommandLineAction {
         if (existingIndex == -1) {
             // Add new imagery
             logger.info({ imgId, priority }, 'Add imagery');
-            const img = await Aws.tileMetadata.db.getImagery(imgId);
+            const img = await Aws.tileMetadata.Imagery.get(imgId);
             logger.info({ imgId, imagery: img.name, priority }, 'Adding');
-            tsData.imagery.splice(priority + 1, 0, {
+            tsData.imagery.splice(priority - 1, 0, {
                 id: imgId,
                 minZoom: this.minZoom.value ?? 0,
                 maxZoom: this.maxZoom.value ?? 32,
@@ -170,7 +154,7 @@ export class TileSetUpdateAction extends CommandLineAction {
 
         if (existingIndex + 1 !== priority) {
             // Update
-            const img = await Aws.tileMetadata.db.getImagery(imgId);
+            const img = await Aws.tileMetadata.Imagery.get(imgId);
             logger.info(
                 { imgId, imagery: img?.name, oldPriority: existingIndex + 1, newPriority: priority },
                 'Update Priority',

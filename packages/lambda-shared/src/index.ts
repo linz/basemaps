@@ -12,7 +12,7 @@ export { tileFromPath, TileType, TileData, TileDataWmts, TileDataXyz, TileSetTyp
 export { V, VNode, VNodeElement, VNodeText } from './vdom';
 export { VNodeParser } from './vdom.parse';
 
-export * from './aws/tile.metadata.table';
+export * from './aws/tile.metadata';
 
 export * from './router';
 export * from './file';

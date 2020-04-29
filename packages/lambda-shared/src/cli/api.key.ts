@@ -14,7 +14,7 @@ async function main(): Promise<void> {
         const apiKey = base58.encode(bytes).slice(0, 32);
 
         console.log(apiKey);
-        await Aws.api.db.create(apiKey);
+        await Aws.apiKey.create(apiKey);
     }
 }
 

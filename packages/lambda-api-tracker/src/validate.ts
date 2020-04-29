@@ -9,7 +9,7 @@ export const ValidateRequest = {
         const timer = ctx.timer;
         // TODO increment the api counter
         timer.start('validate:db');
-        const record = await Aws.api.db.get(apiKey);
+        const record = await Aws.apiKey.get(apiKey);
         timer.end('validate:db');
 
         if (record == null) {

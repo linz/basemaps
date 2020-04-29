@@ -154,7 +154,7 @@ export class ActionBatchJob extends CommandLineAction {
 
         if (isCommit) {
             const img = createImageryRecordFromJob(job);
-            await Aws.tileMetadata.db.create(img);
+            await Aws.tileMetadata.put(img);
         }
 
         const batch = new aws.Batch({ region });

@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig } from '@basemaps/lambda-shared';
-import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { printTileSet } from './tileset.util';
-import { EPSG } from '@basemaps/geo';
+import { Aws, LogConfig, TileSetTag } from '@basemaps/lambda-shared';
+import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as c from 'chalk';
+import { TileSetBaseAction } from './tileset.action';
+import { printTileSet } from './tileset.util';
 
-export class TileSetInfoAction extends CommandLineAction {
-    private tileSet: CommandLineStringParameter;
-    private projection: CommandLineIntegerParameter;
+export class TileSetInfoAction extends TileSetBaseAction {
     private imagery: CommandLineStringParameter;
+    private version: CommandLineIntegerParameter;
 
     public constructor() {
         super({
@@ -19,22 +18,7 @@ export class TileSetInfoAction extends CommandLineAction {
     }
 
     protected onDefineParameters(): void {
-        this.tileSet = this.defineStringParameter({
-            argumentName: 'TILE_SET',
-            parameterLongName: '--tileset',
-            parameterShortName: '-t',
-            description: 'Tileset name to use',
-            required: false,
-        });
-
-        this.projection = this.defineIntegerParameter({
-            argumentName: 'PROJECTION',
-            parameterLongName: '--projection',
-            parameterShortName: '-p',
-            description: 'Projection to use',
-            required: false,
-        });
-
+        super.onDefineParameters();
         this.imagery = this.defineStringParameter({
             argumentName: 'IMAGERY',
             parameterLongName: '--imagery',
@@ -42,10 +26,18 @@ export class TileSetInfoAction extends CommandLineAction {
             description: 'Imagery ID',
             required: false,
         });
+
+        this.version = this.defineIntegerParameter({
+            argumentName: 'VERSION',
+            parameterLongName: '--version',
+            parameterShortName: '-v',
+            description: 'Version ID',
+            required: false,
+        });
     }
 
     private async imageInfo(imageryId: string): Promise<void> {
-        const img = await Aws.tileMetadata.db.getImagery(imageryId);
+        const img = await Aws.tileMetadata.Imagery.get(imageryId);
 
         console.log(c.bold('Imagery:'), img.name);
         console.log(c.bold('CreatedAt:'), new Date(img.createdAt).toString());
@@ -57,15 +49,6 @@ export class TileSetInfoAction extends CommandLineAction {
         // TODO get job.json from s3 and get information on how the imagery was made.
     }
 
-    private async tileSetInfo(tileSet: string, projection: EPSG): Promise<void> {
-        const tsData = await Aws.tileMetadata.db.getTileSet(tileSet, projection);
-
-        if (tsData == null) {
-            LogConfig.get().fatal({ tileSet, projection }, 'Failed to find tile set');
-            process.exit(1);
-        }
-        await printTileSet(tsData);
-    }
     protected async onExecute(): Promise<void> {
         const tileSet = this.tileSet.value!;
         const projection = this.projection.value!;
@@ -78,6 +61,7 @@ export class TileSetInfoAction extends CommandLineAction {
             console.log(this.renderHelpText());
             return;
         }
-        this.tileSetInfo(tileSet, projection);
+        const tsData = await Aws.tileMetadata.TileSet.get(tileSet, projection, this.version.value! ?? TileSetTag.Head);
+        await printTileSet(tsData);
     }
 }

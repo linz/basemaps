@@ -23,7 +23,7 @@ AWS.config.update({
 });
 
 import { ApiKeyTable } from './api.key.table';
-import { TileMetadataTable } from './tile.metadata.table';
+import { TileMetadataTable } from './tile.metadata';
 import { S3Cache, CredentialsCache, StsAssumeRoleConfig } from './credentials';
 
 const s3 = new AWS.S3();
@@ -43,10 +43,6 @@ export const Aws = {
             return CredentialsCache.getOrMake(roleArn, { roleArn, externalId });
         },
     },
-    api: {
-        db: new ApiKeyTable(),
-    },
-    tileMetadata: {
-        db: new TileMetadataTable(),
-    },
+    apiKey: new ApiKeyTable(),
+    tileMetadata: new TileMetadataTable(),
 };
