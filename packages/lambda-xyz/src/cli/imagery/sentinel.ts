@@ -2,7 +2,7 @@ import { EPSG } from '@basemaps/geo';
 import { MosaicCog } from './mosaic.cog';
 
 MosaicCog.create({
-    id: '01E6YVVMYK4A1AA8SQ4EHNT13M',
+    id: '01E71STQ7GGD769K6XX87F17PD',
     name: 'new_zealand_sentinel_2018-19_10m',
 
     projection: EPSG.Google,
