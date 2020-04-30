@@ -6,7 +6,7 @@ import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import pLimit, { Limit } from 'p-limit';
 import * as path from 'path';
-import { getProjection } from '../proj';
+import { getProjection, guessProjection } from '../proj';
 import { Covering } from './covering';
 import { JobCutline } from './job.cutline';
 import { CogBuilderMetadata, SourceMetadata } from './types';
@@ -19,6 +19,9 @@ export class CogBuilder {
     maxTileCount: number;
     maxTileZoom: number;
     logger: LogType;
+
+    // Prevent guessing spamming the logs
+    wktPreviousGuesses = new Set<string>();
 
     /**
      * @param concurrency number of requests to run at a time
@@ -134,13 +137,19 @@ export class CogBuilder {
         }
 
         const imgWkt = image.value(TiffTag.GeoAsciiParams);
-        projection = Projection.parseEpsgString(imgWkt) as number;
+        projection = guessProjection(imgWkt) as number;
         if (projection) {
-            this.logger.trace({ tiff: tiff.source.name, imgWkt, projection }, 'GuessingProjection from GeoAsciiParams');
+            if (!this.wktPreviousGuesses.has(imgWkt)) {
+                this.logger.trace(
+                    { tiff: tiff.source.name, imgWkt, projection },
+                    'GuessingProjection from GeoAsciiParams',
+                );
+            }
+            this.wktPreviousGuesses.add(imgWkt);
             return projection;
         }
 
-        this.logger.error({ tiff: tiff.source.name }, 'Failed find projection');
+        this.logger.error({ tiff: tiff.source.name, projection, imgWkt }, 'Failed find projection');
         throw new Error('Failed to find projection');
     }
 
