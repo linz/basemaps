@@ -13,3 +13,17 @@ export function getProjection(fromProjection: EPSG, toProjection?: EPSG): proj4.
 }
 
 export const Wgs84ToGoogle = getProjection(EPSG.Wgs84, EPSG.Google)!;
+
+/**
+ * Attempt to guess the projection based off the WKT
+ * @param wkt
+ */
+export function guessProjection(wkt: string): EPSG | null {
+    if (wkt == null) {
+        return null;
+    }
+    if (wkt.includes('NZGD2000') || wkt.includes('NZGD_2000')) {
+        return EPSG.Nztm;
+    }
+    return null;
+}
