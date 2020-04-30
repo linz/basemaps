@@ -10,10 +10,12 @@ import {
     TileMetadataImageRule,
     TileMetadataTable,
     RecordPrefix,
+    TileSetTag,
 } from '@basemaps/lambda-shared';
 
 export class TileSet {
     name: string;
+    tag: TileSetTag;
     projection: EPSG;
     tileSet: TileMetadataSetRecord;
     imagery: Map<string, TileMetadataImageryRecord>;
@@ -29,8 +31,10 @@ export class TileSet {
         return path.join(basePath, `${quadKey}.tiff`);
     }
 
-    constructor(name: string, projection: EPSG, bucket: string | undefined = process.env[Env.CogBucket]) {
+    constructor(nameStr: string, projection: EPSG, bucket: string | undefined = process.env[Env.CogBucket]) {
+        const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
         this.name = name;
+        this.tag = tag ?? TileSetTag.Production;
         this.projection = projection;
 
         if (bucket == null) throw new Error(`Invalid environment missing "${Env.CogBucket}"`);
@@ -38,12 +42,13 @@ export class TileSet {
     }
 
     get id(): string {
-        return `${this.name}_${this.projection}`;
+        if (this.tag == TileSetTag.Production) return `${this.name}_${this.projection}`;
+        return `${this.name}@${this.tag}_${this.projection}`;
     }
 
     async load(): Promise<void> {
-        this.tileSet = await Aws.tileMetadata.db.getTileSet(this.name, this.projection);
-        this.imagery = await Aws.tileMetadata.db.getAllImagery(this.tileSet);
+        this.tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.projection, this.tag);
+        this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
     }
 
     *allImagery(): Generator<{ rule: TileMetadataImageRule; imagery: TileMetadataImageryRecord }> {

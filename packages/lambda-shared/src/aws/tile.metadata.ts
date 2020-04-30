@@ -2,6 +2,19 @@ import { EPSG } from '@basemaps/geo';
 import { DynamoDB } from 'aws-sdk';
 import { Const } from '../const';
 import { BaseDynamoTable } from './aws.dynamo.table';
+import { TileMetadataImagery } from './tile.metadata.imagery';
+import { TileMetadataTileSet } from './tile.metadata.tileset';
+
+export enum TileSetTag {
+    /** Version to render by default */
+    Production = 'production',
+
+    /** Most recent version */
+    Head = 'head',
+
+    /** Pre release testing version */
+    Beta = 'beta',
+}
 
 /**
  * The database format for the ApiKey Table
@@ -42,6 +55,12 @@ export interface TileMetadataSetRecord extends BaseDynamoTable {
     projection: EPSG.Google;
     /** Order is important, order is render order, first record is the first record drawn onto a tile */
     imagery: TileMetadataImageRule[];
+
+    /** Current version number */
+    version: number;
+
+    /** Total number of revisions */
+    revisions?: number;
 }
 
 export enum RecordPrefix {
@@ -54,28 +73,34 @@ function toId(id: string): { id: { S: string } } {
 }
 
 export class TileMetadataTable {
-    imagery = new Map<string, TileMetadataImageryRecord>();
     dynamo: DynamoDB;
+
+    TileSet: TileMetadataTileSet;
+    Imagery: TileMetadataImagery;
 
     public constructor() {
         this.dynamo = new DynamoDB({});
+        this.TileSet = new TileMetadataTileSet(this);
+        this.Imagery = new TileMetadataImagery(this);
     }
 
+    /**
+     * Prefix a dynamoDb id with the provided prefix if it doesnt already start with it.
+     */
     static prefix(prefix: RecordPrefix, id: string): string {
         if (id.startsWith(prefix)) return id;
         return `${prefix}_${id}`;
     }
 
+    /**
+     * Remove the prefix from a dynamoDb id
+     */
     static unprefix(prefix: RecordPrefix, id: string): string {
         if (id.startsWith(prefix)) return id.substr(3);
         return id;
     }
 
-    public async getTileSet(name: string, projection: EPSG): Promise<TileMetadataSetRecord> {
-        const key = `ts_${name}_${projection}`;
-        // TODO sort key needed for versioning
-        // const sortKey = 'v0';
-
+    public async get<T>(key: string): Promise<T | null> {
         const item = await this.dynamo
             .getItem({
                 Key: toId(key),
@@ -83,42 +108,8 @@ export class TileMetadataTable {
             })
             .promise();
 
-        if (item == null || item.Item == null) throw new Error(`Unable to find tile set: ${key}`);
-
-        return DynamoDB.Converter.unmarshall(item.Item) as TileMetadataSetRecord;
-    }
-
-    public async getImagery(imgId: string): Promise<TileMetadataImageryRecord> {
-        const existing = this.imagery.get(imgId);
-        if (existing) return existing;
-
-        const item = await this.dynamo
-            .getItem({
-                Key: toId(imgId),
-                TableName: Const.TileMetadata.TableName,
-            })
-            .promise();
-        if (item == null || item.Item == null) throw new Error(`Unable to find tile set: ${imgId}`);
-
-        const res = DynamoDB.Converter.unmarshall(item.Item) as TileMetadataImageryRecord;
-        this.imagery.set(imgId, res);
-        return res;
-    }
-
-    public async getAllImagery(record: TileMetadataSetRecord): Promise<Map<string, TileMetadataImageryRecord>> {
-        const unfetched = new Set<string>();
-        const output = new Map<string, TileMetadataImageryRecord>();
-        for (const r of record.imagery) {
-            const existing = this.imagery.get(r.id);
-            if (existing == null) unfetched.add(r.id);
-            else output.set(existing.id, existing);
-        }
-
-        if (unfetched.size > 0) {
-            await this.fetchImagery(unfetched, output);
-        }
-
-        return output;
+        if (item == null || item.Item == null) return null;
+        return DynamoDB.Converter.unmarshall(item.Item) as T;
     }
 
     /**
@@ -126,10 +117,10 @@ export class TileMetadataTable {
      * @param keys Imagery ids (already prefixed `im_${key}`)
      * @param output Adds fetched imagery to output
      */
-    private async fetchImagery(keys: Set<string>, output: Map<string, TileMetadataImageryRecord>): Promise<void> {
+    public async batchGet<T extends TileMetadataRecord>(keys: Set<string>): Promise<Map<string, T>> {
         let mappedKeys = Array.from(keys, toId);
 
-        const origSize = output.size;
+        const output: Map<string, T> = new Map();
 
         while (mappedKeys.length > 0) {
             const Keys = mappedKeys.length > 100 ? mappedKeys.slice(0, 100) : mappedKeys;
@@ -147,13 +138,12 @@ export class TileMetadataTable {
             if (metadataItems == null) throw new Error('Failed to fetch tile metadata');
 
             for (const row of metadataItems) {
-                const item = DynamoDB.Converter.unmarshall(row) as TileMetadataImageryRecord;
-                this.imagery.set(item.id, item);
+                const item = DynamoDB.Converter.unmarshall(row) as T;
                 output.set(item.id, item);
             }
         }
 
-        if (output.size - origSize < keys.size) {
+        if (output.size < keys.size) {
             throw new Error(
                 'Missing fetched items\n' +
                     Array.from(keys.values())
@@ -161,9 +151,10 @@ export class TileMetadataTable {
                         .join(', '),
             );
         }
+        return output;
     }
 
-    public async create(record: TileMetadataRecord): Promise<string> {
+    async put(record: TileMetadataRecord): Promise<string> {
         record.updatedAt = Date.now();
         await this.dynamo
             .putItem({

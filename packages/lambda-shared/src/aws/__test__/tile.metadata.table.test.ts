@@ -2,7 +2,7 @@ import { EPSG } from '@basemaps/geo';
 import * as AWS from 'aws-sdk';
 import * as o from 'ospec';
 import { Const } from '../../const';
-import { TileMetadataImageryRecord, TileMetadataTable } from '../tile.metadata.table';
+import { TileMetadataImageryRecord, TileMetadataTable } from '../tile.metadata';
 
 const { marshall } = AWS.DynamoDB.Converter;
 
@@ -40,7 +40,7 @@ o.spec('tile.metadata.table', () => {
             },
         };
 
-        const id = await tmtable.create({
+        const id = await tmtable.put({
             id: 'testid',
             name: 'test-imagery',
             createdAt: Date.now(),
@@ -87,14 +87,15 @@ o.spec('tile.metadata.table', () => {
             },
         };
 
-        tmtable.imagery.set('im_4', { id: 'im_4' } as any);
+        tmtable.Imagery.imagery.set('im_4', { id: 'im_4' } as any);
 
         let err: Error | null = null;
         try {
-            await tmtable.getAllImagery({
+            await tmtable.Imagery.getAll({
                 createdAt: 0,
                 updatedAt: 0,
                 id: 'ts_aerial_3857',
+                version: 0,
                 imagery: Array.from(genIds(5)),
                 name: 'aerial',
                 projection: EPSG.Google,
@@ -136,10 +137,11 @@ o.spec('tile.metadata.table', () => {
             },
         };
 
-        const ans = await tmtable.getAllImagery({
+        const ans = await tmtable.Imagery.getAll({
             createdAt: 0,
             updatedAt: 0,
             id: 'ts_aerial_3857',
+            version: 0,
             imagery: Array.from(genIds(202)),
             name: 'aerial',
             projection: EPSG.Google,

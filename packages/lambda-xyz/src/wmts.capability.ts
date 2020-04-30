@@ -22,11 +22,11 @@ for (const k of ImageFormatOrder) {
     formats.push(V('Format', 'image/' + k));
 }
 
-const tileMatrixSetId: Record<TileSetType, string> = {
+const tileMatrixSetId: Partial<Record<TileSetType, string>> = {
     [TileSetType.aerial]: 'GoogleMapsCompatible',
 };
 
-const LayerPreamble: Record<TileSetType, VNodeElement[]> = {
+const LayerPreamble: Partial<Record<TileSetType, VNodeElement[]>> = {
     [TileSetType.aerial]: [
         V('ows:Title', 'NZ Aerial Imagery Basemap'),
         V(
@@ -136,7 +136,7 @@ const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
                 );
             }
             return V('TileMatrixSet', [
-                V('ows:Identifier', tileMatrixSetId[tileSet]),
+                V('ows:Identifier', tileMatrixSetId[tileSet]!),
                 V('ows:SupportedCRS', Projection.toUrn(projection)),
                 ...wellKnownScaleSet(projection),
                 ...matrices,
@@ -145,7 +145,7 @@ const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
     );
 }
 
-const layerPreamble = (tileSet: TileSetType): VNodeElement[] | null => LayerPreamble[tileSet];
+const layerPreamble = (tileSet: TileSetType): VNodeElement[] | undefined => LayerPreamble[tileSet];
 const tileMatrixSets = (tileSet: TileSetType, projection: EPSG | null): VNodeElement[] | null => {
     const sets = MatrixSets.get(tileSet);
     if (sets == null) return null;
@@ -196,7 +196,7 @@ export function buildWmtsCapabilityToVNode(
         V('Contents', [
             V('Layer', [
                 ...preambleXml,
-                V('TileMatrixSetLink', [V('TileMatrixSet', tileMatrixSetId[tileSet])]),
+                V('TileMatrixSetLink', [V('TileMatrixSet', tileMatrixSetId[tileSet]!)]),
                 ...resUrls,
             ]),
             ...tileSets,

@@ -1,8 +1,7 @@
-import 'source-map-support/register';
-import './imagery/index';
-
 import { EPSG } from '@basemaps/geo';
 import { Aws, LogConfig, TileMetadataImageryRecord, TileMetadataSetRecord } from '@basemaps/lambda-shared';
+import 'source-map-support/register';
+import './imagery/index';
 import { MosaicCog } from './imagery/mosaic.cog';
 import { Mosaics } from './imagery/mosaics';
 
@@ -36,18 +35,20 @@ export function MosaicSort(a: MosaicCog, b: MosaicCog): number {
  */
 async function main(): Promise<void> {
     const logger = LogConfig.get();
+    const TileSet = Aws.tileMetadata.TileSet;
 
     Mosaics.sort(MosaicSort);
 
     const nowIsh = Date.now();
 
     const AerialTileSet: TileMetadataSetRecord = {
-        id: 'ts_aerial_' + EPSG.Google,
+        id: '',
         name: 'aerial',
         projection: EPSG.Google,
         createdAt: nowIsh,
         updatedAt: nowIsh,
         imagery: [],
+        version: 0,
     };
 
     for (const mosaic of Mosaics) {
@@ -68,15 +69,14 @@ async function main(): Promise<void> {
             minZoom: mosaic.zoom.min,
         });
         logger.info({ record: record.id }, 'Insert');
-
-        await Aws.tileMetadata.db.create(record);
+        await Aws.tileMetadata.put(record);
     }
 
     logger.info(
         { record: AerialTileSet.id, records: AerialTileSet.imagery.length, size: JSON.stringify(AerialTileSet).length },
         'InsertTileSet',
     );
-    await Aws.tileMetadata.db.create(AerialTileSet);
+    await TileSet.create(AerialTileSet);
 }
 
 main().catch((err: Error) => LogConfig.get().fatal({ err }, 'Failed'));

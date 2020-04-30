@@ -49,7 +49,7 @@ export class ImageryImportAction extends CommandLineAction {
 
     async tryGetImagery(imgId: string): Promise<null | TileMetadataImageryRecord> {
         try {
-            return await Aws.tileMetadata.db.getImagery(imgId);
+            return await Aws.tileMetadata.Imagery.get(imgId);
         } catch (e) {
             return null;
         }
@@ -87,7 +87,7 @@ export class ImageryImportAction extends CommandLineAction {
         logger.info({ record: imgRecord }, 'Create');
         if (this.commit.value) {
             logger.info({ imagery: job.name, imgId }, 'CreatingRecord');
-            await Aws.tileMetadata.db.create(imgRecord);
+            await Aws.tileMetadata.put(imgRecord);
         } else {
             logger.warn('DryRun:Done');
         }

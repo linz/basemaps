@@ -8,7 +8,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "ospec build/**/*.test.js --preload ../../test-support.js",
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../test-support.js",
     "deploy:deploy": "node deploy.js"
   },
   "dependencies": {

@@ -7,12 +7,12 @@ o.spec('ApiValidate', (): void => {
     const faultyApiKey = 'fault1';
     const mockApiKey = 'mock1';
 
-    const oldGet = Aws.api.db.get;
+    const oldGet = Aws.apiKey.get;
     o.beforeEach(() => {
         LogConfig.disable();
     });
     o.afterEach(() => {
-        Aws.api.db.get = oldGet;
+        Aws.apiKey.get = oldGet;
     });
 
     function makeContext(): LambdaContext {
@@ -21,7 +21,7 @@ o.spec('ApiValidate', (): void => {
 
     o('validate should fail on faulty apikey', async () => {
         let lastApiKey = '';
-        Aws.api.db.get = async (apiKey): Promise<ApiKeyTableRecord> => {
+        Aws.apiKey.get = async (apiKey): Promise<ApiKeyTableRecord> => {
             lastApiKey = apiKey;
             return {
                 id: apiKey,
@@ -42,7 +42,7 @@ o.spec('ApiValidate', (): void => {
     });
 
     o('validate should fail on null record', async () => {
-        Aws.api.db.get = async (): Promise<null> => null;
+        Aws.apiKey.get = async (): Promise<null> => null;
         const result = await ValidateRequest.validate(dummyApiKey, makeContext());
         o(result).notEquals(null);
         if (result == null) throw new Error('Validate returns null result');
@@ -54,7 +54,7 @@ o.spec('ApiValidate', (): void => {
     o('validate should fail with rate limit error', async () => {
         const mockMinuteCount = 1e4;
         const mockMinuteExpireAt = Date.now() * 1.01;
-        Aws.api.db.get = async (apiKey): Promise<ApiKeyTableRecord> => {
+        Aws.apiKey.get = async (apiKey): Promise<ApiKeyTableRecord> => {
             return {
                 id: apiKey,
                 updatedAt: 1,
