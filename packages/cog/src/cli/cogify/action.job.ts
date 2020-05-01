@@ -15,7 +15,7 @@ import * as ulid from 'ulid';
 import { CogBuilder } from '../../cog/builder';
 import { getTileSize } from '../../cog/cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog/cog.vrt';
-import { JobCutline } from '../../cog/job.cutline';
+import { Cutline } from '../../cog/cutline';
 import { CogJob } from '../../cog/types';
 import { getResample } from '../../gdal/gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';
@@ -57,8 +57,6 @@ export class CLiInputData {
 export class ActionJobCreate extends CommandLineAction {
     private source?: CLiInputData;
     private output?: CLiInputData;
-    private minZoom?: CommandLineIntegerParameter;
-    private maxCogs?: CommandLineIntegerParameter;
     private maxConcurrency?: CommandLineIntegerParameter;
     private generateVrt?: CommandLineFlagParameter;
     private resample?: CommandLineStringParameter;
@@ -130,18 +128,16 @@ export class ActionJobCreate extends CommandLineAction {
             tiffSource = tiffList.map((path) => new CogSourceFile(path));
         }
         const maxConcurrency = this.maxConcurrency?.value ?? this.MaxConcurrencyDefault;
-        const maxCogs = this.maxCogs?.value ?? this.MaxCogsDefault;
-        const minZoom = this.minZoom?.value ?? this.MinZoomDefault;
 
         logger.info({ source: this.source.path.value, tiffCount: tiffList.length }, 'LoadingTiffs');
 
         const cutlinePath = this.cutline?.value;
-        const cutline = cutlinePath == null ? new JobCutline() : await JobCutline.loadCutline(cutlinePath, minZoom);
+        const cutline = cutlinePath == null ? new Cutline() : await Cutline.loadCutline(cutlinePath);
 
-        const builder = new CogBuilder(maxConcurrency, maxCogs, minZoom, logger);
+        const builder = new CogBuilder(maxConcurrency, logger);
         const metadata = await builder.build(tiffSource, cutline);
 
-        const quadkeys = metadata.covering.toList().sort(QuadKey.compareKeys);
+        const quadkeys = Array.from(metadata.covering).sort(QuadKey.compareKeys);
         if (quadkeys.length > 0) {
             const firstQk = quadkeys[0];
             const lastQk = quadkeys[quadkeys.length - 1];
@@ -191,7 +187,7 @@ export class ActionJobCreate extends CommandLineAction {
                 ...sourceConfig,
                 resolution: metadata.resolution,
                 files: tiffList,
-                options: { maxConcurrency, maxCogs, minZoom },
+                options: { maxConcurrency },
             },
             quadkeys,
         };
@@ -234,21 +230,6 @@ export class ActionJobCreate extends CommandLineAction {
     protected onDefineParameters(): void {
         this.source = new CLiInputData(this, 'source');
         this.output = new CLiInputData(this, 'output');
-        this.minZoom = this.defineIntegerParameter({
-            argumentName: 'MIN_ZOOM',
-            parameterLongName: '--min-zoom',
-            description: 'min zoom level to use',
-            defaultValue: this.MinZoomDefault,
-            required: false,
-        });
-
-        this.maxCogs = this.defineIntegerParameter({
-            argumentName: 'MAX_COGS',
-            parameterLongName: '--max-cogs',
-            description: 'Maximum number of COGs to create',
-            defaultValue: this.MaxCogsDefault,
-            required: false,
-        });
 
         this.maxConcurrency = this.defineIntegerParameter({
             argumentName: 'MAX_CONCURRENCY',

@@ -7,8 +7,7 @@ import { existsSync, mkdirSync } from 'fs';
 import pLimit, { Limit } from 'p-limit';
 import * as path from 'path';
 import { getProjection, guessProjection } from '../proj';
-import { Covering } from './covering';
-import { JobCutline } from './job.cutline';
+import { Cutline } from './cutline';
 import { CogBuilderMetadata, SourceMetadata } from './types';
 
 export const InvalidProjectionCode = 32767;
@@ -16,8 +15,6 @@ export const CacheFolder = './.cache';
 export const proj256 = new Projection(256);
 export class CogBuilder {
     q: Limit;
-    maxTileCount: number;
-    maxTileZoom: number;
     logger: LogType;
 
     // Prevent guessing spamming the logs
@@ -26,9 +23,7 @@ export class CogBuilder {
     /**
      * @param concurrency number of requests to run at a time
      */
-    constructor(concurrency: number, maxTileCount = 25, maxTileZoom = 13, logger: LogType) {
-        this.maxTileCount = maxTileCount;
-        this.maxTileZoom = maxTileZoom;
+    constructor(concurrency: number, logger: LogType) {
         this.logger = logger;
         this.q = pLimit(concurrency);
     }
@@ -61,7 +56,7 @@ export class CogBuilder {
                     bands = tiffBandCount.length;
                 }
 
-                const output = await this.getTifBounds(tiff);
+                const output = this.getTifBounds(tiff);
                 if (CogSourceFile.isSource(source)) {
                     await source.close();
                 }
@@ -178,7 +173,7 @@ export class CogBuilder {
      * Generate the bounding boxes for a GeoTiff converting to WGS84
      * @param tiff
      */
-    async getTifBounds(tiff: CogTiff): Promise<GeoJSON.Feature> {
+    getTifBounds(tiff: CogTiff): GeoJSON.Feature {
         const image = tiff.getImage(0);
         const bbox = image.bbox;
         const topLeft = [bbox[0], bbox[3]];
@@ -235,9 +230,9 @@ export class CogBuilder {
      * @param tiffs list of tiffs to be generated
      * @returns List of QuadKey indexes for
      */
-    async build(tiffs: CogSource[], cutline: JobCutline): Promise<CogBuilderMetadata> {
+    async build(tiffs: CogSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
         const metadata = await this.getMetadata(tiffs);
-        const covering = Covering.optimize(metadata, cutline, this.maxTileZoom, this.maxTileCount);
+        const covering = cutline.optimizeCovering(metadata);
         return { ...metadata, covering };
     }
 }

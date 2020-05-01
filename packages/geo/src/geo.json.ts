@@ -22,6 +22,13 @@ export const GeoJson = {
         ];
     },
 
+    toPolygon(coordinates: GeoJSON.Position[][]): GeoJSON.Polygon {
+        return {
+            type: 'Polygon',
+            coordinates,
+        };
+    },
+
     /** Create a feature polygon */
     toFeaturePolygon(coordinates: GeoJSON.Position[][], properties = {}): GeoJSON.Feature {
         return {

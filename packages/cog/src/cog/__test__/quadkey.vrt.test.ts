@@ -1,31 +1,20 @@
-import { LogConfig } from '@basemaps/lambda-shared';
-import { polygon } from '@turf/helpers';
-import { FeatureCollection, Position } from 'geojson';
+import { FileOperatorSimple, LogConfig } from '@basemaps/lambda-shared';
+import { FeatureCollection } from 'geojson';
 import * as o from 'ospec';
-import { QuadKeyCutline } from '../quadkey.cutline';
+import { Cutline } from '../cutline';
 import { QuadKeyVrt } from '../quadkey.vrt';
-import { CogJob } from '../types';
+import { SourceTiffTestHelper } from './source.tiff.testhelper';
 
 o.spec('quadkey.vrt', () => {
     const tmpFolder = '/tmp/my-tmp-folder';
 
-    const job = {
-        source: {
-            files: [] as string[],
-            path: '',
-            options: {
-                maxConcurrency: 3,
-                maxCogs: 3,
-                minZoom: 1,
-            },
-        },
-        output: {},
-    } as CogJob;
+    const job = SourceTiffTestHelper.makeCogJob();
 
     const logger = LogConfig.get();
     LogConfig.disable();
 
-    o.afterEach(() => {
+    o.beforeEach(() => {
+        job.source.resolution = 13;
         job.source.files = [];
     });
 
@@ -55,35 +44,19 @@ o.spec('quadkey.vrt', () => {
     const testDir = `${process.cwd()}/__test.assets__`;
 
     o.spec('buildCutlineVrt', () => {
-        const [tif1, tif2] = [1, 2].map((i) => `${testDir}/tif${i}.tiff`);
+        const [tif1Path, tif2Path] = [1, 2].map((i) => `${testDir}/tif${i}.tiff`);
 
-        const vtif1 = '/vsis3/' + tif1,
-            vtif2 = '/vsis3/' + tif2;
+        const vtif1 = '/vsis3/' + tif1Path,
+            vtif2 = '/vsis3/' + tif2Path;
 
-        const tif1Poly = [
-            [174.56568549279925, -40.83842049282911],
-            [174.57337757492053, -41.162595138463644],
-            [174.85931317513828, -41.15833331417625],
-            [174.85022498195937, -40.834206771481526],
-            [174.56568549279925, -40.83842049282911],
-        ];
-
-        const tif2Poly = [
-            [174.85022498195937, -40.834206771481526],
-            [174.85931317513828, -41.15833331417625],
-            [175.14518230301843, -41.15336229204068],
-            [175.13469922175867, -40.829291849263555],
-            [174.85022498195937, -40.834206771481526],
-        ];
-
-        const makePoly = (poly: Position[], path: string): any => polygon([poly], { tiff: path });
+        const [tif1Poly, tif2Poly] = SourceTiffTestHelper.tiffPolygons();
 
         const sourceGeo = {
             type: 'FeatureCollection',
             features: [],
         } as FeatureCollection;
 
-        function makeVrtString(tifs: string[] = [tif1, tif2], bandTotal = 2): string {
+        function makeVrtString(tifs: string[] = [tif1Path, tif2Path], bandTotal = 2): string {
             job.source.files = tifs;
             const bands = ['red', 'green', 'blue', 'alpha'];
 
@@ -99,36 +72,42 @@ o.spec('quadkey.vrt', () => {
             return `<VRTDataset rasterXSize="24" rasterYSize="36"><SRS />${rasterBands}</VRTDataset>`;
         }
 
-        const origWriteCutline = QuadKeyCutline.prototype.writeCutline;
+        const origFileOperatorWriteJson = FileOperatorSimple.writeJson;
 
         o.after(() => {
-            QuadKeyCutline.prototype.writeCutline = origWriteCutline;
+            FileOperatorSimple.writeJson = origFileOperatorWriteJson;
         });
 
         let cutTiffArgs: Array<Array<any>> = [];
 
         o.beforeEach(() => {
-            sourceGeo.features = [makePoly(tif1Poly, tif1), makePoly(tif2Poly, tif2)] as any;
+            sourceGeo.features = SourceTiffTestHelper.makeTiffFeatureCollection(
+                [tif1Poly, tif2Poly],
+                [tif1Path, tif2Path],
+            ).features;
 
             cutTiffArgs = [];
-            QuadKeyCutline.prototype.writeCutline = ((...args: any): string => {
+            FileOperatorSimple.writeJson = ((...args: any): any => {
                 cutTiffArgs.push(args);
-                return 'cut//' + args[0];
             }) as any;
 
             job.output.cutlineBlend = undefined;
         });
 
         o('1 crosses, 1 outside', async () => {
-            const cutline = await QuadKeyCutline.loadCutline(testDir + '/kapiti.geojson');
+            const cutline = await Cutline.loadCutline(testDir + '/kapiti.geojson');
+            const cl2 = await Cutline.loadCutline(testDir + '/mana.geojson');
+            cutline.polygons.push(...cl2.polygons);
 
-            const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, makeVrtString(), '313', logger);
+            job.source.resolution = 17;
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([vtif2, vtif2]);
+            await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, makeVrtString(), '311333', logger);
+
+            o(cutline.polygons.length).equals(2);
         });
 
         o('not within quadKey', async () => {
-            const cutline = await QuadKeyCutline.loadCutline(testDir + '/kapiti.geojson');
+            const cutline = await Cutline.loadCutline(testDir + '/kapiti.geojson');
 
             const vrt = await QuadKeyVrt.buildVrt(
                 tmpFolder,
@@ -140,8 +119,9 @@ o.spec('quadkey.vrt', () => {
                 logger,
             );
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([]);
             o(cutTiffArgs.length).equals(0);
+
+            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([]);
         });
 
         o('no cutline', async () => {
@@ -149,7 +129,7 @@ o.spec('quadkey.vrt', () => {
                 tmpFolder,
                 job,
                 sourceGeo,
-                new QuadKeyCutline(),
+                new Cutline(),
                 makeVrtString(),
                 '31',
                 logger,
@@ -165,7 +145,7 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('fully within', async () => {
-            const cutline = await QuadKeyCutline.loadCutline(testDir + '/kapiti.geojson');
+            const cutline = await Cutline.loadCutline(testDir + '/kapiti.geojson');
 
             const qkey = '3113332223211133012';
 
@@ -177,7 +157,7 @@ o.spec('quadkey.vrt', () => {
 
         o('1 surrounded', async () => {
             job.output.cutlineBlend = 10;
-            const cutline = await QuadKeyCutline.loadCutline(testDir + '/mana.geojson');
+            const cutline = await Cutline.loadCutline(testDir + '/mana.geojson');
 
             const vrt = await QuadKeyVrt.buildVrt(
                 tmpFolder,
@@ -192,7 +172,7 @@ o.spec('quadkey.vrt', () => {
             o(cutTiffArgs.length).equals(1);
             o(cutTiffArgs[0][0]).equals(tmpFolder + '/cutline.geojson');
 
-            o(cutline.polyCount).equals(1);
+            o(cutline.polygons.length).equals(1);
 
             const geo = cutline.toGeoJson();
 
@@ -210,7 +190,12 @@ o.spec('quadkey.vrt', () => {
                 ]);
             }
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([vtif1, vtif1]);
+            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([
+                vtif1,
+                vtif2,
+                vtif1,
+                vtif2,
+            ]);
         });
     });
 });

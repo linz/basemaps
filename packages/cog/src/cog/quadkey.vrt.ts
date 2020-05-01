@@ -1,8 +1,8 @@
 import { FileOperator, LogType, VNodeElement, VNodeParser } from '@basemaps/lambda-shared';
 import { FeatureCollection } from 'geojson';
 import { basename } from 'path';
-import { QuadKeyCutline } from './quadkey.cutline';
 import { CogJob } from './types';
+import { Cutline } from './cutline';
 
 export const QuadKeyVrt = {
     /**
@@ -22,7 +22,7 @@ export const QuadKeyVrt = {
         tmpFolder: string,
         job: CogJob,
         sourceGeo: FeatureCollection,
-        cutline: QuadKeyCutline,
+        cutline: Cutline,
         inputVrt: Buffer | string | VNodeElement,
         quadKey: string,
         logger: LogType,
@@ -33,14 +33,19 @@ export const QuadKeyVrt = {
 
         const inputTotal = job.source.files.length;
 
-        const cropTotal = cutline.filterSources(quadKey, job, sourceGeo);
+        cutline.filterSourcesForQuadKey(quadKey, job, sourceGeo);
 
         const useTifs = new Set<string>(job.source.files.map((n) => basename(n)));
 
-        if (cutline.polyCount == 0) {
+        if (useTifs.size == 0) {
+            logger.warn({ quadKey }, 'EmptySourceImagery');
+        }
+
+        if (cutline.polygons.length == 0) {
             job.output.cutlineBlend = undefined;
         } else {
-            await cutline.writeCutline(FileOperator.join(tmpFolder, 'cutline.geojson'));
+            const cutlineTarget = FileOperator.join(tmpFolder, 'cutline.geojson');
+            await FileOperator.create(cutlineTarget).writeJson(cutlineTarget, cutline.toGeoJson());
         }
 
         for (const b of vrt.tags('VRTRasterBand')) {
@@ -57,7 +62,7 @@ export const QuadKeyVrt = {
         }
 
         logger.info(
-            { inputTotal, outputTotal: job.source.files.length, cropTotal, polygons: cutline.polyCount },
+            { inputTotal, outputTotal: job.source.files.length, cutlinePolygons: cutline.polygons.length },
             'Tiff count',
         );
 

@@ -2,72 +2,91 @@ import { QuadKey } from './quad.key';
 
 /** Symbol for if the value exists */
 const QkIndexKey = Symbol('QkExists');
-const QkParent = Symbol('QkParent');
 
-function* iterate(
-    node: QuadKeyTrieNode,
-    currentStr = '',
-    full = false,
-): Generator<[string, QuadKeyTrieNode], null, void> {
+function* iterate(node: QuadKeyTrieNode, currentStr = ''): Generator<string, null, void> {
     if (node[QkIndexKey]) {
-        yield [currentStr, node];
-        if (!full) return null;
+        yield currentStr;
+        return null;
     }
     for (const key of QuadKey.Keys) {
         const newCurrent = node[key];
-        if (newCurrent != null) yield* iterate(newCurrent, currentStr + key, full);
+        if (newCurrent != null) yield* iterate(newCurrent, currentStr + key);
     }
     return null;
 }
 
-function collectForPoint(quadKeys: string[], point: number[], node: QuadKeyTrieNode, currentStr = ''): void {
-    if (QuadKey.containsPoint(currentStr, point)) {
-        if (node[QkIndexKey]) quadKeys.push(currentStr);
-        for (const key of QuadKey.Keys) {
-            const newCurrent = node[key];
-            if (newCurrent != null) collectForPoint(quadKeys, point, newCurrent, currentStr + key);
+function removeChildren(trie: QuadKeyTrie, parent: QuadKeyTrieNode): void {
+    for (const key of QuadKey.Keys) {
+        const newCurrent = parent[key];
+        if (newCurrent != null) {
+            --trie.size;
+            parent[key] = null;
+            removeChildren(trie, newCurrent);
         }
     }
 }
 
-export interface QuadKeyTrieNode {
-    [key: string]: QuadKeyTrieNode;
+/**
+ * Merge all child nodes into current visited node
+ */
+function mergeChildren(trie: QuadKeyTrie, parent: QuadKeyTrieNode): void {
+    if (!parent[QkIndexKey]) {
+        ++trie.size;
+        parent[QkIndexKey] = true;
+    }
+    removeChildren(trie, parent);
+}
+
+// recursive function called from QuadKeyTrie.mergeQuadKeys
+function mergeQuadKeys(
+    trie: QuadKeyTrie,
+    parent: QuadKeyTrieNode,
+    coveringPercentage: number,
+    minZ: number,
+    maxZ: number,
+    level = 0,
+): number {
+    let coverCount = 0;
+    if (parent[QkIndexKey]) {
+        coverCount += 1.0;
+    } else {
+        let childCount = 0;
+        for (const key of QuadKey.Keys) {
+            const child = parent[key];
+            if (child != null) {
+                ++childCount;
+                coverCount += mergeQuadKeys(trie, child, coveringPercentage, minZ, maxZ, level + 1) * 0.25;
+            }
+        }
+
+        if (
+            // node not too big and populated enough
+            (level >= minZ && coverCount >= coveringPercentage) ||
+            // node too small and would reduce node count
+            (level >= maxZ && childCount > 1)
+        ) {
+            mergeChildren(trie, parent);
+        }
+    }
+    return coverCount;
+}
+
+interface QuadKeyTrieNode {
+    [key: string]: QuadKeyTrieNode | null;
     [QkIndexKey]?: boolean;
-    [QkParent]: QuadKeyTrieNode | null;
 }
 
 export class QuadKeyTrie {
-    /**
-     * Get the parent Trie node for a quadkey
-     * @param node Parent node, Self if node is the root
-     */
-    static parent(node: QuadKeyTrieNode): QuadKeyTrieNode | null {
-        return node[QkParent];
-    }
-
-    /**
-     * Has this node have this exact child key
-     * @param node Trie node to check
-     * @param key QuadKey to check
-     *
-     * @example
-     * ```
-     * QuadKeyTrie.has(node, '3')
-     * ```
-     */
-    static has(node: QuadKeyTrieNode, key: string): boolean {
-        const childNode = node[key];
-        if (childNode && childNode[QkIndexKey]) return true;
-        return false;
-    }
-
     /** Number of elements in the Trie */
     size: number;
-    trie: QuadKeyTrieNode;
+    private trie: QuadKeyTrieNode;
 
+    /**
+     * An Iterate-able Trie of quad keys
+     */
     constructor() {
         this.size = 0;
-        this.trie = { [QkParent]: null };
+        this.trie = {};
     }
 
     /**
@@ -83,68 +102,83 @@ export class QuadKeyTrie {
 
     /**
      * Add a quad key to the index
-     * @param qk Quadkey to add
-     * @returns Trie node that was added
+     * @param quadKey Quadkey to add
      */
-    add(qk: string): QuadKeyTrieNode {
+    add(quadKey: string): void {
         let current = this.trie;
-        for (let i = 0; i < qk.length; i++) {
-            const char = qk[i];
+        for (let i = 0; i < quadKey.length; i++) {
+            const char = quadKey[i];
             let existing = current[char];
             if (existing == null) {
-                current[char] = existing = { [QkParent]: current };
+                current[char] = existing = {};
             }
             current = existing;
         }
 
         // Already exists ignore
-        if (current[QkIndexKey]) return current;
+        if (current[QkIndexKey]) return;
 
         this.size++;
         current[QkIndexKey] = true;
-        return current;
-    }
 
-    get(qk: string): QuadKeyTrieNode | null {
-        let current = this.trie;
-        for (let i = 0; i < qk.length; i++) {
-            const char = qk[i];
-            current = current[char];
-            if (current == null) return null;
-        }
-        return current;
-    }
-
-    /**
-     * Get all Quadkeys for the given point
-     */
-    getPoint(point: number[]): string[] {
-        const quadKeys: string[] = [];
-        collectForPoint(quadKeys, point, this.trie, '');
-        return quadKeys;
+        removeChildren(this, current);
     }
 
     /**
      * Does this exact quadkey exist in the Trie
-     * @param qk Quadkey to check
+     * @param quadKey Quadkey to check
      */
-    has(qk: string): boolean {
-        const node = this.get(qk);
-        if (node == null) return false;
-        return node[QkIndexKey] != null;
+    has(quadKey: string): boolean {
+        let current: QuadKeyTrieNode | null = this.trie;
+        for (let i = 0; i < quadKey.length; i++) {
+            const char = quadKey[i];
+            current = current[char];
+            if (current == null) return false;
+        }
+        return current[QkIndexKey] != null;
+    }
+
+    /**
+     * Iterate over all quad keys that intersect with `quadKey`
+     *
+     * @param quadKey
+     */
+    *intersectingQuadKeys(quadKey: string): Generator<string, null, void> {
+        let current: QuadKeyTrieNode | null = this.trie;
+        if (current[QkIndexKey]) {
+            yield '';
+            return null;
+        }
+
+        let result = '';
+
+        for (let i = 0; i < quadKey.length; i++) {
+            const char = quadKey[i];
+            current = current[char];
+            if (current == null) return null;
+
+            result += char;
+            if (current[QkIndexKey]) {
+                yield result;
+                return null;
+            }
+        }
+
+        yield* iterate(current, result);
+        return null;
     }
 
     /**
      * Does this quadkey have any intersections with the index
      *
-     * @param qk
+     * @param quadKey
      */
-    intersects(qk: string): boolean {
-        let current = this.trie;
+    intersectsKey(quadKey: string): boolean {
+        let current: QuadKeyTrieNode | null = this.trie;
         if (current[QkIndexKey]) return true;
 
-        for (let i = 0; i < qk.length; i++) {
-            const char = qk[i];
+        for (let i = 0; i < quadKey.length; i++) {
+            const char = quadKey[i];
             current = current[char];
             if (current == null) return false;
             if (current[QkIndexKey]) return true;
@@ -153,18 +187,48 @@ export class QuadKeyTrie {
     }
 
     /**
-     * Convert the trie to a list of QuadKeys
+     * Do the two Tries intersect
      */
-    toList(): string[] {
-        return Array.from(this);
+    intersectsTrie(other: QuadKeyTrie): boolean {
+        for (const qk of this) {
+            if (other.intersectsKey(qk)) return true;
+        }
+        return false;
     }
 
-    *[Symbol.iterator](): Generator<string, null, void> {
-        for (const [str] of iterate(this.trie, '')) yield str;
-        return null;
+    /**
+     * Make a new QuadKeyTrie which the intersection of this QuadKeyTrie and `other`
+
+     * @param other
+     * @return the new intersection QuadKeyTrie
+     */
+    intersection(other: QuadKeyTrie): QuadKeyTrie {
+        const result = new QuadKeyTrie();
+        for (const qkA of this) {
+            for (const qkB of other.intersectingQuadKeys(qkA)) {
+                result.add(qkA.length > qkB.length ? qkA : qkB);
+            }
+        }
+
+        return result;
     }
 
-    *nodes(from = this.trie, full = true): Generator<[string, QuadKeyTrieNode], null, void> {
-        return yield* iterate(from, '', full);
+    /**
+     * Merge child nodes that have at least coveringPercentage within a zoom range of `minZ` to
+     * `maxz`.
+
+     * @param minZ Don't merge any quadKeys of this length or less
+     * @param maxZ Merge any quadKeys of at least this length if they are an only child
+     * @return the percentage covered of the world by this covering set
+     */
+    mergeQuadKeys(coveringPercentage: number, minZ: number, maxZ: number): number {
+        return mergeQuadKeys(this, this.trie, coveringPercentage, minZ, maxZ);
+    }
+
+    /**
+     * Iterate over all quad keys
+     */
+    [Symbol.iterator](): Generator<string, null, void> {
+        return iterate(this.trie, '');
     }
 }

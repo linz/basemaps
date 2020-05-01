@@ -1,11 +1,14 @@
 /** The image with of a single tile in pixels */
-export const singleTileWidth = 256 * 1.5;
+export const SingleTileWidth = 256 * 1.5;
 
 /** Maximum desired image size */
-export const maxImagePixelDim = 256000;
+export const MaxImagePixelDim = 256000;
 
 /** Zoom difference from targetZoom to minZoom for maxImagePixelDim */
-export const zoomDifferenceForMaxImage = 1 - Math.floor(Math.log2(maxImagePixelDim / singleTileWidth));
+export const ZoomDifferenceForMaxImage = 1 - Math.floor(Math.log2(MaxImagePixelDim / SingleTileWidth));
 
 /** When a tile has at least this much covering merge it up to parent */
-export const coveringPercentage = 0.6;
+export const CoveringPercentage = 0.6;
+
+/** The zoom level of the cutline polygon */
+export const CutlineZoom = 15;
