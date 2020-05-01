@@ -49,17 +49,17 @@ export async function buildCogForQuadKey(
 ): Promise<void> {
     const startTime = Date.now();
 
-    const bbox = QuadKey.toBbox(quadKey);
+    const [left, lower, right, upper] = QuadKey.toBbox(quadKey);
     const { forward } = Wgs84ToGoogle;
-    const [east, north] = forward(bbox.slice(0, 2));
-    const [west, south] = forward(bbox.slice(2));
+    const [ulX, ulY] = forward([left, upper]);
+    const [lrX, lrY] = forward([right, lower]);
 
     const [x, y, z] = QuadKey.toXYZ(quadKey);
 
     const alignmentLevels = job.source.resolution - z;
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
-        bbox: [east, south, west, north],
+        bbox: [ulX, ulY, lrX, lrY],
         alignmentLevels,
         resampling: getResample(job.output.resample),
     });

@@ -123,7 +123,7 @@ export class Bounds {
     }
 
     /**
-     * Convert a BBox(east, north, west, south) to Bounds(x,y, width, height).
+     * Convert a BBox(minX, minY, maxX, maxY) to Bounds(x,y, width, height).
      * Takes into account the antimeridian.
      * @param bbox
      */
