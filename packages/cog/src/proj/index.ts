@@ -16,13 +16,20 @@ export const Wgs84ToGoogle = getProjection(EPSG.Wgs84, EPSG.Google)!;
 
 /**
  * Attempt to guess the projection based off the WKT
+ *
+ * @example
+ *
+ * "PCS Name = NZGD_2000_New_Zealand_Transverse_Mercator|GCS Name = GCS_NZGD_2000|Ellipsoid = GRS_1980|Primem = Greenwich||"
+ * "NZGD2000_New_Zealand_Transverse_Mercator_2000|GCS Name = GCS_NZGD_2000|Primem = Greenwich||"
+ *
  * @param wkt
  */
 export function guessProjection(wkt: string): EPSG | null {
     if (wkt == null) {
         return null;
     }
-    if (wkt.includes('NZGD2000') || wkt.includes('NZGD_2000')) {
+    const searchWkt = wkt.replace(/_/g, ' ');
+    if (searchWkt.includes('New Zealand Transverse Mercator')) {
         return EPSG.Nztm;
     }
     return null;

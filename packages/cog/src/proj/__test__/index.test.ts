@@ -1,5 +1,6 @@
 import * as o from 'ospec';
-import { getProjection, Wgs84ToGoogle } from '../index';
+import { getProjection, Wgs84ToGoogle, guessProjection } from '../index';
+import { EPSG } from '@basemaps/geo';
 
 function toFixed(f: number): string {
     return f.toFixed(6);
@@ -20,5 +21,25 @@ o.spec('Proj2193', () => {
 
     o('Wgs84ToGoogle', () => {
         o(Wgs84ToGoogle.forward([167.454458, -47.1970753])).deepEquals([18640944.995623615, -5974301.313247106]);
+    });
+
+    o('should guess WKT', () => {
+        o(
+            guessProjection(
+                'PCS Name = NZGD_2000_New_Zealand_Transverse_Mercator|GCS Name = GCS_NZGD_2000|Ellipsoid = GRS_1980|Primem = Greenwich||',
+            ),
+        ).equals(EPSG.Nztm);
+
+        o(
+            guessProjection(
+                'NZGD2000_New_Zealand_Transverse_Mercator_2000|GCS Name = GCS_NZGD_2000|Primem = Greenwich||',
+            ),
+        ).equals(EPSG.Nztm);
+    });
+
+    o('should not guess unknown wkt', () => {
+        o(guessProjection('')).equals(null);
+        o(guessProjection('NZTM')).equals(null);
+        o(guessProjection('NZGD2000')).equals(null);
     });
 });
