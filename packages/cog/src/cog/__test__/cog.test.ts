@@ -1,12 +1,17 @@
-import * as o from 'ospec';
-import { getTileSize, buildCogForQuadKey } from '../cog';
-import { GdalCogBuilder } from '../../gdal/gdal';
-import { SourceTiffTestHelper } from './source.tiff.testhelper';
 import { LogConfig } from '@basemaps/lambda-shared';
+import * as o from 'ospec';
+import { GdalCogBuilder } from '../../gdal/gdal';
+import { buildCogForQuadKey, getTileSize } from '../cog';
+import { SourceTiffTestHelper } from './source.tiff.testhelper';
 
 LogConfig.disable();
 
 o.spec('cog', () => {
+    o('getTileSize', async () => {
+        o(getTileSize('31201', 10)).equals(24576);
+        o(getTileSize('3121021331201', 20)).equals(98304);
+    });
+
     o.spec('buildCogForQuadKey', () => {
         const origConvert = GdalCogBuilder.prototype.convert;
 

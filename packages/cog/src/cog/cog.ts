@@ -4,6 +4,7 @@ import { GdalCogBuilder } from '../gdal/gdal';
 import { getResample } from '../gdal/gdal.config';
 import { Wgs84ToGoogle } from '../proj';
 import { CogJob } from './types';
+import { singleTileWidth } from './constants';
 
 /**
  * Create a onProgress logger
@@ -22,11 +23,11 @@ export function onProgress(keys: Record<string, any>, logger: LogType): (p: numb
 /**
  * Return the width/height of the quadkey in pixels at the target resolution
  * @param quadKey
- * @param targetResolution
- * @param tileSize (Optional) size of each tile
+ * @param targetZoom The zoom level for the target resolution
+ * @param tileSize (Optional) size of each tile. Default is what GDAL creates for Google tiles
  */
-export function getTileSize(quadKey: string, targetResolution: number, tileSize = 256): number {
-    return tileSize * Math.pow(2, targetResolution - quadKey.length + 1);
+export function getTileSize(quadKey: string, targetZoom: number, tileSize = singleTileWidth): number {
+    return tileSize * Math.pow(2, targetZoom - quadKey.length + 1);
 }
 
 /**
