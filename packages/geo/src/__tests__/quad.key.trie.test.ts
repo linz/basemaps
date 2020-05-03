@@ -15,37 +15,37 @@ o.spec('QuadKeyTrie', () => {
 
     o.spec('intersect', () => {
         o('should intersect big to small', () => {
-            o(makeIndex('').intersects('30')).equals(true);
-            o(makeIndex('3').intersects('30')).equals(true);
-            o(makeIndex('3').intersects('301')).equals(true);
-            o(makeIndex('3').intersects('333')).equals(true);
-            o(makeIndex('33').intersects('30')).equals(false);
-            o(makeIndex('33').intersects('301')).equals(false);
-            o(makeIndex('33').intersects('333')).equals(true);
+            o(makeIndex('').intersectsKey('30')).equals(true);
+            o(makeIndex('3').intersectsKey('30')).equals(true);
+            o(makeIndex('3').intersectsKey('301')).equals(true);
+            o(makeIndex('3').intersectsKey('333')).equals(true);
+            o(makeIndex('33').intersectsKey('30')).equals(false);
+            o(makeIndex('33').intersectsKey('301')).equals(false);
+            o(makeIndex('33').intersectsKey('333')).equals(true);
         });
 
         o('should not intersect other cells', () => {
-            o(makeIndex('0').intersects('30003303')).equals(false);
-            o(makeIndex('1').intersects('30003303')).equals(false);
-            o(makeIndex('2').intersects('30003303')).equals(false);
-            o(makeIndex('31').intersects('30003303')).equals(false);
+            o(makeIndex('0').intersectsKey('30003303')).equals(false);
+            o(makeIndex('1').intersectsKey('30003303')).equals(false);
+            o(makeIndex('2').intersectsKey('30003303')).equals(false);
+            o(makeIndex('31').intersectsKey('30003303')).equals(false);
         });
 
         o('should intersect small to big', () => {
-            o(makeIndex('331').intersects('3')).equals(true);
-            o(makeIndex('331').intersects('30')).equals(false);
-            o(makeIndex('331').intersects('301')).equals(false);
-            o(makeIndex('331').intersects('333')).equals(false);
+            o(makeIndex('331').intersectsKey('3')).equals(true);
+            o(makeIndex('331').intersectsKey('30')).equals(false);
+            o(makeIndex('331').intersectsKey('301')).equals(false);
+            o(makeIndex('331').intersectsKey('333')).equals(false);
         });
     });
 
     o('should create a list', () => {
-        o(makeIndex(QuadKey.children('31')).toList()).deepEquals(['310', '311', '312', '313']);
-        o(makeIndex(['000', '3120', '3122', '311']).toList()).deepEquals(['000', '311', '3120', '3122']);
+        o(Array.from(makeIndex(QuadKey.children('31')))).deepEquals(['310', '311', '312', '313']);
+        o(Array.from(makeIndex(['000', '3120', '3122', '311']))).deepEquals(['000', '311', '3120', '3122']);
     });
 
     o('should remove unneeded keys', () => {
-        o(makeIndex(['31', ...QuadKey.children('31')]).toList()).deepEquals(['31']);
+        o(Array.from(makeIndex(['31', ...QuadKey.children('31')]))).deepEquals(['31']);
     });
 
     o('iterators', () => {
@@ -54,30 +54,53 @@ o.spec('QuadKeyTrie', () => {
         o(list).deepEquals(['0', '3113']);
     });
 
-    o('nodes', () => {
-        o(Array.from(new QuadKeyTrie().nodes())).deepEquals([]);
-        o(Array.from(makeIndex('31').nodes())).deepEquals([['31', {}]] as any);
-
-        const trie = makeIndex(['0', '3113', '31131']);
-
-        const node = trie.get('3113') as any;
-        node.foo = 'bar';
-        o(Array.from(trie.nodes()).map(([s]) => s)).deepEquals(['0', '3113', '31131']);
-        o(Array.from(trie.nodes(undefined, false))).deepEquals([
-            ['0', {}],
-            ['3113', { foo: 'bar', '1': {} }],
-        ] as any);
-        o(Array.from(trie.nodes(node, true))).deepEquals([
-            ['', { foo: 'bar', '1': {} }],
-            ['1', {}],
-        ] as any);
+    o('intersectingQuadKeys', () => {
+        const trie = QuadKeyTrie.fromList(['2222', '2221']);
+        o(Array.from(trie.intersectingQuadKeys('2'))).deepEquals(['2221', '2222']);
+        o(Array.from(trie.intersectingQuadKeys('2222'))).deepEquals(['2222']);
+        o(Array.from(trie.intersectingQuadKeys('222211230'))).deepEquals(['2222']);
+        o(Array.from(trie.intersectingQuadKeys('2230'))).deepEquals([]);
     });
 
-    o('getPoint', () => {
-        const trie = makeIndex(['0', '3113', '31231', '31232', '312321']);
+    o('intersection', () => {
+        const trie1 = QuadKeyTrie.fromList(['2222', '2221', '31']);
+        const trie2 = QuadKeyTrie.fromList(['3111', '3112', '22']);
+        o(Array.from(trie1.intersection(trie2))).deepEquals(['2221', '2222', '3111', '3112']);
+    });
 
-        o(trie.getPoint(QuadKey.toBbox('31232103').slice(2))).deepEquals(['31232', '312321']);
-        o(trie.getPoint(QuadKey.toBbox('3003').slice(2))).deepEquals([]);
-        o(trie.getPoint(QuadKey.toBbox('3113').slice(2))).deepEquals(['3113']);
+    o.spec('mergeQuadKeys', () => {
+        o('should not simplify if below percent', () => {
+            const trie = QuadKeyTrie.fromList(QuadKey.children('3112').slice(1));
+            const ans = trie.mergeQuadKeys(0.79, 4, 7);
+
+            o(ans * (1 << 4)).equals(0.046875);
+            o(Array.from(trie)).deepEquals(['31121', '31122', '31123']);
+        });
+
+        o('should simplify if node not too big and populated enough', () => {
+            const trie = QuadKeyTrie.fromList(['311', '313', '31201', '31202']);
+            const ans = trie.mergeQuadKeys(0.3, 4, 7);
+
+            o(ans * (1 << 4)).equals(0.53125);
+            o(Array.from(trie)).deepEquals(['311', '3120', '313']);
+        });
+
+        o('should not go below minZ', () => {
+            const trie = QuadKeyTrie.fromList(QuadKey.children('3112').slice(1));
+            const ans = trie.mergeQuadKeys(0.2, 5, 7);
+
+            o(ans * (1 << 4)).equals(0.046875);
+            o(Array.from(trie)).deepEquals(['31121', '31122', '31123']);
+        });
+
+        o('should not go above maxZ', () => {
+            const trie = QuadKeyTrie.fromList(QuadKey.children('3112').slice(2));
+            trie.add('3121112');
+            trie.add('3121113');
+            const ans = trie.mergeQuadKeys(0.8, 2, 4);
+
+            o(ans * (1 << 4)).equals(0.033203125);
+            o(Array.from(trie)).deepEquals(['3112', '312111']);
+        });
     });
 });

@@ -4,6 +4,7 @@ import { GdalCogBuilder } from '../gdal/gdal';
 import { getResample } from '../gdal/gdal.config';
 import { Wgs84ToGoogle } from '../proj';
 import { CogJob } from './types';
+import { SingleTileWidth } from './constants';
 
 /**
  * Create a onProgress logger
@@ -22,11 +23,11 @@ export function onProgress(keys: Record<string, any>, logger: LogType): (p: numb
 /**
  * Return the width/height of the quadkey in pixels at the target resolution
  * @param quadKey
- * @param targetResolution
- * @param tileSize (Optional) size of each tile
+ * @param targetZoom The zoom level for the target resolution
+ * @param tileSize (Optional) size of each tile. Default is what GDAL creates for Google tiles
  */
-export function getTileSize(quadKey: string, targetResolution: number, tileSize = 256): number {
-    return tileSize * Math.pow(2, targetResolution - quadKey.length + 1);
+export function getTileSize(quadKey: string, targetZoom: number, tileSize = SingleTileWidth): number {
+    return tileSize * Math.pow(2, targetZoom - quadKey.length + 1);
 }
 
 /**
@@ -49,17 +50,17 @@ export async function buildCogForQuadKey(
 ): Promise<void> {
     const startTime = Date.now();
 
-    const bbox = QuadKey.toBbox(quadKey);
+    const [left, lower, right, upper] = QuadKey.toBbox(quadKey);
     const { forward } = Wgs84ToGoogle;
-    const [east, north] = forward(bbox.slice(0, 2));
-    const [west, south] = forward(bbox.slice(2));
+    const [ulX, ulY] = forward([left, upper]);
+    const [lrX, lrY] = forward([right, lower]);
 
     const [x, y, z] = QuadKey.toXYZ(quadKey);
 
     const alignmentLevels = job.source.resolution - z;
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
-        bbox: [east, south, west, north],
+        bbox: [ulX, ulY, lrX, lrY],
         alignmentLevels,
         resampling: getResample(job.output.resample),
     });

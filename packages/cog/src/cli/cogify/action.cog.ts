@@ -9,11 +9,11 @@ import { createReadStream, promises as fs } from 'fs';
 import { FeatureCollection } from 'geojson';
 import * as ulid from 'ulid';
 import { buildCogForQuadKey } from '../../cog/cog';
-import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { buildWarpedVrt } from '../../cog/cog.vrt';
-import { getJobPath, makeTempFolder } from '../folder';
-import { QuadKeyCutline } from '../../cog/quadkey.cutline';
+import { Cutline } from '../../cog/cutline';
+import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { CogJob } from '../../cog/types';
+import { getJobPath, makeTempFolder } from '../folder';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -97,12 +97,12 @@ export class ActionCogCreate extends CommandLineAction {
 
             const vrtString = await outputFs.read(getJobPath(job, '.vrt'));
 
-            let cutline: QuadKeyCutline;
+            let cutline: Cutline;
             if (job.output.cutlineBlend != null) {
                 const cutlinePath = getJobPath(job, 'cutline.geojson');
-                cutline = await QuadKeyCutline.loadCutline(cutlinePath);
+                cutline = await Cutline.loadCutline(cutlinePath);
             } else {
-                cutline = new QuadKeyCutline();
+                cutline = new Cutline();
             }
 
             const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, vrtString, quadKey, logger);

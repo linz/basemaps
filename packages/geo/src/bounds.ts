@@ -44,17 +44,21 @@ export class Bounds {
     }
 
     /**
-     * Does this bounds contain point
+     * Is `other` bounds completely within this bounds
+
+     * @param other Bounds to check is within this
      */
-    public containsPoint(point: number[]): boolean {
-        return this.x <= point[0] && this.right >= point[0] && this.y <= point[1] && this.bottom >= point[1];
+    public containsBounds(other: Bounds): boolean {
+        return this.x <= other.x && this.right >= other.right && this.y <= other.y && this.bottom >= other.bottom;
     }
 
     /**
-     * Create a new bounds that is the intersection of the two bounds
+     * Create a new bounds that is the intersection of the two bounds (if any))
      *
      * @param other Bounds to calculate intersection with
-     * @returns new Bounds that is the intersection of the two bounds
+
+     * @returns new Bounds that is the intersection of the two bounds or null is not intersection
+     * found
      */
     public intersection(other: Bounds): Bounds | null {
         const x = Math.max(this.x, other.x);
@@ -66,6 +70,20 @@ export class Bounds {
             return new Bounds(x, y, num1 - x, num2 - y);
         }
         return null;
+    }
+
+    /**
+     * Create a new bounds that is the union of the two bounds
+     *
+     * @param other Bounds to calculate union with
+     */
+    public union(other: Bounds): Bounds {
+        const x = Math.min(this.x, other.x);
+        const maxX = Math.max(this.x + this.width, other.x + other.width);
+        const y = Math.min(this.y, other.y);
+        const maxY = Math.max(this.y + this.height, other.y + other.height);
+
+        return new Bounds(x, y, maxX - x, maxY - y);
     }
 
     /**
@@ -123,7 +141,7 @@ export class Bounds {
     }
 
     /**
-     * Convert a BBox(east, north, west, south) to Bounds(x,y, width, height).
+     * Convert a BBox(minX, minY, maxX, maxY) to Bounds(x,y, width, height).
      * Takes into account the antimeridian.
      * @param bbox
      */

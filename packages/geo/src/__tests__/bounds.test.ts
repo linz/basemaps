@@ -60,6 +60,18 @@ o.spec('Bounds', () => {
         o(tileMiddle.intersection(getTile(0, 1))!.toJson()).deepEquals(new Bounds(128, 256, 128, 128).toJson());
     });
 
+    o('union', () => {
+        o(new Bounds(5, 10, 6, 7).union(new Bounds(2, 12, 1, 3)).toJson()).deepEquals(new Bounds(2, 10, 9, 7).toJson());
+        o(new Bounds(5, 10, 6, 7).union(new Bounds(7, 2, 1, 3)).toJson()).deepEquals(new Bounds(5, 2, 6, 15).toJson());
+        o(new Bounds(5, 10, 6, 7).union(new Bounds(2, 2, 20, 20)).toJson()).deepEquals(
+            new Bounds(2, 2, 20, 20).toJson(),
+        );
+
+        o(new Bounds(2, 2, 20, 20).union(new Bounds(5, 10, 6, 7)).toJson()).deepEquals(
+            new Bounds(2, 2, 20, 20).toJson(),
+        );
+    });
+
     o('shift intersects', () => {
         o(tileZero.intersects(tileZero.subtract(tileZero))).equals(true);
         o(tileZero.intersects(tileZero.add(tileZero).subtract(tileZero))).equals(true);
@@ -73,17 +85,21 @@ o.spec('Bounds', () => {
         assertBounds(Bounds.fromQuadKey(''), new Bounds(-180, -85.051129, 360, 170.102258));
     });
 
-    o('containsPoint', () => {
-        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 5.5])).equals(true);
+    o('containsBounds', () => {
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4.5, 5.5, 0, 0))).equals(true);
 
-        o(new Bounds(4, 5, 1, 1).containsPoint([4, 5.5])).equals(true);
-        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 5])).equals(true);
-        o(new Bounds(4, 5, 1, 1).containsPoint([5, 5.5])).equals(true);
-        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 6])).equals(true);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4, 5.5, 0, 0))).equals(true);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4.5, 5, 0.2, 1))).equals(true);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(5, 5.5, 0, 0))).equals(true);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4.5, 6, 0, 0))).equals(true);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4, 5, 1, 1))).equals(true);
 
-        o(new Bounds(4, 5, 1, 1).containsPoint([3.9, 5.5])).equals(false);
-        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 6.1])).equals(false);
-        o(new Bounds(4, 5, 1, 1).containsPoint([4.5, 4.9])).equals(false);
-        o(new Bounds(4, 5, 1, 1).containsPoint([5.1, 5.5])).equals(false);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4.5, 6, 1, 0))).equals(false);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4.5, 6, 0.5, 1.001))).equals(false);
+
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(3.9, 5.5, 0, 0))).equals(false);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4.5, 6.1, 0, 0))).equals(false);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4.5, 4.9, 0, 0))).equals(false);
+        o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(5.1, 5.5, 0, 0))).equals(false);
     });
 });

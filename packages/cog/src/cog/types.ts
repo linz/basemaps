@@ -23,9 +23,7 @@ export interface CogJob {
         resolution: number;
 
         options: {
-            maxCogs: number;
             maxConcurrency: number;
-            minZoom: number;
         };
     } & FileConfig;
 

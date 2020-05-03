@@ -1,6 +1,7 @@
 import * as MapBoxCover from '@mapbox/tile-cover';
 import { GeoJson } from './geo.json';
 import { QuadKey } from './quad.key';
+import { QuadKeyTrie } from './quad.key.trie.js';
 
 export const TileCover = {
     /**
@@ -16,7 +17,7 @@ export const TileCover = {
     },
 
     /** Convert a quadkey covering to a GeoJSON FeatureCollection */
-    toGeoJson(covering: string[]): GeoJSON.FeatureCollection {
+    toGeoJson(covering: string[] | QuadKeyTrie): GeoJSON.FeatureCollection {
         const polygons: GeoJSON.Feature[] = [];
         for (const quadKey of covering) {
             const bbox = QuadKey.toBbox(quadKey);
