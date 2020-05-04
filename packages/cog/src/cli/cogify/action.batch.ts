@@ -39,7 +39,7 @@ export function extractYearFromName(name: string): number {
     return year;
 }
 
-const ResolutionRegex = /(\d[\.\-]\d+)m/;
+const ResolutionRegex = /((?:\d[\.\-])?\d+)m/;
 /**
  * Attempt to parse a resolution from a imagery name
  * @example `wellington_urban_2017_0.10m` -> 100
