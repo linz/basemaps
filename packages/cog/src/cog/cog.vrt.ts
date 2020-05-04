@@ -106,8 +106,8 @@ export async function buildWarpedVrt(
     if (job.output.nodata != null) {
         warpOpts.push('-srcnodata', String(job.output.nodata), '-dstnodata', String(job.output.nodata));
     }
-    if (job.output.resample) {
-        warpOpts.push('-r', job.output.resample);
+    if (job.output.resampling) {
+        warpOpts.push('-r', job.output.resampling);
     }
 
     logger.debug({ warpOpts: warpOpts.join(' ') }, 'gdalwarp');

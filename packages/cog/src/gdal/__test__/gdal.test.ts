@@ -1,6 +1,7 @@
 import * as o from 'ospec';
 import { GdalCogBuilder } from '../gdal';
 import { normalizeAwsEnv } from '../gdal.command';
+import { GdalCogBuilderDefaults } from '../gdal.config';
 
 o.spec('GdalCogBuilder', () => {
     o('should default all options', () => {
@@ -11,6 +12,8 @@ o.spec('GdalCogBuilder', () => {
         o(builder.config.resampling).equals('bilinear');
         o(builder.config.blockSize).equals(512);
         o(builder.config.alignmentLevels).equals(1);
+
+        o(builder.config).deepEquals({ ...GdalCogBuilderDefaults, bbox: undefined });
     });
 
     o('should create a docker command', () => {
