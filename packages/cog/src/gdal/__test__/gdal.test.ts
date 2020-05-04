@@ -8,7 +8,7 @@ o.spec('GdalCogBuilder', () => {
 
         o(builder.config.bbox).equals(undefined);
         o(builder.config.compression).equals('webp');
-        o(builder.config.resampling).equals('cubic');
+        o(builder.config.resampling).equals('bilinear');
         o(builder.config.blockSize).equals(512);
         o(builder.config.alignmentLevels).equals(1);
     });

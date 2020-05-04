@@ -17,7 +17,7 @@ export interface GdalCogBuilderOptions {
 
     /**
      * Resampling method to use
-     * @default 'cubic'
+     * @default 'bilinear'
      */
     resampling: GdalCogBuilderOptionsResampling;
     /**
@@ -35,7 +35,7 @@ export type GdalCogBuilderOptionsResampling =
     | 'average'
     | 'mode';
 
-export const gdalCogBuilderOptionsResamplingDefault: GdalCogBuilderOptionsResampling = 'cubic';
+export const gdalCogBuilderOptionsResamplingDefault: GdalCogBuilderOptionsResampling = 'bilinear';
 
 const resampleMap: Record<string, GdalCogBuilderOptionsResampling> = {
     nearest: 'nearest',

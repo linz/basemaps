@@ -40,7 +40,7 @@ o.spec('cog', () => {
                 bbox: [18472078.003508832, -5948635.289265559, 18785164.071364917, -6261721.357121641],
                 alignmentLevels: 6,
                 compression: 'webp',
-                resampling: 'cubic',
+                resampling: 'bilinear',
                 blockSize: 512,
             });
             o(gdalCogBuilder!.source).equals('/tmp/test.vrt');
@@ -60,7 +60,7 @@ o.spec('cog', () => {
                 '-co',
                 'BLOCKSIZE=512',
                 '-co',
-                'RESAMPLING=cubic',
+                'RESAMPLING=bilinear',
                 '-co',
                 'COMPRESS=webp',
                 '-co',
