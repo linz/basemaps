@@ -41,7 +41,7 @@ o.spec('quadkey.vrt', () => {
         SimpleSource.replace(/__TIFF__/, path).replace(/__SRC_BAND__/, String(srcBand));
 
     const complexSource = (path: string): string => ComplexSource.replace(/__TIFF__/, path);
-    const testDir = `${process.cwd()}/__test.assets__`;
+    const testDir = `${__dirname}/../../../__test.assets__`;
 
     o.spec('buildCutlineVrt', () => {
         const [tif1Path, tif2Path] = [1, 2].map((i) => `${testDir}/tif${i}.tiff`);

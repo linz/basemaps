@@ -83,6 +83,7 @@ o.spec('QuadKeyTrie', () => {
 
             o(ans * (1 << 4)).equals(0.53125);
             o(Array.from(trie)).deepEquals(['311', '3120', '313']);
+            o(trie.size).equals(3);
         });
 
         o('should not go below minZ', () => {
@@ -91,6 +92,7 @@ o.spec('QuadKeyTrie', () => {
 
             o(ans * (1 << 4)).equals(0.046875);
             o(Array.from(trie)).deepEquals(['31121', '31122', '31123']);
+            o(trie.size).equals(3);
         });
 
         o('should not go above maxZ', () => {
@@ -101,6 +103,18 @@ o.spec('QuadKeyTrie', () => {
 
             o(ans * (1 << 4)).equals(0.033203125);
             o(Array.from(trie)).deepEquals(['3112', '312111']);
+            o(trie.size).equals(2);
+        });
+
+        o('should give correct size', () => {
+            const trie = QuadKeyTrie.fromList(['31112', '31113', '31101']);
+
+            const ans = trie.mergeQuadKeys(1, 2, 2);
+
+            o(ans).equals(0.0029296875);
+
+            o(Array.from(trie)).deepEquals(['311']);
+            o(trie.size).equals(1);
         });
     });
 });

@@ -5,7 +5,7 @@ import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
 
 o.spec('covering', () => {
-    const testDir = `${process.cwd()}/__test.assets__`;
+    const testDir = `${__dirname}/../../../__test.assets__`;
     o('loadCutline', async () => {
         const cutline = await Cutline.loadCutline(testDir + '/mana.geojson');
         const geojson = cutline.toGeoJson();
@@ -48,9 +48,12 @@ o.spec('covering', () => {
 
         const covering = cutline.optimizeCovering({ bounds: geoJson, resolution: 13 } as SourceMetadata);
 
+        o(covering.size).equals(Array.from(covering).length);
         o(Array.from(covering)).deepEquals(['31133322', '31311100']);
 
-        const covering2 = cutline.optimizeCovering({ bounds: geoJson, resolution: 17 } as SourceMetadata);
+        const covering2 = cutline.optimizeCovering({ bounds: geoJson, resolution: 19 } as SourceMetadata);
+
+        o(covering2.size).equals(Array.from(covering2).length);
 
         o(Array.from(covering2)).deepEquals([
             '31133322221',
@@ -63,7 +66,10 @@ o.spec('covering', () => {
             '31133322322',
             '31311100001',
             '31311100003',
-            '3131110001',
+            '31311100010',
+            '31311100011',
+            '31311100012',
+            '31311100013',
             '31311100100',
             '313111001020',
         ]);
