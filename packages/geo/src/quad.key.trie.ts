@@ -19,7 +19,7 @@ function removeChildren(trie: QuadKeyTrie, parent: QuadKeyTrieNode): void {
     for (const key of QuadKey.Keys) {
         const newCurrent = parent[key];
         if (newCurrent != null) {
-            --trie.size;
+            if (newCurrent[QkIndexKey]) --trie.size;
             parent[key] = null;
             removeChildren(trie, newCurrent);
         }
@@ -221,7 +221,7 @@ export class QuadKeyTrie {
      * @param maxZ Merge any quadKeys of at least this length if they are an only child
      * @return the percentage covered of the world by this covering set
      */
-    mergeQuadKeys(coveringPercentage: number, minZ: number, maxZ: number): number {
+    mergeQuadKeys(coveringPercentage: number, minZ: number, maxZ = minZ): number {
         return mergeQuadKeys(this, this.trie, coveringPercentage, minZ, maxZ);
     }
 
