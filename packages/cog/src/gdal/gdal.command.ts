@@ -2,6 +2,28 @@ import { LogType } from '@basemaps/lambda-shared';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { GdalProgressParser } from './gdal.progress';
 
+/**
+ * GDAL uses AWS_DEFAULT_PROFILE while node uses AWS_PROFILE
+ * this validates the configuration is sane
+ *
+ * @param env environment to normalize
+ */
+export function normalizeAwsEnv(env: Record<string, string | undefined>): Record<string, string | undefined> {
+    const awsProfile = env['AWS_PROFILE'];
+    const awsDefaultProfile = env['AWS_DEFAULT_PROFILE'];
+
+    if (awsProfile == null) env;
+    if (awsDefaultProfile == null) {
+        return { ...env, AWS_DEFAULT_PROFILE: awsProfile };
+    }
+    if (awsDefaultProfile != awsProfile) {
+        throw new Error(
+            `$AWS_PROFILE: "${awsProfile}" and $AWS_DEFAULT_PROFILE: "${awsDefaultProfile}" are mismatched`,
+        );
+    }
+    return env;
+}
+
 export abstract class GdalCommand {
     parser: GdalProgressParser;
     protected child: ChildProcessWithoutNullStreams;
@@ -15,8 +37,8 @@ export abstract class GdalCommand {
         this.parser = new GdalProgressParser();
     }
 
-    mount?: (mount: string) => void;
-    env?: () => Promise<Record<string, string | undefined>>;
+    mount?(mount: string): void;
+    env?(): Promise<Record<string, string | undefined>>;
 
     /** Pass AWS credentials into the container */
     setCredentials(credentials?: AWS.Credentials): void {
@@ -30,7 +52,8 @@ export abstract class GdalCommand {
         this.parser.reset();
         this.startTime = Date.now();
 
-        const env = this.env ? await this.env() : process.env;
+        const env = normalizeAwsEnv(this.env ? await this.env() : process.env);
+
         const child = spawn(cmd, args, { env });
         this.child = child;
 
