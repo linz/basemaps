@@ -172,12 +172,13 @@ export class Cutline {
      */
     optimizeCovering(sourceMetadata: SourceMetadata): QuadKeyTrie {
         const sourceZ = sourceMetadata.resolution;
-        const corseZ = Math.max(1, sourceZ + ZoomDifferenceForMaxImage);
-        const fineZ = Math.max(1, corseZ + 2);
+
+        // Don't make COGs with a quadKey shorter than minZ.
+        const minZ = Math.max(1, sourceZ + ZoomDifferenceForMaxImage);
 
         const covering = this.findCovering(sourceMetadata);
 
-        covering.mergeQuadKeys(CoveringPercentage, corseZ, fineZ);
+        covering.mergeQuadKeys(CoveringPercentage, minZ);
 
         return covering;
     }
