@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
-    "deploy:bundle": "webpack"
+    "deploy:bundle": "ncc build build/index.js -e aws-sdk -o dist -s"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",
