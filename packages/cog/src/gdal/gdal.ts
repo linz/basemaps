@@ -56,7 +56,7 @@ export class GdalCogBuilder {
             bbox: config.bbox,
             alignmentLevels: config.alignmentLevels ?? 1,
             compression: config.compression ?? 'webp',
-            resampling: config.resampling ?? 'cubic',
+            resampling: config.resampling ?? 'bilinear',
             blockSize: config.blockSize ?? 512,
         };
 
