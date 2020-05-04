@@ -1,5 +1,6 @@
 import * as o from 'ospec';
 import { GdalCogBuilder } from '../gdal';
+import { normalizeAwsEnv } from '../gdal.command';
 
 o.spec('GdalCogBuilder', () => {
     o('should default all options', () => {
@@ -26,5 +27,14 @@ o.spec('GdalCogBuilder', () => {
 
         builder.config.blockSize = 256;
         o(builder.args.includes('BLOCKSIZE=256')).equals(true);
+    });
+
+    o('should normalize aws environment vars', () => {
+        const env = normalizeAwsEnv({ AWS_PROFILE: 'lake' });
+        o(env).deepEquals({ AWS_PROFILE: 'lake', AWS_DEFAULT_PROFILE: 'lake' });
+    });
+
+    o('should error if aws config is not sane', () => {
+        o(() => normalizeAwsEnv({ AWS_PROFILE: 'lake', AWS_DEFAULT_PROFILE: 'other-lake' })).throws(Error);
     });
 });

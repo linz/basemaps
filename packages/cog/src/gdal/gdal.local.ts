@@ -1,7 +1,7 @@
 import { GdalCommand } from './gdal.command';
 
 export class GdalLocal extends GdalCommand {
-    env = async (): Promise<Record<string, string | undefined>> => {
+    async env(): Promise<Record<string, string | undefined>> {
         if (this.credentials == null) {
             return process.env;
         }
@@ -14,5 +14,5 @@ export class GdalLocal extends GdalCommand {
             AWS_SECRET_ACCESS_KEY: this.credentials.secretAccessKey,
             AWS_SESSION_TOKEN: this.credentials.sessionToken,
         };
-    };
+    }
 }

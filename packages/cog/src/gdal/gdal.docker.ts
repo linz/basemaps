@@ -14,7 +14,7 @@ export class GdalDocker extends GdalCommand {
         this.mounts = [];
     }
 
-    mount = (filePath: string): void => {
+    mount(filePath: string): void {
         if (FileOperator.isS3(filePath)) {
             return;
         }
@@ -23,7 +23,7 @@ export class GdalDocker extends GdalCommand {
             return;
         }
         this.mounts.push(basePath);
-    };
+    }
 
     private getMounts(): string[] {
         if (this.mounts.length == 0) {
