@@ -46,6 +46,9 @@ export interface TileMetadataImageRule {
 
     /** Max zoom to show the layer @default 32 */
     maxZoom: number;
+
+    /** Rendering priority, lower numbers are rendered onto the canvas first */
+    priority: number;
 }
 
 export interface TileMetadataSetRecord extends BaseDynamoTable {
@@ -53,8 +56,9 @@ export interface TileMetadataSetRecord extends BaseDynamoTable {
     name: string;
 
     projection: EPSG.Google;
-    /** Order is important, order is render order, first record is the first record drawn onto a tile */
-    imagery: TileMetadataImageRule[];
+
+    /** first record is the first record drawn onto a tile */
+    imagery: Record<string, TileMetadataImageRule>;
 
     /** Current version number */
     version: number;

@@ -21,10 +21,10 @@ export class TileMetadataImagery {
     public async getAll(record: TileMetadataSetRecord): Promise<Map<string, TileMetadataImageryRecord>> {
         const toFetch = new Set<string>();
         const output = new Map<string, TileMetadataImageryRecord>();
-        for (const r of record.imagery) {
-            const existing = this.imagery.get(r.id);
+        for (const ruleId of Object.keys(record.imagery)) {
+            const existing = this.imagery.get(ruleId);
             if (existing == null) {
-                toFetch.add(r.id);
+                toFetch.add(ruleId);
             } else {
                 output.set(existing.id, existing);
             }

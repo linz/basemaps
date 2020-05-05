@@ -2,18 +2,17 @@ import { Aws, TileMetadataImageRule, TileMetadataImageryRecord, TileMetadataSetR
 import * as c from 'chalk';
 import { CliTable } from '../cli.table';
 
-const TileSetTable = new CliTable<{ rule: TileMetadataImageRule; img: TileMetadataImageryRecord }>();
-TileSetTable.field('#', 4, (obj, index) => String(index + 1));
+export const TileSetTable = new CliTable<{ rule: TileMetadataImageRule; img: TileMetadataImageryRecord }>();
+TileSetTable.field('#', 4, (obj) => String(obj.rule.priority));
 TileSetTable.field('Id', 30, (obj) => c.dim(obj.rule.id));
 TileSetTable.field('Name', 40, (obj) => obj.img.name);
 TileSetTable.field('Zoom', 10, (obj) => obj.rule.minZoom + ' -> ' + obj.rule.maxZoom);
 
 export async function printTileSetImagery(tsData: TileMetadataSetRecord): Promise<void> {
     const imagery = await Aws.tileMetadata.Imagery.getAll(tsData);
-
     console.log(c.bold('Imagery:'));
     TileSetTable.header();
-    const fields = tsData.imagery.map((rule) => {
+    const fields = Aws.tileMetadata.TileSet.rules(tsData).map((rule) => {
         return { rule, img: imagery.get(rule.id)! };
     });
     TileSetTable.print(fields);

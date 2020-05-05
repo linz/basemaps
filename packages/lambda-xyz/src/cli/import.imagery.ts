@@ -47,7 +47,7 @@ async function main(): Promise<void> {
         projection: EPSG.Google,
         createdAt: nowIsh,
         updatedAt: nowIsh,
-        imagery: [],
+        imagery: {},
         version: 0,
     };
 
@@ -63,11 +63,12 @@ async function main(): Promise<void> {
             updatedAt: nowIsh,
         };
 
-        AerialTileSet.imagery.push({
+        AerialTileSet.imagery[record.id] = {
             id: record.id,
             maxZoom: mosaic.zoom.max,
             minZoom: mosaic.zoom.min,
-        });
+            priority: mosaic.priority,
+        };
         logger.info({ record: record.id }, 'Insert');
         await Aws.tileMetadata.put(record);
     }

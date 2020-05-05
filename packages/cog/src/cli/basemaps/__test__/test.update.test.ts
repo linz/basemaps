@@ -9,9 +9,9 @@ function fakeTileSet(): TileMetadataSetRecord {
     Aws.tileMetadata.Imagery.imagery.set('3', { name: '3' } as any);
     return {
         imagery: [
-            { id: '0', maxZoom: 32, minZoom: 0 },
-            { id: '1', maxZoom: 32, minZoom: 0 },
-            { id: '2', maxZoom: 32, minZoom: 0 },
+            { id: '0', maxZoom: 32, minZoom: 0, priority: 10 },
+            { id: '1', maxZoom: 32, minZoom: 0, priority: 10 },
+            { id: '2', maxZoom: 32, minZoom: 0, priority: 100 },
         ],
     } as any;
 }
@@ -19,6 +19,12 @@ function fakeTileSet(): TileMetadataSetRecord {
 o.spec('TileSetUpdateAction', () => {
     let cmd: TileSetUpdateAction = new TileSetUpdateAction();
     let tileSet = fakeTileSet();
+
+    const TileSet = Aws.tileMetadata.TileSet;
+
+    function tileSetId(t: TileMetadataSetRecord): string[] {
+        return TileSet.rules(t).map((c) => c.id);
+    }
 
     o.beforeEach(() => {
         cmd = new TileSetUpdateAction();
@@ -69,40 +75,40 @@ o.spec('TileSetUpdateAction', () => {
             cmd.priority = { value: -1 } as any;
             const hasChanges = await cmd.updatePriority(tileSet, '0');
             o(hasChanges).equals(true);
-            o(tileSet.imagery.length).equals(2);
-            o(tileSet.imagery.map((c) => c.id)).deepEquals(['1', '2']);
+            o(Object.keys(tileSet.imagery).length).equals(2);
+            o(tileSetId(tileSet)).deepEquals(['1', '2']);
         });
 
-        o('should insert at priority 1', async () => {
-            cmd.priority = { value: 1 } as any;
+        o('should insert at priority 0', async () => {
+            cmd.priority = { value: 0 } as any;
             const hasChanges = await cmd.updatePriority(tileSet, '3');
             o(hasChanges).equals(true);
-            o(tileSet.imagery.map((c) => c.id)).deepEquals(['3', '0', '1', '2']);
+            o(tileSetId(tileSet)).deepEquals(['3', '0', '1', '2']);
         });
 
-        o('should insert at priority 99', async () => {
-            cmd.priority = { value: 99 } as any;
+        o('should insert at priority 999', async () => {
+            cmd.priority = { value: 999 } as any;
             const hasChanges = await cmd.updatePriority(tileSet, '3');
             o(hasChanges).equals(true);
-            o(tileSet.imagery.map((c) => c.id)).deepEquals(['0', '1', '2', '3']);
+            o(tileSetId(tileSet)).deepEquals(['0', '1', '2', '3']);
         });
 
-        o('should insert at priority 2', async () => {
-            cmd.priority = { value: 2 } as any;
+        o('should insert at priority 10', async () => {
+            cmd.priority = { value: 10 } as any;
             const hasChanges = await cmd.updatePriority(tileSet, '3');
             o(hasChanges).equals(true);
-            o(tileSet.imagery.map((c) => c.id)).deepEquals(['0', '3', '1', '2']);
+            o(tileSetId(tileSet)).deepEquals(['0', '1', '3', '2']);
         });
 
         o('should reorder', async () => {
-            cmd.priority = { value: 2 } as any;
+            cmd.priority = { value: 50 } as any;
             const hasChanges = await cmd.updatePriority(tileSet, '0');
             o(hasChanges).equals(true);
-            o(tileSet.imagery.map((c) => c.id)).deepEquals(['1', '0', '2']);
+            o(tileSetId(tileSet)).deepEquals(['1', '0', '2']);
         });
 
         o('should have no changes if not reordering', async () => {
-            cmd.priority = { value: 1 } as any;
+            cmd.priority = { value: 10 } as any;
             const hasChanges = await cmd.updatePriority(tileSet, '0');
             o(hasChanges).equals(false);
         });
