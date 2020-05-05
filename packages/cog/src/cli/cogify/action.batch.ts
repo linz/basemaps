@@ -79,14 +79,17 @@ export class ActionBatchJob extends CommandLineAction {
         });
     }
 
+    static id(job: CogJob, quadKey: string): string {
+        return `${job.id}-${job.name}-${quadKey}`;
+    }
+
     async batchOne(
         job: CogJob,
         batch: AWS.Batch,
         quadKey: string,
         isCommit: boolean,
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
-        const jobName = `Cog-${job.name}-${quadKey}`;
-
+        const jobName = ActionBatchJob.id(job, quadKey);
         const alignmentLevels = job.source.resolution - quadKey.length;
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
@@ -112,11 +115,38 @@ export class ActionBatchJob extends CommandLineAction {
         return { jobName, jobId: batchJob.jobId, memory };
     }
 
+    /**
+     * List all the current jobs in batch and their statuses
+     * @returns a map of JobName to if their status is "ok" (not failed)
+     */
+    async getCurrentJobList(batch: AWS.Batch): Promise<Map<string, boolean>> {
+        // For some reason AWS only lets us query one status at a time.
+        const allStatuses = ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'RUNNING', 'SUCCEEDED', 'FAILED'];
+        const allJobs = await Promise.all(
+            allStatuses.map((jobStatus) => batch.listJobs({ jobQueue: JobQueue, jobStatus }).promise()),
+        );
+
+        const okMap = new Map<string, boolean>();
+
+        for (const status of allJobs) {
+            for (const job of status.jobSummaryList) {
+                if (job.status == 'FAILED' && okMap.get(job.jobName) != true) {
+                    okMap.set(job.jobName, false);
+                } else {
+                    okMap.set(job.jobName, true);
+                }
+            }
+        }
+        return okMap;
+    }
+
     async onExecute(): Promise<void> {
         if (this.job?.value == null) {
             throw new Error('Failed to read parameters');
         }
         const region = Env.get('AWS_DEFAULT_REGION', 'ap-southeast-2');
+        const batch = new aws.Batch({ region });
+
         const job = (await FileOperator.create(this.job.value).readJson(this.job.value)) as CogJob;
         const processId = ulid.ulid();
         const logger = LogConfig.get().child({ id: processId, correlationId: job.id, imageryName: job.name });
@@ -125,29 +155,38 @@ export class ActionBatchJob extends CommandLineAction {
         const isCommit = this.commit?.value ?? false;
 
         const outputFs = FileOperator.create(job.output);
+        const runningJobs = await this.getCurrentJobList(batch);
 
-        let isPartial = false;
-        let todoCount = job.quadkeys.length;
         const stats = await Promise.all(
             job.quadkeys.map(async (quadKey) => {
+                const jobName = ActionBatchJob.id(job, quadKey);
+                const isRunning = runningJobs.get(jobName);
+                if (isRunning) {
+                    logger.info({ jobName }, 'JobRunning');
+                    return { quadKey, ok: true };
+                }
+
                 const targetPath = getJobPath(job, `${quadKey}.tiff`);
                 const exists = await outputFs.exists(targetPath);
                 if (exists) {
-                    logger.debug({ targetPath }, 'FileExists');
-                    isPartial = true;
-                    todoCount--;
+                    logger.info({ targetPath }, 'FileExists');
                 }
-                return { quadKey, exists };
+                return { quadKey, ok: exists };
             }),
         );
+
+        const toSubmit = stats.filter((f) => f.ok == false).map((c) => c.quadKey);
+        if (toSubmit.length == 0) {
+            logger.info('NoJobs');
+            return;
+        }
 
         logger.info(
             {
                 jobTotal: job.quadkeys.length,
-                jobLeft: todoCount,
+                jobLeft: toSubmit.length,
                 jobQueue: JobQueue,
                 jobDefinition: JobDefinition,
-                isPartial,
             },
             'JobSubmit',
         );
@@ -157,8 +196,6 @@ export class ActionBatchJob extends CommandLineAction {
             await Aws.tileMetadata.put(img);
         }
 
-        const batch = new aws.Batch({ region });
-        const toSubmit = stats.filter((f) => f.exists == false).map((c) => c.quadKey);
         for (const quadKey of toSubmit) {
             const jobStatus = await this.batchOne(job, batch, quadKey, isCommit);
             logger.info(jobStatus, 'JobSubmitted');
