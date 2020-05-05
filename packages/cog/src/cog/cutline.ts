@@ -178,7 +178,7 @@ export class Cutline {
 
         const covering = this.findCovering(sourceMetadata);
 
-        covering.mergeQuadKeys(CoveringPercentage, minZ);
+        covering.mergeQuadKeys(CoveringPercentage, minZ, minZ + 2);
 
         return covering;
     }
