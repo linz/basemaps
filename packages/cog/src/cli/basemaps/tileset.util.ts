@@ -7,6 +7,7 @@ TileSetTable.field('#', 4, (obj) => String(obj.rule.priority));
 TileSetTable.field('Id', 30, (obj) => c.dim(obj.rule.id));
 TileSetTable.field('Name', 40, (obj) => obj.img.name);
 TileSetTable.field('Zoom', 10, (obj) => obj.rule.minZoom + ' -> ' + obj.rule.maxZoom);
+TileSetTable.field('CreatedAt', 10, (obj) => new Date(obj.img.createdAt).toISOString());
 
 export async function printTileSetImagery(tsData: TileMetadataSetRecord): Promise<void> {
     const imagery = await Aws.tileMetadata.Imagery.getAll(tsData);
@@ -20,8 +21,8 @@ export async function printTileSetImagery(tsData: TileMetadataSetRecord): Promis
 
 export async function printTileSet(tsData: TileMetadataSetRecord, printImagery = true): Promise<void> {
     console.log(c.bold('TileSet:'), `${tsData.name} `);
-    console.log(c.bold('CreatedAt:'), new Date(tsData.createdAt).toString());
-    console.log(c.bold('UpdatedAt:'), new Date(tsData.updatedAt).toString());
+    console.log(c.bold('CreatedAt:'), new Date(tsData.createdAt).toISOString());
+    console.log(c.bold('UpdatedAt:'), new Date(tsData.updatedAt).toISOString());
     console.log(c.bold('Version:'), `v${tsData.version}`);
 
     if (printImagery) await printTileSetImagery(tsData);
