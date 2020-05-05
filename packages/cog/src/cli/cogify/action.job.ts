@@ -154,7 +154,13 @@ export class ActionJobCreate extends CommandLineAction {
 
         // Don't log bounds as it is huge
         logger.info(
-            { ...metadata, bounds: undefined, covering: undefined, quadkeys: quadkeys.join(' ') },
+            {
+                ...metadata,
+                bounds: undefined,
+                covering: undefined,
+                quadKeyCount: quadkeys.length,
+                quadkeys: quadkeys.join(' '),
+            },
             'CoveringGenerated',
         );
 
