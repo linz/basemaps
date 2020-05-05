@@ -6,7 +6,7 @@ import {
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
 import { TileSetBaseAction } from './tileset.action';
-import { printTileSet } from './tileset.util';
+import { printTileSet, invalidateCache } from './tileset.util';
 
 export class TileSetUpdateAction extends TileSetBaseAction {
     priority: CommandLineIntegerParameter;
@@ -71,14 +71,14 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         });
     }
     protected async onExecute(): Promise<void> {
-        const tileSet = this.tileSet.value!;
+        const name = this.tileSet.value!;
         const projection = this.projection.value!;
         const imgId = this.imageryId.value!;
 
-        const tsData = await Aws.tileMetadata.TileSet.get(tileSet, projection, TileSetTag.Head);
+        const tsData = await Aws.tileMetadata.TileSet.get(name, projection, TileSetTag.Head);
 
         if (tsData == null) {
-            LogConfig.get().fatal({ tileSet, projection }, 'Failed to find tile set');
+            LogConfig.get().fatal({ tileSet: name, projection }, 'Failed to find tile set');
             process.exit(1);
         }
 
@@ -93,6 +93,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         if (priorityUpdate || zoomUpdate || replaceUpdate) {
             if (this.commit.value) {
                 await Aws.tileMetadata.TileSet.create(tsData);
+                await invalidateCache(name, projection, TileSetTag.Head, this.commit.value);
             } else {
                 LogConfig.get().warn('DryRun:Done');
             }
