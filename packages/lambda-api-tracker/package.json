@@ -10,8 +10,8 @@
     "@basemaps/lambda-shared": "^1.2.0"
   },
   "scripts": {
-    "test": "ospec --globs 'build/**/*.test.js' --preload ../../test-support.js",
-    "deploy:bundle": "webpack"
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
+    "deploy:bundle": "ncc build build/index.js -e aws-sdk -o dist -s"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",

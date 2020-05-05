@@ -2,7 +2,7 @@ import { EPSG, Projection } from '@basemaps/geo';
 import { Env, LogType } from '@basemaps/lambda-shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { GdalCommand } from './gdal.command';
-import { GdalCogBuilderOptions } from './gdal.config';
+import { GdalCogBuilderOptions, GdalCogBuilderDefaults } from './gdal.config';
 import { GdalDocker } from './gdal.docker';
 import { GdalLocal } from './gdal.local';
 
@@ -54,12 +54,11 @@ export class GdalCogBuilder {
 
         this.config = {
             bbox: config.bbox,
-            alignmentLevels: config.alignmentLevels ?? 1,
-            compression: config.compression ?? 'webp',
-            resampling: config.resampling ?? 'bilinear',
-            blockSize: config.blockSize ?? 512,
+            alignmentLevels: config.alignmentLevels ?? GdalCogBuilderDefaults.alignmentLevels,
+            compression: config.compression ?? GdalCogBuilderDefaults.compression,
+            resampling: config.resampling ?? GdalCogBuilderDefaults.resampling,
+            blockSize: config.blockSize ?? GdalCogBuilderDefaults.blockSize,
         };
-
         this.gdal = GdalCogBuilder.getGdal();
 
         this.gdal.mount?.(source);

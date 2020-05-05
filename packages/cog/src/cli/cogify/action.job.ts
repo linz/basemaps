@@ -17,7 +17,7 @@ import { getTileSize } from '../../cog/cog';
 import { buildVrtForTiffs, VrtOptions } from '../../cog/cog.vrt';
 import { Cutline } from '../../cog/cutline';
 import { CogJob } from '../../cog/types';
-import { getResample } from '../../gdal/gdal.config';
+import { GdalCogBuilderDefaults, GdalResamplingOptions } from '../../gdal/gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';
 
 function filterTiff(a: string): boolean {
@@ -59,7 +59,7 @@ export class ActionJobCreate extends CommandLineAction {
     private output?: CLiInputData;
     private maxConcurrency?: CommandLineIntegerParameter;
     private generateVrt?: CommandLineFlagParameter;
-    private resample?: CommandLineStringParameter;
+    private resampling?: CommandLineStringParameter;
     private cutline?: CommandLineStringParameter;
     private cutlineBlend?: CommandLineIntegerParameter;
     private overrideId?: CommandLineStringParameter;
@@ -170,13 +170,23 @@ export class ActionJobCreate extends CommandLineAction {
             logger.warn({ bandCount: metadata.bands }, 'Vrt:GoogleProjection, Disabling warp');
             vrtOptions.forceEpsg3857 = false;
         }
+        const resampling =
+            this.resampling?.value == null
+                ? GdalCogBuilderDefaults.resampling
+                : GdalResamplingOptions[this.resampling?.value];
+
+        if (resampling == null) {
+            const options = Object.keys(GdalResamplingOptions).join(', ');
+            throw new Error(`Invalid resampling method: "${this.resampling?.value} options: ${options}`);
+        }
+
         const job: CogJob = {
             id: processId,
             name: imageryName,
             projection: EPSG.Google,
             output: {
                 ...outputConfig,
-                resample: getResample(this.resample?.value),
+                resampling,
                 cutlineBlend: cutline != null ? this.cutlineBlend?.value ?? 0 : undefined,
                 nodata: metadata.nodata,
                 vrt: {
@@ -246,9 +256,9 @@ export class ActionJobCreate extends CommandLineAction {
             required: false,
         });
 
-        this.resample = this.defineStringParameter({
-            argumentName: 'RESAMPLE',
-            parameterLongName: '--resample',
+        this.resampling = this.defineStringParameter({
+            argumentName: 'RESAMPLING',
+            parameterLongName: '--resampling',
             description: 'Resampling method to use',
             required: false,
         });

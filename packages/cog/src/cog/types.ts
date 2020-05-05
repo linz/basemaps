@@ -29,7 +29,7 @@ export interface CogJob {
 
     /** Folder/S3 bucket to store the output */
     output: {
-        resample: GdalCogBuilderOptionsResampling;
+        resampling: GdalCogBuilderOptionsResampling;
         nodata?: number;
         cutlineBlend?: number;
         vrt: {

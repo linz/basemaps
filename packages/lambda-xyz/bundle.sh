@@ -2,7 +2,7 @@
 #
 # Create a deployment bundle with sharp/libvips prebuilt included
 #
-webpack
+ncc build build/index.js -e aws-sdk -e sharp -s
 cd dist
 cp ../package.json .
 # @see https://sharp.pixelplumbing.com/en/stable/install/#aws-lambda
