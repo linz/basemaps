@@ -12,6 +12,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     priority: CommandLineIntegerParameter;
     imageryId: CommandLineStringParameter;
     commit: CommandLineFlagParameter;
+    replaceImageryId: CommandLineStringParameter;
 
     minZoom: CommandLineIntegerParameter;
     maxZoom: CommandLineIntegerParameter;
@@ -39,6 +40,13 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             argumentName: 'PRIORITY',
             parameterLongName: '--priority',
             description: 'Render priority (-1 to remove)',
+            required: false,
+        });
+
+        this.replaceImageryId = this.defineStringParameter({
+            argumentName: 'REPLACE_WITH',
+            parameterLongName: '--replace-with',
+            description: 'Replace the current imagery with a new imagery set',
             required: false,
         });
 
@@ -78,10 +86,11 @@ export class TileSetUpdateAction extends TileSetBaseAction {
 
         const priorityUpdate = await this.updatePriority(tsData, imgId);
         const zoomUpdate = await this.updateZoom(tsData, imgId);
+        const replaceUpdate = await this.replaceUpdate(tsData, imgId);
 
         await printTileSet(tsData);
 
-        if (priorityUpdate || zoomUpdate) {
+        if (priorityUpdate || zoomUpdate || replaceUpdate) {
             if (this.commit.value) {
                 await Aws.tileMetadata.TileSet.create(tsData);
             } else {
@@ -90,6 +99,26 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         } else {
             LogConfig.get().info('No Changes');
         }
+    }
+
+    async replaceUpdate(tsData: TileMetadataSetRecord, imgId: string): Promise<boolean> {
+        const existing = tsData.imagery[imgId];
+        if (existing == null) return false;
+
+        const replaceId = this.replaceImageryId.value;
+        if (replaceId == null) return false;
+        if (tsData.imagery[replaceId] != null) {
+            LogConfig.get().warn({ replaceId }, 'Replacement already exists');
+            return false;
+        }
+
+        const img = await Aws.tileMetadata.Imagery.get(replaceId);
+
+        LogConfig.get().info({ imgId, imagery: img?.name }, 'Replace');
+        delete tsData.imagery[imgId];
+
+        tsData.imagery[replaceId] = { ...existing, id: replaceId };
+        return true;
     }
 
     async updateZoom(tsData: TileMetadataSetRecord, imgId: string): Promise<boolean> {
