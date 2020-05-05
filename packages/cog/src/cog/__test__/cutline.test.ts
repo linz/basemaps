@@ -51,25 +51,17 @@ o.spec('covering', () => {
         o(covering.size).equals(Array.from(covering).length);
         o(Array.from(covering)).deepEquals(['31133322', '31311100']);
 
-        const covering2 = cutline.optimizeCovering({ bounds: geoJson, resolution: 19 } as SourceMetadata);
+        const covering2 = cutline.optimizeCovering({ bounds: geoJson, resolution: 18 } as SourceMetadata);
 
         o(covering2.size).equals(Array.from(covering2).length);
 
         o(Array.from(covering2)).deepEquals([
-            '31133322221',
-            '31133322223',
-            '31133322230',
-            '31133322231',
-            '31133322232',
-            '31133322233',
+            '3113332222',
+            '3113332223',
             '311333223202',
             '31133322322',
-            '31311100001',
-            '31311100003',
-            '31311100010',
-            '31311100011',
-            '31311100012',
-            '31311100013',
+            '3131110000',
+            '3131110001',
             '31311100100',
             '313111001020',
         ]);
