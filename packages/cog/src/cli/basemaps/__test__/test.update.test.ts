@@ -8,11 +8,11 @@ function fakeTileSet(): TileMetadataSetRecord {
     Aws.tileMetadata.Imagery.imagery.set('2', { name: '2' } as any);
     Aws.tileMetadata.Imagery.imagery.set('3', { name: '3' } as any);
     return {
-        imagery: [
-            { id: '0', maxZoom: 32, minZoom: 0, priority: 10 },
-            { id: '1', maxZoom: 32, minZoom: 0, priority: 10 },
-            { id: '2', maxZoom: 32, minZoom: 0, priority: 100 },
-        ],
+        imagery: {
+            '0': { id: '0', maxZoom: 32, minZoom: 0, priority: 10 },
+            '1': { id: '1', maxZoom: 32, minZoom: 0, priority: 10 },
+            '2': { id: '2', maxZoom: 32, minZoom: 0, priority: 100 },
+        },
     } as any;
 }
 
@@ -67,6 +67,21 @@ o.spec('TileSetUpdateAction', () => {
             cmd.maxZoom = { value: 32 } as any;
             const hasChangesD = await cmd.updateZoom(tileSet, '0');
             o(hasChangesD).equals(false);
+        });
+    });
+
+    o.spec('Replace', () => {
+        o('should replace imagery', async () => {
+            cmd.replaceImageryId = { value: '3' } as any;
+            const hasChanges = await cmd.replaceUpdate(tileSet, '1');
+            o(hasChanges).equals(true);
+            o(tileSetId(tileSet)).deepEquals(['0', '3', '2']);
+        });
+
+        o('should not replace imagery if already exists', async () => {
+            cmd.replaceImageryId = { value: '0' } as any;
+            const hasChanges = await cmd.replaceUpdate(tileSet, '1');
+            o(hasChanges).equals(false);
         });
     });
 
