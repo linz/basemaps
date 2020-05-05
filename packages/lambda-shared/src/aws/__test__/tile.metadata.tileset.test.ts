@@ -4,7 +4,6 @@ import { EPSG } from '@basemaps/geo';
 import { TileMetadataSetRecord, TileSetTag } from '../tile.metadata';
 
 const promiseNull = async (): Promise<unknown> => null;
-
 async function throws(cb: () => Promise<any>, re: RegExp): Promise<void> {
     try {
         await cb();
@@ -26,11 +25,36 @@ o.spec('tile.metadata.tileset', () => {
         metadata.put = o.spy(promiseNull);
     });
 
+    o.spec('rules', () => {
+        o('should sort rules by priority', () => {
+            const tileSet: any = {
+                imagery: [
+                    { id: '100', priority: 100 },
+                    { id: '10', priority: 10 },
+                ],
+            };
+
+            const rules = ts.rules(tileSet);
+            o(rules.map((c) => c.id)).deepEquals(['10', '100']);
+        });
+
+        o('should sort rules by id if priority is the same', () => {
+            const tileSet: any = {
+                imagery: [
+                    { id: 'B', priority: 10 },
+                    { id: 'A', priority: 10 },
+                    { id: 'D', priority: 10 },
+                    { id: 'C', priority: 10 },
+                ],
+            };
+
+            const rules = ts.rules(tileSet);
+            o(rules.map((c) => c.id)).deepEquals(['A', 'B', 'C', 'D']);
+        });
+    });
+
     o.spec('create', () => {
         o('Should create initial tags', async () => {
-            const foo = o('foo');
-            console.log(Object.keys(foo));
-            foo.equals('foo');
             await ts.create({ name: 'test', projection: EPSG.Google } as any);
 
             o(metadata.get.callCount).equals(1);

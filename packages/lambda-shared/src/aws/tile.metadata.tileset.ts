@@ -1,9 +1,24 @@
 import { EPSG } from '@basemaps/geo';
-import { TileMetadataSetRecord, TileMetadataTable, TileSetTag } from './tile.metadata';
 import { DynamoDB } from 'aws-sdk';
+import { TileMetadataImageRule, TileMetadataSetRecord, TileMetadataTable, TileSetTag } from './tile.metadata';
 
 function clone(rec: TileMetadataSetRecord): TileMetadataSetRecord {
     return DynamoDB.Converter.unmarshall(DynamoDB.Converter.marshall(rec)) as TileMetadataSetRecord;
+}
+
+/**
+ * Sort rules by priority
+ *
+ * This sort needs to be stable, or rendering issues will occur
+ *
+ * @param ruleA
+ * @param ruleB
+ */
+export function sortRule(ruleA: TileMetadataImageRule, ruleB: TileMetadataImageRule): number {
+    if (ruleA.priority == ruleB.priority) {
+        return ruleA.id.localeCompare(ruleB.id);
+    }
+    return ruleA.priority - ruleB.priority;
 }
 
 export class TileMetadataTileSet {
@@ -17,7 +32,7 @@ export class TileMetadataTileSet {
      * Parse a tile set tag combo into their parts
      *
      * @example
-     * aerial@head => name: aerial, tag: head
+     * aerial@head => {name: aerial, tag: head}
      * @param str String to parse
      */
     parse(str: string): { name: string; tag?: TileSetTag } {
@@ -42,6 +57,14 @@ export class TileMetadataTileSet {
         }
 
         return `ts_${name}_${projection}_${tag}`;
+    }
+
+    /**
+     * Get the imagery rules for a tileset sorted by rendering priority
+     * @param tileSet
+     */
+    rules(tileSet: TileMetadataSetRecord): TileMetadataImageRule[] {
+        return Object.values(tileSet.imagery).sort(sortRule);
     }
 
     async get(name: string, projection: EPSG, version: number): Promise<TileMetadataSetRecord>;

@@ -93,7 +93,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     }
 
     async updateZoom(tsData: TileMetadataSetRecord, imgId: string): Promise<boolean> {
-        const existing = tsData.imagery.find((f) => f.id == imgId);
+        const existing = tsData.imagery[imgId];
         if (existing == null) return false;
 
         const minZoom = this.minZoom.value;
@@ -127,40 +127,40 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         const priority = this.priority.value!;
         if (priority == null) return false;
 
-        const existingIndex = tsData.imagery.findIndex((f) => f.id == imgId);
+        const existing = tsData.imagery[imgId];
 
         if (priority == -1) {
             // Remove imagery
-            if (existingIndex == -1) throw new Error('Failed to find imagery: ' + imgId);
-            tsData.imagery.splice(existingIndex, 1);
+            if (existing == null) throw new Error('Failed to find imagery: ' + imgId);
+            delete tsData.imagery[imgId];
             const img = await Aws.tileMetadata.Imagery.get(imgId);
 
-            logger.info({ imgId, imagery: img?.name, priority: existingIndex + 1 }, 'Removing Imagery');
+            logger.info({ imgId, imagery: img?.name, priority: existing.priority }, 'Removing Imagery');
             return true;
         }
 
-        if (existingIndex == -1) {
+        if (existing == null) {
             // Add new imagery
             logger.info({ imgId, priority }, 'Add imagery');
             const img = await Aws.tileMetadata.Imagery.get(imgId);
             logger.info({ imgId, imagery: img.name, priority }, 'Adding');
-            tsData.imagery.splice(priority - 1, 0, {
+            tsData.imagery[imgId] = {
                 id: imgId,
                 minZoom: this.minZoom.value ?? 0,
                 maxZoom: this.maxZoom.value ?? 32,
-            });
+                priority,
+            };
             return true;
         }
 
-        if (existingIndex + 1 !== priority) {
+        if (existing.priority !== priority) {
             // Update
             const img = await Aws.tileMetadata.Imagery.get(imgId);
             logger.info(
-                { imgId, imagery: img?.name, oldPriority: existingIndex + 1, newPriority: priority },
+                { imgId, imagery: img?.name, oldPriority: existing.priority, newPriority: priority },
                 'Update Priority',
             );
-            const oldRecord = tsData.imagery.splice(existingIndex, 1);
-            tsData.imagery.splice(priority - 1, 0, ...oldRecord);
+            existing.priority = priority;
             return true;
         }
 
