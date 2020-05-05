@@ -110,6 +110,7 @@ export class ActionBatchJob extends CommandLineAction {
                     memory,
                     command: commandStr,
                 },
+                retryStrategy: { attempts: 3 },
             })
             .promise();
         return { jobName, jobId: batchJob.jobId, memory };
