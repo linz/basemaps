@@ -6,6 +6,7 @@ import {
     RecordPrefix,
     Aws,
     TileMetadataImageryRecord,
+    TileMetadataSetRecord,
 } from '@basemaps/lambda-shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
@@ -195,6 +196,17 @@ export class ActionBatchJob extends CommandLineAction {
         if (isCommit) {
             const img = createImageryRecordFromJob(job);
             await Aws.tileMetadata.put(img);
+            const tileMetadata: TileMetadataSetRecord = {
+                id: '',
+                // TODO this name is not super nice, ideally we should use the simplified image name
+                name: job.id,
+                projection: job.projection,
+                version: 0,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+                imagery: { [img.id]: { id: img.id, minZoom: 0, maxZoom: 32, priority: 10 } },
+            };
+            await Aws.tileMetadata.TileSet.create(tileMetadata);
         }
 
         for (const quadKey of toSubmit) {
