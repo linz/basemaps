@@ -1,3 +1,12 @@
+export type GdalCogBuilderOptionsResampling =
+    | 'nearest'
+    | 'bilinear'
+    | 'cubic'
+    | 'cubicspline'
+    | 'lanczos'
+    | 'average'
+    | 'mode';
+
 export interface GdalCogBuilderOptions {
     /**
      * Number of aligned tile levels
@@ -26,18 +35,15 @@ export interface GdalCogBuilderOptions {
      */
     blockSize: 256 | 512 | 1024 | 2048 | 4096;
 }
-export type GdalCogBuilderOptionsResampling =
-    | 'nearest'
-    | 'bilinear'
-    | 'cubic'
-    | 'cubicspline'
-    | 'lanczos'
-    | 'average'
-    | 'mode';
 
-export const gdalCogBuilderOptionsResamplingDefault: GdalCogBuilderOptionsResampling = 'bilinear';
+export const GdalCogBuilderDefaults: GdalCogBuilderOptions = {
+    resampling: 'bilinear',
+    compression: 'webp',
+    alignmentLevels: 1,
+    blockSize: 512,
+};
 
-const resampleMap: Record<string, GdalCogBuilderOptionsResampling> = {
+export const GdalResamplingOptions: Record<string, GdalCogBuilderOptionsResampling> = {
     nearest: 'nearest',
     bilinear: 'bilinear',
     cubic: 'cubic',
@@ -46,10 +52,3 @@ const resampleMap: Record<string, GdalCogBuilderOptionsResampling> = {
     average: 'average',
     mode: 'mode',
 };
-
-export function getResample(t: string | undefined): GdalCogBuilderOptionsResampling {
-    if (t && resampleMap[t]) {
-        return resampleMap[t];
-    }
-    return resampleMap[gdalCogBuilderOptionsResamplingDefault];
-}

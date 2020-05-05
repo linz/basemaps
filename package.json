@@ -19,6 +19,7 @@
     "@types/ospec": "^4.0.2",
     "@typescript-eslint/eslint-plugin": "^2.3.2",
     "@typescript-eslint/parser": "^2.3.2",
+    "@zeit/ncc": "^0.22.1",
     "eslint": "^6.5.1",
     "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-prettier": "^3.1.0",
@@ -26,9 +27,7 @@
     "ospec": "^4.0.1",
     "prettier": "^2.0.2",
     "rimraf": "^3.0.0",
-    "typescript": "^3.5.3",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.7"
+    "typescript": "^3.5.3"
   },
   "workspaces": [
     "packages/*"
@@ -37,7 +36,7 @@
     "acorn": "^7.1.1",
     "https-proxy-agent": "^3.0.0",
     "minimist": "^1.2.3",
-    "yargs-parser": "^18.1.2" 
+    "yargs-parser": "^18.1.2"
   },
   "dependencies": {
     "https-proxy-agent": "^5.0.0"

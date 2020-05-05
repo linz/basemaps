@@ -1,7 +1,6 @@
 import { QuadKey } from '@basemaps/geo';
 import { Aws, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
 import { GdalCogBuilder } from '../gdal/gdal';
-import { getResample } from '../gdal/gdal.config';
 import { Wgs84ToGoogle } from '../proj';
 import { CogJob } from './types';
 import { SingleTileWidth } from './constants';
@@ -62,7 +61,7 @@ export async function buildCogForQuadKey(
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [ulX, ulY, lrX, lrY],
         alignmentLevels,
-        resampling: getResample(job.output.resample),
+        resampling: job.output.resampling,
     });
     if (cogBuild.gdal.mount) {
         job.source.files.forEach((f) => cogBuild.gdal.mount?.(f));
