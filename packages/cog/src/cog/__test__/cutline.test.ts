@@ -1,3 +1,4 @@
+import { TileCover } from '@basemaps/geo';
 import { MultiPolygon } from 'geojson';
 import * as o from 'ospec';
 import { Cutline } from '../cutline';
@@ -65,5 +66,12 @@ o.spec('covering', () => {
             '31311100100',
             '313111001020',
         ]);
+    });
+
+    o('optimize should not cover the world', () => {
+        const bounds = TileCover.toGeoJson(['']);
+        const cutline = new Cutline();
+        const covering = cutline.optimizeCovering({ bounds, resolution: 0 } as SourceMetadata);
+        o(Array.from(covering)).deepEquals(['0', '1', '2', '3']);
     });
 });
