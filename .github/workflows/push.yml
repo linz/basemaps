@@ -81,3 +81,4 @@ jobs:
         env:
           ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN_PROD}}
           CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN_PROD}}
+          NODE_ENV: 'production'
