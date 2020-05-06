@@ -1,13 +1,13 @@
 {
   "name": "@basemaps/lambda-api-tracker",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@basemaps/geo": "^1.3.0",
-    "@basemaps/lambda-shared": "^1.4.0"
+    "@basemaps/geo": "^1.4.1",
+    "@basemaps/lambda-shared": "^1.4.1"
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",

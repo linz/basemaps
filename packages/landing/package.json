@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -12,7 +12,7 @@
     "deploy:deploy": "node deploy.js"
   },
   "dependencies": {
-    "@basemaps/infra": "^1.4.0"
+    "@basemaps/infra": "^1.4.1"
   },
   "devDependencies": {
     "mime-types": "^2.1.26"
