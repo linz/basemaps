@@ -1,24 +1,35 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { FileProcessor } from './file';
 import { Readable } from 'stream';
+import { promisify } from 'util';
+import { createGzip, gunzip } from 'zlib';
+import { FileProcessor } from './file';
+
+const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 
 export const FileOperatorSimple: FileProcessor = {
     async list(filePath: string): Promise<string[]> {
         const files = await fs.promises.readdir(filePath);
         return files.map((f: string): string => path.join(filePath, f));
     },
+
     async read(filePath: string): Promise<Buffer> {
         return fs.promises.readFile(filePath);
     },
 
     async readJson(filePath: string): Promise<any> {
-        return JSON.parse((await this.read(filePath)).toString());
+        const data = await this.read(filePath);
+        if (path.extname(filePath) === '.gz') {
+            return JSON.parse((await pGunzip(data)).toString());
+        } else {
+            return JSON.parse(data.toString());
+        }
     },
 
     async exists(filePath: string): Promise<boolean> {
         return fs.existsSync(filePath);
     },
+
     async write(filePath: string, buf: Buffer | Readable): Promise<void> {
         if (Buffer.isBuffer(buf)) {
             await fs.promises.writeFile(filePath, buf);
@@ -31,9 +42,18 @@ export const FileOperatorSimple: FileProcessor = {
             });
         }
     },
+
     writeJson(filePath: string, obj: any): Promise<void> {
-        return this.write(filePath, Buffer.from(JSON.stringify(obj, undefined, 2)));
+        const json = Buffer.from(JSON.stringify(obj, undefined, 2));
+        if (path.extname(filePath) === '.gz') {
+            const gzip = createGzip();
+            gzip.end(json);
+            return this.write(filePath, gzip);
+        } else {
+            return this.write(filePath, json);
+        }
     },
+
     readStream(filePath: string): fs.ReadStream {
         return fs.createReadStream(filePath);
     },

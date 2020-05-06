@@ -226,7 +226,7 @@ export class ActionJobCreate extends CommandLineAction {
             await outputFs.writeJson(jobFile, job, logger);
 
             if (cutline != null) {
-                const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson`);
+                const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson.gz`);
                 await outputFs.writeJson(geoJsonCutlineOutput, cutline.toGeoJson(), logger);
             }
 
