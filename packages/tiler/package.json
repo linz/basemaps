@@ -6,7 +6,9 @@
   "license": "MIT",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
-  "scripts": {},
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
+  },
   "dependencies": {
     "@basemaps/geo": "^1.4.2",
     "@basemaps/metrics": "^1.4.2",
