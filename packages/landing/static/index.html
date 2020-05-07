@@ -37,7 +37,9 @@
         <script type="text/javascript">
             const urlParams = new URLSearchParams(window.location.search);
             const urlTag = urlParams.get('v');
-            let imagerySet = `aerial`;
+            const urlId = urlParams.get('i');
+
+            let imagerySet = urlId || `aerial`;
             if (urlTag != null) imagerySet = imagerySet + '@' + urlTag;
 
             const basemapLayer = new ol.layer.Tile({
