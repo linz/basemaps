@@ -114,7 +114,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         if (existing == null) return false;
 
         const replaceId = TileMetadataTable.prefix(RecordPrefix.Imagery, this.replaceImageryId.value ?? '');
-        if (replaceId == null) return false;
+        if (replaceId == '') return false;
         if (tsData.imagery[replaceId] != null) {
             LogConfig.get().warn({ replaceId }, 'Replacement already exists');
             return false;
