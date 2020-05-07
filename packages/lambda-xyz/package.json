@@ -10,8 +10,8 @@
     "@basemaps/lambda-shared": "^1.5.0",
     "@basemaps/tiler": "^1.4.2",
     "@basemaps/tiler-sharp": "^1.4.2",
-    "@cogeotiff/core": "^1.0.3",
-    "@cogeotiff/source-aws": "^1.0.3",
+    "@cogeotiff/core": "^1.0.6",
+    "@cogeotiff/source-aws": "^1.0.6",
     "path-to-regexp": "^6.1.0",
     "sharp": "^0.25.2"
   },
