@@ -134,7 +134,8 @@ export class ActionJobCreate extends CommandLineAction {
 
         logger.info({ source: this.source.path.value, tiffCount: tiffList.length }, 'LoadingTiffs');
 
-        const cutlinePath = this.cutline?.value;
+        const cutlinePath =
+            this.cutline?.value == null ? Cutline.defaultCutline(imageryName)['path'] : this.cutline?.value;
         const cutline = cutlinePath == null ? new Cutline() : await Cutline.loadCutline(cutlinePath);
 
         const builder = new CogBuilder(maxConcurrency, logger);

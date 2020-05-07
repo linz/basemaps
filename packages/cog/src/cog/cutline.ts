@@ -8,6 +8,12 @@ import { CoveringPercentage, CutlineZoom, ZoomDifferenceForMaxImage } from './co
 import { CogJob, SourceMetadata } from './types';
 
 const PaddingFactor = 1.125;
+type CutlineItem = { path: string; blend: number };
+export const CutlineMap: { [key: string]: CutlineItem } = {
+    sentinel: { path: 's3://basemaps-cog-test/NZCoastCutline.sentinel.geojson', blend: 5 },
+    urban: { path: 's3://basemaps-cog-test/NZCoastCutline.urban.geojson', blend: 20 },
+    rural: { path: 's3://basemaps-cog-test/NZCoastCutline.rural.geojson', blend: 20 },
+};
 
 function findGeoJsonProjection(geojson: any | null): EPSG {
     return Projection.parseEpsgString(geojson?.crs?.properties?.name ?? '') ?? EPSG.Wgs84;
@@ -206,5 +212,20 @@ export class Cutline {
     static async loadCutline(path: string): Promise<Cutline> {
         const geojson = (await FileOperator.create(path).readJson(path)) as FeatureCollection;
         return new Cutline(geojson);
+    }
+
+    /**
+     * Assume a cutline default based on a provided imagery name
+     *
+     * @param imageryName the name of the dataset being cut, should contain a substring denoting dataset type; sentinel, urban, rural.
+     */
+    static defaultCutline(imageryName: string): CutlineItem {
+        const foundNames = Object.keys(CutlineMap)
+            .map((cutName) => (imageryName.toLowerCase().search(cutName) > -1 ? cutName : ''))
+            .filter((matchedName) => !!matchedName);
+        if (foundNames.length != 1) {
+            throw new Error('Matched ' + foundNames.length + ' cutline names');
+        }
+        return CutlineMap[foundNames[0]];
     }
 }

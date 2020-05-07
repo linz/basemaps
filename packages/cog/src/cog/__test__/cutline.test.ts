@@ -1,7 +1,7 @@
 import { TileCover } from '@basemaps/geo';
 import { MultiPolygon } from 'geojson';
 import * as o from 'ospec';
-import { Cutline } from '../cutline';
+import { Cutline, CutlineMap } from '../cutline';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
 
@@ -28,6 +28,22 @@ o.spec('covering', () => {
         });
         o(coordinates.length).equals(2);
         o(coordinates[0][0][0]).deepEquals([174.78134935600005, -41.077634319065346]);
+    });
+
+    o('defaultCutline', async () => {
+        const imageryNameExamples = [
+            { test: 'new_zealand_sentinel_2018-19_10m.PLAIN', map: CutlineMap['sentinel'] },
+            { test: 'auckland_URBAN_2015-16_0-075m.CAPS', map: CutlineMap['urban'] },
+            { test: 'manawatu-whanganui_rRuralL_2015-16_0-3m.CHARS', map: CutlineMap['rural'] },
+            { test: 'manawatu-whanganui_rural_rural_2015-16_0-3m.DUPS', map: CutlineMap['rural'] },
+        ];
+
+        imageryNameExamples.forEach((imageryName) => {
+            const defCutline = Cutline.defaultCutline(imageryName['test']);
+            o(defCutline).equals(imageryName['map']);
+        });
+        o(() => Cutline.defaultCutline('new_zealand_sentenel_2018-19_10m.MISSPELL')).throws('Matched 0 cutline names');
+        o(() => Cutline.defaultCutline('auckland_urban_rural_2015-16_0-075m.CHOICE')).throws('Matched 2 cutline names');
     });
 
     o('filterPolygons', async () => {
