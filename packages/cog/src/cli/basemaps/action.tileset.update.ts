@@ -1,12 +1,19 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataSetRecord, TileSetTag } from '@basemaps/lambda-shared';
+import {
+    Aws,
+    LogConfig,
+    RecordPrefix,
+    TileMetadataSetRecord,
+    TileMetadataTable,
+    TileSetTag,
+} from '@basemaps/lambda-shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
 import { TileSetBaseAction } from './tileset.action';
-import { printTileSet, invalidateCache } from './tileset.util';
+import { invalidateCache, printTileSet } from './tileset.util';
 
 export class TileSetUpdateAction extends TileSetBaseAction {
     priority: CommandLineIntegerParameter;
@@ -73,7 +80,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     protected async onExecute(): Promise<void> {
         const name = this.tileSet.value!;
         const projection = this.projection.value!;
-        const imgId = this.imageryId.value!;
+        const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, this.imageryId.value ?? '');
 
         const tsData = await Aws.tileMetadata.TileSet.get(name, projection, TileSetTag.Head);
 
@@ -106,7 +113,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         const existing = tsData.imagery[imgId];
         if (existing == null) return false;
 
-        const replaceId = this.replaceImageryId.value;
+        const replaceId = TileMetadataTable.prefix(RecordPrefix.Imagery, this.replaceImageryId.value ?? '');
         if (replaceId == null) return false;
         if (tsData.imagery[replaceId] != null) {
             LogConfig.get().warn({ replaceId }, 'Replacement already exists');

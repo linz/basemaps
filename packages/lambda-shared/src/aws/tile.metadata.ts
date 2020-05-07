@@ -92,6 +92,7 @@ export class TileMetadataTable {
      * Prefix a dynamoDb id with the provided prefix if it doesnt already start with it.
      */
     static prefix(prefix: RecordPrefix, id: string): string {
+        if (id == '') return id;
         if (id.startsWith(prefix)) return id;
         return `${prefix}_${id}`;
     }
