@@ -19,6 +19,7 @@ import { Cutline } from '../../cog/cutline';
 import { CogJob } from '../../cog/types';
 import { GdalCogBuilderDefaults, GdalResamplingOptions } from '../../gdal/gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';
+import { ActionBatchJob } from './action.batch';
 
 function filterTiff(a: string): boolean {
     const lowerA = a.toLowerCase();
@@ -63,6 +64,7 @@ export class ActionJobCreate extends CommandLineAction {
     private cutline?: CommandLineStringParameter;
     private cutlineBlend?: CommandLineIntegerParameter;
     private overrideId?: CommandLineStringParameter;
+    private submitBatch: CommandLineFlagParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -208,6 +210,7 @@ export class ActionJobCreate extends CommandLineAction {
             quadkeys,
         };
 
+        const isVrtGenerated = this.generateVrt?.value == true;
         const tmpFolder = await makeTempFolder(`basemaps-${job.id}`);
         try {
             // Local file systems need directories to be created before writing to them
@@ -216,7 +219,7 @@ export class ActionJobCreate extends CommandLineAction {
             }
 
             // TODO should this be done here, it could be done for each COG builder
-            if (this.generateVrt?.value) {
+            if (isVrtGenerated) {
                 const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);
                 const readStream = createReadStream(vrtTmp);
                 await outputFs.write(getJobPath(job, '.vrt'), readStream, logger);
@@ -235,6 +238,11 @@ export class ActionJobCreate extends CommandLineAction {
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
             await outputFs.writeJson(geoJsonCoveringOutput, TileCover.toGeoJson(quadkeys), logger);
+
+            if (this.submitBatch.value) {
+                if (!isVrtGenerated) throw new Error('Unable to submit, no VRT generated');
+                await ActionBatchJob.batchJob(jobFile, true, logger);
+            }
 
             logger.info({ job: jobFile }, 'Done');
         } finally {
@@ -287,6 +295,12 @@ export class ActionJobCreate extends CommandLineAction {
             argumentName: 'OVERRIDE_ID',
             parameterLongName: '--override-id',
             description: 'used mainly for debugging to create with a pre determined job id',
+            required: false,
+        });
+
+        this.submitBatch = this.defineFlagParameter({
+            parameterLongName: `--batch`,
+            description: 'Submit the job to AWS Batch',
             required: false,
         });
     }
