@@ -40,7 +40,7 @@ o.spec('api.path', () => {
 
             o(tileFromPath(ctx.action.rest)).deepEquals({
                 type: TileType.Image,
-                tileSet: TileSetType.aerial,
+                name: TileSetType.aerial,
                 projection: EPSG.Google,
                 x: 2,
                 y: 3,
@@ -54,7 +54,7 @@ o.spec('api.path', () => {
 
             o(tileFromPath(ctx.action.rest)).deepEquals({
                 type: TileType.Image,
-                tileSet: TileSetType.aerial,
+                name: TileSetType.aerial,
                 projection: EPSG.Google,
                 x: 5,
                 y: 6,

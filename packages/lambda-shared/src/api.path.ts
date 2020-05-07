@@ -10,8 +10,6 @@ export interface ActionData {
 
 export enum TileSetType {
     aerial = 'aerial',
-    aerialHead = 'aerial@head',
-    aerialBeta = 'aerial@beta',
 }
 
 export enum TileType {
@@ -23,7 +21,7 @@ export type TileData = TileDataXyz | TileDataWmts;
 
 export interface TileDataXyz {
     type: TileType.Image;
-    tileSet: TileSetType;
+    name: string;
     projection: EPSG;
     x: number;
     y: number;
@@ -39,11 +37,10 @@ export interface TileDataWmts {
 
 const TileSets: Record<string, TileSetType> = {
     aerial: TileSetType.aerial,
-    'aerial@head': TileSetType.aerialHead,
-    'aerial@beta': TileSetType.aerialBeta,
 };
 
-function tileXyzFromPath(path: string[], tileSet: TileSetType): TileData | null {
+function tileXyzFromPath(path: string[]): TileData | null {
+    const name = path[0];
     const projection = Projection.parseEpsgString(path[1]);
     if (projection == null) return null;
     const z = parseInt(path[2], 10);
@@ -56,7 +53,7 @@ function tileXyzFromPath(path: string[], tileSet: TileSetType): TileData | null 
     const ext = getImageFormat(extStr);
     if (ext == null) return null;
 
-    return { type: TileType.Image, tileSet, projection, x, y, z, ext };
+    return { type: TileType.Image, name, projection, x, y, z, ext };
 }
 
 /**
@@ -91,12 +88,11 @@ function tileWmtsFromPath(path: string[], tileSet: TileSetType): TileData | null
 export function tileFromPath(path: string[]): TileData | null {
     if (path.length < 1) return null;
 
-    const tileSet = TileSets[path[0]];
-    if (tileSet == null) return null;
-
     if (path.length == 5) {
-        return tileXyzFromPath(path, tileSet);
+        return tileXyzFromPath(path);
     }
 
+    const tileSet = TileSets[path[0]];
+    if (tileSet == null) return null;
     return tileWmtsFromPath(path, tileSet);
 }

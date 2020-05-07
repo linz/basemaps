@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cog",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@basemaps/geo": "^1.4.2",
-    "@basemaps/lambda-shared": "^1.4.2",
+    "@basemaps/lambda-shared": "^1.5.0",
     "@cogeotiff/core": "^1.0.3",
     "@cogeotiff/source-aws": "^1.0.3",
     "@cogeotiff/source-file": "^1.0.3",

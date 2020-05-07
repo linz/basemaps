@@ -9,7 +9,7 @@ import { EPSG } from '@basemaps/geo';
 import { TileSets } from '../routes/tile';
 import { TileSet } from '../tile.set';
 
-const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta'];
+const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('LambdaXyz', () => {
     /** Generate mock ALBEvent */
@@ -95,7 +95,7 @@ o.spec('LambdaXyz', () => {
         const res = await handleRequest(request);
         o(res.status).equals(200);
         o(res.header('content-type')).equals('image/webp');
-        o(res.header('eTaG')).equals('kOkbgX07nGYNVt4RO5HxkKxfL2/uM4UJpf1IJl9ySTk=');
+        o(res.header('eTaG')).equals('9Iiu/i3ZzjiLKroRycpaD5eLk0BHUHX1hUsy0CCSoIM=');
         o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
 
         o(tileMock.calls.length).equals(1);
@@ -120,12 +120,14 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should 304 if a tile is not modified', async () => {
-        const key = 'Je+AcRSzbjT8XIAe/VK/Sfh9KlDHPAmq3BkBbpnN3/Q=';
+        const key = 'J6AksQQEhXqW/wywDDsAGtd0OVVqOlKs6M8ViZlOU1g=';
         const request = req('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', {
             'if-none-match': key,
         });
         const res = await handleRequest(request);
         o(res.status).equals(304);
+        o(res.header('eTaG')).equals(undefined);
+
         o(tileMock.calls.length).equals(1);
         o(rasterMock.calls.length).equals(0);
 
