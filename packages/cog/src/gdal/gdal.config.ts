@@ -34,6 +34,11 @@ export interface GdalCogBuilderOptions {
      * @default 512
      */
     blockSize: 256 | 512 | 1024 | 2048 | 4096;
+
+    /**
+     * Compression quality
+     */
+    quality: number;
 }
 
 export const GdalCogBuilderDefaults: GdalCogBuilderOptions = {
@@ -41,6 +46,7 @@ export const GdalCogBuilderDefaults: GdalCogBuilderOptions = {
     compression: 'webp',
     alignmentLevels: 1,
     blockSize: 512,
+    quality: 90,
 };
 
 export const GdalResamplingOptions: Record<string, GdalCogBuilderOptionsResampling> = {
