@@ -102,7 +102,6 @@ export class ActionJobCreate extends CommandLineAction {
 
     async onExecute(): Promise<void> {
         const imageryName = basename(this.source?.path.value ?? '').replace(/\./g, '-'); // batch does not allow '.' in names
-
         const processId = this.overrideId?.value ?? ulid.ulid();
 
         const logger = LogConfig.get().child({ id: processId, imageryName });
@@ -135,7 +134,9 @@ export class ActionJobCreate extends CommandLineAction {
         logger.info({ source: this.source.path.value, tiffCount: tiffList.length }, 'LoadingTiffs');
 
         const cutlinePath =
-            this.cutline?.value == null ? Cutline.defaultCutline(imageryName)['path'] : this.cutline?.value;
+            this.cutline?.value == null
+                ? outputConfig.path + Cutline.defaultCutline(imageryName)['path']
+                : this.cutline.value;
         const cutline = cutlinePath == null ? new Cutline() : await Cutline.loadCutline(cutlinePath);
 
         const builder = new CogBuilder(maxConcurrency, logger);

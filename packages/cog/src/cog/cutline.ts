@@ -10,9 +10,9 @@ import { CogJob, SourceMetadata } from './types';
 const PaddingFactor = 1.125;
 type CutlineItem = { path: string; blend: number };
 export const CutlineMap: { [key: string]: CutlineItem } = {
-    sentinel: { path: 's3://basemaps-cog-test/NZCoastCutline.sentinel.geojson', blend: 5 },
-    urban: { path: 's3://basemaps-cog-test/NZCoastCutline.urban.geojson', blend: 20 },
-    rural: { path: 's3://basemaps-cog-test/NZCoastCutline.rural.geojson', blend: 20 },
+    sentinel: { path: 'cutline/sentinel.geojson', blend: 5 },
+    urban: { path: 'cutline/urban.geojson', blend: 20 },
+    rural: { path: 'cutline/rural.geojson', blend: 20 },
 };
 
 function findGeoJsonProjection(geojson: any | null): EPSG {
@@ -220,9 +220,7 @@ export class Cutline {
      * @param imageryName the name of the dataset being cut, should contain a substring denoting dataset type; sentinel, urban, rural.
      */
     static defaultCutline(imageryName: string): CutlineItem {
-        const foundNames = Object.keys(CutlineMap)
-            .map((cutName) => (imageryName.toLowerCase().search(cutName) > -1 ? cutName : ''))
-            .filter((matchedName) => !!matchedName);
+        const foundNames = Object.keys(CutlineMap).filter((f) => imageryName.toLowerCase().includes(f));
         if (foundNames.length != 1) {
             throw new Error('Matched ' + foundNames.length + ' cutline names');
         }
