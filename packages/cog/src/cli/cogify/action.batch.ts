@@ -7,6 +7,7 @@ import {
     Aws,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
+    LogType,
 } from '@basemaps/lambda-shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
@@ -84,7 +85,8 @@ export class ActionBatchJob extends CommandLineAction {
         return `${job.id}-${job.name}-${quadKey}`;
     }
 
-    async batchOne(
+    static async batchOne(
+        jobPath: string,
         job: CogJob,
         batch: AWS.Batch,
         quadKey: string,
@@ -96,11 +98,11 @@ export class ActionBatchJob extends CommandLineAction {
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;
 
-        if (!isCommit || this.job?.value == null) {
+        if (!isCommit) {
             return { jobName, jobId: '', memory };
         }
 
-        const commandStr = ['-V', 'cog', '--job', this.job.value, '--commit', '--quadkey', quadKey];
+        const commandStr = ['-V', 'cog', '--job', jobPath, '--commit', '--quadkey', quadKey];
 
         const batchJob = await batch
             .submitJob({
@@ -121,7 +123,7 @@ export class ActionBatchJob extends CommandLineAction {
      * List all the current jobs in batch and their statuses
      * @returns a map of JobName to if their status is "ok" (not failed)
      */
-    async getCurrentJobList(batch: AWS.Batch): Promise<Map<string, boolean>> {
+    static async getCurrentJobList(batch: AWS.Batch): Promise<Map<string, boolean>> {
         // For some reason AWS only lets us query one status at a time.
         const allStatuses = ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'RUNNING', 'SUCCEEDED', 'FAILED'];
         const allJobs = await Promise.all(
@@ -146,18 +148,22 @@ export class ActionBatchJob extends CommandLineAction {
         if (this.job?.value == null) {
             throw new Error('Failed to read parameters');
         }
+        const processId = ulid.ulid();
+        const logger = LogConfig.get().child({ id: processId });
+
+        await ActionBatchJob.batchJob(this.job.value, this.commit?.value, logger);
+    }
+
+    static async batchJob(jobPath: string, commit = false, logger: LogType): Promise<void> {
+        if (!FileOperator.isS3(jobPath)) throw new Error(`AWS Batch job.json have to be in S3, jobPath:${jobPath}`);
+        const job = (await FileOperator.create(jobPath).readJson(jobPath)) as CogJob;
+        LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
+
         const region = Env.get('AWS_DEFAULT_REGION', 'ap-southeast-2');
         const batch = new aws.Batch({ region });
 
-        const job = (await FileOperator.create(this.job.value).readJson(this.job.value)) as CogJob;
-        const processId = ulid.ulid();
-        const logger = LogConfig.get().child({ id: processId, correlationId: job.id, imageryName: job.name });
-        LogConfig.set(logger);
-
-        const isCommit = this.commit?.value ?? false;
-
         const outputFs = FileOperator.create(job.output);
-        const runningJobs = await this.getCurrentJobList(batch);
+        const runningJobs = await ActionBatchJob.getCurrentJobList(batch);
 
         const stats = await Promise.all(
             job.quadkeys.map(async (quadKey) => {
@@ -193,7 +199,7 @@ export class ActionBatchJob extends CommandLineAction {
             'JobSubmit',
         );
 
-        if (isCommit) {
+        if (commit) {
             const img = createImageryRecordFromJob(job);
             await Aws.tileMetadata.put(img);
             const tileMetadata: TileMetadataSetRecord = {
@@ -210,11 +216,11 @@ export class ActionBatchJob extends CommandLineAction {
         }
 
         for (const quadKey of toSubmit) {
-            const jobStatus = await this.batchOne(job, batch, quadKey, isCommit);
+            const jobStatus = await ActionBatchJob.batchOne(jobPath, job, batch, quadKey, commit);
             logger.info(jobStatus, 'JobSubmitted');
         }
 
-        if (!isCommit) {
+        if (!commit) {
             logger.warn('DryRun:Done');
             return;
         }
