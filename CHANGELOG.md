@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.7.0](https://github.com/linz/basemaps/compare/v1.6.0...v1.7.0) (2020-05-10)
+
+
+### Bug Fixes
+
+* **cli:** role assumptions must have role names shorter than 64 chars ([#585](https://github.com/linz/basemaps/issues/585)) ([d889cb7](https://github.com/linz/basemaps/commit/d889cb7666685a8c3a4c7a0816c92fe62626e2e4))
+
+
+### Features
+
+* **cli:** support webp quality setting ([#586](https://github.com/linz/basemaps/issues/586)) ([a456404](https://github.com/linz/basemaps/commit/a456404e2774c7a7adeffd8d114c192b073106b7))
+
+
+
+
+
 # [1.6.0](https://github.com/linz/basemaps/compare/v1.5.1...v1.6.0) (2020-05-08)
 
 
