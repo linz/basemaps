@@ -31,6 +31,11 @@ export interface CogJob {
     output: {
         resampling: GdalCogBuilderOptionsResampling;
         nodata?: number;
+        /**
+         * Quality level to use
+         * @default 90
+         */
+        quality: number;
         cutlineBlend?: number;
         vrt: {
             options: VrtOptions;
