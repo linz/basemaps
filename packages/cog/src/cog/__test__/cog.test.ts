@@ -42,6 +42,7 @@ o.spec('cog', () => {
                 compression: 'webp',
                 resampling: 'bilinear',
                 blockSize: 512,
+                quality: 90,
             });
             o(gdalCogBuilder!.source).equals('/tmp/test.vrt');
             o(gdalCogBuilder!.target).equals('/tmp/out-tiff');
@@ -65,6 +66,8 @@ o.spec('cog', () => {
                 'COMPRESS=webp',
                 '-co',
                 'ALIGNED_LEVELS=6',
+                '-co',
+                'QUALITY=90',
                 '-projwin',
                 '18472078.003508832',
                 '-5948635.289265559',

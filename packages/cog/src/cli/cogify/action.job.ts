@@ -56,15 +56,16 @@ export class CLiInputData {
 }
 
 export class ActionJobCreate extends CommandLineAction {
-    private source?: CLiInputData;
-    private output?: CLiInputData;
-    private maxConcurrency?: CommandLineIntegerParameter;
-    private generateVrt?: CommandLineFlagParameter;
-    private resampling?: CommandLineStringParameter;
-    private cutline?: CommandLineStringParameter;
-    private cutlineBlend?: CommandLineIntegerParameter;
-    private overrideId?: CommandLineStringParameter;
+    private source: CLiInputData;
+    private output: CLiInputData;
+    private maxConcurrency: CommandLineIntegerParameter;
+    private generateVrt: CommandLineFlagParameter;
+    private resampling: CommandLineStringParameter;
+    private cutline: CommandLineStringParameter;
+    private cutlineBlend: CommandLineIntegerParameter;
+    private overrideId: CommandLineStringParameter;
     private submitBatch: CommandLineFlagParameter;
+    private quality: CommandLineIntegerParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -195,6 +196,7 @@ export class ActionJobCreate extends CommandLineAction {
             output: {
                 ...outputConfig,
                 resampling,
+                quality: this.quality.value ?? 90,
                 cutlineBlend: cutline != null ? this.cutlineBlend?.value ?? 0 : undefined,
                 nodata: metadata.nodata,
                 vrt: {
@@ -301,6 +303,13 @@ export class ActionJobCreate extends CommandLineAction {
         this.submitBatch = this.defineFlagParameter({
             parameterLongName: `--batch`,
             description: 'Submit the job to AWS Batch',
+            required: false,
+        });
+
+        this.quality = this.defineIntegerParameter({
+            argumentName: 'QUALITY',
+            parameterLongName: '--quality',
+            description: 'Compression quality (0-100)',
             required: false,
         });
     }
