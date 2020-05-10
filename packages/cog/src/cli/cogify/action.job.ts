@@ -133,11 +133,14 @@ export class ActionJobCreate extends CommandLineAction {
 
         logger.info({ source: this.source.path.value, tiffCount: tiffList.length }, 'LoadingTiffs');
 
+        const cutlineDefaults = Cutline.defaultCutline(imageryName);
         const cutlinePath =
             this.cutline?.value == null
                 ? outputConfig.path + Cutline.defaultCutline(imageryName)['path']
                 : this.cutline.value;
         const cutline = cutlinePath == null ? new Cutline() : await Cutline.loadCutline(cutlinePath);
+
+        const blend = this.cutlineBlend == null ? cutlineDefaults['blend'] : this.cutlineBlend?.value;
 
         const builder = new CogBuilder(maxConcurrency, logger);
         const metadata = await builder.build(tiffSource, cutline);
@@ -199,7 +202,7 @@ export class ActionJobCreate extends CommandLineAction {
                 ...outputConfig,
                 resampling,
                 quality: this.quality.value ?? 90,
-                cutlineBlend: cutline != null ? this.cutlineBlend?.value ?? 0 : undefined,
+                cutlineBlend: cutline != null ? blend ?? 0 : undefined,
                 nodata: metadata.nodata,
                 vrt: {
                     options: vrtOptions,
