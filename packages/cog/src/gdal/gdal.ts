@@ -58,6 +58,7 @@ export class GdalCogBuilder {
             compression: config.compression ?? GdalCogBuilderDefaults.compression,
             resampling: config.resampling ?? GdalCogBuilderDefaults.resampling,
             blockSize: config.blockSize ?? GdalCogBuilderDefaults.blockSize,
+            quality: config.quality ?? GdalCogBuilderDefaults.quality,
         };
         this.gdal = GdalCogBuilder.getGdal();
 
@@ -104,6 +105,8 @@ export class GdalCogBuilder {
             // Number of levels to align to web mercator
             '-co',
             `ALIGNED_LEVELS=${this.config.alignmentLevels}`,
+            '-co',
+            `QUALITY=${this.config.quality}`,
             ...this.getBounds(),
 
             this.source,

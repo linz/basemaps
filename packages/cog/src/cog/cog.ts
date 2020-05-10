@@ -62,6 +62,7 @@ export async function buildCogForQuadKey(
         bbox: [ulX, ulY, lrX, lrY],
         alignmentLevels,
         resampling: job.output.resampling,
+        quality: job.output.quality,
     });
     if (cogBuild.gdal.mount) {
         job.source.files.forEach((f) => cogBuild.gdal.mount?.(f));
