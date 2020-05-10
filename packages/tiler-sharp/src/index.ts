@@ -29,8 +29,6 @@ const SharpScaleOptions = { fit: Sharp.fit.cover };
 export class TileMakerSharp implements TileMaker {
     static readonly MaxImageSize = 256 * 2 ** 15;
     private tileSize: number;
-    /** The background of all tiles that are created, slightly light blue*/
-    public background = { r: 0xdc, g: 0xe9, b: 0xed, alpha: 1 };
 
     public constructor(tileSize: number) {
         this.tileSize = tileSize;
@@ -49,8 +47,8 @@ export class TileMakerSharp implements TileMaker {
         return false;
     }
 
-    private async getImageBuffer(layers: SharpOverlay[], format: ImageFormat): Promise<Buffer> {
-        const pipeline = this.createImage().composite(layers);
+    private async getImageBuffer(layers: SharpOverlay[], format: ImageFormat, background: Sharp.RGBA): Promise<Buffer> {
+        const pipeline = this.createImage(background).composite(layers);
         switch (format) {
             case ImageFormat.JPEG:
                 return pipeline.jpeg().toBuffer();
@@ -80,7 +78,7 @@ export class TileMakerSharp implements TileMaker {
         metrics.end('compose:overlay');
 
         metrics.start('compose:compress');
-        const buffer = await this.getImageBuffer(overlays, ctx.format);
+        const buffer = await this.getImageBuffer(overlays, ctx.format, ctx.background);
         metrics.end('compose:compress');
 
         return { buffer, metrics, layers: overlays.length };
@@ -126,13 +124,13 @@ export class TileMakerSharp implements TileMaker {
         };
     }
 
-    private createImage(): Sharp.Sharp {
+    private createImage(background: Sharp.RGBA): Sharp.Sharp {
         return Sharp({
             create: {
                 width: this.tileSize,
                 height: this.tileSize,
                 channels: 4,
-                background: this.background,
+                background,
             },
         });
     }

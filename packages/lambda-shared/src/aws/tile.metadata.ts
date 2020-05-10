@@ -65,6 +65,9 @@ export interface TileMetadataSetRecord extends BaseDynamoTable {
 
     /** Total number of revisions */
     revisions?: number;
+
+    /** Background to render for areas where there is no data */
+    background?: { r: number; g: number; b: number; alpha: number };
 }
 
 export enum RecordPrefix {

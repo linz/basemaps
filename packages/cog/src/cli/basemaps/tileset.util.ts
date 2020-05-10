@@ -34,6 +34,9 @@ export async function printTileSet(tsData: TileMetadataSetRecord, printImagery =
     console.log(c.bold('CreatedAt:'), new Date(tsData.createdAt).toISOString());
     console.log(c.bold('UpdatedAt:'), new Date(tsData.updatedAt).toISOString());
     console.log(c.bold('Version:'), `v${tsData.version}`);
+    if (tsData.background) {
+        console.log(c.bold('Background'), tsData.background);
+    }
 
     if (printImagery) await printTileSetImagery(tsData);
 }

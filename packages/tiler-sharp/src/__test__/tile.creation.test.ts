@@ -10,6 +10,8 @@ import * as o from 'ospec';
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;
 
+const background = { r: 0, g: 0, b: 0, alpha: 1 };
+
 function getExpectedTileName(tileSize: number, x: number, y: number, zoom: number): string {
     return path.join(__dirname, `../../data/expected/tile_${tileSize}_${x}_${y}_z${zoom}.png`);
 }
@@ -54,7 +56,7 @@ o.spec('TileCreation', () => {
 
     o('should generate webp', async () => {
         const tileMaker = new TileMakerSharp(256);
-        const res = await tileMaker.compose({ layers: [], format: ImageFormat.WEBP });
+        const res = await tileMaker.compose({ layers: [], format: ImageFormat.WEBP, background });
         // Image format `R I F F <fileSize (int32)> W E B P`
         const magicBytes = res.buffer.slice(0, 4);
         const magicWebP = res.buffer.slice(8, 12);
@@ -64,7 +66,7 @@ o.spec('TileCreation', () => {
 
     o('should generate jpeg', async () => {
         const tileMaker = new TileMakerSharp(256);
-        const res = await tileMaker.compose({ layers: [], format: ImageFormat.JPEG });
+        const res = await tileMaker.compose({ layers: [], format: ImageFormat.JPEG, background });
         const magicBytes = res.buffer.slice(0, 4);
         o(magicBytes.toJSON().data).deepEquals([0xff, 0xd8, 0xff, 0xdb]);
     });
@@ -72,7 +74,7 @@ o.spec('TileCreation', () => {
     o('should error when provided invalid image formats', async () => {
         const tileMaker = new TileMakerSharp(256);
         try {
-            await tileMaker.compose({ layers: [] } as any);
+            await tileMaker.compose({ layers: [], background } as any);
             o(true).equals(false)('invalid format');
         } catch (e) {
             o(e.message.includes('Invalid image')).equals(true);
@@ -104,14 +106,12 @@ o.spec('TileCreation', () => {
             const tiler = new Tiler(tileSize);
 
             const tileMaker = new TileMakerSharp(tileSize);
-            // Make the background black to easily spot flaws
-            tileMaker.background = { r: 0, g: 0, b: 0, alpha: 1 };
 
             const layers = await tiler.tile([tiff], centerTile, centerTile, zoom);
             o(layers).notEquals(null);
             if (layers == null) throw new Error('Tile is null');
 
-            const png = await tileMaker.compose({ layers, format: ImageFormat.PNG });
+            const png = await tileMaker.compose({ layers, format: ImageFormat.PNG, background });
             const newImage = PNG.sync.read(png.buffer);
             if (WRITE_IMAGES) {
                 const fileName = getExpectedTileName(tileSize, centerTile, centerTile, zoom);

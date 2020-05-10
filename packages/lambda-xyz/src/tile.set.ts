@@ -41,6 +41,10 @@ export class TileSet {
         this.bucket = bucket;
     }
 
+    get background(): { r: number; g: number; b: number; alpha: number } | undefined {
+        return this.tileSet?.background;
+    }
+
     get id(): string {
         if (this.tag == TileSetTag.Production) return `${this.name}_${this.projection}`;
         return `${this.name}@${this.tag}_${this.projection}`;
