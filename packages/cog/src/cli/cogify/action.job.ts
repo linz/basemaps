@@ -19,6 +19,7 @@ import { Cutline } from '../../cog/cutline';
 import { CogJob } from '../../cog/types';
 import { GdalCogBuilderDefaults, GdalResamplingOptions } from '../../gdal/gdal.config';
 import { getJobPath, makeTempFolder } from '../folder';
+import { ActionBatchJob } from './action.batch';
 
 function filterTiff(a: string): boolean {
     const lowerA = a.toLowerCase();
@@ -55,14 +56,16 @@ export class CLiInputData {
 }
 
 export class ActionJobCreate extends CommandLineAction {
-    private source?: CLiInputData;
-    private output?: CLiInputData;
-    private maxConcurrency?: CommandLineIntegerParameter;
-    private generateVrt?: CommandLineFlagParameter;
-    private resampling?: CommandLineStringParameter;
-    private cutline?: CommandLineStringParameter;
-    private cutlineBlend?: CommandLineIntegerParameter;
-    private overrideId?: CommandLineStringParameter;
+    private source: CLiInputData;
+    private output: CLiInputData;
+    private maxConcurrency: CommandLineIntegerParameter;
+    private generateVrt: CommandLineFlagParameter;
+    private resampling: CommandLineStringParameter;
+    private cutline: CommandLineStringParameter;
+    private cutlineBlend: CommandLineIntegerParameter;
+    private overrideId: CommandLineStringParameter;
+    private submitBatch: CommandLineFlagParameter;
+    private quality: CommandLineIntegerParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -154,7 +157,13 @@ export class ActionJobCreate extends CommandLineAction {
 
         // Don't log bounds as it is huge
         logger.info(
-            { ...metadata, bounds: undefined, covering: undefined, quadkeys: quadkeys.join(' ') },
+            {
+                ...metadata,
+                bounds: undefined,
+                covering: undefined,
+                quadKeyCount: quadkeys.length,
+                quadkeys: quadkeys.join(' '),
+            },
             'CoveringGenerated',
         );
 
@@ -187,6 +196,7 @@ export class ActionJobCreate extends CommandLineAction {
             output: {
                 ...outputConfig,
                 resampling,
+                quality: this.quality.value ?? 90,
                 cutlineBlend: cutline != null ? this.cutlineBlend?.value ?? 0 : undefined,
                 nodata: metadata.nodata,
                 vrt: {
@@ -202,6 +212,7 @@ export class ActionJobCreate extends CommandLineAction {
             quadkeys,
         };
 
+        const isVrtGenerated = this.generateVrt?.value == true;
         const tmpFolder = await makeTempFolder(`basemaps-${job.id}`);
         try {
             // Local file systems need directories to be created before writing to them
@@ -210,7 +221,7 @@ export class ActionJobCreate extends CommandLineAction {
             }
 
             // TODO should this be done here, it could be done for each COG builder
-            if (this.generateVrt?.value) {
+            if (isVrtGenerated) {
                 const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);
                 const readStream = createReadStream(vrtTmp);
                 await outputFs.write(getJobPath(job, '.vrt'), readStream, logger);
@@ -220,7 +231,7 @@ export class ActionJobCreate extends CommandLineAction {
             await outputFs.writeJson(jobFile, job, logger);
 
             if (cutline != null) {
-                const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson`);
+                const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson.gz`);
                 await outputFs.writeJson(geoJsonCutlineOutput, cutline.toGeoJson(), logger);
             }
 
@@ -229,6 +240,11 @@ export class ActionJobCreate extends CommandLineAction {
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
             await outputFs.writeJson(geoJsonCoveringOutput, TileCover.toGeoJson(quadkeys), logger);
+
+            if (this.submitBatch.value) {
+                if (!isVrtGenerated) throw new Error('Unable to submit, no VRT generated');
+                await ActionBatchJob.batchJob(jobFile, true, logger);
+            }
 
             logger.info({ job: jobFile }, 'Done');
         } finally {
@@ -281,6 +297,19 @@ export class ActionJobCreate extends CommandLineAction {
             argumentName: 'OVERRIDE_ID',
             parameterLongName: '--override-id',
             description: 'used mainly for debugging to create with a pre determined job id',
+            required: false,
+        });
+
+        this.submitBatch = this.defineFlagParameter({
+            parameterLongName: `--batch`,
+            description: 'Submit the job to AWS Batch',
+            required: false,
+        });
+
+        this.quality = this.defineIntegerParameter({
+            argumentName: 'QUALITY',
+            parameterLongName: '--quality',
+            description: 'Compression quality (0-100)',
             required: false,
         });
     }

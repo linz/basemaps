@@ -1,19 +1,21 @@
 {
   "name": "@basemaps/tiler",
-  "version": "1.2.0",
+  "version": "1.6.0",
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
-  "scripts": {},
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
+  },
   "dependencies": {
-    "@basemaps/geo": "1.2.0",
-    "@basemaps/metrics": "^1.2.0",
-    "@cogeotiff/core": "^1.0.3"
+    "@basemaps/geo": "^1.4.2",
+    "@basemaps/metrics": "^1.4.2",
+    "@cogeotiff/core": "^1.0.6"
   },
   "devDependencies": {
-    "@cogeotiff/source-file": "^1.0.3",
+    "@cogeotiff/source-file": "^1.0.6",
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
     "pixelmatch": "^5.1.0",

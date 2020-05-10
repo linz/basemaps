@@ -49,6 +49,12 @@ export class CogBuilderStack extends cdk.Stack {
         dynamoPolicy.addResources(TileMetadataTableArn.getArn(this));
         batchInstanceRole.addToPolicy(dynamoPolicy);
 
+        // Since roles are passed in via the CLI we ned to assume all the roles
+        const stsPolicy = new iam.PolicyStatement();
+        stsPolicy.addActions('sts:AssumeRole');
+        stsPolicy.addAllResources(); // literally all of the roles!
+        batchInstanceRole.addToPolicy(stsPolicy);
+
         new iam.CfnInstanceProfile(this, 'CogBatchInstanceProfile', {
             instanceProfileName: batchInstanceRole.roleName,
             roles: [batchInstanceRole.roleName],

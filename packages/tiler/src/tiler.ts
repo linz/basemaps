@@ -115,13 +115,13 @@ export class Tiler {
 
         // Sometimes the source image is smaller than the tile size,
         // Need to crop the tile down to the actual image extent
-        if (source.width < img.tileSize.width) {
+        if (source.width < img.tileSize.width || source.height < img.tileSize.height) {
             composition.extract = { width: source.width, height: source.height };
         }
 
         // Often COG tiles do not align to the same size as XYZ Tiles
         // This will scale the COG tile to the same size as a XYZ
-        if (source.width != target.width) {
+        if (source.width != target.width || source.height != target.height) {
             composition.resize = { width: target.width, height: target.height };
         }
 

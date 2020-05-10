@@ -17,8 +17,8 @@ export class TileSet {
     name: string;
     tag: TileSetTag;
     projection: EPSG;
-    tileSet: TileMetadataSetRecord;
-    imagery: Map<string, TileMetadataImageryRecord>;
+    private tileSet: TileMetadataSetRecord;
+    private imagery: Map<string, TileMetadataImageryRecord>;
     sources: Map<string, CogTiff> = new Map();
     bucket: string;
 
@@ -52,7 +52,8 @@ export class TileSet {
     }
 
     *allImagery(): Generator<{ rule: TileMetadataImageRule; imagery: TileMetadataImageryRecord }> {
-        for (const rule of this.tileSet.imagery) {
+        const rules = Aws.tileMetadata.TileSet.rules(this.tileSet);
+        for (const rule of rules) {
             const imagery = this.imagery.get(rule.id);
             if (imagery == null) throw new Error(`Unable to find imagery for key: ${rule.id}`);
 
@@ -62,14 +63,11 @@ export class TileSet {
 
     async getTiffsForQuadKey(qk: string, zoom: number): Promise<CogTiff[]> {
         const output: CogTiff[] = [];
-        for (const rule of this.tileSet.imagery) {
-            if (zoom > (rule.maxZoom ?? 32)) continue;
-            if (zoom < (rule.minZoom ?? 0)) continue;
+        for (const obj of this.allImagery()) {
+            if (zoom > (obj.rule.maxZoom ?? 32)) continue;
+            if (zoom < (obj.rule.minZoom ?? 0)) continue;
 
-            const source = this.imagery.get(rule.id);
-            if (source == null) continue;
-
-            for (const tiff of this.getCogsForQuadKey(source, qk)) {
+            for (const tiff of this.getCogsForQuadKey(obj.imagery, qk)) {
                 output.push(tiff);
             }
         }

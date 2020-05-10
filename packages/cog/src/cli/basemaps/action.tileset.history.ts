@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, TileMetadataSetRecord, TileSetTag } from '@basemaps/lambda-shared';
+import { Aws, LogConfig, TileMetadataImageryRecord, TileMetadataSetRecord, TileSetTag } from '@basemaps/lambda-shared';
+import * as chalk from 'chalk';
 import { CliTable } from '../cli.table';
 import { TileSetBaseAction } from './tileset.action';
-import { printTileSet } from './tileset.util';
+import { printTileSet, TileSetTable } from './tileset.util';
 
 const MaxHistory = 199;
 
@@ -32,7 +33,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
     }
 
     protected async onExecute(): Promise<void> {
-        const tileSet = this.tileSet.value!;
+        const tileSetName = this.tileSet.value!;
         const projection = this.projection.value!;
 
         const allTags = await this.getAllTags();
@@ -47,7 +48,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
 
         const toFetch = new Set<string>();
         for (let i = latestVersion; i >= startVersion; i--) {
-            toFetch.add(Aws.tileMetadata.TileSet.id(tileSet, projection, i));
+            toFetch.add(Aws.tileMetadata.TileSet.id(tileSetName, projection, i));
         }
 
         function getTagsForVersion(version: number): string {
@@ -56,7 +57,15 @@ export class TileSetHistoryAction extends TileSetBaseAction {
                 .join(', ');
         }
 
-        const fetchedTags = await Aws.tileMetadata.batchGet<TileMetadataSetRecord>(toFetch);
+        LogConfig.get().debug({ count: toFetch.size }, 'Loading TileSets');
+        const tileSets = await Aws.tileMetadata.batchGet<TileMetadataSetRecord>(toFetch);
+        const toFetchImages = new Set<string>();
+        for (const tag of tileSets.values()) {
+            for (const imId of Object.keys(tag.imagery)) toFetchImages.add(imId);
+        }
+
+        LogConfig.get().debug({ count: toFetchImages.size }, 'Loading Imagery');
+        const imagery = await Aws.tileMetadata.batchGet<TileMetadataImageryRecord>(toFetchImages);
 
         const TileSetHistory = new CliTable<TileMetadataSetRecord>();
         TileSetHistory.field('v', 4, (obj) => `v${obj.version}`);
@@ -65,7 +74,54 @@ export class TileSetHistoryAction extends TileSetBaseAction {
 
         console.log('History:');
         TileSetHistory.header();
-        const values = Array.from(toFetch.values()).map((key) => fetchedTags.get(key)!);
-        TileSetHistory.print(values);
+
+        for (let i = latestVersion; i >= startVersion; i--) {
+            const tileSetId = Aws.tileMetadata.TileSet.id(tileSetName, projection, i);
+            const tileSetA = tileSets.get(tileSetId);
+            if (tileSetA == null) throw new Error(`Failed to fetch tag: ${tileSetId}`);
+            console.log(TileSetHistory.line(tileSetA));
+
+            if (i == startVersion) continue;
+
+            const tileSetBId = Aws.tileMetadata.TileSet.id(tileSetName, projection, i - 1);
+            const tileSetB = tileSets.get(tileSetBId);
+            if (tileSetB == null) throw new Error(`Failed to fetch tag: ${tileSetBId}`);
+
+            this.showDiff(tileSetA, tileSetB, imagery);
+        }
+    }
+
+    showDiff(
+        tsA: TileMetadataSetRecord,
+        tsB: TileMetadataSetRecord,
+        imagery: Map<string, TileMetadataImageryRecord>,
+    ): void {
+        for (const tsAImg of Object.values(tsA.imagery)) {
+            const tsBImg = tsB.imagery[tsAImg.id];
+            const img = imagery.get(tsAImg.id)!;
+            const lineA = TileSetTable.line({ rule: tsAImg, img });
+
+            if (tsBImg == null) {
+                console.log(chalk.green('\t+', lineA));
+                continue;
+            }
+
+            const lineB = TileSetTable.line({ rule: tsBImg, img });
+            if (lineA !== lineB) {
+                console.log(chalk.green('\t+', lineA));
+                console.log(chalk.red('\t-', lineB));
+            }
+        }
+
+        for (const tsBImg of Object.values(tsB.imagery)) {
+            const tsAImg = tsA.imagery[tsBImg.id];
+            const img = imagery.get(tsBImg.id)!;
+
+            if (tsAImg == null) {
+                const lineA = TileSetTable.line({ rule: tsBImg, img });
+                console.log(chalk.red('\t-', lineA));
+            }
+        }
+        console.log();
     }
 }

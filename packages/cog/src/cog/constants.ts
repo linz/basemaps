@@ -8,7 +8,7 @@ export const MaxImagePixelDim = 256000;
 export const ZoomDifferenceForMaxImage = 1 - Math.floor(Math.log2(MaxImagePixelDim / SingleTileWidth));
 
 /** When a tile has at least this much covering merge it up to parent */
-export const CoveringPercentage = 0.6;
+export const CoveringPercentage = 0.25;
 
 /** The zoom level of the cutline polygon */
 export const CutlineZoom = 15;

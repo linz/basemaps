@@ -82,10 +82,10 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     req.set('location', latLon);
     req.set('quadKey', qk);
 
-    const tileSetId = `${xyzData.tileSet}_${xyzData.projection}`;
-    req.set('tileSet', xyzData.tileSet);
+    const tileSetId = `${xyzData.name}_${xyzData.projection}`;
+    req.set('tileSet', xyzData.name);
     req.set('projection', xyzData.projection);
-    const tileSet = TileSets.get(tileSetId) ?? new TileSet(xyzData.tileSet, xyzData.projection);
+    const tileSet = TileSets.get(tileSetId) ?? new TileSet(xyzData.name, xyzData.projection);
     TileSets.set(tileSet.id, tileSet);
 
     req.timer.start('tileset:load');

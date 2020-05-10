@@ -1,6 +1,8 @@
 import { CommandLineAction, CommandLineStringParameter, CommandLineIntegerParameter } from '@rushstack/ts-command-line';
+import * as ulid from 'ulid';
 
 export abstract class TileSetBaseAction extends CommandLineAction {
+    id = ulid.ulid();
     tileSet: CommandLineStringParameter;
     projection: CommandLineIntegerParameter;
 

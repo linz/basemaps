@@ -1,4 +1,4 @@
-import { Bounds, EPSG, GeoJson, Projection, QuadKeyTrie, TileCover } from '@basemaps/geo';
+import { Bounds, EPSG, GeoJson, Projection, QuadKeyTrie, TileCover, QuadKey } from '@basemaps/geo';
 import { FileOperator } from '@basemaps/lambda-shared';
 import bbox from '@turf/bbox';
 import intersect from '@turf/intersect';
@@ -178,7 +178,10 @@ export class Cutline {
 
         const covering = this.findCovering(sourceMetadata);
 
-        covering.mergeQuadKeys(CoveringPercentage, minZ);
+        covering.mergeQuadKeys(CoveringPercentage, minZ, minZ + 2);
+
+        /** We should never return a full cover, using '' as a index causes problems */
+        if (covering.has('')) return QuadKeyTrie.fromList(QuadKey.children(''));
 
         return covering;
     }

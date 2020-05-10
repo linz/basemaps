@@ -2,7 +2,7 @@ import { EPSG } from '@basemaps/geo';
 import * as AWS from 'aws-sdk';
 import * as o from 'ospec';
 import { Const } from '../../const';
-import { TileMetadataImageryRecord, TileMetadataTable } from '../tile.metadata';
+import { TileMetadataImageRule, TileMetadataImageryRecord, TileMetadataTable } from '../tile.metadata';
 
 const { marshall } = AWS.DynamoDB.Converter;
 
@@ -10,9 +10,15 @@ o.spec('tile.metadata.table', () => {
     const { now } = Date;
     const mockNow = Date.now();
 
-    function* genIds(max: number): any {
+    function* genIds(max: number): Generator<TileMetadataImageRule> {
         let num = 0;
-        while (num < max) yield { id: 'im_' + num++, maxZoom: 0, minZoom: 0 };
+        while (num < max) yield { id: 'im_' + num++, maxZoom: 0, minZoom: 0, priority: num };
+    }
+
+    function genMap(max: number): Record<string, TileMetadataImageRule> {
+        const output: Record<string, TileMetadataImageRule> = {};
+        for (const im of genIds(max)) output[im.id] = im;
+        return output;
     }
 
     o.before(() => {
@@ -96,7 +102,7 @@ o.spec('tile.metadata.table', () => {
                 updatedAt: 0,
                 id: 'ts_aerial_3857',
                 version: 0,
-                imagery: Array.from(genIds(5)),
+                imagery: genMap(5),
                 name: 'aerial',
                 projection: EPSG.Google,
             });
@@ -142,7 +148,7 @@ o.spec('tile.metadata.table', () => {
             updatedAt: 0,
             id: 'ts_aerial_3857',
             version: 0,
-            imagery: Array.from(genIds(202)),
+            imagery: genMap(202),
             name: 'aerial',
             projection: EPSG.Google,
         });

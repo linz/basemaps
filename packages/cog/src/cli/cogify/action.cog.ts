@@ -99,7 +99,7 @@ export class ActionCogCreate extends CommandLineAction {
 
             let cutline: Cutline;
             if (job.output.cutlineBlend != null) {
-                const cutlinePath = getJobPath(job, 'cutline.geojson');
+                const cutlinePath = getJobPath(job, 'cutline.geojson.gz');
                 cutline = await Cutline.loadCutline(cutlinePath);
             } else {
                 cutline = new Cutline();

@@ -1,17 +1,25 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataSetRecord, TileSetTag } from '@basemaps/lambda-shared';
+import {
+    Aws,
+    LogConfig,
+    RecordPrefix,
+    TileMetadataSetRecord,
+    TileMetadataTable,
+    TileSetTag,
+} from '@basemaps/lambda-shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
 import { TileSetBaseAction } from './tileset.action';
-import { printTileSet } from './tileset.util';
+import { invalidateCache, printTileSet } from './tileset.util';
 
 export class TileSetUpdateAction extends TileSetBaseAction {
     priority: CommandLineIntegerParameter;
     imageryId: CommandLineStringParameter;
     commit: CommandLineFlagParameter;
+    replaceImageryId: CommandLineStringParameter;
 
     minZoom: CommandLineIntegerParameter;
     maxZoom: CommandLineIntegerParameter;
@@ -42,6 +50,13 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             required: false,
         });
 
+        this.replaceImageryId = this.defineStringParameter({
+            argumentName: 'REPLACE_WITH',
+            parameterLongName: '--replace-with',
+            description: 'Replace the current imagery with a new imagery set',
+            required: false,
+        });
+
         this.minZoom = this.defineIntegerParameter({
             argumentName: 'MIN_ZOOM',
             parameterLongName: '--min-zoom',
@@ -63,14 +78,14 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         });
     }
     protected async onExecute(): Promise<void> {
-        const tileSet = this.tileSet.value!;
+        const name = this.tileSet.value!;
         const projection = this.projection.value!;
-        const imgId = this.imageryId.value!;
+        const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, this.imageryId.value ?? '');
 
-        const tsData = await Aws.tileMetadata.TileSet.get(tileSet, projection, TileSetTag.Head);
+        const tsData = await Aws.tileMetadata.TileSet.get(name, projection, TileSetTag.Head);
 
         if (tsData == null) {
-            LogConfig.get().fatal({ tileSet, projection }, 'Failed to find tile set');
+            LogConfig.get().fatal({ tileSet: name, projection }, 'Failed to find tile set');
             process.exit(1);
         }
 
@@ -78,12 +93,14 @@ export class TileSetUpdateAction extends TileSetBaseAction {
 
         const priorityUpdate = await this.updatePriority(tsData, imgId);
         const zoomUpdate = await this.updateZoom(tsData, imgId);
+        const replaceUpdate = await this.replaceUpdate(tsData, imgId);
 
         await printTileSet(tsData);
 
-        if (priorityUpdate || zoomUpdate) {
+        if (priorityUpdate || zoomUpdate || replaceUpdate) {
             if (this.commit.value) {
                 await Aws.tileMetadata.TileSet.create(tsData);
+                await invalidateCache(name, projection, TileSetTag.Head, this.commit.value);
             } else {
                 LogConfig.get().warn('DryRun:Done');
             }
@@ -92,8 +109,28 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         }
     }
 
+    async replaceUpdate(tsData: TileMetadataSetRecord, imgId: string): Promise<boolean> {
+        const existing = tsData.imagery[imgId];
+        if (existing == null) return false;
+
+        const replaceId = TileMetadataTable.prefix(RecordPrefix.Imagery, this.replaceImageryId.value ?? '');
+        if (replaceId == '') return false;
+        if (tsData.imagery[replaceId] != null) {
+            LogConfig.get().warn({ replaceId }, 'Replacement already exists');
+            return false;
+        }
+
+        const img = await Aws.tileMetadata.Imagery.get(replaceId);
+
+        LogConfig.get().info({ imgId, imagery: img?.name }, 'Replace');
+        delete tsData.imagery[imgId];
+
+        tsData.imagery[replaceId] = { ...existing, id: replaceId };
+        return true;
+    }
+
     async updateZoom(tsData: TileMetadataSetRecord, imgId: string): Promise<boolean> {
-        const existing = tsData.imagery.find((f) => f.id == imgId);
+        const existing = tsData.imagery[imgId];
         if (existing == null) return false;
 
         const minZoom = this.minZoom.value;
@@ -127,40 +164,40 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         const priority = this.priority.value!;
         if (priority == null) return false;
 
-        const existingIndex = tsData.imagery.findIndex((f) => f.id == imgId);
+        const existing = tsData.imagery[imgId];
 
         if (priority == -1) {
             // Remove imagery
-            if (existingIndex == -1) throw new Error('Failed to find imagery: ' + imgId);
-            tsData.imagery.splice(existingIndex, 1);
+            if (existing == null) throw new Error('Failed to find imagery: ' + imgId);
+            delete tsData.imagery[imgId];
             const img = await Aws.tileMetadata.Imagery.get(imgId);
 
-            logger.info({ imgId, imagery: img?.name, priority: existingIndex + 1 }, 'Removing Imagery');
+            logger.info({ imgId, imagery: img?.name, priority: existing.priority }, 'Removing Imagery');
             return true;
         }
 
-        if (existingIndex == -1) {
+        if (existing == null) {
             // Add new imagery
             logger.info({ imgId, priority }, 'Add imagery');
             const img = await Aws.tileMetadata.Imagery.get(imgId);
             logger.info({ imgId, imagery: img.name, priority }, 'Adding');
-            tsData.imagery.splice(priority - 1, 0, {
+            tsData.imagery[imgId] = {
                 id: imgId,
                 minZoom: this.minZoom.value ?? 0,
                 maxZoom: this.maxZoom.value ?? 32,
-            });
+                priority,
+            };
             return true;
         }
 
-        if (existingIndex + 1 !== priority) {
+        if (existing.priority !== priority) {
             // Update
             const img = await Aws.tileMetadata.Imagery.get(imgId);
             logger.info(
-                { imgId, imagery: img?.name, oldPriority: existingIndex + 1, newPriority: priority },
+                { imgId, imagery: img?.name, oldPriority: existing.priority, newPriority: priority },
                 'Update Priority',
             );
-            const oldRecord = tsData.imagery.splice(existingIndex, 1);
-            tsData.imagery.splice(priority - 1, 0, ...oldRecord);
+            existing.priority = priority;
             return true;
         }
 

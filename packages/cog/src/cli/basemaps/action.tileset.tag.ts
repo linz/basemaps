@@ -6,6 +6,7 @@ import {
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
 import { TileSetBaseAction } from './tileset.action';
+import { invalidateCache } from './tileset.util';
 
 export class TileSetUpdateTagAction extends TileSetBaseAction {
     private version: CommandLineIntegerParameter;
@@ -62,9 +63,12 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
 
         LogConfig.get().info({ version, tag, name, projection }, 'Tagging');
 
-        if (this.commit.value!) {
+        if (this.commit.value) {
             await Aws.tileMetadata.TileSet.tag(name, projection, tag, version);
-        } else {
+        }
+        await invalidateCache(name, projection, tag, this.commit.value);
+
+        if (!this.commit.value) {
             LogConfig.get().warn('DryRun:Done');
         }
     }

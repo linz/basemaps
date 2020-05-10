@@ -1,9 +1,14 @@
-import { Aws } from '../aws';
 import { S3 } from 'aws-sdk';
-import { Stream, Readable } from 'stream';
-import { FileProcessor } from './file';
+import * as path from 'path';
+import { Readable, Stream } from 'stream';
+import { promisify } from 'util';
+import { createGzip, gunzip } from 'zlib';
+import { Aws } from '../aws';
 import { StsAssumeRoleConfig } from '../aws/credentials';
 import { LogType } from '../log';
+import { FileProcessor } from './file';
+
+const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 
 const MaxListCount = 100;
 export class FileOperatorS3 implements FileProcessor {
@@ -72,7 +77,12 @@ export class FileOperatorS3 implements FileProcessor {
     }
 
     async readJson(filePath: string): Promise<any> {
-        return JSON.parse((await this.read(filePath)).toString());
+        const data = await this.read(filePath);
+        if (path.extname(filePath) === '.gz') {
+            return JSON.parse((await pGunzip(data)).toString());
+        } else {
+            return JSON.parse(data.toString());
+        }
     }
 
     async write(filePath: string, buf: Buffer | Stream, logger?: LogType): Promise<void> {
@@ -87,7 +97,14 @@ export class FileOperatorS3 implements FileProcessor {
     }
 
     writeJson(filePath: string, obj: any, logger?: LogType): Promise<void> {
-        return this.write(filePath, Buffer.from(JSON.stringify(obj, undefined, 2)), logger);
+        const json = Buffer.from(JSON.stringify(obj, undefined, 2));
+        if (path.extname(filePath) === '.gz') {
+            const gzip = createGzip();
+            gzip.end(json);
+            return this.write(filePath, gzip, logger);
+        } else {
+            return this.write(filePath, json, logger);
+        }
     }
 
     async exists(filePath: string): Promise<boolean> {
