@@ -1,14 +1,23 @@
-import { Env, FileOperator, FileOperatorS3, FileProcessor, LogConfig, LambdaContext } from '@basemaps/lambda-shared';
+import { EPSG } from '@basemaps/geo';
+import {
+    Env,
+    FileOperator,
+    FileOperatorS3,
+    FileProcessor,
+    LambdaContext,
+    LogConfig,
+    LogType,
+} from '@basemaps/lambda-shared';
 import { CogSource, CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import * as express from 'express';
+import { PrettyTransform } from 'pretty-json-log';
+import 'source-map-support/register';
 import * as ulid from 'ulid';
 import * as lambda from '../index';
 import { TileSet } from '../tile.set';
-import { EPSG } from '@basemaps/geo';
 import { TileSets } from '../tile.set.cache';
-import { PrettyTransform } from 'pretty-json-log';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
@@ -40,13 +49,14 @@ export class TileSetLocal extends TileSet {
         this.filePath = path;
     }
 
-    async load(): Promise<void> {
-        if (this.tiffs != null) return;
+    async load(): Promise<boolean> {
+        if (this.tiffs != null) return true;
         const tiffFs = FileOperator.create(this.filePath);
 
         const fileList = await tiffFs.list(this.filePath);
         const files = fileList.filter((f) => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'));
         this.tiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
+        return true;
     }
 
     async getTiffsForQuadKey(): Promise<CogTiff[]> {
@@ -54,50 +64,83 @@ export class TileSetLocal extends TileSet {
     }
 }
 
+async function handleRequest(
+    ctx: LambdaContext,
+    res: express.Response<any>,
+    startTime: number,
+    logger: LogType,
+    logInfo = {},
+): Promise<void> {
+    try {
+        const data = await lambda.handleRequest(ctx);
+        res.status(data.status);
+        if (data.headers) {
+            for (const [header, value] of data.headers) {
+                res.header(header, String(value));
+            }
+        }
+        if (data.status < 299 && data.status > 199) {
+            res.end(Buffer.from(data.getBody() ?? '', 'base64'));
+        } else {
+            res.end();
+        }
+        const duration = Date.now() - startTime;
+        logger.info({ ...ctx.logContext, ...logInfo, status: data.status, duration }, 'Done');
+    } catch (e) {
+        logger.fatal({ ...ctx.logContext, err: e }, 'FailedToRender');
+        res.status(500);
+        res.end();
+    }
+}
+
 async function main(): Promise<void> {
+    if (Env.get(Env.PublicUrlBase) == '') {
+        process.env[Env.PublicUrlBase] = `http://localhost:${port}`;
+    }
     const filePath = process.argv[2];
     if (filePath != null) {
-        const tileSet = new TileSetLocal('aerial', EPSG.Google, filePath);
+        let tileSet = new TileSetLocal('aerial', EPSG.Google, filePath);
+        TileSets.set(tileSet.id, tileSet);
+        tileSet = new TileSetLocal('aerial@beta', EPSG.Google, filePath);
         TileSets.set(tileSet.id, tileSet);
     }
 
-    app.get('/v1/tiles/:imageryName/:projection/:z/:x/:y.png', async (req: express.Request, res: express.Response) => {
+    app.get('/v1/tiles/:imageryName/:projection/:z/:x/:y.:ext', async (req: express.Request, res: express.Response) => {
         const startTime = Date.now();
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
-        const { x, y, z, imageryName, projection } = req.params;
+        const { x, y, z, ext, imageryName, projection } = req.params;
         const ctx = new LambdaContext(
             {
                 httpMethod: 'get',
-                path: `/v1/tiles/${imageryName}/${projection}/${z}/${x}/${y}.png`,
+                path: `/v1/tiles/${imageryName}/${projection}/${z}/${x}/${y}.${ext}`,
             } as any,
             logger,
         );
-        try {
-            const data = await lambda.handleRequest(ctx);
-            res.status(data.status);
-            if (data.headers) {
-                for (const [header, value] of data.headers) {
-                    res.header(header, String(value));
-                }
-            }
-            if (data.status < 299 && data.status > 199) {
-                res.end(Buffer.from(data.getBody() ?? '', 'base64'));
-            } else {
-                res.end();
-            }
-            const duration = Date.now() - startTime;
-            logger.info({ ...ctx.logContext, tile: { x, y, z }, status: data.status, duration }, 'Done');
-        } catch (e) {
-            logger.fatal({ ...ctx.logContext, err: e }, 'FailedToRender');
-            res.status(500);
-            res.end();
-        }
+        await handleRequest(ctx, res, startTime, logger, { tile: { x, y, z } });
     });
+
+    app.get(
+        '/v1/tiles/:imageryName/:projection/WMTSCapabilities.xml',
+        async (req: express.Request, res: express.Response) => {
+            const startTime = Date.now();
+            const requestId = ulid.ulid();
+            const logger = LogConfig.get().child({ id: requestId });
+            const { imageryName, projection } = req.params;
+            const ctx = new LambdaContext(
+                {
+                    httpMethod: 'get',
+                    path: `/v1/tiles/${imageryName}/${projection}/WMTSCapabilities.xml`,
+                } as any,
+                logger,
+            );
+            await handleRequest(ctx, res, startTime, logger);
+        },
+    );
 
     app.use(express.static('../landing/static/'));
     await new Promise((resolve) => app.listen(port, resolve));
-    console.log('Listen', `http://localhost:${port}`);
+    console.log('Listen', Env.get(Env.PublicUrlBase));
 }
 
 main().catch((e) => console.error(e));
