@@ -54,12 +54,14 @@ export async function buildCogForQuadKey(
     const [ulX, ulY] = forward([left, upper]);
     const [lrX, lrY] = forward([right, lower]);
 
+    const padding = Math.max(Math.abs(lrY - ulY), Math.abs(lrX - ulX)) * 0.01;
+
     const [x, y, z] = QuadKey.toXYZ(quadKey);
 
     const alignmentLevels = job.source.resolution - z;
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
-        bbox: [ulX, ulY, lrX, lrY],
+        bbox: [ulX, ulY, lrX + padding, lrY - padding],
         alignmentLevels,
         resampling: job.output.resampling,
         quality: job.output.quality,
