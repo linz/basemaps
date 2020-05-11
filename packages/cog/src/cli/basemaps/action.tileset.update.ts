@@ -15,12 +15,39 @@ import {
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateCache, printTileSet } from './tileset.util';
 
+/**
+ * Parse a string as hex, return 0 on failure
+ * @param str string to parse
+ */
+function parseHex(str: string): number {
+    if (str == '') return 0;
+    const val = parseInt(str, 16);
+    if (isNaN(val)) return 0;
+    return val;
+}
+/**
+ * Parse a hexstring into RGBA
+ *
+ * Defaults to 0 if missing values
+ * @param str string to parse
+ */
+export function parseRgba(str: string): { r: number; g: number; b: number; alpha: number } {
+    if (str.startsWith('0x')) str = str.slice(2);
+    return {
+        r: parseHex(str.substr(0, 2)),
+        g: parseHex(str.substr(2, 2)),
+        b: parseHex(str.substr(4, 2)),
+        alpha: parseHex(str.substr(6, 2)),
+    };
+}
+
 export class TileSetUpdateAction extends TileSetBaseAction {
     priority: CommandLineIntegerParameter;
     imageryId: CommandLineStringParameter;
     commit: CommandLineFlagParameter;
     replaceImageryId: CommandLineStringParameter;
 
+    background: CommandLineStringParameter;
     minZoom: CommandLineIntegerParameter;
     maxZoom: CommandLineIntegerParameter;
 
@@ -40,13 +67,20 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             parameterLongName: '--imagery',
             parameterShortName: '-i',
             description: 'Imagery ID',
-            required: true,
+            required: false,
         });
 
         this.priority = this.defineIntegerParameter({
             argumentName: 'PRIORITY',
             parameterLongName: '--priority',
             description: 'Render priority (-1 to remove)',
+            required: false,
+        });
+
+        this.background = this.defineStringParameter({
+            argumentName: 'BACKGROUND',
+            parameterLongName: '--background',
+            description: 'background color',
             required: false,
         });
 
@@ -88,16 +122,21 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             LogConfig.get().fatal({ tileSet: name, projection }, 'Failed to find tile set');
             process.exit(1);
         }
-
+        const before = JSON.stringify(tsData);
         await Aws.tileMetadata.Imagery.getAll(tsData);
 
-        const priorityUpdate = await this.updatePriority(tsData, imgId);
-        const zoomUpdate = await this.updateZoom(tsData, imgId);
-        const replaceUpdate = await this.replaceUpdate(tsData, imgId);
+        if (imgId) {
+            await this.updatePriority(tsData, imgId);
+            await this.updateZoom(tsData, imgId);
+            await this.replaceUpdate(tsData, imgId);
+        }
+
+        await this.updateBackground(tsData);
+        const after = JSON.stringify(tsData);
 
         await printTileSet(tsData);
 
-        if (priorityUpdate || zoomUpdate || replaceUpdate) {
+        if (before != after) {
             if (this.commit.value) {
                 await Aws.tileMetadata.TileSet.create(tsData);
                 await invalidateCache(name, projection, TileSetTag.Head, this.commit.value);
@@ -107,6 +146,19 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         } else {
             LogConfig.get().info('No Changes');
         }
+    }
+
+    async updateBackground(tsData: TileMetadataSetRecord): Promise<boolean> {
+        const existing = tsData.background;
+        const background = this.background.value;
+        if (background == null) return false;
+        const rgba = parseRgba(background);
+        if (rgba.r != existing?.r || rgba.g != existing?.g || rgba.b != existing?.b || rgba.alpha != existing?.alpha) {
+            tsData.background = rgba;
+            return true;
+        }
+
+        return false;
     }
 
     async replaceUpdate(tsData: TileMetadataSetRecord, imgId: string): Promise<boolean> {
