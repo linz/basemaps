@@ -35,6 +35,9 @@ function emptyPng(req: LambdaContext, cacheKey: string): LambdaHttpResponse {
 }
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
+/** Background color of tiles where the tileset does not define a color */
+const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
+
 /** Initialize the tiffs before reading */
 async function initTiffs(tileSet: TileSet, qk: string, zoom: number, logger: LogType): Promise<CogTiff[]> {
     const tiffs = await tileSet.getTiffsForQuadKey(qk, zoom);
@@ -114,7 +117,11 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     }
 
     req.timer.start('tile:compose');
-    const res = await tileMaker.compose({ layers, format: ext });
+    const res = await tileMaker.compose({
+        layers,
+        format: ext,
+        background: tileSet.background ?? DefaultBackground,
+    });
     req.timer.end('tile:compose');
     req.set('layersUsed', res.layers);
     req.set('allLayersUsed', res.layers == layers.length);

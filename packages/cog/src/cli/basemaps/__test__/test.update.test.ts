@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import * as o from 'ospec';
-import { TileSetUpdateAction } from '../action.tileset.update';
+import { TileSetUpdateAction, parseRgba } from '../action.tileset.update';
 import { TileMetadataSetRecord, LogConfig, Aws } from '@basemaps/lambda-shared';
 
 function fakeTileSet(): TileMetadataSetRecord {
@@ -127,6 +127,44 @@ o.spec('TileSetUpdateAction', () => {
             cmd.priority = { value: 10 } as any;
             const hasChanges = await cmd.updatePriority(tileSet, 'im_0');
             o(hasChanges).equals(false);
+        });
+    });
+
+    o.spec('background', () => {
+        o('should support 0x', () => {
+            const colors = parseRgba('0xff00ff00');
+            o(colors).deepEquals({ r: 255, g: 0, b: 255, alpha: 0 });
+        });
+
+        o('should support smaller hex strings', () => {
+            o(parseRgba('0x')).deepEquals({ r: 0, g: 0, b: 0, alpha: 0 });
+            o(parseRgba('0xff')).deepEquals({ r: 255, g: 0, b: 0, alpha: 0 });
+            o(parseRgba('0xffff')).deepEquals({ r: 255, g: 255, b: 0, alpha: 0 });
+            o(parseRgba('0xffffff')).deepEquals({ r: 255, g: 255, b: 255, alpha: 0 });
+            o(parseRgba('0xffffffff')).deepEquals({ r: 255, g: 255, b: 255, alpha: 255 });
+        });
+
+        o('should support all hex', () => {
+            for (let i = 0x00; i <= 0xff; i++) {
+                const hex = i.toString(16).padStart(2, '0');
+                const colors = parseRgba(`${hex}${hex}${hex}${hex}`);
+                o(colors).deepEquals({ r: i, g: i, b: i, alpha: i });
+            }
+        });
+
+        o('should update background', async () => {
+            cmd.background = { value: '0xff00ff00' } as any;
+            const hasChanges = await cmd.updateBackground(tileSet);
+            o(hasChanges).equals(true);
+            o(tileSet.background).deepEquals({ r: 255, g: 0, b: 255, alpha: 0 });
+        });
+
+        o('should only update if changes background', async () => {
+            cmd.background = { value: '0xff00ff00' } as any;
+            tileSet.background = { r: 255, g: 0, b: 255, alpha: 0 };
+            const hasChanges = await cmd.updateBackground(tileSet);
+            o(hasChanges).equals(false);
+            o(tileSet.background).deepEquals({ r: 255, g: 0, b: 255, alpha: 0 });
         });
     });
 });

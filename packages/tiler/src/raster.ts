@@ -8,6 +8,7 @@ export interface TileMaker {
 export interface TileMakerContext {
     layers: Composition[];
     format: ImageFormat;
+    background: { r: number; g: number; b: number; alpha: number };
 }
 
 export interface Composition {
