@@ -1,6 +1,8 @@
-import { V, TileSetType, VNodeElement } from '@basemaps/lambda-shared';
 import { EPSG, Projection } from '@basemaps/geo';
+import { LambdaContext, TileDataWmts, V, VNodeElement } from '@basemaps/lambda-shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
+import { getTileSet } from './tile.set.cache';
+import { TileSet } from './tile.set';
 
 const { lat, lon } = Projection.Wgs84Bound;
 
@@ -22,12 +24,12 @@ for (const k of ImageFormatOrder) {
     formats.push(V('Format', 'image/' + k));
 }
 
-const tileMatrixSetId: Partial<Record<TileSetType, string>> = {
-    [TileSetType.aerial]: 'GoogleMapsCompatible',
+const tileMatrixSetId: Partial<Record<string, string>> = {
+    aerial: 'GoogleMapsCompatible',
 };
 
-const LayerPreamble: Partial<Record<TileSetType, VNodeElement[]>> = {
-    [TileSetType.aerial]: [
+const LayerPreamble: Partial<Record<string, VNodeElement[]>> = {
+    aerial: [
         V('ows:Title', 'NZ Aerial Imagery Basemap'),
         V(
             'ows:Abstract',
@@ -108,17 +110,11 @@ const CommonGlobalMercator = [
     V('TileHeight', '256'),
 ];
 
-type EPSGToGenerator = Map<EPSG, (tileSet: TileSetType, projection: EPSG) => VNodeElement>;
+type Generator = Record<string, Record<string, (tileSet: TileSet) => VNodeElement>>;
 
-const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
-
-{
-    const AerialMap = new Map<EPSG, (tileSet: TileSetType, projection: EPSG) => VNodeElement>();
-    MatrixSets.set(TileSetType.aerial, AerialMap);
-
-    AerialMap.set(
-        EPSG.Google,
-        (tileSet: TileSetType, projection: EPSG): VNodeElement => {
+const MatrixSets: Generator = {
+    aerial: {
+        [EPSG.Google]: (tileSet: TileSet): VNodeElement => {
             const matrices = [];
             let scale = Projection.GoogleScaleDenominator,
                 size = 1;
@@ -136,57 +132,48 @@ const MatrixSets = new Map<TileSetType, EPSGToGenerator>();
                 );
             }
             return V('TileMatrixSet', [
-                V('ows:Identifier', tileMatrixSetId[tileSet]!),
-                V('ows:SupportedCRS', Projection.toUrn(projection)),
-                ...wellKnownScaleSet(projection),
+                V('ows:Identifier', tileMatrixSetId[tileSet.name]!),
+                V('ows:SupportedCRS', Projection.toUrn(EPSG.Google)),
+                ...wellKnownScaleSet(EPSG.Google),
                 ...matrices,
             ]);
         },
-    );
-}
+    },
+};
 
-const layerPreamble = (tileSet: TileSetType): VNodeElement[] | undefined => LayerPreamble[tileSet];
-const tileMatrixSets = (tileSet: TileSetType, projection: EPSG | null): VNodeElement[] | null => {
-    const sets = MatrixSets.get(tileSet);
-    if (sets == null) return null;
-
-    const func = projection != null ? sets.get(projection) : null;
-
-    if (projection != null) {
-        if (func != null) return [func(tileSet, projection)];
-    } else {
-        const ans = [];
-        for (const [projection, func] of sets.entries()) {
-            ans.push(func(tileSet, projection));
-        }
-        return ans;
+const getLayerElements = (tileSet: TileSet): [VNodeElement[], string, VNodeElement] | [] => {
+    const preamble = LayerPreamble.aerial; // TODO support other imagery types
+    const sets = MatrixSets.aerial;
+    const func = sets[tileSet.projection];
+    if (preamble != null && func != null) {
+        return [preamble, tileMatrixSetId.aerial!, func(tileSet)];
     }
-    return null;
+    return [];
 };
 
 /**
- * Generate the WMTSCapabilities.xml file for a given `tileSet` and `projection`
+ * Generate the WMTSCapabilities.xml file for a given `name` and `projection`
  **/
 export function buildWmtsCapabilityToVNode(
     httpBase: string,
-    apiKey: string,
-    tileSet: TileSetType,
-    projection: EPSG | null,
+    req: LambdaContext,
+    wmtsData: TileDataWmts,
 ): VNodeElement | null {
-    if (projection == null) projection = EPSG.Google;
-    const preambleXml = layerPreamble(tileSet);
-    if (preambleXml == null) return null;
-    const tileSets = tileMatrixSets(tileSet, projection);
-    if (tileSets == null) return null;
+    const projection = wmtsData.projection ?? EPSG.Google;
+    const tileSet = getTileSet(wmtsData.name, projection);
+    if (tileSet == null) return null;
+    const [preambleXml, matrixSetId, matrixSet] = getLayerElements(tileSet);
+    if (preambleXml == null || matrixSetId == null) return null;
     const resUrls: VNodeElement[] = [];
+    const apiKey = req.apiKey;
     for (const suffix of ImageFormatOrder) {
         resUrls.push(
             V('ResourceURL', {
                 format: 'image/' + suffix,
                 resourceType: 'tile',
-                template: `${httpBase}/v1/tiles/${tileSet}/${projection}/{TileMatrix}/{TileCol}/{TileRow}.${suffix}${
-                    apiKey ? '?api=' + apiKey : ''
-                }`,
+                template: `${httpBase}/v1/tiles/${
+                    wmtsData.name
+                }/${projection}/{TileMatrix}/{TileCol}/{TileRow}.${suffix}${apiKey ? '?api=' + apiKey : ''}`,
             }),
         );
     }
@@ -194,22 +181,13 @@ export function buildWmtsCapabilityToVNode(
     return V('Capabilities', CapabilitiesAttrs, [
         ...ProviderInfo,
         V('Contents', [
-            V('Layer', [
-                ...preambleXml,
-                V('TileMatrixSetLink', [V('TileMatrixSet', tileMatrixSetId[tileSet]!)]),
-                ...resUrls,
-            ]),
-            ...tileSets,
+            V('Layer', [...preambleXml, V('TileMatrixSetLink', [V('TileMatrixSet', matrixSetId)]), ...resUrls]),
+            matrixSet,
         ]),
     ]);
 }
 
-export function buildWmtsCapability(
-    httpBase: string,
-    apiKey: string,
-    tileSet: TileSetType,
-    projection: EPSG | null,
-): string | null {
-    const vnode = buildWmtsCapabilityToVNode(httpBase, apiKey, tileSet, projection);
+export function buildWmtsCapability(httpBase: string, req: LambdaContext, wmtsData: TileDataWmts): string | null {
+    const vnode = buildWmtsCapabilityToVNode(httpBase, req, wmtsData);
     return vnode && '<?xml version="1.0"?>\n' + vnode.toString();
 }

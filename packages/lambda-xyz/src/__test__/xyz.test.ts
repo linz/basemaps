@@ -1,35 +1,23 @@
-import { Env, LambdaContext, LogConfig } from '@basemaps/lambda-shared';
-import { VNodeParser } from '@basemaps/lambda-shared';
+import { EPSG } from '@basemaps/geo';
+import { Env, LogConfig, VNodeParser } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
-import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import * as o from 'ospec';
 import { handleRequest } from '../index';
-import { Tilers } from '../tiler';
-import { EPSG } from '@basemaps/geo';
-import { TileSets } from '../routes/tile';
 import { TileSet } from '../tile.set';
+import { TileSets } from '../tile.set.cache';
+import { Tilers } from '../tiler';
+import { mockRequest } from './xyz.testhelper';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('LambdaXyz', () => {
     /** Generate mock ALBEvent */
-    function req(path: string, method = 'get', headers = {}): LambdaContext {
-        return new LambdaContext(
-            {
-                requestContext: null as any,
-                httpMethod: method.toUpperCase(),
-                path,
-                headers,
-                body: null,
-                isBase64Encoded: false,
-            },
-            LogConfig.get(),
-        );
-    }
 
     let tileMock = o.spy();
     let rasterMock = o.spy();
     const rasterMockBuffer = Buffer.from([1]);
+    const origTile256 = Tilers.tile256;
+    const origCompose256 = Tilers.compose256;
 
     o.beforeEach(() => {
         LogConfig.disable();
@@ -48,15 +36,15 @@ o.spec('LambdaXyz', () => {
         for (const tileSetName of TileSetNames) {
             const tileSet = new TileSet(tileSetName, EPSG.Google, 'bucket');
             TileSets.set(tileSet.id, tileSet);
-            tileSet.load = () => Promise.resolve();
+            tileSet.load = () => Promise.resolve(true);
             tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
         }
     });
 
     o.afterEach(() => {
         TileSets.clear();
-        Tilers.tile256 = new Tiler(256);
-        Tilers.compose256 = new TileMakerSharp(256);
+        Tilers.tile256 = origTile256;
+        Tilers.compose256 = origCompose256;
     });
 
     o('should export handler', async () => {
@@ -67,7 +55,7 @@ o.spec('LambdaXyz', () => {
 
     TileSetNames.forEach((tileSetName) => {
         o(`should generate a tile 0,0,0 for ${tileSetName}.png`, async () => {
-            const request = req(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`);
+            const request = mockRequest(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`);
             const res = await handleRequest(request);
             o(res.status).equals(200);
             o(res.header('content-type')).equals('image/png');
@@ -91,7 +79,7 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should generate a tile 0,0,0 for webp', async () => {
-        const request = req('/v1/tiles/aerial/3857/0/0/0.webp');
+        const request = mockRequest('/v1/tiles/aerial/3857/0/0/0.webp');
         const res = await handleRequest(request);
         o(res.status).equals(200);
         o(res.header('content-type')).equals('image/webp');
@@ -114,14 +102,14 @@ o.spec('LambdaXyz', () => {
 
     o('should 200 with empty png if a tile is out of bounds', async () => {
         Tilers.tile256.tile = async () => null;
-        const res = await handleRequest(req('/v1/tiles/aerial/global-mercator/0/0/0.png'));
+        const res = await handleRequest(mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png'));
         o(res.status).equals(200);
         o(rasterMock.calls.length).equals(0);
     });
 
     o('should 304 if a tile is not modified', async () => {
         const key = 'J6AksQQEhXqW/wywDDsAGtd0OVVqOlKs6M8ViZlOU1g=';
-        const request = req('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', {
+        const request = mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', {
             'if-none-match': key,
         });
         const res = await handleRequest(request);
@@ -142,7 +130,7 @@ o.spec('LambdaXyz', () => {
 
         o('should 304 if a xml is not modified', async () => {
             const key = 'y9mUSt9dBu+bfVfBUQWpUzogbxkshoeDUSi/Gkn2zpA=';
-            const request = req('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
+            const request = mockRequest('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
                 'if-none-match': key,
             });
 
@@ -157,14 +145,14 @@ o.spec('LambdaXyz', () => {
         o('should serve WMTSCapabilities for tile_set', async () => {
             process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
-            const request = req('/v1/tiles/aerial/WMTSCapabilities.xml');
+            const request = mockRequest('/v1/tiles/aerial@beta/WMTSCapabilities.xml');
             request.apiKey = 'secretKey';
 
             const res = await handleRequest(request);
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
             o(res.header('cache-control')).equals('max-age=0');
-            o(res.header('eTaG')).equals('DvrjCQ7yeedJe1HuhvSTGw8EdEcOmytydeqsY9rzz8E=');
+            o(res.header('eTaG')).equals('FieQlmwYR/kAzatT/TnnUpOYxmafRg79L3WORVpL36k=');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(body.slice(0, 100)).equals(
@@ -176,14 +164,14 @@ o.spec('LambdaXyz', () => {
             const url = vdom.tags('ResourceURL').next().value!;
             o(url.toString()).equals(
                 '<ResourceURL format="image/png" resourceType="tile" ' +
-                    'template="https://tiles.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secretKey" />',
+                    'template="https://tiles.test/v1/tiles/aerial@beta/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secretKey" />',
             );
         });
     });
 
     ['/favicon.ico', '/index.html', '/foo/bar'].forEach((path) => {
         o('should error on invalid paths: ' + path, async () => {
-            const res = await handleRequest(req(path));
+            const res = await handleRequest(mockRequest(path));
             o(res.status).equals(404);
         });
     });

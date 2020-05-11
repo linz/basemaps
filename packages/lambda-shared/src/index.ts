@@ -8,7 +8,7 @@ export { LambdaFunction } from './lambda';
 export { LambdaHttpResponse } from './lambda.response';
 export { LambdaContext } from './lambda.context';
 export { LogConfig, LogType } from './log';
-export { tileFromPath, TileType, TileData, TileDataWmts, TileDataXyz, TileSetType } from './api.path';
+export { tileFromPath, TileType, TileData, TileDataWmts, TileDataXyz } from './api.path';
 export { V, VNode, VNodeElement, VNodeText } from './vdom';
 export { VNodeParser } from './vdom.parse';
 

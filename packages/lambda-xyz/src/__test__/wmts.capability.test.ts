@@ -1,14 +1,46 @@
 import { EPSG } from '@basemaps/geo';
-import { TileSetType, VNodeElement } from '@basemaps/lambda-shared';
+import { HttpHeader, TileDataWmts, TileType, VNodeElement } from '@basemaps/lambda-shared';
+import { createHash } from 'crypto';
 import * as o from 'ospec';
 import { buildWmtsCapability, buildWmtsCapabilityToVNode } from '../wmts.capability';
-import { createHash } from 'crypto';
+import { mockRequest } from './xyz.testhelper';
+import { TileSets } from '../tile.set.cache';
+import { TileSet } from '../tile.set';
 
 const listTag = (node: VNodeElement, tag: string): string[] => Array.from(node.tags(tag)).map((n) => n.toString());
 
+const aerial3857: TileDataWmts = {
+    type: TileType.WMTS,
+    name: 'aerial',
+    projection: EPSG.Google,
+};
+
+const aerialBeta3857 = Object.assign({}, aerial3857);
+aerialBeta3857.name = 'aerial@beta';
+
+const aerialNoProj = Object.assign({}, aerial3857);
+aerialNoProj.projection = null;
+
 o.spec('wmts', () => {
+    o.beforeEach(() => {
+        for (const name of ['aerial', 'aerial@beta']) {
+            const tileSet = new TileSet(name, EPSG.Google, 'test_bucket');
+            TileSets.set(tileSet.id, tileSet);
+        }
+    });
+
+    o.afterEach(() => {
+        TileSets.clear();
+    });
+
     o('should build capabiltiy xml for tileset and projection', () => {
-        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', 'secret1234', TileSetType.aerial, EPSG.Google);
+        const raw = buildWmtsCapabilityToVNode(
+            'https://basemaps.test',
+            mockRequest('/v1/tiles/aerial@beta/3857/WMTSCapabilities.xml', 'get', {
+                [HttpHeader.ApiKey]: 'secret1234',
+            }),
+            aerialBeta3857,
+        );
 
         if (raw == null) {
             o(raw).notEquals(null);
@@ -38,7 +70,7 @@ o.spec('wmts', () => {
         o(urls.length).equals(3);
         o(urls[0].toString()).deepEquals(
             '<ResourceURL format="image/png" resourceType="tile" ' +
-                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234" />',
+                'template="https://basemaps.test/v1/tiles/aerial@beta/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234" />',
         );
 
         const tileMatrixSet = Array.from(raw.tags('TileMatrixSet'));
@@ -85,11 +117,15 @@ o.spec('wmts', () => {
     });
 
     o('should return null if not found', () => {
-        o(buildWmtsCapability('basemaps.test', 's123', TileSetType.aerial, EPSG.Wgs84)).equals(null);
+        const req = mockRequest('/v1/tiles/aerial/4326/WMTSCapabilities.xml');
+        const data = Object.assign({}, aerialNoProj);
+        data.projection = EPSG.Wgs84;
+        o(buildWmtsCapability('basemaps.test', req, data)).equals(null);
     });
 
     o('should build capabiltiy xml for tileset and all projections', () => {
-        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', '1a2p3i', TileSetType.aerial, null);
+        const req = mockRequest('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', { [HttpHeader.ApiKey]: '1a2p3i' });
+        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', req, aerialNoProj);
 
         if (raw == null) {
             o(raw).notEquals(null);
@@ -135,9 +171,9 @@ o.spec('wmts', () => {
                 '</TileMatrix>',
         );
 
-        const xml = buildWmtsCapability('https://basemaps.test', '1a2p3i', TileSetType.aerial, null) || '';
+        const xml = buildWmtsCapability('https://basemaps.test', req, aerialNoProj) || '';
 
-        o(xml).equals('<?xml version="1.0"?>\n' + raw.toString());
+        o(xml).deepEquals('<?xml version="1.0"?>\n' + raw.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
             'FyD/mReE3wahdDQKl7qG32P+FfzpZzA/BVtMJkCKdTI=',
@@ -145,7 +181,11 @@ o.spec('wmts', () => {
     });
 
     o('should allow empty api key', () => {
-        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', '', TileSetType.aerial, EPSG.Google);
+        const raw = buildWmtsCapabilityToVNode(
+            'https://basemaps.test',
+            mockRequest('/v1/tiles/aerial/3857/WMTSCapabilities.xml'),
+            aerial3857,
+        );
 
         const urls = Array.from(raw ? raw.tags('ResourceURL') : []);
         o(urls.length).equals(3);

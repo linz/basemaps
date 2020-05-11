@@ -14,8 +14,10 @@ import { createHash } from 'crypto';
 import pLimit from 'p-limit';
 import { EmptyPng } from '../png';
 import { TileSet } from '../tile.set';
+import { loadTileSet } from '../tile.set.cache';
 import { Tilers } from '../tiler';
 import { buildWmtsCapability } from '../wmts.capability';
+import { EPSG } from '@basemaps/geo';
 
 // To force a full cache invalidation change this number
 const RenderId = 1;
@@ -71,8 +73,6 @@ function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpRespo
     return null;
 }
 
-export const TileSets = new Map<string, TileSet>();
-
 export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
     const tiler = Tilers.tile256;
     const tileMaker = Tilers.compose256;
@@ -85,15 +85,8 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     req.set('location', latLon);
     req.set('quadKey', qk);
 
-    const tileSetId = `${xyzData.name}_${xyzData.projection}`;
-    req.set('tileSet', xyzData.name);
-    req.set('projection', xyzData.projection);
-    const tileSet = TileSets.get(tileSetId) ?? new TileSet(xyzData.name, xyzData.projection);
-    TileSets.set(tileSet.id, tileSet);
-
-    req.timer.start('tileset:load');
-    await tileSet.load();
-    req.timer.end('tileset:load');
+    const tileSet = await loadTileSet(req, xyzData.name, xyzData.projection);
+    if (tileSet == null) return new LambdaHttpResponse(404, 'Not Found');
 
     const tiffs = await initTiffs(tileSet, qk, z, req.log);
     const layers = await tiler.tile(tiffs, x, y, z);
@@ -141,7 +134,11 @@ export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
 
     const host = Env.get(Env.PublicUrlBase);
 
-    const xml = buildWmtsCapability(host, req.apiKey || '', wmtsData.tileSet, wmtsData.projection);
+    // TODO when we support more than one projection: get all projections if wmtsData.projection is
+    // null
+    const tileSet = await loadTileSet(req, wmtsData.name, wmtsData.projection ?? EPSG.Google);
+
+    const xml = tileSet == null ? null : buildWmtsCapability(host, req, wmtsData);
 
     if (xml == null) return new LambdaHttpResponse(404, 'Not Found');
 

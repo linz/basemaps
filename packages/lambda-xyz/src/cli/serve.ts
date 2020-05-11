@@ -7,7 +7,7 @@ import * as ulid from 'ulid';
 import * as lambda from '../index';
 import { TileSet } from '../tile.set';
 import { EPSG } from '@basemaps/geo';
-import { TileSets } from '../routes/tile';
+import { TileSets } from '../tile.set.cache';
 import { PrettyTransform } from 'pretty-json-log';
 
 const app = express();

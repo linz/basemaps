@@ -50,9 +50,12 @@ export class TileSet {
         return `${this.name}@${this.tag}_${this.projection}`;
     }
 
-    async load(): Promise<void> {
-        this.tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.projection, this.tag);
+    async load(): Promise<boolean> {
+        const tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.projection, this.tag);
+        if (tileSet == null) return false;
+        this.tileSet = tileSet;
         this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
+        return true;
     }
 
     *allImagery(): Generator<{ rule: TileMetadataImageRule; imagery: TileMetadataImageryRecord }> {
