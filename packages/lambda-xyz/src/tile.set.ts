@@ -45,14 +45,29 @@ export class TileSet {
         return this.tileSet?.background;
     }
 
-    get id(): string {
-        if (this.tag == TileSetTag.Production) return `${this.name}_${this.projection}`;
-        return `${this.name}@${this.tag}_${this.projection}`;
+    get taggedName(): string {
+        if (this.tag == TileSetTag.Production) return this.name;
+        return `${this.name}@${this.tag}`;
     }
 
-    async load(): Promise<void> {
-        this.tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.projection, this.tag);
+    get id(): string {
+        return `${this.taggedName}_${this.projection}`;
+    }
+
+    get title(): string {
+        return this.tileSet.title ?? this.name;
+    }
+
+    get description(): string {
+        return this.tileSet.description ?? '';
+    }
+
+    async load(): Promise<boolean> {
+        const tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.projection, this.tag);
+        if (tileSet == null) return false;
+        this.tileSet = tileSet;
         this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
+        return true;
     }
 
     *allImagery(): Generator<{ rule: TileMetadataImageRule; imagery: TileMetadataImageryRecord }> {

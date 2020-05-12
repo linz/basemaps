@@ -8,10 +8,6 @@ export interface ActionData {
     urlPath: string;
 }
 
-export enum TileSetType {
-    aerial = 'aerial',
-}
-
 export enum TileType {
     WMTS = 'WMTS',
     Image = 'image',
@@ -31,13 +27,9 @@ export interface TileDataXyz {
 
 export interface TileDataWmts {
     type: TileType.WMTS;
-    tileSet: TileSetType;
+    name: string;
     projection: EPSG | null;
 }
-
-const TileSets: Record<string, TileSetType> = {
-    aerial: TileSetType.aerial,
-};
 
 function tileXyzFromPath(path: string[]): TileData | null {
     const name = path[0];
@@ -65,10 +57,11 @@ function tileXyzFromPath(path: string[]): TileData | null {
  * @param path
  * @param tileSet
  */
-function tileWmtsFromPath(path: string[], tileSet: TileSetType): TileData | null {
+function tileWmtsFromPath(path: string[]): TileData | null {
     if (path.length > 3) return null;
     if (path[path.length - 1] != 'WMTSCapabilities.xml') return null;
 
+    const name = path[0];
     let projection = null;
     if (path.length == 3) {
         projection = Projection.parseEpsgString(path[1]);
@@ -77,7 +70,7 @@ function tileWmtsFromPath(path: string[], tileSet: TileSetType): TileData | null
 
     return {
         type: TileType.WMTS,
-        tileSet,
+        name,
         projection,
     };
 }
@@ -92,7 +85,5 @@ export function tileFromPath(path: string[]): TileData | null {
         return tileXyzFromPath(path);
     }
 
-    const tileSet = TileSets[path[0]];
-    if (tileSet == null) return null;
-    return tileWmtsFromPath(path, tileSet);
+    return tileWmtsFromPath(path);
 }
