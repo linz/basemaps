@@ -9,7 +9,7 @@
     }, {
         "path": "./packages/tiler-sharp"
     }, {
-        "path": "./packages/cog"
+        "path": "./packages/cli"
     }, {
         "path": "./packages/_infra"
     }, {
