@@ -2746,9 +2746,9 @@
     "@types/sonic-boom" "*"
 
 "@types/pixelmatch@^5.0.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@types/pixelmatch/-/pixelmatch-5.1.0.tgz#580b356fde4499fb2a9293da886edf5d627a1a4b"
-  integrity sha512-9duySxw+imsKMBnsTwve8gbWhwO0OyF3BqTwia2EyCOSAOvFYm8IB9cLanSHggfVu8pgvqvsO4+FG+TwVVK08w==
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@types/pixelmatch/-/pixelmatch-5.2.1.tgz#c82843e0c08417b45a233ddd267852c3c1b7afaa"
+  integrity sha512-4KPEw8fz139KyHfBiNHI9+nmA93gcH/Dj2Q+10JF34XO0Sb20IIGsdj+9Ol+dgJUWN5RIa7NRsbEXFFd5MiG0Q==
   dependencies:
     "@types/node" "*"
 
