@@ -1,4 +1,5 @@
 import { LambdaContext, LogConfig } from '@basemaps/lambda-shared';
+import { TileSet } from '../tile.set';
 
 export function mockRequest(path: string, method = 'get', headers = {}): LambdaContext {
     return new LambdaContext(
@@ -12,4 +13,11 @@ export function mockRequest(path: string, method = 'get', headers = {}): LambdaC
         },
         LogConfig.get(),
     );
+}
+
+export function addTitleAndDesc(tileSet: TileSet, title = 'The Title', description = 'The Description'): void {
+    (tileSet as any).tileSet = {
+        title,
+        description,
+    };
 }

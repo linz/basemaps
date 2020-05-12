@@ -138,7 +138,7 @@ export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
     // null
     const tileSet = await loadTileSet(req, wmtsData.name, wmtsData.projection ?? EPSG.Google);
 
-    const xml = tileSet == null ? null : buildWmtsCapability(host, req, wmtsData);
+    const xml = tileSet == null ? null : buildWmtsCapability(host, req, tileSet);
 
     if (xml == null) return new LambdaHttpResponse(404, 'Not Found');
 

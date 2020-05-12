@@ -45,9 +45,21 @@ export class TileSet {
         return this.tileSet?.background;
     }
 
+    get taggedName(): string {
+        if (this.tag == TileSetTag.Production) return this.name;
+        return `${this.name}@${this.tag}`;
+    }
+
     get id(): string {
-        if (this.tag == TileSetTag.Production) return `${this.name}_${this.projection}`;
-        return `${this.name}@${this.tag}_${this.projection}`;
+        return `${this.taggedName}_${this.projection}`;
+    }
+
+    get title(): string {
+        return this.tileSet.title ?? this.name;
+    }
+
+    get description(): string {
+        return this.tileSet.description ?? '';
     }
 
     async load(): Promise<boolean> {

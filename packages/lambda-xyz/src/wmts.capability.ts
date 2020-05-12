@@ -1,7 +1,6 @@
 import { EPSG, Projection } from '@basemaps/geo';
-import { LambdaContext, TileDataWmts, V, VNodeElement } from '@basemaps/lambda-shared';
+import { LambdaContext, V, VNodeElement } from '@basemaps/lambda-shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
-import { getTileSet } from './tile.set.cache';
 import { TileSet } from './tile.set';
 
 const { lat, lon } = Projection.Wgs84Bound;
@@ -30,29 +29,6 @@ const tileMatrixSetId: Partial<Record<string, string>> = {
 
 const LayerPreamble: Partial<Record<string, VNodeElement[]>> = {
     aerial: [
-        V('ows:Title', 'NZ Aerial Imagery Basemap'),
-        V(
-            'ows:Abstract',
-            `The NZ Aerial Imagery basemap provides a seamless nationwide imagery layer with the newest and
-highest resolution data, and covers 95% of New Zealand.
-
-The date of capture is prioritised over resolution. This means newer imagery layers are prioritised
-above higher resolution imagery in the same location.
-
-This basemap has been designed to be integrated into GIS, web and mobile applications via our WMTS
-and XYZ tile services. View the Services tab to access these services.
-
-This layer is made up of individual aerial imagery (orthophotography) layers available on the [LINZ
-Data Service](https://data.linz.govt.nz/data/category/aerial-photos/) and will be updated as new
-imagery is captured.
-
-Please refer to the individual layers for specific accuracy, pixel resolution, and licensing
-attribution requirements. More information about the individual layers can be found using the [NZ
-Imagery Surveys layer.](https://data.linz.govt.nz/layer/95677-nz-imagery-surveys/)
-
-A list of attribution requirements for each layer are also available at [Attributing Aerial Imagery
-data](http://www.linz.govt.nz/data/licensing-and-using-data/attributing-aerial-imagery-data).`,
-        ),
         V('ows:WGS84BoundingBox', { crs: 'urn:ogc:def:crs:OGC:2:84' }, [
             V('ows:LowerCorner', -lon + ' -' + lat),
             V('ows:UpperCorner', lon + ' ' + lat),
@@ -110,43 +86,39 @@ const CommonGlobalMercator = [
     V('TileHeight', '256'),
 ];
 
-type Generator = Record<string, Record<string, (tileSet: TileSet) => VNodeElement>>;
-
-const MatrixSets: Generator = {
-    aerial: {
-        [EPSG.Google]: (tileSet: TileSet): VNodeElement => {
-            const matrices = [];
-            let scale = Projection.GoogleScaleDenominator,
-                size = 1;
-            for (let i = 0; i < MaxZoomLevel; ++i, scale *= 0.5) {
-                const dim = String(size);
-                size *= 2;
-                matrices.push(
-                    V('TileMatrix', [
-                        V('ows:Identifier', i),
-                        V('ScaleDenominator', scale),
-                        ...CommonGlobalMercator,
-                        V('MatrixWidth', dim),
-                        V('MatrixHeight', dim),
-                    ]),
-                );
-            }
-            return V('TileMatrixSet', [
-                V('ows:Identifier', tileMatrixSetId[tileSet.name]!),
-                V('ows:SupportedCRS', Projection.toUrn(EPSG.Google)),
-                ...wellKnownScaleSet(EPSG.Google),
-                ...matrices,
-            ]);
-        },
-    },
-};
+function getMatrixSets(tileSet: TileSet): VNodeElement | null {
+    if (tileSet.projection === EPSG.Google) {
+        const matrices = [];
+        let scale = Projection.GoogleScaleDenominator,
+            size = 1;
+        for (let i = 0; i < MaxZoomLevel; ++i, scale *= 0.5) {
+            const dim = String(size);
+            size *= 2;
+            matrices.push(
+                V('TileMatrix', [
+                    V('ows:Identifier', i),
+                    V('ScaleDenominator', scale),
+                    ...CommonGlobalMercator,
+                    V('MatrixWidth', dim),
+                    V('MatrixHeight', dim),
+                ]),
+            );
+        }
+        return V('TileMatrixSet', [
+            V('ows:Identifier', tileMatrixSetId[tileSet.name]!),
+            V('ows:SupportedCRS', Projection.toUrn(EPSG.Google)),
+            ...wellKnownScaleSet(EPSG.Google),
+            ...matrices,
+        ]);
+    }
+    return null;
+}
 
 const getLayerElements = (tileSet: TileSet): [VNodeElement[], string, VNodeElement] | [] => {
-    const preamble = LayerPreamble.aerial; // TODO support other imagery types
-    const sets = MatrixSets.aerial;
-    const func = sets[tileSet.projection];
-    if (preamble != null && func != null) {
-        return [preamble, tileMatrixSetId.aerial!, func(tileSet)];
+    const preamble = [V('ows:Title', tileSet.title), V('ows:Abstract', tileSet.description), ...LayerPreamble.aerial!]; // TODO support other imagery types
+    const sets = getMatrixSets(tileSet);
+    if (sets != null) {
+        return [preamble, tileMatrixSetId.aerial!, sets];
     }
     return [];
 };
@@ -157,11 +129,8 @@ const getLayerElements = (tileSet: TileSet): [VNodeElement[], string, VNodeEleme
 export function buildWmtsCapabilityToVNode(
     httpBase: string,
     req: LambdaContext,
-    wmtsData: TileDataWmts,
+    tileSet: TileSet,
 ): VNodeElement | null {
-    const projection = wmtsData.projection ?? EPSG.Google;
-    const tileSet = getTileSet(wmtsData.name, projection);
-    if (tileSet == null) return null;
     const [preambleXml, matrixSetId, matrixSet] = getLayerElements(tileSet);
     if (preambleXml == null || matrixSetId == null) return null;
     const resUrls: VNodeElement[] = [];
@@ -171,9 +140,9 @@ export function buildWmtsCapabilityToVNode(
             V('ResourceURL', {
                 format: 'image/' + suffix,
                 resourceType: 'tile',
-                template: `${httpBase}/v1/tiles/${
-                    wmtsData.name
-                }/${projection}/{TileMatrix}/{TileCol}/{TileRow}.${suffix}${apiKey ? '?api=' + apiKey : ''}`,
+                template: `${httpBase}/v1/tiles/${tileSet.taggedName}/${
+                    tileSet.projection
+                }/{TileMatrix}/{TileCol}/{TileRow}.${suffix}${apiKey ? '?api=' + apiKey : ''}`,
             }),
         );
     }
@@ -187,7 +156,7 @@ export function buildWmtsCapabilityToVNode(
     ]);
 }
 
-export function buildWmtsCapability(httpBase: string, req: LambdaContext, wmtsData: TileDataWmts): string | null {
-    const vnode = buildWmtsCapabilityToVNode(httpBase, req, wmtsData);
+export function buildWmtsCapability(httpBase: string, req: LambdaContext, tileSet: TileSet): string | null {
+    const vnode = buildWmtsCapabilityToVNode(httpBase, req, tileSet);
     return vnode && '<?xml version="1.0"?>\n' + vnode.toString();
 }
