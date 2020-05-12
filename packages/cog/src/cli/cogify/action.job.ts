@@ -66,6 +66,7 @@ export class ActionJobCreate extends CommandLineAction {
     private overrideId: CommandLineStringParameter;
     private submitBatch: CommandLineFlagParameter;
     private quality: CommandLineIntegerParameter;
+    private srcProj: CommandLineIntegerParameter;
 
     MaxCogsDefault = 50;
     MaxConcurrencyDefault = 5;
@@ -137,7 +138,7 @@ export class ActionJobCreate extends CommandLineAction {
         const cutlinePath = this.cutline?.value;
         const cutline = cutlinePath == null ? new Cutline() : await Cutline.loadCutline(cutlinePath);
 
-        const builder = new CogBuilder(maxConcurrency, logger);
+        const builder = new CogBuilder(maxConcurrency, logger, this.srcProj?.value);
         const metadata = await builder.build(tiffSource, cutline);
 
         const quadkeys = Array.from(metadata.covering).sort(QuadKey.compareKeys);
@@ -206,6 +207,7 @@ export class ActionJobCreate extends CommandLineAction {
             source: {
                 ...sourceConfig,
                 resolution: metadata.resolution,
+                projection: metadata.projection,
                 files: tiffList,
                 options: { maxConcurrency },
             },
@@ -310,6 +312,13 @@ export class ActionJobCreate extends CommandLineAction {
             argumentName: 'QUALITY',
             parameterLongName: '--quality',
             description: 'Compression quality (0-100)',
+            required: false,
+        });
+
+        this.srcProj = this.defineIntegerParameter({
+            argumentName: 'SOURCE_PROJECTION',
+            parameterLongName: '--src-proj',
+            description: 'The EPSG code of the source imagery',
             required: false,
         });
     }
