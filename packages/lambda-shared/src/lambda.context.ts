@@ -73,7 +73,7 @@ export class LambdaContext {
         return this.evt.Records[0].cf.request.uri;
     }
 
-    get query(): Record<string, string | string[]> {
+    get query(): Record<string, string | string[] | undefined> {
         if (LambdaContext.isAlbEvent(this.evt)) {
             return this.evt.queryStringParameters ?? {};
         }
