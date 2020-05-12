@@ -21,6 +21,8 @@ export interface CogJob {
          * for high quality aerial imagery this is generally 20-22
          */
         resolution: number;
+        /** EPSG input projection number */
+        projection: EPSG;
 
         options: {
             maxConcurrency: number;

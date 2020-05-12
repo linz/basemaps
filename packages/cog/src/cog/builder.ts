@@ -16,6 +16,7 @@ export const proj256 = new Projection(256);
 export class CogBuilder {
     q: Limit;
     logger: LogType;
+    srcProj?: number;
 
     // Prevent guessing spamming the logs
     wktPreviousGuesses = new Set<string>();
@@ -23,9 +24,10 @@ export class CogBuilder {
     /**
      * @param concurrency number of requests to run at a time
      */
-    constructor(concurrency: number, logger: LogType) {
+    constructor(concurrency: number, logger: LogType, srcProj?: number) {
         this.logger = logger;
         this.q = pLimit(concurrency);
+        this.srcProj = srcProj;
     }
 
     /**
@@ -35,7 +37,7 @@ export class CogBuilder {
     async bounds(sources: CogSource[]): Promise<SourceMetadata> {
         let resolution = -1;
         let bands = -1;
-        let projection: number | undefined;
+        let projection = this.srcProj;
         let nodata: number | undefined;
         let count = 0;
         const coordinates = sources.map((source) => {
@@ -127,7 +129,7 @@ export class CogBuilder {
         const image = tiff.getImage(0);
 
         let projection = image.valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
-        if (projection != InvalidProjectionCode) {
+        if (projection != null && projection != InvalidProjectionCode) {
             return projection;
         }
 
@@ -145,6 +147,7 @@ export class CogBuilder {
         }
 
         this.logger.error({ tiff: tiff.source.name, projection, imgWkt }, 'Failed find projection');
+        if (this.srcProj != null) return this.srcProj;
         throw new Error('Failed to find projection');
     }
 
