@@ -69,11 +69,13 @@ export class TileMetadataTileSet {
 
     async get(name: string, projection: EPSG, version: number): Promise<TileMetadataSetRecord>;
     async get(name: string, projection: EPSG, tag: TileSetTag): Promise<TileMetadataSetRecord>;
-    async get(name: string, projection: EPSG, tagOrVersion: TileSetTag | number): Promise<TileMetadataSetRecord> {
+    async get(
+        name: string,
+        projection: EPSG,
+        tagOrVersion: TileSetTag | number,
+    ): Promise<TileMetadataSetRecord | null> {
         const id = this.id(name, projection, tagOrVersion);
-        const item = await this.metadata.get<TileMetadataSetRecord>(id);
-        if (item == null) throw new Error(`Unable to find tile set: ${id}`);
-        return item;
+        return await this.metadata.get<TileMetadataSetRecord>(id);
     }
 
     async tag(name: string, projection: EPSG, tag: TileSetTag, version: number): Promise<TileMetadataSetRecord> {

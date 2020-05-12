@@ -55,6 +55,12 @@ export interface TileMetadataSetRecord extends BaseDynamoTable {
     /** TileSet set name */
     name: string;
 
+    /** Use for WMTS ows:title */
+    title?: string;
+
+    /** Use for WMTS ows:abstract */
+    description?: string;
+
     projection: EPSG.Google;
 
     /** first record is the first record drawn onto a tile */

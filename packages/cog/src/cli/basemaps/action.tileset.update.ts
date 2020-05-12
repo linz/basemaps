@@ -12,6 +12,7 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
+import { readFileSync } from 'fs';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateCache, printTileSet } from './tileset.util';
 
@@ -47,6 +48,8 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     commit: CommandLineFlagParameter;
     replaceImageryId: CommandLineStringParameter;
 
+    title: CommandLineStringParameter;
+    description: CommandLineStringParameter;
     background: CommandLineStringParameter;
     minZoom: CommandLineIntegerParameter;
     maxZoom: CommandLineIntegerParameter;
@@ -74,6 +77,20 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             argumentName: 'PRIORITY',
             parameterLongName: '--priority',
             description: 'Render priority (-1 to remove)',
+            required: false,
+        });
+
+        this.title = this.defineStringParameter({
+            argumentName: 'TITLE',
+            parameterLongName: '--title',
+            description: 'Imagery title',
+            required: false,
+        });
+
+        this.description = this.defineStringParameter({
+            argumentName: 'DESCRIPTION',
+            parameterLongName: '--description',
+            description: 'Path to file containing imagery description',
             required: false,
         });
 
@@ -131,7 +148,9 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             await this.replaceUpdate(tsData, imgId);
         }
 
-        await this.updateBackground(tsData);
+        this.updateTile(tsData);
+        this.updateDescription(tsData);
+        this.updateBackground(tsData);
         const after = JSON.stringify(tsData);
 
         await printTileSet(tsData);
@@ -148,7 +167,25 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         }
     }
 
-    async updateBackground(tsData: TileMetadataSetRecord): Promise<boolean> {
+    updateTile(tsData: TileMetadataSetRecord): boolean {
+        const existing = tsData.title;
+        const title = this.title.value;
+        if (title == null || title === existing) return false;
+        tsData.title = title;
+        return true;
+    }
+
+    updateDescription(tsData: TileMetadataSetRecord): boolean {
+        const existing = tsData.description;
+        const descriptionPath = this.description.value;
+        if (descriptionPath == null) return false;
+        const description = readFileSync(descriptionPath).toString().trim();
+        if (description == null || description === existing) return false;
+        tsData.description = description;
+        return true;
+    }
+
+    updateBackground(tsData: TileMetadataSetRecord): boolean {
         const existing = tsData.background;
         const background = this.background.value;
         if (background == null) return false;
