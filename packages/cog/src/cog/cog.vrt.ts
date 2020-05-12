@@ -31,7 +31,7 @@ export async function buildVrtForTiffs(
     const gdalCommand = GdalCogBuilder.getGdal();
     gdalCommand.parser.on('progress', onProgress({ target: 'vrt' }, logger));
 
-    const buildVrtCmd = ['-hidenodata'];
+    const buildVrtCmd = ['-hidenodata', '-allow_projection_difference'];
     if (options.addAlpha) {
         buildVrtCmd.push('-addalpha');
     }
@@ -93,6 +93,8 @@ export async function buildWarpedVrt(
         '-multi',
         '-wo',
         'NUM_THREADS=ALL_CPUS',
+        '-s_srs',
+        Projection.toEpsgString(job.source.projection),
         '-t_srs',
         Projection.toEpsgString(EPSG.Google),
         vrtPath,
