@@ -28,22 +28,14 @@ o.spec('wmts', () => {
         const req = mockRequest('/v1/tiles/aerial@beta/3857/WMTSCapabilities.xml', 'get', {
             [HttpHeader.ApiKey]: 'secret1234',
         });
-        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', req, TileSets.get('aerial@beta_3857')!);
+        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', req, TileSets.get('aerial@beta_3857')!)!;
 
-        if (raw == null) {
-            o(raw).notEquals(null);
-            return;
-        }
+        const serviceId = raw.find('ows:ServiceIdentification')!;
 
-        o(listTag(raw, 'ows:Abstract')).deepEquals([
-            '<ows:Abstract>National Mapping Service provided by Land Information New Zealand</ows:Abstract>',
-            '<ows:Abstract>The Description</ows:Abstract>',
-        ]);
-
-        o(listTag(raw, 'ows:Title')).deepEquals([
-            '<ows:Title>National Base Mapping Service (LINZ)</ows:Title>',
-            '<ows:Title>The Title</ows:Title>',
-        ]);
+        o(serviceId.find('ows:Abstract')!.textContent).equals(
+            'National Mapping Service provided by Land Information New Zealand',
+        );
+        o(serviceId.find('ows:Title')!.textContent).equals('National Base Mapping Service (LINZ)');
 
         o(listTag(raw, 'TileMatrixSetLink')).deepEquals([
             '<TileMatrixSetLink>\n' +
@@ -51,41 +43,42 @@ o.spec('wmts', () => {
                 '</TileMatrixSetLink>',
         ]);
 
-        o(listTag(raw, 'Format')).deepEquals([
+        const layer = raw.find('Contents', 'Layer')!;
+
+        o(listTag(layer, 'Format')).deepEquals([
             '<Format>image/png</Format>',
             '<Format>image/webp</Format>',
             '<Format>image/jpeg</Format>',
         ]);
 
-        o(listTag(raw, 'ows:WGS84BoundingBox')).deepEquals([
+        o(listTag(layer, 'ows:WGS84BoundingBox')).deepEquals([
             '<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84">\n' +
                 '  <ows:LowerCorner>-180 -85.0511287798066</ows:LowerCorner>\n' +
                 '  <ows:UpperCorner>180 85.0511287798066</ows:UpperCorner>\n' +
                 '</ows:WGS84BoundingBox>',
         ]);
 
-        const urls = Array.from(raw.tags('ResourceURL'));
+        o(layer.find('ows:Abstract')!.textContent).equals('The Description');
+        o(layer.find('ows:Title')!.textContent).equals('The Title');
+
+        const urls = Array.from(layer.tags('ResourceURL'));
         o(urls.length).equals(3);
         o(urls[0].toString()).deepEquals(
             '<ResourceURL format="image/png" resourceType="tile" ' +
                 'template="https://basemaps.test/v1/tiles/aerial@beta/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234" />',
         );
 
-        const tileMatrixSet = Array.from(raw.tags('TileMatrixSet'));
-        o(tileMatrixSet.length).equals(2);
+        o(layer.find('TileMatrixSetLink', 'TileMatrixSet')!.textContent).equals('GoogleMapsCompatible');
 
-        o(listTag(tileMatrixSet[1], 'ows:Identifier')[0]).equals(
-            '<ows:Identifier>GoogleMapsCompatible</ows:Identifier>',
-        );
-        o(listTag(tileMatrixSet[1], 'ows:SupportedCRS')).deepEquals([
-            '<ows:SupportedCRS>urn:ogc:def:crs:EPSG::3857</ows:SupportedCRS>',
-        ]);
+        const matrix = Array.from(raw.tags('TileMatrixSet'))[1]!;
+        const matrixId = raw.find('Contents', 'TileMatrixSet', 'ows:Identifier')!;
+        o(matrix.find('ows:Identifier')).equals(matrixId);
+        o(matrixId.textContent).equals('GoogleMapsCompatible');
 
-        o(listTag(tileMatrixSet[1], 'WellKnownScaleSet')).deepEquals([
-            '<WellKnownScaleSet>urn:ogc:def:wkss:OGC:1.0:GoogleMapsCompatible</WellKnownScaleSet>',
-        ]);
+        o(matrix.find('ows:SupportedCRS')!.textContent).deepEquals('urn:ogc:def:crs:EPSG::3857');
+        o(matrix.find('WellKnownScaleSet')!.textContent).deepEquals('urn:ogc:def:wkss:OGC:1.0:GoogleMapsCompatible');
 
-        const tileMatrices = Array.from(raw.tags('TileMatrix'));
+        const tileMatrices = Array.from(matrix.tags('TileMatrix'));
 
         o(tileMatrices.length).equals(22);
 
@@ -130,12 +123,16 @@ o.spec('wmts', () => {
         o(buildWmtsCapability('basemaps.test', req, ts)).equals(null);
     });
 
-    o('should allow empty api key', () => {
+    o('should allow individual imagery sets', () => {
         const raw = buildWmtsCapabilityToVNode(
             'https://basemaps.test',
             mockRequest('/v1/tiles/01E7PJFR9AMQFJ05X9G7FQ3XMW/3857/WMTSCapabilities.xml'),
             TileSets.get('01E7PJFR9AMQFJ05X9G7FQ3XMW_3857')!,
-        );
+        )!;
+
+        const tms = raw?.find('TileMatrixSet', 'ows:Identifier')!;
+
+        o(tms.textContent).equals('GoogleMapsCompatible');
 
         const urls = Array.from(raw ? raw.tags('ResourceURL') : []);
         o(urls.length).equals(3);
