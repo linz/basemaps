@@ -5,7 +5,7 @@ import { Env } from '../const';
 
 export interface StsAssumeRoleConfig {
     roleArn: string;
-    externalId: string;
+    externalId?: string;
 }
 
 const OneHourSeconds = 60 * 60;
