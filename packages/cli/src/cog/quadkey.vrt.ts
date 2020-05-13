@@ -42,7 +42,7 @@ export const QuadKeyVrt = {
         }
 
         if (cutline.polygons.length == 0) {
-            job.output.cutlineBlend = undefined;
+            job.output.cutline = undefined;
         } else {
             const cutlineTarget = FileOperator.join(tmpFolder, 'cutline.geojson');
             await FileOperator.create(cutlineTarget).writeJson(cutlineTarget, cutline.toGeoJson());

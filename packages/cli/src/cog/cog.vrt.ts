@@ -100,10 +100,9 @@ export async function buildWarpedVrt(
         vrtPath,
         vrtWarpedPath,
     ];
-    const { cutlineBlend } = job.output;
-    if (cutlineBlend != null) {
+    if (job.output.cutline) {
         warpOpts.push('-cutline', FileOperator.join(tmpTarget, 'cutline.geojson'));
-        if (cutlineBlend != 0) warpOpts.push('-cblend', String(cutlineBlend));
+        if (job.output.cutline.blend != 0) warpOpts.push('-cblend', String(job.output.cutline.blend));
     }
     if (job.output.nodata != null) {
         warpOpts.push('-srcnodata', String(job.output.nodata), '-dstnodata', String(job.output.nodata));

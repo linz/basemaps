@@ -17,12 +17,12 @@ export const FileOperatorSimple: FileProcessor = {
         return fs.promises.readFile(filePath);
     },
 
-    async readJson(filePath: string): Promise<any> {
+    async readJson<T>(filePath: string): Promise<T> {
         const data = await this.read(filePath);
         if (path.extname(filePath) === '.gz') {
-            return JSON.parse((await pGunzip(data)).toString());
+            return JSON.parse((await pGunzip(data)).toString()) as T;
         } else {
-            return JSON.parse(data.toString());
+            return JSON.parse(data.toString()) as T;
         }
     },
 

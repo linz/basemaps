@@ -98,7 +98,7 @@ export class ActionCogCreate extends CommandLineAction {
             const vrtString = await outputFs.read(getJobPath(job, '.vrt'));
 
             let cutline: Cutline;
-            if (job.output.cutlineBlend != null) {
+            if (job.output.cutline != null) {
                 const cutlinePath = getJobPath(job, 'cutline.geojson.gz');
                 cutline = await Cutline.loadCutline(cutlinePath);
             } else {

@@ -7,6 +7,7 @@ import { Aws } from '../aws';
 import { StsAssumeRoleConfig } from '../aws/credentials';
 import { LogType } from '../log';
 import { FileProcessor } from './file';
+import { CompositeError } from '../composite.error';
 
 const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 
@@ -41,29 +42,32 @@ export class FileOperatorS3 implements FileProcessor {
         const Prefix = opts.key;
 
         let count = 0;
+        try {
+            while (true) {
+                count++;
+                const res: S3.Types.ListObjectsV2Output = await this.s3
+                    .listObjectsV2({ Bucket, Prefix, ContinuationToken })
+                    .promise();
 
-        while (true) {
-            count++;
-            const res: S3.Types.ListObjectsV2Output = await this.s3
-                .listObjectsV2({ Bucket, Prefix, ContinuationToken })
-                .promise();
+                // Failed to get any content abort
+                if (res.Contents == null) {
+                    break;
+                }
+                list = list.concat(res.Contents);
 
-            // Failed to get any content abort
-            if (res.Contents == null) {
-                break;
+                // Nothing left to fetch
+                if (!res.IsTruncated) {
+                    break;
+                }
+
+                // Abort if too many lists
+                if (count > MaxListCount) {
+                    throw new Error(`Failed to finish listing within ${MaxListCount} list attempts`);
+                }
+                ContinuationToken = res.NextContinuationToken;
             }
-            list = list.concat(res.Contents);
-
-            // Nothing left to fetch
-            if (!res.IsTruncated) {
-                break;
-            }
-
-            // Abort if too many lists
-            if (count > MaxListCount) {
-                throw new Error(`Failed to finish listing within ${MaxListCount} list attempts`);
-            }
-            ContinuationToken = res.NextContinuationToken;
+        } catch (e) {
+            throw new CompositeError(`Failed to list: ${filePath}`, e);
         }
 
         return list.map((c) => `s3://${Bucket}/${c.Key}`);
@@ -72,28 +76,36 @@ export class FileOperatorS3 implements FileProcessor {
     async read(filePath: string): Promise<Buffer> {
         const opts = FileOperatorS3.parse(filePath);
 
-        const res = await this.s3.getObject({ Bucket: opts.bucket, Key: opts.key }).promise();
-        return res.Body as Buffer;
+        try {
+            const res = await this.s3.getObject({ Bucket: opts.bucket, Key: opts.key }).promise();
+            return res.Body as Buffer;
+        } catch (e) {
+            throw new CompositeError(`Failed to read: ${filePath}`, e);
+        }
     }
 
-    async readJson(filePath: string): Promise<any> {
+    async readJson<T>(filePath: string): Promise<T> {
         const data = await this.read(filePath);
         if (path.extname(filePath) === '.gz') {
-            return JSON.parse((await pGunzip(data)).toString());
+            return JSON.parse((await pGunzip(data)).toString()) as T;
         } else {
-            return JSON.parse(data.toString());
+            return JSON.parse(data.toString()) as T;
         }
     }
 
     async write(filePath: string, buf: Buffer | Stream, logger?: LogType): Promise<void> {
         const opts = FileOperatorS3.parse(filePath);
-        await this.s3
-            .upload({ Bucket: opts.bucket, Key: opts.key, Body: buf })
-            .on('httpUploadProgress', (evt) => {
-                const progress = parseFloat(((evt.loaded / evt.total) * 100).toFixed(2));
-                logger?.debug({ progress, size: evt.total, ...opts }, 'UploadProgress');
-            })
-            .promise();
+        try {
+            await this.s3
+                .upload({ Bucket: opts.bucket, Key: opts.key, Body: buf })
+                .on('httpUploadProgress', (evt) => {
+                    const progress = parseFloat(((evt.loaded / evt.total) * 100).toFixed(2));
+                    logger?.debug({ progress, size: evt.total, ...opts }, 'UploadProgress');
+                })
+                .promise();
+        } catch (e) {
+            throw new CompositeError(`Failed to write: ${filePath}`, e);
+        }
     }
 
     writeJson(filePath: string, obj: any, logger?: LogType): Promise<void> {
@@ -116,7 +128,7 @@ export class FileOperatorS3 implements FileProcessor {
             if (e.code == 'NotFound') {
                 return false;
             }
-            throw e;
+            throw new CompositeError(`Failed to exists: ${filePath}`, e);
         }
     }
 
