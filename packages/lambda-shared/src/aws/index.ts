@@ -39,7 +39,7 @@ export const Aws = {
             }
             return S3Cache.getOrMake(opts.roleArn, opts);
         },
-        getCredentialsForRole(roleArn: string, externalId: string): AWS.ChainableTemporaryCredentials {
+        getCredentialsForRole(roleArn: string, externalId?: string): AWS.ChainableTemporaryCredentials {
             return CredentialsCache.getOrMake(roleArn, { roleArn, externalId });
         },
     },
