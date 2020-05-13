@@ -7,7 +7,7 @@ import { FileOperatorS3 } from './file.s3';
 
 export interface FileProcessor {
     read(filePath: string): Promise<Buffer>;
-    readJson(filePath: string): Promise<any>;
+    readJson<T = any>(filePath: string): Promise<T>;
     readStream(filePath: string): Readable;
     write(filePath: string, buffer: Buffer | Readable, logger?: LogType): Promise<void>;
     writeJson(filePath: string, obj: any, logger?: LogType): Promise<void>;
