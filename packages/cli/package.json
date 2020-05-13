@@ -1,7 +1,7 @@
 {
-  "name": "@basemaps/cog",
+  "name": "@basemaps/cli",
   "version": "1.9.0",
-  "private": true,
+  "private": false,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
@@ -33,5 +33,11 @@
     "@rushstack/ts-command-line": "^4.3.13",
     "@types/mapbox__tile-cover": "^3.0.0",
     "@types/proj4": "^2.5.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/"
+  ]
 }
