@@ -203,7 +203,8 @@ export class Cutline {
      *
      * @param path the path of the cutline to load. Can be `s3://` or local file path.
      */
-    static async loadCutline(path: string): Promise<Cutline> {
+    static async loadCutline(path?: string): Promise<Cutline> {
+        if (path == null || path == '') return new Cutline();
         const geojson = (await FileOperator.create(path).readJson(path)) as FeatureCollection;
         return new Cutline(geojson);
     }
