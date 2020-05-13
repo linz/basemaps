@@ -91,7 +91,7 @@ o.spec('quadkey.vrt', () => {
                 cutTiffArgs.push(args);
             }) as any;
 
-            job.output.cutlineBlend = undefined;
+            job.output.cutline = undefined;
         });
 
         o('1 crosses, 1 outside', async () => {
@@ -156,7 +156,7 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('1 surrounded', async () => {
-            job.output.cutlineBlend = 10;
+            job.output.cutline = { blend: 10, source: 'cutline.json' };
             const cutline = await Cutline.loadCutline(testDir + '/mana.geojson');
 
             const vrt = await QuadKeyVrt.buildVrt(

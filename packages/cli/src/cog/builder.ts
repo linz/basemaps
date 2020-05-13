@@ -1,5 +1,5 @@
 import { EPSG, GeoJson, Projection } from '@basemaps/geo';
-import { FileOperatorSimple, LogType } from '@basemaps/lambda-shared';
+import { FileOperatorSimple, LogType, CompositeError } from '@basemaps/lambda-shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
@@ -87,6 +87,8 @@ export class CogBuilder {
                 }
 
                 return output;
+            }).catch((e) => {
+                throw new CompositeError('Failed to read image:' + source, e);
             });
         });
 

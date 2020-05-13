@@ -26,7 +26,7 @@ export interface JobCreationContext {
 
     /** Should the imagery be cut to a cutline */
     cutline?: {
-        path: string;
+        source: string;
         blend: number;
     };
 
@@ -106,7 +106,7 @@ export const CogJobFactory = {
 
         logger.info({ source: source.path, tiffCount: tiffList.length }, 'LoadingTiffs');
 
-        const cutline = await Cutline.loadCutline(ctx.cutline?.path);
+        const cutline = await Cutline.loadCutline(ctx.cutline?.source);
 
         const builder = new CogBuilder(maxConcurrency, logger, ctx.override?.projection);
         const metadata = await builder.build(tiffSource, cutline);
@@ -159,7 +159,7 @@ export const CogJobFactory = {
                 ...output,
                 resampling: ctx.override?.resampling ?? GdalCogBuilderDefaults.resampling,
                 quality: ctx.override?.quality ?? GdalCogBuilderDefaults.quality,
-                cutlineBlend: ctx.cutline?.blend,
+                cutline: ctx.cutline,
                 nodata: metadata.nodata,
                 vrt: {
                     options: vrtOptions,

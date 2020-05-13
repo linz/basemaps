@@ -86,7 +86,7 @@ export class ActionJobCreate extends CommandLineAction {
 
         let cutline = undefined;
         if (this.cutline?.value) {
-            cutline = { path: this.cutline.value, blend: this.cutlineBlend.value ?? 20 };
+            cutline = { source: this.cutline.value, blend: this.cutlineBlend.value ?? 20 };
         }
         const resampling =
             this.resampling?.value == null

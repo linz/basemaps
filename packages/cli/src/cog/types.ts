@@ -38,7 +38,15 @@ export interface CogJob {
          * @default 90
          */
         quality: number;
-        cutlineBlend?: number;
+
+        /**
+         * Cutline options
+         */
+        cutline?: {
+            source: string;
+            blend: number;
+        };
+
         vrt: {
             options: VrtOptions;
         };
