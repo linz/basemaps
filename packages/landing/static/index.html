@@ -23,12 +23,20 @@
                 width: 25px;
                 height: 25px;
             }
+            .checker-board {
+                background-image: linear-gradient(45deg, #00000010 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #00000010 75%),
+                    linear-gradient(45deg, transparent 75%, #00000010 75%),
+                    linear-gradient(45deg, #00000010 25%, transparent 25%);
+                background-size: 100px 100px;
+                background-position: 0 0, 0 0, -50px -50px, 50px 50px;
+            }
         </style>
         <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.0.1/build/ol.js"></script>
         <title>Basemaps | Land Information New Zealand (LINZ)</title>
     </head>
 
-    <body>
+    <body class="checker-board">
         <div id="map" class="map"></div>
         <div id="debug" class="ol-control ol-unselectable" style="top: 4.5em; left: 0.5em; z-index: 900;">
             <button id="zoom" title="Current zoom level"></button>
