@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/linz/basemaps/compare/v1.10.0...v1.11.0) (2020-05-14)
+
+
+### Bug Fixes
+
+* **cli:** externalId is not always required ([#618](https://github.com/linz/basemaps/issues/618)) ([2c5d9d0](https://github.com/linz/basemaps/commit/2c5d9d02c28c74693e07baf60874edced132c86d))
+* **deps:** configure required deps to be runtime  ([#619](https://github.com/linz/basemaps/issues/619)) ([a6df14d](https://github.com/linz/basemaps/commit/a6df14d90ad599fb02b593bf3a2d1e21e3c4c4e1))
+
+
+### Features
+
+* **cli:** include git commit and version information in all jobs ([#620](https://github.com/linz/basemaps/issues/620)) ([dae265a](https://github.com/linz/basemaps/commit/dae265aa386d21a3048f4a5128dc9eef481737b4))
+
+
+
+
+
 # [1.10.0](https://github.com/linz/basemaps/compare/v1.9.0...v1.10.0) (2020-05-13)
 
 
