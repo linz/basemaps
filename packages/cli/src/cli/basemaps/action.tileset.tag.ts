@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileSetTag } from '@basemaps/lambda-shared';
+import { Aws, LogConfig, TileMetadataTag } from '@basemaps/lambda-shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
 import { TileSetBaseAction } from './tileset.action';
-import { invalidateCache } from './tileset.util';
+import { invalidateXYZCache } from './tileset.util';
 
 export class TileSetUpdateTagAction extends TileSetBaseAction {
     private version: CommandLineIntegerParameter;
@@ -32,9 +32,9 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
             required: false,
         });
 
-        const validTags = Object.values(TileSetTag).filter((f) => f != TileSetTag.Head);
+        const validTags = Object.values(TileMetadataTag).filter((f) => f != TileMetadataTag.Head);
         this.tag = this.defineStringParameter({
-            argumentName: 'TILE_SET',
+            argumentName: 'TAG',
             parameterLongName: '--tag',
             parameterShortName: '-t',
             description: `tag name  (options: ${validTags.join(', ')})`,
@@ -65,8 +65,8 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
 
         if (this.commit.value) {
             await Aws.tileMetadata.TileSet.tag(name, projection, tag, version);
+            await invalidateXYZCache(name, projection, tag, this.commit.value);
         }
-        await invalidateCache(name, projection, tag, this.commit.value);
 
         if (!this.commit.value) {
             LogConfig.get().warn('DryRun:Done');

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileSetTag } from '@basemaps/lambda-shared';
+import { Aws, LogConfig, TileMetadataTag } from '@basemaps/lambda-shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as c from 'ansi-colors';
 import { TileSetBaseAction } from './tileset.action';
@@ -61,7 +61,11 @@ export class TileSetInfoAction extends TileSetBaseAction {
             console.log(this.renderHelpText());
             return;
         }
-        const tsData = await Aws.tileMetadata.TileSet.get(tileSet, projection, this.version.value! ?? TileSetTag.Head);
+        const tsData = await Aws.tileMetadata.TileSet.get(
+            tileSet,
+            projection,
+            this.version.value! ?? TileMetadataTag.Head,
+        );
         await printTileSet(tsData);
     }
 }

@@ -1,6 +1,6 @@
 import { compareImageSets } from '../tile.metadata.imagery';
 import * as o from 'ospec';
-import { TileSetRuleImagery } from '../tile.metadata';
+import { TileSetRuleImagery } from '../tile.metadata.base';
 
 o.spec('TileMetadataImagery', () => {
     o.spec('compareImageSets', () => {

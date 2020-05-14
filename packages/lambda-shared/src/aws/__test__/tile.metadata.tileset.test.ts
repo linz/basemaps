@@ -1,7 +1,7 @@
 import * as o from 'ospec';
 import { TileMetadataTileSet } from '../tile.metadata.tileset';
 import { EPSG } from '@basemaps/geo';
-import { TileMetadataSetRecord, TileSetTag } from '../tile.metadata';
+import { TileMetadataSetRecord, TileMetadataTag } from '../tile.metadata.base';
 
 const promiseNull = async (): Promise<unknown> => null;
 async function throws(cb: () => Promise<any>, re: RegExp): Promise<void> {
@@ -60,16 +60,16 @@ o.spec('tile.metadata.tileset', () => {
 
     o.spec('tag', () => {
         o('should fail if version does not exist', async () => {
-            await throws(() => ts.tag('test', EPSG.Google, TileSetTag.Production, 5), /ts_test_3857_v000005/);
+            await throws(() => ts.tag('test', EPSG.Google, TileMetadataTag.Production, 5), /ts_test_3857_v000005/);
         });
 
         o('should fail if tagging head', async () => {
-            await throws(() => ts.tag('test', EPSG.Google, TileSetTag.Head, 5), /Cannot overwrite head tag/);
+            await throws(() => ts.tag('test', EPSG.Google, TileMetadataTag.Head, 5), /Cannot overwrite head tag/);
         });
 
         o('should create tags', async () => {
             metadata.get = o.spy(() => Promise.resolve({ revisions: 5 }));
-            const res = await ts.tag('test', EPSG.Google, TileSetTag.Production, 5);
+            const res = await ts.tag('test', EPSG.Google, TileMetadataTag.Production, 5);
             o(res.id).equals('ts_test_3857_production');
             o(metadata.get.callCount).equals(1);
             o(metadata.put.callCount).equals(1);
@@ -85,17 +85,17 @@ o.spec('tile.metadata.tileset', () => {
         });
 
         o('should create tag ids', () => {
-            o(ts.id('test', EPSG.Google, TileSetTag.Production)).equals('ts_test_3857_production');
-            o(ts.id('test', EPSG.Google, TileSetTag.Head)).equals('ts_test_3857_head');
-            o(ts.id('test', EPSG.Google, TileSetTag.Beta)).equals('ts_test_3857_beta');
+            o(ts.id('test', EPSG.Google, TileMetadataTag.Production)).equals('ts_test_3857_production');
+            o(ts.id('test', EPSG.Google, TileMetadataTag.Head)).equals('ts_test_3857_head');
+            o(ts.id('test', EPSG.Google, TileMetadataTag.Beta)).equals('ts_test_3857_beta');
         });
     });
 
     o.spec('parse', () => {
         o('should parse @ syntax', () => {
-            o(ts.parse('aerial@head')).deepEquals({ name: 'aerial', tag: TileSetTag.Head });
-            o(ts.parse('aerial@production')).deepEquals({ name: 'aerial', tag: TileSetTag.Production });
-            o(ts.parse('aerial@beta')).deepEquals({ name: 'aerial', tag: TileSetTag.Beta });
+            o(ts.parse('aerial@head')).deepEquals({ name: 'aerial', tag: TileMetadataTag.Head });
+            o(ts.parse('aerial@production')).deepEquals({ name: 'aerial', tag: TileMetadataTag.Production });
+            o(ts.parse('aerial@beta')).deepEquals({ name: 'aerial', tag: TileMetadataTag.Beta });
         });
 
         o('should throw with invalid tags', () => {

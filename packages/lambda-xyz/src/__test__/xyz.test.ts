@@ -1,12 +1,12 @@
 import { EPSG } from '@basemaps/geo';
-import { Env, LogConfig, VNodeParser } from '@basemaps/lambda-shared';
+import { Env, LogConfig, VNodeParser, TileMetadataProviderRecord, Aws } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
 import * as o from 'ospec';
 import { handleRequest } from '../index';
 import { TileSet } from '../tile.set';
 import { TileSets } from '../tile.set.cache';
 import { Tilers } from '../tiler';
-import { mockRequest, addTitleAndDesc } from './xyz.testhelper';
+import { mockRequest, addTitleAndDesc, Provider } from './xyz.testhelper';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -39,6 +39,8 @@ o.spec('LambdaXyz', () => {
             tileSet.load = () => Promise.resolve(true);
             tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
         }
+
+        (Aws.tileMetadata.Provider as any).get = async (): Promise<TileMetadataProviderRecord> => Provider;
     });
 
     o.afterEach(() => {
@@ -129,7 +131,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = 'arocKWxyUGMZz5JimBQvKR4GMTNwurS650qXiBTc5KM=';
+            const key = '6khTqeXAtOeIWimmzLQcviPhVYNKMjHzYCuLt3R5WE8=';
             const request = mockRequest('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
                 'if-none-match': key,
             });
@@ -155,7 +157,7 @@ o.spec('LambdaXyz', () => {
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
             o(res.header('cache-control')).equals('max-age=0');
-            o(res.header('eTaG')).equals('Vixue8iG50Q9FcTC7SwBBJUFMel5gMWClKBe4Ud0Rc8=');
+            o(res.header('eTaG')).equals('MitMK1DfFxg6cbttfHGMBeXn+MlBijjbK4npw5bSjCA=');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(body.slice(0, 100)).equals(
