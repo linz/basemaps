@@ -14,16 +14,17 @@
     "@basemaps/geo": "^1.4.2",
     "@basemaps/metrics": "^1.4.2",
     "@basemaps/tiler": "^1.8.0",
-    "@types/sax": "^1.2.1",
     "aws-sdk": "^2.508.0",
     "base-x": "^3.0.7",
+    "pino": "^6.2.1",
     "sax": "^1.2.4",
+    "source-map-support": "^0.5.19",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",
     "@types/pino": "^6.0.0",
-    "pino": "^6.0.0"
+    "@types/sax": "^1.2.1"
   },
   "publishConfig": {
     "access": "public"

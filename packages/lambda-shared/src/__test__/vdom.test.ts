@@ -33,11 +33,24 @@ o.spec('VDom', () => {
         o(res.children[0] instanceof VNodeText).equals(true);
     });
 
-    o('should find tags', () => {
-        const res = V('div', {}, V('b', [V('span', { style: 'color:red' }, 'text'), V('b'), V('i'), V('b')]));
+    o.spec('find tags', () => {
+        const iNode = V('i', 'two');
+        const res = V(
+            'div',
+            {},
+            V('b', [V('i', 'one'), V('span', { style: 'color:red' }, ['text', iNode]), V('b'), V('b')]),
+        );
 
-        const bees = Array.from(res.tags('b'));
-        o(bees.length).equals(3);
-        o((bees[0] as VNodeElement).children.length).equals(4);
+        o('tags', () => {
+            const bees = Array.from(res.tags('b'));
+            o(bees.length).equals(3);
+            o((bees[0] as VNodeElement).children.length).equals(4);
+        });
+
+        o('find', () => {
+            o(res.find('b', 'i', 'i')).equals(null);
+            o(res.find('b', 'span', 'i')).equals(iNode);
+            o(res.find('i')).notEquals(iNode);
+        });
     });
 });

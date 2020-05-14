@@ -23,9 +23,9 @@ for (const k of ImageFormatOrder) {
     formats.push(V('Format', 'image/' + k));
 }
 
-const tileMatrixSetId: Partial<Record<string, string>> = {
-    aerial: 'GoogleMapsCompatible',
-};
+enum tileMatrixSetId {
+    Google = 'GoogleMapsCompatible',
+}
 
 const LayerPreamble: Partial<Record<string, VNodeElement[]>> = {
     aerial: [
@@ -105,7 +105,7 @@ function getMatrixSets(tileSet: TileSet): VNodeElement | null {
             );
         }
         return V('TileMatrixSet', [
-            V('ows:Identifier', tileMatrixSetId[tileSet.name]!),
+            V('ows:Identifier', tileMatrixSetId.Google),
             V('ows:SupportedCRS', Projection.toUrn(EPSG.Google)),
             ...wellKnownScaleSet(EPSG.Google),
             ...matrices,
@@ -118,7 +118,7 @@ const getLayerElements = (tileSet: TileSet): [VNodeElement[], string, VNodeEleme
     const preamble = [V('ows:Title', tileSet.title), V('ows:Abstract', tileSet.description), ...LayerPreamble.aerial!]; // TODO support other imagery types
     const sets = getMatrixSets(tileSet);
     if (sets != null) {
-        return [preamble, tileMatrixSetId.aerial!, sets];
+        return [preamble, tileMatrixSetId.Google, sets];
     }
     return [];
 };
