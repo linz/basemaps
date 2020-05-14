@@ -149,12 +149,9 @@ export class CogBuilderStack extends cdk.Stack {
                  */
                 memory: 3900,
                 environment: [
-                    {
-                        name: Env.TempFolder,
-                        value: ScratchData.Folder,
-                        [Env.Hash]: version.hash,
-                        [Env.Version]: version.version,
-                    },
+                    { name: Env.TempFolder, value: ScratchData.Folder },
+                    { name: Env.Hash, value: version.hash },
+                    { name: Env.Version, value: version.version },
                 ],
                 mountPoints: [{ containerPath: ScratchData.Folder, sourceVolume: 'scratch' }],
                 volumes: [{ name: 'scratch', host: { sourcePath: ScratchData.Folder } }],
