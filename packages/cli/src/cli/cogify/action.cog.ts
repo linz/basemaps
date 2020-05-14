@@ -14,6 +14,7 @@ import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { CogJob } from '../../cog/types';
 import { CliId, CliInfo } from '../base.cli';
 import { getJobPath, makeTempFolder } from '../folder';
+import { SemVer } from './semver.util';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -69,9 +70,10 @@ export class ActionCogCreate extends CommandLineAction {
         const inFp = FileOperator.create(jobFn);
         const job = (await inFp.readJson(jobFn)) as CogJob;
 
-        if (job.generated?.version !== CliInfo.version) {
+        const jobVersion = SemVer.compare(job.generated?.version ?? '', CliInfo.version);
+        if (jobVersion !== 0) {
             LogConfig.get().fatal({ jobInfo: job.generated, cli: CliInfo }, 'Version mismatch');
-            throw new Error(`Version Mismatch ${job.generated.version} ${CliInfo.version}`);
+            return;
         }
 
         const isCommit = this.commit?.value ?? false;
