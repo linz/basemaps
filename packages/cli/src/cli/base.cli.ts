@@ -1,8 +1,23 @@
 #!/usr/bin/env node
 import { LogConfig } from '@basemaps/lambda-shared';
 import { CommandLineParser } from '@rushstack/ts-command-line';
+import * as gitRev from 'git-rev-sync';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
+import * as ulid from 'ulid';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const packageJson = require('../../package.json');
+
+/** Useful traceability information  */
+export const CliInfo: { package: string; version: string; hash: string } = {
+    package: packageJson.name as string,
+    version: packageJson.version as string,
+    hash: packageJson.hash ?? `${gitRev.branch()}@${gitRev.short()}`,
+};
+
+/** Unique Id for this instance of the cli being run */
+export const CliId = ulid.ulid();
 
 export abstract class BaseCommandLine extends CommandLineParser {
     verbose = this.defineFlagParameter({
@@ -29,6 +44,10 @@ export abstract class BaseCommandLine extends CommandLineParser {
         } else {
             LogConfig.get().level = 'info';
         }
+
+        const logger = LogConfig.get().child({ id: CliId });
+        logger.info(CliInfo, 'CliStart');
+        LogConfig.set(logger);
 
         return super.onExecute();
     }

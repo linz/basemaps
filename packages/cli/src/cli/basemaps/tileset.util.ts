@@ -1,16 +1,16 @@
+import { EPSG } from '@basemaps/geo';
 import {
     Aws,
+    LogConfig,
     TileMetadataImageRule,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
     TileSetTag,
-    LogConfig,
 } from '@basemaps/lambda-shared';
-import * as c from 'chalk';
-import { CliTable } from '../cli.table';
-import { EPSG } from '@basemaps/geo';
 import * as AWS from 'aws-sdk';
-import * as ulid from 'ulid';
+import * as c from 'chalk';
+import { CliId } from '../base.cli';
+import { CliTable } from '../cli.table';
 
 export const TileSetTable = new CliTable<{ rule: TileMetadataImageRule; img: TileMetadataImageryRecord }>();
 TileSetTable.field('#', 4, (obj) => String(obj.rule.priority));
@@ -74,7 +74,7 @@ export async function invalidateCache(name: string, projection: EPSG, tag: TileS
         await cloudFront
             .createInvalidation({
                 DistributionId: cf.Id,
-                InvalidationBatch: { Paths: { Quantity: 1, Items: [path] }, CallerReference: ulid.ulid() },
+                InvalidationBatch: { Paths: { Quantity: 1, Items: [path] }, CallerReference: CliId },
             })
             .promise();
     }
