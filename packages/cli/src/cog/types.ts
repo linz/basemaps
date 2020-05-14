@@ -4,6 +4,14 @@ import { GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
 import { VrtOptions } from './cog.vrt';
 
 export interface CogJob {
+    /**
+     * Job Version
+     *
+     * follows semver, all major versions should be backwards compatible
+     * @example 1.0.0
+     */
+    v: string;
+
     /** Unique processing Id */
     id: string;
 
@@ -16,28 +24,42 @@ export interface CogJob {
     source: {
         /** List of input files */
         files: string[];
+
+        /** Configuration for accessing files */
+        config: FileConfig;
+
         /**
          * The google zoom level that corresponds approximately what the resolution of the source  is
          * for high quality aerial imagery this is generally 20-22
          */
         resolution: number;
-        /** EPSG input projection number */
-        projection: EPSG;
 
-        options: {
-            maxConcurrency: number;
-        };
-    } & FileConfig;
+        /** EPSG input projection */
+        projection: EPSG;
+    };
 
     /** Folder/S3 bucket to store the output */
-    output: {
-        resampling: GdalCogBuilderOptionsResampling;
+    output: FileConfig;
+
+    override: {
+        /**
+         * Override resampling method
+         * @see GdalCogBuilderDefaults.resampling
+         */
+        resampling?: GdalCogBuilderOptionsResampling;
+
+        /**
+         * No data value
+         *
+         * @default undefined
+         */
         nodata?: number;
+
         /**
          * Quality level to use
          * @default 90
          */
-        quality: number;
+        quality?: number;
 
         /**
          * Cutline options
@@ -47,10 +69,8 @@ export interface CogJob {
             blend: number;
         };
 
-        vrt: {
-            options: VrtOptions;
-        };
-    } & FileConfig;
+        vrt?: VrtOptions;
+    };
 
     /** List of quadkeys to generate */
     quadkeys: string[];
