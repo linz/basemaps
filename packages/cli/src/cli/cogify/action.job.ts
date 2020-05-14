@@ -69,9 +69,6 @@ export class ActionJobCreate extends CommandLineAction {
         if (source.roleArn.value == null) {
             return { type: 's3', path: source.path.value };
         }
-        if (source.externalId.value == null) {
-            throw new Error('External Id is required if roleArn is provided.');
-        }
         return {
             path: source.path.value,
             type: 's3',

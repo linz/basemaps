@@ -90,6 +90,21 @@ export class VNodeElement extends VNode {
         return null;
     }
 
+    /**
+     * Find element matching the tags
+     * @param tags hierarchy of tag names
+     */
+    find(...rest: string[]): VNodeElement | null;
+    find(tag: string, ...rest: string[]): VNodeElement | null {
+        for (const node of this.tags(tag)) {
+            if (node === this) continue;
+            if (rest.length == 0) return node;
+            const child = node.find(...rest);
+            if (child != null) return child;
+        }
+        return null;
+    }
+
     /** Iterate over VNodeElement children */
     *elementChildren(): Generator<VNodeElement, null, void> {
         for (const child of this.children) if (child instanceof VNodeElement) yield child;
