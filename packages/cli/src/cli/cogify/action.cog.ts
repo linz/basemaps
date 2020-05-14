@@ -7,12 +7,12 @@ import {
 } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import { FeatureCollection } from 'geojson';
-import * as ulid from 'ulid';
 import { buildCogForQuadKey } from '../../cog/cog';
 import { buildWarpedVrt } from '../../cog/cog.vrt';
 import { Cutline } from '../../cog/cutline';
 import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { CogJob } from '../../cog/types';
+import { CliId } from '../base.cli';
 import { getJobPath, makeTempFolder } from '../folder';
 
 export class ActionCogCreate extends CommandLineAction {
@@ -68,11 +68,10 @@ export class ActionCogCreate extends CommandLineAction {
 
         const inFp = FileOperator.create(jobFn);
         const job = (await inFp.readJson(jobFn)) as CogJob;
-        const processId = ulid.ulid();
 
         const isCommit = this.commit?.value ?? false;
 
-        const logger = LogConfig.get().child({ id: processId, correlationId: job.id, imageryName: job.name });
+        const logger = LogConfig.get().child({ correlationId: job.id, imageryName: job.name });
         LogConfig.set(logger);
 
         const quadKey = this.getQuadKey(job, logger);
@@ -90,7 +89,7 @@ export class ActionCogCreate extends CommandLineAction {
             return;
         }
 
-        const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${processId}`);
+        const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${CliId}`);
 
         try {
             const sourceGeo = (await inFp.readJson(getJobPath(job, 'source.geojson'))) as FeatureCollection;

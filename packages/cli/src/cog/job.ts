@@ -14,6 +14,7 @@ import { getTileSize } from './cog';
 import { buildVrtForTiffs, VrtOptions } from './cog.vrt';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
+import { CliInfo } from '../cli/base.cli';
 
 export const MaxConcurrencyDefault = 50;
 
@@ -173,6 +174,10 @@ export const CogJobFactory = {
                 options: { maxConcurrency },
             },
             quadkeys,
+            generated: {
+                ...CliInfo,
+                date: new Date().toISOString(),
+            },
         };
 
         const tmpFolder = await makeTempFolder(`basemaps-${job.id}`);

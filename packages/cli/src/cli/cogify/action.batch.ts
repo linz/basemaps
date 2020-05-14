@@ -11,7 +11,6 @@ import {
 } from '@basemaps/lambda-shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
-import * as ulid from 'ulid';
 import { CogJob } from '../../cog/types';
 import { getJobPath } from '../folder';
 import { EPSG } from '@basemaps/geo';
@@ -148,10 +147,8 @@ export class ActionBatchJob extends CommandLineAction {
         if (this.job?.value == null) {
             throw new Error('Failed to read parameters');
         }
-        const processId = ulid.ulid();
-        const logger = LogConfig.get().child({ id: processId });
 
-        await ActionBatchJob.batchJob(this.job.value, this.commit?.value, logger);
+        await ActionBatchJob.batchJob(this.job.value, this.commit?.value, LogConfig.get());
     }
 
     static async batchJob(jobPath: string, commit = false, logger: LogType): Promise<void> {
