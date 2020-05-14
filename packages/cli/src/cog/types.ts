@@ -54,6 +54,18 @@ export interface CogJob {
 
     /** List of quadkeys to generate */
     quadkeys: string[];
+
+    /** How and when this job file was generated */
+    generated: {
+        /** ISO date string */
+        date: string;
+        /** Package name of the generator */
+        package: string;
+        /* Version of the generator */
+        version: string;
+        /** Commit hash of the generator */
+        hash: string | undefined;
+    };
 }
 
 export interface SourceMetadata {

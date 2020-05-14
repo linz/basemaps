@@ -5,9 +5,9 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
-import * as ulid from 'ulid';
 import { CogJobFactory, JobCreationContext, MaxConcurrencyDefault } from '../../cog/job';
 import { GdalCogBuilderDefaults, GdalResamplingOptions } from '../../gdal/gdal.config';
+import { CliId } from '../base.cli';
 
 export class CLiInputData {
     path: CommandLineStringParameter;
@@ -97,7 +97,7 @@ export class ActionJobCreate extends CommandLineAction {
             override: {
                 concurrency: this.maxConcurrency?.value ?? MaxConcurrencyDefault,
                 quality: this.quality?.value ?? GdalCogBuilderDefaults.quality,
-                id: this.overrideId?.value ?? ulid.ulid(),
+                id: this.overrideId?.value ?? CliId,
                 projection: this.sourceProjection?.value,
                 resampling,
             },
