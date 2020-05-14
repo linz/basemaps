@@ -12,7 +12,7 @@ import { buildWarpedVrt } from '../../cog/cog.vrt';
 import { Cutline } from '../../cog/cutline';
 import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { CogJob } from '../../cog/types';
-import { CliId } from '../base.cli';
+import { CliId, CliInfo } from '../base.cli';
 import { getJobPath, makeTempFolder } from '../folder';
 
 export class ActionCogCreate extends CommandLineAction {
@@ -68,6 +68,11 @@ export class ActionCogCreate extends CommandLineAction {
 
         const inFp = FileOperator.create(jobFn);
         const job = (await inFp.readJson(jobFn)) as CogJob;
+
+        if (job.generated?.version !== CliInfo.version) {
+            LogConfig.get().fatal({ jobInfo: job.generated, cli: CliInfo }, 'Version mismatch');
+            throw new Error(`Version Mismatch ${job.generated.version} ${CliInfo.version}`);
+        }
 
         const isCommit = this.commit?.value ?? false;
 
