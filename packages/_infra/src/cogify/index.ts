@@ -7,6 +7,7 @@ import { Env } from '@basemaps/lambda-shared';
 import { ScratchData } from './mount.folder';
 import { createHash } from 'crypto';
 import { TileMetadataTableArn } from '../serve/db';
+import { VersionUtil } from '../version';
 
 /**
  * Cogification infrastructure
@@ -127,6 +128,7 @@ export class CogBuilderStack extends cdk.Stack {
             },
         });
 
+        const version = VersionUtil.version();
         new batch.CfnJobDefinition(this, 'CogBatchJobDef', {
             jobDefinitionName: 'CogBatchJob',
             type: 'container',
@@ -150,6 +152,8 @@ export class CogBuilderStack extends cdk.Stack {
                     {
                         name: Env.TempFolder,
                         value: ScratchData.Folder,
+                        [Env.Hash]: version.hash,
+                        [Env.Version]: version.version,
                     },
                 ],
                 mountPoints: [{ containerPath: ScratchData.Folder, sourceVolume: 'scratch' }],

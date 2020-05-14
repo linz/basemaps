@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { LogConfig } from '@basemaps/lambda-shared';
+import { LogConfig, Env } from '@basemaps/lambda-shared';
 import { CommandLineParser } from '@rushstack/ts-command-line';
 import * as gitRev from 'git-rev-sync';
 import { PrettyTransform } from 'pretty-json-log';
@@ -9,11 +9,20 @@ import * as ulid from 'ulid';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
 
+/** Attempt to lookup the githash */
+function getGitHash(): string {
+    try {
+        return `${gitRev.branch()}@${gitRev.short()}`;
+    } catch (e) {
+        return 'Unknown';
+    }
+}
+
 /** Useful traceability information  */
 export const CliInfo: { package: string; version: string; hash: string } = {
-    package: packageJson.name as string,
-    version: packageJson.version as string,
-    hash: packageJson.hash ?? `${gitRev.branch()}@${gitRev.short()}`,
+    package: packageJson.name,
+    version: Env.get(Env.Version, packageJson.version),
+    hash: Env.get(Env.Hash, packageJson.gitHead) ?? getGitHash(),
 };
 
 /** Unique Id for this instance of the cli being run */
