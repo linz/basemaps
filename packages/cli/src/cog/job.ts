@@ -6,7 +6,7 @@ import { CogSourceFile } from '@cogeotiff/source-file';
 import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
-import { CogBuilder } from '..';
+import { CogBuilder, GdalCogBuilder } from '..';
 import { ActionBatchJob } from '../cli/cogify/action.batch';
 import { getJobPath, makeTempFolder } from '../cli/folder';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
@@ -85,6 +85,9 @@ export const CogJobFactory = {
         const id = ctx.override?.id ?? ulid.ulid();
         const imageryName = basename(ctx.source.path).replace(/\./g, '-'); // batch does not allow '.' in names
         const logger = LogConfig.get().child({ id, imageryName });
+
+        const gdalVersion = await GdalCogBuilder.getVersion(logger);
+        logger.info({ version: gdalVersion }, 'GdalVersion');
 
         const { source, output } = ctx;
         logger.info({ source: ctx.source.path, sourceRole: isConfigS3Role(source) && source.roleArn }, 'ListTiffs');
