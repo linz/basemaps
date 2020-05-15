@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/linz/basemaps/compare/v1.11.0...v1.12.0) (2020-05-15)
+
+
+### Bug Fixes
+
+* **cli:** git hash cannot be fetched inside the docker cli ([#622](https://github.com/linz/basemaps/issues/622)) ([f53956d](https://github.com/linz/basemaps/commit/f53956de5f3be5b66b24d8ddf4794c4055558c6c))
+* **infra:** docker enviroment needs to be name/value pairs ([#623](https://github.com/linz/basemaps/issues/623)) ([b4c2a44](https://github.com/linz/basemaps/commit/b4c2a44927e4bbdcfab9bda08460747f78e6b54b))
+
+
+
+
+
 # [1.11.0](https://github.com/linz/basemaps/compare/v1.10.0...v1.11.0) (2020-05-14)
 
 **Note:** Version bump only for package @basemaps/infra

@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/linz/basemaps/compare/v1.11.0...v1.12.0) (2020-05-15)
+
+
+### Bug Fixes
+
+* string comparing v1.1.0 to 1.1.0 does not work ([#628](https://github.com/linz/basemaps/issues/628)) ([04041ca](https://github.com/linz/basemaps/commit/04041cad227993afa2881069a7ed81d5c9afc227))
+* **cli:** git hash cannot be fetched inside the docker cli ([#622](https://github.com/linz/basemaps/issues/622)) ([f53956d](https://github.com/linz/basemaps/commit/f53956de5f3be5b66b24d8ddf4794c4055558c6c))
+* **cli:** jobs are not backwards compatabile yet ([#626](https://github.com/linz/basemaps/issues/626)) ([d10b587](https://github.com/linz/basemaps/commit/d10b587af28d4008f0669ec329dc3448481452df))
+
+
+### Features
+
+* **cli:** output the gdal version when running ([#629](https://github.com/linz/basemaps/issues/629)) ([1d75b43](https://github.com/linz/basemaps/commit/1d75b4392034e6481e5e8078c29aa52ee36e46e3))
+
+
+
+
+
 # [1.11.0](https://github.com/linz/basemaps/compare/v1.10.0...v1.11.0) (2020-05-14)
 
 
