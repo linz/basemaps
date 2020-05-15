@@ -27,8 +27,10 @@ export function normalizeAwsEnv(env: Record<string, string | undefined>): Record
 export abstract class GdalCommand {
     parser: GdalProgressParser;
     protected child: ChildProcessWithoutNullStreams;
-    protected promise?: Promise<void>;
+    protected promise?: Promise<{ stdout: string; stderr: string }>;
     protected startTime: number;
+    /** Should log all of stdout/stderr */
+    verbose = true;
 
     /** AWS Access  */
     protected credentials?: AWS.Credentials;
@@ -45,7 +47,7 @@ export abstract class GdalCommand {
         this.credentials = credentials;
     }
 
-    async run(cmd: string, args: string[], log: LogType): Promise<void> {
+    async run(cmd: string, args: string[], log: LogType): Promise<{ stdout: string; stderr: string }> {
         if (this.promise != null) {
             return this.promise;
         }
@@ -83,18 +85,18 @@ export abstract class GdalCommand {
                 const stderr = errBuff.join('').trim();
 
                 if (code != 0) {
-                    log.error({ code, stdout, stderr }, 'FailedToConvert');
+                    log.error({ code, stdout, stderr }, 'GdalFailed');
                     return reject(new Error('Failed to execute GDAL command'));
                 }
-                log.warn({ stdout, stderr }, 'CogWarnings');
+                if (this.verbose) log.warn({ stdout, stderr }, 'GdalOutput');
 
                 this.promise = undefined;
-                return resolve();
+                return resolve({ stdout, stderr });
             });
             child.on('error', (error: Error) => {
                 const stdout = outputBuff.join('').trim();
                 const stderr = errBuff.join('').trim();
-                log.error({ stdout, stderr }, 'FailedToConvert');
+                log.error({ stdout, stderr }, 'GdalFailed');
                 this.promise = undefined;
                 reject(error);
             });

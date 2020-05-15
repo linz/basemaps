@@ -48,6 +48,13 @@ export class GdalCogBuilder {
         return new GdalLocal();
     }
 
+    static async getVersion(logger: LogType): Promise<string> {
+        const gdal = GdalCogBuilder.getGdal();
+        gdal.verbose = false;
+        const { stdout } = await gdal.run('gdal_translate', ['--version'], logger);
+        return stdout;
+    }
+
     constructor(source: string, target: string, config: Partial<GdalCogBuilderOptions> = {}) {
         this.source = source;
         this.target = target;
@@ -114,7 +121,7 @@ export class GdalCogBuilder {
         ];
     }
 
-    convert(log: LogType): Promise<void> {
-        return this.gdal.run('gdal_translate', this.args, log);
+    async convert(log: LogType): Promise<void> {
+        await this.gdal.run('gdal_translate', this.args, log);
     }
 }

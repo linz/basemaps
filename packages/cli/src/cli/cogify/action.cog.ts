@@ -15,6 +15,7 @@ import { CogJob } from '../../cog/types';
 import { CliId, CliInfo } from '../base.cli';
 import { getJobPath, makeTempFolder } from '../folder';
 import { SemVer } from './semver.util';
+import { GdalCogBuilder } from '../../gdal/gdal';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -81,6 +82,9 @@ export class ActionCogCreate extends CommandLineAction {
         const logger = LogConfig.get().child({ correlationId: job.id, imageryName: job.name });
         LogConfig.set(logger);
 
+        const gdalVersion = await GdalCogBuilder.getVersion(logger);
+        logger.info({ version: gdalVersion }, 'GdalVersion');
+
         const quadKey = this.getQuadKey(job, logger);
         if (quadKey == null) {
             return;
@@ -106,8 +110,10 @@ export class ActionCogCreate extends CommandLineAction {
             let cutline: Cutline;
             if (job.output.cutline != null) {
                 const cutlinePath = getJobPath(job, 'cutline.geojson.gz');
+                logger.info({ path: cutlinePath }, 'UsingCutLine');
                 cutline = await Cutline.loadCutline(cutlinePath);
             } else {
+                logger.warn('NoCutLine');
                 cutline = new Cutline();
             }
 

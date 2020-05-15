@@ -84,7 +84,7 @@ export class GdalDocker extends GdalCommand {
         return argsStr;
     }
 
-    async run(cmd: string, args: string[], log: LogType): Promise<void> {
+    async run(cmd: string, args: string[], log: LogType): Promise<{ stdout: string; stderr: string }> {
         const dockerArgs = await this.getDockerArgs();
         log.info({ mounts: this.mounts, docker: this.maskArgs(dockerArgs) }, 'SpawnDocker');
 
