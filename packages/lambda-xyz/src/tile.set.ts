@@ -65,8 +65,10 @@ export class TileSet {
     async load(): Promise<boolean> {
         const tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.projection, this.tag);
         if (tileSet == null) return false;
+        if (this.tileSet == null || this.tileSet.updatedAt != tileSet.updatedAt) {
+            this.imagery = await Aws.tileMetadata.Imagery.getAll(tileSet);
+        }
         this.tileSet = tileSet;
-        this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
         return true;
     }
 
