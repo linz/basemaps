@@ -68,6 +68,8 @@ o.spec('cog', () => {
                 'ALIGNED_LEVELS=6',
                 '-co',
                 'QUALITY=90',
+                '-co',
+                'SPARSE_OK=YES',
                 '-projwin',
                 '18472078.003508832',
                 '-5948635.289265559',
