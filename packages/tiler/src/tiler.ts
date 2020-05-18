@@ -108,7 +108,11 @@ export class Tiler {
         const composition: Composition = {
             id: img.tif.source.name,
             source: { x, y, imageId: img.id },
-            getBuffer: async (): Promise<Buffer> => Buffer.from((await img.getTile(x, y)).bytes),
+            getBuffer: async (): Promise<Buffer | null> => {
+                const tile = await img.getTile(x, y);
+                if (tile == null) return null;
+                return Buffer.from(tile.bytes);
+            },
             y: Math.max(0, Math.round(drawAtRegion.y)),
             x: Math.max(0, Math.round(drawAtRegion.x)),
         };

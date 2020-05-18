@@ -22,7 +22,7 @@ export interface Composition {
         imageId: number;
     };
     /** Image buffer */
-    getBuffer: () => Promise<Buffer>;
+    getBuffer: () => Promise<Buffer | null>;
     /** Point to draw the image at on the output bounds */
     x: number;
     y: number;
