@@ -20,7 +20,7 @@
     "@basemaps/geo": "^2.0.0",
     "@basemaps/lambda-shared": "^2.0.0",
     "@cogeotiff/core": "^1.0.8",
-    "@cogeotiff/source-aws": "^1.0.8",
+    "@cogeotiff/source-aws": "^2.0.0",
     "@cogeotiff/source-file": "^1.0.8",
     "@cogeotiff/source-url": "^1.0.8",
     "@rushstack/ts-command-line": "^4.3.13",

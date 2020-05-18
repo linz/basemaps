@@ -547,12 +547,19 @@
   dependencies:
     ieee754 "^1.1.13"
 
-"@cogeotiff/source-aws@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-1.0.8.tgz#b8161da93d6c95f8e1686164b8a69de159ebef7d"
-  integrity sha512-r0eQm6OSw7nXNE86+yToQjOWrxy1yJrWT6dUkzMB71vKby7hesHO3TS9Tp0kJ+Snnt/Fm4yja2gxLp+1jjrbJw==
+"@cogeotiff/core@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.0.0.tgz#f28086c0f05d822f584540aa631379067a0edbbe"
+  integrity sha512-YrgufvZMSjnYRDdE7XFG07Xt87L7lNGe1Z2EiLef61Oy4Ha7q7yxE0skXWyPRta45dCHOwXXOfAVg7CdjSDVIQ==
   dependencies:
-    "@cogeotiff/core" "^1.0.8"
+    ieee754 "^1.1.13"
+
+"@cogeotiff/source-aws@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-2.0.0.tgz#ac3f83a0b36ab5c00c3f1afcba45a0c8aeeae10d"
+  integrity sha512-hftymPqql/WN9SGJVhK/FCChtSRSHaRurAb4UfU/MOmt+2ipBHy8NlRYXNEePFDPw+A1NmvdIhAVXe80Cj9VAA==
+  dependencies:
+    "@cogeotiff/core" "^2.0.0"
     aws-sdk "^2.524.0"
 
 "@cogeotiff/source-file@^1.0.8":
@@ -3186,22 +3193,7 @@ aws-cdk@^1.38.0:
     yaml "^1.9.2"
     yargs "^15.3.1"
 
-aws-sdk@^2.508.0, aws-sdk@^2.524.0:
-  version "2.661.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.661.0.tgz#e877dbc0d07b74e93e2383eb4cd0407592b1e46e"
-  integrity sha512-dfGtbRQQUmcpj6WGVhj7q2PADCvDhLf+/aRGPXcMrm0cnHavkmHPVaSvrw2lJJJ5N9MsBKoUyacrVcIQkfNsgw==
-  dependencies:
-    buffer "4.9.1"
-    events "1.1.1"
-    ieee754 "1.1.13"
-    jmespath "0.15.0"
-    querystring "0.2.0"
-    sax "1.2.1"
-    url "0.10.3"
-    uuid "3.3.2"
-    xml2js "0.4.19"
-
-aws-sdk@^2.672.0:
+aws-sdk@^2.508.0, aws-sdk@^2.524.0, aws-sdk@^2.672.0:
   version "2.675.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.675.0.tgz#9b806cf2891c05e457e582e2e5f3aaf8fa44d6d7"
   integrity sha512-me3AiDvgE4ABzWTz/CWBPgBMAbmf4AI2jpiCOXvrgCrwQu559VSUANeTZq5pfxGyzkHsmaAtJ7iu2Y8f8SikQA==
