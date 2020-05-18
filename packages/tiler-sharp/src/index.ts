@@ -7,7 +7,7 @@ export interface Composition {
     /** Tiff Id */
     id: string;
     /** Image buffer */
-    getBuffer: () => Promise<Buffer>;
+    getBuffer: () => Promise<Buffer | null>;
     /** Point to draw the image at on the output bounds */
     x: number;
     y: number;
@@ -86,6 +86,7 @@ export class TileMakerSharp implements TileMaker {
 
     private async composeTile(composition: Composition): Promise<SharpOverlay | null> {
         const bytes = await composition.getBuffer();
+        if (bytes == null) return null;
         const sharp = Sharp(Buffer.from(bytes));
 
         // The stats function takes too long to run, its faster to just compose all the tiles anyway.
