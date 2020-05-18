@@ -117,7 +117,7 @@ o.spec('wmts', () => {
 
     o('should return null if not found', () => {
         const req = mockRequest('/v1/tiles/aerial/4326/WMTSCapabilities.xml');
-        const ts = new TileSet('aerial', EPSG.Nztm, 'test_bucket');
+        const ts = new TileSet('aerial', EPSG.Nztm2000, 'test_bucket');
         addTitleAndDesc(ts);
 
         o(buildWmtsCapability('basemaps.test', req, ts)).equals(null);

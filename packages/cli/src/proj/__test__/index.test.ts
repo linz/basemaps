@@ -22,7 +22,7 @@ o.spec('Proj2193', () => {
     o('should convert to 3793', () => {
         const Proj23793 = getProjection(3793);
         if (Proj23793 == null) {
-            throw new Error('Failed to init proj:2193');
+            throw new Error('Failed to init proj:3793');
         }
     });
 
@@ -35,13 +35,13 @@ o.spec('Proj2193', () => {
             guessProjection(
                 'PCS Name = NZGD_2000_New_Zealand_Transverse_Mercator|GCS Name = GCS_NZGD_2000|Ellipsoid = GRS_1980|Primem = Greenwich||',
             ),
-        ).equals(EPSG.Nztm);
+        ).equals(EPSG.Nztm2000);
 
         o(
             guessProjection(
                 'NZGD2000_New_Zealand_Transverse_Mercator_2000|GCS Name = GCS_NZGD_2000|Primem = Greenwich||',
             ),
-        ).equals(EPSG.Nztm);
+        ).equals(EPSG.Nztm2000);
     });
 
     o('should not guess unknown wkt', () => {
