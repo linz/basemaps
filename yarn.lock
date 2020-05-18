@@ -547,6 +547,13 @@
   dependencies:
     ieee754 "^1.1.13"
 
+"@cogeotiff/core@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.0.0.tgz#f28086c0f05d822f584540aa631379067a0edbbe"
+  integrity sha512-YrgufvZMSjnYRDdE7XFG07Xt87L7lNGe1Z2EiLef61Oy4Ha7q7yxE0skXWyPRta45dCHOwXXOfAVg7CdjSDVIQ==
+  dependencies:
+    ieee754 "^1.1.13"
+
 "@cogeotiff/source-aws@^1.0.8":
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-1.0.8.tgz#b8161da93d6c95f8e1686164b8a69de159ebef7d"

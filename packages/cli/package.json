@@ -19,7 +19,7 @@
   "dependencies": {
     "@basemaps/geo": "^2.0.0",
     "@basemaps/lambda-shared": "^2.0.0",
-    "@cogeotiff/core": "^1.0.8",
+    "@cogeotiff/core": "^2.0.0",
     "@cogeotiff/source-aws": "^1.0.8",
     "@cogeotiff/source-file": "^1.0.8",
     "@cogeotiff/source-url": "^1.0.8",
