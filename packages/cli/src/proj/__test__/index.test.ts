@@ -19,6 +19,13 @@ o.spec('Proj2193', () => {
         o(reverse.map((f) => Math.floor(f))).deepEquals([1180000.0, 4758000.0]);
     });
 
+    o('should convert to 3793', () => {
+        const Proj23793 = getProjection(3793);
+        if (Proj23793 == null) {
+            throw new Error('Failed to init proj:2193');
+        }
+    });
+
     o('Wgs84ToGoogle', () => {
         o(Wgs84ToGoogle.forward([167.454458, -47.1970753])).deepEquals([18640944.995623615, -5974301.313247106]);
     });
