@@ -11,23 +11,31 @@ export enum EPSG {
     /** Pseudo WebMercator */
     Google = 3857,
     Wgs84 = 4326,
-    Nztm = 2193,
+    /** New Zealand transverse mercator */
+    Nztm2000 = 2193,
+    /** Chatham Islands transverse mercator */
+    Citm2000 = 3793,
 }
 
 const EPSGTextMap: Record<string, EPSG> = {
     google: EPSG.Google,
     epsg3857: EPSG.Google,
-    '3857': EPSG.Google,
+    [EPSG.Google]: EPSG.Google,
     globalmercator: EPSG.Google,
 
     wgs84: EPSG.Wgs84,
     epsg4326: EPSG.Wgs84,
-    '4326': EPSG.Wgs84,
+    [EPSG.Wgs84]: EPSG.Wgs84,
 
-    nztm: EPSG.Nztm,
-    epsg2193: EPSG.Nztm,
-    '2193': EPSG.Nztm,
-    nzgd2000: EPSG.Nztm,
+    nztm: EPSG.Nztm2000,
+    epsg2193: EPSG.Nztm2000,
+    [EPSG.Nztm2000]: EPSG.Nztm2000,
+    nztm2000: EPSG.Nztm2000,
+
+    citm: EPSG.Citm2000,
+    epsg3793: EPSG.Citm2000,
+    [EPSG.Citm2000]: EPSG.Citm2000,
+    citm2000: EPSG.Citm2000,
 };
 
 export class Projection {

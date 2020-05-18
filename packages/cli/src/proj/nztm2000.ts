@@ -3,7 +3,7 @@
  *
  * @see https://epsg.io/2193
  */
-export const NZGD2000 = `PROJCS["NZGD2000 / New Zealand Transverse Mercator 2000",
+export const Nztm2000 = `PROJCS["NZGD2000 / New Zealand Transverse Mercator 2000",
 GEOGCS["NZGD2000",
     DATUM["New_Zealand_Geodetic_Datum_2000",
         SPHEROID["GRS 1980",6378137,298.257222101,

@@ -50,10 +50,15 @@ o.spec('Projection', () => {
         o(Projection.parseEpsgString('epsg:4326')).equals(EPSG.Wgs84);
         o(Projection.parseEpsgString('4326')).equals(EPSG.Wgs84);
 
-        o(Projection.parseEpsgString('NZGD_2000')).equals(EPSG.Nztm);
-        o(Projection.parseEpsgString('nztm')).equals(EPSG.Nztm);
-        o(Projection.parseEpsgString('epsg:2193')).equals(EPSG.Nztm);
-        o(Projection.parseEpsgString('2193')).equals(EPSG.Nztm);
+        o(Projection.parseEpsgString('NZTM_2000')).equals(EPSG.Nztm2000);
+        o(Projection.parseEpsgString('nztm')).equals(EPSG.Nztm2000);
+        o(Projection.parseEpsgString('epsg:2193')).equals(EPSG.Nztm2000);
+        o(Projection.parseEpsgString('2193')).equals(EPSG.Nztm2000);
+
+        o(Projection.parseEpsgString('citm_2000')).equals(EPSG.Citm2000);
+        o(Projection.parseEpsgString('citm')).equals(EPSG.Citm2000);
+        o(Projection.parseEpsgString('epsg:3793')).equals(EPSG.Citm2000);
+        o(Projection.parseEpsgString('3793')).equals(EPSG.Citm2000);
     });
 
     o('constants', () => {
