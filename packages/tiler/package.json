@@ -15,7 +15,7 @@
     "@cogeotiff/core": "^1.0.8"
   },
   "devDependencies": {
-    "@cogeotiff/source-file": "^1.0.8",
+    "@cogeotiff/source-file": "^2.0.0",
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
     "pixelmatch": "^5.1.0",
