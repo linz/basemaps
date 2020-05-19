@@ -21,10 +21,12 @@ o.spec('TileSetUpdateAction', () => {
     let cmd: TileSetUpdateAction = new TileSetUpdateAction();
     let tileSet = fakeTileSet();
 
-    const TileSet = Aws.tileMetadata.TileSet;
-
     function tileSetId(t: TileMetadataSetRecord): string[] {
-        return TileSet.rules(t).map((c) => c.id);
+        const img = t.imagery;
+        return Object.keys(img).sort((a, b) => {
+            const diff = img[a].priority - img[b].priority;
+            return diff == 0 ? img[a].id.localeCompare(img[b].id) : diff;
+        });
     }
 
     o.beforeEach(() => {
@@ -154,7 +156,7 @@ o.spec('TileSetUpdateAction', () => {
 
         o('should update background', async () => {
             cmd.background = { value: '0xff00ff00' } as any;
-            const hasChanges = await cmd.updateBackground(tileSet);
+            const hasChanges = cmd.updateBackground(tileSet);
             o(hasChanges).equals(true);
             o(tileSet.background).deepEquals({ r: 255, g: 0, b: 255, alpha: 0 });
         });
@@ -162,7 +164,7 @@ o.spec('TileSetUpdateAction', () => {
         o('should only update if changes background', async () => {
             cmd.background = { value: '0xff00ff00' } as any;
             tileSet.background = { r: 255, g: 0, b: 255, alpha: 0 };
-            const hasChanges = await cmd.updateBackground(tileSet);
+            const hasChanges = cmd.updateBackground(tileSet);
             o(hasChanges).equals(false);
             o(tileSet.background).deepEquals({ r: 255, g: 0, b: 255, alpha: 0 });
         });

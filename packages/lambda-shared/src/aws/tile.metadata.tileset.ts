@@ -59,14 +59,6 @@ export class TileMetadataTileSet {
         return `ts_${name}_${projection}_${tag}`;
     }
 
-    /**
-     * Get the imagery rules for a tileset sorted by rendering priority
-     * @param tileSet
-     */
-    rules(tileSet: TileMetadataSetRecord): TileMetadataImageRule[] {
-        return Object.values(tileSet.imagery).sort(sortRule);
-    }
-
     async get(name: string, projection: EPSG, version: number): Promise<TileMetadataSetRecord>;
     async get(name: string, projection: EPSG, tag: TileSetTag): Promise<TileMetadataSetRecord>;
     async get(

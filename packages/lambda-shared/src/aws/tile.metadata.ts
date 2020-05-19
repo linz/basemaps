@@ -63,7 +63,7 @@ export interface TileMetadataSetRecord extends BaseDynamoTable {
 
     projection: EPSG.Google;
 
-    /** first record is the first record drawn onto a tile */
+    /** the rendering rules for imagery in this tileset */
     imagery: Record<string, TileMetadataImageRule>;
 
     /** Current version number */
@@ -74,6 +74,11 @@ export interface TileMetadataSetRecord extends BaseDynamoTable {
 
     /** Background to render for areas where there is no data */
     background?: { r: number; g: number; b: number; alpha: number };
+}
+
+export interface TileSetRuleImagery {
+    rule: TileMetadataImageRule;
+    imagery: TileMetadataImageryRecord;
 }
 
 export enum RecordPrefix {
