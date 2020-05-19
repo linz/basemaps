@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataTag } from '@basemaps/lambda-shared';
+import { Aws, LogConfig } from '@basemaps/lambda-shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
+import { TagAction } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateXYZCache } from './tileset.util';
 
@@ -23,29 +24,7 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
 
     protected onDefineParameters(): void {
         super.onDefineParameters();
-
-        this.version = this.defineIntegerParameter({
-            argumentName: 'VERSION',
-            parameterLongName: '--version',
-            parameterShortName: '-v',
-            description: 'Version ID',
-            required: false,
-        });
-
-        const validTags = Object.values(TileMetadataTag).filter((f) => f != TileMetadataTag.Head);
-        this.tag = this.defineStringParameter({
-            argumentName: 'TAG',
-            parameterLongName: '--tag',
-            parameterShortName: '-t',
-            description: `tag name  (options: ${validTags.join(', ')})`,
-            required: false,
-        });
-
-        this.commit = this.defineFlagParameter({
-            parameterLongName: '--commit',
-            description: 'Commit to database',
-            required: false,
-        });
+        TagAction.onDefineParameters(this);
     }
 
     protected async onExecute(): Promise<void> {

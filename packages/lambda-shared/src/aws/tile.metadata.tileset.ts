@@ -4,6 +4,7 @@ import {
     TileMetadataImageRule,
     TileMetadataSetRecord,
     TileMetadataTag,
+    parseMetadataTag,
 } from './tile.metadata.base';
 
 /**
@@ -33,15 +34,9 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         if (!str.includes('@')) return { name: str };
 
         const [name, tagStr] = str.split('@');
-        switch (tagStr) {
-            case TileMetadataTag.Beta:
-            case TileMetadataTag.Head:
-            case TileMetadataTag.Production:
-                break;
-            default:
-                return { name: str };
-        }
-        return { name, tag: tagStr };
+        const tag = parseMetadataTag(tagStr);
+        if (tag == null) return { name: str };
+        return { name, tag };
     }
 
     idRecord(record: TileMetadataSetRecord, tag: TileMetadataTag | number): string {

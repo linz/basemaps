@@ -15,6 +15,20 @@ export enum TileMetadataTag {
 }
 
 /**
+ * Ensure `tagInput` is a valid tag otherwise return null
+ */
+export function parseMetadataTag(tagInput: string | null | undefined): TileMetadataTag | null {
+    switch (tagInput) {
+        case TileMetadataTag.Beta:
+        case TileMetadataTag.Head:
+        case TileMetadataTag.Production:
+            return tagInput;
+        default:
+            return null;
+    }
+}
+
+/**
  * The database format for the ApiKey Table
  */
 export type TileMetadataRecord = TileMetadataImageryRecord | TaggedTileMetadataRecord;
