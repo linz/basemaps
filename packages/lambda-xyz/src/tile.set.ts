@@ -1,24 +1,24 @@
 import { EPSG, QuadKey } from '@basemaps/geo';
+import {
+    Aws,
+    Env,
+    RecordPrefix,
+    TileMetadataImageryRecord,
+    TileMetadataSetRecord,
+    TileMetadataTable,
+    TileSetRuleImagery,
+    TileSetTag,
+} from '@basemaps/lambda-shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import * as path from 'path';
-import {
-    Aws,
-    TileMetadataSetRecord,
-    TileMetadataImageryRecord,
-    Env,
-    TileMetadataImageRule,
-    TileMetadataTable,
-    RecordPrefix,
-    TileSetTag,
-} from '@basemaps/lambda-shared';
 
 export class TileSet {
     name: string;
     tag: TileSetTag;
     projection: EPSG;
     private tileSet: TileMetadataSetRecord;
-    private imagery: Map<string, TileMetadataImageryRecord>;
+    imagery: TileSetRuleImagery[];
     sources: Map<string, CogTiff> = new Map();
     bucket: string;
 
@@ -70,19 +70,9 @@ export class TileSet {
         return true;
     }
 
-    *allImagery(): Generator<{ rule: TileMetadataImageRule; imagery: TileMetadataImageryRecord }> {
-        const rules = Aws.tileMetadata.TileSet.rules(this.tileSet);
-        for (const rule of rules) {
-            const imagery = this.imagery.get(rule.id);
-            if (imagery == null) throw new Error(`Unable to find imagery for key: ${rule.id}`);
-
-            yield { rule, imagery };
-        }
-    }
-
     async getTiffsForQuadKey(qk: string, zoom: number): Promise<CogTiff[]> {
         const output: CogTiff[] = [];
-        for (const obj of this.allImagery()) {
+        for (const obj of this.imagery) {
             if (zoom > (obj.rule.maxZoom ?? 32)) continue;
             if (zoom < (obj.rule.minZoom ?? 0)) continue;
 

@@ -20,7 +20,7 @@ async function main(): Promise<void> {
 
     let errorCount = 0;
     const logger = LogConfig.get();
-    for (const { imagery } of tileSet.allImagery()) {
+    for (const { imagery } of tileSet.imagery) {
         const path = TileSet.BasePath(imagery);
         logger.info({ path, quadKeys: imagery.quadKeys.length }, 'TestingMosaic');
 
