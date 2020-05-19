@@ -1,4 +1,4 @@
-import * as c from 'chalk';
+import * as c from 'ansi-colors';
 
 /**
  * Simple fixed width table formatter
