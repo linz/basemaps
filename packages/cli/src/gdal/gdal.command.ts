@@ -25,7 +25,7 @@ export function normalizeAwsEnv(env: Record<string, string | undefined>): Record
 }
 
 export abstract class GdalCommand {
-    parser: GdalProgressParser;
+    parser?: GdalProgressParser;
     protected child: ChildProcessWithoutNullStreams;
     protected promise?: Promise<{ stdout: string; stderr: string }>;
     protected startTime: number;
@@ -34,10 +34,6 @@ export abstract class GdalCommand {
 
     /** AWS Access  */
     protected credentials?: AWS.Credentials;
-
-    constructor() {
-        this.parser = new GdalProgressParser();
-    }
 
     mount?(mount: string): void;
     env?(): Promise<Record<string, string | undefined>>;
@@ -51,7 +47,7 @@ export abstract class GdalCommand {
         if (this.promise != null) {
             return this.promise;
         }
-        this.parser.reset();
+        this.parser?.reset();
         this.startTime = Date.now();
 
         const env = normalizeAwsEnv(this.env ? await this.env() : process.env);
@@ -76,7 +72,7 @@ export abstract class GdalCommand {
         });
         child.stdout.on('data', (data: Buffer) => {
             outputBuff.push(data);
-            this.parser.data(data);
+            this.parser?.data(data);
         });
 
         this.promise = new Promise((resolve, reject) => {

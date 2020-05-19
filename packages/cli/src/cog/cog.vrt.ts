@@ -29,7 +29,7 @@ export async function buildVrtForTiffs(
 
     logger.info({ path: vrtPath }, 'BuildVrt');
     const gdalCommand = GdalCogBuilder.getGdal();
-    gdalCommand.parser.on('progress', onProgress({ target: 'vrt' }, logger));
+    onProgress(gdalCommand, { target: `vrt.${EPSG.Google}` }, logger);
 
     const buildVrtCmd = ['-hidenodata', '-allow_projection_difference'];
     if (options.addAlpha) {
@@ -85,7 +85,7 @@ export async function buildWarpedVrt(
             gdalCommand.mount(file);
         }
     }
-    gdalCommand.parser.on('progress', onProgress({ target: `vrt.${EPSG.Google}` }, logger));
+    onProgress(gdalCommand, { target: `vrt.${EPSG.Google}` }, logger);
 
     const warpOpts = [
         '-of',
