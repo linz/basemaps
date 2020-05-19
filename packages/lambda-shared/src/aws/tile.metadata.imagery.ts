@@ -5,7 +5,11 @@ import {
     TileSetRuleImagery,
 } from './tile.metadata';
 
-function compareImageSets(a: TileSetRuleImagery, b: TileSetRuleImagery): number {
+/**
+ * Imagery sort must be stable, otherwise the ordering of imagery sets will vary between tile
+ * renders, causing werid artifacts in the map
+ */
+export function compareImageSets(a: TileSetRuleImagery, b: TileSetRuleImagery): number {
     // Sort by priority, highest on top
     if (a.rule.priority != b.rule.priority) {
         return a.rule.priority - b.rule.priority;
