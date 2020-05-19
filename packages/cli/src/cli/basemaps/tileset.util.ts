@@ -8,8 +8,8 @@ import {
     TileSetTag,
 } from '@basemaps/lambda-shared';
 import * as AWS from 'aws-sdk';
-import * as c from 'chalk';
-import * as chalk from 'chalk';
+import * as c from 'ansi-colors';
+
 import { CliId } from '../base.cli';
 import { CliTable } from '../cli.table';
 
@@ -48,14 +48,14 @@ export function showDiff(
         const lineA = TileSetTable.line({ rule: tsAImg, imagery });
 
         if (tsBImg == null) {
-            output += chalk.green('\t+', lineA) + '\n';
+            output += c.green('\t+' + lineA) + '\n';
             continue;
         }
 
         const lineB = TileSetTable.line({ rule: tsBImg, imagery });
         if (lineA !== lineB) {
-            output += chalk.green('\t+', lineA) + '\n';
-            output += chalk.red('\t-', lineB) + '\n';
+            output += c.green('\t+' + lineA) + '\n';
+            output += c.red('\t-' + lineB) + '\n';
         }
     }
 
@@ -65,7 +65,7 @@ export function showDiff(
 
         if (tsAImg == null) {
             const lineA = TileSetTable.line({ rule: tsBImg, imagery });
-            output += chalk.red('\t-', lineA) + '\n';
+            output += c.red('\t-' + lineA) + '\n';
         }
     }
     return output;
