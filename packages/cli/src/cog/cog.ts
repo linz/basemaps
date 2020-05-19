@@ -4,6 +4,8 @@ import { GdalCogBuilder } from '../gdal/gdal';
 import { Wgs84ToGoogle } from '../proj';
 import { CogJob } from './types';
 import { SingleTileWidth } from './constants';
+import { GdalCommand } from '../gdal/gdal.command';
+import { GdalProgressParser } from '../gdal/gdal.progress';
 
 /**
  * Create a onProgress logger
@@ -11,12 +13,14 @@ import { SingleTileWidth } from './constants';
  * @param keys additional keys to log
  * @param logger base logger to use
  */
-export function onProgress(keys: Record<string, any>, logger: LogType): (p: number) => void {
+export function onProgress(gdal: GdalCommand, keys: Record<string, any>, logger: LogType): void {
     let lastTime = Date.now();
-    return (p: number): void => {
+
+    gdal.parser = new GdalProgressParser();
+    gdal.parser.on('progress', (p: number): void => {
         logger.trace({ ...keys, progress: parseFloat(p.toFixed(2)), progressTime: Date.now() - lastTime }, 'Progress');
         lastTime = Date.now();
-    };
+    });
 }
 
 /**
@@ -70,7 +74,7 @@ export async function buildCogForQuadKey(
         job.source.files.forEach((f) => cogBuild.gdal.mount?.(f));
     }
 
-    cogBuild.gdal.parser.on('progress', onProgress({ quadKey, target: 'tiff' }, logger));
+    onProgress(cogBuild.gdal, { quadKey, target: 'tiff' }, logger);
 
     logger.info(
         {
