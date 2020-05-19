@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Aws, LogConfig, TileMetadataImageryRecord, TileMetadataSetRecord, TileSetTag } from '@basemaps/lambda-shared';
-import * as chalk from 'chalk';
 import { CliTable } from '../cli.table';
 import { TileSetBaseAction } from './tileset.action';
-import { printTileSet, TileSetTable } from './tileset.util';
+import { printTileSet, showDiff } from './tileset.util';
 
 const MaxHistory = 199;
 
@@ -87,41 +86,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
             const tileSetB = tileSets.get(tileSetBId);
             if (tileSetB == null) throw new Error(`Failed to fetch tag: ${tileSetBId}`);
 
-            this.showDiff(tileSetA, tileSetB, imagery);
+            console.log(showDiff(tileSetA, tileSetB, imagery));
         }
-    }
-
-    showDiff(
-        tsA: TileMetadataSetRecord,
-        tsB: TileMetadataSetRecord,
-        imagery: Map<string, TileMetadataImageryRecord>,
-    ): void {
-        for (const tsAImg of Object.values(tsA.imagery)) {
-            const tsBImg = tsB.imagery[tsAImg.id];
-            const img = imagery.get(tsAImg.id)!;
-            const lineA = TileSetTable.line({ rule: tsAImg, img });
-
-            if (tsBImg == null) {
-                console.log(chalk.green('\t+', lineA));
-                continue;
-            }
-
-            const lineB = TileSetTable.line({ rule: tsBImg, img });
-            if (lineA !== lineB) {
-                console.log(chalk.green('\t+', lineA));
-                console.log(chalk.red('\t-', lineB));
-            }
-        }
-
-        for (const tsBImg of Object.values(tsB.imagery)) {
-            const tsAImg = tsA.imagery[tsBImg.id];
-            const img = imagery.get(tsBImg.id)!;
-
-            if (tsAImg == null) {
-                const lineA = TileSetTable.line({ rule: tsBImg, img });
-                console.log(chalk.red('\t-', lineA));
-            }
-        }
-        console.log();
     }
 }

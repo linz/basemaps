@@ -25,7 +25,7 @@
     "@cogeotiff/source-url": "^2.0.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "@turf/turf": "^5.1.6",
-    "chalk": "^4.0.0",
+    "ansi-colors": "^4.1.1",
     "git-rev-sync": "^2.0.0",
     "p-limit": "^2.2.1",
     "pretty-json-log": "^0.3.1",

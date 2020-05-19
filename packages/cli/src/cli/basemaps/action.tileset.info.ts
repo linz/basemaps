@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Aws, LogConfig, TileSetTag } from '@basemaps/lambda-shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import * as c from 'chalk';
+import * as c from 'ansi-colors';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet } from './tileset.util';
 

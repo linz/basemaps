@@ -2,31 +2,26 @@ import { EPSG } from '@basemaps/geo';
 import {
     Aws,
     LogConfig,
-    TileMetadataImageRule,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
+    TileSetRuleImagery,
     TileSetTag,
 } from '@basemaps/lambda-shared';
 import * as AWS from 'aws-sdk';
-import * as c from 'chalk';
+import * as c from 'ansi-colors';
+
 import { CliId } from '../base.cli';
 import { CliTable } from '../cli.table';
 
-export const TileSetTable = new CliTable<{ rule: TileMetadataImageRule; img: TileMetadataImageryRecord }>();
+export const TileSetTable = new CliTable<TileSetRuleImagery>();
 TileSetTable.field('#', 4, (obj) => String(obj.rule.priority));
 TileSetTable.field('Id', 30, (obj) => c.dim(obj.rule.id));
-TileSetTable.field('Name', 40, (obj) => obj.img.name);
+TileSetTable.field('Name', 40, (obj) => obj.imagery.name);
 TileSetTable.field('Zoom', 10, (obj) => obj.rule.minZoom + ' -> ' + obj.rule.maxZoom);
-TileSetTable.field('CreatedAt', 10, (obj) => new Date(obj.img.createdAt).toISOString());
+TileSetTable.field('CreatedAt', 10, (obj) => new Date(obj.imagery.createdAt).toISOString());
 
 export async function printTileSetImagery(tsData: TileMetadataSetRecord): Promise<void> {
-    const imagery = await Aws.tileMetadata.Imagery.getAll(tsData);
-    console.log(c.bold('Imagery:'));
-    TileSetTable.header();
-    const fields = Aws.tileMetadata.TileSet.rules(tsData).map((rule) => {
-        return { rule, img: imagery.get(rule.id)! };
-    });
-    TileSetTable.print(fields);
+    TileSetTable.print(await Aws.tileMetadata.Imagery.getAll(tsData));
 }
 
 export async function printTileSet(tsData: TileMetadataSetRecord, printImagery = true): Promise<void> {
@@ -39,6 +34,41 @@ export async function printTileSet(tsData: TileMetadataSetRecord, printImagery =
     }
 
     if (printImagery) await printTileSetImagery(tsData);
+}
+
+export function showDiff(
+    tsA: TileMetadataSetRecord,
+    tsB: TileMetadataSetRecord,
+    imageSet: Map<string, TileMetadataImageryRecord>,
+): string {
+    let output = '';
+    for (const tsAImg of Object.values(tsA.imagery)) {
+        const tsBImg = tsB.imagery[tsAImg.id];
+        const imagery = imageSet.get(tsAImg.id)!;
+        const lineA = TileSetTable.line({ rule: tsAImg, imagery });
+
+        if (tsBImg == null) {
+            output += c.green('\t+' + lineA) + '\n';
+            continue;
+        }
+
+        const lineB = TileSetTable.line({ rule: tsBImg, imagery });
+        if (lineA !== lineB) {
+            output += c.green('\t+' + lineA) + '\n';
+            output += c.red('\t-' + lineB) + '\n';
+        }
+    }
+
+    for (const tsBImg of Object.values(tsB.imagery)) {
+        const tsAImg = tsA.imagery[tsBImg.id];
+        const imagery = imageSet.get(tsBImg.id)!;
+
+        if (tsAImg == null) {
+            const lineA = TileSetTable.line({ rule: tsBImg, imagery });
+            output += c.red('\t-' + lineA) + '\n';
+        }
+    }
+    return output;
 }
 
 // Coudfront has to be defined in us-east-1

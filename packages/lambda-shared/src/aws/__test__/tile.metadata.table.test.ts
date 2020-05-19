@@ -2,7 +2,12 @@ import { EPSG } from '@basemaps/geo';
 import * as AWS from 'aws-sdk';
 import * as o from 'ospec';
 import { Const } from '../../const';
-import { TileMetadataImageRule, TileMetadataImageryRecord, TileMetadataTable } from '../tile.metadata';
+import {
+    TileMetadataImageRule,
+    TileMetadataImageryRecord,
+    TileMetadataTable,
+    TileMetadataSetRecord,
+} from '../tile.metadata';
 
 const { marshall } = AWS.DynamoDB.Converter;
 
@@ -10,14 +15,14 @@ o.spec('tile.metadata.table', () => {
     const { now } = Date;
     const mockNow = Date.now();
 
-    function* genIds(max: number): Generator<TileMetadataImageRule> {
+    function* genRules(max: number): Generator<TileMetadataImageRule> {
         let num = 0;
         while (num < max) yield { id: 'im_' + num++, maxZoom: 0, minZoom: 0, priority: num };
     }
 
-    function genMap(max: number): Record<string, TileMetadataImageRule> {
+    function genMap(ids: IterableIterator<TileMetadataImageRule>): Record<string, TileMetadataImageRule> {
         const output: Record<string, TileMetadataImageRule> = {};
-        for (const im of genIds(max)) output[im.id] = im;
+        for (const im of ids) output[im.id] = im;
         return output;
     }
 
@@ -76,6 +81,48 @@ o.spec('tile.metadata.table', () => {
         });
     });
 
+    o('should sort imagery', async () => {
+        const { Imagery } = new TileMetadataTable();
+
+        const rules = Array.from(genRules(2));
+
+        const imagery = rules.map((r) => ({
+            id: r.id,
+            projection: EPSG.Google,
+            year: 2001,
+            resolution: 100,
+            quadKeys: ['313'],
+        })) as TileMetadataImageryRecord[];
+
+        for (const i of imagery) {
+            Imagery.imagery.set(i.id, i);
+        }
+
+        const tsData = {
+            createdAt: 0,
+            updatedAt: 0,
+            id: 'ts_aerial_3857',
+            version: 0,
+            imagery: genMap(rules.values()),
+            name: 'aerial',
+            projection: EPSG.Google,
+        } as TileMetadataSetRecord;
+
+        const getAll = async (): Promise<string[]> => (await Imagery.getAll(tsData)).map((i) => i.imagery.id);
+
+        o(await getAll()).deepEquals(['im_0', 'im_1']);
+
+        rules[0].priority = rules[1].priority;
+        o(await getAll()).deepEquals(['im_0', 'im_1']);
+
+        imagery[0].year = 2020;
+        o(await getAll()).deepEquals(['im_1', 'im_0']);
+
+        imagery[1].year = 2020;
+        imagery[1].resolution = 3000;
+        o(await getAll()).deepEquals(['im_1', 'im_0']);
+    });
+
     o('should report missing imagery', async () => {
         const tmtable = new TileMetadataTable();
 
@@ -102,7 +149,7 @@ o.spec('tile.metadata.table', () => {
                 updatedAt: 0,
                 id: 'ts_aerial_3857',
                 version: 0,
-                imagery: genMap(5),
+                imagery: genMap(genRules(5)),
                 name: 'aerial',
                 projection: EPSG.Google,
             });
@@ -143,23 +190,30 @@ o.spec('tile.metadata.table', () => {
             },
         };
 
-        const ans = await tmtable.Imagery.getAll({
+        const tsData = {
             createdAt: 0,
             updatedAt: 0,
             id: 'ts_aerial_3857',
             version: 0,
-            imagery: genMap(202),
+            imagery: genMap(genRules(202)),
             name: 'aerial',
             projection: EPSG.Google,
+        } as TileMetadataSetRecord;
+
+        const ans = await tmtable.Imagery.getAll(tsData);
+
+        o(ans.length).equals(202);
+        o(ans.find((r) => r.imagery.id === 'im_199')).deepEquals({
+            rule: { id: 'im_199', maxZoom: 0, minZoom: 0, priority: 200 },
+            imagery: {
+                id: 'im_199',
+                projection: EPSG.Google,
+                year: 2001,
+                resolution: 100,
+                quadKeys: ['313'],
+            } as TileMetadataImageryRecord,
         });
 
-        o(ans.size).equals(202);
-        o(ans.get('im_199')).deepEquals({
-            id: 'im_199',
-            projection: EPSG.Google,
-            year: 2001,
-            resolution: 100,
-            quadKeys: ['313'],
-        } as TileMetadataImageryRecord);
+        o(ans.slice(0, 5).map((r) => r.rule.id)).deepEquals(['im_0', 'im_1', 'im_2', 'im_3', 'im_4']);
     });
 });
