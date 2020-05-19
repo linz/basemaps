@@ -112,8 +112,12 @@ export class GdalCogBuilder {
             // Number of levels to align to web mercator
             '-co',
             `ALIGNED_LEVELS=${this.config.alignmentLevels}`,
+            // Default quality of 75 is too low for our needs
             '-co',
             `QUALITY=${this.config.quality}`,
+            // most of the imagery contains a lot of empty tiles, no need to output them
+            '-co',
+            `SPARSE_OK=YES`,
             ...this.getBounds(),
 
             this.source,
