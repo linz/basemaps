@@ -101,6 +101,16 @@
                 lastZoom = zoom;
             }
 
+            /** Toggle between a bunch of background colors to make QA/QCing imagery easier */
+            const backgroundColors = ['', '#888', '#ff00ff'];
+            let backgroundIndex = 0;
+            function toggleColor() {
+                backgroundIndex++;
+                if (backgroundIndex >= backgroundColors.length) backgroundIndex = 0;
+                document.body.style.backgroundColor = backgroundColors[backgroundIndex];
+            }
+            document.getElementById('zoom').addEventListener('click', toggleColor);
+
             function updateUrl() {
                 updateTimer = null;
                 const properties = map.getProperties();
