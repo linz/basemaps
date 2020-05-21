@@ -1,4 +1,4 @@
-import { EPSG, QuadKey } from '@basemaps/geo';
+import { Epsg, QuadKey } from '@basemaps/geo';
 import {
     Aws,
     TileMetadataImageryRecord,
@@ -12,7 +12,7 @@ import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 export class TileSet {
     name: string;
     tag: TileMetadataTag;
-    projection: EPSG;
+    projection: Epsg;
     private tileSet: TileMetadataSetRecord;
     imagery: TileSetRuleImagery[];
     sources: Map<string, CogTiff> = new Map();
@@ -32,7 +32,7 @@ export class TileSet {
         return `${record.uri}/${quadKey}.tiff`;
     }
 
-    constructor(nameStr: string, projection: EPSG) {
+    constructor(nameStr: string, projection: Epsg) {
         const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
         this.name = name;
         this.tag = tag ?? TileMetadataTag.Production;

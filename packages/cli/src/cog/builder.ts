@@ -1,4 +1,4 @@
-import { EPSG, GeoJson, Projection } from '@basemaps/geo';
+import { Epsg, GeoJson, Projection } from '@basemaps/geo';
 import { FileOperatorSimple, LogType, CompositeError } from '@basemaps/lambda-shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -16,7 +16,7 @@ export const proj256 = new Projection(256);
 export class CogBuilder {
     q: Limit;
     logger: LogType;
-    srcProj?: number;
+    srcProj?: Epsg;
 
     // Prevent guessing spamming the logs
     wktPreviousGuesses = new Set<string>();
@@ -24,7 +24,7 @@ export class CogBuilder {
     /**
      * @param concurrency number of requests to run at a time
      */
-    constructor(concurrency: number, logger: LogType, srcProj?: number) {
+    constructor(concurrency: number, logger: LogType, srcProj?: Epsg) {
         this.logger = logger;
         this.q = pLimit(concurrency);
         this.srcProj = srcProj;
@@ -127,25 +127,25 @@ export class CogBuilder {
         return z;
     }
 
-    findProjection(tiff: CogTiff): EPSG {
+    findProjection(tiff: CogTiff): Epsg {
         const image = tiff.getImage(0);
 
-        let projection = image.valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+        const projection = image.valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
         if (projection != null && projection != InvalidProjectionCode) {
-            return projection;
+            return Epsg.get(projection);
         }
 
         const imgWkt = image.value(TiffTag.GeoAsciiParams);
-        projection = guessProjection(imgWkt) as number;
-        if (projection) {
+        const guessedEpsg = guessProjection(imgWkt);
+        if (guessedEpsg) {
             if (!this.wktPreviousGuesses.has(imgWkt)) {
                 this.logger.trace(
-                    { tiff: tiff.source.name, imgWkt, projection },
+                    { tiff: tiff.source.name, imgWkt, projection: guessedEpsg },
                     'GuessingProjection from GeoAsciiParams',
                 );
             }
             this.wktPreviousGuesses.add(imgWkt);
-            return projection;
+            return guessedEpsg;
         }
 
         this.logger.error({ tiff: tiff.source.name, projection, imgWkt }, 'Failed find projection');

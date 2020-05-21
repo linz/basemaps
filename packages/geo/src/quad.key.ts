@@ -1,5 +1,10 @@
 import { quadkeyToTile, tileToBBOX } from '@mapbox/tilebelt';
 import { Bounds } from './bounds';
+import { Tile } from './tile.matrix.set';
+
+const CHAR_1 = '1'.charCodeAt(0);
+const CHAR_2 = '2'.charCodeAt(0);
+const CHAR_3 = '3'.charCodeAt(0);
 
 export const QuadKey = {
     Keys: ['0', '1', '2', '3'],
@@ -48,11 +53,47 @@ export const QuadKey = {
         return qk.substr(0, qk.length - 1);
     },
 
-    toXYZ(quadKey: string): [number, number, number] {
-        return quadkeyToTile(quadKey);
+    /**
+     * Convert a quadkey to a XYZ Tile location
+     * @param quadKey quadkey to convert
+     */
+    toTile(quadKey: string): Tile {
+        let x = 0;
+        let y = 0;
+        const z = quadKey.length;
+
+        for (let i = z; i > 0; i--) {
+            const mask = 1 << (i - 1);
+            const q = quadKey.charCodeAt(z - i);
+            if (q === CHAR_1) x |= mask;
+            if (q === CHAR_2) y |= mask;
+            if (q === CHAR_3) {
+                x |= mask;
+                y |= mask;
+            }
+        }
+        return { x, y, z };
+    },
+
+    /**
+     * Convert a tile location to a quadkey
+     * @param tile tile to covert
+     */
+    fromTile(tile: Tile): string {
+        const { x, y, z } = tile;
+        let quadKey = '';
+        for (let zI = z; zI > 0; zI--) {
+            let b = 0;
+            const mask = 1 << (zI - 1);
+            if ((x & mask) !== 0) b++;
+            if ((y & mask) !== 0) b += 2;
+            quadKey += b.toString();
+        }
+        return quadKey;
     },
 
     toBbox(quadKey: string): [number, number, number, number] {
+        // FIXME this only works for Google
         return tileToBBOX(quadkeyToTile(quadKey));
     },
 
@@ -62,6 +103,7 @@ export const QuadKey = {
      * @return The bounds in `EPSG.Wgs84`
      */
     toBounds(quadKey: string): Bounds {
+        // FIXME this only works for Google
         return Bounds.fromBbox(this.toBbox(quadKey));
     },
 

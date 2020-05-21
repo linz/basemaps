@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { LatLon, Projection, EPSG } from '../projection';
+import { LatLon, Projection } from '../projection';
 import { approxEqual } from './bounds.tile.test';
 import * as o from 'ospec';
 
@@ -35,30 +35,6 @@ o.spec('Projection', () => {
         compareLatLon(latLonB, { lat: -Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
         compareLatLon(latLonC, { lat: -Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
         compareLatLon(latLonD, { lat: Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
-    });
-
-    o('should parseEpsgString', () => {
-        o(Projection.parseEpsgString('Gogle')).equals(null);
-        o(Projection.parseEpsgString('google')).equals(EPSG.Google);
-        o(Projection.parseEpsgString('3857')).equals(EPSG.Google);
-        o(Projection.parseEpsgString('urn:ogc:def:crs:EPSG::3857')).equals(EPSG.Google);
-        o(Projection.parseEpsgString('EpSg:3857')).equals(EPSG.Google);
-        o(Projection.parseEpsgString('global--mercator')).equals(EPSG.Google);
-        o(Projection.parseEpsgString('global_mercator')).equals(EPSG.Google);
-
-        o(Projection.parseEpsgString('wgs84')).equals(EPSG.Wgs84);
-        o(Projection.parseEpsgString('epsg:4326')).equals(EPSG.Wgs84);
-        o(Projection.parseEpsgString('4326')).equals(EPSG.Wgs84);
-
-        o(Projection.parseEpsgString('NZTM_2000')).equals(EPSG.Nztm2000);
-        o(Projection.parseEpsgString('nztm')).equals(EPSG.Nztm2000);
-        o(Projection.parseEpsgString('epsg:2193')).equals(EPSG.Nztm2000);
-        o(Projection.parseEpsgString('2193')).equals(EPSG.Nztm2000);
-
-        o(Projection.parseEpsgString('citm_2000')).equals(EPSG.Citm2000);
-        o(Projection.parseEpsgString('citm')).equals(EPSG.Citm2000);
-        o(Projection.parseEpsgString('epsg:3793')).equals(EPSG.Citm2000);
-        o(Projection.parseEpsgString('3793')).equals(EPSG.Citm2000);
     });
 
     o('constants', () => {

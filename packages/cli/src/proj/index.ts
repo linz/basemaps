@@ -1,20 +1,20 @@
-import { EPSG, Projection } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import * as proj4 from 'proj4';
 import { Nztm2000 } from './nztm2000';
 import { Citm2000 } from './citm2000';
 
-proj4.defs(Projection.toEpsgString(EPSG.Nztm2000), Nztm2000);
-proj4.defs(Projection.toEpsgString(EPSG.Citm2000), Citm2000);
+proj4.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
+proj4.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
 
-export function getProjection(fromProjection: EPSG, toProjection?: EPSG): proj4.Converter | null {
+export function getProjection(fromProjection: Epsg, toProjection?: Epsg): proj4.Converter | null {
     try {
-        return proj4(Projection.toEpsgString(fromProjection), toProjection && Projection.toEpsgString(toProjection));
+        return proj4(fromProjection.toEpsgString(), toProjection && toProjection.toEpsgString());
     } catch (e) {
         return null;
     }
 }
 
-export const Wgs84ToGoogle = getProjection(EPSG.Wgs84, EPSG.Google)!;
+export const Wgs84ToGoogle = getProjection(Epsg.Wgs84, Epsg.Google)!;
 
 /**
  * Attempt to guess the projection based off the WKT
@@ -26,13 +26,12 @@ export const Wgs84ToGoogle = getProjection(EPSG.Wgs84, EPSG.Google)!;
  *
  * @param wkt
  */
-export function guessProjection(wkt: string): EPSG | null {
-    if (wkt == null) {
-        return null;
-    }
+export function guessProjection(wkt: string): Epsg | null {
+    if (wkt == null) return null;
+
     const searchWkt = wkt.replace(/_/g, ' ');
     if (searchWkt.includes('New Zealand Transverse Mercator')) {
-        return EPSG.Nztm2000;
+        return Epsg.Nztm2000;
     }
     return null;
 }

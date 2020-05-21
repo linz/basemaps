@@ -1,4 +1,4 @@
-import { EPSG, QuadKey, TileCover } from '@basemaps/geo';
+import { Epsg, QuadKey, TileCover } from '@basemaps/geo';
 import { FileConfig, FileOperator, FileOperatorS3, isConfigS3Role, LogConfig } from '@basemaps/lambda-shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
@@ -7,6 +7,7 @@ import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder, GdalCogBuilder } from '..';
+import { CliInfo } from '../cli/base.cli';
 import { ActionBatchJob } from '../cli/cogify/action.batch';
 import { getJobPath, makeTempFolder } from '../cli/folder';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
@@ -14,7 +15,6 @@ import { getTileSize } from './cog';
 import { buildVrtForTiffs, VrtOptions } from './cog.vrt';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
-import { CliInfo } from '../cli/base.cli';
 
 export const MaxConcurrencyDefault = 50;
 
@@ -50,7 +50,7 @@ export interface JobCreationContext {
         /**
          * Override the source projection
          */
-        projection?: EPSG;
+        projection?: Epsg;
 
         /**
          * Resampling method
@@ -150,7 +150,7 @@ export const CogJobFactory = {
         }
 
         // If the source imagery is in 900931, no need to force a warp
-        if (metadata.projection == EPSG.Google) {
+        if (metadata.projection.code == Epsg.Google.code) {
             logger.warn({ bandCount: metadata.bands }, 'Vrt:GoogleProjection, Disabling warp');
             vrtOptions.forceEpsg3857 = false;
         }
@@ -158,7 +158,7 @@ export const CogJobFactory = {
         const job: CogJob = {
             id,
             name: imageryName,
-            projection: EPSG.Google,
+            projection: Epsg.Google.code,
             output: {
                 ...output,
                 resampling: ctx.override?.resampling ?? GdalCogBuilderDefaults.resampling,
@@ -172,7 +172,7 @@ export const CogJobFactory = {
             source: {
                 ...source,
                 resolution: metadata.resolution,
-                projection: metadata.projection,
+                projection: metadata.projection.code,
                 files: tiffList,
                 options: { maxConcurrency },
             },

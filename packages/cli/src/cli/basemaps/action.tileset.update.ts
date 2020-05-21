@@ -15,6 +15,7 @@ import {
 import { readFileSync } from 'fs';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateXYZCache, printTileSet } from './tileset.util';
+import { Epsg } from '@basemaps/geo';
 
 /**
  * Parse a string as hex, return 0 on failure
@@ -130,7 +131,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     }
     protected async onExecute(): Promise<void> {
         const name = this.tileSet.value!;
-        const projection = this.projection.value!;
+        const projection = Epsg.get(this.projection.value!);
         const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, this.imageryId.value ?? '');
 
         const tsData = await Aws.tileMetadata.TileSet.get(name, projection, TileMetadataTag.Head);

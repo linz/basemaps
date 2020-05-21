@@ -9,6 +9,7 @@ import {
 import { CliTable } from '../cli.table';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet, showDiff } from './tileset.util';
+import { Epsg } from '@basemaps/geo';
 
 const MaxHistory = 199;
 
@@ -23,7 +24,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
 
     async getAllTags(): Promise<Map<TileMetadataTag, TileMetadataSetRecord>> {
         const tileSet = this.tileSet.value!;
-        const projection = this.projection.value!;
+        const projection = Epsg.get(this.projection.value!);
         const allTags: Map<TileMetadataTag, TileMetadataSetRecord> = new Map();
         await Promise.all(
             Object.values(TileMetadataTag).map(async (tag) => {
@@ -39,7 +40,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
 
     protected async onExecute(): Promise<void> {
         const tileSetName = this.tileSet.value!;
-        const projection = this.projection.value!;
+        const projection = Epsg.get(this.projection.value!);
 
         const allTags = await this.getAllTags();
 

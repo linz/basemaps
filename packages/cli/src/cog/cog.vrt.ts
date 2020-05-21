@@ -1,7 +1,7 @@
-import { EPSG, Projection } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
-import { onProgress } from './cog';
 import { GdalCogBuilder } from '../gdal/gdal';
+import { onProgress } from './cog';
 import { CogJob } from './types';
 
 export interface VrtOptions {
@@ -29,7 +29,7 @@ export async function buildVrtForTiffs(
 
     logger.info({ path: vrtPath }, 'BuildVrt');
     const gdalCommand = GdalCogBuilder.getGdal();
-    onProgress(gdalCommand, { target: `vrt.${EPSG.Google}` }, logger);
+    onProgress(gdalCommand, { target: `vrt.${Epsg.Google}` }, logger);
 
     const buildVrtCmd = ['-hidenodata', '-allow_projection_difference'];
     if (options.addAlpha) {
@@ -75,7 +75,7 @@ export async function buildWarpedVrt(
     if (!options.forceEpsg3857) {
         return vrtPath;
     }
-    const vrtWarpedPath = FileOperator.join(tmpTarget, `${job.id}.${EPSG.Google}.vrt`);
+    const vrtWarpedPath = FileOperator.join(tmpTarget, `${job.id}.${Epsg.Google}.vrt`);
 
     logger.info({ path: vrtWarpedPath }, 'BuildVrt:Warped');
     const gdalCommand = GdalCogBuilder.getGdal();
@@ -85,7 +85,7 @@ export async function buildWarpedVrt(
             gdalCommand.mount(file);
         }
     }
-    onProgress(gdalCommand, { target: `vrt.${EPSG.Google}` }, logger);
+    onProgress(gdalCommand, { target: `vrt.${Epsg.Google}` }, logger);
 
     const warpOpts = [
         '-of',
@@ -94,9 +94,9 @@ export async function buildWarpedVrt(
         '-wo',
         'NUM_THREADS=ALL_CPUS',
         '-s_srs',
-        Projection.toEpsgString(job.source.projection),
+        Epsg.get(job.source.projection).toEpsgString(),
         '-t_srs',
-        Projection.toEpsgString(EPSG.Google),
+        Epsg.Google.toEpsgString(),
         vrtPath,
         vrtWarpedPath,
     ];

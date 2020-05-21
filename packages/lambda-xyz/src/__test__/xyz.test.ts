@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import { Env, LogConfig, VNodeParser, TileMetadataProviderRecord, Aws } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
 import * as o from 'ospec';
@@ -8,6 +8,7 @@ import { TileSets } from '../tile.set.cache';
 import { Tilers } from '../tiler';
 import { mockRequest, addTitleAndDesc, Provider } from './xyz.testhelper';
 import { TileEtag } from '../routes/tile.etag';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -17,9 +18,8 @@ o.spec('LambdaXyz', () => {
     let tileMock = o.spy();
     let rasterMock = o.spy();
     const generateMock = o.spy(() => 'foo');
+    let tiler: Tiler = new Tiler(GoogleTms);
     const rasterMockBuffer = Buffer.from([1]);
-    const origTile256 = Tilers.tile256;
-    const origCompose256 = Tilers.compose256;
     const origTileEtag = TileEtag.generate;
     const tileMockData = [{ tiff: { source: { name: 'TileMock' } } }];
 
@@ -34,12 +34,13 @@ o.spec('LambdaXyz', () => {
 
         TileEtag.generate = generateMock;
         // Mock the tile generation
-        Tilers.tile256 = new Tiler(256);
-        Tilers.tile256.tile = tileMock as any;
-        Tilers.compose256 = { compose: rasterMock } as any;
+        tiler = new Tiler(GoogleTms);
+        Tilers.add(tiler);
+        tiler.tile = tileMock as any;
+        // Tilers.compose256 = { compose: rasterMock } as any;
 
         for (const tileSetName of TileSetNames) {
-            const tileSet = new TileSet(tileSetName, EPSG.Google);
+            const tileSet = new TileSet(tileSetName, Epsg.Google);
             TileSets.set(tileSet.id, tileSet);
             tileSet.load = () => Promise.resolve(true);
             tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
@@ -50,8 +51,7 @@ o.spec('LambdaXyz', () => {
 
     o.afterEach(() => {
         TileSets.clear();
-        Tilers.tile256 = origTile256;
-        Tilers.compose256 = origCompose256;
+        Tilers.reset();
         TileEtag.generate = origTileEtag;
     });
 
@@ -113,7 +113,7 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should 200 with empty png if a tile is out of bounds', async () => {
-        Tilers.tile256.tile = async () => [];
+        tiler.tile = async () => [];
         const res = await handleRequest(mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png'));
         o(res.status).equals(200);
         o(rasterMock.calls.length).equals(0);

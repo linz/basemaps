@@ -1,4 +1,4 @@
-import { EPSG, QuadKeyTrie } from '@basemaps/geo';
+import { QuadKeyTrie, EpsgCode, Epsg } from '@basemaps/geo';
 import { FileConfig } from '@basemaps/lambda-shared';
 import { GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
 import { VrtOptions } from './cog.vrt';
@@ -11,7 +11,7 @@ export interface CogJob {
     name: string;
 
     /** Output projection */
-    projection: EPSG.Google;
+    projection: EpsgCode;
 
     source: {
         /** List of input files */
@@ -21,8 +21,9 @@ export interface CogJob {
          * for high quality aerial imagery this is generally 20-22
          */
         resolution: number;
+
         /** EPSG input projection number */
-        projection: EPSG;
+        projection: EpsgCode;
 
         options: {
             maxConcurrency: number;
@@ -77,7 +78,7 @@ export interface SourceMetadata {
     resolution: number;
 
     /** EPSG projection number */
-    projection: number;
+    projection: Epsg;
 
     /** GDAL_NODATA value */
     nodata?: number;

@@ -1,15 +1,15 @@
 import { TileSet } from './tile.set';
 import { LambdaContext } from '@basemaps/lambda-shared';
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 
 export const TileSets = new Map<string, TileSet>();
 
-export function getTileSet(name: string, projection: EPSG): TileSet | undefined {
+export function getTileSet(name: string, projection: Epsg): TileSet | undefined {
     const tileSetId = `${name}_${projection}`;
     return TileSets.get(tileSetId);
 }
 
-export async function loadTileSet(req: LambdaContext, name: string, projection: EPSG): Promise<TileSet | null> {
+export async function loadTileSet(req: LambdaContext, name: string, projection: Epsg): Promise<TileSet | null> {
     req.set('tileSet', name);
     req.set('projection', projection);
     let tileSet = getTileSet(name, projection);

@@ -1,4 +1,6 @@
+import { Epsg, QuadKey } from '@basemaps/geo';
 import {
+    Aws,
     Env,
     HttpHeader,
     LambdaContext,
@@ -7,10 +9,10 @@ import {
     TileDataWmts,
     TileDataXyz,
     tileFromPath,
-    TileType,
-    Aws,
     TileMetadataTag,
+    TileType,
 } from '@basemaps/lambda-shared';
+import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import pLimit from 'p-limit';
@@ -19,9 +21,10 @@ import { TileSet } from '../tile.set';
 import { loadTileSet } from '../tile.set.cache';
 import { Tilers } from '../tiler';
 import { buildWmtsCapability } from '../wmts.capability';
-import { EPSG } from '@basemaps/geo';
 import { TileEtag } from './tile.etag';
 
+
+export const TileComposer = new TileMakerSharp(256);
 /**
  * Serve a empty PNG response
  * @param req req to store metrics in
@@ -74,15 +77,16 @@ function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpRespo
 }
 
 export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
-    const tiler = Tilers.tile256;
-    const tileMaker = Tilers.compose256;
+    const tiler = Tilers.get(Epsg.Google);
+    if (tiler == null) return new LambdaHttpResponse(404, 'Not Found');
 
     const { x, y, z, ext } = xyzData;
 
-    const latLon = tiler.projection.getLatLonCenterFromTile(x, y, z);
-    const qk = tiler.projection.getQuadKeyFromTile(x, y, z);
+    // FIXME
+    // const latLon = tiler.projection.getLatLonCenterFromTile(x, y, z);
+    const qk = QuadKey.fromTile(xyzData);
     req.set('xyz', { x, y, z });
-    req.set('location', latLon);
+    // req.set('location', latLon);
     req.set('quadKey', qk);
 
     const tileSet = await loadTileSet(req, xyzData.name, xyzData.projection);
@@ -110,7 +114,8 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     }
 
     req.timer.start('tile:compose');
-    const res = await tileMaker.compose({
+    // FIXME
+    const res = await TileComposer.compose({
         layers,
         format: ext,
         background: tileSet.background ?? DefaultBackground,
@@ -136,7 +141,7 @@ export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
 
     // TODO when we support more than one projection: get all projections if wmtsData.projection is
     // null
-    const tileSet = await loadTileSet(req, wmtsData.name, wmtsData.projection ?? EPSG.Google);
+    const tileSet = await loadTileSet(req, wmtsData.name, wmtsData.projection ?? Epsg.Google);
 
     const provider = await Aws.tileMetadata.Provider.get(TileMetadataTag.Production);
 

@@ -46,13 +46,14 @@
             const urlParams = new URLSearchParams(window.location.search);
             const urlTag = urlParams.get('v');
             const urlId = urlParams.get('i');
+            const projection = urlParams.get('p') || 3857;
 
             let imagerySet = urlId || `aerial`;
             if (urlTag != null) imagerySet = imagerySet + '@' + urlTag;
 
             const basemapLayer = new ol.layer.Tile({
                 source: new ol.source.XYZ({
-                    url: `/v1/tiles/${imagerySet}/3857/{z}/{x}/{y}.png?api=SZguJbyxMjMZqZ0A7SoTAyF3Y6g8Otdd`,
+                    url: `/v1/tiles/${imagerySet}/${projection}/{z}/{x}/{y}.png?api=SZguJbyxMjMZqZ0A7SoTAyF3Y6g8Otdd`,
                 }),
             });
 

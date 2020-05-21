@@ -1,11 +1,12 @@
 import { Bounds } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { BoundingBox } from '@cogeotiff/core/build/vector';
 import * as o from 'ospec';
 import { Tiler } from '../tiler';
 
 o.spec('tiler.test', () => {
     o('createComposition should handle non square images', () => {
-        const tiler = new Tiler(256) as any;
+        const tiler = new Tiler(GoogleTms);
 
         const img = {
             id: 6,
@@ -23,6 +24,7 @@ o.spec('tiler.test', () => {
         };
 
         const ans = tiler.createComposition(img, 0, 0, 0.5, raster);
+        if (ans == null) throw new Error('Composition should return results');
         const { crop } = ans;
         o(ans).deepEquals({
             tiff: ans.tiff,
@@ -34,6 +36,6 @@ o.spec('tiler.test', () => {
             crop,
         });
 
-        o(crop.toJson()).deepEquals(new Bounds(0, 64, 192, 130).toJson());
+        o(crop?.toJson()).deepEquals(new Bounds(0, 64, 192, 130).toJson());
     });
 });

@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import {
     Aws,
     TileMetadataImageryRecord,
@@ -73,12 +73,12 @@ export function showDiff(
  */
 export function invalidateXYZCache(
     name: string,
-    projection: EPSG,
+    projection: Epsg,
     tag: TileMetadataTag,
     commit = false,
 ): Promise<void> {
     const nameStr = tag == TileMetadataTag.Production ? name : `${name}@${tag}`;
-    const path = `/v1/tiles/${nameStr}/${projection}/*`;
+    const path = `/v1/tiles/${nameStr}/${projection.code}/*`;
 
     return invalidateCache(path, commit);
 }

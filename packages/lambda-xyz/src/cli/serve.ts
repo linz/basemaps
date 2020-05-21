@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import {
     Env,
     FileOperator,
@@ -8,7 +8,7 @@ import {
     LogConfig,
     LogType,
 } from '@basemaps/lambda-shared';
-import { CogSource, CogTiff } from '@cogeotiff/core';
+import { CogSource, CogTiff, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import * as express from 'express';
@@ -22,9 +22,7 @@ import { TileSets } from '../tile.set.cache';
 const app = express();
 const port = Env.getNumber('PORT', 5050);
 
-if (process.stdout.isTTY) {
-    LogConfig.setOutputStream(PrettyTransform.stream());
-}
+if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
 function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
     if (fs instanceof FileOperatorS3) {
@@ -41,7 +39,7 @@ export class TileSetLocal extends TileSet {
     tiffs: CogTiff[];
     filePath: string;
 
-    constructor(name: string, projection: EPSG, path: string) {
+    constructor(name: string, projection: Epsg, path: string) {
         super(name, projection);
         this.filePath = path;
     }
@@ -52,7 +50,19 @@ export class TileSetLocal extends TileSet {
 
         const fileList = await tiffFs.list(this.filePath);
         const files = fileList.filter((f) => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'));
+        if (files.length == 0) throw new Error(`No tiff files found in ${this.filePath}`);
+
         this.tiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
+
+        // Read in the projection information
+        const [firstTiff] = this.tiffs;
+        await firstTiff.init(true);
+        const projection = firstTiff.getImage(0).valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
+        this.projection = Epsg.get(projection);
+        LogConfig.get().info(
+            { path: this.filePath, count: this.tiffs.length, projection: this.projection },
+            'LoadedTiffs',
+        );
         return true;
     }
 
@@ -94,12 +104,13 @@ async function main(): Promise<void> {
     if (Env.get(Env.PublicUrlBase) == '') {
         process.env[Env.PublicUrlBase] = `http://localhost:${port}`;
     }
+    let projection: number | null = null;
     const filePath = process.argv[2];
     if (filePath != null) {
-        let tileSet = new TileSetLocal('aerial', EPSG.Google, filePath);
+        const tileSet = new TileSetLocal('local', Epsg.Google, filePath);
+        await tileSet.load();
         TileSets.set(tileSet.id, tileSet);
-        tileSet = new TileSetLocal('aerial@beta', EPSG.Google, filePath);
-        TileSets.set(tileSet.id, tileSet);
+        projection = tileSet.projection.code;
     }
 
     app.get('/v1/tiles/:imageryName/:projection/:z/:x/:y.:ext', async (req: express.Request, res: express.Response) => {
@@ -137,7 +148,10 @@ async function main(): Promise<void> {
 
     app.use(express.static(__dirname + '/../../../landing/static/'));
     await new Promise((resolve) => app.listen(port, resolve));
-    console.log('Listen', Env.get(Env.PublicUrlBase));
+
+    let url = Env.get(Env.PublicUrlBase) + '/?i=local';
+    if (projection != null) url = url + `&p=${projection}`;
+    LogConfig.get().info({ url }, 'Listen');
 }
 
 main().catch((e) => console.error(e));

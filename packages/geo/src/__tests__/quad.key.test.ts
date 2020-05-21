@@ -56,10 +56,16 @@ o.spec('QuadKey', () => {
         assertBounds(QuadKey.toBounds(''), new Bounds(-180, -85.051129, 360, 170.102258));
     });
 
-    o('toXYZ', () => {
-        o(QuadKey.toXYZ('')).deepEquals([0, 0, 0]);
-        o(QuadKey.toXYZ('31')).deepEquals([3, 2, 2]);
-        o(QuadKey.toXYZ('31021')).deepEquals([25, 18, 5]);
+    o('toTile', () => {
+        o(QuadKey.toTile('')).deepEquals({ x: 0, y: 0, z: 0 });
+        o(QuadKey.toTile('31')).deepEquals({ x: 3, y: 2, z: 2 });
+        o(QuadKey.toTile('31021')).deepEquals({ x: 25, y: 18, z: 5 });
+    });
+
+    o('fromTile', () => {
+        o(QuadKey.fromTile({ x: 0, y: 0, z: 0 })).equals('');
+        o(QuadKey.fromTile({ x: 3, y: 2, z: 2 })).equals('31');
+        o(QuadKey.fromTile({ x: 25, y: 18, z: 5 })).equals('31021');
     });
 
     o('compareKeys', () => {
