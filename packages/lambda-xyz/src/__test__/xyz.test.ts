@@ -21,7 +21,7 @@ o.spec('LambdaXyz', () => {
 
     o.beforeEach(() => {
         LogConfig.disable();
-        tileMock = o.spy(() => ['TileMock']) as any;
+        tileMock = o.spy(() => [{ tiff: { source: { name: 'TileMock' } } }]) as any;
         rasterMock = o.spy(() => {
             return {
                 buffer: rasterMockBuffer,
@@ -85,7 +85,7 @@ o.spec('LambdaXyz', () => {
         const res = await handleRequest(request);
         o(res.status).equals(200);
         o(res.header('content-type')).equals('image/webp');
-        o(res.header('eTaG')).equals('9Iiu/i3ZzjiLKroRycpaD5eLk0BHUHX1hUsy0CCSoIM=');
+        o(res.header('eTaG')).equals('w8RW7/QQDHDMiiNDlbACrigBcCEveyedjHn7QMX6kDg=');
         o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
 
         o(tileMock.calls.length).equals(1);
@@ -110,7 +110,7 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should 304 if a tile is not modified', async () => {
-        const key = 'J6AksQQEhXqW/wywDDsAGtd0OVVqOlKs6M8ViZlOU1g=';
+        const key = 'Dx8k+i/QxsxVpwcoFdN+hsTD/xIahBBg137Zfu+qiE8=';
         const request = mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', {
             'if-none-match': key,
         });

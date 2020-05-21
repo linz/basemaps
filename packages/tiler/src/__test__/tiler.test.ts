@@ -23,11 +23,10 @@ o.spec('tiler.test', () => {
         };
 
         const ans = tiler.createComposition(img, 0, 0, 0.5, raster);
-        const { getBuffer, crop } = ans;
+        const { crop } = ans;
         o(ans).deepEquals({
-            id: '313111000120111.tiff',
+            tiff: ans.tiff,
             source: { x: 0, y: 0, imageId: 6 },
-            getBuffer,
             y: 0,
             x: 64,
             extract: { width: 512, height: 387 },

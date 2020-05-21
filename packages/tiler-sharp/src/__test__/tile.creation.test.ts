@@ -47,7 +47,7 @@ o.spec('TileCreation', () => {
 
         o(layers.length).equals(1);
         const [layer] = layers;
-        o(layer.id).equals(tiff.source.name);
+        o(layer.tiff.source.name).equals(tiff.source.name);
         o(layer.extract).deepEquals({ height: 16, width: 16 });
         o(layer.resize).deepEquals({ height: 2, width: 2 });
         o(layer.x).equals(tiler.tileSize / 2);
