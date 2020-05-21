@@ -34,7 +34,7 @@ o.spec('LambdaXyz', () => {
         Tilers.compose256 = { compose: rasterMock } as any;
 
         for (const tileSetName of TileSetNames) {
-            const tileSet = new TileSet(tileSetName, EPSG.Google, 'bucket');
+            const tileSet = new TileSet(tileSetName, EPSG.Google);
             TileSets.set(tileSet.id, tileSet);
             tileSet.load = () => Promise.resolve(true);
             tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];

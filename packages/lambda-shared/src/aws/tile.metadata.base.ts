@@ -39,6 +39,9 @@ export interface TileMetadataImageryRecord extends BaseDynamoTable {
 
     projection: EPSG.Google;
 
+    /** The location of the COGs like s3://basemaps-cogs/3857/aerial/jobId123 */
+    uri: string;
+
     /** Year the imagery was acquired */
     year: number;
 

@@ -30,7 +30,6 @@ export class LambdaXyz extends cdk.Construct {
             code: lambda.Code.asset(CODE_PATH),
             environment: {
                 [Env.NodeEnv]: Env.get(Env.NodeEnv, 'dev'),
-                [Env.CogBucket]: cogBucket.bucketName,
                 [Env.Hash]: version.hash,
                 [Env.Version]: version.version,
                 [Env.PublicUrlBase]: config.PublicUrlBase,

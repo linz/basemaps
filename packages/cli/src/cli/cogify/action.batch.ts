@@ -1,19 +1,20 @@
+import { EPSG } from '@basemaps/geo';
 import {
+    Aws,
     Env,
     FileOperator,
     LogConfig,
-    TileMetadataTable,
+    LogType,
     RecordPrefix,
-    Aws,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
-    LogType,
+    TileMetadataTable,
 } from '@basemaps/lambda-shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
+import * as path from 'path';
 import { CogJob } from '../../cog/types';
 import { getJobPath } from '../folder';
-import { EPSG } from '@basemaps/geo';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
@@ -56,12 +57,18 @@ export function extractResolutionFromName(name: string): number {
 export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecord {
     const now = Date.now();
 
+    const projection = job.projection ?? EPSG.Google; // TODO a lot of old imagery does not have this value set.
+    let base = job.output.path;
+    if (!base.endsWith('/')) base += '/';
+    const uri = base + path.join(projection.toString(), job.name, job.id);
+
     return {
         id: TileMetadataTable.prefix(RecordPrefix.Imagery, job.id),
         name: job.name,
         createdAt: now,
         updatedAt: now,
-        projection: job.projection ?? EPSG.Google, // TODO a lot of old imagery does not have this value set.
+        uri,
+        projection,
         year: extractYearFromName(job.name),
         resolution: extractResolutionFromName(job.name),
         quadKeys: job.quadkeys,
