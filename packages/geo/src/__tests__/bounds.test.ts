@@ -1,21 +1,10 @@
 import * as o from 'ospec';
 import { Bounds } from '../bounds';
+import { assertBounds } from './testhelper';
 
 const TILE_SIZE = 256;
 function getTile(x = 0, y = 0): Bounds {
     return new Bounds(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
-
-function assertNear(a: number, b: number, esp = 1e-4): void {
-    if (Math.abs(b - a) < esp) o(true).equals(true);
-    else o(a).equals(b);
-}
-
-function assertBounds(b: Bounds, exp: any, esp = 1e-4): void {
-    assertNear(b.x, exp.x, esp);
-    assertNear(b.y, exp.y, esp);
-    assertNear(b.width, exp.width, esp);
-    assertNear(b.height, exp.height, esp);
 }
 
 o.spec('Bounds', () => {
@@ -77,12 +66,6 @@ o.spec('Bounds', () => {
         o(tileZero.intersects(tileZero.add(tileZero).subtract(tileZero))).equals(true);
         o(tileZero.intersects(tileZero.subtract(tileMiddle))).equals(true);
         o(tileZero.intersects(tileZero.add(tileMiddle))).equals(true);
-    });
-
-    o('fromQuadKey', () => {
-        assertBounds(Bounds.fromQuadKey('3113323113203'), new Bounds(174.067383, -39.300299, 0.043945, 0.034015));
-        assertBounds(Bounds.fromQuadKey('3'), new Bounds(0, -85.051129, 180, 85.051129));
-        assertBounds(Bounds.fromQuadKey(''), new Bounds(-180, -85.051129, 360, 170.102258));
     });
 
     o('containsBounds', () => {

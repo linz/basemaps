@@ -1,5 +1,7 @@
 import { QuadKey } from '../quad.key';
 import * as o from 'ospec';
+import { assertBounds } from './testhelper';
+import { Bounds } from '../bounds';
 
 o.spec('QuadKey', () => {
     o.spec('intersect', () => {
@@ -46,6 +48,12 @@ o.spec('QuadKey', () => {
         o(QuadKey.toBbox('')).deepEquals([-180, -85.0511287798066, 180, 85.0511287798066]);
         o(QuadKey.toBbox('31')).deepEquals([90, -66.51326044311186, 180, 0]);
         o(QuadKey.toBbox('31021')).deepEquals([101.25, -31.95216223802496, 112.5, -21.943045533438177]);
+    });
+
+    o('toBounds', () => {
+        assertBounds(QuadKey.toBounds('3113323113203'), new Bounds(174.067383, -39.300299, 0.043945, 0.034015));
+        assertBounds(QuadKey.toBounds('3'), new Bounds(0, -85.051129, 180, 85.051129));
+        assertBounds(QuadKey.toBounds(''), new Bounds(-180, -85.051129, 360, 170.102258));
     });
 
     o('toXYZ', () => {

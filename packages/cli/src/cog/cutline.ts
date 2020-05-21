@@ -138,7 +138,7 @@ export class Cutline {
 
      */
     filterSourcesForQuadKey(quadKey: string, job: CogJob, sourceGeo: FeatureCollection): void {
-        const qkBounds = Bounds.fromQuadKey(quadKey);
+        const qkBounds = QuadKey.toBounds(quadKey);
         const qkPadded = qkBounds.scaleFromCenter(PaddingFactor);
 
         const srcCovering = new QuadKeyTrie();
