@@ -1,4 +1,5 @@
 import { quadkeyToTile, tileToBBOX } from '@mapbox/tilebelt';
+import { Bounds } from './bounds';
 
 export const QuadKey = {
     Keys: ['0', '1', '2', '3'],
@@ -53,6 +54,15 @@ export const QuadKey = {
 
     toBbox(quadKey: string): [number, number, number, number] {
         return tileToBBOX(quadkeyToTile(quadKey));
+    },
+
+    /**
+     * Convert a quadKey to its bounding box
+     * @param quadKey
+     * @return The bounds in `EPSG.Wgs84`
+     */
+    toBounds(quadKey: string): Bounds {
+        return Bounds.fromBbox(this.toBbox(quadKey));
     },
 
     /**
