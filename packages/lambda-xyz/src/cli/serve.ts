@@ -138,7 +138,7 @@ async function main(): Promise<void> {
         },
     );
 
-    app.use(express.static('../landing/static/'));
+    app.use(express.static(__dirname + '/../../../landing/static/'));
     await new Promise((resolve) => app.listen(port, resolve));
     console.log('Listen', Env.get(Env.PublicUrlBase));
 }

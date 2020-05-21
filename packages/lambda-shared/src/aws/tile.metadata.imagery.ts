@@ -1,9 +1,9 @@
 import {
+    TileSetRuleImagery,
+    TileMetadataTableBase,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
-    TileMetadataTable,
-    TileSetRuleImagery,
-} from './tile.metadata';
+} from './tile.metadata.base';
 
 /**
  * Imagery sort must be stable, otherwise the ordering of imagery sets will vary between tile
@@ -35,8 +35,8 @@ export function compareImageSets(a: TileSetRuleImagery, b: TileSetRuleImagery): 
 export class TileMetadataImagery {
     imagery = new Map<string, TileMetadataImageryRecord>();
 
-    metadata: TileMetadataTable;
-    constructor(metadata: TileMetadataTable) {
+    metadata: TileMetadataTableBase;
+    constructor(metadata: TileMetadataTableBase) {
         this.metadata = metadata;
     }
 

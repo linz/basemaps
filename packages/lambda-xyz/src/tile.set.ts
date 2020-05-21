@@ -6,8 +6,8 @@ import {
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
     TileMetadataTable,
+    TileMetadataTag,
     TileSetRuleImagery,
-    TileSetTag,
 } from '@basemaps/lambda-shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
@@ -15,7 +15,7 @@ import * as path from 'path';
 
 export class TileSet {
     name: string;
-    tag: TileSetTag;
+    tag: TileMetadataTag;
     projection: EPSG;
     private tileSet: TileMetadataSetRecord;
     imagery: TileSetRuleImagery[];
@@ -34,7 +34,7 @@ export class TileSet {
     constructor(nameStr: string, projection: EPSG, bucket: string | undefined = process.env[Env.CogBucket]) {
         const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
         this.name = name;
-        this.tag = tag ?? TileSetTag.Production;
+        this.tag = tag ?? TileMetadataTag.Production;
         this.projection = projection;
 
         if (bucket == null) throw new Error(`Invalid environment missing "${Env.CogBucket}"`);
@@ -46,7 +46,7 @@ export class TileSet {
     }
 
     get taggedName(): string {
-        if (this.tag == TileSetTag.Production) return this.name;
+        if (this.tag == TileMetadataTag.Production) return this.name;
         return `${this.name}@${this.tag}`;
     }
 

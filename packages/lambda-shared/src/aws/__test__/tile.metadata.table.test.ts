@@ -2,12 +2,8 @@ import { EPSG } from '@basemaps/geo';
 import * as AWS from 'aws-sdk';
 import * as o from 'ospec';
 import { Const } from '../../const';
-import {
-    TileMetadataImageRule,
-    TileMetadataImageryRecord,
-    TileMetadataTable,
-    TileMetadataSetRecord,
-} from '../tile.metadata';
+import { TileMetadataSetRecord, TileMetadataImageRule, TileMetadataImageryRecord } from '../tile.metadata.base';
+import { TileMetadataTable } from '../tile.metadata';
 
 const { marshall } = AWS.DynamoDB.Converter;
 

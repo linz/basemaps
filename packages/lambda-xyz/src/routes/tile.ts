@@ -8,6 +8,8 @@ import {
     TileDataXyz,
     tileFromPath,
     TileType,
+    Aws,
+    TileMetadataTag,
 } from '@basemaps/lambda-shared';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -138,7 +140,9 @@ export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
     // null
     const tileSet = await loadTileSet(req, wmtsData.name, wmtsData.projection ?? EPSG.Google);
 
-    const xml = tileSet == null ? null : buildWmtsCapability(host, req, tileSet);
+    const provider = await Aws.tileMetadata.Provider.get(TileMetadataTag.Production);
+
+    const xml = tileSet == null ? null : buildWmtsCapability(host, req, provider!, tileSet);
 
     if (xml == null) return new LambdaHttpResponse(404, 'Not Found');
 

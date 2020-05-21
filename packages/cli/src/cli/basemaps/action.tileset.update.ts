@@ -5,7 +5,7 @@ import {
     RecordPrefix,
     TileMetadataSetRecord,
     TileMetadataTable,
-    TileSetTag,
+    TileMetadataTag,
 } from '@basemaps/lambda-shared';
 import {
     CommandLineFlagParameter,
@@ -14,7 +14,7 @@ import {
 } from '@rushstack/ts-command-line';
 import { readFileSync } from 'fs';
 import { TileSetBaseAction } from './tileset.action';
-import { invalidateCache, printTileSet } from './tileset.util';
+import { invalidateXYZCache, printTileSet } from './tileset.util';
 
 /**
  * Parse a string as hex, return 0 on failure
@@ -133,7 +133,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         const projection = this.projection.value!;
         const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, this.imageryId.value ?? '');
 
-        const tsData = await Aws.tileMetadata.TileSet.get(name, projection, TileSetTag.Head);
+        const tsData = await Aws.tileMetadata.TileSet.get(name, projection, TileMetadataTag.Head);
 
         if (tsData == null) {
             LogConfig.get().fatal({ tileSet: name, projection }, 'Failed to find tile set');
@@ -158,7 +158,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         if (before != after) {
             if (this.commit.value) {
                 await Aws.tileMetadata.TileSet.create(tsData);
-                await invalidateCache(name, projection, TileSetTag.Head, this.commit.value);
+                await invalidateXYZCache(name, projection, TileMetadataTag.Head, this.commit.value);
             } else {
                 LogConfig.get().warn('DryRun:Done');
             }

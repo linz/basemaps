@@ -1,5 +1,5 @@
 import { EPSG, Projection } from '@basemaps/geo';
-import { LambdaContext, V, VNodeElement } from '@basemaps/lambda-shared';
+import { LambdaContext, V, VNodeElement, TileMetadataProviderRecord } from '@basemaps/lambda-shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { TileSet } from './tile.set';
 
@@ -39,42 +39,39 @@ const LayerPreamble: Partial<Record<string, VNodeElement[]>> = {
     ],
 };
 
-const ProviderInfo = [
-    V('ows:ServiceIdentification', [
-        V('ows:Title', 'National Base Mapping Service (LINZ)'),
-        V('ows:Abstract', 'National Mapping Service provided by Land Information New Zealand'),
-        V('ows:ServiceType', 'OGC WMTS'),
-        V('ows:ServiceTypeVersion', '1.0.0'),
-        V('ows:Fees', `There are no fees associated with data access via the web interface, API or Web Services.`),
-        V(
-            'ows:AccessConstraints',
-            `
-LINZ Data Service Customers complete a self registration process where
-they accept site terms. Access to the data is subject to the terms of
-the Creative Commons 3.0
-`,
-        ),
-    ]),
+export function providerInfo(provider: TileMetadataProviderRecord): VNodeElement[] {
+    const { serviceIdentification, serviceProvider } = provider;
+    const { contact } = serviceProvider;
+    return [
+        V('ows:ServiceIdentification', [
+            V('ows:Title', serviceIdentification.title),
+            V('ows:Abstract', serviceIdentification.description),
+            V('ows:ServiceType', 'OGC WMTS'),
+            V('ows:ServiceTypeVersion', '1.0.' + provider.version),
+            V('ows:Fees', serviceIdentification.fees),
+            V('ows:AccessConstraints', serviceIdentification.accessConstraints),
+        ]),
 
-    V('ows:ServiceProvider', [
-        V('ows:ProviderName', 'Land Information New Zealand'),
-        V('ows:ProviderSite', { 'xlink:href': 'http://www.linz.govt.nz' }),
-        V('ows:ServiceContact', [
-            V('ows:IndividualName', 'LINZ Customer Support'),
-            V('ows:PositionName', 'Customer Support'),
-            V('ows:ContactInfo', [
-                V('ows:Phone', [V('ows:Voice', '+64 4 4600110'), V('ows:Facsimile', '+64 4 4983842')]),
-                V('ows:Address', [
-                    V('ows:DeliveryPoint', 'Land Information New Zealand'),
-                    V('ows:City', 'Wellington'),
-                    V('ows:PostalCode', '6145'),
-                    V('ows:Country', 'New Zealand'),
-                    V('ows:ElectronicMailAddress', 'customersupport@linz.govt.nz'),
+        V('ows:ServiceProvider', [
+            V('ows:ProviderName', serviceProvider.name),
+            V('ows:ProviderSite', { 'xlink:href': serviceProvider.site }),
+            V('ows:ServiceContact', [
+                V('ows:IndividualName', contact.individualName),
+                V('ows:PositionName', contact.position),
+                V('ows:ContactInfo', [
+                    V('ows:Phone', [V('ows:Voice', contact.phone)]),
+                    V('ows:Address', [
+                        V('ows:DeliveryPoint', contact.address.deliveryPoint),
+                        V('ows:City', contact.address.city),
+                        V('ows:PostalCode', contact.address.postalCode),
+                        V('ows:Country', contact.address.country),
+                        V('ows:ElectronicMailAddress', contact.address.email),
+                    ]),
                 ]),
             ]),
         ]),
-    ]),
-];
+    ];
+}
 
 function wellKnownScaleSet(projection: EPSG): VNodeElement[] {
     return projection === EPSG.Google ? [V('WellKnownScaleSet', 'urn:ogc:def:wkss:OGC:1.0:GoogleMapsCompatible')] : [];
@@ -129,6 +126,7 @@ const getLayerElements = (tileSet: TileSet): [VNodeElement[], string, VNodeEleme
 export function buildWmtsCapabilityToVNode(
     httpBase: string,
     req: LambdaContext,
+    provider: TileMetadataProviderRecord,
     tileSet: TileSet,
 ): VNodeElement | null {
     const [preambleXml, matrixSetId, matrixSet] = getLayerElements(tileSet);
@@ -148,7 +146,7 @@ export function buildWmtsCapabilityToVNode(
     }
 
     return V('Capabilities', CapabilitiesAttrs, [
-        ...ProviderInfo,
+        ...providerInfo(provider),
         V('Contents', [
             V('Layer', [...preambleXml, V('TileMatrixSetLink', [V('TileMatrixSet', matrixSetId)]), ...resUrls]),
             matrixSet,
@@ -156,7 +154,12 @@ export function buildWmtsCapabilityToVNode(
     ]);
 }
 
-export function buildWmtsCapability(httpBase: string, req: LambdaContext, tileSet: TileSet): string | null {
-    const vnode = buildWmtsCapabilityToVNode(httpBase, req, tileSet);
+export function buildWmtsCapability(
+    httpBase: string,
+    req: LambdaContext,
+    provider: TileMetadataProviderRecord,
+    tileSet: TileSet,
+): string | null {
+    const vnode = buildWmtsCapabilityToVNode(httpBase, req, provider, tileSet);
     return vnode && '<?xml version="1.0"?>\n' + vnode.toString();
 }
