@@ -16,7 +16,7 @@ o.spec('TileCreationBenchmark', () => {
     const Center = 2 ** Zoom;
     const CenterTile = Center / 2;
 
-    const TiffPath = path.join(__dirname, '../../data/rgba8_tiled.wm.tiff');
+    const TiffPath = path.join(__dirname, '../../../../test-data/rgba8_tiled.wm.tiff');
     const background = { r: 0, g: 0, b: 0, alpha: 1 };
 
     async function renderTile(tileSize: number, timer: Metrics): Promise<void> {

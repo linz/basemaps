@@ -20,9 +20,7 @@ import { loadTileSet } from '../tile.set.cache';
 import { Tilers } from '../tiler';
 import { buildWmtsCapability } from '../wmts.capability';
 import { EPSG } from '@basemaps/geo';
-
-// To force a full cache invalidation change this number
-const RenderId = 1;
+import { TileEtag } from './tile.etag';
 
 /**
  * Serve a empty PNG response
@@ -94,10 +92,10 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     const layers = await tiler.tile(tiffs, x, y, z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId
-    const cacheKey = createHash('sha256').update(JSON.stringify({ xyzData, layers, RenderId })).digest('base64');
+    const cacheKey = TileEtag.generate(layers, xyzData);
 
     // TODO this should really return a webp, png or jpeg depending on request
-    if (layers == null) return emptyPng(req, cacheKey);
+    if (layers.length == 0) return emptyPng(req, cacheKey);
 
     req.set('layers', layers.length);
 

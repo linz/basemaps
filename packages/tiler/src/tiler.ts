@@ -33,19 +33,14 @@ export class Tiler {
      * @param zoom WebMercator Zoom
      * @param logger
      */
-    public async tile(tiffs: CogTiff[], x: number, y: number, zoom: number): Promise<Composition[] | null> {
+    public async tile(tiffs: CogTiff[], x: number, y: number, zoom: number): Promise<Composition[]> {
         let layers: Composition[] = [];
 
         for (const tiff of tiffs) {
             const tileOverlays = this.getTiles(tiff, x, y, zoom);
-            if (tileOverlays == null) {
-                continue;
-            }
-            layers = layers.concat(tileOverlays);
-        }
+            if (tileOverlays == null) continue;
 
-        if (layers.length === 0) {
-            return null;
+            layers = layers.concat(tileOverlays);
         }
 
         return layers;
