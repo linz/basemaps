@@ -21,9 +21,6 @@ import { TileSets } from '../tile.set.cache';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
-if (Env.get(Env.CogBucket, undefined) == null) {
-    process.env[Env.CogBucket] = '';
-}
 
 if (process.stdout.isTTY) {
     LogConfig.setOutputStream(PrettyTransform.stream());

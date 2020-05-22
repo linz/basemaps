@@ -32,7 +32,7 @@ o.spec('action.cog', () => {
             source: {
                 resolution: 13,
             },
-            output: {},
+            output: { path: 's3://test-bucket' },
             quadkeys: ['311333222331', '311333223200', '311333223202', '3113332223131'],
         } as CogJob;
 
@@ -47,6 +47,7 @@ o.spec('action.cog', () => {
                 name: '2019-new-zealand-sentinel',
                 createdAt: mockNow,
                 updatedAt: mockNow,
+                uri: 's3://test-bucket/3857/2019-new-zealand-sentinel/abc123',
                 projection: 3857,
                 year: 2019,
                 resolution: -1,
