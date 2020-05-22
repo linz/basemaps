@@ -96,9 +96,8 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     // Generate a unique hash given the full URI, the layers used and a renderId
     const cacheKey = createHash('sha256').update(JSON.stringify({ xyzData, layers, RenderId })).digest('base64');
 
-    if (layers == null) {
-        return emptyPng(req, cacheKey);
-    }
+    // TODO this should really return a webp, png or jpeg depending on request
+    if (layers == null) return emptyPng(req, cacheKey);
 
     req.set('layers', layers.length);
 
@@ -107,7 +106,8 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
 
     if (!Env.isProduction()) {
         for (const layer of layers) {
-            req.log.debug({ layerId: layer.id, layerSource: layer.source }, 'Compose');
+            const layerId = layer.tiff.source.name;
+            req.log.debug({ layerId, layerSource: layer.source }, 'Compose');
         }
     }
 

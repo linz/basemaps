@@ -69,9 +69,7 @@ export class Tiler {
         /** Raster pixels that need to be filled by this tiff */
         const intersectionPx = tiffBoundsPx.intersection(screenBoundsPx);
         // No intersection
-        if (intersectionPx == null) {
-            return null;
-        }
+        if (intersectionPx == null) return null;
         return { tiff: tiffBoundsPx, intersection: intersectionPx, tile: screenBoundsPx };
     }
 
@@ -94,9 +92,7 @@ export class Tiler {
 
         // Validate that the requested COG tile actually intersects with the output raster
         const tileIntersection = target.intersection(raster.tile);
-        if (tileIntersection == null) {
-            return null;
-        }
+        if (tileIntersection == null) return null;
 
         // If the output tile bounds are less than a pixel there is not much point rendering them
         const tileBounds = tileIntersection.subtract(target);
@@ -106,13 +102,8 @@ export class Tiler {
 
         const drawAtRegion = target.subtract(raster.tile);
         const composition: Composition = {
-            id: img.tif.source.name,
+            tiff: img.tif,
             source: { x, y, imageId: img.id },
-            getBuffer: async (): Promise<Buffer | null> => {
-                const tile = await img.getTile(x, y);
-                if (tile == null) return null;
-                return Buffer.from(tile.bytes);
-            },
             y: Math.max(0, Math.round(drawAtRegion.y)),
             x: Math.max(0, Math.round(drawAtRegion.x)),
         };
@@ -145,9 +136,8 @@ export class Tiler {
 
     protected getTiles(tiff: CogTiff, x: number, y: number, z: number): Composition[] | null {
         const rasterBounds = this.getRasterTiffIntersection(tiff, x, y, z);
-        if (rasterBounds == null) {
-            return null;
-        }
+        if (rasterBounds == null) return null;
+
         // Find the best internal overview tiff to use with the desired XYZ resolution
         const targetResolution = this.projection.getResolution(z);
         const img = tiff.getImageByResolution(targetResolution);
@@ -176,9 +166,7 @@ export class Tiler {
             }
         }
 
-        if (composites.length === 0) {
-            return null;
-        }
+        if (composites.length === 0) return null;
         return composites;
     }
 }

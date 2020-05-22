@@ -1,5 +1,6 @@
 import { BoundingBox, Size } from '@basemaps/geo';
 import { Metrics } from '@basemaps/metrics';
+import { CogTiff } from '@cogeotiff/core';
 
 export interface TileMaker {
     compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics }>;
@@ -13,7 +14,7 @@ export interface TileMakerContext {
 
 export interface Composition {
     /** Tiff Id */
-    id: string;
+    tiff: CogTiff;
     /** Source tile used */
     source: {
         x: number;
@@ -21,14 +22,12 @@ export interface Composition {
         /** Internal tiff image used */
         imageId: number;
     };
-    /** Image buffer */
-    getBuffer: () => Promise<Buffer | null>;
     /** Point to draw the image at on the output bounds */
     x: number;
     y: number;
     /** Crop the initial bounds */
     extract?: Size;
-    /** Resize the buffer */
+    /** Resize the image */
     resize?: Size;
     /** Crop after the resize */
     crop?: BoundingBox;

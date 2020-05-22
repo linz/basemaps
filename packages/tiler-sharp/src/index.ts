@@ -1,23 +1,6 @@
-import { BoundingBox, Size } from '@basemaps/geo';
 import * as Sharp from 'sharp';
-import { TileMaker, ImageFormat, TileMakerContext } from '@basemaps/tiler';
+import { TileMaker, ImageFormat, TileMakerContext, Composition } from '@basemaps/tiler';
 import { Metrics } from '@basemaps/metrics';
-
-export interface Composition {
-    /** Tiff Id */
-    id: string;
-    /** Image buffer */
-    getBuffer: () => Promise<Buffer | null>;
-    /** Point to draw the image at on the output bounds */
-    x: number;
-    y: number;
-    /** Crop the initial bounds */
-    extract?: Size;
-    /** Resize the buffer */
-    resize?: Size;
-    /** Crop after the resize */
-    crop?: BoundingBox;
-}
 
 function notEmpty<T>(value: T | null | undefined): value is T {
     return value != null;
@@ -85,9 +68,10 @@ export class TileMakerSharp implements TileMaker {
     }
 
     private async composeTile(composition: Composition): Promise<SharpOverlay | null> {
-        const bytes = await composition.getBuffer();
-        if (bytes == null) return null;
-        const sharp = Sharp(Buffer.from(bytes));
+        const source = composition.source;
+        const tile = await composition.tiff.getTile(source.x, source.y, source.imageId);
+        if (tile == null) return null;
+        const sharp = Sharp(Buffer.from(tile.bytes));
 
         // The stats function takes too long to run, its faster to just compose all the tiles anyway.
         // const stats = await sharp.stats();
