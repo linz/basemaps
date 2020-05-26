@@ -1,4 +1,6 @@
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+
 import { ImageFormat, Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -8,18 +10,19 @@ import * as path from 'path';
 import { PNG } from 'pngjs';
 import { TileMakerSharp } from '..';
 import PixelMatch = require('pixelmatch');
+import { Epsg, EpsgCode, QuadKey } from '@basemaps/geo';
 // To regenerate all the oed images set this to true and run the tests
-const WRITE_IMAGES = false;
+const WRITE_IMAGES = true;
 
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
 
 const TestDataPath = path.join(__dirname, '../../../../test-data');
 
-function getExpectedTileName(tileSize: number, x: number, y: number, zoom: number): string {
-    return path.join(TestDataPath, `/expected/tile_${tileSize}_${x}_${y}_z${zoom}.png`);
+function getExpectedTileName(projection: Epsg, tileSize: number, qk: string): string {
+    return path.join(TestDataPath, `/expected/tile_${projection.code}_${tileSize}x${tileSize}_${qk}.png`);
 }
-function getExpectedTile(tileSize: number, x: number, y: number, zoom: number): PNG {
-    const fileName = getExpectedTileName(tileSize, x, y, zoom);
+function getExpectedTile(projection: Epsg, tileSize: number, qk: string): PNG {
+    const fileName = getExpectedTileName(projection, tileSize, qk);
     const bytes = readFileSync(fileName);
     return PNG.sync.read(bytes);
 }
@@ -32,11 +35,17 @@ o.spec('TileCreation', () => {
 
     const sourceGoogle = new CogSourceFile(TiffGoogle);
     const sourceNztm2000 = new CogSourceFile(TiffNztm2000);
-    const tiff: CogTiff = new CogTiff(sourceGoogle);
 
-    o.beforeEach(async () => {
-        await tiff.init();
-    });
+    function getTestingTiff(proj: Epsg): Promise<CogTiff> {
+        switch (proj.code) {
+            case EpsgCode.Nztm2000:
+                return new CogTiff(sourceNztm2000).init();
+            case EpsgCode.Google:
+                return new CogTiff(sourceGoogle).init();
+            default:
+                throw new Error('Invalid projection');
+        }
+    }
 
     o.after(async () => {
         await sourceGoogle.close();
@@ -45,6 +54,7 @@ o.spec('TileCreation', () => {
 
     o('should generate a tile', async () => {
         const tiler = new Tiler(GoogleTms);
+        const tiff = await getTestingTiff(Epsg.Google);
 
         const layer0 = await tiler.tile([tiff], 0, 0, 0);
         // There are 16 tiles in this tiff, all should be used
@@ -84,11 +94,16 @@ o.spec('TileCreation', () => {
         }
     });
 
-    let RenderTests = [
-        { tileSize: 256, zoom: 0 },
-        { tileSize: 256, zoom: 1 },
-        { tileSize: 256, zoom: 2 },
-        { tileSize: 256, zoom: 3 },
+    const RenderTests = [
+        { tileSize: 256, qk: '0' },
+        { tileSize: 256, qk: '1' },
+        { tileSize: 256, qk: '2' },
+        { tileSize: 256, qk: '3' },
+        { tileSize: 256, qk: '30' },
+        { tileSize: 256, qk: '300' },
+        { tileSize: 256, qk: '301' },
+        { tileSize: 256, qk: '302' },
+        { tileSize: 256, qk: '303' },
 
         // FIXME
         // { tileSize: 512, zoom: 19 },
@@ -96,44 +111,48 @@ o.spec('TileCreation', () => {
         // { tileSize: 2048, zoom: 19 },
         // { tileSize: 4096, zoom: 19 },
     ];
+    const Projections = [
+        { tms: GoogleTms, source: sourceGoogle },
+        // { tms: Nztm2000Tms, source: sourceNztm2000 },
+    ];
 
-    // No need to run larger tile tests locally
-    if (!process.env.GITHUB_ACTIONS) {
-        RenderTests = RenderTests.slice(0, 4);
-    }
+    Projections.forEach(({ tms, source }) => {
+        RenderTests.forEach(({ tileSize, qk }) => {
+            o(`should render a tile ${qk} tile: ${tileSize} projection: ${tms.projection}`, async () => {
+                const projection = tms.projection;
+                o.timeout(30 * 1000);
+                const tiff = new CogTiff(source);
+                await tiff.init();
 
-    RenderTests.forEach(({ tileSize, zoom }) => {
-        o(`should render a tile zoom:${zoom} tile: ${tileSize}`, async () => {
-            o.timeout(30 * 1000);
+                const timeStr = `RenderTests: ${qk} Size ${tileSize}, Projection: ${tms.projection} time`;
+                console.time(timeStr);
 
-            const timeStr = `RenderTests: zoom ${zoom}, Size ${tileSize}, time`;
-            console.time(timeStr);
-            const center = 2 ** zoom;
-            const centerTile = Math.floor(center / 2);
-            const tiler = new Tiler(GoogleTms);
+                const tile = QuadKey.toTile(qk);
+                const tiler = new Tiler(tms);
 
-            const tileMaker = new TileMakerSharp(tileSize);
+                const tileMaker = new TileMakerSharp(tileSize);
 
-            const layers = await tiler.tile([tiff], centerTile, centerTile, zoom);
+                const layers = await tiler.tile([tiff], tile.x, tile.y, tile.z);
 
-            const png = await tileMaker.compose({ layers, format: ImageFormat.PNG, background });
-            const newImage = PNG.sync.read(png.buffer);
-            if (WRITE_IMAGES) {
-                const fileName = getExpectedTileName(tileSize, centerTile, centerTile, zoom);
-                writeFileSync(fileName, png.buffer);
-            }
+                const png = await tileMaker.compose({ layers, format: ImageFormat.PNG, background });
+                const newImage = PNG.sync.read(png.buffer);
+                if (WRITE_IMAGES) {
+                    const fileName = getExpectedTileName(projection, tileSize, qk);
+                    writeFileSync(fileName, png.buffer);
+                }
 
-            const oedImage = await getExpectedTile(tileSize, centerTile, centerTile, zoom);
+                const oedImage = await getExpectedTile(projection, tileSize, qk);
 
-            const missMatchedPixels = PixelMatch(oedImage.data, newImage.data, null, tileSize, tileSize);
-            if (missMatchedPixels > 0) {
-                const fileName = getExpectedTileName(tileSize, centerTile, centerTile, zoom) + '.diff.png';
-                const output = new PNG({ width: tileSize, height: tileSize });
-                PixelMatch(oedImage.data, newImage.data, output.data, tileSize, tileSize);
-                writeFileSync(fileName, PNG.sync.write(output));
-            }
-            o(missMatchedPixels).equals(0);
-            console.timeEnd(timeStr);
+                const missMatchedPixels = PixelMatch(oedImage.data, newImage.data, null, tileSize, tileSize);
+                if (missMatchedPixels > 0) {
+                    const fileName = getExpectedTileName(projection, tileSize, qk) + '.diff.png';
+                    const output = new PNG({ width: tileSize, height: tileSize });
+                    PixelMatch(oedImage.data, newImage.data, output.data, tileSize, tileSize);
+                    writeFileSync(fileName, PNG.sync.write(output));
+                }
+                o(missMatchedPixels).equals(0);
+                console.timeEnd(timeStr);
+            });
         });
     });
 });
