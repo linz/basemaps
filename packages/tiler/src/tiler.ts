@@ -63,6 +63,8 @@ export class Tiler {
 
         /** Raster pixels that need to be filled by this tiff */
         const intersectionPx = tiffBoundsPx.intersection(screenBoundsPx);
+        console.log('getRasterTiffIntersection', { tiffBoundsPx, screenBoundsPx, intersectionPx, bbox });
+
         // No intersection
         if (intersectionPx == null) return null;
         return { tiff: tiffBoundsPx, intersection: intersectionPx, tile: screenBoundsPx };
@@ -131,6 +133,8 @@ export class Tiler {
 
     protected getTiles(tiff: CogTiff, x: number, y: number, z: number): Composition[] | null {
         const rasterBounds = this.getRasterTiffIntersection(tiff, x, y, z);
+        console.log('getTiles', { x, y, z }, { rasterBounds });
+
         if (rasterBounds == null) return null;
 
         // Find the best internal overview tiff to use with the desired XYZ resolution

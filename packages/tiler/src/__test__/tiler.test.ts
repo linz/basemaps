@@ -3,8 +3,23 @@ import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { BoundingBox } from '@cogeotiff/core/build/vector';
 import * as o from 'ospec';
 import { Tiler } from '../tiler';
+import * as path from 'path';
+import { CogSourceFile } from '@cogeotiff/source-file';
+
+const TestData = path.join(__dirname, '../../../../test-data');
 
 o.spec('tiler.test', () => {
+    o.spec('getRasterTiffIntersection', () => {
+        o.only('should intersect google', async () => {
+            const tiff = await CogSourceFile.create(path.join(TestData, 'rgba8.google.tiff'));
+            const tiler = new Tiler(GoogleTms);
+            const targetZoom = 16;
+            const targetTile = 2 ** 16 / 2;
+            tiler.getRasterTiffIntersection(tiff, targetTile, targetTile, targetZoom);
+        });
+
+        o('should intersect nztm', () => {});
+    });
     o('createComposition should handle non square images', () => {
         const tiler = new Tiler(GoogleTms);
 

@@ -8,7 +8,7 @@ import {
     LogConfig,
     LogType,
 } from '@basemaps/lambda-shared';
-import { CogSource, CogTiff, TiffTagGeo } from '@cogeotiff/core';
+import { CogSource, CogTiff, TiffTagGeo, Log } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import * as express from 'express';
@@ -18,58 +18,12 @@ import * as ulid from 'ulid';
 import * as lambda from '../index';
 import { TileSet } from '../tile.set';
 import { TileSets } from '../tile.set.cache';
+import { TileSetLocal } from './tile.set.local';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
-
-function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
-    if (fs instanceof FileOperatorS3) {
-        return tiffList.map((path) => {
-            const { bucket, key } = FileOperatorS3.parse(path);
-            // Use the same s3 credentials to access the files that were used to list them
-            return new CogSourceAwsS3(bucket, key, fs.s3);
-        });
-    }
-    return tiffList.map((path) => new CogSourceFile(path));
-}
-
-export class TileSetLocal extends TileSet {
-    tiffs: CogTiff[];
-    filePath: string;
-
-    constructor(name: string, projection: Epsg, path: string) {
-        super(name, projection);
-        this.filePath = path;
-    }
-
-    async load(): Promise<boolean> {
-        if (this.tiffs != null) return true;
-        const tiffFs = FileOperator.create(this.filePath);
-
-        const fileList = await tiffFs.list(this.filePath);
-        const files = fileList.filter((f) => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'));
-        if (files.length == 0) throw new Error(`No tiff files found in ${this.filePath}`);
-
-        this.tiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
-
-        // Read in the projection information
-        const [firstTiff] = this.tiffs;
-        await firstTiff.init(true);
-        const projection = firstTiff.getImage(0).valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
-        this.projection = Epsg.get(projection);
-        LogConfig.get().info(
-            { path: this.filePath, count: this.tiffs.length, projection: this.projection },
-            'LoadedTiffs',
-        );
-        return true;
-    }
-
-    async getTiffsForQuadKey(): Promise<CogTiff[]> {
-        return this.tiffs;
-    }
-}
 
 async function handleRequest(
     ctx: LambdaContext,

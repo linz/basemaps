@@ -76,8 +76,8 @@ function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpRespo
 }
 
 export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
-    const tiler = Tilers.get(Epsg.Google);
-    if (tiler == null) return new LambdaHttpResponse(404, 'Not Found');
+    const tiler = Tilers.get(xyzData.projection);
+    if (tiler == null) return new LambdaHttpResponse(404, `Projection: ${xyzData.projection} Not Found`);
 
     const { x, y, z, ext } = xyzData;
 
@@ -89,16 +89,13 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     req.set('quadKey', qk);
 
     const tileSet = await loadTileSet(req, xyzData.name, xyzData.projection);
-    if (tileSet == null) return new LambdaHttpResponse(404, 'Not Found');
+    if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset Not Found');
 
     const tiffs = await initTiffs(tileSet, qk, z, req.log);
     const layers = await tiler.tile(tiffs, x, y, z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId
     const cacheKey = TileEtag.generate(layers, xyzData);
-
-    // TODO this should really return a webp, png or jpeg depending on request
-    if (layers.length == 0) return emptyPng(req, cacheKey);
 
     req.set('layers', layers.length);
 
@@ -130,6 +127,7 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
     response.buffer(res.buffer, 'image/' + ext);
+    response.header('Content-Disposition', `inline; filename='${tileSet.id}-${x}_${y}_z${z}.${ext}'`);
     return response;
 }
 
@@ -167,6 +165,6 @@ export async function TileOrWmts(req: LambdaContext): Promise<LambdaHttpResponse
     if (xyzData.type === TileType.WMTS) {
         return Wmts(req, xyzData);
     } else {
-        return await Tile(req, xyzData);
+        return Tile(req, xyzData);
     }
 }

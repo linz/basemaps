@@ -3,13 +3,11 @@ import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Tiler } from '@basemaps/tiler';
 
+export const DefaultTilers = [new Tiler(GoogleTms), new Tiler(Nztm2000Tms)];
 /** *
  * This class is to cache the creation of the tilers, while also providing access
  * so that they can be mocked during tests.
  */
-
-export const BaseTilers = [new Tiler(GoogleTms), new Tiler(Nztm2000Tms)];
-
 export const Tilers = {
     map: new Map<EpsgCode, Tiler>(),
     /** Lookup a tiler by EPSG Code */
@@ -24,6 +22,8 @@ export const Tilers = {
     /** Reset the tiler cache */
     reset(): void {
         Tilers.map.clear();
-        BaseTilers.forEach((t) => Tilers.add(t));
+        DefaultTilers.forEach((t) => Tilers.add(t));
     },
 };
+
+Tilers.reset();
