@@ -1,5 +1,3 @@
-import { QuadKey } from './quad.key';
-
 /** Symbol for if the value exists */
 const QkIndexKey = Symbol('QkExists');
 
@@ -8,7 +6,7 @@ function* iterate(node: QuadKeyTrieNode, currentStr = ''): Generator<string, nul
         yield currentStr;
         return null;
     }
-    for (const key of QuadKey.Keys) {
+    for (let key = 0; key < 4; ++key) {
         const newCurrent = node[key];
         if (newCurrent != null) yield* iterate(newCurrent, currentStr + key);
     }
@@ -16,7 +14,7 @@ function* iterate(node: QuadKeyTrieNode, currentStr = ''): Generator<string, nul
 }
 
 function removeChildren(trie: QuadKeyTrie, parent: QuadKeyTrieNode): void {
-    for (const key of QuadKey.Keys) {
+    for (let key = 0; key < 4; ++key) {
         const newCurrent = parent[key];
         if (newCurrent != null) {
             if (newCurrent[QkIndexKey]) --trie.size;
@@ -51,7 +49,7 @@ function mergeQuadKeys(
         coverCount += 1.0;
     } else {
         let childCount = 0;
-        for (const key of QuadKey.Keys) {
+        for (let key = 0; key < 4; ++key) {
             const child = parent[key];
             if (child != null) {
                 ++childCount;
@@ -71,6 +69,139 @@ function mergeQuadKeys(
     return coverCount;
 }
 
+/**
+ * Add a child node to parent at idx
+ */
+function addChild(node: QuadKeyTrieNode, idx: number): QuadKeyTrieNode | null {
+    const child = node[idx];
+    if (child == null) {
+        return (node[idx] = {});
+    }
+    return child[QkIndexKey] ? null : child;
+}
+
+/**
+ * Add and trace path to ancesstors of a row of tiles
+ */
+function addAncestors(
+    node: QuadKeyTrieNode | null,
+    fromX: number,
+    toX = fromX,
+    y: number,
+    z: number,
+): [number, QuadKeyTrieNode | null][] | null {
+    let level = 1 << z; // width in pixels of world at zoom level
+
+    // ensure arguments are within boundry (0 to level -1)
+    if (fromX < 0) fromX = 0;
+    if (fromX >= level) fromX = level - 1;
+    if (toX < 0) toX = 0;
+    if (toX >= level) toX = level - 1;
+    if (y < 0) y = 0;
+    if (y >= level) y = level - 1;
+
+    let hl = 0; // half level
+    let mask = 0;
+    let idx = 0; // quadrant index
+
+    // trace path of parents [visitedIndex, parent]
+    const stack: [number, QuadKeyTrieNode | null][] = [];
+
+    // find fromX node creating parents
+    let common = true;
+    while (true) {
+        hl = level >> 1;
+
+        const left = fromX < hl; // left or right quadrant?
+
+        // calc quadrant index
+        idx = y < hl ? 3 : 1;
+        if (left) idx = idx & 2;
+
+        const child = node && addChild(node, idx);
+        if (child == null) {
+            if (common && left === toX < hl) {
+                return null; // already completely filled
+            }
+        }
+
+        if (hl == 1) break; // at depth of z
+
+        if (left !== toX < hl) common = false; // fromX and toX have diverged
+
+        stack.push([idx, node]); // push path to parent
+
+        // next level down
+        node = child; // might be null if already populated
+        mask = hl - 1;
+        level = hl;
+        y &= mask;
+        fromX &= mask;
+        toX &= mask;
+    }
+
+    stack.push([idx, node]);
+    return stack;
+}
+
+function mergeFull(
+    trie: QuadKeyTrie,
+    node: QuadKeyTrieNode,
+    stack: [number, QuadKeyTrieNode | null][],
+    minSize: number,
+): boolean {
+    const slen = stack.length;
+    let full = false;
+    outer: for (let si = slen - 1; si >= 0; --si) {
+        if (si + 1 < minSize) break;
+        for (let key = 0; key < 4; ++key) {
+            if (node[key] == null || node[key]![QkIndexKey] == null) break outer;
+        }
+        full = true;
+
+        removeChildren(trie, node);
+        node = stack[si][1]!;
+        const cidx = stack[si][0];
+        node[cidx] = { [QkIndexKey]: true };
+        if (si + 1 < slen) stack[si + 1][1] = null;
+        trie.size++;
+    }
+    return full;
+}
+
+function nextNode(stack: [number, QuadKeyTrieNode | null][]): QuadKeyTrieNode | null {
+    /** Next Node on the right **/
+    // Search up through parents updating path
+    const slen = stack.length;
+    let si = slen - 1;
+    for (; si >= 0; --si) {
+        const row = stack[si];
+        if ((row[0] & 1) == 0) {
+            row[0] |= 1; // set idx to right
+            break; // we haven't process this one yet
+        } else {
+            // already processed; row[1] node is no longer needed
+            row[0] &= 2; // reset idx to left
+        }
+    }
+
+    if (si < 0) return null;
+
+    // Add ancestors of child
+    let node = stack[si][1];
+    for (; si < slen; ++si) {
+        const row = stack[si];
+        const idx = row[0];
+        const child = node && addChild(node, idx);
+        if (si < slen) {
+            row[0] = idx;
+            row[1] = node;
+        }
+        node = child;
+    }
+    return node;
+}
+
 interface QuadKeyTrieNode {
     [key: string]: QuadKeyTrieNode | null;
     [QkIndexKey]?: boolean;
@@ -85,8 +216,7 @@ export class QuadKeyTrie {
      * An Iterate-able Trie of quad keys
      */
     constructor() {
-        this.size = 0;
-        this.trie = {};
+        this.clear();
     }
 
     /**
@@ -100,19 +230,22 @@ export class QuadKeyTrie {
         return trie;
     }
 
+    clear(): void {
+        this.size = 0;
+        this.trie = {};
+    }
+
     /**
      * Add a quad key to the index
      * @param quadKey Quadkey to add
      */
     add(quadKey: string): void {
-        let current = this.trie;
+        let current: QuadKeyTrieNode | null = this.trie;
+        if (current[QkIndexKey]) return;
         for (let i = 0; i < quadKey.length; i++) {
             const char = quadKey[i];
-            let existing = current[char];
-            if (existing == null) {
-                current[char] = existing = {};
-            }
-            current = existing;
+            current = addChild(current, parseInt(char));
+            if (current == null) return;
         }
 
         // Already exists ignore
@@ -122,6 +255,55 @@ export class QuadKeyTrie {
         current[QkIndexKey] = true;
 
         removeChildren(this, current);
+    }
+
+    /**
+     * Fill a row of the trie
+
+     * @param fromX the X coord of the tile to start filling from (inclusive)
+     * @param toX the X coord of the tile to end filling on (inclusive)
+     * @param y the Y coord of the row to fill
+     * @param z the depth (zoom level) to fill at
+     * @param minSize merge any filled quadrants but only if result length <= `minSize`
+     */
+    fillRow(fromX: number, toX = fromX, y: number, z: number, minSize = -1): void {
+        if (fromX > toX || z < 1) return; // nothing to fill
+
+        const stack = addAncestors(this.trie, fromX, toX, y, z);
+        if (stack == null) return;
+
+        let [idx, node] = stack.pop()!;
+        const row = idx & 2; // lower or upper row in quadrant
+
+        let diff = toX - fromX; // how many tiles to add
+
+        // Traverse and fill nodes
+        while (diff >= 0) {
+            // Fill 1 or 2 nodes
+            for (let i = (idx & 1) == 1 || diff == 0 ? 0 : 1; i >= 0; --i, ++idx) {
+                --diff;
+                if (node != null) {
+                    const existing = node[idx];
+                    if (existing == null) {
+                        this.size++;
+                        node[idx] = { [QkIndexKey]: true };
+                    } else if (!existing[QkIndexKey]) {
+                        this.size++;
+                        existing[QkIndexKey] = true;
+                        removeChildren(this, existing);
+                    }
+                }
+            }
+
+            // Can we merge a full quadrant?
+            if (node != null && minSize != -1 && minSize < z && mergeFull(this, node, stack, minSize)) {
+                node = null; // node no longer exists;
+            }
+            if (diff < 0) return;
+
+            node = nextNode(stack);
+            idx = row;
+        }
     }
 
     /**

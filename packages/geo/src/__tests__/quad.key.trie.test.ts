@@ -68,6 +68,131 @@ o.spec('QuadKeyTrie', () => {
         o(Array.from(trie1.intersection(trie2))).deepEquals(['2221', '2222', '3111', '3112']);
     });
 
+    o('add', () => {
+        const trie = new QuadKeyTrie();
+
+        trie.add('30');
+        trie.add('31');
+        trie.add('32');
+        trie.add('33');
+        trie.add('33');
+
+        o(Array.from(trie)).deepEquals(['30', '31', '32', '33']);
+    });
+
+    o('fillRow minSize', () => {
+        const trie = new QuadKeyTrie();
+        trie.clear();
+        trie.fillRow(0, 1, 1, 3, 1);
+        trie.add('223');
+        trie.fillRow(0, 3, 0, 3, 1);
+        o(Array.from(trie)).deepEquals(['22', '232', '233']);
+        o(trie.size).equals(3);
+
+        trie.clear();
+        trie.fillRow(0, 1, 1, 2, 1);
+        trie.fillRow(0, 3, 0, 2, 1);
+        o(Array.from(trie)).deepEquals(['2', '32', '33']);
+        o(trie.size).equals(3);
+    });
+
+    o('fillRow', () => {
+        const trie = new QuadKeyTrie();
+        trie.clear();
+        trie.fillRow(0, 8, 0, 3, 3);
+        o(trie.size).equals(8);
+
+        trie.clear();
+        trie.add('23');
+        trie.add('32');
+        trie.fillRow(0, 7, 1, 3);
+        o(Array.from(trie)).deepEquals(['220', '221', '23', '32', '330', '331']);
+        o(trie.size).equals(6);
+
+        trie.clear();
+        trie.add('0032123');
+        trie.fillRow(700, 710, 3208, 12);
+        o(Array.from(trie)).deepEquals([
+            '0032123',
+            '003213220222',
+            '003213220223',
+            '003213220232',
+            '003213220233',
+            '003213220322',
+            '003213220323',
+            '003213220332',
+        ]);
+        o(trie.size).equals(8);
+
+        trie.clear();
+        trie.add('2');
+        trie.fillRow(0, 3, 1, 2);
+        o(Array.from(trie)).deepEquals(['2', '30', '31']);
+        o(trie.size).equals(3);
+
+        trie.clear();
+        trie.fillRow(0, 0, 0, 0);
+        o(trie.size).equals(0);
+
+        trie.fillRow(0, 1, 0, 1);
+        o(Array.from(trie)).deepEquals(['2', '3']);
+
+        trie.clear();
+        trie.fillRow(2, 3, 2, 3);
+        o(Array.from(trie)).deepEquals(['212', '213']);
+
+        trie.clear();
+        trie.fillRow(1032692, 1032693, 393208, 20);
+        o(Array.from(trie)).deepEquals(['31311100000111110322', '31311100000111110323']);
+
+        trie.clear();
+        trie.fillRow(2, 2, 2, 3);
+        o(Array.from(trie)).deepEquals(['212']);
+
+        trie.clear();
+        trie.fillRow(0, 20, 10, 5);
+        o(Array.from(trie)).deepEquals([
+            '20202',
+            '20203',
+            '20212',
+            '20213',
+            '20302',
+            '20303',
+            '20312',
+            '20313',
+            '21202',
+            '21203',
+            '21212',
+            '21213',
+            '21302',
+            '21303',
+            '21312',
+            '21313',
+            '30202',
+            '30203',
+            '30212',
+            '30213',
+            '30302',
+        ]);
+
+        trie.clear();
+        trie.add('0032123');
+        trie.fillRow(700, 702, 3208, 12);
+        o(Array.from(trie)).deepEquals(['0032123']);
+        o(trie.size).equals(1);
+
+        trie.clear();
+        trie.add('2311');
+        trie.fillRow(0, 5, 1, 3);
+        o(Array.from(trie)).deepEquals(['220', '221', '230', '231', '320', '321']);
+        o(trie.size).equals(6);
+
+        trie.clear();
+        trie.add('0032123');
+        trie.fillRow(670, 705, 3208, 12);
+        o(Array.from(trie)).deepEquals(['003212231332', '003212231333', '0032123', '003213220222', '003213220223']);
+    });
+
     o.spec('mergeQuadKeys', () => {
         o('should not simplify if below percent', () => {
             const trie = QuadKeyTrie.fromList(QuadKey.children('3112').slice(1));
