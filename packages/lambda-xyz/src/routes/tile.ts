@@ -23,7 +23,6 @@ import { Tilers } from '../tiler';
 import { buildWmtsCapability } from '../wmts.capability';
 import { TileEtag } from './tile.etag';
 
-
 export const TileComposer = new TileMakerSharp(256);
 /**
  * Serve a empty PNG response
