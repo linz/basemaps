@@ -13,8 +13,10 @@ const WRITE_IMAGES = false;
 
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
 
+const TestDataPath = path.join(__dirname, '../../../../test-data');
+
 function getExpectedTileName(tileSize: number, x: number, y: number, zoom: number): string {
-    return path.join(__dirname, `../../../../test-data/expected/tile_${tileSize}_${x}_${y}_z${zoom}.png`);
+    return path.join(TestDataPath, `/expected/tile_${tileSize}_${x}_${y}_z${zoom}.png`);
 }
 function getExpectedTile(tileSize: number, x: number, y: number, zoom: number): PNG {
     const fileName = getExpectedTileName(tileSize, x, y, zoom);
@@ -24,34 +26,35 @@ function getExpectedTile(tileSize: number, x: number, y: number, zoom: number): 
 
 o.spec('TileCreation', () => {
     // Tiff that is tiled and has WebMercator alignment for its resolution levels
-    const tiffPath = path.join(__dirname, '../../../../test-data/rgba8_tiled.wm.tiff');
-    let tiff: CogTiff;
-    let tiffSource: CogSourceFile;
+    // const tiffPath = path.join(TestDataPath, '../../../../test-data/rgba8_tiled.wm.tiff');
+    const TiffGoogle = path.join(TestDataPath, 'rgba8.google.tiff');
+    const TiffNztm2000 = path.join(TestDataPath, 'rgba.nztm2000.tiff');
+
+    const sourceGoogle = new CogSourceFile(TiffGoogle);
+    const sourceNztm2000 = new CogSourceFile(TiffNztm2000);
+    const tiff: CogTiff = new CogTiff(sourceGoogle);
 
     o.beforeEach(async () => {
-        tiffSource = new CogSourceFile(tiffPath);
-        tiff = new CogTiff(tiffSource);
         await tiff.init();
     });
 
-    o.afterEach(async () => {
-        await tiffSource.close();
+    o.after(async () => {
+        await sourceGoogle.close();
+        await sourceNztm2000.close();
     });
 
     o('should generate a tile', async () => {
         const tiler = new Tiler(GoogleTms);
 
         const layer0 = await tiler.tile([tiff], 0, 0, 0);
-        o(layer0.length).equals(0);
+        // There are 16 tiles in this tiff, all should be used
+        o(layer0.length).equals(16);
 
-        const targetZoom = 12;
-        const layers = await tiler.tile([tiff], 2 ** targetZoom / 2, 2 ** targetZoom / 2, targetZoom);
-
-        o(layers.length).equals(1);
-        const [layer] = layers;
-        o(layer.tiff.source.name).equals(tiff.source.name);
-        o(layer.extract).deepEquals({ height: 16, width: 16 });
-        o(layer.resize).deepEquals({ height: 2, width: 2 });
+        const topLeft = layer0.find((f) => f.source.x == 0 && f.source.y == 0);
+        o(topLeft?.tiff.source.name).equals(tiff.source.name);
+        o(topLeft?.resize).deepEquals({ width: 32, height: 32 });
+        o(topLeft?.x).equals(64);
+        o(topLeft?.y).equals(64);
     });
 
     o('should generate webp', async () => {
@@ -82,8 +85,11 @@ o.spec('TileCreation', () => {
     });
 
     let RenderTests = [
-        { tileSize: 256, zoom: 18 },
-        { tileSize: 256, zoom: 19 },
+        { tileSize: 256, zoom: 0 },
+        { tileSize: 256, zoom: 1 },
+        { tileSize: 256, zoom: 2 },
+        { tileSize: 256, zoom: 3 },
+
         // FIXME
         // { tileSize: 512, zoom: 19 },
         // { tileSize: 1024, zoom: 19 },
@@ -93,7 +99,7 @@ o.spec('TileCreation', () => {
 
     // No need to run larger tile tests locally
     if (!process.env.GITHUB_ACTIONS) {
-        RenderTests = RenderTests.slice(0, 2);
+        RenderTests = RenderTests.slice(0, 4);
     }
 
     RenderTests.forEach(({ tileSize, zoom }) => {
@@ -103,7 +109,7 @@ o.spec('TileCreation', () => {
             const timeStr = `RenderTests: zoom ${zoom}, Size ${tileSize}, time`;
             console.time(timeStr);
             const center = 2 ** zoom;
-            const centerTile = center / 2;
+            const centerTile = Math.floor(center / 2);
             const tiler = new Tiler(GoogleTms);
 
             const tileMaker = new TileMakerSharp(tileSize);
@@ -114,7 +120,7 @@ o.spec('TileCreation', () => {
             const newImage = PNG.sync.read(png.buffer);
             if (WRITE_IMAGES) {
                 const fileName = getExpectedTileName(tileSize, centerTile, centerTile, zoom);
-                writeFileSync(fileName, png);
+                writeFileSync(fileName, png.buffer);
             }
 
             const oedImage = await getExpectedTile(tileSize, centerTile, centerTile, zoom);
