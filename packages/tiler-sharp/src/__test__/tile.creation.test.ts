@@ -1,22 +1,16 @@
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
-
+import { Epsg, QuadKey } from '@basemaps/geo';
 import { ImageFormat, Tiler } from '@basemaps/tiler';
-import { CogTiff } from '@cogeotiff/core';
-import { CogSourceFile } from '@cogeotiff/source-file';
 import { readFileSync, writeFileSync } from 'fs';
 import * as o from 'ospec';
 import * as path from 'path';
 import { PNG } from 'pngjs';
 import { TileMakerSharp } from '..';
+import { getTestingTiff, TestDataPath, getTms } from '@basemaps/geo/build/__tests__/test.tiff';
 import PixelMatch = require('pixelmatch');
-import { Epsg, EpsgCode, QuadKey } from '@basemaps/geo';
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = true;
 
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
-
-const TestDataPath = path.join(__dirname, '../../../../test-data');
 
 function getExpectedTileName(projection: Epsg, tileSize: number, qk: string): string {
     return path.join(TestDataPath, `/expected/tile_${projection.code}_${tileSize}x${tileSize}_${qk}.png`);
@@ -28,33 +22,9 @@ function getExpectedTile(projection: Epsg, tileSize: number, qk: string): PNG {
 }
 
 o.spec('TileCreation', () => {
-    // Tiff that is tiled and has WebMercator alignment for its resolution levels
-    // const tiffPath = path.join(TestDataPath, '../../../../test-data/rgba8_tiled.wm.tiff');
-    const TiffGoogle = path.join(TestDataPath, 'rgba8.google.tiff');
-    const TiffNztm2000 = path.join(TestDataPath, 'rgba.nztm2000.tiff');
-
-    const sourceGoogle = new CogSourceFile(TiffGoogle);
-    const sourceNztm2000 = new CogSourceFile(TiffNztm2000);
-
-    function getTestingTiff(proj: Epsg): Promise<CogTiff> {
-        switch (proj.code) {
-            case EpsgCode.Nztm2000:
-                return new CogTiff(sourceNztm2000).init();
-            case EpsgCode.Google:
-                return new CogTiff(sourceGoogle).init();
-            default:
-                throw new Error('Invalid projection');
-        }
-    }
-
-    o.after(async () => {
-        await sourceGoogle.close();
-        await sourceNztm2000.close();
-    });
-
     o('should generate a tile', async () => {
-        const tiler = new Tiler(GoogleTms);
         const tiff = await getTestingTiff(Epsg.Google);
+        const tiler = new Tiler(getTms(Epsg.Google));
 
         const layer0 = await tiler.tile([tiff], 0, 0, 0);
         // There are 16 tiles in this tiff, all should be used
@@ -112,23 +82,21 @@ o.spec('TileCreation', () => {
         // { tileSize: 4096, zoom: 19 },
     ];
     const Projections = [
-        { tms: GoogleTms, source: sourceGoogle },
-        // { tms: Nztm2000Tms, source: sourceNztm2000 },
+        Epsg.Google,
+        // Epsg.Nztm2000
     ];
 
-    Projections.forEach(({ tms, source }) => {
+    Projections.forEach((projection) => {
         RenderTests.forEach(({ tileSize, qk }) => {
-            o(`should render a tile ${qk} tile: ${tileSize} projection: ${tms.projection}`, async () => {
-                const projection = tms.projection;
+            o(`should render a tile ${qk} tile: ${tileSize} projection: ${projection}`, async () => {
                 o.timeout(30 * 1000);
-                const tiff = new CogTiff(source);
-                await tiff.init();
 
-                const timeStr = `RenderTests: ${qk} Size ${tileSize}, Projection: ${tms.projection} time`;
+                const timeStr = `RenderTests: ${qk} Size ${tileSize}, Projection: ${projection} time`;
                 console.time(timeStr);
 
                 const tile = QuadKey.toTile(qk);
-                const tiler = new Tiler(tms);
+                const tiff = await getTestingTiff(projection);
+                const tiler = new Tiler(getTms(projection));
 
                 const tileMaker = new TileMakerSharp(tileSize);
 

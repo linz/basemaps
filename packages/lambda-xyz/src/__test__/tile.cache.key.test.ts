@@ -1,26 +1,13 @@
-import { TileEtag } from '../routes/tile.etag';
-import * as o from 'ospec';
-import { CogTiff } from '@cogeotiff/core';
-import { CogSourceFile } from '@cogeotiff/source-file';
-import { Composition, ImageFormat } from '@basemaps/tiler';
-import { TileType, TileDataXyz } from '@basemaps/lambda-shared';
-import * as path from 'path';
 import { Epsg } from '@basemaps/geo';
+import { getTestingTiff } from '@basemaps/geo/build/__tests__/test.tiff';
+import { TileDataXyz, TileType } from '@basemaps/lambda-shared';
+import { Composition, ImageFormat } from '@basemaps/tiler';
+import * as o from 'ospec';
+import { TileEtag } from '../routes/tile.etag';
 
 o.spec('TileCacheKey', () => {
     const oldRenderId = TileEtag.RenderId;
-    const tiffPath = path.join(__dirname, '../../../../test-data/rgba8_tiled.wm.tiff');
-    const tiff = new CogTiff(new CogSourceFile(tiffPath));
-    const comp: Composition = {
-        tiff,
-        source: {
-            x: 0,
-            y: 0,
-            imageId: 0,
-        },
-        x: 5,
-        y: 5,
-    };
+
     const xyzData: TileDataXyz = {
         x: 0,
         y: 0,
@@ -36,9 +23,19 @@ o.spec('TileCacheKey', () => {
     });
 
     o('should generate a cachekey', async () => {
-        await tiff.init();
+        const tiff = await getTestingTiff(Epsg.Google);
+        const comp: Composition = {
+            tiff,
+            source: {
+                x: 0,
+                y: 0,
+                imageId: 0,
+            },
+            x: 5,
+            y: 5,
+        };
         const firstKey = TileEtag.generate([comp], xyzData);
-        o(firstKey).equals('x7KKkey4OM44DM57j7dAhrakQQEqQkCPJFzb7yJMYNU=');
+        o(firstKey).equals('Dq7/fLeUBmd4Ga6W5DlkD95ZsgmkYAyDtMJi/PM/BVg=');
         // Different layers should generate different keys
         o(TileEtag.generate([comp, comp], xyzData)).notEquals(firstKey);
 

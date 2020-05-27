@@ -1,22 +1,10 @@
 import { Epsg } from '@basemaps/geo';
-import {
-    Env,
-    FileOperator,
-    FileOperatorS3,
-    FileProcessor,
-    LambdaContext,
-    LogConfig,
-    LogType,
-} from '@basemaps/lambda-shared';
-import { CogSource, CogTiff, TiffTagGeo, Log } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-import { CogSourceFile } from '@cogeotiff/source-file';
+import { Env, LambdaContext, LogConfig, LogType } from '@basemaps/lambda-shared';
 import * as express from 'express';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import * as ulid from 'ulid';
 import * as lambda from '../index';
-import { TileSet } from '../tile.set';
 import { TileSets } from '../tile.set.cache';
 import { TileSetLocal } from './tile.set.local';
 

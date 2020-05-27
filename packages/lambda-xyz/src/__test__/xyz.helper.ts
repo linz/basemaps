@@ -15,11 +15,8 @@ export function mockRequest(path: string, method = 'get', headers = {}): LambdaC
     );
 }
 
-export function addTitleAndDesc(tileSet: TileSet, title = 'The Title', description = 'The Description'): void {
-    (tileSet as any).tileSet = {
-        title,
-        description,
-    };
+export class FakeTileSet extends TileSet {
+    protected tileSet = { title: 'The Title', description: 'The Description' } as any;
 }
 
 export const Provider: TileMetadataProviderRecord = {

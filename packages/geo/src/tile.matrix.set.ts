@@ -66,7 +66,7 @@ export class TileMatrixSet {
     public sourceToPixels(sX: number, sY: number, zoom: number): Point {
         const z = this.zooms[zoom];
         const scale = this.pixelScale(zoom);
-        const pX = (sX - z.topLeftCorner[0]) / scale;
+        const pX = (sX + z.topLeftCorner[0]) / scale;
         const pY = (sY + z.topLeftCorner[1]) / scale;
         return { x: pX, y: pY };
     }
@@ -80,7 +80,7 @@ export class TileMatrixSet {
     public pixelsToSource(pX: number, pY: number, zoom: number): Point {
         const z = this.zooms[zoom];
         const scale = this.pixelScale(zoom);
-        const sX = pX * scale + z.topLeftCorner[0];
+        const sX = pX * scale - z.topLeftCorner[0];
         const sY = pY * scale - z.topLeftCorner[1];
         return { x: sX, y: sY };
     }

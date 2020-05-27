@@ -1,15 +1,14 @@
 import { Epsg } from '@basemaps/geo';
-import { Env, LogConfig, VNodeParser, TileMetadataProviderRecord, Aws } from '@basemaps/lambda-shared';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
 import * as o from 'ospec';
 import { handleRequest } from '../index';
-import { TileSet } from '../tile.set';
+import { TileComposer } from '../routes/tile';
+import { TileEtag } from '../routes/tile.etag';
 import { TileSets } from '../tile.set.cache';
 import { Tilers } from '../tiler';
-import { mockRequest, addTitleAndDesc, Provider } from './xyz.testhelper';
-import { TileEtag } from '../routes/tile.etag';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { TileComposer } from '../routes/tile';
+import { FakeTileSet, mockRequest, Provider } from './xyz.helper';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -42,7 +41,7 @@ o.spec('LambdaXyz', () => {
         TileComposer.compose = rasterMock as any;
 
         for (const tileSetName of TileSetNames) {
-            const tileSet = new TileSet(tileSetName, Epsg.Google);
+            const tileSet = new FakeTileSet(tileSetName, Epsg.Google);
             TileSets.set(tileSet.id, tileSet);
             tileSet.load = () => Promise.resolve(true);
             tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
@@ -117,18 +116,19 @@ o.spec('LambdaXyz', () => {
         // o(request.logContext['location']).deepEquals({ lat: 0, lon: 0 });
     });
 
-    o('should 200 with empty png if a tile is out of bounds', async () => {
-        tiler.tile = async () => [];
-        const res = await handleRequest(mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png'));
-        o(res.status).equals(200);
-        o(rasterMock.calls.length).equals(0);
+    ['png', 'webp', 'jpeg'].forEach((fmt) => {
+        o(`should 200 with empty ${fmt} if a tile is out of bounds`, async () => {
+            tiler.tile = async () => [];
+            const res = await handleRequest(mockRequest(`/v1/tiles/aerial/global-mercator/0/0/0.${fmt}`));
+            o(res.status).equals(200);
+            o(res.header('content-type')).equals(`image/${fmt}`);
+            o(rasterMock.calls.length).equals(1);
+        });
     });
 
     o('should 304 if a tile is not modified', async () => {
         const key = 'foo';
-        const request = mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', {
-            'if-none-match': key,
-        });
+        const request = mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', { 'if-none-match': key });
         const res = await handleRequest(request);
         o(res.status).equals(304);
         o(res.header('eTaG')).equals(undefined);
@@ -146,11 +146,8 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = '6khTqeXAtOeIWimmzLQcviPhVYNKMjHzYCuLt3R5WE8=';
-            const request = mockRequest('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
-                'if-none-match': key,
-            });
-            addTitleAndDesc(TileSets.get('aerial_3857')!);
+            const key = 'Ek2rTO21BbnYhJ8Sz3JFC5YjwcX8Fh01ybKHYuJc+ig=';
+            const request = mockRequest('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
 
             const res = await handleRequest(request);
             if (res.status == 200) o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
@@ -166,8 +163,6 @@ o.spec('LambdaXyz', () => {
             const request = mockRequest('/v1/tiles/aerial@beta/WMTSCapabilities.xml');
             request.apiKey = 'secretKey';
 
-            addTitleAndDesc(TileSets.get('aerial@beta_3857')!);
-
             const res = await handleRequest(request);
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
@@ -180,8 +175,8 @@ o.spec('LambdaXyz', () => {
             );
 
             const vdom = await VNodeParser.parse(body);
-            const url = vdom.tags('ResourceURL').next().value!;
-            o(url.toString()).equals(
+            const url = vdom.tags('ResourceURL').next().value;
+            o(url?.toString()).equals(
                 '<ResourceURL format="image/png" resourceType="tile" ' +
                     'template="https://tiles.test/v1/tiles/aerial@beta/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secretKey" />',
             );

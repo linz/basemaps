@@ -57,13 +57,15 @@ export class Tiler {
 
         /** Raster pixels of the input geotiff */
         const bbox = tiff.images[0].bbox;
-        const ul = this.tms.sourceToPixels(bbox[0], -bbox[3], zoom);
-        const lr = this.tms.sourceToPixels(bbox[2], -bbox[1], zoom);
+        const ul = this.tms.sourceToPixels(bbox[0], bbox[3], zoom);
+        const lr = this.tms.sourceToPixels(bbox[2], bbox[1], zoom);
         const tiffBoundsPx = Bounds.fromUpperLeftLowerRight(ul, lr);
+
+        console.log({ proj: this.tms.projection.code, bbox, tiffBoundsPx });
 
         /** Raster pixels that need to be filled by this tiff */
         const intersectionPx = tiffBoundsPx.intersection(screenBoundsPx);
-        console.log('getRasterTiffIntersection', { tiffBoundsPx, screenBoundsPx, intersectionPx, bbox });
+        // console.log('getRasterTiffIntersection', { tiffBoundsPx, screenBoundsPx, intersectionPx, bbox });
 
         // No intersection
         if (intersectionPx == null) return null;

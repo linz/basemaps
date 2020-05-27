@@ -1,3 +1,5 @@
+import type * as GeoJSON from 'geojson';
+
 export const GeoJson = {
     /**
      * Join a list of features into a Feature collection
