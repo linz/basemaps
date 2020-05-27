@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { LatLon, Projection, EPSG } from '../projection';
+import { LatLon, Projection } from '../projection';
 import { approxEqual } from './bounds.tile.test';
 import * as o from 'ospec';
+import { Nztm2000Tms } from '../tms/nztm2000';
+import { EPSG } from '../epsg';
 
 const { Wgs84Bound } = Projection;
 
@@ -59,6 +61,12 @@ o.spec('Projection', () => {
         o(Projection.parseEpsgString('citm')).equals(EPSG.Citm2000);
         o(Projection.parseEpsgString('epsg:3793')).equals(EPSG.Citm2000);
         o(Projection.parseEpsgString('3793')).equals(EPSG.Citm2000);
+    });
+
+    o('should parse urls', () => {
+        o(Projection.parseEpsgString('https://www.opengis.net/def/crs/EPSG/0/2193')).equals(EPSG.Nztm2000);
+        o(Projection.parseEpsgString('https://www.opengis.net/def/crs/EPSG/0/3857')).equals(EPSG.Google);
+        o(Projection.parseEpsgString(Nztm2000Tms.def.supportedCRS)).equals(EPSG.Nztm2000);
     });
 
     o('constants', () => {
