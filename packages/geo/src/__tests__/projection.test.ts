@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { LatLon, Projection, EPSG } from '../projection';
-import { approxEqual } from './bounds.tile.test';
+import { Projection } from '../projection';
 import * as o from 'ospec';
+import { Nztm2000Tms } from '../tms/nztm2000';
+import { EPSG } from '../epsg';
+import { approxLatLon } from './test.util';
 
 const { Wgs84Bound } = Projection;
 
@@ -26,15 +27,10 @@ o.spec('Projection', () => {
         const latLonC = proj256.getLatLonCenterFromTile(1, 1, 1);
         const latLonD = proj256.getLatLonCenterFromTile(1, 0, 1);
 
-        function compareLatLon(latLonA: LatLon, latLonB: LatLon) {
-            approxEqual(latLonA.lat, latLonB.lat, 'lat', 0.0001);
-            approxEqual(latLonA.lon, latLonB.lon, 'lon', 0.0001);
-        }
-
-        compareLatLon(latLonA, { lat: Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
-        compareLatLon(latLonB, { lat: -Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
-        compareLatLon(latLonC, { lat: -Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
-        compareLatLon(latLonD, { lat: Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
+        approxLatLon(latLonA, { lat: Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
+        approxLatLon(latLonB, { lat: -Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
+        approxLatLon(latLonC, { lat: -Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
+        approxLatLon(latLonD, { lat: Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
     });
 
     o('should parseEpsgString', () => {
@@ -59,6 +55,12 @@ o.spec('Projection', () => {
         o(Projection.parseEpsgString('citm')).equals(EPSG.Citm2000);
         o(Projection.parseEpsgString('epsg:3793')).equals(EPSG.Citm2000);
         o(Projection.parseEpsgString('3793')).equals(EPSG.Citm2000);
+    });
+
+    o('should parse urls', () => {
+        o(Projection.parseEpsgString('https://www.opengis.net/def/crs/EPSG/0/2193')).equals(EPSG.Nztm2000);
+        o(Projection.parseEpsgString('https://www.opengis.net/def/crs/EPSG/0/3857')).equals(EPSG.Google);
+        o(Projection.parseEpsgString(Nztm2000Tms.def.supportedCRS)).equals(EPSG.Nztm2000);
     });
 
     o('constants', () => {

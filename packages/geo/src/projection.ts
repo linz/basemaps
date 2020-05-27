@@ -1,20 +1,10 @@
 import { Bounds, Point } from './bounds';
 import { tileToQuadkey, tileToBBOX } from '@mapbox/tilebelt';
+import { EPSG } from './epsg';
 
 export interface LatLon {
     lat: number;
     lon: number;
-}
-
-/** EPSG codes for commonly used projections */
-export enum EPSG {
-    /** Pseudo WebMercator */
-    Google = 3857,
-    Wgs84 = 4326,
-    /** New Zealand transverse mercator */
-    Nztm2000 = 2193,
-    /** Chatham Islands transverse mercator */
-    Citm2000 = 3793,
 }
 
 const EPSGTextMap: Record<string, EPSG> = {
@@ -130,7 +120,8 @@ export class Projection {
 
     /** parse a string returning the `EPSG` code **/
     public static parseEpsgString(text: string): EPSG | null {
-        if (text.slice(0, 4) === 'urn:') return EPSGTextMap[text.slice(text.lastIndexOf(':') + 1)];
-        return EPSGTextMap[text.replace(/[\W_]/g, '').toLowerCase()] || null;
+        if (text.startsWith('urn:')) return EPSGTextMap[text.slice(text.lastIndexOf(':') + 1)];
+        if (text.startsWith('https://')) return EPSGTextMap[text.slice(text.lastIndexOf('/') + 1)];
+        return EPSGTextMap[text.replace(/[\W_]/g, '').toLowerCase()] ?? null;
     }
 }

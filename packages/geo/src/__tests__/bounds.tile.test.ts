@@ -1,25 +1,7 @@
 import { Bounds } from '../bounds';
 import { Projection } from '../projection';
 import * as o from 'ospec';
-
-export function approxEqual(numA: number, numB: number, text: string, variance = 0.001): void {
-    const diff = Math.abs(numA - numB);
-    if (diff > variance) {
-        throw new Error(`${text} (${numA} vs ${numB}) should be less than ${variance}`);
-    }
-}
-export function approxBounds(boundsA: Bounds | null, boundsB: Bounds | null): void {
-    if (boundsA == null) {
-        throw new Error('BoundsA is null');
-    }
-    if (boundsB == null) {
-        throw new Error('BoundsB is null');
-    }
-    approxEqual(boundsA.width, boundsB.width, 'width');
-    approxEqual(boundsA.height, boundsB.height, 'height');
-    approxEqual(boundsA.y, boundsB.y, 'top');
-    approxEqual(boundsA.x, boundsB.x, 'left');
-}
+import { approxBounds, approxEqual } from './test.util';
 
 o.spec('TilingBounds', () => {
     const projection = new Projection(256);
