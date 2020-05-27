@@ -1,8 +1,8 @@
 import * as o from 'ospec';
 import { GoogleTms } from '../tms/google';
 import { Projection } from '../projection';
-import { approxEqual } from './bounds.tile.test';
 import { EPSG } from '../epsg';
+import { approxEqual } from './test.util';
 
 o.spec('TileMatrixSet', () => {
     o.spec('load', () => {
