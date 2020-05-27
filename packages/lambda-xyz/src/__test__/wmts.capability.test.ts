@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import { HttpHeader, VNodeElement } from '@basemaps/lambda-shared';
 import { createHash } from 'crypto';
 import * as o from 'ospec';
@@ -14,7 +14,7 @@ const TileSetNames = ['aerial', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 o.spec('wmts', () => {
     o.beforeEach(() => {
         for (const name of TileSetNames) {
-            const tileSet = new TileSet(name, EPSG.Google);
+            const tileSet = new TileSet(name, Epsg.Google);
             addTitleAndDesc(tileSet);
             TileSets.set(tileSet.id, tileSet);
         }
@@ -120,7 +120,7 @@ o.spec('wmts', () => {
 
     o('should return null if not found', () => {
         const req = mockRequest('/v1/tiles/aerial/4326/WMTSCapabilities.xml');
-        const ts = new TileSet('aerial', EPSG.Nztm2000);
+        const ts = new TileSet('aerial', Epsg.Nztm2000);
         addTitleAndDesc(ts);
 
         o(buildWmtsCapability('basemaps.test', req, Provider, ts)).equals(null);

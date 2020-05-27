@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import * as AWS from 'aws-sdk';
 import * as o from 'ospec';
 import { Const } from '../../const';
@@ -53,7 +53,7 @@ o.spec('tile.metadata.table', () => {
             createdAt: Date.now(),
             updatedAt: Date.now(),
             uri: 's3://test-bucket/etc/etc',
-            projection: EPSG.Google,
+            projection: Epsg.Google.code,
             year: 2019,
             resolution: 300,
             quadKeys: ['31311001', '3113332223'],
@@ -71,7 +71,7 @@ o.spec('tile.metadata.table', () => {
                 createdAt: mockNow,
                 updatedAt: mockNow,
                 uri: 's3://test-bucket/etc/etc',
-                projection: EPSG.Google,
+                projection: Epsg.Google.code,
                 year: 2019,
                 resolution: 300,
                 quadKeys: ['31311001', '3113332223'],
@@ -86,7 +86,7 @@ o.spec('tile.metadata.table', () => {
 
         const imagery = rules.map((r) => ({
             id: r.id,
-            projection: EPSG.Google,
+            projection: Epsg.Google.code,
             year: 2001,
             resolution: 100,
             quadKeys: ['313'],
@@ -103,7 +103,7 @@ o.spec('tile.metadata.table', () => {
             version: 0,
             imagery: genMap(rules.values()),
             name: 'aerial',
-            projection: EPSG.Google,
+            projection: Epsg.Google.code,
         } as TileMetadataSetRecord;
 
         const getAll = async (): Promise<string[]> => (await Imagery.getAll(tsData)).map((i) => i.imagery.id);
@@ -149,7 +149,7 @@ o.spec('tile.metadata.table', () => {
                 version: 0,
                 imagery: genMap(genRules(5)),
                 name: 'aerial',
-                projection: EPSG.Google,
+                projection: Epsg.Google.code,
             });
         } catch (_err) {
             err = _err;
@@ -175,7 +175,7 @@ o.spec('tile.metadata.table', () => {
                                 ].Keys.map((i: any) =>
                                     marshall({
                                         id: i.id.S,
-                                        projection: EPSG.Google,
+                                        projection: Epsg.Google.code,
                                         year: 2001,
                                         resolution: 100,
                                         quadKeys: ['313'],
@@ -195,7 +195,7 @@ o.spec('tile.metadata.table', () => {
             version: 0,
             imagery: genMap(genRules(202)),
             name: 'aerial',
-            projection: EPSG.Google,
+            projection: Epsg.Google.code,
         } as TileMetadataSetRecord;
 
         const ans = await tmtable.Imagery.getAll(tsData);
@@ -205,7 +205,7 @@ o.spec('tile.metadata.table', () => {
             rule: { id: 'im_199', maxZoom: 0, minZoom: 0, priority: 200 },
             imagery: {
                 id: 'im_199',
-                projection: EPSG.Google,
+                projection: Epsg.Google.code,
                 year: 2001,
                 resolution: 100,
                 quadKeys: ['313'],

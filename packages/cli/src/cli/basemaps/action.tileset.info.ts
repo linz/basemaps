@@ -4,6 +4,7 @@ import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushst
 import * as c from 'ansi-colors';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet } from './tileset.util';
+import { Epsg } from '@basemaps/geo';
 
 export class TileSetInfoAction extends TileSetBaseAction {
     private imagery: CommandLineStringParameter;
@@ -51,7 +52,7 @@ export class TileSetInfoAction extends TileSetBaseAction {
 
     protected async onExecute(): Promise<void> {
         const tileSet = this.tileSet.value!;
-        const projection = this.projection.value!;
+        const projection = Epsg.get(this.projection.value!);
         const imgId = this.imagery.value!;
 
         if (imgId != null) return this.imageInfo(imgId);

@@ -1,8 +1,8 @@
-import { EPSG, Projection } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import { Env, LogType } from '@basemaps/lambda-shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { GdalCommand } from './gdal.command';
-import { GdalCogBuilderOptions, GdalCogBuilderDefaults } from './gdal.config';
+import { GdalCogBuilderDefaults, GdalCogBuilderOptions } from './gdal.config';
 import { GdalDocker } from './gdal.docker';
 import { GdalLocal } from './gdal.local';
 
@@ -80,7 +80,7 @@ export class GdalCogBuilder {
 
         // TODO in theory this should be clamped to the lower right of the imagery, as there is no point generating large empty tiffs
         const [ulX, ulY, lrX, lrY] = this.config.bbox;
-        return ['-projwin', ulX, ulY, lrX, lrY, '-projwin_srs', Projection.toEpsgString(EPSG.Google)].map(String);
+        return ['-projwin', ulX, ulY, lrX, lrY, '-projwin_srs', Epsg.Google.toEpsgString()].map(String);
     }
 
     get args(): string[] {

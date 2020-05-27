@@ -1,4 +1,4 @@
-import { EPSG, Projection } from '@basemaps/geo';
+import { Epsg, Projection } from '@basemaps/geo';
 import { LambdaContext, V, VNodeElement, TileMetadataProviderRecord } from '@basemaps/lambda-shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { TileSet } from './tile.set';
@@ -73,8 +73,8 @@ export function providerInfo(provider: TileMetadataProviderRecord): VNodeElement
     ];
 }
 
-function wellKnownScaleSet(projection: EPSG): VNodeElement[] {
-    return projection === EPSG.Google ? [V('WellKnownScaleSet', 'urn:ogc:def:wkss:OGC:1.0:GoogleMapsCompatible')] : [];
+function wellKnownScaleSet(projection: Epsg): VNodeElement[] {
+    return projection === Epsg.Google ? [V('WellKnownScaleSet', 'urn:ogc:def:wkss:OGC:1.0:GoogleMapsCompatible')] : [];
 }
 
 const CommonGlobalMercator = [
@@ -84,7 +84,7 @@ const CommonGlobalMercator = [
 ];
 
 function getMatrixSets(tileSet: TileSet): VNodeElement | null {
-    if (tileSet.projection === EPSG.Google) {
+    if (tileSet.projection === Epsg.Google) {
         const matrices = [];
         let scale = Projection.GoogleScaleDenominator,
             size = 1;
@@ -103,8 +103,8 @@ function getMatrixSets(tileSet: TileSet): VNodeElement | null {
         }
         return V('TileMatrixSet', [
             V('ows:Identifier', tileMatrixSetId.Google),
-            V('ows:SupportedCRS', Projection.toUrn(EPSG.Google)),
-            ...wellKnownScaleSet(EPSG.Google),
+            V('ows:SupportedCRS', Epsg.Google.toUrn()),
+            ...wellKnownScaleSet(Epsg.Google),
             ...matrices,
         ]);
     }

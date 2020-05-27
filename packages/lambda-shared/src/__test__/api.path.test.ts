@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import * as o from 'ospec';
 import { tileFromPath, TileType } from '../api.path';
 import { LambdaContext } from '../lambda.context';
@@ -41,7 +41,7 @@ o.spec('api.path', () => {
             o(tileFromPath(ctx.action.rest)).deepEquals({
                 type: TileType.Image,
                 name: 'aerial',
-                projection: EPSG.Google,
+                projection: Epsg.Google,
                 x: 2,
                 y: 3,
                 z: 1,
@@ -55,7 +55,7 @@ o.spec('api.path', () => {
             o(tileFromPath(ctx.action.rest)).deepEquals({
                 type: TileType.Image,
                 name: 'aerial',
-                projection: EPSG.Google,
+                projection: Epsg.Google,
                 x: 5,
                 y: 6,
                 z: 4,
@@ -71,7 +71,7 @@ o.spec('api.path', () => {
             o(ans).deepEquals({
                 type: TileType.WMTS,
                 name: 'aerial',
-                projection: EPSG.Google,
+                projection: Epsg.Google,
             });
         });
 

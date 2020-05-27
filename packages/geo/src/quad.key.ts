@@ -59,7 +59,7 @@ export const QuadKey = {
     /**
      * Convert a quadKey to its bounding box
      * @param quadKey
-     * @return The bounds in `EPSG.Wgs84`
+     * @return The bounds in `Epsg.Wgs84`
      */
     toBounds(quadKey: string): Bounds {
         return Bounds.fromBbox(this.toBbox(quadKey));

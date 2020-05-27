@@ -8,6 +8,7 @@ import {
 import { CogJobFactory, JobCreationContext, MaxConcurrencyDefault } from '../../cog/job';
 import { GdalCogBuilderDefaults, GdalResamplingOptions } from '../../gdal/gdal.config';
 import { CliId } from '../base.cli';
+import { Epsg } from '@basemaps/geo';
 
 export class CLiInputData {
     path: CommandLineStringParameter;
@@ -98,7 +99,7 @@ export class ActionJobCreate extends CommandLineAction {
                 concurrency: this.maxConcurrency?.value ?? MaxConcurrencyDefault,
                 quality: this.quality?.value ?? GdalCogBuilderDefaults.quality,
                 id: this.overrideId?.value ?? CliId,
-                projection: this.sourceProjection?.value,
+                projection: Epsg.tryGet(this.sourceProjection?.value),
                 resampling,
             },
             batch: this.submitBatch?.value,
