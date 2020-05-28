@@ -1,6 +1,6 @@
 import * as o from 'ospec';
 import { getProjection, Wgs84ToGoogle, guessProjection } from '../index';
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 
 function toFixed(f: number): string {
     return f.toFixed(6);
@@ -8,7 +8,7 @@ function toFixed(f: number): string {
 
 o.spec('Proj2193', () => {
     o('should convert to 2193', () => {
-        const Proj2193 = getProjection(2193);
+        const Proj2193 = getProjection(Epsg.Nztm2000);
         if (Proj2193 == null) {
             throw new Error('Failed to init proj:2193');
         }
@@ -20,7 +20,7 @@ o.spec('Proj2193', () => {
     });
 
     o('should convert to 3793', () => {
-        const Proj23793 = getProjection(3793);
+        const Proj23793 = getProjection(Epsg.Google);
         if (Proj23793 == null) {
             throw new Error('Failed to init proj:3793');
         }
@@ -35,13 +35,13 @@ o.spec('Proj2193', () => {
             guessProjection(
                 'PCS Name = NZGD_2000_New_Zealand_Transverse_Mercator|GCS Name = GCS_NZGD_2000|Ellipsoid = GRS_1980|Primem = Greenwich||',
             ),
-        ).equals(EPSG.Nztm2000);
+        ).equals(Epsg.Nztm2000);
 
         o(
             guessProjection(
                 'NZGD2000_New_Zealand_Transverse_Mercator_2000|GCS Name = GCS_NZGD_2000|Primem = Greenwich||',
             ),
-        ).equals(EPSG.Nztm2000);
+        ).equals(Epsg.Nztm2000);
     });
 
     o('should not guess unknown wkt', () => {

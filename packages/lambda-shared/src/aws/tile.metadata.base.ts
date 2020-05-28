@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { EpsgCode } from '@basemaps/geo';
 import { DynamoDB } from 'aws-sdk';
 import { Const } from '../const';
 import { BaseDynamoTable } from './aws.dynamo.table';
@@ -37,7 +37,7 @@ export interface TileMetadataImageryRecord extends BaseDynamoTable {
     /** Imagery set name */
     name: string;
 
-    projection: EPSG.Google;
+    projection: EpsgCode;
 
     /** The location of the COGs like s3://basemaps-cogs/3857/aerial/jobId123 */
     uri: string;
@@ -84,7 +84,7 @@ export interface TileMetadataSetRecord extends TaggedTileMetadataRecord {
     /** Use for WMTS ows:abstract */
     description?: string;
 
-    projection: EPSG.Google;
+    projection: EpsgCode;
 
     /** the rendering rules for imagery in this tileset */
     imagery: Record<string, TileMetadataImageRule>;

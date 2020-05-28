@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import {
     TaggedTileMetadata,
     TileMetadataImageRule,
@@ -48,22 +48,22 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         return `ts_${record.name}_${record.projection}_${tag}`;
     }
 
-    id(name: string, projection: EPSG, tag: TileMetadataTag | number): string {
-        return this.idRecord({ name, projection } as TileMetadataSetRecord, tag);
+    id(name: string, projection: Epsg, tag: TileMetadataTag | number): string {
+        return this.idRecord({ name, projection: projection.code } as TileMetadataSetRecord, tag);
     }
 
-    async get(name: string, projection: EPSG, version: number): Promise<TileMetadataSetRecord>;
-    async get(name: string, projection: EPSG, tag: TileMetadataTag): Promise<TileMetadataSetRecord>;
+    async get(name: string, projection: Epsg, version: number): Promise<TileMetadataSetRecord>;
+    async get(name: string, projection: Epsg, tag: TileMetadataTag): Promise<TileMetadataSetRecord>;
     async get(
         name: string,
-        projection: EPSG,
+        projection: Epsg,
         tagOrVersion: TileMetadataTag | number,
     ): Promise<TileMetadataSetRecord | null> {
         const id = this.id(name, projection, tagOrVersion);
         return await this.metadata.get(id);
     }
 
-    async tag(name: string, projection: EPSG, tag: TileMetadataTag, version: number): Promise<TileMetadataSetRecord> {
-        return super.tagRecord({ name, projection } as TileMetadataSetRecord, tag, version);
+    async tag(name: string, projection: Epsg, tag: TileMetadataTag, version: number): Promise<TileMetadataSetRecord> {
+        return super.tagRecord({ name, projection: projection.code } as TileMetadataSetRecord, tag, version);
     }
 }

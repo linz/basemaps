@@ -1,13 +1,13 @@
 import * as o from 'ospec';
 import { GoogleTms } from '../tms/google';
 import { Projection } from '../projection';
-import { EPSG } from '../epsg';
+import { Epsg } from '../epsg';
 import { approxEqual } from './test.util';
 
 o.spec('TileMatrixSet', () => {
     o.spec('load', () => {
         o('should guess the projection', () => {
-            o(GoogleTms.projection).equals(EPSG.Google);
+            o(GoogleTms.projection).equals(Epsg.Google);
         });
         o('should load all of the zoom levels', () => {
             for (let i = 0; i < GoogleTms.def.tileMatrix.length; i++) {

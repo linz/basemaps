@@ -1,32 +1,10 @@
 import { Bounds, Point } from './bounds';
 import { tileToQuadkey, tileToBBOX } from '@mapbox/tilebelt';
-import { EPSG } from './epsg';
 
 export interface LatLon {
     lat: number;
     lon: number;
 }
-
-const EPSGTextMap: Record<string, EPSG> = {
-    google: EPSG.Google,
-    epsg3857: EPSG.Google,
-    [EPSG.Google]: EPSG.Google,
-    globalmercator: EPSG.Google,
-
-    wgs84: EPSG.Wgs84,
-    epsg4326: EPSG.Wgs84,
-    [EPSG.Wgs84]: EPSG.Wgs84,
-
-    nztm: EPSG.Nztm2000,
-    epsg2193: EPSG.Nztm2000,
-    [EPSG.Nztm2000]: EPSG.Nztm2000,
-    nztm2000: EPSG.Nztm2000,
-
-    citm: EPSG.Citm2000,
-    epsg3793: EPSG.Citm2000,
-    [EPSG.Citm2000]: EPSG.Citm2000,
-    citm2000: EPSG.Citm2000,
-};
 
 export class Projection {
     /** Size of the earth EPSG:3857 constant */
@@ -106,22 +84,5 @@ export class Projection {
         const upperLeftMeters = this.getPixelsFromMeters(extent[0], -extent[3], zoom);
         const lowerRightMeters = this.getPixelsFromMeters(extent[2], -extent[1], zoom);
         return Bounds.fromUpperLeftLowerRight(upperLeftMeters, lowerRightMeters);
-    }
-
-    /** Convert a EPSG code into `EPSG:<code>` */
-    public static toEpsgString(epsg: EPSG): string {
-        return `EPSG:${epsg}`;
-    }
-
-    /** convert a EPSG code into a URN */
-    public static toUrn(epsg: EPSG): string {
-        return `urn:ogc:def:crs:EPSG::${epsg}`;
-    }
-
-    /** parse a string returning the `EPSG` code **/
-    public static parseEpsgString(text: string): EPSG | null {
-        if (text.startsWith('urn:')) return EPSGTextMap[text.slice(text.lastIndexOf(':') + 1)];
-        if (text.startsWith('https://')) return EPSGTextMap[text.slice(text.lastIndexOf('/') + 1)];
-        return EPSGTextMap[text.replace(/[\W_]/g, '').toLowerCase()] ?? null;
     }
 }

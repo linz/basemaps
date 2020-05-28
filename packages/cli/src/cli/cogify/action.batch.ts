@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import {
     Aws,
     Env,
@@ -57,7 +57,7 @@ export function extractResolutionFromName(name: string): number {
 export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecord {
     const now = Date.now();
 
-    const projection = job.projection ?? EPSG.Google; // TODO a lot of old imagery does not have this value set.
+    const projection = job.projection ?? Epsg.Google; // TODO a lot of old imagery does not have this value set.
     let base = job.output.path;
     if (!base.endsWith('/')) base += '/';
     const uri = base + path.join(projection.toString(), job.name, job.id);

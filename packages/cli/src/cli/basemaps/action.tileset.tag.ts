@@ -8,6 +8,7 @@ import {
 import { TagAction } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateXYZCache } from './tileset.util';
+import { Epsg } from '@basemaps/geo';
 
 export class TileSetUpdateTagAction extends TileSetBaseAction {
     private version: CommandLineIntegerParameter;
@@ -29,7 +30,8 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
 
     protected async onExecute(): Promise<void> {
         const tileSet = this.tileSet.value!;
-        const projection = this.projection.value!;
+        const projection = Epsg.get(this.projection.value!);
+
         const tagInput = this.tag.value!;
         const version = this.version.value!;
 

@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import {
     Env,
     FileOperator,
@@ -41,7 +41,7 @@ export class TileSetLocal extends TileSet {
     tiffs: CogTiff[];
     filePath: string;
 
-    constructor(name: string, projection: EPSG, path: string) {
+    constructor(name: string, projection: Epsg, path: string) {
         super(name, projection);
         this.filePath = path;
     }
@@ -96,9 +96,9 @@ async function main(): Promise<void> {
     }
     const filePath = process.argv[2];
     if (filePath != null) {
-        let tileSet = new TileSetLocal('aerial', EPSG.Google, filePath);
+        let tileSet = new TileSetLocal('aerial', Epsg.Google, filePath);
         TileSets.set(tileSet.id, tileSet);
-        tileSet = new TileSetLocal('aerial@beta', EPSG.Google, filePath);
+        tileSet = new TileSetLocal('aerial@beta', Epsg.Google, filePath);
         TileSets.set(tileSet.id, tileSet);
     }
 

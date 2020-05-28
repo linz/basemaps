@@ -1,7 +1,7 @@
 import pLimit from 'p-limit';
 import { Env, LogConfig } from '@basemaps/lambda-shared';
 import { TileSet } from '../tile.set';
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 
@@ -11,7 +11,7 @@ const Q = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
  * CLI to iterate over all imagery sets that have been defined and determine if all the COGS are present and optimized
  */
 async function main(): Promise<void> {
-    const tileSet = new TileSet('aerial', EPSG.Google);
+    const tileSet = new TileSet('aerial', Epsg.Google);
     await tileSet.load();
 
     let errorCount = 0;

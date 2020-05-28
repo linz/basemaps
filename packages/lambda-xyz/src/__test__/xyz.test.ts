@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import { Env, LogConfig, VNodeParser, TileMetadataProviderRecord, Aws } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
 import * as o from 'ospec';
@@ -39,7 +39,7 @@ o.spec('LambdaXyz', () => {
         Tilers.compose256 = { compose: rasterMock } as any;
 
         for (const tileSetName of TileSetNames) {
-            const tileSet = new TileSet(tileSetName, EPSG.Google);
+            const tileSet = new TileSet(tileSetName, Epsg.Google);
             TileSets.set(tileSet.id, tileSet);
             tileSet.load = () => Promise.resolve(true);
             tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
@@ -71,7 +71,7 @@ o.spec('LambdaXyz', () => {
             o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
             o(generateMock.args).deepEquals([
                 tileMockData,
-                { type: 'image', name: tileSetName, projection: 3857, x: 0, y: 0, z: 0, ext: 'png' },
+                { type: 'image', name: tileSetName, projection: Epsg.Google, x: 0, y: 0, z: 0, ext: 'png' },
             ] as any);
 
             o(tileMock.calls.length).equals(1);

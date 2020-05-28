@@ -5,6 +5,7 @@ import { CogSourceFile } from '@cogeotiff/source-file';
 import { Composition, ImageFormat } from '@basemaps/tiler';
 import { TileType, TileDataXyz } from '@basemaps/lambda-shared';
 import * as path from 'path';
+import { Epsg } from '@basemaps/geo';
 
 o.spec('TileCacheKey', () => {
     const oldRenderId = TileEtag.RenderId;
@@ -24,7 +25,7 @@ o.spec('TileCacheKey', () => {
         x: 0,
         y: 0,
         z: 0,
-        projection: 3857,
+        projection: Epsg.Google,
         name: 'foo',
         ext: ImageFormat.PNG,
         type: TileType.Image,
@@ -42,7 +43,7 @@ o.spec('TileCacheKey', () => {
         o(TileEtag.generate([comp, comp], xyzData)).notEquals(firstKey);
 
         // Different projections should generate differnt keys
-        xyzData.projection = 2193;
+        xyzData.projection = Epsg.Nztm2000;
         o(TileEtag.generate([comp], xyzData)).notEquals(firstKey);
     });
 

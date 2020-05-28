@@ -1,12 +1,11 @@
 import { Point } from './bounds';
-import { EPSG } from './epsg';
+import { Epsg } from './epsg';
 import { TileMatrixSetType, TileMatrixSetTypeMatrix } from './tms/tile.matrix.set.type';
-import { Projection } from './projection';
 
 export type Tile = Point & { z: number };
 
 export class TileMatrixSet {
-    projection: EPSG;
+    projection: Epsg;
     tileSize: number;
     def: TileMatrixSetType;
     private zooms: TileMatrixSetTypeMatrix[] = [];
@@ -22,7 +21,7 @@ export class TileMatrixSet {
             this.zooms[parseInt(z.identifier)] = z;
         }
 
-        const projection = Projection.parseEpsgString(def.supportedCRS);
+        const projection = Epsg.parse(def.supportedCRS);
         if (projection == null) throw new Error(`Unable to find supported projection ${def.supportedCRS}`);
         this.projection = projection;
     }
