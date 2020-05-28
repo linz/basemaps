@@ -12,13 +12,14 @@ export const GeoJson = {
         };
     },
 
-    toPositionPolygon(bbox: [number, number, number, number]): Position[][] {
+    toPositionPolygon(bbox: number[]): Position[][] {
         return [
             [
+                // Use the right-hand-rule (counter-clockwise)
                 [bbox[0], bbox[1]],
-                [bbox[0], bbox[3]],
-                [bbox[2], bbox[3]],
                 [bbox[2], bbox[1]],
+                [bbox[2], bbox[3]],
+                [bbox[0], bbox[3]],
                 [bbox[0], bbox[1]],
             ],
         ];
