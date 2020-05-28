@@ -1,6 +1,6 @@
 import * as o from 'ospec';
 import { Bounds } from '../bounds';
-import { approxBounds } from './test.util';
+import { approxBounds } from '@basemaps/test';
 
 const TILE_SIZE = 256;
 function getTile(x = 0, y = 0): Bounds {

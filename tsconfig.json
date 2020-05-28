@@ -1,22 +1,15 @@
 {
     "files": [],
-    "references": [{
-        "path": "./packages/metrics"
-    },{
-        "path": "./packages/geo"
-    }, {
-        "path": "./packages/tiler"
-    }, {
-        "path": "./packages/tiler-sharp"
-    }, {
-        "path": "./packages/cli"
-    }, {
-        "path": "./packages/_infra"
-    }, {
-        "path": "./packages/lambda-shared"
-    }, {
-        "path": "./packages/lambda-api-tracker"
-    }, {
-        "path": "./packages/lambda-xyz"
-    }]
+    "references": [
+        { "path": "./packages/__tests__" },
+        { "path": "./packages/metrics" },
+        { "path": "./packages/geo" },
+        { "path": "./packages/tiler" },
+        { "path": "./packages/tiler-sharp" },
+        { "path": "./packages/cli" },
+        { "path": "./packages/_infra" },
+        { "path": "./packages/lambda-shared" },
+        { "path": "./packages/lambda-api-tracker" },
+        { "path": "./packages/lambda-xyz" }
+    ]
 }

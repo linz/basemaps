@@ -1,6 +1,6 @@
 import * as o from 'ospec';
 import { Projection } from '../projection';
-import { approxLatLon } from './test.util';
+import { approxLatLon } from '@basemaps/test';
 
 const { Wgs84Bound } = Projection;
 
