@@ -18,7 +18,7 @@ import { EmptyPng } from '../png';
 import { TileSet } from '../tile.set';
 import { loadTileSet } from '../tile.set.cache';
 import { Tilers } from '../tiler';
-import { buildWmtsCapability } from '../wmts.capability';
+import { WmtsCapabilities } from '../wmts.capability';
 import { Epsg } from '@basemaps/geo';
 import { TileEtag } from './tile.etag';
 
@@ -137,11 +137,10 @@ export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
     // TODO when we support more than one projection: get all projections if wmtsData.projection is
     // null
     const tileSet = await loadTileSet(req, wmtsData.name, wmtsData.projection ?? Epsg.Google);
-
     const provider = await Aws.tileMetadata.Provider.get(TileMetadataTag.Production);
+    if (tileSet == null || provider == null) return new LambdaHttpResponse(404, 'Not Found');
 
-    const xml = tileSet == null ? null : buildWmtsCapability(host, req, provider!, tileSet);
-
+    const xml = WmtsCapabilities.toXml(host, provider, [tileSet], req.apiKey);
     if (xml == null) return new LambdaHttpResponse(404, 'Not Found');
 
     const data = Buffer.from(xml);

@@ -1,13 +1,12 @@
 import { Epsg } from '@basemaps/geo';
-import { Env, LogConfig, VNodeParser, TileMetadataProviderRecord, Aws } from '@basemaps/lambda-shared';
+import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
 import * as o from 'ospec';
 import { handleRequest } from '../index';
-import { TileSet } from '../tile.set';
+import { TileEtag } from '../routes/tile.etag';
 import { TileSets } from '../tile.set.cache';
 import { Tilers } from '../tiler';
-import { mockRequest, addTitleAndDesc, Provider } from './xyz.testhelper';
-import { TileEtag } from '../routes/tile.etag';
+import { FakeTileSet, mockRequest, Provider } from './xyz.util';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -39,7 +38,7 @@ o.spec('LambdaXyz', () => {
         Tilers.compose256 = { compose: rasterMock } as any;
 
         for (const tileSetName of TileSetNames) {
-            const tileSet = new TileSet(tileSetName, Epsg.Google);
+            const tileSet = new FakeTileSet(tileSetName, Epsg.Google);
             TileSets.set(tileSet.id, tileSet);
             tileSet.load = () => Promise.resolve(true);
             tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
@@ -141,11 +140,10 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = '6khTqeXAtOeIWimmzLQcviPhVYNKMjHzYCuLt3R5WE8=';
+            const key = 'fX2LBK4xH8KJv2J8PwYaYJF/6VXIomVYWq3t5Lj9ohY=';
             const request = mockRequest('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
                 'if-none-match': key,
             });
-            addTitleAndDesc(TileSets.get('aerial_3857')!);
 
             const res = await handleRequest(request);
             if (res.status == 200) o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
@@ -161,8 +159,6 @@ o.spec('LambdaXyz', () => {
             const request = mockRequest('/v1/tiles/aerial@beta/WMTSCapabilities.xml');
             request.apiKey = 'secretKey';
 
-            addTitleAndDesc(TileSets.get('aerial@beta_3857')!);
-
             const res = await handleRequest(request);
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
@@ -175,8 +171,8 @@ o.spec('LambdaXyz', () => {
             );
 
             const vdom = await VNodeParser.parse(body);
-            const url = vdom.tags('ResourceURL').next().value!;
-            o(url.toString()).equals(
+            const url = vdom.tags('ResourceURL').next().value;
+            o(url?.toString()).equals(
                 '<ResourceURL format="image/png" resourceType="tile" ' +
                     'template="https://tiles.test/v1/tiles/aerial@beta/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secretKey" />',
             );
