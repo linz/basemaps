@@ -1,5 +1,5 @@
-import { Epsg, QuadKey, TileCover } from '@basemaps/geo';
-import { FileConfig, FileOperator, FileOperatorS3, isConfigS3Role, LogConfig } from '@basemaps/lambda-shared';
+import { QuadKey } from '@basemaps/geo';
+import { FileOperator, FileOperatorS3, isConfigS3Role, LogConfig } from '@basemaps/lambda-shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -7,70 +7,16 @@ import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder, GdalCogBuilder } from '..';
+import { CliInfo } from '../cli/base.cli';
 import { ActionBatchJob } from '../cli/cogify/action.batch';
 import { getJobPath, makeTempFolder } from '../cli/folder';
-import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
+import { GdalCogBuilderDefaults } from '../gdal/gdal.config';
 import { getTileSize } from './cog';
 import { buildVrtForTiffs, VrtOptions } from './cog.vrt';
 import { Cutline } from './cutline';
+import { JobCreationContext, MaxConcurrencyDefault } from './job.ctx';
+import { TileGrid } from './tile.grid';
 import { CogJob } from './types';
-import { CliInfo } from '../cli/base.cli';
-
-export const MaxConcurrencyDefault = 50;
-
-export interface JobCreationContext {
-    /** Source config */
-    source: FileConfig;
-
-    /** Output config */
-    output: FileConfig;
-
-    /** Should the imagery be cut to a cutline */
-    cutline?: {
-        source: string;
-        blend: number;
-    };
-
-    override?: {
-        /** Override job id */
-        id?: string;
-
-        /**
-         * Image quality
-         * @default GdalCogBuilderDefaults.quality
-         */
-        quality?: number;
-
-        /**
-         * Number of threads to use for fetches
-         * @default MaxConcurrencyDefault
-         */
-        concurrency?: number;
-
-        /**
-         * Override the source projection
-         */
-        projection?: Epsg;
-
-        /**
-         * Resampling method
-         * @Default  GdalCogBuilderDefaults.resampling
-         */
-        resampling?: GdalCogBuilderOptionsResampling;
-    };
-
-    /**
-     * Should this job be submitted to batch now?
-     * @default false
-     */
-    batch?: boolean;
-
-    /**
-     * Should this job create a vrt
-     * @default false
-     */
-    generateVrt?: boolean;
-}
 
 function filterTiff(a: string): boolean {
     const lowerA = a.toLowerCase();
@@ -110,12 +56,12 @@ export const CogJobFactory = {
 
         logger.info({ source: source.path, tiffCount: tiffList.length }, 'LoadingTiffs');
 
-        const cutline = await Cutline.loadCutline(ctx.cutline?.source);
+        const cutline = await Cutline.loadCutline(ctx.targetProjection, ctx.cutline?.source);
 
-        const builder = new CogBuilder(maxConcurrency, logger, ctx.override?.projection);
+        const builder = new CogBuilder(ctx, maxConcurrency, logger);
         const metadata = await builder.build(tiffSource, cutline);
 
-        const quadkeys = Array.from(metadata.covering).sort(QuadKey.compareKeys);
+        const quadkeys = metadata.covering.sort(QuadKey.compareKeys);
         if (quadkeys.length > 0) {
             const firstQk = quadkeys[0];
             const lastQk = quadkeys[quadkeys.length - 1];
@@ -142,23 +88,17 @@ export const CogJobFactory = {
             'CoveringGenerated',
         );
 
-        const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
+        const vrtOptions: VrtOptions = { addAlpha: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist
         if (metadata.bands > 3) {
             logger.warn({ bandCount: metadata.bands }, 'Vrt:DetectedAlpha, Disabling -addalpha');
             vrtOptions.addAlpha = false;
         }
 
-        // If the source imagery is in 900931, no need to force a warp
-        if (metadata.projection == Epsg.Google) {
-            logger.warn({ bandCount: metadata.bands }, 'Vrt:GoogleProjection, Disabling warp');
-            vrtOptions.forceEpsg3857 = false;
-        }
-
         const job: CogJob = {
             id,
             name: imageryName,
-            projection: Epsg.Google.code,
+            projection: ctx.targetProjection.code,
             output: {
                 ...output,
                 resampling: ctx.override?.resampling ?? GdalCogBuilderDefaults.resampling,
@@ -202,7 +142,7 @@ export const CogJobFactory = {
             await outputFs.writeJson(geoJsonSourceOutput, metadata.bounds, logger);
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
-            await outputFs.writeJson(geoJsonCoveringOutput, TileCover.toGeoJson(quadkeys), logger);
+            await outputFs.writeJson(geoJsonCoveringOutput, TileGrid.get(job.projection).toGeoJson(quadkeys), logger);
 
             if (ctx.generateVrt) {
                 const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);

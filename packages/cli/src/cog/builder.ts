@@ -1,5 +1,5 @@
 import { Epsg, GeoJson, Projection } from '@basemaps/geo';
-import { FileOperatorSimple, LogType, CompositeError } from '@basemaps/lambda-shared';
+import { CompositeError, FileOperatorSimple, LogType } from '@basemaps/lambda-shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
@@ -8,7 +8,8 @@ import pLimit, { Limit } from 'p-limit';
 import * as path from 'path';
 import { getProjection, guessProjection } from '../proj';
 import { Cutline } from './cutline';
-import { CogBuilderMetadata, SourceMetadata } from './types';
+import { JobCreationContext } from './job.ctx';
+import { SourceMetadata } from './types';
 
 export const InvalidProjectionCode = 32767;
 export const CacheFolder = './.cache';
@@ -17,6 +18,7 @@ export class CogBuilder {
     q: Limit;
     logger: LogType;
     srcProj?: Epsg;
+    targetProjection: Epsg;
 
     // Prevent guessing spamming the logs
     wktPreviousGuesses = new Set<string>();
@@ -24,10 +26,11 @@ export class CogBuilder {
     /**
      * @param concurrency number of requests to run at a time
      */
-    constructor(concurrency: number, logger: LogType, srcProj?: Epsg) {
+    constructor(ctx: JobCreationContext, concurrency: number, logger: LogType) {
         this.logger = logger;
         this.q = pLimit(concurrency);
-        this.srcProj = srcProj;
+        this.srcProj = ctx.override?.projection;
+        this.targetProjection = ctx.targetProjection;
     }
 
     /**
@@ -104,6 +107,7 @@ export class CogBuilder {
             bands,
             bounds: GeoJson.toFeatureCollection(polygons),
             resolution,
+            covering: [],
         };
     }
 
@@ -235,9 +239,9 @@ export class CogBuilder {
      * @param tiffs list of tiffs to be generated
      * @returns List of QuadKey indexes for
      */
-    async build(tiffs: CogSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
+    async build(tiffs: CogSource[], cutline: Cutline): Promise<SourceMetadata> {
         const metadata = await this.getMetadata(tiffs);
-        const covering = cutline.optimizeCovering(metadata);
-        return { ...metadata, covering };
+        metadata.covering = cutline.optimizeCovering(metadata);
+        return metadata;
     }
 }

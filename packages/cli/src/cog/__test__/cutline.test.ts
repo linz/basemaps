@@ -1,14 +1,15 @@
-import { TileCover } from '@basemaps/geo';
 import { MultiPolygon } from 'geojson';
 import * as o from 'ospec';
 import { Cutline } from '../cutline';
+import { TileGrid } from '../tile.grid';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
+import { Epsg } from '@basemaps/geo';
 
 o.spec('covering', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
     o('loadCutline', async () => {
-        const cutline = await Cutline.loadCutline(testDir + '/mana.geojson');
+        const cutline = await Cutline.loadCutline(Epsg.Google, testDir + '/mana.geojson');
         const geojson = cutline.toGeoJson();
         const mp = geojson.features[0].geometry as MultiPolygon;
         const { coordinates } = mp;
@@ -31,7 +32,7 @@ o.spec('covering', () => {
     });
 
     o('filterPolygons', async () => {
-        const cutline = await Cutline.loadCutline(testDir + '/mana.geojson');
+        const cutline = await Cutline.loadCutline(Epsg.Google, testDir + '/mana.geojson');
 
         const features = SourceTiffTestHelper.makeTiffFeatureCollection();
 
@@ -45,18 +46,15 @@ o.spec('covering', () => {
     o('optmize', async () => {
         const geoJson = SourceTiffTestHelper.makeTiffFeatureCollection();
 
-        const cutline = new Cutline();
+        const cutline = new Cutline(Epsg.Google);
 
         const covering = cutline.optimizeCovering({ bounds: geoJson, resolution: 13 } as SourceMetadata);
 
-        o(covering.size).equals(Array.from(covering).length);
-        o(Array.from(covering)).deepEquals(['31133322', '31311100']);
+        o(covering).deepEquals(['31133322', '31311100']);
 
         const covering2 = cutline.optimizeCovering({ bounds: geoJson, resolution: 18 } as SourceMetadata);
 
-        o(covering2.size).equals(Array.from(covering2).length);
-
-        o(Array.from(covering2)).deepEquals([
+        o(covering2).deepEquals([
             '3113332222',
             '3113332223',
             '311333223202',
@@ -69,9 +67,9 @@ o.spec('covering', () => {
     });
 
     o('optimize should not cover the world', () => {
-        const bounds = TileCover.toGeoJson(['']);
-        const cutline = new Cutline();
+        const bounds = TileGrid.Google.toGeoJson(['']);
+        const cutline = new Cutline(Epsg.Google);
         const covering = cutline.optimizeCovering({ bounds, resolution: 0 } as SourceMetadata);
-        o(Array.from(covering)).deepEquals(['0', '1', '2', '3']);
+        o(covering).deepEquals(['0', '1', '2', '3']);
     });
 });

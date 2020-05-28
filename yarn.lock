@@ -1329,13 +1329,6 @@
     npmlog "^4.1.2"
     write-file-atomic "^2.3.0"
 
-"@mapbox/tile-cover@^3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@mapbox/tile-cover/-/tile-cover-3.0.2.tgz#e10b1bbfe65ee28a7f1a0127deb699635d0f8d7a"
-  integrity sha1-4Qsbv+Ze4op/GgEn3raZY10PjXo=
-  dependencies:
-    "@mapbox/tilebelt" "^1.0.1"
-
 "@mapbox/tilebelt@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@mapbox/tilebelt/-/tilebelt-1.0.1.tgz#d57a1c4a5445e928dad720a828389a0a69db8818"

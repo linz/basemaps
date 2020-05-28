@@ -1,13 +1,15 @@
-import { Bounds, Epsg, GeoJson, QuadKey, QuadKeyTrie, TileCover } from '@basemaps/geo';
+import { Bounds, Epsg, GeoJson, QuadKey, QuadKeyTrie } from '@basemaps/geo';
 import { FileOperator } from '@basemaps/lambda-shared';
 import bbox from '@turf/bbox';
 import intersect from '@turf/intersect';
 import { FeatureCollection, Position } from 'geojson';
 import { basename } from 'path';
 import { CoveringPercentage, CutlineZoom, ZoomDifferenceForMaxImage } from './constants';
+import { TileGrid } from './tile.grid';
 import { CogJob, SourceMetadata } from './types';
 
 const PaddingFactor = 1.125;
+const MinCoverSize = 5;
 
 function findGeoJsonProjection(geojson: any | null): Epsg {
     return Epsg.parse(geojson?.crs?.properties?.name ?? '') ?? Epsg.Wgs84;
@@ -23,11 +25,14 @@ function getCoverZ(imageTargetZoom: number): number {
 
 export class Cutline {
     polygons: Position[][] = [];
+    extent: TileGrid;
 
     /**
      * Create a Cutline instanse from a GeoJSON FeatureCollection
      */
-    constructor(geojson?: FeatureCollection) {
+    constructor(targetProjection: Epsg, geojson?: FeatureCollection) {
+        const extent = TileGrid.get(targetProjection.code);
+        this.extent = extent;
         if (geojson == null) return;
         if (findGeoJsonProjection(geojson) !== Epsg.Wgs84) {
             throw new Error('Invalid geojson; CRS may not be set for cutline!');
@@ -58,9 +63,11 @@ export class Cutline {
         // The Trie covering the cutline(s)
         const clCovering = new QuadKeyTrie();
 
+        const tg = this.extent.getLevel(CutlineZoom);
+
         // add a poly to the clCovering;
         const coverCutline = (poly: Position[]): void => {
-            const pCovering = QuadKeyTrie.fromList(TileCover.cover(GeoJson.toPolygon([poly]), 1, CutlineZoom));
+            const pCovering = tg.coverPolygon(poly, 1);
             if (pCovering.intersectsTrie(srcCovering)) {
                 mergeCovering(clCovering, pCovering);
                 keepLines.push(poly);
@@ -107,6 +114,8 @@ export class Cutline {
 
         let srcBounds: Bounds | null = null;
 
+        const tg = this.extent.getLevel(coverZ);
+
         for (const { geometry } of sourceMetadata.bounds.features) {
             if (geometry.type === 'Polygon') {
                 const cBounds = Bounds.fromBbox(bbox(geometry));
@@ -115,7 +124,7 @@ export class Cutline {
                 } else {
                     srcBounds = srcBounds.union(cBounds);
                 }
-                mergeCovering(srcCovering, TileCover.cover(geometry, 1, coverZ));
+                mergeCovering(srcCovering, tg.coverPolygon(geometry.coordinates[0], MinCoverSize));
             }
         }
 
@@ -146,12 +155,15 @@ export class Cutline {
         const srcTiffs = new Set<string>();
 
         const coverZ = getCoverZ(job.source.resolution);
+
+        const tg = this.extent.getLevel(coverZ);
+
         for (const f of sourceGeo.features) {
             const { geometry } = f;
             if (geometry.type === 'Polygon') {
                 if (qkPadded.intersects(Bounds.fromBbox(bbox(geometry)))) {
                     srcTiffs.add(basename(f.properties!.tiff!));
-                    mergeCovering(srcCovering, TileCover.cover(geometry, 1, coverZ));
+                    mergeCovering(srcCovering, tg.coverPolygon(geometry.coordinates[0], MinCoverSize));
                 }
             }
         }
@@ -170,7 +182,7 @@ export class Cutline {
      * Generate an optimized WebMercator tile cover for the supplied polygons
      * @param featureCollection Source TIff Polygons in GeoJson WGS84
      */
-    optimizeCovering(sourceMetadata: SourceMetadata): QuadKeyTrie {
+    optimizeCovering(sourceMetadata: SourceMetadata): string[] {
         const sourceZ = sourceMetadata.resolution;
 
         // Don't make COGs with a quadKey shorter than minZ.
@@ -181,9 +193,9 @@ export class Cutline {
         covering.mergeQuadKeys(CoveringPercentage, minZ, minZ + 2);
 
         /** We should never return a full cover, using '' as a index causes problems */
-        if (covering.has('')) return QuadKeyTrie.fromList(QuadKey.children(''));
+        if (covering.has('')) return QuadKey.children('');
 
-        return covering;
+        return Array.from(covering);
     }
 
     /**
@@ -203,9 +215,9 @@ export class Cutline {
      *
      * @param path the path of the cutline to load. Can be `s3://` or local file path.
      */
-    static async loadCutline(path?: string): Promise<Cutline> {
-        if (path == null || path == '') return new Cutline();
+    static async loadCutline(targetProjection: Epsg, path?: string): Promise<Cutline> {
+        if (path == null || path == '') return new Cutline(targetProjection);
         const geojson = (await FileOperator.create(path).readJson(path)) as FeatureCollection;
-        return new Cutline(geojson);
+        return new Cutline(targetProjection, geojson);
     }
 }

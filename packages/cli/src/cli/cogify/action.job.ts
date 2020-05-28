@@ -1,3 +1,4 @@
+import { Epsg, EpsgCode } from '@basemaps/geo';
 import { FileConfig, FileOperator } from '@basemaps/lambda-shared';
 import {
     CommandLineAction,
@@ -5,10 +6,10 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
-import { CogJobFactory, JobCreationContext, MaxConcurrencyDefault } from '../../cog/job';
+import { CogJobFactory } from '../../cog/job';
+import { JobCreationContext, MaxConcurrencyDefault } from '../../cog/job.ctx';
 import { GdalCogBuilderDefaults, GdalResamplingOptions } from '../../gdal/gdal.config';
 import { CliId } from '../base.cli';
-import { Epsg } from '@basemaps/geo';
 
 export class CLiInputData {
     path: CommandLineStringParameter;
@@ -51,6 +52,7 @@ export class ActionJobCreate extends CommandLineAction {
     private submitBatch: CommandLineFlagParameter;
     private quality: CommandLineIntegerParameter;
     private sourceProjection: CommandLineIntegerParameter;
+    private targetProjection: CommandLineIntegerParameter;
 
     public constructor() {
         super({
@@ -86,6 +88,10 @@ export class ActionJobCreate extends CommandLineAction {
         if (this.cutline?.value) {
             cutline = { source: this.cutline.value, blend: this.cutlineBlend.value ?? 20 };
         }
+
+        const targetProjection = Epsg.tryGet(this.targetProjection?.value);
+        if (targetProjection == null) throw new Error('Invalid target-projection');
+
         const resampling =
             this.resampling?.value == null
                 ? GdalCogBuilderDefaults.resampling
@@ -95,6 +101,7 @@ export class ActionJobCreate extends CommandLineAction {
             source,
             output,
             cutline,
+            targetProjection,
             override: {
                 concurrency: this.maxConcurrency?.value ?? MaxConcurrencyDefault,
                 quality: this.quality?.value ?? GdalCogBuilderDefaults.quality,
@@ -173,6 +180,14 @@ export class ActionJobCreate extends CommandLineAction {
             argumentName: 'SOURCE_PROJECTION',
             parameterLongName: '--source-projection',
             description: 'The EPSG code of the source imagery',
+            required: false,
+        });
+
+        this.targetProjection = this.defineIntegerParameter({
+            argumentName: 'TARGET_PROJECTION',
+            parameterLongName: '--target-projection',
+            description: 'The EPSG code for the target imagery',
+            defaultValue: EpsgCode.Google,
             required: false,
         });
     }

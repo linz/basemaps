@@ -7,8 +7,6 @@ import { CogJob } from './types';
 export interface VrtOptions {
     /** Vrts will add a second alpha layer if one exists, so dont always add one */
     addAlpha: boolean;
-    /** No need to force a reprojection to 3857 if source imagery is in 3857 */
-    forceEpsg3857: boolean;
 }
 
 /**
@@ -42,7 +40,7 @@ export async function buildVrtForTiffs(
     // If required assume role
     if (isConfigS3Role(job.source)) {
         const credentials = Aws.credentials.getCredentialsForRole(job.source.roleArn, job.source.externalId);
-        await gdalCommand.setCredentials(credentials);
+        gdalCommand.setCredentials(credentials);
     } else {
         if (gdalCommand.mount) {
             for (const file of job.source.files) {
@@ -68,13 +66,9 @@ export async function buildVrtForTiffs(
 export async function buildWarpedVrt(
     job: CogJob,
     vrtPath: string,
-    options: VrtOptions,
     tmpTarget: string,
     logger: LogType,
 ): Promise<string> {
-    if (!options.forceEpsg3857) {
-        return vrtPath;
-    }
     const vrtWarpedPath = FileOperator.join(tmpTarget, `${job.id}.${Epsg.Google}.vrt`);
 
     logger.info({ path: vrtWarpedPath }, 'BuildVrt:Warped');
@@ -96,7 +90,7 @@ export async function buildWarpedVrt(
         '-s_srs',
         Epsg.get(job.source.projection).toEpsgString(),
         '-t_srs',
-        Epsg.Google.toEpsgString(),
+        Epsg.get(job.projection).toEpsgString(),
         vrtPath,
         vrtWarpedPath,
     ];

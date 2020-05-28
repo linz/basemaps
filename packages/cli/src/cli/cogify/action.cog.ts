@@ -16,6 +16,7 @@ import { CliId, CliInfo } from '../base.cli';
 import { getJobPath, makeTempFolder } from '../folder';
 import { SemVer } from './semver.util';
 import { GdalCogBuilder } from '../../gdal/gdal';
+import { Epsg } from '@basemaps/geo';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -107,14 +108,16 @@ export class ActionCogCreate extends CommandLineAction {
 
             const vrtString = await outputFs.read(getJobPath(job, '.vrt'));
 
+            const targetProjection = Epsg.get(job.projection);
+            if (targetProjection == null) throw new Error('Invalid projection in job.json');
             let cutline: Cutline;
             if (job.output.cutline != null) {
                 const cutlinePath = getJobPath(job, 'cutline.geojson.gz');
                 logger.info({ path: cutlinePath }, 'UsingCutLine');
-                cutline = await Cutline.loadCutline(cutlinePath);
+                cutline = await Cutline.loadCutline(targetProjection, cutlinePath);
             } else {
                 logger.warn('NoCutLine');
-                cutline = new Cutline();
+                cutline = new Cutline(targetProjection);
             }
 
             const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, vrtString, quadKey, logger);
@@ -125,7 +128,7 @@ export class ActionCogCreate extends CommandLineAction {
             await FileOperatorSimple.write(tmpVrt, Buffer.from(vrt.toString()), logger);
 
             // Sometimes we need to force a epsg3857 projection to get the COG to build since its fast just do it locally
-            const warpedVrtPath = await buildWarpedVrt(job, tmpVrt, job.output.vrt.options, tmpFolder, logger);
+            const warpedVrtPath = await buildWarpedVrt(job, tmpVrt, tmpFolder, logger);
 
             await buildCogForQuadKey(job, quadKey, warpedVrtPath, tmpTiff, logger, isCommit);
             logger.info({ target: targetPath }, 'StoreTiff');

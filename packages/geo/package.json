@@ -10,7 +10,6 @@
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "dependencies": {
-    "@mapbox/tile-cover": "^3.0.2",
     "@mapbox/tilebelt": "^1.0.1"
   },
   "publishConfig": {
