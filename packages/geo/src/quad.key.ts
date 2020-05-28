@@ -2,6 +2,7 @@ import { quadkeyToTile, tileToBBOX } from '@mapbox/tilebelt';
 import { Bounds } from './bounds';
 import { Tile } from './tile.matrix.set';
 
+const CHAR_0 = '0'.charCodeAt(0);
 const CHAR_1 = '1'.charCodeAt(0);
 const CHAR_2 = '2'.charCodeAt(0);
 const CHAR_3 = '3'.charCodeAt(0);
@@ -91,11 +92,11 @@ export const QuadKey = {
         const { x, y, z } = tile;
         let quadKey = '';
         for (let zI = z; zI > 0; zI--) {
-            let b = 0;
+            let b = CHAR_0;
             const mask = 1 << (zI - 1);
             if ((x & mask) !== 0) b++;
             if ((y & mask) !== 0) b += 2;
-            quadKey += b.toString();
+            quadKey += String.fromCharCode(b);
         }
         return quadKey;
     },
