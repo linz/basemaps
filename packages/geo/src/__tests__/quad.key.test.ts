@@ -69,4 +69,21 @@ o.spec('QuadKey', () => {
         o(QuadKey.compareKeys('31', '33')).equals(-1);
         o(QuadKey.compareKeys('31', '22')).equals(1);
     });
+
+    o('toTile', () => {
+        o(QuadKey.toTile('')).deepEquals({ x: 0, y: 0, z: 0 });
+        o(QuadKey.toTile('31')).deepEquals({ x: 3, y: 2, z: 2 });
+        o(QuadKey.toTile('31021')).deepEquals({ x: 25, y: 18, z: 5 });
+    });
+
+    o('fromTile', () => {
+        o(QuadKey.fromTile({ x: 0, y: 0, z: 0 })).equals('');
+        o(QuadKey.fromTile({ x: 0, y: 0, z: 32 })).equals('00000000000000000000000000000000');
+        o(QuadKey.fromTile({ x: 3, y: 2, z: 2 })).equals('31');
+        o(QuadKey.fromTile({ x: 25, y: 18, z: 5 })).equals('31021');
+
+        o(QuadKey.fromTile({ x: 2 ** 24 - 1, y: 0, z: 24 })).equals('111111111111111111111111');
+        o(QuadKey.fromTile({ x: 0, y: 2 ** 24 - 1, z: 24 })).equals('222222222222222222222222');
+        o(QuadKey.fromTile({ x: 2 ** 24 - 1, y: 2 ** 24 - 1, z: 24 })).equals('333333333333333333333333');
+    });
 });
