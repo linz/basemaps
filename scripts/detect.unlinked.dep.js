@@ -7,21 +7,15 @@
 const fs = require('fs').promises;
 const cp = require('child_process');
 
-const fileExists = async path => !!(await fs.stat(path).catch(() => false));
+const fileExists = async (path) => !!(await fs.stat(path).catch(() => false));
 
 function getAllImports(path) {
     const allImports = new Set();
 
-    const data = cp
-        .execSync(`grep -R "'@basemaps" ${path}/src || true`)
-        .toString()
-        .split('\n');
+    const data = cp.execSync(`grep -R "'@basemaps" ${path}/src || true`).toString().split('\n');
 
     for (const line of data) {
-        const pkgName = line
-            .split(' ')
-            .pop()
-            .replace(/[';]/g, '');
+        const pkgName = line.split(' ').pop().replace(/[';]/g, '');
 
         if (pkgName.length > 0) allImports.add(pkgName);
     }
@@ -42,11 +36,12 @@ async function main() {
 
         const allDeps = Object.keys(pkgJson.dependencies || {}).concat(Object.keys(pkgJson.devDependencies || {}));
 
-        const localDeps = new Set(allDeps.filter(f => f.startsWith('@basemaps')));
+        const localDeps = new Set(allDeps.filter((f) => f.startsWith('@basemaps')));
         const allImports = getAllImports(pkgPath);
 
         for (const importedPackage of allImports) {
             if (!localDeps.has(importedPackage)) {
+                if (importedPackage.includes('/build/')) continue;
                 console.error(`${pkg}: Missing import "${importedPackage}"`);
                 hasFailures = true;
             }
