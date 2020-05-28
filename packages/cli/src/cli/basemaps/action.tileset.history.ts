@@ -1,8 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataImageryRecord, TileMetadataSetRecord, TileSetTag } from '@basemaps/lambda-shared';
+import {
+    Aws,
+    LogConfig,
+    TileMetadataImageryRecord,
+    TileMetadataSetRecord,
+    TileMetadataTag,
+} from '@basemaps/lambda-shared';
 import { CliTable } from '../cli.table';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet, showDiff } from './tileset.util';
+import { Epsg } from '@basemaps/geo';
 
 const MaxHistory = 199;
 
@@ -15,12 +22,12 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         });
     }
 
-    async getAllTags(): Promise<Map<TileSetTag, TileMetadataSetRecord>> {
+    async getAllTags(): Promise<Map<TileMetadataTag, TileMetadataSetRecord>> {
         const tileSet = this.tileSet.value!;
-        const projection = this.projection.value!;
-        const allTags: Map<TileSetTag, TileMetadataSetRecord> = new Map();
+        const projection = Epsg.get(this.projection.value ?? -1);
+        const allTags: Map<TileMetadataTag, TileMetadataSetRecord> = new Map();
         await Promise.all(
-            Object.values(TileSetTag).map(async (tag) => {
+            Object.values(TileMetadataTag).map(async (tag) => {
                 try {
                     const value = await Aws.tileMetadata.TileSet.get(tileSet, projection, tag);
                     allTags.set(tag, value);
@@ -33,11 +40,11 @@ export class TileSetHistoryAction extends TileSetBaseAction {
 
     protected async onExecute(): Promise<void> {
         const tileSetName = this.tileSet.value!;
-        const projection = this.projection.value!;
+        const projection = Epsg.get(this.projection.value!);
 
         const allTags = await this.getAllTags();
 
-        const tsData = allTags.get(TileSetTag.Head);
+        const tsData = allTags.get(TileMetadataTag.Head);
         if (tsData == null) throw new Error('Unable to find tag: head');
 
         printTileSet(tsData, false);
@@ -51,7 +58,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         }
 
         function getTagsForVersion(version: number): string {
-            return Object.values(TileSetTag)
+            return Object.values(TileMetadataTag)
                 .filter((c) => allTags.get(c)?.version == version)
                 .join(', ');
         }

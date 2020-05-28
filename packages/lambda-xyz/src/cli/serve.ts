@@ -1,4 +1,4 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import {
     Env,
     FileOperator,
@@ -21,9 +21,6 @@ import { TileSets } from '../tile.set.cache';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
-if (Env.get(Env.CogBucket, undefined) == null) {
-    process.env[Env.CogBucket] = '';
-}
 
 if (process.stdout.isTTY) {
     LogConfig.setOutputStream(PrettyTransform.stream());
@@ -44,7 +41,7 @@ export class TileSetLocal extends TileSet {
     tiffs: CogTiff[];
     filePath: string;
 
-    constructor(name: string, projection: EPSG, path: string) {
+    constructor(name: string, projection: Epsg, path: string) {
         super(name, projection);
         this.filePath = path;
     }
@@ -99,9 +96,9 @@ async function main(): Promise<void> {
     }
     const filePath = process.argv[2];
     if (filePath != null) {
-        let tileSet = new TileSetLocal('aerial', EPSG.Google, filePath);
+        let tileSet = new TileSetLocal('aerial', Epsg.Google, filePath);
         TileSets.set(tileSet.id, tileSet);
-        tileSet = new TileSetLocal('aerial@beta', EPSG.Google, filePath);
+        tileSet = new TileSetLocal('aerial@beta', Epsg.Google, filePath);
         TileSets.set(tileSet.id, tileSet);
     }
 
@@ -138,7 +135,7 @@ async function main(): Promise<void> {
         },
     );
 
-    app.use(express.static('../landing/static/'));
+    app.use(express.static(__dirname + '/../../../landing/static/'));
     await new Promise((resolve) => app.listen(port, resolve));
     console.log('Listen', Env.get(Env.PublicUrlBase));
 }

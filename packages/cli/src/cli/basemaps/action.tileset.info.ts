@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileSetTag } from '@basemaps/lambda-shared';
+import { Aws, LogConfig, TileMetadataTag } from '@basemaps/lambda-shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as c from 'ansi-colors';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet } from './tileset.util';
+import { Epsg } from '@basemaps/geo';
 
 export class TileSetInfoAction extends TileSetBaseAction {
     private imagery: CommandLineStringParameter;
@@ -51,7 +52,7 @@ export class TileSetInfoAction extends TileSetBaseAction {
 
     protected async onExecute(): Promise<void> {
         const tileSet = this.tileSet.value!;
-        const projection = this.projection.value!;
+        const projection = Epsg.get(this.projection.value!);
         const imgId = this.imagery.value!;
 
         if (imgId != null) return this.imageInfo(imgId);
@@ -61,7 +62,11 @@ export class TileSetInfoAction extends TileSetBaseAction {
             console.log(this.renderHelpText());
             return;
         }
-        const tsData = await Aws.tileMetadata.TileSet.get(tileSet, projection, this.version.value! ?? TileSetTag.Head);
+        const tsData = await Aws.tileMetadata.TileSet.get(
+            tileSet,
+            projection,
+            this.version.value! ?? TileMetadataTag.Head,
+        );
         await printTileSet(tsData);
     }
 }

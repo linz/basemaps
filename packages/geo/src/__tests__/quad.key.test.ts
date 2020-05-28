@@ -1,5 +1,7 @@
 import { QuadKey } from '../quad.key';
 import * as o from 'ospec';
+import { Bounds } from '../bounds';
+import { approxBounds } from './test.util';
 
 o.spec('QuadKey', () => {
     o.spec('intersect', () => {
@@ -48,6 +50,12 @@ o.spec('QuadKey', () => {
         o(QuadKey.toBbox('31021')).deepEquals([101.25, -31.95216223802496, 112.5, -21.943045533438177]);
     });
 
+    o('toBounds', () => {
+        approxBounds(QuadKey.toBounds('3113323113203'), new Bounds(174.067383, -39.300299, 0.043945, 0.034015));
+        approxBounds(QuadKey.toBounds('3'), new Bounds(0, -85.051129, 180, 85.051129));
+        approxBounds(QuadKey.toBounds(''), new Bounds(-180, -85.051129, 360, 170.102258));
+    });
+
     o('toXYZ', () => {
         o(QuadKey.toXYZ('')).deepEquals([0, 0, 0]);
         o(QuadKey.toXYZ('31')).deepEquals([3, 2, 2]);
@@ -60,5 +68,22 @@ o.spec('QuadKey', () => {
         o(QuadKey.compareKeys('33', '33')).equals(0);
         o(QuadKey.compareKeys('31', '33')).equals(-1);
         o(QuadKey.compareKeys('31', '22')).equals(1);
+    });
+
+    o('toTile', () => {
+        o(QuadKey.toTile('')).deepEquals({ x: 0, y: 0, z: 0 });
+        o(QuadKey.toTile('31')).deepEquals({ x: 3, y: 2, z: 2 });
+        o(QuadKey.toTile('31021')).deepEquals({ x: 25, y: 18, z: 5 });
+    });
+
+    o('fromTile', () => {
+        o(QuadKey.fromTile({ x: 0, y: 0, z: 0 })).equals('');
+        o(QuadKey.fromTile({ x: 0, y: 0, z: 32 })).equals('00000000000000000000000000000000');
+        o(QuadKey.fromTile({ x: 3, y: 2, z: 2 })).equals('31');
+        o(QuadKey.fromTile({ x: 25, y: 18, z: 5 })).equals('31021');
+
+        o(QuadKey.fromTile({ x: 2 ** 24 - 1, y: 0, z: 24 })).equals('111111111111111111111111');
+        o(QuadKey.fromTile({ x: 0, y: 2 ** 24 - 1, z: 24 })).equals('222222222222222222222222');
+        o(QuadKey.fromTile({ x: 2 ** 24 - 1, y: 2 ** 24 - 1, z: 24 })).equals('333333333333333333333333');
     });
 });

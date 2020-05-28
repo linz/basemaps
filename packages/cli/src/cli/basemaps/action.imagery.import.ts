@@ -10,7 +10,7 @@ import {
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CogJob } from '../../cog/types';
 import { createImageryRecordFromJob } from '../cogify/action.batch';
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 
 export class ImageryImportAction extends CommandLineAction {
     private job: CommandLineStringParameter;
@@ -79,7 +79,7 @@ export class ImageryImportAction extends CommandLineAction {
 
         if (imgRecord.year == -1) logger.warn({ imagery: job.name }, 'Failed to parse year');
         if (imgRecord.resolution == -1) logger.warn({ imagery: job.name }, 'Failed to parse resolution');
-        if (EPSG[imgRecord.projection] == null) {
+        if (Epsg.tryGet(imgRecord.projection) == null) {
             logger.error({ imagery: job.name, projection: imgRecord.projection }, 'Failed to parse projection');
             return;
         }

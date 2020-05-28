@@ -1,17 +1,14 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import {
     Aws,
-    LogConfig,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
+    TileMetadataTag,
     TileSetRuleImagery,
-    TileSetTag,
 } from '@basemaps/lambda-shared';
-import * as AWS from 'aws-sdk';
 import * as c from 'ansi-colors';
-
-import { CliId } from '../base.cli';
 import { CliTable } from '../cli.table';
+import { invalidateCache } from '../util';
 
 export const TileSetTable = new CliTable<TileSetRuleImagery>();
 TileSetTable.field('#', 4, (obj) => String(obj.rule.priority));
@@ -71,41 +68,17 @@ export function showDiff(
     return output;
 }
 
-// Coudfront has to be defined in us-east-1
-const cloudFormation = new AWS.CloudFormation({ region: 'us-east-1' });
-const cloudFront = new AWS.CloudFront({ region: 'us-east-1' });
-
 /**
  * Invalidate the cloudfront distribution cache when updating imagery sets
  */
-export async function invalidateCache(name: string, projection: EPSG, tag: TileSetTag, commit = false): Promise<void> {
-    const nameStr = tag == TileSetTag.Production ? name : `${name}@${tag}`;
+export function invalidateXYZCache(
+    name: string,
+    projection: Epsg,
+    tag: TileMetadataTag,
+    commit = false,
+): Promise<void> {
+    const nameStr = tag == TileMetadataTag.Production ? name : `${name}@${tag}`;
     const path = `/v1/tiles/${nameStr}/${projection}/*`;
 
-    const stackInfo = await cloudFormation.describeStacks({ StackName: 'Edge' }).promise();
-    if (stackInfo.Stacks?.[0].Outputs == null) {
-        LogConfig.get().warn('Unable to find cloud front distribution');
-        return;
-    }
-    const cloudFrontDomain = stackInfo.Stacks[0].Outputs.find((f) => f.OutputKey == 'CloudFrontDomain');
-
-    const cloudFrontDistributions = await cloudFront.listDistributions().promise();
-    const cf = cloudFrontDistributions.DistributionList?.Items?.find(
-        (f) => f.DomainName == cloudFrontDomain?.OutputValue,
-    );
-
-    if (cloudFrontDomain == null || cf == null) {
-        LogConfig.get().warn('Unable to find cloud front distribution');
-        return;
-    }
-
-    LogConfig.get().info({ path, cfId: cf.Id }, 'Invalidating');
-    if (commit) {
-        await cloudFront
-            .createInvalidation({
-                DistributionId: cf.Id,
-                InvalidationBatch: { Paths: { Quantity: 1, Items: [path] }, CallerReference: CliId },
-            })
-            .promise();
-    }
+    return invalidateCache(path, commit);
 }

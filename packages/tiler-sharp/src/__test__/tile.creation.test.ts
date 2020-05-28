@@ -13,7 +13,7 @@ const WRITE_IMAGES = false;
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
 
 function getExpectedTileName(tileSize: number, x: number, y: number, zoom: number): string {
-    return path.join(__dirname, `../../data/expected/tile_${tileSize}_${x}_${y}_z${zoom}.png`);
+    return path.join(__dirname, `../../../../test-data/expected/tile_${tileSize}_${x}_${y}_z${zoom}.png`);
 }
 function getExpectedTile(tileSize: number, x: number, y: number, zoom: number): PNG {
     const fileName = getExpectedTileName(tileSize, x, y, zoom);
@@ -23,7 +23,7 @@ function getExpectedTile(tileSize: number, x: number, y: number, zoom: number): 
 
 o.spec('TileCreation', () => {
     // Tiff that is tiled and has WebMercator alignment for its resolution levels
-    const tiffPath = path.join(__dirname, '../../data/rgba8_tiled.wm.tiff');
+    const tiffPath = path.join(__dirname, '../../../../test-data/rgba8_tiled.wm.tiff');
     let tiff: CogTiff;
     let tiffSource: CogSourceFile;
 
@@ -42,12 +42,11 @@ o.spec('TileCreation', () => {
         const tiler = new Tiler(2 ** 20);
         const layers = await tiler.tile([tiff], 0, 0, 0);
 
-        o(layers).notEquals(null);
-        if (layers == null) throw new Error('Tile is null');
-
         o(layers.length).equals(1);
+        if (layers.length != 1) throw new Error('Tile is null');
+
         const [layer] = layers;
-        o(layer.id).equals(tiff.source.name);
+        o(layer.tiff.source.name).equals(tiff.source.name);
         o(layer.extract).deepEquals({ height: 16, width: 16 });
         o(layer.resize).deepEquals({ height: 2, width: 2 });
         o(layer.x).equals(tiler.tileSize / 2);
@@ -108,8 +107,7 @@ o.spec('TileCreation', () => {
             const tileMaker = new TileMakerSharp(tileSize);
 
             const layers = await tiler.tile([tiff], centerTile, centerTile, zoom);
-            o(layers).notEquals(null);
-            if (layers == null) throw new Error('Tile is null');
+            if (layers.length == 0) throw new Error('Tile is null');
 
             const png = await tileMaker.compose({ layers, format: ImageFormat.PNG, background });
             const newImage = PNG.sync.read(png.buffer);

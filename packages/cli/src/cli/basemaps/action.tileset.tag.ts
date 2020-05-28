@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileSetTag } from '@basemaps/lambda-shared';
+import { Aws, LogConfig } from '@basemaps/lambda-shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
+import { TagAction } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
-import { invalidateCache } from './tileset.util';
+import { invalidateXYZCache } from './tileset.util';
+import { Epsg } from '@basemaps/geo';
 
 export class TileSetUpdateTagAction extends TileSetBaseAction {
     private version: CommandLineIntegerParameter;
@@ -23,34 +25,13 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
 
     protected onDefineParameters(): void {
         super.onDefineParameters();
-
-        this.version = this.defineIntegerParameter({
-            argumentName: 'VERSION',
-            parameterLongName: '--version',
-            parameterShortName: '-v',
-            description: 'Version ID',
-            required: false,
-        });
-
-        const validTags = Object.values(TileSetTag).filter((f) => f != TileSetTag.Head);
-        this.tag = this.defineStringParameter({
-            argumentName: 'TILE_SET',
-            parameterLongName: '--tag',
-            parameterShortName: '-t',
-            description: `tag name  (options: ${validTags.join(', ')})`,
-            required: false,
-        });
-
-        this.commit = this.defineFlagParameter({
-            parameterLongName: '--commit',
-            description: 'Commit to database',
-            required: false,
-        });
+        TagAction.onDefineParameters(this);
     }
 
     protected async onExecute(): Promise<void> {
         const tileSet = this.tileSet.value!;
-        const projection = this.projection.value!;
+        const projection = Epsg.get(this.projection.value!);
+
         const tagInput = this.tag.value!;
         const version = this.version.value!;
 
@@ -65,8 +46,8 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
 
         if (this.commit.value) {
             await Aws.tileMetadata.TileSet.tag(name, projection, tag, version);
+            await invalidateXYZCache(name, projection, tag, this.commit.value);
         }
-        await invalidateCache(name, projection, tag, this.commit.value);
 
         if (!this.commit.value) {
             LogConfig.get().warn('DryRun:Done');

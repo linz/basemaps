@@ -1,12 +1,13 @@
-import { EPSG } from '@basemaps/geo';
-import { Env, LogConfig, VNodeParser } from '@basemaps/lambda-shared';
+import { Epsg } from '@basemaps/geo';
+import { Env, LogConfig, VNodeParser, TileMetadataProviderRecord, Aws } from '@basemaps/lambda-shared';
 import { Tiler } from '@basemaps/tiler';
 import * as o from 'ospec';
 import { handleRequest } from '../index';
 import { TileSet } from '../tile.set';
 import { TileSets } from '../tile.set.cache';
 import { Tilers } from '../tiler';
-import { mockRequest, addTitleAndDesc } from './xyz.testhelper';
+import { mockRequest, addTitleAndDesc, Provider } from './xyz.testhelper';
+import { TileEtag } from '../routes/tile.etag';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -15,36 +16,43 @@ o.spec('LambdaXyz', () => {
 
     let tileMock = o.spy();
     let rasterMock = o.spy();
+    const generateMock = o.spy(() => 'foo');
     const rasterMockBuffer = Buffer.from([1]);
     const origTile256 = Tilers.tile256;
     const origCompose256 = Tilers.compose256;
+    const origTileEtag = TileEtag.generate;
+    const tileMockData = [{ tiff: { source: { name: 'TileMock' } } }];
 
     o.beforeEach(() => {
         LogConfig.disable();
-        tileMock = o.spy(() => ['TileMock']) as any;
+        tileMock = o.spy(() => tileMockData) as any;
         rasterMock = o.spy(() => {
             return {
                 buffer: rasterMockBuffer,
             };
         }) as any;
 
+        TileEtag.generate = generateMock;
         // Mock the tile generation
         Tilers.tile256 = new Tiler(256);
         Tilers.tile256.tile = tileMock as any;
         Tilers.compose256 = { compose: rasterMock } as any;
 
         for (const tileSetName of TileSetNames) {
-            const tileSet = new TileSet(tileSetName, EPSG.Google, 'bucket');
+            const tileSet = new TileSet(tileSetName, Epsg.Google);
             TileSets.set(tileSet.id, tileSet);
             tileSet.load = () => Promise.resolve(true);
             tileSet.getTiffsForQuadKey = async (): Promise<[]> => [];
         }
+
+        (Aws.tileMetadata.Provider as any).get = async (): Promise<TileMetadataProviderRecord> => Provider;
     });
 
     o.afterEach(() => {
         TileSets.clear();
         Tilers.tile256 = origTile256;
         Tilers.compose256 = origCompose256;
+        TileEtag.generate = origTileEtag;
     });
 
     o('should export handler', async () => {
@@ -59,8 +67,12 @@ o.spec('LambdaXyz', () => {
             const res = await handleRequest(request);
             o(res.status).equals(200);
             o(res.header('content-type')).equals('image/png');
-            o(typeof res.header('eTaG')).equals('string');
+            o(res.header('eTaG')).equals('foo');
             o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
+            o(generateMock.args).deepEquals([
+                tileMockData,
+                { type: 'image', name: tileSetName, projection: Epsg.Google, x: 0, y: 0, z: 0, ext: 'png' },
+            ] as any);
 
             o(tileMock.calls.length).equals(1);
             const [tiffs, x, y, z] = tileMock.args;
@@ -83,7 +95,7 @@ o.spec('LambdaXyz', () => {
         const res = await handleRequest(request);
         o(res.status).equals(200);
         o(res.header('content-type')).equals('image/webp');
-        o(res.header('eTaG')).equals('9Iiu/i3ZzjiLKroRycpaD5eLk0BHUHX1hUsy0CCSoIM=');
+        o(res.header('eTaG')).equals('foo');
         o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
 
         o(tileMock.calls.length).equals(1);
@@ -101,14 +113,14 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should 200 with empty png if a tile is out of bounds', async () => {
-        Tilers.tile256.tile = async () => null;
+        Tilers.tile256.tile = async () => [];
         const res = await handleRequest(mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png'));
         o(res.status).equals(200);
         o(rasterMock.calls.length).equals(0);
     });
 
     o('should 304 if a tile is not modified', async () => {
-        const key = 'J6AksQQEhXqW/wywDDsAGtd0OVVqOlKs6M8ViZlOU1g=';
+        const key = 'foo';
         const request = mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', {
             'if-none-match': key,
         });
@@ -129,7 +141,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = 'arocKWxyUGMZz5JimBQvKR4GMTNwurS650qXiBTc5KM=';
+            const key = '6khTqeXAtOeIWimmzLQcviPhVYNKMjHzYCuLt3R5WE8=';
             const request = mockRequest('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', {
                 'if-none-match': key,
             });
@@ -155,7 +167,6 @@ o.spec('LambdaXyz', () => {
             o(res.status).equals(200);
             o(res.header('content-type')).equals('text/xml');
             o(res.header('cache-control')).equals('max-age=0');
-            o(res.header('eTaG')).equals('Vixue8iG50Q9FcTC7SwBBJUFMel5gMWClKBe4Ud0Rc8=');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(body.slice(0, 100)).equals(

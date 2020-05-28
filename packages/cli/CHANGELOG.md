@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/linz/basemaps/compare/v2.0.0...v2.1.0) (2020-05-21)
+
+
+### Bug Fixes
+
+* **cli:** gdal progress dots are not on every gdal command ([#651](https://github.com/linz/basemaps/issues/651)) ([b5e4838](https://github.com/linz/basemaps/commit/b5e4838c5cbcd1bb34cb32c754c5b55133938a31))
+* **lambda-shared:** fix order equal priority images are sorted ([#640](https://github.com/linz/basemaps/issues/640)) ([3022336](https://github.com/linz/basemaps/commit/302233614aec815eb0d85c588d4a0c4be7f5cbc3))
+
+
+### Features
+
+* **cli:** output sparse cogs by default ([#643](https://github.com/linz/basemaps/issues/643)) ([da1ea32](https://github.com/linz/basemaps/commit/da1ea32ac5f5beae5dafaeedae74a5cf41008240))
+* better sparse cog handling ([#634](https://github.com/linz/basemaps/issues/634)) ([1b60a87](https://github.com/linz/basemaps/commit/1b60a87f4a3f4751f203e3c927ca34784e5745b2))
+
+
+
+
+
 # [2.0.0](https://github.com/linz/basemaps/compare/v1.12.0...v2.0.0) (2020-05-18)
 
 

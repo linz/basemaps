@@ -1,16 +1,18 @@
+import type { FeatureCollection, Feature, Position, MultiPolygon, Polygon } from 'geojson';
+
 export const GeoJson = {
     /**
      * Join a list of features into a Feature collection
      * @param features
      */
-    toFeatureCollection(features: GeoJSON.Feature[]): GeoJSON.FeatureCollection {
+    toFeatureCollection(features: Feature[]): FeatureCollection {
         return {
             type: 'FeatureCollection',
             features,
         };
     },
 
-    toPositionPolygon(bbox: [number, number, number, number]): GeoJSON.Position[][] {
+    toPositionPolygon(bbox: [number, number, number, number]): Position[][] {
         return [
             [
                 [bbox[0], bbox[1]],
@@ -22,7 +24,7 @@ export const GeoJson = {
         ];
     },
 
-    toPolygon(coordinates: GeoJSON.Position[][]): GeoJSON.Polygon {
+    toPolygon(coordinates: Position[][]): Polygon {
         return {
             type: 'Polygon',
             coordinates,
@@ -30,7 +32,7 @@ export const GeoJson = {
     },
 
     /** Create a feature polygon */
-    toFeaturePolygon(coordinates: GeoJSON.Position[][], properties = {}): GeoJSON.Feature {
+    toFeaturePolygon(coordinates: Position[][], properties = {}): Feature {
         return {
             type: 'Feature',
             geometry: {
@@ -44,7 +46,7 @@ export const GeoJson = {
     /**
      * Create a feature mult-polygon
      */
-    toFeatureMultiPolygon(coordinates: GeoJSON.Position[][][], properties = {}): GeoJSON.Feature {
+    toFeatureMultiPolygon(coordinates: Position[][][], properties = {}): Feature {
         return {
             type: 'Feature',
             geometry: {
@@ -63,8 +65,8 @@ export const GeoJson = {
      * @param features list of features to convert
      * @param removeHoles remove any holes in the polygons
      */
-    toMultiPolygon(features: GeoJSON.Feature[], removeHoles = false): GeoJSON.MultiPolygon {
-        const coordinates: GeoJSON.Position[][][] = [];
+    toMultiPolygon(features: Feature[], removeHoles = false): MultiPolygon {
+        const coordinates: Position[][][] = [];
         for (const feature of features) {
             if (feature.geometry.type == 'Polygon') {
                 const poly = feature.geometry.coordinates;

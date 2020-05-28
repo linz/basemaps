@@ -1,11 +1,11 @@
-import { EPSG } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import { HttpHeader, VNodeElement } from '@basemaps/lambda-shared';
 import { createHash } from 'crypto';
 import * as o from 'ospec';
 import { TileSet } from '../tile.set';
 import { TileSets } from '../tile.set.cache';
 import { buildWmtsCapability, buildWmtsCapabilityToVNode } from '../wmts.capability';
-import { mockRequest, addTitleAndDesc } from './xyz.testhelper';
+import { addTitleAndDesc, mockRequest, Provider } from './xyz.testhelper';
 
 const listTag = (node: VNodeElement, tag: string): string[] => Array.from(node.tags(tag)).map((n) => n.toString());
 
@@ -14,7 +14,7 @@ const TileSetNames = ['aerial', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 o.spec('wmts', () => {
     o.beforeEach(() => {
         for (const name of TileSetNames) {
-            const tileSet = new TileSet(name, EPSG.Google, 'test_bucket');
+            const tileSet = new TileSet(name, Epsg.Google);
             addTitleAndDesc(tileSet);
             TileSets.set(tileSet.id, tileSet);
         }
@@ -28,14 +28,17 @@ o.spec('wmts', () => {
         const req = mockRequest('/v1/tiles/aerial@beta/3857/WMTSCapabilities.xml', 'get', {
             [HttpHeader.ApiKey]: 'secret1234',
         });
-        const raw = buildWmtsCapabilityToVNode('https://basemaps.test', req, TileSets.get('aerial@beta_3857')!)!;
+        const raw = buildWmtsCapabilityToVNode(
+            'https://basemaps.test',
+            req,
+            Provider,
+            TileSets.get('aerial@beta_3857')!,
+        )!;
 
         const serviceId = raw.find('ows:ServiceIdentification')!;
 
-        o(serviceId.find('ows:Abstract')!.textContent).equals(
-            'National Mapping Service provided by Land Information New Zealand',
-        );
-        o(serviceId.find('ows:Title')!.textContent).equals('National Base Mapping Service (LINZ)');
+        o(serviceId.find('ows:Abstract')!.textContent).equals('the description');
+        o(serviceId.find('ows:Title')!.textContent).equals('the title');
 
         o(listTag(raw, 'TileMatrixSetLink')).deepEquals([
             '<TileMatrixSetLink>\n' +
@@ -106,27 +109,28 @@ o.spec('wmts', () => {
                 '</TileMatrix>',
         );
 
-        const xml = buildWmtsCapability('https://basemaps.test', req, TileSets.get('aerial@beta_3857')!)!;
+        const xml = buildWmtsCapability('https://basemaps.test', req, Provider, TileSets.get('aerial@beta_3857')!)!;
 
         o(xml).deepEquals('<?xml version="1.0"?>\n' + raw.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            '0k3eedbALsdZdISLae8M/SSQNwZb8iZSaQJ0722ssZA=',
+            'Y6X5Q9VqbY+Y7wRUhKMCIk/V7OQIkCXD20xGmsiuFlc=',
         );
     });
 
     o('should return null if not found', () => {
         const req = mockRequest('/v1/tiles/aerial/4326/WMTSCapabilities.xml');
-        const ts = new TileSet('aerial', EPSG.Nztm2000, 'test_bucket');
+        const ts = new TileSet('aerial', Epsg.Nztm2000);
         addTitleAndDesc(ts);
 
-        o(buildWmtsCapability('basemaps.test', req, ts)).equals(null);
+        o(buildWmtsCapability('basemaps.test', req, Provider, ts)).equals(null);
     });
 
     o('should allow individual imagery sets', () => {
         const raw = buildWmtsCapabilityToVNode(
             'https://basemaps.test',
             mockRequest('/v1/tiles/01E7PJFR9AMQFJ05X9G7FQ3XMW/3857/WMTSCapabilities.xml'),
+            Provider,
             TileSets.get('01E7PJFR9AMQFJ05X9G7FQ3XMW_3857')!,
         )!;
 

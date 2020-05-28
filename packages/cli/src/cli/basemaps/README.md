@@ -71,7 +71,7 @@ To change the version a tag is using
 
 ## Updating
 
-To update command can be used to configure the rendering of a tile set, each time the `--commit` is used a new version is created and the `head` tag is updated to point at it.
+The update command can be used to configure the rendering of a tile set, each time the `--commit` is used a new version is created and the `head` tag is updated to point at it.
 
 ```
 # Make gebco priority 2

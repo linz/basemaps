@@ -1,44 +1,42 @@
-import { EPSG, QuadKey } from '@basemaps/geo';
+import { Epsg, QuadKey } from '@basemaps/geo';
 import {
     Aws,
-    Env,
-    RecordPrefix,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
-    TileMetadataTable,
+    TileMetadataTag,
     TileSetRuleImagery,
-    TileSetTag,
 } from '@basemaps/lambda-shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-import * as path from 'path';
 
 export class TileSet {
     name: string;
-    tag: TileSetTag;
-    projection: EPSG;
+    tag: TileMetadataTag;
+    projection: Epsg;
     private tileSet: TileMetadataSetRecord;
     imagery: TileSetRuleImagery[];
     sources: Map<string, CogTiff> = new Map();
-    bucket: string;
 
-    static BasePath(record: TileMetadataImageryRecord, quadKey?: string): string {
-        const id = TileMetadataTable.unprefix(RecordPrefix.Imagery, record.id);
-        const basePath = [record.projection, record.name, id].join('/');
+    /**
+     * Return the location of a imagery `record`
+     * @param record
+     * @param quadKey the COG to locate. Return just the directory if `null`
+     */
+    static basePath(record: TileMetadataImageryRecord, quadKey?: string): string {
         if (quadKey == null) {
-            return basePath;
+            return record.uri;
         }
-        return path.join(basePath, `${quadKey}.tiff`);
+        if (record.uri.endsWith('/')) {
+            throw new Error("Invalid uri ending with '/' " + record.uri);
+        }
+        return `${record.uri}/${quadKey}.tiff`;
     }
 
-    constructor(nameStr: string, projection: EPSG, bucket: string | undefined = process.env[Env.CogBucket]) {
+    constructor(nameStr: string, projection: Epsg) {
         const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
         this.name = name;
-        this.tag = tag ?? TileSetTag.Production;
+        this.tag = tag ?? TileMetadataTag.Production;
         this.projection = projection;
-
-        if (bucket == null) throw new Error(`Invalid environment missing "${Env.CogBucket}"`);
-        this.bucket = bucket;
     }
 
     get background(): { r: number; g: number; b: number; alpha: number } | undefined {
@@ -46,7 +44,7 @@ export class TileSet {
     }
 
     get taggedName(): string {
-        if (this.tag == TileSetTag.Production) return this.name;
+        if (this.tag == TileMetadataTag.Production) return this.name;
         return `${this.name}@${this.tag}`;
     }
 
@@ -91,7 +89,7 @@ export class TileSet {
             const tiffKey = `${record.id}_${quadKey}`;
             let existing = this.sources.get(tiffKey);
             if (existing == null) {
-                existing = new CogTiff(new CogSourceAwsS3(this.bucket, TileSet.BasePath(record, quadKey)));
+                existing = new CogTiff(CogSourceAwsS3.createFromUri(TileSet.basePath(record, quadKey))!);
                 this.sources.set(tiffKey, existing);
             }
 

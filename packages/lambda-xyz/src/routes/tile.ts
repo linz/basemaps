@@ -8,6 +8,8 @@ import {
     TileDataXyz,
     tileFromPath,
     TileType,
+    Aws,
+    TileMetadataTag,
 } from '@basemaps/lambda-shared';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -17,10 +19,8 @@ import { TileSet } from '../tile.set';
 import { loadTileSet } from '../tile.set.cache';
 import { Tilers } from '../tiler';
 import { buildWmtsCapability } from '../wmts.capability';
-import { EPSG } from '@basemaps/geo';
-
-// To force a full cache invalidation change this number
-const RenderId = 1;
+import { Epsg } from '@basemaps/geo';
+import { TileEtag } from './tile.etag';
 
 /**
  * Serve a empty PNG response
@@ -92,11 +92,10 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     const layers = await tiler.tile(tiffs, x, y, z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId
-    const cacheKey = createHash('sha256').update(JSON.stringify({ xyzData, layers, RenderId })).digest('base64');
+    const cacheKey = TileEtag.generate(layers, xyzData);
 
-    if (layers == null) {
-        return emptyPng(req, cacheKey);
-    }
+    // TODO this should really return a webp, png or jpeg depending on request
+    if (layers.length == 0) return emptyPng(req, cacheKey);
 
     req.set('layers', layers.length);
 
@@ -105,7 +104,8 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
 
     if (!Env.isProduction()) {
         for (const layer of layers) {
-            req.log.debug({ layerId: layer.id, layerSource: layer.source }, 'Compose');
+            const layerId = layer.tiff.source.name;
+            req.log.debug({ layerId, layerSource: layer.source }, 'Compose');
         }
     }
 
@@ -136,9 +136,11 @@ export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
 
     // TODO when we support more than one projection: get all projections if wmtsData.projection is
     // null
-    const tileSet = await loadTileSet(req, wmtsData.name, wmtsData.projection ?? EPSG.Google);
+    const tileSet = await loadTileSet(req, wmtsData.name, wmtsData.projection ?? Epsg.Google);
 
-    const xml = tileSet == null ? null : buildWmtsCapability(host, req, tileSet);
+    const provider = await Aws.tileMetadata.Provider.get(TileMetadataTag.Production);
+
+    const xml = tileSet == null ? null : buildWmtsCapability(host, req, provider!, tileSet);
 
     if (xml == null) return new LambdaHttpResponse(404, 'Not Found');
 

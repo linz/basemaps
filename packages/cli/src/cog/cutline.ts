@@ -1,4 +1,4 @@
-import { Bounds, EPSG, GeoJson, Projection, QuadKeyTrie, TileCover, QuadKey } from '@basemaps/geo';
+import { Bounds, Epsg, GeoJson, QuadKey, QuadKeyTrie, TileCover } from '@basemaps/geo';
 import { FileOperator } from '@basemaps/lambda-shared';
 import bbox from '@turf/bbox';
 import intersect from '@turf/intersect';
@@ -9,8 +9,8 @@ import { CogJob, SourceMetadata } from './types';
 
 const PaddingFactor = 1.125;
 
-function findGeoJsonProjection(geojson: any | null): EPSG {
-    return Projection.parseEpsgString(geojson?.crs?.properties?.name ?? '') ?? EPSG.Wgs84;
+function findGeoJsonProjection(geojson: any | null): Epsg {
+    return Epsg.parse(geojson?.crs?.properties?.name ?? '') ?? Epsg.Wgs84;
 }
 
 function mergeCovering(self: QuadKeyTrie, other: string[] | QuadKeyTrie): void {
@@ -29,7 +29,7 @@ export class Cutline {
      */
     constructor(geojson?: FeatureCollection) {
         if (geojson == null) return;
-        if (findGeoJsonProjection(geojson) !== EPSG.Wgs84) {
+        if (findGeoJsonProjection(geojson) !== Epsg.Wgs84) {
             throw new Error('Invalid geojson; CRS may not be set for cutline!');
         }
         for (const { geometry } of geojson.features) {
@@ -138,7 +138,7 @@ export class Cutline {
 
      */
     filterSourcesForQuadKey(quadKey: string, job: CogJob, sourceGeo: FeatureCollection): void {
-        const qkBounds = Bounds.fromQuadKey(quadKey);
+        const qkBounds = QuadKey.toBounds(quadKey);
         const qkPadded = qkBounds.scaleFromCenter(PaddingFactor);
 
         const srcCovering = new QuadKeyTrie();

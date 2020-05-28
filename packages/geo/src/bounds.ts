@@ -1,5 +1,3 @@
-import { QuadKey } from './quad.key';
-
 export interface Point {
     x: number;
     y: number;
@@ -148,15 +146,6 @@ export class Bounds {
     static fromBbox(bbox: number[]): Bounds {
         const right = bbox[2] >= bbox[0] ? bbox[2] : bbox[2] + 360;
         return new Bounds(bbox[0], bbox[1], right - bbox[0], Math.abs(bbox[3] - bbox[1]));
-    }
-
-    /**
-     * Convert a quadKey to its bounding box
-     * @param quadKey
-     * @return The bounds in `EPSG.Wgs84`
-     */
-    static fromQuadKey(quadKey: string): Bounds {
-        return Bounds.fromBbox(QuadKey.toBbox(quadKey));
     }
 
     /** */
