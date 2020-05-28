@@ -1,7 +1,7 @@
 import { QuadKey } from '../quad.key';
 import * as o from 'ospec';
 import { Bounds } from '../bounds';
-import { approxBounds } from '@basemaps/test';
+import { Approx } from '@basemaps/test';
 
 o.spec('QuadKey', () => {
     o.spec('intersect', () => {
@@ -51,9 +51,9 @@ o.spec('QuadKey', () => {
     });
 
     o('toBounds', () => {
-        approxBounds(QuadKey.toBounds('3113323113203'), new Bounds(174.067383, -39.300299, 0.043945, 0.034015));
-        approxBounds(QuadKey.toBounds('3'), new Bounds(0, -85.051129, 180, 85.051129));
-        approxBounds(QuadKey.toBounds(''), new Bounds(-180, -85.051129, 360, 170.102258));
+        Approx.bounds(QuadKey.toBounds('3113323113203'), new Bounds(174.067383, -39.300299, 0.043945, 0.034015));
+        Approx.bounds(QuadKey.toBounds('3'), new Bounds(0, -85.051129, 180, 85.051129));
+        Approx.bounds(QuadKey.toBounds(''), new Bounds(-180, -85.051129, 360, 170.102258));
     });
 
     o('toXYZ', () => {

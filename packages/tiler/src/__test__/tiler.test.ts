@@ -1,15 +1,47 @@
-import { Bounds } from '@basemaps/geo';
-import { BoundingBox } from '@cogeotiff/core/build/vector';
+import { Bounds, QuadKey } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Approx, TestTiff } from '@basemaps/test';
 import * as o from 'ospec';
 import { Tiler } from '../tiler';
 
 o.spec('tiler.test', () => {
+    o.spec('getRasterTiffIntersection', () => {
+        o('should intersect google', async () => {
+            const tiff = await TestTiff.Google.init();
+            const tiler = new Tiler(GoogleTms);
+
+            const z0 = tiler.getRasterTiffIntersection(tiff, 0, 0, 0);
+            Approx.bounds(z0?.tiff, { x: 64, y: 64, height: 128, width: 128 }, 'tiff');
+            Approx.bounds(z0?.intersection, { x: 64, y: 64, height: 128, width: 128 }, 'intersection');
+            Approx.bounds(z0?.tile, { x: 0, y: 0, width: 256, height: 256 }, 'tile');
+        });
+
+        ['0', '1', '2', '3'].forEach((qk) => {
+            // Since this tiff centered in the middle tile, all of these tiffs should have 1/4 of their image taken up by it
+            o(`should intersect google for qk:${qk}`, async () => {
+                const tiff = await TestTiff.Google.init();
+                const tiler = new Tiler(GoogleTms);
+
+                const tile = QuadKey.toTile(qk);
+                const o = tiler.getRasterTiffIntersection(tiff, tile.x, tile.y, tile.z);
+
+                Approx.bounds(o?.tiff, { x: 128, y: 128, height: 256, width: 256 }, 'tiff');
+                Approx.bounds(
+                    o?.intersection,
+                    { x: 128 + tile.x * 128, y: 128 + tile.y * 128, height: 128, width: 128 },
+                    'intersection',
+                );
+                Approx.bounds(o?.tile, { x: 256 * tile.x, y: 256 * tile.y, width: 256, height: 256 }, 'tile');
+            });
+        });
+    });
     o('createComposition should handle non square images', () => {
-        const tiler = new Tiler(256) as any;
+        const tiler = new Tiler(Nztm2000Tms);
 
         const img = {
             id: 6,
-            getTileBounds(): BoundingBox {
+            getTileBounds() {
                 return { x: 0, y: 0, width: 512, height: 387 };
             },
             tif: { source: { name: '313111000120111.tiff' } },
@@ -23,6 +55,7 @@ o.spec('tiler.test', () => {
         };
 
         const ans = tiler.createComposition(img, 0, 0, 0.5, raster);
+        if (ans == null) throw new Error('Composition should return results');
         const { crop } = ans;
         o(ans).deepEquals({
             tiff: ans.tiff,
@@ -34,6 +67,6 @@ o.spec('tiler.test', () => {
             crop,
         });
 
-        o(crop.toJson()).deepEquals(new Bounds(0, 64, 192, 130).toJson());
+        o(crop?.toJson()).deepEquals(new Bounds(0, 64, 192, 130).toJson());
     });
 });

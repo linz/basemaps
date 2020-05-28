@@ -1,21 +1,36 @@
 import { Point } from './bounds';
 import { Epsg } from './epsg';
 import { TileMatrixSetType, TileMatrixSetTypeMatrix } from './tms/tile.matrix.set.type';
+import { getXyOrder, XyOrder } from './xy.order';
 
 export type Tile = Point & { z: number };
 
 export class TileMatrixSet {
+    /** Projection of the matrix set */
     projection: Epsg;
+    /** Number of pixels for a tile */
     tileSize: number;
-    def: TileMatrixSetType;
-    private zooms: TileMatrixSetTypeMatrix[] = [];
+    /**
+     * Raw tile matrix definition
+     *
+     * Avoid directly accessing this object
+     */
+    readonly def: TileMatrixSetType;
+    /** Indexed tile index zooms */
+    readonly zooms: TileMatrixSetTypeMatrix[] = [];
+
+    /** Array index of X coordinates */
+    indexX = 0;
+    /** Array index of y coordinate */
+    indexY = 1;
 
     constructor(def: TileMatrixSetType) {
         this.def = def;
         this.tileSize = def.tileMatrix[0].tileHeight;
+
         for (const z of def.tileMatrix) {
             const zoomIndex = parseInt(z.identifier);
-            if (this.zooms[zoomIndex]) throw new Error(`Duplicate tileMatrix identifier: ${z.identifier}`);
+            if (this.zooms[zoomIndex]) throw new Error(`Duplicate tileMatrix identifier ${z.identifier}`);
             if (z.tileHeight != z.tileWidth) throw new Error('Only square tiles supported');
             if (z.tileHeight != this.tileSize) throw new Error('All tiles must have the same tile size');
             this.zooms[parseInt(z.identifier)] = z;
@@ -24,6 +39,12 @@ export class TileMatrixSet {
         const projection = Epsg.parse(def.supportedCRS);
         if (projection == null) throw new Error(`Unable to find supported projection ${def.supportedCRS}`);
         this.projection = projection;
+
+        /** Some projections @see EPSG:2193 are defined with XY Order of  */
+        if (getXyOrder(this.projection) == XyOrder.Yx) {
+            this.indexX = 1;
+            this.indexY = 0;
+        }
     }
 
     /** Get the pixels / meter at a specified zoom level */
@@ -66,8 +87,8 @@ export class TileMatrixSet {
     public sourceToPixels(sX: number, sY: number, zoom: number): Point {
         const z = this.zooms[zoom];
         const scale = this.pixelScale(zoom);
-        const pX = (sX - z.topLeftCorner[0]) / scale;
-        const pY = (sY + z.topLeftCorner[1]) / scale;
+        const pX = (sX - z.topLeftCorner[this.indexX]) / scale;
+        const pY = (z.topLeftCorner[this.indexY] - sY) / scale;
         return { x: pX, y: pY };
     }
 
@@ -80,8 +101,8 @@ export class TileMatrixSet {
     public pixelsToSource(pX: number, pY: number, zoom: number): Point {
         const z = this.zooms[zoom];
         const scale = this.pixelScale(zoom);
-        const sX = pX * scale + z.topLeftCorner[0];
-        const sY = pY * scale - z.topLeftCorner[1];
+        const sX = z.topLeftCorner[this.indexX] + pX * scale;
+        const sY = z.topLeftCorner[this.indexY] - pY * scale;
         return { x: sX, y: sY };
     }
 }

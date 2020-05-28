@@ -1,7 +1,7 @@
 import { Bounds } from '../bounds';
 import { Projection } from '../projection';
 import * as o from 'ospec';
-import { approxBounds, approxEqual } from '@basemaps/test';
+import { Approx } from '@basemaps/test';
 
 o.spec('TilingBounds', () => {
     const projection = new Projection(256);
@@ -16,12 +16,12 @@ o.spec('TilingBounds', () => {
 
     o('should tile 0,0,0', () => {
         const bounds = projection.getPixelsBoundsFromMeters(tifBoundingBox, 0);
-        approxBounds(bounds, expectedBaseSize);
+        Approx.bounds(bounds, expectedBaseSize);
 
         const screenBounds = projection.getPixelsFromTile(0, 0);
         const intersection = bounds.intersection(screenBounds);
 
-        approxBounds(intersection, expectedBaseSize);
+        Approx.bounds(intersection, expectedBaseSize);
     });
 
     o('should tile 1,1,1', () => {
@@ -29,12 +29,12 @@ o.spec('TilingBounds', () => {
         const bounds = projection.getPixelsBoundsFromMeters(tifBoundingBox, z);
         const expectedBaseSizeScaled = expectedBaseSize.scale(2, 2);
 
-        approxBounds(bounds, expectedBaseSizeScaled);
+        Approx.bounds(bounds, expectedBaseSizeScaled);
 
         const screenBounds = projection.getPixelsFromTile(x, y);
         const intersection = bounds.intersection(screenBounds);
 
-        approxBounds(intersection, expectedBaseSizeScaled);
+        Approx.bounds(intersection, expectedBaseSizeScaled);
     });
 
     /**
@@ -52,7 +52,7 @@ o.spec('TilingBounds', () => {
         const bounds = projection.getPixelsBoundsFromMeters(tifBoundingBox, z);
         const expectedBaseSizeScaled = expectedBaseSize.scale(2 ** z, 2 ** z);
 
-        approxBounds(bounds, expectedBaseSizeScaled);
+        Approx.bounds(bounds, expectedBaseSizeScaled);
 
         const screenBounds9 = projection.getPixelsFromTile(x, 9);
         const screenBounds10 = projection.getPixelsFromTile(x, 10);
@@ -73,8 +73,8 @@ o.spec('TilingBounds', () => {
         o(intersection9.width).equals(bounds.width);
         o(intersection10.width).equals(bounds.width);
 
-        approxEqual(intersection9.height, 101.5, 'height');
-        approxEqual(intersection10.height, 106.5, 'height');
+        Approx.equal(intersection9.height, 101.5, 'height');
+        Approx.equal(intersection10.height, 106.5, 'height');
     });
 
     /**
@@ -95,7 +95,7 @@ o.spec('TilingBounds', () => {
         const bounds = projection.getPixelsBoundsFromMeters(tifBoundingBox, z);
         const expectedBaseSizeScaled = expectedBaseSize.scale(2 ** z, 2 ** z);
 
-        approxBounds(bounds, expectedBaseSizeScaled);
+        Approx.bounds(bounds, expectedBaseSizeScaled);
 
         const screenTopLeft = projection.getPixelsFromTile(tileBounds.x, tileBounds.y);
         const screenTopRight = projection.getPixelsFromTile(tileBounds.right, tileBounds.y);
@@ -128,8 +128,8 @@ o.spec('TilingBounds', () => {
         // the image is split in two so the intersection should combine into the total width of the image
         const totalBottomIntersectionWidth = intersectionBottomLeft.width + intersectionBottomRight.width;
         o(totalBottomIntersectionWidth).equals(bounds.width);
-        approxEqual(intersectionBottomLeft.height, 213, 'height');
-        approxEqual(intersectionBottomRight.height, 213, 'height');
+        Approx.equal(intersectionBottomLeft.height, 213, 'height');
+        Approx.equal(intersectionBottomRight.height, 213, 'height');
 
         const totalLeftIntersectionHeight = intersectionTopLeft.height + intersectionBottomLeft.height;
         const totalRightIntersectionHeight = intersectionTopRight.height + intersectionBottomRight.height;

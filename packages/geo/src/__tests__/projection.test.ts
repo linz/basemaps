@@ -1,6 +1,6 @@
 import * as o from 'ospec';
 import { Projection } from '../projection';
-import { approxLatLon } from '@basemaps/test';
+import { Approx } from '@basemaps/test';
 
 const { Wgs84Bound } = Projection;
 
@@ -25,10 +25,10 @@ o.spec('Projection', () => {
         const latLonC = proj256.getLatLonCenterFromTile(1, 1, 1);
         const latLonD = proj256.getLatLonCenterFromTile(1, 0, 1);
 
-        approxLatLon(latLonA, { lat: Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
-        approxLatLon(latLonB, { lat: -Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
-        approxLatLon(latLonC, { lat: -Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
-        approxLatLon(latLonD, { lat: Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
+        Approx.latLon(latLonA, { lat: Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
+        Approx.latLon(latLonB, { lat: -Wgs84Bound.lat / 2, lon: -Wgs84Bound.lon / 2 });
+        Approx.latLon(latLonC, { lat: -Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
+        Approx.latLon(latLonD, { lat: Wgs84Bound.lat / 2, lon: Wgs84Bound.lon / 2 });
     });
 
     o('constants', () => {
