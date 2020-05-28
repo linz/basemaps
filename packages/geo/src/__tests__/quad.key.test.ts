@@ -69,4 +69,16 @@ o.spec('QuadKey', () => {
         o(QuadKey.compareKeys('31', '33')).equals(-1);
         o(QuadKey.compareKeys('31', '22')).equals(1);
     });
+
+    o('toTile', () => {
+        o(QuadKey.toTile('')).deepEquals({ x: 0, y: 0, z: 0 });
+        o(QuadKey.toTile('31')).deepEquals({ x: 3, y: 2, z: 2 });
+        o(QuadKey.toTile('31021')).deepEquals({ x: 25, y: 18, z: 5 });
+    });
+
+    o('fromTile', () => {
+        o(QuadKey.fromTile({ x: 0, y: 0, z: 0 })).equals('');
+        o(QuadKey.fromTile({ x: 3, y: 2, z: 2 })).equals('31');
+        o(QuadKey.fromTile({ x: 25, y: 18, z: 5 })).equals('31021');
+    });
 });
