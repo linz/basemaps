@@ -13,7 +13,7 @@ export class TileSet {
     name: string;
     tag: TileMetadataTag;
     projection: Epsg;
-    private tileSet: TileMetadataSetRecord;
+    protected tileSet: TileMetadataSetRecord;
     imagery: TileSetRuleImagery[];
     sources: Map<string, CogTiff> = new Map();
 

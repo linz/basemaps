@@ -1,11 +1,34 @@
-import { Epsg, Projection } from '@basemaps/geo';
-import { LambdaContext, V, VNodeElement, TileMetadataProviderRecord } from '@basemaps/lambda-shared';
+import { Epsg, TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/lambda-shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { TileSet } from './tile.set';
+import { WmtsProvider, WmtsLayer } from '@basemaps/lambda-shared';
 
-const { lat, lon } = Projection.Wgs84Bound;
+function getTileMatrixSet(projection: Epsg): TileMatrixSet {
+    switch (projection) {
+        case Epsg.Google:
+            return GoogleTms;
+        case Epsg.Nztm2000:
+            return Nztm2000Tms;
+        default:
+            throw new Error(`Invalid projection: ${projection.code}`);
+    }
+}
 
-const MaxZoomLevel = 22;
+/**
+ * Get the unique list of projections needed to serve these tilesets
+ * @param tileSets
+ */
+function getTileMatrixSets(tileSets: WmtsLayer[]): TileMatrixSet[] {
+    const output = new Map<number, TileMatrixSet>();
+    for (const ts of tileSets) {
+        const tms = getTileMatrixSet(ts.projection);
+        output.set(tms.projection.code, tms);
+    }
+    return Array.from(output.values());
+}
 
 const CapabilitiesAttrs = {
     xmlns: 'http://www.opengis.net/wmts/1.0',
@@ -18,148 +41,155 @@ const CapabilitiesAttrs = {
     version: '1.0.0',
 };
 
-const formats: VNodeElement[] = [];
-for (const k of ImageFormatOrder) {
-    formats.push(V('Format', 'image/' + k));
-}
+export class WmtsCapabilities {
+    httpBase: string;
+    provider: WmtsProvider;
 
-enum tileMatrixSetId {
-    Google = 'GoogleMapsCompatible',
-}
+    layers: Map<string, WmtsLayer[]> = new Map();
+    tms: Map<number, TileMatrixSet> = new Map();
 
-const LayerPreamble: Partial<Record<string, VNodeElement[]>> = {
-    aerial: [
-        V('ows:WGS84BoundingBox', { crs: 'urn:ogc:def:crs:OGC:2:84' }, [
-            V('ows:LowerCorner', -lon + ' -' + lat),
-            V('ows:UpperCorner', lon + ' ' + lat),
-        ]),
-        V('ows:Identifier', 'aerial'),
-        V('Style', [V('ows:Identifier', 'default')]),
-        ...formats,
-    ],
-};
+    apiKey?: string;
 
-export function providerInfo(provider: TileMetadataProviderRecord): VNodeElement[] {
-    const { serviceIdentification, serviceProvider } = provider;
-    const { contact } = serviceProvider;
-    return [
-        V('ows:ServiceIdentification', [
-            V('ows:Title', serviceIdentification.title),
-            V('ows:Abstract', serviceIdentification.description),
-            V('ows:ServiceType', 'OGC WMTS'),
-            V('ows:ServiceTypeVersion', '1.0.' + provider.version),
-            V('ows:Fees', serviceIdentification.fees),
-            V('ows:AccessConstraints', serviceIdentification.accessConstraints),
-        ]),
+    constructor(httpBase: string, provider: WmtsProvider, layers: WmtsLayer[], apiKey?: string) {
+        this.httpBase = httpBase;
+        this.provider = provider;
 
-        V('ows:ServiceProvider', [
-            V('ows:ProviderName', serviceProvider.name),
-            V('ows:ProviderSite', { 'xlink:href': serviceProvider.site }),
-            V('ows:ServiceContact', [
-                V('ows:IndividualName', contact.individualName),
-                V('ows:PositionName', contact.position),
-                V('ows:ContactInfo', [
-                    V('ows:Phone', [V('ows:Voice', contact.phone)]),
-                    V('ows:Address', [
-                        V('ows:DeliveryPoint', contact.address.deliveryPoint),
-                        V('ows:City', contact.address.city),
-                        V('ows:PostalCode', contact.address.postalCode),
-                        V('ows:Country', contact.address.country),
-                        V('ows:ElectronicMailAddress', contact.address.email),
+        for (const layer of layers) {
+            // TODO is grouping by name the best option
+            let existing = this.layers.get(layer.name);
+            if (existing == null) {
+                existing = [];
+                this.layers.set(layer.name, existing);
+            }
+            // TODO should a error be thrown here if the projection is invalid
+            existing.push(layer);
+        }
+        this.apiKey = apiKey;
+    }
+
+    buildBoundingBox(tms: TileMatrixSet): VNodeElement {
+        return V('ows:BoundingBox', { crs: tms.projection.toUrn() }, [
+            V('ows:LowerCorner', tms.def.boundingBox.lowerCorner.join(' ')),
+            V('ows:UpperCorner', tms.def.boundingBox.upperCorner.join(' ')),
+        ]);
+    }
+
+    buildProvider(): VNodeElement[] {
+        const { serviceIdentification, serviceProvider } = this.provider;
+        const { contact } = serviceProvider;
+        return [
+            V('ows:ServiceIdentification', [
+                V('ows:Title', serviceIdentification.title),
+                V('ows:Abstract', serviceIdentification.description),
+                V('ows:ServiceType', 'OGC WMTS'),
+                V('ows:ServiceTypeVersion', '1.0.' + this.provider.version),
+                V('ows:Fees', serviceIdentification.fees),
+                V('ows:AccessConstraints', serviceIdentification.accessConstraints),
+            ]),
+
+            V('ows:ServiceProvider', [
+                V('ows:ProviderName', serviceProvider.name),
+                V('ows:ProviderSite', { 'xlink:href': serviceProvider.site }),
+                V('ows:ServiceContact', [
+                    V('ows:IndividualName', contact.individualName),
+                    V('ows:PositionName', contact.position),
+                    V('ows:ContactInfo', [
+                        V('ows:Phone', [V('ows:Voice', contact.phone)]),
+                        V('ows:Address', [
+                            V('ows:DeliveryPoint', contact.address.deliveryPoint),
+                            V('ows:City', contact.address.city),
+                            V('ows:PostalCode', contact.address.postalCode),
+                            V('ows:Country', contact.address.country),
+                            V('ows:ElectronicMailAddress', contact.address.email),
+                        ]),
                     ]),
                 ]),
             ]),
-        ]),
-    ];
-}
+        ];
+    }
 
-function wellKnownScaleSet(projection: Epsg): VNodeElement[] {
-    return projection === Epsg.Google ? [V('WellKnownScaleSet', 'urn:ogc:def:wkss:OGC:1.0:GoogleMapsCompatible')] : [];
-}
+    buildTileUrl(tileSet: WmtsLayer, suffix: string): string {
+        const apiSuffix = this.apiKey ? `?api=${this.apiKey}` : '';
+        return [
+            this.httpBase,
+            'v1',
+            'tiles',
+            tileSet.taggedName,
+            tileSet.projection,
+            '{TileMatrix}',
+            '{TileCol}',
+            `{TileRow}.${suffix}${apiSuffix}`,
+        ].join('/');
+    }
 
-const CommonGlobalMercator = [
-    V('TopLeftCorner', -Projection.OriginShift + ' ' + Projection.OriginShift),
-    V('TileWidth', '256'),
-    V('TileHeight', '256'),
-];
+    buildResourceUrl(tileSet: WmtsLayer, suffix: string): VNodeElement {
+        return V('ResourceURL', {
+            format: 'image/' + suffix,
+            resourceType: 'tile',
+            template: this.buildTileUrl(tileSet, suffix),
+        });
+    }
 
-function getMatrixSets(tileSet: TileSet): VNodeElement | null {
-    if (tileSet.projection === Epsg.Google) {
-        const matrices = [];
-        let scale = Projection.GoogleScaleDenominator,
-            size = 1;
-        for (let i = 0; i < MaxZoomLevel; ++i, scale *= 0.5) {
-            const dim = String(size);
-            size *= 2;
-            matrices.push(
-                V('TileMatrix', [
-                    V('ows:Identifier', i),
-                    V('ScaleDenominator', scale),
-                    ...CommonGlobalMercator,
-                    V('MatrixWidth', dim),
-                    V('MatrixHeight', dim),
-                ]),
-            );
-        }
-        return V('TileMatrixSet', [
-            V('ows:Identifier', tileMatrixSetId.Google),
-            V('ows:SupportedCRS', Epsg.Google.toUrn()),
-            ...wellKnownScaleSet(Epsg.Google),
-            ...matrices,
+    buildLayer(tileSet: WmtsLayer[], tms: TileMatrixSet[]): VNodeElement {
+        const [firstTileSet] = tileSet;
+        return V('Layer', [
+            V('ows:Title', firstTileSet.title),
+            V('ows:Abstract', firstTileSet.description),
+            ...tms.map((c) => this.buildBoundingBox(c)),
+            ...tms.map((c) => V('TileMatrixSetLink', [V('TileMatrixSet', c.def.identifier)])),
+            ...ImageFormatOrder.map((fmt) => V('Format', 'image/' + fmt)),
+            ...ImageFormatOrder.map((fmt) => this.buildResourceUrl(firstTileSet, fmt)),
         ]);
     }
-    return null;
-}
 
-const getLayerElements = (tileSet: TileSet): [VNodeElement[], string, VNodeElement] | [] => {
-    const preamble = [V('ows:Title', tileSet.title), V('ows:Abstract', tileSet.description), ...LayerPreamble.aerial!]; // TODO support other imagery types
-    const sets = getMatrixSets(tileSet);
-    if (sets != null) {
-        return [preamble, tileMatrixSetId.Google, sets];
-    }
-    return [];
-};
-
-/**
- * Generate the WMTSCapabilities.xml file for a given `name` and `projection`
- **/
-export function buildWmtsCapabilityToVNode(
-    httpBase: string,
-    req: LambdaContext,
-    provider: TileMetadataProviderRecord,
-    tileSet: TileSet,
-): VNodeElement | null {
-    const [preambleXml, matrixSetId, matrixSet] = getLayerElements(tileSet);
-    if (preambleXml == null || matrixSetId == null) return null;
-    const resUrls: VNodeElement[] = [];
-    const apiKey = req.apiKey;
-    for (const suffix of ImageFormatOrder) {
-        resUrls.push(
-            V('ResourceURL', {
-                format: 'image/' + suffix,
-                resourceType: 'tile',
-                template: `${httpBase}/v1/tiles/${tileSet.taggedName}/${
-                    tileSet.projection
-                }/{TileMatrix}/{TileCol}/{TileRow}.${suffix}${apiKey ? '?api=' + apiKey : ''}`,
+    buildTileMatrixSet(tms: TileMatrixSet): VNodeElement {
+        return V('TileMatrixSet', [
+            V('ows:Title', tms.def.title),
+            tms.def.abstract ? V('ows:Abstract', tms.def.abstract) : null,
+            V('ows:Identifier', tms.def.identifier),
+            V('ows:SupportedCRS', tms.projection.toUrn()),
+            tms.def.wellKnownScaleSet ? V('ows:WellKnownScaleSet', tms.def.wellKnownScaleSet) : null,
+            this.buildBoundingBox(tms),
+            ...tms.def.tileMatrix.map((c) => {
+                return V('TileMatrix', [
+                    V('ows:Identifier', c.identifier),
+                    V('ScaleDenominator', c.scaleDenominator),
+                    V('TopLeftCorner', c.topLeftCorner.join(' ')),
+                    V('TileWidth', c.tileWidth),
+                    V('TileHeight', c.tileHeight),
+                    V('MatrixWidth', c.matrixWidth),
+                    V('MatrixHeight', c.matrixHeight),
+                ]);
             }),
-        );
+        ]);
+    }
+    toVNode(): VNodeElement {
+        const layers: VNodeElement[] = [];
+        const matrixDefs: VNodeElement[] = [];
+
+        const allTms = new Map<number, TileMatrixSet>();
+        for (const tileSets of this.layers.values()) {
+            const tms = getTileMatrixSets(tileSets);
+            layers.push(this.buildLayer(tileSets, tms));
+
+            for (const matrix of tms) {
+                if (allTms.has(matrix.projection.code)) continue;
+                matrixDefs.push(this.buildTileMatrixSet(matrix));
+                allTms.set(matrix.projection.code, matrix);
+            }
+        }
+
+        return V('Capabilities', CapabilitiesAttrs, [
+            ...this.buildProvider(),
+            V('Contents', layers.concat(matrixDefs)),
+        ]);
     }
 
-    return V('Capabilities', CapabilitiesAttrs, [
-        ...providerInfo(provider),
-        V('Contents', [
-            V('Layer', [...preambleXml, V('TileMatrixSetLink', [V('TileMatrixSet', matrixSetId)]), ...resUrls]),
-            matrixSet,
-        ]),
-    ]);
-}
+    toString(): string {
+        return '<?xml version="1.0"?>\n' + this.toVNode().toString();
+    }
 
-export function buildWmtsCapability(
-    httpBase: string,
-    req: LambdaContext,
-    provider: TileMetadataProviderRecord,
-    tileSet: TileSet,
-): string | null {
-    const vnode = buildWmtsCapabilityToVNode(httpBase, req, provider, tileSet);
-    return vnode && '<?xml version="1.0"?>\n' + vnode.toString();
+    static toXml(httpBase: string, provider: TileMetadataProviderRecord, tileSet: TileSet[], apiKey?: string): string {
+        return new WmtsCapabilities(httpBase, provider, tileSet, apiKey).toString();
+    }
 }

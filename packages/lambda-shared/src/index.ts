@@ -12,6 +12,7 @@ export { tileFromPath, TileType, TileData, TileDataWmts, TileDataXyz } from './a
 export { V, VNode, VNodeElement, VNodeText } from './vdom';
 export { VNodeParser } from './vdom.parse';
 export { CompositeError } from './composite.error';
+export { WmtsLayer, WmtsProvider } from './wmts/wmts';
 
 export * from './aws/tile.metadata.base';
 export * from './aws/tile.metadata';

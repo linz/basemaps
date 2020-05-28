@@ -1,5 +1,6 @@
 import { LambdaContext, LogConfig, TileMetadataProviderRecord } from '@basemaps/lambda-shared';
 import { TileSet } from '../tile.set';
+import { Epsg } from '@basemaps/geo';
 
 export function mockRequest(path: string, method = 'get', headers = {}): LambdaContext {
     return new LambdaContext(
@@ -15,11 +16,11 @@ export function mockRequest(path: string, method = 'get', headers = {}): LambdaC
     );
 }
 
-export function addTitleAndDesc(tileSet: TileSet, title = 'The Title', description = 'The Description'): void {
-    (tileSet as any).tileSet = {
-        title,
-        description,
-    };
+export class FakeTileSet extends TileSet {
+    constructor(name: string, proj: Epsg, title = `${name}:title`, description = `${name}:description`) {
+        super(name, proj);
+        this.tileSet = { title, description } as any;
+    }
 }
 
 export const Provider: TileMetadataProviderRecord = {

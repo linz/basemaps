@@ -2,6 +2,7 @@ import { EpsgCode } from '@basemaps/geo';
 import { DynamoDB } from 'aws-sdk';
 import { Const } from '../const';
 import { BaseDynamoTable } from './aws.dynamo.table';
+import { WmtsProvider } from '../wmts/wmts';
 
 export enum TileMetadataTag {
     /** Version to render by default */
@@ -97,30 +98,7 @@ export interface TileMetadataSetRecord extends TaggedTileMetadataRecord {
  * Provider details used by WMTS
  */
 
-export interface TileMetadataProviderRecord extends TaggedTileMetadataRecord {
-    serviceIdentification: {
-        title: string;
-        description: string;
-        fees: string;
-        accessConstraints: string;
-    };
-    serviceProvider: {
-        name: string;
-        site: string;
-        contact: {
-            individualName: string;
-            position: string;
-            phone: string;
-            address: {
-                deliveryPoint: string;
-                city: string;
-                postalCode: string;
-                country: string;
-                email: string;
-            };
-        };
-    };
-}
+export type TileMetadataProviderRecord = TaggedTileMetadataRecord & WmtsProvider;
 
 export interface TileSetRuleImagery {
     rule: TileMetadataImageRule;
