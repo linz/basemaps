@@ -232,7 +232,7 @@ function copyNodes(nodesA: number[], idxA: number, nodesB: number[], idxB: numbe
 }
 
 /**
- * Reduce nodesA to the intersection with nodesB
+ * Reduce `nodesA` to the intersection with `nodesB`
  */
 function intersection(nodesA: number[], idxA: number, nodesB: number[], idxB: number): boolean {
     let found = false;
@@ -260,7 +260,7 @@ function intersection(nodesA: number[], idxA: number, nodesB: number[], idxB: nu
 }
 
 /**
- * Reduce nodesA to the intersection with nodesB
+ * Combine `nodesA` with `nodesB`
  */
 function union(nodesA: number[], idxA: number, nodesB: number[], idxB: number): boolean {
     let full = 0;
@@ -285,7 +285,7 @@ function union(nodesA: number[], idxA: number, nodesB: number[], idxB: number): 
 }
 
 /**
- * Is there an intersection between nodesA and nodesB
+ * Is there an intersection between `nodesA` and `nodesB`
  */
 function hasIntersection(nodesA: number[], idxA: number, nodesB: number[], idxB: number): boolean {
     for (let key = 0; key < 4; ++key) {
