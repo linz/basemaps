@@ -17,7 +17,7 @@
     "@types/aws-lambda": "^8.10.43",
     "@types/node": "^13.9.8",
     "@types/ospec": "^4.0.2",
-    "@typescript-eslint/eslint-plugin": "^2.3.2",
+    "@typescript-eslint/eslint-plugin": "^3.1.0",
     "@typescript-eslint/parser": "^2.3.2",
     "@zeit/ncc": "^0.22.1",
     "eslint": "^6.5.1",
