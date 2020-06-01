@@ -28,6 +28,7 @@ async function main() {
 
     let hasFailures = false;
     for (const pkg of packages) {
+        if (pkg == '__tests__') continue; // Ignore tests
         const pkgPath = `./packages/${pkg}`;
         const pkgJson = JSON.parse(await fs.readFile(`${pkgPath}/package.json`));
 
@@ -42,6 +43,7 @@ async function main() {
         for (const importedPackage of allImports) {
             if (!localDeps.has(importedPackage)) {
                 if (importedPackage.includes('/build/')) continue;
+                if (importedPackage.includes('@basemaps/test')) continue;
                 console.error(`${pkg}: Missing import "${importedPackage}"`);
                 hasFailures = true;
             }
