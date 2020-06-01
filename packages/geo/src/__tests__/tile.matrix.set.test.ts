@@ -2,7 +2,7 @@ import * as o from 'ospec';
 import { GoogleTms } from '../tms/google';
 import { Projection } from '../projection';
 import { Epsg } from '../epsg';
-import { approxEqual } from './test.util';
+import { approxEqual } from '@basemaps/test';
 
 o.spec('TileMatrixSet', () => {
     o.spec('load', () => {

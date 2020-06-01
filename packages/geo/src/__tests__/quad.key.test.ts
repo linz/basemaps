@@ -1,7 +1,7 @@
 import { QuadKey } from '../quad.key';
 import * as o from 'ospec';
 import { Bounds } from '../bounds';
-import { approxBounds } from './test.util';
+import { approxBounds } from '@basemaps/test';
 
 o.spec('QuadKey', () => {
     o.spec('intersect', () => {

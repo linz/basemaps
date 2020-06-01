@@ -1,7 +1,7 @@
 import { Bounds } from '../bounds';
 import { Projection } from '../projection';
 import * as o from 'ospec';
-import { approxBounds, approxEqual } from './test.util';
+import { approxBounds, approxEqual } from '@basemaps/test';
 
 o.spec('TilingBounds', () => {
     const projection = new Projection(256);
