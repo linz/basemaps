@@ -5,7 +5,7 @@ import { Epsg } from '@basemaps/geo';
 import { TileSetLocal } from './tile.set.local';
 import { TileSets } from '../tile.set.cache';
 import { ImageFormat } from '@basemaps/tiler';
-import { writeFileSync } from 'fs';
+import { promises as fs } from 'fs';
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
@@ -37,7 +37,7 @@ async function main(): Promise<void> {
 
     const tileData = await Tile(ctx, { ...xyz, projection, name: tileSet.name, ext, type: TileType.Image });
 
-    await writeFileSync(`output_${xyz.x}_${xyz.y}_z${xyz.z}.${ext}`, tileData.body);
+    await fs.writeFile(`output_${xyz.x}_${xyz.y}_z${xyz.z}.${ext}`, tileData.body);
 
     const headers: Record<string, any> = {};
     for (const [key, value] of tileData.headers) headers[key] = value;
