@@ -1,12 +1,11 @@
-import { CogTiff } from '@cogeotiff/core';
-import { CogSourceFile } from '@cogeotiff/source-file';
-import { writeFileSync } from 'fs';
-import * as path from 'path';
-import { Tiler, ImageFormat } from '@basemaps/tiler';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Metrics } from '@basemaps/metrics';
-import { TileMakerSharp } from '..';
+import { TestTiff } from '@basemaps/test';
+import { ImageFormat, Tiler } from '@basemaps/tiler';
+import { writeFileSync } from 'fs';
 import * as o from 'ospec';
 import 'source-map-support/register';
+import { TileMakerSharp } from '../index';
 
 o.spec('TileCreationBenchmark', () => {
     const RenderCount = 5;
@@ -16,17 +15,14 @@ o.spec('TileCreationBenchmark', () => {
     const Center = 2 ** Zoom;
     const CenterTile = Center / 2;
 
-    const TiffPath = path.join(__dirname, '../../../../test-data/rgba8_tiled.wm.tiff');
     const background = { r: 0, g: 0, b: 0, alpha: 1 };
 
     async function renderTile(tileSize: number, timer: Metrics): Promise<void> {
-        const tiler = new Tiler(tileSize);
+        const tiler = new Tiler(GoogleTms);
         const tileMaker = new TileMakerSharp(tileSize);
 
         timer.start('tiff:init');
-        const source = new CogSourceFile(TiffPath);
-        const tiff = new CogTiff(source);
-        await tiff.init();
+        const tiff = await TestTiff.Google.init();
         timer.end('tiff:init');
 
         timer.start('tiler:tile');
@@ -35,8 +31,6 @@ o.spec('TileCreationBenchmark', () => {
 
         if (layers == null) throw new Error('Tile is null');
         await tileMaker.compose({ layers, format: ImageFormat.PNG, background });
-
-        await source.close();
     }
     const results: Record<string, Record<string, number[]>> = {};
 

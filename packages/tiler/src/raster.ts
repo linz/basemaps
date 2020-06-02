@@ -1,4 +1,4 @@
-import { BoundingBox, Size } from '@basemaps/geo';
+import { Bounds, Size } from '@basemaps/geo';
 import { Metrics } from '@basemaps/metrics';
 import { CogTiff } from '@cogeotiff/core';
 
@@ -30,7 +30,7 @@ export interface Composition {
     /** Resize the image */
     resize?: Size;
     /** Crop after the resize */
-    crop?: BoundingBox;
+    crop?: Bounds;
 }
 
 export enum ImageFormat {

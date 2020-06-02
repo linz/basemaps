@@ -18,7 +18,7 @@ export class LambdaHttpResponse {
     /**
      * Raw body object
      */
-    private body: string | Buffer | null = null;
+    body: string | Buffer | null = null;
 
     headers: Map<string, string | number | boolean> = new Map();
 
