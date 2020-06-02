@@ -8,21 +8,23 @@ import { TileMakerSharp } from '..';
 import { TestTiff } from '@basemaps/test';
 import PixelMatch = require('pixelmatch');
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Tile } from '@basemaps/geo';
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;
 
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
 
-function getExpectedTileName(projection: Epsg, tileSize: number, qk: string): string {
+function getExpectedTileName(projection: Epsg, tileSize: number, tile: Tile): string {
     return path.join(
         __dirname,
         '..',
         '..',
-        `static/expected_tile_${projection.code}_${tileSize}x${tileSize}_${qk}.png`,
+        `static/expected_tile_${projection.code}_${tileSize}x${tileSize}_${tile.x}_${tile.y}_z${tile.z}.png`,
     );
 }
-function getExpectedTile(projection: Epsg, tileSize: number, qk: string): PNG {
-    const fileName = getExpectedTileName(projection, tileSize, qk);
+function getExpectedTile(projection: Epsg, tileSize: number, tile: Tile): PNG {
+    const fileName = getExpectedTileName(projection, tileSize, tile);
     const bytes = readFileSync(fileName);
     return PNG.sync.read(bytes);
 }
@@ -71,33 +73,39 @@ o.spec('TileCreation', () => {
     });
 
     const RenderTests = [
-        { tileSize: 256, projection: Epsg.Google, qk: '0' },
-        { tileSize: 256, projection: Epsg.Google, qk: '1' },
-        { tileSize: 256, projection: Epsg.Google, qk: '2' },
-        { tileSize: 256, projection: Epsg.Google, qk: '3' },
-        { tileSize: 256, projection: Epsg.Google, qk: '30' },
-        { tileSize: 256, projection: Epsg.Google, qk: '300' },
-        { tileSize: 256, projection: Epsg.Google, qk: '301' },
-        { tileSize: 256, projection: Epsg.Google, qk: '302' },
-        { tileSize: 256, projection: Epsg.Google, qk: '303' },
+        { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('0') },
+        { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('1') },
+        { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('2') },
+        { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('3') },
+        { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('30') },
+        { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('300') },
+        { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('301') },
+        { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('302') },
+        { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('303') },
 
-        // FIXME
-        // { tileSize: 512, zoom: 19 },
-        // { tileSize: 1024, zoom: 19 },
-        // { tileSize: 2048, zoom: 19 },
-        // { tileSize: 4096, zoom: 19 },
+        { tileSize: 256, tms: Nztm2000Tms, tile: { x: 1, y: 2, z: 0 } },
+        { tileSize: 256, tms: Nztm2000Tms, tile: { x: 1, y: 1, z: 0 } },
+        { tileSize: 256, tms: Nztm2000Tms, tile: { x: 0, y: 2, z: 0 } },
+        { tileSize: 256, tms: Nztm2000Tms, tile: { x: 0, y: 1, z: 0 } },
+
+        { tileSize: 256, tms: Nztm2000Tms, tile: { x: 4, y: 7, z: 2 } },
+        { tileSize: 256, tms: Nztm2000Tms, tile: { x: 4, y: 8, z: 2 } },
+        { tileSize: 256, tms: Nztm2000Tms, tile: { x: 5, y: 8, z: 2 } },
+        { tileSize: 256, tms: Nztm2000Tms, tile: { x: 6, y: 8, z: 2 } }, // Empty tile
     ];
 
-    RenderTests.forEach(({ tileSize, projection, qk }) => {
-        o(`should render a tile ${qk} tile: ${tileSize} projection: ${projection}`, async () => {
+    RenderTests.forEach(({ tileSize, tms, tile }) => {
+        const projection = tms.projection;
+        const tileText = `${tile.x}, ${tile.y} z${tile.z}`;
+        o(`should render a tile ${tileText} tile: ${tileSize} projection: ${projection}`, async () => {
             o.timeout(30 * 1000);
 
-            const timeStr = `RenderTests: ${qk} Size ${tileSize}, Projection: ${projection} time`;
+            const timeStr = `RenderTests(${projection}): ${tileText} ${tileSize}x${tileSize}  time`;
             console.time(timeStr);
 
-            const tile = QuadKey.toTile(qk);
-            const tiff = await TestTiff.Google.init();
-            const tiler = new Tiler(GoogleTms);
+            const tiff = projection == Epsg.Nztm2000 ? TestTiff.Nztm2000 : TestTiff.Google;
+            await tiff.init();
+            const tiler = new Tiler(tms);
 
             const tileMaker = new TileMakerSharp(tileSize);
 
@@ -106,17 +114,17 @@ o.spec('TileCreation', () => {
             const png = await tileMaker.compose({ layers, format: ImageFormat.PNG, background });
             const newImage = PNG.sync.read(png.buffer);
             if (WRITE_IMAGES) {
-                const fileName = getExpectedTileName(projection, tileSize, qk);
+                const fileName = getExpectedTileName(projection, tileSize, tile);
                 writeFileSync(fileName, png.buffer);
             }
 
-            const oedImage = await getExpectedTile(projection, tileSize, qk);
+            const oldImage = await getExpectedTile(projection, tileSize, tile);
 
-            const missMatchedPixels = PixelMatch(oedImage.data, newImage.data, null, tileSize, tileSize);
+            const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
             if (missMatchedPixels > 0) {
-                const fileName = getExpectedTileName(projection, tileSize, qk) + '.diff.png';
+                const fileName = getExpectedTileName(projection, tileSize, tile) + '.diff.png';
                 const output = new PNG({ width: tileSize, height: tileSize });
-                PixelMatch(oedImage.data, newImage.data, output.data, tileSize, tileSize);
+                PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
                 writeFileSync(fileName, PNG.sync.write(output));
             }
             o(missMatchedPixels).equals(0);
