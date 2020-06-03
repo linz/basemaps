@@ -6,6 +6,8 @@ import { FeatureCollection, Position } from 'geojson';
 import { basename } from 'path';
 import { CoveringPercentage, CutlineZoom, ZoomDifferenceForMaxImage } from './constants';
 import { CogJob, SourceMetadata } from './types';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { TmsUtil } from './tms.util';
 
 const PaddingFactor = 1.125;
 
@@ -138,7 +140,7 @@ export class Cutline {
 
      */
     filterSourcesForQuadKey(quadKey: string, job: CogJob, sourceGeo: FeatureCollection): void {
-        const qkBounds = QuadKey.toBounds(quadKey);
+        const qkBounds = TmsUtil.tileToWsg84Bounds(GoogleTms, QuadKey.toTile(quadKey));
         const qkPadded = qkBounds.scaleFromCenter(PaddingFactor);
 
         const srcCovering = new QuadKeyTrie();

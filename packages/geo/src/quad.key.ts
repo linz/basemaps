@@ -1,5 +1,3 @@
-import { quadkeyToTile, tileToBBOX } from '@mapbox/tilebelt';
-import { Bounds } from './bounds';
 import { Tile } from './tile.matrix.set';
 
 const CHAR_0 = '0'.charCodeAt(0);
@@ -54,10 +52,6 @@ export const QuadKey = {
         return qk.substr(0, qk.length - 1);
     },
 
-    toBbox(quadKey: string): [number, number, number, number] {
-        return tileToBBOX(quadkeyToTile(quadKey));
-    },
-
     /**
      * Convert a quadkey to a XYZ Tile location
      * @param quadKey quadkey to convert
@@ -95,15 +89,6 @@ export const QuadKey = {
             quadKey += String.fromCharCode(b);
         }
         return quadKey;
-    },
-
-    /**
-     * Convert a quadKey to its bounding box
-     * @param quadKey
-     * @return The bounds in `Epsg.Wgs84`
-     */
-    toBounds(quadKey: string): Bounds {
-        return Bounds.fromBbox(this.toBbox(quadKey));
     },
 
     /**
