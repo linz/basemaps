@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataTag, parseMetadataTag } from '@basemaps/lambda-shared';
+import { Aws, LogConfig, TileMetadataTag, parseMetadataTag } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,

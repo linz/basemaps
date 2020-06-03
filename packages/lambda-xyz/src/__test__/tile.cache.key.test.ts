@@ -1,6 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { TestTiff } from '@basemaps/test';
-import { TileDataXyz, TileType } from '@basemaps/lambda-shared';
+import { TileDataXyz, TileType } from '@basemaps/shared';
 import { Composition, ImageFormat } from '@basemaps/tiler';
 import * as o from 'ospec';
 import { TileEtag } from '../routes/tile.etag';

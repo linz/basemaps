@@ -1,9 +1,7 @@
 import { Callback, Context } from 'aws-lambda';
-import { Const, Env } from './const';
-import { HttpHeader } from './header';
-import { LambdaContext, LambdaHttpReturnType, LambdaHttpRequestType } from './lambda.context';
-import { ApplicationJson, LambdaHttpResponse } from './lambda.response';
-import { LogConfig } from './log';
+import { ApplicationJson, HttpHeader } from './header';
+import { LambdaContext, LambdaHttpRequestType, LambdaHttpReturnType, LogType } from './lambda.context';
+import { LambdaHttpResponse } from './lambda.response';
 
 export interface HttpStatus {
     statusCode: string;
@@ -19,14 +17,13 @@ export class LambdaFunction {
      */
     public static wrap(
         fn: (req: LambdaContext) => Promise<LambdaHttpResponse>,
+        logger: LogType,
     ): (event: LambdaHttpRequestType, context: Context, callback: Callback<LambdaHttpReturnType>) => Promise<void> {
         return async (
             event: LambdaHttpRequestType,
             context: Context,
             callback: Callback<LambdaHttpReturnType>,
         ): Promise<void> => {
-            const logger = LogConfig.get();
-
             // Log the lambda event for debugging
             if (process.env['DEBUG']) {
                 logger.debug({ event }, 'LambdaDebug');
@@ -35,22 +32,12 @@ export class LambdaFunction {
             const ctx = new LambdaContext(event, logger);
             ctx.timer.start('lambda');
 
-            // If a API Key exists in the headers, include it in the log output
-            const apiKey = ctx.header(HttpHeader.ApiKey);
-            ctx.set(Const.ApiKey.QueryString, apiKey);
-
             const lambda = {
                 name: process.env['AWS_LAMBDA_FUNCTION_NAME'],
                 memory: process.env['AWS_LAMBDA_FUNCTION_MEMORY_SIZE'],
                 version: process.env['AWS_LAMBDA_FUNCTION_VERSION'],
                 region: process.env['AWS_REGION'],
             };
-
-            const version = {
-                version: Env.get(Env.Version, 'HEAD'),
-                hash: Env.get(Env.Hash, 'HEAD'),
-            };
-            ctx.set('version', version);
 
             ctx.log.info({ lambda }, 'LambdaStart');
 

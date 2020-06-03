@@ -1,7 +1,7 @@
 import cdk = require('@aws-cdk/core');
 import cf = require('@aws-cdk/aws-cloudfront');
 import s3 = require('@aws-cdk/aws-s3');
-import { Env } from '@basemaps/lambda-shared';
+import { Env } from '@basemaps/shared';
 import { DeployEnv } from '../deploy.env';
 import { LambdaApiKeyValidator } from './lambda.edge.api.key';
 import { getConfig } from '../config';

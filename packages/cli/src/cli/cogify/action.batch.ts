@@ -9,7 +9,7 @@ import {
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
     TileMetadataTable,
-} from '@basemaps/lambda-shared';
+} from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
 import * as path from 'path';

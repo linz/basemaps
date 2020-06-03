@@ -1,6 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/lambda-shared';
+import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import * as o from 'ospec';
 import { handleRequest } from '../index';

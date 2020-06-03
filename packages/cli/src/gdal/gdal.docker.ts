@@ -1,4 +1,4 @@
-import { Env, FileOperator, LogType } from '@basemaps/lambda-shared';
+import { Env, FileOperator, LogType } from '@basemaps/shared';
 import * as os from 'os';
 import * as path from 'path';
 import { GdalCommand } from './gdal.command';

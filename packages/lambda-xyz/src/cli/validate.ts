@@ -1,5 +1,5 @@
 import pLimit from 'p-limit';
-import { Env, LogConfig } from '@basemaps/lambda-shared';
+import { Env, LogConfig } from '@basemaps/shared';
 import { TileSet } from '../tile.set';
 import { Epsg } from '@basemaps/geo';
 import { CogTiff } from '@cogeotiff/core';

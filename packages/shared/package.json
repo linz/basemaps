@@ -1,0 +1,36 @@
+{
+  "name": "@basemaps/shared",
+  "version": "2.1.0",
+  "private": false,
+  "repository": "git@github.com:linz/basemaps.git",
+  "author": "",
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
+  },
+  "dependencies": {
+    "@basemaps/geo": "^2.0.0",
+    "@basemaps/lambda": "^2.1.0",
+    "@basemaps/metrics": "^2.0.0",
+    "@basemaps/tiler": "^2.1.0",
+    "aws-sdk": "^2.508.0",
+    "base-x": "^3.0.7",
+    "pino": "^6.2.1",
+    "sax": "^1.2.4",
+    "source-map-support": "^0.5.19",
+    "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.43",
+    "@types/pino": "^6.0.0",
+    "@types/sax": "^1.2.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/"
+  ]
+}

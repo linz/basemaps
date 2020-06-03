@@ -1,13 +1,6 @@
 import { Projection } from '@basemaps/geo';
-import {
-    Const,
-    HttpHeader,
-    LambdaContext,
-    LambdaFunction,
-    LambdaHttpResponse,
-    tileFromPath,
-    TileType,
-} from '@basemaps/lambda-shared';
+import { Const, tileFromPath, TileType, LogConfig } from '@basemaps/shared';
+import { HttpHeader, LambdaContext, LambdaHttpResponse, LambdaFunction } from '@basemaps/lambda';
 import { ValidateRequest } from './validate';
 
 const projection = new Projection(256);
@@ -66,4 +59,4 @@ export async function handleRequest(req: LambdaContext): Promise<LambdaHttpRespo
     return response;
 }
 
-export const handler = LambdaFunction.wrap(handleRequest);
+export const handler = LambdaFunction.wrap(handleRequest, LogConfig.get());

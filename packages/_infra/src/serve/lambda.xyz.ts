@@ -5,7 +5,7 @@ import s3 = require('@aws-cdk/aws-s3');
 import { RetentionDays } from '@aws-cdk/aws-logs';
 import { VersionUtil } from '../version';
 import { Duration } from '@aws-cdk/core';
-import { Env } from '@basemaps/lambda-shared';
+import { Env } from '@basemaps/shared';
 import { getConfig } from '../config';
 
 const CODE_PATH = '../lambda-xyz/dist';

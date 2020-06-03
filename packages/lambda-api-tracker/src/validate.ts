@@ -1,4 +1,5 @@
-import { Aws, Const, HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda-shared';
+import { Aws, Const } from '@basemaps/shared';
+import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 
 export const ValidateRequest = {
     /**

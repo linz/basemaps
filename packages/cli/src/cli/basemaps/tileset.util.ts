@@ -5,7 +5,7 @@ import {
     TileMetadataSetRecord,
     TileMetadataTag,
     TileSetRuleImagery,
-} from '@basemaps/lambda-shared';
+} from '@basemaps/shared';
 import * as c from 'ansi-colors';
 import { CliTable } from '../cli.table';
 import { invalidateCache } from '../util';

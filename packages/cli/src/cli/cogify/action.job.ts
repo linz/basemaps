@@ -1,4 +1,4 @@
-import { FileConfig, FileOperator } from '@basemaps/lambda-shared';
+import { FileConfig, FileOperator } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,

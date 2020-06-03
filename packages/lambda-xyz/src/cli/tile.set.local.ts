@@ -1,4 +1,4 @@
-import { FileProcessor, FileOperatorS3, FileOperator, LogConfig } from '@basemaps/lambda-shared';
+import { FileProcessor, FileOperatorS3, FileOperator, LogConfig } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';

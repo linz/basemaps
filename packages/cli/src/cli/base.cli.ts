@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { LogConfig, Env } from '@basemaps/lambda-shared';
+import { LogConfig, Env } from '@basemaps/shared';
 import { CommandLineParser } from '@rushstack/ts-command-line';
 import * as gitRev from 'git-rev-sync';
 import { PrettyTransform } from 'pretty-json-log';

@@ -1,4 +1,4 @@
-import { Aws, TileMetadataProviderRecord, TileMetadataTag } from '@basemaps/lambda-shared';
+import { Aws, TileMetadataProviderRecord, TileMetadataTag } from '@basemaps/shared';
 import { CommandLineAction } from '@rushstack/ts-command-line';
 import { CliTable } from '../cli.table';
 import { printProvider } from './provider.util';

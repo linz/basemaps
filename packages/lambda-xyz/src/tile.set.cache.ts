@@ -1,5 +1,5 @@
 import { TileSet } from './tile.set';
-import { LambdaContext } from '@basemaps/lambda-shared';
+import { LambdaContext } from '@basemaps/lambda';
 import { Epsg } from '@basemaps/geo';
 
 export const TileSets = new Map<string, TileSet>();

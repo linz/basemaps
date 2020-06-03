@@ -1,5 +1,5 @@
 import { Epsg, QuadKeyTrie, EpsgCode } from '@basemaps/geo';
-import { FileConfig } from '@basemaps/lambda-shared';
+import { FileConfig } from '@basemaps/shared';
 import { GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
 import { VrtOptions } from './cog.vrt';
 

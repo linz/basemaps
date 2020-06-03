@@ -1,4 +1,4 @@
-import { Env, FileOperator } from '@basemaps/lambda-shared';
+import { Env, FileOperator } from '@basemaps/shared';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { CogJob } from '../cog/types';

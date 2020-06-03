@@ -1,4 +1,4 @@
-import { TileMetadataTag } from '@basemaps/lambda-shared';
+import { TileMetadataTag } from '@basemaps/shared';
 
 export const TagAction = {
     onDefineParameters(self: any): void {

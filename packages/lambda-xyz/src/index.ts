@@ -1,6 +1,7 @@
-import { LambdaContext, LambdaFunction, LambdaHttpResponse, Router } from '@basemaps/lambda-shared';
+import { LambdaContext, LambdaFunction, LambdaHttpResponse, Router } from '@basemaps/lambda';
 import { Health, Ping, Version } from './routes/api';
 import { TileOrWmts } from './routes/tile';
+import { LogConfig } from '@basemaps/shared';
 
 const app = new Router();
 
@@ -17,4 +18,4 @@ export async function handleRequest(req: LambdaContext): Promise<LambdaHttpRespo
     return await app.handle(req);
 }
 
-export const handler = LambdaFunction.wrap(handleRequest);
+export const handler = LambdaFunction.wrap(handleRequest, LogConfig.get());

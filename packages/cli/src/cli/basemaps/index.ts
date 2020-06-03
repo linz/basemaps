@@ -7,7 +7,7 @@ import { ImageryImportAction } from './action.imagery.import';
 import { TileSetUpdateTagAction } from './action.tileset.tag';
 import { TileSetHistoryAction } from './action.tileset.history';
 import { PrettyTransform } from 'pretty-json-log';
-import { LogConfig } from '@basemaps/lambda-shared';
+import { LogConfig } from '@basemaps/shared';
 
 export class BasemapsCommandLine extends BaseCommandLine {
     constructor() {

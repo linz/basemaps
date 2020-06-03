@@ -5,7 +5,7 @@ import {
     TileMetadataSetRecord,
     TileMetadataTag,
     TileSetRuleImagery,
-} from '@basemaps/lambda-shared';
+} from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 

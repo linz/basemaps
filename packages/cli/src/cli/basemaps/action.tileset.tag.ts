@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig } from '@basemaps/lambda-shared';
+import { Aws, LogConfig } from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,

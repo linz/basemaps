@@ -8,7 +8,7 @@ import r53 = require('@aws-cdk/aws-route53');
 import { LambdaXyz } from './lambda.xyz';
 import { ApplicationProtocol, SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
 import { DeployEnv } from '../deploy.env';
-import { Env } from '@basemaps/lambda-shared';
+import { Env } from '@basemaps/shared';
 import { getConfig } from '../config';
 import { TileMetadataTable } from './db';
 

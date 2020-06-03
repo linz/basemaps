@@ -1,4 +1,5 @@
-import { LambdaContext, LogConfig, TileMetadataProviderRecord } from '@basemaps/lambda-shared';
+import { LogConfig, TileMetadataProviderRecord } from '@basemaps/shared';
+import { LambdaContext } from '@basemaps/lambda';
 import { TileSet } from '../tile.set';
 import { Epsg } from '@basemaps/geo';
 

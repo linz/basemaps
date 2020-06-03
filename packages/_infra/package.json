@@ -25,7 +25,7 @@
     "@aws-cdk/aws-s3": "^1.42.1",
     "@aws-cdk/core": "^1.42.1",
     "@basemaps/lambda-api-tracker": "^2.1.0",
-    "@basemaps/lambda-shared": "^2.1.0",
+    "@basemaps/shared": "^2.1.0",
     "@basemaps/lambda-xyz": "^2.1.0",
     "@types/git-rev-sync": "^2.0.0",
     "aws-cdk": "^1.42.1"

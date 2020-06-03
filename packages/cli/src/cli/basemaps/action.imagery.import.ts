@@ -6,7 +6,7 @@ import {
     RecordPrefix,
     TileMetadataImageryRecord,
     TileMetadataTable,
-} from '@basemaps/lambda-shared';
+} from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CogJob } from '../../cog/types';
 import { createImageryRecordFromJob } from '../cogify/action.batch';

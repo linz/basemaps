@@ -1,4 +1,5 @@
-import { LambdaHttpResponse, Env } from '@basemaps/lambda-shared';
+import { Env } from '@basemaps/shared';
+import { LambdaHttpResponse } from '@basemaps/lambda';
 
 export async function Health(): Promise<LambdaHttpResponse> {
     return new LambdaHttpResponse(200, 'ok');
