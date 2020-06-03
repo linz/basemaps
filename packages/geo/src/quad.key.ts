@@ -54,10 +54,6 @@ export const QuadKey = {
         return qk.substr(0, qk.length - 1);
     },
 
-    toXYZ(quadKey: string): [number, number, number] {
-        return quadkeyToTile(quadKey);
-    },
-
     toBbox(quadKey: string): [number, number, number, number] {
         return tileToBBOX(quadkeyToTile(quadKey));
     },

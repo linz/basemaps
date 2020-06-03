@@ -56,12 +56,6 @@ o.spec('QuadKey', () => {
         Approx.bounds(QuadKey.toBounds(''), new Bounds(-180, -85.051129, 360, 170.102258));
     });
 
-    o('toXYZ', () => {
-        o(QuadKey.toXYZ('')).deepEquals([0, 0, 0]);
-        o(QuadKey.toXYZ('31')).deepEquals([3, 2, 2]);
-        o(QuadKey.toXYZ('31021')).deepEquals([25, 18, 5]);
-    });
-
     o('compareKeys', () => {
         o(QuadKey.compareKeys('3201', '33')).equals(2);
         o(QuadKey.compareKeys('33', '3201')).equals(-2);

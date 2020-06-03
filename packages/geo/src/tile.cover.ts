@@ -1,7 +1,4 @@
 import * as MapBoxCover from '@mapbox/tile-cover';
-import { GeoJson } from './geo.json';
-import { QuadKey } from './quad.key';
-import { QuadKeyTrie } from './quad.key.trie.js';
 
 export const TileCover = {
     /**
@@ -14,17 +11,5 @@ export const TileCover = {
     cover(polygons: GeoJSON.Geometry, minZoom: number, maxZoom: number): string[] {
         /* eslint-disable @typescript-eslint/camelcase */
         return MapBoxCover.indexes(polygons, { min_zoom: minZoom, max_zoom: maxZoom });
-    },
-
-    /** Convert a quadkey covering to a GeoJSON FeatureCollection */
-    toGeoJson(covering: string[] | QuadKeyTrie): GeoJSON.FeatureCollection {
-        const polygons: GeoJSON.Feature[] = [];
-        for (const quadKey of covering) {
-            const bbox = QuadKey.toBbox(quadKey);
-            const polygon = GeoJson.toFeaturePolygon(GeoJson.toPositionPolygon(bbox), { quadKey });
-            polygons.push(polygon);
-        }
-
-        return GeoJson.toFeatureCollection(polygons);
     },
 };
