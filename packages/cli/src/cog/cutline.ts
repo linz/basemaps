@@ -1,6 +1,7 @@
-import { Bounds, Epsg, GeoJson, QuadKey, QuadKeyTrie, TileCover } from '@basemaps/geo';
+import { Bounds, Epsg, GeoJson, QuadKey, QuadKeyTrie } from '@basemaps/geo';
 import { FileOperator } from '@basemaps/shared';
 import bbox from '@turf/bbox';
+import * as MapBoxCover from '@mapbox/tile-cover';
 import intersect from '@turf/intersect';
 import { FeatureCollection, Position } from 'geojson';
 import { basename } from 'path';
@@ -21,6 +22,11 @@ function mergeCovering(self: QuadKeyTrie, other: string[] | QuadKeyTrie): void {
 
 function getCoverZ(imageTargetZoom: number): number {
     return Math.max(1, imageTargetZoom - 2);
+}
+
+function cover(polygons: GeoJSON.Geometry, minZoom: number, maxZoom: number): string[] {
+    /* eslint-disable @typescript-eslint/camelcase */
+    return MapBoxCover.indexes(polygons, { min_zoom: minZoom, max_zoom: maxZoom });
 }
 
 export class Cutline {
@@ -62,7 +68,7 @@ export class Cutline {
 
         // add a poly to the clCovering;
         const coverCutline = (poly: Position[]): void => {
-            const pCovering = QuadKeyTrie.fromList(TileCover.cover(GeoJson.toPolygon([poly]), 1, CutlineZoom));
+            const pCovering = QuadKeyTrie.fromList(cover(GeoJson.toPolygon([poly]), 1, CutlineZoom));
             if (pCovering.intersectsTrie(srcCovering)) {
                 mergeCovering(clCovering, pCovering);
                 keepLines.push(poly);
@@ -117,7 +123,7 @@ export class Cutline {
                 } else {
                     srcBounds = srcBounds.union(cBounds);
                 }
-                mergeCovering(srcCovering, TileCover.cover(geometry, 1, coverZ));
+                mergeCovering(srcCovering, cover(geometry, 1, coverZ));
             }
         }
 
@@ -153,7 +159,7 @@ export class Cutline {
             if (geometry.type === 'Polygon') {
                 if (qkPadded.intersects(Bounds.fromBbox(bbox(geometry)))) {
                     srcTiffs.add(basename(f.properties!.tiff!));
-                    mergeCovering(srcCovering, TileCover.cover(geometry, 1, coverZ));
+                    mergeCovering(srcCovering, cover(geometry, 1, coverZ));
                 }
             }
         }
