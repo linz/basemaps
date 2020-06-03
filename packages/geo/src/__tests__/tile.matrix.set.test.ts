@@ -4,6 +4,7 @@ import { Epsg } from '../epsg';
 import { Projection } from '../projection';
 import { GoogleTms } from '../tms/google';
 import { Nztm2000Tms } from '../tms/nztm2000';
+import { QuadKey } from '../quad.key';
 
 o.spec('TileMatrixSet', () => {
     o.spec('load', () => {
@@ -123,6 +124,25 @@ o.spec('TileMatrixSet', () => {
                 const tile = GoogleTms.pixelsToTile(pixels.x, pixels.y, i);
                 o(tile).deepEquals({ x: i, y: i, z: i });
             }
+        });
+    });
+
+    o.spec('tileToSource', () => {
+        o('should convert to source units', () => {
+            o(GoogleTms.tileToSource({ x: 0, y: 0, z: 0 })).deepEquals({
+                x: -20037508.3427892,
+                y: 20037508.3427892,
+            });
+
+            o(GoogleTms.tileToSource({ x: 1, y: 1, z: 0 })).deepEquals({
+                x: 20037508.342789236,
+                y: -20037508.342789236,
+            });
+
+            o(GoogleTms.tileToSource(QuadKey.toTile('311331222'))).deepEquals({
+                x: 19411336.207076784,
+                y: -4304933.433020964,
+            });
         });
     });
 });
