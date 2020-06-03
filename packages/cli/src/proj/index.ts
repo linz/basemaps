@@ -2,19 +2,21 @@ import { Epsg } from '@basemaps/geo';
 import * as proj4 from 'proj4';
 import { Nztm2000 } from './nztm2000';
 import { Citm2000 } from './citm2000';
+import { CompositeError } from '@basemaps/shared';
 
 proj4.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
 proj4.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
 
-export function getProjection(fromProjection: Epsg, toProjection?: Epsg): proj4.Converter | null {
+export function getProjection(fromProjection: Epsg, toProjection?: Epsg): proj4.Converter {
     try {
         return proj4(fromProjection.toEpsgString(), toProjection?.toEpsgString());
-    } catch (e) {
-        return null;
+    } catch (err) {
+        throw new CompositeError(
+            `Failed to create projection: ${fromProjection.toEpsgString()}, ${toProjection?.toEpsgString()}`,
+            err,
+        );
     }
 }
-
-export const Wgs84ToGoogle = getProjection(Epsg.Wgs84, Epsg.Google)!;
 
 /**
  * Attempt to guess the projection based off the WKT

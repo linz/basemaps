@@ -1,5 +1,5 @@
 import * as o from 'ospec';
-import { getProjection, Wgs84ToGoogle, guessProjection } from '../index';
+import { getProjection, guessProjection } from '../index';
 import { Epsg } from '@basemaps/geo';
 
 function toFixed(f: number): string {
@@ -24,10 +24,6 @@ o.spec('Proj2193', () => {
         if (Proj23793 == null) {
             throw new Error('Failed to init proj:3793');
         }
-    });
-
-    o('Wgs84ToGoogle', () => {
-        o(Wgs84ToGoogle.forward([167.454458, -47.1970753])).deepEquals([18640944.995623615, -5974301.313247106]);
     });
 
     o('should guess WKT', () => {

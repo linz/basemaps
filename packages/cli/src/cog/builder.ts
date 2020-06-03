@@ -1,5 +1,5 @@
-import { Epsg, GeoJson, Projection } from '@basemaps/geo';
-import { FileOperatorSimple, LogType, CompositeError } from '@basemaps/shared';
+import { Epsg, GeoJson } from '@basemaps/geo';
+import { CompositeError, FileOperatorSimple, LogType } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
@@ -12,7 +12,8 @@ import { CogBuilderMetadata, SourceMetadata } from './types';
 
 export const InvalidProjectionCode = 32767;
 export const CacheFolder = './.cache';
-export const proj256 = new Projection(256);
+export const TileSize = 256;
+
 export class CogBuilder {
     q: Limit;
     logger: LogType;
@@ -118,7 +119,7 @@ export class CogBuilder {
         const [resX] = image.resolution;
         let z = 30;
         while (z > 0) {
-            const currentZoom = proj256.getResolution(z);
+            const currentZoom = TileSize / (1 << z);
             if (currentZoom >= resX) {
                 break;
             }
