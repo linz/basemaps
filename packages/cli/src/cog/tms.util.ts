@@ -1,6 +1,10 @@
 import { Epsg, GeoJson, QuadKey, Tile, TileMatrixSet, Bounds } from '@basemaps/geo';
-import { LatLon } from '@basemaps/geo/build/projection';
 import { getProjection } from '../proj';
+
+export interface LatLon {
+    lat: number;
+    lon: number;
+}
 
 export const TmsUtil = {
     /** Convert a tile to a BBox in Wsg84 units */
