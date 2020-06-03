@@ -1,5 +1,5 @@
-import { TileMatrixSetType } from './tile.matrix.set.type';
 import { TileMatrixSet } from '../tile.matrix.set';
+import { TileMatrixSetType } from './tile.matrix.set.type';
 
 const Nztm2000Tmst: TileMatrixSetType = {
     type: 'TileMatrixSetType',

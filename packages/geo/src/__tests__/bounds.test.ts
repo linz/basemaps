@@ -1,6 +1,6 @@
 import * as o from 'ospec';
 import { Bounds } from '../bounds';
-import { approxBounds } from '@basemaps/test';
+import { Approx } from '@basemaps/test';
 
 const TILE_SIZE = 256;
 function getTile(x = 0, y = 0): Bounds {
@@ -26,16 +26,16 @@ o.spec('Bounds', () => {
     });
 
     o('fromBbox', () => {
-        approxBounds(Bounds.fromBbox([170, 40, -160, 45]), new Bounds(170, 40, 30, 5));
-        approxBounds(Bounds.fromBbox([170, 40, 175, -30]), new Bounds(170, 40, 5, 70));
-        approxBounds(Bounds.fromBbox([-170, -40, -155, -30]), new Bounds(-170, -40, 15, 10));
+        Approx.bounds(Bounds.fromBbox([170, 40, -160, 45]), new Bounds(170, 40, 30, 5));
+        Approx.bounds(Bounds.fromBbox([170, 40, 175, -30]), new Bounds(170, 40, 5, 70));
+        Approx.bounds(Bounds.fromBbox([-170, -40, -155, -30]), new Bounds(-170, -40, 15, 10));
     });
 
     o('scaleFromCenter', () => {
         const b = Bounds.fromBbox([170, 40, -160, 45]);
-        approxBounds(b.scaleFromCenter(1.2), new Bounds(167, 39.5, 36, 6));
-        approxBounds(b.scaleFromCenter(0.5, 2), new Bounds(177.5, 37.5, 15, 10));
-        approxBounds(b.scaleFromCenter(3, 0.25), new Bounds(140, 41.875, 90, 1.25));
+        Approx.bounds(b.scaleFromCenter(1.2), new Bounds(167, 39.5, 36, 6));
+        Approx.bounds(b.scaleFromCenter(0.5, 2), new Bounds(177.5, 37.5, 15, 10));
+        Approx.bounds(b.scaleFromCenter(3, 0.25), new Bounds(140, 41.875, 90, 1.25));
     });
 
     o('intersects bounds', () => {
@@ -43,10 +43,10 @@ o.spec('Bounds', () => {
         o(tileZero.intersection(getTile(0, 1))).equals(null);
         o(tileZero.intersection(getTile(1, 0))).equals(null);
         o(tileZero.intersection(getTile(1, 1))).equals(null);
-        approxBounds(tileMiddle.intersection(getTile(0, 0)), new Bounds(128, 128, 128, 128));
-        approxBounds(tileMiddle.intersection(getTile(1, 0)), new Bounds(256, 128, 128, 128));
-        approxBounds(tileMiddle.intersection(getTile(1, 1)), new Bounds(256, 256, 128, 128));
-        approxBounds(tileMiddle.intersection(getTile(0, 1)), new Bounds(128, 256, 128, 128));
+        Approx.bounds(tileMiddle.intersection(getTile(0, 0)), new Bounds(128, 128, 128, 128));
+        Approx.bounds(tileMiddle.intersection(getTile(1, 0)), new Bounds(256, 128, 128, 128));
+        Approx.bounds(tileMiddle.intersection(getTile(1, 1)), new Bounds(256, 256, 128, 128));
+        Approx.bounds(tileMiddle.intersection(getTile(0, 1)), new Bounds(128, 256, 128, 128));
     });
 
     o('union', () => {

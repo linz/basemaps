@@ -5,4 +5,4 @@ export { GeoJson } from './geo.json';
 export { QuadKeyTrie } from './quad.key.trie';
 export { TileCover } from './tile.cover';
 export { Epsg, EpsgCode } from './epsg';
-export { TileMatrixSet } from './tile.matrix.set';
+export { TileMatrixSet, Tile } from './tile.matrix.set';

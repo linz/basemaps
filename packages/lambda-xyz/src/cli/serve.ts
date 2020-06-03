@@ -1,65 +1,19 @@
 import { Epsg } from '@basemaps/geo';
-import {
-    Env,
-    FileOperator,
-    FileOperatorS3,
-    FileProcessor,
-    LambdaContext,
-    LogConfig,
-    LogType,
-} from '@basemaps/lambda-shared';
-import { CogSource, CogTiff } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-import { CogSourceFile } from '@cogeotiff/source-file';
+import { Env, LambdaContext, LogConfig, LogType } from '@basemaps/lambda-shared';
 import * as express from 'express';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import * as ulid from 'ulid';
 import * as lambda from '../index';
-import { TileSet } from '../tile.set';
 import { TileSets } from '../tile.set.cache';
+import { WmtsCapabilities } from '../wmts.capability';
+import { Provider } from '../__test__/xyz.util';
+import { TileSetLocal } from './tile.set.local';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
 
-if (process.stdout.isTTY) {
-    LogConfig.setOutputStream(PrettyTransform.stream());
-}
-
-function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
-    if (fs instanceof FileOperatorS3) {
-        return tiffList.map((path) => {
-            const { bucket, key } = FileOperatorS3.parse(path);
-            // Use the same s3 credentials to access the files that were used to list them
-            return new CogSourceAwsS3(bucket, key, fs.s3);
-        });
-    }
-    return tiffList.map((path) => new CogSourceFile(path));
-}
-
-export class TileSetLocal extends TileSet {
-    tiffs: CogTiff[];
-    filePath: string;
-
-    constructor(name: string, projection: Epsg, path: string) {
-        super(name, projection);
-        this.filePath = path;
-    }
-
-    async load(): Promise<boolean> {
-        if (this.tiffs != null) return true;
-        const tiffFs = FileOperator.create(this.filePath);
-
-        const fileList = await tiffFs.list(this.filePath);
-        const files = fileList.filter((f) => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'));
-        this.tiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
-        return true;
-    }
-
-    async getTiffsForQuadKey(): Promise<CogTiff[]> {
-        return this.tiffs;
-    }
-}
+if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
 async function handleRequest(
     ctx: LambdaContext,
@@ -94,12 +48,19 @@ async function main(): Promise<void> {
     if (Env.get(Env.PublicUrlBase) == '') {
         process.env[Env.PublicUrlBase] = `http://localhost:${port}`;
     }
+    let projection: number = Epsg.Google.code;
     const filePath = process.argv[2];
+
+    const tileSetName = 'local';
     if (filePath != null) {
-        let tileSet = new TileSetLocal('aerial', Epsg.Google, filePath);
+        const tileSet = new TileSetLocal(tileSetName, Epsg.Google, filePath);
+        await tileSet.load();
+        const tiffFiles = tileSet.tiffs.map((c) => c.source.name).join(', ');
+        // TODO is there a better name for this
+        tileSet.setTitle(`Local - ${tiffFiles}`);
         TileSets.set(tileSet.id, tileSet);
-        tileSet = new TileSetLocal('aerial@beta', Epsg.Google, filePath);
-        TileSets.set(tileSet.id, tileSet);
+        LogConfig.get().info({ tileSets: [...TileSets.keys()] }, 'LoadedTileSets');
+        projection = tileSet.projection.code;
     }
 
     app.get('/v1/tiles/:imageryName/:projection/:z/:x/:y.:ext', async (req: express.Request, res: express.Response) => {
@@ -117,27 +78,26 @@ async function main(): Promise<void> {
         await handleRequest(ctx, res, startTime, logger, { tile: { x, y, z } });
     });
 
-    app.get(
-        '/v1/tiles/:imageryName/:projection/WMTSCapabilities.xml',
-        async (req: express.Request, res: express.Response) => {
-            const startTime = Date.now();
-            const requestId = ulid.ulid();
-            const logger = LogConfig.get().child({ id: requestId });
-            const { imageryName, projection } = req.params;
-            const ctx = new LambdaContext(
-                {
-                    httpMethod: 'get',
-                    path: `/v1/tiles/${imageryName}/${projection}/WMTSCapabilities.xml`,
-                } as any,
-                logger,
-            );
-            await handleRequest(ctx, res, startTime, logger);
-        },
-    );
+    app.get('/v1/WMTSCapabilities.xml', async (req: express.Request, res: express.Response) => {
+        const startTime = Date.now();
+        const requestId = ulid.ulid();
+        const logger = LogConfig.get().child({ id: requestId });
+
+        const xml = WmtsCapabilities.toXml(Env.get(Env.PublicUrlBase), Provider, [...TileSets.values()]);
+        res.header('content-type', 'application/xml');
+        res.send(xml);
+        res.end();
+        const duration = Date.now() - startTime;
+        logger.info({ path: req.url, duration, status: 200 }, 'Done');
+    });
 
     app.use(express.static(__dirname + '/../../../landing/static/'));
     await new Promise((resolve) => app.listen(port, resolve));
-    console.log('Listen', Env.get(Env.PublicUrlBase));
+
+    const url = Env.get(Env.PublicUrlBase) + `/?i=${tileSetName}&p=${projection}`;
+    const wmts = Env.get(Env.PublicUrlBase) + `/v1/WMTSCapabilities.xml`;
+    const xyz = Env.get(Env.PublicUrlBase) + `/v1/tiles/${tileSetName}/${projection}/{z}/{x}/{y}.png`;
+    LogConfig.get().info({ url, wmts, xyz }, 'Listen');
 }
 
 main().catch((e) => console.error(e));
