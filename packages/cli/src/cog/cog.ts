@@ -1,11 +1,11 @@
 import { QuadKey } from '@basemaps/geo';
 import { Aws, isConfigS3Role, LogType } from '@basemaps/shared';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { GdalCogBuilder } from '../gdal/gdal';
-import { Wgs84ToGoogle } from '../proj';
-import { CogJob } from './types';
-import { SingleTileWidth } from './constants';
 import { GdalCommand } from '../gdal/gdal.command';
 import { GdalProgressParser } from '../gdal/gdal.progress';
+import { SingleTileWidth } from './constants';
+import { CogJob } from './types';
 
 /**
  * Create a onProgress logger
@@ -53,19 +53,17 @@ export async function buildCogForQuadKey(
 ): Promise<void> {
     const startTime = Date.now();
 
-    const [left, lower, right, upper] = QuadKey.toBbox(quadKey);
-    const { forward } = Wgs84ToGoogle;
-    const [ulX, ulY] = forward([left, upper]);
-    const [lrX, lrY] = forward([right, lower]);
+    const tile = QuadKey.toTile(quadKey);
 
-    const padding = Math.max(Math.abs(lrY - ulY), Math.abs(lrX - ulX)) * 0.01;
+    const ul = GoogleTms.tileToSource(tile);
+    const lr = GoogleTms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
 
-    const [x, y, z] = QuadKey.toXYZ(quadKey);
+    const padding = Math.max(Math.abs(lr.y - ul.y), Math.abs(lr.x - ul.x)) * 0.01;
 
-    const alignmentLevels = job.source.resolution - z;
+    const alignmentLevels = job.source.resolution - tile.z;
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
-        bbox: [ulX, ulY, lrX + padding, lrY - padding],
+        bbox: [ul.x, ul.y, lr.x + padding, lr.y - padding],
         alignmentLevels,
         resampling: job.output.resampling,
         quality: job.output.quality,
@@ -80,7 +78,7 @@ export async function buildCogForQuadKey(
         {
             imageSize: getTileSize(quadKey, job.source.resolution),
             quadKey,
-            tile: { x, y, z },
+            tile,
             alignmentLevels,
         },
         'CreateCog',
