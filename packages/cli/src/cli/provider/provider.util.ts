@@ -1,4 +1,4 @@
-import { TileMetadataProviderRecord } from '@basemaps/lambda-shared';
+import { TileMetadataProviderRecord } from '@basemaps/shared';
 import * as c from 'ansi-colors';
 import { inspect } from 'util';
 

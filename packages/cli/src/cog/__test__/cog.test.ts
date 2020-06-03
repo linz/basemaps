@@ -1,4 +1,4 @@
-import { LogConfig } from '@basemaps/lambda-shared';
+import { LogConfig } from '@basemaps/shared';
 import * as o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal';
 import { buildCogForQuadKey, getTileSize } from '../cog';

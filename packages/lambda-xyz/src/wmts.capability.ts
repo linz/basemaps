@@ -1,10 +1,9 @@
-import { Epsg, TileMatrixSet } from '@basemaps/geo';
+import { Epsg, TileMatrixSet, WmtsLayer, WmtsProvider } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
-import { TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/lambda-shared';
+import { TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { TileSet } from './tile.set';
-import { WmtsProvider, WmtsLayer } from '@basemaps/lambda-shared';
 
 function getTileMatrixSet(projection: Epsg): TileMatrixSet {
     switch (projection) {

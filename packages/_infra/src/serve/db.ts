@@ -1,6 +1,6 @@
 import cdk = require('@aws-cdk/core');
 import dynamoDb = require('@aws-cdk/aws-dynamodb');
-import { Const } from '@basemaps/lambda-shared';
+import { Const } from '@basemaps/shared';
 
 export class TileMetadataTable extends cdk.Construct {
     public table: dynamoDb.Table;

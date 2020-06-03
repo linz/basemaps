@@ -1,4 +1,5 @@
-import { Env, LambdaContext, LogConfig } from '@basemaps/lambda-shared';
+import { Env, LogConfig } from '@basemaps/shared';
+import { LambdaContext } from '@basemaps/lambda';
 import * as o from 'ospec';
 import { handleRequest } from '../index';
 

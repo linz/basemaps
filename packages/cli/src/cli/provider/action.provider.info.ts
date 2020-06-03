@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, TileMetadataTag } from '@basemaps/lambda-shared';
+import { Aws, TileMetadataTag } from '@basemaps/shared';
 import { CommandLineAction, CommandLineIntegerParameter } from '@rushstack/ts-command-line';
 import { printProvider } from './provider.util';
 import * as c from 'ansi-colors';

@@ -8,7 +8,8 @@
         { "path": "./packages/tiler-sharp" },
         { "path": "./packages/cli" },
         { "path": "./packages/_infra" },
-        { "path": "./packages/lambda-shared" },
+        { "path": "./packages/lambda" },
+        { "path": "./packages/shared" },
         { "path": "./packages/lambda-api-tracker" },
         { "path": "./packages/lambda-xyz" }
     ]

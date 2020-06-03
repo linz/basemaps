@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataTag, TileMetadataProviderRecord } from '@basemaps/lambda-shared';
+import { Aws, LogConfig, TileMetadataTag, TileMetadataProviderRecord } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { readFileSync } from 'fs';
 import { printProvider, BlankProvider, validateProvider } from './provider.util';

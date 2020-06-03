@@ -1,6 +1,4 @@
-import { HttpHeader } from './header';
-
-export const ApplicationJson = 'application/json';
+import { HttpHeader, ApplicationJson } from './header';
 
 export class LambdaHttpResponse {
     static isHttpResponse(t: unknown): t is LambdaHttpResponse {

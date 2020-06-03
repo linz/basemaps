@@ -1,5 +1,5 @@
 import { Epsg } from '@basemaps/geo';
-import { Env, LogType } from '@basemaps/lambda-shared';
+import { Env, LogType } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { GdalCommand } from './gdal.command';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptions } from './gdal.config';

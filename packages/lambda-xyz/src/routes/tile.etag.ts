@@ -1,6 +1,6 @@
 import { Composition } from '@basemaps/tiler';
 import { createHash } from 'crypto';
-import { TileDataXyz } from '@basemaps/lambda-shared';
+import { TileDataXyz } from '@basemaps/shared';
 
 export const TileEtag = {
     // To force a full cache invalidation change this number

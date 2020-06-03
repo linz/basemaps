@@ -1,4 +1,4 @@
-import { LogConfig } from '@basemaps/lambda-shared';
+import { LogConfig } from '@basemaps/shared';
 import * as AWS from 'aws-sdk';
 import { CliId } from './base.cli';
 

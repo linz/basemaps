@@ -1,7 +1,7 @@
 import { Epsg } from '@basemaps/geo';
 import * as o from 'ospec';
 import { tileFromPath, TileType } from '../api.path';
-import { LambdaContext } from '../lambda.context';
+import { LambdaContext } from '@basemaps/lambda';
 import { ImageFormat } from '@basemaps/tiler';
 import { LogConfig } from '../log';
 

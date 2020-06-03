@@ -1,5 +1,5 @@
 import { QuadKey } from '@basemaps/geo';
-import { Aws, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
+import { Aws, isConfigS3Role, LogType } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal';
 import { Wgs84ToGoogle } from '../proj';
 import { CogJob } from './types';

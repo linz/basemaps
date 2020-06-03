@@ -1,8 +1,7 @@
-import { EpsgCode } from '@basemaps/geo';
+import { EpsgCode, WmtsProvider } from '@basemaps/geo';
 import { DynamoDB } from 'aws-sdk';
 import { Const } from '../const';
 import { BaseDynamoTable } from './aws.dynamo.table';
-import { WmtsProvider } from '../wmts/wmts';
 
 export enum TileMetadataTag {
     /** Version to render by default */

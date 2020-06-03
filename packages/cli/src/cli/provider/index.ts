@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { LogConfig } from '@basemaps/lambda-shared';
+import { LogConfig } from '@basemaps/shared';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import { BaseCommandLine } from '../base.cli';

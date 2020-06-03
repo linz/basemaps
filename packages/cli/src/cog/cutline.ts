@@ -1,5 +1,5 @@
 import { Bounds, Epsg, GeoJson, QuadKey, QuadKeyTrie, TileCover } from '@basemaps/geo';
-import { FileOperator } from '@basemaps/lambda-shared';
+import { FileOperator } from '@basemaps/shared';
 import bbox from '@turf/bbox';
 import intersect from '@turf/intersect';
 import { FeatureCollection, Position } from 'geojson';

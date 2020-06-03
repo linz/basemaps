@@ -1,11 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-    Aws,
-    LogConfig,
-    TileMetadataImageryRecord,
-    TileMetadataSetRecord,
-    TileMetadataTag,
-} from '@basemaps/lambda-shared';
+import { Aws, LogConfig, TileMetadataImageryRecord, TileMetadataSetRecord, TileMetadataTag } from '@basemaps/shared';
 import { CliTable } from '../cli.table';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet, showDiff } from './tileset.util';

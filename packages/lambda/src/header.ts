@@ -1,3 +1,4 @@
+export const ApplicationJson = 'application/json';
 /** Common http headers */
 export const HttpHeader = {
     CorrelationId: 'X-LINZ-Correlation-Id',

@@ -3,22 +3,19 @@ import { ALBResult, CloudFrontResultResponse } from 'aws-lambda';
 import * as o from 'ospec';
 import { HttpHeader } from '../header';
 import { LambdaFunction } from '../lambda';
-import { LogConfig } from '../log';
 import { LambdaContext } from '../lambda.context';
 import { LambdaHttpResponse } from '../lambda.response';
+import { FakeLogger } from './log.spy';
 
 o.spec('LambdaFunction', () => {
     const DoneError = new Error('Done');
+
     const asyncThrow = async () => {
         throw DoneError;
     };
 
-    o.beforeEach(() => {
-        LogConfig.disable();
-    });
-
     o('should generate a alb response on error', async () => {
-        const testFunc = LambdaFunction.wrap(asyncThrow);
+        const testFunc = LambdaFunction.wrap(asyncThrow, FakeLogger());
 
         const spy = o.spy();
         await testFunc({} as any, null as any, spy);
@@ -39,7 +36,7 @@ o.spec('LambdaFunction', () => {
     });
 
     o('should generate a cloudfront response on error', async () => {
-        const testFunc = LambdaFunction.wrap(asyncThrow);
+        const testFunc = LambdaFunction.wrap(asyncThrow, FakeLogger());
 
         const spy = o.spy();
         await testFunc({ Records: [{ cf: { request: { headers: {} } } }] } as any, null as any, spy);
@@ -61,30 +58,23 @@ o.spec('LambdaFunction', () => {
 
     o('should callback on success', async () => {
         const albOk = new LambdaHttpResponse(200, 'ok');
-        const logs: [Record<string, any>, string][] = [];
-        LogConfig.set({
-            info: (a: Record<string, any>, b: string) => logs.push([a, b]),
-            child: function () {
-                return this;
-            },
-        } as any);
 
+        const fakeLogger = FakeLogger();
         const testFunc = LambdaFunction.wrap(async (ctx: LambdaContext) => {
             const { timer } = ctx;
             timer.start('xxx');
             timer.end('xxx');
             return albOk;
-        });
+        }, fakeLogger);
 
         const spy = o.spy();
         await testFunc({} as any, null as any, spy);
         o(spy.calls.length).equals(1);
         o(spy.args[1]).deepEquals(LambdaContext.toAlbResponse(albOk));
 
-        o(logs.length > 1).equals(true);
-        const lastCall = logs[logs.length - 1];
-        const json = lastCall[0];
-        o(json.duration > -1).equals(true);
-        o(json.metrics.xxx > -1).equals(true);
+        o(fakeLogger.spy.callCount).equals(2);
+        const [lastCall] = fakeLogger.spy.args;
+        o(lastCall.duration > -1).equals(true);
+        o(lastCall.metrics.xxx > -1).equals(true);
     });
 });

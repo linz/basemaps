@@ -1,5 +1,5 @@
 import { Epsg } from '@basemaps/geo';
-import { V, VNodeElement } from '@basemaps/lambda-shared';
+import { V, VNodeElement } from '@basemaps/shared';
 import { createHash } from 'crypto';
 import * as o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability';

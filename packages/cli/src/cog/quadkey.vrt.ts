@@ -1,4 +1,4 @@
-import { FileOperator, LogType, VNodeElement, VNodeParser } from '@basemaps/lambda-shared';
+import { FileOperator, LogType, VNodeElement, VNodeParser } from '@basemaps/shared';
 import { FeatureCollection } from 'geojson';
 import { basename } from 'path';
 import { CogJob } from './types';

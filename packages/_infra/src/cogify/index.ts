@@ -3,7 +3,7 @@ import iam = require('@aws-cdk/aws-iam');
 import batch = require('@aws-cdk/aws-batch');
 import ec2 = require('@aws-cdk/aws-ec2');
 import ecrAssets = require('@aws-cdk/aws-ecr-assets');
-import { Env } from '@basemaps/lambda-shared';
+import { Env } from '@basemaps/shared';
 import { ScratchData } from './mount.folder';
 import { createHash } from 'crypto';
 import { TileMetadataTableArn } from '../serve/db';

@@ -1,4 +1,5 @@
-import { LogConfig, LambdaContext, TileType } from '@basemaps/lambda-shared';
+import { LogConfig, TileType } from '@basemaps/shared';
+import { LambdaContext } from '@basemaps/lambda';
 import { PrettyTransform } from 'pretty-json-log';
 import { Tile } from '../routes/tile';
 import { Epsg } from '@basemaps/geo';

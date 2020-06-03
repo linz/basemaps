@@ -6,7 +6,7 @@ import {
     TileMetadataSetRecord,
     TileMetadataTable,
     TileMetadataTag,
-} from '@basemaps/lambda-shared';
+} from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,

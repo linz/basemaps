@@ -1,12 +1,12 @@
+import * as o from 'ospec';
 import { LambdaContext } from '../lambda.context';
 import { LambdaHttpResponse } from '../lambda.response';
 import { Router } from '../router';
-import * as o from 'ospec';
-import { LogConfig } from '../log';
+import { FakeLogger } from './log.spy';
 
 o.spec('router', () => {
     function makeContext(httpMethod: string, path: string): LambdaContext {
-        return new LambdaContext({ path, httpMethod } as any, LogConfig.get());
+        return new LambdaContext({ path, httpMethod } as any, FakeLogger());
     }
 
     const app = new Router();

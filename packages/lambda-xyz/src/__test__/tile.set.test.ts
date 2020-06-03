@@ -1,4 +1,4 @@
-import { TileMetadataImageryRecord } from '@basemaps/lambda-shared';
+import { TileMetadataImageryRecord } from '@basemaps/shared';
 import * as o from 'ospec';
 import { TileSet } from '../tile.set';
 

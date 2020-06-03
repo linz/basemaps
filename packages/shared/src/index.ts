@@ -2,20 +2,14 @@
 export { Aws } from './aws/index';
 // --
 export { Const, Env } from './const';
-export { HttpHeader } from './header';
 export { ApiKeyTable, ApiKeyTableRecord } from './aws/api.key.table';
-export { LambdaFunction } from './lambda';
-export { LambdaHttpResponse } from './lambda.response';
-export { LambdaContext } from './lambda.context';
 export { LogConfig, LogType } from './log';
 export { tileFromPath, TileType, TileData, TileDataWmts, TileDataXyz } from './api.path';
 export { V, VNode, VNodeElement, VNodeText } from './vdom';
 export { VNodeParser } from './vdom.parse';
 export { CompositeError } from './composite.error';
-export { WmtsLayer, WmtsProvider } from './wmts/wmts';
 
 export * from './aws/tile.metadata.base';
 export * from './aws/tile.metadata';
 
-export * from './router';
 export * from './file';

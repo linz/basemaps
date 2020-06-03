@@ -1,4 +1,4 @@
-import { Epsg } from '@basemaps/geo';
+import type { Epsg } from '../epsg';
 
 /**
  * Cut down interface, with only the information needed to render a tileset

@@ -1,5 +1,5 @@
 import { Epsg } from '@basemaps/geo';
-import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/lambda-shared';
+import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal';
 import { onProgress } from './cog';
 import { CogJob } from './types';

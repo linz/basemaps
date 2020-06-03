@@ -1,17 +1,6 @@
 import { Epsg, QuadKey } from '@basemaps/geo';
-import {
-    Aws,
-    Env,
-    HttpHeader,
-    LambdaContext,
-    LambdaHttpResponse,
-    LogType,
-    TileDataWmts,
-    TileDataXyz,
-    tileFromPath,
-    TileMetadataTag,
-    TileType,
-} from '@basemaps/lambda-shared';
+import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { Aws, Env, TileDataWmts, TileDataXyz, tileFromPath, TileMetadataTag, TileType } from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -43,7 +32,7 @@ const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
 /** Initialize the tiffs before reading */
-async function initTiffs(tileSet: TileSet, qk: string, zoom: number, logger: LogType): Promise<CogTiff[]> {
+async function initTiffs(tileSet: TileSet, qk: string, zoom: number, ctx: LambdaContext): Promise<CogTiff[]> {
     const tiffs = await tileSet.getTiffsForQuadKey(qk, zoom);
     let failed = false;
     // Remove any tiffs that failed to load
@@ -52,7 +41,7 @@ async function initTiffs(tileSet: TileSet, qk: string, zoom: number, logger: Log
             try {
                 await c.init();
             } catch (error) {
-                logger.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
+                ctx.log.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
                 failed = true;
             }
         });
@@ -91,7 +80,7 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     const tileSet = await loadTileSet(req, xyzData.name, xyzData.projection);
     if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset Not Found');
 
-    const tiffs = await initTiffs(tileSet, qk, z, req.log);
+    const tiffs = await initTiffs(tileSet, qk, z, req);
     const layers = await tiler.tile(tiffs, x, y, z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId

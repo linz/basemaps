@@ -1,4 +1,4 @@
-import { FileOperatorSimple, LogConfig } from '@basemaps/lambda-shared';
+import { FileOperatorSimple, LogConfig } from '@basemaps/shared';
 import { FeatureCollection } from 'geojson';
 import * as o from 'ospec';
 import { Cutline } from '../cutline';
