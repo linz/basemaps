@@ -16,6 +16,10 @@ function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
     return tiffList.map((path) => new CogSourceFile(path));
 }
 
+function isTiff(fileName: string): boolean {
+    return fileName.toLowerCase().endsWith('.tif') || fileName.toLowerCase().endsWith('.tiff');
+}
+
 export class TileSetLocal extends TileSet {
     tiffs: CogTiff[];
     filePath: string;
@@ -37,8 +41,8 @@ export class TileSetLocal extends TileSet {
         if (this.tiffs != null) return true;
         const tiffFs = FileOperator.create(this.filePath);
 
-        const fileList = await tiffFs.list(this.filePath);
-        const files = fileList.filter((f) => f.toLowerCase().endsWith('.tif') || f.toLowerCase().endsWith('.tiff'));
+        const fileList = isTiff(this.filePath) ? [this.filePath] : await tiffFs.list(this.filePath);
+        const files = fileList.filter(isTiff);
         if (files.length == 0) throw new Error(`No tiff files found in ${this.filePath}`);
 
         this.tiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
