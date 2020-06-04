@@ -1,10 +1,27 @@
 import { Approx } from '@basemaps/test';
 import * as o from 'ospec';
+import { Point } from '../bounds';
 import { Epsg } from '../epsg';
-import { Projection } from '../projection';
+import { QuadKey } from '../quad.key';
 import { GoogleTms } from '../tms/google';
 import { Nztm2000Tms } from '../tms/nztm2000';
-import { QuadKey } from '../quad.key';
+
+const TileSize = 256;
+
+const A = 6378137.0;
+/** EPSG:3857 origin shift */
+const OriginShift = (2 * Math.PI * A) / 2.0;
+const InitialResolution = (2 * Math.PI * A) / TileSize;
+function getResolution(zoom: number): number {
+    return InitialResolution / (1 << zoom);
+}
+
+function getPixelsFromMeters(tX: number, tY: number, zoom: number): Point {
+    const res = getResolution(zoom);
+    const pX = (tX + OriginShift) / res;
+    const pY = (tY + OriginShift) / res;
+    return { x: pX, y: pY };
+}
 
 o.spec('TileMatrixSet', () => {
     o.spec('load', () => {
@@ -20,18 +37,16 @@ o.spec('TileMatrixSet', () => {
 
     o.spec('pixelScale', () => {
         o('should match the old projection logic', () => {
-            const projection = new Projection(256);
             for (let i = 0; i < 25; i++) {
-                Approx.equal(projection.getResolution(i), GoogleTms.pixelScale(i), `${i}`);
+                Approx.equal(getResolution(i), GoogleTms.pixelScale(i), `${i}`);
             }
         });
     });
 
     o.spec('sourceToPixels', () => {
         o('should match the old projection logic', () => {
-            const projection = new Projection(256);
             for (let i = 0; i < 10; i++) {
-                const oldP = projection.getPixelsFromMeters(i, i, i);
+                const oldP = getPixelsFromMeters(i, i, i);
                 const newP = GoogleTms.sourceToPixels(i, i, i);
                 Approx.equal(oldP.x, newP.x, `x_${i}`, 0.1);
                 Approx.equal(oldP.y, newP.y, `y_${i}`, 0.1);
