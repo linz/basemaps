@@ -1,4 +1,5 @@
-import { Epsg, QuadKey, TileCover } from '@basemaps/geo';
+import { Epsg, QuadKey } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { FileConfig, FileOperator, FileOperatorS3, isConfigS3Role, LogConfig } from '@basemaps/shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
@@ -7,14 +8,15 @@ import { createReadStream, promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder, GdalCogBuilder } from '..';
+import { CliInfo } from '../cli/base.cli';
 import { ActionBatchJob } from '../cli/cogify/action.batch';
 import { getJobPath, makeTempFolder } from '../cli/folder';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
 import { getTileSize } from './cog';
 import { buildVrtForTiffs, VrtOptions } from './cog.vrt';
 import { Cutline } from './cutline';
+import { TmsUtil } from './tms.util';
 import { CogJob } from './types';
-import { CliInfo } from '../cli/base.cli';
 
 export const MaxConcurrencyDefault = 50;
 
@@ -202,7 +204,7 @@ export const CogJobFactory = {
             await outputFs.writeJson(geoJsonSourceOutput, metadata.bounds, logger);
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
-            await outputFs.writeJson(geoJsonCoveringOutput, TileCover.toGeoJson(quadkeys), logger);
+            await outputFs.writeJson(geoJsonCoveringOutput, TmsUtil.toGeoJson(GoogleTms, quadkeys), logger);
 
             if (ctx.generateVrt) {
                 const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);

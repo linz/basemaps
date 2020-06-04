@@ -1,7 +1,8 @@
-import { TileCover } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { MultiPolygon } from 'geojson';
 import * as o from 'ospec';
 import { Cutline } from '../cutline';
+import { TmsUtil } from '../tms.util';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
 
@@ -69,7 +70,7 @@ o.spec('covering', () => {
     });
 
     o('optimize should not cover the world', () => {
-        const bounds = TileCover.toGeoJson(['']);
+        const bounds = TmsUtil.toGeoJson(GoogleTms, ['']);
         const cutline = new Cutline();
         const covering = cutline.optimizeCovering({ bounds, resolution: 0 } as SourceMetadata);
         o(Array.from(covering)).deepEquals(['0', '1', '2', '3']);

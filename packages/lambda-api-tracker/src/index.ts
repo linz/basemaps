@@ -1,9 +1,6 @@
-import { Projection } from '@basemaps/geo';
-import { Const, tileFromPath, TileType, LogConfig } from '@basemaps/shared';
-import { HttpHeader, LambdaContext, LambdaHttpResponse, LambdaFunction } from '@basemaps/lambda';
+import { HttpHeader, LambdaContext, LambdaFunction, LambdaHttpResponse } from '@basemaps/lambda';
+import { Const, LogConfig, tileFromPath, TileType } from '@basemaps/shared';
 import { ValidateRequest } from './validate';
-
-const projection = new Projection(256);
 
 function setTileInfo(ctx: LambdaContext): boolean {
     const xyzData = tileFromPath(ctx.action.rest);
@@ -13,9 +10,11 @@ function setTileInfo(ctx: LambdaContext): boolean {
 
     if (xyzData?.type === TileType.Image) {
         const { x, y, z } = xyzData;
-        const latLon = projection.getLatLonCenterFromTile(x, y, z);
         ctx.set('xyz', { x, y, z });
-        ctx.set('location', latLon);
+
+        // FIXME
+        // const latLon = projection.getLatLonCenterFromTile(x, y, z);
+        // ctx.set('location', latLon);
     }
     return false;
 }
