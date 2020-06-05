@@ -109,7 +109,7 @@ export class TileMatrixSet {
     /**
      * Get the source units for a `tile` upper left point
      */
-    tileToSource(tile: Tile): Point {
+    public tileToSource(tile: Tile): Point {
         const ul = this.tileToPixels(tile.x, tile.y);
         return this.pixelsToSource(ul.x, ul.y, tile.z);
     }

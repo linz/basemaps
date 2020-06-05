@@ -1,4 +1,4 @@
-import { Epsg, QuadKeyTrie, EpsgCode } from '@basemaps/geo';
+import { EpsgCode } from '@basemaps/geo';
 import { FileConfig } from '@basemaps/shared';
 import { GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
 import { VrtOptions } from './cog.vrt';
@@ -77,7 +77,7 @@ export interface SourceMetadata {
     resolution: number;
 
     /** EPSG projection number */
-    projection: Epsg;
+    projection: EpsgCode;
 
     /** GDAL_NODATA value */
     nodata?: number;
@@ -85,5 +85,5 @@ export interface SourceMetadata {
 
 export interface CogBuilderMetadata extends SourceMetadata {
     /** Quadkey indexes for the covering tiles */
-    covering: QuadKeyTrie;
+    quadkeys: string[];
 }

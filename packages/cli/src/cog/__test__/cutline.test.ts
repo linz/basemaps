@@ -5,11 +5,22 @@ import { Cutline } from '../cutline';
 import { TmsUtil } from '../tms.util';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
+import { GeoJson, QuadKey } from '@basemaps/geo';
+import { writeFileSync } from 'fs';
+import { Approx } from '@basemaps/test';
+
+const DebugPolys = false;
+
+/** Write to ~/tmp for debugging in qgis */
+function writeDebugPolys(poly: number[][][][]): void {
+    if (!DebugPolys) return;
+    writeFileSync(`${process.env.HOME}/tmp/poly.geojson`, JSON.stringify(GeoJson.toFeatureMultiPolygon(poly)));
+}
 
 o.spec('covering', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
     o('loadCutline', async () => {
-        const cutline = await Cutline.loadCutline(testDir + '/mana.geojson');
+        const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const geojson = cutline.toGeoJson();
         const mp = geojson.features[0].geometry as MultiPolygon;
         const { coordinates } = mp;
@@ -28,50 +39,61 @@ o.spec('covering', () => {
             ],
         });
         o(coordinates.length).equals(2);
-        o(coordinates[0][0][0]).deepEquals([174.78134935600005, -41.077634319065346]);
+        const [lon, lat] = coordinates[0][0][0];
+        Approx.latLon({ lon, lat }, { lon: 174.781349356, lat: -41.077634319 });
     });
 
-    o('filterPolygons', async () => {
-        const cutline = await Cutline.loadCutline(testDir + '/mana.geojson');
-
-        const features = SourceTiffTestHelper.makeTiffFeatureCollection();
+    o('findCovering', async () => {
+        const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const feature = SourceTiffTestHelper.makeTiffFeatureCollection();
 
         o(cutline.polygons.length).equals(2);
 
-        cutline.findCovering({ bounds: features, resolution: 18 } as SourceMetadata);
+        const result = (cutline as any).findCovering(feature, cutline.polygons);
 
-        o(cutline.polygons.length).equals(1);
+        o(result.length).equals(1);
+
+        writeDebugPolys(result);
     });
 
-    o('optmize', async () => {
+    o.spec('optmize', async () => {
         const geoJson = SourceTiffTestHelper.makeTiffFeatureCollection();
 
-        const cutline = new Cutline();
+        o('low res', () => {
+            const cutline = new Cutline(GoogleTms);
 
-        const covering = cutline.optimizeCovering({ bounds: geoJson, resolution: 13 } as SourceMetadata);
+            const covering = cutline.optimizeCovering({ bounds: geoJson, resolution: 13 } as SourceMetadata);
 
-        o(covering.size).equals(Array.from(covering).length);
-        o(Array.from(covering)).deepEquals(['31133322', '31311100']);
+            o(covering.length).equals(Array.from(covering).length);
+            o(Array.from(covering)).deepEquals(['31133322', '31311100']);
+        });
 
-        const covering2 = cutline.optimizeCovering({ bounds: geoJson, resolution: 18 } as SourceMetadata);
+        o('hi res', () => {
+            const covering2 = new Cutline(GoogleTms).optimizeCovering({
+                bounds: geoJson,
+                resolution: 18,
+            } as SourceMetadata);
 
-        o(covering2.size).equals(Array.from(covering2).length);
+            o(covering2.length).equals(Array.from(covering2).length);
 
-        o(Array.from(covering2)).deepEquals([
-            '3113332222',
-            '3113332223',
-            '311333223202',
-            '31133322322',
-            '3131110000',
-            '3131110001',
-            '31311100100',
-            '313111001020',
-        ]);
+            o(Array.from(covering2)).deepEquals(
+                [
+                    '3113332222',
+                    '3113332223',
+                    '311333223202',
+                    '31133322322',
+                    '3131110000',
+                    '3131110001',
+                    '31311100100',
+                    '313111001020',
+                ].sort(QuadKey.compareKeys),
+            );
+        });
     });
 
     o('optimize should not cover the world', () => {
         const bounds = TmsUtil.toGeoJson(GoogleTms, ['']);
-        const cutline = new Cutline();
+        const cutline = new Cutline(GoogleTms);
         const covering = cutline.optimizeCovering({ bounds, resolution: 0 } as SourceMetadata);
         o(Array.from(covering)).deepEquals(['0', '1', '2', '3']);
     });

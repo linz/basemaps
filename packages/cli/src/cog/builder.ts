@@ -102,7 +102,7 @@ export class CogBuilder {
         if (bands == -1) throw new Error('No image bands detected');
 
         return {
-            projection,
+            projection: projection.code,
             nodata,
             bands,
             bounds: GeoJson.toFeatureCollection(polygons),
@@ -240,7 +240,7 @@ export class CogBuilder {
      */
     async build(tiffs: CogSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
         const metadata = await this.getMetadata(tiffs);
-        const covering = cutline.optimizeCovering(metadata);
-        return { ...metadata, covering };
+        const quadkeys = cutline.optimizeCovering(metadata);
+        return { ...metadata, quadkeys };
     }
 }
