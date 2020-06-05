@@ -1,24 +1,9 @@
 import { Bounds, EpsgCode, QuadKey } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Approx } from '@basemaps/test';
+import { round, roundJson } from '@basemaps/test/build/rounding';
 import * as o from 'ospec';
 import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
-
-function round(z = 8): (n: number) => number {
-    const p = 10 ** z;
-    return (n: number): number => Math.round(n * p) / p;
-}
-
-function roundJson(json: any, z = 8): any {
-    const ans = Object.assign({}, json);
-    const r = round(z);
-    for (const key in ans) {
-        if (typeof ans[key] === 'number') {
-            ans[key] = r(ans[key]);
-        }
-    }
-    return ans;
-}
 
 const TileSize = 256;
 
@@ -60,6 +45,13 @@ o.spec('ProjectionTileMatrixSet', () => {
             y: -6261721.35712163,
             width: 313086.06785608,
             height: 313086.06785608,
+        });
+    });
+
+    o('tileCenterToLatLon', () => {
+        o(roundJson(googleProj.tileCenterToLatLon(QuadKey.toTile('3120123')), 8)).deepEquals({
+            lat: -47.98992167,
+            lon: 105.46875,
         });
     });
 

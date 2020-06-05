@@ -59,6 +59,15 @@ export class ProjectionTileMatrixSet {
     }
 
     /**
+     * return the `lat`, `lon` of a Tile's center
+     */
+    tileCenterToLatLon(tile: Tile): LatLon {
+        const point = this.tms.tileToSource({ x: tile.x + 0.5, y: tile.y + 0.5, z: tile.z });
+        const [lon, lat] = this.toWsg84([point.x, point.y]);
+        return { lat, lon };
+    }
+
+    /**
      * Convert a tile to a GeoJson Polygon in Source units
      */
     tileToPolygon(tile: Tile): Position[][] {

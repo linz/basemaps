@@ -1,6 +1,15 @@
 import { Epsg } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import { Aws, Env, TileDataWmts, TileDataXyz, tileFromPath, TileMetadataTag, TileType } from '@basemaps/shared';
+import {
+    Aws,
+    Env,
+    TileDataWmts,
+    TileDataXyz,
+    tileFromPath,
+    TileMetadataTag,
+    TileType,
+    ProjectionTileMatrixSet,
+} from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -70,12 +79,11 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
 
     const { x, y, z, ext } = xyzData;
 
-    // FIXME
-    // const latLon = tiler.projection.getLatLonCenterFromTile(x, y, z);
     const qks = tiler.tms.quadKey.nearestQuadKeys(xyzData);
     req.set('xyz', { x, y, z });
-    // req.set('location', latLon);
     req.set('quadKeys', qks);
+    const latLon = ProjectionTileMatrixSet.get(xyzData.projection.code).tileCenterToLatLon(xyzData);
+    req.set('location', latLon);
 
     const tileSet = await loadTileSet(req, xyzData.name, xyzData.projection);
     if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset Not Found');
