@@ -147,8 +147,8 @@ export const CogJobFactory = {
             {
                 ...metadata,
                 bounds: undefined,
-                quadKeyCount: quadkeys.length,
-                quadKeys: quadkeys.join(' '),
+                quadkeyCount: quadkeys.length,
+                quadkeys: quadkeys.join(' '),
             },
             'CoveringGenerated',
         );

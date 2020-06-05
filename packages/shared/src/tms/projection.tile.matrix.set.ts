@@ -18,9 +18,13 @@ proj4.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
 const CodeMap = new Map<EpsgCode, ProjectionTileMatrixSet>();
 
 export class ProjectionTileMatrixSet {
+    /** The underlying TileMatrixSet */
     tms: TileMatrixSet;
     private projection: proj4.Converter;
 
+    /**
+     * Wrapper around TileMatrixSet with utilities for converting Points and Polygons
+     */
     constructor(tms: TileMatrixSet) {
         this.tms = tms;
         try {
@@ -33,20 +37,37 @@ export class ProjectionTileMatrixSet {
         }
     }
 
+    /**
+     * Get the ProjectionTileMatrixSet instance for a specified code,
+     *
+     * throws a exception if the code is not recognized
+     *
+     * @param epsgCode
+     */
     static get(epsgCode: EpsgCode): ProjectionTileMatrixSet {
         const ptms = CodeMap.get(epsgCode);
         if (ptms != null) return ptms;
         throw new Error(`Invalid projection: ${epsgCode}`);
     }
 
+    /**
+     * Try to find a corresponding ProjectionTileMatrixSet for a number
+     * @param epsgCode
+     */
     static tryGet(epsgCode?: EpsgCode): ProjectionTileMatrixSet | null {
         return (epsgCode && CodeMap.get(epsgCode)) ?? null;
     }
 
+    /**
+     * Convert source `[x, y]` coordinates to `[lon, lat]`
+     */
     get toWsg84(): (coordinates: Position) => Position {
         return this.projection.forward;
     }
 
+    /**
+     * Convert `[lon, lat]` coordinates to source `[x, y]`
+     */
     get fromWsg84(): (coordinates: Position) => Position {
         return this.projection.inverse;
     }
@@ -55,7 +76,7 @@ export class ProjectionTileMatrixSet {
     tileToSourceBounds(tile: Tile): Bounds {
         const ul = this.tms.tileToSource(tile);
         const lr = this.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
-        return new Bounds(ul.x, lr.y, Math.abs(lr.x - ul.x), Math.abs(lr.y - ul.y));
+        return new Bounds(Math.min(ul.x, lr.x), Math.min(ul.y, lr.y), Math.abs(lr.x - ul.x), Math.abs(lr.y - ul.y));
     }
 
     /**

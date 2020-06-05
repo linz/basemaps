@@ -123,6 +123,9 @@ export class Cutline {
         // Don't make COGs with a quadKey shorter than minZ.
 
         const { quadKeys } = this.makeQuadKeys('', srcArea, minZ, CoveringPercentage);
+        if (quadKeys.length == 0) {
+            return '0123'.split('');
+        }
         return quadKeys.sort(QuadKey.compareKeys);
     }
 
@@ -152,31 +155,32 @@ export class Cutline {
     ): { quadKeys: string[]; fractionCovered: number } {
         const clip = this.targetProj.tileToPolygon(QuadKey.toTile(quadKey));
         const intArea = intersection(srcArea, clip) as MultiPolygon | null;
+
         if (intArea == null || intArea.length == 0) return { quadKeys: [], fractionCovered: 0 };
         if (quadKey.length == minZ + 4) {
             return { quadKeys: [quadKey], fractionCovered: 1 };
-        } else {
-            const ans: { quadKeys: string[]; fractionCovered: number } = { quadKeys: [], fractionCovered: 0 };
-            for (let i = 0; i < 4; ++i) {
-                const { quadKeys, fractionCovered } = this.makeQuadKeys(
-                    quadKey + i.toString(),
-                    intArea,
-                    minZ,
-                    coveringFraction,
-                );
-                if (fractionCovered == 0) continue;
-                ans.fractionCovered += fractionCovered * 0.25;
-                ans.quadKeys = ans.quadKeys.concat(quadKeys);
-            }
-            if (
-                (ans.fractionCovered >= coveringFraction || quadKey.length > minZ + 2) &&
-                ans.quadKeys.length > 1 &&
-                quadKey.length >= minZ
-            )
-                ans.quadKeys = [quadKey];
-
-            return ans;
         }
+
+        const ans: { quadKeys: string[]; fractionCovered: number } = { quadKeys: [], fractionCovered: 0 };
+        for (let i = 0; i < 4; ++i) {
+            const { quadKeys, fractionCovered } = this.makeQuadKeys(
+                quadKey + i.toString(),
+                intArea,
+                minZ,
+                coveringFraction,
+            );
+            if (fractionCovered == 0) continue;
+            ans.fractionCovered += fractionCovered * 0.25;
+            ans.quadKeys = ans.quadKeys.concat(quadKeys);
+        }
+        if (
+            (ans.fractionCovered >= coveringFraction || quadKey.length > minZ + 2) &&
+            ans.quadKeys.length > 1 &&
+            quadKey.length >= minZ
+        )
+            ans.quadKeys = [quadKey];
+
+        return ans;
     }
 
     /**
@@ -186,12 +190,11 @@ export class Cutline {
      */
     private findCovering(sourceGeo: FeatureCollection, clip: MultiPolygon): MultiPolygon {
         let srcArea: MultiPolygon = [];
-        const { fromWsg84 } = this.targetProj;
 
         // merge imagery bounds
         for (const { geometry } of sourceGeo.features) {
             if (geometry.type === 'Polygon') {
-                const poly = [geometry.coordinates[0].map(fromWsg84)];
+                const poly = GeoJson.toPositionPolygon(this.sourceWsg84PolyToBounds(geometry.coordinates[0]).toBbox());
                 if (srcArea.length == 0) {
                     srcArea.push(poly);
                 } else {
