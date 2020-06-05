@@ -4,6 +4,7 @@ import * as o from 'ospec';
 import { Cutline } from '../cutline';
 import { QuadKeyVrt } from '../quadkey.vrt';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
 
 o.spec('quadkey.vrt', () => {
     const tmpFolder = '/tmp/my-tmp-folder';
@@ -95,8 +96,8 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('1 crosses, 1 outside', async () => {
-            const cutline = await Cutline.loadCutline(testDir + '/kapiti.geojson');
-            const cl2 = await Cutline.loadCutline(testDir + '/mana.geojson');
+            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+            const cl2 = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
             cutline.polygons.push(...cl2.polygons);
 
             job.source.resolution = 17;
@@ -107,7 +108,7 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('not within quadKey', async () => {
-            const cutline = await Cutline.loadCutline(testDir + '/kapiti.geojson');
+            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
 
             const vrt = await QuadKeyVrt.buildVrt(
                 tmpFolder,
@@ -129,7 +130,7 @@ o.spec('quadkey.vrt', () => {
                 tmpFolder,
                 job,
                 sourceGeo,
-                new Cutline(),
+                new Cutline(GoogleTms),
                 makeVrtString(),
                 '31',
                 logger,
@@ -145,7 +146,7 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('fully within', async () => {
-            const cutline = await Cutline.loadCutline(testDir + '/kapiti.geojson');
+            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
 
             const qkey = '3113332223211133012';
 
@@ -157,7 +158,7 @@ o.spec('quadkey.vrt', () => {
 
         o('1 surrounded', async () => {
             job.output.cutline = { blend: 10, source: 'cutline.json' };
-            const cutline = await Cutline.loadCutline(testDir + '/mana.geojson');
+            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
 
             const vrt = await QuadKeyVrt.buildVrt(
                 tmpFolder,

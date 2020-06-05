@@ -7,6 +7,8 @@ import { CompositeError } from '@basemaps/shared';
 proj4.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
 proj4.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
 
+export type Converter = proj4.Converter;
+
 export function getProjection(fromProjection: Epsg, toProjection?: Epsg): proj4.Converter {
     try {
         return proj4(fromProjection.toEpsgString(), toProjection?.toEpsgString());

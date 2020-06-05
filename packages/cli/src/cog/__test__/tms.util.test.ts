@@ -1,8 +1,8 @@
+import { Bounds, QuadKey } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Approx } from '@basemaps/test';
 import * as o from 'ospec';
 import { TmsUtil } from '../tms.util';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { QuadKey, Bounds } from '@basemaps/geo';
-import { Approx } from '@basemaps/test';
 
 function round(z = 8): (n: number) => number {
     const p = 10 ** z;
@@ -40,19 +40,12 @@ function getPixelsFromTile(x: number, y: number): Bounds {
 }
 
 o.spec('TmsUtil', () => {
-    o('tileToWsg84Bounds', () => {
-        o(roundJson(TmsUtil.tileToWsg84Bounds(GoogleTms, QuadKey.toTile('3120123')).toJson(), 8)).deepEquals({
-            x: 104.0625,
-            y: -48.92249926,
-            width: 2.8125,
-            height: 1.88231712,
-        });
-    });
-
-    o('tileToLatLon', () => {
-        o(roundJson(TmsUtil.tileToLatLon(GoogleTms, QuadKey.toTile('3120123')), 8)).deepEquals({
-            lat: -47.04018214,
-            lon: 104.0625,
+    o('tileToSourceBounds', () => {
+        o(roundJson(TmsUtil.tileToSourceBounds(GoogleTms, QuadKey.toTile('3120123')).toJson(), 8)).deepEquals({
+            x: 11584184.51067502,
+            y: -6261721.35712163,
+            width: 313086.06785608,
+            height: 313086.06785608,
         });
     });
 

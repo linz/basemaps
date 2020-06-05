@@ -1,3 +1,4 @@
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Env, FileOperator, FileOperatorSimple, LogConfig, LogType } from '@basemaps/shared';
 import {
     CommandLineAction,
@@ -12,10 +13,10 @@ import { buildWarpedVrt } from '../../cog/cog.vrt';
 import { Cutline } from '../../cog/cutline';
 import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { CogJob } from '../../cog/types';
+import { GdalCogBuilder } from '../../gdal/gdal';
 import { CliId, CliInfo } from '../base.cli';
 import { getJobPath, makeTempFolder } from '../folder';
 import { SemVer } from './semver.util';
-import { GdalCogBuilder } from '../../gdal/gdal';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -107,15 +108,15 @@ export class ActionCogCreate extends CommandLineAction {
 
             const vrtString = await outputFs.read(getJobPath(job, '.vrt'));
 
-            let cutline: Cutline;
+            let cutlineJson: FeatureCollection | undefined;
             if (job.output.cutline != null) {
                 const cutlinePath = getJobPath(job, 'cutline.geojson.gz');
                 logger.info({ path: cutlinePath }, 'UsingCutLine');
-                cutline = await Cutline.loadCutline(cutlinePath);
+                cutlineJson = await Cutline.loadCutline(cutlinePath);
             } else {
                 logger.warn('NoCutLine');
-                cutline = new Cutline();
             }
+            const cutline = new Cutline(GoogleTms, cutlineJson);
 
             const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, vrtString, quadKey, logger);
 

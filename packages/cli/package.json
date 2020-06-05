@@ -23,17 +23,16 @@
     "@cogeotiff/source-aws": "^2.0.0",
     "@cogeotiff/source-file": "^2.0.0",
     "@cogeotiff/source-url": "^2.0.0",
-    "@mapbox/tile-cover": "^3.0.2",
     "@rushstack/ts-command-line": "^4.3.13",
-    "@turf/turf": "^5.1.6",
     "ansi-colors": "^4.1.1",
     "git-rev-sync": "^2.0.0",
+    "martinez-polygon-clipping": "^0.7.0",
     "p-limit": "^2.2.1",
     "pretty-json-log": "^0.3.1",
     "proj4": "^2.6.0"
   },
   "devDependencies": {
-    "@types/mapbox__tile-cover": "^3.0.0",
+    "@types/geojson": "^7946.0.7",
     "@types/proj4": "^2.5.0"
   },
   "publishConfig": {
