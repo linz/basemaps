@@ -1,4 +1,4 @@
-import { Epsg, QuadKey } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { FileConfig, FileOperator, FileOperatorS3, isConfigS3Role, LogConfig } from '@basemaps/shared';
 import { CogSource } from '@cogeotiff/core';
@@ -112,12 +112,12 @@ export const CogJobFactory = {
 
         logger.info({ source: source.path, tiffCount: tiffList.length }, 'LoadingTiffs');
 
-        const cutline = await Cutline.loadCutline(ctx.cutline?.source);
+        const cutline = new Cutline(GoogleTms, ctx.cutline && (await Cutline.loadCutline(ctx.cutline.source)));
 
         const builder = new CogBuilder(maxConcurrency, logger, ctx.override?.projection);
         const metadata = await builder.build(tiffSource, cutline);
 
-        const quadkeys = Array.from(metadata.covering).sort(QuadKey.compareKeys);
+        const { quadkeys } = metadata;
         if (quadkeys.length > 0) {
             const firstQk = quadkeys[0];
             const lastQk = quadkeys[quadkeys.length - 1];
@@ -137,24 +137,17 @@ export const CogJobFactory = {
             {
                 ...metadata,
                 bounds: undefined,
-                covering: undefined,
                 quadKeyCount: quadkeys.length,
-                quadkeys: quadkeys.join(' '),
+                quadKeys: quadkeys.join(' '),
             },
             'CoveringGenerated',
         );
 
-        const vrtOptions: VrtOptions = { addAlpha: true, forceEpsg3857: true };
+        const vrtOptions: VrtOptions = { addAlpha: true };
         // -addalpha to vrt adds extra alpha layers even if one already exist
         if (metadata.bands > 3) {
             logger.warn({ bandCount: metadata.bands }, 'Vrt:DetectedAlpha, Disabling -addalpha');
             vrtOptions.addAlpha = false;
-        }
-
-        // If the source imagery is in 900931, no need to force a warp
-        if (metadata.projection == Epsg.Google) {
-            logger.warn({ bandCount: metadata.bands }, 'Vrt:GoogleProjection, Disabling warp');
-            vrtOptions.forceEpsg3857 = false;
         }
 
         const job: CogJob = {
@@ -174,7 +167,7 @@ export const CogJobFactory = {
             source: {
                 ...source,
                 resolution: metadata.resolution,
-                projection: metadata.projection.code,
+                projection: metadata.projection,
                 files: tiffList,
                 options: { maxConcurrency },
             },

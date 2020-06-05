@@ -8,7 +8,6 @@ export interface VrtOptions {
     /** Vrts will add a second alpha layer if one exists, so dont always add one */
     addAlpha: boolean;
     /** No need to force a reprojection to 3857 if source imagery is in 3857 */
-    forceEpsg3857: boolean;
 }
 
 /**
@@ -72,9 +71,6 @@ export async function buildWarpedVrt(
     tmpTarget: string,
     logger: LogType,
 ): Promise<string> {
-    if (!options.forceEpsg3857) {
-        return vrtPath;
-    }
     const vrtWarpedPath = FileOperator.join(tmpTarget, `${job.id}.${Epsg.Google}.vrt`);
 
     logger.info({ path: vrtWarpedPath }, 'BuildVrt:Warped');
