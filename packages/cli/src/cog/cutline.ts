@@ -1,10 +1,9 @@
-import { Epsg, GeoJson, QuadKey, TileMatrixSet } from '@basemaps/geo';
-import { FileOperator } from '@basemaps/shared';
+import { Epsg, GeoJson, QuadKey } from '@basemaps/geo';
+import { FileOperator, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { FeatureCollection } from 'geojson';
 import { intersection, MultiPolygon, union } from 'martinez-polygon-clipping';
 import { basename } from 'path';
 import { CoveringPercentage, ZoomDifferenceForMaxImage } from './constants';
-import { TmsUtil } from './tms.util';
 import { CogJob, SourceMetadata } from './types';
 
 const PaddingFactor = 1.125;
@@ -28,27 +27,27 @@ function polysEqual(a: MultiPolygon, b: MultiPolygon): boolean {
 
 export class Cutline {
     polygons: MultiPolygon = [];
-    targetTms: TileMatrixSet;
+    targetProj: ProjectionTileMatrixSet;
 
     /**
      * Create a Cutline instanse from a GeoJSON FeatureCollection
      */
-    constructor(targetTms: TileMatrixSet, geojson?: FeatureCollection) {
-        this.targetTms = targetTms;
+    constructor(targetProj: ProjectionTileMatrixSet, geojson?: FeatureCollection) {
+        this.targetProj = targetProj;
         if (geojson == null) {
             return;
         }
         if (findGeoJsonProjection(geojson) !== Epsg.Wgs84) {
             throw new Error('Invalid geojson; CRS may not be set for cutline!');
         }
-        const { inverse } = TmsUtil.getProjection(this.targetTms);
+        const { fromWsg84 } = this.targetProj;
         for (const { geometry } of geojson.features) {
             if (geometry.type === 'MultiPolygon') {
                 for (const coords of geometry.coordinates) {
-                    this.polygons.push([coords[0].map(inverse)]);
+                    this.polygons.push([coords[0].map(fromWsg84)]);
                 }
             } else if (geometry.type === 'Polygon') {
-                this.polygons.push([geometry.coordinates[0].map(inverse)]);
+                this.polygons.push([geometry.coordinates[0].map(fromWsg84)]);
             }
         }
     }
@@ -72,18 +71,18 @@ export class Cutline {
 
      */
     filterSourcesForQuadKey(quadKey: string, job: CogJob, sourceGeo: FeatureCollection): void {
-        const qkBounds = TmsUtil.tileToSourceBounds(this.targetTms, QuadKey.toTile(quadKey));
+        const qkBounds = this.targetProj.tileToSourceBounds(QuadKey.toTile(quadKey));
         const qkPadded = GeoJson.toPositionPolygon(qkBounds.scaleFromCenter(PaddingFactor).toBbox());
 
         let srcArea: MultiPolygon = [];
 
         const srcTiffs = new Set<string>();
 
-        const { inverse } = TmsUtil.getProjection(this.targetTms);
+        const { fromWsg84 } = this.targetProj;
         for (const f of sourceGeo.features) {
             const { geometry } = f;
             if (geometry.type === 'Polygon') {
-                const poly = intersection([geometry.coordinates[0].map(inverse)], qkPadded) as MultiPolygon;
+                const poly = intersection([geometry.coordinates[0].map(fromWsg84)], qkPadded) as MultiPolygon;
                 if (poly != null && poly.length != 0) {
                     srcTiffs.add(basename(f.properties!.tiff!));
                     if (srcArea.length == 0) {
@@ -131,9 +130,9 @@ export class Cutline {
      * Convert JobCutline to geojson FeatureCollection
      */
     toGeoJson(): FeatureCollection {
-        const { forward } = TmsUtil.getProjection(this.targetTms);
+        const { toWsg84 } = this.targetProj;
         return GeoJson.toFeatureCollection([
-            GeoJson.toFeatureMultiPolygon(this.polygons.map((p) => [p[0].map((q) => forward(q))])),
+            GeoJson.toFeatureMultiPolygon(this.polygons.map((p) => [p[0].map((q) => toWsg84(q))])),
         ]);
     }
 
@@ -151,7 +150,7 @@ export class Cutline {
         minZ: number,
         coveringFraction: number,
     ): { quadKeys: string[]; fractionCovered: number } {
-        const clip = TmsUtil.tileToPolygon(this.targetTms, QuadKey.toTile(quadKey));
+        const clip = this.targetProj.tileToPolygon(QuadKey.toTile(quadKey));
         const intArea = intersection(srcArea, clip) as MultiPolygon | null;
         if (intArea == null || intArea.length == 0) return { quadKeys: [], fractionCovered: 0 };
         if (quadKey.length == minZ + 4) {
@@ -187,12 +186,12 @@ export class Cutline {
      */
     private findCovering(sourceGeo: FeatureCollection, clip: MultiPolygon): MultiPolygon {
         let srcArea: MultiPolygon = [];
-        const { inverse } = TmsUtil.getProjection(this.targetTms);
+        const { fromWsg84 } = this.targetProj;
 
         // merge imagery bounds
         for (const { geometry } of sourceGeo.features) {
             if (geometry.type === 'Polygon') {
-                const poly = [geometry.coordinates[0].map(inverse)];
+                const poly = [geometry.coordinates[0].map(fromWsg84)];
                 if (srcArea.length == 0) {
                     srcArea.push(poly);
                 } else {

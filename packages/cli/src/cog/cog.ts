@@ -1,6 +1,5 @@
 import { QuadKey } from '@basemaps/geo';
-import { Aws, isConfigS3Role, LogType } from '@basemaps/shared';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Aws, isConfigS3Role, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
 import { GdalProgressParser } from '../gdal/gdal.progress';
@@ -53,10 +52,12 @@ export async function buildCogForQuadKey(
 ): Promise<void> {
     const startTime = Date.now();
 
+    const targetProj = ProjectionTileMatrixSet.get(job.projection);
+
     const tile = QuadKey.toTile(quadKey);
 
-    const ul = GoogleTms.tileToSource(tile);
-    const lr = GoogleTms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
+    const ul = targetProj.tms.tileToSource(tile);
+    const lr = targetProj.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
 
     const padding = Math.max(Math.abs(lr.y - ul.y), Math.abs(lr.x - ul.x)) * 0.01;
 
