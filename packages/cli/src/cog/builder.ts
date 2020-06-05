@@ -14,6 +14,8 @@ export const InvalidProjectionCode = 32767;
 export const CacheFolder = './.cache';
 export const TileSize = 256;
 
+const InitialResolution = (2 * Math.PI * 6378137.0) / TileSize;
+
 export class CogBuilder {
     q: Limit;
     logger: LogType;
@@ -119,7 +121,7 @@ export class CogBuilder {
         const [resX] = image.resolution;
         let z = 30;
         while (z > 0) {
-            const currentZoom = TileSize / (1 << z);
+            const currentZoom = InitialResolution / (1 << z);
             if (currentZoom >= resX) {
                 break;
             }
