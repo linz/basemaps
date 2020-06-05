@@ -1,9 +1,10 @@
-import { GeoJson } from '@basemaps/geo';
+import { GeoJson, EpsgCode } from '@basemaps/geo';
 import { CogJob } from '../types';
 
 export const SourceTiffTestHelper = {
     makeCogJob(): CogJob {
         return {
+            projection: EpsgCode.Google,
             source: {
                 files: [] as string[],
                 resolution: 13,

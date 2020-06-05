@@ -1,13 +1,12 @@
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { EpsgCode, GeoJson, QuadKey } from '@basemaps/geo';
+import { ProjectionTileMatrixSet } from '@basemaps/shared';
+import { Approx } from '@basemaps/test';
+import { writeFileSync } from 'fs';
 import { MultiPolygon } from 'geojson';
 import * as o from 'ospec';
 import { Cutline } from '../cutline';
-import { TmsUtil } from '../tms.util';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
-import { GeoJson, QuadKey } from '@basemaps/geo';
-import { writeFileSync } from 'fs';
-import { Approx } from '@basemaps/test';
 
 const DebugPolys = false;
 
@@ -17,10 +16,12 @@ function writeDebugPolys(poly: number[][][][]): void {
     writeFileSync(`${process.env.HOME}/tmp/poly.geojson`, JSON.stringify(GeoJson.toFeatureMultiPolygon(poly)));
 }
 
-o.spec('covering', () => {
+o.spec('cutline', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
+
+    const proj = ProjectionTileMatrixSet.get(EpsgCode.Google);
     o('loadCutline', async () => {
-        const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(proj, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const geojson = cutline.toGeoJson();
         const mp = geojson.features[0].geometry as MultiPolygon;
         const { coordinates } = mp;
@@ -44,7 +45,7 @@ o.spec('covering', () => {
     });
 
     o('findCovering', async () => {
-        const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(proj, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const feature = SourceTiffTestHelper.makeTiffFeatureCollection();
 
         o(cutline.polygons.length).equals(2);
@@ -60,7 +61,7 @@ o.spec('covering', () => {
         const geoJson = SourceTiffTestHelper.makeTiffFeatureCollection();
 
         o('low res', () => {
-            const cutline = new Cutline(GoogleTms);
+            const cutline = new Cutline(proj);
 
             const covering = cutline.optimizeCovering({ bounds: geoJson, resolution: 13 } as SourceMetadata);
 
@@ -69,7 +70,7 @@ o.spec('covering', () => {
         });
 
         o('hi res', () => {
-            const covering2 = new Cutline(GoogleTms).optimizeCovering({
+            const covering2 = new Cutline(proj).optimizeCovering({
                 bounds: geoJson,
                 resolution: 18,
             } as SourceMetadata);
@@ -92,8 +93,8 @@ o.spec('covering', () => {
     });
 
     o('optimize should not cover the world', () => {
-        const bounds = TmsUtil.toGeoJson(GoogleTms, ['']);
-        const cutline = new Cutline(GoogleTms);
+        const bounds = proj.toGeoJson(['']);
+        const cutline = new Cutline(proj);
         const covering = cutline.optimizeCovering({ bounds, resolution: 0 } as SourceMetadata);
         o(Array.from(covering)).deepEquals(['0', '1', '2', '3']);
     });

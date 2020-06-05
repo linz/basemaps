@@ -1,5 +1,4 @@
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Env, FileOperator, FileOperatorSimple, LogConfig, LogType } from '@basemaps/shared';
+import { Env, FileOperator, FileOperatorSimple, LogConfig, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -116,7 +115,7 @@ export class ActionCogCreate extends CommandLineAction {
             } else {
                 logger.warn('NoCutLine');
             }
-            const cutline = new Cutline(GoogleTms, cutlineJson);
+            const cutline = new Cutline(ProjectionTileMatrixSet.get(job.projection), cutlineJson);
 
             const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, vrtString, quadKey, logger);
 

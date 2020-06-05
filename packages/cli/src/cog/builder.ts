@@ -1,13 +1,12 @@
 import { Epsg, GeoJson } from '@basemaps/geo';
-import { CompositeError, FileOperatorSimple, LogType } from '@basemaps/shared';
+import { CompositeError, FileOperatorSimple, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import pLimit, { Limit } from 'p-limit';
 import * as path from 'path';
-import { getProjection, guessProjection } from '../proj';
-import { Cutline } from './cutline';
+import { Cutline } from './cutline'; //
 import { CogBuilderMetadata, SourceMetadata } from './types';
 
 export const InvalidProjectionCode = 32767;
@@ -16,9 +15,31 @@ export const TileSize = 256;
 
 const InitialResolution = (2 * Math.PI * 6378137.0) / TileSize;
 
+/**
+ * Attempt to guess the projection based off the WKT
+ *
+ * @example
+ *
+ * "PCS Name = NZGD_2000_New_Zealand_Transverse_Mercator|GCS Name = GCS_NZGD_2000|Ellipsoid = GRS_1980|Primem = Greenwich||"
+ * "NZGD2000_New_Zealand_Transverse_Mercator_2000|GCS Name = GCS_NZGD_2000|Primem = Greenwich||"
+ *
+ * @param wkt
+ */
+export function guessProjection(wkt: string): Epsg | null {
+    if (wkt == null) {
+        return null;
+    }
+    const searchWkt = wkt.replace(/_/g, ' ');
+    if (searchWkt.includes('New Zealand Transverse Mercator')) {
+        return Epsg.Nztm2000;
+    }
+    return null;
+}
+
 export class CogBuilder {
     q: Limit;
     logger: LogType;
+    targetProj: ProjectionTileMatrixSet;
     srcProj?: Epsg;
 
     // Prevent guessing spamming the logs
@@ -27,7 +48,8 @@ export class CogBuilder {
     /**
      * @param concurrency number of requests to run at a time
      */
-    constructor(concurrency: number, logger: LogType, srcProj?: Epsg) {
+    constructor(targetProj: ProjectionTileMatrixSet, concurrency: number, logger: LogType, srcProj?: Epsg) {
+        this.targetProj = targetProj;
         this.logger = logger;
         this.q = pLimit(concurrency);
         this.srcProj = srcProj;
@@ -190,19 +212,21 @@ export class CogBuilder {
         const bottomLeft = [bbox[0], bbox[1]];
 
         const projection = this.findProjection(tiff);
-        const projProjection = getProjection(projection);
+        const projProjection = ProjectionTileMatrixSet.tryGet(projection.code);
         if (projProjection == null) {
             this.logger.error({ tiff: tiff.source.name }, 'Failed to get tiff projection');
             throw new Error('Invalid tiff projection: ' + projection);
         }
 
+        const { fromWsg84 } = projProjection;
+
         const points = [
             [
-                projProjection.inverse(topLeft),
-                projProjection.inverse(bottomLeft),
-                projProjection.inverse(bottomRight),
-                projProjection.inverse(topRight),
-                projProjection.inverse(topLeft),
+                fromWsg84(topLeft),
+                fromWsg84(bottomLeft),
+                fromWsg84(bottomRight),
+                fromWsg84(topRight),
+                fromWsg84(topLeft),
             ],
         ];
 

@@ -1,6 +1,12 @@
 import { Epsg } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { FileConfig, FileOperator, FileOperatorS3, isConfigS3Role, LogConfig } from '@basemaps/shared';
+import {
+    FileConfig,
+    FileOperator,
+    FileOperatorS3,
+    isConfigS3Role,
+    LogConfig,
+    ProjectionTileMatrixSet,
+} from '@basemaps/shared';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -15,7 +21,6 @@ import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal
 import { getTileSize } from './cog';
 import { buildVrtForTiffs, VrtOptions } from './cog.vrt';
 import { Cutline } from './cutline';
-import { TmsUtil } from './tms.util';
 import { CogJob } from './types';
 
 export const MaxConcurrencyDefault = 50;
@@ -32,6 +37,8 @@ export interface JobCreationContext {
         source: string;
         blend: number;
     };
+
+    targetProjection: ProjectionTileMatrixSet;
 
     override?: {
         /** Override job id */
@@ -112,9 +119,12 @@ export const CogJobFactory = {
 
         logger.info({ source: source.path, tiffCount: tiffList.length }, 'LoadingTiffs');
 
-        const cutline = new Cutline(GoogleTms, ctx.cutline && (await Cutline.loadCutline(ctx.cutline.source)));
+        const cutline = new Cutline(
+            ctx.targetProjection,
+            ctx.cutline && (await Cutline.loadCutline(ctx.cutline.source)),
+        );
 
-        const builder = new CogBuilder(maxConcurrency, logger, ctx.override?.projection);
+        const builder = new CogBuilder(ctx.targetProjection, maxConcurrency, logger, ctx.override?.projection);
         const metadata = await builder.build(tiffSource, cutline);
 
         const { quadkeys } = metadata;
@@ -197,7 +207,7 @@ export const CogJobFactory = {
             await outputFs.writeJson(geoJsonSourceOutput, metadata.bounds, logger);
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
-            await outputFs.writeJson(geoJsonCoveringOutput, TmsUtil.toGeoJson(GoogleTms, quadkeys), logger);
+            await outputFs.writeJson(geoJsonCoveringOutput, ctx.targetProjection.toGeoJson(quadkeys), logger);
 
             if (ctx.generateVrt) {
                 const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);

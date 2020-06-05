@@ -8,6 +8,7 @@ export { tileFromPath, TileType, TileData, TileDataWmts, TileDataXyz } from './a
 export { V, VNode, VNodeElement, VNodeText } from './vdom';
 export { VNodeParser } from './vdom.parse';
 export { CompositeError } from './composite.error';
+export * from './tms/projection.tile.matrix.set';
 
 export * from './aws/tile.metadata.base';
 export * from './aws/tile.metadata';

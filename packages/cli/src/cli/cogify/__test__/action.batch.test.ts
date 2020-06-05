@@ -2,7 +2,7 @@ import * as o from 'ospec';
 import { CogJob } from '../../../cog/types';
 import { extractResolutionFromName, extractYearFromName, createImageryRecordFromJob } from '../action.batch';
 
-o.spec('action.cog', () => {
+o.spec('action.batch', () => {
     o('extractYearFromName', () => {
         o(extractYearFromName('2013')).equals(2013);
         o(extractYearFromName('abc2017def')).equals(2017);

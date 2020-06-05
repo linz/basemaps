@@ -1,8 +1,8 @@
-import { Bounds, QuadKey } from '@basemaps/geo';
+import { Bounds, EpsgCode, QuadKey } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Approx } from '@basemaps/test';
 import * as o from 'ospec';
-import { TmsUtil } from '../tms.util';
+import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
 
 function round(z = 8): (n: number) => number {
     const p = 10 ** z;
@@ -39,9 +39,23 @@ function getPixelsFromTile(x: number, y: number): Bounds {
     return new Bounds(x * TileSize, y * TileSize, TileSize, TileSize);
 }
 
-o.spec('TmsUtil', () => {
+o.spec('ProjectionTileMatrixSet', () => {
+    const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
+
+    o('should convert to 2193', () => {
+        const nztmProj = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
+        if (nztmProj == null) {
+            throw new Error('Failed to init proj:2193');
+        }
+        const output = nztmProj.toWsg84([1180000, 4758000]);
+        o(output.map(round(6))).deepEquals([167.454458, -47.197075]);
+
+        const reverse = nztmProj.fromWsg84(output);
+        o(reverse.map(round(2))).deepEquals([1180000, 4758000]);
+    });
+
     o('tileToSourceBounds', () => {
-        o(roundJson(TmsUtil.tileToSourceBounds(GoogleTms, QuadKey.toTile('3120123')).toJson(), 8)).deepEquals({
+        o(roundJson(googleProj.tileToSourceBounds(QuadKey.toTile('3120123')).toJson(), 8)).deepEquals({
             x: 11584184.51067502,
             y: -6261721.35712163,
             width: 313086.06785608,
@@ -50,7 +64,7 @@ o.spec('TmsUtil', () => {
     });
 
     o('toGeoJson', () => {
-        const geojson = TmsUtil.toGeoJson(GoogleTms, ['31', '33']);
+        const geojson = googleProj.toGeoJson(['31', '33']);
 
         const { features } = geojson;
 

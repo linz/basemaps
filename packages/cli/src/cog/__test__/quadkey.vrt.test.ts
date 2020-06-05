@@ -1,10 +1,10 @@
-import { FileOperatorSimple, LogConfig } from '@basemaps/shared';
+import { FileOperatorSimple, LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { FeatureCollection } from 'geojson';
 import * as o from 'ospec';
 import { Cutline } from '../cutline';
 import { QuadKeyVrt } from '../quadkey.vrt';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { EpsgCode } from '@basemaps/geo';
 
 o.spec('quadkey.vrt', () => {
     const tmpFolder = '/tmp/my-tmp-folder';
@@ -46,6 +46,8 @@ o.spec('quadkey.vrt', () => {
 
     o.spec('buildCutlineVrt', () => {
         const [tif1Path, tif2Path] = [1, 2].map((i) => `${testDir}/tif${i}.tiff`);
+
+        const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
 
         const vtif1 = '/vsis3/' + tif1Path,
             vtif2 = '/vsis3/' + tif2Path;
@@ -96,8 +98,8 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('1 crosses, 1 outside', async () => {
-            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
-            const cl2 = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
+            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+            const cl2 = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
             cutline.polygons.push(...cl2.polygons);
 
             job.source.resolution = 17;
@@ -108,7 +110,7 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('not within quadKey', async () => {
-            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
 
             const vrt = await QuadKeyVrt.buildVrt(
                 tmpFolder,
@@ -130,7 +132,7 @@ o.spec('quadkey.vrt', () => {
                 tmpFolder,
                 job,
                 sourceGeo,
-                new Cutline(GoogleTms),
+                new Cutline(googleProj),
                 makeVrtString(),
                 '31',
                 logger,
@@ -146,7 +148,7 @@ o.spec('quadkey.vrt', () => {
         });
 
         o('fully within', async () => {
-            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
 
             const qkey = '3113332223211133012';
 
@@ -158,7 +160,7 @@ o.spec('quadkey.vrt', () => {
 
         o('1 surrounded', async () => {
             job.output.cutline = { blend: 10, source: 'cutline.json' };
-            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
+            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
 
             const vrt = await QuadKeyVrt.buildVrt(
                 tmpFolder,
