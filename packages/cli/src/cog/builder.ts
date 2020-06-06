@@ -218,16 +218,10 @@ export class CogBuilder {
             throw new Error('Invalid tiff projection: ' + projection);
         }
 
-        const { fromWsg84 } = projProjection;
+        const { toWsg84 } = projProjection;
 
         const points = [
-            [
-                fromWsg84(topLeft),
-                fromWsg84(bottomLeft),
-                fromWsg84(bottomRight),
-                fromWsg84(topRight),
-                fromWsg84(topLeft),
-            ],
+            [toWsg84(topLeft), toWsg84(bottomLeft), toWsg84(bottomRight), toWsg84(topRight), toWsg84(topLeft)],
         ];
 
         return GeoJson.toFeaturePolygon(points, { tiff: tiff.source.name });
