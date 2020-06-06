@@ -1,7 +1,6 @@
 import { EpsgCode } from '@basemaps/geo';
 import { FileConfig } from '@basemaps/shared';
 import { GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
-import { VrtOptions } from './cog.vrt';
 
 export interface CogJob {
     /** Unique processing Id */
@@ -48,7 +47,8 @@ export interface CogJob {
         };
 
         vrt: {
-            options: VrtOptions;
+            /** Vrts will add a second alpha layer if one exists, so dont always add one */
+            addAlpha: boolean;
         };
     } & FileConfig;
 

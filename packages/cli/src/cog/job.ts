@@ -10,7 +10,7 @@ import {
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
-import { createReadStream, promises as fs } from 'fs';
+import { promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder, GdalCogBuilder } from '..';
@@ -19,7 +19,6 @@ import { ActionBatchJob } from '../cli/cogify/action.batch';
 import { getJobPath, makeTempFolder } from '../cli/folder';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
 import { getTileSize } from './cog';
-import { buildVrtForTiffs, VrtOptions } from './cog.vrt';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
 
@@ -73,12 +72,6 @@ export interface JobCreationContext {
      * @default false
      */
     batch?: boolean;
-
-    /**
-     * Should this job create a vrt
-     * @default false
-     */
-    generateVrt?: boolean;
 }
 
 function filterTiff(a: string): boolean {
@@ -153,11 +146,11 @@ export const CogJobFactory = {
             'CoveringGenerated',
         );
 
-        const vrtOptions: VrtOptions = { addAlpha: true };
+        let addAlpha = true;
         // -addalpha to vrt adds extra alpha layers even if one already exist
         if (metadata.bands > 3) {
-            logger.warn({ bandCount: metadata.bands }, 'Vrt:DetectedAlpha, Disabling -addalpha');
-            vrtOptions.addAlpha = false;
+            logger.info({ bandCount: metadata.bands }, 'Vrt:DetectedAlpha, Disabling -addalpha');
+            addAlpha = false;
         }
 
         const job: CogJob = {
@@ -171,7 +164,7 @@ export const CogJobFactory = {
                 cutline: ctx.cutline,
                 nodata: metadata.nodata,
                 vrt: {
-                    options: vrtOptions,
+                    addAlpha,
                 },
             },
             source: {
@@ -209,14 +202,7 @@ export const CogJobFactory = {
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
             await outputFs.writeJson(geoJsonCoveringOutput, ctx.targetProjection.toGeoJson(quadkeys), logger);
 
-            if (ctx.generateVrt) {
-                const vrtTmp = await buildVrtForTiffs(job, vrtOptions, tmpFolder, logger);
-                const readStream = createReadStream(vrtTmp);
-                await outputFs.write(getJobPath(job, '.vrt'), readStream, logger);
-            }
-
             if (ctx.batch) {
-                if (!ctx.generateVrt) throw new Error('AWS Batch requires a vrt to be created');
                 await ActionBatchJob.batchJob(jobFile, true, logger);
             }
 

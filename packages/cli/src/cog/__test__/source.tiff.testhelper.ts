@@ -13,7 +13,9 @@ export const SourceTiffTestHelper = {
                     maxConcurrency: 3,
                 },
             },
-            output: {},
+            output: {
+                vrt: { addAlpha: true },
+            },
         } as CogJob;
     },
 
