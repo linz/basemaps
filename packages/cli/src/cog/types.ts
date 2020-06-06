@@ -15,11 +15,14 @@ export interface CogJob {
     source: {
         /** List of input files */
         files: string[];
+
+        /** The number of pixels per meter for the best source image */
+        pixelScale: number;
         /**
-         * The google zoom level that corresponds approximately what the resolution of the source  is
-         * for high quality aerial imagery this is generally 20-22
+         * The zoom level that corresponds approximately what the pixelScale of the source is
+         * for high quality aerial imagery this is generally 20-22 in Google Mercator
          */
-        resolution: number;
+        resZoom: number;
         /** EPSG input projection number */
         projection: EpsgCode;
 
@@ -73,8 +76,12 @@ export interface SourceMetadata {
     bands: number;
     /** Bounding box for polygons */
     bounds: GeoJSON.FeatureCollection;
-    /** Lowest quality resolution of image */
-    resolution: number;
+
+    /** The number of pixels per meter for the best source image */
+    pixelScale: number;
+
+    /** Highest quality zoom level for the images */
+    resZoom: number;
 
     /** EPSG projection number */
     projection: EpsgCode;

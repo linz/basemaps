@@ -26,8 +26,8 @@ o.spec('Builder', () => {
         o(guessProjection('NZGD2000')).equals(null);
     });
 
-    o('getTifBounds', () => {
-        const fp = new CogBuilder(ProjectionTileMatrixSet.get(EpsgCode.Google), 1, LogConfig.get());
+    o.spec('tiff', () => {
+        const googleBuilder = new CogBuilder(ProjectionTileMatrixSet.get(EpsgCode.Google), 1, LogConfig.get());
         const tiff = {
             source: { name: 'test1.tiff' },
             getImage(n: number): any {
@@ -40,21 +40,34 @@ o.spec('Builder', () => {
                 };
             },
         } as CogTiff;
-        o(roundJson(fp.getTifBounds(tiff), 2)).deepEquals({
-            type: 'Feature',
-            geometry: {
-                type: 'Polygon',
-                coordinates: [
-                    [
-                        [171.83, -34.03],
-                        [171.83, -34.35],
-                        [172.09, -34.36],
-                        [172.09, -34.03],
-                        [171.83, -34.03],
+
+        o('getTiffResZoom', () => {
+            o(googleBuilder.getTiffResZoom(10)).equals(14);
+            o(googleBuilder.getTiffResZoom(0.075)).equals(21);
+
+            const nztmBuilder = new CogBuilder(ProjectionTileMatrixSet.get(EpsgCode.Nztm2000), 1, LogConfig.get());
+
+            o(nztmBuilder.getTiffResZoom(10)).equals(10);
+            o(nztmBuilder.getTiffResZoom(0.075)).equals(16);
+        });
+
+        o('getTifBounds', () => {
+            o(roundJson(googleBuilder.getTifBounds(tiff), 2)).deepEquals({
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [171.83, -34.03],
+                            [171.83, -34.35],
+                            [172.09, -34.36],
+                            [172.09, -34.03],
+                            [171.83, -34.03],
+                        ],
                     ],
-                ],
-            },
-            properties: { tiff: 'test1.tiff' },
+                },
+                properties: { tiff: 'test1.tiff' },
+            });
         });
     });
 });

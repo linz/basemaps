@@ -6,7 +6,7 @@ import { basename } from 'path';
 import { CoveringPercentage, ZoomDifferenceForMaxImage } from './constants';
 import { CogJob, SourceMetadata } from './types';
 
-const PaddingFactor = 1.125;
+const PIXEL_PADDING = 10;
 
 function findGeoJsonProjection(geojson: any | null): Epsg {
     return Epsg.parse(geojson?.crs?.properties?.name ?? '') ?? Epsg.Wgs84;
@@ -66,8 +66,10 @@ export class Cutline {
 
      */
     filterSourcesForQuadKey(quadKey: string, job: CogJob, sourceGeo: FeatureCollection): void {
-        const qkBounds = this.targetProj.tileToSourceBounds(QuadKey.toTile(quadKey));
-        const qkPadded = qkBounds.scaleFromCenter(PaddingFactor); // FIXME GJ use, say 20 pixels instead
+        const tile = QuadKey.toTile(quadKey);
+        const qkBounds = this.targetProj.tileToSourceBounds(tile);
+        const px = this.targetProj.tms.pixelScale(tile.z);
+        const qkPadded = qkBounds.scaleFromCenter((qkBounds.width + px * PIXEL_PADDING) / qkBounds.width);
 
         const srcTiffs = new Set<string>();
 
@@ -110,7 +112,7 @@ export class Cutline {
         const srcArea = this.findCovering(sourceMetadata.bounds, this.polygons);
         if (this.polygons.length !== 0) this.polygons = srcArea;
 
-        const sourceZ = sourceMetadata.resolution;
+        const sourceZ = sourceMetadata.resZoom;
         const minZ = Math.max(1, sourceZ + ZoomDifferenceForMaxImage);
         // Don't make COGs with a quadKey shorter than minZ.
 

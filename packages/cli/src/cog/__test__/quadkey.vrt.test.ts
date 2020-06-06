@@ -20,9 +20,12 @@ o.spec('quadkey.vrt', () => {
 
     const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
 
-    function writePaddingQuadKey(qk = '31', proj = googleProj): void {
-        const qkBounds = proj.tileToSourceBounds(QuadKey.toTile(qk));
-        const qkPadded = qkBounds.scaleFromCenter(1.125); // FIXME GJ use, say 20 pixels instead
+    function writePaddingQuadKey(quadKey = '31', proj = googleProj): void {
+        const tile = QuadKey.toTile(quadKey);
+        const qkBounds = proj.tileToSourceBounds(tile);
+        const px = proj.tms.pixelScale(tile.z);
+        const qkPadded = qkBounds.scaleFromCenter((qkBounds.width + px * 10) / qkBounds.width);
+
         const { toWsg84 } = proj;
 
         writeFileSync(
@@ -65,7 +68,7 @@ o.spec('quadkey.vrt', () => {
     o.beforeEach(() => {
         runSpy = o.spy();
         job.projection = job.source.projection = EpsgCode.Google;
-        job.source.resolution = 13;
+        job.source.resZoom = 13;
         job.source.files = [tif1Path, tif2Path];
         gdal = { run: runSpy };
         (GdalCogBuilder as any).getGdal = (): any => gdal;
@@ -87,7 +90,7 @@ o.spec('quadkey.vrt', () => {
         const cl2 = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
         cutline.polygons.push(...cl2.polygons);
 
-        job.source.resolution = 17;
+        job.source.resZoom = 17;
 
         const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '31133322', logger);
 
@@ -132,8 +135,6 @@ o.spec('quadkey.vrt', () => {
 
         const qkey = '31133322232111330';
 
-        writePaddingQuadKey('31133322232111330');
-
         const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkey, logger);
 
         o(vrt).equals('/tmp/my-tmp-folder/source.vrt');
@@ -157,8 +158,6 @@ o.spec('quadkey.vrt', () => {
         const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
 
         const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '3131110001', logger);
-
-        writePaddingQuadKey('3131110001');
 
         o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
         o(cutTiffArgs.length).equals(1);

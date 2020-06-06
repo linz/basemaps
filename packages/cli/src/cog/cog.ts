@@ -61,7 +61,7 @@ export async function buildCogForQuadKey(
 
     const padding = Math.max(Math.abs(lr.y - ul.y), Math.abs(lr.x - ul.x)) * 0.01;
 
-    const alignmentLevels = job.source.resolution - tile.z;
+    const alignmentLevels = job.source.resZoom - tile.z;
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [ul.x, ul.y, lr.x + padding, lr.y - padding],
@@ -74,7 +74,7 @@ export async function buildCogForQuadKey(
 
     logger.info(
         {
-            imageSize: getTileSize(quadKey, job.source.resolution),
+            imageSize: getTileSize(quadKey, job.source.resZoom),
             quadKey,
             tile,
             alignmentLevels,

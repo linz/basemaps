@@ -30,7 +30,7 @@ o.spec('action.batch', () => {
             name: '2019-new-zealand-sentinel',
             projection: 3857,
             source: {
-                resolution: 13,
+                resZoom: 13,
             },
             output: { path: 's3://test-bucket' },
             quadkeys: ['311333222331', '311333223200', '311333223202', '3113332223131'],

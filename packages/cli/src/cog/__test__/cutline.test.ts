@@ -63,7 +63,7 @@ o.spec('cutline', () => {
         o('low res', () => {
             const cutline = new Cutline(proj);
 
-            const covering = cutline.optimizeCovering({ bounds: geoJson, resolution: 13 } as SourceMetadata);
+            const covering = cutline.optimizeCovering({ bounds: geoJson, resZoom: 13 } as SourceMetadata);
 
             o(covering.length).equals(Array.from(covering).length);
             o(Array.from(covering)).deepEquals(['31133322', '31311100']);
@@ -72,7 +72,7 @@ o.spec('cutline', () => {
         o('hi res', () => {
             const covering2 = new Cutline(proj).optimizeCovering({
                 bounds: geoJson,
-                resolution: 18,
+                resZoom: 18,
             } as SourceMetadata);
 
             o(covering2.length).equals(Array.from(covering2).length);
@@ -95,7 +95,7 @@ o.spec('cutline', () => {
     o('optimize should not cover the world', () => {
         const bounds = proj.toGeoJson(['']);
         const cutline = new Cutline(proj);
-        const covering = cutline.optimizeCovering({ bounds, resolution: 0 } as SourceMetadata);
+        const covering = cutline.optimizeCovering({ bounds, resZoom: 0 } as SourceMetadata);
         o(Array.from(covering)).deepEquals(['0', '1', '2', '3']);
     });
 });

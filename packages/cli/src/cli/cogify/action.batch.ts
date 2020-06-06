@@ -99,7 +99,7 @@ export class ActionBatchJob extends CommandLineAction {
         isCommit: boolean,
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
         const jobName = ActionBatchJob.id(job, quadKey);
-        const alignmentLevels = job.source.resolution - quadKey.length;
+        const alignmentLevels = job.source.resZoom - quadKey.length;
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;

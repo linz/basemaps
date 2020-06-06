@@ -127,9 +127,9 @@ export const CogJobFactory = {
             logger.info(
                 {
                     // Size of the biggest image
-                    big: getTileSize(firstQk, metadata.resolution),
+                    big: getTileSize(firstQk, metadata.resZoom),
                     // Size of the smallest image
-                    small: getTileSize(lastQk, metadata.resolution),
+                    small: getTileSize(lastQk, metadata.resZoom),
                 },
                 'Covers',
             );
@@ -169,7 +169,8 @@ export const CogJobFactory = {
             },
             source: {
                 ...source,
-                resolution: metadata.resolution,
+                pixelScale: metadata.pixelScale,
+                resZoom: metadata.resZoom,
                 projection: metadata.projection,
                 files: tiffList,
                 options: { maxConcurrency },
