@@ -116,7 +116,7 @@ export class ActionCogCreate extends CommandLineAction {
 
             const tmpVrtPath = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, quadKey, logger);
 
-            if (tmpVrtPath === '') {
+            if (tmpVrtPath == null) {
                 logger.warn({ quadKey }, 'NoMatchingSourceImagery');
                 return;
             }

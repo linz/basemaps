@@ -136,14 +136,11 @@ export class CogBuilder {
      */
     getTiffResZoom(resX: number): number {
         // Get best image resolution
-        let z = -1;
-        for (const zoom of this.targetProj.tms.zooms) {
-            z = parseInt(zoom.identifier);
-            if (this.targetProj.tms.pixelScale(z) <= resX) {
-                return z;
-            }
+        const { tms } = this.targetProj;
+        for (let z = 1; z < tms.zooms.length; ++z) {
+            if (tms.pixelScale(z) < resX) return z - 1;
         }
-        return z;
+        return -1;
     }
 
     findProjection(tiff: CogTiff): Epsg {
@@ -228,6 +225,7 @@ export class CogBuilder {
                 CacheFolder,
                 CacheVersion +
                     createHash('sha256')
+                        .update(this.targetProj.tms.projection.toString())
                         .update(tiffs.map((c) => c.name).join('\n'))
                         .digest('hex'),
             ) + '.json';

@@ -1,6 +1,6 @@
 import { Epsg, EpsgCode } from '@basemaps/geo';
 import { LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
-import { roundJson } from '@basemaps/test/build/rounding';
+import { round } from '@basemaps/test/build/rounding';
 import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
 import * as o from 'ospec';
 import { CogBuilder, guessProjection } from '../builder';
@@ -42,17 +42,17 @@ o.spec('Builder', () => {
         } as CogTiff;
 
         o('getTiffResZoom', () => {
-            o(googleBuilder.getTiffResZoom(10)).equals(14);
-            o(googleBuilder.getTiffResZoom(0.075)).equals(21);
+            o(googleBuilder.getTiffResZoom(10)).equals(13);
+            o(googleBuilder.getTiffResZoom(0.075)).equals(20);
 
             const nztmBuilder = new CogBuilder(ProjectionTileMatrixSet.get(EpsgCode.Nztm2000), 1, LogConfig.get());
 
-            o(nztmBuilder.getTiffResZoom(10)).equals(10);
-            o(nztmBuilder.getTiffResZoom(0.075)).equals(16);
+            o(nztmBuilder.getTiffResZoom(10)).equals(9);
+            o(nztmBuilder.getTiffResZoom(0.075)).equals(15);
         });
 
         o('getTifBounds', () => {
-            o(roundJson(googleBuilder.getTifBounds(tiff), 2)).deepEquals({
+            o(round(googleBuilder.getTifBounds(tiff), 2)).deepEquals({
                 type: 'Feature',
                 geometry: {
                     type: 'Polygon',

@@ -1,10 +1,16 @@
-export function round(z = 8): (n: number) => number {
+/**
+ * Make a function that rounds a number `n` to `z` decimal places.
+ */
+export function makeRound(z = 8): (n: number) => number {
     const p = 10 ** z;
     return (n: number): number => Math.round(n * p) / p;
 }
 
-export function roundJson(json: any, z = 8): any {
-    const r = round(z);
+/**
+ * Round any thing. round any numbers found in `thing` to z decimal places
+ */
+export function round(thing: any, z = 8): any {
+    const r = makeRound(z);
     const recurse = (obj: any): any => {
         if (typeof obj === 'number') {
             return r(obj);
@@ -20,5 +26,5 @@ export function roundJson(json: any, z = 8): any {
         }
         return ans;
     };
-    return recurse(json);
+    return recurse(thing);
 }

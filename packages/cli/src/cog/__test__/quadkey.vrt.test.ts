@@ -1,6 +1,6 @@
-import { EpsgCode, GeoJson, QuadKey } from '@basemaps/geo';
+import { EpsgCode } from '@basemaps/geo';
 import { FileOperatorSimple, LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
-import { writeFileSync } from 'fs';
+import { round } from '@basemaps/test/build/rounding';
 import { FeatureCollection } from 'geojson';
 import * as o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal';
@@ -19,28 +19,6 @@ o.spec('quadkey.vrt', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
 
     const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
-
-    function writePaddingQuadKey(quadKey = '31', proj = googleProj): void {
-        const tile = QuadKey.toTile(quadKey);
-        const qkBounds = proj.tileToSourceBounds(tile);
-        const px = proj.tms.pixelScale(tile.z);
-        const qkPadded = qkBounds.scaleFromCenter((qkBounds.width + px * 10) / qkBounds.width);
-
-        const { toWsg84 } = proj;
-
-        writeFileSync(
-            process.env.HOME + '/tmp/poly.geojson',
-            JSON.stringify(
-                GeoJson.toFeatureCollection(
-                    GeoJson.toPositionPolygon(qkPadded.toBbox()).map((p) =>
-                        GeoJson.toFeaturePolygon([p.map((p) => toWsg84(p))]),
-                    ),
-                ),
-            ),
-        );
-    }
-
-    false && writePaddingQuadKey(); // stop linter complaining whether used or not
 
     const [tif1Path, tif2Path] = [1, 2].map((i) => `${testDir}/tif${i}.tiff`);
 
@@ -105,7 +83,7 @@ o.spec('quadkey.vrt', () => {
         const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '3131110001', logger);
 
         o(cutTiffArgs.length).equals(0);
-        o(vrt).equals('');
+        o(vrt).equals(null);
         o(runSpy.callCount).equals(0);
     });
 
@@ -144,6 +122,49 @@ o.spec('quadkey.vrt', () => {
         o(runSpy.args[0]).equals('gdalbuildvrt');
     });
 
+    o('intersected cutline', async () => {
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+        job.output.cutline = { blend: 20, source: 'cutline.json' };
+
+        const qkey = '311333222321113';
+
+        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkey, logger);
+
+        o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
+        o(job.source.files).deepEquals([tif2Path]);
+        o(cutTiffArgs.length).equals(1);
+        o(cutTiffArgs[0][1]).deepEquals(cutline.toGeoJson());
+
+        o(round(cutTiffArgs[0], 6)).deepEquals([
+            '/tmp/my-tmp-folder/cutline.geojson',
+            {
+                type: 'FeatureCollection',
+                features: [
+                    {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'MultiPolygon',
+                            coordinates: [
+                                [
+                                    [
+                                        [174.887066, -40.866925],
+                                        [174.906635, -40.866925],
+                                        [174.906635, -40.852124],
+                                        [174.900083, -40.852124],
+                                        [174.891215, -40.858532],
+                                        [174.887066, -40.862718],
+                                        [174.887066, -40.866925],
+                                    ],
+                                ],
+                            ],
+                        },
+                        properties: {},
+                    },
+                ],
+            },
+        ]);
+    });
+
     o('1 surrounded with s3 files', async () => {
         const mount = o.spy();
         gdal.mount = mount;
@@ -168,6 +189,8 @@ o.spec('quadkey.vrt', () => {
         const geo = cutline.toGeoJson();
 
         o(geo.type).equals('FeatureCollection');
+
+        const coordinates = (geo.features[0].geometry as any).coordinates;
         if (geo.type === 'FeatureCollection') {
             o(geo.features).deepEquals([
                 {
@@ -175,11 +198,36 @@ o.spec('quadkey.vrt', () => {
                     properties: {},
                     geometry: {
                         type: 'MultiPolygon',
-                        coordinates: (geo.features[0].geometry as any).coordinates,
+                        coordinates,
                     },
                 },
             ]);
         }
+
+        o(round(coordinates, 5)).deepEquals([
+            [
+                [
+                    [174.77125, -41.09044],
+                    [174.77212, -41.09741],
+                    [174.78832, -41.08499],
+                    [174.78135, -41.07763],
+                    [174.78125, -41.07761],
+                    [174.78117, -41.07752],
+                    [174.78108, -41.07748],
+                    [174.78099, -41.07749],
+                    [174.78093, -41.07752],
+                    [174.7809, -41.07756],
+                    [174.78091, -41.07759],
+                    [174.78097, -41.07765],
+                    [174.78097, -41.07771],
+                    [174.78084, -41.07778],
+                    [174.78069, -41.07779],
+                    [174.7801, -41.07774],
+                    [174.77915, -41.08119],
+                    [174.77125, -41.09044],
+                ],
+            ],
+        ]);
 
         o(runSpy.callCount).equals(2);
         o(mount.calls.map((c: any) => c.args[0])).deepEquals([tmpFolder, s3tif1, s3tif2]);

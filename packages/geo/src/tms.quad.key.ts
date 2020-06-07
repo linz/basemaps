@@ -113,4 +113,52 @@ export class TileMatrixSetQuadKey {
         }
         return output;
     }
+
+    /**
+     * Iterate over the child (`z+1`) tiles that cover `tile`
+
+     * @param tile
+     */
+    *coverTile(tile?: Tile): Generator<Tile, null, void> {
+        if (tile == null) {
+            yield* this.topLevelTiles();
+            return null;
+        }
+        const z = tile.z + 1;
+        const { matrixWidth, matrixHeight } = this.tms.zooms[tile.z];
+        const { matrixWidth: pw, matrixHeight: ph } = this.tms.zooms[z];
+
+        const xfact = pw / matrixWidth;
+        const yfact = ph / matrixHeight;
+
+        const xs = Math.floor(tile.x * xfact);
+        const ys = Math.floor(tile.y * yfact);
+
+        const xe = Math.floor((tile.x + 1) * xfact);
+        const ye = Math.floor((tile.y + 1) * yfact);
+
+        for (let y = ys; y < ye; ++y) {
+            for (let x = xs; x < xe; ++x) {
+                yield { x, y, z };
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Iterate over the top level tiles that cover the extent of the `TileMatrixSet`
+     */
+    *topLevelTiles(): Generator<Tile, null, void> {
+        const z = 0;
+        const { matrixWidth, matrixHeight } = this.tms.zooms[0];
+
+        for (let y = 0; y < matrixHeight; ++y) {
+            for (let x = 0; x < matrixWidth; ++x) {
+                yield { x, y, z };
+            }
+        }
+
+        return null;
+    }
 }

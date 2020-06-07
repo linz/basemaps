@@ -18,7 +18,6 @@ import { CliInfo } from '../cli/base.cli';
 import { ActionBatchJob } from '../cli/cogify/action.batch';
 import { getJobPath, makeTempFolder } from '../cli/folder';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
-import { getTileSize } from './cog';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
 
@@ -127,9 +126,9 @@ export const CogJobFactory = {
             logger.info(
                 {
                     // Size of the biggest image
-                    big: getTileSize(firstQk, metadata.resZoom),
+                    big: ctx.targetProjection.getImagePixelWidth(cutline.tmsQk.toTile(firstQk), metadata.resZoom),
                     // Size of the smallest image
-                    small: getTileSize(lastQk, metadata.resZoom),
+                    small: ctx.targetProjection.getImagePixelWidth(cutline.tmsQk.toTile(lastQk), metadata.resZoom),
                 },
                 'Covers',
             );
@@ -156,7 +155,7 @@ export const CogJobFactory = {
         const job: CogJob = {
             id,
             name: imageryName,
-            projection: Epsg.Google.code,
+            projection: ctx.targetProjection.tms.projection.code,
             output: {
                 ...output,
                 resampling: ctx.override?.resampling ?? GdalCogBuilderDefaults.resampling,

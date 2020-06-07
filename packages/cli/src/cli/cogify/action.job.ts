@@ -89,9 +89,6 @@ export class ActionJobCreate extends CommandLineAction {
 
         const targetProjection = ProjectionTileMatrixSet.tryGet(this.targetProjection?.value);
         if (targetProjection == null) throw new Error('Invalid target-projection');
-        if (targetProjection.tms.projection !== Epsg.Google) {
-            throw new Error('Only currently working for ' + Epsg.Google.toEpsgString());
-        }
 
         const resampling =
             this.resampling?.value == null

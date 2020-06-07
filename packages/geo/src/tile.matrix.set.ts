@@ -6,6 +6,11 @@ import { TileMatrixSetQuadKey } from './tms.quad.key';
 
 export type Tile = Point & { z: number };
 
+/** order by increasing zoom level */
+function compareMatrix(a: TileMatrixSetTypeMatrix, b: TileMatrixSetTypeMatrix): number {
+    return b.scaleDenominator - a.scaleDenominator;
+}
+
 export class TileMatrixSet {
     /** Projection of the matrix set */
     projection: Epsg;
@@ -28,17 +33,24 @@ export class TileMatrixSet {
     /** Array index of y coordinate */
     indexY = 1;
 
+    /**
+     * Create using a WMTS EPSG definition
+
+     * @param def
+     */
     constructor(def: TileMatrixSetType) {
         this.def = def;
         this.tileSize = def.tileMatrix[0].tileHeight;
 
-        for (const z of def.tileMatrix) {
-            const zoomIndex = parseInt(z.identifier);
-            if (this.zooms[zoomIndex]) throw new Error(`Duplicate tileMatrix identifier ${z.identifier}`);
+        const zooms = def.tileMatrix.slice().sort(compareMatrix);
+        const dups: Record<string, boolean> = {};
+        for (const z of zooms) {
+            if (dups[z.identifier]) throw new Error(`Duplicate tileMatrix identifier ${z.identifier}`);
             if (z.tileHeight != z.tileWidth) throw new Error('Only square tiles supported');
             if (z.tileHeight != this.tileSize) throw new Error('All tiles must have the same tile size');
-            this.zooms[parseInt(z.identifier)] = z;
+            dups[z.identifier] = true;
         }
+        this.zooms = zooms;
 
         const projection = Epsg.parse(def.supportedCRS);
         if (projection == null) throw new Error(`Unable to find supported projection ${def.supportedCRS}`);

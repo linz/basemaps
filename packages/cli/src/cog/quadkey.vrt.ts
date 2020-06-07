@@ -8,7 +8,7 @@ import { Epsg } from '@basemaps/geo';
 import { GdalCommand } from '../gdal/gdal.command';
 
 /**
- * Build a Plain VRT for source imagery; no projection nor cutline
+ * Build the VRT for the needed source imagery
  */
 async function buildPlainVrt(job: CogJob, vrtPath: string, gdalCommand: GdalCommand, logger: LogType): Promise<void> {
     const buildOpts = ['-hidenodata'];
@@ -34,7 +34,7 @@ async function buildPlainVrt(job: CogJob, vrtPath: string, gdalCommand: GdalComm
 }
 
 /**
- * Warp an existing vrt into EPSG3857 if required
+ * Warp the source vrt to target projection using an optional cutline
  */
 async function buildWarpVrt(
     job: CogJob,
@@ -76,7 +76,7 @@ export const QuadKeyVrt = {
      *
      * @param tmpFolder temporary `vrt` and `cutline.geojson` will be written here
      * @param job
-     * @param sourceGeo a GeoJSON object which contains the boundaries for the source images
+     * @param sourceGeo a GeoJSON object which contains the boundaries for the source imagery
      * @param cutline Used to filter the sources and cutline
      * @param quadKey to reduce vrt and cutline
      * @param logger
@@ -90,7 +90,7 @@ export const QuadKeyVrt = {
         cutline: Cutline,
         quadKey: string,
         logger: LogType,
-    ): Promise<string> {
+    ): Promise<string | null> {
         logger.info({ quadKey }, 'buildCutlineVrt');
 
         const inputTotal = job.source.files.length;
@@ -98,7 +98,7 @@ export const QuadKeyVrt = {
         cutline.filterSourcesForQuadKey(quadKey, job, sourceGeo);
 
         if (job.source.files.length == 0) {
-            return '';
+            return null;
         }
 
         const sourceVrtPath = FileOperator.join(tmpFolder, `source.vrt`);

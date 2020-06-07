@@ -1,17 +1,15 @@
+import { Epsg } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import * as o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal';
-import { buildCogForQuadKey, getTileSize } from '../cog';
+import { buildCogForQuadKey } from '../cog';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
+import { TilingScheme } from '../../gdal/gdal.config';
+import { round } from '@basemaps/test/build/rounding';
 
 LogConfig.disable();
 
 o.spec('cog', () => {
-    o('getTileSize', async () => {
-        o(getTileSize('31201', 10)).equals(24576);
-        o(getTileSize('3121021331201', 20)).equals(98304);
-    });
-
     o.spec('buildCogForQuadKey', () => {
         const origConvert = GdalCogBuilder.prototype.convert;
 
@@ -31,15 +29,19 @@ o.spec('cog', () => {
             const job = SourceTiffTestHelper.makeCogJob();
             const logger = LogConfig.get();
 
-            await buildCogForQuadKey(job, '3131033', '/tmp/test.vrt', '/tmp/out-tiff', logger, true);
+            await buildCogForQuadKey(job, '3131', '/tmp/test.vrt', '/tmp/out-tiff', logger, true);
             o(convertArgs[0].info).equals(logger.info);
 
             // -projwin 18472078.003508832 -5948635.289265559 18785164.071364917 -6261721.357121641
             // -projwin_srs EPSG:3857
-            o(gdalCogBuilder!.config).deepEquals({
-                bbox: [18472078.00350881, -5948635.289265554, 18788294.93204345, -6264852.217800196],
-                alignmentLevels: 6,
+            const { config } = gdalCogBuilder!;
+            config.bbox = round(config.bbox, 4);
+            o(config).deepEquals({
+                bbox: [17532819.7999, -5009377.0857, 20037527.452, -7514084.7378],
+                alignmentLevels: 4,
                 compression: 'webp',
+                tilingScheme: TilingScheme.Google,
+                projection: Epsg.Google,
                 resampling: 'bilinear',
                 blockSize: 512,
                 quality: 90,
@@ -47,7 +49,7 @@ o.spec('cog', () => {
             o(gdalCogBuilder!.source).equals('/tmp/test.vrt');
             o(gdalCogBuilder!.target).equals('/tmp/out-tiff');
 
-            o(gdalCogBuilder!.args).deepEquals([
+            o(round(gdalCogBuilder!.args, 4)).deepEquals([
                 '-of',
                 'COG',
                 '-co',
@@ -65,16 +67,16 @@ o.spec('cog', () => {
                 '-co',
                 'COMPRESS=webp',
                 '-co',
-                'ALIGNED_LEVELS=6',
+                'ALIGNED_LEVELS=4',
                 '-co',
                 'QUALITY=90',
                 '-co',
                 'SPARSE_OK=YES',
                 '-projwin',
-                '18472078.00350881',
-                '-5948635.289265554',
-                '18788294.93204345',
-                '-6264852.217800196',
+                '17532819.7999',
+                '-5009377.0857',
+                '20037527.452',
+                '-7514084.7378',
                 '-projwin_srs',
                 'EPSG:3857',
                 '/tmp/test.vrt',
