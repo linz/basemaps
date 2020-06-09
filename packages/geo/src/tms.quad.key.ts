@@ -40,7 +40,7 @@ export class TileMatrixSetQuadKey {
         }
     }
 
-    calculateZOffset(): void {
+    private calculateZOffset(): void {
         const [firstZoom] = this.tms.zooms;
 
         const biggestXy = Math.max(firstZoom.matrixWidth, firstZoom.matrixHeight);
@@ -56,7 +56,7 @@ export class TileMatrixSetQuadKey {
      *
      * @param qk Quadkey to convert
      */
-    toTile(qk: string): Tile {
+    public toTile(qk: string): Tile {
         const tile = QuadKey.toTile(qk);
         if (this.zOffset != 0) tile.z -= this.zOffset;
 
@@ -78,11 +78,39 @@ export class TileMatrixSetQuadKey {
      *
      * @param tile Tile to convert
      */
-    fromTile(tile: Tile): string {
+    public fromTile(tile: Tile): string {
         const newTile = { x: tile.x, y: tile.y, z: tile.z }; // Do not adjust with the source tile
         if (tile.z >= this.zMax) throw new Error(`tile ${tile.x},${tile.y} z${tile.z} does not map to a quad key`);
         if (this.zOffset != 0) newTile.z += this.zOffset;
 
         return QuadKey.fromTile(newTile);
+    }
+
+    /**
+     * Find the nearest suitable quadkeys for a tile
+     *
+     * The quadkey will be between 0 -> zMax zoom level, and depending on location could be upto 4 parent quadkeys
+     *
+     */
+    public nearestQuadKeys(tile: Tile): string[] {
+        if (tile.z < this.zMax) return [this.fromTile(tile)];
+        const ul = this.tms.tileToSource(tile);
+        const lr = this.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
+
+        const targetZ = this.zMax - 1;
+
+        const ulPixels = this.tms.sourceToPixels(ul.x, ul.y, targetZ);
+        const lrPixels = this.tms.sourceToPixels(lr.x, lr.y, targetZ);
+
+        const ulTile = this.tms.pixelsToTile(Math.round(ulPixels.x), Math.round(ulPixels.y), targetZ);
+        const lrTile = this.tms.pixelsToTile(Math.round(lrPixels.x - 1), Math.round(lrPixels.y - 1), targetZ);
+
+        const output: string[] = [];
+        for (let y = ulTile.y; y <= lrTile.y; y++) {
+            for (let x = ulTile.x; x <= lrTile.x; x++) {
+                output.push(this.fromTile({ x, y, z: targetZ }));
+            }
+        }
+        return output;
     }
 }
