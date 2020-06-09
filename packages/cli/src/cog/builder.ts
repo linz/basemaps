@@ -4,7 +4,7 @@ import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
-import pLimit, { Limit } from 'p-limit';
+import * as pLimit from 'p-limit';
 import * as path from 'path';
 import { Cutline } from './cutline'; //
 import { CogBuilderMetadata, SourceMetadata } from './types';
@@ -37,7 +37,7 @@ export function guessProjection(wkt: string): Epsg | null {
 }
 
 export class CogBuilder {
-    q: Limit;
+    q: pLimit.Limit;
     logger: LogType;
     targetProj: ProjectionTileMatrixSet;
     srcProj?: Epsg;
