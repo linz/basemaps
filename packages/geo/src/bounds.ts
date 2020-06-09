@@ -95,8 +95,7 @@ export class Bounds {
      * Convert to BBox
      */
     public toBbox(): [number, number, number, number] {
-        const { right } = this;
-        return [this.x, this.y, right, this.bottom];
+        return [this.x, this.y, this.right, this.bottom];
     }
 
     /**
@@ -143,9 +142,8 @@ export class Bounds {
      * Takes into account the antimeridian.
      * @param bbox
      */
-    static fromBbox(bbox: number[]): Bounds {
-        const right = bbox[2] >= bbox[0] ? bbox[2] : bbox[2] + 360;
-        return new Bounds(bbox[0], bbox[1], right - bbox[0], Math.abs(bbox[3] - bbox[1]));
+    static fromBbox([x1, y1, x2, y2]: number[]): Bounds {
+        return new Bounds(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
     }
 
     /** */

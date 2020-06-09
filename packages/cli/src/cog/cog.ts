@@ -1,9 +1,9 @@
-import { QuadKey } from '@basemaps/geo';
+import { EpsgCode } from '@basemaps/geo';
 import { Aws, isConfigS3Role, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
+import { TilingScheme } from '../gdal/gdal.config';
 import { GdalProgressParser } from '../gdal/gdal.progress';
-import { SingleTileWidth } from './constants';
 import { CogJob } from './types';
 
 /**
@@ -22,14 +22,10 @@ export function onProgress(gdal: GdalCommand, keys: Record<string, any>, logger:
     });
 }
 
-/**
- * Return the width/height of the quadkey in pixels at the target resolution
- * @param quadKey
- * @param targetZoom The zoom level for the target resolution
- * @param tileSize (Optional) size of each tile. Default is what GDAL creates for Google tiles
- */
-export function getTileSize(quadKey: string, targetZoom: number, tileSize = SingleTileWidth): number {
-    return tileSize * Math.pow(2, targetZoom - quadKey.length + 1);
+/** Return any special tilingSchemes to use for `epsgCode` */
+function tilingScheme(epsgCode: EpsgCode): TilingScheme | undefined {
+    if (epsgCode === EpsgCode.Nztm2000) return TilingScheme.Nztm2000;
+    return undefined;
 }
 
 /**
@@ -52,32 +48,37 @@ export async function buildCogForQuadKey(
 ): Promise<void> {
     const startTime = Date.now();
 
+    const { resZoom } = job.source;
     const targetProj = ProjectionTileMatrixSet.get(job.projection);
+    const { tms } = targetProj;
 
-    const tile = QuadKey.toTile(quadKey);
+    const tile = tms.quadKey.toTile(quadKey);
 
-    const ul = targetProj.tms.tileToSource(tile);
-    const lr = targetProj.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
+    const ul = tms.tileToSource(tile);
+    const lr = tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
+    const px = tms.pixelScale(resZoom);
+    // ensure we cover the whole tile by adding a pixels worth of padding to the LR edges
+    const paddingX = ul.x > lr.x ? -px : px;
+    const paddingY = ul.y > lr.y ? -px : px;
 
-    const padding = Math.max(Math.abs(lr.y - ul.y), Math.abs(lr.x - ul.x)) * 0.01;
-
-    const alignmentLevels = job.source.resolution - tile.z;
+    const blockSize = tms.tileSize * targetProj.blockFactor;
+    const alignmentLevels = targetProj.findAlignmentLevels(tile, resZoom);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
-        bbox: [ul.x, ul.y, lr.x + padding, lr.y - padding],
+        bbox: [ul.x, ul.y, lr.x + paddingX, lr.y + paddingY],
+        projection: targetProj.tms.projection,
+        tilingScheme: tilingScheme(job.projection),
+        blockSize,
         alignmentLevels,
         resampling: job.output.resampling,
         quality: job.output.quality,
     });
-    if (cogBuild.gdal.mount) {
-        job.source.files.forEach((f) => cogBuild.gdal.mount?.(f));
-    }
 
     onProgress(cogBuild.gdal, { quadKey, target: 'tiff' }, logger);
 
     logger.info(
         {
-            imageSize: getTileSize(quadKey, job.source.resolution),
+            imageSize: targetProj.getImagePixelWidth(tile, resZoom),
             quadKey,
             tile,
             alignmentLevels,
@@ -86,6 +87,7 @@ export async function buildCogForQuadKey(
     );
 
     logger.debug({ cmd: cogBuild.args.join(' ') }, 'GdalTranslate');
+
     // If required assume role
     if (isConfigS3Role(job.source)) {
         const credentials = Aws.credentials.getCredentialsForRole(job.source.roleArn, job.source.externalId);

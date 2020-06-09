@@ -10,10 +10,8 @@ import { Cutline } from './cutline'; //
 import { CogBuilderMetadata, SourceMetadata } from './types';
 
 export const InvalidProjectionCode = 32767;
+export const CacheVersion = 'v2'; // bump this number to invalidate the cache
 export const CacheFolder = './.cache';
-export const TileSize = 256;
-
-const InitialResolution = (2 * Math.PI * 6378137.0) / TileSize;
 
 /**
  * Attempt to guess the projection based off the WKT
@@ -60,7 +58,7 @@ export class CogBuilder {
      * @param tiffs
      */
     async bounds(sources: CogSource[]): Promise<SourceMetadata> {
-        let resolution = -1;
+        let resX = -1;
         let bands = -1;
         let projection = this.srcProj;
         let nodata: number | undefined;
@@ -74,9 +72,8 @@ export class CogBuilder {
                 const tiff = new CogTiff(source);
                 await tiff.init(true);
                 const image = tiff.getImage(0);
-                const tiffRes = this.getTiffResolution(tiff);
-                if (tiffRes > resolution) {
-                    resolution = tiffRes;
+                if (resX == -1 || image.resolution[0] < resX) {
+                    resX = image.resolution[0];
                 }
                 const tiffBandCount = image.value(TiffTag.BitsPerSample) as number[] | null;
                 if (tiffBandCount != null && tiffBandCount.length > bands) {
@@ -120,7 +117,7 @@ export class CogBuilder {
         const polygons = await Promise.all(coordinates);
 
         if (projection == null) throw new Error('No projection detected');
-        if (resolution == -1) throw new Error('No resolution detected');
+        if (resX == -1) throw new Error('No resolution detected');
         if (bands == -1) throw new Error('No image bands detected');
 
         return {
@@ -128,7 +125,8 @@ export class CogBuilder {
             nodata,
             bands,
             bounds: GeoJson.toFeatureCollection(polygons),
-            resolution,
+            pixelScale: resX,
+            resZoom: this.getTiffResZoom(resX),
         };
     }
 
@@ -136,20 +134,13 @@ export class CogBuilder {
      * Find the closest resolution to the tiff image
      * @param tiff
      */
-    getTiffResolution(tiff: CogTiff): number {
-        const image = tiff.getImage(0);
-
+    getTiffResZoom(resX: number): number {
         // Get best image resolution
-        const [resX] = image.resolution;
-        let z = 30;
-        while (z > 0) {
-            const currentZoom = InitialResolution / (1 << z);
-            if (currentZoom >= resX) {
-                break;
-            }
-            z--;
+        const { tms } = this.targetProj;
+        for (let z = 1; z < tms.zooms.length; ++z) {
+            if (tms.pixelScale(z) < resX) return z - 1;
         }
-        return z;
+        return -1;
     }
 
     findProjection(tiff: CogTiff): Epsg {
@@ -218,16 +209,10 @@ export class CogBuilder {
             throw new Error('Invalid tiff projection: ' + projection);
         }
 
-        const { fromWsg84 } = projProjection;
+        const { toWsg84 } = projProjection;
 
         const points = [
-            [
-                fromWsg84(topLeft),
-                fromWsg84(bottomLeft),
-                fromWsg84(bottomRight),
-                fromWsg84(topRight),
-                fromWsg84(topLeft),
-            ],
+            [toWsg84(topLeft), toWsg84(bottomLeft), toWsg84(bottomRight), toWsg84(topRight), toWsg84(topLeft)],
         ];
 
         return GeoJson.toFeaturePolygon(points, { tiff: tiff.source.name });
@@ -238,9 +223,11 @@ export class CogBuilder {
         const cacheKey =
             path.join(
                 CacheFolder,
-                createHash('sha256')
-                    .update(tiffs.map((c) => c.name).join('\n'))
-                    .digest('hex'),
+                CacheVersion +
+                    createHash('sha256')
+                        .update(this.targetProj.tms.projection.toString())
+                        .update(tiffs.map((c) => c.name).join('\n'))
+                        .digest('hex'),
             ) + '.json';
 
         if (existsSync(cacheKey)) {

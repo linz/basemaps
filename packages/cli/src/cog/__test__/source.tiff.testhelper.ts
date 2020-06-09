@@ -7,13 +7,15 @@ export const SourceTiffTestHelper = {
             projection: EpsgCode.Google,
             source: {
                 files: [] as string[],
-                resolution: 13,
+                resZoom: 13,
                 path: '',
                 options: {
                     maxConcurrency: 3,
                 },
             },
-            output: {},
+            output: {
+                vrt: { addAlpha: true },
+            },
         } as CogJob;
     },
 

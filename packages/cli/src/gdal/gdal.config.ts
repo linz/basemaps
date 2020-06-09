@@ -1,3 +1,5 @@
+import { Epsg } from '@basemaps/geo';
+
 export type GdalCogBuilderOptionsResampling =
     | 'nearest'
     | 'bilinear'
@@ -7,12 +9,22 @@ export type GdalCogBuilderOptionsResampling =
     | 'average'
     | 'mode';
 
+export enum TilingScheme {
+    Google = 'GoogleMapsCompatible',
+    Nztm2000 = 'NZTM2000',
+}
+
 export interface GdalCogBuilderOptions {
+    /**
+     * How to align levels
+     */
+    tilingScheme: TilingScheme;
     /**
      * Number of aligned tile levels
      * @default 1
      */
     alignmentLevels: number;
+    projection: Epsg;
 
     /** Limit the output to a bounding box
      */
@@ -33,7 +45,7 @@ export interface GdalCogBuilderOptions {
      * Output tile size
      * @default 512
      */
-    blockSize: 256 | 512 | 1024 | 2048 | 4096;
+    blockSize: number;
 
     /**
      * Compression quality
@@ -44,6 +56,8 @@ export interface GdalCogBuilderOptions {
 export const GdalCogBuilderDefaults: GdalCogBuilderOptions = {
     resampling: 'bilinear',
     compression: 'webp',
+    tilingScheme: TilingScheme.Google,
+    projection: Epsg.Google,
     alignmentLevels: 1,
     blockSize: 512,
     quality: 90,

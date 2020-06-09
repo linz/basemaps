@@ -1,6 +1,9 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, EpsgCode } from '@basemaps/geo';
+import { LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { round } from '@basemaps/test/build/rounding';
+import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
 import * as o from 'ospec';
-import { guessProjection } from '../builder';
+import { CogBuilder, guessProjection } from '../builder';
 
 o.spec('Builder', () => {
     o('should guess WKT', () => {
@@ -21,5 +24,50 @@ o.spec('Builder', () => {
         o(guessProjection('')).equals(null);
         o(guessProjection('NZTM')).equals(null);
         o(guessProjection('NZGD2000')).equals(null);
+    });
+
+    o.spec('tiff', () => {
+        const googleBuilder = new CogBuilder(ProjectionTileMatrixSet.get(EpsgCode.Google), 1, LogConfig.get());
+        const tiff = {
+            source: { name: 'test1.tiff' },
+            getImage(n: number): any {
+                if (n != 0) return null;
+                return {
+                    bbox: [1492000, 6198000, 1492000 + 24000, 6198000 + 36000],
+                    valueGeo(key: number): any {
+                        if (key === TiffTagGeo.ProjectedCSTypeGeoKey) return EpsgCode.Nztm2000;
+                    },
+                };
+            },
+        } as CogTiff;
+
+        o('getTiffResZoom', () => {
+            o(googleBuilder.getTiffResZoom(10)).equals(13);
+            o(googleBuilder.getTiffResZoom(0.075)).equals(20);
+
+            const nztmBuilder = new CogBuilder(ProjectionTileMatrixSet.get(EpsgCode.Nztm2000), 1, LogConfig.get());
+
+            o(nztmBuilder.getTiffResZoom(10)).equals(9);
+            o(nztmBuilder.getTiffResZoom(0.075)).equals(15);
+        });
+
+        o('getTifBounds', () => {
+            o(round(googleBuilder.getTifBounds(tiff), 2)).deepEquals({
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [171.83, -34.03],
+                            [171.83, -34.35],
+                            [172.09, -34.36],
+                            [172.09, -34.03],
+                            [171.83, -34.03],
+                        ],
+                    ],
+                },
+                properties: { tiff: 'test1.tiff' },
+            });
+        });
     });
 });

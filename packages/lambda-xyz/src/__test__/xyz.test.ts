@@ -1,6 +1,7 @@
 import { Epsg } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
+import { round } from '@basemaps/test/build/rounding';
 import { Tiler } from '@basemaps/tiler';
 import * as o from 'ospec';
 import { handleRequest } from '../index';
@@ -88,8 +89,7 @@ o.spec('LambdaXyz', () => {
             o(request.logContext['tileSet']).equals(tileSetName);
             o(request.logContext['method']).equals('get');
             o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
-            // FIXME
-            // o(request.logContext['location']).deepEquals({ lat: 0, lon: 0 });
+            o(round(request.logContext['location'])).deepEquals({ lat: 0, lon: 0 });
         });
     });
 
@@ -112,8 +112,7 @@ o.spec('LambdaXyz', () => {
         o(request.logContext['path']).equals('/v1/tiles/aerial/3857/0/0/0.webp');
         o(request.logContext['method']).equals('get');
         o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
-        // FIXME
-        // o(request.logContext['location']).deepEquals({ lat: 0, lon: 0 });
+        o(round(request.logContext['location'])).deepEquals({ lat: 0, lon: 0 });
     });
 
     ['png', 'webp', 'jpeg'].forEach((fmt) => {

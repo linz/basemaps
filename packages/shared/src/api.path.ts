@@ -1,5 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { getImageFormat, ImageFormat } from '@basemaps/tiler';
+import { Tile } from '@basemaps/geo';
 
 export interface ActionData {
     version: string;
@@ -15,13 +16,10 @@ export enum TileType {
 
 export type TileData = TileDataXyz | TileDataWmts;
 
-export interface TileDataXyz {
+export interface TileDataXyz extends Tile {
     type: TileType.Image;
     name: string;
     projection: Epsg;
-    x: number;
-    y: number;
-    z: number;
     ext: ImageFormat;
 }
 

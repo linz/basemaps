@@ -1,10 +1,12 @@
+import { EpsgCode } from '@basemaps/geo';
 import { FileOperatorSimple, LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { round } from '@basemaps/test/build/rounding';
 import { FeatureCollection } from 'geojson';
 import * as o from 'ospec';
+import { GdalCogBuilder } from '../../gdal/gdal';
 import { Cutline } from '../cutline';
 import { QuadKeyVrt } from '../quadkey.vrt';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
-import { EpsgCode } from '@basemaps/geo';
 
 o.spec('quadkey.vrt', () => {
     const tmpFolder = '/tmp/my-tmp-folder';
@@ -14,191 +16,250 @@ o.spec('quadkey.vrt', () => {
     const logger = LogConfig.get();
     LogConfig.disable();
 
-    o.beforeEach(() => {
-        job.source.resolution = 13;
-        job.source.files = [];
-    });
-
-    const SimpleSource = `<SimpleSource>
-      <SourceFilename relativeToVRT="0">__TIFF__</SourceFilename>
-      <SourceBand>__SRC_BAND__</SourceBand>
-      <SourceProperties RasterXSize="24" RasterYSize="36" DataType="Byte" BlockXSize="24" BlockYSize="1" />
-      <SrcRect xOff="0" yOff="0" xSize="24" ySize="36" />
-      <DstRect xOff="0" yOff="0" xSize="24" ySize="36" />
-</SimpleSource>`;
-
-    const ComplexSource = `<ComplexSource>
-      <SourceFilename relativeToVRT="0">__TIFF__</SourceFilename>
-      <SourceBand>1</SourceBand>
-      <SourceProperties RasterXSize="24" RasterYSize="36" DataType="Byte" BlockXSize="24" BlockYSize="1" />
-      <SrcRect xOff="0" yOff="0" xSize="24" ySize="36" />
-      <DstRect xOff="0" yOff="0" xSize="24" ySize="36" />
-      <ScaleOffset>255</ScaleOffset>
-      <ScaleRatio>0</ScaleRatio>
-    </ComplexSource>
-`;
-
-    const simpleSource = (path: string, srcBand: number): string =>
-        SimpleSource.replace(/__TIFF__/, path).replace(/__SRC_BAND__/, String(srcBand));
-
-    const complexSource = (path: string): string => ComplexSource.replace(/__TIFF__/, path);
     const testDir = `${__dirname}/../../../__test.assets__`;
 
-    o.spec('buildCutlineVrt', () => {
-        const [tif1Path, tif2Path] = [1, 2].map((i) => `${testDir}/tif${i}.tiff`);
+    const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
 
-        const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
+    const [tif1Path, tif2Path] = [1, 2].map((i) => `${testDir}/tif${i}.tiff`);
 
-        const vtif1 = '/vsis3/' + tif1Path,
-            vtif2 = '/vsis3/' + tif2Path;
+    const [tif1Poly, tif2Poly] = SourceTiffTestHelper.tiffPolygons();
 
-        const [tif1Poly, tif2Poly] = SourceTiffTestHelper.tiffPolygons();
+    const sourceGeo = {
+        type: 'FeatureCollection',
+        features: [],
+    } as FeatureCollection;
 
-        const sourceGeo = {
-            type: 'FeatureCollection',
-            features: [],
-        } as FeatureCollection;
+    let cutTiffArgs: Array<Array<any>> = [];
 
-        function makeVrtString(tifs: string[] = [tif1Path, tif2Path], bandTotal = 2): string {
-            job.source.files = tifs;
-            const bands = ['red', 'green', 'blue', 'alpha'];
+    let runSpy = o.spy();
 
-            const rasterBands = bands.slice(0, bandTotal).map(
-                (c, i) => `
-  <VRTRasterBand dataType="Byte" band="${i + 1}">
-    <HideNoDataValue>1</HideNoDataValue>
-    <ColorInterp>${c}</ColorInterp>
-    ${tifs.map((n) => (c === 'alpha' ? complexSource(n) : simpleSource('/vsis3/' + n, i + 1))).join('\n')}
-  </VRTRasterBand>`,
-            );
+    const origFileOperatorWriteJson = FileOperatorSimple.writeJson;
+    const { getGdal } = GdalCogBuilder;
 
-            return `<VRTDataset rasterXSize="24" rasterYSize="36"><SRS />${rasterBands}</VRTDataset>`;
-        }
+    let gdal: any;
 
-        const origFileOperatorWriteJson = FileOperatorSimple.writeJson;
+    o.after(() => {
+        FileOperatorSimple.writeJson = origFileOperatorWriteJson;
+        GdalCogBuilder.getGdal = getGdal;
+    });
 
-        o.after(() => {
-            FileOperatorSimple.writeJson = origFileOperatorWriteJson;
-        });
+    o.beforeEach(() => {
+        runSpy = o.spy();
+        job.projection = job.source.projection = EpsgCode.Google;
+        job.source.resZoom = 13;
+        job.source.files = [tif1Path, tif2Path];
+        gdal = { run: runSpy };
+        (GdalCogBuilder as any).getGdal = (): any => gdal;
+        sourceGeo.features = SourceTiffTestHelper.makeTiffFeatureCollection(
+            [tif1Poly, tif2Poly],
+            [tif1Path, tif2Path],
+        ).features;
 
-        let cutTiffArgs: Array<Array<any>> = [];
+        cutTiffArgs = [];
+        FileOperatorSimple.writeJson = ((...args: any): any => {
+            cutTiffArgs.push(args);
+        }) as any;
 
-        o.beforeEach(() => {
-            sourceGeo.features = SourceTiffTestHelper.makeTiffFeatureCollection(
-                [tif1Poly, tif2Poly],
-                [tif1Path, tif2Path],
-            ).features;
+        job.output.cutline = undefined;
+    });
 
-            cutTiffArgs = [];
-            FileOperatorSimple.writeJson = ((...args: any): any => {
-                cutTiffArgs.push(args);
-            }) as any;
+    o('1 crosses, 1 outside', async () => {
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+        const cl2 = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        cutline.polygons.push(...cl2.polygons);
 
-            job.output.cutline = undefined;
-        });
+        job.source.resZoom = 17;
 
-        o('1 crosses, 1 outside', async () => {
-            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
-            const cl2 = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
-            cutline.polygons.push(...cl2.polygons);
+        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '31133322', logger);
 
-            job.source.resolution = 17;
+        o(job.source.files).deepEquals([tif1Path, tif2Path]);
+        o(cutline.polygons.length).equals(2);
+        o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
+    });
 
-            await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, makeVrtString(), '311333', logger);
+    o('not within quadKey', async () => {
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
 
-            o(cutline.polygons.length).equals(2);
-        });
+        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '3131110001', logger);
 
-        o('not within quadKey', async () => {
-            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+        o(cutTiffArgs.length).equals(0);
+        o(vrt).equals(null);
+        o(runSpy.callCount).equals(0);
+    });
 
-            const vrt = await QuadKeyVrt.buildVrt(
-                tmpFolder,
-                job,
-                sourceGeo,
-                cutline,
-                makeVrtString(),
-                '3131110001',
-                logger,
-            );
+    o('no cutline same projection', async () => {
+        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, new Cutline(googleProj), '31', logger);
 
-            o(cutTiffArgs.length).equals(0);
+        o(job.source.files).deepEquals([tif1Path, tif2Path]);
+        o(cutTiffArgs.length).equals(0);
+        o(vrt).equals('/tmp/my-tmp-folder/source.vrt');
+        o(runSpy.callCount).equals(1);
+        o(runSpy.args[0]).equals('gdalbuildvrt');
+    });
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([]);
-        });
+    o('no cutline diff projection', async () => {
+        job.projection = EpsgCode.Nztm2000;
+        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, new Cutline(googleProj), '31', logger);
 
-        o('no cutline', async () => {
-            const vrt = await QuadKeyVrt.buildVrt(
-                tmpFolder,
-                job,
-                sourceGeo,
-                new Cutline(googleProj),
-                makeVrtString(),
-                '31',
-                logger,
-            );
+        o(job.source.files).deepEquals([tif1Path, tif2Path]);
+        o(cutTiffArgs.length).equals(0);
+        o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
+        o(runSpy.callCount).equals(2);
+        o(runSpy.args[0]).equals('gdalwarp');
+    });
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([
-                vtif1,
-                vtif2,
-                vtif1,
-                vtif2,
-            ]);
-            o(cutTiffArgs.length).equals(0);
-        });
+    o('fully within same projection', async () => {
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
 
-        o('fully within', async () => {
-            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+        const qkey = '31133322232111330';
 
-            const qkey = '3113332223211133012';
+        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkey, logger);
 
-            const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, makeVrtString(), qkey, logger);
+        o(vrt).equals('/tmp/my-tmp-folder/source.vrt');
+        o(job.source.files).deepEquals([tif2Path]);
+        o(cutTiffArgs.length).equals(0);
+        o(runSpy.callCount).equals(1);
+        o(runSpy.args[0]).equals('gdalbuildvrt');
+    });
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([vtif2, vtif2]);
-            o(cutTiffArgs.length).equals(0);
-        });
+    o('intersected cutline', async () => {
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+        job.output.cutline = { blend: 20, source: 'cutline.json' };
 
-        o('1 surrounded', async () => {
-            job.output.cutline = { blend: 10, source: 'cutline.json' };
-            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const qkey = '311333222321113';
 
-            const vrt = await QuadKeyVrt.buildVrt(
-                tmpFolder,
-                job,
-                sourceGeo,
-                cutline,
-                makeVrtString(),
-                '3131110001',
-                logger,
-            );
+        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkey, logger);
 
-            o(cutTiffArgs.length).equals(1);
-            o(cutTiffArgs[0][0]).equals(tmpFolder + '/cutline.geojson');
+        o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
+        o(job.source.files).deepEquals([tif2Path]);
+        o(cutTiffArgs.length).equals(1);
+        o(cutTiffArgs[0][1]).deepEquals(cutline.toGeoJson());
 
-            o(cutline.polygons.length).equals(1);
-
-            const geo = cutline.toGeoJson();
-
-            o(geo.type).equals('FeatureCollection');
-            if (geo.type === 'FeatureCollection') {
-                o(geo.features).deepEquals([
+        o(round(cutTiffArgs[0], 6)).deepEquals([
+            '/tmp/my-tmp-folder/cutline.geojson',
+            {
+                type: 'FeatureCollection',
+                features: [
                     {
                         type: 'Feature',
-                        properties: {},
                         geometry: {
                             type: 'MultiPolygon',
-                            coordinates: (geo.features[0].geometry as any).coordinates,
+                            coordinates: [
+                                [
+                                    [
+                                        [174.887066, -40.866925],
+                                        [174.906635, -40.866925],
+                                        [174.906635, -40.852124],
+                                        [174.900083, -40.852124],
+                                        [174.891215, -40.858532],
+                                        [174.887066, -40.862718],
+                                        [174.887066, -40.866925],
+                                    ],
+                                ],
+                            ],
                         },
+                        properties: {},
                     },
-                ]);
-            }
+                ],
+            },
+        ]);
+    });
 
-            o(Array.from(vrt.tags('SourceFilename')).map((e) => e.textContent)).deepEquals([
-                vtif1,
-                vtif2,
-                vtif1,
-                vtif2,
+    o('1 surrounded with s3 files', async () => {
+        const mount = o.spy();
+        gdal.mount = mount;
+
+        const s3tif1 = 's3:/' + tif1Path;
+        const s3tif2 = 's3:/' + tif2Path;
+        const vtif1 = '/vsis3' + tif1Path;
+        const vtif2 = '/vsis3' + tif2Path;
+
+        job.source.files = [s3tif1, s3tif2];
+        job.output.cutline = { blend: 10, source: 'cutline.json' };
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
+
+        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '3131110001', logger);
+
+        o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
+        o(cutTiffArgs.length).equals(1);
+        o(cutTiffArgs[0][0]).equals(tmpFolder + '/cutline.geojson');
+
+        o(cutline.polygons.length).equals(1);
+
+        const geo = cutline.toGeoJson();
+
+        o(geo.type).equals('FeatureCollection');
+
+        const coordinates = (geo.features[0].geometry as any).coordinates;
+        if (geo.type === 'FeatureCollection') {
+            o(geo.features).deepEquals([
+                {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                        type: 'MultiPolygon',
+                        coordinates,
+                    },
+                },
             ]);
-        });
+        }
+
+        o(round(coordinates, 5)).deepEquals([
+            [
+                [
+                    [174.77125, -41.09044],
+                    [174.77212, -41.09741],
+                    [174.78832, -41.08499],
+                    [174.78135, -41.07763],
+                    [174.78125, -41.07761],
+                    [174.78117, -41.07752],
+                    [174.78108, -41.07748],
+                    [174.78099, -41.07749],
+                    [174.78093, -41.07752],
+                    [174.7809, -41.07756],
+                    [174.78091, -41.07759],
+                    [174.78097, -41.07765],
+                    [174.78097, -41.07771],
+                    [174.78084, -41.07778],
+                    [174.78069, -41.07779],
+                    [174.7801, -41.07774],
+                    [174.77915, -41.08119],
+                    [174.77125, -41.09044],
+                ],
+            ],
+        ]);
+
+        o(runSpy.callCount).equals(2);
+        o(mount.calls.map((c: any) => c.args[0])).deepEquals([tmpFolder, s3tif1, s3tif2]);
+
+        o((runSpy.calls[0] as any).args).deepEquals([
+            'gdalbuildvrt',
+            ['-hidenodata', '-addalpha', '/tmp/my-tmp-folder/source.vrt', vtif1, vtif2],
+            logger,
+        ]);
+
+        o(runSpy.args).deepEquals([
+            'gdalwarp',
+            [
+                '-of',
+                'VRT',
+                '-multi',
+                '-wo',
+                'NUM_THREADS=ALL_CPUS',
+                '-s_srs',
+                'EPSG:3857',
+                '-t_srs',
+                'EPSG:3857',
+                '-cutline',
+                '/tmp/my-tmp-folder/cutline.geojson',
+                '-cblend',
+                '10',
+                '/tmp/my-tmp-folder/source.vrt',
+                '/tmp/my-tmp-folder/quadkey.vrt',
+            ],
+            logger,
+        ]);
+
+        o(job.source.files).deepEquals([s3tif1, s3tif2]);
     });
 });

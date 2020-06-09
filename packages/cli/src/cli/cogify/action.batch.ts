@@ -1,10 +1,10 @@
-import { Epsg } from '@basemaps/geo';
 import {
     Aws,
     Env,
     FileOperator,
     LogConfig,
     LogType,
+    ProjectionTileMatrixSet,
     RecordPrefix,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
@@ -57,7 +57,7 @@ export function extractResolutionFromName(name: string): number {
 export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecord {
     const now = Date.now();
 
-    const projection = job.projection ?? Epsg.Google; // TODO a lot of old imagery does not have this value set.
+    const { projection } = job;
     let base = job.output.path;
     if (!base.endsWith('/')) base += '/';
     const uri = base + path.join(projection.toString(), job.name, job.id);
@@ -99,7 +99,11 @@ export class ActionBatchJob extends CommandLineAction {
         isCommit: boolean,
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
         const jobName = ActionBatchJob.id(job, quadKey);
-        const alignmentLevels = job.source.resolution - quadKey.length;
+        const targetProj = ProjectionTileMatrixSet.get(job.projection);
+        const alignmentLevels = targetProj.findAlignmentLevels(
+            targetProj.tms.quadKey.toTile(quadKey),
+            job.source.resZoom,
+        );
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;

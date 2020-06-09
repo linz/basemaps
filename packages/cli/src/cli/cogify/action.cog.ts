@@ -1,4 +1,4 @@
-import { Env, FileOperator, FileOperatorSimple, LogConfig, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { Env, FileOperator, LogConfig, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -8,7 +8,6 @@ import {
 import { createReadStream, promises as fs } from 'fs';
 import { FeatureCollection } from 'geojson';
 import { buildCogForQuadKey } from '../../cog/cog';
-import { buildWarpedVrt } from '../../cog/cog.vrt';
 import { Cutline } from '../../cog/cutline';
 import { QuadKeyVrt } from '../../cog/quadkey.vrt';
 import { CogJob } from '../../cog/types';
@@ -105,8 +104,6 @@ export class ActionCogCreate extends CommandLineAction {
         try {
             const sourceGeo = (await inFp.readJson(getJobPath(job, 'source.geojson'))) as FeatureCollection;
 
-            const vrtString = await outputFs.read(getJobPath(job, '.vrt'));
-
             let cutlineJson: FeatureCollection | undefined;
             if (job.output.cutline != null) {
                 const cutlinePath = getJobPath(job, 'cutline.geojson.gz');
@@ -117,17 +114,16 @@ export class ActionCogCreate extends CommandLineAction {
             }
             const cutline = new Cutline(ProjectionTileMatrixSet.get(job.projection), cutlineJson);
 
-            const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, vrtString, quadKey, logger);
+            const tmpVrtPath = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, quadKey, logger);
+
+            if (tmpVrtPath == null) {
+                logger.warn({ quadKey }, 'NoMatchingSourceImagery');
+                return;
+            }
 
             const tmpTiff = FileOperator.join(tmpFolder, `${quadKey}.tiff`);
-            const tmpVrt = FileOperator.join(tmpFolder, `${job.id}.vrt`);
 
-            await FileOperatorSimple.write(tmpVrt, Buffer.from(vrt.toString()), logger);
-
-            // Sometimes we need to force a epsg3857 projection to get the COG to build since its fast just do it locally
-            const warpedVrtPath = await buildWarpedVrt(job, tmpVrt, job.output.vrt.options, tmpFolder, logger);
-
-            await buildCogForQuadKey(job, quadKey, warpedVrtPath, tmpTiff, logger, isCommit);
+            await buildCogForQuadKey(job, quadKey, tmpVrtPath, tmpTiff, logger, isCommit);
             logger.info({ target: targetPath }, 'StoreTiff');
             if (isCommit) {
                 await outputFs.write(targetPath, createReadStream(tmpTiff), logger);

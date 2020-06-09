@@ -1,4 +1,3 @@
-import { Epsg } from '@basemaps/geo';
 import { Env, LogType } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { GdalCommand } from './gdal.command';
@@ -61,8 +60,10 @@ export class GdalCogBuilder {
 
         this.config = {
             bbox: config.bbox,
+            projection: config.projection ?? GdalCogBuilderDefaults.projection,
             alignmentLevels: config.alignmentLevels ?? GdalCogBuilderDefaults.alignmentLevels,
             compression: config.compression ?? GdalCogBuilderDefaults.compression,
+            tilingScheme: config.tilingScheme ?? GdalCogBuilderDefaults.tilingScheme,
             resampling: config.resampling ?? GdalCogBuilderDefaults.resampling,
             blockSize: config.blockSize ?? GdalCogBuilderDefaults.blockSize,
             quality: config.quality ?? GdalCogBuilderDefaults.quality,
@@ -80,7 +81,7 @@ export class GdalCogBuilder {
 
         // TODO in theory this should be clamped to the lower right of the imagery, as there is no point generating large empty tiffs
         const [ulX, ulY, lrX, lrY] = this.config.bbox;
-        return ['-projwin', ulX, ulY, lrX, lrY, '-projwin_srs', Epsg.Google.toEpsgString()].map(String);
+        return ['-projwin', ulX, ulY, lrX, lrY, '-projwin_srs', this.config.projection.toEpsgString()].map(String);
     }
 
     get args(): string[] {
@@ -90,7 +91,7 @@ export class GdalCogBuilder {
             'COG',
             // Force GoogleMaps tiling
             '-co',
-            'TILING_SCHEME=GoogleMapsCompatible',
+            `TILING_SCHEME=${this.config.tilingScheme}`,
             // Max CPU POWER
             '-co',
             'NUM_THREADS=ALL_CPUS',

@@ -45,7 +45,23 @@ o.spec('TileMatrixSetQuadKey', () => {
     const googleQk = new TileMatrixSetQuadKey(GoogleTms);
     const Nztm2000Qk = new TileMatrixSetQuadKey(Nztm2000Tms);
 
+    function coverToQkString(tmsQk: TileMatrixSetQuadKey, qk?: string): string {
+        return Array.from(tmsQk.coverTile(qk === undefined ? undefined : tmsQk.toTile(qk)))
+            .map((t) => tmsQk.fromTile(t))
+            .join(' ');
+    }
+
     o.spec('GoogleTmsQk', () => {
+        o('topLevelQuadKeys', () => {
+            o(coverToQkString(googleQk)).equals('');
+        });
+
+        o('coverTile', () => {
+            o(coverToQkString(googleQk, '')).equals('0 1 2 3');
+            o(coverToQkString(googleQk, '0')).equals('00 01 02 03');
+            o(coverToQkString(googleQk, '32123012')).equals('321230120 321230121 321230122 321230123');
+        });
+
         o('toTile', () => {
             o(googleQk.toTile('')).deepEquals({ x: 0, y: 0, z: 0 });
             o(googleQk.toTile('31')).deepEquals({ x: 3, y: 2, z: 2 });
@@ -82,6 +98,15 @@ o.spec('TileMatrixSetQuadKey', () => {
     });
 
     o.spec('Nztm2000Qk', () => {
+        o('topLevelQuadKeys', () => {
+            o(coverToQkString(Nztm2000Qk)).equals('00 01 02 03 20 21 22 23');
+        });
+
+        o('coverTile', () => {
+            o(coverToQkString(Nztm2000Qk, '00')).equals('000 001 002 003');
+            o(coverToQkString(Nztm2000Qk, '23012301')).equals('230123010 230123011 230123012 230123013');
+        });
+
         o('should calculate offsets', () => {
             o(Nztm2000Qk.zMax).equals(8);
             o(Nztm2000Qk.zOffset).equals(2);
