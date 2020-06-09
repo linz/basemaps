@@ -59,7 +59,7 @@ export class TileSetLocal extends TileSet {
         return true;
     }
 
-    async getTiffsForQuadKey(): Promise<CogTiff[]> {
+    getTiffsForQuadKey(): CogTiff[] {
         return this.tiffs;
     }
 }
