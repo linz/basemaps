@@ -2,6 +2,7 @@ import { Point } from './bounds';
 import { Epsg } from './epsg';
 import { TileMatrixSetType, TileMatrixSetTypeMatrix } from './tms/tile.matrix.set.type';
 import { getXyOrder, XyOrder } from './xy.order';
+import { TileMatrixSetQuadKey } from './tms.quad.key';
 
 export type Tile = Point & { z: number };
 
@@ -18,6 +19,9 @@ export class TileMatrixSet {
     readonly def: TileMatrixSetType;
     /** Indexed tile index zooms */
     readonly zooms: TileMatrixSetTypeMatrix[] = [];
+
+    /** Psuedo quadkey convertor */
+    readonly quadKey: TileMatrixSetQuadKey;
 
     /** Array index of X coordinates */
     indexX = 0;
@@ -45,6 +49,8 @@ export class TileMatrixSet {
             this.indexX = 1;
             this.indexY = 0;
         }
+
+        this.quadKey = new TileMatrixSetQuadKey(this);
     }
 
     /** Get the pixels / meter at a specified zoom level */
