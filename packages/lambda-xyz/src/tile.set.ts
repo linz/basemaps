@@ -9,6 +9,19 @@ import {
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 
+/**
+ * Does the target quadkey intersect any quadkey in the source list
+ *
+ * @param qkList list of quadkeys to check intersection with
+ * @param qkTarget quadkey to check
+ */
+function qkIntersects(qkList: string[], qkTarget: string): boolean {
+    for (const qk of qkList) {
+        if (QuadKey.intersects(qkTarget, qk)) return true;
+    }
+    return false;
+}
+
 export class TileSet {
     name: string;
     tag: TileMetadataTag;
@@ -68,28 +81,32 @@ export class TileSet {
         return true;
     }
 
-    async getTiffsForQuadKey(qk: string, zoom: number): Promise<CogTiff[]> {
+    public getTiffsForQuadKey(qks: string[], zoom: number): CogTiff[] {
         const output: CogTiff[] = [];
         for (const obj of this.imagery) {
             if (zoom > (obj.rule.maxZoom ?? 32)) continue;
             if (zoom < (obj.rule.minZoom ?? 0)) continue;
 
-            for (const tiff of this.getCogsForQuadKey(obj.imagery, qk)) {
+            for (const tiff of this.getCogsForQuadKey(obj.imagery, qks)) {
                 output.push(tiff);
             }
         }
         return output;
     }
 
-    private getCogsForQuadKey(record: TileMetadataImageryRecord, qk: string): CogTiff[] {
+    private getCogsForQuadKey(record: TileMetadataImageryRecord, qks: string[]): CogTiff[] {
         const output: CogTiff[] = [];
         for (const quadKey of record.quadKeys) {
-            if (!QuadKey.intersects(quadKey, qk)) continue;
+            if (!qkIntersects(qks, quadKey)) continue;
 
             const tiffKey = `${record.id}_${quadKey}`;
             let existing = this.sources.get(tiffKey);
             if (existing == null) {
-                existing = new CogTiff(CogSourceAwsS3.createFromUri(TileSet.basePath(record, quadKey))!);
+                const source = CogSourceAwsS3.createFromUri(TileSet.basePath(record, quadKey));
+                if (source == null) {
+                    throw new Error(`Failed to create CogSource from  ${TileSet.basePath(record, quadKey)}`);
+                }
+                existing = new CogTiff(source);
                 this.sources.set(tiffKey, existing);
             }
 
