@@ -3,6 +3,43 @@ import { TileMatrixSetQuadKey } from '../tms.quad.key';
 import { Nztm2000Tms } from '../tms/nztm2000';
 import * as o from 'ospec';
 import { QuadKey } from '../quad.key';
+import { Tile, TileMatrixSet } from '../tile.matrix.set';
+
+interface SampleOpts {
+    /** Percent to include between 0 - 1 */
+    sample: number;
+    /** Minimum number of outputs must be < maxOutput */
+    minOutput: number;
+    /** Max number of outputs must be > minOutput */
+    maxOutput: number;
+}
+/**
+ * Generate a random sampling of tiles for a given zoom level,
+ * with at minimum all tiles or minOutput tiles being generated
+ */
+function* randomTileSample(
+    tms: TileMatrixSet,
+    z: number,
+    opts: SampleOpts = { sample: 0.001, minOutput: 1000, maxOutput: 2000 },
+): Generator<Tile> {
+    const zoom = tms.zooms[z];
+    const totalTiles = zoom.matrixHeight * zoom.matrixWidth;
+    const minOutputCount = Math.min(totalTiles, opts.minOutput);
+    if (opts.maxOutput <= opts.minOutput) throw new Error('Need more max output than min');
+    let outputCount = 0;
+    while (outputCount < minOutputCount) {
+        for (let y = 0; y < zoom.matrixHeight; y++) {
+            for (let x = 0; x < zoom.matrixWidth; x++) {
+                if (Math.random() < opts.sample) {
+                    outputCount++;
+                    yield { x, y, z };
+
+                    if (outputCount > opts.maxOutput) return;
+                }
+            }
+        }
+    }
+}
 
 o.spec('TileMatrixSetQuadKey', () => {
     const googleQk = new TileMatrixSetQuadKey(GoogleTms);
@@ -29,6 +66,18 @@ o.spec('TileMatrixSetQuadKey', () => {
             o(googleQk.fromTile({ x: 2 ** 24 - 1, y: 0, z: 24 })).equals('111111111111111111111111');
             o(googleQk.fromTile({ x: 0, y: 2 ** 24 - 1, z: 24 })).equals('222222222222222222222222');
             o(googleQk.fromTile({ x: 2 ** 24 - 1, y: 2 ** 24 - 1, z: 24 })).equals('333333333333333333333333');
+        });
+
+        o.spec('nearestQuadKeys', () => {
+            o('should only ever return one quadkey for google TMS', () => {
+                for (let z = 0; z < GoogleTms.zooms.length; z++) {
+                    for (const tile of randomTileSample(GoogleTms, z)) {
+                        const qks = googleQk.nearestQuadKeys(tile);
+                        const realQuadKey = QuadKey.fromTile(tile);
+                        o(qks).deepEquals([realQuadKey])(`tile : ${tile.x},${tile.y} z${tile.z}`);
+                    }
+                }
+            });
         });
     });
 
@@ -63,6 +112,41 @@ o.spec('TileMatrixSetQuadKey', () => {
                     }
                 }
             }
+        });
+
+        o.spec('nearestQuadKeys', () => {
+            o('should calculate nearest quad keys', () => {
+                /** z8 is a werid jump 2.5x zoom not 2x which means some z8 tiles need 4 z7 tiles to cover them*/
+                o(Nztm2000Qk.nearestQuadKeys({ x: 2, y: 2, z: 8 })).deepEquals([
+                    '000000000',
+                    '000000001',
+                    '000000002',
+                    '000000003',
+                ]);
+
+                o(Nztm2000Qk.nearestQuadKeys({ x: 4, y: 4, z: 8 })).deepEquals(['000000003']);
+                o(Nztm2000Qk.nearestQuadKeys({ x: 7, y: 7, z: 8 })).deepEquals([
+                    '000000030',
+                    '000000031',
+                    '000000032',
+                    '000000033',
+                ]);
+            });
+
+            o('should round output tiles offsets', () => {
+                // This tile has a offset that rounds to .999999994, which needs to validate rounding
+                const tile = { x: 1275, y: 2155, z: 9 };
+                o(Nztm2000Qk.nearestQuadKeys(tile)).deepEquals(['231313333']);
+            });
+
+            o('should only calculate one tile for z9-12', () => {
+                for (let z = 9; z < 12; z++) {
+                    for (const tile of randomTileSample(Nztm2000Tms, z)) {
+                        const qk = Nztm2000Qk.nearestQuadKeys(tile);
+                        o(qk.length).equals(1)(`tile : ${tile.x},${tile.y} z${tile.z}`);
+                    }
+                }
+            });
         });
     });
 });
