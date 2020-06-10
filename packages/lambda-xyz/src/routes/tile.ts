@@ -1,6 +1,15 @@
-import { Epsg, QuadKey } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import { Aws, Env, TileDataWmts, TileDataXyz, tileFromPath, TileMetadataTag, TileType } from '@basemaps/shared';
+import {
+    Aws,
+    Env,
+    TileDataWmts,
+    TileDataXyz,
+    tileFromPath,
+    TileMetadataTag,
+    TileType,
+    ProjectionTileMatrixSet,
+} from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -32,8 +41,8 @@ const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
 /** Initialize the tiffs before reading */
-async function initTiffs(tileSet: TileSet, qk: string, zoom: number, ctx: LambdaContext): Promise<CogTiff[]> {
-    const tiffs = await tileSet.getTiffsForQuadKey(qk, zoom);
+async function initTiffs(tileSet: TileSet, qks: string[], zoom: number, ctx: LambdaContext): Promise<CogTiff[]> {
+    const tiffs = tileSet.getTiffsForQuadKey(qks, zoom);
     let failed = false;
     // Remove any tiffs that failed to load
     const promises = tiffs.map((c) => {
@@ -70,17 +79,16 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
 
     const { x, y, z, ext } = xyzData;
 
-    // FIXME
-    // const latLon = tiler.projection.getLatLonCenterFromTile(x, y, z);
-    const qk = QuadKey.fromTile(xyzData);
+    const qks = tiler.tms.quadKey.nearestQuadKeys(xyzData);
     req.set('xyz', { x, y, z });
-    // req.set('location', latLon);
-    req.set('quadKey', qk);
+    req.set('quadKeys', qks);
+    const latLon = ProjectionTileMatrixSet.get(xyzData.projection.code).tileCenterToLatLon(xyzData);
+    req.set('location', latLon);
 
     const tileSet = await loadTileSet(req, xyzData.name, xyzData.projection);
     if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset Not Found');
 
-    const tiffs = await initTiffs(tileSet, qk, z, req);
+    const tiffs = await initTiffs(tileSet, qks, z, req);
     const layers = await tiler.tile(tiffs, x, y, z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId

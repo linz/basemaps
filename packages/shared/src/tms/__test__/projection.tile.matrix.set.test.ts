@@ -1,24 +1,9 @@
 import { Bounds, EpsgCode, QuadKey } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Approx } from '@basemaps/test';
+import { round } from '@basemaps/test/build/rounding';
 import * as o from 'ospec';
 import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
-
-function round(z = 8): (n: number) => number {
-    const p = 10 ** z;
-    return (n: number): number => Math.round(n * p) / p;
-}
-
-function roundJson(json: any, z = 8): any {
-    const ans = Object.assign({}, json);
-    const r = round(z);
-    for (const key in ans) {
-        if (typeof ans[key] === 'number') {
-            ans[key] = r(ans[key]);
-        }
-    }
-    return ans;
-}
 
 const TileSize = 256;
 
@@ -41,25 +26,52 @@ function getPixelsFromTile(x: number, y: number): Bounds {
 
 o.spec('ProjectionTileMatrixSet', () => {
     const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
+    const nztmProj = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
+
+    o('getTileSize', async () => {
+        o(googleProj.getImagePixelWidth({ x: 0, y: 0, z: 5 }, 10)).equals(16384);
+        o(googleProj.getImagePixelWidth({ x: 0, y: 0, z: 13 }, 20)).equals(65536);
+
+        o(nztmProj.getImagePixelWidth({ x: 0, y: 0, z: 5 }, 10)).equals(20480);
+        o(nztmProj.getImagePixelWidth({ x: 0, y: 0, z: 13 }, 16)).equals(5120);
+    });
+
+    o('findAlignmentLevels', () => {
+        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 20)).equals(9);
+        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 15)).equals(4);
+        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 10)).equals(3);
+        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 10)).equals(0);
+
+        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 1 }, 15)).equals(12);
+        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 15)).equals(4);
+        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 9)).equals(2);
+        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 10)).equals(0);
+    });
 
     o('should convert to 2193', () => {
-        const nztmProj = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
         if (nztmProj == null) {
             throw new Error('Failed to init proj:2193');
         }
         const output = nztmProj.toWsg84([1180000, 4758000]);
-        o(output.map(round(6))).deepEquals([167.454458, -47.197075]);
+        o(round(output, 6)).deepEquals([167.454458, -47.197075]);
 
         const reverse = nztmProj.fromWsg84(output);
-        o(reverse.map(round(2))).deepEquals([1180000, 4758000]);
+        o(round(reverse, 2)).deepEquals([1180000, 4758000]);
     });
 
     o('tileToSourceBounds', () => {
-        o(roundJson(googleProj.tileToSourceBounds(QuadKey.toTile('3120123')).toJson(), 8)).deepEquals({
+        o(round(googleProj.tileToSourceBounds(QuadKey.toTile('3120123')).toJson(), 8)).deepEquals({
             x: 11584184.51067502,
             y: -6261721.35712163,
             width: 313086.06785608,
             height: 313086.06785608,
+        });
+    });
+
+    o('tileCenterToLatLon', () => {
+        o(round(googleProj.tileCenterToLatLon(QuadKey.toTile('3120123')), 8)).deepEquals({
+            lat: -47.98992167,
+            lon: 105.46875,
         });
     });
 
@@ -74,7 +86,7 @@ o.spec('ProjectionTileMatrixSet', () => {
         o(features[1].properties).deepEquals({ quadKey: '33' });
         const { geometry } = features[0]!;
         const coords = geometry.type === 'Polygon' ? geometry.coordinates : null;
-        o(coords![0].map((p) => p.map(round(8)))).deepEquals([
+        o(round(coords![0], 8)).deepEquals([
             [90, -66.51326044],
             [90, 0],
             [180, 0],

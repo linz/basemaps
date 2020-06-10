@@ -26,13 +26,13 @@ o.spec('Bounds', () => {
     });
 
     o('fromBbox', () => {
-        Approx.bounds(Bounds.fromBbox([170, 40, -160, 45]), new Bounds(170, 40, 30, 5));
-        Approx.bounds(Bounds.fromBbox([170, 40, 175, -30]), new Bounds(170, 40, 5, 70));
+        Approx.bounds(Bounds.fromBbox([170, 40, 200, 45]), new Bounds(170, 40, 30, 5));
+        Approx.bounds(Bounds.fromBbox([170, -30, 175, 40]), new Bounds(170, -30, 5, 70));
         Approx.bounds(Bounds.fromBbox([-170, -40, -155, -30]), new Bounds(-170, -40, 15, 10));
     });
 
     o('scaleFromCenter', () => {
-        const b = Bounds.fromBbox([170, 40, -160, 45]);
+        const b = Bounds.fromBbox([170, 40, 200, 45]);
         Approx.bounds(b.scaleFromCenter(1.2), new Bounds(167, 39.5, 36, 6));
         Approx.bounds(b.scaleFromCenter(0.5, 2), new Bounds(177.5, 37.5, 15, 10));
         Approx.bounds(b.scaleFromCenter(3, 0.25), new Bounds(140, 41.875, 90, 1.25));

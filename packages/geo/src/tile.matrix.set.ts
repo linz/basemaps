@@ -2,8 +2,14 @@ import { Point } from './bounds';
 import { Epsg } from './epsg';
 import { TileMatrixSetType, TileMatrixSetTypeMatrix } from './tms/tile.matrix.set.type';
 import { getXyOrder, XyOrder } from './xy.order';
+import { TileMatrixSetQuadKey } from './tms.quad.key';
 
 export type Tile = Point & { z: number };
+
+/** order by increasing zoom level */
+function compareMatrix(a: TileMatrixSetTypeMatrix, b: TileMatrixSetTypeMatrix): number {
+    return b.scaleDenominator - a.scaleDenominator;
+}
 
 export class TileMatrixSet {
     /** Projection of the matrix set */
@@ -19,22 +25,32 @@ export class TileMatrixSet {
     /** Indexed tile index zooms */
     readonly zooms: TileMatrixSetTypeMatrix[] = [];
 
+    /** Psuedo quadkey convertor */
+    readonly quadKey: TileMatrixSetQuadKey;
+
     /** Array index of X coordinates */
     indexX = 0;
     /** Array index of y coordinate */
     indexY = 1;
 
+    /**
+     * Create using a WMTS EPSG definition
+
+     * @param def
+     */
     constructor(def: TileMatrixSetType) {
         this.def = def;
         this.tileSize = def.tileMatrix[0].tileHeight;
 
-        for (const z of def.tileMatrix) {
-            const zoomIndex = parseInt(z.identifier);
-            if (this.zooms[zoomIndex]) throw new Error(`Duplicate tileMatrix identifier ${z.identifier}`);
+        const zooms = def.tileMatrix.slice().sort(compareMatrix);
+        const dups: Record<string, boolean> = {};
+        for (const z of zooms) {
+            if (dups[z.identifier]) throw new Error(`Duplicate tileMatrix identifier ${z.identifier}`);
             if (z.tileHeight != z.tileWidth) throw new Error('Only square tiles supported');
             if (z.tileHeight != this.tileSize) throw new Error('All tiles must have the same tile size');
-            this.zooms[parseInt(z.identifier)] = z;
+            dups[z.identifier] = true;
         }
+        this.zooms = zooms;
 
         const projection = Epsg.parse(def.supportedCRS);
         if (projection == null) throw new Error(`Unable to find supported projection ${def.supportedCRS}`);
@@ -45,6 +61,8 @@ export class TileMatrixSet {
             this.indexX = 1;
             this.indexY = 0;
         }
+
+        this.quadKey = new TileMatrixSetQuadKey(this);
     }
 
     /** Get the pixels / meter at a specified zoom level */

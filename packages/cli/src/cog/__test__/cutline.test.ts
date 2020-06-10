@@ -1,20 +1,11 @@
-import { EpsgCode, GeoJson, QuadKey } from '@basemaps/geo';
+import { EpsgCode, QuadKey } from '@basemaps/geo';
 import { ProjectionTileMatrixSet } from '@basemaps/shared';
 import { Approx } from '@basemaps/test';
-import { writeFileSync } from 'fs';
 import { MultiPolygon } from 'geojson';
 import * as o from 'ospec';
 import { Cutline } from '../cutline';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
-
-const DebugPolys = false;
-
-/** Write to ~/tmp for debugging in qgis */
-function writeDebugPolys(poly: number[][][][]): void {
-    if (!DebugPolys) return;
-    writeFileSync(`${process.env.HOME}/tmp/poly.geojson`, JSON.stringify(GeoJson.toFeatureMultiPolygon(poly)));
-}
 
 o.spec('cutline', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
@@ -53,17 +44,39 @@ o.spec('cutline', () => {
         const result = (cutline as any).findCovering(feature, cutline.polygons);
 
         o(result.length).equals(1);
-
-        writeDebugPolys(result);
     });
 
     o.spec('optmize', async () => {
         const geoJson = SourceTiffTestHelper.makeTiffFeatureCollection();
 
+        o('nztm', () => {
+            const proj = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
+
+            const cutline = new Cutline(proj);
+
+            const covering = cutline.optimizeCovering({ bounds: geoJson, resZoom: 14 } as SourceMetadata);
+
+            o(covering.length).equals(Array.from(covering).length);
+            o(Array.from(covering)).deepEquals([
+                '032233200',
+                '032233201',
+                '032233202',
+                '032233203',
+                '032233210',
+                '032233211',
+                '032233212',
+                '032233213',
+                '032233220',
+                '032233221',
+                '032233230',
+                '032233231',
+            ]);
+        });
+
         o('low res', () => {
             const cutline = new Cutline(proj);
 
-            const covering = cutline.optimizeCovering({ bounds: geoJson, resolution: 13 } as SourceMetadata);
+            const covering = cutline.optimizeCovering({ bounds: geoJson, resZoom: 13 } as SourceMetadata);
 
             o(covering.length).equals(Array.from(covering).length);
             o(Array.from(covering)).deepEquals(['31133322', '31311100']);
@@ -72,7 +85,7 @@ o.spec('cutline', () => {
         o('hi res', () => {
             const covering2 = new Cutline(proj).optimizeCovering({
                 bounds: geoJson,
-                resolution: 18,
+                resZoom: 18,
             } as SourceMetadata);
 
             o(covering2.length).equals(Array.from(covering2).length);
@@ -95,7 +108,7 @@ o.spec('cutline', () => {
     o('optimize should not cover the world', () => {
         const bounds = proj.toGeoJson(['']);
         const cutline = new Cutline(proj);
-        const covering = cutline.optimizeCovering({ bounds, resolution: 0 } as SourceMetadata);
+        const covering = cutline.optimizeCovering({ bounds, resZoom: 0 } as SourceMetadata);
         o(Array.from(covering)).deepEquals(['0', '1', '2', '3']);
     });
 });

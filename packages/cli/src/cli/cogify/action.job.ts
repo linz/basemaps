@@ -43,7 +43,6 @@ export class ActionJobCreate extends CommandLineAction {
     private source: CLiInputData;
     private output: CLiInputData;
     private maxConcurrency: CommandLineIntegerParameter;
-    private generateVrt: CommandLineFlagParameter;
     private resampling: CommandLineStringParameter;
     private cutline: CommandLineStringParameter;
     private cutlineBlend: CommandLineIntegerParameter;
@@ -90,9 +89,6 @@ export class ActionJobCreate extends CommandLineAction {
 
         const targetProjection = ProjectionTileMatrixSet.tryGet(this.targetProjection?.value);
         if (targetProjection == null) throw new Error('Invalid target-projection');
-        if (targetProjection.tms.projection !== Epsg.Google) {
-            throw new Error('Only currently working for ' + Epsg.Google.toEpsgString());
-        }
 
         const resampling =
             this.resampling?.value == null
@@ -112,7 +108,6 @@ export class ActionJobCreate extends CommandLineAction {
                 resampling,
             },
             batch: this.submitBatch?.value,
-            generateVrt: this.generateVrt?.value,
         };
 
         await CogJobFactory.create(ctx);
@@ -128,12 +123,6 @@ export class ActionJobCreate extends CommandLineAction {
             parameterShortName: '-c',
             description: 'Maximum number of requests to use at one time',
             defaultValue: MaxConcurrencyDefault,
-            required: false,
-        });
-
-        this.generateVrt = this.defineFlagParameter({
-            parameterLongName: '--vrt',
-            description: 'Generate the source vrt for the COGs',
             required: false,
         });
 
