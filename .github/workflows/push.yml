@@ -58,6 +58,7 @@ jobs:
         env:
           ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN}}
           CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN}}
+          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
 
       - name: Publish NPM
         if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'linz/basemaps'
@@ -81,4 +82,5 @@ jobs:
         env:
           ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN_PROD}}
           CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN_PROD}}
-          NODE_ENV: 'production'
+          NODE_ENV: "production"
+          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}

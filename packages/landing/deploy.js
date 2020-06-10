@@ -20,12 +20,34 @@ async function getHash(Bucket, Key) {
     return null;
 }
 
+/** If $GOOGLE_ANALYTICS is set, insert the tracking code into the index.html */
+async function insertGoogleAnalytics() {
+    const trackingId = process.env['GOOGLE_ANALYTICS'];
+    if (trackingId == null || trackingId.trim() == '') return;
+
+    const rawIndexHtml = await fs.readFile('./static/index.html');
+    const trackingCode = `<script async src="https://www.googletagmanager.com/gtag/js?id=${trackingId}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '${trackingId}');
+    </script>
+</head>`;
+
+    // Put the tracking at the bottom of the index.html's head tag
+    const outputHtml = rawIndexHtml.toString().replace('</head>', trackingCode);
+    await fs.writeFile('./static/index.html', outputHtml);
+}
+
 /**
  * Deploy the built s3 assets into the Edge bucket
  *
  * TODO there does not appear to be a easy way to do this with aws-cdk yet
  */
 async function deploy() {
+    insertGoogleAnalytics();
     // Since the bucket is generated inside of CDK lets look up the bucket name
     const stackInfo = await cf.describeStacks({ StackName: 'Edge' }).promise();
     const bucket = stackInfo.Stacks[0].Outputs.find((f) => f.OutputKey == 'CloudFrontBucket');
