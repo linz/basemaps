@@ -1,6 +1,7 @@
-import { EpsgCode, QuadKey } from '@basemaps/geo';
+import { EpsgCode, GeoJson, QuadKey } from '@basemaps/geo';
 import { ProjectionTileMatrixSet } from '@basemaps/shared';
 import { Approx } from '@basemaps/test';
+import { round } from '@basemaps/test/build/rounding';
 import { MultiPolygon } from 'geojson';
 import * as o from 'ospec';
 import { Cutline } from '../cutline';
@@ -39,25 +40,25 @@ o.spec('cutline', () => {
         const cutline = new Cutline(proj, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const feature = SourceTiffTestHelper.makeTiffFeatureCollection();
 
-        o(cutline.polygons.length).equals(2);
+        o(cutline.clipPoly.length).equals(2);
 
-        const result = (cutline as any).findCovering(feature, cutline.polygons);
+        const result = (cutline as any).findCovering({ bounds: feature, resZoom: 15 });
 
         o(result.length).equals(1);
     });
 
     o.spec('optmize', async () => {
-        const geoJson = SourceTiffTestHelper.makeTiffFeatureCollection();
+        const bounds = SourceTiffTestHelper.makeTiffFeatureCollection();
 
         o('nztm', () => {
             const proj = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
 
             const cutline = new Cutline(proj);
 
-            const covering = cutline.optimizeCovering({ bounds: geoJson, resZoom: 14 } as SourceMetadata);
+            const covering = cutline.optimizeCovering({ bounds, resZoom: 14 } as SourceMetadata);
 
-            o(covering.length).equals(Array.from(covering).length);
-            o(Array.from(covering)).deepEquals([
+            o(covering.length).equals(covering.length);
+            o(covering).deepEquals([
                 '032233200',
                 '032233201',
                 '032233202',
@@ -73,24 +74,48 @@ o.spec('cutline', () => {
             ]);
         });
 
+        o('boundary part inland, part coastal', async () => {
+            const poly = GeoJson.toPositionPolygon([174.89, -40.83, 174.92, -40.85]);
+
+            const bounds = SourceTiffTestHelper.makeTiffFeatureCollection(poly);
+            const cutline = new Cutline(proj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
+
+            const covering = cutline.optimizeCovering({ bounds, resZoom: 22 } as SourceMetadata);
+
+            o(round(cutline.clipPoly, 4)).deepEquals([
+                [
+                    [
+                        [19470094.8286, -4990261.5441],
+                        [19472027.7232, -4990261.5441],
+                        [19472027.7232, -4987279.214],
+                        [19471949.5241, -4987279.214],
+                        [19470978.4379, -4989417.4454],
+                        [19470094.8286, -4990261.5441],
+                    ],
+                ],
+            ]);
+
+            o(covering).deepEquals(['31133322231222', '311333222330000', '311333222330001', '31133322231220332']);
+        });
+
         o('low res', () => {
             const cutline = new Cutline(proj);
 
-            const covering = cutline.optimizeCovering({ bounds: geoJson, resZoom: 13 } as SourceMetadata);
+            const covering = cutline.optimizeCovering({ bounds, resZoom: 13 } as SourceMetadata);
 
-            o(covering.length).equals(Array.from(covering).length);
-            o(Array.from(covering)).deepEquals(['31133322', '31311100']);
+            o(covering.length).equals(covering.length);
+            o(covering).deepEquals(['31133322', '31311100']);
         });
 
         o('hi res', () => {
             const covering2 = new Cutline(proj).optimizeCovering({
-                bounds: geoJson,
+                bounds,
                 resZoom: 18,
             } as SourceMetadata);
 
-            o(covering2.length).equals(Array.from(covering2).length);
+            o(covering2.length).equals(covering2.length);
 
-            o(Array.from(covering2)).deepEquals(
+            o(covering2).deepEquals(
                 [
                     '3113332222',
                     '3113332223',
@@ -109,6 +134,6 @@ o.spec('cutline', () => {
         const bounds = proj.toGeoJson(['']);
         const cutline = new Cutline(proj);
         const covering = cutline.optimizeCovering({ bounds, resZoom: 0 } as SourceMetadata);
-        o(Array.from(covering)).deepEquals(['0', '1', '2', '3']);
+        o(covering).deepEquals(['0', '1', '2', '3']);
     });
 });

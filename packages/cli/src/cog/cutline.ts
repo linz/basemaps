@@ -6,8 +6,8 @@ import { CoveringFraction, MaxImagePixelWidth } from './constants';
 import { CogJob, SourceMetadata } from './types';
 import { intersection, union, MultiPolygon, Polygon, Ring } from 'polygon-clipping';
 
-/** Default padding if no cutline blend given */
-const PixelPadding = 10;
+/** Padding to always apply to image boundies */
+const PixelPadding = 100;
 
 function findGeoJsonProjection(geojson: any | null): Epsg {
     return Epsg.parse(geojson?.crs?.properties?.name ?? '') ?? Epsg.Wgs84;
@@ -22,39 +22,46 @@ function polysSameShape(a: Polygon, b: Polygon): boolean {
 }
 
 export class Cutline {
-    polygons: MultiPolygon = [];
+    clipPoly: MultiPolygon = [];
     targetProj: ProjectionTileMatrixSet;
     tmsQk: TileMatrixSetQuadKey; // convenience link to targetProj.tms.quadKey
+    blend: number;
 
     /**
-     * Create a Cutline instanse from a GeoJSON FeatureCollection
+     * Create a Cutline instance from a `GeoJSON FeatureCollection`.
 
-     * @param targetProj the projection the COGs will be created in
-     * @param polygons the optional cutline polygons. Source imagery outline used by default
+     * @param targetProj the projection the COGs will be created in.
+
+     * @param clipPoly the optional cutline. The source imagery outline used by default. This
+     * `FeatureCollection` is converted to one `MultiPolygon` with any holes removed and the
+     * coordinates transposed from `Wsg84` to the target projection.
+
+     * @param blend How much blending to consider when working out boundaries.
      */
-    constructor(targetProj: ProjectionTileMatrixSet, polygons?: FeatureCollection) {
+    constructor(targetProj: ProjectionTileMatrixSet, clipPoly?: FeatureCollection, blend = 0) {
         this.targetProj = targetProj;
         this.tmsQk = targetProj.tms.quadKey;
-        if (polygons == null) {
+        this.blend = blend;
+        if (clipPoly == null) {
             return;
         }
-        if (findGeoJsonProjection(polygons) !== Epsg.Wgs84) {
+        if (findGeoJsonProjection(clipPoly) !== Epsg.Wgs84) {
             throw new Error('Invalid geojson; CRS may not be set for cutline!');
         }
         const { fromWsg84 } = this.targetProj;
-        for (const { geometry } of polygons.features) {
+        for (const { geometry } of clipPoly.features) {
             if (geometry.type === 'MultiPolygon') {
                 for (const coords of geometry.coordinates) {
-                    this.polygons.push([coords[0].map(fromWsg84) as Ring]);
+                    this.clipPoly.push([coords[0].map(fromWsg84) as Ring]);
                 }
             } else if (geometry.type === 'Polygon') {
-                this.polygons.push([geometry.coordinates[0].map(fromWsg84) as Ring]);
+                this.clipPoly.push([geometry.coordinates[0].map(fromWsg84) as Ring]);
             }
         }
     }
 
     /**
-     * Load a geojson cutline from the file-system and convert to one multi-polygon with any holes removed
+     * Load a geojson cutline from the file-system.
      *
      * @param path the path of the cutline to load. Can be `s3://` or local file path.
      */
@@ -69,17 +76,11 @@ export class Cutline {
      * @param quadKey
      * @param job
      * @param  sourceGeo
-
      */
     filterSourcesForQuadKey(quadKey: string, job: CogJob, sourceGeo: FeatureCollection): void {
         const tile = this.tmsQk.toTile(quadKey);
         const qkBounds = this.targetProj.tileToSourceBounds(tile);
-        const px = this.targetProj.tms.pixelScale(job.source.resZoom);
-
-        // Ensure cutline blend does not interferre with non-costal edges
-        const qkPadded = qkBounds.scaleFromCenter(
-            (qkBounds.width + px * (5 + (job.output.cutline?.blend ?? PixelPadding)) * 2) / qkBounds.width,
-        );
+        const qkPadded = this.padBounds(qkBounds, job.source.resZoom);
 
         const srcTiffs = new Set<string>();
 
@@ -94,12 +95,12 @@ export class Cutline {
         }
         job.source.files = job.source.files.filter((path) => srcTiffs.has(basename(path)));
 
-        if (this.polygons.length > 0) {
+        if (this.clipPoly.length > 0) {
             const boundsPoly = GeoJson.toPositionPolygon(qkPadded.toBbox()) as Polygon;
-            const poly = intersection(boundsPoly, this.polygons);
+            const poly = intersection(boundsPoly, this.clipPoly);
             if (poly == null || poly.length == 0) {
                 // this quadKey is not needed
-                this.polygons = [];
+                this.clipPoly = [];
                 job.source.files = [];
             } else if (
                 poly.length == 1 &&
@@ -107,10 +108,10 @@ export class Cutline {
                 this.sourcePolyToBounds(poly[0][0]).containsBounds(qkBounds)
             ) {
                 // quadKey is completely surrounded; no cutline polygons needed
-                this.polygons = [];
+                this.clipPoly = [];
             } else {
                 // set the cutline polygons to just the area of interest
-                this.polygons = poly;
+                this.clipPoly = poly;
             }
         }
     }
@@ -120,14 +121,12 @@ export class Cutline {
      * @param featureCollection Source TIff Polygons in GeoJson WGS84
      */
     optimizeCovering(sourceMetadata: SourceMetadata): string[] {
-        const srcArea = this.findCovering(sourceMetadata.bounds, this.polygons);
-        if (this.polygons.length !== 0) this.polygons = srcArea;
+        const srcArea = this.findCovering(sourceMetadata);
 
-        const sourceZ = sourceMetadata.resZoom;
-
+        const { resZoom } = sourceMetadata;
         // Look for the biggest tile size we are allowed to create.
-        let minZ = sourceZ - 1;
-        while (minZ > 1 && this.targetProj.getImagePixelWidth({ x: 0, y: 0, z: minZ }, sourceZ) < MaxImagePixelWidth) {
+        let minZ = resZoom - 1;
+        while (minZ > 1 && this.targetProj.getImagePixelWidth({ x: 0, y: 0, z: minZ }, resZoom) < MaxImagePixelWidth) {
             --minZ;
         }
         minZ = Math.max(1, minZ + 1);
@@ -155,7 +154,7 @@ export class Cutline {
     toGeoJson(): FeatureCollection {
         const { toWsg84 } = this.targetProj;
         return GeoJson.toFeatureCollection([
-            GeoJson.toFeatureMultiPolygon(this.polygons.map((p) => [p[0].map((q) => toWsg84(q))])),
+            GeoJson.toFeatureMultiPolygon(this.clipPoly.map((p) => [p[0].map(toWsg84)])),
         ]);
     }
 
@@ -242,18 +241,18 @@ export class Cutline {
      * Find the polygon covering of source imagery and a (optional) clip cutline. Truncates the
      * cutline to match.
 
-     * @param sourceGeo
-     * @param clip
+     * @param sourceMetadata
      */
-    private findCovering(sourceGeo: FeatureCollection, clip: MultiPolygon): MultiPolygon {
+    private findCovering(sourceMetadata: SourceMetadata): MultiPolygon {
         let srcArea: MultiPolygon = [];
+        const { resZoom } = sourceMetadata;
 
         // merge imagery bounds
-        for (const { geometry } of sourceGeo.features) {
+        for (const { geometry } of sourceMetadata.bounds.features) {
             if (geometry.type === 'Polygon') {
                 // ensure source polys overlap by using their bounding box
                 const poly = GeoJson.toPositionPolygon(
-                    this.sourceWsg84PolyToBounds(geometry.coordinates[0]).toBbox(),
+                    this.padBounds(this.sourceWsg84PolyToBounds(geometry.coordinates[0]), resZoom).toBbox(),
                 ) as Polygon;
                 if (srcArea.length == 0) {
                     srcArea.push(poly);
@@ -263,12 +262,26 @@ export class Cutline {
             }
         }
 
-        if (clip.length != 0) {
+        if (this.clipPoly.length != 0) {
             // clip the imagery bounds
-            return (intersection(srcArea, clip) ?? []) as MultiPolygon;
+            this.clipPoly = (intersection(srcArea, this.clipPoly) ?? []) as MultiPolygon;
+            return this.clipPoly;
         }
 
         // no cutline return imagery bounds
         return srcArea;
+    }
+
+    /**
+     * Pad the bounds to take in to consideration blending and 100 pixels of adjacent image data
+
+     * @param bounds
+     * @param resZoom the imagery resolution target zoom level
+     */
+    private padBounds(bounds: Bounds, resZoom: number): Bounds {
+        const px = this.targetProj.tms.pixelScale(resZoom);
+
+        // Ensure cutline blend does not interferre with non-costal edges
+        return bounds.scaleFromCenter((bounds.width + px * (PixelPadding + this.blend) * 2) / bounds.width);
     }
 }
