@@ -4,6 +4,8 @@ import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { TileSet } from '../tile.set';
 import { Epsg } from '@basemaps/geo';
+import { promises as fsPromises } from 'fs';
+import { join } from 'path';
 
 function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
     if (fs instanceof FileOperatorS3) {
@@ -43,7 +45,20 @@ export class TileSetLocal extends TileSet {
 
         const fileList = isTiff(this.filePath) ? [this.filePath] : await tiffFs.list(this.filePath);
         const files = fileList.filter(isTiff);
-        if (files.length == 0) throw new Error(`No tiff files found in ${this.filePath}`);
+        if (files.length == 0 && !FileOperator.isS3(this.filePath)) {
+            for (const dir of fileList.sort()) {
+                const st = await fsPromises.stat(dir);
+                if (st.isDirectory()) {
+                    for (const file of await fsPromises.readdir(dir)) {
+                        const filePath = join(dir, file);
+                        if (isTiff(filePath)) files.push(filePath);
+                    }
+                }
+            }
+        }
+        if (files.length == 0) {
+            throw new Error(`No tiff files found in ${this.filePath}`);
+        }
 
         this.tiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
 
