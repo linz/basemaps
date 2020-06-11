@@ -114,6 +114,7 @@ export const CogJobFactory = {
         const cutline = new Cutline(
             ctx.targetProjection,
             ctx.cutline && (await Cutline.loadCutline(ctx.cutline.source)),
+            ctx.cutline?.blend,
         );
 
         const builder = new CogBuilder(ctx.targetProjection, maxConcurrency, logger, ctx.override?.projection);

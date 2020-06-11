@@ -106,13 +106,13 @@ export const QuadKeyVrt = {
 
         let cutlineTarget = '';
 
-        if (cutline.polygons.length != 0) {
+        if (cutline.clipPoly.length != 0) {
             cutlineTarget = FileOperator.join(tmpFolder, 'cutline.geojson');
             await FileOperator.create(cutlineTarget).writeJson(cutlineTarget, cutline.toGeoJson());
         }
 
         logger.info(
-            { inputTotal, outputTotal: job.source.files.length, cutlinePolygons: cutline.polygons.length },
+            { inputTotal, outputTotal: job.source.files.length, cutlinePolygons: cutline.clipPoly.length },
             'Tiff count',
         );
 

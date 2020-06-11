@@ -112,7 +112,11 @@ export class ActionCogCreate extends CommandLineAction {
             } else {
                 logger.warn('NoCutLine');
             }
-            const cutline = new Cutline(ProjectionTileMatrixSet.get(job.projection), cutlineJson);
+            const cutline = new Cutline(
+                ProjectionTileMatrixSet.get(job.projection),
+                cutlineJson,
+                job.output.cutline?.blend,
+            );
 
             const tmpVrtPath = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, quadKey, logger);
 

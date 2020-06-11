@@ -66,14 +66,14 @@ o.spec('quadkey.vrt', () => {
     o('1 crosses, 1 outside', async () => {
         const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
         const cl2 = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
-        cutline.polygons.push(...cl2.polygons);
+        cutline.clipPoly.push(...cl2.clipPoly);
 
         job.source.resZoom = 17;
 
         const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '31133322', logger);
 
         o(job.source.files).deepEquals([tif1Path, tif2Path]);
-        o(cutline.polygons.length).equals(2);
+        o(cutline.clipPoly.length).equals(2);
         o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
     });
 
@@ -109,9 +109,9 @@ o.spec('quadkey.vrt', () => {
     });
 
     o('fully within same projection', async () => {
-        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), -100);
 
-        const qkey = '31133322232111330';
+        const qkey = '311333222321113310';
 
         const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkey, logger);
 
@@ -123,7 +123,7 @@ o.spec('quadkey.vrt', () => {
     });
 
     o('intersected cutline', async () => {
-        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 20);
         job.output.cutline = { blend: 20, source: 'cutline.json' };
 
         const qkey = '311333222321113';
@@ -147,13 +147,18 @@ o.spec('quadkey.vrt', () => {
                             coordinates: [
                                 [
                                     [
-                                        [174.887066, -40.866925],
-                                        [174.906635, -40.866925],
-                                        [174.906635, -40.852124],
-                                        [174.900083, -40.852124],
+                                        [174.872663, -40.879256],
+                                        [174.902917, -40.879256],
+                                        [174.903924, -40.878474],
+                                        [174.909682, -40.871987],
+                                        [174.919346, -40.866023],
+                                        [174.922943, -40.861803],
+                                        [174.922943, -40.839788],
+                                        [174.913543, -40.839788],
+                                        [174.910775, -40.844398],
                                         [174.891215, -40.858532],
-                                        [174.887066, -40.862718],
-                                        [174.887066, -40.866925],
+                                        [174.879634, -40.870215],
+                                        [174.872663, -40.879256],
                                     ],
                                 ],
                             ],
@@ -184,7 +189,7 @@ o.spec('quadkey.vrt', () => {
         o(cutTiffArgs.length).equals(1);
         o(cutTiffArgs[0][0]).equals(tmpFolder + '/cutline.geojson');
 
-        o(cutline.polygons.length).equals(1);
+        o(cutline.clipPoly.length).equals(1);
 
         const geo = cutline.toGeoJson();
 
