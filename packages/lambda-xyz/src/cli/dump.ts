@@ -10,7 +10,7 @@ import { promises as fs } from 'fs';
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
-const xyz = { x: 1, y: 2, z: 0 };
+const xyz = { x: 149, y: 244, z: 7 };
 const ext = ImageFormat.PNG;
 
 /**

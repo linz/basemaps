@@ -9,12 +9,21 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
-    "deploy:deploy": "node deploy.js"
+    "start": "TILE_HOST=https://dev.basemaps.linz.govt.nz parcel static/index.html",
+    "deploy:bundle": "parcel build static/index.html",
+    "deploy:deploy": "yarn deploy:bundle && node deploy.js"
   },
   "dependencies": {
-    "@basemaps/infra": "^2.2.0"
+    "@basemaps/geo": "^2.2.0",
+    "@basemaps/infra": "^2.2.0",
+    "@types/ol": "^6.3.1",
+    "ol": "^6.3.1",
+    "proj4": "^2.6.2"
   },
   "devDependencies": {
-    "mime-types": "^2.1.26"
-  }
+    "parcel": "^1.12.4"
+  },
+  "browserslist": [
+    "last 2 Chrome versions"
+  ]
 }

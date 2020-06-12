@@ -3,8 +3,9 @@ const AWS = require('aws-sdk');
 const fs = require('fs').promises;
 const crypto = require('crypto');
 const mime = require('mime-types');
+const invalidateCache = require('@basemaps/cli/build/cli/util').invalidateCache;
 
-const DistDir = './static';
+const DistDir = './dist';
 const HashKey = 'linz-hash';
 
 const s3 = new AWS.S3({ region: 'us-east-1' });
@@ -15,30 +16,10 @@ async function getHash(Bucket, Key) {
         const obj = await s3.getObject({ Bucket, Key }).promise();
         return obj.Metadata[HashKey];
     } catch (e) {
+        if (e.code == 'NoSuchKey') return null;
         console.log('FailedToFetch', { Bucket, Key }, e);
     }
     return null;
-}
-
-/** If $GOOGLE_ANALYTICS is set, insert the tracking code into the index.html */
-async function insertGoogleAnalytics() {
-    const trackingId = process.env['GOOGLE_ANALYTICS'];
-    if (trackingId == null || trackingId.trim() == '') return;
-
-    const rawIndexHtml = await fs.readFile('./static/index.html');
-    const trackingCode = `<script async src="https://www.googletagmanager.com/gtag/js?id=${trackingId}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', '${trackingId}');
-    </script>
-</head>`;
-
-    // Put the tracking at the bottom of the index.html's head tag
-    const outputHtml = rawIndexHtml.toString().replace('</head>', trackingCode);
-    await fs.writeFile('./static/index.html', outputHtml);
 }
 
 /**
@@ -47,7 +28,6 @@ async function insertGoogleAnalytics() {
  * TODO there does not appear to be a easy way to do this with aws-cdk yet
  */
 async function deploy() {
-    insertGoogleAnalytics();
     // Since the bucket is generated inside of CDK lets look up the bucket name
     const stackInfo = await cf.describeStacks({ StackName: 'Edge' }).promise();
     const bucket = stackInfo.Stacks[0].Outputs.find((f) => f.OutputKey == 'CloudFrontBucket');
@@ -59,6 +39,7 @@ async function deploy() {
     const s3Bucket = allBuckets.Buckets.find((f) => f.Name == s3BucketName);
     if (s3Bucket == null) throw new Error('Failed to locate edge bucket in current account');
 
+    let hasChanges = false;
     const files = await fs.readdir(DistDir);
     for (const fileName of files) {
         const fileData = await fs.readFile(`${DistDir}/${fileName}`);
@@ -70,6 +51,7 @@ async function deploy() {
             console.log('Skipped', fileName, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
             continue;
         }
+        hasChanges = true;
 
         console.log('Uploading', fileName, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
         const res = await s3
@@ -78,12 +60,14 @@ async function deploy() {
                 Key: fileName,
                 Body: fileData,
                 Metadata: { [HashKey]: hash },
-                ContentType: mime.lookup(fileName),
+                ContentType: mime.contentType(fileName),
             })
             .promise();
 
         console.log('\tDone', res.ETag);
     }
+
+    if (hasChanges) await invalidateCache('/index.html', true);
 }
 
 deploy().catch(console.error);
