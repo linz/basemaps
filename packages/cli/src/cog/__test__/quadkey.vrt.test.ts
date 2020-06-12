@@ -239,7 +239,7 @@ o.spec('quadkey.vrt', () => {
 
         o((runSpy.calls[0] as any).args).deepEquals([
             'gdalbuildvrt',
-            ['-hidenodata', '-addalpha', '/tmp/my-tmp-folder/source.vrt', vtif1, vtif2],
+            ['-hidenodata', '-allow_projection_difference', '-addalpha', '/tmp/my-tmp-folder/source.vrt', vtif1, vtif2],
             logger,
         ]);
 
