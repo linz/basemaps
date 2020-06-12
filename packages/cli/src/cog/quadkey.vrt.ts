@@ -11,7 +11,7 @@ import { GdalCommand } from '../gdal/gdal.command';
  * Build the VRT for the needed source imagery
  */
 async function buildPlainVrt(job: CogJob, vrtPath: string, gdalCommand: GdalCommand, logger: LogType): Promise<void> {
-    const buildOpts = ['-hidenodata'];
+    const buildOpts = ['-hidenodata', '-allow_projection_difference'];
     if (job.output.vrt.addAlpha) {
         buildOpts.push('-addalpha');
     }
