@@ -42,13 +42,13 @@ o.spec('Builder', () => {
         } as CogTiff;
 
         o('getTiffResZoom', () => {
-            o(googleBuilder.getTiffResZoom(10)).equals(13);
-            o(googleBuilder.getTiffResZoom(0.075)).equals(20);
+            o(googleBuilder.getTiffResZoom(10)).equals(14);
+            o(googleBuilder.getTiffResZoom(0.075)).equals(21);
 
             const nztmBuilder = new CogBuilder(ProjectionTileMatrixSet.get(EpsgCode.Nztm2000), 1, LogConfig.get());
 
-            o(nztmBuilder.getTiffResZoom(10)).equals(9);
-            o(nztmBuilder.getTiffResZoom(0.075)).equals(15);
+            o(nztmBuilder.getTiffResZoom(10)).equals(10);
+            o(nztmBuilder.getTiffResZoom(0.075)).equals(16);
         });
 
         o('getTifBounds', () => {

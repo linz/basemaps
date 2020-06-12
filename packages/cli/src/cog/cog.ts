@@ -69,6 +69,7 @@ export async function buildCogForQuadKey(
         projection: targetProj.tms.projection,
         tilingScheme: tilingScheme(job.projection),
         blockSize,
+        targetRes: tms.pixelScale(resZoom),
         alignmentLevels,
         resampling: job.output.resampling,
         quality: job.output.quality,

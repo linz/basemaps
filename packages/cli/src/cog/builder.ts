@@ -131,15 +131,18 @@ export class CogBuilder {
     }
 
     /**
-     * Find the closest resolution to the tiff image
-     * @param tiff
+     * Find the closest zoom level to `resX` (pixels per meter) that is at least as good as `resX`.
+
+     * @param resX
      */
     getTiffResZoom(resX: number): number {
         // Get best image resolution
         const { tms } = this.targetProj;
-        for (let z = 1; z < tms.zooms.length; ++z) {
-            if (tms.pixelScale(z) < resX) return z - 1;
+        let z = 0;
+        for (; z < tms.zooms.length; ++z) {
+            if (tms.pixelScale(z) <= resX) return z;
         }
+        if (z == tms.zooms.length) return z - 1;
         return -1;
     }
 
@@ -232,7 +235,9 @@ export class CogBuilder {
 
         if (existsSync(cacheKey)) {
             this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
-            return (await FileOperatorSimple.readJson(cacheKey)) as SourceMetadata;
+            const metadata = (await FileOperatorSimple.readJson(cacheKey)) as SourceMetadata;
+            metadata.resZoom = this.getTiffResZoom(metadata.pixelScale);
+            return metadata;
         }
 
         const metadata = await this.bounds(tiffs);

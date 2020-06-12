@@ -15,10 +15,15 @@ export function round(thing: any, z = 8): any {
         if (typeof obj === 'number') {
             return r(obj);
         }
+        if (typeof obj === 'string') {
+            const n = +obj;
+            if (isNaN(n)) return obj;
+            return r(n).toString();
+        }
         if (Array.isArray(obj)) {
             return obj.map(recurse);
         }
-        if (obj == null || typeof obj !== 'object') return obj;
+        if (obj == null || obj.constructor !== Object) return obj;
 
         const ans = Object.assign({}, obj);
         for (const key in ans) {
