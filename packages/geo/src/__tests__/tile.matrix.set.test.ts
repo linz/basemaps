@@ -1,10 +1,12 @@
 import { Approx } from '@basemaps/test';
+import { round } from '@basemaps/test/build/rounding';
 import * as o from 'ospec';
 import { Point } from '../bounds';
 import { Epsg } from '../epsg';
 import { QuadKey } from '../quad.key';
 import { GoogleTms } from '../tms/google';
 import { Nztm2000Tms } from '../tms/nztm2000';
+import { TileMatrixSet } from '../tile.matrix.set';
 
 const TileSize = 256;
 
@@ -158,6 +160,87 @@ o.spec('TileMatrixSet', () => {
                 x: 19411336.207076784,
                 y: -4304933.433020964,
             });
+        });
+    });
+
+    o.spec('tileToSourceBounds', () => {
+        o('should convert to source bounds', () => {
+            o(round(GoogleTms.tileToSourceBounds({ x: 0, y: 0, z: 0 }).toJson(), 4)).deepEquals({
+                x: -20037508.3428,
+                y: -20037508.3428,
+                width: 40075016.6856,
+                height: 40075016.6856,
+            });
+
+            o(round(GoogleTms.tileToSourceBounds(QuadKey.toTile('311331222')).toJson(), 4)).deepEquals({
+                x: 19411336.2071,
+                y: -4383204.95,
+                width: 78271.517,
+                height: 78271.517,
+            });
+        });
+    });
+
+    o.spec('topLevelTiles', () => {
+        o('should return covering tiles of level 0 extent', () => {
+            o(Array.from(GoogleTms.topLevelTiles())).deepEquals([{ x: 0, y: 0, z: 0 }]);
+            o(Array.from(Nztm2000Tms.topLevelTiles())).deepEquals([
+                { x: 0, y: 0, z: 0 },
+                { x: 1, y: 0, z: 0 },
+                { x: 0, y: 1, z: 0 },
+                { x: 1, y: 1, z: 0 },
+                { x: 0, y: 2, z: 0 },
+                { x: 1, y: 2, z: 0 },
+                { x: 0, y: 3, z: 0 },
+                { x: 1, y: 3, z: 0 },
+            ]);
+        });
+    });
+
+    o.spec('tileToName nameToTile', () => {
+        o('should make a name of the tile z,x,y', () => {
+            o(TileMatrixSet.tileToName({ x: 4, y: 5, z: 6 })).equals('6-4-5');
+            o(TileMatrixSet.nameToTile('6-4-5')).deepEquals({ x: 4, y: 5, z: 6 });
+        });
+    });
+
+    o.spec('coverTile', () => {
+        o('should return covering tiles of level n extent', () => {
+            o(Array.from(GoogleTms.coverTile({ x: 2, y: 3, z: 3 }))).deepEquals([
+                { x: 4, y: 6, z: 4 },
+                { x: 5, y: 6, z: 4 },
+                { x: 4, y: 7, z: 4 },
+                { x: 5, y: 7, z: 4 },
+            ]);
+            o(Array.from(Nztm2000Tms.coverTile({ x: 2, y: 3, z: 8 }))).deepEquals([
+                { x: 4, y: 6, z: 9 },
+                { x: 5, y: 6, z: 9 },
+                { x: 4, y: 7, z: 9 },
+                { x: 5, y: 7, z: 9 },
+            ]);
+            o(Array.from(Nztm2000Tms.coverTile({ x: 2, y: 3, z: 7 }))).deepEquals([
+                { x: 5, y: 7, z: 8 },
+                { x: 6, y: 7, z: 8 },
+                { x: 7, y: 7, z: 8 },
+                { x: 5, y: 8, z: 8 },
+                { x: 6, y: 8, z: 8 },
+                { x: 7, y: 8, z: 8 },
+                { x: 5, y: 9, z: 8 },
+                { x: 6, y: 9, z: 8 },
+                { x: 7, y: 9, z: 8 },
+            ]);
+
+            o(Array.from(Nztm2000Tms.coverTile({ x: 3, y: 2, z: 7 }))).deepEquals([
+                { x: 7, y: 5, z: 8 },
+                { x: 8, y: 5, z: 8 },
+                { x: 9, y: 5, z: 8 },
+                { x: 7, y: 6, z: 8 },
+                { x: 8, y: 6, z: 8 },
+                { x: 9, y: 6, z: 8 },
+                { x: 7, y: 7, z: 8 },
+                { x: 8, y: 7, z: 8 },
+                { x: 9, y: 7, z: 8 },
+            ]);
         });
     });
 });

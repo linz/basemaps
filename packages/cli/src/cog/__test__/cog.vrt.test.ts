@@ -5,10 +5,11 @@ import { FeatureCollection } from 'geojson';
 import * as o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal';
 import { Cutline } from '../cutline';
-import { QuadKeyVrt } from '../quadkey.vrt';
+import { CogVrt } from '../cog.vrt';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
+import { qkToName } from '@basemaps/shared/build/tms/__test__/test.util';
 
-o.spec('quadkey.vrt', () => {
+o.spec('cog.vrt', () => {
     const tmpFolder = '/tmp/my-tmp-folder';
 
     const job = SourceTiffTestHelper.makeCogJob();
@@ -70,17 +71,17 @@ o.spec('quadkey.vrt', () => {
 
         job.source.resZoom = 17;
 
-        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '31133322', logger);
+        const vrt = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkToName('31133322'), logger);
 
         o(job.source.files).deepEquals([tif1Path, tif2Path]);
         o(cutline.clipPoly.length).equals(2);
-        o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
+        o(vrt).equals('/tmp/my-tmp-folder/cog.vrt');
     });
 
-    o('not within quadKey', async () => {
+    o('not within tile', async () => {
         const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
 
-        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '3131110001', logger);
+        const vrt = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkToName('3131110001'), logger);
 
         o(cutTiffArgs.length).equals(0);
         o(vrt).equals(null);
@@ -88,7 +89,7 @@ o.spec('quadkey.vrt', () => {
     });
 
     o('no cutline same projection', async () => {
-        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, new Cutline(googleProj), '31', logger);
+        const vrt = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, new Cutline(googleProj), qkToName('31'), logger);
 
         o(job.source.files).deepEquals([tif1Path, tif2Path]);
         o(cutTiffArgs.length).equals(0);
@@ -99,11 +100,11 @@ o.spec('quadkey.vrt', () => {
 
     o('no cutline diff projection', async () => {
         job.projection = EpsgCode.Nztm2000;
-        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, new Cutline(googleProj), '31', logger);
+        const vrt = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, new Cutline(googleProj), qkToName('31'), logger);
 
         o(job.source.files).deepEquals([tif1Path, tif2Path]);
         o(cutTiffArgs.length).equals(0);
-        o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
+        o(vrt).equals('/tmp/my-tmp-folder/cog.vrt');
         o(runSpy.callCount).equals(2);
         o(runSpy.args[0]).equals('gdalwarp');
     });
@@ -111,9 +112,9 @@ o.spec('quadkey.vrt', () => {
     o('fully within same projection', async () => {
         const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), -100);
 
-        const qkey = '311333222321113310';
+        const name = qkToName('311333222321113310');
 
-        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkey, logger);
+        const vrt = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, name, logger);
 
         o(vrt).equals('/tmp/my-tmp-folder/source.vrt');
         o(job.source.files).deepEquals([tif2Path]);
@@ -126,11 +127,11 @@ o.spec('quadkey.vrt', () => {
         const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 20);
         job.output.cutline = { blend: 20, source: 'cutline.json' };
 
-        const qkey = '311333222321113';
+        const name = qkToName('311333222321113');
 
-        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkey, logger);
+        const vrt = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, name, logger);
 
-        o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
+        o(vrt).equals('/tmp/my-tmp-folder/cog.vrt');
         o(job.source.files).deepEquals([tif2Path]);
         o(cutTiffArgs.length).equals(1);
         o(cutTiffArgs[0][1]).deepEquals(cutline.toGeoJson());
@@ -183,9 +184,9 @@ o.spec('quadkey.vrt', () => {
         job.output.cutline = { blend: 10, source: 'cutline.json' };
         const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
 
-        const vrt = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, '3131110001', logger);
+        const vrt = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkToName('3131110001'), logger);
 
-        o(vrt).equals('/tmp/my-tmp-folder/quadkey.vrt');
+        o(vrt).equals('/tmp/my-tmp-folder/cog.vrt');
         o(cutTiffArgs.length).equals(1);
         o(cutTiffArgs[0][0]).equals(tmpFolder + '/cutline.geojson');
 
@@ -275,7 +276,7 @@ o.spec('quadkey.vrt', () => {
                 '-cblend',
                 '10',
                 '/tmp/my-tmp-folder/source.vrt',
-                '/tmp/my-tmp-folder/quadkey.vrt',
+                '/tmp/my-tmp-folder/cog.vrt',
             ],
             logger,
         ]);

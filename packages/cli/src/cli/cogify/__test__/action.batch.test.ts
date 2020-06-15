@@ -1,6 +1,9 @@
 import * as o from 'ospec';
 import { CogJob } from '../../../cog/types';
 import { extractResolutionFromName, extractYearFromName, createImageryRecordFromJob } from '../action.batch';
+import { qkToNamedBounds } from '@basemaps/shared/build/tms/__test__/test.util';
+import { Bounds } from '@basemaps/geo';
+import { round } from '@basemaps/test/build/rounding';
 
 o.spec('action.batch', () => {
     o('extractYearFromName', () => {
@@ -25,6 +28,8 @@ o.spec('action.batch', () => {
     o('createImageryRecordFromJob', () => {
         const origNow = Date.now;
 
+        const files = round(qkToNamedBounds(['311333222331', '311333223200', '311333223202', '3113332223131']), 4);
+
         const job: CogJob = {
             id: 'abc123',
             name: '2019-new-zealand-sentinel',
@@ -33,16 +38,18 @@ o.spec('action.batch', () => {
                 resZoom: 13,
             },
             output: { path: 's3://test-bucket' },
-            quadkeys: ['311333222331', '311333223200', '311333223202', '3113332223131'],
+            bounds: round(Bounds.union(files).toJson(), 4),
+            files: files.slice(),
         } as CogJob;
 
         const mockNow = Date.now();
         try {
             Date.now = (): number => mockNow;
 
-            const imagery = createImageryRecordFromJob(job);
+            const imagery = round(createImageryRecordFromJob(job), 4);
 
             o(imagery).deepEquals({
+                v: 1,
                 id: 'im_abc123',
                 name: '2019-new-zealand-sentinel',
                 createdAt: mockNow,
@@ -51,7 +58,8 @@ o.spec('action.batch', () => {
                 projection: 3857,
                 year: 2019,
                 resolution: -1,
-                quadKeys: ['311333222331', '311333223200', '311333223202', '3113332223131'],
+                bounds: round(Bounds.union(files).toJson(), 4),
+                files,
             });
         } finally {
             Date.now = origNow;

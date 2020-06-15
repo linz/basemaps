@@ -1,26 +1,14 @@
-import { Epsg, QuadKey } from '@basemaps/geo';
+import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import {
     Aws,
     TileMetadataImageryRecord,
+    TileMetadataImageryRecordV1,
     TileMetadataSetRecord,
     TileMetadataTag,
     TileSetRuleImagery,
 } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-
-/**
- * Does the target quadkey intersect any quadkey in the source list
- *
- * @param qkList list of quadkeys to check intersection with
- * @param qkTarget quadkey to check
- */
-function qkIntersects(qkList: string[], qkTarget: string): boolean {
-    for (const qk of qkList) {
-        if (QuadKey.intersects(qkTarget, qk)) return true;
-    }
-    return false;
-}
 
 export class TileSet {
     name: string;
@@ -33,16 +21,16 @@ export class TileSet {
     /**
      * Return the location of a imagery `record`
      * @param record
-     * @param quadKey the COG to locate. Return just the directory if `null`
+     * @param name the COG to locate. Return just the directory if `null`
      */
-    static basePath(record: TileMetadataImageryRecord, quadKey?: string): string {
-        if (quadKey == null) {
+    static basePath(record: TileMetadataImageryRecord, name?: string): string {
+        if (name == null) {
             return record.uri;
         }
         if (record.uri.endsWith('/')) {
             throw new Error("Invalid uri ending with '/' " + record.uri);
         }
-        return `${record.uri}/${quadKey}.tiff`;
+        return `${record.uri}/${name}.tiff`;
     }
 
     constructor(nameStr: string, projection: Epsg) {
@@ -81,30 +69,32 @@ export class TileSet {
         return true;
     }
 
-    public getTiffsForQuadKey(qks: string[], zoom: number): CogTiff[] {
+    public getTiffsForTile(tms: TileMatrixSet, tile: Tile): CogTiff[] {
         const output: CogTiff[] = [];
+        const tileBounds = tms.tileToSourceBounds(tile);
         for (const obj of this.imagery) {
-            if (zoom > (obj.rule.maxZoom ?? 32)) continue;
-            if (zoom < (obj.rule.minZoom ?? 0)) continue;
+            if (tile.z > (obj.rule.maxZoom ?? 32)) continue;
+            if (tile.z < (obj.rule.minZoom ?? 0)) continue;
+            if (!tileBounds.intersects(Bounds.fromJson(obj.imagery.bounds))) continue;
 
-            for (const tiff of this.getCogsForQuadKey(obj.imagery, qks)) {
+            for (const tiff of this.getCogsForTile(obj.imagery, tileBounds)) {
                 output.push(tiff);
             }
         }
         return output;
     }
 
-    private getCogsForQuadKey(record: TileMetadataImageryRecord, qks: string[]): CogTiff[] {
+    private getCogsForTile(record: TileMetadataImageryRecordV1, tileBounds: Bounds): CogTiff[] {
         const output: CogTiff[] = [];
-        for (const quadKey of record.quadKeys) {
-            if (!qkIntersects(qks, quadKey)) continue;
+        for (const c of record.files) {
+            if (!tileBounds.intersects(Bounds.fromJson(c))) continue;
 
-            const tiffKey = `${record.id}_${quadKey}`;
+            const tiffKey = `${record.id}_${c.name}`;
             let existing = this.sources.get(tiffKey);
             if (existing == null) {
-                const source = CogSourceAwsS3.createFromUri(TileSet.basePath(record, quadKey));
+                const source = CogSourceAwsS3.createFromUri(TileSet.basePath(record, c.name));
                 if (source == null) {
-                    throw new Error(`Failed to create CogSource from  ${TileSet.basePath(record, quadKey)}`);
+                    throw new Error(`Failed to create CogSource from  ${TileSet.basePath(record, c.name)}`);
                 }
                 existing = new CogTiff(source);
                 this.sources.set(tiffKey, existing);

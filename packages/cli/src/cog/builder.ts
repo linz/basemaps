@@ -1,4 +1,4 @@
-import { Epsg, GeoJson } from '@basemaps/geo';
+import { Epsg, GeoJson, Bounds } from '@basemaps/geo';
 import { CompositeError, FileOperatorSimple, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -234,13 +234,19 @@ export class CogBuilder {
     }
 
     /**
-     * Generate a list of WebMercator tiles that need to be generated to cover the source tiffs
-     * @param tiffs list of tiffs to be generated
-     * @returns List of QuadKey indexes for
+     * Generate a list of tiles that need to be generated to cover the source tiffs
+     * @param tiffs list of source imagery to be converted
+     * @returns List of Tile bounds covering tiffs
      */
     async build(tiffs: CogSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
         const metadata = await this.getMetadata(tiffs);
-        const quadkeys = cutline.optimizeCovering(metadata);
-        return { ...metadata, quadkeys };
+        const files = cutline.optimizeCovering(metadata);
+        let union: Bounds | null = null;
+        for (const bounds of files) {
+            if (union == null) union = Bounds.fromJson(bounds);
+            else union = Bounds.fromJson(bounds).union(union);
+        }
+        if (union == null) throw new Error('Bug! union can not be null');
+        return { ...metadata, files, targetBounds: union.toJson() };
     }
 }

@@ -1,8 +1,8 @@
 import {
-    TileSetRuleImagery,
-    TileMetadataTableBase,
-    TileMetadataImageryRecord,
+    TileMetadataImageryRecordV1,
     TileMetadataSetRecord,
+    TileMetadataTableBase,
+    TileSetRuleImagery,
 } from './tile.metadata.base';
 
 /**
@@ -33,19 +33,20 @@ export function compareImageSets(a: TileSetRuleImagery, b: TileSetRuleImagery): 
 }
 
 export class TileMetadataImagery {
-    imagery = new Map<string, TileMetadataImageryRecord>();
+    imagery = new Map<string, TileMetadataImageryRecordV1>();
 
     metadata: TileMetadataTableBase;
     constructor(metadata: TileMetadataTableBase) {
         this.metadata = metadata;
     }
 
-    public async get(imgId: string): Promise<TileMetadataImageryRecord> {
+    public async get(imgId: string): Promise<TileMetadataImageryRecordV1> {
         const existing = this.imagery.get(imgId);
         if (existing) return existing;
 
-        const item = await this.metadata.get<TileMetadataImageryRecord>(imgId);
+        const item = await this.metadata.get<TileMetadataImageryRecordV1>(imgId);
         if (item == null) throw new Error('Unable to find imagery: ' + imgId);
+        if (item.v == null) throw new Error('version 0 imagery no longer suppored');
         this.imagery.set(imgId, item);
         return item;
     }
@@ -65,8 +66,9 @@ export class TileMetadataImagery {
         }
 
         if (toFetch.size > 0) {
-            const records = await this.metadata.batchGet<TileMetadataImageryRecord>(toFetch);
+            const records = await this.metadata.batchGet<TileMetadataImageryRecordV1>(toFetch);
             for (const imagery of records.values()) {
+                if (imagery.v == null) throw new Error('version 0 imagery no longer suppored');
                 this.imagery.set(imagery.id, imagery);
                 output.push({ rule: rules[imagery.id], imagery });
             }

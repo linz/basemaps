@@ -14,3 +14,5 @@ export * from './aws/tile.metadata.base';
 export * from './aws/tile.metadata';
 
 export * from './file';
+
+export * from './util';

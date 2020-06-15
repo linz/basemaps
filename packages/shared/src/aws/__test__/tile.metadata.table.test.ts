@@ -1,9 +1,11 @@
-import { Epsg } from '@basemaps/geo';
+import { Bounds, Epsg } from '@basemaps/geo';
+import { round } from '@basemaps/test/build/rounding';
 import * as AWS from 'aws-sdk';
 import * as o from 'ospec';
 import { Const } from '../../const';
-import { TileMetadataSetRecord, TileMetadataImageRule, TileMetadataImageryRecord } from '../tile.metadata.base';
+import { qkToNamedBounds } from '../../tms/__test__/test.util';
 import { TileMetadataTable } from '../tile.metadata';
+import { TileMetadataImageRule, TileMetadataImageryRecordV1, TileMetadataSetRecord } from '../tile.metadata.base';
 
 const { marshall } = AWS.DynamoDB.Converter;
 
@@ -47,7 +49,10 @@ o.spec('tile.metadata.table', () => {
             },
         };
 
+        const files = qkToNamedBounds(['31311001', '3113332223']);
+
         const id = await tmtable.put({
+            v: 1,
             id: 'testid',
             name: 'test-imagery',
             createdAt: Date.now(),
@@ -56,8 +61,9 @@ o.spec('tile.metadata.table', () => {
             projection: Epsg.Google.code,
             year: 2019,
             resolution: 300,
-            quadKeys: ['31311001', '3113332223'],
-        });
+            bounds: Bounds.union(files).toJson(),
+            files,
+        } as TileMetadataImageryRecordV1);
 
         o(id).equals('testid');
 
@@ -66,6 +72,7 @@ o.spec('tile.metadata.table', () => {
         o(putItemParams).deepEquals({
             TableName: 'TileMetadata',
             Item: marshall({
+                v: 1,
                 id: 'testid',
                 name: 'test-imagery',
                 createdAt: mockNow,
@@ -74,7 +81,8 @@ o.spec('tile.metadata.table', () => {
                 projection: Epsg.Google.code,
                 year: 2019,
                 resolution: 300,
-                quadKeys: ['31311001', '3113332223'],
+                bounds: Bounds.union(files).toJson(),
+                files,
             }),
         });
     });
@@ -84,13 +92,17 @@ o.spec('tile.metadata.table', () => {
 
         const rules = Array.from(genRules(2));
 
+        const files = qkToNamedBounds(['313']);
+
         const imagery = rules.map((r) => ({
+            v: 1,
             id: r.id,
             projection: Epsg.Google.code,
             year: 2001,
             resolution: 100,
-            quadKeys: ['313'],
-        })) as TileMetadataImageryRecord[];
+            bounds: Bounds.union(files).toJson(),
+            files,
+        })) as TileMetadataImageryRecordV1[];
 
         for (const i of imagery) {
             Imagery.imagery.set(i.id, i);
@@ -168,17 +180,20 @@ o.spec('tile.metadata.table', () => {
                 actualParams = params;
                 return {
                     async promise(): Promise<any> {
+                        const files = qkToNamedBounds(['313']);
                         return {
                             Responses: {
                                 [Const.TileMetadata.TableName]: actualParams.RequestItems[
                                     Const.TileMetadata.TableName
                                 ].Keys.map((i: any) =>
                                     marshall({
+                                        v: 1,
                                         id: i.id.S,
                                         projection: Epsg.Google.code,
                                         year: 2001,
                                         resolution: 100,
-                                        quadKeys: ['313'],
+                                        bounds: Bounds.union(files),
+                                        files,
                                     }),
                                 ),
                             },
@@ -201,15 +216,34 @@ o.spec('tile.metadata.table', () => {
         const ans = await tmtable.Imagery.getAll(tsData);
 
         o(ans.length).equals(202);
-        o(ans.find((r) => r.imagery.id === 'im_199')).deepEquals({
+        const im199 = round(
+            ans.find((r) => r.imagery.id === 'im_199'),
+            4,
+        );
+        o(im199).deepEquals({
             rule: { id: 'im_199', maxZoom: 0, minZoom: 0, priority: 200 },
             imagery: {
+                v: 1,
                 id: 'im_199',
-                projection: Epsg.Google.code,
+                projection: 3857,
                 year: 2001,
                 resolution: 100,
-                quadKeys: ['313'],
-            } as TileMetadataImageryRecord,
+                bounds: {
+                    x: 15028131.2571,
+                    y: -10018754.1714,
+                    width: 5009377.0857,
+                    height: 5009377.0857,
+                },
+                files: [
+                    {
+                        name: '3-7-5',
+                        x: 15028131.2571,
+                        y: -10018754.1714,
+                        width: 5009377.0857,
+                        height: 5009377.0857,
+                    },
+                ],
+            },
         });
 
         o(ans.slice(0, 5).map((r) => r.rule.id)).deepEquals(['im_0', 'im_1', 'im_2', 'im_3', 'im_4']);

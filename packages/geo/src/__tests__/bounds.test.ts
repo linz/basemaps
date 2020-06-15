@@ -61,6 +61,22 @@ o.spec('Bounds', () => {
         );
     });
 
+    o('static union', () => {
+        o(Bounds.union([new Bounds(2, 12, 10, 30), { x: 1, y: -2, width: 3, height: 10 }]).toJson()).deepEquals({
+            x: 1,
+            y: -2,
+            width: 11,
+            height: 44,
+        });
+        o(
+            Bounds.union([
+                new Bounds(2, 12, 10, 30),
+                { x: 4, y: 30, width: 3, height: 10 },
+                { x: 10, y: 20, width: 40, height: 50 },
+            ]).toJson(),
+        ).deepEquals({ x: 2, y: 12, width: 48, height: 58 });
+    });
+
     o('shift intersects', () => {
         o(tileZero.intersects(tileZero.subtract(tileZero))).equals(true);
         o(tileZero.intersects(tileZero.add(tileZero).subtract(tileZero))).equals(true);
@@ -84,5 +100,14 @@ o.spec('Bounds', () => {
         o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4.5, 6.1, 0, 0))).equals(false);
         o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(4.5, 4.9, 0, 0))).equals(false);
         o(new Bounds(4, 5, 1, 1).containsBounds(new Bounds(5.1, 5.5, 0, 0))).equals(false);
+    });
+
+    o('compareArea', () => {
+        const { compareArea } = Bounds;
+        o(compareArea(new Bounds(4, 5, 1, 1), new Bounds(4, 5, 1, 1))).equals(0);
+        o(compareArea(new Bounds(3, 5, 1, 1), new Bounds(4, 5, 1, 1))).equals(-1);
+        o(compareArea(new Bounds(4, 5, 1, 1), new Bounds(4, 4, 1, 1))).equals(1);
+
+        o(compareArea(new Bounds(3, 5, 1, 1), new Bounds(3, 5, 2, 5))).equals(-9);
     });
 });

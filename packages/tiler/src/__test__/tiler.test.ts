@@ -44,7 +44,7 @@ o.spec('tiler.test', () => {
             getTileBounds() {
                 return { x: 0, y: 0, width: 512, height: 387 };
             },
-            tif: { source: { name: '313111000120111.tiff' } },
+            tif: { source: { name: '15-32295-20496.tiff' } },
             tileSize: { width: 512, height: 512 },
         } as any;
 

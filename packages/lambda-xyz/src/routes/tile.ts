@@ -1,4 +1,4 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, TileMatrixSet, Tile } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
     Aws,
@@ -41,8 +41,8 @@ const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
 /** Initialize the tiffs before reading */
-async function initTiffs(tileSet: TileSet, qks: string[], zoom: number, ctx: LambdaContext): Promise<CogTiff[]> {
-    const tiffs = tileSet.getTiffsForQuadKey(qks, zoom);
+async function initTiffs(tileSet: TileSet, tms: TileMatrixSet, tile: Tile, ctx: LambdaContext): Promise<CogTiff[]> {
+    const tiffs = tileSet.getTiffsForTile(tms, tile);
     let failed = false;
     // Remove any tiffs that failed to load
     const promises = tiffs.map((c) => {
@@ -73,22 +73,20 @@ function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpRespo
     return null;
 }
 
-export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
+export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
     const tiler = Tilers.get(xyzData.projection);
     if (tiler == null) return new LambdaHttpResponse(404, `Projection: ${xyzData.projection} Not Found`);
 
     const { x, y, z, ext } = xyzData;
 
-    const qks = tiler.tms.quadKey.nearestQuadKeys(xyzData);
     req.set('xyz', { x, y, z });
-    req.set('quadKeys', qks);
     const latLon = ProjectionTileMatrixSet.get(xyzData.projection.code).tileCenterToLatLon(xyzData);
     req.set('location', latLon);
 
     const tileSet = await loadTileSet(req, xyzData.name, xyzData.projection);
     if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset Not Found');
 
-    const tiffs = await initTiffs(tileSet, qks, z, req);
+    const tiffs = await initTiffs(tileSet, tiler.tms, xyzData, req);
     const layers = await tiler.tile(tiffs, x, y, z);
 
     // Generate a unique hash given the full URI, the layers used and a renderId
@@ -126,7 +124,7 @@ export async function Tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     return response;
 }
 
-export async function Wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<LambdaHttpResponse> {
+export async function wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<LambdaHttpResponse> {
     const response = new LambdaHttpResponse(200, 'ok');
 
     const host = Env.get(Env.PublicUrlBase);
@@ -156,8 +154,8 @@ export async function TileOrWmts(req: LambdaContext): Promise<LambdaHttpResponse
     const xyzData = tileFromPath(req.action.rest);
     if (xyzData == null) return new LambdaHttpResponse(404, 'Not Found');
     if (xyzData.type === TileType.WMTS) {
-        return Wmts(req, xyzData);
+        return wmts(req, xyzData);
     } else {
-        return Tile(req, xyzData);
+        return tile(req, xyzData);
     }
 }

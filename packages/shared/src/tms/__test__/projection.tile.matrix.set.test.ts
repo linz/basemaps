@@ -4,6 +4,7 @@ import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import * as o from 'ospec';
 import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
+import { qkToNamedBounds } from './test.util';
 
 const TileSize = 256;
 
@@ -87,14 +88,14 @@ o.spec('ProjectionTileMatrixSet', () => {
     });
 
     o('toGeoJson', () => {
-        const geojson = googleProj.toGeoJson(['31', '33']);
+        const geojson = googleProj.toGeoJson(qkToNamedBounds(['31', '33'], googleProj));
 
         const { features } = geojson;
 
         o(features.length).equals(2);
 
-        o(features[0].properties).deepEquals({ quadKey: '31' });
-        o(features[1].properties).deepEquals({ quadKey: '33' });
+        o(features[0].properties).deepEquals({ name: '2-3-2' });
+        o(features[1].properties).deepEquals({ name: '2-3-3' });
         const { geometry } = features[0]!;
         const coords = geometry.type === 'Polygon' ? geometry.coordinates : null;
         o(round(coords![0], 8)).deepEquals([

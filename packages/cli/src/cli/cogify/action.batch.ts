@@ -6,7 +6,7 @@ import {
     LogType,
     ProjectionTileMatrixSet,
     RecordPrefix,
-    TileMetadataImageryRecord,
+    TileMetadataImageryRecordV1,
     TileMetadataSetRecord,
     TileMetadataTable,
 } from '@basemaps/shared';
@@ -15,6 +15,7 @@ import * as aws from 'aws-sdk';
 import * as path from 'path';
 import { CogJob } from '../../cog/types';
 import { getJobPath } from '../folder';
+import { TileMatrixSet } from '@basemaps/geo';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
@@ -54,7 +55,7 @@ export function extractResolutionFromName(name: string): number {
     return parseFloat(matches[1].replace('-', '.')) * 1000;
 }
 
-export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecord {
+export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecordV1 {
     const now = Date.now();
 
     const { projection } = job;
@@ -63,6 +64,7 @@ export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryReco
     const uri = base + path.join(projection.toString(), job.name, job.id);
 
     return {
+        v: 1,
         id: TileMetadataTable.prefix(RecordPrefix.Imagery, job.id),
         name: job.name,
         createdAt: now,
@@ -71,13 +73,15 @@ export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryReco
         projection,
         year: extractYearFromName(job.name),
         resolution: extractResolutionFromName(job.name),
-        quadKeys: job.quadkeys,
+        bounds: job.bounds,
+        files: job.files,
     };
 }
 
 export class ActionBatchJob extends CommandLineAction {
     private job?: CommandLineStringParameter;
     private commit?: CommandLineFlagParameter;
+    private oneCog?: CommandLineStringParameter;
 
     public constructor() {
         super({
@@ -87,23 +91,21 @@ export class ActionBatchJob extends CommandLineAction {
         });
     }
 
-    static id(job: CogJob, quadKey: string): string {
-        return `${job.id}-${job.name}-${quadKey}`;
+    static id(job: CogJob, name: string): string {
+        return `${job.id}-${job.name}-${name}`;
     }
 
     static async batchOne(
         jobPath: string,
         job: CogJob,
         batch: AWS.Batch,
-        quadKey: string,
+        name: string,
         isCommit: boolean,
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
-        const jobName = ActionBatchJob.id(job, quadKey);
+        const jobName = ActionBatchJob.id(job, name);
         const targetProj = ProjectionTileMatrixSet.get(job.projection);
-        const alignmentLevels = targetProj.findAlignmentLevels(
-            targetProj.tms.quadKey.toTile(quadKey),
-            job.source.pixelScale,
-        );
+        const tile = TileMatrixSet.nameToTile(name);
+        const alignmentLevels = targetProj.findAlignmentLevels(tile, job.source.pixelScale);
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;
@@ -112,7 +114,7 @@ export class ActionBatchJob extends CommandLineAction {
             return { jobName, jobId: '', memory };
         }
 
-        const commandStr = ['-V', 'cog', '--job', jobPath, '--commit', '--quadkey', quadKey];
+        const commandStr = ['-V', 'cog', '--job', jobPath, '--commit', '--name', name];
 
         const batchJob = await batch
             .submitJob({
@@ -159,10 +161,10 @@ export class ActionBatchJob extends CommandLineAction {
             throw new Error('Failed to read parameters');
         }
 
-        await ActionBatchJob.batchJob(this.job.value, this.commit?.value, LogConfig.get());
+        await ActionBatchJob.batchJob(this.job.value, this.commit?.value, this.oneCog?.value, LogConfig.get());
     }
 
-    static async batchJob(jobPath: string, commit = false, logger: LogType): Promise<void> {
+    static async batchJob(jobPath: string, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
         if (!FileOperator.isS3(jobPath)) throw new Error(`AWS Batch job.json have to be in S3, jobPath:${jobPath}`);
         const job = (await FileOperator.create(jobPath).readJson(jobPath)) as CogJob;
         LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
@@ -174,24 +176,25 @@ export class ActionBatchJob extends CommandLineAction {
         const runningJobs = await ActionBatchJob.getCurrentJobList(batch);
 
         const stats = await Promise.all(
-            job.quadkeys.map(async (quadKey) => {
-                const jobName = ActionBatchJob.id(job, quadKey);
+            job.files.map(async ({ name }) => {
+                if (oneCog != null && oneCog !== name) return { name, ok: true };
+                const jobName = ActionBatchJob.id(job, name);
                 const isRunning = runningJobs.get(jobName);
                 if (isRunning) {
                     logger.info({ jobName }, 'JobRunning');
-                    return { quadKey, ok: true };
+                    return { name, ok: true };
                 }
 
-                const targetPath = getJobPath(job, `${quadKey}.tiff`);
+                const targetPath = getJobPath(job, `${name}.tiff`);
                 const exists = await outputFs.exists(targetPath);
                 if (exists) {
                     logger.info({ targetPath }, 'FileExists');
                 }
-                return { quadKey, ok: exists };
+                return { name, ok: exists };
             }),
         );
 
-        const toSubmit = stats.filter((f) => f.ok == false).map((c) => c.quadKey);
+        const toSubmit = stats.filter((f) => f.ok == false).map((c) => c.name);
         if (toSubmit.length == 0) {
             logger.info('NoJobs');
             return;
@@ -199,7 +202,7 @@ export class ActionBatchJob extends CommandLineAction {
 
         logger.info(
             {
-                jobTotal: job.quadkeys.length,
+                jobTotal: job.files.length,
                 jobLeft: toSubmit.length,
                 jobQueue: JobQueue,
                 jobDefinition: JobDefinition,
@@ -223,8 +226,8 @@ export class ActionBatchJob extends CommandLineAction {
             await Aws.tileMetadata.TileSet.create(tileMetadata);
         }
 
-        for (const quadKey of toSubmit) {
-            const jobStatus = await ActionBatchJob.batchOne(jobPath, job, batch, quadKey, commit);
+        for (const name of toSubmit) {
+            const jobStatus = await ActionBatchJob.batchOne(jobPath, job, batch, name, commit);
             logger.info(jobStatus, 'JobSubmitted');
         }
 
@@ -240,6 +243,13 @@ export class ActionBatchJob extends CommandLineAction {
             parameterLongName: '--job',
             description: 'Job config source to access',
             required: true,
+        });
+
+        this.oneCog = this.defineStringParameter({
+            argumentName: 'COG_NAME',
+            parameterLongName: '--one-cog',
+            description: 'Restrict batch to build a single COG file',
+            required: false,
         });
 
         this.commit = this.defineFlagParameter({

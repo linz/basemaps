@@ -1,4 +1,4 @@
-import { EpsgCode } from '@basemaps/geo';
+import { EpsgCode, TileMatrixSet } from '@basemaps/geo';
 import { Aws, isConfigS3Role, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
@@ -29,18 +29,18 @@ function tilingScheme(epsgCode: EpsgCode): TilingScheme | undefined {
 }
 
 /**
- * Build a COG for a given collection of tiffs restricted to a WebMercator quadkey
+ * Build a COG for a given collection of tiffs
  *
  * @param job the job to process
- * @param quadKey QuadKey to generate
+ * @param name tile name of cog to generate
  * @param vrtLocation Location of the source VRT file
  * @param outputTiffPath Path to where the output tiff will be stored
  * @param logger Logger to use
  * @param execute Whether to actually execute the transformation,
  */
-export async function buildCogForQuadKey(
+export async function buildCogForName(
     job: CogJob,
-    quadKey: string,
+    name: string,
     vrtLocation: string,
     outputTiffPath: string,
     logger: LogType,
@@ -52,20 +52,16 @@ export async function buildCogForQuadKey(
     const targetProj = ProjectionTileMatrixSet.get(job.projection);
     const { tms } = targetProj;
 
-    const tile = tms.quadKey.toTile(quadKey);
+    const tile = TileMatrixSet.nameToTile(name);
 
     const ul = tms.tileToSource(tile);
     const lr = tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
-    const px = tms.pixelScale(resZoom);
-    // ensure we cover the whole tile by adding a pixels worth of padding to the LR edges
-    const paddingX = ul.x > lr.x ? -px : px;
-    const paddingY = ul.y > lr.y ? -px : px;
 
     const blockSize = tms.tileSize * targetProj.blockFactor;
     const alignmentLevels = targetProj.findAlignmentLevels(tile, job.source.pixelScale);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
-        bbox: [ul.x, ul.y, lr.x + paddingX, lr.y + paddingY],
+        bbox: [ul.x, ul.y, lr.x, lr.y],
         projection: targetProj.tms.projection,
         tilingScheme: tilingScheme(job.projection),
         blockSize,
@@ -75,12 +71,12 @@ export async function buildCogForQuadKey(
         quality: job.output.quality,
     });
 
-    onProgress(cogBuild.gdal, { quadKey, target: 'tiff' }, logger);
+    onProgress(cogBuild.gdal, { name, target: 'tiff' }, logger);
 
     logger.info(
         {
             imageSize: targetProj.getImagePixelWidth(tile, resZoom),
-            quadKey,
+            name,
             tile,
             alignmentLevels,
         },
@@ -95,7 +91,7 @@ export async function buildCogForQuadKey(
         cogBuild.gdal.setCredentials(credentials);
     }
     if (execute) {
-        await cogBuild.convert(logger.child({ quadKey }));
-        logger.info({ quadKey, duration: Date.now() - startTime }, 'CogCreated');
+        await cogBuild.convert(logger.child({ name }));
+        logger.info({ name, duration: Date.now() - startTime }, 'CogCreated');
     }
 }
