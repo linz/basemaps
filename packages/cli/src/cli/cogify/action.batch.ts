@@ -102,7 +102,7 @@ export class ActionBatchJob extends CommandLineAction {
         const targetProj = ProjectionTileMatrixSet.get(job.projection);
         const alignmentLevels = targetProj.findAlignmentLevels(
             targetProj.tms.quadKey.toTile(quadKey),
-            job.source.resZoom,
+            job.source.pixelScale,
         );
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;

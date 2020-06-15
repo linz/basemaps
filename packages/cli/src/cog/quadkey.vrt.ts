@@ -10,8 +10,14 @@ import { GdalCommand } from '../gdal/gdal.command';
 /**
  * Build the VRT for the needed source imagery
  */
-async function buildPlainVrt(job: CogJob, vrtPath: string, gdalCommand: GdalCommand, logger: LogType): Promise<void> {
-    const buildOpts = ['-hidenodata', '-allow_projection_difference'];
+async function buildPlainVrt(
+    job: CogJob,
+    vrtPath: string,
+    gdalCommand: GdalCommand,
+    defaultOps: string[],
+    logger: LogType,
+): Promise<void> {
+    const buildOpts = ['-hidenodata', '-allow_projection_difference'].concat(defaultOps);
     if (job.output.vrt.addAlpha) {
         buildOpts.push('-addalpha');
     }
@@ -41,6 +47,7 @@ async function buildWarpVrt(
     sourceVrtPath: string,
     gdalCommand: GdalCommand,
     quadkeyVrtPath: string,
+    defaultOps: string[],
     logger: LogType,
     cutlineTarget: string,
 ): Promise<void> {
@@ -54,8 +61,8 @@ async function buildWarpVrt(
         Epsg.get(job.source.projection).toEpsgString(),
         '-t_srs',
         Epsg.get(job.projection).toEpsgString(),
-    ];
-    if (job.output.cutline) {
+    ].concat(defaultOps);
+    if (job.output.cutline != null) {
         warpOpts.push('-cutline', cutlineTarget);
         if (job.output.cutline.blend != 0) warpOpts.push('-cblend', String(job.output.cutline.blend));
     }
@@ -109,6 +116,8 @@ export const QuadKeyVrt = {
         if (cutline.clipPoly.length != 0) {
             cutlineTarget = FileOperator.join(tmpFolder, 'cutline.geojson');
             await FileOperator.create(cutlineTarget).writeJson(cutlineTarget, cutline.toGeoJson());
+        } else {
+            job.output.cutline = undefined;
         }
 
         logger.info(
@@ -120,11 +129,16 @@ export const QuadKeyVrt = {
         if (gdalCommand.mount) {
             gdalCommand.mount(tmpFolder);
         }
+
+        const tr = cutline.targetProj.tms.pixelScale(job.source.resZoom).toString();
+
+        const defaultOps = ['-tr', tr, tr, '-tap'];
+
         onProgress(gdalCommand, { target: `vrt.${job.projection}` }, logger);
-        await buildPlainVrt(job, sourceVrtPath, gdalCommand, logger);
+        await buildPlainVrt(job, sourceVrtPath, gdalCommand, defaultOps, logger);
 
         if (cutlineTarget !== '' || job.projection !== job.source.projection) {
-            await buildWarpVrt(job, quadkeyVrtPath, gdalCommand, sourceVrtPath, logger, cutlineTarget);
+            await buildWarpVrt(job, quadkeyVrtPath, gdalCommand, sourceVrtPath, defaultOps, logger, cutlineTarget);
             return quadkeyVrtPath;
         }
 

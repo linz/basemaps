@@ -237,13 +237,24 @@ o.spec('quadkey.vrt', () => {
         o(runSpy.callCount).equals(2);
         o(mount.calls.map((c: any) => c.args[0])).deepEquals([tmpFolder, s3tif1, s3tif2]);
 
-        o((runSpy.calls[0] as any).args).deepEquals([
+        o(round((runSpy.calls[0] as any).args)).deepEquals([
             'gdalbuildvrt',
-            ['-hidenodata', '-allow_projection_difference', '-addalpha', '/tmp/my-tmp-folder/source.vrt', vtif1, vtif2],
+            [
+                '-hidenodata',
+                '-allow_projection_difference',
+                '-tr',
+                '19.10925707',
+                '19.10925707',
+                '-tap',
+                '-addalpha',
+                '/tmp/my-tmp-folder/source.vrt',
+                vtif1,
+                vtif2,
+            ],
             logger,
         ]);
 
-        o(runSpy.args).deepEquals([
+        o(round(runSpy.args)).deepEquals([
             'gdalwarp',
             [
                 '-of',
@@ -255,6 +266,10 @@ o.spec('quadkey.vrt', () => {
                 'EPSG:3857',
                 '-t_srs',
                 'EPSG:3857',
+                '-tr',
+                '19.10925707',
+                '19.10925707',
+                '-tap',
                 '-cutline',
                 '/tmp/my-tmp-folder/cutline.geojson',
                 '-cblend',

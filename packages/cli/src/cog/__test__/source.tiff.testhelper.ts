@@ -8,6 +8,7 @@ export const SourceTiffTestHelper = {
             source: {
                 files: [] as string[],
                 resZoom: 13,
+                pixelScale: 9.55,
                 path: '',
                 options: {
                     maxConcurrency: 3,

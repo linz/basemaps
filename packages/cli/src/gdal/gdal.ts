@@ -66,6 +66,7 @@ export class GdalCogBuilder {
             tilingScheme: config.tilingScheme ?? GdalCogBuilderDefaults.tilingScheme,
             resampling: config.resampling ?? GdalCogBuilderDefaults.resampling,
             blockSize: config.blockSize ?? GdalCogBuilderDefaults.blockSize,
+            targetRes: config.targetRes ?? GdalCogBuilderDefaults.targetRes,
             quality: config.quality ?? GdalCogBuilderDefaults.quality,
         };
         this.gdal = GdalCogBuilder.getGdal();
@@ -85,6 +86,7 @@ export class GdalCogBuilder {
     }
 
     get args(): string[] {
+        const tr = this.config.targetRes.toString();
         return [
             // Force output using COG Driver
             '-of',
@@ -119,6 +121,9 @@ export class GdalCogBuilder {
             // most of the imagery contains a lot of empty tiles, no need to output them
             '-co',
             `SPARSE_OK=YES`,
+            '-tr',
+            tr,
+            tr,
             ...this.getBounds(),
 
             this.source,

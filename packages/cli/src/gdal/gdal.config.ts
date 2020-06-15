@@ -47,6 +47,8 @@ export interface GdalCogBuilderOptions {
      */
     blockSize: number;
 
+    targetRes: number;
+
     /**
      * Compression quality
      */
@@ -59,6 +61,7 @@ export const GdalCogBuilderDefaults: GdalCogBuilderOptions = {
     tilingScheme: TilingScheme.Google,
     projection: Epsg.Google,
     alignmentLevels: 1,
+    targetRes: 0,
     blockSize: 512,
     quality: 90,
 };
