@@ -28,6 +28,16 @@ o.spec('ProjectionTileMatrixSet', () => {
     const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
     const nztmProj = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
 
+    o('getTiffResZoom', () => {
+        o(googleProj.getTiffResZoom(10)).equals(14);
+        o(googleProj.getTiffResZoom(10, 2)).equals(13);
+        o(googleProj.getTiffResZoom(0.075)).equals(21);
+
+        o(nztmProj.getTiffResZoom(10)).equals(10);
+        o(nztmProj.getTiffResZoom(10, 2)).equals(9);
+        o(nztmProj.getTiffResZoom(0.075)).equals(16);
+    });
+
     o('getTileSize', async () => {
         o(googleProj.getImagePixelWidth({ x: 0, y: 0, z: 5 }, 10)).equals(16384);
         o(googleProj.getImagePixelWidth({ x: 0, y: 0, z: 13 }, 20)).equals(65536);
@@ -37,15 +47,16 @@ o.spec('ProjectionTileMatrixSet', () => {
     });
 
     o('findAlignmentLevels', () => {
-        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 20)).equals(9);
-        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 15)).equals(4);
-        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 10)).equals(3);
-        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 10)).equals(0);
+        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.075)).equals(15);
+        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.5)).equals(13);
+        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 1)).equals(14);
+        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 10)).equals(5);
+        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 14 }, 10)).equals(0);
 
-        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 1 }, 15)).equals(12);
-        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 15)).equals(4);
-        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 9)).equals(2);
-        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 10)).equals(0);
+        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 1 }, 0.075)).equals(14);
+        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.5)).equals(8);
+        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 7)).equals(6);
+        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 14)).equals(0);
     });
 
     o('should convert to 2193', () => {

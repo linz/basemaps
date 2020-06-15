@@ -16,7 +16,7 @@ export function round(thing: any, z = 8): any {
             return r(obj);
         }
         if (typeof obj === 'string') {
-            const n = +obj;
+            const n = Number(obj);
             if (isNaN(n)) return obj;
             return r(n).toString();
         }

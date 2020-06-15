@@ -77,6 +77,25 @@ export class ProjectionTileMatrixSet {
         return this.projection.inverse;
     }
 
+    /**
+     * Find the closest zoom level to `resX` (pixels per meter) that is at least as good as `resX`.
+
+     * @param resX
+
+     * @param blockFactor How many time bigger the blockSize is compared to tileSize. Leave as 1 to
+     * not take into account.
+     */
+    getTiffResZoom(resX: number, blockFactor = 1): number {
+        // Get best image resolution
+        const { tms } = this;
+        let z = 0;
+        for (; z < tms.zooms.length; ++z) {
+            if (tms.pixelScale(z) <= resX * blockFactor) return z;
+        }
+        if (z == tms.zooms.length) return z - 1;
+        throw new Error('ResZoom not found');
+    }
+
     /** Convert a tile to a BBox in source units */
     tileToSourceBounds(tile: Tile): Bounds {
         const ul = this.tms.tileToSource(tile);
@@ -131,12 +150,10 @@ export class ProjectionTileMatrixSet {
      * Find the number of alignment levels required to render the tile. Min 1
      *
      * @param tile
-     * @param sourceZoom the zoom level for the source imagery
-     * @param blockSize defaults to tileSize. the number of pixels being rendered per tile
+     * @param resX the pixel resolution of the source imagery
      */
-    findAlignmentLevels(tile: Tile, sourceZoom: number): number {
-        const denom = this.blockFactor * this.blockFactor * this.tms.tileSize;
-        return Math.max(0, Math.floor(Math.log2(this.getImagePixelWidth(tile, sourceZoom) / denom)) - tile.z);
+    findAlignmentLevels(tile: Tile, resX: number): number {
+        return Math.max(0, this.getTiffResZoom(resX, this.blockFactor) - tile.z);
     }
 
     /**

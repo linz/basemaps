@@ -39,7 +39,7 @@ o.spec('cog', () => {
             config.targetRes = round(config.targetRes, 4);
             o(config).deepEquals({
                 bbox: [17532819.7999, -5009377.0857, 20037527.452, -7514084.7378],
-                alignmentLevels: 4,
+                alignmentLevels: 10,
                 compression: 'webp',
                 tilingScheme: TilingScheme.Google,
                 projection: Epsg.Google,
@@ -69,7 +69,7 @@ o.spec('cog', () => {
                 '-co',
                 'COMPRESS=webp',
                 '-co',
-                'ALIGNED_LEVELS=4',
+                'ALIGNED_LEVELS=10',
                 '-co',
                 'QUALITY=90',
                 '-co',

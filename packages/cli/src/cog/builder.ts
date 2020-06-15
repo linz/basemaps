@@ -126,24 +126,8 @@ export class CogBuilder {
             bands,
             bounds: GeoJson.toFeatureCollection(polygons),
             pixelScale: resX,
-            resZoom: this.getTiffResZoom(resX),
+            resZoom: this.targetProj.getTiffResZoom(resX),
         };
-    }
-
-    /**
-     * Find the closest zoom level to `resX` (pixels per meter) that is at least as good as `resX`.
-
-     * @param resX
-     */
-    getTiffResZoom(resX: number): number {
-        // Get best image resolution
-        const { tms } = this.targetProj;
-        let z = 0;
-        for (; z < tms.zooms.length; ++z) {
-            if (tms.pixelScale(z) <= resX) return z;
-        }
-        if (z == tms.zooms.length) return z - 1;
-        return -1;
     }
 
     findProjection(tiff: CogTiff): Epsg {
@@ -236,7 +220,7 @@ export class CogBuilder {
         if (existsSync(cacheKey)) {
             this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
             const metadata = (await FileOperatorSimple.readJson(cacheKey)) as SourceMetadata;
-            metadata.resZoom = this.getTiffResZoom(metadata.pixelScale);
+            metadata.resZoom = this.targetProj.getTiffResZoom(metadata.pixelScale);
             return metadata;
         }
 
