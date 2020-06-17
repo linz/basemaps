@@ -7,9 +7,9 @@ import {
 } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import { FeatureCollection } from 'geojson';
-import { buildCogForQuadKey } from '../../cog/cog';
+import { buildCogForName } from '../../cog/cog';
 import { Cutline } from '../../cog/cutline';
-import { QuadKeyVrt } from '../../cog/quadkey.vrt';
+import { CogVrt } from '../../cog/cog.vrt';
 import { CogJob } from '../../cog/types';
 import { GdalCogBuilder } from '../../gdal/gdal';
 import { CliId, CliInfo } from '../base.cli';
@@ -18,50 +18,47 @@ import { SemVer } from './semver.util';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
-    private quadKey?: CommandLineStringParameter;
+    private name?: CommandLineStringParameter;
     private commit?: CommandLineFlagParameter;
-    private quadKeyIndex?: CommandLineIntegerParameter;
+    private cogIndex?: CommandLineIntegerParameter;
 
     public constructor() {
         super({
             actionName: 'cog',
             summary: 'create a COG',
-            documentation: 'Create a COG from a vrt for the specified quadkey',
+            documentation: 'Create a COG for the specified cog name',
         });
     }
 
-    getQuadKey(job: CogJob, logger: LogType): string | null {
+    getName(job: CogJob, logger: LogType): string | null {
         const batchIndex = Env.getNumber(Env.BatchIndex, -1);
         if (batchIndex > -1) {
-            const qk = job.quadkeys[batchIndex];
-            if (qk == null) {
+            const { name } = job.files[batchIndex];
+            if (name == null) {
                 logger.fatal(
-                    { quadKeyIndex: batchIndex, quadKeyMax: job.quadkeys.length - 1 },
-                    'Failed to find quadkey from batch index',
+                    { cogIndex: batchIndex, tileMax: job.files.length - 1 },
+                    'Failed to find cog name from batch index',
                 );
                 return null;
             }
-            return qk;
+            return name;
         }
 
-        const quadKey = this.quadKey?.value;
-        const quadKeyIndex = this.quadKeyIndex?.value;
-        if (quadKeyIndex != null) {
-            const qk = job.quadkeys[quadKeyIndex];
-            if (qk == null) {
-                logger.fatal(
-                    { quadKeyIndex, quadKeyMax: job.quadkeys.length - 1 },
-                    'Failed to find quadkey from index',
-                );
+        const cogIndex = this.cogIndex?.value;
+        if (cogIndex != null) {
+            const { name } = job.files[cogIndex];
+            if (name == null) {
+                logger.fatal({ cogIndex, tileMax: job.files.length - 1 }, 'Failed to find cog name from index');
                 return null;
             }
-            return qk;
+            return name;
         }
-        if (quadKey == null || !job.quadkeys.includes(quadKey)) {
-            logger.fatal({ quadKey, quadKeys: job.quadkeys.join(', ') }, 'Quadkey does not exist inside job');
+        const name = this.name?.value;
+        if (name == null || !job.files.find((r) => r.name === name)) {
+            logger.fatal({ name, names: job.files.map((r) => r.name).join(', ') }, 'Name does not exist inside job');
             return null;
         }
-        return quadKey;
+        return name;
     }
 
     async onExecute(): Promise<void> {
@@ -84,11 +81,11 @@ export class ActionCogCreate extends CommandLineAction {
         const gdalVersion = await GdalCogBuilder.getVersion(logger);
         logger.info({ version: gdalVersion }, 'GdalVersion');
 
-        const quadKey = this.getQuadKey(job, logger);
-        if (quadKey == null) {
+        const name = this.getName(job, logger);
+        if (name == null) {
             return;
         }
-        const targetPath = getJobPath(job, `${quadKey}.tiff`);
+        const targetPath = getJobPath(job, `${name}.tiff`);
         const outputFs = FileOperator.create(job.output);
 
         const outputExists = await outputFs.exists(targetPath);
@@ -118,16 +115,16 @@ export class ActionCogCreate extends CommandLineAction {
                 job.output.cutline?.blend,
             );
 
-            const tmpVrtPath = await QuadKeyVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, quadKey, logger);
+            const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, name, logger);
 
             if (tmpVrtPath == null) {
-                logger.warn({ quadKey }, 'NoMatchingSourceImagery');
+                logger.warn({ name }, 'NoMatchingSourceImagery');
                 return;
             }
 
-            const tmpTiff = FileOperator.join(tmpFolder, `${quadKey}.tiff`);
+            const tmpTiff = FileOperator.join(tmpFolder, `${name}.tiff`);
 
-            await buildCogForQuadKey(job, quadKey, tmpVrtPath, tmpTiff, logger, isCommit);
+            await buildCogForName(job, name, tmpVrtPath, tmpTiff, logger, isCommit);
             logger.info({ target: targetPath }, 'StoreTiff');
             if (isCommit) {
                 await outputFs.write(targetPath, createReadStream(tmpTiff), logger);
@@ -148,17 +145,17 @@ export class ActionCogCreate extends CommandLineAction {
             required: true,
         });
 
-        this.quadKey = this.defineStringParameter({
-            argumentName: 'QUADKEY',
-            parameterLongName: '--quadkey',
-            description: 'quadkey to process',
+        this.name = this.defineStringParameter({
+            argumentName: 'NAME',
+            parameterLongName: '--name',
+            description: 'cog name to process',
             required: false,
         });
 
-        this.quadKeyIndex = this.defineIntegerParameter({
-            argumentName: 'QUADKEY_INDEX',
-            parameterLongName: '--quadkey-index',
-            description: 'quadkey index to process',
+        this.cogIndex = this.defineIntegerParameter({
+            argumentName: 'COG_INDEX',
+            parameterLongName: '--cog-index',
+            description: 'index of cog to process',
             required: false,
         });
 

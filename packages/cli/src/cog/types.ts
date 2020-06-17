@@ -1,5 +1,5 @@
-import { EpsgCode } from '@basemaps/geo';
-import { FileConfig } from '@basemaps/shared';
+import { EpsgCode, BoundingBox } from '@basemaps/geo';
+import { FileConfig, NamedBounds } from '@basemaps/shared';
 import { GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
 
 export interface CogJob {
@@ -55,8 +55,11 @@ export interface CogJob {
         };
     } & FileConfig;
 
-    /** List of quadkeys to generate */
-    quadkeys: string[];
+    /** The bounds of all the cogs */
+    bounds: BoundingBox;
+
+    /** list of files to generate and their bounds */
+    files: NamedBounds[];
 
     /** How and when this job file was generated */
     generated: {
@@ -91,6 +94,9 @@ export interface SourceMetadata {
 }
 
 export interface CogBuilderMetadata extends SourceMetadata {
-    /** Quadkey indexes for the covering tiles */
-    quadkeys: string[];
+    /** the bounding box of all the COGs */
+    targetBounds: BoundingBox;
+
+    /** list of file basenames and their bounding box */
+    files: NamedBounds[];
 }

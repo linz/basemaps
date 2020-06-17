@@ -1,4 +1,4 @@
-import { Epsg } from '@basemaps/geo';
+import { Bounds, Epsg } from '@basemaps/geo';
 import {
     FileConfig,
     FileOperator,
@@ -120,16 +120,18 @@ export const CogJobFactory = {
         const builder = new CogBuilder(ctx.targetProjection, maxConcurrency, logger, ctx.override?.projection);
         const metadata = await builder.build(tiffSource, cutline);
 
-        const { quadkeys } = metadata;
-        if (quadkeys.length > 0) {
-            const firstQk = quadkeys[0];
-            const lastQk = quadkeys[quadkeys.length - 1];
+        const { tms } = cutline.targetProj;
+
+        const files = metadata.files.sort(Bounds.compareArea);
+        if (files.length > 0) {
+            const bigArea = files[files.length - 1];
+            const smallArea = files[0];
             logger.info(
                 {
                     // Size of the biggest image
-                    big: ctx.targetProjection.getImagePixelWidth(cutline.tmsQk.toTile(firstQk), metadata.resZoom),
+                    big: bigArea.width / tms.pixelScale(metadata.resZoom),
                     // Size of the smallest image
-                    small: ctx.targetProjection.getImagePixelWidth(cutline.tmsQk.toTile(lastQk), metadata.resZoom),
+                    small: smallArea.width / tms.pixelScale(metadata.resZoom),
                 },
                 'Covers',
             );
@@ -140,8 +142,11 @@ export const CogJobFactory = {
             {
                 ...metadata,
                 bounds: undefined,
-                quadkeyCount: quadkeys.length,
-                quadkeys: quadkeys.join(' '),
+                fileCount: files.length,
+                files: metadata.files
+                    .map((r) => r.name)
+                    .sort()
+                    .join(' '),
             },
             'CoveringGenerated',
         );
@@ -175,7 +180,8 @@ export const CogJobFactory = {
                 files: tiffList,
                 options: { maxConcurrency },
             },
-            quadkeys,
+            bounds: metadata.targetBounds,
+            files: metadata.files,
             generated: {
                 ...CliInfo,
                 date: new Date().toISOString(),
@@ -201,10 +207,10 @@ export const CogJobFactory = {
             await outputFs.writeJson(geoJsonSourceOutput, metadata.bounds, logger);
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
-            await outputFs.writeJson(geoJsonCoveringOutput, ctx.targetProjection.toGeoJson(quadkeys), logger);
+            await outputFs.writeJson(geoJsonCoveringOutput, ctx.targetProjection.toGeoJson(metadata.files), logger);
 
             if (ctx.batch) {
-                await ActionBatchJob.batchJob(jobFile, true, logger);
+                await ActionBatchJob.batchJob(jobFile, true, undefined, logger);
             }
 
             logger.info({ job: jobFile }, 'Done');

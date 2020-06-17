@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Epsg } from '@basemaps/geo';
 import { Aws, LogConfig, TileMetadataTag } from '@basemaps/shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as c from 'ansi-colors';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet } from './tileset.util';
-import { Epsg } from '@basemaps/geo';
 
 export class TileSetInfoAction extends TileSetBaseAction {
     private imagery: CommandLineStringParameter;
@@ -46,7 +46,7 @@ export class TileSetInfoAction extends TileSetBaseAction {
         console.log(c.bold('Year:'), img.year);
         console.log(c.bold('Projection:'), img.projection);
         console.log(c.bold('Resolution:'), img.resolution);
-        console.log(c.bold('QuadKeys:\n'), img.quadKeys.map((c) => `\t${c}`).join('\n'));
+        console.log(c.bold('Files:\n'), img.files.map((c) => `\t${c.name}`).join('\n'));
         // TODO get job.json from s3 and get information on how the imagery was made.
     }
 

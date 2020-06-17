@@ -46,7 +46,7 @@ async function buildWarpVrt(
     job: CogJob,
     sourceVrtPath: string,
     gdalCommand: GdalCommand,
-    quadkeyVrtPath: string,
+    cogVrtPath: string,
     defaultOps: string[],
     logger: LogType,
     cutlineTarget: string,
@@ -74,18 +74,18 @@ async function buildWarpVrt(
     }
 
     logger.debug({ warpOpts: warpOpts.join(' ') }, 'gdalwarp');
-    await gdalCommand.run('gdalwarp', [...warpOpts, quadkeyVrtPath, sourceVrtPath], logger);
+    await gdalCommand.run('gdalwarp', [...warpOpts, cogVrtPath, sourceVrtPath], logger);
 }
 
-export const QuadKeyVrt = {
+export const CogVrt = {
     /**
-     * Build a vrt file for a quadKey set with some tiffs transformed with a cutline
+     * Build a vrt file for a `name` set with some tiffs transformed with a cutline
      *
      * @param tmpFolder temporary `vrt` and `cutline.geojson` will be written here
      * @param job
      * @param sourceGeo a GeoJSON object which contains the boundaries for the source imagery
      * @param cutline Used to filter the sources and cutline
-     * @param quadKey to reduce vrt and cutline
+     * @param name to reduce vrt and cutline
      * @param logger
      *
      * @return the path to the vrt file
@@ -95,21 +95,21 @@ export const QuadKeyVrt = {
         job: CogJob,
         sourceGeo: FeatureCollection,
         cutline: Cutline,
-        quadKey: string,
+        name: string,
         logger: LogType,
     ): Promise<string | null> {
-        logger.info({ quadKey }, 'buildCutlineVrt');
+        logger.info({ name }, 'buildCogVrt');
 
         const inputTotal = job.source.files.length;
 
-        cutline.filterSourcesForQuadKey(quadKey, job, sourceGeo);
+        cutline.filterSourcesForName(name, job, sourceGeo);
 
         if (job.source.files.length == 0) {
             return null;
         }
 
         const sourceVrtPath = FileOperator.join(tmpFolder, `source.vrt`);
-        const quadkeyVrtPath = FileOperator.join(tmpFolder, `quadkey.vrt`);
+        const cogVrtPath = FileOperator.join(tmpFolder, `cog.vrt`);
 
         let cutlineTarget = '';
 
@@ -138,8 +138,8 @@ export const QuadKeyVrt = {
         await buildPlainVrt(job, sourceVrtPath, gdalCommand, defaultOps, logger);
 
         if (cutlineTarget !== '' || job.projection !== job.source.projection) {
-            await buildWarpVrt(job, quadkeyVrtPath, gdalCommand, sourceVrtPath, defaultOps, logger, cutlineTarget);
-            return quadkeyVrtPath;
+            await buildWarpVrt(job, cogVrtPath, gdalCommand, sourceVrtPath, defaultOps, logger, cutlineTarget);
+            return cogVrtPath;
         }
 
         return sourceVrtPath;

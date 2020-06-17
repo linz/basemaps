@@ -18,18 +18,18 @@ async function main(): Promise<void> {
     const logger = LogConfig.get();
     for (const { imagery } of tileSet.imagery) {
         const path = TileSet.basePath(imagery);
-        logger.info({ path, quadKeys: imagery.quadKeys.length }, 'TestingMosaic');
+        logger.info({ path, cogs: imagery.files.length }, 'TestingMosaic');
 
-        const promises = imagery.quadKeys.map((qk) => {
+        const promises = imagery.files.map(({ name }) => {
             return Q(async () => {
                 try {
-                    const source = new CogTiff(CogSourceAwsS3.createFromUri(TileSet.basePath(imagery, qk))!);
+                    const source = new CogTiff(CogSourceAwsS3.createFromUri(TileSet.basePath(imagery, name))!);
                     await source.init();
                     if (!source.options.isCogOptimized) {
-                        logger.error({ path, qk }, 'NotOptimized');
+                        logger.error({ path, name }, 'NotOptimized');
                     }
                 } catch (e) {
-                    logger.error({ err: e, path, qk }, 'Failed');
+                    logger.error({ err: e, path, name }, 'Failed');
                     errorCount++;
                     if (errorCount > 10) {
                         logger.fatal('Too many errors');

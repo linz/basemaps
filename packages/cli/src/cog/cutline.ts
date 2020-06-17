@@ -1,10 +1,10 @@
-import { Epsg, GeoJson, QuadKey, Bounds, TileMatrixSetQuadKey, Tile } from '@basemaps/geo';
-import { FileOperator, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { Bounds, Epsg, GeoJson, Tile, TileMatrixSet } from '@basemaps/geo';
+import { compareName, FileOperator, NamedBounds, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { FeatureCollection, Position } from 'geojson';
 import { basename } from 'path';
+import { intersection, MultiPolygon, Polygon, Ring, union } from 'polygon-clipping';
 import { CoveringFraction, MaxImagePixelWidth } from './constants';
 import { CogJob, SourceMetadata } from './types';
-import { intersection, union, MultiPolygon, Polygon, Ring } from 'polygon-clipping';
 
 /** Padding to always apply to image boundies */
 const PixelPadding = 100;
@@ -21,11 +21,31 @@ function polysSameShape(a: Polygon, b: Polygon): boolean {
     return true;
 }
 
+function namedBounds(tms: TileMatrixSet, tile: Tile): NamedBounds {
+    return { name: TileMatrixSet.tileToName(tile), ...tms.tileToSourceBounds(tile).toJson() };
+}
+
+function addNonDupes(list: Tile[], addList: Tile[]): void {
+    const len = list.length;
+    for (const add of addList) {
+        let i = 0;
+        for (; i < len; ++i) {
+            const curr = list[i];
+            if (curr.x == add.x && curr.y == add.y && curr.z == add.z) {
+                break;
+            }
+        }
+        if (i == len) {
+            list.push(add);
+        }
+    }
+}
+
 export class Cutline {
     clipPoly: MultiPolygon = [];
     targetProj: ProjectionTileMatrixSet;
-    tmsQk: TileMatrixSetQuadKey; // convenience link to targetProj.tms.quadKey
     blend: number;
+    tms: TileMatrixSet; // convience to targetProj.tms
 
     /**
      * Create a Cutline instance from a `GeoJSON FeatureCollection`.
@@ -40,7 +60,7 @@ export class Cutline {
      */
     constructor(targetProj: ProjectionTileMatrixSet, clipPoly?: FeatureCollection, blend = 0) {
         this.targetProj = targetProj;
-        this.tmsQk = targetProj.tms.quadKey;
+        this.tms = targetProj.tms;
         this.blend = blend;
         if (clipPoly == null) {
             return;
@@ -70,15 +90,15 @@ export class Cutline {
     }
 
     /**
-     * For the given QuadKey filter job.source.fles and cutline polygons that are within bounds plus
+     * For the given tile `name`, filter `job.source.files` and cutline polygons that are within bounds plus
      * padding
      *
-     * @param quadKey
+     * @param name
      * @param job
      * @param  sourceGeo
      */
-    filterSourcesForQuadKey(quadKey: string, job: CogJob, sourceGeo: FeatureCollection): void {
-        const tile = this.tmsQk.toTile(quadKey);
+    filterSourcesForName(name: string, job: CogJob, sourceGeo: FeatureCollection): void {
+        const tile = TileMatrixSet.nameToTile(name);
         const qkBounds = this.targetProj.tileToSourceBounds(tile);
         const qkPadded = this.padBounds(qkBounds, job.source.resZoom);
 
@@ -99,7 +119,7 @@ export class Cutline {
             const boundsPoly = GeoJson.toPositionPolygon(qkPadded.toBbox()) as Polygon;
             const poly = intersection(boundsPoly, this.clipPoly);
             if (poly == null || poly.length == 0) {
-                // this quadKey is not needed
+                // this tile is not needed
                 this.clipPoly = [];
                 job.source.files = [];
             } else if (
@@ -107,7 +127,7 @@ export class Cutline {
                 polysSameShape(poly[0], boundsPoly) &&
                 this.sourcePolyToBounds(poly[0][0]).containsBounds(qkBounds)
             ) {
-                // quadKey is completely surrounded; no cutline polygons needed
+                // tile is completely surrounded; no cutline polygons needed
                 this.clipPoly = [];
             } else {
                 // set the cutline polygons to just the area of interest
@@ -120,7 +140,7 @@ export class Cutline {
      * Generate an optimized WebMercator tile cover for the supplied polygons
      * @param featureCollection Source TIff Polygons in GeoJson WGS84
      */
-    optimizeCovering(sourceMetadata: SourceMetadata): string[] {
+    optimizeCovering(sourceMetadata: SourceMetadata): NamedBounds[] {
         const srcArea = this.findCovering(sourceMetadata);
 
         const { resZoom } = sourceMetadata;
@@ -131,31 +151,36 @@ export class Cutline {
         }
         minZ = Math.max(1, minZ + 1);
 
-        let quadKeys: string[] = [];
+        let tiles: Tile[] = [];
+        const { tms } = this.targetProj;
 
-        for (const tile of this.tmsQk.coverTile()) {
-            // Don't make COGs with a quadKey shorter than minZ.
-            quadKeys = quadKeys.concat(this.makeQuadKeys(tile, srcArea, minZ, CoveringFraction).quadKeys);
+        for (const tile of tms.topLevelTiles()) {
+            // Don't make COGs with a tile.z < minZ.
+            tiles = tiles.concat(this.makeTiles(tile, srcArea, minZ, CoveringFraction).tiles);
         }
 
-        if (quadKeys.length == 0) {
+        if (tiles.length == 0) {
             throw new Error('Source imagery does not overlap with project extent');
         }
-        if (quadKeys.length == 1 && quadKeys[0] == '') {
-            // empty quakKey strings cause problems for filenames.
-            quadKeys = Array.from(this.tmsQk.coverTile()).map((t) => this.tmsQk.fromTile(t));
-        }
-        return quadKeys.sort(QuadKey.compareKeys);
+
+        const covering = tiles.map((tile) => namedBounds(tms, tile));
+        // remove duplicate
+        return covering
+            .filter((curr) => {
+                for (const other of covering) {
+                    if (other !== curr && Bounds.contains(other, curr)) return false;
+                }
+                return true;
+            })
+            .sort(compareName);
     }
 
     /**
      * Convert JobCutline to geojson FeatureCollection
      */
-    toGeoJson(): FeatureCollection {
+    toGeoJson(clipPoly = this.clipPoly): FeatureCollection {
         const { toWsg84 } = this.targetProj;
-        return GeoJson.toFeatureCollection([
-            GeoJson.toFeatureMultiPolygon(this.clipPoly.map((p) => [p[0].map(toWsg84)])),
-        ]);
+        return GeoJson.toFeatureCollection([GeoJson.toFeatureMultiPolygon(clipPoly.map((p) => [p[0].map(toWsg84)]))]);
     }
 
     /**
@@ -192,46 +217,46 @@ export class Cutline {
      * Merge child nodes that have at least a covering fraction
      * @param tile the tile to descend
      * @param srcArea the aread of interest
-     * @param minZ Only produce quadKeys for zoom levels at least `minZ` and no sibling tiles
+     * @param minZ Only produce tiles for zoom levels at least `minZ` and no sibling tiles
      * greater than `minZ +2`
      * @param coveringFraction merge tiles that cover at least this fraction
-     * @return the quadKeys and fraction covered of the tile by this srcArea
+     * @return the tiles and fraction covered of the tile by this srcArea
      */
-    private makeQuadKeys(
+    private makeTiles(
         tile: Tile,
         srcArea: MultiPolygon,
         minZ: number,
         coveringFraction: number,
-    ): { quadKeys: string[]; fractionCovered: number } {
+    ): { tiles: Tile[]; fractionCovered: number } {
         const clip = this.targetProj.tileToPolygon(tile) as Polygon;
         const intArea = intersection(srcArea, clip);
 
         if (intArea.length == 0) {
-            return { quadKeys: [], fractionCovered: 0 };
+            return { tiles: [], fractionCovered: 0 };
         }
-        if (tile.z == Math.min(minZ + 4, this.tmsQk.zMax - 1)) {
-            return { quadKeys: [this.tmsQk.fromTile(tile)], fractionCovered: 1 };
+        if (tile.z == minZ + 4) {
+            return { tiles: [tile], fractionCovered: 1 };
         }
 
-        const ans = { quadKeys: [] as string[], fractionCovered: 0 };
+        const ans = { tiles: [] as Tile[], fractionCovered: 0 };
 
-        for (const child of this.tmsQk.coverTile(tile)) {
-            const { quadKeys, fractionCovered } = this.makeQuadKeys(child, intArea, minZ, coveringFraction);
+        for (const child of this.tms.coverTile(tile)) {
+            const { tiles, fractionCovered } = this.makeTiles(child, intArea, minZ, coveringFraction);
             if (fractionCovered != 0) {
                 ans.fractionCovered += fractionCovered * 0.25;
-                ans.quadKeys = ans.quadKeys.concat(quadKeys);
+                addNonDupes(ans.tiles, tiles);
             }
         }
 
         if (
             // tile too small OR children have enough coverage
             (tile.z > minZ + 2 || ans.fractionCovered >= coveringFraction) &&
-            // AND more than one child quadkey
-            ans.quadKeys.length > 1 &&
+            // AND more than one child tile
+            ans.tiles.length > 1 &&
             // AND tile not too big
             tile.z >= minZ
         ) {
-            ans.quadKeys = [this.tmsQk.fromTile(tile)]; // replace children with parent
+            ans.tiles = [tile]; // replace children with parent
         }
 
         return ans;
@@ -279,7 +304,7 @@ export class Cutline {
      * @param resZoom the imagery resolution target zoom level
      */
     private padBounds(bounds: Bounds, resZoom: number): Bounds {
-        const px = this.targetProj.tms.pixelScale(resZoom);
+        const px = this.tms.pixelScale(resZoom);
 
         // Ensure cutline blend does not interferre with non-costal edges
         return bounds.scaleFromCenter((bounds.width + px * (PixelPadding + this.blend) * 2) / bounds.width);

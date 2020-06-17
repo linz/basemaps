@@ -9,7 +9,7 @@ export interface Size {
 
 export interface BoundingBox extends Point, Size {}
 
-export class Bounds {
+export class Bounds implements BoundingBox {
     public readonly x: number;
     public readonly y: number;
     public readonly width: number;
@@ -47,7 +47,7 @@ export class Bounds {
      * @param other Bounds to check is within this
      */
     public containsBounds(other: Bounds): boolean {
-        return this.x <= other.x && this.right >= other.right && this.y <= other.y && this.bottom >= other.bottom;
+        return Bounds.contains(this, other);
     }
 
     /**
@@ -71,17 +71,33 @@ export class Bounds {
     }
 
     /**
+     * Get the union of a `list` of Bounds
+     */
+    public static union(list: BoundingBox[]): Bounds {
+        if (list.length == 0) throw new Error('Union on empty list is not allowed');
+
+        let { x, y } = list[0];
+        let maxX = x + list[0].width;
+        let maxY = y + list[0].height;
+
+        for (let i = 1; i < list.length; ++i) {
+            const other = list[i];
+            x = Math.min(x, other.x);
+            maxX = Math.max(maxX, other.x + other.width);
+            y = Math.min(y, other.y);
+            maxY = Math.max(maxY, other.y + other.height);
+        }
+
+        return new Bounds(x, y, maxX - x, maxY - y);
+    }
+
+    /**
      * Create a new bounds that is the union of the two bounds
      *
      * @param other Bounds to calculate union with
      */
     public union(other: Bounds): Bounds {
-        const x = Math.min(this.x, other.x);
-        const maxX = Math.max(this.x + this.width, other.x + other.width);
-        const y = Math.min(this.y, other.y);
-        const maxY = Math.max(this.y + this.height, other.y + other.height);
-
-        return new Bounds(x, y, maxX - x, maxY - y);
+        return Bounds.union([this, other]);
     }
 
     /**
@@ -142,16 +158,33 @@ export class Bounds {
      * Takes into account the antimeridian.
      * @param bbox
      */
-    static fromBbox([x1, y1, x2, y2]: number[]): Bounds {
+    public static fromBbox([x1, y1, x2, y2]: number[]): Bounds {
         return new Bounds(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
     }
 
-    /** */
+    /** Convert a pair of upper left `ul` and lower right `lr` Points to Bounds */
     public static fromUpperLeftLowerRight(ul: Point, lr: Point): Bounds {
         return new Bounds(ul.x, ul.y, lr.x - ul.x, lr.y - ul.y);
     }
 
     public static fromJson(bounds: BoundingBox): Bounds {
         return new Bounds(bounds.x, bounds.y, bounds.width, bounds.height);
+    }
+
+    /**
+     * Use for sorting Bounding boxes by area, x, y
+     */
+    public static compareArea(a: BoundingBox, b: BoundingBox): number {
+        const areaDiff = a.width * a.height - b.width * b.height;
+        if (areaDiff != 0) return areaDiff;
+        const xDiff = a.x - b.x;
+        return xDiff == 0 ? a.y - b.y : xDiff;
+    }
+
+    /**
+     * Does BoundingBox `a` contain `b`. Is `b` within `a`
+     */
+    public static contains(a: BoundingBox, b: BoundingBox): boolean {
+        return a.x <= b.x && a.x + a.width >= b.x + b.width && a.y <= b.y && a.y + a.height >= b.y + b.height;
     }
 }

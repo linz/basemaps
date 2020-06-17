@@ -1,8 +1,7 @@
-import { Point } from './bounds';
+import { Point, Bounds } from './bounds';
 import { Epsg } from './epsg';
 import { TileMatrixSetType, TileMatrixSetTypeMatrix } from './tms/tile.matrix.set.type';
 import { getXyOrder, XyOrder } from './xy.order';
-import { TileMatrixSetQuadKey } from './tms.quad.key';
 
 export type Tile = Point & { z: number };
 
@@ -24,9 +23,6 @@ export class TileMatrixSet {
     readonly def: TileMatrixSetType;
     /** Indexed tile index zooms */
     readonly zooms: TileMatrixSetTypeMatrix[] = [];
-
-    /** Psuedo quadkey convertor */
-    readonly quadKey: TileMatrixSetQuadKey;
 
     /** Array index of X coordinates */
     indexX = 0;
@@ -61,8 +57,6 @@ export class TileMatrixSet {
             this.indexX = 1;
             this.indexY = 0;
         }
-
-        this.quadKey = new TileMatrixSetQuadKey(this);
     }
 
     /** Get the pixels / meter at a specified zoom level */
@@ -130,5 +124,85 @@ export class TileMatrixSet {
     public tileToSource(tile: Tile): Point {
         const ul = this.tileToPixels(tile.x, tile.y);
         return this.pixelsToSource(ul.x, ul.y, tile.z);
+    }
+
+    /**
+     * Get the boundingBox for a `tile` in source units
+     */
+    public tileToSourceBounds(tile: Tile): Bounds {
+        const ul = this.tileToSource(tile);
+        const width = this.pixelScale(tile.z) * this.tileSize;
+        return new Bounds(ul.x, ul.y - width, width, width);
+    }
+
+    /**
+     * Iterate over the top level tiles that cover the extent of the `TileMatrixSet`
+     */
+    *topLevelTiles(): Generator<Tile, null, void> {
+        const z = 0;
+        const { matrixWidth, matrixHeight } = this.zooms[0];
+
+        for (let y = 0; y < matrixHeight; ++y) {
+            for (let x = 0; x < matrixWidth; ++x) {
+                yield { x, y, z };
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Iterate over the child (`z+1`) tiles that cover `tile`
+
+     * @param tile
+     */
+    *coverTile(tile?: Tile): Generator<Tile, null, void> {
+        if (tile == null) {
+            yield* this.topLevelTiles();
+            return null;
+        }
+        const z = tile.z + 1;
+        const { matrixWidth, matrixHeight } = this.zooms[tile.z];
+        const { matrixWidth: childWidth, matrixHeight: childHeight } = this.zooms[z];
+
+        const xScale = childWidth / matrixWidth;
+        const yScale = childHeight / matrixHeight;
+
+        const xStart = Math.floor(tile.x * xScale);
+        const yStart = Math.floor(tile.y * yScale);
+
+        const xEnd = Math.ceil((tile.x + 1) * xScale);
+        const yEnd = Math.ceil((tile.y + 1) * yScale);
+
+        for (let y = yStart; y < yEnd; ++y) {
+            for (let x = xStart; x < xEnd; ++x) {
+                yield { x, y, z };
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Make a name for a `tile`
+     */
+    public static tileToName(tile: Tile): string {
+        return `${tile.z}-${tile.x}-${tile.y}`;
+    }
+
+    /**
+     * Convert `name` to a `tile`
+     */
+    public static nameToTile(name: string): Tile {
+        const parts = name.split('-');
+        if (parts.length == 3) {
+            const z = Number(parts[0]);
+            const x = Number(parts[1]);
+            const y = Number(parts[2]);
+            if (!(isNaN(z) || isNaN(y) || isNaN(x))) {
+                return { x, y, z };
+            }
+        }
+        throw new Error(`Invalid tile name '${name}'`);
     }
 }

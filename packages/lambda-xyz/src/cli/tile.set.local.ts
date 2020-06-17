@@ -74,7 +74,7 @@ export class TileSetLocal extends TileSet {
         return true;
     }
 
-    getTiffsForQuadKey(): CogTiff[] {
+    getTiffsForTile(): CogTiff[] {
         return this.tiffs;
     }
 }

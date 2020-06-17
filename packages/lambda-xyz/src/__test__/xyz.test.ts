@@ -45,7 +45,7 @@ o.spec('LambdaXyz', () => {
             const tileSet = new FakeTileSet(tileSetName, Epsg.Google);
             TileSets.set(tileSet.id, tileSet);
             tileSet.load = () => Promise.resolve(true);
-            tileSet.getTiffsForQuadKey = (): [] => [];
+            tileSet.getTiffsForTile = (): [] => [];
         }
 
         (Aws.tileMetadata.Provider as any).get = async (): Promise<TileMetadataProviderRecord> => Provider;

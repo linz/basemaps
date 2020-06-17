@@ -1,8 +1,9 @@
-import { Bounds, Epsg, EpsgCode, GeoJson, Tile, TileMatrixSet, TileMatrixSetQuadKey } from '@basemaps/geo';
+import { Bounds, Epsg, EpsgCode, GeoJson, Tile, TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { Position } from 'geojson';
 import * as proj4 from 'proj4';
+import { NamedBounds } from '../aws/tile.metadata.base';
 import { CompositeError } from '../composite.error';
 import { Citm2000 } from './citm2000';
 import { Nztm2000 } from './nztm2000';
@@ -130,16 +131,17 @@ export class ProjectionTileMatrixSet {
         ];
     }
 
-    /** Convert a quadkey covering to a GeoJSON FeatureCollection */
-    toGeoJson(covering: string[]): GeoJSON.FeatureCollection {
+    /** Convert a tile covering to a GeoJSON FeatureCollection */
+    toGeoJson(files: NamedBounds[]): GeoJSON.FeatureCollection {
         const { toWsg84 } = this;
         const polygons: GeoJSON.Feature[] = [];
-        const tmsQk = new TileMatrixSetQuadKey(this.tms);
-        for (const quadKey of covering) {
-            const tile = tmsQk.toTile(quadKey);
-            const polygon = GeoJson.toFeaturePolygon([this.tileToPolygon(tile)[0].map((p) => toWsg84(p))], {
-                quadKey,
-            });
+        for (const bounds of files) {
+            const polygon = GeoJson.toFeaturePolygon(
+                [GeoJson.toPositionPolygon(Bounds.fromJson(bounds).toBbox())[0].map((p) => toWsg84(p))],
+                {
+                    name: bounds.name,
+                },
+            );
             polygons.push(polygon);
         }
 
@@ -160,8 +162,8 @@ export class ProjectionTileMatrixSet {
      * Return the expected width in pixels of an image at the tile resolution. Uses
      * `this.blockFactor` for HiDPI tiles.
 
+     * @param tile
      * @param sourceZoom The zoom level for the source imagery
-     * @param tileZoom The zoom level for the quadKey @param blockSize size of each tile.
      */
     getImagePixelWidth(tile: Tile, sourceZoom: number): number {
         const ul = this.tms.tileToSource(tile);

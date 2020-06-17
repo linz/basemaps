@@ -1,4 +1,4 @@
-import { EpsgCode, WmtsProvider } from '@basemaps/geo';
+import { EpsgCode, WmtsProvider, BoundingBox } from '@basemaps/geo';
 import { DynamoDB } from 'aws-sdk';
 import { Const } from '../const';
 import { BaseDynamoTable } from './aws.dynamo.table';
@@ -33,7 +33,17 @@ export function parseMetadataTag(tagInput: string | null | undefined): TileMetad
  */
 export type TileMetadataRecord = TileMetadataImageryRecord | TaggedTileMetadataRecord;
 
+/**
+ * Map of cog names to bounds
+ */
+export interface NamedBounds extends BoundingBox {
+    name: string;
+}
+
 export interface TileMetadataImageryRecord extends BaseDynamoTable {
+    /** Version of record. undefined = v0 */
+    v: number | undefined;
+
     /** Imagery set name */
     name: string;
 
@@ -47,9 +57,14 @@ export interface TileMetadataImageryRecord extends BaseDynamoTable {
 
     /** Resolution of imagery in MM */
     resolution: number;
+}
 
-    /** list of quad keys the imagery contains */
-    quadKeys: string[];
+export interface TileMetadataImageryRecordV1 extends TileMetadataImageryRecord {
+    /** the bounding box of all the COGs */
+    bounds: BoundingBox;
+
+    /** list of file basenames and their bounding box */
+    files: NamedBounds[];
 }
 
 export interface TileMetadataImageRule {
@@ -101,7 +116,7 @@ export type TileMetadataProviderRecord = TaggedTileMetadataRecord & WmtsProvider
 
 export interface TileSetRuleImagery {
     rule: TileMetadataImageRule;
-    imagery: TileMetadataImageryRecord;
+    imagery: TileMetadataImageryRecordV1;
 }
 
 export enum RecordPrefix {

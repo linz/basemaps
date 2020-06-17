@@ -2,15 +2,16 @@ import { Epsg } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import * as o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal';
-import { buildCogForQuadKey } from '../cog';
+import { buildCogForName } from '../cog';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
 import { TilingScheme } from '../../gdal/gdal.config';
 import { round } from '@basemaps/test/build/rounding';
+import { qkToName } from '@basemaps/shared/build/tms/__test__/test.util';
 
 LogConfig.disable();
 
 o.spec('cog', () => {
-    o.spec('buildCogForQuadKey', () => {
+    o.spec('buildCogForName', () => {
         const origConvert = GdalCogBuilder.prototype.convert;
 
         o.afterEach(() => {
@@ -29,16 +30,14 @@ o.spec('cog', () => {
             const job = SourceTiffTestHelper.makeCogJob();
             const logger = LogConfig.get();
 
-            await buildCogForQuadKey(job, '3131', '/tmp/test.vrt', '/tmp/out-tiff', logger, true);
+            await buildCogForName(job, qkToName('3131'), '/tmp/test.vrt', '/tmp/out-tiff', logger, true);
             o(convertArgs[0].info).equals(logger.info);
 
-            // -projwin 18472078.003508832 -5948635.289265559 18785164.071364917 -6261721.357121641
-            // -projwin_srs EPSG:3857
             const { config } = gdalCogBuilder!;
             config.bbox = round(config.bbox, 4);
             config.targetRes = round(config.targetRes, 4);
             o(config).deepEquals({
-                bbox: [17532819.7999, -5009377.0857, 20037527.452, -7514084.7378],
+                bbox: [17532819.7999, -5009377.0857, 20037508.3428, -7514065.6285],
                 alignmentLevels: 10,
                 compression: 'webp',
                 tilingScheme: TilingScheme.Google,
@@ -80,8 +79,8 @@ o.spec('cog', () => {
                 '-projwin',
                 '17532819.7999',
                 '-5009377.0857',
-                '20037527.452',
-                '-7514084.7378',
+                '20037508.3428',
+                '-7514065.6285',
                 '-projwin_srs',
                 'EPSG:3857',
                 '/tmp/test.vrt',

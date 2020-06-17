@@ -1,6 +1,6 @@
 # @basemaps/geo
 
-Utility functions to work with projections, Quadkeys and Projections.
+Utility functions to work with QuadKeys, Tiles and Projections.
 
 ## Bounds and intersections
 

@@ -1,7 +1,7 @@
 import { LogConfig, TileType } from '@basemaps/shared';
 import { LambdaContext } from '@basemaps/lambda';
 import { PrettyTransform } from 'pretty-json-log';
-import { Tile } from '../routes/tile';
+import { tile } from '../routes/tile';
 import { Epsg } from '@basemaps/geo';
 import { TileSetLocal } from './tile.set.local';
 import { TileSets } from '../tile.set.cache';
@@ -36,7 +36,7 @@ async function main(): Promise<void> {
         logger,
     );
 
-    const tileData = await Tile(ctx, { ...xyz, projection, name: tileSet.name, ext, type: TileType.Image });
+    const tileData = await tile(ctx, { ...xyz, projection, name: tileSet.name, ext, type: TileType.Image });
 
     await fs.writeFile(`output_${xyz.x}_${xyz.y}_z${xyz.z}.${ext}`, tileData.body);
 

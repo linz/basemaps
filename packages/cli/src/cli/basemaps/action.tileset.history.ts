@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataImageryRecord, TileMetadataSetRecord, TileMetadataTag } from '@basemaps/shared';
+import { Epsg } from '@basemaps/geo';
+import { Aws, LogConfig, TileMetadataImageryRecordV1, TileMetadataSetRecord, TileMetadataTag } from '@basemaps/shared';
 import { CliTable } from '../cli.table';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet, showDiff } from './tileset.util';
-import { Epsg } from '@basemaps/geo';
 
 const MaxHistory = 199;
 
@@ -65,7 +65,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         }
 
         LogConfig.get().debug({ count: toFetchImages.size }, 'Loading Imagery');
-        const imagery = await Aws.tileMetadata.batchGet<TileMetadataImageryRecord>(toFetchImages);
+        const imagery = await Aws.tileMetadata.batchGet<TileMetadataImageryRecordV1>(toFetchImages);
 
         const TileSetHistory = new CliTable<TileMetadataSetRecord>();
         TileSetHistory.field('v', 4, (obj) => `v${obj.version}`);

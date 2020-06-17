@@ -1,7 +1,7 @@
 import { Epsg } from '@basemaps/geo';
 import {
     Aws,
-    TileMetadataImageryRecord,
+    TileMetadataImageryRecordV1,
     TileMetadataSetRecord,
     TileMetadataTag,
     TileSetRuleImagery,
@@ -36,7 +36,7 @@ export async function printTileSet(tsData: TileMetadataSetRecord, printImagery =
 export function showDiff(
     tsA: TileMetadataSetRecord,
     tsB: TileMetadataSetRecord,
-    imageSet: Map<string, TileMetadataImageryRecord>,
+    imageSet: Map<string, TileMetadataImageryRecordV1>,
 ): string {
     let output = '';
     for (const tsAImg of Object.values(tsA.imagery)) {

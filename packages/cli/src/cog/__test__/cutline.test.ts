@@ -1,4 +1,4 @@
-import { EpsgCode, GeoJson, QuadKey } from '@basemaps/geo';
+import { EpsgCode, GeoJson } from '@basemaps/geo';
 import { ProjectionTileMatrixSet } from '@basemaps/shared';
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
@@ -10,10 +10,10 @@ import { SourceTiffTestHelper } from './source.tiff.testhelper';
 
 o.spec('cutline', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
+    const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
 
-    const proj = ProjectionTileMatrixSet.get(EpsgCode.Google);
     o('loadCutline', async () => {
-        const cutline = new Cutline(proj, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const geojson = cutline.toGeoJson();
         const mp = geojson.features[0].geometry as MultiPolygon;
         const { coordinates } = mp;
@@ -37,7 +37,7 @@ o.spec('cutline', () => {
     });
 
     o('findCovering', async () => {
-        const cutline = new Cutline(proj, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const feature = SourceTiffTestHelper.makeTiffFeatureCollection();
 
         o(cutline.clipPoly.length).equals(2);
@@ -58,19 +58,26 @@ o.spec('cutline', () => {
             const covering = cutline.optimizeCovering({ bounds, resZoom: 14 } as SourceMetadata);
 
             o(covering.length).equals(covering.length);
-            o(covering).deepEquals([
-                '032233200',
-                '032233201',
-                '032233202',
-                '032233203',
-                '032233210',
-                '032233211',
-                '032233212',
-                '032233213',
-                '032233220',
-                '032233221',
-                '032233230',
-                '032233231',
+            o(covering[4]).deepEquals({
+                name: '7-153-253',
+                x: 1741760,
+                y: 5448320,
+                width: 17920,
+                height: 17920,
+            });
+            o(covering.map((c) => c.name)).deepEquals([
+                '7-152-252',
+                '7-152-253',
+                '7-152-254',
+                '7-153-252',
+                '7-153-253',
+                '7-153-254',
+                '7-154-252',
+                '7-154-253',
+                '7-154-254',
+                '7-155-252',
+                '7-155-253',
+                '8-387-635',
             ]);
         });
 
@@ -78,7 +85,7 @@ o.spec('cutline', () => {
             const poly = GeoJson.toPositionPolygon([174.89, -40.83, 174.92, -40.85]);
 
             const bounds = SourceTiffTestHelper.makeTiffFeatureCollection(poly);
-            const cutline = new Cutline(proj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
+            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
 
             const covering = cutline.optimizeCovering({ bounds, resZoom: 22 } as SourceMetadata);
 
@@ -95,45 +102,41 @@ o.spec('cutline', () => {
                 ],
             ]);
 
-            o(covering).deepEquals(['31133322231222', '311333222330000', '311333222330001', '31133322231220332']);
+            o(covering.map((c) => c.name)).deepEquals([
+                '14-16152-10231',
+                '15-32304-20464',
+                '15-32305-20464',
+                '17-129222-81847',
+            ]);
         });
 
         o('low res', () => {
-            const cutline = new Cutline(proj);
+            const cutline = new Cutline(googleProj);
 
             const covering = cutline.optimizeCovering({ bounds, resZoom: 13 } as SourceMetadata);
 
             o(covering.length).equals(covering.length);
-            o(covering).deepEquals(['31133322', '31311100']);
+            o(covering.map((c) => c.name)).deepEquals(['8-252-159', '8-252-160']);
         });
 
         o('hi res', () => {
-            const covering2 = new Cutline(proj).optimizeCovering({
+            const covering2 = new Cutline(googleProj).optimizeCovering({
                 bounds,
                 resZoom: 18,
             } as SourceMetadata);
 
             o(covering2.length).equals(covering2.length);
 
-            o(covering2).deepEquals(
-                [
-                    '3113332222',
-                    '3113332223',
-                    '311333223202',
-                    '31133322322',
-                    '3131110000',
-                    '3131110001',
-                    '31311100100',
-                    '313111001020',
-                ].sort(QuadKey.compareKeys),
-            );
+            o(covering2.map((c) => c.name)).deepEquals([
+                '10-1008-639',
+                '10-1008-640',
+                '10-1009-639',
+                '10-1009-640',
+                '11-2020-1279',
+                '11-2020-1280',
+                '12-4040-2557',
+                '12-4040-2562',
+            ]);
         });
-    });
-
-    o('optimize should not cover the world', () => {
-        const bounds = proj.toGeoJson(['']);
-        const cutline = new Cutline(proj);
-        const covering = cutline.optimizeCovering({ bounds, resZoom: 0 } as SourceMetadata);
-        o(covering).deepEquals(['0', '1', '2', '3']);
     });
 });
