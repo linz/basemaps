@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/geo",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
@@ -9,7 +9,6 @@
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
-  "dependencies": {},
   "publishConfig": {
     "access": "public"
   },

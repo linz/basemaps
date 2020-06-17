@@ -1,13 +1,11 @@
 {
   "name": "@basemaps/test",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
-  "scripts": {},
-  "dependencies": {},
-  "devDependencies": {}
+  "scripts": {}
 }

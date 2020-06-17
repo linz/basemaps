@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": false,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -17,8 +17,8 @@
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "dependencies": {
-    "@basemaps/geo": "^2.0.0",
-    "@basemaps/shared": "^2.1.0",
+    "@basemaps/geo": "^2.2.0",
+    "@basemaps/shared": "^2.2.0",
     "@cogeotiff/core": "^2.0.0",
     "@cogeotiff/source-aws": "^2.0.0",
     "@cogeotiff/source-file": "^2.0.0",
