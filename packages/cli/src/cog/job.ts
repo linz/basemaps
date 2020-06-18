@@ -63,7 +63,10 @@ export interface JobCreationContext {
          * Resampling method
          * @Default  GdalCogBuilderDefaults.resampling
          */
-        resampling?: GdalCogBuilderOptionsResampling;
+        resampling?: {
+            warp: GdalCogBuilderOptionsResampling;
+            overview: GdalCogBuilderOptionsResampling;
+        };
     };
 
     /**
@@ -164,7 +167,7 @@ export const CogJobFactory = {
             projection: ctx.targetProjection.tms.projection.code,
             output: {
                 ...output,
-                resampling: ctx.override?.resampling ?? GdalCogBuilderDefaults.resampling,
+                resampling: GdalCogBuilderDefaults.resampling,
                 quality: ctx.override?.quality ?? GdalCogBuilderDefaults.quality,
                 cutline: ctx.cutline,
                 nodata: metadata.nodata,

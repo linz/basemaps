@@ -106,9 +106,11 @@ export class GdalCogBuilder {
             // User configured output block size
             '-co',
             `BLOCKSIZE=${this.config.blockSize}`,
-            // User configured resampling method
+            // Configured resampling methods
             '-co',
-            `RESAMPLING=${this.config.resampling}`,
+            `WARP_RESAMPLING=${this.config.resampling.warp}`,
+            '-co',
+            `OVERVIEW_RESAMPLING=${this.config.resampling.overview}`,
             // User configured compression
             '-co',
             `COMPRESS=${this.config.compression}`,
@@ -121,6 +123,7 @@ export class GdalCogBuilder {
             // most of the imagery contains a lot of empty tiles, no need to output them
             '-co',
             `SPARSE_OK=YES`,
+            // Force a target resolution to be better than the imagery not worse
             '-tr',
             tr,
             tr,

@@ -7,7 +7,7 @@ import {
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
 import { CogJobFactory, JobCreationContext, MaxConcurrencyDefault } from '../../cog/job';
-import { GdalCogBuilderDefaults, GdalResamplingOptions } from '../../gdal/gdal.config';
+import { GdalCogBuilderDefaults } from '../../gdal/gdal.config';
 import { CliId } from '../base.cli';
 
 export class CLiInputData {
@@ -43,7 +43,6 @@ export class ActionJobCreate extends CommandLineAction {
     private source: CLiInputData;
     private output: CLiInputData;
     private maxConcurrency: CommandLineIntegerParameter;
-    private resampling: CommandLineStringParameter;
     private cutline: CommandLineStringParameter;
     private cutlineBlend: CommandLineIntegerParameter;
     private overrideId: CommandLineStringParameter;
@@ -90,11 +89,6 @@ export class ActionJobCreate extends CommandLineAction {
         const targetProjection = ProjectionTileMatrixSet.tryGet(this.targetProjection?.value);
         if (targetProjection == null) throw new Error('Invalid target-projection');
 
-        const resampling =
-            this.resampling?.value == null
-                ? GdalCogBuilderDefaults.resampling
-                : GdalResamplingOptions[this.resampling?.value];
-
         const ctx: JobCreationContext = {
             source,
             output,
@@ -105,7 +99,6 @@ export class ActionJobCreate extends CommandLineAction {
                 quality: this.quality?.value ?? GdalCogBuilderDefaults.quality,
                 id: this.overrideId?.value ?? CliId,
                 projection: Epsg.tryGet(this.sourceProjection?.value),
-                resampling,
             },
             batch: this.submitBatch?.value,
         };
@@ -123,13 +116,6 @@ export class ActionJobCreate extends CommandLineAction {
             parameterShortName: '-c',
             description: 'Maximum number of requests to use at one time',
             defaultValue: MaxConcurrencyDefault,
-            required: false,
-        });
-
-        this.resampling = this.defineStringParameter({
-            argumentName: 'RESAMPLING',
-            parameterLongName: '--resampling',
-            description: 'Resampling method to use',
             required: false,
         });
 

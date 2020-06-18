@@ -70,7 +70,7 @@ async function buildWarpVrt(
         warpOpts.push('-srcnodata', String(job.output.nodata), '-dstnodata', String(job.output.nodata));
     }
     if (job.output.resampling) {
-        warpOpts.push('-r', job.output.resampling);
+        warpOpts.push('-r', job.output.resampling.warp);
     }
 
     logger.debug({ warpOpts: warpOpts.join(' ') }, 'gdalwarp');
