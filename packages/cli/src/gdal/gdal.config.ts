@@ -37,10 +37,20 @@ export interface GdalCogBuilderOptions {
     compression: 'webp' | 'jpeg';
 
     /**
-     * Resampling method to use
-     * @default 'bilinear'
+     * Resampling methods to use
      */
-    resampling: GdalCogBuilderOptionsResampling;
+    resampling: {
+        /**
+         * Resampling for warping
+         * @default 'bilinear'
+         */
+        warp: GdalCogBuilderOptionsResampling;
+        /**
+         * Resampling for overview
+         * @default 'lanczos'
+         */
+        overview: GdalCogBuilderOptionsResampling;
+    };
     /**
      * Output tile size
      * @default 512
@@ -56,7 +66,10 @@ export interface GdalCogBuilderOptions {
 }
 
 export const GdalCogBuilderDefaults: GdalCogBuilderOptions = {
-    resampling: 'bilinear',
+    resampling: {
+        warp: 'bilinear',
+        overview: 'lanczos',
+    },
     compression: 'webp',
     tilingScheme: TilingScheme.Google,
     projection: Epsg.Google,

@@ -33,7 +33,7 @@ export interface CogJob {
 
     /** Folder/S3 bucket to store the output */
     output: {
-        resampling: GdalCogBuilderOptionsResampling;
+        resampling: { warp: GdalCogBuilderOptionsResampling; overview: GdalCogBuilderOptionsResampling };
         nodata?: number;
         /**
          * Quality level to use
