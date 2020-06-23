@@ -2,8 +2,11 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
         "rootDir": "./src",
-        "outDir": "./build"
+        "outDir": "./build",
+        "lib": ["DOM"]
     },
     "include": ["src/**/*"],
-    "references": []
+    "references": [{
+        "path": "../geo"
+    }]
 }

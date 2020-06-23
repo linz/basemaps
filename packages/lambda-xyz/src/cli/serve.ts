@@ -92,7 +92,7 @@ async function main(): Promise<void> {
         logger.info({ path: req.url, duration, status: 200 }, 'Done');
     });
 
-    app.use(express.static(__dirname + '/../../../landing/static/'));
+    app.use(express.static(__dirname + '/../../../landing/dist/'));
     await new Promise((resolve) => app.listen(port, resolve));
 
     const url = Env.get(Env.PublicUrlBase) + `/?i=${tileSetName}&p=${projection}`;

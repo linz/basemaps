@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
         "composite": true,
-        "target": "ES2018",
+        "target": "ES2019",
         "module": "commonjs",
-        "lib": [],
+        "lib": ["dom"],
         "declaration": true,
         "declarationMap": true,
         "strict": true,
