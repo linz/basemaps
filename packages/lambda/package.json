@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "private": false,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -11,7 +11,7 @@
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "dependencies": {
-    "@basemaps/metrics": "^2.0.0",
+    "@basemaps/metrics": "^3.0.0",
     "source-map-support": "^0.5.19",
     "ulid": "^2.3.0"
   },
