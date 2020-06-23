@@ -1,6 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
-import * as o from 'ospec';
+import o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal';
 import { buildCogForName } from '../cog';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';

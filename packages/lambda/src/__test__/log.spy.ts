@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { LogType } from '../lambda.context';
 
 export type LogSpyType = LogType & { spy: o.Spy<any[], void> };

@@ -2,7 +2,7 @@ import { Bounds, Epsg, EpsgCode, GeoJson, Tile, TileMatrixSet } from '@basemaps/
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { Position } from 'geojson';
-import { Proj } from './proj';
+import Proj from 'proj4';
 import { NamedBounds } from '../aws/tile.metadata.base';
 import { CompositeError } from '../composite.error';
 import { Citm2000 } from './citm2000';

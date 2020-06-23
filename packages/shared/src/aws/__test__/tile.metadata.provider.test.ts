@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { TileMetadataTag, TileMetadataProviderRecord } from '../tile.metadata.base';
 import { TileMetadataProvider } from '../tile.metadata.provider';
 

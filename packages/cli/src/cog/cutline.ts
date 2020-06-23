@@ -2,10 +2,9 @@ import { Bounds, Epsg, GeoJson, Tile, TileMatrixSet } from '@basemaps/geo';
 import { compareName, FileOperator, NamedBounds, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { FeatureCollection, Position } from 'geojson';
 import { basename } from 'path';
-import * as pc from 'polygon-clipping';
+import pc, { MultiPolygon, Polygon, Ring } from 'polygon-clipping';
 import { CoveringFraction, MaxImagePixelWidth } from './constants';
 import { CogJob, SourceMetadata } from './types';
-
 const { intersection, union } = pc;
 
 /** Padding to always apply to image boundies */
@@ -15,7 +14,7 @@ function findGeoJsonProjection(geojson: any | null): Epsg {
     return Epsg.parse(geojson?.crs?.properties?.name ?? '') ?? Epsg.Wgs84;
 }
 
-function polysSameShape(a: pc.Polygon, b: pc.Polygon): boolean {
+function polysSameShape(a: Polygon, b: Polygon): boolean {
     if (a.length != b.length) return false;
     for (let i = 0; i < a.length; ++i) {
         if (a[i].length != b[i].length) return false;
@@ -44,7 +43,7 @@ function addNonDupes(list: Tile[], addList: Tile[]): void {
 }
 
 export class Cutline {
-    clipPoly: pc.MultiPolygon = [];
+    clipPoly: MultiPolygon = [];
     targetProj: ProjectionTileMatrixSet;
     blend: number;
     tms: TileMatrixSet; // convience to targetProj.tms
@@ -74,10 +73,10 @@ export class Cutline {
         for (const { geometry } of clipPoly.features) {
             if (geometry.type === 'MultiPolygon') {
                 for (const coords of geometry.coordinates) {
-                    this.clipPoly.push([coords[0].map(fromWsg84) as pc.Ring]);
+                    this.clipPoly.push([coords[0].map(fromWsg84) as Ring]);
                 }
             } else if (geometry.type === 'Polygon') {
-                this.clipPoly.push([geometry.coordinates[0].map(fromWsg84) as pc.Ring]);
+                this.clipPoly.push([geometry.coordinates[0].map(fromWsg84) as Ring]);
             }
         }
     }
@@ -118,8 +117,8 @@ export class Cutline {
         job.source.files = job.source.files.filter((path) => srcTiffs.has(basename(path)));
 
         if (this.clipPoly.length > 0) {
-            const boundsPoly = GeoJson.toPositionPolygon(qkPadded.toBbox()) as pc.Polygon;
-            const poly = pc.intersection(boundsPoly, this.clipPoly);
+            const boundsPoly = GeoJson.toPositionPolygon(qkPadded.toBbox()) as Polygon;
+            const poly = intersection(boundsPoly, this.clipPoly);
             if (poly == null || poly.length == 0) {
                 // this tile is not needed
                 this.clipPoly = [];
@@ -226,11 +225,11 @@ export class Cutline {
      */
     private makeTiles(
         tile: Tile,
-        srcArea: pc.MultiPolygon,
+        srcArea: MultiPolygon,
         minZ: number,
         coveringFraction: number,
     ): { tiles: Tile[]; fractionCovered: number } {
-        const clip = this.targetProj.tileToPolygon(tile) as pc.Polygon;
+        const clip = this.targetProj.tileToPolygon(tile) as Polygon;
         const intArea = intersection(srcArea, clip);
 
         if (intArea.length == 0) {
@@ -270,8 +269,8 @@ export class Cutline {
 
      * @param sourceMetadata
      */
-    private findCovering(sourceMetadata: SourceMetadata): pc.MultiPolygon {
-        let srcArea: pc.MultiPolygon = [];
+    private findCovering(sourceMetadata: SourceMetadata): MultiPolygon {
+        let srcArea: MultiPolygon = [];
         const { resZoom } = sourceMetadata;
 
         // merge imagery bounds
@@ -280,18 +279,18 @@ export class Cutline {
                 // ensure source polys overlap by using their bounding box
                 const poly = GeoJson.toPositionPolygon(
                     this.padBounds(this.sourceWsg84PolyToBounds(geometry.coordinates[0]), resZoom).toBbox(),
-                ) as pc.Polygon;
+                ) as Polygon;
                 if (srcArea.length == 0) {
                     srcArea.push(poly);
                 } else {
-                    srcArea = union(srcArea, poly) as pc.MultiPolygon;
+                    srcArea = union(srcArea, poly) as MultiPolygon;
                 }
             }
         }
 
         if (this.clipPoly.length != 0) {
             // clip the imagery bounds
-            this.clipPoly = (intersection(srcArea, this.clipPoly) ?? []) as pc.MultiPolygon;
+            this.clipPoly = (intersection(srcArea, this.clipPoly) ?? []) as MultiPolygon;
             return this.clipPoly;
         }
 

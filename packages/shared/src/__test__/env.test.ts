@@ -1,5 +1,5 @@
 import { Env } from '../const';
-import * as o from 'ospec';
+import o from 'ospec';
 
 o.spec('Environment', () => {
     o('should load a number from environment var', () => {

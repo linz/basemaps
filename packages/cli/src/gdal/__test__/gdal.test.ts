@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { GdalCogBuilder } from '../gdal';
 import { normalizeAwsEnv } from '../gdal.command';
 import { GdalCogBuilderDefaults } from '../gdal.config';

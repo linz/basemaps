@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 
 // Redefine these interfaces as we do not want a cyclic dependency on @basemaps/geo
 interface LatLon {

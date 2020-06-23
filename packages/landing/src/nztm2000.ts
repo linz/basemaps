@@ -1,7 +1,7 @@
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { register } from 'ol/proj/proj4';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
-import { Proj } from './proj';
+import Proj from 'proj4';
 
 Proj.defs(
     'EPSG:2193',

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { LogConfig, Env } from '@basemaps/shared';
 import { CommandLineParser } from '@rushstack/ts-command-line';
-import * as getGitInfo from 'git-repo-info';
+import getGitInfo from 'git-repo-info';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import * as ulid from 'ulid';

@@ -20,6 +20,8 @@
         "noEmitOnError": false,
         "experimentalDecorators": true,
         "strictPropertyInitialization": false,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
         "baseUrl": "./",
     }

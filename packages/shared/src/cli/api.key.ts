@@ -2,7 +2,7 @@
 
 import { Aws } from '../aws';
 
-import * as baseX from 'base-x';
+import baseX from 'base-x';
 import { randomBytes } from 'crypto';
 
 const base58 = baseX('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz');

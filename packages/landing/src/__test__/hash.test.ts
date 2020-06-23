@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { WindowUrl, MapOptionType } from '../url';
 import { Epsg } from '@basemaps/geo';
 

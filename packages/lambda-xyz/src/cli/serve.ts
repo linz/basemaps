@@ -1,7 +1,7 @@
 import { Epsg } from '@basemaps/geo';
 import { Env, LogConfig, LogType } from '@basemaps/shared';
 import { LambdaContext } from '@basemaps/lambda';
-import * as express from 'express';
+import express from 'express';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import * as ulid from 'ulid';

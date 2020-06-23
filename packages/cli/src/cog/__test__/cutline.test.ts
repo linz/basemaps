@@ -3,7 +3,7 @@ import { ProjectionTileMatrixSet } from '@basemaps/shared';
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import { MultiPolygon } from 'geojson';
-import * as o from 'ospec';
+import o from 'ospec';
 import { Cutline } from '../cutline';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';

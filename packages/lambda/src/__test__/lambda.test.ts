@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { ALBResult, CloudFrontResultResponse } from 'aws-lambda';
-import * as o from 'ospec';
+import o from 'ospec';
 import { HttpHeader } from '../header';
 import { LambdaFunction } from '../lambda';
 import { LambdaContext } from '../lambda.context';
