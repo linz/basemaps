@@ -110,7 +110,7 @@ export class CogBuilderStack extends cdk.Stack {
             serviceRole: batchServiceRole.roleArn,
             computeResources: {
                 type: 'SPOT',
-                maxvCpus: 512,
+                maxvCpus: 3000,
                 minvCpus: 0,
                 desiredvCpus: 16,
                 spotIamFleetRole: spotFleetRole.roleArn,
