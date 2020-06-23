@@ -2339,9 +2339,9 @@
   integrity sha512-ebDJ9b0e702Yr7pWgB0jzm+CX4Srzz8RcXtLJDJB+BSccqMa36uyH/zUsSYao5+BD1ytv3k3rPYCq4mAE1hsXA==
 
 "@types/aws-lambda@^8.10.43":
-  version "8.10.55"
-  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.55.tgz#7293cf7908766a60efc28262cbf65a8a957dec0e"
-  integrity sha512-rtJhfxbsqmIC6t/vnUqvZH2PyLHJscYc166P+sHWAIp0Rx4szDarL+Ul8esGYZFWrQ36q2MHrPMzuI23zXSlMg==
+  version "8.10.56"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.56.tgz#24fc61bf628db86412bb4f28da051df4baa532d6"
+  integrity sha512-jaxu5br/KYxhNBNmr2GoVhIUady2zNsvSRCa4kCHW+GcM4ladPhfEyeJkkNMGo/IlVAfpcPYTsSzhYWZoSgZXA==
 
 "@types/body-parser@*":
   version "1.19.0"
@@ -2992,22 +2992,7 @@ aws-cdk@^1.46.0:
     yaml "^1.10.0"
     yargs "^15.3.1"
 
-aws-sdk@^2.508.0, aws-sdk@^2.524.0:
-  version "2.693.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.693.0.tgz#46363d32fb2e23c6eeda049998ce8205a4ebf463"
-  integrity sha512-/0zy5IlE8wHrTXCxPYMSJGaqTKN1ulBBOSuWYeGxHU8pnTT6ZHpDdHlS83DHrVbsXnO/zq9prEf1nXRWlwgARw==
-  dependencies:
-    buffer "4.9.2"
-    events "1.1.1"
-    ieee754 "1.1.13"
-    jmespath "0.15.0"
-    querystring "0.2.0"
-    sax "1.2.1"
-    url "0.10.3"
-    uuid "3.3.2"
-    xml2js "0.4.19"
-
-aws-sdk@^2.699.0:
+aws-sdk@^2.508.0, aws-sdk@^2.524.0, aws-sdk@^2.699.0:
   version "2.702.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.702.0.tgz#c5bb9a6caeb7d938b803095073fe981ff29e4244"
   integrity sha512-FKRve3NOKeUKxFXeD6VfiIhXpIhym/yFdy7higxUObmsj2ssM/e7Iud79gUHRAKJW5fzusdtkBCAVBjotRGxew==
