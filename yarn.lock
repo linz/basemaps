@@ -1379,9 +1379,9 @@
     to-fast-properties "^2.0.0"
 
 "@cogeotiff/core@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.0.0.tgz#f28086c0f05d822f584540aa631379067a0edbbe"
-  integrity sha512-YrgufvZMSjnYRDdE7XFG07Xt87L7lNGe1Z2EiLef61Oy4Ha7q7yxE0skXWyPRta45dCHOwXXOfAVg7CdjSDVIQ==
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.1.0.tgz#62c7d4c12c0b4ebb8ba07d1346a35d4ce27b9e81"
+  integrity sha512-iYEsnc74FFCzYizoylGX4WJn30JxVbA0YZpZ0Vhkrsf4qrFmrhSnNyLS2tivVc44+2c1T+Zc1zw7iHbpK5YgzA==
   dependencies:
     ieee754 "^1.1.13"
 
