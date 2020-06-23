@@ -1,5 +1,4 @@
 import './global';
-import 'ol/ol.css';
 
 import { Basemaps } from './map';
 

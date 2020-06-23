@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { LogConfig, Env } from '@basemaps/shared';
 import { CommandLineParser } from '@rushstack/ts-command-line';
-import * as gitRev from 'git-rev-sync';
+import * as getGitInfo from 'git-repo-info';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import * as ulid from 'ulid';
@@ -11,8 +11,9 @@ const packageJson = require('../../package.json');
 
 /** Attempt to lookup the githash */
 function getGitHash(): string {
+    const info = getGitInfo();
     try {
-        return `${gitRev.branch()}@${gitRev.short()}`;
+        return `${info.branch}@${info.abbreviatedSha}`;
     } catch (e) {
         return 'Unknown';
     }

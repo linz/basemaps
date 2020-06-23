@@ -1,7 +1,7 @@
 import { createHash, Hash } from 'crypto';
-import fs = require('fs');
-import path = require('path');
-import gitRev = require('git-rev-sync');
+import * as fs from 'fs';
+import * as path from 'path';
+import * as gitRepoInfo from 'git-repo-info';
 
 /**
  * Hash a tree of files returning a single hash
@@ -51,11 +51,9 @@ export const VersionUtil = {
      */
     version(): VersionInfo {
         if (versionInfo == null) {
-            let version = gitRev.tag();
-            const hash = gitRev.long();
-            if (version === hash) {
-                version = 'HEAD';
-            }
+            const info = gitRepoInfo();
+            const version = info.tag == null ? 'HEAD' : info.tag;
+            const hash = info.sha;
             versionInfo = { version, hash };
         }
         return versionInfo;
