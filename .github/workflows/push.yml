@@ -59,6 +59,7 @@ jobs:
           ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN}}
           CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN}}
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
+          NODE_ENV: "dev"
           API_KEY: ${{secrets.API_KEY_NON_PROD}}
 
       - name: Publish NPM
