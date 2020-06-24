@@ -2,7 +2,7 @@ import { Bounds, EpsgCode, QuadKey } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
-import * as o from 'ospec';
+import o from 'ospec';
 import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
 import { qkToNamedBounds } from './test.util';
 

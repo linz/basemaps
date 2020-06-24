@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { TileMetadataTileSet } from '../tile.metadata.tileset';
 import { Epsg } from '@basemaps/geo';
 import { TileMetadataSetRecord, TileMetadataTag } from '../tile.metadata.base';

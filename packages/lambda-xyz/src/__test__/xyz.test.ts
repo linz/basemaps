@@ -3,7 +3,7 @@ import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import { Tiler } from '@basemaps/tiler';
-import * as o from 'ospec';
+import o from 'ospec';
 import { handleRequest } from '../index';
 import { TileComposer } from '../routes/tile';
 import { TileEtag } from '../routes/tile.etag';

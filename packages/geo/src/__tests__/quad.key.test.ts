@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { QuadKey } from '../quad.key';
 
 o.spec('QuadKey', () => {

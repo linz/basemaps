@@ -1,5 +1,5 @@
 import { SemVer } from '../semver.util';
-import * as o from 'ospec';
+import o from 'ospec';
 o.spec('VersionCompare', () => {
     o.spec('toNumber', () => {
         o('should make correct numbers', () => {

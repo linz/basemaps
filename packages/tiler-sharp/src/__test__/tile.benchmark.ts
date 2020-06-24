@@ -3,7 +3,7 @@ import { Metrics } from '@basemaps/metrics';
 import { TestTiff } from '@basemaps/test';
 import { ImageFormat, Tiler } from '@basemaps/tiler';
 import { writeFileSync } from 'fs';
-import * as o from 'ospec';
+import o from 'ospec';
 import 'source-map-support/register';
 import { TileMakerSharp } from '../index';
 

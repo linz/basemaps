@@ -1,5 +1,5 @@
 import { Epsg } from '../epsg';
-import * as o from 'ospec';
+import o from 'ospec';
 import { Nztm2000Tms } from '../tms/nztm2000';
 
 o.spec('Epsg', () => {

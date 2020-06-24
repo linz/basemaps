@@ -1,7 +1,7 @@
 import { LogConfig } from '@basemaps/shared';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import { CloudFrontRequestResult } from 'aws-lambda';
-import * as o from 'ospec';
+import o from 'ospec';
 import { handleRequest } from '../index';
 import { ValidateRequest } from '../validate';
 

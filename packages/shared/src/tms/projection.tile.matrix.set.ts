@@ -2,7 +2,7 @@ import { Bounds, Epsg, EpsgCode, GeoJson, Tile, TileMatrixSet } from '@basemaps/
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { Position } from 'geojson';
-import * as proj4 from 'proj4';
+import Proj from 'proj4';
 import { NamedBounds } from '../aws/tile.metadata.base';
 import { CompositeError } from '../composite.error';
 import { Citm2000 } from './citm2000';
@@ -13,8 +13,8 @@ export interface LatLon {
     lon: number;
 }
 
-proj4.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
-proj4.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
+Proj.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
+Proj.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
 
 const CodeMap = new Map<EpsgCode, ProjectionTileMatrixSet>();
 
@@ -34,7 +34,7 @@ export class ProjectionTileMatrixSet {
         this.tms = tms;
         this.blockFactor = blockFactor;
         try {
-            this.projection = proj4(tms.projection.toEpsgString(), Epsg.Wgs84.toEpsgString());
+            this.projection = Proj(tms.projection.toEpsgString(), Epsg.Wgs84.toEpsgString());
         } catch (err) {
             throw new CompositeError(
                 `Failed to create projection: ${tms.projection.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`,

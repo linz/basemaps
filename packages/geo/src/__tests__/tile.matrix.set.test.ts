@@ -1,6 +1,6 @@
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
-import * as o from 'ospec';
+import o from 'ospec';
 import { Point } from '../bounds';
 import { Epsg } from '../epsg';
 import { QuadKey } from '../quad.key';

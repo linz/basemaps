@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as AWS from 'aws-sdk';
-import * as o from 'ospec';
+import o from 'ospec';
 
 o.spec('AWS Init', (): void => {
     function mock<K extends keyof T, T>(obj: T, key: K, mock: T[K]): Function {

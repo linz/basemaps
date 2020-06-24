@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { VNodeParser } from '../vdom.parse';
 
 const VrtExample = `

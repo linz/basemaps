@@ -2,9 +2,10 @@ import { Bounds, Epsg, GeoJson, Tile, TileMatrixSet } from '@basemaps/geo';
 import { compareName, FileOperator, NamedBounds, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { FeatureCollection, Position } from 'geojson';
 import { basename } from 'path';
-import { intersection, MultiPolygon, Polygon, Ring, union } from 'polygon-clipping';
+import pc, { MultiPolygon, Polygon, Ring } from 'polygon-clipping';
 import { CoveringFraction, MaxImagePixelWidth } from './constants';
 import { CogJob, SourceMetadata } from './types';
+const { intersection, union } = pc;
 
 /** Padding to always apply to image boundies */
 const PixelPadding = 100;

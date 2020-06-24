@@ -2,7 +2,7 @@ import { Epsg, EpsgCode } from '@basemaps/geo';
 import { LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
-import * as o from 'ospec';
+import o from 'ospec';
 import { CogBuilder, guessProjection } from '../builder';
 
 o.spec('Builder', () => {

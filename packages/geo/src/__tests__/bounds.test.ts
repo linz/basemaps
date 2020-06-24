@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { Bounds } from '../bounds';
 import { Approx } from '@basemaps/test';
 

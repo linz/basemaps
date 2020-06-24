@@ -2,7 +2,7 @@ import { EpsgCode } from '@basemaps/geo';
 import { FileOperatorSimple, LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import { FeatureCollection } from 'geojson';
-import * as o from 'ospec';
+import o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal';
 import { Cutline } from '../cutline';
 import { CogVrt } from '../cog.vrt';

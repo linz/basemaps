@@ -4,7 +4,7 @@ import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
-import * as pLimit from 'p-limit';
+import pLimit from 'p-limit';
 import * as path from 'path';
 import { Cutline } from './cutline'; //
 import { CogBuilderMetadata, SourceMetadata } from './types';

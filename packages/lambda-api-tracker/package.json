@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
-    "deploy:bundle": "ncc build build/index.js -e aws-sdk -o dist -s"
+    "deploy:bundle": "esbuild --bundle --platform=node src/index.ts --external:aws-sdk --external:pino-pretty --target=es2018 --outdir=dist --format=cjs"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",
