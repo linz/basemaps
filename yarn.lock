@@ -1446,9 +1446,9 @@
     react-modal "^3.11.2"
 
 "@rushstack/ts-command-line@^4.3.13":
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.4.2.tgz#8e2518b41045ba91275c2bfc872ec9cdaa074adf"
-  integrity sha512-iJ6wV+ICaE252J2snVPDiX4pz1r25CY1Ua/3QE4nd+lD+80hv6i6JLCDdmkculgYRXkAxvYXRtriD4JfqvgdKA==
+  version "4.4.4"
+  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.4.4.tgz#5e928fc1cd49b91993c5a6e45e7033d1d8d05dc9"
+  integrity sha512-OCgTgkcXFWqgyRq0yMIZ7GnBKim48AnHg/FkWZH7IrgxNEY7IVjxd1DrWciPljTlpF1p84Z5U7jZuq7NJZIN1A==
   dependencies:
     "@types/argparse" "1.0.38"
     argparse "~1.0.9"
