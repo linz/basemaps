@@ -10,16 +10,13 @@ import { NztmOl } from './nztm2000';
 import Layer from 'ol/layer/Layer';
 
 /** Projection to use for the URL bar */
-const UrlProjection = 'EPSG:4326';
+const UrlProjection = Epsg.Wgs84.toEpsgString();
 
 /** Default center point if none provided */
 const DefaultCenter: Record<number, MapLocation> = {
-    [Epsg.Google.code]: { lat: -41.277848, lon: 174.7763921, zoom: 8 },
+    [Epsg.Google.code]: { lat: -41.88999621, lon: 174.04924373, zoom: 6 },
     [Epsg.Nztm2000.code]: { lat: -41.277848, lon: 174.6763921, zoom: 2 },
 };
-
-const attributions =
-    '<a href="https://www.linz.govt.nz/data/licensing-and-using-data/attributing-elevation-or-aerial-imagery-data"Sourced from LINZ. CC BY 4.0</a>';
 
 export class Basemaps {
     map: Map;
@@ -37,7 +34,7 @@ export class Basemaps {
 
         if (projection == Epsg.Google) {
             return new TileLayer({
-                source: new XYZ({ url: WindowUrl.toTileUrl(this.config, MapOptionType.Tile), attributions }),
+                source: new XYZ({ url: WindowUrl.toTileUrl(this.config, MapOptionType.Tile) }),
             });
         }
 
@@ -46,7 +43,6 @@ export class Basemaps {
                 source: new WMTS({
                     url: WindowUrl.toTileUrl(this.config, MapOptionType.TileWmts),
                     requestEncoding: 'REST',
-                    attributions,
                     projection: projection.toEpsgString(),
                     tileGrid: NztmOl.TileGrid,
                     // These keys arent really needed but need to be strings
