@@ -11,6 +11,8 @@ export interface MapOptions {
     projection: Epsg;
     tag: string;
     imageId: string;
+    /** Is the debug layer enabled @default false */
+    debug: boolean;
 }
 export const enum MapOptionType {
     Tile = 'tile',
@@ -54,8 +56,9 @@ export const WindowUrl = {
         const tag = urlParams.get('v') ?? 'production';
         const imageId = urlParams.get('i') ?? 'aerial';
         const projection = Epsg.parse(urlParams.get('p') ?? `${Epsg.Google.code}`) ?? Epsg.Google;
+        const debug = urlParams.get('debug') != null;
 
-        return { tag, imageId, projection };
+        return { tag, imageId, projection, debug };
     },
 
     toTileUrl(opts: MapOptions, urlType: MapOptionType): string {

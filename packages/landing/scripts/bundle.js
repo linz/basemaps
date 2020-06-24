@@ -32,7 +32,11 @@ const BUILD_CMD = [
  * List of CSS files to bundle
  * TODO it would be good to read these from the `index.html`
  */
-const CSS_SOURCE = ['../../node_modules/ol/ol.css', '../../node_modules/@philals/lui/dist/lui.cjs.development.css'];
+const CSS_SOURCE = [
+    'static/index.css',
+    '../../node_modules/ol/ol.css',
+    '../../node_modules/@philals/lui/dist/lui.cjs.development.css',
+];
 
 /**
  * Display a number in KB with a few decimal places

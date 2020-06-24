@@ -16,31 +16,43 @@ o.spec('WindowUrl', () => {
             projection: Epsg.Google,
             imageId: 'aerial',
             tag: 'production',
+            debug: false,
         });
         o(WindowUrl.fromUrl('?p=2193')).deepEquals({
             projection: Epsg.Nztm2000,
             imageId: 'aerial',
             tag: 'production',
+            debug: false,
         });
         o(WindowUrl.fromUrl('?i=abc123')).deepEquals({
             projection: Epsg.Google,
             imageId: 'abc123',
             tag: 'production',
+            debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta')).deepEquals({
             projection: Epsg.Google,
             imageId: 'aerial',
             tag: 'beta',
+            debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193')).deepEquals({
             projection: Epsg.Nztm2000,
             imageId: 'abc123',
             tag: 'beta',
+            debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193&d=true')).deepEquals({
             projection: Epsg.Nztm2000,
             imageId: 'abc123',
             tag: 'beta',
+            debug: false,
+        });
+        o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193&d=true&debug=yes')).deepEquals({
+            projection: Epsg.Nztm2000,
+            imageId: 'abc123',
+            tag: 'beta',
+            debug: true,
         });
     });
 
