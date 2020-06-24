@@ -542,7 +542,7 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@cogeotiff/core@^2.0.0":
+"@cogeotiff/core@^2.0.0", "@cogeotiff/core@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.1.0.tgz#62c7d4c12c0b4ebb8ba07d1346a35d4ce27b9e81"
   integrity sha512-iYEsnc74FFCzYizoylGX4WJn30JxVbA0YZpZ0Vhkrsf4qrFmrhSnNyLS2tivVc44+2c1T+Zc1zw7iHbpK5YgzA==
@@ -565,11 +565,11 @@
     "@cogeotiff/core" "^2.0.0"
 
 "@cogeotiff/source-url@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-2.0.0.tgz#f96af45e05b9f7a4004f11f52ac172f0be356c52"
-  integrity sha512-5FLinaBulCtebR7dDFQxNFoybnpKrDmfw3zoQ1F+YIkKNj5zed996rfEJ2uf21mrQ5gZDWTBsX8DubC0l+5acg==
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-2.1.0.tgz#284a4754f23e2b8c14873eaa13bec2b4d38493bd"
+  integrity sha512-uWS4BEof1dFeAhFy+PF59brucVfl39Kd/IyucFukVMWnzERf8E1/YK0GQtOYY8t4tFjVYU7RfFvnJknYweVGlA==
   dependencies:
-    "@cogeotiff/core" "^2.0.0"
+    "@cogeotiff/core" "^2.1.0"
     node-fetch "^2.6.0"
 
 "@evocateur/libnpmaccess@^3.1.2":
