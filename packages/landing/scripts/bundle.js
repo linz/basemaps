@@ -50,7 +50,7 @@ function toBytes(num) {
  * @returns {string} suffix for the file
  */
 function fileSuffix(fileData) {
-    if (process.env.NODE_ENV != 'production') {
+    if (process.env.NODE_ENV == null) {
         return '';
     }
     const bundleHash = crypto.createHash('sha512').update(fileData).digest('hex').slice(0, 16);
