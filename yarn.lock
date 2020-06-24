@@ -542,7 +542,7 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@cogeotiff/core@^2.0.0":
+"@cogeotiff/core@^2.0.0", "@cogeotiff/core@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.1.0.tgz#62c7d4c12c0b4ebb8ba07d1346a35d4ce27b9e81"
   integrity sha512-iYEsnc74FFCzYizoylGX4WJn30JxVbA0YZpZ0Vhkrsf4qrFmrhSnNyLS2tivVc44+2c1T+Zc1zw7iHbpK5YgzA==
@@ -550,11 +550,11 @@
     ieee754 "^1.1.13"
 
 "@cogeotiff/source-aws@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-2.0.0.tgz#ac3f83a0b36ab5c00c3f1afcba45a0c8aeeae10d"
-  integrity sha512-hftymPqql/WN9SGJVhK/FCChtSRSHaRurAb4UfU/MOmt+2ipBHy8NlRYXNEePFDPw+A1NmvdIhAVXe80Cj9VAA==
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-2.1.0.tgz#9e4ea26e8e7daca29f816d54717e53bd44e46d82"
+  integrity sha512-wxxAsLvojkyr1scRBcEjZwwuJ8mhae00WMViaosWb9/aRk5trPSJxak3h8Mjp4mnNwPprSPi5hU3huCqJ2JH7Q==
   dependencies:
-    "@cogeotiff/core" "^2.0.0"
+    "@cogeotiff/core" "^2.1.0"
     aws-sdk "^2.524.0"
 
 "@cogeotiff/source-file@^2.0.0":
