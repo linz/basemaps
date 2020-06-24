@@ -1,0 +1,75 @@
+body {
+    margin: 0;
+}
+
+html {
+    overflow-y: auto !important;
+}
+
+#map {
+    width: 100%;
+    height: calc(100% - 58px);
+    position: fixed;
+}
+
+.g-footer-wrapper {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+#map .ol-control {
+    background-color: inherit;
+}
+
+#map .ol-zoom button {
+    background-color: white;
+    color: #0f4c65;
+    margin: 0;
+    width: 28px;
+    height: 32px;
+}
+
+#map .ol-zoom-in {
+    border-radius: 4px 4px 0 0;
+}
+
+#map .ol-zoom-out {
+    border-radius: 0 0 4px 4px;
+}
+
+.checker-board {
+    background-image: linear-gradient(45deg, #00000010 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #00000010 75%),
+        linear-gradient(45deg, transparent 75%, #00000010 75%),
+        linear-gradient(45deg, #00000010 25%, transparent 25%);
+    background-size: 100px 100px;
+    background-position: 0 0, 0 0, -50px -50px, 50px 50px;
+}
+
+
+.debug {
+    font-size: 12px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 200px;
+    background-color: rgba(255, 255, 255, 0.87);
+    padding: 16px;
+}
+
+.debug__info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.debug__label {
+    font-weight: 700;
+}
+
+
+.osm__slider {
+    width: 75%;
+}
