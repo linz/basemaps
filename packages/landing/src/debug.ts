@@ -1,6 +1,15 @@
 import { Basemaps } from './map';
 import OSM from 'ol/source/OSM';
 import TileLayer from 'ol/layer/Tile';
+import { Epsg } from '@basemaps/geo';
+import * as proj from 'ol/proj.js';
+
+function round(max: number): (c: number) => number {
+    const decimals = 10 ** max;
+    return (c: number): number => Math.floor(c * decimals) / decimals;
+}
+const round7 = round(7);
+const round3 = round(3);
 
 /**
  * VDom style document.createElement
@@ -92,9 +101,29 @@ export function addDebugLayer(bm: Basemaps): void {
     };
     debugEl.appendChild(osmButton.container);
 
+    const mouseEl = kv(`Mouse (${bm.config.projection.toEpsgString()})`, '');
+    mouseEl.container.className = 'debug__mouse';
+    const mouseWgs84El = kv(`Mouse (${Epsg.Wgs84.toEpsgString()})`, '');
+    mouseWgs84El.container.className = 'debug__mouse';
+
+    debugEl.appendChild(mouseEl.container);
+    debugEl.appendChild(mouseWgs84El.container);
+
+    bm.map.getViewport().addEventListener('mousemove', (e) => {
+        const px = bm.map.getEventPixel(e);
+        const coord = bm.map.getCoordinateFromPixel(px);
+
+        const wgs84 = proj
+            .transform(coord, bm.config.projection.toEpsgString(), Epsg.Wgs84.toEpsgString())
+            .map(round7)
+            .join(', ');
+        mouseWgs84El.value.innerHTML = wgs84;
+        mouseEl.value.innerHTML = coord.map(round3).join(', ');
+    });
+
     bm.map.addEventListener('postrender', () => {
         const view = bm.map.getView();
-        const zoom = Math.floor(view.getZoom() * 1e4) / 1e4;
+        const zoom = round3(view.getZoom());
         zoomEl.value.innerHTML = String(zoom);
     });
 

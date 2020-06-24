@@ -65,10 +65,13 @@ html {
     margin-bottom: 4px;
 }
 
+.debug__mouse {
+    margin-bottom: 8px;
+}
+
 .debug__label {
     font-weight: 700;
 }
-
 
 .osm__slider {
     width: 75%;
