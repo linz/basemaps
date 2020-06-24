@@ -1,4 +1,4 @@
-import * as Sharp from 'sharp';
+import Sharp from 'sharp';
 import { TileMaker, ImageFormat, TileMakerContext, Composition } from '@basemaps/tiler';
 import { Metrics } from '@basemaps/metrics';
 

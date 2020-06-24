@@ -1,7 +1,7 @@
 import { Bounds, Epsg } from '@basemaps/geo';
 import { round } from '@basemaps/test/build/rounding';
 import * as AWS from 'aws-sdk';
-import * as o from 'ospec';
+import o from 'ospec';
 import { Const } from '../../const';
 import { qkToNamedBounds } from '../../tms/__test__/test.util';
 import { TileMetadataTable } from '../tile.metadata';

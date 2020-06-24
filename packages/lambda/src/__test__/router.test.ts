@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { LambdaContext } from '../lambda.context';
 import { LambdaHttpResponse } from '../lambda.response';
 import { Router } from '../router';

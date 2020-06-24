@@ -2,7 +2,7 @@ import { Bounds, QuadKey } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { Approx, TestTiff } from '@basemaps/test';
-import * as o from 'ospec';
+import o from 'ospec';
 import { Tiler } from '../tiler';
 
 o.spec('tiler.test', () => {

@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { V, VNode, VNodeElement, VNodeText } from '../vdom';
 
 o.spec('VDom', () => {

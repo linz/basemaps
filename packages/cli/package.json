@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "deploy:bundle": "ncc build build/cli/cogify/index.js -o dist -s",
+    "deploy:bundle": "esbuild --bundle --platform=node src/cli/cogify/index.ts --external:pino-pretty --target=es2018 --outdir=dist --format=cjs",
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "dependencies": {
@@ -25,7 +25,7 @@
     "@cogeotiff/source-url": "^2.0.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
-    "git-rev-sync": "^2.0.0",
+    "git-repo-info": "^2.1.1",
     "p-limit": "^3.0.1",
     "polygon-clipping": "^0.14.3",
     "pretty-json-log": "^0.3.1"

@@ -1,4 +1,4 @@
-import * as o from 'ospec';
+import o from 'ospec';
 import { GeoJson } from '../geo.json';
 
 o.spec('geo.json', () => {

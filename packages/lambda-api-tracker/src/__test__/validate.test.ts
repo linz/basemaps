@@ -1,6 +1,6 @@
 import { LambdaContext } from '@basemaps/lambda';
 import { ApiKeyTableRecord, Aws, LogConfig } from '@basemaps/shared';
-import * as o from 'ospec';
+import o from 'ospec';
 import { ValidateRequest } from '../validate';
 
 o.spec('ApiValidate', (): void => {

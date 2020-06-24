@@ -1,5 +1,5 @@
 import { TileMetadataImageryRecord } from '@basemaps/shared';
-import * as o from 'ospec';
+import o from 'ospec';
 import { TileSet } from '../tile.set';
 
 o.spec('tile.set', () => {

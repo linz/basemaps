@@ -1,7 +1,7 @@
 import { Epsg, QuadKey } from '@basemaps/geo';
 import { ImageFormat, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
-import * as o from 'ospec';
+import o from 'ospec';
 import * as path from 'path';
 import { PNG } from 'pngjs';
 import { TileMakerSharp } from '..';
