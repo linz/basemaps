@@ -1,4 +1,5 @@
 import { Basemaps } from './map';
+import { BasemapsUi } from './ui';
 
 declare global {
     interface Window {
@@ -8,5 +9,6 @@ declare global {
 
         // Access to basemaps global
         basemaps: Basemaps;
+        basemapsUi: BasemapsUi;
     }
 }

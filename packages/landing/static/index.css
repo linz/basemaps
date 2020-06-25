@@ -4,6 +4,11 @@ body {
 
 html {
     overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+button {
+    cursor: pointer;
 }
 
 #map {
@@ -24,8 +29,9 @@ html {
 }
 
 #map .ol-zoom button {
+    cursor: pointer;
     background-color: white;
-    color: #0f4c65;
+    color: #00425d;
     margin: 0;
     width: 28px;
     height: 32px;
@@ -39,15 +45,17 @@ html {
     border-radius: 0 0 4px 4px;
 }
 
+#map .ol-control button:hover {
+    background-color: #e2f3f7;
+}
+
 .checker-board {
     background-image: linear-gradient(45deg, #00000010 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #00000010 75%),
-        linear-gradient(45deg, transparent 75%, #00000010 75%),
+        linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, transparent 75%, #00000010 75%),
         linear-gradient(45deg, #00000010 25%, transparent 25%);
     background-size: 100px 100px;
     background-position: 0 0, 0 0, -50px -50px, 50px 50px;
 }
-
 
 .debug {
     font-size: 12px;
@@ -77,13 +85,12 @@ html {
     width: 75%;
 }
 
-
 .lui-footer-x-sm.g-footer__standard {
     padding: 2px;
 }
 
 .lui-footer-x-sm.g-footer__standard .g-footer__standard-inline-list-item {
-    margin: 4px 16px 0 0;
+    margin: 4px 16px;
 }
 
 .lui-footer-x-sm p {
@@ -94,6 +101,9 @@ html {
     align-items: center;
 }
 
+.justify-center {
+    justify-content: center;
+}
 
 .lui-header-primary.lui-header-sm .lui-header-top-section .g-flex-row {
     height: 64px !important;
@@ -104,7 +114,6 @@ html {
     padding-bottom: 4px;
 }
 
-
 .lui-header-logo {
     display: flex;
 }
@@ -114,11 +123,77 @@ html {
     height: auto;
 }
 
-
-#map .ol-control button {
-    cursor: pointer;
+.side-nav {
+    height: 100%;
+    width: 348px;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    right: -348px;
+    background-color: white;
+    overflow-x: hidden;
+    padding: 16px;
+    transition: right 0.5s;
 }
 
-#map .ol-control button:hover {
-    background-color: #73c8e1;
+.side-nav .side-nav-container {
+    display: none;
+}
+
+#menu-close {
+    position: absolute;
+    background-color: transparent;
+    top: 8px;
+    right: 8px;
+    font-size: 36px;
+    color: #00425d;
+}
+
+.side-nav h5 {
+    margin-top: 0;
+}
+
+.side-nav--opened {
+    right: 0px;
+}
+
+.side-nav.lui-text-content-area h6 {
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+
+.side-nav.lui-text-content-area p {
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.side-nav #contact-us {
+    margin-top: 8px;
+}
+
+.side-nav hr {
+    color: #00425d;
+}
+
+.info-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.info-links li {
+    border-bottom: 1px solid #eaeaea;
+    padding: 16px 8px;
+    margin: 0;
+}
+
+.info-links li a {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    text-decoration: none;
+    border: none;
+}
+.info-links li a:hover {
+    border: none;
 }

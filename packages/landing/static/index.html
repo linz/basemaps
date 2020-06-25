@@ -6,10 +6,12 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     $CSS_FILE
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <title>Basemaps | Land Information New Zealand (LINZ)</title>
 </head>
 
 <body class="checker-board">
+    <div id="modal" style="display:none"></div>
     <header class="lui-header-primary lui-header-sm">
         <div class="g-flex-container lui-max-width lui-header-top-section">
             <div class="g-flex-row lui-header-cols">
@@ -94,6 +96,15 @@
                         </div>
                     </div>
                 </div>
+                <div class="lui-header-col-2">
+                    <div class="g-flex-row">
+                        <div class="lui-header-menu-icon">
+                            <button id="menu-open">
+                                <i class="material-icons-round md-36">menu</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="lui-header-swish"></div>
@@ -104,6 +115,46 @@
             </div>
         </div>
     </header>
+    <div id="side-nav" class="side-nav lui-text-content-area">
+        <button id="menu-close">&times;</button>
+        <hr style="margin-top: 48px" />
+
+        <h6>Get an API Key</h6>
+        <div class="g-flex-row justify-center">
+            <div class="lui-button-group">
+                <div class="lui-button-wrapper">
+                    <button id="projection-nztm" class="lui-button lui-button-small lui-button-secondary">NZTM</button>
+                </div>
+                <div class="lui-button-wrapper">
+                    <button id="projection-wm"
+                        class="lui-button lui-button-small lui-button-secondary lui-button-active">Web Mercator</button>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="lui-standard-form">
+            <label for="api-xyz">XYZ Tiles</label>
+            <div class="lui-input-wrapper">
+                <input id="api-xyz" onclick="this.select()" value="https://..." />
+            </div>
+            <label for="api-wmts">WMTS</label>
+            <div class="lui-input-wrapper">
+                <input id="api-wmts" onclick="this.select()" value="https://..." />
+            </div>
+        </div>
+
+        <h6>Developer Access</h6>
+        <p>Contact us for free API keys with better support for public web and mobile apps.</p>
+        <button id="contact-us" class="lui-button lui-button-tertiary">Contact us</button>
+
+        <h6>About basemaps</h6>
+        <ul class="info-links">
+            <li><a href="https://linz.govt.nz/linz-copyright">Get Started <i class="material-icons-round md-36">launch</i></a></li>
+            <li><a href="https://linz.govt.nz/linz-copyright">Technical information<i class="material-icons-round md-36">launch</i></a></li>
+            <li><a href="https://linz.govt.nz/linz-copyright">How to use our APIs <i class="material-icons-round md-36">launch</i></a></li>
+        </ul>
+    </div>
     <div id="map" class="map"></div>
     <footer class="g-footer-wrapper  g-footer__standard lui-footer lui-footer-x-sm" role="contentinfo">
         <div class="g-flex-container lui-max-width">

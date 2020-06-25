@@ -64,9 +64,9 @@ export const WindowUrl = {
     toTileUrl(opts: MapOptions, urlType: MapOptionType): string {
         const tag = opts.tag == 'production' ? '' : `@${opts.tag}`;
         const api = Config.ApiKey == null || Config.ApiKey == '' ? '' : `?api=${Config.ApiKey}`;
-        const baseUrl = Config.BaseUrl;
+        const baseUrl = Config.BaseUrl || window.location.protocol + '//' + window.location.hostname;
         if (baseUrl != '' && !baseUrl.startsWith('http')) {
-            throw new Error('BaseURL must start with https://');
+            throw new Error('BaseURL must start with http(s)://');
         }
 
         if (urlType == MapOptionType.Tile) {

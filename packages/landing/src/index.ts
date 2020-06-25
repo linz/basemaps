@@ -3,6 +3,7 @@ import './global';
 import { Basemaps } from './map';
 import { addDebugLayer } from './debug';
 import { WindowUrl } from './url';
+import { BasemapsUi } from './ui';
 
 // Source https://stackoverflow.com/questions/5573096/detecting-webp-support
 function canUseWebP(): boolean {
@@ -24,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const basemaps = new Basemaps(mapEl);
     window.basemaps = basemaps;
+
+    const ui = new BasemapsUi(basemaps);
+    window.basemapsUi = ui;
 
     if (basemaps.config.debug) addDebugLayer(basemaps);
 });
