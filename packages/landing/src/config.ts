@@ -1,9 +1,12 @@
+import { getApiKey } from './api';
+
+const currentApiKey: string = getApiKey();
 export const Config = {
-    get BaseUrl(): string {
-        return process.env.TILE_HOST ?? '';
+    get BaseUrl(): string | undefined {
+        return process.env.TILE_HOST;
     },
-    get ApiKey(): string | undefined {
-        return process.env.API_KEY;
+    get ApiKey(): string {
+        return currentApiKey;
     },
     get GoogleAnalytics(): string | undefined {
         return process.env.GOOGLE_ANALYTICS;
