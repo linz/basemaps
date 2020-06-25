@@ -542,34 +542,34 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@cogeotiff/core@^2.0.0", "@cogeotiff/core@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.1.0.tgz#62c7d4c12c0b4ebb8ba07d1346a35d4ce27b9e81"
-  integrity sha512-iYEsnc74FFCzYizoylGX4WJn30JxVbA0YZpZ0Vhkrsf4qrFmrhSnNyLS2tivVc44+2c1T+Zc1zw7iHbpK5YgzA==
+"@cogeotiff/core@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.1.1.tgz#6d1a3a58625b8a33ee5ac360da0146f56a65a0a4"
+  integrity sha512-KjB8ky3s+PFR3pq92NET9vC/uiZ2jQw/MTOmgxz82VpdCcog7oZm3sBnlz7W+a7E7OCdFg8iGt8rjrpCaJTbzg==
   dependencies:
     ieee754 "^1.1.13"
 
-"@cogeotiff/source-aws@^2.0.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-2.1.0.tgz#9e4ea26e8e7daca29f816d54717e53bd44e46d82"
-  integrity sha512-wxxAsLvojkyr1scRBcEjZwwuJ8mhae00WMViaosWb9/aRk5trPSJxak3h8Mjp4mnNwPprSPi5hU3huCqJ2JH7Q==
+"@cogeotiff/source-aws@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-2.1.1.tgz#1d5e8632c1cf65eaaf40b9406479764d83f699e7"
+  integrity sha512-fPDwEDMSiKCo9RUyiupadoNg9I/sHk3UvjQvUedIkavSmMhZmUVLpLw7fNtAw5pNyAjsIk3t9GcwuYDSiaFaQg==
   dependencies:
-    "@cogeotiff/core" "^2.1.0"
+    "@cogeotiff/core" "^2.1.1"
     aws-sdk "^2.524.0"
 
-"@cogeotiff/source-file@^2.0.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-2.1.0.tgz#a70cb4b25ddab3a08e3fa8153738d029183a4981"
-  integrity sha512-kStAMROMk1GCg4lO9lID+WyE7E1rZ5IHbnaWBfuWQSkCgKs94xCl0yIKelL1cjHMJ8bEe4svui37hbesmNIRfA==
+"@cogeotiff/source-file@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-2.1.1.tgz#ed6a21b460b214437243809c4be1a3f58a68005d"
+  integrity sha512-KF6FzbP/WWRAt0na18fAqbR89Bt4jDwwYBpO/GIV5/pg0tQBgj+6zVAH88ZUXOLxxh3XJdvuls56yW5n4RFUJA==
   dependencies:
-    "@cogeotiff/core" "^2.1.0"
+    "@cogeotiff/core" "^2.1.1"
 
-"@cogeotiff/source-url@^2.0.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-2.1.0.tgz#284a4754f23e2b8c14873eaa13bec2b4d38493bd"
-  integrity sha512-uWS4BEof1dFeAhFy+PF59brucVfl39Kd/IyucFukVMWnzERf8E1/YK0GQtOYY8t4tFjVYU7RfFvnJknYweVGlA==
+"@cogeotiff/source-url@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-2.1.1.tgz#3878fe7d18dab965ca5ed1c6107cb8213a88aec7"
+  integrity sha512-cS5k9WQMrS9cjSDCgf1wpjSlXTbMprt4HwT9uF4aJFgywagqJ5R/S/h7fQU4o1hMIv+VA6AyOv3U2xF1TVbxLw==
   dependencies:
-    "@cogeotiff/core" "^2.1.0"
+    "@cogeotiff/core" "^2.1.1"
     node-fetch "^2.6.0"
 
 "@evocateur/libnpmaccess@^3.1.2":

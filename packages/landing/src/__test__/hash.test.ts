@@ -58,22 +58,22 @@ o.spec('WindowUrl', () => {
 
     o('should convert to a url', () => {
         const options = WindowUrl.fromUrl('');
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals('/v1/tiles/aerial/3857/{z}/{x}/{y}.webp');
+        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals('/v1/tiles/aerial/3857/{z}/{x}/{y}.png');
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals('/v1/tiles/aerial/3857/WMTSCapabilities.xml');
         o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
-            '/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.webp',
+            '/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png',
         );
     });
     o('should convert to a url with api key', () => {
         const options = WindowUrl.fromUrl('');
 
         process.env.API_KEY = 'abc123';
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals('/v1/tiles/aerial/3857/{z}/{x}/{y}.webp?api=abc123');
+        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals('/v1/tiles/aerial/3857/{z}/{x}/{y}.png?api=abc123');
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(
             '/v1/tiles/aerial/3857/WMTSCapabilities.xml?api=abc123',
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
-            '/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.webp?api=abc123',
+            '/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=abc123',
         );
         delete process.env.API_KEY;
     });
@@ -83,14 +83,20 @@ o.spec('WindowUrl', () => {
 
         process.env.TILE_HOST = 'https://foo.bar.com';
         o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
-            'https://foo.bar.com/v1/tiles/aerial/3857/{z}/{x}/{y}.webp',
+            'https://foo.bar.com/v1/tiles/aerial/3857/{z}/{x}/{y}.png',
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(
             'https://foo.bar.com/v1/tiles/aerial/3857/WMTSCapabilities.xml',
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
+            'https://foo.bar.com/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png',
+        );
+
+        WindowUrl.ImageFormat = 'webp';
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
             'https://foo.bar.com/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.webp',
         );
+
         delete process.env.TILE_HOST;
     });
 });
