@@ -76,3 +76,21 @@ html {
 .osm__slider {
     width: 75%;
 }
+
+
+.lui-footer-x-sm.g-footer__standard {
+    padding: 2px;
+}
+
+.lui-footer-x-sm.g-footer__standard .g-footer__standard-inline-list-item {
+    margin: 4px 16px 0 0;
+}
+
+.lui-footer-x-sm p {
+    margin: 0;
+}
+
+
+.align-center {
+    align-items: center;
+}
