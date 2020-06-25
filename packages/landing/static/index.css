@@ -90,7 +90,26 @@ html {
     margin: 0;
 }
 
-
 .align-center {
     align-items: center;
+}
+
+
+.lui-header-primary.lui-header-sm .lui-header-top-section .g-flex-row {
+    height: 64px !important;
+}
+
+.lui-header-primary.lui-header-sm .lui-header-top-section {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+
+.lui-header-logo {
+    display: flex;
+}
+
+.lui-header-logo .linz-logo-sm {
+    width: 160px;
+    height: auto;
 }
