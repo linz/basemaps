@@ -59,6 +59,14 @@ export class TileMatrixSet {
         }
     }
 
+    /**
+     * Maximum zoom level
+     * Valid zoom levels are 0 - maxZoom (inclusive)
+     */
+    get maxZoom(): number {
+        return this.zooms.length - 1;
+    }
+
     /** Get the pixels / meter at a specified zoom level */
     pixelScale(zoom: number): number {
         const z = this.zooms[zoom];

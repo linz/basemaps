@@ -37,6 +37,14 @@ o.spec('TileMatrixSet', () => {
         });
     });
 
+    o('should have correct maxZoom', () => {
+        o(GoogleTms.maxZoom).equals(24);
+        o(GoogleTms.pixelScale(24) > 0).equals(true);
+
+        o(Nztm2000Tms.maxZoom).equals(16);
+        o(Nztm2000Tms.pixelScale(16) > 0).equals(true);
+    });
+
     o.spec('pixelScale', () => {
         o('should match the old projection logic', () => {
             for (let i = 0; i < 25; i++) {
