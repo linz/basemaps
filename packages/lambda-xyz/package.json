@@ -11,8 +11,8 @@
     "@basemaps/shared": "^3.1.0",
     "@basemaps/tiler": "^3.1.0",
     "@basemaps/tiler-sharp": "^3.1.0",
-    "@cogeotiff/core": "^2.0.0",
-    "@cogeotiff/source-aws": "^2.0.0",
+    "@cogeotiff/core": "^2.1.1",
+    "@cogeotiff/source-aws": "^2.1.1",
     "path-to-regexp": "^6.1.0",
     "sharp": "^0.25.2"
   },

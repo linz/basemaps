@@ -20,9 +20,9 @@ export const enum MapOptionType {
     Wmts = 'wmts',
 }
 
-export const DefaultExt = 'webp';
-
 export const WindowUrl = {
+    ImageFormat: 'png',
+
     /**
      * Encode a location into the window.hash
      * Google uses ${lat},${lon},z${zoom}
@@ -70,11 +70,11 @@ export const WindowUrl = {
         }
 
         if (urlType == MapOptionType.Tile) {
-            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${opts.projection}/{z}/{x}/{y}.${DefaultExt}${api}`;
+            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${opts.projection}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
         }
 
         if (urlType == MapOptionType.TileWmts) {
-            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${opts.projection}/{TileMatrix}/{TileCol}/{TileRow}.${DefaultExt}${api}`;
+            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${opts.projection}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${api}`;
         }
 
         if (urlType == MapOptionType.Wmts) {
