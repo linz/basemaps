@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -14,14 +14,13 @@
     "deploy:deploy": "yarn deploy:bundle && node scripts/deploy.js"
   },
   "dependencies": {
-    "@basemaps/geo": "^3.0.0",
-    "@basemaps/infra": "^3.0.0",
+    "@basemaps/geo": "^3.1.0",
+    "@basemaps/infra": "^3.1.0",
     "@philals/lui": "^0.0.76",
     "@types/ol": "^6.3.1",
     "ol": "^6.3.1",
     "proj4": "^2.6.2"
   },
-  "devDependencies": {},
   "browserslist": [
     "last 2 Chrome versions"
   ]

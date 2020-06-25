@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/infra",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -10,7 +10,6 @@
     "deploy:diff": "cdk diff || true",
     "deploy:deploy": "cdk deploy '*' -y --require-approval never"
   },
-  "dependencies": {},
   "devDependencies": {
     "@aws-cdk/aws-batch": "1.46.0",
     "@aws-cdk/aws-certificatemanager": "1.46.0",
@@ -22,9 +21,9 @@
     "@aws-cdk/aws-elasticloadbalancingv2-targets": "1.46.0",
     "@aws-cdk/aws-s3": "1.46.0",
     "@aws-cdk/core": "1.46.0",
-    "@basemaps/lambda-api-tracker": "^3.0.0",
-    "@basemaps/lambda-xyz": "^3.0.0",
-    "@basemaps/shared": "^3.0.0",
+    "@basemaps/lambda-api-tracker": "^3.1.0",
+    "@basemaps/lambda-xyz": "^3.1.0",
+    "@basemaps/shared": "^3.1.0",
     "aws-cdk": "^1.46.0",
     "git-repo-info": "^2.1.1"
   }
