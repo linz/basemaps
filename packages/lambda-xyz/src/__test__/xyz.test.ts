@@ -138,6 +138,13 @@ o.spec('LambdaXyz', () => {
         o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
     });
 
+    o('should 404 if a tile is outside of the range', async () => {
+        const res3857 = await handleRequest(mockRequest('/v1/tiles/aerial/global-mercator/25/0/0.png', 'get'));
+        o(res3857.status).equals(404);
+        const res2193 = await handleRequest(mockRequest('/v1/tiles/aerial/2193/17/0/0.png', 'get'));
+        o(res2193.status).equals(404);
+    });
+
     o.spec('WMTSCapabilities', () => {
         const origPublicUrlBase = process.env[Env.PublicUrlBase];
         o.after(() => {
