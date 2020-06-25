@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/shared",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "private": false,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -11,10 +11,10 @@
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "dependencies": {
-    "@basemaps/geo": "^3.1.0",
+    "@basemaps/geo": "^3.2.0",
     "@basemaps/lambda": "^3.1.0",
     "@basemaps/metrics": "^3.1.0",
-    "@basemaps/tiler": "^3.1.0",
+    "@basemaps/tiler": "^3.2.0",
     "aws-sdk": "^2.508.0",
     "base-x": "^3.0.7",
     "pino": "^6.2.1",
