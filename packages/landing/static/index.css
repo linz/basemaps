@@ -113,3 +113,12 @@ html {
     width: 160px;
     height: auto;
 }
+
+
+#map .ol-control button {
+    cursor: pointer;
+}
+
+#map .ol-control button:hover {
+    background-color: #73c8e1;
+}
