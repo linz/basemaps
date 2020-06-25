@@ -76,3 +76,40 @@ html {
 .osm__slider {
     width: 75%;
 }
+
+
+.lui-footer-x-sm.g-footer__standard {
+    padding: 2px;
+}
+
+.lui-footer-x-sm.g-footer__standard .g-footer__standard-inline-list-item {
+    margin: 4px 16px 0 0;
+}
+
+.lui-footer-x-sm p {
+    margin: 0;
+}
+
+.align-center {
+    align-items: center;
+}
+
+
+.lui-header-primary.lui-header-sm .lui-header-top-section .g-flex-row {
+    height: 64px !important;
+}
+
+.lui-header-primary.lui-header-sm .lui-header-top-section {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+
+.lui-header-logo {
+    display: flex;
+}
+
+.lui-header-logo .linz-logo-sm {
+    width: 160px;
+    height: auto;
+}

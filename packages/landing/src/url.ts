@@ -63,7 +63,7 @@ export const WindowUrl = {
 
     toTileUrl(opts: MapOptions, urlType: MapOptionType): string {
         const tag = opts.tag == 'production' ? '' : `@${opts.tag}`;
-        const api = Config.ApiKey == null ? '' : `?api=${Config.ApiKey}`;
+        const api = Config.ApiKey == null || Config.ApiKey == '' ? '' : `?api=${Config.ApiKey}`;
         const baseUrl = Config.BaseUrl;
         if (baseUrl != '' && !baseUrl.startsWith('http')) {
             throw new Error('BaseURL must start with https://');
