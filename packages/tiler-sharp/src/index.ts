@@ -70,7 +70,8 @@ export class TileMakerSharp implements TileMaker {
     private async composeTile(composition: Composition): Promise<SharpOverlay | null> {
         const source = composition.source;
         const tile = await composition.tiff.getTile(source.x, source.y, source.imageId);
-        if (tile == null) return null;
+        if (tile == null || tile.bytes.length == 0) return null;
+
         const sharp = Sharp(Buffer.from(tile.bytes));
 
         // The stats function takes too long to run, its faster to just compose all the tiles anyway.
