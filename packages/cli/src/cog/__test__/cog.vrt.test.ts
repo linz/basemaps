@@ -93,9 +93,9 @@ o.spec('cog.vrt', () => {
 
         o(job.source.files).deepEquals([tif1Path, tif2Path]);
         o(cutTiffArgs.length).equals(0);
-        o(vrt).equals('/tmp/my-tmp-folder/source.vrt');
-        o(runSpy.callCount).equals(1);
-        o(runSpy.args[0]).equals('gdalbuildvrt');
+        o(vrt).equals('/tmp/my-tmp-folder/cog.vrt');
+        o(runSpy.callCount).equals(2);
+        o(runSpy.args[0]).equals('gdalwarp');
     });
 
     o('no cutline diff projection', async () => {
@@ -116,11 +116,11 @@ o.spec('cog.vrt', () => {
 
         const vrt = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, name, logger);
 
-        o(vrt).equals('/tmp/my-tmp-folder/source.vrt');
+        o(vrt).equals('/tmp/my-tmp-folder/cog.vrt');
         o(job.source.files).deepEquals([tif2Path]);
         o(cutTiffArgs.length).equals(0);
-        o(runSpy.callCount).equals(1);
-        o(runSpy.args[0]).equals('gdalbuildvrt');
+        o(runSpy.callCount).equals(2);
+        o(runSpy.args[0]).equals('gdalwarp');
     });
 
     o('intersected cutline', async () => {
