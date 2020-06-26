@@ -135,12 +135,18 @@
 
         <div class="lui-standard-form">
             <label for="api-xyz">XYZ Tiles</label>
-            <div class="lui-input-wrapper">
-                <input id="api-xyz" onclick="this.select()" value="https://..." />
+            <div id="api-xyz" class="lui-input-wrapper lui-form-icon lui-form-icon--right">
+                <button class="lui-form-icon-button" title="Copy XYZ url">
+                    <i class="material-icons-round">content_copy</i>
+                </button>
+                <input onclick="this.select()" value="https://..." />
             </div>
             <label for="api-wmts">WMTS</label>
-            <div class="lui-input-wrapper">
-                <input id="api-wmts" onclick="this.select()" value="https://..." />
+            <div id="api-wmts" class="lui-input-wrapper lui-form-icon lui-form-icon--right">
+                <button class="lui-form-icon-button" title="Copy WMTS url">
+                    <i class="material-icons-round">content_copy</i>
+                </button>
+                <input onclick="this.select()" value="https://..." />
             </div>
         </div>
 

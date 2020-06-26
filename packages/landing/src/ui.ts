@@ -2,12 +2,43 @@ import { Basemaps } from './map';
 import { Epsg } from '@basemaps/geo';
 import { WindowUrl, MapOptionType } from './url';
 
+/** Attach a listener to a button to copy the nearby input element */
+function bindCopyFromInput(el: HTMLElement): void {
+    const inputEl = el.querySelector('input');
+    if (inputEl == null) throw new Error('Cannot find input');
+    const buttonEl = el.querySelector('button');
+    if (buttonEl == null) throw new Error('Cannot find button');
+    const buttonIconEl = buttonEl.querySelector('i');
+    if (buttonIconEl == null) throw new Error('Cannot find button icon');
+    buttonIconEl.textContent = 'content_copy';
+
+    buttonEl.onclick = (): void => {
+        if (buttonEl.disabled) return;
+
+        inputEl.select();
+        document.execCommand('copy');
+
+        const originalTitle = buttonEl.title;
+        buttonIconEl.innerText = 'check';
+        buttonEl.disabled = true;
+        buttonEl.title = 'Copied';
+        buttonEl.classList.add('lui-form-icon-button--copied');
+
+        setTimeout(() => {
+            buttonEl.classList.remove('lui-form-icon-button--copied');
+            buttonEl.title = originalTitle;
+            buttonEl.disabled = false;
+            buttonIconEl.textContent = 'content_copy';
+        }, 1500);
+    };
+}
+
 export class BasemapsUi {
     projectionNztm: HTMLElement;
     projectionWm: HTMLElement;
 
-    apiXyz: HTMLInputElement;
-    apiWmts: HTMLInputElement;
+    apiXyz: HTMLElement;
+    apiWmts: HTMLElement;
 
     basemaps: Basemaps;
 
@@ -55,8 +86,10 @@ export class BasemapsUi {
         if (apiXyz == null || apiWmts == null) {
             throw new Error('Unable to find api inputs');
         }
-        this.apiXyz = apiXyz as HTMLInputElement;
-        this.apiWmts = apiWmts as HTMLInputElement;
+        this.apiXyz = apiXyz;
+        this.apiWmts = apiWmts;
+        bindCopyFromInput(apiXyz);
+        bindCopyFromInput(apiWmts);
     }
 
     bindProjectionButtons(): void {
@@ -92,7 +125,8 @@ export class BasemapsUi {
             this.projectionNztm.classList.remove('lui-button-active');
         }
         const cfg = { ...this.basemaps.config, projection };
-        this.apiXyz.value = WindowUrl.toTileUrl(cfg, MapOptionType.Tile);
-        this.apiWmts.value = WindowUrl.toTileUrl(cfg, MapOptionType.Wmts);
+
+        this.apiXyz.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Tile);
+        this.apiWmts.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Wmts);
     }
 }
