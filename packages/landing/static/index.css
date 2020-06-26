@@ -85,11 +85,27 @@ button {
     width: 75%;
 }
 
+.nz-govt-logo {
+    padding: 8px 0;
+    display: flex;
+}
+
+.nz-govt-logo svg {
+    width: 200px;
+    height: auto;
+}
+
 .lui-footer-x-sm.g-footer__standard {
+    background-color: #004B50;
     padding: 2px;
 }
 
+.lui-footer-x-sm.g-footer__standard .g-footer__standard-link {
+    color: #D4E9EB;
+}
+
 .lui-footer-x-sm.g-footer__standard .g-footer__standard-inline-list-item {
+    font-size: 14px;
     margin: 4px 16px;
 }
 
@@ -98,7 +114,13 @@ button {
 }
 
 .align-center {
+    display: flex;
     align-items: center;
+}
+
+.justify-end {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .justify-center {
@@ -181,6 +203,7 @@ button {
     padding: 0;
     margin: 0;
 }
+
 .info-links li {
     border-bottom: 1px solid #eaeaea;
     padding: 16px 8px;
@@ -194,6 +217,7 @@ button {
     text-decoration: none;
     border: none;
 }
+
 .info-links li a:hover {
     border: none;
 }
