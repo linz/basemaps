@@ -85,11 +85,27 @@ button {
     width: 75%;
 }
 
+.nz-govt-logo {
+    padding: 8px 0;
+    display: flex;
+}
+
+.nz-govt-logo svg {
+    width: 200px;
+    height: auto;
+}
+
 .lui-footer-x-sm.g-footer__standard {
+    background-color: #004B50;
     padding: 2px;
 }
 
+.lui-footer-x-sm.g-footer__standard .g-footer__standard-link {
+    color: #D4E9EB;
+}
+
 .lui-footer-x-sm.g-footer__standard .g-footer__standard-inline-list-item {
+    font-size: 14px;
     margin: 4px 16px;
 }
 
@@ -98,7 +114,13 @@ button {
 }
 
 .align-center {
+    display: flex;
     align-items: center;
+}
+
+.justify-end {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .justify-center {
@@ -181,6 +203,7 @@ button {
     padding: 0;
     margin: 0;
 }
+
 .info-links li {
     border-bottom: 1px solid #eaeaea;
     padding: 16px 8px;
@@ -194,6 +217,54 @@ button {
     text-decoration: none;
     border: none;
 }
+
 .info-links li a:hover {
     border: none;
+}
+
+
+.lui-form-icon {
+    position: relative;
+}
+
+.lui-standard-form .lui-form-icon.lui-form-icon--left input:not([type=checkbox]):not([type=radio]),
+.lui-standard-form .lui-form-icon.lui-form-icon--left textarea,
+.lui-standard-form .lui-form-icon.lui-form-icon--left select {
+    border-left: 40px solid;
+}
+
+.lui-standard-form .lui-form-icon.lui-form-icon--right input:not([type=checkbox]):not([type=radio]),
+.lui-standard-form .lui-form-icon.lui-form-icon--right textarea,
+.lui-standard-form .lui-form-icon.lui-form-icon--right select {
+    border-right: 40px solid;
+}
+
+.lui-standard-form .lui-form-icon .lui-form-icon-button {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    color: white;
+    z-index: 100;
+    font-size: 1.8125rem;
+}
+
+.lui-standard-form .lui-form-icon.lui-form-icon--right .lui-form-icon-button {
+    right: 0px;
+    left: inherit;
+    border-radius: 0 3px 3px 0;
+}
+
+.lui-form-icon-button {
+    background-color: #007198;
+    width: 40px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    border-radius: 3px 0 0 3px;
+}
+
+.lui-form-icon-button--copied {
+    background-color: #9BD79B
 }
