@@ -120,9 +120,11 @@ export class BasemapsUi {
         if (projection == Epsg.Nztm2000) {
             this.projectionNztm.classList.add('lui-button-active');
             this.projectionWm.classList.remove('lui-button-active');
+            this.apiXyz.classList.add('display-none');
         } else {
             this.projectionWm.classList.add('lui-button-active');
             this.projectionNztm.classList.remove('lui-button-active');
+            this.apiXyz.classList.remove('display-none');
         }
         const cfg = { ...this.basemaps.config, projection };
 
