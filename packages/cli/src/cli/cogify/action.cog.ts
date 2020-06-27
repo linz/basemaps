@@ -101,8 +101,6 @@ export class ActionCogCreate extends CommandLineAction {
         const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${CliId}`);
 
         try {
-            const sourceGeo = (await inFp.readJson(getJobPath(job, 'source.geojson'))) as FeatureCollection;
-
             let cutlineJson: FeatureCollection | undefined;
             if (job.output.cutline != null) {
                 const cutlinePath = getJobPath(job, 'cutline.geojson.gz');
@@ -117,7 +115,7 @@ export class ActionCogCreate extends CommandLineAction {
                 job.output.cutline?.blend,
             );
 
-            const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, name, logger);
+            const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);
 
             if (tmpVrtPath == null) {
                 logger.warn({ name }, 'NoMatchingSourceImagery');

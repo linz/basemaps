@@ -1,4 +1,4 @@
-import { Epsg, GeoJson, Bounds } from '@basemaps/geo';
+import { Bounds, Epsg } from '@basemaps/geo';
 import {
     CompositeError,
     FileOperatorSimple,
@@ -16,7 +16,7 @@ import { Cutline } from './cutline'; //
 import { CogBuilderMetadata, SourceMetadata } from './types';
 
 export const InvalidProjectionCode = 32767;
-export const CacheVersion = 'v2'; // bump this number to invalidate the cache
+export const CacheVersion = 'v3'; // bump this number to invalidate the cache
 export const CacheFolder = './.cache';
 
 /**
@@ -69,7 +69,8 @@ export class CogBuilder {
         let projection = this.srcProj;
         let nodata: number | undefined;
         let count = 0;
-        const coordinates = sources.map((source) => {
+
+        const queue = sources.map((source) => {
             return this.q(async () => {
                 count++;
                 if (count % 50 == 0) {
@@ -86,7 +87,10 @@ export class CogBuilder {
                     bands = tiffBandCount.length;
                 }
 
-                const output = this.getTifBounds(tiff);
+                const name = source instanceof CogSourceFile ? source.fileName : source.name;
+
+                const output = { ...Bounds.fromBbox(image.bbox).toJson(), name };
+
                 if (CogSourceFile.isSource(source)) {
                     await source.close();
                 }
@@ -120,7 +124,7 @@ export class CogBuilder {
             });
         });
 
-        const polygons = await Promise.all(coordinates);
+        const bounds = await Promise.all(queue);
 
         if (projection == null) throw new Error('No projection detected');
         if (resX == -1) throw new Error('No resolution detected');
@@ -130,7 +134,7 @@ export class CogBuilder {
             projection: projection.code,
             nodata,
             bands,
-            bounds: GeoJson.toFeatureCollection(polygons),
+            bounds,
             pixelScale: resX,
             resZoom: this.targetProj.getTiffResZoom(resX),
         };
@@ -183,34 +187,6 @@ export class CogBuilder {
         }
 
         return noDataNum;
-    }
-
-    /**
-     * Generate the bounding boxes for a GeoTiff converting to WGS84
-     * @param tiff
-     */
-    getTifBounds(tiff: CogTiff): GeoJSON.Feature {
-        const image = tiff.getImage(0);
-        const bbox = image.bbox;
-        const topLeft = [bbox[0], bbox[3]];
-        const topRight = [bbox[2], bbox[3]];
-        const bottomRight = [bbox[2], bbox[1]];
-        const bottomLeft = [bbox[0], bbox[1]];
-
-        const projection = this.findProjection(tiff);
-        const projProjection = ProjectionTileMatrixSet.tryGet(projection.code);
-        if (projProjection == null) {
-            this.logger.error({ tiff: tiff.source.name }, 'Failed to get tiff projection');
-            throw new Error('Invalid tiff projection: ' + projection);
-        }
-
-        const { toWsg84 } = projProjection;
-
-        const points = [
-            [toWsg84(topLeft), toWsg84(bottomLeft), toWsg84(bottomRight), toWsg84(topRight), toWsg84(topLeft)],
-        ];
-
-        return GeoJson.toFeaturePolygon(points, { tiff: tiff.source.name });
     }
 
     /** Cache the bounds lookup so we do not have to requery the bounds between CLI calls */

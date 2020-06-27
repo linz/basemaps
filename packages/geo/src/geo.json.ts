@@ -12,18 +12,6 @@ export const GeoJson = {
         };
     },
 
-    toPositionPolygon(bbox: [number, number, number, number]): Position[][] {
-        return [
-            [
-                [bbox[0], bbox[1]],
-                [bbox[0], bbox[3]],
-                [bbox[2], bbox[3]],
-                [bbox[2], bbox[1]],
-                [bbox[0], bbox[1]],
-            ],
-        ];
-    },
-
     toPolygon(coordinates: Position[][]): Polygon {
         return {
             type: 'Polygon',
