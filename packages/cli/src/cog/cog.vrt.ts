@@ -136,12 +136,7 @@ export const CogVrt = {
 
         onProgress(gdalCommand, { target: `vrt.${job.projection}` }, logger);
         await buildPlainVrt(job, sourceVrtPath, gdalCommand, defaultOps, logger);
-
-        if (cutlineTarget !== '' || job.projection !== job.source.projection) {
-            await buildWarpVrt(job, cogVrtPath, gdalCommand, sourceVrtPath, defaultOps, logger, cutlineTarget);
-            return cogVrtPath;
-        }
-
-        return sourceVrtPath;
+        await buildWarpVrt(job, cogVrtPath, gdalCommand, sourceVrtPath, defaultOps, logger, cutlineTarget);
+        return cogVrtPath;
     },
 };
