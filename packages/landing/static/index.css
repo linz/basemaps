@@ -268,3 +268,7 @@ button {
 .lui-form-icon-button--copied {
     background-color: #9BD79B
 }
+
+.display-none {
+    display: none !important;
+}
