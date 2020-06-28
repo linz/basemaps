@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.3.0](https://github.com/linz/basemaps/compare/v3.2.0...v3.3.0) (2020-06-28)
+
+
+### Bug Fixes
+
+* **cli:** always warp the vrt ([#829](https://github.com/linz/basemaps/issues/829)) ([42ded3a](https://github.com/linz/basemaps/commit/42ded3a6f2e9e12fad3481ac4608f6fac5deb90a))
+
+
+### Features
+
+* **landing:** add button to copy api urls ([#827](https://github.com/linz/basemaps/issues/827)) ([321334f](https://github.com/linz/basemaps/commit/321334fe0966906b1c2826c21bc7b9a45ff3e4cd))
+* **landing:** api key generation and menu information  ([#813](https://github.com/linz/basemaps/issues/813)) ([0c32d72](https://github.com/linz/basemaps/commit/0c32d727fb63c20a5c0dda3dde31309b7042a48b))
+* **landing:** dont show a NZTM xyz url as it does not make sense ([#828](https://github.com/linz/basemaps/issues/828)) ([deec860](https://github.com/linz/basemaps/commit/deec860babc3cbc16c145acf41c6b1220ae54ab3))
+* **landing:** switch to new linz branded footer ([#826](https://github.com/linz/basemaps/issues/826)) ([f841047](https://github.com/linz/basemaps/commit/f8410473ab75e59a509e3c157c54a86695f1971a))
+
+
+
+
+
 # [3.2.0](https://github.com/linz/basemaps/compare/v3.1.0...v3.2.0) (2020-06-25)
 
 

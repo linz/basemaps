@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.3.0](https://github.com/linz/basemaps/compare/v3.2.0...v3.3.0) (2020-06-28)
+
+
+### Bug Fixes
+
+* **cli:** always warp the vrt ([#829](https://github.com/linz/basemaps/issues/829)) ([42ded3a](https://github.com/linz/basemaps/commit/42ded3a6f2e9e12fad3481ac4608f6fac5deb90a))
+
+
+
+
+
 # [3.2.0](https://github.com/linz/basemaps/compare/v3.1.0...v3.2.0) (2020-06-25)
 
 **Note:** Version bump only for package @basemaps/cli
