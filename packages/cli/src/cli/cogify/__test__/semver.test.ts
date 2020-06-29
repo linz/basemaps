@@ -29,6 +29,11 @@ o.spec('VersionCompare', () => {
             o(SemVer.toNumber('1.1.1') > SemVer.toNumber('1.1.0')).equals(true);
             o(SemVer.toNumber('2.1.1') > SemVer.toNumber('1.1.0')).equals(true);
         });
+
+        o('should support release candidates', () => {
+            o(SemVer.toNumber('0.0.1-rc1')).equals(1);
+            o(SemVer.toNumber('1.0.0-rc2')).equals(SemVer.toNumber('1.0.0'));
+        });
     });
 
     o.spec('fromNumber', () => {
