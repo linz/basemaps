@@ -25,7 +25,6 @@
     "@cogeotiff/source-url": "^2.1.1",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
-    "git-repo-info": "^2.1.1",
     "p-limit": "^3.0.1",
     "polygon-clipping": "^0.14.3",
     "pretty-json-log": "^0.3.1"
