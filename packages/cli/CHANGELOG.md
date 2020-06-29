@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.4.0](https://github.com/linz/basemaps/compare/v3.3.0...v3.4.0) (2020-06-29)
+
+
+### Bug Fixes
+
+* **cli:** docker index.js in not executable ([#835](https://github.com/linz/basemaps/issues/835)) ([6b705f1](https://github.com/linz/basemaps/commit/6b705f1054476a8bc28692fb83e1894097860039))
+* **cli:** show number of commits since last tag ([#836](https://github.com/linz/basemaps/issues/836)) ([a205215](https://github.com/linz/basemaps/commit/a2052156a761eddc7815632212007fa465c4d43d))
+
+
+
+
+
 # [3.3.0](https://github.com/linz/basemaps/compare/v3.2.0...v3.3.0) (2020-06-28)
 
 

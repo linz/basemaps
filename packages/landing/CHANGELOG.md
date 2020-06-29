@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.4.0](https://github.com/linz/basemaps/compare/v3.3.0...v3.4.0) (2020-06-29)
+
+
+### Features
+
+* **landing:** styles for mobile devices ([#839](https://github.com/linz/basemaps/issues/839)) ([53c6eb0](https://github.com/linz/basemaps/commit/53c6eb0d4d6cca13dc813fb683d8e4d598746647))
+
+
+
+
+
 # [3.3.0](https://github.com/linz/basemaps/compare/v3.2.0...v3.3.0) (2020-06-28)
 
 
