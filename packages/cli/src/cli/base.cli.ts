@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { LogConfig, Env } from '@basemaps/shared';
+import { Env, LogConfig } from '@basemaps/shared';
+import { GitTag } from '@basemaps/shared/build/cli/git.tag';
 import { CommandLineParser } from '@rushstack/ts-command-line';
-import getGitInfo from 'git-repo-info';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import * as ulid from 'ulid';
@@ -9,21 +9,11 @@ import * as ulid from 'ulid';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
 
-/** Attempt to lookup the githash */
-function getGitHash(): string {
-    const info = getGitInfo();
-    try {
-        return `${info.branch}@${info.abbreviatedSha}`;
-    } catch (e) {
-        return 'Unknown';
-    }
-}
-
 /** Useful traceability information  */
 export const CliInfo: { package: string; version: string; hash: string } = {
     package: packageJson.name,
     version: Env.get(Env.Version, packageJson.version),
-    hash: Env.get(Env.Hash, packageJson.gitHead) ?? getGitHash(),
+    hash: Env.get(Env.Hash, packageJson.gitHead) ?? GitTag().hash,
 };
 
 /** Unique Id for this instance of the cli being run */

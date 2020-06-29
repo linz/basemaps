@@ -1,7 +1,7 @@
 import { createHash, Hash } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import getGitInfo from 'git-repo-info';
+import { GitTag } from '@basemaps/shared/build/cli/git.tag';
 
 /**
  * Hash a tree of files returning a single hash
@@ -51,10 +51,7 @@ export const VersionUtil = {
      */
     version(): VersionInfo {
         if (versionInfo == null) {
-            const info = getGitInfo();
-            const version = (info.tag == null ? `${info.lastTag}-${info.commitsSinceLastTag}` : info.tag) ?? 'HEAD';
-            const hash = info.sha;
-            versionInfo = { version, hash };
+            versionInfo = GitTag();
         }
         return versionInfo;
     },
