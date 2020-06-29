@@ -52,7 +52,7 @@ export const VersionUtil = {
     version(): VersionInfo {
         if (versionInfo == null) {
             const info = getGitInfo();
-            const version = info.tag == null ? 'HEAD' : info.tag;
+            const version = (info.tag == null ? `${info.lastTag}-${info.commitsSinceLastTag}` : info.tag) ?? 'HEAD';
             const hash = info.sha;
             versionInfo = { version, hash };
         }
