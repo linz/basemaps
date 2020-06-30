@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.4.2](https://github.com/linz/basemaps/compare/v3.4.1...v3.4.2) (2020-06-30)
+
+
+### Bug Fixes
+
+* **cli:** don't reduce cutline when building a cog ([#846](https://github.com/linz/basemaps/issues/846)) ([7686a35](https://github.com/linz/basemaps/commit/7686a35a65ffa40c6192d2da3686582846e7bc08))
+
+
+
+
+
 ## [3.4.1](https://github.com/linz/basemaps/compare/v3.4.0...v3.4.1) (2020-06-30)
 
 
