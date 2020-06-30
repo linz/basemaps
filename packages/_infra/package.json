@@ -20,7 +20,7 @@
     "@aws-cdk/aws-elasticloadbalancingv2": "1.46.0",
     "@aws-cdk/aws-elasticloadbalancingv2-targets": "1.46.0",
     "@aws-cdk/aws-s3": "1.46.0",
-    "@aws-cdk/core": "1.46.0",
+    "@aws-cdk/core": "1.47.1",
     "@basemaps/lambda-api-tracker": "^3.4.1",
     "@basemaps/lambda-xyz": "^3.4.1",
     "@basemaps/shared": "^3.4.1",
