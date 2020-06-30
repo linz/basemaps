@@ -1,5 +1,11 @@
 import { Epsg, GeoJson, Bounds } from '@basemaps/geo';
-import { CompositeError, FileOperatorSimple, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
+import {
+    CompositeError,
+    FileOperatorSimple,
+    LogType,
+    ProjectionTileMatrixSet,
+    LoggerFatalError,
+} from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
@@ -170,8 +176,10 @@ export class CogBuilder {
         const noDataNum = parseInt(noData);
 
         if (isNaN(noDataNum) || noDataNum < 0 || noDataNum > 256) {
-            this.logger.fatal({ tiff: tiff.source.name, noData }, 'Failed converting GDAL_NODATA, defaulting to 255');
-            throw new Error(`Invalid GDAL_NODATA: ${noData}`);
+            throw new LoggerFatalError(
+                { tiff: tiff.source.name, noData },
+                'Failed converting GDAL_NODATA, defaulting to 255',
+            );
         }
 
         return noDataNum;

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Env, LogConfig } from '@basemaps/shared';
+import { Env, LogConfig, LoggerFatalError } from '@basemaps/shared';
 import { GitTag } from '@basemaps/shared/build/cli/git.tag';
 import { CommandLineParser } from '@rushstack/ts-command-line';
 import { PrettyTransform } from 'pretty-json-log';
@@ -57,7 +57,11 @@ export abstract class BaseCommandLine extends CommandLineParser {
 
     public run(): void {
         this.executeWithoutErrorHandling().catch((err) => {
-            LogConfig.get().fatal({ err }, 'Failed to run command');
+            if (err instanceof LoggerFatalError) {
+                LogConfig.get().fatal(err.obj, err.message);
+            } else {
+                LogConfig.get().fatal({ err }, 'Failed to run command');
+            }
             process.exit(1);
         });
     }
