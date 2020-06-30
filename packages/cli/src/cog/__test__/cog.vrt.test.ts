@@ -74,7 +74,7 @@ o.spec('cog.vrt', () => {
         const vrt = await CogVrt.buildVrt(tmpFolder, job, sourceGeo, cutline, qkToName('31133322'), logger);
 
         o(job.source.files).deepEquals([tif1Path, tif2Path]);
-        o(cutline.clipPoly.length).equals(2);
+        o(cutline.clipPoly.length).equals(3);
         o(vrt).equals('/tmp/my-tmp-folder/cog.vrt');
     });
 
@@ -125,6 +125,9 @@ o.spec('cog.vrt', () => {
 
     o('intersected cutline', async () => {
         const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 20);
+
+        const poly = round(cutline.toGeoJson(), 6);
+
         job.output.cutline = { blend: 20, source: 'cutline.json' };
 
         const name = qkToName('311333222321113');
@@ -136,39 +139,7 @@ o.spec('cog.vrt', () => {
         o(cutTiffArgs.length).equals(1);
         o(cutTiffArgs[0][1]).deepEquals(cutline.toGeoJson());
 
-        o(round(cutTiffArgs[0], 6)).deepEquals([
-            '/tmp/my-tmp-folder/cutline.geojson',
-            {
-                type: 'FeatureCollection',
-                features: [
-                    {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'MultiPolygon',
-                            coordinates: [
-                                [
-                                    [
-                                        [174.872663, -40.879256],
-                                        [174.902917, -40.879256],
-                                        [174.903924, -40.878474],
-                                        [174.909682, -40.871987],
-                                        [174.919346, -40.866023],
-                                        [174.922943, -40.861803],
-                                        [174.922943, -40.839788],
-                                        [174.913543, -40.839788],
-                                        [174.910775, -40.844398],
-                                        [174.891215, -40.858532],
-                                        [174.879634, -40.870215],
-                                        [174.872663, -40.879256],
-                                    ],
-                                ],
-                            ],
-                        },
-                        properties: {},
-                    },
-                ],
-            },
-        ]);
+        o(round(cutTiffArgs[0], 6)).deepEquals(['/tmp/my-tmp-folder/cutline.geojson', poly]);
     });
 
     o('1 surrounded with s3 files', async () => {
@@ -190,8 +161,6 @@ o.spec('cog.vrt', () => {
         o(cutTiffArgs.length).equals(1);
         o(cutTiffArgs[0][0]).equals(tmpFolder + '/cutline.geojson');
 
-        o(cutline.clipPoly.length).equals(1);
-
         const geo = cutline.toGeoJson();
 
         o(geo.type).equals('FeatureCollection');
@@ -209,31 +178,6 @@ o.spec('cog.vrt', () => {
                 },
             ]);
         }
-
-        o(round(coordinates, 5)).deepEquals([
-            [
-                [
-                    [174.77125, -41.09044],
-                    [174.77212, -41.09741],
-                    [174.78832, -41.08499],
-                    [174.78135, -41.07763],
-                    [174.78125, -41.07761],
-                    [174.78117, -41.07752],
-                    [174.78108, -41.07748],
-                    [174.78099, -41.07749],
-                    [174.78093, -41.07752],
-                    [174.7809, -41.07756],
-                    [174.78091, -41.07759],
-                    [174.78097, -41.07765],
-                    [174.78097, -41.07771],
-                    [174.78084, -41.07778],
-                    [174.78069, -41.07779],
-                    [174.7801, -41.07774],
-                    [174.77915, -41.08119],
-                    [174.77125, -41.09044],
-                ],
-            ],
-        ]);
 
         o(runSpy.callCount).equals(2);
         o(mount.calls.map((c: any) => c.args[0])).deepEquals([tmpFolder, s3tif1, s3tif2]);

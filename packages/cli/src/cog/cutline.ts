@@ -130,9 +130,6 @@ export class Cutline {
             ) {
                 // tile is completely surrounded; no cutline polygons needed
                 this.clipPoly = [];
-            } else {
-                // set the cutline polygons to just the area of interest
-                this.clipPoly = poly;
             }
         }
     }
