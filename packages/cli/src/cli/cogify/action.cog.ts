@@ -1,4 +1,4 @@
-import { Env, FileOperator, LogConfig, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { Env, FileOperator, LogConfig, LoggerFatalError, ProjectionTileMatrixSet } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -8,8 +8,8 @@ import {
 import { createReadStream, promises as fs } from 'fs';
 import { FeatureCollection } from 'geojson';
 import { buildCogForName } from '../../cog/cog';
-import { Cutline } from '../../cog/cutline';
 import { CogVrt } from '../../cog/cog.vrt';
+import { Cutline } from '../../cog/cutline';
 import { CogJob } from '../../cog/types';
 import { GdalCogBuilder } from '../../gdal/gdal';
 import { CliId, CliInfo } from '../base.cli';
@@ -30,16 +30,15 @@ export class ActionCogCreate extends CommandLineAction {
         });
     }
 
-    getName(job: CogJob, logger: LogType): string | null {
+    getName(job: CogJob): string | null {
         const batchIndex = Env.getNumber(Env.BatchIndex, -1);
         if (batchIndex > -1) {
             const { name } = job.files[batchIndex];
             if (name == null) {
-                logger.fatal(
+                throw new LoggerFatalError(
                     { cogIndex: batchIndex, tileMax: job.files.length - 1 },
                     'Failed to find cog name from batch index',
                 );
-                return null;
             }
             return name;
         }
@@ -48,15 +47,19 @@ export class ActionCogCreate extends CommandLineAction {
         if (cogIndex != null) {
             const { name } = job.files[cogIndex];
             if (name == null) {
-                logger.fatal({ cogIndex, tileMax: job.files.length - 1 }, 'Failed to find cog name from index');
-                return null;
+                throw new LoggerFatalError(
+                    { cogIndex, tileMax: job.files.length - 1 },
+                    'Failed to find cog name from index',
+                );
             }
             return name;
         }
         const name = this.name?.value;
         if (name == null || !job.files.find((r) => r.name === name)) {
-            logger.fatal({ name, names: job.files.map((r) => r.name).join(', ') }, 'Name does not exist inside job');
-            return null;
+            throw new LoggerFatalError(
+                { name, names: job.files.map((r) => r.name).join(', ') },
+                'Name does not exist inside job',
+            );
         }
         return name;
     }
@@ -69,8 +72,7 @@ export class ActionCogCreate extends CommandLineAction {
 
         const jobVersion = SemVer.compare(job.generated?.version ?? '', CliInfo.version);
         if (jobVersion !== 0) {
-            LogConfig.get().fatal({ jobInfo: job.generated, cli: CliInfo }, 'Version mismatch');
-            return;
+            throw new LoggerFatalError({ jobInfo: job.generated, cli: CliInfo }, 'Version mismatch');
         }
 
         const isCommit = this.commit?.value ?? false;
@@ -81,7 +83,7 @@ export class ActionCogCreate extends CommandLineAction {
         const gdalVersion = await GdalCogBuilder.getVersion(logger);
         logger.info({ version: gdalVersion }, 'GdalVersion');
 
-        const name = this.getName(job, logger);
+        const name = this.getName(job);
         if (name == null) {
             return;
         }
