@@ -68,6 +68,8 @@ async function deploy() {
     }
 
     if (hasChanges) await invalidateCache('/index.html', true);
+    // TODO this should not live here.
+    await invalidateCache('/v1/version', true);
 }
 
 deploy().catch(console.error);
