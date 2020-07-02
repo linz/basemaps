@@ -22,7 +22,7 @@ jobs:
         run: yarn
 
       - name: Audit
-        run: yarn audit
+        run: npx check-audit --yarn
 
       - name: Build
         run: yarn run build
