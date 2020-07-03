@@ -1,4 +1,4 @@
-import Map from 'ol/Map';
+import OlMap from 'ol/Map';
 import { WindowUrl, MapOptions, MapOptionType, MapLocation } from './url';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -7,7 +7,10 @@ import * as proj from 'ol/proj.js';
 import WMTS from 'ol/source/WMTS.js';
 import { Epsg } from '@basemaps/geo';
 import { NztmOl } from './nztm2000';
-import Layer from 'ol/layer/Layer';
+import TileSource from 'ol/source/Tile';
+import BaseEvent from 'ol/events/Event';
+import { ImageTile } from 'ol';
+import { gaEvent, GaEvent } from './config';
 
 /** Projection to use for the URL bar */
 const UrlProjection = Epsg.Wgs84.toEpsgString();
@@ -18,38 +21,53 @@ const DefaultCenter: Record<number, MapLocation> = {
     [Epsg.Nztm2000.code]: { lat: -41.277848, lon: 174.6763921, zoom: 2 },
 };
 
+export interface TileLoadEvent extends BaseEvent {
+    type: 'tileloadstart' | 'tileloadend';
+    tile: ImageTile;
+    target: unknown;
+}
+
+function isTileLoadEvent(e: BaseEvent): e is TileLoadEvent {
+    return e.type == 'tileloadstart' || e.type == 'tileloadend';
+}
+
+/** Dont report loading stats of less than this number of tiles */
+const TileMinReportCount = 100;
+/** Attempt to report timer stats */
+const TileReportTimeDurationMs = 30 * 1000;
+
 export class Basemaps {
-    map: Map;
+    map: OlMap;
     el: HTMLElement;
     config: MapOptions;
     location: Location;
+
+    tileTimer: Map<string, number> = new Map();
+    /** Duration in ms for each tile loaded */
+    tileLoadTimes: number[] = [];
 
     constructor(target: HTMLElement) {
         this.el = target;
         this.updateFromUrl();
     }
 
-    getLayer(): Layer {
+    getSource(): TileSource {
         const projection = this.config.projection;
 
         if (projection == Epsg.Google) {
-            return new TileLayer({
-                source: new XYZ({ url: WindowUrl.toTileUrl(this.config, MapOptionType.Tile) }),
-            });
+            return new XYZ({ url: WindowUrl.toTileUrl(this.config, MapOptionType.Tile) });
         }
 
         if (projection == Epsg.Nztm2000) {
-            return new TileLayer({
-                source: new WMTS({
-                    url: WindowUrl.toTileUrl(this.config, MapOptionType.TileWmts),
-                    requestEncoding: 'REST',
-                    projection: projection.toEpsgString(),
-                    tileGrid: NztmOl.TileGrid,
-                    // These keys arent really needed but need to be strings
-                    layer: '',
-                    style: '',
-                    matrixSet: '',
-                }),
+            return new WMTS({
+                url: WindowUrl.toTileUrl(this.config, MapOptionType.TileWmts),
+                requestEncoding: 'REST',
+                projection: projection.toEpsgString(),
+                tileGrid: NztmOl.TileGrid,
+                // These keys arent really needed but need to be strings
+                layer: '',
+                style: '',
+                matrixSet: '',
             });
         }
 
@@ -68,14 +86,54 @@ export class Basemaps {
         }
         const view = new View({ projection: projection.toEpsgString(), center: loc, zoom: location.zoom, resolutions });
 
-        this.map = new Map({
+        const source = this.getSource();
+        source.addEventListener('tileloadstart', this.trackTileLoad);
+        source.addEventListener('tileloadend', this.trackTileLoad);
+        const layer = new TileLayer({ source });
+        this.map = new OlMap({
             target: this.el,
             view,
-            layers: [this.getLayer()],
+            layers: [layer],
         });
 
         this.map.addEventListener('postrender', this.postRender);
     }
+
+    tileTrackTimer: unknown | null = null;
+    trackTileLoad = (evt: BaseEvent): void => {
+        if (!isTileLoadEvent(evt)) return;
+        const metricName = 'tile:' + evt.tile.getTileCoord().join('-');
+        if (evt.type == 'tileloadstart') {
+            this.tileTimer.set(metricName, Date.now());
+            return;
+        }
+
+        if (evt.type == 'tileloadend') {
+            const startTime = this.tileTimer.get(metricName);
+            if (startTime == null) return;
+            this.tileTimer.delete(metricName);
+            const duration = Date.now() - startTime;
+            this.tileLoadTimes.push(duration);
+            if (this.tileTrackTimer == null) {
+                this.tileTrackTimer = setTimeout(this.reportTileStats, TileReportTimeDurationMs);
+            }
+        }
+    };
+
+    reportTileStats = (): void => {
+        this.tileTrackTimer = null;
+        const tileLoadTimes = this.tileLoadTimes;
+        if (tileLoadTimes.length < TileMinReportCount) return;
+        this.tileLoadTimes = [];
+        tileLoadTimes.sort();
+
+        const percentile95 = Math.floor(0.95 * tileLoadTimes.length);
+        const percentile90 = Math.floor(0.9 * tileLoadTimes.length);
+
+        gaEvent(GaEvent.TileTiming, 'count', tileLoadTimes.length);
+        gaEvent(GaEvent.TileTiming, '95%', tileLoadTimes[percentile95]);
+        gaEvent(GaEvent.TileTiming, '90%', tileLoadTimes[percentile90]);
+    };
 
     updateUrlTimer: unknown | null = null;
     postRender = (): void => {

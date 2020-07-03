@@ -1,37 +1,7 @@
 import { Basemaps } from './map';
 import { Epsg } from '@basemaps/geo';
 import { WindowUrl, MapOptionType } from './url';
-
-/** Attach a listener to a button to copy the nearby input element */
-function bindCopyFromInput(el: HTMLElement): void {
-    const inputEl = el.querySelector('input');
-    if (inputEl == null) throw new Error('Cannot find input');
-    const buttonEl = el.querySelector('button');
-    if (buttonEl == null) throw new Error('Cannot find button');
-    const buttonIconEl = buttonEl.querySelector('i');
-    if (buttonIconEl == null) throw new Error('Cannot find button icon');
-    buttonIconEl.textContent = 'content_copy';
-
-    buttonEl.onclick = (): void => {
-        if (buttonEl.disabled) return;
-
-        inputEl.select();
-        document.execCommand('copy');
-
-        const originalTitle = buttonEl.title;
-        buttonIconEl.innerText = 'check';
-        buttonEl.disabled = true;
-        buttonEl.title = 'Copied';
-        buttonEl.classList.add('lui-form-icon-button--copied');
-
-        setTimeout(() => {
-            buttonEl.classList.remove('lui-form-icon-button--copied');
-            buttonEl.title = originalTitle;
-            buttonEl.disabled = false;
-            buttonIconEl.textContent = 'content_copy';
-        }, 1500);
-    };
-}
+import { gaEvent, GaEvent } from './config';
 
 export class BasemapsUi {
     projectionNztm: HTMLElement;
@@ -45,6 +15,7 @@ export class BasemapsUi {
     menuClose: HTMLElement;
     menuOpen: HTMLElement;
     sideNav: HTMLElement;
+    projection: Epsg;
 
     constructor(basemaps: Basemaps) {
         this.basemaps = basemaps;
@@ -74,8 +45,10 @@ export class BasemapsUi {
 
     menuOnClick = (): void => {
         if (this.sideNav.classList.contains('side-nav--opened')) {
+            gaEvent(GaEvent.Ui, 'menu:close', 1);
             this.sideNav.classList.remove('side-nav--opened');
         } else {
+            gaEvent(GaEvent.Ui, 'menu:open', 1);
             this.sideNav.classList.add('side-nav--opened');
         }
     };
@@ -88,8 +61,40 @@ export class BasemapsUi {
         }
         this.apiXyz = apiXyz;
         this.apiWmts = apiWmts;
-        bindCopyFromInput(apiXyz);
-        bindCopyFromInput(apiWmts);
+        this.bindCopyFromInput(apiXyz);
+        this.bindCopyFromInput(apiWmts);
+    }
+
+    /** Attach a listener to a button to copy the nearby input element */
+    bindCopyFromInput(el: HTMLElement): void {
+        const inputEl = el.querySelector('input');
+        if (inputEl == null) throw new Error('Cannot find input');
+        const buttonEl = el.querySelector('button');
+        if (buttonEl == null) throw new Error('Cannot find button');
+        const buttonIconEl = buttonEl.querySelector('i');
+        if (buttonIconEl == null) throw new Error('Cannot find button icon');
+        buttonIconEl.textContent = 'content_copy';
+
+        buttonEl.onclick = (): void => {
+            if (buttonEl.disabled) return;
+            gaEvent(GaEvent.Ui, 'copy:' + el.id.replace('api-', '') + ':' + this.projection, 1);
+
+            inputEl.select();
+            document.execCommand('copy');
+
+            const originalTitle = buttonEl.title;
+            buttonIconEl.innerText = 'check';
+            buttonEl.disabled = true;
+            buttonEl.title = 'Copied';
+            buttonEl.classList.add('lui-form-icon-button--copied');
+
+            setTimeout(() => {
+                buttonEl.classList.remove('lui-form-icon-button--copied');
+                buttonEl.title = originalTitle;
+                buttonEl.disabled = false;
+                buttonIconEl.textContent = 'content_copy';
+            }, 1500);
+        };
     }
 
     bindProjectionButtons(): void {
@@ -117,6 +122,9 @@ export class BasemapsUi {
     };
 
     setCurrentProjection(projection: Epsg): void {
+        gaEvent(GaEvent.Ui, 'projection:' + projection.code, 1);
+        this.projection = projection;
+
         if (projection == Epsg.Nztm2000) {
             this.projectionNztm.classList.add('lui-button-active');
             this.projectionWm.classList.remove('lui-button-active');
