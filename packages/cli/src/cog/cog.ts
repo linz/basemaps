@@ -49,20 +49,20 @@ export async function buildCogForName(
     const startTime = Date.now();
 
     const { resZoom } = job.source;
-    const targetProj = ProjectionTileMatrixSet.get(job.projection);
-    const { tms } = targetProj;
+    const targetPtms = ProjectionTileMatrixSet.get(job.projection);
+    const { tms } = targetPtms;
 
     const tile = TileMatrixSet.nameToTile(name);
 
     const ul = tms.tileToSource(tile);
     const lr = tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
 
-    const blockSize = tms.tileSize * targetProj.blockFactor;
-    const alignmentLevels = targetProj.findAlignmentLevels(tile, job.source.pixelScale);
+    const blockSize = tms.tileSize * targetPtms.blockFactor;
+    const alignmentLevels = targetPtms.findAlignmentLevels(tile, job.source.pixelScale);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [ul.x, ul.y, lr.x, lr.y],
-        projection: targetProj.tms.projection,
+        projection: targetPtms.tms.projection,
         tilingScheme: tilingScheme(job.projection),
         blockSize,
         targetRes: tms.pixelScale(resZoom),
@@ -75,7 +75,7 @@ export async function buildCogForName(
 
     logger.info(
         {
-            imageSize: targetProj.getImagePixelWidth(tile, resZoom),
+            imageSize: targetPtms.getImagePixelWidth(tile, resZoom),
             name,
             tile,
             alignmentLevels,

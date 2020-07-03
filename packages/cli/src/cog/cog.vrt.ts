@@ -127,7 +127,7 @@ export const CogVrt = {
             gdalCommand.mount(tmpFolder);
         }
 
-        const tr = cutline.targetProj.tms.pixelScale(job.source.resZoom).toString();
+        const tr = cutline.tms.pixelScale(job.source.resZoom).toString();
 
         const defaultOps = ['-tr', tr, tr, '-tap'];
 

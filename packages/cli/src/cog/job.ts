@@ -20,6 +20,7 @@ import { getJobPath, makeTempFolder } from '../cli/folder';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
+import { Projection } from '@basemaps/shared/build/proj/projection';
 
 export const MaxConcurrencyDefault = 50;
 
@@ -123,9 +124,9 @@ export const CogJobFactory = {
         const builder = new CogBuilder(ctx.targetProjection, maxConcurrency, logger, ctx.override?.projection);
         const metadata = await builder.build(tiffSource, cutline);
 
-        const sourceProjection = ProjectionTileMatrixSet.get(metadata.projection);
+        const sourceProjection = Projection.get(metadata.projection);
 
-        const { tms } = cutline.targetProj;
+        const { tms } = cutline.targetPtms;
 
         const files = metadata.files.sort(Bounds.compareArea);
         if (files.length > 0) {
@@ -212,7 +213,11 @@ export const CogJobFactory = {
             await outputFs.writeJson(geoJsonSourceOutput, sourceProjection.toGeoJson(metadata.bounds), logger);
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
-            await outputFs.writeJson(geoJsonCoveringOutput, ctx.targetProjection.toGeoJson(metadata.files), logger);
+            await outputFs.writeJson(
+                geoJsonCoveringOutput,
+                ctx.targetProjection.proj.toGeoJson(metadata.files),
+                logger,
+            );
 
             if (ctx.batch) {
                 await ActionBatchJob.batchJob(jobFile, true, undefined, logger);

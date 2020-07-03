@@ -43,7 +43,7 @@ export function guessProjection(wkt: string): Epsg | null {
 export class CogBuilder {
     q: pLimit.Limit;
     logger: LogType;
-    targetProj: ProjectionTileMatrixSet;
+    targetPtms: ProjectionTileMatrixSet;
     srcProj?: Epsg;
 
     // Prevent guessing spamming the logs
@@ -52,8 +52,8 @@ export class CogBuilder {
     /**
      * @param concurrency number of requests to run at a time
      */
-    constructor(targetProj: ProjectionTileMatrixSet, concurrency: number, logger: LogType, srcProj?: Epsg) {
-        this.targetProj = targetProj;
+    constructor(targetPtms: ProjectionTileMatrixSet, concurrency: number, logger: LogType, srcProj?: Epsg) {
+        this.targetPtms = targetPtms;
         this.logger = logger;
         this.q = pLimit(concurrency);
         this.srcProj = srcProj;
@@ -136,7 +136,7 @@ export class CogBuilder {
             bands,
             bounds,
             pixelScale: resX,
-            resZoom: this.targetProj.getTiffResZoom(resX),
+            resZoom: this.targetPtms.getTiffResZoom(resX),
         };
     }
 
@@ -196,7 +196,7 @@ export class CogBuilder {
                 CacheFolder,
                 CacheVersion +
                     createHash('sha256')
-                        .update(this.targetProj.tms.projection.toString())
+                        .update(this.targetPtms.tms.projection.toString())
                         .update(tiffs.map((c) => c.name).join('\n'))
                         .digest('hex'),
             ) + '.json';
@@ -204,7 +204,7 @@ export class CogBuilder {
         if (existsSync(cacheKey)) {
             this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
             const metadata = (await FileOperatorSimple.readJson(cacheKey)) as SourceMetadata;
-            metadata.resZoom = this.targetProj.getTiffResZoom(metadata.pixelScale);
+            metadata.resZoom = this.targetPtms.getTiffResZoom(metadata.pixelScale);
             return metadata;
         }
 

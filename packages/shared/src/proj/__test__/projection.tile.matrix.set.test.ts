@@ -4,7 +4,6 @@ import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
-import { qkToNamedBounds } from './test.util';
 
 const TileSize = 256;
 
@@ -26,53 +25,42 @@ function getPixelsFromTile(x: number, y: number): Bounds {
 }
 
 o.spec('ProjectionTileMatrixSet', () => {
-    const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
-    const nztmProj = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
+    const googlePtms = ProjectionTileMatrixSet.get(EpsgCode.Google);
+    const nztmPtms = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
 
     o('getTiffResZoom', () => {
-        o(googleProj.getTiffResZoom(10)).equals(14);
-        o(googleProj.getTiffResZoom(10, 2)).equals(13);
-        o(googleProj.getTiffResZoom(0.075)).equals(21);
+        o(googlePtms.getTiffResZoom(10)).equals(14);
+        o(googlePtms.getTiffResZoom(10, 2)).equals(13);
+        o(googlePtms.getTiffResZoom(0.075)).equals(21);
 
-        o(nztmProj.getTiffResZoom(10)).equals(10);
-        o(nztmProj.getTiffResZoom(10, 2)).equals(9);
-        o(nztmProj.getTiffResZoom(0.075)).equals(16);
+        o(nztmPtms.getTiffResZoom(10)).equals(10);
+        o(nztmPtms.getTiffResZoom(10, 2)).equals(9);
+        o(nztmPtms.getTiffResZoom(0.075)).equals(16);
     });
 
     o('getTileSize', async () => {
-        o(googleProj.getImagePixelWidth({ x: 0, y: 0, z: 5 }, 10)).equals(16384);
-        o(googleProj.getImagePixelWidth({ x: 0, y: 0, z: 13 }, 20)).equals(65536);
+        o(googlePtms.getImagePixelWidth({ x: 0, y: 0, z: 5 }, 10)).equals(16384);
+        o(googlePtms.getImagePixelWidth({ x: 0, y: 0, z: 13 }, 20)).equals(65536);
 
-        o(nztmProj.getImagePixelWidth({ x: 0, y: 0, z: 5 }, 10)).equals(20480);
-        o(nztmProj.getImagePixelWidth({ x: 0, y: 0, z: 13 }, 16)).equals(5120);
+        o(nztmPtms.getImagePixelWidth({ x: 0, y: 0, z: 5 }, 10)).equals(20480);
+        o(nztmPtms.getImagePixelWidth({ x: 0, y: 0, z: 13 }, 16)).equals(5120);
     });
 
     o('findAlignmentLevels', () => {
-        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.075)).equals(15);
-        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.5)).equals(13);
-        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 1)).equals(14);
-        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 10)).equals(5);
-        o(googleProj.findAlignmentLevels({ x: 2, y: 0, z: 14 }, 10)).equals(0);
+        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.075)).equals(15);
+        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.5)).equals(13);
+        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 1)).equals(14);
+        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 10)).equals(5);
+        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 14 }, 10)).equals(0);
 
-        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 1 }, 0.075)).equals(14);
-        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.5)).equals(8);
-        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 7)).equals(6);
-        o(nztmProj.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 14)).equals(0);
-    });
-
-    o('should convert to 2193', () => {
-        if (nztmProj == null) {
-            throw new Error('Failed to init proj:2193');
-        }
-        const output = nztmProj.toWsg84([1180000, 4758000]);
-        o(round(output, 6)).deepEquals([167.454458, -47.197075]);
-
-        const reverse = nztmProj.fromWsg84(output);
-        o(round(reverse, 2)).deepEquals([1180000, 4758000]);
+        o(nztmPtms.findAlignmentLevels({ x: 2, y: 0, z: 1 }, 0.075)).equals(14);
+        o(nztmPtms.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.5)).equals(8);
+        o(nztmPtms.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 7)).equals(6);
+        o(nztmPtms.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 14)).equals(0);
     });
 
     o('tileToSourceBounds', () => {
-        o(round(googleProj.tileToSourceBounds(QuadKey.toTile('3120123')).toJson(), 8)).deepEquals({
+        o(round(googlePtms.tileToSourceBounds(QuadKey.toTile('3120123')).toJson(), 8)).deepEquals({
             x: 11584184.51067502,
             y: -6261721.35712163,
             width: 313086.06785608,
@@ -81,57 +69,10 @@ o.spec('ProjectionTileMatrixSet', () => {
     });
 
     o('tileCenterToLatLon', () => {
-        o(round(googleProj.tileCenterToLatLon(QuadKey.toTile('3120123')), 8)).deepEquals({
+        o(round(googlePtms.tileCenterToLatLon(QuadKey.toTile('3120123')), 8)).deepEquals({
             lat: -47.98992167,
             lon: 105.46875,
         });
-    });
-
-    o('toGeoJson', () => {
-        const geojson = googleProj.toGeoJson(qkToNamedBounds(['31', '33'], googleProj));
-
-        const { features } = geojson;
-
-        o(features.length).equals(2);
-
-        o(features[0].properties).deepEquals({ name: '2-3-2' });
-        o(features[1].properties).deepEquals({ name: '2-3-3' });
-        const { geometry } = features[0]!;
-        const coords = geometry.type === 'Polygon' ? geometry.coordinates : null;
-        o(round(coords![0], 8)).deepEquals([
-            [90, -66.51326044],
-            [90, 0],
-            [180, 0],
-            [180, -66.51326044],
-            [90, -66.51326044],
-        ]);
-    });
-
-    o('projectMultipolygon', () => {
-        const poly = [
-            Bounds.fromBbox([
-                18494091.86765497,
-                -6051366.655280836,
-                19986142.659781612,
-                -4016307.214216303,
-            ]).toPolygon(),
-        ];
-
-        o(googleProj.projectMultipolygon(poly, googleProj)).equals(poly);
-
-        const ans = googleProj.projectMultipolygon(poly, nztmProj);
-
-        o(round(ans, 4)).deepEquals([
-            [
-                [
-                    [1084733.8967, 4698018.9435],
-                    [964788.1197, 6226878.2808],
-                    [2204979.5633, 6228860.047],
-                    [2090794.171, 4700144.6365],
-                    [1084733.8967, 4698018.9435],
-                ],
-            ],
-        ]);
     });
 
     o.spec('TilingBounds', () => {
