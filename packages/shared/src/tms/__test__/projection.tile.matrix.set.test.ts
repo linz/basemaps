@@ -107,6 +107,33 @@ o.spec('ProjectionTileMatrixSet', () => {
         ]);
     });
 
+    o('projectMultipolygon', () => {
+        const poly = [
+            Bounds.fromBbox([
+                18494091.86765497,
+                -6051366.655280836,
+                19986142.659781612,
+                -4016307.214216303,
+            ]).toPolygon(),
+        ];
+
+        o(googleProj.projectMultipolygon(poly, googleProj)).equals(poly);
+
+        const ans = googleProj.projectMultipolygon(poly, nztmProj);
+
+        o(round(ans, 4)).deepEquals([
+            [
+                [
+                    [1084733.8967, 4698018.9435],
+                    [964788.1197, 6226878.2808],
+                    [2204979.5633, 6228860.047],
+                    [2090794.171, 4700144.6365],
+                    [1084733.8967, 4698018.9435],
+                ],
+            ],
+        ]);
+    });
+
     o.spec('TilingBounds', () => {
         // Approximate bounding box of new zealand
         const tifBoundingBox: [number, number, number, number] = [

@@ -65,6 +65,21 @@ export class ProjectionTileMatrixSet {
     }
 
     /**
+     * Project the points in a MultiPolygon array to the `targetProjection`.
+
+     * @return if multipoly is not projected return it verbatim otherwise creates a new multi
+     * polygon
+     */
+    projectMultipolygon(multipoly: Position[][][], targetProjection: ProjectionTileMatrixSet): Position[][][] {
+        if (targetProjection.tms.projection.code === this.tms.projection.code) return multipoly;
+
+        const { toWsg84 } = this;
+        const { fromWsg84 } = targetProjection;
+
+        return multipoly.map((poly) => poly.map((ring) => ring.map((p) => fromWsg84(toWsg84(p)))));
+    }
+
+    /**
      * Convert source `[x, y]` coordinates to `[lon, lat]`
      */
     get toWsg84(): (coordinates: Position) => Position {
@@ -113,31 +128,17 @@ export class ProjectionTileMatrixSet {
         return { lat, lon };
     }
 
-    /**
-     * Convert a tile to a GeoJson Polygon in Source units
-     */
-    tileToPolygon(tile: Tile): Position[][] {
-        return [
-            [
-                [tile.x, tile.y + 1],
-                [tile.x, tile.y],
-                [tile.x + 1, tile.y],
-                [tile.x + 1, tile.y + 1],
-                [tile.x, tile.y + 1],
-            ].map(([x, y]) => {
-                const p = this.tms.tileToSource({ x, y, z: tile.z });
-                return [p.x, p.y];
-            }),
-        ];
-    }
-
     /** Convert a tile covering to a GeoJSON FeatureCollection */
     toGeoJson(files: NamedBounds[]): GeoJSON.FeatureCollection {
         const { toWsg84 } = this;
         const polygons: GeoJSON.Feature[] = [];
         for (const bounds of files) {
             const polygon = GeoJson.toFeaturePolygon(
-                [GeoJson.toPositionPolygon(Bounds.fromJson(bounds).toBbox())[0].map((p) => toWsg84(p))],
+                [
+                    Bounds.fromJson(bounds)
+                        .toPolygon()[0]
+                        .map((p) => toWsg84(p)),
+                ],
                 {
                     name: bounds.name,
                 },

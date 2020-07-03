@@ -14,7 +14,7 @@ export interface CogJob {
 
     source: {
         /** List of input files */
-        files: string[];
+        files: NamedBounds[];
 
         /** The number of pixels per meter for the best source image */
         pixelScale: number;
@@ -78,7 +78,7 @@ export interface SourceMetadata {
     /** Number of imagery bands generally RGB (3) or RGBA (4) */
     bands: number;
     /** Bounding box for polygons */
-    bounds: GeoJSON.FeatureCollection;
+    bounds: NamedBounds[];
 
     /** The number of pixels per meter for the best source image */
     pixelScale: number;

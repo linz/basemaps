@@ -1,6 +1,6 @@
+import { Approx } from '@basemaps/test';
 import o from 'ospec';
 import { Bounds } from '../bounds';
-import { Approx } from '@basemaps/test';
 
 const TILE_SIZE = 256;
 function getTile(x = 0, y = 0): Bounds {
@@ -109,5 +109,33 @@ o.spec('Bounds', () => {
         o(compareArea(new Bounds(4, 5, 1, 1), new Bounds(4, 4, 1, 1))).equals(1);
 
         o(compareArea(new Bounds(3, 5, 1, 1), new Bounds(3, 5, 2, 5))).equals(-9);
+    });
+
+    o('fromMultiPolygon', () => {
+        const poly = [
+            [
+                [
+                    [84, -49],
+                    [74, -40],
+                    [90, -57],
+                    [94, -39],
+                    [84, -49],
+                ],
+            ],
+        ];
+
+        o(Bounds.fromMultiPolygon(poly).toJson()).deepEquals({ x: 74, y: -57, width: 20, height: 18 });
+    });
+
+    o('toPolygon', () => {
+        o(new Bounds(74, -57, 20, 18).toPolygon()).deepEquals([
+            [
+                [74, -57],
+                [74, -39],
+                [94, -39],
+                [94, -57],
+                [74, -57],
+            ],
+        ]);
     });
 });

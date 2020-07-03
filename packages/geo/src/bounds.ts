@@ -115,6 +115,21 @@ export class Bounds implements BoundingBox {
     }
 
     /**
+     * Convert to GeoJson Polygon coordinates
+     */
+    public toPolygon(): [number, number][][] {
+        return [
+            [
+                [this.x, this.y],
+                [this.x, this.bottom],
+                [this.right, this.bottom],
+                [this.right, this.y],
+                [this.x, this.y],
+            ],
+        ];
+    }
+
+    /**
      * Scale the bounding box adjusting top, left, width & height
      *
      * @param scaleX scale x parameters (left, width)
@@ -151,6 +166,29 @@ export class Bounds implements BoundingBox {
 
     public subtract(bounds: Point): Bounds {
         return new Bounds(this.x - bounds.x, this.y - bounds.y, this.width, this.height);
+    }
+
+    /**
+     * Find the bounds of a GeoJson MultiPolygon
+
+     * @param multipoly the polygon to measure
+     */
+    public static fromMultiPolygon(multipoly: number[][][][]): Bounds {
+        if (multipoly.length == 0) return new Bounds(0, 0, 0, 0);
+        let minX = multipoly[0][0][0][0];
+        let minY = multipoly[0][0][0][1];
+        let maxX = minX;
+        let maxY = minY;
+        for (const [poly] of multipoly) {
+            for (const [x, y] of poly) {
+                if (x < minX) minX = x;
+                else if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                else if (y > maxY) maxY = y;
+            }
+        }
+
+        return new Bounds(minX, minY, maxX - minX, maxY - minY);
     }
 
     /**

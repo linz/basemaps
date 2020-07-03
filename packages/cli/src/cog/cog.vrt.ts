@@ -1,11 +1,10 @@
-import { FileOperator, LogType, isConfigS3Role, Aws } from '@basemaps/shared';
-import { FeatureCollection } from 'geojson';
+import { Epsg } from '@basemaps/geo';
+import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/shared';
+import { GdalCogBuilder } from '../gdal/gdal';
+import { GdalCommand } from '../gdal/gdal.command';
+import { onProgress } from './cog';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
-import { onProgress } from './cog';
-import { GdalCogBuilder } from '../gdal/gdal';
-import { Epsg } from '@basemaps/geo';
-import { GdalCommand } from '../gdal/gdal.command';
 
 /**
  * Build the VRT for the needed source imagery
@@ -28,14 +27,14 @@ async function buildPlainVrt(
         gdalCommand.setCredentials(credentials);
     } else {
         if (gdalCommand.mount) {
-            for (const file of job.source.files) {
-                gdalCommand.mount(file);
+            for (const { name } of job.source.files) {
+                gdalCommand.mount(name);
             }
         }
     }
 
     logger.debug({ buildOpts: buildOpts.join(' ') }, 'gdalbuildvrt');
-    const sourceFiles = job.source.files.map((c) => c.replace('s3://', '/vsis3/'));
+    const sourceFiles = job.source.files.map(({ name }) => name.replace('s3://', '/vsis3/'));
     await gdalCommand.run('gdalbuildvrt', [...buildOpts, vrtPath, ...sourceFiles], logger);
 }
 
@@ -79,13 +78,12 @@ async function buildWarpVrt(
 
 export const CogVrt = {
     /**
-     * Build a vrt file for a `name` set with some tiffs transformed with a cutline
+     * Build a vrt file for a COG `name` that transforms the source imagery with a cutline
      *
      * @param tmpFolder temporary `vrt` and `cutline.geojson` will be written here
      * @param job
-     * @param sourceGeo a GeoJSON object which contains the boundaries for the source imagery
-     * @param cutline Used to filter the sources and cutline
-     * @param name to reduce vrt and cutline
+     * @param cutline Used to filter the source imagery
+     * @param name COG tile to reduce vrt and cutline
      * @param logger
      *
      * @return the path to the vrt file
@@ -93,7 +91,6 @@ export const CogVrt = {
     async buildVrt(
         tmpFolder: string,
         job: CogJob,
-        sourceGeo: FeatureCollection,
         cutline: Cutline,
         name: string,
         logger: LogType,
@@ -102,7 +99,7 @@ export const CogVrt = {
 
         const inputTotal = job.source.files.length;
 
-        cutline.filterSourcesForName(name, job, sourceGeo);
+        cutline.filterSourcesForName(name, job);
 
         if (job.source.files.length == 0) {
             return null;

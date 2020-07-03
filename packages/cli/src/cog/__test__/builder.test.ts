@@ -1,7 +1,8 @@
-import { Epsg, EpsgCode } from '@basemaps/geo';
+import { Bounds, Epsg, EpsgCode } from '@basemaps/geo';
 import { LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
-import { round } from '@basemaps/test/build/rounding';
-import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
+import { CogTiff } from '@cogeotiff/core';
+import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
+import { CogSourceFile } from '@cogeotiff/source-file';
 import o from 'ospec';
 import { CogBuilder, guessProjection } from '../builder';
 
@@ -28,35 +29,71 @@ o.spec('Builder', () => {
 
     o.spec('tiff', () => {
         const googleBuilder = new CogBuilder(ProjectionTileMatrixSet.get(EpsgCode.Google), 1, LogConfig.get());
-        const tiff = {
-            source: { name: 'test1.tiff' },
-            getImage(n: number): any {
-                if (n != 0) return null;
-                return {
-                    bbox: [1492000, 6198000, 1492000 + 24000, 6198000 + 36000],
-                    valueGeo(key: number): any {
-                        if (key === TiffTagGeo.ProjectedCSTypeGeoKey) return EpsgCode.Nztm2000;
-                    },
-                };
-            },
-        } as CogTiff;
+        const origInit = CogTiff.prototype.init;
+        const origGetImage = CogTiff.prototype.getImage;
 
-        o('getTifBounds', () => {
-            o(round(googleBuilder.getTifBounds(tiff), 2)).deepEquals({
-                type: 'Feature',
-                geometry: {
-                    type: 'Polygon',
-                    coordinates: [
-                        [
-                            [171.83, -34.03],
-                            [171.83, -34.35],
-                            [172.09, -34.36],
-                            [172.09, -34.03],
-                            [171.83, -34.03],
-                        ],
-                    ],
-                },
-                properties: { tiff: 'test1.tiff' },
+        o.after(() => {
+            CogTiff.prototype.init = origInit;
+            CogTiff.prototype.getImage = origGetImage;
+        });
+
+        o('bounds', async () => {
+            const localTiff = new CogSourceFile('local/file.tiff');
+            const s3Tiff = new CogSourceAwsS3('bucket', 's3://file.tiff');
+
+            const imageLocal = {
+                resolution: [0.1],
+                value: (): any => [1],
+                valueGeo: (): any => EpsgCode.Nztm2000,
+                bbox: Bounds.fromJson({
+                    x: 1492000,
+                    y: 6198000,
+                    width: 24000,
+                    height: 36000,
+                }).toBbox(),
+            };
+
+            const imageS3 = {
+                resolution: [0.1],
+                value: (): any => [1],
+                valueGeo: (): any => EpsgCode.Nztm2000,
+                bbox: Bounds.fromJson({
+                    x: 1492000 + 24000,
+                    y: 6198000,
+                    width: 24000,
+                    height: 36000,
+                }).toBbox(),
+            };
+
+            CogTiff.prototype.init = o.spy() as any;
+            CogTiff.prototype.getImage = function (): any {
+                return this.source == localTiff ? imageLocal : imageS3;
+            };
+
+            const ans = await googleBuilder.bounds([localTiff, s3Tiff]);
+
+            o(ans).deepEquals({
+                projection: 2193,
+                nodata: 1,
+                bands: 1,
+                bounds: [
+                    {
+                        x: 1492000,
+                        y: 6198000,
+                        width: 24000,
+                        height: 36000,
+                        name: 'local/file.tiff',
+                    },
+                    {
+                        x: 1516000,
+                        y: 6198000,
+                        width: 24000,
+                        height: 36000,
+                        name: 's3://bucket/s3://file.tiff',
+                    },
+                ],
+                pixelScale: 0.1,
+                resZoom: 21,
             });
         });
     });

@@ -123,6 +123,8 @@ export const CogJobFactory = {
         const builder = new CogBuilder(ctx.targetProjection, maxConcurrency, logger, ctx.override?.projection);
         const metadata = await builder.build(tiffSource, cutline);
 
+        const sourceProjection = ProjectionTileMatrixSet.get(metadata.projection);
+
         const { tms } = cutline.targetProj;
 
         const files = metadata.files.sort(Bounds.compareArea);
@@ -180,7 +182,7 @@ export const CogJobFactory = {
                 pixelScale: metadata.pixelScale,
                 resZoom: metadata.resZoom,
                 projection: metadata.projection,
-                files: tiffList,
+                files: metadata.bounds,
                 options: { maxConcurrency },
             },
             bounds: metadata.targetBounds,
@@ -201,13 +203,13 @@ export const CogJobFactory = {
             const jobFile = getJobPath(job, `job.json`);
             await outputFs.writeJson(jobFile, job, logger);
 
-            if (ctx.cutline != null) {
+            if (cutline.clipPoly.length != 0) {
                 const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson.gz`);
                 await outputFs.writeJson(geoJsonCutlineOutput, cutline.toGeoJson(), logger);
             }
 
             const geoJsonSourceOutput = getJobPath(job, `source.geojson`);
-            await outputFs.writeJson(geoJsonSourceOutput, metadata.bounds, logger);
+            await outputFs.writeJson(geoJsonSourceOutput, sourceProjection.toGeoJson(metadata.bounds), logger);
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
             await outputFs.writeJson(geoJsonCoveringOutput, ctx.targetProjection.toGeoJson(metadata.files), logger);
