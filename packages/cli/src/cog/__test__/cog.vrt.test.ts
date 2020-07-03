@@ -1,6 +1,6 @@
 import { EpsgCode } from '@basemaps/geo';
 import { FileOperatorSimple, LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
-import { qkToName } from '@basemaps/shared/build/tms/__test__/test.util';
+import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal';
@@ -18,7 +18,7 @@ o.spec('cog.vrt', () => {
 
     const testDir = `${__dirname}/../../../__test.assets__`;
 
-    const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
+    const googlePtms = ProjectionTileMatrixSet.get(EpsgCode.Google);
 
     const sourceBounds = SourceTiffTestHelper.tiffNztmBounds(testDir);
     const [tif1, tif2] = sourceBounds;
@@ -56,8 +56,8 @@ o.spec('cog.vrt', () => {
     });
 
     o('1 crosses, 1 outside', async () => {
-        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
-        const cl2 = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+        const cl2 = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/mana.geojson'));
         cutline.clipPoly.push(...cl2.clipPoly);
 
         job.source.resZoom = 17;
@@ -70,7 +70,7 @@ o.spec('cog.vrt', () => {
     });
 
     o('not within tile', async () => {
-        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
+        const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
 
         const vrt = await CogVrt.buildVrt(tmpFolder, job, cutline, qkToName('3131110001'), logger);
 
@@ -80,7 +80,7 @@ o.spec('cog.vrt', () => {
     });
 
     o('no cutline same projection', async () => {
-        const vrt = await CogVrt.buildVrt(tmpFolder, job, new Cutline(googleProj), qkToName('31'), logger);
+        const vrt = await CogVrt.buildVrt(tmpFolder, job, new Cutline(googlePtms), qkToName('31'), logger);
 
         o(job.source.files).deepEquals([tif1, tif2]);
         o(cutTiffArgs.length).equals(0);
@@ -91,7 +91,7 @@ o.spec('cog.vrt', () => {
 
     o('no cutline diff projection', async () => {
         job.projection = EpsgCode.Nztm2000;
-        const vrt = await CogVrt.buildVrt(tmpFolder, job, new Cutline(googleProj), qkToName('31'), logger);
+        const vrt = await CogVrt.buildVrt(tmpFolder, job, new Cutline(googlePtms), qkToName('31'), logger);
 
         o(job.source.files).deepEquals([tif1, tif2]);
         o(cutTiffArgs.length).equals(0);
@@ -101,7 +101,7 @@ o.spec('cog.vrt', () => {
     });
 
     o('fully within same projection', async () => {
-        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), -100);
+        const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), -100);
 
         const name = qkToName('311333222321113310');
 
@@ -115,7 +115,7 @@ o.spec('cog.vrt', () => {
     });
 
     o('intersected cutline', async () => {
-        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 20);
+        const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 20);
         job.output.cutline = { blend: 20, source: 'cutline.json' };
 
         const name = qkToName('311333222321113');
@@ -177,7 +177,7 @@ o.spec('cog.vrt', () => {
             return o;
         });
         job.output.cutline = { blend: 10, source: 'cutline.json' };
-        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/mana.geojson'));
 
         const vrt = await CogVrt.buildVrt(tmpFolder, job, cutline, qkToName('3131110001'), logger);
 

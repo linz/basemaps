@@ -3,7 +3,7 @@ import { round } from '@basemaps/test/build/rounding';
 import * as AWS from 'aws-sdk';
 import o from 'ospec';
 import { Const } from '../../const';
-import { qkToNamedBounds } from '../../tms/__test__/test.util';
+import { qkToNamedBounds } from '../../proj/__test__/test.util';
 import { TileMetadataTable } from '../tile.metadata';
 import { TileMetadataImageRule, TileMetadataImageryRecordV1, TileMetadataSetRecord } from '../tile.metadata.base';
 

@@ -103,9 +103,9 @@ export class ActionBatchJob extends CommandLineAction {
         isCommit: boolean,
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
         const jobName = ActionBatchJob.id(job, name);
-        const targetProj = ProjectionTileMatrixSet.get(job.projection);
+        const targetPtms = ProjectionTileMatrixSet.get(job.projection);
         const tile = TileMatrixSet.nameToTile(name);
-        const alignmentLevels = targetProj.findAlignmentLevels(tile, job.source.pixelScale);
+        const alignmentLevels = targetPtms.findAlignmentLevels(tile, job.source.pixelScale);
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;

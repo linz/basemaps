@@ -8,8 +8,8 @@ export function qkToName(qk: string): string {
 
 export function qkToNamedBounds(
     quadKeys: string[],
-    proj = ProjectionTileMatrixSet.get(EpsgCode.Google),
+    ptms = ProjectionTileMatrixSet.get(EpsgCode.Google),
 ): NamedBounds[] {
-    const { tms } = proj;
+    const { tms } = ptms;
     return quadKeys.map((qk) => Object.assign({ name: qkToName(qk) }, tms.tileToSourceBounds(QuadKey.toTile(qk))));
 }

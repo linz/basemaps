@@ -6,7 +6,7 @@ import { buildCogForName } from '../cog';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
 import { TilingScheme } from '../../gdal/gdal.config';
 import { round } from '@basemaps/test/build/rounding';
-import { qkToName } from '@basemaps/shared/build/tms/__test__/test.util';
+import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 
 LogConfig.disable();
 
