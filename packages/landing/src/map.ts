@@ -10,7 +10,6 @@ import { NztmOl } from './nztm2000';
 import TileSource from 'ol/source/Tile';
 import BaseEvent from 'ol/events/Event';
 import { ImageTile } from 'ol';
-import { count } from 'console';
 import { gaEvent, GaEvent } from './config';
 
 /** Projection to use for the URL bar */

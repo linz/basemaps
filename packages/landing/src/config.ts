@@ -29,6 +29,7 @@ if (Config.GoogleAnalytics != null && typeof window != 'undefined') {
 
 export const enum GaEvent {
     TileTiming = 'TileTiming',
+    Ui = 'Ui',
 }
 
 export function gaEvent(category: GaEvent, label: string, value: number): void {
