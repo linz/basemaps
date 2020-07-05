@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.5.0](https://github.com/linz/basemaps/compare/v3.4.2...v3.5.0) (2020-07-05)
+
+
+### Bug Fixes
+
+* **cli:** mitigate polygon intersection errors ([#834](https://github.com/linz/basemaps/issues/834)) ([5799137](https://github.com/linz/basemaps/commit/5799137e8fa53816c5a28b7e53ecd9ffbca70bb1))
+* **cli:** refactor projection logic to allow chathams to be built ([#854](https://github.com/linz/basemaps/issues/854)) ([f799006](https://github.com/linz/basemaps/commit/f799006ccf1a45ec8aebfe132603a17c031e4825))
+* **landing:** allow firefox to render webps if it supports it ([#858](https://github.com/linz/basemaps/issues/858)) ([ba3013b](https://github.com/linz/basemaps/commit/ba3013b06509cb96e0cd468ac9d1510e9933f52f))
+
+
+### Features
+
+* **landing:** report tile loading stats ([#853](https://github.com/linz/basemaps/issues/853)) ([7e11d4a](https://github.com/linz/basemaps/commit/7e11d4a7304cbc9533ade2af2ad977cf0df1fe0f))
+
+
+
+
+
 ## [3.4.2](https://github.com/linz/basemaps/compare/v3.4.1...v3.4.2) (2020-06-30)
 
 
