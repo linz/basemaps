@@ -5,6 +5,7 @@ import { CoveringFraction, MaxImagePixelWidth } from './constants';
 import { CogJob, SourceMetadata } from './types';
 import { clipMultipolygon, removeDegenerateEdges, polyContainsBounds } from './clipped.multipolygon';
 import pc, { MultiPolygon, Ring, Polygon } from 'polygon-clipping';
+import { Projection } from '@basemaps/shared/build/proj/projection';
 const { intersection, union } = pc;
 
 /** Padding to always apply to image boundies */
@@ -39,15 +40,15 @@ function addNonDupes(list: Tile[], addList: Tile[]): void {
 
 export class Cutline {
     clipPoly: MultiPolygon = [];
-    targetProj: ProjectionTileMatrixSet;
+    targetPtms: ProjectionTileMatrixSet;
     blend: number;
-    tms: TileMatrixSet; // convience to targetProj.tms
+    tms: TileMatrixSet; // convience to targetPtms.tms
     private srcPoly: MultiPolygon = [];
 
     /**
      * Create a Cutline instance from a `GeoJSON FeatureCollection`.
 
-     * @param targetProj the projection the COGs will be created in.
+     * @param targetPtms the projection the COGs will be created in.
 
      * @param clipPoly the optional cutline. The source imagery outline used by default. This
      * `FeatureCollection` is converted to one `MultiPolygon` with any holes removed and the
@@ -55,9 +56,9 @@ export class Cutline {
 
      * @param blend How much blending to consider when working out boundaries.
      */
-    constructor(targetProj: ProjectionTileMatrixSet, clipPoly?: FeatureCollection, blend = 0) {
-        this.targetProj = targetProj;
-        this.tms = targetProj.tms;
+    constructor(targetPtms: ProjectionTileMatrixSet, clipPoly?: FeatureCollection, blend = 0) {
+        this.targetPtms = targetPtms;
+        this.tms = targetPtms.tms;
         this.blend = blend;
         if (clipPoly == null) {
             return;
@@ -65,7 +66,7 @@ export class Cutline {
         if (findGeoJsonProjection(clipPoly) !== Epsg.Wgs84) {
             throw new Error('Invalid geojson; CRS may not be set for cutline!');
         }
-        const { fromWsg84 } = this.targetProj;
+        const { fromWsg84 } = this.targetPtms.proj;
         for (const { geometry } of clipPoly.features) {
             if (geometry.type === 'MultiPolygon') {
                 for (const coords of geometry.coordinates) {
@@ -92,24 +93,22 @@ export class Cutline {
      *
      * @param name
      * @param job
-     * @param  sourceGeo
+     * @returns names of source files required to render Cog
      */
-    filterSourcesForName(name: string, job: CogJob): void {
+    filterSourcesForName(name: string, job: CogJob): string[] {
         const tile = TileMatrixSet.nameToTile(name);
-        const { targetProj } = this;
-        const tileBounds = targetProj.tileToSourceBounds(tile);
+        const sourceCode = Projection.get(job.source.projection);
+        const targetCode = this.targetPtms.proj;
+        const tileBounds = this.targetPtms.tileToSourceBounds(tile);
         const tilePadded = this.padBounds(tileBounds, job.source.resZoom);
 
         let tileBoundsInSrcProj = tilePadded;
 
-        if (job.source.projection !== this.tms.projection.code) {
+        if (sourceCode !== targetCode) {
             // convert the padded quadKey to source projection ensuring fully enclosed
-            const sourceProj = ProjectionTileMatrixSet.get(job.source.projection);
-            const poly = targetProj.projectMultipolygon([tileBoundsInSrcProj.toPolygon()], sourceProj);
+            const poly = targetCode.projectMultipolygon([tileBoundsInSrcProj.toPolygon()], sourceCode);
             tileBoundsInSrcProj = Bounds.fromMultiPolygon(poly);
         }
-
-        job.source.files = job.source.files.filter((image) => tileBoundsInSrcProj.intersects(Bounds.fromJson(image)));
 
         if (this.clipPoly.length > 0) {
             const poly = clipMultipolygon(this.clipPoly, tilePadded);
@@ -125,6 +124,10 @@ export class Cutline {
                 this.clipPoly = removeDegenerateEdges(poly, tilePadded);
             }
         }
+
+        return job.source.files
+            .filter((image) => tileBoundsInSrcProj.intersects(Bounds.fromJson(image)))
+            .map(({ name }) => name);
     }
 
     /**
@@ -137,13 +140,13 @@ export class Cutline {
         const { resZoom } = sourceMetadata;
         // Look for the biggest tile size we are allowed to create.
         let minZ = resZoom - 1;
-        while (minZ > 1 && this.targetProj.getImagePixelWidth({ x: 0, y: 0, z: minZ }, resZoom) < MaxImagePixelWidth) {
+        while (minZ > 1 && this.targetPtms.getImagePixelWidth({ x: 0, y: 0, z: minZ }, resZoom) < MaxImagePixelWidth) {
             --minZ;
         }
         minZ = Math.max(1, minZ + 1);
 
         let tiles: Tile[] = [];
-        const { tms } = this.targetProj;
+        const { tms } = this.targetPtms;
 
         for (const tile of tms.topLevelTiles()) {
             // Don't make COGs with a tile.z < minZ.
@@ -170,7 +173,7 @@ export class Cutline {
      * Convert JobCutline to geojson FeatureCollection
      */
     toGeoJson(clipPoly = this.clipPoly): FeatureCollection {
-        const { toWsg84 } = this.targetProj;
+        const { toWsg84 } = this.targetPtms.proj;
         return GeoJson.toFeatureCollection([GeoJson.toFeatureMultiPolygon(clipPoly.map((p) => [p[0].map(toWsg84)]))]);
     }
 
@@ -189,7 +192,7 @@ export class Cutline {
         minZ: number,
         coveringFraction: number,
     ): { tiles: Tile[]; fractionCovered: number } {
-        const clipBounds = this.targetProj.tileToSourceBounds(tile);
+        const clipBounds = this.targetPtms.tileToSourceBounds(tile);
 
         srcArea = clipMultipolygon(srcArea, clipBounds);
 
@@ -242,8 +245,11 @@ export class Cutline {
         }
 
         // Convert polygon to target projection
-        const sourceProj = ProjectionTileMatrixSet.get(sourceMetadata.projection);
-        srcPoly = sourceProj.projectMultipolygon(srcPoly, this.targetProj) as MultiPolygon;
+        const sourceProj = Projection.get(sourceMetadata.projection);
+        const targetProj = this.targetPtms.proj;
+        if (sourceProj != targetProj) {
+            srcPoly = sourceProj.projectMultipolygon(srcPoly, targetProj) as MultiPolygon;
+        }
         this.srcPoly = srcPoly;
 
         if (this.clipPoly.length == 0) return;

@@ -1,7 +1,7 @@
 import o from 'ospec';
 import { CogJob } from '../../../cog/types';
 import { extractResolutionFromName, extractYearFromName, createImageryRecordFromJob } from '../action.batch';
-import { qkToNamedBounds } from '@basemaps/shared/build/tms/__test__/test.util';
+import { qkToNamedBounds } from '@basemaps/shared/build/proj/__test__/test.util';
 import { Bounds } from '@basemaps/geo';
 import { round } from '@basemaps/test/build/rounding';
 

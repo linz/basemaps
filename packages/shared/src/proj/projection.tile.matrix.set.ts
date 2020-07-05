@@ -1,31 +1,21 @@
-import { Bounds, Epsg, EpsgCode, GeoJson, Tile, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, EpsgCode, Tile, TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
-import { Position } from 'geojson';
-import Proj from 'proj4';
-import { NamedBounds } from '../aws/tile.metadata.base';
-import { CompositeError } from '../composite.error';
-import { Citm2000 } from './citm2000';
-import { Nztm2000 } from './nztm2000';
+import { Projection } from './projection';
 
 export interface LatLon {
     lat: number;
     lon: number;
 }
 
-Proj.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
-Proj.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
-
 const CodeMap = new Map<EpsgCode, ProjectionTileMatrixSet>();
 
 export class ProjectionTileMatrixSet {
     /** The underlying TileMatrixSet */
-    tms: TileMatrixSet;
+    public readonly tms: TileMatrixSet;
+    public readonly proj: Projection;
     /** Used to calculate `BlockSize  = blockFactor * tms.tileSize` for generating COGs */
     blockFactor: number;
-
-    /** Transform coordinates to and from Wsg84 */
-    private projection: proj4.Converter;
 
     /**
      * Wrapper around TileMatrixSet with utilities for converting Points and Polygons
@@ -33,14 +23,7 @@ export class ProjectionTileMatrixSet {
     constructor(tms: TileMatrixSet, blockFactor = 2) {
         this.tms = tms;
         this.blockFactor = blockFactor;
-        try {
-            this.projection = Proj(tms.projection.toEpsgString(), Epsg.Wgs84.toEpsgString());
-        } catch (err) {
-            throw new CompositeError(
-                `Failed to create projection: ${tms.projection.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`,
-                err,
-            );
-        }
+        this.proj = Projection.get(tms.projection.code);
     }
 
     /**
@@ -62,35 +45,6 @@ export class ProjectionTileMatrixSet {
      */
     static tryGet(epsgCode?: EpsgCode): ProjectionTileMatrixSet | null {
         return (epsgCode && CodeMap.get(epsgCode)) ?? null;
-    }
-
-    /**
-     * Project the points in a MultiPolygon array to the `targetProjection`.
-
-     * @return if multipoly is not projected return it verbatim otherwise creates a new multi
-     * polygon
-     */
-    projectMultipolygon(multipoly: Position[][][], targetProjection: ProjectionTileMatrixSet): Position[][][] {
-        if (targetProjection.tms.projection.code === this.tms.projection.code) return multipoly;
-
-        const { toWsg84 } = this;
-        const { fromWsg84 } = targetProjection;
-
-        return multipoly.map((poly) => poly.map((ring) => ring.map((p) => fromWsg84(toWsg84(p)))));
-    }
-
-    /**
-     * Convert source `[x, y]` coordinates to `[lon, lat]`
-     */
-    get toWsg84(): (coordinates: Position) => Position {
-        return this.projection.forward;
-    }
-
-    /**
-     * Convert `[lon, lat]` coordinates to source `[x, y]`
-     */
-    get fromWsg84(): (coordinates: Position) => Position {
-        return this.projection.inverse;
     }
 
     /**
@@ -124,29 +78,8 @@ export class ProjectionTileMatrixSet {
      */
     tileCenterToLatLon(tile: Tile): LatLon {
         const point = this.tms.tileToSource({ x: tile.x + 0.5, y: tile.y + 0.5, z: tile.z });
-        const [lon, lat] = this.toWsg84([point.x, point.y]);
+        const [lon, lat] = this.proj.toWsg84([point.x, point.y]);
         return { lat, lon };
-    }
-
-    /** Convert a tile covering to a GeoJSON FeatureCollection */
-    toGeoJson(files: NamedBounds[]): GeoJSON.FeatureCollection {
-        const { toWsg84 } = this;
-        const polygons: GeoJSON.Feature[] = [];
-        for (const bounds of files) {
-            const polygon = GeoJson.toFeaturePolygon(
-                [
-                    Bounds.fromJson(bounds)
-                        .toPolygon()[0]
-                        .map((p) => toWsg84(p)),
-                ],
-                {
-                    name: bounds.name,
-                },
-            );
-            polygons.push(polygon);
-        }
-
-        return GeoJson.toFeatureCollection(polygons);
     }
 
     /**

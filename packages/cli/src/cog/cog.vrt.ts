@@ -11,6 +11,7 @@ import { CogJob } from './types';
  */
 async function buildPlainVrt(
     job: CogJob,
+    sourceFiles: string[],
     vrtPath: string,
     gdalCommand: GdalCommand,
     defaultOps: string[],
@@ -27,14 +28,13 @@ async function buildPlainVrt(
         gdalCommand.setCredentials(credentials);
     } else {
         if (gdalCommand.mount) {
-            for (const { name } of job.source.files) {
+            for (const name of sourceFiles) {
                 gdalCommand.mount(name);
             }
         }
     }
 
     logger.debug({ buildOpts: buildOpts.join(' ') }, 'gdalbuildvrt');
-    const sourceFiles = job.source.files.map(({ name }) => name.replace('s3://', '/vsis3/'));
     await gdalCommand.run('gdalbuildvrt', [...buildOpts, vrtPath, ...sourceFiles], logger);
 }
 
@@ -99,9 +99,9 @@ export const CogVrt = {
 
         const inputTotal = job.source.files.length;
 
-        cutline.filterSourcesForName(name, job);
+        const sourceFiles = cutline.filterSourcesForName(name, job).map((name) => name.replace('s3://', '/vsis3/'));
 
-        if (job.source.files.length == 0) {
+        if (sourceFiles.length == 0) {
             return null;
         }
 
@@ -127,12 +127,12 @@ export const CogVrt = {
             gdalCommand.mount(tmpFolder);
         }
 
-        const tr = cutline.targetProj.tms.pixelScale(job.source.resZoom).toString();
+        const tr = cutline.tms.pixelScale(job.source.resZoom).toString();
 
         const defaultOps = ['-tr', tr, tr, '-tap'];
 
         onProgress(gdalCommand, { target: `vrt.${job.projection}` }, logger);
-        await buildPlainVrt(job, sourceVrtPath, gdalCommand, defaultOps, logger);
+        await buildPlainVrt(job, sourceFiles, sourceVrtPath, gdalCommand, defaultOps, logger);
         await buildWarpVrt(job, cogVrtPath, gdalCommand, sourceVrtPath, defaultOps, logger, cutlineTarget);
         return cogVrtPath;
     },

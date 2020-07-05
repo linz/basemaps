@@ -7,16 +7,16 @@ import o from 'ospec';
 import { Cutline } from '../cutline';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
-import { qkToName } from '@basemaps/shared/build/tms/__test__/test.util';
+import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 
 o.spec('cutline', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
-    const googleProj = ProjectionTileMatrixSet.get(EpsgCode.Google);
-    const nztmProj = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
+    const googlePtms = ProjectionTileMatrixSet.get(EpsgCode.Google);
+    const nztmPtms = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
 
     o.spec('filterSourcesForName', () => {
         o('fully within same projection', async () => {
-            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), -100);
+            const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), -100);
 
             const name = qkToName('311333222321113310');
 
@@ -27,14 +27,12 @@ o.spec('cutline', () => {
             const [tif1, tif2] = sourceBounds;
             job.source.files = [tif1, tif2];
 
-            cutline.filterSourcesForName(name, job);
-
-            o(job.source.files).deepEquals([tif2]);
+            o(cutline.filterSourcesForName(name, job)).deepEquals([tif2.name]);
         });
     });
 
     o('loadCutline', async () => {
-        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const geojson = cutline.toGeoJson();
         const mp = geojson.features[0].geometry as MultiPolygon;
         const { coordinates } = mp;
@@ -58,7 +56,7 @@ o.spec('cutline', () => {
     });
 
     o('findCovering', async () => {
-        const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const bounds = SourceTiffTestHelper.tiffNztmBounds();
 
         o(cutline.clipPoly.length).equals(2);
@@ -72,7 +70,7 @@ o.spec('cutline', () => {
         const bounds = SourceTiffTestHelper.tiffNztmBounds();
 
         o('nztm', () => {
-            const cutline = new Cutline(nztmProj);
+            const cutline = new Cutline(nztmPtms);
 
             const covering = cutline.optimizeCovering({
                 projection: EpsgCode.Nztm2000,
@@ -122,7 +120,7 @@ o.spec('cutline', () => {
             };
 
             const bounds = [tiff1, tiff2];
-            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
+            const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
 
             const covering = cutline.optimizeCovering({
                 projection: EpsgCode.Nztm2000,
@@ -158,7 +156,7 @@ o.spec('cutline', () => {
         });
 
         o('boundary part inland, part coastal', async () => {
-            const cutline = new Cutline(googleProj, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
+            const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
             const bounds = [
                 {
                     name: 'tiff1',
@@ -197,7 +195,7 @@ o.spec('cutline', () => {
         });
 
         o('low res', () => {
-            const cutline = new Cutline(googleProj);
+            const cutline = new Cutline(googlePtms);
 
             const covering = cutline.optimizeCovering({
                 projection: EpsgCode.Nztm2000,
@@ -210,7 +208,7 @@ o.spec('cutline', () => {
         });
 
         o('hi res', () => {
-            const covering2 = new Cutline(googleProj).optimizeCovering({
+            const covering2 = new Cutline(googlePtms).optimizeCovering({
                 projection: EpsgCode.Nztm2000,
                 bounds,
                 resZoom: 18,
