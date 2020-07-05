@@ -93,9 +93,9 @@ export class Cutline {
      *
      * @param name
      * @param job
-     * @param  sourceGeo
+     * @returns names of source files required to render Cog
      */
-    filterSourcesForName(name: string, job: CogJob): void {
+    filterSourcesForName(name: string, job: CogJob): string[] {
         const tile = TileMatrixSet.nameToTile(name);
         const sourceCode = Projection.get(job.source.projection);
         const targetCode = this.targetPtms.proj;
@@ -109,8 +109,6 @@ export class Cutline {
             const poly = targetCode.projectMultipolygon([tileBoundsInSrcProj.toPolygon()], sourceCode);
             tileBoundsInSrcProj = Bounds.fromMultiPolygon(poly);
         }
-
-        job.source.files = job.source.files.filter((image) => tileBoundsInSrcProj.intersects(Bounds.fromJson(image)));
 
         if (this.clipPoly.length > 0) {
             const poly = clipMultipolygon(this.clipPoly, tilePadded);
@@ -126,6 +124,10 @@ export class Cutline {
                 this.clipPoly = removeDegenerateEdges(poly, tilePadded);
             }
         }
+
+        return job.source.files
+            .filter((image) => tileBoundsInSrcProj.intersects(Bounds.fromJson(image)))
+            .map(({ name }) => name);
     }
 
     /**

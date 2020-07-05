@@ -108,7 +108,6 @@ o.spec('cog.vrt', () => {
         const vrt = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);
 
         o(vrt).equals('/tmp/my-tmp-folder/cog.vrt');
-        o(job.source.files).deepEquals([tif2]);
         o(cutTiffArgs.length).equals(0);
         o(runSpy.callCount).equals(2);
         o(runSpy.args[0]).equals('gdalwarp');
@@ -123,7 +122,6 @@ o.spec('cog.vrt', () => {
         const vrt = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);
 
         o(vrt).equals('/tmp/my-tmp-folder/cog.vrt');
-        o(job.source.files).deepEquals([tif2]);
         o(cutTiffArgs.length).equals(1);
         o(cutTiffArgs[0][1]).deepEquals(cutline.toGeoJson());
 
@@ -164,12 +162,14 @@ o.spec('cog.vrt', () => {
 
     o('1 surrounded with s3 files', async () => {
         const mount = o.spy();
+        const setCredentials = o.spy();
         gdal.mount = mount;
+        gdal.setCredentials = setCredentials;
 
-        const s3tif1 = 's3:/' + tif1Path;
-        const s3tif2 = 's3:/' + tif2Path;
         const vtif1 = '/vsis3' + tif1Path;
         const vtif2 = '/vsis3' + tif2Path;
+
+        (job.source as any)['roleArn'] = 'a:role:string';
 
         job.source.files = job.source.files.map((o) => {
             o = Object.assign({}, o);
@@ -231,7 +231,9 @@ o.spec('cog.vrt', () => {
         ]);
 
         o(runSpy.callCount).equals(2);
-        o(mount.calls.map((c: any) => c.args[0])).deepEquals([tmpFolder, s3tif1, s3tif2]);
+        o(mount.calls.map((c: any) => c.args[0])).deepEquals([tmpFolder]);
+
+        o(setCredentials.calls.map((c: any) => c.args[0].service.config.params.RoleArn)).deepEquals(['a:role:string']);
 
         o(round((runSpy.calls[0] as any).args)).deepEquals([
             'gdalbuildvrt',

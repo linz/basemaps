@@ -27,9 +27,7 @@ o.spec('cutline', () => {
             const [tif1, tif2] = sourceBounds;
             job.source.files = [tif1, tif2];
 
-            cutline.filterSourcesForName(name, job);
-
-            o(job.source.files).deepEquals([tif2]);
+            o(cutline.filterSourcesForName(name, job)).deepEquals([tif2.name]);
         });
     });
 
