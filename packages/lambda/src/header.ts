@@ -11,4 +11,5 @@ export const HttpHeader = {
     RateLimit: 'X-RateLimit-Limit',
     RateCount: 'X-RateLimit-Count',
     RateExpire: 'X-RateLimit-Expires',
+    Cors: 'Access-Control-Allow-Origin',
 };
