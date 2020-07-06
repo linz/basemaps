@@ -6,6 +6,10 @@ function samePoint(a: number[], b: number[]): boolean {
     return a[0] == b[0] && a[1] == b[1];
 }
 
+function removeDegenerateEdges(polygons: MultiPolygon, bounds: Bounds): MultiPolygon {
+    return pc.intersection(polygons, bounds.toPolygon());
+}
+
 export function clipMultipolygon(polygons: MultiPolygon, bounds: Bounds): MultiPolygon {
     const result: MultiPolygon = [];
     const bbox = bounds.toBbox();
@@ -16,11 +20,7 @@ export function clipMultipolygon(polygons: MultiPolygon, bounds: Bounds): MultiP
             result.push([clipped]);
         }
     }
-    return result;
-}
-
-export function removeDegenerateEdges(polygons: MultiPolygon, bounds: Bounds): MultiPolygon {
-    return pc.intersection(polygons, bounds.toPolygon());
+    return removeDegenerateEdges(result, bounds);
 }
 
 export function polyContainsBounds(poly: MultiPolygon, bounds: Bounds): boolean {
