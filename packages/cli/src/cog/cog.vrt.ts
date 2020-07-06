@@ -97,8 +97,6 @@ export const CogVrt = {
     ): Promise<string | null> {
         logger.info({ name }, 'buildCogVrt');
 
-        const inputTotal = job.source.files.length;
-
         const sourceFiles = cutline.filterSourcesForName(name, job).map((name) => name.replace('s3://', '/vsis3/'));
 
         if (sourceFiles.length == 0) {
@@ -118,7 +116,11 @@ export const CogVrt = {
         }
 
         logger.info(
-            { inputTotal, outputTotal: job.source.files.length, cutlinePolygons: cutline.clipPoly.length },
+            {
+                inputTotal: job.source.files.length,
+                outputTotal: sourceFiles.length,
+                cutlinePolygons: cutline.clipPoly.length,
+            },
             'Tiff count',
         );
 

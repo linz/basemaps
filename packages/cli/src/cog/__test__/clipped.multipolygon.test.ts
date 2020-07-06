@@ -1,7 +1,7 @@
 import { Bounds, GeoJson } from '@basemaps/geo';
 import o from 'ospec';
 import { MultiPolygon } from 'polygon-clipping';
-import { clipMultipolygon, removeDegenerateEdges, polyContainsBounds } from '../clipped.multipolygon';
+import { clipMultipolygon, polyContainsBounds } from '../clipped.multipolygon';
 import { round } from '@basemaps/test/build/rounding';
 
 export function writeGeoJson(fn: string, poly: MultiPolygon): void {
@@ -50,46 +50,72 @@ o.spec('clipped.multipolygon', () => {
         o(polyContainsBounds(polys, new Bounds(6, -8, 5, 5))).equals(false);
     });
 
-    o('clipMultipolygon', () => {
-        const bbox = Bounds.fromBbox([-3, -4, 4, 4]);
+    o.spec('clipMultipolygon', () => {
+        o('disjoint with intersecting bounds', () => {
+            const bbox = new Bounds(-2, -2, 1, 1);
 
-        const cp = clipMultipolygon(polys, bbox);
+            const cp = clipMultipolygon(polys, bbox);
 
-        o(cp).deepEquals([
-            [
+            o(cp).deepEquals([]);
+        });
+
+        o('intersect', () => {
+            const bbox = Bounds.fromBbox([-3, -4, 4, 4]);
+
+            const cp = clipMultipolygon(polys, bbox);
+
+            o(round(cp, 2)).deepEquals([
                 [
-                    [-3, -4],
-                    [-3, 1.5],
-                    [-2, 1],
-                    [-3, 0],
-                    [-3, -1.8],
-                    [-0.25, -4],
-                    [2, -4],
-                    [2, -2],
-                    [3.333333333333333, -4],
-                    [4, -4],
-                    [4, -1],
-                    [2, 0],
-                    [4, 1.5],
-                    [4, 4],
-                    [0.5, 4],
-                    [0, 3],
-                    [-1.3333333333333333, 4],
-                    [4, 4],
-                    [4, -4],
-                    [-3, -4],
+                    [
+                        [-3, -4],
+                        [-0.25, -4],
+                        [-3, -1.8],
+                        [-3, -4],
+                    ],
                 ],
-            ],
-            [
                 [
-                    [2, 3],
-                    [3, 3],
-                    [3, 4],
-                    [2, 4],
-                    [2, 3],
+                    [
+                        [-3, 0],
+                        [-2, 1],
+                        [-3, 1.5],
+                        [-3, 0],
+                    ],
                 ],
-            ],
-        ]);
+                [
+                    [
+                        [-1.33, 4],
+                        [0, 3],
+                        [0.5, 4],
+                        [-1.33, 4],
+                    ],
+                ],
+                [
+                    [
+                        [2, -4],
+                        [3.33, -4],
+                        [2, -2],
+                        [2, -4],
+                    ],
+                ],
+                [
+                    [
+                        [2, 0],
+                        [4, -1],
+                        [4, 1.5],
+                        [2, 0],
+                    ],
+                ],
+                [
+                    [
+                        [2, 3],
+                        [3, 3],
+                        [3, 4],
+                        [2, 4],
+                        [2, 3],
+                    ],
+                ],
+            ]);
+        });
     });
 
     o.spec('removeDegenerateEdges', () => {
@@ -110,7 +136,7 @@ o.spec('clipped.multipolygon', () => {
                 ],
             ];
 
-            const ans = removeDegenerateEdges(cp, bbox);
+            const ans = clipMultipolygon(cp, bbox);
 
             o(ans).deepEquals([
                 [
@@ -161,7 +187,7 @@ o.spec('clipped.multipolygon', () => {
 
             const bbox = Bounds.fromBbox([-3000, -3547, 3000, 1000]);
 
-            const ans = removeDegenerateEdges(degen, bbox);
+            const ans = clipMultipolygon(degen, bbox);
 
             o(ans).deepEquals([
                 [
@@ -218,8 +244,7 @@ o.spec('clipped.multipolygon', () => {
                 ],
             ];
 
-            const cp = clipMultipolygon(orig, bbox);
-            const ans = removeDegenerateEdges(cp, bbox);
+            const ans = clipMultipolygon(orig, bbox);
 
             o(ans).deepEquals([
                 [
@@ -240,8 +265,7 @@ o.spec('clipped.multipolygon', () => {
 
         o('complex', () => {
             const bbox = Bounds.fromBbox([-3, -4, 4, 4]);
-            const cp = clipMultipolygon(polys, bbox);
-            const ans = removeDegenerateEdges(cp, bbox);
+            const ans = clipMultipolygon(polys, bbox);
 
             o(round(ans, 2)).deepEquals([
                 [

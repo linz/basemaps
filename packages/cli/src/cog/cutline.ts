@@ -3,7 +3,7 @@ import { compareName, FileOperator, NamedBounds, ProjectionTileMatrixSet } from 
 import { FeatureCollection } from 'geojson';
 import { CoveringFraction, MaxImagePixelWidth } from './constants';
 import { CogJob, SourceMetadata } from './types';
-import { clipMultipolygon, removeDegenerateEdges, polyContainsBounds } from './clipped.multipolygon';
+import { clipMultipolygon, polyContainsBounds } from './clipped.multipolygon';
 import pc, { MultiPolygon, Ring, Polygon } from 'polygon-clipping';
 import { Projection } from '@basemaps/shared/build/proj/projection';
 const { intersection, union } = pc;
@@ -115,13 +115,13 @@ export class Cutline {
             if (poly.length == 0) {
                 // this tile is not needed
                 this.clipPoly = [];
-                job.source.files = [];
+                return [];
             } else if (polyContainsBounds(poly, tileBounds)) {
                 // tile is completely surrounded; no cutline polygons needed
                 this.clipPoly = [];
             } else {
                 // set the cutline polygons to just the area of interest (minus degenerate edges)
-                this.clipPoly = removeDegenerateEdges(poly, tilePadded);
+                this.clipPoly = poly;
             }
         }
 
@@ -266,7 +266,7 @@ export class Cutline {
             this.clipPoly = [];
         } else {
             // set the cutline polygons to just the area of interest (minus degenerate edges)
-            this.clipPoly = removeDegenerateEdges(poly, boundsPadded);
+            this.clipPoly = poly;
             this.srcPoly = intersection(srcPoly, this.clipPoly) ?? [];
         }
     }
