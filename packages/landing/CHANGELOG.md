@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.6.0](https://github.com/linz/basemaps/compare/v3.5.0...v3.6.0) (2020-07-08)
+
+
+### Features
+
+* **landing:** Add content to contact us mailto: link ([#879](https://github.com/linz/basemaps/issues/879)) ([579ac92](https://github.com/linz/basemaps/commit/579ac92e2f39c70a8d67c2d01613f91e7b194774))
+* **landing:** limit nztm to its extent ([#878](https://github.com/linz/basemaps/issues/878)) ([7470679](https://github.com/linz/basemaps/commit/747067955b0d52343498c81c2c20b29516046a75))
+
+
+
+
+
 # [3.5.0](https://github.com/linz/basemaps/compare/v3.4.2...v3.5.0) (2020-07-05)
 
 

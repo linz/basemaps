@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "private": false,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@basemaps/geo": "^3.5.0",
-    "@basemaps/shared": "^3.5.0",
+    "@basemaps/shared": "^3.6.0",
     "@cogeotiff/core": "^2.1.1",
     "@cogeotiff/source-aws": "^2.1.1",
     "@cogeotiff/source-file": "^2.1.1",

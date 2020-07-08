@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.6.0](https://github.com/linz/basemaps/compare/v3.5.0...v3.6.0) (2020-07-08)
+
+
+### Bug Fixes
+
+* **cli:** make clipMultipolygon always remove degenerate edges ([#863](https://github.com/linz/basemaps/issues/863)) ([c3c4cdf](https://github.com/linz/basemaps/commit/c3c4cdf8a8bb87e79569b08272ddb0fb2bfe8f01))
+
+
+
+
+
 # [3.5.0](https://github.com/linz/basemaps/compare/v3.4.2...v3.5.0) (2020-07-05)
 
 
