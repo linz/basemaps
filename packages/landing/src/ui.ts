@@ -23,6 +23,7 @@ export class BasemapsUi {
         this.bindProjectionButtons();
         this.bindApiLinks();
         this.bindMenuButton();
+        this.bindContactUsButton();
 
         this.setCurrentProjection(this.basemaps.config.projection);
     }
@@ -41,6 +42,30 @@ export class BasemapsUi {
 
         this.menuClose = menuClose;
         this.sideNav = sideNav;
+    }
+
+    bindContactUsButton(): void {
+        const button = document.getElementById('contact-us');
+        if (button == null) {
+            throw new Error('Unable to find contact-us button');
+        }
+
+        button.onclick = (): void => {
+            const subject = 'Request Basemaps Developer Access';
+            const body = `
+Give us a few key details to sign up for Developer Access to LINZ Basemaps. We will respond with your Apps' unique API key.
+
+Your Name:
+
+Your Email:
+
+Your Service/App URL:
+
+`;
+            gaEvent(GaEvent.Ui, 'contact-us:click', 1);
+
+            location.href = `mailto:basemaps@linz.govt.nz?subject=${encodeURI(subject)}&body=${encodeURI(body)}`;
+        };
     }
 
     menuOnClick = (): void => {
