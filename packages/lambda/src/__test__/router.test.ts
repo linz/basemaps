@@ -3,6 +3,7 @@ import { LambdaContext } from '../lambda.context';
 import { LambdaHttpResponse } from '../lambda.response';
 import { Router } from '../router';
 import { FakeLogger } from './log.spy';
+import { HttpHeader } from '../header';
 
 o.spec('router', () => {
     function makeContext(httpMethod: string, path: string): LambdaContext {
@@ -20,6 +21,7 @@ o.spec('router', () => {
 
         o(response.status).equals(200);
         o(response.statusDescription).equals('stub');
+        o(response.header(HttpHeader.Cors)).equals('*');
     });
 
     ['delete', 'post', 'head', 'put'].forEach((method) => {

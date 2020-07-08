@@ -1,5 +1,6 @@
 import { LambdaContext } from './lambda.context';
 import { LambdaHttpResponse } from './lambda.response';
+import { HttpHeader } from './header';
 
 export type ReqCallback = (req: LambdaContext) => Promise<LambdaHttpResponse>;
 
@@ -10,7 +11,7 @@ export class Router {
         // Allow cross origin requests
         if (req.method === 'options') {
             return new LambdaHttpResponse(200, 'Options', {
-                'Access-Control-Allow-Origin': '*',
+                [HttpHeader.Cors]: '*',
                 'Access-Control-Allow-Credentials': 'false',
                 'Access-Control-Allow-Methods': 'OPTIONS,GET,PUT,POST,DELETE',
             });
@@ -26,7 +27,9 @@ export class Router {
             return new LambdaHttpResponse(404, 'Not Found');
         }
 
-        return await handler(req);
+        const response = await handler(req);
+        response.header(HttpHeader.Cors, '*');
+        return response;
     }
 
     get(path: string, handler: ReqCallback): void {
