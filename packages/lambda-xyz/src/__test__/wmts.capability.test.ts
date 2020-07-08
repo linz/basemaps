@@ -56,6 +56,7 @@ o.spec('WmtsCapabilities', () => {
 
         o(layer?.find('ows:Abstract')?.textContent).equals('aerial:description');
         o(layer?.find('ows:Title')?.textContent).equals('aerial:title');
+        o(layer?.find('ows:Identifier')?.textContent).equals('aerial-3857');
 
         const urls = tags(layer, 'ResourceURL');
         o(urls.length).equals(3);
@@ -100,7 +101,7 @@ o.spec('WmtsCapabilities', () => {
         o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            'NqBsiXcdQ6LtRCcvqS7pizuUk56N6crp3bWpmlh5iZs=',
+            'YI1PxiLF9ZjfaIaIkqiYfwvQFV3FmEJVRys0UuNyyzE=',
         );
     });
 
