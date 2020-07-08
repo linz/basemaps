@@ -134,6 +134,7 @@ export class WmtsCapabilities {
         return V('Layer', [
             V('ows:Title', firstTileSet.title),
             V('ows:Abstract', firstTileSet.description),
+            V('ows:Identifier', firstTileSet.taggedName + '-' + firstTileSet.projection),
             ...tms.map((c) => this.buildBoundingBox(c)),
             ...tms.map((c) => V('TileMatrixSetLink', [V('TileMatrixSet', c.def.identifier)])),
             ...ImageFormatOrder.map((fmt) => V('Format', 'image/' + fmt)),
