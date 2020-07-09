@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.0.0](https://github.com/linz/basemaps/compare/v3.6.0...v4.0.0) (2020-07-09)
+
+
+### Bug Fixes
+
+* **landing:** Fix typos in side menu ([#883](https://github.com/linz/basemaps/issues/883)) ([b380757](https://github.com/linz/basemaps/commit/b380757fb306d9cfd987a7f3255ebd37fbe23d39))
+
+
+
+
+
 # [3.6.0](https://github.com/linz/basemaps/compare/v3.5.0...v3.6.0) (2020-07-08)
 
 
