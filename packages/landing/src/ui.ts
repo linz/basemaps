@@ -72,9 +72,11 @@ Your Service/App URL:
         if (this.sideNav.classList.contains('side-nav--opened')) {
             gaEvent(GaEvent.Ui, 'menu:close', 1);
             this.sideNav.classList.remove('side-nav--opened');
+            this.sideNav.setAttribute('aria-hidden', 'true');
         } else {
             gaEvent(GaEvent.Ui, 'menu:open', 1);
             this.sideNav.classList.add('side-nav--opened');
+            this.sideNav.setAttribute('aria-hidden', 'false');
         }
     };
 
