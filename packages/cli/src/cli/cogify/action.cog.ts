@@ -11,7 +11,7 @@ import { buildCogForName } from '../../cog/cog';
 import { CogVrt } from '../../cog/cog.vrt';
 import { Cutline } from '../../cog/cutline';
 import { CogJob } from '../../cog/types';
-import { GdalCogBuilder } from '../../gdal/gdal';
+import { Gdal } from '../../gdal/gdal';
 import { CliId, CliInfo } from '../base.cli';
 import { getJobPath, makeTempFolder } from '../folder';
 import { SemVer } from './semver.util';
@@ -80,7 +80,7 @@ export class ActionCogCreate extends CommandLineAction {
         const logger = LogConfig.get().child({ correlationId: job.id, imageryName: job.name });
         LogConfig.set(logger);
 
-        const gdalVersion = await GdalCogBuilder.getVersion(logger);
+        const gdalVersion = await Gdal.version(logger);
         logger.info({ version: gdalVersion }, 'GdalVersion');
 
         const name = this.getName(job);
