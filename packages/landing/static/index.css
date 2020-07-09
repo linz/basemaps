@@ -97,12 +97,12 @@ button {
 }
 
 .lui-footer-x-sm.g-footer__standard {
-    background-color: #004B50;
+    background-color: #004b50;
     padding: 2px;
 }
 
 .lui-footer-x-sm.g-footer__standard .g-footer__standard-link {
-    color: #D4E9EB;
+    color: #d4e9eb;
 }
 
 .lui-footer-x-sm.g-footer__standard .g-footer__standard-inline-list-item {
@@ -225,18 +225,17 @@ button {
     border: none;
 }
 
-
 .lui-form-icon {
     position: relative;
 }
 
-.lui-standard-form .lui-form-icon.lui-form-icon--left input:not([type=checkbox]):not([type=radio]),
+.lui-standard-form .lui-form-icon.lui-form-icon--left input:not([type='checkbox']):not([type='radio']),
 .lui-standard-form .lui-form-icon.lui-form-icon--left textarea,
 .lui-standard-form .lui-form-icon.lui-form-icon--left select {
     border-left: 40px solid;
 }
 
-.lui-standard-form .lui-form-icon.lui-form-icon--right input:not([type=checkbox]):not([type=radio]),
+.lui-standard-form .lui-form-icon.lui-form-icon--right input:not([type='checkbox']):not([type='radio']),
 .lui-standard-form .lui-form-icon.lui-form-icon--right textarea,
 .lui-standard-form .lui-form-icon.lui-form-icon--right select {
     border-right: 40px solid;
@@ -269,9 +268,16 @@ button {
 }
 
 .lui-form-icon-button--copied {
-    background-color: #9BD79B
+    background-color: #9bd79b;
 }
 
 .display-none {
     display: none !important;
+}
+
+.side-nav[aria-hidden='true'] button,
+.side-nav[aria-hidden='true'] input,
+.side-nav[aria-hidden='true'] a {
+    visibility: hidden;
+    transition: 0.5s;
 }
