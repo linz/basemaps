@@ -139,9 +139,9 @@ export class Basemaps {
         const percentile95 = Math.floor(0.95 * tileLoadTimes.length);
         const percentile90 = Math.floor(0.9 * tileLoadTimes.length);
 
-        gaEvent(GaEvent.TileTiming, 'count', tileLoadTimes.length);
-        gaEvent(GaEvent.TileTiming, '95%', tileLoadTimes[percentile95]);
-        gaEvent(GaEvent.TileTiming, '90%', tileLoadTimes[percentile90]);
+        gaEvent(GaEvent.TileTiming, 'render:count', tileLoadTimes.length);
+        gaEvent(GaEvent.TileTiming, 'render:95%', tileLoadTimes[percentile95]);
+        gaEvent(GaEvent.TileTiming, 'render:90%', tileLoadTimes[percentile90]);
     };
 
     updateUrlTimer: unknown | null = null;
