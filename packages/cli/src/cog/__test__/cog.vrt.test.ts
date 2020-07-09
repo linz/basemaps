@@ -237,18 +237,7 @@ o.spec('cog.vrt', () => {
 
         o(round((runSpy.calls[0] as any).args)).deepEquals([
             'gdalbuildvrt',
-            [
-                '-hidenodata',
-                '-allow_projection_difference',
-                '-tr',
-                '19.10925707',
-                '19.10925707',
-                '-tap',
-                '-addalpha',
-                '/tmp/my-tmp-folder/source.vrt',
-                vtif1,
-                vtif2,
-            ],
+            ['-hidenodata', '-allow_projection_difference', '-addalpha', '/tmp/my-tmp-folder/source.vrt', vtif1, vtif2],
             logger,
         ]);
 
