@@ -58,6 +58,13 @@ o.spec('WmtsCapabilities', () => {
         o(layer?.find('ows:Title')?.textContent).equals('aerial:title');
         o(layer?.find('ows:Identifier')?.textContent).equals('aerial-3857');
 
+        o(layer?.find('Style')?.toString()).equals(
+            V('Style', { isDefault: 'true' }, [
+                V('ows:Title', 'Default Style'),
+                V('ows:Identifier', 'default'),
+            ]).toString(),
+        );
+
         const urls = tags(layer, 'ResourceURL');
         o(urls.length).equals(3);
         o(urls[0].toString()).deepEquals(
@@ -101,7 +108,7 @@ o.spec('WmtsCapabilities', () => {
         o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            'YI1PxiLF9ZjfaIaIkqiYfwvQFV3FmEJVRys0UuNyyzE=',
+            'Jb0YZ9kwXq+0+YygsscxgozM9xZDZfCR4zD0K3x3v20=',
         );
     });
 
