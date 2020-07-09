@@ -7,20 +7,21 @@ import {
     LogConfig,
     ProjectionTileMatrixSet,
 } from '@basemaps/shared';
+import { Projection } from '@basemaps/shared/build/proj/projection';
 import { CogSource } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { promises as fs } from 'fs';
 import { basename } from 'path';
 import * as ulid from 'ulid';
-import { CogBuilder, GdalCogBuilder } from '..';
+import { CogBuilder } from '..';
 import { CliInfo } from '../cli/base.cli';
 import { ActionBatchJob } from '../cli/cogify/action.batch';
 import { getJobPath, makeTempFolder } from '../cli/folder';
+import { Gdal } from '../gdal/gdal';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
-import { Projection } from '@basemaps/shared/build/proj/projection';
 
 export const MaxConcurrencyDefault = 50;
 
@@ -91,7 +92,7 @@ export const CogJobFactory = {
         const imageryName = basename(ctx.source.path).replace(/\./g, '-'); // batch does not allow '.' in names
         const logger = LogConfig.get().child({ id, imageryName });
 
-        const gdalVersion = await GdalCogBuilder.getVersion(logger);
+        const gdalVersion = await Gdal.version(logger);
         logger.info({ version: gdalVersion }, 'GdalVersion');
 
         const { source, output } = ctx;

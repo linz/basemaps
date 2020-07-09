@@ -1,6 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/shared';
-import { GdalCogBuilder } from '../gdal/gdal';
+import { Gdal } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
 import { onProgress } from './cog';
 import { Cutline } from './cutline';
@@ -124,7 +124,7 @@ export const CogVrt = {
             'Tiff count',
         );
 
-        const gdalCommand = GdalCogBuilder.getGdal();
+        const gdalCommand = Gdal.create();
         if (gdalCommand.mount) {
             gdalCommand.mount(tmpFolder);
         }

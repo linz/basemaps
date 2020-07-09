@@ -1,6 +1,6 @@
 import { EpsgCode, TileMatrixSet } from '@basemaps/geo';
 import { Aws, isConfigS3Role, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
-import { GdalCogBuilder } from '../gdal/gdal';
+import { GdalCogBuilder } from '../gdal/gdal.cog';
 import { GdalCommand } from '../gdal/gdal.command';
 import { TilingScheme } from '../gdal/gdal.config';
 import { GdalProgressParser } from '../gdal/gdal.progress';
