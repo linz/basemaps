@@ -103,6 +103,7 @@ export class Basemaps {
             target: this.el,
             view,
             layers: [layer],
+            keyboardEventTarget: document,
         });
 
         this.map.addEventListener('postrender', this.postRender);
