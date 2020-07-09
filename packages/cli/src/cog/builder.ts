@@ -120,7 +120,7 @@ export class CogBuilder {
 
                 return output;
             }).catch((e) => {
-                throw new CompositeError('Failed to read image:' + source, e);
+                throw new CompositeError('Failed to process image: ' + source.name, e);
             });
         });
 
