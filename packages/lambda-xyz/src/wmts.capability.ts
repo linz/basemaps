@@ -135,11 +135,16 @@ export class WmtsCapabilities {
             V('ows:Title', firstTileSet.title),
             V('ows:Abstract', firstTileSet.description),
             V('ows:Identifier', firstTileSet.taggedName + '-' + firstTileSet.projection),
+            this.buildStyle(),
             ...tms.map((c) => this.buildBoundingBox(c)),
             ...tms.map((c) => V('TileMatrixSetLink', [V('TileMatrixSet', c.def.identifier)])),
             ...ImageFormatOrder.map((fmt) => V('Format', 'image/' + fmt)),
             ...ImageFormatOrder.map((fmt) => this.buildResourceUrl(firstTileSet, fmt)),
         ]);
+    }
+
+    buildStyle(): VNodeElement {
+        return V('Style', { isDefault: 'true' }, [V('ows:Title', 'Default Style'), V('ows:Identifier', 'default')]);
     }
 
     buildTileMatrixSet(tms: TileMatrixSet): VNodeElement {
