@@ -1448,10 +1448,10 @@
   dependencies:
     "@types/node" ">= 8"
 
-"@philals/lui@^0.0.76":
-  version "0.0.76"
-  resolved "https://registry.yarnpkg.com/@philals/lui/-/lui-0.0.76.tgz#2019b99183f555f59f50abc7a077dd789862c5c2"
-  integrity sha512-8FHy+ODGCqEyTwdjV9rV2x2Swfc/wwWzZO6X2Pj9NSo/Yn0FEoxB4LbKxfEbaUU3xg5iiS/qs5Mh4Yzk3P3zMg==
+"@philals/lui@^0.0.82":
+  version "0.0.82"
+  resolved "https://registry.yarnpkg.com/@philals/lui/-/lui-0.0.82.tgz#33202a1d806329a9ed908868ce855503fb51bf4a"
+  integrity sha512-mMV2ehZAiMLoi4k1hudA8RC7y1pimOlIl3MD9quzKZC4tXIbZKAbA+PP4seiTeSui1M56m6WsodGd2rpE5iUcw==
   dependencies:
     camelcase "^6.0.0"
     react-modal "^3.11.2"
