@@ -23,6 +23,7 @@ export class BasemapsUi {
         this.bindProjectionButtons();
         this.bindApiLinks();
         this.bindMenuButton();
+        this.bindContactUsButton();
 
         this.setCurrentProjection(this.basemaps.config.projection);
     }
@@ -43,13 +44,39 @@ export class BasemapsUi {
         this.sideNav = sideNav;
     }
 
+    bindContactUsButton(): void {
+        const button = document.getElementById('contact-us');
+        if (button == null) {
+            throw new Error('Unable to find contact-us button');
+        }
+
+        button.onclick = (): void => {
+            const subject = 'Request Basemaps Developer Access';
+            const body = `
+Give us a few key details to sign up for Developer Access to LINZ Basemaps. We will respond with your Apps' unique API key.
+
+Your Name:
+
+Your Email:
+
+Your Service/App URL:
+
+`;
+            gaEvent(GaEvent.Ui, 'contact-us:click');
+
+            location.href = `mailto:basemaps@linz.govt.nz?subject=${encodeURI(subject)}&body=${encodeURI(body)}`;
+        };
+    }
+
     menuOnClick = (): void => {
         if (this.sideNav.classList.contains('side-nav--opened')) {
-            gaEvent(GaEvent.Ui, 'menu:close', 1);
+            gaEvent(GaEvent.Ui, 'menu:close');
             this.sideNav.classList.remove('side-nav--opened');
+            this.sideNav.setAttribute('aria-hidden', 'true');
         } else {
-            gaEvent(GaEvent.Ui, 'menu:open', 1);
+            gaEvent(GaEvent.Ui, 'menu:open');
             this.sideNav.classList.add('side-nav--opened');
+            this.sideNav.setAttribute('aria-hidden', 'false');
         }
     };
 
@@ -77,7 +104,7 @@ export class BasemapsUi {
 
         buttonEl.onclick = (): void => {
             if (buttonEl.disabled) return;
-            gaEvent(GaEvent.Ui, 'copy:' + el.id.replace('api-', '') + ':' + this.projection, 1);
+            gaEvent(GaEvent.Ui, 'copy:' + el.id.replace('api-', '') + ':' + this.projection);
 
             inputEl.select();
             document.execCommand('copy');
@@ -122,7 +149,7 @@ export class BasemapsUi {
     };
 
     setCurrentProjection(projection: Epsg): void {
-        gaEvent(GaEvent.Ui, 'projection:' + projection.code, 1);
+        gaEvent(GaEvent.Ui, 'projection:' + projection.code);
         this.projection = projection;
 
         if (projection == Epsg.Nztm2000) {

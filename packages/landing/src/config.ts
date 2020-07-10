@@ -8,16 +8,16 @@ export const Config = {
     get ApiKey(): string {
         return currentApiKey;
     },
-    get GoogleAnalytics(): string | undefined {
-        return process.env.GOOGLE_ANALYTICS;
+    get GoogleAnalytics(): string {
+        return process.env.GOOGLE_ANALYTICS ?? '';
     },
 };
 
 // Inject google analytics after everything has loaded
-if (Config.GoogleAnalytics != null && typeof window != 'undefined') {
+if (Config.GoogleAnalytics != '' && typeof window != 'undefined') {
     window.dataLayer = window.dataLayer || [];
-    window.gtag = function gtag(...args: any[]): void {
-        window.dataLayer.push(args);
+    window.gtag = function gtag(): void {
+        window.dataLayer.push(arguments); // eslint-disable-line prefer-rest-params
     };
     window.gtag('js', new Date());
     window.gtag('config', `${Config.GoogleAnalytics}`);
@@ -32,7 +32,8 @@ export const enum GaEvent {
     Ui = 'Ui',
 }
 
-export function gaEvent(category: GaEvent, label: string, value: number): void {
-    if (Config.GoogleAnalytics == null) return;
-    window.gtag('event', { category, label, value });
+export function gaEvent(category: GaEvent, action: string, value?: number): void {
+    if (Config.GoogleAnalytics == '') return;
+    // eslint-disable-next-line @typescript-eslint/camelcase
+    window.gtag('event', action, { event_category: category, value });
 }

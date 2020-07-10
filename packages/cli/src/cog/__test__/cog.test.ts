@@ -1,7 +1,7 @@
 import { Epsg } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import o from 'ospec';
-import { GdalCogBuilder } from '../../gdal/gdal';
+import { GdalCogBuilder } from '../../gdal/gdal.cog';
 import { buildCogForName } from '../cog';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
 import { TilingScheme } from '../../gdal/gdal.config';

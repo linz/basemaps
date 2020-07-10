@@ -3,7 +3,7 @@ import { FileOperatorSimple, LogConfig, ProjectionTileMatrixSet } from '@basemap
 import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
-import { GdalCogBuilder } from '../../gdal/gdal';
+import { Gdal } from '../../gdal/gdal';
 import { CogVrt } from '../cog.vrt';
 import { Cutline } from '../cutline';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
@@ -29,13 +29,13 @@ o.spec('cog.vrt', () => {
     let runSpy = o.spy();
 
     const origFileOperatorWriteJson = FileOperatorSimple.writeJson;
-    const { getGdal } = GdalCogBuilder;
+    const { create } = Gdal;
 
     let gdal: any;
 
     o.after(() => {
         FileOperatorSimple.writeJson = origFileOperatorWriteJson;
-        GdalCogBuilder.getGdal = getGdal;
+        Gdal.create = create;
     });
 
     o.beforeEach(() => {
@@ -44,7 +44,7 @@ o.spec('cog.vrt', () => {
         job.source.projection = EpsgCode.Nztm2000;
         job.source.resZoom = 13;
         gdal = { run: runSpy };
-        (GdalCogBuilder as any).getGdal = (): any => gdal;
+        (Gdal as any).create = (): any => gdal;
         job.source.files = [tif1, tif2];
 
         cutTiffArgs = [];
@@ -237,18 +237,7 @@ o.spec('cog.vrt', () => {
 
         o(round((runSpy.calls[0] as any).args)).deepEquals([
             'gdalbuildvrt',
-            [
-                '-hidenodata',
-                '-allow_projection_difference',
-                '-tr',
-                '19.10925707',
-                '19.10925707',
-                '-tap',
-                '-addalpha',
-                '/tmp/my-tmp-folder/source.vrt',
-                vtif1,
-                vtif2,
-            ],
+            ['-hidenodata', '-allow_projection_difference', '-addalpha', '/tmp/my-tmp-folder/source.vrt', vtif1, vtif2],
             logger,
         ]);
 

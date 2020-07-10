@@ -74,20 +74,24 @@ export class GdalDocker extends GdalCommand {
     }
 
     /** Provide redacted argument string for logging which removes sensitive information */
-    maskArgs(args: string[]): string {
-        const argsStr = args.join(' ');
-        if (this.credentials) {
-            return argsStr
-                .replace(this.credentials.secretAccessKey, '****')
-                .replace(this.credentials.sessionToken, '****');
-        }
-        return argsStr;
+    maskArgs(args: string[]): string[] {
+        const cred = this.credentials;
+        if (cred == null) return args;
+
+        return args.map((c) => c.replace(cred.secretAccessKey, '****').replace(cred.sessionToken, '****'));
     }
 
     async run(cmd: string, args: string[], log: LogType): Promise<{ stdout: string; stderr: string }> {
         const dockerArgs = await this.getDockerArgs();
-        log.info({ mounts: this.mounts, docker: this.maskArgs(dockerArgs) }, 'SpawnDocker');
-
+        log.debug(
+            {
+                mounts: this.mounts,
+                cmd,
+                docker: this.maskArgs(dockerArgs).join(' '),
+                gdalArgs: args.slice(0, 50).join(' '),
+            },
+            'StartGdal:Docker',
+        );
         return super.run('docker', [...dockerArgs, cmd, ...args], log);
     }
 }

@@ -11,6 +11,7 @@ import TileSource from 'ol/source/Tile';
 import BaseEvent from 'ol/events/Event';
 import { ImageTile } from 'ol';
 import { gaEvent, GaEvent } from './config';
+import { Extent } from 'ol/extent';
 
 /** Projection to use for the URL bar */
 const UrlProjection = Epsg.Wgs84.toEpsgString();
@@ -18,7 +19,7 @@ const UrlProjection = Epsg.Wgs84.toEpsgString();
 /** Default center point if none provided */
 const DefaultCenter: Record<number, MapLocation> = {
     [Epsg.Google.code]: { lat: -41.88999621, lon: 174.04924373, zoom: 6 },
-    [Epsg.Nztm2000.code]: { lat: -41.277848, lon: 174.6763921, zoom: 2 },
+    [Epsg.Nztm2000.code]: { lat: -41.277848, lon: 174.6763921, zoom: 3 },
 };
 
 export interface TileLoadEvent extends BaseEvent {
@@ -81,10 +82,18 @@ export class Basemaps {
 
         const loc = proj.transform([location.lon, location.lat], UrlProjection, `EPSG:${projection}`);
         let resolutions: undefined | number[] = undefined;
+        let extent: undefined | Extent = undefined;
         if (projection == Epsg.Nztm2000) {
             resolutions = NztmOl.resolutions;
+            extent = NztmOl.extent;
         }
-        const view = new View({ projection: projection.toEpsgString(), center: loc, zoom: location.zoom, resolutions });
+        const view = new View({
+            projection: projection.toEpsgString(),
+            center: loc,
+            zoom: location.zoom,
+            resolutions,
+            extent,
+        });
 
         const source = this.getSource();
         source.addEventListener('tileloadstart', this.trackTileLoad);
@@ -94,6 +103,7 @@ export class Basemaps {
             target: this.el,
             view,
             layers: [layer],
+            keyboardEventTarget: document,
         });
 
         this.map.addEventListener('postrender', this.postRender);
@@ -130,9 +140,9 @@ export class Basemaps {
         const percentile95 = Math.floor(0.95 * tileLoadTimes.length);
         const percentile90 = Math.floor(0.9 * tileLoadTimes.length);
 
-        gaEvent(GaEvent.TileTiming, 'count', tileLoadTimes.length);
-        gaEvent(GaEvent.TileTiming, '95%', tileLoadTimes[percentile95]);
-        gaEvent(GaEvent.TileTiming, '90%', tileLoadTimes[percentile90]);
+        gaEvent(GaEvent.TileTiming, 'render:count', tileLoadTimes.length);
+        gaEvent(GaEvent.TileTiming, 'render:95%', tileLoadTimes[percentile95]);
+        gaEvent(GaEvent.TileTiming, 'render:90%', tileLoadTimes[percentile90]);
     };
 
     updateUrlTimer: unknown | null = null;

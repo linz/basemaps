@@ -1,4 +1,5 @@
 import { GdalCommand } from './gdal.command';
+import { LogType } from '@basemaps/shared';
 
 export class GdalLocal extends GdalCommand {
     async env(): Promise<Record<string, string | undefined>> {
@@ -14,5 +15,10 @@ export class GdalLocal extends GdalCommand {
             AWS_SECRET_ACCESS_KEY: this.credentials.secretAccessKey,
             AWS_SESSION_TOKEN: this.credentials.sessionToken,
         };
+    }
+
+    async run(cmd: string, args: string[], log: LogType): Promise<{ stdout: string; stderr: string }> {
+        log.debug({ cmd, gdalArgs: args.slice(0, 50).join(' ') }, 'StartGdal:Local');
+        return super.run(cmd, args, log);
     }
 }

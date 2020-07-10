@@ -1,6 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/shared';
-import { GdalCogBuilder } from '../gdal/gdal';
+import { Gdal } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
 import { onProgress } from './cog';
 import { Cutline } from './cutline';
@@ -14,10 +14,9 @@ async function buildPlainVrt(
     sourceFiles: string[],
     vrtPath: string,
     gdalCommand: GdalCommand,
-    defaultOps: string[],
     logger: LogType,
 ): Promise<void> {
-    const buildOpts = ['-hidenodata', '-allow_projection_difference'].concat(defaultOps);
+    const buildOpts = ['-hidenodata', '-allow_projection_difference'];
     if (job.output.vrt.addAlpha) {
         buildOpts.push('-addalpha');
     }
@@ -46,7 +45,7 @@ async function buildWarpVrt(
     sourceVrtPath: string,
     gdalCommand: GdalCommand,
     cogVrtPath: string,
-    defaultOps: string[],
+    tr: string,
     logger: LogType,
     cutlineTarget: string,
 ): Promise<void> {
@@ -60,7 +59,11 @@ async function buildWarpVrt(
         Epsg.get(job.source.projection).toEpsgString(),
         '-t_srs',
         Epsg.get(job.projection).toEpsgString(),
-    ].concat(defaultOps);
+        '-tr',
+        tr,
+        tr,
+        '-tap',
+    ];
     if (job.output.cutline != null) {
         warpOpts.push('-cutline', cutlineTarget);
         if (job.output.cutline.blend != 0) warpOpts.push('-cblend', String(job.output.cutline.blend));
@@ -124,18 +127,16 @@ export const CogVrt = {
             'Tiff count',
         );
 
-        const gdalCommand = GdalCogBuilder.getGdal();
+        const gdalCommand = Gdal.create();
         if (gdalCommand.mount) {
             gdalCommand.mount(tmpFolder);
         }
 
         const tr = cutline.tms.pixelScale(job.source.resZoom).toString();
 
-        const defaultOps = ['-tr', tr, tr, '-tap'];
-
         onProgress(gdalCommand, { target: `vrt.${job.projection}` }, logger);
-        await buildPlainVrt(job, sourceFiles, sourceVrtPath, gdalCommand, defaultOps, logger);
-        await buildWarpVrt(job, cogVrtPath, gdalCommand, sourceVrtPath, defaultOps, logger, cutlineTarget);
+        await buildPlainVrt(job, sourceFiles, sourceVrtPath, gdalCommand, logger);
+        await buildWarpVrt(job, cogVrtPath, gdalCommand, sourceVrtPath, tr, logger, cutlineTarget);
         return cogVrtPath;
     },
 };

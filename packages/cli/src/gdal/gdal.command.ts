@@ -29,8 +29,6 @@ export abstract class GdalCommand {
     protected child: ChildProcessWithoutNullStreams;
     protected promise?: Promise<{ stdout: string; stderr: string }>;
     protected startTime: number;
-    /** Should log all of stdout/stderr */
-    verbose = true;
 
     /** AWS Access  */
     protected credentials?: AWS.Credentials;
@@ -43,10 +41,14 @@ export abstract class GdalCommand {
         this.credentials = credentials;
     }
 
+    /**
+     * Run a GDAL command
+     * @param cmd command to run eg "gdal_translate"
+     * @param args command arguments
+     * @param log logger to use
+     */
     async run(cmd: string, args: string[], log: LogType): Promise<{ stdout: string; stderr: string }> {
-        if (this.promise != null) {
-            return this.promise;
-        }
+        if (this.promise != null) throw new Error('Cannot create multiple gdal processes, create a new GdalCommand');
         this.parser?.reset();
         this.startTime = Date.now();
 
@@ -70,6 +72,7 @@ export abstract class GdalCommand {
             }
             errBuff.push(data);
         });
+
         child.stdout.on('data', (data: Buffer) => {
             outputBuff.push(data);
             this.parser?.data(data);
@@ -79,20 +82,24 @@ export abstract class GdalCommand {
             child.on('exit', (code: number) => {
                 const stdout = outputBuff.join('').trim();
                 const stderr = errBuff.join('').trim();
+                const duration = Date.now() - this.startTime;
 
                 if (code != 0) {
-                    log.error({ code, stdout, stderr }, 'GdalFailed');
+                    log.error({ code, stdout, stderr, duration }, 'GdalFailed');
                     return reject(new Error('Failed to execute GDAL command'));
                 }
-                if (this.verbose) log.warn({ stdout, stderr }, 'GdalOutput');
+                log.trace({ stdout, stderr, duration }, 'GdalDone');
 
                 this.promise = undefined;
                 return resolve({ stdout, stderr });
             });
+
             child.on('error', (error: Error) => {
                 const stdout = outputBuff.join('').trim();
                 const stderr = errBuff.join('').trim();
-                log.error({ stdout, stderr }, 'GdalFailed');
+                const duration = Date.now() - this.startTime;
+
+                log.error({ stdout, stderr, duration }, 'GdalFailed');
                 this.promise = undefined;
                 reject(error);
             });

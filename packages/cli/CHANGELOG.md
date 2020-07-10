@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.0.0](https://github.com/linz/basemaps/compare/v3.6.0...v4.0.0) (2020-07-09)
+
+
+### Bug Fixes
+
+* **cli:** improve image quality when fully zoomed in ([#884](https://github.com/linz/basemaps/issues/884)) ([7880d92](https://github.com/linz/basemaps/commit/7880d92b3eb8897f592dd87609e0f557b94ef6bb))
+
+
+### Features
+
+* improve access to the GDAL cli ([#882](https://github.com/linz/basemaps/issues/882)) ([5eaef38](https://github.com/linz/basemaps/commit/5eaef38ae19ca2b80843112502bdf15df57acab6))
+
+
+### BREAKING CHANGES
+
+* this changes how to get access to a new gdal instance to Gdal.create()
+
+Co-authored-by: kodiakhq[bot] <49736102+kodiakhq[bot]@users.noreply.github.com>
+
+
+
+
+
+# [3.6.0](https://github.com/linz/basemaps/compare/v3.5.0...v3.6.0) (2020-07-08)
+
+
+### Bug Fixes
+
+* **cli:** make clipMultipolygon always remove degenerate edges ([#863](https://github.com/linz/basemaps/issues/863)) ([c3c4cdf](https://github.com/linz/basemaps/commit/c3c4cdf8a8bb87e79569b08272ddb0fb2bfe8f01))
+
+
+
+
+
 # [3.5.0](https://github.com/linz/basemaps/compare/v3.4.2...v3.5.0) (2020-07-05)
 
 
