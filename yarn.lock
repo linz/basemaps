@@ -5897,10 +5897,10 @@ pngjs@^5.0.0:
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-5.0.0.tgz#e79dd2b215767fd9c04561c01236df960bce7fbb"
   integrity sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==
 
-polygon-clipping@^0.14.3:
-  version "0.14.3"
-  resolved "https://registry.yarnpkg.com/polygon-clipping/-/polygon-clipping-0.14.3.tgz#02affe4e2aaee69f686ea9dcd5f9566dd4c941af"
-  integrity sha512-bIaMFYIsHOShMN0JZsvkfk66S7gKMQMlYUpV7LIx+WOBYvJT09eCgoAv2JCDNj6SofA4+o5tlmV76zzUiG4aBQ==
+polygon-clipping@^0.15.1:
+  version "0.15.1"
+  resolved "https://registry.yarnpkg.com/polygon-clipping/-/polygon-clipping-0.15.1.tgz#df231c280e0d337a5854eb45be5ccc59a218bb91"
+  integrity sha512-6tvqlvuSu+CLe0RtS51sG43iU31h4zwyLAESMW/Kv+iNb62lSwxvGJhlLNduS4JTtX3mtBrg8Bbl/QCpC2I+hA==
   dependencies:
     splaytree "^3.0.1"
 
