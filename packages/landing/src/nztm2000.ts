@@ -12,8 +12,13 @@ register(Proj);
 
 const topLeft = Nztm2000Tms.zooms[0].topLeftCorner;
 const origin = [topLeft[1], topLeft[0]]; // NZTM is defined as y,x not x,y
-const resolutions = Nztm2000Tms.zooms.map((c, i) => Nztm2000Tms.pixelScale(i));
+const resolutions = Nztm2000Tms.zooms.map((_, i) => Nztm2000Tms.pixelScale(i));
 const matrixIds = Nztm2000Tms.zooms.map((c) => c.identifier);
+
+// Add two more zoom levels
+for (let i = 0; i < 2; ++i) {
+    resolutions.push(resolutions[resolutions.length - 1] / 2);
+}
 
 const { lowerCorner, upperCorner } = Nztm2000Tms.def.boundingBox;
 const extent: Extent = [
