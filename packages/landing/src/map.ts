@@ -12,6 +12,7 @@ import BaseEvent from 'ol/events/Event';
 import { ImageTile } from 'ol';
 import { gaEvent, GaEvent } from './config';
 import { Extent } from 'ol/extent';
+import { Coordinate } from 'ol/coordinate';
 
 /** Projection to use for the URL bar */
 const UrlProjection = Epsg.Wgs84.toEpsgString();
@@ -50,6 +51,13 @@ export class Basemaps {
     constructor(target: HTMLElement) {
         this.el = target;
         this.updateFromUrl();
+
+        window.addEventListener('popstate', () => {
+            const location = this.getLocationFromHash();
+            const view = this.map.getView();
+            view.setZoom(location.zoom);
+            view.setCenter(this.locationToLonLat(location));
+        });
     }
 
     getSource(): TileSource {
@@ -74,13 +82,22 @@ export class Basemaps {
 
         throw new Error('Unable to find layer for projection: ' + projection);
     }
+
+    private locationToLonLat(location: MapLocation): Coordinate {
+        return proj.transform([location.lon, location.lat], UrlProjection, `EPSG:${this.config.projection}`);
+    }
+
+    private getLocationFromHash(): MapLocation {
+        return { ...DefaultCenter[this.config.projection.code], ...WindowUrl.fromHash(window.location.hash) };
+    }
+
     /** Import location and rendering information from the url */
     private updateFromUrl(): void {
         this.config = WindowUrl.fromUrl(window.location.search);
         const projection = this.config.projection;
-        const location = { ...DefaultCenter[projection.code], ...WindowUrl.fromHash(window.location.hash) };
+        const location = this.getLocationFromHash();
 
-        const loc = proj.transform([location.lon, location.lat], UrlProjection, `EPSG:${projection}`);
+        const loc = this.locationToLonLat(location);
         let resolutions: undefined | number[] = undefined;
         let extent: undefined | Extent = undefined;
         if (projection == Epsg.Nztm2000) {
