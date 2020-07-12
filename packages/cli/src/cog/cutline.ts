@@ -131,8 +131,8 @@ export class Cutline {
     }
 
     /**
-     * Generate an optimized WebMercator tile cover for the supplied polygons
-     * @param featureCollection Source TIff Polygons in GeoJson WGS84
+     * Generate an optimized WebMercator tile cover for the supplied source images
+     * @param sourceMetadata contains images bounds and projection info
      */
     optimizeCovering(sourceMetadata: SourceMetadata): NamedBounds[] {
         this.findCovering(sourceMetadata);
