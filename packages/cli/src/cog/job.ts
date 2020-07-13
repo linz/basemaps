@@ -125,6 +125,11 @@ export const CogJobFactory = {
         const builder = new CogBuilder(ctx.targetProjection, maxConcurrency, logger, ctx.override?.projection);
         const metadata = await builder.build(tiffSource, cutline);
 
+        if (cutline.clipPoly.length == 0) {
+            // no cutline needed for this imagery set
+            ctx.cutline = undefined;
+        }
+
         const sourceProjection = Projection.get(metadata.projection);
 
         const { tms } = cutline.targetPtms;
@@ -205,7 +210,7 @@ export const CogJobFactory = {
             const jobFile = getJobPath(job, `job.json`);
             await outputFs.writeJson(jobFile, job, logger);
 
-            if (cutline.clipPoly.length != 0) {
+            if (ctx.cutline != null) {
                 const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson.gz`);
                 await outputFs.writeJson(geoJsonCutlineOutput, cutline.toGeoJson(), logger);
             }
