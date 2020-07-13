@@ -3182,10 +3182,10 @@ es6-promisify@^5.0.0:
   dependencies:
     es6-promise "^4.0.3"
 
-esbuild@^0.5.9:
-  version "0.5.26"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.5.26.tgz#0868e8f3e0938c6cb9a8c93e74f85900eff1a071"
-  integrity sha512-OopLmIbQNOWBWMBoOtHjDEaIiTI2okEpRkbiKccfatnXJtsGazwWhR0dmvY8ynjLx/BOPS9mQ6QFl7J1BQCcaQ==
+esbuild@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.6.2.tgz#8151be0d8783a778f85148cef46ecdf6aad08260"
+  integrity sha512-l4p1jJwLuRr+UMgCkdgQrSaU1fSmjRgZgx1ELjV+doGS3rLtzdCR17IfLxWEdGbtpYdrvvvRVlWYsYnFCcNaLw==
 
 escape-html@~1.0.3:
   version "1.0.3"
