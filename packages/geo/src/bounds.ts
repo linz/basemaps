@@ -156,8 +156,13 @@ export class Bounds implements BoundingBox {
         );
     }
 
+    /**
+     * Round dimensions to integers keeping the error a low as possible
+     */
     public round(): Bounds {
-        return new Bounds(Math.round(this.x), Math.round(this.y), Math.round(this.width), Math.round(this.height));
+        const x = Math.round(this.x);
+        const y = Math.round(this.y);
+        return new Bounds(x, y, Math.round(this.right) - x, Math.round(this.bottom) - y);
     }
 
     public add(bounds: Point): Bounds {

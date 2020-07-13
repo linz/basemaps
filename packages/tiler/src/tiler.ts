@@ -76,13 +76,7 @@ export class Tiler {
         scaleFactor: number,
         raster: RasterPixelBounds,
     ): Composition | null {
-        const tileSourceBounds = img.getTileBounds(x, y);
-        const source = new Bounds(
-            tileSourceBounds.x,
-            tileSourceBounds.y,
-            tileSourceBounds.width,
-            tileSourceBounds.height,
-        );
+        const source = Bounds.fromJson(img.getTileBounds(x, y));
 
         const target = source.scale(scaleFactor, scaleFactor).add(raster.tiff).round();
 
