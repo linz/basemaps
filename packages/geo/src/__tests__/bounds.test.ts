@@ -11,6 +11,12 @@ o.spec('Bounds', () => {
     const tileZero = getTile(0, 0);
     const tileMiddle = new Bounds(128, 128, 256, 256);
 
+    o('round', () => {
+        o(new Bounds(1.1, 10.1, 12.2, 11.2).round().toJson()).deepEquals({ x: 1, y: 10, width: 12, height: 11 });
+        o(new Bounds(1.4, 10.6, 12.2, 11.4).round().toJson()).deepEquals({ x: 1, y: 11, width: 13, height: 11 });
+        o(new Bounds(0.4, 0.6, 2.4, 1.6).round().toJson()).deepEquals({ x: 0, y: 1, width: 3, height: 1 });
+    });
+
     o('toBbox', () => {
         o(new Bounds(170, 40, 60, 45).toBbox()).deepEquals([170, 40, 230, 85]);
         o(new Bounds(10, -40, 60, -45).toBbox()).deepEquals([10, -40, 70, -85]);
