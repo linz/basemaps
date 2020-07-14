@@ -1,12 +1,11 @@
 import { Epsg } from '@basemaps/geo';
-import { LogConfig } from '@basemaps/shared';
+import { LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal.cog';
+import { TilingScheme } from '../../gdal/gdal.config';
 import { buildCogForName } from '../cog';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
-import { TilingScheme } from '../../gdal/gdal.config';
-import { round } from '@basemaps/test/build/rounding';
-import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 
 LogConfig.disable();
 
@@ -30,7 +29,13 @@ o.spec('cog', () => {
             const job = SourceTiffTestHelper.makeCogJob();
             const logger = LogConfig.get();
 
-            await buildCogForName(job, qkToName('3131'), '/tmp/test.vrt', '/tmp/out-tiff', logger, true);
+            const targetPtms = ProjectionTileMatrixSet.get(job.projection);
+
+            const name = '4-15-10';
+
+            job.files = [{ name, ...targetPtms.tileToSourceBounds({ x: 15, y: 10, z: 4 }) }];
+
+            await buildCogForName(job, name, '/tmp/test.vrt', '/tmp/out-tiff', logger, true);
             o(convertArgs[0].info).equals(logger.info);
 
             const { config } = gdalCogBuilder!;
