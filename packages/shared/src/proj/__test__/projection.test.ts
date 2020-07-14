@@ -39,6 +39,76 @@ o.spec('Projection', () => {
         ]);
     });
 
+    o.spec('boundsToGeoJsonFeature', () => {
+        o('simple', () => {
+            const ans = round(
+                googleProj.boundsToGeoJsonFeature(
+                    {
+                        x: -19929885.00696367,
+                        y: 19871181.369240656,
+                        width: 48921.969810251147,
+                        height: 4891.969810251147,
+                    },
+                    { name: '13-22-33' },
+                ),
+            );
+
+            o(ans).deepEquals({
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [-179.03320312, 84.92054529],
+                            [-179.03320312, 84.92443459],
+                            [-178.59372959, 84.92443459],
+                            [-178.59372959, 84.92054529],
+                            [-179.03320312, 84.92054529],
+                        ],
+                    ],
+                },
+                properties: { name: '13-22-33' },
+            });
+        });
+
+        o('crosses antimeridian', () => {
+            const ans = round(
+                nztmProj.boundsToGeoJsonFeature(
+                    { x: 1293760, y: 5412480, width: 1246880, height: 1146880 },
+                    { name: '1-2-1' },
+                ),
+            );
+
+            o(ans).deepEquals({
+                type: 'Feature',
+                geometry: {
+                    type: 'MultiPolygon',
+                    coordinates: [
+                        [
+                            [
+                                [169.33783769, -41.38093178],
+                                [180, -41.22297022],
+                                [180, -30.9080246],
+                                [169.79094917, -31.05964823],
+                                [169.33783769, -41.38093178],
+                            ],
+                        ],
+                        [
+                            [
+                                [-175.8429206, -40.89543649],
+                                [-177.19778597, -30.72635276],
+                                [-180, -30.9080246],
+                                [-180, -41.22297022],
+                                [-175.8429206, -40.89543649],
+                            ],
+                        ],
+                    ],
+                },
+                properties: { name: '1-2-1' },
+            });
+        });
+    });
+
     o('projectMultipolygon', () => {
         const poly = [
             Bounds.fromBbox([

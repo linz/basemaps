@@ -1,4 +1,4 @@
-import { Tile, TileMatrixSet, GeoJson } from '@basemaps/geo';
+import { Tile, TileMatrixSet } from '@basemaps/geo';
 import { LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
 import * as cp from 'child_process';
 import * as path from 'path';
@@ -20,8 +20,8 @@ async function create(bm: BathyMaker, tile: Tile, logger: LogType): Promise<Reco
     const outputTiffPath = bm.file.name(FileType.Output, tileId);
     const ptms = ProjectionTileMatrixSet.get(tms.projection.code);
 
-    const bounds = ptms.tileToWgs84Bounds(tile);
-    const geometry = GeoJson.toPolygon(bounds.toPolygon());
+    const bounds = ptms.tileToWgs84Bbox(tile);
+    const { geometry } = ptms.proj.boundsToGeoJsonFeature(ptms.tileToSourceBounds(tile));
 
     const created = new Date().toISOString();
     return {
@@ -31,7 +31,7 @@ async function create(bm: BathyMaker, tile: Tile, logger: LogType): Promise<Reco
         stac_extensions: ['proj', 'linz'],
         id: tileId,
         type: 'Feature',
-        bounds: bounds.toBbox(),
+        bounds,
         geometry,
         properties: {
             datetime: created,
