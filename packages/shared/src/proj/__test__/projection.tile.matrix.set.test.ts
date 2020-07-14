@@ -75,6 +75,61 @@ o.spec('ProjectionTileMatrixSet', () => {
         });
     });
 
+    o.spec('tileToWgs84Bounds', () => {
+        o('should convert base tiles', () => {
+            const pt = googlePtms.tileToWgs84Bounds({ x: 0, y: 0, z: 0 });
+            // GoogleTms extent is slightly off the epsg:3857 numbers
+            Approx.bounds(pt, Bounds.fromJson({ x: -180, y: -85.051, width: 360, height: 170.1 }), 'bounds', 0.01);
+
+            const lowerCorner = googlePtms.proj.toWsg84(GoogleTms.def.boundingBox.lowerCorner);
+            const upperCorner = googlePtms.proj.toWsg84(GoogleTms.def.boundingBox.upperCorner);
+
+            Approx.equal(pt.x, lowerCorner[0], 'minX');
+            Approx.equal(pt.y, lowerCorner[1], 'minY');
+            Approx.equal(pt.right, upperCorner[0], 'maxX');
+            Approx.equal(pt.bottom, upperCorner[1], 'maxY');
+        });
+
+        o('should round trip', () => {
+            const [minX, minY, maxX, maxY] = googlePtms.tileToWgs84Bounds({ x: 0, y: 0, z: 0 }).toBbox();
+            const topLeft = googlePtms.proj.fromWsg84([minX, maxY]);
+            const bottomRight = googlePtms.proj.fromWsg84([maxX, minY]);
+
+            // Lower as in number size, not lower as in position
+            Approx.equal(topLeft[0], GoogleTms.def.boundingBox.lowerCorner[0], 'topLeft.x');
+            Approx.equal(topLeft[1], GoogleTms.def.boundingBox.upperCorner[1], 'topLeft.y');
+
+            Approx.equal(bottomRight[0], GoogleTms.def.boundingBox.upperCorner[0], 'bottomRight.x');
+            Approx.equal(bottomRight[1], GoogleTms.def.boundingBox.lowerCorner[1], 'bottomRight.y');
+        });
+
+        o('should round trip bottom right individual tiles', () => {
+            const [minX, minY, maxX, maxY] = googlePtms.tileToWgs84Bounds({ x: 1, y: 1, z: 1 }).toBbox();
+            const topLeft = googlePtms.proj.fromWsg84([minX, maxY]);
+            const bottomRight = googlePtms.proj.fromWsg84([maxX, minY]);
+
+            // top left is in the center
+            Approx.equal(topLeft[0], 0, 'topLeft.x');
+            Approx.equal(topLeft[1], 0, 'topLeft.y');
+
+            Approx.equal(bottomRight[0], GoogleTms.def.boundingBox.upperCorner[0], 'bottomRight.x');
+            Approx.equal(bottomRight[1], GoogleTms.def.boundingBox.lowerCorner[1], 'bottomRight.y');
+        });
+
+        o('should round trip top left tile', () => {
+            const [minX, minY, maxX, maxY] = googlePtms.tileToWgs84Bounds({ x: 0, y: 0, z: 1 }).toBbox();
+            const topLeft = googlePtms.proj.fromWsg84([minX, maxY]);
+            const bottomRight = googlePtms.proj.fromWsg84([maxX, minY]);
+
+            // bottom right is in the center
+            Approx.equal(bottomRight[0], 0, 'bottomRight.x');
+            Approx.equal(bottomRight[1], 0, 'bottomRight.y');
+
+            Approx.equal(topLeft[0], GoogleTms.def.boundingBox.lowerCorner[0], 'topLeft.x');
+            Approx.equal(topLeft[1], GoogleTms.def.boundingBox.upperCorner[1], 'topLeft.y');
+        });
+    });
+
     o.spec('TilingBounds', () => {
         // Approximate bounding box of new zealand
         const tifBoundingBox: [number, number, number, number] = [
