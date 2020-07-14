@@ -1,4 +1,4 @@
-import { EpsgCode, TileMatrixSet } from '@basemaps/geo';
+import { EpsgCode, TileMatrixSet, Bounds } from '@basemaps/geo';
 import { Aws, isConfigS3Role, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal.cog';
 import { GdalCommand } from '../gdal/gdal.command';
@@ -52,16 +52,21 @@ export async function buildCogForName(
     const targetPtms = ProjectionTileMatrixSet.get(job.projection);
     const { tms } = targetPtms;
 
-    const tile = TileMatrixSet.nameToTile(name);
+    const nb = job.files.find((nb) => nb.name === name);
 
-    const ul = tms.tileToSource(tile);
-    const lr = tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
+    if (nb == null) {
+        throw new Error("Can't find COG named " + name);
+    }
+
+    const bounds = Bounds.fromJson(nb);
+
+    const tile = TileMatrixSet.nameToTile(name);
 
     const blockSize = tms.tileSize * targetPtms.blockFactor;
     const alignmentLevels = targetPtms.findAlignmentLevels(tile, job.source.pixelScale);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
-        bbox: [ul.x, ul.y, lr.x, lr.y],
+        bbox: [bounds.x, bounds.bottom, bounds.right, bounds.y],
         projection: targetPtms.tms.projection,
         tilingScheme: tilingScheme(job.projection),
         blockSize,

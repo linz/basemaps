@@ -1,6 +1,6 @@
-import { EpsgCode, BoundingBox } from '@basemaps/geo';
+import { BoundingBox, EpsgCode } from '@basemaps/geo';
 import { FileConfig, NamedBounds } from '@basemaps/shared';
-import { GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
+import { GdalCogBuilderResampling } from '../gdal/gdal.config';
 
 export interface CogJob {
     /** Unique processing Id */
@@ -33,7 +33,7 @@ export interface CogJob {
 
     /** Folder/S3 bucket to store the output */
     output: {
-        resampling: { warp: GdalCogBuilderOptionsResampling; overview: GdalCogBuilderOptionsResampling };
+        resampling: GdalCogBuilderResampling;
         nodata?: number;
         /**
          * Quality level to use

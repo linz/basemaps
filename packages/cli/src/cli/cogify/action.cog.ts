@@ -113,6 +113,7 @@ export class ActionCogCreate extends CommandLineAction {
                 ProjectionTileMatrixSet.get(job.projection),
                 cutlineJson,
                 job.output.cutline?.blend,
+                job.files.length == 1 && job.files[0].name == Cutline.OneCogName,
             );
 
             const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);
