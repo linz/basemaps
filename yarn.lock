@@ -548,19 +548,19 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@cogeotiff/core@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.1.1.tgz#6d1a3a58625b8a33ee5ac360da0146f56a65a0a4"
-  integrity sha512-KjB8ky3s+PFR3pq92NET9vC/uiZ2jQw/MTOmgxz82VpdCcog7oZm3sBnlz7W+a7E7OCdFg8iGt8rjrpCaJTbzg==
+"@cogeotiff/core@^2.1.1", "@cogeotiff/core@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.2.0.tgz#5f28d79732c3aafdb8dc833a43d1314974138998"
+  integrity sha512-vI0I1axsgUnd2tIqDhVk/snfpq5cDaiLxNpjS0ovxroWPz12BepW5WLoLbINj/oIIrjgR8VjyxUY065kWrmZVQ==
   dependencies:
     ieee754 "^1.1.13"
 
 "@cogeotiff/source-aws@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-2.1.1.tgz#1d5e8632c1cf65eaaf40b9406479764d83f699e7"
-  integrity sha512-fPDwEDMSiKCo9RUyiupadoNg9I/sHk3UvjQvUedIkavSmMhZmUVLpLw7fNtAw5pNyAjsIk3t9GcwuYDSiaFaQg==
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-2.2.0.tgz#3bd7d6d4173a9a2bc90db507ef1fbb29018e1262"
+  integrity sha512-USVQPzaO7V5TJSJjUj/4MeONN9lmrktyeYGNWyoGFpPIhnuimvxZ4qS6oRoxpGJqEcanr2Rdjdw0nEzBDZmNeg==
   dependencies:
-    "@cogeotiff/core" "^2.1.1"
+    "@cogeotiff/core" "^2.2.0"
     aws-sdk "^2.524.0"
 
 "@cogeotiff/source-file@^2.1.1":
@@ -2056,22 +2056,7 @@ aws-cdk@1.51.0:
     yaml "^1.10.0"
     yargs "^15.3.1"
 
-aws-sdk@^2.508.0, aws-sdk@^2.524.0:
-  version "2.702.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.702.0.tgz#c5bb9a6caeb7d938b803095073fe981ff29e4244"
-  integrity sha512-FKRve3NOKeUKxFXeD6VfiIhXpIhym/yFdy7higxUObmsj2ssM/e7Iud79gUHRAKJW5fzusdtkBCAVBjotRGxew==
-  dependencies:
-    buffer "4.9.2"
-    events "1.1.1"
-    ieee754 "1.1.13"
-    jmespath "0.15.0"
-    querystring "0.2.0"
-    sax "1.2.1"
-    url "0.10.3"
-    uuid "3.3.2"
-    xml2js "0.4.19"
-
-aws-sdk@^2.712.0:
+aws-sdk@^2.508.0, aws-sdk@^2.524.0, aws-sdk@^2.712.0:
   version "2.713.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.713.0.tgz#e87404ddcba093d36afafb48f119ec66f654a83f"
   integrity sha512-axR1eOVn134KXJc1IT+Au2TXcK6oswY+4nvGe5GfU3pXeehhe0xNeP9Bw9yF36TRBxuvu4IJ2hRHDKma05smgA==
