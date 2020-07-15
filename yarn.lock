@@ -549,9 +549,9 @@
     js-tokens "^4.0.0"
 
 "@cogeotiff/core@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.1.1.tgz#6d1a3a58625b8a33ee5ac360da0146f56a65a0a4"
-  integrity sha512-KjB8ky3s+PFR3pq92NET9vC/uiZ2jQw/MTOmgxz82VpdCcog7oZm3sBnlz7W+a7E7OCdFg8iGt8rjrpCaJTbzg==
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.2.0.tgz#5f28d79732c3aafdb8dc833a43d1314974138998"
+  integrity sha512-vI0I1axsgUnd2tIqDhVk/snfpq5cDaiLxNpjS0ovxroWPz12BepW5WLoLbINj/oIIrjgR8VjyxUY065kWrmZVQ==
   dependencies:
     ieee754 "^1.1.13"
 
