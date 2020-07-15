@@ -3189,10 +3189,10 @@ es6-promisify@^5.0.0:
   dependencies:
     es6-promise "^4.0.3"
 
-esbuild@^0.5.9:
-  version "0.5.26"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.5.26.tgz#0868e8f3e0938c6cb9a8c93e74f85900eff1a071"
-  integrity sha512-OopLmIbQNOWBWMBoOtHjDEaIiTI2okEpRkbiKccfatnXJtsGazwWhR0dmvY8ynjLx/BOPS9mQ6QFl7J1BQCcaQ==
+esbuild@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.6.2.tgz#8151be0d8783a778f85148cef46ecdf6aad08260"
+  integrity sha512-l4p1jJwLuRr+UMgCkdgQrSaU1fSmjRgZgx1ELjV+doGS3rLtzdCR17IfLxWEdGbtpYdrvvvRVlWYsYnFCcNaLw==
 
 escape-html@~1.0.3:
   version "1.0.3"
@@ -5893,9 +5893,9 @@ pino@^6.2.1:
     sonic-boom "^1.0.0"
 
 pixelmatch@^5.1.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/pixelmatch/-/pixelmatch-5.2.0.tgz#6433386c6a830b0d9ee3962f9ad59695500677cd"
-  integrity sha512-TdleROuanI+Uo/4PcOAH7b7qgO4kjzJO8K4y/TBAo1wx/5BE8cn1B0I6Jfk3mKcJsGpWvX7zjM8OjU5o9i+aog==
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/pixelmatch/-/pixelmatch-5.2.1.tgz#9e4e4f4aa59648208a31310306a5bed5522b0d65"
+  integrity sha512-WjcAdYSnKrrdDdqTcVEY7aB7UhhwjYQKYhHiBXdJef0MOaQeYpUdQ+iVyBLa5YBKS8MPVPPMX7rpOByISLpeEQ==
   dependencies:
     pngjs "^4.0.1"
 
