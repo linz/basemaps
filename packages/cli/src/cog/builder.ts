@@ -87,9 +87,7 @@ export class CogBuilder {
                     bands = tiffBandCount.length;
                 }
 
-                const name = source instanceof CogSourceFile ? source.fileName : source.name;
-
-                const output = { ...Bounds.fromBbox(image.bbox).toJson(), name };
+                const output = { ...Bounds.fromBbox(image.bbox).toJson(), name: source.uri };
 
                 if (CogSourceFile.isSource(source)) {
                     await source.close();
