@@ -38,7 +38,7 @@ o.spec('Builder', () => {
         });
 
         o('bounds', async () => {
-            const localTiff = new CogSourceFile('local/file.tiff');
+            const localTiff = new CogSourceFile('/local/file.tiff');
             const s3Tiff = new CogSourceAwsS3('bucket', 's3://file.tiff');
 
             const imageLocal = {
@@ -82,7 +82,7 @@ o.spec('Builder', () => {
                         y: 6198000,
                         width: 24000,
                         height: 36000,
-                        name: 'local/file.tiff',
+                        name: '/local/file.tiff',
                     },
                     {
                         x: 1516000,
