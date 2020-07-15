@@ -1,13 +1,11 @@
 import { EpsgCode } from '@basemaps/geo';
 import { ProjectionTileMatrixSet } from '@basemaps/shared';
-import { Approx } from '@basemaps/test';
+import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
-import { MultiPolygon } from 'geojson';
 import o from 'ospec';
 import { Cutline } from '../cutline';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
-import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 
 o.spec('cutline', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
@@ -16,7 +14,10 @@ o.spec('cutline', () => {
 
     o.spec('filterSourcesForName', () => {
         o('fully within same projection', async () => {
-            const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), -100);
+            // convert poly to googlePtms
+            const cutpoly = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson')).toGeoJson();
+
+            const cutline = new Cutline(googlePtms, cutpoly, -100);
 
             const name = qkToName('311333222321113310');
 
@@ -33,10 +34,8 @@ o.spec('cutline', () => {
 
     o('loadCutline', async () => {
         const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/mana.geojson'));
-        const geojson = cutline.toGeoJson();
-        const mp = geojson.features[0].geometry as MultiPolygon;
-        const { coordinates } = mp;
-        mp.coordinates = [];
+        const geojson = round(cutline.toGeoJson());
+
         o(geojson).deepEquals({
             type: 'FeatureCollection',
             features: [
@@ -44,15 +43,48 @@ o.spec('cutline', () => {
                     type: 'Feature',
                     geometry: {
                         type: 'MultiPolygon',
-                        coordinates: [],
+                        coordinates: [
+                            [
+                                [
+                                    [19456570.81047118, -5023799.46086743],
+                                    [19457346.41188008, -5024885.32147075],
+                                    [19455543.1261867, -5026720.78623442],
+                                    [19455446.57500747, -5025689.98761053],
+                                    [19456325.95579277, -5024324.4264959],
+                                    [19456431.41331051, -5023815.14487631],
+                                    [19456497.91735541, -5023822.4695137],
+                                    [19456513.95059036, -5023820.4859541],
+                                    [19456528.99998363, -5023810.66149213],
+                                    [19456528.41956381, -5023802.3991344],
+                                    [19456521.62606925, -5023792.60909871],
+                                    [19456521.12156931, -5023788.06857522],
+                                    [19456524.31632738, -5023783.03836819],
+                                    [19456531.227264, -5023778.34574544],
+                                    [19456540.68563587, -5023777.32428773],
+                                    [19456551.09434221, -5023782.4891701],
+                                    [19456560.03196148, -5023796.37226942],
+                                    [19456570.81047118, -5023799.46086743],
+                                ],
+                            ],
+                            [
+                                [
+                                    [19430214.06028324, -5008476.23288268],
+                                    [19429858.86076585, -5008966.74650194],
+                                    [19430484.68848696, -5009778.63111311],
+                                    [19430907.54505528, -5009085.14634107],
+                                    [19430214.06028324, -5008476.23288268],
+                                ],
+                            ],
+                        ],
                     },
                     properties: {},
                 },
             ],
+            crs: {
+                type: 'name',
+                properties: { name: 'urn:ogc:def:crs:EPSG::3857' },
+            },
         });
-        o(coordinates.length).equals(2);
-        const [lon, lat] = coordinates[0][0][0];
-        Approx.latLon({ lon, lat }, { lon: 174.781349356, lat: -41.077634319 });
     });
 
     o('findCovering', async () => {
@@ -151,12 +183,12 @@ o.spec('cutline', () => {
                         [19468580.0838, -4993280.8853],
                         [19471098.3762, -4993280.8853],
                         [19471932.5568, -4992600.0637],
-                        [19472092.0139, -4992352.6943],
+                        [19472092.0139, -4992352.6942],
                         [19472092.0139, -4987203.6846],
                         [19471983.8261, -4987203.6846],
                         [19470978.4379, -4989417.4454],
                         [19468800.9775, -4991497.5405],
-                        [19468580.0838, -4991792.2036],
+                        [19468580.0838, -4991792.2037],
                         [19468580.0838, -4993280.8853],
                     ],
                 ],
