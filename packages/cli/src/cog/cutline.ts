@@ -42,6 +42,7 @@ export class Cutline {
     clipPoly: MultiPolygon = [];
     targetPtms: ProjectionTileMatrixSet;
     blend: number;
+    oneCog: boolean;
     tms: TileMatrixSet; // convience to targetPtms.tms
     private srcPoly: MultiPolygon = [];
 
@@ -56,10 +57,11 @@ export class Cutline {
 
      * @param blend How much blending to consider when working out boundaries.
      */
-    constructor(targetPtms: ProjectionTileMatrixSet, clipPoly?: FeatureCollection, blend = 0) {
+    constructor(targetPtms: ProjectionTileMatrixSet, clipPoly?: FeatureCollection, blend = 0, oneCog = false) {
         this.targetPtms = targetPtms;
         this.tms = targetPtms.tms;
         this.blend = blend;
+        this.oneCog = oneCog;
         if (clipPoly == null) {
             return;
         }
@@ -79,6 +81,11 @@ export class Cutline {
     }
 
     /**
+     * The Name to used when just producing one cog to cover the full extent
+     */
+    static OneCogName = '0-0-0';
+
+    /**
      * Load a geojson cutline from the file-system.
      *
      * @param path the path of the cutline to load. Can be `s3://` or local file path.
@@ -96,6 +103,10 @@ export class Cutline {
      * @returns names of source files required to render Cog
      */
     filterSourcesForName(name: string, job: CogJob): string[] {
+        if (this.oneCog) {
+            return job.source.files.map(({ name }) => name);
+        }
+
         const tile = TileMatrixSet.nameToTile(name);
         const sourceCode = Projection.get(job.source.projection);
         const targetCode = this.targetPtms.proj;
@@ -131,10 +142,14 @@ export class Cutline {
     }
 
     /**
-     * Generate an optimized WebMercator tile cover for the supplied polygons
-     * @param featureCollection Source TIff Polygons in GeoJson WGS84
+     * Generate an optimized WebMercator tile cover for the supplied source images
+     * @param sourceMetadata contains images bounds and projection info
      */
     optimizeCovering(sourceMetadata: SourceMetadata): NamedBounds[] {
+        if (this.oneCog) {
+            const extent = this.tms.extent.toJson();
+            return [{ ...extent, name: Cutline.OneCogName }];
+        }
         this.findCovering(sourceMetadata);
 
         const { resZoom } = sourceMetadata;

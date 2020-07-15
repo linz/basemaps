@@ -56,7 +56,7 @@ export class Basemaps {
             const location = this.getLocationFromHash();
             const view = this.map.getView();
             view.setZoom(location.zoom);
-            view.setCenter(this.locationToLonLat(location));
+            view.setCenter(this.locationFromLonLat(location));
         });
     }
 
@@ -83,7 +83,7 @@ export class Basemaps {
         throw new Error('Unable to find layer for projection: ' + projection);
     }
 
-    private locationToLonLat(location: MapLocation): Coordinate {
+    private locationFromLonLat(location: MapLocation): Coordinate {
         return proj.transform([location.lon, location.lat], UrlProjection, `EPSG:${this.config.projection}`);
     }
 
@@ -97,7 +97,7 @@ export class Basemaps {
         const projection = this.config.projection;
         const location = this.getLocationFromHash();
 
-        const loc = this.locationToLonLat(location);
+        const loc = this.locationFromLonLat(location);
         let resolutions: undefined | number[] = undefined;
         let extent: undefined | Extent = undefined;
         if (projection == Epsg.Nztm2000) {

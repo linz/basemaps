@@ -19,7 +19,7 @@ import { CliInfo } from '../cli/base.cli';
 import { ActionBatchJob } from '../cli/cogify/action.batch';
 import { getJobPath, makeTempFolder } from '../cli/folder';
 import { Gdal } from '../gdal/gdal';
-import { GdalCogBuilderDefaults, GdalCogBuilderOptionsResampling } from '../gdal/gdal.config';
+import { GdalCogBuilderDefaults, GdalCogBuilderResampling } from '../gdal/gdal.config';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
 
@@ -65,17 +65,17 @@ export interface JobCreationContext {
          * Resampling method
          * @Default  GdalCogBuilderDefaults.resampling
          */
-        resampling?: {
-            warp: GdalCogBuilderOptionsResampling;
-            overview: GdalCogBuilderOptionsResampling;
-        };
+        resampling?: GdalCogBuilderResampling;
     };
 
     /**
      * Should this job be submitted to batch now?
      * @default false
      */
-    batch?: boolean;
+    batch: boolean;
+
+    /** Should this job ignore source coverage and just produce one big COG for EPSG extent */
+    oneCog: boolean;
 }
 
 function filterTiff(a: string): boolean {
@@ -120,10 +120,16 @@ export const CogJobFactory = {
             ctx.targetProjection,
             ctx.cutline && (await Cutline.loadCutline(ctx.cutline.source)),
             ctx.cutline?.blend,
+            ctx.oneCog,
         );
 
         const builder = new CogBuilder(ctx.targetProjection, maxConcurrency, logger, ctx.override?.projection);
         const metadata = await builder.build(tiffSource, cutline);
+
+        if (cutline.clipPoly.length == 0) {
+            // no cutline needed for this imagery set
+            ctx.cutline = undefined;
+        }
 
         const sourceProjection = Projection.get(metadata.projection);
 
@@ -171,7 +177,7 @@ export const CogJobFactory = {
             projection: ctx.targetProjection.tms.projection.code,
             output: {
                 ...output,
-                resampling: GdalCogBuilderDefaults.resampling,
+                resampling: ctx.override?.resampling ?? GdalCogBuilderDefaults.resampling,
                 quality: ctx.override?.quality ?? GdalCogBuilderDefaults.quality,
                 cutline: ctx.cutline,
                 nodata: metadata.nodata,
@@ -205,7 +211,7 @@ export const CogJobFactory = {
             const jobFile = getJobPath(job, `job.json`);
             await outputFs.writeJson(jobFile, job, logger);
 
-            if (cutline.clipPoly.length != 0) {
+            if (ctx.cutline != null) {
                 const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson.gz`);
                 await outputFs.writeJson(geoJsonCutlineOutput, cutline.toGeoJson(), logger);
             }

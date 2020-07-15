@@ -29,6 +29,9 @@ export class TileMatrixSet {
     /** Array index of y coordinate */
     indexY = 1;
 
+    /** The full extent (boundingBox) from the TileMatrixSetType definition */
+    readonly extent: Bounds;
+
     /**
      * Create using a WMTS EPSG definition
 
@@ -57,6 +60,11 @@ export class TileMatrixSet {
             this.indexX = 1;
             this.indexY = 0;
         }
+
+        const { lowerCorner, upperCorner } = def.boundingBox;
+        const x = lowerCorner[this.indexX];
+        const y = lowerCorner[this.indexY];
+        this.extent = new Bounds(x, y, upperCorner[this.indexX] - x, upperCorner[this.indexY] - y);
     }
 
     /**

@@ -9,6 +9,19 @@ export type GdalCogBuilderOptionsResampling =
     | 'average'
     | 'mode';
 
+export interface GdalCogBuilderResampling {
+    /**
+     * Resampling for warping
+     * @default 'bilinear'
+     */
+    warp: GdalCogBuilderOptionsResampling;
+    /**
+     * Resampling for overview
+     * @default 'lanczos'
+     */
+    overview: GdalCogBuilderOptionsResampling;
+}
+
 export enum TilingScheme {
     Google = 'GoogleMapsCompatible',
     Nztm2000 = 'NZTM2000',
@@ -39,18 +52,7 @@ export interface GdalCogBuilderOptions {
     /**
      * Resampling methods to use
      */
-    resampling: {
-        /**
-         * Resampling for warping
-         * @default 'bilinear'
-         */
-        warp: GdalCogBuilderOptionsResampling;
-        /**
-         * Resampling for overview
-         * @default 'lanczos'
-         */
-        overview: GdalCogBuilderOptionsResampling;
-    };
+    resampling: GdalCogBuilderResampling;
     /**
      * Output tile size
      * @default 512
