@@ -37,6 +37,25 @@ o.spec('TileMatrixSet', () => {
         });
     });
 
+    o('extent', () => {
+        o(GoogleTms.extent.toBbox()).deepEquals([
+            -20037508.3427892,
+            -20037508.3427892,
+            20037508.3427892,
+            20037508.3427892,
+        ]);
+
+        const { lowerCorner, upperCorner } = Nztm2000Tms.def.boundingBox;
+
+        o(Nztm2000Tms.extent.toBbox()).deepEquals([274000, 3087000, 3327000, 7173000]);
+        o(Nztm2000Tms.extent.toBbox()).deepEquals([
+            lowerCorner[Nztm2000Tms.indexX],
+            lowerCorner[Nztm2000Tms.indexY],
+            upperCorner[Nztm2000Tms.indexX],
+            upperCorner[Nztm2000Tms.indexY],
+        ]);
+    });
+
     o('should have correct maxZoom', () => {
         o(GoogleTms.maxZoom).equals(24);
         o(GoogleTms.pixelScale(24) > 0).equals(true);

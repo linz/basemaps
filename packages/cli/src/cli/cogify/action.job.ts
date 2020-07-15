@@ -7,7 +7,7 @@ import {
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
 import { CogJobFactory, JobCreationContext, MaxConcurrencyDefault } from '../../cog/job';
-import { GdalCogBuilderDefaults } from '../../gdal/gdal.config';
+import { GdalCogBuilderDefaults, GdalCogBuilderResampling, GdalResamplingOptions } from '../../gdal/gdal.config';
 import { CliId } from '../base.cli';
 
 export class CLiInputData {
@@ -46,10 +46,12 @@ export class ActionJobCreate extends CommandLineAction {
     private cutline: CommandLineStringParameter;
     private cutlineBlend: CommandLineIntegerParameter;
     private overrideId: CommandLineStringParameter;
+    private overrideWarpReample: CommandLineStringParameter;
     private submitBatch: CommandLineFlagParameter;
     private quality: CommandLineIntegerParameter;
     private sourceProjection: CommandLineIntegerParameter;
     private targetProjection: CommandLineIntegerParameter;
+    private oneCog: CommandLineFlagParameter;
 
     public constructor() {
         super({
@@ -89,6 +91,19 @@ export class ActionJobCreate extends CommandLineAction {
         const targetProjection = ProjectionTileMatrixSet.tryGet(this.targetProjection?.value);
         if (targetProjection == null) throw new Error('Invalid target-projection');
 
+        let resampling: GdalCogBuilderResampling | undefined;
+
+        if (this.overrideWarpReample?.value != null) {
+            const warp = GdalResamplingOptions[this.overrideWarpReample?.value];
+            if (warp == null) {
+                throw new Error('Invalid override-warp-resampling');
+            }
+            resampling = {
+                warp,
+                overview: 'lanczos',
+            };
+        }
+
         const ctx: JobCreationContext = {
             source,
             output,
@@ -99,8 +114,10 @@ export class ActionJobCreate extends CommandLineAction {
                 quality: this.quality?.value ?? GdalCogBuilderDefaults.quality,
                 id: this.overrideId?.value ?? CliId,
                 projection: Epsg.tryGet(this.sourceProjection?.value),
+                resampling,
             },
-            batch: this.submitBatch?.value,
+            batch: this.submitBatch?.value ?? false,
+            oneCog: this.oneCog?.value ?? false,
         };
 
         await CogJobFactory.create(ctx);
@@ -136,7 +153,14 @@ export class ActionJobCreate extends CommandLineAction {
         this.overrideId = this.defineStringParameter({
             argumentName: 'OVERRIDE_ID',
             parameterLongName: '--override-id',
-            description: 'used mainly for debugging to create with a pre determined job id',
+            description: 'create job with a pre determined job id',
+            required: false,
+        });
+
+        this.overrideWarpReample = this.defineStringParameter({
+            argumentName: 'METHOD',
+            parameterLongName: '--override-warp-resampling',
+            description: 'Defaults to bilinear. Common options are: nearest, lanczos, cubic',
             required: false,
         });
 
@@ -165,6 +189,12 @@ export class ActionJobCreate extends CommandLineAction {
             parameterLongName: '--target-projection',
             description: 'The EPSG code for the target imagery',
             defaultValue: EpsgCode.Google,
+            required: false,
+        });
+
+        this.oneCog = this.defineFlagParameter({
+            parameterLongName: '--one-cog',
+            description: 'ignore target projection window and just produce one big COG.',
             required: false,
         });
     }

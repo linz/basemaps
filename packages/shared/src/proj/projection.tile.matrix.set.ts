@@ -73,6 +73,20 @@ export class ProjectionTileMatrixSet {
         return new Bounds(Math.min(ul.x, lr.x), Math.min(ul.y, lr.y), Math.abs(lr.x - ul.x), Math.abs(lr.y - ul.y));
     }
 
+    /** Convert a tile to the wgs84 bounds */
+    tileToWgs84Bounds(tile: Tile): Bounds {
+        const ul = this.tms.tileToSource(tile);
+        const lr = this.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
+        const [ulLon, ulLat] = this.proj.toWsg84([ul.x, ul.y]);
+        const [lrLon, lrLat] = this.proj.toWsg84([lr.x, lr.y]);
+        return new Bounds(
+            Math.min(ulLon, lrLon),
+            Math.min(ulLat, lrLat),
+            Math.abs(lrLon - ulLon),
+            Math.abs(lrLat - ulLat),
+        );
+    }
+
     /**
      * return the `lat`, `lon` of a Tile's center
      */
