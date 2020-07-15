@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.1.0](https://github.com/linz/basemaps/compare/v4.0.0...v4.1.0) (2020-07-15)
+
+
+### Bug Fixes
+
+* **cli:** correct error message when failing to read ([#892](https://github.com/linz/basemaps/issues/892)) ([0e9c4c1](https://github.com/linz/basemaps/commit/0e9c4c10a06c5ab205cfc5285048a153e85a0cc9))
+* **cli:** Don't add cutline properties to CogJob when not used ([#914](https://github.com/linz/basemaps/issues/914)) ([1f860e9](https://github.com/linz/basemaps/commit/1f860e991f61abcb1cb1b15494bef2886eb04b1d))
+* **landing:** dont require clicking on the map for keyboard events ([#897](https://github.com/linz/basemaps/issues/897)) ([785f715](https://github.com/linz/basemaps/commit/785f71595d8a85998bfb0f90944627d27d0f8ee7))
+* **landing:** google analytic events were not being sent ([#891](https://github.com/linz/basemaps/issues/891)) ([d67538a](https://github.com/linz/basemaps/commit/d67538a7834afdf99883276036ca16fbad7d03af))
+* **tiler:** try to minimize the error when rounding boundaries ([#913](https://github.com/linz/basemaps/issues/913)) ([e94b49d](https://github.com/linz/basemaps/commit/e94b49d7f818d31f2ee62ebd854c3b633b17a372))
+* **wmts:** add style tag to wmtscaps ([#894](https://github.com/linz/basemaps/issues/894)) ([d486c4b](https://github.com/linz/basemaps/commit/d486c4b9105c3c92bf73423f9ec05db37bbbd9ea))
+
+
+### Features
+
+* **bathymetry:** create a process to convert gebco into hillshaded rasters ([#921](https://github.com/linz/basemaps/issues/921)) ([2cde6a9](https://github.com/linz/basemaps/commit/2cde6a9eb381452b3c5a6d855d42daf29148eca0))
+* **cli:** Allow creation of one cog covering entire extent ([#920](https://github.com/linz/basemaps/issues/920)) ([2fd9187](https://github.com/linz/basemaps/commit/2fd918702e5cf25b12e24a3d72e694237e633a78))
+* **landing:** allow changing map position via url ([#900](https://github.com/linz/basemaps/issues/900)) ([8c26913](https://github.com/linz/basemaps/commit/8c26913fc3cb7fd0f3e633e41dc1d3eb81e77b24))
+* **landing:** allow map to be controlled by keyboard events ([#893](https://github.com/linz/basemaps/issues/893)) ([7d6acc7](https://github.com/linz/basemaps/commit/7d6acc7127ec6052999e6c50c7cae68bc512405e))
+* **landing:** improve accessiblity hide offscreen elements from tab ([#895](https://github.com/linz/basemaps/issues/895)) ([cd2d512](https://github.com/linz/basemaps/commit/cd2d512f6065f15c1424370f8f0c52ad28e9ec87))
+* **landing:** increase max zoom for nztm2000 to 18 ([#899](https://github.com/linz/basemaps/issues/899)) ([7e3c433](https://github.com/linz/basemaps/commit/7e3c43349b16ef641d26b6aab193d2cdb7a79783))
+
+
+
+
+
 # [4.0.0](https://github.com/linz/basemaps/compare/v3.6.0...v4.0.0) (2020-07-09)
 
 
