@@ -548,10 +548,10 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@cogeotiff/core@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.1.1.tgz#6d1a3a58625b8a33ee5ac360da0146f56a65a0a4"
-  integrity sha512-KjB8ky3s+PFR3pq92NET9vC/uiZ2jQw/MTOmgxz82VpdCcog7oZm3sBnlz7W+a7E7OCdFg8iGt8rjrpCaJTbzg==
+"@cogeotiff/core@^2.1.1", "@cogeotiff/core@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.2.0.tgz#5f28d79732c3aafdb8dc833a43d1314974138998"
+  integrity sha512-vI0I1axsgUnd2tIqDhVk/snfpq5cDaiLxNpjS0ovxroWPz12BepW5WLoLbINj/oIIrjgR8VjyxUY065kWrmZVQ==
   dependencies:
     ieee754 "^1.1.13"
 
@@ -564,11 +564,11 @@
     aws-sdk "^2.524.0"
 
 "@cogeotiff/source-file@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-2.1.1.tgz#ed6a21b460b214437243809c4be1a3f58a68005d"
-  integrity sha512-KF6FzbP/WWRAt0na18fAqbR89Bt4jDwwYBpO/GIV5/pg0tQBgj+6zVAH88ZUXOLxxh3XJdvuls56yW5n4RFUJA==
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-2.2.0.tgz#8d909c2f127fb8ab7a5f09a0b944018363b94117"
+  integrity sha512-UGV4jYNKG+TRqKkDHkZHHtsXaq0+eWEmhZ9JaxHdZjnTu87WOnFxDmb03pjXDuJ9selUUBOvcAi7fw6rtJLtFQ==
   dependencies:
-    "@cogeotiff/core" "^2.1.1"
+    "@cogeotiff/core" "^2.2.0"
 
 "@cogeotiff/source-url@^2.1.1":
   version "2.1.1"
