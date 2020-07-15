@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.1.0](https://github.com/linz/basemaps/compare/v4.0.0...v4.1.0) (2020-07-15)
+
+
+### Bug Fixes
+
+* **cli:** correct error message when failing to read ([#892](https://github.com/linz/basemaps/issues/892)) ([0e9c4c1](https://github.com/linz/basemaps/commit/0e9c4c10a06c5ab205cfc5285048a153e85a0cc9))
+* **cli:** Don't add cutline properties to CogJob when not used ([#914](https://github.com/linz/basemaps/issues/914)) ([1f860e9](https://github.com/linz/basemaps/commit/1f860e991f61abcb1cb1b15494bef2886eb04b1d))
+
+
+### Features
+
+* **cli:** Allow creation of one cog covering entire extent ([#920](https://github.com/linz/basemaps/issues/920)) ([2fd9187](https://github.com/linz/basemaps/commit/2fd918702e5cf25b12e24a3d72e694237e633a78))
+
+
+
+
+
 # [4.0.0](https://github.com/linz/basemaps/compare/v3.6.0...v4.0.0) (2020-07-09)
 
 

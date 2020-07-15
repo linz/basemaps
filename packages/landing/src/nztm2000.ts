@@ -1,5 +1,4 @@
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
-import { Extent } from 'ol/extent';
 import { register } from 'ol/proj/proj4';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import Proj from 'proj4';
@@ -20,18 +19,10 @@ for (let i = 0; i < 2; ++i) {
     resolutions.push(resolutions[resolutions.length - 1] / 2);
 }
 
-const { lowerCorner, upperCorner } = Nztm2000Tms.def.boundingBox;
-const extent: Extent = [
-    lowerCorner[Nztm2000Tms.indexX],
-    lowerCorner[Nztm2000Tms.indexY],
-    upperCorner[Nztm2000Tms.indexX],
-    upperCorner[Nztm2000Tms.indexY],
-];
-
 export const NztmOl = {
     resolutions,
     origin,
     matrixIds,
-    extent,
+    extent: Nztm2000Tms.extent.toBbox(),
     TileGrid: new WMTSTileGrid({ origin, resolutions, matrixIds }),
 };
