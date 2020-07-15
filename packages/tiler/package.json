@@ -12,10 +12,10 @@
   "dependencies": {
     "@basemaps/geo": "^4.1.0",
     "@basemaps/metrics": "^4.0.0",
-    "@cogeotiff/core": "^2.1.1"
+    "@cogeotiff/core": "^2.2.0"
   },
   "devDependencies": {
-    "@cogeotiff/source-file": "^2.1.1",
+    "@cogeotiff/source-file": "^2.2.0",
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
     "pixelmatch": "^5.1.0",
