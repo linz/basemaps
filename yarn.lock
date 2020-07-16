@@ -2016,16 +2016,16 @@ atomic-sleep@^1.0.0:
   resolved "https://registry.yarnpkg.com/atomic-sleep/-/atomic-sleep-1.0.0.tgz#eb85b77a601fc932cfe432c5acd364a9e2c9075b"
   integrity sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==
 
-audit-resolve-core@^1.1.7:
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/audit-resolve-core/-/audit-resolve-core-1.1.7.tgz#2c04141e45b7464b0f683e57f32aa93a6cf218d0"
-  integrity sha512-9nLm9SgyMbMv86X5a/E6spcu3V+suceHF6Pg4BwjPqfxWBKDvISagJH9Ji592KihqBev4guKFO3BiNEVNnqh3A==
+audit-resolve-core@^1.1.8:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/audit-resolve-core/-/audit-resolve-core-1.1.8.tgz#c430466f95d22f5de362d7694d96202ed063370e"
+  integrity sha512-F3IWaxu1Xw4OokmtG9hkmsKoJt8DQS7RZvot52zXHsANKvzFRMKVNTP1DAz1ztlRGmJx1XV16PcE+6m35bYoTA==
   dependencies:
     concat-stream "^1.6.2"
     debug "^4.1.1"
     djv "^2.1.2"
     spawn-shell "^2.1.0"
-    yargs-parser "^10.1.0"
+    yargs-parser "^18.1.3"
 
 aws-cdk@1.51.0:
   version "1.51.0"
@@ -3190,9 +3190,9 @@ es6-promisify@^5.0.0:
     es6-promise "^4.0.3"
 
 esbuild@^0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.6.2.tgz#8151be0d8783a778f85148cef46ecdf6aad08260"
-  integrity sha512-l4p1jJwLuRr+UMgCkdgQrSaU1fSmjRgZgx1ELjV+doGS3rLtzdCR17IfLxWEdGbtpYdrvvvRVlWYsYnFCcNaLw==
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.6.3.tgz#a957e22f2503c745793514388110f9b55b3a6f83"
+  integrity sha512-4lHgz/EvGLRQnDYzzrvW+eilaPHim5pCLz4mP0k0QIalD/n8Ji2NwQwoIa1uX+yKkbn9R/FAZvaEbodjx55rDg==
 
 escape-html@~1.0.3:
   version "1.0.3"
@@ -5344,18 +5344,18 @@ normalize-url@^3.3.0:
   integrity sha512-U+JJi7duF1o+u2pynbp2zXDW2/PADgC30f0GsHZtRh+HOcXHnw137TrNlyxxRvWW5fjKd3bcLHPxofWuCjaeZg==
 
 npm-audit-resolver@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/npm-audit-resolver/-/npm-audit-resolver-2.2.0.tgz#4091a33a47337cddfa8377edf1750fc40c42a0a1"
-  integrity sha512-nBhxrc0Y34vIFl38G42PkWSBEbOAL3Gg6aRxm1hYzM4Vm+Rv0ozALj2LixdeytkUC2OGWP4QqCF0fKAb14NnPQ==
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/npm-audit-resolver/-/npm-audit-resolver-2.2.1.tgz#e9a42c171d26b01d7aa75b38b404b9bcc8163f9b"
+  integrity sha512-9Jo5EdxREaXRrFm7eiuT1qu7fXKDfO+oiu+EgvJ/JCd2PIAgzVGF+xFoNK9AnyUsMFvSTdJM6+YlgUgF/N86GA==
   dependencies:
-    audit-resolve-core "^1.1.7"
+    audit-resolve-core "^1.1.8"
     chalk "^2.4.2"
     djv "^2.1.2"
     jsonlines "^0.1.1"
     read "^1.0.7"
     spawn-shell "^2.1.0"
-    yargs-parser "^13.1.1"
-    yargs-unparser "^1.5.0"
+    yargs-parser "^18.1.3"
+    yargs-unparser "^1.6.3"
 
 npm-bundled@^1.0.1:
   version "1.1.1"
@@ -7719,7 +7719,7 @@ yaml@^1.10.0:
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.0.tgz#3b593add944876077d4d683fee01081bd9fff31e"
   integrity sha512-yr2icI4glYaNG+KWONODapy2/jDdMSDnrONSjblABjD9B4Z5LgiircSt8m8sRZFNi08kG9Sm0uSHtEmP3zaEGg==
 
-yargs-parser@^10.0.0, yargs-parser@^10.1.0, yargs-parser@^13.1.1, yargs-parser@^15.0.0, yargs-parser@^15.0.1, yargs-parser@^18.1.1, yargs-parser@^18.1.2:
+yargs-parser@^10.0.0, yargs-parser@^15.0.0, yargs-parser@^15.0.1, yargs-parser@^18.1.1, yargs-parser@^18.1.2, yargs-parser@^18.1.3:
   version "18.1.3"
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-18.1.3.tgz#be68c4975c6b2abf469236b0c870362fab09a7b0"
   integrity sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==
@@ -7727,7 +7727,7 @@ yargs-parser@^10.0.0, yargs-parser@^10.1.0, yargs-parser@^13.1.1, yargs-parser@^
     camelcase "^5.0.0"
     decamelize "^1.2.0"
 
-yargs-unparser@^1.5.0:
+yargs-unparser@^1.6.3:
   version "1.6.3"
   resolved "https://registry.yarnpkg.com/yargs-unparser/-/yargs-unparser-1.6.3.tgz#7b939b45c5a8d5ffb7648341792feba0fdae8117"
   integrity sha512-xI32EGCq5mJiSCsQaEPLljD+R3Hq/VG08YGoLTOqu/gHAtCa2S4qPMG20ol4TpKWgSU7j3KMZHvSirNPK0DSjA==
