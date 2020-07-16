@@ -18,7 +18,7 @@
     "@types/node": "^13.9.8",
     "@types/ospec": "^4.0.2",
     "@typescript-eslint/eslint-plugin": "^2.3.2",
-    "@typescript-eslint/parser": "^2.3.2",
+    "@typescript-eslint/parser": "^3.6.1",
     "esbuild": "^0.6.2",
     "eslint": "^6.5.1",
     "eslint-config-prettier": "^6.3.0",
