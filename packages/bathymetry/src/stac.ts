@@ -10,7 +10,7 @@ import { Hash } from './hash';
 const packageJson = require('../package.json');
 
 function getCommitHash(): string {
-    return cp.execSync('git rev-parse HEAD').toString().trim();
+    return packageJson.gitHead ?? cp.execSync('git rev-parse HEAD').toString().trim();
 }
 
 /** Write some basic metadata about how the file was created*/
