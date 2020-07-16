@@ -1,4 +1,4 @@
-import { Bounds, Epsg, EpsgCode, GeoJson } from '@basemaps/geo';
+import { BoundingBox, Epsg, EpsgCode, GeoJson } from '@basemaps/geo';
 import { Position } from 'geojson';
 import Proj from 'proj4';
 import { NamedBounds } from '../aws/tile.metadata.base';
@@ -93,24 +93,39 @@ export class Projection {
         return this.projection.inverse;
     }
 
-    /** Convert a tile covering to a GeoJSON FeatureCollection */
-    toGeoJson(files: NamedBounds[]): GeoJSON.FeatureCollection {
+    /**
+     * Convert a source bounds to a WSG84 GeoJSON Feature
+
+     * @param bounds in source epsg
+     * @param properties any properties to include in the feature such as name
+     */
+    boundsToGeoJsonFeature(bounds: BoundingBox, properties = {}): GeoJSON.Feature {
         const { toWsg84 } = this;
-        const polygons: GeoJSON.Feature[] = [];
-        for (const bounds of files) {
-            const polygon = GeoJson.toFeaturePolygon(
-                [
-                    Bounds.fromJson(bounds)
-                        .toPolygon()[0]
-                        .map((p) => toWsg84(p)),
-                ],
-                {
-                    name: bounds.name,
-                },
-            );
-            polygons.push(polygon);
+        const sw = toWsg84([bounds.x, bounds.y]);
+        const se = toWsg84([bounds.x + bounds.width, bounds.y]);
+        const nw = toWsg84([bounds.x, bounds.y + bounds.height]);
+        const ne = toWsg84([bounds.x + bounds.width, bounds.y + bounds.height]);
+
+        if (sw[0] < se[0] && nw[0] < ne[0]) {
+            return GeoJson.toFeaturePolygon([[sw, nw, ne, se, sw]], properties);
         }
 
-        return GeoJson.toFeatureCollection(polygons);
+        // crosses antimeridian so need to split polygon at antimeridian
+
+        // calculate where antimeridian is at north and south bounds
+        const northFraction = (180 - nw[0]) / (ne[0] + 360 - nw[0]);
+        const southFraction = (180 - sw[0]) / (se[0] + 360 - sw[0]);
+        const n180 = toWsg84([bounds.x + bounds.width * northFraction, bounds.y + bounds.height])[1];
+        const s180 = toWsg84([bounds.x + bounds.width * southFraction, bounds.y])[1];
+
+        return GeoJson.toFeatureMultiPolygon(
+            [[[sw, [180, s180], [180, n180], nw, sw]], [[se, ne, [-180, n180], [-180, s180], se]]],
+            properties,
+        );
+    }
+
+    /** Convert a tile covering to a GeoJSON FeatureCollection */
+    toGeoJson(files: NamedBounds[]): GeoJSON.FeatureCollection {
+        return GeoJson.toFeatureCollection(files.map((f) => this.boundsToGeoJsonFeature(f, { name: f.name })));
     }
 }
