@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.2.0](https://github.com/linz/basemaps/compare/v4.1.0...v4.2.0) (2020-07-16)
+
+
+### Bug Fixes
+
+* **cli:** fix creating cutlines with self crossing edges ([#929](https://github.com/linz/basemaps/issues/929)) ([fc4010e](https://github.com/linz/basemaps/commit/fc4010e6c7dd6de1f99d29ae32e3ad8fa580c1b5))
+* **shared:** handle bounds crossing antimeridian ([#925](https://github.com/linz/basemaps/issues/925)) ([b4c049b](https://github.com/linz/basemaps/commit/b4c049bd816908214b145593f914054b84a9415e))
+
+
+### Features
+
+* **cli:** use CogSource uri property ([#928](https://github.com/linz/basemaps/issues/928)) ([11819bb](https://github.com/linz/basemaps/commit/11819bb3772d56634208018d963b8c276b52617c))
+
+
+
+
+
 # [4.1.0](https://github.com/linz/basemaps/compare/v4.0.0...v4.1.0) (2020-07-15)
 
 
