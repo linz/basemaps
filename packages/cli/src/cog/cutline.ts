@@ -173,7 +173,7 @@ export class Cutline {
         const { resZoom } = sourceMetadata;
         // Look for the biggest tile size we are allowed to create.
         let minZ = resZoom - 1;
-        while (minZ > 1 && this.targetPtms.getImagePixelWidth({ x: 0, y: 0, z: minZ }, resZoom) < MaxImagePixelWidth) {
+        while (minZ > 0 && this.targetPtms.getImagePixelWidth({ x: 0, y: 0, z: minZ }, resZoom) < MaxImagePixelWidth) {
             --minZ;
         }
         minZ = Math.max(1, minZ + 1);
