@@ -100,7 +100,6 @@ o.spec('cutline', () => {
 
     o.spec('optmize', async () => {
         const bounds = SourceTiffTestHelper.tiffNztmBounds();
-
         o('one-cog', () => {
             const cutline = new Cutline(nztmPtms, undefined, 0, true);
             const covering = cutline.optimizeCovering({
@@ -117,6 +116,46 @@ o.spec('cutline', () => {
                 height: 4086000,
                 name: '0-0-0',
             });
+        });
+
+        o('full-extent 3857', () => {
+            const cutline = new Cutline(googlePtms);
+            const covering = cutline.optimizeCovering({
+                projection: EpsgCode.Google,
+                bounds: [{ ...googlePtms.tms.extent, name: 'gebco' }],
+                resZoom: 5,
+            } as SourceMetadata);
+
+            o(round(covering, 4)).deepEquals([
+                {
+                    name: '1-0-0',
+                    x: -20037508.3428,
+                    y: 0,
+                    width: 20037508.3428,
+                    height: 20037508.3428,
+                },
+                {
+                    name: '1-0-1',
+                    x: -20037508.3428,
+                    y: -20037508.3428,
+                    width: 20037508.3428,
+                    height: 20037508.3428,
+                },
+                {
+                    name: '1-1-0',
+                    x: -0,
+                    y: 0,
+                    width: 20037508.3428,
+                    height: 20037508.3428,
+                },
+                {
+                    name: '1-1-1',
+                    x: -0,
+                    y: -20037508.3428,
+                    width: 20037508.3428,
+                    height: 20037508.3428,
+                },
+            ]);
         });
 
         o('nztm', () => {
