@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.3.0](https://github.com/linz/basemaps/compare/v4.2.0...v4.3.0) (2020-07-19)
+
+
+### Bug Fixes
+
+* **bathymetry:** allow bathy command to be run outside of git repo ([#930](https://github.com/linz/basemaps/issues/930)) ([a9a0e3d](https://github.com/linz/basemaps/commit/a9a0e3d4a98853d59cfa936357d1e435be6cfbf3))
+* **bathymetry:** output stac files into the same place as the tiffs ([#931](https://github.com/linz/basemaps/issues/931)) ([b67f907](https://github.com/linz/basemaps/commit/b67f90758a74b3ff2749a7801c83b03f51633226))
+* **cli:** allow gebco 3857 to be built in 4 COGs ([#940](https://github.com/linz/basemaps/issues/940)) ([dd98b57](https://github.com/linz/basemaps/commit/dd98b57e88744a73122d3ade146c1a57113fb958))
+
+
+### Features
+
+* **lambda-xyz:** log out api key used to request the tile ([#939](https://github.com/linz/basemaps/issues/939)) ([1eb9ff0](https://github.com/linz/basemaps/commit/1eb9ff0b90eebcd80e4fa69083d10eb9366623a8))
+
+
+
+
+
 # [4.2.0](https://github.com/linz/basemaps/compare/v4.1.0...v4.2.0) (2020-07-16)
 
 

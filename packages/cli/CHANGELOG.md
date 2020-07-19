@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.3.0](https://github.com/linz/basemaps/compare/v4.2.0...v4.3.0) (2020-07-19)
+
+
+### Bug Fixes
+
+* **cli:** allow gebco 3857 to be built in 4 COGs ([#940](https://github.com/linz/basemaps/issues/940)) ([dd98b57](https://github.com/linz/basemaps/commit/dd98b57e88744a73122d3ade146c1a57113fb958))
+
+
+
+
+
 # [4.2.0](https://github.com/linz/basemaps/compare/v4.1.0...v4.2.0) (2020-07-16)
 
 
