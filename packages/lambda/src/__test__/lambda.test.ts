@@ -18,7 +18,7 @@ o.spec('LambdaFunction', () => {
         const testFunc = LambdaFunction.wrap(asyncThrow, FakeLogger());
 
         const spy = o.spy();
-        await testFunc({} as any, null as any, spy);
+        await testFunc({ httpMethod: 'GET' } as any, null as any, spy);
         o(spy.calls.length).equals(1);
         const err = spy.args[0];
         const res = spy.args[1] as ALBResult;
@@ -39,7 +39,7 @@ o.spec('LambdaFunction', () => {
         const testFunc = LambdaFunction.wrap(asyncThrow, FakeLogger());
 
         const spy = o.spy();
-        await testFunc({ Records: [{ cf: { request: { headers: {} } } }] } as any, null as any, spy);
+        await testFunc({ Records: [{ cf: { request: { method: 'GET', headers: {} } } }] } as any, null as any, spy);
         o(spy.calls.length).equals(1);
         const err = spy.args[0];
         const res = spy.args[1] as CloudFrontResultResponse;
@@ -68,7 +68,7 @@ o.spec('LambdaFunction', () => {
         }, fakeLogger);
 
         const spy = o.spy();
-        await testFunc({} as any, null as any, spy);
+        await testFunc({ httpMethod: 'GET' } as any, null as any, spy);
         o(spy.calls.length).equals(1);
         o(spy.args[1]).deepEquals(LambdaContext.toAlbResponse(albOk));
 

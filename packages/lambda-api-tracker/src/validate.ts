@@ -6,16 +6,18 @@ export const ValidateRequest = {
      * Validate that a API Key is valid
      * @param apiKey API key to validate
      */
-    async validate(apiKey: string, ctx: LambdaContext): Promise<LambdaHttpResponse | null> {
+    async validate(ctx: LambdaContext): Promise<LambdaHttpResponse | null> {
         const timer = ctx.timer;
+
+        if (ctx.apiKey == null) return new LambdaHttpResponse(400, 'Invalid API Key');
+
         // TODO increment the api counter
         timer.start('validate:db');
-        const record = await Aws.apiKey.get(apiKey);
+        const record = await Aws.apiKey.get(ctx.apiKey);
         timer.end('validate:db');
 
-        if (record == null) {
-            return new LambdaHttpResponse(403, 'Invalid API Key');
-        }
+        if (record == null) return null; // Allow invalid keys for now
+
         ctx.log.info({ record }, 'Record');
 
         if (record.lockToIp != null) {

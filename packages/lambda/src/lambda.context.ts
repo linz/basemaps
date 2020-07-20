@@ -5,6 +5,7 @@ import { toAlbHeaders, toCloudFrontHeaders } from './lambda.aws';
 import * as qs from 'querystring';
 import { HttpHeader } from './header';
 import { LambdaHttpResponse } from './lambda.response';
+import { Const } from '@basemaps/shared';
 
 export interface ActionData {
     version: string;
@@ -50,7 +51,11 @@ export class LambdaContext {
         this.evt = evt;
         this.id = ulid.ulid();
         this.loadHeaders();
-        this.apiKey = this.header(HttpHeader.ApiKey);
+        const apiKey = this.query[Const.ApiKey.QueryString] ?? this.header(HttpHeader.ApiKey);
+        if (apiKey != null && !Array.isArray(apiKey)) {
+            this.apiKey = apiKey;
+            this.set(Const.ApiKey.QueryString, this.apiKey);
+        }
         this.correlationId = this.header(HttpHeader.CorrelationId) ?? ulid.ulid();
         this.set('correlationId', this.correlationId);
         this.log = logger.child({ id: this.id });
@@ -88,6 +93,7 @@ export class LambdaContext {
             return this.evt.queryStringParameters ?? {};
         }
         const query = this.evt.Records[0].cf.request.querystring;
+        if (query == null || query[0] == null) return {};
         return qs.decode(query[0] == '?' ? query.substr(1) : query);
     }
 

@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@basemaps/geo": "^4.1.0",
-    "@basemaps/lambda": "^4.0.0",
     "@basemaps/metrics": "^4.0.0",
     "@basemaps/tiler": "^4.2.0",
     "aws-sdk": "^2.508.0",

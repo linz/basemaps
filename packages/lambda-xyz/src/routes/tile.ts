@@ -79,6 +79,8 @@ export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
 
     const { x, y, z, ext } = xyzData;
     req.set('xyz', { x, y, z });
+    req.set('projection', xyzData.projection.code);
+    req.set('extension', ext);
     if (z > tiler.tms.maxZoom) return new LambdaHttpResponse(404, `Zoom not found : ${z}`);
 
     const latLon = ProjectionTileMatrixSet.get(xyzData.projection.code).tileCenterToLatLon(xyzData);
