@@ -24,6 +24,6 @@
     "@basemaps/lambda-api-tracker": "^4.2.0",
     "@basemaps/lambda-xyz": "^4.3.0",
     "@basemaps/shared": "^4.2.0",
-    "aws-cdk": "1.51.0"
+    "aws-cdk": "1.52.0"
   }
 }
