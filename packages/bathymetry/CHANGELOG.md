@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.3.0](https://github.com/linz/basemaps/compare/v4.2.0...v4.3.0) (2020-07-19)
+
+
+### Bug Fixes
+
+* **bathymetry:** allow bathy command to be run outside of git repo ([#930](https://github.com/linz/basemaps/issues/930)) ([a9a0e3d](https://github.com/linz/basemaps/commit/a9a0e3d4a98853d59cfa936357d1e435be6cfbf3))
+* **bathymetry:** output stac files into the same place as the tiffs ([#931](https://github.com/linz/basemaps/issues/931)) ([b67f907](https://github.com/linz/basemaps/commit/b67f90758a74b3ff2749a7801c83b03f51633226))
+
+
+
+
+
 # [4.2.0](https://github.com/linz/basemaps/compare/v4.1.0...v4.2.0) (2020-07-16)
 
 
