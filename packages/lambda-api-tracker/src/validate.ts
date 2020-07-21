@@ -1,7 +1,29 @@
 import { Aws, Const } from '@basemaps/shared';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import * as ulid from 'ulid';
+
+const OneHourMs = 60 * 60 * 1000;
+const OneDayMs = 24 * OneHourMs;
+const MaxApiAgeMs = 91 * OneDayMs;
 
 export const ValidateRequest = {
+    /** Validate that the API key is in a correct format */
+    isValidApiKey(apiKey: string): boolean {
+        if (!apiKey.startsWith('c') && !apiKey.startsWith('d')) return false;
+        const ulidId = apiKey.slice(1).toUpperCase();
+        try {
+            const ulidTime = ulid.decodeTime(ulidId);
+            if (apiKey.startsWith('d')) return true;
+
+            if (Date.now() - ulidTime > MaxApiAgeMs) {
+                return false;
+            }
+        } catch (e) {
+            return false;
+        }
+
+        return true;
+    },
     /**
      * Validate that a API Key is valid
      * @param apiKey API key to validate
@@ -11,14 +33,16 @@ export const ValidateRequest = {
 
         if (ctx.apiKey == null) return new LambdaHttpResponse(400, 'Invalid API Key');
 
+        if (!ValidateRequest.isValidApiKey(ctx.apiKey)) {
+            return new LambdaHttpResponse(400, 'Invalid API Key');
+        }
+
         // TODO increment the api counter
         timer.start('validate:db');
         const record = await Aws.apiKey.get(ctx.apiKey);
         timer.end('validate:db');
 
         if (record == null) return null; // Allow invalid keys for now
-
-        ctx.log.info({ record }, 'Record');
 
         if (record.lockToIp != null) {
             // TODO lock ip
