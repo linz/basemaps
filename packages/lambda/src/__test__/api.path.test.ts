@@ -1,9 +1,8 @@
 import { Epsg } from '@basemaps/geo';
-import o from 'ospec';
-import { tileFromPath, TileType } from '../api.path';
-import { LambdaContext } from '@basemaps/lambda';
+import { LogConfig, tileFromPath, TileType } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
-import { LogConfig } from '../log';
+import o from 'ospec';
+import { LambdaContext } from '../lambda.context';
 
 o.spec('api.path', () => {
     function makeContext(path: string): LambdaContext {

@@ -85,9 +85,7 @@ o.spec('LambdaXyz', () => {
             o(z).equals(0);
 
             // Validate the session information has been set correctly
-            o(request.logContext['path']).equals(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`);
             o(request.logContext['tileSet']).equals(tileSetName);
-            o(request.logContext['method']).equals('get');
             o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
             o(round(request.logContext['location'])).deepEquals({ lat: 0, lon: 0 });
         });
@@ -109,8 +107,6 @@ o.spec('LambdaXyz', () => {
         o(z).equals(0);
 
         // Validate the session information has been set correctly
-        o(request.logContext['path']).equals('/v1/tiles/aerial/3857/0/0/0.webp');
-        o(request.logContext['method']).equals('get');
         o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
         o(round(request.logContext['location'])).deepEquals({ lat: 0, lon: 0 });
     });

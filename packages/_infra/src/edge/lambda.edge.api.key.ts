@@ -3,6 +3,8 @@ import iam = require('@aws-cdk/aws-iam');
 import lambda = require('@aws-cdk/aws-lambda');
 import { RetentionDays } from '@aws-cdk/aws-logs';
 import { ApiKeyTableArn } from '../api.key.db';
+import { VersionUtil } from '../version';
+import { Env } from '@basemaps/shared';
 
 const CODE_PATH = '../lambda-api-tracker/dist';
 /**
@@ -10,6 +12,7 @@ const CODE_PATH = '../lambda-api-tracker/dist';
  */
 export class LambdaApiKeyValidator extends cdk.Construct {
     public lambda: lambda.Function;
+    public version: lambda.Version;
 
     public constructor(scope: cdk.Stack, id: string) {
         super(scope, id);
@@ -23,15 +26,22 @@ export class LambdaApiKeyValidator extends cdk.Construct {
             managedPolicies: [{ managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole' }],
         });
 
+        const version = VersionUtil.version();
+
         this.lambda = new lambda.Function(this, 'ApiValidatorFunction', {
             runtime: lambda.Runtime.NODEJS_10_X,
             handler: 'index.handler',
             code: lambda.Code.asset(CODE_PATH),
             role: lambdaRole,
             logRetention: RetentionDays.ONE_MONTH,
-            // Lambda@Edge only allows 128mb of ram
-            memorySize: 128,
+            environment: {
+                [Env.NodeEnv]: Env.get(Env.NodeEnv, 'dev'),
+                [Env.Hash]: version.hash,
+                [Env.Version]: version.version,
+            },
         });
+
+        this.version = this.lambda.addVersion(version.hash);
 
         // Allow access to all dynamoDb tables with the same name
         const dynamoPolicy = new iam.PolicyStatement();
