@@ -1,5 +1,5 @@
 import pLimit from 'p-limit';
-import { Env, LogConfig } from '@basemaps/shared';
+import { Env, LogConfig, TileSetName } from '@basemaps/shared';
 import { TileSet } from '../tile.set';
 import { Epsg } from '@basemaps/geo';
 import { CogTiff } from '@cogeotiff/core';
@@ -11,7 +11,7 @@ const Q = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
  * CLI to iterate over all imagery sets that have been defined and determine if all the COGS are present and optimized
  */
 async function main(): Promise<void> {
-    const tileSet = new TileSet('aerial', Epsg.Google);
+    const tileSet = new TileSet(TileSetName.aerial, Epsg.Google);
     await tileSet.load();
 
     let errorCount = 0;

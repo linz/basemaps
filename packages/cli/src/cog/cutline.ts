@@ -67,7 +67,7 @@ export class Cutline {
 
      * @param clipPoly the optional cutline. The source imagery outline used by default. This
      * `FeatureCollection` is converted to one `MultiPolygon` with any holes removed and the
-     * coordinates transposed from `Wsg84` to the target projection (unless already in target projection).
+     * coordinates transposed from `Wgs84` to the target projection (unless already in target projection).
 
      * @param blend How much blending to consider when working out boundaries.
      */
@@ -86,7 +86,7 @@ export class Cutline {
         if (needProj && proj !== Epsg.Wgs84) {
             throw new Error('Invalid geojson; CRS may not be set for cutline!');
         }
-        const convert = needProj ? this.targetPtms.proj.fromWsg84 : copyPoint;
+        const convert = needProj ? this.targetPtms.proj.fromWgs84 : copyPoint;
         for (const { geometry } of clipPoly.features) {
             if (geometry.type === 'MultiPolygon') {
                 for (const coords of geometry.coordinates) {
