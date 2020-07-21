@@ -49,8 +49,9 @@ export class EdgeStack extends cdk.Stack {
                         queryString: true,
                         queryStringCacheKeys: ['NOT_A_CACHE_KEY'],
                     },
-                    // TODO track API keys with viewer requests
-                    // lambdaFunctionAssociations: [lambdaViewerRequest],
+                    lambdaFunctionAssociations: [
+                        { eventType: cf.LambdaEdgeEventType.VIEWER_REQUEST, lambdaFunction: this.lambda.version },
+                    ],
                 },
             ],
         };
