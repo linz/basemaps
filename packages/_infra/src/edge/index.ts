@@ -77,6 +77,7 @@ export class EdgeStack extends cdk.Stack {
             httpVersion: cf.HttpVersion.HTTP2,
             viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
             originConfigs: [s3Source, tileSource],
+            loggingConfig: { bucket: new s3.Bucket(this, 'EdgeLogBucket') },
         });
 
         new cdk.CfnOutput(this, 'CloudFrontBucket', { value: s3BucketSource.bucketName });
