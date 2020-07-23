@@ -11,7 +11,7 @@
     "deploy:deploy": "cdk deploy '*' -y --require-approval never"
   },
   "devDependencies": {
-    "@aws-cdk/aws-batch": "1.51.0",
+    "@aws-cdk/aws-batch": "1.54.0",
     "@aws-cdk/aws-certificatemanager": "1.51.0",
     "@aws-cdk/aws-cloudfront": "1.51.0",
     "@aws-cdk/aws-dynamodb": "1.51.0",
