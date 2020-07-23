@@ -19,7 +19,7 @@
     "@aws-cdk/aws-ecr-assets": "1.51.0",
     "@aws-cdk/aws-elasticloadbalancingv2": "1.51.0",
     "@aws-cdk/aws-elasticloadbalancingv2-targets": "1.51.0",
-    "@aws-cdk/aws-s3": "1.51.0",
+    "@aws-cdk/aws-s3": "1.54.0",
     "@aws-cdk/core": "1.51.0",
     "@basemaps/lambda-api-tracker": "^4.2.0",
     "@basemaps/lambda-xyz": "^4.3.0",
