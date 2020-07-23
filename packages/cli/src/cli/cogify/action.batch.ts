@@ -169,7 +169,7 @@ export class ActionBatchJob extends CommandLineAction {
         const job = (await FileOperator.create(jobPath).readJson(jobPath)) as CogJob;
         LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
 
-        const region = Env.get('AWS_DEFAULT_REGION', 'ap-southeast-2');
+        const region = Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';
         const batch = new aws.Batch({ region });
 
         const outputFs = FileOperator.create(job.output);

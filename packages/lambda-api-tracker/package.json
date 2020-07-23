@@ -12,10 +12,15 @@
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
-    "deploy:bundle": "esbuild --bundle --platform=node src/index.ts --external:aws-sdk --external:pino-pretty --target=es2018 --outdir=dist --format=cjs"
+    "bundle": "../../scripts/bundle.js package.json"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",
     "@types/node": "^13.9.8"
+  },
+  "bundle": {
+    "entry": "src/index.ts",
+    "outdir": "dist/",
+    "external": ["aws-sdk", "pino-pretty"]
   }
 }

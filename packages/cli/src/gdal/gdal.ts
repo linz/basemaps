@@ -11,9 +11,7 @@ export class Gdal {
      * @see Env.Gdal.UseDocker
      */
     static create(): GdalCommand {
-        if (Env.get(Env.Gdal.UseDocker, undefined)) {
-            return new GdalDocker();
-        }
+        if (Env.get(Env.Gdal.UseDocker)) return new GdalDocker();
         return new GdalLocal();
     }
 

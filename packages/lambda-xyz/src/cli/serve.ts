@@ -84,7 +84,7 @@ async function main(): Promise<void> {
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
 
-        const xml = WmtsCapabilities.toXml(Env.get(Env.PublicUrlBase), Provider, [...TileSets.values()]);
+        const xml = WmtsCapabilities.toXml(Env.get(Env.PublicUrlBase) ?? '', Provider, [...TileSets.values()]);
         res.header('content-type', 'application/xml');
         res.send(xml);
         res.end();

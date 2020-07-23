@@ -28,7 +28,8 @@
     "ospec": "^4.0.1",
     "prettier": "^2.0.2",
     "rimraf": "^3.0.0",
-    "typescript": "^3.9.2"
+    "typescript": "^3.9.2",
+    "zod": "^1.10.1"
   },
   "workspaces": [
     "packages/*"
