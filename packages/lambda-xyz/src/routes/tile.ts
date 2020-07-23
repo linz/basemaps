@@ -130,7 +130,7 @@ export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
 export async function wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<LambdaHttpResponse> {
     const response = new LambdaHttpResponse(200, 'ok');
 
-    const host = Env.get(Env.PublicUrlBase);
+    const host = Env.get(Env.PublicUrlBase) ?? '';
 
     // TODO when we support more than one projection
     const tileSet = await loadTileSet(req, wmtsData.name, wmtsData.projection ?? Epsg.Google);

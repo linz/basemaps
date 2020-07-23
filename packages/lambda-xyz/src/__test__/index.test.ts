@@ -1,5 +1,5 @@
-import { Env, LogConfig } from '@basemaps/shared';
 import { LambdaContext } from '@basemaps/lambda';
+import { LogConfig } from '@basemaps/shared';
 import o from 'ospec';
 import { handleRequest } from '../index';
 
@@ -24,16 +24,16 @@ o.spec('LambdaXyz index', () => {
     });
 
     o.spec('version', () => {
-        const origVersion: any = process.env[Env.Version];
-        const origHash: any = process.env[Env.Hash];
+        const origVersion: any = process.env.GIT_VERSION;
+        const origHash: any = process.env.GIT_HASH;
         o.after(() => {
-            process.env[Env.Version] = origVersion;
-            process.env[Env.Hash] = origHash;
+            process.env.GIT_VERSION = origVersion;
+            process.env.GIT_HASH = origHash;
         });
 
         o('should return version', async () => {
-            process.env[Env.Version] = '1.2.3';
-            process.env[Env.Hash] = 'abc456';
+            process.env.GIT_VERSION = '1.2.3';
+            process.env.GIT_HASH = 'abc456';
 
             const response: any = await handleRequest(req('/version'));
 

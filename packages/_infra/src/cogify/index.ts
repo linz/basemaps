@@ -4,10 +4,9 @@ import batch = require('@aws-cdk/aws-batch');
 import ec2 = require('@aws-cdk/aws-ec2');
 import ecrAssets = require('@aws-cdk/aws-ecr-assets');
 import { Env } from '@basemaps/shared';
-import { ScratchData } from './mount.folder';
 import { createHash } from 'crypto';
 import { TileMetadataTableArn } from '../serve/db';
-import { VersionUtil } from '../version';
+import { ScratchData } from './mount.folder';
 
 /**
  * Cogification infrastructure
@@ -128,7 +127,6 @@ export class CogBuilderStack extends cdk.Stack {
             },
         });
 
-        const version = VersionUtil.version();
         new batch.CfnJobDefinition(this, 'CogBatchJobDef', {
             jobDefinitionName: 'CogBatchJob',
             type: 'container',
@@ -148,11 +146,7 @@ export class CogBuilderStack extends cdk.Stack {
                  * Eg a instance with 8192MB allocates 7953MB usable
                  */
                 memory: 3900,
-                environment: [
-                    { name: Env.TempFolder, value: ScratchData.Folder },
-                    { name: Env.Hash, value: version.hash },
-                    { name: Env.Version, value: version.version },
-                ],
+                environment: [{ name: Env.TempFolder, value: ScratchData.Folder }],
                 mountPoints: [{ containerPath: ScratchData.Folder, sourceVolume: 'scratch' }],
                 volumes: [{ name: 'scratch', host: { sourcePath: ScratchData.Folder } }],
             },

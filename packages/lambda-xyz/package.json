@@ -16,9 +16,14 @@
     "path-to-regexp": "^6.1.0",
     "sharp": "^0.25.2"
   },
+  "bundle": {
+    "entry": "src/index.ts",
+    "outdir": "dist/",
+    "external": ["aws-sdk", "pino-pretty", "sharp"]
+  },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
-    "deploy:bundle": "./bundle.sh"
+    "bundle": "./bundle.sh"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",

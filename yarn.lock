@@ -7859,3 +7859,8 @@ zip-stream@^3.0.1:
     archiver-utils "^2.1.0"
     compress-commons "^3.0.0"
     readable-stream "^3.6.0"
+
+zod@^1.10.1:
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-1.10.1.tgz#dce69b7574a87f86b9672af018d75652085eb1c2"
+  integrity sha512-EW+91y/Tl3atue4ancfbf09zC4lcv1QIiwW9ortV1+R/ccW6sOiMkAqGBxCcAyUP0ecnsJKWGHSYOPGJivX/1A==
