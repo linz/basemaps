@@ -1,4 +1,4 @@
-import { BoundingBox, Epsg, EpsgCode, GeoJson } from '@basemaps/geo';
+import { BoundingBox, Epsg, EpsgCode, GeoJson, Bounds } from '@basemaps/geo';
 import { Position } from 'geojson';
 import Proj from 'proj4';
 import { NamedBounds } from '../aws/tile.metadata.base';
@@ -14,7 +14,7 @@ const CodeMap = new Map<EpsgCode, Projection>();
 export class Projection {
     epsg: Epsg;
 
-    /** Transform coordinates to and from Wsg84 */
+    /** Transform coordinates to and from Wgs84 */
     private projection: proj4.Converter;
 
     /**
@@ -73,24 +73,33 @@ export class Projection {
     projectMultipolygon(multipoly: Position[][][], targetProjection: Projection): Position[][][] {
         if (targetProjection.epsg.code === this.epsg.code) return multipoly;
 
-        const { toWsg84 } = this;
-        const { fromWsg84 } = targetProjection;
+        const { toWgs84 } = this;
+        const { fromWgs84 } = targetProjection;
 
-        return multipoly.map((poly) => poly.map((ring) => ring.map((p) => fromWsg84(toWsg84(p)))));
+        return multipoly.map((poly) => poly.map((ring) => ring.map((p) => fromWgs84(toWgs84(p)))));
     }
 
     /**
      * Convert source `[x, y]` coordinates to `[lon, lat]`
      */
-    get toWsg84(): (coordinates: Position) => Position {
+    get toWgs84(): (coordinates: Position) => Position {
         return this.projection.forward;
     }
 
     /**
      * Convert `[lon, lat]` coordinates to source `[x, y]`
      */
-    get fromWsg84(): (coordinates: Position) => Position {
+    get fromWgs84(): (coordinates: Position) => Position {
         return this.projection.inverse;
+    }
+
+    boundsToWgs84(source: Bounds): Bounds {
+        const sw = this.toWgs84([source.x, source.y]);
+        const ne = this.toWgs84([source.right, source.bottom]);
+
+        const width = ne[0] - sw[0];
+
+        return new Bounds(sw[0], sw[1], width < 0 ? width + 360 : width, ne[1] - sw[1]);
     }
 
     /**
@@ -100,11 +109,11 @@ export class Projection {
      * @param properties any properties to include in the feature such as name
      */
     boundsToGeoJsonFeature(bounds: BoundingBox, properties = {}): GeoJSON.Feature {
-        const { toWsg84 } = this;
-        const sw = toWsg84([bounds.x, bounds.y]);
-        const se = toWsg84([bounds.x + bounds.width, bounds.y]);
-        const nw = toWsg84([bounds.x, bounds.y + bounds.height]);
-        const ne = toWsg84([bounds.x + bounds.width, bounds.y + bounds.height]);
+        const { toWgs84 } = this;
+        const sw = toWgs84([bounds.x, bounds.y]);
+        const se = toWgs84([bounds.x + bounds.width, bounds.y]);
+        const nw = toWgs84([bounds.x, bounds.y + bounds.height]);
+        const ne = toWgs84([bounds.x + bounds.width, bounds.y + bounds.height]);
 
         if (sw[0] < se[0] && nw[0] < ne[0]) {
             return GeoJson.toFeaturePolygon([[sw, nw, ne, se, sw]], properties);
@@ -115,8 +124,8 @@ export class Projection {
         // calculate where antimeridian is at north and south bounds
         const northFraction = (180 - nw[0]) / (ne[0] + 360 - nw[0]);
         const southFraction = (180 - sw[0]) / (se[0] + 360 - sw[0]);
-        const n180 = toWsg84([bounds.x + bounds.width * northFraction, bounds.y + bounds.height])[1];
-        const s180 = toWsg84([bounds.x + bounds.width * southFraction, bounds.y])[1];
+        const n180 = toWgs84([bounds.x + bounds.width * northFraction, bounds.y + bounds.height])[1];
+        const s180 = toWgs84([bounds.x + bounds.width * southFraction, bounds.y])[1];
 
         return GeoJson.toFeatureMultiPolygon(
             [[[sw, [180, s180], [180, n180], nw, sw]], [[se, ne, [-180, n180], [-180, s180], se]]],

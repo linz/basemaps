@@ -6,6 +6,7 @@ import { Const } from '../../const';
 import { qkToNamedBounds } from '../../proj/__test__/test.util';
 import { TileMetadataTable } from '../tile.metadata';
 import { TileMetadataImageRule, TileMetadataImageryRecordV1, TileMetadataSetRecord } from '../tile.metadata.base';
+import { TileSetName } from '../../proj/tile.set.name';
 
 const { marshall } = AWS.DynamoDB.Converter;
 
@@ -114,7 +115,7 @@ o.spec('tile.metadata.table', () => {
             id: 'ts_aerial_3857',
             version: 0,
             imagery: genMap(rules.values()),
-            name: 'aerial',
+            name: TileSetName.aerial,
             projection: Epsg.Google.code,
         } as TileMetadataSetRecord;
 
@@ -160,7 +161,7 @@ o.spec('tile.metadata.table', () => {
                 id: 'ts_aerial_3857',
                 version: 0,
                 imagery: genMap(genRules(5)),
-                name: 'aerial',
+                name: TileSetName.aerial,
                 projection: Epsg.Google.code,
             });
         } catch (_err) {
@@ -209,7 +210,7 @@ o.spec('tile.metadata.table', () => {
             id: 'ts_aerial_3857',
             version: 0,
             imagery: genMap(genRules(202)),
-            name: 'aerial',
+            name: TileSetName.aerial,
             projection: Epsg.Google.code,
         } as TileMetadataSetRecord;
 

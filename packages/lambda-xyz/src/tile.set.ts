@@ -6,6 +6,7 @@ import {
     TileMetadataSetRecord,
     TileMetadataTag,
     TileSetRuleImagery,
+    ProjectionTileMatrixSet,
 } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
@@ -14,9 +15,11 @@ export class TileSet {
     name: string;
     tag: TileMetadataTag;
     projection: Epsg;
-    protected tileSet: TileMetadataSetRecord;
+    tileSet: TileMetadataSetRecord;
     imagery: TileSetRuleImagery[];
     sources: Map<string, CogTiff> = new Map();
+    titleOverride: string;
+    extentOverride: Bounds;
 
     /**
      * Return the location of a imagery `record`
@@ -54,11 +57,15 @@ export class TileSet {
     }
 
     get title(): string {
-        return this.tileSet.title ?? this.name;
+        return this.titleOverride ?? this.tileSet.title ?? this.name;
     }
 
     get description(): string {
         return this.tileSet.description ?? '';
+    }
+
+    get extent(): Bounds {
+        return this.extentOverride ?? ProjectionTileMatrixSet.get(this.projection.code).tms.extent;
     }
 
     async load(): Promise<boolean> {

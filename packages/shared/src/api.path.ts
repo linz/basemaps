@@ -1,6 +1,6 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, Tile } from '@basemaps/geo';
 import { getImageFormat, ImageFormat } from '@basemaps/tiler';
-import { Tile } from '@basemaps/geo';
+import { ProjectionTileMatrixSet } from './proj/projection.tile.matrix.set';
 
 export interface ActionData {
     version: string;
@@ -29,9 +29,17 @@ export interface TileDataWmts {
     projection: Epsg | null;
 }
 
+function parseTargetEpsg(text: string): Epsg | null {
+    const projection = Epsg.parse(text);
+    if (projection == null || !Array.from(ProjectionTileMatrixSet.targetCodes()).includes(projection.code)) {
+        return null;
+    }
+    return projection;
+}
+
 function tileXyzFromPath(path: string[]): TileData | null {
     const name = path[0];
-    const projection = Epsg.parse(path[1]);
+    const projection = parseTargetEpsg(path[1]);
     if (projection == null) return null;
     const z = parseInt(path[2], 10);
     const x = parseInt(path[3], 10);
@@ -59,10 +67,10 @@ function tileWmtsFromPath(path: string[]): TileData | null {
     if (path.length > 3) return null;
     if (path[path.length - 1] != 'WMTSCapabilities.xml') return null;
 
-    const name = path[0];
+    const name = path.length == 1 ? '' : path[0];
     let projection = null;
     if (path.length == 3) {
-        projection = Epsg.parse(path[1]);
+        projection = parseTargetEpsg(path[1]);
         if (projection == null) return null;
     }
 

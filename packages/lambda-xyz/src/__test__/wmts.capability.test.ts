@@ -1,9 +1,10 @@
-import { Epsg } from '@basemaps/geo';
-import { V, VNodeElement } from '@basemaps/shared';
+import { Epsg, Bounds } from '@basemaps/geo';
+import { V, VNodeElement, TileSetName } from '@basemaps/shared';
 import { createHash } from 'crypto';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability';
 import { Provider, FakeTileSet } from './xyz.util';
+import { roundString } from '@basemaps/test/build/rounding';
 
 function tags(node: VNodeElement | null | undefined, tag: string): VNodeElement[] {
     if (node == null) return [];
@@ -15,7 +16,7 @@ function listTag(node: VNodeElement | null | undefined, tag: string): string[] {
 
 o.spec('WmtsCapabilities', () => {
     const apiKey = 'secret1234';
-    const tileSet = new FakeTileSet('aerial', Epsg.Google);
+    const tileSet = new FakeTileSet(TileSetName.aerial, Epsg.Google);
     const tileSetImagery = new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Epsg.Google);
 
     o('should build capability xml for tileset and projection', () => {
@@ -28,30 +29,29 @@ o.spec('WmtsCapabilities', () => {
         o(serviceId?.find('ows:Title')?.textContent).equals('the title');
 
         o(raw?.find('TileMatrixSetLink')?.toString()).deepEquals(
-            V('TileMatrixSetLink', [V('TileMatrixSet', 'WebMercatorQuad')]).toString(),
+            V('TileMatrixSetLink', [V('TileMatrixSet', 'EPSG:3857')]).toString(),
         );
 
         const layer = raw?.find('Contents', 'Layer');
 
         o(listTag(layer, 'Format')).deepEquals([
-            V('Format', 'image/png').toString(),
-            V('Format', 'image/webp').toString(),
             V('Format', 'image/jpeg').toString(),
+            V('Format', 'image/webp').toString(),
+            V('Format', 'image/png').toString(),
         ]);
-
-        // FIXME I dont think this this really needed? we will need to reproject to get these values
-        // o(listTag(layer, 'ows:WGS84BoundingBox')).deepEquals([
-        //     '<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84">\n' +
-        //         '  <ows:LowerCorner>-180 -85.0511287798066</ows:LowerCorner>\n' +
-        //         '  <ows:UpperCorner>180 85.0511287798066</ows:UpperCorner>\n' +
-        //         '</ows:WGS84BoundingBox>',
-        // ]);
 
         o(listTag(layer, 'ows:BoundingBox')).deepEquals([
             V('ows:BoundingBox', { crs: Epsg.Google.toUrn() }, [
                 V('ows:LowerCorner', '-20037508.3427892 -20037508.3427892'),
                 V('ows:UpperCorner', '20037508.3427892 20037508.3427892'),
             ]).toString(),
+        ]);
+
+        o(listTag(layer, 'ows:WGS84BoundingBox').map((s) => roundString(s, 4))).deepEquals([
+            '<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84">\n' +
+                '  <ows:LowerCorner>-180 -85.0511</ows:LowerCorner>\n' +
+                '  <ows:UpperCorner>180 85.0511</ows:UpperCorner>\n' +
+                '</ows:WGS84BoundingBox>',
         ]);
 
         o(layer?.find('ows:Abstract')?.textContent).equals('aerial:description');
@@ -67,20 +67,20 @@ o.spec('WmtsCapabilities', () => {
 
         const urls = tags(layer, 'ResourceURL');
         o(urls.length).equals(3);
-        o(urls[0].toString()).deepEquals(
+        o(urls[2].toString()).deepEquals(
             '<ResourceURL format="image/png" resourceType="tile" ' +
-                'template="https://basemaps.test/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234" />',
+                'template="https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234" />',
         );
 
-        o(layer?.find('TileMatrixSetLink', 'TileMatrixSet')?.textContent).equals('WebMercatorQuad');
+        o(layer?.find('TileMatrixSetLink', 'TileMatrixSet')?.textContent).equals('EPSG:3857');
 
         const matrix = tags(raw, 'TileMatrixSet')[1];
         const matrixId = raw?.find('Contents', 'TileMatrixSet', 'ows:Identifier') ?? null;
         o(matrix.find('ows:Identifier')).equals(matrixId);
-        o(matrixId?.textContent).equals('WebMercatorQuad');
+        o(matrixId?.textContent).equals('EPSG:3857');
 
         o(matrix.find('ows:SupportedCRS')?.textContent).deepEquals('urn:ogc:def:crs:EPSG::3857');
-        o(matrix.find('ows:WellKnownScaleSet')?.textContent).deepEquals(
+        o(matrix.find('WellKnownScaleSet')?.textContent).deepEquals(
             'https://www.opengis.net/def/wkss/OGC/1.0/GoogleMapsCompatible',
         );
 
@@ -108,12 +108,12 @@ o.spec('WmtsCapabilities', () => {
         o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            'Jb0YZ9kwXq+0+YygsscxgozM9xZDZfCR4zD0K3x3v20=',
+            'LeUIcNjN/lFznAoFvrDzOh9uBbxC7nn+bcbKD9FogoA=',
         );
     });
 
     o('should return null if not found', () => {
-        const ts = new FakeTileSet('aerial', { code: 9999 } as Epsg);
+        const ts = new FakeTileSet(TileSetName.aerial, { code: 9999 } as Epsg);
         o(() => WmtsCapabilities.toXml('basemaps.test', Provider, [ts])).throws('Invalid projection: 9999');
     });
 
@@ -122,43 +122,66 @@ o.spec('WmtsCapabilities', () => {
 
         const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
 
-        o(tms?.textContent).equals('WebMercatorQuad');
+        o(tms?.textContent).equals('EPSG:3857');
 
         const urls = Array.from(raw ? raw.tags('ResourceURL') : []);
         o(urls.length).equals(3);
-        o(urls[0].toString()).deepEquals(
+        o(urls[2].toString()).deepEquals(
             '<ResourceURL format="image/png" resourceType="tile" ' +
-                'template="https://basemaps.test/v1/tiles/01E7PJFR9AMQFJ05X9G7FQ3XMW/3857/{TileMatrix}/{TileCol}/{TileRow}.png" />',
+                'template="https://basemaps.test/v1/tiles/01E7PJFR9AMQFJ05X9G7FQ3XMW/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png" />',
         );
     });
 
     o('should support multiple projections', () => {
-        const ts = [new FakeTileSet('aerial', Epsg.Nztm2000), new FakeTileSet('aerial', Epsg.Google)];
+        const ts = [
+            new FakeTileSet(TileSetName.aerial, Epsg.Nztm2000),
+            new FakeTileSet(TileSetName.aerial, Epsg.Google),
+        ];
         const xml = new WmtsCapabilities('basemaps.test', Provider, ts);
         const nodes = xml.toVNode();
 
         const layers = tags(nodes, 'Layer');
         o(layers.length).equals(1);
         const layer = layers[0];
+
+        // ensure order is valid
+        o(layer?.children.map((c) => (c instanceof VNodeElement ? c.tag : null))).deepEquals([
+            'ows:Title',
+            'ows:Abstract',
+            'ows:Identifier',
+            'ows:BoundingBox',
+            'ows:BoundingBox',
+            'ows:WGS84BoundingBox',
+            'Style',
+            'Format',
+            'Format',
+            'Format',
+            'TileMatrixSetLink',
+            'TileMatrixSetLink',
+            'ResourceURL',
+            'ResourceURL',
+            'ResourceURL',
+        ]);
+
         const sets = tags(layer, 'TileMatrixSet');
 
         o(sets.length).equals(2);
-        o(sets[0].toString()).equals('<TileMatrixSet>NZTM2000</TileMatrixSet>');
-        o(sets[1].toString()).equals('<TileMatrixSet>WebMercatorQuad</TileMatrixSet>');
+        o(sets[0].toString()).equals('<TileMatrixSet>EPSG:2193</TileMatrixSet>');
+        o(sets[1].toString()).equals('<TileMatrixSet>EPSG:3857</TileMatrixSet>');
 
         const tms = tags(nodes, 'TileMatrixSet').filter((f) => f.find('ows:SupportedCRS') != null);
         o(tms.length).equals(2);
 
-        o(tms[0].find('ows:Identifier')?.textContent).equals('NZTM2000');
+        o(tms[0].find('ows:Identifier')?.textContent).equals('EPSG:2193');
         o(tms[0].find('ows:SupportedCRS')?.textContent).equals('urn:ogc:def:crs:EPSG::2193');
 
-        o(tms[1].find('ows:Identifier')?.textContent).equals('WebMercatorQuad');
+        o(tms[1].find('ows:Identifier')?.textContent).equals('EPSG:3857');
         o(tms[1].find('ows:SupportedCRS')?.textContent).equals('urn:ogc:def:crs:EPSG::3857');
     });
 
     o('should support multiple tilesets', () => {
         const ts = [
-            new FakeTileSet('aerial', Epsg.Nztm2000, 'aerial-title'),
+            new FakeTileSet(TileSetName.aerial, Epsg.Nztm2000, 'aerial-title'),
             new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Epsg.Nztm2000, 'imagery-title'),
         ];
         const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
@@ -166,25 +189,48 @@ o.spec('WmtsCapabilities', () => {
         o(layers.length).equals(2);
 
         o(layers[0].find('ows:Title')?.textContent).equals('aerial-title');
-        o(layers[0].find('TileMatrixSet')?.textContent).equals('NZTM2000');
+        o(layers[0].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
 
         o(layers[1].find('ows:Title')?.textContent).equals('imagery-title');
-        o(layers[1].find('TileMatrixSet')?.textContent).equals('NZTM2000');
+        o(layers[1].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
     });
 
     o('should support multiple different projections on differnt tiles sets', () => {
         const ts = [
-            new FakeTileSet('aerial', Epsg.Nztm2000, 'aerial'),
+            new FakeTileSet(TileSetName.aerial, Epsg.Nztm2000, TileSetName.aerial),
+            new FakeTileSet('01F75X9G7FQ3XMWPJFR9AMQFJ0', Epsg.Nztm2000, '01F75X9G7FQ3XMWPJFR9AMQFJ0'),
             new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Epsg.Google, '01E7PJFR9AMQFJ05X9G7FQ3XMW'),
         ];
+        ts[1].extentOverride = new Bounds(1, 2, 2, 2);
+        ts[1].titleOverride = 'override sub tileset 1';
+
+        ts[2].tileSet.title = 'aerial_dunedin_urban';
         const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
+
         const layers = tags(nodes, 'Layer');
-        o(layers.length).equals(2);
+        o(layers.length).equals(3);
 
-        o(layers[0].find('ows:Title')?.textContent).equals('aerial');
-        o(layers[0].find('TileMatrixSet')?.textContent).equals('NZTM2000');
+        o(layers[0].find('ows:Title')?.textContent).equals(TileSetName.aerial);
+        o(layers[0].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
 
-        o(layers[1].find('ows:Title')?.textContent).equals('01E7PJFR9AMQFJ05X9G7FQ3XMW');
-        o(layers[1].find('TileMatrixSet')?.textContent).equals('WebMercatorQuad');
+        o(layers[1].find('ows:Title')?.textContent).equals('override sub tileset 1');
+        o(layers[1].find('ows:Identifier')?.textContent).equals('01F75X9G7FQ3XMWPJFR9AMQFJ0-2193');
+        o(layers[1].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
+        o(layers[1].find('ows:BoundingBox')?.toString()).equals(
+            '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::2193">\n' +
+                '  <ows:LowerCorner>2 1</ows:LowerCorner>\n' +
+                '  <ows:UpperCorner>4 3</ows:UpperCorner>\n' +
+                '</ows:BoundingBox>',
+        );
+
+        o(layers[2].find('ows:Title')?.textContent).equals('aerial_dunedin_urban');
+        o(layers[2].find('ows:Identifier')?.textContent).equals('01E7PJFR9AMQFJ05X9G7FQ3XMW-3857');
+        o(layers[2].find('TileMatrixSet')?.textContent).equals('EPSG:3857');
+        o(layers[2].find('ows:BoundingBox')?.toString()).equals(
+            '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::3857">\n' +
+                '  <ows:LowerCorner>-20037508.3427892 -20037508.3427892</ows:LowerCorner>\n' +
+                '  <ows:UpperCorner>20037508.3427892 20037508.3427892</ows:UpperCorner>\n' +
+                '</ows:BoundingBox>',
+        );
     });
 });

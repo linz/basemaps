@@ -26,6 +26,10 @@ export class ProjectionTileMatrixSet {
         this.proj = Projection.get(tms.projection.code);
     }
 
+    static targetCodes(): IterableIterator<EpsgCode> {
+        return CodeMap.keys();
+    }
+
     /**
      * Get the ProjectionTileMatrixSet instance for a specified code,
      *
@@ -78,8 +82,8 @@ export class ProjectionTileMatrixSet {
         const ul = this.tms.tileToSource(tile);
         const lr = this.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
 
-        const [swLon, swLat] = this.proj.toWsg84([ul.x, lr.y]);
-        const [neLon, neLat] = this.proj.toWsg84([lr.x, ul.y]);
+        const [swLon, swLat] = this.proj.toWgs84([ul.x, lr.y]);
+        const [neLon, neLat] = this.proj.toWgs84([lr.x, ul.y]);
 
         return [swLon, swLat, neLon, neLat];
     }
@@ -89,7 +93,7 @@ export class ProjectionTileMatrixSet {
      */
     tileCenterToLatLon(tile: Tile): LatLon {
         const point = this.tms.tileToSource({ x: tile.x + 0.5, y: tile.y + 0.5, z: tile.z });
-        const [lon, lat] = this.proj.toWsg84([point.x, point.y]);
+        const [lon, lat] = this.proj.toWgs84([point.x, point.y]);
         return { lat, lon };
     }
 

@@ -12,10 +12,10 @@ o.spec('Projection', () => {
         if (nztmProj == null) {
             throw new Error('Failed to init proj:2193');
         }
-        const output = nztmProj.toWsg84([1180000, 4758000]);
+        const output = nztmProj.toWgs84([1180000, 4758000]);
         o(round(output, 6)).deepEquals([167.454458, -47.197075]);
 
-        const reverse = nztmProj.fromWsg84(output);
+        const reverse = nztmProj.fromWgs84(output);
         o(round(reverse, 2)).deepEquals([1180000, 4758000]);
     });
 
@@ -37,6 +37,16 @@ o.spec('Projection', () => {
             [180, -66.51326044],
             [90, -66.51326044],
         ]);
+    });
+
+    o('boundsToWgs84', () => {
+        const source = Bounds.fromBbox([1766181, 5439092, 1780544, 5450093]);
+
+        o(round(nztmProj.boundsToWgs84(source).toBbox(), 4)).deepEquals([174.9814, -41.1825, 175.1493, -41.0804]);
+
+        const crossAM = Bounds.fromBbox([1766181, 5439092, 2580544, 5450093]);
+
+        o(round(nztmProj.boundsToWgs84(crossAM).toBbox(), 4)).deepEquals([174.9814, -41.1825, 184.563, -40.5171]);
     });
 
     o.spec('boundsToGeoJsonFeature', () => {

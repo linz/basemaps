@@ -33,3 +33,8 @@ export function round(thing: any, z = 8): any {
     };
     return recurse(thing);
 }
+
+export function roundString(str: string, z = 8): string {
+    const r = makeRound(z);
+    return str.replace(/\d+\.\d+/g, (n) => r(parseFloat(n)).toString());
+}
