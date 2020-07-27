@@ -34,6 +34,14 @@ o.spec('api.path', () => {
             o(ans).equals(null);
         });
 
+        o('should return null if projection not supported', () => {
+            const ctx = makeContext('/v1/tiles/aerial/3793/1/2/3.png');
+
+            const ans = tileFromPath(ctx.action.rest);
+
+            o(ans).equals(null);
+        });
+
         o('should extract variables png', () => {
             const ctx = makeContext('/v1/tiles/aerial/global-mercator/1/2/3.png');
 

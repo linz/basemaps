@@ -1,9 +1,10 @@
-import { Epsg, TileMatrixSet, WmtsLayer, WmtsProvider } from '@basemaps/geo';
+import { Epsg, TileMatrixSet, WmtsLayer, WmtsProvider, Bounds } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { TileSet } from './tile.set';
+import { Projection } from '@basemaps/shared/build/proj/projection';
 
 function getTileMatrixSet(projection: Epsg): TileMatrixSet {
     switch (projection) {
@@ -40,6 +41,10 @@ const CapabilitiesAttrs = {
     version: '1.0.0',
 };
 
+function wgs84Extent(layer: WmtsLayer): Bounds {
+    return Projection.get(layer.projection.code).boundsToWgs84(layer.extent);
+}
+
 export class WmtsCapabilities {
     httpBase: string;
     provider: WmtsProvider;
@@ -66,10 +71,27 @@ export class WmtsCapabilities {
         this.apiKey = apiKey;
     }
 
-    buildBoundingBox(tms: TileMatrixSet): VNodeElement {
+    buildWgs84BoundingBox(layers: WmtsLayer[], tagName = 'ows:WGS84BoundingBox'): VNodeElement {
+        let bounds = wgs84Extent(layers[0]);
+        for (let i = 1; i < layers.length; ++i) {
+            bounds = bounds.union(wgs84Extent(layers[i]));
+        }
+
+        const bbox = bounds.toBbox();
+        return V(
+            tagName,
+            { crs: 'urn:ogc:def:crs:OGC:2:84' },
+            bbox[2] > 180
+                ? [V('ows:LowerCorner', `-180 -90`), V('ows:UpperCorner', `180 90`)]
+                : [V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`), V('ows:UpperCorner', `${bbox[2]} ${bbox[3]}`)],
+        );
+    }
+
+    buildBoundingBox(tms: TileMatrixSet, extent: Bounds): VNodeElement {
+        const bbox = extent.toBbox();
         return V('ows:BoundingBox', { crs: tms.projection.toUrn() }, [
-            V('ows:LowerCorner', tms.def.boundingBox.lowerCorner.join(' ')),
-            V('ows:UpperCorner', tms.def.boundingBox.upperCorner.join(' ')),
+            V('ows:LowerCorner', `${bbox[tms.indexX]} ${bbox[tms.indexY]}`),
+            V('ows:UpperCorner', `${bbox[tms.indexX + 2]} ${bbox[tms.indexY + 2]}`),
         ]);
     }
 
@@ -114,7 +136,7 @@ export class WmtsCapabilities {
             'v1',
             'tiles',
             tileSet.taggedName,
-            tileSet.projection,
+            '{TileMatrixSet}',
             '{TileMatrix}',
             '{TileCol}',
             `{TileRow}.${suffix}${apiSuffix}`,
@@ -129,17 +151,18 @@ export class WmtsCapabilities {
         });
     }
 
-    buildLayer(tileSet: WmtsLayer[], tms: TileMatrixSet[]): VNodeElement {
-        const [firstTileSet] = tileSet;
+    buildLayer(layers: WmtsLayer[], tms: TileMatrixSet[]): VNodeElement {
+        const [firstLayer] = layers;
         return V('Layer', [
-            V('ows:Title', firstTileSet.title),
-            V('ows:Abstract', firstTileSet.description),
-            V('ows:Identifier', firstTileSet.taggedName + '-' + firstTileSet.projection),
+            V('ows:Title', firstLayer.title),
+            V('ows:Abstract', firstLayer.description),
+            V('ows:Identifier', firstLayer.taggedName + '-' + firstLayer.projection),
+            ...layers.map((layer) => this.buildBoundingBox(getTileMatrixSet(layer.projection), layer.extent)),
+            this.buildWgs84BoundingBox(layers),
             this.buildStyle(),
-            ...tms.map((c) => this.buildBoundingBox(c)),
-            ...tms.map((c) => V('TileMatrixSetLink', [V('TileMatrixSet', c.def.identifier)])),
             ...ImageFormatOrder.map((fmt) => V('Format', 'image/' + fmt)),
-            ...ImageFormatOrder.map((fmt) => this.buildResourceUrl(firstTileSet, fmt)),
+            ...tms.map((c) => V('TileMatrixSetLink', [V('TileMatrixSet', c.projection.toEpsgString())])),
+            ...ImageFormatOrder.map((fmt) => this.buildResourceUrl(firstLayer, fmt)),
         ]);
     }
 
@@ -151,10 +174,10 @@ export class WmtsCapabilities {
         return V('TileMatrixSet', [
             V('ows:Title', tms.def.title),
             tms.def.abstract ? V('ows:Abstract', tms.def.abstract) : null,
-            V('ows:Identifier', tms.def.identifier),
+            V('ows:Identifier', tms.projection.toEpsgString()),
+            this.buildBoundingBox(tms, tms.extent),
             V('ows:SupportedCRS', tms.projection.toUrn()),
-            tms.def.wellKnownScaleSet ? V('ows:WellKnownScaleSet', tms.def.wellKnownScaleSet) : null,
-            this.buildBoundingBox(tms),
+            tms.def.wellKnownScaleSet ? V('WellKnownScaleSet', tms.def.wellKnownScaleSet) : null,
             ...tms.def.tileMatrix.map((c) => {
                 return V('TileMatrix', [
                     V('ows:Identifier', c.identifier),

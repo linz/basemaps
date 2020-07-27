@@ -221,4 +221,8 @@ o.spec('ProjectionTileMatrixSet', () => {
             o(totalRightIntersectionHeight).equals(bounds.height);
         });
     });
+
+    o('TargetCodes', () => {
+        o(Array.from(ProjectionTileMatrixSet.targetCodes())).deepEquals([3857, 2193]);
+    });
 });
