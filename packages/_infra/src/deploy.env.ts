@@ -7,4 +7,7 @@ export const DeployEnv = {
 
     /** TLS certificate to use with Cloudfront */
     CloudFrontTlsCertArn: 'CLOUDFRONT_CERTIFICATE_ARN',
+
+    /** Allow another account to write logs into our bucket */
+    LogAccountId: 'LOG_ACCOUNT_ID',
 };
