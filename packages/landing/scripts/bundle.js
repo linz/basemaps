@@ -35,7 +35,7 @@ const BUILD_CMD = [
 const CSS_SOURCE = [
     'static/index.css',
     '../../node_modules/ol/ol.css',
-    '../../node_modules/@philals/lui/dist/lui.cjs.development.css',
+    '../../node_modules/@linzjs/lui/dist/lui.cjs.development.css',
 ];
 
 /**
