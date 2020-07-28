@@ -1420,6 +1420,14 @@
     source-map-support "^0.5.16"
     zod "^1.10.0"
 
+"@linzjs/lui@^0.0.92":
+  version "0.0.92"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-0.0.92.tgz#97d158b4051856113f5c631657b48bbfc66ce6fd"
+  integrity sha512-TQ43Dgdma4cYCJtiGJC3yUS3BQzs6qjHNysefSaO/uu81hzco60yqZeBu4427E27uxLem0LmE6USb/H8muzTLg==
+  dependencies:
+    camelcase "^6.0.0"
+    react-modal "^3.11.2"
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -1525,14 +1533,6 @@
   integrity sha512-89LOYH+d/vsbDX785NOfLxTW88GjNd0lWRz1DVPVsZgg9Yett5O+3MOvwo7iHgvUwbFz0mf/yPIjBkUbs4kxoQ==
   dependencies:
     "@types/node" ">= 8"
-
-"@philals/lui@^0.0.85":
-  version "0.0.85"
-  resolved "https://registry.yarnpkg.com/@philals/lui/-/lui-0.0.85.tgz#bef3807f08c6964a65c38c3ef87b412aee1fd0af"
-  integrity sha512-nqqZfyj2fXS409BYcnlGutBdW41gXALBOv31ZxL1ryVliLMcbF21y0cycwX5/W9YjqMn7vrRf5BbH6r9TSABag==
-  dependencies:
-    camelcase "^6.0.0"
-    react-modal "^3.11.2"
 
 "@rushstack/ts-command-line@^4.3.13":
   version "4.4.6"
