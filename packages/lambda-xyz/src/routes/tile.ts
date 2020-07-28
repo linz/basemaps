@@ -14,7 +14,6 @@ import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import pLimit from 'p-limit';
-import { EmptyPng } from '../png';
 import { TileSet } from '../tile.set';
 import { loadTileSet, loadTileSets } from '../tile.set.cache';
 import { Tilers } from '../tiler';
@@ -22,19 +21,6 @@ import { WmtsCapabilities } from '../wmts.capability';
 import { TileEtag } from './tile.etag';
 
 export const TileComposer = new TileMakerSharp(256);
-/**
- * Serve a empty PNG response
- * @param req req to store metrics in
- * @param cacheKey ETag of the request
- */
-function emptyPng(req: LambdaContext, cacheKey: string): LambdaHttpResponse {
-    req.set('bytes', EmptyPng.byteLength);
-    req.set('emptyPng', true);
-    const response = new LambdaHttpResponse(200, 'ok');
-    response.headers.set(HttpHeader.ETag, cacheKey);
-    response.buffer(EmptyPng, 'image/png');
-    return response;
-}
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
 /** Background color of tiles where the tileset does not define a color */
@@ -121,9 +107,6 @@ export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     req.set('layersUsed', res.layers);
     req.set('allLayersUsed', res.layers == layers.length);
 
-    if (res == null) {
-        return emptyPng(req, cacheKey);
-    }
     req.set('bytes', res.buffer.byteLength);
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);

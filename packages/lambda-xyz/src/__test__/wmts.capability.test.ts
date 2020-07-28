@@ -4,7 +4,7 @@ import { createHash } from 'crypto';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability';
 import { Provider, FakeTileSet } from './xyz.util';
-import { roundString } from '@basemaps/test/build/rounding';
+import { roundNumbersInString } from '@basemaps/test/build/rounding';
 
 function tags(node: VNodeElement | null | undefined, tag: string): VNodeElement[] {
     if (node == null) return [];
@@ -47,7 +47,7 @@ o.spec('WmtsCapabilities', () => {
             ]).toString(),
         ]);
 
-        o(listTag(layer, 'ows:WGS84BoundingBox').map((s) => roundString(s, 4))).deepEquals([
+        o(listTag(layer, 'ows:WGS84BoundingBox').map((s) => roundNumbersInString(s, 4))).deepEquals([
             '<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84">\n' +
                 '  <ows:LowerCorner>-180 -85.0511</ows:LowerCorner>\n' +
                 '  <ows:UpperCorner>180 85.0511</ows:UpperCorner>\n' +
