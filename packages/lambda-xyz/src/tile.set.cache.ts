@@ -9,8 +9,12 @@ import {
 } from '@basemaps/shared';
 import { TileSet } from './tile.set';
 
+/** The cached TileSets */
 export const TileSets = new Map<string, TileSet>();
 
+/**
+ * Get a TileSet from the cache
+ */
 export function getTileSet(name: string, projection: Epsg): TileSet | undefined {
     const tileSetId = `${name}_${projection}`;
     return TileSets.get(tileSetId);
@@ -82,13 +86,12 @@ export async function loadTileSet(name: string, projection: Epsg): Promise<TileS
         TileSets.delete(tileSet.id);
         return null;
     }
-    if (subsetName !== '') {
-        const image = tileSet.imagery.find((i) => i.imagery.name === subsetName);
-        if (image == null) return null;
-        const subTileSet = individualTileSet(tileSet, image);
-        return subTileSet;
-    }
-    return tileSet;
+
+    if (subsetName === '') return tileSet;
+
+    const image = tileSet.imagery.find((i) => i.imagery.name === subsetName);
+    if (image == null) return null;
+    return individualTileSet(tileSet, image);
 }
 
 function compareByTitle(a: TileSet, b: TileSet): number {
@@ -105,12 +108,10 @@ export async function loadTileSets(nameStr: string, projection: Epsg | null): Pr
     if (nameStr !== '' && nameStr[0] !== '@' && projection != null) {
         // single tileSet
         const ts = await loadTileSet(nameStr, projection);
-
         return ts == null ? [] : [ts];
     }
 
     const isSubset = nameStr.indexOf(':') != -1;
-
     const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
 
     const projections: Epsg[] =
@@ -118,7 +119,6 @@ export async function loadTileSets(nameStr: string, projection: Epsg | null): Pr
     const names = name === '' ? TileSetNameValues().map((tsn) => (tag == null ? tsn : `${tsn}@${tag}`)) : [nameStr];
 
     const promises: Promise<TileSet | null>[] = [];
-
     for (const n of names) {
         for (const p of projections) {
             promises.push(loadTileSet(n, p));
