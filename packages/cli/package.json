@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "private": false,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -16,14 +16,18 @@
     "bundle": "../../scripts/bundle.js package.json",
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
-  "bundle": [{
-    "entry": "src/cli/cogify/index.ts",
-    "outdir": "dist/",
-    "external": ["pino-pretty"]
-  }],
+  "bundle": [
+    {
+      "entry": "src/cli/cogify/index.ts",
+      "outdir": "dist/",
+      "external": [
+        "pino-pretty"
+      ]
+    }
+  ],
   "dependencies": {
-    "@basemaps/geo": "^4.1.0",
-    "@basemaps/shared": "^4.2.0",
+    "@basemaps/geo": "^4.4.0",
+    "@basemaps/shared": "^4.4.0",
     "@cogeotiff/core": "^2.2.0",
     "@cogeotiff/source-aws": "^2.2.0",
     "@cogeotiff/source-file": "^2.2.0",

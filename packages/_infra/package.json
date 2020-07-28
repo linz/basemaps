@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/infra",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -23,9 +23,9 @@
     "@aws-cdk/aws-lambda-event-sources": "^1.54.0",
     "@aws-cdk/aws-s3": "1.54.0",
     "@aws-cdk/core": "1.54.0",
-    "@basemaps/lambda-api-tracker": "^4.2.0",
-    "@basemaps/lambda-xyz": "^4.3.0",
-    "@basemaps/shared": "^4.2.0",
+    "@basemaps/lambda-api-tracker": "^4.4.0",
+    "@basemaps/lambda-xyz": "^4.4.0",
+    "@basemaps/shared": "^4.4.0",
     "@linzjs/cdk-elastic-shipper": "^0.3.0",
     "aws-cdk": "1.54.0"
   }
