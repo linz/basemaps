@@ -34,7 +34,16 @@ export function round(thing: any, z = 8): any {
     return recurse(thing);
 }
 
-export function roundString(str: string, z = 8): string {
-    const r = makeRound(z);
-    return str.replace(/\d+\.\d+/g, (n) => r(parseFloat(n)).toString());
+/**
+ * Format a number to no more than z decimal places
+ */
+export function toRoundedString(d: number, z = 8): string {
+    return d.toFixed(z).replace(/\.?0+$/, '');
+}
+
+/**
+ * Search string for numbers with decimal points and replace them with rounded numbers to z decimal places.
+ */
+export function roundNumbersInString(str: string, z = 8): string {
+    return str.replace(/\d+\.\d+/g, (d) => toRoundedString(Number.parseFloat(d), z));
 }
