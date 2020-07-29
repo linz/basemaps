@@ -33,5 +33,5 @@ export function isConfigS3Role(r: any): r is FileConfigS3Role {
 }
 
 export function isFileConfigPath(r: any): r is FileConfigPath {
-    return Array.isArray(r['paths']);
+    return Array.isArray(r['files']);
 }
