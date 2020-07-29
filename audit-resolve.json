@@ -87,6 +87,90 @@
     "1523|lerna>@lerna/version>@lerna/conventional-commits>conventional-changelog-core>lodash": {
       "decision": "ignore",
       "madeAt": 1594337410231
+    },
+    "1213|lerna>@lerna/publish>@lerna/version>@lerna/conventional-commits>conventional-changelog-angular>compare-func>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/version>@lerna/conventional-commits>conventional-changelog-angular>compare-func>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/publish>@lerna/version>@lerna/conventional-commits>conventional-changelog-core>conventional-changelog-writer>compare-func>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/version>@lerna/conventional-commits>conventional-changelog-core>conventional-changelog-writer>compare-func>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/add>@lerna/bootstrap>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/bootstrap>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/add>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/changed>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/clean>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/create>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/diff>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/exec>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/import>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/info>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/init>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/link>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/list>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/publish>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/publish>@lerna/version>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/version>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
+    },
+    "1213|lerna>@lerna/run>@lerna/command>@lerna/project>dot-prop": {
+      "decision": "ignore",
+      "madeAt": 1596059720115
     }
   },
   "rules": {},
