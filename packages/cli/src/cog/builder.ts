@@ -34,9 +34,9 @@ export function guessProjection(wkt: string): Epsg | null {
         return null;
     }
     const searchWkt = wkt.replace(/_/g, ' ');
-    if (searchWkt.includes('New Zealand Transverse Mercator')) {
-        return Epsg.Nztm2000;
-    }
+    if (searchWkt.includes('New Zealand Transverse Mercator')) return Epsg.Nztm2000;
+    if (searchWkt.includes('Chatham Islands Transverse Mercator 2000')) return Epsg.Citm2000;
+
     return null;
 }
 
