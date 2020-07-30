@@ -15,13 +15,10 @@ export class GdalDocker extends GdalCommand {
     }
 
     mount(filePath: string): void {
-        if (FileOperator.isS3(filePath)) {
-            return;
-        }
+        if (FileOperator.isS3(filePath)) return;
+
         const basePath = path.dirname(filePath);
-        if (this.mounts.includes(basePath)) {
-            return;
-        }
+        if (this.mounts.includes(basePath)) return;
         this.mounts.push(basePath);
     }
 

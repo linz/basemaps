@@ -21,18 +21,6 @@ async function buildPlainVrt(
         buildOpts.push('-addalpha');
     }
 
-    // If required assume role
-    if (isConfigS3Role(job.source)) {
-        const credentials = Aws.credentials.getCredentialsForRole(job.source.roleArn, job.source.externalId);
-        gdalCommand.setCredentials(credentials);
-    } else {
-        if (gdalCommand.mount) {
-            for (const name of sourceFiles) {
-                gdalCommand.mount(name);
-            }
-        }
-    }
-
     logger.debug({ buildOpts: buildOpts.join(' ') }, 'gdalbuildvrt');
     await gdalCommand.run('gdalbuildvrt', [...buildOpts, vrtPath, ...sourceFiles], logger);
 }
@@ -128,8 +116,16 @@ export const CogVrt = {
         );
 
         const gdalCommand = Gdal.create();
-        if (gdalCommand.mount) {
+
+        // If required assume role
+        if (isConfigS3Role(job.source)) {
+            const credentials = Aws.credentials.getCredentialsForRole(job.source.roleArn, job.source.externalId);
+            gdalCommand.setCredentials(credentials);
+        }
+
+        if (gdalCommand.mount != null) {
             gdalCommand.mount(tmpFolder);
+            for (const file of job.source.files) gdalCommand.mount(file.name);
         }
 
         const tr = cutline.tms.pixelScale(job.source.resZoom).toString();

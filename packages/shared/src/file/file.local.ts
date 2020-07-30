@@ -31,6 +31,9 @@ export const FileOperatorSimple: FileProcessor = {
     },
 
     async write(filePath: string, buf: Buffer | Readable): Promise<void> {
+        const folderPath = path.dirname(filePath);
+        await fs.promises.mkdir(folderPath, { recursive: true });
+
         if (Buffer.isBuffer(buf)) {
             await fs.promises.writeFile(filePath, buf);
         } else {
