@@ -48,7 +48,6 @@ function joinPath(basePath, newPath) {
 function bundleJs(basePath, cfg) {
     const outPath = joinPath(basePath, cfg.outdir);
     const buildCmd = [
-        'npx',
         'esbuild',
         '--bundle',
         `--platform=${cfg.platform || 'node'}`,
@@ -61,7 +60,7 @@ function bundleJs(basePath, cfg) {
         joinPath(basePath, cfg.entry),
     ];
 
-    cp.execSync(buildCmd.join(' '));
+    cp.spawnSync('npx', buildCmd);
 
     const fileData = fs.readFileSync(path.join(outPath, 'index.js')).toString();
     console.log('Bundled', (fileData.length / 1024).toFixed(2), 'KB');
