@@ -55,7 +55,6 @@ export class GdalCogBuilder {
             quality: config.quality ?? GdalCogBuilderDefaults.quality,
         };
         this.gdal = Gdal.create();
-
         this.gdal.mount?.(source);
         this.gdal.mount?.(target);
     }

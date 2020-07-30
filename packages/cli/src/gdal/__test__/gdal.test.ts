@@ -2,6 +2,7 @@ import o from 'ospec';
 import { GdalCogBuilder } from '../gdal.cog';
 import { normalizeAwsEnv } from '../gdal.command';
 import { GdalCogBuilderDefaults } from '../gdal.config';
+import { GdalDocker } from '../gdal.docker';
 
 o.spec('GdalCogBuilder', () => {
     o('should default all options', () => {
@@ -30,6 +31,26 @@ o.spec('GdalCogBuilder', () => {
 
         builder.config.blockSize = 256;
         o(builder.args.includes('BLOCKSIZE=256')).equals(true);
+    });
+
+    o('should mount folders', () => {
+        const gdalDocker = new GdalDocker();
+        gdalDocker.mount('/foo/bar');
+        o(gdalDocker.mounts).deepEquals(['/foo']);
+    });
+
+    o('should not duplicate folders', () => {
+        const gdalDocker = new GdalDocker();
+        gdalDocker.mount('/foo/bar.html');
+        gdalDocker.mount('/foo/bar.tiff');
+        o(gdalDocker.mounts).deepEquals(['/foo']);
+    });
+
+    o('should ignore s3 uris', () => {
+        const gdalDocker = new GdalDocker();
+        gdalDocker.mount('s3://foo/bar.html');
+        gdalDocker.mount('s3://foo/bar.tiff');
+        o(gdalDocker.mounts).deepEquals([]);
     });
 
     o('should normalize aws environment vars', () => {
