@@ -1,7 +1,6 @@
 import { Bounds, GeoJson } from '@basemaps/geo';
 import o from 'ospec';
-import { MultiPolygon } from 'polygon-clipping';
-import { clipMultipolygon, polyContainsBounds } from '../clipped.multipolygon';
+import { MultiPolygon, clipMultipolygon, polyContainsBounds } from '../clipped.multipolygon';
 import { round } from '@basemaps/test/build/rounding';
 
 export function writeGeoJson(fn: string, poly: MultiPolygon): void {

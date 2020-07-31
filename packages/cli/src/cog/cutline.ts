@@ -1,12 +1,21 @@
 import { Bounds, Epsg, GeoJson, Tile, TileMatrixSet } from '@basemaps/geo';
-import { compareName, FileOperator, NamedBounds, ProjectionTileMatrixSet } from '@basemaps/shared';
+import {
+    clipMultipolygon,
+    compareName,
+    FileOperator,
+    NamedBounds,
+    polyContainsBounds,
+    ProjectionTileMatrixSet,
+    MultiPolygon,
+    Ring,
+    Polygon,
+    union,
+    intersection,
+} from '@basemaps/shared';
+import { Projection } from '@basemaps/shared/build/proj/projection';
 import { FeatureCollection } from 'geojson';
 import { CoveringFraction, MaxImagePixelWidth } from './constants';
 import { CogJob, SourceMetadata } from './types';
-import { clipMultipolygon, polyContainsBounds } from './clipped.multipolygon';
-import pc, { MultiPolygon, Ring, Polygon } from 'polygon-clipping';
-import { Projection } from '@basemaps/shared/build/proj/projection';
-const { intersection, union } = pc;
 
 export interface FeatureCollectionWithCrs extends FeatureCollection {
     crs: {
@@ -53,12 +62,16 @@ function addNonDupes(list: Tile[], addList: Tile[]): void {
 }
 
 export class Cutline {
+    /** The polygon to clip source imagery to */
     clipPoly: MultiPolygon = [];
     targetPtms: ProjectionTileMatrixSet;
-    blend: number;
-    oneCog: boolean;
     tms: TileMatrixSet; // convience to targetPtms.tms
-    private srcPoly: MultiPolygon = [];
+    /** How much blending to apply at the clip line boundary */
+    blend: number;
+    /** For just one cog to cover the imagery */
+    oneCog: boolean;
+    /** the polygon outlining a area covered by the source imagery and clip polygon */
+    srcPoly: MultiPolygon = [];
 
     /**
      * Create a Cutline instance from a `GeoJSON FeatureCollection`.
@@ -128,7 +141,7 @@ export class Cutline {
         const tile = TileMatrixSet.nameToTile(name);
         const sourceCode = Projection.get(job.source.projection);
         const targetCode = this.targetPtms.proj;
-        const tileBounds = this.targetPtms.tileToSourceBounds(tile);
+        const tileBounds = this.tms.tileToSourceBounds(tile);
         const tilePadded = this.padBounds(tileBounds, job.source.resZoom);
 
         let tileBoundsInSrcProj = tilePadded;
@@ -231,7 +244,7 @@ export class Cutline {
         minZ: number,
         coveringFraction: number,
     ): { tiles: Tile[]; fractionCovered: number } {
-        const clipBounds = this.targetPtms.tileToSourceBounds(tile);
+        const clipBounds = this.tms.tileToSourceBounds(tile);
 
         srcArea = clipMultipolygon(srcArea, clipBounds);
 

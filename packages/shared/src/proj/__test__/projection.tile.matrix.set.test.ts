@@ -1,4 +1,4 @@
-import { Bounds, EpsgCode, QuadKey } from '@basemaps/geo';
+import { BBox, Bounds, EpsgCode, QuadKey } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
@@ -13,7 +13,7 @@ const TileSize = 256;
  * @param extent Extent in meters in the format of [minX,minY,maxX,maxY]
  * @param zoom Web mercator zoom level
  */
-function getPixelsBoundsFromMeters(extent: [number, number, number, number], zoom: number): Bounds {
+function getPixelsBoundsFromMeters(extent: BBox, zoom: number): Bounds {
     const upperLeftMeters = GoogleTms.sourceToPixels(extent[0], extent[3], zoom);
     const lowerRightMeters = GoogleTms.sourceToPixels(extent[2], extent[1], zoom);
     return Bounds.fromUpperLeftLowerRight(upperLeftMeters, lowerRightMeters);
@@ -59,15 +59,6 @@ o.spec('ProjectionTileMatrixSet', () => {
         o(nztmPtms.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 14)).equals(0);
     });
 
-    o('tileToSourceBounds', () => {
-        o(round(googlePtms.tileToSourceBounds(QuadKey.toTile('3120123')).toJson(), 8)).deepEquals({
-            x: 11584184.51067502,
-            y: -6261721.35712163,
-            width: 313086.06785608,
-            height: 313086.06785608,
-        });
-    });
-
     o('tileCenterToLatLon', () => {
         o(round(googlePtms.tileCenterToLatLon(QuadKey.toTile('3120123')), 8)).deepEquals({
             lat: -47.98992167,
@@ -90,12 +81,7 @@ o.spec('ProjectionTileMatrixSet', () => {
 
     o.spec('TilingBounds', () => {
         // Approximate bounding box of new zealand
-        const tifBoundingBox: [number, number, number, number] = [
-            18494091.86765497,
-            -6051366.655280836,
-            19986142.659781612,
-            -4016307.214216303,
-        ];
+        const tifBoundingBox: BBox = [18494091.86765497, -6051366.655280836, 19986142.659781612, -4016307.214216303];
         const expectedBaseSize = Bounds.fromJson({ width: 9.53125, height: 13, y: 153.65625, x: 246.14062500000006 });
 
         o('should tile 0,0,0', () => {

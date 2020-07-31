@@ -1,4 +1,4 @@
-import { Bounds, EpsgCode, Tile, TileMatrixSet } from '@basemaps/geo';
+import { BBox, EpsgCode, Tile, TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { Projection } from './projection';
@@ -70,15 +70,8 @@ export class ProjectionTileMatrixSet {
         throw new Error('ResZoom not found');
     }
 
-    /** Convert a tile to a BBox in source units */
-    tileToSourceBounds(tile: Tile): Bounds {
-        const ul = this.tms.tileToSource(tile);
-        const lr = this.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
-        return new Bounds(Math.min(ul.x, lr.x), Math.min(ul.y, lr.y), Math.abs(lr.x - ul.x), Math.abs(lr.y - ul.y));
-    }
-
     /** Convert a tile to the wgs84 bounds */
-    tileToWgs84Bbox(tile: Tile): [number, number, number, number] {
+    tileToWgs84Bbox(tile: Tile): BBox {
         const ul = this.tms.tileToSource(tile);
         const lr = this.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
 

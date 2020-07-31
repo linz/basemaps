@@ -9,6 +9,12 @@ export interface Size {
 
 export interface BoundingBox extends Point, Size {}
 
+/**
+ * A GeoJSON compatible bounding box. Format [west, south, east, north]. East must be less than west
+ * if bounds crosses anti-meridian.
+ */
+export type BBox = [number, number, number, number];
+
 export class Bounds implements BoundingBox {
     public readonly x: number;
     public readonly y: number;
@@ -110,7 +116,7 @@ export class Bounds implements BoundingBox {
     /**
      * Convert to BBox
      */
-    public toBbox(): [number, number, number, number] {
+    public toBbox(): BBox {
         return [this.x, this.y, this.right, this.bottom];
     }
 

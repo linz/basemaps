@@ -1,6 +1,6 @@
-export { Bounds, BoundingBox, Size } from './bounds';
-export { QuadKey } from './quad.key';
-export { GeoJson } from './geo.json';
+export { BBox, BoundingBox, Bounds, Size } from './bounds';
 export { Epsg, EpsgCode } from './epsg';
-export { TileMatrixSet, Tile } from './tile.matrix.set';
+export { GeoJson } from './geo.json';
+export { QuadKey } from './quad.key';
+export { Tile, TileMatrixSet } from './tile.matrix.set';
 export { WmtsLayer, WmtsProvider } from './wmts/wmts';

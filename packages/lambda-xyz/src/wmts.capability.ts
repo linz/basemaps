@@ -1,10 +1,10 @@
-import { Epsg, TileMatrixSet, WmtsLayer, WmtsProvider, Bounds } from '@basemaps/geo';
+import { BBox, Bounds, Epsg, TileMatrixSet, WmtsLayer, WmtsProvider } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
-import { TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
+import { TileMetadataProviderRecord, V, VNodeElement, Wgs84 } from '@basemaps/shared';
+import { Projection } from '@basemaps/shared/build/proj/projection';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { TileSet } from './tile.set';
-import { Projection } from '@basemaps/shared/build/proj/projection';
 
 function getTileMatrixSet(projection: Epsg): TileMatrixSet {
     switch (projection) {
@@ -41,8 +41,8 @@ const CapabilitiesAttrs = {
     version: '1.0.0',
 };
 
-function wgs84Extent(layer: WmtsLayer): Bounds {
-    return Projection.get(layer.projection.code).boundsToWgs84(layer.extent);
+function wgs84Extent(layer: WmtsLayer): BBox {
+    return Projection.get(layer.projection.code).boundsToWgs84BoundingBox(layer.extent);
 }
 
 export class WmtsCapabilities {
@@ -72,12 +72,11 @@ export class WmtsCapabilities {
     }
 
     buildWgs84BoundingBox(layers: WmtsLayer[], tagName = 'ows:WGS84BoundingBox'): VNodeElement {
-        let bounds = wgs84Extent(layers[0]);
+        let bbox = wgs84Extent(layers[0]);
         for (let i = 1; i < layers.length; ++i) {
-            bounds = bounds.union(wgs84Extent(layers[i]));
+            bbox = Wgs84.union(bbox, wgs84Extent(layers[i]));
         }
 
-        const bbox = bounds.toBbox();
         return V(
             tagName,
             { crs: 'urn:ogc:def:crs:OGC:2:84' },

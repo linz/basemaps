@@ -2,12 +2,16 @@ import { Bounds } from '@basemaps/geo';
 import lineclip from 'lineclip';
 import pc, { MultiPolygon } from 'polygon-clipping';
 
+export { MultiPolygon, Polygon, Ring, Pair } from 'polygon-clipping';
+
+export const { intersection, union } = pc;
+
 function samePoint(a: number[], b: number[]): boolean {
     return a[0] == b[0] && a[1] == b[1];
 }
 
 function removeDegenerateEdges(polygons: MultiPolygon, bounds: Bounds): MultiPolygon {
-    return pc.intersection(polygons, bounds.toPolygon());
+    return intersection(polygons, bounds.toPolygon());
 }
 
 export function clipMultipolygon(polygons: MultiPolygon, bounds: Bounds): MultiPolygon {

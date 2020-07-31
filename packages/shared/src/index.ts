@@ -10,7 +10,10 @@ export { VNodeParser } from './vdom.parse';
 export { CompositeError } from './composite.error';
 export { LoggerFatalError } from './logger.fatal.error';
 export * from './proj/projection.tile.matrix.set';
+export * from './proj/wgs84';
 export { TileSetName, TileSetNameValues } from './proj/tile.set.name';
+
+export * from './clipped.multipolygon';
 
 export * from './aws/tile.metadata.base';
 export * from './aws/tile.metadata';

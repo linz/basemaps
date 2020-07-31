@@ -1,8 +1,21 @@
 import { Bounds, EpsgCode } from '@basemaps/geo';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
+import { MultiPolygon, Ring } from '../../clipped.multipolygon';
 import { Projection } from '../projection';
 import { qkToNamedBounds } from './test.util';
+
+function intToSource(ring: number[][], base = [0, 0], factor = 1): Ring {
+    return ring.map((point) => point.map((n, i) => base[i] + n * factor)) as Ring;
+}
+
+function toGoogle(ring: number[][]): Ring {
+    return intToSource(ring, [19430000, -5008000], 10000);
+}
+
+function toNztm(ring: number[][]): Ring {
+    return intToSource(ring, [1741000, 5448000], 20000);
+}
 
 o.spec('Projection', () => {
     const googleProj = Projection.get(EpsgCode.Google);
@@ -39,14 +52,71 @@ o.spec('Projection', () => {
         ]);
     });
 
-    o('boundsToWgs84', () => {
-        const source = Bounds.fromBbox([1766181, 5439092, 1780544, 5450093]);
+    o.spec('multiPolygonToWgs84', () => {
+        o('simple', () => {
+            const poly = [
+                [
+                    toGoogle([
+                        [0, 1],
+                        [0, 0],
+                        [1, 0],
+                        [1, 1],
+                        [0, 1],
+                    ]),
+                ],
+            ];
 
-        o(round(nztmProj.boundsToWgs84(source).toBbox(), 4)).deepEquals([174.9814, -41.1825, 175.1493, -41.0804]);
+            const ans = round(googleProj.multiPolygonToWgs84(poly), 4);
 
-        const crossAM = Bounds.fromBbox([1766181, 5439092, 2580544, 5450093]);
+            o(ans).deepEquals([
+                [
+                    [
+                        [174.5427, -40.9027],
+                        [174.5427, -40.9706],
+                        [174.6325, -40.9706],
+                        [174.6325, -40.9027],
+                        [174.5427, -40.9027],
+                    ],
+                ],
+            ]);
+        });
 
-        o(round(nztmProj.boundsToWgs84(crossAM).toBbox(), 4)).deepEquals([174.9814, -41.1825, 184.563, -40.5171]);
+        o('crosses antimeridian', () => {
+            const poly: MultiPolygon = [
+                [
+                    toNztm([
+                        [0, 1],
+                        [0, 0],
+                        [30, 0],
+                        [30, 1],
+                        [0, 1],
+                    ]),
+                ],
+            ];
+
+            const ans = round(nztmProj.multiPolygonToWgs84(poly), 4);
+
+            o(ans).deepEquals([
+                [
+                    [
+                        [174.6747, -40.927],
+                        [174.6792, -41.1071],
+                        [180, -40.9055],
+                        [180, -40.7255],
+                        [174.6747, -40.927],
+                    ],
+                ],
+                [
+                    [
+                        [-180, -40.9055],
+                        [-178.2228, -40.7839],
+                        [-178.2464, -40.6058],
+                        [-180, -40.7255],
+                        [-180, -40.9055],
+                    ],
+                ],
+            ]);
+        });
     });
 
     o.spec('boundsToGeoJsonFeature', () => {
@@ -87,6 +157,7 @@ o.spec('Projection', () => {
                     { x: 1293760, y: 5412480, width: 1246880, height: 1146880 },
                     { name: '1-2-1' },
                 ),
+                4,
             );
 
             o(ans).deepEquals({
@@ -96,20 +167,20 @@ o.spec('Projection', () => {
                     coordinates: [
                         [
                             [
-                                [169.33783769, -41.38093178],
-                                [180, -41.22297022],
-                                [180, -30.9080246],
-                                [169.79094917, -31.05964823],
-                                [169.33783769, -41.38093178],
+                                [169.3378, -41.3809],
+                                [180, -41.223],
+                                [180, -30.908],
+                                [169.7909, -31.0596],
+                                [169.3378, -41.3809],
                             ],
                         ],
                         [
                             [
-                                [-175.8429206, -40.89543649],
-                                [-177.19778597, -30.72635276],
-                                [-180, -30.9080246],
-                                [-180, -41.22297022],
-                                [-175.8429206, -40.89543649],
+                                [-180, -41.223],
+                                [-175.8429, -40.8954],
+                                [-177.1978, -30.7264],
+                                [-180, -30.908],
+                                [-180, -41.223],
                             ],
                         ],
                     ],
