@@ -157,11 +157,15 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = 'biarWiiP+sp+4QsJnuQwxlxW3zEnipGptLywav1E7Cs=';
+            const key = 'oxWjinmkGeDsEoFBW1wZ1cUTXD1yth4gkJp5EsphoU8=';
             const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
 
             const res = await handleRequest(request);
-            if (res.status == 200) o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
+            if (res.status == 200) {
+                o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
+                return;
+            }
+
             o(res.status).equals(304);
             o(rasterMock.calls.length).equals(0);
 

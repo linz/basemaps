@@ -1,11 +1,12 @@
-import { EpsgCode } from '@basemaps/geo';
+import { EpsgCode, Bounds } from '@basemaps/geo';
 import { ProjectionTileMatrixSet } from '@basemaps/shared';
 import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
-import { Cutline } from '../cutline';
+import { Cutline, polyContainsBounds } from '../cutline';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
+import { MultiPolygon } from '@linzjs/geojson';
 
 o.spec('cutline', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
@@ -30,6 +31,47 @@ o.spec('cutline', () => {
 
             o(cutline.filterSourcesForName(name, job)).deepEquals([tif2.name]);
         });
+    });
+
+    o('polyContainsBounds', () => {
+        const polys: MultiPolygon = [
+            [
+                [
+                    [-4, 2],
+                    [-2, 1],
+                    [-4, -1],
+                    [1, -5],
+                    [2, -5],
+                    [2, -2],
+                    [4, -5],
+                    [6, -2],
+                    [2, 0],
+                    [6, 3],
+                    [2, 7],
+                    [0, 3],
+                    [-4, 6],
+                    [-4, 10],
+                    [10, 10],
+                    [10, -10],
+                    [-10, -10],
+                    [-4, 2],
+                ],
+            ],
+            [
+                [
+                    [2, 3],
+                    [3, 3],
+                    [3, 5],
+                    [2, 5],
+                    [2, 3],
+                ],
+            ],
+        ];
+
+        o(polyContainsBounds(polys, Bounds.fromBbox([-6, -6, -3, -3]))).equals(true);
+
+        o(polyContainsBounds(polys, Bounds.fromBbox([-3, -4, 4, 4]))).equals(false);
+        o(polyContainsBounds(polys, Bounds.fromBbox([6, -8, 5, 5]))).equals(false);
     });
 
     o('loadCutline', async () => {

@@ -21,7 +21,7 @@ async function create(bm: BathyMaker, tile: Tile, logger: LogType): Promise<Reco
     const ptms = ProjectionTileMatrixSet.get(tms.projection.code);
 
     const bounds = ptms.tileToWgs84Bbox(tile);
-    const { geometry } = ptms.proj.boundsToGeoJsonFeature(ptms.tileToSourceBounds(tile));
+    const { geometry } = ptms.proj.boundsToGeoJsonFeature(tms.tileToSourceBounds(tile));
 
     const created = new Date().toISOString();
     return {

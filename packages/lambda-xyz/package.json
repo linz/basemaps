@@ -6,6 +6,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@linzjs/geojson": "^1.0.0",
     "@basemaps/geo": "^4.4.0",
     "@basemaps/lambda": "^4.5.0",
     "@basemaps/shared": "^4.5.0",
