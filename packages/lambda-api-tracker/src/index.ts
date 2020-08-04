@@ -11,6 +11,7 @@ function setTileInfo(ctx: LambdaContext): void {
         ctx.set('xyz', { x, y, z });
         ctx.set('projection', xyzData.projection.code);
         ctx.set('extension', ext);
+        ctx.set('tileSet', xyzData.name);
 
         const latLon = ProjectionTileMatrixSet.get(xyzData.projection.code).tileCenterToLatLon(xyzData);
         ctx.set('location', latLon);
