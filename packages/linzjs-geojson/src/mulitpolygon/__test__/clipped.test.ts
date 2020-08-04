@@ -1,12 +1,7 @@
-import { Bounds, GeoJson } from '@basemaps/geo';
 import o from 'ospec';
-import { MultiPolygon } from 'polygon-clipping';
-import { clipMultipolygon, polyContainsBounds } from '../clipped.multipolygon';
 import { round } from '@basemaps/test/build/rounding';
-
-export function writeGeoJson(fn: string, poly: MultiPolygon): void {
-    require('fs').writeFileSync(fn, JSON.stringify(GeoJson.toFeatureCollection([GeoJson.toFeatureMultiPolygon(poly)])));
-}
+import { clipMultipolygon } from '../clipped';
+import { BBox, MultiPolygon } from '../../types';
 
 o.spec('clipped.multipolygon', () => {
     const polys: MultiPolygon = [
@@ -43,16 +38,9 @@ o.spec('clipped.multipolygon', () => {
         ],
     ];
 
-    o('polyContainsBounds', () => {
-        o(polyContainsBounds(polys, Bounds.fromBbox([-6, -6, -3, -3]))).equals(true);
-
-        o(polyContainsBounds(polys, Bounds.fromBbox([-3, -4, 4, 4]))).equals(false);
-        o(polyContainsBounds(polys, new Bounds(6, -8, 5, 5))).equals(false);
-    });
-
     o.spec('clipMultipolygon', () => {
         o('disjoint with intersecting bounds', () => {
-            const bbox = new Bounds(-2, -2, 1, 1);
+            const bbox: BBox = [-2, -2, 1, 1];
 
             const cp = clipMultipolygon(polys, bbox);
 
@@ -60,7 +48,7 @@ o.spec('clipped.multipolygon', () => {
         });
 
         o('intersect', () => {
-            const bbox = Bounds.fromBbox([-3, -4, 4, 4]);
+            const bbox: BBox = [-3, -4, 4, 4];
 
             const cp = clipMultipolygon(polys, bbox);
 
@@ -120,7 +108,7 @@ o.spec('clipped.multipolygon', () => {
 
     o.spec('removeDegenerateEdges', () => {
         o('simple', () => {
-            const bbox = Bounds.fromBbox([-3, 1, 3, 3]);
+            const bbox: BBox = [-3, 1, 3, 3];
 
             const cp: MultiPolygon = [
                 [
@@ -185,7 +173,7 @@ o.spec('clipped.multipolygon', () => {
                 ],
             ];
 
-            const bbox = Bounds.fromBbox([-3000, -3547, 3000, 1000]);
+            const bbox: BBox = [-3000, -3547, 3000, 1000];
 
             const ans = clipMultipolygon(degen, bbox);
 
@@ -226,7 +214,7 @@ o.spec('clipped.multipolygon', () => {
         });
 
         o('loop', () => {
-            const bbox = Bounds.fromBbox([0, 3, 10, 8]);
+            const bbox: BBox = [0, 3, 10, 8];
 
             const orig: MultiPolygon = [
                 [
@@ -264,7 +252,7 @@ o.spec('clipped.multipolygon', () => {
         });
 
         o('complex', () => {
-            const bbox = Bounds.fromBbox([-3, -4, 4, 4]);
+            const bbox: BBox = [-3, -4, 4, 4];
             const ans = clipMultipolygon(polys, bbox);
 
             o(round(ans, 2)).deepEquals([

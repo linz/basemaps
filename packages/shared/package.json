@@ -11,6 +11,7 @@
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "dependencies": {
+    "@linzjs/geojson": "^1.0.0",
     "@basemaps/geo": "^4.4.0",
     "@basemaps/metrics": "^4.0.0",
     "@basemaps/tiler": "^4.4.0",

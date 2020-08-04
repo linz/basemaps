@@ -1,4 +1,5 @@
 import { Epsg } from '@basemaps/geo';
+import { BBox } from '@linzjs/geojson';
 
 export type GdalCogBuilderOptionsResampling =
     | 'nearest'
@@ -41,7 +42,7 @@ export interface GdalCogBuilderOptions {
 
     /** Limit the output to a bounding box
      */
-    bbox?: [number, number, number, number];
+    bbox?: BBox;
 
     /**
      * Compression to use for the cog

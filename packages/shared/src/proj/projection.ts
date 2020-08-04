@@ -1,4 +1,5 @@
-import { BoundingBox, Epsg, EpsgCode, GeoJson, Bounds } from '@basemaps/geo';
+import { BoundingBox, Bounds, Epsg, EpsgCode, GeoJson } from '@basemaps/geo';
+import { BBox, MultiPolygon, multiPolygonToWgs84 } from '@linzjs/geojson';
 import { Position } from 'geojson';
 import Proj from 'proj4';
 import { NamedBounds } from '../aws/tile.metadata.base';
@@ -93,13 +94,18 @@ export class Projection {
         return this.projection.inverse;
     }
 
-    boundsToWgs84(source: Bounds): Bounds {
+    /**
+     * Convert a source Bounds to GeoJSON WGS84 BoundingBox. In particular if the bounds crosses the
+     * anti-meridian then the east component will be less than the west component.
+
+     * @param source
+     * @returns [west, south, east, north]
+     */
+    boundsToWgs84BoundingBox(source: Bounds): BBox {
         const sw = this.toWgs84([source.x, source.y]);
         const ne = this.toWgs84([source.right, source.bottom]);
 
-        const width = ne[0] - sw[0];
-
-        return new Bounds(sw[0], sw[1], width < 0 ? width + 360 : width, ne[1] - sw[1]);
+        return [sw[0], sw[1], ne[0], ne[1]];
     }
 
     /**
@@ -107,30 +113,23 @@ export class Projection {
 
      * @param bounds in source epsg
      * @param properties any properties to include in the feature such as name
+
+     * @returns If `bounds` crosses the antimeridian then and east and west pair of non crossing
+     * polygons will be returned; otherwise a single Polygon will be returned.
      */
     boundsToGeoJsonFeature(bounds: BoundingBox, properties = {}): GeoJSON.Feature {
-        const { toWgs84 } = this;
-        const sw = toWgs84([bounds.x, bounds.y]);
-        const se = toWgs84([bounds.x + bounds.width, bounds.y]);
-        const nw = toWgs84([bounds.x, bounds.y + bounds.height]);
-        const ne = toWgs84([bounds.x + bounds.width, bounds.y + bounds.height]);
+        const sw = [bounds.x, bounds.y];
+        const se = [bounds.x + bounds.width, bounds.y];
+        const nw = [bounds.x, bounds.y + bounds.height];
+        const ne = [bounds.x + bounds.width, bounds.y + bounds.height];
 
-        if (sw[0] < se[0] && nw[0] < ne[0]) {
-            return GeoJson.toFeaturePolygon([[sw, nw, ne, se, sw]], properties);
+        const coords = multiPolygonToWgs84([[[sw, nw, ne, se, sw]]] as MultiPolygon, this.toWgs84);
+
+        if (coords.length == 1) {
+            return GeoJson.toFeaturePolygon(coords[0], properties);
         }
 
-        // crosses antimeridian so need to split polygon at antimeridian
-
-        // calculate where antimeridian is at north and south bounds
-        const northFraction = (180 - nw[0]) / (ne[0] + 360 - nw[0]);
-        const southFraction = (180 - sw[0]) / (se[0] + 360 - sw[0]);
-        const n180 = toWgs84([bounds.x + bounds.width * northFraction, bounds.y + bounds.height])[1];
-        const s180 = toWgs84([bounds.x + bounds.width * southFraction, bounds.y])[1];
-
-        return GeoJson.toFeatureMultiPolygon(
-            [[[sw, [180, s180], [180, n180], nw, sw]], [[se, ne, [-180, n180], [-180, s180], se]]],
-            properties,
-        );
+        return GeoJson.toFeatureMultiPolygon(coords, properties);
     }
 
     /** Convert a tile covering to a GeoJSON FeatureCollection */
