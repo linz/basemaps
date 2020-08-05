@@ -18,6 +18,18 @@ function setTileInfo(ctx: LambdaContext): void {
     }
 }
 
+/** Extract the hostname from a url */
+export function getUrlHost(ref: string | undefined): string | undefined {
+    if (ref == null) return ref;
+    try {
+        const url = new URL(ref);
+        if (url.hostname) return url.hostname;
+    } catch (e) {
+        // Ignore
+    }
+    return ref;
+}
+
 /**
  * Validate a CloudFront request has a valid API key and is not abusing the system
  */
@@ -28,7 +40,11 @@ export async function handleRequest(req: LambdaContext): Promise<LambdaHttpRespo
         req.set('clientIp', req.evt.Records[0].cf.request.clientIp);
     }
 
-    req.set('referer', req.header('referer'));
+    /**
+     * We generally don't need the full referer to get
+     * a understanding of where the request came from
+     */
+    req.set('referer', getUrlHost(req.header('referer')));
     req.set('userAgent', req.header('user-agent'));
 
     if (req.action.name === 'tiles') setTileInfo(req);
