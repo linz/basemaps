@@ -174,7 +174,8 @@ export class Bounds implements BoundingBox {
     }
 
     /**
-     * Find the bounds of a GeoJson MultiPolygon
+     * Find the bounds of a MultiPolygon.
+     * Does not work with WGS84 when crosses antimeridian.
 
      * @param multipoly the polygon to measure
      */
@@ -198,7 +199,7 @@ export class Bounds implements BoundingBox {
 
     /**
      * Convert a BBox(minX, minY, maxX, maxY) to Bounds(x,y, width, height).
-     * Takes into account the antimeridian.
+     * Does not work with WGS84 when crosses the antimeridian.
      * @param bbox
      */
     public static fromBbox([x1, y1, x2, y2]: number[]): Bounds {

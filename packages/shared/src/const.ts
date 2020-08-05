@@ -15,15 +15,6 @@ export const Const = {
 };
 
 export const Env = {
-    /** Environment in use "dev" | "production" */
-    NodeEnv: 'NODE_ENV',
-
-    /** Current version number for basemaps */
-    Version: 'BASEMAPS_VERSION',
-
-    /** Current git commit hash */
-    Hash: 'BASEMAPS_HASH',
-
     /** Public URL base that tiles are served from */
     PublicUrlBase: 'BASEMAPS_PUBLIC_URL',
 
@@ -33,7 +24,7 @@ export const Env = {
     /** Temporary folder used for processing, @default /tmp */
     TempFolder: 'TEMP_FOLDER',
 
-    /** Batch Index offset used to controll mutliple batch jobs */
+    /** Batch Index offset used to control multiple batch jobs */
     BatchIndex: 'AWS_BATCH_JOB_ARRAY_INDEX',
 
     /** Number of hours to assume a role for, @default 8 */
@@ -48,14 +39,14 @@ export const Env = {
     },
 
     /** Load a environment var defaulting to defaultOutput if it does not exist  */
-    get(envName: string, defaultOutput = ''): string {
-        return process.env[envName] ?? defaultOutput;
+    get(envName: string): string | undefined {
+        return process.env[envName];
     },
 
     /** Load an environment variable as a float, defaulting to defaultNumber if it does not exist */
     getNumber(envName: string, defaultNumber: number): number {
         const current = Env.get(envName);
-        if (current == '') {
+        if (current == '' || current == null) {
             return defaultNumber;
         }
 
@@ -67,6 +58,6 @@ export const Env = {
     },
 
     isProduction(): boolean {
-        return Env.get(Env.NodeEnv, 'dev') != 'dev';
+        return process.env.NODE_ENV === 'production';
     },
 };

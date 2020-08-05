@@ -6,6 +6,8 @@ import {
     isConfigS3Role,
     LogConfig,
     ProjectionTileMatrixSet,
+    FileConfigPath,
+    isFileConfigPath,
 } from '@basemaps/shared';
 import { Projection } from '@basemaps/shared/build/proj/projection';
 import { CogSource } from '@cogeotiff/core';
@@ -27,7 +29,7 @@ export const MaxConcurrencyDefault = 50;
 
 export interface JobCreationContext {
     /** Source config */
-    source: FileConfig;
+    source: FileConfig | FileConfigPath;
 
     /** Output config */
     output: FileConfig;
@@ -100,7 +102,9 @@ export const CogJobFactory = {
 
         const sourceFs = FileOperator.create(source);
         const outputFs = FileOperator.create(output);
-        const tiffList = (await sourceFs.list(source.path)).filter(filterTiff);
+        const tiffList = isFileConfigPath(source)
+            ? source.files
+            : (await sourceFs.list(source.path)).filter(filterTiff);
 
         let tiffSource: CogSource[];
         if (sourceFs instanceof FileOperatorS3) {

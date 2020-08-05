@@ -1,0 +1,26 @@
+{
+  "name": "@linzjs/geojson",
+  "version": "1.0.0",
+  "repository": "git@github.com:linz/basemaps.git",
+  "author": "",
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/"
+  ],
+  "dependencies": {
+    "lineclip": "^1.1.5",
+    "polygon-clipping": "^0.15.1"
+  },
+  "peerDependencies": {},
+    "devDependencies": {
+        "@types/geojson": "^7946.0.7"
+    }
+}

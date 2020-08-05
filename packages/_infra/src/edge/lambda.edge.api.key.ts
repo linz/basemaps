@@ -4,7 +4,6 @@ import lambda = require('@aws-cdk/aws-lambda');
 import { RetentionDays } from '@aws-cdk/aws-logs';
 import { ApiKeyTableArn } from '../api.key.db';
 import { VersionUtil } from '../version';
-import { Env } from '@basemaps/shared';
 
 const CODE_PATH = '../lambda-api-tracker/dist';
 /**
@@ -34,11 +33,6 @@ export class LambdaApiKeyValidator extends cdk.Construct {
             code: lambda.Code.asset(CODE_PATH),
             role: lambdaRole,
             logRetention: RetentionDays.ONE_MONTH,
-            environment: {
-                [Env.NodeEnv]: Env.get(Env.NodeEnv, 'dev'),
-                [Env.Hash]: version.hash,
-                [Env.Version]: version.version,
-            },
         });
 
         this.version = this.lambda.addVersion(version.hash);

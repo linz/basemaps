@@ -2,6 +2,7 @@
     "files": [],
     "references": [
         { "path": "./packages/__tests__" },
+        { "path": "./packages/linzjs-geojson" },
         { "path": "./packages/metrics" },
         { "path": "./packages/geo" },
         { "path": "./packages/tiler" },

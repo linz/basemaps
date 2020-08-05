@@ -1,5 +1,6 @@
-import { Bounds, EpsgCode } from '@basemaps/geo';
+import { EpsgCode } from '@basemaps/geo';
 import { round } from '@basemaps/test/build/rounding';
+import { bboxToPolygon } from '@linzjs/geojson';
 import o from 'ospec';
 import { Projection } from '../projection';
 import { qkToNamedBounds } from './test.util';
@@ -12,10 +13,10 @@ o.spec('Projection', () => {
         if (nztmProj == null) {
             throw new Error('Failed to init proj:2193');
         }
-        const output = nztmProj.toWsg84([1180000, 4758000]);
+        const output = nztmProj.toWgs84([1180000, 4758000]);
         o(round(output, 6)).deepEquals([167.454458, -47.197075]);
 
-        const reverse = nztmProj.fromWsg84(output);
+        const reverse = nztmProj.fromWgs84(output);
         o(round(reverse, 2)).deepEquals([1180000, 4758000]);
     });
 
@@ -77,6 +78,7 @@ o.spec('Projection', () => {
                     { x: 1293760, y: 5412480, width: 1246880, height: 1146880 },
                     { name: '1-2-1' },
                 ),
+                4,
             );
 
             o(ans).deepEquals({
@@ -86,20 +88,20 @@ o.spec('Projection', () => {
                     coordinates: [
                         [
                             [
-                                [169.33783769, -41.38093178],
-                                [180, -41.22297022],
-                                [180, -30.9080246],
-                                [169.79094917, -31.05964823],
-                                [169.33783769, -41.38093178],
+                                [169.3378, -41.3809],
+                                [180, -41.223],
+                                [180, -30.908],
+                                [169.7909, -31.0596],
+                                [169.3378, -41.3809],
                             ],
                         ],
                         [
                             [
-                                [-175.8429206, -40.89543649],
-                                [-177.19778597, -30.72635276],
-                                [-180, -30.9080246],
-                                [-180, -41.22297022],
-                                [-175.8429206, -40.89543649],
+                                [-180, -41.223],
+                                [-175.8429, -40.8954],
+                                [-177.1978, -30.7264],
+                                [-180, -30.908],
+                                [-180, -41.223],
                             ],
                         ],
                     ],
@@ -110,26 +112,19 @@ o.spec('Projection', () => {
     });
 
     o('projectMultipolygon', () => {
-        const poly = [
-            Bounds.fromBbox([
-                18494091.86765497,
-                -6051366.655280836,
-                19986142.659781612,
-                -4016307.214216303,
-            ]).toPolygon(),
-        ];
+        const poly = [bboxToPolygon([18494091.86765497, -6051366.655280836, 19986142.659781612, -4016307.214216303])];
 
         o(googleProj.projectMultipolygon(poly, googleProj)).equals(poly);
 
-        const ans = googleProj.projectMultipolygon(poly, nztmProj);
+        const ans = round(googleProj.projectMultipolygon(poly, nztmProj), 4);
 
         o(round(ans, 4)).deepEquals([
             [
                 [
                     [1084733.8967, 4698018.9435],
-                    [964788.1197, 6226878.2808],
-                    [2204979.5633, 6228860.047],
                     [2090794.171, 4700144.6365],
+                    [2204979.5633, 6228860.047],
+                    [964788.1197, 6226878.2808],
                     [1084733.8967, 4698018.9435],
                 ],
             ],

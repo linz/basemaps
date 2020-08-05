@@ -95,6 +95,11 @@ export async function buildCogForName(
         const credentials = Aws.credentials.getCredentialsForRole(job.source.roleArn, job.source.externalId);
         cogBuild.gdal.setCredentials(credentials);
     }
+
+    if (cogBuild.gdal.mount != null) {
+        for (const file of job.source.files) cogBuild.gdal.mount(file.name);
+    }
+
     if (execute) {
         await cogBuild.convert(logger.child({ name }));
         logger.info({ name, duration: Date.now() - startTime }, 'CogCreated');

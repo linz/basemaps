@@ -1,4 +1,5 @@
 import type { Epsg } from '../epsg';
+import { Bounds } from '../bounds';
 
 /**
  * Cut down interface, with only the information needed to render a tileset
@@ -9,6 +10,7 @@ export interface WmtsLayer {
     description: string;
     projection: Epsg;
     taggedName: string;
+    extent: Bounds;
 }
 
 /** WMTS Provider information */

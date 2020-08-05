@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "4.3.0",
+  "version": "4.5.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -10,13 +10,13 @@
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
     "start": "TILE_HOST=https://dev.basemaps.linz.govt.nz nodemon scripts/bundle.js -e 'ts html css' -i 'dist/*'",
-    "deploy:bundle": "node scripts/bundle.js",
-    "deploy:deploy": "yarn deploy:bundle && node scripts/deploy.js"
+    "bundle": "node scripts/bundle.js",
+    "deploy:deploy": "yarn bundle && node scripts/deploy.js"
   },
   "dependencies": {
-    "@basemaps/geo": "^4.1.0",
-    "@basemaps/infra": "^4.3.0",
-    "@philals/lui": "^0.0.85",
+    "@basemaps/geo": "^4.4.0",
+    "@basemaps/infra": "^4.5.0",
+    "@linzjs/lui": "^0.0.92",
     "@types/ol": "^6.3.1",
     "ol": "^6.3.1",
     "proj4": "^2.6.2",

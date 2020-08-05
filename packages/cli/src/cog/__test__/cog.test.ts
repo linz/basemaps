@@ -33,7 +33,7 @@ o.spec('cog', () => {
 
             const name = '4-15-10';
 
-            job.files = [{ name, ...targetPtms.tileToSourceBounds({ x: 15, y: 10, z: 4 }) }];
+            job.files = [{ name, ...targetPtms.tms.tileToSourceBounds({ x: 15, y: 10, z: 4 }) }];
 
             await buildCogForName(job, name, '/tmp/test.vrt', '/tmp/out-tiff', logger, true);
             o(convertArgs[0].info).equals(logger.info);

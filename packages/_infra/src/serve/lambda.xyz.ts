@@ -3,7 +3,6 @@ import lambda = require('@aws-cdk/aws-lambda');
 import s3 = require('@aws-cdk/aws-s3');
 
 import { RetentionDays } from '@aws-cdk/aws-logs';
-import { VersionUtil } from '../version';
 import { Duration } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
 import { getConfig } from '../config';
@@ -20,7 +19,6 @@ export class LambdaXyz extends cdk.Construct {
         super(scope, id);
 
         const config = getConfig();
-        const version = VersionUtil.version();
         const cogBucket = s3.Bucket.fromBucketName(this, 'CogBucket', config.CogBucket);
         this.lambda = new lambda.Function(this, 'Tiler', {
             runtime: lambda.Runtime.NODEJS_10_X,
@@ -29,9 +27,6 @@ export class LambdaXyz extends cdk.Construct {
             handler: 'index.handler',
             code: lambda.Code.asset(CODE_PATH),
             environment: {
-                [Env.NodeEnv]: Env.get(Env.NodeEnv, 'dev'),
-                [Env.Hash]: version.hash,
-                [Env.Version]: version.version,
                 [Env.PublicUrlBase]: config.PublicUrlBase,
             },
             logRetention: RetentionDays.ONE_MONTH,

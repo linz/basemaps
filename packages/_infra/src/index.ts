@@ -5,11 +5,14 @@ import { EdgeStack } from './edge';
 import { ServeStack } from './serve';
 import { DeployEnv } from './deploy.env';
 import { Env } from '@basemaps/shared';
+import { LoggingStack } from './log';
 
 const basemaps = new App();
 
 /** Using VPC lookups requires a hard coded AWS "account" */
 const account = Env.get(DeployEnv.CdkAccount);
+
+new LoggingStack(basemaps, 'Logging', { env: { region: 'ap-southeast-2', account } });
 
 /**
  * Because we are using Lambda@Edge the edge stack has to be deployed into us-east-1,

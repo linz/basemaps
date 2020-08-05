@@ -1,6 +1,13 @@
 import { Epsg } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
+import {
+    Aws,
+    Env,
+    LogConfig,
+    TileMetadataProviderRecord,
+    VNodeParser,
+    ProjectionTileMatrixSet,
+} from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import { Tiler } from '@basemaps/tiler';
 import o from 'ospec';
@@ -42,10 +49,12 @@ o.spec('LambdaXyz', () => {
         TileComposer.compose = rasterMock as any;
 
         for (const tileSetName of TileSetNames) {
-            const tileSet = new FakeTileSet(tileSetName, Epsg.Google);
-            TileSets.set(tileSet.id, tileSet);
-            tileSet.load = () => Promise.resolve(true);
-            tileSet.getTiffsForTile = (): [] => [];
+            for (const code of ProjectionTileMatrixSet.targetCodes()) {
+                const tileSet = new FakeTileSet(tileSetName, Epsg.get(code));
+                TileSets.set(tileSet.id, tileSet);
+                tileSet.load = () => Promise.resolve(true);
+                tileSet.getTiffsForTile = (): [] => [];
+            }
         }
 
         (Aws.tileMetadata.Provider as any).get = async (): Promise<TileMetadataProviderRecord> => Provider;
@@ -148,11 +157,15 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = 'J/PRQuAAaF/8Ni2zdUJnsSFrfRtzQzYkBFY0kxMfWx8=';
-            const request = mockRequest('/v1/tiles/aerial/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
+            const key = 'oxWjinmkGeDsEoFBW1wZ1cUTXD1yth4gkJp5EsphoU8=';
+            const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
 
             const res = await handleRequest(request);
-            if (res.status == 200) o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
+            if (res.status == 200) {
+                o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
+                return;
+            }
+
             o(res.status).equals(304);
             o(rasterMock.calls.length).equals(0);
 
@@ -179,8 +192,8 @@ o.spec('LambdaXyz', () => {
             const vdom = await VNodeParser.parse(body);
             const url = vdom.tags('ResourceURL').next().value;
             o(url?.toString()).equals(
-                '<ResourceURL format="image/png" resourceType="tile" ' +
-                    'template="https://tiles.test/v1/tiles/aerial@beta/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=secretKey" />',
+                '<ResourceURL format="image/jpeg" resourceType="tile" ' +
+                    'template="https://tiles.test/v1/tiles/aerial@beta/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.jpeg?api=secretKey" />',
             );
         });
     });

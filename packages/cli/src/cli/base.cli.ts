@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Env, LogConfig, LoggerFatalError } from '@basemaps/shared';
+import { LogConfig, LoggerFatalError } from '@basemaps/shared';
 import { GitTag } from '@basemaps/shared/build/cli/git.tag';
 import { CommandLineParser } from '@rushstack/ts-command-line';
 import { PrettyTransform } from 'pretty-json-log';
@@ -12,8 +12,8 @@ const packageJson = require('../../package.json');
 /** Useful traceability information  */
 export const CliInfo: { package: string; version: string; hash: string } = {
     package: packageJson.name,
-    version: Env.get(Env.Version, packageJson.version),
-    hash: Env.get(Env.Hash, packageJson.gitHead) ?? GitTag().hash,
+    version: process.env.GIT_VERSION ?? packageJson.version,
+    hash: process.env.GIT_HASH ?? packageJson.gitHead ?? GitTag().hash,
 };
 
 /** Unique Id for this instance of the cli being run */
