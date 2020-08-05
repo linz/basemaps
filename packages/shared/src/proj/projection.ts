@@ -1,5 +1,12 @@
-import { BoundingBox, Bounds, Epsg, EpsgCode, GeoJson } from '@basemaps/geo';
-import { BBox, MultiPolygon, multiPolygonToWgs84 } from '@linzjs/geojson';
+import { BoundingBox, Bounds, Epsg, EpsgCode } from '@basemaps/geo';
+import {
+    BBox,
+    MultiPolygon,
+    multiPolygonToWgs84,
+    toFeatureCollection,
+    toFeatureMultiPolygon,
+    toFeaturePolygon,
+} from '@linzjs/geojson';
 import { Position } from 'geojson';
 import Proj from 'proj4';
 import { NamedBounds } from '../aws/tile.metadata.base';
@@ -126,14 +133,14 @@ export class Projection {
         const coords = multiPolygonToWgs84([[[sw, nw, ne, se, sw]]] as MultiPolygon, this.toWgs84);
 
         if (coords.length == 1) {
-            return GeoJson.toFeaturePolygon(coords[0], properties);
+            return toFeaturePolygon(coords[0], properties);
         }
 
-        return GeoJson.toFeatureMultiPolygon(coords, properties);
+        return toFeatureMultiPolygon(coords, properties);
     }
 
     /** Convert a tile covering to a GeoJSON FeatureCollection */
     toGeoJson(files: NamedBounds[]): GeoJSON.FeatureCollection {
-        return GeoJson.toFeatureCollection(files.map((f) => this.boundsToGeoJsonFeature(f, { name: f.name })));
+        return toFeatureCollection(files.map((f) => this.boundsToGeoJsonFeature(f, { name: f.name })));
     }
 }

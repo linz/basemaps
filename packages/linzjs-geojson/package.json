@@ -20,7 +20,7 @@
     "polygon-clipping": "^0.15.1"
   },
   "peerDependencies": {},
-    "devDependencies": {
-        "@types/geojson": "^7946.0.7"
-    }
+  "devDependencies": {
+    "@types/geojson": "^7946.0.7"
+  }
 }

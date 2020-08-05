@@ -1,7 +1,15 @@
-import { Bounds, Epsg, GeoJson, Tile, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import { compareName, FileOperator, NamedBounds, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { Projection } from '@basemaps/shared/build/proj/projection';
-import { clipMultipolygon, intersection, MultiPolygon, Ring, union } from '@linzjs/geojson';
+import {
+    clipMultipolygon,
+    featuresToMultiPolygon,
+    intersection,
+    MultiPolygon,
+    toFeatureCollection,
+    toFeatureMultiPolygon,
+    union,
+} from '@linzjs/geojson';
 import { FeatureCollection } from 'geojson';
 import { CoveringFraction, MaxImagePixelWidth } from './constants';
 import { CogJob, SourceMetadata } from './types';
@@ -20,8 +28,6 @@ const PixelPadding = 100;
 
 /** fraction to scale source imagery to avoid degenerate edges */
 const SourceSmoothScale = 1 + 1e-8;
-
-const copyPoint = (p: number[]): [number, number] => [p[0], p[1]];
 
 function findGeoJsonProjection(geojson: any | null): Epsg {
     return Epsg.parse(geojson?.crs?.properties?.name ?? '') ?? Epsg.Wgs84;
@@ -59,7 +65,7 @@ function addNonDupes(list: Tile[], addList: Tile[]): void {
 
 export class Cutline {
     /** The polygon to clip source imagery to */
-    clipPoly: MultiPolygon = [];
+    clipPoly: MultiPolygon;
     targetPtms: ProjectionTileMatrixSet;
     tms: TileMatrixSet; // convience to targetPtms.tms
     /** How much blending to apply at the clip line boundary */
@@ -86,6 +92,7 @@ export class Cutline {
         this.blend = blend;
         this.oneCog = oneCog;
         if (clipPoly == null) {
+            this.clipPoly = [];
             return;
         }
 
@@ -95,16 +102,9 @@ export class Cutline {
         if (needProj && proj !== Epsg.Wgs84) {
             throw new Error('Invalid geojson; CRS may not be set for cutline!');
         }
-        const convert = needProj ? this.targetPtms.proj.fromWgs84 : copyPoint;
-        for (const { geometry } of clipPoly.features) {
-            if (geometry.type === 'MultiPolygon') {
-                for (const coords of geometry.coordinates) {
-                    this.clipPoly.push([coords[0].map(convert) as Ring]);
-                }
-            } else if (geometry.type === 'Polygon') {
-                this.clipPoly.push([geometry.coordinates[0].map(convert) as Ring]);
-            }
-        }
+        const convert = needProj ? this.targetPtms.proj.fromWgs84 : undefined;
+
+        this.clipPoly = featuresToMultiPolygon(clipPoly.features, true, convert).coordinates as MultiPolygon;
     }
 
     /**
@@ -216,9 +216,7 @@ export class Cutline {
      * Convert JobCutline to geojson FeatureCollection
      */
     toGeoJson(clipPoly = this.clipPoly): FeatureCollectionWithCrs {
-        const feature = GeoJson.toFeatureCollection([
-            GeoJson.toFeatureMultiPolygon(clipPoly),
-        ]) as FeatureCollectionWithCrs;
+        const feature = toFeatureCollection([toFeatureMultiPolygon(clipPoly)]) as FeatureCollectionWithCrs;
         feature.crs = {
             type: 'name',
             properties: { name: this.targetPtms.proj.epsg.toUrn() },
