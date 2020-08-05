@@ -1,6 +1,7 @@
-import { Bounds, EpsgCode, Tile, TileMatrixSet } from '@basemaps/geo';
+import { EpsgCode, Tile, TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { BBox } from '@linzjs/geojson';
 import { Projection } from './projection';
 
 export interface LatLon {
@@ -24,6 +25,10 @@ export class ProjectionTileMatrixSet {
         this.tms = tms;
         this.blockFactor = blockFactor;
         this.proj = Projection.get(tms.projection.code);
+    }
+
+    static targetCodes(): IterableIterator<EpsgCode> {
+        return CodeMap.keys();
     }
 
     /**
@@ -66,20 +71,13 @@ export class ProjectionTileMatrixSet {
         throw new Error('ResZoom not found');
     }
 
-    /** Convert a tile to a BBox in source units */
-    tileToSourceBounds(tile: Tile): Bounds {
-        const ul = this.tms.tileToSource(tile);
-        const lr = this.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
-        return new Bounds(Math.min(ul.x, lr.x), Math.min(ul.y, lr.y), Math.abs(lr.x - ul.x), Math.abs(lr.y - ul.y));
-    }
-
     /** Convert a tile to the wgs84 bounds */
-    tileToWgs84Bbox(tile: Tile): [number, number, number, number] {
+    tileToWgs84Bbox(tile: Tile): BBox {
         const ul = this.tms.tileToSource(tile);
         const lr = this.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
 
-        const [swLon, swLat] = this.proj.toWsg84([ul.x, lr.y]);
-        const [neLon, neLat] = this.proj.toWsg84([lr.x, ul.y]);
+        const [swLon, swLat] = this.proj.toWgs84([ul.x, lr.y]);
+        const [neLon, neLat] = this.proj.toWgs84([lr.x, ul.y]);
 
         return [swLon, swLat, neLon, neLat];
     }
@@ -89,7 +87,7 @@ export class ProjectionTileMatrixSet {
      */
     tileCenterToLatLon(tile: Tile): LatLon {
         const point = this.tms.tileToSource({ x: tile.x + 0.5, y: tile.y + 0.5, z: tile.z });
-        const [lon, lat] = this.proj.toWsg84([point.x, point.y]);
+        const [lon, lat] = this.proj.toWgs84([point.x, point.y]);
         return { lat, lon };
     }
 

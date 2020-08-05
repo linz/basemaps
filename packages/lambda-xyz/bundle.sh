@@ -2,7 +2,7 @@
 #
 # Create a deployment bundle with sharp/libvips prebuilt included
 #
-esbuild --bundle --platform=node src/index.ts --external:aws-sdk --external:pino-pretty --external:sharp --target=es2018 --outdir=dist --format=cjs
+../../scripts/bundle.js package.json
 cd dist
 cp ../package.json .
 # @see https://sharp.pixelplumbing.com/en/stable/install/#aws-lambda

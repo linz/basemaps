@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/tiler",
-  "version": "4.2.0",
+  "version": "4.4.0",
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
@@ -10,7 +10,7 @@
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "dependencies": {
-    "@basemaps/geo": "^4.1.0",
+    "@basemaps/geo": "^4.4.0",
     "@basemaps/metrics": "^4.0.0",
     "@cogeotiff/core": "^2.2.0"
   },

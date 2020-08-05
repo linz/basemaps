@@ -2,6 +2,7 @@ import o from 'ospec';
 import { TileMetadataTileSet } from '../tile.metadata.tileset';
 import { Epsg } from '@basemaps/geo';
 import { TileMetadataSetRecord, TileMetadataTag } from '../tile.metadata.base';
+import { TileSetName } from '../../proj/tile.set.name';
 
 const promiseNull = async (): Promise<unknown> => null;
 async function throws(cb: () => Promise<any>, re: RegExp): Promise<void> {
@@ -93,9 +94,9 @@ o.spec('tile.metadata.tileset', () => {
 
     o.spec('parse', () => {
         o('should parse @ syntax', () => {
-            o(ts.parse('aerial@head')).deepEquals({ name: 'aerial', tag: TileMetadataTag.Head });
-            o(ts.parse('aerial@production')).deepEquals({ name: 'aerial', tag: TileMetadataTag.Production });
-            o(ts.parse('aerial@beta')).deepEquals({ name: 'aerial', tag: TileMetadataTag.Beta });
+            o(ts.parse('aerial@head')).deepEquals({ name: TileSetName.aerial, tag: TileMetadataTag.Head });
+            o(ts.parse('aerial@production')).deepEquals({ name: TileSetName.aerial, tag: TileMetadataTag.Production });
+            o(ts.parse('aerial@beta')).deepEquals({ name: TileSetName.aerial, tag: TileMetadataTag.Beta });
         });
 
         o('should throw with invalid tags', () => {

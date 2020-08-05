@@ -1,24 +1,34 @@
 {
   "name": "@basemaps/lambda-xyz",
-  "version": "4.3.0",
+  "version": "4.5.0",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@basemaps/geo": "^4.1.0",
-    "@basemaps/lambda": "^4.0.0",
-    "@basemaps/shared": "^4.2.0",
-    "@basemaps/tiler": "^4.2.0",
-    "@basemaps/tiler-sharp": "^4.2.0",
+    "@linzjs/geojson": "^1.0.0",
+    "@basemaps/geo": "^4.4.0",
+    "@basemaps/lambda": "^4.5.0",
+    "@basemaps/shared": "^4.5.0",
+    "@basemaps/tiler": "^4.4.0",
+    "@basemaps/tiler-sharp": "^4.4.0",
     "@cogeotiff/core": "^2.2.0",
     "@cogeotiff/source-aws": "^2.2.0",
     "path-to-regexp": "^6.1.0",
     "sharp": "^0.25.2"
   },
+  "bundle": {
+    "entry": "src/index.ts",
+    "outdir": "dist/",
+    "external": [
+      "aws-sdk",
+      "pino-pretty",
+      "sharp"
+    ]
+  },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
-    "deploy:bundle": "./bundle.sh"
+    "bundle": "./bundle.sh"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",

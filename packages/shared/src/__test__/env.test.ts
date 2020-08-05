@@ -10,6 +10,5 @@ o.spec('Environment', () => {
     o('should default from environment var', () => {
         delete process.env[Env.TiffConcurrency];
         o(Env.getNumber(Env.TiffConcurrency, -1)).equals(-1);
-        o(Env.get(Env.TiffConcurrency, 'foo')).equals('foo');
     });
 });

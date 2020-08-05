@@ -1,6 +1,5 @@
 import { Callback, Context } from 'aws-lambda';
 import { ApplicationJson, HttpHeader } from './header';
-import { Env } from '@basemaps/shared';
 import { LambdaContext, LambdaHttpRequestType, LambdaHttpReturnType, LogType } from './lambda.context';
 import { LambdaHttpResponse } from './lambda.response';
 
@@ -40,7 +39,7 @@ export class LambdaFunction {
                 region: process.env['AWS_REGION'],
             };
 
-            ctx.set('package', { hash: Env.get(Env.Hash), version: Env.get(Env.Version) });
+            ctx.set('package', { hash: process.env.GIT_HASH, version: process.env.GIT_VERSION });
             ctx.set('method', ctx.method);
             ctx.set('path', ctx.path);
             ctx.log.debug({ lambda }, 'LambdaStart');

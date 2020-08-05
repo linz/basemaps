@@ -40,7 +40,7 @@ jobs:
         run: yarn run benchmark
 
       - name: Deploy - Bundle
-        run: npx lerna run deploy:bundle --stream
+        run: npx lerna run bundle --stream
 
       - name: Configure AWS Credentials (NonProd)
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
@@ -61,6 +61,7 @@ jobs:
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
           NODE_ENV: "dev"
           API_KEY: ${{secrets.API_KEY_NON_PROD}}
+          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
 
       - name: Publish NPM
         if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'linz/basemaps'
@@ -87,3 +88,4 @@ jobs:
           NODE_ENV: "production"
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
+          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}

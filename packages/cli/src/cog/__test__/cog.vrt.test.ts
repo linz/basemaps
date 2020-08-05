@@ -235,7 +235,7 @@ o.spec('cog.vrt', () => {
         ]);
 
         o(runSpy.callCount).equals(2);
-        o(mount.calls.map((c: any) => c.args[0])).deepEquals([tmpFolder]);
+        o(mount.calls.map((c: any) => c.args[0])).deepEquals([tmpFolder, ...job.source.files.map((c) => c.name)]);
 
         o(setCredentials.calls.map((c: any) => c.args[0].service.config.params.RoleArn)).deepEquals(['a:role:string']);
 

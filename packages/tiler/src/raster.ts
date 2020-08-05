@@ -39,7 +39,7 @@ export enum ImageFormat {
     WEBP = 'webp',
 }
 
-export const ImageFormatOrder = [ImageFormat.PNG, ImageFormat.WEBP, ImageFormat.JPEG];
+export const ImageFormatOrder = [ImageFormat.JPEG, ImageFormat.WEBP, ImageFormat.PNG];
 
 /** Guess the image format based on the file extension */
 export function getImageFormat(ext: string): ImageFormat | null {

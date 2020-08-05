@@ -45,10 +45,27 @@ async function handleRequest(
     }
 }
 
-async function main(): Promise<void> {
-    if (Env.get(Env.PublicUrlBase) == '') {
-        process.env[Env.PublicUrlBase] = `http://localhost:${port}`;
-    }
+function useAws(): void {
+    app.get('/v1/*', async (req: express.Request, res: express.Response) => {
+        const startTime = Date.now();
+        const requestId = ulid.ulid();
+        const logger = LogConfig.get().child({ id: requestId });
+        const ctx = new LambdaContext(
+            {
+                httpMethod: 'get',
+                path: req.path,
+                queryStringParameters: req.query,
+            } as any,
+            logger,
+        );
+
+        await handleRequest(ctx, res, startTime, logger);
+    });
+
+    LogConfig.get().info({ port, base: process.env[Env.PublicUrlBase], aws: process.env['AWS_PROFILE'] }, 'Listen');
+}
+
+async function useLocal(): Promise<void> {
     let projection: number = Epsg.Google.code;
     const filePath = process.argv[2];
 
@@ -84,7 +101,7 @@ async function main(): Promise<void> {
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
 
-        const xml = WmtsCapabilities.toXml(Env.get(Env.PublicUrlBase), Provider, [...TileSets.values()]);
+        const xml = WmtsCapabilities.toXml(Env.get(Env.PublicUrlBase) ?? '', Provider, [...TileSets.values()]);
         res.header('content-type', 'application/xml');
         res.send(xml);
         res.end();
@@ -93,12 +110,24 @@ async function main(): Promise<void> {
     });
 
     app.use(express.static(__dirname + '/../../../landing/dist/'));
-    await new Promise((resolve) => app.listen(port, resolve));
 
     const url = Env.get(Env.PublicUrlBase) + `/?i=${tileSetName}&p=${projection}`;
     const wmts = Env.get(Env.PublicUrlBase) + `/v1/WMTSCapabilities.xml`;
     const xyz = Env.get(Env.PublicUrlBase) + `/v1/tiles/${tileSetName}/${projection}/{z}/{x}/{y}.png`;
     LogConfig.get().info({ url, wmts, xyz }, 'Listen');
+}
+
+async function main(): Promise<void> {
+    if (Env.get(Env.PublicUrlBase) == '') {
+        process.env[Env.PublicUrlBase] = `http://localhost:${port}`;
+    }
+
+    if (process.argv.length < 3) {
+        useAws();
+    } else {
+        await useLocal();
+    }
+    await new Promise((resolve) => app.listen(port, resolve));
 }
 
 main().catch((e) => console.error(e));
