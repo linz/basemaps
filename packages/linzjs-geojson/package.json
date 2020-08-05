@@ -1,6 +1,6 @@
 {
   "name": "@linzjs/geojson",
-  "version": "1.0.0",
+  "version": "4.6.0",
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
@@ -19,7 +19,6 @@
     "lineclip": "^1.1.5",
     "polygon-clipping": "^0.15.1"
   },
-  "peerDependencies": {},
   "devDependencies": {
     "@types/geojson": "^7946.0.7"
   }

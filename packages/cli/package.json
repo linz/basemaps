@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "4.5.0",
+  "version": "4.6.0",
   "private": false,
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
@@ -26,13 +26,13 @@
     }
   ],
   "dependencies": {
-    "@linzjs/geojson": "^1.0.0",
-    "@basemaps/geo": "^4.4.0",
-    "@basemaps/shared": "^4.5.0",
+    "@basemaps/geo": "^4.6.0",
+    "@basemaps/shared": "^4.6.0",
     "@cogeotiff/core": "^2.2.0",
     "@cogeotiff/source-aws": "^2.2.0",
     "@cogeotiff/source-file": "^2.2.0",
     "@cogeotiff/source-url": "^2.2.0",
+    "@linzjs/geojson": "^4.6.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
     "p-limit": "^3.0.1",
