@@ -18,6 +18,7 @@ export class ApiKeyTableStack extends cdk.Stack {
             tableName: Const.ApiKey.TableName,
             billingMode: dynamoDb.BillingMode.PAY_PER_REQUEST,
             partitionKey: { name: 'id', type: dynamoDb.AttributeType.STRING },
+            pointInTimeRecovery: true,
         });
     }
 }

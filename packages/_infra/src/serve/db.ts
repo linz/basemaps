@@ -11,6 +11,7 @@ export class TileMetadataTable extends cdk.Construct {
             tableName: Const.TileMetadata.TableName,
             billingMode: dynamoDb.BillingMode.PAY_PER_REQUEST,
             partitionKey: { name: 'id', type: dynamoDb.AttributeType.STRING },
+            pointInTimeRecovery: true,
         });
 
         new cdk.CfnOutput(this, 'TileMetadataTable', { value: this.table.tableArn });
