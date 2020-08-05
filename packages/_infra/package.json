@@ -11,22 +11,22 @@
     "deploy:deploy": "cdk deploy '*' -y --require-approval never"
   },
   "devDependencies": {
-    "@aws-cdk/aws-batch": "1.54.0",
-    "@aws-cdk/aws-certificatemanager": "1.54.0",
-    "@aws-cdk/aws-cloudfront": "1.54.0",
-    "@aws-cdk/aws-dynamodb": "1.54.0",
-    "@aws-cdk/aws-ecr": "1.54.0",
-    "@aws-cdk/aws-ecr-assets": "1.54.0",
-    "@aws-cdk/aws-elasticloadbalancingv2": "1.54.0",
-    "@aws-cdk/aws-elasticloadbalancingv2-targets": "1.54.0",
-    "@aws-cdk/aws-kinesisfirehose": "1.54.0",
-    "@aws-cdk/aws-lambda-event-sources": "^1.54.0",
-    "@aws-cdk/aws-s3": "1.54.0",
-    "@aws-cdk/core": "1.54.0",
+    "@aws-cdk/aws-batch": "> 1.54.0",
+    "@aws-cdk/aws-certificatemanager": "> 1.54.0",
+    "@aws-cdk/aws-cloudfront": "> 1.54.0",
+    "@aws-cdk/aws-dynamodb": "> 1.54.0",
+    "@aws-cdk/aws-ecr": "> 1.54.0",
+    "@aws-cdk/aws-ecr-assets": "> 1.54.0",
+    "@aws-cdk/aws-elasticloadbalancingv2": "> 1.54.0",
+    "@aws-cdk/aws-elasticloadbalancingv2-targets": "> 1.54.0",
+    "@aws-cdk/aws-kinesisfirehose": "> 1.54.0",
+    "@aws-cdk/aws-lambda-event-sources": "> 1.54.0",
+    "@aws-cdk/aws-s3": "> 1.54.0",
+    "@aws-cdk/core": "> 1.54.0",
     "@basemaps/lambda-api-tracker": "^4.5.0",
     "@basemaps/lambda-xyz": "^4.5.0",
     "@basemaps/shared": "^4.5.0",
     "@linzjs/cdk-elastic-shipper": "^0.3.0",
-    "aws-cdk": "1.54.0"
+    "aws-cdk": "^1.56.0"
   }
 }
