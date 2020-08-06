@@ -1,15 +1,6 @@
 import { Tile, TileMatrixSet } from '@basemaps/geo';
-import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import {
-    Aws,
-    Env,
-    ProjectionTileMatrixSet,
-    TileDataWmts,
-    TileDataXyz,
-    tileFromPath,
-    TileMetadataTag,
-    TileType,
-} from '@basemaps/shared';
+import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
+import { Aws, Env, TileDataWmts, TileDataXyz, tileFromPath, TileMetadataTag, TileType } from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -63,16 +54,9 @@ function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpRespo
 
 export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
     const tiler = Tilers.get(xyzData.projection);
-    if (tiler == null) return new LambdaHttpResponse(404, `Projection: ${xyzData.projection} Not Found`);
+    if (tiler == null) return new LambdaHttpResponse(404, `Projection not found: ${xyzData.projection.code}`);
 
     const { x, y, z, ext } = xyzData;
-    req.set('xyz', { x, y, z });
-    req.set('projection', xyzData.projection.code);
-    req.set('extension', ext);
-    if (z > tiler.tms.maxZoom) return new LambdaHttpResponse(404, `Zoom not found : ${z}`);
-
-    const latLon = ProjectionTileMatrixSet.get(xyzData.projection.code).tileCenterToLatLon(xyzData);
-    req.set('location', latLon);
 
     req.timer.start('tileset:load');
     const tileSet = await loadTileSet(xyzData.name, xyzData.projection);
@@ -153,6 +137,7 @@ export async function TileOrWmts(req: LambdaContext): Promise<LambdaHttpResponse
     if (xyzData.type === TileType.WMTS) {
         return wmts(req, xyzData);
     } else {
+        ValidateTilePath.validate(req, xyzData);
         return tile(req, xyzData);
     }
 }
