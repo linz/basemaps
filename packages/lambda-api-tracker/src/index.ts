@@ -1,22 +1,6 @@
-import { LambdaContext, LambdaFunction, LambdaHttpResponse } from '@basemaps/lambda';
-import { LogConfig, ProjectionTileMatrixSet, tileFromPath, TileType } from '@basemaps/shared';
+import { LambdaContext, LambdaFunction, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
+import { LogConfig, tileFromPath, TileType } from '@basemaps/shared';
 import { ValidateRequest } from './validate';
-
-function setTileInfo(ctx: LambdaContext): void {
-    const xyzData = tileFromPath(ctx.action.rest);
-    if (xyzData == null) return;
-
-    if (xyzData.type === TileType.Image) {
-        const { x, y, z, ext } = xyzData;
-        ctx.set('xyz', { x, y, z });
-        ctx.set('projection', xyzData.projection.code);
-        ctx.set('extension', ext);
-        ctx.set('tileSet', xyzData.name);
-
-        const latLon = ProjectionTileMatrixSet.get(xyzData.projection.code).tileCenterToLatLon(xyzData);
-        ctx.set('location', latLon);
-    }
-}
 
 /** Extract the hostname from a url */
 export function getUrlHost(ref: string | undefined): string | undefined {
@@ -47,7 +31,8 @@ export async function handleRequest(req: LambdaContext): Promise<LambdaHttpRespo
     req.set('referer', getUrlHost(req.header('referer')));
     req.set('userAgent', req.header('user-agent'));
 
-    if (req.action.name === 'tiles') setTileInfo(req);
+    const xyzData = tileFromPath(req.action.rest);
+    if (xyzData?.type == TileType.Image) ValidateTilePath.validate(req, xyzData);
 
     // Validate the request throwing an error if anything goes wrong
     req.timer.start('validate');

@@ -48,7 +48,7 @@ o.spec('xyz-request', () => {
     });
 
     o('should catch missing api key', async () => {
-        const res = await handleRequest(req('/v1/tiles/aerial/3857/1/2/3.png', ''));
+        const res = await handleRequest(req('/v1/tiles/aerial/3857/0/0/0.png', ''));
 
         o(res.status).equals(400);
         o(res.statusDescription).equals('Invalid API Key');
@@ -57,10 +57,14 @@ o.spec('xyz-request', () => {
     o('should return LambdaHttpResponseCloudFrontRequest on success', async () => {
         ValidateRequest.validate = async (): Promise<LambdaHttpResponse | null> => null;
 
-        const request = req('/v1/tiles/aerial/3857/1/2/3.png');
+        const request = req('/v1/tiles/aerial/3857/0/0/0.png');
         const res = await handleRequest(request);
 
         o(res.status).equals(100);
+        o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
+        o(request.logContext['tileSet']).equals('aerial');
+        o(request.logContext['projection']).equals(3857);
+
         const response = LambdaContext.toResponse(request, res) as CloudFrontRequestResult;
 
         const corrId = String(res.header(HttpHeader.CorrelationId));
