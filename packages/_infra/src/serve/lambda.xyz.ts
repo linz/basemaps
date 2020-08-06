@@ -19,7 +19,6 @@ export class LambdaXyz extends cdk.Construct {
         super(scope, id);
 
         const config = getConfig();
-        const cogBucket = s3.Bucket.fromBucketName(this, 'CogBucket', config.CogBucket);
         this.lambda = new lambda.Function(this, 'Tiler', {
             runtime: lambda.Runtime.NODEJS_10_X,
             memorySize: 2048,
@@ -31,7 +30,9 @@ export class LambdaXyz extends cdk.Construct {
             },
             logRetention: RetentionDays.ONE_MONTH,
         });
-
-        cogBucket.grantRead(this.lambda);
+        for (const bucketName of config.CogBucket) {
+            const cogBucket = s3.Bucket.fromBucketName(this, `CogBucket${bucketName}`, bucketName);
+            cogBucket.grantRead(this.lambda);
+        }
     }
 }

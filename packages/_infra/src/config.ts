@@ -1,6 +1,6 @@
 export interface BaseMapsConfig {
     /** S3 bucket where all the cogs are stored */
-    CogBucket: string;
+    CogBucket: string[];
 
     /** Domain name for CloudFront to bind to */
     CloudFrontDns?: string[];
@@ -15,20 +15,20 @@ export interface BaseMapsConfig {
     PublicUrlBase: string;
 }
 
-export const BaseMapsDevConfig: BaseMapsConfig = {
-    CogBucket: 'basemaps-cog-test',
-    Route53Zone: 'nonprod.basemaps.awsint.linz.govt.nz',
-    AlbPublicDns: 'dev.int.tiles.basemaps.linz.govt.nz',
-    CloudFrontDns: ['tiles.dev.basemaps.linz.govt.nz', 'dev.basemaps.linz.govt.nz'],
-    PublicUrlBase: 'https://tiles.dev.basemaps.linz.govt.nz',
-};
-
 export const BaseMapsProdConfig: BaseMapsConfig = {
-    CogBucket: 'linz-basemaps',
+    CogBucket: ['linz-basemaps'],
     Route53Zone: 'prod.basemaps.awsint.linz.govt.nz.',
     AlbPublicDns: 'int.tiles.basemaps.linz.govt.nz',
     CloudFrontDns: ['tiles.basemaps.linz.govt.nz', 'basemaps.linz.govt.nz'],
     PublicUrlBase: 'https://tiles.basemaps.linz.govt.nz',
+};
+
+export const BaseMapsDevConfig: BaseMapsConfig = {
+    CogBucket: ['basemaps-cog-test', ...BaseMapsProdConfig.CogBucket],
+    Route53Zone: 'nonprod.basemaps.awsint.linz.govt.nz',
+    AlbPublicDns: 'dev.int.tiles.basemaps.linz.govt.nz',
+    CloudFrontDns: ['tiles.dev.basemaps.linz.govt.nz', 'dev.basemaps.linz.govt.nz'],
+    PublicUrlBase: 'https://tiles.dev.basemaps.linz.govt.nz',
 };
 
 export function getConfig(): BaseMapsConfig {
