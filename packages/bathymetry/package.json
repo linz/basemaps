@@ -19,7 +19,7 @@
     "@basemaps/cli": "^4.6.0",
     "@basemaps/geo": "^4.6.0",
     "@basemaps/shared": "^4.6.0",
-    "multihashes": "^1.0.1"
+    "multihashes": "^3.0.1"
   },
   "peerDependencies": {
     "mapnik": "^4.4.0"
