@@ -12,9 +12,8 @@ import { CogVrt } from '../../cog/cog.vrt';
 import { Cutline } from '../../cog/cutline';
 import { CogJob } from '../../cog/types';
 import { Gdal } from '../../gdal/gdal';
-import { CliId, CliInfo } from '../base.cli';
+import { CliId } from '../base.cli';
 import { getJobPath, makeTempFolder } from '../folder';
-import { SemVer } from './semver.util';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -69,11 +68,6 @@ export class ActionCogCreate extends CommandLineAction {
 
         const inFp = FileOperator.create(jobFn);
         const job = (await inFp.readJson(jobFn)) as CogJob;
-
-        const jobVersion = SemVer.compare(job.generated?.version ?? '', CliInfo.version);
-        if (jobVersion !== 0) {
-            throw new LoggerFatalError({ jobInfo: job.generated, cli: CliInfo }, 'Version mismatch');
-        }
 
         const isCommit = this.commit?.value ?? false;
 
