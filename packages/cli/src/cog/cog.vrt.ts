@@ -1,10 +1,10 @@
-import { Epsg } from '@basemaps/geo';
 import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/shared';
 import { Gdal } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
 import { onProgress } from './cog';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
+import { Epsg } from '@basemaps/geo';
 
 /**
  * Build the VRT for the needed source imagery
@@ -17,7 +17,7 @@ async function buildPlainVrt(
     logger: LogType,
 ): Promise<void> {
     const buildOpts = ['-hidenodata', '-allow_projection_difference'];
-    if (job.output.vrt.addAlpha) {
+    if (job.output.addAlpha) {
         buildOpts.push('-addalpha');
     }
 
@@ -44,9 +44,9 @@ async function buildWarpVrt(
         '-wo',
         'NUM_THREADS=ALL_CPUS',
         '-s_srs',
-        Epsg.get(job.source.projection).toEpsgString(),
+        Epsg.get(job.source.epsg).toEpsgString(),
         '-t_srs',
-        Epsg.get(job.projection).toEpsgString(),
+        Epsg.get(job.output.epsg).toEpsgString(),
         '-tr',
         tr,
         tr,
@@ -128,9 +128,9 @@ export const CogVrt = {
             for (const file of job.source.files) gdalCommand.mount(file.name);
         }
 
-        const tr = cutline.tms.pixelScale(job.source.resZoom).toString();
+        const tr = job.output.gsd.toString();
 
-        onProgress(gdalCommand, { target: `vrt.${job.projection}` }, logger);
+        onProgress(gdalCommand, { target: `vrt.${job.output.epsg}` }, logger);
         await buildPlainVrt(job, sourceFiles, sourceVrtPath, gdalCommand, logger);
         await buildWarpVrt(job, cogVrtPath, gdalCommand, sourceVrtPath, tr, logger, cutlineTarget);
         return cogVrtPath;

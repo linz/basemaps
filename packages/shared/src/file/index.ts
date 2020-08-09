@@ -18,22 +18,22 @@ function getS3(s3Cfg: string | FileConfigS3): S3 {
 const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 
 export class S3FsJson extends S3Fs {
-    async readJson<T>(filePath: string, f?: FileProcessor): Promise<T> {
-        const data = await (f ?? this).read(filePath);
+    async readJson<T>(filePath: string, f: FileProcessor = this): Promise<T> {
+        const data = await f.read(filePath);
         if (filePath.endsWith('.gz')) {
             return JSON.parse((await pGunzip(data)).toString()) as T;
         } else {
             return JSON.parse(data.toString()) as T;
         }
     }
-    async writeJson(filePath: string, obj: any, f?: FileProcessor): Promise<void> {
+    async writeJson(filePath: string, obj: any, f: FileProcessor = this): Promise<void> {
         const json = Buffer.from(JSON.stringify(obj, undefined, 2));
         if (filePath.endsWith('.gz')) {
             const gzip = createGzip();
             gzip.end(json);
-            return (f ?? this).write(filePath, gzip);
+            return f.write(filePath, gzip);
         } else {
-            return (f ?? this).write(filePath, json);
+            return f.write(filePath, json);
         }
     }
 }

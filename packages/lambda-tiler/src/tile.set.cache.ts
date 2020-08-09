@@ -6,6 +6,7 @@ import {
     TileMetadataTable,
     TileSetNameValues,
     TileSetRuleImagery,
+    titleizeImageryName,
 } from '@basemaps/shared';
 import { TileSet } from './tile.set';
 
@@ -20,15 +21,6 @@ export function getTileSet(name: string, projection: Epsg): TileSet | undefined 
     return TileSets.get(tileSetId);
 }
 
-/**
- * Make a tileSet name nicer to display as a Title
- * @example
- *  'tasman_rural_2018-19_0-3m' => 'Tasman rural 2018-19 0.3m'
- */
-function titleizeName(name: string): string {
-    return name[0].toUpperCase() + name.slice(1).replace(/_0-/g, ' 0.').replace(/_/g, ' ');
-}
-
 function individualTileSet(parent: TileSet, image: TileSetRuleImagery, setId?: string): TileSet {
     const { id } = image.imagery;
     if (setId == null) {
@@ -39,7 +31,7 @@ function individualTileSet(parent: TileSet, image: TileSetRuleImagery, setId?: s
     copy.tileSet = Object.create(parent.tileSet ?? null);
     copy.tileSet.background = undefined;
 
-    copy.titleOverride = `${parent.title} ${titleizeName(image.imagery.name)}`;
+    copy.titleOverride = `${parent.title} ${titleizeImageryName(image.imagery.name)}`;
     copy.extentOverride = Bounds.fromJson(image.imagery.bounds);
 
     const rule = {

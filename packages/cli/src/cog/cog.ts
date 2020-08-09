@@ -1,5 +1,5 @@
-import { EpsgCode, TileMatrixSet, Bounds } from '@basemaps/geo';
-import { Aws, isConfigS3Role, LogType, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { Bounds, EpsgCode, TileMatrixSet } from '@basemaps/geo';
+import { Aws, isConfigS3Role, LogType } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal.cog';
 import { GdalCommand } from '../gdal/gdal.command';
 import { TilingScheme } from '../gdal/gdal.config';
@@ -48,11 +48,10 @@ export async function buildCogForName(
 ): Promise<void> {
     const startTime = Date.now();
 
-    const { resZoom } = job.source;
-    const targetPtms = ProjectionTileMatrixSet.get(job.projection);
+    const { targetZoom, targetPtms } = job;
     const { tms } = targetPtms;
 
-    const nb = job.files.find((nb) => nb.name === name);
+    const nb = job.output.files.find((nb) => nb.name === name);
 
     if (nb == null) {
         throw new Error("Can't find COG named " + name);
@@ -63,14 +62,14 @@ export async function buildCogForName(
     const tile = TileMatrixSet.nameToTile(name);
 
     const blockSize = tms.tileSize * targetPtms.blockFactor;
-    const alignmentLevels = targetPtms.findAlignmentLevels(tile, job.source.pixelScale);
+    const alignmentLevels = targetPtms.findAlignmentLevels(tile, job.source.gsd);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [bounds.x, bounds.bottom, bounds.right, bounds.y],
         projection: targetPtms.tms.projection,
-        tilingScheme: tilingScheme(job.projection),
+        tilingScheme: tilingScheme(tms.projection.code),
         blockSize,
-        targetRes: tms.pixelScale(resZoom),
+        targetRes: job.output.gsd,
         alignmentLevels,
         resampling: job.output.resampling,
         quality: job.output.quality,
@@ -80,15 +79,13 @@ export async function buildCogForName(
 
     logger.info(
         {
-            imageSize: targetPtms.getImagePixelWidth(tile, resZoom),
+            imageSize: targetPtms.getImagePixelWidth(tile, targetZoom),
             name,
             tile,
             alignmentLevels,
         },
         'CreateCog',
     );
-
-    logger.debug({ cmd: cogBuild.args.join(' ') }, 'GdalTranslate');
 
     // If required assume role
     if (isConfigS3Role(job.source)) {

@@ -4,6 +4,7 @@ import { FileProcessor } from './file';
 import { FileConfig, FileConfigS3 } from './file.config';
 import { FsLocal } from './file.local';
 import { FsS3 } from './file.s3';
+import { CompositeError } from './composite.error';
 
 export * from './file.config';
 export * from './file';
@@ -70,5 +71,9 @@ export class S3Fs {
             return new FsS3(this.getS3(cfg));
         }
         return localFs;
+    }
+
+    isCompositeError(e: unknown): e is CompositeError {
+        return CompositeError.isCompositeError(e);
     }
 }

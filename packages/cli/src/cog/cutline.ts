@@ -1,27 +1,17 @@
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
-import { compareName, FileOperator, NamedBounds, ProjectionTileMatrixSet } from '@basemaps/shared';
-import { Projection } from '@basemaps/shared/build/proj/projection';
+import { compareName, FileOperator, NamedBounds, Projection, ProjectionTileMatrixSet } from '@basemaps/shared';
 import {
     clipMultipolygon,
     featuresToMultiPolygon,
     intersection,
     MultiPolygon,
+    union,
     toFeatureCollection,
     toFeatureMultiPolygon,
-    union,
 } from '@linzjs/geojson';
 import { FeatureCollection } from 'geojson';
 import { CoveringFraction, MaxImagePixelWidth } from './constants';
-import { CogJob, SourceMetadata } from './types';
-
-export interface FeatureCollectionWithCrs extends FeatureCollection {
-    crs: {
-        type: string;
-        properties: {
-            name: string;
-        };
-    };
-}
+import { SourceMetadata, CogJob, FeatureCollectionWithCrs } from './types';
 
 /** Padding to always apply to image boundies */
 const PixelPadding = 100;
@@ -71,7 +61,7 @@ export class Cutline {
     /** How much blending to apply at the clip line boundary */
     blend: number;
     /** For just one cog to cover the imagery */
-    oneCog: boolean;
+    oneCogCovering: boolean;
     /** the polygon outlining a area covered by the source imagery and clip polygon */
     srcPoly: MultiPolygon = [];
 
@@ -86,11 +76,11 @@ export class Cutline {
 
      * @param blend How much blending to consider when working out boundaries.
      */
-    constructor(targetPtms: ProjectionTileMatrixSet, clipPoly?: FeatureCollection, blend = 0, oneCog = false) {
+    constructor(targetPtms: ProjectionTileMatrixSet, clipPoly?: FeatureCollection, blend = 0, oneCogCovering = false) {
         this.targetPtms = targetPtms;
         this.tms = targetPtms.tms;
         this.blend = blend;
-        this.oneCog = oneCog;
+        this.oneCogCovering = oneCogCovering;
         if (clipPoly == null) {
             this.clipPoly = [];
             return;
@@ -106,11 +96,6 @@ export class Cutline {
 
         this.clipPoly = featuresToMultiPolygon(clipPoly.features, true, convert).coordinates as MultiPolygon;
     }
-
-    /**
-     * The Name to used when just producing one cog to cover the full extent
-     */
-    static OneCogName = '0-0-0';
 
     /**
      * Load a geojson cutline from the file-system.
@@ -130,15 +115,15 @@ export class Cutline {
      * @returns names of source files required to render Cog
      */
     filterSourcesForName(name: string, job: CogJob): string[] {
-        if (this.oneCog) {
+        if (this.oneCogCovering) {
             return job.source.files.map(({ name }) => name);
         }
 
         const tile = TileMatrixSet.nameToTile(name);
-        const sourceCode = Projection.get(job.source.projection);
+        const sourceCode = Projection.get(job.source.epsg);
         const targetCode = this.targetPtms.proj;
         const tileBounds = this.tms.tileToSourceBounds(tile);
-        const tilePadded = this.padBounds(tileBounds, job.source.resZoom);
+        const tilePadded = this.padBounds(tileBounds, job.targetZoom);
 
         let tileBoundsInSrcProj = tilePadded;
 
@@ -174,9 +159,9 @@ export class Cutline {
      * @param sourceMetadata contains images bounds and projection info
      */
     optimizeCovering(sourceMetadata: SourceMetadata): NamedBounds[] {
-        if (this.oneCog) {
+        if (this.oneCogCovering) {
             const extent = this.tms.extent.toJson();
-            return [{ ...extent, name: Cutline.OneCogName }];
+            return [{ ...extent, name: '0-0-0' }];
         }
         this.findCovering(sourceMetadata);
 

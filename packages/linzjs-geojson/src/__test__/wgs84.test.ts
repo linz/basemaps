@@ -1,7 +1,7 @@
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { Wgs84 } from '../wgs84';
-import { BBox } from '../types';
+import { BBox, Ring } from '../types';
 
 o.spec('wgs84', () => {
     o('normLon', () => {
@@ -48,5 +48,32 @@ o.spec('wgs84', () => {
         o(unionLon(90, 100, -100, -90)).deepEquals([90, -42, -90, -40]);
         // disjoint west closer
         o(unionLon(80, 90, -90, -80)).deepEquals([-90, -42, 90, -40]);
+    });
+
+    o('ringToBbox', () => {
+        const ring: Ring = [
+            [170, -41],
+            [-175, -40],
+            [-177, -42],
+            [175, -42],
+            [170, -41],
+        ];
+        o(Wgs84.ringToBbox(ring)).deepEquals([170, -42, -175, -40]);
+    });
+
+    o('multiPolygonToBbox', () => {
+        const ring1: Ring = [
+            [170, -41],
+            [160, -42],
+            [170, -42],
+            [170, -41],
+        ];
+        const ring2: Ring = [
+            [-150, -40],
+            [-140, -41],
+            [-150, -41],
+            [-150, -40],
+        ];
+        o(Wgs84.multiPolygonToBbox([[ring1], [ring2]])).deepEquals([160, -42, -140, -40]);
     });
 });

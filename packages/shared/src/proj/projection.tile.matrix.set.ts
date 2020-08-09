@@ -53,19 +53,20 @@ export class ProjectionTileMatrixSet {
     }
 
     /**
-     * Find the closest zoom level to `resX` (pixels per meter) that is at least as good as `resX`.
+     * Find the closest zoom level to `gsd` (Ground Sampling Distance meters per pixel) that is at
+     * least as good as `gsd`.
 
-     * @param resX
+     * @param gsd
 
      * @param blockFactor How many time bigger the blockSize is compared to tileSize. Leave as 1 to
      * not take into account.
      */
-    getTiffResZoom(resX: number, blockFactor = 1): number {
+    getTiffResZoom(gsd: number, blockFactor = 1): number {
         // Get best image resolution
         const { tms } = this;
         let z = 0;
         for (; z < tms.zooms.length; ++z) {
-            if (tms.pixelScale(z) <= resX * blockFactor) return z;
+            if (tms.pixelScale(z) <= gsd * blockFactor) return z;
         }
         if (z == tms.zooms.length) return z - 1;
         throw new Error('ResZoom not found');
@@ -95,10 +96,10 @@ export class ProjectionTileMatrixSet {
      * Find the number of alignment levels required to render the tile. Min 1
      *
      * @param tile
-     * @param resX the pixel resolution of the source imagery
+     * @param gsd the pixel resolution of the source imagery
      */
-    findAlignmentLevels(tile: Tile, resX: number): number {
-        return Math.max(0, this.getTiffResZoom(resX, this.blockFactor) - tile.z);
+    findAlignmentLevels(tile: Tile, gsd: number): number {
+        return Math.max(0, this.getTiffResZoom(gsd, this.blockFactor) - tile.z);
     }
 
     /**
@@ -106,12 +107,12 @@ export class ProjectionTileMatrixSet {
      * `this.blockFactor` for HiDPI tiles.
 
      * @param tile
-     * @param sourceZoom The zoom level for the source imagery
+     * @param targetZoom The desired zoom level for the imagery
      */
-    getImagePixelWidth(tile: Tile, sourceZoom: number): number {
+    getImagePixelWidth(tile: Tile, targetZoom: number): number {
         const ul = this.tms.tileToSource(tile);
         const lr = this.tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
-        return Math.round((lr.x - ul.x) / this.tms.pixelScale(sourceZoom)) * this.blockFactor;
+        return Math.round((lr.x - ul.x) / this.tms.pixelScale(targetZoom)) * this.blockFactor;
     }
 }
 
