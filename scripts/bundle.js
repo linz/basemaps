@@ -37,7 +37,7 @@ const PkgBundle = z.union([BundleSchema, z.array(BundleSchema)]);
 function defineEnv(envName, envValue) {
     const envVar = (envValue == null ? process.env[envName] : envValue) || '';
     envVar != '' ? console.log('DefineEnv', envName, `"${c.green(envVar)}"`) : null;
-    return `--define:process.env.${envName}="'${envVar}'"`;
+    return `--define:process.env.${envName}="${envVar}"`;
 }
 
 function joinPath(basePath, newPath) {
