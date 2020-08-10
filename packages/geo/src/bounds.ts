@@ -158,11 +158,14 @@ export class Bounds implements BoundingBox {
 
     /**
      * Round dimensions to integers keeping the error a low as possible
+
+     * @param bias influence the rounding in favour of a larger area (+ve bias) or smaller area (-ve
+     * bias). Example: bias = 0.2 would round left and top down when < 0.7 and round right and bottom up when >= 0.3
      */
-    public round(): Bounds {
-        const x = Math.round(this.x);
-        const y = Math.round(this.y);
-        return new Bounds(x, y, Math.round(this.right) - x, Math.round(this.bottom) - y);
+    public round(bias = 0): Bounds {
+        const x = Math.round(this.x - bias);
+        const y = Math.round(this.y - bias);
+        return new Bounds(x, y, Math.round(this.right + bias) - x, Math.round(this.bottom + bias) - y);
     }
 
     public add(bounds: Point): Bounds {
