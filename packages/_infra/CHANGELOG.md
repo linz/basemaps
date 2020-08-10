@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.7.0](https://github.com/linz/basemaps/compare/v4.6.0...v4.7.0) (2020-08-10)
+
+
+### Features
+
+* **infra:** give dev readonly access to production COGs ([#1016](https://github.com/linz/basemaps/issues/1016)) ([5772a70](https://github.com/linz/basemaps/commit/5772a70e1f9dd58dac7c9d5e1f251ac8e138448b))
+* **infra:** support point in time recovery of dynamodb databases ([#1015](https://github.com/linz/basemaps/issues/1015)) ([a488cb7](https://github.com/linz/basemaps/commit/a488cb73bc7d5e4b22aced85ee29f3b2f1d0bc0a))
+
+
+
+
+
 # [4.6.0](https://github.com/linz/basemaps/compare/v4.5.0...v4.6.0) (2020-08-05)
 
 **Note:** Version bump only for package @basemaps/infra
