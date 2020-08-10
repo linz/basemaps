@@ -70,6 +70,9 @@ export class LambdaFunction {
             ctx.set('unfinished', ctx.timer.unfinished);
             ctx.set('duration', duration);
 
+            // Log a "Report" or "Metalog" full of information at the end of every request
+            ctx.set('@type', 'report');
+
             ctx.log.info(ctx.logContext, 'LambdaDone');
 
             if (!res.isBase64Encoded && res.header(HttpHeader.ContentType) == null) {
