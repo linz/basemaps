@@ -6,6 +6,9 @@ import { CliId } from './base.cli';
 const cloudFormation = new AWS.CloudFormation({ region: 'us-east-1' });
 const cloudFront = new AWS.CloudFront({ region: 'us-east-1' });
 
+/** cloudfront invalidation references need to be unique */
+let InvalidationId = 0;
+
 /**
  * Invalidate the cloudfront distribution cache when updating imagery sets
  */
@@ -32,7 +35,10 @@ export async function invalidateCache(path: string, commit = false): Promise<voi
         await cloudFront
             .createInvalidation({
                 DistributionId: cf.Id,
-                InvalidationBatch: { Paths: { Quantity: 1, Items: [path] }, CallerReference: CliId },
+                InvalidationBatch: {
+                    Paths: { Quantity: 1, Items: [path] },
+                    CallerReference: `${CliId}-${InvalidationId++}`,
+                },
             })
             .promise();
     }
