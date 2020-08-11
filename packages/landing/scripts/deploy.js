@@ -53,13 +53,16 @@ async function deploy() {
         }
         hasChanges = true;
 
+        // Don't set cache control for index.html as it may change all other files are hashed and immutable
+        const cacheControl = fileName == 'index.html' ? undefined : 'public, max-age=604800, immutable';
+
         console.log('Uploading', fileName, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
         const res = await s3
             .putObject({
                 Bucket: s3BucketName,
                 Key: fileName,
                 Body: fileData,
-                Metadata: { [HashKey]: hash },
+                Metadata: { [HashKey]: hash, 'Cache-Control': cacheControl },
                 ContentType: mime.contentType(fileName),
             })
             .promise();
