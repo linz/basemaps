@@ -68,17 +68,18 @@ export const WindowUrl = {
         if (baseUrl != '' && !baseUrl.startsWith('http')) {
             throw new Error('BaseURL must start with http(s)://');
         }
+        const projection = opts.projection.toEpsgString();
 
         if (urlType == MapOptionType.Tile) {
-            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${opts.projection}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
+            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${projection}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
         }
 
         if (urlType == MapOptionType.TileWmts) {
-            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${opts.projection}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${api}`;
+            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${projection}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${api}`;
         }
 
         if (urlType == MapOptionType.Wmts) {
-            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${opts.projection}/WMTSCapabilities.xml${api}`;
+            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${projection}/WMTSCapabilities.xml${api}`;
         }
 
         throw new Error('Unknown url type: ' + urlType);

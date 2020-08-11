@@ -15,6 +15,9 @@ o.spec('Bounds', () => {
         o(new Bounds(1.1, 10.1, 12.2, 11.2).round().toJson()).deepEquals({ x: 1, y: 10, width: 12, height: 11 });
         o(new Bounds(1.4, 10.6, 12.2, 11.4).round().toJson()).deepEquals({ x: 1, y: 11, width: 13, height: 11 });
         o(new Bounds(0.4, 0.6, 2.4, 1.6).round().toJson()).deepEquals({ x: 0, y: 1, width: 3, height: 1 });
+
+        o(new Bounds(1.6, 10.6, 12.5, 11.5).round().toJson()).deepEquals({ x: 2, y: 11, width: 12, height: 11 });
+        o(new Bounds(1.6, 10.6, 12.5, 11.5).round(0.2).toJson()).deepEquals({ x: 1, y: 10, width: 13, height: 12 });
     });
 
     o('toBbox', () => {

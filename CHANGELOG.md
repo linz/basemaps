@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.7.1](https://github.com/linz/basemaps/compare/v4.7.0...v4.7.1) (2020-08-11)
+
+
+### Bug Fixes
+
+* **tiler:** Ensure rendered tiles does not exceed bounds ([#1036](https://github.com/linz/basemaps/issues/1036)) ([87d5493](https://github.com/linz/basemaps/commit/87d549320b41556e3b2cc13f2b202ee9a72d722a))
+
+
+
+
+
+# [4.7.0](https://github.com/linz/basemaps/compare/v4.6.0...v4.7.0) (2020-08-10)
+
+
+### Bug Fixes
+
+* **build:** Don't inner quote define strings ([#1026](https://github.com/linz/basemaps/issues/1026)) ([17758ed](https://github.com/linz/basemaps/commit/17758ed682a9a4fbb228faa942fcffaade4f0c7f))
+* remove unneeded semver check ([#1022](https://github.com/linz/basemaps/issues/1022)) ([59d3034](https://github.com/linz/basemaps/commit/59d3034c546e784b19e4c804769b408803505e1c))
+* **lambda-api-tracker:** 404 when projection or zoom are invalid over 500 ([#1017](https://github.com/linz/basemaps/issues/1017)) ([2125394](https://github.com/linz/basemaps/commit/2125394a4f3fdecc234d06598432386bb672a625))
+
+
+### Features
+
+* **geo:** Add an optional bias when rounding bounds ([#1033](https://github.com/linz/basemaps/issues/1033)) ([c381733](https://github.com/linz/basemaps/commit/c3817332ab89d213bc87f0988f06b6331dc4c572))
+* **infra:** give dev readonly access to production COGs ([#1016](https://github.com/linz/basemaps/issues/1016)) ([5772a70](https://github.com/linz/basemaps/commit/5772a70e1f9dd58dac7c9d5e1f251ac8e138448b))
+* **infra:** support point in time recovery of dynamodb databases ([#1015](https://github.com/linz/basemaps/issues/1015)) ([a488cb7](https://github.com/linz/basemaps/commit/a488cb73bc7d5e4b22aced85ee29f3b2f1d0bc0a))
+* **lambda:** tag all report logs as "report" ([#1025](https://github.com/linz/basemaps/issues/1025)) ([c1ebbae](https://github.com/linz/basemaps/commit/c1ebbae3a397d35f8254dcbc9e0fa8883be6d730))
+
+
+
+
+
 # [4.6.0](https://github.com/linz/basemaps/compare/v4.5.0...v4.6.0) (2020-08-05)
 
 

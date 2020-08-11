@@ -13,6 +13,9 @@ export interface RasterPixelBounds {
     tiff: Bounds;
 }
 
+/** The amount to bias the Bounds.round function to cover a larger, rather than smaller, area. */
+const ROUND_BIAS = 0.2;
+
 export class Tiler {
     /** Tile size for the tiler and sub objects */
     public readonly tms: TileMatrixSet;
@@ -78,7 +81,7 @@ export class Tiler {
     ): Composition | null {
         const source = Bounds.fromJson(img.getTileBounds(x, y));
 
-        const target = source.scale(scaleFactor, scaleFactor).add(raster.tiff).round();
+        const target = source.scale(scaleFactor, scaleFactor).add(raster.tiff).round(ROUND_BIAS);
 
         // Validate that the requested COG tile actually intersects with the output raster
         const tileIntersection = target.intersection(raster.tile);
@@ -137,11 +140,11 @@ export class Tiler {
         // Determine the pixels that are needed from the source tiff to render the XYZ Tile
         const requiredTifPixels = rasterBounds.intersection.subtract(rasterBounds.tiff);
 
-        const { tileSize } = img;
-        const startX = Math.floor((requiredTifPixels.x / tileSize.width) * pixelScale);
-        const endX = Math.ceil((requiredTifPixels.right / tileSize.width) * pixelScale);
-        const startY = Math.floor((requiredTifPixels.y / tileSize.height) * pixelScale);
-        const endY = Math.ceil((requiredTifPixels.bottom / tileSize.height) * pixelScale);
+        const { tileSize, tileCount } = img;
+        const startX = Math.max(Math.floor((requiredTifPixels.x / tileSize.width) * pixelScale), 0);
+        const endX = Math.min(Math.ceil((requiredTifPixels.right / tileSize.width) * pixelScale), tileCount.x);
+        const startY = Math.max(Math.floor((requiredTifPixels.y / tileSize.height) * pixelScale), 0);
+        const endY = Math.min(Math.ceil((requiredTifPixels.bottom / tileSize.height) * pixelScale), tileCount.y);
 
         const composites = [];
         const pixelScaleInv = 1 / pixelScale;

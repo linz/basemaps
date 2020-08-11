@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/bathymetry",
-  "version": "4.6.0",
+  "version": "4.7.1",
   "repository": "git@github.com:linz/basemaps.git",
   "author": "",
   "license": "MIT",
@@ -16,9 +16,9 @@
     "build/"
   ],
   "dependencies": {
-    "@basemaps/cli": "^4.6.0",
-    "@basemaps/geo": "^4.6.0",
-    "@basemaps/shared": "^4.6.0",
+    "@basemaps/cli": "^4.7.1",
+    "@basemaps/geo": "^4.7.0",
+    "@basemaps/shared": "^4.7.1",
     "multihashes": "^3.0.1"
   },
   "peerDependencies": {

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.7.1](https://github.com/linz/basemaps/compare/v4.7.0...v4.7.1) (2020-08-11)
+
+
+### Bug Fixes
+
+* **tiler:** Ensure rendered tiles does not exceed bounds ([#1036](https://github.com/linz/basemaps/issues/1036)) ([87d5493](https://github.com/linz/basemaps/commit/87d549320b41556e3b2cc13f2b202ee9a72d722a))
+
+
+
+
+
+# [4.7.0](https://github.com/linz/basemaps/compare/v4.6.0...v4.7.0) (2020-08-10)
+
+
+### Features
+
+* **geo:** Add an optional bias when rounding bounds ([#1033](https://github.com/linz/basemaps/issues/1033)) ([c381733](https://github.com/linz/basemaps/commit/c3817332ab89d213bc87f0988f06b6331dc4c572))
+
+
+
+
+
 # [4.6.0](https://github.com/linz/basemaps/compare/v4.5.0...v4.6.0) (2020-08-05)
 
 **Note:** Version bump only for package @basemaps/tiler
