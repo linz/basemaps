@@ -4,27 +4,39 @@ import { PrettyTransform } from 'pretty-json-log';
 import { tile } from '../routes/tile';
 import { Epsg } from '@basemaps/geo';
 import { TileSetLocal } from './tile.set.local';
-import { TileSets } from '../tile.set.cache';
+import { TileSets, loadTileSet } from '../tile.set.cache';
 import { ImageFormat } from '@basemaps/tiler';
 import { promises as fs } from 'fs';
+import { TileSet } from '../tile.set';
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
-const xyz = { x: 149, y: 244, z: 7 };
+const xyz = { x: 0, y: 0, z: 0 };
+const projection = Epsg.Google;
 const ext = ImageFormat.PNG;
+
+/** Load a tileset form a file path otherwise default to the hard coded one from AWS */
+async function getTileSet(filePath?: string): Promise<TileSet> {
+    if (filePath != null) {
+        const tileSet = new TileSetLocal('local', projection, filePath);
+        await tileSet.load();
+        TileSets.set(tileSet.id, tileSet);
+        return tileSet;
+    }
+
+    const tileSet = await loadTileSet('aerial', projection);
+    if (tileSet == null) throw new Error('Missing');
+    return tileSet;
+}
 
 /**
  * Utility to render a single tile then save it as a png
  */
 async function main(): Promise<void> {
     const logger = LogConfig.get();
-    const filePath = process.argv[2];
-    if (filePath == null) throw new Error('Usage: ./dump <image-source-path>');
 
-    const tileSet = new TileSetLocal('local', Epsg.Google, filePath);
-    await tileSet.load();
-    TileSets.set(tileSet.id, tileSet);
-    const projection = tileSet.projection;
+    const filePath = process.argv[2];
+    const tileSet = await getTileSet(filePath);
 
     logger.info({ ...xyz, projection }, 'RenderTile');
 
