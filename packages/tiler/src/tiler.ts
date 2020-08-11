@@ -140,11 +140,11 @@ export class Tiler {
         // Determine the pixels that are needed from the source tiff to render the XYZ Tile
         const requiredTifPixels = rasterBounds.intersection.subtract(rasterBounds.tiff);
 
-        const { tileSize } = img;
-        const startX = Math.floor((requiredTifPixels.x / tileSize.width) * pixelScale);
-        const endX = Math.ceil((requiredTifPixels.right / tileSize.width) * pixelScale);
-        const startY = Math.floor((requiredTifPixels.y / tileSize.height) * pixelScale);
-        const endY = Math.ceil((requiredTifPixels.bottom / tileSize.height) * pixelScale);
+        const { tileSize, tileCount } = img;
+        const startX = Math.max(Math.floor((requiredTifPixels.x / tileSize.width) * pixelScale), 0);
+        const endX = Math.min(Math.ceil((requiredTifPixels.right / tileSize.width) * pixelScale), tileCount.x);
+        const startY = Math.max(Math.floor((requiredTifPixels.y / tileSize.height) * pixelScale), 0);
+        const endY = Math.min(Math.ceil((requiredTifPixels.bottom / tileSize.height) * pixelScale), tileCount.y);
 
         const composites = [];
         const pixelScaleInv = 1 / pixelScale;

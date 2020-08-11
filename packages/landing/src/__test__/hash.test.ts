@@ -71,13 +71,13 @@ o.spec('WindowUrl', () => {
         const apiKey = Config.ApiKey;
         const options = WindowUrl.fromUrl('');
         o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
-            `https://basemaps.linz.govt.nz/v1/tiles/aerial/3857/{z}/{x}/{y}.png?api=${apiKey}`,
+            `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(
-            `https://basemaps.linz.govt.nz/v1/tiles/aerial/3857/WMTSCapabilities.xml?api=${apiKey}`,
+            `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/WMTSCapabilities.xml?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
-            `https://basemaps.linz.govt.nz/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
+            `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
         );
     });
 
@@ -87,18 +87,18 @@ o.spec('WindowUrl', () => {
 
         process.env.TILE_HOST = 'https://foo.bar.com';
         o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
-            `https://foo.bar.com/v1/tiles/aerial/3857/{z}/{x}/{y}.png?api=${apiKey}`,
+            `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(
-            `https://foo.bar.com/v1/tiles/aerial/3857/WMTSCapabilities.xml?api=${apiKey}`,
+            `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/WMTSCapabilities.xml?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
-            `https://foo.bar.com/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
+            `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
         );
 
         WindowUrl.ImageFormat = 'webp';
         o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
-            `https://foo.bar.com/v1/tiles/aerial/3857/{TileMatrix}/{TileCol}/{TileRow}.webp?api=${apiKey}`,
+            `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.webp?api=${apiKey}`,
         );
         delete process.env.TILE_HOST;
     });
