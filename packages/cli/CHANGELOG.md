@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.7.0](https://github.com/linz/basemaps/compare/v4.6.0...v4.7.0) (2020-08-10)
+
+
+### Bug Fixes
+
+* remove unneeded semver check ([#1022](https://github.com/linz/basemaps/issues/1022)) ([59d3034](https://github.com/linz/basemaps/commit/59d3034c546e784b19e4c804769b408803505e1c))
+
+
+
+
+
 # [4.6.0](https://github.com/linz/basemaps/compare/v4.5.0...v4.6.0) (2020-08-05)
 
 
