@@ -1,7 +1,11 @@
 {
   "name": "@basemaps/bathymetry",
   "version": "4.7.1",
-  "repository": "git@github.com:linz/basemaps.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/bathymetry"
+  },
   "author": "",
   "license": "MIT",
   "main": "./build/index.js",
