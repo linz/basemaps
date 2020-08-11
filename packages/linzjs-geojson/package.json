@@ -1,7 +1,11 @@
 {
   "name": "@linzjs/geojson",
   "version": "4.6.0",
-  "repository": "git@github.com:linz/basemaps.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/linzjs-geojson"
+  },
   "author": "",
   "license": "MIT",
   "main": "./build/index.js",

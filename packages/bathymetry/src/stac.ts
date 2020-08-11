@@ -55,7 +55,7 @@ async function create(bm: BathyMaker, tile: Tile, logger: LogType): Promise<Reco
             },
             {
                 rel: 'derived_from',
-                href: packageJson.repository + '#' + getCommitHash(),
+                href: (packageJson.repository.url ?? packageJson.repository) + '#' + getCommitHash(),
                 version: packageJson.version,
             },
         ],
