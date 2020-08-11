@@ -1,4 +1,4 @@
-import { Bounds, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, TileMatrixSet, Point, Size } from '@basemaps/geo';
 import { CogTiff, CogTiffImage } from '@cogeotiff/core';
 import { Composition } from './raster';
 
@@ -141,25 +141,35 @@ export class Tiler {
         const requiredTifPixels = rasterBounds.intersection.subtract(rasterBounds.tiff);
 
         const { tileSize, tileCount } = img;
-        const startX = Math.max(Math.floor((requiredTifPixels.x / tileSize.width) * pixelScale), 0);
-        const endX = Math.min(Math.ceil((requiredTifPixels.right / tileSize.width) * pixelScale), tileCount.x);
-        const startY = Math.max(Math.floor((requiredTifPixels.y / tileSize.height) * pixelScale), 0);
-        const endY = Math.min(Math.ceil((requiredTifPixels.bottom / tileSize.height) * pixelScale), tileCount.y);
 
         const composites = [];
         const pixelScaleInv = 1 / pixelScale;
 
         // For each geotiff tile that is required, scale it to the size of the raster output tile
-        for (let x = startX; x < endX; x++) {
-            for (let y = startY; y < endY; y++) {
-                const composition = this.createComposition(img, x, y, pixelScaleInv, rasterBounds);
-                if (composition != null) {
-                    composites.push(composition);
-                }
-            }
+        for (const pt of Tiler.getRequiredTiles(requiredTifPixels, pixelScale, tileSize, tileCount)) {
+            const composition = this.createComposition(img, pt.x, pt.y, pixelScaleInv, rasterBounds);
+            if (composition != null) composites.push(composition);
         }
 
         if (composites.length === 0) return null;
         return composites;
+    }
+
+    /** Given the required pixel bounds, iterate over all tiles that could be required */
+    static *getRequiredTiles(
+        requiredPixels: Bounds,
+        pixelScale: number,
+        tileSize: Size,
+        tileCount: Point,
+    ): Generator<Point> {
+        const startX = Math.max(Math.floor((requiredPixels.x / tileSize.width) * pixelScale), 0);
+        const endX = Math.min(Math.ceil((requiredPixels.right / tileSize.width) * pixelScale), tileCount.x);
+        const startY = Math.max(Math.floor((requiredPixels.y / tileSize.height) * pixelScale), 0);
+        const endY = Math.min(Math.ceil((requiredPixels.bottom / tileSize.height) * pixelScale), tileCount.y);
+        for (let x = startX; x < endX; x++) {
+            for (let y = startY; y < endY; y++) {
+                yield { x, y };
+            }
+        }
     }
 }
