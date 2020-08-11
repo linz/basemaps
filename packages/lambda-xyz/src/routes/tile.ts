@@ -90,10 +90,11 @@ export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     req.timer.end('tile:compose');
     req.set('layersUsed', res.layers);
     req.set('allLayersUsed', res.layers == layers.length);
-
     req.set('bytes', res.buffer.byteLength);
+
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
+    response.header(HttpHeader.CacheControl, 'public, max-age=604800');
     response.buffer(res.buffer, 'image/' + ext);
     return response;
 }
