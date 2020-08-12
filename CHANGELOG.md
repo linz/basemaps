@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.8.0](https://github.com/linz/basemaps/compare/v4.7.1...v4.8.0) (2020-08-12)
+
+
+### Bug Fixes
+
+* **cli:** caller reference needs to be unqiue ([#1047](https://github.com/linz/basemaps/issues/1047)) ([dc145be](https://github.com/linz/basemaps/commit/dc145be0048f0f2d0efe151ba4e59da71f06c459))
+* **landing:** apply cache control for uploaded assets ([#1046](https://github.com/linz/basemaps/issues/1046)) ([0b4c232](https://github.com/linz/basemaps/commit/0b4c2326277eda6fe9cf7b65555eb4857dc9b609))
+
+
+### Features
+
+* **lambda-xyz:** allow dumping of single tiles from aws ([#1037](https://github.com/linz/basemaps/issues/1037)) ([85b4783](https://github.com/linz/basemaps/commit/85b4783b332e2c134157ed11029386a3dcbeab0b))
+* **lambda-xyz:** set cache for tiles to be public to increase cache hits ([#1035](https://github.com/linz/basemaps/issues/1035)) ([610b10c](https://github.com/linz/basemaps/commit/610b10c7eebb934f463d88654768dd64836f118a))
+* **landing:** use the same url pattern as WMTS ([#1034](https://github.com/linz/basemaps/issues/1034)) ([dadb4ae](https://github.com/linz/basemaps/commit/dadb4aeb54978d0b5141ff103fb8580ce24b0e41))
+* **metrics:** support browsers without bigint support ([#1044](https://github.com/linz/basemaps/issues/1044)) ([5c6f243](https://github.com/linz/basemaps/commit/5c6f243253ebc6b7c13fa3cce660d58c4f5a5432))
+
+
+
+
+
 ## [4.7.1](https://github.com/linz/basemaps/compare/v4.7.0...v4.7.1) (2020-08-11)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.8.0](https://github.com/linz/basemaps/compare/v4.7.1...v4.8.0) (2020-08-12)
+
+
+### Bug Fixes
+
+* **cli:** caller reference needs to be unqiue ([#1047](https://github.com/linz/basemaps/issues/1047)) ([dc145be](https://github.com/linz/basemaps/commit/dc145be0048f0f2d0efe151ba4e59da71f06c459))
+
+
+
+
+
 ## [4.7.1](https://github.com/linz/basemaps/compare/v4.7.0...v4.7.1) (2020-08-11)
 
 **Note:** Version bump only for package @basemaps/cli

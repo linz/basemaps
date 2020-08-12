@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "4.7.1",
+  "version": "4.8.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -22,8 +22,8 @@
     "deploy:deploy": "yarn bundle && node scripts/deploy.js"
   },
   "dependencies": {
-    "@basemaps/geo": "^4.7.0",
-    "@basemaps/infra": "^4.7.1",
+    "@basemaps/geo": "^4.8.0",
+    "@basemaps/infra": "^4.8.0",
     "@linzjs/lui": "^0.0.93",
     "@types/ol": "^6.3.1",
     "ol": "^6.3.1",

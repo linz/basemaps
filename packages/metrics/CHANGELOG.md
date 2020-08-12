@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.8.0](https://github.com/linz/basemaps/compare/v4.7.1...v4.8.0) (2020-08-12)
+
+
+### Features
+
+* **metrics:** support browsers without bigint support ([#1044](https://github.com/linz/basemaps/issues/1044)) ([5c6f243](https://github.com/linz/basemaps/commit/5c6f243253ebc6b7c13fa3cce660d58c4f5a5432))
+
+
+
+
+
 # [4.0.0](https://github.com/linz/basemaps/compare/v3.6.0...v4.0.0) (2020-07-09)
 
 **Note:** Version bump only for package @basemaps/metrics
