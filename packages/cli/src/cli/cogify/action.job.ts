@@ -1,5 +1,5 @@
 import { Epsg, EpsgCode } from '@basemaps/geo';
-import { FileConfig, FileOperator, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { FileConfig, FileOperator, ProjectionTileMatrixSet, FileConfigPath } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -52,6 +52,7 @@ export class ActionJobCreate extends CommandLineAction {
     private sourceProjection: CommandLineIntegerParameter;
     private targetProjection: CommandLineIntegerParameter;
     private oneCog: CommandLineFlagParameter;
+    private fileList: CommandLineStringParameter;
 
     public constructor() {
         super({
@@ -80,7 +81,7 @@ export class ActionJobCreate extends CommandLineAction {
     }
 
     async onExecute(): Promise<void> {
-        const source = this.fsConfig(this.source);
+        const source: FileConfig | FileConfigPath = this.fsConfig(this.source);
         const output = this.fsConfig(this.output);
 
         let cutline = undefined;
@@ -102,6 +103,16 @@ export class ActionJobCreate extends CommandLineAction {
                 warp,
                 overview: 'lanczos',
             };
+        }
+
+        const fileListPath = this.fileList?.value;
+        if (fileListPath != null) {
+            const fileData = await FileOperator.create(fileListPath).read(fileListPath);
+            (source as FileConfigPath).files = fileData
+                .toString()
+                .trim()
+                .split('\n')
+                .map((fn) => source.path + '/' + fn);
         }
 
         const ctx: JobCreationContext = {
@@ -195,6 +206,13 @@ export class ActionJobCreate extends CommandLineAction {
         this.oneCog = this.defineFlagParameter({
             parameterLongName: '--one-cog',
             description: 'ignore target projection window and just produce one big COG.',
+            required: false,
+        });
+
+        this.fileList = this.defineStringParameter({
+            argumentName: 'FILE_LIST',
+            parameterLongName: '--filelist',
+            description: 'supply a list of files to use as source imagery',
             required: false,
         });
     }
