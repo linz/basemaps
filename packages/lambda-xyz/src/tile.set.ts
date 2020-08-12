@@ -7,6 +7,7 @@ import {
     TileMetadataTag,
     TileSetRuleImagery,
     ProjectionTileMatrixSet,
+    TileResizeKernel,
 } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
@@ -45,6 +46,10 @@ export class TileSet {
 
     get background(): { r: number; g: number; b: number; alpha: number } | undefined {
         return this.tileSet?.background;
+    }
+
+    get resizeKernel(): { in: TileResizeKernel; out: TileResizeKernel } | undefined {
+        return this.tileSet?.resizeKernel;
     }
 
     get taggedName(): string {

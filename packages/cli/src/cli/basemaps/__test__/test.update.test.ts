@@ -132,6 +132,38 @@ o.spec('TileSetUpdateAction', () => {
         });
     });
 
+    o.spec('resize', () => {
+        o('should create resize kernel', () => {
+            cmd.resizeIn = { value: 'nearest' } as any;
+            cmd.resizeOut = { value: 'lanczos3' } as any;
+            const hasChanges = cmd.updateResize(tileSet);
+            o(hasChanges).equals(true);
+            o(tileSet.resizeKernel).deepEquals({ in: 'nearest', out: 'lanczos3' });
+        });
+
+        o('should not update if one value is missing', () => {
+            cmd.resizeIn = { value: 'nearest' } as any;
+            cmd.resizeOut = { value: undefined } as any;
+            o(cmd.updateResize(tileSet)).equals(false);
+
+            cmd.resizeIn = { value: undefined } as any;
+            cmd.resizeOut = { value: 'nearest' } as any;
+            o(cmd.updateResize(tileSet)).equals(false);
+
+            o(tileSet.resizeKernel).equals(undefined);
+        });
+
+        o('should validate types', () => {
+            cmd.resizeIn = { value: 'foo' } as any;
+            cmd.resizeOut = { value: 'nearest' } as any;
+            o(cmd.updateResize(tileSet)).equals(false);
+
+            cmd.resizeIn = { value: 'nearest' } as any;
+            cmd.resizeOut = { value: 'foo' } as any;
+            o(cmd.updateResize(tileSet)).equals(false);
+        });
+    });
+
     o.spec('background', () => {
         o('should support 0x', () => {
             const colors = parseRgba('0xff00ff00');

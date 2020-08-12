@@ -1,14 +1,11 @@
 import Sharp from 'sharp';
-import { TileMaker, ImageFormat, TileMakerContext, Composition } from '@basemaps/tiler';
+import { TileMaker, ImageFormat, TileMakerContext, Composition, TileMakerResizeKernel } from '@basemaps/tiler';
 import { Metrics } from '@basemaps/metrics';
 
 function notEmpty<T>(value: T | null | undefined): value is T {
     return value != null;
 }
 export type SharpOverlay = { input: string | Buffer } & Sharp.OverlayOptions;
-
-const SharpScaleOptionsDownsize = { fit: Sharp.fit.cover, kernel: Sharp.kernel.nearest };
-const SharpScaleOptionsUpsize = { fit: Sharp.fit.cover, kernel: Sharp.kernel.lanczos3 };
 
 export class TileMakerSharp implements TileMaker {
     static readonly MaxImageSize = 256 * 2 ** 15;
@@ -56,7 +53,7 @@ export class TileMakerSharp implements TileMaker {
             if (this.isTooLarge(comp)) {
                 continue;
             }
-            todo.push(this.composeTile(comp));
+            todo.push(this.composeTile(comp, ctx.resizeKernel));
         }
         const overlays = await Promise.all(todo).then((items) => items.filter(notEmpty));
         metrics.end('compose:overlay');
@@ -68,7 +65,10 @@ export class TileMakerSharp implements TileMaker {
         return { buffer, metrics, layers: overlays.length };
     }
 
-    private async composeTile(composition: Composition): Promise<SharpOverlay | null> {
+    private async composeTile(
+        composition: Composition,
+        resizeKernel: TileMakerResizeKernel,
+    ): Promise<SharpOverlay | null> {
         const source = composition.source;
         const tile = await composition.tiff.getTile(source.x, source.y, source.imageId);
         if (tile == null) return null;
@@ -90,11 +90,11 @@ export class TileMakerSharp implements TileMaker {
         }
 
         if (composition.resize) {
-            sharp.resize(
-                composition.resize.width,
-                composition.resize.height,
-                composition.resize.downsize ? SharpScaleOptionsDownsize : SharpScaleOptionsUpsize,
-            );
+            const resizeOptions: Sharp.ResizeOptions = {
+                fit: Sharp.fit.cover,
+                kernel: composition.resize.scale > 1 ? resizeKernel.in : resizeKernel.out,
+            };
+            sharp.resize(composition.resize.width, composition.resize.height, resizeOptions);
         }
 
         if (composition.crop) {

@@ -96,7 +96,7 @@ export class Tiler {
         const drawAtRegion = target.subtract(raster.tile);
         const composition: Composition = {
             tiff: img.tif,
-            source: { x, y, imageId: img.id },
+            source: { x, y, imageId: img.id, width: source.width, height: source.height },
             y: Math.max(0, Math.round(drawAtRegion.y)),
             x: Math.max(0, Math.round(drawAtRegion.x)),
         };
@@ -110,7 +110,8 @@ export class Tiler {
         // Often COG tiles do not align to the same size as XYZ Tiles
         // This will scale the COG tile to the same size as a XYZ
         if (source.width != target.width || source.height != target.height) {
-            composition.resize = { width: target.width, height: target.height, downsize: source.width > target.width };
+            const scale = source.width != target.width ? target.width / source.width : target.height / source.height;
+            composition.resize = { width: target.width, height: target.height, scale };
         }
 
         // If the output XYZ tile needs a piece of a COG tile, extract the speicific

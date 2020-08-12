@@ -8,6 +8,7 @@ import 'source-map-support/register';
 import { TileMakerSharp } from '../index';
 
 o.spec('TileCreationBenchmark', () => {
+    const resizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
     const RenderCount = 5;
     const TimeoutSeconds = 30 * 1000;
     const Zoom = 19;
@@ -30,7 +31,7 @@ o.spec('TileCreationBenchmark', () => {
         timer.end('tiler:tile');
 
         if (layers == null) throw new Error('Tile is null');
-        await tileMaker.compose({ layers, format: ImageFormat.PNG, background });
+        await tileMaker.compose({ layers, format: ImageFormat.PNG, background, resizeKernel });
     }
     const results: Record<string, Record<string, number[]>> = {};
 

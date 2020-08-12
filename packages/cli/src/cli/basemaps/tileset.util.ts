@@ -29,6 +29,15 @@ export async function printTileSet(tsData: TileMetadataSetRecord, printImagery =
     if (tsData.background) {
         console.log(c.bold('Background'), tsData.background);
     }
+    if (tsData.resizeKernel) {
+        console.log(
+            c.bold('ResizeKernel:'),
+            c.dim('in'),
+            tsData.resizeKernel.in,
+            c.dim('out'),
+            tsData.resizeKernel.out,
+        );
+    }
 
     if (printImagery) await printTileSetImagery(tsData);
 }

@@ -6,6 +6,7 @@ import {
     TileMetadataSetRecord,
     TileMetadataTable,
     TileMetadataTag,
+    TileResizeKernel,
 } from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
@@ -43,6 +44,8 @@ export function parseRgba(str: string): { r: number; g: number; b: number; alpha
     };
 }
 
+export const ResizeKernels = ['lanczos3', 'lanczos2', 'nearest'];
+
 export class TileSetUpdateAction extends TileSetBaseAction {
     priority: CommandLineIntegerParameter;
     imageryId: CommandLineStringParameter;
@@ -54,6 +57,9 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     background: CommandLineStringParameter;
     minZoom: CommandLineIntegerParameter;
     maxZoom: CommandLineIntegerParameter;
+
+    resizeIn: CommandLineStringParameter;
+    resizeOut: CommandLineStringParameter;
 
     public constructor() {
         super({
@@ -109,6 +115,20 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             required: false,
         });
 
+        this.resizeIn = this.defineStringParameter({
+            argumentName: 'RESIZE_IN',
+            parameterLongName: '--resize-in',
+            description: `When resizing what kernel to use (${ResizeKernels.join(',')}`,
+            required: false,
+        });
+
+        this.resizeOut = this.defineStringParameter({
+            argumentName: 'RESIZE_OUT',
+            parameterLongName: '--resize-out',
+            description: `When resizing what kernel to use (${ResizeKernels.join(',')}`,
+            required: false,
+        });
+
         this.minZoom = this.defineIntegerParameter({
             argumentName: 'MIN_ZOOM',
             parameterLongName: '--min-zoom',
@@ -152,6 +172,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         this.updateTile(tsData);
         this.updateDescription(tsData);
         this.updateBackground(tsData);
+        this.updateResize(tsData);
         const after = JSON.stringify(tsData);
 
         await printTileSet(tsData);
@@ -183,6 +204,24 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         const description = readFileSync(descriptionPath).toString().trim();
         if (description == null || description === existing) return false;
         tsData.description = description;
+        return true;
+    }
+
+    updateResize(tsData: TileMetadataSetRecord): boolean {
+        const existing = tsData.resizeKernel;
+        const resizeIn = this.resizeIn.value;
+        const resizeOut = this.resizeOut.value;
+        if (resizeIn == null && resizeOut == null) return false;
+        if (resizeIn == null || resizeOut == null) {
+            LogConfig.get().warn({ resizeIn, resizeOut }, 'Both --resize-in and --resize-out need to be defined');
+            return false;
+        }
+        if (!ResizeKernels.includes(resizeIn) || !ResizeKernels.includes(resizeOut)) {
+            LogConfig.get().warn({ resizeIn, resizeOut }, 'Invalid --resize-in/-resize-out value');
+            return false;
+        }
+        if (existing != null && existing.in == resizeIn && existing.out == resizeOut) return false;
+        tsData.resizeKernel = { in: resizeIn as TileResizeKernel, out: resizeOut as TileResizeKernel };
         return true;
     }
 
