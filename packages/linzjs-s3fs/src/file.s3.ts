@@ -1,9 +1,16 @@
-import { S3 } from 'aws-sdk';
+import type { S3, AWSError } from 'aws-sdk';
 import { Readable, Stream } from 'stream';
 import { CompositeError } from './composite.error';
 import { FileProcessor } from './file';
 
-export class FileProcessorS3 implements FileProcessor {
+function getCompositeError(e: AWSError, msg: string): CompositeError {
+    if (e == null) return new CompositeError(msg, 500, e);
+    if (e.code == 'NotFound') return new CompositeError(msg, 404, e);
+    if (e.code == 'AccessDenied') return new CompositeError(msg, 403, e);
+    return new CompositeError(msg, 500, e);
+}
+
+export class FsS3 implements FileProcessor {
     /** Max list requests to run before erroring */
     static MaxListCount = 100;
 
@@ -51,13 +58,13 @@ export class FileProcessorS3 implements FileProcessor {
                 if (!res.IsTruncated) break;
 
                 // Abort if too many lists
-                if (count > FileProcessorS3.MaxListCount) {
-                    throw new Error(`Failed to finish listing within ${FileProcessorS3.MaxListCount} list attempts`);
+                if (count > FsS3.MaxListCount) {
+                    throw new Error(`Failed to finish listing within ${FsS3.MaxListCount} list attempts`);
                 }
                 ContinuationToken = res.NextContinuationToken;
             }
         } catch (e) {
-            throw new CompositeError(`Failed to list: ${filePath}`, e);
+            throw getCompositeError(e, `Failed to list: ${filePath}`);
         }
 
         return list.map((c) => `s3://${Bucket}/${c.Key}`);
@@ -70,7 +77,7 @@ export class FileProcessorS3 implements FileProcessor {
             const res = await this.s3.getObject({ Bucket: opts.bucket, Key: opts.key }).promise();
             return res.Body as Buffer;
         } catch (e) {
-            throw new CompositeError(`Failed to read: ${filePath}`, e);
+            throw getCompositeError(e, `Failed to read: ${filePath}`);
         }
     }
 
@@ -79,7 +86,7 @@ export class FileProcessorS3 implements FileProcessor {
         try {
             await this.s3.upload({ Bucket: opts.bucket, Key: opts.key, Body: buf }).promise();
         } catch (e) {
-            throw new CompositeError(`Failed to write: ${filePath}`, e);
+            throw getCompositeError(e, `Failed to write: ${filePath}`);
         }
     }
 
@@ -89,10 +96,8 @@ export class FileProcessorS3 implements FileProcessor {
             await this.s3.headObject({ Bucket: opts.bucket, Key: opts.key }).promise();
             return true;
         } catch (e) {
-            if (e.code == 'NotFound') {
-                return false;
-            }
-            throw new CompositeError(`Failed to exists: ${filePath}`, e);
+            if (e.code == 'NotFound') return false;
+            throw getCompositeError(e, `Failed to exists: ${filePath}`);
         }
     }
 

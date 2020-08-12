@@ -2,11 +2,14 @@ import { S3 } from 'aws-sdk';
 import { Readable } from 'stream';
 import { FileProcessor } from './file';
 import { FileConfig, FileConfigS3 } from './file.config';
-import { FileOperatorLocal } from './file.local';
-import { FileProcessorS3 } from './file.s3';
+import { FsLocal } from './file.local';
+import { FsS3 } from './file.s3';
 
 export * from './file.config';
 export * from './file';
+export { CompositeError } from './composite.error';
+
+const localFs = new FsLocal();
 
 export class S3Fs {
     getS3: (cfg: FileConfigS3 | string) => S3;
@@ -45,8 +48,8 @@ export class S3Fs {
     }
 
     /** Is this FileProcessor a s3 instance */
-    isS3Processor(fo: FileProcessor): fo is FileProcessorS3 {
-        return fo instanceof FileProcessorS3;
+    isS3Processor(fo: FileProcessor): fo is FsS3 {
+        return fo instanceof FsS3;
     }
 
     /** Is this a s3 URI */
@@ -59,13 +62,13 @@ export class S3Fs {
     create(cfg: string | FileConfig): FileProcessor {
         if (typeof cfg == 'string') {
             if (this.isS3(cfg)) {
-                return new FileProcessorS3(this.getS3(cfg));
+                return new FsS3(this.getS3(cfg));
             }
-            return FileOperatorLocal;
+            return localFs;
         }
         if (cfg.type == 's3') {
-            return new FileProcessorS3(this.getS3(cfg));
+            return new FsS3(this.getS3(cfg));
         }
-        return FileOperatorLocal;
+        return localFs;
     }
 }
