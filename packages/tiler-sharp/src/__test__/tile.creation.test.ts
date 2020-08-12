@@ -40,7 +40,7 @@ o.spec('TileCreation', () => {
 
         const topLeft = layer0.find((f) => f.source.x == 0 && f.source.y == 0);
         o(topLeft?.tiff.source.name).equals(tiff.source.name);
-        o(topLeft?.resize).deepEquals({ width: 32, height: 32 });
+        o(topLeft?.resize).deepEquals({ width: 32, height: 32, downsize: false });
         o(topLeft?.x).equals(64);
         o(topLeft?.y).equals(64);
     });
