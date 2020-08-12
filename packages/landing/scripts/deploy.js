@@ -62,8 +62,9 @@ async function deploy() {
                 Bucket: s3BucketName,
                 Key: fileName,
                 Body: fileData,
-                Metadata: { [HashKey]: hash, 'Cache-Control': cacheControl },
+                Metadata: { [HashKey]: hash },
                 ContentType: mime.contentType(fileName),
+                CacheControl: cacheControl
             })
             .promise();
 

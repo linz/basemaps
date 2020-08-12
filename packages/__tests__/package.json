@@ -5,7 +5,11 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "repository": "git@github.com:linz/basemaps.git",
-  "author": "",
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
   "license": "MIT",
   "scripts": {}
 }
