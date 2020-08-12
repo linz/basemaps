@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
-  "author": "",
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
   "license": "MIT",
   "scripts": {
     "lint": "eslint 'packages/*/src/**/*.ts' --quiet --fix --report-unused-disable-directives",

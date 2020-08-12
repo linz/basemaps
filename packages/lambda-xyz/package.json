@@ -7,7 +7,11 @@
     "url": "https://github.com/linz/basemaps.git",
     "directory": "packages/lambda-xyz"
   },
-  "author": "",
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
   "license": "MIT",
   "dependencies": {
     "@basemaps/geo": "^4.7.0",

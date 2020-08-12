@@ -6,7 +6,11 @@
     "url": "https://github.com/linz/basemaps.git",
     "directory": "packages/metrics"
   },
-  "author": "",
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
   "license": "MIT",
   "main": "./build/metrics.js",
   "types": "./build/metrics.d.ts",
