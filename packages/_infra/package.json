@@ -7,7 +7,11 @@
     "url": "https://github.com/linz/basemaps.git",
     "directory": "packages/_infra"
   },
-  "author": "",
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
   "license": "MIT",
   "scripts": {
     "deploy:synth": "cdk synth",

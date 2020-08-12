@@ -6,7 +6,11 @@
     "url": "https://github.com/linz/basemaps.git",
     "directory": "packages/linzjs-geojson"
   },
-  "author": "",
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
   "license": "MIT",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
