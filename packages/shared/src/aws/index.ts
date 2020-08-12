@@ -1,7 +1,3 @@
-import * as AWS from 'aws-sdk';
-import { Agent } from 'https';
-import { Const } from '../const';
-
 /**
  * AWS by default does not reuse http connections this causes requests to the same service
  * (S3, Dynamo, etc) to open a new HTTPS connection for every request the TLS handshake adds
@@ -11,16 +7,9 @@ import { Const } from '../const';
  *
  * **This needs to happen before anything tries to use the AWS SDK**
  */
-const agent = new Agent({
-    keepAlive: true,
-    maxSockets: 50,
-    rejectUnauthorized: true,
-});
+process.env['AWS_NODEJS_CONNECTION_REUSE_ENABLED'] = '1';
 
-AWS.config.update({
-    region: Const.Aws.Region,
-    httpOptions: { agent },
-});
+import * as AWS from 'aws-sdk';
 
 import { ApiKeyTable } from './api.key.table';
 import { TileMetadataTable } from './tile.metadata';

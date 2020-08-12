@@ -64,7 +64,7 @@ export class ImageryImportAction extends CommandLineAction {
         logger.warn({ jobPath }, 'FetchingJob');
 
         const fileOp = FileOperator.create(jobPath);
-        const job = (await fileOp.readJson(jobPath)) as CogJob;
+        const job = await FileOperator.readJson<CogJob>(jobPath, fileOp);
 
         const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, job.id);
         const imagery = await this.tryGetImagery(imgId);

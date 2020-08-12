@@ -22,6 +22,7 @@
     "@basemaps/geo": "^4.8.0",
     "@basemaps/metrics": "^4.8.0",
     "@basemaps/tiler": "^4.8.0",
+    "@linzjs/s3fs": "^4.8.0",
     "@linzjs/geojson": "^4.8.0",
     "aws-sdk": "^2.508.0",
     "base-x": "^3.0.7",

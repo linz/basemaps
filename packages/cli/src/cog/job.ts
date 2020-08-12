@@ -1,13 +1,12 @@
 import { Bounds, Epsg } from '@basemaps/geo';
 import {
     FileConfig,
+    FileConfigPath,
     FileOperator,
-    FileOperatorS3,
     isConfigS3Role,
+    isFileConfigPath,
     LogConfig,
     ProjectionTileMatrixSet,
-    FileConfigPath,
-    isFileConfigPath,
 } from '@basemaps/shared';
 import { Projection } from '@basemaps/shared/build/proj/projection';
 import { CogSource } from '@cogeotiff/core';
@@ -107,9 +106,9 @@ export const CogJobFactory = {
             : (await sourceFs.list(source.path)).filter(filterTiff);
 
         let tiffSource: CogSource[];
-        if (sourceFs instanceof FileOperatorS3) {
+        if (FileOperator.isS3Processor(sourceFs)) {
             tiffSource = tiffList.map((path) => {
-                const { bucket, key } = FileOperatorS3.parse(path);
+                const { bucket, key } = sourceFs.parse(path);
                 // Use the same s3 credentials to access the files that were used to list them
                 return new CogSourceAwsS3(bucket, key, sourceFs.s3);
             });
@@ -207,27 +206,22 @@ export const CogJobFactory = {
 
         const tmpFolder = await makeTempFolder(`basemaps-${job.id}`);
         try {
-            // Local file systems need directories to be created before writing to them
-            if (!FileOperatorS3.isS3(outputFs)) {
-                await fs.mkdir(getJobPath(job), { recursive: true });
-            }
-
             const jobFile = getJobPath(job, `job.json`);
-            await outputFs.writeJson(jobFile, job, logger);
+            await FileOperator.writeJson(jobFile, job, outputFs);
 
             if (ctx.cutline != null) {
                 const geoJsonCutlineOutput = getJobPath(job, `cutline.geojson.gz`);
-                await outputFs.writeJson(geoJsonCutlineOutput, cutline.toGeoJson(), logger);
+                await FileOperator.writeJson(geoJsonCutlineOutput, cutline.toGeoJson(), outputFs);
             }
 
             const geoJsonSourceOutput = getJobPath(job, `source.geojson`);
-            await outputFs.writeJson(geoJsonSourceOutput, sourceProjection.toGeoJson(metadata.bounds), logger);
+            await FileOperator.writeJson(geoJsonSourceOutput, sourceProjection.toGeoJson(metadata.bounds), outputFs);
 
             const geoJsonCoveringOutput = getJobPath(job, `covering.geojson`);
-            await outputFs.writeJson(
+            await FileOperator.writeJson(
                 geoJsonCoveringOutput,
                 ctx.targetProjection.proj.toGeoJson(metadata.files),
-                logger,
+                outputFs,
             );
 
             if (ctx.batch) {

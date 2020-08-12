@@ -1,5 +1,5 @@
 import { EpsgCode } from '@basemaps/geo';
-import { FileOperatorSimple, LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { LogConfig, ProjectionTileMatrixSet, FileOperator } from '@basemaps/shared';
 import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
@@ -28,13 +28,13 @@ o.spec('cog.vrt', () => {
 
     let runSpy = o.spy();
 
-    const origFileOperatorWriteJson = FileOperatorSimple.writeJson;
+    const origFileOperatorWriteJson = FileOperator.writeJson;
     const { create } = Gdal;
 
     let gdal: any;
 
     o.after(() => {
-        FileOperatorSimple.writeJson = origFileOperatorWriteJson;
+        FileOperator.writeJson = origFileOperatorWriteJson;
         Gdal.create = create;
     });
 
@@ -48,7 +48,7 @@ o.spec('cog.vrt', () => {
         job.source.files = [tif1, tif2];
 
         cutTiffArgs = [];
-        FileOperatorSimple.writeJson = ((...args: any): any => {
+        FileOperator.writeJson = ((...args: any): any => {
             cutTiffArgs.push(args);
         }) as any;
 

@@ -3,6 +3,7 @@
     "references": [
         { "path": "./packages/__tests__" },
         { "path": "./packages/linzjs-geojson" },
+        { "path": "./packages/linzjs-s3fs" },
         { "path": "./packages/metrics" },
         { "path": "./packages/geo" },
         { "path": "./packages/tiler" },

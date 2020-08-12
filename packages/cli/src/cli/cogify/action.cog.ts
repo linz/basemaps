@@ -67,7 +67,7 @@ export class ActionCogCreate extends CommandLineAction {
         const jobFn = this.job?.value!;
 
         const inFp = FileOperator.create(jobFn);
-        const job = (await inFp.readJson(jobFn)) as CogJob;
+        const job = await FileOperator.readJson<CogJob>(jobFn, inFp);
 
         const isCommit = this.commit?.value ?? false;
 
@@ -122,7 +122,7 @@ export class ActionCogCreate extends CommandLineAction {
             await buildCogForName(job, name, tmpVrtPath, tmpTiff, logger, isCommit);
             logger.info({ target: targetPath }, 'StoreTiff');
             if (isCommit) {
-                await outputFs.write(targetPath, createReadStream(tmpTiff), logger);
+                await outputFs.write(targetPath, createReadStream(tmpTiff));
             } else {
                 logger.warn('DryRun:Done');
             }
