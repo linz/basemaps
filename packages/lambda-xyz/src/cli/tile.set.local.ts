@@ -1,4 +1,4 @@
-import { FileProcessor, FileOperatorS3, FileOperator, LogConfig } from '@basemaps/shared';
+import { FileProcessor, FileOperator, LogConfig } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -8,9 +8,9 @@ import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 
 function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
-    if (fs instanceof FileOperatorS3) {
+    if (FileOperator.isS3Processor(fs)) {
         return tiffList.map((path) => {
-            const { bucket, key } = FileOperatorS3.parse(path);
+            const { bucket, key } = fs.parse(path);
             // Use the same s3 credentials to access the files that were used to list them
             return new CogSourceAwsS3(bucket, key, fs.s3);
         });

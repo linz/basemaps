@@ -1,11 +1,5 @@
 import { Bounds, Epsg } from '@basemaps/geo';
-import {
-    CompositeError,
-    FileOperatorSimple,
-    LogType,
-    ProjectionTileMatrixSet,
-    LoggerFatalError,
-} from '@basemaps/shared';
+import { CompositeError, LogType, ProjectionTileMatrixSet, LoggerFatalError, FileOperator } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
@@ -201,7 +195,7 @@ export class CogBuilder {
 
         if (existsSync(cacheKey)) {
             this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
-            const metadata = (await FileOperatorSimple.readJson(cacheKey)) as SourceMetadata;
+            const metadata = await FileOperator.readJson<SourceMetadata>(cacheKey);
             metadata.resZoom = this.targetPtms.getTiffResZoom(metadata.pixelScale);
             return metadata;
         }
@@ -209,7 +203,7 @@ export class CogBuilder {
         const metadata = await this.bounds(tiffs);
 
         mkdirSync(CacheFolder, { recursive: true });
-        await FileOperatorSimple.writeJson(cacheKey, metadata);
+        await FileOperator.writeJson(cacheKey, metadata);
         this.logger.debug({ path: cacheKey }, 'MetadataCacheMiss');
 
         return metadata;

@@ -166,7 +166,7 @@ export class ActionBatchJob extends CommandLineAction {
 
     static async batchJob(jobPath: string, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
         if (!FileOperator.isS3(jobPath)) throw new Error(`AWS Batch job.json have to be in S3, jobPath:${jobPath}`);
-        const job = (await FileOperator.create(jobPath).readJson(jobPath)) as CogJob;
+        const job = await FileOperator.readJson<CogJob>(jobPath);
         LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
 
         const region = Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';

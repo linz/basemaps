@@ -101,7 +101,7 @@ export const CogVrt = {
 
         if (cutline.clipPoly.length != 0) {
             cutlineTarget = FileOperator.join(tmpFolder, 'cutline.geojson');
-            await FileOperator.create(cutlineTarget).writeJson(cutlineTarget, cutline.toGeoJson());
+            await FileOperator.writeJson(cutlineTarget, cutline.toGeoJson());
         } else {
             job.output.cutline = undefined;
         }

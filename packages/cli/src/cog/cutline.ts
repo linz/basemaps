@@ -118,7 +118,7 @@ export class Cutline {
      * @param path the path of the cutline to load. Can be `s3://` or local file path.
      */
     static loadCutline(path: string): Promise<FeatureCollection> {
-        return FileOperator.create(path).readJson(path) as Promise<FeatureCollection>;
+        return FileOperator.readJson<FeatureCollection>(path);
     }
 
     /**

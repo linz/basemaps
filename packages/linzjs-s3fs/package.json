@@ -1,0 +1,29 @@
+{
+  "name": "@linzjs/s3fs",
+  "version": "4.8.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/linzjs-s3fs"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/"
+  ],
+  "peerDependencies": {
+    "aws-sdk": "^2.731.0"
+  }
+}
