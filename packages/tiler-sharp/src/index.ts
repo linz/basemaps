@@ -7,7 +7,8 @@ function notEmpty<T>(value: T | null | undefined): value is T {
 }
 export type SharpOverlay = { input: string | Buffer } & Sharp.OverlayOptions;
 
-const SharpScaleOptions = { fit: Sharp.fit.cover };
+const SharpScaleOptionsDownsize = { fit: Sharp.fit.cover, kernel: Sharp.kernel.nearest };
+const SharpScaleOptionsUpsize = { fit: Sharp.fit.cover, kernel: Sharp.kernel.lanczos3 };
 
 export class TileMakerSharp implements TileMaker {
     static readonly MaxImageSize = 256 * 2 ** 15;
@@ -89,7 +90,11 @@ export class TileMakerSharp implements TileMaker {
         }
 
         if (composition.resize) {
-            sharp.resize(composition.resize.width, composition.resize.height, SharpScaleOptions);
+            sharp.resize(
+                composition.resize.width,
+                composition.resize.height,
+                composition.resize.downsize ? SharpScaleOptionsDownsize : SharpScaleOptionsUpsize,
+            );
         }
 
         if (composition.crop) {

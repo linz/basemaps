@@ -63,7 +63,7 @@ o.spec('tiler.test', () => {
             y: 0,
             x: 64,
             extract: { width: 512, height: 387 },
-            resize: { width: 256, height: 194 },
+            resize: { width: 256, height: 194, downsize: true },
             crop,
         });
 

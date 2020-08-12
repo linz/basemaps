@@ -28,7 +28,7 @@ export interface Composition {
     /** Crop the initial bounds */
     extract?: Size;
     /** Resize the image */
-    resize?: Size;
+    resize?: Size & { downsize: boolean };
     /** Crop after the resize */
     crop?: Bounds;
 }
