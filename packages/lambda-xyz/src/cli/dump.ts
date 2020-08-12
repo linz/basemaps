@@ -13,6 +13,7 @@ if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
 const xyz = { x: 0, y: 0, z: 0 };
 const projection = Epsg.Google;
+const tileSetName = 'aerial';
 const ext = ImageFormat.PNG;
 
 /** Load a tileset form a file path otherwise default to the hard coded one from AWS */
@@ -24,7 +25,7 @@ async function getTileSet(filePath?: string): Promise<TileSet> {
         return tileSet;
     }
 
-    const tileSet = await loadTileSet('aerial', projection);
+    const tileSet = await loadTileSet(tileSetName, projection);
     if (tileSet == null) throw new Error('Missing');
     return tileSet;
 }

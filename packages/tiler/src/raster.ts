@@ -6,10 +6,14 @@ export interface TileMaker {
     compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics }>;
 }
 
+export type ResizeKernelType = 'nearest' | 'lanczos3' | 'lanczos2';
+export type TileMakerResizeKernel = { in: ResizeKernelType; out: ResizeKernelType };
+
 export interface TileMakerContext {
     layers: Composition[];
     format: ImageFormat;
     background: { r: number; g: number; b: number; alpha: number };
+    resizeKernel: TileMakerResizeKernel;
 }
 
 export interface Composition {
@@ -21,14 +25,17 @@ export interface Composition {
         y: number;
         /** Internal tiff image used */
         imageId: number;
-    };
+    } & Size;
     /** Point to draw the image at on the output bounds */
     x: number;
     y: number;
     /** Crop the initial bounds */
     extract?: Size;
     /** Resize the image */
-    resize?: Size & { downsize: boolean };
+    resize?: Size & {
+        /** Scale  < 1 to zoom in, > 1 to zoom out */
+        scale: number;
+    };
     /** Crop after the resize */
     crop?: Bounds;
 }

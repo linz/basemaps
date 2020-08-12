@@ -14,6 +14,7 @@ import { Tile } from '@basemaps/geo';
 const WRITE_IMAGES = false;
 
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
+const resizeKernel = { in: 'nearest', out: 'lanczos3' } as const;
 
 function getExpectedTileName(projection: Epsg, tileSize: number, tile: Tile): string {
     return path.join(
@@ -39,15 +40,16 @@ o.spec('TileCreation', () => {
         o(layer0.length).equals(16);
 
         const topLeft = layer0.find((f) => f.source.x == 0 && f.source.y == 0);
+        o(topLeft?.source).deepEquals({ x: 0, y: 0, imageId: 0, width: 16, height: 16 });
         o(topLeft?.tiff.source.name).equals(tiff.source.name);
-        o(topLeft?.resize).deepEquals({ width: 32, height: 32, downsize: false });
+        o(topLeft?.resize).deepEquals({ width: 32, height: 32, scale: 2 });
         o(topLeft?.x).equals(64);
         o(topLeft?.y).equals(64);
     });
 
     o('should generate webp', async () => {
         const tileMaker = new TileMakerSharp(256);
-        const res = await tileMaker.compose({ layers: [], format: ImageFormat.WEBP, background });
+        const res = await tileMaker.compose({ layers: [], format: ImageFormat.WEBP, background, resizeKernel });
         // Image format `R I F F <fileSize (int32)> W E B P`
         const magicBytes = res.buffer.slice(0, 4);
         const magicWebP = res.buffer.slice(8, 12);
@@ -57,7 +59,7 @@ o.spec('TileCreation', () => {
 
     o('should generate jpeg', async () => {
         const tileMaker = new TileMakerSharp(256);
-        const res = await tileMaker.compose({ layers: [], format: ImageFormat.JPEG, background });
+        const res = await tileMaker.compose({ layers: [], format: ImageFormat.JPEG, background, resizeKernel });
         const magicBytes = res.buffer.slice(0, 4);
         o(magicBytes.toJSON().data).deepEquals([0xff, 0xd8, 0xff, 0xdb]);
     });
@@ -111,7 +113,12 @@ o.spec('TileCreation', () => {
 
             const layers = await tiler.tile([tiff], tile.x, tile.y, tile.z);
 
-            const png = await tileMaker.compose({ layers, format: ImageFormat.PNG, background });
+            const png = await tileMaker.compose({
+                layers,
+                format: ImageFormat.PNG,
+                background,
+                resizeKernel,
+            });
             const newImage = PNG.sync.read(png.buffer);
             if (WRITE_IMAGES) {
                 const fileName = getExpectedTileName(projection, tileSize, tile);

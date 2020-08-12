@@ -59,11 +59,11 @@ o.spec('tiler.test', () => {
         const { crop } = ans;
         o(ans).deepEquals({
             tiff: ans.tiff,
-            source: { x: 0, y: 0, imageId: 6 },
+            source: { x: 0, y: 0, imageId: 6, width: 512, height: 387 },
             y: 0,
             x: 64,
             extract: { width: 512, height: 387 },
-            resize: { width: 256, height: 194, downsize: true },
+            resize: { width: 256, height: 194, scale: 0.5 },
             crop,
         });
 

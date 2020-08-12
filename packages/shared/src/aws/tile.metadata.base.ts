@@ -89,6 +89,7 @@ export interface TaggedTileMetadataRecord extends BaseDynamoTable {
     revisions?: number;
 }
 
+export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
 export interface TileMetadataSetRecord extends TaggedTileMetadataRecord {
     /** TileSet set name */
     name: string;
@@ -106,6 +107,9 @@ export interface TileMetadataSetRecord extends TaggedTileMetadataRecord {
 
     /** Background to render for areas where there is no data */
     background?: { r: number; g: number; b: number; alpha: number };
+
+    /** When scaling tiles in the rendering process what kernel to use */
+    resizeKernel?: { in: TileResizeKernel; out: TileResizeKernel };
 }
 
 /**

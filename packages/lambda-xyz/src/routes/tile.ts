@@ -16,6 +16,7 @@ const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
 /** Background color of tiles where the tileset does not define a color */
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
+const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 
 const NotFound = new LambdaHttpResponse(404, 'Not Found');
 
@@ -86,6 +87,7 @@ export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
         layers,
         format: ext,
         background: tileSet.background ?? DefaultBackground,
+        resizeKernel: tileSet.resizeKernel ?? DefaultResizeKernel,
     });
     req.timer.end('tile:compose');
     req.set('layersUsed', res.layers);
