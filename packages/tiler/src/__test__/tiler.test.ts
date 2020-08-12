@@ -69,4 +69,17 @@ o.spec('tiler.test', () => {
 
         o(crop?.toJson()).deepEquals(new Bounds(0, 64, 192, 130).toJson());
     });
+
+    o('should clamp required tiles', () => {
+        const bounds = new Bounds(0, 0, 1024, 1024);
+        const tileCount = { x: 1, y: 1 };
+        const tileSize = { width: 256, height: 256 };
+        o(Array.from(Tiler.getRequiredTiles(bounds, 1, tileSize, tileCount))).deepEquals([{ x: 0, y: 0 }]);
+
+        tileCount.y = 2;
+        o(Array.from(Tiler.getRequiredTiles(bounds, 1, tileSize, tileCount))).deepEquals([
+            { x: 0, y: 0 },
+            { x: 0, y: 1 },
+        ]);
+    });
 });

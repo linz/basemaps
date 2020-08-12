@@ -36,7 +36,7 @@ o.spec('stac', () => {
         const date = Date.parse(stac.properties.datetime);
 
         o(date >= now && date < now + 2000).equals(true);
-        o(/git@github\.com:linz\/basemaps.git#/.test(stac.links[1].href)).equals(true);
+        o(stac.links[1].href.startsWith('https://github.com/linz/basemaps.git')).equals(true);
         o(stac.links[1].rel).equals('derived_from');
         o(/^\d+\.\d+\.\d+$/.test(stac.links[1].version)).equals(true);
 
