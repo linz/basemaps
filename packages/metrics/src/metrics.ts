@@ -1,4 +1,3 @@
-const NanoSecondsToMs = BigInt(1000000);
 /**
  * Utility to record some metrics about the execution of the function
  */
@@ -6,25 +5,30 @@ export class Metrics {
     /**
      * Start time of all timers
      */
-    private timers: Record<string, bigint> = {};
-    /**
-     * List of time recordings
-     */
-    private time: Record<string, number> = {};
+    private timers: Map<string, { start: number; duration?: number }> = new Map();
 
-    private getTime(): bigint {
-        return process.hrtime.bigint();
+    constructor() {
+        if (typeof process != 'undefined' && typeof process.hrtime.bigint == 'function') {
+            const NanoSecondsToMs = BigInt(1000000);
+            this.getTime = (): number => Number(process.hrtime.bigint() / NanoSecondsToMs);
+        } else if (typeof typeof performance != 'undefined') {
+            this.getTime = (): number => performance.now();
+        } else {
+            this.getTime = (): number => Date.now();
+        }
     }
+
+    private getTime: () => number;
 
     /**
      * Start a timer at the current time
-     * @param timeName
+     * @param timeName name of timer to start
      */
     public start(timeName: string): void {
-        if (this.timers[timeName] != null) {
+        if (this.timers.has(timeName)) {
             throw new Error(`Duplicate startTime for "${timeName}"`);
         }
-        this.timers[timeName] = this.getTime();
+        this.timers.set(timeName, { start: this.getTime() });
     }
 
     /**
@@ -32,44 +36,32 @@ export class Metrics {
      * @param timeName timer to end
      */
     public end(timeName: string): number {
-        if (this.timers[timeName] == null) {
+        const timer = this.timers.get(timeName);
+        if (timer == null) {
             throw new Error(`Missing startTime information for "${timeName}"`);
         }
-        const duration = this.getTime() - this.timers[timeName];
-        this.time[timeName] = Number(duration / NanoSecondsToMs);
-        return Number(this.time[timeName]);
+        const duration = this.getTime() - timer.start;
+        timer.duration = duration;
+        return duration;
     }
 
-    /**
-     * Convert all the times to Number so that they can be used
-     */
+    /** Get list of all timers that have run */
     public get metrics(): Record<string, number> | undefined {
-        const endTimes = Object.keys(this.time);
-        // No metrics were started
-        if (endTimes.length === 0) {
-            return undefined;
-        }
+        if (this.timers.size == 0) return undefined;
         const output: Record<string, number> = {};
-        for (const key of endTimes) {
-            output[key] = Number(this.time[key]);
+        for (const [key, timer] of this.timers.entries()) {
+            if (timer.duration != null) output[key] = timer.duration;
         }
-
         return output;
     }
 
     /** Get a list of timers that never finished */
     public get unfinished(): string[] | undefined {
-        const startTimes = Object.keys(this.timers);
-        const endTimes = Object.keys(this.time);
-        // Some metrics did not finish
-        if (startTimes.length === endTimes.length) {
-            return undefined;
+        const st: string[] = [];
+        for (const [key, timer] of this.timers.entries()) {
+            if (timer.duration == null) st.push(key);
         }
-
-        const st = new Set(startTimes);
-        for (const endTime of endTimes) {
-            st.delete(endTime);
-        }
-        return Array.from(st.keys());
+        if (st.length == 0) return undefined;
+        return st;
     }
 }
