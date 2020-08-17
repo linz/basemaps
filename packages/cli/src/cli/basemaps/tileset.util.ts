@@ -87,7 +87,7 @@ export function invalidateXYZCache(
     commit = false,
 ): Promise<void> {
     const nameStr = tag == TileMetadataTag.Production ? name : `${name}@${tag}`;
-    const path = `/v1/tiles/${nameStr}/${projection}/*`;
+    const path = `/v1/tiles/${nameStr}/${projection.toEpsgString()}/*`;
 
     return invalidateCache(path, commit);
 }
