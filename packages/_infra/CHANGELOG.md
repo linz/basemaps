@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.9.0](https://github.com/linz/basemaps/compare/v4.8.0...v4.9.0) (2020-08-17)
+
+
+### Bug Fixes
+
+* **infra:** fix broken log shipper path ([#1058](https://github.com/linz/basemaps/issues/1058)) ([633c0f8](https://github.com/linz/basemaps/commit/633c0f8e544a6f05231a3c5b4a61b904b5493386))
+
+
+
+
+
 # [4.8.0](https://github.com/linz/basemaps/compare/v4.7.1...v4.8.0) (2020-08-12)
 
 **Note:** Version bump only for package @basemaps/infra
