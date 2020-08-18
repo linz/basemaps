@@ -72,46 +72,61 @@ export class TileMakerSharp implements TileMaker {
         const source = composition.source;
         const tile = await composition.tiff.getTile(source.x, source.y, source.imageId);
         if (tile == null) return null;
-        const sharp = Sharp(Buffer.from(tile.bytes));
+        try {
+            const sharp = Sharp(Buffer.from(tile.bytes));
 
-        // The stats function takes too long to run, its faster to just compose all the tiles anyway.
-        // const stats = await sharp.stats();
-        // const [red, green, blue] = stats.channels;
-        // // If there is no color this tile is not really worth doing anything with
-        // if (red.max == 0 && green.max == 0 && blue.max == 0) {
-        //     // TODO this could be made to be much more smart in terms of excluding images from the rendering
-        //     // If there is no area which has alpha then we may not need to compose all the tiles
-        //     // so we could cut the rendering pipeline down
-        //     return null;
-        // }
+            // The stats function takes too long to run, its faster to just compose all the tiles anyway.
+            // const stats = await sharp.stats();
+            // const [red, green, blue] = stats.channels;
+            // // If there is no color this tile is not really worth doing anything with
+            // if (red.max == 0 && green.max == 0 && blue.max == 0) {
+            //     // TODO this could be made to be much more smart in terms of excluding images from the rendering
+            //     // If there is no area which has alpha then we may not need to compose all the tiles
+            //     // so we could cut the rendering pipeline down
+            //     return null;
+            // }
 
-        if (composition.extract) {
-            sharp.extract({ top: 0, left: 0, width: composition.extract.width, height: composition.extract.height });
-        }
+            if (composition.extract) {
+                sharp.extract({
+                    top: 0,
+                    left: 0,
+                    width: composition.extract.width,
+                    height: composition.extract.height,
+                });
+            }
 
-        if (composition.resize) {
-            const resizeOptions: Sharp.ResizeOptions = {
-                fit: Sharp.fit.cover,
-                kernel: composition.resize.scale > 1 ? resizeKernel.in : resizeKernel.out,
+            if (composition.resize) {
+                const resizeOptions: Sharp.ResizeOptions = {
+                    fit: Sharp.fit.cover,
+                    kernel: composition.resize.scale > 1 ? resizeKernel.in : resizeKernel.out,
+                };
+                sharp.resize(composition.resize.width, composition.resize.height, resizeOptions);
+            }
+
+            if (composition.crop) {
+                sharp.extract({
+                    top: composition.crop.y,
+                    left: composition.crop.x,
+                    width: composition.crop.width,
+                    height: composition.crop.height,
+                });
+            }
+
+            const input = await sharp.toBuffer();
+            return {
+                input,
+                top: composition.y,
+                left: composition.x,
             };
-            sharp.resize(composition.resize.width, composition.resize.height, resizeOptions);
+        } catch (err) {
+            // help try an solve (basemaps-team) issue #281
+            if ((err.message ?? '').indexOf('XML parse error') != -1) {
+                throw new Error(
+                    err.message + '\nbytes(0..1000):\n' + Buffer.from(tile.bytes.slice(0, 1000)).toString('utf8'),
+                );
+            }
+            throw err;
         }
-
-        if (composition.crop) {
-            sharp.extract({
-                top: composition.crop.y,
-                left: composition.crop.x,
-                width: composition.crop.width,
-                height: composition.crop.height,
-            });
-        }
-
-        const input = await sharp.toBuffer();
-        return {
-            input,
-            top: composition.y,
-            left: composition.x,
-        };
     }
 
     private createImage(background: Sharp.RGBA): Sharp.Sharp {
