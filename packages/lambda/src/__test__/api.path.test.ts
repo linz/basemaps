@@ -34,6 +34,14 @@ o.spec('api.path', () => {
             o(ans).equals(null);
         });
 
+        o('should allow missing extension', () => {
+            const ctx = makeContext('/v1/tiles/aerial/EPSG:3857/12/4009/2602');
+
+            const ans = tileFromPath(ctx.action.rest);
+
+            o(ans).equals(null);
+        });
+
         o('should return null if projection not supported', () => {
             const ctx = makeContext('/v1/tiles/aerial/3793/1/2/3.png');
 
