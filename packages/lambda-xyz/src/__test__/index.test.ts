@@ -39,6 +39,7 @@ o.spec('LambdaXyz index', () => {
 
             o(response.status).equals(200);
             o(response.statusDescription).equals('ok');
+            o(response.header('cache-control')).equals('no-store');
             o(JSON.parse(response.body)).deepEquals({
                 version: '1.2.3',
                 hash: 'abc456',
@@ -50,11 +51,13 @@ o.spec('LambdaXyz index', () => {
         const res = await handleRequest(req('/health'));
         o(res.status).equals(200);
         o(res.statusDescription).equals('ok');
+        o(res.header('cache-control')).equals('no-store');
     });
 
     o('should respond to /ping', async () => {
         const res = await handleRequest(req('/ping'));
         o(res.status).equals(200);
         o(res.statusDescription).equals('ok');
+        o(res.header('cache-control')).equals('no-store');
     });
 });
