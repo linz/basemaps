@@ -1,5 +1,5 @@
 import { Callback, Context } from 'aws-lambda';
-import { ApplicationJson, HttpHeader } from './header';
+import { ApplicationJson, HttpHeader, HttpHeaderAmazon } from './header';
 import { LambdaContext, LambdaHttpRequestType, LambdaHttpReturnType, LogType } from './lambda.context';
 import { LambdaHttpResponse } from './lambda.response';
 
@@ -38,6 +38,13 @@ export class LambdaFunction {
                 version: process.env['AWS_LAMBDA_FUNCTION_VERSION'],
                 region: process.env['AWS_REGION'],
             };
+
+            // Trace cloudfront requests back to the cloudfront logs
+            const cloudFrontId = ctx.header(HttpHeaderAmazon.CloudfrontId);
+            const traceId = ctx.header(HttpHeaderAmazon.TraceId);
+            if (cloudFrontId != null || traceId != null) {
+                ctx.set('aws', { cloudFrontId, traceId });
+            }
 
             ctx.set('package', { hash: process.env.GIT_HASH, version: process.env.GIT_VERSION });
             ctx.set('method', ctx.method);

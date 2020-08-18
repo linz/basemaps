@@ -13,3 +13,9 @@ export const HttpHeader = {
     RateExpire: 'X-RateLimit-Expires',
     Cors: 'Access-Control-Allow-Origin',
 };
+
+/** Amazon specific headers */
+export const HttpHeaderAmazon = {
+    CloudfrontId: 'X-Amz-Cf-Id',
+    TraceId: 'X-Amzn-Trace-Id',
+};
