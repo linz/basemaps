@@ -1579,9 +1579,9 @@
     "@types/node" ">= 8"
 
 "@rushstack/ts-command-line@^4.3.13":
-  version "4.4.6"
-  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.4.6.tgz#7818f19e444274e68564a756ef62a2b4e0ced0f8"
-  integrity sha512-ue3p2m773Yea/s4Ef2Q3gEyLd9T0NDjXCl+PlodGTrJHgxoiRwbROSWHAdYJL/LceGWa6Biqizu9qxUDEWFweQ==
+  version "4.4.8"
+  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.4.8.tgz#46559932c7e9a70ea071c3ce376a2e7ad0d2e9b1"
+  integrity sha512-giyVXuyI2BAID0BINp8TbxcTf5MEao+UPadAMfCuuS64mSE1E76S8wzhjqEy3WaTSpgyRDi7dMlEegNnD/97Gw==
   dependencies:
     "@types/argparse" "1.0.38"
     argparse "~1.0.9"
