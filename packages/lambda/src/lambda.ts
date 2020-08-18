@@ -62,6 +62,7 @@ export class LambdaFunction {
                     // Unhandled exception was thrown
                     ctx.set('err', error);
                     res = new LambdaHttpResponse(500, 'Internal Server Error');
+                    res.header(HttpHeader.CacheControl, 'no-store');
                 }
             }
 
