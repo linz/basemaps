@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.10.0](https://github.com/linz/basemaps/compare/v4.9.0...v4.10.0) (2020-08-19)
+
+
+### Bug Fixes
+
+* **cli:** use the same url pattern as WMTS to invalidate cache ([#1065](https://github.com/linz/basemaps/issues/1065)) ([f24a988](https://github.com/linz/basemaps/commit/f24a988f73c1f3ee81f144826e346e31e20f8241)), closes [#1034](https://github.com/linz/basemaps/issues/1034)
+
+
+
+
+
 # [4.9.0](https://github.com/linz/basemaps/compare/v4.8.0...v4.9.0) (2020-08-17)
 
 

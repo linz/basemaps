@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.10.0](https://github.com/linz/basemaps/compare/v4.9.0...v4.10.0) (2020-08-19)
+
+
+### Bug Fixes
+
+* **cli:** use the same url pattern as WMTS to invalidate cache ([#1065](https://github.com/linz/basemaps/issues/1065)) ([f24a988](https://github.com/linz/basemaps/commit/f24a988f73c1f3ee81f144826e346e31e20f8241)), closes [#1034](https://github.com/linz/basemaps/issues/1034)
+* **lambda:** do not cache 500 exceptions ([#1074](https://github.com/linz/basemaps/issues/1074)) ([8c7e223](https://github.com/linz/basemaps/commit/8c7e2235abd20ac0c646530ede3d9dca6718fab8))
+* **lambda-api-tracker:** disable api database query ([#1075](https://github.com/linz/basemaps/issues/1075)) ([cb4aec5](https://github.com/linz/basemaps/commit/cb4aec5103ee8b92122863379ac6b177ebfcd2e8))
+* **lambda-xyz:** Stop health and ping response being cached ([#1066](https://github.com/linz/basemaps/issues/1066)) ([922c617](https://github.com/linz/basemaps/commit/922c617b555672d36bd3d2e4986d3b46ad333731))
+* **shared:** Don't error if tile ext missing ([#1072](https://github.com/linz/basemaps/issues/1072)) ([8ed9e8d](https://github.com/linz/basemaps/commit/8ed9e8d1173cd01c55a7f2380f48617dc02f28b4))
+
+
+### Features
+
+* **lambda:** trace cloudfront request and trace id's ([#1067](https://github.com/linz/basemaps/issues/1067)) ([4ca23a1](https://github.com/linz/basemaps/commit/4ca23a127c3b9857fbe9f844a4764914db2ec133))
+* **landing:** support urls with z14 or 14z ([#1076](https://github.com/linz/basemaps/issues/1076)) ([e485610](https://github.com/linz/basemaps/commit/e48561072fe346621ed8f41279f42510db87627b))
+
+
+
+
+
 # [4.9.0](https://github.com/linz/basemaps/compare/v4.8.0...v4.9.0) (2020-08-17)
 
 

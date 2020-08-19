@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.10.0](https://github.com/linz/basemaps/compare/v4.9.0...v4.10.0) (2020-08-19)
+
+
+### Bug Fixes
+
+* **lambda-api-tracker:** disable api database query ([#1075](https://github.com/linz/basemaps/issues/1075)) ([cb4aec5](https://github.com/linz/basemaps/commit/cb4aec5103ee8b92122863379ac6b177ebfcd2e8))
+
+
+
+
+
 # [4.9.0](https://github.com/linz/basemaps/compare/v4.8.0...v4.9.0) (2020-08-17)
 
 **Note:** Version bump only for package @basemaps/lambda-api-tracker

@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.10.0](https://github.com/linz/basemaps/compare/v4.9.0...v4.10.0) (2020-08-19)
+
+
+### Bug Fixes
+
+* **lambda:** do not cache 500 exceptions ([#1074](https://github.com/linz/basemaps/issues/1074)) ([8c7e223](https://github.com/linz/basemaps/commit/8c7e2235abd20ac0c646530ede3d9dca6718fab8))
+* **shared:** Don't error if tile ext missing ([#1072](https://github.com/linz/basemaps/issues/1072)) ([8ed9e8d](https://github.com/linz/basemaps/commit/8ed9e8d1173cd01c55a7f2380f48617dc02f28b4))
+
+
+### Features
+
+* **lambda:** trace cloudfront request and trace id's ([#1067](https://github.com/linz/basemaps/issues/1067)) ([4ca23a1](https://github.com/linz/basemaps/commit/4ca23a127c3b9857fbe9f844a4764914db2ec133))
+
+
+
+
+
 # [4.9.0](https://github.com/linz/basemaps/compare/v4.8.0...v4.9.0) (2020-08-17)
 
 **Note:** Version bump only for package @basemaps/lambda
