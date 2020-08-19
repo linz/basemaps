@@ -1,11 +1,11 @@
 import { LambdaContext } from '@basemaps/lambda';
-import { ApiKeyTableRecord, Aws, LogConfig } from '@basemaps/shared';
+import { Aws, LogConfig } from '@basemaps/shared';
 import o from 'ospec';
-import { ValidateRequest } from '../validate';
 import * as ulid from 'ulid';
+import { ValidateRequest } from '../validate';
 
 o.spec('ApiValidate', (): void => {
-    const FakeApiKey = `c${ulid.ulid()}`.toLowerCase();
+    // const FakeApiKey = `c${ulid.ulid()}`.toLowerCase();
 
     const oldGet = Aws.apiKey.get;
     o.beforeEach(() => {
@@ -23,27 +23,28 @@ o.spec('ApiValidate', (): void => {
         return ctx;
     }
 
-    o('validate should fail on faulty apikey', async () => {
-        let lastApiKey = '';
-        Aws.apiKey.get = async (apiKey): Promise<ApiKeyTableRecord> => {
-            lastApiKey = apiKey;
-            return {
-                id: apiKey,
-                updatedAt: 1,
-                createdAt: 1,
-                enabled: false,
-                minuteExpireAt: 100,
-                minuteCount: 100,
-            } as ApiKeyTableRecord;
-        };
-        const result = await ValidateRequest.validate(makeContext(FakeApiKey));
-        o(result).notEquals(null);
-        if (result == null) throw new Error('Validate returns null result');
+    // TODO re-enable when API Keys are being validated
+    // o('validate should fail on faulty apikey', async () => {
+    //     let lastApiKey = '';
+    //     Aws.apiKey.get = async (apiKey): Promise<ApiKeyTableRecord> => {
+    //         lastApiKey = apiKey;
+    //         return {
+    //             id: apiKey,
+    //             updatedAt: 1,
+    //             createdAt: 1,
+    //             enabled: false,
+    //             minuteExpireAt: 100,
+    //             minuteCount: 100,
+    //         } as ApiKeyTableRecord;
+    //     };
+    //     const result = await ValidateRequest.validate(makeContext(FakeApiKey));
+    //     o(result).notEquals(null);
+    //     if (result == null) throw new Error('Validate returns null result');
 
-        o(lastApiKey).equals(FakeApiKey);
-        o(result.status).equals(403);
-        o(result.statusDescription).equals('API key disabled');
-    });
+    //     o(lastApiKey).equals(FakeApiKey);
+    //     o(result.status).equals(403);
+    //     o(result.statusDescription).equals('API key disabled');
+    // });
 
     o('should validate ulid api keys', async () => {
         const newId = ulid.ulid();
@@ -82,25 +83,25 @@ o.spec('ApiValidate', (): void => {
     //     o(result.status).equals(403);
     //     o(result.statusDescription).equals('Invalid API Key');
     // });
+    //
+    // o('validate should fail with rate limit error', async () => {
+    //     const mockMinuteCount = 1e4;
+    //     const mockMinuteExpireAt = Date.now() * 1.01;
+    //     Aws.apiKey.get = async (apiKey): Promise<ApiKeyTableRecord> => {
+    //         return {
+    //             id: apiKey,
+    //             updatedAt: 1,
+    //             createdAt: 1,
+    //             enabled: true,
+    //             minuteExpireAt: mockMinuteExpireAt,
+    //             minuteCount: mockMinuteCount,
+    //         } as ApiKeyTableRecord;
+    //     };
+    //     const result = await ValidateRequest.validate(makeContext(FakeApiKey));
+    //     o(result).notEquals(null);
+    //     if (result == null) throw new Error('Validate returns null result');
 
-    o('validate should fail with rate limit error', async () => {
-        const mockMinuteCount = 1e4;
-        const mockMinuteExpireAt = Date.now() * 1.01;
-        Aws.apiKey.get = async (apiKey): Promise<ApiKeyTableRecord> => {
-            return {
-                id: apiKey,
-                updatedAt: 1,
-                createdAt: 1,
-                enabled: true,
-                minuteExpireAt: mockMinuteExpireAt,
-                minuteCount: mockMinuteCount,
-            } as ApiKeyTableRecord;
-        };
-        const result = await ValidateRequest.validate(makeContext(FakeApiKey));
-        o(result).notEquals(null);
-        if (result == null) throw new Error('Validate returns null result');
-
-        o(result.status).equals(429);
-        o(result.statusDescription).equals('Too many API Requests current: ' + mockMinuteCount);
-    });
+    //     o(result.status).equals(429);
+    //     o(result.statusDescription).equals('Too many API Requests current: ' + mockMinuteCount);
+    // });
 });
