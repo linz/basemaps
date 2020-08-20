@@ -5,7 +5,7 @@ import targets = require('@aws-cdk/aws-elasticloadbalancingv2-targets');
 import cert = require('@aws-cdk/aws-certificatemanager');
 import r53 = require('@aws-cdk/aws-route53');
 
-import { LambdaXyz } from './lambda.xyz';
+import { LambdaTiler } from './lambda.tiler';
 import { ApplicationProtocol, SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
 import { DeployEnv } from '../deploy.env';
 import { Env } from '@basemaps/shared';
@@ -20,7 +20,7 @@ export class ServeStack extends cdk.Stack {
         super(scope, id, props);
 
         const config = getConfig();
-        const lambda = new LambdaXyz(this, 'LambdaXyz');
+        const lambda = new LambdaTiler(this, 'LambdaTiler');
         const table = new TileMetadataTable(this, 'TileMetadata');
         table.table.grantReadData(lambda.lambda);
 
