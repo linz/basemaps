@@ -20,7 +20,7 @@ export class LambdaXyz extends cdk.Construct {
 
         const config = getConfig();
         this.lambda = new lambda.Function(this, 'Tiler', {
-            runtime: lambda.Runtime.NODEJS_10_X,
+            runtime: lambda.Runtime.NODEJS_12_X,
             memorySize: 2048,
             timeout: Duration.seconds(10),
             handler: 'index.handler',
