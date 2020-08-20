@@ -64,7 +64,8 @@ export class ActionCogCreate extends CommandLineAction {
     }
 
     async onExecute(): Promise<void> {
-        const jobFn = this.job?.value!;
+        const jobFn = this.job?.value;
+        if (jobFn == null) throw new Error('Missing job name');
 
         const inFp = FileOperator.create(jobFn);
         const job = await FileOperator.readJson<CogJob>(jobFn, inFp);

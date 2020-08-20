@@ -34,6 +34,5 @@ export const enum GaEvent {
 
 export function gaEvent(category: GaEvent, action: string, value?: number): void {
     if (Config.GoogleAnalytics == '') return;
-    // eslint-disable-next-line @typescript-eslint/camelcase
     window.gtag('event', action, { event_category: category, value });
 }

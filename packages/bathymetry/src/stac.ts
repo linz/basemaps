@@ -25,9 +25,7 @@ async function create(bm: BathyMaker, tile: Tile, logger: LogType): Promise<Reco
 
     const created = new Date().toISOString();
     return {
-        // eslint-disable-next-line @typescript-eslint/camelcase
         stac_version: '1.0.0',
-        // eslint-disable-next-line @typescript-eslint/camelcase
         stac_extensions: ['proj', 'linz'],
         id: tileId,
         type: 'Feature',
