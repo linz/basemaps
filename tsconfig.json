@@ -14,7 +14,7 @@
         { "path": "./packages/lambda" },
         { "path": "./packages/shared" },
         { "path": "./packages/lambda-api-tracker" },
-        { "path": "./packages/lambda-xyz" },
+        { "path": "./packages/lambda-tiler" },
         { "path": "./packages/landing" }
     ]
 }

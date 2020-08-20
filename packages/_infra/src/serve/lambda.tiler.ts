@@ -7,11 +7,11 @@ import { Duration } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
 import { getConfig } from '../config';
 
-const CODE_PATH = '../lambda-xyz/dist';
+const CODE_PATH = '../lambda-tiler/dist';
 /**
  * Create a API Key validation edge lambda
  */
-export class LambdaXyz extends cdk.Construct {
+export class LambdaTiler extends cdk.Construct {
     public lambda: lambda.Function;
     public version: lambda.Version;
 
