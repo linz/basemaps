@@ -7,11 +7,11 @@ import { Duration } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
 import { getConfig } from '../config';
 
-const CODE_PATH = '../lambda-xyz/dist';
+const CODE_PATH = '../lambda-tiler/dist';
 /**
  * Create a API Key validation edge lambda
  */
-export class LambdaXyz extends cdk.Construct {
+export class LambdaTiler extends cdk.Construct {
     public lambda: lambda.Function;
     public version: lambda.Version;
 
@@ -20,7 +20,7 @@ export class LambdaXyz extends cdk.Construct {
 
         const config = getConfig();
         this.lambda = new lambda.Function(this, 'Tiler', {
-            runtime: lambda.Runtime.NODEJS_10_X,
+            runtime: lambda.Runtime.NODEJS_12_X,
             memorySize: 2048,
             timeout: Duration.seconds(10),
             handler: 'index.handler',

@@ -1,3 +1,3 @@
-# @basemaps/lambda-xyz
+# @basemaps/lambda-tiler
 
 XYZ interface for map generation

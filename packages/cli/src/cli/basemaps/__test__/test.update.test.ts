@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import o from 'ospec';
 import { TileSetUpdateAction, parseRgba } from '../action.tileset.update';
 import { TileMetadataSetRecord, LogConfig, Aws } from '@basemaps/shared';

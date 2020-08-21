@@ -41,9 +41,7 @@ o.spec('stac', () => {
         o(/^\d+\.\d+\.\d+$/.test(stac.links[1].version)).equals(true);
 
         o(stac).deepEquals({
-            // eslint-disable-next-line @typescript-eslint/camelcase
             stac_version: '1.0.0',
-            // eslint-disable-next-line @typescript-eslint/camelcase
             stac_extensions: ['proj', 'linz'],
             id: '13-22-33',
             type: 'Feature',
