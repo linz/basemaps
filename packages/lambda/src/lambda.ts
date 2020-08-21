@@ -1,5 +1,5 @@
 import { Callback, Context } from 'aws-lambda';
-import { ApplicationJson, HttpHeader } from './header';
+import { ApplicationJson, HttpHeader, HttpHeaderAmazon } from './header';
 import { LambdaContext, LambdaHttpRequestType, LambdaHttpReturnType, LogType } from './lambda.context';
 import { LambdaHttpResponse } from './lambda.response';
 
@@ -39,6 +39,13 @@ export class LambdaFunction {
                 region: process.env['AWS_REGION'],
             };
 
+            // Trace cloudfront requests back to the cloudfront logs
+            const cloudFrontId = ctx.header(HttpHeaderAmazon.CloudfrontId);
+            const traceId = ctx.header(HttpHeaderAmazon.TraceId);
+            if (cloudFrontId != null || traceId != null) {
+                ctx.set('aws', { cloudFrontId, traceId });
+            }
+
             ctx.set('package', { hash: process.env.GIT_HASH, version: process.env.GIT_VERSION });
             ctx.set('method', ctx.method);
             ctx.set('path', ctx.path);
@@ -55,6 +62,7 @@ export class LambdaFunction {
                     // Unhandled exception was thrown
                     ctx.set('err', error);
                     res = new LambdaHttpResponse(500, 'Internal Server Error');
+                    res.header(HttpHeader.CacheControl, 'no-store');
                 }
             }
 

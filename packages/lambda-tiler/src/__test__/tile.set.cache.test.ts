@@ -104,7 +104,6 @@ o.spec('TileSetCache', () => {
                 },
             ]);
             o(subTileSet.tileSet.imagery).deepEquals({
-                // eslint-disable-next-line @typescript-eslint/camelcase
                 im_id1: { id: 'im_id1', minZoom: 0, maxZoom: 31, priority: 0 },
             });
             o(subTileSet.background).equals(undefined);

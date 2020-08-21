@@ -48,7 +48,7 @@ function tileXyzFromPath(path: string[]): TileData | null {
 
     if (isNaN(x) || isNaN(y) || isNaN(z)) return null;
 
-    const ext = getImageFormat(extStr);
+    const ext = extStr ? getImageFormat(extStr) : null;
     if (ext == null) return null;
 
     return { type: TileType.Image, name, projection, x, y, z, ext };

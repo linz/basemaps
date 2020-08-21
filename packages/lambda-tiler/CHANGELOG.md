@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.10.0](https://github.com/linz/basemaps/compare/v4.9.0...v4.10.0) (2020-08-19)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Stop health and ping response being cached ([#1066](https://github.com/linz/basemaps/issues/1066)) ([922c617](https://github.com/linz/basemaps/commit/922c617b555672d36bd3d2e4986d3b46ad333731))
+
+
+
+
+
 # [4.9.0](https://github.com/linz/basemaps/compare/v4.8.0...v4.9.0) (2020-08-17)
 
 
@@ -19,8 +30,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* **lambda-xyz:** allow dumping of single tiles from aws ([#1037](https://github.com/linz/basemaps/issues/1037)) ([85b4783](https://github.com/linz/basemaps/commit/85b4783b332e2c134157ed11029386a3dcbeab0b))
-* **lambda-xyz:** set cache for tiles to be public to increase cache hits ([#1035](https://github.com/linz/basemaps/issues/1035)) ([610b10c](https://github.com/linz/basemaps/commit/610b10c7eebb934f463d88654768dd64836f118a))
+* **lambda-tiler:** allow dumping of single tiles from aws ([#1037](https://github.com/linz/basemaps/issues/1037)) ([85b4783](https://github.com/linz/basemaps/commit/85b4783b332e2c134157ed11029386a3dcbeab0b))
+* **lambda-tiler:** set cache for tiles to be public to increase cache hits ([#1035](https://github.com/linz/basemaps/issues/1035)) ([610b10c](https://github.com/linz/basemaps/commit/610b10c7eebb934f463d88654768dd64836f118a))
 
 
 
@@ -28,7 +39,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [4.7.1](https://github.com/linz/basemaps/compare/v4.7.0...v4.7.1) (2020-08-11)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -58,7 +69,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [4.5.0](https://github.com/linz/basemaps/compare/v4.4.0...v4.5.0) (2020-07-30)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -75,7 +86,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* **lambda-xyz:** Serve WMTSCapabilities for all TileSets ([#953](https://github.com/linz/basemaps/issues/953)) ([49d0e88](https://github.com/linz/basemaps/commit/49d0e881b4726188ea937a9617c98bff5a78e44d))
+* **lambda-tiler:** Serve WMTSCapabilities for all TileSets ([#953](https://github.com/linz/basemaps/issues/953)) ([49d0e88](https://github.com/linz/basemaps/commit/49d0e881b4726188ea937a9617c98bff5a78e44d))
 
 
 
@@ -86,7 +97,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* **lambda-xyz:** log out api key used to request the tile ([#939](https://github.com/linz/basemaps/issues/939)) ([1eb9ff0](https://github.com/linz/basemaps/commit/1eb9ff0b90eebcd80e4fa69083d10eb9366623a8))
+* **lambda-tiler:** log out api key used to request the tile ([#939](https://github.com/linz/basemaps/issues/939)) ([1eb9ff0](https://github.com/linz/basemaps/commit/1eb9ff0b90eebcd80e4fa69083d10eb9366623a8))
 
 
 
@@ -94,7 +105,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [4.2.0](https://github.com/linz/basemaps/compare/v4.1.0...v4.2.0) (2020-07-16)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -113,7 +124,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [4.0.0](https://github.com/linz/basemaps/compare/v3.6.0...v4.0.0) (2020-07-09)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -132,7 +143,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [3.5.0](https://github.com/linz/basemaps/compare/v3.4.2...v3.5.0) (2020-07-05)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -140,7 +151,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [3.4.1](https://github.com/linz/basemaps/compare/v3.4.0...v3.4.1) (2020-06-30)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -148,7 +159,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [3.4.0](https://github.com/linz/basemaps/compare/v3.3.0...v3.4.0) (2020-06-29)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -159,7 +170,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
-* **lambda-xyz:** 404 when a user requests a tile outside of the tms zoom range ([#812](https://github.com/linz/basemaps/issues/812)) ([c78fff6](https://github.com/linz/basemaps/commit/c78fff6d7738f95339520c2d335ccb9a5329cc82))
+* **lambda-tiler:** 404 when a user requests a tile outside of the tms zoom range ([#812](https://github.com/linz/basemaps/issues/812)) ([c78fff6](https://github.com/linz/basemaps/commit/c78fff6d7738f95339520c2d335ccb9a5329cc82))
 
 
 
@@ -167,7 +178,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [3.1.0](https://github.com/linz/basemaps/compare/v3.0.0...v3.1.0) (2020-06-25)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -196,8 +207,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Features
 
 * **cli:** allow rendering of a single cog ([#737](https://github.com/linz/basemaps/issues/737)) ([87ed6f1](https://github.com/linz/basemaps/commit/87ed6f14c55655e61835e2cdbf139e720280462e))
-* **lambda-xyz:** Serve local images with set priority ([#755](https://github.com/linz/basemaps/issues/755)) ([6cd8ff2](https://github.com/linz/basemaps/commit/6cd8ff2f2979211e4859a1e2b0f949fcd5718bd2))
-* **lambda-xyz:** support rendering tiles where the tile matrix set is not a quad ([#749](https://github.com/linz/basemaps/issues/749)) ([3aa97d2](https://github.com/linz/basemaps/commit/3aa97d28ff96f840de72dc7b7b710ad825bbea9a))
+* **lambda-tiler:** Serve local images with set priority ([#755](https://github.com/linz/basemaps/issues/755)) ([6cd8ff2](https://github.com/linz/basemaps/commit/6cd8ff2f2979211e4859a1e2b0f949fcd5718bd2))
+* **lambda-tiler:** support rendering tiles where the tile matrix set is not a quad ([#749](https://github.com/linz/basemaps/issues/749)) ([3aa97d2](https://github.com/linz/basemaps/commit/3aa97d28ff96f840de72dc7b7b710ad825bbea9a))
 * render tiles using tile matrix sets ([#699](https://github.com/linz/basemaps/issues/699)) ([5b8156a](https://github.com/linz/basemaps/commit/5b8156aac4d23087c399667fba265af8383cd60a))
 * **wmts:** support multiple layers and multiple projections ([#689](https://github.com/linz/basemaps/issues/689)) ([a8a5627](https://github.com/linz/basemaps/commit/a8a562705ba4b7b7e0c77ba5d2a7709ed08283ad))
 * Allow composite imagery from different COG buckets ([#664](https://github.com/linz/basemaps/issues/664)) ([404a5a3](https://github.com/linz/basemaps/commit/404a5a3ad35ad6da5c8de6e1beebb134dcaec3ff))
@@ -239,7 +250,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
-* **lambda-xyz:** add missing identifier for WMTS individual set ([#617](https://github.com/linz/basemaps/issues/617)) ([5f79609](https://github.com/linz/basemaps/commit/5f79609c478b9b9cf26006a9a428b05cdc39a7aa))
+* **lambda-tiler:** add missing identifier for WMTS individual set ([#617](https://github.com/linz/basemaps/issues/617)) ([5f79609](https://github.com/linz/basemaps/commit/5f79609c478b9b9cf26006a9a428b05cdc39a7aa))
 
 
 
@@ -247,7 +258,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [1.10.0](https://github.com/linz/basemaps/compare/v1.9.0...v1.10.0) (2020-05-13)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -258,7 +269,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* **lambda-xyz:** Support tags and imagery sets for WMTSCapabilities.xml ([#599](https://github.com/linz/basemaps/issues/599)) ([9f4c6c2](https://github.com/linz/basemaps/commit/9f4c6c201224bf083ace2edfb2e8b885d741c6c5))
+* **lambda-tiler:** Support tags and imagery sets for WMTSCapabilities.xml ([#599](https://github.com/linz/basemaps/issues/599)) ([9f4c6c2](https://github.com/linz/basemaps/commit/9f4c6c201224bf083ace2edfb2e8b885d741c6c5))
 
 
 
@@ -277,7 +288,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [1.7.0](https://github.com/linz/basemaps/compare/v1.6.0...v1.7.0) (2020-05-10)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -296,7 +307,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [1.5.0](https://github.com/linz/basemaps/compare/v1.4.2...v1.5.0) (2020-05-07)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -304,7 +315,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [1.4.2](https://github.com/linz/basemaps/compare/v1.4.1...v1.4.2) (2020-05-06)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -312,7 +323,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [1.4.1](https://github.com/linz/basemaps/compare/v1.4.0...v1.4.1) (2020-05-06)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 
@@ -320,7 +331,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [1.4.0](https://github.com/linz/basemaps/compare/v1.3.0...v1.4.0) (2020-05-06)
 
-**Note:** Version bump only for package @basemaps/lambda-xyz
+**Note:** Version bump only for package @basemaps/lambda-tiler
 
 
 

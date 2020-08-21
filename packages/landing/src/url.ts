@@ -32,6 +32,17 @@ export const WindowUrl = {
         return `#@${loc.lat},${loc.lon},z${loc.zoom}`;
     },
 
+    /**
+     * Support parsing of zooms with `z14` or `14z`
+     * @param zoom string to parse zoom from
+     */
+    parseZoom(zoom: string | null): number {
+        if (zoom == null || zoom == '') return NaN;
+        if (zoom.startsWith('z')) return parseFloat(zoom.slice(1));
+        if (zoom.endsWith('z')) return parseFloat(zoom);
+        return NaN;
+    },
+
     /** Parse a location from window.hash if it exists */
     fromHash(str: string): Partial<MapLocation> {
         const output: Partial<MapLocation> = {};
@@ -43,7 +54,8 @@ export const WindowUrl = {
             output.lat = lat;
             output.lon = lon;
         }
-        const newZoom = parseFloat((zoomS ?? '').substr(1));
+
+        const newZoom = WindowUrl.parseZoom(zoomS);
         if (!isNaN(newZoom)) {
             output.zoom = newZoom;
         }
