@@ -1,16 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-    Aws,
-    FileOperator,
-    LogConfig,
-    RecordPrefix,
-    TileMetadataImageryRecord,
-    TileMetadataTable,
-} from '@basemaps/shared';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { CogJob } from '../../cog/types';
-import { createImageryRecordFromJob } from '../cogify/action.batch';
 import { Epsg } from '@basemaps/geo';
+import { Aws, LogConfig, RecordPrefix, TileMetadataImageryRecord, TileMetadataTable } from '@basemaps/shared';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { createImageryRecordFromJob } from '../cogify/action.batch';
+import { CogStacJob } from '../../cog/cog.stac.job';
 
 export class ImageryImportAction extends CommandLineAction {
     private job: CommandLineStringParameter;
@@ -63,8 +56,7 @@ export class ImageryImportAction extends CommandLineAction {
 
         logger.warn({ jobPath }, 'FetchingJob');
 
-        const fileOp = FileOperator.create(jobPath);
-        const job = await FileOperator.readJson<CogJob>(jobPath, fileOp);
+        const job = await CogStacJob.load(jobPath);
 
         const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, job.id);
         const imagery = await this.tryGetImagery(imgId);

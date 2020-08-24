@@ -1,4 +1,4 @@
-import { BBox } from './types';
+import { BBox, MultiPolygon, Ring } from './types';
 
 export const Wgs84 = {
     /**
@@ -63,7 +63,10 @@ export const Wgs84 = {
      * @param a must be in WGS84 coordinates
      * @param b must be in WGS84 coordinates
      */
-    union(a: BBox, b: BBox): BBox {
+    union(a: BBox, b: BBox | null | undefined): BBox {
+        if (b == null) {
+            return a.slice() as BBox;
+        }
         const axCenter = Wgs84.boxLonCenter(a);
         const bxCenter = Wgs84.boxLonCenter(b);
 
@@ -81,6 +84,79 @@ export const Wgs84 = {
         if (b[1] < a[1]) ans[1] = b[1];
         if (b[3] > a[3]) ans[3] = b[3];
 
+        return ans;
+    },
+
+    /**
+     * Find the bounding box of a WGS84 `ring` taking into account the
+     * anti-meridian.
+
+     * @param ring and array of points.
+
+     * @return a GeoJSON compliant bounding box
+     */
+    ringToBbox(ring: Ring): BBox {
+        if (ring.length < 3) {
+            throw new Error('Invalid ring');
+        }
+
+        let crossing = false; // are we currently across the antimeridian
+        const prev = ring[0];
+        let minX = prev[0];
+        let minY = prev[1];
+        let maxX = minX;
+        let maxY = minY;
+        let pLon = minX;
+        for (let i = 1; i < ring.length; ++i) {
+            const curr = ring[i];
+            let lon = curr[0];
+
+            const lineCrosses = Wgs84.crossesAM(pLon, lon);
+
+            if (lineCrosses) {
+                crossing = !crossing;
+            }
+            if (crossing) {
+                if (lon < 0) {
+                    lon += 360;
+                } else {
+                    pLon += 360;
+                    if (i == 1) {
+                        // need to adjust the initial values
+                        minX = maxX = pLon;
+                    }
+                }
+            }
+            if (lon < minX) minX = lon;
+            else if (lon > maxX) maxX = lon;
+            const lat = curr[1];
+            if (lat < minY) minY = lat;
+            else if (lat > maxY) maxY = lat;
+            pLon = curr[0];
+        }
+        return [this.normLon(minX), minY, this.normLon(maxX), maxY];
+    },
+
+    /**
+     * Find the bounding box of a WGS84 `multipolygon` taking into account the anti-meridian
+
+     * @param multipolygon the coordinates of a compliant GeoJSON MultiPolygon
+
+     * @return a GeoJSON compliant bounding box
+     */
+    multiPolygonToBbox(multipolygon: MultiPolygon): BBox {
+        let ans: BBox | null = null;
+        for (const poly of multipolygon) {
+            if (poly.length == 0) continue;
+            const ring = poly[0];
+            if (ring.length < 3) continue;
+
+            const bbox = this.ringToBbox(ring);
+            ans = ans == null ? bbox : this.union(ans, bbox);
+        }
+        if (ans == null) {
+            throw new Error('Invalid multipolygon');
+        }
         return ans;
     },
 };

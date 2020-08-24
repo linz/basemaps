@@ -1,8 +1,7 @@
 import { Bounds, Epsg, TileMatrixSet, WmtsLayer, WmtsProvider } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
-import { TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
-import { Projection } from '@basemaps/shared/build/proj/projection';
+import { Projection, TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
 import { TileSet } from './tile.set';

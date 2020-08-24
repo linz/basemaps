@@ -1,24 +1,23 @@
 import { EpsgCode } from '@basemaps/geo';
 import { NamedBounds } from '@basemaps/shared';
-import { CogJob } from '../types';
+import { CogStacJob } from '../cog.stac.job';
+import { CogJobJson } from '../types';
 
 export const SourceTiffTestHelper = {
-    makeCogJob(): CogJob {
-        return {
-            projection: EpsgCode.Google,
+    makeCogJob(): CogStacJob {
+        return new CogStacJob({
             source: {
                 files: [] as NamedBounds[],
-                resZoom: 13,
-                pixelScale: 9.55,
-                path: '',
-                options: {
-                    maxConcurrency: 3,
-                },
+                epsg: EpsgCode.Nztm2000,
+                gsd: 0.8,
             },
             output: {
-                vrt: { addAlpha: true },
+                epsg: EpsgCode.Google,
+                gsd: 0.75,
+                addAlpha: true,
+                oneCogCovering: false,
             },
-        } as CogJob;
+        } as CogJobJson);
     },
 
     tiffNztmBounds(path = '/path/to'): NamedBounds[] {

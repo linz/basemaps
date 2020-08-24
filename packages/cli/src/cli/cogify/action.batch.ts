@@ -1,10 +1,10 @@
+import { Epsg, TileMatrixSet } from '@basemaps/geo';
 import {
     Aws,
     Env,
     FileOperator,
     LogConfig,
     LogType,
-    ProjectionTileMatrixSet,
     RecordPrefix,
     TileMetadataImageryRecordV1,
     TileMetadataSetRecord,
@@ -13,34 +13,14 @@ import {
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
 import * as path from 'path';
+import { CogStacJob, extractYearRangeFromName } from '../../cog/cog.stac.job';
 import { CogJob } from '../../cog/types';
-import { getJobPath } from '../folder';
-import { TileMatrixSet } from '@basemaps/geo';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
-
-/**
- * Attempt to parse a year from a imagery name
- * @example wellington_urban_2017_0.10m -> 2017
- * @param name Imagery name to parse
- * @return imagery year, -1 for failure to parse
- */
-export function extractYearFromName(name: string): number {
-    const re = /(?:^|\D)(\d{4})(?:$|\D)/g;
-
-    let year = -1;
-
-    for (let m = re.exec(name); m != null; m = re.exec(name)) {
-        const t = parseInt(m[1]);
-        if (t > year) year = t;
-    }
-
-    return year;
-}
 
 const ResolutionRegex = /((?:\d[\.\-])?\d+)m/;
 /**
@@ -58,8 +38,8 @@ export function extractResolutionFromName(name: string): number {
 export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecordV1 {
     const now = Date.now();
 
-    const { projection } = job;
-    let base = job.output.path;
+    const projection = Epsg.get(job.output.epsg);
+    let base = job.output.location.path;
     if (!base.endsWith('/')) base += '/';
     const uri = base + path.join(projection.toString(), job.name, job.id);
 
@@ -70,12 +50,31 @@ export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryReco
         createdAt: now,
         updatedAt: now,
         uri,
-        projection,
-        year: extractYearFromName(job.name),
+        projection: projection.code,
+        year: extractYearRangeFromName(job.name)[0],
         resolution: extractResolutionFromName(job.name),
-        bounds: job.bounds,
-        files: job.files,
+        bounds: job.output.bounds,
+        files: job.output.files,
     };
+}
+
+export async function createMetadataFromJob(job: CogJob): Promise<void> {
+    const img = createImageryRecordFromJob(job);
+    await Aws.tileMetadata.put(img);
+    const createdAt = Date.now();
+    const tileMetadata: TileMetadataSetRecord = {
+        id: '',
+        // TODO this name is not super nice, ideally we should use the simplified image name
+        name: job.id,
+        title: job.title,
+        description: job.description,
+        projection: job.output.epsg,
+        version: 0,
+        createdAt,
+        updatedAt: createdAt,
+        imagery: { [img.id]: { id: img.id, minZoom: 0, maxZoom: 32, priority: 10 } },
+    };
+    await Aws.tileMetadata.TileSet.create(tileMetadata);
 }
 
 export class ActionBatchJob extends CommandLineAction {
@@ -103,9 +102,8 @@ export class ActionBatchJob extends CommandLineAction {
         isCommit: boolean,
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
         const jobName = ActionBatchJob.id(job, name);
-        const targetPtms = ProjectionTileMatrixSet.get(job.projection);
         const tile = TileMatrixSet.nameToTile(name);
-        const alignmentLevels = targetPtms.findAlignmentLevels(tile, job.source.pixelScale);
+        const alignmentLevels = job.targetPtms.findAlignmentLevels(tile, job.source.gsd);
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;
@@ -161,22 +159,29 @@ export class ActionBatchJob extends CommandLineAction {
             throw new Error('Failed to read parameters');
         }
 
-        await ActionBatchJob.batchJob(this.job.value, this.commit?.value, this.oneCog?.value, LogConfig.get());
+        await ActionBatchJob.batchJob(
+            await CogStacJob.load(this.job.value),
+            this.commit?.value,
+            this.oneCog?.value,
+            LogConfig.get(),
+        );
     }
 
-    static async batchJob(jobPath: string, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
-        if (!FileOperator.isS3(jobPath)) throw new Error(`AWS Batch job.json have to be in S3, jobPath:${jobPath}`);
-        const job = await FileOperator.readJson<CogJob>(jobPath);
+    static async batchJob(job: CogJob, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
+        const jobPath = job.getJobPath();
+        if (!FileOperator.isS3(jobPath)) {
+            throw new Error(`AWS Batch collection.json have to be in S3, jobPath:${jobPath}`);
+        }
         LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
 
         const region = Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';
         const batch = new aws.Batch({ region });
 
-        const outputFs = FileOperator.create(job.output);
+        const outputFs = FileOperator.create(job.output.location);
         const runningJobs = await ActionBatchJob.getCurrentJobList(batch);
 
         const stats = await Promise.all(
-            job.files.map(async ({ name }) => {
+            job.output.files.map(async ({ name }) => {
                 if (oneCog != null && oneCog !== name) return { name, ok: true };
                 const jobName = ActionBatchJob.id(job, name);
                 const isRunning = runningJobs.get(jobName);
@@ -185,7 +190,7 @@ export class ActionBatchJob extends CommandLineAction {
                     return { name, ok: true };
                 }
 
-                const targetPath = getJobPath(job, `${name}.tiff`);
+                const targetPath = job.getJobPath(`${name}.tiff`);
                 const exists = await outputFs.exists(targetPath);
                 if (exists) {
                     logger.info({ targetPath }, 'FileExists');
@@ -202,7 +207,7 @@ export class ActionBatchJob extends CommandLineAction {
 
         logger.info(
             {
-                jobTotal: job.files.length,
+                jobTotal: job.output.files.length,
                 jobLeft: toSubmit.length,
                 jobQueue: JobQueue,
                 jobDefinition: JobDefinition,
@@ -211,19 +216,7 @@ export class ActionBatchJob extends CommandLineAction {
         );
 
         if (commit) {
-            const img = createImageryRecordFromJob(job);
-            await Aws.tileMetadata.put(img);
-            const tileMetadata: TileMetadataSetRecord = {
-                id: '',
-                // TODO this name is not super nice, ideally we should use the simplified image name
-                name: job.id,
-                projection: job.projection,
-                version: 0,
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-                imagery: { [img.id]: { id: img.id, minZoom: 0, maxZoom: 32, priority: 10 } },
-            };
-            await Aws.tileMetadata.TileSet.create(tileMetadata);
+            await createMetadataFromJob(job);
         }
 
         for (const name of toSubmit) {

@@ -1,4 +1,4 @@
-import { Env, FileOperator, LogConfig, LoggerFatalError, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { Env, FileOperator, LogConfig, LoggerFatalError } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -8,12 +8,13 @@ import {
 import { createReadStream, promises as fs } from 'fs';
 import { FeatureCollection } from 'geojson';
 import { buildCogForName } from '../../cog/cog';
+import { CogStacJob } from '../../cog/cog.stac.job';
 import { CogVrt } from '../../cog/cog.vrt';
 import { Cutline } from '../../cog/cutline';
 import { CogJob } from '../../cog/types';
 import { Gdal } from '../../gdal/gdal';
 import { CliId } from '../base.cli';
-import { getJobPath, makeTempFolder } from '../folder';
+import { makeTempFolder } from '../folder';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;
@@ -30,12 +31,13 @@ export class ActionCogCreate extends CommandLineAction {
     }
 
     getName(job: CogJob): string | null {
+        const { files } = job.output;
         const batchIndex = Env.getNumber(Env.BatchIndex, -1);
         if (batchIndex > -1) {
-            const { name } = job.files[batchIndex];
+            const { name } = files[batchIndex];
             if (name == null) {
                 throw new LoggerFatalError(
-                    { cogIndex: batchIndex, tileMax: job.files.length - 1 },
+                    { cogIndex: batchIndex, tileMax: files.length - 1 },
                     'Failed to find cog name from batch index',
                 );
             }
@@ -44,19 +46,19 @@ export class ActionCogCreate extends CommandLineAction {
 
         const cogIndex = this.cogIndex?.value;
         if (cogIndex != null) {
-            const { name } = job.files[cogIndex];
+            const { name } = files[cogIndex];
             if (name == null) {
                 throw new LoggerFatalError(
-                    { cogIndex, tileMax: job.files.length - 1 },
+                    { cogIndex, tileMax: files.length - 1 },
                     'Failed to find cog name from index',
                 );
             }
             return name;
         }
         const name = this.name?.value;
-        if (name == null || !job.files.find((r) => r.name === name)) {
+        if (name == null || !files.find((r) => r.name === name)) {
             throw new LoggerFatalError(
-                { name, names: job.files.map((r) => r.name).join(', ') },
+                { name, names: files.map((r) => r.name).join(', ') },
                 'Name does not exist inside job',
             );
         }
@@ -67,9 +69,7 @@ export class ActionCogCreate extends CommandLineAction {
         const jobFn = this.job?.value;
         if (jobFn == null) throw new Error('Missing job name');
 
-        const inFp = FileOperator.create(jobFn);
-        const job = await FileOperator.readJson<CogJob>(jobFn, inFp);
-
+        const job = await CogStacJob.load(jobFn);
         const isCommit = this.commit?.value ?? false;
 
         const logger = LogConfig.get().child({ correlationId: job.id, imageryName: job.name });
@@ -82,8 +82,8 @@ export class ActionCogCreate extends CommandLineAction {
         if (name == null) {
             return;
         }
-        const targetPath = getJobPath(job, `${name}.tiff`);
-        const outputFs = FileOperator.create(job.output);
+        const targetPath = job.getJobPath(`${name}.tiff`);
+        const outputFs = FileOperator.create(job.output.location);
 
         const outputExists = await outputFs.exists(targetPath);
         logger.info({ targetPath, outputExists }, 'CheckExists');
@@ -98,17 +98,17 @@ export class ActionCogCreate extends CommandLineAction {
         try {
             let cutlineJson: FeatureCollection | undefined;
             if (job.output.cutline != null) {
-                const cutlinePath = getJobPath(job, 'cutline.geojson.gz');
+                const cutlinePath = job.getJobPath('cutline.geojson.gz');
                 logger.info({ path: cutlinePath }, 'UsingCutLine');
                 cutlineJson = await Cutline.loadCutline(cutlinePath);
             } else {
                 logger.warn('NoCutLine');
             }
             const cutline = new Cutline(
-                ProjectionTileMatrixSet.get(job.projection),
+                job.targetPtms,
                 cutlineJson,
                 job.output.cutline?.blend,
-                job.files.length == 1 && job.files[0].name == Cutline.OneCogName,
+                job.output.oneCogCovering,
             );
 
             const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);

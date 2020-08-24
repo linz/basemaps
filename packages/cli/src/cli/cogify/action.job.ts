@@ -6,7 +6,8 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
-import { CogJobFactory, JobCreationContext, MaxConcurrencyDefault } from '../../cog/job';
+import { JobCreationContext } from '../../cog/cog.stac.job';
+import { CogJobFactory, MaxConcurrencyDefault } from '../../cog/job.factory';
 import { GdalCogBuilderDefaults, GdalCogBuilderResampling, GdalResamplingOptions } from '../../gdal/gdal.config';
 import { CliId } from '../base.cli';
 
@@ -81,12 +82,12 @@ export class ActionJobCreate extends CommandLineAction {
     }
 
     async onExecute(): Promise<void> {
-        const source: FileConfig | FileConfigPath = this.fsConfig(this.source);
-        const output = this.fsConfig(this.output);
+        const sourceLocation: FileConfig | FileConfigPath = this.fsConfig(this.source);
+        const outputLocation = this.fsConfig(this.output);
 
         let cutline = undefined;
         if (this.cutline?.value) {
-            cutline = { source: this.cutline.value, blend: this.cutlineBlend.value ?? 20 };
+            cutline = { href: this.cutline.value, blend: this.cutlineBlend.value ?? 20 };
         }
 
         const targetProjection = ProjectionTileMatrixSet.tryGet(this.targetProjection?.value);
@@ -108,16 +109,16 @@ export class ActionJobCreate extends CommandLineAction {
         const fileListPath = this.fileList?.value;
         if (fileListPath != null) {
             const fileData = await FileOperator.create(fileListPath).read(fileListPath);
-            (source as FileConfigPath).files = fileData
+            (sourceLocation as FileConfigPath).files = fileData
                 .toString()
                 .trim()
                 .split('\n')
-                .map((fn) => source.path + '/' + fn);
+                .map((fn) => sourceLocation.path + '/' + fn);
         }
 
         const ctx: JobCreationContext = {
-            source,
-            output,
+            sourceLocation,
+            outputLocation,
             cutline,
             targetProjection,
             override: {
@@ -128,7 +129,7 @@ export class ActionJobCreate extends CommandLineAction {
                 resampling,
             },
             batch: this.submitBatch?.value ?? false,
-            oneCog: this.oneCog?.value ?? false,
+            oneCogCovering: this.oneCog?.value ?? false,
         };
 
         await CogJobFactory.create(ctx);

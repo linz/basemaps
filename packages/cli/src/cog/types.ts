@@ -1,77 +1,76 @@
 import { BoundingBox, EpsgCode } from '@basemaps/geo';
-import { FileConfig, NamedBounds } from '@basemaps/shared';
+import { FileConfig, NamedBounds, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { GdalCogBuilderResampling } from '../gdal/gdal.config';
 
-export interface CogJob {
-    /** Unique processing Id */
-    id: string;
-
-    /** Imagery set name */
-    name: string;
-
-    /** Output projection */
-    projection: EpsgCode;
-
-    source: {
-        /** List of input files */
-        files: NamedBounds[];
-
-        /** The number of pixels per meter for the best source image */
-        pixelScale: number;
-        /**
-         * The zoom level that corresponds approximately what the pixelScale of the source is
-         * for high quality aerial imagery this is generally 20-22 in Google Mercator
-         */
-        resZoom: number;
-        /** EPSG input projection number */
-        projection: EpsgCode;
-
-        options: {
-            maxConcurrency: number;
+export interface FeatureCollectionWithCrs extends GeoJSON.FeatureCollection {
+    crs: {
+        type: string;
+        properties: {
+            name: string;
         };
-    } & FileConfig;
+    };
+}
 
-    /** Folder/S3 bucket to store the output */
-    output: {
-        resampling: GdalCogBuilderResampling;
-        nodata?: number;
-        /**
-         * Quality level to use
-         * @default 90
-         */
-        quality: number;
+export interface ImageryProperties {
+    /** Ground Sampling Distance in meters per pixel */
+    gsd: number;
+    epsg: EpsgCode;
 
-        /**
-         * Cutline options
-         */
-        cutline?: {
-            source: string;
-            blend: number;
-        };
+    /** File access details */
+    location: FileConfig;
 
-        vrt: {
-            /** Vrts will add a second alpha layer if one exists, so dont always add one */
-            addAlpha: boolean;
-        };
-    } & FileConfig;
+    /** List of input files */
+    files: NamedBounds[];
+}
 
+export type CogSourceProperties = ImageryProperties;
+
+export interface CogGdalSettings {
+    resampling: GdalCogBuilderResampling;
+    nodata?: number;
+    /**
+     * Quality level to use
+     * @default 90
+     */
+    quality: number;
+
+    /** Vrts will add a second alpha layer if one exists, so dont always add one */
+    addAlpha: boolean;
+}
+
+export interface CogOutputProperties extends CogGdalSettings, ImageryProperties {
     /** The bounds of all the cogs */
     bounds: BoundingBox;
 
-    /** list of files to generate and their bounds */
-    files: NamedBounds[];
-
-    /** How and when this job file was generated */
-    generated: {
-        /** ISO date string */
-        date: string;
-        /** Package name of the generator */
-        package: string;
-        /* Version of the generator */
-        version: string;
-        /** Commit hash of the generator */
-        hash: string | undefined;
+    /** Cutline options */
+    cutline?: {
+        href: string;
+        blend: number;
     };
+
+    /** Should this job ignore source coverage and just produce one big COG for EPSG extent */
+    oneCogCovering: boolean;
+}
+
+export interface CogJobJson {
+    /** Unique processing Id */
+    id: string;
+    /** Imagery set name */
+    name: string;
+
+    title: string;
+    description?: string;
+
+    source: CogSourceProperties;
+    output: CogOutputProperties;
+}
+
+export interface CogJob extends CogJobJson {
+    sourcePtms: ProjectionTileMatrixSet;
+    targetPtms: ProjectionTileMatrixSet;
+    targetZoom: number;
+
+    getJobPath(key?: string): string;
 }
 
 export interface SourceMetadata {

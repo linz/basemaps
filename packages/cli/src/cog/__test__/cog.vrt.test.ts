@@ -40,9 +40,9 @@ o.spec('cog.vrt', () => {
 
     o.beforeEach(() => {
         runSpy = o.spy();
-        job.projection = EpsgCode.Google;
-        job.source.projection = EpsgCode.Nztm2000;
-        job.source.resZoom = 13;
+        job.output.epsg = EpsgCode.Google;
+        job.source.epsg = EpsgCode.Nztm2000;
+        job.source.gsd = 20;
         gdal = { run: runSpy };
         (Gdal as any).create = (): any => gdal;
         job.source.files = [tif1, tif2];
@@ -59,8 +59,6 @@ o.spec('cog.vrt', () => {
         const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'));
         const cl2 = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/mana.geojson'));
         cutline.clipPoly.push(...cl2.clipPoly);
-
-        job.source.resZoom = 17;
 
         const vrt = await CogVrt.buildVrt(tmpFolder, job, cutline, qkToName('31133322'), logger);
 
@@ -90,7 +88,7 @@ o.spec('cog.vrt', () => {
     });
 
     o('no cutline diff projection', async () => {
-        job.projection = EpsgCode.Nztm2000;
+        job.output.epsg = EpsgCode.Nztm2000;
         const vrt = await CogVrt.buildVrt(tmpFolder, job, new Cutline(googlePtms), qkToName('31'), logger);
 
         o(job.source.files).deepEquals([tif1, tif2]);
@@ -115,7 +113,7 @@ o.spec('cog.vrt', () => {
 
     o('intersected cutline', async () => {
         const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 20);
-        job.output.cutline = { blend: 20, source: 'cutline.json' };
+        job.output.cutline = { blend: 20, href: 'cutline.json' };
 
         const name = qkToName('311333222321113');
 
@@ -180,7 +178,7 @@ o.spec('cog.vrt', () => {
             o.name = 's3:/' + o.name;
             return o;
         });
-        job.output.cutline = { blend: 10, source: 'cutline.json' };
+        job.output.cutline = { blend: 10, href: 'cutline.json' };
         const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/mana.geojson'));
 
         const vrt = await CogVrt.buildVrt(tmpFolder, job, cutline, qkToName('3131110001'), logger);
@@ -258,8 +256,8 @@ o.spec('cog.vrt', () => {
                 '-t_srs',
                 'EPSG:3857',
                 '-tr',
-                '19.10925707',
-                '19.10925707',
+                '0.75',
+                '0.75',
                 '-tap',
                 '-cutline',
                 '/tmp/my-tmp-folder/cutline.geojson',

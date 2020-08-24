@@ -25,9 +25,7 @@
   ],
   "dependencies": {
     "lineclip": "^1.1.5",
-    "polygon-clipping": "^0.15.1"
-  },
-  "devDependencies": {
+    "polygon-clipping": "^0.15.1",
     "@types/geojson": "^7946.0.7"
   }
 }

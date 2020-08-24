@@ -1,4 +1,4 @@
-import { BoundingBox, Bounds, Epsg, EpsgCode } from '@basemaps/geo';
+import { BoundingBox, Epsg, EpsgCode } from '@basemaps/geo';
 import {
     BBox,
     MultiPolygon,
@@ -108,9 +108,9 @@ export class Projection {
      * @param source
      * @returns [west, south, east, north]
      */
-    boundsToWgs84BoundingBox(source: Bounds): BBox {
+    boundsToWgs84BoundingBox(source: BoundingBox): BBox {
         const sw = this.toWgs84([source.x, source.y]);
-        const ne = this.toWgs84([source.right, source.bottom]);
+        const ne = this.toWgs84([source.x + source.width, source.y + source.height]);
 
         return [sw[0], sw[1], ne[0], ne[1]];
     }
@@ -132,11 +132,11 @@ export class Projection {
 
         const coords = multiPolygonToWgs84([[[sw, nw, ne, se, sw]]] as MultiPolygon, this.toWgs84);
 
-        if (coords.length == 1) {
-            return toFeaturePolygon(coords[0], properties);
-        }
+        const feature =
+            coords.length == 1 ? toFeaturePolygon(coords[0], properties) : toFeatureMultiPolygon(coords, properties);
+        feature.bbox = this.boundsToWgs84BoundingBox(bounds);
 
-        return toFeatureMultiPolygon(coords, properties);
+        return feature;
     }
 
     /** Convert a tile covering to a GeoJSON FeatureCollection */
