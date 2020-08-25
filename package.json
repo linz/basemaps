@@ -18,7 +18,7 @@
     "build": "tsc -b"
   },
   "devDependencies": {
-    "@linzjs/style": "^0.1.0",
+    "@linzjs/style": "^0.2.0",
     "@types/aws-lambda": "^8.10.43",
     "@types/node": "^13.9.8",
     "@types/ospec": "^4.0.2",
