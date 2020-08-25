@@ -1,26 +1,21 @@
 import { Bounds, Epsg } from '@basemaps/geo';
 import {
+    extractYearRangeFromName,
     FileConfig,
     FileConfigPath,
     FileOperator,
     ProjectionTileMatrixSet,
+    StacCollection,
+    StacLicense,
+    StacLink,
+    StacProvider,
+    StacVersion,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
 import { CliInfo } from '../cli/base.cli';
 import { GdalCogBuilderDefaults, GdalCogBuilderResampling } from '../gdal/gdal.config';
-import {
-    CogStac,
-    CogStacExtensions,
-    CogStacItem,
-    CogStacItemExtensions,
-    CogStacKeywords,
-    CogStacLicense,
-    CogStacVersion,
-    StacCollection,
-    StacLink,
-    StacProvider,
-} from './stac';
+import { CogStac, CogStacExtensions, CogStacItem, CogStacItemExtensions, CogStacKeywords } from './stac';
 import {
     CogBuilderMetadata,
     CogJob,
@@ -83,31 +78,6 @@ export interface JobCreationContext {
 
     /** Should this job ignore source coverage and just produce one big COG for EPSG extent */
     oneCogCovering: boolean;
-}
-
-/**
- * Attempt to parse a year from a imagery name
- * @example wellington_urban_2017_0.10m -> 2017
- * @param name Imagery name to parse
- * @return imagery year, -1 for failure to parse
- */
-export function extractYearRangeFromName(name: string): [number, number] {
-    const re = /(?:^|\D)(\d{4})(?:-(\d{2}))?(?:$|\D)/g;
-
-    const years: number[] = [];
-
-    for (let m = re.exec(name); m != null; m = re.exec(name)) {
-        years.push(parseInt(m[1]));
-        if (m[2] != null) years.push(parseInt(m[1].slice(0, 2) + m[2]));
-    }
-
-    if (years.length == 0) {
-        return [-1, -1];
-    }
-
-    years.sort();
-
-    return [years[0], years[years.length - 1] + 1];
 }
 
 export interface CogJobCreateParams {
@@ -187,7 +157,7 @@ export class CogStacJob implements CogJob {
             }
         }
         const keywords = sourceStac.keywords ?? CogStacKeywords.slice();
-        const license = sourceStac.license ?? CogStacLicense;
+        const license = sourceStac.license ?? StacLicense;
         const title = sourceStac.title ?? titleizeImageryName(imageryName);
 
         const job = new CogStacJob({
@@ -247,7 +217,7 @@ export class CogStacJob implements CogJob {
             id,
             title,
             description,
-            stac_version: CogStacVersion,
+            stac_version: StacVersion,
             stac_extensions: CogStacExtensions,
 
             extent: {
@@ -297,15 +267,16 @@ export class CogStacJob implements CogJob {
         for (const f of covering.features) {
             const { name } = f.properties as { name: string };
             const href = name + '.json';
-            links.push({ href, type: 'application/json', rel: 'item' });
+            links.push({ href, type: 'application/geo+json', rel: 'item' });
             const item: CogStacItem = {
                 ...f,
                 id: job.id + '/' + name,
                 collection: job.id,
-                stac_version: CogStacVersion,
+                stac_version: StacVersion,
                 stac_extensions: CogStacItemExtensions,
                 properties: {
                     ...f.properties,
+                    datetime: nowStr,
                     gsd: job.output.gsd,
                     'proj:epsg': job.output.epsg,
                 },

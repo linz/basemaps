@@ -2,6 +2,7 @@ import { Epsg, TileMatrixSet } from '@basemaps/geo';
 import {
     Aws,
     Env,
+    extractYearRangeFromName,
     FileOperator,
     LogConfig,
     LogType,
@@ -13,7 +14,7 @@ import {
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as aws from 'aws-sdk';
 import * as path from 'path';
-import { CogStacJob, extractYearRangeFromName } from '../../cog/cog.stac.job';
+import { CogStacJob } from '../../cog/cog.stac.job';
 import { CogJob } from '../../cog/types';
 
 const JobQueue = 'CogBatchJobQueue';

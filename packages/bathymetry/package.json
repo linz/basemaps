@@ -27,7 +27,8 @@
     "@basemaps/cli": "^4.10.0",
     "@basemaps/geo": "^4.8.0",
     "@basemaps/shared": "^4.10.0",
-    "multihashes": "^3.0.1"
+    "multihashes": "^3.0.1",
+    "ulid": "^2.3.0"
   },
   "peerDependencies": {
     "mapnik": "^4.4.0"

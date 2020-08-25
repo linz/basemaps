@@ -3,22 +3,12 @@ import { FileOperator, ProjectionTileMatrixSet } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
 import o from 'ospec';
-import { CogStacJob, extractYearRangeFromName, JobCreationContext } from '../cog.stac.job';
+import { CogStacJob, JobCreationContext } from '../cog.stac.job';
 import { CogBuilderMetadata } from '../types';
 
 o.spec('CogJob', () => {
     const googlePtms = ProjectionTileMatrixSet.get(EpsgCode.Google);
     const nztmPtms = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
-
-    o('extractYearRangeFromName', () => {
-        o(extractYearRangeFromName('2013')).deepEquals([2013, 2014]);
-        o(extractYearRangeFromName('abc2017def')).deepEquals([2017, 2018]);
-        o(extractYearRangeFromName('2019_abc')).deepEquals([2019, 2020]);
-        o(extractYearRangeFromName('12019_abc')).deepEquals([-1, -1]);
-        o(extractYearRangeFromName('2019_abc2020')).deepEquals([2019, 2021]);
-        o(extractYearRangeFromName('2020_abc2019')).deepEquals([2019, 2021]);
-        o(extractYearRangeFromName('2020-23abc')).deepEquals([2020, 2024]);
-    });
 
     o.spec('build', () => {
         const id = 'jobid1';
@@ -250,7 +240,7 @@ o.spec('CogJob', () => {
                         type: 'application/geo+json',
                         rel: 'linz.basemaps.source',
                     },
-                    { href: '0-0-0.json', type: 'application/json', rel: 'item' },
+                    { href: '0-0-0.json', type: 'application/geo+json', rel: 'item' },
                 ],
             };
 
@@ -285,7 +275,12 @@ o.spec('CogJob', () => {
                         ],
                     ],
                 },
-                properties: { name: '0-0-0', gsd: 0.0373, 'proj:epsg': 3857 },
+                properties: {
+                    datetime: new Date(jobNow).toISOString(),
+                    name: '0-0-0',
+                    gsd: 0.0373,
+                    'proj:epsg': 3857,
+                },
                 bbox: [0, 0, 0, 0],
                 id: 'jobid1/0-0-0',
                 collection: 'jobid1',
