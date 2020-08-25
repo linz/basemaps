@@ -8,4 +8,7 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+  ignore:
+    - dependency-name: '@aws-cdk/*'
+    - dependency-name: 'aws-cdk'
   open-pull-requests-limit: 10
