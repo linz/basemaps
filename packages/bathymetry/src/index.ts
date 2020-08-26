@@ -1,9 +1,10 @@
-import { LogConfig, Env } from '@basemaps/shared';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { BathyMaker } from './bathy.maker';
-import { PrettyTransform } from 'pretty-json-log';
 import { CliId } from '@basemaps/cli/build/cli/base.cli';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Env, LogConfig } from '@basemaps/shared';
 import * as fs from 'fs';
+import { PrettyTransform } from 'pretty-json-log';
+import * as ulid from 'ulid';
+import { BathyMaker } from './bathy.maker';
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 const Logger = LogConfig.get().child({ id: CliId });
@@ -26,7 +27,7 @@ async function main(): Promise<void> {
 
     Logger.info({ source: pathToFile }, 'MakeBathy');
 
-    const bathy = new BathyMaker({ path: pathToFile, tms: GoogleTms, zoom: 4, threads: 8 });
+    const bathy = new BathyMaker({ id: ulid.ulid(), path: pathToFile, tms: GoogleTms, zoom: 4, threads: 8 });
     await bathy.render(Logger);
 }
 

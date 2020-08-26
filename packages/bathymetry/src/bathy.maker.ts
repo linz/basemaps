@@ -1,17 +1,20 @@
 import { Gdal } from '@basemaps/cli';
-import { Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import * as fs from 'fs';
-import PLimit from 'p-limit';
+import * as os from 'os';
 import type { Limit } from 'p-limit';
+import PLimit from 'p-limit';
 import * as path from 'path';
+import { basename } from 'path';
 import { FilePath, FileType } from './file';
 import { Hash } from './hash';
 import { MapnikRender } from './mapnik';
 import { Stac } from './stac';
-import * as os from 'os';
 
 interface BathyMakerContext {
+    /** unique id for this build */
+    id: string;
     /** Source file path Must be local file system */
     path: string;
     /** TileMatrixSet to cut the bathy up into tiles */
@@ -82,17 +85,27 @@ export class BathyMaker {
         logger.info({ version: gdalVersion }, 'GdalVersion');
 
         const promises = [];
+        let extent: Bounds | null = null;
         for (let x = 0; x < tmsZoom.matrixWidth; x++) {
             for (let y = 0; y < tmsZoom.matrixHeight; y++) {
                 const promise = this.q(() => {
                     const tile = { x, y, z: zoom };
+                    const bounds = tms.tileToSourceBounds(tile);
+                    extent = extent == null ? bounds : extent.union(bounds);
                     const tileId = TileMatrixSet.tileToName(tile);
                     return this.renderTile(tile, logger.child({ index: tileId }));
                 });
                 promises.push(promise);
             }
         }
-        await Promise.all(promises).catch((err) => logger.fatal(err, 'FailedToRun'));
+        try {
+            const tileNames = await Promise.all(promises);
+            if (extent == null) return;
+            this.createMetadata(extent, tileNames);
+        } catch (err) {
+            logger.fatal(err, 'FailedToRun');
+            throw err;
+        }
     }
 
     /** Create a multi hash of the source file  */
@@ -107,14 +120,15 @@ export class BathyMaker {
     }
 
     /** Render a specific tile */
-    async renderTile(tile: Tile, logger: LogType): Promise<void> {
+    async renderTile(tile: Tile, logger: LogType): Promise<string> {
         try {
             await this.createTile(tile, logger);
             await this.createHillShadedTile(tile, logger);
             await this.createCompositeTile(tile, logger);
-            await this.createTileMetadata(tile, logger);
+            return await this.createTileMetadata(tile, logger);
         } catch (err) {
             logger.error({ err }, 'Failed');
+            throw err;
         }
     }
 
@@ -222,10 +236,17 @@ export class BathyMaker {
         );
     }
     /** Create and write a stac metadata item for a single tile */
-    async createTileMetadata(tile: Tile, logger: LogType): Promise<void> {
-        const output = await Stac.create(this, tile, logger);
+    async createTileMetadata(tile: Tile, logger: LogType): Promise<string> {
+        const output = await Stac.createItem(this, tile, logger);
         const tileId = TileMatrixSet.tileToName(tile);
         const stacOutputPath = this.file.name(FileType.Stac, tileId);
+        await fs.promises.writeFile(stacOutputPath, JSON.stringify(output, null, 2));
+        return basename(stacOutputPath);
+    }
+
+    async createMetadata(bounds: Bounds, itemPaths: string[]): Promise<void> {
+        const output = await Stac.createCollection(this, bounds, itemPaths);
+        const stacOutputPath = this.file.name(FileType.Stac, 'collection.json');
         await fs.promises.writeFile(stacOutputPath, JSON.stringify(output, null, 2));
     }
 }

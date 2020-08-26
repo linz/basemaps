@@ -11,7 +11,7 @@ o.spec('stac', () => {
     o.afterEach(() => {
         Hash.hash = origHash;
     });
-    o('create', async () => {
+    o('createItem', async () => {
         (Hash as any).hash = (v: string): string => 'hash' + v;
 
         const logger = LogConfig.get();
@@ -21,7 +21,7 @@ o.spec('stac', () => {
         }
 
         const bm = {
-            config: { tms: GoogleTms },
+            config: { id: 'id123', tms: GoogleTms },
             file: { name },
             fileName: 'test-file.nc',
             createSourceHash(l: LogType) {
@@ -31,30 +31,31 @@ o.spec('stac', () => {
 
         const now = Date.now();
 
-        const stac = round((await Stac.create(bm, { x: 22, y: 33, z: 13 }, logger)) as any);
+        const stac = round((await Stac.createItem(bm, { x: 22, y: 33, z: 13 }, logger)) as any);
 
         const date = Date.parse(stac.properties.datetime);
 
         o(date >= now && date < now + 2000).equals(true);
-        o(stac.links[1].href.startsWith('https://github.com/linz/basemaps.git')).equals(true);
-        o(stac.links[1].rel).equals('derived_from');
-        o(/^\d+\.\d+\.\d+$/.test(stac.links[1].version)).equals(true);
+        o(stac.links[2].href.startsWith('https://github.com/linz/basemaps.git')).equals(true);
+        o(stac.links[2].rel).equals('derived_from');
+        o(/^\d+\.\d+\.\d+$/.test(stac.links[2].version)).equals(true);
 
-        o(stac).deepEquals({
+        o(round(stac, 4)).deepEquals({
             stac_version: '1.0.0',
             stac_extensions: ['proj', 'linz'],
-            id: '13-22-33',
+            id: 'id123/13-22-33',
+            collection: 'id123',
             type: 'Feature',
-            bounds: [-179.03320312, 84.92054529, -178.98925781, 84.92443459],
+            bbox: [-179.0332, 84.9205, -178.9893, 84.9244],
             geometry: {
                 type: 'Polygon',
                 coordinates: [
                     [
-                        [-179.03320312, 84.92054529],
-                        [-179.03320312, 84.92443459],
-                        [-178.98925781, 84.92443459],
-                        [-178.98925781, 84.92054529],
-                        [-179.03320312, 84.92054529],
+                        [-179.0332, 84.9205],
+                        [-179.0332, 84.9244],
+                        [-178.9893, 84.9244],
+                        [-178.9893, 84.9205],
+                        [-179.0332, 84.9205],
                     ],
                 ],
             },
@@ -69,17 +70,54 @@ o.spec('stac', () => {
                     href: '13-22-33',
                     title: 'GeoTiff',
                     roles: ['data'],
-                    type: 'image/vnd.stac.geotiff',
+                    type: 'image/tiff; application=geotiff',
                 },
             },
             links: [
+                { rel: 'collection', href: 'collection.json' },
                 {
                     rel: 'derived_from',
                     href: 'test-file.nc',
                     'checksum:multihash': 'multihashResulttrue',
                 },
-                stac.links[1],
+                stac.links[2],
             ],
+        });
+    });
+
+    o('createCollection', () => {
+        const bm = {
+            config: { id: 'id123', tms: GoogleTms, path: 'path/to/bathy_2020.nc' },
+        } as any;
+
+        const bounds = GoogleTms.tileToSourceBounds({ x: 22, y: 33, z: 13 });
+
+        const items = ['13-22-33.json', '13-22-34.json'];
+        const stac = Stac.createCollection(bm, bounds, items);
+
+        o(round(stac, 4)).deepEquals({
+            stac_version: '1.0.0',
+            stac_extensions: ['proj'],
+            id: 'id123',
+            title: 'Bathy 2020',
+            extent: {
+                spatial: { bbox: [-179.0332, 84.9205, -178.9893, 84.9244] },
+                temporal: { interval: [['2020-01-01T00:00:00Z', '2021-01-01T00:00:00Z']] },
+            },
+            license: 'CC-BY-4.0',
+            links: [
+                { rel: 'item', href: '13-22-33.json', type: 'application/geo+json' },
+                { rel: 'item', href: '13-22-34.json', type: 'application/geo+json' },
+            ],
+            providers: [
+                {
+                    name: 'Land Information New Zealand',
+                    url: 'https://www.linz.govt.nz/',
+                    roles: ['processor'],
+                },
+            ],
+            keywords: ['Bathymetry'],
+            summaries: { 'proj:epsg': [3857] },
         });
     });
 });
