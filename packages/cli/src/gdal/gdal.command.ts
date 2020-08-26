@@ -12,7 +12,7 @@ export function normalizeAwsEnv(env: Record<string, string | undefined>): Record
     const awsProfile = env['AWS_PROFILE'];
     const awsDefaultProfile = env['AWS_DEFAULT_PROFILE'];
 
-    if (awsProfile == null) env;
+    if (awsProfile == null) return env;
     if (awsDefaultProfile == null) {
         return { ...env, AWS_DEFAULT_PROFILE: awsProfile };
     }

@@ -1,14 +1,8 @@
-import { Bounds, Epsg } from '@basemaps/geo';
-import {
-    Aws,
-    ProjectionTileMatrixSet,
-    RecordPrefix,
-    TileMetadataTable,
-    TileSetNameValues,
-    TileSetRuleImagery,
-    titleizeImageryName,
-} from '@basemaps/shared';
+import { Epsg, Bounds } from '@basemaps/geo';
+import { Aws, ProjectionTileMatrixSet, TileSetNameValues, TileMetadataImageryRecord } from '@basemaps/shared';
+import { RecordPrefix, titleizeImageryName, TileMetadataTable } from '@basemaps/shared';
 import { TileSet } from './tile.set';
+import { ulid } from 'ulid';
 
 /** The cached TileSets */
 export const TileSets = new Map<string, TileSet>();
@@ -21,8 +15,8 @@ export function getTileSet(name: string, projection: Epsg): TileSet | undefined 
     return TileSets.get(tileSetId);
 }
 
-function individualTileSet(parent: TileSet, image: TileSetRuleImagery, setId?: string): TileSet {
-    const { id } = image.imagery;
+function individualTileSet(parent: TileSet, image: TileMetadataImageryRecord, setId?: string): TileSet {
+    const { id } = image;
     if (setId == null) {
         setId = TileMetadataTable.unprefix(RecordPrefix.Imagery, id);
     }
@@ -31,24 +25,17 @@ function individualTileSet(parent: TileSet, image: TileSetRuleImagery, setId?: s
     copy.tileSet = Object.create(parent.tileSet ?? null);
     copy.tileSet.background = undefined;
 
-    copy.titleOverride = `${parent.title} ${titleizeImageryName(image.imagery.name)}`;
-    copy.extentOverride = Bounds.fromJson(image.imagery.bounds);
+    copy.titleOverride = `${parent.title} ${titleizeImageryName(image.name)}`;
+    copy.extentOverride = Bounds.fromJson(image.bounds);
 
     const rule = {
-        id,
+        ruleId: TileMetadataTable.prefix(RecordPrefix.ImageryRule, ulid()),
+        imgId: image.id,
         minZoom: 0,
-        maxZoom: image.rule.maxZoom,
+        maxZoom: 100,
         priority: 0,
     };
-    copy.tileSet.imagery = { [id]: rule };
-
-    copy.imagery = [
-        {
-            rule,
-            imagery: image.imagery,
-        },
-    ];
-
+    copy.tileSet.rules = [rule];
     return copy;
 }
 
@@ -80,10 +67,10 @@ export async function loadTileSet(name: string, projection: Epsg): Promise<TileS
     }
 
     if (subsetName === '') return tileSet;
-
-    const image = tileSet.imagery.find((i) => i.imagery.name === subsetName);
-    if (image == null) return null;
-    return individualTileSet(tileSet, image);
+    for (const image of tileSet.imagery.values()) {
+        if (image.name == subsetName) return individualTileSet(tileSet, image);
+    }
+    return null;
 }
 
 function compareByTitle(a: TileSet, b: TileSet): number {
@@ -123,9 +110,9 @@ export async function loadTileSets(nameStr: string, projection: Epsg | null): Pr
             tileSets.push(parent);
             if (isSubset) {
                 parent.name = nameStr;
-            } else if (parent.imagery != null && parent.imagery.length > 1) {
-                for (const image of parent.imagery) {
-                    tileSets.push(individualTileSet(parent, image, parent.taggedName + ':' + image.imagery.name));
+            } else if (parent.imagery != null && parent.imagery.size > 1) {
+                for (const image of parent.imagery.values()) {
+                    tileSets.push(individualTileSet(parent, image, parent.taggedName + ':' + image.name));
                 }
             }
         }

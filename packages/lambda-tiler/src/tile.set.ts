@@ -1,12 +1,10 @@
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import {
     Aws,
+    ProjectionTileMatrixSet,
     TileMetadataImageryRecord,
-    TileMetadataImageryRecordV1,
     TileMetadataSetRecord,
     TileMetadataTag,
-    TileSetRuleImagery,
-    ProjectionTileMatrixSet,
     TileResizeKernel,
 } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
@@ -17,7 +15,7 @@ export class TileSet {
     tag: TileMetadataTag;
     projection: Epsg;
     tileSet: TileMetadataSetRecord;
-    imagery: TileSetRuleImagery[];
+    imagery: Map<string, TileMetadataImageryRecord>;
     sources: Map<string, CogTiff> = new Map();
     titleOverride: string;
     extentOverride: Bounds;
@@ -78,25 +76,34 @@ export class TileSet {
         if (tileSet == null) return false;
         this.tileSet = tileSet;
         this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
+        Aws.tileMetadata.TileSet.sortRenderRules(tileSet, this.imagery);
         return true;
     }
 
+    /**
+     * Get a list of tiffs in the rendering order that is needed to render the tile
+     * @param tms tile matrix set to describe the tiling scheme
+     * @param tile tile to render
+     */
     public getTiffsForTile(tms: TileMatrixSet, tile: Tile): CogTiff[] {
         const output: CogTiff[] = [];
         const tileBounds = tms.tileToSourceBounds(tile);
-        for (const obj of this.imagery) {
-            if (tile.z > (obj.rule.maxZoom ?? 32)) continue;
-            if (tile.z < (obj.rule.minZoom ?? 0)) continue;
-            if (!tileBounds.intersects(Bounds.fromJson(obj.imagery.bounds))) continue;
+        for (const rule of this.tileSet.rules) {
+            if (tile.z > (rule.maxZoom ?? 32)) continue;
+            if (tile.z < (rule.minZoom ?? 0)) continue;
 
-            for (const tiff of this.getCogsForTile(obj.imagery, tileBounds)) {
+            const imagery = this.imagery.get(rule.imgId);
+            if (imagery == null) continue;
+            if (!tileBounds.intersects(Bounds.fromJson(imagery.bounds))) continue;
+
+            for (const tiff of this.getCogsForTile(imagery, tileBounds)) {
                 output.push(tiff);
             }
         }
         return output;
     }
 
-    private getCogsForTile(record: TileMetadataImageryRecordV1, tileBounds: Bounds): CogTiff[] {
+    private getCogsForTile(record: TileMetadataImageryRecord, tileBounds: Bounds): CogTiff[] {
         const output: CogTiff[] = [];
         for (const c of record.files) {
             if (!tileBounds.intersects(Bounds.fromJson(c))) continue;

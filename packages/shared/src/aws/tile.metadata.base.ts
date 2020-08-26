@@ -42,7 +42,7 @@ export interface NamedBounds extends BoundingBox {
 
 export interface TileMetadataImageryRecord extends BaseDynamoTable {
     /** Version of record. undefined = v0 */
-    v: number | undefined;
+    v: 1;
 
     /** Imagery set name */
     name: string;
@@ -57,9 +57,6 @@ export interface TileMetadataImageryRecord extends BaseDynamoTable {
 
     /** Resolution of imagery in MM */
     resolution: number;
-}
-
-export interface TileMetadataImageryRecordV1 extends TileMetadataImageryRecord {
     /** the bounding box of all the COGs */
     bounds: BoundingBox;
 
@@ -67,10 +64,7 @@ export interface TileMetadataImageryRecordV1 extends TileMetadataImageryRecord {
     files: NamedBounds[];
 }
 
-export interface TileMetadataImageRule {
-    /** Unique imagery id  (prefix: im_)*/
-    id: string;
-
+export interface TileMetadataImageRuleBase {
     /** Minimal zoom to show the layer @default 0 */
     minZoom: number;
 
@@ -80,6 +74,19 @@ export interface TileMetadataImageRule {
     /** Rendering priority, lower numbers are rendered onto the canvas first */
     priority: number;
 }
+export interface TileMetadataImageRuleV1 extends TileMetadataImageRuleBase {
+    /** Unique imagery id  (prefix: im_)*/
+    id: string;
+}
+
+export interface TileMetadataImageRuleV2 extends TileMetadataImageRuleBase {
+    /** Unique rule id  (prefix: ir_)*/
+    ruleId: string;
+
+    /** Unique imagery id  (prefix: im_)*/
+    imgId: string;
+}
+export type TileMetadataImageRule = TileMetadataImageRuleV2;
 
 export interface TaggedTileMetadataRecord extends BaseDynamoTable {
     /** Current version number */
@@ -90,7 +97,10 @@ export interface TaggedTileMetadataRecord extends BaseDynamoTable {
 }
 
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
-export interface TileMetadataSetRecord extends TaggedTileMetadataRecord {
+export interface TileMetadataSetRecordBase extends TaggedTileMetadataRecord {
+    /** Database record version */
+    v?: number;
+
     /** TileSet set name */
     name: string;
 
@@ -99,11 +109,7 @@ export interface TileMetadataSetRecord extends TaggedTileMetadataRecord {
 
     /** Use for WMTS ows:abstract */
     description?: string;
-
     projection: EpsgCode;
-
-    /** the rendering rules for imagery in this tileset */
-    imagery: Record<string, TileMetadataImageRule>;
 
     /** Background to render for areas where there is no data */
     background?: { r: number; g: number; b: number; alpha: number };
@@ -112,21 +118,36 @@ export interface TileMetadataSetRecord extends TaggedTileMetadataRecord {
     resizeKernel?: { in: TileResizeKernel; out: TileResizeKernel };
 }
 
+export interface TileMetadataSetRecordV1 extends TileMetadataSetRecordBase {
+    v?: undefined;
+    /** the rendering rules for imagery in this tileset */
+    imagery: Record<string, TileMetadataImageRuleV1>;
+}
+
+export interface TileMetadataSetRecordV2 extends TileMetadataSetRecordBase {
+    v: 2;
+    /**
+     * The rendering rules for imagery in this tileset
+     *
+     * This array is not sorted in the rendering order
+     * This should be sorted into the rendering order using
+     */
+    rules: TileMetadataImageRuleV2[];
+}
+
+export type TileMetadataSetRecord = TileMetadataSetRecordV2;
+
 /**
  * Provider details used by WMTS
  */
 
 export type TileMetadataProviderRecord = TaggedTileMetadataRecord & WmtsProvider;
 
-export interface TileSetRuleImagery {
-    rule: TileMetadataImageRule;
-    imagery: TileMetadataImageryRecordV1;
-}
-
 export enum RecordPrefix {
     Imagery = 'im',
     TileSet = 'ts',
     Provider = 'pv',
+    ImageryRule = 'ir',
 }
 
 function toId(id: string): { id: { S: string } } {
