@@ -4,7 +4,7 @@ import { Epsg } from '@basemaps/geo';
 import { Config } from '../config';
 
 declare const global: {
-    window: { location: { protocol: string; hostname: string } };
+    window?: { location: { protocol: string; hostname: string } };
 };
 
 o.spec('WindowUrl', () => {
