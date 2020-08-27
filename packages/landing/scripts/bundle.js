@@ -32,11 +32,7 @@ const BUILD_CMD = [
  * List of CSS files to bundle
  * TODO it would be good to read these from the `index.html`
  */
-const CSS_SOURCE = [
-    'static/index.css',
-    '../../node_modules/ol/ol.css',
-    '../../node_modules/@linzjs/lui/dist/lui.cjs.development.css',
-];
+const CSS_SOURCE = ['static/index.css', '../../node_modules/ol/ol.css', '../../node_modules/@linzjs/lui/dist/lui.css'];
 
 /**
  * Display a number in KB with a few decimal places
@@ -111,4 +107,7 @@ async function main() {
     await bundleHtml({ js, css });
 }
 
-main().catch(console.error);
+main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+});
