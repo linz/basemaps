@@ -86,9 +86,10 @@ button {
     width: 75%;
 }
 
-.nz-govt-logo {
-    padding: 8px 0;
+.lui-footer a.nz-govt-logo {
+    padding: 8px 0 4px 0;
     display: flex;
+    border-bottom: none
 }
 
 .nz-govt-logo svg {
