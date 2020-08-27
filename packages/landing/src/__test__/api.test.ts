@@ -4,7 +4,7 @@ import { Config } from '../config';
 import { ulid, decodeTime, encodeTime } from 'ulid';
 
 declare const global: {
-    localStorage: { getItem: (a: string) => string | null; setItem: (k: string, v: string) => void };
+    localStorage?: { getItem: (a: string) => string | null; setItem: (k: string, v: string) => void };
 };
 
 o.spec('ApiKey', () => {
