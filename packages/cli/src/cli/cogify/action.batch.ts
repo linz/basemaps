@@ -7,8 +7,8 @@ import {
     LogConfig,
     LogType,
     RecordPrefix,
-    TileMetadataImageryRecordV1,
-    TileMetadataSetRecord,
+    TileMetadataImageryRecord,
+    TileMetadataSetRecordV1,
     TileMetadataTable,
 } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -36,7 +36,7 @@ export function extractResolutionFromName(name: string): number {
     return parseFloat(matches[1].replace('-', '.')) * 1000;
 }
 
-export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecordV1 {
+export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecord {
     const now = Date.now();
 
     const projection = Epsg.get(job.output.epsg);
@@ -63,7 +63,7 @@ export async function createMetadataFromJob(job: CogJob): Promise<void> {
     const img = createImageryRecordFromJob(job);
     await Aws.tileMetadata.put(img);
     const createdAt = Date.now();
-    const tileMetadata: TileMetadataSetRecord = {
+    const tileMetadata: TileMetadataSetRecordV1 = {
         id: '',
         // TODO this name is not super nice, ideally we should use the simplified image name
         name: job.id,

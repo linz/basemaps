@@ -3,10 +3,10 @@ import { round } from '@basemaps/test/build/rounding';
 import * as AWS from 'aws-sdk';
 import o from 'ospec';
 import { Const } from '../../const';
+import { TileSetName } from '../../proj/tile.set.name';
 import { qkToNamedBounds } from '../../proj/__test__/test.util';
 import { TileMetadataTable } from '../tile.metadata';
-import { TileMetadataImageRule, TileMetadataImageryRecordV1, TileMetadataSetRecord } from '../tile.metadata.base';
-import { TileSetName } from '../../proj/tile.set.name';
+import { TileMetadataImageRule, TileMetadataImageryRecord, TileMetadataSetRecord } from '../tile.metadata.base';
 
 const { marshall } = AWS.DynamoDB.Converter;
 
@@ -16,13 +16,7 @@ o.spec('tile.metadata.table', () => {
 
     function* genRules(max: number): Generator<TileMetadataImageRule> {
         let num = 0;
-        while (num < max) yield { id: 'im_' + num++, maxZoom: 0, minZoom: 0, priority: num };
-    }
-
-    function genMap(ids: IterableIterator<TileMetadataImageRule>): Record<string, TileMetadataImageRule> {
-        const output: Record<string, TileMetadataImageRule> = {};
-        for (const im of ids) output[im.id] = im;
-        return output;
+        while (num < max) yield { ruleId: `ru_` + num, imgId: 'im_' + num++, maxZoom: 0, minZoom: 0, priority: num };
     }
 
     o.before(() => {
@@ -64,7 +58,7 @@ o.spec('tile.metadata.table', () => {
             resolution: 300,
             bounds: Bounds.union(files).toJson(),
             files,
-        } as TileMetadataImageryRecordV1);
+        } as TileMetadataImageryRecord);
 
         o(id).equals('testid');
 
@@ -89,49 +83,48 @@ o.spec('tile.metadata.table', () => {
     });
 
     o('should sort imagery', async () => {
-        const { Imagery } = new TileMetadataTable();
-
+        const { Imagery, TileSet } = new TileMetadataTable();
         const rules = Array.from(genRules(2));
-
         const files = qkToNamedBounds(['313']);
-
         const imagery = rules.map((r) => ({
             v: 1,
-            id: r.id,
+            id: r.imgId,
             projection: Epsg.Google.code,
             year: 2001,
             resolution: 100,
             bounds: Bounds.union(files).toJson(),
             files,
-        })) as TileMetadataImageryRecordV1[];
-
+        })) as TileMetadataImageryRecord[];
         for (const i of imagery) {
             Imagery.imagery.set(i.id, i);
         }
-
         const tsData = {
             createdAt: 0,
             updatedAt: 0,
             id: 'ts_aerial_3857',
             version: 0,
-            imagery: genMap(rules.values()),
+            rules,
             name: TileSetName.aerial,
             projection: Epsg.Google.code,
         } as TileMetadataSetRecord;
 
-        const getAll = async (): Promise<string[]> => (await Imagery.getAll(tsData)).map((i) => i.imagery.id);
+        const imageryMap = await Imagery.getAll(tsData);
 
-        o(await getAll()).deepEquals(['im_0', 'im_1']);
+        const getAll = (): string[] => tsData.rules.map((c) => c.imgId);
+        o(getAll()).deepEquals(['im_0', 'im_1']);
 
         rules[0].priority = rules[1].priority;
-        o(await getAll()).deepEquals(['im_0', 'im_1']);
+        TileSet.sortRenderRules(tsData, imageryMap);
+        o(getAll()).deepEquals(['im_0', 'im_1']);
 
         imagery[0].year = 2020;
-        o(await getAll()).deepEquals(['im_1', 'im_0']);
+        TileSet.sortRenderRules(tsData, imageryMap);
+        o(getAll()).deepEquals(['im_1', 'im_0']);
 
         imagery[1].year = 2020;
         imagery[1].resolution = 3000;
-        o(await getAll()).deepEquals(['im_1', 'im_0']);
+        TileSet.sortRenderRules(tsData, imageryMap);
+        o(getAll()).deepEquals(['im_1', 'im_0']);
     });
 
     o('should report missing imagery', async () => {
@@ -156,11 +149,12 @@ o.spec('tile.metadata.table', () => {
         let err: Error | null = null;
         try {
             await tmtable.Imagery.getAll({
+                v: 2,
                 createdAt: 0,
                 updatedAt: 0,
                 id: 'ts_aerial_3857',
                 version: 0,
-                imagery: genMap(genRules(5)),
+                rules: [...genRules(5)],
                 name: TileSetName.aerial,
                 projection: Epsg.Google.code,
             });
@@ -205,48 +199,43 @@ o.spec('tile.metadata.table', () => {
         };
 
         const tsData = {
+            v: 2,
             createdAt: 0,
             updatedAt: 0,
             id: 'ts_aerial_3857',
             version: 0,
-            imagery: genMap(genRules(202)),
+            rules: [...genRules(202)],
             name: TileSetName.aerial,
             projection: Epsg.Google.code,
         } as TileMetadataSetRecord;
 
         const ans = await tmtable.Imagery.getAll(tsData);
 
-        o(ans.length).equals(202);
-        const im199 = round(
-            ans.find((r) => r.imagery.id === 'im_199'),
-            4,
-        );
+        o(ans.size).equals(202);
+        const im199 = round(ans.get('im_199'), 4);
         o(im199).deepEquals({
-            rule: { id: 'im_199', maxZoom: 0, minZoom: 0, priority: 200 },
-            imagery: {
-                v: 1,
-                id: 'im_199',
-                projection: 3857,
-                year: 2001,
-                resolution: 100,
-                bounds: {
+            v: 1,
+            id: 'im_199',
+            projection: 3857,
+            year: 2001,
+            resolution: 100,
+            bounds: {
+                x: 15028131.2571,
+                y: -10018754.1714,
+                width: 5009377.0857,
+                height: 5009377.0857,
+            },
+            files: [
+                {
+                    name: '3-7-5',
                     x: 15028131.2571,
                     y: -10018754.1714,
                     width: 5009377.0857,
                     height: 5009377.0857,
                 },
-                files: [
-                    {
-                        name: '3-7-5',
-                        x: 15028131.2571,
-                        y: -10018754.1714,
-                        width: 5009377.0857,
-                        height: 5009377.0857,
-                    },
-                ],
-            },
+            ],
         });
 
-        o(ans.slice(0, 5).map((r) => r.rule.id)).deepEquals(['im_0', 'im_1', 'im_2', 'im_3', 'im_4']);
+        o([...ans.values()].slice(0, 5).map((r) => r.id)).deepEquals(['im_0', 'im_1', 'im_2', 'im_3', 'im_4']);
     });
 });

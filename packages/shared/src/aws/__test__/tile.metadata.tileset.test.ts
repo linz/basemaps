@@ -28,7 +28,7 @@ o.spec('tile.metadata.tileset', () => {
 
     o.spec('create', () => {
         o('Should create initial tags', async () => {
-            await ts.create({ name: 'test', projection: Epsg.Google } as any);
+            await ts.create({ name: 'test', projection: Epsg.Google, imagery: {} } as any);
 
             o(metadata.get.callCount).equals(1);
             o(metadata.get.args[0]).equals('ts_test_3857_head');
@@ -38,9 +38,25 @@ o.spec('tile.metadata.tileset', () => {
             o(metadata.put.calls[2].args[0].id).equals('ts_test_3857_head');
         });
 
+        o('should migrate records on creation', async () => {
+            const res = await ts.create({
+                name: 'test',
+                projection: Epsg.Google,
+                imagery: { im_0: { id: 'im_0', minZoom: 1, maxZoom: 2, priority: 3 } },
+            } as any);
+
+            o(res.v).equals(2);
+            o((res as any)['imagery']).equals(undefined);
+            o(res.rules.length).equals(1);
+            o(res.rules[0].imgId).equals('im_0');
+            o(res.rules[0].minZoom).equals(1);
+            o(res.rules[0].maxZoom).equals(2);
+            o(res.rules[0].priority).equals(3);
+        });
+
         o('should increment version number', async () => {
             metadata.get = o.spy(() => Promise.resolve({ revisions: 5 }));
-            const res = await ts.create({ name: 'test', projection: Epsg.Google } as any);
+            const res = await ts.create({ name: 'test', projection: Epsg.Google, imagery: {} } as any);
 
             o(metadata.get.callCount).equals(1);
             o(metadata.get.args[0]).equals('ts_test_3857_head');
@@ -52,7 +68,7 @@ o.spec('tile.metadata.tileset', () => {
             o(res.revisions).equals(6);
 
             metadata.get = o.spy(() => Promise.resolve(res));
-            const resB = await ts.create({ name: 'test', projection: Epsg.Google } as any);
+            const resB = await ts.create({ name: 'test', projection: Epsg.Google, imagery: {} } as any);
             o(res.version).equals(6);
             o(resB.version).equals(7);
             o(resB.revisions).equals(7);
@@ -72,6 +88,8 @@ o.spec('tile.metadata.tileset', () => {
             metadata.get = o.spy(() => Promise.resolve({ revisions: 5 }));
             const res = await ts.tag('test', Epsg.Google, TileMetadataTag.Production, 5);
             o(res.id).equals('ts_test_3857_production');
+            o(res.v).equals(2);
+            o(Array.isArray(res.rules)).equals(true);
             o(metadata.get.callCount).equals(1);
             o(metadata.put.callCount).equals(1);
             o(metadata.put.args[0].id).equals('ts_test_3857_production');

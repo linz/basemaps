@@ -1,18 +1,18 @@
 import o from 'ospec';
 import { TileSetUpdateAction, parseRgba } from '../action.tileset.update';
-import { TileMetadataSetRecord, LogConfig, Aws } from '@basemaps/shared';
+import { TileMetadataSetRecord, LogConfig, Aws, TileMetadataImageRule } from '@basemaps/shared';
 
 function fakeTileSet(): TileMetadataSetRecord {
-    Aws.tileMetadata.Imagery.imagery.set('im_0', { name: '0' } as any);
-    Aws.tileMetadata.Imagery.imagery.set('im_1', { name: '1' } as any);
-    Aws.tileMetadata.Imagery.imagery.set('im_2', { name: '2' } as any);
-    Aws.tileMetadata.Imagery.imagery.set('im_3', { name: '3' } as any);
+    Aws.tileMetadata.Imagery.imagery.set('im_0', { name: '0', id: 'im_0' } as any);
+    Aws.tileMetadata.Imagery.imagery.set('im_1', { name: '1', id: 'im_1' } as any);
+    Aws.tileMetadata.Imagery.imagery.set('im_2', { name: '2', id: 'im_2' } as any);
+    Aws.tileMetadata.Imagery.imagery.set('im_3', { name: '3', id: 'im_3' } as any);
     return {
-        imagery: {
-            im_0: { id: 'im_0', maxZoom: 32, minZoom: 0, priority: 10 },
-            im_1: { id: 'im_1', maxZoom: 32, minZoom: 0, priority: 10 },
-            im_2: { id: 'im_2', maxZoom: 32, minZoom: 0, priority: 100 },
-        },
+        rules: [
+            { ruleId: 'ir_0', imgId: 'im_0', maxZoom: 32, minZoom: 0, priority: 10 },
+            { ruleId: 'ir_1', imgId: 'im_1', maxZoom: 32, minZoom: 0, priority: 10 },
+            { ruleId: 'ir_2', imgId: 'im_2', maxZoom: 32, minZoom: 0, priority: 100 },
+        ],
     } as any;
 }
 
@@ -20,12 +20,12 @@ o.spec('TileSetUpdateAction', () => {
     let cmd: TileSetUpdateAction = new TileSetUpdateAction();
     let tileSet = fakeTileSet();
 
+    function getRule(ruleId: string): TileMetadataImageRule | undefined {
+        return tileSet.rules.find((f) => f.ruleId == ruleId);
+    }
+
     function tileSetId(t: TileMetadataSetRecord): string[] {
-        const img = t.imagery;
-        return Object.keys(img).sort((a, b) => {
-            const diff = img[a].priority - img[b].priority;
-            return diff == 0 ? img[a].id.localeCompare(img[b].id) : diff;
-        });
+        return t.rules.map((c) => c.imgId);
     }
 
     o.beforeEach(() => {
@@ -45,88 +45,88 @@ o.spec('TileSetUpdateAction', () => {
             cmd.minZoom = { value: 0 } as any;
             cmd.maxZoom = { value: 30 } as any;
 
-            const hasChanges = await cmd.updateZoom(tileSet, 'im_0');
+            const hasChanges = await cmd.updateZoom(tileSet, 'ir_0');
             o(hasChanges).equals(true);
-            o(tileSet.imagery['im_0'].maxZoom).equals(30);
+            o(getRule('ir_0')?.maxZoom).equals(30);
         });
 
         o('should not have changes when nothing changed', async () => {
             // No values to change
-            const hasChangesA = await cmd.updateZoom(tileSet, 'im_0');
+            const hasChangesA = await cmd.updateZoom(tileSet, 'ir_0');
             o(hasChangesA).equals(false);
 
             // Missing maxZoom
             cmd.minZoom = { value: 0 } as any;
-            const hasChangesB = await cmd.updateZoom(tileSet, 'im_0');
+            const hasChangesB = await cmd.updateZoom(tileSet, 'ir_0');
             o(hasChangesB).equals(false);
 
             // Valid but missing id
             cmd.maxZoom = { value: 0 } as any;
-            const hasChangesC = await cmd.updateZoom(tileSet, 'im_A');
+            const hasChangesC = await cmd.updateZoom(tileSet, 'ir_A');
             o(hasChangesC).equals(false);
 
             // No changes
             cmd.maxZoom = { value: 32 } as any;
-            const hasChangesD = await cmd.updateZoom(tileSet, 'im_0');
+            const hasChangesD = await cmd.updateZoom(tileSet, 'ir_0');
             o(hasChangesD).equals(false);
         });
     });
 
     o.spec('Replace', () => {
         o('should replace imagery', async () => {
-            cmd.replaceImageryId = { value: '3' } as any;
-            const hasChanges = await cmd.replaceUpdate(tileSet, 'im_1');
+            const hasChanges = await cmd.replaceUpdate(tileSet, 'ir_1', 'im_3');
             o(hasChanges).equals(true);
             o(tileSetId(tileSet)).deepEquals(['im_0', 'im_3', 'im_2']);
-        });
-
-        o('should not replace imagery if already exists', async () => {
-            cmd.replaceImageryId = { value: '0' } as any;
-            const hasChanges = await cmd.replaceUpdate(tileSet, 'im_1');
-            o(hasChanges).equals(false);
         });
     });
 
     o.spec('UpdatePriority', () => {
         o('should remove when priority -1', async () => {
             cmd.priority = { value: -1 } as any;
-            const hasChanges = await cmd.updatePriority(tileSet, 'im_0');
+            const hasChanges = await cmd.updatePriority(tileSet, 'ir_0');
             o(hasChanges).equals(true);
-            o(Object.keys(tileSet.imagery).length).equals(2);
+            o(tileSet.rules.length).equals(2);
             o(tileSetId(tileSet)).deepEquals(['im_1', 'im_2']);
         });
 
         o('should insert at priority 0', async () => {
             cmd.priority = { value: 0 } as any;
-            const hasChanges = await cmd.updatePriority(tileSet, 'im_3');
+            const hasChanges = await cmd.updatePriority(tileSet, undefined, 'im_3');
             o(hasChanges).equals(true);
             o(tileSetId(tileSet)).deepEquals(['im_3', 'im_0', 'im_1', 'im_2']);
         });
 
+        o('should allow duplicate imagery at priority 0', async () => {
+            cmd.priority = { value: 0 } as any;
+            const hasChanges = await cmd.updatePriority(tileSet, undefined, 'im_0');
+            o(hasChanges).equals(true);
+            o(tileSetId(tileSet)).deepEquals(['im_0', 'im_0', 'im_1', 'im_2']);
+        });
+
         o('should insert at priority 999', async () => {
             cmd.priority = { value: 999 } as any;
-            const hasChanges = await cmd.updatePriority(tileSet, 'im_3');
+            const hasChanges = await cmd.updatePriority(tileSet, undefined, 'im_3');
             o(hasChanges).equals(true);
             o(tileSetId(tileSet)).deepEquals(['im_0', 'im_1', 'im_2', 'im_3']);
         });
 
         o('should insert at priority 10', async () => {
             cmd.priority = { value: 10 } as any;
-            const hasChanges = await cmd.updatePriority(tileSet, 'im_3');
+            const hasChanges = await cmd.updatePriority(tileSet, undefined, 'im_3');
             o(hasChanges).equals(true);
             o(tileSetId(tileSet)).deepEquals(['im_0', 'im_1', 'im_3', 'im_2']);
         });
 
         o('should reorder', async () => {
             cmd.priority = { value: 50 } as any;
-            const hasChanges = await cmd.updatePriority(tileSet, 'im_0');
+            const hasChanges = await cmd.updatePriority(tileSet, 'ir_0');
             o(hasChanges).equals(true);
             o(tileSetId(tileSet)).deepEquals(['im_1', 'im_0', 'im_2']);
         });
 
         o('should have no changes if not reordering', async () => {
             cmd.priority = { value: 10 } as any;
-            const hasChanges = await cmd.updatePriority(tileSet, 'im_0');
+            const hasChanges = await cmd.updatePriority(tileSet, 'ir_0');
             o(hasChanges).equals(false);
         });
     });

@@ -1,28 +1,70 @@
 import { Epsg } from '@basemaps/geo';
 import {
-    TaggedTileMetadata,
-    TileMetadataImageRule,
-    TileMetadataSetRecord,
-    TileMetadataTag,
     parseMetadataTag,
+    RecordPrefix,
+    TaggedTileMetadata,
+    TileMetadataImageryRecord,
+    TileMetadataSetRecord,
+    TileMetadataSetRecordBase,
+    TileMetadataSetRecordV1,
+    TileMetadataTableBase,
+    TileMetadataTag,
 } from './tile.metadata.base';
+import { compareImageSets } from './tile.metadata.imagery';
 
-/**
- * Sort rules by priority
- *
- * This sort needs to be stable, or rendering issues will occur
- *
- * @param ruleA
- * @param ruleB
- */
-export function sortRule(ruleA: TileMetadataImageRule, ruleB: TileMetadataImageRule): number {
-    if (ruleA.priority == ruleB.priority) {
-        return ruleA.id.localeCompare(ruleB.id);
-    }
-    return ruleA.priority - ruleB.priority;
+function isLatestTileSetRecord(record: TileMetadataSetRecordBase): record is TileMetadataSetRecord {
+    return record.v === 2;
 }
 
 export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecord> {
+    /**
+     * Take a older imagery record and upgrade it to the latest record version
+     * @param record
+     */
+    migrate(record: TileMetadataSetRecordV1): TileMetadataSetRecord {
+        // V1 -> V2
+        const output: TileMetadataSetRecord = record as any;
+        const imagery = record.imagery;
+        delete (record as any).imagery;
+
+        output.rules = [];
+        output.v = 2;
+        // Some testing data does not have a imagery object
+        if (imagery == null) return output;
+
+        for (const image of Object.values(imagery)) {
+            // Imagery rules are unique in older tile sets so just use them as a ruleId to start with
+            const ruleId = TileMetadataTableBase.unprefix(RecordPrefix.Imagery, image.id);
+            output.rules.push({
+                ruleId: TileMetadataTableBase.prefix(RecordPrefix.ImageryRule, ruleId),
+                imgId: image.id,
+                minZoom: image.minZoom,
+                maxZoom: image.maxZoom,
+                priority: image.priority,
+            });
+        }
+        return output;
+    }
+
+    /**
+     * Sort the render rules of a tile set given the information about the imagery
+     *
+     * This sorts the `tileSet.rules` array to be in the order of first is the highest priority imagery to layer
+     *
+     * @param tileSet with rules that need to be sorted
+     * @param imagery All imagery referenced inside the tileset
+     */
+    sortRenderRules(tileSet: TileMetadataSetRecord, imagery: Map<string, TileMetadataImageryRecord>): void {
+        tileSet.rules.sort((ruleA, ruleB) => {
+            if (ruleA.priority != ruleB.priority) return ruleA.priority - ruleB.priority;
+            const imgA = imagery.get(ruleA.imgId);
+            const imgB = imagery.get(ruleB.imgId);
+            if (imgA == null || imgB == null) throw new Error('Unable to find imagery to sort');
+
+            return compareImageSets(imgA, imgB);
+        });
+    }
+
     /**
      * Parse a tile set tag combo into their parts
      *
@@ -37,6 +79,11 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         const tag = parseMetadataTag(tagStr);
         if (tag == null) return { name: str };
         return { name, tag };
+    }
+
+    async create(record: TileMetadataSetRecord | TileMetadataSetRecordV1): Promise<TileMetadataSetRecord> {
+        if (isLatestTileSetRecord(record)) return super.create(record);
+        return super.create(this.migrate(record));
     }
 
     idRecord(record: TileMetadataSetRecord, tag: TileMetadataTag | number): string {
@@ -60,10 +107,35 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         tagOrVersion: TileMetadataTag | number,
     ): Promise<TileMetadataSetRecord | null> {
         const id = this.id(name, projection, tagOrVersion);
-        return await this.metadata.get(id);
+        const record = (await this.metadata.get(id)) as TileMetadataSetRecord;
+        if (record == null) return null;
+
+        if (isLatestTileSetRecord(record)) return record;
+        return this.migrate(record);
+    }
+
+    public async batchGet(keys: Set<string>): Promise<Map<string, TileMetadataSetRecord>> {
+        const objects = await this.metadata.batchGet<TileMetadataSetRecordV1 | TileMetadataSetRecord>(keys);
+        const output = new Map<string, TileMetadataSetRecord>();
+
+        for (const record of objects.values()) {
+            if (isLatestTileSetRecord(record)) {
+                output.set(record.id, record);
+            } else {
+                output.set(record.id, this.migrate(record));
+            }
+        }
+        return output;
     }
 
     async tag(name: string, projection: Epsg, tag: TileMetadataTag, version: number): Promise<TileMetadataSetRecord> {
-        return super.tagRecord({ name, projection: projection.code } as TileMetadataSetRecord, tag, version);
+        const record = await super.tagRecord(
+            { name, projection: projection.code } as TileMetadataSetRecord,
+            tag,
+            version,
+        );
+
+        if (isLatestTileSetRecord(record)) return record;
+        return this.migrate(record);
     }
 }

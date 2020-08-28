@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Epsg } from '@basemaps/geo';
-import { Aws, LogConfig, TileMetadataImageryRecordV1, TileMetadataSetRecord, TileMetadataTag } from '@basemaps/shared';
+import { Aws, LogConfig, TileMetadataImageryRecord, TileMetadataSetRecord, TileMetadataTag } from '@basemaps/shared';
 import { CliTable } from '../cli.table';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet, showDiff } from './tileset.util';
@@ -58,14 +58,18 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         }
 
         LogConfig.get().debug({ count: toFetch.size }, 'Loading TileSets');
-        const tileSets = await Aws.tileMetadata.batchGet<TileMetadataSetRecord>(toFetch);
+        const tileSets = await Aws.tileMetadata.TileSet.batchGet(toFetch);
         const toFetchImages = new Set<string>();
         for (const tag of tileSets.values()) {
-            for (const imId of Object.keys(tag.imagery)) toFetchImages.add(imId);
+            for (const rule of tag.rules) toFetchImages.add(rule.imgId);
         }
 
         LogConfig.get().debug({ count: toFetchImages.size }, 'Loading Imagery');
-        const imagery = await Aws.tileMetadata.batchGet<TileMetadataImageryRecordV1>(toFetchImages);
+        const imagery = await Aws.tileMetadata.batchGet<TileMetadataImageryRecord>(toFetchImages);
+
+        for (const tag of tileSets.values()) {
+            Aws.tileMetadata.TileSet.sortRenderRules(tag, imagery);
+        }
 
         const TileSetHistory = new CliTable<TileMetadataSetRecord>();
         TileSetHistory.field('v', 4, (obj) => `v${obj.version}`);

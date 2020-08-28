@@ -67,6 +67,12 @@ export class TileSetInfoAction extends TileSetBaseAction {
             projection,
             this.version.value! ?? TileMetadataTag.Head,
         );
+
+        if (tsData == null) {
+            LogConfig.get().fatal({ tileSet }, 'Unable to find tile set');
+            return;
+        }
+
         await printTileSet(tsData);
     }
 }
