@@ -1,34 +1,101 @@
-import { CliId } from '@basemaps/cli/build/cli/base.cli';
+import { BaseCommandLine } from '@basemaps/cli/build/cli/base.cli';
+import { makeTempFolder } from '@basemaps/cli/build/cli/folder';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Env, LogConfig } from '@basemaps/shared';
-import * as fs from 'fs';
-import { PrettyTransform } from 'pretty-json-log';
+import { Env, FileOperator, LogConfig } from '@basemaps/shared';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as ulid from 'ulid';
+import { createReadStream, promises as fs } from 'fs';
 import { BathyMaker } from './bathy.maker';
+import { FilePath, FileType } from './file';
 
-if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
-const Logger = LogConfig.get().child({ id: CliId });
-Logger.level = 'debug';
+class CreateAction extends CommandLineAction {
+    private inputPath: CommandLineStringParameter;
+    private outputPath: CommandLineStringParameter;
+    private docker: CommandLineFlagParameter;
 
-const Usage = '\n./make-bathy <bathy-file> [-v] [--docker]';
-// TODO we should move this to use the same CLI strucutre we use in @basemaps/cli
-async function main(): Promise<void> {
-    const isVerbose = process.argv.includes('-v');
-    const isDocker = process.argv.includes('--docker');
-    const pathToFile = process.argv.find((f) => f.startsWith('/') && (f.endsWith('.tiff') || f.endsWith('.nc')));
-
-    if (pathToFile == null || !fs.existsSync(pathToFile)) {
-        console.log('Cannot find tiff\n' + Usage);
-        process.exit(1);
+    public constructor() {
+        super({
+            actionName: 'create',
+            summary: 'create bathymetry imagery',
+            documentation: 'Take batheymetric data and convert it into a set of colorized hillshaded geotiffs.',
+        });
     }
 
-    if (isDocker) process.env[Env.Gdal.UseDocker] = 'true';
-    if (isVerbose) Logger.level = 'trace';
+    protected onDefineParameters(): void {
+        this.inputPath = this.defineStringParameter({
+            argumentName: 'PATH',
+            parameterLongName: '--input',
+            description: 'Folder or S3 Bucket location of Gebco netcdf or tiff file',
+            required: true,
+        });
 
-    Logger.info({ source: pathToFile }, 'MakeBathy');
+        this.outputPath = this.defineStringParameter({
+            argumentName: 'PATH',
+            parameterLongName: '--output',
+            description: 'Folder or S3 Bucket location to store imagery in',
+            required: true,
+        });
 
-    const bathy = new BathyMaker({ id: ulid.ulid(), path: pathToFile, tms: GoogleTms, zoom: 4, threads: 8 });
-    await bathy.render(Logger);
+        this.docker = this.defineFlagParameter({
+            parameterLongName: '--docker',
+            description: 'Run inside a docker container',
+            required: false,
+        });
+    }
+
+    async onExecute(): Promise<void> {
+        const isDocker = !!this.docker.value;
+        const pathToFile = this.inputPath.value!;
+
+        if (isDocker) {
+            process.env[Env.Gdal.UseDocker] = 'true';
+            if (process.env[Env.Gdal.DockerContainerTag] == null) {
+                process.env[Env.Gdal.DockerContainerTag] = 'ubuntu-full-latest';
+            }
+        }
+
+        const logger = LogConfig.get();
+
+        logger.info({ source: pathToFile }, 'MakeBathy');
+
+        const tmpFolder = new FilePath(await makeTempFolder(`bathymetry-${ulid.ulid()}`));
+
+        try {
+            const outputPath = this.outputPath.value!;
+
+            const bathy = new BathyMaker({
+                id: ulid.ulid(),
+                inputPath: this.inputPath.value!,
+                outputPath,
+                tmpFolder,
+                tms: GoogleTms,
+                zoom: 4,
+                threads: 8,
+            });
+            await bathy.render(logger);
+
+            const srcPath = FileOperator.join(tmpFolder.sourcePath, String(FileType.Output));
+
+            for (const file of await fs.readdir(srcPath)) {
+                await FileOperator.write(
+                    FileOperator.join(outputPath, file),
+                    createReadStream(FileOperator.join(srcPath, file)),
+                );
+            }
+        } finally {
+            await fs.rmdir(tmpFolder.sourcePath, { recursive: true });
+        }
+    }
 }
 
-main().catch(console.error);
+export class BathymetryCommandLine extends BaseCommandLine {
+    constructor() {
+        super({
+            toolFilename: 'bathymetry',
+            toolDescription: 'Create source imagery from bathymetry data',
+        });
+        this.addAction(new CreateAction());
+    }
+}
+
+new BathymetryCommandLine().run();

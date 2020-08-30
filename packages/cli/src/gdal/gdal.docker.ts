@@ -3,9 +3,6 @@ import * as os from 'os';
 import * as path from 'path';
 import { GdalCommand } from './gdal.command';
 
-const DOCKER_CONTAINER = Env.get(Env.Gdal.DockerContainer) ?? 'osgeo/gdal';
-const DOCKER_CONTAINER_TAG = Env.get(Env.Gdal.DockerContainerTag) ?? 'ubuntu-small-latest';
-
 export class GdalDocker extends GdalCommand {
     mounts: string[];
 
@@ -53,6 +50,8 @@ export class GdalDocker extends GdalCommand {
 
     /** this could contain sensitive info like AWS access keys */
     private async getDockerArgs(): Promise<string[]> {
+        const DOCKER_CONTAINER = Env.get(Env.Gdal.DockerContainer) ?? 'osgeo/gdal';
+        const DOCKER_CONTAINER_TAG = Env.get(Env.Gdal.DockerContainerTag) ?? 'ubuntu-small-latest';
         const userInfo = os.userInfo();
         const credentials = await this.getCredentials();
         return [
