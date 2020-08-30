@@ -32,13 +32,6 @@ export class LambdaFunction {
             const ctx = new LambdaContext(event, logger);
             ctx.timer.start('lambda');
 
-            const lambda = {
-                name: process.env['AWS_LAMBDA_FUNCTION_NAME'],
-                memory: process.env['AWS_LAMBDA_FUNCTION_MEMORY_SIZE'],
-                version: process.env['AWS_LAMBDA_FUNCTION_VERSION'],
-                region: process.env['AWS_REGION'],
-            };
-
             // Trace cloudfront requests back to the cloudfront logs
             const cloudFrontId = ctx.header(HttpHeaderAmazon.CloudfrontId);
             const traceId = ctx.header(HttpHeaderAmazon.TraceId);
@@ -49,7 +42,6 @@ export class LambdaFunction {
             ctx.set('package', { hash: process.env.GIT_HASH, version: process.env.GIT_VERSION });
             ctx.set('method', ctx.method);
             ctx.set('path', ctx.path);
-            ctx.log.debug({ lambda }, 'LambdaStart');
 
             let res: LambdaHttpResponse;
             try {
@@ -66,7 +58,6 @@ export class LambdaFunction {
                 }
             }
 
-            ctx.set('lambda', lambda);
             ctx.set('status', res.status);
             ctx.set('description', res.statusDescription);
             ctx.set('metrics', ctx.timer.metrics);
