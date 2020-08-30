@@ -72,7 +72,7 @@ o.spec('LambdaFunction', () => {
         o(spy.calls.length).equals(1);
         o(spy.args[1]).deepEquals(LambdaContext.toAlbResponse(albOk));
 
-        o(fakeLogger.spy.callCount).equals(2);
+        o(fakeLogger.spy.callCount).equals(1);
         const [lastCall] = fakeLogger.spy.args;
         o(lastCall.duration > -1).equals(true);
         o(lastCall.metrics.xxx > -1).equals(true);

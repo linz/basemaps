@@ -75,13 +75,6 @@ export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     const respNotMod = checkNotModified(req, cacheKey);
     if (respNotMod != null) return respNotMod;
 
-    if (!Env.isProduction()) {
-        for (const layer of layers) {
-            const layerId = layer.tiff.source.name;
-            req.log.debug({ layerId, layerSource: layer.source }, 'Compose');
-        }
-    }
-
     req.timer.start('tile:compose');
     const res = await TileComposer.compose({
         layers,
