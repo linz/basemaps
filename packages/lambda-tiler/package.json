@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-tiler",
-  "version": "4.10.0",
+  "version": "4.11.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -14,14 +14,14 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/geo": "^4.8.0",
-    "@basemaps/lambda": "^4.10.0",
-    "@basemaps/shared": "^4.10.0",
-    "@basemaps/tiler": "^4.9.0",
-    "@basemaps/tiler-sharp": "^4.9.0",
+    "@basemaps/geo": "^4.11.0",
+    "@basemaps/lambda": "^4.11.0",
+    "@basemaps/shared": "^4.11.0",
+    "@basemaps/tiler": "^4.11.0",
+    "@basemaps/tiler-sharp": "^4.11.0",
     "@cogeotiff/core": "^2.2.0",
     "@cogeotiff/source-aws": "^2.2.0",
-    "@linzjs/geojson": "^4.8.0",
+    "@linzjs/geojson": "^4.11.0",
     "path-to-regexp": "^6.1.0",
     "sharp": "^0.25.2"
   },

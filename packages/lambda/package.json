@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda",
-  "version": "4.10.0",
+  "version": "4.11.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -20,13 +20,13 @@
   },
   "dependencies": {
     "@basemaps/metrics": "^4.8.0",
-    "@basemaps/shared": "^4.10.0",
+    "@basemaps/shared": "^4.11.0",
     "source-map-support": "^0.5.19",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "@basemaps/geo": "^4.8.0",
-    "@basemaps/tiler": "^4.9.0",
+    "@basemaps/geo": "^4.11.0",
+    "@basemaps/tiler": "^4.11.0",
     "@types/aws-lambda": "^8.10.43"
   },
   "publishConfig": {

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.11.0](https://github.com/linz/basemaps/compare/v4.10.0...v4.11.0) (2020-08-31)
+
+
+### Features
+
+* upgrade to node 12.x ([#1079](https://github.com/linz/basemaps/issues/1079)) ([053cc2f](https://github.com/linz/basemaps/commit/053cc2f28087b41cbf7c715fd200357d41b8e2da))
+
+
+
+
+
 # [4.10.0](https://github.com/linz/basemaps/compare/v4.9.0...v4.10.0) (2020-08-19)
 
 **Note:** Version bump only for package @basemaps/infra

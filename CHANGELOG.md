@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.11.0](https://github.com/linz/basemaps/compare/v4.10.0...v4.11.0) (2020-08-31)
+
+
+### Bug Fixes
+
+* **landing:** correct import path for lui ([#1108](https://github.com/linz/basemaps/issues/1108)) ([1fb887c](https://github.com/linz/basemaps/commit/1fb887c7aedee1ba158e37dfbb0bddf48b8092a1))
+
+
+### Features
+
+* **lambda:** reduce log volumes ([#1114](https://github.com/linz/basemaps/issues/1114)) ([f99f999](https://github.com/linz/basemaps/commit/f99f999ddfb8651057c2a58c2c67aeffc4c3e2ed))
+* allow imagery with the same id in the rendering process twice ([#1104](https://github.com/linz/basemaps/issues/1104)) ([d8cd642](https://github.com/linz/basemaps/commit/d8cd642c6215a5198e15414c14680afacad88faf))
+* **shared:** align bathymetry STAC usage with cog creation ([#1092](https://github.com/linz/basemaps/issues/1092)) ([fd9bc27](https://github.com/linz/basemaps/commit/fd9bc27b05d7e772f1856bb0e81268ac2930ef24))
+* upgrade to node 12.x ([#1079](https://github.com/linz/basemaps/issues/1079)) ([053cc2f](https://github.com/linz/basemaps/commit/053cc2f28087b41cbf7c715fd200357d41b8e2da))
+
+
+
+
+
 # [4.10.0](https://github.com/linz/basemaps/compare/v4.9.0...v4.10.0) (2020-08-19)
 
 

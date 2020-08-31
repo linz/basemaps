@@ -1,6 +1,6 @@
 {
   "name": "@linzjs/geojson",
-  "version": "4.8.0",
+  "version": "4.11.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -24,8 +24,8 @@
     "build/"
   ],
   "dependencies": {
+    "@types/geojson": "^7946.0.7",
     "lineclip": "^1.1.5",
-    "polygon-clipping": "^0.15.1",
-    "@types/geojson": "^7946.0.7"
+    "polygon-clipping": "^0.15.1"
   }
 }
