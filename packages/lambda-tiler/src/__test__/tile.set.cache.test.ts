@@ -3,9 +3,18 @@ import o from 'ospec';
 import { TileSet } from '../tile.set';
 import { loadTileSets, TileSets, loadTileSet } from '../tile.set.cache';
 import { TileMetadataImageryRecord, TileSetName } from '@basemaps/shared';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
 
 o.spec('TileSetCache', () => {
     const origLoad = TileSet.prototype.load;
+
+    const imageOne = {
+        id: 'im_id1',
+        name: 'tasman_rural_2018-19_0-3m',
+        bounds: { x: 123, y: 456, width: 200, height: 300 },
+        files: [{ name: 'foo', x: 123, y: 456, width: 200, height: 300 }],
+        uri: 's3://foo/bar',
+    } as TileMetadataImageryRecord;
 
     class MyTileSet extends TileSet {
         async load(): Promise<boolean> {
@@ -21,11 +30,7 @@ o.spec('TileSetCache', () => {
                 } as any;
 
                 this.imagery = new Map();
-                this.imagery.set('im_id1', {
-                    id: 'im_id1',
-                    name: 'tasman_rural_2018-19_0-3m',
-                    bounds: { x: 123, y: 456, width: 200, height: 300 },
-                } as TileMetadataImageryRecord);
+                this.imagery.set(imageOne.id, imageOne);
                 this.imagery.set('im_id2', {
                     id: 'im_id2',
                     name: 'sub image 2',
@@ -73,13 +78,7 @@ o.spec('TileSetCache', () => {
 
             o(subTileSet.title).equals('parent aerial title Tasman rural 2018-19 0.3m');
             o(subTileSet.name).equals('id1');
-            o([...subTileSet.imagery.values()]).deepEquals([
-                {
-                    id: 'im_id1',
-                    name: 'tasman_rural_2018-19_0-3m',
-                    bounds: { x: 123, y: 456, width: 200, height: 300 },
-                } as TileMetadataImageryRecord,
-            ]);
+            o([...subTileSet.imagery.values()]).deepEquals([imageOne]);
             const [firstRule] = subTileSet.tileSet.rules;
             o(firstRule).deepEquals({
                 ruleId: firstRule.ruleId as any,
@@ -92,6 +91,13 @@ o.spec('TileSetCache', () => {
 
             o(parentTileSet.tileSet.background).deepEquals({ r: 200, g: 50, b: 100, alpha: 0.5 });
             o(parentTileSet.tileSet.background).equals(Object.getPrototypeOf(subTileSet.tileSet).background);
+
+            const noTiffs = subTileSet.getTiffsForTile(GoogleTms, { x: 0, y: 0, z: 1 });
+            o(noTiffs).deepEquals([]);
+
+            const aTiff = subTileSet.getTiffsForTile(GoogleTms, { x: 0, y: 0, z: 0 });
+            o(aTiff.length).equals(1);
+            o(aTiff[0].source.uri).equals('s3://foo/bar/foo.tiff');
         });
     });
 
@@ -128,13 +134,7 @@ o.spec('TileSetCache', () => {
             o(tileSets[3].title).equals('parent aerial title Tasman rural 2018-19 0.3m');
             o(tileSets[3].name).equals('aerial:tasman_rural_2018-19_0-3m');
             o(tileSets[3].background).equals(undefined);
-            o([...tileSets[3].imagery.values()]).deepEquals([
-                {
-                    id: 'im_id1',
-                    name: 'tasman_rural_2018-19_0-3m',
-                    bounds: { x: 123, y: 456, width: 200, height: 300 },
-                } as TileMetadataImageryRecord,
-            ]);
+            o([...tileSets[3].imagery.values()]).deepEquals([imageOne]);
 
             o(tileSets[3].extent.toBbox()).deepEquals([123, 456, 323, 756]);
         });

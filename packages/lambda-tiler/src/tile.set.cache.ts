@@ -45,8 +45,8 @@ function individualTileSet(parent: TileSet, image: TileMetadataImageryRecord, se
         priority: 0,
     };
     copy.tileSet.rules = [rule];
-    copy.imagery = new Map<string, TileMetadataImageryRecord>();
-    copy.imagery.set(rule.imgId, image);
+    copy.imagery = new Map();
+    copy.imagery.set(image.id, image);
 
     return copy;
 }
