@@ -1,8 +1,14 @@
-import { Epsg, Bounds } from '@basemaps/geo';
-import { Aws, ProjectionTileMatrixSet, TileSetNameValues, TileMetadataImageryRecord } from '@basemaps/shared';
-import { RecordPrefix, titleizeImageryName, TileMetadataTable } from '@basemaps/shared';
+import { Bounds, Epsg } from '@basemaps/geo';
+import {
+    Aws,
+    ProjectionTileMatrixSet,
+    RecordPrefix,
+    TileMetadataImageryRecord,
+    TileMetadataTable,
+    TileSetNameValues,
+    titleizeImageryName,
+} from '@basemaps/shared';
 import { TileSet } from './tile.set';
-import { ulid } from 'ulid';
 
 /** The cached TileSets */
 export const TileSets = new Map<string, TileSet>();
@@ -29,13 +35,19 @@ function individualTileSet(parent: TileSet, image: TileMetadataImageryRecord, se
     copy.extentOverride = Bounds.fromJson(image.bounds);
 
     const rule = {
-        ruleId: TileMetadataTable.prefix(RecordPrefix.ImageryRule, ulid()),
+        ruleId: TileMetadataTable.prefix(
+            RecordPrefix.ImageryRule,
+            TileMetadataTable.unprefix(RecordPrefix.Imagery, image.id),
+        ),
         imgId: image.id,
         minZoom: 0,
         maxZoom: 100,
         priority: 0,
     };
     copy.tileSet.rules = [rule];
+    copy.imagery = new Map();
+    copy.imagery.set(image.id, image);
+
     return copy;
 }
 
