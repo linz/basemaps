@@ -4,15 +4,11 @@ import * as cdk from '@aws-cdk/core';
 import * as firehose from '@aws-cdk/aws-kinesisfirehose';
 import * as s3 from '@aws-cdk/aws-s3';
 import { StringParameter } from '@aws-cdk/aws-ssm';
-import { LambdaLogShipperFunction, LogObject } from '@linzjs/cdk-elastic-shipper';
+import { LambdaLogShipperFunction } from '@linzjs/cdk-elastic-shipper';
 import { Env } from '@basemaps/shared';
 import { DeployEnv } from '../deploy.env';
 
 const ConfigName = `/es-shipper-config/accounts`;
-
-export function onLog(lo: LogObject): boolean | void {
-    if (lo['@tags']?.includes('Lambda log')) return true;
-}
 
 /**
  * Basemap's logging
@@ -47,7 +43,7 @@ export class LoggingStack extends cdk.Stack {
         const vpc = Vpc.fromLookup(this, 'ShipperVpc', { tags: { default: 'true' } });
 
         const configParameter = StringParameter.fromStringParameterName(this, 'ShipperConfig', ConfigName);
-        this.shipper = new LambdaLogShipperFunction(this, 'ShipperFunction', { configParameter, vpc, onLog });
+        this.shipper = new LambdaLogShipperFunction(this, 'ShipperFunction', { configParameter, vpc });
         this.shipper.addS3Source(logBucket);
     }
 }
