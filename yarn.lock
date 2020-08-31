@@ -1406,10 +1406,10 @@
     npmlog "^4.1.2"
     write-file-atomic "^2.3.0"
 
-"@linzjs/cdk-elastic-shipper@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@linzjs/cdk-elastic-shipper/-/cdk-elastic-shipper-0.4.2.tgz#64ca64cb86730d45e4cfb1c7cf8f0a70504171f8"
-  integrity sha512-wIYTIPNTE3Z5dBigE+Yxj2KKzgrTQ9XbitnHBsNyFXvcOY0IJ/UEhhUA0KFq0jE3xKevrBj6A2UZmbsEABlqNQ==
+"@linzjs/cdk-elastic-shipper@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/cdk-elastic-shipper/-/cdk-elastic-shipper-0.5.0.tgz#4f04c42c63b12e4d87d92f14732014a414ec84aa"
+  integrity sha512-mGQ3iK+7pfY+DUjMf33pqq9Dm58f8eZMbfWWBpSehhB/TGDiiIB+BcZ5O/6esHVu/AsByuOACgVhSZ6I7/0VuA==
   dependencies:
     "@aws-cdk/aws-ec2" "> 1.53.0"
     "@aws-cdk/aws-lambda" "> 1.53.0"
