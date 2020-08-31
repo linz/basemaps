@@ -19,6 +19,10 @@ export class LambdaTiler extends cdk.Construct {
         super(scope, id);
 
         const config = getConfig();
+        /**
+         * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
+         * see: https://github.com/aws/aws-cdk/issues/8253
+         */
         this.lambda = new lambda.Function(this, 'Tiler', {
             runtime: lambda.Runtime.NODEJS_12_X,
             memorySize: 2048,

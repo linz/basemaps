@@ -20,6 +20,10 @@ export class ServeStack extends cdk.Stack {
         super(scope, id, props);
 
         const config = getConfig();
+        /**
+         * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
+         * see: https://github.com/aws/aws-cdk/issues/8253
+         */
         const lambda = new LambdaTiler(this, 'LambdaTiler');
         const table = new TileMetadataTable(this, 'TileMetadata');
         table.table.grantReadData(lambda.lambda);
