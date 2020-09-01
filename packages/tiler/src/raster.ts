@@ -1,5 +1,5 @@
 import { Bounds, Size } from '@basemaps/geo';
-import { Metrics } from '@basemaps/metrics';
+import { Metrics } from '@linzjs/metrics';
 import { CogTiff } from '@cogeotiff/core';
 
 export interface TileMaker {
