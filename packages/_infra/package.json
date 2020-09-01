@@ -16,7 +16,8 @@
   "scripts": {
     "deploy:synth": "cdk synth",
     "deploy:diff": "cdk diff || true",
-    "deploy:deploy": "cdk deploy '*' -y --require-approval never"
+    "deploy:deploy": "cdk deploy '*' -y --require-approval never",
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "devDependencies": {
     "@aws-cdk/aws-batch": "> 1.54.0",
@@ -34,7 +35,7 @@
     "@basemaps/lambda-api-tracker": "^4.11.1",
     "@basemaps/lambda-tiler": "^4.11.2",
     "@basemaps/shared": "^4.11.1",
-    "@linzjs/cdk-elastic-shipper": "^0.4.2",
+    "@linzjs/cdk-elastic-shipper": "^0.5.0",
     "aws-cdk": "^1.58.0"
   }
 }
