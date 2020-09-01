@@ -1,5 +1,5 @@
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Metrics } from '@basemaps/metrics';
+import { Metrics } from '@linzjs/metrics';
 import { TestTiff } from '@basemaps/test';
 import { ImageFormat, Tiler } from '@basemaps/tiler';
 import { writeFileSync } from 'fs';

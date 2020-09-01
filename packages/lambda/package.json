@@ -19,7 +19,7 @@
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "dependencies": {
-    "@basemaps/metrics": "^4.11.1",
+    "@linzjs/metrics": "^4.11.1",
     "@basemaps/shared": "^4.11.1",
     "source-map-support": "^0.5.19",
     "ulid": "^2.3.0"

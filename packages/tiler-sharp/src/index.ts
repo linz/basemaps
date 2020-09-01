@@ -1,6 +1,6 @@
 import Sharp from 'sharp';
 import { TileMaker, ImageFormat, TileMakerContext, Composition, TileMakerResizeKernel } from '@basemaps/tiler';
-import { Metrics } from '@basemaps/metrics';
+import { Metrics } from '@linzjs/metrics';
 
 function notEmpty<T>(value: T | null | undefined): value is T {
     return value != null;
