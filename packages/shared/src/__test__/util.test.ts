@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { extractYearRangeFromName } from '../util';
+import { extractYearRangeFromName, s3ToVsis3 } from '../util';
 
 o.spec('util', () => {
     o('extractYearRangeFromName', () => {
@@ -10,5 +10,11 @@ o.spec('util', () => {
         o(extractYearRangeFromName('2019_abc2020')).deepEquals([2019, 2021]);
         o(extractYearRangeFromName('2020_abc2019')).deepEquals([2019, 2021]);
         o(extractYearRangeFromName('2020-23abc')).deepEquals([2020, 2024]);
+    });
+
+    o('s3ToVsis3', () => {
+        o(s3ToVsis3('s3://rest/of/path')).equals('/vsis3/rest/of/path');
+        o(s3ToVsis3('s3:/rest/of/path')).equals('s3:/rest/of/path');
+        o(s3ToVsis3('/s3://rest/of/path')).equals('/s3://rest/of/path');
     });
 });

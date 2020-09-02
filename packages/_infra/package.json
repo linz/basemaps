@@ -35,7 +35,7 @@
     "@basemaps/lambda-api-tracker": "^4.11.1",
     "@basemaps/lambda-tiler": "^4.11.2",
     "@basemaps/shared": "^4.11.1",
-    "@linzjs/cdk-elastic-shipper": "^0.5.0",
+    "@linzjs/cdk-elastic-shipper": "^0.6.1",
     "aws-cdk": "^1.58.0"
   }
 }

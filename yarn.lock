@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@acuris/aws-es-connection@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@acuris/aws-es-connection/-/aws-es-connection-1.1.1.tgz#5ff52f776e465b8f1f187d2743e38ff24f81ab8c"
+  integrity sha512-eAvr7NTi/pgD5g/T0sj71O/Ay2Wn8lOPIorYCD/WruhGuBT4PNBbQ7qzmcIWccnQ+u+DzTQNg/WEPIDd5JVRAw==
+  dependencies:
+    aws4 "^1.8.0"
+
 "@aws-cdk/assets@1.58.0":
   version "1.58.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/assets/-/assets-1.58.0.tgz#a0d38aa15f978ed18d4a013a521a3139dac040d8"
@@ -611,6 +618,11 @@
     chalk "^2.0.0"
     esutils "^2.0.2"
     js-tokens "^4.0.0"
+
+"@basemaps/metrics@^4.11.1":
+  version "4.11.1"
+  resolved "https://registry.yarnpkg.com/@basemaps/metrics/-/metrics-4.11.1.tgz#675d53a8758642f1c388036fc9cad7ae53726a75"
+  integrity sha512-wNESKjUcMCgceXqE+drdTQkDpvqUzCN/R4koAa4Hyq3jgV8C7D6DcD6l5Yz4v21Wo3Ef0W0FLwUsvHqcoFV8lQ==
 
 "@cogeotiff/core@^2.2.0":
   version "2.2.0"
@@ -1406,16 +1418,19 @@
     npmlog "^4.1.2"
     write-file-atomic "^2.3.0"
 
-"@linzjs/cdk-elastic-shipper@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@linzjs/cdk-elastic-shipper/-/cdk-elastic-shipper-0.5.0.tgz#4f04c42c63b12e4d87d92f14732014a414ec84aa"
-  integrity sha512-mGQ3iK+7pfY+DUjMf33pqq9Dm58f8eZMbfWWBpSehhB/TGDiiIB+BcZ5O/6esHVu/AsByuOACgVhSZ6I7/0VuA==
+"@linzjs/cdk-elastic-shipper@^0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@linzjs/cdk-elastic-shipper/-/cdk-elastic-shipper-0.6.1.tgz#17c65ff00f8c925480acd7c37981ca068bded2f7"
+  integrity sha512-73tOHieCj5wbDIqv36Jcf4rWCw43IJagHIcThLLd20mkap7zL7plO+1a3x3LIfM3RPZIWu90bmEOdStlYzMedg==
   dependencies:
+    "@acuris/aws-es-connection" "^1.1.1"
     "@aws-cdk/aws-ec2" "> 1.53.0"
     "@aws-cdk/aws-lambda" "> 1.53.0"
     "@aws-cdk/aws-lambda-event-sources" "> 1.53.0"
     "@aws-cdk/aws-s3" "> 1.53.0"
     "@aws-cdk/core" "> 1.53.0"
+    "@basemaps/metrics" "^4.11.1"
+    aws-sdk "^2.547.0"
     jsondiffpatch "^0.4.1"
     minimatch "^3.0.4"
     pino "^6.4.1"
@@ -2190,25 +2205,10 @@ aws-cdk@^1.58.0:
     yaml "^1.10.0"
     yargs "^15.3.1"
 
-aws-sdk@^2.508.0, aws-sdk@^2.524.0:
-  version "2.702.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.702.0.tgz#c5bb9a6caeb7d938b803095073fe981ff29e4244"
-  integrity sha512-FKRve3NOKeUKxFXeD6VfiIhXpIhym/yFdy7higxUObmsj2ssM/e7Iud79gUHRAKJW5fzusdtkBCAVBjotRGxew==
-  dependencies:
-    buffer "4.9.2"
-    events "1.1.1"
-    ieee754 "1.1.13"
-    jmespath "0.15.0"
-    querystring "0.2.0"
-    sax "1.2.1"
-    url "0.10.3"
-    uuid "3.3.2"
-    xml2js "0.4.19"
-
-aws-sdk@^2.715.0:
-  version "2.720.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.720.0.tgz#b834adc6b7458c41621f8e2169602c69c655f504"
-  integrity sha512-899YXs6iWae82GGJM95S5MFBPIG8pE9aq+GlSr47mz7te97hGX0OcjPs3GuGZWA6Nrp0MCR9eMqu6DwBlYGltA==
+aws-sdk@^2.508.0, aws-sdk@^2.524.0, aws-sdk@^2.547.0, aws-sdk@^2.715.0:
+  version "2.744.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.744.0.tgz#911a69906b88ac8fc8e5e24d0e80e76191bb2b80"
+  integrity sha512-yS+VIm5ZgdGXWjJBW/HmCoTkbzGv6vddJitbmpjQFKBnRkY2JbOGu/xr9BBhmxskgbUJGgmYE8GPaGfsaMh3cw==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
