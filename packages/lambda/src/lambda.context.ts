@@ -1,4 +1,4 @@
-import { Metrics } from '@basemaps/metrics';
+import { Metrics } from '@linzjs/metrics';
 import { ALBEvent, ALBResult, CloudFrontRequestEvent, CloudFrontRequestResult } from 'aws-lambda';
 import * as ulid from 'ulid';
 import { toAlbHeaders, toCloudFrontHeaders } from './lambda.aws';

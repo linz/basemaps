@@ -1,4 +1,4 @@
-# @basemaps/metrics
+# @linzjs/metrics
 
 Simple timing metric tracker for NodeJS
 
@@ -6,7 +6,7 @@ Simple timing metric tracker for NodeJS
 
 ```typescript
 
-import { Metrics } from '@basemaps/metrics';
+import { Metrics } from '@linzjs/metrics';
 
 const metrics = new Metrics();
 

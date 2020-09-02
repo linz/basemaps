@@ -64,9 +64,9 @@ function makeTemplate(sourceFile: string, hillShade: string): string {
 /** composite a hillshade and base tile into a hillshaded file with mapnik */
 async function render(bm: BathyMaker, tile: Tile, logger: LogType): Promise<string> {
     const tileId = TileMatrixSet.tileToName(tile);
-    const warpedPath = bm.file.name(FileType.Warped, tileId);
-    const hillShadePath = bm.file.name(FileType.HillShade, tileId);
-    const outputPath = bm.file.name(FileType.Rendered, tileId);
+    const warpedPath = bm.tmpFolder.name(FileType.Warped, tileId);
+    const hillShadePath = bm.tmpFolder.name(FileType.HillShade, tileId);
+    const outputPath = bm.tmpFolder.name(FileType.Rendered, tileId);
     if (fs.existsSync(outputPath)) return outputPath;
 
     const template = makeTemplate(warpedPath, hillShadePath);

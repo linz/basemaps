@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@basemaps/geo": "^4.11.1",
-    "@basemaps/metrics": "^4.11.1",
+    "@linzjs/metrics": "^4.11.1",
     "@basemaps/tiler": "^4.11.1",
     "@linzjs/geojson": "^4.11.1",
     "@linzjs/s3fs": "^4.11.1",
