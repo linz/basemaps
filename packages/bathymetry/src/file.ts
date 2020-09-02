@@ -12,6 +12,7 @@ export const enum FileType {
     HillShade = 'hillshade',
     Rendered = 'rendered',
     Stac = 'stac',
+    SourceTiff = 'sourceTiff',
 }
 
 const SuffixMap: Partial<Record<FileType, string>> = {
@@ -22,32 +23,38 @@ const SuffixMap: Partial<Record<FileType, string>> = {
 
 export class FilePath {
     sourcePath: string;
-    fileName: string;
 
     constructor(sourcePath: string) {
         this.sourcePath = sourcePath;
-        this.fileName = path.basename(this.sourcePath);
     }
+    /**
+     * Determine the basename for a file type
+     */
+    basename(fileType: FileType, id = String(fileType)): string {
+        const suffix = SuffixMap[fileType] ?? 'tiff';
+        return `${id}.${suffix}`;
+    }
+
     /**
      *  Create some temp files and folders
      *
      *  output into folder ./output
      *  temp files into temp folder ./.bathy/
      */
-    name(fileType: FileType, id = ''): string {
-        const suffix = SuffixMap[fileType] ?? 'tiff';
-        let tempPath = path.dirname(this.sourcePath);
+    name(fileType: FileType, id = String(fileType)): string {
+        const basename = this.basename(fileType, id);
+
+        let tempPath = this.sourcePath;
 
         if (fileType == FileType.Output || fileType == FileType.Stac) {
-            tempPath = path.join(tempPath, FileType.Output, this.fileName);
+            tempPath = path.join(tempPath, FileType.Output);
         } else {
-            tempPath = path.join(tempPath, BathyTempFolder, this.fileName, fileType);
+            tempPath = path.join(tempPath, BathyTempFolder, fileType);
         }
         if (PrefixMade[tempPath] == null) {
             fs.mkdirSync(tempPath, { recursive: true });
             PrefixMade[tempPath] = true;
         }
-        const outputId = id == '' ? '' : `-${id}`;
-        return `${tempPath}/${this.fileName}${outputId}.${suffix}`;
+        return `${tempPath}/${basename}`;
     }
 }

@@ -1,6 +1,7 @@
 import { Bounds, Tile, TileMatrixSet } from '@basemaps/geo';
 import {
     extractYearRangeFromName,
+    FileOperator,
     LogType,
     ProjectionTileMatrixSet,
     StacCollection,
@@ -24,10 +25,10 @@ function getCommitHash(): string {
 }
 
 /** Write some basic metadata about how the file was created*/
-async function createItem(bm: BathyMaker, tile: Tile, logger: LogType): Promise<StacItem> {
+async function createItem(bm: BathyMaker, tile: Tile): Promise<StacItem> {
     const { tms } = bm.config;
     const tileId = TileMatrixSet.tileToName(tile);
-    const outputTiffPath = bm.file.name(FileType.Output, tileId);
+    const outputTiffPath = bm.tmpFolder.name(FileType.Output, tileId);
     const ptms = ProjectionTileMatrixSet.get(tms.projection.code);
 
     const bbox = ptms.tileToWgs84Bbox(tile);
@@ -56,19 +57,7 @@ async function createItem(bm: BathyMaker, tile: Tile, logger: LogType): Promise<
                 type: 'image/tiff; application=geotiff',
             },
         },
-        links: [
-            { rel: 'collection', href: 'collection.json' },
-            {
-                rel: 'derived_from',
-                href: bm.fileName,
-                'checksum:multihash': await bm.createSourceHash(logger),
-            },
-            {
-                rel: 'derived_from',
-                href: (packageJson.repository.url ?? packageJson.repository) + '#' + getCommitHash(),
-                version: packageJson.version,
-            },
-        ],
+        links: [{ rel: 'collection', href: 'collection.json' }],
     };
 }
 
@@ -79,24 +68,64 @@ async function createItem(bm: BathyMaker, tile: Tile, logger: LogType): Promise<
  * @param bounds the extent of the output
  * @param itemNames the names of the stac item json files
  */
-function createCollection(bm: BathyMaker, bounds: Bounds, itemNames: string[]): StacCollection {
+async function createCollection(
+    bm: BathyMaker,
+    bounds: Bounds,
+    itemNames: string[],
+    logger: LogType,
+): Promise<StacCollection> {
     const { tms } = bm.config;
     const ptms = ProjectionTileMatrixSet.get(tms.projection.code);
     const bbox = ptms.proj.boundsToWgs84BoundingBox(bounds);
-    const interval: [string, string][] = [];
-    const name = basename(bm.config.path);
-    const years = extractYearRangeFromName(name);
+    const name = basename(bm.inputPath);
+    let description: string | undefined;
 
-    // Derive title from file name
-    const title = titleizeImageryName(name.replace(/\.[^.]+$/, ''));
-    if (years[0] != -1) {
-        interval.push(years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]);
-    }
-
-    const links: StacLink[] = [];
+    const links: StacLink[] = [
+        {
+            rel: 'self',
+            href: FileOperator.join(bm.outputPath, bm.tmpFolder.basename(FileType.Stac, 'collection')),
+        },
+        {
+            rel: 'derived_from',
+            href: bm.inputPath,
+            'checksum:multihash': await bm.createSourceHash(logger),
+        },
+        {
+            rel: 'derived_from',
+            href: (packageJson.repository.url ?? packageJson.repository) + '#' + getCommitHash(),
+            version: packageJson.version,
+        },
+    ];
 
     for (const name of itemNames) {
         links.push({ rel: 'item', href: name, type: 'application/geo+json' });
+    }
+
+    let sourceStac = {} as StacCollection;
+    const providers = [
+        { name: 'Land Information New Zealand', url: 'https://www.linz.govt.nz/', roles: ['processor'] },
+    ];
+    const interval: [string, string][] = [];
+    try {
+        const sourceCollectionPath = FileOperator.join(bm.inputFolder, 'collection.json');
+        sourceStac = await FileOperator.readJson<StacCollection>(sourceCollectionPath);
+        description = sourceStac.description;
+        interval.push(...(sourceStac.extent?.temporal?.interval ?? []));
+        links.push({ href: sourceCollectionPath, rel: 'sourceImagery', type: 'application/json' });
+        if (sourceStac.providers != null) providers.push(...sourceStac.providers);
+    } catch (err) {
+        if (!FileOperator.isCompositeError(err) || err.code !== 404) {
+            throw err;
+        }
+    }
+
+    const title = sourceStac.title ?? titleizeImageryName(name);
+
+    if (interval.length == 0) {
+        const years = extractYearRangeFromName(name);
+        if (years[0] != -1) {
+            interval.push(years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]);
+        }
     }
 
     return {
@@ -104,6 +133,7 @@ function createCollection(bm: BathyMaker, bounds: Bounds, itemNames: string[]): 
         stac_extensions: ['proj'],
         id: bm.config.id,
         title,
+        description,
         extent: {
             spatial: {
                 bbox,
@@ -112,7 +142,7 @@ function createCollection(bm: BathyMaker, bounds: Bounds, itemNames: string[]): 
         },
         license: StacLicense,
         links,
-        providers: [{ name: 'Land Information New Zealand', url: 'https://www.linz.govt.nz/', roles: ['processor'] }],
+        providers,
         keywords: ['Bathymetry'],
         summaries: { 'proj:epsg': [bm.config.tms.projection.code] },
     };

@@ -1,4 +1,4 @@
-import { Aws, FileOperator, isConfigS3Role, LogType } from '@basemaps/shared';
+import { Aws, FileOperator, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
 import { Gdal } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
 import { onProgress } from './cog';
@@ -88,7 +88,7 @@ export const CogVrt = {
     ): Promise<string | null> {
         logger.info({ name }, 'buildCogVrt');
 
-        const sourceFiles = cutline.filterSourcesForName(name, job).map((name) => name.replace('s3://', '/vsis3/'));
+        const sourceFiles = cutline.filterSourcesForName(name, job).map(s3ToVsis3);
 
         if (sourceFiles.length == 0) {
             return null;

@@ -1,5 +1,6 @@
 import { Bounds, EpsgCode } from '@basemaps/geo';
 import { FileOperator, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
 import o from 'ospec';
@@ -52,29 +53,14 @@ o.spec('CogJob', () => {
             oneCogCovering: false,
         } as JobCreationContext;
 
-        const origReadJson = FileOperator.readJson;
-        const origWriteJson = FileOperator.writeJson;
+        const mockFs = mockFileOperator();
 
-        let mockFs: Record<string, any> = {};
+        o.beforeEach(mockFs.setup);
 
-        o.before(() => {
-            FileOperator.readJson = async (path: string): Promise<any> => mockFs[path];
-            FileOperator.writeJson = async (path: string, json: any): Promise<void> => {
-                mockFs[path] = json;
-            };
-        });
-
-        o.after(() => {
-            FileOperator.readJson = origReadJson;
-            FileOperator.writeJson = origWriteJson;
-        });
-
-        o.afterEach(() => {
-            mockFs = {};
-        });
+        o.afterEach(mockFs.teardown);
 
         o('with job.json', async () => {
-            mockFs['s3://source-bucket/path/collection.json'] = {
+            mockFs.jsStore['s3://source-bucket/path/collection.json'] = {
                 title: 'The Title',
                 description: 'The Description',
                 license: 'The License',
@@ -92,7 +78,7 @@ o.spec('CogJob', () => {
             o(job.title).equals('The Title');
             o(job.description).equals('The Description');
 
-            const stac = round(mockFs[jobPath + '/collection.json'], 4);
+            const stac = round(mockFs.jsStore[jobPath + '/collection.json'], 4);
 
             o(stac.title).equals('The Title');
             o(stac.description).equals('The Description');
@@ -127,7 +113,7 @@ o.spec('CogJob', () => {
             });
             const afterNow = Date.now();
 
-            o(job.json).equals(mockFs[jobPath + '/job.json']);
+            o(job.json).equals(mockFs.jsStore[jobPath + '/job.json']);
 
             o(round(job.json, 4)).deepEquals({
                 id: 'jobid1',
@@ -175,7 +161,7 @@ o.spec('CogJob', () => {
             o(round(job.output.gsd, 4)).equals(0.0373);
             o(job.output.oneCogCovering).equals(true);
 
-            const stac = round(mockFs[jobPath + '/collection.json'], 4);
+            const stac = round(mockFs.jsStore[jobPath + '/collection.json'], 4);
 
             const stacMeta = stac.summaries;
 
@@ -246,7 +232,7 @@ o.spec('CogJob', () => {
 
             o(stac).deepEquals(exp);
 
-            o(round(mockFs[jobPath + '/cutline.geojson.gz'], 4)).deepEquals({
+            o(round(mockFs.jsStore[jobPath + '/cutline.geojson.gz'], 4)).deepEquals({
                 type: 'FeatureCollection',
                 features: [
                     {
@@ -261,7 +247,7 @@ o.spec('CogJob', () => {
                 },
             });
 
-            o(round(mockFs[jobPath + '/0-0-0.json'], 4)).deepEquals({
+            o(round(mockFs.jsStore[jobPath + '/0-0-0.json'], 4)).deepEquals({
                 type: 'Feature',
                 geometry: {
                     type: 'Polygon',
@@ -298,7 +284,7 @@ o.spec('CogJob', () => {
                     },
                 },
             });
-            o(round(mockFs[jobPath + '/covering.geojson'], 4)).deepEquals({
+            o(round(mockFs.jsStore[jobPath + '/covering.geojson'], 4)).deepEquals({
                 type: 'FeatureCollection',
                 features: [
                     {
@@ -321,7 +307,7 @@ o.spec('CogJob', () => {
                 ],
             });
 
-            o(round(mockFs[jobPath + '/source.geojson'], 4)).deepEquals({
+            o(round(mockFs.jsStore[jobPath + '/source.geojson'], 4)).deepEquals({
                 type: 'FeatureCollection',
                 features: [
                     {

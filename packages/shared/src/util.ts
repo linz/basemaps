@@ -39,3 +39,7 @@ export function extractYearRangeFromName(name: string): [number, number] {
 
     return [years[0], years[years.length - 1] + 1];
 }
+
+export function s3ToVsis3(name: string): string {
+    return name.startsWith('s3://') ? '/vsis3/' + name.slice('s3://'.length) : name;
+}

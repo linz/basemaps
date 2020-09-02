@@ -1,7 +1,7 @@
 import { Gdal } from '@basemaps/cli';
+import { GdalCommand } from '@basemaps/cli/build/gdal/gdal.command';
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
-import * as fs from 'fs';
+import { FileOperator, LogType, s3ToVsis3 } from '@basemaps/shared';
 import * as os from 'os';
 import type { Limit } from 'p-limit';
 import PLimit from 'p-limit';
@@ -15,8 +15,11 @@ import { Stac } from './stac';
 interface BathyMakerContext {
     /** unique id for this build */
     id: string;
-    /** Source file path Must be local file system */
-    path: string;
+    /** Source netcdf or tiff file path */
+    inputPath: string;
+    /** Output directory path */
+    outputPath: string;
+    tmpFolder: FilePath;
     /** TileMatrixSet to cut the bathy up into tiles */
     tms: TileMatrixSet;
     /** zoom level of the tms to cut the tiles too */
@@ -25,6 +28,14 @@ interface BathyMakerContext {
     threads?: number;
     /** Mapnik render tilesize @default 8192 */
     tileSize?: number;
+}
+
+function createMountedGdal(...paths: string[]): GdalCommand {
+    const gdal = Gdal.create();
+    if (gdal.mount != null) {
+        for (const path of paths) gdal.mount(path);
+    }
+    return gdal;
 }
 
 export const BathyMakerContextDefault = {
@@ -36,8 +47,6 @@ export const BathyMakerContextDefault = {
 export class BathyMaker {
     config: BathyMakerContext & typeof BathyMakerContextDefault;
 
-    file: FilePath;
-
     /** Current gdal version @see Gdal.version */
     gdalVersion: Promise<string>;
     /** Concurrent limiting queue, all work should be done inside the queue */
@@ -46,28 +55,43 @@ export class BathyMaker {
     constructor(ctx: BathyMakerContext) {
         this.config = { ...BathyMakerContextDefault, ...ctx };
         this.q = PLimit(this.config.threads);
-        this.file = new FilePath(this.config.path);
     }
 
-    get filePath(): string {
-        return this.config.path;
+    get inputPath(): string {
+        return this.config.inputPath;
+    }
+
+    get inputFolder(): string {
+        return path.dirname(this.inputPath);
+    }
+
+    get outputPath(): string {
+        return this.config.outputPath;
+    }
+
+    get tmpFolder(): FilePath {
+        return this.config.tmpFolder;
+    }
+
+    isTiffInput(): boolean {
+        return this.inputPath.endsWith('.tiff');
     }
 
     /** Most operations need a tiff file */
     get tiffPath(): string {
-        if (this.filePath.endsWith('.tiff')) return this.filePath;
-        return this.filePath + '.tiff';
+        if (this.isTiffInput()) return this.inputPath;
+        return this.tmpFolder.name(FileType.SourceTiff);
     }
 
     /** File name of the path */
     get fileName(): string {
-        return path.basename(this.filePath);
+        return path.basename(this.inputPath);
     }
 
     async render(logger: LogType): Promise<void> {
         this.gdalVersion = Gdal.version(logger);
 
-        const isNc = this.filePath.endsWith('.nc');
+        const isNc = this.inputPath.endsWith('.nc');
 
         // NetCdf files need to be converted to GeoTiff before processing
         if (isNc) await this.createSourceGeoTiff(logger);
@@ -101,7 +125,7 @@ export class BathyMaker {
         try {
             const tileNames = await Promise.all(promises);
             if (extent == null) return;
-            this.createMetadata(extent, tileNames);
+            await this.createMetadata(extent, tileNames, logger);
         } catch (err) {
             logger.fatal(err, 'FailedToRun');
             throw err;
@@ -110,12 +134,12 @@ export class BathyMaker {
 
     /** Create a multi hash of the source file  */
     async createSourceHash(logger: LogType): Promise<string> {
-        const hashPath = this.file.name(FileType.Hash);
-        if (fs.existsSync(hashPath)) return (await fs.promises.readFile(hashPath)).toString();
+        const hashPath = this.tmpFolder.name(FileType.Hash);
+        if (await FileOperator.exists(hashPath)) return (await FileOperator.read(hashPath)).toString();
         logger.info({ hashPath }, 'CreateHash');
 
-        const outputHash = await Hash.hash(this.filePath);
-        await fs.promises.writeFile(hashPath, outputHash);
+        const outputHash = await Hash.hash(this.inputPath);
+        await FileOperator.write(hashPath, Buffer.from(outputHash));
         return outputHash;
     }
 
@@ -125,7 +149,7 @@ export class BathyMaker {
             await this.createTile(tile, logger);
             await this.createHillShadedTile(tile, logger);
             await this.createCompositeTile(tile, logger);
-            return await this.createTileMetadata(tile, logger);
+            return await this.createTileMetadata(tile);
         } catch (err) {
             logger.error({ err }, 'Failed');
             throw err;
@@ -134,9 +158,10 @@ export class BathyMaker {
 
     /** convert a input file into one that can be processed by this script */
     async createSourceGeoTiff(logger: LogType): Promise<void> {
-        if (fs.existsSync(this.tiffPath)) return;
+        if (this.isTiffInput()) return;
         logger.info({ path: this.tiffPath }, 'Converting to GeoTiff');
-        const gdal = Gdal.create();
+        const gdal = createMountedGdal(this.tmpFolder.sourcePath, this.inputFolder);
+
         await gdal.run(
             'gdal_translate',
             [
@@ -146,7 +171,7 @@ export class BathyMaker {
                 // see https://github.com/linz/basemaps-team/issues/241
                 '-ot',
                 'Float32',
-                this.filePath,
+                s3ToVsis3(this.inputPath),
                 this.tiffPath,
             ],
             logger,
@@ -156,8 +181,8 @@ export class BathyMaker {
     /** Create a tile in the output TMS's CRS */
     async createTile(tile: Tile, logger: LogType): Promise<void> {
         const tileId = TileMatrixSet.tileToName(tile);
-        const warpedPath = this.file.name(FileType.Warped, tileId);
-        if (fs.existsSync(warpedPath)) return;
+        const warpedPath = this.tmpFolder.name(FileType.Warped, tileId);
+        if (await FileOperator.exists(warpedPath)) return;
 
         const tms = this.config.tms;
 
@@ -179,25 +204,22 @@ export class BathyMaker {
             warpedPath,
         ].map(String);
 
-        const gdal = Gdal.create();
-        if (gdal.mount) gdal.mount(path.dirname(this.tiffPath));
-
         logger.trace({ file: warpedPath }, 'Warping');
+        const gdal = createMountedGdal(this.tmpFolder.sourcePath, this.tiffPath);
         await gdal.run('gdalwarp', warpCommand, logger);
     }
 
     /** Create a hillshade for a tile */
     async createHillShadedTile(tile: Tile, logger: LogType): Promise<void> {
         const tileId = TileMatrixSet.tileToName(tile);
-        const warped = this.file.name(FileType.Warped, tileId);
-        const target = this.file.name(FileType.HillShade, tileId);
+        const warped = this.tmpFolder.name(FileType.Warped, tileId);
+        const target = this.tmpFolder.name(FileType.HillShade, tileId);
 
-        if (fs.existsSync(target)) return;
-
-        const gdal = Gdal.create();
-        if (gdal.mount) gdal.mount(path.dirname(this.filePath));
+        if (await FileOperator.exists(target)) return;
 
         logger.trace({ file: target }, 'Shading');
+
+        const gdal = createMountedGdal(this.inputPath, this.tmpFolder.sourcePath);
         await gdal.run('gdaldem', ['hillshade', '-compute_edges', '-multidirectional', warped, target], logger);
     }
 
@@ -206,11 +228,10 @@ export class BathyMaker {
         const tileId = TileMatrixSet.tileToName(tile);
 
         const renderedPath = await MapnikRender.render(this, tile, logger);
-        const outputPath = this.file.name(FileType.Output, tileId);
-        if (fs.existsSync(outputPath)) return;
+        const outputPath = this.tmpFolder.name(FileType.Output, tileId);
+        if (await FileOperator.exists(outputPath)) return;
 
-        const gdal = Gdal.create();
-        if (gdal.mount) gdal.mount(path.dirname(this.filePath));
+        const gdal = createMountedGdal(this.tmpFolder.sourcePath);
         const bounds = this.config.tms.tileToSourceBounds(tile);
         await gdal.run(
             'gdal_translate',
@@ -236,18 +257,18 @@ export class BathyMaker {
         );
     }
     /** Create and write a stac metadata item for a single tile */
-    async createTileMetadata(tile: Tile, logger: LogType): Promise<string> {
-        const output = await Stac.createItem(this, tile, logger);
+    async createTileMetadata(tile: Tile): Promise<string> {
+        const output = await Stac.createItem(this, tile);
         const tileId = TileMatrixSet.tileToName(tile);
-        const stacOutputPath = this.file.name(FileType.Stac, tileId);
-        await fs.promises.writeFile(stacOutputPath, JSON.stringify(output, null, 2));
+        const stacOutputPath = this.tmpFolder.name(FileType.Stac, tileId);
+        await FileOperator.writeJson(stacOutputPath, output);
         return basename(stacOutputPath);
     }
 
-    async createMetadata(bounds: Bounds, itemPaths: string[]): Promise<void> {
-        const output = await Stac.createCollection(this, bounds, itemPaths);
-        const stacOutputPath = this.file.name(FileType.Stac, 'collection.json');
-        await fs.promises.writeFile(stacOutputPath, JSON.stringify(output, null, 2));
+    async createMetadata(bounds: Bounds, itemPaths: string[], logger: LogType): Promise<void> {
+        const output = await Stac.createCollection(this, bounds, itemPaths, logger);
+        const stacOutputPath = this.tmpFolder.name(FileType.Stac, 'collection');
+        await FileOperator.writeJson(stacOutputPath, output);
     }
 }
 
