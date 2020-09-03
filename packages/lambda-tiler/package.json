@@ -23,7 +23,7 @@
     "@cogeotiff/source-aws": "^2.2.0",
     "@linzjs/geojson": "^4.11.1",
     "path-to-regexp": "^6.1.0",
-    "sharp": "^0.25.2"
+    "sharp": "^0.26.0"
   },
   "bundle": {
     "entry": "src/index.ts",
