@@ -4,9 +4,7 @@ import { CompositeError } from './composite.error';
 import { FileProcessor } from './file';
 
 function getCompositeError(e: AWSError, msg: string): CompositeError {
-    if (e == null) return new CompositeError(msg, 500, e);
-    if (e.code == 'NotFound') return new CompositeError(msg, 404, e);
-    if (e.code == 'AccessDenied') return new CompositeError(msg, 403, e);
+    if (typeof e?.statusCode === 'number') return new CompositeError(msg, e.statusCode, e);
     return new CompositeError(msg, 500, e);
 }
 
