@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.12.0](https://github.com/linz/basemaps/compare/v4.11.2...v4.12.0) (2020-09-06)
+
+
+### Bug Fixes
+
+* **landing:** Don't use auto for svg height ([#1134](https://github.com/linz/basemaps/issues/1134)) ([0e5c551](https://github.com/linz/basemaps/commit/0e5c551999baf4d9973c14ddbbe563381bc2bd7f))
+
+
+
+
+
 ## [4.11.2](https://github.com/linz/basemaps/compare/v4.11.1...v4.11.2) (2020-09-01)
 
 **Note:** Version bump only for package @basemaps/landing
