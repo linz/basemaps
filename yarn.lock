@@ -3352,9 +3352,9 @@ es6-promisify@^5.0.0:
     es6-promise "^4.0.3"
 
 esbuild@^0.6.2:
-  version "0.6.30"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.6.30.tgz#8df921c12b1cd4f32aaabdd8130edf6b060f87ba"
-  integrity sha512-ZSZY461UPzTYYC3rqy1QiMtngk2WyXf+58MgC7tC22jkI90FXNgEl0hN3ipfn/UgZYzTW2GBcHiO7t0rSbHT7g==
+  version "0.6.32"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.6.32.tgz#f66d54f17cdb1b4699f9ecbd54ab73ef7b4febb3"
+  integrity sha512-jwEQR+iAgQQPYVs0uBuGLS2X9DCY9FBHpmsIZ7E3IdF9UTqisg718GvUqYetns8SG+LOae4jGNME8xiqXgbUjQ==
 
 escape-html@~1.0.3:
   version "1.0.3"
