@@ -19,7 +19,7 @@ jobs:
         run: node scripts/detect.unlinked.dep.js
 
       - name: Install
-        run: yarn
+        run: yarn  --frozen-lockfile --check-files
 
       - name: Audit
         run: npx check-audit --yarn
