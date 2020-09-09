@@ -3,5 +3,11 @@
   "packages": [
     "packages/*"
   ],
+  "command": {
+    "version": {
+      "yes": true,
+      "conventionalCommits": true
+    }
+  },
   "version": "4.12.0"
 }
