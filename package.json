@@ -34,12 +34,7 @@
     "packages/*"
   ],
   "resolutions": {
-    "acorn": "^7.1.1",
-    "https-proxy-agent": "^3.0.0",
     "minimist": "^1.2.3",
     "yargs-parser": "^18.1.2"
-  },
-  "dependencies": {
-    "https-proxy-agent": "^5.0.0"
   }
 }
