@@ -165,7 +165,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = 'oxWjinmkGeDsEoFBW1wZ1cUTXD1yth4gkJp5EsphoU8=';
+            const key = 'WRTGXw85Z/xuLdaxXyt6etDncwF+e++gW0grwjLvaD8=';
             const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
 
             const res = await handleRequest(request);

@@ -155,7 +155,7 @@ export class WmtsCapabilities {
         return V('Layer', [
             V('ows:Title', firstLayer.title),
             V('ows:Abstract', firstLayer.description),
-            V('ows:Identifier', firstLayer.taggedName + '-' + firstLayer.projection),
+            V('ows:Identifier', firstLayer.taggedName),
             ...layers.map((layer) => this.buildBoundingBox(getTileMatrixSet(layer.projection), layer.extent)),
             this.buildWgs84BoundingBox(layers),
             this.buildStyle(),

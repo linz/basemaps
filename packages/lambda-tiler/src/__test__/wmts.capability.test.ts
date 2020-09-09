@@ -56,7 +56,7 @@ o.spec('WmtsCapabilities', () => {
 
         o(layer?.find('ows:Abstract')?.textContent).equals('aerial:description');
         o(layer?.find('ows:Title')?.textContent).equals('aerial:title');
-        o(layer?.find('ows:Identifier')?.textContent).equals('aerial-3857');
+        o(layer?.find('ows:Identifier')?.textContent).equals('aerial');
 
         o(layer?.find('Style')?.toString()).equals(
             V('Style', { isDefault: 'true' }, [
@@ -108,7 +108,7 @@ o.spec('WmtsCapabilities', () => {
         o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            'qBC5TNmXDmxYhIS2SAJQwwWrHxXKjm7sk5K29LAOtt8=',
+            'aDpqI6aJX7lRXKYgeYVVGDHzSkvXY5Z84q4Oq34IGdk=',
         );
     });
 
@@ -214,7 +214,7 @@ o.spec('WmtsCapabilities', () => {
         o(layers[0].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
 
         o(layers[1].find('ows:Title')?.textContent).equals('override sub tileset 1');
-        o(layers[1].find('ows:Identifier')?.textContent).equals('01F75X9G7FQ3XMWPJFR9AMQFJ0-2193');
+        o(layers[1].find('ows:Identifier')?.textContent).equals('01F75X9G7FQ3XMWPJFR9AMQFJ0');
         o(layers[1].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
         o(layers[1].find('ows:BoundingBox')?.toString()).equals(
             '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::2193">\n' +
@@ -224,7 +224,7 @@ o.spec('WmtsCapabilities', () => {
         );
 
         o(layers[2].find('ows:Title')?.textContent).equals('aerial_dunedin_urban');
-        o(layers[2].find('ows:Identifier')?.textContent).equals('01E7PJFR9AMQFJ05X9G7FQ3XMW-3857');
+        o(layers[2].find('ows:Identifier')?.textContent).equals('01E7PJFR9AMQFJ05X9G7FQ3XMW');
         o(layers[2].find('TileMatrixSet')?.textContent).equals('EPSG:3857');
         o(layers[2].find('ows:BoundingBox')?.toString()).equals(
             '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::3857">\n' +
