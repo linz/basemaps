@@ -56,7 +56,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       # print what changed
-      - run: npx lerna changed
+      - run: npx lerna changed -a
 
       # create new version (& push to github)
       - run: npx lerna version --conventional-commits
