@@ -39,10 +39,23 @@ jobs:
       - name: Benchmark
         run: yarn run benchmark
 
+      - name: (Prod) Setup git config
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: (Prod) Create tag
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: |
+          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
+          git tag v${CURRENT_VERSION}
+          git push --tags
+
       - name: Deploy - Bundle
         run: npx lerna run bundle --stream
 
-      - name: Configure AWS Credentials (NonProd)
+      - name: (NonProd) Configure AWS Credentials 
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -52,7 +65,7 @@ jobs:
           mask-account-id: true
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_NON_PROD }}
 
-      - name: Deploy (NonProd)
+      - name: (NonProd) Deploy 
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
         run: npx lerna run deploy:deploy --stream
         env:
@@ -63,23 +76,13 @@ jobs:
           API_KEY: ${{secrets.API_KEY_NON_PROD}}
           LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
 
-      - name: Setup git config
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Create tag
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: ./scripts/tag.sh
-
-      - name: Publish NPM
+      - name: (Prod) Publish NPM
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx lerna publish from-git --yes
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: Configure AWS Credentials (Prod)
+      - name: (Prod) Configure AWS Credentials 
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -89,7 +92,7 @@ jobs:
           mask-account-id: true
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_PROD }}
 
-      - name: Deploy (Prod)
+      - name: (Prod) Deploy
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx lerna run deploy:deploy --stream
         env:
