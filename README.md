@@ -30,3 +30,13 @@ yarn run test
 ## License
 
 This system is licensed under the MIT License, except where otherwise specified. See the [LICENSE](https://github.com/linz/basemaps/blob/master/LICENSE) file for more details.
+
+
+## Deployment
+
+Deployments of Basemaps are managed with github actions.
+
+To trigger a deployment, make sure your branch is up to date and run the version bump script [./scripts/version.bump.sh](./scripts/version.bump.sh)
+This script will create a `release:` commit and branch, please review the commit then create a pull request from it.
+
+Once the release pull request is merged the CI system will deploy the released version into dev then into production.
