@@ -92,6 +92,13 @@ o.spec('xyz-request', () => {
             o(getUrlHost('http://localhost:12344/bar/baz')).equals('localhost');
         });
 
+        o('should normalize www.foo.com and foo.com ', () => {
+            o(getUrlHost('https://www.foo.com/')).equals('foo.com');
+            o(getUrlHost('https://bar.foo.com/')).equals('bar.foo.com');
+            o(getUrlHost('https://www3.foo.com/')).equals('www3.foo.com');
+            o(getUrlHost('https://foo.com/')).equals('foo.com');
+        });
+
         o('should not die with badly formatted urls', () => {
             o(getUrlHost('foo/bar')).equals('foo/bar');
             o(getUrlHost('some weird text')).equals('some weird text');
