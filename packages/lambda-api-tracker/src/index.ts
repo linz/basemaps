@@ -6,8 +6,10 @@ import { ValidateRequest } from './validate';
 export function getUrlHost(ref: string | undefined): string | undefined {
     if (ref == null) return ref;
     try {
-        const url = new URL(ref);
-        if (url.hostname) return url.hostname;
+        const { hostname } = new URL(ref);
+        if (hostname == null) return ref;
+        if (hostname.startsWith('www.')) return hostname.slice(4);
+        return hostname;
     } catch (e) {
         // Ignore
     }

@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/infra",
-  "version": "4.12.2",
+  "version": "4.13.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -32,9 +32,9 @@
     "@aws-cdk/aws-lambda-event-sources": "> 1.54.0",
     "@aws-cdk/aws-s3": "> 1.54.0",
     "@aws-cdk/core": "> 1.54.0",
-    "@basemaps/lambda-api-tracker": "^4.12.2",
-    "@basemaps/lambda-tiler": "^4.12.2",
-    "@basemaps/shared": "^4.12.2",
+    "@basemaps/lambda-api-tracker": "^4.13.0",
+    "@basemaps/lambda-tiler": "^4.13.0",
+    "@basemaps/shared": "^4.13.0",
     "@linzjs/cdk-elastic-shipper": "^0.6.1",
     "aws-cdk": "^1.58.0"
   }
