@@ -28,8 +28,7 @@ export interface CogSummaries {
 }
 
 export const CogStacKeywords = ['Imagery', 'New Zealand'];
-export const CogStacItemExtensions = ['proj'];
-export const CogStacExtensions = ['proj', 'linz'];
+export const CogStacItemExtensions = ['projection'];
 
 /** STAC compliant structure for storing Job instructions */
 export type CogStac = StacCollection<CogSummaries>;

@@ -5,6 +5,7 @@ import {
     FileConfigPath,
     FileOperator,
     ProjectionTileMatrixSet,
+    StacBaseMapsExtension,
     StacCollection,
     StacLicense,
     StacLink,
@@ -15,7 +16,7 @@ import {
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
 import { CliInfo } from '../cli/base.cli';
 import { GdalCogBuilderDefaults, GdalCogBuilderResampling } from '../gdal/gdal.config';
-import { CogStac, CogStacExtensions, CogStacItem, CogStacItemExtensions, CogStacKeywords } from './stac';
+import { CogStac, CogStacItem, CogStacItemExtensions, CogStacKeywords } from './stac';
 import {
     CogBuilderMetadata,
     CogJob,
@@ -150,7 +151,17 @@ export class CogStacJob implements CogJob {
             description = sourceStac.description;
             interval.push(...(sourceStac.extent?.temporal?.interval ?? []));
             links.push({ href: sourceCollectionPath, rel: 'sourceImagery', type: 'application/json' });
-            if (sourceStac.providers != null) providers.push(...sourceStac.providers);
+            if (sourceStac.providers != null) {
+                for (const p of sourceStac.providers) {
+                    if (p.roles.indexOf('host') == -1) {
+                        if (p.url === 'unknown') {
+                            // LINZ LDS has put unknown in some urls
+                            p.url = undefined;
+                        }
+                        providers.push(p);
+                    }
+                }
+            }
         } catch (err) {
             if (!FileOperator.isCompositeError(err) || err.code !== 404) {
                 throw err;
@@ -159,6 +170,10 @@ export class CogStacJob implements CogJob {
         const keywords = sourceStac.keywords ?? CogStacKeywords.slice();
         const license = sourceStac.license ?? StacLicense;
         const title = sourceStac.title ?? titleizeImageryName(imageryName);
+
+        if (description == null) {
+            description = 'No description';
+        }
 
         const job = new CogStacJob({
             id,
@@ -191,9 +206,11 @@ export class CogStacJob implements CogJob {
 
         const sourceProj = job.sourcePtms.proj;
 
-        const bbox = sourceProj.boundsToWgs84BoundingBox(
-            metadata.bounds.map((a) => Bounds.fromJson(a)).reduce((sum, a) => sum.union(a)),
-        );
+        const bbox = [
+            sourceProj.boundsToWgs84BoundingBox(
+                metadata.bounds.map((a) => Bounds.fromJson(a)).reduce((sum, a) => sum.union(a)),
+            ),
+        ];
 
         if (interval.length == 0) {
             const years = extractYearRangeFromName(imageryName);
@@ -218,7 +235,7 @@ export class CogStacJob implements CogJob {
             title,
             description,
             stac_version: StacVersion,
-            stac_extensions: CogStacExtensions,
+            stac_extensions: [StacBaseMapsExtension],
 
             extent: {
                 spatial: {

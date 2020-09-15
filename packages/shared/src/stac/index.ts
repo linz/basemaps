@@ -1,5 +1,7 @@
-export const StacVersion = '1.0.0';
+export const StacVersion = '1.0.0-beta.2';
 export const StacLicense = 'CC-BY-4.0';
+export const StacBaseMapsExtension =
+    'https://basemaps.linz.govt.nz/json-schema/stac-basemaps-extension/1.0/schema.json';
 
 export interface StacLink {
     rel: string;
@@ -19,7 +21,7 @@ export interface StacAsset {
 export interface StacProvider {
     name: string;
     roles: string[];
-    url: string;
+    url?: string;
 }
 
 export interface StacObject {
@@ -35,13 +37,13 @@ export interface StacObject {
 
 export interface StacCollection<S = Record<string, any>> extends StacObject {
     title: string;
-    description?: string;
+    description: string;
 
     license: string;
 
     extent: {
         spatial: {
-            bbox: [number, number, number, number];
+            bbox: [number, number, number, number][];
         };
         temporal?: {
             interval: [string, string][];

@@ -1,5 +1,5 @@
 import { Bounds, EpsgCode } from '@basemaps/geo';
-import { FileOperator, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { FileOperator, ProjectionTileMatrixSet, StacBaseMapsExtension, StacVersion } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
@@ -70,7 +70,10 @@ o.spec('CogJob', () => {
                     temporal: { interval: [['2020-01-01T00:00:00.000', '2020-08-08T19:18:23.456Z']] },
                 },
 
-                providers: [{ name: 'provider name', roles: ['role1'], url: 'provider-url' }],
+                providers: [
+                    { name: 'provider name', roles: ['licensor'], url: 'https://provider.com' },
+                    { name: 'unknown url', roles: ['processor'], url: 'unknown' },
+                ],
             };
             const job = await CogStacJob.create({ id, imageryName, metadata, ctx, addAlpha, cutlinePoly: [] });
             o(job.getJobPath('job.json')).equals(jobPath + '/job.json');
@@ -84,14 +87,17 @@ o.spec('CogJob', () => {
             o(stac.description).equals('The Description');
             o(stac.license).equals('The License');
             o(stac.keywords).deepEquals(['keywords']);
-            o(stac.providers).deepEquals([{ name: 'provider name', roles: ['role1'], url: 'provider-url' }]);
+            o(stac.providers).deepEquals([
+                { name: 'provider name', roles: ['licensor'], url: 'https://provider.com' },
+                { name: 'unknown url', roles: ['processor'], url: undefined },
+            ]);
             o(stac.links[2]).deepEquals({
                 href: 's3://source-bucket/path/collection.json',
                 rel: 'sourceImagery',
                 type: 'application/json',
             });
             o(round(stac.extent, 4)).deepEquals({
-                spatial: { bbox: [169.3341, -51.8754, -146.1432, -32.8952] },
+                spatial: { bbox: [[169.3341, -51.8754, -146.1432, -32.8952]] },
                 temporal: {
                     interval: [['2020-01-01T00:00:00.000', '2020-08-08T19:18:23.456Z']],
                 },
@@ -119,7 +125,7 @@ o.spec('CogJob', () => {
                 id: 'jobid1',
                 name: 'auckland_rural_2010-2012_0-50m',
                 title: 'Auckland rural 2010-2012 0.50m',
-                description: undefined,
+                description: 'No description',
                 source: {
                     gsd: 0.075,
                     epsg: 2193,
@@ -176,11 +182,11 @@ o.spec('CogJob', () => {
             const exp = {
                 id: 'jobid1',
                 title: 'Auckland rural 2010-2012 0.50m',
-                description: undefined,
-                stac_version: '1.0.0',
-                stac_extensions: ['proj', 'linz'],
+                description: 'No description',
+                stac_version: StacVersion,
+                stac_extensions: [StacBaseMapsExtension],
                 extent: {
-                    spatial: { bbox: [169.3341, -51.8754, -146.1432, -32.8952] },
+                    spatial: { bbox: [[169.3341, -51.8754, -146.1432, -32.8952]] },
                     temporal: { interval: [['2010-01-01T00:00:00Z', '2011-01-01T00:00:00Z']] },
                 },
                 license: 'CC-BY-4.0',
@@ -270,8 +276,8 @@ o.spec('CogJob', () => {
                 bbox: [0, 0, 0, 0],
                 id: 'jobid1/0-0-0',
                 collection: 'jobid1',
-                stac_version: '1.0.0',
-                stac_extensions: ['proj'],
+                stac_version: StacVersion,
+                stac_extensions: ['projection'],
                 links: [
                     { href: jobPath + '/0-0-0.json', rel: 'self' },
                     { href: 'collection.json', rel: 'collection' },

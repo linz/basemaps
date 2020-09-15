@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://basemaps.linz.govt.nz/json-schema/stac-basemaps-extension/1.0/schema.json#",
+  "title": "LINZ Basemaps Extension",
+  "description": "STAC LINZ Basemaps extension to a SATC item and STAC collection.",
+  "oneOf": [
+    {
+      "allOf": [
+        {
+          "$ref": "https://schemas.stacspec.org/v1.0.0-beta.2/item-spec/json-schema/item.json"
+        },
+        {
+          "$ref": "#/definitions/common"
+        },
+        {
+          "$ref": "#/definitions/item"
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "https://schemas.stacspec.org/v1.0.0-beta.2/collection-spec/json-schema/collection.json"
+        },
+        {
+          "$ref": "#/definitions/common"
+        },
+        {
+          "$ref": "#/definitions/collection"
+        }
+      ]
+    }
+  ],
+  "definitions": {
+    "common": {
+      "type": "object",
+      "required": [
+        "stac_extensions"
+      ],
+      "properties": {
+        "stac_extensions": {
+          "type": "array",
+          "contains": {
+            "enum": [
+              "https://basemaps.linz.govt.nz/json-schema/stac-basemaps-extension/1.0/schema.json"
+            ]
+          }
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "linz:gdal:version": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "collection": {
+      "type": "object",
+      "properties": {
+        "summaries": {
+          "type": "object",
+          "properties": {
+            "proj:epsg": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "linz:output": {
+              "type": "array",
+              "contains": {
+                "properties": {
+                  "resampling": {
+                    "type": "object",
+                    "properties": {
+                      "warp": {
+                        "type": "string"
+                      },
+                      "overview": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "quality": {
+                    "type": "number"
+                  },
+                  "cutlineBlend": {
+                    "type": "number"
+                  },
+                  "addAlpha": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "linz:generated": {
+              "type": "array",
+              "contains": {
+                "properties": {
+                  "package": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "hash": {
+                    "type": "string"
+                  },
+                  "datetime": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
