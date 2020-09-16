@@ -1,11 +1,11 @@
 import { Vpc } from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
-import * as cdk from '@aws-cdk/core';
 import * as firehose from '@aws-cdk/aws-kinesisfirehose';
 import * as s3 from '@aws-cdk/aws-s3';
 import { StringParameter } from '@aws-cdk/aws-ssm';
-import { LambdaLogShipperFunction, LogObject } from '@linzjs/cdk-elastic-shipper';
+import * as cdk from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
+import { LambdaLogShipperFunction, LogObject } from '@linzjs/cdk-elastic-shipper';
 import { DeployEnv } from '../deploy.env';
 
 const ConfigName = `/es-shipper-config/accounts`;
