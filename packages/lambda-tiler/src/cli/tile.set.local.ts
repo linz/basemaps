@@ -11,6 +11,7 @@ function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
     if (FileOperator.isS3Processor(fs)) {
         return tiffList.map((path) => {
             const { bucket, key } = fs.parse(path);
+            if (key == null) throw new Error(`Unable to find tiff: ${path}`);
             // Use the same s3 credentials to access the files that were used to list them
             return new CogSourceAwsS3(bucket, key, fs.s3);
         });

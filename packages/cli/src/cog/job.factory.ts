@@ -46,6 +46,7 @@ export const CogJobFactory = {
         if (FileOperator.isS3Processor(sourceFs)) {
             tiffSource = tiffList.map((path) => {
                 const { bucket, key } = sourceFs.parse(path);
+                if (key == null) throw new Error(`Failed to read tiff from uri: "${path}"`);
                 // Use the same s3 credentials to access the files that were used to list them
                 return new CogSourceAwsS3(bucket, key, sourceFs.s3);
             });
