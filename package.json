@@ -22,24 +22,21 @@
     "@types/aws-lambda": "^8.10.43",
     "@types/node": "^13.9.8",
     "@types/ospec": "^4.0.2",
-    "esbuild": "^0.6.2",
+    "@types/sinon": "^9.0.5",
+    "esbuild": "^0.7.1",
     "lerna": "^3.20.2",
     "npm-audit-resolver": "^2.2.0",
     "ospec": "^4.0.1",
     "prettier": "^2.0.2",
     "rimraf": "^3.0.0",
+    "sinon": "^9.0.3",
     "zod": "^1.10.1"
   },
   "workspaces": [
     "packages/*"
   ],
   "resolutions": {
-    "acorn": "^7.1.1",
-    "https-proxy-agent": "^3.0.0",
     "minimist": "^1.2.3",
     "yargs-parser": "^18.1.2"
-  },
-  "dependencies": {
-    "https-proxy-agent": "^5.0.0"
   }
 }

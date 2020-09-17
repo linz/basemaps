@@ -1,18 +1,6 @@
 import { LambdaContext, LambdaFunction, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
-import { LogConfig, tileFromPath, TileType } from '@basemaps/shared';
+import { LogConfig, tileFromPath, TileType, getUrlHost } from '@basemaps/shared';
 import { ValidateRequest } from './validate';
-
-/** Extract the hostname from a url */
-export function getUrlHost(ref: string | undefined): string | undefined {
-    if (ref == null) return ref;
-    try {
-        const url = new URL(ref);
-        if (url.hostname) return url.hostname;
-    } catch (e) {
-        // Ignore
-    }
-    return ref;
-}
 
 /**
  * Validate a CloudFront request has a valid API key and is not abusing the system

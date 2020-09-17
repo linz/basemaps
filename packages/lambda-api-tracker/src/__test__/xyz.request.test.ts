@@ -1,8 +1,8 @@
-import { LogConfig } from '@basemaps/shared';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { LogConfig } from '@basemaps/shared';
 import { CloudFrontRequestResult } from 'aws-lambda';
 import o from 'ospec';
-import { handleRequest, getUrlHost } from '../index';
+import { handleRequest } from '../index';
 import { ValidateRequest } from '../validate';
 
 o.spec('xyz-request', () => {
@@ -78,24 +78,6 @@ o.spec('xyz-request', () => {
                 },
             ],
             'x-linz-request-id': [{ key: 'x-linz-request-id', value: String(res.header(HttpHeader.RequestId)) }],
-        });
-    });
-
-    o.spec('getUrlHost', () => {
-        o("should normalize referer's", () => {
-            o(getUrlHost('https://127.0.0.244/')).equals('127.0.0.244');
-            o(getUrlHost('https://foo.d/')).equals('foo.d');
-            o(getUrlHost('https://foo.d/bar/baz.html?q=1234')).equals('foo.d');
-            o(getUrlHost('http://foo.d/bar/baz.html?q=1234')).equals('foo.d');
-            o(getUrlHost('http://basemaps.linz.govt.nz/?p=2193')).equals('basemaps.linz.govt.nz');
-            o(getUrlHost('s3://foo/bar/baz')).equals('foo');
-            o(getUrlHost('http://localhost:12344/bar/baz')).equals('localhost');
-        });
-
-        o('should not die with badly formatted urls', () => {
-            o(getUrlHost('foo/bar')).equals('foo/bar');
-            o(getUrlHost('some weird text')).equals('some weird text');
-            o(getUrlHost(undefined)).equals(undefined);
         });
     });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda",
-  "version": "4.12.0",
+  "version": "4.13.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
   },
   "dependencies": {
-    "@basemaps/shared": "^4.12.0",
+    "@basemaps/shared": "^4.13.0",
     "@linzjs/metrics": "^4.12.0",
     "source-map-support": "^0.5.19",
     "ulid": "^2.3.0"
