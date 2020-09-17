@@ -1,3 +1,5 @@
+export const BaseMapsRegion = 'ap-southeast-2';
+
 export interface BaseMapsConfig {
     /** S3 bucket where all the cogs are stored */
     CogBucket: string[];
