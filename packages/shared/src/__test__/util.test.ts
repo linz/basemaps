@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { extractYearRangeFromName, s3ToVsis3 } from '../util';
+import { extractYearRangeFromName, getUrlHost, s3ToVsis3 } from '../util';
 
 o.spec('util', () => {
     o('extractYearRangeFromName', () => {
@@ -16,5 +16,30 @@ o.spec('util', () => {
         o(s3ToVsis3('s3://rest/of/path')).equals('/vsis3/rest/of/path');
         o(s3ToVsis3('s3:/rest/of/path')).equals('s3:/rest/of/path');
         o(s3ToVsis3('/s3://rest/of/path')).equals('/s3://rest/of/path');
+    });
+
+    o.spec('getUrlHost', () => {
+        o("should normalize referer's", () => {
+            o(getUrlHost('https://127.0.0.244/')).equals('127.0.0.244');
+            o(getUrlHost('https://foo.d/')).equals('foo.d');
+            o(getUrlHost('https://foo.d/bar/baz.html?q=1234')).equals('foo.d');
+            o(getUrlHost('http://foo.d/bar/baz.html?q=1234')).equals('foo.d');
+            o(getUrlHost('http://basemaps.linz.govt.nz/?p=2193')).equals('basemaps.linz.govt.nz');
+            o(getUrlHost('s3://foo/bar/baz')).equals('foo');
+            o(getUrlHost('http://localhost:12344/bar/baz')).equals('localhost');
+        });
+
+        o('should normalize www.foo.com and foo.com ', () => {
+            o(getUrlHost('https://www.foo.com/')).equals('foo.com');
+            o(getUrlHost('https://bar.foo.com/')).equals('bar.foo.com');
+            o(getUrlHost('https://www3.foo.com/')).equals('www3.foo.com');
+            o(getUrlHost('https://foo.com/')).equals('foo.com');
+        });
+
+        o('should not die with badly formatted urls', () => {
+            o(getUrlHost('foo/bar')).equals('foo/bar');
+            o(getUrlHost('some weird text')).equals('some weird text');
+            o(getUrlHost(undefined)).equals(undefined);
+        });
     });
 });

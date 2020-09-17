@@ -34,6 +34,10 @@ export class ServeStack extends cdk.Stack {
         const targetLambda = new targets.LambdaTarget(lambda.lambda);
         const targetGroup = new elbv2.ApplicationTargetGroup(this, 'TargetGroup', {
             targets: [targetLambda],
+            healthCheck: {
+                path: '/health',
+                healthyThresholdCount: 2,
+            },
         });
         lb.addListener('HttpListener', {
             port: 80,
