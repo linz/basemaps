@@ -38,6 +38,12 @@ export const Env = {
         DockerContainerTag: 'GDAL_DOCKER_CONTAINER_TAG',
     },
 
+    Analytics: {
+        CloudFrontId: 'ANALYTICS_CLOUD_FRONT_ID',
+        CloudFrontSourceBucket: 'ANALYTICS_CLOUD_FRONT_SOURCE_BUCKET',
+        CacheBucket: 'ANALYTICS_CACHE_BUCKET',
+    },
+
     /** Load a environment var defaulting to defaultOutput if it does not exist  */
     get(envName: string): string | undefined {
         return process.env[envName];
