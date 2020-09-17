@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.14.0](https://github.com/linz/basemaps/compare/v4.13.0...v4.14.0) (2020-09-17)
+
+
+### Features
+
+* **infra:** check the health of the tiler every 30 seconds ([#1164](https://github.com/linz/basemaps/issues/1164)) ([b87dd18](https://github.com/linz/basemaps/commit/b87dd18b580208c63084f7975540679ef8adecaf))
+* **lambda-analytics:** generate rolledup analyitics from cloudwatchedge logs ([#1180](https://github.com/linz/basemaps/issues/1180)) ([20fd5b1](https://github.com/linz/basemaps/commit/20fd5b1983b16fc1fcb1b731152da36430fedc63))
+
+
+
+
+
 # [4.13.0](https://github.com/linz/basemaps/compare/v4.12.2...v4.13.0) (2020-09-14)
 
 **Note:** Version bump only for package @basemaps/infra
