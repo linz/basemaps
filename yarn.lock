@@ -8276,12 +8276,7 @@ zip-stream@^3.0.1:
     compress-commons "^3.0.0"
     readable-stream "^3.6.0"
 
-zod@^1.10.0:
+zod@^1.10.0, zod@^1.10.1:
   version "1.11.8"
   resolved "https://registry.yarnpkg.com/zod/-/zod-1.11.8.tgz#5e6b2eb3114c73d5043889fa9dfbab0b60a93ff6"
   integrity sha512-iusmIB00ll0Fxzyhrp8EJPaJDTSyQMKMCwk2hH2XrtgY/QcygPJTX13fSof/r7b4hL5cBeN5aeVl6WN1xpr90g==
-
-zod@^1.10.1:
-  version "1.11.5"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-1.11.5.tgz#7e415474ff691289e8d714a68b69ac9a285f2864"
-  integrity sha512-wtVHhYZi9OTvnokOy9dv1x6lI1mn+fntcr8vB5+9DOPkWbKA3nkcaVnDaMrRpMrulW1y47Nf0iJ1q63u6xPuyg==
