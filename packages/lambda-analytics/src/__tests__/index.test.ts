@@ -3,6 +3,7 @@ import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { FileProcess } from '../file.process';
 import { dateByHour, FirstLog, getStartDate, handler, s3fs } from '../index';
+import { TileRollupVersion } from '../stats';
 import { ExampleLogs, lineReader } from './file.process.test';
 
 LogConfig.get().level = 'silent';
@@ -98,13 +99,13 @@ o.spec('handler', () => {
 
         // Should write one cache file
         o(writeStub.callCount).equals(2);
-        o(writeStub.args[0][0]).equals('s3://analytics-cache/RollUpV0/2020-07-28T01.ndjson');
-        o(writeStub.args[1][0]).equals('s3://analytics-cache/RollUpV0/2020-07-28T02.ndjson');
+        o(writeStub.args[0][0]).equals(`s3://analytics-cache/RollUpV${TileRollupVersion}/2020-07-28T01.ndjson`);
+        o(writeStub.args[1][0]).equals(`s3://analytics-cache/RollUpV${TileRollupVersion}/2020-07-28T02.ndjson`);
 
         // Will do lots of lists upto todays date to find more data
         o(listStub.callCount > 100).equals(true);
 
-        o(listStub.args[0][0]).equals('s3://analytics-cache/RollUpV0/');
+        o(listStub.args[0][0]).equals(`s3://analytics-cache/RollUpV${TileRollupVersion}/`);
         o(listStub.args[1][0]).equals('s3://cloudfront-logs/E1WKYJII8YDTO0.2020-07-28-01');
         o(listStub.args[2][0]).equals('s3://cloudfront-logs/E1WKYJII8YDTO0.2020-07-28-02');
         o(listStub.args[3][0]).equals('s3://cloudfront-logs/E1WKYJII8YDTO0.2020-07-28-03');
