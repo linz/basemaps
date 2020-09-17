@@ -112,8 +112,8 @@ export async function handler(): Promise<void> {
         const cacheKey = s3fs.join(CacheFolder, nextDateToProcess + '.ndjson');
         await s3fs.write(s3fs.join(CacheLocation, cacheKey), Buffer.from(output.join('\n')));
         processedCount++;
-        if (hourCount > 24) {
-            Logger.warn({ hourCount }, 'Processed more than 24 hours, stopping');
+        if (hourCount > 24 * 7) {
+            Logger.warn({ hourCount }, 'Processed more than 7 days, stopping');
             break;
         }
     }
