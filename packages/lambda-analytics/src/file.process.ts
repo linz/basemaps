@@ -1,4 +1,4 @@
-import { LogType } from '@basemaps/shared';
+import { LogType, getUrlHost } from '@basemaps/shared';
 import { createInterface, Interface } from 'readline';
 import { createGunzip } from 'zlib';
 import { s3fs } from './index';
@@ -18,8 +18,9 @@ export const FileProcess = {
             const time = lineData[1];
             const uri = lineData[7];
             const status = lineData[8];
+            const referer = lineData[9] === '-' ? undefined : getUrlHost(lineData[9]);
             const query = lineData[11];
-            const hit = lineData[13] == 'Hit' || lineData[13] == 'RefreshHit';
+            const hit = lineData[13] === 'Hit' || lineData[13] === 'RefreshHit';
 
             // Ignore requests which are not tile requests
             if (!uri.startsWith('/v1')) continue;
@@ -28,10 +29,10 @@ export const FileProcess = {
                 logger.info({ uri, query }, 'NoApiKey');
                 continue;
             }
-            // TODO This could be switched to a URI parser
+            // TODO This could be switched to a QueryString parser
             const endIndex = query.indexOf('&');
             const apiKey = query.slice('api='.length, endIndex == -1 ? query.length : endIndex);
-            ls.track(apiKey, uri.toLowerCase(), parseInt(status), hit);
+            ls.track(apiKey, referer, uri.toLowerCase(), parseInt(status), hit);
         }
     },
 };
