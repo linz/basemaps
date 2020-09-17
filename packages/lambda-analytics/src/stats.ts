@@ -1,11 +1,13 @@
 /** Changing this number will cause all the statistics to be recomputed */
-export const TileRollupVersion = 0;
+export const TileRollupVersion = 1;
 
 export interface TileRequestStats {
     /** Time of the rollup */
     timestamp: string;
     /** Api Key used */
     api: string;
+    /** Referral uri  */
+    referer: string | undefined;
     /** Type of api key (first character generally `c` for client generated or `d` for developer) */
     apiType: string;
     /** Total number of hits */
@@ -24,10 +26,11 @@ export interface TileRequestStats {
     generated: { v: number; hash?: string; version?: string };
 }
 
-function newStat(timestamp: string, api: string): TileRequestStats {
+function newStat(timestamp: string, api: string, referer: string | undefined): TileRequestStats {
     return {
         timestamp,
         api,
+        referer,
         apiType: api.charAt(0),
         total: 0,
         status: {},
@@ -83,7 +86,7 @@ function track(stat: TileRequestStats, uri: string, status: number, isHit: boole
 
 export class LogStats {
     date: string;
-    byApi = new Map<string, TileRequestStats>();
+    stats = new Map<string, TileRequestStats>();
 
     constructor(date: string) {
         this.date = date;
@@ -100,12 +103,17 @@ export class LogStats {
         return existing;
     }
 
-    track(apiKey: string, uri: string, status: number, isHit: boolean): void {
-        let existing = this.byApi.get(apiKey);
+    getStats(apiKey: string, referer?: string): TileRequestStats {
+        const statId = `${apiKey}_${referer}`;
+        let existing = this.stats.get(statId);
         if (existing == null) {
-            existing = newStat(this.date, apiKey);
-            this.byApi.set(apiKey, existing);
+            existing = newStat(this.date, apiKey, referer);
+            this.stats.set(statId, existing);
         }
-        track(existing, uri, status, isHit);
+        return existing;
+    }
+
+    track(apiKey: string, referer: string | undefined, uri: string, status: number, isHit: boolean): void {
+        track(this.getStats(apiKey, referer), uri, status, isHit);
     }
 }
