@@ -43,3 +43,17 @@ export function extractYearRangeFromName(name: string): [number, number] {
 export function s3ToVsis3(name: string): string {
     return name.startsWith('s3://') ? '/vsis3/' + name.slice('s3://'.length) : name;
 }
+
+/** Extract the hostname from a url */
+export function getUrlHost(ref: string | undefined): string | undefined {
+    if (ref == null) return ref;
+    try {
+        const { hostname } = new URL(ref);
+        if (hostname == null) return ref;
+        if (hostname.startsWith('www.')) return hostname.slice(4);
+        return hostname;
+    } catch (e) {
+        // Ignore
+    }
+    return ref;
+}

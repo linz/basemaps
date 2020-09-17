@@ -36,7 +36,7 @@ export class ServeStack extends cdk.Stack {
             targets: [targetLambda],
             healthCheck: {
                 path: '/health',
-                healthyThresholdCount: 1,
+                healthyThresholdCount: 2,
             },
         });
         lb.addListener('HttpListener', {

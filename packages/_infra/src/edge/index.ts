@@ -1,10 +1,12 @@
 import cdk = require('@aws-cdk/core');
 import cf = require('@aws-cdk/aws-cloudfront');
 import s3 = require('@aws-cdk/aws-s3');
+import { Bucket } from '@aws-cdk/aws-s3';
 import { Env } from '@basemaps/shared';
+import { getConfig } from '../config';
 import { DeployEnv } from '../deploy.env';
 import { LambdaApiKeyValidator } from './lambda.edge.api.key';
-import { getConfig } from '../config';
+import { Parameters } from '../parameters';
 
 /**
  * Edge infrastructure
@@ -15,6 +17,9 @@ import { getConfig } from '../config';
  */
 export class EdgeStack extends cdk.Stack {
     public lambda: LambdaApiKeyValidator;
+    public logBucket: Bucket;
+    public distribution: cf.CloudFrontWebDistribution;
+
     public constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
@@ -71,16 +76,22 @@ export class EdgeStack extends cdk.Stack {
             new cdk.CfnOutput(this, 'CloudFrontPublicDomain', { value: config.CloudFrontDns.join(', ') });
         }
 
-        const dist = new cf.CloudFrontWebDistribution(this, 'Distribution', {
+        this.logBucket = new s3.Bucket(this, 'EdgeLogBucket');
+
+        this.distribution = new cf.CloudFrontWebDistribution(this, 'Distribution', {
             aliasConfiguration,
             priceClass: cf.PriceClass.PRICE_CLASS_ALL,
             httpVersion: cf.HttpVersion.HTTP2,
             viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
             originConfigs: [s3Source, tileSource],
-            loggingConfig: { bucket: new s3.Bucket(this, 'EdgeLogBucket') },
+            loggingConfig: { bucket: this.logBucket },
         });
 
+        new cdk.CfnOutput(this, Parameters.Edge.LogBucketName.cfnOutput, { value: this.logBucket.bucketName });
+        new cdk.CfnOutput(this, Parameters.Edge.DistributionId.cfnOutput, { value: this.distribution.distributionId });
+
         new cdk.CfnOutput(this, 'CloudFrontBucket', { value: s3BucketSource.bucketName });
-        new cdk.CfnOutput(this, 'CloudFrontDomain', { value: dist.domainName });
+        new cdk.CfnOutput(this, 'CloudFrontId', { value: this.distribution.distributionDomainName });
+        new cdk.CfnOutput(this, 'CloudFrontDomain', { value: this.distribution.distributionDomainName });
     }
 }
