@@ -1,0 +1,35 @@
+{
+  "name": "@basemaps/lambda-analytics",
+  "version": "4.13.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/lambda-analytics"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@basemaps/shared": "^4.13.0",
+    "@linzjs/s3fs": "^4.12.0"
+  },
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
+    "bundle": "../../scripts/bundle.js package.json"
+  },
+  "devDependencies": {
+    "@types/node": "^13.9.8"
+  },
+  "bundle": {
+    "entry": "src/index.ts",
+    "outdir": "dist/",
+    "external": [
+      "aws-sdk",
+      "pino-pretty"
+    ]
+  }
+}

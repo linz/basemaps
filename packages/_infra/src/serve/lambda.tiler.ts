@@ -28,7 +28,7 @@ export class LambdaTiler extends cdk.Construct {
             memorySize: 2048,
             timeout: Duration.seconds(10),
             handler: 'index.handler',
-            code: lambda.Code.asset(CODE_PATH),
+            code: lambda.Code.fromAsset(CODE_PATH),
             environment: {
                 [Env.PublicUrlBase]: config.PublicUrlBase,
             },
