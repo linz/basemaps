@@ -2,12 +2,16 @@ import { Env, LogConfig } from '@basemaps/shared';
 import { S3Fs } from '@linzjs/s3fs';
 import PLimit from 'p-limit';
 import { FileProcess } from './file.process';
-import { LogStats } from './stats';
-import { TileRollupVersion } from './stats';
+import { CacheExtension, CacheFolder, LogStartDate, LogStats } from './stats';
 
 const Logger = LogConfig.get();
 
-const Q = PLimit(5); // Process 5 files at a time
+// Threads to run, 5 hours at a time with 5 files at a time
+export const Q = {
+    file: PLimit(5),
+    time: PLimit(5),
+};
+
 export const s3fs = new S3Fs();
 
 export function* dateByHour(startDate: number): Generator<number> {
@@ -16,36 +20,25 @@ export function* dateByHour(startDate: number): Generator<number> {
     currentDate.setUTCSeconds(0);
     currentDate.setUTCMilliseconds(0);
     while (true) {
-        currentDate.setUTCHours(currentDate.getUTCHours() + 1);
         yield currentDate.getTime();
+        currentDate.setUTCHours(currentDate.getUTCHours() + 1);
     }
 }
 
-const CacheFolder = `RollUpV${TileRollupVersion}/`;
-const CacheExtension = '.ndjson';
-
 /** Look at the existing files in the cache bucket and find the latest cache file */
-export async function getStartDate(cachePath: string): Promise<number> {
+export async function listCacheFolder(cachePath: string): Promise<Set<string>> {
+    const existingFiles: Set<string> = new Set();
     // Find where the last script finished processing
-    let startTime = new Date(FirstLog).getTime();
     const cachePathList = s3fs.join(cachePath, CacheFolder);
     if (s3fs.isS3(cachePathList) || (await s3fs.exists(cachePathList))) {
         const existing = await s3fs.list(cachePathList);
         for (const file of existing) {
             if (!file.endsWith(CacheExtension)) continue;
-            const cacheFileName = file.split('/').pop()?.replace(CacheExtension, '');
-            if (cacheFileName == null) continue;
-
-            const cacheDate = new Date(cacheFileName + ':00:00.000Z');
-            if (isNaN(cacheDate.getTime())) continue;
-            if (cacheDate.getTime() > startTime) startTime = cacheDate.getTime();
+            existingFiles.add(file.replace(cachePathList, '').replace(CacheExtension, ''));
         }
     }
-    return startTime;
+    return existingFiles;
 }
-
-// Date of the first log line to look for (About when basemap's started logging to cloudFront)
-export const FirstLog = '2020-07-28T00:00:00.000Z';
 
 export async function handler(): Promise<void> {
     const SourceLocation = process.env[Env.Analytics.CloudFrontSourceBucket];
@@ -56,7 +49,8 @@ export async function handler(): Promise<void> {
     if (CacheLocation == null) throw new Error(`Missing $${Env.Analytics.CacheBucket}`);
     if (CloudFrontId == null) throw new Error(`Missing $${Env.Analytics.CloudFrontId}`);
 
-    const startTime = await getStartDate(CacheLocation);
+    const existingFiles = await listCacheFolder(CacheLocation);
+    Logger.debug({ existingFiles: existingFiles.size }, 'ListedCache');
 
     // Process up to about a hour ago
     const MaxDate = new Date();
@@ -66,55 +60,56 @@ export async function handler(): Promise<void> {
     MaxDate.setUTCHours(MaxDate.getUTCHours() - 1);
 
     // number of hours processed
-    let hourCount = 0;
     let processedCount = 0;
+    const MaxToProcess = 24 * 7 * 4;
+
+    const promises: Promise<void>[] = [];
 
     // Hour by hour look for new log lines upto about a hour ago
-    for (const nextHour of dateByHour(startTime)) {
-        hourCount++;
+    for (const nextHour of dateByHour(LogStartDate.getTime())) {
+        if (processedCount >= MaxToProcess) break;
 
-        if (hourCount > 100) break;
         const startAt = new Date(nextHour).toISOString();
-        Logger.trace({ startAt, hourCount, processedCount }, 'Processing');
-
         if (nextHour > MaxDate.getTime()) break;
 
-        const nextDateToProcess = new Date(nextHour).toISOString().slice(0, 13);
+        const nextDateToProcess = startAt.slice(0, 13);
+        if (existingFiles.has(nextDateToProcess)) continue;
+
         const nextDateKey = nextDateToProcess.replace('T', '-');
+        const cacheKey = s3fs.join(CacheFolder, nextDateToProcess + CacheExtension);
 
-        // Filter for files in the date range we are looking for
-        const todoFiles = await s3fs.list(s3fs.join(SourceLocation, `${CloudFrontId}.${nextDateKey}`));
-        if (todoFiles.length == 0) continue; // Nothing to process
-        Logger.trace({ startAt, fileCount: todoFiles.length }, 'FoundFiles');
+        processedCount++;
 
-        LogStats.ByDate.clear();
+        const promise = Q.time(async () => {
+            // Filter for files in the date range we are looking for
+            const todoFiles = await s3fs.list(s3fs.join(SourceLocation, `${CloudFrontId}.${nextDateKey}`));
+            if (todoFiles.length == 0) {
+                Logger.debug({ startAt }, 'Skipped');
 
-        await Promise.all(
-            todoFiles.map((fileName) => Q(() => FileProcess.process(fileName, Logger.child({ fileName })))),
-        );
+                // Nothing to process, need to store that we have looked at this date range
+                await s3fs.write(s3fs.join(CacheLocation, cacheKey), Buffer.from(''));
+                return;
+            }
 
-        // Only one date range should be processed at a time
-        if (LogStats.ByDate.size > 1) {
-            throw new Error(`Date range: ${new Date(nextHour).toISOString()} was processed into more than one range??`);
-        }
+            Logger.info({ startAt, fileCount: todoFiles.length }, 'Processing');
+            const stats = LogStats.getDate(startAt);
 
-        const [stats] = [...LogStats.ByDate.values()];
+            await Promise.all(
+                todoFiles.map((fileName) =>
+                    Q.file(() => FileProcess.process(fileName, stats, Logger.child({ fileName }))),
+                ),
+            );
 
-        const output = [];
-        if (stats != null) {
+            const output: string[] = [];
             for (const apiData of stats.stats.values()) {
                 output.push(JSON.stringify(apiData));
                 // By logging this line here, it will be filtered through into ElasticSearch
                 Logger.info({ ...apiData, '@type': 'rollup' }, 'RequestSummary');
             }
-        }
 
-        const cacheKey = s3fs.join(CacheFolder, nextDateToProcess + '.ndjson');
-        await s3fs.write(s3fs.join(CacheLocation, cacheKey), Buffer.from(output.join('\n')));
-        processedCount++;
-        if (hourCount > 24 * 7) {
-            Logger.warn({ hourCount }, 'Processed more than 7 days, stopping');
-            break;
-        }
+            await s3fs.write(s3fs.join(CacheLocation, cacheKey), Buffer.from(output.join('\n')));
+        });
+        promises.push(promise);
     }
+    await Promise.all(promises);
 }

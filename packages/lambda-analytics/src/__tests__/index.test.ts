@@ -2,27 +2,32 @@ import { Env, LogConfig } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { FileProcess } from '../file.process';
-import { dateByHour, FirstLog, getStartDate, handler, s3fs } from '../index';
-import { TileRollupVersion } from '../stats';
+import { dateByHour, handler, listCacheFolder, Q, s3fs } from '../index';
+import { LogStartDate, RollupVersion } from '../stats';
 import { ExampleLogs, lineReader } from './file.process.test';
+import PLimit from 'p-limit';
 
 LogConfig.get().level = 'silent';
+const currentYear = new Date().getUTCFullYear();
+// Concurrency breaks the order of tests
+Q.time = PLimit(1);
 
 o.spec('hourByHour', () => {
-    const firstLogHour = (hour: number): string => FirstLog.replace('T00', 'T' + hour.toString().padStart(2, '0'));
-    o('should start around 2020-08-07', () => {
-        const startDate = new Date(FirstLog).getTime();
+    const firstLogHour = (hour: number): string =>
+        LogStartDate.toISOString().replace('T00', 'T' + hour.toString().padStart(2, '0'));
+    o(`should start around ${currentYear}-01-01`, () => {
+        const startDate = LogStartDate.getTime();
         const iter = dateByHour(startDate);
         for (let i = 0; i < 5; i++) {
-            o(firstLogHour(i + 1)).equals(new Date(iter.next().value).toISOString());
+            o(firstLogHour(i)).equals(new Date(iter.next().value).toISOString());
         }
     });
 
     o('should work for thousands of hours', () => {
-        const startDate = new Date(FirstLog).getTime();
+        const startDate = new Date(LogStartDate).getTime();
         const iter = dateByHour(startDate);
-        let startHour = 1;
-        let lastDate = startDate;
+        let startHour = 0;
+        let lastDate = startDate - 60 * 60 * 1000;
         // Loop over the next 10,000 hours and verify we always increase by one UTC hour
         // I have manually run this for 10,000,000 hours and seems to work (about 1000 years)
         for (let i = 0; i < 10000; i++) {
@@ -31,7 +36,7 @@ o.spec('hourByHour', () => {
             lastDate = nextDate.getTime();
 
             o(nextDate.getUTCHours()).equals(startHour)(`${i} - ${nextDate.toISOString()}`);
-            o(timeInc).equals(60 * 60 * 1000);
+            o(timeInc).equals(60 * 60 * 1000)(`${i} - ${timeInc}`);
             startHour++;
             if (startHour == 24) startHour = 0;
         }
@@ -46,20 +51,15 @@ o.spec('getStartDate', () => {
 
     o('should use the start date if no files found', async () => {
         s3fs.list = (): Promise<any> => Promise.resolve([]);
-        const startDate = await getStartDate('s3://foo/bar');
-        o(new Date(startDate).toISOString()).equals(FirstLog);
+        const cacheData = await listCacheFolder('s3://foo/bar');
+        o(cacheData.size).equals(0);
     });
 
     o('should not use the start date if files are found', async () => {
-        s3fs.list = (): Promise<any> => Promise.resolve(['s3://foo/bar/baz.txt', 's3://foo/bar/2020-10-10T10.ndjson']);
-        const startDate = await getStartDate('s3://foo/bar');
-        o(new Date(startDate).toISOString()).equals(`2020-10-10T10:00:00.000Z`);
-    });
-
-    o('should ignore old files found', async () => {
-        s3fs.list = (): Promise<any> => Promise.resolve(['s3://foo/bar/baz.txt', 's3://foo/bar/2001-10-10T10.ndjson']);
-        const startDate = await getStartDate('s3://foo/bar');
-        o(new Date(startDate).toISOString()).equals(FirstLog);
+        s3fs.list = (key: string): Promise<any> => Promise.resolve([`${key}baz.txt`, `${key}2020-01-01T01.ndjson`]);
+        const cacheData = await listCacheFolder('s3://foo/bar/');
+        o(cacheData.size).equals(1);
+        o(cacheData.has('2020-01-01T01')).equals(true);
     });
 });
 
@@ -77,19 +77,27 @@ o.spec('handler', () => {
     });
 
     o('should list and process files', async () => {
-        sandbox.stub(FileProcess, 'reader').callsFake(lineReader(ExampleLogs));
+        const cachePath = `s3://analytics-cache/RollUpV${RollupVersion}/${currentYear}`;
+
+        sandbox.stub(FileProcess, 'reader').callsFake(lineReader(ExampleLogs, `${currentYear}-01-01T02`));
         const writeStub = sandbox.stub(s3fs, 'write');
         const listStub = sandbox.stub(s3fs, 'list').callsFake(
             async (source: string): Promise<string[]> => {
                 if (source.startsWith(sourceBucket)) {
                     return [
-                        `${sourceBucket}/${cloudFrontId}.2020-07-28-00.hash.gz`,
-                        `${sourceBucket}/${cloudFrontId}.2020-07-28-01.hash.gz`,
-                        `${sourceBucket}/${cloudFrontId}.2020-07-28-01.hashB.gz`,
-                        `${sourceBucket}/${cloudFrontId}.2020-07-28-02.hash.gz`,
+                        `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-00.hash.gz`,
+                        `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-01.hash.gz`,
+                        `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-01.hashB.gz`,
+                        `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-02.hash.gz`,
                         // Old
                         `${sourceBucket}/${cloudFrontId}.2019-07-28-02.hash.gz`,
                     ].filter((f) => f.startsWith(source));
+                }
+                if (source.startsWith(cachePath)) {
+                    return [
+                        `${cachePath}/${currentYear}-01-01T00.ndjson`,
+                        `${cachePath}/${currentYear}-01-01T03.ndjson`,
+                    ];
                 }
                 return [];
             },
@@ -97,18 +105,29 @@ o.spec('handler', () => {
 
         await handler();
 
-        // Should write one cache file
-        o(writeStub.callCount).equals(2);
-        o(writeStub.args[0][0]).equals(`s3://analytics-cache/RollUpV${TileRollupVersion}/2020-07-28T01.ndjson`);
-        o(writeStub.args[1][0]).equals(`s3://analytics-cache/RollUpV${TileRollupVersion}/2020-07-28T02.ndjson`);
+        // Two files are already processed
+        o(writeStub.callCount).equals(24 * 7 * 4);
+
+        o(writeStub.args[0][0]).equals(`${cachePath}/${currentYear}-01-01T01.ndjson`);
+        o(writeStub.args[0][1].toString()).equals('');
+
+        o(writeStub.args[1][0]).equals(`${cachePath}/${currentYear}-01-01T02.ndjson`);
+        o(writeStub.args[1][1].toString()).notEquals('');
+
+        // Should write empty files when data is not found
+        o(writeStub.args[2][0]).equals(`${cachePath}/${currentYear}-01-01T04.ndjson`);
+        o(writeStub.args[2][1].toString()).equals('');
+
+        o(writeStub.args[3][0]).equals(`${cachePath}/${currentYear}-01-01T05.ndjson`);
+        o(writeStub.args[3][1].toString()).equals('');
 
         // Will do lots of lists upto todays date to find more data
         o(listStub.callCount > 100).equals(true);
 
-        o(listStub.args[0][0]).equals(`s3://analytics-cache/RollUpV${TileRollupVersion}/`);
-        o(listStub.args[1][0]).equals('s3://cloudfront-logs/E1WKYJII8YDTO0.2020-07-28-01');
-        o(listStub.args[2][0]).equals('s3://cloudfront-logs/E1WKYJII8YDTO0.2020-07-28-02');
-        o(listStub.args[3][0]).equals('s3://cloudfront-logs/E1WKYJII8YDTO0.2020-07-28-03');
-        o(listStub.args[4][0]).equals('s3://cloudfront-logs/E1WKYJII8YDTO0.2020-07-28-04');
+        o(listStub.args[0][0]).equals(`s3://analytics-cache/RollUpV${RollupVersion}/${currentYear}/`);
+        o(listStub.args[1][0]).equals(`s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-01`);
+        o(listStub.args[2][0]).equals(`s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-02`);
+        o(listStub.args[3][0]).equals(`s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-04`);
+        o(listStub.args[4][0]).equals(`s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-05`);
     });
 });

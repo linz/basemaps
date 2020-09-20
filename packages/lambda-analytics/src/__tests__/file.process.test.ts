@@ -16,9 +16,13 @@ export const ExampleLogs = `#Version: 1.0
     .trim()
     .split('\n');
 
-export function lineReader(lines: string[]): () => AsyncGenerator<string> {
+export function lineReader(lines: string[], date?: string): () => AsyncGenerator<string> {
+    const dateStr = date == null ? '2020-07-28	01' : date.slice(0, 13).replace('T', '	');
     return async function* lineByLine(): AsyncGenerator<string> {
-        for (const line of lines) yield line;
+        for (const line of lines) {
+            if (line.startsWith('#')) yield line;
+            else yield dateStr + line.slice(dateStr.length);
+        }
     };
 }
 
@@ -36,15 +40,13 @@ o.spec('FileProcess', () => {
     const originalReader = FileProcess.reader;
     o.afterEach(() => {
         FileProcess.reader = originalReader;
+        LogStats.ByDate.clear();
     });
     o('should extract and track a api hit', async () => {
         FileProcess.reader = lineReader([ExampleLogs[2]]);
-        await FileProcess.process('Fake', LogConfig.get());
+        const logData = LogStats.getDate('2020-07-28T01:00:00.000Z');
+        await FileProcess.process('Fake', logData, LogConfig.get());
         o(LogStats.ByDate.size).equals(1);
-
-        const logData = LogStats.getDate('2020-07-28', '01');
-        o(LogStats.ByDate.size).equals(1);
-
         o(logData.stats.size).equals(1);
         const apiStats = logData.getStats(DevApiKey, 'bar.com');
 
@@ -55,23 +57,22 @@ o.spec('FileProcess', () => {
     });
 
     o('should extract and track a bunch of hits', async () => {
-        FileProcess.reader = lineReader(ExampleLogs);
-        await FileProcess.process('Fake', LogConfig.get());
-        o(LogStats.ByDate.size).equals(1);
+        const logData = LogStats.getDate('2020-07-28T01:00:00.000Z');
 
-        const logData = LogStats.getDate('2020-07-28', '01');
+        FileProcess.reader = lineReader(ExampleLogs);
+        await FileProcess.process('Fake', logData, LogConfig.get());
         o(LogStats.ByDate.size).equals(1);
 
         o(logData.stats.size).equals(2);
         const devStats = logData.getStats(DevApiKey, 'bar.com');
         const clientStats = logData.getStats(ClientApiKey);
 
-        o(devStats?.total).equals(4);
+        o(devStats?.total).equals(3);
         o(devStats?.apiType).equals('d');
-        o(devStats?.cache).deepEquals({ hit: 3, miss: 1 });
-        o(devStats?.projection).deepEquals({ 2193: 0, 3857: 4 });
-        o(devStats?.extension).deepEquals({ webp: 2, jpeg: 1, png: 1, wmts: 0, other: 0 });
-        o(devStats?.tileSet).deepEquals({ aerial: 3, aerialIndividual: 0, topo50: 1, direct: 0 });
+        o(devStats?.cache).deepEquals({ hit: 2, miss: 1 });
+        o(devStats?.projection).deepEquals({ 2193: 0, 3857: 3 });
+        o(devStats?.extension).deepEquals({ webp: 1, jpeg: 1, png: 1, wmts: 0, other: 0 });
+        o(devStats?.tileSet).deepEquals({ aerial: 2, aerialIndividual: 0, topo50: 1, direct: 0 });
 
         o(clientStats?.total).equals(1);
         o(clientStats?.apiType).equals('c');

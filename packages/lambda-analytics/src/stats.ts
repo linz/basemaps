@@ -1,7 +1,15 @@
+import { createHash } from 'crypto';
+
 /** Changing this number will cause all the statistics to be recomputed */
-export const TileRollupVersion = 1;
+export const RollupVersion = 1;
+export const CurrentYear = new Date().getUTCFullYear();
+export const CacheFolder = `RollUpV${RollupVersion}/${CurrentYear}/`;
+export const CacheExtension = '.ndjson';
+export const LogStartDate = new Date(`${CurrentYear}-01-01T00:00:00.000Z`);
 
 export interface TileRequestStats {
+    /** Unique Id for the time range */
+    '@id': string;
     /** Time of the rollup */
     timestamp: string;
     /** Api Key used */
@@ -28,6 +36,7 @@ export interface TileRequestStats {
 
 function newStat(timestamp: string, api: string, referer: string | undefined): TileRequestStats {
     return {
+        '@id': timestamp + '_' + createHash('sha3-256').update(`${api}_${referer}`).digest('hex'),
         timestamp,
         api,
         referer,
@@ -39,7 +48,7 @@ function newStat(timestamp: string, api: string, referer: string | undefined): T
         projection: { 2193: 0, 3857: 0 },
         tileSet: { aerial: 0, aerialIndividual: 0, topo50: 0, direct: 0 },
         generated: {
-            v: TileRollupVersion,
+            v: RollupVersion,
             hash: process.env.GIT_HASH,
             version: process.env.GIT_VERSION,
         },
@@ -93,8 +102,14 @@ export class LogStats {
     }
 
     static ByDate = new Map<string, LogStats>();
-    static getDate(date: string, hours: string): LogStats {
-        const logKey = date + 'T' + hours.slice(0, 2) + ':00:00.000Z';
+
+    /**
+     * Get a log stats by date
+     * @param date iso date string
+     */
+    static getDate(date: string): LogStats {
+        const logKey = date.slice(0, 13) + ':00:00.000Z';
+
         let existing = LogStats.ByDate.get(logKey);
         if (existing == null) {
             existing = new LogStats(logKey);
