@@ -50,6 +50,6 @@ export const Provider: TileMetadataProviderRecord = {
             position: 'the position',
         },
         name: 'the name',
-        site: 'the site',
+        site: 'https://example.provider.com',
     },
 };

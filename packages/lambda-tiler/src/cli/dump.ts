@@ -1,13 +1,13 @@
-import { LogConfig, TileType } from '@basemaps/shared';
-import { LambdaContext } from '@basemaps/lambda';
-import { PrettyTransform } from 'pretty-json-log';
-import { tile } from '../routes/tile';
 import { Epsg } from '@basemaps/geo';
-import { TileSetLocal } from './tile.set.local';
-import { TileSets, loadTileSet } from '../tile.set.cache';
+import { LambdaContext } from '@basemaps/lambda';
+import { LogConfig } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
 import { promises as fs } from 'fs';
+import { PrettyTransform } from 'pretty-json-log';
+import { tile } from '../routes/tile';
 import { TileSet } from '../tile.set';
+import { loadTileSet, TileSets } from '../tile.set.cache';
+import { TileSetLocal } from './tile.set.local';
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
         logger,
     );
 
-    const tileData = await tile(ctx, { ...xyz, projection, name: tileSet.name, ext, type: TileType.Image });
+    const tileData = await tile(ctx);
 
     await fs.writeFile(`output_${xyz.x}_${xyz.y}_z${xyz.z}.${ext}`, tileData.body);
 

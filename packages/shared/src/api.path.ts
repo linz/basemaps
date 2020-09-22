@@ -12,9 +12,10 @@ export interface ActionData {
 export enum TileType {
     WMTS = 'WMTS',
     Image = 'image',
+    Attribution = 'attribution',
 }
 
-export type TileData = TileDataXyz | TileDataWmts;
+export type TileData = TileDataXyz | TileDataWmts | TileDataAttribution;
 
 export interface TileDataXyz extends Tile {
     type: TileType.Image;
@@ -29,6 +30,17 @@ export interface TileDataWmts {
     projection: Epsg | null;
 }
 
+export interface TileDataAttribution {
+    type: TileType.Attribution;
+    name: string;
+    projection: Epsg;
+}
+
+export function setNameAndProjection(req: { set: (key: string, val: any) => void }, data: TileData): void {
+    req.set('tileSet', data.name);
+    req.set('projection', data.projection);
+}
+
 function parseTargetEpsg(text: string): Epsg | null {
     const projection = Epsg.parse(text);
     if (projection == null || !Array.from(ProjectionTileMatrixSet.targetCodes()).includes(projection.code)) {
@@ -37,7 +49,7 @@ function parseTargetEpsg(text: string): Epsg | null {
     return projection;
 }
 
-function tileXyzFromPath(path: string[]): TileData | null {
+export function tileXyzFromPath(path: string[]): TileDataXyz | null {
     const name = path[0];
     const projection = parseTargetEpsg(path[1]);
     if (projection == null) return null;
@@ -54,6 +66,16 @@ function tileXyzFromPath(path: string[]): TileData | null {
     return { type: TileType.Image, name, projection, x, y, z, ext };
 }
 
+export function tileAttributionFromPath(path: string[]): TileDataAttribution | null {
+    if (path.length < 3) return null;
+
+    const name = path[0];
+    const projection = Epsg.parse(path[1]);
+    if (projection == null) return null;
+
+    return { type: TileType.Attribution, name, projection };
+}
+
 /**
  * Extract WMTS information from a path
  *
@@ -63,9 +85,8 @@ function tileXyzFromPath(path: string[]): TileData | null {
  * @param path
  * @param tileSet
  */
-function tileWmtsFromPath(path: string[]): TileData | null {
+export function tileWmtsFromPath(path: string[]): TileDataWmts | null {
     if (path.length > 3) return null;
-    if (path[path.length - 1] != 'WMTSCapabilities.xml') return null;
 
     const name = path.length == 1 ? '' : path[0];
     let projection = null;
@@ -81,15 +102,20 @@ function tileWmtsFromPath(path: string[]): TileData | null {
     };
 }
 
+const SubHandler: Record<string, (path: string[]) => TileData | null> = {
+    'WMTSCapabilities.xml': tileWmtsFromPath,
+    'attribution.json': tileAttributionFromPath,
+};
+
 /**
  * Extract tile variables (`tileSet`, `projection`, `x`, `y`, `z` and `ext`) from an array
  **/
 export function tileFromPath(path: string[]): TileData | null {
     if (path.length < 1) return null;
-
-    if (path.length == 5) {
+    const subHandler = SubHandler[path[path.length - 1]];
+    if (subHandler == null) {
         return tileXyzFromPath(path);
     }
 
-    return tileWmtsFromPath(path);
+    return subHandler(path);
 }

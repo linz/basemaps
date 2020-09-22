@@ -1,9 +1,10 @@
 import { BoundingBox, Epsg, EpsgCode } from '@basemaps/geo';
 import {
     BBox,
+    BBoxFeature,
+    BBoxFeatureCollection,
     MultiPolygon,
     multiPolygonToWgs84,
-    toFeatureCollection,
     toFeatureMultiPolygon,
     toFeaturePolygon,
 } from '@linzjs/geojson';
@@ -124,7 +125,7 @@ export class Projection {
      * @returns If `bounds` crosses the antimeridian then and east and west pair of non crossing
      * polygons will be returned; otherwise a single Polygon will be returned.
      */
-    boundsToGeoJsonFeature(bounds: BoundingBox, properties = {}): GeoJSON.Feature {
+    boundsToGeoJsonFeature(bounds: BoundingBox, properties = {}): BBoxFeature {
         const sw = [bounds.x, bounds.y];
         const se = [bounds.x + bounds.width, bounds.y];
         const nw = [bounds.x, bounds.y + bounds.height];
@@ -136,11 +137,14 @@ export class Projection {
             coords.length == 1 ? toFeaturePolygon(coords[0], properties) : toFeatureMultiPolygon(coords, properties);
         feature.bbox = this.boundsToWgs84BoundingBox(bounds);
 
-        return feature;
+        return feature as BBoxFeature;
     }
 
     /** Convert a tile covering to a GeoJSON FeatureCollection */
-    toGeoJson(files: NamedBounds[]): GeoJSON.FeatureCollection {
-        return toFeatureCollection(files.map((f) => this.boundsToGeoJsonFeature(f, { name: f.name })));
+    toGeoJson(files: NamedBounds[]): BBoxFeatureCollection {
+        return {
+            type: 'FeatureCollection',
+            features: files.map((f) => this.boundsToGeoJsonFeature(f, { name: f.name })),
+        };
     }
 }

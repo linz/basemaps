@@ -1,5 +1,5 @@
-import { Config } from './config';
 import { Epsg } from '@basemaps/geo';
+import { Config } from './config';
 
 export interface MapLocation {
     lat: number;
@@ -18,6 +18,7 @@ export const enum MapOptionType {
     Tile = 'tile',
     TileWmts = 'tile-wmts',
     Wmts = 'wmts',
+    Attribution = 'attribution',
 }
 
 export const WindowUrl = {
@@ -73,25 +74,34 @@ export const WindowUrl = {
         return { tag, imageId, projection, debug };
     },
 
-    toTileUrl(opts: MapOptions, urlType: MapOptionType): string {
-        const tag = opts.tag == 'production' ? '' : `@${opts.tag}`;
-        const api = Config.ApiKey == null || Config.ApiKey == '' ? '' : `?api=${Config.ApiKey}`;
+    baseUrl(): string {
         const baseUrl = Config.BaseUrl || window.location.protocol + '//' + window.location.hostname;
         if (baseUrl != '' && !baseUrl.startsWith('http')) {
             throw new Error('BaseURL must start with http(s)://');
         }
+        return baseUrl;
+    },
+
+    toTileUrl(opts: MapOptions, urlType: MapOptionType): string {
+        const api = Config.ApiKey == null || Config.ApiKey == '' ? '' : `?api=${Config.ApiKey}`;
+        const tag = opts.tag == 'production' ? '' : `@${opts.tag}`;
         const projection = opts.projection.toEpsgString();
+        const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.imageId}${tag}/${projection}`;
 
         if (urlType == MapOptionType.Tile) {
-            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${projection}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
+            return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
         }
 
         if (urlType == MapOptionType.TileWmts) {
-            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${projection}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${api}`;
+            return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${api}`;
         }
 
         if (urlType == MapOptionType.Wmts) {
-            return `${baseUrl}/v1/tiles/${opts.imageId}${tag}/${projection}/WMTSCapabilities.xml${api}`;
+            return `${baseTileUrl}/WMTSCapabilities.xml${api}`;
+        }
+
+        if (urlType == MapOptionType.Attribution) {
+            return `${baseTileUrl}/attribution.json${api}`;
         }
 
         throw new Error('Unknown url type: ' + urlType);

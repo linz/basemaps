@@ -7,7 +7,6 @@ import { dirname } from 'path';
 import { FilePath } from '../file';
 import { Hash } from '../hash';
 import { Stac } from '../stac';
-import { CompositeError } from '@linzjs/s3fs';
 
 o.spec('stac', () => {
     const origHash = Hash.hash;
@@ -97,12 +96,6 @@ o.spec('stac', () => {
         bm.config = bm;
 
         o('createCollection without source collection.json', async () => {
-            mockFs.jsStore['s3:///test-source-bucket/gebco-2020/collection.json'] = new CompositeError(
-                'not found',
-                404,
-                new Error(),
-            );
-
             const bounds = GoogleTms.tileToSourceBounds({ x: 1, y: 2, z: 4 });
 
             const items = ['1-1-2.json'];

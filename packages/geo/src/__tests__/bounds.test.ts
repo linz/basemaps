@@ -1,4 +1,5 @@
 import { Approx } from '@basemaps/test';
+import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { Bounds } from '../bounds';
 
@@ -45,6 +46,13 @@ o.spec('Bounds', () => {
         Approx.bounds(b.scaleFromCenter(1.2), new Bounds(167, 39.5, 36, 6));
         Approx.bounds(b.scaleFromCenter(0.5, 2), new Bounds(177.5, 37.5, 15, 10));
         Approx.bounds(b.scaleFromCenter(3, 0.25), new Bounds(140, 41.875, 90, 1.25));
+    });
+
+    o('pad', () => {
+        const b = Bounds.fromBbox([170, 40, 200, 45]);
+        o(round(b.pad(1.2).toBbox())).deepEquals([168.8, 38.8, 201.2, 46.2]);
+        o(round(b.pad(0.5, 2).toBbox())).deepEquals([169.5, 38, 200.5, 47]);
+        o(round(b.pad(-2).toBbox())).deepEquals([172, 42, 198, 43]);
     });
 
     o('intersects bounds', () => {

@@ -96,12 +96,6 @@ function compareByTitle(a: TileSet, b: TileSet): number {
  * @param projection if null load all projections
  */
 export async function loadTileSets(nameStr: string, projection: Epsg | null): Promise<TileSet[]> {
-    if (nameStr !== '' && nameStr[0] !== '@' && projection != null) {
-        // single tileSet
-        const ts = await loadTileSet(nameStr, projection);
-        return ts == null ? [] : [ts];
-    }
-
     const isSubset = nameStr.indexOf(':') != -1;
     const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
 

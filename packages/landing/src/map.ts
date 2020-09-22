@@ -1,18 +1,20 @@
-import OlMap from 'ol/Map';
-import { WindowUrl, MapOptions, MapOptionType, MapLocation } from './url';
-import View from 'ol/View';
-import TileLayer from 'ol/layer/Tile';
-import XYZ from 'ol/source/XYZ';
-import * as proj from 'ol/proj.js';
-import WMTS from 'ol/source/WMTS.js';
 import { Epsg } from '@basemaps/geo';
-import { NztmOl } from './nztm2000';
-import TileSource from 'ol/source/Tile';
-import BaseEvent from 'ol/events/Event';
 import { ImageTile } from 'ol';
-import { gaEvent, GaEvent } from './config';
-import { Extent } from 'ol/extent';
+import { defaults as defaultControls } from 'ol/control';
 import { Coordinate } from 'ol/coordinate';
+import BaseEvent from 'ol/events/Event';
+import { Extent } from 'ol/extent';
+import TileLayer from 'ol/layer/Tile';
+import OlMap from 'ol/Map';
+import * as proj from 'ol/proj.js';
+import TileSource from 'ol/source/Tile';
+import WMTS from 'ol/source/WMTS.js';
+import XYZ from 'ol/source/XYZ';
+import View from 'ol/View';
+import { Attribution } from './attribution';
+import { gaEvent, GaEvent } from './config';
+import { NztmOl } from './nztm2000';
+import { MapLocation, MapOptions, MapOptionType, WindowUrl } from './url';
 
 /** Projection to use for the URL bar */
 const UrlProjection = Epsg.Wgs84.toEpsgString();
@@ -113,15 +115,21 @@ export class Basemaps {
         });
 
         const source = this.getSource();
+
         source.addEventListener('tileloadstart', this.trackTileLoad);
         source.addEventListener('tileloadend', this.trackTileLoad);
+
         const layer = new TileLayer({ source });
+
         this.map = new OlMap({
+            controls: defaultControls({ attributionOptions: { collapsed: false, collapsible: false } }),
             target: this.el,
             view,
             layers: [layer],
             keyboardEventTarget: document,
         });
+
+        Attribution.init(source, this.map, this.config);
 
         this.map.addEventListener('postrender', this.postRender);
     }

@@ -157,6 +157,16 @@ export class Bounds implements BoundingBox {
     }
 
     /**
+     * Increase bounds by padding the edges
+
+     * @param padX amount to pad the x parameters (left, width)
+     * @param padY amount to pad the y parameters (top, height)
+     */
+    public pad(padX: number, padY: number = padX): Bounds {
+        return new Bounds(this.x - padX, this.y - padY, this.width + padX * 2, this.height + padY * 2);
+    }
+
+    /**
      * Round dimensions to integers keeping the error a low as possible
 
      * @param bias influence the rounding in favour of a larger area (+ve bias) or smaller area (-ve
