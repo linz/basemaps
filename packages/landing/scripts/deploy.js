@@ -4,6 +4,7 @@ const fs = require('fs').promises;
 const crypto = require('crypto');
 const mime = require('mime-types');
 const invalidateCache = require('@basemaps/cli/build/cli/util').invalidateCache;
+const { recurseDirectory } = require('./util');
 
 const DistDir = './dist';
 const HashKey = 'linz-hash';
@@ -40,36 +41,45 @@ async function deploy() {
     if (s3Bucket == null) throw new Error('Failed to locate edge bucket in current account');
 
     let hasChanges = false;
-    const files = await fs.readdir(DistDir);
-    for (const fileName of files) {
-        const fileData = await fs.readFile(`${DistDir}/${fileName}`);
-        const hash = crypto.createHash('sha512').update(fileData).digest('base64');
 
-        const oldHash = await getHash(s3BucketName, fileName);
-        // Only upload files if they have changed
-        if (oldHash == hash) {
-            console.log('Skipped', fileName, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
-            continue;
-        }
-        hasChanges = true;
+    /**
+     * Upload all files from the dist directory, including any sub directories, to S3 bucket .
+     */
+    const uploadDirectory = async () => {
+        await recurseDirectory(DistDir, async (filePath, isDir) => {
+            if (isDir) return true;
+            const fileData = await fs.readFile(`${DistDir}/${filePath}`);
+            const hash = crypto.createHash('sha512').update(fileData).digest('base64');
 
-        // Don't set cache control for index.html as it may change all other files are hashed and immutable
-        const cacheControl = fileName == 'index.html' ? undefined : 'public, max-age=604800, immutable';
+            const oldHash = await getHash(s3BucketName, filePath);
+            // Only upload files if they have changed
+            if (oldHash == hash) {
+                console.log('Skipped', filePath, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
+                return true;
+            }
+            hasChanges = true;
 
-        console.log('Uploading', fileName, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
-        const res = await s3
-            .putObject({
-                Bucket: s3BucketName,
-                Key: fileName,
-                Body: fileData,
-                Metadata: { [HashKey]: hash },
-                ContentType: mime.contentType(fileName),
-                CacheControl: cacheControl
-            })
-            .promise();
+            // Don't set cache control for index.html as it may change all other files are hashed and immutable
+            const cacheControl = filePath == 'index.html' ? undefined : 'public, max-age=604800, immutable';
 
-        console.log('\tDone', res.ETag);
-    }
+            console.log('Uploading', filePath, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
+            const res = await s3
+                .putObject({
+                    Bucket: s3BucketName,
+                    Key: filePath,
+                    Body: fileData,
+                    Metadata: { [HashKey]: hash },
+                    ContentType: mime.contentType(filePath),
+                    CacheControl: cacheControl,
+                })
+                .promise();
+
+            console.log('\tDone', res.ETag);
+            return true;
+        });
+    };
+
+    await uploadDirectory();
 
     if (hasChanges) await invalidateCache('/index.html', true);
     // TODO this should not live here.

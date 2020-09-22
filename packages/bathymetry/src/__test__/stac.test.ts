@@ -1,5 +1,5 @@
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { LogConfig, LogType, StacCollection } from '@basemaps/shared';
+import { LogConfig, LogType, StacCollection, StacBaseMapsExtension, StacVersion } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
@@ -42,8 +42,8 @@ o.spec('stac', () => {
         o(date >= now && date < now + 2000).equals(true);
 
         o(round(stac, 4)).deepEquals({
-            stac_version: '1.0.0',
-            stac_extensions: ['proj', 'linz'],
+            stac_version: StacVersion,
+            stac_extensions: ['projection', StacBaseMapsExtension],
             id: 'id123/13-22-33',
             collection: 'id123',
             type: 'Feature',
@@ -109,13 +109,13 @@ o.spec('stac', () => {
             const stac = await Stac.createCollection(bm, bounds, items, logger);
 
             o(round(stac, 4)).deepEquals({
-                stac_version: '1.0.0',
-                stac_extensions: ['proj'],
+                stac_version: StacVersion,
+                stac_extensions: ['projection'],
                 id: 'id123',
                 title: 'Gebco 2020.nc',
-                description: undefined,
+                description: 'No description',
                 extent: {
-                    spatial: { bbox: [-157.5, 74.0195, -135, 79.1713] },
+                    spatial: { bbox: [[-157.5, 74.0195, -135, 79.1713]] },
                     temporal: {
                         interval: [['2020-01-01T00:00:00Z', '2021-01-01T00:00:00Z']],
                     },
@@ -140,7 +140,7 @@ o.spec('stac', () => {
                 description: 'collection description',
                 providers: [{ name: 'source provider', roles: ['source'] }],
                 extent: {
-                    spatial: { bbox: [-180, 84, -178, 85] },
+                    spatial: { bbox: [[-180, 84, -178, 85]] },
                     temporal: { interval: [['2020-01-01T00:00:00Z', '2020-10-12T01:02:03Z']] },
                 },
             } as StacCollection;
@@ -156,13 +156,13 @@ o.spec('stac', () => {
             o(/^\d+\.\d+\.\d+$/.test(gitHubLink.version)).equals(true);
 
             o(round(stac, 4)).deepEquals({
-                stac_version: '1.0.0',
-                stac_extensions: ['proj'],
+                stac_version: StacVersion,
+                stac_extensions: ['projection'],
                 id: 'id123',
                 title: 'fancy title',
                 description: 'collection description',
                 extent: {
-                    spatial: { bbox: [-179.0332, 84.9205, -178.9893, 84.9244] },
+                    spatial: { bbox: [[-179.0332, 84.9205, -178.9893, 84.9244]] },
                     temporal: { interval: [['2020-01-01T00:00:00Z', '2020-10-12T01:02:03Z']] },
                 },
                 license: 'CC-BY-4.0',
