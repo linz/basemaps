@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const pkg = require('../package.json');
 const fs = require('fs').promises;
 const c = require('ansi-colors');
+const { recurseDirectory } = require('./util');
 
 // Proxy environment vars into the build
 const ENV_VARS = ['API_KEY', 'NODE_ENV', 'GOOGLE_ANALYTICS', 'TILE_HOST'].map((envName) => {
@@ -27,6 +28,12 @@ const BUILD_CMD = [
     process.env.NODE_ENV == 'production' ? '--minify' : '',
     'src/index.ts',
 ];
+
+const SPECIAL_FILES = {
+    'index.css': true,
+    'index.html': true,
+    'index.js': true,
+};
 
 /**
  * List of CSS files to bundle
@@ -99,8 +106,28 @@ async function bundleHtml(opts) {
     await fs.writeFile('./dist/index.html', htmlOutput);
 }
 
+/**
+ * Copy all non special files from the static directory to the dist directory including any sub
+ * directories.
+ */
+async function copyStatic() {
+    const srcDir = './static';
+    await recurseDirectory(srcDir, async (filePath, isDir) => {
+        if (SPECIAL_FILES[filePath]) return false;
+        const srcPath = `${srcDir}/${filePath}`;
+        const destPath = `./dist/${filePath}`;
+        if (isDir) {
+            await fs.mkdir(destPath, { recursive: true });
+        } else {
+            await fs.writeFile(destPath, await fs.readFile(srcPath));
+        }
+        return true;
+    });
+}
+
 async function main() {
     await fs.mkdir('dist', { recursive: true });
+    await copyStatic();
 
     const js = await bundleJs();
     const css = await bundleCss();

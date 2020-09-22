@@ -4,10 +4,13 @@ import {
     FileOperator,
     LogType,
     ProjectionTileMatrixSet,
+    StacBaseMapsExtension,
     StacCollection,
     StacItem,
     StacLicense,
     StacLink,
+    StacProvider,
+    StacVersion,
     titleizeImageryName,
 } from '@basemaps/shared';
 import * as cp from 'child_process';
@@ -36,8 +39,8 @@ async function createItem(bm: BathyMaker, tile: Tile): Promise<StacItem> {
 
     const created = new Date().toISOString();
     return {
-        stac_version: '1.0.0',
-        stac_extensions: ['proj', 'linz'],
+        stac_version: StacVersion,
+        stac_extensions: ['projection', StacBaseMapsExtension],
         id: bm.config.id + '/' + tileId,
         collection: bm.config.id,
         type: 'Feature',
@@ -76,7 +79,7 @@ async function createCollection(
 ): Promise<StacCollection> {
     const { tms } = bm.config;
     const ptms = ProjectionTileMatrixSet.get(tms.projection.code);
-    const bbox = ptms.proj.boundsToWgs84BoundingBox(bounds);
+    const bbox = [ptms.proj.boundsToWgs84BoundingBox(bounds)];
     const name = basename(bm.inputPath);
     let description: string | undefined;
 
@@ -102,7 +105,7 @@ async function createCollection(
     }
 
     let sourceStac = {} as StacCollection;
-    const providers = [
+    const providers: StacProvider[] = [
         { name: 'Land Information New Zealand', url: 'https://www.linz.govt.nz/', roles: ['processor'] },
     ];
     const interval: [string, string][] = [];
@@ -121,6 +124,10 @@ async function createCollection(
 
     const title = sourceStac.title ?? titleizeImageryName(name);
 
+    if (description == null) {
+        description = 'No description';
+    }
+
     if (interval.length == 0) {
         const years = extractYearRangeFromName(name);
         if (years[0] != -1) {
@@ -129,8 +136,8 @@ async function createCollection(
     }
 
     return {
-        stac_version: '1.0.0',
-        stac_extensions: ['proj'],
+        stac_version: StacVersion,
+        stac_extensions: ['projection'],
         id: bm.config.id,
         title,
         description,
