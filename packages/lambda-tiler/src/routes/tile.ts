@@ -1,6 +1,6 @@
-import { Tile, TileMatrixSet } from '@basemaps/geo';
+import { Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
-import { Aws, Env, TileDataWmts, TileDataXyz, tileFromPath, TileMetadataTag, TileType } from '@basemaps/shared';
+import { Aws, Env, setNameAndProjection, TileMetadataTag, tileWmtsFromPath, tileXyzFromPath } from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -9,6 +9,7 @@ import { TileSet } from '../tile.set';
 import { loadTileSet, loadTileSets } from '../tile.set.cache';
 import { Tilers } from '../tiler';
 import { WmtsCapabilities } from '../wmts.capability';
+import { attribution } from './attribution';
 import { TileEtag } from './tile.etag';
 
 export const TileComposer = new TileMakerSharp(256);
@@ -53,7 +54,10 @@ function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpRespo
     return null;
 }
 
-export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<LambdaHttpResponse> {
+export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
+    const xyzData = tileXyzFromPath(req.action.rest);
+    if (xyzData == null) return NotFound;
+    ValidateTilePath.validate(req, xyzData);
     const tiler = Tilers.get(xyzData.projection);
     if (tiler == null) return new LambdaHttpResponse(404, `Projection not found: ${xyzData.projection.code}`);
 
@@ -94,13 +98,24 @@ export async function tile(req: LambdaContext, xyzData: TileDataXyz): Promise<La
     return response;
 }
 
-export async function wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<LambdaHttpResponse> {
-    const response = new LambdaHttpResponse(200, 'ok');
+async function wmtsLoadTileSets(nameStr: string, projection: Epsg | null): Promise<TileSet[]> {
+    if (nameStr !== '' && nameStr[0] !== '@' && projection != null) {
+        // single tileSet
+        const ts = await loadTileSet(nameStr, projection);
+        return ts == null ? [] : [ts];
+    }
 
+    return await loadTileSets(nameStr, projection);
+}
+
+export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
+    const wmtsData = tileWmtsFromPath(req.action.rest);
+    if (wmtsData == null) return NotFound;
+    setNameAndProjection(req, wmtsData);
     const host = Env.get(Env.PublicUrlBase) ?? '';
 
     req.timer.start('tileset:load');
-    const tileSets = await loadTileSets(wmtsData.name, wmtsData.projection);
+    const tileSets = await wmtsLoadTileSets(wmtsData.name, wmtsData.projection);
     req.timer.end('tileset:load');
     if (tileSets.length == 0) return NotFound;
 
@@ -117,23 +132,26 @@ export async function wmts(req: LambdaContext, wmtsData: TileDataWmts): Promise<
     const respNotMod = checkNotModified(req, cacheKey);
     if (respNotMod != null) return respNotMod;
 
+    const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'max-age=0');
     response.buffer(data, 'text/xml');
     return response;
 }
 
-export async function TileOrWmts(req: LambdaContext): Promise<LambdaHttpResponse> {
-    const xyzData = tileFromPath(req.action.rest);
-    if (xyzData == null) return NotFound;
+const SubHandler: Record<string, (req: LambdaContext) => Promise<LambdaHttpResponse>> = {
+    'WMTSCapabilities.xml': wmts,
+    'attribution.json': attribution,
+};
 
-    req.set('tileSet', xyzData.name);
-    req.set('projection', xyzData.projection);
+export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
+    const { rest } = req.action;
+    if (rest.length < 1) return NotFound;
 
-    if (xyzData.type === TileType.WMTS) {
-        return wmts(req, xyzData);
-    } else {
-        ValidateTilePath.validate(req, xyzData);
-        return tile(req, xyzData);
+    const subHandler = SubHandler[rest[rest.length - 1]];
+    if (subHandler != null) {
+        return subHandler(req);
     }
+
+    return tile(req);
 }

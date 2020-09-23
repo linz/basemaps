@@ -1,6 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { Env, LogConfig, LogType } from '@basemaps/shared';
-import { LambdaContext } from '@basemaps/lambda';
+import { HttpHeader, LambdaContext } from '@basemaps/lambda';
 import express from 'express';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
@@ -32,7 +32,7 @@ async function handleRequest(
             }
         }
         if (data.status < 299 && data.status > 199) {
-            res.end(Buffer.from(data.getBody() ?? '', 'base64'));
+            res.end(data.body);
         } else {
             res.end();
         }
@@ -58,6 +58,10 @@ function useAws(): void {
             } as any,
             logger,
         );
+        const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
+        if (ifNoneMatch != null) {
+            ctx.headers.set(HttpHeader.IfNoneMatch.toLowerCase(), ifNoneMatch);
+        }
 
         await handleRequest(ctx, res, startTime, logger);
     });

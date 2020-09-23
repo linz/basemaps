@@ -1,3 +1,4 @@
+import { CompositeError } from '@linzjs/s3fs';
 import { FileOperator } from '..';
 
 export interface MockFs {
@@ -28,7 +29,7 @@ export function mockFileOperator(): MockFs {
 
     let jsStore: Record<string, any> = {};
     const mockReadJson = async (path: string): Promise<any> => {
-        const ans = jsStore[path];
+        const ans = jsStore[path] ?? new CompositeError('Not Found', 404, new Error('Mock'));
         if (ans instanceof Error) throw ans;
         return ans;
     };
@@ -38,7 +39,7 @@ export function mockFileOperator(): MockFs {
 
     let rawStore: Record<string, Buffer | Error> = {};
     const mockRead = async (path: string): Promise<Buffer> => {
-        const ans = rawStore[path];
+        const ans = rawStore[path] ?? new CompositeError('Not Found', 404, new Error('Mock'));
         if (ans instanceof Error) throw ans;
         return ans;
     };

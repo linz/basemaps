@@ -1,5 +1,48 @@
 import { BBox, MultiPolygon, Ring } from './types';
 
+/**
+ * Normalize the value of a longitude to between -180 and 180 degrees.
+
+ * @param lon a longitude value than can be outside the range -180 to 180.
+ */
+const normLon = (lon: number): number => {
+    if (lon < -360) {
+        lon = -(-lon % 360);
+    } else if (lon > 360) {
+        lon = lon % 360;
+    }
+
+    if (lon < -180) {
+        return 360 + lon;
+    } else if (lon > 180) {
+        return lon - 360;
+    }
+
+    return lon;
+};
+
+/**
+ * Determine this distance and direction between two longitude values
+
+ * @param a must be between -180 and 180
+ * @param b must be between -180 and 180
+
+ * @returns the distance which is negative if `a` is east of `b`
+ */
+const delta = (a: number, b: number): number => {
+    const d = b - a;
+
+    if (d > 180) {
+        return d - 360;
+    } else if (d < -180) {
+        return d + 360;
+    }
+
+    return d;
+};
+
+const calcMid = (a: number, b: number): number => normLon(a + (b < a ? b + 360 - a : b - a));
+
 export const Wgs84 = {
     /**
      * Find the center longitude of a BBox. This handles a bbox that crosses the anti-meridian.
@@ -7,52 +50,23 @@ export const Wgs84 = {
      * @param a must be between -180 and 180
      */
     boxLonCenter(a: BBox): number {
-        return this.normLon(a[0] + 0.5 * (a[2] < a[0] ? 360 + a[2] - a[0] : a[2] - a[0]));
+        return normLon(a[0] + 0.5 * (a[2] < a[0] ? 360 + a[2] - a[0] : a[2] - a[0]));
     },
 
-    /**
-     * Determine this distance and direction between two longitude values
-
-     * @param a must be between -180 and 180
-     * @param b must be between -180 and 180
-
-     * @returns the distance which is negative if `a` is east of `b`
-     */
-    delta(a: number, b: number): number {
-        const d = b - a;
-
-        if (d > 180) {
-            return d - 360;
-        } else if (d < -180) {
-            return d + 360;
-        }
-
-        return d;
-    },
+    delta,
 
     crossesAM(a: number, b: number): boolean {
-        return Math.sign(this.delta(a, b)) != Math.sign(b - a);
+        return Math.sign(delta(a, b)) != Math.sign(b - a);
     },
 
+    normLon,
+
     /**
-     * Normalize the value of a longitude to between -180 and 180 degrees.
-
-     * @param lon a longitude value than can be outside the range -180 to 180.
+     * Normalize an extent's longitude to between -180 and 180 degrees.
+     * @param extent must be in WGS84 coordinates
      */
-    normLon(lon: number): number {
-        if (lon < -360) {
-            lon = -(-lon % 360);
-        } else if (lon > 360) {
-            lon = lon % 360;
-        }
-
-        if (lon < -180) {
-            return 360 + lon;
-        } else if (lon > 180) {
-            return lon - 360;
-        }
-
-        return lon;
+    normExtent(extent: BBox): BBox {
+        return [normLon(extent[0]), extent[1], normLon(extent[2]), extent[3]];
     },
 
     /**
@@ -70,21 +84,38 @@ export const Wgs84 = {
         const axCenter = Wgs84.boxLonCenter(a);
         const bxCenter = Wgs84.boxLonCenter(b);
 
-        if (this.delta(axCenter, bxCenter) < 0) {
+        if (delta(axCenter, bxCenter) < 0) {
             return this.union(b, a);
         }
 
         const ans = a.slice() as BBox;
 
-        const mid = this.normLon(axCenter + (bxCenter < axCenter ? bxCenter + 360 - axCenter : bxCenter - axCenter));
+        const mid = calcMid(axCenter, bxCenter);
 
-        if (this.delta(mid, b[0]) < this.delta(mid, a[0])) ans[0] = b[0];
-        if (this.delta(mid, b[2]) > this.delta(mid, a[2])) ans[2] = b[2];
+        if (delta(mid, b[0]) < delta(mid, a[0])) ans[0] = b[0];
+        if (delta(mid, b[2]) > delta(mid, a[2])) ans[2] = b[2];
 
         if (b[1] < a[1]) ans[1] = b[1];
         if (b[3] > a[3]) ans[3] = b[3];
 
         return ans;
+    },
+
+    /**
+     * Do two GeoJSON bounding boxes intersect?
+
+     * @param a must be in WGS84 coordinates
+     * @param b must be in WGS84 coordinates
+     */
+    intersects(a: BBox, b: BBox): boolean {
+        if (a[1] > b[3] || b[1] > a[3]) return false;
+
+        const a0 = a[0];
+        const b0 = b[0];
+        const a2 = a0 < a[2] ? a[2] : a[2] + 360;
+        const b2 = b0 < b[2] ? b[2] : b[2] + 360;
+
+        return (a0 <= b2 && b0 <= a2) || (a0 + 360 <= b2 && b0 <= a2 + 360) || (a0 <= b2 + 360 && b0 + 360 <= a2);
     },
 
     /**
@@ -158,5 +189,26 @@ export const Wgs84 = {
             throw new Error('Invalid multipolygon');
         }
         return ans;
+    },
+
+    /**
+     * Convert a WGS84 `bbox` to a GeoJSON MultiPolygon. Split at anti-meridian if necessary.
+
+     * @param bbox
+     */
+    bboxToMultiPolygon(bbox: BBox): MultiPolygon {
+        const sw = [bbox[0], bbox[1]];
+        const se = [bbox[2], bbox[1]];
+        const nw = [bbox[0], bbox[3]];
+        const ne = [bbox[2], bbox[3]];
+
+        if (bbox[0] < bbox[2]) {
+            return [[[sw, nw, ne, se, sw]]] as MultiPolygon;
+        }
+
+        return [
+            [[sw, nw, [180, ne[1]], [180, se[1]], sw]],
+            [[ne, se, [-180, sw[1]], [-180, nw[1]], ne]],
+        ] as MultiPolygon;
     },
 };

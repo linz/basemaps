@@ -35,12 +35,12 @@ o.spec('LambdaXyz index', () => {
             process.env.GIT_VERSION = '1.2.3';
             process.env.GIT_HASH = 'abc456';
 
-            const response: any = await handleRequest(req('/version'));
+            const response = await handleRequest(req('/version'));
 
             o(response.status).equals(200);
             o(response.statusDescription).equals('ok');
             o(response.header('cache-control')).equals('no-store');
-            o(JSON.parse(response.body)).deepEquals({
+            o(JSON.parse(response.body as string)).deepEquals({
                 version: '1.2.3',
                 hash: 'abc456',
             });

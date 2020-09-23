@@ -214,9 +214,10 @@ export class CogStacJob implements CogJob {
 
         if (interval.length == 0) {
             const years = extractYearRangeFromName(imageryName);
-            if (years[0] != -1) {
-                interval.push(years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]);
+            if (years[0] == -1) {
+                throw new Error('Missing date in imagery name: ' + imageryName);
             }
+            interval.push(years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]);
         }
 
         if (ctx.cutline) {
@@ -226,7 +227,7 @@ export class CogStacJob implements CogJob {
         links.push({ href: 'covering.geojson', type: 'application/geo+json', rel: 'linz.basemaps.covering' });
         links.push({ href: 'source.geojson', type: 'application/geo+json', rel: 'linz.basemaps.source' });
 
-        const temporal = interval.length == 0 ? undefined : { interval };
+        const temporal = { interval };
 
         const jobFile = job.getJobPath(`job.json`);
 
@@ -238,9 +239,7 @@ export class CogStacJob implements CogJob {
             stac_extensions: [StacBaseMapsExtension],
 
             extent: {
-                spatial: {
-                    bbox,
-                },
+                spatial: { bbox },
                 temporal,
             },
 

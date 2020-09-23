@@ -1,5 +1,5 @@
 import { Epsg } from '@basemaps/geo';
-import { LogConfig, tileFromPath, TileType } from '@basemaps/shared';
+import { LogConfig, tileAttributionFromPath, tileFromPath, TileType } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
 import o from 'ospec';
 import { LambdaContext } from '../lambda.context';
@@ -23,6 +23,21 @@ o.spec('api.path', () => {
         o(ctx.action.version).equals('v1');
         o(ctx.action.name).equals('ping');
         o(ctx.action.rest).deepEquals([]);
+    });
+
+    o.spec('tileAttributionFromPath', () => {
+        o('invalid', () => {
+            o(tileAttributionFromPath(['aerial'])).deepEquals(null);
+            o(tileAttributionFromPath(['aerial', 'EPSG:38571', 'attribution.json'])).deepEquals(null);
+        });
+
+        o('valid', () => {
+            o(tileAttributionFromPath(['aerial', 'EPSG:3857', 'attribution.json'])).deepEquals({
+                type: TileType.Attribution,
+                name: 'aerial',
+                projection: Epsg.Google,
+            });
+        });
     });
 
     o.spec('tileFromPath', () => {
