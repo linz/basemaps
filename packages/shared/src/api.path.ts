@@ -50,6 +50,7 @@ function parseTargetEpsg(text: string): Epsg | null {
 }
 
 export function tileXyzFromPath(path: string[]): TileDataXyz | null {
+    if (path.length < 5) return null;
     const name = path[0];
     const projection = parseTargetEpsg(path[1]);
     if (projection == null) return null;
@@ -88,7 +89,7 @@ export function tileAttributionFromPath(path: string[]): TileDataAttribution | n
 export function tileWmtsFromPath(path: string[]): TileDataWmts | null {
     if (path.length > 3) return null;
 
-    const name = path.length == 1 ? '' : path[0];
+    const name = path.length < 2 ? '' : path[0];
     let projection = null;
     if (path.length == 3) {
         projection = parseTargetEpsg(path[1]);
