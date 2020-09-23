@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { getApiKey, ONE_DAY_MS } from '../api';
+import { getApiKey, OneDayMs } from '../api';
 import { Config } from '../config';
 import { ulid, decodeTime, encodeTime } from 'ulid';
 
@@ -29,22 +29,23 @@ o.spec('ApiKey', () => {
         o(keyA).equals(Config.ApiKey);
     });
 
-    o('should valid api keys from localStorage', () => {
+    o('should get valid api keys from localStorage', () => {
         localStorage.getItem = o.spy((): string => 'foo');
         o(getApiKey()).notEquals('foo');
 
         localStorage.getItem = o.spy(() => '01ebpv4fgbxqnff6kdc184bx0j');
         o(getApiKey()).notEquals('01ebpv4fgbxqnff6kdc184bx0j');
 
-        localStorage.getItem = o.spy(() => 'c01ebpv4fgbxqnff6kdc184bx0j');
-        o(getApiKey()).equals('c01ebpv4fgbxqnff6kdc184bx0j');
+        const newKey = 'c' + ulid().toLowerCase();
+        localStorage.getItem = o.spy(() => newKey);
+        o(getApiKey()).equals(newKey);
     });
 
     o('should generate new keys after they expire', () => {
         const setSpy = o.spy();
         localStorage.setItem = setSpy;
-        // Generate a key that is about 91 days old
-        const oldDate = Date.now() - ONE_DAY_MS * 91;
+        // Generate a key that is about 31 days old
+        const oldDate = Date.now() - OneDayMs * 31;
         const fakeUlid = 'c' + encodeTime(oldDate, 10) + ulid().slice(10);
         localStorage.getItem = o.spy(() => fakeUlid.toLowerCase());
 
