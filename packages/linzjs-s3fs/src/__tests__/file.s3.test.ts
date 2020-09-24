@@ -2,11 +2,14 @@ import { FsS3 } from '../file.s3';
 import o from 'ospec';
 import { S3 } from 'aws-sdk';
 import { createSandbox } from 'sinon';
+import { S3Fs } from '..';
 
 o.spec('file.s3', () => {
     const sandbox = createSandbox();
     const mockS3 = new S3();
     const fs = new FsS3(mockS3);
+
+    const s3fs = new S3Fs();
 
     o.afterEach(() => sandbox.restore());
 
@@ -42,7 +45,7 @@ o.spec('file.s3', () => {
                 },
             } as any);
             try {
-                await fs.list('s3://bucket');
+                await s3fs.toArray(fs.list('s3://bucket'));
                 o(true).equals(false)('Should error on invalid reads');
             } catch (e) {
                 o(e.message).equals('Failed to list: "s3://bucket"');
@@ -64,7 +67,7 @@ o.spec('file.s3', () => {
                 },
             } as any);
 
-            const data = await fs.list('s3://bucket');
+            const data = await s3fs.toArray(fs.list('s3://bucket'));
             o(data).deepEquals([
                 's3://bucket/FirstFile:1',
                 's3://bucket/FirstFile:2',
@@ -86,7 +89,7 @@ o.spec('file.s3', () => {
                 },
             } as any);
 
-            const data = await fs.list('s3://bucket');
+            const data = await s3fs.toArray(fs.list('s3://bucket'));
             o(data).deepEquals(['s3://bucket/FirstFile']);
             o(stub.callCount).equals(1);
             const [firstCall] = stub.args[0] as any;
@@ -100,7 +103,7 @@ o.spec('file.s3', () => {
                 },
             } as any);
 
-            const data = await fs.list('s3://bucket/key');
+            const data = await s3fs.toArray(fs.list('s3://bucket/key'));
             o(data).deepEquals(['s3://bucket/keyFirstFile']);
             o(stub.callCount).equals(1);
             const [firstCall] = stub.args[0] as any;

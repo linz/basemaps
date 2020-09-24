@@ -12,10 +12,10 @@ function getCompositeError(e: FsError, msg: string): CompositeError {
 }
 
 export class FsLocal implements FileProcessor {
-    async list(filePath: string): Promise<string[]> {
+    async *list(filePath: string): AsyncGenerator<string> {
         try {
             const files = await fs.promises.readdir(filePath);
-            return files.map((f: string): string => path.join(filePath, f));
+            for (const file of files) yield path.join(filePath, file);
         } catch (e) {
             throw getCompositeError(e, `Failed to list: ${filePath}`);
         }

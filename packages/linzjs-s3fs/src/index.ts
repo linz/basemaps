@@ -1,14 +1,14 @@
 import { S3 } from 'aws-sdk';
 import { Readable } from 'stream';
+import { CompositeError } from './composite.error';
 import { FileProcessor } from './file';
 import { FileConfig, FileConfigS3 } from './file.config';
 import { FsLocal } from './file.local';
 import { FsS3 } from './file.s3';
-import { CompositeError } from './composite.error';
 
-export * from './file.config';
-export * from './file';
 export { CompositeError } from './composite.error';
+export * from './file';
+export * from './file.config';
 
 const localFs = new FsLocal();
 
@@ -23,6 +23,13 @@ export class S3Fs {
         }
     }
 
+    /** Utility to convert async generators into arrays */
+    async toArray<T>(generator: AsyncGenerator<T>): Promise<T[]> {
+        const output: T[] = [];
+        for await (const o of generator) output.push(o);
+        return output;
+    }
+
     read(filePath: string): Promise<Buffer> {
         return this.create(filePath).read(filePath);
     }
@@ -35,7 +42,7 @@ export class S3Fs {
         return this.create(filePath).write(filePath, buffer);
     }
 
-    list(filePath: string): Promise<string[]> {
+    list(filePath: string): AsyncGenerator<string> {
         return this.create(filePath).list(filePath);
     }
 
