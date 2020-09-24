@@ -47,7 +47,7 @@ export class LambdaHttpResponse {
         return false;
     }
 
-    json(obj: Record<string, unknown>): void {
+    json(obj: Record<string, any>): void {
         this.buffer(JSON.stringify(obj), ApplicationJson);
     }
 

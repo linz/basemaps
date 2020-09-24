@@ -1,5 +1,5 @@
 import { Bounds, EpsgCode } from '@basemaps/geo';
-import { FileOperator, ProjectionTileMatrixSet, StacBaseMapsExtension, StacVersion } from '@basemaps/shared';
+import { ProjectionTileMatrixSet, StacBaseMapsExtension, StacVersion } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
@@ -105,9 +105,6 @@ o.spec('CogJob', () => {
         });
 
         o('no source collection.json', async () => {
-            FileOperator.readJson = async (): Promise<any> => {
-                throw { name: 'CompositeError', code: 404 };
-            };
             const startNow = Date.now();
             const job = await CogStacJob.create({
                 id,
@@ -363,6 +360,22 @@ o.spec('CogJob', () => {
                     },
                 ],
             });
+        });
+
+        o('no source collection.json and not nice name', async () => {
+            try {
+                await CogStacJob.create({
+                    id,
+                    imageryName: 'yucky-name',
+                    metadata,
+                    ctx: { ...ctx, oneCogCovering: true },
+                    addAlpha,
+                    cutlinePoly: [],
+                });
+                o('').equals('create should not have exceeded');
+            } catch (err) {
+                o(err.message).equals('Missing date in imagery name: yucky-name');
+            }
         });
     });
 });

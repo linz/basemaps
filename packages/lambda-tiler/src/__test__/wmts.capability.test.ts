@@ -108,7 +108,7 @@ o.spec('WmtsCapabilities', () => {
         o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            'aDpqI6aJX7lRXKYgeYVVGDHzSkvXY5Z84q4Oq34IGdk=',
+            'TRDSi9zHUjylAsdj/8WnnOlP3ocRLSS3JzheGoJ9oQg=',
         );
     });
 

@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { extractYearRangeFromName, getUrlHost, s3ToVsis3 } from '../util';
+import { extractYearRangeFromName, getUrlHost, s3ToVsis3, titleizeImageryName } from '../util';
 
 o.spec('util', () => {
     o('extractYearRangeFromName', () => {
@@ -10,6 +10,15 @@ o.spec('util', () => {
         o(extractYearRangeFromName('2019_abc2020')).deepEquals([2019, 2021]);
         o(extractYearRangeFromName('2020_abc2019')).deepEquals([2019, 2021]);
         o(extractYearRangeFromName('2020-23abc')).deepEquals([2020, 2024]);
+    });
+
+    o('titleizeImageryName', () => {
+        o(titleizeImageryName('palmerston-north_urban_2016-17_12-125m_RGBA')).equals(
+            'Palmerston-north urban 2016-17 12.125m RGBA',
+        );
+        o(titleizeImageryName('palmerston-north_urban_2016-17_12-125_RGBA')).equals(
+            'Palmerston-north urban 2016-17 12-125 RGBA',
+        );
     });
 
     o('s3ToVsis3', () => {

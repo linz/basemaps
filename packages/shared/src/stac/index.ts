@@ -28,27 +28,31 @@ export interface StacObject {
     /** Unique processing Id */
     id: string;
 
-    stac_version: string;
+    stac_version: '1.0.0-beta.2';
 
     links: StacLink[];
 
     stac_extensions?: string[];
 }
 
-export interface StacCollection<S = Record<string, any>> extends StacObject {
+export interface StacExtent {
+    spatial: {
+        bbox: [number, number, number, number][];
+    };
+    temporal: {
+        interval: [string, string][];
+    };
+}
+
+export interface StacCatalog extends StacObject {
     title: string;
     description: string;
+}
 
+export interface StacCollection<S = Record<string, any>> extends StacCatalog {
     license: string;
 
-    extent: {
-        spatial: {
-            bbox: [number, number, number, number][];
-        };
-        temporal?: {
-            interval: [string, string][];
-        };
-    };
+    extent: StacExtent;
 
     keywords?: string[];
 
@@ -59,7 +63,8 @@ export interface StacCollection<S = Record<string, any>> extends StacObject {
 
 export interface StacItem<P = Record<string, unknown>> extends StacObject, GeoJSON.Feature<GeoJSON.Geometry, P> {
     id: string;
-    collection: string;
+    collection?: string;
+    bbox: GeoJSON.BBox;
     links: StacLink[];
     assets: Record<string, StacAsset>;
 }

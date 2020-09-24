@@ -3,6 +3,7 @@ import OSM from 'ol/source/OSM';
 import TileLayer from 'ol/layer/Tile';
 import { Epsg } from '@basemaps/geo';
 import * as proj from 'ol/proj.js';
+import { e } from './elm';
 
 function round(max: number): (c: number) => number {
     const decimals = 10 ** max;
@@ -10,32 +11,6 @@ function round(max: number): (c: number) => number {
 }
 const round7 = round(7);
 const round3 = round(3);
-
-/**
- * VDom style document.createElement
- * @param name
- */
-function e(name: string): HTMLElement;
-function e(name: string, attrs: Record<string, unknown>, value?: string | HTMLElement | HTMLElement[]): HTMLElement;
-function e(name: string, attrs?: Record<string, unknown>, value?: string | HTMLElement | HTMLElement[]): HTMLElement {
-    const el = document.createElement(name);
-    if (value == null) {
-        // noop
-    } else if (Array.isArray(value)) {
-        value.forEach((v) => el.appendChild(v));
-    } else if (typeof value == 'object') {
-        el.appendChild(value);
-    } else {
-        el.innerHTML = value;
-    }
-
-    if (attrs) {
-        Object.entries(attrs).forEach(([key, value]) => {
-            (el as any)[key] = value;
-        });
-    }
-    return el;
-}
 
 function kv(key: string, value: string | HTMLElement): { value: HTMLElement; container: HTMLElement } {
     const valueEl: HTMLElement = typeof value == 'string' ? e('div', { className: 'debug__value' }, value) : value;

@@ -19,8 +19,10 @@ export async function handleRequest(req: LambdaContext): Promise<LambdaHttpRespo
     req.set('referer', getUrlHost(req.header('referer')));
     req.set('userAgent', req.header('user-agent'));
 
-    const xyzData = tileFromPath(req.action.rest);
-    if (xyzData?.type == TileType.Image) ValidateTilePath.validate(req, xyzData);
+    if (req.action.name === 'tiles') {
+        const xyzData = tileFromPath(req.action.rest);
+        if (xyzData?.type == TileType.Image) ValidateTilePath.validate(req, xyzData);
+    }
 
     // Validate the request throwing an error if anything goes wrong
     req.timer.start('validate');
