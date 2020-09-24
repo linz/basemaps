@@ -9,7 +9,7 @@ export const LogStartDate = new Date(`${CurrentYear}-01-01T00:00:00.000Z`);
 
 export interface TileRequestStats {
     /** Unique Id for the time range */
-    '@id': string;
+    statId: string;
     /** Time of the rollup */
     timestamp: string;
     /** Api Key used */
@@ -24,7 +24,7 @@ export interface TileRequestStats {
     cache: { hit: number; miss: number };
     /** Status codes given by cloudfront */
     status: Record<number, number>;
-    /** Tile exensions used */
+    /** Tile file extensions used */
     extension: { webp: number; jpeg: number; png: number; wmts: number; other: number };
     /** Projections used */
     projection: { 2193: number; 3857: number };
@@ -36,7 +36,7 @@ export interface TileRequestStats {
 
 function newStat(timestamp: string, api: string, referer: string | undefined): TileRequestStats {
     return {
-        '@id': timestamp + '_' + createHash('sha3-256').update(`${api}_${referer}`).digest('hex'),
+        statId: timestamp + '_' + createHash('sha3-256').update(`${api}_${referer}`).digest('hex'),
         timestamp,
         api,
         referer,
