@@ -8,7 +8,7 @@ export interface FileProcessor {
     /** Write a file from either a buffer or stream */
     write(filePath: string, buffer: Buffer | Readable): Promise<void>;
     /** List all files in path */
-    list(filePath: string): Promise<string[]>;
+    list(filePath: string): AsyncGenerator<string>;
     /** Does the path exists */
     exists(filePath: string): Promise<boolean>;
 }

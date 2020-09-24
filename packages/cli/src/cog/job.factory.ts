@@ -40,7 +40,7 @@ export const CogJobFactory = {
         const sourceFs = FileOperator.create(sourceLocation);
         const tiffList = isFileConfigPath(sourceLocation)
             ? sourceLocation.files
-            : (await sourceFs.list(sourceLocation.path)).filter(filterTiff);
+            : (await FileOperator.toArray(sourceFs.list(sourceLocation.path))).filter(filterTiff);
 
         let tiffSource: CogSource[];
         if (FileOperator.isS3Processor(sourceFs)) {

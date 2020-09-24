@@ -44,7 +44,9 @@ export class TileSetLocal extends TileSet {
         if (this.tiffs != null) return true;
         const tiffFs = FileOperator.create(this.filePath);
 
-        const fileList = isTiff(this.filePath) ? [this.filePath] : await tiffFs.list(this.filePath);
+        const fileList = isTiff(this.filePath)
+            ? [this.filePath]
+            : await FileOperator.toArray(tiffFs.list(this.filePath));
         const files = fileList.filter(isTiff);
         if (files.length == 0 && !FileOperator.isS3(this.filePath)) {
             for (const dir of fileList.sort()) {

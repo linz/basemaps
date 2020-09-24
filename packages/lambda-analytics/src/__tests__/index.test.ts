@@ -50,13 +50,18 @@ o.spec('getStartDate', () => {
     });
 
     o('should use the start date if no files found', async () => {
-        s3fs.list = (): Promise<any> => Promise.resolve([]);
+        s3fs.list = async function* listFiles(): AsyncGenerator<string> {
+            // yield nothing
+        };
         const cacheData = await listCacheFolder('s3://foo/bar');
         o(cacheData.size).equals(0);
     });
 
     o('should not use the start date if files are found', async () => {
-        s3fs.list = (key: string): Promise<any> => Promise.resolve([`${key}baz.txt`, `${key}2020-01-01T01.ndjson`]);
+        s3fs.list = async function* listFiles(key: string): AsyncGenerator<string> {
+            yield `${key}baz.txt`;
+            yield `${key}2020-01-01T01.ndjson`;
+        };
         const cacheData = await listCacheFolder('s3://foo/bar/');
         o(cacheData.size).equals(1);
         o(cacheData.has('2020-01-01T01')).equals(true);
@@ -79,29 +84,29 @@ o.spec('handler', () => {
     o('should list and process files', async () => {
         const cachePath = `s3://analytics-cache/RollUpV${RollupVersion}/${currentYear}`;
 
+        const sourceFiles = [
+            `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-00.hash.gz`,
+            `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-01.hash.gz`,
+            `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-01.hashB.gz`,
+            `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-02.hash.gz`,
+            // Old
+            `${sourceBucket}/${cloudFrontId}.2019-07-28-02.hash.gz`,
+        ];
         sandbox.stub(FileProcess, 'reader').callsFake(lineReader(ExampleLogs, `${currentYear}-01-01T02`));
         const writeStub = sandbox.stub(s3fs, 'write');
-        const listStub = sandbox.stub(s3fs, 'list').callsFake(
-            async (source: string): Promise<string[]> => {
+        const listStub = sandbox
+            .stub(s3fs, 'list')
+            .callsFake(async function* ListFiles(source: string): AsyncGenerator<string> {
                 if (source.startsWith(sourceBucket)) {
-                    return [
-                        `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-00.hash.gz`,
-                        `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-01.hash.gz`,
-                        `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-01.hashB.gz`,
-                        `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-02.hash.gz`,
-                        // Old
-                        `${sourceBucket}/${cloudFrontId}.2019-07-28-02.hash.gz`,
-                    ].filter((f) => f.startsWith(source));
+                    for (const filePath of sourceFiles) {
+                        if (filePath.startsWith(source)) yield filePath;
+                    }
                 }
                 if (source.startsWith(cachePath)) {
-                    return [
-                        `${cachePath}/${currentYear}-01-01T00.ndjson`,
-                        `${cachePath}/${currentYear}-01-01T03.ndjson`,
-                    ];
+                    yield `${cachePath}/${currentYear}-01-01T00.ndjson`;
+                    yield `${cachePath}/${currentYear}-01-01T03.ndjson`;
                 }
-                return [];
-            },
-        );
+            });
 
         await handler();
 

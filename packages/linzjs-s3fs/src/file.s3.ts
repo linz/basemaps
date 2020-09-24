@@ -37,9 +37,8 @@ export class FsS3 implements FileProcessor {
         return { key, bucket };
     }
 
-    async list(filePath: string): Promise<string[]> {
+    async *list(filePath: string): AsyncGenerator<string> {
         const opts = this.parse(filePath);
-        let list: S3.Types.ObjectList = [];
         let ContinuationToken: string | undefined = undefined;
         const Bucket = opts.bucket;
         const Prefix = opts.key;
@@ -54,7 +53,11 @@ export class FsS3 implements FileProcessor {
 
                 // Failed to get any content abort
                 if (res.Contents == null) break;
-                list = list.concat(res.Contents);
+
+                for (const obj of res.Contents) {
+                    if (obj.Key == null) continue;
+                    yield `s3://${Bucket}/${obj.Key}`;
+                }
 
                 // Nothing left to fetch
                 if (!res.IsTruncated) break;
@@ -68,8 +71,6 @@ export class FsS3 implements FileProcessor {
         } catch (e) {
             throw getCompositeError(e, `Failed to list: "${filePath}"`);
         }
-
-        return list.map((c) => `s3://${Bucket}/${c.Key}`);
     }
 
     async read(filePath: string): Promise<Buffer> {

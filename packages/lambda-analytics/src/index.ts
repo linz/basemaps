@@ -31,8 +31,7 @@ export async function listCacheFolder(cachePath: string): Promise<Set<string>> {
     // Find where the last script finished processing
     const cachePathList = s3fs.join(cachePath, CacheFolder);
     if (s3fs.isS3(cachePathList) || (await s3fs.exists(cachePathList))) {
-        const existing = await s3fs.list(cachePathList);
-        for (const file of existing) {
+        for await (const file of s3fs.list(cachePathList)) {
             if (!file.endsWith(CacheExtension)) continue;
             existingFiles.add(file.replace(cachePathList, '').replace(CacheExtension, ''));
         }
@@ -82,7 +81,9 @@ export async function handler(): Promise<void> {
 
         const promise = Q.time(async () => {
             // Filter for files in the date range we are looking for
-            const todoFiles = await s3fs.list(s3fs.join(SourceLocation, `${CloudFrontId}.${nextDateKey}`));
+            const todoFiles = await s3fs.toArray(
+                s3fs.list(s3fs.join(SourceLocation, `${CloudFrontId}.${nextDateKey}`)),
+            );
             if (todoFiles.length == 0) {
                 Logger.debug({ startAt }, 'Skipped');
 

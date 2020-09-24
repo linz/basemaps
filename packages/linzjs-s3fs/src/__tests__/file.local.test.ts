@@ -1,12 +1,14 @@
 import o from 'ospec';
 import { FsLocal } from '../file.local';
 import { CompositeError } from '../composite.error';
+import { S3Fs } from '..';
 
 o.spec('FileLocal', () => {
+    const s3fs = new S3Fs();
     const localFs = new FsLocal();
     o('Should capture not found errors:list', async () => {
         try {
-            await localFs.list('/foo/bar/baz');
+            await s3fs.toArray(localFs.list('/foo/bar/baz'));
             throw new Error('Failed to throw');
         } catch (e) {
             o(CompositeError.isCompositeError(e)).equals(true);
@@ -36,7 +38,7 @@ o.spec('FileLocal', () => {
 
     o('Should capture permission errors:list', async () => {
         try {
-            await localFs.list('/root/test');
+            await s3fs.toArray(localFs.list('/root/test'));
             throw new Error('Failed to throw');
         } catch (e) {
             o(CompositeError.isCompositeError(e)).equals(true);
