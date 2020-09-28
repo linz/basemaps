@@ -1,5 +1,5 @@
 export const StacVersion = '1.0.0-beta.2';
-export const StacLicense = 'CC-BY-4.0';
+export const StacLicense = 'CC BY 4.0';
 export const StacBaseMapsExtension =
     'https://basemaps.linz.govt.nz/json-schema/stac-basemaps-extension/1.0/schema.json';
 

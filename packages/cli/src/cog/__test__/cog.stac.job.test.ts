@@ -1,5 +1,5 @@
 import { Bounds, EpsgCode } from '@basemaps/geo';
-import { ProjectionTileMatrixSet, StacBaseMapsExtension, StacVersion } from '@basemaps/shared';
+import { ProjectionTileMatrixSet, StacBaseMapsExtension, StacLicense, StacVersion } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
@@ -186,7 +186,7 @@ o.spec('CogJob', () => {
                     spatial: { bbox: [[169.3341, -51.8754, -146.1432, -32.8952]] },
                     temporal: { interval: [['2010-01-01T00:00:00Z', '2011-01-01T00:00:00Z']] },
                 },
-                license: 'CC-BY-4.0',
+                license: StacLicense,
                 keywords: ['Imagery', 'New Zealand'],
                 providers: [],
                 summaries: {
