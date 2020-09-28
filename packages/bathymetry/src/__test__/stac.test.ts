@@ -1,5 +1,5 @@
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { LogConfig, LogType, StacCollection, StacBaseMapsExtension, StacVersion } from '@basemaps/shared';
+import { LogConfig, LogType, StacCollection, StacBaseMapsExtension, StacVersion, StacLicense } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
@@ -113,7 +113,7 @@ o.spec('stac', () => {
                         interval: [['2020-01-01T00:00:00Z', '2021-01-01T00:00:00Z']],
                     },
                 },
-                license: 'CC-BY-4.0',
+                license: StacLicense,
                 links: stac.links,
                 providers: [
                     {
@@ -158,7 +158,7 @@ o.spec('stac', () => {
                     spatial: { bbox: [[-179.0332, 84.9205, -178.9893, 84.9244]] },
                     temporal: { interval: [['2020-01-01T00:00:00Z', '2020-10-12T01:02:03Z']] },
                 },
-                license: 'CC-BY-4.0',
+                license: StacLicense,
                 links: [
                     {
                         rel: 'self',
