@@ -257,7 +257,7 @@ o.spec('attribution', () => {
                 collections: [
                     {
                         stac_version: '1.0.0-beta.2',
-                        license: 'CC-BY-4.0',
+                        license: 'CC BY 4.0',
                         id: 'ir_ir_1',
                         providers: [{ name: 'p1' }],
                         title: 'image one',
@@ -277,7 +277,7 @@ o.spec('attribution', () => {
                     },
                     {
                         stac_version: '1.0.0-beta.2',
-                        license: 'CC-BY-4.0',
+                        license: StacLicense,
                         id: 'ir_ir_2',
                         providers: [
                             {
@@ -303,7 +303,7 @@ o.spec('attribution', () => {
                     },
                     {
                         stac_version: '1.0.0-beta.2',
-                        license: 'CC-BY-4.0',
+                        license: StacLicense,
                         id: 'ir_ir_3',
                         providers: [
                             {
@@ -329,7 +329,7 @@ o.spec('attribution', () => {
                     },
                     {
                         stac_version: '1.0.0-beta.2',
-                        license: 'CC-BY-4.0',
+                        license: StacLicense,
                         id: 'ir_ir_4',
                         providers: [{ name: 'p1' }],
                         title: 'image one',
