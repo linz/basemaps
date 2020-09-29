@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.15.0](https://github.com/linz/basemaps/compare/v4.14.0...v4.15.0) (2020-09-29)
+
+
+### Bug Fixes
+
+* STAC files should comply to 1.0.0-beta.2 of the specification ([#1176](https://github.com/linz/basemaps/issues/1176)) ([d2fe323](https://github.com/linz/basemaps/commit/d2fe3236cacdbf9ae7118934c8936490faeab64c))
+
+
+### Features
+
+* **lambda-tiler:** attribution ([#1205](https://github.com/linz/basemaps/issues/1205)) ([69cca66](https://github.com/linz/basemaps/commit/69cca66d901a23f01868ce6fedc8991f01c55de2))
+* **landing:** generate new api key for users every 30 days ([#1206](https://github.com/linz/basemaps/issues/1206)) ([3a47c7c](https://github.com/linz/basemaps/commit/3a47c7c366c5794b0049fae1aaa67b4c917cdf95))
+
+
+
+
+
 # [4.14.0](https://github.com/linz/basemaps/compare/v4.13.0...v4.14.0) (2020-09-17)
 
 **Note:** Version bump only for package @basemaps/landing
