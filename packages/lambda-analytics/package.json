@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-analytics",
-  "version": "4.14.0",
+  "version": "4.15.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -14,8 +14,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/shared": "^4.14.0",
-    "@linzjs/s3fs": "^4.14.0"
+    "@basemaps/shared": "^4.15.0",
+    "@linzjs/s3fs": "^4.15.0"
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
