@@ -5,5 +5,11 @@
         "outDir": "./build"
     },
     "include": ["src/**/*"],
-    "references": []
+    "references": [
+        {"path": "../shared"},
+        {"path": "../geo"},
+        {"path": "../lambda"},
+        {"path": "../tiler"},
+        {"path": "../tiler-sharp"}
+    ]
 }

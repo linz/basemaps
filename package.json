@@ -32,9 +32,14 @@
     "sinon": "^9.0.3",
     "zod": "^1.10.1"
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/@types/**"
+    ]
+  },
   "resolutions": {
     "minimist": "^1.2.3",
     "yargs-parser": "^18.1.2"

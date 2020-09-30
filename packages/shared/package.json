@@ -34,7 +34,9 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.43",
+    "@types/geojson": "^7946.0.7",
     "@types/pino": "^6.0.0",
+    "@types/proj4": "^2.5.0",
     "@types/sax": "^1.2.1"
   },
   "publishConfig": {
