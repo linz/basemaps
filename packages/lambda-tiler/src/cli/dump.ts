@@ -51,12 +51,13 @@ async function main(): Promise<void> {
 
     const tileData = await tile(ctx);
 
-    await fs.writeFile(`output_${xyz.x}_${xyz.y}_z${xyz.z}.${ext}`, tileData.body);
-
     const headers: Record<string, any> = {};
     for (const [key, value] of tileData.headers) headers[key] = value;
 
-    logger.info({ ...tileData, body: null, headers }, 'Done');
+    logger.info({ ...tileData, body: tileData.body?.length, headers }, 'Done');
+    if (tileData.body != null) {
+        await fs.writeFile(`output_${xyz.x}_${xyz.y}_z${xyz.z}.${ext}`, tileData.body);
+    }
 }
 
 main().catch(console.error);

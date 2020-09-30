@@ -11,4 +11,5 @@ updates:
   ignore:
     - dependency-name: '@aws-cdk/*'
     - dependency-name: 'aws-cdk'
+    - dependency-name: 'aws-sdk'
   open-pull-requests-limit: 10
