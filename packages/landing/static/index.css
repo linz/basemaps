@@ -167,6 +167,10 @@ button {
     transition: right 0.5s;
 }
 
+#side-nav>h3 {
+    margin: 0;
+}
+
 .side-nav .side-nav-container {
     display: none;
 }
@@ -178,6 +182,7 @@ button {
     right: 8px;
     font-size: 36px;
     color: #00425d;
+    outline: none;
 }
 
 .side-nav h5 {
