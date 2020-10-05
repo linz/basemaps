@@ -26,7 +26,6 @@ const BUILD_CMD = [
 
     ...ENV_VARS,
     process.env.NODE_ENV == 'production' ? '--minify' : '',
-    'src/index.ts',
 ];
 
 const SPECIAL_FILES = {
@@ -78,9 +77,23 @@ async function bundleFile(fileName, fileData) {
 }
 
 async function bundleJs() {
-    console.log(c.bold('BundleArgs'), BUILD_CMD.filter(Boolean));
-    const bundledCode = cp.execSync(BUILD_CMD.join(' ')).toString();
+    const args = BUILD_CMD.concat(['src/index.ts']);
+
+    console.log(c.bold('BundleArgs'), args.filter(Boolean));
+    const bundledCode = cp.execSync(args.join(' ')).toString();
     return bundleFile(`index${fileSuffix(bundledCode)}.js`, bundledCode);
+}
+
+async function bundleAttribution() {
+    const args = BUILD_CMD.concat(['src/attribution.index.ts']);
+
+    console.log(c.bold('BundleArgs'), args.filter(Boolean));
+    const bundledCode = cp.execSync(args.join(' ')).toString();
+
+    await fs.mkdir('dist/lib', { recursive: true });
+
+    await bundleFile(`lib/attribution${fileSuffix(bundledCode)}.js`, bundledCode);
+    await bundleFile(`lib/attribution.js`, bundledCode);
 }
 
 async function bundleCss() {
@@ -128,6 +141,8 @@ async function copyStatic() {
 async function main() {
     await fs.mkdir('dist', { recursive: true });
     await copyStatic();
+
+    await bundleAttribution();
 
     const js = await bundleJs();
     const css = await bundleCss();
