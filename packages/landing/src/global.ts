@@ -1,3 +1,4 @@
+import { Attribution } from './attribution';
 import { Basemaps } from './map';
 import { BasemapsUi } from './ui';
 
@@ -10,5 +11,6 @@ declare global {
         // Access to basemaps global
         basemaps: Basemaps;
         basemapsUi: BasemapsUi;
+        BasemapsAttribution: typeof Attribution;
     }
 }

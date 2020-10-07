@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>OpenLayers WGS84 Basemaps Demo</title>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/css/ol.css"
+        type="text/css"
+    />
+    <style>
+     html,
+     body {
+         height: 100%;
+         margin: 0;
+     }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/build/ol.js"></script>
+  </head>
+
+  <body>
+    <div id="map" style="width: 500px; height: 500px;"></div>
+    <script>
+     const apiKey = localStorage.getItem('api-key');
+     if (! apiKey) {
+         throw new Error('Missing api-key in localStorage');
+     }
+
+     const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api='+apiKey;
+     const attributions = '<a href="https://www.linz.govt.nz/data/linz-data/linz-basemaps/data-attribution">LINZ CC BY 4.0 © Imagery Basemap contributors</a>';
+
+     new ol.Map({
+         target: 'map',
+         layers: [
+             new ol.layer.Tile({
+                 source: new ol.source.XYZ({
+                     url,
+                     attributions: [attributions]
+                 })
+             })
+         ],
+         view: new ol.View({
+             center: [19467552, -5074414],
+             zoom: 6
+         }),
+     });
+    </script>
+  </body>
+</html>

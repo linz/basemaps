@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>OpenLayers WMTS Basemaps Demo</title>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/css/ol.css"
+        type="text/css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/build/ol.js"></script>
+  </head>
+
+  <body>
+    <div id="map" style="width: 800px; height: 600px;"></div>
+    <script>
+     (async () => {
+         const apiKey = localStorage.getItem('api-key');
+         if (! apiKey) {
+             throw new Error('Missing api-key in localStorage');
+         }
+
+         const projection = 'EPSG:3857';
+         const baseUrl = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/' + projection;
+         const loadingWmts = fetch(baseUrl+'/WMTSCapabilities.xml?api='+apiKey);
+
+         const parser = new ol.format.WMTSCapabilities();
+         const wmtsXml = parser.read(await (await loadingWmts).text());
+         const options = ol.source.WMTS.optionsFromCapabilities(wmtsXml, {
+             layer: 'aerial',
+             matrixSet: projection,
+         });
+
+         const source = new ol.source.WMTS(options);
+         source.setAttributions('<a href="https://www.linz.govt.nz/data/linz-data/linz-basemaps/data-attribution">LINZ CC BY 4.0 © Imagery Basemap contributors</a>');
+
+         new ol.Map({
+             target: 'map',
+             layers: [new ol.layer.Tile({ source, projection })],
+             controls: ol.control.defaults({ attributionOptions: { collapsed: false, collapsible: false } }),
+             view: new ol.View({
+                 center: [19467552, -5074414],
+                 zoom: 6,
+             }),
+         });
+     })();
+    </script>
+  </body>
+</html>

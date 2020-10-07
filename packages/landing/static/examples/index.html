@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png" />
+    <title>Basemaps Examples | Land Information New Zealand (LINZ)</title>
+  </head>
+
+  <body>
+    <h1>Examples of accessing basemaps from the browser</h1>
+    <p id="noApiKey" style="display:none">
+      Please first visit <a href="/" >basemaps</a> to be automatically allocated an 90 day API key.
+    </p>
+    <ul>
+      <li><a href="examples/index.leaflet.xyz.3857.html">index.leaflet.xyz.3857.html</a></li>
+      <li><a href="examples/index.openlayers.attribution.wmts.3857.html">index.openlayers.attribution.wmts.3857.html</a></li>
+      <li><a href="examples/index.openlayers.wmts.3857.html">index.openlayers.wmts.3857.html</a></li>
+      <li><a href="examples/index.openlayers.xyz.3857.html">index.openlayers.xyz.3857.html</a></li>
+    </ul>
+    <p>
+      Source code available at <a href="https://github.com/linz/basemaps">https://github.com/linz/basemaps</a>
+    </p>
+    <script>
+      if (! localStorage.getItem("api-key")) {
+          document.getElementById('noApiKey').style.display = "";
+      }
+    </script>
+  </body>
+</html>

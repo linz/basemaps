@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Leaflet WGS84 Basemaps Demo</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map" style="width: 600px; height: 400px;"></div>
+    <script>
+     const apiKey = localStorage.getItem('api-key');
+     if (! apiKey) {
+         throw new Error('Missing api-key in localStorage');
+     }
+
+     const startPos = [-40.5, 173];
+     const startZoom = 6;
+
+     const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api='+apiKey;
+
+     const tiles = L.tileLayer(url, {
+         attribution: '<a href="https://www.linz.govt.nz/data/linz-data/linz-basemaps/data-attribution">LINZ CC BY 4.0 © Imagery Basemap contributors</a>'
+      });
+
+     L.map('map')
+      .addLayer(tiles)
+      .setView(startPos, startZoom);
+
+    </script>
+  </body>
+</html>

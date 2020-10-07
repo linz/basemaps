@@ -11,7 +11,7 @@ import TileSource from 'ol/source/Tile';
 import WMTS from 'ol/source/WMTS.js';
 import XYZ from 'ol/source/XYZ';
 import View from 'ol/View';
-import { Attribution } from './attribution';
+import { OlAttribution } from './ol.attribution';
 import { gaEvent, GaEvent } from './config';
 import { NztmOl } from './nztm2000';
 import { MapLocation, MapOptions, MapOptionType, WindowUrl } from './url';
@@ -129,7 +129,7 @@ export class Basemaps {
             keyboardEventTarget: document,
         });
 
-        Attribution.init(source, this.map, this.config);
+        OlAttribution.init(source, this.map, this.config);
 
         this.map.addEventListener('postrender', this.postRender);
     }
