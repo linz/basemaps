@@ -3,6 +3,7 @@ const AWS = require('aws-sdk');
 const fs = require('fs').promises;
 const crypto = require('crypto');
 const mime = require('mime-types');
+const { extname, basename } = require('path');
 const invalidateCache = require('@basemaps/cli/build/cli/util').invalidateCache;
 const { recurseDirectory } = require('./util');
 
@@ -23,6 +24,9 @@ async function getHash(Bucket, Key) {
     return null;
 }
 
+// match a string containing a version number
+const HasVersionRe = /-\d+\.\d+\.\d+-/;
+
 /**
  * Deploy the built s3 assets into the Edge bucket
  *
@@ -33,6 +37,7 @@ async function deploy() {
     const stackInfo = await cf.describeStacks({ StackName: 'Edge' }).promise();
     const bucket = stackInfo.Stacks[0].Outputs.find((f) => f.OutputKey == 'CloudFrontBucket');
     if (bucket == null) throw new Error('Failed to find EdgeBucket');
+    console.log(`Upload to s3 bucket "${bucket.OutputValue}"`);
 
     const s3BucketName = bucket.OutputValue;
 
@@ -40,48 +45,55 @@ async function deploy() {
     const s3Bucket = allBuckets.Buckets.find((f) => f.Name == s3BucketName);
     if (s3Bucket == null) throw new Error('Failed to locate edge bucket in current account');
 
-    let hasChanges = false;
+    async function upload(filePath, fileData, ContentType, CacheControl, hash) {
+        console.log('Uploading', filePath, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
+        const res = await s3
+            .putObject({
+                Bucket: s3BucketName,
+                Key: filePath,
+                Body: fileData,
+                Metadata: { [HashKey]: hash },
+                ContentType,
+                CacheControl,
+            })
+            .promise();
+        console.log('\tDone', res.ETag);
+    }
 
-    /**
-     * Upload all files from the dist directory, including any sub directories, to S3 bucket .
-     */
-    const uploadDirectory = async () => {
-        await recurseDirectory(DistDir, async (filePath, isDir) => {
-            if (isDir) return true;
-            const fileData = await fs.readFile(`${DistDir}/${filePath}`);
-            const hash = crypto.createHash('sha512').update(fileData).digest('base64');
+    // Upload all files from the dist directory, including any sub directories, to S3 bucket .
+    await recurseDirectory(DistDir, async (filePath, isDir) => {
+        if (isDir) return true;
+        const fileData = await fs.readFile(`${DistDir}/${filePath}`);
+        const hash = crypto.createHash('sha512').update(fileData).digest('base64');
 
-            const oldHash = await getHash(s3BucketName, filePath);
-            // Only upload files if they have changed
-            if (oldHash == hash) {
-                console.log('Skipped', filePath, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
-                return true;
-            }
-            hasChanges = true;
-
-            // Don't set cache control for index.html as it may change all other files are hashed and immutable
-            const cacheControl = filePath == 'index.html' ? undefined : 'public, max-age=604800, immutable';
-
-            console.log('Uploading', filePath, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
-            const res = await s3
-                .putObject({
-                    Bucket: s3BucketName,
-                    Key: filePath,
-                    Body: fileData,
-                    Metadata: { [HashKey]: hash },
-                    ContentType: mime.contentType(filePath),
-                    CacheControl: cacheControl,
-                })
-                .promise();
-
-            console.log('\tDone', res.ETag);
+        const oldHash = await getHash(s3BucketName, filePath);
+        // Only upload files if they have changed
+        if (oldHash == hash) {
+            console.log('Skipped', filePath, `${(fileData.byteLength / 1024).toFixed(2)}Kb`, hash);
             return true;
-        });
-    };
+        }
+        const contentType = mime.contentType(extname(filePath));
 
-    await uploadDirectory();
+        const cacheControl = HasVersionRe.test(basename(filePath))
+            ? // Set cache control for versioned files to immutable
+              'public, max-age=604800, immutable'
+            : // Set cache control for non versioned files to be short lived
+              'public, max-age=60, stale-while-revalidate=300';
 
-    if (hasChanges) await invalidateCache('/index.html', true);
+        await upload(filePath, fileData, contentType, cacheControl, hash);
+
+        if (filePath === 'index.html') {
+            await invalidateCache('/index.html', true);
+        } else if (filePath.endsWith('/index.html')) {
+            // s3 does not handle subdirectory index.html so need to upload to dirname and
+            // dirname+'/' also
+            await upload(filePath.replace('/index.html', ''), fileData, contentType, cacheControl, hash);
+            await upload(filePath.replace('/index.html', '/'), fileData, contentType, cacheControl, hash);
+        }
+
+        return true;
+    });
+
     // TODO this should not live here.
     await invalidateCache('/v1/version', true);
 }
