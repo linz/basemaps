@@ -83,7 +83,7 @@ export function multiPolygonToWgs84(multipoly: MultiPolygon, toWgs84: ConvertCoo
                         }
                     }
                     if (lineCrosses) {
-                        // insert an point on the AM which approximates a straight line in
+                        // insert a point on the AM which approximates a straight line in
                         // source coordinates.
                         const frac = (180 - wPoint[0]) / (wPrev[0] - wPoint[0]);
                         const midPoint = toWgs84(pointAtFrac(frac, sPoint, sPrev));
