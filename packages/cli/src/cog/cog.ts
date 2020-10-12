@@ -87,9 +87,10 @@ export async function buildCogForName(
         'CreateCog',
     );
 
+    const sourceLocation = job.source.location;
     // If required assume role
-    if (isConfigS3Role(job.source)) {
-        const credentials = Aws.credentials.getCredentialsForRole(job.source.roleArn, job.source.externalId);
+    if (isConfigS3Role(sourceLocation)) {
+        const credentials = Aws.credentials.getCredentialsForRole(sourceLocation.roleArn, sourceLocation.externalId);
         cogBuild.gdal.setCredentials(credentials);
     }
 
