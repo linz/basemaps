@@ -146,8 +146,9 @@ export class CogStacJob implements CogJob {
 
         const interval: [string, string][] = [];
         try {
+            const sourceFs = FileOperator.create(ctx.sourceLocation);
             const sourceCollectionPath = FileOperator.join(ctx.sourceLocation.path, 'collection.json');
-            sourceStac = await FileOperator.readJson<StacCollection>(sourceCollectionPath);
+            sourceStac = await FileOperator.readJson<StacCollection>(sourceCollectionPath, sourceFs);
             description = sourceStac.description;
             interval.push(...(sourceStac.extent?.temporal?.interval ?? []));
             links.push({ href: sourceCollectionPath, rel: 'sourceImagery', type: 'application/json' });
