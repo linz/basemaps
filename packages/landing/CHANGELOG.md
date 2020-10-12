@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.16.0](https://github.com/linz/basemaps/compare/v4.15.0...v4.16.0) (2020-10-12)
+
+
+### Features
+
+* Update browser examples ([#1219](https://github.com/linz/basemaps/issues/1219)) ([0fe7d7e](https://github.com/linz/basemaps/commit/0fe7d7e5f1a5b153aa27045ae9a86f0b26318636))
+* **landing:** be clear about 90 day API key ([#1240](https://github.com/linz/basemaps/issues/1240)) ([4d0f08c](https://github.com/linz/basemaps/commit/4d0f08c674c47693ca8f42d7960e1fef0d483e80))
+
+
+
+
+
 # [4.15.0](https://github.com/linz/basemaps/compare/v4.14.0...v4.15.0) (2020-09-29)
 
 
