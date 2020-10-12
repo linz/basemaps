@@ -5,7 +5,7 @@ import { Extent } from 'ol/extent';
 import OlMap from 'ol/Map';
 import MapEventType from 'ol/MapEventType';
 import Source from 'ol/source/Source';
-import { Attribution } from './attribution';
+import { Attribution } from '@basemaps/attribution';
 import { MapOptions, MapOptionType, WindowUrl } from './url';
 
 const Copyright = `© ${StacLicense} LINZ`;

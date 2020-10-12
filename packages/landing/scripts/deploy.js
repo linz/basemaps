@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const mime = require('mime-types');
 const { extname, basename } = require('path');
 const invalidateCache = require('@basemaps/cli/build/cli/util').invalidateCache;
-const { recurseDirectory } = require('./util');
+const { recurseDirectory } = require('../../../scripts/file.util');
 
 const DistDir = './dist';
 const HashKey = 'linz-hash';

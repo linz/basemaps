@@ -16,6 +16,7 @@
         { "path": "./packages/lambda-api-tracker" },
         { "path": "./packages/lambda-tiler" },
         { "path": "./packages/lambda-analytics" },
+        { "path": "./packages/attribution" },
         { "path": "./packages/landing" }
     ]
 }

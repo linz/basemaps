@@ -27,6 +27,10 @@ yarn run build
 yarn run test
 ```
 
+## Example clients
+
+See https://basemaps.linz.govt.nz/examples
+
 ## License
 
 This system is licensed under the MIT License, except where otherwise specified. See the [LICENSE](https://github.com/linz/basemaps/blob/master/LICENSE) file for more details.
