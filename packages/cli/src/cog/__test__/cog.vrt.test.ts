@@ -171,7 +171,7 @@ o.spec('cog.vrt', () => {
         const vtif1 = '/vsis3' + tif1Path;
         const vtif2 = '/vsis3' + tif2Path;
 
-        (job.source as any)['roleArn'] = 'a:role:string';
+        job.source.location = { type: 's3', path: 's3://foo/bar', roleArn: 'a:role:string' };
 
         job.source.files = job.source.files.map((o) => {
             o = Object.assign({}, o);

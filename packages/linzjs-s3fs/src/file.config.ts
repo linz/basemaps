@@ -22,6 +22,8 @@ export interface FileConfigS3Role extends FileConfigS3 {
     externalId?: string;
 }
 
-export function isConfigS3Role(r: any): r is FileConfigS3Role {
-    return typeof r['roleArn'] == 'string';
+export function isConfigS3Role(r?: string | FileConfig): r is FileConfigS3Role {
+    if (r == null) return false;
+    if (typeof r == 'string') return false;
+    return 'roleArn' in r && typeof r.roleArn == 'string';
 }
