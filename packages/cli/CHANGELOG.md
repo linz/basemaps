@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.16.0](https://github.com/linz/basemaps/compare/v4.15.0...v4.16.0) (2020-10-12)
+
+
+### Bug Fixes
+
+* **cli:** correct permissions when creating cogs ([#1255](https://github.com/linz/basemaps/issues/1255)) ([2079041](https://github.com/linz/basemaps/commit/20790410bd014d74446879acf29e03889b18e539))
+* **cli:** correct the location to find the source roleArn ([#1256](https://github.com/linz/basemaps/issues/1256)) ([906843d](https://github.com/linz/basemaps/commit/906843d699386ae3b480316ba911467f1d375def))
+
+
+
+
+
 # [4.15.0](https://github.com/linz/basemaps/compare/v4.14.0...v4.15.0) (2020-09-29)
 
 
