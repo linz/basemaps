@@ -169,7 +169,7 @@ export class ActionBatchJob extends CommandLineAction {
     }
 
     static async batchJob(job: CogJob, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
-        const jobPath = job.getJobPath();
+        const jobPath = job.getJobPath('job.json');
         if (!FileOperator.isS3(jobPath)) {
             throw new Error(`AWS Batch collection.json have to be in S3, jobPath:${jobPath}`);
         }
