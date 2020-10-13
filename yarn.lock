@@ -1513,9 +1513,9 @@
     write-file-atomic "^2.3.0"
 
 "@linzjs/cdk-elastic-shipper@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@linzjs/cdk-elastic-shipper/-/cdk-elastic-shipper-0.6.1.tgz#17c65ff00f8c925480acd7c37981ca068bded2f7"
-  integrity sha512-73tOHieCj5wbDIqv36Jcf4rWCw43IJagHIcThLLd20mkap7zL7plO+1a3x3LIfM3RPZIWu90bmEOdStlYzMedg==
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/@linzjs/cdk-elastic-shipper/-/cdk-elastic-shipper-0.6.2.tgz#67432224c4a0c0e9a741743053948e4e1720080f"
+  integrity sha512-5FcPy+RWjkTFRrRia44vWOFUn1lIb2WnTHStuLxivSRd9EP9pSl/54QuziPOVlcY8i2ZzEIXmUIVDlMVBssOgQ==
   dependencies:
     "@acuris/aws-es-connection" "^1.1.1"
     "@aws-cdk/aws-ec2" "> 1.53.0"
