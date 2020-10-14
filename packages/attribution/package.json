@@ -1,0 +1,42 @@
+{
+  "name": "@basemaps/attribution",
+  "version": "4.16.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/attribution"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
+    "bundle": "../../scripts/bundle.js package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist/",
+    "build/"
+  ],
+  "dependencies": {
+    "@basemaps/shared": "^4.16.0",
+    "@linzjs/geojson": "^4.16.0",
+    "ol": "^6.3.1"
+  },
+  "devDependencies": {
+    "@types/ol": "^6.3.1",
+    "esbuild": "^0.7.1"
+  },
+  "bundle": {
+    "entry": "src/attribution.index.ts",
+    "outfile": "dist/attribution.js",
+    "platform": "browser"
+  }
+}

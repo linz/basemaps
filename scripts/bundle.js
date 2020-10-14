@@ -3,11 +3,13 @@
  * Using the package.json#bundle object configure ESBuild to bundle a javascript file
  */
 const GitInfo = require('../packages/shared/build/cli/git.tag').GitTag;
+const crypto = require('crypto');
 const cp = require('child_process');
 const fs = require('fs');
 const z = require('zod');
 const c = require('ansi-colors');
 const path = require('path');
+const { recurseDirectory } = require('./file.util');
 
 const gitInfo = GitInfo();
 const DefaultEnvVars = {
@@ -16,27 +18,32 @@ const DefaultEnvVars = {
     NODE_ENV: process.env.NODE_ENV || 'dev',
 };
 
+let pkgJson;
+
 const BundleSchema = z.object({
     entry: z.string(),
     /** destination path */
-    outdir: z.string(),
+    outdir: z.string().optional(),
+    outfile: z.string().optional(),
 
-    env: z.array(z.string()).optional(),
+    env: z.record(z.union([z.null(), z.string()])).optional(),
     external: z.array(z.string()).optional(),
 
     /** Suffix a hash  */
     suffix: z.boolean().optional(),
+    /** Hash and copy resources and insert into them into an HTML template  */
+    subresourceHash: z.record(z.string()).optional(),
 
-    platform: z.literal('node').optional(),
+    platform: z.union([z.literal('node'), z.literal('browser')]).optional(),
     target: z.literal('es2018').optional(),
 
     format: z.literal('cjs').optional(),
 });
 const PkgBundle = z.union([BundleSchema, z.array(BundleSchema)]);
 
-function defineEnv(envName, envValue) {
+function defineEnv([envName, envValue]) {
     const envVar = (envValue == null ? process.env[envName] : envValue) || '';
-    envVar != '' ? console.log('DefineEnv', envName, `"${c.green(envVar)}"`) : null;
+    if (envVar != '') console.log('DefineEnv', envName, `"${c.green(envVar)}"`);
     return `--define:process.env.${envName}="${envVar}"`;
 }
 
@@ -45,24 +52,87 @@ function joinPath(basePath, newPath) {
     return path.join(basePath, newPath);
 }
 
-function bundleJs(basePath, cfg) {
-    const outPath = joinPath(basePath, cfg.outdir);
+function fileSuffix(fileData) {
+    const bundleHash = crypto.createHash('sha512').update(fileData).digest('hex').slice(0, 16);
+    return `-${pkgJson.version}-${bundleHash}`;
+}
+
+function bundleJs(basePath, cfg, outfile) {
     const buildCmd = [
         'esbuild',
         '--bundle',
         `--platform=${cfg.platform || 'node'}`,
         `--target=${cfg.target || 'es2018'}`,
         `--format=${cfg.format || 'cjs'}`,
-        ...(cfg.env || []).map(defineEnv),
-        ...Object.keys(DefaultEnvVars).map((c) => defineEnv(c, DefaultEnvVars[c])),
+        ...Object.entries(cfg.env || {}).map(defineEnv),
+        ...Object.entries(DefaultEnvVars).map(defineEnv),
         ...(cfg.external || []).map((c) => `--external:${c}`),
-        `--outdir=${outPath}`,
+        `--outfile=${outfile}`,
         joinPath(basePath, cfg.entry),
     ];
 
     cp.spawnSync('npx', buildCmd);
 
-    const fileData = fs.readFileSync(path.join(outPath, 'index.js')).toString();
+    const fileData = fs.readFileSync(outfile).toString();
+    console.log('Bundled', (fileData.length / 1024).toFixed(2), 'KB');
+}
+
+async function bundleDir(basePath, cfg, outfile) {
+    const srcDir = cfg.entry;
+    fs.mkdirSync(outfile, { recursive: true });
+
+    await recurseDirectory(srcDir, (filePath, isDir) => {
+        const srcPath = path.join(srcDir, filePath);
+        const destPath = path.join(outfile, filePath);
+        if (isDir) {
+            fs.mkdirSync(destPath, { recursive: true });
+        } else {
+            fs.writeFileSync(destPath, fs.readFileSync(srcPath));
+        }
+        return true;
+    });
+}
+
+const HtmlTemplateExtReplace = {
+    '.js': (name, hash) => `<script src="${name}" integrity="sha512-${hash}"></script>`,
+    '.css': (name, hash) => `<link rel="stylesheet" href="${name}" integrity="${hash}" />`,
+};
+
+function bundleHtml(basePath, cfg, outfile) {
+    const outDir = path.dirname(outfile);
+    const html = fs.readFileSync(joinPath(basePath, cfg.entry));
+    let htmlOutput = html.toString();
+    if (cfg.subresourceHash != null) {
+        for (const [key, filename] of Object.entries(cfg.subresourceHash)) {
+            const data = fs.readFileSync(joinPath(outDir, filename));
+            const hash = crypto.createHash('sha512').update(data).digest('base64');
+            const ext = path.extname(filename);
+            const extReplace = HtmlTemplateExtReplace[ext];
+            if (extReplace == null) {
+                throw new Error("Unsupported HTML template subresource. ext: "+ext);
+            }
+            const hashName = `${filename.slice(0, -ext.length)}${fileSuffix(data)}${ext}`;
+            fs.writeFileSync(joinPath(outDir, hashName), data);
+
+            htmlOutput = htmlOutput.replace(key, extReplace(hashName, hash));
+        }
+    }
+
+    fs.writeFileSync(outfile, htmlOutput);
+    console.log('Bundled', (htmlOutput.length / 1024).toFixed(2), 'KB');
+}
+
+function bundleCss(basePath, cfg, outfile) {
+    const bundle = [];
+    for (const cssFile of [cfg.entry].concat(cfg.external.map(f => require.resolve(f)) || [])) {
+        console.log(cssFile);
+        const cssData = fs.readFileSync(cssFile);
+        bundle.push(cssData.toString());
+    }
+    const fileData = bundle.join('');
+    fs.mkdirSync(path.dirname(outfile), { recursive: true});
+    fs.writeFileSync(outfile, fileData);
+
     console.log('Bundled', (fileData.length / 1024).toFixed(2), 'KB');
 }
 
@@ -72,18 +142,49 @@ function usage(err) {
     console.log('./bundle.js [package.json]');
 }
 
+const Bundler = {
+    directory: bundleDir,
+    ts: bundleJs,
+    js: bundleJs,
+    html: bundleHtml,
+    css: bundleCss,
+};
+
+const DefaultSuffix = {
+    directory: '',
+    ts: '.js',
+    js: '.js',
+    html: '.html',
+    css: '.css',
+};
+
 async function main() {
     const filePath = process.argv.slice(2).find((f) => f.endsWith('package.json'));
     if (filePath == null) return usage('No package.json found...');
 
     const basePath = path.resolve(path.dirname(filePath));
     const pkgData = await fs.promises.readFile(filePath);
-    const pkgJson = JSON.parse(pkgData);
+    pkgJson = JSON.parse(pkgData);
     if (pkgJson.bundle == null) return usage('No "bundle" found in package.json');
     PkgBundle.parse(pkgJson.bundle);
     const bundles = Array.isArray(pkgJson.bundle) ? pkgJson.bundle : [pkgJson.bundle];
 
-    for (const bundle of bundles) await bundleJs(basePath, bundle);
+    for (const bundle of bundles) {
+        const st = fs.statSync(joinPath(basePath, bundle.entry));
+        const ext = path.extname(bundle.entry);
+        const type = ext.slice(1) || (st.isDirectory() && 'directory');
+        const func = Bundler[type];
+        if (func == null) {
+            throw new Error("Unsupported file type! "+bundle.entry);
+        }
+        const outfile = joinPath(basePath, bundle.outfile ||
+                                 joinPath(bundle.outdir || 'dist', path.basename(bundle.entry, ext) + DefaultSuffix[type]));
+        console.log('bundle', type, outfile);
+        await func(basePath, bundle, outfile);
+    }
 }
 
-main().catch(console.error);
+main().catch(err  => {
+    console.error(err);
+    process.exit(1);
+});
