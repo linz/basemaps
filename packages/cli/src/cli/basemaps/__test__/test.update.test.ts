@@ -1,6 +1,7 @@
+import { Aws, LogConfig, TileMetadataImageRule, TileMetadataSetRecord } from '@basemaps/shared';
 import o from 'ospec';
-import { TileSetUpdateAction, parseRgba } from '../action.tileset.update';
-import { TileMetadataSetRecord, LogConfig, Aws, TileMetadataImageRule } from '@basemaps/shared';
+import { TileSetUpdateAction } from '../action.tileset.update';
+import { parseRgba } from '../tileset.util';
 
 function fakeTileSet(): TileMetadataSetRecord {
     Aws.tileMetadata.Imagery.imagery.set('im_0', { name: '0', id: 'im_0' } as any);
@@ -170,11 +171,14 @@ o.spec('TileSetUpdateAction', () => {
         });
 
         o('should support smaller hex strings', () => {
-            o(parseRgba('0x')).deepEquals({ r: 0, g: 0, b: 0, alpha: 0 });
-            o(parseRgba('0xff')).deepEquals({ r: 255, g: 0, b: 0, alpha: 0 });
-            o(parseRgba('0xffff')).deepEquals({ r: 255, g: 255, b: 0, alpha: 0 });
             o(parseRgba('0xffffff')).deepEquals({ r: 255, g: 255, b: 255, alpha: 0 });
             o(parseRgba('0xffffffff')).deepEquals({ r: 255, g: 255, b: 255, alpha: 255 });
+        });
+
+        o('should throw if hex string invalid', () => {
+            o(() => parseRgba('0x')).throws(Error);
+            o(() => parseRgba('0xff')).throws(Error);
+            o(() => parseRgba('0xffff')).throws(Error);
         });
 
         o('should support all hex', () => {

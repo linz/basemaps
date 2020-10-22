@@ -1,4 +1,10 @@
-import { TileMetadataImageryRecord, TileMetadataSetRecord, TileMetadataTableBase } from './tile.metadata.base';
+import { BaseDynamoTable } from './aws.dynamo.table';
+import {
+    RecordPrefix,
+    TileMetadataImageryRecord,
+    TileMetadataSetRecord,
+    TileMetadataTableBase,
+} from './tile.metadata.base';
 
 /**
  * Imagery sort must be stable, otherwise the ordering of imagery sets will vary between tile
@@ -25,6 +31,15 @@ export class TileMetadataImagery {
     metadata: TileMetadataTableBase;
     constructor(metadata: TileMetadataTableBase) {
         this.metadata = metadata;
+    }
+
+    /**
+     * Is `rec` an Imagery record
+
+     * @param rec record to infer is a TileMetadataImageryRecord
+     */
+    public recordIsImagery(rec: BaseDynamoTable): rec is TileMetadataImageryRecord {
+        return rec.id.startsWith(RecordPrefix.Imagery);
     }
 
     public async get(imgId: string): Promise<TileMetadataImageryRecord> {

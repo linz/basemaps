@@ -15,7 +15,7 @@ import {
     StacLicense,
     StacVersion,
     tileAttributionFromPath,
-    TileMetadataTag,
+    TileMetadataNamedTag,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
@@ -100,7 +100,7 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
         }
     }
 
-    const host = await Aws.tileMetadata.Provider.get(TileMetadataTag.Production);
+    const host = await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Production);
     if (host == null) return null;
 
     for (const rule of tileSet.tileSet.rules) {

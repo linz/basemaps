@@ -1,8 +1,11 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, EpsgCode } from '@basemaps/geo';
+import { BaseDynamoTable } from './aws.dynamo.table';
 import {
+    DefaultBackground,
     parseMetadataTag,
     RecordPrefix,
     TaggedTileMetadata,
+    TileMetadataImageRuleV2,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
     TileMetadataSetRecordBase,
@@ -44,6 +47,45 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
             });
         }
         return output;
+    }
+
+    initialRecord(
+        name: string,
+        projection: EpsgCode,
+        rules: TileMetadataImageRuleV2[] = [],
+        title?: string,
+        description?: string,
+    ): TileMetadataSetRecord {
+        const rec: TileMetadataSetRecord = {
+            id: '',
+            createdAt: Date.now(),
+            updatedAt: 0,
+            version: 0,
+            revisions: 0,
+            v: 2,
+            name,
+            projection: projection,
+            background: DefaultBackground,
+            rules,
+        };
+
+        if (title != null) {
+            rec.title = title;
+        }
+        if (description != null) {
+            rec.description = description;
+        }
+
+        return rec;
+    }
+
+    /**
+     * Is `rec` a TileSet record
+
+     * @param rec record to infer is a TileMetadataSetRecord
+     */
+    recordIsTileset(rec: BaseDynamoTable): rec is TileMetadataSetRecord {
+        return rec.id.startsWith(RecordPrefix.TileSet);
     }
 
     /**

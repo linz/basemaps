@@ -8,7 +8,6 @@ import {
     LogType,
     RecordPrefix,
     TileMetadataImageryRecord,
-    TileMetadataSetRecordV1,
     TileMetadataTable,
 } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -62,19 +61,13 @@ export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryReco
 export async function createMetadataFromJob(job: CogJob): Promise<void> {
     const img = createImageryRecordFromJob(job);
     await Aws.tileMetadata.put(img);
-    const createdAt = Date.now();
-    const tileMetadata: TileMetadataSetRecordV1 = {
-        id: '',
-        // TODO this name is not super nice, ideally we should use the simplified image name
-        name: job.id,
-        title: job.title,
-        description: job.description,
-        projection: job.output.epsg,
-        version: 0,
-        createdAt,
-        updatedAt: createdAt,
-        imagery: { [img.id]: { id: img.id, minZoom: 0, maxZoom: 32, priority: 10 } },
-    };
+    const tileMetadata = Aws.tileMetadata.TileSet.initialRecord(
+        job.id,
+        job.output.epsg,
+        [{ imgId: img.id, ruleId: img.id, minZoom: 0, maxZoom: 32, priority: 1000 }],
+        job.title,
+        job.description,
+    );
     await Aws.tileMetadata.TileSet.create(tileMetadata);
 }
 

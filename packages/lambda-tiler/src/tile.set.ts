@@ -3,6 +3,7 @@ import {
     Aws,
     ProjectionTileMatrixSet,
     TileMetadataImageryRecord,
+    TileMetadataNamedTag,
     TileMetadataSetRecord,
     TileMetadataTag,
     TileResizeKernel,
@@ -38,7 +39,7 @@ export class TileSet {
     constructor(nameStr: string, projection: Epsg) {
         const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
         this.name = name;
-        this.tag = tag ?? TileMetadataTag.Production;
+        this.tag = tag ?? TileMetadataNamedTag.Production;
         this.projection = projection;
     }
 
@@ -51,7 +52,7 @@ export class TileSet {
     }
 
     get taggedName(): string {
-        if (this.tag == TileMetadataTag.Production) return this.name;
+        if (this.tag == TileMetadataNamedTag.Production) return this.name;
         return `${this.name}@${this.tag}`;
     }
 
