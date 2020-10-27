@@ -1,6 +1,5 @@
 import o from 'ospec';
 import { getApiKey, OneDayMs } from '../api';
-import { Config } from '../config';
 import { ulid, decodeTime, encodeTime } from 'ulid';
 
 declare const global: {
@@ -23,12 +22,6 @@ o.spec('ApiKey', () => {
         const ulidKey = apiKey.slice(1).toUpperCase();
         o(decodeTime(ulidKey) > 0).equals(true);
     });
-
-    o('should return the same api key', () => {
-        const keyA = Config.ApiKey;
-        o(keyA).equals(Config.ApiKey);
-    });
-
     o('should get valid api keys from localStorage', () => {
         localStorage.getItem = o.spy((): string => 'foo');
         o(getApiKey()).notEquals('foo');
