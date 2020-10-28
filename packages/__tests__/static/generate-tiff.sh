@@ -12,7 +12,7 @@ gdal_translate -a_srs epsg:2193 \
 
 # Webmercator bounds are 20037508.3427892 x -20037508.3427892 square
 # So create a tiff approx half the size
-gdal_translate -a_srs epsg:2193 \
+gdal_translate -a_srs epsg:3857 \
     -a_ullr -10018754.1713946 10018754.1713946 10018754.1713946 -10018754.1713946 \
     -of GTiff -co COMPRESS=WEBP -co WEBP_LOSSLESS=TRUE -co TILED=YES \
     -co TILED=YES -co BLOCKXSIZE=16 -co BLOCKYSIZE=16 \
