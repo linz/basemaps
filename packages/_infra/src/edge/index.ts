@@ -16,14 +16,14 @@ import { Parameters } from '../parameters';
  * - API Tracking Lambda@edge
  */
 export class EdgeStack extends cdk.Stack {
-    public lambda: LambdaApiKeyValidator;
+    public apiValidator: LambdaApiKeyValidator;
     public logBucket: Bucket;
     public distribution: cf.CloudFrontWebDistribution;
 
     public constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
-        this.lambda = new LambdaApiKeyValidator(this, 'LambdaEdge');
+        this.apiValidator = new LambdaApiKeyValidator(this, 'LambdaEdge');
 
         const config = getConfig();
         const s3BucketSource = new s3.Bucket(this, 'StaticBucket');
@@ -55,7 +55,10 @@ export class EdgeStack extends cdk.Stack {
                         queryStringCacheKeys: ['NOT_A_CACHE_KEY'],
                     },
                     lambdaFunctionAssociations: [
-                        { eventType: cf.LambdaEdgeEventType.VIEWER_REQUEST, lambdaFunction: this.lambda.version },
+                        {
+                            eventType: cf.LambdaEdgeEventType.VIEWER_REQUEST,
+                            lambdaFunction: this.apiValidator.lambda.currentVersion,
+                        },
                     ],
                 },
             ],
