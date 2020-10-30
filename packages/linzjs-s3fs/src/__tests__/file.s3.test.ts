@@ -1,6 +1,6 @@
 import { FsS3 } from '../file.s3';
 import o from 'ospec';
-import { S3 } from 'aws-sdk';
+import S3 from 'aws-sdk/clients/s3';
 import { createSandbox } from 'sinon';
 import { S3Fs } from '..';
 
