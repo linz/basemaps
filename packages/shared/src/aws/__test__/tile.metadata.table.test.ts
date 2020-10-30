@@ -1,6 +1,6 @@
 import { Bounds, Epsg } from '@basemaps/geo';
 import { round } from '@basemaps/test/build/rounding';
-import * as AWS from 'aws-sdk';
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import o from 'ospec';
 import { Const } from '../../const';
 import { TileSetName } from '../../proj/tile.set.name';
@@ -8,7 +8,7 @@ import { qkToNamedBounds } from '../../proj/__test__/test.util';
 import { TileMetadataTable } from '../tile.metadata';
 import { TileMetadataImageRule, TileMetadataImageryRecord, TileMetadataSetRecord } from '../tile.metadata.base';
 
-const { marshall } = AWS.DynamoDB.Converter;
+const { marshall } = DynamoDB.Converter;
 
 o.spec('tile.metadata.table', () => {
     const { now } = Date;
