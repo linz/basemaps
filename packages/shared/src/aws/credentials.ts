@@ -2,6 +2,7 @@ import { ObjectCache } from './object.cache';
 import { hostname } from 'os';
 import { Env } from '../const';
 import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
+import AWS from 'aws-sdk/lib/core';
 import S3 from 'aws-sdk/clients/s3';
 
 export interface StsAssumeRoleConfig {
@@ -18,7 +19,7 @@ const AwsRoleDurationSeconds = Env.getNumber(Env.AwsRoleDurationHours, 8) * OneH
  */
 class CredentialObjectCache extends ObjectCache<ChainableTemporaryCredentials, StsAssumeRoleConfig> {
     create(opts: StsAssumeRoleConfig): ChainableTemporaryCredentials {
-        return new ChainableTemporaryCredentials({
+        return new AWS.ChainableTemporaryCredentials({
             params: {
                 RoleArn: opts.roleArn,
                 ExternalId: opts.externalId,
@@ -26,7 +27,7 @@ class CredentialObjectCache extends ObjectCache<ChainableTemporaryCredentials, S
                 DurationSeconds: AwsRoleDurationSeconds,
             },
             // TODO can we fix this
-            // masterCredentials: config.credentials as Credentials,
+            // masterCredentials: AWS.config.credentials as Credentials,
         });
     }
 }
