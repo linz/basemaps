@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "4.16.0",
+  "version": "4.17.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -22,10 +22,10 @@
     "deploy:deploy": "node scripts/deploy.js"
   },
   "dependencies": {
-    "@basemaps/geo": "^4.16.0",
-    "@basemaps/infra": "^4.16.0",
-    "@basemaps/shared": "^4.16.0",
-    "@basemaps/attribution": "^4.16.0",
+    "@basemaps/attribution": "^4.17.0",
+    "@basemaps/geo": "^4.17.0",
+    "@basemaps/infra": "^4.17.0",
+    "@basemaps/shared": "^4.17.0",
     "@linzjs/lui": "^1.0.4",
     "ol": "^6.3.1",
     "proj4": "^2.6.2",
@@ -51,11 +51,17 @@
     {
       "entry": "static/examples/index.openlayers.attribution.wmts.3857.html",
       "outdir": "dist/examples",
-      "subresourceHash": {"$ATTR_FILE": "../lib/attribution.js"}
+      "subresourceHash": {
+        "$ATTR_FILE": "../lib/attribution.js"
+      }
     },
     {
       "entry": "src/index.ts",
-      "env": {"API_KEY": null, "GOOGLE_ANALYTICS": null, "TILE_HOST": null},
+      "env": {
+        "API_KEY": null,
+        "GOOGLE_ANALYTICS": null,
+        "TILE_HOST": null
+      },
       "platform": "browser"
     },
     {
@@ -67,7 +73,10 @@
     },
     {
       "entry": "static/index.html",
-      "subresourceHash": {"$JS_FILE": "index.js", "$CSS_FILE": "index.css"}
+      "subresourceHash": {
+        "$JS_FILE": "index.js",
+        "$CSS_FILE": "index.css"
+      }
     }
   ]
 }
