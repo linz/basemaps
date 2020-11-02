@@ -119,6 +119,7 @@ o.spec('tile.metadata.tileset', () => {
                 tag: TileMetadataNamedTag.Production,
             });
             o(ts.parse('aerial@beta')).deepEquals({ name: TileSetName.aerial, tag: TileMetadataNamedTag.Beta });
+            o(ts.parse('aerial@pr-123')).deepEquals({ name: TileSetName.aerial, tag: 'pr-123' });
         });
 
         o('should throw with invalid tags', () => {
