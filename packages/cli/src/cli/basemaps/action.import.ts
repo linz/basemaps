@@ -1,11 +1,24 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Epsg } from '@basemaps/geo';
-import { Aws, LogConfig, RecordPrefix, TileMetadataImageryRecord, TileMetadataTable } from '@basemaps/shared';
+import {
+    Aws,
+    LogConfig,
+    parseMetadataTag,
+    RecordPrefix,
+    TileMetadataImageryRecord,
+    TileMetadataTable,
+} from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { createImageryRecordFromJob } from '../cogify/action.batch';
 import { CogStacJob } from '../../cog/cog.stac.job';
+import { createImageryRecordFromJob } from '../cogify/action.batch';
+import { updateConfig } from './tileset.updater';
+import { defineTagParameter } from './tileset.util';
 
-export class ImageryImportAction extends CommandLineAction {
+/**
+ * Import a config file for a specific name and projection
+ */
+export class ImportAction extends CommandLineAction {
+    private config: CommandLineStringParameter;
+    private tag: CommandLineStringParameter;
     private job: CommandLineStringParameter;
     private commit: CommandLineFlagParameter;
     private force: CommandLineFlagParameter;
@@ -13,23 +26,33 @@ export class ImageryImportAction extends CommandLineAction {
     public constructor() {
         super({
             actionName: 'import',
-            summary: 'Import imagery from job.json',
+            summary: 'Import imagery and tileset rules from a config file"',
             documentation: '',
         });
     }
 
     protected onDefineParameters(): void {
+        this.config = this.defineStringParameter({
+            argumentName: 'JSON_FILE',
+            parameterLongName: '--config',
+            parameterShortName: '-c',
+            description: 'Configure tilesets using json file. May not be used with --job option)',
+            required: false,
+        });
+
+        defineTagParameter(this);
+
         this.job = this.defineStringParameter({
             argumentName: 'JOB',
             parameterLongName: '--job',
             parameterShortName: '-j',
-            description: 'Path to job.json',
-            required: true,
+            description: 'Import imagery from a job.json',
+            required: false,
         });
 
         this.force = this.defineFlagParameter({
             parameterLongName: '--force',
-            description: 'Force overwrite',
+            description: 'Force overwrite. Only for use with --job',
             required: false,
         });
 
@@ -49,6 +72,23 @@ export class ImageryImportAction extends CommandLineAction {
     }
 
     protected async onExecute(): Promise<void> {
+        if (this.config.value) {
+            if (this.job.value) {
+                throw new Error('--job and --config may not be used at same time!');
+            }
+            const tagInput = this.tag.value!;
+
+            const tag = parseMetadataTag(tagInput);
+            if (tag == null) {
+                LogConfig.get().fatal({ tag }, 'Invalid tag name');
+                console.log(this.renderHelpText());
+                return;
+            }
+
+            await updateConfig(this.config.value, tag, !!this.commit.value);
+            return;
+        }
+
         const logger = LogConfig.get();
 
         const jobPath = this.job.value!;

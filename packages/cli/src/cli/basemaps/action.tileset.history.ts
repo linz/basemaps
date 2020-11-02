@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Epsg } from '@basemaps/geo';
-import { Aws, LogConfig, TileMetadataImageryRecord, TileMetadataSetRecord, TileMetadataTag } from '@basemaps/shared';
+import {
+    Aws,
+    LogConfig,
+    TileMetadataImageryRecord,
+    TileMetadataNamedTag,
+    TileMetadataSetRecord,
+    TileMetadataTag,
+} from '@basemaps/shared';
 import { CliTable } from '../cli.table';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet, showDiff } from './tileset.util';
@@ -21,7 +28,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         const projection = Epsg.get(this.projection.value ?? -1);
         const allTags: Map<TileMetadataTag, TileMetadataSetRecord> = new Map();
         await Promise.all(
-            Object.values(TileMetadataTag).map(async (tag) => {
+            Object.values(TileMetadataNamedTag).map(async (tag) => {
                 try {
                     const value = await Aws.tileMetadata.TileSet.get(tileSet, projection, tag);
                     allTags.set(tag, value);
@@ -38,7 +45,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
 
         const allTags = await this.getAllTags();
 
-        const tsData = allTags.get(TileMetadataTag.Head);
+        const tsData = allTags.get(TileMetadataNamedTag.Head);
         if (tsData == null) throw new Error('Unable to find tag: head');
 
         printTileSet(tsData, false);
@@ -52,7 +59,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         }
 
         function getTagsForVersion(version: number): string {
-            return Object.values(TileMetadataTag)
+            return Object.values(TileMetadataNamedTag)
                 .filter((c) => allTags.get(c)?.version == version)
                 .join(', ');
         }

@@ -1,9 +1,11 @@
-import { EpsgCode, WmtsProvider, BoundingBox } from '@basemaps/geo';
+import { BoundingBox, EpsgCode, WmtsProvider } from '@basemaps/geo';
 import { DynamoDB } from 'aws-sdk';
 import { Const } from '../const';
 import { BaseDynamoTable } from './aws.dynamo.table';
 
-export enum TileMetadataTag {
+export type TileMetadataTag = string;
+
+export enum TileMetadataNamedTag {
     /** Version to render by default */
     Production = 'production',
 
@@ -18,12 +20,14 @@ export enum TileMetadataTag {
  * Ensure `tagInput` is a valid tag otherwise return null
  */
 export function parseMetadataTag(tagInput: string | null | undefined): TileMetadataTag | null {
+    if (tagInput == null) return null;
     switch (tagInput) {
-        case TileMetadataTag.Beta:
-        case TileMetadataTag.Head:
-        case TileMetadataTag.Production:
+        case TileMetadataNamedTag.Head:
+        case TileMetadataNamedTag.Production:
+        case TileMetadataNamedTag.Beta:
             return tagInput;
         default:
+            if (/^pr-[0-9]+$/.test(tagInput)) return tagInput;
             return null;
     }
 }
@@ -95,6 +99,9 @@ export interface TaggedTileMetadataRecord extends BaseDynamoTable {
     /** Total number of revisions */
     revisions?: number;
 }
+
+/** Background color of tiles where the tileset does not define a color */
+export const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
 export interface TileMetadataSetRecordBase extends TaggedTileMetadataRecord {
@@ -191,6 +198,33 @@ export class TileMetadataTableBase {
     }
 
     /**
+     * Iterate over the entire table yielding each batch of items
+
+     * @param TableName the name of the table to interate over
+     */
+    async *scan<T>(TableName: string): AsyncGenerator<T, null, void> {
+        let exclusiveStartKey: DynamoDB.Key | undefined = undefined;
+        while (true) {
+            const items: DynamoDB.Types.ScanOutput = await this.dynamo
+                .scan({
+                    TableName,
+                    ExclusiveStartKey: exclusiveStartKey,
+                })
+                .promise();
+
+            if (items.Items == null) break;
+
+            for (const row of items.Items) {
+                yield DynamoDB.Converter.unmarshall(row) as any;
+            }
+
+            exclusiveStartKey = items.LastEvaluatedKey;
+            if (exclusiveStartKey == null) break;
+        }
+        return null;
+    }
+
+    /**
      * Fetch imagery from the store
      * @param keys Imagery ids (already prefixed `im_${key}`)
      * @param output Adds fetched imagery to output
@@ -258,7 +292,7 @@ export abstract class TaggedTileMetadata<T extends TaggedTileMetadataRecord> {
     }
 
     async tagRecord(record: T, tag: TileMetadataTag, version: number): Promise<T> {
-        if (tag == TileMetadataTag.Head) throw new Error('Cannot overwrite head tag');
+        if (tag == TileMetadataNamedTag.Head) throw new Error('Cannot overwrite head tag');
         const newVersionId = this.idRecord(record, version);
         const newVersion = await this.metadata.get<T>(newVersionId);
         if (newVersion == null) throw new Error(`Cannot find version: ${newVersionId}`);
@@ -269,7 +303,7 @@ export abstract class TaggedTileMetadata<T extends TaggedTileMetadataRecord> {
     }
 
     async create(record: T): Promise<T> {
-        const id = this.idRecord(record, TileMetadataTag.Head);
+        const id = this.idRecord(record, TileMetadataNamedTag.Head);
 
         const v0 = await this.metadata.get<T>(id);
         record.revisions = (v0?.revisions ?? -1) + 1;
@@ -280,16 +314,9 @@ export abstract class TaggedTileMetadata<T extends TaggedTileMetadataRecord> {
         historyRecord.id = this.idRecord(record, record.revisions);
         await this.metadata.put(historyRecord);
 
-        if (v0 == null) {
-            // Fresh new record, has no history so lets add the production tag too
-            const productionRecord = this.clone(record);
-            productionRecord.id = this.idRecord(record, TileMetadataTag.Production);
-            await this.metadata.put(productionRecord);
-        }
-
         // Update the head to put to the new record
         const headRecord = this.clone(record);
-        headRecord.id = this.idRecord(record, TileMetadataTag.Head);
+        headRecord.id = this.idRecord(record, TileMetadataNamedTag.Head);
         await this.metadata.put(headRecord);
 
         return headRecord;
