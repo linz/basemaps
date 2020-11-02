@@ -97,6 +97,23 @@ o.spec('tileset.updater', () => {
             o(changes.imagery.size).equals(0);
         });
 
+        o('tag only', async () => {
+            const tag = o.spy();
+            const create = o.spy((rec: any): any => ({ ...rec, id: 'new_id', version: 25 }));
+            metadata.TileSet = { ...TileSet, create, tag, initialRecord: origTileMetadata.TileSet.initialRecord };
+
+            const updater = new TileSetUpdater(config, 'pr-1');
+
+            const changes = await updater.reconcile(false);
+            o(changes).deepEquals({ changes: null, imagery: changes.imagery });
+            o(changes.imagery.size).equals(0);
+
+            o(create.callCount).equals(0);
+            o(tag.callCount).equals(1);
+
+            o(tag.args).deepEquals(['aerial', Epsg.Google, 'pr-1', 20]);
+        });
+
         o('tagging production not head', async () => {
             records.head.version = 24;
             records.head.rules[0] = { ...rec1, minZoom: 12 };
@@ -166,7 +183,7 @@ o.spec('tileset.updater', () => {
             const changes = await updater.reconcile(true);
 
             o(create.callCount).equals(1);
-            o(tag.callCount).equals(0);
+            o(tag.callCount).equals(1);
 
             o(changes.changes!.after.rules).deepEquals([
                 {

@@ -184,10 +184,10 @@ export class TileSetUpdater {
                         version = changes.after.version;
                     }
                 }
-                if (!newTag) {
-                    await Aws.tileMetadata.TileSet.tag(name, this.projection, this.tag, version);
-                }
+                await Aws.tileMetadata.TileSet.tag(name, this.projection, this.tag, version);
             }
+        } else if (newTag) {
+            await Aws.tileMetadata.TileSet.tag(name, this.projection, this.tag, headTs.version);
         }
 
         return { changes, imagery: await primeImageryCache(imgIds) };
