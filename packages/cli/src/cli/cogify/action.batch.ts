@@ -11,8 +11,8 @@ import {
     TileMetadataTable,
 } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import * as aws from 'aws-sdk';
 import * as path from 'path';
+import Batch from 'aws-sdk/clients/batch';
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { CogJob } from '../../cog/types';
 
@@ -91,7 +91,7 @@ export class ActionBatchJob extends CommandLineAction {
     static async batchOne(
         jobPath: string,
         job: CogJob,
-        batch: AWS.Batch,
+        batch: Batch,
         name: string,
         isCommit: boolean,
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
@@ -127,7 +127,7 @@ export class ActionBatchJob extends CommandLineAction {
      * List all the current jobs in batch and their statuses
      * @returns a map of JobName to if their status is "ok" (not failed)
      */
-    static async getCurrentJobList(batch: AWS.Batch): Promise<Map<string, boolean>> {
+    static async getCurrentJobList(batch: Batch): Promise<Map<string, boolean>> {
         // For some reason AWS only lets us query one status at a time.
         const allStatuses = ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'RUNNING', 'SUCCEEDED', 'FAILED'];
         const allJobs = await Promise.all(
@@ -169,7 +169,7 @@ export class ActionBatchJob extends CommandLineAction {
         LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
 
         const region = Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';
-        const batch = new aws.Batch({ region });
+        const batch = new Batch({ region });
 
         const outputFs = FileOperator.create(job.output.location);
         const runningJobs = await ActionBatchJob.getCurrentJobList(batch);
