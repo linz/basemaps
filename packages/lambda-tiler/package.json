@@ -22,6 +22,7 @@
     "@cogeotiff/core": "^2.2.0",
     "@cogeotiff/source-aws": "^2.2.0",
     "@linzjs/geojson": "^4.16.0",
+    "node-fetch": "^2.6.1",
     "path-to-regexp": "^6.1.0",
     "sharp": "^0.26.0"
   },
