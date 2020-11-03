@@ -23,7 +23,7 @@
     "@linzjs/metrics": "^4.12.0"
   },
   "devDependencies": {
-    "@cogeotiff/source-file": "^2.2.0",
+    "@cogeotiff/source-file": "^3.0.0",
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
     "pixelmatch": "^5.1.0",
