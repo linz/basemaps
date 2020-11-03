@@ -1,7 +1,9 @@
 import { ObjectCache } from './object.cache';
-import * as AWS from 'aws-sdk';
 import { hostname } from 'os';
 import { Env } from '../const';
+import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
+import AWS from 'aws-sdk/lib/core';
+import S3 from 'aws-sdk/clients/s3';
 
 export interface StsAssumeRoleConfig {
     roleArn: string;
@@ -15,8 +17,8 @@ const AwsRoleDurationSeconds = Env.getNumber(Env.AwsRoleDurationHours, 8) * OneH
  * Credentials need to be cached or a separate assume role will be called for each individual
  * instance of the credential chain
  */
-class CredentialObjectCache extends ObjectCache<AWS.ChainableTemporaryCredentials, StsAssumeRoleConfig> {
-    create(opts: StsAssumeRoleConfig): AWS.ChainableTemporaryCredentials {
+class CredentialObjectCache extends ObjectCache<ChainableTemporaryCredentials, StsAssumeRoleConfig> {
+    create(opts: StsAssumeRoleConfig): ChainableTemporaryCredentials {
         return new AWS.ChainableTemporaryCredentials({
             params: {
                 RoleArn: opts.roleArn,
@@ -24,16 +26,17 @@ class CredentialObjectCache extends ObjectCache<AWS.ChainableTemporaryCredential
                 RoleSessionName: `bm-${hostname().substr(0, 32)}-${Date.now()}`,
                 DurationSeconds: AwsRoleDurationSeconds,
             },
-            masterCredentials: AWS.config.credentials as AWS.Credentials,
+            // TODO can we fix this
+            // masterCredentials: AWS.config.credentials as Credentials,
         });
     }
 }
 export const CredentialsCache = new CredentialObjectCache();
 
-class S3ObjectCache extends ObjectCache<AWS.S3, StsAssumeRoleConfig> {
-    create(opt: StsAssumeRoleConfig): AWS.S3 {
+class S3ObjectCache extends ObjectCache<S3, StsAssumeRoleConfig> {
+    create(opt: StsAssumeRoleConfig): S3 {
         const credentials = CredentialsCache.getOrMake(opt.roleArn, opt);
-        return new AWS.S3({ credentials });
+        return new S3({ credentials });
     }
 }
 
