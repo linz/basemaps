@@ -21,7 +21,7 @@
     "@basemaps/tiler-sharp": "^4.17.0",
     "@cogeotiff/core": "^2.2.0",
     "@cogeotiff/source-aws": "^2.2.0",
-    "@linzjs/geojson": "^4.16.0",
+    "@linzjs/geojson": "^4.17.0",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
     "pngjs": "^5.0.0",

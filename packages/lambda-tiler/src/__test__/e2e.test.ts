@@ -35,10 +35,10 @@ o.spec('E2E test for lambda-tiler', () => {
         o.timeout(5 * 1000);
 
         // Given ... a get version request
-        const getVersionUrl = baseUrl + '/v1/health' + '?api=' + ApiKey;
+        const getHealthUrl = baseUrl + '/v1/health' + '?api=' + ApiKey;
 
         // When ...
-        const response = await fetch(getVersionUrl);
+        const response = await fetch(getHealthUrl);
 
         // Then ...
         o(response.status).equals(200);
