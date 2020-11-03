@@ -109,3 +109,7 @@ jobs:
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
           LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
+
+      - name: (Prod) E2E Test 
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: yarn run test:e2e          
