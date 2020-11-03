@@ -5,7 +5,7 @@ import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
 import { S3Fs, isConfigS3Role, FileConfigS3, FileProcessor } from '@linzjs/s3fs';
 import { Aws } from '../aws';
-import type { S3 } from 'aws-sdk';
+import type S3 from 'aws-sdk/clients/s3';
 
 function getS3(s3Cfg: string | FileConfigS3): S3 {
     if (isConfigS3Role(s3Cfg)) {
