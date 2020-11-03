@@ -713,34 +713,33 @@
   resolved "https://registry.yarnpkg.com/@basemaps/metrics/-/metrics-4.11.1.tgz#675d53a8758642f1c388036fc9cad7ae53726a75"
   integrity sha512-wNESKjUcMCgceXqE+drdTQkDpvqUzCN/R4koAa4Hyq3jgV8C7D6DcD6l5Yz4v21Wo3Ef0W0FLwUsvHqcoFV8lQ==
 
-"@cogeotiff/core@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.2.0.tgz#5f28d79732c3aafdb8dc833a43d1314974138998"
-  integrity sha512-vI0I1axsgUnd2tIqDhVk/snfpq5cDaiLxNpjS0ovxroWPz12BepW5WLoLbINj/oIIrjgR8VjyxUY065kWrmZVQ==
+"@cogeotiff/core@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-3.0.0.tgz#d64ee600a739868cafa797c5cabe99a96aaa0b50"
+  integrity sha512-yhJ9SkkSGoEGApWadPfk/9j0a18AJAp4fjMDOEReD9rOJfIC4ApCvnonkjXSFbGY/2UWq/7ryOKzdxffZtMVXA==
   dependencies:
     ieee754 "^1.1.13"
 
-"@cogeotiff/source-aws@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-2.2.0.tgz#3bd7d6d4173a9a2bc90db507ef1fbb29018e1262"
-  integrity sha512-USVQPzaO7V5TJSJjUj/4MeONN9lmrktyeYGNWyoGFpPIhnuimvxZ4qS6oRoxpGJqEcanr2Rdjdw0nEzBDZmNeg==
+"@cogeotiff/source-aws@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-3.0.0.tgz#2b648a357e374c9ad2ea20f6f6e249211dfaf3ad"
+  integrity sha512-+YwrkYzaduAgx0Fqi5g+FMTIKLsMklDcZFuC40DhHsCZMK9FG7QPFAl1fXxkBFNo0QI+s3YalNtWUBzf/9aeDg==
   dependencies:
-    "@cogeotiff/core" "^2.2.0"
-    aws-sdk "^2.524.0"
+    "@cogeotiff/core" "^3.0.0"
 
-"@cogeotiff/source-file@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-2.2.0.tgz#8d909c2f127fb8ab7a5f09a0b944018363b94117"
-  integrity sha512-UGV4jYNKG+TRqKkDHkZHHtsXaq0+eWEmhZ9JaxHdZjnTu87WOnFxDmb03pjXDuJ9selUUBOvcAi7fw6rtJLtFQ==
+"@cogeotiff/source-file@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-3.0.0.tgz#ed3958942737a688e6257003735c4e0ad2810fec"
+  integrity sha512-DurybzlMpYFSbxApRMXQOwyrTMykA0h8tKJ81Ec2RAaLDR6fVFoazb8iDNmfF+Z50h4RaqC5ar2ayGy4aNF2iQ==
   dependencies:
-    "@cogeotiff/core" "^2.2.0"
+    "@cogeotiff/core" "^3.0.0"
 
-"@cogeotiff/source-url@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-2.2.0.tgz#8e28ca0c92a50b0b868cfeb26a46cf58e511f6ab"
-  integrity sha512-Al2inGPAl5SetJ7gdGNHDa8qmtb4ElElabq4qSyF83Tm1D6PYS7MIm/3RsREHdakW7QIKJi/BrPnY2I21NFjUw==
+"@cogeotiff/source-url@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-3.0.0.tgz#b052e52167bbb4eef14448bd170a155eda62ba4d"
+  integrity sha512-vOiAJpFaCdVeY+gF0b928iNUY8L9boWWLp/E+d3pibp5ol8fZvb08d5fWd6vspGmBtnFsFRp2JLPv/kTHuPBzA==
   dependencies:
-    "@cogeotiff/core" "^2.2.0"
+    "@cogeotiff/core" "^3.0.0"
     node-fetch "^2.6.0"
 
 "@eslint/eslintrc@^0.2.1":
@@ -2410,7 +2409,7 @@ aws-cdk@^1.70.0:
     wrap-ansi "^7.0.0"
     yargs "^16.1.0"
 
-aws-sdk@^2.508.0, aws-sdk@^2.524.0, aws-sdk@^2.547.0, aws-sdk@^2.776.0:
+aws-sdk@^2.508.0, aws-sdk@^2.547.0, aws-sdk@^2.776.0:
   version "2.781.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.781.0.tgz#e9df63e9b69c22ac939ab675c8771592ae89105a"
   integrity sha512-y+Xd+DJJyNgZdPLZytJA8LRR79spD/zXOt0G9Uk68UC9tRDEB8aQysuxWKYEybYCexRqJtTZLCrR3ikYwU099g==
