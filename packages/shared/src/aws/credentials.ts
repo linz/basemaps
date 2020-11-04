@@ -2,8 +2,16 @@ import { ObjectCache } from './object.cache';
 import { hostname } from 'os';
 import { Env } from '../const';
 import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
-import AWS from 'aws-sdk/lib/core';
 import S3 from 'aws-sdk/clients/s3';
+
+/**
+ * Nasty Hack
+ *
+ *  to prevent type pollution we do not want to include the entire aws-sdk
+ * This bypasses the type checker but still inits the AWS SDK so we have access to credentials
+ */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const AWS = require('aws-sdk');
 
 export interface StsAssumeRoleConfig {
     roleArn: string;
@@ -26,8 +34,7 @@ class CredentialObjectCache extends ObjectCache<ChainableTemporaryCredentials, S
                 RoleSessionName: `bm-${hostname().substr(0, 32)}-${Date.now()}`,
                 DurationSeconds: AwsRoleDurationSeconds,
             },
-            // TODO can we fix this
-            // masterCredentials: AWS.config.credentials as Credentials,
+            masterCredentials: AWS.config.credentials,
         });
     }
 }

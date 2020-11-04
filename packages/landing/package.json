@@ -27,7 +27,7 @@
     "@basemaps/infra": "^4.17.0",
     "@basemaps/shared": "^4.17.0",
     "@linzjs/lui": "^1.0.4",
-    "ol": "^6.3.1",
+    "ol": "^6.4.2",
     "proj4": "^2.6.2",
     "ulid": "^2.3.0"
   },
@@ -35,7 +35,7 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
-    "@types/ol": "^6.3.1",
+    "@types/ol": "^6.4.2",
     "@types/proj4": "^2.5.0"
   },
   "bundle": [

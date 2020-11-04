@@ -28,7 +28,7 @@
     "@types/pngjs": "^3.3.2",
     "@types/sharp": "^0.26.0",
     "pixelmatch": "^5.1.0",
-    "pngjs": "^5.0.0"
+    "pngjs": "^6.0.0"
   },
   "publishConfig": {
     "access": "public"

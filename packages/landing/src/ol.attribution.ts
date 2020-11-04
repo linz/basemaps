@@ -1,3 +1,4 @@
+import { Attribution } from '@basemaps/attribution';
 import { AttributionCollection } from '@basemaps/shared/build/attribution';
 import { StacLicense } from '@basemaps/shared/build/stac';
 import { View } from 'ol';
@@ -5,7 +6,6 @@ import { Extent } from 'ol/extent';
 import OlMap from 'ol/Map';
 import MapEventType from 'ol/MapEventType';
 import Source from 'ol/source/Source';
-import { Attribution } from '@basemaps/attribution';
 import { MapOptions, MapOptionType, WindowUrl } from './url';
 
 const Copyright = `© ${StacLicense} LINZ`;
@@ -43,8 +43,9 @@ export class OlAttribution {
     static init(source: Source, map: OlMap, config: MapOptions): void {
         const attribution = new OlAttribution(source, map.getView(), config);
 
-        map.addEventListener(MapEventType.MOVEEND, () => {
+        map.addEventListener(MapEventType.MOVEEND, (): boolean => {
             attribution.updateAttribution();
+            return true;
         });
     }
 
@@ -75,7 +76,7 @@ export class OlAttribution {
             const extent = this.view.calculateExtent();
             if (sameExtent(this.extent, extent)) return;
         }
-        this.zoom = this.view.getZoom();
+        this.zoom = this.view.getZoom() ?? 0;
         this.extent = this.view.calculateExtent();
         this._scheduled = setTimeout(() => {
             this._scheduled = undefined;
@@ -89,7 +90,7 @@ export class OlAttribution {
     renderAttribution = (): void => {
         this._raf = 0;
         if (this.attributions == null) return;
-        this.zoom = Math.round(this.view.getZoom());
+        this.zoom = Math.round(this.view.getZoom() ?? 0);
         this.extent = this.view.calculateExtent();
         const filtered = this.attributions.filter(this.extent, this.zoom);
         let attributionHTML = this.attributions.renderList(filtered);

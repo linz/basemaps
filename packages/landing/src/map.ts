@@ -135,17 +135,17 @@ export class Basemaps {
     }
 
     tileTrackTimer: unknown | null = null;
-    trackTileLoad = (evt: BaseEvent): void => {
-        if (!isTileLoadEvent(evt)) return;
+    trackTileLoad = (evt: BaseEvent): boolean => {
+        if (!isTileLoadEvent(evt)) return true;
         const metricName = 'tile:' + evt.tile.getTileCoord().join('-');
         if (evt.type == 'tileloadstart') {
             this.tileTimer.set(metricName, Date.now());
-            return;
+            return true;
         }
 
         if (evt.type == 'tileloadend') {
             const startTime = this.tileTimer.get(metricName);
-            if (startTime == null) return;
+            if (startTime == null) return true;
             this.tileTimer.delete(metricName);
             const duration = Date.now() - startTime;
             this.tileLoadTimes.push(duration);
@@ -153,6 +153,7 @@ export class Basemaps {
                 this.tileTrackTimer = setTimeout(this.reportTileStats, TileReportTimeDurationMs);
             }
         }
+        return true;
     };
 
     reportTileStats = (): void => {
@@ -171,9 +172,10 @@ export class Basemaps {
     };
 
     updateUrlTimer: unknown | null = null;
-    postRender = (): void => {
-        if (this.updateUrlTimer != null) return;
+    postRender = (): boolean => {
+        if (this.updateUrlTimer != null) return true;
         this.updateUrlTimer = setTimeout(() => this.updateUrl(), 1000);
+        return true;
     };
 
     getLocation(): MapLocation {
@@ -184,7 +186,7 @@ export class Basemaps {
             .transform(center, `EPSG:${this.config.projection}`, UrlProjection)
             .map((c: number) => Math.floor(c * 10e7) / 10e7); // Limit to 5 decimal places (TODO is 5 enough)
 
-        const zoom = Math.floor(view.getZoom() * 10e3) / 10e3;
+        const zoom = Math.floor((view.getZoom() ?? 0) * 10e3) / 10e3;
         return { lat, lon, zoom };
     }
 

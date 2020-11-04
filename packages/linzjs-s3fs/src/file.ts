@@ -1,4 +1,4 @@
-import { Readable } from 'stream';
+import type { Readable } from 'stream';
 
 export interface FileProcessor {
     /** Read a file into a buffer */
