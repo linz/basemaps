@@ -8406,6 +8406,6 @@ zip-stream@^4.0.0:
     readable-stream "^3.6.0"
 
 zod@^1.10.0, zod@^1.10.1:
-  version "1.11.9"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-1.11.9.tgz#c6c503804d394f8ef009d44ce464bbf8aa3c1bd6"
-  integrity sha512-qZjs9DkvPYHOiOUdAtNcxOC0u5cv7tx9DCmlNZN0MxWeFvgqyr3XkXFqUlaSpmTiZ4A4YVkB2s1Zw2ENJ9/fSg==
+  version "1.11.10"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-1.11.10.tgz#dbc4e70e2d0622ce58f8162d76ea2606d821cf4a"
+  integrity sha512-wtoLthqFeFawiQWMVtjpL9DwggpXHNlygYlSitjTtZeagb04ODIECj5iYGu28+K3ht4lVmrBTfX6M7G9d1Eo6Q==
