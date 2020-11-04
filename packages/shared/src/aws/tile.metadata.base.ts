@@ -1,5 +1,5 @@
-import { BoundingBox, EpsgCode, WmtsProvider } from '@basemaps/geo';
-import { DynamoDB } from 'aws-sdk';
+import { EpsgCode, WmtsProvider, BoundingBox } from '@basemaps/geo';
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { Const } from '../const';
 import { BaseDynamoTable } from './aws.dynamo.table';
 

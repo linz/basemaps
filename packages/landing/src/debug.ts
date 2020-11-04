@@ -96,10 +96,11 @@ export function addDebugLayer(bm: Basemaps): void {
         mouseEl.value.innerHTML = coord.map(round3).join(', ');
     });
 
-    bm.map.addEventListener('postrender', () => {
+    bm.map.addEventListener('postrender', (): boolean => {
         const view = bm.map.getView();
-        const zoom = round3(view.getZoom());
+        const zoom = round3(view.getZoom() ?? 0);
         zoomEl.value.innerHTML = String(zoom);
+        return true;
     });
 
     document.body.appendChild(debugEl);

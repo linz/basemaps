@@ -1,4 +1,4 @@
-import { DynamoDB } from 'aws-sdk';
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import o from 'ospec';
 import { Const } from '../../const';
 import { TileMetadataTable } from '../tile.metadata';
