@@ -28,10 +28,10 @@
   "dependencies": {
     "@basemaps/shared": "^4.17.0",
     "@linzjs/geojson": "^4.17.0",
-    "ol": "^6.3.1"
+    "ol": "^6.4.2"
   },
   "devDependencies": {
-    "@types/ol": "^6.3.1",
+    "@types/ol": "^6.4.2",
     "esbuild": "^0.8.0"
   },
   "bundle": {
