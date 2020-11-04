@@ -1544,9 +1544,9 @@
     zod "^1.10.0"
 
 "@linzjs/lui@^1.0.4":
-  version "1.1.32"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-1.1.32.tgz#f0274d47f7bc4ac36d9fa2993f608ecc785588e8"
-  integrity sha512-cYqQXlnT/uauxviV8buU0lnU1XaZt2RZJl4EU8WXT5Xl5SbI5M6iOhd2srxGhQrge3WfUEwI5Cxq7AuFEcP3bw==
+  version "1.1.33"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-1.1.33.tgz#fe7c9411f9719bc03819bedac3994d3dc77c700d"
+  integrity sha512-LMbWJ9zIa4VZdj1Uvgmkd0CWYchaFZJU/D+ZoxiMVlL1q4Fqgy9bvZbMVtK2qwk+GYJb5m3cpyaMiCY4fNwztw==
   dependencies:
     camelcase "^6.0.0"
     clsx "^1.1.0"
