@@ -1733,7 +1733,7 @@
     colors "~1.2.1"
     string-argv "~0.3.1"
 
-"@sinonjs/commons@^1", "@sinonjs/commons@^1.6.0", "@sinonjs/commons@^1.7.0", "@sinonjs/commons@^1.7.2":
+"@sinonjs/commons@^1", "@sinonjs/commons@^1.6.0", "@sinonjs/commons@^1.7.0", "@sinonjs/commons@^1.8.1":
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.8.1.tgz#e7df00f98a203324f6dc7cc606cad9d4a8ab2217"
   integrity sha512-892K+kWUUi3cl+LlqEWIDrhvLgdL79tECi8JZUyq6IviKy/DNhuzCRlbHUjxK89f4ypPMMaFnFuR9Ie6DoIMsw==
@@ -1755,10 +1755,10 @@
     "@sinonjs/commons" "^1"
     "@sinonjs/samsam" "^5.0.2"
 
-"@sinonjs/samsam@^5.0.2", "@sinonjs/samsam@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-5.1.0.tgz#3afe719232b541bb6cf3411a4c399a188de21ec0"
-  integrity sha512-42nyaQOVunX5Pm6GRJobmzbS7iLI+fhERITnETXzzwDZh+TtDr/Au3yAvXVjFmZ4wEUaE4Y3NFZfKv0bV0cbtg==
+"@sinonjs/samsam@^5.0.2", "@sinonjs/samsam@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-5.2.0.tgz#fcff83ab86f83b5498f4a967869c079408d9b5eb"
+  integrity sha512-CaIcyX5cDsjcW/ab7HposFWzV1kC++4HNsfnEdFJa7cP1QIuILAKV+BgfeqRXhcnSAc76r/Rh/O5C+300BwUIw==
   dependencies:
     "@sinonjs/commons" "^1.6.0"
     lodash.get "^4.4.2"
@@ -1785,9 +1785,9 @@
   integrity sha512-ebDJ9b0e702Yr7pWgB0jzm+CX4Srzz8RcXtLJDJB+BSccqMa36uyH/zUsSYao5+BD1ytv3k3rPYCq4mAE1hsXA==
 
 "@types/aws-lambda@^8.10.43":
-  version "8.10.63"
-  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.63.tgz#3316174e7a23b8505d1b7bdc979a5c3030d5e203"
-  integrity sha512-XEE+3iJxyeCmZTUoHZRbnxSy8aMxXXwrALgsoDBGcgkbll+8bDfuk4XbIJ9Oaec/Pxee6rno6SGMiV6EbqhF+A==
+  version "8.10.64"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.64.tgz#4bdcb725aef96bef0cb1decf19c7efff1df22fe7"
+  integrity sha512-LRKk2UQCSi7BsO5TlfSI8cTNpOGz+MH6+RXEWtuZmxJficQgxwEYJDiKVirzgyiHce0L0F4CqCVvKTwblAeOUw==
 
 "@types/body-parser@*":
   version "1.19.0"
@@ -1870,9 +1870,9 @@
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
 "@types/node@*", "@types/node@>= 8", "@types/node@^14.11.2":
-  version "14.11.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.11.2.tgz#2de1ed6670439387da1c9f549a2ade2b0a799256"
-  integrity sha512-jiE3QIxJ8JLNcb1Ps6rDbysDhN4xa8DJJvuC9prr6w+1tIh+QAbYyNF3tyiZNLDBIuBCf4KEcV2UvQm/V60xfA==
+  version "14.14.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.6.tgz#146d3da57b3c636cc0d1769396ce1cfa8991147f"
+  integrity sha512-6QlRuqsQ/Ox/aJEQWBEJG7A9+u7oSYl3mem/K8IzxXG/kAGbV1YPD9Bg9Zw3vyxC/YP+zONKwy8hGkSt1jxFMw==
 
 "@types/ol@^6.4.2":
   version "6.4.2"
@@ -6414,10 +6414,10 @@ pngjs@^4.0.1:
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-4.0.1.tgz#f803869bb2fc1bfe1bf99aa4ec21c108117cfdbe"
   integrity sha512-rf5+2/ioHeQxR6IxuYNYGFytUyG3lma/WW1nsmjeHlWwtb2aByla6dkVc8pmJ9nplzkTA0q2xx7mMWrOTqT4Gg==
 
-pngjs@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-5.0.0.tgz#e79dd2b215767fd9c04561c01236df960bce7fbb"
-  integrity sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==
+pngjs@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-6.0.0.tgz#ca9e5d2aa48db0228a52c419c3308e87720da821"
+  integrity sha512-TRzzuFRRmEoSW/p1KVAmiOgPco2Irlah+bGFCeNfJXxxYGwSw7YwAOAcd7X28K/m5bjBWKsC29KyoMfHbypayg==
 
 polygon-clipping@^0.15.1:
   version "0.15.1"
@@ -7163,9 +7163,9 @@ shallow-clone@^3.0.0:
     kind-of "^6.0.2"
 
 sharp@^0.26.0:
-  version "0.26.1"
-  resolved "https://registry.yarnpkg.com/sharp/-/sharp-0.26.1.tgz#084e3447ba17f1baf3e3f2e08305ed7aec236ce9"
-  integrity sha512-9MhwS4ys8pnwBH7MtnBdLzUv+cb24QC4xbzzQL6A+1MQ4Se2V6oPHEX8TIGIZUPRKi6S1kJPVNzt/Xqqp6/H3Q==
+  version "0.26.2"
+  resolved "https://registry.yarnpkg.com/sharp/-/sharp-0.26.2.tgz#3d5777d246ae32890afe82a783c1cbb98456a88c"
+  integrity sha512-bGBPCxRAvdK9bX5HokqEYma4j/Q5+w8Nrmb2/sfgQCLEUx/HblcpmOfp59obL3+knIKnOhyKmDb4tEOhvFlp6Q==
   dependencies:
     color "^3.1.2"
     detect-libc "^1.0.3"
@@ -7237,14 +7237,14 @@ simple-swizzle@^0.2.2:
     is-arrayish "^0.3.1"
 
 sinon@^9.0.3:
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/sinon/-/sinon-9.1.0.tgz#4afc90707c8e360fe051398eed2d3b197980ffc3"
-  integrity sha512-9zQShgaeylYH6qtsnNXlTvv0FGTTckuDfHBi+qhgj5PvW2r2WslHZpgc3uy3e/ZAoPkqaOASPi+juU6EdYRYxA==
+  version "9.2.1"
+  resolved "https://registry.yarnpkg.com/sinon/-/sinon-9.2.1.tgz#64cc88beac718557055bd8caa526b34a2231be6d"
+  integrity sha512-naPfsamB5KEE1aiioaoqJ6MEhdUs/2vtI5w1hPAXX/UwvoPjXcwh1m5HiKx0HGgKR8lQSoFIgY5jM6KK8VrS9w==
   dependencies:
-    "@sinonjs/commons" "^1.7.2"
+    "@sinonjs/commons" "^1.8.1"
     "@sinonjs/fake-timers" "^6.0.1"
     "@sinonjs/formatio" "^5.0.1"
-    "@sinonjs/samsam" "^5.1.0"
+    "@sinonjs/samsam" "^5.2.0"
     diff "^4.0.2"
     nise "^4.0.4"
     supports-color "^7.1.0"
