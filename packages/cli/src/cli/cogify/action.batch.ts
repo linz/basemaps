@@ -8,12 +8,11 @@ import {
     LogType,
     RecordPrefix,
     TileMetadataImageryRecord,
-    TileMetadataSetRecordV1,
     TileMetadataTable,
 } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import * as aws from 'aws-sdk';
 import * as path from 'path';
+import Batch from 'aws-sdk/clients/batch';
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { CogJob } from '../../cog/types';
 
@@ -62,19 +61,13 @@ export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryReco
 export async function createMetadataFromJob(job: CogJob): Promise<void> {
     const img = createImageryRecordFromJob(job);
     await Aws.tileMetadata.put(img);
-    const createdAt = Date.now();
-    const tileMetadata: TileMetadataSetRecordV1 = {
-        id: '',
-        // TODO this name is not super nice, ideally we should use the simplified image name
-        name: job.id,
-        title: job.title,
-        description: job.description,
-        projection: job.output.epsg,
-        version: 0,
-        createdAt,
-        updatedAt: createdAt,
-        imagery: { [img.id]: { id: img.id, minZoom: 0, maxZoom: 32, priority: 10 } },
-    };
+    const tileMetadata = Aws.tileMetadata.TileSet.initialRecord(
+        job.id,
+        job.output.epsg,
+        [{ imgId: img.id, ruleId: img.id, minZoom: 0, maxZoom: 32, priority: 1000 }],
+        job.title,
+        job.description,
+    );
     await Aws.tileMetadata.TileSet.create(tileMetadata);
 }
 
@@ -98,7 +91,7 @@ export class ActionBatchJob extends CommandLineAction {
     static async batchOne(
         jobPath: string,
         job: CogJob,
-        batch: AWS.Batch,
+        batch: Batch,
         name: string,
         isCommit: boolean,
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
@@ -134,7 +127,7 @@ export class ActionBatchJob extends CommandLineAction {
      * List all the current jobs in batch and their statuses
      * @returns a map of JobName to if their status is "ok" (not failed)
      */
-    static async getCurrentJobList(batch: AWS.Batch): Promise<Map<string, boolean>> {
+    static async getCurrentJobList(batch: Batch): Promise<Map<string, boolean>> {
         // For some reason AWS only lets us query one status at a time.
         const allStatuses = ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'RUNNING', 'SUCCEEDED', 'FAILED'];
         const allJobs = await Promise.all(
@@ -176,7 +169,7 @@ export class ActionBatchJob extends CommandLineAction {
         LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
 
         const region = Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';
-        const batch = new aws.Batch({ region });
+        const batch = new Batch({ region });
 
         const outputFs = FileOperator.create(job.output.location);
         const runningJobs = await ActionBatchJob.getCurrentJobList(batch);

@@ -1,4 +1,4 @@
-import { Aws, TileMetadataProviderRecord, TileMetadataTag } from '@basemaps/shared';
+import { Aws, TileMetadataNamedTag, TileMetadataProviderRecord, TileMetadataTag } from '@basemaps/shared';
 import { CommandLineAction } from '@rushstack/ts-command-line';
 import { CliTable } from '../cli.table';
 import { printProvider } from './provider.util';
@@ -20,7 +20,7 @@ export class ProviderHistoryAction extends CommandLineAction {
     async getAllTags(): Promise<Map<TileMetadataTag, TileMetadataProviderRecord>> {
         const allTags: Map<TileMetadataTag, TileMetadataProviderRecord> = new Map();
         await Promise.all(
-            Object.values(TileMetadataTag).map(async (tag) => {
+            Object.values(TileMetadataNamedTag).map(async (tag) => {
                 const value = await Aws.tileMetadata.Provider.get(tag);
                 if (value != null) allTags.set(tag, value);
             }),
@@ -32,7 +32,7 @@ export class ProviderHistoryAction extends CommandLineAction {
     protected async onExecute(): Promise<void> {
         const allTags = await this.getAllTags();
 
-        const data = allTags.get(TileMetadataTag.Head);
+        const data = allTags.get(TileMetadataNamedTag.Head);
         if (data == null) throw new Error('Unable to find tag: head');
 
         printProvider(data);
@@ -46,7 +46,7 @@ export class ProviderHistoryAction extends CommandLineAction {
         }
 
         function getTagsForVersion(version: number): string {
-            return Object.values(TileMetadataTag)
+            return Object.values(TileMetadataNamedTag)
                 .filter((c) => allTags.get(c)?.version == version)
                 .join(', ');
         }

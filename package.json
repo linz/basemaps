@@ -15,6 +15,7 @@
     "benchmark": "ospec 'packages/*/build/**/*.benchmark.js'",
     "clean": "tsc -b --clean && rimraf 'packages/*/build' && yarn clean:dist",
     "clean:dist": "rimraf 'packages/*/dist' && rimraf 'packages/_infra/cdk.out'",
+    "clean:modules": "rimraf 'packages/*/node_modules' && rimraf node_modules",
     "build": "tsc -b"
   },
   "devDependencies": {

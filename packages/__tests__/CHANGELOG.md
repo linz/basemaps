@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.17.0](https://github.com/linz/basemaps/compare/v4.16.0...v4.17.0) (2020-11-03)
+
+
+### Bug Fixes
+
+* **test:** correct projection of testing data ([#1282](https://github.com/linz/basemaps/issues/1282)) ([c9321a6](https://github.com/linz/basemaps/commit/c9321a6c4a874d934a8bd61a9432d1ce616b94df))
+
+
+
+
+
 ## [4.11.1](https://github.com/linz/basemaps/compare/v4.11.0...v4.11.1) (2020-08-31)
 
 **Note:** Version bump only for package @basemaps/test
