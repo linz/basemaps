@@ -1,10 +1,11 @@
 import { LogConfig } from '@basemaps/shared';
-import * as AWS from 'aws-sdk';
 import { CliId } from './base.cli';
+import CloudFormation from 'aws-sdk/clients/cloudformation';
+import CloudFront from 'aws-sdk/clients/cloudfront';
 
-// Coudfront has to be defined in us-east-1
-const cloudFormation = new AWS.CloudFormation({ region: 'us-east-1' });
-const cloudFront = new AWS.CloudFront({ region: 'us-east-1' });
+// Cloudfront has to be defined in us-east-1
+const cloudFormation = new CloudFormation({ region: 'us-east-1' });
+const cloudFront = new CloudFront({ region: 'us-east-1' });
 
 /** cloudfront invalidation references need to be unique */
 let InvalidationId = 0;

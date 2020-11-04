@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataTag, parseMetadataTag } from '@basemaps/shared';
+import { Aws, LogConfig, TileMetadataNamedTag, parseMetadataTag } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -40,7 +40,7 @@ export class ProviderUpdateTagAction extends CommandLineAction {
 
         if (this.commit.value) {
             await Aws.tileMetadata.Provider.tag(tag, version);
-            if (tag === TileMetadataTag.Production) {
+            if (tag === TileMetadataNamedTag.Production) {
                 // TODO only invalidate WMTSCapabilities.xml paths
                 await invalidateCache(`/v1/tiles/*`, this.commit.value);
             }

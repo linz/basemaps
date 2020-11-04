@@ -1,4 +1,5 @@
-import type { S3, AWSError } from 'aws-sdk';
+import S3 from 'aws-sdk/clients/s3';
+import { AWSError } from 'aws-sdk/lib/error';
 import { Readable, Stream } from 'stream';
 import { CompositeError } from './composite.error';
 import { FileProcessor } from './file';

@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { TileMetadataTag, TileMetadataProviderRecord } from '../tile.metadata.base';
+import { TileMetadataNamedTag, TileMetadataProviderRecord } from '../tile.metadata.base';
 import { TileMetadataProvider } from '../tile.metadata.provider';
 
 o.spec('tile.metadata.provider', () => {
@@ -15,7 +15,7 @@ o.spec('tile.metadata.provider', () => {
         const rec1 = {} as TileMetadataProviderRecord;
         const recGet = o.spy(() => rec1);
         metadata.get = recGet;
-        const ans = await pv.get(TileMetadataTag.Production);
+        const ans = await pv.get(TileMetadataNamedTag.Production);
         o(ans).equals(rec1);
 
         o(recGet.args as any).deepEquals(['pv_main_production']);
@@ -24,7 +24,7 @@ o.spec('tile.metadata.provider', () => {
     o('tag', async () => {
         const v1 = { id: 'pv_main_v000001' } as TileMetadataProviderRecord;
         metadata.get = (): TileMetadataProviderRecord => v1;
-        const rec = await pv.tag(TileMetadataTag.Beta, 1);
+        const rec = await pv.tag(TileMetadataNamedTag.Beta, 1);
 
         o(rec).equals(v1);
 
@@ -39,9 +39,8 @@ o.spec('tile.metadata.provider', () => {
         });
 
         o('should create tag ids', () => {
-            o(pv.id(TileMetadataTag.Production)).equals('pv_main_production');
-            o(pv.id(TileMetadataTag.Head)).equals('pv_main_head');
-            o(pv.id(TileMetadataTag.Beta)).equals('pv_main_beta');
+            o(pv.id(TileMetadataNamedTag.Production)).equals('pv_main_production');
+            o(pv.id(TileMetadataNamedTag.Head)).equals('pv_main_head');
         });
     });
 });

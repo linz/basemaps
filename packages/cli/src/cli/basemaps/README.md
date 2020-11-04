@@ -59,11 +59,49 @@ v0  	2020-04-29T00:32:46.514Z                	production
 ...
 ```
 
+## Export
+
+The metadata database can be exported to a JSON file for a specific name and projection that match the state of a tag. Its format is simplified for easier updating by hand any changes that are needed. Defaults can be supplied via `--defaults` which further simplifies the output; defaults are included in the output.
+
+```sh
+# Create config for current state of production tag for aerial/3857
+./basemaps export -n aerial -p 3857 -t production --defaults path/to/defaults-config.json -o path/to/imagery-config.json
+```
+
+### Defaults config
+
+A Defaults config format is an array of values for `priority`, `minZoom` and `maxZoom`. A default is applied if the image name contains the text in the `nameContains` field or there is no `nameContains` field.
+
+```json
+[
+  {
+    "nameContains": "_urban_",
+    "priority": 3000, "minZoom": 14
+  },
+  {
+    "nameContains": "_rural_",
+    "priority": 2000, "minZoom": 13
+  },
+  {
+    "priority": 1000, "minZoom": 0, "maxZoom": 32
+  }
+]
+```
+
+## Import
+
+The metadata database can be reconfigured using a config file like the one created from export (above). Only the changes needed to reconcile the metadata database to match the config file for a given tag will be made. It will also invalidate the relevant paths in cloudfront.
+
+```sh
+# Reconcile config with the current state of production tag
+./basemaps import -t production -c path/to/imagery-config.json --commit
+```
+
 ## Tag
 
 To change the version a tag is using
 
-```
+```sh
 # Update tag production to v3
 
 ./basemaps tag -n aerial -p 3857 -t production -v 3 --commit
@@ -73,7 +111,7 @@ To change the version a tag is using
 
 The update command can be used to configure the rendering of a tile set, each time the `--commit` is used a new version is created and the `head` tag is updated to point at it.
 
-```
+```sh
 # Make gebco priority 2
 ./basemaps update -n aerial -p 3857 -i im_01DYE4EGR92TNMV16AHXSR45JH --priority 2 --commit
 
