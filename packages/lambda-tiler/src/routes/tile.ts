@@ -1,6 +1,14 @@
 import { Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
-import { Aws, Env, setNameAndProjection, TileMetadataTag, tileWmtsFromPath, tileXyzFromPath } from '@basemaps/shared';
+import {
+    Aws,
+    DefaultBackground,
+    Env,
+    setNameAndProjection,
+    TileMetadataNamedTag,
+    tileWmtsFromPath,
+    tileXyzFromPath,
+} from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -15,8 +23,6 @@ import { TileEtag } from './tile.etag';
 export const TileComposer = new TileMakerSharp(256);
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
-/** Background color of tiles where the tileset does not define a color */
-const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 
 const NotFound = new LambdaHttpResponse(404, 'Not Found');
@@ -119,7 +125,7 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     req.timer.end('tileset:load');
     if (tileSets.length == 0) return NotFound;
 
-    const provider = await Aws.tileMetadata.Provider.get(TileMetadataTag.Production);
+    const provider = await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Production);
     if (provider == null) return NotFound;
 
     const xml = WmtsCapabilities.toXml(host, provider, tileSets, req.apiKey);

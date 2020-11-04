@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, TileMetadataTag } from '@basemaps/shared';
+import { Aws, TileMetadataNamedTag } from '@basemaps/shared';
 import { CommandLineAction, CommandLineIntegerParameter } from '@rushstack/ts-command-line';
-import { printProvider } from './provider.util';
 import * as c from 'ansi-colors';
+import { printProvider } from './provider.util';
 
 export class ProviderInfoAction extends CommandLineAction {
     private version: CommandLineIntegerParameter;
@@ -26,7 +26,7 @@ export class ProviderInfoAction extends CommandLineAction {
     }
 
     protected async onExecute(): Promise<void> {
-        const tsData = await Aws.tileMetadata.Provider.get(this.version.value! ?? TileMetadataTag.Head);
+        const tsData = await Aws.tileMetadata.Provider.get(this.version.value! ?? TileMetadataNamedTag.Head);
         if (tsData == null) {
             console.log(c.red('Provider info Not Found '));
         } else {

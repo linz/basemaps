@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.17.0](https://github.com/linz/basemaps/compare/v4.16.0...v4.17.0) (2020-11-03)
+
+
+### Bug Fixes
+
+* **cli:** allow using new tag ([#1304](https://github.com/linz/basemaps/issues/1304)) ([231fed2](https://github.com/linz/basemaps/commit/231fed2df7c3be0bc2d2c99c3a94353c63c3fde2))
+* **deps:** allow yargs to be upgraded to newer versions ([#1289](https://github.com/linz/basemaps/issues/1289)) ([43ad85e](https://github.com/linz/basemaps/commit/43ad85e8434ee691dfba9e445f30c1861ba722e3))
+* **deps:** correct the import of yargs so that shim$1.Parser.looksLikeNumber is a function ([#1287](https://github.com/linz/basemaps/issues/1287)) ([6bee984](https://github.com/linz/basemaps/commit/6bee984d2fb0eb2f583e1a5f28dc1eee8b9f92f2))
+* **test:** correct projection of testing data ([#1282](https://github.com/linz/basemaps/issues/1282)) ([c9321a6](https://github.com/linz/basemaps/commit/c9321a6c4a874d934a8bd61a9432d1ce616b94df))
+
+
+### Features
+
+* **attribution:** create attribution package ([#1261](https://github.com/linz/basemaps/issues/1261)) ([638ab10](https://github.com/linz/basemaps/commit/638ab1090d980cb3b661a2d8a572e02927b45556))
+* **cli:** Configure TileSet metedata DB from config file ([#1277](https://github.com/linz/basemaps/issues/1277)) ([b8c76d4](https://github.com/linz/basemaps/commit/b8c76d4d3aac3e49a4a01bfc88c58ab149d62482))
+
+
+
+
+
 # [4.16.0](https://github.com/linz/basemaps/compare/v4.15.0...v4.16.0) (2020-10-12)
 
 

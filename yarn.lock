@@ -713,34 +713,33 @@
   resolved "https://registry.yarnpkg.com/@basemaps/metrics/-/metrics-4.11.1.tgz#675d53a8758642f1c388036fc9cad7ae53726a75"
   integrity sha512-wNESKjUcMCgceXqE+drdTQkDpvqUzCN/R4koAa4Hyq3jgV8C7D6DcD6l5Yz4v21Wo3Ef0W0FLwUsvHqcoFV8lQ==
 
-"@cogeotiff/core@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-2.2.0.tgz#5f28d79732c3aafdb8dc833a43d1314974138998"
-  integrity sha512-vI0I1axsgUnd2tIqDhVk/snfpq5cDaiLxNpjS0ovxroWPz12BepW5WLoLbINj/oIIrjgR8VjyxUY065kWrmZVQ==
+"@cogeotiff/core@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-3.0.0.tgz#d64ee600a739868cafa797c5cabe99a96aaa0b50"
+  integrity sha512-yhJ9SkkSGoEGApWadPfk/9j0a18AJAp4fjMDOEReD9rOJfIC4ApCvnonkjXSFbGY/2UWq/7ryOKzdxffZtMVXA==
   dependencies:
     ieee754 "^1.1.13"
 
-"@cogeotiff/source-aws@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-2.2.0.tgz#3bd7d6d4173a9a2bc90db507ef1fbb29018e1262"
-  integrity sha512-USVQPzaO7V5TJSJjUj/4MeONN9lmrktyeYGNWyoGFpPIhnuimvxZ4qS6oRoxpGJqEcanr2Rdjdw0nEzBDZmNeg==
+"@cogeotiff/source-aws@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-3.0.0.tgz#2b648a357e374c9ad2ea20f6f6e249211dfaf3ad"
+  integrity sha512-+YwrkYzaduAgx0Fqi5g+FMTIKLsMklDcZFuC40DhHsCZMK9FG7QPFAl1fXxkBFNo0QI+s3YalNtWUBzf/9aeDg==
   dependencies:
-    "@cogeotiff/core" "^2.2.0"
-    aws-sdk "^2.524.0"
+    "@cogeotiff/core" "^3.0.0"
 
-"@cogeotiff/source-file@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-2.2.0.tgz#8d909c2f127fb8ab7a5f09a0b944018363b94117"
-  integrity sha512-UGV4jYNKG+TRqKkDHkZHHtsXaq0+eWEmhZ9JaxHdZjnTu87WOnFxDmb03pjXDuJ9selUUBOvcAi7fw6rtJLtFQ==
+"@cogeotiff/source-file@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-3.0.0.tgz#ed3958942737a688e6257003735c4e0ad2810fec"
+  integrity sha512-DurybzlMpYFSbxApRMXQOwyrTMykA0h8tKJ81Ec2RAaLDR6fVFoazb8iDNmfF+Z50h4RaqC5ar2ayGy4aNF2iQ==
   dependencies:
-    "@cogeotiff/core" "^2.2.0"
+    "@cogeotiff/core" "^3.0.0"
 
-"@cogeotiff/source-url@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-2.2.0.tgz#8e28ca0c92a50b0b868cfeb26a46cf58e511f6ab"
-  integrity sha512-Al2inGPAl5SetJ7gdGNHDa8qmtb4ElElabq4qSyF83Tm1D6PYS7MIm/3RsREHdakW7QIKJi/BrPnY2I21NFjUw==
+"@cogeotiff/source-url@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-3.0.0.tgz#b052e52167bbb4eef14448bd170a155eda62ba4d"
+  integrity sha512-vOiAJpFaCdVeY+gF0b928iNUY8L9boWWLp/E+d3pibp5ol8fZvb08d5fWd6vspGmBtnFsFRp2JLPv/kTHuPBzA==
   dependencies:
-    "@cogeotiff/core" "^2.2.0"
+    "@cogeotiff/core" "^3.0.0"
     node-fetch "^2.6.0"
 
 "@eslint/eslintrc@^0.2.1":
@@ -1871,14 +1870,14 @@
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
 "@types/node@*", "@types/node@>= 8", "@types/node@^14.11.2":
-  version "14.11.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.11.2.tgz#2de1ed6670439387da1c9f549a2ade2b0a799256"
-  integrity sha512-jiE3QIxJ8JLNcb1Ps6rDbysDhN4xa8DJJvuC9prr6w+1tIh+QAbYyNF3tyiZNLDBIuBCf4KEcV2UvQm/V60xfA==
+  version "14.14.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.6.tgz#146d3da57b3c636cc0d1769396ce1cfa8991147f"
+  integrity sha512-6QlRuqsQ/Ox/aJEQWBEJG7A9+u7oSYl3mem/K8IzxXG/kAGbV1YPD9Bg9Zw3vyxC/YP+zONKwy8hGkSt1jxFMw==
 
-"@types/ol@^6.3.1":
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/@types/ol/-/ol-6.3.1.tgz#cff923a0d5433f3db66946234f3e65238185ca02"
-  integrity sha512-EfScx11HU/aCha+hU8jo+34BuTDIBIwOHFGjwGYEPfMh7FbYlKLMDcWjn6RM2w4eRnOmQXHqDfL8uObyJs1EmQ==
+"@types/ol@^6.4.2":
+  version "6.4.2"
+  resolved "https://registry.yarnpkg.com/@types/ol/-/ol-6.4.2.tgz#3992e2f06fb3c224cda28e6727bc283febd5f8ff"
+  integrity sha512-lSms1n5obkacAosby0U3HtnDkjhEXNCYNj0BYjQXyAZHz7+QkA3SuvUHiQ91DBUaAPptCrps3E2mtaPTGw74UA==
   dependencies:
     "@types/arcgis-rest-api" "*"
     "@types/geojson" "*"
@@ -1955,9 +1954,9 @@
     "@types/node" "*"
 
 "@types/sinon@^9.0.5":
-  version "9.0.7"
-  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-9.0.7.tgz#c277e19cf9eb0c71106e785650f1e5c299262302"
-  integrity sha512-uyFiy2gp4P/FK9pmU3WIbT5ZzH54hCswwRkQFhxX7xl8jzhW3g+xOkVqk5YP4cIO//Few8UDAX0MtzFpqBEqwA==
+  version "9.0.8"
+  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-9.0.8.tgz#1ed0038d356784f75b086104ef83bfd4130bb81b"
+  integrity sha512-IVnI820FZFMGI+u1R+2VdRaD/82YIQTdqLYC9DLPszZuynAJDtCvCtCs3bmyL66s7FqRM3+LPX7DhHnVTaagDw==
   dependencies:
     "@types/sinonjs__fake-timers" "*"
 
@@ -2410,7 +2409,7 @@ aws-cdk@^1.70.0:
     wrap-ansi "^7.0.0"
     yargs "^16.1.0"
 
-aws-sdk@^2.508.0, aws-sdk@^2.524.0, aws-sdk@^2.547.0, aws-sdk@^2.776.0:
+aws-sdk@^2.508.0, aws-sdk@^2.547.0, aws-sdk@^2.776.0:
   version "2.781.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.781.0.tgz#e9df63e9b69c22ac939ab675c8771592ae89105a"
   integrity sha512-y+Xd+DJJyNgZdPLZytJA8LRR79spD/zXOt0G9Uk68UC9tRDEB8aQysuxWKYEybYCexRqJtTZLCrR3ikYwU099g==
@@ -5990,7 +5989,7 @@ ol-mapbox-style@^6.1.1:
     mapbox-to-css-font "^2.4.0"
     webfont-matcher "^1.1.0"
 
-ol@^6.3.1:
+ol@^6.4.2:
   version "6.4.3"
   resolved "https://registry.yarnpkg.com/ol/-/ol-6.4.3.tgz#2277bb583fe2848e4b2062f85f1c5136b4b0c1b2"
   integrity sha512-JcoZ/VJE9cUoxfhpa2EFYH0AHFYty1x47aITsQgLkyvWIWWigWp1N9LBcCSlCuu2QkE+DutomI2oKfnFbQA/xw==

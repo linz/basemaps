@@ -55,28 +55,35 @@ o.spec('action.batch', () => {
             const create = o.spy();
             Aws.tileMetadata = {
                 put,
-                TileSet: { create },
+                TileSet: { create, initialRecord: tileMetadata.TileSet.initialRecord },
             } as any;
 
             await createMetadataFromJob(job);
-
-            const { createdAt } = create.args[0];
 
             o(put.args[0].projection).equals(3857);
 
             o(create.args).deepEquals([
                 {
                     id: '',
+                    createdAt: create.args[0].createdAt,
+                    updatedAt: 0,
+                    version: 0,
+                    revisions: 0,
+                    v: 2,
                     name: 'abc123',
+                    projection: 3857,
+                    background: { r: 0, g: 0, b: 0, alpha: 0 },
+                    rules: [
+                        {
+                            imgId: 'im_abc123',
+                            ruleId: 'im_abc123',
+                            minZoom: 0,
+                            maxZoom: 32,
+                            priority: 1000,
+                        },
+                    ],
                     title: 'job title',
                     description: 'job description',
-                    projection: 3857,
-                    version: 0,
-                    createdAt,
-                    updatedAt: createdAt,
-                    imagery: {
-                        ['im_abc123']: { id: 'im_abc123', minZoom: 0, maxZoom: 32, priority: 10 },
-                    },
                 },
             ]);
         });

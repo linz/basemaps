@@ -1,4 +1,6 @@
 import o from 'ospec';
+import { BaseDynamoTable } from '../aws.dynamo.table';
+import { TileMetadataTable } from '../tile.metadata';
 import { TileMetadataImageryRecord } from '../tile.metadata.base';
 import { compareImageSets } from '../tile.metadata.imagery';
 
@@ -25,5 +27,17 @@ o.spec('TileMetadataImagery', () => {
             imagery.sort(compareImageSets);
             o(imagery.map(getIds)).deepEquals(['b', 'c', 'a']);
         });
+    });
+
+    o('recordIsImagery', () => {
+        const table = new TileMetadataTable();
+
+        const item: BaseDynamoTable = { id: 'im_foo', name: 'abc' } as any;
+
+        o(table.Imagery.recordIsImagery(item)).equals(true);
+        o(table.Imagery.recordIsImagery({ id: 'ts_foo' } as any)).equals(false);
+        if (table.Imagery.recordIsImagery(item)) {
+            o(item.name).equals('abc'); // tests compiler
+        }
     });
 });

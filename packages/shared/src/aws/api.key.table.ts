@@ -1,6 +1,6 @@
-import * as AWS from 'aws-sdk';
 import { BaseDynamoTable } from './aws.dynamo.table';
 import { Const } from '../const';
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 
 /**
  * The database format for the ApiKey Table
@@ -23,10 +23,10 @@ export interface ApiKeyTableRecord extends BaseDynamoTable {
 }
 
 export class ApiKeyTable {
-    private dynamo: AWS.DynamoDB;
+    private dynamo: DynamoDB;
 
     public constructor() {
-        this.dynamo = new AWS.DynamoDB({});
+        this.dynamo = new DynamoDB({});
     }
 
     /**
@@ -46,7 +46,7 @@ export class ApiKeyTable {
             return null;
         }
 
-        return AWS.DynamoDB.Converter.unmarshall(res.Item) as ApiKeyTableRecord;
+        return DynamoDB.Converter.unmarshall(res.Item) as ApiKeyTableRecord;
     }
 
     public async create(apiKey: string): Promise<string> {

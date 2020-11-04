@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Epsg } from '@basemaps/geo';
 import {
     Aws,
     LogConfig,
     RecordPrefix,
+    TileMetadataNamedTag,
     TileMetadataSetRecord,
     TileMetadataTable,
-    TileMetadataTag,
     TileResizeKernel,
 } from '@basemaps/shared';
 import {
@@ -13,37 +14,10 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
-import { readFileSync } from 'fs';
-import { TileSetBaseAction } from './tileset.action';
-import { invalidateXYZCache, printTileSet } from './tileset.util';
-import { Epsg } from '@basemaps/geo';
+import { promises as fs } from 'fs';
 import { ulid } from 'ulid';
-
-/**
- * Parse a string as hex, return 0 on failure
- * @param str string to parse
- */
-function parseHex(str: string): number {
-    if (str == '') return 0;
-    const val = parseInt(str, 16);
-    if (isNaN(val)) return 0;
-    return val;
-}
-/**
- * Parse a hexstring into RGBA
- *
- * Defaults to 0 if missing values
- * @param str string to parse
- */
-export function parseRgba(str: string): { r: number; g: number; b: number; alpha: number } {
-    if (str.startsWith('0x')) str = str.slice(2);
-    return {
-        r: parseHex(str.substr(0, 2)),
-        g: parseHex(str.substr(2, 2)),
-        b: parseHex(str.substr(4, 2)),
-        alpha: parseHex(str.substr(6, 2)),
-    };
-}
+import { TileSetBaseAction } from './tileset.action';
+import { invalidateXYZCache, parseRgba, printTileSet } from './tileset.util';
 
 export const ResizeKernels = ['lanczos3', 'lanczos2', 'nearest'];
 
@@ -156,7 +130,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, this.imageryId.value ?? '');
         const ruleId = TileMetadataTable.prefix(RecordPrefix.ImageryRule, this.ruleId.value ?? '');
 
-        const tsData = await Aws.tileMetadata.TileSet.get(name, projection, TileMetadataTag.Head);
+        const tsData = await Aws.tileMetadata.TileSet.get(name, projection, TileMetadataNamedTag.Head);
 
         if (tsData == null) {
             LogConfig.get().fatal({ tileSet: name, projection }, 'Failed to find tile set');
@@ -173,7 +147,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         }
 
         this.updateTile(tsData);
-        this.updateDescription(tsData);
+        await this.updateDescription(tsData);
         this.updateBackground(tsData);
         this.updateResize(tsData);
         const after = JSON.stringify(tsData);
@@ -183,7 +157,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         if (before != after) {
             if (this.commit.value) {
                 await Aws.tileMetadata.TileSet.create(tsData);
-                await invalidateXYZCache(name, projection, TileMetadataTag.Head, this.commit.value);
+                await invalidateXYZCache(name, projection, TileMetadataNamedTag.Head, this.commit.value);
             } else {
                 LogConfig.get().warn('DryRun:Done');
             }
@@ -200,11 +174,11 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    updateDescription(tsData: TileMetadataSetRecord): boolean {
+    async updateDescription(tsData: TileMetadataSetRecord): Promise<boolean> {
         const existing = tsData.description;
         const descriptionPath = this.description.value;
         if (descriptionPath == null) return false;
-        const description = readFileSync(descriptionPath).toString().trim();
+        const description = (await fs.readFile(descriptionPath)).toString().trim();
         if (description == null || description === existing) return false;
         tsData.description = description;
         return true;
