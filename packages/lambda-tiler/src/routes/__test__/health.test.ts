@@ -3,7 +3,19 @@ import o from 'ospec';
 import sinon from 'sinon';
 import * as Tile from '../tile';
 import { getExpectedTileName, Health, TestTiles } from '../health';
-import { LambdaHttpResponse } from '@basemaps/lambda';
+import { LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { LogConfig } from '@basemaps/shared';
+
+const ctx: LambdaContext = new LambdaContext(
+    {
+        requestContext: null as any,
+        httpMethod: 'get',
+        path: '/v1/tiles/health',
+        body: null,
+        isBase64Encoded: false,
+    },
+    LogConfig.get(),
+);
 
 o.spec('health', () => {
     o.afterEach(() => {
@@ -16,7 +28,7 @@ o.spec('health', () => {
         sinon.stub(Tile, 'tile').resolves(BadResponse);
 
         // When ...
-        const res = await Health();
+        const res = await Health(ctx);
 
         // Then ...
         o(res.status).equals(404);
@@ -47,7 +59,7 @@ o.spec('health', () => {
         callback.onCall(2).resolves(Response3);
 
         // When ...
-        const res = await Health();
+        const res = await Health(ctx);
 
         // Then ...
         o(res.status).equals(200);
@@ -62,7 +74,7 @@ o.spec('health', () => {
         callback.onCall(2).resolves(Response3);
 
         // When ...
-        const res = await Health();
+        const res = await Health(ctx);
 
         // Then ...
         o(res.status).equals(404);

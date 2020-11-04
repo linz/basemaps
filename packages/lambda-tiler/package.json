@@ -48,10 +48,8 @@
     "@types/node-fetch": "^2.5.7",
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
-    "@types/sinon": "^9.0.8",
     "express": "^4.17.1",
     "node-fetch": "^2.6.1",
-    "pretty-json-log": "^0.3.1",
-    "sinon": "^9.2.1"
+    "pretty-json-log": "^0.3.1"
   }
 }

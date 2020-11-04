@@ -3,7 +3,6 @@ import * as path from 'path';
 import PixelMatch = require('pixelmatch');
 import { Epsg, Tile } from '@basemaps/geo';
 import { LambdaHttpResponse, LambdaContext, HttpHeader } from '@basemaps/lambda';
-import { LogConfig } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
 import { PNG } from 'pngjs';
 import { tile } from './tile';
@@ -18,9 +17,9 @@ export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageF
 }
 
 export const TestTiles = [
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 30, y: 30, z: 6 } },
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 0, y: 1, z: 1 } },
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 15, y: 10, z: 4 } },
+    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 } },
+    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 8073, y: 5130, z: 13 } },
+    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 32294, y: 20521, z: 15 } },
 ];
 
 /**
@@ -30,12 +29,18 @@ export const TestTiles = [
  *
  * @throws LambdaHttpResponse for failure health test
  */
-export async function Health(): Promise<LambdaHttpResponse> {
-    for (let i = 0; i < TestTiles.length; i++) {
-        const projection = TestTiles[i].projection;
-        const testTile = TestTiles[i].testTile;
-        const format = TestTiles[i].format;
-        const path = `/v1/tiles/health/EPSG:${projection}/${testTile.z}/${testTile.x}/${testTile.y}.${format}`;
+export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
+    for (const test of TestTiles) {
+        const projection = test.projection;
+        const testTile = test.testTile;
+        const format = test.format;
+        const path = `/v1/tiles/health/
+            ${projection.toEpsgString()}
+            /${testTile.z}
+            /${testTile.x}
+            /${testTile.y}
+            .${format}`;
+
         const ctx: LambdaContext = new LambdaContext(
             {
                 requestContext: null as any,
@@ -44,7 +49,7 @@ export async function Health(): Promise<LambdaHttpResponse> {
                 body: null,
                 isBase64Encoded: false,
             },
-            LogConfig.get(),
+            req.log,
         );
 
         // Get the test tiles to compare
