@@ -9,26 +9,24 @@
  */
 process.env['AWS_NODEJS_CONNECTION_REUSE_ENABLED'] = '1';
 
-import * as AWS from 'aws-sdk';
+import S3 from 'aws-sdk/clients/s3';
 
 import { ApiKeyTable } from './api.key.table';
 import { TileMetadataTable } from './tile.metadata';
 import { S3Cache, CredentialsCache, StsAssumeRoleConfig } from './credentials';
+import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
 
-const s3 = new AWS.S3();
+const s3 = new S3();
 export const Aws = {
-    sdk: AWS,
     credentials: {
         /**
          * Get a s3 that is bound to a specific role
          */
-        getS3ForRole(opts?: StsAssumeRoleConfig): AWS.S3 {
-            if (opts == null) {
-                return s3;
-            }
+        getS3ForRole(opts?: StsAssumeRoleConfig): S3 {
+            if (opts == null) return s3;
             return S3Cache.getOrMake(opts.roleArn, opts);
         },
-        getCredentialsForRole(roleArn: string, externalId?: string): AWS.ChainableTemporaryCredentials {
+        getCredentialsForRole(roleArn: string, externalId?: string): ChainableTemporaryCredentials {
             return CredentialsCache.getOrMake(roleArn, { roleArn, externalId });
         },
     },

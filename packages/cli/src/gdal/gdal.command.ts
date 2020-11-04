@@ -24,6 +24,14 @@ export function normalizeAwsEnv(env: Record<string, string | undefined>): Record
     return env;
 }
 
+export interface GdalCredentials {
+    needsRefresh(): boolean;
+    refreshPromise(): Promise<void>;
+    accessKeyId: string;
+    secretAccessKey: string;
+    sessionToken: string;
+}
+
 export abstract class GdalCommand {
     parser?: GdalProgressParser;
     protected child: ChildProcessWithoutNullStreams;
@@ -31,13 +39,13 @@ export abstract class GdalCommand {
     protected startTime: number;
 
     /** AWS Access  */
-    protected credentials?: AWS.Credentials;
+    protected credentials?: GdalCredentials;
 
     mount?(mount: string): void;
     env?(): Promise<Record<string, string | undefined>>;
 
     /** Pass AWS credentials into the container */
-    setCredentials(credentials?: AWS.Credentials): void {
+    setCredentials(credentials?: GdalCredentials): void {
         this.credentials = credentials;
     }
 

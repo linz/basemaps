@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Epsg } from '@basemaps/geo';
-import { Aws, LogConfig, TileMetadataTag } from '@basemaps/shared';
+import { Aws, LogConfig, TileMetadataNamedTag } from '@basemaps/shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as c from 'ansi-colors';
 import { TileSetBaseAction } from './tileset.action';
@@ -65,7 +65,7 @@ export class TileSetInfoAction extends TileSetBaseAction {
         const tsData = await Aws.tileMetadata.TileSet.get(
             tileSet,
             projection,
-            this.version.value! ?? TileMetadataTag.Head,
+            this.version.value! ?? TileMetadataNamedTag.Head,
         );
 
         if (tsData == null) {

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataTag, TileMetadataProviderRecord } from '@basemaps/shared';
+import { Aws, LogConfig, TileMetadataNamedTag, TileMetadataProviderRecord } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { readFileSync } from 'fs';
-import { printProvider, BlankProvider, validateProvider } from './provider.util';
 import * as c from 'ansi-colors';
+import { readFileSync } from 'fs';
+import { BlankProvider, printProvider, validateProvider } from './provider.util';
 
 export class ProviderUpdateAction extends CommandLineAction {
     commit: CommandLineFlagParameter;
@@ -34,7 +34,7 @@ export class ProviderUpdateAction extends CommandLineAction {
     }
 
     protected async onExecute(): Promise<void> {
-        const before = (await Aws.tileMetadata.Provider.get(TileMetadataTag.Head)) || BlankProvider;
+        const before = (await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Head)) || BlankProvider;
 
         console.log(c.red('\nBefore'));
         printProvider(before);

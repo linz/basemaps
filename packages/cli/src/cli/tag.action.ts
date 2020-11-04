@@ -1,4 +1,4 @@
-import { TileMetadataTag } from '@basemaps/shared';
+import { defineTagParameter } from './basemaps/tileset.util';
 
 export const TagAction = {
     onDefineParameters(self: any): void {
@@ -10,14 +10,7 @@ export const TagAction = {
             required: false,
         });
 
-        const validTags = Object.values(TileMetadataTag).filter((f) => f != TileMetadataTag.Head);
-        self.tag = self.defineStringParameter({
-            argumentName: 'TAG',
-            parameterLongName: '--tag',
-            parameterShortName: '-t',
-            description: `tag name  (options: ${validTags.join(', ')})`,
-            required: false,
-        });
+        defineTagParameter(self);
 
         self.commit = self.defineFlagParameter({
             parameterLongName: '--commit',
