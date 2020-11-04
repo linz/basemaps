@@ -23,9 +23,7 @@ export const Aws = {
          * Get a s3 that is bound to a specific role
          */
         getS3ForRole(opts?: StsAssumeRoleConfig): S3 {
-            if (opts == null) {
-                return s3;
-            }
+            if (opts == null) return s3;
             return S3Cache.getOrMake(opts.roleArn, opts);
         },
         getCredentialsForRole(roleArn: string, externalId?: string): ChainableTemporaryCredentials {
