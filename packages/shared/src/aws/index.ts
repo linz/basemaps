@@ -18,6 +18,7 @@ import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable
 
 const s3 = new S3();
 export const Aws = {
+    s3,
     credentials: {
         /**
          * Get a s3 that is bound to a specific role
