@@ -79,10 +79,6 @@ jobs:
           API_KEY: ${{secrets.API_KEY_NON_PROD}}
           LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
 
-      - name: (NonProd) E2E Test 
-        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
-        run: yarn run test:e2e
-
       - name: (Prod) Publish NPM
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx lerna publish from-git --yes
@@ -108,8 +104,4 @@ jobs:
           NODE_ENV: "production"
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
-          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
-
-      - name: (Prod) E2E Test 
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: yarn run test:e2e          
+          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}     

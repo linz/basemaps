@@ -24,7 +24,6 @@
     "@linzjs/geojson": "^4.17.0",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
-    "pngjs": "^5.0.0",
     "sharp": "^0.26.0"
   },
   "bundle": {
@@ -37,8 +36,7 @@
     ]
   },
   "scripts": {
-    "test": "ospec --globs 'build/**/*.test.js' --ignore 'build/**/e2e.test.js' --preload ../../scripts/test.before.js",
-    "test:e2e": "ospec --globs 'build/**/e2e.test.js' --preload ../../scripts/test.before.js",
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
     "bundle": "./bundle.sh"
   },
   "devDependencies": {
@@ -47,7 +45,7 @@
     "@types/node": "^14.11.2",
     "@types/node-fetch": "^2.5.7",
     "@types/pixelmatch": "^5.0.0",
-    "@types/pngjs": "^3.3.2",
+    "@types/sharp": "^0.26.0",
     "express": "^4.17.1",
     "node-fetch": "^2.6.1",
     "pretty-json-log": "^0.3.1"

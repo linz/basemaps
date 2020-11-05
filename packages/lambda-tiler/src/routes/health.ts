@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import Sharp from 'sharp';
 import PixelMatch = require('pixelmatch');
 import { Epsg, Tile } from '@basemaps/geo';
 import { LambdaHttpResponse, LambdaContext, HttpHeader } from '@basemaps/lambda';
 import { ImageFormat } from '@basemaps/tiler';
-import { PNG } from 'pngjs';
 import { tile } from './tile';
 
 export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageFormat): string {
@@ -17,9 +17,9 @@ export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageF
 }
 
 export const TestTiles = [
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 } },
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 8073, y: 5130, z: 13 } },
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 32294, y: 20521, z: 15 } },
+    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 }, buf: null as any },
+    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 8073, y: 5130, z: 13 }, buf: null as any },
+    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 32294, y: 20521, z: 15 }, buf: null as any },
 ];
 
 /**
@@ -52,14 +52,25 @@ export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
             req.log,
         );
 
-        // Get the test tiles to compare
+        // Get the parse response tile to raw buffer
         const response = await tile(ctx);
         if (response.status != 200) return new LambdaHttpResponse(response.status, response.statusDescription);
-        const resImgBuffer = PNG.sync.read(response.body as Buffer);
-        const testTileName = getExpectedTileName(projection, testTile, format);
-        const testTileFile = fs.readFileSync(testTileName);
-        const testImgBuffer = PNG.sync.read(testTileFile);
-        const missMatchedPixels = PixelMatch(testImgBuffer.data, resImgBuffer.data, null, 256, 256);
+        const resImgBuffer = await Sharp(response.body as Buffer)
+            .png()
+            .raw()
+            .toBuffer();
+
+        // Get test tile to compare
+        if (!test.buf) {
+            const testTileName = getExpectedTileName(projection, testTile, format);
+            test.buf = await fs.promises.readFile(testTileName);
+        }
+        const testImgBuffer = await Sharp(test.buf as Buffer)
+            .png()
+            .raw()
+            .toBuffer();
+
+        const missMatchedPixels = PixelMatch(testImgBuffer, resImgBuffer, null, 256, 256);
         if (missMatchedPixels) return new LambdaHttpResponse(404, 'Test TileSet not match.');
     }
 
