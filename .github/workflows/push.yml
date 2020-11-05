@@ -104,4 +104,4 @@ jobs:
           NODE_ENV: "production"
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
-          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}     
+          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
