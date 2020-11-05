@@ -16,10 +16,17 @@ export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageF
     );
 }
 
-export const TestTiles = [
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 }, buf: null as any },
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 8073, y: 5130, z: 13 }, buf: null as any },
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 32294, y: 20521, z: 15 }, buf: null as any },
+interface TestTile {
+    projection: Epsg;
+    buf: null | Buffer;
+    format: ImageFormat;
+    testTile: { x: number; y: number; z: number };
+}
+
+export const TestTiles: TestTile[] = [
+    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 }, buf: null },
+    { projection: Epsg.Nztm2000, format: ImageFormat.PNG, testTile: { x: 1536, y: 2553, z: 10 }, buf: null },
+    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 32294, y: 20521, z: 15 }, buf: null },
 ];
 
 /**
@@ -56,7 +63,6 @@ export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
         const response = await tile(ctx);
         if (response.status != 200) return new LambdaHttpResponse(response.status, response.statusDescription);
         const resImgBuffer = await Sharp(response.body as Buffer)
-            .png()
             .raw()
             .toBuffer();
 
@@ -66,7 +72,6 @@ export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
             test.buf = await fs.promises.readFile(testTileName);
         }
         const testImgBuffer = await Sharp(test.buf as Buffer)
-            .png()
             .raw()
             .toBuffer();
 
