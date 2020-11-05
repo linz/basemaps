@@ -89,11 +89,14 @@ export class ImportAction extends CommandLineAction {
             return;
         }
 
-        const logger = LogConfig.get();
-
-        const jobPath = this.job.value!;
+        const jobPath = this.job.value;
+        if (jobPath == null) {
+            console.log(this.renderHelpText());
+            return;
+        }
         if (!jobPath.startsWith('s3://')) throw new Error('Invalid job path, must start with s3://');
 
+        const logger = LogConfig.get();
         logger.warn({ jobPath }, 'FetchingJob');
 
         const job = await CogStacJob.load(jobPath);

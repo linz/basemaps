@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { addDefaults, assertTileSetConfig, ImageryDefaultConfig, removeDefaults } from '../tileset.config';
+import { addRuleDefaults, assertTileSetConfig, ImageryDefaultConfig, removeRuleDefaults } from '../tileset.config';
 
 o.spec('imagery.config', () => {
     const image1 = {
@@ -20,7 +20,7 @@ o.spec('imagery.config', () => {
     o.spec('addDefaults', () => {
         o('no defaults', () => {
             o(
-                addDefaults([], {
+                addRuleDefaults([], {
                     id: '01ED81CFNWK9R75S0277SW972N',
                     name: 'auckland_urban_2015-16_0-075m',
                 }),
@@ -35,7 +35,7 @@ o.spec('imagery.config', () => {
 
         o('invalid result', () => {
             try {
-                addDefaults([{ minZoom: 12 }], {
+                addRuleDefaults([{ minZoom: 12 }], {
                     id: '01ED81CFNWK9R75S0277SW972N',
                     name: 'auckland_urban_2015-16_0-075m',
                     maxZoom: 10,
@@ -58,7 +58,7 @@ o.spec('imagery.config', () => {
                 },
             ];
             o(
-                addDefaults(defaults, {
+                addRuleDefaults(defaults, {
                     id: '01ED81CFNWK9R75S0277SW972N',
                     name: 'auckland_urban_2015-16_0-075m',
                 }),
@@ -81,7 +81,7 @@ o.spec('imagery.config', () => {
                 },
             ];
             o(
-                addDefaults(defaults, {
+                addRuleDefaults(defaults, {
                     id: '01ED81CFNWK9R75S0277SW972N',
                     name: 'auckland_urban_2015-16_0-075m',
                 }),
@@ -98,7 +98,7 @@ o.spec('imagery.config', () => {
     o.spec('removeDefaults', () => {
         o('no defaults', () => {
             o(
-                removeDefaults([], {
+                removeRuleDefaults([], {
                     id: '01ED81CFNWK9R75S0277SW972N',
                     name: 'auckland_urban_2015-16_0-075m',
                     priority: 1000,
@@ -123,7 +123,7 @@ o.spec('imagery.config', () => {
                 },
             ];
             o(
-                removeDefaults(defaults, {
+                removeRuleDefaults(defaults, {
                     id: '01ED81CFNWK9R75S0277SW972N',
                     name: 'auckland_urban_2015-16_0-075m',
                     priority: 3000,
@@ -146,7 +146,7 @@ o.spec('imagery.config', () => {
                 },
             ];
             o(
-                removeDefaults(defaults, {
+                removeRuleDefaults(defaults, {
                     id: '01ED81CFNWK9R75S0277SW972N',
                     name: 'auckland_urban_2015-16_0-075m',
                     priority: 1000,

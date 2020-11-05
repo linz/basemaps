@@ -1,4 +1,5 @@
 import { EpsgCode } from '@basemaps/geo';
+import { TileMetadataSetConfig } from '@basemaps/shared';
 import * as z from 'zod';
 import { parseRgba } from './tileset.util';
 
@@ -52,12 +53,17 @@ const zImageryDefaultConfig = zImageryRule.extend({
     nameContains: z.string().optional(),
 });
 
+const zResizeKernel = z.string().refine((val) => val === 'nearest' || val === 'lanczos2' || val === 'lanczos3', {
+    message: 'must be either nearest, lanczos2 or lanczos3',
+});
+
 const zProjectionConfig = z.object({
     name: z.string(),
     projection: z.nativeEnum(EpsgCode),
     title: z.string().optional(),
     description: z.string().optional(),
     background: zBackground,
+    resizeKernel: z.object({ in: zResizeKernel, out: zResizeKernel }).optional(),
     defaults: z.array(zImageryDefaultConfig).optional(),
     imagery: z.array(zImageryConfig),
 });
@@ -84,9 +90,16 @@ export interface FullImageryConfig {
     maxZoom: number;
 }
 
+export const defaultSetFields: Array<keyof TileMetadataSetConfig> = [
+    'title',
+    'description',
+    'background',
+    'resizeKernel',
+];
+
 export type ImageryDefaultConfig = z.infer<typeof zImageryDefaultConfig>;
 
-const defaultFields: Array<keyof ImageryRule> = ['priority', 'minZoom', 'maxZoom'];
+const defaultRuleFields: Array<keyof ImageryRule> = ['priority', 'minZoom', 'maxZoom'];
 
 /**
  * Use defaults to ensure all attributes are present for an imagery config rule.
@@ -96,14 +109,14 @@ const defaultFields: Array<keyof ImageryRule> = ['priority', 'minZoom', 'maxZoom
 
  * @param rule the rule which may have missing fields
  */
-export function addDefaults(defaults: ImageryDefaultConfig[], rule: ImageryConfig): FullImageryConfig {
+export function addRuleDefaults(defaults: ImageryDefaultConfig[], rule: ImageryConfig): FullImageryConfig {
     const ans = { ...rule } as FullImageryConfig;
 
     for (const def of defaults) {
         if (def.nameContains != null) {
             if (rule.name.indexOf(def.nameContains) == -1) continue;
         }
-        for (const field of defaultFields) {
+        for (const field of defaultRuleFields) {
             const value = def[field];
             if (value != null) {
                 ans[field] ??= value;
@@ -125,12 +138,12 @@ export function addDefaults(defaults: ImageryDefaultConfig[], rule: ImageryConfi
  * @param defaults
  * @param rule
  */
-export function removeDefaults(defaults: ImageryDefaultConfig[], rule: FullImageryConfig): ImageryConfig {
+export function removeRuleDefaults(defaults: ImageryDefaultConfig[], rule: FullImageryConfig): ImageryConfig {
     const removeFields = new Map<string, boolean>();
     for (const def of defaults) {
         if (def.nameContains != null && rule.name.indexOf(def.nameContains) == -1) continue;
 
-        for (const field of defaultFields) {
+        for (const field of defaultRuleFields) {
             if (field in def) {
                 if (removeFields.has(field)) continue;
 
@@ -140,7 +153,7 @@ export function removeDefaults(defaults: ImageryDefaultConfig[], rule: FullImage
     }
     const config: ImageryConfig = { id: rule.id, name: rule.name };
 
-    for (const field of defaultFields) {
+    for (const field of defaultRuleFields) {
         if (!removeFields.get(field)) {
             config[field] = rule[field];
         }

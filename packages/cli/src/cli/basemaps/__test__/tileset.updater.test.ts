@@ -46,26 +46,7 @@ o.spec('tileset.updater', () => {
             maxZoom: 32,
         };
 
-        const origRecords = {
-            head: {
-                id: 'ts_abc123_head',
-                v: 2,
-                version: 20,
-                background: parseRgba(background),
-                projection: EpsgCode.Google,
-                rules: [rec1],
-            },
-            production: {
-                id: 'ts_abc123_production',
-                v: 2,
-                version: 20,
-                background: parseRgba(background),
-                projection: EpsgCode.Google,
-                rules: [rec1],
-            },
-        };
-
-        let records = { ...origRecords };
+        let records: any;
 
         const TileSet = {
             get: (name: string, proj: Epsg, tag: TileMetadataTag): any => {
@@ -84,8 +65,25 @@ o.spec('tileset.updater', () => {
             Aws.tileMetadata = origTileMetadata;
         });
 
-        o.afterEach(() => {
-            records = { ...origRecords };
+        o.beforeEach(() => {
+            records = {
+                head: {
+                    id: 'ts_abc123_head',
+                    v: 2,
+                    version: 20,
+                    background: parseRgba(background),
+                    projection: EpsgCode.Google,
+                    rules: [rec1],
+                },
+                production: {
+                    id: 'ts_abc123_production',
+                    v: 2,
+                    version: 20,
+                    background: parseRgba(background),
+                    projection: EpsgCode.Google,
+                    rules: [rec1],
+                },
+            };
         });
 
         o('no change', async () => {
@@ -169,6 +167,29 @@ o.spec('tileset.updater', () => {
                     maxZoom: 32,
                 },
             ]);
+        });
+
+        o('set config', async () => {
+            records.head.background = { r: 123, g: 132, b: 142, alpha: 100 };
+            records.head.title = 'the title';
+            records.head.description = 'the desc';
+
+            const tag = o.spy();
+            const create = o.spy((rec: any): any => ({ ...rec, id: 'new_id', version: 25 }));
+            metadata.TileSet = { ...TileSet, create, tag, initialRecord: origTileMetadata.TileSet.initialRecord };
+            const updater = new TileSetUpdater({ ...config, description: 'change desc' }, 'pr-123');
+
+            const { changes } = await updater.reconcile(true);
+
+            o(create.callCount).equals(1);
+            o(tag.callCount).equals(1);
+
+            o(create.args[0]).deepEquals({ ...changes!.after, version: 20, id: 'ts_abc123_head' });
+
+            o(changes!.before.background).deepEquals({ r: 123, g: 132, b: 142, alpha: 100 });
+            o(changes!.after.background).deepEquals({ r: 225, g: 226, b: 227, alpha: 228 });
+            o(changes!.after.title).equals('the title');
+            o(changes!.after.description).equals('change desc');
         });
 
         o('tag new pr', async () => {

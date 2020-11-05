@@ -2,6 +2,7 @@ import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import {
     Aws,
     ProjectionTileMatrixSet,
+    RGBAColor,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
     TileMetadataSetRecord,
@@ -43,7 +44,7 @@ export class TileSet {
         this.projection = projection;
     }
 
-    get background(): { r: number; g: number; b: number; alpha: number } | undefined {
+    get background(): RGBAColor | undefined {
         return this.tileSet?.background;
     }
 

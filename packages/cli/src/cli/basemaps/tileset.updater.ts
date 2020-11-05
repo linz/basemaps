@@ -7,6 +7,7 @@ import {
     TileMetadataImageRule,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
+    TileMetadataSetConfig,
     TileMetadataSetRecord,
     TileMetadataTable,
     TileMetadataTag,
@@ -14,7 +15,13 @@ import {
 import { deepStrictEqual } from 'assert';
 import { promises as fs } from 'fs';
 import { ulid } from 'ulid';
-import { addDefaults, assertTileSetConfig, FullImageryConfig, ProjectionConfig } from './tileset.config';
+import {
+    addRuleDefaults,
+    assertTileSetConfig,
+    defaultSetFields,
+    FullImageryConfig,
+    ProjectionConfig,
+} from './tileset.config';
 import { invalidateXYZCache, parseRgba, primeImageryCache, rgbaToHex, showDiff } from './tileset.util';
 
 export interface TagChanges {
@@ -83,6 +90,13 @@ function findRule<T extends ImgPriority>(map: Map<string, T[]>, id: string, prio
     return rules.shift() ?? null;
 }
 
+const Converters: Record<keyof TileMetadataSetConfig, (v: any) => string> = {
+    title: (val) => JSON.stringify(val),
+    description: (val) => JSON.stringify(val),
+    background: (val = DefaultBackground) => rgbaToHex(val),
+    resizeKernel: (val) => val && JSON.stringify(val, undefined, 2),
+};
+
 async function showUpdateTag(
     tag: TileMetadataTag,
     changes: TagChanges,
@@ -90,10 +104,14 @@ async function showUpdateTag(
     isCommit: boolean,
 ): Promise<string> {
     let output = `\nChanges for ${tag} ${changes.name}/${changes.projection.toEpsgString()}:\n`;
-    const backgroundBefore = rgbaToHex(changes.before.background ?? DefaultBackground);
-    const backgroundAfter = rgbaToHex(changes.after.background ?? DefaultBackground);
-    if (backgroundBefore !== backgroundAfter) {
-        output += `\nBackground changed from '${backgroundBefore}' to '${backgroundAfter}'\n`;
+
+    for (const field of defaultSetFields) {
+        const converter = Converters[field];
+        const before = converter(changes.before[field]);
+        const after = converter(changes.after[field]);
+        if (before !== after) {
+            output += `\n${field} changed from ${before} to ${after}\n`;
+        }
     }
 
     output += showDiff(changes.after, changes.before, imagery);
@@ -126,6 +144,21 @@ export async function updateConfig(filename: string, tag: TileMetadataTag, isCom
     }
 }
 
+function extractSetConfig(a: TileMetadataSetRecord | ProjectionConfig): TileMetadataSetConfig {
+    const ans: any = {};
+    for (const field of defaultSetFields) {
+        const val = a[field];
+        if (val === undefined) continue;
+        if (field === 'background' && typeof val === 'string') {
+            ans.background = parseRgba(val);
+        } else {
+            ans[field] = val;
+        }
+    }
+
+    return ans as TileMetadataSetConfig;
+}
+
 export class TileSetUpdater {
     config: ProjectionConfig;
     tag: TileMetadataTag;
@@ -144,7 +177,7 @@ export class TileSetUpdater {
         this.config = config;
         this.tag = tag;
         const defaults = this.config.defaults ?? [];
-        this.imagery = this.config.imagery.map((r) => addDefaults(defaults, r)).sort(compareIdPriority);
+        this.imagery = this.config.imagery.map((r) => addRuleDefaults(defaults, r)).sort(compareIdPriority);
         this.projection = Epsg.get(config.projection);
     }
 
@@ -210,8 +243,8 @@ export class TileSetUpdater {
             imgIds.add(TileMetadataTable.prefix(RecordPrefix.Imagery, rule.imgId));
         }
 
-        const backgroundAfter = this.config.background;
-        const backgroundBefore = beforeTs.background && rgbaToHex(beforeTs.background);
+        const beforeConfig = extractSetConfig(beforeTs);
+        const afterConfig = extractSetConfig(this.config);
 
         const ruleMap = rulesToMap(beforeTs.rules);
 
@@ -239,10 +272,10 @@ export class TileSetUpdater {
         beforeTs.rules.sort(compareImgIdPriority);
         afterRules.sort(compareImgIdPriority);
 
-        if (objectsDiffer(beforeTs.rules, afterRules) || backgroundAfter !== backgroundBefore) {
+        if (objectsDiffer(beforeTs.rules, afterRules) || objectsDiffer(beforeConfig, afterConfig)) {
             let after: TileMetadataSetRecord = {
                 ...beforeTs,
-                background: parseRgba(backgroundAfter),
+                ...afterConfig,
                 rules: afterRules,
             };
             if (isCommit) {
@@ -263,12 +296,6 @@ export class TileSetUpdater {
         const { config, projection } = this;
         const tsData = await Aws.tileMetadata.TileSet.get(config.name, projection, tag);
         if (tsData != null) return tsData;
-        return Aws.tileMetadata.TileSet.initialRecord(
-            config.name,
-            projection.code,
-            [],
-            config.title,
-            config.description,
-        );
+        return Aws.tileMetadata.TileSet.initialRecord(config.name, projection.code, []);
     }
 }

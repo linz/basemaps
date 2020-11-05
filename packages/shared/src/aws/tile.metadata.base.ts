@@ -100,29 +100,38 @@ export interface TaggedTileMetadataRecord extends BaseDynamoTable {
     revisions?: number;
 }
 
+export interface RGBAColor {
+    r: number;
+    g: number;
+    b: number;
+    alpha: number;
+}
+
 /** Background color of tiles where the tileset does not define a color */
 export const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
-export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
-export interface TileMetadataSetRecordBase extends TaggedTileMetadataRecord {
-    /** Database record version */
-    v?: number;
-
-    /** TileSet set name */
-    name: string;
-
+export interface TileMetadataSetConfig {
     /** Use for WMTS ows:title */
     title?: string;
 
     /** Use for WMTS ows:abstract */
     description?: string;
-    projection: EpsgCode;
 
     /** Background to render for areas where there is no data */
-    background?: { r: number; g: number; b: number; alpha: number };
+    background?: RGBAColor;
 
     /** When scaling tiles in the rendering process what kernel to use */
     resizeKernel?: { in: TileResizeKernel; out: TileResizeKernel };
+}
+
+export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
+export interface TileMetadataSetRecordBase extends TileMetadataSetConfig, TaggedTileMetadataRecord {
+    /** Database record version */
+    v?: number;
+
+    /** TileSet set name */
+    name: string;
+    projection: EpsgCode;
 }
 
 export interface TileMetadataSetRecordV1 extends TileMetadataSetRecordBase {

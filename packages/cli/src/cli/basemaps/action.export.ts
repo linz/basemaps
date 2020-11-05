@@ -16,7 +16,7 @@ import {
     FullImageryConfig,
     ImageryDefaultConfig,
     ProjectionConfig,
-    removeDefaults,
+    removeRuleDefaults,
 } from './tileset.config';
 import { defineTagParameter, primeImageryCache, rgbaToHex } from './tileset.util';
 
@@ -54,12 +54,15 @@ async function tilesetToConfig(
             },
         )
         .sort(compareNamePriority)
-        .map((r) => removeDefaults(defaults, r));
+        .map((r) => removeRuleDefaults(defaults, r));
 
     return {
         name,
         projection: projection.code,
+        title: item.title,
+        description: item.description,
         background: rgbaToHex(item.background ?? DefaultBackground),
+        resizeKernel: item.resizeKernel,
         defaults,
         imagery,
     };

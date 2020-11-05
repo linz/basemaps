@@ -1,6 +1,7 @@
 import { Epsg } from '@basemaps/geo';
 import {
     Aws,
+    RGBAColor,
     TileMetadataImageRule,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
@@ -30,7 +31,7 @@ function parseHex(str: string): number {
  * Defaults to 0 if missing values
  * @param str string to parse
  */
-export function parseRgba(str: string): { r: number; g: number; b: number; alpha: number } {
+export function parseRgba(str: string): RGBAColor {
     if (str.startsWith('0x')) str = str.slice(2);
     else if (str.startsWith('#')) str = str.slice(1);
     if (str.length != 6 && str.length != 8) {
@@ -51,7 +52,7 @@ function numberToHexString(n: number): string {
     const ans = n.toString(16);
     return ans.length == 1 ? '0' + ans : ans;
 }
-export function rgbaToHex(c: { r: number; g: number; b: number; alpha: number }): string {
+export function rgbaToHex(c: RGBAColor): string {
     return numberToHexString(c.r) + numberToHexString(c.g) + numberToHexString(c.b) + numberToHexString(c.alpha);
 }
 
