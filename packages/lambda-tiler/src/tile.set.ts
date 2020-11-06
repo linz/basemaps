@@ -112,7 +112,7 @@ export class TileSet {
             const tiffKey = `${record.id}_${c.name}`;
             let existing = this.sources.get(tiffKey);
             if (existing == null) {
-                const source = CogSourceAwsS3.createFromUri(TileSet.basePath(record, c.name));
+                const source = CogSourceAwsS3.createFromUri(TileSet.basePath(record, c.name), Aws.s3);
                 if (source == null) {
                     throw new Error(`Failed to create CogSource from  ${TileSet.basePath(record, c.name)}`);
                 }
