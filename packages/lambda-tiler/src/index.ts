@@ -1,6 +1,7 @@
 import { LambdaContext, LambdaFunction, LambdaHttpResponse, Router } from '@basemaps/lambda';
 import { LogConfig } from '@basemaps/shared';
-import { Health, Ping, Version } from './routes/api';
+import { Ping, Version } from './routes/api';
+import { Health } from './routes/health';
 import { Tiles } from './routes/tile';
 
 const app = new Router();

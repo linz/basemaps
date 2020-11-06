@@ -5,6 +5,7 @@ export { Const, Env } from './const';
 export { ApiKeyTable, ApiKeyTableRecord } from './aws/api.key.table';
 export { LogConfig, LogType } from './log';
 export * from './api.path';
+export * from './api';
 export { V, VNode, VNodeElement, VNodeText } from './vdom';
 export { VNodeParser } from './vdom.parse';
 export { CompositeError } from './composite.error';

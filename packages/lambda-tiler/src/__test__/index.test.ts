@@ -47,13 +47,6 @@ o.spec('LambdaXyz index', () => {
         });
     });
 
-    o('should respond to /health', async () => {
-        const res = await handleRequest(req('/health'));
-        o(res.status).equals(200);
-        o(res.statusDescription).equals('ok');
-        o(res.header('cache-control')).equals('no-store');
-    });
-
     o('should respond to /ping', async () => {
         const res = await handleRequest(req('/ping'));
         o(res.status).equals(200);
