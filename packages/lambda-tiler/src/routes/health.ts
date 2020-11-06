@@ -20,14 +20,21 @@ interface TestTile {
     projection: Epsg;
     buf: null | Buffer;
     format: ImageFormat;
-    testTile: { x: number; y: number; z: number };
+    testTile: Tile;
 }
 
 export const TestTiles: TestTile[] = [
     { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 }, buf: null },
-    { projection: Epsg.Nztm2000, format: ImageFormat.PNG, testTile: { x: 1536, y: 2553, z: 10 }, buf: null },
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 32294, y: 20521, z: 15 }, buf: null },
+    { projection: Epsg.Nztm2000, format: ImageFormat.PNG, testTile: { x: 153, y: 255, z: 7 }, buf: null },
 ];
+
+async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
+    if (Buffer.isBuffer(testTile.buf)) return testTile.buf;
+    // Initiate test img buffer if not defined
+    const testTileName = getExpectedTileName(testTile.projection, testTile.testTile, testTile.format);
+    testTile.buf = await fs.promises.readFile(testTileName);
+    return testTile.buf;
+}
 
 /**
  * Health request get health TileSets and validate with test TileSets
@@ -62,18 +69,12 @@ export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
         // Get the parse response tile to raw buffer
         const response = await tile(ctx);
         if (response.status != 200) return new LambdaHttpResponse(response.status, response.statusDescription);
-        const resImgBuffer = await Sharp(response.body as Buffer)
-            .raw()
-            .toBuffer();
+        if (!Buffer.isBuffer(response.body)) throw new LambdaHttpResponse(404, 'Not a Buffer response content.');
+        const resImgBuffer = await Sharp(response.body).raw().toBuffer();
 
         // Get test tile to compare
-        if (!test.buf) {
-            const testTileName = getExpectedTileName(projection, testTile, format);
-            test.buf = await fs.promises.readFile(testTileName);
-        }
-        const testImgBuffer = await Sharp(test.buf as Buffer)
-            .raw()
-            .toBuffer();
+        const testBuffer = await getTestBuffer(test);
+        const testImgBuffer = await Sharp(testBuffer).raw().toBuffer();
 
         const missMatchedPixels = PixelMatch(testImgBuffer, resImgBuffer, null, 256, 256);
         if (missMatchedPixels) return new LambdaHttpResponse(404, 'Test TileSet not match.');

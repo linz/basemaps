@@ -46,17 +46,11 @@ o.spec('health', () => {
     const testTileFile2 = fs.readFileSync(testTileName2);
     Response2.buffer(testTileFile2);
 
-    const Response3 = new LambdaHttpResponse(200, 'ok');
-    const testTileName3 = getExpectedTileName(TestTiles[2].projection, TestTiles[2].testTile, TestTiles[2].format);
-    const testTileFile3 = fs.readFileSync(testTileName3);
-    Response3.buffer(testTileFile3);
-
     o('Should good response', async () => {
         // Given ... a series good get tile response
         const callback = sinon.stub(Tile, 'tile');
         callback.onCall(0).resolves(Response1);
         callback.onCall(1).resolves(Response2);
-        callback.onCall(2).resolves(Response3);
 
         // When ...
         const res = await Health(ctx);
@@ -71,7 +65,6 @@ o.spec('health', () => {
         const callback = sinon.stub(Tile, 'tile');
         callback.onCall(0).resolves(Response1);
         callback.onCall(1).resolves(Response1);
-        callback.onCall(2).resolves(Response3);
 
         // When ...
         const res = await Health(ctx);
