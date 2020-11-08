@@ -13,6 +13,7 @@ function compareMatrix(a: TileMatrixSetTypeMatrix, b: TileMatrixSetTypeMatrix): 
 export class TileMatrixSet {
     /** Projection of the matrix set */
     projection: Epsg;
+
     /** Number of pixels for a tile */
     tileSize: number;
     /**

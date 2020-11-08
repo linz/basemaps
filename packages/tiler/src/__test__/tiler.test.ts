@@ -36,6 +36,12 @@ o.spec('tiler.test', () => {
             });
         });
     });
+
+    o('convertZ', () => {
+        const tiler = new Tiler(GoogleTms);
+        o(tiler.convertZ(10)).equals(10);
+    });
+
     o('createComposition should handle non square images', () => {
         const tiler = new Tiler(Nztm2000Tms);
 

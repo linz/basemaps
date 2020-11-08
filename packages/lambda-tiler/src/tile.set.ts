@@ -85,13 +85,14 @@ export class TileSet {
      * Get a list of tiffs in the rendering order that is needed to render the tile
      * @param tms tile matrix set to describe the tiling scheme
      * @param tile tile to render
+     * @param zFilter z value to filter rules by; defaults to `tile.z` see `Tiler#convertZ`
      */
-    public getTiffsForTile(tms: TileMatrixSet, tile: Tile): CogTiff[] {
+    public getTiffsForTile(tms: TileMatrixSet, tile: Tile, zFilter = tile.z): CogTiff[] {
         const output: CogTiff[] = [];
         const tileBounds = tms.tileToSourceBounds(tile);
         for (const rule of this.tileSet.rules) {
-            if (tile.z > (rule.maxZoom ?? 32)) continue;
-            if (tile.z < (rule.minZoom ?? 0)) continue;
+            if (zFilter > (rule.maxZoom ?? 32)) continue;
+            if (zFilter < (rule.minZoom ?? 0)) continue;
 
             const imagery = this.imagery.get(rule.imgId);
             if (imagery == null) continue;
