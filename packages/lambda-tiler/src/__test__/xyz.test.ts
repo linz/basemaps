@@ -160,6 +160,11 @@ o.spec('LambdaXyz', () => {
 
     o.spec('WMTSCapabilities', () => {
         const origPublicUrlBase = process.env[Env.PublicUrlBase];
+
+        o.before(() => {
+            process.env[Env.PublicUrlBase] = '';
+        });
+
         o.after(() => {
             process.env[Env.PublicUrlBase] = origPublicUrlBase;
         });
