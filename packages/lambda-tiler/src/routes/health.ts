@@ -8,12 +8,18 @@ import { ImageFormat } from '@basemaps/tiler';
 import { tile } from './tile';
 
 export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageFormat): string {
-    return path.join(
-        __dirname,
-        '..',
-        '..',
-        `static/expected_tile_${projection.code}_${tile.x}_${tile.y}_z${tile.z}.${format}`,
-    );
+    if (__filename === 'index.js') {
+        // Bundle static files are at the same directory with index.js
+        return path.join(__dirname, `static/expected_tile_${projection.code}_${tile.x}_${tile.y}_z${tile.z}.${format}`);
+    } else {
+        // To get test file locally
+        return path.join(
+            __dirname,
+            '..',
+            '..',
+            `static/expected_tile_${projection.code}_${tile.x}_${tile.y}_z${tile.z}.${format}`,
+        );
+    }
 }
 
 interface TestTile {
