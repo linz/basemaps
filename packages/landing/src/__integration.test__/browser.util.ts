@@ -7,7 +7,7 @@ const AppUrl = Env.get(Env.PublicUrlBase) || 'https://dev.basemaps.linz.govt.nz'
 
 export let browserInstance = (undefined as unknown) as BrowserUtil;
 
-o.specTimeout(20000);
+o.specTimeout(5000);
 
 o.before(async () => {
     const browser = await puppeteer.launch({ headless: true, slowMo: 0, devtools: false });
@@ -34,6 +34,10 @@ export class BrowserUtil {
         this.browser = browser;
         this.page = page;
         this.ulStartTime = Number.parseInt(ulid.ulid().slice(0, 7), 36);
+    }
+
+    get baseUrl(): string {
+        return AppUrl;
     }
 
     async clickElm(query: string): Promise<void> {
