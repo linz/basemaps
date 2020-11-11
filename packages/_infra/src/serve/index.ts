@@ -37,6 +37,7 @@ export class ServeStack extends cdk.Stack {
             healthCheck: {
                 path: '/health',
                 healthyThresholdCount: 2,
+                enabled: true,
             },
         });
         lb.addListener('HttpListener', {
