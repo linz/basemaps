@@ -9,7 +9,7 @@ import { tile } from './tile';
 
 export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageFormat): string {
     // Bundle static files are at the same directory with index.js
-    const dir = __filename === 'index.js' ? __dirname : path.join(__dirname, '..', '..');
+    const dir = __filename.endsWith('health.js') ? path.join(__dirname, '..', '..') : __dirname;
     return path.join(dir, `static/expected_tile_${projection.code}_${tile.x}_${tile.y}_z${tile.z}.${format}`);
 }
 
