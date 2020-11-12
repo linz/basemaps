@@ -56,9 +56,10 @@ jobs:
           git push --tags
 
       - name: Deploy - Bundle
+        if: github.ref != 'refs/heads/master' || github.repository != 'linz/basemaps'
         run: npx lerna run bundle --stream
 
-      - name: (NonProd) Configure AWS Credentials 
+      - name: (NonProd) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -68,9 +69,11 @@ jobs:
           mask-account-id: true
           role-to-assume: ${{ secrets.AWS_BASEMAPS_ROLE_NON_PROD }}
 
-      - name: (NonProd) Deploy 
+      - name: (NonProd) Deploy
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
-        run: npx lerna run deploy:deploy --stream
+        run: |
+          npx lerna run bundle --stream
+          npx lerna run deploy:deploy --stream
         env:
           ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN}}
           CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN}}
@@ -85,7 +88,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
 
-      - name: (Prod) Configure AWS Credentials 
+      - name: (Prod) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -97,7 +100,9 @@ jobs:
 
       - name: (Prod) Deploy
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: npx lerna run deploy:deploy --stream
+        run: |
+          npx lerna run bundle --stream
+          npx lerna run deploy:deploy --stream
         env:
           ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN_PROD}}
           CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN_PROD}}
