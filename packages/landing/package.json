@@ -26,7 +26,7 @@
     "@basemaps/geo": "^4.18.0",
     "@basemaps/infra": "^4.18.0",
     "@basemaps/shared": "^4.18.0",
-    "@linzjs/lui": "^1.0.4",
+    "@linzjs/lui": "^2.1.4",
     "ol": "^6.4.2",
     "proj4": "^2.6.2",
     "ulid": "^2.3.0"
