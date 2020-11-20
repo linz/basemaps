@@ -1543,10 +1543,10 @@
     ulid "^2.3.0"
     zod "^1.10.0"
 
-"@linzjs/lui@^1.0.4":
-  version "1.1.32"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-1.1.32.tgz#f0274d47f7bc4ac36d9fa2993f608ecc785588e8"
-  integrity sha512-cYqQXlnT/uauxviV8buU0lnU1XaZt2RZJl4EU8WXT5Xl5SbI5M6iOhd2srxGhQrge3WfUEwI5Cxq7AuFEcP3bw==
+"@linzjs/lui@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-2.3.1.tgz#072e782a7f2f853fbf55111ad8b19d0298b95a50"
+  integrity sha512-VqRb+et8+7Q703MtP/jNzMDiAYdujej3IsJYlvBT7dBJtzJCzVXUlXPTpZnySGOhdLrzTxOWQ8ASkBTNfEKd8A==
   dependencies:
     camelcase "^6.0.0"
     clsx "^1.1.0"
