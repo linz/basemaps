@@ -10,6 +10,7 @@ import {
     TileMetadataSetRecord,
     TileMetadataSetRecordBase,
     TileMetadataSetRecordV1,
+    TileMetadataSetRecordV2,
     TileMetadataTableBase,
     TileMetadataTag,
 } from './tile.metadata.base';
@@ -24,7 +25,9 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
      * Take a older imagery record and upgrade it to the latest record version
      * @param record
      */
-    migrate(record: TileMetadataSetRecordV1): TileMetadataSetRecord {
+    migrate(record: TileMetadataSetRecordV1 | TileMetadataSetRecordV2): TileMetadataSetRecord {
+        if (isLatestTileSetRecord(record)) return record;
+
         // V1 -> V2
         const output: TileMetadataSetRecord = record as any;
         const imagery = record.imagery;
@@ -84,7 +87,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
 
      * @param rec record to infer is a TileMetadataSetRecord
      */
-    recordIsTileset(rec: BaseDynamoTable): rec is TileMetadataSetRecord {
+    recordIsTileSet(rec: BaseDynamoTable): rec is TileMetadataSetRecordV1 | TileMetadataSetRecordV2 {
         return rec.id.startsWith(RecordPrefix.TileSet);
     }
 
@@ -137,6 +140,14 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         return `ts_${record.name}_${record.projection}_${tag}`;
     }
 
+    idSplit(record: TileMetadataSetRecord): { name: string; projection: string; tag: string } | null {
+        const [prefix, name, projection, tag] = record.id.split('_');
+        if (prefix != 'ts') return null;
+        if (!Epsg.parse(projection)) return null;
+        if (!parseMetadataTag(tag)) return null;
+        return { name, projection, tag };
+    }
+
     id(name: string, projection: Epsg, tag: TileMetadataTag | number): string {
         return this.idRecord({ name, projection: projection.code } as TileMetadataSetRecord, tag);
     }
@@ -179,5 +190,20 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
 
         if (isLatestTileSetRecord(record)) return record;
         return this.migrate(record);
+    }
+
+    /**
+     * Iterate over all records in the TileMetadataTable
+     */
+    async *[Symbol.asyncIterator](): AsyncGenerator<TileMetadataSetRecord, null, void> {
+        for await (const record of this.metadata) {
+            if (!this.recordIsTileSet(record)) continue;
+            if (isLatestTileSetRecord(record)) {
+                yield record;
+            } else {
+                yield this.migrate(record);
+            }
+        }
+        return null;
     }
 }
