@@ -159,7 +159,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         if (parseMetadataTag(tag)) return { name, projection, tag, version };
 
         if (tag.startsWith('v')) {
-            const idVersion = parseInt(tag.substring(1), 16);
+            const idVersion = parseInt(tag.substring(1), 10);
             if (idVersion === version) return { name, projection, tag, version };
         }
 
