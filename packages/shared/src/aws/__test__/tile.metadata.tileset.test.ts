@@ -1,5 +1,8 @@
+import { EpsgCode } from '@basemaps/geo';
 import { Epsg } from '@basemaps/geo';
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import o from 'ospec';
+import { Const } from '../../const';
 import { TileSetName } from '../../proj/tile.set.name';
 import { BaseDynamoTable } from '../aws.dynamo.table';
 import { TileMetadataTable } from '../tile.metadata';
@@ -97,17 +100,40 @@ o.spec('tile.metadata.tileset', () => {
         });
     });
 
-    o.spec('id', () => {
-        o('should create version ids', () => {
-            o(ts.id('test', Epsg.Google, 5)).equals('ts_test_3857_v000005');
-            o(ts.id('test', Epsg.Google, 32)).equals('ts_test_3857_v000032');
-            o(ts.id('test', Epsg.Google, Number.MAX_SAFE_INTEGER)).equals('ts_test_3857_v9007199254740991');
+    o.spec('idSplit', () => {
+        function fakeRecord(id: string, version: number): TileMetadataSetRecord {
+            const rec = ts.initialRecord('rec', EpsgCode.Google);
+            rec.id = id;
+            rec.version = version;
+            return rec;
+        }
+
+        o('should return null for unexpected ids', () => {
+            o(ts.idSplit(fakeRecord('wrongId', 0))).equals(null);
+            o(ts.idSplit(fakeRecord('im_test_3857_head', 2))).equals(null);
+            o(ts.idSplit(fakeRecord('ts_test_0000_production', 1))).equals(null);
+            o(ts.idSplit(fakeRecord('ts_test_3857_v000006', 7))).equals(null);
         });
 
-        o('should create tag ids', () => {
-            o(ts.id('test', Epsg.Google, TileMetadataNamedTag.Production)).equals('ts_test_3857_production');
-            o(ts.id('test', Epsg.Google, TileMetadataNamedTag.Head)).equals('ts_test_3857_head');
-            o(ts.id('test', Epsg.Google, TileMetadataNamedTag.Beta)).equals('ts_test_3857_beta');
+        o('should split ids', () => {
+            o(ts.idSplit(fakeRecord('ts_test_3857_head', 1))).deepEquals({
+                name: 'test',
+                projection: Epsg.Google,
+                tag: 'head',
+                version: 1,
+            });
+            o(ts.idSplit(fakeRecord('ts_test_2193_pr-12', 2))).deepEquals({
+                name: 'test',
+                projection: Epsg.Nztm2000,
+                tag: 'pr-12',
+                version: 2,
+            });
+            o(ts.idSplit(fakeRecord('ts_test_3857_v000006', 6))).deepEquals({
+                name: 'test',
+                projection: Epsg.Google,
+                tag: 'v000006',
+                version: 6,
+            });
         });
     });
 
@@ -133,15 +159,64 @@ o.spec('tile.metadata.tileset', () => {
         });
     });
 
-    o('recordIsImagery', () => {
+    o('recordIsTileSet', () => {
         const table = new TileMetadataTable();
 
         const item: BaseDynamoTable = { id: 'ts_foo', name: 'abc' } as any;
 
-        o(table.TileSet.recordIsTileset(item)).equals(true);
-        o(table.TileSet.recordIsTileset({ id: 'im_foo' } as any)).equals(false);
+        o(table.TileSet.recordIsTileSet(item)).equals(true);
+        o(table.TileSet.recordIsTileSet({ id: 'im_foo' } as any)).equals(false);
         if (table.Imagery.recordIsImagery(item)) {
             o(item.name).equals('abc'); // tests compiler
         }
+    });
+
+    o('asyncIterator', async () => {
+        const rule = { imgId: 'im_ulid', maxZoom: 1, minZoom: 15, priority: 1000, ruleId: 'ir_ulid' };
+        const imagery = { im_ulid: { id: 'im_ulid', maxZoom: 1, minZoom: 15, priority: 1000 } };
+        const recs: any[] = [
+            { id: 'im_rec1', name: 'rec1' }, // yes
+            { id: 'ts_rec1', name: 'rec2', v: 2, rules: [rule] }, // yes
+            { id: 'ts_rec2', name: 'rec3', v: 1, imagery: imagery }, // v1 migrate to v2
+        ];
+        const dynamo = {
+            scan(opts: any): any {
+                return {
+                    async promise(): Promise<any> {
+                        if (opts.TableName !== Const.TileMetadata.TableName) {
+                            throw new Error('Wrong table name: ' + opts.TableName);
+                        }
+                        let sample = recs.slice(0);
+                        let lastKey: any = null;
+                        if (opts.ExclusiveStartKey === undefined) {
+                            sample = recs.slice(0, 1);
+                            lastKey = 'ts_rec2';
+                        } else if (opts.ExclusiveStartKey === 'ts_rec2') {
+                            sample = recs.slice(1);
+                        }
+                        return {
+                            Items: sample.map((r) => DynamoDB.Converter.marshall(r)),
+                            LastEvaluatedKey: lastKey,
+                        };
+                    },
+                };
+            },
+        } as DynamoDB;
+
+        const table = new TileMetadataTable();
+        const tileMetadata = new TileMetadataTileSet(table);
+        table.dynamo = dynamo;
+
+        const ans = [];
+
+        for await (const item of tileMetadata) {
+            ans.push(item);
+        }
+
+        const ts_result: any[] = [
+            { id: 'ts_rec1', name: 'rec2', v: 2, rules: [rule] },
+            { id: 'ts_rec2', name: 'rec3', v: 2, rules: [rule] },
+        ];
+        o(ans).deepEquals(ts_result);
     });
 });
