@@ -1,3 +1,4 @@
+import { EpsgCode } from '@basemaps/geo';
 import { Epsg } from '@basemaps/geo';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import o from 'ospec';
@@ -100,28 +101,38 @@ o.spec('tile.metadata.tileset', () => {
     });
 
     o.spec('idSplit', () => {
+        function fakeRecord(id: string, version: number): TileMetadataSetRecord {
+            const rec = ts.initialRecord('rec', EpsgCode.Google);
+            rec.id = id;
+            rec.version = version;
+            return rec;
+        }
+
         o('should return null for unexpected ids', () => {
-            o(ts.idSplit({ id: 'wrongId' } as any)).equals(null);
-            o(ts.idSplit({ id: 'im_test_3857_head' } as any)).equals(null);
-            o(ts.idSplit({ id: 'ts_test_0000_production' } as any)).equals(null);
-            o(ts.idSplit({ id: 'ts_test_3857_v000006' } as any)).equals(null);
+            o(ts.idSplit(fakeRecord('wrongId', 0))).equals(null);
+            o(ts.idSplit(fakeRecord('im_test_3857_head', 2))).equals(null);
+            o(ts.idSplit(fakeRecord('ts_test_0000_production', 1))).equals(null);
+            o(ts.idSplit(fakeRecord('ts_test_3857_v000006', 7))).equals(null);
         });
 
         o('should split ids', () => {
-            o(ts.idSplit({ id: 'ts_test_3857_head' } as any)).deepEquals({
+            o(ts.idSplit(fakeRecord('ts_test_3857_head', 1))).deepEquals({
                 name: 'test',
-                projection: '3857',
+                projection: Epsg.Google,
                 tag: 'head',
+                version: 1,
             });
-            o(ts.idSplit({ id: 'ts_test_2193_pr-12' } as any)).deepEquals({
+            o(ts.idSplit(fakeRecord('ts_test_2193_pr-12', 2))).deepEquals({
                 name: 'test',
-                projection: '2193',
+                projection: Epsg.Nztm2000,
                 tag: 'pr-12',
+                version: 2,
             });
-            o(ts.idSplit({ id: 'ts_test_3857_production' } as any)).deepEquals({
+            o(ts.idSplit(fakeRecord('ts_test_3857_v000006', 6))).deepEquals({
                 name: 'test',
-                projection: '3857',
-                tag: 'production',
+                projection: Epsg.Google,
+                tag: 'v000006',
+                version: 6,
             });
         });
     });

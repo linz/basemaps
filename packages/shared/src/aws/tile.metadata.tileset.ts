@@ -20,6 +20,13 @@ function isLatestTileSetRecord(record: TileMetadataSetRecordBase): record is Til
     return record.v === 2;
 }
 
+export interface TileSetId {
+    name: string;
+    projection: Epsg;
+    tag: string | null;
+    version: number;
+}
+
 export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecord> {
     /**
      * Take a older imagery record and upgrade it to the latest record version
@@ -140,12 +147,23 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         return `ts_${record.name}_${record.projection}_${tag}`;
     }
 
-    idSplit(record: TileMetadataSetRecord): { name: string; projection: string; tag: string } | null {
-        const [prefix, name, projection, tag] = record.id.split('_');
+    idSplit(record: TileMetadataSetRecord): TileSetId | null {
+        const [prefix, name, projectionCode, tag] = record.id.split('_');
+        const version = record.version;
+
         if (prefix != 'ts') return null;
-        if (!Epsg.parse(projection)) return null;
-        if (!parseMetadataTag(tag)) return null;
-        return { name, projection, tag };
+
+        const projection = Epsg.parse(projectionCode);
+        if (projection == null) return null;
+
+        if (parseMetadataTag(tag)) return { name, projection, tag, version };
+
+        if (tag.startsWith('v')) {
+            const idVersion = parseInt(tag.substring(1), 16);
+            if (idVersion === version) return { name, projection, tag, version };
+        }
+
+        return null;
     }
 
     id(name: string, projection: Epsg, tag: TileMetadataTag | number): string {
