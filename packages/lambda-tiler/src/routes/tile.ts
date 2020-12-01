@@ -30,7 +30,7 @@ const NotFound = new LambdaHttpResponse(404, 'Not Found');
 
 /** Initialize the tiffs before reading */
 async function initTiffs(tileSet: TileSet, tiler: Tiler, tile: Tile, ctx: LambdaContext): Promise<CogTiff[]> {
-    const tiffs = tileSet.getTiffsForTile(tiler.tms, tile, tiler.convertZ(tile.z));
+    const tiffs = tileSet.getTiffsForTile(tiler.tms, tile);
     let failed = false;
     // Remove any tiffs that failed to load
     const promises = tiffs.map((c) => {

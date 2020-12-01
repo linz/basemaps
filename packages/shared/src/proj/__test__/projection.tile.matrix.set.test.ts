@@ -5,8 +5,8 @@ import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import { BBox } from '@linzjs/geojson';
 import o from 'ospec';
-import { Nztm2000AgolTms } from '../../alternative.tms/nztm2000.agol';
 import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
+import { Nztm2000AgolTms } from '../../trail.tms/nztm2000.agol';
 
 const TileSize = 256;
 

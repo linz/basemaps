@@ -1,5 +1,6 @@
 import { TileMatrixSetType } from '@basemaps/geo';
-import { AltTileMatrixSet } from './alt.tms';
+import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { TrailTileMatrixSet } from './trail.tms';
 
 const AgolTmst: TileMatrixSetType = {
     type: 'TileMatrixSetType',
@@ -258,10 +259,8 @@ const AgolTmst: TileMatrixSetType = {
     ],
 };
 
-const AgolConversionFactor = 16 / 23;
-
 /**
  * This is an alternative TileMatrixSet for NZTM2000 that is used by Esri™ and ArcGIS™ Online for
  * New zealand basemaps. It is not officially supported by LINZ
  */
-export const Nztm2000AgolTms = new AltTileMatrixSet(AgolTmst, 'agol', (z) => Math.round(z * AgolConversionFactor));
+export const Nztm2000AgolTms = new TrailTileMatrixSet(AgolTmst, Nztm2000Tms, 'agol');

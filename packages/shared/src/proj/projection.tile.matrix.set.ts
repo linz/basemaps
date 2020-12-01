@@ -2,7 +2,7 @@ import { EpsgCode, Tile, TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { BBox } from '@linzjs/geojson';
-import { Nztm2000AgolTms } from '../alternative.tms/nztm2000.agol';
+import { Nztm2000AgolTms } from '../trail.tms/nztm2000.agol';
 import { Projection } from './projection';
 
 /**

@@ -111,7 +111,7 @@ o.spec('LambdaXyz', () => {
 
     o(`should generate a tile 0,0,0 for alternate tms`, async () => {
         tiler = Object.create(Tilers.get(Epsg.Nztm2000, 'agol')!);
-        Tilers.alt.get(EpsgCode.Nztm2000)!.set('agol', tiler);
+        Tilers.map.set(EpsgCode.Nztm2000.toString() + ':agol', tiler);
         tiler.tile = tileMock as any;
         const tileSet = new FakeTileSet('aerial', Epsg.Nztm2000);
         TileSets.set(tileSet.id, tileSet);

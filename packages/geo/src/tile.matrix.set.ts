@@ -222,4 +222,12 @@ export class TileMatrixSet {
         }
         throw new Error(`Invalid tile name '${name}'`);
     }
+
+    /**
+     * Convert the tile z value from the Tile Matrix Set to match the TileSet rule filter.
+     * Override this function to change it
+     */
+    getParentZoom(z: number): number {
+        return z;
+    }
 }

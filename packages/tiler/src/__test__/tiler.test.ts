@@ -37,9 +37,9 @@ o.spec('tiler.test', () => {
         });
     });
 
-    o('convertZ', () => {
+    o('getParentZoom', () => {
         const tiler = new Tiler(GoogleTms);
-        o(tiler.convertZ(10)).equals(10);
+        o(tiler.tms.getParentZoom(10)).equals(10);
     });
 
     o('createComposition should handle non square images', () => {

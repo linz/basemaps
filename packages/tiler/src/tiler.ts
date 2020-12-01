@@ -26,19 +26,8 @@ export class Tiler {
      * @param tms
      * @param convertZ override the default convertZ
      */
-    public constructor(tms: TileMatrixSet, convertZ?: (z: number) => number) {
+    public constructor(tms: TileMatrixSet) {
         this.tms = tms;
-        if (convertZ != null) {
-            this.convertZ = convertZ;
-        }
-    }
-
-    /**
-     * Convert the tile z value from the Tile Matrix Set to match the TileSet rule filter.
-     * Override this function to change it
-     */
-    convertZ(z: number): number {
-        return z;
     }
 
     /**
