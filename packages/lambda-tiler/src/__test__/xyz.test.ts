@@ -1,4 +1,4 @@
-import { Epsg, EpsgCode, TileMatrixSet } from '@basemaps/geo';
+import { Epsg, TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import {
     Aws,
