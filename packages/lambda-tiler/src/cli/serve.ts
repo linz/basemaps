@@ -40,7 +40,6 @@ async function handleRequest(
         const duration = Date.now() - startTime;
         logger.info({ ...ctx.logContext, ...logInfo, status: data.status, duration }, 'Done');
     } catch (e) {
-        console.error(e);
         logger.fatal({ ...ctx.logContext, err: e }, 'FailedToRender');
         res.status(500);
         res.end();

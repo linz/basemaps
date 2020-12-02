@@ -239,4 +239,31 @@ export class TileMatrixSet {
     getParentZoom(z: number): number {
         return z;
     }
+
+    /**
+     * Calculate the scale mapping between two TileMatrixSets based from child to parent
+     * @param parentTmx
+     * @param childTmx
+     *
+     */
+    public static scaleMapping(parentTmx: TileMatrixSet, childTmx: TileMatrixSet): Map<number, number> {
+        const scaleMap: Map<number, number> = new Map();
+        for (let i = 0; i < childTmx.zooms.length; i++) {
+            const child = childTmx.zooms[i];
+            const index = findBestMatch(child.scaleDenominator, parentTmx.zooms);
+            scaleMap.set(i, index);
+        }
+        return scaleMap;
+    }
+}
+
+/**
+ * Find the best matching scales from the parent zooms.
+ *
+ */
+function findBestMatch(scaleDenominator: number, zooms: TileMatrixSetTypeMatrix[]): number {
+    for (let i = 0; i < zooms.length; i++) {
+        if (zooms[i].scaleDenominator < scaleDenominator) return i;
+    }
+    return zooms.length - 1;
 }

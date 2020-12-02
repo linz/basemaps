@@ -9,36 +9,12 @@ export class AlternativeTileMatrixSet extends TileMatrixSet {
         super(def);
         this.parent = parent;
         this.altName = altName;
-        this.scaleMap = new Map();
-
-        // Setup the z mapping between child Tmx and parent Tmx based on the scaleDenominator
-        let last = null;
-        for (const pTmx of this.parent.def.tileMatrix) {
-            for (const cTmx of this.def.tileMatrix) {
-                if (last == null) {
-                    if (cTmx.scaleDenominator >= pTmx.scaleDenominator) {
-                        this.scaleMap.set(Number(cTmx.identifier), Number(pTmx.identifier));
-                    }
-                } else if (this.parent.def.tileMatrix.indexOf(pTmx) == this.parent.def.tileMatrix.length - 1) {
-                    if (cTmx.scaleDenominator <= pTmx.scaleDenominator) {
-                        this.scaleMap.set(Number(cTmx.identifier), Number(pTmx.identifier));
-                    }
-                } else {
-                    if (
-                        cTmx.scaleDenominator >= pTmx.scaleDenominator &&
-                        cTmx.scaleDenominator <= last.scaleDenominator
-                    ) {
-                        this.scaleMap.set(Number(cTmx.identifier), Number(last.identifier));
-                    }
-                }
-            }
-            last = pTmx;
-        }
+        this.scaleMap = TileMatrixSet.scaleMapping(this.parent, this);
     }
 
     getParentZoom(z: number): number {
         const convertZ = this.scaleMap.get(z);
-        if (convertZ == null) throw new Error(`No converted scaled level from parent Tile Matrix`);
+        if (convertZ == null) throw new Error(`No converted zoom from parent Tile Matrix for zoom: ${z}`);
         return convertZ;
     }
 
