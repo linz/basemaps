@@ -1,4 +1,4 @@
-import { Epsg, EpsgCode } from '@basemaps/geo';
+import { Epsg, EpsgCode, TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import {
     Aws,
@@ -111,7 +111,7 @@ o.spec('LambdaXyz', () => {
 
     o(`should generate a tile 0,0,0 for alternate tms`, async () => {
         tiler = Object.create(Tilers.get(Epsg.Nztm2000, 'agol')!);
-        Tilers.map.set(EpsgCode.Nztm2000.toString() + ':agol', tiler);
+        Tilers.map.set(TileMatrixSet.getId(Epsg.Nztm2000, 'agol'), tiler);
         tiler.tile = tileMock as any;
         const tileSet = new FakeTileSet('aerial', Epsg.Nztm2000);
         TileSets.set(tileSet.id, tileSet);

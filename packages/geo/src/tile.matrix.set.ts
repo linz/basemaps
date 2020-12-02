@@ -76,6 +76,15 @@ export class TileMatrixSet {
         return this.zooms.length - 1;
     }
 
+    get id(): string {
+        return TileMatrixSet.getId(this.projection);
+    }
+
+    static getId(epsg: Epsg, altName?: string): string {
+        if (altName == null) return epsg.toEpsgString();
+        return epsg.toEpsgString() + ':' + altName;
+    }
+
     /** Get the pixels / meter at a specified zoom level */
     pixelScale(zoom: number): number {
         const z = this.zooms[zoom];
