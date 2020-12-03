@@ -20,6 +20,12 @@ export class Tiler {
     /** Tile size for the tiler and sub objects */
     public readonly tms: TileMatrixSet;
 
+    /**
+     * Tiler for a TileMatrixSet
+
+     * @param tms
+     * @param convertZ override the default convertZ
+     */
     public constructor(tms: TileMatrixSet) {
         this.tms = tms;
     }
