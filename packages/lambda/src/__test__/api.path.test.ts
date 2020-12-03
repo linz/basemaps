@@ -36,6 +36,13 @@ o.spec('api.path', () => {
                 type: TileType.Attribution,
                 name: 'aerial',
                 projection: Epsg.Google,
+                altTms: undefined,
+            });
+            o(tileAttributionFromPath(['aerial', 'EPSG:2193:agol', 'attribution.json'])).deepEquals({
+                type: TileType.Attribution,
+                name: 'aerial',
+                projection: Epsg.Nztm2000,
+                altTms: 'agol',
             });
         });
     });
@@ -76,6 +83,7 @@ o.spec('api.path', () => {
                 y: 3,
                 z: 1,
                 ext: ImageFormat.PNG,
+                altTms: undefined,
             });
         });
 
@@ -90,6 +98,7 @@ o.spec('api.path', () => {
                 y: 6,
                 z: 4,
                 ext: ImageFormat.WEBP,
+                altTms: undefined,
             });
         });
 
@@ -102,6 +111,7 @@ o.spec('api.path', () => {
                 type: TileType.WMTS,
                 name: 'aerial',
                 projection: Epsg.Google,
+                altTms: undefined,
             });
         });
 
@@ -114,6 +124,7 @@ o.spec('api.path', () => {
                 type: TileType.WMTS,
                 name: 'aerial',
                 projection: null,
+                altTms: undefined,
             });
         });
     });

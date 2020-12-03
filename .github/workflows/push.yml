@@ -52,7 +52,7 @@ jobs:
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: |
           CURRENT_VERSION=$(node -p "require('./lerna.json').version")
-          git tag v${CURRENT_VERSION}
+          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
           git push --tags
 
       - name: Deploy - Bundle
