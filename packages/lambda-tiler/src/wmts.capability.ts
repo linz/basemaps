@@ -1,34 +1,8 @@
 import { Bounds, Epsg, TileMatrixSet, WmtsLayer, WmtsProvider } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { Projection, TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
 import { TileSet } from './tile.set';
-
-function getTileMatrixSet(projection: Epsg): TileMatrixSet {
-    switch (projection) {
-        case Epsg.Google:
-            return GoogleTms;
-        case Epsg.Nztm2000:
-            return Nztm2000Tms;
-        default:
-            throw new Error(`Invalid projection: ${projection.code}`);
-    }
-}
-
-/**
- * Get the unique list of projections needed to serve these tilesets
- * @param tileSets
- */
-function getTileMatrixSets(tileSets: WmtsLayer[]): TileMatrixSet[] {
-    const output = new Map<number, TileMatrixSet>();
-    for (const ts of tileSets) {
-        const tms = getTileMatrixSet(ts.projection);
-        output.set(tms.projection.code, tms);
-    }
-    return Array.from(output.values());
-}
 
 const CapabilitiesAttrs = {
     xmlns: 'http://www.opengis.net/wmts/1.0',
@@ -50,13 +24,25 @@ export class WmtsCapabilities {
     provider: WmtsProvider;
 
     layers: Map<string, WmtsLayer[]> = new Map();
-    tms: Map<number, TileMatrixSet> = new Map();
+    tileMatrixSets: Map<Epsg, TileMatrixSet>;
+    altTms = '';
 
     apiKey?: string;
 
-    constructor(httpBase: string, provider: WmtsProvider, layers: WmtsLayer[], apiKey?: string) {
+    constructor(
+        httpBase: string,
+        provider: WmtsProvider,
+        layers: WmtsLayer[],
+        tileMatrixSets: Map<Epsg, TileMatrixSet>,
+        altTms = '',
+        apiKey?: string,
+    ) {
         this.httpBase = httpBase;
         this.provider = provider;
+        this.tileMatrixSets = tileMatrixSets;
+        if (altTms != '') {
+            this.altTms = ':' + altTms;
+        }
 
         for (const layer of layers) {
             // TODO is grouping by name the best option
@@ -135,7 +121,7 @@ export class WmtsCapabilities {
             'v1',
             'tiles',
             tileSet.taggedName,
-            '{TileMatrixSet}',
+            '{TileMatrixSet}' + this.altTms,
             '{TileMatrix}',
             '{TileCol}',
             `{TileRow}.${suffix}${apiSuffix}`,
@@ -156,7 +142,7 @@ export class WmtsCapabilities {
             V('ows:Title', firstLayer.title),
             V('ows:Abstract', firstLayer.description),
             V('ows:Identifier', firstLayer.taggedName),
-            ...layers.map((layer) => this.buildBoundingBox(getTileMatrixSet(layer.projection), layer.extent)),
+            ...layers.map((layer) => this.buildBoundingBox(this.tileMatrixSets.get(layer.projection)!, layer.extent)),
             this.buildWgs84BoundingBox(layers),
             this.buildStyle(),
             ...ImageFormatOrder.map((fmt) => V('Format', 'image/' + fmt)),
@@ -174,7 +160,6 @@ export class WmtsCapabilities {
             V('ows:Title', tms.def.title),
             tms.def.abstract ? V('ows:Abstract', tms.def.abstract) : null,
             V('ows:Identifier', tms.projection.toEpsgString()),
-            this.buildBoundingBox(tms, tms.extent),
             V('ows:SupportedCRS', tms.projection.toUrn()),
             tms.def.wellKnownScaleSet ? V('WellKnownScaleSet', tms.def.wellKnownScaleSet) : null,
             ...tms.def.tileMatrix.map((c) => {
@@ -194,15 +179,12 @@ export class WmtsCapabilities {
         const layers: VNodeElement[] = [];
         const matrixDefs: VNodeElement[] = [];
 
-        const allTms = new Map<number, TileMatrixSet>();
         for (const tileSets of this.layers.values()) {
-            const tms = getTileMatrixSets(tileSets);
+            const tms = this.getTileMatrixSets(tileSets);
             layers.push(this.buildLayer(tileSets, tms));
 
             for (const matrix of tms) {
-                if (allTms.has(matrix.projection.code)) continue;
                 matrixDefs.push(this.buildTileMatrixSet(matrix));
-                allTms.set(matrix.projection.code, matrix);
             }
         }
 
@@ -216,7 +198,30 @@ export class WmtsCapabilities {
         return '<?xml version="1.0"?>\n' + this.toVNode().toString();
     }
 
-    static toXml(httpBase: string, provider: TileMetadataProviderRecord, tileSet: TileSet[], apiKey?: string): string {
-        return new WmtsCapabilities(httpBase, provider, tileSet, apiKey).toString();
+    static toXml(
+        httpBase: string,
+        provider: TileMetadataProviderRecord,
+        tileSet: TileSet[],
+        tileMatrixSets: Map<Epsg, TileMatrixSet>,
+        altTms?: string | undefined,
+        apiKey?: string,
+    ): string {
+        return new WmtsCapabilities(httpBase, provider, tileSet, tileMatrixSets, altTms, apiKey).toString();
+    }
+
+    /**
+     * Get the unique list of projections needed to serve these tilesets
+     * @param tileSets
+     */
+    private getTileMatrixSets(tileSets: WmtsLayer[]): TileMatrixSet[] {
+        const output = new Map<number, TileMatrixSet>();
+        for (const ts of tileSets) {
+            const tms = this.tileMatrixSets.get(ts.projection);
+            if (tms == null) {
+                throw new Error(`Invalid projection: ${ts.projection.code}`);
+            }
+            output.set(tms.projection.code, tms);
+        }
+        return Array.from(output.values());
     }
 }
