@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.19.0](https://github.com/linz/basemaps/compare/v4.18.0...v4.19.0) (2020-11-30)
+
+
+### Features
+
+* **shared:** Add iterator into TileMetadataTileSet. ([#1351](https://github.com/linz/basemaps/issues/1351)) ([2cb9bde](https://github.com/linz/basemaps/commit/2cb9bde3ad248bcaab41347184046164b1c0bf77))
+
+
+
+
+
 # [4.18.0](https://github.com/linz/basemaps/compare/v4.17.0...v4.18.0) (2020-11-12)
 
 
