@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "4.17.0",
+  "version": "4.19.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -17,16 +17,16 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
-    "start": "TILE_HOST=${TILE_HOST:-https://dev.basemaps.linz.govt.nz} nodemon scripts/bundle.js -e 'ts html css' -i 'dist/*'",
+    "start": "TILE_HOST=${TILE_HOST:-https://dev.basemaps.linz.govt.nz} nodemon ../../scripts/bundle.js -e 'ts html css' -i 'dist/*' -- package.json",
     "bundle": "../../scripts/bundle.js package.json",
     "deploy:deploy": "node scripts/deploy.js"
   },
   "dependencies": {
-    "@basemaps/attribution": "^4.17.0",
-    "@basemaps/geo": "^4.17.0",
-    "@basemaps/infra": "^4.17.0",
-    "@basemaps/shared": "^4.17.0",
-    "@linzjs/lui": "^1.0.4",
+    "@basemaps/attribution": "^4.19.0",
+    "@basemaps/geo": "^4.19.0",
+    "@basemaps/infra": "^4.19.0",
+    "@basemaps/shared": "^4.19.0",
+    "@linzjs/lui": "^2.5.1",
     "ol": "^6.4.2",
     "proj4": "^2.6.2",
     "ulid": "^2.3.0"
