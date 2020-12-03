@@ -2,6 +2,7 @@ import { EpsgCode, WmtsProvider, BoundingBox } from '@basemaps/geo';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { Const } from '../const';
 import { BaseDynamoTable } from './aws.dynamo.table';
+import { TileMetadataTable } from './tile.metadata';
 
 export type TileMetadataTag = string;
 
@@ -279,9 +280,9 @@ export class TileMetadataTableBase {
 }
 
 export abstract class TaggedTileMetadata<T extends TaggedTileMetadataRecord> {
-    metadata: TileMetadataTableBase;
+    metadata: TileMetadataTable;
 
-    constructor(metadata: TileMetadataTableBase) {
+    constructor(metadata: TileMetadataTable) {
         this.metadata = metadata;
     }
 
