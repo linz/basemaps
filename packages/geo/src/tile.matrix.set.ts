@@ -13,6 +13,7 @@ function compareMatrix(a: TileMatrixSetTypeMatrix, b: TileMatrixSetTypeMatrix): 
 export class TileMatrixSet {
     /** Projection of the matrix set */
     projection: Epsg;
+
     /** Number of pixels for a tile */
     tileSize: number;
     /**
@@ -73,6 +74,15 @@ export class TileMatrixSet {
      */
     get maxZoom(): number {
         return this.zooms.length - 1;
+    }
+
+    get id(): string {
+        return TileMatrixSet.getId(this.projection);
+    }
+
+    static getId(epsg: Epsg, altName?: string): string {
+        if (altName == null) return epsg.toEpsgString();
+        return epsg.toEpsgString() + ':' + altName;
     }
 
     /** Get the pixels / meter at a specified zoom level */
@@ -221,4 +231,39 @@ export class TileMatrixSet {
         }
         throw new Error(`Invalid tile name '${name}'`);
     }
+
+    /**
+     * Convert the tile z value from the Tile Matrix Set to match the TileSet rule filter.
+     * Override this function to change it
+     */
+    getParentZoom(z: number): number {
+        return z;
+    }
+
+    /**
+     * Calculate the scale mapping between two TileMatrixSets based from child to parent
+     * @param parentTmx
+     * @param childTmx
+     *
+     */
+    public static scaleMapping(parentTmx: TileMatrixSet, childTmx: TileMatrixSet): Map<number, number> {
+        const scaleMap: Map<number, number> = new Map();
+        for (let i = 0; i < childTmx.zooms.length; i++) {
+            const child = childTmx.zooms[i];
+            const index = findBestMatch(child.scaleDenominator, parentTmx.zooms);
+            scaleMap.set(i, index);
+        }
+        return scaleMap;
+    }
+}
+
+/**
+ * Find the best matching scales from the parent zooms.
+ *
+ */
+function findBestMatch(scaleDenominator: number, zooms: TileMatrixSetTypeMatrix[]): number {
+    for (let i = 0; i < zooms.length; i++) {
+        if (zooms[i].scaleDenominator < scaleDenominator) return i;
+    }
+    return zooms.length - 1;
 }

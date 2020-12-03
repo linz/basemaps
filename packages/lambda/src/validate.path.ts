@@ -20,7 +20,7 @@ export const ValidateTilePath = {
         req.set('extension', ext);
         req.set('tileSet', xyzData.name);
 
-        const tileMatrix = ProjectionTileMatrixSet.tryGet(xyzData.projection.code);
+        const tileMatrix = ProjectionTileMatrixSet.tryGet(xyzData.projection.code, xyzData.altTms);
         if (tileMatrix == null) throw new LambdaHttpResponse(404, `Projection not found: ${xyzData.projection.code}`);
         if (z > tileMatrix.tms.maxZoom || z < 0) throw new LambdaHttpResponse(404, `Zoom not found: ${z}`);
 

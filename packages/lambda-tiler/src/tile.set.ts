@@ -89,9 +89,10 @@ export class TileSet {
     public getTiffsForTile(tms: TileMatrixSet, tile: Tile): CogTiff[] {
         const output: CogTiff[] = [];
         const tileBounds = tms.tileToSourceBounds(tile);
+        const zFilter = tms.getParentZoom(tile.z);
         for (const rule of this.tileSet.rules) {
-            if (tile.z > (rule.maxZoom ?? 32)) continue;
-            if (tile.z < (rule.minZoom ?? 0)) continue;
+            if (zFilter > (rule.maxZoom ?? 32)) continue;
+            if (zFilter < (rule.minZoom ?? 0)) continue;
 
             const imagery = this.imagery.get(rule.imgId);
             if (imagery == null) continue;

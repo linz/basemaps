@@ -1,9 +1,11 @@
 import { Bounds, EpsgCode, QuadKey } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import { BBox } from '@linzjs/geojson';
 import o from 'ospec';
+import { Nztm2000AgolTms } from '../../alternative.tms/nztm2000.agol';
 import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
 
 const TileSize = 256;
@@ -64,6 +66,19 @@ o.spec('ProjectionTileMatrixSet', () => {
         o(round(googlePtms.tileCenterToLatLon(QuadKey.toTile('3120123')), 8)).deepEquals({
             lat: -47.98992167,
             lon: 105.46875,
+        });
+    });
+
+    o.spec('tryGet', () => {
+        o('not found', () => {
+            o(ProjectionTileMatrixSet.tryGet(EpsgCode.Wgs84)).equals(null);
+        });
+        o('get normal', () => {
+            o(ProjectionTileMatrixSet.tryGet(EpsgCode.Nztm2000)!.tms).equals(Nztm2000Tms);
+        });
+
+        o('get alternative', () => {
+            o(ProjectionTileMatrixSet.tryGet(EpsgCode.Nztm2000, 'agol')!.tms).equals(Nztm2000AgolTms);
         });
     });
 
