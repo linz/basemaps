@@ -1,10 +1,12 @@
-import { Epsg, Bounds } from '@basemaps/geo';
-import { V, VNodeElement, TileSetName } from '@basemaps/shared';
+import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { TileSetName, V, VNodeElement } from '@basemaps/shared';
+import { roundNumbersInString } from '@basemaps/test/build/rounding';
 import { createHash } from 'crypto';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability';
-import { Provider, FakeTileSet } from './xyz.util';
-import { roundNumbersInString } from '@basemaps/test/build/rounding';
+import { FakeTileSet, Provider } from './xyz.util';
 
 function tags(node: VNodeElement | null | undefined, tag: string): VNodeElement[] {
     if (node == null) return [];
@@ -19,8 +21,20 @@ o.spec('WmtsCapabilities', () => {
     const tileSet = new FakeTileSet(TileSetName.aerial, Epsg.Google);
     const tileSetImagery = new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Epsg.Google);
 
+    const tileMatrixSetMap = new Map<Epsg, TileMatrixSet>([
+        [Epsg.Google, GoogleTms],
+        [Epsg.Nztm2000, Nztm2000Tms],
+    ]);
+
     o('should build capability xml for tileset and projection', () => {
-        const wmts = new WmtsCapabilities('https://basemaps.test', Provider, [tileSet], apiKey);
+        const wmts = new WmtsCapabilities(
+            'https://basemaps.test',
+            Provider,
+            [tileSet],
+            tileMatrixSetMap,
+            undefined,
+            apiKey,
+        );
 
         const raw = wmts.toVNode();
         const serviceId = raw.find('ows:ServiceIdentification');
@@ -103,22 +117,31 @@ o.spec('WmtsCapabilities', () => {
         compareMatrix(tileMatrices[0], '0', 1, 559082264.028717);
         compareMatrix(tileMatrices[10], '10', 1024, 545978.773465544);
 
-        const xml = WmtsCapabilities.toXml('https://basemaps.test', Provider, [tileSet], apiKey) ?? '';
+        const xml =
+            WmtsCapabilities.toXml('https://basemaps.test', Provider, [tileSet], tileMatrixSetMap, undefined, apiKey) ??
+            '';
 
         o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
 
         o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-            'TRDSi9zHUjylAsdj/8WnnOlP3ocRLSS3JzheGoJ9oQg=',
+            'T/Ht5RdGQyxQxkVgyZO0hb018OmuUUP7olFMZXvmGUY=',
         );
     });
 
     o('should return null if not found', () => {
         const ts = new FakeTileSet(TileSetName.aerial, { code: 9999 } as Epsg);
-        o(() => WmtsCapabilities.toXml('basemaps.test', Provider, [ts])).throws('Invalid projection: 9999');
+        o(() => WmtsCapabilities.toXml('basemaps.test', Provider, [ts], tileMatrixSetMap)).throws(
+            'Invalid projection: 9999',
+        );
     });
 
     o('should allow individual imagery sets', () => {
-        const raw = new WmtsCapabilities('https://basemaps.test', Provider, [tileSetImagery]).toVNode();
+        const raw = new WmtsCapabilities(
+            'https://basemaps.test',
+            Provider,
+            [tileSetImagery],
+            tileMatrixSetMap,
+        ).toVNode();
 
         const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
 
@@ -137,7 +160,7 @@ o.spec('WmtsCapabilities', () => {
             new FakeTileSet(TileSetName.aerial, Epsg.Nztm2000),
             new FakeTileSet(TileSetName.aerial, Epsg.Google),
         ];
-        const xml = new WmtsCapabilities('basemaps.test', Provider, ts);
+        const xml = new WmtsCapabilities('basemaps.test', Provider, ts, tileMatrixSetMap);
         const nodes = xml.toVNode();
 
         const layers = tags(nodes, 'Layer');
@@ -184,7 +207,7 @@ o.spec('WmtsCapabilities', () => {
             new FakeTileSet(TileSetName.aerial, Epsg.Nztm2000, 'aerial-title'),
             new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Epsg.Nztm2000, 'imagery-title'),
         ];
-        const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
+        const nodes = new WmtsCapabilities('basemaps.test', Provider, ts, tileMatrixSetMap).toVNode();
         const layers = tags(nodes, 'Layer');
         o(layers.length).equals(2);
 
@@ -205,7 +228,7 @@ o.spec('WmtsCapabilities', () => {
         ts[1].titleOverride = 'override sub tileset 1';
 
         ts[2].tileSet.title = 'aerial_dunedin_urban';
-        const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
+        const nodes = new WmtsCapabilities('basemaps.test', Provider, ts, tileMatrixSetMap).toVNode();
 
         const layers = tags(nodes, 'Layer');
         o(layers.length).equals(3);
