@@ -1,4 +1,4 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, TileMatrixSet } from '@basemaps/geo';
 import { Env, LogConfig, LogType } from '@basemaps/shared';
 import { HttpHeader, LambdaContext } from '@basemaps/lambda';
 import express from 'express';
@@ -10,6 +10,7 @@ import { TileSets } from '../tile.set.cache';
 import { WmtsCapabilities } from '../wmts.capability';
 import { Provider } from '../__test__/xyz.util';
 import { TileSetLocal } from './tile.set.local';
+import { Tilers } from '../tiler';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
@@ -105,7 +106,21 @@ async function useLocal(): Promise<void> {
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
 
-        const xml = WmtsCapabilities.toXml(Env.get(Env.PublicUrlBase) ?? '', Provider, [...TileSets.values()]);
+        const tileMatrixSets = new Map<Epsg, TileMatrixSet>();
+        for (const ts of TileSets.values()) {
+            const tiler = Tilers.get(ts.projection);
+            if (tiler == null) {
+                throw new Error("Can't find tiler for projection " + ts.projection);
+            }
+            tileMatrixSets.set(ts.projection, tiler.tms);
+        }
+
+        const xml = WmtsCapabilities.toXml(
+            Env.get(Env.PublicUrlBase) ?? '',
+            Provider,
+            [...TileSets.values()],
+            tileMatrixSets,
+        );
         res.header('content-type', 'application/xml');
         res.send(xml);
         res.end();

@@ -1,4 +1,4 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import {
     Aws,
@@ -83,7 +83,16 @@ o.spec('LambdaXyz', () => {
             o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
             o(generateMock.args).deepEquals([
                 tileMockData,
-                { type: 'image', name: tileSetName, projection: Epsg.Google, x: 0, y: 0, z: 0, ext: 'png' },
+                {
+                    type: 'image',
+                    name: tileSetName,
+                    projection: Epsg.Google,
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    ext: 'png',
+                    altTms: undefined,
+                },
             ] as any);
 
             o(tileMock.calls.length).equals(1);
@@ -98,6 +107,47 @@ o.spec('LambdaXyz', () => {
             o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
             o(round(request.logContext['location'])).deepEquals({ lat: 0, lon: 0 });
         });
+    });
+
+    o(`should generate a tile 0,0,0 for alternate tms`, async () => {
+        tiler = Object.create(Tilers.get(Epsg.Nztm2000, 'agol')!);
+        Tilers.map.set(TileMatrixSet.getId(Epsg.Nztm2000, 'agol'), tiler);
+        tiler.tile = tileMock as any;
+        const tileSet = new FakeTileSet('aerial', Epsg.Nztm2000);
+        TileSets.set(tileSet.id, tileSet);
+        tileSet.load = () => Promise.resolve(true);
+        tileSet.getTiffsForTile = (): [] => [];
+        const request = mockRequest(`/v1/tiles/aerial/EPSG:2193:agol/0/0/0.png`);
+        const res = await handleRequest(request);
+        o(res.status).equals(200);
+        o(res.header('content-type')).equals('image/png');
+        o(res.header('eTaG')).equals('foo');
+        o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
+        o(generateMock.args).deepEquals([
+            tileMockData,
+            {
+                type: 'image',
+                name: 'aerial',
+                projection: Epsg.Nztm2000,
+                x: 0,
+                y: 0,
+                z: 0,
+                ext: 'png',
+                altTms: 'agol',
+            },
+        ] as any);
+
+        o(tileMock.calls.length).equals(1);
+        const [tiffs, x, y, z] = tileMock.args;
+        o(tiffs).deepEquals([]);
+        o(x).equals(0);
+        o(y).equals(0);
+        o(z).equals(0);
+
+        // Validate the session information has been set correctly
+        o(request.logContext['tileSet']).equals('aerial');
+        o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
+        o(round(request.logContext['location'])).deepEquals({ lat: -90, lon: 0 });
     });
 
     o('should generate a tile 0,0,0 for webp', async () => {
@@ -165,7 +215,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
-            const key = 'e0ynihP7kBO12BFGnQw+LmbRY5MBF4L8JS+Gw47erGw=';
+            const key = 'r3vqprE8cfTtd4j83dllmDeZydOBMv5hlan0qR/fGkc=';
             const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
 
             const res = await handleRequest(request);

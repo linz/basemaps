@@ -17,10 +17,15 @@ export enum TileType {
 
 export type TileData = TileDataXyz | TileDataWmts | TileDataAttribution;
 
-export interface TileDataXyz extends Tile {
-    type: TileType.Image;
+interface NameProjection {
     name: string;
     projection: Epsg;
+    /** Has an alternative TileMatrixSet been requested */
+    altTms?: string | undefined;
+}
+
+export interface TileDataXyz extends Tile, NameProjection {
+    type: TileType.Image;
     ext: ImageFormat;
 }
 
@@ -28,12 +33,11 @@ export interface TileDataWmts {
     type: TileType.WMTS;
     name: string;
     projection: Epsg | null;
+    altTms?: string | undefined;
 }
 
-export interface TileDataAttribution {
+export interface TileDataAttribution extends NameProjection {
     type: TileType.Attribution;
-    name: string;
-    projection: Epsg;
 }
 
 export function setNameAndProjection(req: { set: (key: string, val: any) => void }, data: TileData): void {
@@ -49,10 +53,20 @@ function parseTargetEpsg(text: string): Epsg | null {
     return projection;
 }
 
+function extractProjection(rawProj: string): { projection: Epsg | null; altTms: string | undefined } {
+    let altTms: string | undefined = undefined;
+    if (/:.*:/.test(rawProj)) {
+        const pos = rawProj.lastIndexOf(':');
+        altTms = rawProj.slice(pos + 1);
+        rawProj = rawProj.slice(0, pos);
+    }
+    return { projection: parseTargetEpsg(rawProj), altTms };
+}
+
 export function tileXyzFromPath(path: string[]): TileDataXyz | null {
     if (path.length < 5) return null;
     const name = path[0];
-    const projection = parseTargetEpsg(path[1]);
+    const { projection, altTms } = extractProjection(path[1]);
     if (projection == null) return null;
     const z = parseInt(path[2], 10);
     const x = parseInt(path[3], 10);
@@ -64,17 +78,17 @@ export function tileXyzFromPath(path: string[]): TileDataXyz | null {
     const ext = extStr ? getImageFormat(extStr) : null;
     if (ext == null) return null;
 
-    return { type: TileType.Image, name, projection, x, y, z, ext };
+    return { type: TileType.Image, name, projection, x, y, z, ext, altTms };
 }
 
 export function tileAttributionFromPath(path: string[]): TileDataAttribution | null {
     if (path.length < 3) return null;
 
     const name = path[0];
-    const projection = Epsg.parse(path[1]);
+    const { projection, altTms } = extractProjection(path[1]);
     if (projection == null) return null;
 
-    return { type: TileType.Attribution, name, projection };
+    return { type: TileType.Attribution, name, projection, altTms };
 }
 
 /**
@@ -90,16 +104,18 @@ export function tileWmtsFromPath(path: string[]): TileDataWmts | null {
     if (path.length > 3) return null;
 
     const name = path.length < 2 ? '' : path[0];
-    let projection = null;
     if (path.length == 3) {
-        projection = parseTargetEpsg(path[1]);
+        const { projection, altTms } = extractProjection(path[1]);
         if (projection == null) return null;
+
+        return { type: TileType.WMTS, name, projection, altTms };
     }
 
     return {
         type: TileType.WMTS,
         name,
-        projection,
+        projection: null,
+        altTms: undefined,
     };
 }
 
