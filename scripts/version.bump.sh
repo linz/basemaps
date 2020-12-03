@@ -8,7 +8,7 @@ git checkout master
 git pull --rebase
 
 # Validate that there are actually changes to be made, this will fail if nothing needs publishing
-npx lerna changed -a
+npx lerna changed -a --long
 
 npx lerna version --conventional-commits --no-push -m 'release: %s' 
 
