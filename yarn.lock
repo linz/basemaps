@@ -1551,10 +1551,11 @@
     zod "^1.10.0"
 
 "@linzjs/lui@^2.5.1":
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-2.5.1.tgz#17aab0a1908f7224934ca3a22b842144ef4579c7"
-  integrity sha512-HZAbOvv8pVk3tbv9VONmvvoNrUs65uzy1uEHqBGmQNqH2kPXvwxj8lxRM5xCusGc+SkfXsX/HCInJxJz14KJWQ==
+  version "2.6.7"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-2.6.7.tgz#730224809b02a3a988a39014b39c700df3a6b81a"
+  integrity sha512-v+GrN8RP0in+IWQB5fJ2gCksdn7p8PvSXi/xQQlyDp1Bip0Rn8ogCrIkclJGATQ1Cc3nA/bTR5kusCAFZ1C5Vw==
   dependencies:
+    "@szhsin/react-menu" "^1.4.0"
     camelcase "^6.0.0"
     clsx "^1.1.0"
     formik "^2.1.4"
@@ -1776,6 +1777,11 @@
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.1.tgz#8da5c6530915653f3a1f38fd5f101d8c3f8079c5"
   integrity sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==
+
+"@szhsin/react-menu@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@szhsin/react-menu/-/react-menu-1.4.0.tgz#db9ecc1f161678e63d8ed0d0d0bf28cb4fbe5d61"
+  integrity sha512-sFuc3HBGISNvmRpmN23jPwpidrYSxCn7XgHqyGoHGoK01PZFtEGjKLKPARwg2n7YDuN4mwNufo6Fy9RWxoKQmA==
 
 "@tootallnate/once@1":
   version "1.1.2"
