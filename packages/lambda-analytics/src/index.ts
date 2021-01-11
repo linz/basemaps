@@ -6,6 +6,18 @@ import { CacheExtension, CacheFolder, LogStartDate, LogStats } from './stats';
 
 const Logger = LogConfig.get();
 
+export const MaxToProcess = 24 * 7 * 4;
+
+export function getMaxDate(): Date {
+    // Process up to about a hour ago
+    const maxDate = new Date();
+    maxDate.setUTCMinutes(0);
+    maxDate.setUTCSeconds(0);
+    maxDate.setUTCMilliseconds(0);
+    maxDate.setUTCHours(maxDate.getUTCHours() - 1);
+    return maxDate;
+}
+
 // Threads to run, 5 hours at a time with 5 files at a time
 export const Q = {
     file: PLimit(5),
@@ -51,17 +63,9 @@ export async function handler(): Promise<void> {
     const existingFiles = await listCacheFolder(CacheLocation);
     Logger.debug({ existingFiles: existingFiles.size }, 'ListedCache');
 
-    // Process up to about a hour ago
-    const MaxDate = new Date();
-    MaxDate.setUTCMinutes(0);
-    MaxDate.setUTCSeconds(0);
-    MaxDate.setUTCMilliseconds(0);
-    MaxDate.setUTCHours(MaxDate.getUTCHours() - 1);
-
     // number of hours processed
     let processedCount = 0;
-    const MaxToProcess = 24 * 7 * 4;
-
+    const MaxDate = getMaxDate();
     const promises: Promise<void>[] = [];
 
     // Hour by hour look for new log lines upto about a hour ago
