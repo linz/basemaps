@@ -146,7 +146,7 @@ async function main(): Promise<void> {
     } else {
         await useLocal();
     }
-    await new Promise((resolve) => app.listen(port, resolve));
+    await new Promise<void>((resolve) => app.listen(port, resolve));
 }
 
 main().catch((e) => console.error(e));
