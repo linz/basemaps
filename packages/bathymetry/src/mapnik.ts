@@ -72,14 +72,14 @@ async function render(bm: BathyMaker, tile: Tile, logger: LogType): Promise<stri
     const template = makeTemplate(warpedPath, hillShadePath);
     const map = new mapnik.Map(bm.config.tileSize, bm.config.tileSize);
 
-    await new Promise((resolve, reject) =>
+    await new Promise<void>((resolve, reject) =>
         map.fromString(template, (err: Error) => (err == null ? resolve() : reject(err))),
     );
 
     map.zoomAll();
 
     const startTime = Date.now();
-    await new Promise((resolve, reject) =>
+    await new Promise<void>((resolve, reject) =>
         map.renderFile(outputPath, (err: Error) => (err == null ? resolve() : reject(err))),
     );
     logger.debug({ duration: Date.now() - startTime }, 'MapnikRender');
