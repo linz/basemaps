@@ -9,6 +9,7 @@ import { TileSetUpdateTagAction } from './action.tileset.tag';
 import { TileSetHistoryAction } from './action.tileset.history';
 import { PrettyTransform } from 'pretty-json-log';
 import { LogConfig } from '@basemaps/shared';
+import { TileSetInvalidateTagAction } from './action.invalidate';
 
 export class BasemapsCommandLine extends BaseCommandLine {
     constructor() {
@@ -22,6 +23,7 @@ export class BasemapsCommandLine extends BaseCommandLine {
         this.addAction(new ExportAction());
         this.addAction(new TileSetUpdateTagAction());
         this.addAction(new TileSetHistoryAction());
+        this.addAction(new TileSetInvalidateTagAction());
 
         if (process.stdout.isTTY) {
             LogConfig.setOutputStream(PrettyTransform.stream());
