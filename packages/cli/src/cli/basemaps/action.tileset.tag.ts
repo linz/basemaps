@@ -5,15 +5,17 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
-import { TagAction } from '../tag.action';
+import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateXYZCache } from './tileset.util';
 import { Epsg } from '@basemaps/geo';
 
 export class TileSetUpdateTagAction extends TileSetBaseAction {
-    private version: CommandLineIntegerParameter;
-    private tag: CommandLineStringParameter;
     private commit: CommandLineFlagParameter;
+    private projection: CommandLineIntegerParameter;
+    private tag: CommandLineStringParameter;
+    private tileSet: CommandLineStringParameter;
+    private version: CommandLineIntegerParameter;
 
     public constructor() {
         super({
@@ -24,8 +26,11 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
     }
 
     protected onDefineParameters(): void {
-        super.onDefineParameters();
-        TagAction.onDefineParameters(this);
+        this.commit = this.defineFlagParameter(TagActions.Commit);
+        this.projection = this.defineIntegerParameter(TagActions.Projection);
+        this.tag = this.defineStringParameter(TagActions.Tag);
+        this.tileSet = this.defineStringParameter(TagActions.TileSet);
+        this.version = this.defineIntegerParameter(TagActions.Version);
     }
 
     protected async onExecute(): Promise<void> {

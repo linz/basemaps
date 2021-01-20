@@ -10,8 +10,8 @@ import {
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { createImageryRecordFromJob } from '../cogify/action.batch';
+import { TagActions } from '../tag.action';
 import { updateConfig } from './tileset.updater';
-import { defineTagParameter } from './tileset.util';
 
 /**
  * Import a config file for a specific name and projection
@@ -40,8 +40,6 @@ export class ImportAction extends CommandLineAction {
             required: false,
         });
 
-        defineTagParameter(this);
-
         this.job = this.defineStringParameter({
             argumentName: 'JOB',
             parameterLongName: '--job',
@@ -56,11 +54,8 @@ export class ImportAction extends CommandLineAction {
             required: false,
         });
 
-        this.commit = this.defineFlagParameter({
-            parameterLongName: '--commit',
-            description: 'Commit to database',
-            required: false,
-        });
+        this.tag = this.defineStringParameter(TagActions.Tag);
+        this.commit = this.defineFlagParameter(TagActions.Commit);
     }
 
     async tryGetImagery(imgId: string): Promise<null | TileMetadataImageryRecord> {

@@ -6,14 +6,15 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
-import { TagAction } from '../tag.action';
+import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateXYZCache } from './tileset.util';
 
 export class TileSetInvalidateTagAction extends TileSetBaseAction {
-    private version: CommandLineIntegerParameter;
-    private tag: CommandLineStringParameter;
     private commit: CommandLineFlagParameter;
+    private projection: CommandLineIntegerParameter;
+    private tag: CommandLineStringParameter;
+    private tileSet: CommandLineStringParameter;
 
     public constructor() {
         super({
@@ -24,8 +25,10 @@ export class TileSetInvalidateTagAction extends TileSetBaseAction {
     }
 
     protected onDefineParameters(): void {
-        super.onDefineParameters();
-        TagAction.onDefineParameters(this);
+        this.commit = this.defineFlagParameter(TagActions.Commit);
+        this.projection = this.defineIntegerParameter(TagActions.Projection);
+        this.tag = this.defineStringParameter(TagActions.Tag);
+        this.tileSet = this.defineStringParameter(TagActions.TileSet);
     }
 
     protected async onExecute(): Promise<void> {
@@ -34,7 +37,6 @@ export class TileSetInvalidateTagAction extends TileSetBaseAction {
         if (projection == null) return this.fatal({ projection: this.projection.value }, 'Invalid projection');
 
         const tagInput = this.tag.value!;
-        const version = this.version.value!;
 
         const tileSetName = `${tileSet}@${tagInput}`;
         const { tag, name } = Aws.tileMetadata.TileSet.parse(tileSetName);
@@ -43,7 +45,7 @@ export class TileSetInvalidateTagAction extends TileSetBaseAction {
         const tsData = await Aws.tileMetadata.TileSet.get(name, projection, tag);
         if (tsData == null) return this.fatal({ tileSet: tileSetName }, 'Could not find tileset');
 
-        LogConfig.get().info({ version, tag, name, projection }, 'Invalidating');
+        LogConfig.get().info({ tag, name, projection }, 'Invalidating');
 
         if (tag == TileMetadataNamedTag.Production) LogConfig.get().warn('Invaliding production cache');
 
