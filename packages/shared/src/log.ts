@@ -1,26 +1,39 @@
 import pino from 'pino';
 import { Writable } from 'stream';
 
-let currentLog: pino.Logger;
+export interface LogFunc {
+    (msg: string): void;
+    (obj: Record<string, unknown>, msg: string): void;
+}
+
+let currentLog: LogType;
 
 /**
  * Expose log type so functions that do not have direct access to pino have access to the log type
  */
-export type LogType = pino.Logger;
-
+export interface LogType {
+    level: string;
+    trace: LogFunc;
+    debug: LogFunc;
+    info: LogFunc;
+    warn: LogFunc;
+    error: LogFunc;
+    fatal: LogFunc;
+    child: (obj: Record<string, unknown>) => LogType;
+}
 /**
  * Encapsulate the logger so that it can be swapped out
  */
 export const LogConfig = {
     /** Get the currently configured logger */
-    get(): pino.Logger {
+    get(): LogType {
         if (currentLog == null) {
             currentLog = pino({ level: 'debug' });
         }
         return currentLog;
     },
 
-    set(log: pino.Logger): void {
+    set(log: LogType): void {
         currentLog = log;
     },
 
