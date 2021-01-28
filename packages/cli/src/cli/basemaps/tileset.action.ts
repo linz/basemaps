@@ -1,3 +1,4 @@
+import { LogConfig, LogType } from '@basemaps/shared';
 import { CommandLineAction, CommandLineStringParameter, CommandLineIntegerParameter } from '@rushstack/ts-command-line';
 
 export abstract class TileSetBaseAction extends CommandLineAction {
@@ -20,5 +21,12 @@ export abstract class TileSetBaseAction extends CommandLineAction {
             description: 'Projection to use',
             required: false,
         });
+    }
+
+    /** Log a fatal error and render the help text */
+    fatal(obj: Record<string, unknown>, msg: string, logger: LogType = LogConfig.get()): void {
+        logger.fatal(obj, msg);
+        console.log('\n');
+        console.log(this.renderHelpText());
     }
 }

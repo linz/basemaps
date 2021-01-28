@@ -145,7 +145,7 @@ export function showDiff(
 /**
  * Invalidate the cloudfront distribution cache when updating imagery sets
  */
-export function invalidateXYZCache(
+export async function invalidateXYZCache(
     name: string,
     projection: Epsg,
     tag: TileMetadataTag,

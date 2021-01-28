@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig } from '@basemaps/shared';
+import { Epsg } from '@basemaps/geo';
+import { Aws, LogConfig, TileMetadataNamedTag } from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
@@ -8,18 +9,17 @@ import {
 import { TagAction } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateXYZCache } from './tileset.util';
-import { Epsg } from '@basemaps/geo';
 
-export class TileSetUpdateTagAction extends TileSetBaseAction {
+export class TileSetInvalidateTagAction extends TileSetBaseAction {
     private version: CommandLineIntegerParameter;
     private tag: CommandLineStringParameter;
     private commit: CommandLineFlagParameter;
 
     public constructor() {
         super({
-            actionName: 'tag',
-            summary: 'Tag a version for rendering',
-            documentation: 'Get rendering information for the tile set or imagery',
+            actionName: 'invalidate',
+            summary: 'Invalidate basemaps caches rendering',
+            documentation: 'Destroy the cache for cloudfront, useful if all the tiles need to be rendered again',
         });
     }
 
@@ -36,17 +36,20 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
         const tagInput = this.tag.value!;
         const version = this.version.value!;
 
-        const { tag, name } = Aws.tileMetadata.TileSet.parse(`${tileSet}@${tagInput}`);
+        const tileSetName = `${tileSet}@${tagInput}`;
+        const { tag, name } = Aws.tileMetadata.TileSet.parse(tileSetName);
         if (tag == null) return this.fatal({ tag }, 'Invalid tag name');
 
-        LogConfig.get().info({ version, tag, name, projection }, 'Tagging');
+        const tsData = await Aws.tileMetadata.TileSet.get(name, projection, tag);
+        if (tsData == null) return this.fatal({ tileSet: tileSetName }, 'Could not find tileset');
+
+        LogConfig.get().info({ version, tag, name, projection }, 'Invalidating');
+
+        if (tag == TileMetadataNamedTag.Production) LogConfig.get().warn('Invaliding production cache');
 
         if (this.commit.value) {
-            await Aws.tileMetadata.TileSet.tag(name, projection, tag, version);
             await invalidateXYZCache(name, projection, tag, this.commit.value);
-        }
-
-        if (!this.commit.value) {
+        } else {
             LogConfig.get().warn('DryRun:Done');
         }
     }
