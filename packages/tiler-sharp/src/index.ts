@@ -37,6 +37,8 @@ export class TileMakerSharp implements TileMaker {
                 return pipeline.png().toBuffer();
             case ImageFormat.WEBP:
                 return pipeline.webp().toBuffer();
+            case ImageFormat.AVIF:
+                return pipeline.avif().toBuffer();
             default:
                 throw new Error(`Invalid image format "${format}"`);
         }

@@ -21,6 +21,12 @@ export const enum MapOptionType {
     Attribution = 'attribution',
 }
 
+export function baseWindowUrl(): string {
+    const baseUrl = `${window.location.protocol}//${window.location.hostname}`;
+    if (window.location.port == null) return baseUrl;
+    return baseUrl + ':' + window.location.port;
+}
+
 export const WindowUrl = {
     ImageFormat: 'png',
 
@@ -75,7 +81,7 @@ export const WindowUrl = {
     },
 
     baseUrl(): string {
-        const baseUrl = Config.BaseUrl || window.location.protocol + '//' + window.location.hostname;
+        const baseUrl = Config.BaseUrl ?? baseWindowUrl();
         if (baseUrl != '' && !baseUrl.startsWith('http')) {
             throw new Error('BaseURL must start with http(s)://');
         }

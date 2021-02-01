@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/pixelmatch": "^5.0.0",
     "@types/pngjs": "^3.3.2",
-    "@types/sharp": "^0.26.0",
+    "@types/sharp": "^0.27.1",
     "pixelmatch": "^5.1.0",
     "pngjs": "^6.0.0"
   },
