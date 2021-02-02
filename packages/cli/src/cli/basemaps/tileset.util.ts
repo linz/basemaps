@@ -166,14 +166,3 @@ export async function primeImageryCache(imageIds: Set<string>): Promise<Map<stri
     for (const img of allImagery.values()) Aws.tileMetadata.Imagery.imagery.set(img.id, img);
     return allImagery;
 }
-
-export function defineTagParameter(self: any): void {
-    const validTags = Object.values(TileMetadataNamedTag).filter((f) => f != TileMetadataNamedTag.Head);
-    self.tag = self.defineStringParameter({
-        argumentName: 'TAG',
-        parameterLongName: '--tag',
-        parameterShortName: '-t',
-        description: `tag name  (options: ${validTags.join(', ')} or pr-<pr_number>)`,
-        required: false,
-    });
-}
