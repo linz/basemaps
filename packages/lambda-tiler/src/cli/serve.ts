@@ -67,6 +67,7 @@ function useAws(): void {
         await handleRequest(ctx, res, startTime, logger);
     });
 
+    app.use(express.static(__dirname + '/../../../landing/dist/'));
     LogConfig.get().info({ port, base: process.env[Env.PublicUrlBase], aws: process.env['AWS_PROFILE'] }, 'Listen');
 }
 

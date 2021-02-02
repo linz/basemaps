@@ -2,6 +2,7 @@
 import { Aws, TileMetadataNamedTag } from '@basemaps/shared';
 import { CommandLineAction, CommandLineIntegerParameter } from '@rushstack/ts-command-line';
 import * as c from 'ansi-colors';
+import { TagActions } from '../tag.action';
 import { printProvider } from './provider.util';
 
 export class ProviderInfoAction extends CommandLineAction {
@@ -16,13 +17,7 @@ export class ProviderInfoAction extends CommandLineAction {
     }
 
     protected onDefineParameters(): void {
-        this.version = this.defineIntegerParameter({
-            argumentName: 'VERSION',
-            parameterLongName: '--version',
-            parameterShortName: '-v',
-            description: 'Version ID',
-            required: false,
-        });
+        this.version = this.defineIntegerParameter(TagActions.Version);
     }
 
     protected async onExecute(): Promise<void> {
