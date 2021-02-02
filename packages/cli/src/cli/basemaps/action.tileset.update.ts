@@ -16,6 +16,7 @@ import {
 } from '@rushstack/ts-command-line';
 import { promises as fs } from 'fs';
 import { ulid } from 'ulid';
+import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateXYZCache, parseRgba, printTileSet } from './tileset.util';
 
@@ -35,6 +36,8 @@ export class TileSetUpdateAction extends TileSetBaseAction {
 
     resizeIn: CommandLineStringParameter;
     resizeOut: CommandLineStringParameter;
+    projection: CommandLineIntegerParameter;
+    tileSet: CommandLineStringParameter;
 
     public constructor() {
         super({
@@ -45,7 +48,6 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     }
 
     protected onDefineParameters(): void {
-        super.onDefineParameters();
         this.ruleId = this.defineStringParameter({
             argumentName: 'RULE',
             parameterLongName: '--rule',
@@ -118,11 +120,9 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             required: false,
         });
 
-        this.commit = this.defineFlagParameter({
-            parameterLongName: '--commit',
-            description: 'Commit to database',
-            required: false,
-        });
+        this.commit = this.defineFlagParameter(TagActions.Commit);
+        this.tileSet = this.defineStringParameter(TagActions.TileSet);
+        this.projection = this.defineIntegerParameter(TagActions.Projection);
     }
     protected async onExecute(): Promise<void> {
         const name = this.tileSet.value!;

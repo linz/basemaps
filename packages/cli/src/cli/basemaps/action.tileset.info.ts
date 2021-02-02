@@ -3,11 +3,14 @@ import { Epsg } from '@basemaps/geo';
 import { Aws, LogConfig, TileMetadataNamedTag } from '@basemaps/shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as c from 'ansi-colors';
+import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet } from './tileset.util';
 
 export class TileSetInfoAction extends TileSetBaseAction {
     private imagery: CommandLineStringParameter;
+    private projection: CommandLineIntegerParameter;
+    private tileSet: CommandLineStringParameter;
     private version: CommandLineIntegerParameter;
 
     public constructor() {
@@ -19,22 +22,10 @@ export class TileSetInfoAction extends TileSetBaseAction {
     }
 
     protected onDefineParameters(): void {
-        super.onDefineParameters();
-        this.imagery = this.defineStringParameter({
-            argumentName: 'IMAGERY',
-            parameterLongName: '--imagery',
-            parameterShortName: '-i',
-            description: 'Imagery ID',
-            required: false,
-        });
-
-        this.version = this.defineIntegerParameter({
-            argumentName: 'VERSION',
-            parameterLongName: '--version',
-            parameterShortName: '-v',
-            description: 'Version ID',
-            required: false,
-        });
+        this.imagery = this.defineStringParameter(TagActions.Imagery);
+        this.projection = this.defineIntegerParameter(TagActions.Projection);
+        this.tileSet = this.defineStringParameter(TagActions.TileSet);
+        this.version = this.defineIntegerParameter(TagActions.Version);
     }
 
     private async imageInfo(imageryId: string): Promise<void> {
@@ -51,13 +42,14 @@ export class TileSetInfoAction extends TileSetBaseAction {
     }
 
     protected async onExecute(): Promise<void> {
-        const tileSet = this.tileSet.value!;
-        const projection = Epsg.get(this.projection.value!);
-        const imgId = this.imagery.value!;
+        const tileSet = this.tileSet.value;
+        const projection = Epsg.tryGet(this.projection.value!);
+        if (projection == null) return this.fatal({ projection: this.projection.value }, 'Invalid projection');
 
+        const imgId = this.imagery.value;
         if (imgId != null) return this.imageInfo(imgId);
 
-        if (tileSet == null || projection == null) {
+        if (tileSet == null) {
             LogConfig.get().fatal('Missing --tileset and --projection or --imagery');
             console.log(this.renderHelpText());
             return;

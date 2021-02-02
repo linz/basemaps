@@ -67,6 +67,7 @@ function useAws(): void {
         await handleRequest(ctx, res, startTime, logger);
     });
 
+    app.use(express.static(__dirname + '/../../../landing/dist/'));
     LogConfig.get().info({ port, base: process.env[Env.PublicUrlBase], aws: process.env['AWS_PROFILE'] }, 'Listen');
 }
 
@@ -146,7 +147,7 @@ async function main(): Promise<void> {
     } else {
         await useLocal();
     }
-    await new Promise((resolve) => app.listen(port, resolve));
+    await new Promise<void>((resolve) => app.listen(port, resolve));
 }
 
 main().catch((e) => console.error(e));

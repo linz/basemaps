@@ -123,3 +123,15 @@ The update command can be used to configure the rendering of a tile set, each ti
 ```
 
 To cause the production rendering to be updated the `production` tag will need to be set to the new version after the version is validated.
+
+## Invalidating
+
+Sometimes it is useful to force a full rerender on a tileset, this can be achieved by invalidating the basemaps's caches
+
+```sh
+# Destroy basemaps projection aerial imagery cache for projection 3857
+./basemaps invalidate --tileset-name aerial --projection 3857 --tag production --commit
+
+# Destroy the cache for a configuration pull request tag
+./basemaps invalidate --tileset-name aerial --projection 3857 --tag pr-16 --commit
+```
