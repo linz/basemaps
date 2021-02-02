@@ -81,10 +81,9 @@ export const WindowUrl = {
     },
 
     baseUrl(): string {
-        const baseUrl = Config.BaseUrl ?? baseWindowUrl();
-        if (baseUrl != '' && !baseUrl.startsWith('http')) {
-            throw new Error('BaseURL must start with http(s)://');
-        }
+        const baseUrl = Config.BaseUrl;
+        if (baseUrl == '') return baseWindowUrl();
+        if (!baseUrl.startsWith('http')) throw new Error('BaseURL must start with http(s)://');
         return baseUrl;
     },
 
