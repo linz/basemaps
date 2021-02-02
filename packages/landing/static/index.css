@@ -29,7 +29,8 @@ button {
     background-color: inherit;
 }
 
-#map .ol-zoom button, #map .ol-attribution button {
+#map .ol-zoom button,
+#map .ol-attribution button {
     cursor: pointer;
     background-color: white;
     color: #00425d;
@@ -52,14 +53,11 @@ button {
 
 #map .ol-attribution {
     font-size: .8em;
-    background-color: rgba(255,255,255, .7);
+    background-color: rgba(255, 255, 255, .7);
 }
 
 .checker-board {
-    background-image: linear-gradient(45deg, #00000010 25%, transparent 25%),
-                      linear-gradient(45deg, transparent 75%, #00000010 75%),
-                      linear-gradient(45deg, transparent 75%, #00000010 75%),
-                      linear-gradient(45deg, #00000010 25%, transparent 25%);
+    background-image: linear-gradient(45deg, #00000010 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, #00000010 25%, transparent 25%);
     background-size: 100px 100px;
     background-position: 0 0, 0 0, -50px -50px, 50px 50px;
 }
@@ -144,6 +142,12 @@ button {
     padding-bottom: 4px;
 }
 
+.lui-header-primary button {
+    background: none;
+    color: #fff;
+    line-height: normal;
+}
+
 .lui-header-logo {
     display: flex;
 }
@@ -173,6 +177,15 @@ button {
 
 .side-nav .side-nav-container {
     display: none;
+}
+
+.side-nav .lui-button-group .lui-button-wrapper {
+    flex: auto;
+    flex-grow: 0;
+}
+
+.side-nav .lui-button-group .lui-button {
+    padding: 0 2rem;
 }
 
 #menu-close {
