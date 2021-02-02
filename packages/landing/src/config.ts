@@ -2,8 +2,8 @@ import { getApiKey } from '@basemaps/shared/build/api';
 
 const currentApiKey: string = getApiKey();
 export const Config = {
-    get BaseUrl(): string | undefined {
-        return process.env.TILE_HOST;
+    get BaseUrl(): string {
+        return process.env.TILE_HOST ?? '';
     },
     get ApiKey(): string {
         return currentApiKey;
