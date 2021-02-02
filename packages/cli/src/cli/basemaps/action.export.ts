@@ -8,8 +8,9 @@ import {
     TileMetadataTable,
     TileMetadataTag,
 } from '@basemaps/shared';
-import { CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { promises as fs } from 'fs';
+import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import {
     compareNamePriority,
@@ -18,7 +19,7 @@ import {
     ProjectionConfig,
     removeDefaults,
 } from './tileset.config';
-import { defineTagParameter, primeImageryCache, rgbaToHex } from './tileset.util';
+import { primeImageryCache, rgbaToHex } from './tileset.util';
 
 /**
  * Convert all the tilesets in the TileMetadataTable to a TileSetConfig. The Head and Production
@@ -68,6 +69,8 @@ async function tilesetToConfig(
 export class ExportAction extends TileSetBaseAction {
     private output: CommandLineStringParameter;
     private defaults: CommandLineStringParameter;
+    private tileSet: CommandLineStringParameter;
+    private projection: CommandLineIntegerParameter;
     private tag: CommandLineStringParameter;
 
     public constructor() {
@@ -79,7 +82,6 @@ export class ExportAction extends TileSetBaseAction {
     }
 
     protected onDefineParameters(): void {
-        super.onDefineParameters();
         this.output = this.defineStringParameter({
             argumentName: 'JSON_FILE',
             parameterLongName: '--output',
@@ -94,7 +96,10 @@ export class ExportAction extends TileSetBaseAction {
                 'Config File containing rule defaults. This is added to the output and used to minimize the rule fields.',
             required: false,
         });
-        defineTagParameter(this);
+
+        this.tileSet = this.defineStringParameter(TagActions.TileSet);
+        this.projection = this.defineIntegerParameter(TagActions.Projection);
+        this.tag = this.defineStringParameter(TagActions.Tag);
     }
 
     protected async onExecute(): Promise<void> {
