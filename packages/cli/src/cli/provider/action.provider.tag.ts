@@ -9,7 +9,7 @@ import {
 import { invalidateCache } from '../util';
 import { validateProvider, printProvider } from './provider.util';
 import * as c from 'ansi-colors';
-import { TagAction } from '../tag.action';
+import { TagActions } from '../tag.action';
 
 export class ProviderUpdateTagAction extends CommandLineAction {
     private version: CommandLineIntegerParameter;
@@ -25,7 +25,9 @@ export class ProviderUpdateTagAction extends CommandLineAction {
     }
 
     protected onDefineParameters(): void {
-        TagAction.onDefineParameters(this);
+        this.version = this.defineIntegerParameter(TagActions.Version);
+        this.tag = this.defineStringParameter(TagActions.Tag);
+        this.commit = this.defineFlagParameter(TagActions.Commit);
     }
 
     protected async onExecute(): Promise<void> {

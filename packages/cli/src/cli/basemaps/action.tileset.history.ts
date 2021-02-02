@@ -8,19 +8,29 @@ import {
     TileMetadataSetRecord,
     TileMetadataTag,
 } from '@basemaps/shared';
+import { CommandLineStringParameter, CommandLineIntegerParameter } from '@rushstack/ts-command-line';
 import { CliTable } from '../cli.table';
+import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { printTileSet, showDiff } from './tileset.util';
 
 const MaxHistory = 199;
 
 export class TileSetHistoryAction extends TileSetBaseAction {
+    private tileSet: CommandLineStringParameter;
+    private projection: CommandLineIntegerParameter;
+
     public constructor() {
         super({
             actionName: 'log',
             summary: 'Show rendering history for a tileset',
             documentation: '',
         });
+    }
+
+    protected onDefineParameters(): void {
+        this.tileSet = this.defineStringParameter(TagActions.TileSet);
+        this.projection = this.defineIntegerParameter(TagActions.Projection);
     }
 
     async getAllTags(): Promise<Map<TileMetadataTag, TileMetadataSetRecord>> {
