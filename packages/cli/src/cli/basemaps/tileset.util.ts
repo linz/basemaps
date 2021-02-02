@@ -145,7 +145,7 @@ export function showDiff(
 /**
  * Invalidate the cloudfront distribution cache when updating imagery sets
  */
-export function invalidateXYZCache(
+export async function invalidateXYZCache(
     name: string,
     projection: Epsg,
     tag: TileMetadataTag,
@@ -165,15 +165,4 @@ export async function primeImageryCache(imageIds: Set<string>): Promise<Map<stri
     const allImagery = await Aws.tileMetadata.batchGet<TileMetadataImageryRecord>(imageIds);
     for (const img of allImagery.values()) Aws.tileMetadata.Imagery.imagery.set(img.id, img);
     return allImagery;
-}
-
-export function defineTagParameter(self: any): void {
-    const validTags = Object.values(TileMetadataNamedTag).filter((f) => f != TileMetadataNamedTag.Head);
-    self.tag = self.defineStringParameter({
-        argumentName: 'TAG',
-        parameterLongName: '--tag',
-        parameterShortName: '-t',
-        description: `tag name  (options: ${validTags.join(', ')} or pr-<pr_number>)`,
-        required: false,
-    });
 }

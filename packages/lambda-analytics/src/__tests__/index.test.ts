@@ -2,7 +2,7 @@ import { Env, LogConfig } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { FileProcess } from '../file.process';
-import { dateByHour, handler, listCacheFolder, Q, s3fs } from '../index';
+import { dateByHour, getMaxDate, handler, listCacheFolder, MaxToProcess, Q, s3fs } from '../index';
 import { LogStartDate, RollupVersion } from '../stats';
 import { ExampleLogs, lineReader } from './file.process.test';
 import PLimit from 'p-limit';
@@ -94,6 +94,7 @@ o.spec('handler', () => {
         ];
         sandbox.stub(FileProcess, 'reader').callsFake(lineReader(ExampleLogs, `${currentYear}-01-01T02`));
         const writeStub = sandbox.stub(s3fs, 'write');
+
         const listStub = sandbox
             .stub(s3fs, 'list')
             .callsFake(async function* ListFiles(source: string): AsyncGenerator<string> {
@@ -110,8 +111,16 @@ o.spec('handler', () => {
 
         await handler();
 
+        // Get the expected number of writes to be called
+        const maxDate = getMaxDate().getTime();
+        let expectedCount = 0;
+        for (const hour of dateByHour(LogStartDate.getTime())) {
+            if (hour >= maxDate || expectedCount > MaxToProcess) break;
+            expectedCount++;
+        }
+
         // Two files are already processed
-        o(writeStub.callCount).equals(24 * 7 * 4);
+        o(writeStub.callCount).equals(Math.min(expectedCount - 1, MaxToProcess));
 
         o(writeStub.args[0][0]).equals(`${cachePath}/${currentYear}-01-01T01.ndjson`);
         o(writeStub.args[0][1].toString()).equals('');
