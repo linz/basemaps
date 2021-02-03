@@ -1,6 +1,5 @@
+import { AttributionCollection, Stac } from '@basemaps/geo';
 import { Attribution } from '@basemaps/attribution';
-import { AttributionCollection } from '@basemaps/shared/build/attribution';
-import { StacLicense } from '@basemaps/shared/build/stac';
 import { View } from 'ol';
 import { Extent } from 'ol/extent';
 import OlMap from 'ol/Map';
@@ -8,7 +7,7 @@ import MapEventType from 'ol/MapEventType';
 import Source from 'ol/source/Source';
 import { MapOptions, MapOptionType, WindowUrl } from './url';
 
-const Copyright = `© ${StacLicense} LINZ`;
+const Copyright = `© ${Stac.License} LINZ`;
 
 function sameExtent(a: Extent, b: Extent): boolean {
     if (a.length != b.length) return false;
@@ -27,7 +26,7 @@ export class OlAttribution {
     config: MapOptions;
 
     /** handle for scheduleRender setTimeout */
-    private _scheduled: any;
+    private _scheduled: number | NodeJS.Timeout | undefined;
     /** handle for scheduleRender requestAnimationFrame */
     private _raf = 0;
 

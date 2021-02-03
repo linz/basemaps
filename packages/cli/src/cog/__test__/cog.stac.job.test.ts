@@ -1,5 +1,5 @@
-import { Bounds, EpsgCode } from '@basemaps/geo';
-import { ProjectionTileMatrixSet, StacBaseMapsExtension, StacLicense, StacVersion } from '@basemaps/shared';
+import { Bounds, EpsgCode, Stac } from '@basemaps/geo';
+import { ProjectionTileMatrixSet } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
@@ -180,13 +180,13 @@ o.spec('CogJob', () => {
                 id: 'jobid1',
                 title: 'Auckland rural 2010-2012 0.50m',
                 description: 'No description',
-                stac_version: StacVersion,
-                stac_extensions: [StacBaseMapsExtension],
+                stac_version: Stac.Version,
+                stac_extensions: [Stac.BaseMapsExtension],
                 extent: {
                     spatial: { bbox: [[169.3341, -51.8754, -146.1432, -32.8952]] },
                     temporal: { interval: [['2010-01-01T00:00:00Z', '2011-01-01T00:00:00Z']] },
                 },
-                license: StacLicense,
+                license: Stac.License,
                 keywords: ['Imagery', 'New Zealand'],
                 providers: [],
                 summaries: {
@@ -273,7 +273,7 @@ o.spec('CogJob', () => {
                 bbox: [0, 0, 0, 0],
                 id: 'jobid1/0-0-0',
                 collection: 'jobid1',
-                stac_version: StacVersion,
+                stac_version: Stac.Version,
                 stac_extensions: ['projection'],
                 links: [
                     { href: jobPath + '/0-0-0.json', rel: 'self' },

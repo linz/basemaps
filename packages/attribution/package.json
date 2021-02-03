@@ -26,7 +26,7 @@
     "build/"
   ],
   "dependencies": {
-    "@basemaps/shared": "^4.19.0",
+    "@basemaps/geo": "^4.19.0",
     "@linzjs/geojson": "^4.19.0",
     "ol": "^6.4.2"
   },

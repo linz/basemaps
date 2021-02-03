@@ -22,5 +22,8 @@
   },
   "files": [
     "build/"
-  ]
+  ],
+  "devDependencies": {
+    "@types/geojson": "^7946.0.7"
+  }
 }

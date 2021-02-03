@@ -1,11 +1,10 @@
-import { Epsg, EpsgCode } from '@basemaps/geo';
+import { Epsg, EpsgCode, Stac } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { HttpHeader } from '@basemaps/lambda';
 import {
     Aws,
     NamedBounds,
     ProjectionTileMatrixSet,
-    StacLicense,
     TileMetadataImageRuleV2,
     TileMetadataImageryRecord,
     TileMetadataProviderRecord,
@@ -104,7 +103,7 @@ o.spec('attribution', () => {
                 },
                 title: 'image one',
                 description: 'image one description',
-                license: StacLicense,
+                license: Stac.License,
                 providers: [
                     {
                         name: 'p1',
@@ -277,7 +276,7 @@ o.spec('attribution', () => {
                     },
                     {
                         stac_version: '1.0.0-beta.2',
-                        license: StacLicense,
+                        license: Stac.License,
                         id: 'ir_ir_2',
                         providers: [
                             {
@@ -303,7 +302,7 @@ o.spec('attribution', () => {
                     },
                     {
                         stac_version: '1.0.0-beta.2',
-                        license: StacLicense,
+                        license: Stac.License,
                         id: 'ir_ir_3',
                         providers: [
                             {
@@ -329,7 +328,7 @@ o.spec('attribution', () => {
                     },
                     {
                         stac_version: '1.0.0-beta.2',
-                        license: StacLicense,
+                        license: Stac.License,
                         id: 'ir_ir_4',
                         providers: [{ name: 'p1' }],
                         title: 'image one',

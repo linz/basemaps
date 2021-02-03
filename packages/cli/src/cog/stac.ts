@@ -1,5 +1,4 @@
-import { EpsgCode } from '@basemaps/geo';
-import { StacCollection, StacItem } from '@basemaps/shared';
+import { EpsgCode, StacCollection, StacItem } from '@basemaps/geo';
 import { CogGdalSettings } from './types';
 
 export interface CogGenerated {

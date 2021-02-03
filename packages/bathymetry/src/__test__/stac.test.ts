@@ -1,5 +1,6 @@
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { LogConfig, LogType, StacCollection, StacBaseMapsExtension, StacVersion, StacLicense } from '@basemaps/shared';
+import { StacCollection } from '@basemaps/geo';
+import { LogConfig, LogType } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
@@ -41,8 +42,8 @@ o.spec('stac', () => {
         o(date >= now && date < now + 2000).equals(true);
 
         o(round(stac, 4)).deepEquals({
-            stac_version: StacVersion,
-            stac_extensions: ['projection', StacBaseMapsExtension],
+            stac_version: Stac.Version,
+            stac_extensions: ['projection', Stac.BaseMapsExtension],
             id: 'id123/13-22-33',
             collection: 'id123',
             type: 'Feature',
@@ -102,7 +103,7 @@ o.spec('stac', () => {
             const stac = await Stac.createCollection(bm, bounds, items, logger);
 
             o(round(stac, 4)).deepEquals({
-                stac_version: StacVersion,
+                stac_version: Stac.Version,
                 stac_extensions: ['projection'],
                 id: 'id123',
                 title: 'Gebco 2020.nc',
@@ -113,7 +114,7 @@ o.spec('stac', () => {
                         interval: [['2020-01-01T00:00:00Z', '2021-01-01T00:00:00Z']],
                     },
                 },
-                license: StacLicense,
+                license: Stac.License,
                 links: stac.links,
                 providers: [
                     {
@@ -146,10 +147,10 @@ o.spec('stac', () => {
             const gitHubLink = stac.links[2];
             o(gitHubLink.href.startsWith('https://github.com/linz/basemaps.git')).equals(true);
             o(gitHubLink.rel).equals('derived_from');
-            o(/^\d+\.\d+\.\d+$/.test(gitHubLink.version)).equals(true);
+            o(/^\d+\.\d+\.\d+$/.test(gitHubLink.version as any)).equals(true);
 
             o(round(stac, 4)).deepEquals({
-                stac_version: StacVersion,
+                stac_version: Stac.Version,
                 stac_extensions: ['projection'],
                 id: 'id123',
                 title: 'fancy title',
@@ -158,7 +159,7 @@ o.spec('stac', () => {
                     spatial: { bbox: [[-179.0332, 84.9205, -178.9893, 84.9244]] },
                     temporal: { interval: [['2020-01-01T00:00:00Z', '2020-10-12T01:02:03Z']] },
                 },
-                license: StacLicense,
+                license: Stac.License,
                 links: [
                     {
                         rel: 'self',
