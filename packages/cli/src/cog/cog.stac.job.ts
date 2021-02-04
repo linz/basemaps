@@ -1,16 +1,10 @@
-import { Bounds, Epsg } from '@basemaps/geo';
+import { Bounds, Epsg, Stac, StacCollection, StacLink, StacProvider } from '@basemaps/geo';
 import {
     extractYearRangeFromName,
     FileConfig,
     FileConfigPath,
     FileOperator,
     ProjectionTileMatrixSet,
-    StacBaseMapsExtension,
-    StacCollection,
-    StacLicense,
-    StacLink,
-    StacProvider,
-    StacVersion,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
@@ -169,7 +163,7 @@ export class CogStacJob implements CogJob {
             }
         }
         const keywords = sourceStac.keywords ?? CogStacKeywords.slice();
-        const license = sourceStac.license ?? StacLicense;
+        const license = sourceStac.license ?? Stac.License;
         const title = sourceStac.title ?? titleizeImageryName(imageryName);
 
         if (description == null) {
@@ -236,8 +230,8 @@ export class CogStacJob implements CogJob {
             id,
             title,
             description,
-            stac_version: StacVersion,
-            stac_extensions: [StacBaseMapsExtension],
+            stac_version: Stac.Version,
+            stac_extensions: [Stac.BaseMapsExtension],
 
             extent: {
                 spatial: { bbox },
@@ -289,7 +283,7 @@ export class CogStacJob implements CogJob {
                 ...f,
                 id: job.id + '/' + name,
                 collection: job.id,
-                stac_version: StacVersion,
+                stac_version: Stac.Version,
                 stac_extensions: CogStacItemExtensions,
                 properties: {
                     ...f.properties,

@@ -1,4 +1,4 @@
-import { StacCatalog, StacCollection, StacItem } from './stac';
+import { StacCatalog, StacCollection, StacItem } from './index';
 
 /**
  * A Single File STAC compliant collection with zoom and priority for calculating attribution of an extent

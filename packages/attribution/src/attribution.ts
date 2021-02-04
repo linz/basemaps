@@ -1,4 +1,4 @@
-import { AttributionCollection, AttributionStac } from '@basemaps/shared/build/attribution';
+import { AttributionCollection, AttributionStac } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
 import { Wgs84 } from '@linzjs/geojson/build/wgs84';
 import { Extent } from 'ol/extent';

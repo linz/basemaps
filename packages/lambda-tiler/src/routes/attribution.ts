@@ -1,19 +1,20 @@
-import { Bounds } from '@basemaps/geo';
-import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
     AttributionCollection,
     AttributionItem,
     AttributionStac,
+    Bounds,
+    Stac,
+    StacCollection,
+    StacExtent,
+} from '@basemaps/geo';
+import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import {
     Aws,
     extractYearRangeFromName,
     FileOperator,
     NamedBounds,
     Projection,
     setNameAndProjection,
-    StacCollection,
-    StacExtent,
-    StacLicense,
-    StacVersion,
     tileAttributionFromPath,
     TileMetadataNamedTag,
     titleizeImageryName,
@@ -79,6 +80,16 @@ async function readStac(uri: string): Promise<StacCollection | null> {
     }
 }
 
+/** Attempt to find the GSD from a stack summary object */
+function getGsd(un?: Record<string, unknown>): number | null {
+    if (un == null) return null;
+    const gsd = un['gsd'];
+    if (gsd == null) return null;
+    if (!Array.isArray(gsd)) return null;
+    if (isNaN(gsd[0])) return null;
+    return gsd[0];
+}
+
 /**
  * Build a Single File STAC for the given TileSet.
  *
@@ -122,7 +133,7 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
 
         items.push({
             type: 'Feature',
-            stac_version: StacVersion,
+            stac_version: Stac.Version,
             id: rule.ruleId + '_item',
             collection: rule.ruleId,
             assets: {},
@@ -140,8 +151,8 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
         });
 
         cols.push({
-            stac_version: StacVersion,
-            license: stac?.license ?? StacLicense,
+            stac_version: Stac.Version,
+            license: stac?.license ?? Stac.License,
             id: rule.ruleId,
             providers: stac?.providers ?? [
                 { name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] },
@@ -151,7 +162,7 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
             extent,
             links: [],
             summaries: {
-                gsd: [stac?.summaries.gsd[0] ?? im.resolution / 1000],
+                gsd: [getGsd(stac?.summaries) ?? im.resolution / 1000],
                 'linz:zoom': { min: rule.minZoom, max: rule.maxZoom },
                 'linz:priority': [rule.priority],
             },
@@ -160,7 +171,7 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
     return {
         id: tileSet.id,
         type: 'FeatureCollection',
-        stac_version: StacVersion,
+        stac_version: Stac.Version,
         stac_extensions: ['single-file-stac'],
         title: tileSet.title,
         description: tileSet.description,

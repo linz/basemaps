@@ -1,13 +1,16 @@
-export const StacVersion = '1.0.0-beta.2';
-export const StacLicense = 'CC BY 4.0';
-export const StacBaseMapsExtension =
-    'https://basemaps.linz.govt.nz/json-schema/stac-basemaps-extension/1.0/schema.json';
+import type * as GeoJSON from 'geojson';
+
+export const Stac = {
+    Version: '1.0.0-beta.2',
+    License: 'CC BY 4.0',
+    BaseMapsExtension: 'https://basemaps.linz.govt.nz/json-schema/stac-basemaps-extension/1.0/schema.json',
+} as const;
 
 export interface StacLink {
     rel: string;
     href: string;
     type?: string;
-    [other: string]: any;
+    [other: string]: unknown;
 }
 
 export interface StacAsset {
@@ -49,7 +52,7 @@ export interface StacCatalog extends StacObject {
     description: string;
 }
 
-export interface StacCollection<S = Record<string, any>> extends StacCatalog {
+export interface StacCollection<S = Record<string, unknown>> extends StacCatalog {
     license: string;
 
     extent: StacExtent;

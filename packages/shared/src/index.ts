@@ -18,10 +18,6 @@ export * from './aws/tile.metadata.base';
 export * from './aws/tile.metadata';
 export * from './aws/tile.metadata.tileset';
 
-export * from './stac/index';
-
-export * from './attribution';
-
 export * from './file';
 
 export * from './util';

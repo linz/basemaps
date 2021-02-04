@@ -1,16 +1,18 @@
-import { Bounds, Tile, TileMatrixSet } from '@basemaps/geo';
+import {
+    Bounds,
+    Tile,
+    TileMatrixSet,
+    Stac as StacStatic,
+    StacItem,
+    StacCollection,
+    StacLink,
+    StacProvider,
+} from '@basemaps/geo';
 import {
     extractYearRangeFromName,
     FileOperator,
     LogType,
     ProjectionTileMatrixSet,
-    StacBaseMapsExtension,
-    StacCollection,
-    StacItem,
-    StacLicense,
-    StacLink,
-    StacProvider,
-    StacVersion,
     titleizeImageryName,
 } from '@basemaps/shared';
 import * as cp from 'child_process';
@@ -39,8 +41,8 @@ async function createItem(bm: BathyMaker, tile: Tile): Promise<StacItem> {
 
     const created = new Date().toISOString();
     return {
-        stac_version: StacVersion,
-        stac_extensions: ['projection', StacBaseMapsExtension],
+        stac_version: StacStatic.Version,
+        stac_extensions: ['projection', StacStatic.BaseMapsExtension],
         id: bm.config.id + '/' + tileId,
         collection: bm.config.id,
         type: 'Feature',
@@ -137,7 +139,7 @@ async function createCollection(
     }
 
     return {
-        stac_version: StacVersion,
+        stac_version: StacStatic.Version,
         stac_extensions: ['projection'],
         id: bm.config.id,
         title,
@@ -148,7 +150,7 @@ async function createCollection(
             },
             temporal: { interval },
         },
-        license: StacLicense,
+        license: StacStatic.License,
         links,
         providers,
         keywords: ['Bathymetry'],
@@ -156,4 +158,4 @@ async function createCollection(
     };
 }
 
-export const Stac = { createItem, createCollection };
+export const Stac = { createItem, createCollection, ...StacStatic };
