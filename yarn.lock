@@ -3607,9 +3607,9 @@ es6-promisify@^5.0.0:
     es6-promise "^4.0.3"
 
 esbuild@^0.8.0:
-  version "0.8.17"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.17.tgz#1c16c6d5988dcfdcf27a7e1612b7fd05e1477c54"
-  integrity sha512-ReHap+Iyn5BQF0B8F3xrLwu+j57ri5uDUw2ej9XTPAuFDebYiWwRzBY4jhF610bklveXLbCGim/8/2wQKQlu1w==
+  version "0.8.40"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.40.tgz#2ca457d950b27c77f28010f4482bdb820560290f"
+  integrity sha512-IP0GcO3K9yO9rM69AMtx9tmjUYFO7oCcRfURCV4KveL3HQnQA1SJ8YLM71EyFe67+7At6HJIyjkOjGO3xnUQ/g==
 
 escalade@^3.1.1:
   version "3.1.1"
