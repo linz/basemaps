@@ -1,0 +1,26 @@
+{
+  "name": "@linzjs/docker-command",
+  "version": "4.19.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/docker-command"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/"
+  ]
+}
