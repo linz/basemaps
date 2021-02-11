@@ -24,6 +24,7 @@ export const TestTiles: TestTile[] = [
     { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 }, buf: null },
     { projection: Epsg.Nztm2000, format: ImageFormat.PNG, testTile: { x: 153, y: 255, z: 7 }, buf: null },
 ];
+const TileSize = 256;
 
 async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
     if (Buffer.isBuffer(testTile.buf)) return testTile.buf;
@@ -32,6 +33,16 @@ async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
     testTile.buf = await fs.promises.readFile(testTileName);
     return testTile.buf;
 }
+
+//
+// async function updateExpectedTile(test: TestTile, newTileData: Buffer, difference: Buffer): Promise<void> {
+//     const expectedFileName = getExpectedTileName(test.projection, test.testTile, test.format);
+//     await fs.promises.writeFile(expectedFileName, newTileData);
+//     const imgPng = await Sharp(difference, { raw: { width: TileSize, height: TileSize, channels: 4 } })
+//         .png()
+//         .toBuffer();
+//     await fs.promises.writeFile(`${expectedFileName}.diff.png`, imgPng);
+// }
 
 /**
  * Health request get health TileSets and validate with test TileSets
@@ -73,8 +84,21 @@ export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
         const testBuffer = await getTestBuffer(test);
         const testImgBuffer = await Sharp(testBuffer).raw().toBuffer();
 
-        const missMatchedPixels = PixelMatch(testImgBuffer, resImgBuffer, null, 256, 256);
-        if (missMatchedPixels) return new LambdaHttpResponse(404, 'Test TileSet not match.');
+        const outputBuffer = Buffer.alloc(testImgBuffer.length);
+        const missMatchedPixels = PixelMatch(testImgBuffer, resImgBuffer, outputBuffer, TileSize, TileSize);
+        if (missMatchedPixels) {
+            /** Uncomment this to overwite the expected files */
+            // await updateExpectedTile(test, response.body, outputBuffer);
+            req.log.error(
+                {
+                    missMatchedPixels,
+                    projection: test.projection.code,
+                    xyz: test.testTile,
+                },
+                'Health:MissMatch',
+            );
+            return new LambdaHttpResponse(404, 'Test TileSet not match.');
+        }
     }
 
     // Return Ok response when all health test passed.
