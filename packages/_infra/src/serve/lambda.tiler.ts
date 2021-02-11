@@ -26,7 +26,7 @@ export class LambdaTiler extends cdk.Construct {
         this.lambda = new lambda.Function(this, 'Tiler', {
             runtime: lambda.Runtime.NODEJS_12_X,
             memorySize: 2048,
-            timeout: Duration.seconds(10),
+            timeout: Duration.seconds(60),
             handler: 'index.handler',
             code: lambda.Code.fromAsset(CODE_PATH),
             environment: {
