@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.20.0](https://github.com/linz/basemaps/compare/v4.19.0...v4.20.0) (2021-02-15)
+
+
+### Bug Fixes
+
+* **infra:** update tile lambda duration to avoid timeout when generating attribution. ([#1428](https://github.com/linz/basemaps/issues/1428)) ([3eb0775](https://github.com/linz/basemaps/commit/3eb0775ab55096ccf2ca4b0c5ce2bc342c8c5e9b))
+* **lambda-tiler:** fix failed health endpoint and add new function to update health test tiles. ([#1430](https://github.com/linz/basemaps/issues/1430)) ([3205155](https://github.com/linz/basemaps/commit/32051551e92fc9acb4a46f12267857bee7635a5b))
+* **landing:** correct broken wmts/xyz links in side bar ([#1414](https://github.com/linz/basemaps/issues/1414)) ([bb85d40](https://github.com/linz/basemaps/commit/bb85d40509e086d3990dc928e1518bca9ce691e7))
+* **landing:** fix broken button styling ([#1410](https://github.com/linz/basemaps/issues/1410)) ([98b5f3b](https://github.com/linz/basemaps/commit/98b5f3b3147c06f6ad72afe730d3ecd3df77c37e))
+* **shared:** remove dependency on @types/sax and @types/pino ([#1406](https://github.com/linz/basemaps/issues/1406)) ([79ffca6](https://github.com/linz/basemaps/commit/79ffca66353c3e9c3a68dabe14c4e6690e4453d8))
+
+
+### Features
+
+* **attribution:** remove `@basemaps/shared` dependency to make it smaller to install ([#1415](https://github.com/linz/basemaps/issues/1415)) ([5152614](https://github.com/linz/basemaps/commit/51526145256e0b7a514dc1185691d27cead1a0c6))
+* **cli:** add a invalidate action to destroy cloudfront cache ([#1402](https://github.com/linz/basemaps/issues/1402)) ([bc93f70](https://github.com/linz/basemaps/commit/bc93f706f756ea66e6e68041511b742d9353457a))
+* **docker-command:** utility to work with docker or local command execution ([#1424](https://github.com/linz/basemaps/issues/1424)) ([d791b56](https://github.com/linz/basemaps/commit/d791b56909336271986b01028908b5969dce82ed))
+* **tiler:** support rendering avif tiles ([#1409](https://github.com/linz/basemaps/issues/1409)) ([8474d32](https://github.com/linz/basemaps/commit/8474d327aaab14aad96c1d7793b44b8e8daad946))
+* Allow alternative TileMatrixSet definitions ([#1321](https://github.com/linz/basemaps/issues/1321)) ([b7cfa7b](https://github.com/linz/basemaps/commit/b7cfa7b8bf1351d9e57e46c180a1d3cf01c29927))
+
+
+
+
+
 # [4.19.0](https://github.com/linz/basemaps/compare/v4.18.0...v4.19.0) (2020-11-30)
 
 
