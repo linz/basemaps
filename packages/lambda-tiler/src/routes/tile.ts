@@ -164,6 +164,7 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'max-age=0');
     response.buffer(data, 'text/xml');
+    req.set('bytes', data.byteLength);
     return response;
 }
 
