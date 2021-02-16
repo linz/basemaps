@@ -230,6 +230,16 @@ o.spec('WmtsCapabilities', () => {
         ts[2].tileSet.title = 'aerial_dunedin_urban';
         const nodes = new WmtsCapabilities('basemaps.test', Provider, ts, tileMatrixSetMap).toVNode();
 
+        const allMatrixes = tags(nodes, 'TileMatrixSet');
+
+        o(allMatrixes[0].children[0].textContent).equals('EPSG:2193');
+        o(allMatrixes[1].children[0].textContent).equals('EPSG:2193');
+        o(allMatrixes[2].children[0].textContent).equals('EPSG:3857');
+
+        o(allMatrixes[3].find('ows:Identifier')?.textContent).equals('EPSG:2193');
+        o(allMatrixes[4].find('ows:Identifier')?.textContent).equals('EPSG:3857');
+        o(allMatrixes.length).equals(5);
+
         const layers = tags(nodes, 'Layer');
         o(layers.length).equals(3);
 
