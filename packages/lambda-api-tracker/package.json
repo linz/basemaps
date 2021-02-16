@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-api-tracker",
-  "version": "4.20.0",
+  "version": "4.21.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "@basemaps/geo": "^4.20.0",
-    "@basemaps/lambda": "^4.20.0",
+    "@basemaps/lambda": "^4.21.0",
     "@basemaps/shared": "^4.20.0"
   },
   "scripts": {
