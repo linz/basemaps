@@ -35,9 +35,8 @@ export class LambdaFunction {
             // Trace cloudfront requests back to the cloudfront logs
             const cloudFrontId = ctx.header(HttpHeaderAmazon.CloudfrontId);
             const traceId = ctx.header(HttpHeaderAmazon.TraceId);
-            if (cloudFrontId != null || traceId != null) {
-                ctx.set('aws', { cloudFrontId, traceId });
-            }
+            const lambdaId = context.awsRequestId;
+            ctx.set('aws', { cloudFrontId, traceId, lambdaId });
 
             ctx.set('package', { hash: process.env.GIT_HASH, version: process.env.GIT_VERSION });
             ctx.set('method', ctx.method);
