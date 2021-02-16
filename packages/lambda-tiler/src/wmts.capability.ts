@@ -1,4 +1,4 @@
-import { Bounds, Epsg, TileMatrixSet, WmtsLayer, WmtsProvider } from '@basemaps/geo';
+import { Bounds, Epsg, EpsgCode, TileMatrixSet, WmtsLayer, WmtsProvider } from '@basemaps/geo';
 import { Projection, TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
@@ -177,21 +177,17 @@ export class WmtsCapabilities {
     }
     toVNode(): VNodeElement {
         const layers: VNodeElement[] = [];
-        const matrixDefs: VNodeElement[] = [];
+        const tileMatrixSets = new Map<EpsgCode, TileMatrixSet>();
 
         for (const tileSets of this.layers.values()) {
-            const tms = this.getTileMatrixSets(tileSets);
-            layers.push(this.buildLayer(tileSets, tms));
-
-            for (const matrix of tms) {
-                matrixDefs.push(this.buildTileMatrixSet(matrix));
-            }
+            const matrixSets = this.getTileMatrixSets(tileSets);
+            layers.push(this.buildLayer(tileSets, matrixSets));
+            for (const tms of matrixSets) tileMatrixSets.set(tms.projection.code, tms);
         }
 
-        return V('Capabilities', CapabilitiesAttrs, [
-            ...this.buildProvider(),
-            V('Contents', layers.concat(matrixDefs)),
-        ]);
+        for (const tms of tileMatrixSets.values()) layers.push(this.buildTileMatrixSet(tms));
+
+        return V('Capabilities', CapabilitiesAttrs, [...this.buildProvider(), V('Contents', layers)]);
     }
 
     toString(): string {
@@ -217,9 +213,7 @@ export class WmtsCapabilities {
         const output = new Map<number, TileMatrixSet>();
         for (const ts of tileSets) {
             const tms = this.tileMatrixSets.get(ts.projection);
-            if (tms == null) {
-                throw new Error(`Invalid projection: ${ts.projection.code}`);
-            }
+            if (tms == null) throw new Error(`Invalid projection: ${ts.projection.code}`);
             output.set(tms.projection.code, tms);
         }
         return Array.from(output.values());
