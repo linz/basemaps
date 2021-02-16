@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.21.0](https://github.com/linz/basemaps/compare/v4.20.0...v4.21.0) (2021-02-16)
+
+
+### Features
+
+* **lambda:** log the lambda request id at the end of every request ([#1438](https://github.com/linz/basemaps/issues/1438)) ([9bc2535](https://github.com/linz/basemaps/commit/9bc2535fdde6ff18b67879f5970f02a800bc5c3b))
+
+
+
+
+
 # [4.20.0](https://github.com/linz/basemaps/compare/v4.19.0...v4.20.0) (2021-02-15)
 
 
