@@ -15,7 +15,7 @@ export const QuadKey = {
      */
     intersects(qkA: string, qkB: string): boolean {
         const shortestLength = Math.min(qkA.length, qkB.length);
-        return qkA.substr(0, shortestLength) == qkB.substr(0, shortestLength);
+        return qkA.substr(0, shortestLength) === qkB.substr(0, shortestLength);
     },
 
     /**
@@ -98,6 +98,6 @@ export const QuadKey = {
      * @retun < 0, = 0 or > 0
      */
     compareKeys(a: string, b: string): number {
-        return a == b ? 0 : a.length == b.length ? (a < b ? -1 : 1) : a.length - b.length;
+        return a === b ? 0 : a.length === b.length ? (a < b ? -1 : 1) : a.length - b.length;
     },
 };

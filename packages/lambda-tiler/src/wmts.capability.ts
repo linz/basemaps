@@ -40,7 +40,7 @@ export class WmtsCapabilities {
         this.httpBase = httpBase;
         this.provider = provider;
         this.tileMatrixSets = tileMatrixSets;
-        if (altTms != '') {
+        if (altTms !== '') {
             this.altTms = ':' + altTms;
         }
 

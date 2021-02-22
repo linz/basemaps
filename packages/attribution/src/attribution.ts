@@ -88,7 +88,7 @@ function convertToBounds(stac: AttributionStac): AttributionBounds[] {
 /** Get the year range for an AttributionCollection */
 function getYears(col: AttributionCollection): [number, number] {
     const { interval } = col.extent.temporal;
-    if (interval == null || interval.length == 0) return [-1, -1];
+    if (interval == null || interval.length === 0) return [-1, -1];
     const range = interval[0];
     const y1 = new Date(range[0]).getFullYear();
     const y2 = (range.length < 2 ? y1 : new Date(range[1]).getFullYear()) - 1;
@@ -157,20 +157,20 @@ export class Attribution {
      * @param list the filtered list of attributions
      */
     renderList(list: AttributionCollection[]): string {
-        if (list.length == 0) return '';
+        if (list.length === 0) return '';
         let result = escapeHtml(list[0].title);
         if (list.length > 1) {
-            if (list.length == 2) {
+            if (list.length === 2) {
                 result += ` & ${escapeHtml(list[1].title)}`;
             } else {
                 let [minYear, maxYear] = getYears(list[1]);
                 for (let i = 1; i < list.length; ++i) {
                     const [a, b] = getYears(list[i]);
-                    if (a != -1 && (minYear == -1 || a < minYear)) minYear = a;
-                    if (b != -1 && (maxYear == -1 || b > maxYear)) maxYear = b;
+                    if (a !== -1 && (minYear === -1 || a < minYear)) minYear = a;
+                    if (b !== -1 && (maxYear === -1 || b > maxYear)) maxYear = b;
                 }
-                if (minYear == -1) minYear = maxYear;
-                if (maxYear != -1) {
+                if (minYear === -1) minYear = maxYear;
+                if (maxYear !== -1) {
                     result += ` & others ${minYear}-${maxYear}`;
                 }
             }

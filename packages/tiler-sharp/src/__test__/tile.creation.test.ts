@@ -39,7 +39,7 @@ o.spec('TileCreation', () => {
         // There are 16 tiles in this tiff, all should be used
         o(layer0.length).equals(16);
 
-        const topLeft = layer0.find((f) => f.source.x == 0 && f.source.y == 0);
+        const topLeft = layer0.find((f) => f.source.x === 0 && f.source.y === 0);
         o(topLeft?.source).deepEquals({ x: 0, y: 0, imageId: 0, width: 16, height: 16 });
         o(topLeft?.tiff.source.name).equals(tiff.source.name);
         o(topLeft?.resize).deepEquals({ width: 32, height: 32, scale: 2 });
@@ -105,7 +105,7 @@ o.spec('TileCreation', () => {
             const timeStr = `RenderTests(${projection}): ${tileText} ${tileSize}x${tileSize}  time`;
             console.time(timeStr);
 
-            const tiff = projection == Epsg.Nztm2000 ? TestTiff.Nztm2000 : TestTiff.Google;
+            const tiff = projection === Epsg.Nztm2000 ? TestTiff.Nztm2000 : TestTiff.Google;
             await tiff.init();
             const tiler = new Tiler(tms);
 

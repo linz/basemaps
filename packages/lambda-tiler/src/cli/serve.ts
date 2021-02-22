@@ -138,7 +138,7 @@ async function useLocal(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-    if (Env.get(Env.PublicUrlBase) == null || Env.get(Env.PublicUrlBase) == '') {
+    if (Env.get(Env.PublicUrlBase) == null || Env.get(Env.PublicUrlBase) === '') {
         process.env[Env.PublicUrlBase] = `http://localhost:${port}`;
     }
 

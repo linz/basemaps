@@ -104,8 +104,8 @@ export class ImportAction extends CommandLineAction {
 
         const imgRecord = createImageryRecordFromJob(job);
 
-        if (imgRecord.year == -1) logger.warn({ imagery: job.name }, 'Failed to parse year');
-        if (imgRecord.resolution == -1) logger.warn({ imagery: job.name }, 'Failed to parse resolution');
+        if (imgRecord.year === -1) logger.warn({ imagery: job.name }, 'Failed to parse year');
+        if (imgRecord.resolution === -1) logger.warn({ imagery: job.name }, 'Failed to parse resolution');
         if (Epsg.tryGet(imgRecord.projection) == null) {
             logger.error({ imagery: job.name, projection: imgRecord.projection }, 'Failed to parse projection');
             return;

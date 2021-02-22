@@ -101,7 +101,7 @@ export function addDefaults(defaults: ImageryDefaultConfig[], rule: ImageryConfi
 
     for (const def of defaults) {
         if (def.nameContains != null) {
-            if (rule.name.indexOf(def.nameContains) == -1) continue;
+            if (rule.name.indexOf(def.nameContains) === -1) continue;
         }
         for (const field of defaultFields) {
             const value = def[field];
@@ -128,13 +128,13 @@ export function addDefaults(defaults: ImageryDefaultConfig[], rule: ImageryConfi
 export function removeDefaults(defaults: ImageryDefaultConfig[], rule: FullImageryConfig): ImageryConfig {
     const removeFields = new Map<string, boolean>();
     for (const def of defaults) {
-        if (def.nameContains != null && rule.name.indexOf(def.nameContains) == -1) continue;
+        if (def.nameContains != null && rule.name.indexOf(def.nameContains) === -1) continue;
 
         for (const field of defaultFields) {
             if (field in def) {
                 if (removeFields.has(field)) continue;
 
-                removeFields.set(field, def[field] == rule[field]);
+                removeFields.set(field, def[field] === rule[field]);
             }
         }
     }

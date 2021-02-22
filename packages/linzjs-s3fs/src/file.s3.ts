@@ -25,14 +25,14 @@ export class FsS3 implements FileProcessor {
         if (!uri.startsWith('s3://')) throw new Error(`Unable to parse s3 uri: "${uri}"`);
         const parts = uri.split('/');
         const bucket = parts[2];
-        if (bucket == null || bucket.trim() == '') {
+        if (bucket == null || bucket.trim() === '') {
             throw new Error(`Unable to parse s3 uri: "${uri}"`);
         }
 
-        if (parts.length == 3) return { bucket };
+        if (parts.length === 3) return { bucket };
 
         const key = parts.slice(3).join('/');
-        if (key == null || key.trim() == '') {
+        if (key == null || key.trim() === '') {
             return { bucket };
         }
         return { key, bucket };
@@ -105,7 +105,7 @@ export class FsS3 implements FileProcessor {
             await this.s3.headObject({ Bucket: opts.bucket, Key: opts.key }).promise();
             return true;
         } catch (e) {
-            if (e.code == 'NotFound') return false;
+            if (e.code === 'NotFound') return false;
             throw getCompositeError(e, `Failed to exists: "${filePath}"`);
         }
     }

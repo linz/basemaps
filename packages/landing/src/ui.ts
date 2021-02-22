@@ -141,7 +141,7 @@ Your Service/App URL:
         const target = e.target as HTMLInputElement;
         if (target.classList == null) return;
         if (target.classList.contains('lui-button-active')) return;
-        if (target == this.projectionNztm) {
+        if (target === this.projectionNztm) {
             this.setCurrentProjection(Epsg.Nztm2000);
         } else {
             this.setCurrentProjection(Epsg.Google);
@@ -152,7 +152,7 @@ Your Service/App URL:
         gaEvent(GaEvent.Ui, 'projection:' + projection.code);
         this.projection = projection;
 
-        if (projection == Epsg.Nztm2000) {
+        if (projection === Epsg.Nztm2000) {
             this.projectionNztm.classList.add('lui-button-active');
             this.projectionWm.classList.remove('lui-button-active');
             this.apiXyz.classList.add('display-none');

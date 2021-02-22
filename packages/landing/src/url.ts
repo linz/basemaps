@@ -44,7 +44,7 @@ export const WindowUrl = {
      * @param zoom string to parse zoom from
      */
     parseZoom(zoom: string | null): number {
-        if (zoom == null || zoom == '') return NaN;
+        if (zoom == null || zoom === '') return NaN;
         if (zoom.startsWith('z')) return parseFloat(zoom.slice(1));
         if (zoom.endsWith('z')) return parseFloat(zoom);
         return NaN;
@@ -82,30 +82,30 @@ export const WindowUrl = {
 
     baseUrl(): string {
         const baseUrl = Config.BaseUrl;
-        if (baseUrl == '') return baseWindowUrl();
+        if (baseUrl === '') return baseWindowUrl();
         if (!baseUrl.startsWith('http')) throw new Error('BaseURL must start with http(s)://');
         return baseUrl;
     },
 
     toTileUrl(opts: MapOptions, urlType: MapOptionType): string {
-        const api = Config.ApiKey == null || Config.ApiKey == '' ? '' : `?api=${Config.ApiKey}`;
-        const tag = opts.tag == 'production' ? '' : `@${opts.tag}`;
+        const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
+        const tag = opts.tag === 'production' ? '' : `@${opts.tag}`;
         const projection = opts.projection.toEpsgString();
         const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.imageId}${tag}/${projection}`;
 
-        if (urlType == MapOptionType.Tile) {
+        if (urlType === MapOptionType.Tile) {
             return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
         }
 
-        if (urlType == MapOptionType.TileWmts) {
+        if (urlType === MapOptionType.TileWmts) {
             return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${api}`;
         }
 
-        if (urlType == MapOptionType.Wmts) {
+        if (urlType === MapOptionType.Wmts) {
             return `${baseTileUrl}/WMTSCapabilities.xml${api}`;
         }
 
-        if (urlType == MapOptionType.Attribution) {
+        if (urlType === MapOptionType.Attribution) {
             return `${baseTileUrl}/attribution.json${api}`;
         }
 

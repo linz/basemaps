@@ -38,7 +38,7 @@ o.spec('hourByHour', () => {
             o(nextDate.getUTCHours()).equals(startHour)(`${i} - ${nextDate.toISOString()}`);
             o(timeInc).equals(60 * 60 * 1000)(`${i} - ${timeInc}`);
             startHour++;
-            if (startHour == 24) startHour = 0;
+            if (startHour === 24) startHour = 0;
         }
     });
 });

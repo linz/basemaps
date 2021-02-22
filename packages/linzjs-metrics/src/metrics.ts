@@ -8,10 +8,10 @@ export class Metrics {
     private timers: Map<string, { start: number; duration?: number }> = new Map();
 
     constructor() {
-        if (typeof process != 'undefined' && typeof process.hrtime.bigint == 'function') {
+        if (typeof process !== 'undefined' && typeof process.hrtime.bigint === 'function') {
             const NanoSecondsToMs = BigInt(1000000);
             this.getTime = (): number => Number(process.hrtime.bigint() / NanoSecondsToMs);
-        } else if (typeof typeof performance != 'undefined') {
+        } else if (typeof typeof performance !== 'undefined') {
             this.getTime = (): number => performance.now();
         } else {
             this.getTime = (): number => Date.now();
@@ -47,7 +47,7 @@ export class Metrics {
 
     /** Get list of all timers that have run */
     public get metrics(): Record<string, number> | undefined {
-        if (this.timers.size == 0) return undefined;
+        if (this.timers.size === 0) return undefined;
         const output: Record<string, number> = {};
         for (const [key, timer] of this.timers.entries()) {
             if (timer.duration != null) output[key] = timer.duration;
@@ -61,7 +61,7 @@ export class Metrics {
         for (const [key, timer] of this.timers.entries()) {
             if (timer.duration == null) st.push(key);
         }
-        if (st.length == 0) return undefined;
+        if (st.length === 0) return undefined;
         return st;
     }
 }

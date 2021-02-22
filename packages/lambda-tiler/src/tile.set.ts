@@ -52,7 +52,7 @@ export class TileSet {
     }
 
     get taggedName(): string {
-        if (this.tag == TileMetadataNamedTag.Production) return this.name;
+        if (this.tag === TileMetadataNamedTag.Production) return this.name;
         return `${this.name}@${this.tag}`;
     }
 

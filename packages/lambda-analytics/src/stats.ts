@@ -83,8 +83,8 @@ function track(stat: TileRequestStats, uri: string, status: number, isHit: boole
     else return; // Unknown projection this is likely not a tile
 
     // Tile set
-    if (tileSet == 'aerial') stat.tileSet.aerial++;
-    else if (tileSet == 'topo50') stat.tileSet.topo50++;
+    if (tileSet === 'aerial') stat.tileSet.aerial++;
+    else if (tileSet === 'topo50') stat.tileSet.topo50++;
     // TODO do we want to get the real names for these
     else if (tileSet.startsWith('aerial:')) stat.tileSet.aerialIndividual++;
     else if (tileSet.startsWith('01')) stat.tileSet.direct++;

@@ -138,7 +138,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         }
         const before = JSON.stringify(tsData);
         await Aws.tileMetadata.Imagery.getAll(tsData);
-        if (imgId != '') await Aws.tileMetadata.Imagery.get(imgId);
+        if (imgId !== '') await Aws.tileMetadata.Imagery.get(imgId);
 
         if (imgId) {
             await this.updatePriority(tsData, ruleId, imgId);
@@ -154,7 +154,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
 
         await printTileSet(tsData);
 
-        if (before != after) {
+        if (before !== after) {
             if (this.commit.value) {
                 await Aws.tileMetadata.TileSet.create(tsData);
                 await invalidateXYZCache(name, projection, TileMetadataNamedTag.Head, this.commit.value);
@@ -197,7 +197,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             LogConfig.get().warn({ resizeIn, resizeOut }, 'Invalid --resize-in/-resize-out value');
             return false;
         }
-        if (existing != null && existing.in == resizeIn && existing.out == resizeOut) return false;
+        if (existing != null && existing.in === resizeIn && existing.out === resizeOut) return false;
         tsData.resizeKernel = { in: resizeIn as TileResizeKernel, out: resizeOut as TileResizeKernel };
         return true;
     }
@@ -207,7 +207,12 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         const background = this.background.value;
         if (background == null) return false;
         const rgba = parseRgba(background);
-        if (rgba.r != existing?.r || rgba.g != existing?.g || rgba.b != existing?.b || rgba.alpha != existing?.alpha) {
+        if (
+            rgba.r !== existing?.r ||
+            rgba.g !== existing?.g ||
+            rgba.b !== existing?.b ||
+            rgba.alpha !== existing?.alpha
+        ) {
             tsData.background = rgba;
             return true;
         }
@@ -216,7 +221,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     }
 
     async replaceUpdate(tsData: TileMetadataSetRecord, ruleId: string, imgId: string): Promise<boolean> {
-        const existingIndex = tsData.rules.findIndex((rule) => rule.ruleId == ruleId);
+        const existingIndex = tsData.rules.findIndex((rule) => rule.ruleId === ruleId);
         if (existingIndex == null) return false;
         const existing = tsData.rules[existingIndex];
 
@@ -228,13 +233,13 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     }
 
     async updateZoom(tsData: TileMetadataSetRecord, ruleId: string): Promise<boolean> {
-        const existing = tsData.rules.find((rule) => rule.ruleId == ruleId);
+        const existing = tsData.rules.find((rule) => rule.ruleId === ruleId);
         if (existing == null) return false;
 
         const minZoom = this.minZoom.value;
         const maxZoom = this.maxZoom.value;
         if (minZoom == null || maxZoom == null) return false;
-        if (existing.maxZoom == maxZoom && existing.minZoom == minZoom) {
+        if (existing.maxZoom === maxZoom && existing.minZoom === minZoom) {
             return false;
         }
         const logger = LogConfig.get();
@@ -280,11 +285,11 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         }
 
         if (ruleId == null) throw new Error('Cannot update imagery priority without --rule');
-        const existing = tsData.rules.find((rule) => rule.ruleId == ruleId);
+        const existing = tsData.rules.find((rule) => rule.ruleId === ruleId);
         if (existing == null) throw new Error('Unable to find imagery rule ' + ruleId);
 
-        if (priority == -1) {
-            const existingIndex = tsData.rules.findIndex((rule) => rule.ruleId == ruleId);
+        if (priority === -1) {
+            const existingIndex = tsData.rules.findIndex((rule) => rule.ruleId === ruleId);
             tsData.rules.splice(existingIndex, 1);
             const img = await Aws.tileMetadata.Imagery.get(existing.imgId);
 

@@ -166,7 +166,7 @@ export class TileSetUpdater {
             beforeTs = headTs;
         }
 
-        const tagAtHead = headTs.version == beforeTs.version;
+        const tagAtHead = headTs.version === beforeTs.version;
 
         // Only commit the changes if changing head
         const changes = await this.reconcileTileSet(imgIds, beforeTs, tagAtHead ? isCommit : false);
@@ -220,7 +220,7 @@ export class TileSetUpdater {
         for (const ts of this.imagery) {
             const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, ts.id);
             // blank imgId means not yet created. priority of -1 means remove
-            if (imgId != '' && ts.priority != -1) {
+            if (imgId !== '' && ts.priority !== -1) {
                 const rule = findRule(ruleMap, ts.id, ts.priority);
                 const ruleId = rule == null ? TileMetadataTable.prefix(RecordPrefix.ImageryRule, ulid()) : rule.ruleId;
                 afterRules.push({

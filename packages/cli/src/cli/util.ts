@@ -19,11 +19,11 @@ export async function invalidateCache(path: string, commit = false): Promise<voi
         LogConfig.get().warn('Unable to find cloud front distribution');
         return;
     }
-    const cloudFrontDomain = stackInfo.Stacks[0].Outputs.find((f) => f.OutputKey == 'CloudFrontDomain');
+    const cloudFrontDomain = stackInfo.Stacks[0].Outputs.find((f) => f.OutputKey === 'CloudFrontDomain');
 
     const cloudFrontDistributions = await cloudFront.listDistributions().promise();
     const cf = cloudFrontDistributions.DistributionList?.Items?.find(
-        (f) => f.DomainName == cloudFrontDomain?.OutputValue,
+        (f) => f.DomainName === cloudFrontDomain?.OutputValue,
     );
 
     if (cloudFrontDomain == null || cf == null) {

@@ -18,7 +18,7 @@ o.spec('TileSetCache', () => {
 
     class MyTileSet extends TileSet {
         async load(): Promise<boolean> {
-            if (this.projection == Epsg.Google && this.name === TileSetName.aerial) {
+            if (this.projection === Epsg.Google && this.name === TileSetName.aerial) {
                 this.tileSet = {
                     title: 'parent aerial title',
                     name: 'aerial',
@@ -38,7 +38,7 @@ o.spec('TileSetCache', () => {
                 } as TileMetadataImageryRecord);
                 return true;
             }
-            if (this.projection == Epsg.Nztm2000 && this.name === TileSetName.aerial) {
+            if (this.projection === Epsg.Nztm2000 && this.name === TileSetName.aerial) {
                 this.tileSet = {
                     background: { r: 200, g: 50, b: 100, alpha: 0.5 },
                     name: TileSetName.aerial,

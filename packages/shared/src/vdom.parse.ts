@@ -20,7 +20,7 @@ export class VNodeParser {
     parse(xml: string): Promise<VNodeElement> {
         const parser = sax.parser(true);
         parser.ontext = (text: string): void => {
-            if (text.trim() == '') return; // Skip newlines and empty text
+            if (text.trim() === '') return; // Skip newlines and empty text
             const textNode = new VNodeText(text);
             this.currentNode.children.push(textNode);
         };
@@ -37,7 +37,7 @@ export class VNodeParser {
 
         parser.onclosetag = (tag: string): void => {
             const lastNode = this.tree.pop();
-            if (lastNode?.tag != tag) throw new Error(`Tag missmatch: ${tag}`);
+            if (lastNode?.tag !== tag) throw new Error(`Tag missmatch: ${tag}`);
         };
 
         return new Promise((resolve) => {

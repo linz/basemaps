@@ -16,7 +16,7 @@ export function normalizeAwsEnv(env: Record<string, string | undefined>): Record
     if (awsDefaultProfile == null) {
         return { ...env, AWS_DEFAULT_PROFILE: awsProfile };
     }
-    if (awsDefaultProfile != awsProfile) {
+    if (awsDefaultProfile !== awsProfile) {
         throw new Error(
             `$AWS_PROFILE: "${awsProfile}" and $AWS_DEFAULT_PROFILE: "${awsDefaultProfile}" are mismatched`,
         );
@@ -92,7 +92,7 @@ export abstract class GdalCommand {
                 const stderr = errBuff.join('').trim();
                 const duration = Date.now() - this.startTime;
 
-                if (code != 0) {
+                if (code !== 0) {
                     log.error({ code, stdout, stderr, duration }, 'GdalFailed');
                     return reject(new Error('Failed to execute GDAL command'));
                 }

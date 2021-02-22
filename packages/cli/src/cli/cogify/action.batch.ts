@@ -138,7 +138,7 @@ export class ActionBatchJob extends CommandLineAction {
 
         for (const status of allJobs) {
             for (const job of status.jobSummaryList) {
-                if (job.status == 'FAILED' && okMap.get(job.jobName) != true) {
+                if (job.status === 'FAILED' && okMap.get(job.jobName) !== true) {
                     okMap.set(job.jobName, false);
                 } else {
                     okMap.set(job.jobName, true);
@@ -193,8 +193,8 @@ export class ActionBatchJob extends CommandLineAction {
             }),
         );
 
-        const toSubmit = stats.filter((f) => f.ok == false).map((c) => c.name);
-        if (toSubmit.length == 0) {
+        const toSubmit = stats.filter((f) => f.ok === false).map((c) => c.name);
+        if (toSubmit.length === 0) {
             logger.info('NoJobs');
             return;
         }

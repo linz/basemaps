@@ -48,10 +48,10 @@ export class ProviderUpdateTagAction extends CommandLineAction {
             }
         }
 
-        if (before !== null) {
+        if (before != null) {
             const after = await Aws.tileMetadata.Provider.get(version)!;
             const changes = validateProvider(after, before);
-            if (changes !== null) {
+            if (changes != null) {
                 console.log(c.green('\nChanges'));
                 printProvider(after, changes);
             }

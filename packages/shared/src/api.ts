@@ -1,6 +1,6 @@
 import { ulid, decodeTime } from 'ulid';
 
-const hasLocalStorage = (): boolean => typeof localStorage != 'undefined';
+const hasLocalStorage = (): boolean => typeof localStorage !== 'undefined';
 export const OneDayMs = 24 * 60 * 60 * 1000;
 /** Generate a new api key for the user every 30 days */
 const ApiKeyExpireMs = 30 * OneDayMs;

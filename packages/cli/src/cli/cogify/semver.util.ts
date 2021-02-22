@@ -21,7 +21,7 @@ export const SemVer = {
         let output = 0;
         for (let i = 0; i < chunks.length; i++) {
             const chunk = chunks[i];
-            if (chunk == '') break;
+            if (chunk === '') break;
 
             const num = parseInt(chunk);
             if (isNaN(num)) throw new Error(`Failed to parse semver "${v}"`);

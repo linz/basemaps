@@ -19,7 +19,7 @@ export class CompositeError extends Error {
     }
 
     static isCompositeError(e: unknown): e is CompositeError {
-        if (typeof e != 'object' || e == null) return false;
-        return (e as CompositeError).name == 'CompositeError';
+        if (typeof e !== 'object' || e == null) return false;
+        return (e as CompositeError).name === 'CompositeError';
     }
 }

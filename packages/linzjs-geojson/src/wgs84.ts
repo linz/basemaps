@@ -56,7 +56,7 @@ export const Wgs84 = {
     delta,
 
     crossesAM(a: number, b: number): boolean {
-        return Math.sign(delta(a, b)) != Math.sign(b - a);
+        return Math.sign(delta(a, b)) !== Math.sign(b - a);
     },
 
     normLon,
@@ -152,7 +152,7 @@ export const Wgs84 = {
                     lon += 360;
                 } else {
                     pLon += 360;
-                    if (i == 1) {
+                    if (i === 1) {
                         // need to adjust the initial values
                         minX = maxX = pLon;
                     }
@@ -178,7 +178,7 @@ export const Wgs84 = {
     multiPolygonToBbox(multipolygon: MultiPolygon): BBox {
         let ans: BBox | null = null;
         for (const poly of multipolygon) {
-            if (poly.length == 0) continue;
+            if (poly.length === 0) continue;
             const ring = poly[0];
             if (ring.length < 3) continue;
 

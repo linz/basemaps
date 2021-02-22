@@ -43,7 +43,7 @@ export class GdalProgressParser extends EventEmitter {
 
         const bytes = str.split('');
         for (const byte of bytes) {
-            if (byte == '.') {
+            if (byte === '.') {
                 this.dotCount++;
                 this.emit('progress', this.progress);
             }

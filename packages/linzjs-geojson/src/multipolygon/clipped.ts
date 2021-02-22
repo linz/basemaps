@@ -6,7 +6,7 @@ import { BBox, MultiPolygon, Polygon } from '../types';
 export const { intersection, union } = pc;
 
 function samePoint(a: number[], b: number[]): boolean {
-    return a[0] == b[0] && a[1] == b[1];
+    return a[0] === b[0] && a[1] === b[1];
 }
 
 function removeDegenerateEdges(polygons: MultiPolygon, bbox: BBox): MultiPolygon {
@@ -25,7 +25,7 @@ export function clipMultipolygon(polygons: MultiPolygon, bbox: BBox): MultiPolyg
     const result: MultiPolygon = [];
     for (const poly of polygons) {
         const clipped = lineclip.polygon(poly[0], bbox);
-        if (clipped.length != 0) {
+        if (clipped.length !== 0) {
             if (!samePoint(clipped[0], clipped[clipped.length - 1])) clipped.push(clipped[0]);
             result.push([clipped]);
         }

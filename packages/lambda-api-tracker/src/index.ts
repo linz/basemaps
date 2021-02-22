@@ -21,7 +21,7 @@ export async function handleRequest(req: LambdaContext): Promise<LambdaHttpRespo
 
     if (req.action.name === 'tiles') {
         const xyzData = tileFromPath(req.action.rest);
-        if (xyzData?.type == TileType.Image) ValidateTilePath.validate(req, xyzData);
+        if (xyzData?.type === TileType.Image) ValidateTilePath.validate(req, xyzData);
     }
 
     // Validate the request throwing an error if anything goes wrong

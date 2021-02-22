@@ -67,7 +67,7 @@ export class EdgeStack extends cdk.Stack {
         let aliasConfiguration: cf.AliasConfiguration | undefined = undefined;
 
         const cloudFrontTls = Env.get(DeployEnv.CloudFrontTlsCertArn);
-        if (cloudFrontTls == null || cloudFrontTls == '' || config.CloudFrontDns == null) {
+        if (cloudFrontTls == null || cloudFrontTls === '' || config.CloudFrontDns == null) {
             console.log('No CloudFront tls certificate provided.');
         } else {
             aliasConfiguration = {

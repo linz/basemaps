@@ -13,7 +13,7 @@ const round7 = round(7);
 const round3 = round(3);
 
 function kv(key: string, value: string | HTMLElement): { value: HTMLElement; container: HTMLElement } {
-    const valueEl: HTMLElement = typeof value == 'string' ? e('div', { className: 'debug__value' }, value) : value;
+    const valueEl: HTMLElement = typeof value === 'string' ? e('div', { className: 'debug__value' }, value) : value;
     const containerEl = e('div', { className: 'debug__info' }, [
         e('label', { className: 'debug__label' }, key),
         valueEl,
@@ -63,14 +63,14 @@ export function addDebugLayer(bm: Basemaps): void {
     osmRange.oninput = (): void => {
         const range = Number(osmRange.value);
         console.log('Range', { range });
-        if (range == 0) {
+        if (range === 0) {
             bm.map.removeLayer(osmLayer);
             return;
         }
         const hasLayer = bm.map
             .getLayers()
             .getArray()
-            .find((f) => f == osmLayer);
+            .find((f) => f === osmLayer);
         if (hasLayer == null) bm.map.addLayer(osmLayer);
         osmLayer.setOpacity(range);
     };

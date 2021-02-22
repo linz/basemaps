@@ -219,7 +219,7 @@ o.spec('LambdaXyz', () => {
             const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
 
             const res = await handleRequest(request);
-            if (res.status == 200) {
+            if (res.status === 200) {
                 o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
                 return;
             }

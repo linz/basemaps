@@ -44,7 +44,7 @@ export class ProviderUpdateAction extends CommandLineAction {
         const changes = validateProvider(after, before);
         if (changes != null) {
             after.createdAt = before.createdAt;
-            if (after.createdAt == 0) after.createdAt = Date.now();
+            if (after.createdAt === 0) after.createdAt = Date.now();
             console.log(c.green('\nChanges'));
             printProvider(after, changes);
             if (this.commit.value) {

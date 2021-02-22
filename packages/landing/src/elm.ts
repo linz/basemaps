@@ -18,7 +18,7 @@ export function e(
         // noop
     } else if (Array.isArray(value)) {
         value.forEach((v) => el.appendChild(v));
-    } else if (typeof value == 'object') {
+    } else if (typeof value === 'object') {
         el.appendChild(value);
     } else {
         el.textContent = value;

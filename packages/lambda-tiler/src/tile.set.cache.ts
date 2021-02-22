@@ -63,7 +63,7 @@ function individualTileSet(parent: TileSet, image: TileMetadataImageryRecord, se
  */
 export async function loadTileSet(name: string, projection: Epsg): Promise<TileSet | null> {
     const subsetIndex = name.indexOf(':');
-    const subsetName = subsetIndex == -1 ? '' : name.slice(subsetIndex + 1);
+    const subsetName = subsetIndex === -1 ? '' : name.slice(subsetIndex + 1);
     if (subsetName !== '') {
         name = name.slice(0, subsetIndex);
     }
@@ -80,7 +80,7 @@ export async function loadTileSet(name: string, projection: Epsg): Promise<TileS
 
     if (subsetName === '') return tileSet;
     for (const image of tileSet.imagery.values()) {
-        if (image.name == subsetName) return individualTileSet(tileSet, image);
+        if (image.name === subsetName) return individualTileSet(tileSet, image);
     }
     return null;
 }
@@ -96,7 +96,7 @@ function compareByTitle(a: TileSet, b: TileSet): number {
  * @param projection if null load all projections
  */
 export async function loadTileSets(nameStr: string, projection: Epsg | null): Promise<TileSet[]> {
-    const isSubset = nameStr.indexOf(':') != -1;
+    const isSubset = nameStr.indexOf(':') !== -1;
     const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
 
     const projections: Epsg[] =

@@ -29,7 +29,7 @@ function namedBounds(tms: TileMatrixSet, tile: Tile): NamedBounds {
 
 export function polyContainsBounds(poly: MultiPolygon, bounds: Bounds): boolean {
     const clipped = clipMultipolygon(poly, bounds.toBbox());
-    if (clipped.length != 1 || clipped[0].length != 1 || clipped[0][0].length != 5) return false;
+    if (clipped.length !== 1 || clipped[0].length !== 1 || clipped[0][0].length !== 5) return false;
 
     return Bounds.fromMultiPolygon(clipped).containsBounds(bounds);
 }
@@ -43,11 +43,11 @@ function addNonDupes(list: Tile[], addList: Tile[]): void {
         let i = 0;
         for (; i < len; ++i) {
             const curr = list[i];
-            if (curr.x == add.x && curr.y == add.y && curr.z == add.z) {
+            if (curr.x === add.x && curr.y === add.y && curr.z === add.z) {
                 break;
             }
         }
-        if (i == len) {
+        if (i === len) {
             list.push(add);
         }
     }
@@ -136,7 +136,7 @@ export class Cutline {
         const paddedBbox = tilePadded.toBbox();
         if (this.clipPoly.length > 0) {
             const poly = clipMultipolygon(this.clipPoly, paddedBbox);
-            if (poly.length == 0) {
+            if (poly.length === 0) {
                 // this tile is not needed
                 this.clipPoly = [];
                 return [];
@@ -181,7 +181,7 @@ export class Cutline {
             tiles = tiles.concat(this.makeTiles(tile, this.srcPoly, minZ, CoveringFraction).tiles);
         }
 
-        if (tiles.length == 0) {
+        if (tiles.length === 0) {
             throw new Error('Source imagery does not overlap with project extent');
         }
 
@@ -228,11 +228,11 @@ export class Cutline {
 
         srcArea = clipMultipolygon(srcArea, clipBounds);
 
-        if (srcArea.length == 0) {
+        if (srcArea.length === 0) {
             return { tiles: [], fractionCovered: 0 };
         }
 
-        if (tile.z == minZ + 4) {
+        if (tile.z === minZ + 4) {
             return { tiles: [tile], fractionCovered: 1 };
         }
 
@@ -240,7 +240,7 @@ export class Cutline {
 
         for (const child of this.tms.coverTile(tile)) {
             const { tiles, fractionCovered } = this.makeTiles(child, srcArea, minZ, coveringFraction);
-            if (fractionCovered != 0) {
+            if (fractionCovered !== 0) {
                 ans.fractionCovered += fractionCovered * 0.25;
                 addNonDupes(ans.tiles, tiles);
             }
@@ -279,18 +279,18 @@ export class Cutline {
         // Convert polygon to target projection
         const sourceProj = Projection.get(sourceMetadata.projection);
         const targetProj = this.targetPtms.proj;
-        if (sourceProj != targetProj) {
+        if (sourceProj !== targetProj) {
             srcPoly = sourceProj.projectMultipolygon(srcPoly, targetProj) as MultiPolygon;
         }
         this.srcPoly = srcPoly;
 
-        if (this.clipPoly.length == 0) return;
+        if (this.clipPoly.length === 0) return;
 
         const srcBounds = Bounds.fromMultiPolygon(srcPoly);
         const boundsPadded = this.padBounds(srcBounds, resZoom).toBbox();
 
         const poly = clipMultipolygon(this.clipPoly, boundsPadded);
-        if (poly.length == 0) {
+        if (poly.length === 0) {
             throw new Error('No intersection between source imagery and cutline');
         }
         if (polyContainsBounds(poly, srcBounds)) {

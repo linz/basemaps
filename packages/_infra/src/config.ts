@@ -34,7 +34,7 @@ export const BaseMapsDevConfig: BaseMapsConfig = {
 };
 
 export function getConfig(): BaseMapsConfig {
-    if (process.env.NODE_ENV == 'production') {
+    if (process.env.NODE_ENV === 'production') {
         return BaseMapsProdConfig;
     }
     return BaseMapsDevConfig;

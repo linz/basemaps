@@ -52,7 +52,7 @@ export const Env = {
     /** Load an environment variable as a float, defaulting to defaultNumber if it does not exist */
     getNumber(envName: string, defaultNumber: number): number {
         const current = Env.get(envName);
-        if (current == '' || current == null) {
+        if (current === '' || current == null) {
             return defaultNumber;
         }
 

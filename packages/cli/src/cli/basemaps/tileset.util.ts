@@ -16,7 +16,7 @@ import { invalidateCache } from '../util';
  * @param str string to parse
  */
 function parseHex(str: string): number {
-    if (str == '') return 0;
+    if (str === '') return 0;
     const val = parseInt(str, 16);
     if (isNaN(val)) {
         throw new Error('Invalid hex byte: ' + str);
@@ -33,7 +33,7 @@ function parseHex(str: string): number {
 export function parseRgba(str: string): { r: number; g: number; b: number; alpha: number } {
     if (str.startsWith('0x')) str = str.slice(2);
     else if (str.startsWith('#')) str = str.slice(1);
-    if (str.length != 6 && str.length != 8) {
+    if (str.length !== 6 && str.length !== 8) {
         throw new Error('Invalid hex color: ' + str);
     }
     return {
@@ -49,7 +49,7 @@ export function parseRgba(str: string): { r: number; g: number; b: number; alpha
  */
 function numberToHexString(n: number): string {
     const ans = n.toString(16);
-    return ans.length == 1 ? '0' + ans : ans;
+    return ans.length === 1 ? '0' + ans : ans;
 }
 export function rgbaToHex(c: { r: number; g: number; b: number; alpha: number }): string {
     return numberToHexString(c.r) + numberToHexString(c.g) + numberToHexString(c.b) + numberToHexString(c.alpha);
@@ -111,7 +111,7 @@ export function showDiff(
     let output = '';
     if (tsA != null) {
         for (const tsAImg of tsA.rules) {
-            const tsBImg = tsB?.rules.find((rule) => rule.ruleId == tsAImg.ruleId);
+            const tsBImg = tsB?.rules.find((rule) => rule.ruleId === tsAImg.ruleId);
             const imagery = imageSet.get(tsAImg.imgId)!;
             const lineA = TileSetTable.line({ rule: tsAImg, imagery });
 
@@ -130,7 +130,7 @@ export function showDiff(
 
     if (tsB != null) {
         for (const tsBImg of tsB.rules) {
-            const tsAImg = tsA?.rules.find((rule) => rule.ruleId == tsBImg.ruleId);
+            const tsAImg = tsA?.rules.find((rule) => rule.ruleId === tsBImg.ruleId);
             const imagery = imageSet.get(tsBImg.imgId)!;
 
             if (tsAImg == null) {
@@ -151,7 +151,7 @@ export async function invalidateXYZCache(
     tag: TileMetadataTag,
     commit = false,
 ): Promise<void> {
-    const nameStr = tag == TileMetadataNamedTag.Production ? name : `${name}@${tag}`;
+    const nameStr = tag === TileMetadataNamedTag.Production ? name : `${name}@${tag}`;
     const path = `/v1/tiles/${nameStr}/${projection.toEpsgString()}/*`;
 
     return invalidateCache(path, commit);

@@ -38,7 +38,7 @@ export class LoggingStack extends cdk.Stack {
         });
 
         const accountId = Env.get(DeployEnv.LogAccountId);
-        if (accountId != null && accountId != '') {
+        if (accountId != null && accountId !== '') {
             logBucket.grantReadWrite(new iam.AccountPrincipal(accountId));
         }
 

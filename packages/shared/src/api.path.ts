@@ -104,7 +104,7 @@ export function tileWmtsFromPath(path: string[]): TileDataWmts | null {
     if (path.length > 3) return null;
 
     const name = path.length < 2 ? '' : path[0];
-    if (path.length == 3) {
+    if (path.length === 3) {
         const { projection, altTms } = extractProjection(path[1]);
         if (projection == null) return null;
 

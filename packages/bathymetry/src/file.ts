@@ -46,7 +46,7 @@ export class FilePath {
 
         let tempPath = this.sourcePath;
 
-        if (fileType == FileType.Output || fileType == FileType.Stac) {
+        if (fileType === FileType.Output || fileType === FileType.Stac) {
             tempPath = path.join(tempPath, FileType.Output);
         } else {
             tempPath = path.join(tempPath, BathyTempFolder, fileType);

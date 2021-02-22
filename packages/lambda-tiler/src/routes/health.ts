@@ -76,7 +76,7 @@ export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
 
         // Get the parse response tile to raw buffer
         const response = await tile(ctx);
-        if (response.status != 200) return new LambdaHttpResponse(response.status, response.statusDescription);
+        if (response.status !== 200) return new LambdaHttpResponse(response.status, response.statusDescription);
         if (!Buffer.isBuffer(response.body)) throw new LambdaHttpResponse(404, 'Not a Buffer response content.');
         const resImgBuffer = await Sharp(response.body).raw().toBuffer();
 

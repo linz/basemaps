@@ -115,16 +115,16 @@ export class Tiler {
 
         // Often COG tiles do not align to the same size as XYZ Tiles
         // This will scale the COG tile to the same size as a XYZ
-        if (source.width != target.width || source.height != target.height) {
-            const scale = source.width != target.width ? target.width / source.width : target.height / source.height;
+        if (source.width !== target.width || source.height !== target.height) {
+            const scale = source.width !== target.width ? target.width / source.width : target.height / source.height;
             composition.resize = { width: target.width, height: target.height, scale };
         }
 
         // If the output XYZ tile needs a piece of a COG tile, extract the speicific
         // Bounding box
         if (
-            tileBounds.y != 0 ||
-            tileBounds.x != 0 ||
+            tileBounds.y !== 0 ||
+            tileBounds.x !== 0 ||
             tileBounds.height !== target.height ||
             tileBounds.width !== target.width
         ) {

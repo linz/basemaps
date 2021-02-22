@@ -67,13 +67,13 @@ export class CogBuilder {
         const queue = sources.map((source) => {
             return this.q(async () => {
                 count++;
-                if (count % 50 == 0) {
+                if (count % 50 === 0) {
                     this.logger.info({ count, total: sources.length }, 'BoundsProgress');
                 }
                 const tiff = new CogTiff(source);
                 await tiff.init(true);
                 const image = tiff.getImage(0);
-                if (resX == -1 || image.resolution[0] < resX) {
+                if (resX === -1 || image.resolution[0] < resX) {
                     resX = image.resolution[0];
                 }
                 const tiffBandCount = image.value(TiffTag.BitsPerSample) as number[] | null;
@@ -88,7 +88,7 @@ export class CogBuilder {
                 }
 
                 const imageProjection = this.findProjection(tiff);
-                if (imageProjection != null && projection != imageProjection) {
+                if (imageProjection != null && projection !== imageProjection) {
                     if (projection != null) {
                         this.logger.error(
                             {
@@ -105,7 +105,7 @@ export class CogBuilder {
                 }
 
                 const tiffNoData = this.findNoData(tiff);
-                if (tiffNoData != null && tiffNoData != nodata) {
+                if (tiffNoData != null && tiffNoData !== nodata) {
                     if (nodata != null) throw new Error('Multiple No Data values');
                     nodata = tiffNoData;
                 }
@@ -119,8 +119,8 @@ export class CogBuilder {
         const bounds = await Promise.all(queue);
 
         if (projection == null) throw new Error('No projection detected');
-        if (resX == -1) throw new Error('No resolution detected');
-        if (bands == -1) throw new Error('No image bands detected');
+        if (resX === -1) throw new Error('No resolution detected');
+        if (bands === -1) throw new Error('No image bands detected');
 
         return {
             projection: projection.code,
@@ -136,7 +136,7 @@ export class CogBuilder {
         const image = tiff.getImage(0);
 
         const projection = image.valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
-        if (projection != null && projection != InvalidProjectionCode) {
+        if (projection != null && projection !== InvalidProjectionCode) {
             return Epsg.get(projection);
         }
 

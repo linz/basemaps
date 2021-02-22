@@ -54,7 +54,7 @@ async function buildWarpVrt(
     ];
     if (job.output.cutline != null) {
         warpOpts.push('-cutline', cutlineTarget);
-        if (job.output.cutline.blend != 0) warpOpts.push('-cblend', String(job.output.cutline.blend));
+        if (job.output.cutline.blend !== 0) warpOpts.push('-cblend', String(job.output.cutline.blend));
     }
     if (job.output.nodata != null) {
         warpOpts.push('-srcnodata', String(job.output.nodata), '-dstnodata', String(job.output.nodata));
@@ -90,7 +90,7 @@ export const CogVrt = {
 
         const sourceFiles = cutline.filterSourcesForName(name, job).map(s3ToVsis3);
 
-        if (sourceFiles.length == 0) {
+        if (sourceFiles.length === 0) {
             return null;
         }
 
@@ -99,7 +99,7 @@ export const CogVrt = {
 
         let cutlineTarget = '';
 
-        if (cutline.clipPoly.length != 0) {
+        if (cutline.clipPoly.length !== 0) {
             cutlineTarget = FileOperator.join(tmpFolder, 'cutline.geojson');
             await FileOperator.writeJson(cutlineTarget, cutline.toGeoJson());
         } else {

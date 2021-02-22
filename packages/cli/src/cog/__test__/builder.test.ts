@@ -67,7 +67,7 @@ o.spec('Builder', () => {
 
             CogTiff.prototype.init = o.spy() as any;
             CogTiff.prototype.getImage = function (): any {
-                return this.source == localTiff ? imageLocal : imageS3;
+                return this.source === localTiff ? imageLocal : imageS3;
             };
 
             const ans = await googleBuilder.bounds([localTiff, s3Tiff]);

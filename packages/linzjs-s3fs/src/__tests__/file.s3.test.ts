@@ -58,7 +58,7 @@ o.spec('file.s3', () => {
             const stub = sandbox.stub(mockS3, 'listObjectsV2').returns({
                 async promise() {
                     callCount++;
-                    if (callCount == 5) return { Contents: [{ Key: 'FirstFile:' + callCount }], IsTruncated: false };
+                    if (callCount === 5) return { Contents: [{ Key: 'FirstFile:' + callCount }], IsTruncated: false };
                     return {
                         Contents: [{ Key: 'FirstFile:' + callCount }],
                         IsTruncated: true,
