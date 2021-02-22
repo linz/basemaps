@@ -29,11 +29,11 @@ export interface LogType {
 
 export class LambdaContext {
     static isAlbEvent(evt: any): evt is ALBEvent {
-        return Array.isArray(evt['Records']) == false;
+        return Array.isArray(evt['Records']) === false;
     }
 
     static isCloudFrontEvent(evt: any): evt is CloudFrontRequestEvent {
-        return Array.isArray(evt['Records']) == true;
+        return Array.isArray(evt['Records']) === true;
     }
 
     public id: string;
@@ -94,7 +94,7 @@ export class LambdaContext {
         }
         const query = this.evt.Records[0].cf.request.querystring;
         if (query == null || query[0] == null) return {};
-        return qs.decode(query[0] == '?' ? query.substr(1) : query);
+        return qs.decode(query[0] === '?' ? query.substr(1) : query);
     }
 
     /**
@@ -145,7 +145,7 @@ export class LambdaContext {
 
     static toCloudFrontResponse(res: LambdaHttpResponse, req?: CloudFrontRequestEvent): CloudFrontRequestResult {
         // Continue
-        if (res.status == 100 && req != null) {
+        if (res.status === 100 && req != null) {
             const outRequest = req.Records[0].cf.request;
             for (const [key, value] of res.headers) {
                 outRequest.headers[key.toLowerCase()] = [{ key, value: String(value) }];

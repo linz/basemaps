@@ -74,7 +74,7 @@ export class Bounds implements BoundingBox {
      * Get the union of a `list` of Bounds
      */
     public static union(list: BoundingBox[]): Bounds {
-        if (list.length == 0) throw new Error('Union on empty list is not allowed');
+        if (list.length === 0) throw new Error('Union on empty list is not allowed');
 
         let { x, y } = list[0];
         let maxX = x + list[0].width;
@@ -193,7 +193,7 @@ export class Bounds implements BoundingBox {
      * @param multipoly the polygon to measure
      */
     public static fromMultiPolygon(multipoly: number[][][][]): Bounds {
-        if (multipoly.length == 0) return new Bounds(0, 0, 0, 0);
+        if (multipoly.length === 0) return new Bounds(0, 0, 0, 0);
         let minX = multipoly[0][0][0][0];
         let minY = multipoly[0][0][0][1];
         let maxX = minX;
@@ -233,9 +233,9 @@ export class Bounds implements BoundingBox {
      */
     public static compareArea(a: BoundingBox, b: BoundingBox): number {
         const areaDiff = a.width * a.height - b.width * b.height;
-        if (areaDiff != 0) return areaDiff;
+        if (areaDiff !== 0) return areaDiff;
         const xDiff = a.x - b.x;
-        return xDiff == 0 ? a.y - b.y : xDiff;
+        return xDiff === 0 ? a.y - b.y : xDiff;
     }
 
     /**

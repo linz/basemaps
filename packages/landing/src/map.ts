@@ -32,7 +32,7 @@ export interface TileLoadEvent extends BaseEvent {
 }
 
 function isTileLoadEvent(e: BaseEvent): e is TileLoadEvent {
-    return e.type == 'tileloadstart' || e.type == 'tileloadend';
+    return e.type === 'tileloadstart' || e.type === 'tileloadend';
 }
 
 /** Dont report loading stats of less than this number of tiles */
@@ -65,11 +65,11 @@ export class Basemaps {
     getSource(): TileSource {
         const projection = this.config.projection;
 
-        if (projection == Epsg.Google) {
+        if (projection === Epsg.Google) {
             return new XYZ({ url: WindowUrl.toTileUrl(this.config, MapOptionType.Tile) });
         }
 
-        if (projection == Epsg.Nztm2000) {
+        if (projection === Epsg.Nztm2000) {
             return new WMTS({
                 url: WindowUrl.toTileUrl(this.config, MapOptionType.TileWmts),
                 requestEncoding: 'REST',
@@ -102,7 +102,7 @@ export class Basemaps {
         const loc = this.locationFromLonLat(location);
         let resolutions: undefined | number[] = undefined;
         let extent: undefined | Extent = undefined;
-        if (projection == Epsg.Nztm2000) {
+        if (projection === Epsg.Nztm2000) {
             resolutions = NztmOl.resolutions;
             extent = NztmOl.extent;
         }
@@ -138,12 +138,12 @@ export class Basemaps {
     trackTileLoad = (evt: BaseEvent): boolean => {
         if (!isTileLoadEvent(evt)) return true;
         const metricName = 'tile:' + evt.tile.getTileCoord().join('-');
-        if (evt.type == 'tileloadstart') {
+        if (evt.type === 'tileloadstart') {
             this.tileTimer.set(metricName, Date.now());
             return true;
         }
 
-        if (evt.type == 'tileloadend') {
+        if (evt.type === 'tileloadend') {
             const startTime = this.tileTimer.get(metricName);
             if (startTime == null) return true;
             this.tileTimer.delete(metricName);

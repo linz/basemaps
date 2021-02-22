@@ -21,7 +21,7 @@ export function getXyOrder(epsg: Epsg): XyOrder {
      * [EPSG:2193](https://www.opengis.net/def/crs/EPSG/0/2193) (NZTM) is defined in [y, x]
      * specified by the coordinate system [cs:4500](https://www.opengis.net/def/cs/EPSG/0/4500)
      */
-    if (epsg == Epsg.Nztm2000) {
+    if (epsg === Epsg.Nztm2000) {
         return XyOrder.Yx;
     }
 

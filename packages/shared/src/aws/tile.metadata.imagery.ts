@@ -12,12 +12,12 @@ import {
  */
 export function compareImageSets(ai: TileMetadataImageryRecord, bi: TileMetadataImageryRecord): number {
     // Sort by year, newest on top
-    if (ai.year != bi.year) {
+    if (ai.year !== bi.year) {
         return ai.year - bi.year;
     }
 
     // Resolution, highest resolution (lowest number) on top
-    if (ai.resolution != bi.resolution) {
+    if (ai.resolution !== bi.resolution) {
         return bi.resolution - ai.resolution;
     }
 

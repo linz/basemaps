@@ -57,7 +57,7 @@ export function multiPolygonToWgs84(multipoly: MultiPolygon, toWgs84: ConvertCoo
     const result = multipoly.map((sPoly) =>
         sPoly.map((sRing) => {
             const wRing: Ring = []; // converted ring in Wgs84
-            if (sRing.length == 0) return wRing;
+            if (sRing.length === 0) return wRing;
 
             let sPrev = sRing[0]; // previous source point
             let wPrev: Pair | null = null; // previous wgs84 point

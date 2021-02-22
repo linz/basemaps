@@ -68,13 +68,13 @@ export class S3Fs {
 
     /** Create an accessor for a given config or path */
     create(cfg: string | FileConfig): FileProcessor {
-        if (typeof cfg == 'string') {
+        if (typeof cfg === 'string') {
             if (this.isS3(cfg)) {
                 return new FsS3(this.getS3(cfg));
             }
             return localFs;
         }
-        if (cfg.type == 's3') {
+        if (cfg.type === 's3') {
             return new FsS3(this.getS3(cfg));
         }
         return localFs;

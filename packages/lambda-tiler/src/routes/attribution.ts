@@ -124,7 +124,7 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
         let interval: [string, string][] | undefined = stac?.extent.temporal.interval;
         if (interval == null) {
             const years = extractYearRangeFromName(im.name);
-            if (years[0] == -1) {
+            if (years[0] === -1) {
                 throw new Error('Missing date in imagery name: ' + im.name);
             }
             interval = [years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]];

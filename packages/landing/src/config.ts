@@ -14,7 +14,7 @@ export const Config = {
 };
 
 // Inject google analytics after everything has loaded
-if (Config.GoogleAnalytics != '' && typeof window != 'undefined') {
+if (Config.GoogleAnalytics !== '' && typeof window !== 'undefined') {
     window.dataLayer = window.dataLayer || [];
     window.gtag = function gtag(): void {
         window.dataLayer.push(arguments); // eslint-disable-line prefer-rest-params
@@ -33,6 +33,6 @@ export const enum GaEvent {
 }
 
 export function gaEvent(category: GaEvent, action: string, value?: number): void {
-    if (Config.GoogleAnalytics == '') return;
+    if (Config.GoogleAnalytics === '') return;
     window.gtag('event', action, { event_category: category, value });
 }

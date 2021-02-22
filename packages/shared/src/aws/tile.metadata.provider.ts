@@ -2,7 +2,7 @@ import { TaggedTileMetadata, TileMetadataProviderRecord, TileMetadataTag } from 
 
 export class TileMetadataProvider extends TaggedTileMetadata<TileMetadataProviderRecord> {
     idRecord(_record: TileMetadataProviderRecord, tag: TileMetadataTag | number): string {
-        if (typeof tag == 'number') {
+        if (typeof tag === 'number') {
             const versionKey = `${tag}`.padStart(6, '0');
             return `pv_main_v${versionKey}`;
         }

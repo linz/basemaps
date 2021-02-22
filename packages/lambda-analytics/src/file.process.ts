@@ -37,7 +37,7 @@ export const FileProcess = {
             }
             // TODO This could be switched to a QueryString parser
             const endIndex = query.indexOf('&');
-            const apiKey = query.slice('api='.length, endIndex == -1 ? query.length : endIndex);
+            const apiKey = query.slice('api='.length, endIndex === -1 ? query.length : endIndex);
             stats.track(apiKey, referer, uri.toLowerCase(), parseInt(status), hit);
         }
     },

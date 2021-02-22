@@ -47,7 +47,7 @@ export class TileSetInvalidateTagAction extends TileSetBaseAction {
 
         LogConfig.get().info({ tag, name, projection }, 'Invalidating');
 
-        if (tag == TileMetadataNamedTag.Production) LogConfig.get().warn('Invaliding production cache');
+        if (tag === TileMetadataNamedTag.Production) LogConfig.get().warn('Invaliding production cache');
 
         if (this.commit.value) {
             await invalidateXYZCache(name, projection, tag, this.commit.value);

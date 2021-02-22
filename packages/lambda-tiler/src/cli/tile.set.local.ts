@@ -48,7 +48,7 @@ export class TileSetLocal extends TileSet {
             ? [this.filePath]
             : await FileOperator.toArray(tiffFs.list(this.filePath));
         const files = fileList.filter(isTiff);
-        if (files.length == 0 && !FileOperator.isS3(this.filePath)) {
+        if (files.length === 0 && !FileOperator.isS3(this.filePath)) {
             for (const dir of fileList.sort()) {
                 const st = await fsPromises.stat(dir);
                 if (st.isDirectory()) {
@@ -59,7 +59,7 @@ export class TileSetLocal extends TileSet {
                 }
             }
         }
-        if (files.length == 0) {
+        if (files.length === 0) {
             throw new Error(`No tiff files found in ${this.filePath}`);
         }
 

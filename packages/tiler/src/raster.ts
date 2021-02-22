@@ -52,9 +52,9 @@ export const ImageFormatOrder = [ImageFormat.JPEG, ImageFormat.WEBP, ImageFormat
 /** Guess the image format based on the file extension */
 export function getImageFormat(ext: string): ImageFormat | null {
     const search = ext.toLowerCase();
-    if (search == 'png') return ImageFormat.PNG;
-    if (search == 'webp') return ImageFormat.WEBP;
-    if (search == 'jpeg' || search == 'jpg') return ImageFormat.JPEG;
-    if (search == 'avif') return ImageFormat.AVIF;
+    if (search === 'png') return ImageFormat.PNG;
+    if (search === 'webp') return ImageFormat.WEBP;
+    if (search === 'jpeg' || search === 'jpg') return ImageFormat.JPEG;
+    if (search === 'avif') return ImageFormat.AVIF;
     return null;
 }

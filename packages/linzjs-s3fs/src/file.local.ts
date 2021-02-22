@@ -6,8 +6,8 @@ import { CompositeError } from './composite.error';
 
 export type FsError = { code: string } & Error;
 function getCompositeError(e: FsError, msg: string): CompositeError {
-    if (e.code == 'ENOENT') return new CompositeError(msg, 404, e);
-    if (e.code == 'EACCES') return new CompositeError(msg, 403, e);
+    if (e.code === 'ENOENT') return new CompositeError(msg, 404, e);
+    if (e.code === 'EACCES') return new CompositeError(msg, 403, e);
     return new CompositeError(msg, 500, e);
 }
 

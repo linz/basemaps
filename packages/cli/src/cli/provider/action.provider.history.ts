@@ -47,7 +47,7 @@ export class ProviderHistoryAction extends CommandLineAction {
 
         function getTagsForVersion(version: number): string {
             return Object.values(TileMetadataNamedTag)
-                .filter((c) => allTags.get(c)?.version == version)
+                .filter((c) => allTags.get(c)?.version === version)
                 .join(', ');
         }
 

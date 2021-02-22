@@ -148,7 +148,7 @@ export class CogStacJob implements CogJob {
             links.push({ href: sourceCollectionPath, rel: 'sourceImagery', type: 'application/json' });
             if (sourceStac.providers != null) {
                 for (const p of sourceStac.providers) {
-                    if (p.roles.indexOf('host') == -1) {
+                    if (p.roles.indexOf('host') === -1) {
                         if (p.url === 'unknown') {
                             // LINZ LDS has put unknown in some urls
                             p.url = undefined;
@@ -207,9 +207,9 @@ export class CogStacJob implements CogJob {
             ),
         ];
 
-        if (interval.length == 0) {
+        if (interval.length === 0) {
             const years = extractYearRangeFromName(imageryName);
-            if (years[0] == -1) {
+            if (years[0] === -1) {
                 throw new Error('Missing date in imagery name: ' + imageryName);
             }
             interval.push(years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]);

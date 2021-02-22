@@ -80,7 +80,7 @@ export class TileMakerSharp implements TileMaker {
         // const stats = await sharp.stats();
         // const [red, green, blue] = stats.channels;
         // // If there is no color this tile is not really worth doing anything with
-        // if (red.max == 0 && green.max == 0 && blue.max == 0) {
+        // if (red.max === 0 && green.max === 0 && blue.max === 0) {
         //     // TODO this could be made to be much more smart in terms of excluding images from the rendering
         //     // If there is no area which has alpha then we may not need to compose all the tiles
         //     // so we could cut the rendering pipeline down

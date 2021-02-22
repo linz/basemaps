@@ -173,7 +173,7 @@ export class TileMetadataTableBase {
      * Prefix a dynamoDb id with the provided prefix if it doesnt already start with it.
      */
     static prefix(prefix: RecordPrefix, id: string): string {
-        if (id == '') return id;
+        if (id === '') return id;
         if (id.startsWith(prefix)) return id;
         return `${prefix}_${id}`;
     }
@@ -293,7 +293,7 @@ export abstract class TaggedTileMetadata<T extends TaggedTileMetadataRecord> {
     }
 
     async tagRecord(record: T, tag: TileMetadataTag, version: number): Promise<T> {
-        if (tag == TileMetadataNamedTag.Head) throw new Error('Cannot overwrite head tag');
+        if (tag === TileMetadataNamedTag.Head) throw new Error('Cannot overwrite head tag');
         const newVersionId = this.idRecord(record, version);
         const newVersion = await this.metadata.get<T>(newVersionId);
         if (newVersion == null) throw new Error(`Cannot find version: ${newVersionId}`);

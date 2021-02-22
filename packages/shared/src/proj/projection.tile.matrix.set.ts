@@ -84,7 +84,7 @@ export class ProjectionTileMatrixSet {
         for (; z < tms.zooms.length; ++z) {
             if (tms.pixelScale(z) <= gsd * blockFactor) return z;
         }
-        if (z == tms.zooms.length) return z - 1;
+        if (z === tms.zooms.length) return z - 1;
         throw new Error('ResZoom not found');
     }
 

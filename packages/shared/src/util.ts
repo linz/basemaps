@@ -37,7 +37,7 @@ export function extractYearRangeFromName(name: string): [number, number] {
         if (m[2] != null) years.push(parseInt(m[1].slice(0, 2) + m[2]));
     }
 
-    if (years.length == 0) {
+    if (years.length === 0) {
         return [-1, -1];
     }
 

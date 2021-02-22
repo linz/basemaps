@@ -20,7 +20,7 @@ export class GdalDocker extends GdalCommand {
     }
 
     private getMounts(): string[] {
-        if (this.mounts.length == 0) {
+        if (this.mounts.length === 0) {
             return [];
         }
         const output: string[] = [];

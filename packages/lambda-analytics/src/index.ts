@@ -88,7 +88,7 @@ export async function handler(): Promise<void> {
             const todoFiles = await s3fs.toArray(
                 s3fs.list(s3fs.join(SourceLocation, `${CloudFrontId}.${nextDateKey}`)),
             );
-            if (todoFiles.length == 0) {
+            if (todoFiles.length === 0) {
                 Logger.debug({ startAt }, 'Skipped');
 
                 // Nothing to process, need to store that we have looked at this date range

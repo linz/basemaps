@@ -70,7 +70,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
 
         function getTagsForVersion(version: number): string {
             return Object.values(TileMetadataNamedTag)
-                .filter((c) => allTags.get(c)?.version == version)
+                .filter((c) => allTags.get(c)?.version === version)
                 .join(', ');
         }
 
@@ -102,7 +102,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
             if (tileSetA == null) throw new Error(`Failed to fetch tag: ${tileSetId}`);
             console.log(TileSetHistory.line(tileSetA));
 
-            if (i == startVersion) continue;
+            if (i === startVersion) continue;
 
             const tileSetBId = Aws.tileMetadata.TileSet.id(tileSetName, projection, i - 1);
             const tileSetB = tileSets.get(tileSetBId);

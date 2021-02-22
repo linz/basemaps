@@ -58,8 +58,8 @@ export class VNodeElement extends VNode {
     }
 
     get textContent(): string {
-        if (this.children.length == 0) return '';
-        if (this.children.length == 1) {
+        if (this.children.length === 0) return '';
+        if (this.children.length === 1) {
             return this.children[0].textContent;
         }
         return this.children.map((c) => c.textContent).join('');
@@ -75,7 +75,7 @@ export class VNodeElement extends VNode {
         const children = this.toStringChildren(level);
         const result = `${padding}<${this.tag}${attrs}`;
 
-        if (children == '') return `${result} />`;
+        if (children === '') return `${result} />`;
         return `${result}>${children}</${this.tag}>`;
     }
 
@@ -98,7 +98,7 @@ export class VNodeElement extends VNode {
     find(tag: string, ...rest: string[]): VNodeElement | null {
         for (const node of this.tags(tag)) {
             if (node === this) continue;
-            if (rest.length == 0) return node;
+            if (rest.length === 0) return node;
             const child = node.find(...rest);
             if (child != null) return child;
         }
@@ -114,7 +114,7 @@ export class VNodeElement extends VNode {
 
     private toStringAttrs(): string {
         const keys = Object.keys(this.attrs);
-        if (keys.length == 0) {
+        if (keys.length === 0) {
             return '';
         }
         let out = '';
@@ -127,8 +127,8 @@ export class VNodeElement extends VNode {
     }
 
     private toStringChildren(level = 0): string {
-        if (this.children.length == 0) return '';
-        if (this.children.length == 1) {
+        if (this.children.length === 0) return '';
+        if (this.children.length === 1) {
             const n1 = this.children[0];
             if (n1 instanceof VNodeText) return n1.text;
         }
@@ -149,7 +149,7 @@ function normalizeChildren(children?: VNodeInput[] | VNodeInput): VNode[] {
         const childNodes: VNode[] = [];
         for (const c of children) {
             if (c == null) continue;
-            if (typeof c == 'string' || typeof c == 'number') {
+            if (typeof c === 'string' || typeof c === 'number') {
                 childNodes.push(new VNodeText(String(c)));
                 continue;
             }
@@ -157,7 +157,7 @@ function normalizeChildren(children?: VNodeInput[] | VNodeInput): VNode[] {
             childNodes.push(c);
         }
         return childNodes;
-    } else if (typeof children == 'string' || typeof children == 'number') {
+    } else if (typeof children === 'string' || typeof children === 'number') {
         return [new VNodeText(String(children))];
     }
     return [children];

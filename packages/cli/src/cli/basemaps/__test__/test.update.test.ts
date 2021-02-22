@@ -22,7 +22,7 @@ o.spec('TileSetUpdateAction', () => {
     let tileSet = fakeTileSet();
 
     function getRule(ruleId: string): TileMetadataImageRule | undefined {
-        return tileSet.rules.find((f) => f.ruleId == ruleId);
+        return tileSet.rules.find((f) => f.ruleId === ruleId);
     }
 
     function tileSetId(t: TileMetadataSetRecord): string[] {

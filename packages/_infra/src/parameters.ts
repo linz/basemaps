@@ -36,7 +36,7 @@ export async function getEdgeParameters(edge: Stack): Promise<null | ParametersE
 
     const output: Partial<ParametersEdge> = {};
     for (const param of Object.values(Parameters.Edge)) {
-        const edgeParam = edgeStack.Stacks?.[0].Outputs?.find((f) => f.OutputKey == param.cfnOutput)?.OutputValue;
+        const edgeParam = edgeStack.Stacks?.[0].Outputs?.find((f) => f.OutputKey === param.cfnOutput)?.OutputValue;
         if (edgeParam == null) {
             console.log(`Failed to find cfnOutput for ${param.cfnOutput}`);
             continue;

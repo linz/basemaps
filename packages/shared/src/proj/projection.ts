@@ -134,7 +134,7 @@ export class Projection {
         const coords = multiPolygonToWgs84([[[sw, nw, ne, se, sw]]] as MultiPolygon, this.toWgs84);
 
         const feature =
-            coords.length == 1 ? toFeaturePolygon(coords[0], properties) : toFeatureMultiPolygon(coords, properties);
+            coords.length === 1 ? toFeaturePolygon(coords[0], properties) : toFeatureMultiPolygon(coords, properties);
         feature.bbox = this.boundsToWgs84BoundingBox(bounds);
 
         return feature as BBoxFeature;

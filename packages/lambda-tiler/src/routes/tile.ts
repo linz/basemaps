@@ -103,7 +103,7 @@ export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
     });
     req.timer.end('tile:compose');
     req.set('layersUsed', res.layers);
-    req.set('allLayersUsed', res.layers == layers.length);
+    req.set('allLayersUsed', res.layers === layers.length);
     req.set('bytes', res.buffer.byteLength);
 
     const response = new LambdaHttpResponse(200, 'ok');
@@ -132,7 +132,7 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     req.timer.start('tileset:load');
     const tileSets = await wmtsLoadTileSets(wmtsData.name, wmtsData.projection);
     req.timer.end('tileset:load');
-    if (tileSets.length == 0) return NotFound;
+    if (tileSets.length === 0) return NotFound;
 
     const provider = await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Production);
     if (provider == null) return NotFound;

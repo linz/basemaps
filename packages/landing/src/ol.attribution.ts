@@ -10,7 +10,7 @@ import { MapOptions, MapOptionType, WindowUrl } from './url';
 const Copyright = `© ${Stac.License} LINZ`;
 
 function sameExtent(a: Extent, b: Extent): boolean {
-    if (a.length != b.length) return false;
+    if (a.length !== b.length) return false;
     for (let i = 0; i < a.length; ++i) {
         if (a[i] !== b[i]) return false;
     }
@@ -70,8 +70,8 @@ export class OlAttribution {
      * Only update attributions at most every 200ms
      */
     scheduleRender(): void {
-        if (this._scheduled != null || this._raf != 0) return;
-        if (this.view.getZoom() == this.zoom) {
+        if (this._scheduled != null || this._raf !== 0) return;
+        if (this.view.getZoom() === this.zoom) {
             const extent = this.view.calculateExtent();
             if (sameExtent(this.extent, extent)) return;
         }

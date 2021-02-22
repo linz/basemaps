@@ -46,8 +46,8 @@ export class TileMatrixSet {
         const dups: Record<string, boolean> = {};
         for (const z of zooms) {
             if (dups[z.identifier]) throw new Error(`Duplicate tileMatrix identifier ${z.identifier}`);
-            if (z.tileHeight != z.tileWidth) throw new Error('Only square tiles supported');
-            if (z.tileHeight != this.tileSize) throw new Error('All tiles must have the same tile size');
+            if (z.tileHeight !== z.tileWidth) throw new Error('Only square tiles supported');
+            if (z.tileHeight !== this.tileSize) throw new Error('All tiles must have the same tile size');
             dups[z.identifier] = true;
         }
         this.zooms = zooms;
@@ -57,7 +57,7 @@ export class TileMatrixSet {
         this.projection = projection;
 
         /** Some projections @see EPSG:2193 are defined with XY Order of  */
-        if (getXyOrder(this.projection) == XyOrder.Yx) {
+        if (getXyOrder(this.projection) === XyOrder.Yx) {
             this.indexX = 1;
             this.indexY = 0;
         }
@@ -221,7 +221,7 @@ export class TileMatrixSet {
      */
     public static nameToTile(name: string): Tile {
         const parts = name.split('-');
-        if (parts.length == 3) {
+        if (parts.length === 3) {
             const z = Number(parts[0]);
             const x = Number(parts[1]);
             const y = Number(parts[2]);

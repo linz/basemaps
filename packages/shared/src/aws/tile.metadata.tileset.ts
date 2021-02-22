@@ -108,7 +108,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
      */
     sortRenderRules(tileSet: TileMetadataSetRecord, imagery: Map<string, TileMetadataImageryRecord>): void {
         tileSet.rules.sort((ruleA, ruleB) => {
-            if (ruleA.priority != ruleB.priority) return ruleA.priority - ruleB.priority;
+            if (ruleA.priority !== ruleB.priority) return ruleA.priority - ruleB.priority;
             const imgA = imagery.get(ruleA.imgId);
             const imgB = imagery.get(ruleB.imgId);
             if (imgA == null || imgB == null) throw new Error('Unable to find imagery to sort');
@@ -139,7 +139,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
     }
 
     idRecord(record: TileMetadataSetRecord, tag: TileMetadataTag | number): string {
-        if (typeof tag == 'number') {
+        if (typeof tag === 'number') {
             const versionKey = `${tag}`.padStart(6, '0');
             return `ts_${record.name}_${record.projection}_v${versionKey}`;
         }
@@ -151,7 +151,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         const [prefix, name, projectionCode, tag] = record.id.split('_');
         const version = record.version;
 
-        if (prefix != 'ts') return null;
+        if (prefix !== 'ts') return null;
 
         const projection = Epsg.parse(projectionCode);
         if (projection == null) return null;
