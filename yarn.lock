@@ -725,6 +725,11 @@
   resolved "https://registry.yarnpkg.com/@basemaps/metrics/-/metrics-4.11.1.tgz#675d53a8758642f1c388036fc9cad7ae53726a75"
   integrity sha512-wNESKjUcMCgceXqE+drdTQkDpvqUzCN/R4koAa4Hyq3jgV8C7D6DcD6l5Yz4v21Wo3Ef0W0FLwUsvHqcoFV8lQ==
 
+"@cogeotiff/chunk@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/chunk/-/chunk-4.1.0.tgz#a2ce455fb30543c9b1145adfb7eb26a5e5249d17"
+  integrity sha512-HqtE1VXtubXtgeXbXCQHeI4n/GzxnKLDy0lY7q1rRQ4LaOx6Uhn0ZqdqyXH5gW4dXuAzJTI55v537gnJyxYFFw==
+
 "@cogeotiff/core@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-3.0.0.tgz#d64ee600a739868cafa797c5cabe99a96aaa0b50"
@@ -732,12 +737,12 @@
   dependencies:
     ieee754 "^1.1.13"
 
-"@cogeotiff/source-aws@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-3.0.0.tgz#2b648a357e374c9ad2ea20f6f6e249211dfaf3ad"
-  integrity sha512-+YwrkYzaduAgx0Fqi5g+FMTIKLsMklDcZFuC40DhHsCZMK9FG7QPFAl1fXxkBFNo0QI+s3YalNtWUBzf/9aeDg==
+"@cogeotiff/source-aws@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-4.1.0.tgz#a5fe43bdd0e02b8924d53c246c82f6acadb6732f"
+  integrity sha512-fblJUY+f9EuT5VYPu4/aRRfCJyLAUWzxrRobwwtz4YX8e0ACIwM09j8duWzAdbWVmMaMty3B7WtUuw10dE5qFw==
   dependencies:
-    "@cogeotiff/core" "^3.0.0"
+    "@cogeotiff/chunk" "^4.1.0"
 
 "@cogeotiff/source-file@^3.0.0":
   version "3.0.0"

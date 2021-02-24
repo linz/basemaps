@@ -37,7 +37,7 @@
     "@basemaps/geo": "^4.20.0",
     "@basemaps/shared": "^4.20.0",
     "@cogeotiff/core": "^3.0.0",
-    "@cogeotiff/source-aws": "^3.0.0",
+    "@cogeotiff/source-aws": "^4.1.0",
     "@cogeotiff/source-file": "^3.0.0",
     "@cogeotiff/source-url": "^3.0.0",
     "@linzjs/geojson": "^4.20.0",
