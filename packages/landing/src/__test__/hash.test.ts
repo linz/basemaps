@@ -4,12 +4,12 @@ import { Epsg } from '@basemaps/geo';
 import { Config } from '../config';
 
 declare const global: {
-    window?: { location: { protocol: string; hostname: string } };
+    window?: { location: { origin: string } };
 };
 
 o.spec('WindowUrl', () => {
     o.beforeEach(() => {
-        global.window = { location: { protocol: 'https:', hostname: 'basemaps.linz.govt.nz' } };
+        global.window = { location: { origin: 'https://basemaps.linz.govt.nz' } };
     });
     o.afterEach(() => {
         delete global.window;
