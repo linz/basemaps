@@ -1556,9 +1556,9 @@
     zod "^1.10.0"
 
 "@linzjs/lui@^2.5.1":
-  version "2.6.16"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-2.6.16.tgz#3ee941285b22da79c4613a7e9434408a57523e2d"
-  integrity sha512-xzDmRuI3PEf1WDgRIWYYw1m8XYmMxHj2CFtMVusY2yIzl7FxE2VWc6T/zvfPBJtb+2zedIl3dCKMNLJP7ICW/Q==
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-2.9.0.tgz#ec6a3fde8f6aa4dfe9008baf517ca394c5b88c57"
+  integrity sha512-MjOq+83rbrOlqA5CCVArWiNh8fXAowjv7BzUBXrIvC6jNfb0Uv7ZZVwwN7q3J2ybNd/XBAN33jYyoiPp31LY2w==
   dependencies:
     "@szhsin/react-menu" "^1.4.0"
     camelcase "^6.0.0"
