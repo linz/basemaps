@@ -11,7 +11,7 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint \"packages/*/src/**/*.ts\" --quiet --fix --report-unused-disable-directives",
-    "test": "lerna run test --stream",
+    "test": "NODE_OPTIONS=--enable-source-maps lerna run test --parallel",
     "benchmark": "ospec 'packages/*/build/**/*.benchmark.js'",
     "clean": "tsc -b --clean && rimraf 'packages/*/build' && yarn clean:dist",
     "clean:dist": "rimraf 'packages/*/dist' && rimraf 'packages/_infra/cdk.out'",
