@@ -46,7 +46,8 @@ o.spec('health', () => {
     const testTileFile2 = fs.readFileSync(testTileName2);
     Response2.buffer(testTileFile2);
 
-    o('Should good response', async () => {
+    o('Should give a 200 response', async () => {
+        o.timeout(500);
         // Given ... a series good get tile response
         const callback = sinon.stub(Tile, 'tile');
         callback.onCall(0).resolves(Response1);
@@ -61,6 +62,7 @@ o.spec('health', () => {
     });
 
     o('Should return mis-match tile response', async () => {
+        o.timeout(500);
         // Given ... a bad get tile response for second get tile
         const callback = sinon.stub(Tile, 'tile');
         callback.onCall(0).resolves(Response1);
