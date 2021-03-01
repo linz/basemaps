@@ -10,7 +10,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "eslint 'packages/*/src/**/*.ts' --quiet --fix --report-unused-disable-directives",
+    "lint": "eslint \"packages/*/src/**/*.ts\" --quiet --fix --report-unused-disable-directives",
     "test": "lerna run test --stream",
     "benchmark": "ospec 'packages/*/build/**/*.benchmark.js'",
     "clean": "tsc -b --clean && rimraf 'packages/*/build' && yarn clean:dist",
