@@ -39,6 +39,7 @@ o.spec('FileLocal', () => {
     });
 
     o('Should capture permission errors:list', async () => {
+        if (process.platform === 'darwin') return;
         try {
             await s3fs.toArray(localFs.list(path.join(RootFolder, 'test')));
             throw new Error('Failed to throw');
@@ -59,6 +60,7 @@ o.spec('FileLocal', () => {
     });
 
     o('Should capture permission errors:read', async () => {
+        if (process.platform === 'darwin') return;
         try {
             await localFs.read(path.join(RootFolder, 'test'));
             throw new Error('Failed to throw');
