@@ -16,7 +16,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
+    "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
     "@basemaps/geo": "^4.20.0",

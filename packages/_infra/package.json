@@ -17,7 +17,7 @@
     "deploy:synth": "cdk synth",
     "deploy:diff": "cdk diff || true",
     "deploy:deploy": "cdk deploy '*' -y --require-approval never",
-    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js"
+    "test": "ospec --globs 'build/**/*.test.js'"
   },
   "devDependencies": {
     "@aws-cdk/aws-batch": ">=1.70.0",
