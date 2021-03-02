@@ -36,7 +36,7 @@
     ]
   },
   "scripts": {
-    "test": "ospec --globs 'build/**/*.test.js' --preload ../../scripts/test.before.js",
+    "test": "ospec --globs 'build/**/*.test.js'",
     "bundle": "./bundle.sh"
   },
   "devDependencies": {

@@ -4,8 +4,48 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest,  windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: "12.x"
+          registry-url: https://registry.npmjs.org
 
+      - name: Check Dependencies
+        run: node scripts/detect.unlinked.dep.js
+
+      - name: Install
+        run: yarn  --frozen-lockfile --check-files
+
+      - name: Audit
+        run: npx check-audit --yarn
+
+      - name: Build
+        run: yarn run build
+
+      - name: Lint
+        run: yarn run lint
+
+      - name: Check Formatting
+        run: git diff --exit-code
+
+      - name: Test
+        run: yarn run test
+
+      - name: Benchmark
+        run: yarn run benchmark
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
         with:

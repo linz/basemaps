@@ -2,8 +2,10 @@ import o from 'ospec';
 import { FsLocal } from '../file.local';
 import { CompositeError } from '../composite.error';
 import { S3Fs } from '..';
+import * as path from 'path';
 
 o.spec('FileLocal', () => {
+    const RootFolder = process.platform === 'darwin' ? '/var/root' : '/root';
     const s3fs = new S3Fs();
     const localFs = new FsLocal();
     o('Should capture not found errors:list', async () => {
@@ -37,8 +39,9 @@ o.spec('FileLocal', () => {
     });
 
     o('Should capture permission errors:list', async () => {
+        if (process.platform === 'darwin') return;
         try {
-            await s3fs.toArray(localFs.list('/root/test'));
+            await s3fs.toArray(localFs.list(path.join(RootFolder, 'test')));
             throw new Error('Failed to throw');
         } catch (e) {
             o(CompositeError.isCompositeError(e)).equals(true);
@@ -48,7 +51,7 @@ o.spec('FileLocal', () => {
 
     o('Should capture permission errors:write', async () => {
         try {
-            await localFs.write('/root/test', Buffer.from('foobar'), false);
+            await localFs.write(path.join(RootFolder, 'test'), Buffer.from('foobar'), false);
             throw new Error('Failed to throw');
         } catch (e) {
             o(CompositeError.isCompositeError(e)).equals(true);
@@ -57,8 +60,9 @@ o.spec('FileLocal', () => {
     });
 
     o('Should capture permission errors:read', async () => {
+        if (process.platform === 'darwin') return;
         try {
-            await localFs.read('/root/test');
+            await localFs.read(path.join(RootFolder, 'test'));
             throw new Error('Failed to throw');
         } catch (e) {
             o(CompositeError.isCompositeError(e)).equals(true);
