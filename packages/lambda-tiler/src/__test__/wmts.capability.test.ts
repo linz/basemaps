@@ -27,14 +27,7 @@ o.spec('WmtsCapabilities', () => {
     ]);
 
     o('should build capability xml for tileset and projection', () => {
-        const wmts = new WmtsCapabilities(
-            'https://basemaps.test',
-            Provider,
-            [tileSet],
-            tileMatrixSetMap,
-            undefined,
-            apiKey,
-        );
+        const wmts = new WmtsCapabilities('https://basemaps.test', Provider, [tileSet], tileMatrixSetMap, apiKey);
 
         const raw = wmts.toVNode();
         const serviceId = raw.find('ows:ServiceIdentification');
@@ -118,8 +111,7 @@ o.spec('WmtsCapabilities', () => {
         compareMatrix(tileMatrices[10], '10', 1024, 545978.773465544);
 
         const xml =
-            WmtsCapabilities.toXml('https://basemaps.test', Provider, [tileSet], tileMatrixSetMap, undefined, apiKey) ??
-            '';
+            WmtsCapabilities.toXml('https://basemaps.test', Provider, [tileSet], tileMatrixSetMap, apiKey) ?? '';
 
         o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
 

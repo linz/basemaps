@@ -25,7 +25,6 @@ export class WmtsCapabilities {
 
     layers: Map<string, WmtsLayer[]> = new Map();
     tileMatrixSets: Map<Epsg, TileMatrixSet>;
-    altTms = '';
 
     apiKey?: string;
 
@@ -34,15 +33,11 @@ export class WmtsCapabilities {
         provider: WmtsProvider,
         layers: WmtsLayer[],
         tileMatrixSets: Map<Epsg, TileMatrixSet>,
-        altTms = '',
         apiKey?: string,
     ) {
         this.httpBase = httpBase;
         this.provider = provider;
         this.tileMatrixSets = tileMatrixSets;
-        if (altTms !== '') {
-            this.altTms = ':' + altTms;
-        }
 
         for (const layer of layers) {
             // TODO is grouping by name the best option
@@ -121,7 +116,7 @@ export class WmtsCapabilities {
             'v1',
             'tiles',
             tileSet.taggedName,
-            '{TileMatrixSet}' + this.altTms,
+            '{TileMatrixSet}',
             '{TileMatrix}',
             '{TileCol}',
             `{TileRow}.${suffix}${apiSuffix}`,
@@ -199,10 +194,9 @@ export class WmtsCapabilities {
         provider: TileMetadataProviderRecord,
         tileSet: TileSet[],
         tileMatrixSets: Map<Epsg, TileMatrixSet>,
-        altTms?: string | undefined,
         apiKey?: string,
     ): string {
-        return new WmtsCapabilities(httpBase, provider, tileSet, tileMatrixSets, altTms, apiKey).toString();
+        return new WmtsCapabilities(httpBase, provider, tileSet, tileMatrixSets, apiKey).toString();
     }
 
     /**

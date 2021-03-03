@@ -5,7 +5,6 @@ import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import { BBox } from '@linzjs/geojson';
 import o from 'ospec';
-import { Nztm2000AgolTms } from '../../alternative.tms/nztm2000.agol';
 import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
 
 const TileSize = 256;
@@ -75,10 +74,6 @@ o.spec('ProjectionTileMatrixSet', () => {
         });
         o('get normal', () => {
             o(ProjectionTileMatrixSet.tryGet(EpsgCode.Nztm2000)!.tms).equals(Nztm2000Tms);
-        });
-
-        o('get alternative', () => {
-            o(ProjectionTileMatrixSet.tryGet(EpsgCode.Nztm2000, 'agol')!.tms).equals(Nztm2000AgolTms);
         });
     });
 
