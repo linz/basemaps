@@ -1,13 +1,6 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, TileMatrixSets } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import {
-    Aws,
-    Env,
-    LogConfig,
-    ProjectionTileMatrixSet,
-    TileMetadataProviderRecord,
-    VNodeParser,
-} from '@basemaps/shared';
+import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import { Tiler } from '@basemaps/tiler';
 import o from 'ospec';
@@ -49,7 +42,7 @@ o.spec('LambdaXyz', () => {
         TileComposer.compose = rasterMock as any;
 
         for (const tileSetName of TileSetNames) {
-            for (const code of ProjectionTileMatrixSet.targetCodes()) {
+            for (const code of TileMatrixSets.Defaults.keys()) {
                 const tileSet = new FakeTileSet(tileSetName, Epsg.get(code));
                 TileSets.set(tileSet.id, tileSet);
                 tileSet.load = () => Promise.resolve(true);

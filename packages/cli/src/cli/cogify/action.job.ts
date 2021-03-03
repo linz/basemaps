@@ -1,5 +1,5 @@
-import { Epsg, EpsgCode } from '@basemaps/geo';
-import { FileConfig, FileOperator, ProjectionTileMatrixSet, FileConfigPath } from '@basemaps/shared';
+import { Epsg, EpsgCode, TileMatrixSets } from '@basemaps/geo';
+import { FileConfig, FileConfigPath, FileOperator } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -90,8 +90,11 @@ export class ActionJobCreate extends CommandLineAction {
             cutline = { href: this.cutline.value, blend: this.cutlineBlend.value ?? 20 };
         }
 
-        const targetProjection = ProjectionTileMatrixSet.tryGet(this.targetProjection?.value);
+        const targetProjection = Epsg.tryGet(this.targetProjection.value);
         if (targetProjection == null) throw new Error('Invalid target-projection');
+
+        const tileMatrix = TileMatrixSets.tryGet(targetProjection);
+        if (tileMatrix == null) throw new Error('Invalid target-projection');
 
         let resampling: GdalCogBuilderResampling | undefined;
 
@@ -120,7 +123,7 @@ export class ActionJobCreate extends CommandLineAction {
             sourceLocation,
             outputLocation,
             cutline,
-            targetProjection,
+            tileMatrix,
             override: {
                 concurrency: this.maxConcurrency?.value ?? MaxConcurrencyDefault,
                 quality: this.quality?.value ?? GdalCogBuilderDefaults.quality,

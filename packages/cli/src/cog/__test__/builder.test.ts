@@ -1,5 +1,5 @@
-import { Bounds, Epsg, EpsgCode } from '@basemaps/geo';
-import { LogConfig, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { Bounds, Epsg, EpsgCode, GoogleTms } from '@basemaps/geo';
+import { LogConfig } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
 import { CogSourceFile } from '@cogeotiff/source-file';
@@ -28,7 +28,7 @@ o.spec('Builder', () => {
     });
 
     o.spec('tiff', () => {
-        const googleBuilder = new CogBuilder(ProjectionTileMatrixSet.get(EpsgCode.Google), 1, LogConfig.get());
+        const googleBuilder = new CogBuilder(GoogleTms, 1, LogConfig.get());
         const origInit = CogTiff.prototype.init;
         const origGetImage = CogTiff.prototype.getImage;
 

@@ -1,5 +1,5 @@
-import { BoundingBox, EpsgCode } from '@basemaps/geo';
-import { FileConfig, NamedBounds, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { BoundingBox, EpsgCode, TileMatrixSet } from '@basemaps/geo';
+import { FileConfig, NamedBounds } from '@basemaps/shared';
 import { GdalCogBuilderResampling } from '../gdal/gdal.config';
 
 export interface FeatureCollectionWithCrs extends GeoJSON.FeatureCollection {
@@ -66,8 +66,8 @@ export interface CogJobJson {
 }
 
 export interface CogJob extends CogJobJson {
-    sourcePtms: ProjectionTileMatrixSet;
-    targetPtms: ProjectionTileMatrixSet;
+    sourceTms: TileMatrixSet;
+    targetTms: TileMatrixSet;
     targetZoom: number;
 
     getJobPath(key?: string): string;

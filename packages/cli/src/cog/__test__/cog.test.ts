@@ -29,11 +29,11 @@ o.spec('cog', () => {
             const job = SourceTiffTestHelper.makeCogJob();
             const logger = LogConfig.get();
 
-            const { targetPtms } = job;
+            const { targetTms } = job;
 
             const name = '4-15-10';
 
-            job.output.files = [{ name, ...targetPtms.tms.tileToSourceBounds({ x: 15, y: 10, z: 4 }) }];
+            job.output.files = [{ name, ...targetTms.tileToSourceBounds({ x: 15, y: 10, z: 4 }) }];
 
             await buildCogForName(job, name, '/tmp/test.vrt', '/tmp/out-tiff', logger, true);
             o(convertArgs[0].info).equals(logger.info);

@@ -1,7 +1,6 @@
-import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import {
     Aws,
-    ProjectionTileMatrixSet,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
     TileMetadataSetRecord,
@@ -69,7 +68,7 @@ export class TileSet {
     }
 
     get extent(): Bounds {
-        return this.extentOverride ?? ProjectionTileMatrixSet.get(this.projection.code).tms.extent;
+        return this.extentOverride ?? TileMatrixSets.get(this.projection).extent;
     }
 
     async load(): Promise<boolean> {

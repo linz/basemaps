@@ -1,5 +1,4 @@
-import { EpsgCode, Bounds } from '@basemaps/geo';
-import { ProjectionTileMatrixSet } from '@basemaps/shared';
+import { EpsgCode, Bounds, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
@@ -10,15 +9,13 @@ import { MultiPolygon } from '@linzjs/geojson';
 
 o.spec('cutline', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
-    const googlePtms = ProjectionTileMatrixSet.get(EpsgCode.Google);
-    const nztmPtms = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
 
     o.spec('filterSourcesForName', () => {
         o('fully within same projection', async () => {
-            // convert poly to googlePtms
-            const cutpoly = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson')).toGeoJson();
+            // convert poly to GoogleTms
+            const cutpoly = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson')).toGeoJson();
 
-            const cutline = new Cutline(googlePtms, cutpoly, -100);
+            const cutline = new Cutline(GoogleTms, cutpoly, -100);
 
             const name = qkToName('311333222321113310');
 
@@ -75,7 +72,7 @@ o.spec('cutline', () => {
     });
 
     o('loadCutline', async () => {
-        const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const geojson = round(cutline.toGeoJson());
 
         o(geojson).deepEquals({
@@ -130,7 +127,7 @@ o.spec('cutline', () => {
     });
 
     o('findCovering', async () => {
-        const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/mana.geojson'));
+        const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/mana.geojson'));
         const bounds = SourceTiffTestHelper.tiffNztmBounds();
 
         o(cutline.clipPoly.length).equals(2);
@@ -143,7 +140,7 @@ o.spec('cutline', () => {
     o.spec('optmize', async () => {
         const bounds = SourceTiffTestHelper.tiffNztmBounds();
         o('one-cog', () => {
-            const cutline = new Cutline(nztmPtms, undefined, 0, true);
+            const cutline = new Cutline(Nztm2000Tms, undefined, 0, true);
             const covering = cutline.optimizeCovering({
                 projection: EpsgCode.Nztm2000,
                 bounds,
@@ -161,10 +158,10 @@ o.spec('cutline', () => {
         });
 
         o('full-extent 3857', () => {
-            const cutline = new Cutline(googlePtms);
+            const cutline = new Cutline(GoogleTms);
             const covering = cutline.optimizeCovering({
                 projection: EpsgCode.Google,
-                bounds: [{ ...googlePtms.tms.extent, name: 'gebco' }],
+                bounds: [{ ...GoogleTms.extent, name: 'gebco' }],
                 resZoom: 5,
             } as SourceMetadata);
 
@@ -201,7 +198,7 @@ o.spec('cutline', () => {
         });
 
         o('nztm', () => {
-            const cutline = new Cutline(nztmPtms);
+            const cutline = new Cutline(Nztm2000Tms);
 
             const covering = cutline.optimizeCovering({
                 projection: EpsgCode.Nztm2000,
@@ -250,7 +247,7 @@ o.spec('cutline', () => {
             };
 
             const bounds = [tiff1, tiff2];
-            const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
+            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
 
             const covering = cutline.optimizeCovering({
                 projection: EpsgCode.Nztm2000,
@@ -286,7 +283,7 @@ o.spec('cutline', () => {
         });
 
         o('boundary part inland, part coastal', async () => {
-            const cutline = new Cutline(googlePtms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
+            const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
             const bounds = [
                 {
                     name: 'tiff1',
@@ -325,7 +322,7 @@ o.spec('cutline', () => {
         });
 
         o('low res', () => {
-            const cutline = new Cutline(googlePtms);
+            const cutline = new Cutline(GoogleTms);
 
             const covering = cutline.optimizeCovering({
                 projection: EpsgCode.Nztm2000,
@@ -338,7 +335,7 @@ o.spec('cutline', () => {
         });
 
         o('hi res', () => {
-            const covering2 = new Cutline(googlePtms).optimizeCovering({
+            const covering2 = new Cutline(GoogleTms).optimizeCovering({
                 projection: EpsgCode.Nztm2000,
                 bounds,
                 resZoom: 18,

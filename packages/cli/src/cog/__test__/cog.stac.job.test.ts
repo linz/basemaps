@@ -1,16 +1,13 @@
-import { Bounds, EpsgCode, Stac } from '@basemaps/geo';
-import { ProjectionTileMatrixSet } from '@basemaps/shared';
+import { Bounds, Epsg, EpsgCode, GoogleTms, Stac } from '@basemaps/geo';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
 import o from 'ospec';
+import { Projection } from '@basemaps/shared';
 import { CogStacJob, JobCreationContext } from '../cog.stac.job';
 import { CogBuilderMetadata } from '../types';
 
 o.spec('CogJob', () => {
-    const googlePtms = ProjectionTileMatrixSet.get(EpsgCode.Google);
-    const nztmPtms = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
-
     o.spec('build', () => {
         const id = 'jobid1';
         const imageryName = 'auckland_rural_2010-2012_0-50m';
@@ -23,13 +20,13 @@ o.spec('CogJob', () => {
             [-177, -42],
             [175, -42],
             [170, -41],
-        ].map(nztmPtms.proj.fromWgs84) as Ring;
+        ].map(Projection.get(Epsg.Nztm2000).fromWgs84) as Ring;
         const ring2 = [
             [-150, -40],
             [-140, -41],
             [-150, -41],
             [-150, -40],
-        ].map(nztmPtms.proj.fromWgs84) as Ring;
+        ].map(Projection.get(Epsg.Nztm2000).fromWgs84) as Ring;
 
         const srcPoly = [[ring1], [ring2]];
         const bounds = srcPoly.map((poly, i) => ({ ...Bounds.fromMultiPolygon([poly]), name: 'ring' + i }));
@@ -46,7 +43,7 @@ o.spec('CogJob', () => {
         };
         const addAlpha = true;
         const ctx = {
-            targetProjection: googlePtms,
+            tileMatrix: GoogleTms,
             sourceLocation: { type: 's3', path: 's3://source-bucket/path' },
             outputLocation: { type: 's3', path: 's3://target-bucket/path' },
             cutline: { blend: 20, href: 's3://curline-bucket/path' },

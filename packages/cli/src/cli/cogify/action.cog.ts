@@ -105,7 +105,7 @@ export class ActionCogCreate extends CommandLineAction {
                 logger.warn('NoCutLine');
             }
             const cutline = new Cutline(
-                job.targetPtms,
+                job.targetTms,
                 cutlineJson,
                 job.output.cutline?.blend,
                 job.output.oneCogCovering,

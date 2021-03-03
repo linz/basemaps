@@ -1,5 +1,5 @@
 import { Bounds, EpsgCode, TileMatrixSet } from '@basemaps/geo';
-import { Aws, isConfigS3Role, LogType } from '@basemaps/shared';
+import { Aws, isConfigS3Role, LogType, Projection } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal.cog';
 import { GdalCommand } from '../gdal/gdal.command';
 import { TilingScheme } from '../gdal/gdal.config';
@@ -48,8 +48,7 @@ export async function buildCogForName(
 ): Promise<void> {
     const startTime = Date.now();
 
-    const { targetZoom, targetPtms } = job;
-    const { tms } = targetPtms;
+    const { targetZoom, targetTms } = job;
 
     const nb = job.output.files.find((nb) => nb.name === name);
 
@@ -61,13 +60,13 @@ export async function buildCogForName(
 
     const tile = TileMatrixSet.nameToTile(name);
 
-    const blockSize = tms.tileSize * targetPtms.blockFactor;
-    const alignmentLevels = targetPtms.findAlignmentLevels(tile, job.source.gsd);
+    const blockSize = targetTms.tileSize * 2; // FIXME blockFactor
+    const alignmentLevels = Projection.findAlignmentLevels(targetTms, tile, job.source.gsd);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [bounds.x, bounds.bottom, bounds.right, bounds.y],
-        projection: targetPtms.tms.projection,
-        tilingScheme: tilingScheme(tms.projection.code),
+        projection: targetTms.projection,
+        tilingScheme: tilingScheme(targetTms.projection.code),
         blockSize,
         targetRes: job.output.gsd,
         alignmentLevels,
@@ -79,7 +78,7 @@ export async function buildCogForName(
 
     logger.info(
         {
-            imageSize: targetPtms.getImagePixelWidth(tile, targetZoom),
+            imageSize: Projection.getImagePixelWidth(targetTms, tile, targetZoom),
             name,
             tile,
             alignmentLevels,

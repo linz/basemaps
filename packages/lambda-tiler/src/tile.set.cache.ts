@@ -1,7 +1,6 @@
-import { Bounds, Epsg } from '@basemaps/geo';
+import { Bounds, Epsg, TileMatrixSets } from '@basemaps/geo';
 import {
     Aws,
-    ProjectionTileMatrixSet,
     RecordPrefix,
     TileMetadataImageryRecord,
     TileMetadataTable,
@@ -100,7 +99,7 @@ export async function loadTileSets(nameStr: string, projection: Epsg | null): Pr
     const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
 
     const projections: Epsg[] =
-        projection == null ? Array.from(ProjectionTileMatrixSet.targetCodes()).map((c) => Epsg.get(c)) : [projection];
+        projection == null ? Array.from(TileMatrixSets.Defaults.keys()).map((c) => Epsg.get(c)) : [projection];
     const names = name === '' ? TileSetNameValues().map((tsn) => (tag == null ? tsn : `${tsn}@${tag}`)) : [nameStr];
 
     const promises: Promise<TileSet | null>[] = [];

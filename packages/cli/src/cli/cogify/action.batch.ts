@@ -6,6 +6,7 @@ import {
     FileOperator,
     LogConfig,
     LogType,
+    Projection,
     RecordPrefix,
     TileMetadataImageryRecord,
     TileMetadataTable,
@@ -97,7 +98,7 @@ export class ActionBatchJob extends CommandLineAction {
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
         const jobName = ActionBatchJob.id(job, name);
         const tile = TileMatrixSet.nameToTile(name);
-        const alignmentLevels = job.targetPtms.findAlignmentLevels(tile, job.source.gsd);
+        const alignmentLevels = Projection.findAlignmentLevels(job.targetTms, tile, job.source.gsd);
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;
