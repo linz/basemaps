@@ -1,4 +1,4 @@
-import { Epsg } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo';
 import { LambdaContext } from '@basemaps/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
@@ -12,20 +12,20 @@ import { TileSetLocal } from './tile.set.local';
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
 const xyz = { x: 0, y: 0, z: 0 };
-const projection = Epsg.Google;
+const tileMatrix = GoogleTms;
 const tileSetName = 'aerial';
 const ext = ImageFormat.PNG;
 
 /** Load a tileset form a file path otherwise default to the hard coded one from AWS */
 async function getTileSet(filePath?: string): Promise<TileSet> {
     if (filePath != null) {
-        const tileSet = new TileSetLocal('local', projection, filePath);
+        const tileSet = new TileSetLocal('local', filePath);
         await tileSet.load();
         TileSets.set(tileSet.id, tileSet);
         return tileSet;
     }
 
-    const tileSet = await loadTileSet(tileSetName, projection);
+    const tileSet = await loadTileSet(tileSetName, tileMatrix);
     if (tileSet == null) throw new Error('Missing');
     return tileSet;
 }
@@ -39,12 +39,12 @@ async function main(): Promise<void> {
     const filePath = process.argv[2];
     const tileSet = await getTileSet(filePath);
 
-    logger.info({ ...xyz, projection }, 'RenderTile');
+    logger.info({ ...xyz, projection: tileMatrix.projection.code, tileMatrix: tileMatrix.identifier }, 'RenderTile');
 
     const ctx = new LambdaContext(
         {
             httpMethod: 'get',
-            path: `/v1/tiles/${tileSet.name}/${projection.code}/${xyz.z}/${xyz.x}/${xyz.y}.${ext}`,
+            path: `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/${xyz.z}/${xyz.x}/${xyz.y}.${ext}`,
         } as any,
         logger,
     );

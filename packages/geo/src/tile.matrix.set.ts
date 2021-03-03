@@ -76,6 +76,10 @@ export class TileMatrixSet {
         return this.zooms.length - 1;
     }
 
+    get identifier(): string {
+        return this.def.identifier;
+    }
+
     get id(): string {
         return TileMatrixSet.getId(this.projection);
     }

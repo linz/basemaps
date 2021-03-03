@@ -1,4 +1,4 @@
-import { Bounds, Epsg, EpsgCode, TileMatrixSet, WmtsLayer, WmtsProvider } from '@basemaps/geo';
+import { Bounds, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
 import { Projection, TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
@@ -15,29 +15,22 @@ const CapabilitiesAttrs = {
     version: '1.0.0',
 };
 
-function wgs84Extent(layer: WmtsLayer): BBox {
-    return Projection.get(layer.projection.code).boundsToWgs84BoundingBox(layer.extent);
+function wgs84Extent(layer: TileSet): BBox {
+    return Projection.get(layer.tileMatrix).boundsToWgs84BoundingBox(layer.extent);
 }
 
 export class WmtsCapabilities {
     httpBase: string;
     provider: WmtsProvider;
 
-    layers: Map<string, WmtsLayer[]> = new Map();
-    tileMatrixSets: Map<Epsg, TileMatrixSet>;
+    layers: Map<string, TileSet[]> = new Map();
 
     apiKey?: string;
+    tileMatrixSets = new Map<string, TileMatrixSet>();
 
-    constructor(
-        httpBase: string,
-        provider: WmtsProvider,
-        layers: WmtsLayer[],
-        tileMatrixSets: Map<Epsg, TileMatrixSet>,
-        apiKey?: string,
-    ) {
+    constructor(httpBase: string, provider: WmtsProvider, layers: TileSet[], apiKey?: string) {
         this.httpBase = httpBase;
         this.provider = provider;
-        this.tileMatrixSets = tileMatrixSets;
 
         for (const layer of layers) {
             // TODO is grouping by name the best option
@@ -48,11 +41,13 @@ export class WmtsCapabilities {
             }
             // TODO should a error be thrown here if the projection is invalid
             existing.push(layer);
+
+            this.tileMatrixSets.set(layer.tileMatrix.identifier, layer.tileMatrix);
         }
         this.apiKey = apiKey;
     }
 
-    buildWgs84BoundingBox(layers: WmtsLayer[], tagName = 'ows:WGS84BoundingBox'): VNodeElement {
+    buildWgs84BoundingBox(layers: TileSet[], tagName = 'ows:WGS84BoundingBox'): VNodeElement {
         let bbox = wgs84Extent(layers[0]);
         for (let i = 1; i < layers.length; ++i) {
             bbox = Wgs84.union(bbox, wgs84Extent(layers[i]));
@@ -109,7 +104,7 @@ export class WmtsCapabilities {
         ];
     }
 
-    buildTileUrl(tileSet: WmtsLayer, suffix: string): string {
+    buildTileUrl(tileSet: TileSet, suffix: string): string {
         const apiSuffix = this.apiKey ? `?api=${this.apiKey}` : '';
         return [
             this.httpBase,
@@ -123,7 +118,7 @@ export class WmtsCapabilities {
         ].join('/');
     }
 
-    buildResourceUrl(tileSet: WmtsLayer, suffix: string): VNodeElement {
+    buildResourceUrl(tileSet: TileSet, suffix: string): VNodeElement {
         return V('ResourceURL', {
             format: 'image/' + suffix,
             resourceType: 'tile',
@@ -131,17 +126,27 @@ export class WmtsCapabilities {
         });
     }
 
-    buildLayer(layers: WmtsLayer[], tms: TileMatrixSet[]): VNodeElement {
+    buildLayer(layers: TileSet[]): VNodeElement {
+        const matrixSets = new Set<string>();
+        const matrixSetNodes: VNodeElement[] = [];
+        for (const layer of layers) {
+            if (matrixSets.has(layer.tileMatrix.identifier)) continue;
+            matrixSets.add(layer.tileMatrix.identifier);
+            matrixSetNodes.push(
+                V('TileMatrixSetLink', [V('TileMatrixSet', layer.tileMatrix.projection.toEpsgString())]),
+            );
+        }
+
         const [firstLayer] = layers;
         return V('Layer', [
             V('ows:Title', firstLayer.title),
             V('ows:Abstract', firstLayer.description),
             V('ows:Identifier', firstLayer.taggedName),
-            ...layers.map((layer) => this.buildBoundingBox(this.tileMatrixSets.get(layer.projection)!, layer.extent)),
+            ...layers.map((layer) => this.buildBoundingBox(layer.tileMatrix, layer.extent)),
             this.buildWgs84BoundingBox(layers),
             this.buildStyle(),
             ...ImageFormatOrder.map((fmt) => V('Format', 'image/' + fmt)),
-            ...tms.map((c) => V('TileMatrixSetLink', [V('TileMatrixSet', c.projection.toEpsgString())])),
+            ...matrixSetNodes,
             ...ImageFormatOrder.map((fmt) => this.buildResourceUrl(firstLayer, fmt)),
         ]);
     }
@@ -172,15 +177,10 @@ export class WmtsCapabilities {
     }
     toVNode(): VNodeElement {
         const layers: VNodeElement[] = [];
-        const tileMatrixSets = new Map<EpsgCode, TileMatrixSet>();
-
         for (const tileSets of this.layers.values()) {
-            const matrixSets = this.getTileMatrixSets(tileSets);
-            layers.push(this.buildLayer(tileSets, matrixSets));
-            for (const tms of matrixSets) tileMatrixSets.set(tms.projection.code, tms);
+            layers.push(this.buildLayer(tileSets));
         }
-
-        for (const tms of tileMatrixSets.values()) layers.push(this.buildTileMatrixSet(tms));
+        for (const tms of this.tileMatrixSets.values()) layers.push(this.buildTileMatrixSet(tms));
 
         return V('Capabilities', CapabilitiesAttrs, [...this.buildProvider(), V('Contents', layers)]);
     }
@@ -189,27 +189,7 @@ export class WmtsCapabilities {
         return '<?xml version="1.0"?>\n' + this.toVNode().toString();
     }
 
-    static toXml(
-        httpBase: string,
-        provider: TileMetadataProviderRecord,
-        tileSet: TileSet[],
-        tileMatrixSets: Map<Epsg, TileMatrixSet>,
-        apiKey?: string,
-    ): string {
-        return new WmtsCapabilities(httpBase, provider, tileSet, tileMatrixSets, apiKey).toString();
-    }
-
-    /**
-     * Get the unique list of projections needed to serve these tilesets
-     * @param tileSets
-     */
-    private getTileMatrixSets(tileSets: WmtsLayer[]): TileMatrixSet[] {
-        const output = new Map<number, TileMatrixSet>();
-        for (const ts of tileSets) {
-            const tms = this.tileMatrixSets.get(ts.projection);
-            if (tms == null) throw new Error(`Invalid projection: ${ts.projection.code}`);
-            output.set(tms.projection.code, tms);
-        }
-        return Array.from(output.values());
+    static toXml(httpBase: string, provider: TileMetadataProviderRecord, tileSet: TileSet[], apiKey?: string): string {
+        return new WmtsCapabilities(httpBase, provider, tileSet, apiKey).toString();
     }
 }

@@ -1,4 +1,4 @@
-import { Bounds, Epsg, TileMatrixSets } from '@basemaps/geo';
+import { Bounds, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import {
     Aws,
     RecordPrefix,
@@ -15,9 +15,11 @@ export const TileSets = new Map<string, TileSet>();
 /**
  * Get a TileSet from the cache
  */
-export function getTileSet(name: string, projection: Epsg): TileSet | undefined {
-    const tileSetId = `${name}_${projection}`;
-    return TileSets.get(tileSetId);
+export function getTileSet(name: string, tileMatrix: TileMatrixSet): TileSet | undefined {
+    const tileSetId = `${name}_${tileMatrix.identifier}`;
+    const tileSet = TileSets.get(tileSetId);
+    if (tileSet != null && tileSet.id !== tileSetId) throw new Error('TileSetId Missmatch: ' + tileSet.id);
+    return tileSet;
 }
 
 function individualTileSet(parent: TileSet, image: TileMetadataImageryRecord, setId?: string): TileSet {
@@ -25,7 +27,7 @@ function individualTileSet(parent: TileSet, image: TileMetadataImageryRecord, se
     if (setId == null) {
         setId = TileMetadataTable.unprefix(RecordPrefix.Imagery, id);
     }
-    const copy = new TileSet(setId, parent.projection);
+    const copy = new TileSet(setId, parent.tileMatrix);
     // use parent data as prototype for child;
     copy.tileSet = Object.create(parent.tileSet ?? null);
     copy.tileSet.background = undefined;
@@ -60,15 +62,15 @@ function individualTileSet(parent: TileSet, image: TileMetadataImageryRecord, se
 
  * @param projection find TileSet for this projection.
  */
-export async function loadTileSet(name: string, projection: Epsg): Promise<TileSet | null> {
+export async function loadTileSet(name: string, tileMatrix: TileMatrixSet): Promise<TileSet | null> {
     const subsetIndex = name.indexOf(':');
     const subsetName = subsetIndex === -1 ? '' : name.slice(subsetIndex + 1);
     if (subsetName !== '') {
         name = name.slice(0, subsetIndex);
     }
-    let tileSet = getTileSet(name, projection);
+    let tileSet = getTileSet(name, tileMatrix);
     if (tileSet == null) {
-        tileSet = new TileSet(name, projection);
+        tileSet = new TileSet(name, tileMatrix);
         TileSets.set(tileSet.id, tileSet);
     }
     const loaded = await tileSet.load();
@@ -94,18 +96,18 @@ function compareByTitle(a: TileSet, b: TileSet): number {
  * @param nameStr if an empty string load all TileSets
  * @param projection if null load all projections
  */
-export async function loadTileSets(nameStr: string, projection: Epsg | null): Promise<TileSet[]> {
+export async function loadTileSets(nameStr: string, tileMatrix: TileMatrixSet | null): Promise<TileSet[]> {
     const isSubset = nameStr.indexOf(':') !== -1;
     const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
 
-    const projections: Epsg[] =
-        projection == null ? Array.from(TileMatrixSets.Defaults.keys()).map((c) => Epsg.get(c)) : [projection];
+    const tileMatrices: TileMatrixSet[] =
+        tileMatrix == null ? Array.from(TileMatrixSets.Defaults.values()) : [tileMatrix];
     const names = name === '' ? TileSetNameValues().map((tsn) => (tag == null ? tsn : `${tsn}@${tag}`)) : [nameStr];
 
     const promises: Promise<TileSet | null>[] = [];
     for (const n of names) {
-        for (const p of projections) {
-            promises.push(loadTileSet(n, p));
+        for (const tileMatrix of tileMatrices) {
+            promises.push(loadTileSet(n, tileMatrix));
         }
     }
 

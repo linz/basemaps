@@ -1,7 +1,7 @@
+import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { TileMetadataImageryRecord } from '@basemaps/shared';
 import o from 'ospec';
 import { TileSet } from '../tile.set';
-import { Epsg } from '@basemaps/geo';
 
 o.spec('tile.set', () => {
     o('basePath', () => {
@@ -11,13 +11,13 @@ o.spec('tile.set', () => {
     });
 
     o('extent', () => {
-        o(new TileSet('google', Epsg.Google).extent.toBbox()).deepEquals([
+        o(new TileSet('google', GoogleTms).extent.toBbox()).deepEquals([
             -20037508.3427892,
             -20037508.3427892,
             20037508.3427892,
             20037508.3427892,
         ]);
 
-        o(new TileSet('nztm', Epsg.Nztm2000).extent.toBbox()).deepEquals([274000, 3087000, 3327000, 7173000]);
+        o(new TileSet('nztm', Nztm2000Tms).extent.toBbox()).deepEquals([274000, 3087000, 3327000, 7173000]);
     });
 });

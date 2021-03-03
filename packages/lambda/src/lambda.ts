@@ -1,6 +1,7 @@
+import { LogType } from '@basemaps/shared';
 import { Callback, Context } from 'aws-lambda';
 import { ApplicationJson, HttpHeader, HttpHeaderAmazon } from './header';
-import { LambdaContext, LambdaHttpRequestType, LambdaHttpReturnType, LogType } from './lambda.context';
+import { LambdaContext, LambdaHttpRequestType, LambdaHttpReturnType } from './lambda.context';
 import { LambdaHttpResponse } from './lambda.response';
 
 export interface HttpStatus {
