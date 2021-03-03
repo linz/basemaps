@@ -61,19 +61,15 @@ function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpRespo
     return null;
 }
 
-function projectionNotFound(projection: Epsg, altTms?: string): LambdaHttpResponse {
-    let code = projection.toEpsgString();
-    if (altTms != null) {
-        code += ':' + altTms;
-    }
-    return new LambdaHttpResponse(404, `Projection not found: ${code}`);
+function projectionNotFound(projection: Epsg): LambdaHttpResponse {
+    return new LambdaHttpResponse(404, `Projection not found: ${projection.toEpsgString()}`);
 }
 
 export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
     const xyzData = tileXyzFromPath(req.action.rest);
     if (xyzData == null) return NotFound;
     ValidateTilePath.validate(req, xyzData);
-    const tiler = Tilers.get(xyzData.projection, xyzData.altTms);
+    const tiler = Tilers.get(xyzData.projection);
     if (tiler == null) return projectionNotFound(xyzData.projection);
 
     const { x, y, z, ext } = xyzData;
@@ -145,12 +141,12 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
             tileMatrixSets.set(ts.projection, tiler.tms);
         }
     } else {
-        const tiler = Tilers.get(wmtsData.projection, wmtsData.altTms);
-        if (tiler == null) return projectionNotFound(wmtsData.projection, wmtsData.altTms);
+        const tiler = Tilers.get(wmtsData.projection);
+        if (tiler == null) return projectionNotFound(wmtsData.projection);
         tileMatrixSets.set(wmtsData.projection, tiler.tms);
     }
 
-    const xml = WmtsCapabilities.toXml(host, provider, tileSets, tileMatrixSets, wmtsData.altTms, req.apiKey);
+    const xml = WmtsCapabilities.toXml(host, provider, tileSets, tileMatrixSets, req.apiKey);
     if (xml == null) return NotFound;
 
     const data = Buffer.from(xml);
