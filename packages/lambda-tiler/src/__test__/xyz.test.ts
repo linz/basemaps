@@ -1,5 +1,4 @@
-import { Epsg, TileMatrixSets } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import { Tiler } from '@basemaps/tiler';

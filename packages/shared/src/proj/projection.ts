@@ -10,7 +10,6 @@ import {
 } from '@linzjs/geojson';
 import { Position } from 'geojson';
 import Proj from 'proj4';
-import { LatLon } from '..';
 import { NamedBounds } from '../aws/tile.metadata.base';
 import { CompositeError } from '../composite.error';
 import { Citm2000 } from './citm2000';
@@ -20,6 +19,10 @@ Proj.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
 Proj.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
 
 const CodeMap = new Map<EpsgCode, Projection>();
+export interface LatLon {
+    lat: number;
+    lon: number;
+}
 
 export class Projection {
     epsg: Epsg;

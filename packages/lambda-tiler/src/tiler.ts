@@ -1,6 +1,4 @@
-import { Epsg, TileMatrixSet } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Epsg, GoogleTms, Nztm2000Tms, TileMatrixSet } from '@basemaps/geo';
 import { Tiler } from '@basemaps/tiler/build/tiler';
 
 export const DefaultTilers = [new Tiler(GoogleTms), new Tiler(Nztm2000Tms)];

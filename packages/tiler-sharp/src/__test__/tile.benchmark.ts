@@ -1,7 +1,7 @@
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Metrics } from '@linzjs/metrics';
+import { GoogleTms } from '@basemaps/geo';
 import { TestTiff } from '@basemaps/test';
 import { ImageFormat, Tiler } from '@basemaps/tiler';
+import { Metrics } from '@linzjs/metrics';
 import { writeFileSync } from 'fs';
 import o from 'ospec';
 import 'source-map-support/register';

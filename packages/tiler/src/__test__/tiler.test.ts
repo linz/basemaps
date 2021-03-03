@@ -1,6 +1,4 @@
-import { Bounds, QuadKey } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { Approx, TestTiff } from '@basemaps/test';
 import o from 'ospec';
 import { Tiler } from '../tiler';

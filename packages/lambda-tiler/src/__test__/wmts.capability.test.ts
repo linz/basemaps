@@ -1,6 +1,4 @@
-import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Bounds, Epsg, GoogleTms, Nztm2000Tms, TileMatrixSet } from '@basemaps/geo';
 import { TileSetName, V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding';
 import { createHash } from 'crypto';

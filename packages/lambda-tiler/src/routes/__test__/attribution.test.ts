@@ -1,5 +1,4 @@
-import { Epsg, EpsgCode, Stac, TileMatrixSets } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Epsg, EpsgCode, GoogleTms, Stac, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader } from '@basemaps/lambda';
 import {
     Aws,

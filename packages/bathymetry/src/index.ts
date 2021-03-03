@@ -1,6 +1,6 @@
 import { BaseCommandLine } from '@basemaps/cli/build/cli/base.cli';
 import { makeTempFolder } from '@basemaps/cli/build/cli/folder';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { GoogleTms } from '@basemaps/geo';
 import { Env, FileOperator, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as ulid from 'ulid';

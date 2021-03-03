@@ -1,6 +1,4 @@
-import { Bounds, QuadKey } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import { BBox } from '@linzjs/geojson';

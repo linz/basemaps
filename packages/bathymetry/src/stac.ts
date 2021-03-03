@@ -73,7 +73,6 @@ async function createCollection(
     logger: LogType,
 ): Promise<StacCollection> {
     const { tms } = bm.config;
-    // const ptms = Proj.get(tms.projection.code);
     const bbox = [Projection.get(tms).boundsToWgs84BoundingBox(bounds)];
     const name = basename(bm.inputPath);
     let description: string | undefined;
