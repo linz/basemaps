@@ -60,7 +60,7 @@ export async function buildCogForName(
 
     const tile = TileMatrixSet.nameToTile(name);
 
-    const blockSize = targetTms.tileSize * 2; // FIXME blockFactor
+    const blockSize = targetTms.tileSize * 2; // FIXME is this blockFactor always 2
     const alignmentLevels = Projection.findAlignmentLevels(targetTms, tile, job.source.gsd);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
