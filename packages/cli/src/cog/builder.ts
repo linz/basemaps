@@ -67,28 +67,36 @@ export class CogBuilder {
         const queue = sources.map((source) => {
             return this.q(async () => {
                 count++;
-                if (count % 50 === 0) {
-                    this.logger.info({ count, total: sources.length }, 'BoundsProgress');
-                }
+                if (count % 50 === 0) this.logger.info({ count, total: sources.length }, 'BoundsProgress');
+
                 const tiff = new CogTiff(source);
                 await tiff.init(true);
                 const image = tiff.getImage(0);
-                if (resX === -1 || image.resolution[0] < resX) {
-                    resX = image.resolution[0];
-                }
+                if (resX === -1 || image.resolution[0] < resX) resX = image.resolution[0];
+
+                // Check number of bands to determine alpha layer
                 const tiffBandCount = image.value(TiffTag.BitsPerSample) as number[] | null;
                 if (tiffBandCount != null && tiffBandCount.length > bands) {
+                    if (bands > -1) {
+                        this.logger.error(
+                            {
+                                firstImage: sources[0].name,
+                                bands,
+                                currentImage: source.name,
+                                currentBands: tiffBandCount,
+                            },
+                            'Multiple Bands',
+                        );
+                    }
                     bands = tiffBandCount.length;
                 }
 
                 const output = { ...Bounds.fromBbox(image.bbox).toJson(), name: source.uri };
 
-                if (CogSourceFile.isSource(source)) {
-                    await source.close();
-                }
+                if (CogSourceFile.isSource(source)) await source.close();
 
                 const imageProjection = this.findProjection(tiff);
-                if (imageProjection != null && projection !== imageProjection) {
+                if (imageProjection != null && projection?.code !== imageProjection.code) {
                     if (projection != null) {
                         this.logger.error(
                             {
