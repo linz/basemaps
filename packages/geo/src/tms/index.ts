@@ -1,10 +1,10 @@
 import { Epsg, EpsgCode } from '../epsg';
 import { TileMatrixSet } from '../tile.matrix.set';
 import { GoogleTms } from './google';
-import { Nztm2000Tms } from './nztm2000';
+import { Nztm2000QuadTms, Nztm2000Tms } from './nztm2000';
 
 export const TileMatrixSets = {
-    All: [GoogleTms, Nztm2000Tms],
+    All: [GoogleTms, Nztm2000Tms, Nztm2000QuadTms],
     Defaults: new Map([
         [Epsg.Google.code, GoogleTms],
         [Epsg.Nztm2000.code, Nztm2000Tms],
