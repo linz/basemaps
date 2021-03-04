@@ -1,12 +1,12 @@
 import { Point, Bounds } from './bounds';
 import { Epsg } from './epsg';
-import { TileMatrixSetType, TileMatrixSetTypeMatrix } from './tms/tile.matrix.set.type';
+import { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';
 import { getXyOrder, XyOrder } from './xy.order';
 
 export type Tile = Point & { z: number };
 
 /** order by increasing zoom level */
-function compareMatrix(a: TileMatrixSetTypeMatrix, b: TileMatrixSetTypeMatrix): number {
+function compareMatrix(a: TileMatrixType, b: TileMatrixType): number {
     return b.scaleDenominator - a.scaleDenominator;
 }
 
@@ -23,7 +23,7 @@ export class TileMatrixSet {
      */
     readonly def: TileMatrixSetType;
     /** Indexed tile index zooms */
-    readonly zooms: TileMatrixSetTypeMatrix[] = [];
+    readonly zooms: TileMatrixType[] = [];
 
     /** Array index of X coordinates */
     indexX = 0;
@@ -265,7 +265,7 @@ export class TileMatrixSet {
  * Find the best matching scales from the parent zooms.
  *
  */
-function findBestMatch(scaleDenominator: number, zooms: TileMatrixSetTypeMatrix[]): number {
+function findBestMatch(scaleDenominator: number, zooms: TileMatrixType[]): number {
     for (let i = 0; i < zooms.length; i++) {
         if (zooms[i].scaleDenominator < scaleDenominator) return i;
     }

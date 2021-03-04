@@ -25,5 +25,8 @@
   ],
   "devDependencies": {
     "@types/geojson": "^7946.0.7"
+  },
+  "dependencies": {
+    "@linzjs/tile-matrix-set": "^0.0.1"
   }
 }

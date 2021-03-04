@@ -1,5 +1,5 @@
 import { TileMatrixSet } from '../tile.matrix.set';
-import { TileMatrixSetType } from './tile.matrix.set.type';
+import type { TileMatrixSetType } from '@linzjs/tile-matrix-set';
 
 const GoogleTmst: TileMatrixSetType = {
     type: 'TileMatrixSetType',
