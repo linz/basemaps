@@ -1,21 +1,56 @@
-import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
+import { GoogleTms, Nztm2000Tms, Nztm2000QuadTms } from '@basemaps/geo';
 import { ImageFormat } from '@basemaps/tiler';
 import o from 'ospec';
 import { tileAttributionFromPath, TileType, tileWmtsFromPath, tileXyzFromPath } from '../api.path';
 
 o.spec('api.path', () => {
-    o('tileXyzFromPath', () => {
-        o(tileXyzFromPath(['aerial', 'EPSG:3857', '10', '3456', '5432.webp'])).deepEquals({
-            type: TileType.Image,
-            name: 'aerial',
-            tileMatrix: GoogleTms,
-            x: 3456,
-            y: 5432,
-            z: 10,
-            ext: ImageFormat.WEBP,
+    o.spec('tileXyzFromPath', () => {
+        o('should be case sensitive for tile matrix ids', () => {
+            o(tileXyzFromPath(['aerial', 'NZTM2000quad', '10', '3456', '5432.webp'])).deepEquals(null);
         });
-        o(tileXyzFromPath([])).equals(null);
-        o(tileXyzFromPath(['aerial', 'EPSG:3857', '10', '3456'])).equals(null);
+
+        o('should support only known extensions', () => {
+            o(tileXyzFromPath(['aerial', 'NZTM2000Quad', '10', '3456', '5432.FAKE'])).deepEquals(null);
+
+            ImageFormat;
+        });
+
+        for (const ext of Object.values(ImageFormat)) {
+            o('should support image format:' + ext, () => {
+                o(tileXyzFromPath(['aerial', 'NZTM2000Quad', '10', '3456', '5432.' + ext])?.ext).equals(ext);
+            });
+        }
+
+        o('should be case insensitive for file names', () => {
+            o(tileWmtsFromPath(['aerial', 'NZTM2000Quad', 'wmtsCapabilities.XML'])).deepEquals({
+                type: TileType.WMTS,
+                name: 'aerial',
+                tileMatrix: Nztm2000QuadTms,
+            });
+        });
+
+        o('should parse tiles from path', () => {
+            o(tileXyzFromPath(['aerial', 'EPSG:3857', '10', '3456', '5432.webp'])).deepEquals({
+                type: TileType.Image,
+                name: 'aerial',
+                tileMatrix: GoogleTms,
+                x: 3456,
+                y: 5432,
+                z: 10,
+                ext: ImageFormat.WEBP,
+            });
+            o(tileXyzFromPath([])).equals(null);
+            o(tileXyzFromPath(['aerial', 'EPSG:3857', '10', '3456'])).equals(null);
+            o(tileXyzFromPath(['aerial', 'NZTM2000Quad', '10', '3456', '5432.webp'])).deepEquals({
+                type: TileType.Image,
+                name: 'aerial',
+                tileMatrix: Nztm2000QuadTms,
+                x: 3456,
+                y: 5432,
+                z: 10,
+                ext: ImageFormat.WEBP,
+            });
+        });
     });
 
     o('tileWmtsFromPath', () => {
@@ -40,6 +75,12 @@ o.spec('api.path', () => {
             type: TileType.WMTS,
             name: 'aerial',
             tileMatrix: GoogleTms,
+        });
+
+        o(tileWmtsFromPath(['aerial', 'NZTM2000Quad', 'WMTSCapabilities.xml'])).deepEquals({
+            type: TileType.WMTS,
+            name: 'aerial',
+            tileMatrix: Nztm2000QuadTms,
         });
 
         o(tileWmtsFromPath([])).deepEquals({
