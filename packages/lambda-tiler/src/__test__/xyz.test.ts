@@ -2,7 +2,6 @@ import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
-import 'source-map-support/register';
 import { handleRequest } from '../index';
 import { TileComposer } from '../routes/tile';
 import { TileEtag } from '../routes/tile.etag';
@@ -17,7 +16,6 @@ o.spec('LambdaXyz', () => {
     let tileMock = o.spy();
     let rasterMock = o.spy();
     const generateMock = o.spy(() => 'foo');
-    // let tiler: Tiler = new Tiler(GoogleTms);
     const rasterMockBuffer = Buffer.from([1]);
     const origTileEtag = TileEtag.generate;
     const origCompose = TileComposer.compose;
@@ -105,7 +103,6 @@ o.spec('LambdaXyz', () => {
 
         o(tileMock.calls.length).equals(1);
         const [xyz] = tileMock.args;
-        // o(tiffs).deepEquals([]);
         o(xyz.x).equals(0);
         o(xyz.y).equals(0);
         o(xyz.z).equals(0);
