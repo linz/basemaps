@@ -8,13 +8,7 @@ import {
     StacLink,
     StacProvider,
 } from '@basemaps/geo';
-import {
-    extractYearRangeFromName,
-    FileOperator,
-    LogType,
-    ProjectionTileMatrixSet,
-    titleizeImageryName,
-} from '@basemaps/shared';
+import { extractYearRangeFromName, FileOperator, LogType, Projection, titleizeImageryName } from '@basemaps/shared';
 import * as cp from 'child_process';
 import * as path from 'path';
 import { basename } from 'path';
@@ -34,10 +28,9 @@ async function createItem(bm: BathyMaker, tile: Tile): Promise<StacItem> {
     const { tms } = bm.config;
     const tileId = TileMatrixSet.tileToName(tile);
     const outputTiffPath = bm.tmpFolder.name(FileType.Output, tileId);
-    const ptms = ProjectionTileMatrixSet.get(tms.projection.code);
 
-    const bbox = ptms.tileToWgs84Bbox(tile);
-    const { geometry } = ptms.proj.boundsToGeoJsonFeature(tms.tileToSourceBounds(tile));
+    const bbox = Projection.tileToWgs84Bbox(tms, tile);
+    const { geometry } = Projection.get(tms).boundsToGeoJsonFeature(tms.tileToSourceBounds(tile));
 
     const created = new Date().toISOString();
     return {
@@ -80,8 +73,7 @@ async function createCollection(
     logger: LogType,
 ): Promise<StacCollection> {
     const { tms } = bm.config;
-    const ptms = ProjectionTileMatrixSet.get(tms.projection.code);
-    const bbox = [ptms.proj.boundsToWgs84BoundingBox(bounds)];
+    const bbox = [Projection.get(tms).boundsToWgs84BoundingBox(bounds)];
     const name = basename(bm.inputPath);
     let description: string | undefined;
 

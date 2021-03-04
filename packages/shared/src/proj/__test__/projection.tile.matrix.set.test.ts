@@ -1,11 +1,9 @@
-import { Bounds, EpsgCode, QuadKey } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import { BBox } from '@linzjs/geojson';
 import o from 'ospec';
-import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
+import { Projection } from '../projection';
 
 const TileSize = 256;
 
@@ -27,65 +25,53 @@ function getPixelsFromTile(x: number, y: number): Bounds {
 }
 
 o.spec('ProjectionTileMatrixSet', () => {
-    const googlePtms = ProjectionTileMatrixSet.get(EpsgCode.Google);
-    const nztmPtms = ProjectionTileMatrixSet.get(EpsgCode.Nztm2000);
-
     o('getTiffResZoom', () => {
-        o(googlePtms.getTiffResZoom(10)).equals(14);
-        o(googlePtms.getTiffResZoom(10, 2)).equals(13);
-        o(googlePtms.getTiffResZoom(0.075)).equals(21);
+        o(Projection.getTiffResZoom(GoogleTms, 10)).equals(14);
+        o(Projection.getTiffResZoom(GoogleTms, 10, 2)).equals(13);
+        o(Projection.getTiffResZoom(GoogleTms, 0.075)).equals(21);
 
-        o(nztmPtms.getTiffResZoom(10)).equals(10);
-        o(nztmPtms.getTiffResZoom(10, 2)).equals(9);
-        o(nztmPtms.getTiffResZoom(0.075)).equals(16);
+        o(Projection.getTiffResZoom(Nztm2000Tms, 10)).equals(10);
+        o(Projection.getTiffResZoom(Nztm2000Tms, 10, 2)).equals(9);
+        o(Projection.getTiffResZoom(Nztm2000Tms, 0.075)).equals(16);
     });
 
     o('getTileSize', async () => {
-        o(googlePtms.getImagePixelWidth({ x: 0, y: 0, z: 5 }, 10)).equals(16384);
-        o(googlePtms.getImagePixelWidth({ x: 0, y: 0, z: 13 }, 20)).equals(65536);
+        o(Projection.getImagePixelWidth(GoogleTms, { x: 0, y: 0, z: 5 }, 10)).equals(16384);
+        o(Projection.getImagePixelWidth(GoogleTms, { x: 0, y: 0, z: 13 }, 20)).equals(65536);
 
-        o(nztmPtms.getImagePixelWidth({ x: 0, y: 0, z: 5 }, 10)).equals(20480);
-        o(nztmPtms.getImagePixelWidth({ x: 0, y: 0, z: 13 }, 16)).equals(5120);
+        o(Projection.getImagePixelWidth(Nztm2000Tms, { x: 0, y: 0, z: 5 }, 10)).equals(20480);
+        o(Projection.getImagePixelWidth(Nztm2000Tms, { x: 0, y: 0, z: 13 }, 16)).equals(5120);
     });
 
     o('findAlignmentLevels', () => {
-        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.075)).equals(15);
-        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.5)).equals(13);
-        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 1)).equals(14);
-        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 10)).equals(5);
-        o(googlePtms.findAlignmentLevels({ x: 2, y: 0, z: 14 }, 10)).equals(0);
+        o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 5 }, 0.075)).equals(15);
+        o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 5 }, 0.5)).equals(13);
+        o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 3 }, 1)).equals(14);
+        o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 8 }, 10)).equals(5);
+        o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 14 }, 10)).equals(0);
 
-        o(nztmPtms.findAlignmentLevels({ x: 2, y: 0, z: 1 }, 0.075)).equals(14);
-        o(nztmPtms.findAlignmentLevels({ x: 2, y: 0, z: 5 }, 0.5)).equals(8);
-        o(nztmPtms.findAlignmentLevels({ x: 2, y: 0, z: 3 }, 7)).equals(6);
-        o(nztmPtms.findAlignmentLevels({ x: 2, y: 0, z: 8 }, 14)).equals(0);
+        o(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 1 }, 0.075)).equals(14);
+        o(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 5 }, 0.5)).equals(8);
+        o(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 3 }, 7)).equals(6);
+        o(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 8 }, 14)).equals(0);
     });
 
     o('tileCenterToLatLon', () => {
-        o(round(googlePtms.tileCenterToLatLon(QuadKey.toTile('3120123')), 8)).deepEquals({
+        o(round(Projection.tileCenterToLatLon(GoogleTms, QuadKey.toTile('3120123')), 8)).deepEquals({
             lat: -47.98992167,
             lon: 105.46875,
         });
     });
 
-    o.spec('tryGet', () => {
-        o('not found', () => {
-            o(ProjectionTileMatrixSet.tryGet(EpsgCode.Wgs84)).equals(null);
-        });
-        o('get normal', () => {
-            o(ProjectionTileMatrixSet.tryGet(EpsgCode.Nztm2000)!.tms).equals(Nztm2000Tms);
-        });
-    });
-
     o.spec('tileToWgs84Bbox', () => {
         o('should handle antimeridian', () => {
-            const pt = nztmPtms.tileToWgs84Bbox({ x: 2, y: 1, z: 1 });
+            const pt = Projection.tileToWgs84Bbox(Nztm2000Tms, { x: 2, y: 1, z: 1 });
 
             o(round(pt)).deepEquals([170.05982382, -20.71836222, -179.34441046, -10.28396555]);
         });
 
         o('should convert base tiles', () => {
-            const pt = googlePtms.tileToWgs84Bbox({ x: 0, y: 0, z: 0 });
+            const pt = Projection.tileToWgs84Bbox(GoogleTms, { x: 0, y: 0, z: 0 });
             o(round(pt)).deepEquals([-180, -85.05112878, 180, 85.05112878]);
         });
     });
@@ -217,9 +203,5 @@ o.spec('ProjectionTileMatrixSet', () => {
             o(totalLeftIntersectionHeight).equals(bounds.height);
             o(totalRightIntersectionHeight).equals(bounds.height);
         });
-    });
-
-    o('TargetCodes', () => {
-        o(Array.from(ProjectionTileMatrixSet.targetCodes())).deepEquals([3857, 2193]);
     });
 });

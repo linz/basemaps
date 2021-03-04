@@ -1,4 +1,4 @@
-import { BoundingBox, Epsg, EpsgCode } from '@basemaps/geo';
+import { BoundingBox, Epsg, EpsgCode, TileMatrixSet, Tile } from '@basemaps/geo';
 import {
     BBox,
     BBoxFeature,
@@ -19,6 +19,10 @@ Proj.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
 Proj.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
 
 const CodeMap = new Map<EpsgCode, Projection>();
+export interface LatLon {
+    lat: number;
+    lon: number;
+}
 
 export class Projection {
     epsg: Epsg;
@@ -48,15 +52,9 @@ export class Projection {
      *
      * @param epsgCode
      */
-    static get(epsgCode: EpsgCode): Projection {
-        let proj = CodeMap.get(epsgCode);
-        if (proj != null) return proj;
-        const epsg = Epsg.tryGet(epsgCode);
-        if (epsg == null) {
-            throw new Error(`Invalid projection: ${epsgCode}`);
-        }
-        proj = new Projection(epsg);
-        CodeMap.set(epsgCode, proj);
+    static get(epsgCode: Epsg | EpsgCode | TileMatrixSet): Projection {
+        const proj = this.tryGet(epsgCode);
+        if (proj == null) throw new Error(`Invalid projection: ${epsgCode}`);
         return proj;
     }
 
@@ -64,13 +62,17 @@ export class Projection {
      * Try to find a corresponding Projection for a number
      * @param epsgCode
      */
-    static tryGet(epsgCode?: EpsgCode): Projection | null {
+    static tryGet(epsgCode?: Epsg | EpsgCode | TileMatrixSet): Projection | null {
         if (epsgCode == null) return null;
-        try {
-            return this.get(epsgCode);
-        } catch (err) {
-            return null;
-        }
+        if (epsgCode instanceof Epsg) epsgCode = epsgCode.code;
+        if (epsgCode instanceof TileMatrixSet) epsgCode = epsgCode.projection.code;
+        let proj = CodeMap.get(epsgCode);
+        if (proj != null) return proj;
+        const epsg = Epsg.tryGet(epsgCode);
+        if (epsg == null) return null;
+        proj = new Projection(epsg);
+        CodeMap.set(epsgCode, proj);
+        return proj;
     }
 
     /**
@@ -146,5 +148,69 @@ export class Projection {
             type: 'FeatureCollection',
             features: files.map((f) => this.boundsToGeoJsonFeature(f, { name: f.name })),
         };
+    }
+
+    /**
+     * Find the closest zoom level to `gsd` (Ground Sampling Distance meters per pixel) that is at
+     * least as good as `gsd`.
+
+     * @param gsd
+
+     * @param blockFactor How many time bigger the blockSize is compared to tileSize. Leave as 1 to
+     * not take into account.
+     */
+    static getTiffResZoom(tms: TileMatrixSet, gsd: number, blockFactor = 1): number {
+        // Get best image resolution
+        let z = 0;
+        for (; z < tms.zooms.length; ++z) {
+            if (tms.pixelScale(z) <= gsd * blockFactor) return z;
+        }
+        if (z === tms.zooms.length) return z - 1;
+        throw new Error('ResZoom not found');
+    }
+
+    /** Convert a tile to the wgs84 bounds */
+    static tileToWgs84Bbox(tms: TileMatrixSet, tile: Tile): BBox {
+        const ul = tms.tileToSource(tile);
+        const lr = tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
+
+        const proj = this.get(tms);
+
+        const [swLon, swLat] = proj.toWgs84([ul.x, lr.y]);
+        const [neLon, neLat] = proj.toWgs84([lr.x, ul.y]);
+
+        return [swLon, swLat, neLon, neLat];
+    }
+
+    /**
+     * return the `lat`, `lon` of a Tile's center
+     */
+    static tileCenterToLatLon(tms: TileMatrixSet, tile: Tile): LatLon {
+        const point = tms.tileToSource({ x: tile.x + 0.5, y: tile.y + 0.5, z: tile.z });
+        const [lon, lat] = this.get(tms).toWgs84([point.x, point.y]);
+        return { lat, lon };
+    }
+
+    /**
+     * Find the number of alignment levels required to render the tile. Min 1
+     *
+     * @param tile
+     * @param gsd the pixel resolution of the source imagery
+     */
+    static findAlignmentLevels(tms: TileMatrixSet, tile: Tile, gsd: number): number {
+        return Math.max(0, this.getTiffResZoom(tms, gsd, 2) - tile.z);
+    }
+
+    /**
+     * Return the expected width in pixels of an image at the tile resolution. Uses
+     * `this.blockFactor` for HiDPI tiles.
+
+     * @param tile
+     * @param targetZoom The desired zoom level for the imagery
+     */
+    static getImagePixelWidth(tms: TileMatrixSet, tile: Tile, targetZoom: number): number {
+        const ul = tms.tileToSource(tile);
+        const lr = tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
+        return Math.round((lr.x - ul.x) / tms.pixelScale(targetZoom)) * 2;
     }
 }

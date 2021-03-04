@@ -1,6 +1,5 @@
-import { Epsg, Tile } from '@basemaps/geo';
+import { Epsg, Tile, TileMatrixSets } from '@basemaps/geo';
 import { getImageFormat, ImageFormat } from '@basemaps/tiler';
-import { ProjectionTileMatrixSet } from './proj/projection.tile.matrix.set';
 
 export interface ActionData {
     version: string;
@@ -44,9 +43,7 @@ export function setNameAndProjection(req: { set: (key: string, val: any) => void
 
 function extractProjection(text: string): Epsg | null {
     const projection = Epsg.parse(text);
-    if (projection == null || !Array.from(ProjectionTileMatrixSet.targetCodes()).includes(projection.code)) {
-        return null;
-    }
+    if (projection == null || TileMatrixSets.tryGet(projection.code) == null) return null;
     return projection;
 }
 

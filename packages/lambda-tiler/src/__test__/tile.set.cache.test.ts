@@ -1,9 +1,8 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, GoogleTms } from '@basemaps/geo';
+import { TileMetadataImageryRecord, TileSetName } from '@basemaps/shared';
 import o from 'ospec';
 import { TileSet } from '../tile.set';
-import { loadTileSets, TileSets, loadTileSet } from '../tile.set.cache';
-import { TileMetadataImageryRecord, TileSetName } from '@basemaps/shared';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { loadTileSet, loadTileSets, TileSets } from '../tile.set.cache';
 
 o.spec('TileSetCache', () => {
     const origLoad = TileSet.prototype.load;

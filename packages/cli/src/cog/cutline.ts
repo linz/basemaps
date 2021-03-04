@@ -1,17 +1,17 @@
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
-import { compareName, FileOperator, NamedBounds, Projection, ProjectionTileMatrixSet } from '@basemaps/shared';
+import { compareName, FileOperator, NamedBounds, Projection } from '@basemaps/shared';
 import {
     clipMultipolygon,
     featuresToMultiPolygon,
     intersection,
     MultiPolygon,
-    union,
     toFeatureCollection,
     toFeatureMultiPolygon,
+    union,
 } from '@linzjs/geojson';
 import { FeatureCollection } from 'geojson';
 import { CoveringFraction, MaxImagePixelWidth } from './constants';
-import { SourceMetadata, CogJob, FeatureCollectionWithCrs } from './types';
+import { CogJob, FeatureCollectionWithCrs, SourceMetadata } from './types';
 
 /** Padding to always apply to image boundies */
 const PixelPadding = 100;
@@ -56,7 +56,6 @@ function addNonDupes(list: Tile[], addList: Tile[]): void {
 export class Cutline {
     /** The polygon to clip source imagery to */
     clipPoly: MultiPolygon;
-    targetPtms: ProjectionTileMatrixSet;
     tms: TileMatrixSet; // convience to targetPtms.tms
     /** How much blending to apply at the clip line boundary */
     blend: number;
@@ -76,9 +75,8 @@ export class Cutline {
 
      * @param blend How much blending to consider when working out boundaries.
      */
-    constructor(targetPtms: ProjectionTileMatrixSet, clipPoly?: FeatureCollection, blend = 0, oneCogCovering = false) {
-        this.targetPtms = targetPtms;
-        this.tms = targetPtms.tms;
+    constructor(tms: TileMatrixSet, clipPoly?: FeatureCollection, blend = 0, oneCogCovering = false) {
+        this.tms = tms;
         this.blend = blend;
         this.oneCogCovering = oneCogCovering;
         if (clipPoly == null) {
@@ -87,12 +85,14 @@ export class Cutline {
         }
 
         const proj = findGeoJsonProjection(clipPoly);
-        const needProj = proj !== targetPtms.proj.epsg;
+        const tmsProj = Projection.get(tms);
+
+        const needProj = proj !== tmsProj.epsg;
 
         if (needProj && proj !== Epsg.Wgs84) {
             throw new Error('Invalid geojson; CRS may not be set for cutline!');
         }
-        const convert = needProj ? this.targetPtms.proj.fromWgs84 : undefined;
+        const convert = needProj ? tmsProj.fromWgs84 : undefined;
 
         this.clipPoly = featuresToMultiPolygon(clipPoly.features, true, convert).coordinates as MultiPolygon;
     }
@@ -121,7 +121,7 @@ export class Cutline {
 
         const tile = TileMatrixSet.nameToTile(name);
         const sourceCode = Projection.get(job.source.epsg);
-        const targetCode = this.targetPtms.proj;
+        const targetCode = Projection.get(this.tms);
         const tileBounds = this.tms.tileToSourceBounds(tile);
         const tilePadded = this.padBounds(tileBounds, job.targetZoom);
 
@@ -168,15 +168,17 @@ export class Cutline {
         const { resZoom } = sourceMetadata;
         // Look for the biggest tile size we are allowed to create.
         let minZ = resZoom - 1;
-        while (minZ > 0 && this.targetPtms.getImagePixelWidth({ x: 0, y: 0, z: minZ }, resZoom) < MaxImagePixelWidth) {
+        while (
+            minZ > 0 &&
+            Projection.getImagePixelWidth(this.tms, { x: 0, y: 0, z: minZ }, resZoom) < MaxImagePixelWidth
+        ) {
             --minZ;
         }
         minZ = Math.max(1, minZ + 1);
 
         let tiles: Tile[] = [];
-        const { tms } = this.targetPtms;
 
-        for (const tile of tms.topLevelTiles()) {
+        for (const tile of this.tms.topLevelTiles()) {
             // Don't make COGs with a tile.z < minZ.
             tiles = tiles.concat(this.makeTiles(tile, this.srcPoly, minZ, CoveringFraction).tiles);
         }
@@ -185,7 +187,7 @@ export class Cutline {
             throw new Error('Source imagery does not overlap with project extent');
         }
 
-        const covering = tiles.map((tile) => namedBounds(tms, tile));
+        const covering = tiles.map((tile) => namedBounds(this.tms, tile));
         // remove duplicate
         return covering
             .filter((curr) => {
@@ -204,7 +206,7 @@ export class Cutline {
         const feature = toFeatureCollection([toFeatureMultiPolygon(clipPoly)]) as FeatureCollectionWithCrs;
         feature.crs = {
             type: 'name',
-            properties: { name: this.targetPtms.proj.epsg.toUrn() },
+            properties: { name: this.tms.projection.toUrn() },
         };
         return feature;
     }
@@ -278,7 +280,7 @@ export class Cutline {
 
         // Convert polygon to target projection
         const sourceProj = Projection.get(sourceMetadata.projection);
-        const targetProj = this.targetPtms.proj;
+        const targetProj = Projection.get(this.tms);
         if (sourceProj !== targetProj) {
             srcPoly = sourceProj.projectMultipolygon(srcPoly, targetProj) as MultiPolygon;
         }

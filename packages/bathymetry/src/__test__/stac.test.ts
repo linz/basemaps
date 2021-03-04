@@ -1,5 +1,4 @@
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { StacCollection } from '@basemaps/geo';
+import { GoogleTms, StacCollection } from '@basemaps/geo';
 import { LogConfig, LogType } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';

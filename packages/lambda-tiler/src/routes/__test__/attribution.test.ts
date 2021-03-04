@@ -1,10 +1,8 @@
-import { Epsg, EpsgCode, Stac } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { Epsg, EpsgCode, GoogleTms, Stac, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader } from '@basemaps/lambda';
 import {
     Aws,
     NamedBounds,
-    ProjectionTileMatrixSet,
     TileMetadataImageRuleV2,
     TileMetadataImageryRecord,
     TileMetadataProviderRecord,
@@ -53,7 +51,7 @@ o.spec('attribution', () => {
             TileEtag.generate = generateMock;
             // Mock the tile generation
             for (const tileSetName of TileSetNames) {
-                for (const code of ProjectionTileMatrixSet.targetCodes()) {
+                for (const code of TileMatrixSets.Defaults.keys()) {
                     const tileSet = new FakeTileSet(tileSetName, Epsg.get(code));
                     tileSet.tileSet.version = 23;
                     TileSets.set(tileSet.id, tileSet);

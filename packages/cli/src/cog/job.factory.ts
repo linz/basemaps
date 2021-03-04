@@ -58,21 +58,19 @@ export const CogJobFactory = {
         logger.info({ source: sourceLocation.path, tiffCount: tiffList.length }, 'LoadingTiffs');
 
         const cutline = new Cutline(
-            ctx.targetProjection,
+            ctx.tileMatrix,
             ctx.cutline && (await Cutline.loadCutline(ctx.cutline.href)),
             ctx.cutline?.blend,
             ctx.oneCogCovering,
         );
 
-        const builder = new CogBuilder(ctx.targetProjection, maxConcurrency, logger, ctx.override?.projection);
+        const builder = new CogBuilder(ctx.tileMatrix, maxConcurrency, logger, ctx.override?.projection);
         const metadata = await builder.build(tiffSource, cutline);
 
         if (cutline.clipPoly.length === 0) {
             // no cutline needed for this imagery set
             ctx.cutline = undefined;
         }
-
-        const { tms } = cutline.targetPtms;
 
         const files = metadata.files.sort(Bounds.compareArea);
         if (files.length > 0) {
@@ -81,9 +79,9 @@ export const CogJobFactory = {
             logger.info(
                 {
                     // Size of the biggest image
-                    big: bigArea.width / tms.pixelScale(metadata.resZoom),
+                    big: bigArea.width / cutline.tms.pixelScale(metadata.resZoom),
                     // Size of the smallest image
-                    small: smallArea.width / tms.pixelScale(metadata.resZoom),
+                    small: smallArea.width / cutline.tms.pixelScale(metadata.resZoom),
                 },
                 'Covers',
             );

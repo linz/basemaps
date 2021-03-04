@@ -1,20 +1,16 @@
 import { NamedBounds } from '../../aws/tile.metadata.base';
-import { ProjectionTileMatrixSet } from '../projection.tile.matrix.set';
-import { EpsgCode, QuadKey, TileMatrixSet, Tile } from '@basemaps/geo';
+import { EpsgCode, QuadKey, TileMatrixSet, Tile, TileMatrixSets } from '@basemaps/geo';
 
 export function qkToName(qk: string): string {
     return TileMatrixSet.tileToName(QuadKey.toTile(qk));
 }
 
 export function qkToNamedBounds(quadKeys: string[]): NamedBounds[] {
-    const { tms } = ProjectionTileMatrixSet.get(EpsgCode.Google);
+    const tms = TileMatrixSets.get(EpsgCode.Google);
     return quadKeys.map((qk) => ({ name: qkToName(qk), ...tms.tileToSourceBounds(QuadKey.toTile(qk)) }));
 }
 
-export function tileNamesToNamedBounds(
-    tileNames: string[],
-    tms = ProjectionTileMatrixSet.get(EpsgCode.Google).tms,
-): NamedBounds[] {
+export function tileNamesToNamedBounds(tileNames: string[], tms = TileMatrixSets.get(EpsgCode.Google)): NamedBounds[] {
     return tileNames.map((name) => ({ name, ...tms.tileToSourceBounds(TileMatrixSet.nameToTile(name)) }));
 }
 
@@ -22,7 +18,7 @@ export function genTileNames(
     topLeftTile: Tile,
     xTotal: number,
     yTotal = 1,
-    tms = ProjectionTileMatrixSet.get(EpsgCode.Google).tms,
+    tms = TileMatrixSets.get(EpsgCode.Google),
 ): NamedBounds[] {
     const bounds: NamedBounds[] = [];
 

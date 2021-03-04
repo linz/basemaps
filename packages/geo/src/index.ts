@@ -7,3 +7,6 @@ export { TileMatrixSetType, TileMatrixSetTypeMatrix } from './tms/tile.matrix.se
 
 export * from './stac';
 export { AttributionCollection, AttributionItem, AttributionStac } from './stac/stac.attribution';
+export { TileMatrixSets } from './tms';
+export { Nztm2000Tms } from './tms/nztm2000';
+export { GoogleTms } from './tms/google';

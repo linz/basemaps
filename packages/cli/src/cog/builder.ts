@@ -1,5 +1,5 @@
-import { Bounds, Epsg } from '@basemaps/geo';
-import { CompositeError, LogType, ProjectionTileMatrixSet, LoggerFatalError, FileOperator } from '@basemaps/shared';
+import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
+import { CompositeError, LogType, LoggerFatalError, FileOperator, Projection } from '@basemaps/shared';
 import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { CogSourceFile } from '@cogeotiff/source-file';
 import { createHash } from 'crypto';
@@ -37,7 +37,7 @@ export function guessProjection(wkt: string): Epsg | null {
 export class CogBuilder {
     q: pLimit.Limit;
     logger: LogType;
-    targetPtms: ProjectionTileMatrixSet;
+    targetTms: TileMatrixSet;
     srcProj?: Epsg;
 
     // Prevent guessing spamming the logs
@@ -46,8 +46,8 @@ export class CogBuilder {
     /**
      * @param concurrency number of requests to run at a time
      */
-    constructor(targetPtms: ProjectionTileMatrixSet, concurrency: number, logger: LogType, srcProj?: Epsg) {
-        this.targetPtms = targetPtms;
+    constructor(targetTms: TileMatrixSet, concurrency: number, logger: LogType, srcProj?: Epsg) {
+        this.targetTms = targetTms;
         this.logger = logger;
         this.q = pLimit(concurrency);
         this.srcProj = srcProj;
@@ -136,7 +136,7 @@ export class CogBuilder {
             bands,
             bounds,
             pixelScale: resX,
-            resZoom: this.targetPtms.getTiffResZoom(resX),
+            resZoom: Projection.getTiffResZoom(this.targetTms, resX),
         };
     }
 
@@ -196,7 +196,7 @@ export class CogBuilder {
                 CacheFolder,
                 CacheVersion +
                     createHash('sha256')
-                        .update(this.targetPtms.tms.projection.toString())
+                        .update(this.targetTms.projection.toString())
                         .update(tiffs.map((c) => c.name).join('\n'))
                         .digest('hex'),
             ) + '.json';
@@ -204,7 +204,7 @@ export class CogBuilder {
         if (existsSync(cacheKey)) {
             this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
             const metadata = await FileOperator.readJson<SourceMetadata>(cacheKey);
-            metadata.resZoom = this.targetPtms.getTiffResZoom(metadata.pixelScale);
+            metadata.resZoom = Projection.getTiffResZoom(this.targetTms, metadata.pixelScale);
             return metadata;
         }
 

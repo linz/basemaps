@@ -1,10 +1,19 @@
-import { Bounds, Epsg, Stac, StacCollection, StacLink, StacProvider } from '@basemaps/geo';
+import {
+    Bounds,
+    Epsg,
+    Stac,
+    StacCollection,
+    StacLink,
+    StacProvider,
+    TileMatrixSet,
+    TileMatrixSets,
+} from '@basemaps/geo';
 import {
     extractYearRangeFromName,
     FileConfig,
     FileConfigPath,
     FileOperator,
-    ProjectionTileMatrixSet,
+    Projection,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
@@ -35,7 +44,7 @@ export interface JobCreationContext {
         blend: number;
     };
 
-    targetProjection: ProjectionTileMatrixSet;
+    tileMatrix: TileMatrixSet;
 
     override?: {
         /** Override job id */
@@ -182,8 +191,8 @@ export class CogStacJob implements CogJob {
                 location: ctx.sourceLocation,
             },
             output: {
-                gsd: ctx.targetProjection.tms.pixelScale(metadata.resZoom),
-                epsg: ctx.targetProjection.tms.projection.code,
+                gsd: ctx.tileMatrix.pixelScale(metadata.resZoom),
+                epsg: ctx.tileMatrix.projection.code,
                 files: metadata.files,
                 location: ctx.outputLocation,
 
@@ -199,7 +208,7 @@ export class CogStacJob implements CogJob {
 
         const nowStr = new Date().toISOString();
 
-        const sourceProj = job.sourcePtms.proj;
+        const sourceProj = Projection.get(job.source.epsg);
 
         const bbox = [
             sourceProj.boundsToWgs84BoundingBox(
@@ -245,7 +254,7 @@ export class CogStacJob implements CogJob {
 
             summaries: {
                 gsd: [metadata.pixelScale],
-                'proj:epsg': [ctx.targetProjection.tms.projection.code],
+                'proj:epsg': [ctx.tileMatrix.projection.code],
                 'linz:output': [
                     {
                         resampling: ctx.override?.resampling ?? GdalCogBuilderDefaults.resampling,
@@ -270,7 +279,7 @@ export class CogStacJob implements CogJob {
 
         await FileOperator.writeJson(jobFile, job.json, outputFs);
 
-        const covering = job.targetPtms.proj.toGeoJson(metadata.files);
+        const covering = Projection.get(job.output.epsg).toGeoJson(metadata.files);
 
         const roles = ['data'];
         const collectionLink = { href: 'collection.json', rel: 'collection' };
@@ -307,13 +316,17 @@ export class CogStacJob implements CogJob {
             const geoJsonCutlineOutput = job.getJobPath(`cutline.geojson.gz`);
             await FileOperator.writeJson(
                 geoJsonCutlineOutput,
-                this.toGeoJson(cutlinePoly, ctx.targetProjection.proj.epsg),
+                this.toGeoJson(cutlinePoly, ctx.tileMatrix.projection),
                 outputFs,
             );
         }
 
         const geoJsonSourceOutput = job.getJobPath(`source.geojson`);
-        await FileOperator.writeJson(geoJsonSourceOutput, job.sourcePtms.proj.toGeoJson(metadata.bounds), outputFs);
+        await FileOperator.writeJson(
+            geoJsonSourceOutput,
+            Projection.get(job.source.epsg).toGeoJson(metadata.bounds),
+            outputFs,
+        );
 
         const geoJsonCoveringOutput = job.getJobPath(`covering.geojson`);
         await FileOperator.writeJson(geoJsonCoveringOutput, covering, outputFs);
@@ -363,20 +376,20 @@ export class CogStacJob implements CogJob {
         return this.json.output;
     }
 
-    get sourcePtms(): ProjectionTileMatrixSet {
-        return ProjectionTileMatrixSet.get(this.source.epsg);
-    }
-
     get targetZoom(): number {
         const { gsd } = this.source;
         if (this.cacheTargetZoom?.gsd !== gsd) {
-            this.cacheTargetZoom = { gsd, zoom: this.targetPtms.getTiffResZoom(gsd) };
+            this.cacheTargetZoom = { gsd, zoom: Projection.getTiffResZoom(this.targetTms, gsd) };
         }
         return this.cacheTargetZoom.zoom;
     }
 
-    get targetPtms(): ProjectionTileMatrixSet {
-        return ProjectionTileMatrixSet.get(this.output.epsg);
+    get sourceTms(): TileMatrixSet {
+        return TileMatrixSets.get(this.source.epsg);
+    }
+
+    get targetTms(): TileMatrixSet {
+        return TileMatrixSets.get(this.output.epsg);
     }
 
     /**
