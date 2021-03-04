@@ -1,4 +1,4 @@
-import { Epsg, EpsgCode, GoogleTms, Stac, TileMatrixSets } from '@basemaps/geo';
+import { EpsgCode, GoogleTms, Stac, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader } from '@basemaps/lambda';
 import {
     Aws,
@@ -14,6 +14,223 @@ import { TileSets } from '../../tile.set.cache';
 import { FakeTileSet, mockRequest, Provider } from '../../__test__/xyz.util';
 import { attribution } from '../attribution';
 import { TileEtag } from '../tile.etag';
+const ExpectedJson = {
+    id: 'aerial_WebMercatorQuad',
+    type: 'FeatureCollection',
+    stac_version: '1.0.0-beta.2',
+    stac_extensions: ['single-file-stac'],
+    title: 'aerial:title',
+    description: 'aerial:description',
+    features: [
+        {
+            type: 'Feature',
+            stac_version: '1.0.0-beta.2',
+            id: 'ir_ir_1_item',
+            collection: 'ir_ir_1',
+            assets: {},
+            links: [],
+            bbox: [-22.5, 48.9225, -11.25, 55.7766],
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
+                        [
+                            [-22.5, 48.9225],
+                            [-19.6875, 48.9225],
+                            [-19.6875, 49.838],
+                            [-22.5, 49.838],
+                            [-22.5, 48.9225],
+                        ],
+                    ],
+                ],
+            },
+            properties: {
+                datetime: null,
+                start_datetime: '2018-02-03T01:02:03Z',
+                end_datetime: '2018-09-13T11:32:43Z',
+            },
+        },
+        {
+            type: 'Feature',
+            stac_version: '1.0.0-beta.2',
+            id: 'ir_ir_2_item',
+            collection: 'ir_ir_2',
+            assets: {},
+            links: [],
+            bbox: [-11.25, 48.9225, 0, 55.7766],
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
+                        [
+                            [-11.25, 48.9225],
+                            [-8.4375, 48.9225],
+                            [-8.4375, 49.838],
+                            [-11.25, 49.838],
+                            [-11.25, 48.9225],
+                        ],
+                    ],
+                ],
+            },
+            properties: {
+                datetime: null,
+                start_datetime: '2016-02-03T01:02:03Z',
+                end_datetime: '2018-09-13T11:32:43Z',
+            },
+        },
+        {
+            type: 'Feature',
+            stac_version: '1.0.0-beta.2',
+            id: 'ir_ir_3_item',
+            collection: 'ir_ir_3',
+            assets: {},
+            links: [],
+            bbox: [0, 48.9225, 11.25, 55.7766],
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
+                        [
+                            [-0, 48.9225],
+                            [2.8125, 48.9225],
+                            [2.8125, 49.838],
+                            [-0, 49.838],
+                            [-0, 48.9225],
+                        ],
+                    ],
+                ],
+            },
+            properties: {
+                datetime: null,
+                start_datetime: '2017-01-01T00:00:00Z',
+                end_datetime: '2019-01-01T00:00:00Z',
+            },
+        },
+        {
+            type: 'Feature',
+            stac_version: '1.0.0-beta.2',
+            id: 'ir_ir_4_item',
+            collection: 'ir_ir_4',
+            assets: {},
+            links: [],
+            bbox: [-22.5, 48.9225, -11.25, 55.7766],
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: [
+                    [
+                        [
+                            [-22.5, 48.9225],
+                            [-19.6875, 48.9225],
+                            [-19.6875, 49.838],
+                            [-22.5, 49.838],
+                            [-22.5, 48.9225],
+                        ],
+                    ],
+                ],
+            },
+            properties: {
+                datetime: null,
+                start_datetime: '2018-02-03T01:02:03Z',
+                end_datetime: '2018-09-13T11:32:43Z',
+            },
+        },
+    ],
+    collections: [
+        {
+            stac_version: '1.0.0-beta.2',
+            license: 'CC BY 4.0',
+            id: 'ir_ir_1',
+            providers: [{ name: 'p1' }],
+            title: 'image one',
+            description: 'image one description',
+            extent: {
+                spatial: { bbox: [[-22.5, 48.9225, -11.25, 55.7766]] },
+                temporal: {
+                    interval: [['2018-02-03T01:02:03Z', '2018-09-13T11:32:43Z']],
+                },
+            },
+            links: [],
+            summaries: {
+                gsd: [0.75],
+                'linz:zoom': { min: 14, max: 16 },
+                'linz:priority': [140],
+            },
+        },
+        {
+            stac_version: '1.0.0-beta.2',
+            license: Stac.License,
+            id: 'ir_ir_2',
+            providers: [
+                {
+                    name: 'the name',
+                    url: 'https://example.provider.com',
+                    roles: ['host'],
+                },
+            ],
+            title: 'Image2',
+            description: 'No description',
+            extent: {
+                spatial: { bbox: [[-11.25, 48.9225, 0, 55.7766]] },
+                temporal: {
+                    interval: [['2016-02-03T01:02:03Z', '2018-09-13T11:32:43Z']],
+                },
+            },
+            links: [],
+            summaries: {
+                gsd: [0.5],
+                'linz:zoom': { min: 15, max: 17 },
+                'linz:priority': [150],
+            },
+        },
+        {
+            stac_version: '1.0.0-beta.2',
+            license: Stac.License,
+            id: 'ir_ir_3',
+            providers: [
+                {
+                    name: 'the name',
+                    url: 'https://example.provider.com',
+                    roles: ['host'],
+                },
+            ],
+            title: 'Hastings-district urban 2017-18 0.1m',
+            description: 'No description',
+            extent: {
+                spatial: { bbox: [[0, 48.9225, 11.25, 55.7766]] },
+                temporal: {
+                    interval: [['2017-01-01T00:00:00Z', '2019-01-01T00:00:00Z']],
+                },
+            },
+            links: [],
+            summaries: {
+                gsd: [0.75],
+                'linz:zoom': { min: 16, max: 18 },
+                'linz:priority': [160],
+            },
+        },
+        {
+            stac_version: '1.0.0-beta.2',
+            license: Stac.License,
+            id: 'ir_ir_4',
+            providers: [{ name: 'p1' }],
+            title: 'image one',
+            description: 'image one description',
+            extent: {
+                spatial: { bbox: [[-22.5, 48.9225, -11.25, 55.7766]] },
+                temporal: {
+                    interval: [['2018-02-03T01:02:03Z', '2018-09-13T11:32:43Z']],
+                },
+            },
+            links: [],
+            summaries: {
+                gsd: [0.75],
+                'linz:zoom': { min: 14, max: 16 },
+                'linz:priority': [140],
+            },
+        },
+    ],
+    links: [],
+};
 
 o.spec('attribution', () => {
     o.spec('fetch', () => {
@@ -51,8 +268,8 @@ o.spec('attribution', () => {
             TileEtag.generate = generateMock;
             // Mock the tile generation
             for (const tileSetName of TileSetNames) {
-                for (const code of TileMatrixSets.Defaults.keys()) {
-                    const tileSet = new FakeTileSet(tileSetName, Epsg.get(code));
+                for (const tileMatrix of TileMatrixSets.Defaults.values()) {
+                    const tileSet = new FakeTileSet(tileSetName, tileMatrix);
                     tileSet.tileSet.version = 23;
                     TileSets.set(tileSet.id, tileSet);
                     const rules: TileMetadataImageRuleV2[] = [];
@@ -129,224 +346,7 @@ o.spec('attribution', () => {
             o(res.header(HttpHeader.CacheControl)).equals('public, max-age=86400, stale-while-revalidate=604800');
 
             const body = round(JSON.parse(res.body as string), 4);
-
-            o(body).deepEquals({
-                id: 'aerial_3857',
-                type: 'FeatureCollection',
-                stac_version: '1.0.0-beta.2',
-                stac_extensions: ['single-file-stac'],
-                title: 'aerial:title',
-                description: 'aerial:description',
-                features: [
-                    {
-                        type: 'Feature',
-                        stac_version: '1.0.0-beta.2',
-                        id: 'ir_ir_1_item',
-                        collection: 'ir_ir_1',
-                        assets: {},
-                        links: [],
-                        bbox: [-22.5, 48.9225, -11.25, 55.7766],
-                        geometry: {
-                            type: 'MultiPolygon',
-                            coordinates: [
-                                [
-                                    [
-                                        [-22.5, 48.9225],
-                                        [-19.6875, 48.9225],
-                                        [-19.6875, 49.838],
-                                        [-22.5, 49.838],
-                                        [-22.5, 48.9225],
-                                    ],
-                                ],
-                            ],
-                        },
-                        properties: {
-                            datetime: null,
-                            start_datetime: '2018-02-03T01:02:03Z',
-                            end_datetime: '2018-09-13T11:32:43Z',
-                        },
-                    },
-                    {
-                        type: 'Feature',
-                        stac_version: '1.0.0-beta.2',
-                        id: 'ir_ir_2_item',
-                        collection: 'ir_ir_2',
-                        assets: {},
-                        links: [],
-                        bbox: [-11.25, 48.9225, 0, 55.7766],
-                        geometry: {
-                            type: 'MultiPolygon',
-                            coordinates: [
-                                [
-                                    [
-                                        [-11.25, 48.9225],
-                                        [-8.4375, 48.9225],
-                                        [-8.4375, 49.838],
-                                        [-11.25, 49.838],
-                                        [-11.25, 48.9225],
-                                    ],
-                                ],
-                            ],
-                        },
-                        properties: {
-                            datetime: null,
-                            start_datetime: '2016-02-03T01:02:03Z',
-                            end_datetime: '2018-09-13T11:32:43Z',
-                        },
-                    },
-                    {
-                        type: 'Feature',
-                        stac_version: '1.0.0-beta.2',
-                        id: 'ir_ir_3_item',
-                        collection: 'ir_ir_3',
-                        assets: {},
-                        links: [],
-                        bbox: [0, 48.9225, 11.25, 55.7766],
-                        geometry: {
-                            type: 'MultiPolygon',
-                            coordinates: [
-                                [
-                                    [
-                                        [-0, 48.9225],
-                                        [2.8125, 48.9225],
-                                        [2.8125, 49.838],
-                                        [-0, 49.838],
-                                        [-0, 48.9225],
-                                    ],
-                                ],
-                            ],
-                        },
-                        properties: {
-                            datetime: null,
-                            start_datetime: '2017-01-01T00:00:00Z',
-                            end_datetime: '2019-01-01T00:00:00Z',
-                        },
-                    },
-                    {
-                        type: 'Feature',
-                        stac_version: '1.0.0-beta.2',
-                        id: 'ir_ir_4_item',
-                        collection: 'ir_ir_4',
-                        assets: {},
-                        links: [],
-                        bbox: [-22.5, 48.9225, -11.25, 55.7766],
-                        geometry: {
-                            type: 'MultiPolygon',
-                            coordinates: [
-                                [
-                                    [
-                                        [-22.5, 48.9225],
-                                        [-19.6875, 48.9225],
-                                        [-19.6875, 49.838],
-                                        [-22.5, 49.838],
-                                        [-22.5, 48.9225],
-                                    ],
-                                ],
-                            ],
-                        },
-                        properties: {
-                            datetime: null,
-                            start_datetime: '2018-02-03T01:02:03Z',
-                            end_datetime: '2018-09-13T11:32:43Z',
-                        },
-                    },
-                ],
-                collections: [
-                    {
-                        stac_version: '1.0.0-beta.2',
-                        license: 'CC BY 4.0',
-                        id: 'ir_ir_1',
-                        providers: [{ name: 'p1' }],
-                        title: 'image one',
-                        description: 'image one description',
-                        extent: {
-                            spatial: { bbox: [[-22.5, 48.9225, -11.25, 55.7766]] },
-                            temporal: {
-                                interval: [['2018-02-03T01:02:03Z', '2018-09-13T11:32:43Z']],
-                            },
-                        },
-                        links: [],
-                        summaries: {
-                            gsd: [0.75],
-                            'linz:zoom': { min: 14, max: 16 },
-                            'linz:priority': [140],
-                        },
-                    },
-                    {
-                        stac_version: '1.0.0-beta.2',
-                        license: Stac.License,
-                        id: 'ir_ir_2',
-                        providers: [
-                            {
-                                name: 'the name',
-                                url: 'https://example.provider.com',
-                                roles: ['host'],
-                            },
-                        ],
-                        title: 'Image2',
-                        description: 'No description',
-                        extent: {
-                            spatial: { bbox: [[-11.25, 48.9225, 0, 55.7766]] },
-                            temporal: {
-                                interval: [['2016-02-03T01:02:03Z', '2018-09-13T11:32:43Z']],
-                            },
-                        },
-                        links: [],
-                        summaries: {
-                            gsd: [0.5],
-                            'linz:zoom': { min: 15, max: 17 },
-                            'linz:priority': [150],
-                        },
-                    },
-                    {
-                        stac_version: '1.0.0-beta.2',
-                        license: Stac.License,
-                        id: 'ir_ir_3',
-                        providers: [
-                            {
-                                name: 'the name',
-                                url: 'https://example.provider.com',
-                                roles: ['host'],
-                            },
-                        ],
-                        title: 'Hastings-district urban 2017-18 0.1m',
-                        description: 'No description',
-                        extent: {
-                            spatial: { bbox: [[0, 48.9225, 11.25, 55.7766]] },
-                            temporal: {
-                                interval: [['2017-01-01T00:00:00Z', '2019-01-01T00:00:00Z']],
-                            },
-                        },
-                        links: [],
-                        summaries: {
-                            gsd: [0.75],
-                            'linz:zoom': { min: 16, max: 18 },
-                            'linz:priority': [160],
-                        },
-                    },
-                    {
-                        stac_version: '1.0.0-beta.2',
-                        license: Stac.License,
-                        id: 'ir_ir_4',
-                        providers: [{ name: 'p1' }],
-                        title: 'image one',
-                        description: 'image one description',
-                        extent: {
-                            spatial: { bbox: [[-22.5, 48.9225, -11.25, 55.7766]] },
-                            temporal: {
-                                interval: [['2018-02-03T01:02:03Z', '2018-09-13T11:32:43Z']],
-                            },
-                        },
-                        links: [],
-                        summaries: {
-                            gsd: [0.75],
-                            'linz:zoom': { min: 14, max: 16 },
-                            'linz:priority': [140],
-                        },
-                    },
-                ],
-                links: [],
-            });
+            o(body).deepEquals(ExpectedJson);
         });
 
         o('etag match', async () => {

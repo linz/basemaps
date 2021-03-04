@@ -1,4 +1,4 @@
-import { Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
+import { TileMatrixSet } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
 import {
     Aws,
@@ -9,46 +9,21 @@ import {
     tileWmtsFromPath,
     tileXyzFromPath,
 } from '@basemaps/shared';
-import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
-import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
-import pLimit from 'p-limit';
 import { TileSet } from '../tile.set';
 import { loadTileSet, loadTileSets } from '../tile.set.cache';
-import { Tilers } from '../tiler';
 import { WmtsCapabilities } from '../wmts.capability';
 import { attribution } from './attribution';
 import { TileEtag } from './tile.etag';
 
 export const TileComposer = new TileMakerSharp(256);
-const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 
 const NotFound = new LambdaHttpResponse(404, 'Not Found');
 
 /** Initialize the tiffs before reading */
-async function initTiffs(tileSet: TileSet, tiler: Tiler, tile: Tile, ctx: LambdaContext): Promise<CogTiff[]> {
-    const tiffs = tileSet.getTiffsForTile(tiler.tms, tile);
-    let failed = false;
-    // Remove any tiffs that failed to load
-    const promises = tiffs.map((c) => {
-        return LoadingQueue(async () => {
-            try {
-                await c.init();
-            } catch (error) {
-                ctx.log.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
-                failed = true;
-            }
-        });
-    });
-    await Promise.all(promises);
-    if (failed) {
-        return tiffs.filter((f) => f.images.length > 0);
-    }
-    return tiffs;
-}
 
 function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpResponse | null {
     // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our
@@ -61,26 +36,17 @@ function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpRespo
     return null;
 }
 
-function projectionNotFound(projection: Epsg): LambdaHttpResponse {
-    return new LambdaHttpResponse(404, `Projection not found: ${projection.toEpsgString()}`);
-}
-
 export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
     const xyzData = tileXyzFromPath(req.action.rest);
     if (xyzData == null) return NotFound;
     ValidateTilePath.validate(req, xyzData);
-    const tiler = Tilers.get(xyzData.projection);
-    if (tiler == null) return projectionNotFound(xyzData.projection);
-
-    const { x, y, z, ext } = xyzData;
 
     req.timer.start('tileset:load');
-    const tileSet = await loadTileSet(xyzData.name, xyzData.projection);
+    const tileSet = await loadTileSet(xyzData.name, xyzData.tileMatrix);
     req.timer.end('tileset:load');
     if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset Not Found');
 
-    const tiffs = await initTiffs(tileSet, tiler, xyzData, req);
-    const layers = await tiler.tile(tiffs, x, y, z);
+    const layers = await tileSet.tile(xyzData, req.log);
 
     // Generate a unique hash given the full URI, the layers used and a renderId
     const cacheKey = TileEtag.generate(layers, xyzData);
@@ -93,7 +59,7 @@ export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
     req.timer.start('tile:compose');
     const res = await TileComposer.compose({
         layers,
-        format: ext,
+        format: xyzData.ext,
         background: tileSet.background ?? DefaultBackground,
         resizeKernel: tileSet.resizeKernel ?? DefaultResizeKernel,
     });
@@ -105,18 +71,18 @@ export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'public, max-age=604800');
-    response.buffer(res.buffer, 'image/' + ext);
+    response.buffer(res.buffer, 'image/' + xyzData.ext);
     return response;
 }
 
-async function wmtsLoadTileSets(nameStr: string, projection: Epsg | null): Promise<TileSet[]> {
-    if (nameStr !== '' && nameStr[0] !== '@' && projection != null) {
+async function wmtsLoadTileSets(nameStr: string, tileMatrix: TileMatrixSet | null): Promise<TileSet[]> {
+    if (nameStr !== '' && nameStr[0] !== '@' && tileMatrix != null) {
         // single tileSet
-        const ts = await loadTileSet(nameStr, projection);
+        const ts = await loadTileSet(nameStr, tileMatrix);
         return ts == null ? [] : [ts];
     }
 
-    return await loadTileSets(nameStr, projection);
+    return await loadTileSets(nameStr, tileMatrix);
 }
 
 export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
@@ -126,27 +92,14 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     const host = Env.get(Env.PublicUrlBase) ?? '';
 
     req.timer.start('tileset:load');
-    const tileSets = await wmtsLoadTileSets(wmtsData.name, wmtsData.projection);
+    const tileSets = await wmtsLoadTileSets(wmtsData.name, wmtsData.tileMatrix);
     req.timer.end('tileset:load');
     if (tileSets.length === 0) return NotFound;
 
     const provider = await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Production);
     if (provider == null) return NotFound;
 
-    const tileMatrixSets = new Map<Epsg, TileMatrixSet>();
-    if (wmtsData.projection == null) {
-        for (const ts of tileSets) {
-            const tiler = Tilers.get(ts.projection);
-            if (tiler == null) return projectionNotFound(ts.projection);
-            tileMatrixSets.set(ts.projection, tiler.tms);
-        }
-    } else {
-        const tiler = Tilers.get(wmtsData.projection);
-        if (tiler == null) return projectionNotFound(wmtsData.projection);
-        tileMatrixSets.set(wmtsData.projection, tiler.tms);
-    }
-
-    const xml = WmtsCapabilities.toXml(host, provider, tileSets, tileMatrixSets, req.apiKey);
+    const xml = WmtsCapabilities.toXml(host, provider, tileSets, req.apiKey);
     if (xml == null) return NotFound;
 
     const data = Buffer.from(xml);
@@ -164,19 +117,12 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     return response;
 }
 
-const SubHandler: Record<string, (req: LambdaContext) => Promise<LambdaHttpResponse>> = {
-    'WMTSCapabilities.xml': wmts,
-    'attribution.json': attribution,
-};
-
 export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
     const { rest } = req.action;
     if (rest.length < 1) return NotFound;
 
-    const subHandler = SubHandler[rest[rest.length - 1]];
-    if (subHandler != null) {
-        return subHandler(req);
-    }
-
+    const fileName = rest[rest.length - 1].toLowerCase();
+    if (fileName === 'attribution.json') return attribution(req);
+    if (fileName === 'wmtscapabilities.xml') return wmts(req);
     return tile(req);
 }

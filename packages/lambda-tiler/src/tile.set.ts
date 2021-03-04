@@ -1,19 +1,27 @@
-import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Bounds, Tile, TileMatrixSet } from '@basemaps/geo';
 import {
     Aws,
+    Env,
+    LogType,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
     TileMetadataSetRecord,
     TileMetadataTag,
     TileResizeKernel,
 } from '@basemaps/shared';
+import { Composition } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
 import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
+import pLimit from 'p-limit';
+import { Tiler } from '@basemaps/tiler';
+
+const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
 export class TileSet {
     name: string;
     tag: TileMetadataTag;
-    projection: Epsg;
+    tileMatrix: TileMatrixSet;
+    tiler: Tiler;
     tileSet: TileMetadataSetRecord;
     imagery: Map<string, TileMetadataImageryRecord>;
     sources: Map<string, CogTiff> = new Map();
@@ -35,11 +43,12 @@ export class TileSet {
         return `${record.uri}/${name}.tiff`;
     }
 
-    constructor(nameStr: string, projection: Epsg) {
+    constructor(nameStr: string, tileMatrix: TileMatrixSet) {
         const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
         this.name = name;
         this.tag = tag ?? TileMetadataNamedTag.Production;
-        this.projection = projection;
+        this.tileMatrix = tileMatrix;
+        this.tiler = new Tiler(this.tileMatrix);
     }
 
     get background(): { r: number; g: number; b: number; alpha: number } | undefined {
@@ -56,7 +65,7 @@ export class TileSet {
     }
 
     get id(): string {
-        return `${this.taggedName}_${this.projection}`;
+        return `${this.taggedName}_${this.tileMatrix.identifier}`;
     }
 
     get title(): string {
@@ -68,16 +77,42 @@ export class TileSet {
     }
 
     get extent(): Bounds {
-        return this.extentOverride ?? TileMatrixSets.get(this.projection).extent;
+        return this.extentOverride ?? this.tileMatrix.extent;
     }
 
     async load(): Promise<boolean> {
-        const tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.projection, this.tag);
+        const tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.tileMatrix.projection, this.tag);
         if (tileSet == null) return false;
         this.tileSet = tileSet;
         this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
         Aws.tileMetadata.TileSet.sortRenderRules(tileSet, this.imagery);
         return true;
+    }
+
+    private async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
+        const tiffs = this.getTiffsForTile(this.tileMatrix, tile);
+        let failed = false;
+        // Remove any tiffs that failed to load
+        const promises = tiffs.map((c) => {
+            return LoadingQueue(async () => {
+                try {
+                    await c.init();
+                } catch (error) {
+                    log.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
+                    failed = true;
+                }
+            });
+        });
+        await Promise.all(promises);
+        if (failed) {
+            return tiffs.filter((f) => f.images.length > 0);
+        }
+        return tiffs;
+    }
+
+    public async tile(xyz: Tile, log: LogType): Promise<Composition[]> {
+        const tiffs = await this.initTiffs(xyz, log);
+        return this.tiler.tile(tiffs, xyz.x, xyz.y, xyz.z);
     }
 
     /**

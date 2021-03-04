@@ -1,6 +1,6 @@
-import { Epsg, TileMatrixSet } from '@basemaps/geo';
-import { Env, LogConfig, LogType } from '@basemaps/shared';
+import { Epsg } from '@basemaps/geo';
 import { HttpHeader, LambdaContext } from '@basemaps/lambda';
+import { Env, LogConfig, LogType } from '@basemaps/shared';
 import express from 'express';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
@@ -10,7 +10,6 @@ import { TileSets } from '../tile.set.cache';
 import { WmtsCapabilities } from '../wmts.capability';
 import { Provider } from '../__test__/xyz.util';
 import { TileSetLocal } from './tile.set.local';
-import { Tilers } from '../tiler';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
@@ -77,14 +76,14 @@ async function useLocal(): Promise<void> {
 
     const tileSetName = 'local';
     if (filePath != null) {
-        const tileSet = new TileSetLocal(tileSetName, Epsg.Google, filePath);
+        const tileSet = new TileSetLocal(tileSetName, filePath);
         await tileSet.load();
         const tiffFiles = tileSet.tiffs.map((c) => c.source.name).join(', ');
         // TODO is there a better name for this
         tileSet.setTitle(`Local - ${tiffFiles}`);
         TileSets.set(tileSet.id, tileSet);
         LogConfig.get().info({ tileSets: [...TileSets.keys()] }, 'LoadedTileSets');
-        projection = tileSet.projection.code;
+        projection = tileSet.tileMatrix.projection.code;
     }
 
     app.get('/v1/tiles/:imageryName/:projection/:z/:x/:y.:ext', async (req: express.Request, res: express.Response) => {
@@ -107,21 +106,7 @@ async function useLocal(): Promise<void> {
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
 
-        const tileMatrixSets = new Map<Epsg, TileMatrixSet>();
-        for (const ts of TileSets.values()) {
-            const tiler = Tilers.get(ts.projection);
-            if (tiler == null) {
-                throw new Error("Can't find tiler for projection " + ts.projection);
-            }
-            tileMatrixSets.set(ts.projection, tiler.tms);
-        }
-
-        const xml = WmtsCapabilities.toXml(
-            Env.get(Env.PublicUrlBase) ?? '',
-            Provider,
-            [...TileSets.values()],
-            tileMatrixSets,
-        );
+        const xml = WmtsCapabilities.toXml(Env.get(Env.PublicUrlBase) ?? '', Provider, [...TileSets.values()]);
         res.header('content-type', 'application/xml');
         res.send(xml);
         res.end();

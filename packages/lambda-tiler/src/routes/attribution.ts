@@ -97,7 +97,7 @@ function getGsd(un?: Record<string, unknown>): number | null {
  * links and assets for a more comprehensive STAC file.
  */
 async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | null> {
-    const proj = Projection.get(tileSet.projection.code);
+    const proj = Projection.get(tileSet.tileMatrix.projection.code);
     const stacFiles = new Map<string, Promise<StacCollection | null>>();
     const cols: AttributionCollection[] = [];
     const items: AttributionItem[] = [];
@@ -190,7 +190,7 @@ export async function attribution(req: LambdaContext): Promise<LambdaHttpRespons
     setNameAndProjection(req, data);
 
     req.timer.start('tileset:load');
-    const tileSet = await loadTileSet(data.name, data.projection);
+    const tileSet = await loadTileSet(data.name, data.tileMatrix);
     req.timer.end('tileset:load');
     if (tileSet == null) return NotFound;
 

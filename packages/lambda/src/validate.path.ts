@@ -1,5 +1,4 @@
-import { TileDataXyz, Projection } from '@basemaps/shared';
-import { TileMatrixSets } from '@basemaps/geo';
+import { Projection, TileDataXyz } from '@basemaps/shared';
 import { LambdaContext } from './lambda.context';
 import { LambdaHttpResponse } from './lambda.response';
 
@@ -15,14 +14,13 @@ export const ValidateTilePath = {
      * @param xyzData
      */
     validate(req: LambdaContext, xyzData: TileDataXyz): void {
-        const { x, y, z, ext } = xyzData;
+        const { tileMatrix, x, y, z, ext } = xyzData;
         req.set('xyz', { x, y, z });
-        req.set('projection', xyzData.projection.code);
+        req.set('projection', tileMatrix.projection.code);
+        req.set('tileMatrix', tileMatrix.identifier);
         req.set('extension', ext);
         req.set('tileSet', xyzData.name);
 
-        const tileMatrix = TileMatrixSets.tryGet(xyzData.projection.code);
-        if (tileMatrix == null) throw new LambdaHttpResponse(404, `Projection not found: ${xyzData.projection.code}`);
         if (z > tileMatrix.maxZoom || z < 0) throw new LambdaHttpResponse(404, `Zoom not found: ${z}`);
 
         const zoom = tileMatrix.zooms[z];

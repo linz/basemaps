@@ -19,4 +19,11 @@ export const TileMatrixSets = {
         if (typeof epsg === 'number') return this.Defaults.get(epsg);
         return this.Defaults.get(epsg.code);
     },
+
+    find(text: string): TileMatrixSet | null {
+        for (const tms of TileMatrixSets.All) {
+            if (tms.identifier === text) return tms;
+        }
+        return null;
+    },
 };

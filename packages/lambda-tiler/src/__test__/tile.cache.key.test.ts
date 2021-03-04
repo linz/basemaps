@@ -1,6 +1,6 @@
-import { Epsg } from '@basemaps/geo';
-import { TestTiff } from '@basemaps/test';
+import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { TileDataXyz, TileType } from '@basemaps/shared';
+import { TestTiff } from '@basemaps/test';
 import { Composition, ImageFormat } from '@basemaps/tiler';
 import o from 'ospec';
 import { TileEtag } from '../routes/tile.etag';
@@ -12,7 +12,7 @@ o.spec('TileCacheKey', () => {
         x: 0,
         y: 0,
         z: 0,
-        projection: Epsg.Google,
+        tileMatrix: GoogleTms,
         name: 'foo',
         ext: ImageFormat.PNG,
         type: TileType.Image,
@@ -37,19 +37,20 @@ o.spec('TileCacheKey', () => {
             y: 5,
         };
         const firstKey = TileEtag.generate([comp], xyzData);
-        o(firstKey).equals('90jnxyYXgjhONSSjYWmRM+L1mPxbZMxYiHpWp2A+BpI=');
+        o(firstKey).equals('msvHKEY332Q5v8ldUyTTzS/yH5aORcz6wEB+MWh7i8Y=');
+
         // Different layers should generate different keys
         o(TileEtag.generate([comp, comp], xyzData)).notEquals(firstKey);
 
         // Different projections should generate different keys
-        xyzData.projection = Epsg.Nztm2000;
+        xyzData.tileMatrix = Nztm2000Tms;
         o(TileEtag.generate([comp], xyzData)).notEquals(firstKey);
     });
 
     o('should change if the renderId changes', () => {
-        const keyA = TileEtag.generate([], {} as any);
+        const keyA = TileEtag.generate([], { tileMatrix: {} } as any);
         TileEtag.RenderId = 2;
-        const KeyB = TileEtag.generate([], {} as any);
+        const KeyB = TileEtag.generate([], { tileMatrix: {} } as any);
         o(keyA).notEquals(KeyB);
     });
 });

@@ -1,11 +1,10 @@
-import { LambdaContext } from '../lambda.context';
+import { Nztm2000Tms } from '@basemaps/geo';
 import { LogConfig, TileDataXyz, TileType } from '@basemaps/shared';
-
-import o from 'ospec';
-import { ValidateTilePath } from '../validate.path';
-import { Epsg } from '@basemaps/geo';
 import { ImageFormat } from '@basemaps/tiler';
+import o from 'ospec';
+import { LambdaContext } from '../lambda.context';
 import { LambdaHttpResponse } from '../lambda.response';
+import { ValidateTilePath } from '../validate.path';
 
 o.spec('ValidateTilePath', () => {
     let xyzData: TileDataXyz;
@@ -17,7 +16,7 @@ o.spec('ValidateTilePath', () => {
             y: 0,
             z: 0,
             name: 'aerial',
-            projection: Epsg.Nztm2000,
+            tileMatrix: Nztm2000Tms,
             type: TileType.Image,
             ext: ImageFormat.JPEG,
         };
@@ -45,10 +44,5 @@ o.spec('ValidateTilePath', () => {
             xyzData.z = xyz.z;
             o(() => ValidateTilePath.validate(ctx, xyzData)).throws(LambdaHttpResponse);
         });
-    });
-
-    o('should 404 for unsupported projection', () => {
-        xyzData.projection = Epsg.Citm2000;
-        o(() => ValidateTilePath.validate(ctx, xyzData)).throws(LambdaHttpResponse);
     });
 });
