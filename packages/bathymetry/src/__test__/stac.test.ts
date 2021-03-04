@@ -25,7 +25,7 @@ o.spec('stac', () => {
 
         const bm = {
             id: 'id123',
-            tms: GoogleTms,
+            tileMatrix: GoogleTms,
             inputPath: 's3:///test-source-bucket/gebco-2020',
             outputPath: 's3:///test-bucket/bathy-2020',
             tmpFolder: new FilePath('/tmp/path'),
@@ -64,6 +64,7 @@ o.spec('stac', () => {
                 'checksum:multihash': 'hash/tmp/path/output/13-22-33.tiff',
                 'proj:epsg': 3857,
                 'linz:gdal:version': undefined,
+                'linz:tile_matrix_set': 'WebMercatorQuad',
             },
             assets: {
                 tiff: {
@@ -82,7 +83,7 @@ o.spec('stac', () => {
         LogConfig.disable();
         const bm = {
             id: 'id123',
-            tms: GoogleTms,
+            tileMatrix: GoogleTms,
             inputPath: 's3:///test-source-bucket/gebco-2020/gebco_2020.nc',
             outputPath: 's3:///test-bucket/bathy-2020',
             tmpFolder: new FilePath('/tmp/path'),
