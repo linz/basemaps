@@ -1,4 +1,4 @@
-import { Bounds, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
+import { Bounds, Nztm2000QuadTms, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
 import { Projection, TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
@@ -17,6 +17,15 @@ const CapabilitiesAttrs = {
 
 function wgs84Extent(layer: TileSet): BBox {
     return Projection.get(layer.tileMatrix).boundsToWgs84BoundingBox(layer.extent);
+}
+
+/**
+ * Default the tile matrix id to the projection of the TileMatrixSet
+ */
+function getTileMatrixId(tileMatrix: TileMatrixSet): string {
+    // TODO this should really change everything to identifier
+    if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return Nztm2000QuadTms.identifier;
+    return tileMatrix.projection.toEpsgString();
 }
 
 export class WmtsCapabilities {
@@ -132,9 +141,7 @@ export class WmtsCapabilities {
         for (const layer of layers) {
             if (matrixSets.has(layer.tileMatrix.identifier)) continue;
             matrixSets.add(layer.tileMatrix.identifier);
-            matrixSetNodes.push(
-                V('TileMatrixSetLink', [V('TileMatrixSet', layer.tileMatrix.projection.toEpsgString())]),
-            );
+            matrixSetNodes.push(V('TileMatrixSetLink', [V('TileMatrixSet', getTileMatrixId(layer.tileMatrix))]));
         }
 
         const [firstLayer] = layers;
@@ -159,7 +166,7 @@ export class WmtsCapabilities {
         return V('TileMatrixSet', [
             V('ows:Title', tms.def.title),
             tms.def.abstract ? V('ows:Abstract', tms.def.abstract) : null,
-            V('ows:Identifier', tms.projection.toEpsgString()),
+            V('ows:Identifier', getTileMatrixId(tms)),
             V('ows:SupportedCRS', tms.projection.toUrn()),
             tms.def.wellKnownScaleSet ? V('WellKnownScaleSet', tms.def.wellKnownScaleSet) : null,
             ...tms.def.tileMatrix.map((c) => {

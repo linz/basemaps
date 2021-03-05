@@ -21,7 +21,7 @@ interface BathyMakerContext {
     outputPath: string;
     tmpFolder: FilePath;
     /** TileMatrixSet to cut the bathy up into tiles */
-    tms: TileMatrixSet;
+    tileMatrix: TileMatrixSet;
     /** zoom level of the tms to cut the tiles too */
     zoom: number;
     /** Number of threads used to convert @default NUM_CPUS */
@@ -97,7 +97,7 @@ export class BathyMaker {
         if (isNc) await this.createSourceGeoTiff(logger);
         await this.createSourceHash(logger);
 
-        const { tms, zoom } = this.config;
+        const { tileMatrix: tms, zoom } = this.config;
 
         const tmsZoom = tms.zooms[zoom];
         logger.info(
@@ -184,7 +184,7 @@ export class BathyMaker {
         const warpedPath = this.tmpFolder.name(FileType.Warped, tileId);
         if (await FileOperator.exists(warpedPath)) return;
 
-        const tms = this.config.tms;
+        const tms = this.config.tileMatrix;
 
         const bounds = tms.tileToSourceBounds(tile);
         const warpCommand = [
@@ -232,7 +232,8 @@ export class BathyMaker {
         if (await FileOperator.exists(outputPath)) return;
 
         const gdal = createMountedGdal(this.tmpFolder.sourcePath);
-        const bounds = this.config.tms.tileToSourceBounds(tile);
+        const tileMatrix = this.config.tileMatrix;
+        const bounds = tileMatrix.tileToSourceBounds(tile);
         await gdal.run(
             'gdal_translate',
             [
@@ -247,7 +248,7 @@ export class BathyMaker {
                 '-r',
                 'bilinear',
                 '-a_srs',
-                Epsg.Google.toEpsgString(),
+                tileMatrix.projection.toEpsgString(),
                 '-a_ullr',
                 ...[bounds.x, bounds.bottom, bounds.right, bounds.y],
                 renderedPath,

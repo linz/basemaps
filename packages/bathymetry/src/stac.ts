@@ -25,12 +25,12 @@ function getCommitHash(): string {
 
 /** Write some basic metadata about how the file was created*/
 async function createItem(bm: BathyMaker, tile: Tile): Promise<StacItem> {
-    const { tms } = bm.config;
+    const { tileMatrix } = bm.config;
     const tileId = TileMatrixSet.tileToName(tile);
     const outputTiffPath = bm.tmpFolder.name(FileType.Output, tileId);
 
-    const bbox = Projection.tileToWgs84Bbox(tms, tile);
-    const { geometry } = Projection.get(tms).boundsToGeoJsonFeature(tms.tileToSourceBounds(tile));
+    const bbox = Projection.tileToWgs84Bbox(tileMatrix, tile);
+    const { geometry } = Projection.get(tileMatrix).boundsToGeoJsonFeature(tileMatrix.tileToSourceBounds(tile));
 
     const created = new Date().toISOString();
     return {
@@ -44,8 +44,9 @@ async function createItem(bm: BathyMaker, tile: Tile): Promise<StacItem> {
         properties: {
             datetime: created,
             'checksum:multihash': await Hash.hash(outputTiffPath),
-            'proj:epsg': tms.projection.code,
+            'proj:epsg': tileMatrix.projection.code,
             'linz:gdal:version': await bm.gdalVersion,
+            'linz:tile_matrix_set': tileMatrix.identifier,
         },
         assets: {
             tiff: {
@@ -72,8 +73,8 @@ async function createCollection(
     itemNames: string[],
     logger: LogType,
 ): Promise<StacCollection> {
-    const { tms } = bm.config;
-    const bbox = [Projection.get(tms).boundsToWgs84BoundingBox(bounds)];
+    const { tileMatrix } = bm.config;
+    const bbox = [Projection.get(tileMatrix).boundsToWgs84BoundingBox(bounds)];
     const name = basename(bm.inputPath);
     let description: string | undefined;
 
@@ -146,7 +147,7 @@ async function createCollection(
         links,
         providers,
         keywords: ['Bathymetry'],
-        summaries: { 'proj:epsg': [bm.config.tms.projection.code] },
+        summaries: { 'proj:epsg': [bm.config.tileMatrix.projection.code] },
     };
 }
 
