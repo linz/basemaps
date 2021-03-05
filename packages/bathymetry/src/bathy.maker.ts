@@ -232,7 +232,8 @@ export class BathyMaker {
         if (await FileOperator.exists(outputPath)) return;
 
         const gdal = createMountedGdal(this.tmpFolder.sourcePath);
-        const bounds = this.config.tileMatrix.tileToSourceBounds(tile);
+        const tileMatrix = this.config.tileMatrix;
+        const bounds = tileMatrix.tileToSourceBounds(tile);
         await gdal.run(
             'gdal_translate',
             [
@@ -247,7 +248,7 @@ export class BathyMaker {
                 '-r',
                 'bilinear',
                 '-a_srs',
-                Epsg.Google.toEpsgString(),
+                tileMatrix.projection.toEpsgString(),
                 '-a_ullr',
                 ...[bounds.x, bounds.bottom, bounds.right, bounds.y],
                 renderedPath,
