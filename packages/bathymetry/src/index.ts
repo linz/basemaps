@@ -9,6 +9,9 @@ import { BathyMaker } from './bathy.maker';
 import { FilePath, FileType } from './file';
 import * as os from 'os';
 
+/** This zoom level gives a good enough quality world while not making too many tiles */
+const GoodZoom = GoogleTms.def.tileMatrix[4];
+
 class CreateAction extends CommandLineAction {
     private inputPath: CommandLineStringParameter;
     private outputPath: CommandLineStringParameter;
@@ -82,13 +85,19 @@ class CreateAction extends CommandLineAction {
         try {
             const outputPath = this.outputPath.value!;
 
+            /** Find a decent zoom level that is close to the good zoom at google's scale */
+            let bestZ = tileMatrix.findBestZoom(GoodZoom.scaleDenominator + 1);
+
+            // Make at least a few tiles
+            if (bestZ === 0) bestZ++;
+
             const bathy = new BathyMaker({
                 id: ulid.ulid(),
                 inputPath: this.inputPath.value!,
                 outputPath,
                 tmpFolder,
                 tileMatrix,
-                zoom: 4,
+                zoom: bestZ,
                 threads: os.cpus().length / 2,
             });
             await bathy.render(logger);
