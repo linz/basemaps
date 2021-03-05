@@ -236,38 +236,10 @@ export class TileMatrixSet {
         throw new Error(`Invalid tile name '${name}'`);
     }
 
-    /**
-     * Convert the tile z value from the Tile Matrix Set to match the TileSet rule filter.
-     * Override this function to change it
-     */
-    getParentZoom(z: number): number {
-        return z;
-    }
-
-    /**
-     * Calculate the scale mapping between two TileMatrixSets based from child to parent
-     * @param parentTmx
-     * @param childTmx
-     *
-     */
-    public static scaleMapping(parentTmx: TileMatrixSet, childTmx: TileMatrixSet): Map<number, number> {
-        const scaleMap: Map<number, number> = new Map();
-        for (let i = 0; i < childTmx.zooms.length; i++) {
-            const child = childTmx.zooms[i];
-            const index = findBestMatch(child.scaleDenominator, parentTmx.zooms);
-            scaleMap.set(i, index);
+    findBestZoom(scaleDenominator: number): number {
+        for (let i = 0; i < this.zooms.length; i++) {
+            if (this.zooms[i].scaleDenominator < scaleDenominator) return i;
         }
-        return scaleMap;
+        return this.zooms.length - 1;
     }
-}
-
-/**
- * Find the best matching scales from the parent zooms.
- *
- */
-function findBestMatch(scaleDenominator: number, zooms: TileMatrixType[]): number {
-    for (let i = 0; i < zooms.length; i++) {
-        if (zooms[i].scaleDenominator < scaleDenominator) return i;
-    }
-    return zooms.length - 1;
 }
