@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
+
+
+### Bug Fixes
+
+* **bathymetry:** actually use the supplied tile matrix rather than defaulting to GoogleTms ([#1477](https://github.com/linz/basemaps/issues/1477)) ([4e1e461](https://github.com/linz/basemaps/commit/4e1e4618ca37d02a80a17538afcc40a16272c9cb))
+* **cli:** detect if differing band counts of imagery is used in a single imagery set ([#1466](https://github.com/linz/basemaps/issues/1466)) ([e546c20](https://github.com/linz/basemaps/commit/e546c2039a6bbcc4d3c89461f12dcc1cca594f26))
+* **landing:** correct the WMTS url for arcgis users ([#1454](https://github.com/linz/basemaps/issues/1454)) ([cf42808](https://github.com/linz/basemaps/commit/cf42808a49839f8b70de4290823f4b7f7ecabcf7))
+
+
+### Features
+
+* **bathymetry:** generate the bathy tiles based on the output tile matrix set not hard coded ([#1478](https://github.com/linz/basemaps/issues/1478)) ([536c643](https://github.com/linz/basemaps/commit/536c643a216ac1378f53b3cb15c5897a428fb492))
+* **bathymetry:** support other tile matrix sets for rendering bathymetry ([#1475](https://github.com/linz/basemaps/issues/1475)) ([e2c09db](https://github.com/linz/basemaps/commit/e2c09db49b86dc3f90464af44cdad123d68d9a4c))
+* **geo:** add support for NZTM2000Quad tile matrix set ([#1470](https://github.com/linz/basemaps/issues/1470)) ([b0d8cde](https://github.com/linz/basemaps/commit/b0d8cded0777e2ab024b27455f6a58d5860fe9ad))
+* **lambda-tiler:** support NZTM2000Quad when serving via WMTS ([#1474](https://github.com/linz/basemaps/issues/1474)) ([4f0d9e6](https://github.com/linz/basemaps/commit/4f0d9e602307d83af4f12eda0ce4466df5006e78))
+* support custom tile matrix sets ([#1469](https://github.com/linz/basemaps/issues/1469)) ([13a42de](https://github.com/linz/basemaps/commit/13a42de2647d448e1a4130602f759e21e03651bf))
+
+
+
+
+
 # [4.21.0](https://github.com/linz/basemaps/compare/v4.20.0...v4.21.0) (2021-02-16)
 
 
