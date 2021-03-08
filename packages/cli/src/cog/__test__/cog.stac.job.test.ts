@@ -1,12 +1,15 @@
-import { Bounds, Epsg, EpsgCode, GoogleTms, Stac } from '@basemaps/geo';
+import { Bounds, Epsg, EpsgCode, GoogleTms, Nztm2000Tms, Stac } from '@basemaps/geo';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
 import o from 'ospec';
 import { Projection } from '@basemaps/shared';
 import { CogStacJob, JobCreationContext } from '../cog.stac.job';
-import { CogBuilderMetadata } from '../types';
+import { CogBuilderMetadata, CogJobJson } from '../types';
 
+type RecursivePartial<T> = {
+    [P in keyof T]?: RecursivePartial<T[P]>;
+};
 o.spec('CogJob', () => {
     o.spec('build', () => {
         const id = 'jobid1';
@@ -144,6 +147,7 @@ o.spec('CogJob', () => {
                 output: {
                     gsd: 0.0373,
                     epsg: 3857,
+                    tileMatrix: 'WebMercatorQuad',
                     files: [{ name: '0-0-0', x: 1, y: 2, width: 2, height: 3 }],
                     location: { type: 's3', path: 's3://target-bucket/path' },
                     resampling: { warp: 'bilinear', overview: 'lanczos' },
@@ -357,6 +361,18 @@ o.spec('CogJob', () => {
                     },
                 ],
             });
+        });
+
+        o('should create with no tileMatrix', () => {
+            const cfg: RecursivePartial<CogJobJson> = { output: { epsg: 2193 } };
+            const job = new CogStacJob(cfg as CogJobJson);
+            o(job.tileMatrix.identifier).equals(Nztm2000Tms.identifier);
+        });
+
+        o('should error with invalid tileMatrix', () => {
+            const cfg: RecursivePartial<CogJobJson> = { output: { tileMatrix: 'None' } };
+            const job = new CogStacJob(cfg as CogJobJson);
+            o(() => job.tileMatrix).throws('Failed to find TileMatrixSet "None"');
         });
 
         o('no source collection.json and not nice name', async () => {

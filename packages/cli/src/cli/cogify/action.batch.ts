@@ -39,7 +39,7 @@ export function extractResolutionFromName(name: string): number {
 export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecord {
     const now = Date.now();
 
-    const projection = Epsg.get(job.output.epsg);
+    const projection = job.tileMatrix.projection;
     let base = job.output.location.path;
     if (!base.endsWith('/')) base += '/';
     const uri = base + path.join(projection.toString(), job.name, job.id);
@@ -64,7 +64,7 @@ export async function createMetadataFromJob(job: CogJob): Promise<void> {
     await Aws.tileMetadata.put(img);
     const tileMetadata = Aws.tileMetadata.TileSet.initialRecord(
         job.id,
-        job.output.epsg,
+        job.tileMatrix.projection.code,
         [{ imgId: img.id, ruleId: img.id, minZoom: 0, maxZoom: 32, priority: 1000 }],
         job.title,
         job.description,
@@ -98,7 +98,7 @@ export class ActionBatchJob extends CommandLineAction {
     ): Promise<{ jobName: string; jobId: string; memory: number }> {
         const jobName = ActionBatchJob.id(job, name);
         const tile = TileMatrixSet.nameToTile(name);
-        const alignmentLevels = Projection.findAlignmentLevels(job.targetTms, tile, job.source.gsd);
+        const alignmentLevels = Projection.findAlignmentLevels(job.tileMatrix, tile, job.source.gsd);
         // Give 25% more memory to larger jobs
         const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
         const memory = 3900 * resDiff;

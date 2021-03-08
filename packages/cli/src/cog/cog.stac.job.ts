@@ -192,10 +192,10 @@ export class CogStacJob implements CogJob {
             },
             output: {
                 gsd: ctx.tileMatrix.pixelScale(metadata.resZoom),
+                tileMatrix: ctx.tileMatrix.identifier,
                 epsg: ctx.tileMatrix.projection.code,
                 files: metadata.files,
                 location: ctx.outputLocation,
-
                 resampling: ctx.override?.resampling ?? GdalCogBuilderDefaults.resampling,
                 quality: ctx.override?.quality ?? GdalCogBuilderDefaults.quality,
                 cutline: ctx.cutline,
@@ -279,7 +279,7 @@ export class CogStacJob implements CogJob {
 
         await FileOperator.writeJson(jobFile, job.json, outputFs);
 
-        const covering = Projection.get(job.output.epsg).toGeoJson(metadata.files);
+        const covering = Projection.get(job.tileMatrix).toGeoJson(metadata.files);
 
         const roles = ['data'];
         const collectionLink = { href: 'collection.json', rel: 'collection' };
@@ -298,7 +298,7 @@ export class CogStacJob implements CogJob {
                     ...f.properties,
                     datetime: nowStr,
                     gsd: job.output.gsd,
-                    'proj:epsg': job.output.epsg,
+                    'proj:epsg': job.tileMatrix.projection.code,
                 },
                 links: [{ href: job.getJobPath(href), rel: 'self' }, collectionLink],
                 assets: {
@@ -376,20 +376,21 @@ export class CogStacJob implements CogJob {
         return this.json.output;
     }
 
+    get tileMatrix(): TileMatrixSet {
+        if (this.json.output.tileMatrix) {
+            const tileMatrix = TileMatrixSets.find(this.json.output.tileMatrix);
+            if (tileMatrix == null) throw new Error(`Failed to find TileMatrixSet "${this.json.output.tileMatrix}"`);
+            return tileMatrix;
+        }
+        return TileMatrixSets.get(this.json.output.epsg);
+    }
+
     get targetZoom(): number {
         const { gsd } = this.source;
         if (this.cacheTargetZoom?.gsd !== gsd) {
-            this.cacheTargetZoom = { gsd, zoom: Projection.getTiffResZoom(this.targetTms, gsd) };
+            this.cacheTargetZoom = { gsd, zoom: Projection.getTiffResZoom(this.tileMatrix, gsd) };
         }
         return this.cacheTargetZoom.zoom;
-    }
-
-    get sourceTms(): TileMatrixSet {
-        return TileMatrixSets.get(this.source.epsg);
-    }
-
-    get targetTms(): TileMatrixSet {
-        return TileMatrixSets.get(this.output.epsg);
     }
 
     /**
@@ -398,7 +399,7 @@ export class CogStacJob implements CogJob {
      * @param key optional file key inside of the job folder
      */
     getJobPath(key?: string): string {
-        const parts = [this.output.epsg, this.name, this.id];
+        const parts = [this.tileMatrix.projection.code, this.name, this.id];
         if (key != null) {
             parts.push(key);
         }

@@ -1,9 +1,8 @@
-import { Epsg } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal.cog';
-import { TilingScheme } from '../../gdal/gdal.config';
 import { buildCogForName } from '../cog';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
 
@@ -29,11 +28,11 @@ o.spec('cog', () => {
             const job = SourceTiffTestHelper.makeCogJob();
             const logger = LogConfig.get();
 
-            const { targetTms } = job;
+            // const { targetTms } = job;
 
             const name = '4-15-10';
 
-            job.output.files = [{ name, ...targetTms.tileToSourceBounds({ x: 15, y: 10, z: 4 }) }];
+            job.output.files = [{ name, ...job.tileMatrix.tileToSourceBounds({ x: 15, y: 10, z: 4 }) }];
 
             await buildCogForName(job, name, '/tmp/test.vrt', '/tmp/out-tiff', logger, true);
             o(convertArgs[0].info).equals(logger.info);
@@ -46,8 +45,7 @@ o.spec('cog', () => {
                 bbox: [17532819.7999, -5009377.0857, 20037508.3428, -7514065.6285],
                 alignmentLevels: 13,
                 compression: 'webp',
-                tilingScheme: TilingScheme.Google,
-                projection: Epsg.Google,
+                tileMatrix: GoogleTms,
                 resampling: { warp: 'bilinear', overview: 'lanczos' },
                 blockSize: 512,
                 targetRes: 0.75,

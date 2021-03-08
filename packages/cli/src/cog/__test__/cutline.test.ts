@@ -20,7 +20,7 @@ o.spec('cutline', () => {
             const name = qkToName('311333222321113310');
 
             const job = SourceTiffTestHelper.makeCogJob();
-            job.output.epsg = EpsgCode.Google;
+            job.output.tileMatrix = GoogleTms.identifier;
             job.source.epsg = EpsgCode.Nztm2000;
             const sourceBounds = SourceTiffTestHelper.tiffNztmBounds(testDir);
             const [tif1, tif2] = sourceBounds;

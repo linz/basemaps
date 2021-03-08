@@ -1,4 +1,4 @@
-import { Bounds, EpsgCode } from '@basemaps/geo';
+import { Bounds, EpsgCode, GoogleTms } from '@basemaps/geo';
 import { Aws, NamedBounds } from '@basemaps/shared';
 import { qkToNamedBounds } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
@@ -36,7 +36,7 @@ o.spec('action.batch', () => {
                 files: [] as NamedBounds[],
             },
             output: {
-                epsg: EpsgCode.Google,
+                tileMatrix: GoogleTms.identifier,
                 files: files.slice(),
                 addAlpha: true,
                 bounds: round(Bounds.union(files).toJson(), 4),
