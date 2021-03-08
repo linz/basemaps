@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
+
+
+### Bug Fixes
+
+* **cli:** detect if differing band counts of imagery is used in a single imagery set ([#1466](https://github.com/linz/basemaps/issues/1466)) ([e546c20](https://github.com/linz/basemaps/commit/e546c2039a6bbcc4d3c89461f12dcc1cca594f26))
+
+
+
+
+
 # [4.20.0](https://github.com/linz/basemaps/compare/v4.19.0...v4.20.0) (2021-02-15)
 
 
