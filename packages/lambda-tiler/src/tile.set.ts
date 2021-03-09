@@ -11,7 +11,7 @@ import {
 } from '@basemaps/shared';
 import { Composition } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
+import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import pLimit from 'p-limit';
 import { Tiler } from '@basemaps/tiler';
 
@@ -146,7 +146,7 @@ export class TileSet {
             const tiffKey = `${record.id}_${c.name}`;
             let existing = this.sources.get(tiffKey);
             if (existing == null) {
-                const source = CogSourceAwsS3.createFromUri(TileSet.basePath(record, c.name), Aws.s3);
+                const source = SourceAwsS3.fromUri(TileSet.basePath(record, c.name), Aws.s3);
                 if (source == null) {
                     throw new Error(`Failed to create CogSource from  ${TileSet.basePath(record, c.name)}`);
                 }

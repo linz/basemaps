@@ -1,7 +1,7 @@
 import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
-import { CompositeError, LogType, LoggerFatalError, FileOperator, Projection } from '@basemaps/shared';
-import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
-import { CogSourceFile } from '@cogeotiff/source-file';
+import { CompositeError, FileOperator, LoggerFatalError, LogType, Projection } from '@basemaps/shared';
+import { ChunkSource } from '@cogeotiff/chunk';
+import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import pLimit from 'p-limit';
@@ -23,10 +23,8 @@ export const CacheFolder = './.cache';
  *
  * @param wkt
  */
-export function guessProjection(wkt: string): Epsg | null {
-    if (wkt == null) {
-        return null;
-    }
+export function guessProjection(wkt: string | null): Epsg | null {
+    if (wkt == null) return null;
     const searchWkt = wkt.replace(/_/g, ' ');
     if (searchWkt.includes('New Zealand Transverse Mercator')) return Epsg.Nztm2000;
     if (searchWkt.includes('Chatham Islands Transverse Mercator 2000')) return Epsg.Citm2000;
@@ -57,7 +55,7 @@ export class CogBuilder {
      * Get the source bounds a collection of tiffs
      * @param tiffs
      */
-    async bounds(sources: CogSource[]): Promise<SourceMetadata> {
+    async bounds(sources: ChunkSource[]): Promise<SourceMetadata> {
         let resX = -1;
         let bands = -1;
         let projection = this.srcProj;
@@ -93,7 +91,7 @@ export class CogBuilder {
 
                 const output = { ...Bounds.fromBbox(image.bbox).toJson(), name: source.uri };
 
-                if (CogSourceFile.isSource(source)) await source.close();
+                if (source.close) await source.close();
 
                 const imageProjection = this.findProjection(tiff);
                 if (imageProjection != null && projection?.code !== imageProjection.code) {
@@ -148,9 +146,9 @@ export class CogBuilder {
             return Epsg.get(projection);
         }
 
-        const imgWkt = image.value(TiffTag.GeoAsciiParams);
+        const imgWkt = image.value<string>(TiffTag.GeoAsciiParams);
         const epsg = guessProjection(imgWkt);
-        if (epsg) {
+        if (imgWkt != null && epsg != null) {
             if (!this.wktPreviousGuesses.has(imgWkt)) {
                 this.logger.trace(
                     { tiff: tiff.source.name, imgWkt, projection },
@@ -172,10 +170,8 @@ export class CogBuilder {
      * @param logger
      */
     findNoData(tiff: CogTiff): number | null {
-        const noData: string = tiff.getImage(0).value(TiffTag.GDAL_NODATA);
-        if (noData == null) {
-            return null;
-        }
+        const noData = tiff.getImage(0).value<string>(TiffTag.GDAL_NODATA);
+        if (noData == null) return null;
 
         const noDataNum = parseInt(noData);
 
@@ -190,7 +186,7 @@ export class CogBuilder {
     }
 
     /** Cache the bounds lookup so we do not have to requery the bounds between CLI calls */
-    private async getMetadata(tiffs: CogSource[]): Promise<SourceMetadata> {
+    private async getMetadata(tiffs: ChunkSource[]): Promise<SourceMetadata> {
         const cacheKey =
             path.join(
                 CacheFolder,
@@ -222,7 +218,7 @@ export class CogBuilder {
      * @param tiffs list of source imagery to be converted
      * @returns List of Tile bounds covering tiffs
      */
-    async build(tiffs: CogSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
+    async build(tiffs: ChunkSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
         const metadata = await this.getMetadata(tiffs);
         const files = cutline.optimizeCovering(metadata);
         let union: Bounds | null = null;
