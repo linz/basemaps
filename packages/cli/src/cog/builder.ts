@@ -148,14 +148,14 @@ export class CogBuilder {
 
         const imgWkt = image.value<string>(TiffTag.GeoAsciiParams);
         const epsg = guessProjection(imgWkt);
-        if (epsg) {
-            if (!this.wktPreviousGuesses.has(imgWkt!)) {
+        if (imgWkt != null && epsg != null) {
+            if (!this.wktPreviousGuesses.has(imgWkt)) {
                 this.logger.trace(
                     { tiff: tiff.source.name, imgWkt, projection },
                     'GuessingProjection from GeoAsciiParams',
                 );
             }
-            this.wktPreviousGuesses.add(imgWkt!);
+            this.wktPreviousGuesses.add(imgWkt);
             return epsg;
         }
 
