@@ -1,9 +1,9 @@
 import { Bounds, Epsg, EpsgCode, GoogleTms, Nztm2000Tms, Stac } from '@basemaps/geo';
+import { Projection } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
 import o from 'ospec';
-import { Projection } from '@basemaps/shared';
 import { CogStacJob, JobCreationContext } from '../cog.stac.job';
 import { CogBuilderMetadata, CogJobJson } from '../types';
 

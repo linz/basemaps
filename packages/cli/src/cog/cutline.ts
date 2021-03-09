@@ -166,12 +166,12 @@ export class Cutline {
 
         // Look for the biggest tile size we are allowed to create.
         let minZ = resZoom - 1;
-        for (; minZ >= 0; minZ--) {
-            if (Projection.getImagePixelWidth(this.tileMatrix, { x: 0, y: 0, z: minZ }, resZoom) < MaxImagePixelWidth) {
-                break;
-            }
+        while (
+            minZ > 0 &&
+            Projection.getImagePixelWidth(this.tileMatrix, { x: 0, y: 0, z: minZ }, resZoom) < MaxImagePixelWidth
+        ) {
+            --minZ;
         }
-
         minZ = Math.max(1, minZ + 1);
 
         let tiles: Tile[] = [];

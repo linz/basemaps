@@ -1,4 +1,4 @@
-import { Bounds, EpsgCode, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, TileMatrixSet } from '@basemaps/geo';
 import { Aws, isConfigS3Role, LogType, Projection } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal.cog';
 import { GdalCommand } from '../gdal/gdal.command';

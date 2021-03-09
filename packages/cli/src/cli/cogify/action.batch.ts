@@ -1,4 +1,4 @@
-import { Epsg, TileMatrixSet } from '@basemaps/geo';
+import { TileMatrixSet } from '@basemaps/geo';
 import {
     Aws,
     Env,
@@ -12,8 +12,8 @@ import {
     TileMetadataTable,
 } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import * as path from 'path';
 import Batch from 'aws-sdk/clients/batch';
+import * as path from 'path';
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { CogJob } from '../../cog/types';
 

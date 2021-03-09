@@ -1,15 +1,15 @@
 #!/usr/bin/env node
+import { LogConfig } from '@basemaps/shared';
+import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import { BaseCommandLine } from '../base.cli';
-import { TileSetUpdateAction } from './action.tileset.update';
-import { TileSetInfoAction } from './action.tileset.info';
-import { ImportAction } from './action.import';
 import { ExportAction } from './action.export';
-import { TileSetUpdateTagAction } from './action.tileset.tag';
-import { TileSetHistoryAction } from './action.tileset.history';
-import { PrettyTransform } from 'pretty-json-log';
-import { LogConfig } from '@basemaps/shared';
+import { ImportAction } from './action.import';
 import { TileSetInvalidateTagAction } from './action.invalidate';
+import { TileSetHistoryAction } from './action.tileset.history';
+import { TileSetInfoAction } from './action.tileset.info';
+import { TileSetUpdateTagAction } from './action.tileset.tag';
+import { TileSetUpdateAction } from './action.tileset.update';
 
 export class BasemapsCommandLine extends BaseCommandLine {
     constructor() {

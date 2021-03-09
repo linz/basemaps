@@ -1,10 +1,10 @@
+import { Epsg } from '@basemaps/geo';
 import { Aws, FileOperator, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
 import { Gdal } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
 import { onProgress } from './cog';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
-import { Epsg } from '@basemaps/geo';
 
 /**
  * Build the VRT for the needed source imagery

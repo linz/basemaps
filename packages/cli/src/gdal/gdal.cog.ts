@@ -1,6 +1,6 @@
+import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
-import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { Gdal } from './gdal';
 import { GdalCommand } from './gdal.command';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptions } from './gdal.config';

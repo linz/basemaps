@@ -3,8 +3,8 @@ import { Aws, NamedBounds } from '@basemaps/shared';
 import { qkToNamedBounds } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
-import { CogJobJson } from '../../../cog/types';
 import { CogStacJob } from '../../../cog/cog.stac.job';
+import { CogJobJson } from '../../../cog/types';
 import { createImageryRecordFromJob, createMetadataFromJob, extractResolutionFromName } from '../action.batch';
 
 o.spec('action.batch', () => {

@@ -1,5 +1,5 @@
 import { EpsgCode, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
-import { LogConfig, FileOperator } from '@basemaps/shared';
+import { FileOperator, LogConfig } from '@basemaps/shared';
 import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
