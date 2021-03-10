@@ -8,7 +8,7 @@ import {
     TileMetadataSetRecord,
     TileMetadataTag,
 } from '@basemaps/shared';
-import { CommandLineStringParameter, CommandLineIntegerParameter } from '@rushstack/ts-command-line';
+import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CliTable } from '../cli.table';
 import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';

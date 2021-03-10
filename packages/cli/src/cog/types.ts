@@ -14,7 +14,6 @@ export interface FeatureCollectionWithCrs extends GeoJSON.FeatureCollection {
 export interface ImageryProperties {
     /** Ground Sampling Distance in meters per pixel */
     gsd: number;
-    epsg: EpsgCode;
 
     /** File access details */
     location: FileConfig;
@@ -23,7 +22,9 @@ export interface ImageryProperties {
     files: NamedBounds[];
 }
 
-export type CogSourceProperties = ImageryProperties;
+export interface CogSourceProperties extends ImageryProperties {
+    epsg: EpsgCode;
+}
 
 export interface CogGdalSettings {
     resampling: GdalCogBuilderResampling;
@@ -41,6 +42,10 @@ export interface CogGdalSettings {
 export interface CogOutputProperties extends CogGdalSettings, ImageryProperties {
     /** The bounds of all the cogs */
     bounds: BoundingBox;
+
+    /** Identifier of the tile matrix to use */
+    tileMatrix?: string;
+    epsg: EpsgCode;
 
     /** Cutline options */
     cutline?: {
@@ -66,8 +71,7 @@ export interface CogJobJson {
 }
 
 export interface CogJob extends CogJobJson {
-    sourceTms: TileMatrixSet;
-    targetTms: TileMatrixSet;
+    tileMatrix: TileMatrixSet;
     targetZoom: number;
 
     getJobPath(key?: string): string;

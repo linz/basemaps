@@ -1,3 +1,4 @@
+import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { Gdal } from './gdal';
@@ -45,10 +46,9 @@ export class GdalCogBuilder {
 
         this.config = {
             bbox: config.bbox,
-            projection: config.projection ?? GdalCogBuilderDefaults.projection,
             alignmentLevels: config.alignmentLevels ?? GdalCogBuilderDefaults.alignmentLevels,
             compression: config.compression ?? GdalCogBuilderDefaults.compression,
-            tilingScheme: config.tilingScheme ?? GdalCogBuilderDefaults.tilingScheme,
+            tileMatrix: config.tileMatrix ?? GdalCogBuilderDefaults.tileMatrix,
             resampling: config.resampling ?? GdalCogBuilderDefaults.resampling,
             blockSize: config.blockSize ?? GdalCogBuilderDefaults.blockSize,
             targetRes: config.targetRes ?? GdalCogBuilderDefaults.targetRes,
@@ -66,7 +66,18 @@ export class GdalCogBuilder {
 
         // TODO in theory this should be clamped to the lower right of the imagery, as there is no point generating large empty tiffs
         const [ulX, ulY, lrX, lrY] = this.config.bbox;
-        return ['-projwin', ulX, ulY, lrX, lrY, '-projwin_srs', this.config.projection.toEpsgString()].map(String);
+        return ['-projwin', ulX, ulY, lrX, lrY, '-projwin_srs', this.config.tileMatrix.projection.toEpsgString()].map(
+            String,
+        );
+    }
+
+    get tileMatrixFileName(): string {
+        const tileMatrix = this.config.tileMatrix;
+        // Gdal built in TileMatrixSets
+        if (tileMatrix.identifier === GoogleTms.identifier) return 'GoogleMapsCompatible';
+        if (tileMatrix.identifier === Nztm2000Tms.identifier) return 'NZTM2000';
+
+        return 'https://raw.githubusercontent.com/linz/NZTM2000TileMatrixSet/master/raw/NZTM2000Quad.json';
     }
 
     get args(): string[] {
@@ -77,7 +88,7 @@ export class GdalCogBuilder {
             'COG',
             // Force GoogleMaps tiling
             '-co',
-            `TILING_SCHEME=${this.config.tilingScheme}`,
+            `TILING_SCHEME=${this.tileMatrixFileName}`,
             // Max CPU POWER
             '-co',
             'NUM_THREADS=ALL_CPUS',

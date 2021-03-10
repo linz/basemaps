@@ -78,10 +78,11 @@ export const CogJobFactory = {
             const smallArea = files[0];
             logger.info(
                 {
+                    tileMatrix: ctx.tileMatrix.identifier,
                     // Size of the biggest image
-                    big: bigArea.width / cutline.tms.pixelScale(metadata.resZoom),
+                    big: bigArea.width / cutline.tileMatrix.pixelScale(metadata.resZoom),
                     // Size of the smallest image
-                    small: smallArea.width / cutline.tms.pixelScale(metadata.resZoom),
+                    small: smallArea.width / cutline.tileMatrix.pixelScale(metadata.resZoom),
                 },
                 'Covers',
             );
@@ -91,6 +92,7 @@ export const CogJobFactory = {
         logger.info(
             {
                 ...metadata,
+                tileMatrix: ctx.tileMatrix.identifier,
                 bounds: undefined,
                 fileCount: files.length,
                 files: metadata.files
@@ -117,10 +119,8 @@ export const CogJobFactory = {
             cutlinePoly: cutline.clipPoly,
         });
 
-        if (ctx.batch) {
-            await ActionBatchJob.batchJob(job, true, undefined, logger);
-        }
-        logger.info({ job: job.getJobPath() }, 'Done');
+        if (ctx.batch) await ActionBatchJob.batchJob(job, true, undefined, logger);
+        logger.info({ tileMatrix: ctx.tileMatrix.identifier, job: job.getJobPath() }, 'Done');
 
         return job;
     },

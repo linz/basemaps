@@ -1,11 +1,11 @@
-import { EpsgCode, Bounds, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
+import { Bounds, EpsgCode, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
+import { MultiPolygon } from '@linzjs/geojson';
 import o from 'ospec';
 import { Cutline, polyContainsBounds } from '../cutline';
 import { SourceMetadata } from '../types';
 import { SourceTiffTestHelper } from './source.tiff.testhelper';
-import { MultiPolygon } from '@linzjs/geojson';
 
 o.spec('cutline', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;
@@ -20,7 +20,7 @@ o.spec('cutline', () => {
             const name = qkToName('311333222321113310');
 
             const job = SourceTiffTestHelper.makeCogJob();
-            job.output.epsg = EpsgCode.Google;
+            job.output.tileMatrix = GoogleTms.identifier;
             job.source.epsg = EpsgCode.Nztm2000;
             const sourceBounds = SourceTiffTestHelper.tiffNztmBounds(testDir);
             const [tif1, tif2] = sourceBounds;

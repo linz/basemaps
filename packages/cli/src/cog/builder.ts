@@ -66,6 +66,7 @@ export class CogBuilder {
             return this.q(async () => {
                 count++;
                 if (count % 50 === 0) this.logger.info({ count, total: sources.length }, 'BoundsProgress');
+                this.logger.trace({ source: source.uri }, 'Tiff:Load');
 
                 const tiff = new CogTiff(source);
                 await tiff.init(true);

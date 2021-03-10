@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Epsg } from '@basemaps/geo';
 import { Aws, LogConfig } from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
@@ -8,7 +9,6 @@ import {
 import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateXYZCache } from './tileset.util';
-import { Epsg } from '@basemaps/geo';
 
 export class TileSetUpdateTagAction extends TileSetBaseAction {
     private commit: CommandLineFlagParameter;

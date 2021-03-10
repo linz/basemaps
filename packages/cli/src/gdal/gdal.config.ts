@@ -1,4 +1,4 @@
-import { Epsg } from '@basemaps/geo';
+import { GoogleTms, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
 
 export type GdalCogBuilderOptionsResampling =
@@ -23,22 +23,16 @@ export interface GdalCogBuilderResampling {
     overview: GdalCogBuilderOptionsResampling;
 }
 
-export enum TilingScheme {
-    Google = 'GoogleMapsCompatible',
-    Nztm2000 = 'NZTM2000',
-}
-
 export interface GdalCogBuilderOptions {
     /**
      * How to align levels
      */
-    tilingScheme: TilingScheme;
+    tileMatrix: TileMatrixSet;
     /**
      * Number of aligned tile levels
      * @default 1
      */
     alignmentLevels: number;
-    projection: Epsg;
 
     /** Limit the output to a bounding box
      */
@@ -74,8 +68,7 @@ export const GdalCogBuilderDefaults: GdalCogBuilderOptions = {
         overview: 'lanczos',
     },
     compression: 'webp',
-    tilingScheme: TilingScheme.Google,
-    projection: Epsg.Google,
+    tileMatrix: GoogleTms,
     alignmentLevels: 1,
     targetRes: 0,
     blockSize: 512,
