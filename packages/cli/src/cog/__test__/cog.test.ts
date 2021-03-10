@@ -28,8 +28,6 @@ o.spec('cog', () => {
             const job = SourceTiffTestHelper.makeCogJob();
             const logger = LogConfig.get();
 
-            // const { targetTms } = job;
-
             const name = '4-15-10';
 
             job.output.files = [{ name, ...job.tileMatrix.tileToSourceBounds({ x: 15, y: 10, z: 4 }) }];
