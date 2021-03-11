@@ -91,10 +91,10 @@ o.spec('TileSetCache', () => {
             o(parentTileSet.tileSet.background).deepEquals({ r: 200, g: 50, b: 100, alpha: 0.5 });
             o(parentTileSet.tileSet.background).equals(Object.getPrototypeOf(subTileSet.tileSet).background);
 
-            const noTiffs = subTileSet.getTiffsForTile(GoogleTms, { x: 0, y: 0, z: 1 });
+            const noTiffs = subTileSet.getTiffsForTile({ x: 0, y: 0, z: 1 });
             o(noTiffs).deepEquals([]);
 
-            const aTiff = subTileSet.getTiffsForTile(GoogleTms, { x: 0, y: 0, z: 0 });
+            const aTiff = subTileSet.getTiffsForTile({ x: 0, y: 0, z: 0 });
             o(aTiff.length).equals(1);
             o(aTiff[0].source.uri).equals('s3://foo/bar/foo.tiff');
         });
