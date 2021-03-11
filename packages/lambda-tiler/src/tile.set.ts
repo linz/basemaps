@@ -120,7 +120,7 @@ export class TileSet {
         if (defaultMatrix.identifier === this.tileMatrix.identifier) return z;
         if (z > defaultMatrix.maxZoom) return z;
 
-        return this.tileMatrix.findBestZoom(defaultMatrix.zooms[z].scaleDenominator);
+        return defaultMatrix.findBestZoom(this.tileMatrix.zooms[z].scaleDenominator);
     }
 
     /**
