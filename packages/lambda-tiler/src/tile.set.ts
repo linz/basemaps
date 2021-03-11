@@ -1,20 +1,27 @@
-import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import {
     Aws,
-    ProjectionTileMatrixSet,
+    Env,
+    LogType,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
     TileMetadataSetRecord,
     TileMetadataTag,
     TileResizeKernel,
 } from '@basemaps/shared';
+import { Composition } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
+import { SourceAwsS3 } from '@cogeotiff/source-aws';
+import pLimit from 'p-limit';
+import { Tiler } from '@basemaps/tiler';
+
+const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
 export class TileSet {
     name: string;
     tag: TileMetadataTag;
-    projection: Epsg;
+    tileMatrix: TileMatrixSet;
+    tiler: Tiler;
     tileSet: TileMetadataSetRecord;
     imagery: Map<string, TileMetadataImageryRecord>;
     sources: Map<string, CogTiff> = new Map();
@@ -27,20 +34,17 @@ export class TileSet {
      * @param name the COG to locate. Return just the directory if `null`
      */
     static basePath(record: TileMetadataImageryRecord, name?: string): string {
-        if (name == null) {
-            return record.uri;
-        }
-        if (record.uri.endsWith('/')) {
-            throw new Error("Invalid uri ending with '/' " + record.uri);
-        }
+        if (name == null) return record.uri;
+        if (record.uri.endsWith('/')) throw new Error("Invalid uri ending with '/' " + record.uri);
         return `${record.uri}/${name}.tiff`;
     }
 
-    constructor(nameStr: string, projection: Epsg) {
+    constructor(nameStr: string, tileMatrix: TileMatrixSet) {
         const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
         this.name = name;
         this.tag = tag ?? TileMetadataNamedTag.Production;
-        this.projection = projection;
+        this.tileMatrix = tileMatrix;
+        this.tiler = new Tiler(this.tileMatrix);
     }
 
     get background(): { r: number; g: number; b: number; alpha: number } | undefined {
@@ -57,7 +61,7 @@ export class TileSet {
     }
 
     get id(): string {
-        return `${this.taggedName}_${this.projection}`;
+        return `${this.taggedName}_${this.tileMatrix.identifier}`;
     }
 
     get title(): string {
@@ -69,11 +73,11 @@ export class TileSet {
     }
 
     get extent(): Bounds {
-        return this.extentOverride ?? ProjectionTileMatrixSet.get(this.projection.code).tms.extent;
+        return this.extentOverride ?? this.tileMatrix.extent;
     }
 
     async load(): Promise<boolean> {
-        const tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.projection, this.tag);
+        const tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.tileMatrix.projection, this.tag);
         if (tileSet == null) return false;
         this.tileSet = tileSet;
         this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
@@ -81,26 +85,63 @@ export class TileSet {
         return true;
     }
 
+    private async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
+        const tiffs = this.getTiffsForTile(tile);
+        let failed = false;
+        // Remove any tiffs that failed to load
+        const promises = tiffs.map((c) => {
+            return LoadingQueue(async () => {
+                try {
+                    await c.init();
+                } catch (error) {
+                    log.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
+                    failed = true;
+                }
+            });
+        });
+        await Promise.all(promises);
+        if (failed) return tiffs.filter((f) => f.images.length > 0);
+        return tiffs;
+    }
+
+    public async tile(xyz: Tile, log: LogType): Promise<Composition[]> {
+        const tiffs = await this.initTiffs(xyz, log);
+        return this.tiler.tile(tiffs, xyz.x, xyz.y, xyz.z);
+    }
+
+    /**
+     * Find the closest matching zoom level to the default tile matrix set for this projection
+     * @param z Zoom level to find match for
+     * @returns the closest matching zoom level;
+     */
+    public getDefaultZoomLevel(z: number): number {
+        const defaultMatrix = TileMatrixSets.get(this.tileMatrix.projection);
+
+        if (defaultMatrix.identifier === this.tileMatrix.identifier) return z;
+        if (z >= this.tileMatrix.maxZoom) z = this.tileMatrix.maxZoom;
+
+        return defaultMatrix.findBestZoom(this.tileMatrix.zooms[z].scaleDenominator);
+    }
+
     /**
      * Get a list of tiffs in the rendering order that is needed to render the tile
      * @param tms tile matrix set to describe the tiling scheme
      * @param tile tile to render
      */
-    public getTiffsForTile(tms: TileMatrixSet, tile: Tile): CogTiff[] {
+    public getTiffsForTile(tile: Tile): CogTiff[] {
         const output: CogTiff[] = [];
-        const tileBounds = tms.tileToSourceBounds(tile);
-        const zFilter = tms.getParentZoom(tile.z);
+        const tileBounds = this.tileMatrix.tileToSourceBounds(tile);
+
+        const filterZoom = this.getDefaultZoomLevel(tile.z);
         for (const rule of this.tileSet.rules) {
-            if (zFilter > (rule.maxZoom ?? 32)) continue;
-            if (zFilter < (rule.minZoom ?? 0)) continue;
+            if (rule.maxZoom != null && filterZoom > rule.maxZoom) continue;
+            if (rule.minZoom != null && filterZoom < rule.minZoom) continue;
 
             const imagery = this.imagery.get(rule.imgId);
             if (imagery == null) continue;
             if (!tileBounds.intersects(Bounds.fromJson(imagery.bounds))) continue;
 
-            for (const tiff of this.getCogsForTile(imagery, tileBounds)) {
-                output.push(tiff);
-            }
+            for (const tiff of this.getCogsForTile(imagery, tileBounds)) output.push(tiff);
         }
         return output;
     }
@@ -113,7 +154,7 @@ export class TileSet {
             const tiffKey = `${record.id}_${c.name}`;
             let existing = this.sources.get(tiffKey);
             if (existing == null) {
-                const source = CogSourceAwsS3.createFromUri(TileSet.basePath(record, c.name), Aws.s3);
+                const source = SourceAwsS3.fromUri(TileSet.basePath(record, c.name), Aws.s3);
                 if (source == null) {
                     throw new Error(`Failed to create CogSource from  ${TileSet.basePath(record, c.name)}`);
                 }

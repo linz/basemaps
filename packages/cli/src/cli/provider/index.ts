@@ -3,10 +3,10 @@ import { LogConfig } from '@basemaps/shared';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import { BaseCommandLine } from '../base.cli';
-import { ProviderInfoAction } from './action.provider.info';
-import { ProviderUpdateAction } from './action.provider.update';
 import { ProviderHistoryAction } from './action.provider.history';
+import { ProviderInfoAction } from './action.provider.info';
 import { ProviderUpdateTagAction } from './action.provider.tag';
+import { ProviderUpdateAction } from './action.provider.update';
 
 export class ProviderCommandLine extends BaseCommandLine {
     constructor() {

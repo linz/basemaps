@@ -1,5 +1,5 @@
-import { GdalProgressParser } from '../gdal.progress';
 import o from 'ospec';
+import { GdalProgressParser } from '../gdal.progress';
 
 o.spec('GdalProgressParser', () => {
     o('should emit on progress', () => {

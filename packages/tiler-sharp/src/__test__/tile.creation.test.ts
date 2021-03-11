@@ -1,15 +1,12 @@
-import { Epsg, QuadKey } from '@basemaps/geo';
+import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
+import { TestTiff } from '@basemaps/test';
 import { ImageFormat, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
 import o from 'ospec';
 import * as path from 'path';
 import { PNG } from 'pngjs';
 import { TileMakerSharp } from '..';
-import { TestTiff } from '@basemaps/test';
 import PixelMatch = require('pixelmatch');
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
-import { Tile } from '@basemaps/geo';
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;
 

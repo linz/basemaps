@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
+
+
+### Bug Fixes
+
+* **bathymetry:** actually use the supplied tile matrix rather than defaulting to GoogleTms ([#1477](https://github.com/linz/basemaps/issues/1477)) ([4e1e461](https://github.com/linz/basemaps/commit/4e1e4618ca37d02a80a17538afcc40a16272c9cb))
+
+
+### Features
+
+* **bathymetry:** generate the bathy tiles based on the output tile matrix set not hard coded ([#1478](https://github.com/linz/basemaps/issues/1478)) ([536c643](https://github.com/linz/basemaps/commit/536c643a216ac1378f53b3cb15c5897a428fb492))
+* **bathymetry:** support other tile matrix sets for rendering bathymetry ([#1475](https://github.com/linz/basemaps/issues/1475)) ([e2c09db](https://github.com/linz/basemaps/commit/e2c09db49b86dc3f90464af44cdad123d68d9a4c))
+
+
+
+
+
 # [4.20.0](https://github.com/linz/basemaps/compare/v4.19.0...v4.20.0) (2021-02-15)
 
 

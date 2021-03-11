@@ -1,7 +1,7 @@
-import { Bounds, Epsg } from '@basemaps/geo';
-import { CompositeError, LogType, ProjectionTileMatrixSet, LoggerFatalError, FileOperator } from '@basemaps/shared';
-import { CogSource, CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
-import { CogSourceFile } from '@cogeotiff/source-file';
+import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
+import { CompositeError, FileOperator, LoggerFatalError, LogType, Projection } from '@basemaps/shared';
+import { ChunkSource } from '@cogeotiff/chunk';
+import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import pLimit from 'p-limit';
@@ -23,10 +23,8 @@ export const CacheFolder = './.cache';
  *
  * @param wkt
  */
-export function guessProjection(wkt: string): Epsg | null {
-    if (wkt == null) {
-        return null;
-    }
+export function guessProjection(wkt: string | null): Epsg | null {
+    if (wkt == null) return null;
     const searchWkt = wkt.replace(/_/g, ' ');
     if (searchWkt.includes('New Zealand Transverse Mercator')) return Epsg.Nztm2000;
     if (searchWkt.includes('Chatham Islands Transverse Mercator 2000')) return Epsg.Citm2000;
@@ -37,7 +35,7 @@ export function guessProjection(wkt: string): Epsg | null {
 export class CogBuilder {
     q: pLimit.Limit;
     logger: LogType;
-    targetPtms: ProjectionTileMatrixSet;
+    targetTms: TileMatrixSet;
     srcProj?: Epsg;
 
     // Prevent guessing spamming the logs
@@ -46,8 +44,8 @@ export class CogBuilder {
     /**
      * @param concurrency number of requests to run at a time
      */
-    constructor(targetPtms: ProjectionTileMatrixSet, concurrency: number, logger: LogType, srcProj?: Epsg) {
-        this.targetPtms = targetPtms;
+    constructor(targetTms: TileMatrixSet, concurrency: number, logger: LogType, srcProj?: Epsg) {
+        this.targetTms = targetTms;
         this.logger = logger;
         this.q = pLimit(concurrency);
         this.srcProj = srcProj;
@@ -57,7 +55,7 @@ export class CogBuilder {
      * Get the source bounds a collection of tiffs
      * @param tiffs
      */
-    async bounds(sources: CogSource[]): Promise<SourceMetadata> {
+    async bounds(sources: ChunkSource[]): Promise<SourceMetadata> {
         let resX = -1;
         let bands = -1;
         let projection = this.srcProj;
@@ -67,28 +65,37 @@ export class CogBuilder {
         const queue = sources.map((source) => {
             return this.q(async () => {
                 count++;
-                if (count % 50 === 0) {
-                    this.logger.info({ count, total: sources.length }, 'BoundsProgress');
-                }
+                if (count % 50 === 0) this.logger.info({ count, total: sources.length }, 'BoundsProgress');
+                this.logger.trace({ source: source.uri }, 'Tiff:Load');
+
                 const tiff = new CogTiff(source);
                 await tiff.init(true);
                 const image = tiff.getImage(0);
-                if (resX === -1 || image.resolution[0] < resX) {
-                    resX = image.resolution[0];
-                }
+                if (resX === -1 || image.resolution[0] < resX) resX = image.resolution[0];
+
+                // Check number of bands to determine alpha layer
                 const tiffBandCount = image.value(TiffTag.BitsPerSample) as number[] | null;
                 if (tiffBandCount != null && tiffBandCount.length > bands) {
+                    if (bands > -1) {
+                        this.logger.error(
+                            {
+                                firstImage: sources[0].name,
+                                bands,
+                                currentImage: source.name,
+                                currentBands: tiffBandCount,
+                            },
+                            'Multiple Bands',
+                        );
+                    }
                     bands = tiffBandCount.length;
                 }
 
                 const output = { ...Bounds.fromBbox(image.bbox).toJson(), name: source.uri };
 
-                if (CogSourceFile.isSource(source)) {
-                    await source.close();
-                }
+                if (source.close) await source.close();
 
                 const imageProjection = this.findProjection(tiff);
-                if (imageProjection != null && projection !== imageProjection) {
+                if (imageProjection != null && projection?.code !== imageProjection.code) {
                     if (projection != null) {
                         this.logger.error(
                             {
@@ -128,7 +135,7 @@ export class CogBuilder {
             bands,
             bounds,
             pixelScale: resX,
-            resZoom: this.targetPtms.getTiffResZoom(resX),
+            resZoom: Projection.getTiffResZoom(this.targetTms, resX),
         };
     }
 
@@ -140,9 +147,9 @@ export class CogBuilder {
             return Epsg.get(projection);
         }
 
-        const imgWkt = image.value(TiffTag.GeoAsciiParams);
+        const imgWkt = image.value<string>(TiffTag.GeoAsciiParams);
         const epsg = guessProjection(imgWkt);
-        if (epsg) {
+        if (imgWkt != null && epsg != null) {
             if (!this.wktPreviousGuesses.has(imgWkt)) {
                 this.logger.trace(
                     { tiff: tiff.source.name, imgWkt, projection },
@@ -164,10 +171,8 @@ export class CogBuilder {
      * @param logger
      */
     findNoData(tiff: CogTiff): number | null {
-        const noData: string = tiff.getImage(0).value(TiffTag.GDAL_NODATA);
-        if (noData == null) {
-            return null;
-        }
+        const noData = tiff.getImage(0).value<string>(TiffTag.GDAL_NODATA);
+        if (noData == null) return null;
 
         const noDataNum = parseInt(noData);
 
@@ -182,13 +187,13 @@ export class CogBuilder {
     }
 
     /** Cache the bounds lookup so we do not have to requery the bounds between CLI calls */
-    private async getMetadata(tiffs: CogSource[]): Promise<SourceMetadata> {
+    private async getMetadata(tiffs: ChunkSource[]): Promise<SourceMetadata> {
         const cacheKey =
             path.join(
                 CacheFolder,
                 CacheVersion +
                     createHash('sha256')
-                        .update(this.targetPtms.tms.projection.toString())
+                        .update(this.targetTms.projection.toString())
                         .update(tiffs.map((c) => c.name).join('\n'))
                         .digest('hex'),
             ) + '.json';
@@ -196,7 +201,7 @@ export class CogBuilder {
         if (existsSync(cacheKey)) {
             this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
             const metadata = await FileOperator.readJson<SourceMetadata>(cacheKey);
-            metadata.resZoom = this.targetPtms.getTiffResZoom(metadata.pixelScale);
+            metadata.resZoom = Projection.getTiffResZoom(this.targetTms, metadata.pixelScale);
             return metadata;
         }
 
@@ -214,7 +219,7 @@ export class CogBuilder {
      * @param tiffs list of source imagery to be converted
      * @returns List of Tile bounds covering tiffs
      */
-    async build(tiffs: CogSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
+    async build(tiffs: ChunkSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
         const metadata = await this.getMetadata(tiffs);
         const files = cutline.optimizeCovering(metadata);
         let union: Bounds | null = null;

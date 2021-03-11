@@ -1,8 +1,7 @@
-import { Bounds, EpsgCode, TileMatrixSet } from '@basemaps/geo';
-import { Aws, isConfigS3Role, LogType } from '@basemaps/shared';
+import { Bounds, TileMatrixSet } from '@basemaps/geo';
+import { Aws, isConfigS3Role, LogType, Projection } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal.cog';
 import { GdalCommand } from '../gdal/gdal.command';
-import { TilingScheme } from '../gdal/gdal.config';
 import { GdalProgressParser } from '../gdal/gdal.progress';
 import { CogJob } from './types';
 
@@ -20,12 +19,6 @@ export function onProgress(gdal: GdalCommand, keys: Record<string, any>, logger:
         logger.trace({ ...keys, progress: parseFloat(p.toFixed(2)), progressTime: Date.now() - lastTime }, 'Progress');
         lastTime = Date.now();
     });
-}
-
-/** Return any special tilingSchemes to use for `epsgCode` */
-function tilingScheme(epsgCode: EpsgCode): TilingScheme | undefined {
-    if (epsgCode === EpsgCode.Nztm2000) return TilingScheme.Nztm2000;
-    return undefined;
 }
 
 /**
@@ -48,8 +41,7 @@ export async function buildCogForName(
 ): Promise<void> {
     const startTime = Date.now();
 
-    const { targetZoom, targetPtms } = job;
-    const { tms } = targetPtms;
+    const { targetZoom, tileMatrix } = job;
 
     const nb = job.output.files.find((nb) => nb.name === name);
 
@@ -61,13 +53,12 @@ export async function buildCogForName(
 
     const tile = TileMatrixSet.nameToTile(name);
 
-    const blockSize = tms.tileSize * targetPtms.blockFactor;
-    const alignmentLevels = targetPtms.findAlignmentLevels(tile, job.source.gsd);
+    const blockSize = tileMatrix.tileSize * 2; // FIXME is this blockFactor always 2
+    const alignmentLevels = Projection.findAlignmentLevels(tileMatrix, tile, job.source.gsd);
 
     const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
         bbox: [bounds.x, bounds.bottom, bounds.right, bounds.y],
-        projection: targetPtms.tms.projection,
-        tilingScheme: tilingScheme(tms.projection.code),
+        tileMatrix,
         blockSize,
         targetRes: job.output.gsd,
         alignmentLevels,
@@ -79,7 +70,7 @@ export async function buildCogForName(
 
     logger.info(
         {
-            imageSize: targetPtms.getImagePixelWidth(tile, targetZoom),
+            imageSize: Projection.getImagePixelWidth(tileMatrix, tile, targetZoom),
             name,
             tile,
             alignmentLevels,

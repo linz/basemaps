@@ -1,17 +1,22 @@
 import { BaseCommandLine } from '@basemaps/cli/build/cli/base.cli';
 import { makeTempFolder } from '@basemaps/cli/build/cli/folder';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, FileOperator, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import * as ulid from 'ulid';
 import { createReadStream, promises as fs } from 'fs';
+import * as os from 'os';
+import * as ulid from 'ulid';
 import { BathyMaker } from './bathy.maker';
 import { FilePath, FileType } from './file';
+
+/** This zoom level gives a good enough quality world while not making too many tiles */
+const GoodZoom = GoogleTms.def.tileMatrix[4];
 
 class CreateAction extends CommandLineAction {
     private inputPath: CommandLineStringParameter;
     private outputPath: CommandLineStringParameter;
     private docker: CommandLineFlagParameter;
+    private tileMatrix: CommandLineStringParameter;
 
     public constructor() {
         super({
@@ -41,6 +46,13 @@ class CreateAction extends CommandLineAction {
             description: 'Run inside a docker container',
             required: false,
         });
+
+        this.tileMatrix = this.defineStringParameter({
+            argumentName: 'TILE_MATRIX_SET',
+            parameterLongName: '--tile-matrix-set',
+            description: 'Tile matrix set to use for the final cutting',
+            required: false,
+        });
     }
 
     async onExecute(): Promise<void> {
@@ -53,6 +65,16 @@ class CreateAction extends CommandLineAction {
                 process.env[Env.Gdal.DockerContainerTag] = 'ubuntu-full-latest';
             }
         }
+        const tileMatrixInput = this.tileMatrix.value ?? GoogleTms.identifier;
+        const tileMatrix = TileMatrixSets.find(tileMatrixInput);
+        if (tileMatrix == null) {
+            throw new Error(
+                'Unknown tile matrix set: ' +
+                    tileMatrixInput +
+                    ' Aviaiable tile matrix sets: ' +
+                    TileMatrixSets.All.map((c) => c.identifier).join(', '),
+            );
+        }
 
         const logger = LogConfig.get();
 
@@ -63,14 +85,20 @@ class CreateAction extends CommandLineAction {
         try {
             const outputPath = this.outputPath.value!;
 
+            /** Find a decent zoom level that is close to the good zoom at google's scale */
+            let bestZ = tileMatrix.findBestZoom(GoodZoom.scaleDenominator + 1);
+
+            // Make at least a few tiles
+            if (bestZ === 0) bestZ++;
+
             const bathy = new BathyMaker({
                 id: ulid.ulid(),
                 inputPath: this.inputPath.value!,
                 outputPath,
                 tmpFolder,
-                tms: GoogleTms,
-                zoom: 4,
-                threads: 8,
+                tileMatrix,
+                zoom: bestZ,
+                threads: os.cpus().length / 2,
             });
             await bathy.render(logger);
 

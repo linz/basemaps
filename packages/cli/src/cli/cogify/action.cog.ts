@@ -105,7 +105,7 @@ export class ActionCogCreate extends CommandLineAction {
                 logger.warn('NoCutLine');
             }
             const cutline = new Cutline(
-                job.targetPtms,
+                job.tileMatrix,
                 cutlineJson,
                 job.output.cutline?.blend,
                 job.output.oneCogCovering,
@@ -114,7 +114,7 @@ export class ActionCogCreate extends CommandLineAction {
             const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);
 
             if (tmpVrtPath == null) {
-                logger.warn({ name }, 'NoMatchingSourceImagery');
+                logger.warn({ name, tileMatrix: job.tileMatrix.identifier }, 'NoMatchingSourceImagery');
                 return;
             }
 

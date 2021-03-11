@@ -10,7 +10,6 @@ export { V, VNode, VNodeElement, VNodeText } from './vdom';
 export { VNodeParser } from './vdom.parse';
 export { CompositeError } from './composite.error';
 export { LoggerFatalError } from './logger.fatal.error';
-export * from './proj/projection.tile.matrix.set';
 export { TileSetName, TileSetNameValues } from './proj/tile.set.name';
 export * from './proj/projection';
 

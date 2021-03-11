@@ -1,5 +1,5 @@
-import { Epsg, EpsgCode } from '@basemaps/geo';
-import { FileConfig, FileOperator, ProjectionTileMatrixSet, FileConfigPath } from '@basemaps/shared';
+import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
+import { FileConfig, FileConfigPath, FileOperator } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -51,7 +51,7 @@ export class ActionJobCreate extends CommandLineAction {
     private submitBatch: CommandLineFlagParameter;
     private quality: CommandLineIntegerParameter;
     private sourceProjection: CommandLineIntegerParameter;
-    private targetProjection: CommandLineIntegerParameter;
+    private tileMatrix: CommandLineStringParameter;
     private oneCog: CommandLineFlagParameter;
     private fileList: CommandLineStringParameter;
 
@@ -90,8 +90,8 @@ export class ActionJobCreate extends CommandLineAction {
             cutline = { href: this.cutline.value, blend: this.cutlineBlend.value ?? 20 };
         }
 
-        const targetProjection = ProjectionTileMatrixSet.tryGet(this.targetProjection?.value);
-        if (targetProjection == null) throw new Error('Invalid target-projection');
+        const tileMatrix = TileMatrixSets.find(this.tileMatrix.value ?? GoogleTms.identifier);
+        if (tileMatrix == null) throw new Error('Invalid target-projection');
 
         let resampling: GdalCogBuilderResampling | undefined;
 
@@ -120,7 +120,7 @@ export class ActionJobCreate extends CommandLineAction {
             sourceLocation,
             outputLocation,
             cutline,
-            targetProjection,
+            tileMatrix,
             override: {
                 concurrency: this.maxConcurrency?.value ?? MaxConcurrencyDefault,
                 quality: this.quality?.value ?? GdalCogBuilderDefaults.quality,
@@ -196,11 +196,11 @@ export class ActionJobCreate extends CommandLineAction {
             required: false,
         });
 
-        this.targetProjection = this.defineIntegerParameter({
-            argumentName: 'TARGET_PROJECTION',
-            parameterLongName: '--target-projection',
-            description: 'The EPSG code for the target imagery',
-            defaultValue: EpsgCode.Google,
+        this.tileMatrix = this.defineStringParameter({
+            argumentName: 'TILE_MATRIX',
+            parameterLongName: '--target-tile-matrix-set',
+            description: 'The TileMatrixSet to generate the COGS for',
+            defaultValue: GoogleTms.identifier,
             required: false,
         });
 

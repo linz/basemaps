@@ -4,9 +4,9 @@ import o from 'ospec';
 import { Point } from '../bounds';
 import { Epsg } from '../epsg';
 import { QuadKey } from '../quad.key';
-import { GoogleTms } from '../tms/google';
-import { Nztm2000Tms } from '../tms/nztm2000';
 import { TileMatrixSet } from '../tile.matrix.set';
+import { GoogleTms } from '../tms/google';
+import { Nztm2000QuadTms, Nztm2000Tms } from '../tms/nztm2000';
 
 const TileSize = 256;
 
@@ -228,6 +228,38 @@ o.spec('TileMatrixSet', () => {
         o('should make a name of the tile z,x,y', () => {
             o(TileMatrixSet.tileToName({ x: 4, y: 5, z: 6 })).equals('6-4-5');
             o(TileMatrixSet.nameToTile('6-4-5')).deepEquals({ x: 4, y: 5, z: 6 });
+        });
+    });
+
+    o.spec('findBestZoom', () => {
+        o('should find a similar scale', () => {
+            o(GoogleTms.findBestZoom(GoogleTms.def.tileMatrix[1].scaleDenominator)).equals(1);
+            o(GoogleTms.findBestZoom(GoogleTms.def.tileMatrix[10].scaleDenominator)).equals(10);
+            o(GoogleTms.findBestZoom(GoogleTms.def.tileMatrix[15].scaleDenominator)).equals(15);
+
+            o(Nztm2000Tms.findBestZoom(Nztm2000Tms.def.tileMatrix[1].scaleDenominator)).equals(1);
+            o(Nztm2000Tms.findBestZoom(Nztm2000Tms.def.tileMatrix[10].scaleDenominator)).equals(10);
+            o(Nztm2000Tms.findBestZoom(Nztm2000Tms.def.tileMatrix[15].scaleDenominator)).equals(15);
+
+            o(Nztm2000QuadTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[1].scaleDenominator)).equals(1);
+            o(Nztm2000QuadTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[10].scaleDenominator)).equals(10);
+            o(Nztm2000QuadTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[15].scaleDenominator)).equals(15);
+        });
+
+        o('should find similar scales across tile matrix sets', () => {
+            for (let i = 0; i < Nztm2000QuadTms.maxZoom; i++) {
+                o(GoogleTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[i].scaleDenominator)).equals(i + 2);
+            }
+
+            o(Nztm2000QuadTms.findBestZoom(Nztm2000Tms.def.tileMatrix[0].scaleDenominator)).equals(3);
+        });
+
+        o('should map test urban/rural scales correctly', () => {
+            o(Nztm2000Tms.findBestZoom(GoogleTms.zooms[13].scaleDenominator)).equals(9);
+            o(Nztm2000Tms.findBestZoom(GoogleTms.zooms[14].scaleDenominator)).equals(10);
+
+            o(Nztm2000QuadTms.findBestZoom(GoogleTms.zooms[13].scaleDenominator)).equals(11);
+            o(Nztm2000QuadTms.findBestZoom(GoogleTms.zooms[14].scaleDenominator)).equals(12);
         });
     });
 

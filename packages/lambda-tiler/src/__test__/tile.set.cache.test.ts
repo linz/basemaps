@@ -1,9 +1,8 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, GoogleTms } from '@basemaps/geo';
+import { TileMetadataImageryRecord, TileSetName } from '@basemaps/shared';
 import o from 'ospec';
 import { TileSet } from '../tile.set';
-import { loadTileSets, TileSets, loadTileSet } from '../tile.set.cache';
-import { TileMetadataImageryRecord, TileSetName } from '@basemaps/shared';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
+import { loadTileSet, loadTileSets, TileSets } from '../tile.set.cache';
 
 o.spec('TileSetCache', () => {
     const origLoad = TileSet.prototype.load;
@@ -18,7 +17,7 @@ o.spec('TileSetCache', () => {
 
     class MyTileSet extends TileSet {
         async load(): Promise<boolean> {
-            if (this.projection === Epsg.Google && this.name === TileSetName.aerial) {
+            if (this.tileMatrix.projection === Epsg.Google && this.name === TileSetName.aerial) {
                 this.tileSet = {
                     title: 'parent aerial title',
                     name: 'aerial',
@@ -38,7 +37,7 @@ o.spec('TileSetCache', () => {
                 } as TileMetadataImageryRecord);
                 return true;
             }
-            if (this.projection === Epsg.Nztm2000 && this.name === TileSetName.aerial) {
+            if (this.tileMatrix.projection === Epsg.Nztm2000 && this.name === TileSetName.aerial) {
                 this.tileSet = {
                     background: { r: 200, g: 50, b: 100, alpha: 0.5 },
                     name: TileSetName.aerial,
@@ -66,13 +65,13 @@ o.spec('TileSetCache', () => {
         o('load individual set', async () => {
             const loadSpy = o.spy(MyTileSet.prototype.load);
             (TileSet.prototype.load as any) = loadSpy;
-            TileSets.set('ts1', new TileSet('aerial@head', Epsg.Google));
+            TileSets.set('ts1', new TileSet('aerial@head', GoogleTms));
 
-            const parentTileSet = await loadTileSet('aerial@head', Epsg.Google);
+            const parentTileSet = await loadTileSet('aerial@head', GoogleTms);
 
             if (parentTileSet == null) throw new Error('null parentTileSet');
 
-            const subTileSet = await loadTileSet('aerial@head:tasman_rural_2018-19_0-3m', Epsg.Google);
+            const subTileSet = await loadTileSet('aerial@head:tasman_rural_2018-19_0-3m', GoogleTms);
 
             if (subTileSet == null) throw new Error('null subTileSet');
 
@@ -92,10 +91,10 @@ o.spec('TileSetCache', () => {
             o(parentTileSet.tileSet.background).deepEquals({ r: 200, g: 50, b: 100, alpha: 0.5 });
             o(parentTileSet.tileSet.background).equals(Object.getPrototypeOf(subTileSet.tileSet).background);
 
-            const noTiffs = subTileSet.getTiffsForTile(GoogleTms, { x: 0, y: 0, z: 1 });
+            const noTiffs = subTileSet.getTiffsForTile({ x: 0, y: 0, z: 1 });
             o(noTiffs).deepEquals([]);
 
-            const aTiff = subTileSet.getTiffsForTile(GoogleTms, { x: 0, y: 0, z: 0 });
+            const aTiff = subTileSet.getTiffsForTile({ x: 0, y: 0, z: 0 });
             o(aTiff.length).equals(1);
             o(aTiff[0].source.uri).equals('s3://foo/bar/foo.tiff');
         });
@@ -105,7 +104,7 @@ o.spec('TileSetCache', () => {
         o('load all', async () => {
             const loadSpy = o.spy(MyTileSet.prototype.load);
             (TileSet.prototype.load as any) = loadSpy;
-            const ts1 = new TileSet('aerial', Epsg.Google);
+            const ts1 = new TileSet('aerial', GoogleTms);
             TileSets.set('ts1', ts1);
             const tileSets = await loadTileSets('', null);
 
@@ -113,7 +112,7 @@ o.spec('TileSetCache', () => {
 
             o(tileSets[0].title).equals(TileSetName.aerial);
             o(tileSets[0].name).equals(TileSetName.aerial);
-            o(tileSets[0].projection.code).equals(2193);
+            o(tileSets[0].tileMatrix.projection.code).equals(2193);
             o(tileSets[0].extent.toBbox()).deepEquals([274000, 3087000, 3327000, 7173000]);
 
             o(tileSets[1].title).equals('parent aerial title');
@@ -142,22 +141,22 @@ o.spec('TileSetCache', () => {
         o('load all subset projections', async () => {
             const loadSpy = o.spy(MyTileSet.prototype.load);
             (TileSet.prototype.load as any) = loadSpy;
-            const ts1 = new TileSet('aerial@head', Epsg.Google);
+            const ts1 = new TileSet('aerial@head', GoogleTms);
             TileSets.set('ts1', ts1);
             const tileSets = await loadTileSets('aerial@head:tasman_rural_2018-19_0-3m', null);
 
             o(tileSets.length).deepEquals(2);
 
             o(tileSets[0].name).equals('aerial@head:tasman_rural_2018-19_0-3m');
-            o(tileSets[0].projection).equals(Epsg.Nztm2000);
+            o(tileSets[0].tileMatrix.projection).equals(Epsg.Nztm2000);
             o(tileSets[1].name).equals('aerial@head:tasman_rural_2018-19_0-3m');
-            o(tileSets[1].projection).equals(Epsg.Google);
+            o(tileSets[1].tileMatrix.projection).equals(Epsg.Google);
         });
 
         o('load all @tag', async () => {
             const loadSpy = o.spy(MyTileSet.prototype.load);
             (TileSet.prototype.load as any) = loadSpy;
-            const ts1 = new TileSet('aerial@head', Epsg.Google);
+            const ts1 = new TileSet('aerial@head', GoogleTms);
             TileSets.set('ts1', ts1);
             const tileSets = await loadTileSets('@head', null);
 

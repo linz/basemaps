@@ -1,21 +1,11 @@
-import { Epsg, TileMatrixSet } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import {
-    Aws,
-    Env,
-    LogConfig,
-    TileMetadataProviderRecord,
-    VNodeParser,
-    ProjectionTileMatrixSet,
-} from '@basemaps/shared';
+import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
+import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
-import { Tiler } from '@basemaps/tiler';
 import o from 'ospec';
 import { handleRequest } from '../index';
 import { TileComposer } from '../routes/tile';
 import { TileEtag } from '../routes/tile.etag';
 import { TileSets } from '../tile.set.cache';
-import { Tilers } from '../tiler';
 import { FakeTileSet, mockRequest, Provider } from './xyz.util';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
@@ -26,7 +16,6 @@ o.spec('LambdaXyz', () => {
     let tileMock = o.spy();
     let rasterMock = o.spy();
     const generateMock = o.spy(() => 'foo');
-    let tiler: Tiler = new Tiler(GoogleTms);
     const rasterMockBuffer = Buffer.from([1]);
     const origTileEtag = TileEtag.generate;
     const origCompose = TileComposer.compose;
@@ -42,18 +31,15 @@ o.spec('LambdaXyz', () => {
         }) as any;
 
         TileEtag.generate = generateMock;
-        // Mock the tile generation
-        tiler = new Tiler(GoogleTms);
-        Tilers.add(tiler);
-        tiler.tile = tileMock as any;
         TileComposer.compose = rasterMock as any;
 
         for (const tileSetName of TileSetNames) {
-            for (const code of ProjectionTileMatrixSet.targetCodes()) {
-                const tileSet = new FakeTileSet(tileSetName, Epsg.get(code));
+            for (const tileMatrix of TileMatrixSets.All.values()) {
+                const tileSet = new FakeTileSet(tileSetName, tileMatrix);
                 TileSets.set(tileSet.id, tileSet);
                 tileSet.load = () => Promise.resolve(true);
                 tileSet.getTiffsForTile = (): [] => [];
+                tileSet.tile = tileMock as any;
             }
         }
 
@@ -62,7 +48,6 @@ o.spec('LambdaXyz', () => {
 
     o.afterEach(() => {
         TileSets.clear();
-        Tilers.reset();
         TileComposer.compose = origCompose;
         TileEtag.generate = origTileEtag;
     });
@@ -75,6 +60,7 @@ o.spec('LambdaXyz', () => {
 
     TileSetNames.forEach((tileSetName) => {
         o(`should generate a tile 0,0,0 for ${tileSetName}.png`, async () => {
+            o.timeout(200);
             const request = mockRequest(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`);
             const res = await handleRequest(request);
             o(res.status).equals(200);
@@ -86,68 +72,25 @@ o.spec('LambdaXyz', () => {
                 {
                     type: 'image',
                     name: tileSetName,
-                    projection: Epsg.Google,
+                    tileMatrix: GoogleTms,
                     x: 0,
                     y: 0,
                     z: 0,
                     ext: 'png',
-                    altTms: undefined,
                 },
             ] as any);
 
             o(tileMock.calls.length).equals(1);
-            const [tiffs, x, y, z] = tileMock.args;
-            o(tiffs).deepEquals([]);
-            o(x).equals(0);
-            o(y).equals(0);
-            o(z).equals(0);
+            const [xyz] = tileMock.args;
+            o(xyz.x).equals(0);
+            o(xyz.y).equals(0);
+            o(xyz.z).equals(0);
 
             // Validate the session information has been set correctly
             o(request.logContext['tileSet']).equals(tileSetName);
             o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
             o(round(request.logContext['location'])).deepEquals({ lat: 0, lon: 0 });
         });
-    });
-
-    o(`should generate a tile 0,0,0 for alternate tms`, async () => {
-        tiler = Object.create(Tilers.get(Epsg.Nztm2000, 'agol')!);
-        Tilers.map.set(TileMatrixSet.getId(Epsg.Nztm2000, 'agol'), tiler);
-        tiler.tile = tileMock as any;
-        const tileSet = new FakeTileSet('aerial', Epsg.Nztm2000);
-        TileSets.set(tileSet.id, tileSet);
-        tileSet.load = () => Promise.resolve(true);
-        tileSet.getTiffsForTile = (): [] => [];
-        const request = mockRequest(`/v1/tiles/aerial/EPSG:2193:agol/0/0/0.png`);
-        const res = await handleRequest(request);
-        o(res.status).equals(200);
-        o(res.header('content-type')).equals('image/png');
-        o(res.header('eTaG')).equals('foo');
-        o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
-        o(generateMock.args).deepEquals([
-            tileMockData,
-            {
-                type: 'image',
-                name: 'aerial',
-                projection: Epsg.Nztm2000,
-                x: 0,
-                y: 0,
-                z: 0,
-                ext: 'png',
-                altTms: 'agol',
-            },
-        ] as any);
-
-        o(tileMock.calls.length).equals(1);
-        const [tiffs, x, y, z] = tileMock.args;
-        o(tiffs).deepEquals([]);
-        o(x).equals(0);
-        o(y).equals(0);
-        o(z).equals(0);
-
-        // Validate the session information has been set correctly
-        o(request.logContext['tileSet']).equals('aerial');
-        o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
-        o(round(request.logContext['location'])).deepEquals({ lat: -90, lon: 0 });
     });
 
     o('should generate a tile 0,0,0 for webp', async () => {
@@ -159,11 +102,10 @@ o.spec('LambdaXyz', () => {
         o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
 
         o(tileMock.calls.length).equals(1);
-        const [tiffs, x, y, z] = tileMock.args;
-        o(tiffs).deepEquals([]);
-        o(x).equals(0);
-        o(y).equals(0);
-        o(z).equals(0);
+        const [xyz] = tileMock.args;
+        o(xyz.x).equals(0);
+        o(xyz.y).equals(0);
+        o(xyz.z).equals(0);
 
         // Validate the session information has been set correctly
         o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
@@ -172,7 +114,7 @@ o.spec('LambdaXyz', () => {
 
     ['png', 'webp', 'jpeg'].forEach((fmt) => {
         o(`should 200 with empty ${fmt} if a tile is out of bounds`, async () => {
-            tiler.tile = async () => [];
+            // tiler.tile = async () => [];
             const res = await handleRequest(mockRequest(`/v1/tiles/aerial/global-mercator/0/0/0.${fmt}`));
             o(res.status).equals(200);
             o(res.header('content-type')).equals(`image/${fmt}`);

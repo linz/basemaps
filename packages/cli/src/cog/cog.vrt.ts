@@ -1,10 +1,10 @@
+import { Epsg } from '@basemaps/geo';
 import { Aws, FileOperator, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
 import { Gdal } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
 import { onProgress } from './cog';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
-import { Epsg } from '@basemaps/geo';
 
 /**
  * Build the VRT for the needed source imagery
@@ -46,7 +46,7 @@ async function buildWarpVrt(
         '-s_srs',
         Epsg.get(job.source.epsg).toEpsgString(),
         '-t_srs',
-        Epsg.get(job.output.epsg).toEpsgString(),
+        job.tileMatrix.projection.toEpsgString(),
         '-tr',
         tr,
         tr,
@@ -134,7 +134,7 @@ export const CogVrt = {
 
         const tr = job.output.gsd.toString();
 
-        onProgress(gdalCommand, { target: `vrt.${job.output.epsg}` }, logger);
+        onProgress(gdalCommand, { target: `vrt.${job.tileMatrix.projection.code}` }, logger);
         await buildPlainVrt(job, sourceFiles, sourceVrtPath, gdalCommand, logger);
         await buildWarpVrt(job, cogVrtPath, gdalCommand, sourceVrtPath, tr, logger, cutlineTarget);
         return cogVrtPath;

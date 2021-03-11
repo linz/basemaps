@@ -1,6 +1,4 @@
-import { Bounds, QuadKey } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { Approx, TestTiff } from '@basemaps/test';
 import o from 'ospec';
 import { Tiler } from '../tiler';
@@ -35,11 +33,6 @@ o.spec('tiler.test', () => {
                 Approx.bounds(o?.tile, { x: 256 * tile.x, y: 256 * tile.y, width: 256, height: 256 }, 'tile');
             });
         });
-    });
-
-    o('getParentZoom', () => {
-        const tiler = new Tiler(GoogleTms);
-        o(tiler.tms.getParentZoom(10)).equals(10);
     });
 
     o('createComposition should handle non square images', () => {

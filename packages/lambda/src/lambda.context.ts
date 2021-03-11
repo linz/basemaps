@@ -5,7 +5,7 @@ import { toAlbHeaders, toCloudFrontHeaders } from './lambda.aws';
 import * as qs from 'querystring';
 import { HttpHeader } from './header';
 import { LambdaHttpResponse } from './lambda.response';
-import { Const } from '@basemaps/shared';
+import { Const, LogType } from '@basemaps/shared';
 
 export interface ActionData {
     version: string;
@@ -15,17 +15,6 @@ export interface ActionData {
 
 export type LambdaHttpRequestType = ALBEvent | CloudFrontRequestEvent;
 export type LambdaHttpReturnType = ALBResult | CloudFrontRequestResult;
-
-/** Mininmal logging interface should be satisfiable by something like pino */
-export interface LogType {
-    child(args: Record<string, unknown>): LogType;
-    info(args: Record<string, unknown>, msg: string): void;
-    debug(args: Record<string, unknown>, msg: string): void;
-    trace(args: Record<string, unknown>, msg: string): void;
-    warn(args: Record<string, unknown>, msg: string): void;
-    error(args: Record<string, unknown>, msg: string): void;
-    fatal(args: Record<string, unknown>, msg: string): void;
-}
 
 export class LambdaContext {
     static isAlbEvent(evt: any): evt is ALBEvent {

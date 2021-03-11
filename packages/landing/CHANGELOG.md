@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
+
+
+### Bug Fixes
+
+* **landing:** correct the WMTS url for arcgis users ([#1454](https://github.com/linz/basemaps/issues/1454)) ([cf42808](https://github.com/linz/basemaps/commit/cf42808a49839f8b70de4290823f4b7f7ecabcf7))
+
+
+
+
+
 # [4.21.0](https://github.com/linz/basemaps/compare/v4.20.0...v4.21.0) (2021-02-16)
 
 **Note:** Version bump only for package @basemaps/landing

@@ -1,6 +1,4 @@
-import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
-import { GoogleTms } from '@basemaps/geo/build/tms/google';
-import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Bounds, Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import { TileSetName, V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding';
 import { createHash } from 'crypto';
@@ -18,23 +16,11 @@ function listTag(node: VNodeElement | null | undefined, tag: string): string[] {
 
 o.spec('WmtsCapabilities', () => {
     const apiKey = 'secret1234';
-    const tileSet = new FakeTileSet(TileSetName.aerial, Epsg.Google);
-    const tileSetImagery = new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Epsg.Google);
-
-    const tileMatrixSetMap = new Map<Epsg, TileMatrixSet>([
-        [Epsg.Google, GoogleTms],
-        [Epsg.Nztm2000, Nztm2000Tms],
-    ]);
+    const tileSet = new FakeTileSet(TileSetName.aerial, GoogleTms);
+    const tileSetImagery = new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', GoogleTms);
 
     o('should build capability xml for tileset and projection', () => {
-        const wmts = new WmtsCapabilities(
-            'https://basemaps.test',
-            Provider,
-            [tileSet],
-            tileMatrixSetMap,
-            undefined,
-            apiKey,
-        );
+        const wmts = new WmtsCapabilities('https://basemaps.test', Provider, [tileSet], apiKey);
 
         const raw = wmts.toVNode();
         const serviceId = raw.find('ows:ServiceIdentification');
@@ -42,7 +28,7 @@ o.spec('WmtsCapabilities', () => {
         o(serviceId?.find('ows:Abstract')?.textContent).equals('the description');
         o(serviceId?.find('ows:Title')?.textContent).equals('the title');
 
-        o(raw?.find('TileMatrixSetLink')?.toString()).deepEquals(
+        o(raw.find('TileMatrixSetLink')?.toString()).deepEquals(
             V('TileMatrixSetLink', [V('TileMatrixSet', 'EPSG:3857')]).toString(),
         );
 
@@ -117,9 +103,7 @@ o.spec('WmtsCapabilities', () => {
         compareMatrix(tileMatrices[0], '0', 1, 559082264.028717);
         compareMatrix(tileMatrices[10], '10', 1024, 545978.773465544);
 
-        const xml =
-            WmtsCapabilities.toXml('https://basemaps.test', Provider, [tileSet], tileMatrixSetMap, undefined, apiKey) ??
-            '';
+        const xml = WmtsCapabilities.toXml('https://basemaps.test', Provider, [tileSet], apiKey) ?? '';
 
         o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
 
@@ -128,20 +112,8 @@ o.spec('WmtsCapabilities', () => {
         );
     });
 
-    o('should return null if not found', () => {
-        const ts = new FakeTileSet(TileSetName.aerial, { code: 9999 } as Epsg);
-        o(() => WmtsCapabilities.toXml('basemaps.test', Provider, [ts], tileMatrixSetMap)).throws(
-            'Invalid projection: 9999',
-        );
-    });
-
     o('should allow individual imagery sets', () => {
-        const raw = new WmtsCapabilities(
-            'https://basemaps.test',
-            Provider,
-            [tileSetImagery],
-            tileMatrixSetMap,
-        ).toVNode();
+        const raw = new WmtsCapabilities('https://basemaps.test', Provider, [tileSetImagery]).toVNode();
 
         const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
 
@@ -156,11 +128,8 @@ o.spec('WmtsCapabilities', () => {
     });
 
     o('should support multiple projections', () => {
-        const ts = [
-            new FakeTileSet(TileSetName.aerial, Epsg.Nztm2000),
-            new FakeTileSet(TileSetName.aerial, Epsg.Google),
-        ];
-        const xml = new WmtsCapabilities('basemaps.test', Provider, ts, tileMatrixSetMap);
+        const ts = [new FakeTileSet(TileSetName.aerial, Nztm2000Tms), new FakeTileSet(TileSetName.aerial, GoogleTms)];
+        const xml = new WmtsCapabilities('basemaps.test', Provider, ts);
         const nodes = xml.toVNode();
 
         const layers = tags(nodes, 'Layer');
@@ -204,10 +173,10 @@ o.spec('WmtsCapabilities', () => {
 
     o('should support multiple tilesets', () => {
         const ts = [
-            new FakeTileSet(TileSetName.aerial, Epsg.Nztm2000, 'aerial-title'),
-            new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Epsg.Nztm2000, 'imagery-title'),
+            new FakeTileSet(TileSetName.aerial, Nztm2000Tms, 'aerial-title'),
+            new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Nztm2000Tms, 'imagery-title'),
         ];
-        const nodes = new WmtsCapabilities('basemaps.test', Provider, ts, tileMatrixSetMap).toVNode();
+        const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
         const layers = tags(nodes, 'Layer');
         o(layers.length).equals(2);
 
@@ -220,25 +189,28 @@ o.spec('WmtsCapabilities', () => {
 
     o('should support multiple different projections on differnt tiles sets', () => {
         const ts = [
-            new FakeTileSet(TileSetName.aerial, Epsg.Nztm2000, TileSetName.aerial),
-            new FakeTileSet('01F75X9G7FQ3XMWPJFR9AMQFJ0', Epsg.Nztm2000, '01F75X9G7FQ3XMWPJFR9AMQFJ0'),
-            new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Epsg.Google, '01E7PJFR9AMQFJ05X9G7FQ3XMW'),
+            new FakeTileSet(TileSetName.aerial, Nztm2000Tms, TileSetName.aerial),
+            new FakeTileSet('01F75X9G7FQ3XMWPJFR9AMQFJ0', Nztm2000Tms, '01F75X9G7FQ3XMWPJFR9AMQFJ0'),
+            new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', GoogleTms, '01E7PJFR9AMQFJ05X9G7FQ3XMW'),
+            new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Nztm2000QuadTms, '01E7PJFR9AMQFJ05X9G7FQ3XMW'),
         ];
         ts[1].extentOverride = new Bounds(1, 2, 2, 2);
         ts[1].titleOverride = 'override sub tileset 1';
 
         ts[2].tileSet.title = 'aerial_dunedin_urban';
-        const nodes = new WmtsCapabilities('basemaps.test', Provider, ts, tileMatrixSetMap).toVNode();
+        const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
 
         const allMatrixes = tags(nodes, 'TileMatrixSet');
 
         o(allMatrixes[0].children[0].textContent).equals('EPSG:2193');
         o(allMatrixes[1].children[0].textContent).equals('EPSG:2193');
         o(allMatrixes[2].children[0].textContent).equals('EPSG:3857');
+        o(allMatrixes[3].children[0].textContent).equals('NZTM2000Quad');
 
-        o(allMatrixes[3].find('ows:Identifier')?.textContent).equals('EPSG:2193');
-        o(allMatrixes[4].find('ows:Identifier')?.textContent).equals('EPSG:3857');
-        o(allMatrixes.length).equals(5);
+        o(allMatrixes[4].find('ows:Identifier')?.textContent).equals('EPSG:2193');
+        o(allMatrixes[5].find('ows:Identifier')?.textContent).equals('EPSG:3857');
+        o(allMatrixes[6].find('ows:Identifier')?.textContent).equals('NZTM2000Quad');
+        o(allMatrixes.length).equals(7);
 
         const layers = tags(nodes, 'Layer');
         o(layers.length).equals(3);

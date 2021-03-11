@@ -1,12 +1,12 @@
 import { Point, Bounds } from './bounds';
 import { Epsg } from './epsg';
-import { TileMatrixSetType, TileMatrixSetTypeMatrix } from './tms/tile.matrix.set.type';
+import { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';
 import { getXyOrder, XyOrder } from './xy.order';
 
 export type Tile = Point & { z: number };
 
 /** order by increasing zoom level */
-function compareMatrix(a: TileMatrixSetTypeMatrix, b: TileMatrixSetTypeMatrix): number {
+function compareMatrix(a: TileMatrixType, b: TileMatrixType): number {
     return b.scaleDenominator - a.scaleDenominator;
 }
 
@@ -23,7 +23,7 @@ export class TileMatrixSet {
      */
     readonly def: TileMatrixSetType;
     /** Indexed tile index zooms */
-    readonly zooms: TileMatrixSetTypeMatrix[] = [];
+    readonly zooms: TileMatrixType[] = [];
 
     /** Array index of X coordinates */
     indexX = 0;
@@ -74,6 +74,10 @@ export class TileMatrixSet {
      */
     get maxZoom(): number {
         return this.zooms.length - 1;
+    }
+
+    get identifier(): string {
+        return this.def.identifier;
     }
 
     get id(): string {
@@ -233,37 +237,15 @@ export class TileMatrixSet {
     }
 
     /**
-     * Convert the tile z value from the Tile Matrix Set to match the TileSet rule filter.
-     * Override this function to change it
+     * Find the closest matching zoom to the given scale
+     * @param scaleDenominator scale to match
+     * @returns the zoom level of the closest matching zoom
      */
-    getParentZoom(z: number): number {
-        return z;
-    }
-
-    /**
-     * Calculate the scale mapping between two TileMatrixSets based from child to parent
-     * @param parentTmx
-     * @param childTmx
-     *
-     */
-    public static scaleMapping(parentTmx: TileMatrixSet, childTmx: TileMatrixSet): Map<number, number> {
-        const scaleMap: Map<number, number> = new Map();
-        for (let i = 0; i < childTmx.zooms.length; i++) {
-            const child = childTmx.zooms[i];
-            const index = findBestMatch(child.scaleDenominator, parentTmx.zooms);
-            scaleMap.set(i, index);
+    findBestZoom(scaleDenominator: number): number {
+        for (let i = 0; i < this.zooms.length; i++) {
+            const scaleDiff = this.zooms[i].scaleDenominator - scaleDenominator;
+            if (scaleDiff < 0.00001) return i;
         }
-        return scaleMap;
+        return this.zooms.length - 1;
     }
-}
-
-/**
- * Find the best matching scales from the parent zooms.
- *
- */
-function findBestMatch(scaleDenominator: number, zooms: TileMatrixSetTypeMatrix[]): number {
-    for (let i = 0; i < zooms.length; i++) {
-        if (zooms[i].scaleDenominator < scaleDenominator) return i;
-    }
-    return zooms.length - 1;
 }

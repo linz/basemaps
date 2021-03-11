@@ -1,22 +1,23 @@
 import { FileProcessor, FileOperator, LogConfig } from '@basemaps/shared';
-import { CogSource, CogTiff, TiffTagGeo } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-import { CogSourceFile } from '@cogeotiff/source-file';
+import { ChunkSource } from '@cogeotiff/chunk';
+import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
+import { SourceAwsS3 } from '@cogeotiff/source-aws';
+import { SourceFile } from '@cogeotiff/source-file';
 import { TileSet } from '../tile.set';
-import { Epsg } from '@basemaps/geo';
+import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 
-function getTiffs(fs: FileProcessor, tiffList: string[]): CogSource[] {
+function getTiffs(fs: FileProcessor, tiffList: string[]): ChunkSource[] {
     if (FileOperator.isS3Processor(fs)) {
         return tiffList.map((path) => {
             const { bucket, key } = fs.parse(path);
             if (key == null) throw new Error(`Unable to find tiff: ${path}`);
             // Use the same s3 credentials to access the files that were used to list them
-            return new CogSourceAwsS3(bucket, key, fs.s3);
+            return new SourceAwsS3(bucket, key, fs.s3);
         });
     }
-    return tiffList.map((path) => new CogSourceFile(path));
+    return tiffList.map((path) => new SourceFile(path));
 }
 
 function isTiff(fileName: string): boolean {
@@ -28,12 +29,12 @@ export class TileSetLocal extends TileSet {
     filePath: string;
     tileSet = {} as any;
 
-    constructor(name: string, projection: Epsg, path: string) {
-        super(name, projection);
+    constructor(name: string, path: string) {
+        super(name, GoogleTms);
         this.filePath = path;
         this.tileSet.name = name;
         this.tileSet.title = name;
-        this.tileSet.projection = projection.code;
+        this.tileSet.projection = GoogleTms.projection.code;
     }
 
     setTitle(name: string): void {
@@ -68,10 +69,10 @@ export class TileSetLocal extends TileSet {
         // Read in the projection information
         const [firstTiff] = this.tiffs;
         await firstTiff.init(true);
-        const projection = firstTiff.getImage(0).valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
-        this.projection = Epsg.get(projection);
+        const projection = Epsg.get(firstTiff.getImage(0).valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number);
+        this.tileMatrix = TileMatrixSets.get(projection);
         LogConfig.get().info(
-            { path: this.filePath, count: this.tiffs.length, projection: this.projection },
+            { path: this.filePath, count: this.tiffs.length, tileMatrix: this.tileMatrix.identifier },
             'LoadedTiffs',
         );
         return true;
