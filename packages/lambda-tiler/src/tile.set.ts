@@ -1,4 +1,4 @@
-import { Bounds, Tile, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import {
     Aws,
     Env,
@@ -34,12 +34,8 @@ export class TileSet {
      * @param name the COG to locate. Return just the directory if `null`
      */
     static basePath(record: TileMetadataImageryRecord, name?: string): string {
-        if (name == null) {
-            return record.uri;
-        }
-        if (record.uri.endsWith('/')) {
-            throw new Error("Invalid uri ending with '/' " + record.uri);
-        }
+        if (name == null) return record.uri;
+        if (record.uri.endsWith('/')) throw new Error("Invalid uri ending with '/' " + record.uri);
         return `${record.uri}/${name}.tiff`;
     }
 
@@ -90,7 +86,7 @@ export class TileSet {
     }
 
     private async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
-        const tiffs = this.getTiffsForTile(this.tileMatrix, tile);
+        const tiffs = this.getTiffsForTile(tile);
         let failed = false;
         // Remove any tiffs that failed to load
         const promises = tiffs.map((c) => {
@@ -104,9 +100,7 @@ export class TileSet {
             });
         });
         await Promise.all(promises);
-        if (failed) {
-            return tiffs.filter((f) => f.images.length > 0);
-        }
+        if (failed) return tiffs.filter((f) => f.images.length > 0);
         return tiffs;
     }
 
@@ -116,24 +110,38 @@ export class TileSet {
     }
 
     /**
+     * Find the closest matching zoom level to the default tile matrix set for this projection
+     * @param z Zoom level to find match for
+     * @returns the closest matching zoom level;
+     */
+    public getDefaultZoomLevel(z: number): number {
+        const defaultMatrix = TileMatrixSets.get(this.tileMatrix.projection);
+
+        if (defaultMatrix.identifier === this.tileMatrix.identifier) return z;
+        if (z > defaultMatrix.maxZoom) return z;
+
+        return this.tileMatrix.findBestZoom(defaultMatrix.zooms[z].scaleDenominator);
+    }
+
+    /**
      * Get a list of tiffs in the rendering order that is needed to render the tile
      * @param tms tile matrix set to describe the tiling scheme
      * @param tile tile to render
      */
-    public getTiffsForTile(tms: TileMatrixSet, tile: Tile): CogTiff[] {
+    public getTiffsForTile(tile: Tile): CogTiff[] {
         const output: CogTiff[] = [];
-        const tileBounds = tms.tileToSourceBounds(tile);
+        const tileBounds = this.tileMatrix.tileToSourceBounds(tile);
+
+        const filterZoom = this.getDefaultZoomLevel(tile.z);
         for (const rule of this.tileSet.rules) {
-            if (tile.z > (rule.maxZoom ?? 32)) continue;
-            if (tile.z < (rule.minZoom ?? 0)) continue;
+            if (rule.maxZoom != null && filterZoom > rule.maxZoom) continue;
+            if (rule.minZoom != null && filterZoom < rule.minZoom) continue;
 
             const imagery = this.imagery.get(rule.imgId);
             if (imagery == null) continue;
             if (!tileBounds.intersects(Bounds.fromJson(imagery.bounds))) continue;
 
-            for (const tiff of this.getCogsForTile(imagery, tileBounds)) {
-                output.push(tiff);
-            }
+            for (const tiff of this.getCogsForTile(imagery, tileBounds)) output.push(tiff);
         }
         return output;
     }
