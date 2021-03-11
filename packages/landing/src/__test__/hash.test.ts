@@ -1,7 +1,7 @@
+import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import o from 'ospec';
-import { WindowUrl, MapOptionType } from '../url';
-import { Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import { Config } from '../config';
+import { MapOptionType, WindowUrl } from '../url';
 
 declare const global: {
     window?: { location: { origin: string } };
@@ -108,13 +108,29 @@ o.spec('WindowUrl', () => {
         const apiKey = Config.ApiKey;
         const options = WindowUrl.fromUrl('');
         o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
-            `https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}`,
+            `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(
-            `https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${apiKey}`,
+            `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/WMTSCapabilities.xml?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
-            `https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
+            `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
+        );
+    });
+
+    o('should use default epsg codes for urls', () => {
+        const apiKey = Config.ApiKey;
+        const options = WindowUrl.fromUrl('');
+        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+            `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
+        );
+        options.tileMatrix = Nztm2000Tms;
+        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+            `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:2193/{z}/{x}/{y}.png?api=${apiKey}`,
+        );
+        options.tileMatrix = Nztm2000QuadTms;
+        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+            `https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.png?api=${apiKey}`,
         );
     });
 
@@ -124,18 +140,18 @@ o.spec('WindowUrl', () => {
 
         process.env.TILE_HOST = 'https://foo.bar.com';
         o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
-            `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}`,
+            `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(
-            `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${apiKey}`,
+            `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/WMTSCapabilities.xml?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
-            `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
+            `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
         );
 
         WindowUrl.ImageFormat = 'webp';
         o(WindowUrl.toTileUrl(options, MapOptionType.TileWmts)).equals(
-            `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{TileMatrix}/{TileCol}/{TileRow}.webp?api=${apiKey}`,
+            `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.webp?api=${apiKey}`,
         );
         delete process.env.TILE_HOST;
     });

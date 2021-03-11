@@ -89,7 +89,11 @@ export const WindowUrl = {
     toTileUrl(opts: MapOptions, urlType: MapOptionType): string {
         const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
         const tag = opts.tag === 'production' ? '' : `@${opts.tag}`;
-        const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.imageId}${tag}/${opts.tileMatrix.identifier}`;
+
+        const tileMatrix = opts.tileMatrix;
+        const isDefaultTileMatrix = TileMatrixSets.get(tileMatrix.projection).identifier === tileMatrix.identifier;
+        const projectionPath = isDefaultTileMatrix ? tileMatrix.projection.toEpsgString() : tileMatrix.identifier;
+        const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.imageId}${tag}/${projectionPath}`;
 
         if (urlType === MapOptionType.Tile) {
             return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
