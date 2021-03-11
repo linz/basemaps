@@ -33,7 +33,7 @@ export interface TilesetChanges {
     imagery: Map<string, TileMetadataImageryRecord>;
 }
 
-function objectsDiffer(a: any, b: any): boolean {
+function objectsDiffer(a: unknown, b: unknown): boolean {
     try {
         deepStrictEqual(a, b);
         return false;

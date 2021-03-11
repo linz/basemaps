@@ -1,5 +1,5 @@
-import { EpsgCode, GoogleTms } from '@basemaps/geo';
-import { LogConfig, FileOperator } from '@basemaps/shared';
+import { EpsgCode, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
+import { FileOperator, LogConfig } from '@basemaps/shared';
 import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
@@ -38,7 +38,7 @@ o.spec('cog.vrt', () => {
 
     o.beforeEach(() => {
         runSpy = o.spy();
-        job.output.epsg = EpsgCode.Google;
+        job.output.tileMatrix = GoogleTms.identifier;
         job.source.epsg = EpsgCode.Nztm2000;
         job.source.gsd = 20;
         gdal = { run: runSpy };
@@ -86,7 +86,7 @@ o.spec('cog.vrt', () => {
     });
 
     o('no cutline diff projection', async () => {
-        job.output.epsg = EpsgCode.Nztm2000;
+        job.output.tileMatrix = Nztm2000Tms.identifier; //EpsgCode.Nztm2000;
         const vrt = await CogVrt.buildVrt(tmpFolder, job, new Cutline(GoogleTms), qkToName('31'), logger);
 
         o(job.source.files).deepEquals([tif1, tif2]);

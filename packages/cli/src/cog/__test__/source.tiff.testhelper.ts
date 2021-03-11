@@ -1,4 +1,4 @@
-import { EpsgCode } from '@basemaps/geo';
+import { EpsgCode, GoogleTms } from '@basemaps/geo';
 import { NamedBounds } from '@basemaps/shared';
 import { CogStacJob } from '../cog.stac.job';
 import { CogJobJson } from '../types';
@@ -12,7 +12,7 @@ export const SourceTiffTestHelper = {
                 gsd: 0.8,
             },
             output: {
-                epsg: EpsgCode.Google,
+                tileMatrix: GoogleTms.identifier,
                 gsd: 0.75,
                 addAlpha: true,
                 oneCogCovering: false,

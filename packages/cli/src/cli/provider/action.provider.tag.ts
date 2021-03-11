@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataNamedTag, parseMetadataTag } from '@basemaps/shared';
+import { Aws, LogConfig, parseMetadataTag, TileMetadataNamedTag } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
-import { invalidateCache } from '../util';
-import { validateProvider, printProvider } from './provider.util';
 import * as c from 'ansi-colors';
 import { TagActions } from '../tag.action';
+import { invalidateCache } from '../util';
+import { printProvider, validateProvider } from './provider.util';
 
 export class ProviderUpdateTagAction extends CommandLineAction {
     private version: CommandLineIntegerParameter;

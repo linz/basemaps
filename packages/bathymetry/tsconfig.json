@@ -7,6 +7,7 @@
     "include": ["src/**/*"],
     "references": [
         { "path": "../__tests__" }, 
-        { "path": "../shared" }
+        { "path": "../shared" },
+        { "path": "../cli" },
     ]
 }

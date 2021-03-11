@@ -1,14 +1,14 @@
 import { Bounds } from '@basemaps/geo';
 import { FileOperator, isConfigS3Role, isFileConfigPath, LogConfig } from '@basemaps/shared';
-import { CogSource } from '@cogeotiff/core';
-import { CogSourceAwsS3 } from '@cogeotiff/source-aws';
-import { CogSourceFile } from '@cogeotiff/source-file';
+import { ChunkSource } from '@cogeotiff/chunk';
+import { SourceAwsS3 } from '@cogeotiff/source-aws';
+import { SourceFile } from '@cogeotiff/source-file';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder } from '..';
 import { ActionBatchJob } from '../cli/cogify/action.batch';
 import { Gdal } from '../gdal/gdal';
-import { JobCreationContext, CogStacJob } from './cog.stac.job';
+import { CogStacJob, JobCreationContext } from './cog.stac.job';
 import { Cutline } from './cutline';
 import { CogJob } from './types';
 
@@ -42,16 +42,16 @@ export const CogJobFactory = {
             ? sourceLocation.files
             : (await FileOperator.toArray(sourceFs.list(sourceLocation.path))).filter(filterTiff);
 
-        let tiffSource: CogSource[];
+        let tiffSource: ChunkSource[];
         if (FileOperator.isS3Processor(sourceFs)) {
             tiffSource = tiffList.map((path) => {
                 const { bucket, key } = sourceFs.parse(path);
                 if (key == null) throw new Error(`Failed to read tiff from uri: "${path}"`);
                 // Use the same s3 credentials to access the files that were used to list them
-                return new CogSourceAwsS3(bucket, key, sourceFs.s3);
+                return new SourceAwsS3(bucket, key, sourceFs.s3);
             });
         } else {
-            tiffSource = tiffList.map((path) => new CogSourceFile(path));
+            tiffSource = tiffList.map((path) => new SourceFile(path));
         }
         const maxConcurrency = ctx.override?.concurrency ?? MaxConcurrencyDefault;
 
@@ -78,10 +78,11 @@ export const CogJobFactory = {
             const smallArea = files[0];
             logger.info(
                 {
+                    tileMatrix: ctx.tileMatrix.identifier,
                     // Size of the biggest image
-                    big: bigArea.width / cutline.tms.pixelScale(metadata.resZoom),
+                    big: bigArea.width / cutline.tileMatrix.pixelScale(metadata.resZoom),
                     // Size of the smallest image
-                    small: smallArea.width / cutline.tms.pixelScale(metadata.resZoom),
+                    small: smallArea.width / cutline.tileMatrix.pixelScale(metadata.resZoom),
                 },
                 'Covers',
             );
@@ -91,6 +92,7 @@ export const CogJobFactory = {
         logger.info(
             {
                 ...metadata,
+                tileMatrix: ctx.tileMatrix.identifier,
                 bounds: undefined,
                 fileCount: files.length,
                 files: metadata.files
@@ -117,10 +119,8 @@ export const CogJobFactory = {
             cutlinePoly: cutline.clipPoly,
         });
 
-        if (ctx.batch) {
-            await ActionBatchJob.batchJob(job, true, undefined, logger);
-        }
-        logger.info({ job: job.getJobPath() }, 'Done');
+        if (ctx.batch) await ActionBatchJob.batchJob(job, true, undefined, logger);
+        logger.info({ tileMatrix: ctx.tileMatrix.identifier, job: job.getJobPath() }, 'Done');
 
         return job;
     },

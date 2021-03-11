@@ -1,5 +1,5 @@
-import { GdalCommand } from './gdal.command';
 import { Env, LogType } from '@basemaps/shared';
+import { GdalCommand } from './gdal.command';
 import { GdalDocker } from './gdal.docker';
 import { GdalLocal } from './gdal.local';
 
