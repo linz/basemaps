@@ -236,9 +236,15 @@ export class TileMatrixSet {
         throw new Error(`Invalid tile name '${name}'`);
     }
 
+    /**
+     * Find the closest matching zoom to the given scale
+     * @param scaleDenominator scale to match
+     * @returns the zoom level of the closest matching zoom
+     */
     findBestZoom(scaleDenominator: number): number {
         for (let i = 0; i < this.zooms.length; i++) {
-            if (this.zooms[i].scaleDenominator < scaleDenominator) return i;
+            const scaleDiff = this.zooms[i].scaleDenominator - scaleDenominator;
+            if (scaleDiff < 0.00001) return i;
         }
         return this.zooms.length - 1;
     }
