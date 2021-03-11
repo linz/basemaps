@@ -24,6 +24,13 @@ o.spec('tile.set', () => {
         }
     });
 
+    o('should match zoom levels outside of the range of the target z', () => {
+        const ts = new TileSet('Nztm2000Quad', Nztm2000QuadTms);
+        o(ts.getDefaultZoomLevel(22)).equals(16);
+        o(ts.getDefaultZoomLevel(21)).equals(16);
+        o(ts.getDefaultZoomLevel(20)).equals(16);
+    });
+
     o('should match the zoom levels from nztm2000 when using nztm2000quad', () => {
         const ts = new TileSet('Nztm2000Quad', Nztm2000QuadTms);
         o(ts.getDefaultZoomLevel(13)).equals(11);

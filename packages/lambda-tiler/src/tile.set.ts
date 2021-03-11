@@ -118,7 +118,7 @@ export class TileSet {
         const defaultMatrix = TileMatrixSets.get(this.tileMatrix.projection);
 
         if (defaultMatrix.identifier === this.tileMatrix.identifier) return z;
-        if (z > defaultMatrix.maxZoom) return z;
+        if (z >= this.tileMatrix.maxZoom) z = this.tileMatrix.maxZoom;
 
         return defaultMatrix.findBestZoom(this.tileMatrix.zooms[z].scaleDenominator);
     }
