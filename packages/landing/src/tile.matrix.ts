@@ -1,5 +1,4 @@
-import { Nztm2000Tms, Nztm2000QuadTms, TileMatrixSet, GoogleTms } from '@basemaps/geo';
-import { View } from 'ol';
+import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet } from '@basemaps/geo';
 import { register } from 'ol/proj/proj4';
 import TileSource from 'ol/source/Tile';
 import WMTS from 'ol/source/WMTS';
