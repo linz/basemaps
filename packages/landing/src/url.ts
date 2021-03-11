@@ -70,8 +70,8 @@ export const WindowUrl = {
         const imageId = urlParams.get('i') ?? 'aerial';
         const debug = urlParams.get('debug') != null;
 
-        const projectionParam = urlParams.get('p') ?? GoogleTms.identifier;
-        let tileMatrix = TileMatrixSets.find(projectionParam);
+        const projectionParam = (urlParams.get('p') ?? GoogleTms.identifier).toLowerCase();
+        let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
         if (tileMatrix == null) {
             tileMatrix = TileMatrixSets.get(Epsg.parse(projectionParam) ?? Epsg.Google);
         }

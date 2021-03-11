@@ -31,14 +31,13 @@ export const TileMatrixSets = {
     },
 
     /**
-     * Find a tile matrix set give its identifier
+     * Find a tile matrix set given a identifier
      * @param identifier Tile matrix set identifier
      */
     find(identifier: string | Nullish): TileMatrixSet | null {
         if (identifier == null) return null;
-        identifier = identifier.toLowerCase();
         for (const tileMatrix of TileMatrixSets.All) {
-            if (tileMatrix.identifier.toLowerCase() === identifier) return tileMatrix;
+            if (tileMatrix.identifier === identifier) return tileMatrix;
         }
         return null;
     },
