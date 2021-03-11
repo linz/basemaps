@@ -36,8 +36,9 @@ export const TileMatrixSets = {
      */
     find(identifier: string | Nullish): TileMatrixSet | null {
         if (identifier == null) return null;
-        for (const tms of TileMatrixSets.All) {
-            if (tms.identifier === identifier) return tms;
+        identifier = identifier.toLowerCase();
+        for (const tileMatrix of TileMatrixSets.All) {
+            if (tileMatrix.identifier.toLowerCase() === identifier) return tileMatrix;
         }
         return null;
     },

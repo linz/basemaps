@@ -25,7 +25,7 @@ export class BasemapsUi {
         this.bindMenuButton();
         this.bindContactUsButton();
 
-        this.setCurrentProjection(this.basemaps.config.projection);
+        this.setCurrentProjection(this.basemaps.config.tileMatrix.projection);
     }
     bindMenuButton(): void {
         const menuOpen = document.getElementById('menu-open');

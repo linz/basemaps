@@ -1,4 +1,4 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, GoogleTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config } from './config';
 
 export interface MapLocation {
@@ -8,9 +8,9 @@ export interface MapLocation {
 }
 
 export interface MapOptions {
-    projection: Epsg;
     tag: string;
     imageId: string;
+    tileMatrix: TileMatrixSet;
     /** Is the debug layer enabled @default false */
     debug: boolean;
 }
@@ -68,10 +68,15 @@ export const WindowUrl = {
         const urlParams = new URLSearchParams(search);
         const tag = urlParams.get('v') ?? 'production';
         const imageId = urlParams.get('i') ?? 'aerial';
-        const projection = Epsg.parse(urlParams.get('p') ?? `${Epsg.Google.code}`) ?? Epsg.Google;
         const debug = urlParams.get('debug') != null;
 
-        return { tag, imageId, projection, debug };
+        const projectionParam = urlParams.get('p') ?? GoogleTms.identifier;
+        let tileMatrix = TileMatrixSets.find(projectionParam);
+        if (tileMatrix == null) {
+            tileMatrix = TileMatrixSets.get(Epsg.parse(projectionParam) ?? Epsg.Google);
+        }
+
+        return { tag, imageId, tileMatrix, debug };
     },
 
     baseUrl(): string {
@@ -84,8 +89,7 @@ export const WindowUrl = {
     toTileUrl(opts: MapOptions, urlType: MapOptionType): string {
         const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
         const tag = opts.tag === 'production' ? '' : `@${opts.tag}`;
-        const projection = opts.projection.toEpsgString();
-        const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.imageId}${tag}/${projection}`;
+        const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.imageId}${tag}/${opts.tileMatrix.identifier}`;
 
         if (urlType === MapOptionType.Tile) {
             return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
