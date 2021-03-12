@@ -2,8 +2,6 @@
  * Determine if a package is using another package without referencing it inside of the package.json
  */
 
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 const fs = require('fs').promises;
 const cp = require('child_process');
 
@@ -28,7 +26,7 @@ async function main() {
 
     let hasFailures = false;
     for (const pkg of packages) {
-        if (pkg == '__tests__') continue; // Ignore tests
+        if (pkg === '__tests__') continue; // Ignore tests
         const pkgPath = `./packages/${pkg}`;
         const pkgJson = JSON.parse(await fs.readFile(`${pkgPath}/package.json`));
 
