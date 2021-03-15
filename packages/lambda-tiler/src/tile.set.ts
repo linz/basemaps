@@ -9,11 +9,10 @@ import {
     TileMetadataTag,
     TileResizeKernel,
 } from '@basemaps/shared';
-import { Composition } from '@basemaps/tiler';
+import { Composition, Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import pLimit from 'p-limit';
-import { Tiler } from '@basemaps/tiler';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
@@ -109,6 +108,9 @@ export class TileSet {
         return this.tiler.tile(tiffs, xyz.x, xyz.y, xyz.z);
     }
 
+    /** Map of z to parentZ */
+    private zoomMap = new Map<number, number>();
+
     /**
      * Find the closest matching zoom level to the default tile matrix set for this projection
      * @param z Zoom level to find match for
@@ -119,8 +121,12 @@ export class TileSet {
 
         if (defaultMatrix.identifier === this.tileMatrix.identifier) return z;
         if (z >= this.tileMatrix.maxZoom) z = this.tileMatrix.maxZoom;
-
-        return defaultMatrix.findBestZoom(this.tileMatrix.zooms[z].scaleDenominator);
+        let zoom = this.zoomMap.get(z);
+        if (zoom == null) {
+            zoom = defaultMatrix.findBestZoom(this.tileMatrix.zooms[z].scaleDenominator);
+            this.zoomMap.set(z, zoom);
+        }
+        return zoom;
     }
 
     /**

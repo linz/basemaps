@@ -16,7 +16,10 @@ import {
     Projection,
     setNameAndProjection,
     tileAttributionFromPath,
+    TileMetadataImageRuleV2,
+    TileMetadataImageryRecord,
     TileMetadataNamedTag,
+    TileMetadataProviderRecord,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
@@ -90,6 +93,36 @@ function getGsd(un?: Record<string, unknown>): number | null {
     return gsd[0];
 }
 
+export function createAttributionCollection(
+    tileSet: TileSet,
+    stac: StacCollection | null | undefined,
+    imagery: TileMetadataImageryRecord,
+    rule: TileMetadataImageRuleV2,
+    host: TileMetadataProviderRecord,
+    extent: StacExtent,
+): AttributionCollection {
+    return {
+        stac_version: Stac.Version,
+        license: stac?.license ?? Stac.License,
+        id: rule.ruleId,
+        providers: stac?.providers ?? [
+            { name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] },
+        ],
+        title: stac?.title ?? titleizeImageryName(imagery.name),
+        description: stac?.description ?? 'No description',
+        extent,
+        links: [],
+        summaries: {
+            gsd: [getGsd(stac?.summaries) ?? imagery.resolution / 1000],
+            'linz:zoom': {
+                min: tileSet.getDefaultZoomLevel(rule.minZoom),
+                max: tileSet.getDefaultZoomLevel(rule.maxZoom),
+            },
+            'linz:priority': [rule.priority],
+        },
+    };
+}
+
 /**
  * Build a Single File STAC for the given TileSet.
  *
@@ -97,7 +130,7 @@ function getGsd(un?: Record<string, unknown>): number | null {
  * links and assets for a more comprehensive STAC file.
  */
 async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | null> {
-    const proj = Projection.get(tileSet.tileMatrix.projection.code);
+    const proj = Projection.get(tileSet.tileMatrix);
     const stacFiles = new Map<string, Promise<StacCollection | null>>();
     const cols: AttributionCollection[] = [];
     const items: AttributionItem[] = [];
@@ -150,23 +183,7 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
             },
         });
 
-        cols.push({
-            stac_version: Stac.Version,
-            license: stac?.license ?? Stac.License,
-            id: rule.ruleId,
-            providers: stac?.providers ?? [
-                { name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] },
-            ],
-            title: stac?.title ?? titleizeImageryName(im.name),
-            description: stac?.description ?? 'No description',
-            extent,
-            links: [],
-            summaries: {
-                gsd: [getGsd(stac?.summaries) ?? im.resolution / 1000],
-                'linz:zoom': { min: rule.minZoom, max: rule.maxZoom },
-                'linz:priority': [rule.priority],
-            },
-        });
+        cols.push(createAttributionCollection(tileSet, stac, im, rule, host, extent));
     }
     return {
         id: tileSet.id,
