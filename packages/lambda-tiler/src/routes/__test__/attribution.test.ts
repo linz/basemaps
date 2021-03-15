@@ -1,4 +1,4 @@
-import { EpsgCode, GoogleTms, Stac, TileMatrixSets } from '@basemaps/geo';
+import { EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Stac, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader } from '@basemaps/lambda';
 import {
     Aws,
@@ -10,9 +10,10 @@ import {
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
+import { TileSet } from '../../tile.set';
 import { TileSets } from '../../tile.set.cache';
 import { FakeTileSet, mockRequest, Provider } from '../../__test__/xyz.util';
-import { attribution } from '../attribution';
+import { attribution, createAttributionCollection } from '../attribution';
 import { TileEtag } from '../tile.etag';
 const ExpectedJson = {
     id: 'aerial_WebMercatorQuad',
@@ -356,6 +357,32 @@ o.spec('attribution', () => {
             const res = await attribution(request);
 
             o(res.status).equals(304);
+        });
+    });
+
+    o.spec('ImageryRule', () => {
+        const fakeIm = { name: 'someName' } as TileMetadataImageryRecord;
+        const fakeHost = { serviceProvider: {} } as TileMetadataProviderRecord;
+        const fakeRule = {
+            imgId: 'id',
+            ruleId: 'ir_id',
+            minZoom: 9,
+            maxZoom: 16,
+            priority: 10,
+        };
+
+        o('should generate for NZTM', () => {
+            const ts = new TileSet('Fake', Nztm2000Tms);
+            const output = createAttributionCollection(ts, null, fakeIm, fakeRule, fakeHost, null as any);
+            o(output.title).equals('SomeName');
+            o(output.summaries['linz:zoom']).deepEquals({ min: fakeRule.minZoom, max: fakeRule.maxZoom });
+        });
+
+        o('should generate with correct zooms for NZTM2000Quad', () => {
+            const ts = new TileSet('Fake', Nztm2000QuadTms);
+            const output = createAttributionCollection(ts, null, fakeIm, fakeRule, fakeHost, null as any);
+            o(output.title).equals('SomeName');
+            o(output.summaries['linz:zoom']).deepEquals({ min: 7, max: 14 });
         });
     });
 });
