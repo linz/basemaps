@@ -6,6 +6,8 @@ import {
     Stac,
     StacCollection,
     StacExtent,
+    TileMatrixSet,
+    TileMatrixSets,
 } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
@@ -101,6 +103,8 @@ export function createAttributionCollection(
     host: TileMetadataProviderRecord,
     extent: StacExtent,
 ): AttributionCollection {
+    const tileMatrix = tileSet.tileMatrix;
+    const defaultTileMatrix = TileMatrixSets.get(tileMatrix.projection);
     return {
         stac_version: Stac.Version,
         license: stac?.license ?? Stac.License,
@@ -115,8 +119,8 @@ export function createAttributionCollection(
         summaries: {
             gsd: [getGsd(stac?.summaries) ?? imagery.resolution / 1000],
             'linz:zoom': {
-                min: tileSet.getDefaultZoomLevel(rule.minZoom),
-                max: tileSet.getDefaultZoomLevel(rule.maxZoom),
+                min: TileMatrixSet.convertZoomLevel(rule.minZoom, defaultTileMatrix, tileMatrix, true),
+                max: TileMatrixSet.convertZoomLevel(rule.maxZoom, defaultTileMatrix, tileMatrix, true),
             },
             'linz:priority': [rule.priority],
         },

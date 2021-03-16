@@ -190,6 +190,46 @@ o.spec('TileMatrixSet', () => {
         });
     });
 
+    o.spec('convertZoomLevel', () => {
+        o('should match the zoom levels from nztm2000', () => {
+            for (let i = 0; i < Nztm2000Tms.maxZoom; i++) {
+                o(TileMatrixSet.convertZoomLevel(i, Nztm2000Tms, Nztm2000Tms)).equals(i);
+            }
+        });
+
+        o('should match the zoom levels from google', () => {
+            for (let i = 0; i < GoogleTms.maxZoom; i++) {
+                o(TileMatrixSet.convertZoomLevel(i, GoogleTms, GoogleTms)).equals(i);
+            }
+        });
+
+        o('should match zoom levels outside of the range of the target z', () => {
+            o(TileMatrixSet.convertZoomLevel(22, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
+            o(TileMatrixSet.convertZoomLevel(21, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
+            o(TileMatrixSet.convertZoomLevel(20, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
+        });
+
+        o('should match the zoom levels from nztm2000 when using nztm2000quad', () => {
+            o(TileMatrixSet.convertZoomLevel(13, Nztm2000QuadTms, Nztm2000Tms)).equals(11);
+            o(TileMatrixSet.convertZoomLevel(12, Nztm2000QuadTms, Nztm2000Tms)).equals(10);
+            o(TileMatrixSet.convertZoomLevel(6, Nztm2000QuadTms, Nztm2000Tms)).equals(4);
+        });
+
+        o('should correctly convert Nztm2000 into Nztm2000Qud for rural and urban', () => {
+            // Gebco turns on at 0
+            o(TileMatrixSet.convertZoomLevel(0, Nztm2000Tms, Nztm2000QuadTms)).equals(0);
+
+            // Rural turns on at 9
+            o(TileMatrixSet.convertZoomLevel(9, Nztm2000Tms, Nztm2000QuadTms)).equals(12);
+
+            // Urban turns on at 10
+            o(TileMatrixSet.convertZoomLevel(10, Nztm2000Tms, Nztm2000QuadTms)).equals(13);
+
+            // Most things turn off at 17
+            o(TileMatrixSet.convertZoomLevel(17, Nztm2000Tms, Nztm2000QuadTms)).equals(Nztm2000QuadTms.maxZoom);
+        });
+    });
+
     o.spec('tileToSourceBounds', () => {
         o('should convert to source bounds', () => {
             o(round(GoogleTms.tileToSourceBounds({ x: 0, y: 0, z: 0 }).toJson(), 4)).deepEquals({
@@ -251,7 +291,7 @@ o.spec('TileMatrixSet', () => {
                 o(GoogleTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[i].scaleDenominator)).equals(i + 2);
             }
 
-            o(Nztm2000QuadTms.findBestZoom(Nztm2000Tms.def.tileMatrix[0].scaleDenominator)).equals(3);
+            o(Nztm2000QuadTms.findBestZoom(Nztm2000Tms.def.tileMatrix[0].scaleDenominator)).equals(2);
         });
 
         o('should map test urban/rural scales correctly', () => {
