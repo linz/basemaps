@@ -25,7 +25,6 @@ import {
     titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
-import 'source-map-support/register';
 import { TileSet } from '../tile.set';
 import { loadTileSet } from '../tile.set.cache';
 
