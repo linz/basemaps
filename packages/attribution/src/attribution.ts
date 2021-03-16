@@ -136,7 +136,7 @@ export class Attribution {
      */
     filter(extent: Extent, zoom: number): AttributionCollection[] {
         extent = Wgs84.normExtent(transformExtent(extent, this.projection, 'EPSG:4326'));
-        zoom = Math.round(zoom);
+        zoom = Math.floor(zoom); // Imagery only turns on at integer levels
 
         const filtered: AttributionCollection[] = [];
         const { attributions } = this;
