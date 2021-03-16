@@ -5,7 +5,7 @@ import {
     NamedBounds,
     TileMetadataImageRuleV2,
     TileMetadataImageryRecord,
-    TileMetadataProviderRecord
+    TileMetadataProviderRecord,
 } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
