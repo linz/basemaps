@@ -382,7 +382,23 @@ o.spec('attribution', () => {
             const ts = new TileSet('Fake', Nztm2000QuadTms);
             const output = createAttributionCollection(ts, null, fakeIm, fakeRule, fakeHost, null as any);
             o(output.title).equals('SomeName');
-            o(output.summaries['linz:zoom']).deepEquals({ min: 7, max: 14 });
+            o(output.summaries['linz:zoom']).deepEquals({ min: 12, max: 21 });
+        });
+
+        o('should generate with correct zooms for gebco NZTM2000Quad', () => {
+            const fakeGebco = { ...fakeRule, minZoom: 0, maxZoom: 10 };
+            const ts = new TileSet('Fake', Nztm2000QuadTms);
+            const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
+            o(output.title).equals('SomeName');
+            o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: 13 });
+        });
+
+        o('should generate with correct zooms for nz sentinel NZTM2000Quad', () => {
+            const fakeGebco = { ...fakeRule, minZoom: 0, maxZoom: 17 };
+            const ts = new TileSet('Fake', Nztm2000QuadTms);
+            const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
+            o(output.title).equals('SomeName');
+            o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });
         });
     });
 });
