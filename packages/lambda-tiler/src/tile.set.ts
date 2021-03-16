@@ -112,24 +112,6 @@ export class TileSet {
     private zoomMap = new Map<number, number>();
 
     /**
-     * Find the closest matching zoom level to the default tile matrix set for this projection
-     * @param z Zoom level to find match for
-     * @returns the closest matching zoom level;
-     */
-    public getDefaultZoomLevel(z: number): number {
-        const defaultMatrix = TileMatrixSets.get(this.tileMatrix.projection);
-
-        if (defaultMatrix.identifier === this.tileMatrix.identifier) return z;
-        if (z >= this.tileMatrix.maxZoom) z = this.tileMatrix.maxZoom;
-        let zoom = this.zoomMap.get(z);
-        if (zoom == null) {
-            zoom = defaultMatrix.findBestZoom(this.tileMatrix.zooms[z].scaleDenominator);
-            this.zoomMap.set(z, zoom);
-        }
-        return zoom;
-    }
-
-    /**
      * Get a list of tiffs in the rendering order that is needed to render the tile
      * @param tms tile matrix set to describe the tiling scheme
      * @param tile tile to render
@@ -138,7 +120,11 @@ export class TileSet {
         const output: CogTiff[] = [];
         const tileBounds = this.tileMatrix.tileToSourceBounds(tile);
 
-        const filterZoom = this.getDefaultZoomLevel(tile.z);
+        const filterZoom = TileMatrixSet.convertZoomLevel(
+            tile.z,
+            this.tileMatrix,
+            TileMatrixSets.get(this.tileMatrix.projection),
+        );
         for (const rule of this.tileSet.rules) {
             if (rule.maxZoom != null && filterZoom > rule.maxZoom) continue;
             if (rule.minZoom != null && filterZoom < rule.minZoom) continue;

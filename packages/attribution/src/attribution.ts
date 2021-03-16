@@ -122,7 +122,7 @@ export class Attribution {
         const resp = await fetch(url);
         if (resp.status < 300) {
             const attributionStac = await resp.json();
-            this.attributions = convertToBounds(attributionStac);
+            this.attributions = convertToBounds(attributionStac).reverse();
         } else {
             throw new Error(`fetch attribution failed [${resp.status}] ${resp.statusText}`);
         }
@@ -140,14 +140,11 @@ export class Attribution {
 
         const filtered: AttributionCollection[] = [];
         const { attributions } = this;
-        if (attributions != null) {
-            for (let i = attributions.length - 1; i >= 0; --i) {
-                const row = attributions[i];
-                if (row.intersects(extent, zoom)) {
-                    filtered.push(row.collection);
-                }
-            }
+        if (attributions == null) return filtered;
+        for (const attr of attributions) {
+            if (attr.intersects(extent, zoom)) filtered.push(attr.collection);
         }
+
         return filtered;
     }
 
