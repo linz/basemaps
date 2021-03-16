@@ -731,9 +731,9 @@
   integrity sha512-HqtE1VXtubXtgeXbXCQHeI4n/GzxnKLDy0lY7q1rRQ4LaOx6Uhn0ZqdqyXH5gW4dXuAzJTI55v537gnJyxYFFw==
 
 "@cogeotiff/core@^4.0.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-4.1.0.tgz#2a9c74a4ab47d2c391a5c3dc1e53d35132cb8c35"
-  integrity sha512-boC/4K/99C9pTtFwAzzjTq08Mgp7mMK+14pusdGa6EC6wgSextgAQAUbyWSPz1vqH+4egt0POUIXw5LgqafUXg==
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-4.1.1.tgz#7076f7b54184274dc7e2cb6cbf16ef351bca5451"
+  integrity sha512-cYrhNJf4rFcf067C9FFX35iECOJgZFZH0ScAs79d23X1XyzZrp/xKYSIQE3zNutiwskZdsyDO9mqWJ9MP/Fxcg==
   dependencies:
     ieee754 "^1.1.13"
 
