@@ -203,6 +203,28 @@ o.spec('TileMatrixSet', () => {
             }
         });
 
+        o('should round trip from Google to NztmQuad', () => {
+            for (let i = 0; i < Nztm2000QuadTms.maxZoom; i++) {
+                const nztmToGoogle = TileMatrixSet.convertZoomLevel(i, Nztm2000QuadTms, GoogleTms);
+                const googleToNztm = TileMatrixSet.convertZoomLevel(nztmToGoogle, GoogleTms, Nztm2000QuadTms);
+                o(googleToNztm).equals(i);
+            }
+        });
+
+        // Some example current zooms we use for configuration
+        const CurrentZooms = [
+            { google: 13, nztm: 9, name: 'rural' },
+            { google: 14, nztm: 10, name: 'urban' },
+        ];
+        o('should convert google to nztm', () => {
+            for (const zoom of CurrentZooms) {
+                const googleToNztm = TileMatrixSet.convertZoomLevel(zoom.google, GoogleTms, Nztm2000Tms);
+                const googleToNztmQuad = TileMatrixSet.convertZoomLevel(zoom.google, GoogleTms, Nztm2000QuadTms);
+                o(googleToNztm).equals(zoom.nztm)(`Converting ${zoom.name} from ${zoom.google} to ${zoom.nztm}`);
+                o(googleToNztmQuad).equals(zoom.google - 2);
+            }
+        });
+
         o('should match zoom levels outside of the range of the target z', () => {
             o(TileMatrixSet.convertZoomLevel(22, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
             o(TileMatrixSet.convertZoomLevel(21, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
