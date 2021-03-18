@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.23.0](https://github.com/linz/basemaps/compare/v4.22.0...v4.23.0) (2021-03-18)
+
+**Note:** Version bump only for package @basemaps/lambda-api-tracker
+
+
+
+
+
 # [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
 
 **Note:** Version bump only for package @basemaps/lambda-api-tracker

@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.23.0](https://github.com/linz/basemaps/compare/v4.22.0...v4.23.0) (2021-03-18)
+
+
+### Bug Fixes
+
+* **geo:** correctly find the closest zoom from a given scale ([#1489](https://github.com/linz/basemaps/issues/1489)) ([c8bbbb0](https://github.com/linz/basemaps/commit/c8bbbb01eb74293b7ccc4ba1443b39b05358ba25))
+
+
+### Features
+
+* **cli:** allow cusomising the tile matrix to use when building COGs ([#1483](https://github.com/linz/basemaps/issues/1483)) ([97f86de](https://github.com/linz/basemaps/commit/97f86de16e0e0cd309268a5807ff13779553ddae))
+
+
+
+
+
 # [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
 
 
