@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.23.0](https://github.com/linz/basemaps/compare/v4.22.0...v4.23.0) (2021-03-18)
+
+
+### Bug Fixes
+
+* **attribution:** openlayers uses fractional zoom rounding to decide imagery requests ([#1508](https://github.com/linz/basemaps/issues/1508)) ([cf7b2a2](https://github.com/linz/basemaps/commit/cf7b2a24c6cef169a396094722704b4519536b0f))
+* **geo:** correctly find the closest zoom from a given scale ([#1489](https://github.com/linz/basemaps/issues/1489)) ([c8bbbb0](https://github.com/linz/basemaps/commit/c8bbbb01eb74293b7ccc4ba1443b39b05358ba25))
+* **geo:** use the closest zoom mapping ([#1503](https://github.com/linz/basemaps/issues/1503)) ([5ce730d](https://github.com/linz/basemaps/commit/5ce730d34dd6fed7015f29683b3fc31183b1d3bc))
+* **lambda-tiler:** correct mapping of high zoom levels ([#1492](https://github.com/linz/basemaps/issues/1492)) ([7e98e63](https://github.com/linz/basemaps/commit/7e98e6353e1209f64d60ed028bde502847495432))
+* **lambda-tiler:** generate a custom attribution for nztm2000quad ([#1498](https://github.com/linz/basemaps/issues/1498)) ([27933fd](https://github.com/linz/basemaps/commit/27933fd2b4d9123c107e476465a87c19e7f29c97))
+* **landing:** correctly set the projection for the copy link buttons ([#1496](https://github.com/linz/basemaps/issues/1496)) ([16e94e6](https://github.com/linz/basemaps/commit/16e94e6956df883e8a73e964e663a7de5bbbefe3))
+
+
+### Features
+
+* **cli:** allow cusomising the tile matrix to use when building COGs ([#1483](https://github.com/linz/basemaps/issues/1483)) ([97f86de](https://github.com/linz/basemaps/commit/97f86de16e0e0cd309268a5807ff13779553ddae))
+* **landing:** support nztm2000quad with ?p=nztm2000quad ([#1493](https://github.com/linz/basemaps/issues/1493)) ([cada7e0](https://github.com/linz/basemaps/commit/cada7e01e3deccd2446c745f4e610e8493495476))
+
+
+
+
+
 # [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
 
 
