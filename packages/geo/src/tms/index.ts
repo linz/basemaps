@@ -31,11 +31,13 @@ export const TileMatrixSets = {
     },
 
     /**
-     * Find a tile matrix set given a identifier
+     * Find a tile matrix set given a identifier or epsg string
      * @param identifier Tile matrix set identifier
      */
     find(identifier: string | Nullish): TileMatrixSet | null {
         if (identifier == null) return null;
+        const epsg = Epsg.parse(identifier);
+        if (epsg != null) return TileMatrixSets.tryGet(epsg);
         for (const tileMatrix of TileMatrixSets.All) {
             if (tileMatrix.identifier === identifier) return tileMatrix;
         }

@@ -5,6 +5,7 @@ import { Point } from '../bounds';
 import { Epsg } from '../epsg';
 import { QuadKey } from '../quad.key';
 import { TileMatrixSet } from '../tile.matrix.set';
+import { TileMatrixSets } from '../tms';
 import { GoogleTms } from '../tms/google';
 import { Nztm2000QuadTms, Nztm2000Tms } from '../tms/nztm2000';
 
@@ -362,6 +363,21 @@ o.spec('TileMatrixSet', () => {
                 { x: 8, y: 7, z: 8 },
                 { x: 9, y: 7, z: 8 },
             ]);
+        });
+    });
+
+    o.spec('TileMatrixSets', () => {
+        o('should find by epsg', () => {
+            o(TileMatrixSets.find('epsg:2193')?.identifier).equals(Nztm2000Tms.identifier);
+            o(TileMatrixSets.find('2193')?.identifier).equals(Nztm2000Tms.identifier);
+            o(TileMatrixSets.find('epsg:3857')?.identifier).equals(GoogleTms.identifier);
+            o(TileMatrixSets.find('3857')?.identifier).equals(GoogleTms.identifier);
+        });
+
+        o('should find by name', () => {
+            o(TileMatrixSets.find(Nztm2000Tms.identifier)?.identifier).equals(Nztm2000Tms.identifier);
+            o(TileMatrixSets.find(Nztm2000QuadTms.identifier)?.identifier).equals(Nztm2000QuadTms.identifier);
+            o(TileMatrixSets.find(GoogleTms.identifier)?.identifier).equals(GoogleTms.identifier);
         });
     });
 });
