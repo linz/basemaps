@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.24.0](https://github.com/linz/basemaps/compare/v4.23.0...v4.24.0) (2021-03-21)
+
+
+### Features
+
+* **geo:** allow finding tile matrix using epsg codes ([#1514](https://github.com/linz/basemaps/issues/1514)) ([c866e38](https://github.com/linz/basemaps/commit/c866e38191580c2705f70a51772d3956753c6269))
+
+
+
+
+
 # [4.23.0](https://github.com/linz/basemaps/compare/v4.22.0...v4.23.0) (2021-03-18)
 
 
