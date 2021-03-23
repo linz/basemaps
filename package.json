@@ -32,7 +32,7 @@
     "ospec": "^4.0.1",
     "prettier": "^2.0.2",
     "rimraf": "^3.0.0",
-    "sinon": "^9.0.3",
+    "sinon": "^10.0.0",
     "zod": "^1.10.1"
   },
   "workspaces": {
