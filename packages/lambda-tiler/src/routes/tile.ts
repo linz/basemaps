@@ -117,6 +117,35 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     return response;
 }
 
+export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> {
+    const { rest } = req.action;
+    const host = Env.get(Env.PublicUrlBase) ?? '';
+    const tileUrl = `${host}/${rest[0]}/${rest[1]}/{z}/{x}/{y}.pbf`;
+
+    const tileJson = {
+        tiles: [tileUrl],
+        tilejson: '2.0.0',
+        minzoom: 0,
+        maxzoom: 15,
+    };
+
+    const json = JSON.stringify(tileJson);
+
+    const data = Buffer.from(json);
+
+    const cacheKey = createHash('sha256').update(data).digest('base64');
+
+    const respNotMod = checkNotModified(req, cacheKey);
+    if (respNotMod != null) return respNotMod;
+
+    const response = new LambdaHttpResponse(200, 'ok');
+    response.header(HttpHeader.ETag, cacheKey);
+    response.header(HttpHeader.CacheControl, 'max-age=0');
+    response.buffer(data, 'application/json');
+    req.set('bytes', data.byteLength);
+    return response;
+}
+
 export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
     const { rest } = req.action;
     if (rest.length < 1) return NotFound;
@@ -124,5 +153,6 @@ export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
     const fileName = rest[rest.length - 1].toLowerCase();
     if (fileName === 'attribution.json') return attribution(req);
     if (fileName === 'wmtscapabilities.xml') return wmts(req);
+    if (fileName === 'tile.json') return tileJson(req);
     return tile(req);
 }

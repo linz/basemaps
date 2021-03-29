@@ -198,6 +198,46 @@ o.spec('LambdaXyz', () => {
         });
     });
 
+    o.spec('tileJson', () => {
+        const origPublicUrlBase = process.env[Env.PublicUrlBase];
+        o.after(() => {
+            process.env[Env.PublicUrlBase] = origPublicUrlBase;
+        });
+
+        o('should 304 if a json is not modified', async () => {
+            const key = 'D4hXqkE7Yi64s0PyO8vcYJVt8QPxBpFMLVVw6eJs34g=c';
+            const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key });
+
+            const res = await handleRequest(request);
+            if (res.status === 200) {
+                o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
+                return;
+            }
+
+            o(res.status).equals(304);
+            o(rasterMock.calls.length).equals(0);
+
+            o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
+        });
+
+        o('should serve tile json for tile_set', async () => {
+            process.env[Env.PublicUrlBase] = 'https://tiles.test';
+
+            const request = mockRequest('/v1/tiles/topolike/Google/tile.json');
+            request.apiKey = 'secretKey';
+
+            const res = await handleRequest(request);
+            o(res.status).equals(200);
+            o(res.header('content-type')).equals('application/json');
+            o(res.header('cache-control')).equals('max-age=0');
+
+            const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
+            o(body).equals(
+                '{"tiles":["https://tiles.test/topolike/Google/{z}/{x}/{y}.pbf"],"tilejson":"2.0.0","minzoom":0,"maxzoom":15}',
+            );
+        });
+    });
+
     ['/favicon.ico', '/index.html', '/foo/bar'].forEach((path) => {
         o('should error on invalid paths: ' + path, async () => {
             const res = await handleRequest(mockRequest(path));
