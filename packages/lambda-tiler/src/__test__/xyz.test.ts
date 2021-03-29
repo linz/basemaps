@@ -205,7 +205,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a json is not modified', async () => {
-            const key = 'D4hXqkE7Yi64s0PyO8vcYJVt8QPxBpFMLVVw6eJs34g=c';
+            const key = 'D4hXqkE7Yi64s0PyO8vcYJVt8QPxBpFMLVVw6eJs34g=';
             const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key });
 
             const res = await handleRequest(request);
