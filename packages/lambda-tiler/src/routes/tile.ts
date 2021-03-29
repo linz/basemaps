@@ -126,7 +126,7 @@ export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> 
         tiles: [tileUrl],
         minzoom: 0,
         maxzoom: 15,
-        format:'pbf',
+        format: 'pbf',
         tilejson: '2.0.0',
     };
 
