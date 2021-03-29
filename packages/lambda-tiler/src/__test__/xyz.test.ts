@@ -205,7 +205,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a json is not modified', async () => {
-            const key = 'D4hXqkE7Yi64s0PyO8vcYJVt8QPxBpFMLVVw6eJs34g=';
+            const key = 'fYC3MHM69e9U9ltWQLry45/G1wMjTeauij8L2HUdVk4=';
             const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key });
 
             const res = await handleRequest(request);
@@ -233,7 +233,7 @@ o.spec('LambdaXyz', () => {
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(body).equals(
-                '{"tiles":["https://tiles.test/topolike/Google/{z}/{x}/{y}.pbf"],"tilejson":"2.0.0","minzoom":0,"maxzoom":15}',
+                '{"tiles":["https://tiles.test/topolike/Google/{z}/{x}/{y}.pbf"],"minzoom":0,"maxzoom":15,"format":"pbf","tilejson":"2.0.0"}',
             );
         });
     });

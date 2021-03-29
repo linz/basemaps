@@ -124,9 +124,10 @@ export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> 
 
     const tileJson = {
         tiles: [tileUrl],
-        tilejson: '2.0.0',
         minzoom: 0,
         maxzoom: 15,
+        format:'pbf',
+        tilejson: '2.0.0',
     };
 
     const json = JSON.stringify(tileJson);
