@@ -45,6 +45,7 @@
   },
   "resolutions": {
     "minimist": "^1.2.3",
-    "yargs-parser": "^20.2.2"
+    "yargs-parser": "^20.2.2",
+    "y18n":"5.0.5"
   }
 }
