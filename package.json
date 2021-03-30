@@ -25,7 +25,7 @@
     "@types/ospec": "^4.0.2",
     "@types/sinon": "^9.0.5",
     "cross-env": "^7.0.3",
-    "esbuild": "^0.8.0",
+    "esbuild": "^0.11.1",
     "eslint-plugin-prettier": "^3.1.4",
     "lerna": "^3.20.2",
     "npm-audit-resolver": "^2.2.0",
