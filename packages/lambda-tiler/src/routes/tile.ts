@@ -117,6 +117,44 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     return response;
 }
 
+export interface TileJson {
+    tiles: string[];
+    minzoom: number;
+    maxzoom: number;
+    format: string;
+    tilejson: string;
+}
+
+export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> {
+    const { rest } = req.action;
+    const host = Env.get(Env.PublicUrlBase) ?? '';
+    const tileUrl = `${host}/${rest[0]}/${rest[1]}/{z}/{x}/{y}.pbf`;
+
+    const tileJson: TileJson = {
+        tiles: [tileUrl],
+        minzoom: 0,
+        maxzoom: 15,
+        format: 'pbf',
+        tilejson: '2.0.0',
+    };
+
+    const json = JSON.stringify(tileJson);
+
+    const data = Buffer.from(json);
+
+    const cacheKey = createHash('sha256').update(data).digest('base64');
+
+    const respNotMod = checkNotModified(req, cacheKey);
+    if (respNotMod != null) return respNotMod;
+
+    const response = new LambdaHttpResponse(200, 'ok');
+    response.header(HttpHeader.ETag, cacheKey);
+    response.header(HttpHeader.CacheControl, 'max-age=120');
+    response.buffer(data, 'application/json');
+    req.set('bytes', data.byteLength);
+    return response;
+}
+
 export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
     const { rest } = req.action;
     if (rest.length < 1) return NotFound;
@@ -124,5 +162,6 @@ export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
     const fileName = rest[rest.length - 1].toLowerCase();
     if (fileName === 'attribution.json') return attribution(req);
     if (fileName === 'wmtscapabilities.xml') return wmts(req);
+    if (fileName === 'tile.json') return tileJson(req);
     return tile(req);
 }
