@@ -232,9 +232,13 @@ o.spec('LambdaXyz', () => {
             o(res.header('cache-control')).equals('max-age=0');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
-            o(body).equals(
-                '{"tiles":["https://tiles.test/topolike/Google/{z}/{x}/{y}.pbf"],"minzoom":0,"maxzoom":15,"format":"pbf","tilejson":"2.0.0"}',
-            );
+            o(JSON.parse(body)).deepEquals({
+                tiles: ['https://tiles.test/topolike/Google/{z}/{x}/{y}.pbf'],
+                minzoom: 0,
+                maxzoom: 15,
+                format: 'pbf',
+                tilejson: '2.0.0',
+            });
         });
     });
 

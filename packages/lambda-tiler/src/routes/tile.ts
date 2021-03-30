@@ -117,12 +117,20 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     return response;
 }
 
+export interface TileJson {
+    tiles: string[];
+    minzoom: number;
+    maxzoom: number;
+    format: string;
+    tilejson: string;
+}
+
 export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> {
     const { rest } = req.action;
     const host = Env.get(Env.PublicUrlBase) ?? '';
     const tileUrl = `${host}/${rest[0]}/${rest[1]}/{z}/{x}/{y}.pbf`;
 
-    const tileJson = {
+    const tileJson: TileJson = {
         tiles: [tileUrl],
         minzoom: 0,
         maxzoom: 15,
@@ -141,7 +149,7 @@ export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> 
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
-    response.header(HttpHeader.CacheControl, 'max-age=0');
+    response.header(HttpHeader.CacheControl, 'max-age=120');
     response.buffer(data, 'application/json');
     req.set('bytes', data.byteLength);
     return response;
