@@ -229,7 +229,7 @@ o.spec('LambdaXyz', () => {
             const res = await handleRequest(request);
             o(res.status).equals(200);
             o(res.header('content-type')).equals('application/json');
-            o(res.header('cache-control')).equals('max-age=0');
+            o(res.header('cache-control')).equals('max-age=120');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(JSON.parse(body)).deepEquals({
