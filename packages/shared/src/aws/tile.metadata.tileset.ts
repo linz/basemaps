@@ -13,18 +13,12 @@ import {
     TileMetadataSetRecordV2,
     TileMetadataTableBase,
     TileMetadataTag,
+    TileSetId,
 } from './tile.metadata.base';
 import { compareImageSets } from './tile.metadata.imagery';
 
 function isLatestTileSetRecord(record: TileMetadataSetRecordBase): record is TileMetadataSetRecord {
     return record.v === 2;
-}
-
-export interface TileSetId {
-    name: string;
-    projection: Epsg;
-    tag: string | null;
-    version: number;
 }
 
 export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecord> {
@@ -115,22 +109,6 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
 
             return compareImageSets(imgA, imgB);
         });
-    }
-
-    /**
-     * Parse a tile set tag combo into their parts
-     *
-     * @example
-     * aerial@head => {name: aerial, tag: head}
-     * @param str String to parse
-     */
-    parse(str: string): { name: string; tag?: TileMetadataTag } {
-        if (!str.includes('@')) return { name: str };
-
-        const [name, tagStr] = str.split('@');
-        const tag = parseMetadataTag(tagStr);
-        if (tag == null) return { name: str };
-        return { name, tag };
     }
 
     async create(record: TileMetadataSetRecord | TileMetadataSetRecordV1): Promise<TileMetadataSetRecord> {

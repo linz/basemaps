@@ -1,10 +1,17 @@
-import { EpsgCode, WmtsProvider, BoundingBox } from '@basemaps/geo';
+import { EpsgCode, WmtsProvider, BoundingBox, Epsg } from '@basemaps/geo';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { Const } from '../const';
 import { BaseDynamoTable } from './aws.dynamo.table';
 import { TileMetadataTable } from './tile.metadata';
 
 export type TileMetadataTag = string;
+
+export interface TileSetId {
+    name: string;
+    projection: Epsg;
+    tag: string | null;
+    version: number;
+}
 
 export enum TileMetadataNamedTag {
     /** Version to render by default */
@@ -145,6 +152,18 @@ export interface TileMetadataSetRecordV2 extends TileMetadataSetRecordBase {
 
 export type TileMetadataSetRecord = TileMetadataSetRecordV2;
 
+export interface TileMetadataSetRecordVector extends TileMetadataSetRecordBase {
+    /**
+     * The xyz urls for the layers
+     */
+    layers: string[];
+
+    /**
+     * The style json url
+     */
+    style: string;
+}
+
 /**
  * Provider details used by WMTS
  */
@@ -154,6 +173,7 @@ export type TileMetadataProviderRecord = TaggedTileMetadataRecord & WmtsProvider
 export enum RecordPrefix {
     Imagery = 'im',
     TileSet = 'ts',
+    Vector = 'vt',
     Provider = 'pv',
     ImageryRule = 'ir',
 }
@@ -321,5 +341,21 @@ export abstract class TaggedTileMetadata<T extends TaggedTileMetadataRecord> {
         await this.metadata.put(headRecord);
 
         return headRecord;
+    }
+
+    /**
+     * Parse a tag combo into their parts
+     *
+     * @example
+     * aerial@head => {name: aerial, tag: head}
+     * @param str String to parse
+     */
+    parse(str: string): { name: string; tag?: TileMetadataTag } {
+        if (!str.includes('@')) return { name: str };
+
+        const [name, tagStr] = str.split('@');
+        const tag = parseMetadataTag(tagStr);
+        if (tag == null) return { name: str };
+        return { name, tag };
     }
 }
