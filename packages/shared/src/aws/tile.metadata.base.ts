@@ -159,6 +159,17 @@ export interface TileSetVectorRecord extends TileMetadataSetRecordBase {
     layers: string[];
 }
 
+export interface StyleId {
+    tileSetName: string;
+    tag: string | null;
+    version: number;
+}
+
+export interface TileSetStyleRecord extends TaggedTileMetadataRecord {
+    tileSetName: string;
+    style: string;
+}
+
 /**
  * Provider details used by WMTS
  */
@@ -170,6 +181,7 @@ export enum RecordPrefix {
     TileSet = 'ts',
     Provider = 'pv',
     ImageryRule = 'ir',
+    Style = 'st',
 }
 
 function toId(id: string): { id: { S: string } } {
