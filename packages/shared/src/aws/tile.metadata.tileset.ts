@@ -1,5 +1,4 @@
 import { Epsg, EpsgCode } from '@basemaps/geo';
-import { BaseDynamoTable } from './aws.dynamo.table';
 import {
     DefaultBackground,
     parseMetadataTag,
@@ -84,15 +83,6 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
     }
 
     /**
-     * Is `rec` a TileSet record
-
-     * @param rec record to infer is a TileMetadataSetRecord
-     */
-    recordIsTileSet(rec: BaseDynamoTable): rec is TileMetadataSetRecordV1 | TileMetadataSetRecordV2 {
-        return rec.id.startsWith(RecordPrefix.TileSet);
-    }
-
-    /**
      * Sort the render rules of a tile set given the information about the imagery
      *
      * This sorts the `tileSet.rules` array to be in the order of first is the highest priority imagery to layer
@@ -119,17 +109,17 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
     idRecord(record: TileMetadataSetRecord, tag: TileMetadataTag | number): string {
         if (typeof tag === 'number') {
             const versionKey = `${tag}`.padStart(6, '0');
-            return `ts_${record.name}_${record.projection}_v${versionKey}`;
+            return `${RecordPrefix.TileSet}_${record.name}_${record.projection}_v${versionKey}`;
         }
 
-        return `ts_${record.name}_${record.projection}_${tag}`;
+        return `${RecordPrefix.TileSet}_${record.name}_${record.projection}_${tag}`;
     }
 
     idSplit(record: TileMetadataSetRecord): TileSetId | null {
         const [prefix, name, projectionCode, tag] = record.id.split('_');
         const version = record.version;
 
-        if (prefix !== 'ts') return null;
+        if (prefix !== RecordPrefix.TileSet) return null;
 
         const projection = Epsg.parse(projectionCode);
         if (projection == null) return null;
@@ -197,7 +187,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
             if (isLatestTileSetRecord(record)) {
                 yield record;
             } else {
-                yield this.migrate(record);
+                yield this.migrate(record as TileMetadataSetRecordV1);
             }
         }
         return null;

@@ -152,16 +152,11 @@ export interface TileMetadataSetRecordV2 extends TileMetadataSetRecordBase {
 
 export type TileMetadataSetRecord = TileMetadataSetRecordV2;
 
-export interface TileMetadataSetRecordVector extends TileMetadataSetRecordBase {
+export interface TileSetVectorRecord extends TileMetadataSetRecordBase {
     /**
      * The xyz urls for the layers
      */
     layers: string[];
-
-    /**
-     * The style json url
-     */
-    style: string;
 }
 
 /**
@@ -173,7 +168,6 @@ export type TileMetadataProviderRecord = TaggedTileMetadataRecord & WmtsProvider
 export enum RecordPrefix {
     Imagery = 'im',
     TileSet = 'ts',
-    Vector = 'vt',
     Provider = 'pv',
     ImageryRule = 'ir',
 }
@@ -341,6 +335,17 @@ export abstract class TaggedTileMetadata<T extends TaggedTileMetadataRecord> {
         await this.metadata.put(headRecord);
 
         return headRecord;
+    }
+
+    /**
+     * Is `rec` a TileSet record
+
+     * @param rec record to infer is a TileMetadataSetRecord
+     */
+    recordIsTileSet(
+        rec: BaseDynamoTable,
+    ): rec is TileMetadataSetRecordV1 | TileMetadataSetRecordV2 | TileSetVectorRecord {
+        return rec.id.startsWith(RecordPrefix.TileSet);
     }
 
     /**

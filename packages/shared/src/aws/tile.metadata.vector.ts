@@ -1,24 +1,22 @@
 import { Epsg, EpsgCode } from '@basemaps/geo';
-import { BaseDynamoTable } from './aws.dynamo.table';
 import {
     parseMetadataTag,
     RecordPrefix,
     TaggedTileMetadata,
-    TileMetadataSetRecordVector,
+    TileSetVectorRecord,
     TileMetadataTag,
     TileSetId,
 } from './tile.metadata.base';
 
-export class TileMetadataVector extends TaggedTileMetadata<TileMetadataSetRecordVector> {
+export class TileMetadataVector extends TaggedTileMetadata<TileSetVectorRecord> {
     initialRecord(
         name: string,
         projection: EpsgCode,
         layers: string[] = [],
-        style: string,
         title?: string,
         description?: string,
-    ): TileMetadataSetRecordVector {
-        const rec: TileMetadataSetRecordVector = {
+    ): TileSetVectorRecord {
+        const rec: TileSetVectorRecord = {
             id: '',
             createdAt: Date.now(),
             updatedAt: 0,
@@ -26,7 +24,6 @@ export class TileMetadataVector extends TaggedTileMetadata<TileMetadataSetRecord
             name,
             projection: projection,
             layers,
-            style,
         };
 
         if (title != null) {
@@ -39,33 +36,24 @@ export class TileMetadataVector extends TaggedTileMetadata<TileMetadataSetRecord
         return rec;
     }
 
-    /**
-     * Is `rec` a Vector record
-
-     * @param rec record to infer is a TileMetadataSetRecordVector
-     */
-    recordIsVector(rec: BaseDynamoTable): rec is TileMetadataSetRecordVector {
-        return rec.id.startsWith(RecordPrefix.Vector);
-    }
-
-    async create(record: TileMetadataSetRecordVector): Promise<TileMetadataSetRecordVector> {
+    async create(record: TileSetVectorRecord): Promise<TileSetVectorRecord> {
         return super.create(record);
     }
 
-    idRecord(record: TileMetadataSetRecordVector, tag: TileMetadataTag | number): string {
+    idRecord(record: TileSetVectorRecord, tag: TileMetadataTag | number): string {
         if (typeof tag === 'number') {
             const versionKey = `${tag}`.padStart(6, '0');
-            return `vt_${record.name}_${record.projection}_v${versionKey}`;
+            return `${RecordPrefix.TileSet}_${record.name}_${record.projection}_v${versionKey}`;
         }
 
-        return `vt_${record.name}_${record.projection}_${tag}`;
+        return `${RecordPrefix.TileSet}_${record.name}_${record.projection}_${tag}`;
     }
 
-    idSplit(record: TileMetadataSetRecordVector): TileSetId | null {
+    idSplit(record: TileSetVectorRecord): TileSetId | null {
         const [prefix, name, projectionCode, tag] = record.id.split('_');
         const version = record.version;
 
-        if (prefix !== 'vt') return null;
+        if (prefix !== RecordPrefix.TileSet) return null;
 
         const projection = Epsg.parse(projectionCode);
         if (projection == null) return null;
@@ -81,34 +69,29 @@ export class TileMetadataVector extends TaggedTileMetadata<TileMetadataSetRecord
     }
 
     id(name: string, projection: Epsg, tag: TileMetadataTag | number): string {
-        return this.idRecord({ name, projection: projection.code } as TileMetadataSetRecordVector, tag);
+        return this.idRecord({ name, projection: projection.code } as TileSetVectorRecord, tag);
     }
 
-    async get(name: string, projection: Epsg, version: number): Promise<TileMetadataSetRecordVector>;
-    async get(name: string, projection: Epsg, tag: TileMetadataTag): Promise<TileMetadataSetRecordVector>;
+    async get(name: string, projection: Epsg, version: number): Promise<TileSetVectorRecord>;
+    async get(name: string, projection: Epsg, tag: TileMetadataTag): Promise<TileSetVectorRecord>;
     async get(
         name: string,
         projection: Epsg,
         tagOrVersion: TileMetadataTag | number,
-    ): Promise<TileMetadataSetRecordVector | null> {
+    ): Promise<TileSetVectorRecord | null> {
         const id = this.id(name, projection, tagOrVersion);
-        const record = (await this.metadata.get(id)) as TileMetadataSetRecordVector;
+        const record = (await this.metadata.get(id)) as TileSetVectorRecord;
         if (record == null) return null;
         return record;
     }
 
-    public async batchGet(keys: Set<string>): Promise<Map<string, TileMetadataSetRecordVector>> {
-        return await this.metadata.batchGet<TileMetadataSetRecordVector>(keys);
+    public async batchGet(keys: Set<string>): Promise<Map<string, TileSetVectorRecord>> {
+        return await this.metadata.batchGet<TileSetVectorRecord>(keys);
     }
 
-    async tag(
-        name: string,
-        projection: Epsg,
-        tag: TileMetadataTag,
-        version: number,
-    ): Promise<TileMetadataSetRecordVector> {
+    async tag(name: string, projection: Epsg, tag: TileMetadataTag, version: number): Promise<TileSetVectorRecord> {
         const record = await super.tagRecord(
-            { name, projection: projection.code } as TileMetadataSetRecordVector,
+            { name, projection: projection.code } as TileSetVectorRecord,
             tag,
             version,
         );
@@ -119,10 +102,10 @@ export class TileMetadataVector extends TaggedTileMetadata<TileMetadataSetRecord
     /**
      * Iterate over all records in the TileMetadataTable
      */
-    async *[Symbol.asyncIterator](): AsyncGenerator<TileMetadataSetRecordVector, null, void> {
+    async *[Symbol.asyncIterator](): AsyncGenerator<TileSetVectorRecord, null, void> {
         for await (const record of this.metadata) {
-            if (!this.recordIsVector(record)) continue;
-            yield record;
+            if (!this.recordIsTileSet(record)) continue;
+            yield record as TileSetVectorRecord;
         }
         return null;
     }
