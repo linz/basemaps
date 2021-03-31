@@ -5,9 +5,9 @@ import {
     LogType,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
-    TileMetadataSetRecord,
     TileMetadataTag,
     TileResizeKernel,
+    TileSetRecord,
 } from '@basemaps/shared';
 import { Composition, Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
@@ -21,7 +21,7 @@ export class TileSet {
     tag: TileMetadataTag;
     tileMatrix: TileMatrixSet;
     tiler: Tiler;
-    tileSet: TileMetadataSetRecord;
+    tileSet: TileSetRecord;
     imagery: Map<string, TileMetadataImageryRecord>;
     sources: Map<string, CogTiff> = new Map();
     titleOverride: string;

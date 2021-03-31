@@ -149,9 +149,9 @@ o.spec('tile.metadata.style', () => {
     o('recordIsStyle', () => {
         const table = new TileMetadataTable();
 
-        const item: BaseDynamoTable = { id: 'ts_foo', name: 'abc' } as any;
-        o(table.Vector.recordIsTileSet(item)).equals(true);
-        o(table.Vector.recordIsTileSet({ id: 'im_foo' } as any)).equals(false);
+        const item: BaseDynamoTable = { id: 'st_foo', name: 'abc' } as any;
+        o(table.Style.recordIsTileSet(item)).equals(true);
+        o(table.Style.recordIsTileSet({ id: 'im_foo' } as any)).equals(false);
     });
 
     o('asyncIterator', async () => {

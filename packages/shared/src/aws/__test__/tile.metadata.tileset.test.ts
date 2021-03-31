@@ -6,7 +6,7 @@ import { Const } from '../../const';
 import { TileSetName } from '../../proj/tile.set.name';
 import { BaseDynamoTable } from '../aws.dynamo.table';
 import { TileMetadataTable } from '../tile.metadata';
-import { TileMetadataNamedTag, TileMetadataSetRecord } from '../tile.metadata.base';
+import { TileMetadataNamedTag, TileMetadataSetRecord, TileSetType } from '../tile.metadata.base';
 import { TileMetadataTileSet } from '../tile.metadata.tileset';
 
 const promiseNull = async (): Promise<unknown> => null;
@@ -51,11 +51,11 @@ o.spec('tile.metadata.tileset', () => {
 
             o(res.v).equals(2);
             o((res as any)['imagery']).equals(undefined);
-            o(res.rules.length).equals(1);
-            o(res.rules[0].imgId).equals('im_0');
-            o(res.rules[0].minZoom).equals(1);
-            o(res.rules[0].maxZoom).equals(2);
-            o(res.rules[0].priority).equals(3);
+            o((res as TileMetadataSetRecord).rules.length).equals(1);
+            o((res as TileMetadataSetRecord).rules[0].imgId).equals('im_0');
+            o((res as TileMetadataSetRecord).rules[0].minZoom).equals(1);
+            o((res as TileMetadataSetRecord).rules[0].maxZoom).equals(2);
+            o((res as TileMetadataSetRecord).rules[0].priority).equals(3);
         });
 
         o('should increment version number', async () => {
@@ -93,7 +93,6 @@ o.spec('tile.metadata.tileset', () => {
             const res = await ts.tag('test', Epsg.Google, TileMetadataNamedTag.Production, 5);
             o(res.id).equals('ts_test_3857_production');
             o(res.v).equals(2);
-            o(Array.isArray(res.rules)).equals(true);
             o(metadata.get.callCount).equals(1);
             o(metadata.put.callCount).equals(1);
             o(metadata.put.args[0].id).equals('ts_test_3857_production');
@@ -102,10 +101,10 @@ o.spec('tile.metadata.tileset', () => {
 
     o.spec('idSplit', () => {
         function fakeRecord(id: string, version: number): TileMetadataSetRecord {
-            const rec = ts.initialRecord('rec', EpsgCode.Google);
+            const rec = ts.initialRecord('rec', EpsgCode.Google, TileSetType.Aerial, []);
             rec.id = id;
             rec.version = version;
-            return rec;
+            return rec as TileMetadataSetRecord;
         }
 
         o('should return null for unexpected ids', () => {

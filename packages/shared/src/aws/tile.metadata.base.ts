@@ -24,6 +24,11 @@ export enum TileMetadataNamedTag {
     Beta = 'beta',
 }
 
+export enum TileSetType {
+    Aerial = 'aerial',
+    Vector = 'vector',
+}
+
 /**
  * Ensure `tagInput` is a valid tag otherwise return null
  */
@@ -119,6 +124,9 @@ export interface TileMetadataSetRecordBase extends TaggedTileMetadataRecord {
     /** TileSet set name */
     name: string;
 
+    /** TileSet Type */
+    type?: string;
+
     /** Use for WMTS ows:title */
     title?: string;
 
@@ -134,12 +142,14 @@ export interface TileMetadataSetRecordBase extends TaggedTileMetadataRecord {
 }
 
 export interface TileMetadataSetRecordV1 extends TileMetadataSetRecordBase {
+    type: TileSetType.Aerial;
     v?: undefined;
     /** the rendering rules for imagery in this tileset */
     imagery: Record<string, TileMetadataImageRuleV1>;
 }
 
 export interface TileMetadataSetRecordV2 extends TileMetadataSetRecordBase {
+    type: TileSetType.Aerial;
     v: 2;
     /**
      * The rendering rules for imagery in this tileset
@@ -153,11 +163,14 @@ export interface TileMetadataSetRecordV2 extends TileMetadataSetRecordBase {
 export type TileMetadataSetRecord = TileMetadataSetRecordV2;
 
 export interface TileSetVectorRecord extends TileMetadataSetRecordBase {
+    type: TileSetType.Vector;
     /**
      * The xyz urls for the layers
      */
     layers: string[];
 }
+
+export type TileSetRecord = TileSetVectorRecord | TileMetadataSetRecord;
 
 export interface StyleId {
     tileSetName: string;
@@ -354,9 +367,7 @@ export abstract class TaggedTileMetadata<T extends TaggedTileMetadataRecord> {
 
      * @param rec record to infer is a TileMetadataSetRecord
      */
-    recordIsTileSet(
-        rec: BaseDynamoTable,
-    ): rec is TileMetadataSetRecordV1 | TileMetadataSetRecordV2 | TileSetVectorRecord {
+    recordIsTileSet(rec: BaseDynamoTable): rec is TileMetadataSetRecordV1 | TileSetRecord {
         return rec.id.startsWith(RecordPrefix.TileSet);
     }
 

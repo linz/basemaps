@@ -10,6 +10,7 @@ import {
     TileMetadataSetRecord,
     TileMetadataTable,
     TileMetadataTag,
+    TileSetType,
 } from '@basemaps/shared';
 import { deepStrictEqual } from 'assert';
 import { promises as fs } from 'fs';
@@ -266,9 +267,11 @@ export class TileSetUpdater {
         return Aws.tileMetadata.TileSet.initialRecord(
             config.name,
             projection.code,
+            TileSetType.Aerial,
             [],
+            undefined,
             config.title,
             config.description,
-        );
+        ) as TileMetadataSetRecord;
     }
 }

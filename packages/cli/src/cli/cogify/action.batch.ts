@@ -9,7 +9,9 @@ import {
     Projection,
     RecordPrefix,
     TileMetadataImageryRecord,
+    TileMetadataSetRecord,
     TileMetadataTable,
+    TileSetType,
 } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import Batch from 'aws-sdk/clients/batch';
@@ -65,10 +67,12 @@ export async function createMetadataFromJob(job: CogJob): Promise<void> {
     const tileMetadata = Aws.tileMetadata.TileSet.initialRecord(
         job.id,
         job.tileMatrix.projection.code,
+        TileSetType.Aerial,
         [{ imgId: img.id, ruleId: img.id, minZoom: 0, maxZoom: 32, priority: 1000 }],
+        undefined,
         job.title,
         job.description,
-    );
+    ) as TileMetadataSetRecord;
     await Aws.tileMetadata.TileSet.create(tileMetadata);
 }
 
