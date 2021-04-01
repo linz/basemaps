@@ -123,4 +123,3 @@ export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
     if (fileName === 'tile.json') return tileJson(req);
     return tile(req);
 }
-0;
