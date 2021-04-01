@@ -11,8 +11,6 @@ o.spec('api.path', () => {
 
         o('should support only known extensions', () => {
             o(tileXyzFromPath(['aerial', 'NZTM2000Quad', '10', '3456', '5432.FAKE'])).deepEquals(null);
-
-            ImageFormat;
         });
 
         for (const ext of Object.values(ImageFormat)) {
