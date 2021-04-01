@@ -10,7 +10,7 @@ export interface ActionData {
 
 export enum TileType {
     WMTS = 'WMTS',
-    Image = 'image',
+    Tile = 'tile',
     Attribution = 'attribution',
 }
 
@@ -22,7 +22,7 @@ interface NameTileMatrix {
 }
 
 export interface TileDataXyz extends Tile, NameTileMatrix {
-    type: TileType.Image;
+    type: TileType.Tile;
     ext: ImageFormat;
 }
 
@@ -60,10 +60,10 @@ export function tileXyzFromPath(path: string[]): TileDataXyz | null {
 
     if (isNaN(x) || isNaN(y) || isNaN(z)) return null;
 
-    const ext = extStr ? getImageFormat(extStr) : null;
+    const ext = getImageFormat(extStr);
     if (ext == null) return null;
 
-    return { type: TileType.Image, name, tileMatrix, x, y, z, ext };
+    return { type: TileType.Tile, name, tileMatrix, x, y, z, ext };
 }
 
 export function tileAttributionFromPath(path: string[]): TileDataAttribution | null {

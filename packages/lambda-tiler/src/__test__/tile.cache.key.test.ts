@@ -15,7 +15,7 @@ o.spec('TileCacheKey', () => {
         tileMatrix: GoogleTms,
         name: 'foo',
         ext: ImageFormat.PNG,
-        type: TileType.Image,
+        type: TileType.Tile,
     };
 
     o.afterEach(() => {

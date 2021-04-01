@@ -45,16 +45,19 @@ export enum ImageFormat {
     JPEG = 'jpeg',
     WEBP = 'webp',
     AVIF = 'avif',
+    MapboxVectorTiles = 'pbf',
 }
 
 export const ImageFormatOrder = [ImageFormat.JPEG, ImageFormat.WEBP, ImageFormat.PNG];
 
 /** Guess the image format based on the file extension */
-export function getImageFormat(ext: string): ImageFormat | null {
+export function getImageFormat(ext?: string): ImageFormat | null {
+    if (ext == null) return null;
     const search = ext.toLowerCase();
     if (search === 'png') return ImageFormat.PNG;
     if (search === 'webp') return ImageFormat.WEBP;
     if (search === 'jpeg' || search === 'jpg') return ImageFormat.JPEG;
     if (search === 'avif') return ImageFormat.AVIF;
+    if (search === 'pbf') return ImageFormat.MapboxVectorTiles;
     return null;
 }

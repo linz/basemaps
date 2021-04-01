@@ -136,6 +136,8 @@ export interface TileMetadataSetRecordBase extends TaggedTileMetadataRecord {
 
 export interface TileMetadataSetRecordV1 extends TileMetadataSetRecordBase {
     v?: undefined;
+    type?: TileSetType.Raster;
+
     /** the rendering rules for imagery in this tileset */
     imagery: Record<string, TileMetadataImageRuleV1>;
 }

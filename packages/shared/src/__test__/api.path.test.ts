@@ -31,7 +31,7 @@ o.spec('api.path', () => {
 
         o('should parse tiles from path', () => {
             o(tileXyzFromPath(['aerial', 'EPSG:3857', '10', '3456', '5432.webp'])).deepEquals({
-                type: TileType.Image,
+                type: TileType.Tile,
                 name: 'aerial',
                 tileMatrix: GoogleTms,
                 x: 3456,
@@ -42,13 +42,24 @@ o.spec('api.path', () => {
             o(tileXyzFromPath([])).equals(null);
             o(tileXyzFromPath(['aerial', 'EPSG:3857', '10', '3456'])).equals(null);
             o(tileXyzFromPath(['aerial', 'NZTM2000Quad', '10', '3456', '5432.webp'])).deepEquals({
-                type: TileType.Image,
+                type: TileType.Tile,
                 name: 'aerial',
                 tileMatrix: Nztm2000QuadTms,
                 x: 3456,
                 y: 5432,
                 z: 10,
                 ext: ImageFormat.WEBP,
+            });
+        });
+        o('should parse vector tiles', () => {
+            o(tileXyzFromPath(['aerial', 'NZTM2000Quad', '10', '3456', '5432.pbf'])).deepEquals({
+                type: TileType.Tile,
+                name: 'aerial',
+                tileMatrix: Nztm2000QuadTms,
+                x: 3456,
+                y: 5432,
+                z: 10,
+                ext: ImageFormat.MapboxVectorTiles,
             });
         });
     });

@@ -31,11 +31,11 @@ export interface TileSetId {
 
 export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecord> {
     isVectorRecord(x: TileMetadataSetRecord | TileMetadataSetRecordV1): x is TileSetVectorRecord {
-        return 'type' in x && x.type === TileSetType.Vector;
+        return x.type === TileSetType.Vector;
     }
 
     isRasterRecord(x: TileMetadataSetRecord | TileMetadataSetRecordV1): x is TileMetadataSetRecordV2 {
-        return 'type' in x && x.type !== TileSetType.Vector && x.v === 2;
+        return x.type == null || x.type === TileSetType.Raster;
     }
 
     /**
