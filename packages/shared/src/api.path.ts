@@ -13,6 +13,9 @@ export enum TileType {
     Tile = 'tile',
     Attribution = 'attribution',
 }
+export enum VectorFormat {
+    MapboxVectorTiles = 'pbf',
+}
 
 export type TileData = TileDataXyz | TileDataWmts | TileDataAttribution;
 
@@ -23,7 +26,7 @@ interface NameTileMatrix {
 
 export interface TileDataXyz extends Tile, NameTileMatrix {
     type: TileType.Tile;
-    ext: ImageFormat;
+    ext: ImageFormat | VectorFormat;
 }
 
 export interface TileDataWmts {
@@ -59,6 +62,10 @@ export function tileXyzFromPath(path: string[]): TileDataXyz | null {
     const y = parseInt(ystr, 10);
 
     if (isNaN(x) || isNaN(y) || isNaN(z)) return null;
+
+    if (extStr === 'pbf') {
+        return { type: TileType.Tile, name, tileMatrix, x, y, z, ext: VectorFormat.MapboxVectorTiles };
+    }
 
     const ext = getImageFormat(extStr);
     if (ext == null) return null;

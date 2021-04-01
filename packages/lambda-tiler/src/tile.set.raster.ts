@@ -9,13 +9,14 @@ import {
     TileMetadataImageryRecord,
     TileMetadataSetRecordV2,
     TileSetType,
+    VectorFormat,
 } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
-import { NotModified, TileComposer } from './routes/tile';
+import { NotFound, NotModified, TileComposer } from './routes/tile';
 import { TileEtag } from './routes/tile.etag';
 import { TileSetHandler } from './tile.set';
 
@@ -95,6 +96,7 @@ export class TileSetRaster extends TileSetHandler<TileMetadataSetRecordV2> {
     }
 
     public async tile(req: LambdaContext, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
+        if (xyz.ext === VectorFormat.MapboxVectorTiles) return NotFound;
         const tiffs = await this.initTiffs(xyz, req.log);
         const layers = await this.tiler.tile(tiffs, xyz.x, xyz.y, xyz.z);
 

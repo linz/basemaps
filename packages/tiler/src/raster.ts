@@ -45,8 +45,6 @@ export enum ImageFormat {
     JPEG = 'jpeg',
     WEBP = 'webp',
     AVIF = 'avif',
-    // TODO this should not be a image format
-    MapboxVectorTiles = 'pbf',
 }
 
 export const ImageFormatOrder = [ImageFormat.JPEG, ImageFormat.WEBP, ImageFormat.PNG];
@@ -59,6 +57,5 @@ export function getImageFormat(ext?: string): ImageFormat | null {
     if (search === 'webp') return ImageFormat.WEBP;
     if (search === 'jpeg' || search === 'jpg') return ImageFormat.JPEG;
     if (search === 'avif') return ImageFormat.AVIF;
-    if (search === 'pbf') return ImageFormat.MapboxVectorTiles;
     return null;
 }

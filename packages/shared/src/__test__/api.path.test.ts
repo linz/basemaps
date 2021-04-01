@@ -1,7 +1,7 @@
 import { GoogleTms, Nztm2000Tms, Nztm2000QuadTms } from '@basemaps/geo';
 import { ImageFormat } from '@basemaps/tiler';
 import o from 'ospec';
-import { tileAttributionFromPath, TileType, tileWmtsFromPath, tileXyzFromPath } from '../api.path';
+import { tileAttributionFromPath, TileType, tileWmtsFromPath, tileXyzFromPath, VectorFormat } from '../api.path';
 
 o.spec('api.path', () => {
     o.spec('tileXyzFromPath', () => {
@@ -59,7 +59,7 @@ o.spec('api.path', () => {
                 x: 3456,
                 y: 5432,
                 z: 10,
-                ext: ImageFormat.MapboxVectorTiles,
+                ext: VectorFormat.MapboxVectorTiles,
             });
         });
     });
