@@ -5,7 +5,6 @@ import {
     Env,
     setNameAndProjection,
     TileMetadataNamedTag,
-    TileSetType,
     tileWmtsFromPath,
     tileXyzFromPath,
 } from '@basemaps/shared';
