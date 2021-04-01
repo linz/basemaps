@@ -5,7 +5,7 @@ import {
     LogConfig,
     RecordPrefix,
     TileMetadataNamedTag,
-    TileMetadataSetRecord,
+    TileMetadataSetRecordV2,
     TileMetadataTable,
     TileResizeKernel,
 } from '@basemaps/shared';
@@ -136,6 +136,11 @@ export class TileSetUpdateAction extends TileSetBaseAction {
             LogConfig.get().fatal({ tileSet: name, projection }, 'Failed to find tile set');
             process.exit(1);
         }
+
+        if (Aws.tileMetadata.TileSet.isVectorRecord(tsData)) {
+            LogConfig.get().fatal({ tileSet: name, projection }, 'Tile set is not a raster tile set');
+            process.exit(1);
+        }
         const before = JSON.stringify(tsData);
         await Aws.tileMetadata.Imagery.getAll(tsData);
         if (imgId !== '') await Aws.tileMetadata.Imagery.get(imgId);
@@ -166,7 +171,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         }
     }
 
-    updateTile(tsData: TileMetadataSetRecord): boolean {
+    updateTile(tsData: TileMetadataSetRecordV2): boolean {
         const existing = tsData.title;
         const title = this.title.value;
         if (title == null || title === existing) return false;
@@ -174,7 +179,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    async updateDescription(tsData: TileMetadataSetRecord): Promise<boolean> {
+    async updateDescription(tsData: TileMetadataSetRecordV2): Promise<boolean> {
         const existing = tsData.description;
         const descriptionPath = this.description.value;
         if (descriptionPath == null) return false;
@@ -184,7 +189,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    updateResize(tsData: TileMetadataSetRecord): boolean {
+    updateResize(tsData: TileMetadataSetRecordV2): boolean {
         const existing = tsData.resizeKernel;
         const resizeIn = this.resizeIn.value;
         const resizeOut = this.resizeOut.value;
@@ -202,7 +207,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    updateBackground(tsData: TileMetadataSetRecord): boolean {
+    updateBackground(tsData: TileMetadataSetRecordV2): boolean {
         const existing = tsData.background;
         const background = this.background.value;
         if (background == null) return false;
@@ -220,7 +225,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return false;
     }
 
-    async replaceUpdate(tsData: TileMetadataSetRecord, ruleId: string, imgId: string): Promise<boolean> {
+    async replaceUpdate(tsData: TileMetadataSetRecordV2, ruleId: string, imgId: string): Promise<boolean> {
         const existingIndex = tsData.rules.findIndex((rule) => rule.ruleId === ruleId);
         if (existingIndex == null) return false;
         const existing = tsData.rules[existingIndex];
@@ -232,7 +237,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    async updateZoom(tsData: TileMetadataSetRecord, ruleId: string): Promise<boolean> {
+    async updateZoom(tsData: TileMetadataSetRecordV2, ruleId: string): Promise<boolean> {
         const existing = tsData.rules.find((rule) => rule.ruleId === ruleId);
         if (existing == null) return false;
 
@@ -262,7 +267,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    async updatePriority(tsData: TileMetadataSetRecord, ruleId?: string, imgId?: string): Promise<boolean> {
+    async updatePriority(tsData: TileMetadataSetRecordV2, ruleId?: string, imgId?: string): Promise<boolean> {
         const logger = LogConfig.get();
 
         const priority = this.priority.value!;

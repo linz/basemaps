@@ -2,10 +2,10 @@ import { Epsg } from '@basemaps/geo';
 import {
     Aws,
     LogConfig,
-    parseMetadataTag,
     RecordPrefix,
     TileMetadataImageryRecord,
     TileMetadataTable,
+    TileSetNameParser,
 } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CogStacJob } from '../../cog/cog.stac.job';
@@ -71,16 +71,15 @@ export class ImportAction extends CommandLineAction {
             if (this.job.value) {
                 throw new Error('--job and --config may not be used at same time!');
             }
-            const tagInput = this.tag.value!;
 
-            const tag = parseMetadataTag(tagInput);
-            if (tag == null) {
-                LogConfig.get().fatal({ tag }, 'Invalid tag name');
+            const tagInput = this.tag.value;
+            if (!TileSetNameParser.isValidTag(tagInput)) {
+                LogConfig.get().fatal({ tag: tagInput }, 'Invalid tag name');
                 console.log(this.renderHelpText());
                 return;
             }
 
-            await updateConfig(this.config.value, tag, !!this.commit.value);
+            await updateConfig(this.config.value, tagInput, !!this.commit.value);
             return;
         }
 

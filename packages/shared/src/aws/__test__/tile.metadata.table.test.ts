@@ -6,7 +6,7 @@ import { Const } from '../../const';
 import { TileSetName } from '../../proj/tile.set.name';
 import { qkToNamedBounds } from '../../proj/__test__/test.util';
 import { TileMetadataTable } from '../tile.metadata';
-import { TileMetadataImageRule, TileMetadataImageryRecord, TileMetadataSetRecord } from '../tile.metadata.base';
+import { TileMetadataImageRule, TileMetadataImageryRecord, TileMetadataSetRecordV2 } from '../tile.metadata.base';
 
 const { marshall } = DynamoDB.Converter;
 
@@ -106,7 +106,7 @@ o.spec('tile.metadata.table', () => {
             rules,
             name: TileSetName.aerial,
             projection: Epsg.Google.code,
-        } as TileMetadataSetRecord;
+        } as TileMetadataSetRecordV2;
 
         const imageryMap = await Imagery.getAll(tsData);
 
@@ -207,7 +207,7 @@ o.spec('tile.metadata.table', () => {
             rules: [...genRules(202)],
             name: TileSetName.aerial,
             projection: Epsg.Google.code,
-        } as TileMetadataSetRecord;
+        } as TileMetadataSetRecordV2;
 
         const ans = await tmtable.Imagery.getAll(tsData);
 

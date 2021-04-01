@@ -2,7 +2,6 @@ import { TileMatrixSet } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
 import {
     Aws,
-    DefaultBackground,
     Env,
     setNameAndProjection,
     TileMetadataNamedTag,
@@ -11,30 +10,16 @@ import {
 } from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { createHash } from 'crypto';
-import { TileSet } from '../tile.set';
-import { loadTileSet, loadTileSets } from '../tile.set.cache';
+import { TileSets } from '../tile.set.cache';
+import { TileSetRaster } from '../tile.set.raster';
 import { WmtsCapabilities } from '../wmts.capability';
 import { attribution } from './attribution';
 import { TileEtag } from './tile.etag';
 
 export const TileComposer = new TileMakerSharp(256);
 
-const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
-
-const NotFound = new LambdaHttpResponse(404, 'Not Found');
-
-/** Initialize the tiffs before reading */
-
-function checkNotModified(req: LambdaContext, cacheKey: string): LambdaHttpResponse | null {
-    // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our
-    // etag this tile has not been modified.
-    const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
-    if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
-        req.set('cache', { key: cacheKey, hit: true, match: ifNoneMatch });
-        return new LambdaHttpResponse(304, 'Not modified');
-    }
-    return null;
-}
+export const NotFound = new LambdaHttpResponse(404, 'Not Found');
+export const NotModified = new LambdaHttpResponse(304, 'Not modified');
 
 export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
     const xyzData = tileXyzFromPath(req.action.rest);
@@ -42,47 +27,23 @@ export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
     ValidateTilePath.validate(req, xyzData);
 
     req.timer.start('tileset:load');
-    const tileSet = await loadTileSet(xyzData.name, xyzData.tileMatrix);
+    const tileSet = await TileSets.get(xyzData.name, xyzData.tileMatrix);
     req.timer.end('tileset:load');
-    if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset Not Found');
+    if (tileSet == null) return NotFound;
 
-    const layers = await tileSet.tile(xyzData, req.log);
-
-    // Generate a unique hash given the full URI, the layers used and a renderId
-    const cacheKey = TileEtag.generate(layers, xyzData);
-
-    req.set('layers', layers.length);
-
-    const respNotMod = checkNotModified(req, cacheKey);
-    if (respNotMod != null) return respNotMod;
-
-    req.timer.start('tile:compose');
-    const res = await TileComposer.compose({
-        layers,
-        format: xyzData.ext,
-        background: tileSet.background ?? DefaultBackground,
-        resizeKernel: tileSet.resizeKernel ?? DefaultResizeKernel,
-    });
-    req.timer.end('tile:compose');
-    req.set('layersUsed', res.layers);
-    req.set('allLayersUsed', res.layers === layers.length);
-    req.set('bytes', res.buffer.byteLength);
-
-    const response = new LambdaHttpResponse(200, 'ok');
-    response.header(HttpHeader.ETag, cacheKey);
-    response.header(HttpHeader.CacheControl, 'public, max-age=604800');
-    response.buffer(res.buffer, 'image/' + xyzData.ext);
-    return response;
+    const res = await tileSet.tile(req, xyzData);
+    return res;
 }
 
-async function wmtsLoadTileSets(nameStr: string, tileMatrix: TileMatrixSet | null): Promise<TileSet[]> {
-    if (nameStr !== '' && nameStr[0] !== '@' && tileMatrix != null) {
-        // single tileSet
-        const ts = await loadTileSet(nameStr, tileMatrix);
-        return ts == null ? [] : [ts];
+async function wmtsLoadTileSets(name: string, tileMatrix: TileMatrixSet | null): Promise<TileSetRaster[]> {
+    if (name !== '' && name[0] !== '@' && tileMatrix != null) {
+        // single tileSett
+        const ts = await TileSets.get(name, tileMatrix);
+        if (ts == null || ts.isVector()) return [];
+        return [ts];
     }
 
-    return await loadTileSets(nameStr, tileMatrix);
+    return (await TileSets.getAll(name, tileMatrix)).filter((f) => f.type === 'raster') as TileSetRaster[];
 }
 
 export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
@@ -105,9 +66,7 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     const data = Buffer.from(xml);
 
     const cacheKey = createHash('sha256').update(data).digest('base64');
-
-    const respNotMod = checkNotModified(req, cacheKey);
-    if (respNotMod != null) return respNotMod;
+    if (TileEtag.isNotModified(req, cacheKey)) return NotModified;
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
@@ -144,8 +103,7 @@ export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> 
 
     const cacheKey = createHash('sha256').update(data).digest('base64');
 
-    const respNotMod = checkNotModified(req, cacheKey);
-    if (respNotMod != null) return respNotMod;
+    if (TileEtag.isNotModified(req, cacheKey)) return NotModified;
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);

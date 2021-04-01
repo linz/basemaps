@@ -5,7 +5,9 @@ import {
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
     TileMetadataSetRecord,
+    TileMetadataSetRecordV2,
     TileMetadataTag,
+    TileSetType,
 } from '@basemaps/shared';
 import * as c from 'ansi-colors';
 import { CliTable } from '../cli.table';
@@ -68,7 +70,7 @@ TileSetTable.field('Name', 40, (obj) => obj.imagery.name);
 TileSetTable.field('Zoom', 10, (obj) => obj.rule.minZoom + ' -> ' + obj.rule.maxZoom);
 TileSetTable.field('CreatedAt', 10, (obj) => new Date(obj.imagery.createdAt).toISOString());
 
-export async function printTileSetImagery(tsData: TileMetadataSetRecord): Promise<void> {
+export async function printTileSetImagery(tsData: TileMetadataSetRecordV2): Promise<void> {
     const allImagery = await Aws.tileMetadata.Imagery.getAll(tsData);
     Aws.tileMetadata.TileSet.sortRenderRules(tsData, allImagery);
     console.log('');
@@ -87,6 +89,8 @@ export async function printTileSet(tsData: TileMetadataSetRecord, printImagery =
     console.log(c.bold('CreatedAt:'), new Date(tsData.createdAt).toISOString());
     console.log(c.bold('UpdatedAt:'), new Date(tsData.updatedAt).toISOString());
     console.log(c.bold('Version:'), `v${tsData.version}`);
+
+    if (tsData.type === TileSetType.Vector) return;
     if (tsData.background) {
         console.log(c.bold('Background'), tsData.background);
     }
@@ -104,8 +108,8 @@ export async function printTileSet(tsData: TileMetadataSetRecord, printImagery =
 }
 
 export function showDiff(
-    tsA: TileMetadataSetRecord | null,
-    tsB: TileMetadataSetRecord | null,
+    tsA: TileMetadataSetRecordV2 | null,
+    tsB: TileMetadataSetRecordV2 | null,
     imageSet: Map<string, TileMetadataImageryRecord>,
 ): string {
     let output = '';

@@ -1,12 +1,10 @@
-import { EpsgCode } from '@basemaps/geo';
-import { Epsg } from '@basemaps/geo';
+import { Epsg, EpsgCode } from '@basemaps/geo';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import o from 'ospec';
 import { Const } from '../../const';
-import { TileSetName } from '../../proj/tile.set.name';
 import { BaseDynamoTable } from '../aws.dynamo.table';
 import { TileMetadataTable } from '../tile.metadata';
-import { TileMetadataNamedTag, TileMetadataSetRecord } from '../tile.metadata.base';
+import { TileMetadataNamedTag, TileMetadataSetRecord, TileSetType } from '../tile.metadata.base';
 import { TileMetadataTileSet } from '../tile.metadata.tileset';
 
 const promiseNull = async (): Promise<unknown> => null;
@@ -42,22 +40,6 @@ o.spec('tile.metadata.tileset', () => {
             o(metadata.put.calls[1].args[0].id).equals('ts_test_3857_head');
         });
 
-        o('should migrate records on creation', async () => {
-            const res = await ts.create({
-                name: 'test',
-                projection: Epsg.Google,
-                imagery: { im_0: { id: 'im_0', minZoom: 1, maxZoom: 2, priority: 3 } },
-            } as any);
-
-            o(res.v).equals(2);
-            o((res as any)['imagery']).equals(undefined);
-            o(res.rules.length).equals(1);
-            o(res.rules[0].imgId).equals('im_0');
-            o(res.rules[0].minZoom).equals(1);
-            o(res.rules[0].maxZoom).equals(2);
-            o(res.rules[0].priority).equals(3);
-        });
-
         o('should increment version number', async () => {
             metadata.get = o.spy(() => Promise.resolve({ revisions: 5 }));
             const res = await ts.create({ name: 'test', projection: Epsg.Google, imagery: {} } as any);
@@ -89,11 +71,11 @@ o.spec('tile.metadata.tileset', () => {
         });
 
         o('should create tags', async () => {
-            metadata.get = o.spy(() => Promise.resolve({ revisions: 5 }));
+            metadata.get = o.spy(() => Promise.resolve({ revisions: 5, v: 2 }));
             const res = await ts.tag('test', Epsg.Google, TileMetadataNamedTag.Production, 5);
             o(res.id).equals('ts_test_3857_production');
             o(res.v).equals(2);
-            o(Array.isArray(res.rules)).equals(true);
+            if (res.type === TileSetType.Vector) throw new Error('Invalid tileset returned');
             o(metadata.get.callCount).equals(1);
             o(metadata.put.callCount).equals(1);
             o(metadata.put.args[0].id).equals('ts_test_3857_production');
@@ -102,7 +84,7 @@ o.spec('tile.metadata.tileset', () => {
 
     o.spec('idSplit', () => {
         function fakeRecord(id: string, version: number): TileMetadataSetRecord {
-            const rec = ts.initialRecord('rec', EpsgCode.Google);
+            const rec = ts.initialRecordRaster('rec', EpsgCode.Google);
             rec.id = id;
             rec.version = version;
             return rec;
@@ -137,28 +119,6 @@ o.spec('tile.metadata.tileset', () => {
         });
     });
 
-    o.spec('parse', () => {
-        o('should parse @ syntax', () => {
-            o(ts.parse('aerial@head')).deepEquals({ name: TileSetName.aerial, tag: TileMetadataNamedTag.Head });
-            o(ts.parse('aerial@production')).deepEquals({
-                name: TileSetName.aerial,
-                tag: TileMetadataNamedTag.Production,
-            });
-            o(ts.parse('aerial@beta')).deepEquals({ name: TileSetName.aerial, tag: TileMetadataNamedTag.Beta });
-            o(ts.parse('aerial@pr-123')).deepEquals({ name: TileSetName.aerial, tag: 'pr-123' });
-        });
-
-        o('should throw with invalid tags', () => {
-            o(ts.parse('aerial@foo')).deepEquals({ name: 'aerial@foo' });
-            o(ts.parse('AeRiaL@9FooBar')).deepEquals({ name: 'AeRiaL@9FooBar' });
-        });
-
-        o('should be case sensitive', () => {
-            o(ts.parse('AeRiaL@BETA')).deepEquals({ name: 'AeRiaL@BETA' });
-            o(ts.parse('AeRiaL@HEAD')).deepEquals({ name: 'AeRiaL@HEAD' });
-        });
-    });
-
     o('recordIsTileSet', () => {
         const table = new TileMetadataTable();
 
@@ -173,11 +133,9 @@ o.spec('tile.metadata.tileset', () => {
 
     o('asyncIterator', async () => {
         const rule = { imgId: 'im_ulid', maxZoom: 1, minZoom: 15, priority: 1000, ruleId: 'ir_ulid' };
-        const imagery = { im_ulid: { id: 'im_ulid', maxZoom: 1, minZoom: 15, priority: 1000 } };
         const recs: any[] = [
             { id: 'im_rec1', name: 'rec1' }, // yes
             { id: 'ts_rec1', name: 'rec2', v: 2, rules: [rule] }, // yes
-            { id: 'ts_rec2', name: 'rec3', v: 1, imagery: imagery }, // v1 migrate to v2
         ];
         const dynamo = {
             scan(opts: any): any {
@@ -213,10 +171,7 @@ o.spec('tile.metadata.tileset', () => {
             ans.push(item);
         }
 
-        const ts_result: any[] = [
-            { id: 'ts_rec1', name: 'rec2', v: 2, rules: [rule] },
-            { id: 'ts_rec2', name: 'rec3', v: 2, rules: [rule] },
-        ];
+        const ts_result: any[] = [{ id: 'ts_rec1', name: 'rec2', v: 2, rules: [rule] }];
         o(ans).deepEquals(ts_result);
     });
 });

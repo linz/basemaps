@@ -78,6 +78,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         const tileSets = await Aws.tileMetadata.TileSet.batchGet(toFetch);
         const toFetchImages = new Set<string>();
         for (const tag of tileSets.values()) {
+            if (!Aws.tileMetadata.TileSet.isRasterRecord(tag)) continue;
             for (const rule of tag.rules) toFetchImages.add(rule.imgId);
         }
 
@@ -85,6 +86,7 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         const imagery = await Aws.tileMetadata.batchGet<TileMetadataImageryRecord>(toFetchImages);
 
         for (const tag of tileSets.values()) {
+            if (!Aws.tileMetadata.TileSet.isRasterRecord(tag)) continue;
             Aws.tileMetadata.TileSet.sortRenderRules(tag, imagery);
         }
 
@@ -107,6 +109,9 @@ export class TileSetHistoryAction extends TileSetBaseAction {
             const tileSetBId = Aws.tileMetadata.TileSet.id(tileSetName, projection, i - 1);
             const tileSetB = tileSets.get(tileSetBId);
             if (tileSetB == null) throw new Error(`Failed to fetch tag: ${tileSetBId}`);
+
+            if (!Aws.tileMetadata.TileSet.isRasterRecord(tileSetA)) continue;
+            if (!Aws.tileMetadata.TileSet.isRasterRecord(tileSetB)) continue;
 
             console.log(showDiff(tileSetA, tileSetB, imagery));
         }

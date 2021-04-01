@@ -1,161 +1,44 @@
-import { Bounds, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { TileMatrixSet } from '@basemaps/geo';
+import { LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
-    Aws,
-    Env,
-    LogType,
-    TileMetadataImageryRecord,
-    TileMetadataNamedTag,
-    TileMetadataSetRecord,
-    TileMetadataTag,
-    TileResizeKernel,
+    TileDataXyz,
+    TileMetadataSetRecordV2,
+    TileSetNameParser,
+    TileSetType,
+    TileSetVectorRecord,
 } from '@basemaps/shared';
-import { Composition, Tiler } from '@basemaps/tiler';
-import { CogTiff } from '@cogeotiff/core';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import pLimit from 'p-limit';
+import { TileSetNameComponents } from 'packages/shared/src/tile.set.name';
+import { TileSets } from './tile.set.cache';
+import { TileSetRaster } from './tile.set.raster';
+import { TileSetVector } from './tile.set.vector';
 
-const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
+export type TileSet = TileSetVector | TileSetRaster;
 
-export class TileSet {
-    name: string;
-    tag: TileMetadataTag;
+export abstract class TileSetHandler<T extends TileMetadataSetRecordV2 | TileSetVectorRecord> {
+    type: TileSetType;
+    components: TileSetNameComponents;
     tileMatrix: TileMatrixSet;
-    tiler: Tiler;
-    tileSet: TileMetadataSetRecord;
-    imagery: Map<string, TileMetadataImageryRecord>;
-    sources: Map<string, CogTiff> = new Map();
-    titleOverride: string;
-    extentOverride: Bounds;
-
-    /**
-     * Return the location of a imagery `record`
-     * @param record
-     * @param name the COG to locate. Return just the directory if `null`
-     */
-    static basePath(record: TileMetadataImageryRecord, name?: string): string {
-        if (name == null) return record.uri;
-        if (record.uri.endsWith('/')) throw new Error("Invalid uri ending with '/' " + record.uri);
-        return `${record.uri}/${name}.tiff`;
-    }
-
-    constructor(nameStr: string, tileMatrix: TileMatrixSet) {
-        const { name, tag } = Aws.tileMetadata.TileSet.parse(nameStr);
-        this.name = name;
-        this.tag = tag ?? TileMetadataNamedTag.Production;
+    tileSet: T;
+    constructor(name: string, tileMatrix: TileMatrixSet) {
+        this.components = TileSetNameParser.parse(name);
         this.tileMatrix = tileMatrix;
-        this.tiler = new Tiler(this.tileMatrix);
-    }
-
-    get background(): { r: number; g: number; b: number; alpha: number } | undefined {
-        return this.tileSet?.background;
-    }
-
-    get resizeKernel(): { in: TileResizeKernel; out: TileResizeKernel } | undefined {
-        return this.tileSet?.resizeKernel;
-    }
-
-    get taggedName(): string {
-        if (this.tag === TileMetadataNamedTag.Production) return this.name;
-        return `${this.name}@${this.tag}`;
     }
 
     get id(): string {
-        return `${this.taggedName}_${this.tileMatrix.identifier}`;
+        return TileSets.id(this.fullName, this.tileMatrix);
     }
 
-    get title(): string {
-        return this.titleOverride ?? this.tileSet.title ?? this.name;
+    get fullName(): string {
+        return TileSetNameParser.componentsToName(this.components);
     }
 
-    get description(): string {
-        return this.tileSet.description ?? '';
+    isVector(): this is TileSetVector {
+        return this.type === TileSetType.Vector;
     }
 
-    get extent(): Bounds {
-        return this.extentOverride ?? this.tileMatrix.extent;
+    isRaster(): this is TileSetRaster {
+        return this.type === TileSetType.Raster;
     }
 
-    async load(): Promise<boolean> {
-        const tileSet = await Aws.tileMetadata.TileSet.get(this.name, this.tileMatrix.projection, this.tag);
-        if (tileSet == null) return false;
-        this.tileSet = tileSet;
-        this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
-        Aws.tileMetadata.TileSet.sortRenderRules(tileSet, this.imagery);
-        return true;
-    }
-
-    private async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
-        const tiffs = this.getTiffsForTile(tile);
-        let failed = false;
-        // Remove any tiffs that failed to load
-        const promises = tiffs.map((c) => {
-            return LoadingQueue(async () => {
-                try {
-                    await c.init();
-                } catch (error) {
-                    log.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
-                    failed = true;
-                }
-            });
-        });
-        await Promise.all(promises);
-        if (failed) return tiffs.filter((f) => f.images.length > 0);
-        return tiffs;
-    }
-
-    public async tile(xyz: Tile, log: LogType): Promise<Composition[]> {
-        const tiffs = await this.initTiffs(xyz, log);
-        return this.tiler.tile(tiffs, xyz.x, xyz.y, xyz.z);
-    }
-
-    /** Map of z to parentZ */
-    private zoomMap = new Map<number, number>();
-
-    /**
-     * Get a list of tiffs in the rendering order that is needed to render the tile
-     * @param tms tile matrix set to describe the tiling scheme
-     * @param tile tile to render
-     */
-    public getTiffsForTile(tile: Tile): CogTiff[] {
-        const output: CogTiff[] = [];
-        const tileBounds = this.tileMatrix.tileToSourceBounds(tile);
-
-        const filterZoom = TileMatrixSet.convertZoomLevel(
-            tile.z,
-            this.tileMatrix,
-            TileMatrixSets.get(this.tileMatrix.projection),
-        );
-        for (const rule of this.tileSet.rules) {
-            if (rule.maxZoom != null && filterZoom > rule.maxZoom) continue;
-            if (rule.minZoom != null && filterZoom < rule.minZoom) continue;
-
-            const imagery = this.imagery.get(rule.imgId);
-            if (imagery == null) continue;
-            if (!tileBounds.intersects(Bounds.fromJson(imagery.bounds))) continue;
-
-            for (const tiff of this.getCogsForTile(imagery, tileBounds)) output.push(tiff);
-        }
-        return output;
-    }
-
-    private getCogsForTile(record: TileMetadataImageryRecord, tileBounds: Bounds): CogTiff[] {
-        const output: CogTiff[] = [];
-        for (const c of record.files) {
-            if (!tileBounds.intersects(Bounds.fromJson(c))) continue;
-
-            const tiffKey = `${record.id}_${c.name}`;
-            let existing = this.sources.get(tiffKey);
-            if (existing == null) {
-                const source = SourceAwsS3.fromUri(TileSet.basePath(record, c.name), Aws.s3);
-                if (source == null) {
-                    throw new Error(`Failed to create CogSource from  ${TileSet.basePath(record, c.name)}`);
-                }
-                existing = new CogTiff(source);
-                this.sources.set(tiffKey, existing);
-            }
-
-            output.push(existing);
-        }
-        return output;
-    }
+    abstract tile(req: LambdaContext, xyz: TileDataXyz): Promise<LambdaHttpResponse>;
 }

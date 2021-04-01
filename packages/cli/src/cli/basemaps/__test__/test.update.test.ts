@@ -1,9 +1,9 @@
-import { Aws, LogConfig, TileMetadataImageRule, TileMetadataSetRecord } from '@basemaps/shared';
+import { Aws, LogConfig, TileMetadataImageRule, TileMetadataSetRecordV2 } from '@basemaps/shared';
 import o from 'ospec';
 import { TileSetUpdateAction } from '../action.tileset.update';
 import { parseRgba } from '../tileset.util';
 
-function fakeTileSet(): TileMetadataSetRecord {
+function fakeTileSet(): TileMetadataSetRecordV2 {
     Aws.tileMetadata.Imagery.imagery.set('im_0', { name: '0', id: 'im_0' } as any);
     Aws.tileMetadata.Imagery.imagery.set('im_1', { name: '1', id: 'im_1' } as any);
     Aws.tileMetadata.Imagery.imagery.set('im_2', { name: '2', id: 'im_2' } as any);
@@ -25,7 +25,7 @@ o.spec('TileSetUpdateAction', () => {
         return tileSet.rules.find((f) => f.ruleId === ruleId);
     }
 
-    function tileSetId(t: TileMetadataSetRecord): string[] {
+    function tileSetId(t: TileMetadataSetRecordV2): string[] {
         return t.rules.map((c) => c.imgId);
     }
 

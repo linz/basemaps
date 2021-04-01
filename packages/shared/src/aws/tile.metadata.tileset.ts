@@ -1,8 +1,8 @@
 import { Epsg, EpsgCode } from '@basemaps/geo';
+import { TileSetNameParser } from '../tile.set.name';
 import { BaseDynamoTable } from './aws.dynamo.table';
 import {
     DefaultBackground,
-    parseMetadataTag,
     RecordPrefix,
     TaggedTileMetadata,
     TileMetadataImageRuleV2,
@@ -11,8 +11,10 @@ import {
     TileMetadataSetRecordBase,
     TileMetadataSetRecordV1,
     TileMetadataSetRecordV2,
+    TileSetVectorRecord,
     TileMetadataTableBase,
     TileMetadataTag,
+    TileSetType,
 } from './tile.metadata.base';
 import { compareImageSets } from './tile.metadata.imagery';
 
@@ -28,15 +30,24 @@ export interface TileSetId {
 }
 
 export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecord> {
+    isVectorRecord(x: TileMetadataSetRecord | TileMetadataSetRecordV1): x is TileSetVectorRecord {
+        return x.type === TileSetType.Vector;
+    }
+
+    isRasterRecord(x: TileMetadataSetRecord | TileMetadataSetRecordV1): x is TileMetadataSetRecordV2 {
+        return x.type == null || x.type === TileSetType.Raster;
+    }
+
     /**
      * Take a older imagery record and upgrade it to the latest record version
      * @param record
      */
-    migrate(record: TileMetadataSetRecordV1 | TileMetadataSetRecordV2): TileMetadataSetRecord {
-        if (isLatestTileSetRecord(record)) return record;
+    migrate(record: TileMetadataSetRecordV1 | TileMetadataSetRecordV2 | TileSetVectorRecord): TileMetadataSetRecord {
+        if (this.isVectorRecord(record)) return record;
+        if (this.isRasterRecord(record)) return record;
 
         // V1 -> V2
-        const output: TileMetadataSetRecord = record as any;
+        const output: TileMetadataSetRecordV2 = record as any;
         const imagery = record.imagery;
         delete (record as any).imagery;
 
@@ -59,14 +70,14 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         return output;
     }
 
-    initialRecord(
+    initialRecordRaster(
         name: string,
         projection: EpsgCode,
         rules: TileMetadataImageRuleV2[] = [],
         title?: string,
         description?: string,
-    ): TileMetadataSetRecord {
-        const rec: TileMetadataSetRecord = {
+    ): TileMetadataSetRecordV2 {
+        const rec: TileMetadataSetRecordV2 = {
             id: '',
             createdAt: Date.now(),
             updatedAt: 0,
@@ -79,25 +90,11 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
             rules,
         };
 
-        if (title != null) {
-            rec.title = title;
-        }
-        if (description != null) {
-            rec.description = description;
-        }
+        if (title != null) rec.title = title;
+        if (description != null) rec.description = description;
 
         return rec;
     }
-
-    /**
-     * Is `rec` a TileSet record
-
-     * @param rec record to infer is a TileMetadataSetRecord
-     */
-    recordIsTileSet(rec: BaseDynamoTable): rec is TileMetadataSetRecordV1 | TileMetadataSetRecordV2 {
-        return rec.id.startsWith(RecordPrefix.TileSet);
-    }
-
     /**
      * Sort the render rules of a tile set given the information about the imagery
      *
@@ -106,7 +103,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
      * @param tileSet with rules that need to be sorted
      * @param imagery All imagery referenced inside the tileset
      */
-    sortRenderRules(tileSet: TileMetadataSetRecord, imagery: Map<string, TileMetadataImageryRecord>): void {
+    sortRenderRules(tileSet: TileMetadataSetRecordV2, imagery: Map<string, TileMetadataImageryRecord>): void {
         tileSet.rules.sort((ruleA, ruleB) => {
             if (ruleA.priority !== ruleB.priority) return ruleA.priority - ruleB.priority;
             const imgA = imagery.get(ruleA.imgId);
@@ -116,26 +113,13 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
             return compareImageSets(imgA, imgB);
         });
     }
-
     /**
-     * Parse a tile set tag combo into their parts
-     *
-     * @example
-     * aerial@head => {name: aerial, tag: head}
-     * @param str String to parse
+     * Is `rec` a TileSet record
+
+     * @param rec record to infer is a TileMetadataSetRecord
      */
-    parse(str: string): { name: string; tag?: TileMetadataTag } {
-        if (!str.includes('@')) return { name: str };
-
-        const [name, tagStr] = str.split('@');
-        const tag = parseMetadataTag(tagStr);
-        if (tag == null) return { name: str };
-        return { name, tag };
-    }
-
-    async create(record: TileMetadataSetRecord | TileMetadataSetRecordV1): Promise<TileMetadataSetRecord> {
-        if (isLatestTileSetRecord(record)) return super.create(record);
-        return super.create(this.migrate(record));
+    recordIsTileSet(rec: BaseDynamoTable): rec is TileMetadataSetRecordV1 | TileMetadataSetRecordV2 {
+        return rec.id.startsWith(RecordPrefix.TileSet);
     }
 
     idRecord(record: TileMetadataSetRecord, tag: TileMetadataTag | number): string {
@@ -156,7 +140,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         const projection = Epsg.parse(projectionCode);
         if (projection == null) return null;
 
-        if (parseMetadataTag(tag)) return { name, projection, tag, version };
+        if (TileSetNameParser.parseTag(tag)) return { name, projection, tag, version };
 
         if (tag.startsWith('v')) {
             const idVersion = parseInt(tag.substring(1), 10);
