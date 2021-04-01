@@ -6,6 +6,7 @@ export const HttpHeader = {
     ApiKey: 'X-LINZ-Api-Key',
     CacheControl: 'Cache-Control',
     ContentType: 'Content-Type',
+    ContentEncoding: 'Content-Encoding',
     ETag: 'ETag',
     IfNoneMatch: 'If-None-Match',
     RateLimit: 'X-RateLimit-Limit',
