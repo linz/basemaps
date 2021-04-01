@@ -213,7 +213,7 @@ export async function attribution(req: LambdaContext): Promise<LambdaHttpRespons
     req.timer.start('tileset:load');
     const tileSet = await TileSets.get(data.name, data.tileMatrix);
     req.timer.end('tileset:load');
-    if (tileSet == null || tileSet.type === 'vector') return NotFound;
+    if (tileSet == null || tileSet.isVector()) return NotFound;
 
     const cacheKey = `v1.${tileSet.tileSet.version}`; // change version if format changes
 

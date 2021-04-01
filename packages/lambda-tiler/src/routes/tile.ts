@@ -5,6 +5,7 @@ import {
     Env,
     setNameAndProjection,
     TileMetadataNamedTag,
+    TileSetType,
     tileWmtsFromPath,
     tileXyzFromPath,
 } from '@basemaps/shared';
@@ -37,9 +38,9 @@ export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
 
 async function wmtsLoadTileSets(name: string, tileMatrix: TileMatrixSet | null): Promise<TileSetRaster[]> {
     if (name !== '' && name[0] !== '@' && tileMatrix != null) {
-        // single tileSet
+        // single tileSett
         const ts = await TileSets.get(name, tileMatrix);
-        if (ts == null || ts.type === 'vector') return [];
+        if (ts == null || ts.isVector()) return [];
         return [ts];
     }
 
@@ -123,3 +124,4 @@ export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
     if (fileName === 'tile.json') return tileJson(req);
     return tile(req);
 }
+0;

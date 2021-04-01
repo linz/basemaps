@@ -8,6 +8,7 @@ import {
     TileDataXyz,
     TileMetadataImageryRecord,
     TileMetadataSetRecordV2,
+    TileSetType,
 } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
@@ -31,7 +32,7 @@ export interface TileSetResponse {
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 
 export class TileSetRaster extends TileSetHandler<TileMetadataSetRecordV2> {
-    type = 'raster' as const;
+    type = TileSetType.Raster;
 
     tileMatrix: TileMatrixSet;
     tiler: Tiler;

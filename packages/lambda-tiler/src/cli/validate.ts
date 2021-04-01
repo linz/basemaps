@@ -14,7 +14,7 @@ const Q = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
 async function main(): Promise<void> {
     const tileSet = await TileSets.get(TileSetName.aerial, GoogleTms);
     if (tileSet == null) throw new Error('No tile set found');
-    if (tileSet.type !== 'raster') throw new Error('Invalid tile set type');
+    if (tileSet.isVector()) throw new Error('Invalid tile set type');
 
     let errorCount = 0;
     const logger = LogConfig.get();

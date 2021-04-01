@@ -6,6 +6,7 @@ import {
     TileMetadataTable,
     TileSetNameParser,
     TileSetNameValues,
+    TileSetType,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { TileSet } from './tile.set';
@@ -80,7 +81,7 @@ export class TileSetCache {
         const tileSets: TileSetRaster[] = [];
         for (const parent of tileMatrixSets) {
             if (parent == null) continue;
-            if (parent.type === 'vector') continue;
+            if (parent.isVector()) continue;
 
             tileSets.push(parent);
             if (nameComp.layer != null) {
