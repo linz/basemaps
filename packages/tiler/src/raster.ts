@@ -45,6 +45,7 @@ export enum ImageFormat {
     JPEG = 'jpeg',
     WEBP = 'webp',
     AVIF = 'avif',
+    // TODO this should not be a image format
     MapboxVectorTiles = 'pbf',
 }
 
