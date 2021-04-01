@@ -71,12 +71,11 @@ o.spec('tile.metadata.tileset', () => {
         });
 
         o('should create tags', async () => {
-            metadata.get = o.spy(() => Promise.resolve({ revisions: 5 }));
+            metadata.get = o.spy(() => Promise.resolve({ revisions: 5, v: 2 }));
             const res = await ts.tag('test', Epsg.Google, TileMetadataNamedTag.Production, 5);
             o(res.id).equals('ts_test_3857_production');
             o(res.v).equals(2);
             if (res.type === TileSetType.Vector) throw new Error('Invalid tileset returned');
-            o(Array.isArray(res.rules)).equals(true);
             o(metadata.get.callCount).equals(1);
             o(metadata.put.callCount).equals(1);
             o(metadata.put.args[0].id).equals('ts_test_3857_production');
@@ -134,11 +133,9 @@ o.spec('tile.metadata.tileset', () => {
 
     o('asyncIterator', async () => {
         const rule = { imgId: 'im_ulid', maxZoom: 1, minZoom: 15, priority: 1000, ruleId: 'ir_ulid' };
-        const imagery = { im_ulid: { id: 'im_ulid', maxZoom: 1, minZoom: 15, priority: 1000 } };
         const recs: any[] = [
             { id: 'im_rec1', name: 'rec1' }, // yes
             { id: 'ts_rec1', name: 'rec2', v: 2, rules: [rule] }, // yes
-            { id: 'ts_rec2', name: 'rec3', v: 1, imagery: imagery }, // v1 migrate to v2
         ];
         const dynamo = {
             scan(opts: any): any {
@@ -174,10 +171,7 @@ o.spec('tile.metadata.tileset', () => {
             ans.push(item);
         }
 
-        const ts_result: any[] = [
-            { id: 'ts_rec1', name: 'rec2', v: 2, rules: [rule] },
-            { id: 'ts_rec2', name: 'rec3', v: 2, rules: [rule] },
-        ];
+        const ts_result: any[] = [{ id: 'ts_rec1', name: 'rec2', v: 2, rules: [rule] }];
         o(ans).deepEquals(ts_result);
     });
 });

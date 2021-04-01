@@ -37,7 +37,7 @@ o.spec('TileCacheKey', () => {
             y: 5,
         };
         const firstKey = TileEtag.generate([comp], xyzData);
-        o(firstKey).equals('msvHKEY332Q5v8ldUyTTzS/yH5aORcz6wEB+MWh7i8Y=');
+        o(firstKey).equals('8eJ7XnUeEGBI2d7mfAaK5o8KbUc0+CVaIoPzqCvkoDk=');
 
         // Different layers should generate different keys
         o(TileEtag.generate([comp, comp], xyzData)).notEquals(firstKey);
