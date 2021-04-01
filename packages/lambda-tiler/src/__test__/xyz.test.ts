@@ -179,7 +179,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a json is not modified', async () => {
-            const key = 'fYC3MHM69e9U9ltWQLry45/G1wMjTeauij8L2HUdVk4=';
+            const key = 'FlMeQJMKbBO4nMFOEC4/PG6wzFniA0uXfAxXkbV4L9g=';
             const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key });
 
             const res = await handleRequest(request);
@@ -207,7 +207,7 @@ o.spec('LambdaXyz', () => {
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(JSON.parse(body)).deepEquals({
-                tiles: ['https://tiles.test/topolike/Google/{z}/{x}/{y}.pbf'],
+                tiles: ['https://tiles.test/v1/tiles/topolike/Google/{z}/{x}/{y}.pbf?api=secretKey'],
                 minzoom: 0,
                 maxzoom: 15,
                 format: 'pbf',

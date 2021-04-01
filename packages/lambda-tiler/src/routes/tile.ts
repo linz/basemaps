@@ -85,9 +85,9 @@ export interface TileJson {
 }
 
 export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> {
-    const { rest } = req.action;
+    const { version, rest, name } = req.action;
     const host = Env.get(Env.PublicUrlBase) ?? '';
-    const tileUrl = `${host}/${rest[0]}/${rest[1]}/{z}/{x}/{y}.pbf`;
+    const tileUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/{z}/{x}/{y}.pbf?api=${req.apiKey}`;
 
     const tileJson: TileJson = {
         tiles: [tileUrl],
