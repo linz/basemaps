@@ -7,7 +7,7 @@ import {
     TileMetadataImageRule,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
-    TileMetadataSetRecord,
+    TileMetadataSetRecordV2,
     TileMetadataTable,
     TileMetadataTag,
 } from '@basemaps/shared';
@@ -20,8 +20,8 @@ import { invalidateXYZCache, parseRgba, primeImageryCache, rgbaToHex, showDiff }
 export interface TagChanges {
     name: string;
     projection: Epsg;
-    before: TileMetadataSetRecord;
-    after: TileMetadataSetRecord;
+    before: TileMetadataSetRecordV2;
+    after: TileMetadataSetRecordV2;
 }
 
 /**
@@ -203,7 +203,7 @@ export class TileSetUpdater {
      */
     private async reconcileTileSet(
         imgIds: Set<string>,
-        beforeTs: TileMetadataSetRecord,
+        beforeTs: TileMetadataSetRecordV2,
         isCommit = false,
     ): Promise<TagChanges | null> {
         for (const rule of beforeTs.rules) {
@@ -240,13 +240,15 @@ export class TileSetUpdater {
         afterRules.sort(compareImgIdPriority);
 
         if (objectsDiffer(beforeTs.rules, afterRules) || backgroundAfter !== backgroundBefore) {
-            let after: TileMetadataSetRecord = {
+            let after: TileMetadataSetRecordV2 = {
                 ...beforeTs,
                 background: parseRgba(backgroundAfter),
                 rules: afterRules,
             };
             if (isCommit) {
-                after = await Aws.tileMetadata.TileSet.create(after);
+                const res = await Aws.tileMetadata.TileSet.create(after);
+                if (!Aws.tileMetadata.TileSet.isRasterRecord(res)) throw new Error('Invalid result');
+                after = res;
             }
             after.rules = afterRules;
             return {
@@ -259,11 +261,15 @@ export class TileSetUpdater {
         return null;
     }
 
-    private async loadTS(tag: TileMetadataTag): Promise<TileMetadataSetRecord> {
+    private async loadTS(tag: TileMetadataTag): Promise<TileMetadataSetRecordV2> {
         const { config, projection } = this;
         const tsData = await Aws.tileMetadata.TileSet.get(config.name, projection, tag);
-        if (tsData != null) return tsData;
-        return Aws.tileMetadata.TileSet.initialRecord(
+
+        if (tsData != null) {
+            if (!Aws.tileMetadata.TileSet.isRasterRecord(tsData)) throw new Error('TileSet is not raster');
+            return tsData;
+        }
+        return Aws.tileMetadata.TileSet.initialRecordRaster(
             config.name,
             projection.code,
             [],

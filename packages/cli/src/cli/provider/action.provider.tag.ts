@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, parseMetadataTag, TileMetadataNamedTag } from '@basemaps/shared';
+import { Aws, LogConfig, TileMetadataNamedTag, TileSetNameParser } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -33,7 +33,7 @@ export class ProviderUpdateTagAction extends CommandLineAction {
     protected async onExecute(): Promise<void> {
         const version = this.version.value!;
 
-        const tag = parseMetadataTag(this.tag.value);
+        const tag = TileSetNameParser.parseTag(this.tag.value);
         if (tag == null) return;
 
         const before = await Aws.tileMetadata.Provider.get(tag);

@@ -3,10 +3,10 @@ import {
     Aws,
     DefaultBackground,
     LogConfig,
-    parseMetadataTag,
     RecordPrefix,
     TileMetadataTable,
     TileMetadataTag,
+    TileSetNameParser,
 } from '@basemaps/shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { promises as fs } from 'fs';
@@ -35,7 +35,7 @@ async function tilesetToConfig(
     defaults: ImageryDefaultConfig[] = [],
 ): Promise<ProjectionConfig> {
     const item = await Aws.tileMetadata.TileSet.get(name, projection, tag);
-
+    if (!Aws.tileMetadata.TileSet.isRasterRecord(item)) throw new Error('Invalid record');
     const imageryMap = await primeImageryCache(new Set(item.rules.map((r) => r.imgId)));
 
     const imagery = item.rules
@@ -109,7 +109,7 @@ export class ExportAction extends TileSetBaseAction {
         const projection = Epsg.get(this.projection.value!);
         const tagInput = this.tag.value!;
 
-        const tag = parseMetadataTag(tagInput);
+        const tag = TileSetNameParser.parseTag(tagInput);
         if (tag == null) {
             LogConfig.get().fatal({ tag }, 'Invalid tag name');
             console.log(this.renderHelpText());

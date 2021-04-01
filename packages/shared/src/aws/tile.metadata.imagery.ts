@@ -2,7 +2,7 @@ import { BaseDynamoTable } from './aws.dynamo.table';
 import {
     RecordPrefix,
     TileMetadataImageryRecord,
-    TileMetadataSetRecord,
+    TileMetadataSetRecordV2,
     TileMetadataTableBase,
 } from './tile.metadata.base';
 
@@ -57,9 +57,10 @@ export class TileMetadataImagery {
      * Get all the associated imagery for a tile set
      * @param record tileset record to fetch imagery for
      */
-    public async getAll(record: TileMetadataSetRecord): Promise<Map<string, TileMetadataImageryRecord>> {
+    public async getAll(record: TileMetadataSetRecordV2): Promise<Map<string, TileMetadataImageryRecord>> {
         const toFetch = new Set<string>();
         const output = new Map<string, TileMetadataImageryRecord>();
+
         for (const rule of record.rules) {
             const imagery = this.imagery.get(rule.imgId);
             if (imagery == null) {

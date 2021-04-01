@@ -17,20 +17,28 @@ export enum TileMetadataNamedTag {
     Beta = 'beta',
 }
 
-/**
- * Ensure `tagInput` is a valid tag otherwise return null
- */
-export function parseMetadataTag(tagInput: string | null | undefined): TileMetadataTag | null {
-    if (tagInput == null) return null;
-    switch (tagInput) {
-        case TileMetadataNamedTag.Head:
-        case TileMetadataNamedTag.Production:
-        case TileMetadataNamedTag.Beta:
-            return tagInput;
-        default:
-            if (/^pr-[0-9]+$/.test(tagInput)) return tagInput;
-            return null;
-    }
+export enum TileSetType {
+    Raster = 'raster',
+    Vector = 'vector',
+}
+
+export interface StyleId {
+    tileSetName: string;
+    tag: string | null;
+    version: number;
+}
+
+export interface TileSetStyleRecord extends TaggedTileMetadataRecord {
+    tileSetName: string;
+    style: string;
+}
+
+export interface TileSetVectorRecord extends TileMetadataSetRecordBase {
+    type: TileSetType.Vector;
+    /**
+     * The xyz urls for the layers
+     */
+    layers: string[];
 }
 
 /**
@@ -134,6 +142,8 @@ export interface TileMetadataSetRecordV1 extends TileMetadataSetRecordBase {
 
 export interface TileMetadataSetRecordV2 extends TileMetadataSetRecordBase {
     v: 2;
+    /** New records will have this set */
+    type?: TileSetType.Raster;
     /**
      * The rendering rules for imagery in this tileset
      *
@@ -143,7 +153,7 @@ export interface TileMetadataSetRecordV2 extends TileMetadataSetRecordBase {
     rules: TileMetadataImageRuleV2[];
 }
 
-export type TileMetadataSetRecord = TileMetadataSetRecordV2;
+export type TileMetadataSetRecord = TileMetadataSetRecordV2 | TileSetVectorRecord;
 
 /**
  * Provider details used by WMTS
@@ -156,6 +166,7 @@ export enum RecordPrefix {
     TileSet = 'ts',
     Provider = 'pv',
     ImageryRule = 'ir',
+    Style = 'st',
 }
 
 function toId(id: string): { id: { S: string } } {

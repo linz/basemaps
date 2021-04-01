@@ -62,7 +62,7 @@ export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryReco
 export async function createMetadataFromJob(job: CogJob): Promise<void> {
     const img = createImageryRecordFromJob(job);
     await Aws.tileMetadata.put(img);
-    const tileMetadata = Aws.tileMetadata.TileSet.initialRecord(
+    const tileMetadata = Aws.tileMetadata.TileSet.initialRecordRaster(
         job.id,
         job.tileMatrix.projection.code,
         [{ imgId: img.id, ruleId: img.id, minZoom: 0, maxZoom: 32, priority: 1000 }],

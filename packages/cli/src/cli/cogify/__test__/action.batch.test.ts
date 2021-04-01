@@ -55,7 +55,7 @@ o.spec('action.batch', () => {
             const create = o.spy();
             Aws.tileMetadata = {
                 put,
-                TileSet: { create, initialRecord: tileMetadata.TileSet.initialRecord },
+                TileSet: { create, initialRecordRaster: tileMetadata.TileSet.initialRecordRaster },
             } as any;
 
             await createMetadataFromJob(job);

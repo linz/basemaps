@@ -11,6 +11,8 @@ export { VNodeParser } from './vdom.parse';
 export { CompositeError } from './composite.error';
 export { LoggerFatalError } from './logger.fatal.error';
 export { TileSetName, TileSetNameValues } from './proj/tile.set.name';
+
+export { TileSetNameParser } from './tile.set.name';
 export * from './proj/projection';
 
 export * from './aws/tile.metadata.base';

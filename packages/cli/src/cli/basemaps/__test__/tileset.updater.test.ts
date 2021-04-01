@@ -35,6 +35,7 @@ o.spec('tileset.updater', () => {
         };
 
         const metadata = {
+            isRasterRecord: (): boolean => true,
             batchGet: () => new Map(),
         } as any;
 
@@ -74,6 +75,7 @@ o.spec('tileset.updater', () => {
                 }
                 return (records as any)[tag];
             },
+            isRasterRecord: (): boolean => true,
         };
 
         o.before(() => {
@@ -100,7 +102,12 @@ o.spec('tileset.updater', () => {
         o('tag only', async () => {
             const tag = o.spy();
             const create = o.spy((rec: any): any => ({ ...rec, id: 'new_id', version: 25 }));
-            metadata.TileSet = { ...TileSet, create, tag, initialRecord: origTileMetadata.TileSet.initialRecord };
+            metadata.TileSet = {
+                ...TileSet,
+                create,
+                tag,
+                initialRecordRaster: origTileMetadata.TileSet.initialRecordRaster,
+            };
 
             const updater = new TileSetUpdater(config, 'pr-1');
 
@@ -177,7 +184,12 @@ o.spec('tileset.updater', () => {
 
             const tag = o.spy();
             const create = o.spy((rec: any): any => ({ ...rec, id: 'new_id', version: 25 }));
-            metadata.TileSet = { ...TileSet, create, tag, initialRecord: origTileMetadata.TileSet.initialRecord };
+            metadata.TileSet = {
+                ...TileSet,
+                create,
+                tag,
+                initialRecordRaster: origTileMetadata.TileSet.initialRecordRaster,
+            };
             const updater = new TileSetUpdater(config, 'pr-123');
 
             const changes = await updater.reconcile(true);

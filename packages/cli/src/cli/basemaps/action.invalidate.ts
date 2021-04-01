@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Epsg } from '@basemaps/geo';
-import { Aws, LogConfig, TileMetadataNamedTag } from '@basemaps/shared';
+import { Aws, LogConfig, TileMetadataNamedTag, TileSetNameParser } from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
@@ -38,8 +38,8 @@ export class TileSetInvalidateTagAction extends TileSetBaseAction {
 
         const tagInput = this.tag.value!;
 
-        const tileSetName = `${tileSet}@${tagInput}`;
-        const { tag, name } = Aws.tileMetadata.TileSet.parse(tileSetName);
+        const tileSetName = TileSetNameParser.toName(tileSet, tagInput);
+        const { tag, name } = TileSetNameParser.parse(tileSetName);
         if (tag == null) return this.fatal({ tag }, 'Invalid tag name');
 
         const tsData = await Aws.tileMetadata.TileSet.get(name, projection, tag);

@@ -1,4 +1,4 @@
-import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
+import { TileMatrixSets } from '@basemaps/geo';
 import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
@@ -13,17 +13,15 @@ const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X
 o.spec('LambdaXyz', () => {
     /** Generate mock ALBEvent */
 
-    let tileMock = o.spy();
     let rasterMock = o.spy();
     const generateMock = o.spy(() => 'foo');
     const rasterMockBuffer = Buffer.from([1]);
     const origTileEtag = TileEtag.generate;
     const origCompose = TileComposer.compose;
-    const tileMockData = [{ tiff: { source: { name: 'TileMock' } } }];
 
     o.beforeEach(() => {
         LogConfig.disable();
-        tileMock = o.spy(() => tileMockData) as any;
+        // tileMock = o.spy(() => tileMockData) as any;
         rasterMock = o.spy(() => {
             return {
                 buffer: rasterMockBuffer,
@@ -33,13 +31,13 @@ o.spec('LambdaXyz', () => {
         TileEtag.generate = generateMock;
         TileComposer.compose = rasterMock as any;
 
+        const allMatrix = [...TileMatrixSets.All.values()];
         for (const tileSetName of TileSetNames) {
-            for (const tileMatrix of TileMatrixSets.All.values()) {
+            for (const tileMatrix of allMatrix) {
                 const tileSet = new FakeTileSet(tileSetName, tileMatrix);
-                TileSets.set(tileSet.id, tileSet);
-                tileSet.load = () => Promise.resolve(true);
+                TileSets.add(tileSet);
                 tileSet.getTiffsForTile = (): [] => [];
-                tileSet.tile = tileMock as any;
+                tileSet.initTiffs = async () => [];
             }
         }
 
@@ -47,7 +45,7 @@ o.spec('LambdaXyz', () => {
     });
 
     o.afterEach(() => {
-        TileSets.clear();
+        TileSets.cache.clear();
         TileComposer.compose = origCompose;
         TileEtag.generate = origTileEtag;
     });
@@ -67,24 +65,6 @@ o.spec('LambdaXyz', () => {
             o(res.header('content-type')).equals('image/png');
             o(res.header('eTaG')).equals('foo');
             o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
-            o(generateMock.args).deepEquals([
-                tileMockData,
-                {
-                    type: 'image',
-                    name: tileSetName,
-                    tileMatrix: GoogleTms,
-                    x: 0,
-                    y: 0,
-                    z: 0,
-                    ext: 'png',
-                },
-            ] as any);
-
-            o(tileMock.calls.length).equals(1);
-            const [xyz] = tileMock.args;
-            o(xyz.x).equals(0);
-            o(xyz.y).equals(0);
-            o(xyz.z).equals(0);
 
             // Validate the session information has been set correctly
             o(request.logContext['tileSet']).equals(tileSetName);
@@ -100,12 +80,6 @@ o.spec('LambdaXyz', () => {
         o(res.header('content-type')).equals('image/webp');
         o(res.header('eTaG')).equals('foo');
         o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
-
-        o(tileMock.calls.length).equals(1);
-        const [xyz] = tileMock.args;
-        o(xyz.x).equals(0);
-        o(xyz.y).equals(0);
-        o(xyz.z).equals(0);
 
         // Validate the session information has been set correctly
         o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
@@ -129,9 +103,7 @@ o.spec('LambdaXyz', () => {
         o(res.status).equals(304);
         o(res.header('eTaG')).equals(undefined);
 
-        o(tileMock.calls.length).equals(1);
         o(rasterMock.calls.length).equals(0);
-
         o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
     });
 
@@ -157,6 +129,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
+            o.timeout(1000);
             const key = 'r3vqprE8cfTtd4j83dllmDeZydOBMv5hlan0qR/fGkc=';
             const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
 
@@ -173,6 +146,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should serve WMTSCapabilities for tile_set', async () => {
+            console.log('\n\nTestStart');
             process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
             const request = mockRequest('/v1/tiles/aerial@beta/WMTSCapabilities.xml');
