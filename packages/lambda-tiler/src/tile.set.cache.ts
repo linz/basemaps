@@ -53,13 +53,13 @@ export class TileSetCache {
             return null;
         }
 
-        if (Aws.tileMetadata.TileSet.isRasterRecord(tileSet)) {
-            const ts = new TileSetRaster(name, tileMatrix);
-            ts.tileSet = tileSet;
-            return ts;
-        }
+        // if (Aws.tileMetadata.TileSet.isRasterRecord(tileSet)) {
+        //     const ts = new TileSetRaster(name, tileMatrix);
+        //     ts.tileSet = tileSet;
+        //     return ts;
+        // }
         const ts = new TileSetVector(name, tileMatrix);
-        ts.tileSet = tileSet;
+        // ts.tileSet = tileSet;
         return ts;
     }
 
