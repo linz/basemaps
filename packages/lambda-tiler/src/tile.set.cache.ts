@@ -54,7 +54,7 @@ export class TileSetCache {
 
         if (Aws.tileMetadata.TileSet.isRasterRecord(tileSet)) {
             const ts = new TileSetRaster(name, tileMatrix);
-            ts.tileSet = tileSet;
+            await ts.init(tileSet);
             return ts;
         }
         const ts = new TileSetVector(name, tileMatrix);

@@ -69,6 +69,12 @@ export class TileSetRaster extends TileSetHandler<TileMetadataSetRecordV2> {
         return this.extentOverride ?? this.tileMatrix.extent;
     }
 
+    async init(record: TileMetadataSetRecordV2): Promise<void> {
+        this.tileSet = record;
+        this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
+        Aws.tileMetadata.TileSet.sortRenderRules(this.tileSet, this.imagery);
+    }
+
     async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
         const tiffs = this.getTiffsForTile(tile);
         let failed = false;
