@@ -25,7 +25,9 @@ export class TileSetVector extends TileSetHandler<TileSetVectorRecord> {
         }
 
         const actualCovt = await covt;
-        const tile = await actualCovt.getTile(xyz.x, xyz.y, xyz.z, req.log);
+        // Flip Y coordinate because MBTiles files are TMS.
+        const y = (1 << xyz.z) - 1 - xyz.y;
+        const tile = await actualCovt.getTile(xyz.x, y, xyz.z, req.log);
         if (tile == null) return NotFound;
         const response = new LambdaHttpResponse(200, 'Ok');
         response.buffer(Buffer.from(tile.buffer), 'application/x-protobuf');
