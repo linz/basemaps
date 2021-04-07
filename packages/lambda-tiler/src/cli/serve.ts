@@ -38,7 +38,10 @@ async function handleRequest(
             res.end();
         }
         const duration = Date.now() - startTime;
-        logger.info({ ...ctx.logContext, ...logInfo, status: data.status, duration }, 'Done');
+        logger.info(
+            { ...ctx.logContext, ...logInfo, metrics: ctx.timer.metrics, status: data.status, duration },
+            'Done',
+        );
     } catch (e) {
         logger.fatal({ ...ctx.logContext, err: e }, 'FailedToRender');
         res.status(500);
