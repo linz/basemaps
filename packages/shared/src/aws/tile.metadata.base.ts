@@ -22,30 +22,6 @@ export enum TileSetType {
     Vector = 'vector',
 }
 
-export interface StyleId {
-    tileSetName: string;
-    tag: string | null;
-    version: number;
-}
-
-export interface TileSetStyleRecord extends TaggedTileMetadataRecord {
-    tileSetName: string;
-    style: string;
-}
-
-export interface TileSetVectorRecord extends TileMetadataSetRecordBase {
-    type: TileSetType.Vector;
-    /**
-     * The xyz urls for the layers
-     */
-    layers: string[];
-}
-
-/**
- * The database format for the ApiKey Table
- */
-export type TileMetadataRecord = TileMetadataImageryRecord | TaggedTileMetadataRecord;
-
 /**
  * Map of cog names to bounds
  */
@@ -87,19 +63,14 @@ export interface TileMetadataImageRuleBase {
     /** Rendering priority, lower numbers are rendered onto the canvas first */
     priority: number;
 }
-export interface TileMetadataImageRuleV1 extends TileMetadataImageRuleBase {
-    /** Unique imagery id  (prefix: im_)*/
-    id: string;
-}
 
-export interface TileMetadataImageRuleV2 extends TileMetadataImageRuleBase {
+export interface TileMetadataImageRule extends TileMetadataImageRuleBase {
     /** Unique rule id  (prefix: ir_)*/
     ruleId: string;
 
     /** Unique imagery id  (prefix: im_)*/
     imgId: string;
 }
-export type TileMetadataImageRule = TileMetadataImageRuleV2;
 
 export interface TaggedTileMetadataRecord extends BaseDynamoTable {
     /** Current version number */
@@ -134,15 +105,7 @@ export interface TileMetadataSetRecordBase extends TaggedTileMetadataRecord {
     resizeKernel?: { in: TileResizeKernel; out: TileResizeKernel };
 }
 
-export interface TileMetadataSetRecordV1 extends TileMetadataSetRecordBase {
-    v?: undefined;
-    type?: TileSetType.Raster;
-
-    /** the rendering rules for imagery in this tileset */
-    imagery: Record<string, TileMetadataImageRuleV1>;
-}
-
-export interface TileMetadataSetRecordV2 extends TileMetadataSetRecordBase {
+export interface TileSetRasterRecord extends TileMetadataSetRecordBase {
     v: 2;
     /** New records will have this set */
     type?: TileSetType.Raster;
@@ -152,15 +115,38 @@ export interface TileMetadataSetRecordV2 extends TileMetadataSetRecordBase {
      * This array is not sorted in the rendering order
      * This should be sorted into the rendering order using
      */
-    rules: TileMetadataImageRuleV2[];
+    rules: TileMetadataImageRule[];
 }
 
-export type TileMetadataSetRecord = TileMetadataSetRecordV2 | TileSetVectorRecord;
+export interface TileSetVectorRecord extends TileMetadataSetRecordBase {
+    type: TileSetType.Vector;
+    /**
+     * The xyz urls for the layers
+     */
+    layers: string[];
+}
+
+/**
+ * TileSet metadata record
+ */
+export type TileMetadataSetRecord = TileSetRasterRecord | TileSetVectorRecord;
+
+/**
+ * Vector TileSet Style metadata record
+ */
+export interface TileSetStyleRecord extends TaggedTileMetadataRecord {
+    tileSetName: string;
+    style: string;
+}
+
+/**
+ * The database format for the ApiKey Table
+ */
+export type TileMetadataRecord = TileMetadataImageryRecord | TaggedTileMetadataRecord;
 
 /**
  * Provider details used by WMTS
  */
-
 export type TileMetadataProviderRecord = TaggedTileMetadataRecord & WmtsProvider;
 
 export enum RecordPrefix {

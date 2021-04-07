@@ -18,7 +18,7 @@ import {
     Projection,
     setNameAndProjection,
     tileAttributionFromPath,
-    TileMetadataImageRuleV2,
+    TileMetadataImageRule,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
     TileMetadataProviderRecord,
@@ -99,7 +99,7 @@ export function createAttributionCollection(
     tileSet: TileSetRaster,
     stac: StacCollection | null | undefined,
     imagery: TileMetadataImageryRecord,
-    rule: TileMetadataImageRuleV2,
+    rule: TileMetadataImageRule,
     host: TileMetadataProviderRecord,
     extent: StacExtent,
 ): AttributionCollection {

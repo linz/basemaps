@@ -2,7 +2,7 @@ import { TileMatrixSet } from '@basemaps/geo';
 import { LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
     TileDataXyz,
-    TileMetadataSetRecordV2,
+    TileSetRasterRecord,
     TileSetNameParser,
     TileSetType,
     TileSetVectorRecord,
@@ -14,7 +14,7 @@ import { TileSetVector } from './tile.set.vector';
 
 export type TileSet = TileSetVector | TileSetRaster;
 
-export abstract class TileSetHandler<T extends TileMetadataSetRecordV2 | TileSetVectorRecord> {
+export abstract class TileSetHandler<T extends TileSetRasterRecord | TileSetVectorRecord> {
     type: TileSetType;
     components: TileSetNameComponents;
     tileMatrix: TileMatrixSet;

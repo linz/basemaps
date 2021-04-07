@@ -7,7 +7,7 @@ import {
     TileMetadataImageRule,
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
-    TileMetadataSetRecordV2,
+    TileSetRasterRecord,
     TileMetadataTable,
     TileMetadataTag,
 } from '@basemaps/shared';
@@ -20,8 +20,8 @@ import { invalidateXYZCache, parseRgba, primeImageryCache, rgbaToHex, showDiff }
 export interface TagChanges {
     name: string;
     projection: Epsg;
-    before: TileMetadataSetRecordV2;
-    after: TileMetadataSetRecordV2;
+    before: TileSetRasterRecord;
+    after: TileSetRasterRecord;
 }
 
 /**
@@ -203,7 +203,7 @@ export class TileSetUpdater {
      */
     private async reconcileTileSet(
         imgIds: Set<string>,
-        beforeTs: TileMetadataSetRecordV2,
+        beforeTs: TileSetRasterRecord,
         isCommit = false,
     ): Promise<TagChanges | null> {
         for (const rule of beforeTs.rules) {
@@ -240,7 +240,7 @@ export class TileSetUpdater {
         afterRules.sort(compareImgIdPriority);
 
         if (objectsDiffer(beforeTs.rules, afterRules) || backgroundAfter !== backgroundBefore) {
-            let after: TileMetadataSetRecordV2 = {
+            let after: TileSetRasterRecord = {
                 ...beforeTs,
                 background: parseRgba(backgroundAfter),
                 rules: afterRules,
@@ -261,7 +261,7 @@ export class TileSetUpdater {
         return null;
     }
 
-    private async loadTS(tag: TileMetadataTag): Promise<TileMetadataSetRecordV2> {
+    private async loadTS(tag: TileMetadataTag): Promise<TileSetRasterRecord> {
         const { config, projection } = this;
         const tsData = await Aws.tileMetadata.TileSet.get(config.name, projection, tag);
 

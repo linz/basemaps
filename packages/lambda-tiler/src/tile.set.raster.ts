@@ -7,7 +7,7 @@ import {
     LogType,
     TileDataXyz,
     TileMetadataImageryRecord,
-    TileMetadataSetRecordV2,
+    TileSetRasterRecord,
     TileSetType,
     VectorFormat,
 } from '@basemaps/shared';
@@ -32,7 +32,7 @@ export interface TileSetResponse {
 
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 
-export class TileSetRaster extends TileSetHandler<TileMetadataSetRecordV2> {
+export class TileSetRaster extends TileSetHandler<TileSetRasterRecord> {
     type = TileSetType.Raster;
 
     tileMatrix: TileMatrixSet;
@@ -70,7 +70,7 @@ export class TileSetRaster extends TileSetHandler<TileMetadataSetRecordV2> {
         return this.extentOverride ?? this.tileMatrix.extent;
     }
 
-    async init(record: TileMetadataSetRecordV2): Promise<void> {
+    async init(record: TileSetRasterRecord): Promise<void> {
         this.tileSet = record;
         this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
         Aws.tileMetadata.TileSet.sortRenderRules(this.tileSet, this.imagery);

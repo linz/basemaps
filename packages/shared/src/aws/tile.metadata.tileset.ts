@@ -5,22 +5,15 @@ import {
     DefaultBackground,
     RecordPrefix,
     TaggedTileMetadata,
-    TileMetadataImageRuleV2,
+    TileMetadataImageRule,
     TileMetadataImageryRecord,
     TileMetadataSetRecord,
-    TileMetadataSetRecordBase,
-    TileMetadataSetRecordV1,
-    TileMetadataSetRecordV2,
+    TileSetRasterRecord,
     TileSetVectorRecord,
-    TileMetadataTableBase,
     TileMetadataTag,
     TileSetType,
 } from './tile.metadata.base';
 import { compareImageSets } from './tile.metadata.imagery';
-
-function isLatestTileSetRecord(record: TileMetadataSetRecordBase): record is TileMetadataSetRecord {
-    return record.v === 2;
-}
 
 export interface TileSetId {
     name: string;
@@ -30,54 +23,22 @@ export interface TileSetId {
 }
 
 export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecord> {
-    isVectorRecord(x: TileMetadataSetRecord | TileMetadataSetRecordV1): x is TileSetVectorRecord {
+    isVectorRecord(x: TileMetadataSetRecord): x is TileSetVectorRecord {
         return x.type === TileSetType.Vector;
     }
 
-    isRasterRecord(x: TileMetadataSetRecord | TileMetadataSetRecordV1): x is TileMetadataSetRecordV2 {
+    isRasterRecord(x: TileMetadataSetRecord): x is TileSetRasterRecord {
         return x.type == null || x.type === TileSetType.Raster;
-    }
-
-    /**
-     * Take a older imagery record and upgrade it to the latest record version
-     * @param record
-     */
-    migrate(record: TileMetadataSetRecordV1 | TileMetadataSetRecordV2 | TileSetVectorRecord): TileMetadataSetRecord {
-        if (this.isVectorRecord(record)) return record;
-        if (this.isRasterRecord(record)) return record;
-
-        // V1 -> V2
-        const output: TileMetadataSetRecordV2 = record as any;
-        const imagery = record.imagery;
-        delete (record as any).imagery;
-
-        output.rules = [];
-        output.v = 2;
-        // Some testing data does not have a imagery object
-        if (imagery == null) return output;
-
-        for (const image of Object.values(imagery)) {
-            // Imagery rules are unique in older tile sets so just use them as a ruleId to start with
-            const ruleId = TileMetadataTableBase.unprefix(RecordPrefix.Imagery, image.id);
-            output.rules.push({
-                ruleId: TileMetadataTableBase.prefix(RecordPrefix.ImageryRule, ruleId),
-                imgId: image.id,
-                minZoom: image.minZoom,
-                maxZoom: image.maxZoom,
-                priority: image.priority,
-            });
-        }
-        return output;
     }
 
     initialRecordRaster(
         name: string,
         projection: EpsgCode,
-        rules: TileMetadataImageRuleV2[] = [],
+        rules: TileMetadataImageRule[] = [],
         title?: string,
         description?: string,
-    ): TileMetadataSetRecordV2 {
-        const rec: TileMetadataSetRecordV2 = {
+    ): TileSetRasterRecord {
+        const rec: TileSetRasterRecord = {
             id: '',
             createdAt: Date.now(),
             updatedAt: 0,
@@ -103,7 +64,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
      * @param tileSet with rules that need to be sorted
      * @param imagery All imagery referenced inside the tileset
      */
-    sortRenderRules(tileSet: TileMetadataSetRecordV2, imagery: Map<string, TileMetadataImageryRecord>): void {
+    sortRenderRules(tileSet: TileSetRasterRecord, imagery: Map<string, TileMetadataImageryRecord>): void {
         tileSet.rules.sort((ruleA, ruleB) => {
             if (ruleA.priority !== ruleB.priority) return ruleA.priority - ruleB.priority;
             const imgA = imagery.get(ruleA.imgId);
@@ -118,7 +79,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
 
      * @param rec record to infer is a TileMetadataSetRecord
      */
-    recordIsTileSet(rec: BaseDynamoTable): rec is TileMetadataSetRecordV1 | TileMetadataSetRecordV2 {
+    recordIsTileSet(rec: BaseDynamoTable): rec is TileSetRasterRecord {
         return rec.id.startsWith(RecordPrefix.TileSet);
     }
 
@@ -165,20 +126,15 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
         const record = (await this.metadata.get(id)) as TileMetadataSetRecord;
         if (record == null) return null;
 
-        if (isLatestTileSetRecord(record)) return record;
-        return this.migrate(record);
+        return record;
     }
 
     public async batchGet(keys: Set<string>): Promise<Map<string, TileMetadataSetRecord>> {
-        const objects = await this.metadata.batchGet<TileMetadataSetRecordV1 | TileMetadataSetRecord>(keys);
+        const objects = await this.metadata.batchGet<TileMetadataSetRecord>(keys);
         const output = new Map<string, TileMetadataSetRecord>();
 
         for (const record of objects.values()) {
-            if (isLatestTileSetRecord(record)) {
-                output.set(record.id, record);
-            } else {
-                output.set(record.id, this.migrate(record));
-            }
+            output.set(record.id, record);
         }
         return output;
     }
@@ -190,8 +146,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
             version,
         );
 
-        if (isLatestTileSetRecord(record)) return record;
-        return this.migrate(record);
+        return record;
     }
 
     /**
@@ -200,11 +155,7 @@ export class TileMetadataTileSet extends TaggedTileMetadata<TileMetadataSetRecor
     async *[Symbol.asyncIterator](): AsyncGenerator<TileMetadataSetRecord, null, void> {
         for await (const record of this.metadata) {
             if (!this.recordIsTileSet(record)) continue;
-            if (isLatestTileSetRecord(record)) {
-                yield record;
-            } else {
-                yield this.migrate(record);
-            }
+            yield record;
         }
         return null;
     }
