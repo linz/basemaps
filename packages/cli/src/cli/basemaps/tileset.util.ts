@@ -5,7 +5,7 @@ import {
     TileMetadataImageryRecord,
     TileMetadataNamedTag,
     TileMetadataSetRecord,
-    TileMetadataSetRecordV2,
+    TileSetRasterRecord,
     TileMetadataTag,
     TileSetType,
 } from '@basemaps/shared';
@@ -70,7 +70,7 @@ TileSetTable.field('Name', 40, (obj) => obj.imagery.name);
 TileSetTable.field('Zoom', 10, (obj) => obj.rule.minZoom + ' -> ' + obj.rule.maxZoom);
 TileSetTable.field('CreatedAt', 10, (obj) => new Date(obj.imagery.createdAt).toISOString());
 
-export async function printTileSetImagery(tsData: TileMetadataSetRecordV2): Promise<void> {
+export async function printTileSetImagery(tsData: TileSetRasterRecord): Promise<void> {
     const allImagery = await Aws.tileMetadata.Imagery.getAll(tsData);
     Aws.tileMetadata.TileSet.sortRenderRules(tsData, allImagery);
     console.log('');
@@ -108,8 +108,8 @@ export async function printTileSet(tsData: TileMetadataSetRecord, printImagery =
 }
 
 export function showDiff(
-    tsA: TileMetadataSetRecordV2 | null,
-    tsB: TileMetadataSetRecordV2 | null,
+    tsA: TileSetRasterRecord | null,
+    tsB: TileSetRasterRecord | null,
     imageSet: Map<string, TileMetadataImageryRecord>,
 ): string {
     let output = '';

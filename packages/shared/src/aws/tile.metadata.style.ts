@@ -1,6 +1,12 @@
 import { BaseDynamoTable } from './aws.dynamo.table';
 import { RecordPrefix, TaggedTileMetadata, TileMetadataTag, TileSetStyleRecord } from './tile.metadata.base';
 
+export interface StyleId {
+    tileSetName: string;
+    tag: string | null;
+    version: number;
+}
+
 export class TileMetadataStyle extends TaggedTileMetadata<TileSetStyleRecord> {
     initialRecord(tileSetName: string, style: string): TileSetStyleRecord {
         const rec: TileSetStyleRecord = {

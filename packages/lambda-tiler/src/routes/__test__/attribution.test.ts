@@ -3,7 +3,7 @@ import { HttpHeader } from '@basemaps/lambda';
 import {
     Aws,
     NamedBounds,
-    TileMetadataImageRuleV2,
+    TileMetadataImageRule,
     TileMetadataImageryRecord,
     TileMetadataProviderRecord,
 } from '@basemaps/shared';
@@ -273,7 +273,7 @@ o.spec('attribution', () => {
                     const tileSet = new FakeTileSet(tileSetName, tileMatrix);
                     tileSet.tileSet.version = 23;
                     TileSets.add(tileSet);
-                    const rules: TileMetadataImageRuleV2[] = [];
+                    const rules: TileMetadataImageRule[] = [];
                     const imagery = new Map<string, TileMetadataImageryRecord>();
                     const addRule = (id: string, name: string, minZoom = 10): void => {
                         imagery.set(id, makeImageRecord(name, minZoom));
