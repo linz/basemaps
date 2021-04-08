@@ -34,8 +34,7 @@ export class TileSetVector extends TileSetHandler<TileSetVectorRecord> {
     async tile(req: LambdaContext, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
         if (xyz.ext !== VectorFormat.MapboxVectorTiles) return NotFound;
         if (this.tileSet.layers.length > 1) return new LambdaHttpResponse(500, 'Too many layers in tileset');
-        // const [layerUri] = this.tileSet.layers;
-        const layerUri = 's3://basemaps-cog-test/2021-04-08-covt/2021-04-08.tar';
+        const [layerUri] = this.tileSet.layers;
 
         req.timer.start('cotar:load');
         const cotar = await Layers.get(layerUri);
