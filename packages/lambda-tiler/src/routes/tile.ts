@@ -2,6 +2,7 @@ import { TileMatrixSet } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
 import {
     Aws,
+    Config,
     Env,
     setNameAndProjection,
     TileMetadataNamedTag,
@@ -57,7 +58,7 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     req.timer.end('tileset:load');
     if (tileSets.length === 0) return NotFound;
 
-    const provider = await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Production);
+    const provider = await Config.Provider.getTag(TileMetadataNamedTag.Production);
     if (provider == null) return NotFound;
 
     const xml = WmtsCapabilities.toXml(host, provider, tileSets, req.apiKey);

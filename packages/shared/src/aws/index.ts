@@ -15,6 +15,8 @@ import { ApiKeyTable } from './api.key.table';
 import { TileMetadataTable } from './tile.metadata';
 import { S3Cache, CredentialsCache, StsAssumeRoleConfig } from './credentials';
 import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
+import { ConfigDynamo } from '@basemaps/config';
+import { Const } from '../const';
 
 const s3 = new S3();
 export const Aws = {
@@ -34,3 +36,5 @@ export const Aws = {
     apiKey: new ApiKeyTable(),
     tileMetadata: new TileMetadataTable(),
 };
+
+export const Config = new ConfigDynamo(Const.TileMetadata.TableName);
