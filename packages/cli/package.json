@@ -34,6 +34,7 @@
     }
   ],
   "dependencies": {
+    "@basemaps/config": "^4.24.0",
     "@basemaps/geo": "^4.24.0",
     "@basemaps/shared": "^4.24.0",
     "@cogeotiff/core": "^4.2.0",

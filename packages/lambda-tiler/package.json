@@ -14,6 +14,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@basemaps/config": "^4.24.0",
     "@basemaps/geo": "^4.24.0",
     "@basemaps/lambda": "^4.24.0",
     "@basemaps/shared": "^4.24.0",
