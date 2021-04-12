@@ -15,7 +15,7 @@ export abstract class ConfigDynamoVersioned<T extends VersionedConfig> extends C
         const output: string[] = [this.prefix, ...id];
 
         if (typeof version === 'string') output.push(version);
-        else output.push(String(version).padStart(6, '0'));
+        else output.push('v' + String(version).padStart(6, '0'));
 
         return output.join('_');
     }
