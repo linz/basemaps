@@ -1,4 +1,3 @@
-// import { NamedBounds } from '../../aws/tile.metadata.base';
 import { EpsgCode, QuadKey, TileMatrixSet, Tile, TileMatrixSets } from '@basemaps/geo';
 import { NamedBounds } from '@basemaps/config';
 

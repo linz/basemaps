@@ -1,8 +1,13 @@
-import { ConfigTileSetRaster, ConfigTileSetVector, TileSetType } from '@basemaps/config';
+import {
+    ConfigTileSetRaster,
+    ConfigTileSetVector,
+    TileSetNameComponents,
+    TileSetNameParser,
+    TileSetType,
+} from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
 import { LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import { TileDataXyz, TileSetNameParser } from '@basemaps/shared';
-import { TileSetNameComponents } from 'packages/shared/src/tile.set.name';
+import { TileDataXyz } from '@basemaps/shared';
 import { TileSets } from './tile.set.cache';
 import { TileSetRaster } from './tile.set.raster';
 import { TileSetVector } from './tile.set.vector';

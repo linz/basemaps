@@ -1,6 +1,6 @@
-import { ConfigImagery } from '@basemaps/config';
+import { ConfigImagery, TileSetNameParser } from '@basemaps/config';
 import { Bounds, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Config, TileSetNameParser, TileSetNameValues, titleizeImageryName } from '@basemaps/shared';
+import { Config, TileSetNameValues, titleizeImageryName } from '@basemaps/shared';
 import { TileSet } from './tile.set';
 import { TileSetRaster } from './tile.set.raster';
 import { TileSetVector } from './tile.set.vector';

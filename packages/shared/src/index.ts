@@ -12,7 +12,6 @@ export { CompositeError } from './composite.error';
 export { LoggerFatalError } from './logger.fatal.error';
 export { TileSetName, TileSetNameValues } from './proj/tile.set.name';
 
-export { TileSetNameParser } from './tile.set.name';
 export { NamedBounds } from '@basemaps/config'; // FIXME
 export * from './proj/projection';
 

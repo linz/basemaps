@@ -1,5 +1,6 @@
+import { TileSetNameParser } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import { Config, LogConfig, TileSetNameParser } from '@basemaps/shared';
+import { Config, LogConfig } from '@basemaps/shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { promises as fs } from 'fs';
 import { ConfigTag } from 'packages/config/src/config/tag';

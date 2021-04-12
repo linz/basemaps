@@ -8,3 +8,4 @@ export {
     TileResizeKernel,
 } from './config/tile.set';
 export { ConfigDynamo } from './dynamo/dynamo.config';
+export { TileSetNameParser, TileSetNameComponents } from './tile.set.name';

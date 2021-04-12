@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { TileSetNameParser } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import { Config, LogConfig, TileSetNameParser } from '@basemaps/shared';
+import { Config, LogConfig } from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,

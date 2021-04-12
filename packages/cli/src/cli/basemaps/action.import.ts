@@ -1,5 +1,6 @@
+import { TileSetNameParser } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import { Config, LogConfig, TileSetNameParser } from '@basemaps/shared';
+import { Config, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { createImageryRecordFromJob } from '../cogify/action.batch';
