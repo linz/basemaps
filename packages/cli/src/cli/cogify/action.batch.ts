@@ -66,6 +66,7 @@ export function createTileSetFromImagery(job: CogJob, img: ConfigImagery): Confi
         rules: [{ imgId: img.id, ruleId: img.id, minZoom: 0, maxZoom: 32, priority: 1000 }],
         title: job.title,
         description: job.description,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
         version: 0,
     };
 }
@@ -216,9 +217,7 @@ export class ActionBatchJob extends CommandLineAction {
             'JobSubmit',
         );
 
-        if (commit) {
-            await createMetadataFromJob(job);
-        }
+        if (commit) await createMetadataFromJob(job);
 
         for (const name of toSubmit) {
             const jobStatus = await ActionBatchJob.batchOne(jobPath, job, batch, name, commit);
