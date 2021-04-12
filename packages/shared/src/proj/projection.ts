@@ -1,5 +1,4 @@
-import { NamedBounds } from '@basemaps/config';
-import { BoundingBox, Epsg, EpsgCode, TileMatrixSet, Tile } from '@basemaps/geo';
+import { BoundingBox, Epsg, EpsgCode, TileMatrixSet, Tile, NamedBounds } from '@basemaps/geo';
 import {
     BBox,
     BBoxFeature,

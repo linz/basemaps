@@ -1,11 +1,12 @@
-export { ConfigImagery, NamedBounds } from './config/imagery';
+export { ConfigImagery } from './config/imagery';
+export { ConfigTag } from './config/tag';
 export {
     ConfigImageryRule,
     ConfigTileSet,
     ConfigTileSetRaster,
     ConfigTileSetVector,
-    TileSetType,
     TileResizeKernel,
+    TileSetType,
 } from './config/tile.set';
 export { ConfigDynamo } from './dynamo/dynamo.config';
-export { TileSetNameParser, TileSetNameComponents } from './tile.set.name';
+export { TileSetNameComponents, TileSetNameParser } from './tile.set.name';

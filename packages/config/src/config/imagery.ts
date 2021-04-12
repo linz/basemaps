@@ -1,12 +1,5 @@
-import { BoundingBox, EpsgCode } from '@basemaps/geo';
+import { NamedBounds, BoundingBox, EpsgCode } from '@basemaps/geo';
 import { BaseConfig } from './base';
-
-/**
- * Map of cog names to bounds
- */
-export interface NamedBounds extends BoundingBox {
-    name: string;
-}
 
 export interface ConfigImagery extends BaseConfig {
     /** Version of record. undefined = v0 */

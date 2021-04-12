@@ -5,7 +5,7 @@ import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { createImageryRecordFromJob } from '../cogify/action.batch';
 import { TagActions } from '../tag.action';
-// import { updateConfig } from './tileset.updater'; // FIXME
+import { updateConfig } from './tileset.updater';
 
 /**
  * Import a config file for a specific name and projection
@@ -65,8 +65,7 @@ export class ImportAction extends CommandLineAction {
                 return;
             }
 
-            // FIXME
-            // await updateConfig(this.config.value, tagInput, !!this.commit.value);
+            await updateConfig(this.config.value, tagInput, !!this.commit.value);
             return;
         }
 
