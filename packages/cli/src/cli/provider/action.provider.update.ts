@@ -3,7 +3,7 @@ import { Config, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as c from 'ansi-colors';
 import { readFileSync } from 'fs';
-import { ConfigProvider } from 'packages/config/src/config/provider';
+import { ConfigProvider } from '@basemaps/config';
 import { BlankProvider, printProvider, validateProvider } from './provider.util';
 
 export class ProviderUpdateAction extends CommandLineAction {

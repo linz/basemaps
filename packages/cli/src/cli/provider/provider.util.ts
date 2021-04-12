@@ -1,5 +1,5 @@
 import * as c from 'ansi-colors';
-import { ConfigProvider } from 'packages/config/src/config/provider';
+import { ConfigProvider } from '@basemaps/config';
 import { inspect } from 'util';
 
 export function printProvider(data: ConfigProvider, changes = data): void {

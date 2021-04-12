@@ -1,8 +1,8 @@
+import { ConfigProvider } from '@basemaps/config';
 import { TileMatrixSets } from '@basemaps/geo';
 import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
-import { ConfigProvider } from 'packages/config/src/config/provider';
 import { handleRequest } from '../index';
 import { TileComposer } from '../routes/tile';
 import { TileEtag } from '../routes/tile.etag';

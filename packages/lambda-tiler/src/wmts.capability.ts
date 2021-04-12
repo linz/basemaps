@@ -1,8 +1,8 @@
+import { ConfigProvider } from '@basemaps/config';
 import { Bounds, Nztm2000QuadTms, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
 import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
-import { ConfigProvider } from 'packages/config/src/config/provider';
 import { TileSetRaster } from './tile.set.raster';
 
 const CapabilitiesAttrs = {

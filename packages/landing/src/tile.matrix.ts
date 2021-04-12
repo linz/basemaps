@@ -4,7 +4,7 @@ import TileSource from 'ol/source/Tile';
 import WMTS from 'ol/source/WMTS';
 import XYZ from 'ol/source/XYZ';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
-import { Extent } from 'packages/attribution/node_modules/@types/ol/extent';
+// import { Extent } from 'packages/attribution/node_modules/@types/ol/extent';
 import Proj from 'proj4';
 import { MapOptions, MapOptionType, WindowUrl } from './url';
 
@@ -55,7 +55,7 @@ export class TileGrid {
         });
     }
 
-    getView(): { resolutions?: number[]; extent?: Extent } | null {
+    getView(): { resolutions?: number[]; extent?: [number, number, number, number] } | null {
         if (this.tileMatrix.identifier === GoogleTms.identifier) return null;
         return {
             resolutions: this.getGrid().getResolutions(),

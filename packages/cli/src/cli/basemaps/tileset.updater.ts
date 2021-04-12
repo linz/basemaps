@@ -1,9 +1,8 @@
-import { ConfigImagery, ConfigImageryRule, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
+import { ConfigImagery, ConfigImageryRule, ConfigTag, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import { LogConfig, Config } from '@basemaps/shared';
+import { Config, LogConfig } from '@basemaps/shared';
 import { deepStrictEqual } from 'assert';
 import { promises as fs } from 'fs';
-import { ConfigTag } from 'packages/config/src/config/tag';
 import { ulid } from 'ulid';
 import { addDefaults, assertTileSetConfig, FullImageryConfig, ProjectionConfig } from './tileset.config';
 import { invalidateXYZCache, parseRgba, rgbaToHex, showDiff } from './tileset.util';

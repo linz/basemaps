@@ -1,7 +1,7 @@
+import { ConfigProvider } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
 import { LambdaContext } from '@basemaps/lambda';
 import { LogConfig } from '@basemaps/shared';
-import { ConfigProvider } from 'packages/config/src/config/provider';
 import { TileSetRaster } from '../tile.set.raster';
 
 export function mockRequest(path: string, method = 'get', headers = {}): LambdaContext {

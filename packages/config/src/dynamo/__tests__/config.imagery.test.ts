@@ -1,5 +1,4 @@
-import { Bounds, Epsg } from '@basemaps/geo';
-import { qkToNamedBounds } from '@basemaps/shared/build/proj/__test__/test.util';
+import { Bounds, Epsg, EpsgCode, NamedBounds, QuadKey, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import o from 'ospec';
 import { BaseConfig } from '../../config/base';
 import { ConfigImagery } from '../../config/imagery';
@@ -9,6 +8,13 @@ import { ConfigDynamo } from '../dynamo.config';
 function* genRules(max: number): Generator<ConfigImageryRule> {
     let num = 0;
     while (num < max) yield { ruleId: `ru_` + num, imgId: 'im_' + num++, maxZoom: 0, minZoom: 0, priority: num };
+}
+export function qkToNamedBounds(quadKeys: string[]): NamedBounds[] {
+    const tms = TileMatrixSets.get(EpsgCode.Google);
+    return quadKeys.map((qk) => ({
+        name: TileMatrixSet.tileToName(QuadKey.toTile(qk)),
+        ...tms.tileToSourceBounds(QuadKey.toTile(qk)),
+    }));
 }
 
 o.spec('TileMetadataImagery', () => {

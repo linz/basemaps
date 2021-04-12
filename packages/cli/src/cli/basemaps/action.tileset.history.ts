@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ConfigTileSet } from '@basemaps/config';
+import { ConfigTileSet, ConfigTag } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
 import { Config, LogConfig } from '@basemaps/shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { ConfigTag } from 'packages/config/src/config/tag';
 import { CliTable } from '../cli.table';
 import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';

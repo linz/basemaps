@@ -1,9 +1,14 @@
-import { ConfigImageryRule, ConfigTileSet, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
+import {
+    ConfigImagery,
+    ConfigImageryRule,
+    ConfigTag,
+    ConfigTileSet,
+    ConfigTileSetRaster,
+    TileSetType,
+} from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
 import { Config } from '@basemaps/shared';
 import * as c from 'ansi-colors';
-import { ConfigImagery } from 'packages/config/src/config/imagery';
-import { ConfigTag } from 'packages/config/src/config/tag';
 import { CliTable } from '../cli.table';
 import { invalidateCache } from '../util';
 

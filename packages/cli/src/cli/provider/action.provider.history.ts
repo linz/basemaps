@@ -1,7 +1,6 @@
 import { Config } from '@basemaps/shared';
 import { CommandLineAction } from '@rushstack/ts-command-line';
-import { ConfigProvider } from 'packages/config/src/config/provider';
-import { ConfigTag } from 'packages/config/src/config/tag';
+import { ConfigProvider, ConfigTag } from '@basemaps/config';
 import { CliTable } from '../cli.table';
 import { printProvider } from './provider.util';
 

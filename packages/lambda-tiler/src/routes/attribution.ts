@@ -1,4 +1,4 @@
-import { ConfigImagery, ConfigImageryRule } from '@basemaps/config';
+import { ConfigImagery, ConfigImageryRule, ConfigProvider } from '@basemaps/config';
 import {
     AttributionCollection,
     AttributionItem,
@@ -22,7 +22,6 @@ import {
     titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
-import { ConfigProvider } from 'packages/config/src/config/provider';
 import { TileSets } from '../tile.set.cache';
 import { TileSetRaster } from '../tile.set.raster';
 

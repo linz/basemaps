@@ -1,9 +1,8 @@
-import { ConfigTileSetRaster, TileSetType } from '@basemaps/config';
+import { ConfigTileSetRaster, TileSetType, ConfigImagery } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
 import { Config, Env, extractYearRangeFromName, FileOperator, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import Batch from 'aws-sdk/clients/batch';
-import { ConfigImagery } from 'packages/config/src/config/imagery';
 import * as path from 'path';
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { CogJob } from '../../cog/types';

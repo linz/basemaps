@@ -1,4 +1,4 @@
-import { ConfigTileSetRaster, TileSetType } from '@basemaps/config';
+import { ConfigImagery, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
 import { Bounds, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import { Aws, Config, Env, LogType, TileDataXyz, VectorFormat } from '@basemaps/shared';
@@ -7,7 +7,6 @@ import { CogTiff } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
-import { ConfigImagery } from 'packages/config/src/config/imagery';
 import { NotFound, NotModified, TileComposer } from './routes/tile';
 import { TileEtag } from './routes/tile.etag';
 import { TileSetHandler } from './tile.set';

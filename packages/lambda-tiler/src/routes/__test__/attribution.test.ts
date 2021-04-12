@@ -1,11 +1,10 @@
-import { ConfigImagery, ConfigImageryRule } from '@basemaps/config';
+import { ConfigImagery, ConfigImageryRule, ConfigProvider } from '@basemaps/config';
 import { EpsgCode, GoogleTms, NamedBounds, Nztm2000QuadTms, Nztm2000Tms, Stac, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader } from '@basemaps/lambda';
 import { Config } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
-import { ConfigProvider } from 'packages/config/src/config/provider';
 import { createSandbox } from 'sinon';
 import { TileSets } from '../../tile.set.cache';
 import { TileSetRaster } from '../../tile.set.raster';
