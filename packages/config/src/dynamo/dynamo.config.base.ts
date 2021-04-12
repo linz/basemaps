@@ -1,6 +1,6 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { BaseConfig } from '../config/base';
-import { RecordPrefix } from '../config/prefix';
+import { ConfigPrefix } from '../config/prefix';
 import { ConfigDynamo } from './dynamo.config';
 
 function toId(id: string): { id: { S: string } } {
@@ -9,18 +9,22 @@ function toId(id: string): { id: { S: string } } {
 
 export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> {
     cfg: ConfigDynamo;
-    prefix: RecordPrefix;
+    prefix: ConfigPrefix;
 
     is(obj: BaseConfig): obj is T {
         return obj.id.startsWith(this.prefix);
     }
-    constructor(cfg: ConfigDynamo, prefix: RecordPrefix) {
+    constructor(cfg: ConfigDynamo, prefix: ConfigPrefix) {
         this.cfg = cfg;
         this.prefix = prefix;
     }
 
     private get db(): DynamoDB {
         return this.cfg.dynamo;
+    }
+
+    clone(rec: T): T {
+        return DynamoDB.Converter.unmarshall(DynamoDB.Converter.marshall(rec)) as T;
     }
 
     public async get(key: string): Promise<T | null> {

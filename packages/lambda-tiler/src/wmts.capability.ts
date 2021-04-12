@@ -1,7 +1,8 @@
 import { Bounds, Nztm2000QuadTms, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
-import { Projection, TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
+import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
+import { ConfigProvider } from 'packages/config/src/config/provider';
 import { TileSetRaster } from './tile.set.raster';
 
 const CapabilitiesAttrs = {
@@ -196,12 +197,7 @@ export class WmtsCapabilities {
         return '<?xml version="1.0"?>\n' + this.toVNode().toString();
     }
 
-    static toXml(
-        httpBase: string,
-        provider: TileMetadataProviderRecord,
-        tileSet: TileSetRaster[],
-        apiKey?: string,
-    ): string {
+    static toXml(httpBase: string, provider: ConfigProvider, tileSet: TileSetRaster[], apiKey?: string): string {
         return new WmtsCapabilities(httpBase, provider, tileSet, apiKey).toString();
     }
 }

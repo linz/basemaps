@@ -1,24 +1,16 @@
 import { Bounds, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import {
-    Aws,
-    DefaultBackground,
-    Env,
-    LogType,
-    TileDataXyz,
-    TileMetadataImageryRecord,
-    TileSetRasterRecord,
-    TileSetType,
-    VectorFormat,
-} from '@basemaps/shared';
+import { Aws, Config, Env, LogType, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
+import { ConfigImageryRule, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
 import { NotFound, NotModified, TileComposer } from './routes/tile';
 import { TileEtag } from './routes/tile.etag';
 import { TileSetHandler } from './tile.set';
+import { ConfigImagery } from 'packages/config/src/config/imagery';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
@@ -31,13 +23,14 @@ export interface TileSetResponse {
 }
 
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
+const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
-export class TileSetRaster extends TileSetHandler<TileSetRasterRecord> {
+export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
     type = TileSetType.Raster;
 
     tileMatrix: TileMatrixSet;
     tiler: Tiler;
-    imagery: Map<string, TileMetadataImageryRecord>;
+    imagery: Map<string, ConfigImagery>;
     sources: Map<string, CogTiff> = new Map();
     titleOverride: string;
     extentOverride: Bounds;
@@ -47,7 +40,7 @@ export class TileSetRaster extends TileSetHandler<TileSetRasterRecord> {
      * @param record
      * @param name the COG to locate. Return just the directory if `null`
      */
-    static basePath(record: TileMetadataImageryRecord, name?: string): string {
+    static basePath(record: ConfigImagery, name?: string): string {
         if (name == null) return record.uri;
         if (record.uri.endsWith('/')) throw new Error("Invalid uri ending with '/' " + record.uri);
         return `${record.uri}/${name}.tiff`;
@@ -70,10 +63,10 @@ export class TileSetRaster extends TileSetHandler<TileSetRasterRecord> {
         return this.extentOverride ?? this.tileMatrix.extent;
     }
 
-    async init(record: TileSetRasterRecord): Promise<void> {
+    async init(record: ConfigTileSetRaster): Promise<void> {
         this.tileSet = record;
-        this.imagery = await Aws.tileMetadata.Imagery.getAll(this.tileSet);
-        Aws.tileMetadata.TileSet.sortRenderRules(this.tileSet, this.imagery);
+        this.imagery = await Config.Imagery.getAll(new Set(this.tileSet.rules.map((c) => c.imgId)));
+        Config.TileSet.sortRenderRules(this.tileSet, this.imagery);
     }
 
     async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
@@ -152,7 +145,7 @@ export class TileSetRaster extends TileSetHandler<TileSetRasterRecord> {
         return output;
     }
 
-    private getCogsForTile(record: TileMetadataImageryRecord, tileBounds: Bounds): CogTiff[] {
+    private getCogsForTile(record: ConfigImagery, tileBounds: Bounds): CogTiff[] {
         const output: CogTiff[] = [];
         for (const c of record.files) {
             if (!tileBounds.intersects(Bounds.fromJson(c))) continue;

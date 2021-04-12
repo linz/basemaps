@@ -1,3 +1,4 @@
+import { EpsgCode } from '@basemaps/geo';
 import { VersionedConfig } from './base';
 
 export enum TileSetType {
@@ -23,10 +24,15 @@ export interface ConfigImageryRule {
 }
 
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
-export const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
 export interface ConfigTileSetRaster extends VersionedConfig {
     v: 2;
+
+    /** TileSet set name */
+    name: string;
+    projection: EpsgCode;
+    title?: string;
+    description?: string;
 
     /** New records will have this set */
     type: TileSetType.Raster;
@@ -47,6 +53,10 @@ export interface ConfigTileSetRaster extends VersionedConfig {
 
 export interface ConfigTileSetVector extends VersionedConfig {
     v: 2;
+
+    /** TileSet set name */
+    name: string;
+    projection: EpsgCode;
 
     type: TileSetType.Vector;
     /**

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Epsg } from '@basemaps/geo';
-import { Aws, LogConfig, TileSetNameParser } from '@basemaps/shared';
+import { Aws, Config, LogConfig, TileSetNameParser } from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
@@ -34,20 +34,23 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
     }
 
     protected async onExecute(): Promise<void> {
-        const tileSet = this.tileSet.value!;
+        const tileSetName = this.tileSet.value!;
         const projection = Epsg.tryGet(this.projection.value!);
         if (projection == null) return this.fatal({ projection: this.projection.value }, 'Invalid projection');
 
         const tagInput = this.tag.value!;
         const version = this.version.value!;
 
-        const { tag, name } = TileSetNameParser.parse(`${tileSet}@${tagInput}`);
+        const { tag, name } = TileSetNameParser.parse(`${tileSetName}@${tagInput}`);
         if (tag == null) return this.fatal({ tag }, 'Invalid tag name');
 
         LogConfig.get().info({ version, tag, name, projection }, 'Tagging');
 
+        const tileSetId = Config.TileSet.id({ name, projection }, version);
+        const tileSet = await Config.TileSet.get(tileSetId);
+        if (tileSet == null) throw new Error(`Cannot find tile set ${tileSetId}`);
         if (this.commit.value) {
-            await Aws.tileMetadata.TileSet.tag(name, projection, tag, version);
+            await Config.TileSet.tag(tileSet, tag);
             await invalidateXYZCache(name, projection, tag, this.commit.value);
         }
 

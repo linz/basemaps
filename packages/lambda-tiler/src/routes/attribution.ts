@@ -1,3 +1,4 @@
+import { ConfigImagery, ConfigImageryRule } from '@basemaps/config';
 import {
     AttributionCollection,
     AttributionItem,
@@ -11,20 +12,17 @@ import {
 } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
-    Aws,
+    Config,
     extractYearRangeFromName,
     FileOperator,
     NamedBounds,
     Projection,
     setNameAndProjection,
     tileAttributionFromPath,
-    TileMetadataImageRule,
-    TileMetadataImageryRecord,
-    TileMetadataNamedTag,
-    TileMetadataProviderRecord,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
+import { ConfigProvider } from 'packages/config/src/config/provider';
 import { TileSets } from '../tile.set.cache';
 import { TileSetRaster } from '../tile.set.raster';
 
@@ -98,9 +96,9 @@ function getGsd(un?: Record<string, unknown>): number | null {
 export function createAttributionCollection(
     tileSet: TileSetRaster,
     stac: StacCollection | null | undefined,
-    imagery: TileMetadataImageryRecord,
-    rule: TileMetadataImageRule,
-    host: TileMetadataProviderRecord,
+    imagery: ConfigImagery,
+    rule: ConfigImageryRule,
+    host: ConfigProvider,
     extent: StacExtent,
 ): AttributionCollection {
     const tileMatrix = tileSet.tileMatrix;
@@ -148,7 +146,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
         }
     }
 
-    const host = await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Production);
+    const host = await Config.Provider.get(Config.Provider.id({ name: 'main' }, Config.Tag.Production));
     if (host == null) return null;
 
     for (const rule of tileSet.tileSet.rules) {

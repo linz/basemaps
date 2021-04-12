@@ -1,3 +1,4 @@
+import { NamedBounds } from '@basemaps/config';
 import { BoundingBox, Epsg, EpsgCode, TileMatrixSet, Tile } from '@basemaps/geo';
 import {
     BBox,
@@ -10,7 +11,6 @@ import {
 } from '@linzjs/geojson';
 import { Position } from 'geojson';
 import Proj from 'proj4';
-import { NamedBounds } from '../aws/tile.metadata.base';
 import { CompositeError } from '../composite.error';
 import { Citm2000 } from './citm2000';
 import { Nztm2000 } from './nztm2000';

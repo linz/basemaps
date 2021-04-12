@@ -1,6 +1,6 @@
 export type TileMetadataTag = string;
 
-export enum TileMetadataNamedTag {
+export enum ConfigTag {
     /** Version to render by default */
     Production = 'production',
 

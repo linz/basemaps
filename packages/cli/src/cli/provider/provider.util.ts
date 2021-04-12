@@ -1,8 +1,8 @@
-import { TileMetadataProviderRecord } from '@basemaps/shared';
 import * as c from 'ansi-colors';
+import { ConfigProvider } from 'packages/config/src/config/provider';
 import { inspect } from 'util';
 
-export function printProvider(data: TileMetadataProviderRecord, changes = data): void {
+export function printProvider(data: ConfigProvider, changes = data): void {
     const content = {} as any;
     if (changes.serviceProvider != null) content.serviceProvider = changes.serviceProvider;
     if (changes.serviceIdentification != null) content.serviceIdentification = changes.serviceIdentification;
@@ -14,10 +14,11 @@ export function printProvider(data: TileMetadataProviderRecord, changes = data):
     console.log(c.bold('Content:') + inspect(content, false, 5, true));
 }
 
-export const BlankProvider: TileMetadataProviderRecord = {
+export const BlankProvider: ConfigProvider = {
     createdAt: 0,
     id: '',
     updatedAt: 0,
+    name: 'main',
     version: 0,
     revisions: 0,
     serviceIdentification: {
@@ -52,13 +53,10 @@ type ProviderSubset = Record<string, any>; // any because can't write circular r
  * @returns only the fields that have changed between `input` and `existing`
  * @throws Error if `after` contains invalid Provider data
  */
-export function validateProvider(
-    input: Record<string, any>,
-    existing: TileMetadataProviderRecord,
-): TileMetadataProviderRecord | null {
+export function validateProvider(input: Record<string, any>, existing: ConfigProvider): ConfigProvider | null {
     const changes = {};
 
-    // Recursively validate subsets of TileMetadataProviderRecord
+    // Recursively validate subsets of ConfigProvider
     const validateField = (
         after: Record<string, any>,
         before: Record<string, any>,

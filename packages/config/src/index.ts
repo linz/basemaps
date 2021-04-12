@@ -1,20 +1,10 @@
-// import { ConfigImagery } from './config/imagery';
-
-// export interface BasemapsConfig {
-//     addImagery(cfg: ConfigImagery): void;
-//     getImagery(imageId: string): ConfigImagery;
-//     getImagery(imageId: string[]): ConfigImagery[];
-//     getImagery(imageId: string | string[]): ConfigImagery | ConfigImagery[];
-
-//     // getTileSet(...);
-//     // listTileSet(..);
-//     // addTileSet()
-
-//     // tag()
-
-//     // getStyle(...);
-//     // addStyle(...)
-// }
-// //
-
+export { ConfigImagery, NamedBounds } from './config/imagery';
+export {
+    ConfigImageryRule,
+    ConfigTileSet,
+    ConfigTileSetRaster,
+    ConfigTileSetVector,
+    TileSetType,
+    TileResizeKernel,
+} from './config/tile.set';
 export { ConfigDynamo } from './dynamo/dynamo.config';

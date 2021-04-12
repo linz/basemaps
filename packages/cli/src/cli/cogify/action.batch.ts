@@ -1,18 +1,9 @@
+import { ConfigTileSetRaster, TileSetType } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
-import {
-    Aws,
-    Env,
-    extractYearRangeFromName,
-    FileOperator,
-    LogConfig,
-    LogType,
-    Projection,
-    RecordPrefix,
-    TileMetadataImageryRecord,
-    TileMetadataTable,
-} from '@basemaps/shared';
+import { Config, Env, extractYearRangeFromName, FileOperator, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import Batch from 'aws-sdk/clients/batch';
+import { ConfigImagery } from 'packages/config/src/config/imagery';
 import * as path from 'path';
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { CogJob } from '../../cog/types';
@@ -36,7 +27,7 @@ export function extractResolutionFromName(name: string): number {
     return parseFloat(matches[1].replace('-', '.')) * 1000;
 }
 
-export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryRecord {
+export function createImageryRecordFromJob(job: CogJob): ConfigImagery {
     const now = Date.now();
 
     const projection = job.tileMatrix.projection;
@@ -46,7 +37,7 @@ export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryReco
 
     return {
         v: 1,
-        id: TileMetadataTable.prefix(RecordPrefix.Imagery, job.id),
+        id: Config.prefix(Config.Prefix.Imagery, job.id),
         name: job.name,
         createdAt: now,
         updatedAt: now,
@@ -59,17 +50,32 @@ export function createImageryRecordFromJob(job: CogJob): TileMetadataImageryReco
     };
 }
 
+export function createTileSetFromImagery(job: CogJob, img: ConfigImagery): ConfigTileSetRaster {
+    const now = Date.now();
+
+    const name = job.id;
+    const projection = job.tileMatrix.projection.code;
+    return {
+        v: 2,
+        type: TileSetType.Raster,
+        createdAt: now,
+        updatedAt: now,
+        id: Config.TileSet.id({ name, projection }, 0),
+        name,
+        projection,
+        rules: [{ imgId: img.id, ruleId: img.id, minZoom: 0, maxZoom: 32, priority: 1000 }],
+        title: job.title,
+        description: job.description,
+        version: 0,
+    };
+}
+
 export async function createMetadataFromJob(job: CogJob): Promise<void> {
     const img = createImageryRecordFromJob(job);
-    await Aws.tileMetadata.put(img);
-    const tileMetadata = Aws.tileMetadata.TileSet.initialRecordRaster(
-        job.id,
-        job.tileMatrix.projection.code,
-        [{ imgId: img.id, ruleId: img.id, minZoom: 0, maxZoom: 32, priority: 1000 }],
-        job.title,
-        job.description,
-    );
-    await Aws.tileMetadata.TileSet.create(tileMetadata);
+    await Config.Imagery.put(img);
+    const tileMetadata = createTileSetFromImagery(job, img);
+    await Config.TileSet.create(tileMetadata);
+    await Config.TileSet.tag(tileMetadata, Config.Tag.Production);
 }
 
 export class ActionBatchJob extends CommandLineAction {

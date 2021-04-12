@@ -1,5 +1,5 @@
 import { Bounds, EpsgCode, GoogleTms } from '@basemaps/geo';
-import { Aws, NamedBounds } from '@basemaps/shared';
+import { Aws, Config, NamedBounds } from '@basemaps/shared';
 import { qkToNamedBounds } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
@@ -44,18 +44,18 @@ o.spec('action.batch', () => {
             },
         } as CogJobJson);
 
-        const { tileMetadata } = Aws;
+        const { TileSet } = Config;
 
         o.afterEach(() => {
-            Aws.tileMetadata = tileMetadata;
+            Config.TileSet = TileSet;
         });
 
         o('createMetadataFromJob', async () => {
             const put = o.spy();
             const create = o.spy();
-            Aws.tileMetadata = {
+            Config.TileSet = {
                 put,
-                TileSet: { create, initialRecordRaster: tileMetadata.TileSet.initialRecordRaster },
+                create,
             } as any;
 
             await createMetadataFromJob(job);

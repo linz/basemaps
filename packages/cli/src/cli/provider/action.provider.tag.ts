@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Aws, LogConfig, TileMetadataNamedTag, TileSetNameParser } from '@basemaps/shared';
+import { Config, LogConfig, TileSetNameParser } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -36,24 +36,27 @@ export class ProviderUpdateTagAction extends CommandLineAction {
         const tag = TileSetNameParser.parseTag(this.tag.value);
         if (tag == null) return;
 
-        const before = await Aws.tileMetadata.Provider.get(tag);
+        const before = await Config.Provider.get(Config.Provider.id({ name: 'main' }, tag));
+
+        const current = await Config.Provider.get(Config.Provider.id({ name: 'main' }, version));
+        if (current == null) throw new Error('Unable to find version: ' + version);
 
         LogConfig.get().info({ version, tag }, 'Tagging');
 
         if (this.commit.value) {
-            await Aws.tileMetadata.Provider.tag(tag, version);
-            if (tag === TileMetadataNamedTag.Production) {
+            await Config.Provider.tag(current, tag);
+            if (tag === Config.Tag.Production) {
                 // TODO only invalidate WMTSCapabilities.xml paths
                 await invalidateCache(`/v1/tiles/*`, this.commit.value);
             }
         }
 
         if (before != null) {
-            const after = await Aws.tileMetadata.Provider.get(version)!;
-            const changes = validateProvider(after, before);
+            const after = await Config.Provider.get(Config.Provider.id({ name: 'main' }, version));
+            const changes = validateProvider(after!, before);
             if (changes != null) {
                 console.log(c.green('\nChanges'));
-                printProvider(after, changes);
+                printProvider(after!, changes);
             }
         }
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Epsg } from '@basemaps/geo';
-import { Aws, LogConfig, TileMetadataNamedTag } from '@basemaps/shared';
+import { Config, LogConfig } from '@basemaps/shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as c from 'ansi-colors';
 import { TagActions } from '../tag.action';
@@ -29,7 +29,8 @@ export class TileSetInfoAction extends TileSetBaseAction {
     }
 
     private async imageInfo(imageryId: string): Promise<void> {
-        const img = await Aws.tileMetadata.Imagery.get(imageryId);
+        const img = await Config.Imagery.get(imageryId);
+        if (img == null) throw new Error('Cannot find imagery with id ' + imageryId);
 
         console.log(c.bold('Imagery:'), img.name);
         console.log(c.bold('CreatedAt:'), new Date(img.createdAt).toString());
@@ -54,11 +55,8 @@ export class TileSetInfoAction extends TileSetBaseAction {
             console.log(this.renderHelpText());
             return;
         }
-        const tsData = await Aws.tileMetadata.TileSet.get(
-            tileSet,
-            projection,
-            this.version.value! ?? TileMetadataNamedTag.Head,
-        );
+        const tileSetId = Config.TileSet.id({ name: tileSet, projection }, this.version.value! ?? Config.Tag.Head);
+        const tsData = await Config.TileSet.get(tileSetId);
 
         if (tsData == null) {
             LogConfig.get().fatal({ tileSet }, 'Unable to find tile set');
