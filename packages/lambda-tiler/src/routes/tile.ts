@@ -1,6 +1,6 @@
 import { TileMatrixSet } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
-import { Config, Env, setNameAndProjection, tileWmtsFromPath, tileXyzFromPath } from '@basemaps/shared';
+import { Config, Env, setNameAndProjection, TileSetName, tileWmtsFromPath, tileXyzFromPath } from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { createHash } from 'crypto';
 import { TileSets } from '../tile.set.cache';
@@ -29,13 +29,7 @@ export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
 }
 
 async function wmtsLoadTileSets(name: string, tileMatrix: TileMatrixSet | null): Promise<TileSetRaster[]> {
-    if (name !== '' && name[0] !== '@' && tileMatrix != null) {
-        // single tileSett
-        const ts = await TileSets.get(name, tileMatrix);
-        if (ts == null || ts.isVector()) return [];
-        return [ts];
-    }
-
+    if (name === '') name = TileSetName.aerial;
     return (await TileSets.getAll(name, tileMatrix)).filter((f) => f.type === 'raster') as TileSetRaster[];
 }
 
