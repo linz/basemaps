@@ -1,15 +1,11 @@
-import { EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Stac, TileMatrixSets } from '@basemaps/geo';
+import { ConfigImagery, ConfigImageryRule, ConfigProvider } from '@basemaps/config';
+import { EpsgCode, GoogleTms, NamedBounds, Nztm2000QuadTms, Nztm2000Tms, Stac, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader } from '@basemaps/lambda';
-import {
-    Aws,
-    NamedBounds,
-    TileMetadataImageRule,
-    TileMetadataImageryRecord,
-    TileMetadataProviderRecord,
-} from '@basemaps/shared';
+import { Config } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
+import { createSandbox } from 'sinon';
 import { TileSets } from '../../tile.set.cache';
 import { TileSetRaster } from '../../tile.set.raster';
 import { FakeTileSet, mockRequest, Provider } from '../../__test__/xyz.util';
@@ -241,7 +237,7 @@ o.spec('attribution', () => {
 
         const mockFs = mockFileOperator();
 
-        const makeImageRecord = (name: string, x = 10, year = 2019): TileMetadataImageryRecord => {
+        const makeImageRecord = (name: string, x = 10, year = 2019): ConfigImagery => {
             return {
                 v: 1,
                 id: name,
@@ -263,7 +259,7 @@ o.spec('attribution', () => {
                 updatedAt: Date.now(),
             };
         };
-
+        const sandbox = createSandbox();
         o.beforeEach(() => {
             mockFs.setup();
             TileEtag.generate = generateMock;
@@ -273,8 +269,8 @@ o.spec('attribution', () => {
                     const tileSet = new FakeTileSet(tileSetName, tileMatrix);
                     tileSet.tileSet.version = 23;
                     TileSets.add(tileSet);
-                    const rules: TileMetadataImageRule[] = [];
-                    const imagery = new Map<string, TileMetadataImageryRecord>();
+                    const rules: ConfigImageryRule[] = [];
+                    const imagery = new Map<string, ConfigImagery>();
                     const addRule = (id: string, name: string, minZoom = 10): void => {
                         imagery.set(id, makeImageRecord(name, minZoom));
                         rules.push({
@@ -293,11 +289,11 @@ o.spec('attribution', () => {
                     tileSet.imagery = imagery;
                 }
             }
-
-            (Aws.tileMetadata.Provider as any).get = async (): Promise<TileMetadataProviderRecord> => Provider;
+            sandbox.stub(Config.Provider, 'get').callsFake(() => Promise.resolve(Provider));
         });
 
         o.afterEach(() => {
+            sandbox.restore();
             mockFs.teardown();
             TileSets.cache.clear();
             TileEtag.generate = origTileEtag;
@@ -360,8 +356,8 @@ o.spec('attribution', () => {
     });
 
     o.spec('ImageryRule', () => {
-        const fakeIm = { name: 'someName' } as TileMetadataImageryRecord;
-        const fakeHost = { serviceProvider: {} } as TileMetadataProviderRecord;
+        const fakeIm = { name: 'someName' } as ConfigImagery;
+        const fakeHost = { serviceProvider: {} } as ConfigProvider;
         const fakeRule = {
             imgId: 'id',
             ruleId: 'ir_id',

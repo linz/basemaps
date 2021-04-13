@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { TileSetNameParser } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import { Aws, LogConfig, TileMetadataNamedTag, TileSetNameParser } from '@basemaps/shared';
+import { Config, LogConfig } from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
@@ -42,12 +43,12 @@ export class TileSetInvalidateTagAction extends TileSetBaseAction {
         const { tag, name } = TileSetNameParser.parse(tileSetName);
         if (tag == null) return this.fatal({ tag }, 'Invalid tag name');
 
-        const tsData = await Aws.tileMetadata.TileSet.get(name, projection, tag);
+        const tsData = await Config.TileSet.get(Config.TileSet.id({ name, projection }, tag));
         if (tsData == null) return this.fatal({ tileSet: tileSetName }, 'Could not find tileset');
 
         LogConfig.get().info({ tag, name, projection }, 'Invalidating');
 
-        if (tag === TileMetadataNamedTag.Production) LogConfig.get().warn('Invaliding production cache');
+        if (tag === Config.Tag.Production) LogConfig.get().warn('Invaliding production cache');
 
         if (this.commit.value) {
             await invalidateXYZCache(name, projection, tag, this.commit.value);

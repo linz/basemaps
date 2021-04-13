@@ -1,13 +1,6 @@
+import { ConfigImagery, TileSetNameParser } from '@basemaps/config';
 import { Bounds, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import {
-    Aws,
-    RecordPrefix,
-    TileMetadataImageryRecord,
-    TileMetadataTable,
-    TileSetNameParser,
-    TileSetNameValues,
-    titleizeImageryName,
-} from '@basemaps/shared';
+import { Config, TileSetNameValues, titleizeImageryName } from '@basemaps/shared';
 import { TileSet } from './tile.set';
 import { TileSetRaster } from './tile.set.raster';
 import { TileSetVector } from './tile.set.vector';
@@ -46,13 +39,14 @@ export class TileSetCache {
         const nameComp = TileSetNameParser.parse(name);
         const tileSetId = this.id(name, tileMatrix);
 
-        const tileSet = await Aws.tileMetadata.TileSet.get(nameComp.name, tileMatrix.projection, nameComp.tag);
+        const dbId = Config.TileSet.id({ name, projection: tileMatrix.projection }, nameComp.tag);
+        const tileSet = await Config.TileSet.get(dbId);
         if (tileSet == null) {
             this.cache.delete(tileSetId);
             return null;
         }
 
-        if (Aws.tileMetadata.TileSet.isRasterRecord(tileSet)) {
+        if (Config.TileSet.isRaster(tileSet)) {
             const ts = new TileSetRaster(name, tileMatrix);
             await ts.init(tileSet);
             return ts;
@@ -97,9 +91,9 @@ export class TileSetCache {
 
 export const TileSets = new TileSetCache();
 
-function individualTileSet(parent: TileSetRaster, image: TileMetadataImageryRecord, setId?: string): TileSetRaster {
+function individualTileSet(parent: TileSetRaster, image: ConfigImagery, setId?: string): TileSetRaster {
     const { id } = image;
-    if (setId == null) setId = TileMetadataTable.unprefix(RecordPrefix.Imagery, id);
+    if (setId == null) setId = Config.unprefix(Config.Prefix.Imagery, id);
     const copy = new TileSetRaster(setId, parent.tileMatrix);
     // use parent data as prototype for child;
     copy.tileSet = Object.create(parent.tileSet ?? null);
@@ -109,10 +103,7 @@ function individualTileSet(parent: TileSetRaster, image: TileMetadataImageryReco
     copy.extentOverride = Bounds.fromJson(image.bounds);
 
     const rule = {
-        ruleId: TileMetadataTable.prefix(
-            RecordPrefix.ImageryRule,
-            TileMetadataTable.unprefix(RecordPrefix.Imagery, image.id),
-        ),
+        ruleId: Config.prefix(Config.Prefix.ImageryRule, Config.unprefix(Config.Prefix.Imagery, image.id)),
         imgId: image.id,
         minZoom: 0,
         maxZoom: 100,

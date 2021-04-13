@@ -1,14 +1,13 @@
-import { Epsg } from '@basemaps/geo';
 import {
-    Aws,
-    TileMetadataImageRule,
-    TileMetadataImageryRecord,
-    TileMetadataNamedTag,
-    TileMetadataSetRecord,
-    TileSetRasterRecord,
-    TileMetadataTag,
+    ConfigImagery,
+    ConfigImageryRule,
+    ConfigTag,
+    ConfigTileSet,
+    ConfigTileSetRaster,
     TileSetType,
-} from '@basemaps/shared';
+} from '@basemaps/config';
+import { Epsg } from '@basemaps/geo';
+import { Config } from '@basemaps/shared';
 import * as c from 'ansi-colors';
 import { CliTable } from '../cli.table';
 import { invalidateCache } from '../util';
@@ -58,8 +57,8 @@ export function rgbaToHex(c: { r: number; g: number; b: number; alpha: number })
 }
 
 interface TileSetRuleImagery {
-    rule: TileMetadataImageRule;
-    imagery: TileMetadataImageryRecord;
+    rule: ConfigImageryRule;
+    imagery: ConfigImagery;
 }
 
 export const TileSetTable = new CliTable<TileSetRuleImagery>();
@@ -70,9 +69,9 @@ TileSetTable.field('Name', 40, (obj) => obj.imagery.name);
 TileSetTable.field('Zoom', 10, (obj) => obj.rule.minZoom + ' -> ' + obj.rule.maxZoom);
 TileSetTable.field('CreatedAt', 10, (obj) => new Date(obj.imagery.createdAt).toISOString());
 
-export async function printTileSetImagery(tsData: TileSetRasterRecord): Promise<void> {
-    const allImagery = await Aws.tileMetadata.Imagery.getAll(tsData);
-    Aws.tileMetadata.TileSet.sortRenderRules(tsData, allImagery);
+export async function printTileSetImagery(tsData: ConfigTileSetRaster): Promise<void> {
+    const allImagery = await Config.TileSet.getImagery(tsData);
+    Config.TileSet.sortRenderRules(tsData, allImagery);
     console.log('');
     TileSetTable.header();
     TileSetTable.print(
@@ -84,7 +83,7 @@ export async function printTileSetImagery(tsData: TileSetRasterRecord): Promise<
     );
 }
 
-export async function printTileSet(tsData: TileMetadataSetRecord, printImagery = true): Promise<void> {
+export async function printTileSet(tsData: ConfigTileSet, printImagery = true): Promise<void> {
     console.log(c.bold('TileSet:'), `${tsData.name} `);
     console.log(c.bold('CreatedAt:'), new Date(tsData.createdAt).toISOString());
     console.log(c.bold('UpdatedAt:'), new Date(tsData.updatedAt).toISOString());
@@ -108,9 +107,9 @@ export async function printTileSet(tsData: TileMetadataSetRecord, printImagery =
 }
 
 export function showDiff(
-    tsA: TileSetRasterRecord | null,
-    tsB: TileSetRasterRecord | null,
-    imageSet: Map<string, TileMetadataImageryRecord>,
+    tsA: ConfigTileSetRaster | null,
+    tsB: ConfigTileSetRaster | null,
+    imageSet: Map<string, ConfigImagery>,
 ): string {
     let output = '';
     if (tsA != null) {
@@ -152,21 +151,11 @@ export function showDiff(
 export async function invalidateXYZCache(
     name: string,
     projection: Epsg,
-    tag: TileMetadataTag,
+    tag: ConfigTag | string,
     commit = false,
 ): Promise<void> {
-    const nameStr = tag === TileMetadataNamedTag.Production ? name : `${name}@${tag}`;
+    const nameStr = tag === Config.Tag.Production ? name : `${name}@${tag}`;
     const path = `/v1/tiles/${nameStr}/${projection.toEpsgString()}/*`;
 
     return invalidateCache(path, commit);
-}
-
-/**
- * Prime the imagery cache so we are not doing lots of single gets
- * @param {Set<string>} imageIds
- */
-export async function primeImageryCache(imageIds: Set<string>): Promise<Map<string, TileMetadataImageryRecord>> {
-    const allImagery = await Aws.tileMetadata.batchGet<TileMetadataImageryRecord>(imageIds);
-    for (const img of allImagery.values()) Aws.tileMetadata.Imagery.imagery.set(img.id, img);
-    return allImagery;
 }

@@ -1,5 +1,6 @@
+import { ConfigProvider } from '@basemaps/config';
 import { TileMatrixSets } from '@basemaps/geo';
-import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
+import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { handleRequest } from '../index';
@@ -41,7 +42,7 @@ o.spec('LambdaXyz', () => {
             }
         }
 
-        (Aws.tileMetadata.Provider as any).get = async (): Promise<TileMetadataProviderRecord> => Provider;
+        (Config.Provider as any).get = async (): Promise<ConfigProvider> => Provider;
     });
 
     o.afterEach(() => {

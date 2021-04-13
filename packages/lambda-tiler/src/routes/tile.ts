@@ -1,13 +1,6 @@
 import { TileMatrixSet } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
-import {
-    Aws,
-    Env,
-    setNameAndProjection,
-    TileMetadataNamedTag,
-    tileWmtsFromPath,
-    tileXyzFromPath,
-} from '@basemaps/shared';
+import { Config, Env, setNameAndProjection, tileWmtsFromPath, tileXyzFromPath } from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { createHash } from 'crypto';
 import { TileSets } from '../tile.set.cache';
@@ -57,7 +50,8 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     req.timer.end('tileset:load');
     if (tileSets.length === 0) return NotFound;
 
-    const provider = await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Production);
+    const providerId = Config.Provider.id({ name: 'main' }, Config.Tag.Production);
+    const provider = await Config.Provider.get(providerId);
     if (provider == null) return NotFound;
 
     const xml = WmtsCapabilities.toXml(host, provider, tileSets, req.apiKey);

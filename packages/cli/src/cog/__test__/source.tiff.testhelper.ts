@@ -1,5 +1,4 @@
-import { EpsgCode, GoogleTms } from '@basemaps/geo';
-import { NamedBounds } from '@basemaps/shared';
+import { EpsgCode, NamedBounds, GoogleTms } from '@basemaps/geo';
 import { CogStacJob } from '../cog.stac.job';
 import { CogJobJson } from '../types';
 

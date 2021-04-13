@@ -1,34 +1,33 @@
 import o from 'ospec';
-import { TileMetadataNamedTag } from '../aws/tile.metadata.base';
-import { TileSetName } from '../proj/tile.set.name';
+import { ConfigTag } from '../config/tag';
 import { TileSetNameParser } from '../tile.set.name';
 
 o.spec('parse', () => {
     o('should parse @ syntax', () => {
         o(TileSetNameParser.parse('aerial@head')).deepEquals({
-            name: TileSetName.aerial,
-            tag: TileMetadataNamedTag.Head,
+            name: 'aerial',
+            tag: ConfigTag.Head,
         });
         o(TileSetNameParser.parse('aerial@production')).deepEquals({
-            name: TileSetName.aerial,
-            tag: TileMetadataNamedTag.Production,
+            name: 'aerial',
+            tag: ConfigTag.Production,
         });
         o(TileSetNameParser.parse('aerial@beta')).deepEquals({
-            name: TileSetName.aerial,
-            tag: TileMetadataNamedTag.Beta,
+            name: 'aerial',
+            tag: ConfigTag.Beta,
         });
-        o(TileSetNameParser.parse('aerial@pr-123')).deepEquals({ name: TileSetName.aerial, tag: 'pr-123' });
+        o(TileSetNameParser.parse('aerial@pr-123')).deepEquals({ name: 'aerial', tag: 'pr-123' as ConfigTag });
     });
 
     o('should parse layer syntax', () => {
         o(TileSetNameParser.parse('aerial@head:layer')).deepEquals({
-            name: TileSetName.aerial,
-            tag: TileMetadataNamedTag.Head,
+            name: 'aerial',
+            tag: ConfigTag.Head,
             layer: 'layer',
         });
         o(TileSetNameParser.parse('aerial:layer')).deepEquals({
-            name: TileSetName.aerial,
-            tag: TileMetadataNamedTag.Production,
+            name: 'aerial',
+            tag: ConfigTag.Production,
             layer: 'layer',
         });
     });
@@ -36,22 +35,22 @@ o.spec('parse', () => {
     o('should throw with invalid tags', () => {
         o(TileSetNameParser.parse('aerial@foo')).deepEquals({
             name: 'aerial@foo',
-            tag: TileMetadataNamedTag.Production,
+            tag: ConfigTag.Production,
         });
         o(TileSetNameParser.parse('AeRiaL@9FooBar')).deepEquals({
             name: 'AeRiaL@9FooBar',
-            tag: TileMetadataNamedTag.Production,
+            tag: ConfigTag.Production,
         });
     });
 
     o('should be case sensitive', () => {
         o(TileSetNameParser.parse('AeRiaL@BETA')).deepEquals({
             name: 'AeRiaL@BETA',
-            tag: TileMetadataNamedTag.Production,
+            tag: ConfigTag.Production,
         });
         o(TileSetNameParser.parse('AeRiaL@HEAD')).deepEquals({
             name: 'AeRiaL@HEAD',
-            tag: TileMetadataNamedTag.Production,
+            tag: ConfigTag.Production,
         });
     });
 
