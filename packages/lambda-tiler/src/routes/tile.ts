@@ -123,7 +123,7 @@ export async function styleJson(req: LambdaContext, fileName: string): Promise<L
     const sources: Sources = {};
     const tileJsonUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/tile.json?api=${req.apiKey}`;
     for (const [key, value] of Object.entries(styleConfig.sources)) {
-        if (value.url == null || value.url.startsWith(host)) {
+        if (value.url === '' || value.url.startsWith(host)) {
             sources[key] = { type: 'vector', url: tileJsonUrl };
         } else {
             sources[key] = value;
@@ -157,6 +157,7 @@ export async function styleJson(req: LambdaContext, fileName: string): Promise<L
     req.set('bytes', data.byteLength);
     return response;
 }
+
 export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
     const { rest } = req.action;
     if (rest.length < 1) return NotFound;
