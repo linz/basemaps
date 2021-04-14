@@ -9,14 +9,10 @@ export abstract class ConfigDynamoVersioned<T extends VersionedConfig> extends C
         super(cfg, prefix);
     }
 
-    abstract id<K extends T>(record: K, version: TileMetadataTag | number): string;
-
-    protected _id(id: string[], version: TileMetadataTag | number): string {
-        const output: string[] = [this.prefix, ...id];
-
+    id(name: string, version: string | number): string {
+        const output: string[] = [this.prefix, name];
         if (typeof version === 'string') output.push(version);
         else output.push('v' + String(version).padStart(6, '0'));
-
         return output.join('_');
     }
 
@@ -24,13 +20,13 @@ export abstract class ConfigDynamoVersioned<T extends VersionedConfig> extends C
         if (tag === ConfigTag.Head) throw new Error('Cannot overwrite head tag');
 
         const newVersion = this.clone(record);
-        newVersion.id = this.id(record, tag);
+        newVersion.id = this.id(record.name, tag);
         await this.put(newVersion);
         return newVersion;
     }
 
     async create(record: T): Promise<T> {
-        const id = this.id(record, ConfigTag.Head);
+        const id = this.id(record.name, ConfigTag.Head);
 
         const v0 = await this.get(id);
         record.revisions = (v0?.revisions ?? -1) + 1;
@@ -38,12 +34,12 @@ export abstract class ConfigDynamoVersioned<T extends VersionedConfig> extends C
 
         // Insert the history record first
         const historyRecord = this.clone(record);
-        historyRecord.id = this.id(record, record.revisions);
+        historyRecord.id = this.id(record.name, record.revisions);
         await this.put(historyRecord);
 
         // Update the head to put to the new record
         const headRecord = this.clone(record);
-        headRecord.id = this.id(record, ConfigTag.Head);
+        headRecord.id = this.id(record.name, ConfigTag.Head);
         await this.put(headRecord);
 
         return headRecord;

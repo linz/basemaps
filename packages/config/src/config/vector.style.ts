@@ -33,6 +33,5 @@ export interface StyleJson {
 }
 
 export interface ConfigVectorStyle extends VersionedConfig {
-    name: string;
     style: StyleJson;
 }

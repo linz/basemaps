@@ -1,4 +1,3 @@
-import { EpsgCode } from '@basemaps/geo';
 import { VersionedConfig } from './base';
 
 export enum TileSetType {
@@ -8,19 +7,18 @@ export enum TileSetType {
 
 export interface ConfigImageryRule {
     /** Minimal zoom to show the layer @default 0 */
-    minZoom: number;
+    minZoom?: number;
 
     /** Max zoom to show the layer @default 32 */
-    maxZoom: number;
-
-    /** Rendering priority, lower numbers are rendered onto the canvas first */
-    priority: number;
+    maxZoom?: number;
 
     /** Unique rule id  (prefix: ir_)*/
-    ruleId: string;
+    id: string;
 
     /** Unique imagery id  (prefix: im_)*/
-    imgId: string;
+    img3857?: string;
+
+    img2193?: string;
 }
 
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
@@ -28,9 +26,6 @@ export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
 export interface ConfigTileSetRaster extends VersionedConfig {
     v: 2;
 
-    /** TileSet set name */
-    name: string;
-    projection: EpsgCode;
     title?: string;
     description?: string;
 
@@ -53,10 +48,6 @@ export interface ConfigTileSetRaster extends VersionedConfig {
 
 export interface ConfigTileSetVector extends VersionedConfig {
     v: 2;
-
-    /** TileSet set name */
-    name: string;
-    projection: EpsgCode;
 
     type: TileSetType.Vector;
     /**

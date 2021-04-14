@@ -1,5 +1,4 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import { Epsg, EpsgCode } from '@basemaps/geo';
 import { BaseConfig } from '../config/base';
 import { ConfigImagery } from '../config/imagery';
 import { ConfigPrefix } from '../config/prefix';
@@ -48,17 +47,14 @@ export class ConfigDynamo {
         const now = Date.now();
         return {
             id: '',
+            name: '',
             createdAt: now,
             updatedAt: now,
         };
     }
 }
 
-export class ConfigDynamoProvider extends ConfigDynamoVersioned<ConfigProvider> {
-    id(record: { name: string }, version: string | number): string {
-        return super._id([record.name], version);
-    }
-}
+export class ConfigDynamoProvider extends ConfigDynamoVersioned<ConfigProvider> {}
 
 export class ConfigDynamoTileSet extends ConfigDynamoVersioned<ConfigTileSet> {
     isRaster(x: ConfigTileSet | null | undefined): x is ConfigTileSetRaster {
@@ -71,51 +67,14 @@ export class ConfigDynamoTileSet extends ConfigDynamoVersioned<ConfigTileSet> {
         return x.type === TileSetType.Vector;
     }
 
-    id(record: { name: string; projection: Epsg | EpsgCode }, version: string | number): string {
-        if (typeof record.projection === 'number') return super._id([record.name, String(record.projection)], version);
-        return super._id([record.name, String(record.projection.code)], version);
-    }
-
-    /**
-     * Sort the render rules of a tile set given the information about the imagery
-     *
-     * This sorts the `tileSet.rules` array to be in the order of first is the highest priority imagery to layer
-     *
-     * @param tileSet with rules that need to be sorted
-     * @param imagery All imagery referenced inside the tileset
-     */
-    sortRenderRules(tileSet: ConfigTileSetRaster, imagery: Map<string, ConfigImagery>): void {
-        tileSet.rules.sort((ruleA, ruleB) => {
-            if (ruleA.priority !== ruleB.priority) return ruleA.priority - ruleB.priority;
-            const imgA = imagery.get(ruleA.imgId);
-            const imgB = imagery.get(ruleB.imgId);
-            if (imgA == null || imgB == null) throw new Error('Unable to find imagery to sort');
-
-            return this.compareImageSets(imgA, imgB);
-        });
-    }
-    /**
-     * Imagery sort must be stable, otherwise the ordering of imagery sets will vary between tile
-     * renders, causing weird artifacts in the map
-     */
-    compareImageSets(ai: ConfigImagery, bi: ConfigImagery): number {
-        // Sort by year, newest on top
-        if (ai.year !== bi.year) return ai.year - bi.year;
-
-        // Resolution, highest resolution (lowest number) on top
-        if (ai.resolution !== bi.resolution) return bi.resolution - ai.resolution;
-
-        // If everything is equal use the name to force a stable sort
-        return ai.id.localeCompare(bi.id);
-    }
-
     getImagery(rec: ConfigTileSetRaster): Promise<Map<string, ConfigImagery>> {
-        return this.cfg.Imagery.getAll(new Set(rec.rules.map((r) => r.imgId)));
+        const imgIds = new Set<string>();
+        for (const rule of rec.rules) {
+            if (rule.img2193 != null) imgIds.add(rule.img2193);
+            if (rule.img3857 != null) imgIds.add(rule.img3857);
+        }
+        return this.cfg.Imagery.getAll(imgIds);
     }
 }
 
-export class ConfigDynamoVectorStyle extends ConfigDynamoVersioned<ConfigVectorStyle> {
-    id(record: { name: string }, version: string | number): string {
-        return super._id([record.name], version);
-    }
-}
+export class ConfigDynamoVectorStyle extends ConfigDynamoVersioned<ConfigVectorStyle> {}

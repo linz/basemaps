@@ -7,6 +7,9 @@ export interface BaseConfig {
     /** Primary key of the table */
     id: string;
 
+    /** name of the configuration */
+    name: string;
+
     /** Date that the key was created */
     createdAt: number;
 
