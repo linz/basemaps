@@ -1,7 +1,7 @@
-import { ConfigImagery, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
+import { ConfigImagery, ConfigTileSetRaster, TileSetNameParser, TileSetType } from '@basemaps/config';
 import { Bounds, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import { Aws, Config, Env, LogType, TileDataXyz, VectorFormat } from '@basemaps/shared';
+import { Aws, Config, Env, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
@@ -31,7 +31,6 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
     tiler: Tiler;
     imagery: Map<string, ConfigImagery>;
     sources: Map<string, CogTiff> = new Map();
-    titleOverride: string;
     extentOverride: Bounds;
 
     /**
@@ -51,11 +50,11 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
     }
 
     get title(): string {
-        return this.tileSet.title ?? this.components.name;
+        return this.tileSet?.title ?? this.components.name;
     }
 
     get description(): string {
-        return this.tileSet.description ?? '';
+        return this.tileSet?.description ?? '';
     }
 
     get extent(): Bounds {
@@ -163,5 +162,42 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
             output.push(existing);
         }
         return output;
+    }
+
+    /** Look up imagery by imageryId or by image name */
+    findImagery(imgId: string): ConfigImagery | null {
+        const existing = this.imagery.get(imgId);
+        if (existing != null) return existing;
+        for (const img of this.imagery.values()) {
+            if (img.name === imgId) return img;
+        }
+        return null;
+    }
+
+    child(imgId: string): TileSetRaster {
+        const image = this.findImagery(imgId);
+        if (image == null) {
+            throw new Error('Failed to create child tile set ' + this.fullName + ' Missing imagery ' + imgId);
+        }
+        const childName = TileSetNameParser.componentsToName({ ...this.components, layer: image.name });
+        const child = new TileSetRaster(childName, this.tileMatrix);
+        // use parent data as prototype for child;
+        child.tileSet = { ...this.tileSet };
+        child.tileSet.background = undefined;
+        child.tileSet.title = `${this.tileSet?.title} ${titleizeImageryName(image.name)}`;
+        child.extentOverride = Bounds.fromJson(image.bounds);
+
+        const rule = {
+            ruleId: Config.prefix(Config.Prefix.ImageryRule, Config.unprefix(Config.Prefix.Imagery, image.id)),
+            imgId: image.id,
+            minZoom: 0,
+            maxZoom: 100,
+            priority: 0,
+        };
+        child.tileSet.rules = [rule];
+        child.imagery = new Map();
+        child.imagery.set(image.id, image);
+
+        return child;
     }
 }
