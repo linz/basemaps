@@ -1,13 +1,14 @@
 import { VersionedConfig } from './base';
 
-export interface Sources {
-    [name: string]: {
+export type Sources = Record<
+    string,
+    {
         type: 'vector';
         url: string;
-    };
-}
+    }
+>;
 
-export interface StyleJSon {
+export interface StyleJson {
     id: string;
 
     /** style json version */
@@ -29,4 +30,4 @@ export interface StyleJSon {
     layers: unknown[];
 }
 
-export type ConfigVectorStyle = VersionedConfig & StyleJSon;
+export type ConfigVectorStyle = VersionedConfig & StyleJson;

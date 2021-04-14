@@ -1,5 +1,5 @@
 export { ConfigImagery } from './config/imagery';
-export { ConfigVectorStyle, Sources, StyleJSon } from './config/vector.style';
+export { ConfigVectorStyle, Sources, StyleJson } from './config/vector.style';
 export { ConfigProvider } from './config/provider';
 export { ConfigTag } from './config/tag';
 export {
