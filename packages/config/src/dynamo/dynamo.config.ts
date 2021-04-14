@@ -115,7 +115,7 @@ export class ConfigDynamoTileSet extends ConfigDynamoVersioned<ConfigTileSet> {
 }
 
 export class ConfigDynamoVectorStyle extends ConfigDynamoVersioned<ConfigVectorStyle> {
-    id(record: { tileSetName: string; style: string }, version: string | number): string {
-        return super._id([record.tileSetName, String(record.style)], version);
+    id(record: { name: string }, version: string | number): string {
+        return super._id([record.name], version);
     }
 }
