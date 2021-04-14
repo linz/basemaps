@@ -1,12 +1,11 @@
 import { VersionedConfig } from './base';
 
-export type Sources = Record<
-    string,
-    {
-        type: 'vector';
-        url: string;
-    }
->;
+interface Source {
+    type: 'vector';
+    url: string;
+}
+
+export type Sources = Record<string, Source>;
 
 export interface StyleJson {
     id: string;
