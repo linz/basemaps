@@ -1,4 +1,4 @@
-import { ConfigProvider, StyleJSon } from '@basemaps/config';
+import { ConfigProvider, StyleJson } from '@basemaps/config';
 import { TileMatrixSets } from '@basemaps/geo';
 import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
@@ -244,9 +244,9 @@ o.spec('LambdaXyz', () => {
             const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json');
             request.apiKey = 'secretKey';
 
-            const fakeStyle: StyleJSon = {
+            const fakeStyle: StyleJson = {
                 version: 8,
-                id: 'st_topolike_production',
+                id: 'test',
                 name: 'topolike',
                 sources: {
                     basemaps: {
@@ -269,9 +269,16 @@ o.spec('LambdaXyz', () => {
                 ],
                 glyphs: 'glyphs',
                 sprite: 'sprite',
+                metadata: { id: 'test' },
             };
 
-            sandbox.stub(Config.Style, 'get').resolves(fakeStyle as any);
+            const fakeRecord = {
+                id: 'st_topolike_production',
+                name: 'topolike',
+                style: fakeStyle,
+            };
+
+            sandbox.stub(Config.Style, 'get').resolves(fakeRecord as any);
 
             const res = await handleRequest(request);
             o(res.status).equals(200);

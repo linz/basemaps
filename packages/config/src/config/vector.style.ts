@@ -16,6 +16,9 @@ export interface StyleJson {
     /** style name */
     name: string;
 
+    /** OPTIONAL - Arbitrary properties useful to track with the stylesheet, but do not influence rendering. */
+    metadata?: unknown;
+
     /** OPTIONAL - A base URL for retrieving the sprite image and metadata. */
     sprite?: string;
 
@@ -29,4 +32,7 @@ export interface StyleJson {
     layers: unknown[];
 }
 
-export type ConfigVectorStyle = VersionedConfig & StyleJson;
+export interface ConfigVectorStyle extends VersionedConfig {
+    name: string;
+    style: StyleJson;
+}
