@@ -8,6 +8,7 @@ export interface ConfigImagery extends BaseConfig {
     /** Imagery set name */
     name: string;
 
+    /** Projection imagery is stored as */
     projection: EpsgCode;
 
     /** The location of the COGs like s3://basemaps-cogs/3857/aerial/jobId123 */
@@ -17,8 +18,8 @@ export interface ConfigImagery extends BaseConfig {
     year: number;
 
     /** Resolution of imagery in MM */
-
     resolution: number;
+
     /** the bounding box of all the COGs */
     bounds: BoundingBox;
 
