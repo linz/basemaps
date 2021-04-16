@@ -7,10 +7,10 @@ export enum TileSetType {
 
 export interface ConfigImageryRule {
     /** Minimal zoom to show the layer @default 0 */
-    minZoom?: number;
+    minZoom: number;
 
     /** Max zoom to show the layer @default 32 */
-    maxZoom?: number;
+    maxZoom: number;
 
     /** Unique rule id  (prefix: ir_)*/
     id: string;
