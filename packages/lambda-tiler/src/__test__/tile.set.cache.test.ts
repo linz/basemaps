@@ -62,11 +62,10 @@ o.spec('TileSetCache', () => {
             o([...subTileSet.imagery.values()]).deepEquals([imageOne]);
             const [firstRule] = subTileSet.tileSet.rules;
             o(firstRule).deepEquals({
-                ruleId: firstRule.ruleId as any,
-                imgId: 'im_id1',
+                id: firstRule.id as any,
+                img3857: 'im_id1',
                 minZoom: 0,
                 maxZoom: 100,
-                priority: 0,
             });
             o(subTileSet.tileSet.background).equals(undefined);
 

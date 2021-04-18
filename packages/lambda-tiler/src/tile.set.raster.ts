@@ -1,5 +1,11 @@
-import { ConfigImagery, ConfigTileSetRaster, TileSetNameParser, TileSetType } from '@basemaps/config';
-import { Bounds, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import {
+    ConfigImagery,
+    ConfigImageryRule,
+    ConfigTileSetRaster,
+    TileSetNameParser,
+    TileSetType,
+} from '@basemaps/config';
+import { Bounds, EpsgCode, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import { Aws, Config, Env, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
@@ -63,8 +69,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
 
     async init(record: ConfigTileSetRaster): Promise<void> {
         this.tileSet = record;
-        this.imagery = await Config.Imagery.getAll(new Set(this.tileSet.rules.map((c) => c.imgId)));
-        Config.TileSet.sortRenderRules(this.tileSet, this.imagery);
+        this.imagery = await Config.Imagery.getAllImagery(this.tileSet.rules, this.tileMatrix.projection);
     }
 
     async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
@@ -134,7 +139,10 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
             if (rule.maxZoom != null && filterZoom > rule.maxZoom) continue;
             if (rule.minZoom != null && filterZoom < rule.minZoom) continue;
 
-            const imagery = this.imagery.get(rule.imgId);
+            const imgId = Config.TileSet.getImageId(rule, this.tileMatrix.projection);
+            if (imgId == null) continue;
+
+            const imagery = this.imagery.get(imgId);
             if (imagery == null) continue;
             if (!tileBounds.intersects(Bounds.fromJson(imagery.bounds))) continue;
 
@@ -187,13 +195,14 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
         child.tileSet.title = `${this.tileSet?.title} ${titleizeImageryName(image.name)}`;
         child.extentOverride = Bounds.fromJson(image.bounds);
 
-        const rule = {
-            ruleId: Config.prefix(Config.Prefix.ImageryRule, Config.unprefix(Config.Prefix.Imagery, image.id)),
-            imgId: image.id,
+        const rule: ConfigImageryRule = {
+            id: Config.prefix(Config.Prefix.ImageryRule, Config.unprefix(Config.Prefix.Imagery, image.id)),
             minZoom: 0,
             maxZoom: 100,
-            priority: 0,
         };
+        if (this.tileMatrix.projection.code === EpsgCode.Nztm2000) rule.img2193 = image.id;
+        if (this.tileMatrix.projection.code === EpsgCode.Google) rule.img3857 = image.id;
+
         child.tileSet.rules = [rule];
         child.imagery = new Map();
         child.imagery.set(image.id, image);

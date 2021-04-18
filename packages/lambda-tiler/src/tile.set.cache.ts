@@ -46,7 +46,7 @@ export class TileSetCache {
             return parent.child(nameComp.layer);
         }
 
-        const dbId = Config.TileSet.id({ name, projection: tileMatrix.projection }, nameComp.tag);
+        const dbId = Config.TileSet.id(name, nameComp.tag);
         const tileSet = await Config.TileSet.get(dbId);
         if (tileSet == null) {
             this.cache.delete(tileSetId);

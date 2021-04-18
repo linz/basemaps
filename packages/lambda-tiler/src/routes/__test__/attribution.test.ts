@@ -150,7 +150,7 @@ const ExpectedJson = {
             summaries: {
                 gsd: [0.75],
                 'linz:zoom': { min: 14, max: 16 },
-                'linz:priority': [140],
+                'linz:priority': [1000],
             },
         },
         {
@@ -176,7 +176,7 @@ const ExpectedJson = {
             summaries: {
                 gsd: [0.5],
                 'linz:zoom': { min: 15, max: 17 },
-                'linz:priority': [150],
+                'linz:priority': [1001],
             },
         },
         {
@@ -202,7 +202,7 @@ const ExpectedJson = {
             summaries: {
                 gsd: [0.75],
                 'linz:zoom': { min: 16, max: 18 },
-                'linz:priority': [160],
+                'linz:priority': [1002],
             },
         },
         {
@@ -222,7 +222,7 @@ const ExpectedJson = {
             summaries: {
                 gsd: [0.75],
                 'linz:zoom': { min: 14, max: 16 },
-                'linz:priority': [140],
+                'linz:priority': [1003],
             },
         },
     ],
@@ -274,11 +274,10 @@ o.spec('attribution', () => {
                     const addRule = (id: string, name: string, minZoom = 10): void => {
                         imagery.set(id, makeImageRecord(name, minZoom));
                         rules.push({
-                            imgId: id,
-                            ruleId: 'ir_' + id,
+                            img3857: id,
+                            id: 'ir_' + id,
                             minZoom,
                             maxZoom: minZoom + 2,
-                            priority: minZoom * 10,
                         });
                     };
                     addRule('ir_1', 'image1', 14);
@@ -359,8 +358,8 @@ o.spec('attribution', () => {
         const fakeIm = { name: 'someName' } as ConfigImagery;
         const fakeHost = { serviceProvider: {} } as ConfigProvider;
         const fakeRule = {
-            imgId: 'id',
-            ruleId: 'ir_id',
+            img2193: 'id',
+            id: 'ir_id',
             minZoom: 9,
             maxZoom: 16,
             priority: 10,
@@ -368,6 +367,8 @@ o.spec('attribution', () => {
 
         o('should generate for NZTM', () => {
             const ts = new TileSetRaster('Fake', Nztm2000Tms);
+            ts.tileSet = { rules: [{ id: '1' }, { id: '2' }] } as any;
+
             const output = createAttributionCollection(ts, null, fakeIm, fakeRule, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: fakeRule.minZoom, max: fakeRule.maxZoom });
@@ -375,6 +376,7 @@ o.spec('attribution', () => {
 
         o('should generate with correct zooms for NZTM2000Quad', () => {
             const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
+            ts.tileSet = { rules: [{ id: '1' }, { id: '2' }] } as any;
             const output = createAttributionCollection(ts, null, fakeIm, fakeRule, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: 12, max: 21 });
@@ -383,6 +385,7 @@ o.spec('attribution', () => {
         o('should generate with correct zooms for gebco NZTM2000Quad', () => {
             const fakeGebco = { ...fakeRule, minZoom: 0, maxZoom: 10 };
             const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
+            ts.tileSet = { rules: [{ id: '1' }, { id: '2' }] } as any;
             const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: 13 });
@@ -391,6 +394,7 @@ o.spec('attribution', () => {
         o('should generate with correct zooms for nz sentinel NZTM2000Quad', () => {
             const fakeGebco = { ...fakeRule, minZoom: 0, maxZoom: 17 };
             const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
+            ts.tileSet = { rules: [{ id: '1' }, { id: '2' }] } as any;
             const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });

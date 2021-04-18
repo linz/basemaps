@@ -45,7 +45,7 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     req.timer.end('tileset:load');
     if (tileSets.length === 0) return NotFound;
 
-    const providerId = Config.Provider.id({ name: 'main' }, Config.Tag.Production);
+    const providerId = Config.Provider.id('main', Config.Tag.Production);
     const provider = await Config.Provider.get(providerId);
     if (provider == null) return NotFound;
 
@@ -109,7 +109,7 @@ export async function styleJson(req: LambdaContext, fileName: string): Promise<L
     const host = Env.get(Env.PublicUrlBase) ?? '';
 
     // Get style Config from db
-    const dbId = Config.Style.id({ name: styleName }, nameComp.tag);
+    const dbId = Config.Style.id(styleName, nameComp.tag);
     const styleConfig = await Config.Style.get(dbId);
     if (styleConfig == null) return NotFound;
 
