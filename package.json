@@ -44,10 +44,5 @@
     ]
   },
   "resolutions": {
-    "minimist": "^1.2.3",
-    "yargs-parser": "^20.2.2",
-    "y18n": "5.0.5",
-    "dot-prop": "5.1.1",
-    "ssri": "8.0.1"
   }
 }
