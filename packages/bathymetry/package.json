@@ -28,7 +28,7 @@
     "@basemaps/geo": "^4.24.0",
     "@basemaps/shared": "^4.24.0",
     "@rushstack/ts-command-line": "^4.3.13",
-    "multihashes": "^3.0.1",
+    "multihashes": "^4.0.2",
     "ulid": "^2.3.0"
   },
   "peerDependencies": {
