@@ -61,21 +61,19 @@ o.spec('action.batch', () => {
             o(putImg.getCall(0).args[0].projection).equals(3857);
 
             o(create.getCall(0).args[0]).deepEquals({
-                id: 'ts_abc123_3857_v000000',
+                id: 'ts_abc123_v000000',
                 createdAt: create.getCall(0).args[0].createdAt,
                 updatedAt: create.getCall(0).args[0].createdAt,
                 version: 0,
                 v: 2,
                 name: 'abc123',
-                projection: 3857,
                 background: { r: 0, g: 0, b: 0, alpha: 0 },
                 rules: [
                     {
-                        imgId: 'im_abc123',
-                        ruleId: 'im_abc123',
+                        img3857: 'im_abc123',
+                        id: 'im_abc123',
                         minZoom: 0,
                         maxZoom: 32,
-                        priority: 1000,
                     },
                 ],
                 title: 'job title',
@@ -83,7 +81,7 @@ o.spec('action.batch', () => {
                 type: TileSetType.Raster,
             });
 
-            o(tag.getCall(0).args[0].id).equals('ts_abc123_3857_v000000');
+            o(tag.getCall(0).args[0].id).equals('ts_abc123_v000000');
             o(tag.getCall(0).args[1]).equals(Config.Tag.Production);
         });
 

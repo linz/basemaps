@@ -29,11 +29,10 @@ export class TileSetHistoryAction extends TileSetBaseAction {
 
     async getAllTags(): Promise<Map<ConfigTag, ConfigTileSet>> {
         const tileSet = this.tileSet.value!;
-        const projection = Epsg.get(this.projection.value ?? -1);
         const allTags: Map<ConfigTag, ConfigTileSet> = new Map();
         await Promise.all(
             Object.values(Config.Tag).map(async (tag) => {
-                const id = Config.TileSet.id({ name: tileSet, projection }, tag);
+                const id = Config.TileSet.id(tileSet, tag);
                 const value = await Config.TileSet.get(id);
                 if (value == null) return;
                 allTags.set(tag, value);
@@ -52,14 +51,14 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         const tsData = allTags.get(Config.Tag.Head);
         if (tsData == null) throw new Error('Unable to find tag: head');
 
-        printTileSet(tsData, false);
+        printTileSet(tsData, projection, false);
 
         const latestVersion = tsData.revisions ?? 0;
         const startVersion = Math.max(latestVersion - MaxHistory, 0);
 
         const toFetch = new Set<string>();
         for (let i = latestVersion; i >= startVersion; i--) {
-            toFetch.add(Config.TileSet.id({ name: tileSetName, projection }, i));
+            toFetch.add(Config.TileSet.id(tileSetName, i));
         }
 
         function getTagsForVersion(version: number): string {
@@ -73,16 +72,14 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         const toFetchImages = new Set<string>();
         for (const tag of tileSets.values()) {
             if (!Config.TileSet.isRaster(tag)) continue;
-            for (const rule of tag.rules) toFetchImages.add(rule.imgId);
+            for (const rule of tag.rules) {
+                const imgId = Config.TileSet.getImageId(rule, projection);
+                if (imgId != null) toFetchImages.add(imgId);
+            }
         }
 
         LogConfig.get().debug({ count: toFetchImages.size }, 'Loading Imagery');
         const imagery = await Config.Imagery.getAll(toFetchImages);
-
-        for (const tag of tileSets.values()) {
-            if (!Config.TileSet.isRaster(tag)) continue;
-            Config.TileSet.sortRenderRules(tag, imagery);
-        }
 
         const TileSetHistory = new CliTable<ConfigTileSet>();
         TileSetHistory.field('v', 4, (obj) => `v${obj.version}`);
@@ -93,21 +90,21 @@ export class TileSetHistoryAction extends TileSetBaseAction {
         TileSetHistory.header();
 
         for (let i = latestVersion; i >= startVersion; i--) {
-            const tileSetId = Config.TileSet.id({ name: tileSetName, projection }, i);
+            const tileSetId = Config.TileSet.id(tileSetName, i);
             const tileSetA = tileSets.get(tileSetId);
             if (tileSetA == null) throw new Error(`Failed to fetch tag: ${tileSetId}`);
             console.log(TileSetHistory.line(tileSetA));
 
             if (i === startVersion) continue;
 
-            const tileSetBId = Config.TileSet.id({ name: tileSetName, projection }, i - 1);
+            const tileSetBId = Config.TileSet.id(tileSetName, i - 1);
             const tileSetB = tileSets.get(tileSetBId);
             if (tileSetB == null) throw new Error(`Failed to fetch tag: ${tileSetBId}`);
 
             if (!Config.TileSet.isRaster(tileSetA)) continue;
             if (!Config.TileSet.isRaster(tileSetB)) continue;
 
-            console.log(showDiff(tileSetA, tileSetB, imagery));
+            console.log(showDiff(tileSetA, tileSetB, imagery, projection));
         }
     }
 }

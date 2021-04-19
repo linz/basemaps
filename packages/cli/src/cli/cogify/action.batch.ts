@@ -1,5 +1,5 @@
 import { ConfigTileSetRaster, TileSetType, ConfigImagery } from '@basemaps/config';
-import { TileMatrixSet } from '@basemaps/geo';
+import { EpsgCode, TileMatrixSet } from '@basemaps/geo';
 import { Config, Env, extractYearRangeFromName, FileOperator, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import Batch from 'aws-sdk/clients/batch';
@@ -54,15 +54,22 @@ export function createTileSetFromImagery(job: CogJob, img: ConfigImagery): Confi
 
     const name = job.id;
     const projection = job.tileMatrix.projection.code;
+    const rules = [];
+    if (projection === EpsgCode.Nztm2000) {
+        rules.push({ img2193: img.id, id: img.id, minZoom: 0, maxZoom: 32 });
+    } else if (projection === EpsgCode.Google) {
+        rules.push({ img3857: img.id, id: img.id, minZoom: 0, maxZoom: 32 });
+    } else {
+        throw new Error(`Projection: ${projection} not support.`);
+    }
     return {
         v: 2,
         type: TileSetType.Raster,
         createdAt: now,
         updatedAt: now,
-        id: Config.TileSet.id({ name, projection }, 0),
+        id: Config.TileSet.id(name, 0),
         name,
-        projection,
-        rules: [{ imgId: img.id, ruleId: img.id, minZoom: 0, maxZoom: 32, priority: 1000 }],
+        rules,
         title: job.title,
         description: job.description,
         background: { r: 0, g: 0, b: 0, alpha: 0 },

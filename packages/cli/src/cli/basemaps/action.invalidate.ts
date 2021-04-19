@@ -43,7 +43,7 @@ export class TileSetInvalidateTagAction extends TileSetBaseAction {
         const { tag, name } = TileSetNameParser.parse(tileSetName);
         if (tag == null) return this.fatal({ tag }, 'Invalid tag name');
 
-        const tsData = await Config.TileSet.get(Config.TileSet.id({ name, projection }, tag));
+        const tsData = await Config.TileSet.get(Config.TileSet.id(name, tag));
         if (tsData == null) return this.fatal({ tileSet: tileSetName }, 'Could not find tileset');
 
         LogConfig.get().info({ tag, name, projection }, 'Invalidating');

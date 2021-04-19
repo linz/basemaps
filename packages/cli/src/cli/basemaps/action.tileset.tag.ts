@@ -47,7 +47,7 @@ export class TileSetUpdateTagAction extends TileSetBaseAction {
 
         LogConfig.get().info({ version, tag, name, projection }, 'Tagging');
 
-        const tileSetId = Config.TileSet.id({ name, projection }, version);
+        const tileSetId = Config.TileSet.id(name, version);
         const tileSet = await Config.TileSet.get(tileSetId);
         if (tileSet == null) throw new Error(`Cannot find tile set ${tileSetId}`);
         if (this.commit.value) {

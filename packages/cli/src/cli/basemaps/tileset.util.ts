@@ -62,28 +62,29 @@ interface TileSetRuleImagery {
 }
 
 export const TileSetTable = new CliTable<TileSetRuleImagery>();
-TileSetTable.field('#', 4, (obj) => String(obj.rule.priority));
-TileSetTable.field('Rule Id', 30, (obj) => c.dim(obj.rule.ruleId));
-TileSetTable.field('Imagery Id', 30, (obj) => c.dim(obj.rule.imgId));
+TileSetTable.field('Rule Id', 30, (obj) => c.dim(obj.rule.id));
+TileSetTable.field('Imagery Id', 30, (obj) => c.dim(obj.imagery.id));
 TileSetTable.field('Name', 40, (obj) => obj.imagery.name);
 TileSetTable.field('Zoom', 10, (obj) => obj.rule.minZoom + ' -> ' + obj.rule.maxZoom);
 TileSetTable.field('CreatedAt', 10, (obj) => new Date(obj.imagery.createdAt).toISOString());
 
-export async function printTileSetImagery(tsData: ConfigTileSetRaster): Promise<void> {
+export async function printTileSetImagery(tsData: ConfigTileSetRaster, projection: Epsg): Promise<void> {
     const allImagery = await Config.TileSet.getImagery(tsData);
-    Config.TileSet.sortRenderRules(tsData, allImagery);
+    const ruleImagery: TileSetRuleImagery[] = [];
+    for (const rule of tsData.rules) {
+        const imgId = Config.TileSet.getImageId(rule, projection);
+        if (imgId != null) {
+            const imagery = allImagery.get(imgId);
+            if (imagery == null) continue;
+            ruleImagery.push({ rule, imagery });
+        }
+    }
     console.log('');
     TileSetTable.header();
-    TileSetTable.print(
-        tsData.rules.map((rule) => {
-            const imagery = allImagery.get(rule.imgId);
-            if (imagery == null) throw new Error('Unable to find imagery: ' + rule.imgId);
-            return { rule, imagery };
-        }),
-    );
+    TileSetTable.print(ruleImagery);
 }
 
-export async function printTileSet(tsData: ConfigTileSet, printImagery = true): Promise<void> {
+export async function printTileSet(tsData: ConfigTileSet, projection: Epsg, printImagery = true): Promise<void> {
     console.log(c.bold('TileSet:'), `${tsData.name} `);
     console.log(c.bold('CreatedAt:'), new Date(tsData.createdAt).toISOString());
     console.log(c.bold('UpdatedAt:'), new Date(tsData.updatedAt).toISOString());
@@ -103,19 +104,21 @@ export async function printTileSet(tsData: ConfigTileSet, printImagery = true): 
         );
     }
 
-    if (printImagery) await printTileSetImagery(tsData);
+    if (printImagery) await printTileSetImagery(tsData, projection);
 }
 
 export function showDiff(
     tsA: ConfigTileSetRaster | null,
     tsB: ConfigTileSetRaster | null,
     imageSet: Map<string, ConfigImagery>,
+    projection: Epsg,
 ): string {
     let output = '';
     if (tsA != null) {
         for (const tsAImg of tsA.rules) {
-            const tsBImg = tsB?.rules.find((rule) => rule.ruleId === tsAImg.ruleId);
-            const imagery = imageSet.get(tsAImg.imgId)!;
+            const tsBImg = tsB?.rules.find((rule) => rule.id === tsAImg.id);
+            const imgId = Config.TileSet.getImageId(tsAImg, projection);
+            const imagery = imageSet.get(imgId!)!;
             const lineA = TileSetTable.line({ rule: tsAImg, imagery });
 
             if (tsBImg == null) {
@@ -133,8 +136,9 @@ export function showDiff(
 
     if (tsB != null) {
         for (const tsBImg of tsB.rules) {
-            const tsAImg = tsA?.rules.find((rule) => rule.ruleId === tsBImg.ruleId);
-            const imagery = imageSet.get(tsBImg.imgId)!;
+            const tsAImg = tsA?.rules.find((rule) => rule.id === tsBImg.id);
+            const imgId = Config.TileSet.getImageId(tsBImg, projection);
+            const imagery = imageSet.get(imgId!)!;
 
             if (tsAImg == null) {
                 const lineA = TileSetTable.line({ rule: tsBImg, imagery });
