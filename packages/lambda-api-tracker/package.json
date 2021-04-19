@@ -23,7 +23,7 @@
     "bundle": "../../scripts/bundle.js package.json"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.43",
+    "@types/aws-lambda": "^8.10.75",
     "@types/node": "^14.11.2"
   },
   "bundle": {
