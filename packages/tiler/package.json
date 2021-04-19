@@ -25,7 +25,7 @@
   "devDependencies": {
     "@cogeotiff/source-file": "^4.2.0",
     "@types/pixelmatch": "^5.0.0",
-    "@types/pngjs": "^3.3.2",
+    "@types/pngjs": "^6.0.0",
     "pixelmatch": "^5.1.0",
     "pngjs": "^6.0.0"
   },
