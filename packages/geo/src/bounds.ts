@@ -9,6 +9,10 @@ export interface Size {
 
 export interface BoundingBox extends Point, Size {}
 
+export interface NamedBounds extends BoundingBox {
+    name: string;
+}
+
 export class Bounds implements BoundingBox {
     public readonly x: number;
     public readonly y: number;

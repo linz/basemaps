@@ -1,20 +1,20 @@
-import { TileMatrixSet } from '@basemaps/geo';
-import { LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
-    TileDataXyz,
-    TileSetRasterRecord,
+    ConfigTileSetRaster,
+    ConfigTileSetVector,
+    TileSetNameComponents,
     TileSetNameParser,
     TileSetType,
-    TileSetVectorRecord,
-} from '@basemaps/shared';
-import { TileSetNameComponents } from 'packages/shared/src/tile.set.name';
+} from '@basemaps/config';
+import { TileMatrixSet } from '@basemaps/geo';
+import { LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { TileDataXyz } from '@basemaps/shared';
 import { TileSets } from './tile.set.cache';
 import { TileSetRaster } from './tile.set.raster';
 import { TileSetVector } from './tile.set.vector';
 
 export type TileSet = TileSetVector | TileSetRaster;
 
-export abstract class TileSetHandler<T extends TileSetRasterRecord | TileSetVectorRecord> {
+export abstract class TileSetHandler<T extends ConfigTileSetRaster | ConfigTileSetVector> {
     type: TileSetType;
     components: TileSetNameComponents;
     tileMatrix: TileMatrixSet;

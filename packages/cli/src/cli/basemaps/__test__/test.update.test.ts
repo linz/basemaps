@@ -1,13 +1,14 @@
-import { Aws, LogConfig, TileMetadataImageRule, TileSetRasterRecord } from '@basemaps/shared';
+import { ConfigImageryRule, ConfigTileSetRaster } from '@basemaps/config';
+import { Config, LogConfig } from '@basemaps/shared';
 import o from 'ospec';
 import { TileSetUpdateAction } from '../action.tileset.update';
 import { parseRgba } from '../tileset.util';
 
-function fakeTileSet(): TileSetRasterRecord {
-    Aws.tileMetadata.Imagery.imagery.set('im_0', { name: '0', id: 'im_0' } as any);
-    Aws.tileMetadata.Imagery.imagery.set('im_1', { name: '1', id: 'im_1' } as any);
-    Aws.tileMetadata.Imagery.imagery.set('im_2', { name: '2', id: 'im_2' } as any);
-    Aws.tileMetadata.Imagery.imagery.set('im_3', { name: '3', id: 'im_3' } as any);
+function fakeTileSet(): ConfigTileSetRaster {
+    Config.Imagery.cache.set('im_0', { name: '0', id: 'im_0' } as any);
+    Config.Imagery.cache.set('im_1', { name: '1', id: 'im_1' } as any);
+    Config.Imagery.cache.set('im_2', { name: '2', id: 'im_2' } as any);
+    Config.Imagery.cache.set('im_3', { name: '3', id: 'im_3' } as any);
     return {
         rules: [
             { ruleId: 'ir_0', imgId: 'im_0', maxZoom: 32, minZoom: 0, priority: 10 },
@@ -21,11 +22,11 @@ o.spec('TileSetUpdateAction', () => {
     let cmd: TileSetUpdateAction = new TileSetUpdateAction();
     let tileSet = fakeTileSet();
 
-    function getRule(ruleId: string): TileMetadataImageRule | undefined {
+    function getRule(ruleId: string): ConfigImageryRule | undefined {
         return tileSet.rules.find((f) => f.ruleId === ruleId);
     }
 
-    function tileSetId(t: TileSetRasterRecord): string[] {
+    function tileSetId(t: ConfigTileSetRaster): string[] {
         return t.rules.map((c) => c.imgId);
     }
 
@@ -38,7 +39,7 @@ o.spec('TileSetUpdateAction', () => {
     });
 
     o.afterEach(() => {
-        Aws.tileMetadata.Imagery.imagery.clear();
+        Config.Imagery.cache.clear();
     });
 
     o.spec('UpdateZoom', () => {

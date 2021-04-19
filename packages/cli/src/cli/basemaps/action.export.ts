@@ -1,13 +1,6 @@
+import { ConfigTag, TileSetNameParser } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import {
-    Aws,
-    DefaultBackground,
-    LogConfig,
-    RecordPrefix,
-    TileMetadataTable,
-    TileMetadataTag,
-    TileSetNameParser,
-} from '@basemaps/shared';
+import { Config, LogConfig } from '@basemaps/shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { promises as fs } from 'fs';
 import { TagActions } from '../tag.action';
@@ -19,10 +12,10 @@ import {
     ProjectionConfig,
     removeDefaults,
 } from './tileset.config';
-import { primeImageryCache, rgbaToHex } from './tileset.util';
+import { rgbaToHex } from './tileset.util';
 
 /**
- * Convert all the tilesets in the TileMetadataTable to a TileSetConfig. The Head and Production
+ * Convert all the tilesets in the Config to a TileSetConfig. The Head and Production
  * rules tags are converted to one record. If a production rule differs from the head then the rule
  * is marked as non-production.
 
@@ -31,12 +24,13 @@ import { primeImageryCache, rgbaToHex } from './tileset.util';
 async function tilesetToConfig(
     name: string,
     projection: Epsg,
-    tag: TileMetadataTag,
+    tag: ConfigTag | string,
     defaults: ImageryDefaultConfig[] = [],
 ): Promise<ProjectionConfig> {
-    const item = await Aws.tileMetadata.TileSet.get(name, projection, tag);
-    if (!Aws.tileMetadata.TileSet.isRasterRecord(item)) throw new Error('Invalid record');
-    const imageryMap = await primeImageryCache(new Set(item.rules.map((r) => r.imgId)));
+    const tileSetId = Config.TileSet.id({ name, projection }, tag);
+    const item = await Config.TileSet.get(tileSetId);
+    if (!Config.TileSet.isRaster(item)) throw new Error('Invalid record');
+    const imageryMap = await Config.TileSet.getImagery(item);
 
     const imagery = item.rules
         .map(
@@ -46,7 +40,7 @@ async function tilesetToConfig(
                     throw new Error(`Can't find imagery record "${rule.imgId}" for Tileset "${item.id}"`);
                 }
                 return {
-                    id: TileMetadataTable.unprefix(RecordPrefix.Imagery, rule.imgId),
+                    id: Config.unprefix(Config.Prefix.Imagery, rule.imgId),
                     name: image.name,
                     priority: rule.priority,
                     minZoom: rule.minZoom,
@@ -60,7 +54,7 @@ async function tilesetToConfig(
     return {
         name,
         projection: projection.code,
-        background: rgbaToHex(item.background ?? DefaultBackground),
+        background: rgbaToHex(item.background ?? { r: 0, g: 0, b: 0, alpha: 0 }),
         defaults,
         imagery,
     };

@@ -1,4 +1,4 @@
-export { BoundingBox, Bounds, Point, Size } from './bounds';
+export { NamedBounds, BoundingBox, Bounds, Point, Size } from './bounds';
 export { Epsg, EpsgCode } from './epsg';
 export { QuadKey } from './quad.key';
 export { Tile, TileMatrixSet } from './tile.matrix.set';

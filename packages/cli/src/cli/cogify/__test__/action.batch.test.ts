@@ -1,8 +1,10 @@
-import { Bounds, EpsgCode, GoogleTms } from '@basemaps/geo';
-import { Aws, NamedBounds } from '@basemaps/shared';
+import { TileSetType } from '@basemaps/config';
+import { Bounds, EpsgCode, GoogleTms, NamedBounds } from '@basemaps/geo';
+import { Config } from '@basemaps/shared';
 import { qkToNamedBounds } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
+import sinon from 'sinon';
 import { CogStacJob } from '../../../cog/cog.stac.job';
 import { CogJobJson } from '../../../cog/types';
 import { createImageryRecordFromJob, createMetadataFromJob, extractResolutionFromName } from '../action.batch';
@@ -44,48 +46,45 @@ o.spec('action.batch', () => {
             },
         } as CogJobJson);
 
-        const { tileMetadata } = Aws;
+        const sandbox = sinon.createSandbox();
 
-        o.afterEach(() => {
-            Aws.tileMetadata = tileMetadata;
-        });
+        o.afterEach(() => sandbox.restore());
 
         o('createMetadataFromJob', async () => {
-            const put = o.spy();
-            const create = o.spy();
-            Aws.tileMetadata = {
-                put,
-                TileSet: { create, initialRecordRaster: tileMetadata.TileSet.initialRecordRaster },
-            } as any;
+            const putImg = sandbox.stub(Config.Imagery, 'put');
+            const create = sandbox.stub(Config.TileSet, 'create');
+            const tag = sandbox.stub(Config.TileSet, 'tag');
 
+            console.log('Create');
             await createMetadataFromJob(job);
 
-            o(put.args[0].projection).equals(3857);
+            o(putImg.getCall(0).args[0].projection).equals(3857);
 
-            o(create.args).deepEquals([
-                {
-                    id: '',
-                    createdAt: create.args[0].createdAt,
-                    updatedAt: 0,
-                    version: 0,
-                    revisions: 0,
-                    v: 2,
-                    name: 'abc123',
-                    projection: 3857,
-                    background: { r: 0, g: 0, b: 0, alpha: 0 },
-                    rules: [
-                        {
-                            imgId: 'im_abc123',
-                            ruleId: 'im_abc123',
-                            minZoom: 0,
-                            maxZoom: 32,
-                            priority: 1000,
-                        },
-                    ],
-                    title: 'job title',
-                    description: 'job description',
-                },
-            ]);
+            o(create.getCall(0).args[0]).deepEquals({
+                id: 'ts_abc123_3857_v000000',
+                createdAt: create.getCall(0).args[0].createdAt,
+                updatedAt: create.getCall(0).args[0].createdAt,
+                version: 0,
+                v: 2,
+                name: 'abc123',
+                projection: 3857,
+                background: { r: 0, g: 0, b: 0, alpha: 0 },
+                rules: [
+                    {
+                        imgId: 'im_abc123',
+                        ruleId: 'im_abc123',
+                        minZoom: 0,
+                        maxZoom: 32,
+                        priority: 1000,
+                    },
+                ],
+                title: 'job title',
+                description: 'job description',
+                type: TileSetType.Raster,
+            });
+
+            o(tag.getCall(0).args[0].id).equals('ts_abc123_3857_v000000');
+            o(tag.getCall(0).args[1]).equals(Config.Tag.Production);
         });
 
         o('createImageryRecordFromJob', () => {

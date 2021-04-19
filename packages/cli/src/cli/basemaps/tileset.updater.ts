@@ -1,27 +1,19 @@
+import { ConfigImagery, ConfigImageryRule, ConfigTag, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import {
-    Aws,
-    DefaultBackground,
-    LogConfig,
-    RecordPrefix,
-    TileMetadataImageRule,
-    TileMetadataImageryRecord,
-    TileMetadataNamedTag,
-    TileSetRasterRecord,
-    TileMetadataTable,
-    TileMetadataTag,
-} from '@basemaps/shared';
+import { Config, LogConfig } from '@basemaps/shared';
 import { deepStrictEqual } from 'assert';
 import { promises as fs } from 'fs';
 import { ulid } from 'ulid';
 import { addDefaults, assertTileSetConfig, FullImageryConfig, ProjectionConfig } from './tileset.config';
-import { invalidateXYZCache, parseRgba, primeImageryCache, rgbaToHex, showDiff } from './tileset.util';
+import { invalidateXYZCache, parseRgba, rgbaToHex, showDiff } from './tileset.util';
+
+const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
 export interface TagChanges {
     name: string;
     projection: Epsg;
-    before: TileSetRasterRecord;
-    after: TileSetRasterRecord;
+    before: ConfigTileSetRaster;
+    after: ConfigTileSetRaster;
 }
 
 /**
@@ -30,7 +22,7 @@ export interface TagChanges {
 export interface TilesetChanges {
     changes: TagChanges | null;
     /** A mapping from an id to an imagery record */
-    imagery: Map<string, TileMetadataImageryRecord>;
+    imagery: Map<string, ConfigImagery>;
 }
 
 function objectsDiffer(a: unknown, b: unknown): boolean {
@@ -73,7 +65,7 @@ function rulesToMap<T extends ImgPriority>(rules: T[]): Map<string, T[]> {
  * Search for an existing matching rule (using imgId, priority). If not found; remove and return the first one.
  */
 function findRule<T extends ImgPriority>(map: Map<string, T[]>, id: string, priority: number): T | null {
-    const rules = map.get(TileMetadataTable.prefix(RecordPrefix.Imagery, id));
+    const rules = map.get(Config.prefix(Config.Prefix.Imagery, id));
     if (rules == null) return null;
     for (let i = 0; i < rules.length; ++i) {
         if (rules[i].priority === priority) {
@@ -84,9 +76,9 @@ function findRule<T extends ImgPriority>(map: Map<string, T[]>, id: string, prio
 }
 
 async function showUpdateTag(
-    tag: TileMetadataTag,
+    tag: ConfigTag,
     changes: TagChanges,
-    imagery: Map<string, TileMetadataImageryRecord>,
+    imagery: Map<string, ConfigImagery>,
     isCommit: boolean,
 ): Promise<string> {
     let output = `\nChanges for ${tag} ${changes.name}/${changes.projection.toEpsgString()}:\n`;
@@ -108,7 +100,7 @@ async function showUpdateTag(
  * @param tag the tag to assign to the changes
  * @param isCommit commit changes or just dry run
  */
-export async function updateConfig(filename: string, tag: TileMetadataTag, isCommit = false): Promise<void> {
+export async function updateConfig(filename: string, tag: ConfigTag, isCommit = false): Promise<void> {
     const configUpdater = new TileSetUpdater((await fs.readFile(filename)).toString(), tag);
     const { changes, imagery } = await configUpdater.reconcile(isCommit);
 
@@ -128,7 +120,7 @@ export async function updateConfig(filename: string, tag: TileMetadataTag, isCom
 
 export class TileSetUpdater {
     config: ProjectionConfig;
-    tag: TileMetadataTag;
+    tag: ConfigTag;
     imagery: FullImageryConfig[];
     projection: Epsg;
     /**
@@ -136,10 +128,8 @@ export class TileSetUpdater {
 
      * @param config a string or TileSetConfig to use
      */
-    constructor(config: unknown, tag: TileMetadataTag) {
-        if (typeof config === 'string') {
-            config = JSON.parse(config);
-        }
+    constructor(config: unknown, tag: ConfigTag) {
+        if (typeof config === 'string') config = JSON.parse(config);
         assertTileSetConfig(config);
         this.config = config;
         this.tag = tag;
@@ -158,20 +148,18 @@ export class TileSetUpdater {
 
         const { name } = this.config;
 
-        let beforeTs = await this.loadTS(this.tag);
+        let beforeTs = await this.loadTileSet(this.tag);
         const newTag = beforeTs.id === '';
-        const headTs = this.tag === TileMetadataNamedTag.Head ? beforeTs : await this.loadTS(TileMetadataNamedTag.Head);
+        const headTs = this.tag === Config.Tag.Head ? beforeTs : await this.loadTileSet(Config.Tag.Head);
 
-        if (newTag) {
-            beforeTs = headTs;
-        }
+        if (newTag) beforeTs = headTs;
 
         const tagAtHead = headTs.version === beforeTs.version;
 
         // Only commit the changes if changing head
         const changes = await this.reconcileTileSet(imgIds, beforeTs, tagAtHead ? isCommit : false);
         if (changes != null) {
-            if (isCommit && this.tag !== TileMetadataNamedTag.Head) {
+            if (isCommit && this.tag !== Config.Tag.Head) {
                 let version = changes.after.version;
                 if (!tagAtHead) {
                     // tag has changed but not commited yet; commit now against head
@@ -184,13 +172,16 @@ export class TileSetUpdater {
                         version = changes.after.version;
                     }
                 }
-                await Aws.tileMetadata.TileSet.tag(name, this.projection, this.tag, version);
+                const tileSetId = Config.TileSet.id({ name, projection: this.projection }, version);
+                const existing = await Config.TileSet.get(tileSetId);
+                if (existing == null) throw new Error('Unable to find tile set: ' + tileSetId);
+                await Config.TileSet.tag(existing, this.tag);
             }
         } else if (newTag) {
-            await Aws.tileMetadata.TileSet.tag(name, this.projection, this.tag, headTs.version);
+            await Config.TileSet.tag(headTs, this.tag);
         }
 
-        return { changes, imagery: await primeImageryCache(imgIds) };
+        return { changes, imagery: await Config.Imagery.getAll(imgIds) };
     }
 
     /**
@@ -203,11 +194,11 @@ export class TileSetUpdater {
      */
     private async reconcileTileSet(
         imgIds: Set<string>,
-        beforeTs: TileSetRasterRecord,
+        beforeTs: ConfigTileSetRaster,
         isCommit = false,
     ): Promise<TagChanges | null> {
         for (const rule of beforeTs.rules) {
-            imgIds.add(TileMetadataTable.prefix(RecordPrefix.Imagery, rule.imgId));
+            imgIds.add(Config.prefix(Config.Prefix.Imagery, rule.imgId));
         }
 
         const backgroundAfter = this.config.background;
@@ -215,14 +206,14 @@ export class TileSetUpdater {
 
         const ruleMap = rulesToMap(beforeTs.rules);
 
-        const afterRules: TileMetadataImageRule[] = [];
+        const afterRules: ConfigImageryRule[] = [];
         // build the new rules
         for (const ts of this.imagery) {
-            const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, ts.id);
+            const imgId = Config.prefix(Config.Prefix.Imagery, ts.id);
             // blank imgId means not yet created. priority of -1 means remove
             if (imgId !== '' && ts.priority !== -1) {
                 const rule = findRule(ruleMap, ts.id, ts.priority);
-                const ruleId = rule == null ? TileMetadataTable.prefix(RecordPrefix.ImageryRule, ulid()) : rule.ruleId;
+                const ruleId = rule == null ? Config.prefix(Config.Prefix.ImageryRule, ulid()) : rule.ruleId;
                 afterRules.push({
                     imgId,
                     ruleId,
@@ -240,14 +231,14 @@ export class TileSetUpdater {
         afterRules.sort(compareImgIdPriority);
 
         if (objectsDiffer(beforeTs.rules, afterRules) || backgroundAfter !== backgroundBefore) {
-            let after: TileSetRasterRecord = {
+            let after: ConfigTileSetRaster = {
                 ...beforeTs,
                 background: parseRgba(backgroundAfter),
                 rules: afterRules,
             };
             if (isCommit) {
-                const res = await Aws.tileMetadata.TileSet.create(after);
-                if (!Aws.tileMetadata.TileSet.isRasterRecord(res)) throw new Error('Invalid result');
+                const res = await Config.TileSet.create(after);
+                if (!Config.TileSet.isRaster(res)) throw new Error('Invalid result');
                 after = res;
             }
             after.rules = afterRules;
@@ -261,20 +252,27 @@ export class TileSetUpdater {
         return null;
     }
 
-    private async loadTS(tag: TileMetadataTag): Promise<TileSetRasterRecord> {
+    private async loadTileSet(tag: ConfigTag): Promise<ConfigTileSetRaster> {
         const { config, projection } = this;
-        const tsData = await Aws.tileMetadata.TileSet.get(config.name, projection, tag);
+        const tileSetId = Config.TileSet.id({ name: config.name, projection }, tag);
+        const tsData = await Config.TileSet.get(tileSetId);
 
         if (tsData != null) {
-            if (!Aws.tileMetadata.TileSet.isRasterRecord(tsData)) throw new Error('TileSet is not raster');
+            if (!Config.TileSet.isRaster(tsData)) throw new Error('TileSet is not raster');
             return tsData;
         }
-        return Aws.tileMetadata.TileSet.initialRecordRaster(
-            config.name,
-            projection.code,
-            [],
-            config.title,
-            config.description,
-        );
+        const tileSet: ConfigTileSetRaster = {
+            ...Config.record(),
+            v: 2,
+            type: TileSetType.Raster,
+            name: config.name,
+            projection: projection.code,
+            rules: [],
+            title: config.title,
+            description: config.description,
+            version: -1,
+        };
+        tileSet.id = Config.TileSet.id(tileSet, tag);
+        return tileSet;
     }
 }

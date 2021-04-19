@@ -1,0 +1,31 @@
+{
+  "name": "@basemaps/config",
+  "version": "4.24.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/config"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js'"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/"
+  ],
+  "devDependencies": {
+  },
+  "dependencies": {
+    "@basemaps/geo": "^4.24.0"
+  }
+}

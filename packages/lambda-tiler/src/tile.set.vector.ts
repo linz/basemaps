@@ -1,5 +1,6 @@
+import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import { Aws, FileOperator, TileDataXyz, TileSetType, TileSetVectorRecord, VectorFormat } from '@basemaps/shared';
+import { Aws, FileOperator, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { Cotar, TarIndex } from '@cotar/core';
 import { NotFound } from './routes/tile';
@@ -28,7 +29,7 @@ class CotarCache {
 
 export const Layers = new CotarCache();
 
-export class TileSetVector extends TileSetHandler<TileSetVectorRecord> {
+export class TileSetVector extends TileSetHandler<ConfigTileSetVector> {
     type = TileSetType.Vector;
 
     async tile(req: LambdaContext, xyz: TileDataXyz): Promise<LambdaHttpResponse> {

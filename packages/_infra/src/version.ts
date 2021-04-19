@@ -1,6 +1,3 @@
-// import { createHash, Hash } from 'crypto';
-// import * as fs from 'fs';
-// import * as path from 'path';
 import { GitTag } from '@basemaps/shared/build/cli/git.tag';
 
 export interface VersionInfo {

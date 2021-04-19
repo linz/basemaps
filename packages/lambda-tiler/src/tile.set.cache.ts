@@ -1,13 +1,6 @@
-import { Bounds, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import {
-    Aws,
-    RecordPrefix,
-    TileMetadataImageryRecord,
-    TileMetadataTable,
-    TileSetNameParser,
-    TileSetNameValues,
-    titleizeImageryName,
-} from '@basemaps/shared';
+import { TileSetNameParser } from '@basemaps/config';
+import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Config } from '@basemaps/shared';
 import { TileSet } from './tile.set';
 import { TileSetRaster } from './tile.set.raster';
 import { TileSetVector } from './tile.set.vector';
@@ -42,17 +35,25 @@ export class TileSetCache {
         return existing;
     }
 
-    private async loadTileSet(name: string, tileMatrix: TileMatrixSet): Promise<TileSet | null> {
+    async loadTileSet(name: string, tileMatrix: TileMatrixSet): Promise<TileSet | null> {
         const nameComp = TileSetNameParser.parse(name);
         const tileSetId = this.id(name, tileMatrix);
 
-        const tileSet = await Aws.tileMetadata.TileSet.get(nameComp.name, tileMatrix.projection, nameComp.tag);
+        if (nameComp.layer != null) {
+            const parentName = TileSetNameParser.componentsToName({ ...nameComp, layer: undefined });
+            const parent = await this.get(parentName, tileMatrix);
+            if (parent == null || parent.isVector()) return null;
+            return parent.child(nameComp.layer);
+        }
+
+        const dbId = Config.TileSet.id({ name, projection: tileMatrix.projection }, nameComp.tag);
+        const tileSet = await Config.TileSet.get(dbId);
         if (tileSet == null) {
             this.cache.delete(tileSetId);
             return null;
         }
 
-        if (Aws.tileMetadata.TileSet.isRasterRecord(tileSet)) {
+        if (Config.TileSet.isRaster(tileSet)) {
             const ts = new TileSetRaster(name, tileMatrix);
             await ts.init(tileSet);
             return ts;
@@ -65,17 +66,10 @@ export class TileSetCache {
     async getAll(name: string, tileMatrix?: TileMatrixSet | null): Promise<TileSet[]> {
         const nameComp = TileSetNameParser.parse(name);
         const tileMatrices = tileMatrix == null ? Array.from(TileMatrixSets.Defaults.values()) : [tileMatrix];
-        const names =
-            nameComp.name === ''
-                ? TileSetNameValues().map((tsn) => TileSetNameParser.toName(tsn, nameComp.tag))
-                : [name];
 
         const promises: Promise<TileSet | null>[] = [];
-        for (const n of names) {
-            for (const tileMatrix of tileMatrices) {
-                promises.push(this.get(n, tileMatrix));
-            }
-        }
+        for (const tileMatrix of tileMatrices) promises.push(this.get(name, tileMatrix));
+
         const tileMatrixSets = await Promise.all(promises);
         const tileSets: TileSetRaster[] = [];
         for (const parent of tileMatrixSets) {
@@ -86,9 +80,7 @@ export class TileSetCache {
             if (nameComp.layer != null) {
                 parent.components.name = nameComp.name;
             } else if (parent.imagery != null && parent.imagery.size > 1) {
-                for (const image of parent.imagery.values()) {
-                    tileSets.push(individualTileSet(parent, image, parent.fullName));
-                }
+                for (const imageId of parent.imagery.keys()) tileSets.push(parent.child(imageId));
             }
         }
         return tileSets.sort((a, b) => a.title.localeCompare(b.title));
@@ -96,31 +88,3 @@ export class TileSetCache {
 }
 
 export const TileSets = new TileSetCache();
-
-function individualTileSet(parent: TileSetRaster, image: TileMetadataImageryRecord, setId?: string): TileSetRaster {
-    const { id } = image;
-    if (setId == null) setId = TileMetadataTable.unprefix(RecordPrefix.Imagery, id);
-    const copy = new TileSetRaster(setId, parent.tileMatrix);
-    // use parent data as prototype for child;
-    copy.tileSet = Object.create(parent.tileSet ?? null);
-    copy.tileSet.background = undefined;
-
-    copy.titleOverride = `${parent.tileSet.title} ${titleizeImageryName(image.name)}`;
-    copy.extentOverride = Bounds.fromJson(image.bounds);
-
-    const rule = {
-        ruleId: TileMetadataTable.prefix(
-            RecordPrefix.ImageryRule,
-            TileMetadataTable.unprefix(RecordPrefix.Imagery, image.id),
-        ),
-        imgId: image.id,
-        minZoom: 0,
-        maxZoom: 100,
-        priority: 0,
-    };
-    copy.tileSet.rules = [rule];
-    copy.imagery = new Map();
-    copy.imagery.set(image.id, image);
-
-    return copy;
-}
