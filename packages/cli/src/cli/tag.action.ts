@@ -1,6 +1,6 @@
-import { TileMetadataNamedTag } from '@basemaps/shared';
+import { Config } from '@basemaps/shared';
 
-const validTags = Object.values(TileMetadataNamedTag).filter((f) => f !== TileMetadataNamedTag.Head);
+const validTags = Object.values(Config.Tag).filter((f) => f !== Config.Tag.Head);
 
 /** Commonly used definitions for cli args */
 export const TagActions = {

@@ -1,4 +1,4 @@
-import { TileMetadataNamedTag, TileMetadataTag } from './aws/tile.metadata.base';
+import { ConfigTag } from './config/tag';
 
 /**
  * Components of a tile set name
@@ -10,27 +10,27 @@ import { TileMetadataNamedTag, TileMetadataTag } from './aws/tile.metadata.base'
 export interface TileSetNameComponents {
     name: string;
     /** @default  Production @see TileMetadataNamedTag.Production */
-    tag: TileMetadataTag;
+    tag: ConfigTag;
     layer?: string;
 }
 
 export const TileSetNameParser = {
-    isValidTag(tagInput: unknown): tagInput is TileMetadataTag {
+    isValidTag(tagInput: unknown): tagInput is ConfigTag {
         return TileSetNameParser.parseTag(tagInput) != null;
     },
 
     /**
      * Ensure `tagInput` is a valid tag otherwise return null
      */
-    parseTag(tagInput: unknown): TileMetadataTag | null {
+    parseTag(tagInput: unknown): ConfigTag | null {
         if (typeof tagInput !== 'string') return null;
         switch (tagInput) {
-            case TileMetadataNamedTag.Head:
-            case TileMetadataNamedTag.Production:
-            case TileMetadataNamedTag.Beta:
+            case ConfigTag.Head:
+            case ConfigTag.Production:
+            case ConfigTag.Beta:
                 return tagInput;
             default:
-                if (/^pr-[0-9]+$/.test(tagInput)) return tagInput;
+                if (/^pr-[0-9]+$/.test(tagInput)) return tagInput as ConfigTag;
                 return null;
         }
     },
@@ -45,7 +45,7 @@ export const TileSetNameParser = {
      * @param name String to parse
      */
     parse(name: string): TileSetNameComponents {
-        const output: TileSetNameComponents = { name, tag: TileMetadataNamedTag.Production };
+        const output: TileSetNameComponents = { name, tag: ConfigTag.Production };
         const layerIndex = name.indexOf(':');
 
         if (layerIndex !== -1) {
@@ -69,9 +69,9 @@ export const TileSetNameParser = {
         return TileSetNameParser.toName(components.name, components.tag, components.layer);
     },
 
-    toName(name: string, tag?: TileMetadataTag | string, layer?: string): string {
+    toName(name: string, tag?: ConfigTag | string, layer?: string): string {
         const output = [name];
-        if (tag && tag !== TileMetadataNamedTag.Production) output.push(`@${tag}`);
+        if (tag && tag !== ConfigTag.Production) output.push(`@${tag}`);
         if (layer) output.push(`:${layer}`);
         return output.join('');
     },

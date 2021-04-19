@@ -1,12 +1,6 @@
+import { TileSetNameParser } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import {
-    Aws,
-    LogConfig,
-    RecordPrefix,
-    TileMetadataImageryRecord,
-    TileMetadataTable,
-    TileSetNameParser,
-} from '@basemaps/shared';
+import { Config, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { createImageryRecordFromJob } from '../cogify/action.batch';
@@ -58,14 +52,6 @@ export class ImportAction extends CommandLineAction {
         this.commit = this.defineFlagParameter(TagActions.Commit);
     }
 
-    async tryGetImagery(imgId: string): Promise<null | TileMetadataImageryRecord> {
-        try {
-            return await Aws.tileMetadata.Imagery.get(imgId);
-        } catch (e) {
-            return null;
-        }
-    }
-
     protected async onExecute(): Promise<void> {
         if (this.config.value) {
             if (this.job.value) {
@@ -92,8 +78,8 @@ export class ImportAction extends CommandLineAction {
 
         const job = await CogStacJob.load(jobPath);
 
-        const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, job.id);
-        const imagery = await this.tryGetImagery(imgId);
+        const imgId = Config.prefix(Config.Prefix.Imagery, job.id);
+        const imagery = await Config.Imagery.get(imgId);
         if (imagery != null && !this.force.value) {
             logger.warn({ imgId }, 'Imagery already exists, aborting');
             return;
@@ -113,7 +99,7 @@ export class ImportAction extends CommandLineAction {
         logger.info({ record: imgRecord }, 'Create');
         if (this.commit.value) {
             logger.info({ imagery: job.name, imgId }, 'CreatingRecord');
-            await Aws.tileMetadata.put(imgRecord);
+            await Config.Imagery.put(imgRecord);
         } else {
             logger.warn('DryRun:Done');
         }

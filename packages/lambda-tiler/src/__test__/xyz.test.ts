@@ -1,5 +1,6 @@
+import { ConfigProvider, StyleJson } from '@basemaps/config';
 import { TileMatrixSets } from '@basemaps/geo';
-import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
+import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { handleRequest } from '../index';
@@ -7,6 +8,7 @@ import { TileComposer } from '../routes/tile';
 import { TileEtag } from '../routes/tile.etag';
 import { TileSets } from '../tile.set.cache';
 import { FakeTileSet, mockRequest, Provider } from './xyz.util';
+import { createSandbox } from 'sinon';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -18,6 +20,7 @@ o.spec('LambdaXyz', () => {
     const rasterMockBuffer = Buffer.from([1]);
     const origTileEtag = TileEtag.generate;
     const origCompose = TileComposer.compose;
+    const sandbox = createSandbox();
 
     o.beforeEach(() => {
         LogConfig.disable();
@@ -41,13 +44,14 @@ o.spec('LambdaXyz', () => {
             }
         }
 
-        (Aws.tileMetadata.Provider as any).get = async (): Promise<TileMetadataProviderRecord> => Provider;
+        (Config.Provider as any).get = async (): Promise<ConfigProvider> => Provider;
     });
 
     o.afterEach(() => {
         TileSets.cache.clear();
         TileComposer.compose = origCompose;
         TileEtag.generate = origTileEtag;
+        sandbox.restore();
     });
 
     o('should export handler', async () => {
@@ -213,6 +217,77 @@ o.spec('LambdaXyz', () => {
                 format: 'pbf',
                 tilejson: '2.0.0',
             });
+        });
+    });
+
+    o.spec('styleJson', () => {
+        const origPublicUrlBase = process.env[Env.PublicUrlBase];
+        o.after(() => {
+            process.env[Env.PublicUrlBase] = origPublicUrlBase;
+        });
+
+        o('should not found style json', async () => {
+            process.env[Env.PublicUrlBase] = 'https://tiles.test';
+
+            const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json');
+            request.apiKey = 'secretKey';
+
+            sandbox.stub(Config.Style, 'get').resolves(null);
+
+            const res = await handleRequest(request);
+            o(res.status).equals(404);
+        });
+
+        o('should serve style json', async () => {
+            process.env[Env.PublicUrlBase] = 'https://tiles.test';
+
+            const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json');
+            request.apiKey = 'secretKey';
+
+            const fakeStyle: StyleJson = {
+                version: 8,
+                id: 'test',
+                name: 'topolike',
+                sources: {
+                    basemaps: {
+                        type: 'vector',
+                        url: '',
+                    },
+                },
+                layers: [
+                    {
+                        layout: {
+                            visibility: 'visible',
+                        },
+                        paint: {
+                            'background-color': 'rgba(206, 229, 242, 1)',
+                        },
+                        id: 'Background',
+                        type: 'background',
+                        minzoom: 0,
+                    },
+                ],
+                glyphs: 'glyphs',
+                sprite: 'sprite',
+                metadata: { id: 'test' },
+            };
+
+            const fakeRecord = {
+                id: 'st_topolike_production',
+                name: 'topolike',
+                style: fakeStyle,
+            };
+
+            sandbox.stub(Config.Style, 'get').resolves(fakeRecord as any);
+
+            const res = await handleRequest(request);
+            o(res.status).equals(200);
+            o(res.header('content-type')).equals('application/json');
+            o(res.header('cache-control')).equals('max-age=120');
+
+            const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
+            fakeStyle.sources.basemaps.url = 'https://tiles.test/v1/tiles/topolike/Google/tile.json?api=secretKey';
+            o(JSON.parse(body)).deepEquals(fakeStyle);
         });
     });
 
