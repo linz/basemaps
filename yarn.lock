@@ -1937,14 +1937,7 @@
     "@types/pino-std-serializers" "*"
     "@types/sonic-boom" "*"
 
-"@types/pixelmatch@^5.0.0":
-  version "5.2.2"
-  resolved "https://registry.yarnpkg.com/@types/pixelmatch/-/pixelmatch-5.2.2.tgz#3403238d4b920bf2255fb6cbf9a098bef796ce62"
-  integrity sha512-ndpfW/H8+SAiI3wt+f8DlHGgB7OeBdgFgBJ6v/1l3SpJ0MCn9wtXFb4mUccMujN5S4DMmAh7MVy1O3WcXrHUKw==
-  dependencies:
-    "@types/node" "*"
-
-"@types/pixelmatch@^5.2.3":
+"@types/pixelmatch@^5.0.0", "@types/pixelmatch@^5.2.3":
   version "5.2.3"
   resolved "https://registry.yarnpkg.com/@types/pixelmatch/-/pixelmatch-5.2.3.tgz#aefcbfa7fb2861727af0ab7c097be7383bd584dd"
   integrity sha512-p+nAQVYK/DUx7+s1Xyu9dqAg0gobf7VmJ+iDA4lljg1o4XRgQHr7R2h1NwFt3gdNOZiftxWB11+0TuZqXYf19w==
