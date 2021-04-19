@@ -1,8 +1,10 @@
+import { ConfigImagery, ConfigImageryRule, ConfigProvider } from '@basemaps/config';
 import {
     AttributionCollection,
     AttributionItem,
     AttributionStac,
     Bounds,
+    NamedBounds,
     Stac,
     StacCollection,
     StacExtent,
@@ -11,22 +13,17 @@ import {
 } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
-    Aws,
+    Config,
     extractYearRangeFromName,
     FileOperator,
-    NamedBounds,
     Projection,
     setNameAndProjection,
     tileAttributionFromPath,
-    TileMetadataImageRuleV2,
-    TileMetadataImageryRecord,
-    TileMetadataNamedTag,
-    TileMetadataProviderRecord,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
-import { TileSet } from '../tile.set';
-import { loadTileSet } from '../tile.set.cache';
+import { TileSets } from '../tile.set.cache';
+import { TileSetRaster } from '../tile.set.raster';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
@@ -96,11 +93,11 @@ function getGsd(un?: Record<string, unknown>): number | null {
 }
 
 export function createAttributionCollection(
-    tileSet: TileSet,
+    tileSet: TileSetRaster,
     stac: StacCollection | null | undefined,
-    imagery: TileMetadataImageryRecord,
-    rule: TileMetadataImageRuleV2,
-    host: TileMetadataProviderRecord,
+    imagery: ConfigImagery,
+    rule: ConfigImageryRule,
+    host: ConfigProvider,
     extent: StacExtent,
 ): AttributionCollection {
     const tileMatrix = tileSet.tileMatrix;
@@ -133,7 +130,7 @@ export function createAttributionCollection(
  * For now this is the minimal set required for attribution. This can be embellished later with
  * links and assets for a more comprehensive STAC file.
  */
-async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | null> {
+async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionStac | null> {
     const proj = Projection.get(tileSet.tileMatrix);
     const stacFiles = new Map<string, Promise<StacCollection | null>>();
     const cols: AttributionCollection[] = [];
@@ -148,7 +145,7 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
         }
     }
 
-    const host = await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Production);
+    const host = await Config.Provider.get(Config.Provider.id({ name: 'main' }, Config.Tag.Production));
     if (host == null) return null;
 
     for (const rule of tileSet.tileSet.rules) {
@@ -211,9 +208,9 @@ export async function attribution(req: LambdaContext): Promise<LambdaHttpRespons
     setNameAndProjection(req, data);
 
     req.timer.start('tileset:load');
-    const tileSet = await loadTileSet(data.name, data.tileMatrix);
+    const tileSet = await TileSets.get(data.name, data.tileMatrix);
     req.timer.end('tileset:load');
-    if (tileSet == null) return NotFound;
+    if (tileSet == null || tileSet.isVector()) return NotFound;
 
     const cacheKey = `v1.${tileSet.tileSet.version}`; // change version if format changes
 

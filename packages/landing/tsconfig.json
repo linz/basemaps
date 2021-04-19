@@ -6,5 +6,5 @@
         "lib": ["DOM"]
     },
     "include": ["src/**/*"],
-    "references": [{ "path": "../geo" }]
+    "references": [{ "path": "../geo" }, {"path": "../shared"}] 
 }

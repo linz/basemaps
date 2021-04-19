@@ -72,7 +72,7 @@ export type ImageryConfig = z.infer<typeof zImageryConfig>;
  */
 export type ProjectionConfig = z.infer<typeof zProjectionConfig>;
 
-export function assertTileSetConfig(json: any): asserts json is ProjectionConfig {
+export function assertTileSetConfig(json: unknown): asserts json is ProjectionConfig {
     zProjectionConfig.parse(json);
 }
 

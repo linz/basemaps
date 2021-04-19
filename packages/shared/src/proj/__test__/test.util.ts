@@ -1,5 +1,4 @@
-import { NamedBounds } from '../../aws/tile.metadata.base';
-import { EpsgCode, QuadKey, TileMatrixSet, Tile, TileMatrixSets } from '@basemaps/geo';
+import { EpsgCode, QuadKey, TileMatrixSet, Tile, TileMatrixSets, NamedBounds } from '@basemaps/geo';
 
 export function qkToName(qk: string): string {
     return TileMatrixSet.tileToName(QuadKey.toTile(qk));

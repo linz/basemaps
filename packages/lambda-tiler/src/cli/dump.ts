@@ -6,7 +6,7 @@ import { promises as fs } from 'fs';
 import { PrettyTransform } from 'pretty-json-log';
 import { tile } from '../routes/tile';
 import { TileSet } from '../tile.set';
-import { loadTileSet, TileSets } from '../tile.set.cache';
+import { TileSets } from '../tile.set.cache';
 import { TileSetLocal } from './tile.set.local';
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
@@ -21,11 +21,11 @@ async function getTileSet(filePath?: string): Promise<TileSet> {
     if (filePath != null) {
         const tileSet = new TileSetLocal('local', filePath);
         await tileSet.load();
-        TileSets.set(tileSet.id, tileSet);
+        TileSets.add(tileSet);
         return tileSet;
     }
 
-    const tileSet = await loadTileSet(tileSetName, tileMatrix);
+    const tileSet = await TileSets.get(tileSetName, tileMatrix);
     if (tileSet == null) throw new Error('Missing');
     return tileSet;
 }
@@ -44,7 +44,7 @@ async function main(): Promise<void> {
     const ctx = new LambdaContext(
         {
             httpMethod: 'get',
-            path: `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/${xyz.z}/${xyz.x}/${xyz.y}.${ext}`,
+            path: `/v1/tiles/${tileSet.fullName}/${tileMatrix.identifier}/${xyz.z}/${xyz.x}/${xyz.y}.${ext}`,
         } as any,
         logger,
     );

@@ -1,17 +1,13 @@
-import { EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Stac, TileMatrixSets } from '@basemaps/geo';
+import { ConfigImagery, ConfigImageryRule, ConfigProvider } from '@basemaps/config';
+import { EpsgCode, GoogleTms, NamedBounds, Nztm2000QuadTms, Nztm2000Tms, Stac, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader } from '@basemaps/lambda';
-import {
-    Aws,
-    NamedBounds,
-    TileMetadataImageRuleV2,
-    TileMetadataImageryRecord,
-    TileMetadataProviderRecord,
-} from '@basemaps/shared';
+import { Config } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
-import { TileSet } from '../../tile.set';
+import { createSandbox } from 'sinon';
 import { TileSets } from '../../tile.set.cache';
+import { TileSetRaster } from '../../tile.set.raster';
 import { FakeTileSet, mockRequest, Provider } from '../../__test__/xyz.util';
 import { attribution, createAttributionCollection } from '../attribution';
 import { TileEtag } from '../tile.etag';
@@ -241,7 +237,7 @@ o.spec('attribution', () => {
 
         const mockFs = mockFileOperator();
 
-        const makeImageRecord = (name: string, x = 10, year = 2019): TileMetadataImageryRecord => {
+        const makeImageRecord = (name: string, x = 10, year = 2019): ConfigImagery => {
             return {
                 v: 1,
                 id: name,
@@ -263,7 +259,7 @@ o.spec('attribution', () => {
                 updatedAt: Date.now(),
             };
         };
-
+        const sandbox = createSandbox();
         o.beforeEach(() => {
             mockFs.setup();
             TileEtag.generate = generateMock;
@@ -272,9 +268,9 @@ o.spec('attribution', () => {
                 for (const tileMatrix of TileMatrixSets.Defaults.values()) {
                     const tileSet = new FakeTileSet(tileSetName, tileMatrix);
                     tileSet.tileSet.version = 23;
-                    TileSets.set(tileSet.id, tileSet);
-                    const rules: TileMetadataImageRuleV2[] = [];
-                    const imagery = new Map<string, TileMetadataImageryRecord>();
+                    TileSets.add(tileSet);
+                    const rules: ConfigImageryRule[] = [];
+                    const imagery = new Map<string, ConfigImagery>();
                     const addRule = (id: string, name: string, minZoom = 10): void => {
                         imagery.set(id, makeImageRecord(name, minZoom));
                         rules.push({
@@ -291,16 +287,15 @@ o.spec('attribution', () => {
                     addRule('ir_4', 'image1', 14);
                     tileSet.tileSet.rules = rules;
                     tileSet.imagery = imagery;
-                    tileSet.load = (): Promise<boolean> => Promise.resolve(true);
                 }
             }
-
-            (Aws.tileMetadata.Provider as any).get = async (): Promise<TileMetadataProviderRecord> => Provider;
+            sandbox.stub(Config.Provider, 'get').callsFake(() => Promise.resolve(Provider));
         });
 
         o.afterEach(() => {
+            sandbox.restore();
             mockFs.teardown();
-            TileSets.clear();
+            TileSets.cache.clear();
             TileEtag.generate = origTileEtag;
         });
 
@@ -361,8 +356,8 @@ o.spec('attribution', () => {
     });
 
     o.spec('ImageryRule', () => {
-        const fakeIm = { name: 'someName' } as TileMetadataImageryRecord;
-        const fakeHost = { serviceProvider: {} } as TileMetadataProviderRecord;
+        const fakeIm = { name: 'someName' } as ConfigImagery;
+        const fakeHost = { serviceProvider: {} } as ConfigProvider;
         const fakeRule = {
             imgId: 'id',
             ruleId: 'ir_id',
@@ -372,14 +367,14 @@ o.spec('attribution', () => {
         };
 
         o('should generate for NZTM', () => {
-            const ts = new TileSet('Fake', Nztm2000Tms);
+            const ts = new TileSetRaster('Fake', Nztm2000Tms);
             const output = createAttributionCollection(ts, null, fakeIm, fakeRule, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: fakeRule.minZoom, max: fakeRule.maxZoom });
         });
 
         o('should generate with correct zooms for NZTM2000Quad', () => {
-            const ts = new TileSet('Fake', Nztm2000QuadTms);
+            const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
             const output = createAttributionCollection(ts, null, fakeIm, fakeRule, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: 12, max: 21 });
@@ -387,7 +382,7 @@ o.spec('attribution', () => {
 
         o('should generate with correct zooms for gebco NZTM2000Quad', () => {
             const fakeGebco = { ...fakeRule, minZoom: 0, maxZoom: 10 };
-            const ts = new TileSet('Fake', Nztm2000QuadTms);
+            const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
             const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: 13 });
@@ -395,7 +390,7 @@ o.spec('attribution', () => {
 
         o('should generate with correct zooms for nz sentinel NZTM2000Quad', () => {
             const fakeGebco = { ...fakeRule, minZoom: 0, maxZoom: 17 };
-            const ts = new TileSet('Fake', Nztm2000QuadTms);
+            const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
             const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });

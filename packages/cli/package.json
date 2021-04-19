@@ -34,12 +34,13 @@
     }
   ],
   "dependencies": {
+    "@basemaps/config": "^4.24.0",
     "@basemaps/geo": "^4.24.0",
     "@basemaps/shared": "^4.24.0",
-    "@cogeotiff/core": "^4.1.2",
-    "@cogeotiff/source-aws": "^4.1.2",
-    "@cogeotiff/source-file": "^4.1.2",
-    "@cogeotiff/source-url": "^4.1.2",
+    "@cogeotiff/core": "^4.2.0",
+    "@cogeotiff/source-aws": "^4.2.0",
+    "@cogeotiff/source-file": "^4.2.0",
+    "@cogeotiff/source-url": "^4.2.0",
     "@linzjs/geojson": "^4.22.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",

@@ -1,8 +1,9 @@
+import { ConfigProvider } from '@basemaps/config';
 import { Bounds, Nztm2000QuadTms, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
-import { Projection, TileMetadataProviderRecord, V, VNodeElement } from '@basemaps/shared';
+import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
-import { TileSet } from './tile.set';
+import { TileSetRaster } from './tile.set.raster';
 
 const CapabilitiesAttrs = {
     xmlns: 'http://www.opengis.net/wmts/1.0',
@@ -15,7 +16,7 @@ const CapabilitiesAttrs = {
     version: '1.0.0',
 };
 
-function wgs84Extent(layer: TileSet): BBox {
+function wgs84Extent(layer: TileSetRaster): BBox {
     return Projection.get(layer.tileMatrix).boundsToWgs84BoundingBox(layer.extent);
 }
 
@@ -32,21 +33,21 @@ export class WmtsCapabilities {
     httpBase: string;
     provider: WmtsProvider;
 
-    layers: Map<string, TileSet[]> = new Map();
+    layers: Map<string, TileSetRaster[]> = new Map();
 
     apiKey?: string;
     tileMatrixSets = new Map<string, TileMatrixSet>();
 
-    constructor(httpBase: string, provider: WmtsProvider, layers: TileSet[], apiKey?: string) {
+    constructor(httpBase: string, provider: WmtsProvider, layers: TileSetRaster[], apiKey?: string) {
         this.httpBase = httpBase;
         this.provider = provider;
 
         for (const layer of layers) {
             // TODO is grouping by name the best option
-            let existing = this.layers.get(layer.name);
+            let existing = this.layers.get(layer.components.name);
             if (existing == null) {
                 existing = [];
-                this.layers.set(layer.name, existing);
+                this.layers.set(layer.components.name, existing);
             }
             // TODO should a error be thrown here if the projection is invalid
             existing.push(layer);
@@ -56,7 +57,7 @@ export class WmtsCapabilities {
         this.apiKey = apiKey;
     }
 
-    buildWgs84BoundingBox(layers: TileSet[], tagName = 'ows:WGS84BoundingBox'): VNodeElement {
+    buildWgs84BoundingBox(layers: TileSetRaster[], tagName = 'ows:WGS84BoundingBox'): VNodeElement {
         let bbox = wgs84Extent(layers[0]);
         for (let i = 1; i < layers.length; ++i) {
             bbox = Wgs84.union(bbox, wgs84Extent(layers[i]));
@@ -113,13 +114,13 @@ export class WmtsCapabilities {
         ];
     }
 
-    buildTileUrl(tileSet: TileSet, suffix: string): string {
+    buildTileUrl(tileSet: TileSetRaster, suffix: string): string {
         const apiSuffix = this.apiKey ? `?api=${this.apiKey}` : '';
         return [
             this.httpBase,
             'v1',
             'tiles',
-            tileSet.taggedName,
+            tileSet.fullName,
             '{TileMatrixSet}',
             '{TileMatrix}',
             '{TileCol}',
@@ -127,7 +128,7 @@ export class WmtsCapabilities {
         ].join('/');
     }
 
-    buildResourceUrl(tileSet: TileSet, suffix: string): VNodeElement {
+    buildResourceUrl(tileSet: TileSetRaster, suffix: string): VNodeElement {
         return V('ResourceURL', {
             format: 'image/' + suffix,
             resourceType: 'tile',
@@ -135,7 +136,7 @@ export class WmtsCapabilities {
         });
     }
 
-    buildLayer(layers: TileSet[]): VNodeElement {
+    buildLayer(layers: TileSetRaster[]): VNodeElement {
         const matrixSets = new Set<string>();
         const matrixSetNodes: VNodeElement[] = [];
         for (const layer of layers) {
@@ -148,7 +149,7 @@ export class WmtsCapabilities {
         return V('Layer', [
             V('ows:Title', firstLayer.title),
             V('ows:Abstract', firstLayer.description),
-            V('ows:Identifier', firstLayer.taggedName),
+            V('ows:Identifier', firstLayer.fullName),
             ...layers.map((layer) => this.buildBoundingBox(layer.tileMatrix, layer.extent)),
             this.buildWgs84BoundingBox(layers),
             this.buildStyle(),
@@ -196,7 +197,7 @@ export class WmtsCapabilities {
         return '<?xml version="1.0"?>\n' + this.toVNode().toString();
     }
 
-    static toXml(httpBase: string, provider: TileMetadataProviderRecord, tileSet: TileSet[], apiKey?: string): string {
+    static toXml(httpBase: string, provider: ConfigProvider, tileSet: TileSetRaster[], apiKey?: string): string {
         return new WmtsCapabilities(httpBase, provider, tileSet, apiKey).toString();
     }
 }
