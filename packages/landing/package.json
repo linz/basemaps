@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "4.22.0",
+  "version": "4.24.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -22,10 +22,10 @@
     "deploy:deploy": "node scripts/deploy.js"
   },
   "dependencies": {
-    "@basemaps/attribution": "^4.22.0",
-    "@basemaps/geo": "^4.22.0",
-    "@basemaps/infra": "^4.22.0",
-    "@basemaps/shared": "^4.22.0",
+    "@basemaps/attribution": "^4.24.0",
+    "@basemaps/geo": "^4.24.0",
+    "@basemaps/infra": "^4.24.0",
+    "@basemaps/shared": "^4.24.0",
     "@linzjs/lui": "^2.5.1",
     "ol": "^6.4.2",
     "proj4": "^2.6.2",

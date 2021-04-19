@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.24.0](https://github.com/linz/basemaps/compare/v4.23.0...v4.24.0) (2021-03-21)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+# [4.23.0](https://github.com/linz/basemaps/compare/v4.22.0...v4.23.0) (2021-03-18)
+
+
+### Bug Fixes
+
+* **geo:** use the closest zoom mapping ([#1503](https://github.com/linz/basemaps/issues/1503)) ([5ce730d](https://github.com/linz/basemaps/commit/5ce730d34dd6fed7015f29683b3fc31183b1d3bc))
+* **lambda-tiler:** correct mapping of high zoom levels ([#1492](https://github.com/linz/basemaps/issues/1492)) ([7e98e63](https://github.com/linz/basemaps/commit/7e98e6353e1209f64d60ed028bde502847495432))
+* **lambda-tiler:** generate a custom attribution for nztm2000quad ([#1498](https://github.com/linz/basemaps/issues/1498)) ([27933fd](https://github.com/linz/basemaps/commit/27933fd2b4d9123c107e476465a87c19e7f29c97))
+
+
+
+
+
 # [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
 
 

@@ -1,14 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { ConfigTileSetRaster, TileResizeKernel } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import {
-    Aws,
-    LogConfig,
-    RecordPrefix,
-    TileMetadataNamedTag,
-    TileMetadataSetRecord,
-    TileMetadataTable,
-    TileResizeKernel,
-} from '@basemaps/shared';
+import { LogConfig, Config } from '@basemaps/shared';
 import {
     CommandLineFlagParameter,
     CommandLineIntegerParameter,
@@ -127,18 +120,24 @@ export class TileSetUpdateAction extends TileSetBaseAction {
     protected async onExecute(): Promise<void> {
         const name = this.tileSet.value!;
         const projection = Epsg.get(this.projection.value!);
-        const imgId = TileMetadataTable.prefix(RecordPrefix.Imagery, this.imageryId.value ?? '');
-        const ruleId = TileMetadataTable.prefix(RecordPrefix.ImageryRule, this.ruleId.value ?? '');
+        const imgId = Config.prefix(Config.Prefix.Imagery, this.imageryId.value ?? '');
+        const ruleId = Config.prefix(Config.Prefix.ImageryRule, this.ruleId.value ?? '');
 
-        const tsData = await Aws.tileMetadata.TileSet.get(name, projection, TileMetadataNamedTag.Head);
+        const tileSetId = Config.TileSet.id({ name, projection }, Config.Tag.Head);
+        const tsData = await Config.TileSet.get(tileSetId);
 
         if (tsData == null) {
             LogConfig.get().fatal({ tileSet: name, projection }, 'Failed to find tile set');
             process.exit(1);
         }
+
+        if (Config.TileSet.isVector(tsData)) {
+            LogConfig.get().fatal({ tileSet: name, projection }, 'Tile set is not a raster tile set');
+            process.exit(1);
+        }
         const before = JSON.stringify(tsData);
-        await Aws.tileMetadata.Imagery.getAll(tsData);
-        if (imgId !== '') await Aws.tileMetadata.Imagery.get(imgId);
+        await Config.TileSet.getImagery(tsData);
+        if (imgId !== '') await Config.Imagery.get(imgId);
 
         if (imgId) {
             await this.updatePriority(tsData, ruleId, imgId);
@@ -156,8 +155,8 @@ export class TileSetUpdateAction extends TileSetBaseAction {
 
         if (before !== after) {
             if (this.commit.value) {
-                await Aws.tileMetadata.TileSet.create(tsData);
-                await invalidateXYZCache(name, projection, TileMetadataNamedTag.Head, this.commit.value);
+                await Config.TileSet.create(tsData);
+                await invalidateXYZCache(name, projection, Config.Tag.Head, this.commit.value);
             } else {
                 LogConfig.get().warn('DryRun:Done');
             }
@@ -166,7 +165,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         }
     }
 
-    updateTile(tsData: TileMetadataSetRecord): boolean {
+    updateTile(tsData: ConfigTileSetRaster): boolean {
         const existing = tsData.title;
         const title = this.title.value;
         if (title == null || title === existing) return false;
@@ -174,7 +173,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    async updateDescription(tsData: TileMetadataSetRecord): Promise<boolean> {
+    async updateDescription(tsData: ConfigTileSetRaster): Promise<boolean> {
         const existing = tsData.description;
         const descriptionPath = this.description.value;
         if (descriptionPath == null) return false;
@@ -184,7 +183,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    updateResize(tsData: TileMetadataSetRecord): boolean {
+    updateResize(tsData: ConfigTileSetRaster): boolean {
         const existing = tsData.resizeKernel;
         const resizeIn = this.resizeIn.value;
         const resizeOut = this.resizeOut.value;
@@ -202,7 +201,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    updateBackground(tsData: TileMetadataSetRecord): boolean {
+    updateBackground(tsData: ConfigTileSetRaster): boolean {
         const existing = tsData.background;
         const background = this.background.value;
         if (background == null) return false;
@@ -220,19 +219,19 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return false;
     }
 
-    async replaceUpdate(tsData: TileMetadataSetRecord, ruleId: string, imgId: string): Promise<boolean> {
+    async replaceUpdate(tsData: ConfigTileSetRaster, ruleId: string, imgId: string): Promise<boolean> {
         const existingIndex = tsData.rules.findIndex((rule) => rule.ruleId === ruleId);
         if (existingIndex == null) return false;
         const existing = tsData.rules[existingIndex];
 
-        const img = await Aws.tileMetadata.Imagery.get(imgId);
+        const img = await Config.Imagery.get(imgId);
         LogConfig.get().info({ ruleId, imgId, imagery: img?.name }, 'Replace');
         tsData.rules[existingIndex] = { ...existing, imgId };
-        Aws.tileMetadata.TileSet.sortRenderRules(tsData, Aws.tileMetadata.Imagery.imagery);
+        Config.TileSet.sortRenderRules(tsData, Config.Imagery.cache);
         return true;
     }
 
-    async updateZoom(tsData: TileMetadataSetRecord, ruleId: string): Promise<boolean> {
+    async updateZoom(tsData: ConfigTileSetRaster, ruleId: string): Promise<boolean> {
         const existing = tsData.rules.find((rule) => rule.ruleId === ruleId);
         if (existing == null) return false;
 
@@ -244,7 +243,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         }
         const logger = LogConfig.get();
 
-        const img = await Aws.tileMetadata.Imagery.get(existing.imgId);
+        const img = await Config.Imagery.get(existing.imgId);
 
         logger.info(
             {
@@ -262,7 +261,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         return true;
     }
 
-    async updatePriority(tsData: TileMetadataSetRecord, ruleId?: string, imgId?: string): Promise<boolean> {
+    async updatePriority(tsData: ConfigTileSetRaster, ruleId?: string, imgId?: string): Promise<boolean> {
         const logger = LogConfig.get();
 
         const priority = this.priority.value!;
@@ -271,16 +270,17 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         // Add new imagery
         if (ruleId == null && imgId != null) {
             logger.info({ imgId, priority }, 'Add imagery');
-            const img = await Aws.tileMetadata.Imagery.get(imgId);
+            const img = await Config.Imagery.get(imgId);
+            if (img == null) throw new Error('Cannot find imagery with id: ' + imgId);
             logger.info({ imgId, imagery: img.name, priority }, 'Adding');
             tsData.rules.push({
-                ruleId: TileMetadataTable.prefix(RecordPrefix.ImageryRule, ulid()),
+                ruleId: Config.prefix(Config.Prefix.ImageryRule, ulid()),
                 imgId,
                 minZoom: this.minZoom.value ?? 0,
                 maxZoom: this.maxZoom.value ?? 32,
                 priority,
             });
-            Aws.tileMetadata.TileSet.sortRenderRules(tsData, Aws.tileMetadata.Imagery.imagery);
+            Config.TileSet.sortRenderRules(tsData, Config.Imagery.cache);
             return true;
         }
 
@@ -291,7 +291,7 @@ export class TileSetUpdateAction extends TileSetBaseAction {
         if (priority === -1) {
             const existingIndex = tsData.rules.findIndex((rule) => rule.ruleId === ruleId);
             tsData.rules.splice(existingIndex, 1);
-            const img = await Aws.tileMetadata.Imagery.get(existing.imgId);
+            const img = await Config.Imagery.get(existing.imgId);
 
             logger.info({ ruleId, imagery: img?.name, priority: existing.priority }, 'Removing ImageryRule');
             return true;
@@ -299,13 +299,13 @@ export class TileSetUpdateAction extends TileSetBaseAction {
 
         if (existing.priority !== priority) {
             // Update
-            const img = await Aws.tileMetadata.Imagery.get(existing.imgId);
+            const img = await Config.Imagery.get(existing.imgId);
             logger.info(
                 { imgId, imagery: img?.name, oldPriority: existing.priority, newPriority: priority },
                 'Update Priority',
             );
             existing.priority = priority;
-            Aws.tileMetadata.TileSet.sortRenderRules(tsData, Aws.tileMetadata.Imagery.imagery);
+            Config.TileSet.sortRenderRules(tsData, Config.Imagery.cache);
             return true;
         }
 

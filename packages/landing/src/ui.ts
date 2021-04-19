@@ -1,7 +1,7 @@
+import { Epsg, TileMatrixSets } from '@basemaps/geo';
+import { GaEvent, gaEvent } from './config';
 import { Basemaps } from './map';
-import { Epsg } from '@basemaps/geo';
-import { WindowUrl, MapOptionType } from './url';
-import { gaEvent, GaEvent } from './config';
+import { MapOptions, MapOptionType, WindowUrl } from './url';
 
 export class BasemapsUi {
     projectionNztm: HTMLElement;
@@ -25,7 +25,7 @@ export class BasemapsUi {
         this.bindMenuButton();
         this.bindContactUsButton();
 
-        this.setCurrentProjection(this.basemaps.config.projection);
+        this.setCurrentProjection(this.basemaps.config.tileMatrix.projection);
     }
     bindMenuButton(): void {
         const menuOpen = document.getElementById('menu-open');
@@ -161,7 +161,7 @@ Your Service/App URL:
             this.projectionNztm.classList.remove('lui-button-active');
             this.apiXyz.classList.remove('display-none');
         }
-        const cfg = { ...this.basemaps.config, projection };
+        const cfg: MapOptions = { ...this.basemaps.config, tileMatrix: TileMatrixSets.get(projection) };
 
         this.apiXyz.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Tile);
         this.apiWmts.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Wmts);

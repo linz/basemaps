@@ -1,5 +1,6 @@
-import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
-import { Aws, Env, LogConfig, TileMetadataProviderRecord, VNodeParser } from '@basemaps/shared';
+import { ConfigProvider, StyleJson } from '@basemaps/config';
+import { TileMatrixSets } from '@basemaps/geo';
+import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { handleRequest } from '../index';
@@ -7,23 +8,23 @@ import { TileComposer } from '../routes/tile';
 import { TileEtag } from '../routes/tile.etag';
 import { TileSets } from '../tile.set.cache';
 import { FakeTileSet, mockRequest, Provider } from './xyz.util';
+import { createSandbox } from 'sinon';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('LambdaXyz', () => {
     /** Generate mock ALBEvent */
 
-    let tileMock = o.spy();
     let rasterMock = o.spy();
     const generateMock = o.spy(() => 'foo');
     const rasterMockBuffer = Buffer.from([1]);
     const origTileEtag = TileEtag.generate;
     const origCompose = TileComposer.compose;
-    const tileMockData = [{ tiff: { source: { name: 'TileMock' } } }];
+    const sandbox = createSandbox();
 
     o.beforeEach(() => {
         LogConfig.disable();
-        tileMock = o.spy(() => tileMockData) as any;
+        // tileMock = o.spy(() => tileMockData) as any;
         rasterMock = o.spy(() => {
             return {
                 buffer: rasterMockBuffer,
@@ -33,23 +34,24 @@ o.spec('LambdaXyz', () => {
         TileEtag.generate = generateMock;
         TileComposer.compose = rasterMock as any;
 
+        const allMatrix = [...TileMatrixSets.All.values()];
         for (const tileSetName of TileSetNames) {
-            for (const tileMatrix of TileMatrixSets.All.values()) {
+            for (const tileMatrix of allMatrix) {
                 const tileSet = new FakeTileSet(tileSetName, tileMatrix);
-                TileSets.set(tileSet.id, tileSet);
-                tileSet.load = () => Promise.resolve(true);
+                TileSets.add(tileSet);
                 tileSet.getTiffsForTile = (): [] => [];
-                tileSet.tile = tileMock as any;
+                tileSet.initTiffs = async () => [];
             }
         }
 
-        (Aws.tileMetadata.Provider as any).get = async (): Promise<TileMetadataProviderRecord> => Provider;
+        (Config.Provider as any).get = async (): Promise<ConfigProvider> => Provider;
     });
 
     o.afterEach(() => {
-        TileSets.clear();
+        TileSets.cache.clear();
         TileComposer.compose = origCompose;
         TileEtag.generate = origTileEtag;
+        sandbox.restore();
     });
 
     o('should export handler', async () => {
@@ -67,24 +69,6 @@ o.spec('LambdaXyz', () => {
             o(res.header('content-type')).equals('image/png');
             o(res.header('eTaG')).equals('foo');
             o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
-            o(generateMock.args).deepEquals([
-                tileMockData,
-                {
-                    type: 'image',
-                    name: tileSetName,
-                    tileMatrix: GoogleTms,
-                    x: 0,
-                    y: 0,
-                    z: 0,
-                    ext: 'png',
-                },
-            ] as any);
-
-            o(tileMock.calls.length).equals(1);
-            const [xyz] = tileMock.args;
-            o(xyz.x).equals(0);
-            o(xyz.y).equals(0);
-            o(xyz.z).equals(0);
 
             // Validate the session information has been set correctly
             o(request.logContext['tileSet']).equals(tileSetName);
@@ -100,12 +84,6 @@ o.spec('LambdaXyz', () => {
         o(res.header('content-type')).equals('image/webp');
         o(res.header('eTaG')).equals('foo');
         o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
-
-        o(tileMock.calls.length).equals(1);
-        const [xyz] = tileMock.args;
-        o(xyz.x).equals(0);
-        o(xyz.y).equals(0);
-        o(xyz.z).equals(0);
 
         // Validate the session information has been set correctly
         o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
@@ -129,9 +107,7 @@ o.spec('LambdaXyz', () => {
         o(res.status).equals(304);
         o(res.header('eTaG')).equals(undefined);
 
-        o(tileMock.calls.length).equals(1);
         o(rasterMock.calls.length).equals(0);
-
         o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
     });
 
@@ -157,6 +133,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a xml is not modified', async () => {
+            o.timeout(1000);
             const key = 'r3vqprE8cfTtd4j83dllmDeZydOBMv5hlan0qR/fGkc=';
             const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
 
@@ -173,6 +150,7 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should serve WMTSCapabilities for tile_set', async () => {
+            console.log('\n\nTestStart');
             process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
             const request = mockRequest('/v1/tiles/aerial@beta/WMTSCapabilities.xml');
@@ -195,6 +173,121 @@ o.spec('LambdaXyz', () => {
                 '<ResourceURL format="image/jpeg" resourceType="tile" ' +
                     'template="https://tiles.test/v1/tiles/aerial@beta/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.jpeg?api=secretKey" />',
             );
+        });
+    });
+
+    o.spec('tileJson', () => {
+        const origPublicUrlBase = process.env[Env.PublicUrlBase];
+        o.after(() => {
+            process.env[Env.PublicUrlBase] = origPublicUrlBase;
+        });
+
+        o('should 304 if a json is not modified', async () => {
+            const key = 'FlMeQJMKbBO4nMFOEC4/PG6wzFniA0uXfAxXkbV4L9g=';
+            const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key });
+
+            const res = await handleRequest(request);
+            if (res.status === 200) {
+                o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
+                return;
+            }
+
+            o(res.status).equals(304);
+            o(rasterMock.calls.length).equals(0);
+
+            o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
+        });
+
+        o('should serve tile json for tile_set', async () => {
+            process.env[Env.PublicUrlBase] = 'https://tiles.test';
+
+            const request = mockRequest('/v1/tiles/topolike/Google/tile.json');
+            request.apiKey = 'secretKey';
+
+            const res = await handleRequest(request);
+            o(res.status).equals(200);
+            o(res.header('content-type')).equals('application/json');
+            o(res.header('cache-control')).equals('max-age=120');
+
+            const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
+            o(JSON.parse(body)).deepEquals({
+                tiles: ['https://tiles.test/v1/tiles/topolike/Google/{z}/{x}/{y}.pbf?api=secretKey'],
+                minzoom: 0,
+                maxzoom: 15,
+                format: 'pbf',
+                tilejson: '2.0.0',
+            });
+        });
+    });
+
+    o.spec('styleJson', () => {
+        const origPublicUrlBase = process.env[Env.PublicUrlBase];
+        o.after(() => {
+            process.env[Env.PublicUrlBase] = origPublicUrlBase;
+        });
+
+        o('should not found style json', async () => {
+            process.env[Env.PublicUrlBase] = 'https://tiles.test';
+
+            const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json');
+            request.apiKey = 'secretKey';
+
+            sandbox.stub(Config.Style, 'get').resolves(null);
+
+            const res = await handleRequest(request);
+            o(res.status).equals(404);
+        });
+
+        o('should serve style json', async () => {
+            process.env[Env.PublicUrlBase] = 'https://tiles.test';
+
+            const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json');
+            request.apiKey = 'secretKey';
+
+            const fakeStyle: StyleJson = {
+                version: 8,
+                id: 'test',
+                name: 'topolike',
+                sources: {
+                    basemaps: {
+                        type: 'vector',
+                        url: '',
+                    },
+                },
+                layers: [
+                    {
+                        layout: {
+                            visibility: 'visible',
+                        },
+                        paint: {
+                            'background-color': 'rgba(206, 229, 242, 1)',
+                        },
+                        id: 'Background',
+                        type: 'background',
+                        minzoom: 0,
+                    },
+                ],
+                glyphs: 'glyphs',
+                sprite: 'sprite',
+                metadata: { id: 'test' },
+            };
+
+            const fakeRecord = {
+                id: 'st_topolike_production',
+                name: 'topolike',
+                style: fakeStyle,
+            };
+
+            sandbox.stub(Config.Style, 'get').resolves(fakeRecord as any);
+
+            const res = await handleRequest(request);
+            o(res.status).equals(200);
+            o(res.header('content-type')).equals('application/json');
+            o(res.header('cache-control')).equals('max-age=120');
+
+            const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
+            fakeStyle.sources.basemaps.url = 'https://tiles.test/v1/tiles/topolike/Google/tile.json?api=secretKey';
+            o(JSON.parse(body)).deepEquals(fakeStyle);
         });
     });
 

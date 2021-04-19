@@ -1,10 +1,15 @@
 import { Composition } from '@basemaps/tiler';
 import { createHash } from 'crypto';
 import { TileDataXyz } from '@basemaps/shared';
+import { HttpHeader, LambdaContext } from '@basemaps/lambda';
 
 export const TileEtag = {
     // To force a full cache invalidation change this number
     RenderId: 1,
+
+    key(object: Record<string, unknown>): string {
+        return createHash('sha256').update(JSON.stringify(object)).digest('base64');
+    },
 
     /** Generate a unique ETag for this tile */
     generate(compositions: Composition[], xyzData: TileDataXyz): string {
@@ -14,9 +19,17 @@ export const TileEtag = {
         });
 
         const xyz = { ...xyzData, tileMatrix: xyzData.tileMatrix.identifier };
-        const cacheObject = JSON.stringify({ xyz, layers, RenderId: TileEtag.RenderId });
-        const cacheKey = createHash('sha256').update(cacheObject).digest('base64');
+        return TileEtag.key({ xyz, layers, RenderId: TileEtag.RenderId });
+    },
 
-        return cacheKey;
+    isNotModified(req: LambdaContext, cacheKey: string): boolean {
+        // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our
+        // etag this tile has not been modified.
+        const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
+        if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
+            req.set('cache', { key: cacheKey, hit: true, match: ifNoneMatch });
+            return true;
+        }
+        return false;
     },
 };

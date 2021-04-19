@@ -17,7 +17,7 @@ o.spec('ValidateTilePath', () => {
             z: 0,
             name: 'aerial',
             tileMatrix: Nztm2000Tms,
-            type: TileType.Image,
+            type: TileType.Tile,
             ext: ImageFormat.JPEG,
         };
     });

@@ -1,5 +1,6 @@
-import { Aws, TileMetadataNamedTag, TileMetadataProviderRecord, TileMetadataTag } from '@basemaps/shared';
+import { Config } from '@basemaps/shared';
 import { CommandLineAction } from '@rushstack/ts-command-line';
+import { ConfigProvider, ConfigTag } from '@basemaps/config';
 import { CliTable } from '../cli.table';
 import { printProvider } from './provider.util';
 
@@ -17,11 +18,11 @@ export class ProviderHistoryAction extends CommandLineAction {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     protected onDefineParameters(): void {}
 
-    async getAllTags(): Promise<Map<TileMetadataTag, TileMetadataProviderRecord>> {
-        const allTags: Map<TileMetadataTag, TileMetadataProviderRecord> = new Map();
+    async getAllTags(): Promise<Map<ConfigTag, ConfigProvider>> {
+        const allTags: Map<ConfigTag, ConfigProvider> = new Map();
         await Promise.all(
-            Object.values(TileMetadataNamedTag).map(async (tag) => {
-                const value = await Aws.tileMetadata.Provider.get(tag);
+            Object.values(Config.Tag).map(async (tag) => {
+                const value = await Config.Provider.get(Config.Provider.id({ name: 'main' }, tag));
                 if (value != null) allTags.set(tag, value);
             }),
         );
@@ -32,7 +33,7 @@ export class ProviderHistoryAction extends CommandLineAction {
     protected async onExecute(): Promise<void> {
         const allTags = await this.getAllTags();
 
-        const data = allTags.get(TileMetadataNamedTag.Head);
+        const data = allTags.get(Config.Tag.Head);
         if (data == null) throw new Error('Unable to find tag: head');
 
         printProvider(data);
@@ -42,18 +43,18 @@ export class ProviderHistoryAction extends CommandLineAction {
 
         const toFetch = new Set<string>();
         for (let i = latestVersion; i >= startVersion; i--) {
-            toFetch.add(Aws.tileMetadata.Provider.id(i));
+            toFetch.add(Config.Provider.id({ name: 'main' }, i));
         }
 
         function getTagsForVersion(version: number): string {
-            return Object.values(TileMetadataNamedTag)
+            return Object.values(Config.Tag)
                 .filter((c) => allTags.get(c)?.version === version)
                 .join(', ');
         }
 
-        const pvSets = await Aws.tileMetadata.batchGet<TileMetadataProviderRecord>(toFetch);
+        const pvSets = await Config.Provider.getAll(toFetch);
 
-        const pvHistory = new CliTable<TileMetadataProviderRecord>();
+        const pvHistory = new CliTable<ConfigProvider>();
         pvHistory.field('v', 4, (obj) => `v${obj.version}`);
         pvHistory.field('CreatedAt', 40, (obj) => new Date(obj.createdAt).toISOString());
         pvHistory.field('Tags', 40, (obj) => getTagsForVersion(obj.version));
@@ -62,7 +63,7 @@ export class ProviderHistoryAction extends CommandLineAction {
         pvHistory.header();
 
         for (let i = latestVersion; i >= startVersion; i--) {
-            const tileSetId = Aws.tileMetadata.Provider.id(i);
+            const tileSetId = Config.Provider.id({ name: 'main' }, i);
             const tileSetA = pvSets.get(tileSetId);
             if (tileSetA == null) throw new Error(`Failed to fetch tag: ${tileSetId}`);
             console.log(pvHistory.line(tileSetA));

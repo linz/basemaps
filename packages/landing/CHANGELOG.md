@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.24.0](https://github.com/linz/basemaps/compare/v4.23.0...v4.24.0) (2021-03-21)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [4.23.0](https://github.com/linz/basemaps/compare/v4.22.0...v4.23.0) (2021-03-18)
+
+
+### Bug Fixes
+
+* **landing:** correctly set the projection for the copy link buttons ([#1496](https://github.com/linz/basemaps/issues/1496)) ([16e94e6](https://github.com/linz/basemaps/commit/16e94e6956df883e8a73e964e663a7de5bbbefe3))
+
+
+### Features
+
+* **landing:** support nztm2000quad with ?p=nztm2000quad ([#1493](https://github.com/linz/basemaps/issues/1493)) ([cada7e0](https://github.com/linz/basemaps/commit/cada7e01e3deccd2446c745f4e610e8493495476))
+
+
+
+
+
 # [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
 
 

@@ -9,12 +9,12 @@
  */
 process.env['AWS_NODEJS_CONNECTION_REUSE_ENABLED'] = '1';
 
+import { ConfigDynamo } from '@basemaps/config';
 import S3 from 'aws-sdk/clients/s3';
-
-import { ApiKeyTable } from './api.key.table';
-import { TileMetadataTable } from './tile.metadata';
-import { S3Cache, CredentialsCache, StsAssumeRoleConfig } from './credentials';
 import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
+import { Const } from '../const';
+import { ApiKeyTable } from './api.key.table';
+import { CredentialsCache, S3Cache, StsAssumeRoleConfig } from './credentials';
 
 const s3 = new S3();
 export const Aws = {
@@ -32,5 +32,6 @@ export const Aws = {
         },
     },
     apiKey: new ApiKeyTable(),
-    tileMetadata: new TileMetadataTable(),
 };
+
+export const Config = new ConfigDynamo(Const.TileMetadata.TableName);

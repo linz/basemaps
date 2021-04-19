@@ -1,6 +1,6 @@
-import { Point, Bounds } from './bounds';
-import { Epsg } from './epsg';
 import { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';
+import { Bounds, Point } from './bounds';
+import { Epsg } from './epsg';
 import { getXyOrder, XyOrder } from './xy.order';
 
 export type Tile = Point & { z: number };
@@ -78,15 +78,6 @@ export class TileMatrixSet {
 
     get identifier(): string {
         return this.def.identifier;
-    }
-
-    get id(): string {
-        return TileMatrixSet.getId(this.projection);
-    }
-
-    static getId(epsg: Epsg, altName?: string): string {
-        if (altName == null) return epsg.toEpsgString();
-        return epsg.toEpsgString() + ':' + altName;
     }
 
     /** Get the pixels / meter at a specified zoom level */
@@ -236,16 +227,54 @@ export class TileMatrixSet {
         throw new Error(`Invalid tile name '${name}'`);
     }
 
+    /** Mapping of scaleFactor to closet scaleFactor  */
+    private zoomConversionMap = new Map<number, number>();
     /**
      * Find the closest matching zoom to the given scale
      * @param scaleDenominator scale to match
      * @returns the zoom level of the closest matching zoom
      */
     findBestZoom(scaleDenominator: number): number {
+        let zoom = this.zoomConversionMap.get(scaleDenominator);
+        if (zoom == null) {
+            zoom = this.convertZoomLevel(scaleDenominator);
+            this.zoomConversionMap.set(scaleDenominator, zoom);
+        }
+        return zoom;
+    }
+
+    private convertZoomLevel(scaleDenominator: number): number {
         for (let i = 0; i < this.zooms.length; i++) {
             const scaleDiff = this.zooms[i].scaleDenominator - scaleDenominator;
-            if (scaleDiff < 0.00001) return i;
+            if (scaleDiff > 0.00001) continue;
+            if (i === 0) return i;
+            // Check the previous scale diff as it may actually be closer in scale
+            const lastScaleDiff = this.zooms[i - 1].scaleDenominator - scaleDenominator;
+            const isCurrentSmaller = Math.abs(scaleDiff) < lastScaleDiff;
+            if (isCurrentSmaller) return i;
+            return i - 1;
         }
-        return this.zooms.length - 1;
+        return this.maxZoom;
+    }
+
+    /**
+     * Convert a given zoom level from one tile matrix to another
+     * @param z Zoom to convert
+     * @param from Tile matrix to convert from
+     * @param to  Tile matrix to convert to
+     * @param mapMinMax Should the min (0) and max be converted directly across,
+     *  for example if from.maxZoom = 10 and to.maxZoom = 30, when z is 10 it will always return 30, even if there are other scales that would match
+     * @returns converted zoom level
+     */
+    static convertZoomLevel(z: number, from: TileMatrixSet, to: TileMatrixSet, mapMinMax = true): number {
+        // Same matrix no mapping needed
+        if (from.identifier === to.identifier) return z;
+        if (z >= from.maxZoom) z = from.maxZoom;
+
+        // Map min/max to min/max zoom
+        if (mapMinMax && z === 0) return z;
+        if (mapMinMax && z === from.maxZoom) return to.maxZoom;
+
+        return to.findBestZoom(from.zooms[z].scaleDenominator);
     }
 }

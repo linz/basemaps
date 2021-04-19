@@ -6,6 +6,8 @@ import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability';
 import { FakeTileSet, Provider } from './xyz.util';
 
+import 'source-map-support/register';
+
 function tags(node: VNodeElement | null | undefined, tag: string): VNodeElement[] {
     if (node == null) return [];
     return [...node.tags(tag)];
@@ -187,7 +189,7 @@ o.spec('WmtsCapabilities', () => {
         o(layers[1].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
     });
 
-    o('should support multiple different projections on differnt tiles sets', () => {
+    o('should support multiple different projections on different tiles sets', () => {
         const ts = [
             new FakeTileSet(TileSetName.aerial, Nztm2000Tms, TileSetName.aerial),
             new FakeTileSet('01F75X9G7FQ3XMWPJFR9AMQFJ0', Nztm2000Tms, '01F75X9G7FQ3XMWPJFR9AMQFJ0'),
@@ -195,7 +197,6 @@ o.spec('WmtsCapabilities', () => {
             new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Nztm2000QuadTms, '01E7PJFR9AMQFJ05X9G7FQ3XMW'),
         ];
         ts[1].extentOverride = new Bounds(1, 2, 2, 2);
-        ts[1].titleOverride = 'override sub tileset 1';
 
         ts[2].tileSet.title = 'aerial_dunedin_urban';
         const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
@@ -218,7 +219,6 @@ o.spec('WmtsCapabilities', () => {
         o(layers[0].find('ows:Title')?.textContent).equals(TileSetName.aerial);
         o(layers[0].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
 
-        o(layers[1].find('ows:Title')?.textContent).equals('override sub tileset 1');
         o(layers[1].find('ows:Identifier')?.textContent).equals('01F75X9G7FQ3XMWPJFR9AMQFJ0');
         o(layers[1].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
         o(layers[1].find('ows:BoundingBox')?.toString()).equals(

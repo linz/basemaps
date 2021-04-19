@@ -5,6 +5,7 @@ import { Point } from '../bounds';
 import { Epsg } from '../epsg';
 import { QuadKey } from '../quad.key';
 import { TileMatrixSet } from '../tile.matrix.set';
+import { TileMatrixSets } from '../tms';
 import { GoogleTms } from '../tms/google';
 import { Nztm2000QuadTms, Nztm2000Tms } from '../tms/nztm2000';
 
@@ -190,6 +191,68 @@ o.spec('TileMatrixSet', () => {
         });
     });
 
+    o.spec('convertZoomLevel', () => {
+        o('should match the zoom levels from nztm2000', () => {
+            for (let i = 0; i < Nztm2000Tms.maxZoom; i++) {
+                o(TileMatrixSet.convertZoomLevel(i, Nztm2000Tms, Nztm2000Tms)).equals(i);
+            }
+        });
+
+        o('should match the zoom levels from google', () => {
+            for (let i = 0; i < GoogleTms.maxZoom; i++) {
+                o(TileMatrixSet.convertZoomLevel(i, GoogleTms, GoogleTms)).equals(i);
+            }
+        });
+
+        o('should round trip from Google to NztmQuad', () => {
+            for (let i = 0; i < Nztm2000QuadTms.maxZoom; i++) {
+                const nztmToGoogle = TileMatrixSet.convertZoomLevel(i, Nztm2000QuadTms, GoogleTms);
+                const googleToNztm = TileMatrixSet.convertZoomLevel(nztmToGoogle, GoogleTms, Nztm2000QuadTms);
+                o(googleToNztm).equals(i);
+            }
+        });
+
+        // Some example current zooms we use for configuration
+        const CurrentZooms = [
+            { google: 13, nztm: 9, name: 'rural' },
+            { google: 14, nztm: 10, name: 'urban' },
+        ];
+        o('should convert google to nztm', () => {
+            for (const zoom of CurrentZooms) {
+                const googleToNztm = TileMatrixSet.convertZoomLevel(zoom.google, GoogleTms, Nztm2000Tms);
+                const googleToNztmQuad = TileMatrixSet.convertZoomLevel(zoom.google, GoogleTms, Nztm2000QuadTms);
+                o(googleToNztm).equals(zoom.nztm)(`Converting ${zoom.name} from ${zoom.google} to ${zoom.nztm}`);
+                o(googleToNztmQuad).equals(zoom.google - 2);
+            }
+        });
+
+        o('should match zoom levels outside of the range of the target z', () => {
+            o(TileMatrixSet.convertZoomLevel(22, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
+            o(TileMatrixSet.convertZoomLevel(21, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
+            o(TileMatrixSet.convertZoomLevel(20, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
+        });
+
+        o('should match the zoom levels from nztm2000 when using nztm2000quad', () => {
+            o(TileMatrixSet.convertZoomLevel(13, Nztm2000QuadTms, Nztm2000Tms)).equals(11);
+            o(TileMatrixSet.convertZoomLevel(12, Nztm2000QuadTms, Nztm2000Tms)).equals(10);
+            o(TileMatrixSet.convertZoomLevel(6, Nztm2000QuadTms, Nztm2000Tms)).equals(4);
+        });
+
+        o('should correctly convert Nztm2000 into Nztm2000Qud for rural and urban', () => {
+            // Gebco turns on at 0
+            o(TileMatrixSet.convertZoomLevel(0, Nztm2000Tms, Nztm2000QuadTms)).equals(0);
+
+            // Rural turns on at 9
+            o(TileMatrixSet.convertZoomLevel(9, Nztm2000Tms, Nztm2000QuadTms)).equals(12);
+
+            // Urban turns on at 10
+            o(TileMatrixSet.convertZoomLevel(10, Nztm2000Tms, Nztm2000QuadTms)).equals(13);
+
+            // Most things turn off at 17
+            o(TileMatrixSet.convertZoomLevel(17, Nztm2000Tms, Nztm2000QuadTms)).equals(Nztm2000QuadTms.maxZoom);
+        });
+    });
+
     o.spec('tileToSourceBounds', () => {
         o('should convert to source bounds', () => {
             o(round(GoogleTms.tileToSourceBounds({ x: 0, y: 0, z: 0 }).toJson(), 4)).deepEquals({
@@ -251,7 +314,7 @@ o.spec('TileMatrixSet', () => {
                 o(GoogleTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[i].scaleDenominator)).equals(i + 2);
             }
 
-            o(Nztm2000QuadTms.findBestZoom(Nztm2000Tms.def.tileMatrix[0].scaleDenominator)).equals(3);
+            o(Nztm2000QuadTms.findBestZoom(Nztm2000Tms.def.tileMatrix[0].scaleDenominator)).equals(2);
         });
 
         o('should map test urban/rural scales correctly', () => {
@@ -300,6 +363,21 @@ o.spec('TileMatrixSet', () => {
                 { x: 8, y: 7, z: 8 },
                 { x: 9, y: 7, z: 8 },
             ]);
+        });
+    });
+
+    o.spec('TileMatrixSets', () => {
+        o('should find by epsg', () => {
+            o(TileMatrixSets.find('epsg:2193')?.identifier).equals(Nztm2000Tms.identifier);
+            o(TileMatrixSets.find('2193')?.identifier).equals(Nztm2000Tms.identifier);
+            o(TileMatrixSets.find('epsg:3857')?.identifier).equals(GoogleTms.identifier);
+            o(TileMatrixSets.find('3857')?.identifier).equals(GoogleTms.identifier);
+        });
+
+        o('should find by name', () => {
+            o(TileMatrixSets.find(Nztm2000Tms.identifier)?.identifier).equals(Nztm2000Tms.identifier);
+            o(TileMatrixSets.find(Nztm2000QuadTms.identifier)?.identifier).equals(Nztm2000QuadTms.identifier);
+            o(TileMatrixSets.find(GoogleTms.identifier)?.identifier).equals(GoogleTms.identifier);
         });
     });
 });

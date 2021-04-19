@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.24.0](https://github.com/linz/basemaps/compare/v4.23.0...v4.24.0) (2021-03-21)
+
+**Note:** Version bump only for package @basemaps/attribution
+
+
+
+
+
+# [4.23.0](https://github.com/linz/basemaps/compare/v4.22.0...v4.23.0) (2021-03-18)
+
+
+### Bug Fixes
+
+* **attribution:** openlayers uses fractional zoom rounding to decide imagery requests ([#1508](https://github.com/linz/basemaps/issues/1508)) ([cf7b2a2](https://github.com/linz/basemaps/commit/cf7b2a24c6cef169a396094722704b4519536b0f))
+* **geo:** use the closest zoom mapping ([#1503](https://github.com/linz/basemaps/issues/1503)) ([5ce730d](https://github.com/linz/basemaps/commit/5ce730d34dd6fed7015f29683b3fc31183b1d3bc))
+
+
+
+
+
 # [4.22.0](https://github.com/linz/basemaps/compare/v4.21.0...v4.22.0) (2021-03-08)
 
 **Note:** Version bump only for package @basemaps/attribution

@@ -7,6 +7,7 @@ import 'source-map-support/register';
 import * as ulid from 'ulid';
 import * as lambda from '../index';
 import { TileSets } from '../tile.set.cache';
+import { TileSetRaster } from '../tile.set.raster';
 import { WmtsCapabilities } from '../wmts.capability';
 import { Provider } from '../__test__/xyz.util';
 import { TileSetLocal } from './tile.set.local';
@@ -37,7 +38,10 @@ async function handleRequest(
             res.end();
         }
         const duration = Date.now() - startTime;
-        logger.info({ ...ctx.logContext, ...logInfo, status: data.status, duration }, 'Done');
+        logger.info(
+            { ...ctx.logContext, ...logInfo, metrics: ctx.timer.metrics, status: data.status, duration },
+            'Done',
+        );
     } catch (e) {
         logger.fatal({ ...ctx.logContext, err: e }, 'FailedToRender');
         res.status(500);
@@ -81,8 +85,8 @@ async function useLocal(): Promise<void> {
         const tiffFiles = tileSet.tiffs.map((c) => c.source.name).join(', ');
         // TODO is there a better name for this
         tileSet.setTitle(`Local - ${tiffFiles}`);
-        TileSets.set(tileSet.id, tileSet);
-        LogConfig.get().info({ tileSets: [...TileSets.keys()] }, 'LoadedTileSets');
+        TileSets.add(tileSet);
+        LogConfig.get().info({ tileSets: [...TileSets.cache.keys()] }, 'LoadedTileSets');
         projection = tileSet.tileMatrix.projection.code;
     }
 
@@ -106,7 +110,12 @@ async function useLocal(): Promise<void> {
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
 
-        const xml = WmtsCapabilities.toXml(Env.get(Env.PublicUrlBase) ?? '', Provider, [...TileSets.values()]);
+        const tileSets = await Promise.all([...TileSets.cache.values()]);
+        const xml = WmtsCapabilities.toXml(
+            Env.get(Env.PublicUrlBase) ?? '',
+            Provider,
+            tileSets.filter((f) => f?.type === 'raster') as TileSetRaster[],
+        );
         res.header('content-type', 'application/xml');
         res.send(xml);
         res.end();

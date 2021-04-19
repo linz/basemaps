@@ -1,27 +1,29 @@
+import { ConfigImagery, ConfigImageryRule, ConfigProvider } from '@basemaps/config';
 import {
     AttributionCollection,
     AttributionItem,
     AttributionStac,
     Bounds,
+    NamedBounds,
     Stac,
     StacCollection,
     StacExtent,
+    TileMatrixSet,
+    TileMatrixSets,
 } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
-    Aws,
+    Config,
     extractYearRangeFromName,
     FileOperator,
-    NamedBounds,
     Projection,
     setNameAndProjection,
     tileAttributionFromPath,
-    TileMetadataNamedTag,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
-import { TileSet } from '../tile.set';
-import { loadTileSet } from '../tile.set.cache';
+import { TileSets } from '../tile.set.cache';
+import { TileSetRaster } from '../tile.set.raster';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
@@ -90,14 +92,46 @@ function getGsd(un?: Record<string, unknown>): number | null {
     return gsd[0];
 }
 
+export function createAttributionCollection(
+    tileSet: TileSetRaster,
+    stac: StacCollection | null | undefined,
+    imagery: ConfigImagery,
+    rule: ConfigImageryRule,
+    host: ConfigProvider,
+    extent: StacExtent,
+): AttributionCollection {
+    const tileMatrix = tileSet.tileMatrix;
+    const defaultTileMatrix = TileMatrixSets.get(tileMatrix.projection);
+    return {
+        stac_version: Stac.Version,
+        license: stac?.license ?? Stac.License,
+        id: rule.ruleId,
+        providers: stac?.providers ?? [
+            { name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] },
+        ],
+        title: stac?.title ?? titleizeImageryName(imagery.name),
+        description: stac?.description ?? 'No description',
+        extent,
+        links: [],
+        summaries: {
+            gsd: [getGsd(stac?.summaries) ?? imagery.resolution / 1000],
+            'linz:zoom': {
+                min: TileMatrixSet.convertZoomLevel(rule.minZoom, defaultTileMatrix, tileMatrix, true),
+                max: TileMatrixSet.convertZoomLevel(rule.maxZoom, defaultTileMatrix, tileMatrix, true),
+            },
+            'linz:priority': [rule.priority],
+        },
+    };
+}
+
 /**
  * Build a Single File STAC for the given TileSet.
  *
  * For now this is the minimal set required for attribution. This can be embellished later with
  * links and assets for a more comprehensive STAC file.
  */
-async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | null> {
-    const proj = Projection.get(tileSet.tileMatrix.projection.code);
+async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionStac | null> {
+    const proj = Projection.get(tileSet.tileMatrix);
     const stacFiles = new Map<string, Promise<StacCollection | null>>();
     const cols: AttributionCollection[] = [];
     const items: AttributionItem[] = [];
@@ -111,7 +145,7 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
         }
     }
 
-    const host = await Aws.tileMetadata.Provider.get(TileMetadataNamedTag.Production);
+    const host = await Config.Provider.get(Config.Provider.id({ name: 'main' }, Config.Tag.Production));
     if (host == null) return null;
 
     for (const rule of tileSet.tileSet.rules) {
@@ -150,23 +184,7 @@ async function tileSetAttribution(tileSet: TileSet): Promise<AttributionStac | n
             },
         });
 
-        cols.push({
-            stac_version: Stac.Version,
-            license: stac?.license ?? Stac.License,
-            id: rule.ruleId,
-            providers: stac?.providers ?? [
-                { name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] },
-            ],
-            title: stac?.title ?? titleizeImageryName(im.name),
-            description: stac?.description ?? 'No description',
-            extent,
-            links: [],
-            summaries: {
-                gsd: [getGsd(stac?.summaries) ?? im.resolution / 1000],
-                'linz:zoom': { min: rule.minZoom, max: rule.maxZoom },
-                'linz:priority': [rule.priority],
-            },
-        });
+        cols.push(createAttributionCollection(tileSet, stac, im, rule, host, extent));
     }
     return {
         id: tileSet.id,
@@ -190,9 +208,9 @@ export async function attribution(req: LambdaContext): Promise<LambdaHttpRespons
     setNameAndProjection(req, data);
 
     req.timer.start('tileset:load');
-    const tileSet = await loadTileSet(data.name, data.tileMatrix);
+    const tileSet = await TileSets.get(data.name, data.tileMatrix);
     req.timer.end('tileset:load');
-    if (tileSet == null) return NotFound;
+    if (tileSet == null || tileSet.isVector()) return NotFound;
 
     const cacheKey = `v1.${tileSet.tileSet.version}`; // change version if format changes
 

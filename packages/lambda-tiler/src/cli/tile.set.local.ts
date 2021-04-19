@@ -3,7 +3,7 @@ import { ChunkSource } from '@cogeotiff/chunk';
 import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { SourceFile } from '@cogeotiff/source-file';
-import { TileSet } from '../tile.set';
+import { TileSetRaster } from '../tile.set.raster';
 import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
@@ -24,7 +24,7 @@ function isTiff(fileName: string): boolean {
     return fileName.toLowerCase().endsWith('.tif') || fileName.toLowerCase().endsWith('.tiff');
 }
 
-export class TileSetLocal extends TileSet {
+export class TileSetLocal extends TileSetRaster {
     tiffs: CogTiff[];
     filePath: string;
     tileSet = {} as any;

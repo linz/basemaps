@@ -28,12 +28,17 @@ export function addDebugLayer(bm: Basemaps): void {
     bm.el.style.height = '100vh';
     bm.map.updateSize();
 
+    const projection = bm.config.tileMatrix.projection.toEpsgString();
+
     const debugEl = e('div', { id: 'debug', className: 'debug' });
     const imageEl = kv('ImageId', bm.config.imageId);
     debugEl.appendChild(imageEl.container);
 
-    const projectionEl = kv('Projection', bm.config.projection.toEpsgString());
+    const projectionEl = kv('Projection', projection);
     debugEl.appendChild(projectionEl.container);
+
+    const tileMatrixEl = kv('TileMatrix', bm.config.tileMatrix.identifier);
+    debugEl.appendChild(tileMatrixEl.container);
 
     const zoomEl = kv('Zoom', '');
     debugEl.appendChild(zoomEl.container);
@@ -76,7 +81,7 @@ export function addDebugLayer(bm: Basemaps): void {
     };
     debugEl.appendChild(osmButton.container);
 
-    const mouseEl = kv(`Mouse (${bm.config.projection.toEpsgString()})`, '');
+    const mouseEl = kv(`Mouse (${projection})`, '');
     mouseEl.container.className = 'debug__mouse';
     const mouseWgs84El = kv(`Mouse (${Epsg.Wgs84.toEpsgString()})`, '');
     mouseWgs84El.container.className = 'debug__mouse';
@@ -87,11 +92,9 @@ export function addDebugLayer(bm: Basemaps): void {
     bm.map.getViewport().addEventListener('mousemove', (e) => {
         const px = bm.map.getEventPixel(e);
         const coord = bm.map.getCoordinateFromPixel(px);
+        const projection = bm.config.tileMatrix.projection.toEpsgString();
 
-        const wgs84 = proj
-            .transform(coord, bm.config.projection.toEpsgString(), Epsg.Wgs84.toEpsgString())
-            .map(round7)
-            .join(', ');
+        const wgs84 = proj.transform(coord, projection, Epsg.Wgs84.toEpsgString()).map(round7).join(', ');
         mouseWgs84El.value.innerHTML = wgs84;
         mouseEl.value.innerHTML = coord.map(round3).join(', ');
     });

@@ -43,7 +43,7 @@ const PkgBundle = z.union([BundleSchema, z.array(BundleSchema)]);
 
 function defineEnv([envName, envValue]) {
     const envVar = (envValue == null ? process.env[envName] : envValue) || '';
-    if (envVar != '') console.log('DefineEnv', envName, `"${c.green(envVar)}"`);
+    if (envVar !== '') console.log('DefineEnv', envName, `"${c.green(envVar)}"`);
     return `--define:process.env.${envName}="${envVar}"`;
 }
 
@@ -109,7 +109,7 @@ function bundleHtml(basePath, cfg, outfile) {
             const ext = path.extname(filename);
             const extReplace = HtmlTemplateExtReplace[ext];
             if (extReplace == null) {
-                throw new Error("Unsupported HTML template subresource. ext: "+ext);
+                throw new Error('Unsupported HTML template subresource. ext: ' + ext);
             }
             const hashName = `${filename.slice(0, -ext.length)}${fileSuffix(data)}${ext}`;
             fs.writeFileSync(joinPath(outDir, hashName), data);
@@ -124,13 +124,13 @@ function bundleHtml(basePath, cfg, outfile) {
 
 function bundleCss(basePath, cfg, outfile) {
     const bundle = [];
-    for (const cssFile of [cfg.entry].concat(cfg.external.map(f => require.resolve(f)) || [])) {
+    for (const cssFile of [cfg.entry].concat(cfg.external.map((f) => require.resolve(f)) || [])) {
         console.log(cssFile);
         const cssData = fs.readFileSync(cssFile);
         bundle.push(cssData.toString());
     }
     const fileData = bundle.join('');
-    fs.mkdirSync(path.dirname(outfile), { recursive: true});
+    fs.mkdirSync(path.dirname(outfile), { recursive: true });
     fs.writeFileSync(outfile, fileData);
 
     console.log('Bundled', (fileData.length / 1024).toFixed(2), 'KB');
@@ -175,16 +175,18 @@ async function main() {
         const type = ext.slice(1) || (st.isDirectory() && 'directory');
         const func = Bundler[type];
         if (func == null) {
-            throw new Error("Unsupported file type! "+bundle.entry);
+            throw new Error('Unsupported file type! ' + bundle.entry);
         }
-        const outfile = joinPath(basePath, bundle.outfile ||
-                                 joinPath(bundle.outdir || 'dist', path.basename(bundle.entry, ext) + DefaultSuffix[type]));
+        const outfile = joinPath(
+            basePath,
+            bundle.outfile || joinPath(bundle.outdir || 'dist', path.basename(bundle.entry, ext) + DefaultSuffix[type]),
+        );
         console.log('bundle', type, outfile);
         await func(basePath, bundle, outfile);
     }
 }
 
-main().catch(err  => {
+main().catch((err) => {
     console.error(err);
     process.exit(1);
 });
