@@ -32,7 +32,7 @@
     "ospec": "^4.0.1",
     "prettier": "^2.0.2",
     "rimraf": "^3.0.0",
-    "sinon": "^9.0.3",
+    "sinon": "^10.0.1",
     "zod": "^1.10.1"
   },
   "workspaces": {
@@ -46,6 +46,8 @@
   "resolutions": {
     "minimist": "^1.2.3",
     "yargs-parser": "^20.2.2",
-    "y18n":"5.0.5"
+    "y18n":"5.0.5",
+    "dot-prop":"5.1.1",
+    "ssri":"8.0.1"
   }
 }
