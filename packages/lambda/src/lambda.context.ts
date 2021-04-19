@@ -53,7 +53,9 @@ export class LambdaContext {
     private loadHeaders(): void {
         const evt = this.evt;
         if (LambdaContext.isAlbEvent(evt)) {
-            for (const [key, value] of Object.entries(evt.headers ?? {})) {
+            if (evt.headers == null) return;
+            for (const [key, value] of Object.entries(evt.headers)) {
+                if (value == null) continue;
                 this.headers.set(key.toLowerCase(), value);
             }
         } else {
