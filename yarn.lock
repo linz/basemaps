@@ -1988,13 +1988,6 @@
     "@types/mime" "^1"
     "@types/node" "*"
 
-"@types/sharp@^0.27.1":
-  version "0.27.1"
-  resolved "https://registry.yarnpkg.com/@types/sharp/-/sharp-0.27.1.tgz#26212ceb191b3de654a898a06577869afc200c57"
-  integrity sha512-RbYmyPjDUzi3lI9Qm68I+82I+DNOe/jW5w+EC1FvpT/f2TYXDG6mmPZQQohy98ufq+u6OB6pQkqpcNMDxzVclg==
-  dependencies:
-    "@types/node" "*"
-
 "@types/sharp@^0.28.0":
   version "0.28.0"
   resolved "https://registry.yarnpkg.com/@types/sharp/-/sharp-0.28.0.tgz#d61865182e386f1ec8d8b6a052da846695638a84"
