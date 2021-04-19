@@ -26,7 +26,7 @@
     "@linzjs/geojson": "^4.22.0",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
-    "sharp": "^0.27.1"
+    "sharp": "^0.28.1"
   },
   "bundle": {
     "entry": "src/index.ts",

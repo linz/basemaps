@@ -21,12 +21,12 @@
     "@basemaps/geo": "^4.24.0",
     "@basemaps/tiler": "^4.24.0",
     "@linzjs/metrics": "^4.22.0",
-    "sharp": "^0.27.1"
+    "sharp": "^0.28.1"
   },
   "devDependencies": {
-    "@types/pixelmatch": "^5.0.0",
-    "@types/pngjs": "^3.3.2",
-    "@types/sharp": "^0.27.1",
+    "@types/pixelmatch": "^5.2.3",
+    "@types/pngjs": "^6.0.0",
+    "@types/sharp": "^0.28.0",
     "pixelmatch": "^5.1.0",
     "pngjs": "^6.0.0"
   },
