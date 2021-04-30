@@ -22,8 +22,8 @@ const ExpectedJson = {
         {
             type: 'Feature',
             stac_version: '1.0.0-beta.2',
-            id: 'ir_1_item',
-            collection: 'ir_1',
+            id: 'imageId1_item',
+            collection: 'im_imageId1',
             assets: {},
             links: [],
             bbox: [-22.5, 48.9225, -11.25, 55.7766],
@@ -50,8 +50,8 @@ const ExpectedJson = {
         {
             type: 'Feature',
             stac_version: '1.0.0-beta.2',
-            id: 'ir_2_item',
-            collection: 'ir_2',
+            id: 'imageId2_item',
+            collection: 'im_imageId2',
             assets: {},
             links: [],
             bbox: [-11.25, 48.9225, 0, 55.7766],
@@ -78,8 +78,8 @@ const ExpectedJson = {
         {
             type: 'Feature',
             stac_version: '1.0.0-beta.2',
-            id: 'ir_3_item',
-            collection: 'ir_3',
+            id: 'imageId3_item',
+            collection: 'im_imageId3',
             assets: {},
             links: [],
             bbox: [0, 48.9225, 11.25, 55.7766],
@@ -106,8 +106,8 @@ const ExpectedJson = {
         {
             type: 'Feature',
             stac_version: '1.0.0-beta.2',
-            id: 'ir_4_item',
-            collection: 'ir_4',
+            id: 'imageId4_item',
+            collection: 'im_imageId4',
             assets: {},
             links: [],
             bbox: [-22.5, 48.9225, -11.25, 55.7766],
@@ -311,10 +311,10 @@ o.spec('attribution', () => {
                             maxZoom: minZoom + 2,
                         });
                     };
-                    addRule('ir_1', 'hastings-district_urban_2011-13_0.1m', 14);
-                    addRule('ir_2', 'hastings-district_urban_2013-14_0.1m', 15);
-                    addRule('ir_3', 'hastings-district_urban_2015-17_0.1m', 16);
-                    addRule('ir_4', 'hastings-district_urban_2017-18_0.1m', 14);
+                    addRule('imageId1', 'hastings-district_urban_2011-13_0.1m', 14);
+                    addRule('imageId2', 'hastings-district_urban_2013-14_0.1m', 15);
+                    addRule('imageId3', 'hastings-district_urban_2015-17_0.1m', 16);
+                    addRule('imageId4', 'hastings-district_urban_2017-18_0.1m', 14);
                     tileSet.tileSet.layers = layers;
                     tileSet.imagery = imagery;
                 }
@@ -369,7 +369,7 @@ o.spec('attribution', () => {
 
             o(res.status).equals(200);
             o(res.header(HttpHeader.ETag)).equals(
-                'v1.f709f08d59885235ef655620f5ef01ce8a4696f968e453773db0705746d6dff3',
+                'v1.8032cbf6016e1cd8f57cf8a2db4e099e9d9392f4ae6d5387f800436db2e3d2c1',
             );
             o(res.header(HttpHeader.CacheControl)).equals('public, max-age=86400, stale-while-revalidate=604800');
 
@@ -379,7 +379,7 @@ o.spec('attribution', () => {
 
         o('etag match', async () => {
             const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`, 'get', {
-                [HttpHeader.IfNoneMatch]: 'v1.f709f08d59885235ef655620f5ef01ce8a4696f968e453773db0705746d6dff3',
+                [HttpHeader.IfNoneMatch]: 'v1.8032cbf6016e1cd8f57cf8a2db4e099e9d9392f4ae6d5387f800436db2e3d2c1',
             });
             const res = await attribution(request);
 

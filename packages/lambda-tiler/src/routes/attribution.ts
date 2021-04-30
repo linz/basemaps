@@ -184,7 +184,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
             type: 'Feature',
             stac_version: Stac.Version,
             id: imgId + '_item',
-            collection: imgId,
+            collection: 'im_' + imgId,
             assets: {},
             links: [],
             bbox,
