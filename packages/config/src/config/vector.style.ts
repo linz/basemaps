@@ -1,4 +1,4 @@
-import { VersionedConfig } from './base';
+import { BaseConfig } from './base';
 
 interface Source {
     type: 'vector';
@@ -32,6 +32,6 @@ export interface StyleJson {
     layers: unknown[];
 }
 
-export interface ConfigVectorStyle extends VersionedConfig {
+export interface ConfigVectorStyle extends BaseConfig {
     style: StyleJson;
 }

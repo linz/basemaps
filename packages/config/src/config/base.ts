@@ -16,11 +16,3 @@ export interface BaseConfig {
     /** Date the record was last modified */
     updatedAt: number;
 }
-
-export interface VersionedConfig extends BaseConfig {
-    /** Current version number */
-    version: number;
-
-    /** Total number of revisions */
-    revisions?: number;
-}

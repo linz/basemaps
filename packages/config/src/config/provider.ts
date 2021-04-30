@@ -1,4 +1,4 @@
 import { WmtsProvider } from '@basemaps/geo';
-import { VersionedConfig } from './base';
+import { BaseConfig } from './base';
 
-export type ConfigProvider = WmtsProvider & VersionedConfig;
+export type ConfigProvider = WmtsProvider & BaseConfig;

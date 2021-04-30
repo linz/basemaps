@@ -4,21 +4,12 @@ import { BaseConfig } from '../config/base';
 import { ConfigImagery } from '../config/imagery';
 import { ConfigPrefix } from '../config/prefix';
 import { ConfigProvider } from '../config/provider';
-import { ConfigTag } from '../config/tag';
-import {
-    ConfigImageryRule,
-    ConfigTileSet,
-    ConfigTileSetRaster,
-    ConfigTileSetVector,
-    TileSetType,
-} from '../config/tile.set';
+import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, ConfigTileSetVector, TileSetType } from '../config/tile.set';
 import { ConfigVectorStyle } from '../config/vector.style';
 import { ConfigDynamoCached } from './dynamo.config.cached';
-import { ConfigDynamoVersioned } from './dynamo.config.versioned';
 
 export class ConfigDynamo {
     Prefix = ConfigPrefix;
-    Tag = ConfigTag;
 
     dynamo: DynamoDB;
     tableName: string;
@@ -61,37 +52,37 @@ export class ConfigDynamo {
     }
 }
 
-export class ConfigDynamoProvider extends ConfigDynamoVersioned<ConfigProvider> {}
+export class ConfigDynamoProvider extends ConfigDynamoCached<ConfigProvider> {}
 
 export class ConfigDynamoImagery extends ConfigDynamoCached<ConfigImagery> {
-    async getImagery(rule: ConfigImageryRule, projection: Epsg): Promise<ConfigImagery | null> {
-        if (projection.code === EpsgCode.Nztm2000 && rule.img2193) return this.get(rule.img2193);
-        if (projection.code === EpsgCode.Google && rule.img3857) return this.get(rule.img3857);
+    async getImagery(layer: ConfigLayer, projection: Epsg): Promise<ConfigImagery | null> {
+        if (projection.code === EpsgCode.Nztm2000 && layer[2193]) return this.get(layer[2193]);
+        if (projection.code === EpsgCode.Google && layer[3857]) return this.get(layer[3857]);
         return null;
     }
 
-    async getAllImagery(rules: ConfigImageryRule[], projection: Epsg): Promise<Map<string, ConfigImagery>> {
+    async getAllImagery(layers: ConfigLayer[], projection: Epsg): Promise<Map<string, ConfigImagery>> {
         const imagery: Map<string, ConfigImagery> = new Map<string, ConfigImagery>();
 
         // Get Imagery based on the order of rules. Imagery priority are ordered by on rules.
-        for (const rule of rules) {
-            if (projection.code === EpsgCode.Nztm2000 && rule.img2193) {
-                const configImg = await this.get(rule.img2193);
+        for (const layer of layers) {
+            if (projection.code === EpsgCode.Nztm2000 && layer[2193]) {
+                const configImg = await this.get(layer[2193]);
                 if (configImg == null) continue;
-                imagery.set(rule.img2193, configImg);
+                imagery.set(layer[2193], configImg);
             }
 
-            if (projection.code === EpsgCode.Google && rule.img3857) {
-                const configImg = await this.get(rule.img3857);
+            if (projection.code === EpsgCode.Google && layer[3857]) {
+                const configImg = await this.get(layer[3857]);
                 if (configImg == null) continue;
-                imagery.set(rule.img3857, configImg);
+                imagery.set(layer[3857], configImg);
             }
         }
         return imagery;
     }
 }
 
-export class ConfigDynamoTileSet extends ConfigDynamoVersioned<ConfigTileSet> {
+export class ConfigDynamoTileSet extends ConfigDynamoCached<ConfigTileSet> {
     isRaster(x: ConfigTileSet | null | undefined): x is ConfigTileSetRaster {
         if (x == null) return false;
         return x.type == null || x.type === TileSetType.Raster;
@@ -104,18 +95,18 @@ export class ConfigDynamoTileSet extends ConfigDynamoVersioned<ConfigTileSet> {
 
     getImagery(rec: ConfigTileSetRaster): Promise<Map<string, ConfigImagery>> {
         const imgIds = new Set<string>();
-        for (const rule of rec.rules) {
-            if (rule.img2193 != null) imgIds.add(rule.img2193);
-            if (rule.img3857 != null) imgIds.add(rule.img3857);
+        for (const layer of rec.layers) {
+            if (layer[2193] != null) imgIds.add(layer[2193]);
+            if (layer[3857] != null) imgIds.add(layer[3857]);
         }
         return this.cfg.Imagery.getAll(imgIds);
     }
 
-    getImageId(rule: ConfigImageryRule, projection: Epsg): string | undefined {
-        if (projection.code === EpsgCode.Nztm2000) return rule.img2193;
-        if (projection.code === EpsgCode.Google) return rule.img3857;
+    getImageId(layer: ConfigLayer, projection: Epsg): string | undefined {
+        if (projection.code === EpsgCode.Nztm2000) return layer[2193];
+        if (projection.code === EpsgCode.Google) return layer[3857];
         return undefined;
     }
 }
 
-export class ConfigDynamoVectorStyle extends ConfigDynamoVersioned<ConfigVectorStyle> {}
+export class ConfigDynamoVectorStyle extends ConfigDynamoCached<ConfigVectorStyle> {}
