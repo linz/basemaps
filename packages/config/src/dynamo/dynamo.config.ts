@@ -56,8 +56,8 @@ export class ConfigDynamoProvider extends ConfigDynamoCached<ConfigProvider> {}
 
 export class ConfigDynamoImagery extends ConfigDynamoCached<ConfigImagery> {
     async getImagery(layer: ConfigLayer, projection: Epsg): Promise<ConfigImagery | null> {
-        if (projection.code === EpsgCode.Nztm2000 && layer[2193]) return this.get(layer[2193]);
-        if (projection.code === EpsgCode.Google && layer[3857]) return this.get(layer[3857]);
+        if (projection.code === EpsgCode.Nztm2000 && layer[2193]) return this.get(this.id(layer[2193]));
+        if (projection.code === EpsgCode.Google && layer[3857]) return this.get(this.id(layer[3857]));
         return null;
     }
 
@@ -67,13 +67,13 @@ export class ConfigDynamoImagery extends ConfigDynamoCached<ConfigImagery> {
         // Get Imagery based on the order of rules. Imagery priority are ordered by on rules.
         for (const layer of layers) {
             if (projection.code === EpsgCode.Nztm2000 && layer[2193]) {
-                const configImg = await this.get(layer[2193]);
+                const configImg = await this.get(this.id(layer[2193]));
                 if (configImg == null) continue;
                 imagery.set(layer[2193], configImg);
             }
 
             if (projection.code === EpsgCode.Google && layer[3857]) {
-                const configImg = await this.get(layer[3857]);
+                const configImg = await this.get(this.id(layer[3857]));
                 if (configImg == null) continue;
                 imagery.set(layer[3857], configImg);
             }

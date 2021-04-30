@@ -1,4 +1,4 @@
-import { ConfigImagery, ConfigImageryRule, ConfigProvider } from '@basemaps/config';
+import { ConfigImagery, ConfigLayer, ConfigProvider } from '@basemaps/config';
 import {
     AttributionCollection,
     AttributionItem,
@@ -22,6 +22,7 @@ import {
     titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
+import { createHash } from 'crypto';
 import { TileSets } from '../tile.set.cache';
 import { TileSetRaster } from '../tile.set.raster';
 
@@ -96,7 +97,7 @@ export function createAttributionCollection(
     tileSet: TileSetRaster,
     stac: StacCollection | null | undefined,
     imagery: ConfigImagery,
-    rule: ConfigImageryRule,
+    layer: ConfigLayer,
     host: ConfigProvider,
     extent: StacExtent,
 ): AttributionCollection {
@@ -105,7 +106,7 @@ export function createAttributionCollection(
     return {
         stac_version: Stac.Version,
         license: stac?.license ?? Stac.License,
-        id: rule.id,
+        id: imagery.id,
         providers: stac?.providers ?? [
             { name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] },
         ],
@@ -116,10 +117,20 @@ export function createAttributionCollection(
         summaries: {
             gsd: [getGsd(stac?.summaries) ?? imagery.resolution / 1000],
             'linz:zoom': {
-                min: TileMatrixSet.convertZoomLevel(rule.minZoom, defaultTileMatrix, tileMatrix, true),
-                max: TileMatrixSet.convertZoomLevel(rule.maxZoom, defaultTileMatrix, tileMatrix, true),
+                min: TileMatrixSet.convertZoomLevel(
+                    layer.minZoom ? layer.minZoom : 0,
+                    defaultTileMatrix,
+                    tileMatrix,
+                    true,
+                ),
+                max: TileMatrixSet.convertZoomLevel(
+                    layer.maxZoom ? layer.maxZoom : 32,
+                    defaultTileMatrix,
+                    tileMatrix,
+                    true,
+                ),
             },
-            'linz:priority': [1000 + tileSet.tileSet.rules.indexOf(rule)],
+            'linz:priority': [1000 + tileSet.tileSet.layers.indexOf(layer)],
         },
     };
 }
@@ -137,8 +148,8 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
     const items: AttributionItem[] = [];
 
     // read all stac files in parallel
-    for (const rule of tileSet.tileSet.rules) {
-        const imgId = Config.TileSet.getImageId(rule, proj.epsg);
+    for (const layer of tileSet.tileSet.layers) {
+        const imgId = Config.TileSet.getImageId(layer, proj.epsg);
         if (imgId == null) continue;
         const im = tileSet.imagery.get(imgId);
         if (im == null) continue;
@@ -147,11 +158,11 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
         }
     }
 
-    const host = await Config.Provider.get(Config.Provider.id('main', Config.Tag.Production));
+    const host = await Config.Provider.get(Config.Provider.id('linz'));
     if (host == null) return null;
 
-    for (const rule of tileSet.tileSet.rules) {
-        const imgId = Config.TileSet.getImageId(rule, proj.epsg);
+    for (const layer of tileSet.tileSet.layers) {
+        const imgId = Config.TileSet.getImageId(layer, proj.epsg);
         if (imgId == null) continue;
         const im = tileSet.imagery.get(imgId);
         if (im == null) continue;
@@ -172,8 +183,8 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
         items.push({
             type: 'Feature',
             stac_version: Stac.Version,
-            id: rule.id + '_item',
-            collection: rule.id,
+            id: imgId + '_item',
+            collection: imgId,
             assets: {},
             links: [],
             bbox,
@@ -188,7 +199,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
             },
         });
 
-        cols.push(createAttributionCollection(tileSet, stac, im, rule, host, extent));
+        cols.push(createAttributionCollection(tileSet, stac, im, layer, host, extent));
     }
     return {
         id: tileSet.id,
@@ -216,7 +227,8 @@ export async function attribution(req: LambdaContext): Promise<LambdaHttpRespons
     req.timer.end('tileset:load');
     if (tileSet == null || tileSet.isVector()) return NotFound;
 
-    const cacheKey = `v1.${tileSet.tileSet.version}`; // change version if format changes
+    const hash = createHash('sha256').update(JSON.stringify(tileSet.tileSet)).digest('hex');
+    const cacheKey = `v1.${hash}`; // change version if format changes
 
     const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
     if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
