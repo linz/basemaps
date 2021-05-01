@@ -54,26 +54,24 @@ export function createTileSetFromImagery(job: CogJob, img: ConfigImagery): Confi
 
     const name = job.id;
     const projection = job.tileMatrix.projection.code;
-    const rules = [];
+    const layers = [];
     if (projection === EpsgCode.Nztm2000) {
-        rules.push({ img2193: img.id, id: img.id, minZoom: 0, maxZoom: 32 });
+        layers.push({ [2193]: img.id, name: img.name, minZoom: 0, maxZoom: 32 });
     } else if (projection === EpsgCode.Google) {
-        rules.push({ img3857: img.id, id: img.id, minZoom: 0, maxZoom: 32 });
+        layers.push({ [3857]: img.id, name: img.name, minZoom: 0, maxZoom: 32 });
     } else {
         throw new Error(`Projection: ${projection} not support.`);
     }
     return {
-        v: 2,
         type: TileSetType.Raster,
         createdAt: now,
         updatedAt: now,
-        id: Config.TileSet.id(name, 0),
+        id: Config.TileSet.id(name),
         name,
-        rules,
+        layers,
         title: job.title,
         description: job.description,
         background: { r: 0, g: 0, b: 0, alpha: 0 },
-        version: 0,
     };
 }
 
@@ -81,8 +79,7 @@ export async function createMetadataFromJob(job: CogJob): Promise<void> {
     const img = createImageryRecordFromJob(job);
     await Config.Imagery.put(img);
     const tileMetadata = createTileSetFromImagery(job, img);
-    await Config.TileSet.create(tileMetadata);
-    await Config.TileSet.tag(tileMetadata, Config.Tag.Production);
+    await Config.TileSet.put(tileMetadata);
 }
 
 export class ActionBatchJob extends CommandLineAction {

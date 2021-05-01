@@ -55,7 +55,7 @@ export class TileSetInfoAction extends TileSetBaseAction {
             console.log(this.renderHelpText());
             return;
         }
-        const tileSetId = Config.TileSet.id(tileSet, this.version.value! ?? Config.Tag.Head);
+        const tileSetId = Config.TileSet.id(tileSet);
         const tsData = await Config.TileSet.get(tileSetId);
 
         if (tsData == null) {

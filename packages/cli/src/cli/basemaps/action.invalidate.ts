@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { TileSetNameParser } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
 import { Config, LogConfig } from '@basemaps/shared';
 import {
@@ -11,10 +10,9 @@ import { TagActions } from '../tag.action';
 import { TileSetBaseAction } from './tileset.action';
 import { invalidateXYZCache } from './tileset.util';
 
-export class TileSetInvalidateTagAction extends TileSetBaseAction {
+export class TileSetInvalidateAction extends TileSetBaseAction {
     private commit: CommandLineFlagParameter;
     private projection: CommandLineIntegerParameter;
-    private tag: CommandLineStringParameter;
     private tileSet: CommandLineStringParameter;
 
     public constructor() {
@@ -28,7 +26,6 @@ export class TileSetInvalidateTagAction extends TileSetBaseAction {
     protected onDefineParameters(): void {
         this.commit = this.defineFlagParameter(TagActions.Commit);
         this.projection = this.defineIntegerParameter(TagActions.Projection);
-        this.tag = this.defineStringParameter(TagActions.Tag);
         this.tileSet = this.defineStringParameter(TagActions.TileSet);
     }
 
@@ -37,21 +34,13 @@ export class TileSetInvalidateTagAction extends TileSetBaseAction {
         const projection = Epsg.tryGet(this.projection.value!);
         if (projection == null) return this.fatal({ projection: this.projection.value }, 'Invalid projection');
 
-        const tagInput = this.tag.value!;
+        const tsData = await Config.TileSet.get(Config.TileSet.id(tileSet));
+        if (tsData == null) return this.fatal({ tileSet }, 'Could not find tileset');
 
-        const tileSetName = TileSetNameParser.toName(tileSet, tagInput);
-        const { tag, name } = TileSetNameParser.parse(tileSetName);
-        if (tag == null) return this.fatal({ tag }, 'Invalid tag name');
-
-        const tsData = await Config.TileSet.get(Config.TileSet.id(name, tag));
-        if (tsData == null) return this.fatal({ tileSet: tileSetName }, 'Could not find tileset');
-
-        LogConfig.get().info({ tag, name, projection }, 'Invalidating');
-
-        if (tag === Config.Tag.Production) LogConfig.get().warn('Invaliding production cache');
+        LogConfig.get().info({ tileSet, projection }, 'Invalidating');
 
         if (this.commit.value) {
-            await invalidateXYZCache(name, projection, tag, this.commit.value);
+            await invalidateXYZCache(tileSet, projection, this.commit.value);
         } else {
             LogConfig.get().warn('DryRun:Done');
         }

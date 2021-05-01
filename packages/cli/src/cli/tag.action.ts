@@ -1,7 +1,3 @@
-import { Config } from '@basemaps/shared';
-
-const validTags = Object.values(Config.Tag).filter((f) => f !== Config.Tag.Head);
-
 /** Commonly used definitions for cli args */
 export const TagActions = {
     Version: {
@@ -14,13 +10,6 @@ export const TagActions = {
     Commit: {
         parameterLongName: '--commit',
         description: 'Commit to database',
-        required: false,
-    },
-    Tag: {
-        argumentName: 'TAG',
-        parameterLongName: '--tag',
-        parameterShortName: '-t',
-        description: `tag name  (options: ${validTags.join(', ')} or pr-<pr_number>)`,
         required: false,
     },
     Imagery: {
