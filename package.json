@@ -19,20 +19,20 @@
     "build": "tsc -b"
   },
   "devDependencies": {
-    "@linzjs/style": "2.0.0",
-    "@types/aws-lambda": "^8.10.43",
+    "@linzjs/style": "2.1.0",
+    "@types/aws-lambda": "^8.10.75",
     "@types/node": "^14.11.2",
     "@types/ospec": "^4.0.2",
-    "@types/sinon": "^9.0.5",
+    "@types/sinon": "^10.0.0",
     "cross-env": "^7.0.3",
-    "esbuild": "^0.8.0",
+    "esbuild": "^0.11.12",
     "eslint-plugin-prettier": "^3.1.4",
-    "lerna": "^3.20.2",
+    "lerna": "4.0.0",
     "npm-audit-resolver": "^2.2.0",
     "ospec": "^4.0.1",
     "prettier": "^2.0.2",
     "rimraf": "^3.0.0",
-    "sinon": "^9.0.3",
+    "sinon": "^10.0.1",
     "zod": "^1.10.1"
   },
   "workspaces": {
@@ -44,10 +44,5 @@
     ]
   },
   "resolutions": {
-    "minimist": "^1.2.3",
-    "yargs-parser": "^20.2.2",
-    "y18n":"5.0.5",
-    "dot-prop":"5.1.1",
-    "ssri":"8.0.1"
   }
 }
