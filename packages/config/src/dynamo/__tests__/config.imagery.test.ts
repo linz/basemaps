@@ -1,14 +1,9 @@
-import { Bounds, Epsg, EpsgCode, NamedBounds, QuadKey, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Epsg, EpsgCode, NamedBounds, QuadKey, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import o from 'ospec';
-import { BaseConfig } from '../../config/base';
+import { createSandbox } from 'sinon';
 import { ConfigImagery } from '../../config/imagery';
-import { ConfigImageryRule, ConfigTileSetRaster } from '../../config/tile.set';
 import { ConfigDynamo } from '../dynamo.config';
 
-function* genRules(max: number): Generator<ConfigImageryRule> {
-    let num = 0;
-    while (num < max) yield { ruleId: `ru_` + num, imgId: 'im_' + num++, maxZoom: 0, minZoom: 0, priority: num };
-}
 export function qkToNamedBounds(quadKeys: string[]): NamedBounds[] {
     const tms = TileMatrixSets.get(EpsgCode.Google);
     return quadKeys.map((qk) => ({
@@ -17,36 +12,15 @@ export function qkToNamedBounds(quadKeys: string[]): NamedBounds[] {
     }));
 }
 
-o.spec('TileMetadataImagery', () => {
+o.spec('ConfigDynamoImagery', () => {
     const config = new ConfigDynamo('Foo');
+    const sandbox = createSandbox();
 
-    o.spec('compareImageSets', () => {
-        const getIds = (c: BaseConfig): string => c.id;
-        function createImagery(id: string, year: number, resolution: number): ConfigImagery {
-            return { id, year, resolution } as any;
-        }
-        o('should fall back to name', () => {
-            const imagery = [createImagery('a', 2018, 1), createImagery('c', 2018, 1), createImagery('b', 2018, 1)];
-            imagery.sort(config.TileSet.compareImageSets);
-            o(imagery.map(getIds)).deepEquals(['a', 'b', 'c']);
-        });
+    o.afterEach(() => sandbox.restore());
 
-        o('should sort by resolution', () => {
-            const imagery = [createImagery('a', 2018, 1), createImagery('b', 2018, 10), createImagery('c', 2018, 100)];
-            imagery.sort(config.TileSet.compareImageSets);
-            o(imagery.map(getIds)).deepEquals(['c', 'b', 'a']);
-        });
-
-        o('should sort by year', () => {
-            const imagery = [createImagery('a', 2019, 1), createImagery('b', 2017, 10), createImagery('c', 2018, 1)];
-            imagery.sort(config.TileSet.compareImageSets);
-            o(imagery.map(getIds)).deepEquals(['b', 'c', 'a']);
-        });
-    });
+    const item: ConfigImagery = { id: 'im_foo', name: 'abc' } as any;
 
     o('is', () => {
-        const item: ConfigImagery = { id: 'im_foo', name: 'abc' } as any;
-
         o(config.Imagery.is(item)).equals(true);
         o(config.Imagery.is({ id: 'ts_foo' } as any)).equals(false);
         if (config.Imagery.is(item)) {
@@ -54,43 +28,46 @@ o.spec('TileMetadataImagery', () => {
         }
     });
 
-    o('should sort imagery', async () => {
-        const rules = Array.from(genRules(2));
-        const files = qkToNamedBounds(['313']);
-        const imagery = rules.map((r) => ({
-            v: 1,
-            id: r.imgId,
-            projection: Epsg.Google.code,
-            year: 2001,
-            resolution: 100,
-            bounds: Bounds.union(files).toJson(),
-            files,
-        })) as ConfigImagery[];
-        for (const i of imagery) config.Imagery.cache.set(i.id, i);
-        const tsData = {
-            createdAt: 0,
-            updatedAt: 0,
-            id: 'ts_aerial_3857',
-            version: 0,
-            rules,
-            name: 'aerial',
-            projection: Epsg.Google.code,
-        } as ConfigTileSetRaster;
+    o('Should get Imagery', async () => {
+        const get = sandbox.stub(config.Imagery, 'get').resolves(item);
 
-        const getAll = (): string[] => tsData.rules.map((c) => c.imgId);
-        o(getAll()).deepEquals(['im_0', 'im_1']);
+        const layer = { [2193]: 'foo' } as any;
+        const result = await config.Imagery.getImagery(layer, Epsg.Nztm2000);
+        o(get.callCount).equals(1);
+        o(get.firstCall.firstArg).equals('im_foo');
+        o(result).deepEquals(item);
+    });
 
-        rules[0].priority = rules[1].priority;
-        config.TileSet.sortRenderRules(tsData, config.Imagery.cache);
-        o(getAll()).deepEquals(['im_0', 'im_1']);
+    o('Should not get Imagery with wrong projection', async () => {
+        const layer = { [2193]: 'foo' } as any;
+        const result = await config.Imagery.getImagery(layer, Epsg.Google);
+        o(result).equals(null);
+    });
 
-        imagery[0].year = 2020;
-        config.TileSet.sortRenderRules(tsData, config.Imagery.cache);
-        o(getAll()).deepEquals(['im_1', 'im_0']);
+    o('Should not get Imagery with no imgId', async () => {
+        const rule = {} as any;
+        const result = await config.Imagery.getImagery(rule, Epsg.Google);
+        o(result).equals(null);
+    });
 
-        imagery[1].year = 2020;
-        imagery[1].resolution = 3000;
-        config.TileSet.sortRenderRules(tsData, config.Imagery.cache);
-        o(getAll()).deepEquals(['im_1', 'im_0']);
+    o('Should get all Imagery with correct order', async () => {
+        const get = sandbox.stub(config.Imagery, 'get').resolves(item);
+
+        const layers = [{ [3857]: 'foo1' }, { [3857]: 'foo2' }, { [2193]: 'foo3', [3857]: 'foo4' }] as any;
+
+        const result = await config.Imagery.getAllImagery(layers, Epsg.Google);
+        o(get.callCount).equals(3);
+        o(get.firstCall.firstArg).equals('im_foo1');
+        o(get.secondCall.firstArg).equals('im_foo2');
+        o(get.thirdCall.firstArg).equals('im_foo4');
+        o(result.size).deepEquals(3);
+        const keys = Array.from(result.keys());
+        o(keys[0]).equals('foo1');
+        o(keys[1]).equals('foo2');
+        o(keys[2]).equals('foo4');
+        o(result.get('foo1')).deepEquals(item);
+        o(result.get('foo2')).deepEquals(item);
+        o(result.get('foo3')).equals(undefined);
+        o(result.get('foo4')).deepEquals(item);
     });
 });

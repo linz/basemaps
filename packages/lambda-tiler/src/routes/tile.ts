@@ -1,4 +1,4 @@
-import { Sources, StyleJson, TileSetNameParser } from '@basemaps/config';
+import { Sources, StyleJson } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
 import { Config, Env, setNameAndProjection, TileSetName, tileWmtsFromPath, tileXyzFromPath } from '@basemaps/shared';
@@ -45,7 +45,7 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     req.timer.end('tileset:load');
     if (tileSets.length === 0) return NotFound;
 
-    const providerId = Config.Provider.id({ name: 'main' }, Config.Tag.Production);
+    const providerId = Config.Provider.id('linz');
     const provider = await Config.Provider.get(providerId);
     if (provider == null) return NotFound;
 
@@ -105,11 +105,10 @@ export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> 
 export async function styleJson(req: LambdaContext, fileName: string): Promise<LambdaHttpResponse> {
     const { version, rest, name } = req.action;
     const styleName = fileName.split('.json')[0];
-    const nameComp = TileSetNameParser.parse(name);
     const host = Env.get(Env.PublicUrlBase) ?? '';
 
     // Get style Config from db
-    const dbId = Config.Style.id({ name: styleName }, nameComp.tag);
+    const dbId = Config.Style.id(styleName);
     const styleConfig = await Config.Style.get(dbId);
     if (styleConfig == null) return NotFound;
 
