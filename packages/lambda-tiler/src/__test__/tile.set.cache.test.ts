@@ -60,13 +60,12 @@ o.spec('TileSetCache', () => {
             o(subTileSet.title).equals('parent aerial title Tasman rural 2018-19 0.3m');
             o(subTileSet.fullName).equals('aerial@head:tasman_rural_2018-19_0-3m');
             o([...subTileSet.imagery.values()]).deepEquals([imageOne]);
-            const [firstRule] = subTileSet.tileSet.rules;
-            o(firstRule).deepEquals({
-                ruleId: firstRule.ruleId as any,
-                imgId: 'im_id1',
+            const [firstLayer] = subTileSet.tileSet.layers;
+            o(firstLayer).deepEquals({
+                name: firstLayer.name,
+                [3857]: 'im_id1',
                 minZoom: 0,
                 maxZoom: 100,
-                priority: 0,
             });
             o(subTileSet.tileSet.background).equals(undefined);
 

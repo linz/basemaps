@@ -35,10 +35,11 @@ export class TileSetVector extends TileSetHandler<ConfigTileSetVector> {
     async tile(req: LambdaContext, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
         if (xyz.ext !== VectorFormat.MapboxVectorTiles) return NotFound;
         if (this.tileSet.layers.length > 1) return new LambdaHttpResponse(500, 'Too many layers in tileset');
-        const [layerUri] = this.tileSet.layers;
+        const [layer] = this.tileSet.layers;
+        if (layer[3857] == null) return new LambdaHttpResponse(500, 'Layer url not found from tileset Config');
 
         req.timer.start('cotar:load');
-        const cotar = await Layers.get(layerUri);
+        const cotar = await Layers.get(layer[3857]);
         if (cotar == null) return new LambdaHttpResponse(500, 'Failed to load VectorTiles');
         req.timer.end('cotar:load');
         if (cotar.index.size === 0) {
