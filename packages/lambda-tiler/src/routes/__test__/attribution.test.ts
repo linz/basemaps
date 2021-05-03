@@ -271,7 +271,6 @@ o.spec('attribution', () => {
 
         const makeImageRecord = (name: string, x = 10, year = 2019): ConfigImagery => {
             return {
-                v: 1,
                 id: name,
                 name,
                 projection: EpsgCode.Google,
