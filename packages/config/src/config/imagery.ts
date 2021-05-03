@@ -2,9 +2,6 @@ import { NamedBounds, BoundingBox, EpsgCode } from '@basemaps/geo';
 import { BaseConfig } from './base';
 
 export interface ConfigImagery extends BaseConfig {
-    /** Version of record. undefined = v0 */
-    v: 1;
-
     projection: EpsgCode;
 
     /** The location of the COGs like s3://basemaps-cogs/3857/aerial/jobId123 */

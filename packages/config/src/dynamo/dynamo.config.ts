@@ -66,17 +66,11 @@ export class ConfigDynamoImagery extends ConfigDynamoCached<ConfigImagery> {
 
         // Get Imagery based on the order of rules. Imagery priority are ordered by on rules.
         for (const layer of layers) {
-            if (projection.code === EpsgCode.Nztm2000 && layer[2193]) {
-                const configImg = await this.get(this.id(layer[2193]));
-                if (configImg == null) continue;
-                imagery.set(layer[2193], configImg);
-            }
-
-            if (projection.code === EpsgCode.Google && layer[3857]) {
-                const configImg = await this.get(this.id(layer[3857]));
-                if (configImg == null) continue;
-                imagery.set(layer[3857], configImg);
-            }
+            const imgId = layer[projection.code];
+            if (imgId == null) continue;
+            const configImg = await this.get(this.id(imgId));
+            if (configImg == null) continue;
+            imagery.set(imgId, configImg);
         }
         return imagery;
     }

@@ -1,9 +1,7 @@
-import { ConfigTileSetRaster, TileSetType, ConfigImagery } from '@basemaps/config';
-import { EpsgCode, TileMatrixSet } from '@basemaps/geo';
-import { Config, Env, extractYearRangeFromName, FileOperator, LogConfig, LogType, Projection } from '@basemaps/shared';
+import { TileMatrixSet } from '@basemaps/geo';
+import { Env, FileOperator, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import Batch from 'aws-sdk/clients/batch';
-import * as path from 'path';
 import { CogStacJob } from '../../cog/cog.stac.job';
 import { CogJob } from '../../cog/types';
 
@@ -12,8 +10,6 @@ const JobDefinition = 'CogBatchJob';
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
-
-const ValidProjections = new Set([EpsgCode.Google, EpsgCode.Nztm2000]);
 
 const ResolutionRegex = /((?:\d[\.\-])?\d+)m/;
 /**
@@ -26,54 +22,6 @@ export function extractResolutionFromName(name: string): number {
     const matches = name.match(ResolutionRegex);
     if (matches == null) return -1;
     return parseFloat(matches[1].replace('-', '.')) * 1000;
-}
-
-export function createImageryRecordFromJob(job: CogJob): ConfigImagery {
-    const now = Date.now();
-
-    const projection = job.tileMatrix.projection;
-    let base = job.output.location.path;
-    if (!base.endsWith('/')) base += '/';
-    const uri = base + path.join(projection.toString(), job.name, job.id);
-
-    return {
-        v: 1,
-        id: Config.prefix(Config.Prefix.Imagery, job.id),
-        name: job.name,
-        createdAt: now,
-        updatedAt: now,
-        uri,
-        projection: projection.code,
-        year: extractYearRangeFromName(job.name)[0],
-        resolution: extractResolutionFromName(job.name),
-        bounds: job.output.bounds,
-        files: job.output.files,
-    };
-}
-
-export function createTileSetFromImagery(job: CogJob, img: ConfigImagery): ConfigTileSetRaster {
-    const projection = job.tileMatrix.projection.code;
-    if (!ValidProjections.has(projection)) throw new Error(`Projection: ${projection} not support.`);
-    const now = Date.now();
-
-    return {
-        type: TileSetType.Raster,
-        createdAt: now,
-        updatedAt: now,
-        id: Config.TileSet.id(job.id),
-        name: job.id,
-        layers: [{ [projection]: img.id, name: img.name, minZoom: 0, maxZoom: 32 }],
-        title: job.title,
-        description: job.description,
-        background: { r: 0, g: 0, b: 0, alpha: 0 },
-    };
-}
-
-export async function createMetadataFromJob(job: CogJob): Promise<void> {
-    const img = createImageryRecordFromJob(job);
-    await Config.Imagery.put(img);
-    const tileMetadata = createTileSetFromImagery(job, img);
-    await Config.TileSet.put(tileMetadata);
 }
 
 export class ActionBatchJob extends CommandLineAction {
@@ -213,8 +161,6 @@ export class ActionBatchJob extends CommandLineAction {
             },
             'JobSubmit',
         );
-
-        if (commit) await createMetadataFromJob(job);
 
         for (const name of toSubmit) {
             const jobStatus = await ActionBatchJob.batchOne(jobPath, job, batch, name, commit);
