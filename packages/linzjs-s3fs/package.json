@@ -24,6 +24,6 @@
     "build/"
   ],
   "peerDependencies": {
-    "aws-sdk": "^2.731.0"
+    "aws-sdk": "^2.890.0"
   }
 }
