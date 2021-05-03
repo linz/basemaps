@@ -24,7 +24,7 @@ export class LambdaTiler extends cdk.Construct {
          * see: https://github.com/aws/aws-cdk/issues/8253
          */
         this.lambda = new lambda.Function(this, 'Tiler', {
-            runtime: lambda.Runtime.NODEJS_12_X,
+            runtime: lambda.Runtime.NODEJS_14_X,
             memorySize: 2048,
             timeout: Duration.seconds(60),
             handler: 'index.handler',

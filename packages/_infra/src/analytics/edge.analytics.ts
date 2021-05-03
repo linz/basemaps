@@ -30,7 +30,7 @@ export class EdgeAnalytics extends cdk.Stack {
 
         const cacheBucket = new s3.Bucket(this, 'AnalyticCacheBucket');
         this.lambda = new lambda.Function(this, 'AnalyticLambda', {
-            runtime: lambda.Runtime.NODEJS_12_X,
+            runtime: lambda.Runtime.NODEJS_14_X,
             memorySize: 2048,
             timeout: Duration.minutes(10),
             handler: 'index.handler',
