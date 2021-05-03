@@ -103,9 +103,7 @@ export class ConfigDynamoTileSet extends ConfigDynamoCached<ConfigTileSet> {
     }
 
     getImageId(layer: ConfigLayer, projection: Epsg): string | undefined {
-        if (projection.code === EpsgCode.Nztm2000) return layer[2193];
-        if (projection.code === EpsgCode.Google) return layer[3857];
-        return undefined;
+        return layer[projection.code];
     }
 }
 
