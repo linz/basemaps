@@ -67,7 +67,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
     }
 
     async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
-        const tiffs = this.getTiffsForTile(tile);
+        const tiffs = this.getTiffsForTile(tile, log);
         let failed = false;
         // Remove any tiffs that failed to load
         const promises = tiffs.map((c) => {
@@ -120,7 +120,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
      * @param tms tile matrix set to describe the tiling scheme
      * @param tile tile to render
      */
-    public getTiffsForTile(tile: Tile): CogTiff[] {
+    public getTiffsForTile(tile: Tile, log?: LogType): CogTiff[] {
         const output: CogTiff[] = [];
         const tileBounds = this.tileMatrix.tileToSourceBounds(tile);
 
@@ -134,10 +134,22 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
             if (layer.minZoom != null && filterZoom < layer.minZoom) continue;
 
             const imgId = Config.TileSet.getImageId(layer, this.tileMatrix.projection);
-            if (imgId == null) continue;
+            if (imgId == null) {
+                log?.warn(
+                    { layer: layer.name, projection: this.tileMatrix.projection.code },
+                    'Failed to lookup imagery',
+                );
+                continue;
+            }
 
             const imagery = this.imagery.get(imgId);
-            if (imagery == null) continue;
+            if (imagery == null) {
+                log?.warn(
+                    { layer: layer.name, projection: this.tileMatrix.projection.code, imgId },
+                    'Failed to lookup imagery',
+                );
+                continue;
+            }
             if (!tileBounds.intersects(Bounds.fromJson(imagery.bounds))) continue;
 
             for (const tiff of this.getCogsForTile(imagery, tileBounds)) output.push(tiff);
