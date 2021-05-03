@@ -52,39 +52,24 @@ o.spec('action.batch', () => {
 
         o('createMetadataFromJob', async () => {
             const putImg = sandbox.stub(Config.Imagery, 'put');
-            const create = sandbox.stub(Config.TileSet, 'create');
-            const tag = sandbox.stub(Config.TileSet, 'tag');
+            const putTileSet = sandbox.stub(Config.TileSet, 'put');
 
-            console.log('Create');
+            // console.log('Create');
             await createMetadataFromJob(job);
 
             o(putImg.getCall(0).args[0].projection).equals(3857);
 
-            o(create.getCall(0).args[0]).deepEquals({
-                id: 'ts_abc123_3857_v000000',
-                createdAt: create.getCall(0).args[0].createdAt,
-                updatedAt: create.getCall(0).args[0].createdAt,
-                version: 0,
-                v: 2,
+            o(putTileSet.getCall(0).args[0]).deepEquals({
+                id: 'ts_abc123',
+                createdAt: putTileSet.getCall(0).args[0].createdAt,
+                updatedAt: putTileSet.getCall(0).args[0].createdAt,
                 name: 'abc123',
-                projection: 3857,
                 background: { r: 0, g: 0, b: 0, alpha: 0 },
-                rules: [
-                    {
-                        imgId: 'im_abc123',
-                        ruleId: 'im_abc123',
-                        minZoom: 0,
-                        maxZoom: 32,
-                        priority: 1000,
-                    },
-                ],
+                layers: [{ 3857: 'im_abc123', name: '2019-new-zealand-sentinel', minZoom: 0, maxZoom: 32 }],
                 title: 'job title',
                 description: 'job description',
                 type: TileSetType.Raster,
             });
-
-            o(tag.getCall(0).args[0].id).equals('ts_abc123_3857_v000000');
-            o(tag.getCall(0).args[1]).equals(Config.Tag.Production);
         });
 
         o('createImageryRecordFromJob', () => {
