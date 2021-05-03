@@ -13,6 +13,8 @@ const JobDefinition = 'CogBatchJob';
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
 
+const ValidProjections = new Set([EpsgCode.Google, EpsgCode.Nztm2000]);
+
 const ResolutionRegex = /((?:\d[\.\-])?\d+)m/;
 /**
  * Attempt to parse a resolution from a imagery name
@@ -50,25 +52,17 @@ export function createImageryRecordFromJob(job: CogJob): ConfigImagery {
 }
 
 export function createTileSetFromImagery(job: CogJob, img: ConfigImagery): ConfigTileSetRaster {
+    const projection = job.tileMatrix.projection.code;
+    if (!ValidProjections.has(projection)) throw new Error(`Projection: ${projection} not support.`);
     const now = Date.now();
 
-    const name = job.id;
-    const projection = job.tileMatrix.projection.code;
-    const layers = [];
-    if (projection === EpsgCode.Nztm2000) {
-        layers.push({ [2193]: img.id, name: img.name, minZoom: 0, maxZoom: 32 });
-    } else if (projection === EpsgCode.Google) {
-        layers.push({ [3857]: img.id, name: img.name, minZoom: 0, maxZoom: 32 });
-    } else {
-        throw new Error(`Projection: ${projection} not support.`);
-    }
     return {
         type: TileSetType.Raster,
         createdAt: now,
         updatedAt: now,
-        id: Config.TileSet.id(name),
-        name,
-        layers,
+        id: Config.TileSet.id(job.id),
+        name: job.id,
+        layers: [{ [projection]: img.id, name: img.name, minZoom: 0, maxZoom: 32 }],
         title: job.title,
         description: job.description,
         background: { r: 0, g: 0, b: 0, alpha: 0 },
