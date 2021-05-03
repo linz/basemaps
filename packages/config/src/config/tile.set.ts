@@ -1,3 +1,4 @@
+import { EpsgCode } from '@basemaps/geo';
 import { BaseConfig } from './base';
 
 export enum TileSetType {
@@ -5,7 +6,7 @@ export enum TileSetType {
     Vector = 'vector',
 }
 
-export interface ConfigLayer {
+export interface ConfigLayer extends Partial<Record<EpsgCode, string>> {
     /** Layer name*/
     name: string;
 
@@ -14,12 +15,6 @@ export interface ConfigLayer {
 
     /** Max zoom to show the layer @default 32 */
     maxZoom?: number;
-
-    /** Unique imagery id  for projection 3857*/
-    [3857]?: string;
-
-    /** Unique imagery id  for projection 2193*/
-    [2193]?: string;
 }
 
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';

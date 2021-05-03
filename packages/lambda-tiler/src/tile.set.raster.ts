@@ -189,13 +189,8 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
         child.tileSet.title = `${this.tileSet?.title} ${titleizeImageryName(image.name)}`;
         child.extentOverride = Bounds.fromJson(image.bounds);
 
-        const layer: ConfigLayer = {
-            name: image.name,
-            minZoom: 0,
-            maxZoom: 100,
-        };
-        if (this.tileMatrix.projection.code === EpsgCode.Nztm2000) layer[2193] = image.id;
-        if (this.tileMatrix.projection.code === EpsgCode.Google) layer[3857] = image.id;
+        const layer: ConfigLayer = { name: image.name, minZoom: 0, maxZoom: 100 };
+        layer[this.tileMatrix.projection.code] = image.id;
 
         child.tileSet.layers = [layer];
         child.imagery = new Map();
