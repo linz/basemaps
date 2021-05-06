@@ -3,7 +3,7 @@ import { BBox } from '@linzjs/geojson';
 import { Wgs84 } from '@linzjs/geojson/build/wgs84';
 import { Extent } from 'ol/extent';
 import OlGeometryLayout from 'ol/geom/GeometryLayout';
-import OlPolygon from 'ol/geom/Polygon';
+import { Polygon } from 'ol/geom';
 import { transformExtent } from 'ol/proj';
 
 /** html escape function */
@@ -19,7 +19,7 @@ export class AttributionBounds {
     /** The bounding box for this collection */
     bbox: BBox;
     /** The polygons this collection intersects with */
-    boundaries: OlPolygon[] = [];
+    boundaries: Polygon[] = [];
     minZoom: number;
     maxZoom: number;
 
@@ -74,10 +74,10 @@ function convertToBounds(stac: AttributionStac): AttributionBounds[] {
             throw new Error('Could not match feature to collection: ' + f.collection);
         }
         if (f.geometry.type === 'Polygon') {
-            col.boundaries.push(new OlPolygon(f.geometry.coordinates, OlGeometryLayout.XY));
+            col.boundaries.push(new Polygon(f.geometry.coordinates, OlGeometryLayout.XY));
         } else if (f.geometry.type === 'MultiPolygon') {
             for (const poly of f.geometry.coordinates) {
-                col.boundaries.push(new OlPolygon(poly, OlGeometryLayout.XY));
+                col.boundaries.push(new Polygon(poly, OlGeometryLayout.XY));
             }
         }
     }
