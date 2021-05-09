@@ -37,7 +37,7 @@ jobs:
         run: yarn  --frozen-lockfile --check-files
 
       - name: Audit
-        run: npx check-audit --yarn
+        run: yarn audit
 
       - name: Build
         run: yarn run build
@@ -87,9 +87,6 @@ jobs:
 
       - name: Install
         run: yarn  --frozen-lockfile --check-files
-
-      - name: Audit
-        run: npx check-audit --yarn
 
       - name: Build
         run: yarn run build
