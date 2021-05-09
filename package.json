@@ -40,5 +40,8 @@
       "**/@types/**"
     ]
   },
-  "resolutions": {}
+  "resolutions": {
+    "hosted-git-info": ">=2.8.9",
+    "lodash": ">=4.17.21"
+  }
 }
