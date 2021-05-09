@@ -19,7 +19,7 @@
     "build": "tsc -b"
   },
   "devDependencies": {
-    "@linzjs/style": "2.1.0",
+    "@linzjs/style": "^2.1.1",
     "@types/aws-lambda": "^8.10.75",
     "@types/node": "^14.11.2",
     "@types/ospec": "^4.0.2",
@@ -43,6 +43,5 @@
       "**/@types/**"
     ]
   },
-  "resolutions": {
-  }
+  "resolutions": {}
 }
