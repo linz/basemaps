@@ -8,5 +8,6 @@
         // Reduce the js size as the map files are made as well
         "inlineSourceMap": false,
         "inlineSources": false,
+        "importHelpers": true,
     }
 }
