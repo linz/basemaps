@@ -1,28 +1,12 @@
 {
+    "extends": "@linzjs/style/tsconfig.base.json",
     "compilerOptions": {
-        "composite": true,
-        "target": "ES2019",
-        "module": "commonjs",
-        "lib": ["dom"],
-        "declaration": true,
-        "declarationMap": true,
-        "strict": true,
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "noImplicitThis": true,
-        "alwaysStrict": true,
-        "noUnusedLocals": false,
-        "noUnusedParameters": false,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": false,
-        "inlineSourceMap": true,
-        "inlineSources": true,
-        "noEmitOnError": false,
-        "experimentalDecorators": true,
-        "strictPropertyInitialization": false,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true,
-        "baseUrl": "./",
+        "lib": [
+            "ES2020"
+        ],
+        "outDir": "build",
+        // Reduce the js size as the map files are made as well
+        "inlineSourceMap": false,
+        "inlineSources": false,
     }
 }
