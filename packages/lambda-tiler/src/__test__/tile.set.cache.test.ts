@@ -1,8 +1,7 @@
-import { ConfigTileSetRaster } from '@basemaps/config';
+import { ConfigImagery, ConfigTileSetRaster } from '@basemaps/config';
 import { Epsg, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { Config, TileSetName } from '@basemaps/shared';
 import o from 'ospec';
-import { ConfigImagery } from '@basemaps/config/src/config/imagery';
 import { createSandbox } from 'sinon';
 import { TileSets } from '../tile.set.cache';
 import { TileSetRaster } from '../tile.set.raster';
