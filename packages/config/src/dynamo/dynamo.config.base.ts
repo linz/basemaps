@@ -11,6 +11,11 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> {
     cfg: ConfigDynamo;
     prefix: ConfigPrefix;
 
+    id(name: string): string {
+        const output: string[] = [this.prefix, name];
+        return output.join('_');
+    }
+
     is(obj: BaseConfig): obj is T {
         return obj.id.startsWith(this.prefix);
     }

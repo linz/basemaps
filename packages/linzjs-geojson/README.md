@@ -22,7 +22,7 @@ assert(deepEqual(Wgs84.union([175, -42, -178, -41], [-170, -43, -160, -42]), [17
 
 ```javascript
 import { clipMultipolygon,  multiPolygonToWgs84 } from '@linzjs/geojson';
-import Proj from 'proj4';
+import * as Proj from 'proj4';
 
 // polygons clipped to bounding box; no degenerate edges
 const clipped = clipMultipolygon(polygons, [-2, -2, 1, 1]);

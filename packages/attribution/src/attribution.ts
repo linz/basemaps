@@ -1,10 +1,5 @@
 import { AttributionCollection, AttributionStac } from '@basemaps/geo';
-import { BBox } from '@linzjs/geojson';
-import { Wgs84 } from '@linzjs/geojson/build/wgs84';
-import { Extent } from 'ol/extent';
-import OlGeometryLayout from 'ol/geom/GeometryLayout';
-import OlPolygon from 'ol/geom/Polygon';
-import { transformExtent } from 'ol/proj';
+import { BBox, intersection, MultiPolygon, Ring, Wgs84 } from '@linzjs/geojson';
 
 /** html escape function */
 function escapeHtml(text: string): string {
@@ -19,7 +14,7 @@ export class AttributionBounds {
     /** The bounding box for this collection */
     bbox: BBox;
     /** The polygons this collection intersects with */
-    boundaries: OlPolygon[] = [];
+    boundaries: Ring[][] = [];
     minZoom: number;
     maxZoom: number;
 
@@ -37,23 +32,42 @@ export class AttributionBounds {
      * @param extent The extent to test for intersection against
      * @param zoom only test extent if `zoom` is between `minZoom` and `maxZoom`
      */
-    intersects(extent: Extent, zoom: number): boolean {
-        if (zoom > this.maxZoom || zoom < this.minZoom || !Wgs84.intersects(extent, this.bbox)) {
-            return false;
-        }
+    intersects(extent: BBox, zoom: number): boolean {
+        if (zoom > this.maxZoom || zoom < this.minZoom) return false;
+        if (!Wgs84.intersects(extent, this.bbox)) return false;
+        return this.intersection(Wgs84.bboxToMultiPolygon(extent));
+    }
 
-        if (extent[0] < extent[2]) {
-            return this.boundaries.find((p) => p.intersectsExtent(extent)) != null;
+    /**
+     * Does this bounds intersect the supplied polygon
+     * @param polygon The polygon to test for intersection against
+     */
+    intersection(polygon: MultiPolygon): boolean {
+        for (const boundary of this.boundaries) {
+            if (intersection(boundary, polygon).length > 0) return true;
         }
+        return false;
+    }
 
-        const ext1: Extent = [extent[0], extent[1], extent[2] + 360, extent[3]];
-        if (this.boundaries.find((p) => p.intersectsExtent(ext1)) != null) {
-            return true;
+    /** Add a boundary ring definition to */
+    addBoundary(ring: number[][][]): void {
+        /**
+         * Fix weirdness in types, GeoJSON defines a point as `number[]` where as
+         * polygon clipping uses [number,number]
+         */
+        assertRing(ring);
+        this.boundaries.push(ring);
+    }
+}
+
+/** Assert the ring is a lat,lng pair  */
+function assertRing(ring: number[][][]): asserts ring is Ring[] {
+    for (const outer of ring) {
+        for (const inner of outer) {
+            if (inner.length !== 2) throw new Error('Invalid ring wrong length');
+            if (inner[0] < -180 || inner[0] > 180) throw new Error('Invalid ring outside of bounds');
+            if (inner[1] < -90 || inner[1] > 90) throw new Error('Invalid ring outside of bounds');
         }
-        ext1[2] = extent[2];
-        ext1[0] -= 360;
-
-        return this.boundaries.find((p) => p.intersectsExtent(ext1)) != null;
     }
 }
 
@@ -63,22 +77,19 @@ function convertToBounds(stac: AttributionStac): AttributionBounds[] {
     const result: AttributionBounds[] = [];
 
     for (const collection of stac.collections) {
-        const olattr = new AttributionBounds(collection);
-        result.push(olattr);
-        colMap.set(collection.id, olattr);
+        const attr = new AttributionBounds(collection);
+        result.push(attr);
+        colMap.set(collection.id, attr);
     }
 
     for (const f of stac.features) {
         const col = colMap.get(f.collection ?? '');
-        if (col == null) {
-            throw new Error('Could not match feature to collection: ' + f.collection);
-        }
+        if (col == null) throw new Error('Could not match feature to collection: ' + f.collection);
+
         if (f.geometry.type === 'Polygon') {
-            col.boundaries.push(new OlPolygon(f.geometry.coordinates, OlGeometryLayout.XY));
+            col.addBoundary(f.geometry.coordinates);
         } else if (f.geometry.type === 'MultiPolygon') {
-            for (const poly of f.geometry.coordinates) {
-                col.boundaries.push(new OlPolygon(poly, OlGeometryLayout.XY));
-            }
+            for (const poly of f.geometry.coordinates) col.addBoundary(poly);
         }
     }
 
@@ -101,16 +112,10 @@ function getYears(col: AttributionCollection): [number, number] {
  * intersect with a given `extent` and `zoom` level
  */
 export class Attribution {
-    attributions: AttributionBounds[] | null;
-    projection: string;
+    attributions: AttributionBounds[];
 
-    /**
-     * @param attributionStac a LINZ AttributionStac object containing all the attributions for the basemap
-     * @param projection the projection of the extents supplied to `filter`
-     */
-    constructor(projection = 'EPSG:3857') {
-        this.attributions = null;
-        this.projection = projection;
+    constructor(attributions: AttributionBounds[]) {
+        this.attributions = attributions;
     }
 
     /**
@@ -118,14 +123,18 @@ export class Attribution {
 
      * @param url the location of the AttributionStac file
      */
-    async load(url: string): Promise<void> {
+    static async load(url: string): Promise<Attribution> {
         const resp = await fetch(url);
-        if (resp.status < 300) {
+        if (resp.ok) {
             const attributionStac = await resp.json();
-            this.attributions = convertToBounds(attributionStac).reverse();
-        } else {
-            throw new Error(`fetch attribution failed [${resp.status}] ${resp.statusText}`);
+            return Attribution.fromStac(attributionStac);
         }
+
+        throw new Error(`fetch attribution failed [${resp.status}] ${resp.statusText}`);
+    }
+
+    static fromStac(json: AttributionStac): Attribution {
+        return new Attribution(convertToBounds(json).reverse());
     }
 
     /**
@@ -134,8 +143,7 @@ export class Attribution {
      * @param extent a bounding box in the projection supplied to the constructor
      * @param zoom the zoom level the extent is viewed at
      */
-    filter(extent: Extent, zoom: number): AttributionCollection[] {
-        extent = Wgs84.normExtent(transformExtent(extent, this.projection, 'EPSG:4326'));
+    filter(extent: BBox, zoom: number): AttributionCollection[] {
         zoom = Math.round(zoom);
 
         const filtered: AttributionCollection[] = [];

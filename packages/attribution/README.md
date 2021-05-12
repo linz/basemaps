@@ -11,8 +11,7 @@ npm install @basemaps/attribution
 ```js
 import { Attribution } from '@basemaps/attribution';
 
-const attributions = new Attribution('EPSG:3857');
-await attributions.load(attrURL);
+const attributions = await attributions.load(attrURL);
 
 const attrList = attributions.filter([19455725.1, -5053732.8, 19456330.7, -5053278.8], 17)));
 const description = attributions.renderList(attrList);
