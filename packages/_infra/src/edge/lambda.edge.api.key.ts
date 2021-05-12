@@ -24,7 +24,7 @@ export class LambdaApiKeyValidator extends cdk.Construct {
         });
 
         this.lambda = new lambda.Function(this, 'ApiValidatorFunction', {
-            runtime: lambda.Runtime.NODEJS_12_X,
+            runtime: lambda.Runtime.NODEJS_14_X,
             handler: 'index.handler',
             code: lambda.Code.fromAsset(CODE_PATH),
             role: lambdaRole,

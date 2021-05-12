@@ -4,20 +4,17 @@ import { BaseConfig } from '../config/base';
 import { ConfigImagery } from '../config/imagery';
 import { ConfigPrefix } from '../config/prefix';
 import { ConfigProvider } from '../config/provider';
-import { ConfigTag } from '../config/tag';
-import { ConfigTileSet, ConfigTileSetRaster, ConfigTileSetVector, TileSetType } from '../config/tile.set';
+import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, ConfigTileSetVector, TileSetType } from '../config/tile.set';
 import { ConfigVectorStyle } from '../config/vector.style';
 import { ConfigDynamoCached } from './dynamo.config.cached';
-import { ConfigDynamoVersioned } from './dynamo.config.versioned';
 
 export class ConfigDynamo {
     Prefix = ConfigPrefix;
-    Tag = ConfigTag;
 
     dynamo: DynamoDB;
     tableName: string;
 
-    Imagery = new ConfigDynamoCached<ConfigImagery>(this, ConfigPrefix.Imagery);
+    Imagery = new ConfigDynamoImagery(this, ConfigPrefix.Imagery);
     Style = new ConfigDynamoVectorStyle(this, ConfigPrefix.Style);
     TileSet = new ConfigDynamoTileSet(this, ConfigPrefix.TileSet);
     Provider = new ConfigDynamoProvider(this, ConfigPrefix.Provider);
@@ -48,19 +45,38 @@ export class ConfigDynamo {
         const now = Date.now();
         return {
             id: '',
+            name: '',
             createdAt: now,
             updatedAt: now,
         };
     }
 }
 
-export class ConfigDynamoProvider extends ConfigDynamoVersioned<ConfigProvider> {
-    id(record: { name: string }, version: string | number): string {
-        return super._id([record.name], version);
+export class ConfigDynamoProvider extends ConfigDynamoCached<ConfigProvider> {}
+
+export class ConfigDynamoImagery extends ConfigDynamoCached<ConfigImagery> {
+    async getImagery(layer: ConfigLayer, projection: Epsg): Promise<ConfigImagery | null> {
+        if (projection.code === EpsgCode.Nztm2000 && layer[2193]) return this.get(this.id(layer[2193]));
+        if (projection.code === EpsgCode.Google && layer[3857]) return this.get(this.id(layer[3857]));
+        return null;
+    }
+
+    async getAllImagery(layers: ConfigLayer[], projection: Epsg): Promise<Map<string, ConfigImagery>> {
+        const imagery: Map<string, ConfigImagery> = new Map<string, ConfigImagery>();
+
+        // Get Imagery based on the order of rules. Imagery priority are ordered by on rules.
+        for (const layer of layers) {
+            const imgId = layer[projection.code];
+            if (imgId == null) continue;
+            const configImg = await this.get(this.id(imgId));
+            if (configImg == null) continue;
+            imagery.set(imgId, configImg);
+        }
+        return imagery;
     }
 }
 
-export class ConfigDynamoTileSet extends ConfigDynamoVersioned<ConfigTileSet> {
+export class ConfigDynamoTileSet extends ConfigDynamoCached<ConfigTileSet> {
     isRaster(x: ConfigTileSet | null | undefined): x is ConfigTileSetRaster {
         if (x == null) return false;
         return x.type == null || x.type === TileSetType.Raster;
@@ -71,51 +87,18 @@ export class ConfigDynamoTileSet extends ConfigDynamoVersioned<ConfigTileSet> {
         return x.type === TileSetType.Vector;
     }
 
-    id(record: { name: string; projection: Epsg | EpsgCode }, version: string | number): string {
-        if (typeof record.projection === 'number') return super._id([record.name, String(record.projection)], version);
-        return super._id([record.name, String(record.projection.code)], version);
-    }
-
-    /**
-     * Sort the render rules of a tile set given the information about the imagery
-     *
-     * This sorts the `tileSet.rules` array to be in the order of first is the highest priority imagery to layer
-     *
-     * @param tileSet with rules that need to be sorted
-     * @param imagery All imagery referenced inside the tileset
-     */
-    sortRenderRules(tileSet: ConfigTileSetRaster, imagery: Map<string, ConfigImagery>): void {
-        tileSet.rules.sort((ruleA, ruleB) => {
-            if (ruleA.priority !== ruleB.priority) return ruleA.priority - ruleB.priority;
-            const imgA = imagery.get(ruleA.imgId);
-            const imgB = imagery.get(ruleB.imgId);
-            if (imgA == null || imgB == null) throw new Error('Unable to find imagery to sort');
-
-            return this.compareImageSets(imgA, imgB);
-        });
-    }
-    /**
-     * Imagery sort must be stable, otherwise the ordering of imagery sets will vary between tile
-     * renders, causing weird artifacts in the map
-     */
-    compareImageSets(ai: ConfigImagery, bi: ConfigImagery): number {
-        // Sort by year, newest on top
-        if (ai.year !== bi.year) return ai.year - bi.year;
-
-        // Resolution, highest resolution (lowest number) on top
-        if (ai.resolution !== bi.resolution) return bi.resolution - ai.resolution;
-
-        // If everything is equal use the name to force a stable sort
-        return ai.id.localeCompare(bi.id);
-    }
-
     getImagery(rec: ConfigTileSetRaster): Promise<Map<string, ConfigImagery>> {
-        return this.cfg.Imagery.getAll(new Set(rec.rules.map((r) => r.imgId)));
+        const imgIds = new Set<string>();
+        for (const layer of rec.layers) {
+            if (layer[2193] != null) imgIds.add(layer[2193]);
+            if (layer[3857] != null) imgIds.add(layer[3857]);
+        }
+        return this.cfg.Imagery.getAll(imgIds);
+    }
+
+    getImageId(layer: ConfigLayer, projection: Epsg): string | undefined {
+        return layer[projection.code];
     }
 }
 
-export class ConfigDynamoVectorStyle extends ConfigDynamoVersioned<ConfigVectorStyle> {
-    id(record: { name: string }, version: string | number): string {
-        return super._id([record.name], version);
-    }
-}
+export class ConfigDynamoVectorStyle extends ConfigDynamoCached<ConfigVectorStyle> {}

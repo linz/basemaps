@@ -31,7 +31,6 @@ export const Provider: ConfigProvider = {
     id: 'pv_main_production',
     updatedAt: Date.now(),
     version: 1,
-    revisions: 0,
     serviceIdentification: {
         accessConstraints: 'the accessConstraints',
         description: 'the description',
