@@ -25,7 +25,7 @@
     "@linzjs/geojson": "^4.22.0",
     "@linzjs/metrics": "^4.22.0",
     "@linzjs/s3fs": "^4.22.0",
-    "aws-sdk": "^2.508.0",
+    "aws-sdk": "^2.890.0",
     "base-x": "^3.0.7",
     "pino": "^6.2.1",
     "proj4": "^2.6.2",

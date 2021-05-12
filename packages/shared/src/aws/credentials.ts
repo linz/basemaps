@@ -19,7 +19,6 @@ export interface StsAssumeRoleConfig {
 }
 
 const OneHourSeconds = 60 * 60;
-const AwsRoleDurationSeconds = Env.getNumber(Env.AwsRoleDurationHours, 8) * OneHourSeconds;
 
 /**
  * Credentials need to be cached or a separate assume role will be called for each individual
@@ -32,7 +31,7 @@ class CredentialObjectCache extends ObjectCache<ChainableTemporaryCredentials, S
                 RoleArn: opts.roleArn,
                 ExternalId: opts.externalId,
                 RoleSessionName: `bm-${hostname().substr(0, 32)}-${Date.now()}`,
-                DurationSeconds: AwsRoleDurationSeconds,
+                DurationSeconds: Env.getNumber(Env.AwsRoleDurationHours, 1) * OneHourSeconds,
             },
             masterCredentials: AWS.config.credentials,
         });
