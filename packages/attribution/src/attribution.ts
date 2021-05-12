@@ -48,6 +48,26 @@ export class AttributionBounds {
         }
         return false;
     }
+
+    /** Add a boundary ring definition to */
+    addBoundary(ring: number[][][]): void {
+        /**
+         * Fix weirdness in types, GeoJSON defines a point as `number[]` where as
+         * polygon clipping uses [number,number]
+         */
+        assertRing(ring);
+        this.boundaries.push(ring);
+    }
+}
+
+function assertRing(ring: number[][][]): asserts ring is Ring[] {
+    for (const outer of ring) {
+        for (const inner of outer) {
+            if (inner.length !== 2) throw new Error('Invalid ring wrong length');
+            if (inner[0] < -180 || inner[0] > 180) throw new Error('Invalid ring outside of bounds');
+            if (inner[1] < -90 || inner[1] > 90) throw new Error('Invalid ring outside of bounds');
+        }
+    }
 }
 
 /** Build an Array of AttributionBounds from AttributionStac */
@@ -56,22 +76,19 @@ function convertToBounds(stac: AttributionStac): AttributionBounds[] {
     const result: AttributionBounds[] = [];
 
     for (const collection of stac.collections) {
-        const olattr = new AttributionBounds(collection);
-        result.push(olattr);
-        colMap.set(collection.id, olattr);
+        const attr = new AttributionBounds(collection);
+        result.push(attr);
+        colMap.set(collection.id, attr);
     }
 
     for (const f of stac.features) {
         const col = colMap.get(f.collection ?? '');
-        if (col == null) {
-            throw new Error('Could not match feature to collection: ' + f.collection);
-        }
+        if (col == null) throw new Error('Could not match feature to collection: ' + f.collection);
+
         if (f.geometry.type === 'Polygon') {
-            col.boundaries.push(f.geometry.coordinates as any);
+            col.addBoundary(f.geometry.coordinates);
         } else if (f.geometry.type === 'MultiPolygon') {
-            for (const poly of f.geometry.coordinates) {
-                col.boundaries.push(poly as any);
-            }
+            for (const poly of f.geometry.coordinates) col.addBoundary(poly);
         }
     }
 

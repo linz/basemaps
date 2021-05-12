@@ -176,6 +176,22 @@ o.spec('Attribution', () => {
         links: [],
     };
 
+    o('should assert bounds', () => {
+        const stacCopy = JSON.parse(JSON.stringify(stac)) as AttributionStac;
+
+        const firstPoly = (stacCopy.features[0].geometry as GeoJSON.MultiPolygon).coordinates[0][0][0];
+
+        firstPoly[0] = 190;
+        o(() => Attribution.fromStac(stacCopy)).throws(Error);
+
+        firstPoly[0] = 170;
+        const ab = Attribution.fromStac(stacCopy);
+        o(ab.attributions[0].boundaries.length).equals(6);
+
+        firstPoly[1] = 91;
+        o(() => Attribution.fromStac(stacCopy)).throws(Error);
+    });
+
     o('should find correct matches', () => {
         const ab = Attribution.fromStac(stac);
 
@@ -207,7 +223,6 @@ o.spec('Attribution', () => {
          * ....X
          */
         const r2 = ab.filter([-176.39158207569128, -44.149224068909994, -176.34407960782733, -44.12924725546014], 10);
-        console.log(r2);
         o(r2.length).equals(0);
 
         /**
