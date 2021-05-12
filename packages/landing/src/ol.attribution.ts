@@ -1,10 +1,12 @@
-import { AttributionCollection, Stac } from '@basemaps/geo';
 import { Attribution } from '@basemaps/attribution';
+import { AttributionCollection, Epsg, Stac } from '@basemaps/geo';
 import { View } from 'ol';
 import { Extent } from 'ol/extent';
 import OlMap from 'ol/Map';
 import MapEventType from 'ol/MapEventType';
+import { transformExtent } from 'ol/proj';
 import Source from 'ol/source/Source';
+import { Wgs84 } from '@linzjs/geojson';
 import { MapOptions, MapOptionType, WindowUrl } from './url';
 
 const Copyright = `© ${Stac.License} LINZ`;
@@ -60,8 +62,7 @@ export class OlAttribution {
     async updateAttribution(): Promise<void> {
         if (this.attributions == null) {
             this.source.setAttributions((this.attributionHTML = 'Loading…'));
-            this.attributions = new Attribution(this.source.getProjection().getCode());
-            await this.attributions.load(WindowUrl.toTileUrl(this.config, MapOptionType.Attribution));
+            this.attributions = await Attribution.load(WindowUrl.toTileUrl(this.config, MapOptionType.Attribution));
         }
         this.scheduleRender();
     }
@@ -91,7 +92,11 @@ export class OlAttribution {
         if (this.attributions == null) return;
         this.zoom = Math.round(this.view.getZoom() ?? 0);
         this.extent = this.view.calculateExtent();
-        const filtered = this.attributions.filter(this.extent, this.zoom);
+
+        const wgs84Extent = Wgs84.normExtent(
+            transformExtent(this.extent, this.view.getProjection().getCode(), Epsg.Wgs84.toEpsgString()),
+        );
+        const filtered = this.attributions.filter(wgs84Extent, this.zoom);
         let attributionHTML = this.attributions.renderList(filtered);
         if (attributionHTML === '') {
             attributionHTML = Copyright;
