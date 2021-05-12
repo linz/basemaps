@@ -60,6 +60,7 @@ export class AttributionBounds {
     }
 }
 
+/** Assert the ring is a lat,lng pair  */
 function assertRing(ring: number[][][]): asserts ring is Ring[] {
     for (const outer of ring) {
         for (const inner of outer) {
