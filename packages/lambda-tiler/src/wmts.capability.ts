@@ -44,10 +44,10 @@ export class WmtsCapabilities {
 
         for (const layer of layers) {
             // TODO is grouping by name the best option
-            let existing = this.layers.get(layer.components.name);
+            let existing = this.layers.get(layer.fullName);
             if (existing == null) {
                 existing = [];
-                this.layers.set(layer.components.name, existing);
+                this.layers.set(layer.fullName, existing);
             }
             // TODO should a error be thrown here if the projection is invalid
             existing.push(layer);

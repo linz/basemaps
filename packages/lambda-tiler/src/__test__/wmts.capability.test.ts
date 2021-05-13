@@ -189,6 +189,33 @@ o.spec('WmtsCapabilities', () => {
         o(layers[1].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
     });
 
+    o('should support child tile sets', () => {
+        const ts = [
+            new FakeTileSet(
+                `${TileSetName.aerial}:wairoa_urban_2014-2015_0-10m_RGBA`,
+                Nztm2000Tms,
+                'wairoa_urban_2014-2015_0-10m_RGBA',
+            ),
+            new FakeTileSet(
+                `${TileSetName.aerial}:west-coast_rural_2016-17_0-3m`,
+                Nztm2000Tms,
+                'west-coast_rural_2016-17_0-3m',
+            ),
+        ];
+        const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
+        const layers = tags(nodes, 'Layer');
+
+        o(layers.length).equals(2);
+
+        const boundingBoxes = tags(layers[0], 'ows:BoundingBox');
+        o(boundingBoxes.length).equals(1);
+
+        const firstTitle = layers[0].children[0].textContent;
+        o(firstTitle).equals('wairoa_urban_2014-2015_0-10m_RGBA');
+        const secondTitle = layers[1].children[0].textContent;
+        o(secondTitle).equals('west-coast_rural_2016-17_0-3m');
+    });
+
     o('should support multiple different projections on different tiles sets', () => {
         const ts = [
             new FakeTileSet(TileSetName.aerial, Nztm2000Tms, TileSetName.aerial),

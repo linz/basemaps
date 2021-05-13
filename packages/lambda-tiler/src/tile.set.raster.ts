@@ -195,7 +195,8 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
         // use parent data as prototype for child;
         child.tileSet = { ...this.tileSet };
         child.tileSet.background = undefined;
-        child.tileSet.title = `${this.tileSet?.title} ${titleizeImageryName(image.name)}`;
+        const title = this.tileSet?.title ?? this.tileSet?.name;
+        child.tileSet.title = `${title} ${titleizeImageryName(image.name)}`;
         child.extentOverride = Bounds.fromJson(image.bounds);
 
         const layer: ConfigLayer = { name: image.name, minZoom: 0, maxZoom: 100 };
