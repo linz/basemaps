@@ -30,6 +30,11 @@ export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
 }
 
 async function wmtsLoadTileSets(name: string, tileMatrix: TileMatrixSet | null): Promise<TileSetRaster[]> {
+    if (tileMatrix != null) {
+        const ts = await TileSets.get(name, tileMatrix);
+        if (ts == null || ts.isVector()) return [];
+        return [ts];
+    }
     if (name === '') name = TileSetName.aerial;
     return (await TileSets.getAll(name, tileMatrix)).filter((f) => f.type === 'raster') as TileSetRaster[];
 }
