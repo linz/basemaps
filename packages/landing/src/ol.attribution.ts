@@ -56,13 +56,20 @@ export class OlAttribution {
         this.config = config;
     }
 
+    _attributionLoad: Promise<Attribution> | null;
     /**
      * Trigger an attribution text update. Will fetch attributions if needed
      */
-    async updateAttribution(): Promise<void> {
-        if (this.attributions == null) {
+    updateAttribution(): void {
+        if (this._attributionLoad == null) {
             this.source.setAttributions((this.attributionHTML = 'Loading…'));
-            this.attributions = await Attribution.load(WindowUrl.toTileUrl(this.config, MapOptionType.Attribution));
+            this._attributionLoad = Attribution.load(WindowUrl.toTileUrl(this.config, MapOptionType.Attribution)).then(
+                (attr) => {
+                    this.attributions = attr;
+                    this.scheduleRender();
+                    return attr;
+                },
+            );
         }
         this.scheduleRender();
     }
