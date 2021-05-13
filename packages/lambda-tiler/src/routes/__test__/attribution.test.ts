@@ -11,6 +11,8 @@ import { TileSetRaster } from '../../tile.set.raster';
 import { FakeTileSet, mockRequest, Provider } from '../../__test__/xyz.util';
 import { attribution, createAttributionCollection } from '../attribution';
 import { TileEtag } from '../tile.etag';
+import { Attribution } from '@basemaps/attribution';
+
 const ExpectedJson = {
     id: 'aerial_WebMercatorQuad',
     type: 'FeatureCollection',
@@ -136,7 +138,7 @@ const ExpectedJson = {
         {
             stac_version: '1.0.0-beta.2',
             license: 'CC BY 4.0',
-            id: 'hastings-district_urban_2011-13_0.1m',
+            id: 'im_imageId1',
             providers: [
                 {
                     name: 'the name',
@@ -167,7 +169,7 @@ const ExpectedJson = {
         {
             stac_version: '1.0.0-beta.2',
             license: 'CC BY 4.0',
-            id: 'hastings-district_urban_2013-14_0.1m',
+            id: 'im_imageId2',
             providers: [
                 {
                     name: 'the name',
@@ -198,7 +200,7 @@ const ExpectedJson = {
         {
             stac_version: '1.0.0-beta.2',
             license: 'CC BY 4.0',
-            id: 'hastings-district_urban_2015-17_0.1m',
+            id: 'im_imageId3',
             providers: [
                 {
                     name: 'the name',
@@ -229,7 +231,7 @@ const ExpectedJson = {
         {
             stac_version: '1.0.0-beta.2',
             license: 'CC BY 4.0',
-            id: 'hastings-district_urban_2017-18_0.1m',
+            id: 'im_imageId4',
             providers: [
                 {
                     name: 'the name',
@@ -260,7 +262,27 @@ const ExpectedJson = {
     ],
     links: [],
 };
-
+function makeImageRecord(id: string, name: string, x = 10, year = 2019): ConfigImagery {
+    return {
+        id,
+        name,
+        projection: EpsgCode.Google,
+        year,
+        uri: 's3://bucket/path/' + name,
+        bounds: GoogleTms.tileToSourceBounds({ x, y: 10, z: 5 }),
+        resolution: 750,
+        files: [0, 1].map((i) => {
+            const b = GoogleTms.tileToSourceBounds({ x, y: 10, z: 5 }).toJson() as NamedBounds;
+            b.name = name + i;
+            b.width /= 8;
+            b.height /= 8;
+            b.x += i * b.width;
+            return b;
+        }),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    };
+}
 o.spec('attribution', () => {
     o.spec('fetch', () => {
         const origTileEtag = TileEtag.generate;
@@ -269,27 +291,6 @@ o.spec('attribution', () => {
 
         const mockFs = mockFileOperator();
 
-        const makeImageRecord = (name: string, x = 10, year = 2019): ConfigImagery => {
-            return {
-                id: name,
-                name,
-                projection: EpsgCode.Google,
-                year,
-                uri: 's3://bucket/path/' + name,
-                bounds: GoogleTms.tileToSourceBounds({ x, y: 10, z: 5 }),
-                resolution: 750,
-                files: [0, 1].map((i) => {
-                    const b = GoogleTms.tileToSourceBounds({ x, y: 10, z: 5 }).toJson() as NamedBounds;
-                    b.name = name + i;
-                    b.width /= 8;
-                    b.height /= 8;
-                    b.x += i * b.width;
-                    return b;
-                }),
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-            };
-        };
         const sandbox = createSandbox();
         o.beforeEach(() => {
             mockFs.setup();
@@ -302,9 +303,10 @@ o.spec('attribution', () => {
                     const layers: ConfigLayer[] = [];
                     const imagery = new Map<string, ConfigImagery>();
                     const addRule = (id: string, name: string, minZoom = 10): void => {
-                        imagery.set(Config.Imagery.id(id), makeImageRecord(name, minZoom));
+                        const imgId = Config.Imagery.id(id);
+                        imagery.set(imgId, makeImageRecord(imgId, name, minZoom));
                         layers.push({
-                            [3857]: Config.Imagery.id(id),
+                            [3857]: imgId,
                             name,
                             minZoom,
                             maxZoom: minZoom + 2,
@@ -328,14 +330,14 @@ o.spec('attribution', () => {
             TileEtag.generate = origTileEtag;
         });
 
-        o('notFound', async () => {
+        o('should notFound', async () => {
             const request = mockRequest(`/v1/attribution/aerial/1234/summary.json`);
             const res = await attribution(request);
 
             o(res.status).equals(404);
         });
 
-        o('etag mismatch', async () => {
+        o('should 200 with etag mismatch', async () => {
             mockFs.jsStore['s3://bucket/path/image1/collection.json'] = {
                 extent: {
                     spatial: { bbox: [1, 2, 3, 4] },
@@ -367,22 +369,32 @@ o.spec('attribution', () => {
             const res = await attribution(request);
 
             o(res.status).equals(200);
-            o(res.header(HttpHeader.ETag)).equals(
-                'v1.dde76482696d2b8fcb5324c24d853d31e88d4b095f52f240c7fa8e4528ac5333',
-            );
+            o(res.header(HttpHeader.ETag)).equals('3edkgmltK4/LUyTCTYU9MeiNSwlfUvJAx/qORSisUzM=');
             o(res.header(HttpHeader.CacheControl)).equals('public, max-age=86400, stale-while-revalidate=604800');
 
             const body = round(JSON.parse(res.body as string), 4);
             o(body).deepEquals(ExpectedJson);
         });
 
-        o('etag match', async () => {
+        o('should 304 with etag match', async () => {
             const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`, 'get', {
-                [HttpHeader.IfNoneMatch]: 'v1.dde76482696d2b8fcb5324c24d853d31e88d4b095f52f240c7fa8e4528ac5333',
+                [HttpHeader.IfNoneMatch]: '3edkgmltK4/LUyTCTYU9MeiNSwlfUvJAx/qORSisUzM=',
             });
             const res = await attribution(request);
 
             o(res.status).equals(304);
+        });
+
+        o('should parse attribution', async () => {
+            const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`);
+            const res = await attribution(request);
+
+            const json = JSON.parse(res.body as string);
+
+            const attr = Attribution.fromStac(json);
+            o(attr.attributions.length).equals(4);
+            o(attr.attributions[0].minZoom).equals(14);
+            o(attr.attributions[0].maxZoom).equals(16);
         });
     });
 
