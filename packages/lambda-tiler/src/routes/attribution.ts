@@ -184,7 +184,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
             type: 'Feature',
             stac_version: Stac.Version,
             id: imgId + '_item',
-            collection: 'im_' + imgId,
+            collection: imgId,
             assets: {},
             links: [],
             bbox,
@@ -227,8 +227,7 @@ export async function attribution(req: LambdaContext): Promise<LambdaHttpRespons
     req.timer.end('tileset:load');
     if (tileSet == null || tileSet.isVector()) return NotFound;
 
-    const hash = createHash('sha256').update(JSON.stringify(tileSet.tileSet)).digest('hex');
-    const cacheKey = `v1.${hash}`; // change version if format changes
+    const cacheKey = createHash('sha256').update(JSON.stringify(tileSet.tileSet)).digest('base64');
 
     const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
     if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
