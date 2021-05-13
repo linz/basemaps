@@ -42,6 +42,7 @@
     "bundle": "./bundle.sh"
   },
   "devDependencies": {
+    "@basemaps/attribution": "^4.24.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/express": "^4.17.11",
     "@types/node": "^14.11.2",
