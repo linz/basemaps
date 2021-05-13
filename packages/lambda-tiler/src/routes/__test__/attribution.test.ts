@@ -22,7 +22,7 @@ const ExpectedJson = {
         {
             type: 'Feature',
             stac_version: '1.0.0-beta.2',
-            id: 'imageId1_item',
+            id: 'im_imageId1_item',
             collection: 'im_imageId1',
             assets: {},
             links: [],
@@ -50,7 +50,7 @@ const ExpectedJson = {
         {
             type: 'Feature',
             stac_version: '1.0.0-beta.2',
-            id: 'imageId2_item',
+            id: 'im_imageId2_item',
             collection: 'im_imageId2',
             assets: {},
             links: [],
@@ -78,7 +78,7 @@ const ExpectedJson = {
         {
             type: 'Feature',
             stac_version: '1.0.0-beta.2',
-            id: 'imageId3_item',
+            id: 'im_imageId3_item',
             collection: 'im_imageId3',
             assets: {},
             links: [],
@@ -106,7 +106,7 @@ const ExpectedJson = {
         {
             type: 'Feature',
             stac_version: '1.0.0-beta.2',
-            id: 'imageId4_item',
+            id: 'im_imageId4_item',
             collection: 'im_imageId4',
             assets: {},
             links: [],
@@ -302,9 +302,9 @@ o.spec('attribution', () => {
                     const layers: ConfigLayer[] = [];
                     const imagery = new Map<string, ConfigImagery>();
                     const addRule = (id: string, name: string, minZoom = 10): void => {
-                        imagery.set(id, makeImageRecord(name, minZoom));
+                        imagery.set(Config.Imagery.id(id), makeImageRecord(name, minZoom));
                         layers.push({
-                            [3857]: id,
+                            [3857]: Config.Imagery.id(id),
                             name,
                             minZoom,
                             maxZoom: minZoom + 2,
@@ -368,7 +368,7 @@ o.spec('attribution', () => {
 
             o(res.status).equals(200);
             o(res.header(HttpHeader.ETag)).equals(
-                'v1.8032cbf6016e1cd8f57cf8a2db4e099e9d9392f4ae6d5387f800436db2e3d2c1',
+                'v1.dde76482696d2b8fcb5324c24d853d31e88d4b095f52f240c7fa8e4528ac5333',
             );
             o(res.header(HttpHeader.CacheControl)).equals('public, max-age=86400, stale-while-revalidate=604800');
 
@@ -378,7 +378,7 @@ o.spec('attribution', () => {
 
         o('etag match', async () => {
             const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`, 'get', {
-                [HttpHeader.IfNoneMatch]: 'v1.8032cbf6016e1cd8f57cf8a2db4e099e9d9392f4ae6d5387f800436db2e3d2c1',
+                [HttpHeader.IfNoneMatch]: 'v1.dde76482696d2b8fcb5324c24d853d31e88d4b095f52f240c7fa8e4528ac5333',
             });
             const res = await attribution(request);
 
