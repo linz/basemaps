@@ -12,8 +12,8 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> {
     prefix: ConfigPrefix;
 
     id(name: string): string {
-        const output: string[] = [this.prefix, name];
-        return output.join('_');
+        if (name.startsWith(`${this.prefix}_`)) return name;
+        return `${this.prefix}_${name}`;
     }
 
     is(obj: BaseConfig): obj is T {
