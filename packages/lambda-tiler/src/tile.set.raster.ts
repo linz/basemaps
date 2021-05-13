@@ -1,5 +1,5 @@
 import { ConfigImagery, ConfigLayer, ConfigTileSetRaster, TileSetNameParser, TileSetType } from '@basemaps/config';
-import { Bounds, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import { Aws, Config, Env, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
@@ -124,11 +124,8 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
         const output: CogTiff[] = [];
         const tileBounds = this.tileMatrix.tileToSourceBounds(tile);
 
-        const filterZoom = TileMatrixSet.convertZoomLevel(
-            tile.z,
-            this.tileMatrix,
-            TileMatrixSets.get(this.tileMatrix.projection),
-        );
+        // All zoom level config is stored as Google zoom levels
+        const filterZoom = TileMatrixSet.convertZoomLevel(tile.z, this.tileMatrix, TileMatrixSets.get(Epsg.Google));
         for (const layer of this.tileSet.layers) {
             if (layer.maxZoom != null && filterZoom > layer.maxZoom) continue;
             if (layer.minZoom != null && filterZoom < layer.minZoom) continue;
