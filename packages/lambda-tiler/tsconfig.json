@@ -10,6 +10,7 @@
         {"path": "../geo"},
         {"path": "../lambda"},
         {"path": "../tiler"},
-        {"path": "../tiler-sharp"}
+        {"path": "../tiler-sharp"},
+        {"path": "../attribution"}
     ]
 }
