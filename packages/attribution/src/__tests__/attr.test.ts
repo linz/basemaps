@@ -176,21 +176,22 @@ o.spec('Attribution', () => {
         links: [],
     };
 
-    o('should assert bounds', () => {
-        const stacCopy = JSON.parse(JSON.stringify(stac)) as AttributionStac;
+    // TODO some attribution is outside of lat/lng bounds BM-113
+    // o('should assert bounds', () => {
+    //     const stacCopy = JSON.parse(JSON.stringify(stac)) as AttributionStac;
 
-        const firstPoly = (stacCopy.features[0].geometry as GeoJSON.MultiPolygon).coordinates[0][0][0];
+    //     const firstPoly = (stacCopy.features[0].geometry as GeoJSON.MultiPolygon).coordinates[0][0][0];
 
-        firstPoly[0] = 190;
-        o(() => Attribution.fromStac(stacCopy)).throws(Error);
+    //     firstPoly[0] = 190;
+    //     o(() => Attribution.fromStac(stacCopy)).throws(Error);
 
-        firstPoly[0] = 170;
-        const ab = Attribution.fromStac(stacCopy);
-        o(ab.attributions[0].boundaries.length).equals(6);
+    //     firstPoly[0] = 170;
+    //     const ab = Attribution.fromStac(stacCopy);
+    //     o(ab.attributions[0].boundaries.length).equals(6);
 
-        firstPoly[1] = 91;
-        o(() => Attribution.fromStac(stacCopy)).throws(Error);
-    });
+    //     firstPoly[1] = 91;
+    //     o(() => Attribution.fromStac(stacCopy)).throws(Error);
+    // });
 
     o('should find correct matches', () => {
         const ab = Attribution.fromStac(stac);
