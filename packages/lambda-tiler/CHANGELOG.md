@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.0.0](https://github.com/linz/basemaps/compare/v4.24.0...v5.0.0) (2021-05-17)
+
+
+### Bug Fixes
+
+* **attribution:** correct import issue with openlayers  ([#1599](https://github.com/linz/basemaps/issues/1599)) ([1b464f3](https://github.com/linz/basemaps/commit/1b464f381a81448769521543787c060ef9b3efcf))
+* **lambda-tiler:** correctly build WMTS for child tile sets ([#1607](https://github.com/linz/basemaps/issues/1607)) ([cc5ef6f](https://github.com/linz/basemaps/commit/cc5ef6f2facbc78cfad88d39785dffdae85122aa))
+* **lambda-tiler:** do not duplicate im prefix in attribution ([#1609](https://github.com/linz/basemaps/issues/1609)) ([42f57fb](https://github.com/linz/basemaps/commit/42f57fb7c8f6aa3b5cab9179e1dfb70bd14df73e))
+* **lambda-tiler:** flip the y axis for vector map server to get MVT from mbtiles ([#1539](https://github.com/linz/basemaps/issues/1539)) ([66806df](https://github.com/linz/basemaps/commit/66806df400788dc27cd31493466a641a63b5bcae))
+* **lambda-tiler:** force vector tiles to be served as protobuf ([#1536](https://github.com/linz/basemaps/issues/1536)) ([2ca83ee](https://github.com/linz/basemaps/commit/2ca83ee2c7906e6e0bf81b203cd611b88aa4ad75))
+* **tiler:** all config is stored as google zoom levels so convert this tilez to the closet google z ([#1606](https://github.com/linz/basemaps/issues/1606)) ([7ea2db1](https://github.com/linz/basemaps/commit/7ea2db14f3f75c11ffb2c2044c45519a03cfa0ee))
+
+
+### Features
+
+* **config:** Tidy up the config and cli to be able to config style json. ([#1555](https://github.com/linz/basemaps/issues/1555)) ([95b4c0e](https://github.com/linz/basemaps/commit/95b4c0ed5a42a5b7c6c7884c9bfe24f97e3677e5))
+* **lambda-tiler:** improve caching and init of cotar ([#1542](https://github.com/linz/basemaps/issues/1542)) ([c607a1c](https://github.com/linz/basemaps/commit/c607a1c4eba04cfdcc9b21341ee154dc544678c8))
+* **lambda-tiler:** serve vector map style json. ([#1553](https://github.com/linz/basemaps/issues/1553)) ([f9dadcd](https://github.com/linz/basemaps/commit/f9dadcdc2369c1ce30432ed231f5be4b466dc9cd))
+* **shared:** Cleanup - Remove TileSet Metatdata Record V1. ([#1541](https://github.com/linz/basemaps/issues/1541)) ([32e79af](https://github.com/linz/basemaps/commit/32e79afe630e9042edc1f936a657b7a31f1392ef))
+* support serving of vector tiles ([#1535](https://github.com/linz/basemaps/issues/1535)) ([30083a5](https://github.com/linz/basemaps/commit/30083a57f981c2b2db6c50cad0f8db48be377d19))
+
+
+
+
+
 # [4.24.0](https://github.com/linz/basemaps/compare/v4.23.0...v4.24.0) (2021-03-21)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler

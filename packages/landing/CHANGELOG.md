@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.0.0](https://github.com/linz/basemaps/compare/v4.24.0...v5.0.0) (2021-05-17)
+
+
+### Bug Fixes
+
+* **attribution:** correct import issue with openlayers  ([#1599](https://github.com/linz/basemaps/issues/1599)) ([1b464f3](https://github.com/linz/basemaps/commit/1b464f381a81448769521543787c060ef9b3efcf))
+* **landing:** only load attribution once ([#1610](https://github.com/linz/basemaps/issues/1610)) ([57926fc](https://github.com/linz/basemaps/commit/57926fcb14440c884cd72547a5356191fd51683d))
+
+
+
+
+
 # [4.24.0](https://github.com/linz/basemaps/compare/v4.23.0...v4.24.0) (2021-03-21)
 
 **Note:** Version bump only for package @basemaps/landing

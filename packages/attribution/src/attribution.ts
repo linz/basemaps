@@ -65,8 +65,9 @@ function assertRing(ring: number[][][]): asserts ring is Ring[] {
     for (const outer of ring) {
         for (const inner of outer) {
             if (inner.length !== 2) throw new Error('Invalid ring wrong length');
-            if (inner[0] < -180 || inner[0] > 180) throw new Error('Invalid ring outside of bounds');
-            if (inner[1] < -90 || inner[1] > 90) throw new Error('Invalid ring outside of bounds');
+            // TODO some attribution is outside of lat/lng bounds BM-113
+            // if (inner[0] < -180 || inner[0] > 180) throw new Error('Invalid ring outside of bounds');
+            // if (inner[1] < -90 || inner[1] > 90) throw new Error('Invalid ring outside of bounds');
         }
     }
 }
