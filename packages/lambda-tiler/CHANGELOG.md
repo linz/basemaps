@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.1](https://github.com/linz/basemaps/compare/v5.0.0...v5.0.1) (2021-05-17)
+
+### Bug Fixes
+
+* **attribution:** all zoom levels are stored as google so convert z to the target tileMatrix  ([#1614](https://github.com/linz/basemaps/issues/1614)) ([28f5c80](https://github.com/linz/basemaps/commit/fcbdefc5c951211956d03e11deef37caedf19aec))
+
+
+
+
+
 # [5.0.0](https://github.com/linz/basemaps/compare/v4.24.0...v5.0.0) (2021-05-17)
 
 
