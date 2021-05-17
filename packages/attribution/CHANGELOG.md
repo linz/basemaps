@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.0.0](https://github.com/linz/basemaps/compare/v4.24.0...v5.0.0) (2021-05-17)
+
+
+### Bug Fixes
+
+* **attribution:** correct import issue with openlayers  ([#1599](https://github.com/linz/basemaps/issues/1599)) ([1b464f3](https://github.com/linz/basemaps/commit/1b464f381a81448769521543787c060ef9b3efcf))
+* **attribution:** disable lat/lng bounds checking until bad bounds are fixed. ([#1612](https://github.com/linz/basemaps/issues/1612)) ([3c53edd](https://github.com/linz/basemaps/commit/3c53edd02d7343c7970f283809c1fdcfa835ddbd))
+
+
+
+
+
 # [4.24.0](https://github.com/linz/basemaps/compare/v4.23.0...v4.24.0) (2021-03-21)
 
 **Note:** Version bump only for package @basemaps/attribution
