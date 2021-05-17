@@ -5,7 +5,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [5.0.1](https://github.com/linz/basemaps/compare/v5.0.0...v5.0.1) (2021-05-17)
 
-**Note:** Version bump only for package @basemaps/lambda-tiler
+### Bug Fixes
+
+* **attribution:** all zoom levels are stored as google so convert z to the target tileMatrix  ([#1614](https://github.com/linz/basemaps/issues/1614)) ([28f5c80](https://github.com/linz/basemaps/commit/fcbdefc5c951211956d03e11deef37caedf19aec))
 
 
 
