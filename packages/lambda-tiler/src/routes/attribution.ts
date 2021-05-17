@@ -4,12 +4,12 @@ import {
     AttributionItem,
     AttributionStac,
     Bounds,
+    GoogleTms,
     NamedBounds,
     Stac,
     StacCollection,
     StacExtent,
     TileMatrixSet,
-    TileMatrixSets,
 } from '@basemaps/geo';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import {
@@ -102,7 +102,6 @@ export function createAttributionCollection(
     extent: StacExtent,
 ): AttributionCollection {
     const tileMatrix = tileSet.tileMatrix;
-    const defaultTileMatrix = TileMatrixSets.get(tileMatrix.projection);
     return {
         stac_version: Stac.Version,
         license: stac?.license ?? Stac.License,
@@ -117,18 +116,8 @@ export function createAttributionCollection(
         summaries: {
             gsd: [getGsd(stac?.summaries) ?? imagery.resolution / 1000],
             'linz:zoom': {
-                min: TileMatrixSet.convertZoomLevel(
-                    layer.minZoom ? layer.minZoom : 0,
-                    defaultTileMatrix,
-                    tileMatrix,
-                    true,
-                ),
-                max: TileMatrixSet.convertZoomLevel(
-                    layer.maxZoom ? layer.maxZoom : 32,
-                    defaultTileMatrix,
-                    tileMatrix,
-                    true,
-                ),
+                min: TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true),
+                max: TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true),
             },
             'linz:priority': [1000 + tileSet.tileSet.layers.indexOf(layer)],
         },

@@ -401,44 +401,38 @@ o.spec('attribution', () => {
     o.spec('ImageryRule', () => {
         const fakeIm = { name: 'someName' } as ConfigImagery;
         const fakeHost = { serviceProvider: {} } as ConfigProvider;
-        const fakeLayer = {
-            [2193]: 'id',
-            name: 'image',
-            minZoom: 9,
-            maxZoom: 16,
-            priority: 10,
-        };
+        const fakeLayer = { [2193]: 'id', name: 'image', minZoom: 9, maxZoom: 16 };
 
         o('should generate for NZTM', () => {
             const ts = new TileSetRaster('Fake', Nztm2000Tms);
-            ts.tileSet = { layers: [fakeLayer] } as any;
+            ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
 
             const output = createAttributionCollection(ts, null, fakeIm, fakeLayer, fakeHost, null as any);
             o(output.title).equals('SomeName');
-            o(output.summaries['linz:zoom']).deepEquals({ min: fakeLayer.minZoom, max: fakeLayer.maxZoom });
+            o(output.summaries['linz:zoom']).deepEquals({ min: 5, max: 11 });
         });
 
         o('should generate with correct zooms for NZTM2000Quad', () => {
             const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
-            ts.tileSet = { layers: [fakeLayer] } as any;
+            ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
             const output = createAttributionCollection(ts, null, fakeIm, fakeLayer, fakeHost, null as any);
             o(output.title).equals('SomeName');
-            o(output.summaries['linz:zoom']).deepEquals({ min: 12, max: 21 });
+            o(output.summaries['linz:zoom']).deepEquals({ min: 7, max: 14 });
         });
 
         o('should generate with correct zooms for gebco NZTM2000Quad', () => {
-            const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 10 };
+            const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 15 };
             const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
-            ts.tileSet = { layers: [fakeLayer] } as any;
+            ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
             const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: 13 });
         });
 
         o('should generate with correct zooms for nz sentinel NZTM2000Quad', () => {
-            const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 17 };
+            const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 32 };
             const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
-            ts.tileSet = { layers: [fakeLayer] } as any;
+            ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
             const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
             o(output.title).equals('SomeName');
             o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });
