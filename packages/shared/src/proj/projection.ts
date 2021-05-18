@@ -23,6 +23,14 @@ export interface LatLon {
     lon: number;
 }
 
+function getEpsgCode(epsgCode?: Epsg | EpsgCode | TileMatrixSet): EpsgCode | null {
+    if (epsgCode == null) return null;
+    if (typeof epsgCode === 'number') return epsgCode;
+    if ('code' in epsgCode) return epsgCode.code;
+    if ('projection' in epsgCode) return epsgCode.projection.code;
+    return null;
+}
+
 export class Projection {
     epsg: Epsg;
 
@@ -61,10 +69,9 @@ export class Projection {
      * Try to find a corresponding Projection for a number
      * @param epsgCode
      */
-    static tryGet(epsgCode?: Epsg | EpsgCode | TileMatrixSet): Projection | null {
+    static tryGet(unk?: Epsg | EpsgCode | TileMatrixSet): Projection | null {
+        const epsgCode = getEpsgCode(unk);
         if (epsgCode == null) return null;
-        if (epsgCode instanceof Epsg) epsgCode = epsgCode.code;
-        if (epsgCode instanceof TileMatrixSet) epsgCode = epsgCode.projection.code;
         let proj = CodeMap.get(epsgCode);
         if (proj != null) return proj;
         const epsg = Epsg.tryGet(epsgCode);
