@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.2](https://github.com/linz/basemaps/compare/v5.0.1...v5.0.2) (2021-05-19)
+
+
+### Bug Fixes
+
+* **shared:** avoid instance of as it breaks when multiple copies of basemaps are init ([#1620](https://github.com/linz/basemaps/issues/1620)) ([53f7d23](https://github.com/linz/basemaps/commit/53f7d23f68a0fee3a355eee409a32ebdf10b7216))
+
+
+
+
+
 # [5.0.0](https://github.com/linz/basemaps/compare/v4.24.0...v5.0.0) (2021-05-17)
 
 
