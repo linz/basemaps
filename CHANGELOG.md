@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.2](https://github.com/linz/basemaps/compare/v5.0.1...v5.0.2) (2021-05-19)
+
+
+### Bug Fixes
+
+* **cli:** force gdal version 3.3.0 ([#1623](https://github.com/linz/basemaps/issues/1623)) ([bc2815b](https://github.com/linz/basemaps/commit/bc2815b874fd4077799be4bc501e863ded2a3ef2))
+* **shared:** avoid instance of as it breaks when multiple copies of basemaps are init ([#1620](https://github.com/linz/basemaps/issues/1620)) ([53f7d23](https://github.com/linz/basemaps/commit/53f7d23f68a0fee3a355eee409a32ebdf10b7216))
+
+
+
+
+
 ## [5.0.1](https://github.com/linz/basemaps/compare/v5.0.0...v5.0.1) (2021-05-17)
 
 **Note:** Version bump only for package @basemaps/core
