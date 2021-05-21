@@ -1,5 +1,6 @@
-import { TileMatrixSet } from '@basemaps/geo';
-import { Env, FileOperator, LogConfig, LogType, Projection } from '@basemaps/shared';
+import { ConfigTileSetRaster, TileSetType } from '@basemaps/config';
+import { EpsgCode, TileMatrixSet } from '@basemaps/geo';
+import { Config, Env, FileOperator, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import Batch from 'aws-sdk/clients/batch';
 import { CogStacJob } from '../../cog/cog.stac.job';
@@ -12,6 +13,9 @@ const JobDefinition = 'CogBatchJob';
 const MagicAlignmentLevel = 7;
 
 const ResolutionRegex = /((?:\d[\.\-])?\d+)m/;
+
+const ValidProjections = new Set([EpsgCode.Google, EpsgCode.Nztm2000]);
+
 /**
  * Attempt to parse a resolution from a imagery name
  * @example `wellington_urban_2017_0.10m` -> 100
@@ -22,6 +26,33 @@ export function extractResolutionFromName(name: string): number {
     const matches = name.match(ResolutionRegex);
     if (matches == null) return -1;
     return parseFloat(matches[1].replace('-', '.')) * 1000;
+}
+
+export async function createImageryTileSet(job: CogJob): Promise<void> {
+    const projection = job.tileMatrix.projection.code;
+    if (!ValidProjections.has(projection)) throw new Error(`Projection: ${projection} not support.`);
+    const now = Date.now();
+
+    const tileSet: ConfigTileSetRaster = {
+        type: TileSetType.Raster,
+        createdAt: now,
+        updatedAt: now,
+        id: Config.TileSet.id(job.id),
+        name: job.id,
+        layers: [
+            {
+                [projection]: Config.prefix(Config.Prefix.Imagery, job.id),
+                name: job.name,
+                minZoom: 0,
+                maxZoom: 32,
+            },
+        ],
+        title: job.title,
+        description: job.description,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+    };
+
+    await Config.TileSet.put(tileSet);
 }
 
 export class ActionBatchJob extends CommandLineAction {
@@ -161,6 +192,8 @@ export class ActionBatchJob extends CommandLineAction {
             },
             'JobSubmit',
         );
+
+        if (commit) await createImageryTileSet(job);
 
         for (const name of toSubmit) {
             const jobStatus = await ActionBatchJob.batchOne(jobPath, job, batch, name, commit);
