@@ -1,4 +1,4 @@
-import { ConfigTileSetRaster, TileSetType } from '@basemaps/config';
+import { TileSetType } from '@basemaps/config';
 import { EpsgCode, TileMatrixSet } from '@basemaps/geo';
 import { Config, Env, FileOperator, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -31,28 +31,11 @@ export function extractResolutionFromName(name: string): number {
 export async function createImageryTileSet(job: CogJob): Promise<void> {
     const projection = job.tileMatrix.projection.code;
     if (!ValidProjections.has(projection)) throw new Error(`Projection: ${projection} not support.`);
-    const now = Date.now();
 
-    const tileSet: ConfigTileSetRaster = {
-        type: TileSetType.Raster,
-        createdAt: now,
-        updatedAt: now,
-        id: Config.TileSet.id(job.id),
-        name: job.id,
-        layers: [
-            {
-                [projection]: Config.prefix(Config.Prefix.Imagery, job.id),
-                name: job.name,
-                minZoom: 0,
-                maxZoom: 32,
-            },
-        ],
-        title: job.title,
-        description: job.description,
-        background: { r: 0, g: 0, b: 0, alpha: 0 },
-    };
+    const id = Config.Imagery.id(job.id);
+    const layers = [{ [projection]: id, name: job.name, minZoom: 0, maxZoom: 32 }];
 
-    await Config.TileSet.put(tileSet);
+    await Config.TileSet.createTileSet(job.id, job.id, TileSetType.Raster, layers, job.title, job.description);
 }
 
 export class ActionBatchJob extends CommandLineAction {

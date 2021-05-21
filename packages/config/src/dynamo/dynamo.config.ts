@@ -4,7 +4,14 @@ import { BaseConfig } from '../config/base';
 import { ConfigImagery } from '../config/imagery';
 import { ConfigPrefix } from '../config/prefix';
 import { ConfigProvider } from '../config/provider';
-import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, ConfigTileSetVector, TileSetType } from '../config/tile.set';
+import {
+    Background,
+    ConfigLayer,
+    ConfigTileSet,
+    ConfigTileSetRaster,
+    ConfigTileSetVector,
+    TileSetType,
+} from '../config/tile.set';
 import { ConfigVectorStyle } from '../config/vector.style';
 import { ConfigDynamoCached } from './dynamo.config.cached';
 
@@ -98,6 +105,39 @@ export class ConfigDynamoTileSet extends ConfigDynamoCached<ConfigTileSet> {
 
     getImageId(layer: ConfigLayer, projection: Epsg): string | undefined {
         return layer[projection.code];
+    }
+
+    /**
+     * Prepare and put individual imagery tileset
+     */
+    async createTileSet(
+        id: string,
+        name: string,
+        type: TileSetType,
+        layers: ConfigLayer[],
+        title?: string,
+        description?: string,
+        background?: Background,
+    ): Promise<string> {
+        const now = Date.now();
+
+        const tileSet: ConfigTileSet = {
+            id: this.id(id),
+            name,
+            type,
+            createdAt: now,
+            updatedAt: now,
+            layers,
+        };
+        if (title) tileSet.title = title;
+        if (description) tileSet.description = description;
+        if (background) {
+            tileSet.description = description;
+        } else {
+            tileSet.background = { r: 0, g: 0, b: 0, alpha: 0 };
+        }
+
+        return await this.put(tileSet);
     }
 }
 

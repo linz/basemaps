@@ -19,6 +19,8 @@ export interface ConfigLayer extends Partial<Record<EpsgCode, string>> {
 
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
 
+export type Background = { r: number; g: number; b: number; alpha: number };
+
 export interface ConfigTileSetBase extends BaseConfig {
     title?: string;
     description?: string;
@@ -32,7 +34,7 @@ export interface ConfigTileSetBase extends BaseConfig {
     layers: ConfigLayer[];
 
     /** Background to render for areas where there is no data */
-    background?: { r: number; g: number; b: number; alpha: number };
+    background?: Background;
 
     /** When scaling tiles in the rendering process what kernel to use */
     resizeKernel?: { in: TileResizeKernel; out: TileResizeKernel };
