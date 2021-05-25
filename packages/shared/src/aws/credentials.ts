@@ -31,7 +31,7 @@ class CredentialObjectCache extends ObjectCache<ChainableTemporaryCredentials, S
                 RoleArn: opts.roleArn,
                 ExternalId: opts.externalId,
                 RoleSessionName: `bm-${hostname().substr(0, 32)}-${Date.now()}`,
-                DurationSeconds: Env.getNumber(Env.AwsRoleDurationHours, 1) * OneHourSeconds,
+                DurationSeconds: Env.getNumber(Env.AwsRoleDurationHours, 8) * OneHourSeconds,
             },
             masterCredentials: AWS.config.credentials,
         });
