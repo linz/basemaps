@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.3](https://github.com/linz/basemaps/compare/v5.0.2...v5.0.3) (2021-05-25)
+
+
+### Bug Fixes
+
+* **shared:** Revert the aws role credential session back to 8 hour. ([#1631](https://github.com/linz/basemaps/issues/1631)) ([14e4314](https://github.com/linz/basemaps/commit/14e4314af0689b4f49db76895d6e0e3fdd4c8612))
+
+
+
+
+
 ## [5.0.2](https://github.com/linz/basemaps/compare/v5.0.1...v5.0.2) (2021-05-19)
 
 
