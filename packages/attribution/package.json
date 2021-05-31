@@ -30,7 +30,7 @@
     "@linzjs/geojson": "^5.0.0"
   },
   "devDependencies": {
-    "esbuild": "^0.11.12"
+    "esbuild": "^0.12.5"
   },
   "bundle": {
     "entry": "src/attribution.index.ts",
