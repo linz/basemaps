@@ -1,4 +1,4 @@
-import { Epsg, TileMatrixSets } from '@basemaps/geo';
+import { Epsg, GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { GaEvent, gaEvent } from './config';
 import { Basemaps } from './map';
 import { MapOptions, MapOptionType, WindowUrl } from './url';
@@ -25,7 +25,7 @@ export class BasemapsUi {
         this.bindMenuButton();
         this.bindContactUsButton();
 
-        this.setCurrentProjection(this.basemaps.config.tileMatrix.projection);
+        this.setCurrentProjection(this.basemaps.config.tileMatrix);
     }
     bindMenuButton(): void {
         const menuOpen = document.getElementById('menu-open');
@@ -142,17 +142,17 @@ Your Service/App URL:
         if (target.classList == null) return;
         if (target.classList.contains('lui-button-active')) return;
         if (target === this.projectionNztm) {
-            this.setCurrentProjection(Epsg.Nztm2000);
+            this.setCurrentProjection(Nztm2000QuadTms);
         } else {
-            this.setCurrentProjection(Epsg.Google);
+            this.setCurrentProjection(GoogleTms);
         }
     };
 
-    setCurrentProjection(projection: Epsg): void {
-        gaEvent(GaEvent.Ui, 'projection:' + projection.code);
-        this.projection = projection;
+    setCurrentProjection(tileMatrix: TileMatrixSet): void {
+        gaEvent(GaEvent.Ui, 'projection:' + tileMatrix.projection.code);
+        this.projection = tileMatrix.projection;
 
-        if (projection === Epsg.Nztm2000) {
+        if (tileMatrix.identifier === 'NZTM2000Quad') {
             this.projectionNztm.classList.add('lui-button-active');
             this.projectionWm.classList.remove('lui-button-active');
             this.apiXyz.classList.add('display-none');
@@ -161,7 +161,7 @@ Your Service/App URL:
             this.projectionNztm.classList.remove('lui-button-active');
             this.apiXyz.classList.remove('display-none');
         }
-        const cfg: MapOptions = { ...this.basemaps.config, tileMatrix: TileMatrixSets.get(projection) };
+        const cfg: MapOptions = { ...this.basemaps.config, tileMatrix };
 
         this.apiXyz.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Tile);
         this.apiWmts.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Wmts);
