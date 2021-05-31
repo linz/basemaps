@@ -7,7 +7,7 @@ export type BBox = [number, number, number, number];
  */
 export interface BBoxFeature<
     G extends GeoJSON.Geometry = GeoJSON.Polygon | GeoJSON.MultiPolygon,
-    P = GeoJSON.GeoJsonProperties
+    P = GeoJSON.GeoJsonProperties,
 > extends GeoJSON.Feature<G, P> {
     bbox: BBox;
 }
@@ -17,7 +17,7 @@ export interface BBoxFeature<
  */
 export interface BBoxFeatureCollection<
     G extends GeoJSON.Geometry = GeoJSON.Polygon | GeoJSON.MultiPolygon,
-    P = GeoJSON.GeoJsonProperties
+    P = GeoJSON.GeoJsonProperties,
 > extends GeoJSON.FeatureCollection<G, P> {
     features: Array<BBoxFeature<G, P>>;
 }
