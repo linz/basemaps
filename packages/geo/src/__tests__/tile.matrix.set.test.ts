@@ -40,10 +40,7 @@ o.spec('TileMatrixSet', () => {
 
     o('extent', () => {
         o(GoogleTms.extent.toBbox()).deepEquals([
-            -20037508.3427892,
-            -20037508.3427892,
-            20037508.3427892,
-            20037508.3427892,
+            -20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892,
         ]);
 
         const { lowerCorner, upperCorner } = Nztm2000Tms.def.boundingBox;
