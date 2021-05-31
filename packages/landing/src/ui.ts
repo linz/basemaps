@@ -161,7 +161,7 @@ Your Service/App URL:
             this.projectionNztm.classList.remove('lui-button-active');
             this.apiXyz.classList.remove('display-none');
         }
-        const cfg: MapOptions = { ...this.basemaps.config, tileMatrix: tileMatrix };
+        const cfg: MapOptions = { ...this.basemaps.config, tileMatrix };
 
         this.apiXyz.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Tile);
         this.apiWmts.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Wmts);
