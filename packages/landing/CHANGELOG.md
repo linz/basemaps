@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.1.0](https://github.com/linz/basemaps/compare/v5.0.3...v5.1.0) (2021-06-07)
+
+
+### Features
+
+* **landing:** Update the UI NZTM button to return WMTS with NZTM2000Quad TileMatrix ([#1650](https://github.com/linz/basemaps/issues/1650)) ([0237ff9](https://github.com/linz/basemaps/commit/0237ff9f7147577f1bab5b069e87e468c3dff4a3))
+
+
+
+
+
 ## [5.0.3](https://github.com/linz/basemaps/compare/v5.0.2...v5.0.3) (2021-05-25)
 
 **Note:** Version bump only for package @basemaps/landing
