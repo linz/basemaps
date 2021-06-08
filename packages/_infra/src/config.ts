@@ -18,7 +18,7 @@ export interface BaseMapsConfig {
 }
 
 export const BaseMapsProdConfig: BaseMapsConfig = {
-    CogBucket: ['linz-basemaps'],
+    CogBucket: ['linz-basemaps', 'linz-basemaps-vector'],
     Route53Zone: 'prod.basemaps.awsint.linz.govt.nz.',
     AlbPublicDns: 'int.tiles.basemaps.linz.govt.nz',
     CloudFrontDns: ['tiles.basemaps.linz.govt.nz', 'basemaps.linz.govt.nz'],
