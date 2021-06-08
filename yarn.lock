@@ -6081,9 +6081,9 @@ progress@^2.0.0:
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
 proj4@^2.6.2:
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/proj4/-/proj4-2.6.3.tgz#2ba3b32f45fe84e35e794b5dc940e3b7f7e72b86"
-  integrity sha512-XRqnLmHWlvi7jqKNTqaOUrVy72JEtOUrnlLki99yZUOSvcSeBaZ1I/EGnQ2LzplSbjSrebGAdikqCLeCxC/YEg==
+  version "2.7.2"
+  resolved "https://registry.yarnpkg.com/proj4/-/proj4-2.7.2.tgz#faa42e5965aa275af5438ba2da8c59d1cc501137"
+  integrity sha512-x/EboBmIq48a9FED0Z9zWCXkd8VIpXHLsyEXljGtsnzeztC41bFjPjJ0S//wBbNLDnDYRe0e6c3FSSiqMCebDA==
   dependencies:
     mgrs "1.0.0"
     wkt-parser "^1.2.4"
