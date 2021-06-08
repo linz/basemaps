@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.1.0](https://github.com/linz/basemaps/compare/v5.0.3...v5.1.0) (2021-06-07)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
 ## [5.0.3](https://github.com/linz/basemaps/compare/v5.0.2...v5.0.3) (2021-05-25)
 
 **Note:** Version bump only for package @basemaps/lambda-analytics

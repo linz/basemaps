@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.1.0](https://github.com/linz/basemaps/compare/v5.0.3...v5.1.0) (2021-06-07)
+
+
+### Bug Fixes
+
+* **build:** Audit failure to add glob-parent >= 5.1.2 resolution ([#1659](https://github.com/linz/basemaps/issues/1659)) ([eba5f6c](https://github.com/linz/basemaps/commit/eba5f6c3b35a1cbd8872d77fecc2cdfaeaa810d4))
+* **build:** Audit failure to add trim-newlines >=3.0.1 <4.0.0 || >=4.0.1 resolution ([#1660](https://github.com/linz/basemaps/issues/1660)) ([38d1b44](https://github.com/linz/basemaps/commit/38d1b44ca97174df8a4c07e557149056905aeaf8))
+
+
+### Features
+
+* **landing:** Update the UI NZTM button to return WMTS with NZTM2000Quad TileMatrix ([#1650](https://github.com/linz/basemaps/issues/1650)) ([0237ff9](https://github.com/linz/basemaps/commit/0237ff9f7147577f1bab5b069e87e468c3dff4a3))
+
+
+
+
+
 ## [5.0.3](https://github.com/linz/basemaps/compare/v5.0.2...v5.0.3) (2021-05-25)
 
 

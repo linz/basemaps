@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-analytics",
-  "version": "5.0.3",
+  "version": "5.1.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -14,7 +14,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/shared": "^5.0.3",
+    "@basemaps/shared": "^5.1.0",
     "@linzjs/s3fs": "^5.0.0"
   },
   "scripts": {
