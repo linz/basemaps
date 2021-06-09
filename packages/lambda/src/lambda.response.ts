@@ -5,23 +5,11 @@ export class LambdaHttpResponse {
         return t instanceof LambdaHttpResponse;
     }
 
-    /**
-     * Http status code
-     */
+    /** Http status code */
     public status: number;
-    /**
-     * Text description for the status code
-     */
+    /** Text description for the status code */
     public statusDescription: string;
-
-    /** Id of the request */
-    public requestId?: string;
-    /** Id of the request chain */
-    public correlationId?: string;
-
-    /**
-     * Raw body object
-     */
+    /** Raw body object */
     body: string | Buffer | null = null;
 
     headers: Map<string, string | number | boolean> = new Map();
@@ -42,15 +30,10 @@ export class LambdaHttpResponse {
         const headerKey = key.toLowerCase();
         if (value == null) return this.headers.get(headerKey);
         this.headers.set(headerKey, value);
-        if (headerKey === HttpHeader.RequestId.toLowerCase()) this.requestId = String(value);
-        if (headerKey === HttpHeader.CorrelationId.toLowerCase()) this.correlationId = String(value);
     }
 
     public get isBase64Encoded(): boolean {
-        if (Buffer.isBuffer(this.body)) {
-            return true;
-        }
-        return false;
+        return Buffer.isBuffer(this.body);
     }
 
     json(obj: Record<string, any>): void {
@@ -68,8 +51,8 @@ export class LambdaHttpResponse {
             return JSON.stringify({
                 status: this.status,
                 message: this.statusDescription,
-                requestId: this.requestId,
-                correlationId: this.correlationId,
+                requestId: this.headers.get(HttpHeader.RequestId.toLowerCase()),
+                correlationId: this.headers.get(HttpHeader.CorrelationId.toLowerCase()),
             });
         }
 
