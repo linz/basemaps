@@ -42,8 +42,8 @@
   },
   "resolutions": {
     "hosted-git-info": ">=2.8.9",
-    "glob-parent": ">=5.1.2",
     "lodash": ">=4.17.21",
-    "trim-newlines": ">=3.0.1 <4.0.0 || >=4.0.1"
+    "trim-newlines": ">=3.0.1 <4.0.0 || >=4.0.1",
+    "normalize-url": ">=4.5.1 <5.0.0 || >=5.3.1 <6.0.0 || >=6.0.1"
   }
 }
