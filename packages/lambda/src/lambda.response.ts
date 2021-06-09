@@ -13,6 +13,12 @@ export class LambdaHttpResponse {
      * Text description for the status code
      */
     public statusDescription: string;
+
+    /** Id of the request */
+    public requestId?: string;
+    /** Id of the request chain */
+    public correlationId?: string;
+
     /**
      * Raw body object
      */
@@ -25,8 +31,7 @@ export class LambdaHttpResponse {
         this.statusDescription = description;
         if (headers != null) {
             for (const key of Object.keys(headers)) {
-                const value = headers[key];
-                this.header(key, value);
+                this.header(key, headers[key]);
             }
         }
     }
@@ -34,10 +39,11 @@ export class LambdaHttpResponse {
     header(key: string): string | number | boolean | undefined;
     header(key: string, value: string | number | boolean): void;
     header(key: string, value?: string | number | boolean): string | number | boolean | undefined | void {
-        if (value == null) {
-            return this.headers.get(key.toLowerCase());
-        }
-        this.headers.set(key.toLowerCase(), value);
+        const headerKey = key.toLowerCase();
+        if (value == null) return this.headers.get(headerKey);
+        this.headers.set(headerKey, value);
+        if (headerKey === HttpHeader.RequestId.toLowerCase()) this.requestId = String(value);
+        if (headerKey === HttpHeader.CorrelationId.toLowerCase()) this.correlationId = String(value);
     }
 
     public get isBase64Encoded(): boolean {
@@ -59,11 +65,15 @@ export class LambdaHttpResponse {
     getBody(): string {
         if (this.body == null) {
             this.header(HttpHeader.ContentType, ApplicationJson);
-            return JSON.stringify({ status: this.status, message: this.statusDescription });
+            return JSON.stringify({
+                status: this.status,
+                message: this.statusDescription,
+                requestId: this.requestId,
+                correlationId: this.correlationId,
+            });
         }
-        if (Buffer.isBuffer(this.body)) {
-            return this.body.toString('base64');
-        }
+
+        if (Buffer.isBuffer(this.body)) return this.body.toString('base64');
         return this.body;
     }
 }
