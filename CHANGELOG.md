@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.2.0](https://github.com/linz/basemaps/compare/v5.1.0...v5.2.0) (2021-06-10)
+
+
+### Features
+
+* **infra:** add support for vector tile sources ([#1663](https://github.com/linz/basemaps/issues/1663)) ([8ab7687](https://github.com/linz/basemaps/commit/8ab7687f5b6cea262d224cf73ef606a95a7a3939))
+* **landing:** Add example page for Maplibre vector map. ([#1664](https://github.com/linz/basemaps/issues/1664)) ([8f7463b](https://github.com/linz/basemaps/commit/8f7463bf8dbf908c2d1d896ad7c0fd340b23ae4f))
+
+
+
+
+
 # [5.1.0](https://github.com/linz/basemaps/compare/v5.0.3...v5.1.0) (2021-06-07)
 
 
