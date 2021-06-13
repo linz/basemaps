@@ -23,16 +23,18 @@ o.spec('LambdaFunction', () => {
         const err = spy.args[0];
         const res = spy.args[1] as ALBResult;
 
+        const requestId = res.headers?.[HttpHeader.RequestId.toLowerCase()];
+        const correlationId = res.headers?.[HttpHeader.CorrelationId.toLowerCase()];
+
+        o(typeof requestId).equals('string');
         o(err).equals(null);
         o(res.statusCode).equals(500);
         o(res.statusDescription).equals('Internal Server Error');
-        o(res.body).equals(JSON.stringify({ status: res.statusCode, message: res.statusDescription }));
+        o(res.body).equals(
+            JSON.stringify({ status: res.statusCode, message: res.statusDescription, requestId, correlationId }),
+        );
         o(res.isBase64Encoded).equals(false);
         o(res.headers).notEquals(undefined);
-        if (res.headers == null) return; // Typeguard to make typescript happy
-
-        const requestId = res.headers[HttpHeader.RequestId.toLowerCase()];
-        o(typeof requestId).equals('string');
     });
 
     o('should generate a cloudfront response on error', async () => {
@@ -44,16 +46,15 @@ o.spec('LambdaFunction', () => {
         const err = spy.args[0];
         const res = spy.args[1] as CloudFrontResultResponse;
 
+        const requestId = res.headers?.[HttpHeader.RequestId.toLowerCase()][0].value;
+        const correlationId = res.headers?.[HttpHeader.CorrelationId.toLowerCase()][0].value;
+
         o(err).equals(null);
         o(res.status).equals('500');
         o(res.statusDescription).equals('Internal Server Error');
-        o(res.body).equals(JSON.stringify({ status: 500, message: res.statusDescription }));
+        o(res.body).equals(JSON.stringify({ status: 500, message: res.statusDescription, requestId, correlationId }));
         o(res.bodyEncoding).equals('text');
         o(res.headers).notEquals(undefined);
-        if (res.headers == null) return; // Typeguard to make typescript happy
-
-        const requestId = res.headers[HttpHeader.RequestId.toLowerCase()];
-        o(Array.isArray(requestId)).equals(true);
     });
 
     o('should callback on success', async () => {
