@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
   "dependencies": {
     "@basemaps/attribution": "^5.1.0",
     "@basemaps/geo": "^5.1.0",
-    "@basemaps/infra": "^5.1.0",
+    "@basemaps/infra": "^5.2.0",
     "@basemaps/shared": "^5.1.0",
     "@linzjs/lui": "^2.5.1",
     "ol": "^6.4.2",
