@@ -1,7 +1,7 @@
 import S3 from 'aws-sdk/clients/s3';
 import { Readable } from 'stream';
 import { CompositeError } from './composite.error';
-import { FileProcessor } from './file';
+import { FileInfo, FileProcessor } from './file';
 import { FileConfig, FileConfigS3 } from './file.config';
 import { FsLocal } from './file.local';
 import { FsS3 } from './file.s3';
@@ -48,6 +48,10 @@ export class S3Fs {
 
     exists(filePath: string): Promise<boolean> {
         return this.create(filePath).exists(filePath);
+    }
+
+    head(filePath: string): Promise<FileInfo | null> {
+        return this.create(filePath).head(filePath);
     }
 
     /** path.join removes slashes, s3:// => s3:/ which causes issues */

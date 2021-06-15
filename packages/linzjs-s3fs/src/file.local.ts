@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Readable } from 'stream';
-import { FileProcessor } from './file';
+import { FileInfo, FileProcessor } from './file';
 import { CompositeError } from './composite.error';
 
 export type FsError = { code: string } & Error;
@@ -21,6 +21,16 @@ export class FsLocal implements FileProcessor {
         }
     }
 
+    async head(filePath: string): Promise<FileInfo | null> {
+        try {
+            const stat = await fs.promises.stat(filePath);
+            return { size: stat.size };
+        } catch (e) {
+            if (e.code === 'ENOENT') return null;
+            throw getCompositeError(e, `Failed to stat: ${filePath}`);
+        }
+    }
+
     async read(filePath: string): Promise<Buffer> {
         try {
             return await fs.promises.readFile(filePath);
@@ -29,8 +39,8 @@ export class FsLocal implements FileProcessor {
         }
     }
 
-    async exists(filePath: string): Promise<boolean> {
-        return await new Promise((resolve) => fs.exists(filePath, resolve));
+    exists(filePath: string): Promise<boolean> {
+        return this.head(filePath).then((f) => f != null);
     }
 
     async write(filePath: string, buf: Buffer | Readable, makeFolder = true): Promise<void> {

@@ -1,5 +1,10 @@
 import type { Readable } from 'stream';
 
+export interface FileInfo {
+    /** Size of file in bytes */
+    size: number;
+}
+
 export interface FileProcessor {
     /** Read a file into a buffer */
     read(filePath: string): Promise<Buffer>;
@@ -11,4 +16,6 @@ export interface FileProcessor {
     list(filePath: string): AsyncGenerator<string>;
     /** Does the path exists */
     exists(filePath: string): Promise<boolean>;
+    /** Get information about the path  */
+    head(filePath: string): Promise<FileInfo | null>;
 }
