@@ -21,10 +21,18 @@ export class FsLocal implements FileProcessor {
         }
     }
 
+    async *listDetails(filePath: string): AsyncGenerator<FileInfo> {
+        for await (const file of this.list(filePath)) {
+            const res = await this.head(file);
+            if (res == null) continue;
+            yield res;
+        }
+    }
+
     async head(filePath: string): Promise<FileInfo | null> {
         try {
             const stat = await fs.promises.stat(filePath);
-            return { size: stat.size };
+            return { path: filePath, size: stat.size };
         } catch (e) {
             if (e.code === 'ENOENT') return null;
             throw getCompositeError(e, `Failed to stat: ${filePath}`);

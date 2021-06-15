@@ -15,6 +15,16 @@ o.spec('FileLocal', () => {
         o((res?.size || 0) > 3000).equals(true);
     });
 
+    o('should list with details', async () => {
+        const res = await s3fs.toArray(localFs.listDetails(__dirname));
+        console.log(res);
+        o(res.length > 0).equals(true);
+        const file = res.find((f) => f.path === __filename);
+        o(file).notEquals(undefined);
+        o((file?.size || 0) > 3000).equals(true);
+        o(file?.path).equals(__filename);
+    });
+
     o('Should capture not found errors:list', async () => {
         try {
             await s3fs.toArray(localFs.list('/foo/bar/baz'));
