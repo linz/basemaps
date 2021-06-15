@@ -1,6 +1,6 @@
-import S3 from 'aws-sdk/clients/s3';
-import { AWSError } from 'aws-sdk/lib/error';
-import { Readable, Stream } from 'stream';
+import type S3 from 'aws-sdk/clients/s3';
+import type { AWSError } from 'aws-sdk/lib/error';
+import type { Readable, Stream } from 'stream';
 import { CompositeError } from './composite.error';
 import { FileInfo, FileProcessor } from './file';
 
@@ -39,6 +39,10 @@ export class FsS3 implements FileProcessor {
     }
 
     async *list(filePath: string): AsyncGenerator<string> {
+        for await (const obj of this.listDetails(filePath)) yield obj.path;
+    }
+
+    async *listDetails(filePath: string): AsyncGenerator<FileInfo> {
         const opts = this.parse(filePath);
         let ContinuationToken: string | undefined = undefined;
         const Bucket = opts.bucket;
@@ -57,7 +61,7 @@ export class FsS3 implements FileProcessor {
 
                 for (const obj of res.Contents) {
                     if (obj.Key == null) continue;
-                    yield `s3://${Bucket}/${obj.Key}`;
+                    yield { path: `s3://${Bucket}/${obj.Key}`, size: obj.Size };
                 }
 
                 // Nothing left to fetch
@@ -113,7 +117,7 @@ export class FsS3 implements FileProcessor {
         if (opts.key == null) throw new Error(`Failed to exists: "${filePath}"`);
         try {
             const res = await this.s3.headObject({ Bucket: opts.bucket, Key: opts.key }).promise();
-            return { size: res.ContentLength ?? 0 };
+            return { size: res.ContentLength, path: filePath };
         } catch (e) {
             if (e.code === 'NotFound') return null;
             throw getCompositeError(e, `Failed to exists: "${filePath}"`);

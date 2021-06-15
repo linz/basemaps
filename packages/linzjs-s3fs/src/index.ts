@@ -45,6 +45,9 @@ export class S3Fs {
     list(filePath: string): AsyncGenerator<string> {
         return this.create(filePath).list(filePath);
     }
+    listDetails(filePath: string): AsyncGenerator<FileInfo> {
+        return this.create(filePath).listDetails(filePath);
+    }
 
     exists(filePath: string): Promise<boolean> {
         return this.create(filePath).exists(filePath);
