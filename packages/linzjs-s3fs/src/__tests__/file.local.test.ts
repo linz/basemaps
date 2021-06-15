@@ -8,6 +8,13 @@ o.spec('FileLocal', () => {
     const RootFolder = process.platform === 'darwin' ? '/var/root' : '/root';
     const s3fs = new S3Fs();
     const localFs = new FsLocal();
+
+    o('Should head objects', async () => {
+        const res = await localFs.head(__filename);
+        o(res).notEquals(null);
+        o((res?.size || 0) > 3000).equals(true);
+    });
+
     o('Should capture not found errors:list', async () => {
         try {
             await s3fs.toArray(localFs.list('/foo/bar/baz'));
