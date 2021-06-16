@@ -25,7 +25,7 @@ export interface TileRequestStats {
     /** Status codes given by cloudfront */
     status: Record<number, number>;
     /** Tile file extensions used */
-    extension: { webp: number; jpeg: number; png: number; wmts: number; other: number };
+    extension: { webp: number; jpeg: number; png: number; wmts: number; pbf: number; other: number };
     /** Projections used */
     projection: { 2193: number; 3857: number };
     /** Tilesets accessed */
@@ -44,7 +44,7 @@ function newStat(timestamp: string, api: string, referer: string | undefined): T
         total: 0,
         status: {},
         cache: { hit: 0, miss: 0 },
-        extension: { webp: 0, jpeg: 0, png: 0, wmts: 0, other: 0 },
+        extension: { webp: 0, jpeg: 0, png: 0, wmts: 0, pbf: 0, other: 0 },
         projection: { 2193: 0, 3857: 0 },
         tileSet: { aerial: 0, aerialIndividual: 0, topo50: 0, direct: 0 },
         generated: {
@@ -69,6 +69,7 @@ function track(stat: TileRequestStats, uri: string, status: number, isHit: boole
     if (uri.endsWith('.webp')) stat.extension.webp++;
     else if (uri.endsWith('.jpeg')) stat.extension.jpeg++;
     else if (uri.endsWith('.png')) stat.extension.png++;
+    else if (uri.endsWith('.pbf')) stat.extension.pbf++;
     else if (uri.endsWith('.xml')) {
         stat.extension.wmts++;
     } else stat.extension.other++;
