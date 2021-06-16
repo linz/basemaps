@@ -1,26 +1,20 @@
-import S3 from 'aws-sdk/clients/s3';
 import { Readable } from 'stream';
 import { CompositeError } from './composite.error';
-import { FileInfo, FileProcessor } from './file';
-import { FileConfig, FileConfigS3 } from './file.config';
+import { FileInfo, FileSystem } from './file';
 import { FsLocal } from './file.local';
 import { FsS3 } from './file.s3';
 
 export { CompositeError } from './composite.error';
-export * from './file';
-export * from './file.config';
+export { FileInfo, FileSystem } from './file';
 
-const localFs = new FsLocal();
+export class FileSystemAbstraction {
+    private systems: { path: string; system: FileSystem }[] = [{ path: '/', system: new FsLocal() }];
 
-export class S3Fs {
-    getS3: (cfg: FileConfigS3 | string) => S3;
-    constructor(cfg?: { getS3: (cfg: FileConfigS3 | string) => S3 }) {
-        if (cfg) {
-            this.getS3 = cfg?.getS3;
-        } else {
-            const s3 = new S3();
-            this.getS3 = (): S3 => s3;
+    register(path: string, system: FileSystem): void {
+        for (const proc of this.systems) {
+            if (proc.path.startsWith(path)) throw new Error(`Duplicate processor path: ${path}`);
         }
+        this.systems.push({ path, system });
     }
 
     /** Utility to convert async generators into arrays */
@@ -31,30 +25,30 @@ export class S3Fs {
     }
 
     read(filePath: string): Promise<Buffer> {
-        return this.create(filePath).read(filePath);
+        return this.find(filePath).read(filePath);
     }
 
     readStream(filePath: string): Readable {
-        return this.create(filePath).readStream(filePath);
+        return this.find(filePath).readStream(filePath);
     }
 
     write(filePath: string, buffer: Buffer | Readable): Promise<void> {
-        return this.create(filePath).write(filePath, buffer);
+        return this.find(filePath).write(filePath, buffer);
     }
 
     list(filePath: string): AsyncGenerator<string> {
-        return this.create(filePath).list(filePath);
+        return this.find(filePath).list(filePath);
     }
     listDetails(filePath: string): AsyncGenerator<FileInfo> {
-        return this.create(filePath).listDetails(filePath);
+        return this.find(filePath).listDetails(filePath);
     }
 
     exists(filePath: string): Promise<boolean> {
-        return this.create(filePath).exists(filePath);
+        return this.find(filePath).exists(filePath);
     }
 
     head(filePath: string): Promise<FileInfo | null> {
-        return this.create(filePath).head(filePath);
+        return this.find(filePath).head(filePath);
     }
 
     /** path.join removes slashes, s3:// => s3:/ which causes issues */
@@ -63,7 +57,7 @@ export class S3Fs {
     }
 
     /** Is this FileProcessor a s3 instance */
-    isS3Processor(fo: FileProcessor): fo is FsS3 {
+    isS3Processor(fo: FileSystem): fo is FsS3 {
         return fo instanceof FsS3;
     }
 
@@ -73,21 +67,18 @@ export class S3Fs {
         return filePath.startsWith('s3://');
     }
 
-    /** Create an accessor for a given config or path */
-    create(cfg: string | FileConfig): FileProcessor {
-        if (typeof cfg === 'string') {
-            if (this.isS3(cfg)) {
-                return new FsS3(this.getS3(cfg));
-            }
-            return localFs;
+    /** Find the filesystem that would be used for a given path */
+    find(filePath: string): FileSystem {
+        for (const cfg of this.systems) {
+            if (filePath.startsWith(cfg.path)) return cfg.system;
         }
-        if (cfg.type === 's3') {
-            return new FsS3(this.getS3(cfg));
-        }
-        return localFs;
+
+        throw new Error(`Unable to find file system for ${filePath}`);
     }
 
     isCompositeError(e: unknown): e is CompositeError {
         return CompositeError.isCompositeError(e);
     }
 }
+
+export const fsa = new FileSystemAbstraction();

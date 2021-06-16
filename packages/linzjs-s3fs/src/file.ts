@@ -10,7 +10,7 @@ export interface FileInfo {
     size?: number;
 }
 
-export interface FileProcessor {
+export interface FileSystem {
     /** Read a file into a buffer */
     read(filePath: string): Promise<Buffer>;
     /** Create a read stream */
