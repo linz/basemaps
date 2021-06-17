@@ -46,7 +46,7 @@
     "ansi-colors": "^4.1.1",
     "p-limit": "^3.0.1",
     "pretty-json-log": "^0.3.1",
-    "zod": "^1.10.1"
+    "zod": "^3.2.0"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.7",
