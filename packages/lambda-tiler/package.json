@@ -22,7 +22,7 @@
     "@basemaps/tiler-sharp": "^5.1.0",
     "@cogeotiff/core": "^4.2.0",
     "@cogeotiff/source-aws": "^4.2.0",
-    "@cotar/core": "1.4.1",
+    "@cotar/core": "^2.0.0",
     "@linzjs/geojson": "^5.1.0",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
