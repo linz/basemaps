@@ -36,13 +36,13 @@ export const CogJobFactory = {
             'ListTiffs',
         );
 
-        // const sourceFs = FileOperator.create(sourceLocation);
+        fsa.configure(sourceLocation);
+
         const tiffList = isFileConfigPath(sourceLocation)
             ? sourceLocation.files
             : (await fsa.toArray(fsa.list(sourceLocation.path))).filter(filterTiff);
 
-        // let tiffSource: ChunkSource[];
-        const tiffSource = tiffList.map((path) => {
+        const tiffSource = tiffList.map((path: string) => {
             const fs = fsa.find(path);
             if (fsa.isS3Processor(fs)) {
                 const { bucket, key } = fs.parse(path);
