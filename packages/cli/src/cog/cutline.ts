@@ -1,5 +1,5 @@
 import { Bounds, Epsg, NamedBounds, Tile, TileMatrixSet } from '@basemaps/geo';
-import { compareName, FileOperator, Projection } from '@basemaps/shared';
+import { compareName, fsa, Projection } from '@basemaps/shared';
 import {
     clipMultipolygon,
     featuresToMultiPolygon,
@@ -103,7 +103,7 @@ export class Cutline {
      * @param path the path of the cutline to load. Can be `s3://` or local file path.
      */
     static loadCutline(path: string): Promise<FeatureCollection> {
-        return FileOperator.readJson<FeatureCollection>(path);
+        return fsa.readJson<FeatureCollection>(path);
     }
 
     /**

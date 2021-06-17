@@ -2,14 +2,14 @@ import type S3 from 'aws-sdk/clients/s3';
 import type { AWSError } from 'aws-sdk/lib/error';
 import type { Readable, Stream } from 'stream';
 import { CompositeError } from './composite.error';
-import { FileInfo, FileProcessor } from './file';
+import { FileInfo, FileSystem } from './file';
 
 function getCompositeError(e: AWSError, msg: string): CompositeError {
     if (typeof e?.statusCode === 'number') return new CompositeError(msg, e.statusCode, e);
     return new CompositeError(msg, 500, e);
 }
 
-export class FsS3 implements FileProcessor {
+export class FsS3 implements FileSystem {
     /** Max list requests to run before erroring */
     static MaxListCount = 100;
 
@@ -21,7 +21,7 @@ export class FsS3 implements FileProcessor {
     }
 
     /** Parse a s3:// URI into the bucket and key components */
-    parse(uri: string): { bucket: string; key?: string } {
+    static parse(uri: string): { bucket: string; key?: string } {
         if (!uri.startsWith('s3://')) throw new Error(`Unable to parse s3 uri: "${uri}"`);
         const parts = uri.split('/');
         const bucket = parts[2];
@@ -37,6 +37,7 @@ export class FsS3 implements FileProcessor {
         }
         return { key, bucket };
     }
+    parse = FsS3.parse;
 
     async *list(filePath: string): AsyncGenerator<string> {
         for await (const obj of this.listDetails(filePath)) yield obj.path;

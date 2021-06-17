@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Readable } from 'stream';
-import { FileInfo, FileProcessor } from './file';
+import { FileInfo, FileSystem } from './file';
 import { CompositeError } from './composite.error';
 
 export type FsError = { code: string } & Error;
@@ -11,7 +11,7 @@ function getCompositeError(e: FsError, msg: string): CompositeError {
     return new CompositeError(msg, 500, e);
 }
 
-export class FsLocal implements FileProcessor {
+export class FsLocal implements FileSystem {
     async *list(filePath: string): AsyncGenerator<string> {
         try {
             const files = await fs.promises.readdir(filePath);

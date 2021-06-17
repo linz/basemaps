@@ -26,8 +26,8 @@ o.spec('stac', () => {
         const bm = {
             id: 'id123',
             tileMatrix: GoogleTms,
-            inputPath: 's3:///test-source-bucket/gebco-2020',
-            outputPath: 's3:///test-bucket/bathy-2020',
+            inputPath: 's3://test-source-bucket/gebco-2020',
+            outputPath: 's3://test-bucket/bathy-2020',
             tmpFolder: new FilePath('/tmp/path'),
         } as any;
         bm.config = bm;
@@ -84,8 +84,8 @@ o.spec('stac', () => {
         const bm = {
             id: 'id123',
             tileMatrix: GoogleTms,
-            inputPath: 's3:///test-source-bucket/gebco-2020/gebco_2020.nc',
-            outputPath: 's3:///test-bucket/bathy-2020',
+            inputPath: 's3://test-source-bucket/gebco-2020/gebco_2020.nc',
+            outputPath: 's3://test-bucket/bathy-2020',
             tmpFolder: new FilePath('/tmp/path'),
             createSourceHash(l: LogType) {
                 return 'multihashResult' + (l === logger);
@@ -129,7 +129,7 @@ o.spec('stac', () => {
         });
 
         o('createCollection with source collection.json', async () => {
-            mockFs.jsStore['s3:///test-source-bucket/gebco-2020/collection.json'] = {
+            mockFs.jsStore['s3://test-source-bucket/gebco-2020/collection.json'] = {
                 title: 'fancy title',
                 description: 'collection description',
                 providers: [{ name: 'source provider', roles: ['source'] }],
@@ -163,11 +163,11 @@ o.spec('stac', () => {
                 links: [
                     {
                         rel: 'self',
-                        href: 's3:///test-bucket/bathy-2020/collection.json',
+                        href: 's3://test-bucket/bathy-2020/collection.json',
                     },
                     {
                         rel: 'derived_from',
-                        href: 's3:///test-source-bucket/gebco-2020/gebco_2020.nc',
+                        href: 's3://test-source-bucket/gebco-2020/gebco_2020.nc',
                         'checksum:multihash': 'multihashResulttrue',
                     },
                     gitHubLink,
@@ -175,7 +175,7 @@ o.spec('stac', () => {
                     { rel: 'item', href: '13-22-33.json', type: 'application/geo+json' },
                     { rel: 'item', href: '13-22-34.json', type: 'application/geo+json' },
                     {
-                        href: 's3:///test-source-bucket/gebco-2020/collection.json',
+                        href: 's3://test-source-bucket/gebco-2020/collection.json',
                         rel: 'sourceImagery',
                         type: 'application/json',
                     },

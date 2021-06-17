@@ -1,23 +1,25 @@
-import { FileProcessor, FileOperator, LogConfig } from '@basemaps/shared';
+import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
+import { fsa, LogConfig } from '@basemaps/shared';
 import { ChunkSource } from '@cogeotiff/chunk';
 import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { SourceFile } from '@cogeotiff/source-file';
-import { TileSetRaster } from '../tile.set.raster';
-import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
+import { TileSetRaster } from '../tile.set.raster';
 
-function getTiffs(fs: FileProcessor, tiffList: string[]): ChunkSource[] {
-    if (FileOperator.isS3Processor(fs)) {
-        return tiffList.map((path) => {
+function getTiffs(tiffList: string[]): ChunkSource[] {
+    return tiffList.map((path) => {
+        if (fsa.isS3(path)) {
+            const fs = fsa.find(path);
+            if (!fsa.isS3Processor(fs)) throw new Error(`Failed to find file system for: ${path}`);
             const { bucket, key } = fs.parse(path);
             if (key == null) throw new Error(`Unable to find tiff: ${path}`);
             // Use the same s3 credentials to access the files that were used to list them
             return new SourceAwsS3(bucket, key, fs.s3);
-        });
-    }
-    return tiffList.map((path) => new SourceFile(path));
+        }
+        return new SourceFile(path);
+    });
 }
 
 function isTiff(fileName: string): boolean {
@@ -43,13 +45,10 @@ export class TileSetLocal extends TileSetRaster {
 
     async load(): Promise<boolean> {
         if (this.tiffs != null) return true;
-        const tiffFs = FileOperator.create(this.filePath);
 
-        const fileList = isTiff(this.filePath)
-            ? [this.filePath]
-            : await FileOperator.toArray(tiffFs.list(this.filePath));
+        const fileList = isTiff(this.filePath) ? [this.filePath] : await fsa.toArray(fsa.list(this.filePath));
         const files = fileList.filter(isTiff);
-        if (files.length === 0 && !FileOperator.isS3(this.filePath)) {
+        if (files.length === 0 && !fsa.isS3(this.filePath)) {
             for (const dir of fileList.sort()) {
                 const st = await fsPromises.stat(dir);
                 if (st.isDirectory()) {
@@ -64,7 +63,7 @@ export class TileSetLocal extends TileSetRaster {
             throw new Error(`No tiff files found in ${this.filePath}`);
         }
 
-        this.tiffs = getTiffs(tiffFs, files).map((c) => new CogTiff(c));
+        this.tiffs = getTiffs(files).map((c) => new CogTiff(c));
 
         // Read in the projection information
         const [firstTiff] = this.tiffs;

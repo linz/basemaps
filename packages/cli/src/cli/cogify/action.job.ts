@@ -1,5 +1,5 @@
 import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
-import { FileConfig, FileConfigPath, FileOperator } from '@basemaps/shared';
+import { FileConfig, FileConfigPath, fsa } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -67,7 +67,7 @@ export class ActionJobCreate extends CommandLineAction {
         if (source.path.value == null) {
             throw new Error('Invalid path');
         }
-        if (!FileOperator.isS3(source.path.value)) {
+        if (!fsa.isS3(source.path.value)) {
             return { type: 'local', path: source.path.value };
         }
         if (source.roleArn.value == null) {
@@ -84,6 +84,9 @@ export class ActionJobCreate extends CommandLineAction {
     async onExecute(): Promise<void> {
         const sourceLocation: FileConfig | FileConfigPath = this.fsConfig(this.source);
         const outputLocation = this.fsConfig(this.output);
+
+        fsa.configure(this.fsConfig(this.source));
+        fsa.configure(this.fsConfig(this.output));
 
         let cutline = undefined;
         if (this.cutline?.value) {
@@ -108,7 +111,7 @@ export class ActionJobCreate extends CommandLineAction {
 
         const fileListPath = this.fileList?.value;
         if (fileListPath != null) {
-            const fileData = await FileOperator.create(fileListPath).read(fileListPath);
+            const fileData = await fsa.read(fileListPath);
             (sourceLocation as FileConfigPath).files = fileData
                 .toString()
                 .trim()
