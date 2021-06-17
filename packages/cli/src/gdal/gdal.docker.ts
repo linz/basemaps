@@ -1,4 +1,4 @@
-import { Env, FileOperator, LogType } from '@basemaps/shared';
+import { Env, fsa, LogType } from '@basemaps/shared';
 import * as os from 'os';
 import * as path from 'path';
 import { GdalCommand } from './gdal.command';
@@ -12,7 +12,7 @@ export class GdalDocker extends GdalCommand {
     }
 
     mount(filePath: string): void {
-        if (FileOperator.isS3(filePath)) return;
+        if (fsa.isS3(filePath)) return;
 
         const basePath = path.dirname(filePath);
         if (this.mounts.includes(basePath)) return;

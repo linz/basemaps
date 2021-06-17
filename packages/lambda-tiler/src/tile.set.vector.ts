@@ -1,6 +1,6 @@
 import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import { Aws, FileOperator, TileDataXyz, VectorFormat } from '@basemaps/shared';
+import { Aws, fsa, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { Cotar, TarIndex } from '@cotar/core';
 import { NotFound } from './routes/tile';
@@ -22,7 +22,7 @@ class CotarCache {
         const source = SourceAwsS3.fromUri(uri, Aws.s3);
         if (source == null) return null;
 
-        const index = await FileOperator.readJson<TarIndex>(uri + '.index.gz');
+        const index = await fsa.readJson<TarIndex>(uri + '.index.gz');
         return new Cotar(source, index);
     }
 }

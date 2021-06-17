@@ -1,5 +1,5 @@
 import { EpsgCode, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
-import { FileOperator, LogConfig } from '@basemaps/shared';
+import { fsa, LogConfig } from '@basemaps/shared';
 import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
@@ -26,13 +26,13 @@ o.spec('cog.vrt', () => {
 
     let runSpy = o.spy();
 
-    const origFileOperatorWriteJson = FileOperator.writeJson;
+    const origFileOperatorWriteJson = fsa.writeJson;
     const { create } = Gdal;
 
     let gdal: any;
 
     o.after(() => {
-        FileOperator.writeJson = origFileOperatorWriteJson;
+        fsa.writeJson = origFileOperatorWriteJson;
         Gdal.create = create;
     });
 
@@ -46,7 +46,7 @@ o.spec('cog.vrt', () => {
         job.source.files = [tif1, tif2];
 
         cutTiffArgs = [];
-        FileOperator.writeJson = ((...args: any): any => {
+        fsa.writeJson = ((...args: any): any => {
             cutTiffArgs.push(args);
         }) as any;
 

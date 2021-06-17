@@ -12,8 +12,8 @@ import {
     extractYearRangeFromName,
     FileConfig,
     FileConfigPath,
-    FileOperator,
     Projection,
+    fsa,
     titleizeImageryName,
 } from '@basemaps/shared';
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
@@ -115,7 +115,7 @@ export class CogStacJob implements CogJob {
      * @param jobpath where to load the job.json from
      */
     static async load(jobpath: string): Promise<CogStacJob> {
-        return new CogStacJob(await FileOperator.readJson<CogJobJson>(jobpath));
+        return new CogStacJob(await fsa.readJson<CogJobJson>(jobpath));
     }
 
     /**
@@ -135,7 +135,7 @@ export class CogStacJob implements CogJob {
         const providers: StacProvider[] = [];
         const links: StacLink[] = [
             {
-                href: FileOperator.join(ctx.outputLocation.path, 'collection.json'),
+                href: fsa.join(ctx.outputLocation.path, 'collection.json'),
                 type: 'application/json',
                 rel: 'self',
             },
@@ -149,9 +149,8 @@ export class CogStacJob implements CogJob {
 
         const interval: [string, string][] = [];
         try {
-            const sourceFs = FileOperator.create(ctx.sourceLocation);
-            const sourceCollectionPath = FileOperator.join(ctx.sourceLocation.path, 'collection.json');
-            sourceStac = await FileOperator.readJson<StacCollection>(sourceCollectionPath, sourceFs);
+            const sourceCollectionPath = fsa.join(ctx.sourceLocation.path, 'collection.json');
+            sourceStac = await fsa.readJson<StacCollection>(sourceCollectionPath);
             description = sourceStac.description;
             interval.push(...(sourceStac.extent?.temporal?.interval ?? []));
             links.push({ href: sourceCollectionPath, rel: 'sourceImagery', type: 'application/json' });
@@ -167,7 +166,7 @@ export class CogStacJob implements CogJob {
                 }
             }
         } catch (err) {
-            if (!FileOperator.isCompositeError(err) || err.code !== 404) {
+            if (!fsa.isCompositeError(err) || err.code !== 404) {
                 throw err;
             }
         }
@@ -275,9 +274,7 @@ export class CogStacJob implements CogJob {
             links,
         };
 
-        const outputFs = FileOperator.create(ctx.outputLocation);
-
-        await FileOperator.writeJson(jobFile, job.json, outputFs);
+        await fsa.writeJson(jobFile, job.json);
 
         const covering = Projection.get(job.tileMatrix).toGeoJson(metadata.files);
 
@@ -309,29 +306,21 @@ export class CogStacJob implements CogJob {
                     },
                 },
             };
-            await FileOperator.writeJson(job.getJobPath(href), item, outputFs);
+            await fsa.writeJson(job.getJobPath(href), item);
         }
 
         if (ctx.cutline != null) {
             const geoJsonCutlineOutput = job.getJobPath(`cutline.geojson.gz`);
-            await FileOperator.writeJson(
-                geoJsonCutlineOutput,
-                this.toGeoJson(cutlinePoly, ctx.tileMatrix.projection),
-                outputFs,
-            );
+            await fsa.writeJson(geoJsonCutlineOutput, this.toGeoJson(cutlinePoly, ctx.tileMatrix.projection));
         }
 
         const geoJsonSourceOutput = job.getJobPath(`source.geojson`);
-        await FileOperator.writeJson(
-            geoJsonSourceOutput,
-            Projection.get(job.source.epsg).toGeoJson(metadata.bounds),
-            outputFs,
-        );
+        await fsa.writeJson(geoJsonSourceOutput, Projection.get(job.source.epsg).toGeoJson(metadata.bounds));
 
         const geoJsonCoveringOutput = job.getJobPath(`covering.geojson`);
-        await FileOperator.writeJson(geoJsonCoveringOutput, covering, outputFs);
+        await fsa.writeJson(geoJsonCoveringOutput, covering);
 
-        await FileOperator.writeJson(job.getJobPath(`collection.json`), stac, outputFs);
+        await fsa.writeJson(job.getJobPath(`collection.json`), stac);
 
         return job;
     }
@@ -403,6 +392,6 @@ export class CogStacJob implements CogJob {
         if (key != null) {
             parts.push(key);
         }
-        return FileOperator.join(this.output.location.path, parts.join('/'));
+        return fsa.join(this.output.location.path, parts.join('/'));
     }
 }
