@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/linz/basemaps/compare/v5.2.0...v6.0.0) (2021-06-21)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
 # [5.1.0](https://github.com/linz/basemaps/compare/v5.0.3...v5.1.0) (2021-06-07)
 
 **Note:** Version bump only for package @basemaps/tiler-sharp

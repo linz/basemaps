@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/linz/basemaps/compare/v5.2.0...v6.0.0) (2021-06-21)
+
+
+### Bug Fixes
+
+* default to basemaps.linz.govt.nz rather than tiles.basemaps.linz.govt.nz ([#1684](https://github.com/linz/basemaps/issues/1684)) ([95afdbf](https://github.com/linz/basemaps/commit/95afdbf7125edebf557ceace3e8e9f76d0317e1b))
+
+
+
+
+
 # [5.2.0](https://github.com/linz/basemaps/compare/v5.1.0...v5.2.0) (2021-06-10)
 
 
