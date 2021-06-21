@@ -7,8 +7,9 @@ import { FsS3 } from './file.s3';
 export { CompositeError } from './composite.error';
 export { FileInfo, FileSystem } from './file';
 
+const fsLocal = new FsLocal();
 export class FileSystemAbstraction {
-    private systems: { path: string; system: FileSystem }[] = [{ path: '/', system: new FsLocal() }];
+    private systems: { path: string; system: FileSystem }[] = [{ path: '/', system: fsLocal }];
 
     register(path: string, system: FileSystem): void {
         for (const proc of this.systems) {
@@ -73,7 +74,7 @@ export class FileSystemAbstraction {
             if (filePath.startsWith(cfg.path)) return cfg.system;
         }
 
-        throw new Error(`Unable to find file system for ${filePath}`);
+        return fsLocal;
     }
 
     isCompositeError(e: unknown): e is CompositeError {
