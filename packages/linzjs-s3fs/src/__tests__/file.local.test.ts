@@ -1,7 +1,7 @@
 import o from 'ospec';
 import { FsLocal } from '../file.local';
 import { CompositeError } from '../composite.error';
-import { FileSystemAbstraction } from '..';
+import { FileSystemAbstraction } from '../file.al';
 import * as path from 'path';
 
 o.spec('FileLocal', () => {
