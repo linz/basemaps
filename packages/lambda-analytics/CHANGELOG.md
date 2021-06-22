@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/linz/basemaps/compare/v5.2.0...v6.0.0) (2021-06-21)
+
+
+### Features
+
+* **lambda-analytics:** include stats for pbf tiles ([#1676](https://github.com/linz/basemaps/issues/1676)) ([30fc6c7](https://github.com/linz/basemaps/commit/30fc6c7d14be387903bfa44aab7585e21790e85a))
+* **s3fs:** refactor how credentials are passed to s3fs ([#1675](https://github.com/linz/basemaps/issues/1675)) ([f07f529](https://github.com/linz/basemaps/commit/f07f529af1657aa5ffe7d9deff92406e908e6fe4))
+
+
+### BREAKING CHANGES
+
+* **s3fs:** this changes the behaviour for s3fs as paths now need to be registered with credentials
+
+* refactor: remove commented out code
+
+
+
+
+
+# [5.1.0](https://github.com/linz/basemaps/compare/v5.0.3...v5.1.0) (2021-06-07)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
 ## [5.0.3](https://github.com/linz/basemaps/compare/v5.0.2...v5.0.3) (2021-05-25)
 
 **Note:** Version bump only for package @basemaps/lambda-analytics

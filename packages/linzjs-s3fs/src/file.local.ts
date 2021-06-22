@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Readable } from 'stream';
-import { FileProcessor } from './file';
+import { FileInfo, FileSystem } from './file';
 import { CompositeError } from './composite.error';
 
 export type FsError = { code: string } & Error;
@@ -11,13 +11,31 @@ function getCompositeError(e: FsError, msg: string): CompositeError {
     return new CompositeError(msg, 500, e);
 }
 
-export class FsLocal implements FileProcessor {
+export class FsLocal implements FileSystem {
     async *list(filePath: string): AsyncGenerator<string> {
         try {
             const files = await fs.promises.readdir(filePath);
             for (const file of files) yield path.join(filePath, file);
         } catch (e) {
             throw getCompositeError(e, `Failed to list: ${filePath}`);
+        }
+    }
+
+    async *listDetails(filePath: string): AsyncGenerator<FileInfo> {
+        for await (const file of this.list(filePath)) {
+            const res = await this.head(file);
+            if (res == null) continue;
+            yield res;
+        }
+    }
+
+    async head(filePath: string): Promise<FileInfo | null> {
+        try {
+            const stat = await fs.promises.stat(filePath);
+            return { path: filePath, size: stat.size };
+        } catch (e) {
+            if (e.code === 'ENOENT') return null;
+            throw getCompositeError(e, `Failed to stat: ${filePath}`);
         }
     }
 
@@ -29,8 +47,8 @@ export class FsLocal implements FileProcessor {
         }
     }
 
-    async exists(filePath: string): Promise<boolean> {
-        return await new Promise((resolve) => fs.exists(filePath, resolve));
+    exists(filePath: string): Promise<boolean> {
+        return this.head(filePath).then((f) => f != null);
     }
 
     async write(filePath: string, buf: Buffer | Readable, makeFolder = true): Promise<void> {

@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { FileOperator } from '../index';
+import { fsa } from '../index';
 import { unlinkSync, statSync } from 'fs';
 
 function rmF(path: string): void {
@@ -9,7 +9,7 @@ function rmF(path: string): void {
 }
 
 o.spec('file.local', () => {
-    const jsonFilePath = __dirname + '/testing.writeJson.json';
+    const jsonFilePath = __dirname + '/testing.json';
     const jsonFilePathGz = jsonFilePath + '.gz';
 
     o.afterEach(() => {
@@ -18,15 +18,19 @@ o.spec('file.local', () => {
     });
 
     o('readJson writeJson gzip', async () => {
-        await FileOperator.writeJson(jsonFilePathGz, { json: '1'.repeat(1000) });
-        const ans = await FileOperator.readJson(jsonFilePathGz);
-        o(statSync(jsonFilePathGz).size).equals(44);
-        o(ans).deepEquals({ json: '1'.repeat(1000) });
+        try {
+            await fsa.writeJson(jsonFilePathGz, { json: '1'.repeat(1000) });
+            const ans = await fsa.readJson(jsonFilePathGz);
+            o(statSync(jsonFilePathGz).size).equals(44);
+            o(ans).deepEquals({ json: '1'.repeat(1000) });
+        } catch (e) {
+            console.log(e);
+        }
     });
 
     o('readJson writeJson', async () => {
-        await FileOperator.writeJson(jsonFilePath, { json: '1'.repeat(1000) });
-        const ans = await FileOperator.readJson(jsonFilePath);
+        await fsa.writeJson(jsonFilePath, { json: '1'.repeat(1000) });
+        const ans = await fsa.readJson(jsonFilePath);
         o(statSync(jsonFilePath).size).equals(1016);
         o(ans).deepEquals({ json: '1'.repeat(1000) });
     });

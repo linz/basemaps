@@ -1,10 +1,21 @@
 import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import { Aws, FileOperator, TileDataXyz, VectorFormat } from '@basemaps/shared';
+import { Aws, fsa, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import { Cotar, TarIndex } from '@cotar/core';
+import { Cotar } from '@cotar/core';
+import { Readable } from 'stream';
+import { createGunzip } from 'zlib';
 import { NotFound } from './routes/tile';
 import { TileSetHandler } from './tile.set';
+
+function streamToBuffer(stream: Readable): Promise<Buffer> {
+    const buffers: Buffer[] = [];
+    return new Promise((resolve, reject) => {
+        stream.on('data', (data) => buffers.push(data));
+        stream.on('end', () => resolve(Buffer.concat(buffers)));
+        stream.on('error', reject);
+    });
+}
 
 class CotarCache {
     cache = new Map<string, Promise<Cotar | null>>();
@@ -22,8 +33,9 @@ class CotarCache {
         const source = SourceAwsS3.fromUri(uri, Aws.s3);
         if (source == null) return null;
 
-        const index = await FileOperator.readJson<TarIndex>(uri + '.index.gz');
-        return new Cotar(source, index);
+        const stream = fsa.readStream(`${uri}.index.gz`).pipe(createGunzip());
+        const index = await streamToBuffer(stream);
+        return new Cotar(source, index.toString().split('\n'));
     }
 }
 
@@ -42,11 +54,6 @@ export class TileSetVector extends TileSetHandler<ConfigTileSetVector> {
         const cotar = await Layers.get(layer[3857]);
         if (cotar == null) return new LambdaHttpResponse(500, 'Failed to load VectorTiles');
         req.timer.end('cotar:load');
-        if (cotar.index.size === 0) {
-            req.timer.start('cotar:index');
-            cotar.init();
-            req.timer.end('cotar:index');
-        }
 
         // Flip Y coordinate because MBTiles files are TMS.
         const y = (1 << xyz.z) - 1 - xyz.y;
