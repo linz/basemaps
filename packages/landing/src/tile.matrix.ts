@@ -6,6 +6,7 @@ import XYZ from 'ol/source/XYZ';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import Proj from 'proj4';
 import { MapOptions, MapOptionType, WindowUrl } from './url';
+import { Style } from 'maplibre-gl';
 
 Proj.defs(
     'EPSG:2193',
@@ -52,6 +53,27 @@ export class TileGrid {
             style: '',
             matrixSet: '',
         });
+    }
+
+    getStyle(config: MapOptions): Style | string {
+        if (config.imageId === 'topographic') return WindowUrl.toTileUrl(config, MapOptionType.VectorTile);
+        return {
+            version: 8,
+            sources: {
+                'raster-tiles': {
+                    type: 'raster',
+                    tiles: [WindowUrl.toTileUrl(config, MapOptionType.Tile)],
+                    tileSize: 256,
+                },
+            },
+            layers: [
+                {
+                    id: 'LINZ Raster Basemaps',
+                    type: 'raster',
+                    source: 'raster-tiles',
+                },
+            ],
+        };
     }
 
     getView(): { resolutions?: number[]; extent?: [number, number, number, number] } | null {

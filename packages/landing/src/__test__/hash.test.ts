@@ -41,42 +41,49 @@ o.spec('WindowUrl', () => {
         o(WindowUrl.fromUrl('')).deepEquals({
             tileMatrix: GoogleTms,
             imageId: 'aerial',
+            style: 'topolike',
             tag: 'production',
             debug: false,
         });
         o(WindowUrl.fromUrl('?p=2193')).deepEquals({
             tileMatrix: Nztm2000Tms,
             imageId: 'aerial',
+            style: 'topolike',
             tag: 'production',
             debug: false,
         });
         o(WindowUrl.fromUrl('?i=abc123')).deepEquals({
             tileMatrix: GoogleTms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'production',
             debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta')).deepEquals({
             tileMatrix: GoogleTms,
             imageId: 'aerial',
+            style: 'topolike',
             tag: 'beta',
             debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193')).deepEquals({
             tileMatrix: Nztm2000Tms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'beta',
             debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193&d=true')).deepEquals({
             tileMatrix: Nztm2000Tms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'beta',
             debug: false,
         });
-        o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193&d=true&debug=yes')).deepEquals({
+        o(WindowUrl.fromUrl('?v=beta&i=abc123&s=basic&p=2193&d=true&debug=yes')).deepEquals({
             tileMatrix: Nztm2000Tms,
             imageId: 'abc123',
+            style: 'basic',
             tag: 'beta',
             debug: true,
         });
@@ -86,19 +93,22 @@ o.spec('WindowUrl', () => {
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=nztm2000&d=true&debug=yes')).deepEquals({
             tileMatrix: Nztm2000Tms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'beta',
             debug: true,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=nztm2000quad&d=true&debug=yes')).deepEquals({
             tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'beta',
             debug: true,
         });
 
-        o(WindowUrl.fromUrl('?v=beta&i=abc123&p=NZTM2000Quad&d=true&debug=yes')).deepEquals({
+        o(WindowUrl.fromUrl('?v=beta&i=abc123&s=basic&p=NZTM2000Quad&d=true&debug=yes')).deepEquals({
             tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
+            style: 'basic',
             tag: 'beta',
             debug: true,
         });
