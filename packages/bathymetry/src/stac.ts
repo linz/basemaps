@@ -8,7 +8,7 @@ import {
     StacLink,
     StacProvider,
 } from '@basemaps/geo';
-import { extractYearRangeFromName, FileOperator, LogType, Projection, titleizeImageryName } from '@basemaps/shared';
+import { extractYearRangeFromName, fsa, LogType, Projection, titleizeImageryName } from '@basemaps/shared';
 import * as cp from 'child_process';
 import * as path from 'path';
 import { basename } from 'path';
@@ -81,7 +81,7 @@ async function createCollection(
     const links: StacLink[] = [
         {
             rel: 'self',
-            href: FileOperator.join(bm.outputPath, bm.tmpFolder.basename(FileType.Stac, 'collection')),
+            href: fsa.join(bm.outputPath, bm.tmpFolder.basename(FileType.Stac, 'collection')),
         },
         {
             rel: 'derived_from',
@@ -105,14 +105,14 @@ async function createCollection(
     ];
     const interval: [string, string][] = [];
     try {
-        const sourceCollectionPath = FileOperator.join(bm.inputFolder, 'collection.json');
-        sourceStac = await FileOperator.readJson<StacCollection>(sourceCollectionPath);
+        const sourceCollectionPath = fsa.join(bm.inputFolder, 'collection.json');
+        sourceStac = await fsa.readJson<StacCollection>(sourceCollectionPath);
         description = sourceStac.description;
         interval.push(...(sourceStac.extent?.temporal?.interval ?? []));
         links.push({ href: sourceCollectionPath, rel: 'sourceImagery', type: 'application/json' });
         if (sourceStac.providers != null) providers.push(...sourceStac.providers);
     } catch (err) {
-        if (!FileOperator.isCompositeError(err) || err.code !== 404) {
+        if (!fsa.isCompositeError(err) || err.code !== 404) {
             throw err;
         }
     }

@@ -1,4 +1,4 @@
-import { Env, FileOperator, LogConfig, LoggerFatalError } from '@basemaps/shared';
+import { Env, fsa, LogConfig, LoggerFatalError } from '@basemaps/shared';
 import {
     CommandLineAction,
     CommandLineFlagParameter,
@@ -79,13 +79,12 @@ export class ActionCogCreate extends CommandLineAction {
         logger.info({ version: gdalVersion }, 'GdalVersion');
 
         const name = this.getName(job);
-        if (name == null) {
-            return;
-        }
-        const targetPath = job.getJobPath(`${name}.tiff`);
-        const outputFs = FileOperator.create(job.output.location);
+        if (name == null) return;
 
-        const outputExists = await outputFs.exists(targetPath);
+        const targetPath = job.getJobPath(`${name}.tiff`);
+        fsa.configure(job.output.location);
+
+        const outputExists = await fsa.exists(targetPath);
         logger.info({ targetPath, outputExists }, 'CheckExists');
         // Output file exists don't try and overwrite it
         if (outputExists) {
@@ -118,12 +117,12 @@ export class ActionCogCreate extends CommandLineAction {
                 return;
             }
 
-            const tmpTiff = FileOperator.join(tmpFolder, `${name}.tiff`);
+            const tmpTiff = fsa.join(tmpFolder, `${name}.tiff`);
 
             await buildCogForName(job, name, tmpVrtPath, tmpTiff, logger, isCommit);
             logger.info({ target: targetPath }, 'StoreTiff');
             if (isCommit) {
-                await outputFs.write(targetPath, createReadStream(tmpTiff));
+                await fsa.write(targetPath, createReadStream(tmpTiff));
             } else {
                 logger.warn('DryRun:Done');
             }

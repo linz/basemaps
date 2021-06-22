@@ -1,13 +1,29 @@
 import o from 'ospec';
 import { FsLocal } from '../file.local';
 import { CompositeError } from '../composite.error';
-import { S3Fs } from '..';
+import { FileSystemAbstraction } from '..';
 import * as path from 'path';
 
 o.spec('FileLocal', () => {
     const RootFolder = process.platform === 'darwin' ? '/var/root' : '/root';
-    const s3fs = new S3Fs();
+    const s3fs = new FileSystemAbstraction();
     const localFs = new FsLocal();
+
+    o('Should head objects', async () => {
+        const res = await localFs.head(__filename);
+        o(res).notEquals(null);
+        o((res?.size || 0) > 3000).equals(true);
+    });
+
+    o('should list with details', async () => {
+        const res = await s3fs.toArray(localFs.listDetails(__dirname));
+        o(res.length > 1).equals(true);
+        const file = res.find((f) => f.path === __filename);
+        o(file).notEquals(undefined);
+        o((file?.size || 0) > 3000).equals(true);
+        o(file?.path).equals(__filename);
+    });
+
     o('Should capture not found errors:list', async () => {
         try {
             await s3fs.toArray(localFs.list('/foo/bar/baz'));

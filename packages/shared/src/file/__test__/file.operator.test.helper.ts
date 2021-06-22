@@ -1,5 +1,5 @@
 import { CompositeError } from '@linzjs/s3fs';
-import { FileOperator } from '..';
+import { fsa } from '..';
 
 export interface MockFs {
     /**
@@ -22,10 +22,10 @@ export interface MockFs {
  * Create an interface for stubbing `FileOperator.read,write,readJson,writeJson`
  */
 export function mockFileOperator(): MockFs {
-    const origWrite = FileOperator.write;
-    const origRead = FileOperator.read;
-    const origReadJson = FileOperator.readJson;
-    const origWriteJson = FileOperator.writeJson;
+    const origWrite = fsa.write;
+    const origRead = fsa.read;
+    const origReadJson = fsa.readJson;
+    const origWriteJson = fsa.writeJson;
 
     let jsStore: Record<string, any> = {};
     const mockReadJson = async (path: string): Promise<any> => {
@@ -55,18 +55,18 @@ export function mockFileOperator(): MockFs {
             return rawStore;
         },
         setup(): void {
-            FileOperator.readJson = mockReadJson;
-            FileOperator.writeJson = mockWriteJson;
-            FileOperator.read = mockRead;
-            FileOperator.write = mockWrite;
+            fsa.read = mockRead;
+            fsa.write = mockWrite;
+            fsa.readJson = mockReadJson;
+            fsa.writeJson = mockWriteJson;
             jsStore = {};
             rawStore = {};
         },
         teardown(): void {
-            FileOperator.read = origRead;
-            FileOperator.write = origWrite;
-            FileOperator.readJson = origReadJson;
-            FileOperator.writeJson = origWriteJson;
+            fsa.read = origRead;
+            fsa.write = origWrite;
+            fsa.readJson = origReadJson;
+            fsa.writeJson = origWriteJson;
         },
     };
 }

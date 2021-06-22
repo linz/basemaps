@@ -1,5 +1,4 @@
-import { Env, LogConfig } from '@basemaps/shared';
-import { S3Fs } from '@linzjs/s3fs';
+import { Env, LogConfig, fsa } from '@basemaps/shared';
 import PLimit from 'p-limit';
 import { FileProcess } from './file.process';
 import { CacheExtension, CacheFolder, LogStartDate, LogStats } from './stats';
@@ -24,8 +23,6 @@ export const Q = {
     time: PLimit(5),
 };
 
-export const s3fs = new S3Fs();
-
 export function* dateByHour(startDate: number): Generator<number> {
     const currentDate = new Date(startDate);
     currentDate.setUTCMinutes(0);
@@ -41,9 +38,9 @@ export function* dateByHour(startDate: number): Generator<number> {
 export async function listCacheFolder(cachePath: string): Promise<Set<string>> {
     const existingFiles: Set<string> = new Set();
     // Find where the last script finished processing
-    const cachePathList = s3fs.join(cachePath, CacheFolder);
-    if (s3fs.isS3(cachePathList) || (await s3fs.exists(cachePathList))) {
-        for await (const file of s3fs.list(cachePathList)) {
+    const cachePathList = fsa.join(cachePath, CacheFolder);
+    if (fsa.isS3(cachePathList) || (await fsa.exists(cachePathList))) {
+        for await (const file of fsa.list(cachePathList)) {
             if (!file.endsWith(CacheExtension)) continue;
             existingFiles.add(file.replace(cachePathList, '').replace(CacheExtension, ''));
         }
@@ -79,20 +76,18 @@ export async function handler(): Promise<void> {
         if (existingFiles.has(nextDateToProcess)) continue;
 
         const nextDateKey = nextDateToProcess.replace('T', '-');
-        const cacheKey = s3fs.join(CacheFolder, nextDateToProcess + CacheExtension);
+        const cacheKey = fsa.join(CacheFolder, nextDateToProcess + CacheExtension);
 
         processedCount++;
 
         const promise = Q.time(async () => {
             // Filter for files in the date range we are looking for
-            const todoFiles = await s3fs.toArray(
-                s3fs.list(s3fs.join(SourceLocation, `${CloudFrontId}.${nextDateKey}`)),
-            );
+            const todoFiles = await fsa.toArray(fsa.list(fsa.join(SourceLocation, `${CloudFrontId}.${nextDateKey}`)));
             if (todoFiles.length === 0) {
                 Logger.debug({ startAt }, 'Skipped');
 
                 // Nothing to process, need to store that we have looked at this date range
-                await s3fs.write(s3fs.join(CacheLocation, cacheKey), Buffer.from(''));
+                await fsa.write(fsa.join(CacheLocation, cacheKey), Buffer.from(''));
                 return;
             }
 
@@ -112,7 +107,7 @@ export async function handler(): Promise<void> {
                 Logger.info({ ...apiData, '@type': 'rollup' }, 'RequestSummary');
             }
 
-            await s3fs.write(s3fs.join(CacheLocation, cacheKey), Buffer.from(output.join('\n')));
+            await fsa.write(fsa.join(CacheLocation, cacheKey), Buffer.from(output.join('\n')));
         });
         promises.push(promise);
     }

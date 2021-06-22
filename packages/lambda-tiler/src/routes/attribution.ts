@@ -15,7 +15,7 @@ import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda'
 import {
     Config,
     extractYearRangeFromName,
-    FileOperator,
+    fsa,
     Projection,
     setNameAndProjection,
     tileAttributionFromPath,
@@ -74,9 +74,9 @@ function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projection): 
 
 async function readStac(uri: string): Promise<StacCollection | null> {
     try {
-        return await FileOperator.readJson<StacCollection>(uri);
+        return await fsa.readJson<StacCollection>(uri);
     } catch (err) {
-        if (FileOperator.isCompositeError(err) && err.code < 500) {
+        if (fsa.isCompositeError(err) && err.code < 500) {
             return null;
         }
         throw err;
@@ -143,7 +143,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
         const im = tileSet.imagery.get(imgId);
         if (im == null) continue;
         if (stacFiles.get(im.uri) == null) {
-            stacFiles.set(im.uri, readStac(FileOperator.join(im.uri, 'collection.json')));
+            stacFiles.set(im.uri, readStac(fsa.join(im.uri, 'collection.json')));
         }
     }
 

@@ -5,17 +5,11 @@ export class LambdaHttpResponse {
         return t instanceof LambdaHttpResponse;
     }
 
-    /**
-     * Http status code
-     */
+    /** Http status code */
     public status: number;
-    /**
-     * Text description for the status code
-     */
+    /** Text description for the status code */
     public statusDescription: string;
-    /**
-     * Raw body object
-     */
+    /** Raw body object */
     body: string | Buffer | null = null;
 
     headers: Map<string, string | number | boolean> = new Map();
@@ -25,8 +19,7 @@ export class LambdaHttpResponse {
         this.statusDescription = description;
         if (headers != null) {
             for (const key of Object.keys(headers)) {
-                const value = headers[key];
-                this.header(key, value);
+                this.header(key, headers[key]);
             }
         }
     }
@@ -34,17 +27,13 @@ export class LambdaHttpResponse {
     header(key: string): string | number | boolean | undefined;
     header(key: string, value: string | number | boolean): void;
     header(key: string, value?: string | number | boolean): string | number | boolean | undefined | void {
-        if (value == null) {
-            return this.headers.get(key.toLowerCase());
-        }
-        this.headers.set(key.toLowerCase(), value);
+        const headerKey = key.toLowerCase();
+        if (value == null) return this.headers.get(headerKey);
+        this.headers.set(headerKey, value);
     }
 
     public get isBase64Encoded(): boolean {
-        if (Buffer.isBuffer(this.body)) {
-            return true;
-        }
-        return false;
+        return Buffer.isBuffer(this.body);
     }
 
     json(obj: Record<string, any>): void {
@@ -59,11 +48,15 @@ export class LambdaHttpResponse {
     getBody(): string {
         if (this.body == null) {
             this.header(HttpHeader.ContentType, ApplicationJson);
-            return JSON.stringify({ status: this.status, message: this.statusDescription });
+            return JSON.stringify({
+                status: this.status,
+                message: this.statusDescription,
+                requestId: this.headers.get(HttpHeader.RequestId.toLowerCase()),
+                correlationId: this.headers.get(HttpHeader.CorrelationId.toLowerCase()),
+            });
         }
-        if (Buffer.isBuffer(this.body)) {
-            return this.body.toString('base64');
-        }
+
+        if (Buffer.isBuffer(this.body)) return this.body.toString('base64');
         return this.body;
     }
 }

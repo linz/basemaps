@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Maplibre WGS84 Swipe between raster and vector maps Demo</title>
+        <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+        <script
+            src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"
+            integrity="sha384-jzJlE25T0D6awCZu40rkb9hFa6fxUC8/IN9wKY49uH9k/PP5efecoiru/RGCszy2"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"
+            integrity="sha384-YAsv3Nk7n9hAR/gbvgvtGvq2TV1hvEpFks3bGIs451f9D0jSn070rHje6Swuo7bL"
+            crossorigin="anonymous"
+        ></script>
+        <link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet" />
+        <script
+            src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"
+            integrity="sha384-4vY2uVrBcMvF9vEZC0sp2hF66Ux2LY8PbIv23Mx1LQ1J+WyNUajJwqfiWVAIBUGA"
+            crossorigin="anonymous"
+        ></script>
+        <link
+            rel="stylesheet"
+            href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css"
+            type="text/css"
+        />
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            body * {
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+
+            .map {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="comparison-container"></div>
+            <div id="raster" class="map"></div>
+            <div id="vector" class="map"></div>
+        </div>
+        <script>
+            const apiKey = localStorage.getItem('api-key');
+            if (!apiKey) {
+                throw new Error('Missing api-key in localStorage');
+            }
+
+            // vector layers
+            const styleUrl =
+                'https://basemaps.linz.govt.nz/v1/tiles/topographic/EPSG:3857/style/topolike.json?api=' + apiKey;
+
+            // Raster layers
+            const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=' + apiKey;
+
+            const startPos = [173, -40.5];
+            const startZoom = 6;
+
+            var raster = new maplibregl.Map({
+                container: 'raster', // Container ID
+                style: {
+                    version: 8,
+                    sources: {
+                        'raster-tiles': {
+                            type: 'raster',
+                            tiles: [url],
+                            tileSize: 256,
+                        },
+                    },
+                    layers: [
+                        {
+                            id: 'LINZ Raster Basemaps',
+                            type: 'raster',
+                            source: 'raster-tiles',
+                        },
+                    ],
+                },
+                center: startPos,
+                zoom: startZoom,
+            });
+
+            var vector = new maplibregl.Map({
+                container: 'vector', // Container ID
+                style: styleUrl,
+                center: startPos,
+                zoom: startZoom,
+            });
+
+            // A selector or reference to HTML element
+            var container = '#comparison-container';
+
+            new mapboxgl.Compare(raster, vector, container, {
+                mousemove: true, // Optional. Set to true to enable swiping during cursor movement.
+                orientation: 'vertical', // Optional. Sets the orientation of swiper to horizontal or vertical, defaults to vertical
+            });
+        </script>
+    </body>
+</html>
