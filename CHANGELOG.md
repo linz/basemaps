@@ -3,6 +3,65 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/linz/basemaps/compare/v5.2.0...v6.0.0) (2021-06-21)
+
+
+### Bug Fixes
+
+* default to basemaps.linz.govt.nz rather than tiles.basemaps.linz.govt.nz ([#1684](https://github.com/linz/basemaps/issues/1684)) ([95afdbf](https://github.com/linz/basemaps/commit/95afdbf7125edebf557ceace3e8e9f76d0317e1b))
+* **s3fs:** default to using the local file system ([#1683](https://github.com/linz/basemaps/issues/1683)) ([f9d65bb](https://github.com/linz/basemaps/commit/f9d65bbc2a9a595df6a1b6a062b2ad29db1573c0))
+
+
+### Features
+
+* **lambda:** include the requestId and correlationId in fatal errors ([#1668](https://github.com/linz/basemaps/issues/1668)) ([a957584](https://github.com/linz/basemaps/commit/a9575843697f4d054d563deb1789e65b79e1a84d))
+* **lambda-analytics:** include stats for pbf tiles ([#1676](https://github.com/linz/basemaps/issues/1676)) ([30fc6c7](https://github.com/linz/basemaps/commit/30fc6c7d14be387903bfa44aab7585e21790e85a))
+* **lambda-tiler:** switch to ndjson based indexes for cotar ([#1679](https://github.com/linz/basemaps/issues/1679)) ([c6f622b](https://github.com/linz/basemaps/commit/c6f622bf3f2fd583ed95df3c7d10aa4482def83b))
+* **landing:** Add opacity and slide compare Maplibre examples ([#1671](https://github.com/linz/basemaps/issues/1671)) ([2bf3b8a](https://github.com/linz/basemaps/commit/2bf3b8a46f44453edb6f48eb29f60402152c4203))
+* **s3fs:** add listDetails(), lists directory with file sizes ([#1674](https://github.com/linz/basemaps/issues/1674)) ([03517f9](https://github.com/linz/basemaps/commit/03517f9c4533b95b636b524bb9144c37ecb0b02b))
+* **s3fs:** provide basic file information with "fs.head" ([#1673](https://github.com/linz/basemaps/issues/1673)) ([93d55b6](https://github.com/linz/basemaps/commit/93d55b6558b2982a4dbaee542457da0b221294af))
+* **s3fs:** refactor how credentials are passed to s3fs ([#1675](https://github.com/linz/basemaps/issues/1675)) ([f07f529](https://github.com/linz/basemaps/commit/f07f529af1657aa5ffe7d9deff92406e908e6fe4))
+
+
+### BREAKING CHANGES
+
+* **s3fs:** this changes the behaviour for s3fs as paths now need to be registered with credentials
+
+* refactor: remove commented out code
+
+
+
+
+
+# [5.2.0](https://github.com/linz/basemaps/compare/v5.1.0...v5.2.0) (2021-06-10)
+
+
+### Features
+
+* **infra:** add support for vector tile sources ([#1663](https://github.com/linz/basemaps/issues/1663)) ([8ab7687](https://github.com/linz/basemaps/commit/8ab7687f5b6cea262d224cf73ef606a95a7a3939))
+* **landing:** Add example page for Maplibre vector map. ([#1664](https://github.com/linz/basemaps/issues/1664)) ([8f7463b](https://github.com/linz/basemaps/commit/8f7463bf8dbf908c2d1d896ad7c0fd340b23ae4f))
+
+
+
+
+
+# [5.1.0](https://github.com/linz/basemaps/compare/v5.0.3...v5.1.0) (2021-06-07)
+
+
+### Bug Fixes
+
+* **build:** Audit failure to add glob-parent >= 5.1.2 resolution ([#1659](https://github.com/linz/basemaps/issues/1659)) ([eba5f6c](https://github.com/linz/basemaps/commit/eba5f6c3b35a1cbd8872d77fecc2cdfaeaa810d4))
+* **build:** Audit failure to add trim-newlines >=3.0.1 <4.0.0 || >=4.0.1 resolution ([#1660](https://github.com/linz/basemaps/issues/1660)) ([38d1b44](https://github.com/linz/basemaps/commit/38d1b44ca97174df8a4c07e557149056905aeaf8))
+
+
+### Features
+
+* **landing:** Update the UI NZTM button to return WMTS with NZTM2000Quad TileMatrix ([#1650](https://github.com/linz/basemaps/issues/1650)) ([0237ff9](https://github.com/linz/basemaps/commit/0237ff9f7147577f1bab5b069e87e468c3dff4a3))
+
+
+
+
+
 ## [5.0.3](https://github.com/linz/basemaps/compare/v5.0.2...v5.0.3) (2021-05-25)
 
 

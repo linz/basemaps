@@ -18,11 +18,11 @@ export interface BaseMapsConfig {
 }
 
 export const BaseMapsProdConfig: BaseMapsConfig = {
-    CogBucket: ['linz-basemaps'],
+    CogBucket: ['linz-basemaps', 'linz-basemaps-vector'],
     Route53Zone: 'prod.basemaps.awsint.linz.govt.nz.',
     AlbPublicDns: 'int.tiles.basemaps.linz.govt.nz',
     CloudFrontDns: ['tiles.basemaps.linz.govt.nz', 'basemaps.linz.govt.nz'],
-    PublicUrlBase: 'https://tiles.basemaps.linz.govt.nz',
+    PublicUrlBase: 'https://basemaps.linz.govt.nz',
 };
 
 export const BaseMapsDevConfig: BaseMapsConfig = {
@@ -30,7 +30,7 @@ export const BaseMapsDevConfig: BaseMapsConfig = {
     Route53Zone: 'nonprod.basemaps.awsint.linz.govt.nz',
     AlbPublicDns: 'dev.int.tiles.basemaps.linz.govt.nz',
     CloudFrontDns: ['tiles.dev.basemaps.linz.govt.nz', 'dev.basemaps.linz.govt.nz'],
-    PublicUrlBase: 'https://tiles.dev.basemaps.linz.govt.nz',
+    PublicUrlBase: 'https://dev.basemaps.linz.govt.nz',
 };
 
 export function getConfig(): BaseMapsConfig {

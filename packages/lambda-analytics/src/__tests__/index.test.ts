@@ -1,8 +1,8 @@
-import { Env, LogConfig } from '@basemaps/shared';
+import { Env, LogConfig, fsa } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { FileProcess } from '../file.process';
-import { dateByHour, getMaxDate, handler, listCacheFolder, MaxToProcess, Q, s3fs } from '../index';
+import { dateByHour, getMaxDate, handler, listCacheFolder, MaxToProcess, Q } from '../index';
 import { LogStartDate, RollupVersion } from '../stats';
 import { ExampleLogs, lineReader } from './file.process.test';
 import PLimit from 'p-limit';
@@ -44,13 +44,13 @@ o.spec('hourByHour', () => {
 });
 
 o.spec('getStartDate', () => {
-    const originalList = s3fs.list;
+    const originalList = fsa.list;
     o.afterEach(() => {
-        s3fs.list = originalList;
+        fsa.list = originalList;
     });
 
     o('should use the start date if no files found', async () => {
-        s3fs.list = async function* listFiles(): AsyncGenerator<string> {
+        fsa.list = async function* listFiles(): AsyncGenerator<string> {
             // yield nothing
         };
         const cacheData = await listCacheFolder('s3://foo/bar');
@@ -58,7 +58,7 @@ o.spec('getStartDate', () => {
     });
 
     o('should not use the start date if files are found', async () => {
-        s3fs.list = async function* listFiles(key: string): AsyncGenerator<string> {
+        fsa.list = async function* listFiles(key: string): AsyncGenerator<string> {
             yield `${key}baz.txt`;
             yield `${key}2020-01-01T01.ndjson`;
         };
@@ -93,10 +93,10 @@ o.spec('handler', () => {
             `${sourceBucket}/${cloudFrontId}.2019-07-28-02.hash.gz`,
         ];
         sandbox.stub(FileProcess, 'reader').callsFake(lineReader(ExampleLogs, `${currentYear}-01-01T02`));
-        const writeStub = sandbox.stub(s3fs, 'write');
+        const writeStub = sandbox.stub(fsa, 'write');
 
         const listStub = sandbox
-            .stub(s3fs, 'list')
+            .stub(fsa, 'list')
             .callsFake(async function* ListFiles(source: string): AsyncGenerator<string> {
                 if (source.startsWith(sourceBucket)) {
                     for (const filePath of sourceFiles) {
