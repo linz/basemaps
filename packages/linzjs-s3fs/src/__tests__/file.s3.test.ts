@@ -2,14 +2,14 @@ import { FsS3 } from '../file.s3';
 import o from 'ospec';
 import S3 from 'aws-sdk/clients/s3';
 import { createSandbox } from 'sinon';
-import { S3Fs } from '..';
+import { FileSystemAbstraction } from '..';
 
 o.spec('file.s3', () => {
     const sandbox = createSandbox();
     const mockS3 = new S3();
     const fs = new FsS3(mockS3);
 
-    const s3fs = new S3Fs();
+    const s3fs = new FileSystemAbstraction();
 
     o.afterEach(() => sandbox.restore());
 

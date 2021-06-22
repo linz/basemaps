@@ -1,5 +1,5 @@
 import { TileMatrixSet } from '@basemaps/geo';
-import { Env, FileOperator, LogConfig, LogType, Projection } from '@basemaps/shared';
+import { Env, fsa, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import Batch from 'aws-sdk/clients/batch';
 import { CogStacJob } from '../../cog/cog.stac.job';
@@ -116,7 +116,7 @@ export class ActionBatchJob extends CommandLineAction {
 
     static async batchJob(job: CogJob, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
         const jobPath = job.getJobPath('job.json');
-        if (!FileOperator.isS3(jobPath)) {
+        if (!fsa.isS3(jobPath)) {
             throw new Error(`AWS Batch collection.json have to be in S3, jobPath:${jobPath}`);
         }
         LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
@@ -124,7 +124,7 @@ export class ActionBatchJob extends CommandLineAction {
         const region = Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';
         const batch = new Batch({ region });
 
-        const outputFs = FileOperator.create(job.output.location);
+        fsa.configure(job.output.location);
         const runningJobs = await ActionBatchJob.getCurrentJobList(batch);
 
         const stats = await Promise.all(
@@ -138,10 +138,8 @@ export class ActionBatchJob extends CommandLineAction {
                 }
 
                 const targetPath = job.getJobPath(`${name}.tiff`);
-                const exists = await outputFs.exists(targetPath);
-                if (exists) {
-                    logger.info({ targetPath }, 'FileExists');
-                }
+                const exists = await fsa.exists(targetPath);
+                if (exists) logger.info({ targetPath }, 'FileExists');
                 return { name, ok: exists };
             }),
         );

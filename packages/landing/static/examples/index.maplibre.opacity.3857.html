@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Adjust a layer's opacity</title>
+        <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+        <script
+            src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"
+            integrity="sha384-YAsv3Nk7n9hAR/gbvgvtGvq2TV1hvEpFks3bGIs451f9D0jSn070rHje6Swuo7bL"
+            crossorigin="anonymous"
+        ></script>
+        <link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet" />
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            body * {
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+
+            .map {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 100%;
+            }
+
+            .map-overlay {
+                font: bold 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+                position: absolute;
+                width: 25%;
+                top: 0;
+                left: 0;
+                padding: 10px;
+            }
+
+            .map-overlay .map-overlay-inner {
+                background-color: #fff;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+                border-radius: 3px;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .map-overlay label {
+                display: block;
+                margin: 0 0 10px;
+            }
+
+            .map-overlay input {
+                background-color: transparent;
+                display: inline-block;
+                width: 100%;
+                position: relative;
+                margin: 0;
+                cursor: ew-resize;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="raster" class="map"></div>
+        <div id="vector" class="map"></div>
+
+        <div class="map-overlay top">
+            <div class="map-overlay-inner">
+                <label>Layer opacity: <span id="slider-value">100%</span></label>
+                <input id="slider" type="range" min="0" max="100" step="0" value="100" />
+            </div>
+        </div>
+
+        <script>
+            const apiKey = localStorage.getItem('api-key');
+            if (!apiKey) {
+                throw new Error('Missing api-key in localStorage');
+            }
+
+            // vector layers
+            const styleUrl =
+                'https://basemaps.linz.govt.nz/v1/tiles/topographic/EPSG:3857/style/topolike.json?api=' + apiKey;
+
+            // Raster layers
+            const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=' + apiKey;
+
+            const startPos = [173, -40.5];
+            const startZoom = 6;
+
+            var raster = new maplibregl.Map({
+                container: 'raster', // Container ID
+                style: {
+                    version: 8,
+                    sources: {
+                        'raster-tiles': {
+                            type: 'raster',
+                            tiles: [url],
+                            tileSize: 256,
+                        },
+                    },
+                    layers: [
+                        {
+                            id: 'LINZ Raster Basemaps',
+                            type: 'raster',
+                            source: 'raster-tiles',
+                        },
+                    ],
+                },
+                center: startPos,
+                zoom: startZoom,
+            });
+
+            var vector = new maplibregl.Map({
+                container: 'vector', // Container ID
+                style: styleUrl,
+                center: startPos,
+                zoom: startZoom,
+            });
+
+            var slider = document.getElementById('slider');
+            var sliderValue = document.getElementById('slider-value');
+
+            vector.on('load', function () {
+                slider.addEventListener('input', function (e) {
+                    var vectorMap = document.querySelector('#vector');
+                    vectorMap.style.opacity = parseInt(e.target.value, 10) / 100;
+                    sliderValue.textContent = e.target.value + '%';
+                });
+            });
+
+            // Copyright (c) 2016, Mapbox
+            // https://github.com/mapbox/mapbox-gl-sync-move
+            function moveToMapPosition(master, clones) {
+                let center = master.getCenter();
+                let zoom = master.getZoom();
+                let bearing = master.getBearing();
+                let pitch = master.getPitch();
+
+                clones.forEach(function (clone) {
+                    clone.jumpTo({
+                        center: center,
+                        zoom: zoom,
+                        bearing: bearing,
+                        pitch: pitch,
+                    });
+                });
+            }
+
+            // Sync movements of two maps.
+            //
+            // All interactions that result in movement end up firing
+            // a "move" event. The trick here, though, is to
+            // ensure that movements don't cycle from one map
+            // to the other and back again, because such a cycle
+            // - could cause an infinite loop
+            // - prematurely halts prolonged movements like
+            //   double-click zooming, box-zooming, and flying
+            function syncMaps() {
+                let maps;
+                let argLen = arguments.length;
+                if (argLen === 1) {
+                    maps = arguments[0];
+                } else {
+                    maps = [];
+                    for (let i = 0; i < argLen; i++) {
+                        maps.push(arguments[i]);
+                    }
+                }
+
+                // Create all the movement functions, because if they're created every time
+                // they wouldn't be the same and couldn't be removed.
+                let fns = [];
+                maps.forEach(function (map, index) {
+                    fns[index] = sync.bind(
+                        null,
+                        map,
+                        maps.filter(function (o, i) {
+                            return i !== index;
+                        }),
+                    );
+                });
+
+                function on() {
+                    maps.forEach(function (map, index) {
+                        map.on('move', fns[index]);
+                    });
+                }
+
+                function off() {
+                    maps.forEach(function (map, index) {
+                        map.off('move', fns[index]);
+                    });
+                }
+
+                // When one map moves, we turn off the movement listeners
+                // on all the maps, move it, then turn the listeners on again
+                function sync(master, clones) {
+                    off();
+                    moveToMapPosition(master, clones);
+                    on();
+                }
+
+                on();
+                return function () {
+                    off();
+                    fns = [];
+                    maps = [];
+                };
+            }
+
+            syncMaps(raster, vector);
+        </script>
+    </body>
+</html>

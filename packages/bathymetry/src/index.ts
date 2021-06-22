@@ -1,7 +1,7 @@
 import { BaseCommandLine } from '@basemaps/cli/build/cli/base.cli';
 import { makeTempFolder } from '@basemaps/cli/build/cli/folder';
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
-import { Env, FileOperator, LogConfig } from '@basemaps/shared';
+import { Env, fsa, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import * as os from 'os';
@@ -102,13 +102,10 @@ class CreateAction extends CommandLineAction {
             });
             await bathy.render(logger);
 
-            const srcPath = FileOperator.join(tmpFolder.sourcePath, String(FileType.Output));
+            const srcPath = fsa.join(tmpFolder.sourcePath, String(FileType.Output));
 
             for (const file of await fs.readdir(srcPath)) {
-                await FileOperator.write(
-                    FileOperator.join(outputPath, file),
-                    createReadStream(FileOperator.join(srcPath, file)),
-                );
+                await fsa.write(fsa.join(outputPath, file), createReadStream(fsa.join(srcPath, file)));
             }
         } finally {
             await fs.rmdir(tmpFolder.sourcePath, { recursive: true });

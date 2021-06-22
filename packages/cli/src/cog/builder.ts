@@ -1,5 +1,5 @@
 import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
-import { CompositeError, FileOperator, LoggerFatalError, LogType, Projection } from '@basemaps/shared';
+import { CompositeError, fsa, LoggerFatalError, LogType, Projection } from '@basemaps/shared';
 import { ChunkSource } from '@cogeotiff/chunk';
 import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { createHash } from 'crypto';
@@ -200,7 +200,7 @@ export class CogBuilder {
 
         if (existsSync(cacheKey)) {
             this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
-            const metadata = await FileOperator.readJson<SourceMetadata>(cacheKey);
+            const metadata = await fsa.readJson<SourceMetadata>(cacheKey);
             metadata.resZoom = Projection.getTiffResZoom(this.targetTms, metadata.pixelScale);
             return metadata;
         }
@@ -208,7 +208,7 @@ export class CogBuilder {
         const metadata = await this.bounds(tiffs);
 
         mkdirSync(CacheFolder, { recursive: true });
-        await FileOperator.writeJson(cacheKey, metadata);
+        await fsa.writeJson(cacheKey, metadata);
         this.logger.debug({ path: cacheKey }, 'MetadataCacheMiss');
 
         return metadata;

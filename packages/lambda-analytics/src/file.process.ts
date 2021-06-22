@@ -1,12 +1,11 @@
-import { LogType, getUrlHost } from '@basemaps/shared';
+import { LogType, getUrlHost, fsa } from '@basemaps/shared';
 import { createInterface, Interface } from 'readline';
 import { createGunzip } from 'zlib';
-import { s3fs } from './index';
 import { LogStats } from './stats';
 
 export const FileProcess = {
     reader(fileName: string): AsyncGenerator<string> | Interface {
-        return createInterface({ input: s3fs.readStream(fileName).pipe(createGunzip()) });
+        return createInterface({ input: fsa.readStream(fileName).pipe(createGunzip()) });
     },
     async process(fileName: string, stats: LogStats, logger: LogType): Promise<void> {
         const lineReader = FileProcess.reader(fileName);

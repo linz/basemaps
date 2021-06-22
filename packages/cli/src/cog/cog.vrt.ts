@@ -1,5 +1,5 @@
 import { Epsg } from '@basemaps/geo';
-import { Aws, FileOperator, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
+import { Aws, fsa, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
 import { Gdal } from '../gdal/gdal';
 import { GdalCommand } from '../gdal/gdal.command';
 import { onProgress } from './cog';
@@ -94,14 +94,14 @@ export const CogVrt = {
             return null;
         }
 
-        const sourceVrtPath = FileOperator.join(tmpFolder, `source.vrt`);
-        const cogVrtPath = FileOperator.join(tmpFolder, `cog.vrt`);
+        const sourceVrtPath = fsa.join(tmpFolder, `source.vrt`);
+        const cogVrtPath = fsa.join(tmpFolder, `cog.vrt`);
 
         let cutlineTarget = '';
 
         if (cutline.clipPoly.length !== 0) {
-            cutlineTarget = FileOperator.join(tmpFolder, 'cutline.geojson');
-            await FileOperator.writeJson(cutlineTarget, cutline.toGeoJson());
+            cutlineTarget = fsa.join(tmpFolder, 'cutline.geojson');
+            await fsa.writeJson(cutlineTarget, cutline.toGeoJson());
         } else {
             job.output.cutline = undefined;
         }
