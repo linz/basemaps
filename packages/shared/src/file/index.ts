@@ -1,7 +1,7 @@
 import { Aws } from '../aws';
 
 export * from './file.config';
-import { FileSystemAbstraction, fsa as fsaSource } from '@linzjs/s3fs';
+import { fsa as fsaSource } from '@linzjs/s3fs';
 import { FsS3 } from '@linzjs/s3fs/build/file.s3';
 import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
@@ -9,7 +9,7 @@ import { FileConfig, isConfigS3Role } from './file.config';
 
 const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 
-export type FsaJson = FileSystemAbstraction & {
+export type FsaJson = typeof fsaSource & {
     readJson<T>(filePath: string): Promise<T>;
     writeJson<T>(filePath: string, obj: T): Promise<void>;
     /** Add a file system configuration */
