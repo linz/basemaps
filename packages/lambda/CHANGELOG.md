@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/linz/basemaps/compare/v5.2.0...v6.0.0) (2021-06-21)
+
+
+### Features
+
+* **lambda:** include the requestId and correlationId in fatal errors ([#1668](https://github.com/linz/basemaps/issues/1668)) ([a957584](https://github.com/linz/basemaps/commit/a9575843697f4d054d563deb1789e65b79e1a84d))
+
+
+
+
+
 # [5.1.0](https://github.com/linz/basemaps/compare/v5.0.3...v5.1.0) (2021-06-07)
 
 **Note:** Version bump only for package @basemaps/lambda

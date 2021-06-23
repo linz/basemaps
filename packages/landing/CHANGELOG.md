@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.0.0](https://github.com/linz/basemaps/compare/v5.2.0...v6.0.0) (2021-06-21)
+
+
+### Bug Fixes
+
+* default to basemaps.linz.govt.nz rather than tiles.basemaps.linz.govt.nz ([#1684](https://github.com/linz/basemaps/issues/1684)) ([95afdbf](https://github.com/linz/basemaps/commit/95afdbf7125edebf557ceace3e8e9f76d0317e1b))
+
+
+### Features
+
+* **landing:** Add opacity and slide compare Maplibre examples ([#1671](https://github.com/linz/basemaps/issues/1671)) ([2bf3b8a](https://github.com/linz/basemaps/commit/2bf3b8a46f44453edb6f48eb29f60402152c4203))
+
+
+
+
+
 # [5.2.0](https://github.com/linz/basemaps/compare/v5.1.0...v5.2.0) (2021-06-10)
 
 
