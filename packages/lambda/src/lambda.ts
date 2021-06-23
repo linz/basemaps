@@ -11,7 +11,7 @@ export interface HttpStatus {
 
 const version = process.env.GIT_VERSION;
 const hash = process.env.GIT_HASH;
-const package = { version, hash };
+const versionInfo = { version, hash };
 
 export class LambdaFunction {
     /**
@@ -43,7 +43,7 @@ export class LambdaFunction {
             const lambdaId = context.awsRequestId;
             ctx.set('aws', { cloudFrontId, traceId, lambdaId });
 
-            ctx.set('package', package);
+            ctx.set('package', versionInfo);
             ctx.set('method', ctx.method);
             ctx.set('path', ctx.path);
 
