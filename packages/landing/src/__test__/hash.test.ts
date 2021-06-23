@@ -117,7 +117,7 @@ o.spec('WindowUrl', () => {
     o('should convert to a url', () => {
         const apiKey = Config.ApiKey;
         const options = WindowUrl.fromUrl('');
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(
@@ -131,15 +131,15 @@ o.spec('WindowUrl', () => {
     o('should use default epsg codes for urls', () => {
         const apiKey = Config.ApiKey;
         const options = WindowUrl.fromUrl('');
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         options.tileMatrix = Nztm2000Tms;
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:2193/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         options.tileMatrix = Nztm2000QuadTms;
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.png?api=${apiKey}`,
         );
     });
@@ -149,7 +149,7 @@ o.spec('WindowUrl', () => {
         const apiKey = Config.ApiKey;
 
         process.env.TILE_HOST = 'https://foo.bar.com';
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(

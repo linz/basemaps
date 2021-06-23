@@ -4,7 +4,7 @@ import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import { getTileGrid } from './tile.matrix';
 import { MapLocation, MapOptions, WindowUrl } from './url';
 import mapboxgl from 'maplibre-gl';
-import { Projection } from '@basemaps/shared';
+import { Projection } from '@basemaps/shared/build/proj/projection';
 
 /** Projection to use for the URL bar */
 // const UrlProjection = Epsg.Wgs84.toEpsgString();
@@ -61,26 +61,23 @@ export class Basemaps {
         this.config = WindowUrl.fromUrl(window.location.search);
         const location = this.getLocationFromHash();
         const tileGrid = getTileGrid(this.config.tileMatrix.identifier);
-        const projection = Projection.get(this.config.tileMatrix.projection);
-
         const style = tileGrid.getStyle(this.config);
 
         // source.addEventListener('tileloadstart', this.trackTileLoad);
         // source.addEventListener('tileloadend', this.trackTileLoad);
 
-        // const bounds = Projection.get(this.config.tileMatrix.projection.code).boundsToWgs84BoundingBox(
-        //     tileGrid.tileMatrix.extent,
-        // );
-        console.log(projection);
+        const projection = Projection.get(tileGrid.tileMatrix.projection);
+        const maxBounds = projection.boundsToWgs84BoundingBox(tileGrid.tileMatrix.extent);
+        // const center = projection.tileCenterToLatLon();
 
         this.map = new mapboxgl.Map({
             container: 'map',
             style,
             center: [location.lon, location.lat], // starting position [lng, lat]
             zoom: location.zoom, // starting zoom
-            // maxBounds: bounds,
         });
 
+        if (this.config.tileMatrix.identifier !== 'WebMercatorQuad') this.map.setMaxBounds(maxBounds);
         // OlAttribution.init(source, this.map, this.config);
 
         // this.map.addEventListener('postrender', this.postRender);

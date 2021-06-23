@@ -16,8 +16,8 @@ export interface MapOptions {
     debug: boolean;
 }
 export const enum MapOptionType {
-    Tile = 'tile',
-    VectorTile = 'vector',
+    TileRaster = 'raster',
+    TileVector = 'vector',
     TileWmts = 'tile-wmts',
     Wmts = 'wmts',
     Attribution = 'attribution',
@@ -98,11 +98,11 @@ export const WindowUrl = {
         const projectionPath = isDefaultTileMatrix ? tileMatrix.projection.toEpsgString() : tileMatrix.identifier;
         const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.imageId}${tag}/${projectionPath}`;
 
-        if (urlType === MapOptionType.Tile) {
+        if (urlType === MapOptionType.TileRaster) {
             return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
         }
 
-        if (urlType === MapOptionType.VectorTile) {
+        if (urlType === MapOptionType.TileVector) {
             return `${baseTileUrl}/style/${opts.style}.json${api}`;
         }
 

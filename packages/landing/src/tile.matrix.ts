@@ -40,7 +40,7 @@ export class TileGrid {
 
     getSource(config: MapOptions): TileSource {
         if (this.tileMatrix.identifier === GoogleTms.identifier) {
-            return new XYZ({ url: WindowUrl.toTileUrl(config, MapOptionType.Tile) });
+            return new XYZ({ url: WindowUrl.toTileUrl(config, MapOptionType.TileRaster) });
         }
 
         return new WMTS({
@@ -56,13 +56,13 @@ export class TileGrid {
     }
 
     getStyle(config: MapOptions): Style | string {
-        if (config.imageId === 'topographic') return WindowUrl.toTileUrl(config, MapOptionType.VectorTile);
+        if (config.imageId === 'topographic') return WindowUrl.toTileUrl(config, MapOptionType.TileVector);
         return {
             version: 8,
             sources: {
-                'raster-tiles': {
+                basemaps: {
                     type: 'raster',
-                    tiles: [WindowUrl.toTileUrl(config, MapOptionType.Tile)],
+                    tiles: [WindowUrl.toTileUrl(config, MapOptionType.TileRaster)],
                     tileSize: 256,
                 },
             },
@@ -70,7 +70,7 @@ export class TileGrid {
                 {
                     id: 'LINZ Raster Basemaps',
                     type: 'raster',
-                    source: 'raster-tiles',
+                    source: 'basemaps',
                 },
             ],
         };
