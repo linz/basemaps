@@ -22,6 +22,9 @@ o.spec('LambdaXyz', () => {
     const origCompose = TileComposer.compose;
     const sandbox = createSandbox();
 
+    const apiKey = 'd01f7w7rnhdzg0p7fyrc9v9ard1';
+    const apiKeyHeader = { 'x-linz-api-key': 'd01f7w7rnhdzg0p7fyrc9v9ard1' };
+
     o.beforeEach(() => {
         LogConfig.disable();
         // tileMock = o.spy(() => tileMockData) as any;
@@ -63,7 +66,7 @@ o.spec('LambdaXyz', () => {
     TileSetNames.forEach((tileSetName) => {
         o(`should generate a tile 0,0,0 for ${tileSetName}.png`, async () => {
             o.timeout(200);
-            const request = mockRequest(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`);
+            const request = mockRequest(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`, 'get', apiKeyHeader);
             const res = await handleRequest(request);
             o(res.status).equals(200);
             o(res.header('content-type')).equals('image/png');
@@ -78,7 +81,7 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should generate a tile 0,0,0 for webp', async () => {
-        const request = mockRequest('/v1/tiles/aerial/3857/0/0/0.webp');
+        const request = mockRequest('/v1/tiles/aerial/3857/0/0/0.webp', 'get', apiKeyHeader);
         const res = await handleRequest(request);
         o(res.status).equals(200);
         o(res.header('content-type')).equals('image/webp');
@@ -93,7 +96,9 @@ o.spec('LambdaXyz', () => {
     ['png', 'webp', 'jpeg'].forEach((fmt) => {
         o(`should 200 with empty ${fmt} if a tile is out of bounds`, async () => {
             // tiler.tile = async () => [];
-            const res = await handleRequest(mockRequest(`/v1/tiles/aerial/global-mercator/0/0/0.${fmt}`));
+            const res = await handleRequest(
+                mockRequest(`/v1/tiles/aerial/global-mercator/0/0/0.${fmt}`, 'get', apiKeyHeader),
+            );
             o(res.status).equals(200);
             o(res.header('content-type')).equals(`image/${fmt}`);
             o(rasterMock.calls.length).equals(1);
@@ -102,7 +107,10 @@ o.spec('LambdaXyz', () => {
 
     o('should 304 if a tile is not modified', async () => {
         const key = 'foo';
-        const request = mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', { 'if-none-match': key });
+        const request = mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', {
+            'if-none-match': key,
+            ...apiKeyHeader,
+        });
         const res = await handleRequest(request);
         o(res.status).equals(304);
         o(res.header('eTaG')).equals(undefined);
@@ -113,13 +121,15 @@ o.spec('LambdaXyz', () => {
 
     o('should 404 if a tile is outside of the range', async () => {
         try {
-            const res = await handleRequest(mockRequest('/v1/tiles/aerial/global-mercator/25/0/0.png', 'get'));
+            const res = await handleRequest(
+                mockRequest('/v1/tiles/aerial/global-mercator/25/0/0.png', 'get', apiKeyHeader),
+            );
             o(res.status).equals(404);
         } catch (e) {
             o(e.status).equals(404);
         }
         try {
-            const res = await handleRequest(mockRequest('/v1/tiles/aerial/2193/17/0/0.png', 'get'));
+            const res = await handleRequest(mockRequest('/v1/tiles/aerial/2193/17/0/0.png', 'get', apiKeyHeader));
             o(res.status).equals(404);
         } catch (e) {
             o(e.status).equals(404);
@@ -134,8 +144,11 @@ o.spec('LambdaXyz', () => {
 
         o('should 304 if a xml is not modified', async () => {
             o.timeout(1000);
-            const key = 'r3vqprE8cfTtd4j83dllmDeZydOBMv5hlan0qR/fGkc=';
-            const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', { 'if-none-match': key });
+            const key = 'V4sWoalNeQ5m1SStYGJarSuf649T7otJdbn9tw5N4o0=';
+            const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', {
+                'if-none-match': key,
+                ...apiKeyHeader,
+            });
 
             const res = await handleRequest(request);
             if (res.status === 200) {
@@ -153,8 +166,7 @@ o.spec('LambdaXyz', () => {
             console.log('\n\nTestStart');
             process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
-            const request = mockRequest('/v1/tiles/aerial@beta/WMTSCapabilities.xml');
-            request.apiKey = 'secretKey';
+            const request = mockRequest('/v1/tiles/aerial@beta/WMTSCapabilities.xml', 'get', apiKeyHeader);
 
             const res = await handleRequest(request);
             o(res.status).equals(200);
@@ -171,7 +183,7 @@ o.spec('LambdaXyz', () => {
             const url = vdom.tags('ResourceURL').next().value;
             o(url?.toString()).equals(
                 '<ResourceURL format="image/jpeg" resourceType="tile" ' +
-                    'template="https://tiles.test/v1/tiles/aerial@beta/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.jpeg?api=secretKey" />',
+                    `template="https://tiles.test/v1/tiles/aerial@beta/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.jpeg?api=${apiKey}" />`,
             );
         });
     });
@@ -183,8 +195,8 @@ o.spec('LambdaXyz', () => {
         });
 
         o('should 304 if a json is not modified', async () => {
-            const key = 'FlMeQJMKbBO4nMFOEC4/PG6wzFniA0uXfAxXkbV4L9g=';
-            const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key });
+            const key = 'XecTdbcdjCyzB1MHOOQbrOkD2TTJ0ORh4JuXqhxXEE0=';
+            const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key, ...apiKeyHeader });
 
             const res = await handleRequest(request);
             if (res.status === 200) {
@@ -201,8 +213,7 @@ o.spec('LambdaXyz', () => {
         o('should serve tile json for tile_set', async () => {
             process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
-            const request = mockRequest('/v1/tiles/topolike/Google/tile.json');
-            request.apiKey = 'secretKey';
+            const request = mockRequest('/v1/tiles/topolike/Google/tile.json', 'get', apiKeyHeader);
 
             const res = await handleRequest(request);
             o(res.status).equals(200);
@@ -211,7 +222,7 @@ o.spec('LambdaXyz', () => {
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
             o(JSON.parse(body)).deepEquals({
-                tiles: ['https://tiles.test/v1/tiles/topolike/Google/{z}/{x}/{y}.pbf?api=secretKey'],
+                tiles: [`https://tiles.test/v1/tiles/topolike/Google/{z}/{x}/{y}.pbf?api=${apiKey}`],
                 minzoom: 0,
                 maxzoom: 15,
                 format: 'pbf',
@@ -229,8 +240,7 @@ o.spec('LambdaXyz', () => {
         o('should not found style json', async () => {
             process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
-            const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json');
-            request.apiKey = 'secretKey';
+            const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json', 'get', apiKeyHeader);
 
             sandbox.stub(Config.Style, 'get').resolves(null);
 
@@ -241,8 +251,7 @@ o.spec('LambdaXyz', () => {
         o('should serve style json', async () => {
             process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
-            const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json');
-            request.apiKey = 'secretKey';
+            const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json', 'get', apiKeyHeader);
 
             const fakeStyle: StyleJson = {
                 version: 8,
@@ -286,14 +295,14 @@ o.spec('LambdaXyz', () => {
             o(res.header('cache-control')).equals('max-age=120');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
-            fakeStyle.sources.basemaps.url = 'https://tiles.test/v1/tiles/topolike/Google/tile.json?api=secretKey';
+            fakeStyle.sources.basemaps.url = 'https://tiles.test/v1/tiles/topolike/Google/tile.json?api=' + apiKey;
             o(JSON.parse(body)).deepEquals(fakeStyle);
         });
     });
 
     ['/favicon.ico', '/index.html', '/foo/bar'].forEach((path) => {
         o('should error on invalid paths: ' + path, async () => {
-            const res = await handleRequest(mockRequest(path));
+            const res = await handleRequest(mockRequest(path, 'get', apiKeyHeader));
             o(res.status).equals(404);
         });
     });
