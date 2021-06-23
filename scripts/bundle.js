@@ -71,7 +71,12 @@ function bundleJs(basePath, cfg, outfile) {
         joinPath(basePath, cfg.entry),
     ];
 
-    cp.spawnSync('npx', buildCmd);
+    const res = cp.spawnSync('npx', buildCmd);
+    if (res.status > 0) {
+        console.log('BuildCommandFailed', buildCmd);
+        console.log(res.stderr.toString().trim());
+        process.exit(1);
+    }
 
     const fileData = fs.readFileSync(outfile).toString();
     console.log('Bundled', (fileData.length / 1024).toFixed(2), 'KB');

@@ -24,6 +24,7 @@
     "@cogeotiff/source-aws": "^4.3.0",
     "@cotar/core": "3.0.0",
     "@linzjs/geojson": "^6.0.0",
+    "farmhash": "^3.2.1",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
     "sharp": "^0.28.1"
@@ -34,7 +35,8 @@
     "external": [
       "aws-sdk",
       "pino-pretty",
-      "sharp"
+      "sharp",
+      "farmhash"
     ]
   },
   "scripts": {
