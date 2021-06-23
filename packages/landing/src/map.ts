@@ -1,7 +1,7 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 // import { gaEvent, GaEvent } from './config';
 // import { OlAttribution } from './ol.attribution';
-import { getTileGrid } from './tile.matrix';
+import { getNZTMTile, getTileGrid, getWgs84FromNZTM } from './tile.matrix';
 import { MapLocation, MapOptions, WindowUrl } from './url';
 import mapboxgl from 'maplibre-gl';
 import { Projection } from '@basemaps/shared/build/proj/projection';
@@ -66,18 +66,17 @@ export class Basemaps {
         // source.addEventListener('tileloadstart', this.trackTileLoad);
         // source.addEventListener('tileloadend', this.trackTileLoad);
 
-        const projection = Projection.get(tileGrid.tileMatrix.projection);
-        const maxBounds = projection.boundsToWgs84BoundingBox(tileGrid.tileMatrix.extent);
-        // const center = projection.tileCenterToLatLon();
+        const coordinate = getWgs84FromNZTM(getNZTMTile(tileGrid.tileMatrix, location));
 
         this.map = new mapboxgl.Map({
             container: 'map',
             style,
-            center: [location.lon, location.lat], // starting position [lng, lat]
+            center: coordinate, // starting position [lon, lat]
             zoom: location.zoom, // starting zoom
         });
 
-        if (this.config.tileMatrix.identifier !== 'WebMercatorQuad') this.map.setMaxBounds(maxBounds);
+        if (tileGrid.tileMatrix.identifier !== GoogleTms.identifier) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
+
         // OlAttribution.init(source, this.map, this.config);
 
         // this.map.addEventListener('postrender', this.postRender);

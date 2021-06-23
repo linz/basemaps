@@ -1,12 +1,14 @@
-import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Tile, TileMatrixSet } from '@basemaps/geo';
 import { register } from 'ol/proj/proj4';
 import TileSource from 'ol/source/Tile';
 import WMTS from 'ol/source/WMTS';
 import XYZ from 'ol/source/XYZ';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import Proj from 'proj4';
-import { MapOptions, MapOptionType, WindowUrl } from './url';
+import { MapLocation, MapOptions, MapOptionType, WindowUrl } from './url';
 import { Style } from 'maplibre-gl';
+import { Projection } from '@basemaps/shared/src/proj/projection';
+import Point from 'ol/geom/Point';
 
 Proj.defs(
     'EPSG:2193',
@@ -96,4 +98,18 @@ export function getTileGrid(id: string): TileGrid {
         if (id === g.tileMatrix.identifier) return g;
     }
     return GoogleTileGrid;
+}
+
+export function getNZTMTile(tileMatrix: TileMatrixSet, location: MapLocation): Tile {
+    const projection = Projection.get(tileMatrix);
+    const nztmCoords = projection.fromWgs84([location.lon, location.lat]);
+    const nztmCenter = tileMatrix.sourceToPixels(nztmCoords[0], nztmCoords[1], location.zoom);
+    const nztmTile = { x: nztmCenter.x / 256, y: nztmCenter.y / 256, z: location.zoom };
+    return nztmTile;
+}
+
+export function getWgs84FromNZTM(nztmTile: Tile): { lon: number; lat: number } {
+    const mapboxTile = GoogleTms.tileToSource(nztmTile);
+    const [lon, lat] = Projection.get(GoogleTms.projection).toWgs84([mapboxTile.x, mapboxTile.y]);
+    return { lon, lat };
 }
