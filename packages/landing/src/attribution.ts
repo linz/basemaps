@@ -1,8 +1,8 @@
 import { Attribution } from '@basemaps/attribution';
-import { AttributionCollection, Stac } from '@basemaps/geo';
+import { AttributionCollection, Stac, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
 import { MapOptions, MapOptionType, WindowUrl } from './url';
-import mapboxgl, { LngLatBounds, Style } from 'maplibre-gl';
+import mapboxgl, { LngLatBounds } from 'maplibre-gl';
 import { locationTransform } from './tile.matrix';
 import { MapboxTms } from './map';
 
@@ -12,7 +12,6 @@ const Copyright = `© ${Stac.License} LINZ`;
  * Handles displaying attributions for the OpenLayers interface
  */
 export class MapAttribution {
-    style: Style;
     map: mapboxgl.Map;
     config: MapOptions;
 
@@ -31,8 +30,8 @@ export class MapAttribution {
     /**
      * Initialize monitoring the OpenLayers map and set the source attributions when changed.
      */
-    static init(style: Style, map: mapboxgl.Map, config: MapOptions): void {
-        const attribution = new MapAttribution(style, map, config);
+    static init(map: mapboxgl.Map, config: MapOptions): void {
+        const attribution = new MapAttribution(map, config);
 
         map.on('load', (): boolean => {
             attribution.updateAttribution();
@@ -45,8 +44,7 @@ export class MapAttribution {
         });
     }
 
-    constructor(style: Style, map: mapboxgl.Map, config: MapOptions) {
-        this.style = style;
+    constructor(map: mapboxgl.Map, config: MapOptions) {
         this.map = map;
         this.config = config;
     }
@@ -96,11 +94,8 @@ export class MapAttribution {
         if (this.attributions == null) return;
         this.zoom = Math.round(this.map.getZoom() ?? 0);
         this.bounds = this.map.getBounds();
-        const swLocation = { lon: this.bounds.getWest(), lat: this.bounds.getSouth(), zoom: this.zoom };
-        const neLocation = { lon: this.bounds.getEast(), lat: this.bounds.getNorth(), zoom: this.zoom };
-        const swCoord = locationTransform(swLocation, MapboxTms, this.config.tileMatrix);
-        const neCoord = locationTransform(neLocation, MapboxTms, this.config.tileMatrix);
-        const bbox: BBox = [swCoord.lon, swCoord.lat, neCoord.lon, neCoord.lat];
+
+        const bbox = this.mapboxBoundToBbox(this.bounds, this.config.tileMatrix);
         const filtered = this.attributions.filter(bbox, this.zoom);
         let attributionHTML = this.attributions.renderList(filtered);
         if (attributionHTML === '') {
@@ -117,4 +112,16 @@ export class MapAttribution {
 
         this.filteredRecords = filtered;
     };
+
+    /**
+     * Covert Mapbox Bounds to tileMatrix BBox
+     */
+    mapboxBoundToBbox(bounds: LngLatBounds, tileMatrix: TileMatrixSet): BBox {
+        const swLocation = { lon: bounds.getWest(), lat: bounds.getSouth(), zoom: this.zoom };
+        const neLocation = { lon: bounds.getEast(), lat: bounds.getNorth(), zoom: this.zoom };
+        const swCoord = locationTransform(swLocation, MapboxTms, tileMatrix);
+        const neCoord = locationTransform(neLocation, MapboxTms, tileMatrix);
+        const bbox: BBox = [swCoord.lon, swCoord.lat, neCoord.lon, neCoord.lat];
+        return bbox;
+    }
 }

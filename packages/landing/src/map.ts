@@ -58,7 +58,7 @@ export class Basemaps {
         if (tileGrid.tileMatrix.identifier !== GoogleTms.identifier) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
 
         if (typeof style !== 'string') {
-            MapAttribution.init(style, this.map, this.config);
+            MapAttribution.init(this.map, this.config);
         }
 
         this.map.on('render', this.render);
