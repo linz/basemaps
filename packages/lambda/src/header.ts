@@ -1,18 +1,20 @@
 export const ApplicationJson = 'application/json';
 /** Common http headers */
 export const HttpHeader = {
-    CorrelationId: 'X-LINZ-Correlation-Id',
-    RequestId: 'X-LINZ-Request-Id',
     ApiKey: 'X-LINZ-Api-Key',
     CacheControl: 'Cache-Control',
-    ContentType: 'Content-Type',
     ContentEncoding: 'Content-Encoding',
+    ContentType: 'Content-Type',
+    CorrelationId: 'X-LINZ-Correlation-Id',
+    Cors: 'Access-Control-Allow-Origin',
     ETag: 'ETag',
     IfNoneMatch: 'If-None-Match',
-    RateLimit: 'X-RateLimit-Limit',
     RateCount: 'X-RateLimit-Count',
     RateExpire: 'X-RateLimit-Expires',
-    Cors: 'Access-Control-Allow-Origin',
+    RateLimit: 'X-RateLimit-Limit',
+    RequestId: 'X-LINZ-Request-Id',
+    Server: 'Server',
+    ServerTiming: 'Server-Timing',
 };
 
 /** Amazon specific headers */
