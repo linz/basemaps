@@ -7,7 +7,7 @@ import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import Proj from 'proj4';
 import { MapLocation, MapOptions, MapOptionType, WindowUrl } from './url';
 import { Style } from 'maplibre-gl';
-import { Projection } from '@basemaps/shared';
+import { Projection } from '@basemaps/shared/build/proj/projection';
 
 Proj.defs(
     'EPSG:2193',

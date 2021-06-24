@@ -102,6 +102,10 @@ export const WindowUrl = {
             return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
         }
 
+        if (urlType === MapOptionType.TileVector) {
+            return `${baseTileUrl}/style/${opts.style}.json${api}`;
+        }
+
         if (urlType === MapOptionType.TileWmts) {
             return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${api}`;
         }
