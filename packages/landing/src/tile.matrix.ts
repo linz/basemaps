@@ -100,16 +100,20 @@ export function getTileGrid(id: string): TileGrid {
     return GoogleTileGrid;
 }
 
-export function getNZTMTile(tileMatrix: TileMatrixSet, location: MapLocation): Tile {
+/**
+ * Transform the location coordinate between mapbox and another tileMatrix.
+ * One of the tileMatrix or targetTileMatrix has to be MapboxTms(GoogleTms)
+ */
+export function locationTransform(
+    location: MapLocation,
+    tileMatrix: TileMatrixSet,
+    targetTileMatrix: TileMatrixSet,
+): MapLocation {
     const projection = Projection.get(tileMatrix);
-    const nztmCoords = projection.fromWgs84([location.lon, location.lat]);
-    const nztmCenter = tileMatrix.sourceToPixels(nztmCoords[0], nztmCoords[1], location.zoom);
-    const nztmTile = { x: nztmCenter.x / 256, y: nztmCenter.y / 256, z: location.zoom };
-    return nztmTile;
-}
-
-export function getWgs84FromNZTM(nztmTile: Tile): { lon: number; lat: number } {
-    const mapboxTile = GoogleTms.tileToSource(nztmTile);
-    const [lon, lat] = Projection.get(GoogleTms.projection).toWgs84([mapboxTile.x, mapboxTile.y]);
-    return { lon, lat };
+    const coords = projection.fromWgs84([location.lon, location.lat]);
+    const center = tileMatrix.sourceToPixels(coords[0], coords[1], Math.floor(location.zoom));
+    const tile = { x: center.x / tileMatrix.tileSize, y: center.y / tileMatrix.tileSize, z: Math.floor(location.zoom) };
+    const mapboxTile = targetTileMatrix.tileToSource(tile);
+    const [lon, lat] = Projection.get(targetTileMatrix).toWgs84([mapboxTile.x, mapboxTile.y]);
+    return { lon, lat, zoom: location.zoom };
 }
