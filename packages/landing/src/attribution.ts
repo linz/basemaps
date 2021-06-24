@@ -33,14 +33,12 @@ export class MapAttribution {
     static init(map: mapboxgl.Map, config: MapOptions): void {
         const attribution = new MapAttribution(map, config);
 
-        map.on('load', (): boolean => {
+        map.on('load', (): void => {
             attribution.updateAttribution();
-            return true;
         });
 
-        map.on('move', (): boolean => {
+        map.on('move', (): void => {
             attribution.updateAttribution();
-            return true;
         });
     }
 

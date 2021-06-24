@@ -65,10 +65,9 @@ export class Basemaps {
     }
 
     updateUrlTimer: unknown | null = null;
-    render = (): boolean => {
-        if (this.updateUrlTimer != null) return true;
+    render = (): void => {
+        if (this.updateUrlTimer != null) return;
         this.updateUrlTimer = setTimeout(() => this.updateUrl(), 1000);
-        return true;
     };
 
     getLocation(): MapLocation {
