@@ -1,11 +1,10 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
-import { OlAttribution } from './ol.attribution';
+import { MapAttribution } from './attribution';
 import { getTileGrid, locationTransform } from './tile.matrix';
 import { MapLocation, MapOptions, WindowUrl } from './url';
 import mapboxgl from 'maplibre-gl';
 
-/** Projection to use for the URL bar */
-const MapboxTms = GoogleTms;
+export const MapboxTms = GoogleTms;
 
 /** Default center point if none provided */
 const DefaultCenter: Record<string, MapLocation> = {
@@ -44,23 +43,23 @@ export class Basemaps {
     private updateFromUrl(): void {
         this.config = WindowUrl.fromUrl(window.location.search);
         const location = this.getLocationFromHash();
-        console.log({ location });
         const tileGrid = getTileGrid(this.config.tileMatrix.identifier);
         const style = tileGrid.getStyle(this.config);
-
         const coordinate = locationTransform(location, this.config.tileMatrix, MapboxTms);
-        console.log({ coordinate });
 
         this.map = new mapboxgl.Map({
             container: 'map',
             style,
             center: coordinate, // starting position [lon, lat]
             zoom: location.zoom, // starting zoom
+            attributionControl: false,
         });
 
         if (tileGrid.tileMatrix.identifier !== GoogleTms.identifier) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
 
-        // OlAttribution.init(source, this.map, this.config);
+        if (typeof style !== 'string') {
+            MapAttribution.init(style, this.map, this.config);
+        }
 
         this.map.on('render', this.render);
     }

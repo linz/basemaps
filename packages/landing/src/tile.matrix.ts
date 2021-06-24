@@ -1,4 +1,4 @@
-import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Tile, TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet } from '@basemaps/geo';
 import { register } from 'ol/proj/proj4';
 import TileSource from 'ol/source/Tile';
 import WMTS from 'ol/source/WMTS';
@@ -8,7 +8,6 @@ import Proj from 'proj4';
 import { MapLocation, MapOptions, MapOptionType, WindowUrl } from './url';
 import { Style } from 'maplibre-gl';
 import { Projection } from '@basemaps/shared/src/proj/projection';
-import Point from 'ol/geom/Point';
 
 Proj.defs(
     'EPSG:2193',
@@ -109,6 +108,7 @@ export function locationTransform(
     tileMatrix: TileMatrixSet,
     targetTileMatrix: TileMatrixSet,
 ): MapLocation {
+    if (tileMatrix.identifier === targetTileMatrix.identifier) return location;
     const projection = Projection.get(tileMatrix);
     const coords = projection.fromWgs84([location.lon, location.lat]);
     const center = tileMatrix.sourceToPixels(coords[0], coords[1], Math.floor(location.zoom));
