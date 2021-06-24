@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.2.0](https://github.com/linz/basemaps/compare/v6.1.0...v6.2.0) (2021-06-24)
+
+
+### Features
+
+* **lambda:** provide basic timing information to client ([#1697](https://github.com/linz/basemaps/issues/1697)) ([3735292](https://github.com/linz/basemaps/commit/3735292d85b779be5b78250ad0c2676262e3c08b))
+* disable edge lambda as its not really used. ([#1692](https://github.com/linz/basemaps/issues/1692)) ([38b02a5](https://github.com/linz/basemaps/commit/38b02a5c5050a076c69836861afc91cc92235a79))
+
+
+
+
+
 # [6.1.0](https://github.com/linz/basemaps/compare/v6.0.0...v6.1.0) (2021-06-23)
 
 
