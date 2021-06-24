@@ -10,12 +10,14 @@ export interface MapLocation {
 export interface MapOptions {
     tag: string;
     imageId: string;
+    style: string;
     tileMatrix: TileMatrixSet;
     /** Is the debug layer enabled @default false */
     debug: boolean;
 }
 export const enum MapOptionType {
-    Tile = 'tile',
+    TileRaster = 'raster',
+    TileVector = 'vector',
     TileWmts = 'tile-wmts',
     Wmts = 'wmts',
     Attribution = 'attribution',
@@ -68,6 +70,7 @@ export const WindowUrl = {
         const urlParams = new URLSearchParams(search);
         const tag = urlParams.get('v') ?? 'production';
         const imageId = urlParams.get('i') ?? 'aerial';
+        const style = urlParams.get('s') ?? 'topolike';
         const debug = urlParams.get('debug') != null;
 
         const projectionParam = (urlParams.get('p') ?? GoogleTms.identifier).toLowerCase();
@@ -76,7 +79,7 @@ export const WindowUrl = {
             tileMatrix = TileMatrixSets.get(Epsg.parse(projectionParam) ?? Epsg.Google);
         }
 
-        return { tag, imageId, tileMatrix, debug };
+        return { tag, imageId, style, tileMatrix, debug };
     },
 
     baseUrl(): string {
@@ -95,7 +98,7 @@ export const WindowUrl = {
         const projectionPath = isDefaultTileMatrix ? tileMatrix.projection.toEpsgString() : tileMatrix.identifier;
         const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.imageId}${tag}/${projectionPath}`;
 
-        if (urlType === MapOptionType.Tile) {
+        if (urlType === MapOptionType.TileRaster) {
             return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
         }
 

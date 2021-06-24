@@ -111,8 +111,8 @@ export function locationTransform(
     if (tileMatrix.identifier === targetTileMatrix.identifier) return location;
     const projection = Projection.get(tileMatrix);
     const coords = projection.fromWgs84([location.lon, location.lat]);
-    const center = tileMatrix.sourceToPixels(coords[0], coords[1], Math.floor(location.zoom));
-    const tile = { x: center.x / tileMatrix.tileSize, y: center.y / tileMatrix.tileSize, z: Math.floor(location.zoom) };
+    const center = tileMatrix.sourceToPixels(coords[0], coords[1], Math.round(location.zoom));
+    const tile = { x: center.x / tileMatrix.tileSize, y: center.y / tileMatrix.tileSize, z: Math.round(location.zoom) };
     const mapboxTile = targetTileMatrix.tileToSource(tile);
     const [lon, lat] = Projection.get(targetTileMatrix).toWgs84([mapboxTile.x, mapboxTile.y]);
     return { lon, lat, zoom: location.zoom };
