@@ -163,7 +163,7 @@ Your Service/App URL:
         }
         const cfg: MapOptions = { ...this.basemaps.config, tileMatrix };
 
-        this.apiXyz.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Tile);
+        this.apiXyz.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.TileRaster);
         this.apiWmts.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Wmts);
     }
 }
