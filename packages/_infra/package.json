@@ -35,7 +35,6 @@
     "@aws-cdk/core": ">=1.100.0",
     "@basemaps/lambda-tiler": "^6.2.0",
     "@basemaps/shared": "^6.1.0",
-    "@linzjs/cdk-elastic-shipper": "^0.6.2",
     "aws-cdk": "^1.100.0"
   }
 }
