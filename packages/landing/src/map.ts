@@ -10,7 +10,7 @@ export const MapboxTms = GoogleTms;
 const DefaultCenter: Record<string, MapLocation> = {
     [GoogleTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 5 },
     [Nztm2000Tms.identifier]: { lat: -41.277848, lon: 174.6763921, zoom: 3 },
-    [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 4 },
+    [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 3 },
 };
 
 export class Basemaps {
