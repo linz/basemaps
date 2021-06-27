@@ -61,6 +61,8 @@ export class Basemaps {
             MapAttribution.init(this.map, this.config);
         }
 
+        this.map.resize();
+
         this.map.on('render', this.render);
     }
 
