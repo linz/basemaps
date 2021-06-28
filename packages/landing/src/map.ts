@@ -61,8 +61,14 @@ export class Basemaps {
             MapAttribution.init(this.map, this.config);
         }
 
+        this.map.on('load', this.resize);
+
         this.map.on('render', this.render);
     }
+
+    resize = (): void => {
+        this.map.resize();
+    };
 
     updateUrlTimer: unknown | null = null;
     render = (): void => {
