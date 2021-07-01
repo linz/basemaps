@@ -61,42 +61,41 @@ button {
     width: 75%;
 }
 
-.lui-footer a.nz-govt-logo {
-    padding: 8px 0 4px 0;
+.lui-footer a.lui-footer-nz-govt-logo {
+    padding: 4px 0 4px 0;
     display: flex;
     border-bottom: none;
+    margin-top: 0;
 }
 
-.nz-govt-logo svg {
+.lui-footer-nz-govt-logo svg {
     width: 200px;
     height: 24px;
 }
 
-.lui-footer-x-sm.g-footer__standard {
+.lui-footer-small.g-footer__standard {
     background-color: #004b50;
     padding: 2px;
 }
 
-.lui-footer-x-sm.g-footer__standard .g-footer__standard-link {
+.lui-footer-small.g-footer__standard .g-footer__standard-link {
     color: #d4e9eb;
 }
 
-.lui-footer-x-sm.g-footer__standard .g-footer__standard-inline-list-item {
+.lui-footer-small.g-footer__standard .lui-footer-inline-list-item {
     font-size: 14px;
-    margin: 4px 16px;
+    margin: 4px 12px;
 }
 
-.lui-footer-x-sm p {
+.lui-footer-small p {
     margin: 0;
 }
 
 .align-center {
-    display: flex;
     align-items: center;
 }
 
 .justify-end {
-    display: flex;
     justify-content: flex-end;
 }
 
@@ -117,6 +116,10 @@ button {
     background: none;
     color: #fff;
     line-height: normal;
+}
+
+.lui-header-row {
+    padding-left: 1.5rem !important;
 }
 
 .lui-header-logo {
