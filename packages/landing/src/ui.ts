@@ -1,5 +1,5 @@
 import { Epsg, GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
-import { GaEvent, gaEvent } from './config';
+import { Config, GaEvent, gaEvent } from './config';
 import { Basemaps } from './map';
 import { MapOptions, MapOptionType, WindowUrl } from './url';
 
@@ -7,6 +7,7 @@ export class BasemapsUi {
     projectionNztm: HTMLElement;
     projectionWm: HTMLElement;
 
+    apiKey: HTMLElement;
     apiXyz: HTMLElement;
     apiWmts: HTMLElement;
 
@@ -82,14 +83,17 @@ Your Service/App URL:
 
     bindApiLinks(): void {
         const apiXyz = document.getElementById('api-xyz');
+        const apiKey = document.getElementById('api-key');
         const apiWmts = document.getElementById('api-wmts');
-        if (apiXyz == null || apiWmts == null) {
+        if (apiXyz == null || apiWmts == null || apiKey == null) {
             throw new Error('Unable to find api inputs');
         }
+        this.apiKey = apiKey;
         this.apiXyz = apiXyz;
         this.apiWmts = apiWmts;
         this.bindCopyFromInput(apiXyz);
         this.bindCopyFromInput(apiWmts);
+        this.bindCopyFromInput(apiKey);
     }
 
     /** Attach a listener to a button to copy the nearby input element */
@@ -165,5 +169,6 @@ Your Service/App URL:
 
         this.apiXyz.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.TileRaster);
         this.apiWmts.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Wmts);
+        this.apiKey.querySelector('input')!.value = Config.ApiKey;
     }
 }

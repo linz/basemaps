@@ -26,7 +26,7 @@
     "@basemaps/geo": "^6.0.0",
     "@basemaps/infra": "^6.2.0",
     "@basemaps/shared": "^6.1.0",
-    "@linzjs/lui": "^5.3.0",
+    "@linzjs/lui": "^5.3.1",
     "maplibre-gl": "^1.14.1-rc.2",
     "ol": "^6.4.2",
     "proj4": "^2.6.2",
@@ -41,6 +41,9 @@
     "@types/proj4": "^2.5.0"
   },
   "bundle": [
+    { "entry": "../../node_modules/@linzjs/lui/dist/assets/nz-govt-logo-rev.svg", "outfile": "dist/assets/logo-nz-govt.svg" },
+    { "entry": "../../node_modules/@linzjs/lui/dist/assets/linz-logo-col-n-white-txt.svg", "outfile": "dist/assets/logo-linz.svg" },
+    { "entry": "../../node_modules/@linzjs/lui/dist/assets/fonts", "outfile": "dist/assets/fonts" },
     {
       "entry": "static",
       "outfile": "dist"

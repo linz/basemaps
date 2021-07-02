@@ -1501,10 +1501,10 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@linzjs/lui@^5.3.0":
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-5.3.0.tgz#bcf68835ef6fffbb36f3783d1a8a46809a8c1213"
-  integrity sha512-X9X+cVaEMBA14FVuYDLZxYm4dbczzVaH5XY6i1vDyI0PcJJRcR3uzsqSUmjL4pdyZBdpg8g/28lOxyeVM5dhVA==
+"@linzjs/lui@^5.3.1":
+  version "5.3.2"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-5.3.2.tgz#995eb72a46c9a0ab7ffc7b0410f4d20a8036d3c0"
+  integrity sha512-CwI4pIpRheVCvNEfGQL2BlAmXrYqsd5Et/irwu/kpMUMrLn7Y2Z3gXMjZG5KJki6FcI3XRSnNYHdru/OmMxeQw==
   dependencies:
     "@szhsin/react-menu" "^1.8.0"
     camelcase "^6.0.0"

@@ -98,6 +98,10 @@ async function bundleDir(basePath, cfg, outfile) {
     });
 }
 
+async function bundleFile(basePath, cfg, outFile) {
+    fs.writeFileSync(outFile, fs.readFileSync(cfg.entry));
+}
+
 const HtmlTemplateExtReplace = {
     '.js': (name, hash) => `<script src="${name}" integrity="sha512-${hash}"></script>`,
     '.css': (name, hash) => `<link rel="stylesheet" href="${name}" integrity="${hash}" />`,
@@ -149,6 +153,7 @@ function usage(err) {
 
 const Bundler = {
     directory: bundleDir,
+    svg: bundleFile,
     ts: bundleJs,
     js: bundleJs,
     html: bundleHtml,
