@@ -69,6 +69,7 @@ button {
     margin-top:4px;
     margin-bottom:4px;
 }
+
 label {
     margin-top:8px;
 }
@@ -216,4 +217,15 @@ label {
 .side-nav[aria-hidden='true'] a {
     visibility: hidden;
     transition: 0.5s;
+}
+
+
+.mapboxgl-ctrl-attrib {
+    max-width: 100vw;
+}
+.mapboxgl-ctrl-attrib-inner {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: right;
 }
