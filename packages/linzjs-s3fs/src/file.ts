@@ -17,9 +17,9 @@ export interface FileSystem {
     readStream(filePath: string): Readable;
     /** Write a file from either a buffer or stream */
     write(filePath: string, buffer: Buffer | Readable): Promise<void>;
-    /** List all files in path */
+    /** Recursively list all files in path */
     list(filePath: string): AsyncGenerator<string>;
-    /** List all files in path with additional details */
+    /** Recursively list all files in path with additional details */
     listDetails(filePath: string): AsyncGenerator<FileInfo>;
     /** Does the path exists */
     exists(filePath: string): Promise<boolean>;
