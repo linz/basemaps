@@ -49,7 +49,7 @@ export class MapAttribution {
     updateAttribution(): void {
         if (this._attributionLoad == null) {
             const customAttribution = (this.attributionHTML = 'Loading…');
-            this.attributionControl = new mapboxgl.AttributionControl({ customAttribution });
+            this.attributionControl = new mapboxgl.AttributionControl({ compact: false, customAttribution });
             this.map.addControl(this.attributionControl, 'bottom-right');
             this._attributionLoad = Attribution.load(WindowUrl.toTileUrl(this.config, MapOptionType.Attribution)).then(
                 (attr) => {
@@ -99,7 +99,7 @@ export class MapAttribution {
         if (attributionHTML !== this.attributionHTML) {
             const customAttribution = (this.attributionHTML = attributionHTML);
             this.map.removeControl(this.attributionControl);
-            this.attributionControl = new mapboxgl.AttributionControl({ customAttribution });
+            this.attributionControl = new mapboxgl.AttributionControl({ compact: false, customAttribution });
             this.map.addControl(this.attributionControl, 'bottom-right');
         }
 

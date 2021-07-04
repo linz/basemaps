@@ -61,71 +61,25 @@ button {
     width: 75%;
 }
 
-.lui-footer a.nz-govt-logo {
-    padding: 8px 0 4px 0;
-    display: flex;
-    border-bottom: none;
+.lui-footer .nz-govt-logo {
+    margin-top:8px;
 }
 
-.nz-govt-logo svg {
-    width: 200px;
-    height: 24px;
-}
-
-.lui-footer-x-sm.g-footer__standard {
-    background-color: #004b50;
-    padding: 2px;
-}
-
-.lui-footer-x-sm.g-footer__standard .g-footer__standard-link {
-    color: #d4e9eb;
-}
-
-.lui-footer-x-sm.g-footer__standard .g-footer__standard-inline-list-item {
-    font-size: 14px;
-    margin: 4px 16px;
-}
-
-.lui-footer-x-sm p {
-    margin: 0;
+.lui-footer .lui-footer-list li.lui-footer-inline-list-item {
+    margin-top:4px;
+    margin-bottom:4px;
 }
 
 .align-center {
-    display: flex;
     align-items: center;
 }
 
 .justify-end {
-    display: flex;
     justify-content: flex-end;
 }
 
 .justify-center {
     justify-content: center;
-}
-
-.lui-header-primary.lui-header-sm .lui-header-top-section .g-flex-row {
-    height: 64px !important;
-}
-
-.lui-header-primary.lui-header-sm .lui-header-top-section {
-    padding-top: 4px;
-    padding-bottom: 4px;
-}
-
-.lui-header-primary button {
-    background: none;
-    color: #fff;
-    line-height: normal;
-}
-
-.lui-header-logo {
-    display: flex;
-}
-
-.lui-header-logo .linz-logo-sm {
-    width: 160px;
-    height: 40px;
 }
 
 .side-nav {
@@ -150,15 +104,6 @@ button {
     display: none;
 }
 
-.side-nav .lui-button-group .lui-button-wrapper {
-    flex: auto;
-    flex-grow: 0;
-}
-
-.side-nav .lui-button-group .lui-button {
-    padding: 0 2rem;
-}
-
 #menu-close {
     position: absolute;
     background-color: transparent;
@@ -181,11 +126,6 @@ button {
     border-bottom: 1px solid #eaeaea;
     padding-bottom: 4px;
     margin-bottom: 8px;
-}
-
-.side-nav.lui-text-content-area p {
-    font-size: 14px;
-    margin-top: 8px;
 }
 
 .side-nav #contact-us {
@@ -225,16 +165,12 @@ button {
     position: relative;
 }
 
-.lui-standard-form .lui-form-icon.lui-form-icon--left input:not([type='checkbox']):not([type='radio']),
-.lui-standard-form .lui-form-icon.lui-form-icon--left textarea,
-.lui-standard-form .lui-form-icon.lui-form-icon--left select {
-    border-left: 40px solid;
-}
 
 .lui-standard-form .lui-form-icon.lui-form-icon--right input:not([type='checkbox']):not([type='radio']),
 .lui-standard-form .lui-form-icon.lui-form-icon--right textarea,
 .lui-standard-form .lui-form-icon.lui-form-icon--right select {
     border-right: 40px solid;
+    padding: 0 8px;
 }
 
 .lui-standard-form .lui-form-icon .lui-form-icon-button {
