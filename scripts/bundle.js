@@ -99,6 +99,7 @@ async function bundleDir(basePath, cfg, outfile) {
 }
 
 async function bundleFile(basePath, cfg, outFile) {
+    fs.mkdirSync(path.dirname(outFile), { recursive: true });
     fs.writeFileSync(outFile, fs.readFileSync(cfg.entry));
 }
 
