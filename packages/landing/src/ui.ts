@@ -20,6 +20,10 @@ export class BasemapsUi {
 
     constructor(basemaps: Basemaps) {
         this.basemaps = basemaps;
+
+        const versionEl = document.getElementById('basemaps-version');
+        if (versionEl) versionEl.innerText = Config.Version;
+
         this.bindMenuButton();
         this.bindProjectionButtons();
         this.bindApiLinks();
