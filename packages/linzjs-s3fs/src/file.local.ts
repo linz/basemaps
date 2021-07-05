@@ -25,14 +25,18 @@ export class FsLocal implements FileSystem {
         for await (const file of this.list(filePath)) {
             const res = await this.head(file);
             if (res == null) continue;
-            yield res;
+            if (res.isDirectory) {
+                yield* this.listDetails(res.path);
+            } else {
+                yield res;
+            }
         }
     }
 
-    async head(filePath: string): Promise<FileInfo | null> {
+    async head(filePath: string): Promise<(FileInfo & { isDirectory: boolean }) | null> {
         try {
             const stat = await fs.promises.stat(filePath);
-            return { path: filePath, size: stat.size };
+            return { path: filePath, size: stat.size, isDirectory: stat.isDirectory() };
         } catch (e) {
             if (e.code === 'ENOENT') return null;
             throw getCompositeError(e, `Failed to stat: ${filePath}`);

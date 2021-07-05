@@ -11,6 +11,9 @@ export const Config = {
     get GoogleAnalytics(): string {
         return process.env.GOOGLE_ANALYTICS ?? '';
     },
+    get Version(): string {
+        return process.env.GIT_VERSION ?? '';
+    },
 };
 
 // Inject google analytics after everything has loaded
