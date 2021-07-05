@@ -61,16 +61,11 @@ export class Basemaps {
             MapAttribution.init(this.map, this.config);
         }
 
-        this.map.on('load', this.init);
+        const nav = new mapboxgl.NavigationControl({ visualizePitch: true });
+        this.map.addControl(nav, 'top-left');
 
         this.map.on('render', this.render);
     }
-
-    init = (): void => {
-        this.map.resize();
-        const nav = new mapboxgl.NavigationControl({ visualizePitch: true });
-        this.map.addControl(nav, 'top-left');
-    };
 
     updateUrlTimer: unknown | null = null;
     render = (): void => {
