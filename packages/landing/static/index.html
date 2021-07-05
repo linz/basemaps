@@ -6,7 +6,6 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     $CSS_FILE
-    <!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700&display=swap" rel="stylesheet" /> -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet" />
     <title>Basemaps | Land Information New Zealand (LINZ)</title>
@@ -17,7 +16,7 @@
         <header class="lui-header">
             <div class="lui-header-row">
                 <div class="lui-header-col">
-                    <div class="lui-header-logo"><img class="linz-logo" src="/logo-linz.svg" /></div>
+                    <div class="lui-header-logo"><img class="linz-logo" src="/assets/logo-linz.svg" /></div>
                     <div class="lui-header-title">
                         <h1>Basemaps</h1>
                     </div>
@@ -37,7 +36,7 @@
                 <div class="align-center nz-govt-logo">
                     <a rel="noopener" href="http://www.govt.nz/" target="_blank"
                         aria-label="New Zealand Government">
-                        <img src="/logo-nz-govt.svg" />
+                        <img src="/assets/logo-nz-govt.svg" />
                     </a>
                 </div>
                 <div class="justify-end">
@@ -144,7 +143,14 @@
                     </svg>
                 </a>
             </li>
+            <li>
+                <a rel="noopener" target="_blank" href="https://github.com/linz/basemaps/blob/master/CHANGELOG.md">
+                    Version <span id="basemaps-version">$GIT_VERSION</span>
+                    <i class="material-icons-round md-36">launch</i>
+                </a>
+            </li>
         </ul>
+
     </div>
     <div id="modal" style="display: none"></div>
     $JS_FILE
