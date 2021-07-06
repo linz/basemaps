@@ -88,6 +88,10 @@ export class MapAttribution {
         this.zoom = Math.round(this.map.getZoom() ?? 0);
         this.bounds = this.map.getBounds();
 
+        // Note that Mapbox rendering 512×512 image tiles are offset by one zoom level compared to 256×256 tiles.
+        // For example, 512×512 tiles at zoom level 4 are equivalent to 256×256 tiles at zoom level 5.
+        this.zoom += 1;
+
         const bbox = this.mapboxBoundToBbox(this.bounds, this.config.tileMatrix);
         const filtered = this.attributions.filter(bbox, this.zoom);
         let attributionHTML = this.attributions.renderList(filtered);
