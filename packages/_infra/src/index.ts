@@ -5,7 +5,6 @@ import { CogBuilderStack } from './cogify';
 import { BaseMapsRegion } from './config';
 import { DeployEnv } from './deploy.env';
 import { EdgeStack } from './edge';
-import { LoggingStack } from './log';
 import { getEdgeParameters } from './parameters';
 import { ServeStack } from './serve';
 
@@ -14,8 +13,6 @@ async function main(): Promise<void> {
 
     /** Using VPC lookups requires a hard coded AWS "account" */
     const account = Env.get(DeployEnv.CdkAccount);
-
-    new LoggingStack(basemaps, 'Logging', { env: { region: BaseMapsRegion, account } });
 
     /**
      * Because we are using Lambda@Edge the edge stack has to be deployed into us-east-1,
