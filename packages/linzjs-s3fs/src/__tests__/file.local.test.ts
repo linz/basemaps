@@ -1,8 +1,9 @@
 import o from 'ospec';
 import { FsLocal } from '../file.local';
 import { CompositeError } from '../composite.error';
-import { FileSystemAbstraction } from '..';
+import { FileSystemAbstraction } from '../file.al';
 import * as path from 'path';
+import { promises as fs } from 'fs';
 
 o.spec('FileLocal', () => {
     const RootFolder = process.platform === 'darwin' ? '/var/root' : '/root';
@@ -22,6 +23,19 @@ o.spec('FileLocal', () => {
         o(file).notEquals(undefined);
         o((file?.size || 0) > 3000).equals(true);
         o(file?.path).equals(__filename);
+    });
+
+    o('should list recursively', async () => {
+        const res = await s3fs.toArray(localFs.listDetails(__dirname));
+        const resUp = await s3fs.toArray(localFs.listDetails(path.join(__dirname, '..')));
+        o(resUp.length > res.length).equals(true);
+        // Should find all files in the parent list
+        for (const file of res) o(resUp.find((f) => f.path === file.path)).notEquals(undefined);
+
+        // Should not emit directories
+        for (const file of resUp) {
+            o((await fs.stat(file.path)).isDirectory()).equals(false);
+        }
     });
 
     o('Should capture not found errors:list', async () => {

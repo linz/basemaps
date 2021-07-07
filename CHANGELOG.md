@@ -3,6 +3,65 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.3.0](https://github.com/linz/basemaps/compare/v6.2.0...v6.3.0) (2021-07-07)
+
+
+### Bug Fixes
+
+* **landing:** fix broken image urls ([#1722](https://github.com/linz/basemaps/issues/1722)) ([b9bafb4](https://github.com/linz/basemaps/commit/b9bafb44e8d4cd7d3015ce9f6702c63cbb650dca))
+* **landing:** overflow attribution text with ... on mobile ([#1717](https://github.com/linz/basemaps/issues/1717)) ([46c0f43](https://github.com/linz/basemaps/commit/46c0f43c5d1fc5facd9a981626eebbdfb350c810))
+* **landing:** unsquish landing page view on mobile devices  ([#1716](https://github.com/linz/basemaps/issues/1716)) ([038f78d](https://github.com/linz/basemaps/commit/038f78d500b719bda0b3c125378694666a0f52cb))
+* **landing:** Update map to resize while loading to fix mobile map size. ([#1706](https://github.com/linz/basemaps/issues/1706)) ([d019992](https://github.com/linz/basemaps/commit/d0199926fa06be47497aa31645414ab22e14fe23))
+* **landing:** Zoom level plus 1 for attributions because mapbox rendering tile in 512px. ([#1725](https://github.com/linz/basemaps/issues/1725)) ([ed9f5b6](https://github.com/linz/basemaps/commit/ed9f5b6acffd0aef164c4311fc84b3b06d18fefb))
+
+
+### Features
+
+* **infra:** remove logging stack as that is now handled internally ([#1701](https://github.com/linz/basemaps/issues/1701)) ([ffcbf35](https://github.com/linz/basemaps/commit/ffcbf35188cc3cda610839035cae3eb80ecfb36a))
+* **landing:** Add navigation control to the map. ([#1724](https://github.com/linz/basemaps/issues/1724)) ([1676c7a](https://github.com/linz/basemaps/commit/1676c7a4483afa5b6defd4193955cb13f1815185))
+* **landing:** default to nztm2000quad for landing page ([#1726](https://github.com/linz/basemaps/issues/1726)) ([366aa2b](https://github.com/linz/basemaps/commit/366aa2b1c8d1a15861eb4e7d75bfc112f083312f))
+* **landing:** include version/changelog in landing page ([#1718](https://github.com/linz/basemaps/issues/1718)) ([998310d](https://github.com/linz/basemaps/commit/998310dd15e10b989ad4823f02faa1dd1e9e13ae))
+* **landing:** Update the landing page to use maplibre ([#1689](https://github.com/linz/basemaps/issues/1689)) ([3da52d1](https://github.com/linz/basemaps/commit/3da52d1b3bd581a216017bbec0d490207e612132))
+* **s3fs:** recursively list locally ([#1712](https://github.com/linz/basemaps/issues/1712)) ([2dec7ba](https://github.com/linz/basemaps/commit/2dec7baab02307b5a408e288e59a89ae693e12de))
+
+
+### Reverts
+
+* logging stack changes as its not ready yet. ([#1729](https://github.com/linz/basemaps/issues/1729)) ([4eaea4d](https://github.com/linz/basemaps/commit/4eaea4d2162787522f4ab421ba28368a23650844)), closes [#1701](https://github.com/linz/basemaps/issues/1701)
+
+
+
+
+
+# [6.2.0](https://github.com/linz/basemaps/compare/v6.1.0...v6.2.0) (2021-06-24)
+
+
+### Features
+
+* **lambda:** provide basic timing information to client ([#1697](https://github.com/linz/basemaps/issues/1697)) ([3735292](https://github.com/linz/basemaps/commit/3735292d85b779be5b78250ad0c2676262e3c08b))
+* disable edge lambda as its not really used. ([#1692](https://github.com/linz/basemaps/issues/1692)) ([38b02a5](https://github.com/linz/basemaps/commit/38b02a5c5050a076c69836861afc91cc92235a79))
+
+
+
+
+
+# [6.1.0](https://github.com/linz/basemaps/compare/v6.0.0...v6.1.0) (2021-06-23)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** bundle farmhash correctly ([#1693](https://github.com/linz/basemaps/issues/1693)) ([7cacf2e](https://github.com/linz/basemaps/commit/7cacf2e34b6bc6fbb25826ccf0b59d0816e25c25))
+
+
+### Features
+
+* expose fss3 ([#1687](https://github.com/linz/basemaps/issues/1687)) ([5730f3c](https://github.com/linz/basemaps/commit/5730f3cc1f838e797dcef2ab33f1e56e50805023))
+* switch to a binary cotar index ([#1691](https://github.com/linz/basemaps/issues/1691)) ([6fa0b3f](https://github.com/linz/basemaps/commit/6fa0b3f223ab251fe94011cbda88ff9aa5b6922f))
+
+
+
+
+
 # [6.0.0](https://github.com/linz/basemaps/compare/v5.2.0...v6.0.0) (2021-06-21)
 
 

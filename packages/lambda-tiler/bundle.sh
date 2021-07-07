@@ -7,4 +7,4 @@ cd dist
 cp ../package.json .
 cp -r ../static .
 # @see https://sharp.pixelplumbing.com/en/stable/install/#aws-lambda
-npm install --arch=x64 --platform=linux sharp
+npm install --arch=x64 --platform=linux sharp farmhash

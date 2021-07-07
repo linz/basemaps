@@ -71,7 +71,12 @@ function bundleJs(basePath, cfg, outfile) {
         joinPath(basePath, cfg.entry),
     ];
 
-    cp.spawnSync('npx', buildCmd);
+    const res = cp.spawnSync('npx', buildCmd);
+    if (res.status > 0) {
+        console.log('BuildCommandFailed', buildCmd);
+        console.log(res.stderr.toString().trim());
+        process.exit(1);
+    }
 
     const fileData = fs.readFileSync(outfile).toString();
     console.log('Bundled', (fileData.length / 1024).toFixed(2), 'KB');
@@ -91,6 +96,11 @@ async function bundleDir(basePath, cfg, outfile) {
         }
         return true;
     });
+}
+
+async function bundleFile(basePath, cfg, outFile) {
+    fs.mkdirSync(path.dirname(outFile), { recursive: true });
+    fs.writeFileSync(outFile, fs.readFileSync(cfg.entry));
 }
 
 const HtmlTemplateExtReplace = {
@@ -144,6 +154,7 @@ function usage(err) {
 
 const Bundler = {
     directory: bundleDir,
+    svg: bundleFile,
     ts: bundleJs,
     js: bundleJs,
     html: bundleHtml,

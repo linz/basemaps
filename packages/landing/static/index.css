@@ -25,39 +25,10 @@ button {
     flex: 1;
 }
 
-#map .ol-control {
-    background-color: inherit;
-}
-
-#map .ol-zoom button,
-#map .ol-attribution button {
-    cursor: pointer;
-    background-color: white;
-    color: #00425d;
-    margin: 0;
-    width: 28px;
-    height: 32px;
-}
-
-#map .ol-zoom-in {
-    border-radius: 4px 4px 0 0;
-}
-
-#map .ol-zoom-out {
-    border-radius: 0 0 4px 4px;
-}
-
-#map .ol-control button:hover {
-    background-color: #e2f3f7;
-}
-
-#map .ol-attribution {
-    font-size: .8em;
-    background-color: rgba(255, 255, 255, .7);
-}
-
 .checker-board {
-    background-image: linear-gradient(45deg, #00000010 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, #00000010 25%, transparent 25%);
+    background-image: linear-gradient(45deg, #00000010 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, transparent 75%, #00000010 75%),
+        linear-gradient(45deg, #00000010 25%, transparent 25%);
     background-size: 100px 100px;
     background-position: 0 0, 0 0, -50px -50px, 50px 50px;
 }
@@ -90,71 +61,32 @@ button {
     width: 75%;
 }
 
-.lui-footer a.nz-govt-logo {
-    padding: 8px 0 4px 0;
-    display: flex;
-    border-bottom: none
+.lui-footer .nz-govt-logo {
+    margin-top:8px;
 }
 
-.nz-govt-logo svg {
-    width: 200px;
-    height: 24px;
+.lui-footer .lui-footer-list li.lui-footer-inline-list-item {
+    margin-top:4px;
+    margin-bottom:4px;
+}
+label {
+    margin-top:8px;
 }
 
-.lui-footer-x-sm.g-footer__standard {
-    background-color: #004b50;
-    padding: 2px;
-}
-
-.lui-footer-x-sm.g-footer__standard .g-footer__standard-link {
-    color: #d4e9eb;
-}
-
-.lui-footer-x-sm.g-footer__standard .g-footer__standard-inline-list-item {
-    font-size: 14px;
-    margin: 4px 16px;
-}
-
-.lui-footer-x-sm p {
-    margin: 0;
+label {
+    margin-top:8px;
 }
 
 .align-center {
-    display: flex;
     align-items: center;
 }
 
 .justify-end {
-    display: flex;
     justify-content: flex-end;
 }
 
 .justify-center {
     justify-content: center;
-}
-
-.lui-header-primary.lui-header-sm .lui-header-top-section .g-flex-row {
-    height: 64px !important;
-}
-
-.lui-header-primary.lui-header-sm .lui-header-top-section {
-    padding-top: 4px;
-    padding-bottom: 4px;
-}
-
-.lui-header-primary button {
-    background: none;
-    color: #fff;
-    line-height: normal;
-}
-
-.lui-header-logo {
-    display: flex;
-}
-
-.lui-header-logo .linz-logo-sm {
-    width: 160px;
-    height: 40px;
 }
 
 .side-nav {
@@ -169,23 +101,16 @@ button {
     overflow-x: hidden;
     padding: 16px;
     transition: right 0.5s;
+    display: flex;
+    flex-direction: column;
 }
 
-#side-nav>h3 {
+#side-nav > h3 {
     margin: 0;
 }
 
 .side-nav .side-nav-container {
     display: none;
-}
-
-.side-nav .lui-button-group .lui-button-wrapper {
-    flex: auto;
-    flex-grow: 0;
-}
-
-.side-nav .lui-button-group .lui-button {
-    padding: 0 2rem;
 }
 
 #menu-close {
@@ -212,11 +137,6 @@ button {
     margin-bottom: 8px;
 }
 
-.side-nav.lui-text-content-area p {
-    font-size: 14px;
-    margin-top: 8px;
-}
-
 .side-nav #contact-us {
     margin-top: 8px;
 }
@@ -233,7 +153,7 @@ button {
 
 .info-links li {
     border-bottom: 1px solid #eaeaea;
-    padding: 8px 8px;
+    padding: 8px 16px;
     margin: 0;
 }
 
@@ -254,16 +174,11 @@ button {
     position: relative;
 }
 
-.lui-standard-form .lui-form-icon.lui-form-icon--left input:not([type='checkbox']):not([type='radio']),
-.lui-standard-form .lui-form-icon.lui-form-icon--left textarea,
-.lui-standard-form .lui-form-icon.lui-form-icon--left select {
-    border-left: 40px solid;
-}
-
 .lui-standard-form .lui-form-icon.lui-form-icon--right input:not([type='checkbox']):not([type='radio']),
 .lui-standard-form .lui-form-icon.lui-form-icon--right textarea,
 .lui-standard-form .lui-form-icon.lui-form-icon--right select {
     border-right: 40px solid;
+    padding: 0 8px;
 }
 
 .lui-standard-form .lui-form-icon .lui-form-icon-button {
@@ -305,4 +220,15 @@ button {
 .side-nav[aria-hidden='true'] a {
     visibility: hidden;
     transition: 0.5s;
+}
+
+
+.mapboxgl-ctrl-attrib {
+    max-width: 100vw;
+}
+.mapboxgl-ctrl-attrib-inner {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: right;
 }

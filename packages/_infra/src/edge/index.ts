@@ -5,7 +5,6 @@ import { Bucket } from '@aws-cdk/aws-s3';
 import { Env } from '@basemaps/shared';
 import { getConfig } from '../config';
 import { DeployEnv } from '../deploy.env';
-import { LambdaApiKeyValidator } from './lambda.edge.api.key';
 import { Parameters } from '../parameters';
 
 /**
@@ -16,14 +15,11 @@ import { Parameters } from '../parameters';
  * - API Tracking Lambda@edge
  */
 export class EdgeStack extends cdk.Stack {
-    public apiValidator: LambdaApiKeyValidator;
     public logBucket: Bucket;
     public distribution: cf.CloudFrontWebDistribution;
 
     public constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
-
-        this.apiValidator = new LambdaApiKeyValidator(this, 'LambdaEdge');
 
         const config = getConfig();
         const s3BucketSource = new s3.Bucket(this, 'StaticBucket');
@@ -54,12 +50,7 @@ export class EdgeStack extends cdk.Stack {
                         queryString: true,
                         queryStringCacheKeys: ['NOT_A_CACHE_KEY'],
                     },
-                    lambdaFunctionAssociations: [
-                        {
-                            eventType: cf.LambdaEdgeEventType.VIEWER_REQUEST,
-                            lambdaFunction: this.apiValidator.lambda.currentVersion,
-                        },
-                    ],
+                    lambdaFunctionAssociations: [],
                 },
             ],
         };

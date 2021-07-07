@@ -19,18 +19,18 @@ o.spec('WindowUrl', () => {
     o.spec('Hash', () => {
         o('should encode lon lat', () => {
             const output = WindowUrl.toHash(googleLoc);
-            o(output).equals('#@174.7763921,-41.277848,z8');
+            o(output).equals('#@174.7763921,-41.2778480,z8');
             o(WindowUrl.fromHash(output)).deepEquals(googleLoc);
-            o(WindowUrl.fromHash('#@174.7763921,-41.277848,8z')).deepEquals(googleLoc);
+            o(WindowUrl.fromHash('#@174.7763921,-41.2778480,8z')).deepEquals(googleLoc);
         });
 
         o('should encode fractional zooms', () => {
-            o(WindowUrl.fromHash('#@174.7763921,-41.277848,14.25z').zoom).deepEquals(14.25);
-            o(WindowUrl.fromHash('#@174.7763921,-41.277848,z14.25').zoom).deepEquals(14.25);
+            o(WindowUrl.fromHash('#@174.7763921,-41.2778480,14.25z').zoom).deepEquals(14.25);
+            o(WindowUrl.fromHash('#@174.7763921,-41.2778480,z14.25').zoom).deepEquals(14.25);
         });
 
         o('should not fail if parts are missing', () => {
-            const missingZoom = WindowUrl.fromHash('#@174.7763921,-41.277848,');
+            const missingZoom = WindowUrl.fromHash('#@174.7763921,-41.2778480,');
             o(missingZoom).deepEquals({ lat: googleLoc.lat, lon: googleLoc.lon });
             const missingParam = WindowUrl.fromHash('#@174.7763921,');
             o(missingParam).deepEquals({});
@@ -41,42 +41,49 @@ o.spec('WindowUrl', () => {
         o(WindowUrl.fromUrl('')).deepEquals({
             tileMatrix: GoogleTms,
             imageId: 'aerial',
+            style: 'topolike',
             tag: 'production',
             debug: false,
         });
         o(WindowUrl.fromUrl('?p=2193')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'aerial',
+            style: 'topolike',
             tag: 'production',
             debug: false,
         });
         o(WindowUrl.fromUrl('?i=abc123')).deepEquals({
             tileMatrix: GoogleTms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'production',
             debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta')).deepEquals({
             tileMatrix: GoogleTms,
             imageId: 'aerial',
+            style: 'topolike',
             tag: 'beta',
             debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'beta',
             debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193&d=true')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'beta',
             debug: false,
         });
-        o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193&d=true&debug=yes')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+        o(WindowUrl.fromUrl('?v=beta&i=abc123&s=basic&p=2193&d=true&debug=yes')).deepEquals({
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
+            style: 'basic',
             tag: 'beta',
             debug: true,
         });
@@ -84,21 +91,24 @@ o.spec('WindowUrl', () => {
 
     o('should extract tile matrix information', () => {
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=nztm2000&d=true&debug=yes')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'beta',
             debug: true,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=nztm2000quad&d=true&debug=yes')).deepEquals({
             tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
+            style: 'topolike',
             tag: 'beta',
             debug: true,
         });
 
-        o(WindowUrl.fromUrl('?v=beta&i=abc123&p=NZTM2000Quad&d=true&debug=yes')).deepEquals({
+        o(WindowUrl.fromUrl('?v=beta&i=abc123&s=basic&p=NZTM2000Quad&d=true&debug=yes')).deepEquals({
             tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
+            style: 'basic',
             tag: 'beta',
             debug: true,
         });
@@ -107,7 +117,7 @@ o.spec('WindowUrl', () => {
     o('should convert to a url', () => {
         const apiKey = Config.ApiKey;
         const options = WindowUrl.fromUrl('');
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(
@@ -121,15 +131,15 @@ o.spec('WindowUrl', () => {
     o('should use default epsg codes for urls', () => {
         const apiKey = Config.ApiKey;
         const options = WindowUrl.fromUrl('');
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         options.tileMatrix = Nztm2000Tms;
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:2193/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         options.tileMatrix = Nztm2000QuadTms;
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.png?api=${apiKey}`,
         );
     });
@@ -139,7 +149,7 @@ o.spec('WindowUrl', () => {
         const apiKey = Config.ApiKey;
 
         process.env.TILE_HOST = 'https://foo.bar.com';
-        o(WindowUrl.toTileUrl(options, MapOptionType.Tile)).equals(
+        o(WindowUrl.toTileUrl(options, MapOptionType.TileRaster)).equals(
             `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
         );
         o(WindowUrl.toTileUrl(options, MapOptionType.Wmts)).equals(

@@ -9,6 +9,10 @@ export interface HttpStatus {
     statusDescription: string;
 }
 
+const version = process.env.GIT_VERSION;
+const hash = process.env.GIT_HASH;
+const versionInfo = { version, hash };
+
 export class LambdaFunction {
     /**
      *  Wrap a lambda function to provide extra functionality
@@ -39,7 +43,7 @@ export class LambdaFunction {
             const lambdaId = context.awsRequestId;
             ctx.set('aws', { cloudFrontId, traceId, lambdaId });
 
-            ctx.set('package', { hash: process.env.GIT_HASH, version: process.env.GIT_VERSION });
+            ctx.set('package', versionInfo);
             ctx.set('method', ctx.method);
             ctx.set('path', ctx.path);
 
@@ -77,6 +81,9 @@ export class LambdaFunction {
             if (!res.isBase64Encoded && res.header(HttpHeader.ContentType) == null) {
                 res.header(HttpHeader.ContentType, ApplicationJson);
             }
+
+            res.header(HttpHeader.Server, `basemaps-${version}`);
+            res.header(HttpHeader.ServerTiming, `total;dur=${duration}`);
 
             callback(null, LambdaContext.toResponse(ctx, res));
         };

@@ -1,21 +1,10 @@
 import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import { Aws, fsa, TileDataXyz, VectorFormat } from '@basemaps/shared';
+import { Aws, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import { Cotar } from '@cotar/core';
-import { Readable } from 'stream';
-import { createGunzip } from 'zlib';
+import { Cotar, CotarIndexBinary } from '@cotar/core';
 import { NotFound } from './routes/tile';
 import { TileSetHandler } from './tile.set';
-
-function streamToBuffer(stream: Readable): Promise<Buffer> {
-    const buffers: Buffer[] = [];
-    return new Promise((resolve, reject) => {
-        stream.on('data', (data) => buffers.push(data));
-        stream.on('end', () => resolve(Buffer.concat(buffers)));
-        stream.on('error', reject);
-    });
-}
 
 class CotarCache {
     cache = new Map<string, Promise<Cotar | null>>();
@@ -31,11 +20,10 @@ class CotarCache {
 
     async loadCotar(uri: string): Promise<Cotar | null> {
         const source = SourceAwsS3.fromUri(uri, Aws.s3);
-        if (source == null) return null;
+        const sourceIndex = SourceAwsS3.fromUri(`${uri}.index.binary`, Aws.s3);
+        if (source == null || sourceIndex == null) return null;
 
-        const stream = fsa.readStream(`${uri}.index.gz`).pipe(createGunzip());
-        const index = await streamToBuffer(stream);
-        return new Cotar(source, index.toString().split('\n'));
+        return new Cotar(source, new CotarIndexBinary(sourceIndex));
     }
 }
 

@@ -4,6 +4,7 @@ import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from 
 import { Config, Env, setNameAndProjection, TileSetName, tileWmtsFromPath, tileXyzFromPath } from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { createHash } from 'crypto';
+import { isValidApiKey } from '../api.key';
 import { TileSets } from '../tile.set.cache';
 import { TileSetRaster } from '../tile.set.raster';
 import { WmtsCapabilities } from '../wmts.capability';
@@ -161,6 +162,7 @@ export async function styleJson(req: LambdaContext, fileName: string): Promise<L
 export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
     const { rest } = req.action;
     if (rest.length < 1) return NotFound;
+    if (!isValidApiKey(req.apiKey)) return new LambdaHttpResponse(400, 'Invalid API Key');
 
     const fileName = rest[rest.length - 1].toLowerCase();
     if (fileName === 'attribution.json') return attribution(req);

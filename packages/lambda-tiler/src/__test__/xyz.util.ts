@@ -4,7 +4,7 @@ import { LambdaContext } from '@basemaps/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { TileSetRaster } from '../tile.set.raster';
 
-export function mockRequest(path: string, method = 'get', headers = {}): LambdaContext {
+export function mockRequest(path: string, method = 'get', headers: Record<string, string> = {}): LambdaContext {
     return new LambdaContext(
         {
             requestContext: null as any,

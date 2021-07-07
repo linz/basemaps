@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.3.0](https://github.com/linz/basemaps/compare/v6.2.0...v6.3.0) (2021-07-07)
+
+
+### Features
+
+* **infra:** remove logging stack as that is now handled internally ([#1701](https://github.com/linz/basemaps/issues/1701)) ([ffcbf35](https://github.com/linz/basemaps/commit/ffcbf35188cc3cda610839035cae3eb80ecfb36a))
+
+
+### Reverts
+
+* logging stack changes as its not ready yet. ([#1729](https://github.com/linz/basemaps/issues/1729)) ([4eaea4d](https://github.com/linz/basemaps/commit/4eaea4d2162787522f4ab421ba28368a23650844)), closes [#1701](https://github.com/linz/basemaps/issues/1701)
+
+
+
+
+
+# [6.2.0](https://github.com/linz/basemaps/compare/v6.1.0...v6.2.0) (2021-06-24)
+
+
+### Features
+
+* disable edge lambda as its not really used. ([#1692](https://github.com/linz/basemaps/issues/1692)) ([38b02a5](https://github.com/linz/basemaps/commit/38b02a5c5050a076c69836861afc91cc92235a79))
+
+
+
+
+
+# [6.1.0](https://github.com/linz/basemaps/compare/v6.0.0...v6.1.0) (2021-06-23)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
 # [6.0.0](https://github.com/linz/basemaps/compare/v5.2.0...v6.0.0) (2021-06-21)
 
 
