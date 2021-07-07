@@ -835,10 +835,10 @@
     "@cogeotiff/chunk" "^4.3.0"
     node-fetch "^2.6.0"
 
-"@cotar/core@3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-3.0.0.tgz#4fbf9e6b6a47f81869c14f3cbc30a1d628940f8e"
-  integrity sha512-CDkOPiY5wcuuxW+cv5bbr9DekJbIwNbs8o9Rkww0KnDvdgY8XwaJRGlSxGyLpgbTWXjRtIriSN7TgvZ+OVhAEQ==
+"@cotar/core@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-3.1.0.tgz#ef4429e6ac81c24a2a89d4b9901251fef24d7ebf"
+  integrity sha512-IlIrunpNtLOOkcNGkK3In4Bp/mQ+ZNV81Y46OHkUJhYyOGnE3No1qsSVcx07HTHiovLJgeo/2JsMSW4rEepxLQ==
   dependencies:
     "@cogeotiff/chunk" "^4.3.0"
     binparse "^1.1.0"
