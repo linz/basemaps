@@ -1551,10 +1551,10 @@
     ulid "^2.3.0"
     zod "^1.10.0"
 
-"@linzjs/lui@^5.3.1":
-  version "5.3.2"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-5.3.2.tgz#995eb72a46c9a0ab7ffc7b0410f4d20a8036d3c0"
-  integrity sha512-CwI4pIpRheVCvNEfGQL2BlAmXrYqsd5Et/irwu/kpMUMrLn7Y2Z3gXMjZG5KJki6FcI3XRSnNYHdru/OmMxeQw==
+"@linzjs/lui@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-6.0.0.tgz#8ab969cd91cb70481a85fa516807e1ff20288126"
+  integrity sha512-JZ9KmiiEwU0anO9fmK109+/+YnfjntFjadc3tkwvZsba7wSsU57chkYi3C3tX89mv4jKkPUyZkbmqiDDF31Xnw==
   dependencies:
     "@szhsin/react-menu" "^1.8.0"
     camelcase "^6.0.0"
@@ -2735,12 +2735,7 @@ camelcase@^2.0.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-2.1.1.tgz#7c1d16d679a1bbe59ca02cacecfb011e201f5a1f"
   integrity sha1-fB0W1nmhu+WcoCys7PsBHiAfWh8=
 
-camelcase@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.0.0.tgz#5259f7c30e35e278f1bdc2a4d91230b37cad981e"
-  integrity sha512-8KMDF1Vz2gzOq54ONPJS65IvTUaB1cHJ2DMM7MbPmLZljDH1qpzzLsWdiN9pHh6qvkRVDTi/07+eNGch/oLU4w==
-
-camelcase@^6.2.0:
+camelcase@^6.0.0, camelcase@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.2.0.tgz#924af881c9d525ac9d87f40d964e5cea982a1809"
   integrity sha512-c7wVvbw3f37nuobQNtgsgG9POC9qMbNuMQmTCqZv23b6MIz0fcYpBiOlv9gEN/hdLdnZTDQhg6e9Dq5M1vKvfg==
