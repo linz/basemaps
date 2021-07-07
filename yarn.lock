@@ -2003,9 +2003,9 @@
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
 "@types/ol@^6.4.2":
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/@types/ol/-/ol-6.5.0.tgz#8fdfd6624f14f4d5129ebe1d2ebc74abdf996b12"
-  integrity sha512-jRJQypF0aGrbtTmBPEq56c4GtKRyC/++XfI6H5xBKsIInTFOcx3LbaBs4IpsfKKdlstDm18Z4uelp/M7Lw3tBA==
+  version "6.5.3"
+  resolved "https://registry.yarnpkg.com/@types/ol/-/ol-6.5.3.tgz#ffb324d92a6efaedc5903a823f0ce51a085e2a31"
+  integrity sha512-C0Sm5dytTfRxztYFMuWq0IBJYfMffPF4GzXI/s4ZyJlNZ8AAdS+9fW0iGOyYkTb3ZQmfYWYdAzMqwGXfHVw+3A==
   dependencies:
     "@types/arcgis-rest-api" "*"
     "@types/geojson" "*"
