@@ -61,6 +61,9 @@ export class Basemaps {
             MapAttribution.init(this.map, this.config);
         }
 
+        const nav = new mapboxgl.NavigationControl({ visualizePitch: true });
+        this.map.addControl(nav, 'top-left');
+
         this.map.on('render', this.render);
     }
 

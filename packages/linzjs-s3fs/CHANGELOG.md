@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.3.0](https://github.com/linz/basemaps/compare/v6.2.0...v6.3.0) (2021-07-07)
+
+
+### Features
+
+* **s3fs:** recursively list locally ([#1712](https://github.com/linz/basemaps/issues/1712)) ([2dec7ba](https://github.com/linz/basemaps/commit/2dec7baab02307b5a408e288e59a89ae693e12de))
+
+
+
+
+
 # [6.1.0](https://github.com/linz/basemaps/compare/v6.0.0...v6.1.0) (2021-06-23)
 
 

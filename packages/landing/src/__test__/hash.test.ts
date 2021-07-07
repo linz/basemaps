@@ -46,7 +46,7 @@ o.spec('WindowUrl', () => {
             debug: false,
         });
         o(WindowUrl.fromUrl('?p=2193')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'aerial',
             style: 'topolike',
             tag: 'production',
@@ -67,21 +67,21 @@ o.spec('WindowUrl', () => {
             debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
             style: 'topolike',
             tag: 'beta',
             debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=2193&d=true')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
             style: 'topolike',
             tag: 'beta',
             debug: false,
         });
         o(WindowUrl.fromUrl('?v=beta&i=abc123&s=basic&p=2193&d=true&debug=yes')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
             style: 'basic',
             tag: 'beta',
@@ -91,7 +91,7 @@ o.spec('WindowUrl', () => {
 
     o('should extract tile matrix information', () => {
         o(WindowUrl.fromUrl('?v=beta&i=abc123&p=nztm2000&d=true&debug=yes')).deepEquals({
-            tileMatrix: Nztm2000Tms,
+            tileMatrix: Nztm2000QuadTms,
             imageId: 'abc123',
             style: 'topolike',
             tag: 'beta',

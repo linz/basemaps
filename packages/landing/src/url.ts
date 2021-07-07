@@ -1,4 +1,4 @@
-import { Epsg, GoogleTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config } from './config';
 
 export interface MapLocation {
@@ -75,9 +75,8 @@ export const WindowUrl = {
 
         const projectionParam = (urlParams.get('p') ?? GoogleTms.identifier).toLowerCase();
         let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
-        if (tileMatrix == null) {
-            tileMatrix = TileMatrixSets.get(Epsg.parse(projectionParam) ?? Epsg.Google);
-        }
+        if (tileMatrix == null) tileMatrix = TileMatrixSets.get(Epsg.parse(projectionParam) ?? Epsg.Google);
+        if (tileMatrix.identifier === Nztm2000Tms.identifier) tileMatrix = Nztm2000QuadTms;
 
         return { tag, imageId, style, tileMatrix, debug };
     },
