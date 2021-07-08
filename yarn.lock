@@ -835,10 +835,10 @@
     "@cogeotiff/chunk" "^4.3.0"
     node-fetch "^2.6.0"
 
-"@cotar/core@3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-3.0.0.tgz#4fbf9e6b6a47f81869c14f3cbc30a1d628940f8e"
-  integrity sha512-CDkOPiY5wcuuxW+cv5bbr9DekJbIwNbs8o9Rkww0KnDvdgY8XwaJRGlSxGyLpgbTWXjRtIriSN7TgvZ+OVhAEQ==
+"@cotar/core@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-3.1.0.tgz#ef4429e6ac81c24a2a89d4b9901251fef24d7ebf"
+  integrity sha512-IlIrunpNtLOOkcNGkK3In4Bp/mQ+ZNV81Y46OHkUJhYyOGnE3No1qsSVcx07HTHiovLJgeo/2JsMSW4rEepxLQ==
   dependencies:
     "@cogeotiff/chunk" "^4.3.0"
     binparse "^1.1.0"
@@ -1908,11 +1908,6 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@types/arcgis-rest-api@*":
-  version "10.4.4"
-  resolved "https://registry.yarnpkg.com/@types/arcgis-rest-api/-/arcgis-rest-api-10.4.4.tgz#c84b26ac7f01deb2829bff10ebbe544c2310fbcd"
-  integrity sha512-5NwSfj4po+03fauyr4F5AxYzu8pbbqmxay+pNr5ef2V3Mj+7OylvV48VKuVoO9m799jhZdH3EQgQBHm3Y6q1Sw==
-
 "@types/argparse@1.0.38":
   version "1.0.38"
   resolved "https://registry.yarnpkg.com/@types/argparse/-/argparse-1.0.38.tgz#a81fd8606d481f873a3800c6ebae4f1d768a56a9"
@@ -2016,16 +2011,6 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
-"@types/ol@^6.4.2":
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/@types/ol/-/ol-6.5.0.tgz#8fdfd6624f14f4d5129ebe1d2ebc74abdf996b12"
-  integrity sha512-jRJQypF0aGrbtTmBPEq56c4GtKRyC/++XfI6H5xBKsIInTFOcx3LbaBs4IpsfKKdlstDm18Z4uelp/M7Lw3tBA==
-  dependencies:
-    "@types/arcgis-rest-api" "*"
-    "@types/geojson" "*"
-    "@types/rbush" "*"
-    "@types/topojson-specification" "*"
-
 "@types/ospec@^4.0.2":
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/@types/ospec/-/ospec-4.0.2.tgz#cb516a7c576df74d41d9fd4c6f810241750af31c"
@@ -2049,9 +2034,9 @@
   integrity sha512-eAdu+NW1IkCdmp85SnhyKha+OOREQMT9lXaoICQxa7bhSauRiLzu3WSNt9Mf2piuJvWeXF/G0hGWHr63xNpIRA==
 
 "@types/pino@*", "@types/pino@^6.0.0":
-  version "6.3.8"
-  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-6.3.8.tgz#ec589318c2798216a0f39882845c5e40b7151b56"
-  integrity sha512-E47CmRy1FNMaCN8r0d8ECQOjXen9O0p6GGsUjLfmawlxRKosZ82WP1oWVKj+ikTkMDHxWzN5BuKmplo44ynrIg==
+  version "6.3.9"
+  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-6.3.9.tgz#dbbbd4a9a6b99935f5ed286c3d998ab83d260482"
+  integrity sha512-2/XV6adNNCLWnT2lJqcSn/OXrCxRFOY6yXYoofrLy5Ts5e8RHTJP1M4XEcCarQQMa6H6JISaa4GkrlGZwIP5aQ==
   dependencies:
     "@types/node" "*"
     "@types/pino-pretty" "*"
@@ -2086,11 +2071,6 @@
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.3.tgz#7ee330ba7caafb98090bece86a5ee44115904c2c"
   integrity sha512-ewFXqrQHlFsgc09MK5jP5iR7vumV/BYayNC6PgJO2LPe8vrnNFyjQjSppfEngITi0qvfKtzFvgKymGheFM9UOA==
-
-"@types/rbush@*":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@types/rbush/-/rbush-3.0.0.tgz#b6887d99b159e87ae23cd14eceff34f139842aa6"
-  integrity sha512-W3ue/GYWXBOpkRm0VSoifrP3HV0Ni47aVJWvXyWMcbtpBy/l/K/smBRiJ+fI8f7shXRjZBiux+iJzYbh7VmcZg==
 
 "@types/sax@^1.2.1":
   version "1.2.1"
@@ -2127,13 +2107,6 @@
   integrity sha512-AfqR0fZMoUXUNwusgXKxcE9DPlHNDHQp6nKYUd4PSRpLobF5CCevSpyTEBcVZreqaWKCnGBr9KI1fHMTttoB7A==
   dependencies:
     "@types/node" "*"
-
-"@types/topojson-specification@*":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@types/topojson-specification/-/topojson-specification-1.0.1.tgz#a80cb294290b79f2d674d3f5938c544ed2bd9d80"
-  integrity sha512-ZZYZUgkmUls9Uhxx2WZNt9f/h2+H3abUUjOVmq+AaaDFckC5oAwd+MDp95kBirk+XCXrYj0hfpI6DSUiJMrpYQ==
-  dependencies:
-    "@types/geojson" "*"
 
 "@typescript-eslint/eslint-plugin@^4.28.2":
   version "4.28.2"
