@@ -1968,9 +1968,9 @@
   integrity sha512-cxWFQVseBm6O9Gbw1IWb8r6OS4OhSt3hPZLkFApLjM8TEXROBuQGLAH2i2gZpcXdLBIrpXuTDhH7Vbm1iXmNGA==
 
 "@types/maplibre-gl@^1.13.1":
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/@types/maplibre-gl/-/maplibre-gl-1.13.1.tgz#d043f48e9f08e1b6a9aa7e924d2b86306f843f2b"
-  integrity sha512-AD7gFneLUYOWKhiwUvfD3LmQy4agJ2k2fe2V6XWCmt6R41d1q1H+BuyHJxFg31OTtDCag4u9ZZpQbjUmUG0gjQ==
+  version "1.13.2"
+  resolved "https://registry.yarnpkg.com/@types/maplibre-gl/-/maplibre-gl-1.13.2.tgz#2f7b40f48a4f1d98e0cf294bae29945e5aaf2050"
+  integrity sha512-IC1RBMhKXpGDpiFsEwt17c/hbff0GCS/VmzqmrY6G+kyy2wfv2e7BoSQRAfqrvhBQPCoO8yc0SNCi5HkmCcVqw==
   dependencies:
     "@types/geojson" "*"
 
