@@ -37,7 +37,6 @@
   ],
   "devDependencies": {
     "@types/maplibre-gl": "^1.13.1",
-    "@types/ol": "^6.4.2",
     "@types/proj4": "^2.5.0"
   },
   "bundle": [
