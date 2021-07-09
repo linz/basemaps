@@ -1957,7 +1957,7 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
-"@types/geojson@*", "@types/geojson@^7946.0.7":
+"@types/geojson@^7946.0.7":
   version "7946.0.8"
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.8.tgz#30744afdb385e2945e22f3b033f897f76b1f12ca"
   integrity sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA==
@@ -1968,11 +1968,11 @@
   integrity sha512-cxWFQVseBm6O9Gbw1IWb8r6OS4OhSt3hPZLkFApLjM8TEXROBuQGLAH2i2gZpcXdLBIrpXuTDhH7Vbm1iXmNGA==
 
 "@types/maplibre-gl@^1.13.1":
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/@types/maplibre-gl/-/maplibre-gl-1.13.1.tgz#d043f48e9f08e1b6a9aa7e924d2b86306f843f2b"
-  integrity sha512-AD7gFneLUYOWKhiwUvfD3LmQy4agJ2k2fe2V6XWCmt6R41d1q1H+BuyHJxFg31OTtDCag4u9ZZpQbjUmUG0gjQ==
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@types/maplibre-gl/-/maplibre-gl-1.14.0.tgz#244f1763f0a1e29e7124e5b7c665793e8256920e"
+  integrity sha512-I6ibscT7UdL1oOqqCz9s1gjcolLaUPkHIIfMLusczTvlsMhjORyS6sE1g4V/NESAOL5KhNQX3/31LJH+OCGjkg==
   dependencies:
-    "@types/geojson" "*"
+    maplibre-gl "*"
 
 "@types/mapnik@^3.0.1":
   version "3.0.1"
@@ -5219,7 +5219,7 @@ mapbox-to-css-font@^2.4.0:
   resolved "https://registry.yarnpkg.com/mapbox-to-css-font/-/mapbox-to-css-font-2.4.0.tgz#a23b51664a1ee839beaefade013f2655bee9a390"
   integrity sha512-v674D0WtpxCXlA6E+sBlG1QJWdUkz/s9qAD91bJSXBGuBL5lL4tJXpoJEftecphCh2SVQCjWMS2vhylc3AIQTg==
 
-maplibre-gl@^1.14.1-rc.2:
+maplibre-gl@*, maplibre-gl@^1.14.1-rc.2:
   version "1.15.1"
   resolved "https://registry.yarnpkg.com/maplibre-gl/-/maplibre-gl-1.15.1.tgz#fc7da5842bf6d8dd1aa8ba4d262f1df21b20ed65"
   integrity sha512-qLWhLj12z1HsHTmZY4qSwQ2pMOvKLEWxO9neUS8AL3YBvot2J05OxWNH08q8Dnqm6FBqAxAvril0FC3nPI1T4Q==
@@ -5689,9 +5689,9 @@ normalize-path@^3.0.0:
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
 "normalize-url@>=4.5.1 <5.0.0 || >=5.3.1 <6.0.0 || >=6.0.1", normalize-url@^3.3.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-6.1.0.tgz#40d0885b535deffe3f3147bec877d05fe4c5668a"
-  integrity sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-7.0.0.tgz#7150a7eaf78d48b4a1e57d2b52de579e6b31fd30"
+  integrity sha512-a7y92XA/bHw9sGhkjgyIuEdP/EItvGVkvzTusBPsvMhuy6ZK0+ET1jQdv2L5yvHlEjE0IFBovEzvwVPbIb+eIg==
 
 npm-bundled@^1.1.1:
   version "1.1.1"
