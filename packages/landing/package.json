@@ -80,8 +80,8 @@
     {
       "entry": "static/index.css",
       "external": [
-        "ol/ol.css",
-        "@linzjs/lui/dist/lui.css"
+        "@linzjs/lui/dist/lui.css",
+        "maplibre-gl/dist/maplibre-gl.css"
       ]
     },
     {
