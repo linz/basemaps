@@ -36,8 +36,8 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
-    "@types/maplibre-gl": "^1.13.1",
-    "@types/proj4": "^2.5.0"
+    "@types/proj4": "^2.5.0",
+    "@types/geojson": "^7946.0.7"
   },
   "bundle": [
     {
@@ -80,8 +80,8 @@
     {
       "entry": "static/index.css",
       "external": [
-        "ol/ol.css",
-        "@linzjs/lui/dist/lui.css"
+        "@linzjs/lui/dist/lui.css",
+        "maplibre-gl/dist/maplibre-gl.css"
       ]
     },
     {
