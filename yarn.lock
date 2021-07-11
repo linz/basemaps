@@ -1566,9 +1566,9 @@
     zod "^1.10.0"
 
 "@linzjs/lui@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-6.0.0.tgz#8ab969cd91cb70481a85fa516807e1ff20288126"
-  integrity sha512-JZ9KmiiEwU0anO9fmK109+/+YnfjntFjadc3tkwvZsba7wSsU57chkYi3C3tX89mv4jKkPUyZkbmqiDDF31Xnw==
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-6.1.0.tgz#508f1b43b61dce3acd05a3e2572fa34ea6dc328c"
+  integrity sha512-eLGAbv7OJoh7yKXFrhCUjiEhkaLC1MhyjeQNbGrbIqxGwaa0WO6wWnbuHwWxJ/zwWSc1kdwwnAJX7BE4l3Rtlw==
   dependencies:
     "@szhsin/react-menu" "^1.8.0"
     camelcase "^6.0.0"
@@ -5682,9 +5682,9 @@ normalize-path@^3.0.0:
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
 "normalize-url@>=4.5.1 <5.0.0 || >=5.3.1 <6.0.0 || >=6.0.1", normalize-url@^3.3.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-6.1.0.tgz#40d0885b535deffe3f3147bec877d05fe4c5668a"
-  integrity sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-7.0.0.tgz#7150a7eaf78d48b4a1e57d2b52de579e6b31fd30"
+  integrity sha512-a7y92XA/bHw9sGhkjgyIuEdP/EItvGVkvzTusBPsvMhuy6ZK0+ET1jQdv2L5yvHlEjE0IFBovEzvwVPbIb+eIg==
 
 npm-bundled@^1.1.1:
   version "1.1.1"
