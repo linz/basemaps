@@ -36,7 +36,6 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
-    "@types/maplibre-gl": "^1.13.1",
     "@types/proj4": "^2.5.0"
   },
   "bundle": [
