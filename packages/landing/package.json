@@ -36,7 +36,8 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
-    "@types/proj4": "^2.5.0"
+    "@types/proj4": "^2.5.0",
+    "@types/geojson": "^7946.0.7"
   },
   "bundle": [
     {
