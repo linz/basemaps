@@ -31,7 +31,7 @@ fsa.register('s3://bucket-a', new FsS3(bucketA))
 fsa.register('s3://bucket-b', new FsS3(bucketB))
 
 // Stream a file from bucketA to bucketB
-await fsa.writeStream('s3://bucket-b/foo', fsa.readStream('s3://bucket-a/foo'))
+await fsa.write('s3://bucket-b/foo', fsa.readStream('s3://bucket-a/foo'))
 ```
 
 Or even any s3 compatible api
@@ -46,5 +46,5 @@ fsa.register('s3://bucket-a', new FsS3(bucketA))
 fsa.register('s3://bucket-b', new FsS3(bucketB))
 
 // Stream a file from bucketA (10.0.0.1) to bucketB (10.0.0.99)
-await fsa.writeStream('s3://bucket-b/foo', fsa.readStream('s3://bucket-a/foo'))
+await fsa.write('s3://bucket-b/foo', fsa.readStream('s3://bucket-a/foo'))
 ```
