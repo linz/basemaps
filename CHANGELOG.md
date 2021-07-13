@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.4.0](https://github.com/linz/basemaps/compare/v6.3.0...v6.4.0) (2021-07-13)
+
+
+### Bug Fixes
+
+* **landing:** import maplibre styles from the npm package ([#1754](https://github.com/linz/basemaps/issues/1754)) ([9bf151b](https://github.com/linz/basemaps/commit/9bf151bb54b6c4a5f6e3015588ac8dcd21d7d75c))
+
+
+### Features
+
+* **infra:** remove logging stack as that is now handled internally ([#1731](https://github.com/linz/basemaps/issues/1731)) ([e670099](https://github.com/linz/basemaps/commit/e6700993a057477c828a07befc75ba76e6903993))
+
+
+
+
+
 # [6.3.0](https://github.com/linz/basemaps/compare/v6.2.0...v6.3.0) (2021-07-07)
 
 
