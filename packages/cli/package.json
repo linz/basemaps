@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "6.3.0",
+  "version": "6.3.1",
   "private": false,
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
   "dependencies": {
     "@basemaps/config": "^6.0.0",
     "@basemaps/geo": "^6.0.0",
-    "@basemaps/shared": "^6.3.0",
+    "@basemaps/shared": "^6.3.1",
     "@cogeotiff/core": "^4.3.0",
     "@cogeotiff/source-aws": "^4.3.0",
     "@cogeotiff/source-file": "^4.3.0",
