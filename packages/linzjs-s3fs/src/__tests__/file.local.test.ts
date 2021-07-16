@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { FsLocal } from '../file.local';
+import { FsLocal } from '../abstractions/file.local';
 import { CompositeError } from '../composite.error';
 import { FileSystemAbstraction } from '../file.al';
 import * as path from 'path';

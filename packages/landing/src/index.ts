@@ -1,7 +1,6 @@
 import './global';
 
 import { Basemaps } from './map';
-// import { addDebugLayer } from './debug';
 import { WindowUrl } from './url';
 import { BasemapsUi } from './ui';
 import { isWebpSupported } from './webp';

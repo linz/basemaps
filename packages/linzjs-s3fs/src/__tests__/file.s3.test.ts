@@ -1,4 +1,4 @@
-import { FsS3 } from '../file.s3';
+import { FsS3 } from '../abstractions/file.s3';
 import o from 'ospec';
 import S3 from 'aws-sdk/clients/s3';
 import { createSandbox } from 'sinon';

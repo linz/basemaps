@@ -1,18 +1,26 @@
 import { Readable } from 'stream';
 import { CompositeError } from './composite.error';
 import { FileInfo, FileSystem } from './file';
-import { FsLocal } from './file.local';
-import { FsS3 } from './file.s3';
+import { FsLocal } from './abstractions/file.local';
+import { FsS3 } from './abstractions/file.s3';
 
 const fsLocal = new FsLocal();
 export class FileSystemAbstraction {
+    private isOrdered = true;
     private systems: { path: string; system: FileSystem }[] = [{ path: '/', system: fsLocal }];
 
+    /**
+     * Register a file system to a specific path
+     *
+     * @example
+     * fsa.register('s3://', fsS3)
+     * fsa.register('s3://bucket-a/key-a', specificS3)
+     * fsa.register('http://', fsHttp)
+     *
+     */
     register(path: string, system: FileSystem): void {
-        for (const proc of this.systems) {
-            if (proc.path.startsWith(path)) throw new Error(`Duplicate processor path: ${path}`);
-        }
         this.systems.push({ path, system });
+        this.isOrdered = false;
     }
 
     /** Utility to convert async generators into arrays */
@@ -37,6 +45,7 @@ export class FileSystemAbstraction {
     list(filePath: string): AsyncGenerator<string> {
         return this.find(filePath).list(filePath);
     }
+
     listDetails(filePath: string): AsyncGenerator<FileInfo> {
         return this.find(filePath).listDetails(filePath);
     }
@@ -55,22 +64,29 @@ export class FileSystemAbstraction {
     }
 
     /** Is this FileProcessor a s3 instance */
-    isS3Processor(fo: FileSystem): fo is FsS3 {
-        return fo instanceof FsS3;
+    isS3Processor(fs: FileSystem): fs is FsS3 {
+        return FsS3.is(fs);
     }
 
-    /** Is this a s3 URI */
-    isS3(filePath?: string): boolean {
-        if (filePath == null) return false;
-        return filePath.startsWith('s3://');
+    isS3(path: string): boolean {
+        return path.startsWith('s3://');
+    }
+
+    /**
+     * Sort the file systems based on the length of the prefix
+     * forcing more specific prefixes to be first and matched first
+     */
+    private sortSystems(): void {
+        if (!this.isOrdered) {
+            this.systems.sort((a, b) => b.path.length - a.path.length);
+            this.isOrdered = true;
+        }
     }
 
     /** Find the filesystem that would be used for a given path */
     find(filePath: string): FileSystem {
-        for (const cfg of this.systems) {
-            if (filePath.startsWith(cfg.path)) return cfg.system;
-        }
-
+        this.sortSystems();
+        for (const cfg of this.systems) if (filePath.startsWith(cfg.path)) return cfg.system;
         return fsLocal;
     }
 
