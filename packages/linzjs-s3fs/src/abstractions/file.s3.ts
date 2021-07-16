@@ -28,7 +28,8 @@ export class FsS3 implements FileSystem {
     }
 
     /** Is this pat a s3 path */
-    static isPath(path: string): boolean {
+    static isPath(path?: string): boolean {
+        if (path == null) return false;
         return path.startsWith('s3://');
     }
 

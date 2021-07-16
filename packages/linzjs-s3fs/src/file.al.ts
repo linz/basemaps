@@ -68,8 +68,8 @@ export class FileSystemAbstraction {
         return FsS3.is(fs);
     }
 
-    isS3(path: string): boolean {
-        return path.startsWith('s3://');
+    isS3(filePath?: string): boolean {
+        return FsS3.isPath(filePath);
     }
 
     /**
