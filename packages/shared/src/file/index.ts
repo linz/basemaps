@@ -1,8 +1,7 @@
 import { Aws } from '../aws';
 
 export * from './file.config';
-import { fsa as fsaSource } from '@linzjs/s3fs';
-import { FsS3 } from '@linzjs/s3fs/build/file.s3';
+import { fsa as fsaSource, FsS3 } from '@linzjs/s3fs';
 import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
 import { FileConfig, isConfigS3Role } from './file.config';

@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Readable } from 'stream';
-import { FileInfo, FileSystem } from './file';
-import { CompositeError } from './composite.error';
+import { FileInfo, FileSystem } from '../file';
+import { CompositeError } from '../composite.error';
 
 export type FsError = { code: string } & Error;
 function getCompositeError(e: FsError, msg: string): CompositeError {
@@ -12,6 +12,13 @@ function getCompositeError(e: FsError, msg: string): CompositeError {
 }
 
 export class FsLocal implements FileSystem {
+    static protocol = 'file';
+    protocol = FsLocal.protocol;
+
+    static is(fs: FileSystem): fs is FsLocal {
+        return fs.protocol === FsLocal.protocol;
+    }
+
     async *list(filePath: string): AsyncGenerator<string> {
         try {
             const files = await fs.promises.readdir(filePath);

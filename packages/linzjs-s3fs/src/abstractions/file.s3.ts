@@ -1,8 +1,8 @@
 import type S3 from 'aws-sdk/clients/s3';
 import type { AWSError } from 'aws-sdk/lib/error';
 import type { Readable, Stream } from 'stream';
-import { CompositeError } from './composite.error';
-import { FileInfo, FileSystem } from './file';
+import { CompositeError } from '../composite.error';
+import { FileInfo, FileSystem } from '../file';
 
 function getCompositeError(e: AWSError, msg: string): CompositeError {
     if (typeof e?.statusCode === 'number') return new CompositeError(msg, e.statusCode, e);
@@ -10,6 +10,8 @@ function getCompositeError(e: AWSError, msg: string): CompositeError {
 }
 
 export class FsS3 implements FileSystem {
+    static protocol = 's3';
+    protocol = FsS3.protocol;
     /** Max list requests to run before erroring */
     static MaxListCount = 100;
 
@@ -18,6 +20,17 @@ export class FsS3 implements FileSystem {
 
     constructor(s3: S3) {
         this.s3 = s3;
+    }
+
+    /** Is this file system a s3 file system */
+    static is(fs: FileSystem): fs is FsS3 {
+        return fs.protocol === FsS3.protocol;
+    }
+
+    /** Is this pat a s3 path */
+    static isPath(path?: string): boolean {
+        if (path == null) return false;
+        return path.startsWith('s3://');
     }
 
     /** Parse a s3:// URI into the bucket and key components */

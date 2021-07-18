@@ -11,6 +11,14 @@ export interface FileInfo {
 }
 
 export interface FileSystem {
+    /**
+     * Protocol used for communication
+     * @example
+     * file
+     * s3
+     * http
+     */
+    protocol: string;
     /** Read a file into a buffer */
     read(filePath: string): Promise<Buffer>;
     /** Create a read stream */
