@@ -26,7 +26,7 @@
     "@basemaps/geo": "^6.0.0",
     "@basemaps/infra": "^6.4.0",
     "@basemaps/shared": "^6.4.0",
-    "@linzjs/lui": "^6.0.0",
+    "@linzjs/lui": "^8.0.1",
     "maplibre-gl": "^1.14.1-rc.2",
     "ol": "^6.4.2",
     "proj4": "^2.6.2",
