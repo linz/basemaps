@@ -13,7 +13,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Use Node.js 14.x
-        uses: actions/setup-node@v2.2.0
+        uses: actions/setup-node@v2.3.0
         with:
           node-version: "14.x"
           registry-url: https://registry.npmjs.org
@@ -54,7 +54,7 @@ jobs:
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
       - name: Use Node.js 14.x
-        uses: actions/setup-node@v2.2.0
+        uses: actions/setup-node@v2.3.0
         with:
           node-version: "14.x"
           registry-url: https://registry.npmjs.org
