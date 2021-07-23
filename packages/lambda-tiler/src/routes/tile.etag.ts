@@ -2,6 +2,7 @@ import { Composition } from '@basemaps/tiler';
 import { createHash } from 'crypto';
 import { TileDataXyz } from '@basemaps/shared';
 import { HttpHeader, LambdaContext } from '@basemaps/lambda';
+import { basename } from 'path';
 
 export const TileEtag = {
     // To force a full cache invalidation change this number
@@ -15,7 +16,7 @@ export const TileEtag = {
     generate(compositions: Composition[], xyzData: TileDataXyz): string {
         // We cannot serialize the CogTiff inside of composition so replace it with the source name
         const layers = compositions.map((c) => {
-            return { ...c, tiff: c.tiff.source.uri };
+            return { ...c, tiff: basename(c.tiff.source.uri) };
         });
 
         const xyz = { ...xyzData, tileMatrix: xyzData.tileMatrix.identifier };
