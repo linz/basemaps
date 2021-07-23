@@ -77,9 +77,11 @@ export class Basemaps {
         const center = this.map.getCenter();
         if (center == null) throw new Error('Invalid Map location');
         const zoom = Math.floor((this.map.getZoom() ?? 0) * 10e3) / 10e3;
-        const location: MapLocation = { lat: center.lat, lon: center.lng, zoom };
-        const coordinate = locationTransform(location, MapboxTms, this.config.tileMatrix);
-        return { lat: coordinate.lat, lon: coordinate.lon, zoom };
+        return this.transformLocation(center.lat, center.lng, zoom);
+    }
+
+    transformLocation(lat: number, lon: number, zoom: number): MapLocation {
+        return locationTransform({ lat, lon, zoom }, MapboxTms, this.config.tileMatrix);
     }
 
     /** Update the window.location with the current location information */
