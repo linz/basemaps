@@ -4,6 +4,7 @@ import { Basemaps } from './map';
 import { WindowUrl } from './url';
 import { BasemapsUi } from './ui';
 import { isWebpSupported } from './webp';
+import { addDebugLayer } from './debug';
 
 const canUseWebp = isWebpSupported();
 
@@ -18,5 +19,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     const ui = new BasemapsUi(basemaps);
     window.basemapsUi = ui;
 
-    // if (basemaps.config.debug) addDebugLayer(basemaps);
+    if (basemaps.config.debug) addDebugLayer(basemaps);
 });

@@ -1,9 +1,12 @@
 import { Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config } from './config';
 
-export interface MapLocation {
+export interface LonLat {
     lat: number;
     lon: number;
+}
+
+export interface MapLocation extends LonLat {
     zoom: number;
 }
 
