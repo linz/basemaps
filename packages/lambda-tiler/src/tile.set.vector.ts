@@ -2,7 +2,7 @@ import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import { Aws, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { SourceAwsS3 } from '@chunkd/source-aws';
-import { Cotar, CotarIndexBinary } from '@cotar/core';
+import { Cotar } from '@cotar/core';
 import { NotFound } from './routes/tile';
 import { TileSetHandler } from './tile.set';
 
@@ -20,10 +20,8 @@ class CotarCache {
 
     async loadCotar(uri: string): Promise<Cotar | null> {
         const source = SourceAwsS3.fromUri(uri, Aws.s3);
-        const sourceIndex = SourceAwsS3.fromUri(`${uri}.index.binary`, Aws.s3);
-        if (source == null || sourceIndex == null) return null;
-
-        return new Cotar(source, new CotarIndexBinary(sourceIndex));
+        if (source == null) throw new Error(`Failed to parse s3 uri: ${uri}`);
+        return await Cotar.fromTar(source);
     }
 }
 
