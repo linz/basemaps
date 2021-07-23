@@ -1,5 +1,5 @@
 import { CogTiff } from '@cogeotiff/core';
-import { SourceFile } from '@cogeotiff/source-file';
+import { SourceFile } from '@chunkd/source-file';
 import { join } from 'path';
 
 export const TestDataPath = join(__dirname, '../static');

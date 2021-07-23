@@ -1,6 +1,6 @@
 import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
 import { CompositeError, fsa, LoggerFatalError, LogType, Projection } from '@basemaps/shared';
-import { ChunkSource } from '@cogeotiff/chunk';
+import { ChunkSource } from '@chunkd/core';
 import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
@@ -79,9 +79,9 @@ export class CogBuilder {
                     if (bands > -1) {
                         this.logger.error(
                             {
-                                firstImage: sources[0].name,
+                                firstImage: sources[0].uri,
                                 bands,
-                                currentImage: source.name,
+                                currentImage: source.uri,
                                 currentBands: tiffBandCount,
                             },
                             'Multiple Bands',
@@ -99,9 +99,9 @@ export class CogBuilder {
                     if (projection != null) {
                         this.logger.error(
                             {
-                                firstImage: sources[0].name,
+                                firstImage: sources[0].uri,
                                 projection,
-                                currentImage: source.name,
+                                currentImage: source.uri,
                                 currentProjection: imageProjection,
                             },
                             'Multiple projections',
@@ -119,7 +119,7 @@ export class CogBuilder {
 
                 return output;
             }).catch((e) => {
-                throw new CompositeError('Failed to process image: ' + source.name, e);
+                throw new CompositeError('Failed to process image: ' + source.uri, e);
             });
         });
 
@@ -152,7 +152,7 @@ export class CogBuilder {
         if (imgWkt != null && epsg != null) {
             if (!this.wktPreviousGuesses.has(imgWkt)) {
                 this.logger.trace(
-                    { tiff: tiff.source.name, imgWkt, projection },
+                    { tiff: tiff.source.uri, imgWkt, projection },
                     'GuessingProjection from GeoAsciiParams',
                 );
             }
@@ -160,7 +160,7 @@ export class CogBuilder {
             return epsg;
         }
 
-        this.logger.error({ tiff: tiff.source.name, projection, imgWkt }, 'Failed find projection');
+        this.logger.error({ tiff: tiff.source.uri, projection, imgWkt }, 'Failed find projection');
         if (this.srcProj != null) return this.srcProj;
         throw new Error('Failed to find projection');
     }
@@ -178,7 +178,7 @@ export class CogBuilder {
 
         if (isNaN(noDataNum) || noDataNum < 0 || noDataNum > 256) {
             throw new LoggerFatalError(
-                { tiff: tiff.source.name, noData },
+                { tiff: tiff.source.uri, noData },
                 'Failed converting GDAL_NODATA, defaulting to 255',
             );
         }
@@ -194,7 +194,7 @@ export class CogBuilder {
                 CacheVersion +
                     createHash('sha256')
                         .update(this.targetTms.projection.toString())
-                        .update(tiffs.map((c) => c.name).join('\n'))
+                        .update(tiffs.map((c) => c.uri).join('\n'))
                         .digest('hex'),
             ) + '.json';
 

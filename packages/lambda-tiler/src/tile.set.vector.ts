@@ -1,7 +1,7 @@
 import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
 import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
 import { Aws, TileDataXyz, VectorFormat } from '@basemaps/shared';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
+import { SourceAwsS3 } from '@chunkd/source-aws';
 import { Cotar, CotarIndexBinary } from '@cotar/core';
 import { NotFound } from './routes/tile';
 import { TileSetHandler } from './tile.set';

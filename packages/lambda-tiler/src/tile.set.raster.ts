@@ -4,7 +4,7 @@ import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda'
 import { Aws, Config, Env, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
+import { SourceAwsS3 } from '@chunkd/source-aws';
 import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
 import { NotFound, NotModified, TileComposer } from './routes/tile';
@@ -75,7 +75,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
                 try {
                     await c.init();
                 } catch (error) {
-                    log.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
+                    log.warn({ error, tiff: c.source.uri }, 'TiffLoadFailed');
                     failed = true;
                 }
             });

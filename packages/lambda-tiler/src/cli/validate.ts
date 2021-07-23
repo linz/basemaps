@@ -1,7 +1,7 @@
 import { GoogleTms } from '@basemaps/geo';
 import { Aws, Env, LogConfig, TileSetName } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
+import { SourceAwsS3 } from '@chunkd/source-aws';
 import pLimit from 'p-limit';
 import { TileSets } from '../tile.set.cache';
 import { TileSetRaster } from '../tile.set.raster';

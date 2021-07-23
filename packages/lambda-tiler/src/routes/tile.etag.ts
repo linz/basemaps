@@ -15,7 +15,7 @@ export const TileEtag = {
     generate(compositions: Composition[], xyzData: TileDataXyz): string {
         // We cannot serialize the CogTiff inside of composition so replace it with the source name
         const layers = compositions.map((c) => {
-            return { ...c, tiff: c.tiff.source.name };
+            return { ...c, tiff: c.tiff.source.uri };
         });
 
         const xyz = { ...xyzData, tileMatrix: xyzData.tileMatrix.identifier };

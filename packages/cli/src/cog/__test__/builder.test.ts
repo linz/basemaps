@@ -1,8 +1,8 @@
 import { Bounds, Epsg, EpsgCode, GoogleTms } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import { SourceFile } from '@cogeotiff/source-file';
+import { SourceAwsS3 } from '@chunkd/source-aws';
+import { SourceFile } from '@chunkd/source-file';
 import o from 'ospec';
 import { CogBuilder, guessProjection } from '../builder';
 

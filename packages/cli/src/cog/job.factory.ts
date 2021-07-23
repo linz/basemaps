@@ -1,7 +1,7 @@
 import { Bounds } from '@basemaps/geo';
 import { fsa, isConfigS3Role, isFileConfigPath, LogConfig } from '@basemaps/shared';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import { SourceFile } from '@cogeotiff/source-file';
+import { SourceAwsS3 } from '@chunkd/source-aws';
+import { SourceFile } from '@chunkd/source-file';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder } from '..';

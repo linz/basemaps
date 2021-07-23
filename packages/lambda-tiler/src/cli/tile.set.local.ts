@@ -1,9 +1,9 @@
 import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { ChunkSource } from '@cogeotiff/chunk';
+import { ChunkSource } from '@chunkd/core';
 import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import { SourceFile } from '@cogeotiff/source-file';
+import { SourceAwsS3 } from '@chunkd/source-aws';
+import { SourceFile } from '@chunkd/source-file';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { TileSetRaster } from '../tile.set.raster';
