@@ -19,7 +19,7 @@ class CotarCache {
     }
 
     async loadCotar(uri: string): Promise<Cotar | null> {
-        if (uri.endsWith('.tar.co')) throw new Error(`URI is not a cloud optimized tar ${uri}`);
+        if (!uri.endsWith('.tar.co')) throw new Error(`URI is not a cloud optimized tar ${uri}`);
         const source = SourceAwsS3.fromUri(uri, Aws.s3);
         if (source == null) throw new Error(`Failed to parse s3 uri: ${uri}`);
         return await Cotar.fromTar(source);
