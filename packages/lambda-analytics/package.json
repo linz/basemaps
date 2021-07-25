@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-analytics",
-  "version": "6.4.0",
+  "version": "6.5.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -14,15 +14,15 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/shared": "^6.4.0",
-    "@linzjs/s3fs": "^6.4.0"
+    "@basemaps/shared": "^6.5.0",
+    "@linzjs/s3fs": "^6.5.0"
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
     "bundle": "../../scripts/bundle.js package.json"
   },
   "devDependencies": {
-    "@types/node": "^14.11.2"
+    "@types/node": "^16.4.2"
   },
   "bundle": {
     "entry": "src/index.ts",
