@@ -20,15 +20,16 @@ export class ServeStack extends cdk.Stack {
         super(scope, id, props);
 
         const config = getConfig();
+        const vpc = ec2.Vpc.fromLookup(this, 'AlbVpc', { tags: { default: 'true' } });
+
         /**
          * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
          * see: https://github.com/aws/aws-cdk/issues/8253
          */
-        const lambda = new LambdaTiler(this, 'LambdaTiler');
+        const lambda = new LambdaTiler(this, 'LambdaTiler', { vpc });
         const table = new TileMetadataTable(this, 'TileMetadata');
         table.table.grantReadData(lambda.lambda);
 
-        const vpc = ec2.Vpc.fromLookup(this, 'AlbVpc', { tags: { default: 'true' } });
         const lb = new elbv2.ApplicationLoadBalancer(this, 'LB', { vpc, internetFacing: false });
 
         const targetLambda = new targets.LambdaTarget(lambda.lambda);
