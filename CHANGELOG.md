@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.6.1](https://github.com/linz/basemaps/compare/v6.6.0...v6.6.1) (2021-07-29)
+
+
+### Bug Fixes
+
+* correct cache id between NZTMQuad and 3857 ([#1793](https://github.com/linz/basemaps/issues/1793)) ([ace31c7](https://github.com/linz/basemaps/commit/ace31c761fad5471ecd0c0eb85e53f10411bdabb))
+
+
+
+
+
 # [6.6.0](https://github.com/linz/basemaps/compare/v6.5.0...v6.6.0) (2021-07-29)
 
 
