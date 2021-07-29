@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.6.0](https://github.com/linz/basemaps/compare/v6.5.0...v6.6.0) (2021-07-29)
+
+
+### Features
+
+* **infra:** move lambda into the same VPC as the ALB ([#1789](https://github.com/linz/basemaps/issues/1789)) ([0baa1ec](https://github.com/linz/basemaps/commit/0baa1ec651a52128b4d00139eac312b3a4503205))
+
+
+
+
+
 # [6.5.0](https://github.com/linz/basemaps/compare/v6.4.0...v6.5.0) (2021-07-25)
 
 **Note:** Version bump only for package @basemaps/infra
