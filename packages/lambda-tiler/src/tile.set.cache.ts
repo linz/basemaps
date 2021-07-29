@@ -62,7 +62,7 @@ export class TileSetCache {
         }
 
         // If we already have a copy and it hasn't been modified just return it
-        const existing = this.tileSets.get(tileSet.id);
+        const existing = this.tileSets.get(tileSetId);
         if (existing?.tileSet.updatedAt === tileSet.updatedAt) {
             return existing;
         }
@@ -70,13 +70,13 @@ export class TileSetCache {
         if (Config.TileSet.isRaster(tileSet)) {
             const ts = new TileSetRaster(name, tileMatrix);
             await ts.init(tileSet);
-            this.tileSets.set(tileSet.id, ts);
+            this.tileSets.set(tileSetId, ts);
             return ts;
         }
 
         const ts = new TileSetVector(name, tileMatrix);
         ts.tileSet = tileSet;
-        this.tileSets.set(tileSet.id, ts);
+        this.tileSets.set(tileSetId, ts);
         return ts;
     }
 
