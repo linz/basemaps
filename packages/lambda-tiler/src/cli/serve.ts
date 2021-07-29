@@ -110,7 +110,7 @@ async function useLocal(): Promise<void> {
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
 
-        const tileSets = await Promise.all([...TileSets.cache.values()]);
+        const tileSets = await Promise.all([...TileSets.cache.values()].map((c) => c.value));
         const xml = WmtsCapabilities.toXml(
             Env.get(Env.PublicUrlBase) ?? '',
             Provider,

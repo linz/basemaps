@@ -7,6 +7,7 @@ import { ConfigProvider } from '../config/provider';
 import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, ConfigTileSetVector, TileSetType } from '../config/tile.set';
 import { ConfigVectorStyle } from '../config/vector.style';
 import { ConfigDynamoCached } from './dynamo.config.cached';
+import { ConfigDynamoBase } from './dynamo.config.base';
 
 export class ConfigDynamo {
     Prefix = ConfigPrefix;
@@ -76,7 +77,7 @@ export class ConfigDynamoImagery extends ConfigDynamoCached<ConfigImagery> {
     }
 }
 
-export class ConfigDynamoTileSet extends ConfigDynamoCached<ConfigTileSet> {
+export class ConfigDynamoTileSet extends ConfigDynamoBase<ConfigTileSet> {
     isRaster(x: ConfigTileSet | null | undefined): x is ConfigTileSetRaster {
         if (x == null) return false;
         return x.type == null || x.type === TileSetType.Raster;
