@@ -1,13 +1,17 @@
-import cdk = require('@aws-cdk/core');
-import lambda = require('@aws-cdk/aws-lambda');
-import s3 = require('@aws-cdk/aws-s3');
-
+import { IVpc } from '@aws-cdk/aws-ec2';
+import * as lambda from '@aws-cdk/aws-lambda';
 import { RetentionDays } from '@aws-cdk/aws-logs';
+import * as s3 from '@aws-cdk/aws-s3';
+import * as cdk from '@aws-cdk/core';
 import { Duration } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
 import { getConfig } from '../config';
 
 const CODE_PATH = '../lambda-tiler/dist';
+
+export interface LambdaTilerProps {
+    vpc: IVpc;
+}
 /**
  * Create a API Key validation edge lambda
  */
@@ -15,7 +19,7 @@ export class LambdaTiler extends cdk.Construct {
     public lambda: lambda.Function;
     public version: lambda.Version;
 
-    public constructor(scope: cdk.Stack, id: string) {
+    public constructor(scope: cdk.Stack, id: string, props: LambdaTilerProps) {
         super(scope, id);
 
         const config = getConfig();
@@ -24,6 +28,7 @@ export class LambdaTiler extends cdk.Construct {
          * see: https://github.com/aws/aws-cdk/issues/8253
          */
         this.lambda = new lambda.Function(this, 'Tiler', {
+            vpc: props.vpc,
             runtime: lambda.Runtime.NODEJS_14_X,
             memorySize: 2048,
             timeout: Duration.seconds(60),
