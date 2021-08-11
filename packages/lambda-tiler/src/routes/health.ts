@@ -97,7 +97,7 @@ export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
                 },
                 'Health:MissMatch',
             );
-            return new LambdaHttpResponse(404, 'Test TileSet not match.');
+            return new LambdaHttpResponse(500, 'TileSet does not match.');
         }
     }
 
