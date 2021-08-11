@@ -24,14 +24,14 @@ o.spec('health', () => {
 
     o('Should return bad response', async () => {
         // Given ... a bad get tile response
-        const BadResponse = new LambdaHttpResponse(404, 'Can not get Tile Set.');
+        const BadResponse = new LambdaHttpResponse(500, 'Can not get Tile Set.');
         sinon.stub(Tile, 'tile').resolves(BadResponse);
 
         // When ...
         const res = await Health(ctx);
 
         // Then ...
-        o(res.status).equals(404);
+        o(res.status).equals(500);
         o(res.statusDescription).equals('Can not get Tile Set.');
     });
 
@@ -72,7 +72,7 @@ o.spec('health', () => {
         const res = await Health(ctx);
 
         // Then ...
-        o(res.status).equals(404);
-        o(res.statusDescription).equals('Test TileSet not match.');
+        o(res.status).equals(500);
+        o(res.statusDescription).equals('TileSet does not match.');
     });
 });
