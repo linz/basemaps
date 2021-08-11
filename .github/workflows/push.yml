@@ -26,7 +26,7 @@ jobs:
         run: yarn  --frozen-lockfile --check-files
 
       - name: Audit
-        run: yarn audit
+        run: yarn audit --groups dependencies
 
       - name: Build
         run: yarn run build
