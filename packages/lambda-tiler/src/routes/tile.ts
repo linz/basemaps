@@ -123,7 +123,7 @@ export async function styleJson(req: LambdaContext, fileName: string): Promise<L
     const sources: Sources = {};
     const tileJsonUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/tile.json?api=${req.apiKey}`;
     for (const [key, value] of Object.entries(style.sources)) {
-        if (value.url === '' || value.url.startsWith(host)) {
+        if (value.type === 'vector' && (value.url === '' || value.url.startsWith(host))) {
             sources[key] = { type: 'vector', url: tileJsonUrl };
         } else {
             sources[key] = value;
