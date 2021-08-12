@@ -126,7 +126,7 @@ export async function styleJson(req: LambdaContext, fileName: string): Promise<L
     for (const [key, value] of Object.entries(style.sources)) {
         if (value.type === 'vector' && value.url === '') {
             value.url = tileJsonUrl;
-        } else if (value.type === 'raster' && Array.isArray(value.tiles) && value.tiles.length === 0) {
+        } else if (value.type === 'raster' && value.tiles.length === 0) {
             value.tiles = [rasterUrl];
         }
         sources[key] = value;

@@ -266,6 +266,14 @@ o.spec('LambdaXyz', () => {
                         type: 'raster',
                         tiles: [],
                     },
+                    test_vector: {
+                        type: 'vector',
+                        url: 'vector.url.co.nz',
+                    },
+                    test_raster: {
+                        type: 'raster',
+                        tiles: ['raster.url.co.nz'],
+                    },
                 },
                 layers: [
                     {
