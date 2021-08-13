@@ -122,12 +122,14 @@ export async function styleJson(req: LambdaContext, fileName: string): Promise<L
     const style = styleConfig.style;
     const sources: Sources = {};
     const tileJsonUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/tile.json?api=${req.apiKey}`;
+    const rasterUrl = `${host}/${version}/${name}/aerial/${rest[1]}/{z}/{x}/{y}.webp?api=${req.apiKey}`;
     for (const [key, value] of Object.entries(style.sources)) {
-        if (value.url === '' || value.url.startsWith(host)) {
-            sources[key] = { type: 'vector', url: tileJsonUrl };
-        } else {
-            sources[key] = value;
+        if (value.type === 'vector' && value.url === '') {
+            value.url = tileJsonUrl;
+        } else if (value.type === 'raster' && (!Array.isArray(value.tiles) || value.tiles.length === 0)) {
+            value.tiles = [rasterUrl];
         }
+        sources[key] = value;
     }
 
     // prepare Style.json

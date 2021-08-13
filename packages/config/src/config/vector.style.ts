@@ -1,9 +1,19 @@
 import { BaseConfig } from './base';
 
-interface Source {
+interface SourceVector {
     type: 'vector';
     url: string;
 }
+
+interface SourceRaster {
+    type: 'raster';
+    tiles: string[];
+    tileSize?: number;
+    minzoom?: number;
+    maxzoom?: number;
+}
+
+type Source = SourceVector | SourceRaster;
 
 export type Sources = Record<string, Source>;
 
