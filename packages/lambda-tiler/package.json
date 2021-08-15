@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-tiler",
-  "version": "6.6.1",
+  "version": "6.7.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -14,10 +14,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/config": "^6.6.0",
+    "@basemaps/config": "^6.7.0",
     "@basemaps/geo": "^6.0.0",
-    "@basemaps/lambda": "^6.6.0",
-    "@basemaps/shared": "^6.6.0",
+    "@basemaps/lambda": "^6.7.0",
+    "@basemaps/shared": "^6.7.0",
     "@basemaps/tiler": "^6.1.0",
     "@basemaps/tiler-sharp": "^6.1.0",
     "@cogeotiff/core": "^4.3.0",
