@@ -63,7 +63,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
 
     async init(record: ConfigTileSetRaster): Promise<void> {
         this.tileSet = record;
-        this.imagery = await Config.Imagery.getAllImagery(this.tileSet.layers, this.tileMatrix.projection);
+        this.imagery = await Config.getAllImagery(this.tileSet.layers, this.tileMatrix.projection);
     }
 
     async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
@@ -130,7 +130,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
             if (layer.maxZoom != null && filterZoom > layer.maxZoom) continue;
             if (layer.minZoom != null && filterZoom < layer.minZoom) continue;
 
-            const imgId = Config.TileSet.getImageId(layer, this.tileMatrix.projection);
+            const imgId = Config.getImageId(layer, this.tileMatrix.projection);
             if (imgId == null) {
                 log?.warn(
                     { layer: layer.name, projection: this.tileMatrix.projection.code },

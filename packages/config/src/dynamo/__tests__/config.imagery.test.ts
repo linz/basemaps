@@ -32,7 +32,7 @@ o.spec('ConfigDynamoImagery', () => {
         const get = sandbox.stub(config.Imagery, 'get').resolves(item);
 
         const layer = { [2193]: 'foo' } as any;
-        const result = await config.Imagery.getImagery(layer, Epsg.Nztm2000);
+        const result = await config.getImagery(layer, Epsg.Nztm2000);
         o(get.callCount).equals(1);
         o(get.firstCall.firstArg).equals('im_foo');
         o(result).deepEquals(item);
@@ -40,13 +40,13 @@ o.spec('ConfigDynamoImagery', () => {
 
     o('Should not get Imagery with wrong projection', async () => {
         const layer = { [2193]: 'foo' } as any;
-        const result = await config.Imagery.getImagery(layer, Epsg.Google);
+        const result = await config.getImagery(layer, Epsg.Google);
         o(result).equals(null);
     });
 
     o('Should not get Imagery with no imgId', async () => {
         const rule = {} as any;
-        const result = await config.Imagery.getImagery(rule, Epsg.Google);
+        const result = await config.getImagery(rule, Epsg.Google);
         o(result).equals(null);
     });
 
@@ -55,7 +55,7 @@ o.spec('ConfigDynamoImagery', () => {
 
         const layers = [{ [3857]: 'foo1' }, { [3857]: 'foo2' }, { [2193]: 'foo3', [3857]: 'foo4' }] as any;
 
-        const result = await config.Imagery.getAllImagery(layers, Epsg.Google);
+        const result = await config.getAllImagery(layers, Epsg.Google);
         o(get.callCount).equals(3);
         o(get.firstCall.firstArg).equals('im_foo1');
         o(get.secondCall.firstArg).equals('im_foo2');
