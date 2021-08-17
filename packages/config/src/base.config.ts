@@ -26,15 +26,18 @@ export abstract class BasemapsConfigInstance {
     }
 
     async getAllImagery(layers: ConfigLayer[], projection: Epsg): Promise<Map<string, ConfigImagery>> {
-        const toFetch = new Set<string>();
+        const output = new Map<string, ConfigImagery>();
         // Get Imagery based on the order of rules. Imagery priority are ordered by on rules.
         for (const layer of layers) {
             const imgId = layer[projection.code];
             if (imgId == null) continue;
-            toFetch.add(this.Imagery.id(imgId));
+            // TODO this await should not be in the middle of a loop
+            const img = await this.Imagery.get(this.Imagery.id(imgId));
+            if (img == null) continue;
+            output.set(imgId, img);
         }
 
-        return this.Imagery.getAll(toFetch);
+        return output;
     }
 
     /** Get all imagery for a tile set */
