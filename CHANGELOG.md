@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.7.0](https://github.com/linz/basemaps/compare/v6.6.1...v6.7.0) (2021-08-15)
+
+
+### Bug Fixes
+
+* throw 500 on health failure ([#1795](https://github.com/linz/basemaps/issues/1795)) ([75bd6ae](https://github.com/linz/basemaps/commit/75bd6ae7f6a018acff4d5a27c58680eaa176aaa2))
+
+
+### Features
+
+* **lambda-tiler:** Support both aerial and vector basemap urls in style json. ([#1811](https://github.com/linz/basemaps/issues/1811)) ([9d30db8](https://github.com/linz/basemaps/commit/9d30db82d13bf84690c463644df664ab4c6735ce))
+* add fromRoleArn to simplify the creation of s3 bound to specific roles. ([#1807](https://github.com/linz/basemaps/issues/1807)) ([0cd9bab](https://github.com/linz/basemaps/commit/0cd9bab54e9f4d581391bbc4fd8b29d1a50c4565))
+
+
+
+
+
 ## [6.6.1](https://github.com/linz/basemaps/compare/v6.6.0...v6.6.1) (2021-07-29)
 
 

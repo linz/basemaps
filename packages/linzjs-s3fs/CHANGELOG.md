@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.7.0](https://github.com/linz/basemaps/compare/v6.6.1...v6.7.0) (2021-08-15)
+
+
+### Features
+
+* add fromRoleArn to simplify the creation of s3 bound to specific roles. ([#1807](https://github.com/linz/basemaps/issues/1807)) ([0cd9bab](https://github.com/linz/basemaps/commit/0cd9bab54e9f4d581391bbc4fd8b29d1a50c4565))
+
+
+
+
+
 # [6.5.0](https://github.com/linz/basemaps/compare/v6.4.0...v6.5.0) (2021-07-25)
 
 
