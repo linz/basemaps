@@ -1,5 +1,5 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import { BasemapsConfigInstance } from '../base.config';
+import { BasemapsConfig } from '../base.config';
 import { BaseConfig } from '../config/base';
 import { ConfigImagery } from '../config/imagery';
 import { ConfigPrefix } from '../config/prefix';
@@ -9,7 +9,7 @@ import { ConfigVectorStyle } from '../config/vector.style';
 import { ConfigDynamoBase } from './dynamo.config.base';
 import { ConfigDynamoCached } from './dynamo.config.cached';
 
-export class ConfigDynamo extends BasemapsConfigInstance {
+export class ConfigDynamo extends BasemapsConfig {
     Prefix = ConfigPrefix;
 
     dynamo: DynamoDB;

@@ -13,4 +13,5 @@ export {
 export { ConfigDynamo } from './dynamo/dynamo.config';
 export { TileSetNameComponents, TileSetNameParser } from './tile.set.name';
 export { ConfigDynamoBase } from './dynamo/dynamo.config.base';
-export { BasemapsConfigInstance } from './base.config';
+export { BasemapsConfig } from './base.config';
+export { MemoryConfig } from './memory/memory.config';

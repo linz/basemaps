@@ -9,7 +9,7 @@
  */
 process.env['AWS_NODEJS_CONNECTION_REUSE_ENABLED'] = '1';
 
-import { ConfigDynamo, BasemapsConfigInstance } from '@basemaps/config';
+import { ConfigDynamo, BasemapsConfig } from '@basemaps/config';
 import S3 from 'aws-sdk/clients/s3';
 import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
 import { Const } from '../const';
@@ -34,4 +34,4 @@ export const Aws = {
     apiKey: new ApiKeyTable(),
 };
 
-export const Config: BasemapsConfigInstance = new ConfigDynamo(Const.TileMetadata.TableName);
+export const Config: BasemapsConfig = new ConfigDynamo(Const.TileMetadata.TableName);
