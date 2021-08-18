@@ -4,11 +4,28 @@ import { BaseConfig } from './config/base';
 import { ConfigPrefix } from './config/prefix';
 import { ConfigLayer, ConfigTileSet, TileSetType } from './config/tile.set';
 
-export abstract class BasemapsConfig {
-    abstract TileSet: BasemapsConfigObject<ConfigTileSet>;
-    abstract Imagery: BasemapsConfigObject<ConfigImagery>;
-    abstract Style: BasemapsConfigObject<ConfigVectorStyle>;
-    abstract Provider: BasemapsConfigObject<ConfigProvider>;
+export class ConfigInstance {
+    cfg: BasemapsConfigProvider;
+
+    get TileSet(): BasemapsConfigObject<ConfigTileSet> {
+        return this.cfg.TileSet;
+    }
+
+    get Imagery(): BasemapsConfigObject<ConfigImagery> {
+        return this.cfg.Imagery;
+    }
+
+    get Style(): BasemapsConfigObject<ConfigVectorStyle> {
+        return this.cfg.Style;
+    }
+
+    get Provider(): BasemapsConfigObject<ConfigProvider> {
+        return this.cfg.Provider;
+    }
+
+    setConfigProvider(cfg: BasemapsConfigProvider): void {
+        this.cfg = cfg;
+    }
 
     isTileSetRaster(s: ConfigTileSet | null): s is ConfigTileSetRaster {
         if (s == null) return false;
@@ -55,6 +72,13 @@ export abstract class BasemapsConfig {
     getImageId(layer: ConfigLayer, projection: Epsg): string | undefined {
         return layer[projection.code];
     }
+}
+
+export abstract class BasemapsConfigProvider {
+    abstract TileSet: BasemapsConfigObject<ConfigTileSet>;
+    abstract Imagery: BasemapsConfigObject<ConfigImagery>;
+    abstract Style: BasemapsConfigObject<ConfigVectorStyle>;
+    abstract Provider: BasemapsConfigObject<ConfigProvider>;
 }
 
 export abstract class BasemapsConfigObject<T extends BaseConfig> {

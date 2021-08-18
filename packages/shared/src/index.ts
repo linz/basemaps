@@ -1,5 +1,6 @@
 // AWS needs to be exported first to make sure the AWS is configured before anything tries to use it
-export { Aws, Config } from './aws/index';
+export { Aws } from './aws/index';
+export { Config } from '@basemaps/config';
 // --
 export { Const, Env } from './const';
 export { ApiKeyTable, ApiKeyTableRecord } from './aws/api.key.table';
