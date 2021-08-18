@@ -1,9 +1,10 @@
 import { Epsg, EpsgCode } from '@basemaps/geo';
 import { ConfigImagery, ConfigProvider, ConfigTileSetRaster, ConfigTileSetVector, ConfigVectorStyle } from '.';
+import { BaseConfig } from './config/base';
+import { ConfigPrefix } from './config/prefix';
 import { ConfigLayer, ConfigTileSet, TileSetType } from './config/tile.set';
-import { BasemapsConfigObject } from './instance';
 
-export abstract class BasemapsConfigInstance {
+export abstract class BasemapsConfig {
     abstract TileSet: BasemapsConfigObject<ConfigTileSet>;
     abstract Imagery: BasemapsConfigObject<ConfigImagery>;
     abstract Style: BasemapsConfigObject<ConfigVectorStyle>;
@@ -54,4 +55,26 @@ export abstract class BasemapsConfigInstance {
     getImageId(layer: ConfigLayer, projection: Epsg): string | undefined {
         return layer[projection.code];
     }
+}
+
+export abstract class BasemapsConfigObject<T extends BaseConfig> {
+    prefix: ConfigPrefix;
+
+    constructor(prefix: ConfigPrefix) {
+        this.prefix = prefix;
+    }
+    /** Create a prefixed id for a object */
+    id(name: string): string {
+        if (name.startsWith(`${this.prefix}_`)) return name;
+        return `${this.prefix}_${name}`;
+    }
+    /** Is this object one of these objects */
+    is(obj?: BaseConfig | null): obj is T {
+        return obj != null && obj.id.startsWith(this.prefix);
+    }
+
+    /** Fetch a single object from the store */
+    abstract get(id: string): Promise<T | null>;
+    /** Fetch all objects from the store */
+    abstract getAll(id: Set<string>): Promise<Map<string, T>>;
 }
