@@ -36,9 +36,9 @@ export class MemoryConfigObject<T extends BaseConfig> extends BasemapsConfigObje
     }
 
     async getAll(ids: Set<string>): Promise<Map<string, T>> {
-        const map = new Map();
+        const map = new Map<string, T>();
         for (const id of ids) {
-            const obj = this.get(id);
+            const obj = await this.get(id);
             if (obj == null) continue;
             map.set(id, obj);
         }
