@@ -102,3 +102,5 @@ export abstract class BasemapsConfigObject<T extends BaseConfig> {
     /** Fetch all objects from the store */
     abstract getAll(id: Set<string>): Promise<Map<string, T>>;
 }
+
+export const Config = new ConfigInstance();

@@ -1,7 +1,7 @@
 import { Epsg, EpsgCode, NamedBounds, QuadKey, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
-import { Config } from '../..';
+import { Config } from '../../base.config';
 import { ConfigImagery } from '../../config/imagery';
 import { ConfigProviderDynamo } from '../dynamo.config';
 
