@@ -61,10 +61,10 @@ TileSetTable.field('Zoom', 10, (obj) => obj.layer.minZoom + ' -> ' + obj.layer.m
 TileSetTable.field('CreatedAt', 10, (obj) => new Date(obj.imagery.createdAt).toISOString());
 
 export async function printTileSetImagery(tsData: ConfigTileSetRaster, projection: Epsg): Promise<void> {
-    const allImagery = await Config.TileSet.getImagery(tsData);
+    const allImagery = await Config.getTileSetImagery(tsData);
     const ruleImagery: TileSetLayerImagery[] = [];
     for (const layer of tsData.layers) {
-        const imgId = Config.TileSet.getImageId(layer, projection);
+        const imgId = Config.getImageId(layer, projection);
         if (imgId != null) {
             const imagery = allImagery.get(imgId);
             if (imagery == null) continue;

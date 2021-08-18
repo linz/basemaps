@@ -67,7 +67,7 @@ export class TileSetCache {
             return existing;
         }
 
-        if (Config.TileSet.isRaster(tileSet)) {
+        if (Config.isTileSetRaster(tileSet)) {
             const ts = new TileSetRaster(name, tileMatrix);
             await ts.init(tileSet);
             this.tileSets.set(tileSetId, ts);

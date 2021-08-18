@@ -138,7 +138,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
 
     // read all stac files in parallel
     for (const layer of tileSet.tileSet.layers) {
-        const imgId = Config.TileSet.getImageId(layer, proj.epsg);
+        const imgId = Config.getImageId(layer, proj.epsg);
         if (imgId == null) continue;
         const im = tileSet.imagery.get(imgId);
         if (im == null) continue;
@@ -151,7 +151,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
     if (host == null) return null;
 
     for (const layer of tileSet.tileSet.layers) {
-        const imgId = Config.TileSet.getImageId(layer, proj.epsg);
+        const imgId = Config.getImageId(layer, proj.epsg);
         if (imgId == null) continue;
         const im = tileSet.imagery.get(imgId);
         if (im == null) continue;
