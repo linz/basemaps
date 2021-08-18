@@ -1,10 +1,10 @@
 import o from 'ospec';
 import { ConfigImagery } from '../../config/imagery';
 import { ConfigTileSet } from '../../config/tile.set';
-import { MemoryConfig } from '../memory.config';
+import { ConfigProviderMemory } from '../memory.config';
 
 o.spec('MemoryConfig', () => {
-    const config = new MemoryConfig();
+    const config = new ConfigProviderMemory();
     o.beforeEach(() => config.objects.clear());
 
     const baseImg = { id: 'im_123' } as ConfigImagery;

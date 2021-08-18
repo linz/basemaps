@@ -1,4 +1,4 @@
-import { BasemapsConfig, BasemapsConfigObject } from '../base.config';
+import { BasemapsConfigProvider, BasemapsConfigObject } from '../base.config';
 import { BaseConfig } from '../config/base';
 import { ConfigImagery } from '../config/imagery';
 import { ConfigPrefix } from '../config/prefix';
@@ -6,7 +6,7 @@ import { ConfigProvider } from '../config/provider';
 import { ConfigTileSet } from '../config/tile.set';
 import { ConfigVectorStyle } from '../config/vector.style';
 
-export class MemoryConfig extends BasemapsConfig {
+export class ConfigProviderMemory extends BasemapsConfigProvider {
     Imagery = new MemoryConfigObject<ConfigImagery>(this, ConfigPrefix.Imagery);
     Style = new MemoryConfigObject<ConfigVectorStyle>(this, ConfigPrefix.Style);
     TileSet = new MemoryConfigObject<ConfigTileSet>(this, ConfigPrefix.TileSet);
@@ -22,9 +22,9 @@ export class MemoryConfig extends BasemapsConfig {
 
 export class MemoryConfigObject<T extends BaseConfig> extends BasemapsConfigObject<T> {
     prefix: ConfigPrefix;
-    cfg: MemoryConfig;
+    cfg: ConfigProviderMemory;
 
-    constructor(cfg: MemoryConfig, prefix: ConfigPrefix) {
+    constructor(cfg: ConfigProviderMemory, prefix: ConfigPrefix) {
         super(prefix);
         this.cfg = cfg;
     }
