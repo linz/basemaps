@@ -17,13 +17,13 @@ export class Router {
         return { version, name, rest };
     }
 
-    static apiKey(req: LambdaHttpRequest): string | null {
+    static apiKey(req: LambdaHttpRequest): string | undefined {
         const apiKey = req.query.get(Const.ApiKey.QueryString) ?? req.header('X-LINZ-Api-Key');
         if (apiKey != null && !Array.isArray(apiKey)) {
             req.set(Const.ApiKey.QueryString, this.apiKey);
             return apiKey;
         }
-        return null;
+        return;
     }
 
     private handlers: Record<string, ReqCallback> = {};

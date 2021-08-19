@@ -60,7 +60,7 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
     if (provider == null) return NotFound;
 
     const apiKey = Router.apiKey(req);
-    const xml = WmtsCapabilities.toXml(host, provider, tileSets, apiKey!);
+    const xml = WmtsCapabilities.toXml(host, provider, tileSets, apiKey);
     if (xml == null) return NotFound;
 
     const data = Buffer.from(xml);
