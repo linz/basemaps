@@ -86,8 +86,8 @@ export class TileSetCache {
 
         const promises: Promise<TileSet | null>[] = [];
         for (const tileMatrix of tileMatrices) promises.push(this.get(name, tileMatrix));
-
         const tileMatrixSets = await Promise.all(promises);
+
         const tileSets: TileSetRaster[] = [];
         for (const parent of tileMatrixSets) {
             if (parent == null) continue;
