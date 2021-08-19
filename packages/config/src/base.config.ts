@@ -58,6 +58,23 @@ export class ConfigInstance {
         return output;
     }
 
+    /**
+     * Prefix a dynamoDb id with the provided prefix if it doesnt already start with it.
+     */
+    prefix(prefix: ConfigPrefix, id: string): string {
+        if (id === '') return id;
+        if (id.startsWith(prefix)) return id;
+        return `${prefix}_${id}`;
+    }
+
+    /**
+     * Remove the prefix from a dynamoDb id
+     */
+    unprefix(prefix: ConfigPrefix, id: string): string {
+        if (id.startsWith(prefix)) return id.substr(3);
+        return id;
+    }
+
     /** Get all imagery for a tile set */
     getTileSetImagery(rec: ConfigTileSetRaster): Promise<Map<string, ConfigImagery>> {
         const imgIds = new Set<string>();

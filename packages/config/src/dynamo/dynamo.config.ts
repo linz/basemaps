@@ -26,23 +26,6 @@ export class ConfigProviderDynamo extends BasemapsConfigProvider {
         this.tableName = tableName;
     }
 
-    /**
-     * Prefix a dynamoDb id with the provided prefix if it doesnt already start with it.
-     */
-    prefix(prefix: ConfigPrefix, id: string): string {
-        if (id === '') return id;
-        if (id.startsWith(prefix)) return id;
-        return `${prefix}_${id}`;
-    }
-
-    /**
-     * Remove the prefix from a dynamoDb id
-     */
-    unprefix(prefix: ConfigPrefix, id: string): string {
-        if (id.startsWith(prefix)) return id.substr(3);
-        return id;
-    }
-
     record(): BaseConfig {
         const now = Date.now();
         return {
