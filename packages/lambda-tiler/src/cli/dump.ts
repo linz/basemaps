@@ -1,5 +1,5 @@
 import { GoogleTms } from '@basemaps/geo';
-import { LambdaContext } from '@basemaps/lambda';
+import { LambdaAlbRequest } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
 import { promises as fs } from 'fs';
@@ -41,7 +41,7 @@ async function main(): Promise<void> {
 
     logger.info({ ...xyz, projection: tileMatrix.projection.code, tileMatrix: tileMatrix.identifier }, 'RenderTile');
 
-    const ctx = new LambdaContext(
+    const ctx = new LambdaAlbRequest(
         {
             httpMethod: 'get',
             path: `/v1/tiles/${tileSet.fullName}/${tileMatrix.identifier}/${xyz.z}/${xyz.x}/${xyz.y}.${ext}`,

@@ -1,11 +1,11 @@
 import { ConfigProvider } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
-import { LambdaContext } from '@basemaps/lambda';
+import { LambdaHttpRequest, LambdaAlbRequest } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { TileSetRaster } from '../tile.set.raster';
 
-export function mockRequest(path: string, method = 'get', headers: Record<string, string> = {}): LambdaContext {
-    return new LambdaContext(
+export function mockRequest(path: string, method = 'get', headers: Record<string, string> = {}): LambdaHttpRequest {
+    return new LambdaAlbRequest(
         {
             requestContext: null as any,
             httpMethod: method.toUpperCase(),

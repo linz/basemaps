@@ -1,11 +1,11 @@
-import { LambdaContext } from '@basemaps/lambda';
 import { LogConfig } from '@basemaps/shared';
+import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
 import o from 'ospec';
 import { handleRequest } from '../index';
 
 o.spec('LambdaXyz index', () => {
-    function req(path: string, method = 'get'): LambdaContext {
-        return new LambdaContext(
+    function req(path: string, method = 'get'): LambdaHttpRequest {
+        return new LambdaAlbRequest(
             {
                 requestContext: null as any,
                 httpMethod: method.toUpperCase(),
