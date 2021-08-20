@@ -21,8 +21,12 @@ export class FsLocal implements FileSystem {
 
     async *list(filePath: string): AsyncGenerator<string> {
         try {
-            const files = await fs.promises.readdir(filePath);
-            for (const file of files) yield path.join(filePath, file);
+            const files = await fs.promises.readdir(filePath, { withFileTypes: true });
+            for (const file of files) {
+                const targetPath = path.join(filePath, file.name);
+                if (file.isDirectory()) yield* this.list(targetPath);
+                else yield targetPath;
+            }
         } catch (e) {
             throw getCompositeError(e, `Failed to list: ${filePath}`);
         }
@@ -32,11 +36,7 @@ export class FsLocal implements FileSystem {
         for await (const file of this.list(filePath)) {
             const res = await this.head(file);
             if (res == null) continue;
-            if (res.isDirectory) {
-                yield* this.listDetails(res.path);
-            } else {
-                yield res;
-            }
+            yield res;
         }
     }
 
