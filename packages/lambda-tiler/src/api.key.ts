@@ -4,7 +4,7 @@ const OneHourMs = 60 * 60 * 1000;
 const OneDayMs = 24 * OneHourMs;
 const MaxApiAgeMs = 91 * OneDayMs;
 
-export function isValidApiKey(apiKey?: string): boolean {
+export function isValidApiKey(apiKey?: string | null): boolean {
     if (apiKey == null) return false;
     if (!apiKey.startsWith('c') && !apiKey.startsWith('d')) return false;
     const ulidId = apiKey.slice(1).toUpperCase();

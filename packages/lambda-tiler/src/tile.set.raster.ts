@@ -1,6 +1,6 @@
 import { ConfigImagery, ConfigLayer, ConfigTileSetRaster, TileSetNameParser, TileSetType } from '@basemaps/config';
 import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Aws, Config, Env, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
@@ -85,7 +85,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
         return tiffs;
     }
 
-    public async tile(req: LambdaContext, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
+    public async tile(req: LambdaHttpRequest, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
         if (xyz.ext === VectorFormat.MapboxVectorTiles) return NotFound;
         const tiffs = await this.initTiffs(xyz, req.log);
         const layers = await this.tiler.tile(tiffs, xyz.x, xyz.y, xyz.z);

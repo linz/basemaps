@@ -3,7 +3,7 @@ import * as path from 'path';
 import Sharp from 'sharp';
 import PixelMatch = require('pixelmatch');
 import { Epsg, Tile } from '@basemaps/geo';
-import { LambdaHttpResponse, LambdaContext, HttpHeader } from '@basemaps/lambda';
+import { LambdaHttpResponse, LambdaHttpRequest, HttpHeader, LambdaAlbRequest } from '@linzjs/lambda';
 import { ImageFormat } from '@basemaps/tiler';
 import { tile } from './tile';
 
@@ -51,7 +51,7 @@ async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
  *
  * @throws LambdaHttpResponse for failure health test
  */
-export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
+export async function Health(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
     for (const test of TestTiles) {
         const projection = test.projection;
         const testTile = test.testTile;
@@ -63,7 +63,7 @@ export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
             /${testTile.y}
             .${format}`;
 
-        const ctx: LambdaContext = new LambdaContext(
+        const ctx: LambdaHttpRequest = new LambdaAlbRequest(
             {
                 requestContext: null as any,
                 httpMethod: 'get',

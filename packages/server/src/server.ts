@@ -1,4 +1,4 @@
-import { HttpHeader, LambdaContext } from '@basemaps/lambda';
+import { HttpHeader, HttpHeaderRequestId, LambdaAlbRequest } from '@linzjs/lambda';
 import { handleRequest } from '@basemaps/lambda-tiler';
 import * as ulid from 'ulid';
 import express from 'express';
@@ -10,7 +10,7 @@ BasemapsServer.get('/v1/*', async (req: express.Request, res: express.Response) 
     const startTime = Date.now();
     const requestId = ulid.ulid();
     const logger = LogConfig.get().child({ id: requestId });
-    const ctx = new LambdaContext(
+    const ctx = new LambdaAlbRequest(
         {
             httpMethod: 'get',
             path: req.path,
@@ -19,9 +19,13 @@ BasemapsServer.get('/v1/*', async (req: express.Request, res: express.Response) 
         logger,
     );
 
-    if (ctx.apiKey == null) ctx.apiKey = 'c' + requestId;
+    if (ctx.header(HttpHeaderRequestId.RequestId) == null) {
+        ctx.headers.set(HttpHeaderRequestId.RequestId, 'c' + requestId);
+    }
     const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
-    if (ifNoneMatch != null) ctx.headers.set(HttpHeader.IfNoneMatch.toLowerCase(), ifNoneMatch);
+    if (ifNoneMatch != null && !Array.isArray(ifNoneMatch)) {
+        ctx.headers.set(HttpHeader.IfNoneMatch.toLowerCase(), ifNoneMatch);
+    }
 
     try {
         const data = await handleRequest(ctx);

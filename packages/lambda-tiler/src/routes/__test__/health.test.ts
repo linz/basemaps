@@ -3,10 +3,10 @@ import o from 'ospec';
 import sinon from 'sinon';
 import * as Tile from '../tile';
 import { getExpectedTileName, Health, TestTiles } from '../health';
-import { LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
 
-const ctx: LambdaContext = new LambdaContext(
+const ctx: LambdaHttpRequest = new LambdaAlbRequest(
     {
         requestContext: null as any,
         httpMethod: 'get',
