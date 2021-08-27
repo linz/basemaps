@@ -1,9 +1,9 @@
-import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
+import { Bounds, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import { BBox } from '@linzjs/geojson';
 import o from 'ospec';
-import { Projection } from '../projection';
+import { LatLon, Projection } from '../projection';
 
 const TileSize = 256;
 
@@ -22,6 +22,14 @@ function getPixelsBoundsFromMeters(extent: BBox, zoom: number): Bounds {
 /** Convert a XYZ tile into a screen bounding box */
 function getPixelsFromTile(x: number, y: number): Bounds {
     return new Bounds(x * TileSize, y * TileSize, TileSize, TileSize);
+}
+
+function isValidLatLong(x: LatLon): void {
+    o(x.lat <= 90).equals(true)(`lat: ${x.lat} <= 90`);
+    o(x.lat >= -90).equals(true)(`lat: ${x.lat} >= -90`);
+
+    o(x.lon <= 180).equals(true)(`lon: ${x.lon} <= 180`);
+    o(x.lon >= -180).equals(true)(`lon: ${x.lon} >= -180`);
 }
 
 o.spec('ProjectionTileMatrixSet', () => {
@@ -56,10 +64,64 @@ o.spec('ProjectionTileMatrixSet', () => {
         o(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 8 }, 14)).equals(0);
     });
 
-    o('tileCenterToLatLon', () => {
-        o(round(Projection.tileCenterToLatLon(GoogleTms, QuadKey.toTile('3120123')), 8)).deepEquals({
-            lat: -47.98992167,
-            lon: 105.46875,
+    o.spec('tileCenterToLatLon', () => {
+        o('should create centers for web mercator', () => {
+            const center = Projection.tileCenterToLatLon(GoogleTms, QuadKey.toTile('3120123'));
+            isValidLatLong(center);
+            o(round(center, 8)).deepEquals({
+                lat: -47.98992167,
+                lon: 105.46875,
+            });
+        });
+        o('should create centers for NZTM', () => {
+            const center = Projection.tileCenterToLatLon(Nztm2000Tms, { x: 2295, y: 5119, z: 10 });
+            isValidLatLong(center);
+
+            const centerB = Projection.tileCenterToLatLon(Nztm2000Tms, { x: 20, y: 20, z: 10 });
+            isValidLatLong(centerB);
+        });
+        o('should create centers for NZTMQuad', () => {
+            const center = Projection.tileCenterToLatLon(Nztm2000QuadTms, { x: 200, y: 500, z: 10 });
+            isValidLatLong(center);
+            o(round(center, 8)).deepEquals({ lat: -35.79628765, lon: 141.39377624 });
+
+            const centerB = Projection.tileCenterToLatLon(Nztm2000QuadTms, { x: 1000, y: 1000, z: 10 });
+            isValidLatLong(centerB);
+        });
+    });
+    o.spec('wrapLatLon', () => {
+        o('should wrap longitude', () => {
+            o(Projection.wrapLatLon(0, 1)).deepEquals({ lat: 0, lon: 1 });
+            o(Projection.wrapLatLon(0, 181)).deepEquals({ lat: 0, lon: -179 });
+            o(Projection.wrapLatLon(0, 271)).deepEquals({ lat: 0, lon: -89 });
+            o(Projection.wrapLatLon(0, 361)).deepEquals({ lat: 0, lon: 1 });
+            o(Projection.wrapLatLon(0, 631)).deepEquals({ lat: 0, lon: -89 });
+            o(Projection.wrapLatLon(0, 721)).deepEquals({ lat: 0, lon: 1 });
+
+            o(Projection.wrapLatLon(0, -1)).deepEquals({ lat: 0, lon: -1 });
+            o(Projection.wrapLatLon(0, -181)).deepEquals({ lat: 0, lon: 179 });
+            o(Projection.wrapLatLon(0, -271)).deepEquals({ lat: 0, lon: 89 });
+            o(Projection.wrapLatLon(0, -361)).deepEquals({ lat: 0, lon: -1 });
+            o(Projection.wrapLatLon(0, -631)).deepEquals({ lat: 0, lon: 89 });
+            o(Projection.wrapLatLon(0, -721)).deepEquals({ lat: 0, lon: -1 });
+        });
+
+        o('should wrap latitude', () => {
+            o(Projection.wrapLatLon(1, 0)).deepEquals({ lat: 1, lon: 0 });
+            o(Projection.wrapLatLon(91, 0)).deepEquals({ lat: 89, lon: 180 });
+            o(Projection.wrapLatLon(181, 0)).deepEquals({ lat: -1, lon: 180 });
+            o(Projection.wrapLatLon(271, 0)).deepEquals({ lat: -89, lon: 0 });
+            o(Projection.wrapLatLon(361, 0)).deepEquals({ lat: 1, lon: 0 });
+            o(Projection.wrapLatLon(631, 0)).deepEquals({ lat: -89, lon: 0 });
+            o(Projection.wrapLatLon(721, 0)).deepEquals({ lat: 1, lon: 0 });
+
+            o(Projection.wrapLatLon(-1, 0)).deepEquals({ lat: -1, lon: 0 });
+            o(Projection.wrapLatLon(-91, 0)).deepEquals({ lat: -89, lon: 180 });
+            o(Projection.wrapLatLon(-181, 0)).deepEquals({ lat: 1, lon: 180 });
+            o(Projection.wrapLatLon(-271, 0)).deepEquals({ lat: 89, lon: 0 });
+            o(Projection.wrapLatLon(-361, 0)).deepEquals({ lat: -1, lon: 0 });
+            o(Projection.wrapLatLon(-631, 0)).deepEquals({ lat: 89, lon: 0 });
+            o(Projection.wrapLatLon(-721, 0)).deepEquals({ lat: -1, lon: 0 });
         });
     });
 
