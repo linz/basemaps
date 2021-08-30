@@ -67,7 +67,7 @@ function track(stat: TileRequestStats, uri: string, status: number, isHit: boole
 
     // Extension
     if (uri.endsWith('.webp')) stat.extension.webp++;
-    else if (uri.endsWith('.jpeg')) stat.extension.jpeg++;
+    else if (uri.endsWith('.jpeg') || uri.endsWith('.jpg')) stat.extension.jpeg++;
     else if (uri.endsWith('.png')) stat.extension.png++;
     else if (uri.endsWith('.pbf')) stat.extension.pbf++;
     else if (uri.endsWith('.xml')) {
