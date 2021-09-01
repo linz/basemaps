@@ -5272,9 +5272,9 @@ mapbox-to-css-font@^2.4.0:
   integrity sha512-v674D0WtpxCXlA6E+sBlG1QJWdUkz/s9qAD91bJSXBGuBL5lL4tJXpoJEftecphCh2SVQCjWMS2vhylc3AIQTg==
 
 maplibre-gl@^1.14.1-rc.2:
-  version "1.15.1"
-  resolved "https://registry.yarnpkg.com/maplibre-gl/-/maplibre-gl-1.15.1.tgz#fc7da5842bf6d8dd1aa8ba4d262f1df21b20ed65"
-  integrity sha512-qLWhLj12z1HsHTmZY4qSwQ2pMOvKLEWxO9neUS8AL3YBvot2J05OxWNH08q8Dnqm6FBqAxAvril0FC3nPI1T4Q==
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/maplibre-gl/-/maplibre-gl-1.15.2.tgz#7fb47868b62455af916c090903f2154394450f9c"
+  integrity sha512-uPeV530apb4JfX3cRFfE+awFnbcJTOnCv2QvY4mw4huiInbybElWYkNzTs324YLSADq0f4bidRoYcR81ho3aLA==
   dependencies:
     "@mapbox/geojson-rewind" "^0.5.0"
     "@mapbox/geojson-types" "^1.0.2"
