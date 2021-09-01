@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.8.0](https://github.com/linz/basemaps/compare/v6.7.0...v6.8.0) (2021-09-01)
+
+
+### Bug Fixes
+
+* **lambda-analytics:** track jpg requests too ([#1830](https://github.com/linz/basemaps/issues/1830)) ([5acab18](https://github.com/linz/basemaps/commit/5acab183408aa27c86bb253e2246bfb15278026c))
+* **proj:** wrap lat lon bounds into the world bounds ([#1828](https://github.com/linz/basemaps/issues/1828)) ([617faf8](https://github.com/linz/basemaps/commit/617faf85d2252746de649c1bf5c41b16dfe085ba))
+* **s3fs:** local file system list should be recursive by default ([#1822](https://github.com/linz/basemaps/issues/1822)) ([9367e3f](https://github.com/linz/basemaps/commit/9367e3f87ed1e5dc3d02d29e31362aac02509fcd))
+
+
+### Features
+
+* **config:** enable configuration to be stored in memory rather than dynamodb ([#1817](https://github.com/linz/basemaps/issues/1817)) ([eb56f26](https://github.com/linz/basemaps/commit/eb56f2633c99c5372710ae12fc128a9e7fa7ed7d))
+* **config:** enable swapping of configuration providers dynamically ([#1818](https://github.com/linz/basemaps/issues/1818)) ([e548ae5](https://github.com/linz/basemaps/commit/e548ae5219c7a5c6d5c6ed80c9f41c9637c3b554))
+* **lambda-tiler:** remove `@basemaps/lambda` and replace with `@linzjs/lambda` ([#1821](https://github.com/linz/basemaps/issues/1821)) ([cb22b3d](https://github.com/linz/basemaps/commit/cb22b3d2c62b7430839f3e35c18dd96a162fb39a))
+* **landing:** support prefixed imagery links starts with im_ ([#1815](https://github.com/linz/basemaps/issues/1815)) ([7fadece](https://github.com/linz/basemaps/commit/7fadecef7a6153b0bd973167f816108584aaf99a))
+* **server:** create a standalone express server ([#1819](https://github.com/linz/basemaps/issues/1819)) ([83488af](https://github.com/linz/basemaps/commit/83488af658a3ed8f3080dd2ea9f120ac3abd2444))
+
+
+
+
+
 # [6.7.0](https://github.com/linz/basemaps/compare/v6.6.1...v6.7.0) (2021-08-15)
 
 
