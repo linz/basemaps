@@ -26,7 +26,7 @@
     "@cogeotiff/source-aws": "^4.3.0",
     "@cotar/core": "3.1.0",
     "@linzjs/geojson": "^6.0.0",
-    "@linzjs/lambda": "^0.3.2",
+    "@linzjs/lambda": "^1.1.0",
     "farmhash": "^3.2.1",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",

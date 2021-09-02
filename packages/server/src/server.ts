@@ -3,6 +3,7 @@ import { handleRequest } from '@basemaps/lambda-tiler';
 import * as ulid from 'ulid';
 import express from 'express';
 import { LogConfig } from '@basemaps/shared';
+import { Context } from 'aws-lambda';
 
 export const BasemapsServer = express();
 
@@ -16,6 +17,7 @@ BasemapsServer.get('/v1/*', async (req: express.Request, res: express.Response) 
             path: req.path,
             queryStringParameters: req.query,
         } as any,
+        {} as Context,
         logger,
     );
 

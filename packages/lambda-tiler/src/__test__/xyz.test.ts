@@ -71,7 +71,7 @@ o.spec('LambdaXyz', () => {
             o(res.status).equals(200);
             o(res.header('content-type')).equals('image/png');
             o(res.header('eTaG')).equals('foo');
-            o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
+            o(res.body).equals(rasterMockBuffer.toString('base64'));
 
             // Validate the session information has been set correctly
             o(request.logContext['tileSet']).equals(tileSetName);
@@ -86,7 +86,7 @@ o.spec('LambdaXyz', () => {
         o(res.status).equals(200);
         o(res.header('content-type')).equals('image/webp');
         o(res.header('eTaG')).equals('foo');
-        o(res.getBody()).equals(rasterMockBuffer.toString('base64'));
+        o(res.body).equals(rasterMockBuffer.toString('base64'));
 
         // Validate the session information has been set correctly
         o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
@@ -173,7 +173,7 @@ o.spec('LambdaXyz', () => {
             o(res.header('content-type')).equals('text/xml');
             o(res.header('cache-control')).equals('max-age=0');
 
-            const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
+            const body = Buffer.from(res.body ?? '', 'base64').toString();
             o(body.slice(0, 100)).equals(
                 '<?xml version="1.0"?>\n' +
                     '<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.op',
@@ -220,7 +220,7 @@ o.spec('LambdaXyz', () => {
             o(res.header('content-type')).equals('application/json');
             o(res.header('cache-control')).equals('max-age=120');
 
-            const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
+            const body = Buffer.from(res.body ?? '', 'base64').toString();
             o(JSON.parse(body)).deepEquals({
                 tiles: [`https://tiles.test/v1/tiles/topolike/Google/{z}/{x}/{y}.pbf?api=${apiKey}`],
                 minzoom: 0,
@@ -306,7 +306,7 @@ o.spec('LambdaXyz', () => {
             o(res.header('content-type')).equals('application/json');
             o(res.header('cache-control')).equals('max-age=120');
 
-            const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
+            const body = Buffer.from(res.body ?? '', 'base64').toString();
             fakeStyle.sources.basemaps_vector = {
                 type: 'vector',
                 url: 'https://tiles.test/v1/tiles/topolike/Google/tile.json?api=' + apiKey,
