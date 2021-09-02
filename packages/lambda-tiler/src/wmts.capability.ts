@@ -88,7 +88,7 @@ export class WmtsCapabilities {
                 V('ows:Title', serviceIdentification.title),
                 V('ows:Abstract', serviceIdentification.description),
                 V('ows:ServiceType', 'OGC WMTS'),
-                V('ows:ServiceTypeVersion', '1.0.' + this.provider.version),
+                V('ows:ServiceTypeVersion', '1.0.0'),
                 V('ows:Fees', serviceIdentification.fees),
                 V('ows:AccessConstraints', serviceIdentification.accessConstraints),
             ]),
