@@ -79,9 +79,6 @@ jobs:
       - name: Test
         run: yarn run test
 
-      - name: Benchmark
-        uses: blacha/hyperfine-action@v1
-
       - name: (Prod) Setup git config
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: |
@@ -151,3 +148,6 @@ jobs:
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
           LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
+
+      - name: Benchmark
+        uses: blacha/hyperfine-action@v1
