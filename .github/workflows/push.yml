@@ -41,7 +41,7 @@ jobs:
         run: yarn run test
 
       - name: Benchmark
-        uses: blacha/hyperfine-action
+        uses: blacha/hyperfine-action@v1
 
   deploy:
     runs-on: ubuntu-latest
@@ -79,7 +79,7 @@ jobs:
         run: yarn run test
 
       - name: Benchmark
-        uses: blacha/hyperfine-action
+        uses: blacha/hyperfine-action@v1
 
       - name: (Prod) Setup git config
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
