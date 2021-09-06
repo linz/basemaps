@@ -68,6 +68,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
 
     async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
         const tiffs = this.getTiffsForTile(tile, log);
+        console.log(tiffs.map((c) => c.source.name));
         let failed = false;
         // Remove any tiffs that failed to load
         const promises = tiffs.map((c) => {
