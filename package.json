@@ -12,7 +12,6 @@
   "scripts": {
     "lint": "eslint \"{packages/*/src/**/*.ts,scripts/*.js}\" --quiet --fix --report-unused-disable-directives",
     "test": "cross-env NODE_OPTIONS=--enable-source-maps lerna run test --parallel",
-    "benchmark": "ospec 'packages/*/build/**/*.benchmark.js'",
     "clean": "tsc -b --clean && rimraf 'packages/*/build' && yarn clean:dist",
     "clean:dist": "rimraf 'packages/*/dist' && rimraf 'packages/_infra/cdk.out'",
     "clean:modules": "rimraf 'packages/*/node_modules' && rimraf node_modules",
