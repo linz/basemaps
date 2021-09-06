@@ -6,39 +6,6 @@ import { CliTable } from '../cli.table';
 import { invalidateCache } from '../util';
 
 /**
- * Parse a string as hex, return 0 on failure
- * @param str string to parse
- */
-function parseHex(str: string): number {
-    if (str === '') return 0;
-    const val = parseInt(str, 16);
-    if (isNaN(val)) {
-        throw new Error('Invalid hex byte: ' + str);
-    }
-    return val;
-}
-
-/**
- * Parse a hexstring into RGBA
- *
- * Defaults to 0 if missing values
- * @param str string to parse
- */
-export function parseRgba(str: string): { r: number; g: number; b: number; alpha: number } {
-    if (str.startsWith('0x')) str = str.slice(2);
-    else if (str.startsWith('#')) str = str.slice(1);
-    if (str.length !== 6 && str.length !== 8) {
-        throw new Error('Invalid hex color: ' + str);
-    }
-    return {
-        r: parseHex(str.substr(0, 2)),
-        g: parseHex(str.substr(2, 2)),
-        b: parseHex(str.substr(4, 2)),
-        alpha: parseHex(str.substr(6, 2)),
-    };
-}
-
-/**
  * Convert a number to a two digit hex string. numbers < 16 are padded with '0'
  */
 function numberToHexString(n: number): string {
@@ -61,10 +28,10 @@ TileSetTable.field('Zoom', 10, (obj) => obj.layer.minZoom + ' -> ' + obj.layer.m
 TileSetTable.field('CreatedAt', 10, (obj) => new Date(obj.imagery.createdAt).toISOString());
 
 export async function printTileSetImagery(tsData: ConfigTileSetRaster, projection: Epsg): Promise<void> {
-    const allImagery = await Config.TileSet.getImagery(tsData);
+    const allImagery = await Config.getTileSetImagery(tsData);
     const ruleImagery: TileSetLayerImagery[] = [];
     for (const layer of tsData.layers) {
-        const imgId = Config.TileSet.getImageId(layer, projection);
+        const imgId = Config.getImageId(layer, projection);
         if (imgId != null) {
             const imagery = allImagery.get(imgId);
             if (imagery == null) continue;

@@ -1,5 +1,5 @@
 import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
-import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Aws, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { SourceAwsS3 } from '@chunkd/source-aws';
 import { Cotar } from '@cotar/core';
@@ -31,7 +31,7 @@ export const Layers = new CotarCache();
 export class TileSetVector extends TileSetHandler<ConfigTileSetVector> {
     type = TileSetType.Vector;
 
-    async tile(req: LambdaContext, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
+    async tile(req: LambdaHttpRequest, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
         if (xyz.ext !== VectorFormat.MapboxVectorTiles) return NotFound;
         if (this.tileSet.layers.length > 1) return new LambdaHttpResponse(500, 'Too many layers in tileset');
         const [layer] = this.tileSet.layers;

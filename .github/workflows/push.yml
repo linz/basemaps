@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest,  windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
       - uses: actions/checkout@v2.3.4
         with:
@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: "14.x"
           registry-url: https://registry.npmjs.org
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.js
@@ -26,7 +26,7 @@ jobs:
         run: yarn  --frozen-lockfile --check-files
 
       - name: Audit
-        run: yarn audit
+        run: yarn audit --groups dependencies
 
       - name: Build
         run: yarn run build
@@ -41,7 +41,8 @@ jobs:
         run: yarn run test
 
       - name: Benchmark
-        run: yarn run benchmark
+        if: matrix.os == 'ubuntu-latest'
+        uses: blacha/hyperfine-action@v1
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,7 +59,7 @@ jobs:
         with:
           node-version: "14.x"
           registry-url: https://registry.npmjs.org
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.js
@@ -79,7 +80,7 @@ jobs:
         run: yarn run test
 
       - name: Benchmark
-        run: yarn run benchmark
+        uses: blacha/hyperfine-action@v1
 
       - name: (Prod) Setup git config
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -125,6 +126,7 @@ jobs:
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx lerna publish from-git --yes
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
 
       - name: (Prod) Configure AWS Credentials

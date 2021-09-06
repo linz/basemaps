@@ -194,7 +194,48 @@ export class Projection {
     static tileCenterToLatLon(tms: TileMatrixSet, tile: Tile): LatLon {
         const point = tms.tileToSource({ x: tile.x + 0.5, y: tile.y + 0.5, z: tile.z });
         const [lon, lat] = this.get(tms).toWgs84([point.x, point.y]);
-        return { lat, lon };
+
+        return Projection.wrapLatLon(lat, lon);
+    }
+
+    /**
+     * Reused from : https://github.com/pelias/api/blob/6a7751f35882698eb885b93635656ec0c2941633/sanitizer/wrap.js
+     *
+     * Normalize co-ordinates that lie outside of the normal ranges.
+     *
+     * longitude wrapping simply requires adding +- 360 to the value until it comes in to range.
+     * for the latitude values we need to flip the longitude whenever the latitude
+     * crosses a pole.
+     *
+     */
+    static wrapLatLon(lat: number, lon: number): LatLon {
+        const point = { lat, lon };
+        const quadrant = Math.floor(Math.abs(lat) / 90) % 4;
+        const pole = lat > 0 ? 90 : -90;
+        const offset = lat % 90;
+
+        switch (quadrant) {
+            case 0:
+                point.lat = offset;
+                break;
+            case 1:
+                point.lat = pole - offset;
+                point.lon += 180;
+                break;
+            case 2:
+                point.lat = -offset;
+                point.lon += 180;
+                break;
+            case 3:
+                point.lat = -pole + offset;
+                break;
+        }
+
+        if (point.lon > 180 || point.lon < -180) {
+            point.lon -= Math.floor((point.lon + 180) / 360) * 360;
+        }
+
+        return point;
     }
 
     /**

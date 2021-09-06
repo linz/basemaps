@@ -1,5 +1,5 @@
 import { Epsg } from '@basemaps/geo';
-import { HttpHeader, LambdaContext } from '@basemaps/lambda';
+import { HttpHeader, LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
 import { Env, LogConfig, LogType } from '@basemaps/shared';
 import express from 'express';
 import { PrettyTransform } from 'pretty-json-log';
@@ -18,7 +18,7 @@ const port = Env.getNumber('PORT', 5050);
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
 async function handleRequest(
-    ctx: LambdaContext,
+    ctx: LambdaHttpRequest,
     res: express.Response<any>,
     startTime: number,
     logger: LogType,
@@ -54,7 +54,7 @@ function useAws(): void {
         const startTime = Date.now();
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
-        const ctx = new LambdaContext(
+        const ctx = new LambdaAlbRequest(
             {
                 httpMethod: 'get',
                 path: req.path,
@@ -95,7 +95,7 @@ async function useLocal(): Promise<void> {
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
         const { x, y, z, ext, imageryName, projection } = req.params;
-        const ctx = new LambdaContext(
+        const ctx = new LambdaAlbRequest(
             {
                 httpMethod: 'get',
                 path: `/v1/tiles/${imageryName}/${projection}/${z}/${x}/${y}.${ext}`,
@@ -110,7 +110,7 @@ async function useLocal(): Promise<void> {
         const requestId = ulid.ulid();
         const logger = LogConfig.get().child({ id: requestId });
 
-        const tileSets = await Promise.all([...TileSets.cache.values()]);
+        const tileSets = await Promise.all([...TileSets.cache.values()].map((c) => c.value));
         const xml = WmtsCapabilities.toXml(
             Env.get(Env.PublicUrlBase) ?? '',
             Provider,

@@ -165,4 +165,12 @@ o.spec('WindowUrl', () => {
         );
         delete process.env.TILE_HOST;
     });
+
+    o('should remove im_ prefix from imagery', () => {
+        const options = WindowUrl.fromUrl('i=im_01EDA2YFXH2JN264VG1HKBT625');
+        o(options.imageId).equals('01EDA2YFXH2JN264VG1HKBT625');
+
+        const optionsB = WindowUrl.fromUrl('i=01EDA2YFXH2JN264VG1HKBT625');
+        o(optionsB.imageId).equals('01EDA2YFXH2JN264VG1HKBT625');
+    });
 });

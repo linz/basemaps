@@ -1,7 +1,7 @@
 import { Composition } from '@basemaps/tiler';
 import { createHash } from 'crypto';
 import { TileDataXyz } from '@basemaps/shared';
-import { HttpHeader, LambdaContext } from '@basemaps/lambda';
+import { HttpHeader, LambdaHttpRequest } from '@linzjs/lambda';
 import { basename } from 'path';
 
 export const TileEtag = {
@@ -23,7 +23,7 @@ export const TileEtag = {
         return TileEtag.key({ xyz, layers, RenderId: TileEtag.RenderId });
     },
 
-    isNotModified(req: LambdaContext, cacheKey: string): boolean {
+    isNotModified(req: LambdaHttpRequest, cacheKey: string): boolean {
         // If the user has supplied a IfNoneMatch Header and it contains the full sha256 sum for our
         // etag this tile has not been modified.
         const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);

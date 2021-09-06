@@ -1,6 +1,6 @@
 import { ConfigImagery, ConfigLayer, ConfigProvider } from '@basemaps/config';
 import { EpsgCode, GoogleTms, NamedBounds, Nztm2000QuadTms, Nztm2000Tms, Stac, TileMatrixSets } from '@basemaps/geo';
-import { HttpHeader } from '@basemaps/lambda';
+import { HttpHeader } from '@linzjs/lambda';
 import { Config } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
 import { round } from '@basemaps/test/build/rounding';

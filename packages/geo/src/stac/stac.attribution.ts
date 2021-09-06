@@ -21,7 +21,7 @@ export type AttributionItem = StacItem<{
 /**
  * A Single File STAC compliant attribution json structure.
  */
-export interface AttributionStac extends StacCatalog, GeoJSON.GeoJsonObject {
+export interface AttributionStac extends StacCatalog, GeoJSON.GeoJsonObject, Record<string, unknown> {
     type: 'FeatureCollection';
     features: AttributionItem[];
     collections: AttributionCollection[];
