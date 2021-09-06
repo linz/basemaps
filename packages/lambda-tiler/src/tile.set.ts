@@ -6,7 +6,7 @@ import {
     TileSetType,
 } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
-import { LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { TileDataXyz } from '@basemaps/shared';
 import { TileSets } from './tile.set.cache';
 import { TileSetRaster } from './tile.set.raster';
@@ -40,5 +40,5 @@ export abstract class TileSetHandler<T extends ConfigTileSetRaster | ConfigTileS
         return this.type === TileSetType.Raster;
     }
 
-    abstract tile(req: LambdaContext, xyz: TileDataXyz): Promise<LambdaHttpResponse>;
+    abstract tile(req: LambdaHttpRequest, xyz: TileDataXyz): Promise<LambdaHttpResponse>;
 }

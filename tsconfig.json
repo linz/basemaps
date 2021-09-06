@@ -12,12 +12,12 @@
         { "path": "./packages/cli" },
         { "path": "./packages/bathymetry" },
         { "path": "./packages/_infra" },
-        { "path": "./packages/lambda" },
         { "path": "./packages/config" },
         { "path": "./packages/shared" },
         { "path": "./packages/lambda-tiler" },
         { "path": "./packages/lambda-analytics" },
         { "path": "./packages/attribution" },
-        { "path": "./packages/landing" }
+        { "path": "./packages/landing" },
+        { "path": "./packages/server" }
     ]
 }

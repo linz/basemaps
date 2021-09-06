@@ -1,8 +1,9 @@
-import { LambdaContext, LambdaFunction, LambdaHttpResponse, Router } from '@basemaps/lambda';
+import { LambdaFunction, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { Ping, Version } from './routes/api';
 import { Health } from './routes/health';
 import { Tiles } from './routes/tile';
+import { Router } from './router';
 
 const app = new Router();
 
@@ -11,7 +12,7 @@ app.get('health', Health);
 app.get('version', Version);
 app.get('tiles', Tiles);
 
-export async function handleRequest(req: LambdaContext): Promise<LambdaHttpResponse> {
+export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
     req.set('name', 'LambdaTiler');
     return await app.handle(req);
 }

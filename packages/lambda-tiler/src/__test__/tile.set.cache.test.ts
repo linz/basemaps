@@ -29,7 +29,7 @@ o.spec('TileSetCache', () => {
     imgMap.set(imageOne.id, imageOne);
 
     o.beforeEach(() => {
-        sandbox.stub(Config.TileSet, 'getImagery').callsFake(async () => {
+        sandbox.stub(Config, 'getTileSetImagery').callsFake(async () => {
             const imgMap = new Map<string, ConfigImagery>();
             imgMap.set(imageOne.id, imageOne);
             return imgMap;

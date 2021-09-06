@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "6.6.1",
+  "version": "6.8.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -22,10 +22,10 @@
     "deploy:deploy": "node scripts/deploy.js"
   },
   "dependencies": {
-    "@basemaps/attribution": "^6.0.0",
-    "@basemaps/geo": "^6.0.0",
-    "@basemaps/infra": "^6.6.1",
-    "@basemaps/shared": "^6.6.0",
+    "@basemaps/attribution": "^6.8.0",
+    "@basemaps/geo": "^6.8.0",
+    "@basemaps/infra": "^6.8.0",
+    "@basemaps/shared": "^6.8.0",
     "@linzjs/lui": "^6.0.0",
     "maplibre-gl": "^1.14.1-rc.2",
     "ol": "^6.4.2",

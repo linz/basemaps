@@ -1,4 +1,8 @@
-import type S3 from 'aws-sdk/clients/s3';
+import S3 from 'aws-sdk/clients/s3';
+import { Credentials } from 'aws-sdk/lib/credentials';
+import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
+import { EC2MetadataCredentials } from 'aws-sdk/lib/credentials/ec2_metadata_credentials';
+import { SharedIniFileCredentials } from 'aws-sdk/lib/credentials/shared_ini_file_credentials';
 import type { AWSError } from 'aws-sdk/lib/error';
 import type { Readable, Stream } from 'stream';
 import { CompositeError } from '../composite.error';
@@ -10,6 +14,38 @@ function getCompositeError(e: AWSError, msg: string): CompositeError {
 }
 
 export class FsS3 implements FileSystem {
+    /**
+     * Create a aws credential instance from a role arn
+     *
+     * if the AWS profile is "ec2" use EC2MetadataCredentials, otherwise load credentials from the shared ini file
+     */
+    static credentialsFromRoleArn(roleArn: string, profile?: string | 'ec2', externalId?: string): Credentials {
+        const masterCredentials =
+            profile === 'ec2' ? new SharedIniFileCredentials({ profile }) : new EC2MetadataCredentials();
+        return new ChainableTemporaryCredentials({
+            params: {
+                RoleArn: roleArn,
+                ExternalId: externalId,
+                RoleSessionName: 'fsa-' + Math.random().toString(32) + '-' + Date.now(),
+            },
+            masterCredentials,
+        });
+    }
+
+    /**
+     * Create a FsS3 instance from a role arn
+     *
+     * if the AWS profile is "ec2" use EC2MetadataCredentials, otherwise load credentials from the shared ini file
+     *
+     * @example
+     * Fs3.fromRoleArn('arn:foo', 'ec2');
+     * FsS3.fromRoleArn('arn:bar', process.env.AWS_PROFILE);
+     */
+    static fromRoleArn(roleArn: string, profile: string | 'ec2', externalId?: string): FsS3 {
+        const credentials = FsS3.credentialsFromRoleArn(roleArn, profile, externalId);
+        return new FsS3(new S3({ credentials }));
+    }
+
     static protocol = 's3';
     protocol = FsS3.protocol;
     /** Max list requests to run before erroring */

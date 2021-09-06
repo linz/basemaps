@@ -1,0 +1,4 @@
+[
+    { "name": "Tile 256x256", "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 256" },
+    { "name": "Tile 512x512", "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 512" }
+]

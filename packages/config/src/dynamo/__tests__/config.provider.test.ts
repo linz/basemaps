@@ -1,8 +1,8 @@
 import o from 'ospec';
-import { ConfigDynamo } from '../dynamo.config';
+import { ConfigProviderDynamo } from '../dynamo.config';
 
-o.spec('ConfigDynamoProvider', () => {
-    const Config = new ConfigDynamo('table');
+o.spec('ConfigProviderDynamo', () => {
+    const Config = new ConfigProviderDynamo('table');
 
     o.spec('id', () => {
         o('should create ids', () => {
