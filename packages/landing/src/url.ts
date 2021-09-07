@@ -1,9 +1,12 @@
 import { Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config } from './config';
 
-export interface MapLocation {
+export interface LonLat {
     lat: number;
     lon: number;
+}
+
+export interface MapLocation extends LonLat {
     zoom: number;
 }
 
@@ -69,9 +72,11 @@ export const WindowUrl = {
     fromUrl(search: string): MapOptions {
         const urlParams = new URLSearchParams(search);
         const tag = urlParams.get('v') ?? 'production';
-        const imageId = urlParams.get('i') ?? 'aerial';
         const style = urlParams.get('s') ?? 'topolike';
         const debug = urlParams.get('debug') != null;
+
+        let imageId = urlParams.get('i') ?? 'aerial';
+        if (imageId.startsWith('im_')) imageId = imageId.slice(3);
 
         const projectionParam = (urlParams.get('p') ?? GoogleTms.identifier).toLowerCase();
         let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);

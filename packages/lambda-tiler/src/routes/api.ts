@@ -1,4 +1,4 @@
-import { LambdaHttpResponse, HttpHeader } from '@basemaps/lambda';
+import { LambdaHttpResponse, HttpHeader } from '@linzjs/lambda';
 
 const OkResponse = new LambdaHttpResponse(200, 'ok');
 OkResponse.header(HttpHeader.CacheControl, 'no-store');

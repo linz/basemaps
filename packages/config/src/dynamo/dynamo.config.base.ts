@@ -1,27 +1,19 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { BasemapsConfigObject } from '../base.config';
 import { BaseConfig } from '../config/base';
 import { ConfigPrefix } from '../config/prefix';
-import { ConfigDynamo } from './dynamo.config';
+import { ConfigProviderDynamo } from './dynamo.config';
 
 function toId(id: string): { id: { S: string } } {
     return { id: { S: id } };
 }
 
-export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> {
-    cfg: ConfigDynamo;
-    prefix: ConfigPrefix;
+export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends BasemapsConfigObject<T> {
+    cfg: ConfigProviderDynamo;
 
-    id(name: string): string {
-        if (name.startsWith(`${this.prefix}_`)) return name;
-        return `${this.prefix}_${name}`;
-    }
-
-    is(obj: BaseConfig): obj is T {
-        return obj.id.startsWith(this.prefix);
-    }
-    constructor(cfg: ConfigDynamo, prefix: ConfigPrefix) {
+    constructor(cfg: ConfigProviderDynamo, prefix: ConfigPrefix) {
+        super(prefix);
         this.cfg = cfg;
-        this.prefix = prefix;
     }
 
     private get db(): DynamoDB {

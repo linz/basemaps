@@ -3,6 +3,50 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.8.0](https://github.com/linz/basemaps/compare/v6.7.0...v6.8.0) (2021-09-01)
+
+
+### Bug Fixes
+
+* **proj:** wrap lat lon bounds into the world bounds ([#1828](https://github.com/linz/basemaps/issues/1828)) ([617faf8](https://github.com/linz/basemaps/commit/617faf85d2252746de649c1bf5c41b16dfe085ba))
+
+
+### Features
+
+* **config:** enable configuration to be stored in memory rather than dynamodb ([#1817](https://github.com/linz/basemaps/issues/1817)) ([eb56f26](https://github.com/linz/basemaps/commit/eb56f2633c99c5372710ae12fc128a9e7fa7ed7d))
+* **config:** enable swapping of configuration providers dynamically ([#1818](https://github.com/linz/basemaps/issues/1818)) ([e548ae5](https://github.com/linz/basemaps/commit/e548ae5219c7a5c6d5c6ed80c9f41c9637c3b554))
+
+
+
+
+
+# [6.7.0](https://github.com/linz/basemaps/compare/v6.6.1...v6.7.0) (2021-08-15)
+
+**Note:** Version bump only for package @basemaps/shared
+
+
+
+
+
+# [6.6.0](https://github.com/linz/basemaps/compare/v6.5.0...v6.6.0) (2021-07-29)
+
+**Note:** Version bump only for package @basemaps/shared
+
+
+
+
+
+# [6.5.0](https://github.com/linz/basemaps/compare/v6.4.0...v6.5.0) (2021-07-25)
+
+
+### Bug Fixes
+
+* **s3fs:** more specific file systems should be matched first ([#1767](https://github.com/linz/basemaps/issues/1767)) ([0c7df8c](https://github.com/linz/basemaps/commit/0c7df8c1732459fdf0ee0e62a33fcca124ae0779))
+
+
+
+
+
 # [6.4.0](https://github.com/linz/basemaps/compare/v6.3.0...v6.4.0) (2021-07-13)
 
 **Note:** Version bump only for package @basemaps/shared

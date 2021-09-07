@@ -3,6 +3,57 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.8.0](https://github.com/linz/basemaps/compare/v6.7.0...v6.8.0) (2021-09-01)
+
+
+### Features
+
+* **landing:** support prefixed imagery links starts with im_ ([#1815](https://github.com/linz/basemaps/issues/1815)) ([7fadece](https://github.com/linz/basemaps/commit/7fadecef7a6153b0bd973167f816108584aaf99a))
+
+
+
+
+
+# [6.7.0](https://github.com/linz/basemaps/compare/v6.6.1...v6.7.0) (2021-08-15)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+## [6.6.1](https://github.com/linz/basemaps/compare/v6.6.0...v6.6.1) (2021-07-29)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.6.0](https://github.com/linz/basemaps/compare/v6.5.0...v6.6.0) (2021-07-29)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.5.0](https://github.com/linz/basemaps/compare/v6.4.0...v6.5.0) (2021-07-25)
+
+
+### Bug Fixes
+
+* **s3fs:** more specific file systems should be matched first ([#1767](https://github.com/linz/basemaps/issues/1767)) ([0c7df8c](https://github.com/linz/basemaps/commit/0c7df8c1732459fdf0ee0e62a33fcca124ae0779))
+
+
+### Features
+
+* **landing:** add debug viewer with ?debug=true ([#1778](https://github.com/linz/basemaps/issues/1778)) ([96434ba](https://github.com/linz/basemaps/commit/96434babb95a0dcf206c6183fa66079f546bad58))
+
+
+
+
+
 # [6.4.0](https://github.com/linz/basemaps/compare/v6.3.0...v6.4.0) (2021-07-13)
 
 

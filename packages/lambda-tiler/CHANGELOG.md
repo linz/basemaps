@@ -3,6 +3,64 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.8.0](https://github.com/linz/basemaps/compare/v6.7.0...v6.8.0) (2021-09-01)
+
+
+### Features
+
+* **lambda-tiler:** remove `@basemaps/lambda` and replace with `@linzjs/lambda` ([#1821](https://github.com/linz/basemaps/issues/1821)) ([cb22b3d](https://github.com/linz/basemaps/commit/cb22b3d2c62b7430839f3e35c18dd96a162fb39a))
+* **server:** create a standalone express server ([#1819](https://github.com/linz/basemaps/issues/1819)) ([83488af](https://github.com/linz/basemaps/commit/83488af658a3ed8f3080dd2ea9f120ac3abd2444))
+
+
+
+
+
+# [6.7.0](https://github.com/linz/basemaps/compare/v6.6.1...v6.7.0) (2021-08-15)
+
+
+### Bug Fixes
+
+* throw 500 on health failure ([#1795](https://github.com/linz/basemaps/issues/1795)) ([75bd6ae](https://github.com/linz/basemaps/commit/75bd6ae7f6a018acff4d5a27c58680eaa176aaa2))
+
+
+### Features
+
+* **lambda-tiler:** Support both aerial and vector basemap urls in style json. ([#1811](https://github.com/linz/basemaps/issues/1811)) ([9d30db8](https://github.com/linz/basemaps/commit/9d30db82d13bf84690c463644df664ab4c6735ce))
+
+
+
+
+
+## [6.6.1](https://github.com/linz/basemaps/compare/v6.6.0...v6.6.1) (2021-07-29)
+
+
+### Bug Fixes
+
+* correct cache id between NZTMQuad and 3857 ([#1793](https://github.com/linz/basemaps/issues/1793)) ([ace31c7](https://github.com/linz/basemaps/commit/ace31c761fad5471ecd0c0eb85e53f10411bdabb))
+
+
+
+
+
+# [6.6.0](https://github.com/linz/basemaps/compare/v6.5.0...v6.6.0) (2021-07-29)
+
+
+### Bug Fixes
+
+* **config:** do not cache tile sets forever as they can be updated ([#1790](https://github.com/linz/basemaps/issues/1790)) ([d0b1c89](https://github.com/linz/basemaps/commit/d0b1c89ff155004b778ddca3003e3d5ea29e7b7f))
+
+
+
+
+
+# [6.5.0](https://github.com/linz/basemaps/compare/v6.4.0...v6.5.0) (2021-07-25)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
 # [6.4.0](https://github.com/linz/basemaps/compare/v6.3.0...v6.4.0) (2021-07-13)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler

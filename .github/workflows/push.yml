@@ -7,17 +7,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest,  windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
       - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
       - name: Use Node.js 14.x
-        uses: actions/setup-node@v2.2.0
+        uses: actions/setup-node@v2.4.0
         with:
           node-version: "14.x"
           registry-url: https://registry.npmjs.org
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.js
@@ -26,7 +26,7 @@ jobs:
         run: yarn  --frozen-lockfile --check-files
 
       - name: Audit
-        run: yarn audit
+        run: yarn audit --groups dependencies
 
       - name: Build
         run: yarn run build
@@ -41,7 +41,8 @@ jobs:
         run: yarn run test
 
       - name: Benchmark
-        run: yarn run benchmark
+        if: matrix.os == 'ubuntu-latest'
+        uses: blacha/hyperfine-action@v1
 
   deploy:
     runs-on: ubuntu-latest
@@ -54,11 +55,11 @@ jobs:
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
       - name: Use Node.js 14.x
-        uses: actions/setup-node@v2.2.0
+        uses: actions/setup-node@v2.4.0
         with:
           node-version: "14.x"
           registry-url: https://registry.npmjs.org
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.js
@@ -77,9 +78,6 @@ jobs:
 
       - name: Test
         run: yarn run test
-
-      - name: Benchmark
-        run: yarn run benchmark
 
       - name: (Prod) Setup git config
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -93,6 +91,12 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./lerna.json').version")
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
           git push --tags
+
+      - name: Create github release
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: npx conventional-github-releaser -p angular
+        env:
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Deploy - Bundle
         if: github.ref != 'refs/heads/master' || github.repository != 'linz/basemaps'
@@ -125,6 +129,7 @@ jobs:
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx lerna publish from-git --yes
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
 
       - name: (Prod) Configure AWS Credentials
@@ -149,3 +154,6 @@ jobs:
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
           LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
+
+      - name: Benchmark
+        uses: blacha/hyperfine-action@v1

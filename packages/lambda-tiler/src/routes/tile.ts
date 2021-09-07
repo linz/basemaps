@@ -1,6 +1,6 @@
 import { Sources, StyleJson } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
-import { HttpHeader, LambdaContext, LambdaHttpResponse, ValidateTilePath } from '@basemaps/lambda';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Config, Env, setNameAndProjection, TileSetName, tileWmtsFromPath, tileXyzFromPath } from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { createHash } from 'crypto';
@@ -10,14 +10,17 @@ import { TileSetRaster } from '../tile.set.raster';
 import { WmtsCapabilities } from '../wmts.capability';
 import { attribution } from './attribution';
 import { TileEtag } from './tile.etag';
+import { Router } from '../router';
+import { ValidateTilePath } from '../validate';
 
 export const TileComposer = new TileMakerSharp(256);
 
 export const NotFound = new LambdaHttpResponse(404, 'Not Found');
 export const NotModified = new LambdaHttpResponse(304, 'Not modified');
 
-export async function tile(req: LambdaContext): Promise<LambdaHttpResponse> {
-    const xyzData = tileXyzFromPath(req.action.rest);
+export async function tile(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+    const action = Router.action(req);
+    const xyzData = tileXyzFromPath(action.rest);
     if (xyzData == null) return NotFound;
     ValidateTilePath.validate(req, xyzData);
 
@@ -40,8 +43,9 @@ async function wmtsLoadTileSets(name: string, tileMatrix: TileMatrixSet | null):
     return (await TileSets.getAll(name, tileMatrix)).filter((f) => f.type === 'raster') as TileSetRaster[];
 }
 
-export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
-    const wmtsData = tileWmtsFromPath(req.action.rest);
+export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+    const action = Router.action(req);
+    const wmtsData = tileWmtsFromPath(action.rest);
     if (wmtsData == null) return NotFound;
     setNameAndProjection(req, wmtsData);
     const host = Env.get(Env.PublicUrlBase) ?? '';
@@ -55,7 +59,8 @@ export async function wmts(req: LambdaContext): Promise<LambdaHttpResponse> {
     const provider = await Config.Provider.get(providerId);
     if (provider == null) return NotFound;
 
-    const xml = WmtsCapabilities.toXml(host, provider, tileSets, req.apiKey);
+    const apiKey = Router.apiKey(req);
+    const xml = WmtsCapabilities.toXml(host, provider, tileSets, apiKey);
     if (xml == null) return NotFound;
 
     const data = Buffer.from(xml);
@@ -79,10 +84,11 @@ export interface TileJson {
     tilejson: string;
 }
 
-export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> {
-    const { version, rest, name } = req.action;
+export async function tileJson(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+    const { version, rest, name } = Router.action(req);
+    const apiKey = Router.apiKey(req);
     const host = Env.get(Env.PublicUrlBase) ?? '';
-    const tileUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/{z}/{x}/{y}.pbf?api=${req.apiKey}`;
+    const tileUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/{z}/{x}/{y}.pbf?api=${apiKey}`;
 
     const tileJson: TileJson = {
         tiles: [tileUrl],
@@ -108,8 +114,9 @@ export async function tileJson(req: LambdaContext): Promise<LambdaHttpResponse> 
     return response;
 }
 
-export async function styleJson(req: LambdaContext, fileName: string): Promise<LambdaHttpResponse> {
-    const { version, rest, name } = req.action;
+export async function styleJson(req: LambdaHttpRequest, fileName: string): Promise<LambdaHttpResponse> {
+    const { version, rest, name } = Router.action(req);
+    const apiKey = Router.apiKey(req);
     const styleName = fileName.split('.json')[0];
     const host = Env.get(Env.PublicUrlBase) ?? '';
 
@@ -121,13 +128,15 @@ export async function styleJson(req: LambdaContext, fileName: string): Promise<L
     // Prepare sources and add linz source
     const style = styleConfig.style;
     const sources: Sources = {};
-    const tileJsonUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/tile.json?api=${req.apiKey}`;
+    const tileJsonUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/tile.json?api=${apiKey}`;
+    const rasterUrl = `${host}/${version}/${name}/aerial/${rest[1]}/{z}/{x}/{y}.webp?api=${apiKey}`;
     for (const [key, value] of Object.entries(style.sources)) {
-        if (value.url === '' || value.url.startsWith(host)) {
-            sources[key] = { type: 'vector', url: tileJsonUrl };
-        } else {
-            sources[key] = value;
+        if (value.type === 'vector' && value.url === '') {
+            value.url = tileJsonUrl;
+        } else if (value.type === 'raster' && (!Array.isArray(value.tiles) || value.tiles.length === 0)) {
+            value.tiles = [rasterUrl];
         }
+        sources[key] = value;
     }
 
     // prepare Style.json
@@ -159,10 +168,11 @@ export async function styleJson(req: LambdaContext, fileName: string): Promise<L
     return response;
 }
 
-export async function Tiles(req: LambdaContext): Promise<LambdaHttpResponse> {
-    const { rest } = req.action;
+export async function Tiles(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+    const { rest } = Router.action(req);
     if (rest.length < 1) return NotFound;
-    if (!isValidApiKey(req.apiKey)) return new LambdaHttpResponse(400, 'Invalid API Key');
+    const apiKey = Router.apiKey(req);
+    if (!isValidApiKey(apiKey)) return new LambdaHttpResponse(400, 'Invalid API Key');
 
     const fileName = rest[rest.length - 1].toLowerCase();
     if (fileName === 'attribution.json') return attribution(req);

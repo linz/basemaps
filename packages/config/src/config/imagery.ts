@@ -11,8 +11,8 @@ export interface ConfigImagery extends BaseConfig {
     year: number;
 
     /** Resolution of imagery in MM */
-
     resolution: number;
+
     /** the bounding box of all the COGs */
     bounds: BoundingBox;
 

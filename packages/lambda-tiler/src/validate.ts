@@ -1,6 +1,5 @@
 import { Projection, TileDataXyz } from '@basemaps/shared';
-import { LambdaContext } from './lambda.context';
-import { LambdaHttpResponse } from './lambda.response';
+import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
 export const ValidateTilePath = {
     /**
@@ -13,7 +12,7 @@ export const ValidateTilePath = {
      * @param req request to validate
      * @param xyzData
      */
-    validate(req: LambdaContext, xyzData: TileDataXyz): void {
+    validate(req: LambdaHttpRequest, xyzData: TileDataXyz): void {
         const { tileMatrix, x, y, z, ext } = xyzData;
         req.set('xyz', { x, y, z });
         req.set('projection', tileMatrix.projection.code);

@@ -144,7 +144,7 @@ o.spec('LambdaXyz', () => {
 
         o('should 304 if a xml is not modified', async () => {
             o.timeout(1000);
-            const key = 'V4sWoalNeQ5m1SStYGJarSuf649T7otJdbn9tw5N4o0=';
+            const key = 'NuirTK8fozzCJV1iG1FznmdHhKvk6WaWuDhhEA1d40c=';
             const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', {
                 'if-none-match': key,
                 ...apiKeyHeader,
@@ -258,9 +258,21 @@ o.spec('LambdaXyz', () => {
                 id: 'test',
                 name: 'topolike',
                 sources: {
-                    basemaps: {
+                    basemaps_vector: {
                         type: 'vector',
                         url: '',
+                    },
+                    basemaps_raster: {
+                        type: 'raster',
+                        tiles: [],
+                    },
+                    test_vector: {
+                        type: 'vector',
+                        url: 'vector.url.co.nz',
+                    },
+                    test_raster: {
+                        type: 'raster',
+                        tiles: ['raster.url.co.nz'],
                     },
                 },
                 layers: [
@@ -295,7 +307,14 @@ o.spec('LambdaXyz', () => {
             o(res.header('cache-control')).equals('max-age=120');
 
             const body = Buffer.from(res.getBody() ?? '', 'base64').toString();
-            fakeStyle.sources.basemaps.url = 'https://tiles.test/v1/tiles/topolike/Google/tile.json?api=' + apiKey;
+            fakeStyle.sources.basemaps_vector = {
+                type: 'vector',
+                url: 'https://tiles.test/v1/tiles/topolike/Google/tile.json?api=' + apiKey,
+            };
+            fakeStyle.sources.basemaps_raster = {
+                type: 'raster',
+                tiles: ['https://tiles.test/v1/tiles/aerial/Google/{z}/{x}/{y}.webp?api=' + apiKey],
+            };
             o(JSON.parse(body)).deepEquals(fakeStyle);
         });
     });

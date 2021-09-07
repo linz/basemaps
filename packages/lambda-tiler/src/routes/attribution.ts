@@ -11,7 +11,7 @@ import {
     StacExtent,
     TileMatrixSet,
 } from '@basemaps/geo';
-import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import {
     Config,
     extractYearRangeFromName,
@@ -25,6 +25,7 @@ import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@li
 import { createHash } from 'crypto';
 import { TileSets } from '../tile.set.cache';
 import { TileSetRaster } from '../tile.set.raster';
+import { Router } from '../router';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
@@ -138,7 +139,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
 
     // read all stac files in parallel
     for (const layer of tileSet.tileSet.layers) {
-        const imgId = Config.TileSet.getImageId(layer, proj.epsg);
+        const imgId = Config.getImageId(layer, proj.epsg);
         if (imgId == null) continue;
         const im = tileSet.imagery.get(imgId);
         if (im == null) continue;
@@ -151,7 +152,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
     if (host == null) return null;
 
     for (const layer of tileSet.tileSet.layers) {
-        const imgId = Config.TileSet.getImageId(layer, proj.epsg);
+        const imgId = Config.getImageId(layer, proj.epsg);
         if (imgId == null) continue;
         const im = tileSet.imagery.get(imgId);
         if (im == null) continue;
@@ -206,8 +207,9 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
 /**
  * Create a LambdaHttpResponse for a attribution request
  */
-export async function attribution(req: LambdaContext): Promise<LambdaHttpResponse> {
-    const data = tileAttributionFromPath(req.action.rest);
+export async function attribution(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+    const action = Router.action(req);
+    const data = tileAttributionFromPath(action.rest);
     if (data == null) return NotFound;
     setNameAndProjection(req, data);
 

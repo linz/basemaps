@@ -38,27 +38,32 @@ button {
     position: absolute;
     top: 8px;
     right: 8px;
-    width: 200px;
+    width: 300px;
     background-color: rgba(255, 255, 255, 0.87);
-    padding: 16px;
+    padding: 4px 8px;
 }
 
 .debug__info {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 4px;
+    margin: 4px 0;
 }
 
-.debug__mouse {
-    margin-bottom: 8px;
-}
 
 .debug__label {
+    margin: 0;
     font-weight: 700;
 }
+.debug__value {
+    display: flex;
+    align-items: center;
+}
 
-.osm__slider {
-    width: 75%;
+/* Override very specific LUI styles*/
+.debug .osm__slider {
+    width: 75% !important;
+    padding: 0 !important;
+    min-height: 0 !important;
 }
 
 .lui-footer .nz-govt-logo {

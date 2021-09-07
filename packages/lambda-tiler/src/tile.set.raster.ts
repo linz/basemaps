@@ -1,6 +1,6 @@
 import { ConfigImagery, ConfigLayer, ConfigTileSetRaster, TileSetNameParser, TileSetType } from '@basemaps/config';
 import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { HttpHeader, LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Aws, Config, Env, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
@@ -63,7 +63,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
 
     async init(record: ConfigTileSetRaster): Promise<void> {
         this.tileSet = record;
-        this.imagery = await Config.Imagery.getAllImagery(this.tileSet.layers, this.tileMatrix.projection);
+        this.imagery = await Config.getAllImagery(this.tileSet.layers, this.tileMatrix.projection);
     }
 
     async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
@@ -85,7 +85,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
         return tiffs;
     }
 
-    public async tile(req: LambdaContext, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
+    public async tile(req: LambdaHttpRequest, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
         if (xyz.ext === VectorFormat.MapboxVectorTiles) return NotFound;
         const tiffs = await this.initTiffs(xyz, req.log);
         const layers = await this.tiler.tile(tiffs, xyz.x, xyz.y, xyz.z);
@@ -130,7 +130,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
             if (layer.maxZoom != null && filterZoom > layer.maxZoom) continue;
             if (layer.minZoom != null && filterZoom < layer.minZoom) continue;
 
-            const imgId = Config.TileSet.getImageId(layer, this.tileMatrix.projection);
+            const imgId = Config.getImageId(layer, this.tileMatrix.projection);
             if (imgId == null) {
                 log?.warn(
                     { layer: layer.name, projection: this.tileMatrix.projection.code },
