@@ -92,6 +92,12 @@ jobs:
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
           git push --tags
 
+      - name: Create github release
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: npx conventional-github-releaser -p angular
+        env:
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
       - name: Deploy - Bundle
         if: github.ref != 'refs/heads/master' || github.repository != 'linz/basemaps'
         run: npx lerna run bundle --stream
