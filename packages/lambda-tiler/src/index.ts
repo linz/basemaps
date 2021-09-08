@@ -1,4 +1,4 @@
-import { LambdaFunction, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { lf, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { Ping, Version } from './routes/api';
 import { Health } from './routes/health';
@@ -17,4 +17,4 @@ export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpR
     return await app.handle(req);
 }
 
-export const handler = LambdaFunction.wrap(handleRequest, LogConfig.get());
+export const handler = lf.http(handleRequest, LogConfig.get());

@@ -5,6 +5,7 @@ import * as Tile from '../tile';
 import { getExpectedTileName, Health, TestTiles } from '../health';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
+import { Context } from 'aws-lambda';
 
 const ctx: LambdaHttpRequest = new LambdaAlbRequest(
     {
@@ -14,6 +15,7 @@ const ctx: LambdaHttpRequest = new LambdaAlbRequest(
         body: null,
         isBase64Encoded: false,
     },
+    {} as Context,
     LogConfig.get(),
 );
 

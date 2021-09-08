@@ -1542,14 +1542,14 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@linzjs/lambda@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-0.3.2.tgz#becc4b4ef14e2b6156c150193308804591d3431d"
-  integrity sha512-vAV8Bx/PssY6kNmfZ0+jaqz3q0EIRSe12B08eymlC52Uvkdv0ht1iLtZokdGRAywM+ZiKczSE3F8WvB/+zOijQ==
+"@linzjs/lambda@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-1.1.0.tgz#d3fb69386ddb6b4586c00f5143ed6842aa24e561"
+  integrity sha512-5rUz2vlkBvATmRGVnRjRPg58/HkAvfIz9nhaarik6sKb/7M9vqG0EMnSER3+Cmi0rvWjUMew3BZpPO1C8ekG8w==
   dependencies:
     "@linzjs/metrics" "^6.0.0"
     "@types/pino" "^6.3.11"
-    pino "^6.13.0"
+    pino "^6.13.1"
     ulid "^2.3.0"
 
 "@linzjs/lui@^6.0.0":
@@ -4145,6 +4145,11 @@ fast-safe-stringify@^2.0.8:
   resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.8.tgz#dc2af48c46cf712b683e849b2bbd446b32de936f"
   integrity sha512-lXatBjf3WPjmWD6DpIZxkeSsCOwqI0maYMpgDlx8g4U2qi4lbjA9oH/HD2a87G+KfsUmo5WbJFmqBZlPxtptag==
 
+fastify-warning@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/fastify-warning/-/fastify-warning-0.2.0.tgz#e717776026a4493dc9a2befa44db6d17f618008f"
+  integrity sha512-s1EQguBw/9qtc1p/WTY4eq9WMRIACkj+HTcOIK1in4MV5aFaQC9ZCIt0dJ7pr5bIf4lPpHvAtP2ywpTNgs7hqw==
+
 fastq@^1.6.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.8.0.tgz#550e1f9f59bbc65fe185cb6a9b4d95357107f481"
@@ -6701,13 +6706,14 @@ pino-std-serializers@^3.1.0:
   resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-3.1.0.tgz#fe62d339aeef359d9d7bdf61f4e4b2d7be8c73d4"
   integrity sha512-Fk1pxhX6tuW4ozRDFw5Mz/IHQV5wXYXZwjG/gOpTNPCbYEMeNW9VnKAEu1428CwAQVupFruOr1vkC/ufmcwedA==
 
-pino@^6.13.0:
-  version "6.13.0"
-  resolved "https://registry.yarnpkg.com/pino/-/pino-6.13.0.tgz#41810b9be213af6f8f7c23a1b17058d880267e7b"
-  integrity sha512-mRXSTfa34tbfrWqCIp1sUpZLqBhcoaGapoyxfEwaWwJGMpLijlRdDKIQUyvq4M3DUfFH5vEglwSw8POZYwbThA==
+pino@^6.13.1:
+  version "6.13.2"
+  resolved "https://registry.yarnpkg.com/pino/-/pino-6.13.2.tgz#948a0fcadca668f3b5fb8a427f2854b08661eccf"
+  integrity sha512-vmD/cabJ4xKqo9GVuAoAEeQhra8XJ7YydPV/JyIP+0zDtFTu5JSKdtt8eksGVWKtTSrNGcRrzJ4/IzvUWep3FA==
   dependencies:
     fast-redact "^3.0.0"
     fast-safe-stringify "^2.0.8"
+    fastify-warning "^0.2.0"
     flatstr "^1.0.12"
     pino-std-serializers "^3.1.0"
     quick-format-unescaped "^4.0.3"

@@ -8,6 +8,7 @@ import { tile } from '../routes/tile';
 import { TileSet } from '../tile.set';
 import { TileSets } from '../tile.set.cache';
 import { TileSetLocal } from './tile.set.local';
+import { Context } from 'aws-lambda';
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
@@ -46,6 +47,7 @@ async function main(): Promise<void> {
             httpMethod: 'get',
             path: `/v1/tiles/${tileSet.fullName}/${tileMatrix.identifier}/${xyz.z}/${xyz.x}/${xyz.y}.${ext}`,
         } as any,
+        {} as Context,
         logger,
     );
 

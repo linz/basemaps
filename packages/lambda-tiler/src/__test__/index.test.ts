@@ -1,5 +1,6 @@
 import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
+import { Context } from 'aws-lambda';
 import o from 'ospec';
 import { handleRequest } from '../index';
 
@@ -13,6 +14,7 @@ o.spec('LambdaXyz index', () => {
                 body: null,
                 isBase64Encoded: false,
             },
+            {} as Context,
             LogConfig.get(),
         );
     }
