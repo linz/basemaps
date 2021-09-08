@@ -32,7 +32,7 @@
     "@basemaps/geo": "^6.8.0",
     "@basemaps/lambda-tiler": "^6.8.0",
     "@basemaps/shared": "^6.8.0",
-    "@linzjs/lambda": "^0.3.2",
+    "@linzjs/lambda": "^1.1.0",
     "@oclif/command": "^1.8.0",
     "express": "^4.17.1",
     "pretty-json-log": "^0.3.2"

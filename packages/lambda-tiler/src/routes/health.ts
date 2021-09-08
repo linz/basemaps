@@ -6,6 +6,7 @@ import { Epsg, Tile } from '@basemaps/geo';
 import { LambdaHttpResponse, LambdaHttpRequest, HttpHeader, LambdaAlbRequest } from '@linzjs/lambda';
 import { ImageFormat } from '@basemaps/tiler';
 import { tile } from './tile';
+import { Context } from 'aws-lambda';
 
 export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageFormat): string {
     // Bundle static files are at the same directory with index.js
@@ -71,14 +72,15 @@ export async function Health(req: LambdaHttpRequest): Promise<LambdaHttpResponse
                 body: null,
                 isBase64Encoded: false,
             },
+            {} as Context,
             req.log,
         );
 
         // Get the parse response tile to raw buffer
         const response = await tile(ctx);
         if (response.status !== 200) return new LambdaHttpResponse(response.status, response.statusDescription);
-        if (!Buffer.isBuffer(response.body)) throw new LambdaHttpResponse(404, 'Not a Buffer response content.');
-        const resImgBuffer = await Sharp(response.body).raw().toBuffer();
+        if (!Buffer.isBuffer(response._body)) throw new LambdaHttpResponse(404, 'Not a Buffer response content.');
+        const resImgBuffer = await Sharp(response._body).raw().toBuffer();
 
         // Get test tile to compare
         const testBuffer = await getTestBuffer(test);

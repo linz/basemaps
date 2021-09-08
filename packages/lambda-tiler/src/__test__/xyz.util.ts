@@ -3,6 +3,7 @@ import { TileMatrixSet } from '@basemaps/geo';
 import { LambdaHttpRequest, LambdaAlbRequest } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { TileSetRaster } from '../tile.set.raster';
+import { Context } from 'aws-lambda';
 
 export function mockRequest(path: string, method = 'get', headers: Record<string, string> = {}): LambdaHttpRequest {
     return new LambdaAlbRequest(
@@ -14,6 +15,7 @@ export function mockRequest(path: string, method = 'get', headers: Record<string
             body: null,
             isBase64Encoded: false,
         },
+        {} as Context,
         LogConfig.get(),
     );
 }

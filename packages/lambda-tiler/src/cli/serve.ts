@@ -11,6 +11,7 @@ import { TileSetRaster } from '../tile.set.raster';
 import { WmtsCapabilities } from '../wmts.capability';
 import { Provider } from '../__test__/xyz.util';
 import { TileSetLocal } from './tile.set.local';
+import { Context } from 'aws-lambda';
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
@@ -60,6 +61,7 @@ function useAws(): void {
                 path: req.path,
                 queryStringParameters: req.query,
             } as any,
+            { awsRequestId: requestId } as Context,
             logger,
         );
         const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
@@ -100,6 +102,8 @@ async function useLocal(): Promise<void> {
                 httpMethod: 'get',
                 path: `/v1/tiles/${imageryName}/${projection}/${z}/${x}/${y}.${ext}`,
             } as any,
+            {} as Context,
+
             logger,
         );
         await handleRequest(ctx, res, startTime, logger, { tile: { x, y, z } });
