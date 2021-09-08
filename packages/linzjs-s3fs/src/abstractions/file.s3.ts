@@ -41,7 +41,7 @@ export class FsS3 implements FileSystem {
      * Fs3.fromRoleArn('arn:foo', 'ec2');
      * FsS3.fromRoleArn('arn:bar', process.env.AWS_PROFILE);
      */
-    static fromRoleArn(roleArn: string, profile: string | 'ec2', externalId?: string): FsS3 {
+    static fromRoleArn(roleArn: string, profile?: string | 'ec2', externalId?: string): FsS3 {
         const credentials = FsS3.credentialsFromRoleArn(roleArn, profile, externalId);
         return new FsS3(new S3({ credentials }));
     }
