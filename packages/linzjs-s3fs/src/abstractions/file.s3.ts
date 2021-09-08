@@ -21,7 +21,7 @@ export class FsS3 implements FileSystem {
      */
     static credentialsFromRoleArn(roleArn: string, profile?: string | 'ec2', externalId?: string): Credentials {
         const masterCredentials =
-            profile === 'ec2' ? new SharedIniFileCredentials({ profile }) : new EC2MetadataCredentials();
+            profile === 'ec2' ? new EC2MetadataCredentials() : new SharedIniFileCredentials({ profile });
         return new ChainableTemporaryCredentials({
             params: {
                 RoleArn: roleArn,
