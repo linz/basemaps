@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-tiler",
-  "version": "6.8.0",
+  "version": "6.9.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -19,9 +19,9 @@
     "@basemaps/config": "^6.8.0",
     "@basemaps/geo": "^6.8.0",
     "@basemaps/lambda": "^6.7.0",
-    "@basemaps/shared": "^6.8.0",
+    "@basemaps/shared": "^6.9.0",
     "@basemaps/tiler": "^6.8.0",
-    "@basemaps/tiler-sharp": "^6.8.0",
+    "@basemaps/tiler-sharp": "^6.9.0",
     "@cogeotiff/core": "^4.3.0",
     "@cogeotiff/source-aws": "^4.3.0",
     "@cotar/core": "3.1.0",

@@ -1,6 +1,6 @@
 {
   "name": "@linzjs/s3fs",
-  "version": "6.8.0",
+  "version": "6.9.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.9.0](https://github.com/linz/basemaps/compare/v6.8.0...v6.9.0) (2021-09-09)
+
+
+### Bug Fixes
+
+* **s3fs:** profile is optional ([#1845](https://github.com/linz/basemaps/issues/1845)) ([6ac4644](https://github.com/linz/basemaps/commit/6ac464454cbb5bd35adb285d34afdcf500d00738))
+
+
+
+
+
 # [6.8.0](https://github.com/linz/basemaps/compare/v6.7.0...v6.8.0) (2021-09-01)
 
 
