@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-tiler",
-  "version": "6.9.0",
+  "version": "6.9.1",
   "private": true,
   "repository": {
     "type": "git",
@@ -16,16 +16,16 @@
   "types": "./build/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@basemaps/config": "^6.8.0",
-    "@basemaps/geo": "^6.8.0",
+    "@basemaps/config": "^6.9.1",
+    "@basemaps/geo": "^6.9.1",
     "@basemaps/lambda": "^6.7.0",
-    "@basemaps/shared": "^6.9.0",
-    "@basemaps/tiler": "^6.8.0",
-    "@basemaps/tiler-sharp": "^6.9.0",
+    "@basemaps/shared": "^6.9.1",
+    "@basemaps/tiler": "^6.9.1",
+    "@basemaps/tiler-sharp": "^6.9.1",
     "@cogeotiff/core": "^4.3.0",
     "@cogeotiff/source-aws": "^4.3.0",
     "@cotar/core": "3.1.0",
-    "@linzjs/geojson": "^6.0.0",
+    "@linzjs/geojson": "^6.9.1",
     "@linzjs/lambda": "^1.1.0",
     "farmhash": "^3.2.1",
     "path-to-regexp": "^6.1.0",
@@ -47,7 +47,7 @@
     "bundle": "./bundle.sh"
   },
   "devDependencies": {
-    "@basemaps/attribution": "^6.8.0",
+    "@basemaps/attribution": "^6.9.1",
     "@types/aws-lambda": "^8.10.75",
     "@types/express": "^4.17.11",
     "@types/node": "^14.11.2",

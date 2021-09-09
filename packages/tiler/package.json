@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/tiler",
-  "version": "6.8.0",
+  "version": "6.9.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -18,9 +18,9 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@basemaps/geo": "^6.8.0",
+    "@basemaps/geo": "^6.9.1",
     "@cogeotiff/core": "^4.3.0",
-    "@linzjs/metrics": "^6.0.0"
+    "@linzjs/metrics": "^6.9.1"
   },
   "devDependencies": {
     "@cogeotiff/source-file": "^4.3.0",
