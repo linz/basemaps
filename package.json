@@ -43,7 +43,7 @@
   "resolutions": {
     "hosted-git-info": ">=2.8.9",
     "lodash": ">=4.17.21",
-    "trim-newlines": ">=3.0.1 <4.0.0 || >=4.0.1",
+    "trim-newlines": ">=3.0.1 <4.0.0",
     "normalize-url": ">=4.5.1 <5.0.0"
   }
 }
