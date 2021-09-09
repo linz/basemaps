@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.9.0](https://github.com/linz/basemaps/compare/v6.8.0...v6.9.0) (2021-09-09)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** force wmts to be ServiceTypeVersion 1.0.0 ([#1836](https://github.com/linz/basemaps/issues/1836)) ([8353774](https://github.com/linz/basemaps/commit/835377413417c58e4cca8bb4663aa43cc37043ff))
+* **lambda-tiler:** remove console.log ([#1841](https://github.com/linz/basemaps/issues/1841)) ([723dbcc](https://github.com/linz/basemaps/commit/723dbcce8330ed588068fc2904c9476f6bbbd957))
+
+
+### Features
+
+* **tiler-sharp:** start tracking tile composing performance ([#1838](https://github.com/linz/basemaps/issues/1838)) ([b6cff4d](https://github.com/linz/basemaps/commit/b6cff4d982595f2bdd2dd16362c59500d2d8119e))
+
+
+
+
+
 # [6.8.0](https://github.com/linz/basemaps/compare/v6.7.0...v6.8.0) (2021-09-01)
 
 
