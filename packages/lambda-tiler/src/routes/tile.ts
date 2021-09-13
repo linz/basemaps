@@ -172,6 +172,10 @@ export async function Tiles(req: LambdaHttpRequest): Promise<LambdaHttpResponse>
     const { rest } = Router.action(req);
     if (rest.length < 1) return NotFound;
     const apiKey = Router.apiKey(req);
+    const apiKeyHash = createHash('sha256')
+        .update(apiKey ?? '')
+        .digest('base64');
+    req.set('api', apiKeyHash);
     if (!isValidApiKey(apiKey)) return new LambdaHttpResponse(400, 'Invalid API Key');
 
     const fileName = rest[rest.length - 1].toLowerCase();
