@@ -1,12 +1,12 @@
 import { App } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
 import { EdgeAnalytics } from './analytics/edge.analytics.js';
-import { CogBuilderStack } from 'cogify/index.js';
+import { CogBuilderStack } from './cogify/index.js';
 import { BaseMapsRegion } from './config.js';
 import { DeployEnv } from './deploy.env.js';
-import { EdgeStack } from 'edge/index.js';
+import { EdgeStack } from './edge/index.js';
 import { getEdgeParameters } from './parameters.js';
-import { ServeStack } from 'serve/index.js';
+import { ServeStack } from './serve/index.js';
 
 async function main(): Promise<void> {
     const basemaps = new App();

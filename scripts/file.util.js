@@ -1,5 +1,5 @@
-const { join } = require('path');
-const fs = require('fs').promises;
+import { join } from 'path';
+import { promises as fs } from 'fs';
 
 /**
  * call `callback` for every file in `topDir`. Sub directories a traversed unless callback returns false.
@@ -8,7 +8,7 @@ const fs = require('fs').promises;
  * @param callback async function that is called with (subPath, isDir) and returns true if dir
  * should be traversed.
  */
-exports.recurseDirectory = async (topDir, callback) => {
+export async function recurseDirectory(topDir, callback) {
     const recurse = async (subDir) => {
         const path = subDir === '' ? topDir : join(topDir, subDir);
         const files = await fs.readdir(path);
@@ -26,4 +26,4 @@ exports.recurseDirectory = async (topDir, callback) => {
     };
 
     await recurse('');
-};
+}

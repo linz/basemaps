@@ -15,6 +15,6 @@ export { TileSetName, TileSetNameValues } from './proj/tile.set.name.js';
 
 export * from './proj/projection.js';
 
-export * from 'file/index.js';
+export * from './file/index.js';
 
 export * from './util.js';

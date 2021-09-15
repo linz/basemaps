@@ -4,7 +4,7 @@ const __filename = url.fileURLToPath(import.meta.url);
 import * as fs from 'fs';
 import * as path from 'path';
 import Sharp from 'sharp';
-import PixelMatch = require('pixelmatch');
+import PixelMatch from 'pixelmatch';
 import { Epsg, Tile } from '@basemaps/geo';
 import { LambdaHttpResponse, LambdaHttpRequest, HttpHeader, LambdaAlbRequest } from '@linzjs/lambda';
 import { ImageFormat } from '@basemaps/tiler';

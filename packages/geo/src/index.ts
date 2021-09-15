@@ -5,8 +5,8 @@ export { Tile, TileMatrixSet } from './tile.matrix.set.js';
 export { WmtsProvider } from './wmts/wmts.js';
 export { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';
 
-export * from 'stac/index.js';
+export * from './stac/index.js';
 export { AttributionCollection, AttributionItem, AttributionStac } from './stac/stac.attribution.js';
-export { TileMatrixSets } from 'tms/index.js';
+export { TileMatrixSets } from './tms/index.js';
 export { Nztm2000Tms, Nztm2000QuadTms } from './tms/nztm2000.js';
 export { GoogleTms } from './tms/google.js';

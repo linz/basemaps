@@ -1,7 +1,7 @@
 import { GoogleTms, StacCollection } from '@basemaps/geo';
 import { LogConfig, LogType } from '@basemaps/shared';
-import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
-import { round } from '@basemaps/test/build/rounding';
+import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper.js';
+import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
 import { dirname } from 'path';
 import { FilePath } from '../file.js';

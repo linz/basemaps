@@ -1,9 +1,9 @@
-import cdk = require('@aws-cdk/core');
-import ec2 = require('@aws-cdk/aws-ec2');
-import elbv2 = require('@aws-cdk/aws-elasticloadbalancingv2');
-import targets = require('@aws-cdk/aws-elasticloadbalancingv2-targets');
-import cert = require('@aws-cdk/aws-certificatemanager');
-import r53 = require('@aws-cdk/aws-route53');
+import cdk from '@aws-cdk/core';
+import ec2 from '@aws-cdk/aws-ec2';
+import elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
+import targets from '@aws-cdk/aws-elasticloadbalancingv2-targets';
+import cert from '@aws-cdk/aws-certificatemanager';
+import r53 from '@aws-cdk/aws-route53';
 
 import { LambdaTiler } from './lambda.tiler.js';
 import { ApplicationProtocol, SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';

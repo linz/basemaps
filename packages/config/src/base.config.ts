@@ -1,5 +1,5 @@
 import { Epsg, EpsgCode } from '@basemaps/geo';
-import { ConfigImagery, ConfigProvider, ConfigTileSetRaster, ConfigTileSetVector, ConfigVectorStyle } from 'index.js';
+import { ConfigImagery, ConfigProvider, ConfigTileSetRaster, ConfigTileSetVector, ConfigVectorStyle } from './index.js';
 import { BaseConfig } from './config/base.js';
 import { ConfigPrefix } from './config/prefix.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from './config/tile.set.js';

@@ -1,6 +1,6 @@
-import cdk = require('@aws-cdk/core');
-import cf = require('@aws-cdk/aws-cloudfront');
-import s3 = require('@aws-cdk/aws-s3');
+import cdk from '@aws-cdk/core';
+import cf from '@aws-cdk/aws-cloudfront';
+import s3 from '@aws-cdk/aws-s3';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { Env } from '@basemaps/shared';
 import { getConfig } from '../config.js';

@@ -8,7 +8,7 @@ import o from 'ospec';
 import * as path from 'path';
 import { PNG } from 'pngjs';
 import { TileMakerSharp } from '../index.js';
-import PixelMatch = require('pixelmatch');
+import PixelMatch from 'pixelmatch';
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;
 
