@@ -17,6 +17,10 @@
     "clean:modules": "rimraf 'packages/*/node_modules' && rimraf node_modules",
     "build": "tsc -b"
   },
+  "type": "module",
+  "engines": {
+      "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
   "devDependencies": {
     "@linzjs/style": "^2.1.1",
     "@types/aws-lambda": "^8.10.75",

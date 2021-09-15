@@ -1,4 +1,4 @@
-import { Metrics } from '../metrics';
+import { Metrics } from '../metrics.js';
 import o from 'ospec';
 
 o.spec('Metrics', () => {

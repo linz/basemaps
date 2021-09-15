@@ -2,8 +2,8 @@
  * Determine if a package is using another package without referencing it inside of the package.json
  */
 
-const fs = require('fs').promises;
-const cp = require('child_process');
+import { promises as fs } from 'fs';
+import cp from 'child_process';
 
 const fileExists = async (path) => !!(await fs.stat(path).catch(() => false));
 

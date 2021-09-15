@@ -1,5 +1,5 @@
 import { EpsgCode, StacCollection, StacItem } from '@basemaps/geo';
-import { CogGdalSettings } from './types';
+import { CogGdalSettings } from './types.js';
 
 export interface CogGenerated {
     /** ISO date string */

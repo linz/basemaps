@@ -1,4 +1,4 @@
-import { Epsg } from './epsg';
+import { Epsg } from './epsg.js';
 
 /**
  * Order of X & Y coordinates when defined as a array

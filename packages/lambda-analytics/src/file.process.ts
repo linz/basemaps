@@ -1,7 +1,7 @@
 import { LogType, getUrlHost, fsa } from '@basemaps/shared';
 import { createInterface, Interface } from 'readline';
 import { createGunzip } from 'zlib';
-import { LogStats } from './stats';
+import { LogStats } from './stats.js';
 
 export const FileProcess = {
     reader(fileName: string): AsyncGenerator<string> | Interface {

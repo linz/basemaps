@@ -1,6 +1,6 @@
 import { Epsg } from '@basemaps/geo';
-import { e } from './elm';
-import { Basemaps } from './map';
+import { e } from './elm.js';
+import { Basemaps } from './map.js';
 
 function round(max: number): (c: number) => number {
     const decimals = 10 ** max;

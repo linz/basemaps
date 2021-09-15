@@ -17,9 +17,9 @@ import {
     titleizeImageryName,
 } from '@basemaps/shared';
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
-import { CliInfo } from '../cli/base.cli';
-import { GdalCogBuilderDefaults, GdalCogBuilderResampling } from '../gdal/gdal.config';
-import { CogStac, CogStacItem, CogStacItemExtensions, CogStacKeywords } from './stac';
+import { CliInfo } from '../cli/base.cli.js';
+import { GdalCogBuilderDefaults, GdalCogBuilderResampling } from '../gdal/gdal.config.js';
+import { CogStac, CogStacItem, CogStacItemExtensions, CogStacKeywords } from './stac.js';
 import {
     CogBuilderMetadata,
     CogJob,
@@ -27,7 +27,7 @@ import {
     CogOutputProperties,
     CogSourceProperties,
     FeatureCollectionWithCrs,
-} from './types';
+} from './types.js';
 
 export const MaxConcurrencyDefault = 50;
 

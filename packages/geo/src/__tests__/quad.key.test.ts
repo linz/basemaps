@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { QuadKey } from '../quad.key';
+import { QuadKey } from '../quad.key.js';
 
 o.spec('QuadKey', () => {
     o.spec('intersect', () => {

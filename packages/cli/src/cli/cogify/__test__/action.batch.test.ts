@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { extractResolutionFromName } from '../action.batch';
+import { extractResolutionFromName } from '../action.batch.js';
 
 o.spec('action.batch', () => {
     o('extractResolutionFromName', () => {

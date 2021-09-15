@@ -1,10 +1,10 @@
-import './global';
+import './global.js';
 
-import { Basemaps } from './map';
-import { WindowUrl } from './url';
-import { BasemapsUi } from './ui';
-import { isWebpSupported } from './webp';
-import { addDebugLayer } from './debug';
+import { Basemaps } from './map.js';
+import { WindowUrl } from './url.js';
+import { BasemapsUi } from './ui.js';
+import { isWebpSupported } from './webp.js';
+import { addDebugLayer } from './debug.js';
 
 const canUseWebp = isWebpSupported();
 

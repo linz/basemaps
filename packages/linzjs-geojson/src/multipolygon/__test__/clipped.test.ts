@@ -1,7 +1,7 @@
 import o from 'ospec';
-import { round } from '@basemaps/test/build/rounding';
-import { clipMultipolygon } from '../clipped';
-import { BBox, MultiPolygon } from '../../types';
+import { round } from '@basemaps/test/build/rounding.js';
+import { clipMultipolygon } from '../clipped.js';
+import { BBox, MultiPolygon } from '../../types.js';
 
 o.spec('clipped.multipolygon', () => {
     const polys: MultiPolygon = [

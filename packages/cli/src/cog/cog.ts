@@ -1,9 +1,9 @@
 import { Bounds, TileMatrixSet } from '@basemaps/geo';
 import { Aws, isConfigS3Role, LogType, Projection } from '@basemaps/shared';
-import { GdalCogBuilder } from '../gdal/gdal.cog';
-import { GdalCommand } from '../gdal/gdal.command';
-import { GdalProgressParser } from '../gdal/gdal.progress';
-import { CogJob } from './types';
+import { GdalCogBuilder } from '../gdal/gdal.cog.js';
+import { GdalCommand } from '../gdal/gdal.command.js';
+import { GdalProgressParser } from '../gdal/gdal.progress.js';
+import { CogJob } from './types.js';
 
 /**
  * Create a onProgress logger

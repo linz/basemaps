@@ -2,8 +2,8 @@ import { ConfigImagery, ConfigLayer, ConfigTileSet, ConfigTileSetRaster, TileSet
 import { Epsg } from '@basemaps/geo';
 import { Config } from '@basemaps/shared';
 import * as c from 'ansi-colors';
-import { CliTable } from '../cli.table';
-import { invalidateCache } from '../util';
+import { CliTable } from '../cli.table.js';
+import { invalidateCache } from '../util.js';
 
 /**
  * Convert a number to a two digit hex string. numbers < 16 are padded with '0'

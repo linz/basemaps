@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { extractYearRangeFromName, getUrlHost, s3ToVsis3, titleizeImageryName } from '../util';
+import { extractYearRangeFromName, getUrlHost, s3ToVsis3, titleizeImageryName } from '../util.js';
 
 o.spec('util', () => {
     o('extractYearRangeFromName', () => {

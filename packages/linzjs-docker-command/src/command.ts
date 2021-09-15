@@ -1,4 +1,4 @@
-import { CommandExecution, CommandExecutionOptions } from './command.execution';
+import { CommandExecution, CommandExecutionOptions } from './command.execution.js';
 
 export interface CommandOptions {
     container: string;

@@ -1,17 +1,9 @@
-import { ObjectCache } from './object.cache';
+import { ObjectCache } from './object.cache.js';
 import { hostname } from 'os';
-import { Env } from '../const';
-import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
-import S3 from 'aws-sdk/clients/s3';
-
-/**
- * Nasty Hack
- *
- *  to prevent type pollution we do not want to include the entire aws-sdk
- * This bypasses the type checker but still inits the AWS SDK so we have access to credentials
- */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const AWS = require('aws-sdk');
+import { Env } from '../const.js';
+import ctc from 'aws-sdk/lib/credentials/chainable_temporary_credentials.js';
+import aws from 'aws-sdk/lib/core.js';
+import S3 from 'aws-sdk/clients/s3.js';
 
 export interface StsAssumeRoleConfig {
     roleArn: string;
@@ -20,20 +12,25 @@ export interface StsAssumeRoleConfig {
 
 const OneHourSeconds = 60 * 60;
 
+const awsProfile = process.env['AWS_PROFILE'];
+const masterCredentials = awsProfile
+    ? new aws.SharedIniFileCredentials({ profile: awsProfile })
+    : new aws.EC2MetadataCredentials();
+
 /**
  * Credentials need to be cached or a separate assume role will be called for each individual
  * instance of the credential chain
  */
-class CredentialObjectCache extends ObjectCache<ChainableTemporaryCredentials, StsAssumeRoleConfig> {
-    create(opts: StsAssumeRoleConfig): ChainableTemporaryCredentials {
-        return new AWS.ChainableTemporaryCredentials({
+class CredentialObjectCache extends ObjectCache<ctc.ChainableTemporaryCredentials, StsAssumeRoleConfig> {
+    create(opts: StsAssumeRoleConfig): ctc.ChainableTemporaryCredentials {
+        return new aws.ChainableTemporaryCredentials({
             params: {
                 RoleArn: opts.roleArn,
                 ExternalId: opts.externalId,
                 RoleSessionName: `bm-${hostname().substr(0, 32)}-${Date.now()}`,
                 DurationSeconds: Env.getNumber(Env.AwsRoleDurationHours, 8) * OneHourSeconds,
             },
-            masterCredentials: AWS.config.credentials,
+            masterCredentials,
         });
     }
 }

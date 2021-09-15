@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { ConfigProviderDynamo } from '../dynamo.config';
+import { ConfigProviderDynamo } from '../dynamo.config.js';
 
 o.spec('ConfigProviderDynamo', () => {
     const Config = new ConfigProviderDynamo('table');

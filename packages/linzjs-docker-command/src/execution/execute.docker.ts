@@ -1,8 +1,8 @@
-import { Command } from '../command';
-import { CommandExecution } from '../command.execution';
-import { Executor } from './execute';
-import { ExecutorLocal } from './execute.local';
-import { CommandExecutionResult } from './execute.result';
+import { Command } from '../command.js';
+import { CommandExecution } from '../command.execution.js';
+import { Executor } from './execute.js';
+import { ExecutorLocal } from './execute.local.js';
+import { CommandExecutionResult } from './execute.result.js';
 
 export const ExecutorDockerDefaultArgs = [
     // Remove container after running

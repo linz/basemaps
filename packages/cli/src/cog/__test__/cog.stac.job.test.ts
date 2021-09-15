@@ -1,11 +1,11 @@
 import { Bounds, Epsg, EpsgCode, GoogleTms, Nztm2000Tms, Stac } from '@basemaps/geo';
 import { Projection } from '@basemaps/shared';
-import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
-import { round } from '@basemaps/test/build/rounding';
+import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper.js';
+import { round } from '@basemaps/test/build/rounding.js';
 import { Ring } from '@linzjs/geojson';
 import o from 'ospec';
-import { CogStacJob, JobCreationContext } from '../cog.stac.job';
-import { CogBuilderMetadata, CogJobJson } from '../types';
+import { CogStacJob, JobCreationContext } from '../cog.stac.job.js';
+import { CogBuilderMetadata, CogJobJson } from '../types.js';
 
 type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;

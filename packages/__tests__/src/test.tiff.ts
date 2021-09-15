@@ -1,6 +1,8 @@
 import { CogTiff } from '@cogeotiff/core';
 import { SourceFile } from '@cogeotiff/source-file';
-import { join } from 'path';
+import path, { join } from 'path';
+import url from 'url';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 export const TestDataPath = join(__dirname, '../static');
 

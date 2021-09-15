@@ -1,10 +1,10 @@
 import { GoogleTms } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
-import { round } from '@basemaps/test/build/rounding';
+import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
-import { GdalCogBuilder } from '../../gdal/gdal.cog';
-import { buildCogForName } from '../cog';
-import { SourceTiffTestHelper } from './source.tiff.testhelper';
+import { GdalCogBuilder } from '../../gdal/gdal.cog.js';
+import { buildCogForName } from '../cog.js';
+import { SourceTiffTestHelper } from './source.tiff.testhelper.js';
 
 LogConfig.disable();
 

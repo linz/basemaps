@@ -7,9 +7,9 @@ import { CogTiff } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
-import { NotFound, NotModified, TileComposer } from './routes/tile';
-import { TileEtag } from './routes/tile.etag';
-import { TileSetHandler } from './tile.set';
+import { NotFound, NotModified, TileComposer } from './routes/tile.js';
+import { TileEtag } from './routes/tile.etag.js';
+import { TileSetHandler } from './tile.set.js';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 

@@ -7,14 +7,14 @@ import {
 } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import { FeatureCollection } from 'geojson';
-import { buildCogForName } from '../../cog/cog';
-import { CogStacJob } from '../../cog/cog.stac.job';
-import { CogVrt } from '../../cog/cog.vrt';
-import { Cutline } from '../../cog/cutline';
-import { CogJob } from '../../cog/types';
-import { Gdal } from '../../gdal/gdal';
-import { CliId } from '../base.cli';
-import { makeTempFolder } from '../folder';
+import { buildCogForName } from '../../cog/cog.js';
+import { CogStacJob } from '../../cog/cog.stac.job.js';
+import { CogVrt } from '../../cog/cog.vrt.js';
+import { Cutline } from '../../cog/cutline.js';
+import { CogJob } from '../../cog/types.js';
+import { Gdal } from '../../gdal/gdal.js';
+import { CliId } from '../base.cli.js';
+import { makeTempFolder } from '../folder.js';
 
 export class ActionCogCreate extends CommandLineAction {
     private job?: CommandLineStringParameter;

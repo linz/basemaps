@@ -1,10 +1,10 @@
-import { Aws } from '../aws';
+import { Aws } from '../aws/index.js';
 
-export * from './file.config';
+export * from './file.config.js';
 import { fsa as fsaSource, FsS3 } from '@linzjs/s3fs';
 import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
-import { FileConfig, isConfigS3Role } from './file.config';
+import { FileConfig, isConfigS3Role } from './file.config.js';
 
 const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 

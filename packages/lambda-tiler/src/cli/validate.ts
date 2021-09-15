@@ -3,8 +3,8 @@ import { Aws, Env, LogConfig, TileSetName } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import pLimit from 'p-limit';
-import { TileSets } from '../tile.set.cache';
-import { TileSetRaster } from '../tile.set.raster';
+import { TileSets } from '../tile.set.cache.js';
+import { TileSetRaster } from '../tile.set.raster.js';
 
 const Q = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
 

@@ -1,10 +1,10 @@
 import { Epsg } from '@basemaps/geo';
 import { Aws, fsa, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
-import { Gdal } from '../gdal/gdal';
-import { GdalCommand } from '../gdal/gdal.command';
-import { onProgress } from './cog';
-import { Cutline } from './cutline';
-import { CogJob } from './types';
+import { Gdal } from '../gdal/gdal.js';
+import { GdalCommand } from '../gdal/gdal.command.js';
+import { onProgress } from './cog.js';
+import { Cutline } from './cutline.js';
+import { CogJob } from './types.js';
 
 /**
  * Build the VRT for the needed source imagery

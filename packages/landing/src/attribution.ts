@@ -1,10 +1,10 @@
 import { Attribution } from '@basemaps/attribution';
 import { AttributionCollection, Stac, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
-import { MapOptions, MapOptionType, WindowUrl } from './url';
+import { MapOptions, MapOptionType, WindowUrl } from './url.js';
 import mapboxgl, { LngLatBounds } from 'maplibre-gl';
-import { locationTransform } from './tile.matrix';
-import { MapboxTms } from './map';
+import { locationTransform } from './tile.matrix.js';
+import { MapboxTms } from './map.js';
 
 const Copyright = `© ${Stac.License} LINZ`;
 

@@ -3,9 +3,9 @@ import { Epsg } from '@basemaps/geo';
 import { Config, LogConfig } from '@basemaps/shared';
 import { CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as c from 'ansi-colors';
-import { TagActions } from '../tag.action';
-import { TileSetBaseAction } from './tileset.action';
-import { printTileSet } from './tileset.util';
+import { TagActions } from '../tag.action.js';
+import { TileSetBaseAction } from './tileset.action.js';
+import { printTileSet } from './tileset.util.js';
 
 export class TileSetInfoAction extends TileSetBaseAction {
     private imagery: CommandLineStringParameter;

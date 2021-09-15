@@ -1,6 +1,6 @@
 import o from 'ospec';
-import { Command } from '../../command';
-import { toDockerExecution } from '../execute.docker';
+import { Command } from '../../command.js';
+import { toDockerExecution } from '../execute.docker.js';
 
 o.spec('DockerExecution', () => {
     o('should run hello world', () => {

@@ -1,14 +1,15 @@
 import { ConfigProvider, StyleJson } from '@basemaps/config';
 import { TileMatrixSets } from '@basemaps/geo';
 import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
-import { round } from '@basemaps/test/build/rounding';
+import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
-import { handleRequest } from '../index';
-import { TileComposer } from '../routes/tile';
-import { TileEtag } from '../routes/tile.etag';
-import { TileSets } from '../tile.set.cache';
-import { FakeTileSet, mockRequest, Provider } from './xyz.util';
-import { createSandbox } from 'sinon';
+import { handleRequest } from '../index.js';
+import { TileComposer } from '../routes/tile.js';
+import { TileEtag } from '../routes/tile.etag.js';
+import { TileSets } from '../tile.set.cache.js';
+import { FakeTileSet, mockRequest, Provider } from './xyz.util.js';
+import sinon from 'sinon';
+const sandbox = sinon.createSandbox();
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -20,7 +21,6 @@ o.spec('LambdaXyz', () => {
     const rasterMockBuffer = Buffer.from([1]);
     const origTileEtag = TileEtag.generate;
     const origCompose = TileComposer.compose;
-    const sandbox = createSandbox();
 
     const apiKey = 'd01f7w7rnhdzg0p7fyrc9v9ard1';
     const apiKeyHeader = { 'x-linz-api-key': 'd01f7w7rnhdzg0p7fyrc9v9ard1' };
@@ -58,8 +58,7 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should export handler', async () => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const base = require('../index');
+        const base = await import('../index.js');
         o(typeof base.handler).equals('function');
     });
 

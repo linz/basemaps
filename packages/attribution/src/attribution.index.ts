@@ -1,4 +1,4 @@
-import { Attribution } from './attribution';
+import { Attribution } from './attribution.js';
 
 declare global {
     interface Window {

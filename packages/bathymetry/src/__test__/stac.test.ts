@@ -1,12 +1,12 @@
 import { GoogleTms, StacCollection } from '@basemaps/geo';
 import { LogConfig, LogType } from '@basemaps/shared';
-import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
-import { round } from '@basemaps/test/build/rounding';
+import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper.js';
+import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
 import { dirname } from 'path';
-import { FilePath } from '../file';
-import { Hash } from '../hash';
-import { Stac } from '../stac';
+import { FilePath } from '../file.js';
+import { Hash } from '../hash.js';
+import { Stac } from '../stac.js';
 
 o.spec('stac', () => {
     const origHash = Hash.hash;

@@ -1,12 +1,15 @@
 import { EpsgCode, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
-import { round } from '@basemaps/test/build/rounding';
+import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util.js';
+import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
-import { Gdal } from '../../gdal/gdal';
-import { CogVrt } from '../cog.vrt';
-import { Cutline } from '../cutline';
-import { SourceTiffTestHelper } from './source.tiff.testhelper';
+import path from 'path';
+import url from 'url';
+import { Gdal } from '../../gdal/gdal.js';
+import { CogVrt } from '../cog.vrt.js';
+import { Cutline } from '../cutline.js';
+import { SourceTiffTestHelper } from './source.tiff.testhelper.js';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 o.spec('cog.vrt', () => {
     const tmpFolder = '/tmp/my-tmp-folder';

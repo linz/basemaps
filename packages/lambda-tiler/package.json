@@ -12,6 +12,10 @@
     "url": "https://linz.govt.nz",
     "organization": true
   },
+  "type": "module",
+  "engines": {
+      "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "license": "MIT",
@@ -26,7 +30,7 @@
     "@cogeotiff/source-aws": "^4.3.0",
     "@cotar/core": "3.1.0",
     "@linzjs/geojson": "^6.9.1",
-    "@linzjs/lambda": "^1.1.0",
+    "@linzjs/lambda": "^2.0.0",
     "farmhash": "^3.2.1",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",

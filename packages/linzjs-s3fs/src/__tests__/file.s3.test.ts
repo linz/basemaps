@@ -1,11 +1,11 @@
-import { FsS3 } from '../abstractions/file.s3';
+import { FsS3 } from '../abstractions/file.s3.js';
 import o from 'ospec';
-import S3 from 'aws-sdk/clients/s3';
-import { createSandbox } from 'sinon';
-import { FileSystemAbstraction } from '../file.al';
+import S3 from 'aws-sdk/clients/s3.js';
+import sinon from 'sinon';
+import { FileSystemAbstraction } from '../file.al.js';
 
 o.spec('file.s3', () => {
-    const sandbox = createSandbox();
+    const sandbox = sinon.createSandbox();
     const mockS3 = new S3();
     const fs = new FsS3(mockS3);
 

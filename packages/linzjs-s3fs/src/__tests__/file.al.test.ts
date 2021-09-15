@@ -1,6 +1,6 @@
 import o from 'ospec';
-import { FileSystemAbstraction } from '../file.al';
-import { FsLocal } from '../abstractions/file.local';
+import { FileSystemAbstraction } from '../file.al.js';
+import { FsLocal } from '../abstractions/file.local.js';
 
 export class FakeSystem extends FsLocal {
     constructor(protocol = 'fake') {

@@ -2,7 +2,7 @@ import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import o from 'ospec';
-import { handleRequest } from '../index';
+import { handleRequest } from '../index.js';
 
 o.spec('LambdaXyz index', () => {
     function req(path: string, method = 'get'): LambdaHttpRequest {
@@ -19,9 +19,8 @@ o.spec('LambdaXyz index', () => {
         );
     }
 
-    o('should export handler', () => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const foo = require('../index');
+    o('should export handler', async () => {
+        const foo = await import('../index.js');
         o(typeof foo.handler).equals('function');
     });
 

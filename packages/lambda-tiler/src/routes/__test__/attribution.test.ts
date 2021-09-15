@@ -2,15 +2,16 @@ import { ConfigImagery, ConfigLayer, ConfigProvider } from '@basemaps/config';
 import { EpsgCode, GoogleTms, NamedBounds, Nztm2000QuadTms, Nztm2000Tms, Stac, TileMatrixSets } from '@basemaps/geo';
 import { HttpHeader } from '@linzjs/lambda';
 import { Config } from '@basemaps/shared';
-import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper';
-import { round } from '@basemaps/test/build/rounding';
+import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.operator.test.helper.js';
+import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
-import { createSandbox } from 'sinon';
-import { TileSets } from '../../tile.set.cache';
-import { TileSetRaster } from '../../tile.set.raster';
-import { FakeTileSet, mockRequest, Provider } from '../../__test__/xyz.util';
-import { attribution, createAttributionCollection } from '../attribution';
-import { TileEtag } from '../tile.etag';
+import sinon from 'sinon';
+const sandbox = sinon.createSandbox();
+import { TileSets } from '../../tile.set.cache.js';
+import { TileSetRaster } from '../../tile.set.raster.js';
+import { FakeTileSet, mockRequest, Provider } from '../../__test__/xyz.util.js';
+import { attribution, createAttributionCollection } from '../attribution.js';
+import { TileEtag } from '../tile.etag.js';
 import { Attribution } from '@basemaps/attribution';
 
 const ExpectedJson = {
@@ -291,7 +292,6 @@ o.spec('attribution', () => {
 
         const mockFs = mockFileOperator();
 
-        const sandbox = createSandbox();
         o.beforeEach(() => {
             mockFs.setup();
             TileEtag.generate = generateMock;

@@ -1,7 +1,7 @@
 import lineclip from 'lineclip';
 import pc from 'polygon-clipping';
-import { bboxToPolygon } from '../bbox';
-import { BBox, MultiPolygon, Polygon } from '../types';
+import { bboxToPolygon } from '../bbox.js';
+import { BBox, MultiPolygon, Polygon } from '../types.js';
 
 export const { intersection, union } = pc;
 

@@ -1,6 +1,9 @@
+import { statSync, unlinkSync } from 'fs';
 import o from 'ospec';
-import { fsa } from '../index';
-import { unlinkSync, statSync } from 'fs';
+import path from 'path';
+import url from 'url';
+import { fsa } from '../index.js';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 function rmF(path: string): void {
     try {

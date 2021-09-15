@@ -5,6 +5,8 @@
             "ES2020"
         ],
         "outDir": "build",
+        "module": "ES2020",
+        "moduleResolution": "Node",
         // Reduce the js size as the map files are made as well
         "inlineSourceMap": false,
         "inlineSources": false,

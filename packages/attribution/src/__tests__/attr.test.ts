@@ -1,6 +1,6 @@
 import { AttributionCollection, AttributionItem, AttributionStac } from '@basemaps/geo';
 import o from 'ospec';
-import { Attribution } from '../attribution';
+import { Attribution } from '../attribution.js';
 
 o.spec('Attribution', () => {
     const collection: AttributionCollection = {
