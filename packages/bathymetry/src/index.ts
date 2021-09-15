@@ -1,5 +1,5 @@
-import { BaseCommandLine } from '@basemaps/cli/build/cli/base.cli';
-import { makeTempFolder } from '@basemaps/cli/build/cli/folder';
+import { BaseCommandLine } from "@basemaps/cli/build/cli/base.cli.js";
+import { makeTempFolder } from "@basemaps/cli/build/cli/folder.js";
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';

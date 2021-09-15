@@ -4,7 +4,7 @@ import { LogConfig } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
 import { promises as fs } from 'fs';
 import { PrettyTransform } from 'pretty-json-log';
-import { tile } from '../routes/tile.js';
+import { TileRoute } from '../routes/tile.js';
 import { TileSet } from '../tile.set.js';
 import { TileSets } from '../tile.set.cache.js';
 import { TileSetLocal } from './tile.set.local.js';
@@ -51,7 +51,7 @@ async function main(): Promise<void> {
         logger,
     );
 
-    const tileData = await tile(ctx);
+    const tileData = await TileRoute.tile(ctx);
 
     const headers: Record<string, any> = {};
     for (const [key, value] of tileData.headers) headers[key] = value;

@@ -10,8 +10,8 @@
 process.env['AWS_NODEJS_CONNECTION_REUSE_ENABLED'] = '1';
 
 import { Config, ConfigProviderDynamo } from '@basemaps/config';
-import S3 from 'aws-sdk/clients/s3';
-import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
+import S3 from "aws-sdk/clients/s3.js";
+import { ChainableTemporaryCredentials } from "aws-sdk/lib/credentials/chainable_temporary_credentials.js";
 import { Const } from '../const.js';
 import { ApiKeyTable } from './api.key.table.js';
 import { CredentialsCache, S3Cache, StsAssumeRoleConfig } from './credentials.js';

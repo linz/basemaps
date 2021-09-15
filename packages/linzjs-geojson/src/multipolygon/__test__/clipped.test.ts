@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { round } from '@basemaps/test/build/rounding';
+import { round } from "@basemaps/test/build/rounding.js";
 import { clipMultipolygon } from '../clipped.js';
 import { BBox, MultiPolygon } from '../../types.js';
 

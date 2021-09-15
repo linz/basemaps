@@ -1,6 +1,6 @@
 import { Bounds, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { Approx } from '@basemaps/test';
-import { round } from '@basemaps/test/build/rounding';
+import { round } from "@basemaps/test/build/rounding.js";
 import { BBox } from '@linzjs/geojson';
 import o from 'ospec';
 import { LatLon, Projection } from '../projection.js';

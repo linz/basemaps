@@ -19,9 +19,8 @@ o.spec('LambdaXyz index', () => {
         );
     }
 
-    o('should export handler', () => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const foo = require('../index');
+    o('should export handler', async () => {
+        const foo = await import('../index.js');
         o(typeof foo.handler).equals('function');
     });
 

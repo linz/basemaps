@@ -2,13 +2,11 @@ import { ConfigImagery, ConfigTileSetRaster } from '@basemaps/config';
 import { Epsg, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { Config, TileSetName } from '@basemaps/shared';
 import o from 'ospec';
-import { createSandbox } from 'sinon';
+import sinon from 'sinon';
 import { TileSets } from '../tile.set.cache.js';
 import { TileSetRaster } from '../tile.set.raster.js';
-
+const sandbox = sinon.createSandbox();
 o.spec('TileSetCache', () => {
-    const sandbox = createSandbox();
-
     const imageOne = {
         id: 'im_id1',
         name: 'tasman_rural_2018-19_0-3m',

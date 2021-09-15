@@ -1,7 +1,7 @@
 import { TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import Batch from 'aws-sdk/clients/batch';
+import Batch from "aws-sdk/clients/batch.js";
 import { CogStacJob } from '../../cog/cog.stac.job.js';
 import { CogJob } from '../../cog/types.js';
 

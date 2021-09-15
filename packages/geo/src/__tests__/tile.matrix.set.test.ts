@@ -1,5 +1,5 @@
 import { Approx } from '@basemaps/test';
-import { round } from '@basemaps/test/build/rounding';
+import { round } from "@basemaps/test/build/rounding.js";
 import o from 'ospec';
 import { Point } from '../bounds.js';
 import { Epsg } from '../epsg.js';

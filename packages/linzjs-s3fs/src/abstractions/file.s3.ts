@@ -1,9 +1,9 @@
-import S3 from 'aws-sdk/clients/s3';
-import { Credentials } from 'aws-sdk/lib/credentials';
-import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
-import { EC2MetadataCredentials } from 'aws-sdk/lib/credentials/ec2_metadata_credentials';
-import { SharedIniFileCredentials } from 'aws-sdk/lib/credentials/shared_ini_file_credentials';
-import type { AWSError } from 'aws-sdk/lib/error';
+import S3 from 'aws-sdk/clients/s3.js';
+import cr from 'aws-sdk/lib/credentials.js';
+import ctc from 'aws-sdk/lib/credentials/chainable_temporary_credentials.js';
+import aws from 'aws-sdk/lib/core.js';
+
+import type { AWSError } from 'aws-sdk/lib/error.js';
 import type { Readable, Stream } from 'stream';
 import { CompositeError } from '../composite.error.js';
 import { FileInfo, FileSystem } from '../file.js';
@@ -19,10 +19,10 @@ export class FsS3 implements FileSystem {
      *
      * if the AWS profile is "ec2" use EC2MetadataCredentials, otherwise load credentials from the shared ini file
      */
-    static credentialsFromRoleArn(roleArn: string, profile?: string | 'ec2', externalId?: string): Credentials {
+    static credentialsFromRoleArn(roleArn: string, profile?: string | 'ec2', externalId?: string): cr.Credentials {
         const masterCredentials =
-            profile === 'ec2' ? new EC2MetadataCredentials() : new SharedIniFileCredentials({ profile });
-        return new ChainableTemporaryCredentials({
+            profile === 'ec2' ? new aws.EC2MetadataCredentials() : new aws.SharedIniFileCredentials({ profile });
+        return new ctc.ChainableTemporaryCredentials({
             params: {
                 RoleArn: roleArn,
                 ExternalId: externalId,

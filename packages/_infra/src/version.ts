@@ -1,4 +1,4 @@
-import { GitTag } from '@basemaps/shared/build/cli/git.tag';
+import { GitTag } from "@basemaps/shared/build/cli/git.tag.js";
 
 export interface VersionInfo {
     /** Current git tag */

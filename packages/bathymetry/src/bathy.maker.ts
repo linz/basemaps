@@ -1,5 +1,5 @@
 import { Gdal } from '@basemaps/cli';
-import { GdalCommand } from '@basemaps/cli/build/gdal/gdal.command';
+import { GdalCommand } from "@basemaps/cli/build/gdal/gdal.command.js";
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, s3ToVsis3 } from '@basemaps/shared';
 import * as os from 'os';

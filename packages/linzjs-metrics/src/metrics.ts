@@ -5,7 +5,7 @@ export class Metrics {
     /**
      * Start time of all timers
      */
-    private timers: Map<string, { start: number; duration?: number }> = new Map();
+    timers: Map<string, { start: number; duration?: number }> = new Map();
 
     constructor() {
         if (typeof process !== 'undefined' && typeof process.hrtime.bigint === 'function') {
@@ -18,7 +18,7 @@ export class Metrics {
         }
     }
 
-    private getTime: () => number;
+    getTime: () => number;
 
     /**
      * Start a timer at the current time

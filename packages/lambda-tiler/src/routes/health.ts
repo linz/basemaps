@@ -1,15 +1,15 @@
-import url from 'url';
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-const __filename = url.fileURLToPath(import.meta.url);
+import { Epsg, Tile } from '@basemaps/geo';
+import { ImageFormat } from '@basemaps/tiler';
+import { HttpHeader, LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { Context } from 'aws-lambda';
 import * as fs from 'fs';
 import * as path from 'path';
-import Sharp from 'sharp';
 import PixelMatch from 'pixelmatch';
-import { Epsg, Tile } from '@basemaps/geo';
-import { LambdaHttpResponse, LambdaHttpRequest, HttpHeader, LambdaAlbRequest } from '@linzjs/lambda';
-import { ImageFormat } from '@basemaps/tiler';
-import { tile } from './tile.js';
-import { Context } from 'aws-lambda';
+import Sharp from 'sharp';
+import url from 'url';
+import { TileRoute } from './tile.js';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const __filename = url.fileURLToPath(import.meta.url);
 
 export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageFormat): string {
     // Bundle static files are at the same directory with index.js
@@ -80,7 +80,7 @@ export async function Health(req: LambdaHttpRequest): Promise<LambdaHttpResponse
         );
 
         // Get the parse response tile to raw buffer
-        const response = await tile(ctx);
+        const response = await TileRoute.tile(ctx);
         if (response.status !== 200) return new LambdaHttpResponse(response.status, response.statusDescription);
         if (!Buffer.isBuffer(response._body)) throw new LambdaHttpResponse(404, 'Not a Buffer response content.');
         const resImgBuffer = await Sharp(response._body).raw().toBuffer();

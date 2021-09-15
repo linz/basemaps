@@ -6,7 +6,7 @@ import { HttpHeader, LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda'
 import { Env, LogConfig, LogType } from '@basemaps/shared';
 import express from 'express';
 import { PrettyTransform } from 'pretty-json-log';
-import 'source-map-support/register';
+import "source-map-support/register.js";
 import * as ulid from 'ulid';
 import * as lambda from '../index.js';
 import { TileSets } from '../tile.set.cache.js';
