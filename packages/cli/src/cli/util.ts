@@ -1,6 +1,6 @@
 import { LogConfig } from '@basemaps/shared';
-import CloudFormation from "aws-sdk/clients/cloudformation.js";
-import CloudFront from "aws-sdk/clients/cloudfront.js";
+import CloudFormation from 'aws-sdk/clients/cloudformation.js';
+import CloudFront from 'aws-sdk/clients/cloudfront.js';
 import { CliId } from './base.cli.js';
 
 // Cloudfront has to be defined in us-east-1

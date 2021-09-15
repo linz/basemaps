@@ -1,7 +1,7 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet } from '@basemaps/geo';
 import { MapLocation, MapOptions, MapOptionType, WindowUrl } from './url.js';
 import { Style } from 'maplibre-gl';
-import { Projection } from "@basemaps/shared/build/proj/projection.js";
+import { Projection } from '@basemaps/shared/build/proj/projection.js';
 
 export class TileGrid {
     tileMatrix: TileMatrixSet;

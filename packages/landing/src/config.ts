@@ -1,4 +1,4 @@
-import { getApiKey } from "@basemaps/shared/build/api.js";
+import { getApiKey } from '@basemaps/shared/build/api.js';
 
 const currentApiKey: string = getApiKey();
 export const Config = {

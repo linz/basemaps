@@ -1,6 +1,6 @@
 import { GoogleTms } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
-import { round } from "@basemaps/test/build/rounding.js";
+import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
 import { GdalCogBuilder } from '../../gdal/gdal.cog.js';
 import { buildCogForName } from '../cog.js';

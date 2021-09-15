@@ -1,5 +1,5 @@
 import { Stack } from '@aws-cdk/core';
-import CloudFormation from "aws-sdk/clients/cloudformation.js";
+import CloudFormation from 'aws-sdk/clients/cloudformation.js';
 
 export const Parameters = {
     Edge: {

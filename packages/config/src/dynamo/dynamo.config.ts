@@ -1,4 +1,4 @@
-import DynamoDB from "aws-sdk/clients/dynamodb.js";
+import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import { BasemapsConfigProvider } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';

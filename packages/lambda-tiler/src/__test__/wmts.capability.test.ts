@@ -1,12 +1,12 @@
 import { Bounds, Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import { TileSetName, V, VNodeElement } from '@basemaps/shared';
-import { roundNumbersInString } from "@basemaps/test/build/rounding.js";
+import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
 import { createHash } from 'crypto';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { FakeTileSet, Provider } from './xyz.util.js';
 
-import "source-map-support/register.js";
+import 'source-map-support/register.js';
 
 function tags(node: VNodeElement | null | undefined, tag: string): VNodeElement[] {
     if (node == null) return [];
