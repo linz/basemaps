@@ -1,4 +1,3 @@
-import type { GeoJsonObject } from 'geojson';
 import { StacCatalog, StacCollection, StacItem } from './index';
 
 /**
@@ -22,7 +21,7 @@ export type AttributionItem = StacItem<{
 /**
  * A Single File STAC compliant attribution json structure.
  */
-export interface AttributionStac extends StacCatalog, GeoJsonObject, Record<string, unknown> {
+export interface AttributionStac extends StacCatalog, GeoJSON.GeoJsonObject, Record<string, unknown> {
     type: 'FeatureCollection';
     features: AttributionItem[];
     collections: AttributionCollection[];

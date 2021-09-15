@@ -1,4 +1,4 @@
-import type { BBox, Feature, Geometry } from 'geojson';
+import type * as GeoJSON from 'geojson';
 
 export const Stac = {
     Version: '1.0.0-beta.2',
@@ -64,10 +64,10 @@ export interface StacCollection<S = Record<string, unknown>> extends StacCatalog
     summaries: S;
 }
 
-export interface StacItem<P = Record<string, unknown>> extends StacObject, Feature<Geometry, P> {
+export interface StacItem<P = Record<string, unknown>> extends StacObject, GeoJSON.Feature<GeoJSON.Geometry, P> {
     id: string;
     collection?: string;
-    bbox: BBox;
+    bbox: GeoJSON.BBox;
     links: StacLink[];
     assets: Record<string, StacAsset>;
 }
