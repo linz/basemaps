@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import o from 'ospec';
 import sinon from 'sinon';
-import * as Tile from '../tile';
-import { getExpectedTileName, Health, TestTiles } from '../health';
+import * as Tile from '../tile.js';
+import { getExpectedTileName, Health, TestTiles } from '../health.js';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { Context } from 'aws-lambda';

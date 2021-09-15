@@ -1,8 +1,8 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import { BasemapsConfigObject } from '../base.config';
-import { BaseConfig } from '../config/base';
-import { ConfigPrefix } from '../config/prefix';
-import { ConfigProviderDynamo } from './dynamo.config';
+import { BasemapsConfigObject } from '../base.config.js';
+import { BaseConfig } from '../config/base.js';
+import { ConfigPrefix } from '../config/prefix.js';
+import { ConfigProviderDynamo } from './dynamo.config.js';
 
 function toId(id: string): { id: { S: string } } {
     return { id: { S: id } };

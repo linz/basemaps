@@ -1,6 +1,6 @@
-import { MultiPolygon, Pair, Ring, BBox } from '../types';
-import { clipMultipolygon } from './clipped';
-import { Wgs84 } from '../wgs84';
+import { MultiPolygon, Pair, Ring, BBox } from '../types.js';
+import { clipMultipolygon } from './clipped.js';
+import { Wgs84 } from '../wgs84.js';
 
 const WorldBounds: BBox = [-180, -90, 180, 90];
 const NextWorldBounds: BBox = [180, -90, 360, 90];

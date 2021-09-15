@@ -6,8 +6,8 @@ import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import pLimit from 'p-limit';
 import * as path from 'path';
-import { Cutline } from './cutline'; //
-import { CogBuilderMetadata, SourceMetadata } from './types';
+import { Cutline } from './cutline.js'; //
+import { CogBuilderMetadata, SourceMetadata } from './types.js';
 
 export const InvalidProjectionCode = 32767;
 export const CacheVersion = 'v3'; // bump this number to invalidate the cache

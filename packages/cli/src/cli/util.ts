@@ -1,7 +1,7 @@
 import { LogConfig } from '@basemaps/shared';
 import CloudFormation from 'aws-sdk/clients/cloudformation';
 import CloudFront from 'aws-sdk/clients/cloudfront';
-import { CliId } from './base.cli';
+import { CliId } from './base.cli.js';
 
 // Cloudfront has to be defined in us-east-1
 const cloudFormation = new CloudFormation({ region: 'us-east-1' });

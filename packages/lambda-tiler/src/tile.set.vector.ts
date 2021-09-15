@@ -3,8 +3,8 @@ import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambd
 import { Aws, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { Cotar, CotarIndexBinary } from '@cotar/core';
-import { NotFound } from './routes/tile';
-import { TileSetHandler } from './tile.set';
+import { NotFound } from './routes/tile.js';
+import { TileSetHandler } from './tile.set.js';
 
 class CotarCache {
     cache = new Map<string, Promise<Cotar | null>>();

@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { Config } from '../config';
+import { Config } from '../config.js';
 
 o.spec('Config', () => {
     o('should return the same api key', () => {

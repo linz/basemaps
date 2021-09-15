@@ -1,7 +1,7 @@
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
-import { Wgs84 } from '../wgs84';
-import { BBox, Ring } from '../types';
+import { Wgs84 } from '../wgs84.js';
+import { BBox, Ring } from '../types.js';
 
 o.spec('wgs84', () => {
     o('normLon', () => {

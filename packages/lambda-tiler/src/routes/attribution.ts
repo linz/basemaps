@@ -23,9 +23,9 @@ import {
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
 import { createHash } from 'crypto';
-import { TileSets } from '../tile.set.cache';
-import { TileSetRaster } from '../tile.set.raster';
-import { Router } from '../router';
+import { TileSets } from '../tile.set.cache.js';
+import { TileSetRaster } from '../tile.set.raster.js';
+import { Router } from '../router.js';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator

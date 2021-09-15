@@ -1,5 +1,5 @@
 import * as sax from 'sax';
-import { VNodeElement, VNodeText } from './vdom';
+import { VNodeElement, VNodeText } from './vdom.js';
 
 export class VNodeParser {
     root: VNodeElement;

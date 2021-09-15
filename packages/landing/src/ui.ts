@@ -1,7 +1,7 @@
 import { Epsg, GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
-import { Config, GaEvent, gaEvent } from './config';
-import { Basemaps } from './map';
-import { MapOptions, MapOptionType, WindowUrl } from './url';
+import { Config, GaEvent, gaEvent } from './config.js';
+import { Basemaps } from './map.js';
+import { MapOptions, MapOptionType, WindowUrl } from './url.js';
 
 export class BasemapsUi {
     projectionNztm: HTMLElement;

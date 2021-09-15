@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Aws } from '../aws';
+import { Aws } from '../aws/index.js';
 
 import baseX from 'base-x';
 import { randomBytes } from 'crypto';

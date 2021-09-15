@@ -2,7 +2,7 @@ import { GoogleTms } from '@basemaps/geo';
 import { TestTiff } from '@basemaps/test';
 import { ImageFormat, Tiler } from '@basemaps/tiler';
 import 'source-map-support/register';
-import { TileMakerSharp } from '../index';
+import { TileMakerSharp } from '../index.js';
 
 const resizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const RenderCount = 100;

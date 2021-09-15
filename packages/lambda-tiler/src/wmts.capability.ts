@@ -3,7 +3,7 @@ import { Bounds, Nztm2000QuadTms, TileMatrixSet, WmtsProvider } from '@basemaps/
 import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
-import { TileSetRaster } from './tile.set.raster';
+import { TileSetRaster } from './tile.set.raster.js';
 
 const CapabilitiesAttrs = {
     xmlns: 'http://www.opengis.net/wmts/1.0',

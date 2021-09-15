@@ -4,14 +4,14 @@ import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambd
 import { Config, Env, setNameAndProjection, TileSetName, tileWmtsFromPath, tileXyzFromPath } from '@basemaps/shared';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { createHash } from 'crypto';
-import { isValidApiKey } from '../api.key';
-import { TileSets } from '../tile.set.cache';
-import { TileSetRaster } from '../tile.set.raster';
-import { WmtsCapabilities } from '../wmts.capability';
-import { attribution } from './attribution';
-import { TileEtag } from './tile.etag';
-import { Router } from '../router';
-import { ValidateTilePath } from '../validate';
+import { isValidApiKey } from '../api.key.js';
+import { TileSets } from '../tile.set.cache.js';
+import { TileSetRaster } from '../tile.set.raster.js';
+import { WmtsCapabilities } from '../wmts.capability.js';
+import { attribution } from './attribution.js';
+import { TileEtag } from './tile.etag.js';
+import { Router } from '../router.js';
+import { ValidateTilePath } from '../validate.js';
 
 export const TileComposer = new TileMakerSharp(256);
 

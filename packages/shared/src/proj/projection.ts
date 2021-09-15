@@ -10,9 +10,9 @@ import {
 } from '@linzjs/geojson';
 import { Position } from 'geojson';
 import Proj from 'proj4';
-import { CompositeError } from '../composite.error';
-import { Citm2000 } from './citm2000';
-import { Nztm2000 } from './nztm2000';
+import { CompositeError } from '../composite.error.js';
+import { Citm2000 } from './citm2000.js';
+import { Nztm2000 } from './nztm2000.js';
 
 Proj.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
 Proj.defs(Epsg.Citm2000.toEpsgString(), Citm2000);

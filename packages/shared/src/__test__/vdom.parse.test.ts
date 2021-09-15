@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { VNodeParser } from '../vdom.parse';
+import { VNodeParser } from '../vdom.parse.js';
 
 const VrtExample = `
 <VRTDataset rasterXSize="36000" rasterYSize="3600">

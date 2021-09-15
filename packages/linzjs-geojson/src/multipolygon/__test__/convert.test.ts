@@ -1,6 +1,6 @@
 import o from 'ospec';
-import { MultiPolygon } from '../../types';
-import { multiPolygonToWgs84 } from '../convert';
+import { MultiPolygon } from '../../types.js';
+import { multiPolygonToWgs84 } from '../convert.js';
 
 function intToWgs84(from: number[]): [number, number] {
     const lon = from[0] * 0.1 + 174.5;

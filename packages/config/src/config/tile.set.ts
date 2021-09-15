@@ -1,5 +1,5 @@
 import { EpsgCode } from '@basemaps/geo';
-import { BaseConfig } from './base';
+import { BaseConfig } from './base.js';
 
 export enum TileSetType {
     Raster = 'raster',

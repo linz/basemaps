@@ -1,3 +1,6 @@
+import path from 'path';
+import url from 'url';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 import { Epsg } from '@basemaps/geo';
 import { HttpHeader, LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
 import { Env, LogConfig, LogType } from '@basemaps/shared';
@@ -5,12 +8,12 @@ import express from 'express';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import * as ulid from 'ulid';
-import * as lambda from '../index';
-import { TileSets } from '../tile.set.cache';
-import { TileSetRaster } from '../tile.set.raster';
-import { WmtsCapabilities } from '../wmts.capability';
-import { Provider } from '../__test__/xyz.util';
-import { TileSetLocal } from './tile.set.local';
+import * as lambda from '../index.js';
+import { TileSets } from '../tile.set.cache.js';
+import { TileSetRaster } from '../tile.set.raster.js';
+import { WmtsCapabilities } from '../wmts.capability.js';
+import { Provider } from '../__test__/xyz.util.js';
+import { TileSetLocal } from './tile.set.local.js';
 import { Context } from 'aws-lambda';
 
 const app = express();

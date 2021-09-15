@@ -1,5 +1,5 @@
 import { LogType } from '@basemaps/shared';
-import { GdalCommand } from './gdal.command';
+import { GdalCommand } from './gdal.command.js';
 
 export class GdalLocal extends GdalCommand {
     async env(): Promise<Record<string, string | undefined>> {

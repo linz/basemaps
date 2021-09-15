@@ -1,10 +1,10 @@
 import { Env, LogConfig, fsa } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
-import { FileProcess } from '../file.process';
-import { dateByHour, getMaxDate, handler, listCacheFolder, MaxToProcess, Q } from '../index';
-import { LogStartDate, RollupVersion } from '../stats';
-import { ExampleLogs, lineReader } from './file.process.test';
+import { FileProcess } from '../file.process.js';
+import { dateByHour, getMaxDate, handler, listCacheFolder, MaxToProcess, Q } from '../index.js';
+import { LogStartDate, RollupVersion } from '../stats.js';
+import { ExampleLogs, lineReader } from './file.process.test.js';
 import PLimit from 'p-limit';
 
 LogConfig.get().level = 'silent';

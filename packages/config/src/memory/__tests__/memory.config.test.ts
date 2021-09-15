@@ -1,7 +1,7 @@
 import o from 'ospec';
-import { ConfigImagery } from '../../config/imagery';
-import { ConfigTileSet } from '../../config/tile.set';
-import { ConfigProviderMemory } from '../memory.config';
+import { ConfigImagery } from '../../config/imagery.js';
+import { ConfigTileSet } from '../../config/tile.set.js';
+import { ConfigProviderMemory } from '../memory.config.js';
 
 o.spec('MemoryConfig', () => {
     const config = new ConfigProviderMemory();

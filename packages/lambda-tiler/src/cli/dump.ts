@@ -4,10 +4,10 @@ import { LogConfig } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
 import { promises as fs } from 'fs';
 import { PrettyTransform } from 'pretty-json-log';
-import { tile } from '../routes/tile';
-import { TileSet } from '../tile.set';
-import { TileSets } from '../tile.set.cache';
-import { TileSetLocal } from './tile.set.local';
+import { tile } from '../routes/tile.js';
+import { TileSet } from '../tile.set.js';
+import { TileSets } from '../tile.set.cache.js';
+import { TileSetLocal } from './tile.set.local.js';
 import { Context } from 'aws-lambda';
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());

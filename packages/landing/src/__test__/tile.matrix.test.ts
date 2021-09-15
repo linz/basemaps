@@ -1,6 +1,6 @@
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import o from 'ospec';
-import { locationTransform } from '../tile.matrix';
+import { locationTransform } from '../tile.matrix.js';
 
 o.spec('locationTransform', () => {
     const Precision = 10 ** 8;

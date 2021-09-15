@@ -1,5 +1,5 @@
-import { Basemaps } from './map';
-import { BasemapsUi } from './ui';
+import { Basemaps } from './map.js';
+import { BasemapsUi } from './ui.js';
 
 declare global {
     interface Window {

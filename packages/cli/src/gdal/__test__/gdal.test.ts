@@ -1,8 +1,8 @@
 import o from 'ospec';
-import { GdalCogBuilder } from '../gdal.cog';
-import { normalizeAwsEnv } from '../gdal.command';
-import { GdalCogBuilderDefaults } from '../gdal.config';
-import { GdalDocker } from '../gdal.docker';
+import { GdalCogBuilder } from '../gdal.cog.js';
+import { normalizeAwsEnv } from '../gdal.command.js';
+import { GdalCogBuilderDefaults } from '../gdal.config.js';
+import { GdalDocker } from '../gdal.docker.js';
 
 o.spec('GdalCogBuilder', () => {
     o('should default all options', () => {

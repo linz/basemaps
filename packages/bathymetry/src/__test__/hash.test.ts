@@ -1,6 +1,9 @@
+import path from 'path';
+import url from 'url';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 import o from 'ospec';
 import { resolve } from 'path';
-import { Hash } from '../hash';
+import { Hash } from '../hash.js';
 
 o.spec('hash', () => {
     o('hash', async () => {

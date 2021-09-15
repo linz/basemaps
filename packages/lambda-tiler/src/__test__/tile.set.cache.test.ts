@@ -3,8 +3,8 @@ import { Epsg, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { Config, TileSetName } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
-import { TileSets } from '../tile.set.cache';
-import { TileSetRaster } from '../tile.set.raster';
+import { TileSets } from '../tile.set.cache.js';
+import { TileSetRaster } from '../tile.set.raster.js';
 
 o.spec('TileSetCache', () => {
     const sandbox = createSandbox();

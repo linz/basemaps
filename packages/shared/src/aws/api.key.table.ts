@@ -1,5 +1,5 @@
-import { BaseDynamoTable } from './aws.dynamo.table';
-import { Const } from '../const';
+import { BaseDynamoTable } from './aws.dynamo.table.js';
+import { Const } from '../const.js';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 
 /**

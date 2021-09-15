@@ -3,7 +3,7 @@ import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding';
 import { BBox } from '@linzjs/geojson';
 import o from 'ospec';
-import { LatLon, Projection } from '../projection';
+import { LatLon, Projection } from '../projection.js';
 
 const TileSize = 256;
 

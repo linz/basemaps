@@ -2,9 +2,9 @@
 import { LogConfig } from '@basemaps/shared';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
-import { BaseCommandLine } from '../base.cli';
-import { TileSetInvalidateAction } from './action.invalidate';
-import { TileSetInfoAction } from './action.tileset.info';
+import { BaseCommandLine } from '../base.cli.js';
+import { TileSetInvalidateAction } from './action.invalidate.js';
+import { TileSetInfoAction } from './action.tileset.info.js';
 
 export class BasemapsCommandLine extends BaseCommandLine {
     constructor() {

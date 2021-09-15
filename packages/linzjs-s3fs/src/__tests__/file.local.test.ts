@@ -1,7 +1,10 @@
+import url from 'url';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const __filename = url.fileURLToPath(import.meta.url);
 import o from 'ospec';
-import { FsLocal } from '../abstractions/file.local';
-import { CompositeError } from '../composite.error';
-import { FileSystemAbstraction } from '../file.al';
+import { FsLocal } from '../abstractions/file.local.js';
+import { CompositeError } from '../composite.error.js';
+import { FileSystemAbstraction } from '../file.al.js';
 import * as path from 'path';
 import { promises as fs } from 'fs';
 

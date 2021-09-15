@@ -5,8 +5,8 @@ import ec2 = require('@aws-cdk/aws-ec2');
 import ecrAssets = require('@aws-cdk/aws-ecr-assets');
 import { Env } from '@basemaps/shared';
 import { createHash } from 'crypto';
-import { TileMetadataTableArn } from '../serve/db';
-import { ScratchData } from './mount.folder';
+import { TileMetadataTableArn } from '../serve/db.js';
+import { ScratchData } from './mount.folder.js';
 
 /**
  * Cogification infrastructure

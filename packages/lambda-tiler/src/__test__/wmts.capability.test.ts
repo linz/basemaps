@@ -3,8 +3,8 @@ import { TileSetName, V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding';
 import { createHash } from 'crypto';
 import o from 'ospec';
-import { WmtsCapabilities } from '../wmts.capability';
-import { FakeTileSet, Provider } from './xyz.util';
+import { WmtsCapabilities } from '../wmts.capability.js';
+import { FakeTileSet, Provider } from './xyz.util.js';
 
 import 'source-map-support/register';
 

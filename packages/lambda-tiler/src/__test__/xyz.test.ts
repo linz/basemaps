@@ -3,11 +3,11 @@ import { TileMatrixSets } from '@basemaps/geo';
 import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
-import { handleRequest } from '../index';
-import { TileComposer } from '../routes/tile';
-import { TileEtag } from '../routes/tile.etag';
-import { TileSets } from '../tile.set.cache';
-import { FakeTileSet, mockRequest, Provider } from './xyz.util';
+import { handleRequest } from '../index.js';
+import { TileComposer } from '../routes/tile.js';
+import { TileEtag } from '../routes/tile.etag.js';
+import { TileSets } from '../tile.set.cache.js';
+import { FakeTileSet, mockRequest, Provider } from './xyz.util.js';
 import { createSandbox } from 'sinon';
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];

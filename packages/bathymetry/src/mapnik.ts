@@ -1,8 +1,8 @@
 import * as fs from 'fs';
-import { BathyMaker } from './bathy.maker';
+import { BathyMaker } from './bathy.maker.js';
 import { Tile, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
-import { FileType } from './file';
+import { FileType } from './file.js';
 
 /** To prevent the long compile time of mapnik for development, only pull it in when needed */
 // eslint-disable-next-line @typescript-eslint/no-var-requires

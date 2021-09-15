@@ -1,6 +1,6 @@
-import { ObjectCache } from './object.cache';
+import { ObjectCache } from './object.cache.js';
 import { hostname } from 'os';
-import { Env } from '../const';
+import { Env } from '../const.js';
 import { ChainableTemporaryCredentials } from 'aws-sdk/lib/credentials/chainable_temporary_credentials';
 import S3 from 'aws-sdk/clients/s3';
 

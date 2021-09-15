@@ -1,11 +1,14 @@
+import path from 'path';
+import url from 'url';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 import { Bounds, EpsgCode, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util';
 import { round } from '@basemaps/test/build/rounding';
 import { MultiPolygon } from '@linzjs/geojson';
 import o from 'ospec';
-import { Cutline, polyContainsBounds } from '../cutline';
-import { SourceMetadata } from '../types';
-import { SourceTiffTestHelper } from './source.tiff.testhelper';
+import { Cutline, polyContainsBounds } from '../cutline.js';
+import { SourceMetadata } from '../types.js';
+import { SourceTiffTestHelper } from './source.tiff.testhelper.js';
 
 o.spec('cutline', () => {
     const testDir = `${__dirname}/../../../__test.assets__`;

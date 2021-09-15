@@ -4,8 +4,8 @@ import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.oper
 import { round } from '@basemaps/test/build/rounding';
 import { Ring } from '@linzjs/geojson';
 import o from 'ospec';
-import { CogStacJob, JobCreationContext } from '../cog.stac.job';
-import { CogBuilderMetadata, CogJobJson } from '../types';
+import { CogStacJob, JobCreationContext } from '../cog.stac.job.js';
+import { CogBuilderMetadata, CogJobJson } from '../types.js';
 
 type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>;

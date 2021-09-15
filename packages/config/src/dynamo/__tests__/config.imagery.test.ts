@@ -1,9 +1,9 @@
 import { Epsg, EpsgCode, NamedBounds, QuadKey, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
-import { Config } from '../../base.config';
-import { ConfigImagery } from '../../config/imagery';
-import { ConfigProviderDynamo } from '../dynamo.config';
+import { Config } from '../../base.config.js';
+import { ConfigImagery } from '../../config/imagery.js';
+import { ConfigProviderDynamo } from '../dynamo.config.js';
 
 export function qkToNamedBounds(quadKeys: string[]): NamedBounds[] {
     const tms = TileMatrixSets.get(EpsgCode.Google);

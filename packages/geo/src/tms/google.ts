@@ -1,4 +1,4 @@
-import { TileMatrixSet } from '../tile.matrix.set';
+import { TileMatrixSet } from '../tile.matrix.set.js';
 import type { TileMatrixSetType } from '@linzjs/tile-matrix-set';
 
 const GoogleTmst: TileMatrixSetType = {

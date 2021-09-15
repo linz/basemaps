@@ -6,11 +6,11 @@ import { mockFileOperator } from '@basemaps/shared/build/file/__test__/file.oper
 import { round } from '@basemaps/test/build/rounding';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
-import { TileSets } from '../../tile.set.cache';
-import { TileSetRaster } from '../../tile.set.raster';
-import { FakeTileSet, mockRequest, Provider } from '../../__test__/xyz.util';
-import { attribution, createAttributionCollection } from '../attribution';
-import { TileEtag } from '../tile.etag';
+import { TileSets } from '../../tile.set.cache.js';
+import { TileSetRaster } from '../../tile.set.raster.js';
+import { FakeTileSet, mockRequest, Provider } from '../../__test__/xyz.util.js';
+import { attribution, createAttributionCollection } from '../attribution.js';
+import { TileEtag } from '../tile.etag.js';
 import { Attribution } from '@basemaps/attribution';
 
 const ExpectedJson = {

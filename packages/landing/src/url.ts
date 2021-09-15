@@ -1,5 +1,5 @@
 import { Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Config } from './config';
+import { Config } from './config.js';
 
 export interface LonLat {
     lat: number;

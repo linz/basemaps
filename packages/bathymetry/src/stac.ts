@@ -12,9 +12,9 @@ import { extractYearRangeFromName, fsa, LogType, Projection, titleizeImageryName
 import * as cp from 'child_process';
 import * as path from 'path';
 import { basename } from 'path';
-import { BathyMaker } from './bathy.maker';
-import { FileType } from './file';
-import { Hash } from './hash';
+import { BathyMaker } from './bathy.maker.js';
+import { FileType } from './file.js';
+import { Hash } from './hash.js';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');

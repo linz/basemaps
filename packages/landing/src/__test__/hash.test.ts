@@ -1,7 +1,7 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import o from 'ospec';
-import { Config } from '../config';
-import { MapOptionType, WindowUrl } from '../url';
+import { Config } from '../config.js';
+import { MapOptionType, WindowUrl } from '../url.js';
 
 declare const global: {
     window?: { location: { origin: string } };

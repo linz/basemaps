@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { Command } from '../../command';
+import { Command } from '../../command.js';
 
 o.spec('LocalExecution', () => {
     o('should run hello world', () => {

@@ -1,4 +1,4 @@
-import { Tile } from './tile.matrix.set';
+import { Tile } from './tile.matrix.set.js';
 
 const CHAR_0 = '0'.charCodeAt(0);
 const CHAR_1 = '1'.charCodeAt(0);

@@ -3,9 +3,9 @@ import cf = require('@aws-cdk/aws-cloudfront');
 import s3 = require('@aws-cdk/aws-s3');
 import { Bucket } from '@aws-cdk/aws-s3';
 import { Env } from '@basemaps/shared';
-import { getConfig } from '../config';
-import { DeployEnv } from '../deploy.env';
-import { Parameters } from '../parameters';
+import { getConfig } from '../config.js';
+import { DeployEnv } from '../deploy.env.js';
+import { Parameters } from '../parameters.js';
 
 /**
  * Edge infrastructure

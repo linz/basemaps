@@ -1,5 +1,5 @@
 import { CompositeError } from '@linzjs/s3fs';
-import { fsa } from '..';
+import { fsa } from '../index.js';
 
 export interface MockFs {
     /**

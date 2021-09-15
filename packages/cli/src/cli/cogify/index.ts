@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import { BaseCommandLine } from '../base.cli';
-import { ActionBatchJob } from './action.batch';
-import { ActionCogCreate } from './action.cog';
-import { ActionJobCreate } from './action.job';
+import { BaseCommandLine } from '../base.cli.js';
+import { ActionBatchJob } from './action.batch.js';
+import { ActionCogCreate } from './action.cog.js';
+import { ActionJobCreate } from './action.job.js';
 
 export class CogifyCommandLine extends BaseCommandLine {
     constructor() {

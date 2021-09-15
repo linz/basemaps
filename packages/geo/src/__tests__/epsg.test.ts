@@ -1,6 +1,6 @@
-import { Epsg } from '../epsg';
+import { Epsg } from '../epsg.js';
 import o from 'ospec';
-import { Nztm2000Tms } from '../tms/nztm2000';
+import { Nztm2000Tms } from '../tms/nztm2000.js';
 
 o.spec('Epsg', () => {
     o('should error on invalid epsg', () => {

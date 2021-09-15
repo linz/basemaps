@@ -1,7 +1,7 @@
-import { Epsg, EpsgCode } from '../epsg';
-import { TileMatrixSet } from '../tile.matrix.set';
-import { GoogleTms } from './google';
-import { Nztm2000QuadTms, Nztm2000Tms } from './nztm2000';
+import { Epsg, EpsgCode } from '../epsg.js';
+import { TileMatrixSet } from '../tile.matrix.set.js';
+import { GoogleTms } from './google.js';
+import { Nztm2000QuadTms, Nztm2000Tms } from './nztm2000.js';
 
 export type Nullish = null | undefined;
 

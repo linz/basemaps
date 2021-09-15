@@ -5,8 +5,8 @@ import { EC2MetadataCredentials } from 'aws-sdk/lib/credentials/ec2_metadata_cre
 import { SharedIniFileCredentials } from 'aws-sdk/lib/credentials/shared_ini_file_credentials';
 import type { AWSError } from 'aws-sdk/lib/error';
 import type { Readable, Stream } from 'stream';
-import { CompositeError } from '../composite.error';
-import { FileInfo, FileSystem } from '../file';
+import { CompositeError } from '../composite.error.js';
+import { FileInfo, FileSystem } from '../file.js';
 
 function getCompositeError(e: AWSError, msg: string): CompositeError {
     if (typeof e?.statusCode === 'number') return new CompositeError(msg, e.statusCode, e);

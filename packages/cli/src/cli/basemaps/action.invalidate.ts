@@ -6,9 +6,9 @@ import {
     CommandLineIntegerParameter,
     CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
-import { TagActions } from '../tag.action';
-import { TileSetBaseAction } from './tileset.action';
-import { invalidateXYZCache } from './tileset.util';
+import { TagActions } from '../tag.action.js';
+import { TileSetBaseAction } from './tileset.action.js';
+import { invalidateXYZCache } from './tileset.util.js';
 
 export class TileSetInvalidateAction extends TileSetBaseAction {
     private commit: CommandLineFlagParameter;

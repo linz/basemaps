@@ -1,8 +1,8 @@
-import { FsS3 } from '../abstractions/file.s3';
+import { FsS3 } from '../abstractions/file.s3.js';
 import o from 'ospec';
 import S3 from 'aws-sdk/clients/s3';
 import { createSandbox } from 'sinon';
-import { FileSystemAbstraction } from '../file.al';
+import { FileSystemAbstraction } from '../file.al.js';
 
 o.spec('file.s3', () => {
     const sandbox = createSandbox();

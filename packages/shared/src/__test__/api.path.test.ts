@@ -1,7 +1,7 @@
 import { GoogleTms, Nztm2000Tms, Nztm2000QuadTms } from '@basemaps/geo';
 import { ImageFormat } from '@basemaps/tiler';
 import o from 'ospec';
-import { tileAttributionFromPath, TileType, tileWmtsFromPath, tileXyzFromPath, VectorFormat } from '../api.path';
+import { tileAttributionFromPath, TileType, tileWmtsFromPath, tileXyzFromPath, VectorFormat } from '../api.path.js';
 
 o.spec('api.path', () => {
     o.spec('tileXyzFromPath', () => {

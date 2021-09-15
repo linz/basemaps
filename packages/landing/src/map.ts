@@ -1,7 +1,7 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
-import { MapAttribution } from './attribution';
-import { getTileGrid, locationTransform } from './tile.matrix';
-import { MapLocation, MapOptions, WindowUrl } from './url';
+import { MapAttribution } from './attribution.js';
+import { getTileGrid, locationTransform } from './tile.matrix.js';
+import { MapLocation, MapOptions, WindowUrl } from './url.js';
 import mapboxgl from 'maplibre-gl';
 
 export const MapboxTms = GoogleTms;

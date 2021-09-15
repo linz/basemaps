@@ -6,8 +6,8 @@ import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter
 import { createReadStream, promises as fs } from 'fs';
 import * as os from 'os';
 import * as ulid from 'ulid';
-import { BathyMaker } from './bathy.maker';
-import { FilePath, FileType } from './file';
+import { BathyMaker } from './bathy.maker.js';
+import { FilePath, FileType } from './file.js';
 
 /** This zoom level gives a good enough quality world while not making too many tiles */
 const GoodZoom = GoogleTms.def.tileMatrix[4];

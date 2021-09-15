@@ -5,12 +5,12 @@ import targets = require('@aws-cdk/aws-elasticloadbalancingv2-targets');
 import cert = require('@aws-cdk/aws-certificatemanager');
 import r53 = require('@aws-cdk/aws-route53');
 
-import { LambdaTiler } from './lambda.tiler';
+import { LambdaTiler } from './lambda.tiler.js';
 import { ApplicationProtocol, SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
-import { DeployEnv } from '../deploy.env';
+import { DeployEnv } from '../deploy.env.js';
 import { Env } from '@basemaps/shared';
-import { getConfig } from '../config';
-import { TileMetadataTable } from './db';
+import { getConfig } from '../config.js';
+import { TileMetadataTable } from './db.js';
 
 /**
  * Tile serving infrastructure
