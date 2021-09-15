@@ -1,4 +1,4 @@
-import { BaseConfig } from './base';
+import { BaseConfig } from './base.js';
 
 interface SourceVector {
     type: 'vector';

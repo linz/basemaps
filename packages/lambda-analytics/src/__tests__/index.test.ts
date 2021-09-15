@@ -1,12 +1,13 @@
-import { Env, LogConfig, fsa } from '@basemaps/shared';
+import { Env, fsa, LogConfig } from '@basemaps/shared';
 import o from 'ospec';
-import { createSandbox } from 'sinon';
-import { FileProcess } from '../file.process';
-import { dateByHour, getMaxDate, handler, listCacheFolder, MaxToProcess, Q } from '../index';
-import { LogStartDate, RollupVersion } from '../stats';
-import { ExampleLogs, lineReader } from './file.process.test';
 import PLimit from 'p-limit';
+import sinon from 'sinon';
+import { FileProcess } from '../file.process.js';
+import { dateByHour, getMaxDate, handler, listCacheFolder, MaxToProcess, Q } from '../index.js';
+import { LogStartDate, RollupVersion } from '../stats.js';
+import { ExampleLogs, lineReader } from './file.process.test.js';
 
+const sandbox = sinon.createSandbox();
 LogConfig.get().level = 'silent';
 const currentYear = new Date().getUTCFullYear();
 // Concurrency breaks the order of tests
@@ -69,7 +70,6 @@ o.spec('getStartDate', () => {
 });
 
 o.spec('handler', () => {
-    const sandbox = createSandbox();
     const sourceBucket = `s3://cloudfront-logs`;
     const cloudFrontId = `E1WKYJII8YDTO0`;
 

@@ -1,7 +1,7 @@
 import { LogConfig } from '@basemaps/shared';
 import o from 'ospec';
-import { FileProcess } from '../file.process';
-import { LogStats } from '../stats';
+import { FileProcess } from '../file.process.js';
+import { LogStats } from '../stats.js';
 
 const DevApiKey = 'dThisIsNotAKey';
 const ClientApiKey = 'cThisIsNotAKey';

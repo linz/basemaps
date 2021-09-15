@@ -1542,10 +1542,10 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@linzjs/lambda@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-1.1.0.tgz#d3fb69386ddb6b4586c00f5143ed6842aa24e561"
-  integrity sha512-5rUz2vlkBvATmRGVnRjRPg58/HkAvfIz9nhaarik6sKb/7M9vqG0EMnSER3+Cmi0rvWjUMew3BZpPO1C8ekG8w==
+"@linzjs/lambda@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-2.0.0.tgz#b9184677dc6ec62faf2ee93fd7077e521bdc74ec"
+  integrity sha512-6ZLbIms/09jAHePAHk5GG+2JVDbvRpvKVws2Erc6ylEAJL0IAXbNnD1oAwS/2xdC/eVDOyyWJT2HOmLvjPrajg==
   dependencies:
     "@linzjs/metrics" "^6.0.0"
     "@types/pino" "^6.3.11"

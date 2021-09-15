@@ -1,9 +1,9 @@
 import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
-import { Gdal } from './gdal';
-import { GdalCommand } from './gdal.command';
-import { GdalCogBuilderDefaults, GdalCogBuilderOptions } from './gdal.config';
+import { Gdal } from './gdal.js';
+import { GdalCommand } from './gdal.command.js';
+import { GdalCogBuilderDefaults, GdalCogBuilderOptions } from './gdal.config.js';
 
 /** 1% Buffer to the tiff to help prevent gaps between tiles */
 // const TiffBuffer = 1.01;

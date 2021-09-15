@@ -1,9 +1,9 @@
 import { EpsgCode } from '@basemaps/geo';
-import { round } from '@basemaps/test/build/rounding';
+import { round } from '@basemaps/test/build/rounding.js';
 import { bboxToPolygon } from '@linzjs/geojson';
 import o from 'ospec';
-import { Projection } from '../projection';
-import { qkToNamedBounds } from './test.util';
+import { Projection } from '../projection.js';
+import { qkToNamedBounds } from './test.util.js';
 
 o.spec('Projection', () => {
     const googleProj = Projection.get(EpsgCode.Google);

@@ -1,4 +1,4 @@
-import { BBox, MultiPolygon, Ring } from './types';
+import { BBox, MultiPolygon, Ring } from './types.js';
 
 /**
  * Normalize the value of a longitude to between -180 and 180 degrees.

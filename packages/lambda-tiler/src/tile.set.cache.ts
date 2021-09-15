@@ -1,9 +1,9 @@
 import { TileSetNameParser } from '@basemaps/config';
 import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config } from '@basemaps/shared';
-import { TileSet } from './tile.set';
-import { TileSetRaster } from './tile.set.raster';
-import { TileSetVector } from './tile.set.vector';
+import { TileSet } from './tile.set.js';
+import { TileSetRaster } from './tile.set.raster.js';
+import { TileSetVector } from './tile.set.vector.js';
 
 export class TileSetCache {
     /** Duration to cache tile sets for */

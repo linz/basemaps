@@ -1,4 +1,4 @@
-import { Env } from '../const';
+import { Env } from '../const.js';
 import o from 'ospec';
 
 o.spec('Environment', () => {

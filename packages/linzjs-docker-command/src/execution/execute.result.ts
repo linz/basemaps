@@ -1,4 +1,4 @@
-import { CommandExecution } from '../command.execution';
+import { CommandExecution } from '../command.execution.js';
 
 export class CommandExecutionResult {
     stdout: string;

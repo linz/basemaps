@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { bboxToPolygon, bboxContains } from '../bbox';
+import { bboxToPolygon, bboxContains } from '../bbox.js';
 
 o.spec('bbox', () => {
     o('bboxContains', () => {

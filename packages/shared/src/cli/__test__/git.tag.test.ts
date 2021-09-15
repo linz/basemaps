@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { GitTag } from '../git.tag';
+import { GitTag } from '../git.tag.js';
 
 o.spec('git.tag', () => {
     o('format', () => {

@@ -1,6 +1,6 @@
 import { EpsgCode, NamedBounds, GoogleTms } from '@basemaps/geo';
-import { CogStacJob } from '../cog.stac.job';
-import { CogJobJson } from '../types';
+import { CogStacJob } from '../cog.stac.job.js';
+import { CogJobJson } from '../types.js';
 
 export const SourceTiffTestHelper = {
     makeCogJob(): CogStacJob {

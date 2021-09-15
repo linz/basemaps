@@ -4,12 +4,12 @@ import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { SourceFile } from '@cogeotiff/source-file';
 import { basename } from 'path';
 import * as ulid from 'ulid';
-import { CogBuilder } from '..';
-import { ActionBatchJob } from '../cli/cogify/action.batch';
-import { Gdal } from '../gdal/gdal';
-import { CogStacJob, JobCreationContext } from './cog.stac.job';
-import { Cutline } from './cutline';
-import { CogJob } from './types';
+import { CogBuilder } from '../index.js';
+import { ActionBatchJob } from '../cli/cogify/action.batch.js';
+import { Gdal } from '../gdal/gdal.js';
+import { CogStacJob, JobCreationContext } from './cog.stac.job.js';
+import { Cutline } from './cutline.js';
+import { CogJob } from './types.js';
 
 export const MaxConcurrencyDefault = 50;
 

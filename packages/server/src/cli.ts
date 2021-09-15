@@ -4,7 +4,7 @@ import { fsa } from '@linzjs/s3fs';
 import { Command, flags } from '@oclif/command';
 import { PrettyTransform } from 'pretty-json-log';
 import { ConfigPrefix } from '@basemaps/config';
-import { BasemapsServer } from './server';
+import { BasemapsServer } from './server.js';
 
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 

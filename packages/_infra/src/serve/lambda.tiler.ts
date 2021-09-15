@@ -5,7 +5,7 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
 import { Duration } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
-import { getConfig } from '../config';
+import { getConfig } from '../config.js';
 
 const CODE_PATH = '../lambda-tiler/dist';
 

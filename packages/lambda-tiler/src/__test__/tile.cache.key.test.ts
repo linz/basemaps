@@ -3,7 +3,7 @@ import { TileDataXyz, TileType } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
 import { Composition, ImageFormat } from '@basemaps/tiler';
 import o from 'ospec';
-import { TileEtag } from '../routes/tile.etag';
+import { TileEtag } from '../routes/tile.etag.js';
 
 o.spec('TileCacheKey', () => {
     const oldRenderId = TileEtag.RenderId;

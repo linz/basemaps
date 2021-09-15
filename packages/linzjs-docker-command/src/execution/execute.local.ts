@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
-import { CommandExecution } from '../command.execution';
-import { Executor } from './execute';
-import { CommandExecutionResult } from './execute.result';
+import { CommandExecution } from '../command.execution.js';
+import { Executor } from './execute.js';
+import { CommandExecutionResult } from './execute.result.js';
 
 export const ExecutorLocal: Executor = {
     run(cmd: CommandExecution): Promise<CommandExecutionResult> {

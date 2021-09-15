@@ -10,8 +10,8 @@ import {
     union,
 } from '@linzjs/geojson';
 import { FeatureCollection } from 'geojson';
-import { CoveringFraction, MaxImagePixelWidth } from './constants';
-import { CogJob, FeatureCollectionWithCrs, SourceMetadata } from './types';
+import { CoveringFraction, MaxImagePixelWidth } from './constants.js';
+import { CogJob, FeatureCollectionWithCrs, SourceMetadata } from './types.js';
 
 /** Padding to always apply to image boundies */
 const PixelPadding = 100;

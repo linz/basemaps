@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 import { LogConfig, LoggerFatalError } from '@basemaps/shared';
-import { GitTag } from '@basemaps/shared/build/cli/git.tag';
+import { GitTag } from '@basemaps/shared/build/cli/git.tag.js';
 import { CommandLineParser } from '@rushstack/ts-command-line';
+import { readFileSync } from 'fs';
+import path from 'path';
 import { PrettyTransform } from 'pretty-json-log';
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 import * as ulid from 'ulid';
+import url from 'url';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const packageJson = require('../../package.json');
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const packageJson = JSON.parse(readFileSync(path.join(__dirname, '../../package.json')).toString());
 
 /** Useful traceability information  */
 export const CliInfo: { package: string; version: string; hash: string } = {

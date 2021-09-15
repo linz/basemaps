@@ -1,9 +1,9 @@
 import { lf, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
-import { Ping, Version } from './routes/api';
-import { Health } from './routes/health';
-import { Tiles } from './routes/tile';
-import { Router } from './router';
+import { Ping, Version } from './routes/api.js';
+import { Health } from './routes/health.js';
+import { Tiles } from './routes/tile.js';
+import { Router } from './router.js';
 
 const app = new Router();
 

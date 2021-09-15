@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Readable } from 'stream';
-import { FileInfo, FileSystem } from '../file';
-import { CompositeError } from '../composite.error';
+import { FileInfo, FileSystem } from '../file.js';
+import { CompositeError } from '../composite.error.js';
 
 export type FsError = { code: string } & Error;
 function getCompositeError(e: FsError, msg: string): CompositeError {

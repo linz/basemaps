@@ -1,6 +1,6 @@
-import cdk = require('@aws-cdk/core');
-import lambda = require('@aws-cdk/aws-lambda');
-import s3 = require('@aws-cdk/aws-s3');
+import cdk from '@aws-cdk/core';
+import lambda from '@aws-cdk/aws-lambda';
+import s3 from '@aws-cdk/aws-s3';
 import { Rule, Schedule } from '@aws-cdk/aws-events';
 import { LambdaFunction } from '@aws-cdk/aws-events-targets';
 import { RetentionDays } from '@aws-cdk/aws-logs';

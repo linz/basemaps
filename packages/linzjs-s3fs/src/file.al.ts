@@ -1,8 +1,8 @@
 import { Readable } from 'stream';
-import { CompositeError } from './composite.error';
-import { FileInfo, FileSystem } from './file';
-import { FsLocal } from './abstractions/file.local';
-import { FsS3 } from './abstractions/file.s3';
+import { CompositeError } from './composite.error.js';
+import { FileInfo, FileSystem } from './file.js';
+import { FsLocal } from './abstractions/file.local.js';
+import { FsS3 } from './abstractions/file.s3.js';
 
 const fsLocal = new FsLocal();
 export class FileSystemAbstraction {

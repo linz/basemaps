@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const AWS = require('aws-sdk');
-const fs = require('fs').promises;
-const crypto = require('crypto');
-const mime = require('mime-types');
-const { extname, basename } = require('path');
-const invalidateCache = require('@basemaps/cli/build/cli/util').invalidateCache;
-const { recurseDirectory } = require('../../../scripts/file.util');
+import AWS from 'aws-sdk';
+import { promises as fs } from 'fs';
+import crypto from 'crypto';
+import mime from 'mime-types';
+import { extname, basename } from 'path';
+import { invalidateCache } from '@basemaps/cli/build/cli/util.js';
+import { recurseDirectory } from '../../../scripts/file.util.js';
 
 const DistDir = './dist';
 const HashKey = 'linz-hash';
@@ -18,7 +17,7 @@ async function getHash(Bucket, Key) {
         const obj = await s3.getObject({ Bucket, Key }).promise();
         return obj.Metadata[HashKey];
     } catch (e) {
-        if (e.code == 'NoSuchKey') return null;
+        if (e.code === 'NoSuchKey') return null;
         console.log('FailedToFetch', { Bucket, Key }, e);
     }
     return null;

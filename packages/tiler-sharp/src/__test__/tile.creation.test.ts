@@ -4,9 +4,11 @@ import { ImageFormat, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
 import o from 'ospec';
 import * as path from 'path';
+import PixelMatch from 'pixelmatch';
 import { PNG } from 'pngjs';
-import { TileMakerSharp } from '..';
-import PixelMatch = require('pixelmatch');
+import url from 'url';
+import { TileMakerSharp } from '../index.js';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;
 

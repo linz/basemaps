@@ -2,16 +2,16 @@
 /**
  * Using the package.json#bundle object configure ESBuild to bundle a javascript file
  */
-const GitInfo = require('../packages/shared/build/cli/git.tag').GitTag;
-const crypto = require('crypto');
-const cp = require('child_process');
-const fs = require('fs');
-const z = require('zod');
-const c = require('ansi-colors');
-const path = require('path');
-const { recurseDirectory } = require('./file.util');
+import { GitTag } from '../packages/shared/build/cli/git.tag.js';
+import crypto from 'crypto';
+import cp from 'child_process';
+import fs from 'fs';
+import * as z from 'zod';
+import c from 'ansi-colors';
+import path from 'path';
+import { recurseDirectory } from './file.util.js';
 
-const gitInfo = GitInfo();
+const gitInfo = GitTag();
 const DefaultEnvVars = {
     GIT_HASH: gitInfo.hash,
     GIT_VERSION: gitInfo.version,

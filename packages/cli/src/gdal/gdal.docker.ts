@@ -1,7 +1,7 @@
 import { Env, fsa, LogType } from '@basemaps/shared';
 import * as os from 'os';
 import * as path from 'path';
-import { GdalCommand } from './gdal.command';
+import { GdalCommand } from './gdal.command.js';
 
 export class GdalDocker extends GdalCommand {
     mounts: string[];

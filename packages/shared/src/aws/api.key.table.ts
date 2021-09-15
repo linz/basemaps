@@ -1,6 +1,6 @@
-import { BaseDynamoTable } from './aws.dynamo.table';
-import { Const } from '../const';
-import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { BaseDynamoTable } from './aws.dynamo.table.js';
+import { Const } from '../const.js';
+import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 
 /**
  * The database format for the ApiKey Table

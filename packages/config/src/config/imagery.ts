@@ -1,5 +1,5 @@
 import { NamedBounds, BoundingBox, EpsgCode } from '@basemaps/geo';
-import { BaseConfig } from './base';
+import { BaseConfig } from './base.js';
 
 export interface ConfigImagery extends BaseConfig {
     projection: EpsgCode;

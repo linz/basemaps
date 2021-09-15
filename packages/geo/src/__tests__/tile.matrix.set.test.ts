@@ -1,13 +1,13 @@
 import { Approx } from '@basemaps/test';
-import { round } from '@basemaps/test/build/rounding';
+import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
-import { Point } from '../bounds';
-import { Epsg } from '../epsg';
-import { QuadKey } from '../quad.key';
-import { TileMatrixSet } from '../tile.matrix.set';
-import { TileMatrixSets } from '../tms';
-import { GoogleTms } from '../tms/google';
-import { Nztm2000QuadTms, Nztm2000Tms } from '../tms/nztm2000';
+import { Point } from '../bounds.js';
+import { Epsg } from '../epsg.js';
+import { QuadKey } from '../quad.key.js';
+import { TileMatrixSet } from '../tile.matrix.set.js';
+import { TileMatrixSets } from '../tms/index.js';
+import { GoogleTms } from '../tms/google.js';
+import { Nztm2000QuadTms, Nztm2000Tms } from '../tms/nztm2000.js';
 
 const TileSize = 256;
 

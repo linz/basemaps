@@ -1,5 +1,5 @@
 import { Gdal } from '@basemaps/cli';
-import { GdalCommand } from '@basemaps/cli/build/gdal/gdal.command';
+import { GdalCommand } from '@basemaps/cli/build/gdal/gdal.command.js';
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, s3ToVsis3 } from '@basemaps/shared';
 import * as os from 'os';
@@ -7,10 +7,10 @@ import type { Limit } from 'p-limit';
 import PLimit from 'p-limit';
 import * as path from 'path';
 import { basename } from 'path';
-import { FilePath, FileType } from './file';
-import { Hash } from './hash';
-import { MapnikRender } from './mapnik';
-import { Stac } from './stac';
+import { FilePath, FileType } from './file.js';
+import { Hash } from './hash.js';
+import { MapnikRender } from './mapnik.js';
+import { Stac } from './stac.js';
 
 interface BathyMakerContext {
     /** unique id for this build */

@@ -6,7 +6,7 @@ import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { SourceFile } from '@cogeotiff/source-file';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
-import { TileSetRaster } from '../tile.set.raster';
+import { TileSetRaster } from '../tile.set.raster.js';
 
 function getTiffs(tiffList: string[]): ChunkSource[] {
     return tiffList.map((path) => {

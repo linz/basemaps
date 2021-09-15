@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 Error.stackTraceLimit = 100;
-require('./build/cli/cogify');
+import './build/cli/cogify';

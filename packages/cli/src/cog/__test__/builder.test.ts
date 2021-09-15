@@ -4,7 +4,7 @@ import { CogTiff } from '@cogeotiff/core';
 import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import { SourceFile } from '@cogeotiff/source-file';
 import o from 'ospec';
-import { CogBuilder, guessProjection } from '../builder';
+import { CogBuilder, guessProjection } from '../builder.js';
 
 o.spec('Builder', () => {
     o('should guess WKT', () => {

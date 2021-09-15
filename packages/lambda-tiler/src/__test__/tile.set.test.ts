@@ -1,7 +1,7 @@
 import { ConfigImagery } from '@basemaps/config';
 import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import o from 'ospec';
-import { TileSetRaster } from '../tile.set.raster';
+import { TileSetRaster } from '../tile.set.raster.js';
 
 o.spec('tile.set', () => {
     o('basePath', () => {

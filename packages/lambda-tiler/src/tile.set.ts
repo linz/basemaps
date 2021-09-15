@@ -8,9 +8,9 @@ import {
 import { TileMatrixSet } from '@basemaps/geo';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { TileDataXyz } from '@basemaps/shared';
-import { TileSets } from './tile.set.cache';
-import { TileSetRaster } from './tile.set.raster';
-import { TileSetVector } from './tile.set.vector';
+import { TileSets } from './tile.set.cache.js';
+import { TileSetRaster } from './tile.set.raster.js';
+import { TileSetVector } from './tile.set.vector.js';
 
 export type TileSet = TileSetVector | TileSetRaster;
 

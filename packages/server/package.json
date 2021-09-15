@@ -11,6 +11,10 @@
     "url": "https://linz.govt.nz",
     "organization": true
   },
+  "type": "module",
+  "engines": {
+      "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
   "license": "MIT",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -21,7 +25,7 @@
     "access": "public"
   },
   "bin": {
-    "basemaps-server": "./bin/basemaps-server"
+    "basemaps-server": "./bin/basemaps-server.js"
   },
   "files": [
     "build/",
@@ -32,7 +36,7 @@
     "@basemaps/geo": "^6.9.1",
     "@basemaps/lambda-tiler": "^6.9.1",
     "@basemaps/shared": "^6.9.1",
-    "@linzjs/lambda": "^1.1.0",
+    "@linzjs/lambda": "^2.0.0",
     "@oclif/command": "^1.8.0",
     "express": "^4.17.1",
     "pretty-json-log": "^0.3.2"

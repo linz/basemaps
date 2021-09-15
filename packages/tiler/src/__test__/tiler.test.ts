@@ -1,7 +1,7 @@
 import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { Approx, TestTiff } from '@basemaps/test';
 import o from 'ospec';
-import { Tiler } from '../tiler';
+import { Tiler } from '../tiler.js';
 
 o.spec('tiler.test', () => {
     o.spec('getRasterTiffIntersection', () => {
