@@ -1,12 +1,12 @@
-import url from 'url';
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-const __filename = url.fileURLToPath(import.meta.url);
+import { promises as fs } from 'fs';
 import o from 'ospec';
+import * as path from 'path';
+import url from 'url';
 import { FsLocal } from '../abstractions/file.local.js';
 import { CompositeError } from '../composite.error.js';
 import { FileSystemAbstraction } from '../file.al.js';
-import * as path from 'path';
-import { promises as fs } from 'fs';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const __filename = url.fileURLToPath(import.meta.url);
 
 o.spec('FileLocal', () => {
     const RootFolder = process.platform === 'darwin' ? '/var/root' : '/root';

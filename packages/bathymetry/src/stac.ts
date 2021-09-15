@@ -1,23 +1,21 @@
 import {
     Bounds,
-    Tile,
-    TileMatrixSet,
     Stac as StacStatic,
-    StacItem,
     StacCollection,
+    StacItem,
     StacLink,
     StacProvider,
+    Tile,
+    TileMatrixSet,
 } from '@basemaps/geo';
 import { extractYearRangeFromName, fsa, LogType, Projection, titleizeImageryName } from '@basemaps/shared';
 import * as cp from 'child_process';
 import { readFileSync } from 'fs';
-import { basename } from 'path';
+import path, { basename } from 'path';
+import url from 'url';
 import { BathyMaker } from './bathy.maker.js';
 import { FileType } from './file.js';
 import { Hash } from './hash.js';
-
-import path from 'path';
-import url from 'url';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const packageJson = JSON.parse(readFileSync(path.join(__dirname, '../package.json')).toString());

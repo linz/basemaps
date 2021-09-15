@@ -1,14 +1,14 @@
-import url from 'url';
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
 import { TestTiff } from '@basemaps/test';
 import { ImageFormat, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
 import o from 'ospec';
 import * as path from 'path';
-import { PNG } from 'pngjs';
-import { TileMakerSharp } from '../index.js';
 import PixelMatch from 'pixelmatch';
+import { PNG } from 'pngjs';
+import url from 'url';
+import { TileMakerSharp } from '../index.js';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;
 
