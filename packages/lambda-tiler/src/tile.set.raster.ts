@@ -1,13 +1,13 @@
 import { ConfigImagery, ConfigLayer, ConfigTileSetRaster, TileSetNameParser, TileSetType } from '@basemaps/config';
 import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { Aws, Config, Env, fsa, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
+import { Config, Env, fsa, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
-import { NotFound, NotModified, TileComposer } from './routes/tile.js';
 import { TileEtag } from './routes/tile.etag.js';
+import { NotFound, NotModified, TileComposer } from './routes/tile.js';
 import { TileSetHandler } from './tile.set.js';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
