@@ -10,6 +10,7 @@ import * as z from 'zod';
 import c from 'ansi-colors';
 import path from 'path';
 import { recurseDirectory } from './file.util.js';
+import { createRequire } from 'module';
 
 const gitInfo = GitTag();
 const DefaultEnvVars = {
@@ -19,6 +20,8 @@ const DefaultEnvVars = {
 };
 
 let pkgJson;
+
+const require = createRequire(import.meta.url);
 
 const BundleSchema = z.object({
     entry: z.string(),

@@ -124,13 +124,13 @@ o.spec('LambdaXyz', () => {
                 mockRequest('/v1/tiles/aerial/global-mercator/25/0/0.png', 'get', apiKeyHeader),
             );
             o(res.status).equals(404);
-        } catch (e) {
+        } catch (e: any) {
             o(e.status).equals(404);
         }
         try {
             const res = await handleRequest(mockRequest('/v1/tiles/aerial/2193/17/0/0.png', 'get', apiKeyHeader));
             o(res.status).equals(404);
-        } catch (e) {
+        } catch (e: any) {
             o(e.status).equals(404);
         }
     });

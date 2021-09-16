@@ -123,7 +123,7 @@ export class FsS3 implements FileSystem {
                 }
                 ContinuationToken = res.NextContinuationToken;
             }
-        } catch (e) {
+        } catch (e: any) {
             throw getCompositeError(e, `Failed to list: "${filePath}"`);
         }
     }
@@ -135,7 +135,7 @@ export class FsS3 implements FileSystem {
         try {
             const res = await this.s3.getObject({ Bucket: opts.bucket, Key: opts.key }).promise();
             return res.Body as Buffer;
-        } catch (e) {
+        } catch (e: any) {
             throw getCompositeError(e, `Failed to read: "${filePath}"`);
         }
     }
@@ -146,7 +146,7 @@ export class FsS3 implements FileSystem {
 
         try {
             await this.s3.upload({ Bucket: opts.bucket, Key: opts.key, Body: buf }).promise();
-        } catch (e) {
+        } catch (e: any) {
             throw getCompositeError(e, `Failed to write: "${filePath}"`);
         }
     }
@@ -168,7 +168,7 @@ export class FsS3 implements FileSystem {
         try {
             const res = await this.s3.headObject({ Bucket: opts.bucket, Key: opts.key }).promise();
             return { size: res.ContentLength, path: filePath };
-        } catch (e) {
+        } catch (e: any) {
             if (e.code === 'NotFound') return null;
             throw getCompositeError(e, `Failed to exists: "${filePath}"`);
         }

@@ -27,7 +27,7 @@ export class FsLocal implements FileSystem {
                 if (file.isDirectory()) yield* this.list(targetPath);
                 else yield targetPath;
             }
-        } catch (e) {
+        } catch (e: any) {
             throw getCompositeError(e, `Failed to list: ${filePath}`);
         }
     }
@@ -44,7 +44,7 @@ export class FsLocal implements FileSystem {
         try {
             const stat = await fs.promises.stat(filePath);
             return { path: filePath, size: stat.size, isDirectory: stat.isDirectory() };
-        } catch (e) {
+        } catch (e: any) {
             if (e.code === 'ENOENT') return null;
             throw getCompositeError(e, `Failed to stat: ${filePath}`);
         }
@@ -53,7 +53,7 @@ export class FsLocal implements FileSystem {
     async read(filePath: string): Promise<Buffer> {
         try {
             return await fs.promises.readFile(filePath);
-        } catch (e) {
+        } catch (e: any) {
             throw getCompositeError(e, `Failed to read: ${filePath}`);
         }
     }
@@ -76,7 +76,7 @@ export class FsLocal implements FileSystem {
                     buf.pipe(st);
                 });
             }
-        } catch (e) {
+        } catch (e: any) {
             throw getCompositeError(e, `Failed to write: ${filePath}`);
         }
     }
