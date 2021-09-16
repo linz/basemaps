@@ -1,11 +1,10 @@
-import * as fs from 'fs';
+import { LogConfig } from '@basemaps/shared';
+import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { Context } from 'aws-lambda';
 import o from 'ospec';
 import sinon from 'sinon';
+import { getTestBuffer, Health, TestTiles } from '../health.js';
 import { TileRoute } from '../tile.js';
-import { getExpectedTileName, Health, TestTiles } from '../health.js';
-import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { LogConfig } from '@basemaps/shared';
-import { Context } from 'aws-lambda';
 
 const ctx: LambdaHttpRequest = new LambdaAlbRequest(
     {
@@ -19,7 +18,7 @@ const ctx: LambdaHttpRequest = new LambdaAlbRequest(
     LogConfig.get(),
 );
 
-o.spec('health', () => {
+o.spec('health', async () => {
     o.afterEach(() => {
         sinon.restore();
     });
@@ -37,19 +36,20 @@ o.spec('health', () => {
         o(res.statusDescription).equals('Can not get Tile Set.');
     });
 
-    // Prepare mock test tile response based on the static test tiles
     const Response1 = new LambdaHttpResponse(200, 'ok');
-    const testTileName1 = getExpectedTileName(TestTiles[0].projection, TestTiles[0].testTile, TestTiles[0].format);
-    const testTileFile1 = fs.readFileSync(testTileName1);
-    Response1.buffer(testTileFile1);
-
     const Response2 = new LambdaHttpResponse(200, 'ok');
-    const testTileName2 = getExpectedTileName(TestTiles[1].projection, TestTiles[1].testTile, TestTiles[1].format);
-    const testTileFile2 = fs.readFileSync(testTileName2);
-    Response2.buffer(testTileFile2);
+
+    o.before(async () => {
+        const testTileFile1 = await getTestBuffer(TestTiles[0]);
+        Response1.buffer(testTileFile1);
+        const testTileFile2 = await getTestBuffer(TestTiles[1]);
+        Response2.buffer(testTileFile2);
+    });
+    // Prepare mock test tile response based on the static test tiles
 
     o('Should give a 200 response', async () => {
         o.timeout(500);
+
         // Given ... a series good get tile response
         const callback = sinon.stub(TileRoute, 'tile');
         callback.onCall(0).resolves(Response1);

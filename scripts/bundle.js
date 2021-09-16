@@ -65,7 +65,7 @@ function bundleJs(basePath, cfg, outfile) {
         'esbuild',
         '--bundle',
         `--platform=${cfg.platform || 'node'}`,
-        `--target=${cfg.target || 'es2018'}`,
+        `--target=${cfg.target || 'es2020'}`,
         `--format=${cfg.format || 'cjs'}`,
         ...Object.entries(cfg.env || {}).map(defineEnv),
         ...Object.entries(DefaultEnvVars).map(defineEnv),
@@ -73,6 +73,7 @@ function bundleJs(basePath, cfg, outfile) {
         `--outfile=${outfile}`,
         joinPath(basePath, cfg.entry),
     ];
+    console.log(buildCmd);
 
     const res = cp.spawnSync('npx', buildCmd);
     if (res.status > 0) {
@@ -195,7 +196,6 @@ async function main() {
             basePath,
             bundle.outfile || joinPath(bundle.outdir || 'dist', path.basename(bundle.entry, ext) + DefaultSuffix[type]),
         );
-        console.log('bundle', type, outfile);
         await func(basePath, bundle, outfile);
     }
 }
