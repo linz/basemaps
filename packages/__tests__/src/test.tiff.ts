@@ -1,5 +1,5 @@
 import { CogTiff } from '@cogeotiff/core';
-import { SourceFile } from '@cogeotiff/source-file';
+import { fsa } from '@chunkd/fs';
 import path, { join } from 'path';
 import url from 'url';
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -11,10 +11,15 @@ const TiffNztm2000Path = join(TestDataPath, 'rgba8.nztm2000.tiff');
 
 export class TestTiff {
     static get Nztm2000(): CogTiff {
-        return new CogTiff(new SourceFile(TiffNztm2000Path));
+        const source = fsa.source(TiffNztm2000Path);
+        if (source == null) throw new Error('Failed to open: ' + TiffNztm2000Path);
+
+        return new CogTiff(source);
     }
 
     static get Google(): CogTiff {
-        return new CogTiff(new SourceFile(TiffGooglePath));
+        const source = fsa.source(TiffGooglePath);
+        if (source == null) throw new Error('Failed to open: ' + TiffGooglePath);
+        return new CogTiff(source);
     }
 }

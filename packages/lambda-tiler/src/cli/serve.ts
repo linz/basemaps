@@ -87,7 +87,7 @@ async function useLocal(): Promise<void> {
     if (filePath != null) {
         const tileSet = new TileSetLocal(tileSetName, filePath);
         await tileSet.load();
-        const tiffFiles = tileSet.tiffs.map((c) => c.source.name).join(', ');
+        const tiffFiles = tileSet.tiffs.map((c) => c.source.uri).join(', ');
         // TODO is there a better name for this
         tileSet.setTitle(`Local - ${tiffFiles}`);
         TileSets.add(tileSet);

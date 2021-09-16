@@ -116,7 +116,7 @@ export class ActionBatchJob extends CommandLineAction {
 
     static async batchJob(job: CogJob, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
         const jobPath = job.getJobPath('job.json');
-        if (!fsa.isS3(jobPath)) {
+        if (!jobPath.startsWith('s3://')) {
             throw new Error(`AWS Batch collection.json have to be in S3, jobPath:${jobPath}`);
         }
         LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));

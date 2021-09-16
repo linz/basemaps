@@ -26,9 +26,9 @@
     "@basemaps/shared": "^6.9.1",
     "@basemaps/tiler": "^6.9.1",
     "@basemaps/tiler-sharp": "^6.9.1",
-    "@cogeotiff/core": "^4.3.0",
-    "@cogeotiff/source-aws": "^4.3.0",
-    "@cotar/core": "3.1.0",
+    "@cogeotiff/core": "^6.0.2",
+    "@chunkd/fs": "^7.2.2",
+    "@cotar/core": "^5.0.1",
     "@linzjs/geojson": "^6.9.1",
     "@linzjs/lambda": "^2.0.0",
     "farmhash": "^3.2.1",
@@ -58,6 +58,6 @@
     "@types/pixelmatch": "^5.0.0",
     "@types/sharp": "^0.28.0",
     "express": "^4.17.1",
-    "pretty-json-log": "^0.3.1"
+    "pretty-json-log": "^1.0.0"
   }
 }

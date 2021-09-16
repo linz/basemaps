@@ -4,7 +4,6 @@
         { "path": "./packages/__tests__" },
         { "path": "./packages/linzjs-docker-command" },
         { "path": "./packages/linzjs-geojson" },
-        { "path": "./packages/linzjs-s3fs" },
         { "path": "./packages/linzjs-metrics" },
         { "path": "./packages/geo" },
         { "path": "./packages/tiler" },

@@ -13,6 +13,7 @@ import {
 } from '@basemaps/geo';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import {
+    CompositeError,
     Config,
     extractYearRangeFromName,
     fsa,
@@ -77,7 +78,7 @@ async function readStac(uri: string): Promise<StacCollection | null> {
     try {
         return await fsa.readJson<StacCollection>(uri);
     } catch (err) {
-        if (fsa.isCompositeError(err) && err.code < 500) {
+        if (CompositeError.isCompositeError(err) && err.code < 500) {
             return null;
         }
         throw err;

@@ -8,7 +8,14 @@ import {
     Tile,
     TileMatrixSet,
 } from '@basemaps/geo';
-import { extractYearRangeFromName, fsa, LogType, Projection, titleizeImageryName } from '@basemaps/shared';
+import {
+    CompositeError,
+    extractYearRangeFromName,
+    fsa,
+    LogType,
+    Projection,
+    titleizeImageryName,
+} from '@basemaps/shared';
 import * as cp from 'child_process';
 import { readFileSync } from 'fs';
 import path, { basename } from 'path';
@@ -113,7 +120,7 @@ async function createCollection(
         links.push({ href: sourceCollectionPath, rel: 'sourceImagery', type: 'application/json' });
         if (sourceStac.providers != null) providers.push(...sourceStac.providers);
     } catch (err) {
-        if (!fsa.isCompositeError(err) || err.code !== 404) {
+        if (!CompositeError.isCompositeError(err) || err.code !== 404) {
             throw err;
         }
     }

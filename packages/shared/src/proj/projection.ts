@@ -47,6 +47,7 @@ export class Projection {
         } catch (err: any) {
             throw new CompositeError(
                 `Failed to create projection: ${epsg.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`,
+                500,
                 err,
             );
         }

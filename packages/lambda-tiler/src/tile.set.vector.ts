@@ -1,8 +1,7 @@
 import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
+import { fsa, TileDataXyz, VectorFormat } from '@basemaps/shared';
+import { Cotar } from '@cotar/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { Aws, TileDataXyz, VectorFormat } from '@basemaps/shared';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import { Cotar, CotarIndexBinary } from '@cotar/core';
 import { NotFound } from './routes/tile.js';
 import { TileSetHandler } from './tile.set.js';
 
@@ -19,11 +18,9 @@ class CotarCache {
     }
 
     async loadCotar(uri: string): Promise<Cotar | null> {
-        const source = SourceAwsS3.fromUri(uri, Aws.s3);
-        const sourceIndex = SourceAwsS3.fromUri(`${uri}.index.binary`, Aws.s3);
-        if (source == null || sourceIndex == null) return null;
-
-        return new Cotar(source, new CotarIndexBinary(sourceIndex));
+        const source = fsa.source(uri);
+        if (source == null) return null;
+        return Cotar.fromTar(source);
     }
 }
 
