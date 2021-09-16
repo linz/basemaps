@@ -1,7 +1,7 @@
 import { Aws } from '../aws/index.js';
 
 export * from './file.config.js';
-import { fsa as fsaSource, FsS3 } from '@linzjs/s3fs';
+import { fsa as fsaSource, FsAwsS3 } from '@chunkd/fs';
 import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
 import { FileConfig, isConfigS3Role } from './file.config.js';
@@ -41,11 +41,7 @@ fsa.configure = function configure(cfg: FileConfig): void {
     if (cfg.type !== 's3') return; // ignore local configs
     if (!isConfigS3Role(cfg)) return; // ignore configs which don't need role assumptions
 
-    const { bucket } = FsS3.parse(cfg.path);
+    const { bucket } = FsAwsS3.parse(cfg.path);
     const bucketUri = `s3://${bucket}/`;
-    const existing = this.find(bucketUri);
-    if (existing != null) throw new Error('Duplicate filesystem configuration loaded');
-    this.register(bucketUri, new FsS3(Aws.credentials.getS3ForRole(cfg)));
+    this.register(bucketUri, new FsAwsS3(Aws.credentials.getS3ForRole(cfg)));
 };
-
-fsa.register('s3://', new FsS3(Aws.s3));

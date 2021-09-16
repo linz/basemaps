@@ -67,7 +67,7 @@ export class ActionJobCreate extends CommandLineAction {
         if (source.path.value == null) {
             throw new Error('Invalid path');
         }
-        if (!fsa.isS3(source.path.value)) {
+        if (!source.path.value.startsWith('s3://')) {
             return { type: 'local', path: source.path.value };
         }
         if (source.roleArn.value == null) {

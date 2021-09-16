@@ -23,11 +23,11 @@
   },
   "dependencies": {
     "@basemaps/geo": "^6.9.1",
-    "@cogeotiff/core": "^4.3.0",
+    "@cogeotiff/core": "^6.0.2",
     "@linzjs/metrics": "^6.9.1"
   },
   "devDependencies": {
-    "@cogeotiff/source-file": "^4.3.0",
+    "@chunkd/fs": "^7.2.4",
     "@types/pixelmatch": "^5.2.3",
     "@types/pngjs": "^6.0.0",
     "pixelmatch": "^5.1.0",

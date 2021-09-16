@@ -1,7 +1,6 @@
 import { GoogleTms } from '@basemaps/geo';
-import { Aws, Env, LogConfig, TileSetName } from '@basemaps/shared';
+import { Env, fsa, LogConfig, TileSetName } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
 import pLimit from 'p-limit';
 import { TileSets } from '../tile.set.cache.js';
 import { TileSetRaster } from '../tile.set.raster.js';
@@ -25,7 +24,7 @@ async function main(): Promise<void> {
         const promises = imagery.files.map(({ name }) => {
             return Q(async () => {
                 try {
-                    const uri = SourceAwsS3.fromUri(TileSetRaster.basePath(imagery, name), Aws.s3);
+                    const uri = fsa.source(TileSetRaster.basePath(imagery, name));
                     if (uri == null) throw new Error('Failed to load uri: ' + TileSetRaster.basePath(imagery, name));
                     const source = new CogTiff(uri);
                     await source.init();

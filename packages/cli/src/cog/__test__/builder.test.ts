@@ -1,8 +1,8 @@
 import { Bounds, Epsg, EpsgCode, GoogleTms } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
+import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import { SourceFile } from '@cogeotiff/source-file';
+
 import o from 'ospec';
 import { CogBuilder, guessProjection } from '../builder.js';
 
@@ -38,8 +38,8 @@ o.spec('Builder', () => {
         });
 
         o('bounds', async () => {
-            const localTiff = new SourceFile('/local/file.tiff');
-            const s3Tiff = new SourceAwsS3('bucket', 'file.tiff', null as any);
+            const localTiff = fsa.source('/local/file.tiff')!;
+            const s3Tiff = fsa.source('s3://bucket/file.tiff')!;
 
             const imageLocal = {
                 resolution: [0.1],

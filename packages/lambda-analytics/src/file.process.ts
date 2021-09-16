@@ -5,7 +5,7 @@ import { LogStats } from './stats.js';
 
 export const FileProcess = {
     reader(fileName: string): AsyncGenerator<string> | Interface {
-        return createInterface({ input: fsa.readStream(fileName).pipe(createGunzip()) });
+        return createInterface({ input: fsa.stream(fileName).pipe(createGunzip()) });
     },
     async process(fileName: string, stats: LogStats, logger: LogType): Promise<void> {
         const lineReader = FileProcess.reader(fileName);

@@ -15,6 +15,7 @@ import {
     Projection,
     fsa,
     titleizeImageryName,
+    CompositeError,
 } from '@basemaps/shared';
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
 import { CliInfo } from '../cli/base.cli.js';
@@ -166,7 +167,7 @@ export class CogStacJob implements CogJob {
                 }
             }
         } catch (err) {
-            if (!fsa.isCompositeError(err) || err.code !== 404) {
+            if (!CompositeError.isCompositeError(err) || err.code !== 404) {
                 throw err;
             }
         }

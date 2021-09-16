@@ -39,7 +39,7 @@ export async function listCacheFolder(cachePath: string): Promise<Set<string>> {
     const existingFiles: Set<string> = new Set();
     // Find where the last script finished processing
     const cachePathList = fsa.join(cachePath, CacheFolder);
-    if (fsa.isS3(cachePathList) || (await fsa.exists(cachePathList))) {
+    if (cachePathList.startsWith('s3://') || (await fsa.exists(cachePathList))) {
         for await (const file of fsa.list(cachePathList)) {
             if (!file.endsWith(CacheExtension)) continue;
             existingFiles.add(file.replace(cachePathList, '').replace(CacheExtension, ''));

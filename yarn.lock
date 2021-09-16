@@ -799,48 +799,65 @@
     source-map-support "^0.5.19"
     ulid "^2.3.0"
 
-"@cogeotiff/chunk@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/chunk/-/chunk-4.3.0.tgz#3372ccec11a7f17afafd704d6a11e1068fb1c56e"
-  integrity sha512-duVgqb/Ed6RhWISCBVBibJggWRmL/HJ9Rqq/kdcdW+aj7toGSoo8xr2NGR8N07hjILcUw/Frxf0GTK2/m+xrBg==
+"@chunkd/core@^7.2.2":
+  version "7.2.2"
+  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-7.2.2.tgz#fc561df415f5f07ddec92f79b472803be753b439"
+  integrity sha512-OhPXkl4UvQDy2CCGj6rKKDuxwY4OyAmsCtsJ84dQXcgTOER9aVf6DR++ydPc2OfMwcBNmE8ZFpgEW9OUM07wNA==
 
-"@cogeotiff/core@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-4.3.0.tgz#d97910f261561474f124b3eabca2c964c6158908"
-  integrity sha512-A8SxS7hwBmubnfvQGGdb0i/9fiYUTgb0wQYNRJqzOog/a1YIo4//EitRpbt4JVdMKE/niaGp5w38qOXFMpfmeg==
-  dependencies:
-    ieee754 "^1.1.13"
+"@chunkd/core@^7.2.4":
+  version "7.2.4"
+  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-7.2.4.tgz#c61310feabeb6bc34bee65251591a2567e18709f"
+  integrity sha512-KB+81kOymT/uI6G3eGz+yIyE8U6qEghP3H2pedaJ6S72dLISOU3djc3vFYLqEe952HuWLL4s9kqjopeKl4p0Rg==
 
-"@cogeotiff/source-aws@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-aws/-/source-aws-4.3.0.tgz#887724ea94f735118e758f0b974eb187b327ce07"
-  integrity sha512-DDb1AR8+dp++4iL5o07oMV7ZgWj62BntM8FKB4FvxXaA4lGCnqND+6zRs1O6FeX+/BkQ40owZxoGHwKdbSTyzA==
+"@chunkd/fs@^7.2.4":
+  version "7.2.4"
+  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-7.2.4.tgz#a56fb566c435b784943435d1d571da478448a7b8"
+  integrity sha512-dtM6S2pj8/i6UmxaHLkxCy3IFSNI7i6ry4vFMWsoC6MR9PyKGe8uVfhDGjbnSXke7GCv5iCsqaFeeoOpvdkuLg==
   dependencies:
-    "@cogeotiff/chunk" "^4.3.0"
+    "@chunkd/core" "^7.2.4"
+    "@chunkd/source-aws" "^7.2.4"
+    "@chunkd/source-file" "^7.2.4"
+    "@chunkd/source-http" "^7.2.4"
 
-"@cogeotiff/source-file@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-file/-/source-file-4.3.0.tgz#e112b669bca7210170ff0b097c225ede84e7ef89"
-  integrity sha512-Kqa5RF9uGYLgb3ULKCjMvkX7Z9XFiLpsZN6wwypvHyKFy6dfet7fO0vcmg7HjZup/ZGjkI1oQOBl72CKNj/kVQ==
+"@chunkd/source-aws@^7.2.4":
+  version "7.2.4"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-7.2.4.tgz#e75094650abc3c6e5c90c1da76c6e7ee890ae3f5"
+  integrity sha512-6NCS/JQjGf7f8MIsnMFs4PGZRlja4n7kW0InD22wBDvrs+U388gyi9d9rY4p8yxSuGDuXVZrGRP2AvZvi3lDAg==
   dependencies:
-    "@cogeotiff/chunk" "^4.3.0"
+    "@chunkd/core" "^7.2.4"
+    aws-sdk "*"
 
-"@cogeotiff/source-url@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/source-url/-/source-url-4.3.0.tgz#0dc0ed5239db4bc89642d9377bd3ce61bd4fb236"
-  integrity sha512-gj+HibfEW5TcXKXRlLgV1Jc708fL84znxuzZC+Iq5zHRiwkGK/PG6CdpwcSfrqaJU7GG4b3Cf+kWDIcHIK0pDg==
+"@chunkd/source-file@^7.2.4":
+  version "7.2.4"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-file/-/source-file-7.2.4.tgz#cef92281727e9bdfb5152558d1688069cbac622f"
+  integrity sha512-dv8UO+ms4PaEBNVRazJRpWZmYNEcZYjYlTbAz7iPMwUndSwmIRoH1N3Jyprcj3m+oQgpxhnbCKR4HyqjaVyNKw==
   dependencies:
-    "@cogeotiff/chunk" "^4.3.0"
+    "@chunkd/core" "^7.2.4"
+
+"@chunkd/source-http@^7.2.4":
+  version "7.2.4"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-http/-/source-http-7.2.4.tgz#7877d5acfa08f42cf88c37ebed227e46ba58ac62"
+  integrity sha512-PASbpmERqM2QAkki3VNH+8v8o3lsRIe6xwBAV3DDN4ABYDnruqtDzEJGmeDA5kJFPDqzMWQuaqnkq1ce9/mohg==
+  dependencies:
+    "@chunkd/core" "^7.2.4"
     node-fetch "^2.6.0"
 
-"@cotar/core@3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-3.1.0.tgz#ef4429e6ac81c24a2a89d4b9901251fef24d7ebf"
-  integrity sha512-IlIrunpNtLOOkcNGkK3In4Bp/mQ+ZNV81Y46OHkUJhYyOGnE3No1qsSVcx07HTHiovLJgeo/2JsMSW4rEepxLQ==
+"@cogeotiff/core@^6.0.2":
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-6.0.2.tgz#8f9a5036be20ae691c0fd248da3f6ec2b4621577"
+  integrity sha512-vpXvk/e+HNd04BwJDMHHHZh6yLl1ApJHfuzkkvqMLfY5Z8okJbWiVC4LuOUvn6xgg7BwPbzBpq9RrGIcdbv/+w==
   dependencies:
-    "@cogeotiff/chunk" "^4.3.0"
+    "@chunkd/core" "^7.2.2"
+    ieee754 "^1.1.13"
+
+"@cotar/core@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-5.0.1.tgz#955e6b5b6a0e6395b42adef43970c3c42e694dde"
+  integrity sha512-pEucFzjlV/HQTf8a4KPnoH5FHnxgr/YRmYgP4Cga69/V2hZgFyOi8rivg/M3enE6TUAvojvdRp5qDphZdq16Gg==
+  dependencies:
+    "@chunkd/core" "^7.2.2"
+    "@sindresorhus/fnv1a" "^2.0.1"
     binparse "^1.1.0"
-    farmhash "^3.2.1"
 
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
@@ -1566,6 +1583,11 @@
     react-query "^2.26.3"
     resolve-url-loader "^3.1.2"
 
+"@linzjs/s3fs@^6.9.1":
+  version "6.9.1"
+  resolved "https://registry.yarnpkg.com/@linzjs/s3fs/-/s3fs-6.9.1.tgz#6292999dd13b588890757ecd55e05f3cb036931f"
+  integrity sha512-jUFIJd93vLwvxdZdIbAm0iYEUmFIAXBTh4Wn8ikofYZglf8VxSDjBnPDZ6Eu7WQAh7DeVP9TfK5v3wLO0xFIlg==
+
 "@linzjs/style@^3.1.1":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@linzjs/style/-/style-3.1.1.tgz#3a275ea72524da468dc0992ea7b3033ad95f37a5"
@@ -1913,6 +1935,11 @@
     argparse "~1.0.9"
     colors "~1.2.1"
     string-argv "~0.3.1"
+
+"@sindresorhus/fnv1a@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@sindresorhus/fnv1a/-/fnv1a-2.0.1.tgz#2aefdfa7eb5b7f29a7936978218e986c70c603fc"
+  integrity sha512-suq9tRQ6bkpMukTG5K5z0sPWB7t0zExMzZCdmYm6xTSSIm/yCKNm7VCL36wVeyTsFr597/UhU1OAYdHGMDiHrw==
 
 "@sindresorhus/is@^0.7.0":
   version "0.7.0"
@@ -2561,6 +2588,21 @@ aws-cdk@^1.111.0:
     wrap-ansi "^7.0.0"
     yaml "1.10.2"
     yargs "^16.2.0"
+
+aws-sdk@*:
+  version "2.989.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.989.0.tgz#ed3cce6b94856b469784bc3312a0b64438b9fe67"
+  integrity sha512-sMjvqeF9mEOxXkhOAUjCrBt2iYafclkmaIbgSdjJ+te7zKXeReqrc6P3VgIGUxU8kwmdSro0n1NjrXbzKQJhcw==
+  dependencies:
+    buffer "4.9.2"
+    events "1.1.1"
+    ieee754 "1.1.13"
+    jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.3.2"
+    xml2js "0.4.19"
 
 aws-sdk@^2.848.0, aws-sdk@^2.890.0:
   version "2.890.0"
@@ -6842,10 +6884,10 @@ prettier@^2.3.2:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.3.2.tgz#ef280a05ec253712e486233db5c6f23441e7342d"
   integrity sha512-lnJzDfJ66zkMy58OL5/NY5zp70S7Nz6KqcKkXYzn2tMVrNxvbqaBpg7H3qHaLxCJ5lNMsGuM8+ohS7cZrthdLQ==
 
-pretty-json-log@^0.3.1, pretty-json-log@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/pretty-json-log/-/pretty-json-log-0.3.2.tgz#9bd22d452ea005a3c293f5a641a6ec3d17cc83f5"
-  integrity sha512-dPjFb2RNFPUdGKIGCyfqeslmkqZZxPxq4UbLMJJZDs0y+GMYZfWo3FmT1VYAgcehbXTXRhNPcAlgbTWgUAQEHw==
+pretty-json-log@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/pretty-json-log/-/pretty-json-log-1.0.0.tgz#8417783f93a114418dbccdb1302a6a2c0ed38654"
+  integrity sha512-qdsh1G8Gk3QQo3bWDXL+Q8UnQpTVOSfA3DsVlon92KtoX7MK89Tfhxb9rxFpma1W2dKL0K7LZ7V7kku6MMHRLQ==
   dependencies:
     ansi-colors "^4.1.1"
     split2 "^3.1.1"

@@ -1,7 +1,5 @@
 import { Bounds } from '@basemaps/geo';
 import { fsa, isConfigS3Role, isFileConfigPath, LogConfig } from '@basemaps/shared';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import { SourceFile } from '@cogeotiff/source-file';
 import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../index.js';
@@ -42,16 +40,7 @@ export const CogJobFactory = {
             ? sourceLocation.files
             : (await fsa.toArray(fsa.list(sourceLocation.path))).filter(filterTiff);
 
-        const tiffSource = tiffList.map((path: string) => {
-            const fs = fsa.find(path);
-            if (fsa.isS3Processor(fs)) {
-                const { bucket, key } = fs.parse(path);
-                if (key == null) throw new Error(`Failed to read tiff from uri: "${path}"`);
-                // Use the same s3 credentials to access the files that were used to list them
-                return new SourceAwsS3(bucket, key, fs.s3);
-            }
-            return new SourceFile(path);
-        });
+        const tiffSource = tiffList.map((path: string) => fsa.source(path));
 
         const maxConcurrency = ctx.override?.concurrency ?? MaxConcurrencyDefault;
 

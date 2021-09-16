@@ -1,26 +1,9 @@
 import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { ChunkSource } from '@cogeotiff/chunk';
 import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
-import { SourceFile } from '@cogeotiff/source-file';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { TileSetRaster } from '../tile.set.raster.js';
-
-function getTiffs(tiffList: string[]): ChunkSource[] {
-    return tiffList.map((path) => {
-        if (fsa.isS3(path)) {
-            const fs = fsa.find(path);
-            if (!fsa.isS3Processor(fs)) throw new Error(`Failed to find file system for: ${path}`);
-            const { bucket, key } = fs.parse(path);
-            if (key == null) throw new Error(`Unable to find tiff: ${path}`);
-            // Use the same s3 credentials to access the files that were used to list them
-            return new SourceAwsS3(bucket, key, fs.s3);
-        }
-        return new SourceFile(path);
-    });
-}
 
 function isTiff(fileName: string): boolean {
     return fileName.toLowerCase().endsWith('.tif') || fileName.toLowerCase().endsWith('.tiff');
@@ -48,7 +31,7 @@ export class TileSetLocal extends TileSetRaster {
 
         const fileList = isTiff(this.filePath) ? [this.filePath] : await fsa.toArray(fsa.list(this.filePath));
         const files = fileList.filter(isTiff);
-        if (files.length === 0 && !fsa.isS3(this.filePath)) {
+        if (files.length === 0 && !this.filePath.startsWith('s3://')) {
             for (const dir of fileList.sort()) {
                 const st = await fsPromises.stat(dir);
                 if (st.isDirectory()) {
@@ -63,7 +46,7 @@ export class TileSetLocal extends TileSetRaster {
             throw new Error(`No tiff files found in ${this.filePath}`);
         }
 
-        this.tiffs = getTiffs(files).map((c) => new CogTiff(c));
+        this.tiffs = files.map((filePath) => new CogTiff(fsa.source(filePath)));
 
         // Read in the projection information
         const [firstTiff] = this.tiffs;

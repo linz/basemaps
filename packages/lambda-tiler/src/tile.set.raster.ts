@@ -1,14 +1,13 @@
 import { ConfigImagery, ConfigLayer, ConfigTileSetRaster, TileSetNameParser, TileSetType } from '@basemaps/config';
 import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { Aws, Config, Env, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
+import { Config, Env, fsa, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
-import { SourceAwsS3 } from '@cogeotiff/source-aws';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
-import { NotFound, NotModified, TileComposer } from './routes/tile.js';
 import { TileEtag } from './routes/tile.etag.js';
+import { NotFound, NotModified, TileComposer } from './routes/tile.js';
 import { TileSetHandler } from './tile.set.js';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
@@ -75,7 +74,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
                 try {
                     await c.init();
                 } catch (error) {
-                    log.warn({ error, tiff: c.source.name }, 'TiffLoadFailed');
+                    log.warn({ error, tiff: c.source.uri }, 'TiffLoadFailed');
                     failed = true;
                 }
             });
@@ -162,7 +161,7 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
             const tiffKey = `${record.id}_${c.name}`;
             let existing = this.sources.get(tiffKey);
             if (existing == null) {
-                const source = SourceAwsS3.fromUri(TileSetRaster.basePath(record, c.name), Aws.s3);
+                const source = fsa.source(TileSetRaster.basePath(record, c.name));
                 if (source == null) {
                     throw new Error(`Failed to create CogSource from  ${TileSetRaster.basePath(record, c.name)}`);
                 }
