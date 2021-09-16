@@ -8,14 +8,6 @@ import PixelMatch from 'pixelmatch';
 import Sharp from 'sharp';
 import url from 'url';
 import { TileRoute } from './tile.js';
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-const __filename = url.fileURLToPath(import.meta.url);
-
-export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageFormat): string {
-    // Bundle static files are at the same directory with index.js
-    const dir = __filename.endsWith('health.js') ? path.join(__dirname, '..', '..') : __dirname;
-    return path.join(dir, `static/expected_tile_${projection.code}_${tile.x}_${tile.y}_z${tile.z}.${format}`);
-}
 
 interface TestTile {
     projection: Epsg;
@@ -30,12 +22,19 @@ export const TestTiles: TestTile[] = [
 ];
 const TileSize = 256;
 
-async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
+export async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
     if (Buffer.isBuffer(testTile.buf)) return testTile.buf;
+    const tile = testTile.testTile;
+
+    const expectedFile = `static/expected_tile_${testTile.projection.code}_${tile.x}_${tile.y}_z${tile.z}.${testTile.format}`;
     // Initiate test img buffer if not defined
-    const testTileName = getExpectedTileName(testTile.projection, testTile.testTile, testTile.format);
-    testTile.buf = await fs.promises.readFile(testTileName);
-    return testTile.buf;
+    try {
+        return await fs.promises.readFile(expectedFile);
+    } catch (e: any) {
+        if (e.code !== 'ENOENT') throw e;
+        const otherFile = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..', expectedFile);
+        return await fs.promises.readFile(otherFile);
+    }
 }
 
 //
@@ -87,6 +86,7 @@ export async function Health(req: LambdaHttpRequest): Promise<LambdaHttpResponse
 
         // Get test tile to compare
         const testBuffer = await getTestBuffer(test);
+        test.buf = testBuffer;
         const testImgBuffer = await Sharp(testBuffer).raw().toBuffer();
 
         const outputBuffer = Buffer.alloc(testImgBuffer.length);

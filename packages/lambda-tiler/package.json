@@ -14,7 +14,7 @@
   },
   "type": "module",
   "engines": {
-      "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -26,15 +26,15 @@
     "@basemaps/shared": "^6.9.1",
     "@basemaps/tiler": "^6.9.1",
     "@basemaps/tiler-sharp": "^6.9.1",
-    "@cogeotiff/core": "^6.0.2",
     "@chunkd/fs": "^7.2.4",
+    "@cogeotiff/core": "^6.0.2",
     "@cotar/core": "^5.0.1",
     "@linzjs/geojson": "^6.9.1",
     "@linzjs/lambda": "^2.0.0",
     "farmhash": "^3.2.1",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
-    "sharp": "^0.28.1"
+    "sharp": "^0.28.3"
   },
   "bundle": {
     "entry": "src/index.ts",
