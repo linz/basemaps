@@ -126,7 +126,7 @@ export class BathyMaker {
             const tileNames = await Promise.all(promises);
             if (extent == null) return;
             await this.createMetadata(extent, tileNames, logger);
-        } catch (err) {
+        } catch (err: any) {
             logger.fatal(err, 'FailedToRun');
             throw err;
         }

@@ -386,7 +386,7 @@ o.spec('CogJob', () => {
                     cutlinePoly: [],
                 });
                 o('').equals('create should not have exceeded');
-            } catch (err) {
+            } catch (err: any) {
                 o(err.message).equals('Missing date in imagery name: yucky-name');
             }
         });

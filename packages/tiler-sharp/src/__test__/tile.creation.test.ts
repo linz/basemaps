@@ -68,7 +68,7 @@ o.spec('TileCreation', () => {
         try {
             await tileMaker.compose({ layers: [], background } as any);
             o(true).equals(false)('invalid format');
-        } catch (e) {
+        } catch (e: any) {
             o(e.message.includes('Invalid image')).equals(true);
         }
     });

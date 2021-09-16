@@ -47,7 +47,7 @@ o.spec('file.s3', () => {
             try {
                 await s3fs.toArray(fs.list('s3://bucket'));
                 o(true).equals(false)('Should error on invalid reads');
-            } catch (e) {
+            } catch (e: any) {
                 o(e.message).equals('Failed to list: "s3://bucket"');
                 o(e.reason.message).equals('Failed to finish listing within 100 list attempts');
                 o(stub.callCount).equals(100);
@@ -128,7 +128,7 @@ o.spec('file.s3', () => {
             try {
                 await fs.read('s3://bucket');
                 o(true).equals(false)('Should error on invalid reads');
-            } catch (e) {
+            } catch (e: any) {
                 o(e.message.includes('s3://bucket')).equals(true)('Should include s3://bucket');
             }
         });
@@ -138,7 +138,7 @@ o.spec('file.s3', () => {
             try {
                 await fs.readStream('s3://bucket');
                 o(true).equals(false)('Should error on invalid reads');
-            } catch (e) {
+            } catch (e: any) {
                 o(e.message.includes('s3://bucket')).equals(true)('Should include s3://bucket');
             }
         });
@@ -162,7 +162,7 @@ o.spec('file.s3', () => {
             try {
                 await fs.write('s3://bucket', Buffer.from('Hello World'));
                 o(true).equals(false)('Should error on invalid writes');
-            } catch (e) {
+            } catch (e: any) {
                 o(e.message.includes('s3://bucket')).equals(true)('Should include s3://bucket');
             }
         });
@@ -178,7 +178,7 @@ o.spec('file.s3', () => {
             try {
                 await fs.read('s3://test-bucket/foo.txt');
                 o('Should have thrown error').equals('');
-            } catch (err) {
+            } catch (err: any) {
                 o(err.code).equals(500);
                 o(stub.callCount).equals(1);
             }
@@ -193,7 +193,7 @@ o.spec('file.s3', () => {
             try {
                 await fs.read('s3://test-bucket/foo.txt');
                 o('Should have thrown error').equals('');
-            } catch (err) {
+            } catch (err: any) {
                 o(err.code).equals(404);
                 o(err.reason.statusCode).equals(404);
                 o(stub.callCount).equals(1);

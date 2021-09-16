@@ -45,7 +45,7 @@ o.spec('FileLocal', () => {
         try {
             await s3fs.toArray(localFs.list('/foo/bar/baz'));
             throw new Error('Failed to throw');
-        } catch (e) {
+        } catch (e: any) {
             o(CompositeError.isCompositeError(e)).equals(true);
             o(e.code).equals(404);
         }
@@ -55,7 +55,7 @@ o.spec('FileLocal', () => {
         try {
             await localFs.write('/foo/bar/baz', Buffer.from('foobar'), false);
             throw new Error('Failed to throw');
-        } catch (e) {
+        } catch (e: any) {
             o(CompositeError.isCompositeError(e)).equals(true);
             o(e.code).equals(404);
         }
@@ -65,7 +65,7 @@ o.spec('FileLocal', () => {
         try {
             await localFs.read('/foo/bar/baz');
             throw new Error('Failed to throw');
-        } catch (e) {
+        } catch (e: any) {
             o(CompositeError.isCompositeError(e)).equals(true);
             o(e.code).equals(404);
         }
@@ -76,7 +76,7 @@ o.spec('FileLocal', () => {
         try {
             await s3fs.toArray(localFs.list(path.join(RootFolder, 'test')));
             throw new Error('Failed to throw');
-        } catch (e) {
+        } catch (e: any) {
             o(CompositeError.isCompositeError(e)).equals(true);
             o(e.code).equals(403);
         }
@@ -86,7 +86,7 @@ o.spec('FileLocal', () => {
         try {
             await localFs.write(path.join(RootFolder, 'test'), Buffer.from('foobar'), false);
             throw new Error('Failed to throw');
-        } catch (e) {
+        } catch (e: any) {
             o(CompositeError.isCompositeError(e)).equals(true);
             o(e.code).equals(403);
         }
@@ -97,7 +97,7 @@ o.spec('FileLocal', () => {
         try {
             await localFs.read(path.join(RootFolder, 'test'));
             throw new Error('Failed to throw');
-        } catch (e) {
+        } catch (e: any) {
             o(CompositeError.isCompositeError(e)).equals(true);
             o(e.code).equals(403);
         }
