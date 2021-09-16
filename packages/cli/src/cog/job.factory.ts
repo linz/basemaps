@@ -40,11 +40,7 @@ export const CogJobFactory = {
             ? sourceLocation.files
             : (await fsa.toArray(fsa.list(sourceLocation.path))).filter(filterTiff);
 
-        const tiffSource = tiffList.map((path: string) => {
-            const source = fsa.source(path);
-            if (source == null) throw new Error(`Failed to read tiff from uri: "${path}"`);
-            return source;
-        });
+        const tiffSource = tiffList.map((path: string) => fsa.source(path));
 
         const maxConcurrency = ctx.override?.concurrency ?? MaxConcurrencyDefault;
 

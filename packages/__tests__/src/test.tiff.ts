@@ -11,15 +11,10 @@ const TiffNztm2000Path = join(TestDataPath, 'rgba8.nztm2000.tiff');
 
 export class TestTiff {
     static get Nztm2000(): CogTiff {
-        const source = fsa.source(TiffNztm2000Path);
-        if (source == null) throw new Error('Failed to open: ' + TiffNztm2000Path);
-
-        return new CogTiff(source);
+        return new CogTiff(fsa.source(TiffNztm2000Path));
     }
 
     static get Google(): CogTiff {
-        const source = fsa.source(TiffGooglePath);
-        if (source == null) throw new Error('Failed to open: ' + TiffGooglePath);
-        return new CogTiff(source);
+        return new CogTiff(fsa.source(TiffGooglePath));
     }
 }

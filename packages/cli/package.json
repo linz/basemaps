@@ -42,7 +42,7 @@
     "@basemaps/geo": "^6.9.1",
     "@basemaps/shared": "^6.9.1",
     "@cogeotiff/core": "^6.0.2",
-    "@chunkd/fs": "^7.2.2",
+    "@chunkd/fs": "^7.2.4",
     "@linzjs/geojson": "^6.9.1",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",

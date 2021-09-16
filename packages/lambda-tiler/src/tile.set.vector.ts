@@ -11,16 +11,10 @@ class CotarCache {
     get(uri: string): Promise<Cotar | null> {
         let cotar = this.cache.get(uri);
         if (cotar == null) {
-            cotar = this.loadCotar(uri);
+            cotar = Cotar.fromTar(fsa.source(uri));
             this.cache.set(uri, cotar);
         }
         return cotar;
-    }
-
-    async loadCotar(uri: string): Promise<Cotar | null> {
-        const source = fsa.source(uri);
-        if (source == null) return null;
-        return Cotar.fromTar(source);
     }
 }
 

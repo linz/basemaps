@@ -1,18 +1,9 @@
 import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { ChunkSource } from '@chunkd/core';
 import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { TileSetRaster } from '../tile.set.raster.js';
-
-function getTiffs(tiffList: string[]): ChunkSource[] {
-    return tiffList.map((path) => {
-        const source = fsa.source(path);
-        if (source == null) throw new Error(`Failed to find file system for: ${path}`);
-        return source;
-    });
-}
 
 function isTiff(fileName: string): boolean {
     return fileName.toLowerCase().endsWith('.tif') || fileName.toLowerCase().endsWith('.tiff');
@@ -55,7 +46,7 @@ export class TileSetLocal extends TileSetRaster {
             throw new Error(`No tiff files found in ${this.filePath}`);
         }
 
-        this.tiffs = getTiffs(files).map((c) => new CogTiff(c));
+        this.tiffs = files.map((filePath) => new CogTiff(fsa.source(filePath)));
 
         // Read in the projection information
         const [firstTiff] = this.tiffs;

@@ -27,7 +27,7 @@
     "@basemaps/tiler": "^6.9.1",
     "@basemaps/tiler-sharp": "^6.9.1",
     "@cogeotiff/core": "^6.0.2",
-    "@chunkd/fs": "^7.2.2",
+    "@chunkd/fs": "^7.2.4",
     "@cotar/core": "^5.0.1",
     "@linzjs/geojson": "^6.9.1",
     "@linzjs/lambda": "^2.0.0",
