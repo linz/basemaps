@@ -20,6 +20,9 @@ const DefaultEnvVars = {
 
 let pkgJson;
 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
 const BundleSchema = z.object({
     entry: z.string(),
     /** destination path */
