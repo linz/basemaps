@@ -1,10 +1,11 @@
 import { Epsg } from '@basemaps/geo';
-import { Aws, fsa, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
+import { fsa, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
 import { Gdal } from '../gdal/gdal.js';
 import { GdalCommand } from '../gdal/gdal.command.js';
 import { onProgress } from './cog.js';
 import { Cutline } from './cutline.js';
 import { CogJob } from './types.js';
+import { AwsCredentials } from '@chunkd/fs';
 
 /**
  * Build the VRT for the needed source imagery
@@ -120,10 +121,7 @@ export const CogVrt = {
         const sourceLocation = job.source.location;
         // If required assume role
         if (isConfigS3Role(sourceLocation)) {
-            const credentials = Aws.credentials.getCredentialsForRole(
-                sourceLocation.roleArn,
-                sourceLocation.externalId,
-            );
+            const credentials = AwsCredentials.role(sourceLocation.roleArn, sourceLocation.externalId);
             gdalCommand.setCredentials(credentials);
         }
 

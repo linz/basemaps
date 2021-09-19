@@ -39,6 +39,7 @@ export class EdgeAnalytics extends cdk.Stack {
                 [Env.Analytics.CloudFrontId]: distributionId,
                 [Env.Analytics.CacheBucket]: `s3://${cacheBucket.bucketName}`,
                 [Env.Analytics.CloudFrontSourceBucket]: `s3://${logBucket.bucketName}`,
+                AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
             },
             logRetention: RetentionDays.ONE_MONTH,
         });

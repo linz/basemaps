@@ -1,5 +1,3 @@
-import { Aws } from '../aws/index.js';
-
 export * from './file.config.js';
 import { fsa as fsaSource, FsAwsS3 } from '@chunkd/fs';
 import { promisify } from 'util';
@@ -43,5 +41,5 @@ fsa.configure = function configure(cfg: FileConfig): void {
 
     const { bucket } = FsAwsS3.parse(cfg.path);
     const bucketUri = `s3://${bucket}/`;
-    this.register(bucketUri, new FsAwsS3(Aws.credentials.getS3ForRole(cfg)));
+    this.register(bucketUri, FsAwsS3.fromRoleArn(cfg.roleArn, cfg.externalId));
 };
