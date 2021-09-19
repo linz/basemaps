@@ -1,4 +1,4 @@
-import { GoogleTms } from '@basemaps/geo';
+import { Nztm2000Tms } from '@basemaps/geo';
 import { LambdaAlbRequest } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
@@ -13,7 +13,7 @@ import { Context } from 'aws-lambda';
 if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
 const xyz = { x: 0, y: 0, z: 0 };
-const tileMatrix = GoogleTms;
+const tileMatrix = Nztm2000Tms;
 const tileSetName = 'aerial';
 const ext = ImageFormat.PNG;
 
@@ -56,9 +56,9 @@ async function main(): Promise<void> {
     const headers: Record<string, any> = {};
     for (const [key, value] of tileData.headers) headers[key] = value;
 
-    logger.info({ ...tileData, body: tileData.body?.length, headers }, 'Done');
-    if (tileData.body != null) {
-        await fs.writeFile(`output_${xyz.x}_${xyz.y}_z${xyz.z}.${ext}`, tileData.body);
+    logger.info({ ...tileData, _body: tileData.body?.length, headers }, 'Done');
+    if (tileData._body != null) {
+        await fs.writeFile(`output_${xyz.x}_${xyz.y}_z${xyz.z}.${ext}`, tileData._body);
     }
 }
 
