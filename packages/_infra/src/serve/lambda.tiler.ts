@@ -36,6 +36,7 @@ export class LambdaTiler extends cdk.Construct {
             code: lambda.Code.fromAsset(CODE_PATH),
             environment: {
                 [Env.PublicUrlBase]: config.PublicUrlBase,
+                AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
             },
             logRetention: RetentionDays.ONE_MONTH,
         });

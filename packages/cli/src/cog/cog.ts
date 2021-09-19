@@ -1,9 +1,10 @@
 import { Bounds, TileMatrixSet } from '@basemaps/geo';
-import { Aws, isConfigS3Role, LogType, Projection } from '@basemaps/shared';
+import { isConfigS3Role, LogType, Projection } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal.cog.js';
 import { GdalCommand } from '../gdal/gdal.command.js';
 import { GdalProgressParser } from '../gdal/gdal.progress.js';
 import { CogJob } from './types.js';
+import { AwsCredentials } from '@chunkd/fs';
 
 /**
  * Create a onProgress logger
@@ -81,7 +82,7 @@ export async function buildCogForName(
     const sourceLocation = job.source.location;
     // If required assume role
     if (isConfigS3Role(sourceLocation)) {
-        const credentials = Aws.credentials.getCredentialsForRole(sourceLocation.roleArn, sourceLocation.externalId);
+        const credentials = AwsCredentials.role(sourceLocation.roleArn, sourceLocation.externalId);
         cogBuild.gdal.setCredentials(credentials);
     }
 

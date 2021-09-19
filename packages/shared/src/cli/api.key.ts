@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import { Aws } from '../aws/index.js';
-
 import baseX from 'base-x';
 import { randomBytes } from 'crypto';
 
@@ -14,7 +12,6 @@ async function main(): Promise<void> {
         const apiKey = base58.encode(bytes).slice(0, 32);
 
         console.log(apiKey);
-        await Aws.apiKey.create(apiKey);
     }
 }
 
