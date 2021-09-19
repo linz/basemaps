@@ -799,30 +799,25 @@
     source-map-support "^0.5.19"
     ulid "^2.3.0"
 
-"@chunkd/core@^7.2.2":
-  version "7.2.2"
-  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-7.2.2.tgz#fc561df415f5f07ddec92f79b472803be753b439"
-  integrity sha512-OhPXkl4UvQDy2CCGj6rKKDuxwY4OyAmsCtsJ84dQXcgTOER9aVf6DR++ydPc2OfMwcBNmE8ZFpgEW9OUM07wNA==
-
-"@chunkd/core@^7.2.4":
+"@chunkd/core@^7.2.2", "@chunkd/core@^7.2.4":
   version "7.2.4"
   resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-7.2.4.tgz#c61310feabeb6bc34bee65251591a2567e18709f"
   integrity sha512-KB+81kOymT/uI6G3eGz+yIyE8U6qEghP3H2pedaJ6S72dLISOU3djc3vFYLqEe952HuWLL4s9kqjopeKl4p0Rg==
 
-"@chunkd/fs@^7.2.4":
-  version "7.2.4"
-  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-7.2.4.tgz#a56fb566c435b784943435d1d571da478448a7b8"
-  integrity sha512-dtM6S2pj8/i6UmxaHLkxCy3IFSNI7i6ry4vFMWsoC6MR9PyKGe8uVfhDGjbnSXke7GCv5iCsqaFeeoOpvdkuLg==
+"@chunkd/fs@^7.3.1":
+  version "7.3.1"
+  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-7.3.1.tgz#1d5e0bcc914d9ba72f2c555838fb4241c130f05e"
+  integrity sha512-5EPqm2YDD0RCPxBLML13pQWbs0owves+6fMNHEY6bdxtE4xmYDGGCvenVeqV5Ot8pdWsbiIUwBABiUnJG0pmCQ==
   dependencies:
     "@chunkd/core" "^7.2.4"
-    "@chunkd/source-aws" "^7.2.4"
+    "@chunkd/source-aws" "^7.3.0"
     "@chunkd/source-file" "^7.2.4"
     "@chunkd/source-http" "^7.2.4"
 
-"@chunkd/source-aws@^7.2.4":
-  version "7.2.4"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-7.2.4.tgz#e75094650abc3c6e5c90c1da76c6e7ee890ae3f5"
-  integrity sha512-6NCS/JQjGf7f8MIsnMFs4PGZRlja4n7kW0InD22wBDvrs+U388gyi9d9rY4p8yxSuGDuXVZrGRP2AvZvi3lDAg==
+"@chunkd/source-aws@^7.3.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-7.3.0.tgz#505b3090b069ea8d07a296586f4d51ad81f3cc74"
+  integrity sha512-2Dig6lrqIUYnZPFamMZFMUBycFlK7I+QxnC9os8uSp4yFhds5FDzifUrlAXaP+Z7OsEaGKQlXE5pvcRajxO1Bw==
   dependencies:
     "@chunkd/core" "^7.2.4"
     aws-sdk "*"
@@ -2074,10 +2069,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.1.tgz#283f669ff76d7b8260df8ab7a4262cc83d988256"
   integrity sha512-fZQQafSREFyuZcdWFAExYjBiCL7AUCdgsk80iO0q4yihYYdcIiH28CcuPTGFgLOCC8RlW49GSQxdHwZP+I7CNg==
 
-"@types/node@*", "@types/node@^14.11.2":
-  version "14.14.22"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.22.tgz#0d29f382472c4ccf3bd96ff0ce47daf5b7b84b18"
-  integrity sha512-g+f/qj/cNcqKkc3tFqlXOYjrmZA+jNBiDzbP3kH+B+otKFqAdPgVTGP1IeKRdMml/aE69as5S4FqtxAbl+LaMw==
+"@types/node@*", "@types/node@^16.9.4":
+  version "16.9.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.9.4.tgz#a12f0ee7847cf17a97f6fdf1093cb7a9af23cca4"
+  integrity sha512-KDazLNYAGIuJugdbULwFZULF9qQ13yNWEBFnfVpqlpgAAo6H/qnM9RjBgh0A0kmHf3XxAKLdN5mTIng9iUvVLA==
 
 "@types/node@^10.17.60":
   version "10.17.60"
