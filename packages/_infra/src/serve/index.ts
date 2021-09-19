@@ -1,22 +1,23 @@
-import cdk from '@aws-cdk/core';
-import ec2 from '@aws-cdk/aws-ec2';
-import elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
-import targets from '@aws-cdk/aws-elasticloadbalancingv2-targets';
 import cert from '@aws-cdk/aws-certificatemanager';
+import ec2 from '@aws-cdk/aws-ec2';
+import elbv2, { ApplicationProtocol, SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
+import targets from '@aws-cdk/aws-elasticloadbalancingv2-targets';
 import r53 from '@aws-cdk/aws-route53';
-
-import { LambdaTiler } from './lambda.tiler.js';
-import { ApplicationProtocol, SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
-import { DeployEnv } from '../deploy.env.js';
-import { Env } from '@basemaps/shared';
+import cdk from '@aws-cdk/core';
 import { getConfig } from '../config.js';
 import { TileMetadataTable } from './db.js';
+import { LambdaTiler } from './lambda.tiler.js';
+
+export interface ServeStackProps extends cdk.StackProps {
+    /** ACM certificate to use for the ALB */
+    albCertificateArn: string;
+}
 
 /**
  * Tile serving infrastructure
  */
 export class ServeStack extends cdk.Stack {
-    public constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+    public constructor(scope: cdk.Construct, id: string, props: ServeStackProps) {
         super(scope, id, props);
 
         const config = getConfig();
@@ -49,20 +50,15 @@ export class ServeStack extends cdk.Stack {
 
         // Due to the convoluted way of getting SSL certificates, we have a provisioned certificate
         // in our account we need to look it up
-        const certArn = Env.get(DeployEnv.AlbTlsCertArn);
-        if (certArn == null) {
-            console.error('No ALB certificate provided, falling back to listening on port 80 only');
-        } else {
-            const sslCert = cert.Certificate.fromCertificateArn(this, 'AlbCert', certArn);
+        const sslCert = cert.Certificate.fromCertificateArn(this, 'AlbCert', props.albCertificateArn);
 
-            lb.addListener('HttpsListener', {
-                port: 443,
-                protocol: ApplicationProtocol.HTTPS,
-                sslPolicy: SslPolicy.RECOMMENDED,
-                certificateArns: [sslCert.certificateArn],
-                defaultTargetGroups: [targetGroup],
-            });
-        }
+        lb.addListener('HttpsListener', {
+            port: 443,
+            protocol: ApplicationProtocol.HTTPS,
+            sslPolicy: SslPolicy.RECOMMENDED,
+            certificateArns: [sslCert.certificateArn],
+            defaultTargetGroups: [targetGroup],
+        });
 
         const dnsZone = r53.HostedZone.fromLookup(this, 'AlbDnsZone', {
             domainName: config.Route53Zone,

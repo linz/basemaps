@@ -118,12 +118,9 @@ jobs:
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
-          ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN}}
-          CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN}}
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
           NODE_ENV: "dev"
           API_KEY: ${{secrets.API_KEY_NON_PROD}}
-          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
 
       - name: (Prod) Publish NPM
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -148,12 +145,9 @@ jobs:
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
-          ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN_PROD}}
-          CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN_PROD}}
           NODE_ENV: "production"
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
-          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
 
       - name: Benchmark
         uses: blacha/hyperfine-action@v1
