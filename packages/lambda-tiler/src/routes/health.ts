@@ -1,4 +1,4 @@
-import { Epsg, Tile } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, Tile, TileMatrixSet } from '@basemaps/geo';
 import { ImageFormat } from '@basemaps/tiler';
 import { HttpHeader, LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
@@ -10,23 +10,23 @@ import url from 'url';
 import { TileRoute } from './tile.js';
 
 interface TestTile {
-    projection: Epsg;
+    tms: TileMatrixSet;
     buf: null | Buffer;
     format: ImageFormat;
     testTile: Tile;
 }
 
 export const TestTiles: TestTile[] = [
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 }, buf: null },
-    { projection: Epsg.Nztm2000, format: ImageFormat.PNG, testTile: { x: 153, y: 255, z: 7 }, buf: null },
+    { tms: GoogleTms, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 }, buf: null },
+    { tms: Nztm2000QuadTms, format: ImageFormat.PNG, testTile: { x: 30, y: 33, z: 6 }, buf: null },
 ];
 const TileSize = 256;
 
-export async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
-    if (Buffer.isBuffer(testTile.buf)) return testTile.buf;
-    const tile = testTile.testTile;
+export async function getTestBuffer(test: TestTile): Promise<Buffer> {
+    if (Buffer.isBuffer(test.buf)) return test.buf;
+    const tile = test.testTile;
 
-    const expectedFile = `static/expected_tile_${testTile.projection.code}_${tile.x}_${tile.y}_z${tile.z}.${testTile.format}`;
+    const expectedFile = `static/expected_tile_${test.tms.identifier}_${tile.x}_${tile.y}_z${tile.z}.${test.format}`;
     // Initiate test img buffer if not defined
     try {
         return await fs.promises.readFile(expectedFile);
@@ -37,15 +37,15 @@ export async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
     }
 }
 
-//
-// async function updateExpectedTile(test: TestTile, newTileData: Buffer, difference: Buffer): Promise<void> {
-//     const expectedFileName = getExpectedTileName(test.projection, test.testTile, test.format);
-//     await fs.promises.writeFile(expectedFileName, newTileData);
-//     const imgPng = await Sharp(difference, { raw: { width: TileSize, height: TileSize, channels: 4 } })
-//         .png()
-//         .toBuffer();
-//     await fs.promises.writeFile(`${expectedFileName}.diff.png`, imgPng);
-// }
+export async function updateExpectedTile(test: TestTile, newTileData: Buffer, difference: Buffer): Promise<void> {
+    const tile = test.testTile;
+    const expectedFileName = `static/expected_tile_${test.tms.identifier}_${tile.x}_${tile.y}_z${tile.z}.${test.format}`;
+    await fs.promises.writeFile(expectedFileName, newTileData);
+    const imgPng = await Sharp(difference, { raw: { width: TileSize, height: TileSize, channels: 4 } })
+        .png()
+        .toBuffer();
+    await fs.promises.writeFile(`${expectedFileName}.diff.png`, imgPng);
+}
 
 /**
  * Health request get health TileSets and validate with test TileSets
@@ -56,15 +56,10 @@ export async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
  */
 export async function Health(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
     for (const test of TestTiles) {
-        const projection = test.projection;
+        const tms = test.tms;
         const testTile = test.testTile;
         const format = test.format;
-        const path = `/v1/tiles/health/
-            ${projection.toEpsgString()}
-            /${testTile.z}
-            /${testTile.x}
-            /${testTile.y}
-            .${format}`;
+        const path = `/v1/tiles/health/${tms.identifier}/${testTile.z}/${testTile.x}/${testTile.y}.${format}`;
 
         const ctx: LambdaHttpRequest = new LambdaAlbRequest(
             {
@@ -93,11 +88,11 @@ export async function Health(req: LambdaHttpRequest): Promise<LambdaHttpResponse
         const missMatchedPixels = PixelMatch(testImgBuffer, resImgBuffer, outputBuffer, TileSize, TileSize);
         if (missMatchedPixels) {
             /** Uncomment this to overwite the expected files */
-            // await updateExpectedTile(test, response.body, outputBuffer);
+            // await updateExpectedTile(test, response._body as Buffer, outputBuffer);
             req.log.error(
                 {
                     missMatchedPixels,
-                    projection: test.projection.code,
+                    projection: tms.identifier,
                     xyz: test.testTile,
                 },
                 'Health:MissMatch',

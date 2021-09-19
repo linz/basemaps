@@ -1,3 +1,3 @@
 #!/usr/bin/env node
-require('source-map-support/register');
-require('./build/cli/validate');
+import 'source-map-support/register.js';
+import './build/cli/validate.js';
