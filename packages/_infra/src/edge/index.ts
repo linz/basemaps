@@ -1,12 +1,13 @@
-import cdk from '@aws-cdk/core';
 import cf from '@aws-cdk/aws-cloudfront';
-import s3 from '@aws-cdk/aws-s3';
-import { Bucket } from '@aws-cdk/aws-s3';
-import { Env } from '@basemaps/shared';
+import s3, { Bucket } from '@aws-cdk/aws-s3';
+import cdk from '@aws-cdk/core';
 import { getConfig } from '../config.js';
-import { DeployEnv } from '../deploy.env.js';
 import { Parameters } from '../parameters.js';
 
+export interface EdgeStackProps extends cdk.StackProps {
+    /** ACM certificate to use for cloudfront */
+    cloudfrontCertificateArn: string;
+}
 /**
  * Edge infrastructure
  *
@@ -18,7 +19,7 @@ export class EdgeStack extends cdk.Stack {
     public logBucket: Bucket;
     public distribution: cf.CloudFrontWebDistribution;
 
-    public constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+    public constructor(scope: cdk.Construct, id: string, props: EdgeStackProps) {
         super(scope, id, props);
 
         const config = getConfig();
@@ -55,20 +56,13 @@ export class EdgeStack extends cdk.Stack {
             ],
         };
 
-        let aliasConfiguration: cf.AliasConfiguration | undefined = undefined;
-
-        const cloudFrontTls = Env.get(DeployEnv.CloudFrontTlsCertArn);
-        if (cloudFrontTls == null || cloudFrontTls === '' || config.CloudFrontDns == null) {
-            console.log('No CloudFront tls certificate provided.');
-        } else {
-            aliasConfiguration = {
-                acmCertRef: cloudFrontTls,
-                names: config.CloudFrontDns,
-                sslMethod: cf.SSLMethod.SNI,
-                securityPolicy: cf.SecurityPolicyProtocol.TLS_V1_2_2018,
-            };
-            new cdk.CfnOutput(this, 'CloudFrontPublicDomain', { value: config.CloudFrontDns.join(', ') });
-        }
+        const aliasConfiguration = {
+            acmCertRef: props.cloudfrontCertificateArn,
+            names: config.CloudFrontDns,
+            sslMethod: cf.SSLMethod.SNI,
+            securityPolicy: cf.SecurityPolicyProtocol.TLS_V1_2_2018,
+        };
+        new cdk.CfnOutput(this, 'CloudFrontPublicDomain', { value: config.CloudFrontDns.join(', ') });
 
         this.logBucket = new s3.Bucket(this, 'EdgeLogBucket');
 

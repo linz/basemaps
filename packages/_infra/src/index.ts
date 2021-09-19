@@ -2,11 +2,21 @@ import { App } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
 import { EdgeAnalytics } from './analytics/edge.analytics.js';
 import { CogBuilderStack } from './cogify/index.js';
-import { BaseMapsRegion } from './config.js';
+import { BaseMapsRegion, getConfig } from './config.js';
 import { DeployEnv } from './deploy.env.js';
 import { EdgeStack } from './edge/index.js';
 import { getEdgeParameters } from './parameters.js';
 import { ServeStack } from './serve/index.js';
+
+import ACM from 'aws-sdk/clients/acm.js';
+
+/** Find a certificate for a given domain in a specific region */
+async function findCertForDomain(region: string, domain: string): Promise<string | undefined> {
+    const acm = new ACM({ region });
+    const certs = await acm.listCertificates({ CertificateStatuses: ['ISSUED'] }).promise();
+    const cert = certs.CertificateSummaryList?.find((f) => f.DomainName?.endsWith(domain));
+    return cert?.CertificateArn;
+}
 
 async function main(): Promise<void> {
     const basemaps = new App();
@@ -14,12 +24,28 @@ async function main(): Promise<void> {
     /** Using VPC lookups requires a hard coded AWS "account" */
     const account = Env.get(DeployEnv.CdkAccount);
 
+    const config = getConfig();
+
+    // Alb certificates have to be deployed in the same region
+    const albCertificateArn = await findCertForDomain(BaseMapsRegion, config.Route53Zone);
+    if (albCertificateArn == null) {
+        console.error('Unable to find ALB Certificate');
+        return;
+    }
+
+    // Cloudfront certs have to be deployed into us-east-1
+    const cloudfrontCertificateArn = await findCertForDomain('us-east-1', config.CloudFrontDns[0]);
+    if (cloudfrontCertificateArn == null) {
+        console.error('Unable to find CloudFront Certificate');
+        return;
+    }
+
     /**
      * Because we are using Lambda@Edge the edge stack has to be deployed into us-east-1,
      * The dynamoDb table needs to be close to our users that has to be deployed in ap-southeast-2
      */
-    const edge = new EdgeStack(basemaps, 'Edge', { env: { region: 'us-east-1', account } });
-    const serve = new ServeStack(basemaps, 'Serve', { env: { region: BaseMapsRegion, account } });
+    const edge = new EdgeStack(basemaps, 'Edge', { env: { region: 'us-east-1', account }, cloudfrontCertificateArn });
+    const serve = new ServeStack(basemaps, 'Serve', { env: { region: BaseMapsRegion, account }, albCertificateArn });
 
     edge.addDependency(serve);
 
