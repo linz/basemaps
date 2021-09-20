@@ -10,7 +10,7 @@ mapnik.register_default_input_plugins();
 
 /** Create the mapnik template */
 function makeTemplate(sourceFile: string, hillShade: string): string {
-    return `<?xml version="1.0" encoding="utf-8"?>
+  return `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Map[]>
 <Map background-color="#2a383e" srs="+init=epsg:4326">
 
@@ -62,27 +62,27 @@ function makeTemplate(sourceFile: string, hillShade: string): string {
 
 /** composite a hillshade and base tile into a hillshaded file with mapnik */
 async function render(bm: BathyMaker, tile: Tile, logger: LogType): Promise<string> {
-    const tileId = TileMatrixSet.tileToName(tile);
-    const warpedPath = bm.tmpFolder.name(FileType.Warped, tileId);
-    const hillShadePath = bm.tmpFolder.name(FileType.HillShade, tileId);
-    const outputPath = bm.tmpFolder.name(FileType.Rendered, tileId);
-    if (fs.existsSync(outputPath)) return outputPath;
+  const tileId = TileMatrixSet.tileToName(tile);
+  const warpedPath = bm.tmpFolder.name(FileType.Warped, tileId);
+  const hillShadePath = bm.tmpFolder.name(FileType.HillShade, tileId);
+  const outputPath = bm.tmpFolder.name(FileType.Rendered, tileId);
+  if (fs.existsSync(outputPath)) return outputPath;
 
-    const template = makeTemplate(warpedPath, hillShadePath);
-    const map = new mapnik.Map(bm.config.tileSize, bm.config.tileSize) as any;
+  const template = makeTemplate(warpedPath, hillShadePath);
+  const map = new mapnik.Map(bm.config.tileSize, bm.config.tileSize) as any;
 
-    await new Promise<void>((resolve, reject) =>
-        map.fromString(template, (err: Error) => (err == null ? resolve() : reject(err))),
-    );
+  await new Promise<void>((resolve, reject) =>
+    map.fromString(template, (err: Error) => (err == null ? resolve() : reject(err))),
+  );
 
-    map.zoomAll();
+  map.zoomAll();
 
-    const startTime = Date.now();
-    await new Promise<void>((resolve, reject) =>
-        map.renderFile(outputPath, (err: Error) => (err == null ? resolve() : reject(err))),
-    );
-    logger.debug({ duration: Date.now() - startTime }, 'MapnikRender');
-    return outputPath;
+  const startTime = Date.now();
+  await new Promise<void>((resolve, reject) =>
+    map.renderFile(outputPath, (err: Error) => (err == null ? resolve() : reject(err))),
+  );
+  logger.debug({ duration: Date.now() - startTime }, 'MapnikRender');
+  return outputPath;
 }
 
 export const MapnikRender = { render };

@@ -13,8 +13,8 @@ app.get('version', Version);
 app.get('tiles', Tiles);
 
 export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
-    req.set('name', 'LambdaTiler');
-    return await app.handle(req);
+  req.set('name', 'LambdaTiler');
+  return await app.handle(req);
 }
 
 export const handler = lf.http(handleRequest, LogConfig.get());

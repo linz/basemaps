@@ -4,12 +4,12 @@ export { ConfigImagery } from './config/imagery.js';
 export { ConfigPrefix } from './config/prefix.js';
 export { ConfigProvider } from './config/provider.js';
 export {
-    ConfigLayer,
-    ConfigTileSet,
-    ConfigTileSetRaster,
-    ConfigTileSetVector,
-    TileResizeKernel,
-    TileSetType,
+  ConfigLayer,
+  ConfigTileSet,
+  ConfigTileSetRaster,
+  ConfigTileSetVector,
+  TileResizeKernel,
+  TileSetType,
 } from './config/tile.set.js';
 export { ConfigVectorStyle, Sources, StyleJson } from './config/vector.style.js';
 export { ConfigProviderDynamo } from './dynamo/dynamo.config.js';

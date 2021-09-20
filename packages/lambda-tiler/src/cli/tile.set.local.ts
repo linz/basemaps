@@ -6,61 +6,61 @@ import { join } from 'path';
 import { TileSetRaster } from '../tile.set.raster.js';
 
 function isTiff(fileName: string): boolean {
-    return fileName.toLowerCase().endsWith('.tif') || fileName.toLowerCase().endsWith('.tiff');
+  return fileName.toLowerCase().endsWith('.tif') || fileName.toLowerCase().endsWith('.tiff');
 }
 
 export class TileSetLocal extends TileSetRaster {
-    tiffs: CogTiff[];
-    filePath: string;
-    tileSet = {} as any;
+  tiffs: CogTiff[];
+  filePath: string;
+  tileSet = {} as any;
 
-    constructor(name: string, path: string) {
-        super(name, GoogleTms);
-        this.filePath = path;
-        this.tileSet.name = name;
-        this.tileSet.title = name;
-        this.tileSet.projection = GoogleTms.projection.code;
-    }
+  constructor(name: string, path: string) {
+    super(name, GoogleTms);
+    this.filePath = path;
+    this.tileSet.name = name;
+    this.tileSet.title = name;
+    this.tileSet.projection = GoogleTms.projection.code;
+  }
 
-    setTitle(name: string): void {
-        this.tileSet.title = name;
-    }
+  setTitle(name: string): void {
+    this.tileSet.title = name;
+  }
 
-    async load(): Promise<boolean> {
-        if (this.tiffs != null) return true;
+  async load(): Promise<boolean> {
+    if (this.tiffs != null) return true;
 
-        const fileList = isTiff(this.filePath) ? [this.filePath] : await fsa.toArray(fsa.list(this.filePath));
-        const files = fileList.filter(isTiff);
-        if (files.length === 0 && !this.filePath.startsWith('s3://')) {
-            for (const dir of fileList.sort()) {
-                const st = await fsPromises.stat(dir);
-                if (st.isDirectory()) {
-                    for (const file of await fsPromises.readdir(dir)) {
-                        const filePath = join(dir, file);
-                        if (isTiff(filePath)) files.push(filePath);
-                    }
-                }
-            }
+    const fileList = isTiff(this.filePath) ? [this.filePath] : await fsa.toArray(fsa.list(this.filePath));
+    const files = fileList.filter(isTiff);
+    if (files.length === 0 && !this.filePath.startsWith('s3://')) {
+      for (const dir of fileList.sort()) {
+        const st = await fsPromises.stat(dir);
+        if (st.isDirectory()) {
+          for (const file of await fsPromises.readdir(dir)) {
+            const filePath = join(dir, file);
+            if (isTiff(filePath)) files.push(filePath);
+          }
         }
-        if (files.length === 0) {
-            throw new Error(`No tiff files found in ${this.filePath}`);
-        }
-
-        this.tiffs = files.map((filePath) => new CogTiff(fsa.source(filePath)));
-
-        // Read in the projection information
-        const [firstTiff] = this.tiffs;
-        await firstTiff.init(true);
-        const projection = Epsg.get(firstTiff.getImage(0).valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number);
-        this.tileMatrix = TileMatrixSets.get(projection);
-        LogConfig.get().info(
-            { path: this.filePath, count: this.tiffs.length, tileMatrix: this.tileMatrix.identifier },
-            'LoadedTiffs',
-        );
-        return true;
+      }
+    }
+    if (files.length === 0) {
+      throw new Error(`No tiff files found in ${this.filePath}`);
     }
 
-    getTiffsForTile(): CogTiff[] {
-        return this.tiffs;
-    }
+    this.tiffs = files.map((filePath) => new CogTiff(fsa.source(filePath)));
+
+    // Read in the projection information
+    const [firstTiff] = this.tiffs;
+    await firstTiff.init(true);
+    const projection = Epsg.get(firstTiff.getImage(0).valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number);
+    this.tileMatrix = TileMatrixSets.get(projection);
+    LogConfig.get().info(
+      { path: this.filePath, count: this.tiffs.length, tileMatrix: this.tileMatrix.identifier },
+      'LoadedTiffs',
+    );
+    return true;
+  }
+
+  getTiffsForTile(): CogTiff[] {
+    return this.tiffs;
+  }
 }

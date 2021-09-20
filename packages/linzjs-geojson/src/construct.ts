@@ -6,40 +6,40 @@ import { ConvertCoordinates } from './multipolygon/convert.js';
  * @param features
  */
 export function toFeatureCollection(features: Feature[]): FeatureCollection {
-    return {
-        type: 'FeatureCollection',
-        features,
-    };
+  return {
+    type: 'FeatureCollection',
+    features,
+  };
 }
 
 export function toPolygon(coordinates: Position[][]): Polygon {
-    return {
-        type: 'Polygon',
-        coordinates,
-    };
+  return {
+    type: 'Polygon',
+    coordinates,
+  };
 }
 
 /** Create a feature polygon */
 export function toFeaturePolygon(coordinates: Position[][], properties = {}): Feature {
-    return {
-        type: 'Feature',
-        geometry: toPolygon(coordinates),
-        properties,
-    };
+  return {
+    type: 'Feature',
+    geometry: toPolygon(coordinates),
+    properties,
+  };
 }
 
 /**
  * Create a feature mult-polygon
  */
 export function toFeatureMultiPolygon(coordinates: Position[][][], properties = {}): Feature {
-    return {
-        type: 'Feature',
-        geometry: {
-            type: 'MultiPolygon',
-            coordinates,
-        },
-        properties,
-    };
+  return {
+    type: 'Feature',
+    geometry: {
+      type: 'MultiPolygon',
+      coordinates,
+    },
+    properties,
+  };
 }
 
 /**
@@ -57,27 +57,27 @@ export const copyPoint: ConvertCoordinates = (p) => [p[0], p[1]];
  * @param transform change the coordinates of each point. Defaults to copying the point
  */
 export function featuresToMultiPolygon(features: Feature[], removeHoles = false, transform = copyPoint): MultiPolygon {
-    const coordinates: Position[][][] = [];
-    for (const { geometry } of features) {
-        if (geometry.type === 'MultiPolygon') {
-            for (const coords of geometry.coordinates) {
-                if (removeHoles) {
-                    coordinates.push([coords[0].map(transform)]);
-                } else {
-                    coordinates.push(coords.map((ring) => ring.map(transform)));
-                }
-            }
-        } else if (geometry.type === 'Polygon') {
-            if (removeHoles) {
-                coordinates.push([geometry.coordinates[0].map(transform)]);
-            } else {
-                coordinates.push(geometry.coordinates.map((ring) => ring.map(transform)));
-            }
+  const coordinates: Position[][][] = [];
+  for (const { geometry } of features) {
+    if (geometry.type === 'MultiPolygon') {
+      for (const coords of geometry.coordinates) {
+        if (removeHoles) {
+          coordinates.push([coords[0].map(transform)]);
+        } else {
+          coordinates.push(coords.map((ring) => ring.map(transform)));
         }
+      }
+    } else if (geometry.type === 'Polygon') {
+      if (removeHoles) {
+        coordinates.push([geometry.coordinates[0].map(transform)]);
+      } else {
+        coordinates.push(geometry.coordinates.map((ring) => ring.map(transform)));
+      }
     }
+  }
 
-    return {
-        type: 'MultiPolygon',
-        coordinates,
-    };
+  return {
+    type: 'MultiPolygon',
+    coordinates,
+  };
 }

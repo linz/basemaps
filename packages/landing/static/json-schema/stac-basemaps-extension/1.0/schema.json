@@ -34,16 +34,12 @@
   "definitions": {
     "common": {
       "type": "object",
-      "required": [
-        "stac_extensions"
-      ],
+      "required": ["stac_extensions"],
       "properties": {
         "stac_extensions": {
           "type": "array",
           "contains": {
-            "enum": [
-              "https://basemaps.linz.govt.nz/json-schema/stac-basemaps-extension/1.0/schema.json"
-            ]
+            "enum": ["https://basemaps.linz.govt.nz/json-schema/stac-basemaps-extension/1.0/schema.json"]
           }
         }
       }
@@ -75,10 +71,7 @@
             },
             "linz:zoom": {
               "type": "object",
-              "required": [
-                "min",
-                "max"
-              ],
+              "required": ["min", "max"],
               "properties": {
                 "min": {
                   "type": "number"

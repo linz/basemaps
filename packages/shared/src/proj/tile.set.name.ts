@@ -1,7 +1,7 @@
 export enum TileSetName {
-    aerial = 'aerial',
+  aerial = 'aerial',
 }
 
 export function TileSetNameValues(): TileSetName[] {
-    return [TileSetName.aerial];
+  return [TileSetName.aerial];
 }

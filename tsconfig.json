@@ -1,22 +1,22 @@
 {
-    "files": [],
-    "references": [
-        { "path": "./packages/__tests__" },
-        { "path": "./packages/linzjs-docker-command" },
-        { "path": "./packages/linzjs-geojson" },
-        { "path": "./packages/linzjs-metrics" },
-        { "path": "./packages/geo" },
-        { "path": "./packages/tiler" },
-        { "path": "./packages/tiler-sharp" },
-        { "path": "./packages/cli" },
-        { "path": "./packages/bathymetry" },
-        { "path": "./packages/_infra" },
-        { "path": "./packages/config" },
-        { "path": "./packages/shared" },
-        { "path": "./packages/lambda-tiler" },
-        { "path": "./packages/lambda-analytics" },
-        { "path": "./packages/attribution" },
-        { "path": "./packages/landing" },
-        { "path": "./packages/server" }
-    ]
+  "files": [],
+  "references": [
+    { "path": "./packages/__tests__" },
+    { "path": "./packages/linzjs-docker-command" },
+    { "path": "./packages/linzjs-geojson" },
+    { "path": "./packages/linzjs-metrics" },
+    { "path": "./packages/geo" },
+    { "path": "./packages/tiler" },
+    { "path": "./packages/tiler-sharp" },
+    { "path": "./packages/cli" },
+    { "path": "./packages/bathymetry" },
+    { "path": "./packages/_infra" },
+    { "path": "./packages/config" },
+    { "path": "./packages/shared" },
+    { "path": "./packages/lambda-tiler" },
+    { "path": "./packages/lambda-analytics" },
+    { "path": "./packages/attribution" },
+    { "path": "./packages/landing" },
+    { "path": "./packages/server" }
+  ]
 }

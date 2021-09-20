@@ -10,7 +10,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"{packages/*/src/**/*.ts,scripts/*.js}\" --quiet --fix --report-unused-disable-directives",
+    "lint": "eslint . --quiet --fix --report-unused-disable-directives --ignore-path .gitignore",
     "test": "cross-env NODE_OPTIONS=--enable-source-maps lerna run test --parallel",
     "clean": "tsc -b --clean && rimraf 'packages/*/build' && yarn clean:dist",
     "clean:dist": "rimraf 'packages/*/dist' && rimraf 'packages/_infra/cdk.out'",

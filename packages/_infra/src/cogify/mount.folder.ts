@@ -15,9 +15,9 @@ service docker restart
 --==MYBOUNDARY==`;
 
 export const ScratchData = {
-    /** Device name `xvdz` */
-    Device: MountDevice,
-    /** Folder where device is mounted @default /scratch */
-    Folder: MountFolder,
-    UserData: Buffer.from(MountFolderScript).toString('base64'),
+  /** Device name `xvdz` */
+  Device: MountDevice,
+  /** Folder where device is mounted @default /scratch */
+  Folder: MountFolder,
+  UserData: Buffer.from(MountFolderScript).toString('base64'),
 };
