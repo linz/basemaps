@@ -14,23 +14,23 @@ const CenterTile = Center / 2;
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
 
 async function main(): Promise<void> {
-    const tileSize = Number(process.argv[process.argv.length - 1]);
-    if (isNaN(tileSize) || tileSize < 256 || tileSize > 1024) {
-        console.log('Tile size is invalid');
-        return;
-    }
+  const tileSize = Number(process.argv[process.argv.length - 1]);
+  if (isNaN(tileSize) || tileSize < 256 || tileSize > 1024) {
+    console.log('Tile size is invalid');
+    return;
+  }
 
-    for (let i = 0; i < RenderCount; i++) {
-        const tiler = new Tiler(GoogleTms);
-        const tileMaker = new TileMakerSharp(tileSize);
-        const tiff = await TestTiff.Google.init();
+  for (let i = 0; i < RenderCount; i++) {
+    const tiler = new Tiler(GoogleTms);
+    const tileMaker = new TileMakerSharp(tileSize);
+    const tiff = await TestTiff.Google.init();
 
-        const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom);
+    const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom);
 
-        if (layers == null) throw new Error('Tile is null');
-        await tileMaker.compose({ layers, format: ImageFormat.PNG, background, resizeKernel });
-        await tiff.close();
-    }
+    if (layers == null) throw new Error('Tile is null');
+    await tileMaker.compose({ layers, format: ImageFormat.PNG, background, resizeKernel });
+    await tiff.close();
+  }
 }
 
 main().catch(console.error);

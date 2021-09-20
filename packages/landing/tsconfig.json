@@ -1,10 +1,10 @@
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "rootDir": "./src",
-        "outDir": "./build",
-        "lib": ["DOM"]
-    },
-    "include": ["src/**/*"],
-    "references": [{ "path": "../geo" }, {"path": "../shared"}] 
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./build",
+    "lib": ["DOM"]
+  },
+  "include": ["src/**/*"],
+  "references": [{ "path": "../geo" }, { "path": "../shared" }]
 }

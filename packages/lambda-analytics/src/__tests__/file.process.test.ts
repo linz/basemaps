@@ -14,72 +14,72 @@ export const ExampleLogs = `#Version: 1.0
 2020-07-28	01:13:33	SYD4-C2	2588	255.255.255.128	GET	d1mez8rta20vo0.cloudfront.net	/v1/tiles/topo50/EPSG:3857/WMTSCapabilities.xml	200	-	Mozilla/5.0%20QGIS/31006	api=${ClientApiKey}	-	RefreshHit	oflBr-vO5caoVpi2S23hGh9YWMUca-McU_Fl5oN9fqW_H9ea_iS-Kg==	basemaps.linz.govt.nz	https	243	0.051	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	RefreshHit	HTTP/1.1	-	-	55515	0.050	RefreshHit	text/xml	-
 2020-07-28	01:13:33	SYD4-C2	2588	255.255.255.128	GET	d1mez8rta20vo0.cloudfront.net	/v1/tiles/topo50/EPSG:3857/18/257866/162011.pbf	200	-	Mozilla/5.0%20QGIS/31006	api=${ClientApiKey}	-	RefreshHit	oflBr-vO5caoVpi2S23hGh9YWMUca-McU_Fl5oN9fqW_H9ea_iS-Kg==	basemaps.linz.govt.nz	https	243	0.051	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	RefreshHit	HTTP/1.1	-	-	55515	0.050	RefreshHit	text/xml	-
 `
-    .trim()
-    .split('\n');
+  .trim()
+  .split('\n');
 
 export function lineReader(lines: string[], date?: string): () => AsyncGenerator<string> {
-    const dateStr = date == null ? '2020-07-28	01' : date.slice(0, 13).replace('T', '	');
-    return async function* lineByLine(): AsyncGenerator<string> {
-        for (const line of lines) {
-            if (line.startsWith('#')) yield line;
-            else yield dateStr + line.slice(dateStr.length);
-        }
-    };
+  const dateStr = date == null ? '2020-07-28	01' : date.slice(0, 13).replace('T', '	');
+  return async function* lineByLine(): AsyncGenerator<string> {
+    for (const line of lines) {
+      if (line.startsWith('#')) yield line;
+      else yield dateStr + line.slice(dateStr.length);
+    }
+  };
 }
 
 // Utility to dump the indexes from the '#Fields' line in cloudwatch
 export const CloudWatchIndexes = {
-    dump(): void {
-        const fields = ExampleLogs[1].replace('#Fields: ', '').split(' ');
-        for (let i = 0; i < fields.length; i++) {
-            console.log(i, fields[i]);
-        }
-    },
+  dump(): void {
+    const fields = ExampleLogs[1].replace('#Fields: ', '').split(' ');
+    for (let i = 0; i < fields.length; i++) {
+      console.log(i, fields[i]);
+    }
+  },
 };
 
 o.spec('FileProcess', () => {
-    const originalReader = FileProcess.reader;
-    o.afterEach(() => {
-        FileProcess.reader = originalReader;
-        LogStats.ByDate.clear();
-    });
-    o('should extract and track a api hit', async () => {
-        FileProcess.reader = lineReader([ExampleLogs[2]]);
-        const logData = LogStats.getDate('2020-07-28T01:00:00.000Z');
-        await FileProcess.process('Fake', logData, LogConfig.get());
-        o(LogStats.ByDate.size).equals(1);
-        o(logData.stats.size).equals(1);
-        const apiStats = logData.getStats(DevApiKey, 'bar.com');
+  const originalReader = FileProcess.reader;
+  o.afterEach(() => {
+    FileProcess.reader = originalReader;
+    LogStats.ByDate.clear();
+  });
+  o('should extract and track a api hit', async () => {
+    FileProcess.reader = lineReader([ExampleLogs[2]]);
+    const logData = LogStats.getDate('2020-07-28T01:00:00.000Z');
+    await FileProcess.process('Fake', logData, LogConfig.get());
+    o(LogStats.ByDate.size).equals(1);
+    o(logData.stats.size).equals(1);
+    const apiStats = logData.getStats(DevApiKey, 'bar.com');
 
-        o(apiStats?.apiType).equals('d');
-        o(apiStats?.total).equals(1);
-        o(apiStats?.cache).deepEquals({ hit: 1, miss: 0 });
-        o(apiStats?.projection).deepEquals({ 2193: 0, 3857: 1 });
-    });
+    o(apiStats?.apiType).equals('d');
+    o(apiStats?.total).equals(1);
+    o(apiStats?.cache).deepEquals({ hit: 1, miss: 0 });
+    o(apiStats?.projection).deepEquals({ 2193: 0, 3857: 1 });
+  });
 
-    o('should extract and track a bunch of hits', async () => {
-        const logData = LogStats.getDate('2020-07-28T01:00:00.000Z');
+  o('should extract and track a bunch of hits', async () => {
+    const logData = LogStats.getDate('2020-07-28T01:00:00.000Z');
 
-        FileProcess.reader = lineReader(ExampleLogs);
-        await FileProcess.process('Fake', logData, LogConfig.get());
-        o(LogStats.ByDate.size).equals(1);
+    FileProcess.reader = lineReader(ExampleLogs);
+    await FileProcess.process('Fake', logData, LogConfig.get());
+    o(LogStats.ByDate.size).equals(1);
 
-        o(logData.stats.size).equals(2);
-        const devStats = logData.getStats(DevApiKey, 'bar.com');
-        const clientStats = logData.getStats(ClientApiKey);
+    o(logData.stats.size).equals(2);
+    const devStats = logData.getStats(DevApiKey, 'bar.com');
+    const clientStats = logData.getStats(ClientApiKey);
 
-        o(devStats?.total).equals(3);
-        o(devStats?.apiType).equals('d');
-        o(devStats?.cache).deepEquals({ hit: 2, miss: 1 });
-        o(devStats?.projection).deepEquals({ 2193: 0, 3857: 3 });
-        o(devStats?.extension).deepEquals({ webp: 1, jpeg: 1, png: 1, wmts: 0, other: 0, pbf: 0 });
-        o(devStats?.tileSet).deepEquals({ aerial: 2, aerialIndividual: 0, topo50: 1, direct: 0 });
+    o(devStats?.total).equals(3);
+    o(devStats?.apiType).equals('d');
+    o(devStats?.cache).deepEquals({ hit: 2, miss: 1 });
+    o(devStats?.projection).deepEquals({ 2193: 0, 3857: 3 });
+    o(devStats?.extension).deepEquals({ webp: 1, jpeg: 1, png: 1, wmts: 0, other: 0, pbf: 0 });
+    o(devStats?.tileSet).deepEquals({ aerial: 2, aerialIndividual: 0, topo50: 1, direct: 0 });
 
-        o(clientStats?.total).equals(2);
-        o(clientStats?.apiType).equals('c');
-        o(clientStats?.cache).deepEquals({ hit: 2, miss: 0 });
-        o(clientStats?.projection).deepEquals({ 2193: 0, 3857: 2 });
-        o(clientStats?.extension).deepEquals({ webp: 0, jpeg: 0, png: 0, wmts: 1, other: 0, pbf: 1 });
-        o(clientStats?.tileSet).deepEquals({ aerial: 0, aerialIndividual: 0, topo50: 2, direct: 0 });
-    });
+    o(clientStats?.total).equals(2);
+    o(clientStats?.apiType).equals('c');
+    o(clientStats?.cache).deepEquals({ hit: 2, miss: 0 });
+    o(clientStats?.projection).deepEquals({ 2193: 0, 3857: 2 });
+    o(clientStats?.extension).deepEquals({ webp: 0, jpeg: 0, png: 0, wmts: 1, other: 0, pbf: 1 });
+    o(clientStats?.tileSet).deepEquals({ aerial: 0, aerialIndividual: 0, topo50: 2, direct: 0 });
+  });
 });

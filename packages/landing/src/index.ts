@@ -9,15 +9,15 @@ import { addDebugLayer } from './debug.js';
 const canUseWebp = isWebpSupported();
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const mapEl = document.getElementById('map');
-    if (mapEl == null) throw new Error('Cannot find #map element');
-    if (await canUseWebp) WindowUrl.ImageFormat = 'webp';
+  const mapEl = document.getElementById('map');
+  if (mapEl == null) throw new Error('Cannot find #map element');
+  if (await canUseWebp) WindowUrl.ImageFormat = 'webp';
 
-    const basemaps = new Basemaps(mapEl);
-    window.basemaps = basemaps;
+  const basemaps = new Basemaps(mapEl);
+  window.basemaps = basemaps;
 
-    const ui = new BasemapsUi(basemaps);
-    window.basemapsUi = ui;
+  const ui = new BasemapsUi(basemaps);
+  window.basemapsUi = ui;
 
-    if (basemaps.config.debug) addDebugLayer(basemaps);
+  if (basemaps.config.debug) addDebugLayer(basemaps);
 });

@@ -6,15 +6,15 @@ import { ActionCogCreate } from './action.cog.js';
 import { ActionJobCreate } from './action.job.js';
 
 export class CogifyCommandLine extends BaseCommandLine {
-    constructor() {
-        super({
-            toolFilename: 'cogify',
-            toolDescription: 'Cloud optimized geotiff utilities',
-        });
-        this.addAction(new ActionCogCreate());
-        this.addAction(new ActionJobCreate());
-        this.addAction(new ActionBatchJob());
-    }
+  constructor() {
+    super({
+      toolFilename: 'cogify',
+      toolDescription: 'Cloud optimized geotiff utilities',
+    });
+    this.addAction(new ActionCogCreate());
+    this.addAction(new ActionJobCreate());
+    this.addAction(new ActionBatchJob());
+  }
 }
 
 new CogifyCommandLine().run();
