@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-import { LogConfig } from '@basemaps/shared';
-import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register.js';
 import { BaseCommandLine } from '../base.cli.js';
 import { TileSetInvalidateAction } from './action.invalidate.js';
@@ -14,10 +12,6 @@ export class BasemapsCommandLine extends BaseCommandLine {
     });
     this.addAction(new TileSetInfoAction());
     this.addAction(new TileSetInvalidateAction());
-
-    if (process.stdout.isTTY) {
-      LogConfig.setOutputStream(PrettyTransform.stream());
-    }
   }
 }
 

@@ -35,11 +35,6 @@ export abstract class BaseCommandLine extends CommandLineParser {
   });
 
   protected onExecute(): Promise<void> {
-    // If the console is a tty pretty print the output
-    if (process.stdout.isTTY) {
-      LogConfig.setOutputStream(PrettyTransform.stream());
-    }
-
     if (this.verbose.value) {
       LogConfig.get().level = 'debug';
     } else if (this.extraVerbose.value) {

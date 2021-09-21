@@ -1,50 +1,40 @@
-import { HttpHeader, HttpHeaderRequestId, LambdaAlbRequest } from '@linzjs/lambda';
-import { handleRequest } from '@basemaps/lambda-tiler';
-import * as ulid from 'ulid';
+import { handler } from '@basemaps/lambda-tiler';
+import { ALBEvent, ALBResult, APIGatewayProxyResultV2, CloudFrontRequestResult, Context } from 'aws-lambda';
+import ulid from 'ulid';
 import express from 'express';
-import { LogConfig } from '@basemaps/shared';
-import { Context } from 'aws-lambda';
+import { lf } from '@linzjs/lambda';
 
 export const BasemapsServer = express();
 
+function isAlbResult(r: ALBResult | CloudFrontRequestResult | APIGatewayProxyResultV2): r is ALBResult {
+  if (typeof r !== 'object') return false;
+  if (r == null) return false;
+  return 'statusCode' in r;
+}
+
+const instanceId = ulid.ulid();
+
 BasemapsServer.get('/v1/*', async (req: express.Request, res: express.Response) => {
-  const startTime = Date.now();
-  const requestId = ulid.ulid();
-  const logger = LogConfig.get().child({ id: requestId });
-  const ctx = new LambdaAlbRequest(
-    {
-      httpMethod: 'get',
-      path: req.path,
-      queryStringParameters: req.query,
-    } as any,
-    {} as Context,
-    logger,
-  );
+  const event: ALBEvent = {
+    httpMethod: 'GET',
+    requestContext: { elb: { targetGroupArn: 'arn:fake' } },
+    path: req.path,
+    headers: req.headers as Record<string, string>,
+    queryStringParameters: req.query as Record<string, string>,
+    body: null,
+    isBase64Encoded: false,
+  };
+  if (req.query['api'] == null) req.query['api'] = 'c' + instanceId;
 
-  if (ctx.header(HttpHeaderRequestId.RequestId) == null) {
-    ctx.headers.set(HttpHeaderRequestId.RequestId, 'c' + requestId);
-  }
-  const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
-  if (ifNoneMatch != null && !Array.isArray(ifNoneMatch)) {
-    ctx.headers.set(HttpHeader.IfNoneMatch.toLowerCase(), ifNoneMatch);
-  }
-
-  try {
-    const data = await handleRequest(ctx);
-    res.status(data.status);
-    if (data.headers) {
-      for (const [header, value] of data.headers) {
-        res.header(header, String(value));
-      }
+  handler(event, {} as Context, (err, r) => {
+    if (err || !isAlbResult(r)) {
+      lf.Logger.fatal({ err }, 'RequestFailed');
+      return res.end(err);
     }
-    if (data.status < 299 && data.status > 199) res.end(data.body);
-    else res.end();
 
-    const duration = Date.now() - startTime;
-    logger.info({ ...ctx.logContext, metrics: ctx.timer.metrics, status: data.status, duration }, 'Request:Done');
-  } catch (e) {
-    logger.fatal({ ...ctx.logContext, err: e }, 'Request:Failed');
-    res.status(500);
+    res.status(r.statusCode);
+    for (const [key, value] of Object.entries(r.headers ?? {})) res.header(key, String(value));
+    if (r.body) res.send(Buffer.from(r.body, r.isBase64Encoded ? 'base64' : 'utf8'));
     res.end();
-  }
+  });
 });
