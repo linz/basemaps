@@ -25,7 +25,8 @@ export class Metrics {
    * @param timeName name of timer to start
    */
   public start(timeName: string): void {
-    if (this.timers.has(timeName)) {
+    const existing = this.timers.get(timeName);
+    if (existing != null && existing.duration == null) {
       throw new Error(`Duplicate startTime for "${timeName}"`);
     }
     this.timers.set(timeName, { start: this.getTime() });
