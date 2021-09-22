@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/test",
-  "version": "6.9.1",
+  "version": "6.10.0",
   "private": true,
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
