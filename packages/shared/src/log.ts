@@ -1,5 +1,5 @@
 import pino from 'pino';
-import { Writable } from 'stream';
+import { PrettyTransform } from 'pretty-json-log';
 
 export interface LogFunc {
   (msg: string): void;
@@ -21,6 +21,8 @@ export interface LogType {
   fatal: LogFunc;
   child: (obj: Record<string, unknown>) => LogType;
 }
+
+const defaultOpts = { level: 'debug' };
 /**
  * Encapsulate the logger so that it can be swapped out
  */
@@ -28,22 +30,13 @@ export const LogConfig = {
   /** Get the currently configured logger */
   get(): LogType {
     if (currentLog == null) {
-      currentLog = pino({ level: 'debug' });
+      currentLog = process.stdout.isTTY ? pino(defaultOpts, PrettyTransform.stream()) : pino(defaultOpts);
     }
     return currentLog;
   },
 
   set(log: LogType): void {
     currentLog = log;
-  },
-
-  /** Overwrite the logger with a new logger that outputs to the provided stream*/
-  setOutputStream(stream: Writable): void {
-    let level = 'debug';
-    if (currentLog) {
-      level = currentLog.level;
-    }
-    currentLog = pino({ level }, stream);
   },
 
   /** Disable the logger */

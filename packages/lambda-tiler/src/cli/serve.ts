@@ -4,7 +4,6 @@ import { HttpHeader, LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda'
 import { Context } from 'aws-lambda';
 import express from 'express';
 import path from 'path';
-import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register.js';
 import * as ulid from 'ulid';
 import url from 'url';
@@ -18,8 +17,6 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 const app = express();
 const port = Env.getNumber('PORT', 5050);
-
-if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
 async function handleRequest(
   ctx: LambdaHttpRequest,

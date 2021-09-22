@@ -4,7 +4,6 @@ import { GitTag } from '@basemaps/shared/build/cli/git.tag.js';
 import { CommandLineParser } from '@rushstack/ts-command-line';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register.js';
 import * as ulid from 'ulid';
 import url from 'url';
@@ -35,11 +34,6 @@ export abstract class BaseCommandLine extends CommandLineParser {
   });
 
   protected onExecute(): Promise<void> {
-    // If the console is a tty pretty print the output
-    if (process.stdout.isTTY) {
-      LogConfig.setOutputStream(PrettyTransform.stream());
-    }
-
     if (this.verbose.value) {
       LogConfig.get().level = 'debug';
     } else if (this.extraVerbose.value) {

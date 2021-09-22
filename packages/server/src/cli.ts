@@ -1,12 +1,9 @@
-import { ConfigProviderMemory, parseRgba } from '@basemaps/config';
+// Configure the logging before importing everything
+import { ConfigPrefix, ConfigProviderMemory, parseRgba } from '@basemaps/config';
 import { Config, Env, LogConfig } from '@basemaps/shared';
 import { fsa } from '@linzjs/s3fs';
 import { Command, flags } from '@oclif/command';
-import { PrettyTransform } from 'pretty-json-log';
-import { ConfigPrefix } from '@basemaps/config';
 import { BasemapsServer } from './server.js';
-
-if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
 
 const logger = LogConfig.get();
 

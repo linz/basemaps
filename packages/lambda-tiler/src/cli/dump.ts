@@ -1,16 +1,13 @@
 import { Nztm2000Tms } from '@basemaps/geo';
-import { LambdaAlbRequest } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
 import { ImageFormat } from '@basemaps/tiler';
-import { promises as fs } from 'fs';
-import { PrettyTransform } from 'pretty-json-log';
-import { TileRoute } from '../routes/tile.js';
-import { TileSet } from '../tile.set.js';
-import { TileSets } from '../tile.set.cache.js';
-import { TileSetLocal } from './tile.set.local.js';
+import { LambdaAlbRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
-
-if (process.stdout.isTTY) LogConfig.setOutputStream(PrettyTransform.stream());
+import { promises as fs } from 'fs';
+import { TileRoute } from '../routes/tile.js';
+import { TileSets } from '../tile.set.cache.js';
+import { TileSet } from '../tile.set.js';
+import { TileSetLocal } from './tile.set.local.js';
 
 const xyz = { x: 0, y: 0, z: 0 };
 const tileMatrix = Nztm2000Tms;
