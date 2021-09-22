@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.10.0](https://github.com/linz/basemaps/compare/v6.9.1...v6.10.0) (2021-09-22)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** clear timeout if request succeeds ([#1874](https://github.com/linz/basemaps/issues/1874)) ([49183ca](https://github.com/linz/basemaps/commit/49183ca6b154d91b11cd493f88164c346430e369))
+* **lambda-tiler:** move to NZTM2000Quad for health check endpoint ([#1867](https://github.com/linz/basemaps/issues/1867)) ([d4613f0](https://github.com/linz/basemaps/commit/d4613f04f1081f785831488ea53bc8d8da7aae70))
+* bundle esm into commonjs for serving ([#1861](https://github.com/linz/basemaps/issues/1861)) ([ff4490b](https://github.com/linz/basemaps/commit/ff4490b96648ee090055d60154d718c90b9afe97))
+* correctly bundle with esm modules ([#1858](https://github.com/linz/basemaps/issues/1858)) ([708a22e](https://github.com/linz/basemaps/commit/708a22ec1006c25cf2c057b75f61cc813e943aac))
+
+
+### Features
+
+* **lambda-tiler:** track slow requests ([#1871](https://github.com/linz/basemaps/issues/1871)) ([b436e8b](https://github.com/linz/basemaps/commit/b436e8ba77b80b03239cc5c04cd9d7dfb1388f78))
+* **landing:** support linkedin/twitter cards ([#1864](https://github.com/linz/basemaps/issues/1864)) ([91e3837](https://github.com/linz/basemaps/commit/91e3837fc99f49adcd2da719b2e82504e9dee42a))
+* replace s3fs with chunkd/fs ([#1859](https://github.com/linz/basemaps/issues/1859)) ([9b6f2d3](https://github.com/linz/basemaps/commit/9b6f2d3609c336f96c2ae32246f241cb396e71c8))
+* **lambda-tiler:** track hash of apikey ([#1855](https://github.com/linz/basemaps/issues/1855)) ([f8a4bef](https://github.com/linz/basemaps/commit/f8a4bef096095c09f5348af97b3f25a338817e87))
+* switch to esm modules ([#1857](https://github.com/linz/basemaps/issues/1857)) ([75bdff8](https://github.com/linz/basemaps/commit/75bdff8da35104f10f6b6ecf58a2c6006245af6e))
+
+
+
+
+
 ## [6.9.1](https://github.com/linz/basemaps/compare/v6.9.0...v6.9.1) (2021-09-09)
 
 **Note:** Version bump only for package @basemaps/core
