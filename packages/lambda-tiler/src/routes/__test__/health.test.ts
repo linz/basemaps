@@ -1,10 +1,12 @@
+import { GoogleTms } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import o from 'ospec';
 import sinon from 'sinon';
+import { TileSets } from '../../tile.set.cache.js';
+import { TileSetRaster } from '../../tile.set.raster.js';
 import { getTestBuffer, Health, TestTiles } from '../health.js';
-import { TileRoute } from '../tile.js';
 
 const ctx: LambdaHttpRequest = new LambdaAlbRequest(
   {
@@ -19,14 +21,21 @@ const ctx: LambdaHttpRequest = new LambdaAlbRequest(
 );
 
 o.spec('health', async () => {
+  const sandbox = sinon.createSandbox();
+
+  const tileSet = new TileSetRaster('health', GoogleTms);
+  o.beforeEach(() => {
+    sandbox.stub(TileSets, 'get').resolves(tileSet);
+  });
+
   o.afterEach(() => {
-    sinon.restore();
+    sandbox.restore();
   });
 
   o('Should return bad response', async () => {
     // Given ... a bad get tile response
     const BadResponse = new LambdaHttpResponse(500, 'Can not get Tile Set.');
-    sinon.stub(TileRoute, 'tile').resolves(BadResponse);
+    sandbox.stub(tileSet, 'tile').resolves(BadResponse);
 
     // When ...
     const res = await Health(ctx);
@@ -51,7 +60,7 @@ o.spec('health', async () => {
     o.timeout(500);
 
     // Given ... a series good get tile response
-    const callback = sinon.stub(TileRoute, 'tile');
+    const callback = sandbox.stub(tileSet, 'tile');
     callback.onCall(0).resolves(Response1);
     callback.onCall(1).resolves(Response2);
 
@@ -66,7 +75,7 @@ o.spec('health', async () => {
   o('Should return mis-match tile response', async () => {
     o.timeout(500);
     // Given ... a bad get tile response for second get tile
-    const callback = sinon.stub(TileRoute, 'tile');
+    const callback = sandbox.stub(tileSet, 'tile');
     callback.onCall(0).resolves(Response1);
     callback.onCall(1).resolves(Response1);
 
