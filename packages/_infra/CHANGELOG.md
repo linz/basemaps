@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.10.1](https://github.com/linz/basemaps/compare/v6.10.0...v6.10.1) (2021-09-22)
+
+
+### Bug Fixes
+
+* **infra:** remove trailing "." as it causes resolution failure ([#1878](https://github.com/linz/basemaps/issues/1878)) ([0f9e105](https://github.com/linz/basemaps/commit/0f9e105d306d6b8c525e847cb23a6fa9ca84d1f9))
+
+
+
+
+
 # [6.10.0](https://github.com/linz/basemaps/compare/v6.9.1...v6.10.0) (2021-09-22)
 
 
