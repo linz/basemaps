@@ -20,7 +20,12 @@ export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpR
   slowTimer.unref();
 
   req.set('name', 'LambdaTiler');
-  return await app.handle(req);
+  try {
+    return await app.handle(req);
+  } finally {
+    if (slowTimer) clearTimeout(slowTimer);
+    slowTimer = null;
+  }
 }
 
 export const handler = lf.http(handleRequest, LogConfig.get());
