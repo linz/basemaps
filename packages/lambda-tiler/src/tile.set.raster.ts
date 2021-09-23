@@ -8,6 +8,7 @@ import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
 import { TileEtag } from './routes/tile.etag.js';
 import { NotFound, NotModified, TileComposer } from './routes/tile.js';
+import { TiffCache } from './tiff.cache.js';
 import { TileSetHandler } from './tile.set.js';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
@@ -29,7 +30,6 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
   tileMatrix: TileMatrixSet;
   tiler: Tiler;
   imagery: Map<string, ConfigImagery>;
-  sources: Map<string, CogTiff> = new Map();
   extentOverride: Bounds;
 
   /**
@@ -156,18 +156,19 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
       if (!tileBounds.intersects(Bounds.fromJson(c))) continue;
 
       const tiffKey = `${record.id}_${c.name}`;
-      let existing = this.sources.get(tiffKey);
+      let existing = TiffCache.get(tiffKey);
       if (existing == null) {
         const source = fsa.source(TileSetRaster.basePath(record, c.name));
         if (source == null) {
           throw new Error(`Failed to create CogSource from  ${TileSetRaster.basePath(record, c.name)}`);
         }
         existing = new CogTiff(source);
-        this.sources.set(tiffKey, existing);
+        TiffCache.set(tiffKey, existing);
       }
 
       output.push(existing);
     }
+
     return output;
   }
 
