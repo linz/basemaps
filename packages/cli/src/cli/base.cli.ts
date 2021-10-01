@@ -2,20 +2,15 @@
 import { LogConfig, LoggerFatalError } from '@basemaps/shared';
 import { GitTag } from '@basemaps/shared/build/cli/git.tag.js';
 import { CommandLineParser } from '@rushstack/ts-command-line';
-import { readFileSync } from 'fs';
-import path from 'path';
 import 'source-map-support/register.js';
 import * as ulid from 'ulid';
-import url from 'url';
-
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-const packageJson = JSON.parse(readFileSync(path.join(__dirname, '../../package.json')).toString());
 
 /** Useful traceability information  */
 export const CliInfo: { package: string; version: string; hash: string } = {
-  package: packageJson.name,
-  version: process.env.GIT_VERSION ?? packageJson.version,
-  hash: process.env.GIT_HASH ?? packageJson.gitHead ?? GitTag().hash,
+  // Detect unlinked packages looks for this string since its a package name, slightly work around it
+  package: '@' + 'basemaps/cli',
+  version: process.env.GIT_VERSION ?? GitTag().version,
+  hash: process.env.GIT_HASH ?? GitTag().hash,
 };
 
 /** Unique Id for this instance of the cli being run */
