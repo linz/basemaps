@@ -1,8 +1,6 @@
 import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
 import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
-import { promises as fsPromises } from 'fs';
-import { join } from 'path';
 import { TileSetRaster } from '../tile.set.raster.js';
 
 function isTiff(fileName: string): boolean {
@@ -31,20 +29,7 @@ export class TileSetLocal extends TileSetRaster {
 
     const fileList = isTiff(this.filePath) ? [this.filePath] : await fsa.toArray(fsa.list(this.filePath));
     const files = fileList.filter(isTiff);
-    if (files.length === 0 && !this.filePath.startsWith('s3://')) {
-      for (const dir of fileList.sort()) {
-        const st = await fsPromises.stat(dir);
-        if (st.isDirectory()) {
-          for (const file of await fsPromises.readdir(dir)) {
-            const filePath = join(dir, file);
-            if (isTiff(filePath)) files.push(filePath);
-          }
-        }
-      }
-    }
-    if (files.length === 0) {
-      throw new Error(`No tiff files found in ${this.filePath}`);
-    }
+    if (files.length === 0) throw new Error(`No tiff files found in ${this.filePath}`);
 
     this.tiffs = files.map((filePath) => new CogTiff(fsa.source(filePath)));
 

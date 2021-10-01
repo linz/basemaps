@@ -1,11 +1,26 @@
 // Configure the logging before importing everything
-import { ConfigPrefix, ConfigProviderMemory, parseRgba } from '@basemaps/config';
+import { ConfigPrefix, ConfigProvider, ConfigProviderMemory, parseRgba } from '@basemaps/config';
+import { TileSetLocal } from '@basemaps/lambda-tiler/build/cli/tile.set.local.js';
+import { TileSets } from '@basemaps/lambda-tiler/build/tile.set.cache.js';
 import { Config, Env, LogConfig } from '@basemaps/shared';
 import { fsa } from '@linzjs/s3fs';
 import { Command, flags } from '@oclif/command';
+import { basename, dirname } from 'path';
 import { BasemapsServer } from './server.js';
 
 const logger = LogConfig.get();
+
+const BaseProvider: ConfigProvider = {
+  id: 'pv_linz',
+  version: 1,
+  serviceIdentification: {},
+  serviceProvider: {
+    name: 'basemaps/server',
+    contact: {
+      address: {},
+    },
+  },
+} as any;
 
 export class BasemapsServerCommand extends Command {
   static description = 'Create a WMTS/XYZ Tile server for basemaps config';
@@ -25,8 +40,27 @@ export class BasemapsServerCommand extends Command {
 
     const config = new ConfigProviderMemory();
     Config.setConfigProvider(config);
+
+    const tifSets = new Map<string, TileSetLocal>();
+
     for await (const file of fsa.listDetails(args.configPath)) {
-      if (!file.path.endsWith('.json')) continue;
+      const lowerPath = file.path.toLowerCase();
+      if (lowerPath.endsWith('.tiff') || lowerPath.endsWith('.tif')) {
+        const tiffPath = dirname(file.path);
+        if (tifSets.has(tiffPath)) continue;
+
+        const tileSet = basename(tiffPath);
+        const tsl = new TileSetLocal(tileSet, tiffPath);
+
+        await tsl.load();
+        TileSets.add(tsl, new Date('3000-01-01').getTime());
+
+        const wmtsUrl = `${ServerUrl}/v1/tiles/${tileSet}/WMTSCapabilities.xml`;
+        logger.info({ tileSetId: tileSet, wmtsUrl }, 'TileSet:Loaded');
+        if (!config.objects.has('pv_linz')) config.put(BaseProvider);
+      }
+
+      if (!lowerPath.endsWith('.json')) continue;
       logger.trace({ path: file.path, size: file.size }, 'Config:Load');
 
       const jsonData = await fsa.read(file.path).then((c) => JSON.parse(c.toString()));
