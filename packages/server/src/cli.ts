@@ -15,7 +15,7 @@ const BaseProvider: ConfigProvider = {
   version: 1,
   serviceIdentification: {},
   serviceProvider: {
-    name: '@basemaps/server',
+    name: 'basemaps/server',
     contact: {
       address: {},
     },
