@@ -1,8 +1,6 @@
 import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
 import { CogTiff, TiffTagGeo } from '@cogeotiff/core';
-import { promises as fsPromises } from 'fs';
-import { join } from 'path';
 import { TileSetRaster } from '../tile.set.raster.js';
 
 function isTiff(fileName: string): boolean {
