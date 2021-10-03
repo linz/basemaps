@@ -13,11 +13,28 @@ o.spec('Metrics', () => {
     o(metrics.unfinished).deepEquals(['foo']);
   });
 
+  o('should throw on duplicate start', () => {
+    const metrics = new Metrics();
+    metrics.start('foo');
+    o(() => metrics.start('foo')).throws(Error);
+  });
+
+  o('should not throw on reusing timers', () => {
+    const metrics = new Metrics();
+    metrics.start('foo');
+    o(metrics.unfinished).deepEquals(['foo']);
+    metrics.end('foo');
+    o(metrics.unfinished).equals(undefined);
+
+    metrics.start('foo');
+    o(metrics.unfinished).deepEquals(['foo']);
+    metrics.end('foo');
+    o(metrics.unfinished).equals(undefined);
+  });
+
   o('should throw an Error if end before start', () => {
     const metrics = new Metrics();
-    o(function () {
-      metrics.end('bar');
-    }).throws(Error);
+    o(() => metrics.end('bar')).throws(Error);
   });
 
   o('should return two unfinished entries', () => {
