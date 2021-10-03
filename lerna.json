@@ -1,11 +1,13 @@
 {
   "useYarn": true,
-  "packages": ["packages/*"],
+  "packages": [
+    "packages/*"
+  ],
   "command": {
     "version": {
       "yes": true,
       "conventionalCommits": true
     }
   },
-  "version": "6.10.1"
+  "version": "6.11.0"
 }
