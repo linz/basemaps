@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/shared",
-  "version": "6.10.0",
+  "version": "6.11.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -25,9 +25,9 @@
   "dependencies": {
     "@basemaps/config": "^6.10.0",
     "@basemaps/geo": "^6.10.0",
-    "@basemaps/tiler": "^6.10.0",
+    "@basemaps/tiler": "^6.11.0",
     "@linzjs/geojson": "^6.10.0",
-    "@linzjs/metrics": "^6.10.0",
+    "@linzjs/metrics": "^6.11.0",
     "@linzjs/s3fs": "^6.9.1",
     "aws-sdk": "^2.890.0",
     "base-x": "^3.0.7",

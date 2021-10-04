@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.11.0](https://github.com/linz/basemaps/compare/v6.10.1...v6.11.0) (2021-10-03)
+
+
+### Bug Fixes
+
+* **metrics:** allow duplicate timers if the old timer has finished ([#1880](https://github.com/linz/basemaps/issues/1880)) ([a384580](https://github.com/linz/basemaps/commit/a384580ba82cebdd653280277f67dc1895890769))
+
+
+
+
+
 # [6.10.0](https://github.com/linz/basemaps/compare/v6.9.1...v6.10.0) (2021-09-22)
 
 

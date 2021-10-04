@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.11.0](https://github.com/linz/basemaps/compare/v6.10.1...v6.11.0) (2021-10-03)
+
+
+### Bug Fixes
+
+* **cli:** correct path issues with ESM modules being bundled into docker containers ([#1888](https://github.com/linz/basemaps/issues/1888)) ([7c1b2f4](https://github.com/linz/basemaps/commit/7c1b2f4979956a09f63b461463bb43788ce0122c))
+* **cli:** work around certificate issues ([#1890](https://github.com/linz/basemaps/issues/1890)) ([5e90775](https://github.com/linz/basemaps/commit/5e907752f0a195d6b6b976bb1bbf56895e6e18f7))
+* **lambda-tiler:** do not create a new requestId for test tile creation ([#1876](https://github.com/linz/basemaps/issues/1876)) ([f6946da](https://github.com/linz/basemaps/commit/f6946dad47bb91b3c75a89237a917ed925ffc818))
+* **lambda-tiler:** limit the tiff memory cache to 256MB of imagery ([#1882](https://github.com/linz/basemaps/issues/1882)) ([2bf0bdc](https://github.com/linz/basemaps/commit/2bf0bdc39c191a7bb7a8e8e2277160a357248386))
+* **metrics:** allow duplicate timers if the old timer has finished ([#1880](https://github.com/linz/basemaps/issues/1880)) ([a384580](https://github.com/linz/basemaps/commit/a384580ba82cebdd653280277f67dc1895890769))
+
+
+### Features
+
+* **server:** add ability to serve a folder full of tiffs ([#1889](https://github.com/linz/basemaps/issues/1889)) ([adefde1](https://github.com/linz/basemaps/commit/adefde176ce03db5c6c978d8b85a11fc7cd15693))
+* **server:** use the lambda handler directly ([#1870](https://github.com/linz/basemaps/issues/1870)) ([408ff56](https://github.com/linz/basemaps/commit/408ff5654cc04aae35d05eb5bbc47a51f99ec5b2))
+
+
+
+
+
 ## [6.10.1](https://github.com/linz/basemaps/compare/v6.10.0...v6.10.1) (2021-09-22)
 
 
