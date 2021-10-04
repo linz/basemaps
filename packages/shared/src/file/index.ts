@@ -43,3 +43,9 @@ fsa.configure = function configure(cfg: FileConfig): void {
   const bucketUri = `s3://${bucket}/`;
   this.register(bucketUri, FsAwsS3.fromRoleArn(cfg.roleArn, cfg.externalId));
 };
+
+/**
+ *  Default to using the file handler useful for folders like
+ * "C:\" or "directory_name/sub_directory"
+ */
+fsa.register('', fsa.get('file://'));
