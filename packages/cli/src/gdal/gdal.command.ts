@@ -53,14 +53,14 @@ export abstract class GdalCommand {
    * @param args command arguments
    * @param log logger to use
    */
-  async run(cmd: string, args: string[], log: LogType): Promise<{ stdout: string; stderr: string }> {
+  async run(cmd: string, args: unknown[], log: LogType): Promise<{ stdout: string; stderr: string }> {
     if (this.promise != null) throw new Error('Cannot create multiple gdal processes, create a new GdalCommand');
     this.parser?.reset();
     this.startTime = Date.now();
 
     const env = normalizeAwsEnv(this.env ? await this.env() : process.env);
 
-    const child = spawn(cmd, args, { env });
+    const child = spawn(cmd, args.map(String), { env });
     this.child = child;
 
     const outputBuff: Buffer[] = [];
