@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.12.0](https://github.com/linz/basemaps/compare/v6.11.0...v6.12.0) (2021-10-05)
+
+
+### Bug Fixes
+
+* **server:** use default of local file system for unknown paths ([#1895](https://github.com/linz/basemaps/issues/1895)) ([1d89456](https://github.com/linz/basemaps/commit/1d894561965a6afd1144dd4580e9ec4cf914ce2c))
+
+
+
+
+
 # [6.11.0](https://github.com/linz/basemaps/compare/v6.10.1...v6.11.0) (2021-10-03)
 
 
