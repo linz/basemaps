@@ -1,6 +1,36 @@
 [
   {
     "hash": "af59300798fa34119350fa856391cf0eac2ef374",
+    "createdAt": "2021-10-05T00:51:24.440Z",
+    "results": [
+      {
+        "name": "Tile 256x256",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 256",
+        "mean": 0.7802327731,
+        "stddev": 0.021878899521757873,
+        "median": 0.7791022958,
+        "user": 0.8261981299999999,
+        "system": 0.18927037999999996,
+        "min": 0.7561806088,
+        "max": 0.8229004218
+      },
+      {
+        "name": "Tile 512x512",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 512",
+        "mean": 1.13820667697,
+        "stddev": 0.022309780423108976,
+        "median": 1.13420330837,
+        "user": 1.1833378849999998,
+        "system": 0.40477881999999993,
+        "min": 1.1124975078700001,
+        "max": 1.1719348628700001
+      }
+    ]
+  },
+  {
+    "hash": "af59300798fa34119350fa856391cf0eac2ef374",
     "createdAt": "2021-10-05T00:43:52.126Z",
     "results": [
       {
