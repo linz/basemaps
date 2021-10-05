@@ -103,11 +103,12 @@ class CreateAction extends CommandLineAction {
         },
         logger,
       );
-      const output = await terrarium.render();
-      console.log({ output });
-      // await fsa.write(fsa.join(outputPath, `terrarium.cog.tiff`), createReadStream(output));
+      const tempOutput = await terrarium.render();
+      const output = fsa.join(outputPath, `terrarium.cog.tiff`);
+      await fsa.write(output, createReadStream(tempOutput));
+      logger.info({ source: output }, 'Done');
     } finally {
-      // await fs.rmdir(tmpFolder, { recursive: true });
+      await fs.rmdir(tmpFolder, { recursive: true });
     }
   }
 }

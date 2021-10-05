@@ -1,8 +1,6 @@
 # Bathymetry creation
 
-
 This process takes DEM data from  converts it into a terrarium cogs
-
 
 ## Usage
 

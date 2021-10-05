@@ -49,7 +49,6 @@ export class TerrariumMaker {
     }
 
     // build all terriaum tiff as vrt file
-
     const tmpVrtPath = await this.buildVrt(terrrirumTiffs);
 
     // Convert vrt to cog
@@ -107,10 +106,7 @@ export class TerrariumMaker {
 
     const bounds = Bounds.fromBbox(image.bbox);
     const epsg = Epsg.parse(String(image.epsg));
-    if (epsg == null) throw new Error('No EPSG'); // TODO parse EPSG before starting?
-    // const ul = this.config.tileMatrix.sourceToPixels(bbox[0], bbox[3], this.config.zoom);
-    // const lr = this.config.tileMatrix.sourceToPixels(bbox[2], bbox[1], this.config.zoom);
-    // const bounds = Bounds.fromUpperLeftLowerRight(ul, lr);
+    if (epsg == null) throw new Error('No EPSG');
 
     return await this.buildTerrarium(png, epsg, bounds);
   }
