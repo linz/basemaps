@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.12.0](https://github.com/linz/basemaps/compare/v6.11.0...v6.12.0) (2021-10-05)
+
+
+### Features
+
+* **infrastructure:** increase performance of lambda function ([#1896](https://github.com/linz/basemaps/issues/1896)) ([af59300](https://github.com/linz/basemaps/commit/af59300798fa34119350fa856391cf0eac2ef374))
+
+
+
+
+
 # [6.11.0](https://github.com/linz/basemaps/compare/v6.10.1...v6.11.0) (2021-10-03)
 
 **Note:** Version bump only for package @basemaps/infra
