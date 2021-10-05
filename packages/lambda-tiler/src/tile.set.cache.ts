@@ -25,17 +25,17 @@ export class TileSetCache {
     return `${name.fullName}_${name.tileMatrix.identifier}`;
   }
 
-  add(tileSet: TileSet): void {
+  add(tileSet: TileSet, expiresAt = Date.now() + this.CacheTime): void {
     const id = this.id(tileSet);
     if (this.cache.has(id)) throw new Error('Trying to add duplicate tile set:' + id);
-    this.cache.set(id, { time: Date.now(), value: Promise.resolve(tileSet) });
+    this.cache.set(id, { time: expiresAt, value: Promise.resolve(tileSet) });
   }
 
   get(name: string, tileMatrix: TileMatrixSet): Promise<TileSet | null> {
     const tsId = this.id(name, tileMatrix);
     let existing = this.cache.get(tsId);
     // Validate the data is current every ~30 seconds
-    if (existing == null || Date.now() - existing.time > this.CacheTime) {
+    if (existing == null || Date.now() - existing.time > 0) {
       const value = this.loadTileSet(name, tileMatrix);
       existing = { time: Date.now(), value };
       this.cache.set(tsId, existing);
