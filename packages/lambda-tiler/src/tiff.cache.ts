@@ -29,6 +29,7 @@ export class TiffCache {
 
   static set(id: string, tiff: CogTiff): void {
     TiffCache.cacheA.set(id, tiff);
+    TiffCache.check();
   }
 
   /** Validate the size of the cache has not exploded */
