@@ -116,7 +116,6 @@ export const TileRoute = {
   },
 
   async styleJson(req: LambdaHttpRequest, fileName: string): Promise<LambdaHttpResponse> {
-    const { version, rest, name } = Router.action(req);
     const apiKey = Router.apiKey(req);
     const styleName = fileName.split('.json')[0];
     const host = Env.get(Env.PublicUrlBase) ?? '';
@@ -129,13 +128,13 @@ export const TileRoute = {
     // Prepare sources and add linz source
     const style = styleConfig.style;
     const sources: Sources = {};
-    const tileJsonUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/tile.json?api=${apiKey}`;
-    const rasterUrl = `${host}/${version}/${name}/aerial/${rest[1]}/{z}/{x}/{y}.webp?api=${apiKey}`;
     for (const [key, value] of Object.entries(style.sources)) {
-      if (value.type === 'vector' && value.url === '') {
-        value.url = tileJsonUrl;
-      } else if (value.type === 'raster' && (!Array.isArray(value.tiles) || value.tiles.length === 0)) {
-        value.tiles = [rasterUrl];
+      if (value.type === 'vector') {
+        if (value.url.includes(host)) value.url = `${value.url}?api=${apiKey}`;
+      } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
+        for (const url of value.tiles) {
+          if (url.includes(host)) value.tiles[value.tiles.indexOf(url)] = `${url}?api=${apiKey}`;
+        }
       }
       sources[key] = value;
     }

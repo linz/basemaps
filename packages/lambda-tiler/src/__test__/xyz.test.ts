@@ -245,7 +245,8 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should serve style json', async () => {
-      process.env[Env.PublicUrlBase] = 'https://tiles.test';
+      const host = 'https://tiles.test';
+      process.env[Env.PublicUrlBase] = host;
 
       const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json', 'get', apiKeyHeader);
 
@@ -256,11 +257,11 @@ o.spec('LambdaXyz', () => {
         sources: {
           basemaps_vector: {
             type: 'vector',
-            url: '',
+            url: `${host}/vector`,
           },
           basemaps_raster: {
             type: 'raster',
-            tiles: [],
+            tiles: [`${host}/raster`],
           },
           test_vector: {
             type: 'vector',
@@ -305,11 +306,11 @@ o.spec('LambdaXyz', () => {
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       fakeStyle.sources.basemaps_vector = {
         type: 'vector',
-        url: 'https://tiles.test/v1/tiles/topolike/Google/tile.json?api=' + apiKey,
+        url: `${host}/vector?api=${apiKey}`,
       };
       fakeStyle.sources.basemaps_raster = {
         type: 'raster',
-        tiles: ['https://tiles.test/v1/tiles/aerial/Google/{z}/{x}/{y}.webp?api=' + apiKey],
+        tiles: [`${host}/raster?api=${apiKey}`],
       };
       o(JSON.parse(body)).deepEquals(fakeStyle);
     });
