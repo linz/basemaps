@@ -12,6 +12,7 @@ import { attribution } from './attribution.js';
 import { TileEtag } from './tile.etag.js';
 import { Router } from '../router.js';
 import { ValidateTilePath } from '../validate.js';
+import {URL} from 'url';
 
 export const TileComposer = new TileMakerSharp(256);
 
@@ -117,8 +118,9 @@ export const TileRoute = {
 
   async styleJson(req: LambdaHttpRequest, fileName: string): Promise<LambdaHttpResponse> {
     const apiKey = Router.apiKey(req);
+    if (apiKey == null) return new LambdaHttpResponse(400, 'Invalid API Key.');
     const styleName = fileName.split('.json')[0];
-    const host = Env.get(Env.PublicUrlBase) ?? '';
+    const host = 'basemaps.linz.govt.nz';
 
     // Get style Config from db
     const dbId = Config.Style.id(styleName);
@@ -130,10 +132,18 @@ export const TileRoute = {
     const sources: Sources = {};
     for (const [key, value] of Object.entries(style.sources)) {
       if (value.type === 'vector') {
-        if (value.url.includes(host)) value.url = `${value.url}?api=${apiKey}`;
+        if (value.url.includes(host)) {
+          const url = new URL(value.url);
+          url.searchParams.set('api', apiKey);
+          value.url = url.toString();
+        }
       } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
-        for (const url of value.tiles) {
-          if (url.includes(host)) value.tiles[value.tiles.indexOf(url)] = `${url}?api=${apiKey}`;
+        for (const tileUrl of value.tiles) {
+          if (tileUrl.includes(host)){
+            const url = new URL(tileUrl);
+            url.searchParams.set('api', apiKey);
+            value.tiles[value.tiles.indexOf(tileUrl)] = url.toString();
+          }
         }
       }
       sources[key] = value;

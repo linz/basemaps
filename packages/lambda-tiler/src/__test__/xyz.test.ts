@@ -245,7 +245,7 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should serve style json', async () => {
-      const host = 'https://tiles.test';
+      const host = 'https://basemaps.linz.govt.nz';
       process.env[Env.PublicUrlBase] = host;
 
       const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json', 'get', apiKeyHeader);
