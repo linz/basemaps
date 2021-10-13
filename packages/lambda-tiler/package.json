@@ -31,7 +31,6 @@
     "@cotar/core": "^5.0.1",
     "@linzjs/geojson": "^6.10.0",
     "@linzjs/lambda": "^2.0.0",
-    "farmhash": "^3.2.1",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
     "sharp": "^0.28.3"
@@ -42,8 +41,7 @@
     "external": [
       "aws-sdk",
       "pino-pretty",
-      "sharp",
-      "farmhash"
+      "sharp"
     ]
   },
   "scripts": {
