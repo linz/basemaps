@@ -12,6 +12,7 @@ import { attribution } from './attribution.js';
 import { TileEtag } from './tile.etag.js';
 import { Router } from '../router.js';
 import { ValidateTilePath } from '../validate.js';
+import { URL } from 'url';
 
 export const TileComposer = new TileMakerSharp(256);
 
@@ -116,8 +117,8 @@ export const TileRoute = {
   },
 
   async styleJson(req: LambdaHttpRequest, fileName: string): Promise<LambdaHttpResponse> {
-    const { version, rest, name } = Router.action(req);
     const apiKey = Router.apiKey(req);
+    if (apiKey == null) return new LambdaHttpResponse(400, 'Invalid API Key.');
     const styleName = fileName.split('.json')[0];
     const host = Env.get(Env.PublicUrlBase) ?? '';
 
@@ -129,13 +130,22 @@ export const TileRoute = {
     // Prepare sources and add linz source
     const style = styleConfig.style;
     const sources: Sources = {};
-    const tileJsonUrl = `${host}/${version}/${name}/${rest[0]}/${rest[1]}/tile.json?api=${apiKey}`;
-    const rasterUrl = `${host}/${version}/${name}/aerial/${rest[1]}/{z}/{x}/{y}.webp?api=${apiKey}`;
     for (const [key, value] of Object.entries(style.sources)) {
-      if (value.type === 'vector' && value.url === '') {
-        value.url = tileJsonUrl;
-      } else if (value.type === 'raster' && (!Array.isArray(value.tiles) || value.tiles.length === 0)) {
-        value.tiles = [rasterUrl];
+      if (value.type === 'vector') {
+        if (value.url.includes(host)) {
+          const url = new URL(value.url);
+          url.searchParams.set('api', apiKey);
+          value.url = url.toString();
+        }
+      } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
+        for (let i = 0; i < value.tiles.length; i++) {
+          const tile = value.tiles[i];
+          if (tile.includes(host)) {
+            const url = new URL(tile);
+            url.searchParams.set('api', apiKey);
+            value.tiles[i] = url.toString();
+          }
+        }
       }
       sources[key] = value;
     }
