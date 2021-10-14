@@ -138,9 +138,10 @@ export const TileRoute = {
           value.url = url.toString();
         }
       } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
-        for (let i = 0; i <= value.tiles.length; i++) {
-          if (value.tiles[i] != null && value.tiles[i].includes(host)) {
-            const url = new URL(value.tiles[i]);
+        for (let i = 0; i < value.tiles.length; i++) {
+          const tile = value.tiles[i];
+          if (tile.includes(host)) {
+            const url = new URL(tile);
             url.searchParams.set('api', apiKey);
             value.tiles[i] = url.toString();
           }
