@@ -31,7 +31,6 @@
     "@cotar/core": "^5.0.1",
     "@linzjs/geojson": "^6.10.0",
     "@linzjs/lambda": "^2.0.0",
-    "farmhash": "^3.2.1",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
     "sharp": "^0.28.3"
@@ -42,8 +41,7 @@
     "external": [
       "aws-sdk",
       "pino-pretty",
-      "sharp",
-      "farmhash"
+      "sharp"
     ]
   },
   "scripts": {
@@ -54,7 +52,7 @@
     "@basemaps/attribution": "^6.10.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/express": "^4.17.11",
-    "@types/node": "^14.11.2",
+    "@types/node": "^16.10.9",
     "@types/pixelmatch": "^5.0.0",
     "@types/sharp": "^0.28.0",
     "express": "^4.17.1",

@@ -24,7 +24,7 @@
   "devDependencies": {
     "@linzjs/style": "^3.1.1",
     "@types/aws-lambda": "^8.10.75",
-    "@types/node": "^14.11.2",
+    "@types/node": "^16.10.9",
     "@types/ospec": "^4.0.2",
     "@types/sinon": "^10.0.0",
     "conventional-github-releaser": "^3.1.5",
@@ -48,6 +48,7 @@
     "hosted-git-info": ">=2.8.9",
     "lodash": ">=4.17.21",
     "trim-newlines": ">=3.0.1 <4.0.0",
-    "normalize-url": ">=4.5.1 <5.0.0"
+    "normalize-url": ">=4.5.1 <5.0.0",
+    "ansi-regex": ">=5.0.1 <6.0.0"
   }
 }
