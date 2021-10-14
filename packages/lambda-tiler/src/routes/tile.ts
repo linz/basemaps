@@ -135,7 +135,7 @@ export const TileRoute = {
         if (value.url.includes(host)) {
           const url = new URL(value.url);
           url.searchParams.set('api', apiKey);
-          value.url = url.toString();
+          value.url = url.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
         }
       } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
         for (let i = 0; i < value.tiles.length; i++) {
@@ -143,7 +143,7 @@ export const TileRoute = {
           if (tile.includes(host)) {
             const url = new URL(tile);
             url.searchParams.set('api', apiKey);
-            value.tiles[i] = url.toString();
+            value.tiles[i] = url.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
           }
         }
       }
