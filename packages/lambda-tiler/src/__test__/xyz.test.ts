@@ -263,6 +263,10 @@ o.spec('LambdaXyz', () => {
             type: 'raster',
             tiles: [`${host}/raster`],
           },
+          basemaps_raster_encode: {
+            type: 'raster',
+            tiles: [`${host}/raster/{z}/{x}/{y}.webp`], // Shouldn't encode the {}
+          },
           test_vector: {
             type: 'vector',
             url: 'vector.url.co.nz',
@@ -311,6 +315,10 @@ o.spec('LambdaXyz', () => {
       fakeStyle.sources.basemaps_raster = {
         type: 'raster',
         tiles: [`${host}/raster?api=${apiKey}`],
+      };
+      fakeStyle.sources.basemaps_raster_encode = {
+        type: 'raster',
+        tiles: [`${host}/raster/{z}/{x}/{y}.webp?api=${apiKey}`],
       };
       o(JSON.parse(body)).deepEquals(fakeStyle);
     });
