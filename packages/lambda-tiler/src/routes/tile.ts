@@ -12,7 +12,7 @@ import { attribution } from './attribution.js';
 import { TileEtag } from './tile.etag.js';
 import { Router } from '../router.js';
 import { ValidateTilePath } from '../validate.js';
-import {URL} from 'url';
+import { URL } from 'url';
 
 export const TileComposer = new TileMakerSharp(256);
 
@@ -139,7 +139,7 @@ export const TileRoute = {
         }
       } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
         for (const tileUrl of value.tiles) {
-          if (tileUrl.includes(host)){
+          if (tileUrl.includes(host)) {
             const url = new URL(tileUrl);
             url.searchParams.set('api', apiKey);
             value.tiles[value.tiles.indexOf(tileUrl)] = url.toString();
