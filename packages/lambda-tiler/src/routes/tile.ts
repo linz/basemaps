@@ -120,7 +120,7 @@ export const TileRoute = {
     const apiKey = Router.apiKey(req);
     if (apiKey == null) return new LambdaHttpResponse(400, 'Invalid API Key.');
     const styleName = fileName.split('.json')[0];
-    const host = 'basemaps.linz.govt.nz';
+    const host = Env.get(Env.PublicUrlBase) ?? '';
 
     // Get style Config from db
     const dbId = Config.Style.id(styleName);
