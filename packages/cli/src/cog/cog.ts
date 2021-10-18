@@ -1,5 +1,5 @@
 import { Bounds, TileMatrixSet } from '@basemaps/geo';
-import { isConfigS3Role, LogType, Projection } from '@basemaps/shared';
+import { Env, isConfigS3Role, LogType, Projection } from '@basemaps/shared';
 import { GdalCogBuilder } from '../gdal/gdal.cog.js';
 import { GdalCommand } from '../gdal/gdal.command.js';
 import { GdalProgressParser } from '../gdal/gdal.progress.js';
@@ -82,7 +82,11 @@ export async function buildCogForName(
   const sourceLocation = job.source.location;
   // If required assume role
   if (isConfigS3Role(sourceLocation)) {
-    const credentials = AwsCredentials.role(sourceLocation.roleArn, sourceLocation.externalId);
+    const credentials = AwsCredentials.role(
+      sourceLocation.roleArn,
+      sourceLocation.externalId,
+      Env.getNumber(Env.AwsRoleDurationHours, 8) * 60,
+    );
     cogBuild.gdal.setCredentials(credentials);
   }
 

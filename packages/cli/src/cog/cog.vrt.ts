@@ -1,5 +1,5 @@
 import { Epsg } from '@basemaps/geo';
-import { fsa, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
+import { Env, fsa, isConfigS3Role, LogType, s3ToVsis3 } from '@basemaps/shared';
 import { Gdal } from '../gdal/gdal.js';
 import { GdalCommand } from '../gdal/gdal.command.js';
 import { onProgress } from './cog.js';
@@ -121,7 +121,11 @@ export const CogVrt = {
     const sourceLocation = job.source.location;
     // If required assume role
     if (isConfigS3Role(sourceLocation)) {
-      const credentials = AwsCredentials.role(sourceLocation.roleArn, sourceLocation.externalId);
+      const credentials = AwsCredentials.role(
+        sourceLocation.roleArn,
+        sourceLocation.externalId,
+        Env.getNumber(Env.AwsRoleDurationHours, 8) * 60,
+      );
       gdalCommand.setCredentials(credentials);
     }
 
