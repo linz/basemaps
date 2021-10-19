@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.12.1](https://github.com/linz/basemaps/compare/v6.12.0...v6.12.1) (2021-10-19)
+
+
+### Bug Fixes
+
+* **cli:** assume a role for 8 hours by default ([#1918](https://github.com/linz/basemaps/issues/1918)) ([4b69292](https://github.com/linz/basemaps/commit/4b69292b058d61f060d90a4c8b89fa6f87861ddf))
+* **lambda-tiler:** cleanup tiff cache everytime a new tiff is initalized ([#1900](https://github.com/linz/basemaps/issues/1900)) ([bfd52af](https://github.com/linz/basemaps/commit/bfd52afc810398a03800893a10313a2eb1a5834a))
+* **lambda-tiler:** Replace the encoded braces in stylejson url. ([#1912](https://github.com/linz/basemaps/issues/1912)) ([e51d038](https://github.com/linz/basemaps/commit/e51d0380b21110ff5585804fae14baf92a588352))
+
+
+
+
+
 # [6.12.0](https://github.com/linz/basemaps/compare/v6.11.0...v6.12.0) (2021-10-05)
 
 
