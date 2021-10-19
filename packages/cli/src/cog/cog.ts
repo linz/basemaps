@@ -85,7 +85,7 @@ export async function buildCogForName(
     const credentials = AwsCredentials.role(
       sourceLocation.roleArn,
       sourceLocation.externalId,
-      Env.getNumber(Env.AwsRoleDurationHours, 8) * 60,
+      Env.getNumber(Env.AwsRoleDurationHours, 8) * 60 * 60,
     );
     cogBuild.gdal.setCredentials(credentials);
   }

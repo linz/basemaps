@@ -124,7 +124,7 @@ export const CogVrt = {
       const credentials = AwsCredentials.role(
         sourceLocation.roleArn,
         sourceLocation.externalId,
-        Env.getNumber(Env.AwsRoleDurationHours, 8) * 60,
+        Env.getNumber(Env.AwsRoleDurationHours, 8) * 60 * 60,
       );
       gdalCommand.setCredentials(credentials);
     }
