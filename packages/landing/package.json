@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "6.12.0",
+  "version": "6.12.1",
   "private": true,
   "repository": {
     "type": "git",
@@ -28,7 +28,7 @@
   "dependencies": {
     "@basemaps/attribution": "^6.10.0",
     "@basemaps/geo": "^6.10.0",
-    "@basemaps/infra": "^6.12.0",
+    "@basemaps/infra": "^6.12.1",
     "@basemaps/shared": "^6.12.0",
     "@linzjs/lui": "^6.0.0",
     "maplibre-gl": "^1.14.1-rc.2",
