@@ -108,7 +108,7 @@ class CreateAction extends CommandLineAction {
         await fsa.write(fsa.join(outputPath, file), createReadStream(fsa.join(srcPath, file)));
       }
     } finally {
-      await fs.rmdir(tmpFolder.sourcePath, { recursive: true });
+      await fs.rm(tmpFolder.sourcePath, { recursive: true });
     }
   }
 }
