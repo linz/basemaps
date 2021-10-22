@@ -128,7 +128,7 @@ export class ActionCogCreate extends CommandLineAction {
       }
     } finally {
       // Cleanup!
-      await fs.rmdir(tmpFolder, { recursive: true });
+      await fs.rm(tmpFolder, { recursive: true });
     }
   }
 
