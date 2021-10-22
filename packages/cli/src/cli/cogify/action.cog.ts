@@ -1,4 +1,4 @@
-import { Env, fsa, LogConfig, LoggerFatalError } from '@basemaps/shared';
+import { Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
 import {
   CommandLineAction,
   CommandLineFlagParameter,
@@ -15,6 +15,7 @@ import { CogJob } from '../../cog/types.js';
 import { Gdal } from '../../gdal/gdal.js';
 import { CliId } from '../base.cli.js';
 import { makeTempFolder } from '../folder.js';
+import path from 'path';
 
 export class ActionCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
@@ -69,11 +70,17 @@ export class ActionCogCreate extends CommandLineAction {
     const job = await CogStacJob.load(jobFn);
     const isCommit = this.commit?.value ?? false;
 
-    const logger = LogConfig.get().child({ correlationId: job.id, imageryName: job.name });
+    const logger = LogConfig.get().child({
+      correlationId: job.id,
+      imageryName: job.name,
+      tileMatrix: job.tileMatrix.identifier,
+    });
+
     LogConfig.set(logger);
+    logger.info('CogCreate:Start');
 
     const gdalVersion = await Gdal.version(logger);
-    logger.info({ version: gdalVersion }, 'GdalVersion');
+    logger.info({ version: gdalVersion }, 'CogCreate:GdalVersion');
 
     const name = this.getName(job);
     if (name == null) return;
@@ -82,10 +89,10 @@ export class ActionCogCreate extends CommandLineAction {
     fsa.configure(job.output.location);
 
     const outputExists = await fsa.exists(targetPath);
-    logger.info({ targetPath, outputExists }, 'CheckExists');
+    logger.info({ targetPath, outputExists }, 'CogCreate:CheckExists');
     // Output file exists don't try and overwrite it
     if (outputExists) {
-      logger.warn({ targetPath }, 'OutputExists');
+      logger.warn({ targetPath }, 'CogCreate:OutputExists');
       return;
     }
 
@@ -95,7 +102,7 @@ export class ActionCogCreate extends CommandLineAction {
       let cutlineJson: FeatureCollection | undefined;
       if (job.output.cutline != null) {
         const cutlinePath = job.getJobPath('cutline.geojson.gz');
-        logger.info({ path: cutlinePath }, 'UsingCutLine');
+        logger.info({ path: cutlinePath }, 'CogCreate:UsingCutLine');
         cutlineJson = await Cutline.loadCutline(cutlinePath);
       } else {
         logger.warn('NoCutLine');
@@ -105,22 +112,46 @@ export class ActionCogCreate extends CommandLineAction {
       const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);
 
       if (tmpVrtPath == null) {
-        logger.warn({ name, tileMatrix: job.tileMatrix.identifier }, 'NoMatchingSourceImagery');
+        logger.warn({ name }, 'CogCreate:NoMatchingSourceImagery');
         return;
       }
 
       const tmpTiff = fsa.join(tmpFolder, `${name}.tiff`);
 
       await buildCogForName(job, name, tmpVrtPath, tmpTiff, logger, isCommit);
-      logger.info({ target: targetPath }, 'StoreTiff');
+      logger.info({ target: targetPath }, 'CogCreate:StoreTiff');
       if (isCommit) {
         await fsa.write(targetPath, createReadStream(tmpTiff));
+        await this.checkJobStatus(job, logger);
       } else {
         logger.warn('DryRun:Done');
       }
     } finally {
       // Cleanup!
       await fs.rmdir(tmpFolder, { recursive: true });
+    }
+  }
+
+  /** Check to see how many tiffs are remaining in the job */
+  async checkJobStatus(job: CogStacJob, logger: LogType): Promise<void> {
+    const basePath = job.getJobPath();
+    const expectedTiffs = new Set<string>();
+    for await (const fileName of fsa.list(basePath)) {
+      const basename = path.basename(fileName);
+      // Look for tile tiffs only
+      if (!basename.includes('-') || !basename.endsWith('.tiff')) continue;
+      expectedTiffs.add(basename);
+    }
+
+    const jobSize = job.output.files.length;
+    for (const file of job.output.files) {
+      if (expectedTiffs.has(`${file.name}.tiff`)) expectedTiffs.delete(`${file.name}.tiff`);
+    }
+
+    if (expectedTiffs.size === 0) {
+      logger.info({ tiffCount: jobSize }, 'CogCreate:JobComplete');
+    } else {
+      logger.info({ tiffCount: jobSize, remainingTiff: expectedTiffs.size }, 'CogCreate:JobProgress');
     }
   }
 
