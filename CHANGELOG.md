@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.13.0](https://github.com/linz/basemaps/compare/v6.12.2...v6.13.0) (2021-10-25)
+
+
+### Bug Fixes
+
+* **scripts:** correct linting issue on version bump ([#1924](https://github.com/linz/basemaps/issues/1924)) ([0bf6e38](https://github.com/linz/basemaps/commit/0bf6e381b73a1c1d5eda6ef068e56994e58c93bc))
+
+
+### Features
+
+* **cli:** expose uploading static files ([#1925](https://github.com/linz/basemaps/issues/1925)) ([ce85cd9](https://github.com/linz/basemaps/commit/ce85cd9bfe9802046e9cbbfbf8ae663c427dd1a1))
+* **cli:** fs.rmdir is deprecated use fs.rm ([#1927](https://github.com/linz/basemaps/issues/1927)) ([8f9a953](https://github.com/linz/basemaps/commit/8f9a9539751fca8f840f51cb18b071fb6495f726))
+* **cli:** log when all tiffs in a job have been uploaded ([#1928](https://github.com/linz/basemaps/issues/1928)) ([5e935ab](https://github.com/linz/basemaps/commit/5e935abf8f9d936f24a3120fc7c0e848ce137015))
+
+
+
+
+
 ## [6.12.2](https://github.com/linz/basemaps/compare/v6.12.1...v6.12.2) (2021-10-19)
 
 
