@@ -1922,9 +1922,9 @@
     "@octokit/openapi-types" "^6.0.0"
 
 "@rushstack/ts-command-line@^4.3.13":
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.8.0.tgz#611accb931b9ac62ff4d078f68f95c47f6606724"
-  integrity sha512-nZ8cbzVF1VmFPfSJfy8vEohdiFAH/59Y/Y+B4nsJbn4SkifLJ8LqNZ5+LxCC2UR242EXFumxlsY1d6fPBxck5Q==
+  version "4.10.2"
+  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.10.2.tgz#019d43d8428e243031c66aeac1f088687f6730f3"
+  integrity sha512-Weq8B7oJeCQ4ITsaVLhOQombipyg+idpkdkhA6UqLtKvuzq8zTtPpAfhP5ff5L+RCmo1CFCVOBE3i+MvzUR5vA==
   dependencies:
     "@types/argparse" "1.0.38"
     argparse "~1.0.9"
