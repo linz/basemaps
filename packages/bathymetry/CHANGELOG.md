@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.13.0](https://github.com/linz/basemaps/compare/v6.12.2...v6.13.0) (2021-10-25)
+
+
+### Features
+
+* **cli:** fs.rmdir is deprecated use fs.rm ([#1927](https://github.com/linz/basemaps/issues/1927)) ([8f9a953](https://github.com/linz/basemaps/commit/8f9a9539751fca8f840f51cb18b071fb6495f726))
+
+
+
+
+
 ## [6.12.2](https://github.com/linz/basemaps/compare/v6.12.1...v6.12.2) (2021-10-19)
 
 **Note:** Version bump only for package @basemaps/bathymetry
