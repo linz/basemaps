@@ -92,6 +92,9 @@ export async function uploadStaticFile(
   const fileData = await fsa.read(path);
   const hash = crypto.createHash('sha512').update(fileData).digest('base64');
 
+  // S3 keys should not start with a `/`
+  if (target.startsWith('/')) target = target.slice(1);
+
   const bucket = await getStaticBucket();
   if (bucket == null) throw new Error('Unable to find static bucket');
 
