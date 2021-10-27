@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.14.0](https://github.com/linz/basemaps/compare/v6.13.0...v6.14.0) (2021-10-27)
+
+
+### Bug Fixes
+
+* **cli:** s3 keys should not start with a "/" ([#1935](https://github.com/linz/basemaps/issues/1935)) ([bc9cc22](https://github.com/linz/basemaps/commit/bc9cc224c0c4da6a85c193c8eb3524108d31c17d))
+
+
+### Features
+
+* **cli:** compress text documents with gzip before uploading ([#1936](https://github.com/linz/basemaps/issues/1936)) ([7a6e090](https://github.com/linz/basemaps/commit/7a6e090d0cc26372425b664d6788569e39fd5cca))
+
+
+
+
+
 # [6.13.0](https://github.com/linz/basemaps/compare/v6.12.2...v6.13.0) (2021-10-25)
 
 
