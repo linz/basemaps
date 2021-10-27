@@ -1,5 +1,5 @@
 import cf from '@aws-cdk/aws-cloudfront';
-import s3, { Bucket } from '@aws-cdk/aws-s3';
+import s3, { Bucket, HttpMethods } from '@aws-cdk/aws-s3';
 import cdk from '@aws-cdk/core';
 import { getConfig } from '../config.js';
 import { Parameters } from '../parameters.js';
@@ -23,7 +23,15 @@ export class EdgeStack extends cdk.Stack {
     super(scope, id, props);
 
     const config = getConfig();
-    const s3BucketSource = new s3.Bucket(this, 'StaticBucket');
+    const s3BucketSource = new s3.Bucket(this, 'StaticBucket', {
+      cors: [
+        {
+          allowedOrigins: ['*'],
+          allowedMethods: [HttpMethods.GET, HttpMethods.HEAD],
+          allowedHeaders: ['*'],
+        },
+      ],
+    });
 
     // Allow cloud front to read the static bucket
     const originAccessIdentity = new cf.OriginAccessIdentity(this, 'AccessIdentity', {
@@ -34,7 +42,16 @@ export class EdgeStack extends cdk.Stack {
 
     const s3Source: cf.SourceConfiguration = {
       s3OriginSource: { s3BucketSource, originAccessIdentity },
-      behaviors: [{ isDefaultBehavior: true }],
+      behaviors: [
+        {
+          isDefaultBehavior: true,
+          allowedMethods: cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
+          forwardedValues: {
+            queryString: true,
+            headers: ['Access-Control-Allow-Origin'],
+          },
+        },
+      ],
     };
 
     const tileSource: cf.SourceConfiguration = {
