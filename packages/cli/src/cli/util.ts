@@ -4,6 +4,9 @@ import CloudFront from 'aws-sdk/clients/cloudfront.js';
 import S3 from 'aws-sdk/clients/s3.js';
 import { CliId } from './base.cli.js';
 import crypto from 'crypto';
+import path from 'path';
+import { gzip } from 'zlib';
+import { promisify } from 'util';
 
 // Cloudfront has to be defined in us-east-1
 const cloudFormation = new CloudFormation({ region: 'us-east-1' });
@@ -75,6 +78,10 @@ export async function getStaticBucket(): Promise<string | null> {
   return staticBucket;
 }
 
+/** Extensions that should be gzipped before uploading */
+const CompressExt = new Set(['.js', '.html', '.css', '.map', '.json', '.svg']);
+const gzipPromise = promisify(gzip);
+
 /**
  * Upload a file to the static bucket
  * @param path source file
@@ -84,12 +91,12 @@ export async function getStaticBucket(): Promise<string | null> {
  * @returns whether the item was updated
  */
 export async function uploadStaticFile(
-  path: string,
+  filePath: string,
   target: string,
   contentType: string,
   cacheControl: string,
 ): Promise<boolean> {
-  const fileData = await fsa.read(path);
+  const fileData = await fsa.read(filePath);
   const hash = crypto.createHash('sha512').update(fileData).digest('base64');
 
   // S3 keys should not start with a `/`
@@ -101,14 +108,19 @@ export async function uploadStaticFile(
   const existing = await getHash(bucket, target);
   if (hash === existing) return false;
 
+  // Should we compress the file before uploading
+  const ext = path.extname(target);
+  const contentEncoding = CompressExt.has(ext) ? 'gzip' : undefined;
+
   await s3
     .putObject({
       Bucket: bucket,
       Key: target,
-      Body: fileData,
+      Body: contentEncoding === 'gzip' ? await gzipPromise(fileData, { level: 9 }) : fileData,
       Metadata: { [HashKey]: hash },
       ContentType: contentType,
       CacheControl: cacheControl,
+      ContentEncoding: contentEncoding,
     })
     .promise();
   return true;
