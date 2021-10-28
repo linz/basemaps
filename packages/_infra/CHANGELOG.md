@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.14.1](https://github.com/linz/basemaps/compare/v6.14.0...v6.14.1) (2021-10-27)
+
+
+### Bug Fixes
+
+* **infra:** allow cross origin requests to the static s3 bucket ([#1939](https://github.com/linz/basemaps/issues/1939)) ([68573a0](https://github.com/linz/basemaps/commit/68573a0775f37d8133cbb512470e14bc949c1f26))
+
+
+
+
+
 ## [6.12.1](https://github.com/linz/basemaps/compare/v6.12.0...v6.12.1) (2021-10-19)
 
 **Note:** Version bump only for package @basemaps/infra
