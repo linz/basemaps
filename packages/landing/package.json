@@ -30,7 +30,7 @@
     "@basemaps/geo": "^6.10.0",
     "@basemaps/infra": "^6.14.1",
     "@basemaps/shared": "^6.12.0",
-    "@linzjs/lui": "^6.0.0",
+    "@linzjs/lui": "^10.7.0",
     "maplibre-gl": "^1.14.1-rc.2",
     "ol": "^6.4.2",
     "proj4": "^2.6.2",
