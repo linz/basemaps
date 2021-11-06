@@ -79,7 +79,7 @@ Creates a nice image
 For our aerial imagery reprojection seems to be best done as bilinear, where as Overview creation seems to be best done as lanczos.
 
 
-Using GDAL 3.2.x+ this can be configured with
+Using GDAL 3.2.x+ this can be configured with as it was fixed in [osgeo/gdal#2671](https://github.com/OSGeo/gdal/issues/2671)
 
 ```bash
 gdal_translate -co WARP_RESAMPLING=bilinear -co OVERVIEW_RESAMPLING=lanczos
