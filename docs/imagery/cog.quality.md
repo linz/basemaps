@@ -35,24 +35,24 @@ When creating COGs using the different resampling methods the output quality dif
 
 Here are some overviews created using some of the different resampling methods:
 
-![Resampling Quality](./images/resampling-overview.webp)
+![Resampling Quality](./images/quality__resampling-overview.webp)
 
 ### Lanczos 
 
 Provides quite a nice and crisp output
 
-![Lanczos Overview](./images/i6.lanczos.webp)
+![Lanczos Overview](./images/quality__i6.lanczos.webp)
 
 ### Cubic
 Creates weird artifacts around the edges
 
-![Cubic Overview](./images/i6.cubic.webp)
+![Cubic Overview](./images/quality__i6.cubic.webp)
 
 ### Bilinear
 
 looks blury
 
-![Bilinear Overview](./images/i6.bilinear.webp)
+![Bilinear Overview](./images/quality__i6.bilinear.webp)
 
 
 Using lanczos looks best for our overview creation.
@@ -67,13 +67,13 @@ Here are some higher resolution aerial imagery image 0 with different resampling
 
 Creates a jaggeredness, look at the street markings and the edges of the buildings
 
-![Lanczos](./images/005_006_0_lanczos.webp)
+![Lanczos](./images/quality__005_006_0_lanczos.webp)
 
 ### Bilinear
 
 Creates a nice image
 
-![Bilinear](./images/005_006_0_bilinear.webp)
+![Bilinear](./images/quality__005_006_0_bilinear.webp)
 
 
 For our aerial imagery reprojection seems to be best done as bilinear, where as Overview creation seems to be best done as lanczos.
