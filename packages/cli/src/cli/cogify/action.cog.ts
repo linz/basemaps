@@ -136,22 +136,20 @@ export class ActionCogCreate extends CommandLineAction {
   async checkJobStatus(job: CogStacJob, logger: LogType): Promise<void> {
     const basePath = job.getJobPath();
     const expectedTiffs = new Set<string>();
+    const jobSize = job.output.files.length;
+    for (const file of job.output.files) expectedTiffs.add(`${file.name}.tiff`);
+
     for await (const fileName of fsa.list(basePath)) {
       const basename = path.basename(fileName);
       // Look for tile tiffs only
       if (!basename.includes('-') || !basename.endsWith('.tiff')) continue;
-      expectedTiffs.add(basename);
-    }
-
-    const jobSize = job.output.files.length;
-    for (const file of job.output.files) {
-      if (expectedTiffs.has(`${file.name}.tiff`)) expectedTiffs.delete(`${file.name}.tiff`);
+      expectedTiffs.delete(basename);
     }
 
     if (expectedTiffs.size === 0) {
-      logger.info({ tiffCount: jobSize }, 'CogCreate:JobComplete');
+      logger.info({ tiffCount: jobSize, tiffTotal: jobSize }, 'CogCreate:JobComplete');
     } else {
-      logger.info({ tiffCount: jobSize, remainingTiff: expectedTiffs.size }, 'CogCreate:JobProgress');
+      logger.info({ tiffCount: jobSize, tiffRemaining: expectedTiffs.size }, 'CogCreate:JobProgress');
     }
   }
 
