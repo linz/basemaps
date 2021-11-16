@@ -83,3 +83,28 @@ gdal_docker gdal_translate -of Gtiff -co COMPRESS=lzw -co BIGTIFF=yes -co NUM_TH
 
 aws s3 cp Geographx-NZ-DEM-FLT.detail_1.contrast_1.5.lzw.tiff s3://linz-basemaps-source/Geographx-NZ-DEM-FLT/
 ```
+
+
+Once complete this gives a uint16 tiff that has values between 0-65,536 to make this image usage a color ramp is applied to create a semi transparent image
+
+
+At 0 create a 25% opacity black, `rgba(0,0,0,0.25)` then slowly ramp to 0% opacity at 32,768
+```
+nv       0       0       0       0
+0        0       0       0       63
+32768    0       0       0       0
+```
+
+Using gdal apply the color-relief
+
+
+```bash
+gdaldem color-relief \
+    -co COMPRESS=lzw \
+    -co TILED=yes \
+    -co NUM_THREADS=ALL_CPUS \
+    -of GTiff \
+    -co BIGTIFF=yes \
+    -co ALPHA=yes -alpha \
+    Geographx-NZ-DEM-FLT.detail_1.contrast_1.5.lzw.tiff color.ramp Geographx-NZ-DEM-FLT.detail_1.contrast_1.5.lzw.ramp.tiff
+```
