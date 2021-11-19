@@ -14,6 +14,10 @@ export const Config = {
   get Version(): string {
     return process.env.GIT_VERSION ?? '';
   },
+
+  get SplitApiKey(): string {
+    return process.env.SPLIT_IO_KEY ?? '';
+  },
 };
 
 // Inject google analytics after everything has loaded

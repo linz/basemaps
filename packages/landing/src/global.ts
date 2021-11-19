@@ -1,4 +1,5 @@
 import { Basemaps } from './map.js';
+import { SplitIo } from './split.js';
 import { BasemapsUi } from './ui.js';
 
 declare global {
@@ -10,5 +11,7 @@ declare global {
     // Access to basemaps global
     basemaps: Basemaps;
     basemapsUi: BasemapsUi;
+
+    splitIo: typeof SplitIo;
   }
 }
