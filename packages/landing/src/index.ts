@@ -1,11 +1,11 @@
 import './global.js';
 
-import { Basemaps } from './map.js';
-import { WindowUrl } from './url.js';
-import { BasemapsUi } from './ui.js';
-import { isWebpSupported } from './webp.js';
 import { addDebugLayer } from './debug.js';
-import { SplitIo, SplitTreatment } from './split.js';
+import { Basemaps } from './map.js';
+import { SplitIo } from './split.js';
+import { BasemapsUi } from './ui.js';
+import { WindowUrl } from './url.js';
+import { isWebpSupported } from './webp.js';
 
 const canUseWebp = isWebpSupported();
 
