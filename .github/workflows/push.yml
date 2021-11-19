@@ -118,6 +118,7 @@ jobs:
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
+          SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_NON_PROD}}
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
           NODE_ENV: "dev"
           API_KEY: ${{secrets.API_KEY_NON_PROD}}

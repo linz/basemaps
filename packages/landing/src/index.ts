@@ -5,6 +5,7 @@ import { WindowUrl } from './url.js';
 import { BasemapsUi } from './ui.js';
 import { isWebpSupported } from './webp.js';
 import { addDebugLayer } from './debug.js';
+import { SplitIo, SplitTreatment } from './split.js';
 
 const canUseWebp = isWebpSupported();
 
@@ -20,4 +21,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.basemapsUi = ui;
 
   if (basemaps.config.debug) addDebugLayer(basemaps);
+
+  SplitIo.getClient().then((client) => {
+    if (client == null) return;
+
+    // const isLayerSwitcherOn = SplitIo.getTreatment(SplitTreatment.LayerSwitcherButton);
+  });
 });
