@@ -2,7 +2,7 @@ import './global.js';
 
 import { addDebugLayer } from './debug.js';
 import { Basemaps } from './map.js';
-import { SplitIo } from './split.js';
+import { SplitIo, SplitTreatment } from './split.js';
 import { BasemapsUi } from './ui.js';
 import { WindowUrl } from './url.js';
 import { isWebpSupported } from './webp.js';
@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   SplitIo.getClient().then((client) => {
     if (client == null) return;
 
-    // const isLayerSwitcherOn = SplitIo.getTreatment(SplitTreatment.LayerSwitcherButton);
+    const isLayerSwitcherOn = SplitIo.getTreatment(SplitTreatment.LayerSwitcherButton) === 'on';
+    ui.setLayerSwitcher(isLayerSwitcherOn);
   });
 });

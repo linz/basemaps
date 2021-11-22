@@ -86,11 +86,26 @@ export const WindowUrl = {
     return { tag, imageId, style, tileMatrix, debug };
   },
 
+  toUrl(opts: MapOptions): string {
+    const urlParams = new URLSearchParams();
+    if (opts.tag !== 'production') urlParams.append('v', opts.tag);
+    if (opts.style !== 'topolike') urlParams.append('s', opts.style);
+    if (opts.imageId !== 'aerial') urlParams.append('i', opts.imageId);
+    if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('p', opts.tileMatrix.identifier);
+
+    return urlParams.toString();
+  },
+
   baseUrl(): string {
     const baseUrl = Config.BaseUrl;
     if (baseUrl === '') return window.location.origin;
     if (!baseUrl.startsWith('http')) throw new Error('BaseURL must start with http(s)://');
     return baseUrl;
+  },
+
+  toBaseWmts(): string {
+    const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
+    return `${this.baseUrl()}/v1/tiles/WMTSCapabilities.xml${api}`;
   },
 
   toTileUrl(opts: MapOptions, urlType: MapOptionType): string {

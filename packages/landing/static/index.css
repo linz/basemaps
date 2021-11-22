@@ -180,10 +180,17 @@ label {
 }
 
 .lui-standard-form .lui-form-icon.lui-form-icon--right input:not([type='checkbox']):not([type='radio']),
-.lui-standard-form .lui-form-icon.lui-form-icon--right textarea,
-.lui-standard-form .lui-form-icon.lui-form-icon--right select {
+.lui-standard-form .lui-form-icon.lui-form-icon--right textarea {
     border-right: 40px solid;
     padding: 0 8px;
+}
+
+.lui-standard-form .lui-form-icon.lui-form-icon--right select {
+    border-right: 0px solid;
+    padding: 0 28px 0px 8px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 .lui-standard-form .lui-form-icon .lui-form-icon-button {

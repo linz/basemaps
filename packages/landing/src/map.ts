@@ -46,6 +46,7 @@ export class Basemaps {
     const tileGrid = getTileGrid(this.config.tileMatrix.identifier);
     const style = tileGrid.getStyle(this.config);
     const coordinate = locationTransform(location, this.config.tileMatrix, MapboxTms);
+    if (this.map) this.map.remove();
 
     this.map = new mapboxgl.Map({
       container: 'map',
@@ -70,7 +71,7 @@ export class Basemaps {
   updateUrlTimer: unknown | null = null;
   render = (): void => {
     if (this.updateUrlTimer != null) return;
-    this.updateUrlTimer = setTimeout(() => this.updateUrl(), 1000);
+    this.updateUrlTimer = setTimeout(() => this.updateLocationUrl(), 1000);
   };
 
   getLocation(): MapLocation {
@@ -84,8 +85,15 @@ export class Basemaps {
     return locationTransform({ lat, lon, zoom }, MapboxTms, this.config.tileMatrix);
   }
 
+  updateConfigUrl(): void {
+    window.history.pushState(null, '', `?${WindowUrl.toUrl(this.config)}`);
+    const tileGrid = getTileGrid(this.config.tileMatrix.identifier);
+    const style = tileGrid.getStyle(this.config);
+    this.map.setStyle(style);
+  }
+
   /** Update the window.location with the current location information */
-  updateUrl(): void {
+  updateLocationUrl(): void {
     this.updateUrlTimer = null;
     const path = WindowUrl.toHash(this.getLocation());
     window.history.replaceState(null, '', path);
