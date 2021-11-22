@@ -34,6 +34,7 @@
     "@splitsoftware/splitio": "^10.16.1",
     "maplibre-gl": "^1.14.1-rc.2",
     "ol": "^6.4.2",
+    "preact": "^10.5.15",
     "proj4": "^2.6.2",
     "ulid": "^2.3.0"
   },
@@ -74,7 +75,7 @@
       }
     },
     {
-      "entry": "src/index.ts",
+      "entry": "src/index.tsx",
       "env": {
         "API_KEY": null,
         "GOOGLE_ANALYTICS": null,
