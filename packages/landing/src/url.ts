@@ -97,11 +97,10 @@ export const WindowUrl = {
   },
 
   baseUrl(): string {
-    return `https://basemaps.linz.govt.nz`;
-    // const baseUrl = Config.BaseUrl;
-    // if (baseUrl === '') return window.location.origin;
-    // if (!baseUrl.startsWith('http')) throw new Error('BaseURL must start with http(s)://');
-    // return baseUrl;
+    const baseUrl = Config.BaseUrl;
+    if (baseUrl === '') return window.location.origin;
+    if (!baseUrl.startsWith('http')) throw new Error('BaseURL must start with http(s)://');
+    return baseUrl;
   },
 
   toBaseWmts(): string {
