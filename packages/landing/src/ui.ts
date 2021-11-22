@@ -1,4 +1,4 @@
-import { Bounds, Epsg, GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import { Epsg, GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { Config, GaEvent, gaEvent } from './config.js';
 import { e } from './elm.js';
 import { Basemaps } from './map.js';
