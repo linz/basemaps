@@ -1,7 +1,16 @@
-import { Epsg, GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, Epsg, GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { Config, GaEvent, gaEvent } from './config.js';
+import { e } from './elm.js';
 import { Basemaps } from './map.js';
 import { MapOptions, MapOptionType, WindowUrl } from './url.js';
+
+interface LayerInfo {
+  id: string;
+  name: string;
+  upperLeft: number[];
+  lowerRight: number[];
+  projections: Epsg[];
+}
 
 export class BasemapsUi {
   projectionNztm: HTMLElement;
@@ -18,6 +27,8 @@ export class BasemapsUi {
   sideNav: HTMLElement;
   projection: Epsg;
 
+  layers: Map<string, LayerInfo> = new Map();
+
   constructor(basemaps: Basemaps) {
     this.basemaps = basemaps;
 
@@ -30,8 +41,10 @@ export class BasemapsUi {
     this.bindMenuButton();
     this.bindContactUsButton();
 
+    this.loadWmtsLayers();
     this.setCurrentProjection(this.basemaps.config.tileMatrix);
   }
+
   bindMenuButton(): void {
     const menuOpen = document.getElementById('menu-open');
     const menuClose = document.getElementById('menu-close');
@@ -171,8 +184,117 @@ Your Service/App URL:
     }
     const cfg: MapOptions = { ...this.basemaps.config, tileMatrix };
 
+    this.updateLinks(cfg);
+    this.apiKey.querySelector('input')!.value = Config.ApiKey;
+  }
+
+  updateLinks(cfg: MapOptions): void {
     this.apiXyz.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.TileRaster);
     this.apiWmts.querySelector('input')!.value = WindowUrl.toTileUrl(cfg, MapOptionType.Wmts);
-    this.apiKey.querySelector('input')!.value = Config.ApiKey;
+  }
+
+  buildLayerSwitcher(): void {
+    const config = this.basemaps.config;
+    const layerSwitcherSelect = document.getElementById('api-layer__input') as HTMLSelectElement;
+    if (layerSwitcherSelect == null) return;
+    // Destroy the existing selection
+    layerSwitcherSelect.innerHTML = '';
+    layerSwitcherSelect.addEventListener('change', (): void => {
+      const val = layerSwitcherSelect.value;
+      // Only work in 3857 for now...
+      this.basemaps.config.tileMatrix = GoogleTms;
+      // Handle vector layers
+      if (val === 'topolike' || val === 'basic') {
+        this.basemaps.config.style = val;
+        this.basemaps.config.imageId = 'topographic';
+        this.basemaps.updateConfigUrl();
+        return;
+      }
+
+      this.basemaps.config.style = 'topolike';
+
+      // Handle other layers
+      if (this.basemaps.config.imageId === layerSwitcherSelect.value) return;
+      this.basemaps.config.imageId = layerSwitcherSelect.value;
+      this.basemaps.updateConfigUrl();
+
+      const layer = this.layers.get(layerSwitcherSelect.value);
+      if (layer == null) return;
+
+      this.basemaps.map.fitBounds([layer.upperLeft, layer.lowerRight] as any);
+      this.updateLinks(this.basemaps.config);
+    });
+
+    const aerialBasemaps = e('optgroup', { label: 'Raster Basemaps' }, [
+      e('option', { value: 'aerial' }, 'Aerial Imagery'),
+    ]);
+    layerSwitcherSelect.appendChild(aerialBasemaps);
+
+    const vectorBasemaps = e('optgroup', { label: 'Vector Basemaps' }, [
+      e('option', { value: 'topolike' }, 'Topolike'),
+      e('option', { value: 'basic' }, 'Basic'),
+    ]);
+    layerSwitcherSelect.appendChild(vectorBasemaps);
+
+    const childLayers: HTMLElement[] = [];
+    for (const [id, el] of this.layers.entries()) {
+      // Since we do not change the projection yet limit to 3857
+      if (!el.projections.includes(Epsg.Google)) continue;
+      childLayers.push(e('option', { value: id }, el.name));
+    }
+    const aerialLayers = e('optgroup', { label: 'Aerial Imagery' }, childLayers);
+    if (childLayers.length > 0) layerSwitcherSelect.appendChild(aerialLayers);
+
+    if (config.imageId === 'topographic') {
+      layerSwitcherSelect.value = config.style;
+    } else {
+      layerSwitcherSelect.value = config.imageId;
+    }
+  }
+
+  /** Parse the WMTS response to grab all the layer ids and names */
+  async loadWmtsLayers(): Promise<void> {
+    const res = await fetch(WindowUrl.toBaseWmts());
+    if (!res.ok) return;
+
+    const dom = new DOMParser();
+    const xmlDoc = dom.parseFromString(await res.text(), 'text/xml');
+
+    const layers = xmlDoc.getElementsByTagName('Layer') as HTMLCollection;
+
+    for (let i = 0; i < layers.length; i++) {
+      const layer = layers.item(i);
+      if (layer == null) continue;
+
+      const title = layer.getElementsByTagName('ows:Title').item(0)?.textContent;
+      const id = layer.getElementsByTagName('ows:Identifier').item(0)?.textContent;
+      if (title == null || id == null) continue;
+      if (title === 'aerial') continue;
+
+      const boundEl = layer.getElementsByTagName('ows:WGS84BoundingBox').item(0);
+      const upperLeft = boundEl?.getElementsByTagName('ows:UpperCorner').item(0)?.textContent?.split(' ').map(Number);
+      const lowerRight = boundEl?.getElementsByTagName('ows:LowerCorner').item(0)?.textContent?.split(' ').map(Number);
+
+      const tmsTags = layer.getElementsByTagName('TileMatrixSet');
+      const projections: Epsg[] = [];
+      for (let j = 0; j < tmsTags.length; j++) {
+        const epsg = Epsg.parse(tmsTags.item(j)?.textContent ?? '');
+        if (epsg == null) continue;
+        projections.push(epsg);
+      }
+
+      if (upperLeft == null || lowerRight == null) continue;
+      this.layers.set(id, { id, name: title.replace('aerial ', ''), upperLeft, lowerRight, projections });
+    }
+
+    this.buildLayerSwitcher();
+  }
+
+  setLayerSwitcher(isLayerSwitcherOn: boolean): void {
+    if (isLayerSwitcherOn) {
+      document.getElementById('api-layer')?.classList.remove('display-none');
+    } else {
+      document.getElementById('api-layer')?.classList.add('display-none');
+    }
   }
 }
