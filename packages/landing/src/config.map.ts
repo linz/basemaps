@@ -148,6 +148,7 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
 
   const layers = xmlDoc.getElementsByTagName('Layer') as HTMLCollection;
 
+  const allLayers: LayerInfo[] = [];
   for (let i = 0; i < layers.length; i++) {
     const layer = layers.item(i);
     if (layer == null) continue;
@@ -170,7 +171,10 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
     }
 
     if (upperLeft == null || lowerRight == null || upperLeft.length !== 2) continue;
-    output.set(id, { id, name: title.replace('aerial ', ''), upperLeft, lowerRight, projections } as LayerInfo);
+    allLayers.push({ id, name: title.replace('aerial ', ''), upperLeft, lowerRight, projections } as LayerInfo);
   }
+
+  allLayers.sort((a, b) => a.name.localeCompare(b.name));
+  for (const l of allLayers) output.set(l.id, l);
   return output;
 }
