@@ -32,7 +32,6 @@ export class Basemaps extends Component {
 
   componentDidMount(): void {
     this.el = document.getElementById('map') as HTMLDivElement;
-    console.log('Mounted');
 
     if (this.el == null) throw new Error('Unable to find #map element');
     const cfg = Config.map;
@@ -54,7 +53,6 @@ export class Basemaps extends Component {
     this.map.addControl(nav, 'top-left');
     this.map.on('render', this.onRender);
     this.map.on('load', () => {
-      console.log('Loaded');
       this._events.push(
         Config.map.on('location', this.updateLocation),
         Config.map.on('tileMatrix', this.updateStyle),
