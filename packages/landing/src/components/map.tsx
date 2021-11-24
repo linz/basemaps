@@ -31,6 +31,8 @@ export class Basemaps extends Component {
   };
 
   componentDidMount(): void {
+    // Force the URL to be read before loading the map
+    Config.map.updateFromUrl();
     this.el = document.getElementById('map') as HTMLDivElement;
 
     if (this.el == null) throw new Error('Unable to find #map element');
