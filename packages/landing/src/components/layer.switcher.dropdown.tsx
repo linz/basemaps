@@ -1,4 +1,4 @@
-import { Epsg } from '@basemaps/geo';
+import { EpsgCode } from '@basemaps/geo';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
@@ -84,7 +84,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     const urban: ComponentChild[] = [];
 
     for (const layer of this.state.layers.values()) {
-      if (!layer.projections.includes(Epsg.Google)) continue;
+      if (!layer.projections.has(EpsgCode.Google)) continue;
 
       const node = <option value={layer.id}>{layer.name}</option>;
       if (layer.name.toLowerCase().includes(' rural ')) rural.push(node);
