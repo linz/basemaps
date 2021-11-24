@@ -16,7 +16,7 @@ export class Copyable extends Component<CopyableProps, { copied: boolean }> {
           <button class="menu-copyable-icon-button" title="Copy" onClick={this.copy}>
             <i class="material-icons-round">{this.state.copied ? 'check' : 'content_copy'}</i>
           </button>
-          <input value={this.props.value} />
+          <input value={this.props.value} readonly={true} />
         </div>
       </div>
     );
