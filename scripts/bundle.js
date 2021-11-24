@@ -83,6 +83,8 @@ function bundleJs(basePath, cfg, outfile, isJsx = false) {
     buildCmd.push('--jsx-fragment=Fragment');
     buildCmd.push(`--inject:./preact-shim.js`);
   }
+
+  if (process.env.NODE_ENV === 'production') buildCmd.push('--minify');
   console.log(buildCmd);
 
   const res = cp.spawnSync('npx', buildCmd);
@@ -93,7 +95,7 @@ function bundleJs(basePath, cfg, outfile, isJsx = false) {
   }
 
   const fileData = fs.readFileSync(outfile).toString();
-  console.log('Bundled', (fileData.length / 1024).toFixed(2), 'KB');
+  console.log('Bundled', outfile, (fileData.length / 1024).toFixed(2), 'KB');
 }
 
 async function bundleDir(basePath, cfg, outfile) {
