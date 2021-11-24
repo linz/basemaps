@@ -6,7 +6,7 @@ import { Config, GaEvent, gaEvent } from '../config.js';
 import { MapOptionType } from '../url.js';
 import { Copyable } from './copyable.js';
 import { LayerSwitcherDropdown } from './layer.switcher.dropdown.js';
-import { Link } from './link.js';
+import { Icon, Link } from './link.js';
 
 export class Header extends Component<unknown, { isMenuOpen: boolean }> {
   _events: (() => boolean)[] = [];
@@ -29,6 +29,7 @@ export class Header extends Component<unknown, { isMenuOpen: boolean }> {
   };
 
   render(): ComponentChild {
+    if (Config.map.debug) return;
     return (
       <header class="lui-header">
         <div class="lui-header-row">
@@ -94,11 +95,12 @@ Your Service/App URL:
     window.location.href = `mailto:basemaps@linz.govt.nz?subject=${encodeURI(subject)}&body=${encodeURI(body)}`;
   };
 
-  renderAboutLi(text: string, href: string, icon: ComponentChild | string = 'launch'): ComponentChild {
+  renderAboutLi(text: string, href: string, icon?: ComponentChild): ComponentChild {
     return (
       <li>
-        <Link href={href} icon={icon}>
+        <Link href={href}>
           {text}
+          {icon == null ? <Icon name="launch" /> : icon}
         </Link>
       </li>
     );

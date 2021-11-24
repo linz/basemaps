@@ -11,20 +11,15 @@ export class Icon extends Component<IconProps> {
 
 interface LinkProps {
   href: string;
-  icon?: boolean | ComponentChild;
+  icon?: string;
   ariaLabel?: string;
 }
 export class Link extends Component<LinkProps> {
   render(props: RenderableProps<LinkProps>): ComponentChild {
-    let icon: ComponentChild | null = null;
-    if (props.icon == null || typeof props.icon === 'boolean') icon = <Icon name="launch" />;
-    if (typeof props.icon === 'string') icon = <Icon name={props.icon} />;
-    else icon = props.icon;
-
     return (
       <a rel="noopener" target="_blank" href={props.href} style="display:flex;" aria-label={props.ariaLabel}>
         {props.children}
-        {icon}
+        {props.icon ? <Icon name={props.icon} /> : undefined}
       </a>
     );
   }
