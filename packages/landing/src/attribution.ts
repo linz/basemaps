@@ -24,7 +24,6 @@ export class MapAttribution {
   /** handle for scheduleRender requestAnimationFrame */
   private _raf = 0;
 
-  // attributions: Attribution | null = null;
   attributionHtml = '';
   bounds: LngLatBounds = new LngLatBounds([0, 0, 0, 0]);
   zoom = -1;
