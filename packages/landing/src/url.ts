@@ -1,5 +1,6 @@
-import { Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { TileMatrixSets } from '@basemaps/geo';
 import { Config } from './config.js';
+import { MapConfig } from './config.map.js';
 
 export interface LonLat {
   lat: number;
@@ -10,14 +11,6 @@ export interface MapLocation extends LonLat {
   zoom: number;
 }
 
-export interface MapOptions {
-  tag: string;
-  imageId: string;
-  style: string;
-  tileMatrix: TileMatrixSet;
-  /** Is the debug layer enabled @default false */
-  debug: boolean;
-}
 export const enum MapOptionType {
   TileRaster = 'raster',
   TileVector = 'vector',
@@ -69,33 +62,6 @@ export const WindowUrl = {
     return output;
   },
 
-  fromUrl(search: string): MapOptions {
-    const urlParams = new URLSearchParams(search);
-    const tag = urlParams.get('v') ?? 'production';
-    const style = urlParams.get('s') ?? 'topolike';
-    const debug = urlParams.get('debug') != null;
-
-    let imageId = urlParams.get('i') ?? 'aerial';
-    if (imageId.startsWith('im_')) imageId = imageId.slice(3);
-
-    const projectionParam = (urlParams.get('p') ?? GoogleTms.identifier).toLowerCase();
-    let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
-    if (tileMatrix == null) tileMatrix = TileMatrixSets.get(Epsg.parse(projectionParam) ?? Epsg.Google);
-    if (tileMatrix.identifier === Nztm2000Tms.identifier) tileMatrix = Nztm2000QuadTms;
-
-    return { tag, imageId, style, tileMatrix, debug };
-  },
-
-  toUrl(opts: MapOptions): string {
-    const urlParams = new URLSearchParams();
-    if (opts.tag !== 'production') urlParams.append('v', opts.tag);
-    if (opts.style !== 'topolike') urlParams.append('s', opts.style);
-    if (opts.imageId !== 'aerial') urlParams.append('i', opts.imageId);
-    if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('p', opts.tileMatrix.identifier);
-
-    return urlParams.toString();
-  },
-
   baseUrl(): string {
     const baseUrl = Config.BaseUrl;
     if (baseUrl === '') return window.location.origin;
@@ -108,14 +74,13 @@ export const WindowUrl = {
     return `${this.baseUrl()}/v1/tiles/WMTSCapabilities.xml${api}`;
   },
 
-  toTileUrl(opts: MapOptions, urlType: MapOptionType): string {
+  toTileUrl(opts: MapConfig, urlType: MapOptionType): string {
     const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
-    const tag = opts.tag === 'production' ? '' : `@${opts.tag}`;
 
     const tileMatrix = opts.tileMatrix;
     const isDefaultTileMatrix = TileMatrixSets.get(tileMatrix.projection).identifier === tileMatrix.identifier;
     const projectionPath = isDefaultTileMatrix ? tileMatrix.projection.toEpsgString() : tileMatrix.identifier;
-    const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.imageId}${tag}/${projectionPath}`;
+    const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.layerId}/${projectionPath}`;
 
     if (urlType === MapOptionType.TileRaster) {
       return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;

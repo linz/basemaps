@@ -60,21 +60,29 @@ function fileSuffix(fileData) {
   return `-${pkgJson.version}-${bundleHash}`;
 }
 
-function bundleJs(basePath, cfg, outfile) {
+function bundleJsx(basePath, cfg, outfile) {
+  return bundleJs(basePath, cfg, outfile, true);
+}
+
+function bundleJs(basePath, cfg, outfile, isJsx = false) {
   const buildCmd = [
     'esbuild',
     '--bundle',
     `--platform=${cfg.platform || 'node'}`,
     `--target=${cfg.target || 'es2020'}`,
     `--format=${cfg.format || 'cjs'}`,
-    '--jsx-factory=h',
-    '--jsx-fragment=Fragment',
     ...Object.entries(cfg.env || {}).map(defineEnv),
     ...Object.entries(DefaultEnvVars).map(defineEnv),
     ...(cfg.external || []).map((c) => `--external:${c}`),
     `--outfile=${outfile}`,
     joinPath(basePath, cfg.entry),
   ];
+  if (isJsx) {
+    buildCmd.push('--loader:.svg=dataurl');
+    buildCmd.push('--jsx-factory=h');
+    buildCmd.push('--jsx-fragment=Fragment');
+    buildCmd.push(`--inject:./preact-shim.js`);
+  }
   console.log(buildCmd);
 
   const res = cp.spawnSync('npx', buildCmd);
@@ -162,7 +170,7 @@ const Bundler = {
   directory: bundleDir,
   svg: bundleFile,
   ts: bundleJs,
-  tsx: bundleJs,
+  tsx: bundleJsx,
   js: bundleJs,
   html: bundleHtml,
   css: bundleCss,
