@@ -11,7 +11,7 @@ import { Icon, Link } from './link.js';
 export class Header extends Component<unknown, { isMenuOpen: boolean }> {
   _events: (() => boolean)[] = [];
   componentWillMount(): void {
-    this.setState({ isMenuOpen: true });
+    this.setState({ isMenuOpen: false });
     this._events.push(Config.map.on('change', () => this.setState(this.state)));
   }
   componentWillUnmount(): void {
@@ -38,7 +38,7 @@ export class Header extends Component<unknown, { isMenuOpen: boolean }> {
               <img class="linz-logo" src="/assets/logo-linz.svg" />
             </div>
             <div class="lui-header-title">
-              <h1>Basemaps</h1>{' '}
+              <h1>Basemaps</h1>
             </div>
           </div>
           <div class="lui-header-col">
