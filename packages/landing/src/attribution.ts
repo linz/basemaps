@@ -9,7 +9,7 @@ import { MapOptionType, WindowUrl } from './url.js';
 const Copyright = `© ${Stac.License} LINZ`;
 
 /** Cache the loading of attribution */
-const Attributions: Map<string, Promise<Attribution>> = new Map();
+const Attributions: Map<string, Promise<Attribution | null>> = new Map();
 /** Rendering process needs synch access */
 const AttributionSync: Map<string, Attribution> = new Map();
 
@@ -28,25 +28,30 @@ export class MapAttribution {
   bounds: LngLatBounds = new LngLatBounds([0, 0, 0, 0]);
   zoom = -1;
   filteredRecords: AttributionCollection[] = [];
-  attributionControl: maplibre.AttributionControl;
+  attributionControl?: maplibre.AttributionControl | null;
 
   constructor(map: maplibre.Map) {
     this.map = map;
     map.on('load', this.updateAttribution);
     map.on('move', this.updateAttribution);
     Config.map.on('tileMatrix', this.updateAttribution);
+    Config.map.on('layer', this.updateAttribution);
   }
 
   /**
    * Trigger an attribution text update. Will fetch attributions if needed
    */
   updateAttribution = (): void => {
-    const tmsId = Config.map.tileMatrix.identifier;
+    // Vector layers currently have no attribution
+    if (Config.map.isVector) return this.removeAttribution();
+
+    const tmsId = Config.map.layerKeyTms;
     let loader = Attributions.get(tmsId);
     if (loader == null) {
-      loader = Attribution.load(WindowUrl.toTileUrl(Config.map, MapOptionType.Attribution));
+      loader = Attribution.load(WindowUrl.toTileUrl(Config.map, MapOptionType.Attribution)).catch(() => null);
       Attributions.set(tmsId, loader);
       loader.then((attr) => {
+        if (attr == null) return;
         AttributionSync.set(tmsId, attr);
         this.scheduleRender();
       });
@@ -71,13 +76,18 @@ export class MapAttribution {
     }, 200);
   }
 
+  removeAttribution(): void {
+    if (this.attributionControl == null) return;
+    this.map.removeControl(this.attributionControl);
+    this.attributionControl = null;
+  }
   /**
    * Set the attribution text if needed
    */
   renderAttribution = (): void => {
     this._raf = 0;
-    const attr = AttributionSync.get(Config.map.tileMatrix.identifier);
-    if (attr == null) return;
+    const attr = AttributionSync.get(Config.map.layerKeyTms);
+    if (attr == null) return this.removeAttribution();
     this.zoom = Math.round(this.map.getZoom() ?? 0);
     this.bounds = this.map.getBounds();
 
@@ -95,7 +105,7 @@ export class MapAttribution {
     }
     if (attributionHTML !== this.attributionHtml) {
       const customAttribution = (this.attributionHtml = attributionHTML);
-      if (this.attributionControl) this.map.removeControl(this.attributionControl);
+      this.removeAttribution();
       this.attributionControl = new maplibre.AttributionControl({ compact: false, customAttribution });
       this.map.addControl(this.attributionControl, 'bottom-right');
     }
