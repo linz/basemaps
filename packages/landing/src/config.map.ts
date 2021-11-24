@@ -63,6 +63,11 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return `${this.layerId}::${this.style}`;
   }
 
+  /** Key to reference combined layer & style & tile matrix */
+  get layerKeyTms(): string {
+    return `${this.layerKey}::${this.tileMatrix.identifier}`;
+  }
+
   updateFromUrl(search: string = window.location.search): void {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s');
