@@ -1,12 +1,12 @@
-import { GoogleTms } from '@basemaps/geo';
+import { Nztm2000QuadTms } from '@basemaps/geo';
+import clsx from 'clsx';
 import { Component, ComponentChild } from 'preact';
 import { Fragment } from 'preact/jsx-runtime';
 import { Config, GaEvent, gaEvent } from '../config.js';
-import { LayerSwitcherDropdown } from './layer.switcher.dropdown.js';
 import { MapOptionType } from '../url.js';
 import { Copyable } from './copyable.js';
+import { LayerSwitcherDropdown } from './layer.switcher.dropdown.js';
 import { Link } from './link.js';
-import clsx from 'clsx';
 
 export class Header extends Component<unknown, { isMenuOpen: boolean }> {
   _events: (() => boolean)[] = [];
@@ -159,15 +159,12 @@ Your Service/App URL:
       return <Copyable header="StyleJSON" value={Config.map.toTileUrl(MapOptionType.TileVector)} />;
     }
 
-    if (Config.map.tileMatrix === GoogleTms) {
-      return (
-        <Fragment>
-          <Copyable header="WMTS" value={Config.map.toTileUrl(MapOptionType.Wmts)} />
-          <Copyable header="XYZ" value={Config.map.toTileUrl(MapOptionType.TileRaster)} />
-        </Fragment>
-      );
-    }
-
-    return <Copyable header="WMTS" value={Config.map.toTileUrl(MapOptionType.Wmts)} />;
+    return (
+      <Fragment>
+        <Copyable header="WMTS - WebMercator Quad" value={Config.map.toTileUrl(MapOptionType.Wmts)} />
+        <Copyable header="WMTS - NZTM2000 Quad" value={Config.map.toTileUrl(MapOptionType.Wmts, Nztm2000QuadTms)} />
+        <Copyable header="XYZ" value={Config.map.toTileUrl(MapOptionType.TileRaster)} />
+      </Fragment>
+    );
   }
 }

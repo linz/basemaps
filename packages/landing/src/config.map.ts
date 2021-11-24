@@ -19,7 +19,7 @@ export interface MapConfigEvents {
   change: null;
 }
 export class MapConfig extends Emitter<MapConfigEvents> {
-  style?: string | null;
+  style: string | null = null;
   layerId = 'aerial';
   tileMatrix: TileMatrixSet = GoogleTms;
   debug = false;
@@ -34,6 +34,14 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   _location: MapLocation;
   get location(): MapLocation {
     if (this._location == null) {
+      window.addEventListener('popstate', () => {
+        const location = {
+          ...DefaultCenter[this.tileMatrix.identifier],
+          ...WindowUrl.fromHash(window.location.hash),
+        };
+        this.setLocation(location);
+      });
+      this.updateFromUrl();
       this._location = { ...DefaultCenter[this.tileMatrix.identifier], ...WindowUrl.fromHash(window.location.hash) };
     }
 
@@ -43,18 +51,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   /** Map location in tileMatrix projection */
   get transformedLocation(): MapLocation {
     return this.transformLocation(this.location.lat, this.location.lon, this.location.zoom);
-  }
-
-  constructor() {
-    super();
-    window.addEventListener('popstate', () => {
-      const location = {
-        ...DefaultCenter[this.tileMatrix.identifier],
-        ...WindowUrl.fromHash(window.location.hash),
-      };
-      this.setLocation(location);
-    });
-    this.updateFromUrl();
   }
 
   get isVector(): boolean {
@@ -81,8 +77,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
     const previousUrl = MapConfig.toUrl(this);
 
-    this.style = style;
-    this.layerId = layerId;
+    this.style = style ?? null;
+    this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
     this.debug = debug;
 
@@ -102,8 +98,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return urlParams.toString();
   }
 
-  toTileUrl(urlType: MapOptionType): string {
-    return WindowUrl.toTileUrl(this, urlType);
+  toTileUrl(urlType: MapOptionType, tileMatrix = this.tileMatrix): string {
+    return WindowUrl.toTileUrl(this, urlType, tileMatrix);
   }
 
   transformLocation(lat: number, lon: number, zoom: number): MapLocation {
@@ -125,12 +121,10 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('change');
   }
 
-  setLayerId(layer: string, style: string | undefined): void {
-    console.log('set', this.layerId, this.style, 'vs', { layer, style });
-
+  setLayerId(layer: string, style: string | null): void {
     if (this.layerId === layer && this.style === style) return;
     this.layerId = layer;
-    this.style = style;
+    this.style = style ?? null;
     this.emit('layer', this.layerId, this.style);
     this.emit('change');
   }

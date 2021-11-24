@@ -32,6 +32,8 @@ export class Basemaps extends Component {
 
   componentDidMount(): void {
     this.el = document.getElementById('map') as HTMLDivElement;
+    console.log('Mounted');
+
     if (this.el == null) throw new Error('Unable to find #map element');
     const cfg = Config.map;
     const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
@@ -51,23 +53,25 @@ export class Basemaps extends Component {
     const nav = new maplibre.NavigationControl({ visualizePitch: true });
     this.map.addControl(nav, 'top-left');
     this.map.on('render', this.onRender);
+    this.map.on('load', () => {
+      console.log('Loaded');
+      this._events.push(
+        Config.map.on('location', this.updateLocation),
+        Config.map.on('tileMatrix', this.updateStyle),
+        Config.map.on('layer', this.updateStyle),
+        Config.map.on('bounds', this.updateBounds),
+      );
 
-    this.updateStyle();
+      this.updateStyle();
+    });
   }
 
   _events: (() => boolean)[] = [];
-  componentWillMount(): void {
-    this._events.push(
-      Config.map.on('location', this.updateLocation),
-      Config.map.on('tileMatrix', this.updateStyle),
-      Config.map.on('layer', this.updateStyle),
-      Config.map.on('bounds', this.updateBounds),
-    );
-  }
 
   componentWillUnmount(): void {
     if (this.map) this.map.remove();
     for (const unbind of this._events) unbind();
+    this._events = [];
   }
 
   render(): ComponentChild {

@@ -1,4 +1,4 @@
-import { TileMatrixSets } from '@basemaps/geo';
+import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config } from './config.js';
 import { MapConfig } from './config.map.js';
 
@@ -74,10 +74,9 @@ export const WindowUrl = {
     return `${this.baseUrl()}/v1/tiles/WMTSCapabilities.xml${api}`;
   },
 
-  toTileUrl(opts: MapConfig, urlType: MapOptionType): string {
+  toTileUrl(opts: MapConfig, urlType: MapOptionType, tileMatrix: TileMatrixSet = opts.tileMatrix): string {
     const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
 
-    const tileMatrix = opts.tileMatrix;
     const isDefaultTileMatrix = TileMatrixSets.get(tileMatrix.projection).identifier === tileMatrix.identifier;
     const projectionPath = isDefaultTileMatrix ? tileMatrix.projection.toEpsgString() : tileMatrix.identifier;
     const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.layerId}/${projectionPath}`;
