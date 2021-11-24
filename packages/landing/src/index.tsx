@@ -1,13 +1,9 @@
-// import './global.js';
 import { Component, ComponentChild, Fragment, render } from 'preact';
-
-import { Header } from './components/layout.header.js';
 import { Footer } from './components/layout.footer.js';
-
-// import { Basemaps } from './map.js';
+import { Header } from './components/layout.header.js';
+import { Basemaps } from './components/map.js';
 import { WindowUrl } from './url.js';
 import { isWebpSupported } from './webp.js';
-import { Basemaps } from './components/map.js';
 
 class Page extends Component {
   render(): ComponentChild {
