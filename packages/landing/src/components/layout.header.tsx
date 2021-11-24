@@ -1,18 +1,27 @@
-import { Nztm2000QuadTms } from '@basemaps/geo';
+import { EpsgCode, GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import clsx from 'clsx';
 import { Component, ComponentChild } from 'preact';
 import { Fragment } from 'preact/jsx-runtime';
 import { Config, GaEvent, gaEvent } from '../config.js';
+import { LayerInfo } from '../config.map.js';
+import { SplitIo } from '../split.js';
 import { MapOptionType } from '../url.js';
 import { Copyable } from './copyable.js';
 import { LayerSwitcherDropdown } from './layer.switcher.dropdown.js';
 import { Icon, Link } from './link.js';
 
-export class Header extends Component<unknown, { isMenuOpen: boolean }> {
+export class Header extends Component<unknown, { isMenuOpen: boolean; layers?: Map<string, LayerInfo> }> {
   _events: (() => boolean)[] = [];
+
   componentWillMount(): void {
     this.setState({ isMenuOpen: false });
     this._events.push(Config.map.on('change', () => this.setState(this.state)));
+
+    // If individual layers are on, we need the layer info to determine if they can use NZTM2000Quad WMTS
+    SplitIo.getClient().then((f) => {
+      const isIndividualEnabled = f?.getTreatment('layer-switcher-individual-layers') === 'on';
+      if (isIndividualEnabled) Config.map.layers.then((layers) => this.setState({ ...this.state, layers }));
+    });
   }
   componentWillUnmount(): void {
     for (const e of this._events) e();
@@ -21,11 +30,11 @@ export class Header extends Component<unknown, { isMenuOpen: boolean }> {
 
   menuOpen = (): void => {
     gaEvent(GaEvent.Ui, 'menu:open');
-    this.setState({ isMenuOpen: true });
+    this.setState({ ...this.state, isMenuOpen: true });
   };
   menuClose = (): void => {
     gaEvent(GaEvent.Ui, 'menu:close');
-    this.setState({ isMenuOpen: false });
+    this.setState({ ...this.state, isMenuOpen: false });
   };
 
   render(): ComponentChild {
@@ -156,17 +165,33 @@ Your Service/App URL:
     );
   }
 
+  /** Projections to show WMTS links for */
+  _validProjections = new Set<EpsgCode>([EpsgCode.Google, EpsgCode.Nztm2000]);
+  validProjections(): Set<EpsgCode> {
+    if (this.state.layers == null) return this._validProjections;
+    return this.state.layers.get(Config.map.layerId)?.projections ?? this._validProjections;
+  }
+
   renderLinksTiles(): ComponentChild {
     if (Config.map.isVector) {
       return <Copyable header="StyleJSON" value={Config.map.toTileUrl(MapOptionType.TileVector)} />;
     }
 
-    return (
-      <Fragment>
-        <Copyable header="WMTS - WebMercator Quad" value={Config.map.toTileUrl(MapOptionType.Wmts)} />
-        <Copyable header="WMTS - NZTM2000 Quad" value={Config.map.toTileUrl(MapOptionType.Wmts, Nztm2000QuadTms)} />
-        <Copyable header="XYZ" value={Config.map.toTileUrl(MapOptionType.TileRaster)} />
-      </Fragment>
-    );
+    const projections = this.validProjections();
+
+    const children: ComponentChild[] = [];
+    if (projections.has(EpsgCode.Nztm2000)) {
+      const nztmTileUrl = Config.map.toTileUrl(MapOptionType.Wmts, Nztm2000QuadTms);
+      children.push(<Copyable header="WMTS: NZTM2000Quad" value={nztmTileUrl} />);
+    }
+
+    if (projections.has(EpsgCode.Google)) {
+      const googleTileUrl = Config.map.toTileUrl(MapOptionType.Wmts, GoogleTms);
+      const googleXyzTileUrl = Config.map.toTileUrl(MapOptionType.TileRaster, GoogleTms);
+      children.push(<Copyable header="WMTS: WebMercatorQuad" value={googleTileUrl} />);
+      children.push(<Copyable header="XYZ" value={googleXyzTileUrl} />);
+    }
+
+    return <Fragment>{children}</Fragment>;
   }
 }

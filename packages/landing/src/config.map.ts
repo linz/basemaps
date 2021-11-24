@@ -1,4 +1,4 @@
-import { Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
 import { locationTransform } from './tile.matrix.js';
@@ -136,11 +136,15 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 }
 
 export interface LayerInfo {
+  /** Layer id to use when fetching tiles */
   id: string;
+  /** Layer name */
   name: string;
+  /* Bounding box */
   upperLeft: [number, number];
   lowerRight: [number, number];
-  projections: Epsg[];
+  /** What projections are enabled for this layer */
+  projections: Set<EpsgCode>;
 }
 async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
   const output: Map<string, LayerInfo> = new Map();
@@ -153,6 +157,7 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
 
   const layers = xmlDoc.getElementsByTagName('Layer') as HTMLCollection;
 
+  const allLayers: LayerInfo[] = [];
   for (let i = 0; i < layers.length; i++) {
     const layer = layers.item(i);
     if (layer == null) continue;
@@ -167,15 +172,18 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
     const lowerRight = boundEl?.getElementsByTagName('ows:LowerCorner').item(0)?.textContent?.split(' ').map(Number);
 
     const tmsTags = layer.getElementsByTagName('TileMatrixSet');
-    const projections: Epsg[] = [];
+    const projections: Set<EpsgCode> = new Set();
     for (let j = 0; j < tmsTags.length; j++) {
       const epsg = Epsg.parse(tmsTags.item(j)?.textContent ?? '');
       if (epsg == null) continue;
-      projections.push(epsg);
+      projections.add(epsg.code);
     }
 
     if (upperLeft == null || lowerRight == null || upperLeft.length !== 2) continue;
-    output.set(id, { id, name: title.replace('aerial ', ''), upperLeft, lowerRight, projections } as LayerInfo);
+    allLayers.push({ id, name: title.replace('aerial ', ''), upperLeft, lowerRight, projections } as LayerInfo);
   }
+
+  allLayers.sort((a, b) => a.name.localeCompare(b.name));
+  for (const l of allLayers) output.set(l.id, l);
   return output;
 }
