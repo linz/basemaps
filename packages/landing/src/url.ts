@@ -13,7 +13,8 @@ export interface MapLocation extends LonLat {
 
 export const enum MapOptionType {
   TileRaster = 'raster',
-  TileVector = 'vector',
+  TileVectorStyle = 'style',
+  TileVectorXyz = 'vector-xyz',
   TileWmts = 'tile-wmts',
   Wmts = 'wmts',
   Attribution = 'attribution',
@@ -81,24 +82,13 @@ export const WindowUrl = {
     const projectionPath = isDefaultTileMatrix ? tileMatrix.projection.toEpsgString() : tileMatrix.identifier;
     const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.layerId}/${projectionPath}`;
 
-    if (urlType === MapOptionType.TileRaster) {
-      return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
-    }
-
-    if (urlType === MapOptionType.TileVector) {
-      return `${baseTileUrl}/style/${opts.style}.json${api}`;
-    }
-
+    if (urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
+    if (urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${api}`;
+    if (urlType === MapOptionType.TileVectorStyle) return `${baseTileUrl}/style/${opts.style}.json${api}`;
+    if (urlType === MapOptionType.Wmts) return `${baseTileUrl}/WMTSCapabilities.xml${api}`;
+    if (urlType === MapOptionType.Attribution) return `${baseTileUrl}/attribution.json${api}`;
     if (urlType === MapOptionType.TileWmts) {
       return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${api}`;
-    }
-
-    if (urlType === MapOptionType.Wmts) {
-      return `${baseTileUrl}/WMTSCapabilities.xml${api}`;
-    }
-
-    if (urlType === MapOptionType.Attribution) {
-      return `${baseTileUrl}/attribution.json${api}`;
     }
 
     throw new Error('Unknown url type: ' + urlType);
