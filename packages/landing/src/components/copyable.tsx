@@ -24,7 +24,12 @@ export class Copyable extends Component<CopyableProps, { copied: boolean }> {
 
   _copyTimeout: null | NodeJS.Timeout = null;
   copy = (): void => {
-    gaEvent(GaEvent.Ui, 'copy:' + this.props.header + ':' + Config.map.tileMatrix.identifier);
+    /**
+     * Create a readablish name for the copy event
+     * @example `copy:topographic::basic:tilejson`
+     * @example `copy:aerial:wmts:nztm2000quad`
+     */
+    gaEvent(GaEvent.Ui, 'copy:' + Config.map.layerKey + ':' + this.props.header.replace(/ /g, '').toLowerCase());
     navigator.clipboard.writeText(this.props.value);
     this.setState({ copied: true });
     if (this._copyTimeout != null) clearTimeout(this._copyTimeout);
