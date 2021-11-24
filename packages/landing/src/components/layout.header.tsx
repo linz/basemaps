@@ -174,7 +174,12 @@ Your Service/App URL:
 
   renderLinksTiles(): ComponentChild {
     if (Config.map.isVector) {
-      return <Copyable header="StyleJSON" value={Config.map.toTileUrl(MapOptionType.TileVector)} />;
+      return (
+        <Fragment>
+          <Copyable header="StyleJSON" value={Config.map.toTileUrl(MapOptionType.TileVectorStyle)} />
+          <Copyable header="XYZ" value={Config.map.toTileUrl(MapOptionType.TileVectorXyz)} />
+        </Fragment>
+      );
     }
 
     const projections = this.validProjections();

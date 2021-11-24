@@ -13,7 +13,7 @@ export class TileGrid {
   }
 
   getStyle(config: MapConfig): Style | string {
-    if (config.layerId === 'topographic') return WindowUrl.toTileUrl(config, MapOptionType.TileVector);
+    if (config.layerId === 'topographic') return WindowUrl.toTileUrl(config, MapOptionType.TileVectorStyle);
     return {
       version: 8,
       sources: {
