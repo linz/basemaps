@@ -30,7 +30,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   };
 
   updateStyle = (): void => {
-    if (Config.map.tileMatrix !== GoogleTms);
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
     const style = tileGrid.getStyle(Config.map.layerId, Config.map.style);
     this.map.setStyle(style);
