@@ -103,8 +103,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return urlParams.toString();
   }
 
-  toTileUrl(urlType: MapOptionType, tileMatrix = this.tileMatrix): string {
-    return WindowUrl.toTileUrl(this, urlType, tileMatrix);
+  toTileUrl(urlType: MapOptionType, tileMatrix = this.tileMatrix, layerId = this.layerId, style = this.style): string {
+    return WindowUrl.toTileUrl(urlType, tileMatrix, layerId, style);
   }
 
   transformLocation(lat: number, lon: number, zoom: number): MapLocation {
@@ -126,7 +126,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('change');
   }
 
-  setLayerId(layer: string, style: string | null): void {
+  setLayerId(layer: string, style?: string | null): void {
     if (this.layerId === layer && this.style === style) return;
     this.layerId = layer;
     this.style = style ?? null;

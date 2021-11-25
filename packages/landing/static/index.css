@@ -122,3 +122,20 @@ button {
     color: black;
     background-color: #9bd79b;
 }
+
+
+.map-switcher {
+    position: absolute;
+    left: 24px;
+    bottom: 24px;
+    width: 160px;
+    height: 160px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+}
+
+.map-switcher:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+}

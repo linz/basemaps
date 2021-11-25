@@ -84,13 +84,13 @@ o.spec('WindowUrl', () => {
     const apiKey = Config.ApiKey;
     mc.updateFromUrl('');
 
-    o(WindowUrl.toTileUrl(mc, MapOptionType.TileRaster)).equals(
+    o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
       `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
     );
-    o(WindowUrl.toTileUrl(mc, MapOptionType.Wmts)).equals(
+    o(mc.toTileUrl(MapOptionType.Wmts)).equals(
       `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/WMTSCapabilities.xml?api=${apiKey}`,
     );
-    o(WindowUrl.toTileUrl(mc, MapOptionType.TileWmts)).equals(
+    o(mc.toTileUrl(MapOptionType.TileWmts)).equals(
       `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
     );
   });
@@ -99,15 +99,15 @@ o.spec('WindowUrl', () => {
     const apiKey = Config.ApiKey;
     mc.updateFromUrl('');
 
-    o(WindowUrl.toTileUrl(mc, MapOptionType.TileRaster)).equals(
+    o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
       `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
     );
     mc.tileMatrix = Nztm2000Tms;
-    o(WindowUrl.toTileUrl(mc, MapOptionType.TileRaster)).equals(
+    o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
       `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:2193/{z}/{x}/{y}.png?api=${apiKey}`,
     );
     mc.tileMatrix = Nztm2000QuadTms;
-    o(WindowUrl.toTileUrl(mc, MapOptionType.TileRaster)).equals(
+    o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
       `https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.png?api=${apiKey}`,
     );
   });
@@ -117,18 +117,18 @@ o.spec('WindowUrl', () => {
     mc.updateFromUrl('');
 
     process.env.TILE_HOST = 'https://foo.bar.com';
-    o(WindowUrl.toTileUrl(mc, MapOptionType.TileRaster)).equals(
+    o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
       `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
     );
-    o(WindowUrl.toTileUrl(mc, MapOptionType.Wmts)).equals(
+    o(mc.toTileUrl(MapOptionType.Wmts)).equals(
       `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/WMTSCapabilities.xml?api=${apiKey}`,
     );
-    o(WindowUrl.toTileUrl(mc, MapOptionType.TileWmts)).equals(
+    o(mc.toTileUrl(MapOptionType.TileWmts)).equals(
       `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
     );
 
     WindowUrl.ImageFormat = 'webp';
-    o(WindowUrl.toTileUrl(mc, MapOptionType.TileWmts)).equals(
+    o(mc.toTileUrl(MapOptionType.TileWmts)).equals(
       `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.webp?api=${apiKey}`,
     );
     WindowUrl.ImageFormat = 'png';

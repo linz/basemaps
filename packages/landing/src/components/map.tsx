@@ -3,15 +3,23 @@ import maplibre from 'maplibre-gl';
 import { Component, ComponentChild } from 'preact';
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
+import { SplitIo } from '../split.js';
 import { getTileGrid } from '../tile.matrix.js';
 import { MapLocation, WindowUrl } from '../url.js';
+import { MapSwitcher } from './map.switcher.js';
 
-export class Basemaps extends Component {
+export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boolean }> {
   map: maplibre.Map;
   el: HTMLElement;
   mapAttr: MapAttribution;
+  /** Ignore the location updates */
+  ignoreNextLocationUpdate = false;
 
   updateLocation = (): void => {
+    if (this.ignoreNextLocationUpdate) {
+      this.ignoreNextLocationUpdate = false;
+      return;
+    }
     const location = Config.map.location;
     this.map.setZoom(location.zoom);
     this.map.setCenter([location.lon, location.lat]);
@@ -23,12 +31,17 @@ export class Basemaps extends Component {
 
   updateStyle = (): void => {
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-    const style = tileGrid.getStyle(Config.map);
+    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style);
     this.map.setStyle(style);
 
     if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
     else this.map.setMaxBounds();
+    this.setState(this.state);
   };
+
+  componentWillMount(): void {
+    this.setState({ isLayerSwitcherEnabled: false });
+  }
 
   componentDidMount(): void {
     // Force the URL to be read before loading the map
@@ -38,11 +51,11 @@ export class Basemaps extends Component {
     if (this.el == null) throw new Error('Unable to find #map element');
     const cfg = Config.map;
     const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
-    const style = tileGrid.getStyle(cfg);
+    const style = tileGrid.getStyle(cfg.layerId, cfg.style);
     const location = cfg.transformedLocation;
 
     this.map = new maplibre.Map({
-      container: 'map',
+      container: this.el,
       style,
       center: [location.lon, location.lat], // starting position [lon, lat]
       zoom: location.zoom, // starting zoom
@@ -64,6 +77,11 @@ export class Basemaps extends Component {
 
       this.updateStyle();
     });
+
+    SplitIo.getClient().then((f) => {
+      const isEnabled = f?.getTreatment('layer-switcher-button') === 'on';
+      this.setState({ isLayerSwitcherEnabled: isEnabled });
+    });
   }
 
   _events: (() => boolean)[] = [];
@@ -75,7 +93,13 @@ export class Basemaps extends Component {
   }
 
   render(): ComponentChild {
-    return <div style={{ flex: 1 }} id="map"></div>;
+    const isLayerSwitcherEnabled = this.state.isLayerSwitcherEnabled && Config.map.tileMatrix === GoogleTms;
+    return (
+      <div style={{ flex: 1, position: 'relative' }}>
+        <div id="map" style={{ width: '100%', height: '100%' }} />
+        {isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
+      </div>
+    );
   }
 
   updateUrlTimer: unknown | null = null;
@@ -94,7 +118,12 @@ export class Basemaps extends Component {
   /** Update the window.location with the current location information */
   setLocationUrl(): void {
     this.updateUrlTimer = null;
-    const path = WindowUrl.toHash(this.getLocation());
+    const location = this.getLocation();
+
+    this.ignoreNextLocationUpdate = true;
+    Config.map.setLocation(location);
+
+    const path = WindowUrl.toHash(location);
     window.history.replaceState(null, '', path);
   }
 }
