@@ -11,7 +11,6 @@ export class MapSwitcher extends Component {
   currentStyle: string;
 
   componentDidMount(): void {
-    console.log('MapSwitcher');
     // Force the URL to be read before loading the map
     Config.map.updateFromUrl();
     this.el = document.getElementById('map-switcher-map') as HTMLDivElement;
