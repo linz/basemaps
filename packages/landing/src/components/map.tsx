@@ -30,12 +30,14 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   };
 
   updateStyle = (): void => {
+    if (Config.map.tileMatrix !== GoogleTms);
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
     const style = tileGrid.getStyle(Config.map.layerId, Config.map.style);
     this.map.setStyle(style);
 
     if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
     else this.map.setMaxBounds();
+    this.setState(this.state);
   };
 
   componentWillMount(): void {
@@ -92,10 +94,11 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   }
 
   render(): ComponentChild {
+    const isLayerSwitcherEnabled = this.state.isLayerSwitcherEnabled && Config.map.tileMatrix === GoogleTms;
     return (
       <div style={{ flex: 1, position: 'relative' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
-        {this.state.isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
+        {isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
       </div>
     );
   }
