@@ -112,7 +112,9 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const center = this.map.getCenter();
     if (center == null) throw new Error('Invalid Map location');
     const zoom = Math.floor((this.map.getZoom() ?? 0) * 10e3) / 10e3;
-    return Config.map.transformLocation(center.lat, center.lng, zoom);
+    const location = {lat:center.lat, lon:center.lng, zoom};
+    Config.map.setLocation(location);
+    return Config.map.transformedLocation;
   }
 
   /** Update the window.location with the current location information */
@@ -121,7 +123,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const location = this.getLocation();
 
     this.ignoreNextLocationUpdate = true;
-    Config.map.setLocation(location);
 
     const path = WindowUrl.toHash(location);
     window.history.replaceState(null, '', path);
