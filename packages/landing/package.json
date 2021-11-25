@@ -30,7 +30,7 @@
     "@basemaps/geo": "^6.10.0",
     "@basemaps/infra": "^6.14.2",
     "@basemaps/shared": "^6.12.0",
-    "@linzjs/lui": "^6.0.0",
+    "@linzjs/lui": "^10.11.2",
     "@servie/events": "^3.0.0",
     "@splitsoftware/splitio": "^10.16.1",
     "maplibre-gl": "^1.14.1-rc.2",
@@ -48,11 +48,11 @@
   },
   "bundle": [
     {
-      "entry": "../../node_modules/@linzjs/lui/dist/assets/nz-govt-logo-rev.svg",
+      "entry": "../../node_modules/@linzjs/lui/dist/assets/images/nz-govt-logo-rev.svg",
       "outfile": "dist/assets/logo-nz-govt.svg"
     },
     {
-      "entry": "../../node_modules/@linzjs/lui/dist/assets/linz-logo-col-n-white-txt.svg",
+      "entry": "../../node_modules/@linzjs/lui/dist/assets/images/linz-logo-col-n-white-txt.svg",
       "outfile": "dist/assets/logo-linz.svg"
     },
     {

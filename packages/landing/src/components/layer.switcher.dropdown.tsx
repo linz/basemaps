@@ -10,10 +10,8 @@ export interface LayerSwitcherDropdownState {
   isEnabled?: boolean;
   /** Can users select individual aerial imagery layers */
   isIndividualEnabled?: boolean;
-
   /** Can users select the basic style */
   isBasicStyleEnabled?: boolean;
-
   currentLayer: string;
 }
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
@@ -60,7 +58,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
   render(): ComponentChild {
     if (this.state.isEnabled !== true) return;
     return (
-      <div>
+      <div class="LuiDeprecatedForms">
         <h6>Layers</h6>
         <select onChange={this.onChange} value={this.state.currentLayer}>
           <optgroup label="Basemaps">
