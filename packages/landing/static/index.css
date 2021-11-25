@@ -126,14 +126,16 @@ button {
 
 .map-switcher {
     position: absolute;
-    left: 24px;
-    bottom: 24px;
-    width: 160px;
-    height: 160px;
+    left: 0;
+    bottom: 0;
+    width: 100px;
+    height: 100px;
     cursor: pointer;
     overflow: hidden;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 2px rgb(0 0 0 / 10%);
+    margin: 10px 0 10px 10px;
     border-radius: 16px;
+    border: 2px solid rgba(255,255,255,0.87);
 }
 
 .map-switcher:hover {

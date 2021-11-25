@@ -72,7 +72,7 @@ export class MapSwitcher extends Component {
       this.map.setStyle(style);
     }
 
-    this.map.setZoom(Math.max(location.zoom - 3, 0));
+    this.map.setZoom(Math.max(location.zoom - 4, 0));
     this.map.setCenter([location.lon, location.lat]);
     this.setState(this.state);
   };
