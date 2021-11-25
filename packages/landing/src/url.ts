@@ -1,6 +1,5 @@
 import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config } from './config.js';
-import { MapConfig } from './config.map.js';
 
 export interface LonLat {
   lat: number;
@@ -75,16 +74,16 @@ export const WindowUrl = {
     return `${this.baseUrl()}/v1/tiles/WMTSCapabilities.xml${api}`;
   },
 
-  toTileUrl(opts: MapConfig, urlType: MapOptionType, tileMatrix: TileMatrixSet = opts.tileMatrix): string {
+  toTileUrl(urlType: MapOptionType, tileMatrix: TileMatrixSet, layerId: string, style?: string | null): string {
     const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
 
     const isDefaultTileMatrix = TileMatrixSets.get(tileMatrix.projection).identifier === tileMatrix.identifier;
     const projectionPath = isDefaultTileMatrix ? tileMatrix.projection.toEpsgString() : tileMatrix.identifier;
-    const baseTileUrl = `${this.baseUrl()}/v1/tiles/${opts.layerId}/${projectionPath}`;
+    const baseTileUrl = `${this.baseUrl()}/v1/tiles/${layerId}/${projectionPath}`;
 
     if (urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
     if (urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${api}`;
-    if (urlType === MapOptionType.TileVectorStyle) return `${baseTileUrl}/style/${opts.style}.json${api}`;
+    if (urlType === MapOptionType.TileVectorStyle) return `${baseTileUrl}/style/${style}.json${api}`;
     if (urlType === MapOptionType.Wmts) return `${baseTileUrl}/WMTSCapabilities.xml${api}`;
     if (urlType === MapOptionType.Attribution) return `${baseTileUrl}/attribution.json${api}`;
     if (urlType === MapOptionType.TileWmts) {

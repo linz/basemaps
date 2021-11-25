@@ -4,7 +4,7 @@ import { BBox } from '@linzjs/geojson';
 import maplibre, { LngLatBounds } from 'maplibre-gl';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
-import { MapOptionType, WindowUrl } from './url.js';
+import { MapOptionType } from './url.js';
 
 const Copyright = `© ${Stac.License} LINZ`;
 
@@ -48,7 +48,7 @@ export class MapAttribution {
     const tmsId = Config.map.layerKeyTms;
     let loader = Attributions.get(tmsId);
     if (loader == null) {
-      loader = Attribution.load(WindowUrl.toTileUrl(Config.map, MapOptionType.Attribution)).catch(() => null);
+      loader = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
       Attributions.set(tmsId, loader);
       loader.then((attr) => {
         if (attr == null) return;
