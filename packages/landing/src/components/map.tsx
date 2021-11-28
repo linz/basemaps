@@ -52,7 +52,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const cfg = Config.map;
     const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
     const style = tileGrid.getStyle(cfg.layerId, cfg.style);
-    const location = locationTransform(cfg.location, Config.map.tileMatrix, GoogleTms);
+    const location = locationTransform(cfg.location, cfg.tileMatrix, GoogleTms);
 
     this.map = new maplibre.Map({
       container: this.el,
