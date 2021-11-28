@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.15.0](https://github.com/linz/basemaps/compare/v6.14.2...v6.15.0) (2021-11-28)
+
+
+### Bug Fixes
+
+* **cli:** ensure all files from the job.json are created before logging JobComplete ([#1959](https://github.com/linz/basemaps/issues/1959)) ([78fd35a](https://github.com/linz/basemaps/commit/78fd35ad863c424069d79c8668e9e5b3195ccec9))
+
+
+
+
+
 # [6.14.0](https://github.com/linz/basemaps/compare/v6.13.0...v6.14.0) (2021-10-27)
 
 
