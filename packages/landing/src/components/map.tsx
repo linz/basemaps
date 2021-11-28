@@ -4,7 +4,7 @@ import { Component, ComponentChild } from 'preact';
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { SplitIo } from '../split.js';
-import { getTileGrid } from '../tile.matrix.js';
+import { getTileGrid, locationTransform } from '../tile.matrix.js';
 import { MapLocation, WindowUrl } from '../url.js';
 import { MapSwitcher } from './map.switcher.js';
 
@@ -52,7 +52,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const cfg = Config.map;
     const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
     const style = tileGrid.getStyle(cfg.layerId, cfg.style);
-    const location = cfg.transformedLocation;
+    const location = locationTransform(cfg.location, Config.map.tileMatrix, GoogleTms);
 
     this.map = new maplibre.Map({
       container: this.el,
@@ -112,7 +112,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const center = this.map.getCenter();
     if (center == null) throw new Error('Invalid Map location');
     const zoom = Math.floor((this.map.getZoom() ?? 0) * 10e3) / 10e3;
-    const location = {lat:center.lat, lon:center.lng, zoom};
+    const location = { lat: center.lat, lon: center.lng, zoom };
     Config.map.setLocation(location);
     return Config.map.transformedLocation;
   }
