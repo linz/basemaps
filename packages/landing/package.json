@@ -26,25 +26,25 @@
     "deploy:deploy": "node scripts/deploy.js"
   },
   "dependencies": {
-    "@basemaps/attribution": "^6.10.0",
-    "@basemaps/geo": "^6.10.0",
-    "@basemaps/infra": "^6.14.2",
-    "@basemaps/shared": "^6.12.0",
-    "@linzjs/lui": "^10.11.2",
-    "@servie/events": "^3.0.0",
-    "@splitsoftware/splitio": "^10.16.1",
-    "maplibre-gl": "^1.14.1-rc.2",
-    "ol": "^6.4.2",
-    "preact": "^10.5.15",
-    "proj4": "^2.6.2",
-    "ulid": "^2.3.0"
+
   },
   "browserslist": [
     "last 2 Chrome versions"
   ],
   "devDependencies": {
+    "@basemaps/attribution": "^6.10.0",
+    "@basemaps/geo": "^6.10.0",
+    "@basemaps/infra": "^6.14.2",
+    "@basemaps/shared": "^6.12.0",
+    "@linzjs/lui": "^10.11.3",
+    "@servie/events": "^3.0.0",
+    "@splitsoftware/splitio": "^10.16.1",
     "@types/geojson": "^7946.0.7",
-    "@types/proj4": "^2.5.0"
+    "@types/proj4": "^2.5.0",
+    "maplibre-gl": "^1.14.1-rc.2",
+    "preact": "^10.5.15",
+    "proj4": "^2.6.2",
+    "ulid": "^2.3.0"
   },
   "bundle": [
     {
