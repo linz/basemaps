@@ -4,7 +4,7 @@ import { ChunkSource } from '@chunkd/core';
 import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
-import pLimit from 'p-limit';
+import pLimit, { LimitFunction } from 'p-limit';
 import * as path from 'path';
 import { basename } from 'path';
 import { Cutline } from './cutline.js'; //
@@ -34,7 +34,7 @@ export function guessProjection(wkt: string | null): Epsg | null {
 }
 
 export class CogBuilder {
-  q: pLimit.Limit;
+  q: LimitFunction;
   logger: LogType;
   targetTms: TileMatrixSet;
   srcProj?: Epsg;
