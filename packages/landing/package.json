@@ -25,9 +25,7 @@
     "bundle": "../../scripts/bundle.js package.json",
     "deploy:deploy": "node scripts/deploy.js"
   },
-  "dependencies": {
-
-  },
+  "dependencies": {},
   "browserslist": [
     "last 2 Chrome versions"
   ],
