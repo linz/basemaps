@@ -33,6 +33,7 @@
     "@cotar/core": "^5.0.1",
     "@linzjs/geojson": "^6.10.0",
     "@linzjs/lambda": "^2.0.0",
+    "p-limit": "^4.0.0",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
     "sharp": "^0.28.3"
