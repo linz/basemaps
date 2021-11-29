@@ -30,7 +30,7 @@
     "@basemaps/geo": "^6.10.0",
     "@basemaps/infra": "^6.15.0",
     "@basemaps/shared": "^6.12.0",
-    "@linzjs/lui": "^6.0.0",
+    "@linzjs/lui": "^10.11.3",
     "@servie/events": "^3.0.0",
     "@splitsoftware/splitio": "^10.16.1",
     "maplibre-gl": "^1.14.1-rc.2",
