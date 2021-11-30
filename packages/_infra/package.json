@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/infra",
-  "version": "6.14.1",
+  "version": "6.16.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -37,7 +37,7 @@
     "@aws-cdk/aws-lambda-event-sources": ">=1.111.0",
     "@aws-cdk/aws-s3": ">=1.111.0",
     "@aws-cdk/core": ">=1.111.0",
-    "@basemaps/lambda-tiler": "^6.12.1",
+    "@basemaps/lambda-tiler": "^6.16.0",
     "@basemaps/shared": "^6.12.0",
     "aws-cdk": "^1.111.0"
   }

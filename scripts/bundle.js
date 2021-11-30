@@ -60,7 +60,11 @@ function fileSuffix(fileData) {
   return `-${pkgJson.version}-${bundleHash}`;
 }
 
-function bundleJs(basePath, cfg, outfile) {
+function bundleJsx(basePath, cfg, outfile) {
+  return bundleJs(basePath, cfg, outfile, true);
+}
+
+function bundleJs(basePath, cfg, outfile, isJsx = false) {
   const buildCmd = [
     'esbuild',
     '--bundle',
@@ -73,6 +77,14 @@ function bundleJs(basePath, cfg, outfile) {
     `--outfile=${outfile}`,
     joinPath(basePath, cfg.entry),
   ];
+  if (isJsx) {
+    buildCmd.push('--loader:.svg=dataurl');
+    buildCmd.push('--jsx-factory=h');
+    buildCmd.push('--jsx-fragment=Fragment');
+    buildCmd.push(`--inject:./preact-shim.js`);
+  }
+
+  if (process.env.NODE_ENV === 'production') buildCmd.push('--minify');
   console.log(buildCmd);
 
   const res = cp.spawnSync('npx', buildCmd);
@@ -83,7 +95,7 @@ function bundleJs(basePath, cfg, outfile) {
   }
 
   const fileData = fs.readFileSync(outfile).toString();
-  console.log('Bundled', (fileData.length / 1024).toFixed(2), 'KB');
+  console.log('Bundled', outfile, (fileData.length / 1024).toFixed(2), 'KB');
 }
 
 async function bundleDir(basePath, cfg, outfile) {
@@ -160,6 +172,7 @@ const Bundler = {
   directory: bundleDir,
   svg: bundleFile,
   ts: bundleJs,
+  tsx: bundleJsx,
   js: bundleJs,
   html: bundleHtml,
   css: bundleCss,
@@ -168,6 +181,7 @@ const Bundler = {
 const DefaultSuffix = {
   directory: '',
   ts: '.js',
+  tsx: '.js',
   js: '.js',
   html: '.html',
   css: '.css',

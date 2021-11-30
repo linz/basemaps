@@ -1,5 +1,4 @@
-import { Basemaps } from './map.js';
-import { BasemapsUi } from './ui.js';
+import { SplitIo } from './split.js';
 
 declare global {
   interface Window {
@@ -7,8 +6,6 @@ declare global {
     dataLayer: any[];
     gtag(...args: any[]): void;
 
-    // Access to basemaps global
-    basemaps: Basemaps;
-    basemapsUi: BasemapsUi;
+    splitIo: typeof SplitIo;
   }
 }

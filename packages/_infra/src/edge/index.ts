@@ -48,7 +48,9 @@ export class EdgeStack extends cdk.Stack {
           allowedMethods: cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
           forwardedValues: {
             queryString: true,
-            headers: ['Access-Control-Allow-Origin'],
+            // From https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
+            // "CORS-S3Origin"
+            headers: ['Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers'],
           },
         },
       ],

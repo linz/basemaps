@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.16.0](https://github.com/linz/basemaps/compare/v6.15.0...v6.16.0) (2021-11-29)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+# [6.15.0](https://github.com/linz/basemaps/compare/v6.14.2...v6.15.0) (2021-11-28)
+
+
+### Bug Fixes
+
+* **infrastructure:** revert aws-cdk to 1.111 until ALB target bug is fixed ([#1962](https://github.com/linz/basemaps/issues/1962)) ([c73c292](https://github.com/linz/basemaps/commit/c73c2928075edefeac14e486d5951205c3f51424))
+
+
+
+
+
+## [6.14.2](https://github.com/linz/basemaps/compare/v6.14.1...v6.14.2) (2021-11-09)
+
+
+### Bug Fixes
+
+* **infrastructure:** correct cors for s3 requests ([#1954](https://github.com/linz/basemaps/issues/1954)) ([8a33710](https://github.com/linz/basemaps/commit/8a337108768f32a51067b0e1f9f8c394759470e5))
+
+
+### Performance Improvements
+
+* lower the lambda size as the timeout bug has been fixed ([#1943](https://github.com/linz/basemaps/issues/1943)) ([d6d951b](https://github.com/linz/basemaps/commit/d6d951bacca5cd6bac6ee68ae2aca2c4209fc37b))
+
+
+
+
+
 ## [6.14.1](https://github.com/linz/basemaps/compare/v6.14.0...v6.14.1) (2021-10-27)
 
 
