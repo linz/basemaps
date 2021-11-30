@@ -7,6 +7,8 @@ function notEmpty<T>(value: T | null | undefined): value is T {
 }
 export type SharpOverlay = { input: string | Buffer } & Sharp.OverlayOptions;
 
+const EmptyImage = new Map<ImageFormat, Promise<Buffer>>();
+
 export class TileMakerSharp implements TileMaker {
   static readonly MaxImageSize = 256 * 2 ** 15;
   private tileSize: number;
@@ -28,8 +30,18 @@ export class TileMakerSharp implements TileMaker {
     return false;
   }
 
+  /** Get a empty (transparent for formats that support it) image buffer */
+  private getEmptyImage(format: ImageFormat): Promise<Buffer> {
+    let existing = EmptyImage.get(format);
+    if (existing) return existing;
+    existing = this.getImageBuffer([], format, { r: 0, g: 0, b: 0, alpha: 0 });
+    EmptyImage.set(format, existing);
+    return existing;
+  }
+
   private async getImageBuffer(layers: SharpOverlay[], format: ImageFormat, background: Sharp.RGBA): Promise<Buffer> {
-    const pipeline = this.createImage(background).composite(layers);
+    let pipeline = this.createImage(background);
+    if (layers.length > 0) pipeline = pipeline.composite(layers);
     switch (format) {
       case ImageFormat.JPEG:
         return pipeline.jpeg().toBuffer();
@@ -44,17 +56,50 @@ export class TileMakerSharp implements TileMaker {
     }
   }
 
+  /** Are we just serving the source tile directly back to the user without any modifications */
+  private isDirectImage(ctx: TileMakerContext): boolean {
+    if (ctx.layers.length !== 1) return false;
+    const firstLayer = ctx.layers[0];
+    // Has to be rendered at the top left with no modification
+    if (firstLayer.x !== 0 || firstLayer.y !== 0) return false;
+    if (firstLayer.crop != null || firstLayer.extract != null || firstLayer.resize != null) return false;
+
+    // Validate tile size is expected
+    const img = firstLayer.tiff.getImage(firstLayer.source.imageId);
+    const tileSize = img.tileSize;
+    if (tileSize.height !== this.tileSize || tileSize.width !== this.tileSize) return false;
+
+    // Image format has to match
+    if (!img.compression?.includes(ctx.format)) return false;
+    // Only transparent backgrounds can be served
+    if (ctx.background.alpha !== 0) return false;
+
+    return true;
+  }
+
   public async compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics; layers: number }> {
     const metrics = new Metrics();
     // TODO to prevent too many of these running, it should ideally be inside of a two step promise queue
     // 1. Load all image bytes
     // 2. Create image overlays
     metrics.start('compose:overlay');
+
+    // If we are serving a single tile back to the user, sometimes we can serve the raw image buffer from the tiff
+    if (this.isDirectImage(ctx)) {
+      const firstLayer = ctx.layers[0];
+      const buf = await firstLayer.tiff.getTile(firstLayer.source.x, firstLayer.source.y, firstLayer.source.imageId);
+      metrics.end('compose:overlay');
+
+      if (buf == null) return { buffer: await this.getEmptyImage(ctx.format), metrics, layers: 0 };
+      // Track that a direct tiff was served to a user
+      metrics.start('compose:direct');
+      metrics.end('compose:direct');
+      return { buffer: Buffer.from(buf.bytes), metrics, layers: 1 };
+    }
+
     const todo: Promise<SharpOverlay | null>[] = [];
     for (const comp of ctx.layers) {
-      if (this.isTooLarge(comp)) {
-        continue;
-      }
+      if (this.isTooLarge(comp)) continue;
       todo.push(this.composeTile(comp, ctx.resizeKernel));
     }
     const overlays = await Promise.all(todo).then((items) => items.filter(notEmpty));

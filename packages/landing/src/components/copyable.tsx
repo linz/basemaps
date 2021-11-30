@@ -10,7 +10,7 @@ export interface CopyableProps {
 export class Copyable extends Component<CopyableProps, { copied: boolean }> {
   render(): ComponentChild {
     return (
-      <div>
+      <div class="LuiDeprecatedForms">
         <label>{this.props.header}</label>
         <div class={clsx({ 'lui-menu-label': true, 'menu-copyable': true, 'menu-copyable-copied': this.state.copied })}>
           <button class="menu-copyable-icon-button" title="Copy" onClick={this.copy}>

@@ -28,13 +28,10 @@ export class Header extends Component<unknown, { isMenuOpen: boolean; layers?: M
     this._events = [];
   }
 
-  menuOpen = (): void => {
-    gaEvent(GaEvent.Ui, 'menu:open');
-    this.setState({ ...this.state, isMenuOpen: true });
-  };
-  menuClose = (): void => {
-    gaEvent(GaEvent.Ui, 'menu:close');
-    this.setState({ ...this.state, isMenuOpen: false });
+  menuToggle = (): void => {
+    const isMenuOpen = !this.state.isMenuOpen;
+    gaEvent(GaEvent.Ui, isMenuOpen ? 'menu:open' : 'menu:close');
+    this.setState({ ...this.state, isMenuOpen });
   };
 
   render(): ComponentChild {
@@ -53,8 +50,8 @@ export class Header extends Component<unknown, { isMenuOpen: boolean; layers?: M
           <div class="lui-header-col">
             <div class="lui-header-menu-item">
               <div class="lui-header-menu-icon">
-                <i class="material-icons-round md-36" onClick={this.menuOpen}>
-                  menu
+                <i class="material-icons-round md-36" onClick={this.menuToggle} style={{ cursor: 'pointer' }}>
+                  {this.state.isMenuOpen ? 'close' : 'menu'}
                 </i>
               </div>
             </div>
@@ -68,11 +65,6 @@ export class Header extends Component<unknown, { isMenuOpen: boolean; layers?: M
           })}
           aria-hidden={this.state.isMenuOpen}
         >
-          <h3>Menu</h3>
-          <button class="menu-drawer-close" onClick={this.menuClose} title="Close menu drawer">
-            &times;
-          </button>
-
           <LayerSwitcherDropdown />
           {this.renderLinks()}
 
