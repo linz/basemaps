@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.16.0](https://github.com/linz/basemaps/compare/v6.15.0...v6.16.0) (2021-11-29)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+# [6.15.0](https://github.com/linz/basemaps/compare/v6.14.2...v6.15.0) (2021-11-28)
+
+
+### Bug Fixes
+
+* **infrastructure:** revert aws-cdk to 1.111 until ALB target bug is fixed ([#1962](https://github.com/linz/basemaps/issues/1962)) ([c73c292](https://github.com/linz/basemaps/commit/c73c2928075edefeac14e486d5951205c3f51424))
+
+
+
+
+
 ## [6.14.2](https://github.com/linz/basemaps/compare/v6.14.1...v6.14.2) (2021-11-09)
 
 
