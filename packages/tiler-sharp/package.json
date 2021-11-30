@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/tiler-sharp",
-  "version": "6.11.0",
+  "version": "6.16.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",

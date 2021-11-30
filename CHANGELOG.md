@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.16.1](https://github.com/linz/basemaps/compare/v6.16.0...v6.16.1) (2021-11-30)
+
+
+### Performance Improvements
+
+* **tiler-sharp:** cache empty images as they are requested a lot ([#2002](https://github.com/linz/basemaps/issues/2002)) ([00bab89](https://github.com/linz/basemaps/commit/00bab89017ef45bdc7f771f0558b0ee30a8b11aa))
+* **tiler-sharp:** if the output tile is the exact same as the input tiff tile serve the tiff tile directly ([#2001](https://github.com/linz/basemaps/issues/2001)) ([95c3612](https://github.com/linz/basemaps/commit/95c36128cf3f619a3ace7fc6524ba49523999eba))
+
+
+
+
+
 # [6.16.0](https://github.com/linz/basemaps/compare/v6.15.0...v6.16.0) (2021-11-29)
 
 
