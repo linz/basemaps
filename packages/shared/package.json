@@ -31,7 +31,7 @@
     "@linzjs/s3fs": "^6.9.1",
     "aws-sdk": "^2.890.0",
     "base-x": "^3.0.7",
-    "pino": "^6.2.1",
+    "pino": "^7.5.0",
     "proj4": "^2.6.2",
     "sax": "^1.2.4",
     "source-map-support": "^0.5.19",
@@ -40,7 +40,6 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.75",
     "@types/geojson": "^7946.0.7",
-    "@types/pino": "^6.0.0",
     "@types/proj4": "^2.5.0",
     "@types/sax": "^1.2.1"
   },
