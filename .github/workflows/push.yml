@@ -9,7 +9,7 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
         with:
           fetch-depth: 0
       - name: Use Node.js 14.x
@@ -49,7 +49,7 @@ jobs:
     needs: [build]
     if: github.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
         with:
           fetch-depth: 0
       # pulls all tags (needed for lerna to correctly version)
