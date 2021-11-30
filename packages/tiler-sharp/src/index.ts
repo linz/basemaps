@@ -1,13 +1,14 @@
 import Sharp from 'sharp';
 import { TileMaker, ImageFormat, TileMakerContext, Composition, TileMakerResizeKernel } from '@basemaps/tiler';
 import { Metrics } from '@linzjs/metrics';
+import sharp from 'sharp';
 
 function notEmpty<T>(value: T | null | undefined): value is T {
   return value != null;
 }
 export type SharpOverlay = { input: string | Buffer } & Sharp.OverlayOptions;
 
-const EmptyImage = new Map<ImageFormat, Promise<Buffer>>();
+const EmptyImage = new Map<string, Promise<Buffer>>();
 
 export class TileMakerSharp implements TileMaker {
   static readonly MaxImageSize = 256 * 2 ** 15;
@@ -31,17 +32,17 @@ export class TileMakerSharp implements TileMaker {
   }
 
   /** Get a empty (transparent for formats that support it) image buffer */
-  private getEmptyImage(format: ImageFormat): Promise<Buffer> {
-    let existing = EmptyImage.get(format);
+  private getEmptyImage(format: ImageFormat, background: Sharp.RGBA): Promise<Buffer> {
+    const imgKey = [format, background.r, background.g, background.b, background.alpha].join('-');
+    let existing = EmptyImage.get(imgKey);
     if (existing) return existing;
-    existing = this.getImageBuffer([], format, { r: 0, g: 0, b: 0, alpha: 0 });
-    EmptyImage.set(format, existing);
+    existing = this.toImage(format, this.createImage(background));
+    if (EmptyImage.size > 128) EmptyImage.clear(); // Drop cache if it gets too big
+    EmptyImage.set(imgKey, existing);
     return existing;
   }
 
-  private async getImageBuffer(layers: SharpOverlay[], format: ImageFormat, background: Sharp.RGBA): Promise<Buffer> {
-    let pipeline = this.createImage(background);
-    if (layers.length > 0) pipeline = pipeline.composite(layers);
+  private toImage(format: ImageFormat, pipeline: sharp.Sharp): Promise<Buffer> {
     switch (format) {
       case ImageFormat.JPEG:
         return pipeline.jpeg().toBuffer();
@@ -54,6 +55,11 @@ export class TileMakerSharp implements TileMaker {
       default:
         throw new Error(`Invalid image format "${format}"`);
     }
+  }
+
+  private async getImageBuffer(layers: SharpOverlay[], format: ImageFormat, background: Sharp.RGBA): Promise<Buffer> {
+    if (layers.length === 0) return this.getEmptyImage(format, background);
+    return this.toImage(format, this.createImage(background).composite(layers));
   }
 
   /** Are we just serving the source tile directly back to the user without any modifications */
@@ -90,7 +96,7 @@ export class TileMakerSharp implements TileMaker {
       const buf = await firstLayer.tiff.getTile(firstLayer.source.x, firstLayer.source.y, firstLayer.source.imageId);
       metrics.end('compose:overlay');
 
-      if (buf == null) return { buffer: await this.getEmptyImage(ctx.format), metrics, layers: 0 };
+      if (buf == null) return { buffer: await this.getEmptyImage(ctx.format, ctx.background), metrics, layers: 0 };
       // Track that a direct tiff was served to a user
       metrics.start('compose:direct');
       metrics.end('compose:direct');
