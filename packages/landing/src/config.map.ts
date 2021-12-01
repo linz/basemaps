@@ -87,7 +87,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.tileMatrix = tileMatrix;
     this.debug = debug;
 
-    if (this.layerId === 'topographic' && this.style == null) this.style = 'topolike';
+    if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
 
     this.emit('tileMatrix', this.tileMatrix);
     this.emit('layer', this.layerId, this.style);

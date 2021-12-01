@@ -51,7 +51,7 @@ o.spec('WindowUrl', () => {
     mc.updateFromUrl('?i=topographic');
     o(mc.tileMatrix).equals(GoogleTms);
     o(mc.layerId).equals('topographic');
-    o(mc.style).equals('topolike');
+    o(mc.style).equals('topographic');
     o(mc.debug).equals(false);
   });
 
