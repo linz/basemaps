@@ -151,11 +151,15 @@ export class Attribution {
     const { attributions } = this;
     if (attributions == null) return filtered;
     for (const attr of attributions) {
+      if (this.isIgnored != null && this.isIgnored(attr)) continue;
       if (attr.intersects(extent, zoom)) filtered.push(attr.collection);
     }
 
     return filtered;
   }
+
+  /** Should a attribution be ignored */
+  isIgnored?: (attr: AttributionBounds) => boolean;
 
   /**
      * Render the filtered attributions as a simple string suitable to display as attribution
