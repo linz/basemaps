@@ -137,6 +137,7 @@ export class MapAttribution {
    * Add attribution for vector map
    */
   vectorAttribution(): void {
+    this.removeAttribution();
     this.attributionControl = new maplibre.AttributionControl({ compact: false });
     this.map.addControl(this.attributionControl, 'bottom-right');
   }
