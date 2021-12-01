@@ -51,7 +51,7 @@ export class MapSwitcher extends Component {
 
   getStyleType(): { layerId: string; style?: string } {
     if (Config.map.layerId !== 'aerial') return { layerId: 'aerial' };
-    return { layerId: 'topographic', style: 'topolike' };
+    return { layerId: 'topographic', style: 'topographic' };
   }
 
   _updateTimer: NodeJS.Timer | null = null;

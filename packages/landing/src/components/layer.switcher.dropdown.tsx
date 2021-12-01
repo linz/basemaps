@@ -63,7 +63,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
         <select onChange={this.onChange} value={this.state.currentLayer}>
           <optgroup label="Basemaps">
             <option value="aerial"> Aerial Imagery</option>
-            <option value="topographic::topolike">Topographic</option>
+            <option value="topographic::topographic">Topographic</option>
             {this.state.isBasicStyleEnabled ? <option value="topographic::basic">Basic</option> : undefined}
           </optgroup>
           {this.renderAerialLayers()}
