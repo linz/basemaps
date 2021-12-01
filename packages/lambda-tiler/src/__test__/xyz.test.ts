@@ -209,7 +209,7 @@ o.spec('LambdaXyz', () => {
     o('should serve tile json for tile_set', async () => {
       process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
-      const request = mockRequest('/v1/tiles/topolike/Google/tile.json', 'get', apiKeyHeader);
+      const request = mockRequest('/v1/tiles/topographic/Google/tile.json', 'get', apiKeyHeader);
 
       const res = await handleRequest(request);
       o(res.status).equals(200);
@@ -218,7 +218,7 @@ o.spec('LambdaXyz', () => {
 
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(JSON.parse(body)).deepEquals({
-        tiles: [`https://tiles.test/v1/tiles/topolike/Google/{z}/{x}/{y}.pbf?api=${apiKey}`],
+        tiles: [`https://tiles.test/v1/tiles/topographic/Google/{z}/{x}/{y}.pbf?api=${apiKey}`],
         minzoom: 0,
         maxzoom: 15,
         format: 'pbf',
@@ -236,7 +236,7 @@ o.spec('LambdaXyz', () => {
     o('should not found style json', async () => {
       process.env[Env.PublicUrlBase] = 'https://tiles.test';
 
-      const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json', 'get', apiKeyHeader);
+      const request = mockRequest('/v1/tiles/topographic/Google/style/topographic.json', 'get', apiKeyHeader);
 
       sandbox.stub(Config.Style, 'get').resolves(null);
 
@@ -248,12 +248,12 @@ o.spec('LambdaXyz', () => {
       const host = 'https://tiles.test';
       process.env[Env.PublicUrlBase] = host;
 
-      const request = mockRequest('/v1/tiles/topolike/Google/style/topolike.json', 'get', apiKeyHeader);
+      const request = mockRequest('/v1/tiles/topographic/Google/style/topographic.json', 'get', apiKeyHeader);
 
       const fakeStyle: StyleJson = {
         version: 8,
         id: 'test',
-        name: 'topolike',
+        name: 'topographic',
         sources: {
           basemaps_vector: {
             type: 'vector',
@@ -295,8 +295,8 @@ o.spec('LambdaXyz', () => {
       };
 
       const fakeRecord = {
-        id: 'st_topolike_production',
-        name: 'topolike',
+        id: 'st_topographic_production',
+        name: 'topographic',
         style: fakeStyle,
       };
 
