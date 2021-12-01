@@ -3,6 +3,7 @@ import { BaseConfig } from './base.js';
 interface SourceVector {
   type: 'vector';
   url: string;
+  attribution?: string;
 }
 
 interface SourceRaster {
@@ -11,6 +12,7 @@ interface SourceRaster {
   tileSize?: number;
   minzoom?: number;
   maxzoom?: number;
+  attribution?: string;
 }
 
 type Source = SourceVector | SourceRaster;
