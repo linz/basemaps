@@ -44,7 +44,7 @@ export class MapAttribution {
    */
   updateAttribution = (): void => {
     // Vector layers currently have no attribution
-    if (Config.map.isVector) return this.removeAttribution();
+    if (Config.map.isVector) return this.vectorAttribution();
 
     const tmsId = Config.map.layerKeyTms;
     let loader = Attributions.get(tmsId);
@@ -131,5 +131,13 @@ export class MapAttribution {
     const neCoord = locationTransform(neLocation, GoogleTms, tileMatrix);
     const bbox: BBox = [swCoord.lon, swCoord.lat, neCoord.lon, neCoord.lat];
     return bbox;
+  }
+
+  /**
+   * Add attribution for vector map
+   */
+  vectorAttribution(): void {
+    this.attributionControl = new maplibre.AttributionControl({ compact: false });
+    this.map.addControl(this.attributionControl, 'bottom-right');
   }
 }
