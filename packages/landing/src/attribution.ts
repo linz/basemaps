@@ -1,4 +1,5 @@
 import { Attribution } from '@basemaps/attribution';
+import { AttributionBounds } from '@basemaps/attribution/build/attribution';
 import { AttributionCollection, GoogleTms, Stac, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
 import maplibre, { LngLatBounds } from 'maplibre-gl';
@@ -50,13 +51,20 @@ export class MapAttribution {
     if (loader == null) {
       loader = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
       Attributions.set(tmsId, loader);
+
       loader.then((attr) => {
         if (attr == null) return;
+        attr.isIgnored = this.isIgnored;
         AttributionSync.set(tmsId, attr);
         this.scheduleRender();
       });
     }
     this.scheduleRender();
+  };
+
+  // Ignore DEMS from the attribution list
+  isIgnored = (attr: AttributionBounds): boolean => {
+    return attr.collection.title.toLowerCase().startsWith('geographx');
   };
 
   /**
