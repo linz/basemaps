@@ -173,7 +173,7 @@ export const TileRoute = {
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
-    response.header(HttpHeader.CacheControl, 'max-age=120');
+    response.header(HttpHeader.CacheControl, 'no-store');
     response.buffer(data, 'application/json');
     req.set('bytes', data.byteLength);
     return response;
