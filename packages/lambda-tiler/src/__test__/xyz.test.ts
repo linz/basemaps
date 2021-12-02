@@ -305,7 +305,7 @@ o.spec('LambdaXyz', () => {
       const res = await handleRequest(request);
       o(res.status).equals(200);
       o(res.header('content-type')).equals('application/json');
-      o(res.header('cache-control')).equals('max-age=120');
+      o(res.header('cache-control')).equals('no-store');
 
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       fakeStyle.sources.basemaps_vector = {
