@@ -33,14 +33,23 @@ export class MapAttribution {
 
   constructor(map: maplibre.Map) {
     this.map = map;
-    map.on('load', this.updateAttribution);
+    map.on('load', this.resetAttribution);
     map.on('move', this.updateAttribution);
-    Config.map.on('tileMatrix', this.updateAttribution);
-    Config.map.on('layer', this.updateAttribution);
+    Config.map.on('tileMatrix', this.resetAttribution);
+    Config.map.on('layer', this.resetAttribution);
   }
 
   /**
-   * Trigger an attribution text update. Will fetch attributions if needed
+   * Trigger an attribution text update.
+   */
+  resetAttribution = (): void => {
+    this.attributionHtml = '';
+    this.updateAttribution();
+  };
+
+  /**
+   * Trigger an attribution text update, will not update if the attribution text not change.
+   * Will fetch attributions if needed
    */
   updateAttribution = (): void => {
     // Vector layers currently have no attribution
