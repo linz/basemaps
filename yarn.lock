@@ -1995,9 +1995,9 @@
   integrity sha512-IXf3XA7+XyN7CP9gGh/XB0UxVMlvARGEgGXLubFICsUMGz6Q+DU+i4gGlpOxTjKvXjkJDJC8YdqdKkDj9qZHEQ==
 
 "@rushstack/ts-command-line@^4.3.13":
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.8.0.tgz#611accb931b9ac62ff4d078f68f95c47f6606724"
-  integrity sha512-nZ8cbzVF1VmFPfSJfy8vEohdiFAH/59Y/Y+B4nsJbn4SkifLJ8LqNZ5+LxCC2UR242EXFumxlsY1d6fPBxck5Q==
+  version "4.10.4"
+  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.10.4.tgz#05142b74e5cb207d3dd9b935c82f80d7fcb68042"
+  integrity sha512-4T5ao4UgDb6LmiRj4GumvG3VT/p6RSMgl7TN7S58ifaAGN2GeTNBajFCDdJs9QQP0d/4tA5p0SFzT7Ps5Byirg==
   dependencies:
     "@types/argparse" "1.0.38"
     argparse "~1.0.9"
