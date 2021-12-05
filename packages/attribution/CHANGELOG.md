@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.17.0](https://github.com/linz/basemaps/compare/v6.16.1...v6.17.0) (2021-12-05)
+
+
+### Features
+
+* **landing:** ignore geographx from the attribution list ([#2009](https://github.com/linz/basemaps/issues/2009)) ([3530e46](https://github.com/linz/basemaps/commit/3530e468ef0fbae22130f841eeec77a5892e08b8))
+
+
+
+
+
 # [6.10.0](https://github.com/linz/basemaps/compare/v6.9.1...v6.10.0) (2021-09-22)
 
 

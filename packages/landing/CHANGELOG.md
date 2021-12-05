@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.17.0](https://github.com/linz/basemaps/compare/v6.16.1...v6.17.0) (2021-12-05)
+
+
+### Bug Fixes
+
+* **landing:** Fix attribution not update when switching map ([#2013](https://github.com/linz/basemaps/issues/2013)) ([0e69684](https://github.com/linz/basemaps/commit/0e69684b7e4f1df0013db2d95913e64e3c5aa201))
+
+
+### Features
+
+* **landing:** Add vector attribution in landing page. ([#2012](https://github.com/linz/basemaps/issues/2012)) ([dad03fd](https://github.com/linz/basemaps/commit/dad03fd57a1cd384f278e2a0a047108162e7fe0f))
+* **landing:** ignore geographx from the attribution list ([#2009](https://github.com/linz/basemaps/issues/2009)) ([3530e46](https://github.com/linz/basemaps/commit/3530e468ef0fbae22130f841eeec77a5892e08b8))
+* **landing:** Round location transform to 8 decimals ([#2014](https://github.com/linz/basemaps/issues/2014)) ([73f6be3](https://github.com/linz/basemaps/commit/73f6be3d36edad7dcaa175ad4c853ea5579d8047))
+* **landing:** use topographic name not topolike ([#2008](https://github.com/linz/basemaps/issues/2008)) ([a281d87](https://github.com/linz/basemaps/commit/a281d874ae8211447282ad41dd497e96689ceb88))
+
+
+
+
+
 ## [6.16.1](https://github.com/linz/basemaps/compare/v6.16.0...v6.16.1) (2021-11-30)
 
 **Note:** Version bump only for package @basemaps/landing
