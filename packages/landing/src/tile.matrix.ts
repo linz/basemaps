@@ -58,5 +58,5 @@ export function locationTransform(
   const tile = { x: center.x / tileMatrix.tileSize, y: center.y / tileMatrix.tileSize, z: Math.round(location.zoom) };
   const mapboxTile = targetTileMatrix.tileToSource(tile);
   const [lon, lat] = Projection.get(targetTileMatrix).toWgs84([mapboxTile.x, mapboxTile.y]);
-  return { lon, lat, zoom: location.zoom };
+  return { lon: Math.round(lon * 1e8) / 1e8, lat: Math.round(lat * 1e8) / 1e8, zoom: location.zoom };
 }

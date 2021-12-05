@@ -13,7 +13,7 @@ o.spec('locationTransform', () => {
   o('should return get the nztm location', () => {
     const location = { lat: -41.29539461, lon: 174.78124251, zoom: 15.5128 };
     const nztmLocation = locationTransform(location, Nztm2000QuadTms, GoogleTms);
-    o(nztmLocation).deepEquals({ lon: 0.012475756097609373, lat: -0.06801149831533196, zoom: 15.5128 });
+    o(nztmLocation).deepEquals({ lon: 0.01247576, lat: -0.0680115, zoom: 15.5128 });
   });
 
   o('should return Transform Back', () => {
