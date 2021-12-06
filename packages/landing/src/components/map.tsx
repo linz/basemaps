@@ -26,6 +26,27 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   };
 
   updateBounds = (bounds: maplibre.LngLatBoundsLike): void => {
+    if (Config.map.tileMatrix !== GoogleTms) {
+      // Transform bounds to current tileMatrix
+      const lngLatBounds: maplibre.LngLatBounds = maplibre.LngLatBounds.convert(bounds);
+      const upperLeft = lngLatBounds.getNorthEast();
+      const lowerRight = lngLatBounds.getSouthWest();
+      const zoom = this.map.getZoom();
+      const upperLeftLocation = locationTransform(
+        { lat: upperLeft.lat, lon: upperLeft.lng, zoom },
+        Config.map.tileMatrix,
+        GoogleTms,
+      );
+      const lowerRightLocation = locationTransform(
+        { lat: lowerRight.lat, lon: lowerRight.lng, zoom },
+        Config.map.tileMatrix,
+        GoogleTms,
+      );
+      bounds = [
+        [upperLeftLocation.lon, upperLeftLocation.lat],
+        [lowerRightLocation.lon, lowerRightLocation.lat],
+      ];
+    }
     this.map.fitBounds(bounds);
   };
 
