@@ -43,7 +43,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     const target = e.target as HTMLSelectElement;
     const [layerId, style] = target.value.split('::');
     Config.map.setLayerId(layerId, style);
-    gaEvent(GaEvent.Ui, 'layer:' + target);
+    gaEvent(GaEvent.Ui, 'layer:' + target.value);
 
     // Configure the bounds of the map to match the new layer
     Config.map.layers.then((f) => {
