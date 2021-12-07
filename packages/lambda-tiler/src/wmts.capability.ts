@@ -67,7 +67,7 @@ export class WmtsCapabilities {
       tagName,
       { crs: 'urn:ogc:def:crs:OGC:2:84' },
       bbox[2] > 180
-        ? [V('ows:LowerCorner', `-180 -90`), V('ows:UpperCorner', `180 90`)]
+        ? [V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`), V('ows:UpperCorner', `180 ${bbox[3]}`)]
         : [V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`), V('ows:UpperCorner', `${bbox[2]} ${bbox[3]}`)],
     );
   }
