@@ -63,13 +63,12 @@ export class WmtsCapabilities {
       bbox = Wgs84.union(bbox, wgs84Extent(layers[i]));
     }
 
-    return V(
-      tagName,
-      { crs: 'urn:ogc:def:crs:OGC:2:84' },
-      bbox[2] > 180
-        ? [V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`), V('ows:UpperCorner', `180 ${bbox[3]}`)]
-        : [V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`), V('ows:UpperCorner', `${bbox[2]} ${bbox[3]}`)],
-    );
+    if (bbox[2] > 180) bbox[2] = 180;
+
+    return V(tagName, { crs: 'urn:ogc:def:crs:OGC:2:84' }, [
+      V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`),
+      V('ows:UpperCorner', `${bbox[2]} ${bbox[3]}`),
+    ]);
   }
 
   buildBoundingBox(tms: TileMatrixSet, extent: Bounds): VNodeElement {
