@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.18.0](https://github.com/linz/basemaps/compare/v6.17.0...v6.18.0) (2021-12-14)
+
+
+### Bug Fixes
+
+* **landing:** correctly track the event name of the layer ([#2018](https://github.com/linz/basemaps/issues/2018)) ([d2b8d62](https://github.com/linz/basemaps/commit/d2b8d62f8e57303dc0d4f13c1ed3fffca97e73d2))
+* **landing:** Fix the update bounds for nztm tilematrix when switching layers. ([#2017](https://github.com/linz/basemaps/issues/2017)) ([230ac63](https://github.com/linz/basemaps/commit/230ac630fcd3848f5ddb3a4ee215121658d0ced7))
+
+
+
+
+
 # [6.17.0](https://github.com/linz/basemaps/compare/v6.16.1...v6.17.0) (2021-12-05)
 
 
