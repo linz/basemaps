@@ -22,7 +22,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   style: string | null = null;
   layerId = 'aerial';
   tileMatrix: TileMatrixSet = GoogleTms;
-  debug = false;
+  isDebug = false;
 
   private _layers: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -85,7 +85,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
-    this.isDebug(debug);
+    this.setDebug(debug);
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
 
@@ -133,9 +133,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('layer', this.layerId, this.style);
     this.emit('change');
   }
-  isDebug(debug: boolean): void {
-    if (this.debug === debug) return;
-    this.debug = debug;
+  setDebug(debug: boolean): void {
+    if (this.isDebug === debug) return;
+    this.isDebug = debug;
     this.emit('change');
   }
 }

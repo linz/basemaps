@@ -35,7 +35,7 @@ export class Header extends Component<unknown, { isMenuOpen: boolean; layers?: M
   };
 
   render(): ComponentChild {
-    if (Config.map.debug) return;
+    if (Config.map.isDebug) return;
     return (
       <header class="lui-header">
         <div class="lui-header-row">
