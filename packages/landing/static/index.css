@@ -1,143 +1,175 @@
 body {
-    margin: 0;
+  margin: 0;
 }
 
 html {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 main {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    flex-flow: column nowrap;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 button {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .checker-board {
-    background-image: linear-gradient(45deg, #00000010 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, transparent 75%, #00000010 75%),
-        linear-gradient(45deg, #00000010 25%, transparent 25%);
-    background-size: 100px 100px;
-    background-position: 0 0, 0 0, -50px -50px, 50px 50px;
+  background-image: linear-gradient(45deg, #00000010 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, transparent 75%, #00000010 75%),
+    linear-gradient(45deg, #00000010 25%, transparent 25%);
+  background-size: 100px 100px;
+  background-position: 0 0, 0 0, -50px -50px, 50px 50px;
 }
 
 .lui-menu-drawer.lui-menu-drawer-wide {
-    width: 450px;
-    padding: 24px;
-    z-index: 100;
+  width: 450px;
+  padding: 24px;
+  z-index: 100;
 }
 
 .lui-menu-drawer.lui-menu-drawer-wide.lui-menu-drawer-closed {
-    right: -450px;
+  right: -450px;
 }
 
 .lui-menu-drawer p {
-    margin-top: 8px;
+  margin-top: 8px;
 }
 
 .lui-menu-drawer .about-links {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .lui-menu-drawer .about-links li {
-    border-bottom: 1px solid #eaeaea;
-    padding: 8px 16px;
-    margin: 0;
+  border-bottom: 1px solid #eaeaea;
+  padding: 8px 16px;
+  margin: 0;
 }
 
 .lui-menu-drawer .about-links li a {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-decoration: none;
-    border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  border: none;
 }
 
 .lui-menu-drawer h3 {
-    margin-top: 8px;
-    border-bottom: 1px solid #eaeaea;
+  margin-top: 8px;
+  border-bottom: 1px solid #eaeaea;
 }
 
 .lui-menu-drawer h6 {
-    border-bottom: 1px solid #eaeaea;
-    padding-bottom: 4px;
-    margin-bottom: 8px;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .lui-menu-drawer label {
-    margin-top: 8px;
+  margin-top: 8px;
 }
 
 .lui-menu-drawer .contact-us {
-    margin-top: 8px;
+  margin-top: 8px;
 }
 
 .lui-menu-drawer .menu-drawer-close {
-    position: absolute;
-    background-color: transparent;
-    top: 30px;
-    right: 8px;
-    font-size: 36px;
-    color: #00425d;
-    outline: none;
+  position: absolute;
+  background-color: transparent;
+  top: 30px;
+  right: 8px;
+  font-size: 36px;
+  color: #00425d;
+  outline: none;
 }
 
 .menu-copyable {
-    position: relative;
+  position: relative;
 }
 .menu-copyable input {
-    margin-right: 40px;
+  margin-right: 40px;
 }
 .menu-copyable-icon-button {
-    width: 40px;
-    height:100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    border-radius:0;
-    position: absolute;
-    right: 0;
-    background-color: #007198;
-    color: white;
-    transition: background-color 0.3s, color 0.3s, height 0.3s, border 0.3s;
+  width: 40px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  border-radius: 0;
+  position: absolute;
+  right: 0;
+  background-color: #007198;
+  color: white;
+  transition: background-color 0.3s, color 0.3s, height 0.3s, border 0.3s;
 }
 
 .menu-copyable button i {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .menu-copyable-copied button {
-    color: black;
-    background-color: #9bd79b;
+  color: black;
+  background-color: #9bd79b;
 }
 
-
 .map-switcher {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100px;
-    height: 100px;
-    cursor: pointer;
-    overflow: hidden;
-    box-shadow: 0 0 0 2px rgb(0 0 0 / 10%);
-    margin: 10px 0 10px 10px;
-    border-radius: 16px;
-    border: 2px solid rgba(255,255,255,0.87);
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100px;
+  height: 100px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 10%);
+  margin: 10px 0 10px 10px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.87);
 }
 
 .map-switcher:hover {
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+}
+
+.debug {
+  font-size: 12px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 300px;
+  background-color: rgba(255, 255, 255, 0.87);
+  padding: 4px 8px;
+}
+
+.debug__info {
+  display: flex;
+  justify-content: space-between;
+  margin: 4px 0;
+}
+
+.debug__label {
+  margin: 0;
+  font-weight: 700;
+}
+
+.debug__value {
+  display: flex;
+  align-items: center;
+}
+
+/* Override very specific LUI styles*/
+.debug .osm__slider {
+  width: 75% !important;
+  padding: 0 !important;
+  min-height: 0 !important;
 }

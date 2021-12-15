@@ -6,6 +6,7 @@ import { Config } from '../config.js';
 import { SplitIo } from '../split.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
 import { MapLocation, WindowUrl } from '../url.js';
+import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
 
 export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boolean }> {
@@ -118,6 +119,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     return (
       <div style={{ flex: 1, position: 'relative' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
+        {Config.map.debug ? <Debug map={this.map} /> : undefined}
         {isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
       </div>
     );
