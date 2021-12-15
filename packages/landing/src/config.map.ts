@@ -85,7 +85,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
-    this.debug = debug;
+    this.setDebug(debug);
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
 
@@ -131,6 +131,11 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.layerId = layer;
     this.style = style ?? null;
     this.emit('layer', this.layerId, this.style);
+    this.emit('change');
+  }
+  setDebug(debug: boolean): void {
+    if (this.debug === debug) return;
+    this.debug = debug;
     this.emit('change');
   }
 }
