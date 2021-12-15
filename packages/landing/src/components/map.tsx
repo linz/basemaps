@@ -115,11 +115,12 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   }
 
   render(): ComponentChild {
-    const isLayerSwitcherEnabled = this.state.isLayerSwitcherEnabled && Config.map.tileMatrix === GoogleTms;
+    const isLayerSwitcherEnabled =
+      this.state.isLayerSwitcherEnabled && Config.map.tileMatrix === GoogleTms && !Config.map.isDebug;
     return (
       <div style={{ flex: 1, position: 'relative' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
-        {Config.map.debug ? <Debug map={this.map} /> : undefined}
+        {Config.map.isDebug ? <Debug map={this.map} /> : undefined}
         {isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
       </div>
     );

@@ -44,7 +44,7 @@ o.spec('WindowUrl', () => {
     o(mc.tileMatrix).equals(GoogleTms);
     o(mc.layerId).equals('aerial');
     o(mc.style).equals(null);
-    o(mc.debug).equals(false);
+    o(mc.isDebug).equals(false);
   });
 
   o('should support vector tiles', () => {
@@ -52,7 +52,7 @@ o.spec('WindowUrl', () => {
     o(mc.tileMatrix).equals(GoogleTms);
     o(mc.layerId).equals('topographic');
     o(mc.style).equals('topographic');
-    o(mc.debug).equals(false);
+    o(mc.isDebug).equals(false);
   });
 
   o('should support NZTM tiles', () => {
@@ -60,7 +60,7 @@ o.spec('WindowUrl', () => {
     o(mc.tileMatrix).equals(Nztm2000QuadTms);
     o(mc.layerId).equals('aerial');
     o(mc.style).equals(null);
-    o(mc.debug).equals(false);
+    o(mc.isDebug).equals(false);
   });
 
   o('should support ', () => {
@@ -68,7 +68,7 @@ o.spec('WindowUrl', () => {
     o(mc.tileMatrix).equals(Nztm2000QuadTms);
     o(mc.layerId).equals('abc123');
     o(mc.style).equals('basic');
-    o(mc.debug).equals(true);
+    o(mc.isDebug).equals(true);
   });
 
   o('should extract tile matrix information', () => {

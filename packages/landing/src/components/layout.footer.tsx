@@ -13,7 +13,7 @@ export class Footer extends Component {
   }
 
   render(): ComponentChild {
-    if (Config.map.debug) return;
+    if (Config.map.isDebug) return;
     return (
       <footer class="lui-footer lui-footer-small lui-hide-sm lui-hide-xs" role="contentinfo">
         <div class="lui-footer-columns">
