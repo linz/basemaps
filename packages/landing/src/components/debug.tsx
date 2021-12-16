@@ -1,5 +1,6 @@
+import { GoogleTms } from '@basemaps/geo';
 import maplibre, { AnyLayer, Style } from 'maplibre-gl';
-import { Component, ComponentChild } from 'preact';
+import { Component, ComponentChild, Fragment } from 'preact';
 import { Config } from '../config.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 
@@ -27,6 +28,21 @@ export class Debug extends Component<{ map: maplibre.Map }> {
           <label className="debug__label">TileMatrix </label>
           <div className="debug__value">{Config.map.tileMatrix.identifier}</div>
         </div>
+        {this.renderSliders()}
+        <div className="debug__info">
+          <label className="debug__label">Purple</label>
+          <input type="checkbox" onClick={this.togglePurple} />
+        </div>
+      </div>
+    );
+  }
+
+  renderSliders(): ComponentChild | null {
+    // Only 3857 currently works with OSM/Topographic map
+    if (Config.map.tileMatrix.identifier !== GoogleTms.identifier) return;
+
+    return (
+      <Fragment>
         <div className="debug__info">
           <label className="debug__label">OSM</label>
           {debugSlider(this.adjustOsm)}
@@ -35,11 +51,7 @@ export class Debug extends Component<{ map: maplibre.Map }> {
           <label className="debug__label">Topographic</label>
           {debugSlider(this.adjustTopographic)}
         </div>
-        <div className="debug__info">
-          <label className="debug__label">Purple</label>
-          <input type="checkbox" onClick={this.togglePurple} />
-        </div>
-      </div>
+      </Fragment>
     );
   }
 
