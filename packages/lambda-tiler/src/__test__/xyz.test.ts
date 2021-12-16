@@ -267,14 +267,6 @@ o.spec('LambdaXyz', () => {
             type: 'raster',
             tiles: [`${host}/raster/{z}/{x}/{y}.webp`], // Shouldn't encode the {}
           },
-          test_vector: {
-            type: 'vector',
-            url: 'vector.url.co.nz',
-          },
-          test_raster: {
-            type: 'raster',
-            tiles: ['raster.url.co.nz'],
-          },
         },
         layers: [
           {
