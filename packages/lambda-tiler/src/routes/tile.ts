@@ -120,6 +120,7 @@ export const TileRoute = {
     const apiKey = Router.apiKey(req);
     if (apiKey == null) return new LambdaHttpResponse(400, 'Invalid API Key.');
     const styleName = fileName.split('.json')[0];
+    const host = Env.get(Env.PublicUrlBase) ?? '';
 
     // Get style Config from db
     const dbId = Config.Style.id(styleName);
@@ -131,15 +132,19 @@ export const TileRoute = {
     const sources: Sources = {};
     for (const [key, value] of Object.entries(style.sources)) {
       if (value.type === 'vector') {
-        const url = new URL(value.url);
-        url.searchParams.set('api', apiKey);
-        value.url = url.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
+        if (value.url.startsWith('/')) {
+          const url = new URL(`${host}${value.url}`);
+          url.searchParams.set('api', apiKey);
+          value.url = url.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
+        }
       } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
         for (let i = 0; i < value.tiles.length; i++) {
           const tile = value.tiles[i];
-          const url = new URL(tile);
-          url.searchParams.set('api', apiKey);
-          value.tiles[i] = url.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
+          if (tile.startsWith('/')) {
+            const url = new URL(`${host}${tile}`);
+            url.searchParams.set('api', apiKey);
+            value.tiles[i] = url.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
+          }
         }
       }
       sources[key] = value;

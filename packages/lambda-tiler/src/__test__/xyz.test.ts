@@ -257,15 +257,23 @@ o.spec('LambdaXyz', () => {
         sources: {
           basemaps_vector: {
             type: 'vector',
-            url: `${host}/vector`,
+            url: `/vector`,
           },
           basemaps_raster: {
             type: 'raster',
-            tiles: [`${host}/raster`],
+            tiles: [`/raster`],
           },
           basemaps_raster_encode: {
             type: 'raster',
-            tiles: [`${host}/raster/{z}/{x}/{y}.webp`], // Shouldn't encode the {}
+            tiles: [`/raster/{z}/{x}/{y}.webp`], // Shouldn't encode the {}
+          },
+          test_vector: {
+            type: 'vector',
+            url: 'vector.url.co.nz',
+          },
+          test_raster: {
+            type: 'raster',
+            tiles: ['raster.url.co.nz'],
           },
         },
         layers: [
