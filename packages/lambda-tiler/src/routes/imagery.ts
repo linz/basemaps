@@ -35,7 +35,6 @@ export async function Imagery(req: LambdaHttpRequest): Promise<LambdaHttpRespons
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
-    response.header(HttpHeader.CacheControl, 'no-store');
     response.buffer(buf, 'application/json');
     req.set('bytes', buf.byteLength);
     return response;
