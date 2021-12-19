@@ -18,7 +18,7 @@ export class Debug extends Component<{ map: maplibre.Map }> {
       <div className="debug">
         <div className="debug__info">
           <label className="debug__label">ImageId</label>
-          <div className="debug__value"> {Config.map.layerId}</div>
+          <div className="debug__value">{Config.map.layerId}</div>
         </div>
         <div className="debug__info">
           <label className="debug__label">Projection </label>
@@ -33,9 +33,41 @@ export class Debug extends Component<{ map: maplibre.Map }> {
           <label className="debug__label">Purple</label>
           <input type="checkbox" onClick={this.togglePurple} />
         </div>
+        {this.renderSourceToggle()}
       </div>
     );
   }
+
+  renderSourceToggle(): ComponentChild {
+    // TODO this is a nasty hack to detect if a direct imageryId is being viewed
+    if (!Config.map.layerId.startsWith('01')) return null;
+
+    return (
+      <div className="debug__info">
+        <label className="debug__label">Source</label>
+        <input type="checkbox" onClick={this.toggleSource} />
+      </div>
+    );
+  }
+
+  /** Show the source bounding box ont he map */
+  toggleSource = (e: Event): void => {
+    const target = e.target as HTMLInputElement;
+    const map = this.props.map;
+    const sourceId = Config.map.layerId + '_source';
+    const sourceUri = WindowUrl.toImageryUrl('im_' + Config.map.layerId, 'source.geojson');
+    if (target.checked) {
+      if (map.getSource(sourceId) == null) map.addSource(sourceId, { type: 'geojson', data: sourceUri });
+      map.addLayer({
+        id: sourceId,
+        type: 'line',
+        source: sourceId,
+        paint: { 'line-color': 'rgba(255,50,100,0.87)', 'line-width': 2 },
+      });
+    } else {
+      if (map.getLayer(sourceId) != null) map.removeLayer(sourceId);
+    }
+  };
 
   renderSliders(): ComponentChild | null {
     // Only 3857 currently works with OSM/Topographic map
