@@ -13,7 +13,7 @@ import { TileEtag } from './tile.etag.js';
 import { Router } from '../router.js';
 import { ValidateTilePath } from '../validate.js';
 import { URL } from 'url';
-import path from 'path';
+import { fsa } from '@chunkd/fs';
 
 export const TileComposer = new TileMakerSharp(256);
 
@@ -134,7 +134,7 @@ export const TileRoute = {
     for (const [key, value] of Object.entries(style.sources)) {
       if (value.type === 'vector') {
         if (value.url.startsWith('/')) {
-          const url = new URL(path.join(host, value.url));
+          const url = new URL(fsa.join(host, value.url));
           url.searchParams.set('api', apiKey);
           value.url = url.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
         }
@@ -142,7 +142,7 @@ export const TileRoute = {
         for (let i = 0; i < value.tiles.length; i++) {
           const tile = value.tiles[i];
           if (tile.startsWith('/')) {
-            const url = new URL(path.join(host, tile));
+            const url = new URL(fsa.join(host, tile));
             url.searchParams.set('api', apiKey);
             value.tiles[i] = url.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
           }
