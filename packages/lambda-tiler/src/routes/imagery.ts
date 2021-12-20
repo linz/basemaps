@@ -2,9 +2,13 @@ import { Config } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
+import { promisify } from 'util';
+import { gzip } from 'zlib';
 import { Router } from '../router.js';
 import { TileEtag } from './tile.etag.js';
 import { NotModified } from './tile.js';
+
+const gzipP = promisify(gzip);
 
 function isAllowedFile(f: string): boolean {
   if (f.endsWith('.geojson')) return true;
@@ -35,7 +39,8 @@ export async function Imagery(req: LambdaHttpRequest): Promise<LambdaHttpRespons
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
-    response.buffer(buf, 'application/json');
+    response.header(HttpHeader.ContentEncoding, 'gzip');
+    response.buffer(await gzipP(buf), 'application/json');
     req.set('bytes', buf.byteLength);
     return response;
   } catch (e) {
