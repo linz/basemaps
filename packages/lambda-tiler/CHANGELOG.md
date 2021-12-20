@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.19.0](https://github.com/linz/basemaps/compare/v6.18.1...v6.19.0) (2021-12-20)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** remove the host check to add api keys for all stylejson sources. ([#2032](https://github.com/linz/basemaps/issues/2032)) ([beab64c](https://github.com/linz/basemaps/commit/beab64c7f747dd5c1be06877b05b1173a95b1537))
+
+
+### Features
+
+* **lambda-tiler:** compress geojson output to prevent overflowing lambda ([#2034](https://github.com/linz/basemaps/issues/2034)) ([5d48524](https://github.com/linz/basemaps/commit/5d48524c0bf03c40e85cd661fd7f609bbdeed3dd))
+* **tiler:** expose some of the metadata geojson via a /v1/imagery endpoint ([#2033](https://github.com/linz/basemaps/issues/2033)) ([b471209](https://github.com/linz/basemaps/commit/b471209a381dfdab1a25be4882e464c8ddea9064))
+
+
+
+
+
 # [6.18.0](https://github.com/linz/basemaps/compare/v6.17.0...v6.18.0) (2021-12-14)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler
