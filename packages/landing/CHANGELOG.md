@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.19.0](https://github.com/linz/basemaps/compare/v6.18.1...v6.19.0) (2021-12-20)
+
+
+### Bug Fixes
+
+* **landing:** disable osm/topographic for nztm as it doesnt work ([#2031](https://github.com/linz/basemaps/issues/2031)) ([f1eff90](https://github.com/linz/basemaps/commit/f1eff90f4cafeeef9b09e3041b8e144a5b795488))
+
+
+### Features
+
+* **landing:** allow using the topographic vector map as a debug layer ([#2030](https://github.com/linz/basemaps/issues/2030)) ([2d4a05b](https://github.com/linz/basemaps/commit/2d4a05bc8ebfe0041155b9ead93f4235b9c52657))
+* **landing:** rendering source imagery bounds ([#2035](https://github.com/linz/basemaps/issues/2035)) ([2e30936](https://github.com/linz/basemaps/commit/2e30936c20fef73831082583120c096f51dc01e4))
+
+
+
+
+
 ## [6.18.1](https://github.com/linz/basemaps/compare/v6.18.0...v6.18.1) (2021-12-16)
 
 
