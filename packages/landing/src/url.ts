@@ -74,6 +74,10 @@ export const WindowUrl = {
     return `${this.baseUrl()}/v1/tiles/WMTSCapabilities.xml${api}`;
   },
 
+  toImageryUrl(layerId: string, imageryType: string): string {
+    return `${this.baseUrl()}/v1/imagery/${layerId}/${imageryType}`;
+  },
+
   toTileUrl(urlType: MapOptionType, tileMatrix: TileMatrixSet, layerId: string, style?: string | null): string {
     const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
 
