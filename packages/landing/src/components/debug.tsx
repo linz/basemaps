@@ -8,7 +8,7 @@ function debugSlider(onInput: (e: Event) => unknown): ComponentChild {
   return <input className="debug__slider" type="range" min="0" max="1" step="0.05" value="0" onInput={onInput} />;
 }
 
-export class Debug extends Component<{ map: maplibre.Map }> {
+export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: string | number | undefined }> {
   componentDidMount(): void {
     setTimeout(() => this.props.map.resize(), 100);
   }
@@ -43,10 +43,18 @@ export class Debug extends Component<{ map: maplibre.Map }> {
     if (!Config.map.layerId.startsWith('01')) return null;
 
     return (
-      <div className="debug__info">
-        <label className="debug__label">Source</label>
-        <input type="checkbox" onClick={this.toggleSource} />
-      </div>
+      <Fragment>
+        <div className="debug__info">
+          <label className="debug__label">Source</label>
+          <input type="checkbox" onClick={this.toggleSource} />
+        </div>
+        {this.state.lastFeatureId == null ? null : (
+          <div className="debug__info" title={String(this.state.lastFeatureId)}>
+            <label className="debug__label">SourceId</label>
+            {String(this.state.lastFeatureId).split('/').pop()}
+          </div>
+        )}
+      </Fragment>
     );
   }
 
@@ -55,17 +63,48 @@ export class Debug extends Component<{ map: maplibre.Map }> {
     const target = e.target as HTMLInputElement;
     const map = this.props.map;
     const sourceId = Config.map.layerId + '_source';
+    const layerFillId = sourceId + '_fill';
+    const layerLineId = sourceId + '_line';
     const sourceUri = WindowUrl.toImageryUrl('im_' + Config.map.layerId, 'source.geojson');
     if (target.checked) {
       if (map.getSource(sourceId) == null) map.addSource(sourceId, { type: 'geojson', data: sourceUri });
+      if (map.getLayer(layerFillId) != null) return;
+
+      let lastFeatureId: string | number | undefined;
+      map.on('mousemove', layerFillId, (e) => {
+        const features = e.features;
+        if (features == null || features.length === 0) return;
+        const firstFeature = features[0];
+
+        if (firstFeature.id == null) firstFeature.id = firstFeature.properties?.['name'];
+        const nextFeatureId = firstFeature.id;
+        if (nextFeatureId == null) return;
+
+        lastFeatureId = features[0].id;
+        this.setState({ ...this.state, lastFeatureId });
+      });
+      map.on('mouseleave', layerFillId, () => {
+        if (lastFeatureId == null) return;
+        lastFeatureId = undefined;
+        this.setState({ ...this.state, lastFeatureId });
+      });
+      // Fill is needed to make the mouse move work even though it has opacity 0
+      map.addLayer({ id: layerFillId, type: 'fill', source: sourceId, paint: { 'fill-opacity': 0 } });
       map.addLayer({
-        id: sourceId,
+        id: layerLineId,
         type: 'line',
         source: sourceId,
-        paint: { 'line-color': 'rgba(255,50,100,0.87)', 'line-width': 2 },
+        paint: {
+          'line-color': 'rgb(255,50,100)',
+          'line-opacity': 0.5,
+          'line-width': 1,
+        },
       });
     } else {
-      if (map.getLayer(sourceId) != null) map.removeLayer(sourceId);
+      if (map.getLayer(layerFillId) != null) {
+        map.removeLayer(layerFillId);
+        map.removeLayer(layerLineId);
+      }
     }
   };
 
