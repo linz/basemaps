@@ -6,6 +6,7 @@ import { Tiles } from './routes/tile.js';
 import { Router } from './router.js';
 import { createHash } from 'crypto';
 import { Imagery } from './routes/imagery.js';
+import { Esri } from './routes/esri/rest.js';
 
 const app = new Router();
 
@@ -14,6 +15,7 @@ app.get('health', Health);
 app.get('version', Version);
 app.get('tiles', Tiles);
 app.get('imagery', Imagery);
+app.get('esri', Esri);
 
 let slowTimer: NodeJS.Timer | null = null;
 export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
