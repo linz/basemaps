@@ -119,6 +119,8 @@ o.spec('handler', () => {
       expectedCount++;
     }
 
+    o(expectedCount > 0).equals(true);
+
     // Two files are already processed
     o(writeStub.callCount).equals(Math.min(expectedCount - 1, MaxToProcess));
 
@@ -136,7 +138,8 @@ o.spec('handler', () => {
     o(writeStub.args[3][1].toString()).equals('');
 
     // Will do lots of lists upto todays date to find more data
-    o(listStub.callCount > 100).equals(true);
+    const minExpected = Math.min(expectedCount, 100);
+    o(listStub.callCount >= minExpected).equals(true);
 
     o(listStub.args[0][0]).equals(`s3://analytics-cache/RollUpV${RollupVersion}/${currentYear}/`);
     o(listStub.args[1][0]).equals(`s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-01`);
