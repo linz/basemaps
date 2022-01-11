@@ -118,6 +118,10 @@ export class GdalCogBuilder {
       // most of the imagery contains a lot of empty tiles, no need to output them
       '-co',
       `SPARSE_OK=YES`,
+      // Do not attempt to read sidecar files
+      '--config',
+      `GDAL_DISABLE_READDIR_ON_OPEN`,
+      `EMPTY_DIR`,
       // Force a target resolution to be better than the imagery not worse
       '-tr',
       tr,
