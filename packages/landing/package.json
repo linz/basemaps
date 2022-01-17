@@ -38,7 +38,7 @@
     "@splitsoftware/splitio": "^10.16.1",
     "@types/geojson": "^7946.0.7",
     "@types/proj4": "^2.5.0",
-    "maplibre-gl": "^1.14.1-rc.2",
+    "maplibre-gl": "^2.0.1",
     "preact": "^10.5.15",
     "proj4": "^2.6.2",
     "ulid": "^2.3.0"
