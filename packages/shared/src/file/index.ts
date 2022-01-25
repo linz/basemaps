@@ -3,6 +3,7 @@ import { fsa as fsaSource, FsAwsS3 } from '@chunkd/fs';
 import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
 import { FileConfig, isConfigS3Role } from './file.config.js';
+import { AwsCredentials } from '@chunkd/source-aws-v2';
 
 const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 
@@ -41,7 +42,7 @@ fsa.configure = function configure(cfg: FileConfig): void {
 
   const { bucket } = FsAwsS3.parse(cfg.path);
   const bucketUri = `s3://${bucket}/`;
-  this.register(bucketUri, FsAwsS3.fromRoleArn(cfg.roleArn, cfg.externalId));
+  this.register(bucketUri, AwsCredentials.fsFromRole(cfg.roleArn, cfg.externalId));
 };
 
 /**
