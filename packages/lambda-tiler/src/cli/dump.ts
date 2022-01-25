@@ -4,7 +4,7 @@ import { ImageFormat } from '@basemaps/tiler';
 import { LambdaAlbRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import { promises as fs } from 'fs';
-import { TileRoute } from '../routes/tile.js';
+import { tileXyz } from '../routes/tile.xyz.js';
 import { TileSets } from '../tile.set.cache.js';
 import { TileSet } from '../tile.set.js';
 import { TileSetLocal } from './tile.set.local.js';
@@ -48,7 +48,7 @@ async function main(): Promise<void> {
     logger,
   );
 
-  const tileData = await TileRoute.tile(ctx);
+  const tileData = await tileXyz(ctx);
 
   const headers: Record<string, any> = {};
   for (const [key, value] of tileData.headers) headers[key] = value;

@@ -2,16 +2,19 @@ import { ConfigImagery, ConfigLayer, ConfigTileSetRaster, TileSetNameParser, Til
 import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config, Env, fsa, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
+import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
+import { NotFound, NotModified } from './routes/response.js';
 import { TileEtag } from './routes/tile.etag.js';
-import { NotFound, NotModified, TileComposer } from './routes/tile.js';
 import { TiffCache } from './tiff.cache.js';
 import { TileSetHandler } from './tile.set.js';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
+
+export const TileComposer = new TileMakerSharp(256);
 
 export interface TileSetResponse {
   buffer: Buffer;

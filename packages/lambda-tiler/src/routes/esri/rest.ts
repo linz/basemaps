@@ -3,7 +3,7 @@ import { tileXyzFromPath } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Router } from '../../router.js';
 import { TileSets } from '../../tile.set.cache.js';
-import { NotFound } from '../tile.js';
+import { NotFound } from '../response.js';
 
 export async function vectorTileServer(
   req: LambdaHttpRequest,
