@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@basemaps/geo": "^6.10.0",
-    "@cogeotiff/core": "^6.1.0",
+    "@cogeotiff/core": "^6.1.1",
     "@linzjs/metrics": "^6.11.0"
   },
   "devDependencies": {
