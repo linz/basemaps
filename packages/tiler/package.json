@@ -27,7 +27,7 @@
     "@linzjs/metrics": "^6.11.0"
   },
   "devDependencies": {
-    "@chunkd/fs": "^8.0.2",
+    "@chunkd/fs": "^8.0.3",
     "@types/pixelmatch": "^5.2.3",
     "@types/pngjs": "^6.0.0",
     "pixelmatch": "^5.1.0",
