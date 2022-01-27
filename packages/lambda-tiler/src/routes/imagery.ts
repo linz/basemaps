@@ -5,8 +5,8 @@ import { createHash } from 'crypto';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
 import { Router } from '../router.js';
+import { NotModified } from './response.js';
 import { TileEtag } from './tile.etag.js';
-import { NotModified } from './tile.js';
 
 const gzipP = promisify(gzip);
 
@@ -18,6 +18,8 @@ function isAllowedFile(f: string): boolean {
 
 /**
  * Get metadata around the imagery such as the source bounding box or the bounding box of the COGS
+ *
+ * @example
  * - /v1/imagery/:imageryId/source.geojson
  * - /v1/imagery/:imageryId/covering.geojson
  */

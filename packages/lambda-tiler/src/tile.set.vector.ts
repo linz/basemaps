@@ -2,7 +2,7 @@ import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
 import { fsa, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { Cotar } from '@cotar/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { NotFound } from './routes/tile.js';
+import { NotFound } from './routes/response.js';
 import { TileSetHandler } from './tile.set.js';
 
 class CotarCache {

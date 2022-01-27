@@ -4,11 +4,11 @@ import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
 import { handleRequest } from '../index.js';
-import { TileComposer } from '../routes/tile.js';
 import { TileEtag } from '../routes/tile.etag.js';
 import { TileSets } from '../tile.set.cache.js';
 import { FakeTileSet, mockRequest, Provider } from './xyz.util.js';
 import sinon from 'sinon';
+import { TileComposer } from '../tile.set.raster.js';
 const sandbox = sinon.createSandbox();
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
