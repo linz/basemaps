@@ -4,7 +4,7 @@ import { GdalCogBuilder } from '../gdal/gdal.cog.js';
 import { GdalCommand } from '../gdal/gdal.command.js';
 import { GdalProgressParser } from '../gdal/gdal.progress.js';
 import { CogJob } from './types.js';
-import { AwsCredentials } from '@chunkd/fs';
+import { AwsCredentials } from '@chunkd/source-aws-v2';
 
 /**
  * Create a onProgress logger
