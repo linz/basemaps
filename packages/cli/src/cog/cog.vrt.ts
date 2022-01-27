@@ -5,7 +5,7 @@ import { GdalCommand } from '../gdal/gdal.command.js';
 import { onProgress } from './cog.js';
 import { Cutline } from './cutline.js';
 import { CogJob } from './types.js';
-import { AwsCredentials } from '@chunkd/fs';
+import { AwsCredentials } from '@chunkd/source-aws-v2';
 
 /**
  * Build the VRT for the needed source imagery
