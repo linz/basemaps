@@ -25,12 +25,12 @@
     "@basemaps/geo": "^6.10.0",
     "@basemaps/tiler": "^6.11.0",
     "@linzjs/metrics": "^6.11.0",
-    "sharp": "^0.28.1"
+    "sharp": "^0.29.3"
   },
   "devDependencies": {
     "@types/pixelmatch": "^5.2.3",
     "@types/pngjs": "^6.0.0",
-    "@types/sharp": "^0.28.0",
+    "@types/sharp": "^0.29.3",
     "pixelmatch": "^5.1.0",
     "pngjs": "^6.0.0"
   },
