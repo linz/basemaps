@@ -14,7 +14,7 @@ import { TileEtag } from './tile.etag.js';
  * @param apiKey ApiKey to append with ?api= if required
  * @returns Updated Url or empty string if url is empty
  */
-function convertRelativeUrl(url?: string, apiKey?: string): string {
+export function convertRelativeUrl(url?: string, apiKey?: string): string {
   if (url == null) return '';
   const host = Env.get(Env.PublicUrlBase) ?? '';
   if (!url.startsWith('/')) return url; // Not relative ignore
@@ -36,7 +36,7 @@ export async function styleJson(req: LambdaHttpRequest, fileName: string): Promi
   // Prepare sources and add linz source
   const style = styleConfig.style;
   const sources: Sources = {};
-  for (const value of Object.values(style.sources)) {
+  for (const [key, value] of Object.entries(style.sources)) {
     if (value.type === 'vector') {
       value.url = convertRelativeUrl(value.url, apiKey);
     } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
@@ -44,6 +44,7 @@ export async function styleJson(req: LambdaHttpRequest, fileName: string): Promi
         value.tiles[i] = convertRelativeUrl(value.tiles[i], apiKey);
       }
     }
+    sources[key] = value;
   }
 
   // prepare Style.json
