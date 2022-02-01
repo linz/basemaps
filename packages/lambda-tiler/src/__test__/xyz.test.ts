@@ -3,17 +3,21 @@ import { TileMatrixSets } from '@basemaps/geo';
 import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
+import sinon from 'sinon';
 import { handleRequest } from '../index.js';
 import { TileEtag } from '../routes/tile.etag.js';
 import { TileSets } from '../tile.set.cache.js';
-import { FakeTileSet, mockRequest, Provider } from './xyz.util.js';
-import sinon from 'sinon';
 import { TileComposer } from '../tile.set.raster.js';
+import { FakeTileSet, mockRequest, Provider } from './xyz.util.js';
+
 const sandbox = sinon.createSandbox();
 
 const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 o.spec('LambdaXyz', () => {
+  const host = 'https://tiles.test';
+  const origPublicUrlBase = process.env[Env.PublicUrlBase];
+
   /** Generate mock ALBEvent */
 
   let rasterMock = o.spy();
@@ -26,6 +30,8 @@ o.spec('LambdaXyz', () => {
   const apiKeyHeader = { 'x-linz-api-key': 'd01f7w7rnhdzg0p7fyrc9v9ard1' };
 
   o.beforeEach(() => {
+    process.env[Env.PublicUrlBase] = host;
+
     LogConfig.disable();
     // tileMock = o.spy(() => tileMockData) as any;
     rasterMock = o.spy(() => {
@@ -54,6 +60,7 @@ o.spec('LambdaXyz', () => {
     TileSets.cache.clear();
     TileComposer.compose = origCompose;
     TileEtag.generate = origTileEtag;
+    process.env[Env.PublicUrlBase] = origPublicUrlBase;
     sandbox.restore();
   });
 
@@ -134,12 +141,8 @@ o.spec('LambdaXyz', () => {
   });
 
   o.spec('WMTSCapabilities', () => {
-    const origPublicUrlBase = process.env[Env.PublicUrlBase];
-    o.after(() => {
-      process.env[Env.PublicUrlBase] = origPublicUrlBase;
-    });
-
     o('should 304 if a xml is not modified', async () => {
+      delete process.env[Env.PublicUrlBase];
       o.timeout(1000);
       const key = 'NuirTK8fozzCJV1iG1FznmdHhKvk6WaWuDhhEA1d40c=';
       const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', {
@@ -148,6 +151,7 @@ o.spec('LambdaXyz', () => {
       });
 
       const res = await handleRequest(request);
+
       if (res.status === 200) {
         o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
         return;
@@ -160,9 +164,6 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should serve WMTSCapabilities for tile_set', async () => {
-      console.log('\n\nTestStart');
-      process.env[Env.PublicUrlBase] = 'https://tiles.test';
-
       const request = mockRequest('/v1/tiles/aerial@beta/WMTSCapabilities.xml', 'get', apiKeyHeader);
 
       const res = await handleRequest(request);
@@ -185,13 +186,10 @@ o.spec('LambdaXyz', () => {
   });
 
   o.spec('tileJson', () => {
-    const origPublicUrlBase = process.env[Env.PublicUrlBase];
-    o.after(() => {
-      process.env[Env.PublicUrlBase] = origPublicUrlBase;
-    });
-
     o('should 304 if a json is not modified', async () => {
-      const key = 'XecTdbcdjCyzB1MHOOQbrOkD2TTJ0ORh4JuXqhxXEE0=';
+      // delete process.env[Env.PublicUrlBase];
+
+      const key = 'BBfQpNXA3Q90jlFrLSOZhxbvfOh7OpN1OEE+BylpbHw=';
       const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key, ...apiKeyHeader });
 
       const res = await handleRequest(request);
@@ -206,9 +204,19 @@ o.spec('LambdaXyz', () => {
       o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
     });
 
-    o('should serve tile json for tile_set', async () => {
-      process.env[Env.PublicUrlBase] = 'https://tiles.test';
+    o('should 200 if a invalid etag is given', async () => {
+      const key = 'ABCXecTdbcdjCyzB1MHOOQbrOkD2TTJ0ORh4JuXqhxXEE0=';
+      const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key, ...apiKeyHeader });
 
+      const res = await handleRequest(request);
+      o(res.status).equals(200);
+      o(res.header('etag')).equals('BBfQpNXA3Q90jlFrLSOZhxbvfOh7OpN1OEE+BylpbHw=');
+      const out = JSON.parse(Buffer.from(res.body ?? '', 'base64').toString());
+      o(out.tiles[0].startsWith('https://tiles.test/v1/tiles/tile.json/undefined/{z}/{x}/{y}.pbf?api=')).equals(true);
+      o(request.logContext['cache']).deepEquals(undefined);
+    });
+
+    o('should serve tile json for tile_set', async () => {
       const request = mockRequest('/v1/tiles/topographic/Google/tile.json', 'get', apiKeyHeader);
 
       const res = await handleRequest(request);
@@ -228,14 +236,7 @@ o.spec('LambdaXyz', () => {
   });
 
   o.spec('styleJson', () => {
-    const origPublicUrlBase = process.env[Env.PublicUrlBase];
-    o.after(() => {
-      process.env[Env.PublicUrlBase] = origPublicUrlBase;
-    });
-
     o('should not found style json', async () => {
-      process.env[Env.PublicUrlBase] = 'https://tiles.test';
-
       const request = mockRequest('/v1/tiles/topographic/Google/style/topographic.json', 'get', apiKeyHeader);
 
       sandbox.stub(Config.Style, 'get').resolves(null);
@@ -245,9 +246,6 @@ o.spec('LambdaXyz', () => {
     });
 
     o('should serve style json', async () => {
-      const host = 'https://tiles.test';
-      process.env[Env.PublicUrlBase] = host;
-
       const request = mockRequest('/v1/tiles/topographic/Google/style/topographic.json', 'get', apiKeyHeader);
 
       const fakeStyle: StyleJson = {
@@ -289,8 +287,8 @@ o.spec('LambdaXyz', () => {
             minzoom: 0,
           },
         ],
-        glyphs: 'glyphs',
-        sprite: 'sprite',
+        glyphs: '/glyphs',
+        sprite: '/sprite',
         metadata: { id: 'test' },
       };
 
@@ -320,6 +318,10 @@ o.spec('LambdaXyz', () => {
         type: 'raster',
         tiles: [`${host}/raster/{z}/{x}/{y}.webp?api=${apiKey}`],
       };
+
+      fakeStyle.sprite = `${host}/sprite`;
+      fakeStyle.glyphs = `${host}/glyphs`;
+
       o(JSON.parse(body)).deepEquals(fakeStyle);
     });
   });
