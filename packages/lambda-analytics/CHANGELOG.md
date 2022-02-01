@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.20.0](https://github.com/linz/basemaps/compare/v6.19.0...v6.20.0) (2022-02-01)
+
+
+### Bug Fixes
+
+* correct testing logic when not enough hours in the year have been processed ([#2048](https://github.com/linz/basemaps/issues/2048)) ([d8dd4c3](https://github.com/linz/basemaps/commit/d8dd4c3dda4821e9595808c8aecc9c6c72241132))
+
+
+
+
+
 # [6.18.0](https://github.com/linz/basemaps/compare/v6.17.0...v6.18.0) (2021-12-14)
 
 **Note:** Version bump only for package @basemaps/lambda-analytics
