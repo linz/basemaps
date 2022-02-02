@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.20.0](https://github.com/linz/basemaps/compare/v6.19.0...v6.20.0) (2022-02-01)
+
+
+### Bug Fixes
+
+* **cli:** disable reading sidecar files ([#2049](https://github.com/linz/basemaps/issues/2049)) ([d42d03b](https://github.com/linz/basemaps/commit/d42d03b34a1f3d9de895ee3c318112882e5a8972))
+* correct testing logic when not enough hours in the year have been processed ([#2048](https://github.com/linz/basemaps/issues/2048)) ([d8dd4c3](https://github.com/linz/basemaps/commit/d8dd4c3dda4821e9595808c8aecc9c6c72241132))
+
+
+### Features
+
+* **lambda-tiler:** allow relative sprites and glyphs ([#2071](https://github.com/linz/basemaps/issues/2071)) ([a283157](https://github.com/linz/basemaps/commit/a283157f6b11fd9f6168edd19e9d5624f52d0325))
+* **lambda-tiler:** wip esri vectortileserver interface for vector tiles ([#2041](https://github.com/linz/basemaps/issues/2041)) ([0549d68](https://github.com/linz/basemaps/commit/0549d688ae44c20bd8dce0281988c7ba258fdacb))
+* **landing:** show source id when hovering in the source layer ([#2039](https://github.com/linz/basemaps/issues/2039)) ([865bab9](https://github.com/linz/basemaps/commit/865bab92109d5b5241664af7fc970494dacafeec))
+
+
+
+
+
 # [6.19.0](https://github.com/linz/basemaps/compare/v6.18.1...v6.19.0) (2021-12-20)
 
 
