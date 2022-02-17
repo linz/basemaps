@@ -46,6 +46,9 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: [build]
     if: github.ref == 'refs/heads/master'
     steps:
