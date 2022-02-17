@@ -152,5 +152,25 @@ jobs:
           SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
 
+  benchmark:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v2.4.0
+
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v2.5.0
+        with:
+          node-version: "14.x"
+          registry-url: https://registry.npmjs.org
+          cache: "yarn"
+
+      - name: Install
+        run: yarn  --frozen-lockfile --check-files
+
+      - name: Build
+        run: yarn run build
+
       - name: Benchmark
         uses: blacha/hyperfine-action@v1
