@@ -9,36 +9,10 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
-      - uses: actions/checkout@v2.4.0
-        with:
-          fetch-depth: 0
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v2.5.0
-        with:
-          node-version: "14.x"
-          registry-url: https://registry.npmjs.org
-          cache: "yarn"
+      - uses: linz/action-typescript@v1
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.js
-
-      - name: Install
-        run: yarn  --frozen-lockfile --check-files
-
-      - name: Audit
-        run: yarn audit --groups dependencies
-
-      - name: Build
-        run: yarn run build
-
-      - name: Lint
-        run: yarn run lint
-
-      - name: Check Formatting
-        run: git diff --exit-code
-
-      - name: Test
-        run: yarn run test
 
       - name: Benchmark
         if: matrix.os == 'ubuntu-latest'
@@ -52,35 +26,12 @@ jobs:
     needs: [build]
     if: github.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@v2.4.0
-        with:
-          fetch-depth: 0
+      - uses: linz/action-typescript@v1
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v2.5.0
-        with:
-          node-version: "14.x"
-          registry-url: https://registry.npmjs.org
-          cache: "yarn"
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.js
-
-      - name: Install
-        run: yarn  --frozen-lockfile --check-files
-
-      - name: Build
-        run: yarn run build
-
-      - name: Lint
-        run: yarn run lint
-
-      - name: Check Formatting
-        run: git diff --exit-code
-
-      - name: Test
-        run: yarn run test
 
       - name: (Prod) Setup git config
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -157,20 +108,7 @@ jobs:
     needs: [build]
     if: github.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@v2.4.0
-
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v2.5.0
-        with:
-          node-version: "14.x"
-          registry-url: https://registry.npmjs.org
-          cache: "yarn"
-
-      - name: Install
-        run: yarn  --frozen-lockfile --check-files
-
-      - name: Build
-        run: yarn run build
+      - uses: linz/action-typescript@v1
 
       - name: Benchmark
         uses: blacha/hyperfine-action@v1
