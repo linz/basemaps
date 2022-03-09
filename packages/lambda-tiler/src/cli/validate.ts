@@ -1,3 +1,4 @@
+import { TileSetType } from '@basemaps/config';
 import { GoogleTms } from '@basemaps/geo';
 import { Env, fsa, LogConfig, TileSetName } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
@@ -13,7 +14,7 @@ const Q = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
 async function main(): Promise<void> {
   const tileSet = await TileSets.get(TileSetName.aerial, GoogleTms);
   if (tileSet == null) throw new Error('No tile set found');
-  if (tileSet.isVector()) throw new Error('Invalid tile set type');
+  if (tileSet.type === TileSetType.Vector) throw new Error('Invalid tile set type');
 
   let errorCount = 0;
   const logger = LogConfig.get();
