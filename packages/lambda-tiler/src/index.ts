@@ -7,6 +7,7 @@ import { Router } from './router.js';
 import { createHash } from 'crypto';
 import { Imagery } from './routes/imagery.js';
 import { Esri } from './routes/esri/rest.js';
+import { St } from './source.tracer.js';
 
 const app = new Router();
 
@@ -19,6 +20,11 @@ app.get('esri', Esri);
 
 let slowTimer: NodeJS.Timer | null = null;
 export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+  // Reset the request tracing
+  St.reset();
+  // TODO this could be relaxed to every say 5% of requests if logging gets too verbose.
+  req.set('requests', St.requests);
+
   // Warn if a request takes more than 10 seconds to process
   if (slowTimer) clearTimeout(slowTimer);
   slowTimer = setTimeout(() => req.log.warn(req.logContext, 'Lambda:Slow'), 10_000);
