@@ -38,7 +38,7 @@ export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpR
     const ret = await app.handle(req);
 
     // TODO this could be relaxed to every say 5% of requests if logging gets too verbose.
-    req.set('requests', St.requests);
+    req.set('requests', St.requests.slice(0, 100)); // limit to 100 requests (some tiles need 100s of requests)
     req.set('requestCount', St.requests.length);
 
     return ret;
