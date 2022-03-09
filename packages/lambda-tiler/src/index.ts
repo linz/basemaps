@@ -22,8 +22,6 @@ let slowTimer: NodeJS.Timer | null = null;
 export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
   // Reset the request tracing
   St.reset();
-  // TODO this could be relaxed to every say 5% of requests if logging gets too verbose.
-  req.set('requests', St.requests);
 
   // Warn if a request takes more than 10 seconds to process
   if (slowTimer) clearTimeout(slowTimer);
@@ -37,7 +35,13 @@ export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpR
       const apiKeyHash = createHash('sha256').update(apiKey).digest('base64');
       req.set('api', apiKeyHash);
     }
-    return await app.handle(req);
+    const ret = await app.handle(req);
+
+    // TODO this could be relaxed to every say 5% of requests if logging gets too verbose.
+    req.set('requests', St.requests);
+    req.set('requestCount', St.requests.length);
+
+    return ret;
   } finally {
     if (slowTimer) clearTimeout(slowTimer);
     slowTimer = null;
