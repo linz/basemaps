@@ -3,6 +3,7 @@ import { fsa, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { Cotar } from '@cotar/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { NotFound } from './routes/response.js';
+import { St } from './source.tracer.js';
 import { TileSetHandler } from './tile.set.js';
 
 class CotarCache {
@@ -11,7 +12,9 @@ class CotarCache {
   get(uri: string): Promise<Cotar | null> {
     let cotar = this.cache.get(uri);
     if (cotar == null) {
-      cotar = Cotar.fromTar(fsa.source(uri));
+      const source = fsa.source(uri);
+      St.trace(source);
+      cotar = Cotar.fromTar(source);
       this.cache.set(uri, cotar);
     }
     return cotar;
