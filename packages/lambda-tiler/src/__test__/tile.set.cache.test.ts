@@ -1,4 +1,4 @@
-import { ConfigImagery, ConfigTileSetRaster } from '@basemaps/config';
+import { ConfigImagery, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
 import { Epsg, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { Config, TileSetName } from '@basemaps/shared';
 import o from 'ospec';
@@ -44,7 +44,7 @@ o.spec('TileSetCache', () => {
       TileSets.add(new TileSetRaster('aerial@head', GoogleTms));
 
       const parentTileSet = await TileSets.get('aerial@head', GoogleTms);
-      if (parentTileSet == null || parentTileSet.isVector()) throw new Error('null parentTileSet');
+      if (parentTileSet == null || parentTileSet.type === TileSetType.Vector) throw new Error('null parentTileSet');
       parentTileSet.imagery = imgMap;
       parentTileSet.tileSet = {
         name: 'parent',
@@ -53,7 +53,7 @@ o.spec('TileSetCache', () => {
       } as ConfigTileSetRaster;
 
       const subTileSet = await TileSets.get('aerial@head:tasman_rural_2018-19_0-3m', GoogleTms);
-      if (subTileSet == null || subTileSet.isVector()) throw new Error('null subTileSet');
+      if (subTileSet == null || subTileSet.type === TileSetType.Vector) throw new Error('null subTileSet');
 
       o(subTileSet.title).equals('parent aerial title Tasman rural 2018-19 0.3m');
       o(subTileSet.fullName).equals('aerial@head:tasman_rural_2018-19_0-3m');
@@ -79,7 +79,7 @@ o.spec('TileSetCache', () => {
       TileSets.cache.delete(subTileSet.id);
       delete parentTileSet.tileSet.title;
       const subTileSetB = await TileSets.get('aerial@head:tasman_rural_2018-19_0-3m', GoogleTms);
-      if (subTileSetB == null || subTileSetB.isVector()) throw new Error('null subTileSetB');
+      if (subTileSetB == null || subTileSetB.type === TileSetType.Vector) throw new Error('null subTileSetB');
       o(subTileSetB.title).equals('parent Tasman rural 2018-19 0.3m');
     });
   });

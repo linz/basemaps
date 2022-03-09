@@ -1,4 +1,11 @@
-import { ConfigImagery, ConfigLayer, ConfigTileSetRaster, TileSetNameParser, TileSetType } from '@basemaps/config';
+import {
+  ConfigImagery,
+  ConfigLayer,
+  ConfigTileSetRaster,
+  TileSetNameComponents,
+  TileSetNameParser,
+  TileSetType,
+} from '@basemaps/config';
 import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config, Env, fsa, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
@@ -11,7 +18,7 @@ import { NotFound, NotModified } from './routes/response.js';
 import { TileEtag } from './routes/tile.etag.js';
 import { St } from './source.tracer.js';
 import { TiffCache } from './tiff.cache.js';
-import { TileSetHandler } from './tile.set.js';
+import { TileSets } from './tile.set.cache.js';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
 
@@ -28,13 +35,16 @@ export interface TileSetResponse {
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
-export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
-  type = TileSetType.Raster;
+export class TileSetRaster {
+  type: TileSetType.Raster = TileSetType.Raster;
 
   tileMatrix: TileMatrixSet;
   tiler: Tiler;
   imagery: Map<string, ConfigImagery>;
   extentOverride: Bounds;
+
+  components: TileSetNameComponents;
+  tileSet: ConfigTileSetRaster;
 
   /**
    * Return the location of a imagery `record`
@@ -48,8 +58,17 @@ export class TileSetRaster extends TileSetHandler<ConfigTileSetRaster> {
   }
 
   constructor(name: string, tileMatrix: TileMatrixSet) {
-    super(name, tileMatrix);
+    this.components = TileSetNameParser.parse(name);
+    this.tileMatrix = tileMatrix;
     this.tiler = new Tiler(this.tileMatrix);
+  }
+
+  get id(): string {
+    return TileSets.id(this.fullName, this.tileMatrix);
+  }
+
+  get fullName(): string {
+    return TileSetNameParser.componentsToName(this.components);
   }
 
   get title(): string {

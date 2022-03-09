@@ -1,4 +1,4 @@
-import { ConfigImagery, ConfigLayer, ConfigProvider } from '@basemaps/config';
+import { ConfigImagery, ConfigLayer, ConfigProvider, TileSetType } from '@basemaps/config';
 import {
   AttributionCollection,
   AttributionItem,
@@ -217,7 +217,7 @@ export async function attribution(req: LambdaHttpRequest): Promise<LambdaHttpRes
   req.timer.start('tileset:load');
   const tileSet = await TileSets.get(data.name, data.tileMatrix);
   req.timer.end('tileset:load');
-  if (tileSet == null || tileSet.isVector()) return NotFound;
+  if (tileSet == null || tileSet.type === TileSetType.Vector) return NotFound;
 
   const cacheKey = createHash('sha256').update(JSON.stringify(tileSet.tileSet)).digest('base64');
 

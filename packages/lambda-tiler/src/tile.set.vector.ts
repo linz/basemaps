@@ -1,10 +1,11 @@
-import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
+import { ConfigTileSetVector, TileSetNameComponents, TileSetNameParser, TileSetType } from '@basemaps/config';
+import { TileMatrixSet } from '@basemaps/geo';
 import { fsa, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { Cotar } from '@cotar/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { NotFound } from './routes/response.js';
+import { TileSets } from './tile.set.cache.js';
 import { St } from './source.tracer.js';
-import { TileSetHandler } from './tile.set.js';
 
 class CotarCache {
   cache = new Map<string, Promise<Cotar | null>>();
@@ -23,8 +24,23 @@ class CotarCache {
 
 export const Layers = new CotarCache();
 
-export class TileSetVector extends TileSetHandler<ConfigTileSetVector> {
-  type = TileSetType.Vector;
+export class TileSetVector {
+  type: TileSetType.Vector = TileSetType.Vector;
+  components: TileSetNameComponents;
+  tileMatrix: TileMatrixSet;
+  tileSet: ConfigTileSetVector;
+  constructor(name: string, tileMatrix: TileMatrixSet) {
+    this.components = TileSetNameParser.parse(name);
+    this.tileMatrix = tileMatrix;
+  }
+
+  get id(): string {
+    return TileSets.id(this.fullName, this.tileMatrix);
+  }
+
+  get fullName(): string {
+    return TileSetNameParser.componentsToName(this.components);
+  }
 
   async tile(req: LambdaHttpRequest, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
     if (xyz.ext !== VectorFormat.MapboxVectorTiles) return NotFound;
