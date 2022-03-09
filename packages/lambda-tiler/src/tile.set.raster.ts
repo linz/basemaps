@@ -16,6 +16,7 @@ import { Metrics } from '@linzjs/metrics';
 import pLimit from 'p-limit';
 import { NotFound, NotModified } from './routes/response.js';
 import { TileEtag } from './routes/tile.etag.js';
+import { St } from './source.tracer.js';
 import { TiffCache } from './tiff.cache.js';
 import { TileSets } from './tile.set.cache.js';
 
@@ -185,6 +186,8 @@ export class TileSetRaster {
         if (source == null) {
           throw new Error(`Failed to create CogSource from  ${TileSetRaster.basePath(record, c.name)}`);
         }
+
+        St.trace(source);
         existing = new CogTiff(source);
         TiffCache.set(tiffKey, existing);
       }
