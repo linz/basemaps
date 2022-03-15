@@ -1,5 +1,5 @@
 import { BaseConfig } from '../config/base.js';
-import { ConfigDynamoBase } from './dynamo.config.base.js';
+import { ConfigDynamoBase, GetAllOptions } from './dynamo.config.base.js';
 
 export class ConfigDynamoCached<T extends BaseConfig> extends ConfigDynamoBase<T> {
   cache: Map<string, T> = new Map();
@@ -15,7 +15,7 @@ export class ConfigDynamoCached<T extends BaseConfig> extends ConfigDynamoBase<T
     return existing;
   }
 
-  public async getAll(ids: Set<string>): Promise<Map<string, T>> {
+  public async getAll(ids: Set<string>, opts?: Partial<GetAllOptions>): Promise<Map<string, T>> {
     const output = new Map<string, T>();
     const toFetch = new Set<string>();
 
@@ -29,7 +29,7 @@ export class ConfigDynamoCached<T extends BaseConfig> extends ConfigDynamoBase<T
     }
 
     if (toFetch.size > 0) {
-      const res = await super.getAll(toFetch);
+      const res = await super.getAll(toFetch, opts);
       for (const val of res.values()) {
         output.set(val.id, val);
         this.cache.set(val.id, val);
