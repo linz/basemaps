@@ -16,8 +16,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "bin": {
-    "cogify": "./cogify.js",
-    "basemaps": "./basemaps.js"
+    "cogify": "./cogify.js"
   },
   "scripts": {
     "build": "tsc",
