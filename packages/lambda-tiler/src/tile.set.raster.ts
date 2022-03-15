@@ -152,7 +152,7 @@ export class TileSetRaster {
       if (layer.maxZoom != null && filterZoom > layer.maxZoom) continue;
       if (layer.minZoom != null && filterZoom < layer.minZoom) continue;
 
-      const imgId = Config.getImageId(layer, this.tileMatrix.projection);
+      const imgId = layer[this.tileMatrix.projection.code];
       if (imgId == null) {
         log?.warn({ layer: layer.name, projection: this.tileMatrix.projection.code }, 'Failed to lookup imagery');
         continue;

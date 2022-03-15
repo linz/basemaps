@@ -1,5 +1,6 @@
+import { GetAllOptions } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
-import { ConfigDynamoBase, GetAllOptions } from './dynamo.config.base.js';
+import { ConfigDynamoBase } from './dynamo.config.base.js';
 
 export class ConfigDynamoCached<T extends BaseConfig> extends ConfigDynamoBase<T> {
   cache: Map<string, T> = new Map();

@@ -1,8 +1,8 @@
-import { Epsg, EpsgCode } from '@basemaps/geo';
-import { ConfigImagery, ConfigProvider, ConfigTileSetRaster, ConfigTileSetVector, ConfigVectorStyle } from './index.js';
+import { Epsg } from '@basemaps/geo';
 import { BaseConfig } from './config/base.js';
 import { ConfigPrefix } from './config/prefix.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from './config/tile.set.js';
+import { ConfigImagery, ConfigProvider, ConfigTileSetRaster, ConfigTileSetVector, ConfigVectorStyle } from './index.js';
 
 export class ConfigInstance {
   cfg: BasemapsConfigProvider;
@@ -37,25 +37,13 @@ export class ConfigInstance {
     return s.type === TileSetType.Vector;
   }
 
-  async getImagery(layer: ConfigLayer, projection: Epsg): Promise<ConfigImagery | null> {
-    if (projection.code === EpsgCode.Nztm2000 && layer[2193]) return this.Imagery.get(this.Imagery.id(layer[2193]));
-    if (projection.code === EpsgCode.Google && layer[3857]) return this.Imagery.get(this.Imagery.id(layer[3857]));
-    return null;
-  }
-
   async getAllImagery(layers: ConfigLayer[], projection: Epsg): Promise<Map<string, ConfigImagery>> {
-    const output = new Map<string, ConfigImagery>();
-    // Get Imagery based on the order of rules. Imagery priority are ordered by on rules.
+    const imgIds = new Set<string>();
     for (const layer of layers) {
       const imgId = layer[projection.code];
-      if (imgId == null) continue;
-      // TODO this await should not be in the middle of a loop
-      const img = await this.Imagery.get(this.Imagery.id(imgId));
-      if (img == null) continue;
-      output.set(imgId, img);
+      if (imgId) imgIds.add(this.Imagery.id(imgId));
     }
-
-    return output;
+    return this.Imagery.getAll(imgIds);
   }
 
   /**
@@ -71,23 +59,8 @@ export class ConfigInstance {
    * Remove the prefix from a dynamoDb id
    */
   unprefix(prefix: ConfigPrefix, id: string): string {
-    if (id.startsWith(prefix)) return id.substr(3);
+    if (id.startsWith(prefix)) return id.slice(3);
     return id;
-  }
-
-  /** Get all imagery for a tile set */
-  getTileSetImagery(rec: ConfigTileSetRaster): Promise<Map<string, ConfigImagery>> {
-    const imgIds = new Set<string>();
-    for (const layer of rec.layers) {
-      if (layer[2193] != null) imgIds.add(layer[2193]);
-      if (layer[3857] != null) imgIds.add(layer[3857]);
-    }
-    return this.Imagery.getAll(imgIds);
-  }
-
-  /** Get the imageId from a layer for a specific projection */
-  getImageId(layer: ConfigLayer, projection: Epsg): string | undefined {
-    return layer[projection.code];
   }
 }
 
@@ -96,6 +69,11 @@ export abstract class BasemapsConfigProvider {
   abstract Imagery: BasemapsConfigObject<ConfigImagery>;
   abstract Style: BasemapsConfigObject<ConfigVectorStyle>;
   abstract Provider: BasemapsConfigObject<ConfigProvider>;
+}
+
+export interface GetAllOptions {
+  /** Number of records to fetch in one getAll request */
+  size: number;
 }
 
 export abstract class BasemapsConfigObject<T extends BaseConfig> {
@@ -117,7 +95,7 @@ export abstract class BasemapsConfigObject<T extends BaseConfig> {
   /** Fetch a single object from the store */
   abstract get(id: string): Promise<T | null>;
   /** Fetch all objects from the store */
-  abstract getAll(id: Set<string>): Promise<Map<string, T>>;
+  abstract getAll(id: Set<string>, opts?: GetAllOptions): Promise<Map<string, T>>;
 }
 
 export const Config = new ConfigInstance();

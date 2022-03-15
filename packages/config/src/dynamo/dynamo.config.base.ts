@@ -1,5 +1,5 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
-import { BasemapsConfigObject } from '../base.config.js';
+import { BasemapsConfigObject, GetAllOptions } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProviderDynamo } from './dynamo.config.js';
@@ -8,16 +8,8 @@ function toId(id: string): { id: { S: string } } {
   return { id: { S: id } };
 }
 
-export interface GetAllOptions {
-  /** Should a error be thrown if not all records are returned */
-  isAllRequired: boolean;
-  /** Number of records to fetch in one getAll request */
-  size: number;
-}
-
 const GetAllOptionDefaults: GetAllOptions = {
-  isAllRequired: true,
-  size: 100,
+  size: 256,
 };
 
 export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends BasemapsConfigObject<T> {
@@ -59,7 +51,7 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
       const items = await this.db.batchGetItem({ RequestItems: { [this.cfg.tableName]: { Keys } } }).promise();
 
       const metadataItems = items.Responses?.[this.cfg.tableName];
-      if (metadataItems == null) throw new Error('Failed to fetch tile metadata');
+      if (metadataItems == null) throw new Error('Failed to fetch metadata from ' + this.cfg.tableName);
 
       for (const row of metadataItems) {
         const item = DynamoDB.Converter.unmarshall(row) as BaseConfig;
@@ -67,15 +59,6 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
       }
     }
 
-    const isAllRequired = opts?.isAllRequired ?? GetAllOptionDefaults.isAllRequired;
-    if (isAllRequired && output.size < keys.size) {
-      throw new Error(
-        'Missing fetched items\n' +
-          Array.from(keys.values())
-            .filter((i) => !output.has(i))
-            .join(', '),
-      );
-    }
     return output;
   }
 
