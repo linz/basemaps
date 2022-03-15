@@ -263,15 +263,13 @@ const ExpectedJson = {
   ],
   links: [],
 };
-function makeImageRecord(id: string, name: string, x = 10, year = 2019): ConfigImagery {
+function makeImageRecord(id: string, name: string, x = 10): ConfigImagery {
   return {
     id,
     name,
     projection: EpsgCode.Google,
-    year,
     uri: 's3://bucket/path/' + name,
     bounds: GoogleTms.tileToSourceBounds({ x, y: 10, z: 5 }),
-    resolution: 750,
     files: [0, 1].map((i) => {
       const b = GoogleTms.tileToSourceBounds({ x, y: 10, z: 5 }).toJson() as NamedBounds;
       b.name = name + i;
