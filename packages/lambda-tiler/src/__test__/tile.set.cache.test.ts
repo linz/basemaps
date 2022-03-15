@@ -26,14 +26,6 @@ o.spec('TileSetCache', () => {
   const imgMap = new Map<string, ConfigImagery>();
   imgMap.set(imageOne.id, imageOne);
 
-  o.beforeEach(() => {
-    sandbox.stub(Config, 'getTileSetImagery').callsFake(async () => {
-      const imgMap = new Map<string, ConfigImagery>();
-      imgMap.set(imageOne.id, imageOne);
-      return imgMap;
-    });
-  });
-
   o.afterEach(() => {
     TileSets.cache.clear();
     sandbox.restore();
