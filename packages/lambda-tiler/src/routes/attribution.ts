@@ -116,7 +116,6 @@ export function createAttributionCollection(
     extent,
     links: [],
     summaries: {
-      gsd: [getGsd(stac?.summaries) ?? 0],
       'linz:zoom': {
         min: TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true),
         max: TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true),

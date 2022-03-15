@@ -26,7 +26,6 @@ o.spec('Attribution', () => {
     },
     links: [],
     summaries: {
-      gsd: [0.4183892074044116],
       'linz:zoom': {
         min: 0,
         max: 12,

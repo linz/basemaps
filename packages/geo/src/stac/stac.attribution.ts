@@ -4,7 +4,7 @@ import { StacCatalog, StacCollection, StacItem } from './index.js';
  * A Single File STAC compliant collection with zoom and priority for calculating attribution of an extent
  */
 export type AttributionCollection = StacCollection<{
-  gsd: [number];
+  // gsd: [number];
   'linz:zoom': { min: number; max: number };
   'linz:priority': [number];
 }>;
