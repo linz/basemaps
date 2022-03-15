@@ -1,10 +1,12 @@
 import { Epsg, EpsgCode, NamedBounds, QuadKey, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import o from 'ospec';
 import sinon from 'sinon';
 import { Config } from '../../base.config.js';
 import { ConfigImagery } from '../../config/imagery.js';
 import { ConfigPrefix } from '../../index.js';
 import { ConfigProviderDynamo } from '../dynamo.config.js';
+
 const sandbox = sinon.createSandbox();
 
 export function qkToNamedBounds(quadKeys: string[]): NamedBounds[] {
@@ -63,5 +65,26 @@ o.spec('ConfigProvider.Imagery', () => {
     o(result.get('im_foo2')).deepEquals(item);
     o(result.get('im_foo3')).equals(undefined);
     o(result.get('im_foo4')).deepEquals(item);
+  });
+
+  o('should handle unprocessed keys', async () => {
+    const bulk = sandbox.stub(provider.dynamo, 'batchGetItem').callsFake((req: any) => {
+      const keys = req.RequestItems[provider.tableName].Keys;
+      return {
+        promise() {
+          // Only return one element and label the rest as unprocessed
+          const ret = keys.slice(0, 1);
+          const rest = keys.slice(1);
+          const output: DynamoDB.BatchGetItemOutput = { Responses: { [provider.tableName]: ret } };
+          if (rest.length > 0) output.UnprocessedKeys = { [provider.tableName]: { Keys: rest } };
+          return Promise.resolve(output);
+        },
+      } as any;
+    });
+    const result = await Config.Provider.getAll(new Set(['pv_1234', 'pv_2345']));
+
+    o(bulk.callCount).equals(2);
+    o(result.get('pv_1234')?.id).equals('pv_1234');
+    o(result.get('pv_2345')?.id).equals('pv_2345');
   });
 });
