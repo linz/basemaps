@@ -8,6 +8,18 @@ function toId(id: string): { id: { S: string } } {
   return { id: { S: id } };
 }
 
+export interface GetAllOptions {
+  /** Should a error be thrown if not all records are returned */
+  isAllRequired: boolean;
+  /** Number of records to fetch in one getAll request */
+  size: number;
+}
+
+const GetAllOptionDefaults: GetAllOptions = {
+  isAllRequired: true,
+  size: 100,
+};
+
 export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends BasemapsConfigObject<T> {
   cfg: ConfigProviderDynamo;
 
@@ -32,14 +44,17 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
     return null;
   }
 
-  public async getAll(keys: Set<string>): Promise<Map<string, T>> {
+  /** Get all records with the id */
+  public async getAll(keys: Set<string>, opts?: Partial<GetAllOptions>): Promise<Map<string, T>> {
     let mappedKeys = Array.from(keys, toId);
 
     const output: Map<string, T> = new Map();
 
+    const keySize = opts?.size ?? GetAllOptionDefaults.size;
+
     while (mappedKeys.length > 0) {
-      const Keys = mappedKeys.length > 100 ? mappedKeys.slice(0, 100) : mappedKeys;
-      mappedKeys = mappedKeys.length > 100 ? mappedKeys.slice(100) : [];
+      const Keys = mappedKeys.length > keySize ? mappedKeys.slice(0, keySize) : mappedKeys;
+      mappedKeys = mappedKeys.length > keySize ? mappedKeys.slice(keySize) : [];
 
       const items = await this.db.batchGetItem({ RequestItems: { [this.cfg.tableName]: { Keys } } }).promise();
 
@@ -52,7 +67,8 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
       }
     }
 
-    if (output.size < keys.size) {
+    const isAllRequired = opts?.isAllRequired ?? GetAllOptionDefaults.isAllRequired;
+    if (isAllRequired && output.size < keys.size) {
       throw new Error(
         'Missing fetched items\n' +
           Array.from(keys.values())
