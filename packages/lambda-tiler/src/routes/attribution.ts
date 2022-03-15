@@ -85,16 +85,6 @@ async function readStac(uri: string): Promise<StacCollection | null> {
   }
 }
 
-/** Attempt to find the GSD from a stack summary object */
-function getGsd(un?: Record<string, unknown>): number | null {
-  if (un == null) return null;
-  const gsd = un['gsd'];
-  if (gsd == null) return null;
-  if (!Array.isArray(gsd)) return null;
-  if (isNaN(gsd[0])) return null;
-  return gsd[0];
-}
-
 export function createAttributionCollection(
   tileSet: TileSetRaster,
   stac: StacCollection | null | undefined,
