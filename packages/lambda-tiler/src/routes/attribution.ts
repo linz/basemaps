@@ -11,7 +11,6 @@ import {
   StacExtent,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import {
   CompositeError,
   Config,
@@ -23,10 +22,11 @@ import {
   titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
+import { Router } from '../router.js';
 import { TileSets } from '../tile.set.cache.js';
 import { TileSetRaster } from '../tile.set.raster.js';
-import { Router } from '../router.js';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
