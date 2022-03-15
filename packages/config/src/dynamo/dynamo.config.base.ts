@@ -1,5 +1,5 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
-import { BasemapsConfigObject, GetAllOptions } from '../base.config.js';
+import { BasemapsConfigObject } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProviderDynamo } from './dynamo.config.js';
@@ -7,10 +7,6 @@ import { ConfigProviderDynamo } from './dynamo.config.js';
 function toId(id: string): { id: { S: string } } {
   return { id: { S: id } };
 }
-
-const GetAllOptionDefaults: GetAllOptions = {
-  size: 256,
-};
 
 export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends BasemapsConfigObject<T> {
   cfg: ConfigProviderDynamo;
@@ -37,25 +33,30 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
   }
 
   /** Get all records with the id */
-  public async getAll(keys: Set<string>, opts?: Partial<GetAllOptions>): Promise<Map<string, T>> {
+  public async getAll(keys: Set<string>): Promise<Map<string, T>> {
     let mappedKeys = Array.from(keys, toId);
 
     const output: Map<string, T> = new Map();
 
-    const keySize = opts?.size ?? GetAllOptionDefaults.size;
-
     while (mappedKeys.length > 0) {
-      const Keys = mappedKeys.length > keySize ? mappedKeys.slice(0, keySize) : mappedKeys;
-      mappedKeys = mappedKeys.length > keySize ? mappedKeys.slice(keySize) : [];
+      // Batch has a limit of 100 keys returned in a single get
+      const Keys = mappedKeys.length > 100 ? mappedKeys.slice(0, 100) : mappedKeys;
+      mappedKeys = mappedKeys.length > 100 ? mappedKeys.slice(100) : [];
 
-      const items = await this.db.batchGetItem({ RequestItems: { [this.cfg.tableName]: { Keys } } }).promise();
+      let RequestItems: DynamoDB.BatchGetRequestMap = { [this.cfg.tableName]: { Keys } };
+      while (RequestItems != null && Object.keys(RequestItems).length > 0) {
+        const items = await this.db.batchGetItem({ RequestItems }).promise();
 
-      const metadataItems = items.Responses?.[this.cfg.tableName];
-      if (metadataItems == null) throw new Error('Failed to fetch metadata from ' + this.cfg.tableName);
+        const metadataItems = items.Responses?.[this.cfg.tableName];
+        if (metadataItems == null) throw new Error('Failed to fetch metadata from ' + this.cfg.tableName);
 
-      for (const row of metadataItems) {
-        const item = DynamoDB.Converter.unmarshall(row) as BaseConfig;
-        if (this.is(item)) output.set(item.id, item);
+        for (const row of metadataItems) {
+          const item = DynamoDB.Converter.unmarshall(row) as BaseConfig;
+          if (this.is(item)) output.set(item.id, item);
+        }
+
+        // Sometimes not all results will be returned on the first request
+        RequestItems = items.UnprocessedKeys as DynamoDB.BatchGetRequestMap;
       }
     }
 

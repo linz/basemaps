@@ -71,11 +71,6 @@ export abstract class BasemapsConfigProvider {
   abstract Provider: BasemapsConfigObject<ConfigProvider>;
 }
 
-export interface GetAllOptions {
-  /** Number of records to fetch in one getAll request */
-  size: number;
-}
-
 export abstract class BasemapsConfigObject<T extends BaseConfig> {
   prefix: ConfigPrefix;
 
@@ -95,7 +90,7 @@ export abstract class BasemapsConfigObject<T extends BaseConfig> {
   /** Fetch a single object from the store */
   abstract get(id: string): Promise<T | null>;
   /** Fetch all objects from the store */
-  abstract getAll(id: Set<string>, opts?: GetAllOptions): Promise<Map<string, T>>;
+  abstract getAll(id: Set<string>): Promise<Map<string, T>>;
 }
 
 export const Config = new ConfigInstance();
