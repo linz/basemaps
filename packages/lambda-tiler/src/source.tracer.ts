@@ -18,12 +18,12 @@ export class SourceTracer {
   /** Override the fetchByte function to trace all requests for this source  */
   trace(source: ChunkSource): void {
     const originFetch = source.fetchBytes;
-    source.fetchBytes = async (offset, length, log): Promise<ArrayBuffer> => {
+    source.fetchBytes = async (offset: number, length?: number): Promise<ArrayBuffer> => {
       const request: SourceRequest = { source: source.uri, offset, length };
       this.requests.push(request);
       const startTime = Date.now();
 
-      const ret = await originFetch.apply(source, [offset, length, log]);
+      const ret = await originFetch.apply(source, [offset, length]);
 
       request.duration = Date.now() - startTime;
       return ret;
