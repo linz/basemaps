@@ -827,44 +827,49 @@
   resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-8.0.3.tgz#5ab9ef98ea1ccf33933d4de9717ed413a0c99b5a"
   integrity sha512-BqfSpkOgTIfO5mDwx5x1RkKlARI5ZZYQSsC9KWU9aDbhPew33faOC/EkEW0kSYKbIL4pestI9XjAZ8WAhectkQ==
 
-"@chunkd/fs@^8.0.3":
-  version "8.0.3"
-  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-8.0.3.tgz#a1726d95d087026097625ca686c114bbabd533d3"
-  integrity sha512-ouGUBdeliJScKIIU8itmgTFZPwtTVDKXZfUQsNkjGwET62PR8YJNaNJRJA6iyvpuDI24fSz92cXtMU1TPO69Lg==
-  dependencies:
-    "@chunkd/core" "^8.0.3"
-    "@chunkd/source-aws" "^8.0.3"
-    "@chunkd/source-file" "^8.0.3"
-    "@chunkd/source-http" "^8.0.3"
+"@chunkd/core@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-8.1.0.tgz#724da02f4059eef853c8b690af6729d77d54702c"
+  integrity sha512-Ij+UlGyz9kQW27/NKBDYh89v+6jOHoVdKv6bhxNG1SQzJRThumbnJelbm27rOYzF1MTbgvECIWjEqHTeSljtOQ==
 
-"@chunkd/source-aws-v2@^8.0.3":
-  version "8.0.3"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-aws-v2/-/source-aws-v2-8.0.3.tgz#13c62f3e7a87a6f1416da8643b3dfcf33ad92364"
-  integrity sha512-Qo9KWwIr/jE/KzlptR43vcNGWbIZJ6e1vfAo7oj6/cL6zhjFf5ALMRCCo7eq4SMIbZZqwY+kSbspU0979XQIXQ==
+"@chunkd/fs@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-8.1.0.tgz#730ccd29cd8d5d467327d5ba8ada902ca1ec703a"
+  integrity sha512-+xnVWnnWnvPR3HOYwbjmEnwveYodnS7B9rzrEtCi1wS/vAxdJRywyawgTx1RIUIcF9R1Orex5w8kx2vsZgIRfQ==
   dependencies:
-    "@chunkd/core" "^8.0.3"
-    "@chunkd/source-aws" "^8.0.3"
+    "@chunkd/core" "^8.1.0"
+    "@chunkd/source-aws" "^8.1.0"
+    "@chunkd/source-file" "^8.1.0"
+    "@chunkd/source-http" "^8.1.0"
 
-"@chunkd/source-aws@^8.0.3":
-  version "8.0.3"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-8.0.3.tgz#9ce59397df935d2bdf7042fc187e9f7a6b799b1a"
-  integrity sha512-vKXFQjxSDZ6keZhgzHPztY2G/G0Lniyh/8NHxjdIIj1j4jpb4DJL46d3SbRk2q8BDrJoxbrlXv2Ib7IlCO7gHg==
+"@chunkd/source-aws-v2@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws-v2/-/source-aws-v2-8.1.0.tgz#48c310abc8d1a92f979ee3d1c902643e60559526"
+  integrity sha512-mZ1Jf769oOZpkqFc2bNhW/4GG+s8wKfBjUk6nHQKxkjH3HyJ+f6cJQ1trKUiAfgvmUaYlX4lS+OpnEnPCriUfQ==
   dependencies:
-    "@chunkd/core" "^8.0.3"
+    "@chunkd/core" "^8.1.0"
+    "@chunkd/source-aws" "^8.1.0"
 
-"@chunkd/source-file@^8.0.3":
-  version "8.0.3"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-file/-/source-file-8.0.3.tgz#88e9d123fdd97f589035715e56bf762c17b8f4bb"
-  integrity sha512-abxIDovpIjPpdn6RNZipcV8JT2bneO2wnqJ9D+4ErIHsICH+4rTjwcLEJHw8yN2jITjcUjyVoNQwDPPFDARE/Q==
+"@chunkd/source-aws@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-8.1.0.tgz#2cfe1f32132e363c1389e3ce6242f3fe0faa2eb9"
+  integrity sha512-N1zAOFuPK8J1GfvlW9lbYxExXMud7MIpLTcWV6x9rBlnWrmCV9QtfxvJjSCvb5Ji9xdUNxmAN/C+1nIiLyHuKw==
   dependencies:
-    "@chunkd/core" "^8.0.3"
+    "@chunkd/core" "^8.1.0"
 
-"@chunkd/source-http@^8.0.3":
-  version "8.0.3"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-http/-/source-http-8.0.3.tgz#71f0cdff4b0d4f57e5de341200a7355532407083"
-  integrity sha512-9cvXJycMJOkQo6NHsQye/b+KOgguyYqNLRNKN4O9dIz7kwQ0y89Pndbveh9ddnKT89AvjOuLx1fAtlS2sfYrAA==
+"@chunkd/source-file@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-file/-/source-file-8.1.0.tgz#f6b9378a4610194eadda2212185f0cc2df32a27e"
+  integrity sha512-6McqwaoLNjsv0AygZoRvw6ZC1+aPHyNJMCZUG7g5nDPtNwYWFBBTn4RIeRPUyN40m5/O0YTINvpYMnJamfePZw==
   dependencies:
-    "@chunkd/core" "^8.0.3"
+    "@chunkd/core" "^8.1.0"
+
+"@chunkd/source-http@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-http/-/source-http-8.1.0.tgz#fadf250f515839f1d8a021f2892ed9cd68641c79"
+  integrity sha512-iRRuimlzZ0shjKkgfp2uCgHWEFySMhQQzINmuJspWU+sDSk5jQC2gnKGz2fDxaqNe8dgRZTb639VAfFMHPkTJg==
+  dependencies:
+    "@chunkd/core" "^8.1.0"
     node-fetch "^3.1.0"
 
 "@cogeotiff/core@^6.1.1":
