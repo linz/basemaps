@@ -159,7 +159,6 @@ const ExpectedJson = {
       },
       links: [],
       summaries: {
-        gsd: [0.75],
         'linz:zoom': {
           min: 14,
           max: 16,
@@ -190,7 +189,6 @@ const ExpectedJson = {
       },
       links: [],
       summaries: {
-        gsd: [0.75],
         'linz:zoom': {
           min: 15,
           max: 17,
@@ -221,7 +219,6 @@ const ExpectedJson = {
       },
       links: [],
       summaries: {
-        gsd: [0.75],
         'linz:zoom': {
           min: 16,
           max: 18,
@@ -252,7 +249,6 @@ const ExpectedJson = {
       },
       links: [],
       summaries: {
-        gsd: [0.75],
         'linz:zoom': {
           min: 14,
           max: 16,
@@ -349,18 +345,14 @@ o.spec('attribution', () => {
             name: 'p1',
           },
         ],
-        summaries: {
-          gsd: [0.75],
-        },
+        summaries: {},
       };
       mockFs.jsStore['s3://bucket/path/image2/collection.json'] = {
         extent: {
           spatial: { bbox: [5, 6, 7, 8] },
           temporal: { interval: [['2016-02-03T01:02:03Z', '2018-09-13T11:32:43Z']] },
         },
-        summaries: {
-          gsd: [0.5],
-        },
+        summaries: {},
       };
 
       const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`);
