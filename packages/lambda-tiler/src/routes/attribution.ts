@@ -11,7 +11,6 @@ import {
   StacExtent,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import {
   CompositeError,
   Config,
@@ -23,10 +22,11 @@ import {
   titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
+import { Router } from '../router.js';
 import { TileSets } from '../tile.set.cache.js';
 import { TileSetRaster } from '../tile.set.raster.js';
-import { Router } from '../router.js';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
@@ -85,16 +85,6 @@ async function readStac(uri: string): Promise<StacCollection | null> {
   }
 }
 
-/** Attempt to find the GSD from a stack summary object */
-function getGsd(un?: Record<string, unknown>): number | null {
-  if (un == null) return null;
-  const gsd = un['gsd'];
-  if (gsd == null) return null;
-  if (!Array.isArray(gsd)) return null;
-  if (isNaN(gsd[0])) return null;
-  return gsd[0];
-}
-
 export function createAttributionCollection(
   tileSet: TileSetRaster,
   stac: StacCollection | null | undefined,
@@ -116,7 +106,6 @@ export function createAttributionCollection(
     extent,
     links: [],
     summaries: {
-      gsd: [getGsd(stac?.summaries) ?? imagery.resolution / 1000],
       'linz:zoom': {
         min: TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true),
         max: TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true),
