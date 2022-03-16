@@ -86,11 +86,9 @@ jobs:
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         uses: aws-actions/configure-aws-credentials@v1.6.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_BASEMAPS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_BASEMAPS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-2
           mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_BASEMAPS_ROLE_PROD }}
+          role-to-assume: ${{ secrets.AWS_ROLE_PROD }}
 
       - name: (Prod) Deploy
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
