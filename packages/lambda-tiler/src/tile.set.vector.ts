@@ -57,7 +57,7 @@ export class TileSetVector {
     const y = (1 << xyz.z) - 1 - xyz.y;
 
     req.timer.start('cotar:tile');
-    const tile = await cotar.get(`tiles/${xyz.z}/${xyz.x}/${y}.pbf.gz`, req.log);
+    const tile = await cotar.get(`tiles/${xyz.z}/${xyz.x}/${y}.pbf.gz`);
     if (tile == null) return NotFound;
     req.timer.end('cotar:tile');
 
