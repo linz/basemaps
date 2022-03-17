@@ -880,10 +880,10 @@
     "@chunkd/core" "^8.0.3"
     ieee754 "^1.1.13"
 
-"@cotar/core@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-5.2.0.tgz#eb521197b6202ac278891b317c39d7e8d185a739"
-  integrity sha512-3XgK7keMsE9dpDSIQDz3prDcMl4axvvz5mIco0bkFiDCyreqpWdpcpcRsV3faeNSdCrYBsvf5DjOeH4K+5iuIw==
+"@cotar/core@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-5.3.0.tgz#69423f9ee77a8630325e486256d20c752e2e1193"
+  integrity sha512-4GaAqJsPCM5CwY6Z8p7GO/hA0d5DowuoH7xTje1buu8ggWF1IN2APSvg/TeV2iD7OctxedPTXIbZpMeg5DhOsw==
   dependencies:
     "@chunkd/core" "^8.0.1"
     "@sindresorhus/fnv1a" "^3.0.0"
