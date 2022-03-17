@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.22.0](https://github.com/linz/basemaps/compare/v6.20.0...v6.22.0) (2022-03-17)
+
+
+### Bug Fixes
+
+* **config:** fetch all unprocessed keys from dynamo if there are any ([#2101](https://github.com/linz/basemaps/issues/2101)) ([731430e](https://github.com/linz/basemaps/commit/731430e73756f05b2684f5b7ae7bd2852bc0a9b5))
+
+
+### Features
+
+* **cli:** remove unused config cli this has been moved into linz/basemaps-config ([#2102](https://github.com/linz/basemaps/issues/2102)) ([b047e11](https://github.com/linz/basemaps/commit/b047e111a9be2b200d5812d2d32fc6df7fdf4c2a))
+
+
+### Reverts
+
+* Revert "release: v6.21.0 (#2104)" (#2107) ([2c7e7f6](https://github.com/linz/basemaps/commit/2c7e7f6686a293995abdeb9604413808f2208bd6)), closes [#2104](https://github.com/linz/basemaps/issues/2104) [#2107](https://github.com/linz/basemaps/issues/2107)
+
+
+
+
+
 # [6.21.0](https://github.com/linz/basemaps/compare/v6.20.0...v6.21.0) (2022-03-16)
 
 
