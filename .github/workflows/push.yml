@@ -52,6 +52,13 @@ jobs:
         env:
           CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
+      - name: (Prod) Publish NPM
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: npx lerna publish from-git --yes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
+
       - name: Deploy - Bundle
         if: github.ref != 'refs/heads/master' || github.repository != 'linz/basemaps'
         run: npx lerna run bundle --stream
@@ -74,13 +81,6 @@ jobs:
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
           NODE_ENV: "dev"
           API_KEY: ${{secrets.API_KEY_NON_PROD}}
-
-      - name: (Prod) Publish NPM
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: npx lerna publish from-git --yes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
 
       - name: (Prod) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
