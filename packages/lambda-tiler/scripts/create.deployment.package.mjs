@@ -4,7 +4,7 @@
  *
  * This is needed as libsharp has to be "installed" into the dist node_modules so that lambda has access to sharp
  */
-const fs = require('fs');
+import * as fs from 'fs';
 
 const parentPackage = JSON.parse(fs.readFileSync('../package.json').toString());
 
