@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/config",
-  "version": "6.22.0",
+  "version": "6.18.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -28,6 +28,6 @@
     "build/"
   ],
   "dependencies": {
-    "@basemaps/geo": "^6.22.0"
+    "@basemaps/geo": "^6.10.0"
   }
 }
