@@ -28,9 +28,10 @@ export class BasemapsServerCommand extends Command {
     verbose: flags.boolean(),
     port: flags.integer({ default: 5000 }),
     dynamo: flags.string({ description: 'Dynamodb table', required: false }),
+    config: flags.string({ description: 'Configuration path', required: false }),
   };
 
-  static args = [{ name: 'configPath', required: false }];
+  static args = [];
 
   async loadFromPath(configPath: string, serverUrl: string): Promise<void> {
     const config = new ConfigProviderMemory();
@@ -79,18 +80,14 @@ export class BasemapsServerCommand extends Command {
   }
 
   async run(): Promise<void> {
-    const { args, flags } = this.parse(BasemapsServerCommand);
+    const { flags } = this.parse(BasemapsServerCommand);
     if (flags.verbose) logger.level = 'debug';
-
-    if (args.configPath == null && flags.dynamo == null) {
-    }
 
     const ServerUrl = `http://localhost:${flags.port}`;
 
-    if (args.configPath != null) {
-      logger.info({ path: args.configPath }, 'Starting Server');
-
-      await this.loadFromPath(args.configPath, ServerUrl);
+    if (flags.config != null) {
+      logger.info({ path: flags.config }, 'Starting Server');
+      await this.loadFromPath(flags.config, ServerUrl);
     } else if (flags.dynamo != null) {
       logger.info({ dynamo: flags.dynamo }, 'Starting Server');
       Config.setConfigProvider(new ConfigProviderDynamo(flags.dynamo));
