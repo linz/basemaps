@@ -44,7 +44,7 @@ export async function invalidateCache(path: string | string[], commit = false): 
       .createInvalidation({
         DistributionId: cf.Id,
         InvalidationBatch: {
-          Paths: { Quantity: 1, Items },
+          Paths: { Quantity: Items.length, Items },
           CallerReference: `${CliId}-${InvalidationId++}`,
         },
       })
