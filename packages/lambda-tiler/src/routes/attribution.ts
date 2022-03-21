@@ -1,4 +1,4 @@
-import { ConfigImagery, ConfigLayer, ConfigProvider } from '@basemaps/config';
+import { ConfigImagery, ConfigLayer, ConfigProvider, TileSetType } from '@basemaps/config';
 import {
   AttributionCollection,
   AttributionItem,
@@ -11,7 +11,6 @@ import {
   StacExtent,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import {
   CompositeError,
   Config,
@@ -23,10 +22,11 @@ import {
   titleizeImageryName,
 } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
+import { Router } from '../router.js';
 import { TileSets } from '../tile.set.cache.js';
 import { TileSetRaster } from '../tile.set.raster.js';
-import { Router } from '../router.js';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
@@ -85,16 +85,6 @@ async function readStac(uri: string): Promise<StacCollection | null> {
   }
 }
 
-/** Attempt to find the GSD from a stack summary object */
-function getGsd(un?: Record<string, unknown>): number | null {
-  if (un == null) return null;
-  const gsd = un['gsd'];
-  if (gsd == null) return null;
-  if (!Array.isArray(gsd)) return null;
-  if (isNaN(gsd[0])) return null;
-  return gsd[0];
-}
-
 export function createAttributionCollection(
   tileSet: TileSetRaster,
   stac: StacCollection | null | undefined,
@@ -116,7 +106,6 @@ export function createAttributionCollection(
     extent,
     links: [],
     summaries: {
-      gsd: [getGsd(stac?.summaries) ?? imagery.resolution / 1000],
       'linz:zoom': {
         min: TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true),
         max: TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true),
@@ -140,7 +129,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
 
   // read all stac files in parallel
   for (const layer of tileSet.tileSet.layers) {
-    const imgId = Config.getImageId(layer, proj.epsg);
+    const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
     const im = tileSet.imagery.get(imgId);
     if (im == null) continue;
@@ -153,7 +142,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
   if (host == null) return null;
 
   for (const layer of tileSet.tileSet.layers) {
-    const imgId = Config.getImageId(layer, proj.epsg);
+    const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
     const im = tileSet.imagery.get(imgId);
     if (im == null) continue;
@@ -217,7 +206,7 @@ export async function attribution(req: LambdaHttpRequest): Promise<LambdaHttpRes
   req.timer.start('tileset:load');
   const tileSet = await TileSets.get(data.name, data.tileMatrix);
   req.timer.end('tileset:load');
-  if (tileSet == null || tileSet.isVector()) return NotFound;
+  if (tileSet == null || tileSet.type === TileSetType.Vector) return NotFound;
 
   const cacheKey = createHash('sha256').update(JSON.stringify(tileSet.tileSet)).digest('base64');
 

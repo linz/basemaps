@@ -1,4 +1,4 @@
-import { TileSetNameParser } from '@basemaps/config';
+import { TileSetNameParser, TileSetType } from '@basemaps/config';
 import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Config } from '@basemaps/shared';
 import { TileSet } from './tile.set.js';
@@ -50,7 +50,7 @@ export class TileSetCache {
     if (nameComp.layer != null) {
       const parentName = TileSetNameParser.componentsToName({ ...nameComp, layer: undefined });
       const parent = await this.get(parentName, tileMatrix);
-      if (parent == null || parent.isVector()) return null;
+      if (parent == null || parent.type === TileSetType.Vector) return null;
       return parent.child(nameComp.layer);
     }
 
@@ -91,7 +91,7 @@ export class TileSetCache {
     const tileSets: TileSetRaster[] = [];
     for (const parent of tileMatrixSets) {
       if (parent == null) continue;
-      if (parent.isVector()) continue;
+      if (parent.type === TileSetType.Vector) continue;
 
       tileSets.push(parent);
       if (nameComp.layer != null) {

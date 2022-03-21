@@ -32,34 +32,34 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
     return null;
   }
 
+  /** Get all records with the id */
   public async getAll(keys: Set<string>): Promise<Map<string, T>> {
     let mappedKeys = Array.from(keys, toId);
 
     const output: Map<string, T> = new Map();
 
     while (mappedKeys.length > 0) {
+      // Batch has a limit of 100 keys returned in a single get
       const Keys = mappedKeys.length > 100 ? mappedKeys.slice(0, 100) : mappedKeys;
       mappedKeys = mappedKeys.length > 100 ? mappedKeys.slice(100) : [];
 
-      const items = await this.db.batchGetItem({ RequestItems: { [this.cfg.tableName]: { Keys } } }).promise();
+      let RequestItems: DynamoDB.BatchGetRequestMap = { [this.cfg.tableName]: { Keys } };
+      while (RequestItems != null && Object.keys(RequestItems).length > 0) {
+        const items = await this.db.batchGetItem({ RequestItems }).promise();
 
-      const metadataItems = items.Responses?.[this.cfg.tableName];
-      if (metadataItems == null) throw new Error('Failed to fetch tile metadata');
+        const metadataItems = items.Responses?.[this.cfg.tableName];
+        if (metadataItems == null) throw new Error('Failed to fetch metadata from ' + this.cfg.tableName);
 
-      for (const row of metadataItems) {
-        const item = DynamoDB.Converter.unmarshall(row) as BaseConfig;
-        if (this.is(item)) output.set(item.id, item);
+        for (const row of metadataItems) {
+          const item = DynamoDB.Converter.unmarshall(row) as BaseConfig;
+          if (this.is(item)) output.set(item.id, item);
+        }
+
+        // Sometimes not all results will be returned on the first request
+        RequestItems = items.UnprocessedKeys as DynamoDB.BatchGetRequestMap;
       }
     }
 
-    if (output.size < keys.size) {
-      throw new Error(
-        'Missing fetched items\n' +
-          Array.from(keys.values())
-            .filter((i) => !output.has(i))
-            .join(', '),
-      );
-    }
     return output;
   }
 

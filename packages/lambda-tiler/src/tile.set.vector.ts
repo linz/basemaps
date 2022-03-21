@@ -1,9 +1,11 @@
-import { ConfigTileSetVector, TileSetType } from '@basemaps/config';
+import { ConfigTileSetVector, TileSetNameComponents, TileSetNameParser, TileSetType } from '@basemaps/config';
+import { TileMatrixSet } from '@basemaps/geo';
 import { fsa, TileDataXyz, VectorFormat } from '@basemaps/shared';
 import { Cotar } from '@cotar/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { NotFound } from './routes/response.js';
-import { TileSetHandler } from './tile.set.js';
+import { TileSets } from './tile.set.cache.js';
+import { St } from './source.tracer.js';
 
 class CotarCache {
   cache = new Map<string, Promise<Cotar | null>>();
@@ -11,7 +13,9 @@ class CotarCache {
   get(uri: string): Promise<Cotar | null> {
     let cotar = this.cache.get(uri);
     if (cotar == null) {
-      cotar = Cotar.fromTar(fsa.source(uri));
+      const source = fsa.source(uri);
+      St.trace(source);
+      cotar = Cotar.fromTar(source);
       this.cache.set(uri, cotar);
     }
     return cotar;
@@ -20,8 +24,23 @@ class CotarCache {
 
 export const Layers = new CotarCache();
 
-export class TileSetVector extends TileSetHandler<ConfigTileSetVector> {
-  type = TileSetType.Vector;
+export class TileSetVector {
+  type: TileSetType.Vector = TileSetType.Vector;
+  components: TileSetNameComponents;
+  tileMatrix: TileMatrixSet;
+  tileSet: ConfigTileSetVector;
+  constructor(name: string, tileMatrix: TileMatrixSet) {
+    this.components = TileSetNameParser.parse(name);
+    this.tileMatrix = tileMatrix;
+  }
+
+  get id(): string {
+    return TileSets.id(this.fullName, this.tileMatrix);
+  }
+
+  get fullName(): string {
+    return TileSetNameParser.componentsToName(this.components);
+  }
 
   async tile(req: LambdaHttpRequest, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
     if (xyz.ext !== VectorFormat.MapboxVectorTiles) return NotFound;
@@ -38,7 +57,7 @@ export class TileSetVector extends TileSetHandler<ConfigTileSetVector> {
     const y = (1 << xyz.z) - 1 - xyz.y;
 
     req.timer.start('cotar:tile');
-    const tile = await cotar.get(`tiles/${xyz.z}/${xyz.x}/${y}.pbf.gz`, req.log);
+    const tile = await cotar.get(`tiles/${xyz.z}/${xyz.x}/${y}.pbf.gz`);
     if (tile == null) return NotFound;
     req.timer.end('cotar:tile');
 
