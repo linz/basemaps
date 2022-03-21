@@ -7,79 +7,31 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest,  windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
-      - uses: actions/checkout@v2.3.4
-        with:
-          fetch-depth: 0
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v2.2.0
-        with:
-          node-version: "14.x"
-          registry-url: https://registry.npmjs.org
-          cache: 'yarn'
+      - uses: linz/action-typescript@v1
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.js
 
-      - name: Install
-        run: yarn  --frozen-lockfile --check-files
-
-      - name: Audit
-        run: yarn audit --groups dependencies
-
-      - name: Build
-        run: yarn run build
-
-      - name: Lint
-        run: yarn run lint
-
-      - name: Check Formatting
-        run: git diff --exit-code
-
-      - name: Test
-        run: yarn run test
-
       - name: Benchmark
-        run: yarn run benchmark
+        if: matrix.os == 'ubuntu-latest'
+        uses: blacha/hyperfine-action@v1
 
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
     needs: [build]
     if: github.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@v2.3.4
-        with:
-          fetch-depth: 0
+      - uses: linz/action-typescript@v1
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v2.2.0
-        with:
-          node-version: "14.x"
-          registry-url: https://registry.npmjs.org
-          cache: 'yarn'
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.js
-
-      - name: Install
-        run: yarn  --frozen-lockfile --check-files
-
-      - name: Build
-        run: yarn run build
-
-      - name: Lint
-        run: yarn run lint
-
-      - name: Check Formatting
-        run: git diff --exit-code
-
-      - name: Test
-        run: yarn run test
-
-      - name: Benchmark
-        run: yarn run benchmark
 
       - name: (Prod) Setup git config
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -94,32 +46,11 @@ jobs:
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
           git push --tags
 
-      - name: Deploy - Bundle
-        if: github.ref != 'refs/heads/master' || github.repository != 'linz/basemaps'
-        run: npx lerna run bundle --stream
-
-      - name: (NonProd) Configure AWS Credentials
-        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
-        uses: aws-actions/configure-aws-credentials@v1.5.10
-        with:
-          aws-access-key-id: ${{ secrets.AWS_BASEMAPS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_BASEMAPS_SECRET_ACCESS_KEY }}
-          aws-region: ap-southeast-2
-          mask-account-id: true
-          role-to-assume: ${{ secrets.AWS_BASEMAPS_ROLE_NON_PROD }}
-
-      - name: (NonProd) Deploy
-        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
-        run: |
-          npx lerna run bundle --stream
-          npx lerna run deploy:deploy --stream
+      - name: Create github release
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: npx conventional-github-releaser -p angular
         env:
-          ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN}}
-          CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN}}
-          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
-          NODE_ENV: "dev"
-          API_KEY: ${{secrets.API_KEY_NON_PROD}}
-          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: (Prod) Publish NPM
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -128,15 +59,36 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
 
+      - name: Deploy - Bundle
+        if: github.ref != 'refs/heads/master' || github.repository != 'linz/basemaps'
+        run: npx lerna run bundle --stream
+
+      - name: (NonProd) Configure AWS Credentials
+        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
+        uses: aws-actions/configure-aws-credentials@v1.6.0
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_NON_PROD }}
+
+      - name: (NonProd) Deploy
+        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
+        run: |
+          npx lerna run bundle --stream
+          npx lerna run deploy:deploy --stream
+        env:
+          SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_NON_PROD}}
+          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
+          NODE_ENV: "dev"
+          API_KEY: ${{secrets.API_KEY_NON_PROD}}
+
       - name: (Prod) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        uses: aws-actions/configure-aws-credentials@v1.5.10
+        uses: aws-actions/configure-aws-credentials@v1.6.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_BASEMAPS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_BASEMAPS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-2
-          mask-account-id: true
-          role-to-assume: ${{ secrets.AWS_BASEMAPS_ROLE_PROD }}
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_PROD }}
 
       - name: (Prod) Deploy
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -144,9 +96,17 @@ jobs:
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
-          ALB_CERTIFICATE_ARN: ${{secrets.ALB_CERTIFICATE_ARN_PROD}}
-          CLOUDFRONT_CERTIFICATE_ARN: ${{secrets.CLOUDFRONT_CERTIFICATE_ARN_PROD}}
           NODE_ENV: "production"
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
+          SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
-          LOG_ACCOUNT_ID: ${{secrets.LOG_ACCOUNT_ID}}
+
+  benchmark:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: linz/action-typescript@v1
+
+      - name: Benchmark
+        uses: blacha/hyperfine-action@v1

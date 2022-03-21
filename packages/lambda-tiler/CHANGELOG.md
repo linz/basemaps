@@ -3,6 +3,227 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.22.0](https://github.com/linz/basemaps/compare/v6.21.1...v6.22.0) (2022-03-20)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [6.21.1](https://github.com/linz/basemaps/compare/v6.21.0...v6.21.1) (2022-03-17)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** bundle the exact version of sharp from the yarn.lock  ([#2114](https://github.com/linz/basemaps/issues/2114)) ([a193e41](https://github.com/linz/basemaps/commit/a193e4172c63349e745e8bfcbb78ac919e52f1dd))
+* **lambda-tiler:** scripts should be specific to the module type ([#2115](https://github.com/linz/basemaps/issues/2115)) ([04c6f87](https://github.com/linz/basemaps/commit/04c6f8777ec722f1dc918757dd79043bd88d5e9a))
+
+
+
+
+
+# [6.21.0](https://github.com/linz/basemaps/compare/v6.20.0...v6.21.0) (2022-03-17)
+
+
+### Bug Fixes
+
+* **config:** fetch all unprocessed keys from dynamo if there are any ([#2101](https://github.com/linz/basemaps/issues/2101)) ([731430e](https://github.com/linz/basemaps/commit/731430e73756f05b2684f5b7ae7bd2852bc0a9b5))
+
+
+### Features
+
+* **config:** remove imagery year and resoltuion from config as it is not used ([#2097](https://github.com/linz/basemaps/issues/2097)) ([8be7c09](https://github.com/linz/basemaps/commit/8be7c09b9ce64898e5ab54b7fcb74c34405f558e))
+* **lambda-tiler:** limit request tracing to 100 requests ([#2095](https://github.com/linz/basemaps/issues/2095)) ([f86fc30](https://github.com/linz/basemaps/commit/f86fc30aefcd2ddbfe2ffe43547338d36c152315))
+* **lambda-tiler:** trace all requests to source ([#2093](https://github.com/linz/basemaps/issues/2093)) ([a2ca049](https://github.com/linz/basemaps/commit/a2ca049bd11505882105cb525a3f28f84c10611a))
+
+
+### Reverts
+
+* Revert "release: v6.21.0 (#2104)" (#2111) ([d07f8ab](https://github.com/linz/basemaps/commit/d07f8ab4037466b060bf7e83960737554ff064b4)), closes [#2104](https://github.com/linz/basemaps/issues/2104) [#2111](https://github.com/linz/basemaps/issues/2111)
+* Revert "release: v6.22.0 (#2108)" (#2110) ([abcd2e4](https://github.com/linz/basemaps/commit/abcd2e4732a6d606eed865f526d6df2e4617aad3)), closes [#2108](https://github.com/linz/basemaps/issues/2108) [#2110](https://github.com/linz/basemaps/issues/2110)
+* Revert "release: v6.21.0 (#2104)" (#2107) ([2c7e7f6](https://github.com/linz/basemaps/commit/2c7e7f6686a293995abdeb9604413808f2208bd6)), closes [#2104](https://github.com/linz/basemaps/issues/2104) [#2107](https://github.com/linz/basemaps/issues/2107)
+
+
+
+
+
+# [6.20.0](https://github.com/linz/basemaps/compare/v6.19.0...v6.20.0) (2022-02-01)
+
+
+### Features
+
+* **lambda-tiler:** allow relative sprites and glyphs ([#2071](https://github.com/linz/basemaps/issues/2071)) ([a283157](https://github.com/linz/basemaps/commit/a283157f6b11fd9f6168edd19e9d5624f52d0325))
+* **lambda-tiler:** wip esri vectortileserver interface for vector tiles ([#2041](https://github.com/linz/basemaps/issues/2041)) ([0549d68](https://github.com/linz/basemaps/commit/0549d688ae44c20bd8dce0281988c7ba258fdacb))
+
+
+
+
+
+# [6.19.0](https://github.com/linz/basemaps/compare/v6.18.1...v6.19.0) (2021-12-20)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** remove the host check to add api keys for all stylejson sources. ([#2032](https://github.com/linz/basemaps/issues/2032)) ([beab64c](https://github.com/linz/basemaps/commit/beab64c7f747dd5c1be06877b05b1173a95b1537))
+
+
+### Features
+
+* **lambda-tiler:** compress geojson output to prevent overflowing lambda ([#2034](https://github.com/linz/basemaps/issues/2034)) ([5d48524](https://github.com/linz/basemaps/commit/5d48524c0bf03c40e85cd661fd7f609bbdeed3dd))
+* **tiler:** expose some of the metadata geojson via a /v1/imagery endpoint ([#2033](https://github.com/linz/basemaps/issues/2033)) ([b471209](https://github.com/linz/basemaps/commit/b471209a381dfdab1a25be4882e464c8ddea9064))
+
+
+
+
+
+# [6.18.0](https://github.com/linz/basemaps/compare/v6.17.0...v6.18.0) (2021-12-14)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+# [6.17.0](https://github.com/linz/basemaps/compare/v6.16.1...v6.17.0) (2021-12-05)
+
+
+### Features
+
+* **lambda-tiler:** Stop caching for the stylejson. ([#2011](https://github.com/linz/basemaps/issues/2011)) ([f29ae16](https://github.com/linz/basemaps/commit/f29ae16cd0b858fd9929a8cbcefa1c5113687bc9))
+* **landing:** use topographic name not topolike ([#2008](https://github.com/linz/basemaps/issues/2008)) ([a281d87](https://github.com/linz/basemaps/commit/a281d874ae8211447282ad41dd497e96689ceb88))
+
+
+
+
+
+## [6.16.1](https://github.com/linz/basemaps/compare/v6.16.0...v6.16.1) (2021-11-30)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+# [6.16.0](https://github.com/linz/basemaps/compare/v6.15.0...v6.16.0) (2021-11-29)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** p-limit is a needed dependency ([#1998](https://github.com/linz/basemaps/issues/1998)) ([dfb1b25](https://github.com/linz/basemaps/commit/dfb1b2575e9b40b96ffa4bdcfa8f1496b18ae25e))
+
+
+
+
+
+# [6.15.0](https://github.com/linz/basemaps/compare/v6.14.2...v6.15.0) (2021-11-28)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** publish the tiler so `@basemaps/server` can use it ([#1991](https://github.com/linz/basemaps/issues/1991)) ([c1d7477](https://github.com/linz/basemaps/commit/c1d74773a94c643d1a60e84ef8005fc505a88126))
+
+
+
+
+
+## [6.12.1](https://github.com/linz/basemaps/compare/v6.12.0...v6.12.1) (2021-10-19)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** cleanup tiff cache everytime a new tiff is initalized ([#1900](https://github.com/linz/basemaps/issues/1900)) ([bfd52af](https://github.com/linz/basemaps/commit/bfd52afc810398a03800893a10313a2eb1a5834a))
+* **lambda-tiler:** Replace the encoded braces in stylejson url. ([#1912](https://github.com/linz/basemaps/issues/1912)) ([e51d038](https://github.com/linz/basemaps/commit/e51d0380b21110ff5585804fae14baf92a588352))
+
+
+
+
+
+# [6.12.0](https://github.com/linz/basemaps/compare/v6.11.0...v6.12.0) (2021-10-05)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+# [6.11.0](https://github.com/linz/basemaps/compare/v6.10.1...v6.11.0) (2021-10-03)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** do not create a new requestId for test tile creation ([#1876](https://github.com/linz/basemaps/issues/1876)) ([f6946da](https://github.com/linz/basemaps/commit/f6946dad47bb91b3c75a89237a917ed925ffc818))
+* **lambda-tiler:** limit the tiff memory cache to 256MB of imagery ([#1882](https://github.com/linz/basemaps/issues/1882)) ([2bf0bdc](https://github.com/linz/basemaps/commit/2bf0bdc39c191a7bb7a8e8e2277160a357248386))
+
+
+### Features
+
+* **server:** add ability to serve a folder full of tiffs ([#1889](https://github.com/linz/basemaps/issues/1889)) ([adefde1](https://github.com/linz/basemaps/commit/adefde176ce03db5c6c978d8b85a11fc7cd15693))
+* **server:** use the lambda handler directly ([#1870](https://github.com/linz/basemaps/issues/1870)) ([408ff56](https://github.com/linz/basemaps/commit/408ff5654cc04aae35d05eb5bbc47a51f99ec5b2))
+
+
+
+
+
+# [6.10.0](https://github.com/linz/basemaps/compare/v6.9.1...v6.10.0) (2021-09-22)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** clear timeout if request succeeds ([#1874](https://github.com/linz/basemaps/issues/1874)) ([49183ca](https://github.com/linz/basemaps/commit/49183ca6b154d91b11cd493f88164c346430e369))
+* **lambda-tiler:** move to NZTM2000Quad for health check endpoint ([#1867](https://github.com/linz/basemaps/issues/1867)) ([d4613f0](https://github.com/linz/basemaps/commit/d4613f04f1081f785831488ea53bc8d8da7aae70))
+* bundle esm into commonjs for serving ([#1861](https://github.com/linz/basemaps/issues/1861)) ([ff4490b](https://github.com/linz/basemaps/commit/ff4490b96648ee090055d60154d718c90b9afe97))
+* correctly bundle with esm modules ([#1858](https://github.com/linz/basemaps/issues/1858)) ([708a22e](https://github.com/linz/basemaps/commit/708a22ec1006c25cf2c057b75f61cc813e943aac))
+
+
+### Features
+
+* **lambda-tiler:** track slow requests ([#1871](https://github.com/linz/basemaps/issues/1871)) ([b436e8b](https://github.com/linz/basemaps/commit/b436e8ba77b80b03239cc5c04cd9d7dfb1388f78))
+* replace s3fs with chunkd/fs ([#1859](https://github.com/linz/basemaps/issues/1859)) ([9b6f2d3](https://github.com/linz/basemaps/commit/9b6f2d3609c336f96c2ae32246f241cb396e71c8))
+* **lambda-tiler:** track hash of apikey ([#1855](https://github.com/linz/basemaps/issues/1855)) ([f8a4bef](https://github.com/linz/basemaps/commit/f8a4bef096095c09f5348af97b3f25a338817e87))
+* switch to esm modules ([#1857](https://github.com/linz/basemaps/issues/1857)) ([75bdff8](https://github.com/linz/basemaps/commit/75bdff8da35104f10f6b6ecf58a2c6006245af6e))
+
+
+
+
+
+## [6.9.1](https://github.com/linz/basemaps/compare/v6.9.0...v6.9.1) (2021-09-09)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+# [6.9.0](https://github.com/linz/basemaps/compare/v6.8.0...v6.9.0) (2021-09-09)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** force wmts to be ServiceTypeVersion 1.0.0 ([#1836](https://github.com/linz/basemaps/issues/1836)) ([8353774](https://github.com/linz/basemaps/commit/835377413417c58e4cca8bb4663aa43cc37043ff))
+* **lambda-tiler:** remove console.log ([#1841](https://github.com/linz/basemaps/issues/1841)) ([723dbcc](https://github.com/linz/basemaps/commit/723dbcce8330ed588068fc2904c9476f6bbbd957))
+
+
+### Features
+
+* **tiler-sharp:** start tracking tile composing performance ([#1838](https://github.com/linz/basemaps/issues/1838)) ([b6cff4d](https://github.com/linz/basemaps/commit/b6cff4d982595f2bdd2dd16362c59500d2d8119e))
+
+
+
+
+
+# [6.8.0](https://github.com/linz/basemaps/compare/v6.7.0...v6.8.0) (2021-09-01)
+
+
+### Features
+
+* **lambda-tiler:** remove `@basemaps/lambda` and replace with `@linzjs/lambda` ([#1821](https://github.com/linz/basemaps/issues/1821)) ([cb22b3d](https://github.com/linz/basemaps/commit/cb22b3d2c62b7430839f3e35c18dd96a162fb39a))
+* **server:** create a standalone express server ([#1819](https://github.com/linz/basemaps/issues/1819)) ([83488af](https://github.com/linz/basemaps/commit/83488af658a3ed8f3080dd2ea9f120ac3abd2444))
+
+
+
+
+
 # [6.7.0](https://github.com/linz/basemaps/compare/v6.6.1...v6.7.0) (2021-08-15)
 
 

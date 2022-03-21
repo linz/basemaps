@@ -2,5 +2,5 @@
 /**
  * Render a single tile and save it as a PNG
  */
-require('source-map-support/register');
-require('./build/cli/dump');
+import 'source-map-support/register.js';
+import './build/cli/dump.js';

@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-analytics",
-  "version": "6.7.0",
+  "version": "6.22.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -12,10 +12,14 @@
     "url": "https://linz.govt.nz",
     "organization": true
   },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/shared": "^6.7.0",
-    "@linzjs/s3fs": "^6.7.0"
+    "@basemaps/shared": "^6.22.0",
+    "@linzjs/s3fs": "^6.9.1"
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",

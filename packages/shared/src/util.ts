@@ -1,9 +1,9 @@
 interface Named {
-    name: string;
+  name: string;
 }
 
 export function compareName(a: Named, b: Named): number {
-    return a.name.localeCompare(b.name);
+  return a.name.localeCompare(b.name);
 }
 
 /**
@@ -12,13 +12,13 @@ export function compareName(a: Named, b: Named): number {
  *  'tasman_rural_2018-19_0-3m' => 'Tasman rural 2018-19 0.3m'
  */
 export function titleizeImageryName(name: string): string {
-    return (
-        name[0].toUpperCase() +
-        name
-            .slice(1)
-            .replace(/_(\d+)-(\d+)m/g, ' $1.$2m')
-            .replace(/_/g, ' ')
-    );
+  return (
+    name[0].toUpperCase() +
+    name
+      .slice(1)
+      .replace(/_(\d+)-(\d+)m/g, ' $1.$2m')
+      .replace(/_/g, ' ')
+  );
 }
 
 /**
@@ -28,38 +28,38 @@ export function titleizeImageryName(name: string): string {
  * @return imagery year, -1 for failure to parse
  */
 export function extractYearRangeFromName(name: string): [number, number] {
-    const re = /(?:^|\D)(\d{4})(?:-(\d{2}))?(?:$|\D)/g;
+  const re = /(?:^|\D)(\d{4})(?:-(\d{2}))?(?:$|\D)/g;
 
-    const years: number[] = [];
+  const years: number[] = [];
 
-    for (let m = re.exec(name); m != null; m = re.exec(name)) {
-        years.push(parseInt(m[1]));
-        if (m[2] != null) years.push(parseInt(m[1].slice(0, 2) + m[2]));
-    }
+  for (let m = re.exec(name); m != null; m = re.exec(name)) {
+    years.push(parseInt(m[1]));
+    if (m[2] != null) years.push(parseInt(m[1].slice(0, 2) + m[2]));
+  }
 
-    if (years.length === 0) {
-        return [-1, -1];
-    }
+  if (years.length === 0) {
+    return [-1, -1];
+  }
 
-    years.sort();
+  years.sort();
 
-    return [years[0], years[years.length - 1] + 1];
+  return [years[0], years[years.length - 1] + 1];
 }
 
 export function s3ToVsis3(name: string): string {
-    return name.startsWith('s3://') ? '/vsis3/' + name.slice('s3://'.length) : name;
+  return name.startsWith('s3://') ? '/vsis3/' + name.slice('s3://'.length) : name;
 }
 
 /** Extract the hostname from a url */
 export function getUrlHost(ref: string | undefined): string | undefined {
-    if (ref == null) return ref;
-    try {
-        const { hostname } = new URL(ref);
-        if (hostname == null) return ref;
-        if (hostname.startsWith('www.')) return hostname.slice(4);
-        return hostname;
-    } catch (e) {
-        // Ignore
-    }
-    return ref;
+  if (ref == null) return ref;
+  try {
+    const { hostname } = new URL(ref);
+    if (hostname == null) return ref;
+    if (hostname.startsWith('www.')) return hostname.slice(4);
+    return hostname;
+  } catch (e) {
+    // Ignore
+  }
+  return ref;
 }

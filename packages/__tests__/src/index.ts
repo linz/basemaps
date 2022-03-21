@@ -1,2 +1,2 @@
-export { Approx } from './assert';
-export { TestTiff } from './test.tiff';
+export { Approx } from './assert.js';
+export { TestTiff } from './test.tiff.js';

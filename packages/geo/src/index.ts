@@ -1,12 +1,12 @@
-export { NamedBounds, BoundingBox, Bounds, Point, Size } from './bounds';
-export { Epsg, EpsgCode } from './epsg';
-export { QuadKey } from './quad.key';
-export { Tile, TileMatrixSet } from './tile.matrix.set';
-export { WmtsProvider } from './wmts/wmts';
+export { NamedBounds, BoundingBox, Bounds, Point, Size } from './bounds.js';
+export { Epsg, EpsgCode } from './epsg.js';
+export { QuadKey } from './quad.key.js';
+export { Tile, TileMatrixSet } from './tile.matrix.set.js';
+export { WmtsProvider } from './wmts/wmts.js';
 export { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';
 
-export * from './stac';
-export { AttributionCollection, AttributionItem, AttributionStac } from './stac/stac.attribution';
-export { TileMatrixSets } from './tms';
-export { Nztm2000Tms, Nztm2000QuadTms } from './tms/nztm2000';
-export { GoogleTms } from './tms/google';
+export * from './stac/index.js';
+export { AttributionCollection, AttributionItem, AttributionStac } from './stac/stac.attribution.js';
+export { TileMatrixSets } from './tms/index.js';
+export { Nztm2000Tms, Nztm2000QuadTms } from './tms/nztm2000.js';
+export { GoogleTms } from './tms/google.js';

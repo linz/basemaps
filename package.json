@@ -10,22 +10,26 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"{packages/*/src/**/*.ts,scripts/*.js}\" --quiet --fix --report-unused-disable-directives",
+    "lint": "eslint . --quiet --fix --report-unused-disable-directives --ignore-path .gitignore",
     "test": "cross-env NODE_OPTIONS=--enable-source-maps lerna run test --parallel",
-    "benchmark": "ospec 'packages/*/build/**/*.benchmark.js'",
     "clean": "tsc -b --clean && rimraf 'packages/*/build' && yarn clean:dist",
     "clean:dist": "rimraf 'packages/*/dist' && rimraf 'packages/_infra/cdk.out'",
     "clean:modules": "rimraf 'packages/*/node_modules' && rimraf node_modules",
     "build": "tsc -b"
   },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
   "devDependencies": {
-    "@linzjs/style": "^2.1.1",
+    "@linzjs/style": "^3.7.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/node": "^14.11.2",
     "@types/ospec": "^4.0.2",
     "@types/sinon": "^10.0.0",
+    "conventional-github-releaser": "^3.1.5",
     "cross-env": "^7.0.3",
-    "esbuild": "^0.12.5",
+    "esbuild": "^0.13.15",
     "lerna": "4.0.0",
     "ospec": "^4.0.1",
     "rimraf": "^3.0.0",
@@ -43,7 +47,8 @@
   "resolutions": {
     "hosted-git-info": ">=2.8.9",
     "lodash": ">=4.17.21",
-    "trim-newlines": ">=3.0.1 <4.0.0 || >=4.0.1",
-    "normalize-url": ">=4.5.1 <5.0.0 || >=5.3.1 <6.0.0 || >=6.0.1"
+    "trim-newlines": ">=3.0.1 <4.0.0",
+    "normalize-url": ">=4.5.1 <5.0.0",
+    "ansi-regex": ">=5.0.1 <6.0.0"
   }
 }

@@ -1,16 +1,15 @@
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "rootDir": "./src",
-        "outDir": "./build"
-    },
-    "include": ["src/**/*"],
-    "references": [
-        {"path": "../shared"},
-        {"path": "../geo"},
-        {"path": "../lambda"},
-        {"path": "../tiler"},
-        {"path": "../tiler-sharp"},
-        {"path": "../attribution"}
-    ]
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./build"
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../shared" },
+    { "path": "../geo" },
+    { "path": "../tiler" },
+    { "path": "../tiler-sharp" },
+    { "path": "../attribution" }
+  ]
 }

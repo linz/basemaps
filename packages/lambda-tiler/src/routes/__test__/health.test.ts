@@ -1,78 +1,89 @@
-import * as fs from 'fs';
+import { GoogleTms } from '@basemaps/geo';
+import { LogConfig } from '@basemaps/shared';
+import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { Context } from 'aws-lambda';
 import o from 'ospec';
 import sinon from 'sinon';
-import * as Tile from '../tile';
-import { getExpectedTileName, Health, TestTiles } from '../health';
-import { LambdaContext, LambdaHttpResponse } from '@basemaps/lambda';
-import { LogConfig } from '@basemaps/shared';
+import { TileSets } from '../../tile.set.cache.js';
+import { TileSetRaster } from '../../tile.set.raster.js';
+import { getTestBuffer, Health, TestTiles } from '../health.js';
 
-const ctx: LambdaContext = new LambdaContext(
-    {
-        requestContext: null as any,
-        httpMethod: 'get',
-        path: '/v1/tiles/health',
-        body: null,
-        isBase64Encoded: false,
-    },
-    LogConfig.get(),
+const ctx: LambdaHttpRequest = new LambdaAlbRequest(
+  {
+    requestContext: null as any,
+    httpMethod: 'get',
+    path: '/v1/tiles/health',
+    body: null,
+    isBase64Encoded: false,
+  },
+  {} as Context,
+  LogConfig.get(),
 );
 
-o.spec('health', () => {
-    o.afterEach(() => {
-        sinon.restore();
-    });
+o.spec('health', async () => {
+  const sandbox = sinon.createSandbox();
 
-    o('Should return bad response', async () => {
-        // Given ... a bad get tile response
-        const BadResponse = new LambdaHttpResponse(500, 'Can not get Tile Set.');
-        sinon.stub(Tile, 'tile').resolves(BadResponse);
+  const tileSet = new TileSetRaster('health', GoogleTms);
+  o.beforeEach(() => {
+    sandbox.stub(TileSets, 'get').resolves(tileSet);
+  });
 
-        // When ...
-        const res = await Health(ctx);
+  o.afterEach(() => {
+    sandbox.restore();
+  });
 
-        // Then ...
-        o(res.status).equals(500);
-        o(res.statusDescription).equals('Can not get Tile Set.');
-    });
+  o('Should return bad response', async () => {
+    // Given ... a bad get tile response
+    const BadResponse = new LambdaHttpResponse(500, 'Can not get Tile Set.');
+    sandbox.stub(tileSet, 'tile').resolves(BadResponse);
 
-    // Prepare mock test tile response based on the static test tiles
-    const Response1 = new LambdaHttpResponse(200, 'ok');
-    const testTileName1 = getExpectedTileName(TestTiles[0].projection, TestTiles[0].testTile, TestTiles[0].format);
-    const testTileFile1 = fs.readFileSync(testTileName1);
+    // When ...
+    const res = await Health(ctx);
+
+    // Then ...
+    o(res.status).equals(500);
+    o(res.statusDescription).equals('Can not get Tile Set.');
+  });
+
+  const Response1 = new LambdaHttpResponse(200, 'ok');
+  const Response2 = new LambdaHttpResponse(200, 'ok');
+
+  o.before(async () => {
+    const testTileFile1 = await getTestBuffer(TestTiles[0]);
     Response1.buffer(testTileFile1);
-
-    const Response2 = new LambdaHttpResponse(200, 'ok');
-    const testTileName2 = getExpectedTileName(TestTiles[1].projection, TestTiles[1].testTile, TestTiles[1].format);
-    const testTileFile2 = fs.readFileSync(testTileName2);
+    const testTileFile2 = await getTestBuffer(TestTiles[1]);
     Response2.buffer(testTileFile2);
+  });
+  // Prepare mock test tile response based on the static test tiles
 
-    o('Should give a 200 response', async () => {
-        o.timeout(500);
-        // Given ... a series good get tile response
-        const callback = sinon.stub(Tile, 'tile');
-        callback.onCall(0).resolves(Response1);
-        callback.onCall(1).resolves(Response2);
+  o('Should give a 200 response', async () => {
+    o.timeout(500);
 
-        // When ...
-        const res = await Health(ctx);
+    // Given ... a series good get tile response
+    const callback = sandbox.stub(tileSet, 'tile');
+    callback.onCall(0).resolves(Response1);
+    callback.onCall(1).resolves(Response2);
 
-        // Then ...
-        o(res.status).equals(200);
-        o(res.statusDescription).equals('ok');
-    });
+    // When ...
+    const res = await Health(ctx);
 
-    o('Should return mis-match tile response', async () => {
-        o.timeout(500);
-        // Given ... a bad get tile response for second get tile
-        const callback = sinon.stub(Tile, 'tile');
-        callback.onCall(0).resolves(Response1);
-        callback.onCall(1).resolves(Response1);
+    // Then ...
+    o(res.status).equals(200);
+    o(res.statusDescription).equals('ok');
+  });
 
-        // When ...
-        const res = await Health(ctx);
+  o('Should return mis-match tile response', async () => {
+    o.timeout(500);
+    // Given ... a bad get tile response for second get tile
+    const callback = sandbox.stub(tileSet, 'tile');
+    callback.onCall(0).resolves(Response1);
+    callback.onCall(1).resolves(Response1);
 
-        // Then ...
-        o(res.status).equals(500);
-        o(res.statusDescription).equals('TileSet does not match.');
-    });
+    // When ...
+    const res = await Health(ctx);
+
+    // Then ...
+    o(res.status).equals(500);
+    o(res.statusDescription).equals('TileSet does not match.');
+  });
 });

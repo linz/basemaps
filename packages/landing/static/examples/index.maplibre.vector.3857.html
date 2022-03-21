@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Maplibre WGS84 Topolike Vector Basemaps Demo</title>
+        <title>Maplibre WGS84 Topographic Vector Basemaps Demo</title>
         <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
         <script
             src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"
@@ -36,7 +36,7 @@
 
             // vector layers
             const style =
-                'https://basemaps.linz.govt.nz/v1/tiles/topographic/EPSG:3857/style/topolike.json?api=' + apiKey;
+                'https://basemaps.linz.govt.nz/v1/tiles/topographic/EPSG:3857/style/topographic.json?api=' + apiKey;
             var map = new maplibregl.Map({
                 container: 'map', // container id
                 style: style, // style URL

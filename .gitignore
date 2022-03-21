@@ -3,4 +3,5 @@ build
 tsconfig.tsbuildinfo
 dist
 .cache
+cdk.out
 cdk.context.json

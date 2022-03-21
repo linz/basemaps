@@ -4,7 +4,8 @@
 #
 ../../scripts/bundle.js package.json
 cd dist
-cp ../package.json .
+../scripts/create.deployment.package.mjs
+# Make the new package a commonjs module
 cp -r ../static .
 # @see https://sharp.pixelplumbing.com/en/stable/install/#aws-lambda
-npm install --arch=x64 --platform=linux sharp farmhash
+npm install --arch=x64 --platform=linux --production

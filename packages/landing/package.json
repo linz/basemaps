@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "6.7.0",
+  "version": "6.22.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -12,6 +12,10 @@
     "url": "https://linz.govt.nz",
     "organization": true
   },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
   "license": "MIT",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -21,31 +25,31 @@
     "bundle": "../../scripts/bundle.js package.json",
     "deploy:deploy": "node scripts/deploy.js"
   },
-  "dependencies": {
-    "@basemaps/attribution": "^6.0.0",
-    "@basemaps/geo": "^6.0.0",
-    "@basemaps/infra": "^6.7.0",
-    "@basemaps/shared": "^6.7.0",
-    "@linzjs/lui": "^6.0.0",
-    "maplibre-gl": "^1.14.1-rc.2",
-    "ol": "^6.4.2",
-    "proj4": "^2.6.2",
-    "ulid": "^2.3.0"
-  },
   "browserslist": [
     "last 2 Chrome versions"
   ],
   "devDependencies": {
+    "@basemaps/attribution": "^6.22.0",
+    "@basemaps/geo": "^6.21.1",
+    "@basemaps/infra": "^6.22.0",
+    "@basemaps/shared": "^6.22.0",
+    "@linzjs/lui": "^10.11.3",
+    "@servie/events": "^3.0.0",
+    "@splitsoftware/splitio": "^10.16.1",
     "@types/geojson": "^7946.0.7",
-    "@types/proj4": "^2.5.0"
+    "@types/proj4": "^2.5.0",
+    "maplibre-gl": "^1.14.1-rc.2",
+    "preact": "^10.5.15",
+    "proj4": "^2.6.2",
+    "ulid": "^2.3.0"
   },
   "bundle": [
     {
-      "entry": "../../node_modules/@linzjs/lui/dist/assets/nz-govt-logo-rev.svg",
+      "entry": "../../node_modules/@linzjs/lui/dist/assets/images/nz-govt-logo-rev.svg",
       "outfile": "dist/assets/logo-nz-govt.svg"
     },
     {
-      "entry": "../../node_modules/@linzjs/lui/dist/assets/linz-logo-col-n-white-txt.svg",
+      "entry": "../../node_modules/@linzjs/lui/dist/assets/images/linz-logo-col-n-white-txt.svg",
       "outfile": "dist/assets/logo-linz.svg"
     },
     {
@@ -69,11 +73,12 @@
       }
     },
     {
-      "entry": "src/index.ts",
+      "entry": "src/index.tsx",
       "env": {
         "API_KEY": null,
         "GOOGLE_ANALYTICS": null,
-        "TILE_HOST": null
+        "TILE_HOST": null,
+        "SPLIT_IO_KEY": null
       },
       "platform": "browser"
     },
