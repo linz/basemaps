@@ -10,12 +10,6 @@ export interface ConfigImagery extends BaseConfig {
   /** The location of the COGs like s3://basemaps-cogs/3857/aerial/jobId123 */
   uri: string;
 
-  /** Year the imagery was acquired */
-  year: number;
-
-  /** Resolution of imagery in MM */
-  resolution: number;
-
   /** the bounding box of all the COGs */
   bounds: BoundingBox;
 

@@ -1,59 +1,55 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>OpenLayers WMTS Basemaps Demo</title>
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/css/ol.css"
-        type="text/css"
-    />
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/build/ol.js"></script>
-    $ATTR_FILE
-  </head>
 
-  <body>
-    <div id="map" style="width: 800px; height: 600px;"></div>
-    <script>
-     (async () => {
-         const apiKey = localStorage.getItem('api-key');
-         if (! apiKey) {
-             throw new Error('Missing api-key in localStorage');
-         }
+<head>
+  <meta charset="UTF-8" />
+  <title>OpenLayers WMTS Basemaps Demo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/css/ol.css"
+    type="text/css" />
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/build/ol.js"></script>
+  $ATTR_FILE
+</head>
 
-         const projection = 'EPSG:3857';
-         const baseUrl = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/' + projection;
-         const loadingWmts = fetch(baseUrl+'/WMTSCapabilities.xml?api='+apiKey);
-         const attributions = new BasemapsAttribution(projection);
-         const loadingAttrs = attributions.load(baseUrl+'/attribution.json?api='+apiKey);
+<body>
+  <div id="map" style="width: 800px; height: 600px;"></div>
+  <script>
+    (async () => {
+      const apiKey = localStorage.getItem('api-key');
+      if (!apiKey) throw new Error('Missing api-key in localStorage');
 
-         const parser = new ol.format.WMTSCapabilities();
-         const wmtsXml = parser.read(await (await loadingWmts).text());
-         const options = ol.source.WMTS.optionsFromCapabilities(wmtsXml, {
-             layer: 'aerial',
-             matrixSet: projection,
-         });
+      const projection = 'EPSG:3857';
+      const baseUrl = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/' + projection;
+      const loadingWmts = fetch(baseUrl + '/WMTSCapabilities.xml?api=' + apiKey);
 
-         const view  = new ol.View({
-             center: [19467552, -5074414],
-             zoom: 6,
-         });
+      const parser = new ol.format.WMTSCapabilities();
+      const wmtsXml = parser.read(await (await loadingWmts).text());
+      const options = ol.source.WMTS.optionsFromCapabilities(wmtsXml, {
+        layer: 'aerial',
+        matrixSet: projection,
+      });
 
-         const source = new ol.source.WMTS(options);
+      const view = new ol.View({ center: [19467552, -5074414], zoom: 6, });
 
-         const map = new ol.Map({
-             target: 'map',
-             layers: [new ol.layer.Tile({ source, projection })],
-             controls: ol.control.defaults({ attributionOptions: { collapsed: false, collapsible: false } }),
-             view,
-         });
+      const source = new ol.source.WMTS(options);
 
-         await loadingAttrs;
-         map.addEventListener('moveend', () => {
-             source.setAttributions(attributions.renderList(
-                 attributions.filter(view.calculateExtent(), view.getZoom())));
-         });
-     })();
-    </script>
-  </body>
+      const map = new ol.Map({
+        target: 'map',
+        layers: [new ol.layer.Tile({ source, projection })],
+        controls: ol.control.defaults({ attributionOptions: { collapsed: false, collapsible: false } }),
+        view,
+      });
+
+      const attributions = await BasemapsAttribution.load(baseUrl + '/attribution.json?api=' + apiKey);
+      // Ignore the hillshade layers from attribution
+      attributions.isIgnored = a => a.collection.title.toLowerCase().includes('geographx')
+      map.addEventListener('moveend', () => {
+        // Transform the extent into Lat/Long
+        const extent = ol.proj.transformExtent(view.calculateExtent(), projection, 'EPSG:4326');
+        const filtered = attributions.filter(extent, view.getZoom());
+        source.setAttributions(attributions.renderList(filtered));
+      });
+    })();
+  </script>
+</body>
+
 </html>

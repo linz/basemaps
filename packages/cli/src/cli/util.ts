@@ -19,7 +19,7 @@ let InvalidationId = 0;
 /**
  * Invalidate the cloudfront distribution cache when updating imagery sets
  */
-export async function invalidateCache(path: string, commit = false): Promise<void> {
+export async function invalidateCache(path: string | string[], commit = false): Promise<void> {
   const stackInfo = await cloudFormation.describeStacks({ StackName: 'Edge' }).promise();
   if (stackInfo.Stacks?.[0].Outputs == null) {
     LogConfig.get().warn('Unable to find cloud front distribution');
@@ -38,12 +38,13 @@ export async function invalidateCache(path: string, commit = false): Promise<voi
   }
 
   LogConfig.get().info({ path, cfId: cf.Id }, 'Invalidating');
+  const Items = Array.isArray(path) ? path : [path];
   if (commit) {
     await cloudFront
       .createInvalidation({
         DistributionId: cf.Id,
         InvalidationBatch: {
-          Paths: { Quantity: 1, Items: [path] },
+          Paths: { Quantity: Items.length, Items },
           CallerReference: `${CliId}-${InvalidationId++}`,
         },
       })

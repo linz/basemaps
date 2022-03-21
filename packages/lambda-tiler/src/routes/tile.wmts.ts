@@ -1,4 +1,4 @@
-import { Config } from '@basemaps/config';
+import { Config, TileSetType } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
 import { Env, TileSetName, tileWmtsFromPath } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -51,7 +51,7 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
 async function wmtsLoadTileSets(name: string, tileMatrix: TileMatrixSet | null): Promise<TileSetRaster[]> {
   if (tileMatrix != null) {
     const ts = await TileSets.get(name, tileMatrix);
-    if (ts == null || ts.isVector()) return [];
+    if (ts == null || ts.type === TileSetType.Vector) return [];
     return [ts];
   }
   if (name === '') name = TileSetName.aerial;

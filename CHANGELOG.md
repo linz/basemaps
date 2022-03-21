@@ -3,6 +3,62 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.22.0](https://github.com/linz/basemaps/compare/v6.21.1...v6.22.0) (2022-03-20)
+
+
+### Bug Fixes
+
+* **landing:** correct attribution example ([#2118](https://github.com/linz/basemaps/issues/2118)) ([c6b0a96](https://github.com/linz/basemaps/commit/c6b0a966f13e9523b6542bba7f1f936674fd624a))
+
+
+### Features
+
+* **cli:** support multiple invalidations for cloudfront ([#2120](https://github.com/linz/basemaps/issues/2120)) ([764fdeb](https://github.com/linz/basemaps/commit/764fdebaf7624c7761cede3a24c2184105bff9e2))
+* **server:** support loading config from dynamodb ([#2119](https://github.com/linz/basemaps/issues/2119)) ([e550505](https://github.com/linz/basemaps/commit/e550505193df3cf148313e364c7c0670e16756e2))
+
+
+
+
+
+## [6.21.1](https://github.com/linz/basemaps/compare/v6.21.0...v6.21.1) (2022-03-17)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** bundle the exact version of sharp from the yarn.lock  ([#2114](https://github.com/linz/basemaps/issues/2114)) ([a193e41](https://github.com/linz/basemaps/commit/a193e4172c63349e745e8bfcbb78ac919e52f1dd))
+* **lambda-tiler:** scripts should be specific to the module type ([#2115](https://github.com/linz/basemaps/issues/2115)) ([04c6f87](https://github.com/linz/basemaps/commit/04c6f8777ec722f1dc918757dd79043bd88d5e9a))
+
+
+
+
+
+# [6.21.0](https://github.com/linz/basemaps/compare/v6.20.0...v6.21.0) (2022-03-17)
+
+
+### Bug Fixes
+
+* **config:** fetch all unprocessed keys from dynamo if there are any ([#2101](https://github.com/linz/basemaps/issues/2101)) ([731430e](https://github.com/linz/basemaps/commit/731430e73756f05b2684f5b7ae7bd2852bc0a9b5))
+
+
+### Features
+
+* **cli:** remove unused config cli this has been moved into linz/basemaps-config ([#2102](https://github.com/linz/basemaps/issues/2102)) ([b047e11](https://github.com/linz/basemaps/commit/b047e111a9be2b200d5812d2d32fc6df7fdf4c2a))
+* **config:** allow partial fetches from dynamo ([#2100](https://github.com/linz/basemaps/issues/2100)) ([1144d40](https://github.com/linz/basemaps/commit/1144d40482a302b6bca522ce105629209860242d))
+* **config:** remove imagery year and resoltuion from config as it is not used ([#2097](https://github.com/linz/basemaps/issues/2097)) ([8be7c09](https://github.com/linz/basemaps/commit/8be7c09b9ce64898e5ab54b7fcb74c34405f558e))
+* **lambda-tiler:** limit request tracing to 100 requests ([#2095](https://github.com/linz/basemaps/issues/2095)) ([f86fc30](https://github.com/linz/basemaps/commit/f86fc30aefcd2ddbfe2ffe43547338d36c152315))
+* **lambda-tiler:** trace all requests to source ([#2093](https://github.com/linz/basemaps/issues/2093)) ([a2ca049](https://github.com/linz/basemaps/commit/a2ca049bd11505882105cb525a3f28f84c10611a))
+
+
+### Reverts
+
+* Revert "release: v6.21.0 (#2104)" (#2111) ([d07f8ab](https://github.com/linz/basemaps/commit/d07f8ab4037466b060bf7e83960737554ff064b4)), closes [#2104](https://github.com/linz/basemaps/issues/2104) [#2111](https://github.com/linz/basemaps/issues/2111)
+* Revert "release: v6.22.0 (#2108)" (#2110) ([abcd2e4](https://github.com/linz/basemaps/commit/abcd2e4732a6d606eed865f526d6df2e4617aad3)), closes [#2108](https://github.com/linz/basemaps/issues/2108) [#2110](https://github.com/linz/basemaps/issues/2110)
+* Revert "release: v6.21.0 (#2104)" (#2107) ([2c7e7f6](https://github.com/linz/basemaps/commit/2c7e7f6686a293995abdeb9604413808f2208bd6)), closes [#2104](https://github.com/linz/basemaps/issues/2104) [#2107](https://github.com/linz/basemaps/issues/2107)
+
+
+
+
+
 # [6.20.0](https://github.com/linz/basemaps/compare/v6.19.0...v6.20.0) (2022-02-01)
 
 
