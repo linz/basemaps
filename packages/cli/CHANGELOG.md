@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.22.0](https://github.com/linz/basemaps/compare/v6.21.1...v6.22.0) (2022-03-20)
+
+
+### Features
+
+* **cli:** support multiple invalidations for cloudfront ([#2120](https://github.com/linz/basemaps/issues/2120)) ([764fdeb](https://github.com/linz/basemaps/commit/764fdebaf7624c7761cede3a24c2184105bff9e2))
+
+
+
+
+
+## [6.21.1](https://github.com/linz/basemaps/compare/v6.21.0...v6.21.1) (2022-03-17)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
 # [6.21.0](https://github.com/linz/basemaps/compare/v6.20.0...v6.21.0) (2022-03-17)
 
 

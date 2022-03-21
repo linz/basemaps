@@ -1,5 +1,5 @@
 // Configure the logging before importing everything
-import { ConfigPrefix, ConfigProvider, ConfigProviderMemory, parseRgba } from '@basemaps/config';
+import { ConfigPrefix, ConfigProvider, ConfigProviderDynamo, ConfigProviderMemory, parseRgba } from '@basemaps/config';
 import { TileSetLocal } from '@basemaps/lambda-tiler/build/cli/tile.set.local.js';
 import { TileSets } from '@basemaps/lambda-tiler/build/tile.set.cache.js';
 import { Config, Env, LogConfig } from '@basemaps/shared';
@@ -24,26 +24,22 @@ const BaseProvider: ConfigProvider = {
 
 export class BasemapsServerCommand extends Command {
   static description = 'Create a WMTS/XYZ Tile server for basemaps config';
-  static flags = { verbose: flags.boolean(), port: flags.integer({ default: 5000 }) };
+  static flags = {
+    verbose: flags.boolean(),
+    port: flags.integer({ default: 5000 }),
+    dynamo: flags.string({ description: 'Dynamodb table', required: false }),
+    config: flags.string({ description: 'Configuration path', required: false }),
+  };
 
-  static args = [{ name: 'configPath', required: true }];
+  static args = [];
 
-  async run(): Promise<void> {
-    const { args, flags } = this.parse(BasemapsServerCommand);
-    if (flags.verbose) logger.level = 'debug';
-
-    const ServerUrl = `http://localhost:${flags.port}`;
-    // Force a default url base so WMTS requests know their relative url
-    process.env[Env.PublicUrlBase] = process.env[Env.PublicUrlBase] ?? `http://localhost:${flags.port}`;
-
-    logger.info({ path: args.configPath }, 'Starting Server');
-
+  async loadFromPath(configPath: string, serverUrl: string): Promise<void> {
     const config = new ConfigProviderMemory();
     Config.setConfigProvider(config);
 
     const tifSets = new Map<string, TileSetLocal>();
 
-    for await (const file of fsa.listDetails(args.configPath)) {
+    for await (const file of fsa.listDetails(configPath)) {
       const lowerPath = file.path.toLowerCase();
       if (lowerPath.endsWith('.tiff') || lowerPath.endsWith('.tif')) {
         const tiffPath = dirname(file.path);
@@ -55,7 +51,7 @@ export class BasemapsServerCommand extends Command {
         await tsl.load();
         TileSets.add(tsl, new Date('3000-01-01').getTime());
 
-        const wmtsUrl = `${ServerUrl}/v1/tiles/${tileSet}/WMTSCapabilities.xml`;
+        const wmtsUrl = `${serverUrl}/v1/tiles/${tileSet}/WMTSCapabilities.xml`;
         logger.info({ tileSetId: tileSet, wmtsUrl }, 'TileSet:Loaded');
         if (!config.objects.has('pv_linz')) config.put(BaseProvider);
       }
@@ -78,9 +74,28 @@ export class BasemapsServerCommand extends Command {
 
       const tileSet = Config.unprefix(ConfigPrefix.TileSet, jsonData.id);
       if (jsonData.name == null) jsonData.name = tileSet;
-      const wmtsUrl = `${ServerUrl}/v1/tiles/${tileSet}/WMTSCapabilities.xml`;
+      const wmtsUrl = `${serverUrl}/v1/tiles/${tileSet}/WMTSCapabilities.xml`;
       logger.info({ tileSetId: jsonData.id, wmtsUrl }, 'TileSet:Loaded');
     }
+  }
+
+  async run(): Promise<void> {
+    const { flags } = this.parse(BasemapsServerCommand);
+    if (flags.verbose) logger.level = 'debug';
+
+    const ServerUrl = `http://localhost:${flags.port}`;
+
+    if (flags.config != null) {
+      logger.info({ path: flags.config }, 'Starting Server');
+      await this.loadFromPath(flags.config, ServerUrl);
+    } else if (flags.dynamo != null) {
+      logger.info({ dynamo: flags.dynamo }, 'Starting Server');
+      Config.setConfigProvider(new ConfigProviderDynamo(flags.dynamo));
+    } else {
+      throw new Error('Either a configuration path or dynamodb table name must be supplied');
+    }
+    // Force a default url base so WMTS requests know their relative url
+    process.env[Env.PublicUrlBase] = process.env[Env.PublicUrlBase] ?? `http://localhost:${flags.port}`;
 
     BasemapsServer.listen(flags.port, () => {
       logger.info({ url: ServerUrl }, 'ServerStarted');
