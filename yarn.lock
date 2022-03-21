@@ -2245,9 +2245,9 @@
     "@types/node" "*"
 
 "@types/proj4@^2.5.0":
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/@types/proj4/-/proj4-2.5.0.tgz#40f1ed1cb9ef66e442ab6e57eba32eadc0f0501a"
-  integrity sha512-9bR9qvg4wZE6UiIlmhodCOZ2r38SeN8T35SsmMDuIMfACxxaMvIwiwoTJnEA9f/KEhL+BQSuD+arbZucUzYu7w==
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/@types/proj4/-/proj4-2.5.2.tgz#e3afa4e09e5cf08d8bc74e1b3de3b2111324ee33"
+  integrity sha512-/Nmfn9p08yaYw6xo5f2b0L+2oHk2kZeOkp5v+4VCeNfq+ETlLQbmHmC97/pjDIEZy8jxwz7pdPpwNzDHM5cuJw==
 
 "@types/prop-types@*":
   version "15.7.4"
