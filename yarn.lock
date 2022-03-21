@@ -2157,9 +2157,9 @@
   integrity sha512-qcUXuemtEu+E5wZSJHNxUXeCZhAfXKQ41D+duX+VYPde7xyEVZci+/oXKJL13tnRs9lR2pr4fod59GT6/X1/yQ==
 
 "@types/mapnik@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@types/mapnik/-/mapnik-3.0.1.tgz#7601b2a3cb9db2c2b4133274d7b58da5d9d8dce1"
-  integrity sha512-fhjOVWmyNBd0Jhsmh0ktGbuijS1ee1XYuDYnXi0p3aSD550Np3AAq8SZMn8784UsAGC7L2huKmz1Q7okFN7IQw==
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/mapnik/-/mapnik-3.0.2.tgz#e95a9d1580a989b810ca12d594b26b1ece3aafa0"
+  integrity sha512-UAowQA88MoTXYHTgPMzErW0ZrnqhuWfoqHAS5bugDGGhDx4NOogyHTdn673SB9AEvmFhqzG1uptkvEIpIFFkVg==
   dependencies:
     "@types/node" "*"
 
