@@ -65,7 +65,7 @@ jobs:
 
       - name: (NonProd) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
-        uses: aws-actions/configure-aws-credentials@v1.6.0
+        uses: aws-actions/configure-aws-credentials@v1.6.1
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
@@ -84,7 +84,7 @@ jobs:
 
       - name: (Prod) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        uses: aws-actions/configure-aws-credentials@v1.6.0
+        uses: aws-actions/configure-aws-credentials@v1.6.1
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
