@@ -1,6 +1,6 @@
 {
   "name": "@linzjs/docker-command",
-  "version": "6.0.0",
+  "version": "6.21.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -10,6 +10,10 @@
     "name": "Land Information New Zealand",
     "url": "https://linz.govt.nz",
     "organization": true
+  },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "license": "MIT",
   "main": "./build/index.js",

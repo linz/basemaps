@@ -1,44 +1,41 @@
-import { HttpHeader, LambdaContext } from '@basemaps/lambda';
-import { handleRequest } from '@basemaps/lambda-tiler';
-import * as ulid from 'ulid';
-import express from 'express';
-import { LogConfig } from '@basemaps/shared';
+import { handler } from '@basemaps/lambda-tiler';
+import { lf } from '@linzjs/lambda';
+import { ALBEvent, ALBResult, APIGatewayProxyResultV2, CloudFrontRequestResult, Context } from 'aws-lambda';
+import fastify from 'fastify';
+import ulid from 'ulid';
 
-export const BasemapsServer = express();
+export const BasemapsServer = fastify();
 
-BasemapsServer.get('/v1/*', async (req: express.Request, res: express.Response) => {
-    const startTime = Date.now();
-    const requestId = ulid.ulid();
-    const logger = LogConfig.get().child({ id: requestId });
-    const ctx = new LambdaContext(
-        {
-            httpMethod: 'get',
-            path: req.path,
-            queryStringParameters: req.query,
-        } as any,
-        logger,
-    );
+function isAlbResult(r: ALBResult | CloudFrontRequestResult | APIGatewayProxyResultV2): r is ALBResult {
+  if (typeof r !== 'object') return false;
+  if (r == null) return false;
+  return 'statusCode' in r;
+}
 
-    if (ctx.apiKey == null) ctx.apiKey = 'c' + requestId;
-    const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
-    if (ifNoneMatch != null) ctx.headers.set(HttpHeader.IfNoneMatch.toLowerCase(), ifNoneMatch);
+const instanceId = ulid.ulid();
 
-    try {
-        const data = await handleRequest(ctx);
-        res.status(data.status);
-        if (data.headers) {
-            for (const [header, value] of data.headers) {
-                res.header(header, String(value));
-            }
-        }
-        if (data.status < 299 && data.status > 199) res.end(data.body);
-        else res.end();
+BasemapsServer.get<{ Querystring: { api: string } }>('/v1/*', async (req, res) => {
+  const event: ALBEvent = {
+    httpMethod: 'GET',
+    requestContext: { elb: { targetGroupArn: 'arn:fake' } },
+    path: req.url,
+    headers: req.headers as Record<string, string>,
+    queryStringParameters: req.query as Record<string, string>,
+    body: null,
+    isBase64Encoded: false,
+  };
+  if (req.query.api == null) req.query.api = 'c' + instanceId;
 
-        const duration = Date.now() - startTime;
-        logger.info({ ...ctx.logContext, metrics: ctx.timer.metrics, status: data.status, duration }, 'Request:Done');
-    } catch (e) {
-        logger.fatal({ ...ctx.logContext, err: e }, 'Request:Failed');
-        res.status(500);
-        res.end();
+  handler(event, {} as Context, (err, r): void => {
+    if (err || !isAlbResult(r)) {
+      lf.Logger.fatal({ err }, 'RequestFailed');
+      res.send(err);
+      return;
     }
+
+    res.status(r.statusCode);
+    for (const [key, value] of Object.entries(r.headers ?? {})) res.header(key, String(value));
+    if (r.body) res.send(Buffer.from(r.body, r.isBase64Encoded ? 'base64' : 'utf8'));
+    else res.send('Not found');
+  });
 });

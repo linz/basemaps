@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/tiler-sharp",
-  "version": "6.1.0",
+  "version": "6.21.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -11,6 +11,10 @@
     "url": "https://linz.govt.nz",
     "organization": true
   },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
   "license": "MIT",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -18,15 +22,15 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@basemaps/geo": "^6.0.0",
-    "@basemaps/tiler": "^6.1.0",
-    "@linzjs/metrics": "^6.0.0",
-    "sharp": "^0.28.1"
+    "@basemaps/geo": "^6.21.1",
+    "@basemaps/tiler": "^6.21.1",
+    "@linzjs/metrics": "^6.21.1",
+    "sharp": "^0.29.3"
   },
   "devDependencies": {
     "@types/pixelmatch": "^5.2.3",
     "@types/pngjs": "^6.0.0",
-    "@types/sharp": "^0.28.0",
+    "@types/sharp": "^0.29.3",
     "pixelmatch": "^5.1.0",
     "pngjs": "^6.0.0"
   },

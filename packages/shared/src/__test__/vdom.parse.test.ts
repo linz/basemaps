@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { VNodeParser } from '../vdom.parse';
+import { VNodeParser } from '../vdom.parse.js';
 
 const VrtExample = `
 <VRTDataset rasterXSize="36000" rasterYSize="3600">
@@ -60,26 +60,26 @@ const VrtExample = `
 `.trim();
 
 o.spec('VDOM Parser', () => {
-    o('should base basic dom', async () => {
-        const node = await VNodeParser.parse('<div></div>');
-        o(node.toString()).equals('<div />');
-    });
+  o('should base basic dom', async () => {
+    const node = await VNodeParser.parse('<div></div>');
+    o(node.toString()).equals('<div />');
+  });
 
-    o('should base basic attrs', async () => {
-        const node = await VNodeParser.parse('<div class="foo" style="height:5px"></div>');
-        o(node.attrs).deepEquals({ class: 'foo', style: 'height:5px' });
-        o(node.toString()).equals('<div class="foo" style="height:5px" />');
-    });
+  o('should base basic attrs', async () => {
+    const node = await VNodeParser.parse('<div class="foo" style="height:5px"></div>');
+    o(node.attrs).deepEquals({ class: 'foo', style: 'height:5px' });
+    o(node.toString()).equals('<div class="foo" style="height:5px" />');
+  });
 
-    o('should parse children', async () => {
-        const node = await VNodeParser.parse('<div><span>Hello</span></div>');
-        o(node.tag).equals('div');
-        o(node.children.length).equals(1);
-        o(node.children[0].toString()).equals('<span>Hello</span>');
-    });
+  o('should parse children', async () => {
+    const node = await VNodeParser.parse('<div><span>Hello</span></div>');
+    o(node.tag).equals('div');
+    o(node.children.length).equals(1);
+    o(node.children[0].toString()).equals('<span>Hello</span>');
+  });
 
-    o('should parse a vrt', async () => {
-        const node = await VNodeParser.parse(VrtExample);
-        o(node.toString()).equals(VrtExample);
-    });
+  o('should parse a vrt', async () => {
+    const node = await VNodeParser.parse(VrtExample);
+    o(node.toString()).equals(VrtExample);
+  });
 });

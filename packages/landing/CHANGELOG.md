@@ -3,6 +3,254 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.22.0](https://github.com/linz/basemaps/compare/v6.21.1...v6.22.0) (2022-03-20)
+
+
+### Bug Fixes
+
+* **landing:** correct attribution example ([#2118](https://github.com/linz/basemaps/issues/2118)) ([c6b0a96](https://github.com/linz/basemaps/commit/c6b0a966f13e9523b6542bba7f1f936674fd624a))
+
+
+
+
+
+## [6.21.1](https://github.com/linz/basemaps/compare/v6.21.0...v6.21.1) (2022-03-17)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.21.0](https://github.com/linz/basemaps/compare/v6.20.0...v6.21.0) (2022-03-17)
+
+
+### Reverts
+
+* Revert "release: v6.21.0 (#2104)" (#2111) ([d07f8ab](https://github.com/linz/basemaps/commit/d07f8ab4037466b060bf7e83960737554ff064b4)), closes [#2104](https://github.com/linz/basemaps/issues/2104) [#2111](https://github.com/linz/basemaps/issues/2111)
+* Revert "release: v6.22.0 (#2108)" (#2110) ([abcd2e4](https://github.com/linz/basemaps/commit/abcd2e4732a6d606eed865f526d6df2e4617aad3)), closes [#2108](https://github.com/linz/basemaps/issues/2108) [#2110](https://github.com/linz/basemaps/issues/2110)
+* Revert "release: v6.21.0 (#2104)" (#2107) ([2c7e7f6](https://github.com/linz/basemaps/commit/2c7e7f6686a293995abdeb9604413808f2208bd6)), closes [#2104](https://github.com/linz/basemaps/issues/2104) [#2107](https://github.com/linz/basemaps/issues/2107)
+
+
+
+
+
+# [6.20.0](https://github.com/linz/basemaps/compare/v6.19.0...v6.20.0) (2022-02-01)
+
+
+### Features
+
+* **landing:** show source id when hovering in the source layer ([#2039](https://github.com/linz/basemaps/issues/2039)) ([865bab9](https://github.com/linz/basemaps/commit/865bab92109d5b5241664af7fc970494dacafeec))
+
+
+
+
+
+# [6.19.0](https://github.com/linz/basemaps/compare/v6.18.1...v6.19.0) (2021-12-20)
+
+
+### Bug Fixes
+
+* **landing:** disable osm/topographic for nztm as it doesnt work ([#2031](https://github.com/linz/basemaps/issues/2031)) ([f1eff90](https://github.com/linz/basemaps/commit/f1eff90f4cafeeef9b09e3041b8e144a5b795488))
+
+
+### Features
+
+* **landing:** allow using the topographic vector map as a debug layer ([#2030](https://github.com/linz/basemaps/issues/2030)) ([2d4a05b](https://github.com/linz/basemaps/commit/2d4a05bc8ebfe0041155b9ead93f4235b9c52657))
+* **landing:** rendering source imagery bounds ([#2035](https://github.com/linz/basemaps/issues/2035)) ([2e30936](https://github.com/linz/basemaps/commit/2e30936c20fef73831082583120c096f51dc01e4))
+
+
+
+
+
+## [6.18.1](https://github.com/linz/basemaps/compare/v6.18.0...v6.18.1) (2021-12-16)
+
+
+### Bug Fixes
+
+* **landing:** enable debug page ([#2026](https://github.com/linz/basemaps/issues/2026)) ([b9639c9](https://github.com/linz/basemaps/commit/b9639c91537daa5ec4767e3649ab7aeb00673e1b))
+* **landing:** Trigger change event when debug value changes and disable switcher for debug mode. ([#2027](https://github.com/linz/basemaps/issues/2027)) ([aa26041](https://github.com/linz/basemaps/commit/aa26041da186654c86732f97c95708d1eb438622))
+
+
+
+
+
+# [6.18.0](https://github.com/linz/basemaps/compare/v6.17.0...v6.18.0) (2021-12-14)
+
+
+### Bug Fixes
+
+* **landing:** correctly track the event name of the layer ([#2018](https://github.com/linz/basemaps/issues/2018)) ([d2b8d62](https://github.com/linz/basemaps/commit/d2b8d62f8e57303dc0d4f13c1ed3fffca97e73d2))
+* **landing:** Fix the update bounds for nztm tilematrix when switching layers. ([#2017](https://github.com/linz/basemaps/issues/2017)) ([230ac63](https://github.com/linz/basemaps/commit/230ac630fcd3848f5ddb3a4ee215121658d0ced7))
+
+
+
+
+
+# [6.17.0](https://github.com/linz/basemaps/compare/v6.16.1...v6.17.0) (2021-12-05)
+
+
+### Bug Fixes
+
+* **landing:** Fix attribution not update when switching map ([#2013](https://github.com/linz/basemaps/issues/2013)) ([0e69684](https://github.com/linz/basemaps/commit/0e69684b7e4f1df0013db2d95913e64e3c5aa201))
+
+
+### Features
+
+* **landing:** Add vector attribution in landing page. ([#2012](https://github.com/linz/basemaps/issues/2012)) ([dad03fd](https://github.com/linz/basemaps/commit/dad03fd57a1cd384f278e2a0a047108162e7fe0f))
+* **landing:** ignore geographx from the attribution list ([#2009](https://github.com/linz/basemaps/issues/2009)) ([3530e46](https://github.com/linz/basemaps/commit/3530e468ef0fbae22130f841eeec77a5892e08b8))
+* **landing:** Round location transform to 8 decimals ([#2014](https://github.com/linz/basemaps/issues/2014)) ([73f6be3](https://github.com/linz/basemaps/commit/73f6be3d36edad7dcaa175ad4c853ea5579d8047))
+* **landing:** use topographic name not topolike ([#2008](https://github.com/linz/basemaps/issues/2008)) ([a281d87](https://github.com/linz/basemaps/commit/a281d874ae8211447282ad41dd497e96689ceb88))
+
+
+
+
+
+## [6.16.1](https://github.com/linz/basemaps/compare/v6.16.0...v6.16.1) (2021-11-30)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.16.0](https://github.com/linz/basemaps/compare/v6.15.0...v6.16.0) (2021-11-29)
+
+
+### Features
+
+* **landing:** upgrade to lui v10 ([#1990](https://github.com/linz/basemaps/issues/1990)) ([c7866b6](https://github.com/linz/basemaps/commit/c7866b6e44293f09365f47afb8d0e88212458210))
+
+
+
+
+
+# [6.15.0](https://github.com/linz/basemaps/compare/v6.14.2...v6.15.0) (2021-11-28)
+
+
+### Bug Fixes
+
+* **landing:** copy links should not be editable ([#1980](https://github.com/linz/basemaps/issues/1980)) ([f668e6e](https://github.com/linz/basemaps/commit/f668e6e47b4015516b8209624ccb372906fb788a))
+* **landing:** Fix the loading map by url coordinates for nztm ([#1992](https://github.com/linz/basemaps/issues/1992)) ([315ff34](https://github.com/linz/basemaps/commit/315ff341eb55b53c766883110fcce6d888ece5be))
+* **landing:** limit the WMTS links to those which are valid for the layer ([#1982](https://github.com/linz/basemaps/issues/1982)) ([9afe6a0](https://github.com/linz/basemaps/commit/9afe6a0d598749273037db3e3c5c1bd5691ef6cf))
+* **landing:** load the correct layer on first load ([#1984](https://github.com/linz/basemaps/issues/1984)) ([9231890](https://github.com/linz/basemaps/commit/92318902b58ed1e847591915f61e52321e75c42b))
+* **landing:** use better keys for event tracking ([#1981](https://github.com/linz/basemaps/issues/1981)) ([90d1619](https://github.com/linz/basemaps/commit/90d1619c3faefcf128050d9a8515ad1fd457f48f))
+
+
+### Features
+
+* **landing:** add split-io to turn features on and off ([#1967](https://github.com/linz/basemaps/issues/1967)) ([8fa51dd](https://github.com/linz/basemaps/commit/8fa51dd30938c1a5909a3531967f2047911af218))
+* **landing:** combine vector and raster bastemaps categories ([#1988](https://github.com/linz/basemaps/issues/1988)) ([def9c98](https://github.com/linz/basemaps/commit/def9c985121e5c062ee73515e128a5004e54b057))
+* **landing:** make the layer switcher button similar to navigation button ([#1989](https://github.com/linz/basemaps/issues/1989)) ([f436612](https://github.com/linz/basemaps/commit/f4366128488aef04c2466cb2915e48741ea6ecc2))
+* **landing:** show pbf XYZ url for vector tiles ([#1983](https://github.com/linz/basemaps/issues/1983)) ([7b1a9b9](https://github.com/linz/basemaps/commit/7b1a9b9ac13f85c7da48463c1ea23af9b19c383f))
+* **landing:** simple layer switcher dropdown ([#1971](https://github.com/linz/basemaps/issues/1971)) ([3ff191e](https://github.com/linz/basemaps/commit/3ff191e380f519de6f19cbf624bbd56ef9483703))
+* **landing:** sort layers by name ([#1978](https://github.com/linz/basemaps/issues/1978)) ([2154cf9](https://github.com/linz/basemaps/commit/2154cf945b4de914a5caeaa116f12bc48e99fe82))
+* **landing:** support attribution for individual layers ([#1979](https://github.com/linz/basemaps/issues/1979)) ([b6822aa](https://github.com/linz/basemaps/commit/b6822aa850287fc242f7c300e0126f0e7d6f8953))
+* **landing:** support layer switcher button ([#1987](https://github.com/linz/basemaps/issues/1987)) ([67056d6](https://github.com/linz/basemaps/commit/67056d6a4c143fe92fc3e1181bcb185a5d359da2))
+* **landing:** switch to vdom based rendering ([#1976](https://github.com/linz/basemaps/issues/1976)) ([1b4575c](https://github.com/linz/basemaps/commit/1b4575cf7a9e5ffc3a001664de9319af89234728))
+
+
+
+
+
+## [6.14.2](https://github.com/linz/basemaps/compare/v6.14.1...v6.14.2) (2021-11-09)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+## [6.14.1](https://github.com/linz/basemaps/compare/v6.14.0...v6.14.1) (2021-10-27)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.13.0](https://github.com/linz/basemaps/compare/v6.12.2...v6.13.0) (2021-10-25)
+
+
+### Features
+
+* **cli:** expose uploading static files ([#1925](https://github.com/linz/basemaps/issues/1925)) ([ce85cd9](https://github.com/linz/basemaps/commit/ce85cd9bfe9802046e9cbbfbf8ae663c427dd1a1))
+
+
+
+
+
+## [6.12.1](https://github.com/linz/basemaps/compare/v6.12.0...v6.12.1) (2021-10-19)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.12.0](https://github.com/linz/basemaps/compare/v6.11.0...v6.12.0) (2021-10-05)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.11.0](https://github.com/linz/basemaps/compare/v6.10.1...v6.11.0) (2021-10-03)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+## [6.10.1](https://github.com/linz/basemaps/compare/v6.10.0...v6.10.1) (2021-09-22)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.10.0](https://github.com/linz/basemaps/compare/v6.9.1...v6.10.0) (2021-09-22)
+
+
+### Features
+
+* **landing:** support linkedin/twitter cards ([#1864](https://github.com/linz/basemaps/issues/1864)) ([91e3837](https://github.com/linz/basemaps/commit/91e3837fc99f49adcd2da719b2e82504e9dee42a))
+* switch to esm modules ([#1857](https://github.com/linz/basemaps/issues/1857)) ([75bdff8](https://github.com/linz/basemaps/commit/75bdff8da35104f10f6b6ecf58a2c6006245af6e))
+
+
+
+
+
+## [6.9.1](https://github.com/linz/basemaps/compare/v6.9.0...v6.9.1) (2021-09-09)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.9.0](https://github.com/linz/basemaps/compare/v6.8.0...v6.9.0) (2021-09-09)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.8.0](https://github.com/linz/basemaps/compare/v6.7.0...v6.8.0) (2021-09-01)
+
+
+### Features
+
+* **landing:** support prefixed imagery links starts with im_ ([#1815](https://github.com/linz/basemaps/issues/1815)) ([7fadece](https://github.com/linz/basemaps/commit/7fadecef7a6153b0bd973167f816108584aaf99a))
+
+
+
+
+
 # [6.7.0](https://github.com/linz/basemaps/compare/v6.6.1...v6.7.0) (2021-08-15)
 
 **Note:** Version bump only for package @basemaps/landing

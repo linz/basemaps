@@ -1,10 +1,10 @@
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "lib": ["DOM"],
-        "rootDir": "./src",
-        "outDir": "./build"
-    },
-    "include": ["src/**/*"],
-    "references": [{ "path": "../__tests__" }]
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["DOM"],
+    "rootDir": "./src",
+    "outDir": "./build"
+  },
+  "include": ["src/**/*"],
+  "references": [{ "path": "../__tests__" }]
 }

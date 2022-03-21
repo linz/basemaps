@@ -1,4 +1,4 @@
-import { Epsg } from './epsg';
+import { Epsg } from './epsg.js';
 
 /**
  * Order of X & Y coordinates when defined as a array
@@ -6,10 +6,10 @@ import { Epsg } from './epsg';
  * `[x,y]` vs `[y,x]`
  */
 export enum XyOrder {
-    /** [x, y] */
-    Xy,
-    /** [y, x] */
-    Yx,
+  /** [x, y] */
+  Xy,
+  /** [y, x] */
+  Yx,
 }
 
 /**
@@ -17,14 +17,14 @@ export enum XyOrder {
  * @param epsg EPSG to lookup
  */
 export function getXyOrder(epsg: Epsg): XyOrder {
-    /**
-     * [EPSG:2193](https://www.opengis.net/def/crs/EPSG/0/2193) (NZTM) is defined in [y, x]
-     * specified by the coordinate system [cs:4500](https://www.opengis.net/def/cs/EPSG/0/4500)
-     */
-    if (epsg === Epsg.Nztm2000) {
-        return XyOrder.Yx;
-    }
+  /**
+   * [EPSG:2193](https://www.opengis.net/def/crs/EPSG/0/2193) (NZTM) is defined in [y, x]
+   * specified by the coordinate system [cs:4500](https://www.opengis.net/def/cs/EPSG/0/4500)
+   */
+  if (epsg === Epsg.Nztm2000) {
+    return XyOrder.Yx;
+  }
 
-    // TODO there are other projections that are YX
-    return XyOrder.Xy;
+  // TODO there are other projections that are YX
+  return XyOrder.Xy;
 }

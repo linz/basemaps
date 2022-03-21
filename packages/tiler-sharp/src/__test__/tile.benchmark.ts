@@ -1,85 +1,36 @@
 import { GoogleTms } from '@basemaps/geo';
 import { TestTiff } from '@basemaps/test';
 import { ImageFormat, Tiler } from '@basemaps/tiler';
-import { Metrics } from '@linzjs/metrics';
-import { writeFileSync } from 'fs';
-import o from 'ospec';
-import 'source-map-support/register';
-import { TileMakerSharp } from '../index';
+import 'source-map-support/register.js';
+import { TileMakerSharp } from '../index.js';
 
-o.spec('TileCreationBenchmark', () => {
-    const resizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
-    const RenderCount = 5;
-    const TimeoutSeconds = 30 * 1000;
-    const Zoom = 19;
+const resizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
+const RenderCount = 100;
+const Zoom = 19;
 
-    const Center = 2 ** Zoom;
-    const CenterTile = Center / 2;
+const Center = 2 ** Zoom;
+const CenterTile = Center / 2;
 
-    const background = { r: 0, g: 0, b: 0, alpha: 1 };
+const background = { r: 0, g: 0, b: 0, alpha: 1 };
 
-    async function renderTile(tileSize: number, timer: Metrics): Promise<void> {
-        const tiler = new Tiler(GoogleTms);
-        const tileMaker = new TileMakerSharp(tileSize);
+async function main(): Promise<void> {
+  const tileSize = Number(process.argv[process.argv.length - 1]);
+  if (isNaN(tileSize) || tileSize < 256 || tileSize > 1024) {
+    console.log('Tile size is invalid');
+    return;
+  }
 
-        timer.start('tiff:init');
-        const tiff = await TestTiff.Google.init();
-        timer.end('tiff:init');
+  for (let i = 0; i < RenderCount; i++) {
+    const tiler = new Tiler(GoogleTms);
+    const tileMaker = new TileMakerSharp(tileSize);
+    const tiff = await TestTiff.Google.init();
 
-        timer.start('tiler:tile');
-        const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom);
-        timer.end('tiler:tile');
+    const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom);
 
-        if (layers == null) throw new Error('Tile is null');
-        await tileMaker.compose({ layers, format: ImageFormat.PNG, background, resizeKernel });
-    }
-    const results: Record<string, Record<string, number[]>> = {};
+    if (layers == null) throw new Error('Tile is null');
+    await tileMaker.compose({ layers, format: ImageFormat.PNG, background, resizeKernel });
+    await tiff.close();
+  }
+}
 
-    [256, 512, 1024].forEach((tileSize) => {
-        o(`should render ${RenderCount}x${tileSize} tiles`, async () => {
-            o.timeout(TimeoutSeconds);
-            const metrics: Record<string, number[]> = {};
-
-            for (let i = 0; i < RenderCount; i++) {
-                const timer = new Metrics();
-                timer.start('total');
-                await renderTile(tileSize, timer);
-                timer.end('total');
-
-                const m = timer.metrics;
-                if (m == null) {
-                    throw new Error('Missing metric');
-                }
-                for (const key of Object.keys(m)) {
-                    const arr = (metrics[key] = metrics[key] || []);
-                    arr.push(Number(m[key]));
-                }
-            }
-
-            results[`${tileSize}x${tileSize}`] = metrics;
-        });
-    });
-
-    /** Compute the average for the result */
-    function computeStats(records: Record<string, number[]>): Record<string, number> {
-        const output: Record<string, number> = {};
-        for (const key of Object.keys(records)) {
-            const values = records[key];
-            let total = 0;
-            for (const val of values) {
-                total += val;
-            }
-
-            output[key] = parseFloat((total / values.length).toFixed(3));
-        }
-        return output;
-    }
-
-    // TODO logging this out is not ideal, we should look into publishing the results of the benchmarks somewhere
-    o.after(() => {
-        for (const key of Object.keys(results)) {
-            console.log(key, results[key], computeStats(results[key]));
-        }
-        writeFileSync('./benchmarks.dat', JSON.stringify(results, null, 2));
-    });
-});
+main().catch(console.error);

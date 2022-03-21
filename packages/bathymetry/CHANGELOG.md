@@ -3,6 +3,178 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.22.0](https://github.com/linz/basemaps/compare/v6.21.1...v6.22.0) (2022-03-20)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+## [6.21.1](https://github.com/linz/basemaps/compare/v6.21.0...v6.21.1) (2022-03-17)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.21.0](https://github.com/linz/basemaps/compare/v6.20.0...v6.21.0) (2022-03-17)
+
+
+### Reverts
+
+* Revert "release: v6.21.0 (#2104)" (#2111) ([d07f8ab](https://github.com/linz/basemaps/commit/d07f8ab4037466b060bf7e83960737554ff064b4)), closes [#2104](https://github.com/linz/basemaps/issues/2104) [#2111](https://github.com/linz/basemaps/issues/2111)
+* Revert "release: v6.22.0 (#2108)" (#2110) ([abcd2e4](https://github.com/linz/basemaps/commit/abcd2e4732a6d606eed865f526d6df2e4617aad3)), closes [#2108](https://github.com/linz/basemaps/issues/2108) [#2110](https://github.com/linz/basemaps/issues/2110)
+* Revert "release: v6.21.0 (#2104)" (#2107) ([2c7e7f6](https://github.com/linz/basemaps/commit/2c7e7f6686a293995abdeb9604413808f2208bd6)), closes [#2104](https://github.com/linz/basemaps/issues/2104) [#2107](https://github.com/linz/basemaps/issues/2107)
+
+
+
+
+
+# [6.20.0](https://github.com/linz/basemaps/compare/v6.19.0...v6.20.0) (2022-02-01)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.18.0](https://github.com/linz/basemaps/compare/v6.17.0...v6.18.0) (2021-12-14)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.17.0](https://github.com/linz/basemaps/compare/v6.16.1...v6.17.0) (2021-12-05)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+## [6.16.1](https://github.com/linz/basemaps/compare/v6.16.0...v6.16.1) (2021-11-30)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.16.0](https://github.com/linz/basemaps/compare/v6.15.0...v6.16.0) (2021-11-29)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** p-limit is a needed dependency ([#1998](https://github.com/linz/basemaps/issues/1998)) ([dfb1b25](https://github.com/linz/basemaps/commit/dfb1b2575e9b40b96ffa4bdcfa8f1496b18ae25e))
+
+
+
+
+
+# [6.15.0](https://github.com/linz/basemaps/compare/v6.14.2...v6.15.0) (2021-11-28)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.14.0](https://github.com/linz/basemaps/compare/v6.13.0...v6.14.0) (2021-10-27)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.13.0](https://github.com/linz/basemaps/compare/v6.12.2...v6.13.0) (2021-10-25)
+
+
+### Features
+
+* **cli:** fs.rmdir is deprecated use fs.rm ([#1927](https://github.com/linz/basemaps/issues/1927)) ([8f9a953](https://github.com/linz/basemaps/commit/8f9a9539751fca8f840f51cb18b071fb6495f726))
+
+
+
+
+
+## [6.12.2](https://github.com/linz/basemaps/compare/v6.12.1...v6.12.2) (2021-10-19)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+## [6.12.1](https://github.com/linz/basemaps/compare/v6.12.0...v6.12.1) (2021-10-19)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.12.0](https://github.com/linz/basemaps/compare/v6.11.0...v6.12.0) (2021-10-05)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.11.0](https://github.com/linz/basemaps/compare/v6.10.1...v6.11.0) (2021-10-03)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.10.0](https://github.com/linz/basemaps/compare/v6.9.1...v6.10.0) (2021-09-22)
+
+
+### Bug Fixes
+
+* correctly bundle with esm modules ([#1858](https://github.com/linz/basemaps/issues/1858)) ([708a22e](https://github.com/linz/basemaps/commit/708a22ec1006c25cf2c057b75f61cc813e943aac))
+
+
+### Features
+
+* replace s3fs with chunkd/fs ([#1859](https://github.com/linz/basemaps/issues/1859)) ([9b6f2d3](https://github.com/linz/basemaps/commit/9b6f2d3609c336f96c2ae32246f241cb396e71c8))
+* switch to esm modules ([#1857](https://github.com/linz/basemaps/issues/1857)) ([75bdff8](https://github.com/linz/basemaps/commit/75bdff8da35104f10f6b6ecf58a2c6006245af6e))
+
+
+
+
+
+## [6.9.1](https://github.com/linz/basemaps/compare/v6.9.0...v6.9.1) (2021-09-09)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.9.0](https://github.com/linz/basemaps/compare/v6.8.0...v6.9.0) (2021-09-09)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
+# [6.8.0](https://github.com/linz/basemaps/compare/v6.7.0...v6.8.0) (2021-09-01)
+
+**Note:** Version bump only for package @basemaps/bathymetry
+
+
+
+
+
 # [6.7.0](https://github.com/linz/basemaps/compare/v6.6.1...v6.7.0) (2021-08-15)
 
 **Note:** Version bump only for package @basemaps/bathymetry

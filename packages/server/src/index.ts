@@ -1,1 +1,1 @@
-export { BasemapsServer } from './server';
+export { BasemapsServer } from './server.js';

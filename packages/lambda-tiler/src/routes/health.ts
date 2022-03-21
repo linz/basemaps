@@ -1,48 +1,46 @@
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import { TileDataXyz, TileType } from '@basemaps/shared';
+import { ImageFormat } from '@basemaps/tiler';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import * as fs from 'fs';
 import * as path from 'path';
+import PixelMatch from 'pixelmatch';
 import Sharp from 'sharp';
-import PixelMatch = require('pixelmatch');
-import { Epsg, Tile } from '@basemaps/geo';
-import { LambdaHttpResponse, LambdaContext, HttpHeader } from '@basemaps/lambda';
-import { ImageFormat } from '@basemaps/tiler';
-import { tile } from './tile';
+import url from 'url';
+import { TileSets } from '../tile.set.cache.js';
 
-export function getExpectedTileName(projection: Epsg, tile: Tile, format: ImageFormat): string {
-    // Bundle static files are at the same directory with index.js
-    const dir = __filename.endsWith('health.js') ? path.join(__dirname, '..', '..') : __dirname;
-    return path.join(dir, `static/expected_tile_${projection.code}_${tile.x}_${tile.y}_z${tile.z}.${format}`);
-}
-
-interface TestTile {
-    projection: Epsg;
-    buf: null | Buffer;
-    format: ImageFormat;
-    testTile: Tile;
+interface TestTile extends TileDataXyz {
+  buf?: Buffer;
 }
 
 export const TestTiles: TestTile[] = [
-    { projection: Epsg.Google, format: ImageFormat.PNG, testTile: { x: 252, y: 156, z: 8 }, buf: null },
-    { projection: Epsg.Nztm2000, format: ImageFormat.PNG, testTile: { x: 153, y: 255, z: 7 }, buf: null },
+  { type: TileType.Tile, name: 'health', tileMatrix: GoogleTms, ext: ImageFormat.PNG, x: 252, y: 156, z: 8 },
+  { type: TileType.Tile, name: 'health', tileMatrix: Nztm2000QuadTms, ext: ImageFormat.PNG, x: 30, y: 33, z: 6 },
 ];
 const TileSize = 256;
 
-async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
-    if (Buffer.isBuffer(testTile.buf)) return testTile.buf;
-    // Initiate test img buffer if not defined
-    const testTileName = getExpectedTileName(testTile.projection, testTile.testTile, testTile.format);
-    testTile.buf = await fs.promises.readFile(testTileName);
-    return testTile.buf;
+export async function getTestBuffer(test: TestTile): Promise<Buffer> {
+  if (Buffer.isBuffer(test.buf)) return test.buf;
+
+  const expectedFile = `static/expected_tile_${test.tileMatrix.identifier}_${test.x}_${test.y}_z${test.z}.${test.ext}`;
+  // Initiate test img buffer if not defined
+  try {
+    return await fs.promises.readFile(expectedFile);
+  } catch (e: any) {
+    if (e.code !== 'ENOENT') throw e;
+    const otherFile = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..', expectedFile);
+    return await fs.promises.readFile(otherFile);
+  }
 }
 
-//
-// async function updateExpectedTile(test: TestTile, newTileData: Buffer, difference: Buffer): Promise<void> {
-//     const expectedFileName = getExpectedTileName(test.projection, test.testTile, test.format);
-//     await fs.promises.writeFile(expectedFileName, newTileData);
-//     const imgPng = await Sharp(difference, { raw: { width: TileSize, height: TileSize, channels: 4 } })
-//         .png()
-//         .toBuffer();
-//     await fs.promises.writeFile(`${expectedFileName}.diff.png`, imgPng);
-// }
+export async function updateExpectedTile(test: TestTile, newTileData: Buffer, difference: Buffer): Promise<void> {
+  const expectedFileName = `static/expected_tile_${test.tileMatrix.identifier}_${test.x}_${test.y}_z${test.z}.${test.ext}`;
+  await fs.promises.writeFile(expectedFileName, newTileData);
+  const imgPng = await Sharp(difference, { raw: { width: TileSize, height: TileSize, channels: 4 } })
+    .png()
+    .toBuffer();
+  await fs.promises.writeFile(`${expectedFileName}.diff.png`, imgPng);
+}
 
 /**
  * Health request get health TileSets and validate with test TileSets
@@ -51,58 +49,36 @@ async function getTestBuffer(testTile: TestTile): Promise<Buffer> {
  *
  * @throws LambdaHttpResponse for failure health test
  */
-export async function Health(req: LambdaContext): Promise<LambdaHttpResponse> {
-    for (const test of TestTiles) {
-        const projection = test.projection;
-        const testTile = test.testTile;
-        const format = test.format;
-        const path = `/v1/tiles/health/
-            ${projection.toEpsgString()}
-            /${testTile.z}
-            /${testTile.x}
-            /${testTile.y}
-            .${format}`;
+export async function Health(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+  for (const test of TestTiles) {
+    const tileSet = await TileSets.get('health', test.tileMatrix);
+    if (tileSet == null) throw new LambdaHttpResponse(500, 'TileSet: "health" not found');
+    // Get the parse response tile to raw buffer
+    const response = await tileSet.tile(req, test);
+    if (response.status !== 200) return new LambdaHttpResponse(500, response.statusDescription);
+    if (!Buffer.isBuffer(response._body)) throw new LambdaHttpResponse(500, 'Not a Buffer response content.');
+    const resImgBuffer = await Sharp(response._body).raw().toBuffer();
 
-        const ctx: LambdaContext = new LambdaContext(
-            {
-                requestContext: null as any,
-                httpMethod: 'get',
-                path: path,
-                body: null,
-                isBase64Encoded: false,
-            },
-            req.log,
-        );
+    // Get test tile to compare
+    const testBuffer = await getTestBuffer(test);
+    test.buf = testBuffer;
+    const testImgBuffer = await Sharp(testBuffer).raw().toBuffer();
 
-        // Get the parse response tile to raw buffer
-        const response = await tile(ctx);
-        if (response.status !== 200) return new LambdaHttpResponse(response.status, response.statusDescription);
-        if (!Buffer.isBuffer(response.body)) throw new LambdaHttpResponse(404, 'Not a Buffer response content.');
-        const resImgBuffer = await Sharp(response.body).raw().toBuffer();
-
-        // Get test tile to compare
-        const testBuffer = await getTestBuffer(test);
-        const testImgBuffer = await Sharp(testBuffer).raw().toBuffer();
-
-        const outputBuffer = Buffer.alloc(testImgBuffer.length);
-        const missMatchedPixels = PixelMatch(testImgBuffer, resImgBuffer, outputBuffer, TileSize, TileSize);
-        if (missMatchedPixels) {
-            /** Uncomment this to overwite the expected files */
-            // await updateExpectedTile(test, response.body, outputBuffer);
-            req.log.error(
-                {
-                    missMatchedPixels,
-                    projection: test.projection.code,
-                    xyz: test.testTile,
-                },
-                'Health:MissMatch',
-            );
-            return new LambdaHttpResponse(500, 'TileSet does not match.');
-        }
+    const outputBuffer = Buffer.alloc(testImgBuffer.length);
+    const missMatchedPixels = PixelMatch(testImgBuffer, resImgBuffer, outputBuffer, TileSize, TileSize);
+    if (missMatchedPixels) {
+      /** Uncomment this to overwite the expected files */
+      // await updateExpectedTile(test, response._body as Buffer, outputBuffer);
+      req.log.error(
+        { missMatchedPixels, projection: test.tileMatrix.identifier, xyz: { x: test.x, y: test.y, z: test.z } },
+        'Health:MissMatch',
+      );
+      return new LambdaHttpResponse(500, 'TileSet does not match.');
     }
+  }
 
-    // Return Ok response when all health test passed.
-    const OkResponse = new LambdaHttpResponse(200, 'ok');
-    OkResponse.header(HttpHeader.CacheControl, 'no-store');
-    return OkResponse;
+  // Return Ok response when all health test passed.
+  const OkResponse = new LambdaHttpResponse(200, 'ok');
+  OkResponse.header(HttpHeader.CacheControl, 'no-store');
+  return OkResponse;
 }

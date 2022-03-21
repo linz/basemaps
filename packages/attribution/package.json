@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/attribution",
-  "version": "6.0.0",
+  "version": "6.22.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -10,6 +10,10 @@
     "name": "Land Information New Zealand",
     "url": "https://linz.govt.nz",
     "organization": true
+  },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "license": "MIT",
   "main": "./build/index.js",
@@ -26,11 +30,8 @@
     "build/"
   ],
   "dependencies": {
-    "@basemaps/geo": "^6.0.0",
-    "@linzjs/geojson": "^6.0.0"
-  },
-  "devDependencies": {
-    "esbuild": "^0.12.5"
+    "@basemaps/geo": "^6.21.1",
+    "@linzjs/geojson": "^6.21.1"
   },
   "bundle": {
     "entry": "src/attribution.index.ts",

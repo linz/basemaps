@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/test",
-  "version": "6.0.0",
+  "version": "6.21.1",
   "private": true,
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -9,6 +9,10 @@
     "name": "Land Information New Zealand",
     "url": "https://linz.govt.nz",
     "organization": true
+  },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "license": "MIT",
   "scripts": {}

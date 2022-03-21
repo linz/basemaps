@@ -1,9 +1,9 @@
 import { TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import Batch from 'aws-sdk/clients/batch';
-import { CogStacJob } from '../../cog/cog.stac.job';
-import { CogJob } from '../../cog/types';
+import Batch from 'aws-sdk/clients/batch.js';
+import { CogStacJob } from '../../cog/cog.stac.job.js';
+import { CogJob } from '../../cog/types.js';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
@@ -19,177 +19,177 @@ const ResolutionRegex = /((?:\d[\.\-])?\d+)m/;
  * @returns resolution (millimeters), -1 for failure to parse
  */
 export function extractResolutionFromName(name: string): number {
-    const matches = name.match(ResolutionRegex);
-    if (matches == null) return -1;
-    return parseFloat(matches[1].replace('-', '.')) * 1000;
+  const matches = name.match(ResolutionRegex);
+  if (matches == null) return -1;
+  return parseFloat(matches[1].replace('-', '.')) * 1000;
 }
 
 export class ActionBatchJob extends CommandLineAction {
-    private job?: CommandLineStringParameter;
-    private commit?: CommandLineFlagParameter;
-    private oneCog?: CommandLineStringParameter;
+  private job?: CommandLineStringParameter;
+  private commit?: CommandLineFlagParameter;
+  private oneCog?: CommandLineStringParameter;
 
-    public constructor() {
-        super({
-            actionName: 'batch',
-            summary: 'AWS batch jobs',
-            documentation: 'Submit a list of cogs to a AWS Batch queue to be process',
-        });
+  public constructor() {
+    super({
+      actionName: 'batch',
+      summary: 'AWS batch jobs',
+      documentation: 'Submit a list of cogs to a AWS Batch queue to be process',
+    });
+  }
+
+  static id(job: CogJob, name: string): string {
+    return `${job.id}-${job.name}-${name}`;
+  }
+
+  static async batchOne(
+    jobPath: string,
+    job: CogJob,
+    batch: Batch,
+    name: string,
+    isCommit: boolean,
+  ): Promise<{ jobName: string; jobId: string; memory: number }> {
+    const jobName = ActionBatchJob.id(job, name);
+    const tile = TileMatrixSet.nameToTile(name);
+    const alignmentLevels = Projection.findAlignmentLevels(job.tileMatrix, tile, job.source.gsd);
+    // Give 25% more memory to larger jobs
+    const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
+    const memory = 3900 * resDiff;
+
+    if (!isCommit) {
+      return { jobName, jobId: '', memory };
     }
 
-    static id(job: CogJob, name: string): string {
-        return `${job.id}-${job.name}-${name}`;
+    const commandStr = ['-V', 'cog', '--job', jobPath, '--commit', '--name', name];
+
+    const batchJob = await batch
+      .submitJob({
+        jobName,
+        jobQueue: JobQueue,
+        jobDefinition: JobDefinition,
+        containerOverrides: {
+          memory,
+          command: commandStr,
+        },
+        retryStrategy: { attempts: 3 },
+      })
+      .promise();
+    return { jobName, jobId: batchJob.jobId, memory };
+  }
+
+  /**
+   * List all the current jobs in batch and their statuses
+   * @returns a map of JobName to if their status is "ok" (not failed)
+   */
+  static async getCurrentJobList(batch: Batch): Promise<Map<string, boolean>> {
+    // For some reason AWS only lets us query one status at a time.
+    const allStatuses = ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'RUNNING', 'SUCCEEDED', 'FAILED'];
+    const allJobs = await Promise.all(
+      allStatuses.map((jobStatus) => batch.listJobs({ jobQueue: JobQueue, jobStatus }).promise()),
+    );
+
+    const okMap = new Map<string, boolean>();
+
+    for (const status of allJobs) {
+      for (const job of status.jobSummaryList) {
+        if (job.status === 'FAILED' && okMap.get(job.jobName) !== true) {
+          okMap.set(job.jobName, false);
+        } else {
+          okMap.set(job.jobName, true);
+        }
+      }
+    }
+    return okMap;
+  }
+
+  async onExecute(): Promise<void> {
+    if (this.job?.value == null) {
+      throw new Error('Failed to read parameters');
     }
 
-    static async batchOne(
-        jobPath: string,
-        job: CogJob,
-        batch: Batch,
-        name: string,
-        isCommit: boolean,
-    ): Promise<{ jobName: string; jobId: string; memory: number }> {
+    await ActionBatchJob.batchJob(
+      await CogStacJob.load(this.job.value),
+      this.commit?.value,
+      this.oneCog?.value,
+      LogConfig.get(),
+    );
+  }
+
+  static async batchJob(job: CogJob, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
+    const jobPath = job.getJobPath('job.json');
+    if (!jobPath.startsWith('s3://')) {
+      throw new Error(`AWS Batch collection.json have to be in S3, jobPath:${jobPath}`);
+    }
+    LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
+
+    const region = Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';
+    const batch = new Batch({ region });
+
+    fsa.configure(job.output.location);
+    const runningJobs = await ActionBatchJob.getCurrentJobList(batch);
+
+    const stats = await Promise.all(
+      job.output.files.map(async ({ name }) => {
+        if (oneCog != null && oneCog !== name) return { name, ok: true };
         const jobName = ActionBatchJob.id(job, name);
-        const tile = TileMatrixSet.nameToTile(name);
-        const alignmentLevels = Projection.findAlignmentLevels(job.tileMatrix, tile, job.source.gsd);
-        // Give 25% more memory to larger jobs
-        const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
-        const memory = 3900 * resDiff;
-
-        if (!isCommit) {
-            return { jobName, jobId: '', memory };
+        const isRunning = runningJobs.get(jobName);
+        if (isRunning) {
+          logger.info({ jobName }, 'JobRunning');
+          return { name, ok: true };
         }
 
-        const commandStr = ['-V', 'cog', '--job', jobPath, '--commit', '--name', name];
+        const targetPath = job.getJobPath(`${name}.tiff`);
+        const exists = await fsa.exists(targetPath);
+        if (exists) logger.info({ targetPath }, 'FileExists');
+        return { name, ok: exists };
+      }),
+    );
 
-        const batchJob = await batch
-            .submitJob({
-                jobName,
-                jobQueue: JobQueue,
-                jobDefinition: JobDefinition,
-                containerOverrides: {
-                    memory,
-                    command: commandStr,
-                },
-                retryStrategy: { attempts: 3 },
-            })
-            .promise();
-        return { jobName, jobId: batchJob.jobId, memory };
+    const toSubmit = stats.filter((f) => f.ok === false).map((c) => c.name);
+    if (toSubmit.length === 0) {
+      logger.info('NoJobs');
+      return;
     }
 
-    /**
-     * List all the current jobs in batch and their statuses
-     * @returns a map of JobName to if their status is "ok" (not failed)
-     */
-    static async getCurrentJobList(batch: Batch): Promise<Map<string, boolean>> {
-        // For some reason AWS only lets us query one status at a time.
-        const allStatuses = ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'RUNNING', 'SUCCEEDED', 'FAILED'];
-        const allJobs = await Promise.all(
-            allStatuses.map((jobStatus) => batch.listJobs({ jobQueue: JobQueue, jobStatus }).promise()),
-        );
+    logger.info(
+      {
+        jobTotal: job.output.files.length,
+        jobLeft: toSubmit.length,
+        jobQueue: JobQueue,
+        jobDefinition: JobDefinition,
+      },
+      'JobSubmit',
+    );
 
-        const okMap = new Map<string, boolean>();
-
-        for (const status of allJobs) {
-            for (const job of status.jobSummaryList) {
-                if (job.status === 'FAILED' && okMap.get(job.jobName) !== true) {
-                    okMap.set(job.jobName, false);
-                } else {
-                    okMap.set(job.jobName, true);
-                }
-            }
-        }
-        return okMap;
+    for (const name of toSubmit) {
+      const jobStatus = await ActionBatchJob.batchOne(jobPath, job, batch, name, commit);
+      logger.info(jobStatus, 'JobSubmitted');
     }
 
-    async onExecute(): Promise<void> {
-        if (this.job?.value == null) {
-            throw new Error('Failed to read parameters');
-        }
-
-        await ActionBatchJob.batchJob(
-            await CogStacJob.load(this.job.value),
-            this.commit?.value,
-            this.oneCog?.value,
-            LogConfig.get(),
-        );
+    if (!commit) {
+      logger.warn('DryRun:Done');
+      return;
     }
+  }
 
-    static async batchJob(job: CogJob, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
-        const jobPath = job.getJobPath('job.json');
-        if (!fsa.isS3(jobPath)) {
-            throw new Error(`AWS Batch collection.json have to be in S3, jobPath:${jobPath}`);
-        }
-        LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
+  protected onDefineParameters(): void {
+    this.job = this.defineStringParameter({
+      argumentName: 'JOB',
+      parameterLongName: '--job',
+      description: 'Job config source to access',
+      required: true,
+    });
 
-        const region = Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';
-        const batch = new Batch({ region });
+    this.oneCog = this.defineStringParameter({
+      argumentName: 'COG_NAME',
+      parameterLongName: '--one-cog',
+      description: 'Restrict batch to build a single COG file',
+      required: false,
+    });
 
-        fsa.configure(job.output.location);
-        const runningJobs = await ActionBatchJob.getCurrentJobList(batch);
-
-        const stats = await Promise.all(
-            job.output.files.map(async ({ name }) => {
-                if (oneCog != null && oneCog !== name) return { name, ok: true };
-                const jobName = ActionBatchJob.id(job, name);
-                const isRunning = runningJobs.get(jobName);
-                if (isRunning) {
-                    logger.info({ jobName }, 'JobRunning');
-                    return { name, ok: true };
-                }
-
-                const targetPath = job.getJobPath(`${name}.tiff`);
-                const exists = await fsa.exists(targetPath);
-                if (exists) logger.info({ targetPath }, 'FileExists');
-                return { name, ok: exists };
-            }),
-        );
-
-        const toSubmit = stats.filter((f) => f.ok === false).map((c) => c.name);
-        if (toSubmit.length === 0) {
-            logger.info('NoJobs');
-            return;
-        }
-
-        logger.info(
-            {
-                jobTotal: job.output.files.length,
-                jobLeft: toSubmit.length,
-                jobQueue: JobQueue,
-                jobDefinition: JobDefinition,
-            },
-            'JobSubmit',
-        );
-
-        for (const name of toSubmit) {
-            const jobStatus = await ActionBatchJob.batchOne(jobPath, job, batch, name, commit);
-            logger.info(jobStatus, 'JobSubmitted');
-        }
-
-        if (!commit) {
-            logger.warn('DryRun:Done');
-            return;
-        }
-    }
-
-    protected onDefineParameters(): void {
-        this.job = this.defineStringParameter({
-            argumentName: 'JOB',
-            parameterLongName: '--job',
-            description: 'Job config source to access',
-            required: true,
-        });
-
-        this.oneCog = this.defineStringParameter({
-            argumentName: 'COG_NAME',
-            parameterLongName: '--one-cog',
-            description: 'Restrict batch to build a single COG file',
-            required: false,
-        });
-
-        this.commit = this.defineFlagParameter({
-            parameterLongName: '--commit',
-            description: 'Begin the transformation',
-            required: false,
-        });
-    }
+    this.commit = this.defineFlagParameter({
+      parameterLongName: '--commit',
+      description: 'Begin the transformation',
+      required: false,
+    });
+  }
 }

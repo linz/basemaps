@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "6.7.0",
+  "version": "6.22.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -16,8 +16,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "bin": {
-    "cogify": "./cogify",
-    "basemaps": "./basemaps"
+    "cogify": "./cogify.js"
   },
   "scripts": {
     "build": "tsc",
@@ -33,19 +32,21 @@
       ]
     }
   ],
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
   "dependencies": {
-    "@basemaps/config": "^6.7.0",
-    "@basemaps/geo": "^6.0.0",
-    "@basemaps/shared": "^6.7.0",
-    "@cogeotiff/core": "^4.3.0",
-    "@cogeotiff/source-aws": "^4.3.0",
-    "@cogeotiff/source-file": "^4.3.0",
-    "@cogeotiff/source-url": "^4.3.0",
-    "@linzjs/geojson": "^6.0.0",
+    "@basemaps/config": "^6.21.1",
+    "@basemaps/geo": "^6.21.1",
+    "@basemaps/shared": "^6.22.0",
+    "@chunkd/fs": "^8.1.0",
+    "@cogeotiff/core": "^6.1.1",
+    "@linzjs/geojson": "^6.21.1",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
-    "p-limit": "^3.0.1",
-    "pretty-json-log": "^0.3.1",
+    "p-limit": "^4.0.0",
+    "pretty-json-log": "^1.0.0",
     "zod": "^3.2.0"
   },
   "devDependencies": {
