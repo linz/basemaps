@@ -2,6 +2,7 @@ import { TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, LogConfig, LogType, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import Batch from 'aws-sdk/clients/batch.js';
+import { createHash } from 'crypto';
 import { CogStacJob } from '../../cog/cog.stac.job.js';
 import { CogJob } from '../../cog/types.js';
 
@@ -37,8 +38,18 @@ export class ActionBatchJob extends CommandLineAction {
     });
   }
 
-  static id(job: CogJob, name: string): string {
-    return `${job.id}-${job.name}-${name}`;
+  /**
+   * Create a id for a job
+   *
+   * This needs to be within `[a-Z_-]` upto 128 characters log
+   * @param job job to process
+   * @param fileName output filename
+   * @returns job id
+   */
+  static id(job: CogJob, fileName: string): string {
+    // Job names are uncontrolled so hash the name and grab a small slice to use as a identifier
+    const jobName = createHash('sha256').update(job.name).digest('hex').slice(0, 16);
+    return `${job.id}-${jobName}-${fileName}`.slice(0, 128);
   }
 
   static async batchOne(
