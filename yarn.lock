@@ -822,7 +822,7 @@
     source-map-support "^0.5.19"
     ulid "^2.3.0"
 
-"@chunkd/core@^8.0.1", "@chunkd/core@^8.0.3":
+"@chunkd/core@^8.0.1":
   version "8.0.3"
   resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-8.0.3.tgz#5ab9ef98ea1ccf33933d4de9717ed413a0c99b5a"
   integrity sha512-BqfSpkOgTIfO5mDwx5x1RkKlARI5ZZYQSsC9KWU9aDbhPew33faOC/EkEW0kSYKbIL4pestI9XjAZ8WAhectkQ==
@@ -872,12 +872,12 @@
     "@chunkd/core" "^8.1.0"
     node-fetch "^3.1.0"
 
-"@cogeotiff/core@^6.1.1":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-6.1.1.tgz#4d969d4ff2ee64e146417574aa447841c664562a"
-  integrity sha512-4Dph9SVeBiasysud/Nk3iaL8BRFzi7rRJ79EMM37VUJSGsQAD94fk7baipUXhKTMgfq8cgvyVRn4oEcUuSZZzQ==
+"@cogeotiff/core@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-7.0.0.tgz#18a617229e100ab7cc03ce2a6c4e5bf15443d0bb"
+  integrity sha512-YqIOmd6jYxR0u+m1Xode+2UP+UGapsrFxofkghmsc0Ym1DDcAVMHyAkNlPPBTzBOFtyaTA+bhhyZWJLwcfsKvQ==
   dependencies:
-    "@chunkd/core" "^8.0.3"
+    "@chunkd/core" "^8.1.0"
     ieee754 "^1.1.13"
 
 "@cotar/core@^5.3.0":
