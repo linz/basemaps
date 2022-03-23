@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.22.1](https://github.com/linz/basemaps/compare/v6.22.0...v6.22.1) (2022-03-23)
+
+
+### Bug Fixes
+
+* **cli:** allow unicode job names ([#2126](https://github.com/linz/basemaps/issues/2126)) ([bab5cef](https://github.com/linz/basemaps/commit/bab5cefdc8365cb52bf687230a078ea599c359ce))
+
+
+
+
+
 # [6.22.0](https://github.com/linz/basemaps/compare/v6.21.1...v6.22.0) (2022-03-20)
 
 
