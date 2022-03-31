@@ -272,5 +272,3 @@ export class BathyMaker {
     await fsa.writeJson(stacOutputPath, output);
   }
 }
-
-module.exports = { BathyMaker };
