@@ -21,8 +21,11 @@ yarn add @basemaps/bathymetry
 # To prevent very long CI/Dev build times, mapnik will need to be manually installed 
 yarn add mapnik
 
+# Ensure the javascript has been built
+yarn build
+
 # Create a the data file
-basemaps-bathymetry gebco_2020.nc -v --docker
+node build/index.js -v create --input gebco_2020.nc --docker --output gebco/
 ```
 
 
