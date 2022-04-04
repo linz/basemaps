@@ -33,7 +33,7 @@ export async function Imagery(req: LambdaHttpRequest): Promise<LambdaHttpRespons
   const [imageryId, requestType] = rest;
   if (!isAllowedFile(requestType)) return new LambdaHttpResponse(404, 'Not found');
 
-  const imagery = await Config.Imagery.get(imageryId);
+  const imagery = await Config.Imagery.get(Config.Imagery.id(imageryId));
   if (imagery == null) return new LambdaHttpResponse(404, 'Not found');
 
   const targetPath = fsa.join(imagery.uri, requestType);
