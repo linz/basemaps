@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/server",
-  "version": "6.22.1",
+  "version": "6.23.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -34,8 +34,8 @@
   "dependencies": {
     "@basemaps/config": "^6.21.1",
     "@basemaps/geo": "^6.21.1",
-    "@basemaps/lambda-tiler": "^6.22.1",
-    "@basemaps/shared": "^6.22.0",
+    "@basemaps/lambda-tiler": "^6.23.0",
+    "@basemaps/shared": "^6.23.0",
     "@linzjs/lambda": "^2.0.0",
     "@oclif/command": "^1.8.0",
     "fastify": "^3.27.4",

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.23.0](https://github.com/linz/basemaps/compare/v6.22.1...v6.23.0) (2022-04-04)
+
+
+### Features
+
+* **shared:** load projections from the internet when not defined locally ([#2132](https://github.com/linz/basemaps/issues/2132)) ([85ac59f](https://github.com/linz/basemaps/commit/85ac59f771c3233f163a0223459faece46073847))
+
+
+
+
+
 ## [6.22.1](https://github.com/linz/basemaps/compare/v6.22.0...v6.22.1) (2022-03-23)
 
 
