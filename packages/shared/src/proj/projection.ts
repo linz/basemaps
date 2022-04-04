@@ -53,6 +53,13 @@ export class Projection {
     }
   }
 
+  /** Ensure that a transformation in proj4.js is defined */
+  static define(epsg: Epsg, def: string): void {
+    const existing = CodeMap.get(epsg.code);
+    if (existing != null) throw new Error('Duplicate projection definition: ' + epsg.toEpsgString());
+    Proj.defs(epsg.toEpsgString(), def);
+  }
+
   /**
    * Get the Projection instance for a specified code,
    *

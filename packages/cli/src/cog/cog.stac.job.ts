@@ -20,6 +20,7 @@ import {
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
 import { CliInfo } from '../cli/base.cli.js';
 import { GdalCogBuilderDefaults, GdalCogBuilderResampling } from '../gdal/gdal.config.js';
+import { ProjectionLoader } from './projection.loader.js';
 import { CogStac, CogStacItem, CogStacItemExtensions, CogStacKeywords } from './stac.js';
 import {
   CogBuilderMetadata,
@@ -116,7 +117,9 @@ export class CogStacJob implements CogJob {
      * @param jobpath where to load the job.json from
      */
   static async load(jobpath: string): Promise<CogStacJob> {
-    return new CogStacJob(await fsa.readJson<CogJobJson>(jobpath));
+    const job = new CogStacJob(await fsa.readJson<CogJobJson>(jobpath));
+    await ProjectionLoader.load(job.source.epsg);
+    return job;
   }
 
   /**

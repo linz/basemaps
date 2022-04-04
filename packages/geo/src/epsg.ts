@@ -30,6 +30,7 @@ const EPSGTextMap: Record<string, EpsgCode> = {
   citm2000: EpsgCode.Citm2000,
 };
 
+let id = 0;
 export class Epsg {
   static Codes = new Map<number, Epsg>();
 
@@ -39,8 +40,10 @@ export class Epsg {
   static Citm2000 = new Epsg(EpsgCode.Citm2000);
 
   code: EpsgCode;
+  id: number;
   constructor(code: EpsgCode) {
     this.code = code;
+    this.id = id++;
     if (Epsg.Codes.has(code)) throw new Error(`Duplicate EPSG code created: ${code}`);
     Epsg.Codes.set(this.code, this);
   }
