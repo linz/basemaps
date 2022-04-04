@@ -4,7 +4,6 @@ import sinon from 'sinon';
 import { Nztm2000 } from '@basemaps/shared/build/proj/nztm2000.js';
 import { Epsg } from '@basemaps/geo';
 import { Projection } from '@basemaps/shared';
-// import
 
 o.spec('ProjectionLoader', () => {
   const sandbox = sinon.createSandbox();
