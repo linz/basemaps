@@ -12,7 +12,6 @@ const gzipP = promisify(gzip);
 
 export function isAllowedFile(f: string): boolean {
   if (f == null) return false;
-  if (f.endsWith('.gz')) return isAllowedFile(f.slice(0, f.length - 3));
   if (f.endsWith('.geojson')) return true;
   if (f.endsWith('.json')) return true;
   return false;
@@ -39,7 +38,6 @@ export async function Imagery(req: LambdaHttpRequest): Promise<LambdaHttpRespons
   const targetPath = fsa.join(imagery.uri, requestType);
 
   try {
-    const isGz = targetPath.endsWith('.gz');
     const buf = await fsa.read(targetPath);
     const cacheKey = createHash('sha256').update(buf).digest('base64');
 
@@ -48,7 +46,7 @@ export async function Imagery(req: LambdaHttpRequest): Promise<LambdaHttpRespons
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.ContentEncoding, 'gzip');
-    response.buffer(isGz ? buf : await gzipP(buf), 'application/json');
+    response.buffer(await gzipP(buf), 'application/json');
     req.set('bytes', buf.byteLength);
     return response;
   } catch (e) {

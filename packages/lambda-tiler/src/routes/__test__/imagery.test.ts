@@ -10,10 +10,4 @@ o.spec('ImageryRoute', () => {
     o(isAllowedFile('')).equals(false);
     o(isAllowedFile(null as any)).equals(false);
   });
-  o('should allow compressed files', () => {
-    o(isAllowedFile('foo.geojson.gz')).equals(true);
-    o(isAllowedFile('foo.json.gz')).equals(true);
-    o(isAllowedFile('foo.tiff.gz')).equals(false);
-    o(isAllowedFile('foo.gz')).equals(false);
-  });
 });
