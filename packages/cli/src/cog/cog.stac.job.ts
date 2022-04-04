@@ -182,6 +182,7 @@ export class CogStacJob implements CogJob {
       description = 'No description';
     }
 
+    await ProjectionLoader.load(metadata.projection);
     const job = new CogStacJob({
       id,
       name: imageryName,

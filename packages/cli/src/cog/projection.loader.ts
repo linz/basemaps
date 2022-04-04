@@ -8,7 +8,7 @@ export const ProjectionLoader = {
     if (Projection.tryGet(code) != null) return Epsg.get(code);
     const url = `https://spatialreference.org/ref/epsg/${code}/ogcwkt/`;
 
-    const res = await fetch(url);
+    const res = await this.fetch(url);
     if (!res.ok) throw new Error('Failed to load projection information for:' + code);
 
     let epsg = Epsg.tryGet(code);
