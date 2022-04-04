@@ -10,7 +10,7 @@ o.spec('ProjectionLoader', () => {
   const sandbox = sinon.createSandbox();
   o.afterEach(() => sandbox.restore());
   o('should not load if already loaded', async () => {
-    const fetchStub = sandbox.stub(ProjectionLoader, 'fetch');
+    const fetchStub = sandbox.stub(ProjectionLoader, '_fetch');
     const res = await ProjectionLoader.load(2193);
     o(fetchStub.callCount).equals(0);
     o(res.code).equals(2193);
@@ -18,7 +18,7 @@ o.spec('ProjectionLoader', () => {
 
   o('should fetch data from the internet', async () => {
     const fetchStub = sandbox
-      .stub(ProjectionLoader, 'fetch')
+      .stub(ProjectionLoader, '_fetch')
       .resolves({ ok: true, text: () => Promise.resolve(Nztm2000) } as any);
     const res = await ProjectionLoader.load(3790);
 
