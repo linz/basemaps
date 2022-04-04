@@ -8,6 +8,7 @@ import pLimit, { LimitFunction } from 'p-limit';
 import * as path from 'path';
 import { basename } from 'path';
 import { Cutline } from './cutline.js'; //
+import { ProjectionLoader } from './projection.loader.js';
 import { CogBuilderMetadata, SourceMetadata } from './types.js';
 
 export const InvalidProjectionCode = 32767;
@@ -216,6 +217,8 @@ export class CogBuilder {
    */
   async build(tiffs: ChunkSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
     const metadata = await this.getMetadata(tiffs);
+    // Ensure that the projection definition is loaded
+    await ProjectionLoader.load(metadata.projection);
     const files = cutline.optimizeCovering(metadata);
     let union: Bounds | null = null;
     for (const bounds of files) {
