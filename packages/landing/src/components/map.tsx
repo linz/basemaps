@@ -88,6 +88,9 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     const nav = new maplibre.NavigationControl({ visualizePitch: true });
     this.map.addControl(nav, 'top-left');
+
+    this.map.addControl(new maplibre.GeolocateControl({}));
+
     this.map.on('render', this.onRender);
     this.map.on('load', () => {
       this._events.push(
