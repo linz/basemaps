@@ -12,9 +12,11 @@ export interface ActionData {
 export class Router {
   static action(req: LambdaHttpRequest): ActionData {
     const path = req.path;
-    const [version, name, ...rest] = (path[0] === '/' ? path.slice(1) : path).split('/');
+    const [version, name, ...rest] = (path[0] === '/' ? path.slice(1) : path)
+      .split('/')
+      .map((c) => decodeURIComponent(c));
     if (name == null) return { version: 'v1', name: version, rest: [] };
-    return { version, name, rest };
+    return { version, name: name, rest };
   }
 
   static apiKey(req: LambdaHttpRequest): string | undefined {

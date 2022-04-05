@@ -16,6 +16,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   /** Ignore the location updates */
   ignoreNextLocationUpdate = false;
 
+  controlGeo: maplibre.GeolocateControl | null;
+
   updateLocation = (): void => {
     if (this.ignoreNextLocationUpdate) {
       this.ignoreNextLocationUpdate = false;
@@ -51,7 +53,23 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.map.fitBounds(bounds);
   };
 
+  /**
+   * Only show the geocontrol on GoogleTMS
+   * As it does not work with the projection logic we are currently using
+   */
+  ensureGeoControl(): void {
+    if (Config.map.tileMatrix === GoogleTms) {
+      if (this.controlGeo != null) return;
+      this.controlGeo = new maplibre.GeolocateControl({});
+      this.map.addControl(this.controlGeo);
+    } else {
+      if (this.controlGeo == null) return;
+      this.map.removeControl(this.controlGeo);
+    }
+  }
+
   updateStyle = (): void => {
+    this.ensureGeoControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
     const style = tileGrid.getStyle(Config.map.layerId, Config.map.style);
     this.map.setStyle(style);
@@ -88,6 +106,9 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     const nav = new maplibre.NavigationControl({ visualizePitch: true });
     this.map.addControl(nav, 'top-left');
+
+    this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
+
     this.map.on('render', this.onRender);
     this.map.on('load', () => {
       this._events.push(
