@@ -90,6 +90,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.map.addControl(nav, 'top-left');
 
     this.map.addControl(new maplibre.GeolocateControl({}));
+    this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
 
     this.map.on('render', this.onRender);
     this.map.on('load', () => {
