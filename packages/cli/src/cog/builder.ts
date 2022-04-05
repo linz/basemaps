@@ -146,7 +146,7 @@ export class CogBuilder {
 
     const projection = image.valueGeo(TiffTagGeo.ProjectedCSTypeGeoKey) as number;
     if (projection != null && projection !== InvalidProjectionCode) {
-      return Epsg.get(projection);
+      return Epsg.tryGet(projection) ?? new Epsg(projection);
     }
 
     const imgWkt = image.value<string>(TiffTag.GeoAsciiParams);
