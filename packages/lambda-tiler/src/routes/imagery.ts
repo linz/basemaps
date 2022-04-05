@@ -10,7 +10,8 @@ import { TileEtag } from './tile.etag.js';
 
 const gzipP = promisify(gzip);
 
-function isAllowedFile(f: string): boolean {
+export function isAllowedFile(f: string): boolean {
+  if (f == null) return false;
   if (f.endsWith('.geojson')) return true;
   if (f.endsWith('.json')) return true;
   return false;
@@ -20,15 +21,18 @@ function isAllowedFile(f: string): boolean {
  * Get metadata around the imagery such as the source bounding box or the bounding box of the COGS
  *
  * @example
- * - /v1/imagery/:imageryId/source.geojson
- * - /v1/imagery/:imageryId/covering.geojson
+ * - /v1/imagery/:imageryId/source.geojson - Source boudning boxes
+ * - /v1/imagery/:imageryId/covering.geojson - Output tile bounding boxes
+ * - /v1/imagery/:imageryId/cutline.geojson - Cutline used ont he imagery set
+ * - /v1/imagery/:imageryId/collection.json - STAC Collection
+ * - /v1/imagery/:imageryId/15-32659-21603.json - STAC Item
  */
 export async function Imagery(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
   const { rest } = Router.action(req);
   const [imageryId, requestType] = rest;
   if (!isAllowedFile(requestType)) return new LambdaHttpResponse(404, 'Not found');
 
-  const imagery = await Config.Imagery.get(imageryId);
+  const imagery = await Config.Imagery.get(Config.Imagery.id(imageryId));
   if (imagery == null) return new LambdaHttpResponse(404, 'Not found');
 
   const targetPath = fsa.join(imagery.uri, requestType);
