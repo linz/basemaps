@@ -17,5 +17,8 @@ o.spec('Router', () => {
       name: 'tiles',
       rest: ['ōtorohanga/bar'],
     });
+
+    const uri = encodeURI('/v1/🌈/🦄.tiff');
+    o(Router.action(request(uri))).deepEquals({ version: 'v1', name: '🌈', rest: ['🦄.tiff'] });
   });
 });
