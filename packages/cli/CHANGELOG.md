@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.24.0](https://github.com/linz/basemaps/compare/v6.23.0...v6.24.0) (2022-04-05)
+
+
+### Bug Fixes
+
+* **cli:** create instance of EPSG code if not already defined ([#2141](https://github.com/linz/basemaps/issues/2141)) ([9e7b508](https://github.com/linz/basemaps/commit/9e7b508a70aa85f80b88a29501a08c249c9617af))
+
+
+
+
+
 # [6.23.0](https://github.com/linz/basemaps/compare/v6.22.1...v6.23.0) (2022-04-04)
 
 

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.24.0](https://github.com/linz/basemaps/compare/v6.23.0...v6.24.0) (2022-04-05)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** decode utf8 path names ([#2135](https://github.com/linz/basemaps/issues/2135)) ([2f09e33](https://github.com/linz/basemaps/commit/2f09e334e20ad9f4ece51617dd1c90d9b53abd8e))
+* **lambda-tiler:** do not error when invalid imagery urls are provided ([#2133](https://github.com/linz/basemaps/issues/2133)) ([8211428](https://github.com/linz/basemaps/commit/8211428825ab63656c40a66a72e42d03add835bb))
+
+
+
+
+
 # [6.23.0](https://github.com/linz/basemaps/compare/v6.22.1...v6.23.0) (2022-04-04)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.24.0](https://github.com/linz/basemaps/compare/v6.23.0...v6.24.0) (2022-04-05)
+
+
+### Bug Fixes
+
+* **cli:** create instance of EPSG code if not already defined ([#2141](https://github.com/linz/basemaps/issues/2141)) ([9e7b508](https://github.com/linz/basemaps/commit/9e7b508a70aa85f80b88a29501a08c249c9617af))
+* **lambda-tiler:** decode utf8 path names ([#2135](https://github.com/linz/basemaps/issues/2135)) ([2f09e33](https://github.com/linz/basemaps/commit/2f09e334e20ad9f4ece51617dd1c90d9b53abd8e))
+* **lambda-tiler:** do not error when invalid imagery urls are provided ([#2133](https://github.com/linz/basemaps/issues/2133)) ([8211428](https://github.com/linz/basemaps/commit/8211428825ab63656c40a66a72e42d03add835bb))
+* **landing:** locate button does not work in nztm so disable it ([#2140](https://github.com/linz/basemaps/issues/2140)) ([957b612](https://github.com/linz/basemaps/commit/957b61230c749349eaf8d4a41e226865eb058484))
+* **landing:** only show layers that can be viewed in the layer picker ([#2136](https://github.com/linz/basemaps/issues/2136)) ([ac3dade](https://github.com/linz/basemaps/commit/ac3dadef400440f01ae9886c087e1a242193e99e))
+
+
+### Features
+
+* **landing:** add full screen button ([#2138](https://github.com/linz/basemaps/issues/2138)) ([293a14b](https://github.com/linz/basemaps/commit/293a14b429b7532b193e674c92e59e8f1e88adeb))
+* **landing:** add zoom to location button ([#2137](https://github.com/linz/basemaps/issues/2137)) ([4ff217d](https://github.com/linz/basemaps/commit/4ff217de36319e47370b63cde6cc8ff959228332))
+* **landing:** move zoom to location to top left ([#2142](https://github.com/linz/basemaps/issues/2142)) ([be4cd38](https://github.com/linz/basemaps/commit/be4cd38911a9bd6acceed03834adec31219f73fe))
+
+
+
+
+
 # [6.23.0](https://github.com/linz/basemaps/compare/v6.22.1...v6.23.0) (2022-04-04)
 
 
