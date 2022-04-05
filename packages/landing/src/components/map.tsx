@@ -61,7 +61,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (Config.map.tileMatrix === GoogleTms) {
       if (this.controlGeo != null) return;
       this.controlGeo = new maplibre.GeolocateControl({});
-      this.map.addControl(this.controlGeo);
+      this.map.addControl(this.controlGeo, 'top-left');
     } else {
       if (this.controlGeo == null) return;
       this.map.removeControl(this.controlGeo);
