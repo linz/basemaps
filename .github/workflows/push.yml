@@ -7,24 +7,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest]
     steps:
       - uses: linz/action-typescript@v1
 
-      - name: Check Dependencies
-        run: node scripts/detect.unlinked.dep.js
-
-      - name: Benchmark
-        if: matrix.os == 'ubuntu-latest'
-        uses: blacha/hyperfine-action@v1
-
-  deploy:
+  build-deploy:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: write
-    needs: [build]
-    if: github.ref == 'refs/heads/master'
     steps:
       - uses: linz/action-typescript@v1
       # pulls all tags (needed for lerna to correctly version)
@@ -100,13 +91,6 @@ jobs:
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_PROD}}
           API_KEY: ${{secrets.API_KEY_PROD}}
-
-  benchmark:
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - uses: linz/action-typescript@v1
 
       - name: Benchmark
         uses: blacha/hyperfine-action@v1
