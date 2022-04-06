@@ -80,10 +80,16 @@ export class Projection {
   static tryGet(unk?: Epsg | EpsgCode | TileMatrixSet): Projection | null {
     const epsgCode = getEpsgCode(unk);
     if (epsgCode == null) return null;
+    // Existing projection logic, cache and reuse
     let proj = CodeMap.get(epsgCode);
     if (proj != null) return proj;
+    // ensure the EPSG Code has been registered in basemaps
     const epsg = Epsg.tryGet(epsgCode);
     if (epsg == null) return null;
+    // Ensure proj has a transform for this projection
+    const def = Proj.defs(epsg.toEpsgString());
+    if (def == null) return null;
+
     proj = new Projection(epsg);
     CodeMap.set(epsgCode, proj);
     return proj;
