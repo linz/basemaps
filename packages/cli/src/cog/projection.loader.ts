@@ -13,7 +13,6 @@ export class ProjectionLoader {
    * @param code
    */
   static async load(code: number): Promise<Epsg> {
-    console.log(Epsg.tryGet(code));
     if (Projection.tryGet(code) != null) return Epsg.get(code);
     const url = `https://spatialreference.org/ref/epsg/${code}/ogcwkt/`;
 
