@@ -1,4 +1,4 @@
-import { EpsgCode } from '@basemaps/geo';
+import { Epsg, EpsgCode } from '@basemaps/geo';
 import { round } from '@basemaps/test/build/rounding.js';
 import { bboxToPolygon } from '@linzjs/geojson';
 import o from 'ospec';
@@ -18,6 +18,16 @@ o.spec('Projection', () => {
 
     const reverse = nztmProj.fromWgs84(output);
     o(round(reverse, 2)).deepEquals([1180000, 4758000]);
+  });
+
+  o('tryGet should not throw if epsg is defined but projection is not', () => {
+    const count = Epsg.Codes.size;
+    const epsg = new Epsg(Math.random());
+
+    o(Projection.tryGet(epsg)).equals(null);
+
+    Epsg.Codes.delete(epsg.code);
+    o(Epsg.Codes.size).equals(count);
   });
 
   o('toGeoJson', () => {
