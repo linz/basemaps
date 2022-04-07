@@ -57,8 +57,6 @@ o.spec('TileStyleJson', () => {
     const apiKey = 'abc123';
     const converted = convertStyleJson(baseStyleJson, apiKey);
 
-    console.log(converted);
-
     o(converted.sources.vector).deepEquals({
       type: 'vector',
       url: 'https://tiles.test/v1/tiles/topographic/EPSG:3857/tile.json?api=abc123',
@@ -81,6 +79,8 @@ o.spec('TileStyleJson', () => {
     });
 
     o(JSON.stringify(baseStyleJson).includes('0x1234')).equals(false);
+    o(JSON.stringify(baseStyleJson).includes(apiKey)).equals(false);
+    o(JSON.stringify(baseStyleJson).includes('?api=')).equals(false);
   });
 
   o('should convert relative glyphs and sprites', () => {
@@ -90,5 +90,6 @@ o.spec('TileStyleJson', () => {
     o(converted.glyphs).equals('https://tiles.test/v1/glyphs');
 
     o(JSON.stringify(baseStyleJson).includes(apiKey)).equals(false);
+    o(JSON.stringify(baseStyleJson).includes('?api=')).equals(false);
   });
 });
