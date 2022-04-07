@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.24.1](https://github.com/linz/basemaps/compare/v6.24.0...v6.24.1) (2022-04-07)
+
+
+### Bug Fixes
+
+* **shared:** Projection.tyryGet do not throw if no projection is defined ([#2145](https://github.com/linz/basemaps/issues/2145)) ([7592fe5](https://github.com/linz/basemaps/commit/7592fe53c023f341f916520a7014fd00436df245))
+
+
+
+
+
 # [6.23.0](https://github.com/linz/basemaps/compare/v6.22.1...v6.23.0) (2022-04-04)
 
 

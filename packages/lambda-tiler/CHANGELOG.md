@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.24.1](https://github.com/linz/basemaps/compare/v6.24.0...v6.24.1) (2022-04-07)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** do not destroy database config when serving style.json ([#2146](https://github.com/linz/basemaps/issues/2146)) ([a625efd](https://github.com/linz/basemaps/commit/a625efd9a5f94522c50925e764c95ddeb57de427))
+
+
+
+
+
 # [6.24.0](https://github.com/linz/basemaps/compare/v6.23.0...v6.24.0) (2022-04-05)
 
 
