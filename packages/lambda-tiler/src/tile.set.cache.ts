@@ -97,7 +97,11 @@ export class TileSetCache {
       if (nameComp.layer != null) {
         parent.components.name = nameComp.name;
       } else if (parent.imagery != null && parent.imagery.size > 1) {
-        for (const imageId of parent.imagery.keys()) tileSets.push(parent.child(imageId));
+        for (const imageId of parent.imagery.keys()) {
+          const childImg = parent.child(imageId);
+          if (childImg == null) continue;
+          tileSets.push(childImg);
+        }
       }
     }
     return tileSets.sort((a, b) => a.title.localeCompare(b.title));

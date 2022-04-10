@@ -208,11 +208,9 @@ export class TileSetRaster {
     return null;
   }
 
-  child(imgId: string): TileSetRaster {
+  child(imgId: string): TileSetRaster | null {
     const image = this.findImagery(imgId);
-    if (image == null) {
-      throw new Error('Failed to create child tile set ' + this.fullName + ' Missing imagery ' + imgId);
-    }
+    if (image == null) return null;
     const childName = TileSetNameParser.componentsToName({ ...this.components, layer: image.name });
     const child = new TileSetRaster(childName, this.tileMatrix);
     // use parent data as prototype for child;

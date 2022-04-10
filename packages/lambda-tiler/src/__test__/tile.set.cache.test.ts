@@ -74,6 +74,17 @@ o.spec('TileSetCache', () => {
       if (subTileSetB == null || subTileSetB.type === TileSetType.Vector) throw new Error('null subTileSetB');
       o(subTileSetB.title).equals('parent Tasman rural 2018-19 0.3m');
     });
+
+    o('should not throw if child does not exist', async () => {
+      TileSets.add(new TileSetRaster('aerial@head', GoogleTms));
+
+      const parentTileSet = await TileSets.get('aerial@head', GoogleTms);
+      if (parentTileSet == null || parentTileSet.type === TileSetType.Vector) throw new Error('null parentTileSet');
+      parentTileSet.imagery = imgMap;
+
+      const subTileSet = await TileSets.get('aerial@head:fake', GoogleTms);
+      o(subTileSet).equals(null);
+    });
   });
 
   o.spec('loadTileSets', () => {
