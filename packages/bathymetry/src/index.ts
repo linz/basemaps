@@ -1,11 +1,15 @@
-import { BaseCommandLine } from '@basemaps/cli/build/cli/base.cli.js';
+import { BaseCommandLine, CliId } from '@basemaps/cli/build/cli/base.cli.js';
 import { makeTempFolder } from '@basemaps/cli/build/cli/folder.js';
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import {
+  CommandLineAction,
+  CommandLineFlagParameter,
+  CommandLineIntegerParameter,
+  CommandLineStringParameter,
+} from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import * as os from 'os';
-import * as ulid from 'ulid';
 import { BathyMaker } from './bathy.maker.js';
 import { FilePath, FileType } from './file.js';
 
@@ -17,6 +21,9 @@ class CreateAction extends CommandLineAction {
   private outputPath: CommandLineStringParameter;
   private docker: CommandLineFlagParameter;
   private tileMatrix: CommandLineStringParameter;
+  private zoomLevel: CommandLineIntegerParameter;
+  private tileSize: CommandLineIntegerParameter;
+  private verbose: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -47,11 +54,32 @@ class CreateAction extends CommandLineAction {
       required: false,
     });
 
+    this.verbose = this.defineFlagParameter({
+      parameterLongName: '--verbose',
+      description: 'Verbose logging',
+      required: false,
+    });
+
     this.tileMatrix = this.defineStringParameter({
       argumentName: 'TILE_MATRIX_SET',
       parameterLongName: '--tile-matrix-set',
       description: 'Tile matrix set to use for the final cutting',
       required: false,
+    });
+
+    this.zoomLevel = this.defineIntegerParameter({
+      argumentName: 'ZOOM',
+      parameterLongName: '--zoom',
+      description: 'Zoom level of the tile matrix set to split the source datasets into',
+      required: false,
+    });
+
+    this.tileSize = this.defineIntegerParameter({
+      argumentName: 'ZOOM',
+      parameterLongName: '--tile-size',
+      description: 'Number of pixels to use per tile, should be a power of two',
+      required: false,
+      defaultValue: 8192,
     });
   }
 
@@ -77,10 +105,9 @@ class CreateAction extends CommandLineAction {
     }
 
     const logger = LogConfig.get();
+    if (this.verbose.value) logger.level = 'trace';
 
-    logger.info({ source: pathToFile }, 'MakeBathy');
-
-    const tmpFolder = new FilePath(await makeTempFolder(`bathymetry-${ulid.ulid()}`));
+    const tmpFolder = new FilePath(await makeTempFolder(`bathymetry-${CliId}`));
 
     try {
       const outputPath = this.outputPath.value!;
@@ -92,20 +119,35 @@ class CreateAction extends CommandLineAction {
       if (bestZ === 0) bestZ++;
 
       const bathy = new BathyMaker({
-        id: ulid.ulid(),
+        id: CliId,
         inputPath: this.inputPath.value!,
         outputPath,
         tmpFolder,
         tileMatrix,
-        zoom: bestZ,
+        zoom: this.zoomLevel.value ?? bestZ,
         threads: os.cpus().length / 2,
+        tileSize: this.tileSize.value,
       });
+
+      logger.info(
+        {
+          source: pathToFile,
+          tileSize: bathy.config.tileSize,
+          tileMatrix: bathy.config.tileMatrix.identifier,
+          threads: bathy.config.threads,
+          zoom: bathy.config.zoom,
+        },
+        'MakeBathy',
+      );
+
       await bathy.render(logger);
 
       const srcPath = fsa.join(tmpFolder.sourcePath, String(FileType.Output));
 
       for (const file of await fs.readdir(srcPath)) {
-        await fsa.write(fsa.join(outputPath, file), createReadStream(fsa.join(srcPath, file)));
+        const target = fsa.join(outputPath, file);
+        await fsa.write(target, createReadStream(fsa.join(srcPath, file)));
+        logger.info({ path: target }, 'WritingFile');
       }
     } finally {
       await fs.rm(tmpFolder.sourcePath, { recursive: true });

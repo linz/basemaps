@@ -13,7 +13,6 @@ function makeTemplate(sourceFile: string, hillShade: string): string {
   return `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Map[]>
 <Map background-color="#2a383e" srs="+init=epsg:4326">
-
   <Style comp-op="color-dodge" filter-mode="first" name="gebco2019webmercator2">
     <Rule>
       <RasterSymbolizer default-color="rgba(0, 0, 0, 0)" default-mode="linear" scaling="bilinear">
@@ -30,27 +29,23 @@ function makeTemplate(sourceFile: string, hillShade: string): string {
       <Parameter name="type"><![CDATA[gdal]]></Parameter>
     </Datasource>
   </Layer>
-  <Style comp-op="color-dodge" filter-mode="first" name="gebco2019webmercator-deuce">
-    <Rule>
-      <RasterSymbolizer default-color="rgba(0, 0, 0, 0)" default-mode="linear" opacity="0.75" scaling="bilinear">
-        <stop color="rgba(0, 0, 0, 0)" value="-350" />
-        <stop color="#88b3ac" value="0" />
-        <stop color="#e7f0ef" value="200" />
-      </RasterSymbolizer>
-    </Rule>
-  </Style>
   <Style comp-op="multiply" filter-mode="first" name="gebco2019webmercator">
     <Rule>
       <RasterSymbolizer default-color="rgba(0, 0, 0, 0)" default-mode="linear" scaling="bilinear">
-        <stop color="#000000" value="-10881" />
-        <stop color="#ffffff" value="100" />
-        <stop color="rgba(0, 0, 0, 0)" value="101" />
+        <stop color="#040418" value="-10881" />
+        <stop color="#041c39" value="-8000" />
+        <stop color="#062246" value="-5000" />
+        <stop color="#073266" value="-2000" />
+        <stop color="#095e7a" value="-100" />
+        <stop color="#063646" value="20" />
+        <stop color="#040418" value="100" />
+        <stop color="#404040" value="2000" />
+        <stop color="#919191" value="7150" />
       </RasterSymbolizer>
     </Rule>
   </Style>
   <Layer name="gebco2019webmercator" srs="+init=epsg:4326">
     <StyleName><![CDATA[gebco2019webmercator]]></StyleName>
-    <StyleName><![CDATA[gebco2019webmercator-deuce]]></StyleName>
     <Datasource>
       <Parameter name="file"><![CDATA[${sourceFile}]]></Parameter>
       <Parameter name="band"><![CDATA[1]]></Parameter>

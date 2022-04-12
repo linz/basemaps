@@ -39,7 +39,7 @@ function createMountedGdal(...paths: string[]): GdalCommand {
 }
 
 export const BathyMakerContextDefault = {
-  threads: os.cpus().length,
+  threads: os.cpus().length / 2,
   /** Making this much larger than this takes quite a long time to render */
   tileSize: 8192,
 };
@@ -95,29 +95,32 @@ export class BathyMaker {
 
     // NetCdf files need to be converted to GeoTiff before processing
     if (isNc) await this.createSourceGeoTiff(logger);
-    await this.createSourceHash(logger);
 
     const { tileMatrix: tms, zoom } = this.config;
 
     const tmsZoom = tms.zooms[zoom];
-    logger.info(
-      { file: this.fileName, zoom, tileCount: tmsZoom.matrixWidth * tmsZoom.matrixHeight },
-      'Splitting Tiles',
-    );
+    const tileCount = tmsZoom.matrixWidth * tmsZoom.matrixHeight;
+    logger.info({ file: this.fileName, zoom, tileCount }, 'Splitting Tiles');
 
     const gdalVersion = await this.gdalVersion;
     logger.info({ version: gdalVersion }, 'GdalVersion');
 
     const promises = [];
+    let completeCount = 0;
     let extent: Bounds | null = null;
     for (let x = 0; x < tmsZoom.matrixWidth; x++) {
       for (let y = 0; y < tmsZoom.matrixHeight; y++) {
-        const promise = this.q(() => {
+        const promise = this.q(async () => {
+          const startTime = Date.now();
           const tile = { x, y, z: zoom };
           const bounds = tms.tileToSourceBounds(tile);
           extent = extent == null ? bounds : extent.union(bounds);
           const tileId = TileMatrixSet.tileToName(tile);
-          return this.renderTile(tile, logger.child({ index: tileId }));
+          const ret = await this.renderTile(tile, logger.child({ index: tileId }));
+          completeCount++;
+          const duration = Date.now() - startTime;
+          logger.info({ tileId, count: completeCount, tileCount, duration }, 'TileCreated');
+          return ret;
         });
         promises.push(promise);
       }
@@ -132,14 +135,15 @@ export class BathyMaker {
     }
   }
 
-  /** Create a multi hash of the source file  */
+  // /** Create a multi hash of the source file  */
   async createSourceHash(logger: LogType): Promise<string> {
     const hashPath = this.tmpFolder.name(FileType.Hash);
     if (await fsa.exists(hashPath)) return (await fsa.read(hashPath)).toString();
-    logger.info({ hashPath }, 'CreateHash');
+    logger.debug({ hashPath }, 'CreateHash');
 
     const outputHash = await Hash.hash(this.inputPath);
     await fsa.write(hashPath, Buffer.from(outputHash));
+    logger.info({ hashPath, outputHash }, 'CreateHash');
     return outputHash;
   }
 
@@ -171,6 +175,12 @@ export class BathyMaker {
         // see https://github.com/linz/basemaps-team/issues/241
         '-ot',
         'Float32',
+        '-co',
+        'COMPRESS=lzw',
+        '-co',
+        'NUM_THREADS=ALL_CPUS',
+        '-co',
+        'BIGTIFF=YES',
         s3ToVsis3(this.inputPath),
         this.tiffPath,
       ],
@@ -189,9 +199,11 @@ export class BathyMaker {
     const bounds = tms.tileToSourceBounds(tile);
     const warpCommand = [
       '-of',
-      'GTIFF',
+      'GTiff',
       '-co',
       'NUM_THREADS=ALL_CPUS',
+      '-co',
+      'COMPRESS=lzw',
       '-s_srs',
       Epsg.Wgs84.toEpsgString(),
       '-t_srs',
@@ -200,6 +212,9 @@ export class BathyMaker {
       'bilinear',
       '-te',
       ...bounds.toBbox(),
+      '-tr',
+      152.8740565703523 * 2,
+      152.8740565703523 * 2,
       this.tiffPath,
       warpedPath,
     ].map(String);
@@ -242,9 +257,9 @@ export class BathyMaker {
         '-co',
         'NUM_THREADS=ALL_CPUS',
         '-co',
-        'COMPRESS=webp',
+        'COMPRESS=lzw',
         '-co',
-        'WEBP_LEVEL=100',
+        'TILED=yes',
         '-r',
         'bilinear',
         '-a_srs',

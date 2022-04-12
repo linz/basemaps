@@ -3,7 +3,7 @@ import * as path from 'path';
 
 const PrefixMade: Record<string, boolean> = {};
 
-const BathyTempFolder = '.bathy';
+const BathyTempFolder = 'bathy';
 
 export const enum FileType {
   Output = 'output',
