@@ -173,6 +173,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
         coordinates: createCoordinates(bbox, im.files, proj),
       },
       properties: {
+        title: layer.name,
         datetime: null,
         start_datetime: interval[0][0],
         end_datetime: interval[0][1],
