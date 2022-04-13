@@ -47,6 +47,7 @@ export class BasemapsServerCommand extends Command {
 
         const tileSet = basename(tiffPath);
         const tsl = new TileSetLocal(tileSet, tiffPath);
+        tifSets.set(tiffPath, tsl);
 
         await tsl.load();
         TileSets.add(tsl, new Date('3000-01-01').getTime());
