@@ -157,6 +157,7 @@ o.spec('Attribution', () => {
       ],
     },
     properties: {
+      title: '',
       datetime: null,
       start_datetime: '2014-01-01T00:00:00Z',
       end_datetime: '2015-01-01T00:00:00Z',
