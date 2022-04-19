@@ -1,5 +1,6 @@
-import { App } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
+import { App } from 'aws-cdk-lib';
+import ACM from 'aws-sdk/clients/acm.js';
 import { EdgeAnalytics } from './analytics/edge.analytics.js';
 import { CogBuilderStack } from './cogify/index.js';
 import { BaseMapsRegion, getConfig } from './config.js';
@@ -7,8 +8,6 @@ import { DeployEnv } from './deploy.env.js';
 import { EdgeStack } from './edge/index.js';
 import { getEdgeParameters } from './parameters.js';
 import { ServeStack } from './serve/index.js';
-
-import ACM from 'aws-sdk/clients/acm.js';
 
 /** Find a certificate for a given domain in a specific region */
 async function findCertForDomain(region: string, domain: string): Promise<string | undefined> {

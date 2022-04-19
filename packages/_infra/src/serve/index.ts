@@ -1,9 +1,10 @@
-import cert from '@aws-cdk/aws-certificatemanager';
-import ec2 from '@aws-cdk/aws-ec2';
-import elbv2, { ApplicationProtocol, SslPolicy } from '@aws-cdk/aws-elasticloadbalancingv2';
-import targets from '@aws-cdk/aws-elasticloadbalancingv2-targets';
-import r53 from '@aws-cdk/aws-route53';
-import cdk from '@aws-cdk/core';
+import cert from 'aws-cdk-lib/aws-certificatemanager';
+import ec2 from 'aws-cdk-lib/aws-ec2';
+import elbv2, { ApplicationProtocol, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import targets from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
+import r53 from 'aws-cdk-lib/aws-route53';
+import cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
 import { TileMetadataTable } from './db.js';
 import { LambdaTiler } from './lambda.tiler.js';
@@ -17,7 +18,7 @@ export interface ServeStackProps extends cdk.StackProps {
  * Tile serving infrastructure
  */
 export class ServeStack extends cdk.Stack {
-  public constructor(scope: cdk.Construct, id: string, props: ServeStackProps) {
+  public constructor(scope: Construct, id: string, props: ServeStackProps) {
     super(scope, id, props);
 
     const config = getConfig();
@@ -56,7 +57,7 @@ export class ServeStack extends cdk.Stack {
       port: 443,
       protocol: ApplicationProtocol.HTTPS,
       sslPolicy: SslPolicy.RECOMMENDED,
-      certificateArns: [sslCert.certificateArn],
+      certificates: [sslCert],
       defaultTargetGroups: [targetGroup],
     });
 

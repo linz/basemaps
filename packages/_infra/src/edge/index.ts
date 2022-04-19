@@ -1,6 +1,8 @@
-import cf from '@aws-cdk/aws-cloudfront';
-import s3, { Bucket, HttpMethods } from '@aws-cdk/aws-s3';
-import cdk from '@aws-cdk/core';
+import cdk from 'aws-cdk-lib';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import cf from 'aws-cdk-lib/aws-cloudfront';
+import s3, { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
 import { Parameters } from '../parameters.js';
 
@@ -19,7 +21,7 @@ export class EdgeStack extends cdk.Stack {
   public logBucket: Bucket;
   public distribution: cf.CloudFrontWebDistribution;
 
-  public constructor(scope: cdk.Construct, id: string, props: EdgeStackProps) {
+  public constructor(scope: Construct, id: string, props: EdgeStackProps) {
     super(scope, id, props);
 
     const config = getConfig();
@@ -75,18 +77,16 @@ export class EdgeStack extends cdk.Stack {
       ],
     };
 
-    const aliasConfiguration = {
-      acmCertRef: props.cloudfrontCertificateArn,
-      names: config.CloudFrontDns,
-      sslMethod: cf.SSLMethod.SNI,
-      securityPolicy: cf.SecurityPolicyProtocol.TLS_V1_2_2018,
-    };
+    const acmCert = Certificate.fromCertificateArn(this, 'Cert', props.cloudfrontCertificateArn);
+    const viewerCertificate = cf.ViewerCertificate.fromAcmCertificate(acmCert, {
+      aliases: config.CloudFrontDns,
+    });
     new cdk.CfnOutput(this, 'CloudFrontPublicDomain', { value: config.CloudFrontDns.join(', ') });
 
     this.logBucket = new s3.Bucket(this, 'EdgeLogBucket');
 
     this.distribution = new cf.CloudFrontWebDistribution(this, 'Distribution', {
-      aliasConfiguration,
+      viewerCertificate,
       priceClass: cf.PriceClass.PRICE_CLASS_ALL,
       httpVersion: cf.HttpVersion.HTTP2,
       viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,

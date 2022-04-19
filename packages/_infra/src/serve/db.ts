@@ -1,10 +1,11 @@
-import cdk from '@aws-cdk/core';
-import dynamoDb from '@aws-cdk/aws-dynamodb';
+import cdk from 'aws-cdk-lib';
+import dynamoDb from 'aws-cdk-lib/aws-dynamodb';
 import { Const } from '@basemaps/shared';
+import { Construct } from 'constructs';
 
-export class TileMetadataTable extends cdk.Construct {
+export class TileMetadataTable extends Construct {
   public table: dynamoDb.Table;
-  public constructor(scope: cdk.Construct, id: string) {
+  public constructor(scope: Construct, id: string) {
     super(scope, id);
 
     this.table = new dynamoDb.Table(this, 'TileMetadataDynamoTable', {
