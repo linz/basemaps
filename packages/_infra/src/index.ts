@@ -9,15 +9,11 @@ import { EdgeStack } from './edge/index.js';
 import { getEdgeParameters } from './parameters.js';
 import { ServeStack } from './serve/index.js';
 
-let certList: ACM.CertificateSummaryList | undefined;
 /** Find a certificate for a given domain in a specific region */
 async function findCertForDomain(region: string, domain: string): Promise<string | undefined> {
-  if (certList == null) {
-    const acm = new ACM({ region });
-    const certs = await acm.listCertificates({ CertificateStatuses: ['ISSUED'] }).promise();
-    certList = certs.CertificateSummaryList;
-  }
-  return certList?.find((f) => f.DomainName?.endsWith(domain))?.CertificateArn;
+  const acm = new ACM({ region });
+  const certs = await acm.listCertificates({ CertificateStatuses: ['ISSUED'] }).promise();
+  return certs.CertificateSummaryList?.find((f) => f.DomainName?.endsWith(domain))?.CertificateArn;
 }
 
 async function main(): Promise<void> {
