@@ -45,6 +45,7 @@ const ExpectedJson = {
         ],
       },
       properties: {
+        title: 'Hastings-district urban 2011-13 0.1m',
         datetime: null,
         start_datetime: '2011-01-01T00:00:00Z',
         end_datetime: '2014-01-01T00:00:00Z',
@@ -73,6 +74,7 @@ const ExpectedJson = {
         ],
       },
       properties: {
+        title: 'Hastings-district urban 2013-14 0.1m',
         datetime: null,
         start_datetime: '2013-01-01T00:00:00Z',
         end_datetime: '2015-01-01T00:00:00Z',
@@ -101,6 +103,7 @@ const ExpectedJson = {
         ],
       },
       properties: {
+        title: 'Hastings-district urban 2015-17 0.1m',
         datetime: null,
         start_datetime: '2015-01-01T00:00:00Z',
         end_datetime: '2018-01-01T00:00:00Z',
@@ -129,6 +132,7 @@ const ExpectedJson = {
         ],
       },
       properties: {
+        title: 'Hastings-district urban 2017-18 0.1m',
         datetime: null,
         start_datetime: '2017-01-01T00:00:00Z',
         end_datetime: '2019-01-01T00:00:00Z',

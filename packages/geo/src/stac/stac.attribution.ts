@@ -12,6 +12,7 @@ export type AttributionCollection = StacCollection<{
  * A Single File STAC compliant feature for calculating attribution of an extent
  */
 export type AttributionItem = StacItem<{
+  title: string;
   datetime: null;
   start_datetime: string;
   end_datetime: string;
