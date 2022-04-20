@@ -21,6 +21,7 @@ const ctx: LambdaHttpRequest = new LambdaAlbRequest(
 );
 
 o.spec('health', async () => {
+  o.specTimeout(1000);
   const sandbox = sinon.createSandbox();
 
   const tileSet = new TileSetRaster('health', GoogleTms);
@@ -57,8 +58,6 @@ o.spec('health', async () => {
   // Prepare mock test tile response based on the static test tiles
 
   o('Should give a 200 response', async () => {
-    o.timeout(500);
-
     // Given ... a series good get tile response
     const callback = sandbox.stub(tileSet, 'tile');
     callback.onCall(0).resolves(Response1);
@@ -73,7 +72,6 @@ o.spec('health', async () => {
   });
 
   o('Should return mis-match tile response', async () => {
-    o.timeout(500);
     // Given ... a bad get tile response for second get tile
     const callback = sandbox.stub(tileSet, 'tile');
     callback.onCall(0).resolves(Response1);
