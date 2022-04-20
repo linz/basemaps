@@ -1,5 +1,6 @@
-import { App } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
+import { App } from 'aws-cdk-lib';
+import ACM from 'aws-sdk/clients/acm.js';
 import { EdgeAnalytics } from './analytics/edge.analytics.js';
 import { CogBuilderStack } from './cogify/index.js';
 import { BaseMapsRegion, getConfig } from './config.js';
@@ -8,14 +9,15 @@ import { EdgeStack } from './edge/index.js';
 import { getEdgeParameters } from './parameters.js';
 import { ServeStack } from './serve/index.js';
 
-import ACM from 'aws-sdk/clients/acm.js';
-
+let certList: ACM.CertificateSummaryList | undefined;
 /** Find a certificate for a given domain in a specific region */
 async function findCertForDomain(region: string, domain: string): Promise<string | undefined> {
-  const acm = new ACM({ region });
-  const certs = await acm.listCertificates({ CertificateStatuses: ['ISSUED'] }).promise();
-  const cert = certs.CertificateSummaryList?.find((f) => f.DomainName?.endsWith(domain));
-  return cert?.CertificateArn;
+  if (certList == null) {
+    const acm = new ACM({ region });
+    const certs = await acm.listCertificates({ CertificateStatuses: ['ISSUED'] }).promise();
+    certList = certs.CertificateSummaryList;
+  }
+  return certList?.find((f) => f.DomainName?.endsWith(domain))?.CertificateArn;
 }
 
 async function main(): Promise<void> {

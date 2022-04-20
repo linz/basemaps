@@ -70,7 +70,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
   updateFromUrl(search: string = window.location.search): void {
     const urlParams = new URLSearchParams(search);
-    const style = urlParams.get('s');
+    const style = urlParams.get('s') ?? urlParams.get('style');
     const debug = urlParams.get('debug') != null;
 
     const layerId = urlParams.get('i') ?? 'aerial';

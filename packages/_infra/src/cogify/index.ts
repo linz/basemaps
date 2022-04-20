@@ -1,18 +1,19 @@
-import cdk from '@aws-cdk/core';
-import iam from '@aws-cdk/aws-iam';
-import batch from '@aws-cdk/aws-batch';
-import ec2 from '@aws-cdk/aws-ec2';
-import ecrAssets from '@aws-cdk/aws-ecr-assets';
+import cdk from 'aws-cdk-lib';
+import iam from 'aws-cdk-lib/aws-iam';
+import batch from 'aws-cdk-lib/aws-batch';
+import ec2 from 'aws-cdk-lib/aws-ec2';
+import ecrAssets from 'aws-cdk-lib/aws-ecr-assets';
 import { Env } from '@basemaps/shared';
 import { createHash } from 'crypto';
 import { TileMetadataTableArn } from '../serve/db.js';
 import { ScratchData } from './mount.folder.js';
+import { Construct } from 'constructs';
 
 /**
  * Cogification infrastructure
  */
 export class CogBuilderStack extends cdk.Stack {
-  public constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     const batchServiceRole = new iam.Role(this, 'CogBatchServiceRole', {
       roleName: 'CogBatchServiceRole',

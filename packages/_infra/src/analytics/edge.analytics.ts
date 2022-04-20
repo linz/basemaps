@@ -1,16 +1,15 @@
-import cdk from '@aws-cdk/core';
-import lambda from '@aws-cdk/aws-lambda';
-import s3 from '@aws-cdk/aws-s3';
-import { Rule, Schedule } from '@aws-cdk/aws-events';
-import { LambdaFunction } from '@aws-cdk/aws-events-targets';
-import { RetentionDays } from '@aws-cdk/aws-logs';
-import { Bucket } from '@aws-cdk/aws-s3';
-import { Duration } from '@aws-cdk/core';
 import { Env } from '@basemaps/shared';
+import { Duration, Stack, StackProps } from 'aws-cdk-lib';
+import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
+import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
+import lf from 'aws-cdk-lib/aws-lambda';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { Construct } from 'constructs';
 
 const CODE_PATH = '../lambda-analytics/dist';
 
-export interface EdgeAnalyticsProps extends cdk.StackProps {
+export interface EdgeAnalyticsProps extends StackProps {
   distributionId: string;
   logBucketName: string;
 }
@@ -18,23 +17,23 @@ export interface EdgeAnalyticsProps extends cdk.StackProps {
 /**
  * Every hour create analytics based off the logs given to us from cloudwatch
  */
-export class EdgeAnalytics extends cdk.Stack {
-  public lambda: lambda.Function;
+export class EdgeAnalytics extends Stack {
+  public lambda: lf.Function;
 
-  public constructor(scope: cdk.Construct, id: string, props: EdgeAnalyticsProps) {
+  public constructor(scope: Construct, id: string, props: EdgeAnalyticsProps) {
     super(scope, id, props);
 
     const { distributionId, logBucketName } = props;
 
     const logBucket = Bucket.fromBucketName(this, 'EdgeLogBucket', logBucketName);
 
-    const cacheBucket = new s3.Bucket(this, 'AnalyticCacheBucket');
-    this.lambda = new lambda.Function(this, 'AnalyticLambda', {
-      runtime: lambda.Runtime.NODEJS_14_X,
+    const cacheBucket = new Bucket(this, 'AnalyticCacheBucket');
+    this.lambda = new lf.Function(this, 'AnalyticLambda', {
+      runtime: lf.Runtime.NODEJS_14_X,
       memorySize: 2048,
       timeout: Duration.minutes(10),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(CODE_PATH),
+      code: lf.Code.fromAsset(CODE_PATH),
       environment: {
         [Env.Analytics.CloudFrontId]: distributionId,
         [Env.Analytics.CacheBucket]: `s3://${cacheBucket.bucketName}`,

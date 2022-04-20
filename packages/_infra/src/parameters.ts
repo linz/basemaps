@@ -1,4 +1,4 @@
-import { Stack } from '@aws-cdk/core';
+import { Stack } from 'aws-cdk-lib';
 import CloudFormation from 'aws-sdk/clients/cloudformation.js';
 
 export const Parameters = {
