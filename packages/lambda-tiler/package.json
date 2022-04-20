@@ -54,7 +54,7 @@
   "devDependencies": {
     "@basemaps/attribution": "^6.24.2",
     "@types/aws-lambda": "^8.10.75",
-    "@types/node": "^14.11.2",
+    "@types/node": "^17.0.25",
     "@types/pixelmatch": "^5.0.0",
     "@types/sharp": "^0.29.3",
     "pretty-json-log": "^1.0.0"
