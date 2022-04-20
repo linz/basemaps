@@ -1,5 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { BaseConfig } from './config/base.js';
+import { ConfigJob } from './config/job.js';
 import { ConfigPrefix } from './config/prefix.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from './config/tile.set.js';
 import { ConfigImagery, ConfigProvider, ConfigTileSetRaster, ConfigTileSetVector, ConfigVectorStyle } from './index.js';
@@ -21,6 +22,10 @@ export class ConfigInstance {
 
   get Provider(): BasemapsConfigObject<ConfigProvider> {
     return this.cfg.Provider;
+  }
+
+  get Job(): BasemapsConfigObject<ConfigJob> {
+    return this.cfg.Job;
   }
 
   setConfigProvider(cfg: BasemapsConfigProvider): void {
@@ -69,6 +74,7 @@ export abstract class BasemapsConfigProvider {
   abstract Imagery: BasemapsConfigObject<ConfigImagery>;
   abstract Style: BasemapsConfigObject<ConfigVectorStyle>;
   abstract Provider: BasemapsConfigObject<ConfigProvider>;
+  abstract Job: BasemapsConfigObject<ConfigJob>;
 }
 
 export abstract class BasemapsConfigObject<T extends BaseConfig> {
