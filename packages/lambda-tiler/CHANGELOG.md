@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.24.2](https://github.com/linz/basemaps/compare/v6.24.1...v6.24.2) (2022-04-20)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** expose the name of the imagery set in attribution ([#2153](https://github.com/linz/basemaps/issues/2153)) ([65d22cb](https://github.com/linz/basemaps/commit/65d22cbbf805d704b0179581ac6b66e755d2ef8f))
+* **lambda-tiler:** missing tilesets should 404 not 500 ([#2149](https://github.com/linz/basemaps/issues/2149)) ([a3420bc](https://github.com/linz/basemaps/commit/a3420bcc956a7fc16e2b3867100bd5943fa13e73))
+
+
+
+
+
 ## [6.24.1](https://github.com/linz/basemaps/compare/v6.24.0...v6.24.1) (2022-04-07)
 
 
