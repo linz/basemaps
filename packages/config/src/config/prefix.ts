@@ -4,5 +4,5 @@ export enum ConfigPrefix {
   Provider = 'pv',
   ImageryRule = 'ir',
   Style = 'st',
-  Job = 'job',
+  CogCreation = 'cc',
 }

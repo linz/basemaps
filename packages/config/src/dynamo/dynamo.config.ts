@@ -2,7 +2,7 @@ import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import { BasemapsConfigProvider } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
-import { ConfigJob } from '../config/job.js';
+import { CogCreation } from '../config/cog.creation.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigTileSet } from '../config/tile.set.js';
@@ -20,7 +20,7 @@ export class ConfigProviderDynamo extends BasemapsConfigProvider {
   Style = new ConfigDynamoCached<ConfigVectorStyle>(this, ConfigPrefix.Style);
   TileSet = new ConfigDynamoBase<ConfigTileSet>(this, ConfigPrefix.TileSet);
   Provider = new ConfigDynamoCached<ConfigProvider>(this, ConfigPrefix.Provider);
-  Job = new ConfigDynamoCached<ConfigJob>(this, ConfigPrefix.Job);
+  CogCreation = new ConfigDynamoCached<CogCreation>(this, ConfigPrefix.CogCreation);
 
   constructor(tableName: string) {
     super();
