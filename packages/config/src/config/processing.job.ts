@@ -5,14 +5,14 @@ export enum JobStatus {
   Complete = 'complete',
 }
 
-export type CogCreation = CogCreationJob | CogCreationFailed;
+export type ConfigProcessingJob = ProcessingJob | ProcessingJobFailed;
 
-export interface CogCreationJob extends BaseConfig {
+export interface ProcessingJob extends BaseConfig {
   /** Job Status for the imagery importing batch jobs */
   status: JobStatus;
 }
 
-export interface CogCreationFailed extends BaseConfig {
+export interface ProcessingJobFailed extends BaseConfig {
   status: 'failed';
   /** Job Batch processing error messages */
   error: string;

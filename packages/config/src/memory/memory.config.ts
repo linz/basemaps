@@ -1,7 +1,7 @@
 import { BasemapsConfigProvider, BasemapsConfigObject } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
-import { CogCreation } from '../config/cog.creation.js';
+import { ConfigProcessingJob } from '../config/processing.job.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigTileSet } from '../config/tile.set.js';
@@ -12,7 +12,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   Style = new MemoryConfigObject<ConfigVectorStyle>(this, ConfigPrefix.Style);
   TileSet = new MemoryConfigObject<ConfigTileSet>(this, ConfigPrefix.TileSet);
   Provider = new MemoryConfigObject<ConfigProvider>(this, ConfigPrefix.Provider);
-  CogCreation = new MemoryConfigObject<CogCreation>(this, ConfigPrefix.CogCreation);
+  ProcessingJob = new MemoryConfigObject<ConfigProcessingJob>(this, ConfigPrefix.ProcessingJob);
 
   /** Memory cache of all objects */
   objects = new Map<string, BaseConfig>();
