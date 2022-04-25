@@ -2,7 +2,14 @@ import { Epsg } from '@basemaps/geo';
 import { BaseConfig } from './config/base.js';
 import { ConfigPrefix } from './config/prefix.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from './config/tile.set.js';
-import { ConfigImagery, ConfigProvider, ConfigTileSetRaster, ConfigTileSetVector, ConfigVectorStyle } from './index.js';
+import {
+  ConfigImagery,
+  ConfigProvider,
+  ConfigTileSetRaster,
+  ConfigTileSetVector,
+  ConfigVectorStyle,
+  ConfigProcessingJob,
+} from './index.js';
 
 export class ConfigInstance {
   cfg: BasemapsConfigProvider;
@@ -21,6 +28,10 @@ export class ConfigInstance {
 
   get Provider(): BasemapsConfigObject<ConfigProvider> {
     return this.cfg.Provider;
+  }
+
+  get ProcessingJob(): BasemapsConfigObject<ConfigProcessingJob> {
+    return this.cfg.ProcessingJob;
   }
 
   setConfigProvider(cfg: BasemapsConfigProvider): void {
@@ -69,6 +80,7 @@ export abstract class BasemapsConfigProvider {
   abstract Imagery: BasemapsConfigObject<ConfigImagery>;
   abstract Style: BasemapsConfigObject<ConfigVectorStyle>;
   abstract Provider: BasemapsConfigObject<ConfigProvider>;
+  abstract ProcessingJob: BasemapsConfigObject<ConfigProcessingJob>;
 }
 
 export abstract class BasemapsConfigObject<T extends BaseConfig> {
