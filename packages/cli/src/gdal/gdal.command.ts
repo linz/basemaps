@@ -91,7 +91,7 @@ export abstract class GdalCommand {
         const duration = Date.now() - this.startTime;
 
         if (code !== 0) {
-          log.error({ code, stdout, stderr, duration }, 'GdalFailed');
+          log.error({ code, stdout, stderr, duration, cmd }, 'GdalFailed');
           return reject(new Error('Failed to execute GDAL command'));
         }
         log.trace({ stdout, stderr, duration }, 'GdalDone');

@@ -14,7 +14,7 @@ import { BathyMaker } from './bathy.maker.js';
 import { FilePath, FileType } from './file.js';
 
 /** This zoom level gives a good enough quality world while not making too many tiles */
-const GoodZoom = GoogleTms.def.tileMatrix[4];
+const GoodZoom = GoogleTms.def.tileMatrix[5];
 
 class CreateAction extends CommandLineAction {
   private inputPath: CommandLineStringParameter;
@@ -125,8 +125,8 @@ class CreateAction extends CommandLineAction {
         tmpFolder,
         tileMatrix,
         zoom: this.zoomLevel.value ?? bestZ,
-        threads: os.cpus().length / 2,
-        tileSize: this.tileSize.value,
+        threads: 20,
+        tileSize: this.tileSize.value ?? 8192,
       });
 
       logger.info(

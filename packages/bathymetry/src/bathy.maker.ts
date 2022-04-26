@@ -2,7 +2,7 @@ import { Gdal } from '@basemaps/cli';
 import { GdalCommand } from '@basemaps/cli/build/gdal/gdal.command.js';
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, s3ToVsis3 } from '@basemaps/shared';
-import * as os from 'os';
+import { promises as fs } from 'fs';
 import type { LimitFunction } from 'p-limit';
 import PLimit from 'p-limit';
 import * as path from 'path';
@@ -24,10 +24,10 @@ interface BathyMakerContext {
   tileMatrix: TileMatrixSet;
   /** zoom level of the tms to cut the tiles too */
   zoom: number;
-  /** Number of threads used to convert @default NUM_CPUS */
-  threads?: number;
+  /** Number of threads used to convert @default NUM_CPUS / 2 */
+  threads: number;
   /** Mapnik render tilesize @default 8192 */
-  tileSize?: number;
+  tileSize: number;
 }
 
 function createMountedGdal(...paths: string[]): GdalCommand {
@@ -38,22 +38,16 @@ function createMountedGdal(...paths: string[]): GdalCommand {
   return gdal;
 }
 
-export const BathyMakerContextDefault = {
-  threads: os.cpus().length / 2,
-  /** Making this much larger than this takes quite a long time to render */
-  tileSize: 8192,
-};
-
 export class BathyMaker {
-  config: BathyMakerContext & typeof BathyMakerContextDefault;
+  config: BathyMakerContext;
 
   /** Current gdal version @see Gdal.version */
   gdalVersion: Promise<string>;
   /** Concurrent limiting queue, all work should be done inside the queue */
   q: LimitFunction;
 
-  constructor(ctx: BathyMakerContext) {
-    this.config = { ...BathyMakerContextDefault, ...ctx };
+  constructor(config: BathyMakerContext) {
+    this.config = config;
     this.q = PLimit(this.config.threads);
   }
 
@@ -99,6 +93,7 @@ export class BathyMaker {
     const { tileMatrix: tms, zoom } = this.config;
 
     const tmsZoom = tms.zooms[zoom];
+
     const tileCount = tmsZoom.matrixWidth * tmsZoom.matrixHeight;
     logger.info({ file: this.fileName, zoom, tileCount }, 'Splitting Tiles');
 
@@ -157,6 +152,18 @@ export class BathyMaker {
     } catch (err) {
       logger.error({ err }, 'Failed');
       throw err;
+    } finally {
+      const tileId = TileMatrixSet.tileToName(tile);
+
+      // clean up files
+      const warpedPath = this.tmpFolder.name(FileType.Warped, tileId);
+      if (await fsa.exists(warpedPath)) await fs.rm(warpedPath);
+
+      const hillShadePath = this.tmpFolder.name(FileType.HillShade, tileId);
+      if (await fsa.exists(hillShadePath)) await fs.rm(hillShadePath);
+
+      const renderedPath = this.tmpFolder.name(FileType.Rendered, tileId);
+      if (await fsa.exists(renderedPath)) await fs.rm(renderedPath);
     }
   }
 
@@ -196,6 +203,15 @@ export class BathyMaker {
 
     const tms = this.config.tileMatrix;
 
+    /**
+     * Since we are generally out putting 8192px tiles instead of 256px tiles we are actually making
+     * a tile 32x the resolution,
+     *
+     * So when we create a warped tile lets try and force a high resolution with gdal
+     */
+    const zoomDifference = this.config.tileSize / tms.zooms[0].tileWidth;
+    const targetResolution = tms.pixelScale(this.config.zoom) / zoomDifference;
+
     const bounds = tms.tileToSourceBounds(tile);
     const warpCommand = [
       '-of',
@@ -213,8 +229,8 @@ export class BathyMaker {
       '-te',
       ...bounds.toBbox(),
       '-tr',
-      152.8740565703523 * 2,
-      152.8740565703523 * 2,
+      targetResolution,
+      targetResolution,
       this.tiffPath,
       warpedPath,
     ].map(String);
@@ -260,6 +276,8 @@ export class BathyMaker {
         'COMPRESS=lzw',
         '-co',
         'TILED=yes',
+        '-co',
+        'BLOCKXSIZE=1024',
         '-r',
         'bilinear',
         '-a_srs',

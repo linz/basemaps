@@ -173,6 +173,7 @@ export class Cutline {
       --minZ;
     }
     minZ = Math.max(1, minZ + 1);
+    console.log(minZ);
 
     let tiles: Tile[] = [];
 
