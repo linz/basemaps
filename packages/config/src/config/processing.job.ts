@@ -1,3 +1,4 @@
+import { EpsgCode } from '@basemaps/geo';
 import { BaseConfig } from './base.js';
 
 export enum JobStatus {
@@ -5,11 +6,29 @@ export enum JobStatus {
   Complete = 'complete',
 }
 
-export type ConfigProcessingJob = ProcessingJob | ProcessingJobFailed;
+export interface TileSet {
+  projection: EpsgCode;
+  /** Imagery processing id */
+  id: string;
+}
+
+export interface TileSetComplete extends TileSet {
+  /** Imagery url after job processing complete */
+  url: string;
+}
+
+export type ConfigProcessingJob = ProcessingJob | ProcessingJobCompleted | ProcessingJobFailed;
 
 export interface ProcessingJob extends BaseConfig {
   /** Job Status for the imagery importing batch jobs */
-  status: JobStatus;
+  status: 'processing';
+  tileSets: TileSet[];
+}
+
+export interface ProcessingJobCompleted extends BaseConfig {
+  /** Job Status for the imagery importing batch jobs */
+  status: 'complete';
+  tileSets: TileSetComplete[];
 }
 
 export interface ProcessingJobFailed extends BaseConfig {
