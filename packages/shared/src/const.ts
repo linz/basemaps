@@ -30,6 +30,12 @@ export const Env = {
   /** Number of hours to assume a role for, @default 8 */
   AwsRoleDurationHours: 'AWS_ROLE_DURATION_HOURS',
 
+  /** AWS role config bucket */
+  AwsRoleConfigBucket: 'ROLE_CONFIG_BUCKET',
+
+  /** Import Imagery bucket */
+  ImportImageryBucket: 'IMPORT_IMAGERY_BUCKET',
+
   Gdal: {
     /** Should the gdal docker container be used? */
     UseDocker: 'GDAL_DOCKER',
