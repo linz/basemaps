@@ -22,7 +22,7 @@ export const CogJobFactory = {
    */
   async create(ctx: JobCreationContext): Promise<CogJob> {
     const id = ctx.override?.id ?? ulid.ulid();
-    const imageryName = basename(ctx.sourceLocation.path).replace(/\./g, '-'); // batch does not allow '.' in names
+    const imageryName = ctx.imageryName; // batch does not allow '.' in names
     const logger = LogConfig.get().child({ id, imageryName });
 
     const gdalVersion = await Gdal.version(logger);
