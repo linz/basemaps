@@ -4,7 +4,7 @@ import { createHash } from 'crypto';
 import { findImagery } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
 import { makeCog } from '../import/make.cog.js';
-import { ProcessingJob } from '@basemaps/config/src/config/processing.job';
+import { ConfigProcessingJob } from '@basemaps/config';
 import { AwsRole, prepareRoles } from '../import/aws.js';
 import { CogJobFactory } from '@basemaps/cli';
 
@@ -59,7 +59,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
       id: jobId,
       name: path,
       status: 'processing',
-    } as ProcessingJob;
+    } as ConfigProcessingJob;
   }
 
   const json = JSON.stringify(jobConfig);
