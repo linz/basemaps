@@ -48,7 +48,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   // Prepare Cog jobs
   const ctx = await makeCog(path, target, source, files);
 
-  const id = createHash('sha256').update(files.toString()).digest('base64');
+  const id = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
   const jobId = Config.ProcessingJob.id(id);
   let jobConfig = await Config.ProcessingJob.get(jobId);
   if (jobConfig == null) {
