@@ -134,7 +134,7 @@ o.spec('Import', () => {
     const jobConfig = {
       id: jobId,
       name: path,
-      status: 'processing',
+      status: 'complete',
     } as ConfigProcessingJob;
     sandbox.stub(Config.ProcessingJob, 'get').resolves(jobConfig);
     const req = getRequest(path, '2193');
