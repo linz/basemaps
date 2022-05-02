@@ -1,12 +1,12 @@
 import { JobCreationContext } from '@basemaps/cli/build/cog/cog.stac.job';
 import { Epsg, TileMatrixSet } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
-import { Source } from './imagery.find.js';
+import { RoleConfig } from './imagery.find.js';
 
 export async function makeCog(
   path: string,
   tileMatrix: TileMatrixSet,
-  source: Source,
+  role: RoleConfig,
   files: string[],
 ): Promise<JobCreationContext> {
   let resampling;
@@ -29,7 +29,7 @@ export async function makeCog(
   const ctx: JobCreationContext = {
     override: { projection: tileMatrix.projection, resampling },
     outputLocation: { type: 's3' as const, path: `s3://${Env.ImportImageryBucket}` },
-    sourceLocation: { type: 's3', path: source.uri, ...source.config.role, files: files },
+    sourceLocation: { type: 's3', path, ...role, files: files },
     batch: true,
     tileMatrix,
     oneCogCovering: false,

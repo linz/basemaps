@@ -1,15 +1,11 @@
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Config } from '@basemaps/shared';
 import { createHash } from 'crypto';
-import { findImagery } from '../import/imagery.find.js';
+import { findImagery, RoleRegister } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
 import { makeCog } from '../import/make.cog.js';
 import { ConfigProcessingJob } from '@basemaps/config';
-import { AwsRole, prepareRoles } from '../import/aws.js';
 import { CogJobFactory } from '@basemaps/cli';
-
-// Bucket access roles
-let roles: Promise<AwsRole[]> | null = null;
 
 /**
  * Trigger import imagery job by this endpoint
@@ -21,9 +17,6 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   const path = req.query.get('path');
   const projection = req.query.get('p');
 
-  // Get all data lake access roles
-  if (roles == null) roles = prepareRoles();
-
   // Parse projection as target, default to process both NZTM2000Quad
   let target = Nztm2000Tms;
   if (projection != null) {
@@ -34,19 +27,14 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
 
   // Find the imagery from s3
   if (path == null || !path.startsWith('s3://')) return new LambdaHttpResponse(500, 'Invalided s3 path');
-  const source = await findImagery(path);
-  if (source == null) return new LambdaHttpResponse(404, 'Imagery Not Found');
-
-  // Get file list
-  const s3 = source.config.s3;
-  const keys = s3.list(path);
-  const files: string[] = [];
-  for await (const key of keys) {
-    if (key.endsWith('.tiff')) files.push(key);
-  }
+  await RoleRegister.loadRoles();
+  const role = await RoleRegister.findRole(path);
+  if (role == null) return new LambdaHttpResponse(500, 'Unable to Access the bucket');
+  const files = await findImagery(path);
+  if (files.length < 1) return new LambdaHttpResponse(404, 'Imagery Not Found');
 
   // Prepare Cog jobs
-  const ctx = await makeCog(path, target, source, files);
+  const ctx = await makeCog(path, target, role, files);
 
   const id = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
   const jobId = Config.ProcessingJob.id(id);
