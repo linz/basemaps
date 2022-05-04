@@ -75,7 +75,7 @@ export class TileSetCache {
     }
 
     const ts = new TileSetVector(name, tileMatrix);
-    ts.tileSet = tileSet;
+    await ts.init(tileSet);
     this.tileSets.set(tileSetId, ts);
     return ts;
   }

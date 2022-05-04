@@ -1,7 +1,8 @@
 import Sharp from 'sharp';
-import { TileMaker, ImageFormat, TileMakerContext, Composition, TileMakerResizeKernel } from '@basemaps/tiler';
+import { TileMaker, TileMakerContext, Composition, TileMakerResizeKernel } from '@basemaps/tiler';
 import { Metrics } from '@linzjs/metrics';
 import sharp from 'sharp';
+import { ImageFormat } from '@basemaps/geo';
 
 function notEmpty<T>(value: T | null | undefined): value is T {
   return value != null;
@@ -44,13 +45,13 @@ export class TileMakerSharp implements TileMaker {
 
   private toImage(format: ImageFormat, pipeline: sharp.Sharp): Promise<Buffer> {
     switch (format) {
-      case ImageFormat.JPEG:
+      case ImageFormat.Jpeg:
         return pipeline.jpeg().toBuffer();
-      case ImageFormat.PNG:
+      case ImageFormat.Png:
         return pipeline.png().toBuffer();
-      case ImageFormat.WEBP:
+      case ImageFormat.Webp:
         return pipeline.webp().toBuffer();
-      case ImageFormat.AVIF:
+      case ImageFormat.Avif:
         return pipeline.avif().toBuffer();
       default:
         throw new Error(`Invalid image format "${format}"`);

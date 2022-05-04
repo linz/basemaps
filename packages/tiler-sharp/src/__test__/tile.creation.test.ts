@@ -1,6 +1,6 @@
-import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
+import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile, ImageFormat } from '@basemaps/geo';
 import { TestTiff } from '@basemaps/test';
-import { ImageFormat, Tiler } from '@basemaps/tiler';
+import { Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
 import o from 'ospec';
 import * as path from 'path';
@@ -48,7 +48,7 @@ o.spec('TileCreation', () => {
 
   o('should generate webp', async () => {
     const tileMaker = new TileMakerSharp(256);
-    const res = await tileMaker.compose({ layers: [], format: ImageFormat.WEBP, background, resizeKernel });
+    const res = await tileMaker.compose({ layers: [], format: ImageFormat.Webp, background, resizeKernel });
     // Image format `R I F F <fileSize (int32)> W E B P`
     const magicBytes = res.buffer.slice(0, 4);
     const magicWebP = res.buffer.slice(8, 12);
@@ -58,7 +58,7 @@ o.spec('TileCreation', () => {
 
   o('should generate jpeg', async () => {
     const tileMaker = new TileMakerSharp(256);
-    const res = await tileMaker.compose({ layers: [], format: ImageFormat.JPEG, background, resizeKernel });
+    const res = await tileMaker.compose({ layers: [], format: ImageFormat.Jpeg, background, resizeKernel });
     const magicBytes = res.buffer.slice(0, 4);
     o(magicBytes.toJSON().data).deepEquals([0xff, 0xd8, 0xff, 0xdb]);
   });
@@ -114,7 +114,7 @@ o.spec('TileCreation', () => {
 
       const png = await tileMaker.compose({
         layers,
-        format: ImageFormat.PNG,
+        format: ImageFormat.Png,
         background,
         resizeKernel,
       });

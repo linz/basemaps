@@ -1,9 +1,10 @@
 import { ConfigProvider } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
-import { LambdaHttpRequest, LambdaAlbRequest } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
-import { TileSetRaster } from '../tile.set.raster.js';
+import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
+import { TileSetRaster } from '../tile.set.raster.js';
+import { TileSetVector } from '../tile.set.vector.js';
 
 export function mockRequest(path: string, method = 'get', headers: Record<string, string> = {}): LambdaHttpRequest {
   return new LambdaAlbRequest(
@@ -24,6 +25,13 @@ export class FakeTileSet extends TileSetRaster {
   constructor(name: string, tileMatrix: TileMatrixSet, title = `${name}:title`, description = `${name}:description`) {
     super(name, tileMatrix);
     this.tileSet = { title, description } as any;
+  }
+}
+
+export class FakeTileSetVector extends TileSetVector {
+  constructor(name: string, tileMatrix: TileMatrixSet) {
+    super(name, tileMatrix);
+    this.tileSet = {} as any;
   }
 }
 

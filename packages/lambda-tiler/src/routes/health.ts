@@ -1,6 +1,5 @@
-import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, ImageFormat } from '@basemaps/geo';
 import { TileDataXyz, TileType } from '@basemaps/shared';
-import { ImageFormat } from '@basemaps/tiler';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -14,8 +13,8 @@ interface TestTile extends TileDataXyz {
 }
 
 export const TestTiles: TestTile[] = [
-  { type: TileType.Tile, name: 'health', tileMatrix: GoogleTms, ext: ImageFormat.PNG, x: 252, y: 156, z: 8 },
-  { type: TileType.Tile, name: 'health', tileMatrix: Nztm2000QuadTms, ext: ImageFormat.PNG, x: 30, y: 33, z: 6 },
+  { type: TileType.Tile, name: 'health', tileMatrix: GoogleTms, ext: ImageFormat.Png, x: 252, y: 156, z: 8 },
+  { type: TileType.Tile, name: 'health', tileMatrix: Nztm2000QuadTms, ext: ImageFormat.Png, x: 30, y: 33, z: 6 },
 ];
 const TileSize = 256;
 

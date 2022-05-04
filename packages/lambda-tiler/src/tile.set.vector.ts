@@ -1,6 +1,6 @@
 import { ConfigTileSetVector, TileSetNameComponents, TileSetNameParser, TileSetType } from '@basemaps/config';
-import { TileMatrixSet } from '@basemaps/geo';
-import { fsa, TileDataXyz, VectorFormat } from '@basemaps/shared';
+import { TileMatrixSet, VectorFormat } from '@basemaps/geo';
+import { fsa, TileDataXyz } from '@basemaps/shared';
 import { Cotar } from '@cotar/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { NotFound } from './routes/response.js';
@@ -32,6 +32,15 @@ export class TileSetVector {
   constructor(name: string, tileMatrix: TileMatrixSet) {
     this.components = TileSetNameParser.parse(name);
     this.tileMatrix = tileMatrix;
+  }
+
+  async init(record: ConfigTileSetVector): Promise<void> {
+    this.tileSet = record;
+  }
+
+  /** What format does tile set use */
+  get format(): VectorFormat {
+    return VectorFormat.MapboxVectorTiles;
   }
 
   get id(): string {
