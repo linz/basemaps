@@ -188,27 +188,6 @@ o.spec('LambdaXyz', () => {
   });
 
   o.spec('tileJson', () => {
-    o('should 304 if a json is not modified', async () => {
-      // delete process.env[Env.PublicUrlBase];
-
-      const key = 'j2mgo3PAFdsJwgyagyqlONoykLzBpR8GlSxQBicESEI=';
-      const request = mockRequest('/v1/tiles/aerial/Google/tile.json', 'get', {
-        'if-none-match': key,
-        ...apiKeyHeader,
-      });
-
-      const res = await handleRequest(request);
-      if (res.status === 200) {
-        o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
-        return;
-      }
-
-      o(res.status).equals(304);
-      o(rasterMock.calls.length).equals(0);
-
-      o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
-    });
-
     o('should 404 if invalid url is given', async () => {
       const request = mockRequest('/v1/tiles/tile.json', 'get', apiKeyHeader);
 
@@ -221,8 +200,7 @@ o.spec('LambdaXyz', () => {
 
       const res = await handleRequest(request);
       o(res.status).equals(200);
-      o(res.header('content-type')).equals('application/json');
-      o(res.header('cache-control')).equals('max-age=120');
+      o(res.header('cache-control')).equals('no-store');
 
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(JSON.parse(body)).deepEquals({
