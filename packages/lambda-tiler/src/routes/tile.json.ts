@@ -32,7 +32,7 @@ export async function tileJson(req: LambdaHttpRequest): Promise<LambdaHttpRespon
     vector_layers: [],
     tilejson: '3.0.0',
   };
-  const maxZoom = TileMatrixSet.convertZoomLevel(tileSet.tileSet.maxZoom ?? 32, GoogleTms, tileMatrix, true);
+  const maxZoom = TileMatrixSet.convertZoomLevel(tileSet.tileSet.maxZoom ?? 30, GoogleTms, tileMatrix, true);
   const minZoom = TileMatrixSet.convertZoomLevel(tileSet.tileSet.minZoom ?? 0, GoogleTms, tileMatrix, true);
 
   if (tileSet.tileSet.maxZoom) tileJson.maxzoom = maxZoom;
