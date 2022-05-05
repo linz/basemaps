@@ -1,5 +1,5 @@
 import { ConfigProvider, StyleJson } from '@basemaps/config';
-import { TileMatrixSets } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
@@ -8,7 +8,7 @@ import { handleRequest } from '../index.js';
 import { TileEtag } from '../routes/tile.etag.js';
 import { TileSets } from '../tile.set.cache.js';
 import { TileComposer } from '../tile.set.raster.js';
-import { FakeTileSet, mockRequest, Provider } from './xyz.util.js';
+import { FakeTileSet, FakeTileSetVector, mockRequest, Provider } from './xyz.util.js';
 
 const sandbox = sinon.createSandbox();
 
@@ -52,6 +52,8 @@ o.spec('LambdaXyz', () => {
         tileSet.initTiffs = async () => [];
       }
     }
+
+    TileSets.add(new FakeTileSetVector('topographic', GoogleTms));
 
     (Config.Provider as any).get = async (): Promise<ConfigProvider> => Provider;
   });
@@ -186,51 +188,80 @@ o.spec('LambdaXyz', () => {
   });
 
   o.spec('tileJson', () => {
-    o('should 304 if a json is not modified', async () => {
-      // delete process.env[Env.PublicUrlBase];
-
-      const key = 'BBfQpNXA3Q90jlFrLSOZhxbvfOh7OpN1OEE+BylpbHw=';
-      const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key, ...apiKeyHeader });
+    o('should 404 if invalid url is given', async () => {
+      const request = mockRequest('/v1/tiles/tile.json', 'get', apiKeyHeader);
 
       const res = await handleRequest(request);
-      if (res.status === 200) {
-        o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
-        return;
-      }
-
-      o(res.status).equals(304);
-      o(rasterMock.calls.length).equals(0);
-
-      o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
-    });
-
-    o('should 200 if a invalid etag is given', async () => {
-      const key = 'ABCXecTdbcdjCyzB1MHOOQbrOkD2TTJ0ORh4JuXqhxXEE0=';
-      const request = mockRequest('/v1/tiles/tile.json', 'get', { 'if-none-match': key, ...apiKeyHeader });
-
-      const res = await handleRequest(request);
-      o(res.status).equals(200);
-      o(res.header('etag')).equals('BBfQpNXA3Q90jlFrLSOZhxbvfOh7OpN1OEE+BylpbHw=');
-      const out = JSON.parse(Buffer.from(res.body ?? '', 'base64').toString());
-      o(out.tiles[0].startsWith('https://tiles.test/v1/tiles/tile.json/undefined/{z}/{x}/{y}.pbf?api=')).equals(true);
-      o(request.logContext['cache']).deepEquals(undefined);
+      o(res.status).equals(404);
     });
 
     o('should serve tile json for tile_set', async () => {
-      const request = mockRequest('/v1/tiles/topographic/Google/tile.json', 'get', apiKeyHeader);
+      const request = mockRequest('/v1/tiles/aerial/NZTM2000Quad/tile.json', 'get', apiKeyHeader);
 
       const res = await handleRequest(request);
       o(res.status).equals(200);
-      o(res.header('content-type')).equals('application/json');
-      o(res.header('cache-control')).equals('max-age=120');
+      o(res.header('cache-control')).equals('no-store');
 
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(JSON.parse(body)).deepEquals({
-        tiles: [`https://tiles.test/v1/tiles/topographic/Google/{z}/{x}/{y}.pbf?api=${apiKey}`],
-        minzoom: 0,
+        tiles: [`https://tiles.test/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.webp?api=${apiKey}`],
+        vector_layers: [],
+        tilejson: '3.0.0',
+      });
+    });
+
+    o('should serve vector tiles', async () => {
+      const request = mockRequest('/v1/tiles/topographic/WebMercatorQuad/tile.json', 'get', apiKeyHeader);
+
+      const res = await handleRequest(request);
+      o(res.status).equals(200);
+
+      const body = Buffer.from(res.body ?? '', 'base64').toString();
+      o(JSON.parse(body)).deepEquals({
+        tiles: [`https://tiles.test/v1/tiles/topographic/EPSG:3857/{z}/{x}/{y}.pbf?api=${apiKey}`],
+        vector_layers: [],
+        tilejson: '3.0.0',
+      });
+    });
+
+    o('should serve vector tiles with min/max zoom', async () => {
+      const fakeTileSet = new FakeTileSetVector('fake-vector', GoogleTms);
+      fakeTileSet.tileSet.maxZoom = 15;
+      fakeTileSet.tileSet.minZoom = 3;
+      TileSets.add(fakeTileSet);
+      const request = mockRequest('/v1/tiles/fake-vector/WebMercatorQuad/tile.json', 'get', apiKeyHeader);
+
+      const res = await handleRequest(request);
+      o(res.status).equals(200);
+
+      const body = Buffer.from(res.body ?? '', 'base64').toString();
+      o(JSON.parse(body)).deepEquals({
+        tiles: [`https://tiles.test/v1/tiles/fake-vector/EPSG:3857/{z}/{x}/{y}.pbf?api=${apiKey}`],
+        vector_layers: [],
         maxzoom: 15,
-        format: 'pbf',
-        tilejson: '2.0.0',
+        minzoom: 3,
+        tilejson: '3.0.0',
+      });
+    });
+
+    o('should serve convert zoom to tile matrix', async () => {
+      const fakeTileSet = new FakeTileSetVector('fake-vector', Nztm2000QuadTms);
+      fakeTileSet.tileSet.maxZoom = 15;
+      fakeTileSet.tileSet.minZoom = 1;
+      TileSets.add(fakeTileSet);
+
+      const request = mockRequest('/v1/tiles/fake-vector/NZTM2000Quad/tile.json', 'get', apiKeyHeader);
+
+      const res = await handleRequest(request);
+      o(res.status).equals(200);
+
+      const body = Buffer.from(res.body ?? '', 'base64').toString();
+      o(JSON.parse(body)).deepEquals({
+        tiles: [`https://tiles.test/v1/tiles/fake-vector/NZTM2000Quad/{z}/{x}/{y}.pbf?api=${apiKey}`],
+        vector_layers: [],
+        maxzoom: 13,
+        minzoom: 0,
+        tilejson: '3.0.0',
       });
     });
   });

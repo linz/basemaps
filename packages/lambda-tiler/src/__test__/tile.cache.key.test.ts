@@ -1,7 +1,7 @@
-import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
+import { GoogleTms, Nztm2000Tms, ImageFormat } from '@basemaps/geo';
 import { TileDataXyz, TileType } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
-import { Composition, ImageFormat } from '@basemaps/tiler';
+import { Composition } from '@basemaps/tiler';
 import o from 'ospec';
 import { TileEtag } from '../routes/tile.etag.js';
 
@@ -14,7 +14,7 @@ o.spec('TileCacheKey', () => {
     z: 0,
     tileMatrix: GoogleTms,
     name: 'foo',
-    ext: ImageFormat.PNG,
+    ext: ImageFormat.Png,
     type: TileType.Tile,
   };
 

@@ -1,4 +1,4 @@
-import { Bounds, Size } from '@basemaps/geo';
+import { Bounds, ImageFormat, Size } from '@basemaps/geo';
 import { Metrics } from '@linzjs/metrics';
 import { CogTiff } from '@cogeotiff/core';
 
@@ -40,22 +40,15 @@ export interface Composition {
   crop?: Bounds;
 }
 
-export enum ImageFormat {
-  PNG = 'png',
-  JPEG = 'jpeg',
-  WEBP = 'webp',
-  AVIF = 'avif',
-}
-
-export const ImageFormatOrder = [ImageFormat.JPEG, ImageFormat.WEBP, ImageFormat.PNG];
+export const ImageFormatOrder = [ImageFormat.Jpeg, ImageFormat.Webp, ImageFormat.Png];
 
 /** Guess the image format based on the file extension */
 export function getImageFormat(ext?: string): ImageFormat | null {
   if (ext == null) return null;
   const search = ext.toLowerCase();
-  if (search === 'png') return ImageFormat.PNG;
-  if (search === 'webp') return ImageFormat.WEBP;
-  if (search === 'jpeg' || search === 'jpg') return ImageFormat.JPEG;
-  if (search === 'avif') return ImageFormat.AVIF;
+  if (search === ImageFormat.Png) return ImageFormat.Png;
+  if (search === ImageFormat.Webp) return ImageFormat.Webp;
+  if (search === ImageFormat.Jpeg || search === 'jpg') return ImageFormat.Jpeg;
+  if (search === ImageFormat.Avif) return ImageFormat.Avif;
   return null;
 }

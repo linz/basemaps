@@ -23,7 +23,7 @@ function wgs84Extent(layer: TileSetRaster): BBox {
 /**
  * Default the tile matrix id to the projection of the TileMatrixSet
  */
-function getTileMatrixId(tileMatrix: TileMatrixSet): string {
+export function getTileMatrixId(tileMatrix: TileMatrixSet): string {
   // TODO this should really change everything to identifier
   if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return Nztm2000QuadTms.identifier;
   return tileMatrix.projection.toEpsgString();
