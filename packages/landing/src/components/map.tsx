@@ -5,7 +5,7 @@ import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { SplitIo } from '../split.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
-import { MapLocation, WindowUrl } from '../url.js';
+import { WindowUrl } from '../url.js';
 import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
 
@@ -153,17 +153,10 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.updateUrlTimer = setTimeout(() => this.setLocationUrl(), 1000);
   };
 
-  getLocation(): MapLocation {
-    const center = this.map.getCenter();
-    if (center == null) throw new Error('Invalid Map location');
-    const zoom = Math.floor((this.map.getZoom() ?? 0) * 10e3) / 10e3;
-    return Config.map.transformLocation(center.lat, center.lng, zoom);
-  }
-
   /** Update the window.location with the current location information */
   setLocationUrl(): void {
     this.updateUrlTimer = null;
-    const location = this.getLocation();
+    const location = Config.map.getLocation(this.map);
 
     this.ignoreNextLocationUpdate = true;
     Config.map.setLocation(location);

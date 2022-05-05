@@ -1,6 +1,8 @@
 import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
-import { LngLatBoundsLike } from 'maplibre-gl';
+import maplibregl, { LngLatBoundsLike } from 'maplibre-gl';
+import { DebugState, DebugDefaults, ConfigDebug } from './config.debug.js';
+import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
 import { MapLocation, MapOptionType, WindowUrl } from './url.js';
 
@@ -18,16 +20,22 @@ export interface MapConfigEvents {
   bounds: [LngLatBoundsLike];
   change: null;
 }
+
 export class MapConfig extends Emitter<MapConfigEvents> {
   style: string | null = null;
   layerId = 'aerial';
   tileMatrix: TileMatrixSet = GoogleTms;
-  isDebug = false;
+
+  debug: DebugState = { ...DebugDefaults };
 
   private _layers: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
     if (this._layers == null) this._layers = loadAllLayers();
     return this._layers;
+  }
+
+  get isDebug(): boolean {
+    return this.debug.debug;
   }
 
   /** Map location in WGS84 */
@@ -71,7 +79,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   updateFromUrl(search: string = window.location.search): void {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s') ?? urlParams.get('style');
-    const debug = urlParams.get('debug') != null;
 
     const layerId = urlParams.get('i') ?? 'aerial';
 
@@ -80,12 +87,14 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (tileMatrix == null) tileMatrix = TileMatrixSets.get(Epsg.parse(projectionParam) ?? Epsg.Google);
     if (tileMatrix.identifier === Nztm2000Tms.identifier) tileMatrix = Nztm2000QuadTms;
 
+    const debugChanged = ConfigDebug.fromUrl(this.debug, urlParams);
+    if (debugChanged) this.emit('change');
+
     const previousUrl = MapConfig.toUrl(this);
 
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
-    this.setDebug(debug);
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
 
@@ -99,12 +108,19 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.style) urlParams.append('s', opts.style);
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('p', opts.tileMatrix.identifier);
-
+    ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
   }
 
   toTileUrl(urlType: MapOptionType, tileMatrix = this.tileMatrix, layerId = this.layerId, style = this.style): string {
     return WindowUrl.toTileUrl(urlType, tileMatrix, layerId, style);
+  }
+
+  getLocation(map: maplibregl.Map): MapLocation {
+    const center = map.getCenter();
+    if (center == null) throw new Error('Invalid Map location');
+    const zoom = Math.floor((map.getZoom() ?? 0) * 10e3) / 10e3;
+    return Config.map.transformLocation(center.lat, center.lng, zoom);
   }
 
   transformLocation(lat: number, lon: number, zoom: number): MapLocation {
@@ -133,9 +149,10 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('layer', this.layerId, this.style);
     this.emit('change');
   }
-  setDebug(debug: boolean): void {
-    if (this.isDebug === debug) return;
-    this.isDebug = debug;
+
+  setDebug<T extends keyof DebugState>(key: T, value: DebugState[T] = DebugDefaults[key]): void {
+    if (this.debug[key] === value) return;
+    this.debug[key] = value;
     this.emit('change');
   }
 }

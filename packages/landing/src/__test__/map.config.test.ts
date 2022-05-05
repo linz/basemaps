@@ -63,8 +63,8 @@ o.spec('WindowUrl', () => {
     o(mc.isDebug).equals(false);
   });
 
-  o('should support ', () => {
-    mc.updateFromUrl('?i=abc123&s=basic&p=2193&d=true&debug=yes');
+  o('should support basic', () => {
+    mc.updateFromUrl('?i=abc123&s=basic&p=2193&d=true&debug');
     o(mc.tileMatrix).equals(Nztm2000QuadTms);
     o(mc.layerId).equals('abc123');
     o(mc.style).equals('basic');
