@@ -110,7 +110,14 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
 
   renderSliders(): ComponentChild | null {
     // Only 3857 currently works with OSM/Topographic map
-    if (Config.map.tileMatrix.identifier !== GoogleTms.identifier) return;
+    if (Config.map.tileMatrix.identifier !== GoogleTms.identifier) {
+      return (
+        <div className="debug__info">
+          <label className="debug__label">LINZ Aerial</label>
+          {debugSlider(this.adjustLinzAerial)}
+        </div>
+      );
+    }
 
     return (
       <Fragment>
@@ -121,6 +128,10 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
         <div className="debug__info">
           <label className="debug__label">Topographic</label>
           {debugSlider(this.adjustTopographic)}
+        </div>
+        <div className="debug__info">
+          <label className="debug__label">LINZ Aerial</label>
+          {debugSlider(this.adjustLinzAerial)}
         </div>
       </Fragment>
     );
@@ -194,39 +205,49 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
     }
   };
 
-  adjustOsm = (e: Event): void => {
-    const slider = e.target as HTMLInputElement;
-    const hasOsm = this.props.map.getSource('osm');
-    if (hasOsm == null) {
-      this.props.map.addSource('osm', {
+  adjustOsm = (e: Event): void => this.adjustRaster('osm', Number((e.target as HTMLInputElement).value));
+  adjustLinzAerial = (e: Event): void => this.adjustRaster('linz-aerial', Number((e.target as HTMLInputElement).value));
+
+  adjustRaster(rasterId: 'osm' | 'linz-aerial', range: number): void {
+    const isSourceAdded = this.props.map.getSource(rasterId);
+    if (isSourceAdded == null) {
+      this.props.map.addSource(rasterId, {
         type: 'raster',
-        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        tiles: [getTileServerUrl(rasterId)],
         tileSize: 256,
       });
     }
 
-    const range = Number(slider.value);
     if (range === 0) {
-      this.props.map.removeLayer('osm');
+      this.props.map.removeLayer(rasterId);
       return;
     }
 
-    if (this.props.map.getLayer('osm') == null) {
+    if (this.props.map.getLayer(rasterId) == null) {
       this.props.map.addLayer({
-        id: 'osm',
+        id: rasterId,
         type: 'raster',
-        source: 'osm',
+        source: rasterId,
         minzoom: 0,
         maxzoom: 24,
         paint: { 'raster-opacity': 0 },
       });
     }
-    this.props.map.setPaintProperty('osm', 'raster-opacity', range);
-  };
+    this.props.map.setPaintProperty(rasterId, 'raster-opacity', range);
+  }
 
   togglePurple = (e: Event): void => {
     const target = e.target as HTMLInputElement;
     if (target?.checked === true) document.body.style.backgroundColor = 'magenta';
     else document.body.style.backgroundColor = '';
   };
+}
+
+export function getTileServerUrl(tileServer: 'osm' | 'linz-aerial'): string {
+  if (tileServer === 'osm') return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  if (tileServer === 'linz-aerial') {
+    return WindowUrl.toTileUrl(MapOptionType.TileRaster, Config.map.tileMatrix, 'aerial');
+  }
+
+  throw new Error('Unknown tile server');
 }
