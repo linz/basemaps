@@ -185,10 +185,6 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
           <label className="debug__label">LINZ Aerial</label>
           {debugSlider('linz-aerial', this.adjustLinzAerial)}
         </div>
-        <div className="debug__info">
-          <label className="debug__label">LINZ Aerial</label>
-          {debugSlider(this.adjustLinzAerial)}
-        </div>
       </Fragment>
     );
   }
@@ -311,15 +307,6 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
     if (isPurple) document.body.style.backgroundColor = 'magenta';
     else document.body.style.backgroundColor = '';
   }
-}
-
-export function getTileServerUrl(tileServer: 'osm' | 'linz-aerial'): string {
-  if (tileServer === 'osm') return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  if (tileServer === 'linz-aerial') {
-    return WindowUrl.toTileUrl(MapOptionType.TileRaster, Config.map.tileMatrix, 'aerial');
-  }
-
-  throw new Error('Unknown tile server');
 }
 
 export function getTileServerUrl(tileServer: 'osm' | 'linz-aerial'): string {
