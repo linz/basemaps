@@ -44,7 +44,7 @@ export function getTileGrid(id: string): TileGrid {
 
 /**
  * Transform the location coordinate between mapbox and another tileMatrix.
- * One of the tileMatrix or targetTileMatrix has to be MapboxTms(GoogleTms)
+ * One of the tileMatrix or targetTileMatrix has to be GoogleTms
  */
 export function locationTransform(
   location: MapLocation,
@@ -56,7 +56,40 @@ export function locationTransform(
   const coords = projection.fromWgs84([location.lon, location.lat]);
   const center = tileMatrix.sourceToPixels(coords[0], coords[1], Math.round(location.zoom));
   const tile = { x: center.x / tileMatrix.tileSize, y: center.y / tileMatrix.tileSize, z: Math.round(location.zoom) };
-  const mapboxTile = targetTileMatrix.tileToSource(tile);
-  const [lon, lat] = Projection.get(targetTileMatrix).toWgs84([mapboxTile.x, mapboxTile.y]);
+  const wmTile = targetTileMatrix.tileToSource(tile);
+  const [lon, lat] = Projection.get(targetTileMatrix).toWgs84([wmTile.x, wmTile.y]);
   return { lon: Math.round(lon * 1e8) / 1e8, lat: Math.round(lat * 1e8) / 1e8, zoom: location.zoom };
+}
+
+/** Re project WGS84 coordinates into the target tile matrix for use within maplibre */
+export function projectToGoogle(location: [number, number], targetTileMatrix: TileMatrixSet): [number, number] {
+  const projLocation = Projection.get(targetTileMatrix).fromWgs84(location);
+
+  const projSource = targetTileMatrix.sourceToPixels(projLocation[0], projLocation[1], targetTileMatrix.maxZoom);
+  const projTile = {
+    x: projSource.x / targetTileMatrix.tileSize,
+    y: projSource.y / targetTileMatrix.tileSize,
+    z: targetTileMatrix.maxZoom,
+  };
+  const wmTile = GoogleTms.tileToSource(projTile);
+  return Projection.get(GoogleTms).toWgs84([wmTile.x, wmTile.y]) as [number, number];
+}
+
+/**
+ * Project a geojson object into the target tile matrix with use with maplibre
+ *
+ * *Warning* This will overwrite the existing object
+ */
+export function projectGeoJson(g: GeoJSON.FeatureCollection, targetTileMatrix: TileMatrixSet): void {
+  for (const f of g.features) {
+    if (f.geometry.type !== 'Polygon') throw new Error('Only polygons supported');
+
+    for (const poly of f.geometry.coordinates) {
+      for (const coord of poly) {
+        const output = projectToGoogle(coord as [number, number], targetTileMatrix);
+        coord[0] = output[0];
+        coord[1] = output[1];
+      }
+    }
+  }
 }
