@@ -1,16 +1,58 @@
-import { GoogleTms } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import maplibre, { AnyLayer, Style } from 'maplibre-gl';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Config } from '../config.js';
+import { MapConfig } from '../config.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 
-function debugSlider(onInput: (e: Event) => unknown): ComponentChild {
-  return <input className="debug__slider" type="range" min="0" max="1" step="0.05" value="0" onInput={onInput} />;
+function debugSlider(
+  label: 'osm' | 'linz-topographic' | 'linz-aerial',
+  onInput: (e: Event) => unknown,
+): ComponentChild {
+  return (
+    <input
+      className="debug__slider"
+      type="range"
+      min="0"
+      max="1"
+      step="0.05"
+      value={String(Config.map.debug[`debug.layer.${label}`])}
+      onInput={onInput}
+    />
+  );
 }
 
 export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: string | number | undefined }> {
   componentDidMount(): void {
-    setTimeout(() => this.props.map.resize(), 100);
+    console.log('Mount', this.props.map);
+    this.waitForMap();
+  }
+
+  waitForMap = (): void => {
+    console.log('WaitForMap', this.props.map);
+    if (this.props.map == null) {
+      setTimeout(this.waitForMap, 20);
+      return;
+    }
+    this.props.map.resize();
+    this.props.map.once('load', () => {
+      Config.map.on('change', () => {
+        if (this.props.map == null) return;
+        const locationHash = WindowUrl.toHash(Config.map.getLocation(this.props.map));
+        const locationSearch = '?' + MapConfig.toUrl(Config.map);
+        window.history.replaceState(null, '', locationSearch + locationHash);
+        this.updateFromConfig();
+      });
+      this.updateFromConfig();
+    });
+  };
+
+  updateFromConfig(): void {
+    console.log('UpdateFromConfig');
+    this.setPurple(Config.map.debug['debug.background'] === 'magenta');
+    this.adjustRaster('osm', Config.map.debug['debug.layer.osm']);
+    this.adjustRaster('linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
+    this.adjustVector(Config.map.debug['debug.layer.linz-topographic']);
   }
 
   render(): ComponentChild {
@@ -31,7 +73,11 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
         {this.renderSliders()}
         <div className="debug__info">
           <label className="debug__label">Purple</label>
-          <input type="checkbox" onClick={this.togglePurple} />
+          <input
+            type="checkbox"
+            onClick={this.togglePurple}
+            checked={Config.map.debug['debug.background'] === 'magenta'}
+          />
         </div>
         {this.renderSourceToggle()}
       </div>
@@ -41,6 +87,7 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
   renderSourceToggle(): ComponentChild {
     // TODO this is a nasty hack to detect if a direct imageryId is being viewed
     if (!Config.map.layerId.startsWith('01')) return null;
+    if (Config.map.tileMatrix.projection === Nztm2000QuadTms.projection) return null;
 
     return (
       <Fragment>
@@ -61,12 +108,17 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
   /** Show the source bounding box ont he map */
   toggleSource = (e: Event): void => {
     const target = e.target as HTMLInputElement;
+    Config.map.setDebug('debug.source', target.checked);
+    this.setSourceShown(target.checked);
+  };
+
+  setSourceShown(isShown: boolean): void {
     const map = this.props.map;
     const sourceId = Config.map.layerId + '_source';
     const layerFillId = sourceId + '_fill';
     const layerLineId = sourceId + '_line';
     const sourceUri = WindowUrl.toImageryUrl('im_' + Config.map.layerId, 'source.geojson');
-    if (target.checked) {
+    if (isShown) {
       if (map.getSource(sourceId) == null) map.addSource(sourceId, { type: 'geojson', data: sourceUri });
       if (map.getLayer(layerFillId) != null) return;
 
@@ -106,7 +158,7 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
         map.removeLayer(layerLineId);
       }
     }
-  };
+  }
 
   renderSliders(): ComponentChild | null {
     // Only 3857 currently works with OSM/Topographic map
@@ -114,7 +166,7 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
       return (
         <div className="debug__info">
           <label className="debug__label">LINZ Aerial</label>
-          {debugSlider(this.adjustLinzAerial)}
+          {debugSlider('linz-aerial', this.adjustLinzAerial)}
         </div>
       );
     }
@@ -123,11 +175,15 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
       <Fragment>
         <div className="debug__info">
           <label className="debug__label">OSM</label>
-          {debugSlider(this.adjustOsm)}
+          {debugSlider('osm', this.adjustOsm)}
         </div>
         <div className="debug__info">
           <label className="debug__label">Topographic</label>
-          {debugSlider(this.adjustTopographic)}
+          {debugSlider('linz-topographic', this.adjustTopographic)}
+        </div>
+        <div className="debug__info">
+          <label className="debug__label">LINZ Aerial</label>
+          {debugSlider('linz-aerial', this.adjustLinzAerial)}
         </div>
         <div className="debug__info">
           <label className="debug__label">LINZ Aerial</label>
@@ -147,21 +203,24 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
     return this._styleJson;
   }
 
-  adjustTopographic = async (e: Event): Promise<void> => {
+  adjustTopographic = (e: Event): void => {
     const slider = e.target as HTMLInputElement;
-    const value = Number(slider.value);
-    const styleJson = await this.styleJson;
+    Config.map.setDebug('debug.layer.linz-topographic', Number(slider.value));
+  };
 
+  async adjustVector(value: number): Promise<void> {
+    const styleJson = await this.styleJson;
     const map = this.props.map;
 
     const hasTopographic = map.getSource('LINZ Basemaps');
     if (hasTopographic == null) {
+      if (value === 0) return; // Going to remove it anyway so just abort early
       const source = styleJson.sources?.['LINZ Basemaps'];
       if (source == null) return;
       map.addSource('LINZ Basemaps', source);
       map.setStyle({ ...map.getStyle(), glyphs: styleJson.glyphs, sprite: styleJson.sprite });
       // Setting glyphs/sprites forces a full map refresh, wait for the refresh before adjusting the style
-      map.once('style.load', () => this.adjustTopographic(e));
+      map.once('style.load', () => this.adjustVector(value));
       return;
     }
 
@@ -203,14 +262,19 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
         map.setPaintProperty(layer.id, `${layer.type}-opacity`, value);
       }
     }
+  }
+
+  adjustOsm = (e: Event): void => {
+    Config.map.setDebug('debug.layer.osm', Number((e.target as HTMLInputElement).value));
+  };
+  adjustLinzAerial = (e: Event): void => {
+    Config.map.setDebug('debug.layer.linz-aerial', Number((e.target as HTMLInputElement).value));
   };
 
-  adjustOsm = (e: Event): void => this.adjustRaster('osm', Number((e.target as HTMLInputElement).value));
-  adjustLinzAerial = (e: Event): void => this.adjustRaster('linz-aerial', Number((e.target as HTMLInputElement).value));
-
   adjustRaster(rasterId: 'osm' | 'linz-aerial', range: number): void {
-    const isSourceAdded = this.props.map.getSource(rasterId);
-    if (isSourceAdded == null) {
+    console.log('AdjustRaster', { rasterId, range });
+    // Config.map.setDebug(`debug-layer-${rasterId}`, range);
+    if (this.props.map.getSource(rasterId) == null) {
       this.props.map.addSource(rasterId, {
         type: 'raster',
         tiles: [getTileServerUrl(rasterId)],
@@ -218,12 +282,13 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
       });
     }
 
+    const isLayerMissing = this.props.map.getLayer(rasterId) == null;
     if (range === 0) {
-      this.props.map.removeLayer(rasterId);
+      if (!isLayerMissing) this.props.map.removeLayer(rasterId);
       return;
     }
 
-    if (this.props.map.getLayer(rasterId) == null) {
+    if (isLayerMissing) {
       this.props.map.addLayer({
         id: rasterId,
         type: 'raster',
@@ -238,9 +303,23 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
 
   togglePurple = (e: Event): void => {
     const target = e.target as HTMLInputElement;
-    if (target?.checked === true) document.body.style.backgroundColor = 'magenta';
-    else document.body.style.backgroundColor = '';
+    this.setPurple(target.checked);
   };
+
+  setPurple(isPurple: boolean): void {
+    Config.map.setDebug('debug.background', isPurple ? 'magenta' : false);
+    if (isPurple) document.body.style.backgroundColor = 'magenta';
+    else document.body.style.backgroundColor = '';
+  }
+}
+
+export function getTileServerUrl(tileServer: 'osm' | 'linz-aerial'): string {
+  if (tileServer === 'osm') return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  if (tileServer === 'linz-aerial') {
+    return WindowUrl.toTileUrl(MapOptionType.TileRaster, Config.map.tileMatrix, 'aerial');
+  }
+
+  throw new Error('Unknown tile server');
 }
 
 export function getTileServerUrl(tileServer: 'osm' | 'linz-aerial'): string {
