@@ -10,3 +10,5 @@ export { AttributionCollection, AttributionItem, AttributionStac } from './stac/
 export { TileMatrixSets } from './tms/index.js';
 export { Nztm2000Tms, Nztm2000QuadTms } from './tms/nztm2000.js';
 export { GoogleTms } from './tms/google.js';
+export { ImageFormat, VectorFormat } from './formats.js';
+export { TileJson, TileJsonV3, TileJsonVectorLayer } from './tile.json/tile.json.js';

@@ -1,5 +1,5 @@
-import { Epsg, Tile, TileMatrixSets, TileMatrixSet } from '@basemaps/geo';
-import { getImageFormat, ImageFormat } from '@basemaps/tiler';
+import { Epsg, Tile, TileMatrixSets, TileMatrixSet, ImageFormat, VectorFormat } from '@basemaps/geo';
+import { getImageFormat } from '@basemaps/tiler';
 
 export interface ActionData {
   version: string;
@@ -12,9 +12,6 @@ export enum TileType {
   WMTS = 'WMTS',
   Tile = 'tile',
   Attribution = 'attribution',
-}
-export enum VectorFormat {
-  MapboxVectorTiles = 'pbf',
 }
 
 export type TileData = TileDataXyz | TileDataWmts | TileDataAttribution;
@@ -45,7 +42,7 @@ export function setNameAndProjection(req: { set: (key: string, val: any) => void
   req.set('projection', data.tileMatrix.projection);
 }
 
-function extractTileMatrixSet(text: string): TileMatrixSet | null {
+export function extractTileMatrixSet(text: string): TileMatrixSet | null {
   const projection = Epsg.parse(text);
   if (projection != null) return TileMatrixSets.tryGet(projection.code) ?? null;
   return TileMatrixSets.find(text);

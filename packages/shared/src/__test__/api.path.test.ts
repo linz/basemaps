@@ -1,7 +1,7 @@
 import { GoogleTms, Nztm2000Tms, Nztm2000QuadTms } from '@basemaps/geo';
-import { ImageFormat } from '@basemaps/tiler';
+import { ImageFormat, VectorFormat } from '@basemaps/geo';
 import o from 'ospec';
-import { tileAttributionFromPath, TileType, tileWmtsFromPath, tileXyzFromPath, VectorFormat } from '../api.path.js';
+import { tileAttributionFromPath, TileType, tileWmtsFromPath, tileXyzFromPath } from '../api.path.js';
 
 o.spec('api.path', () => {
   o.spec('tileXyzFromPath', () => {
@@ -35,7 +35,7 @@ o.spec('api.path', () => {
         x: 3456,
         y: 5432,
         z: 10,
-        ext: ImageFormat.WEBP,
+        ext: ImageFormat.Webp,
       });
       o(tileXyzFromPath([])).equals(null);
       o(tileXyzFromPath(['aerial', 'EPSG:3857', '10', '3456'])).equals(null);
@@ -46,7 +46,7 @@ o.spec('api.path', () => {
         x: 3456,
         y: 5432,
         z: 10,
-        ext: ImageFormat.WEBP,
+        ext: ImageFormat.Webp,
       });
     });
     o('should parse vector tiles', () => {

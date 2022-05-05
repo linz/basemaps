@@ -6,8 +6,8 @@ import {
   TileSetNameParser,
   TileSetType,
 } from '@basemaps/config';
-import { Bounds, Epsg, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Config, Env, fsa, LogType, TileDataXyz, titleizeImageryName, VectorFormat } from '@basemaps/shared';
+import { Bounds, Epsg, ImageFormat, Tile, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
+import { Config, Env, fsa, LogType, TileDataXyz, titleizeImageryName } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
@@ -81,6 +81,11 @@ export class TileSetRaster {
 
   get extent(): Bounds {
     return this.extentOverride ?? this.tileMatrix.extent;
+  }
+
+  /** Preferred default imagery format */
+  get format(): ImageFormat {
+    return this.tileSet.format ?? ImageFormat.Webp;
   }
 
   async init(record: ConfigTileSetRaster): Promise<void> {

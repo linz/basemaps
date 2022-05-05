@@ -1,6 +1,5 @@
-import { Nztm2000Tms } from '@basemaps/geo';
+import { Nztm2000Tms, ImageFormat } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
-import { ImageFormat } from '@basemaps/tiler';
 import { LambdaAlbRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import { promises as fs } from 'fs';
@@ -12,7 +11,7 @@ import { TileSetLocal } from './tile.set.local.js';
 const xyz = { x: 0, y: 0, z: 0 };
 const tileMatrix = Nztm2000Tms;
 const tileSetName = 'aerial';
-const ext = ImageFormat.PNG;
+const ext = ImageFormat.Png;
 
 /** Load a tileset form a file path otherwise default to the hard coded one from AWS */
 async function getTileSet(filePath?: string): Promise<TileSet> {
