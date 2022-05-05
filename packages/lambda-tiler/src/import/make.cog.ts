@@ -1,34 +1,25 @@
 import { JobCreationContext } from '@basemaps/cli/build/cog/cog.stac.job';
-import { Epsg, TileMatrixSet } from '@basemaps/geo';
+import { TileMatrixSet } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 import { RoleConfig } from './imagery.find.js';
 
-export async function makeCog(
+export async function getJobCreationContext(
   path: string,
   tileMatrix: TileMatrixSet,
   role: RoleConfig,
   files: string[],
 ): Promise<JobCreationContext> {
-  let resampling;
-
-  /** Process Gebco 2193 as one cog of full extent to avoid antimeridian problems */
-  if (tileMatrix.projection === Epsg.Nztm2000 && path.includes('gebco')) {
-    resampling = {
-      warp: 'nearest', // GDAL doesn't like other warp settings when crossing antimeridian
-      overview: 'lanczos',
-    } as const;
-  }
-
-  if (path.includes('geographx')) {
-    resampling = {
-      warp: 'bilinear',
-      overview: 'bilinear',
-    } as const;
-  }
-
+  const bucket = Env.get(Env.ImportImageryBucket);
+  if (bucket == null) throw new Error('Output AWS s3 bucket Not Found.');
   const ctx: JobCreationContext = {
-    override: { projection: tileMatrix.projection, resampling },
-    outputLocation: { type: 's3' as const, path: `s3://${Env.ImportImageryBucket}` },
+    override: {
+      projection: tileMatrix.projection,
+      resampling: {
+        warp: 'bilinear',
+        overview: 'lanczos',
+      },
+    },
+    outputLocation: { type: 's3' as const, path: `s3://${bucket}` },
     sourceLocation: { type: 's3', path, ...role, files: files },
     batch: true,
     tileMatrix,

@@ -13,24 +13,44 @@ import { ConfigProcessingJob } from '@basemaps/config';
 
 o.spec('Import', () => {
   const sandbox = sinon.createSandbox();
+  const outputBucket = 'testOutputBucket';
+  const configBucket = 'testConfigBucket';
+  const origConfigBucket = process.env[Env.AwsRoleConfigBucket];
+  const origOutputBucket = process.env[Env.ImportImageryBucket];
+  o.beforeEach(() => {
+    process.env[Env.AwsRoleConfigBucket] = configBucket;
+    process.env[Env.ImportImageryBucket] = outputBucket;
+  });
 
   o.afterEach(() => {
+    process.env[Env.AwsRoleConfigBucket] = origConfigBucket;
+    process.env[Env.ImportImageryBucket] = origOutputBucket;
     sandbox.restore();
   });
 
   const tileMatrix = Nztm2000Tms;
-  const bucket = 'testBucket';
+  const bucket = 'testSourceBucket';
   const path = `s3://${bucket}/imagery/`;
-  const files = [`${path}/1.tiff`, `${path}/2.tiff`];
   const role: RoleConfig = {
     bucket,
     accountId: '123456',
     roleArn: 'arn:aws:iam::123456:role/read-role',
   };
 
+  const files = [`${path}/1.tiff`, `${path}/2.tiff`];
+  async function* listFiles(): AsyncGenerator<string, any, unknown> {
+    for (const key in files) yield files[key];
+  }
+
   const ctx: JobCreationContext = {
-    override: { projection: tileMatrix.projection, resampling: undefined },
-    outputLocation: { type: 's3' as const, path: `s3://${Env.ImportImageryBucket}` },
+    override: {
+      projection: tileMatrix.projection,
+      resampling: {
+        warp: 'bilinear',
+        overview: 'lanczos',
+      },
+    },
+    outputLocation: { type: 's3' as const, path: `s3://${outputBucket}` },
     sourceLocation: { type: 's3', path: path, ...role, files: files },
     batch: true,
     tileMatrix,
@@ -100,10 +120,7 @@ o.spec('Import', () => {
   o('should return 200 with new import', async () => {
     // Given... A new import with no existing config.
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
-    sandbox.stub(fsa, 'list').callsFake(async function* () {
-      yield files[0];
-      yield files[1];
-    });
+    sandbox.stub(fsa, 'list').callsFake(listFiles);
     sandbox.stub(CogJobFactory, 'create').resolves(undefined);
 
     sandbox.stub(Config.ProcessingJob, 'get').resolves(undefined);
@@ -125,10 +142,7 @@ o.spec('Import', () => {
   o('should return 200 with existing import', async () => {
     // Given... different bucket have no access role
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
-    sandbox.stub(fsa, 'list').callsFake(async function* () {
-      yield files[0];
-      yield files[1];
-    });
+    sandbox.stub(fsa, 'list').callsFake(listFiles);
     sandbox.stub(CogJobFactory, 'create').resolves(undefined);
 
     const jobConfig = {

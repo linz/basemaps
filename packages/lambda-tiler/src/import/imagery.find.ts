@@ -2,30 +2,36 @@ import { AwsCredentials } from '@chunkd/source-aws-v2';
 import { fsa } from '@chunkd/fs';
 import { Env } from '@basemaps/shared';
 
-export type RoleConfig = {
+export interface RoleConfig {
   bucket: string;
   accountId: string;
   roleArn: string;
   externalId?: string;
-};
+  roleSessionDuration?: number;
+}
 
-type BucketConfig = {
+interface BucketConfig {
   v: number;
   buckets: RoleConfig[];
   version: string;
   package: string;
   hash: string;
   updatedAt: string;
-};
+}
 
 export class RoleRegister {
   /** Get all imagery source aws roles */
   static async _loadRoles(): Promise<RoleConfig[]> {
-    const configPath = `s3://${Env.AwsRoleConfigBucket}/config.json`;
+    const configBucket = Env.get(Env.AwsRoleConfigBucket);
+    if (configBucket == null) return [];
+    const configPath = `s3://${configBucket}/config.json`;
     const config: BucketConfig = await fsa.readJson(configPath);
     const roles = [];
     for (const role of config.buckets) {
-      fsa.register('s3://' + role.bucket, AwsCredentials.fsFromRole(role.roleArn, role.externalId, 3600));
+      fsa.register(
+        's3://' + role.bucket,
+        AwsCredentials.fsFromRole(role.roleArn, role.externalId, role.roleSessionDuration),
+      );
       roles.push(role);
     }
     return roles;
