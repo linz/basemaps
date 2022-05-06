@@ -1,8 +1,10 @@
-import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo';
+import { BBoxFeatureCollection } from '@linzjs/geojson';
 import maplibre, { AnyLayer, Style } from 'maplibre-gl';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
+import { projectGeoJson } from '../tile.matrix.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 
 function debugSlider(
@@ -22,7 +24,10 @@ function debugSlider(
   );
 }
 
-export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: string | number | undefined }> {
+export class Debug extends Component<
+  { map: maplibre.Map },
+  { lastFeatureId: string | number | undefined; lastFeatureName: string | undefined }
+> {
   componentDidMount(): void {
     this.waitForMap();
   }
@@ -50,6 +55,7 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
     this.adjustRaster('osm', Config.map.debug['debug.layer.osm']);
     this.adjustRaster('linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
     this.adjustVector(Config.map.debug['debug.layer.linz-topographic']);
+    this.setSourceShown(Config.map.debug['debug.source']);
   }
 
   render(): ComponentChild {
@@ -84,18 +90,17 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
   renderSourceToggle(): ComponentChild {
     // TODO this is a nasty hack to detect if a direct imageryId is being viewed
     if (!Config.map.layerId.startsWith('01')) return null;
-    if (Config.map.tileMatrix.projection === Nztm2000QuadTms.projection) return null;
 
     return (
       <Fragment>
         <div className="debug__info">
           <label className="debug__label">Source</label>
-          <input type="checkbox" onClick={this.toggleSource} />
+          <input type="checkbox" onClick={this.toggleSource} checked={Config.map.debug['debug.source']} />
         </div>
         {this.state.lastFeatureId == null ? null : (
-          <div className="debug__info" title={String(this.state.lastFeatureId)}>
+          <div className="debug__info" title={String(this.state.lastFeatureName)}>
             <label className="debug__label">SourceId</label>
-            {String(this.state.lastFeatureId).split('/').pop()}
+            {String(this.state.lastFeatureName).split('/').pop()}
           </div>
         )}
       </Fragment>
@@ -109,52 +114,105 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
     this.setSourceShown(target.checked);
   };
 
+  trackMouseMove(layerId: string): void {
+    const sourceId = `${layerId}_source`;
+    const layerFillId = `${sourceId}_fill`;
+    const map = this.props.map;
+
+    let lastFeatureId: string | number | undefined;
+    map.on('mousemove', layerFillId, (e) => {
+      const features = e.features;
+      if (features == null || features.length === 0) return;
+      const firstFeature = features[0];
+      if (firstFeature.id === lastFeatureId) return;
+      if (lastFeatureId != null) map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: false });
+
+      lastFeatureId = firstFeature.id;
+      this.setState({ ...this.state, lastFeatureId, lastFeatureName: firstFeature.properties?.['name'] });
+      map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: true });
+    });
+    map.on('mouseleave', layerFillId, () => {
+      if (lastFeatureId == null) return;
+      map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: false });
+
+      lastFeatureId = undefined;
+      this.setState({ ...this.state, lastFeatureId, lastFeatureName: undefined });
+    });
+  }
+
   setSourceShown(isShown: boolean): void {
     const map = this.props.map;
-    const sourceId = Config.map.layerId + '_source';
-    const layerFillId = sourceId + '_fill';
-    const layerLineId = sourceId + '_line';
-    const sourceUri = WindowUrl.toImageryUrl('im_' + Config.map.layerId, 'source.geojson');
-    if (isShown) {
-      if (map.getSource(sourceId) == null) map.addSource(sourceId, { type: 'geojson', data: sourceUri });
+
+    const layerId = Config.map.layerId;
+    const sourceId = `${layerId}_source`;
+    const layerFillId = `${sourceId}_fill`;
+    const layerLineId = `${sourceId}_line`;
+    if (isShown === false) {
+      if (map.getLayer(layerFillId) == null) return;
+      map.removeLayer(layerFillId);
+      map.removeLayer(layerLineId);
+      return;
+    }
+
+    if (map.getLayer(layerFillId) != null) return;
+
+    this.loadSourceLayer(layerId).then(() => {
       if (map.getLayer(layerFillId) != null) return;
-
-      let lastFeatureId: string | number | undefined;
-      map.on('mousemove', layerFillId, (e) => {
-        const features = e.features;
-        if (features == null || features.length === 0) return;
-        const firstFeature = features[0];
-
-        if (firstFeature.id == null) firstFeature.id = firstFeature.properties?.['name'];
-        const nextFeatureId = firstFeature.id;
-        if (nextFeatureId == null) return;
-
-        lastFeatureId = features[0].id;
-        this.setState({ ...this.state, lastFeatureId });
-      });
-      map.on('mouseleave', layerFillId, () => {
-        if (lastFeatureId == null) return;
-        lastFeatureId = undefined;
-        this.setState({ ...this.state, lastFeatureId });
-      });
       // Fill is needed to make the mouse move work even though it has opacity 0
-      map.addLayer({ id: layerFillId, type: 'fill', source: sourceId, paint: { 'fill-opacity': 0 } });
+      map.addLayer({
+        id: layerFillId,
+        type: 'fill',
+        source: sourceId,
+        paint: {
+          'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.25, 0],
+          'fill-color': '#ff00ff',
+        },
+      });
       map.addLayer({
         id: layerLineId,
         type: 'line',
         source: sourceId,
         paint: {
-          'line-color': 'rgb(255,50,100)',
-          'line-opacity': 0.5,
-          'line-width': 1,
+          'line-color': '#ff00ff',
+          'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5],
+          'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 1],
         },
       });
-    } else {
-      if (map.getLayer(layerFillId) != null) {
-        map.removeLayer(layerFillId);
-        map.removeLayer(layerLineId);
-      }
+
+      this.trackMouseMove(layerId);
+    });
+  }
+
+  _layerLoading: Map<string, Promise<void>> = new Map();
+  loadSourceLayer(layerId: string): Promise<void> {
+    let existing = this._layerLoading.get(layerId);
+    if (existing == null) {
+      existing = this._loadSourceLayer(layerId);
+      this._layerLoading.set(layerId, existing);
     }
+    return existing;
+  }
+
+  async _loadSourceLayer(layerId: string): Promise<void> {
+    const map = this.props.map;
+
+    const sourceId = `${layerId}_source`;
+    const layerFillId = `${sourceId}_fill`;
+    if (map.getLayer(layerFillId) != null) return;
+
+    const sourceUri = WindowUrl.toImageryUrl(`im_${layerId}`, 'source.geojson');
+
+    const res = await fetch(sourceUri);
+    if (!res.ok) return;
+
+    const data: BBoxFeatureCollection = await res.json();
+    if (Config.map.tileMatrix.projection !== GoogleTms.projection) projectGeoJson(data, Config.map.tileMatrix);
+
+    let id = 0;
+    // Ensure there is a id on each feature
+    for (const f of data.features) f.id = id++;
+
+    map.addSource(sourceId, { type: 'geojson', data });
   }
 
   renderSliders(): ComponentChild | null {
