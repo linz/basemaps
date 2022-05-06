@@ -90,7 +90,7 @@ o.spec('Import', () => {
 
     // When ...Then ...
     const res = await Import(req);
-    o(res.body).equals('{"status":500,"message":"Invalided s3 path"}');
+    o(res.body).equals('{"status":500,"message":"Invalid s3 path"}');
   });
 
   o('should return Unable to access bucket', async () => {

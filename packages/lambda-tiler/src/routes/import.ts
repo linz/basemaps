@@ -26,11 +26,11 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   }
 
   // Find the imagery from s3
-  if (path == null || !path.startsWith('s3://')) return new LambdaHttpResponse(500, 'Invalided s3 path');
+  if (path == null || !path.startsWith('s3://')) return new LambdaHttpResponse(500, 'Invalid s3 path');
   const role = await RoleRegister.findRole(path);
   if (role == null) return new LambdaHttpResponse(500, 'Unable to Access the bucket');
   const files = await findImagery(path);
-  if (files.length < 1) return new LambdaHttpResponse(404, 'Imagery Not Found');
+  if (files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
 
   // Prepare Cog jobs
   const ctx = await getJobCreationContext(path, targetTms, role, files);
@@ -54,10 +54,8 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
 
   const json = JSON.stringify(jobConfig);
   const data = Buffer.from(json);
-  const cacheKey = createHash('sha256').update(data).digest('base64');
 
   const response = new LambdaHttpResponse(200, 'ok');
-  response.header(HttpHeader.ETag, cacheKey);
   response.header(HttpHeader.CacheControl, 'no-store');
   response.buffer(data, 'application/json');
   req.set('bytes', data.byteLength);
