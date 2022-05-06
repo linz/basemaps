@@ -24,12 +24,10 @@ function debugSlider(
 
 export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: string | number | undefined }> {
   componentDidMount(): void {
-    console.log('Mount', this.props.map);
     this.waitForMap();
   }
 
   waitForMap = (): void => {
-    console.log('WaitForMap', this.props.map);
     if (this.props.map == null) {
       setTimeout(this.waitForMap, 20);
       return;
@@ -48,7 +46,6 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
   };
 
   updateFromConfig(): void {
-    console.log('UpdateFromConfig');
     this.setPurple(Config.map.debug['debug.background'] === 'magenta');
     this.adjustRaster('osm', Config.map.debug['debug.layer.osm']);
     this.adjustRaster('linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
@@ -268,7 +265,6 @@ export class Debug extends Component<{ map: maplibre.Map }, { lastFeatureId: str
   };
 
   adjustRaster(rasterId: 'osm' | 'linz-aerial', range: number): void {
-    console.log('AdjustRaster', { rasterId, range });
     // Config.map.setDebug(`debug-layer-${rasterId}`, range);
     if (this.props.map.getSource(rasterId) == null) {
       this.props.map.addSource(rasterId, {
