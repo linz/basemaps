@@ -119,13 +119,10 @@ export class Debug extends Component<
     const layerFillId = `${sourceId}_fill`;
     const map = this.props.map;
 
-    // const source = '';
     let lastFeatureId: string | number | undefined;
     map.on('mousemove', layerFillId, (e) => {
       const features = e.features;
-      if (features == null || features.length === 0) {
-        return;
-      }
+      if (features == null || features.length === 0) return;
       const firstFeature = features[0];
       if (firstFeature.id === lastFeatureId) return;
       if (lastFeatureId != null) map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: false });
