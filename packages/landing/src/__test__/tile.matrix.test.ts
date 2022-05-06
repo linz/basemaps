@@ -1,4 +1,4 @@
-import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import o from 'ospec';
 import { locationTransform } from '../tile.matrix.js';
 
@@ -25,5 +25,10 @@ o.spec('locationTransform', () => {
       lat: Math.round(back.lat * Precision) / Precision,
       zoom: back.zoom,
     });
+  });
+
+  o('should not convert between non google tms', () => {
+    const location = { lat: -41.29539461, lon: 174.78124251, zoom: 15.5128 };
+    o(() => locationTransform(location, Nztm2000QuadTms, Nztm2000Tms)).throws(Error);
   });
 });

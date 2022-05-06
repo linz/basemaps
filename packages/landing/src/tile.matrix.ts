@@ -42,8 +42,12 @@ export function getTileGrid(id: string): TileGrid {
   return GoogleTileGrid;
 }
 
+function isGoogle(tms: TileMatrixSet): boolean {
+  return tms.identifier === GoogleTms.identifier;
+}
 /**
- * Transform the location coordinate between mapbox and another tileMatrix.
+ * Transform the location coordinate between maplibre and another tileMatrix.
+ *
  * One of the tileMatrix or targetTileMatrix has to be GoogleTms
  */
 export function locationTransform(
@@ -52,27 +56,20 @@ export function locationTransform(
   targetTileMatrix: TileMatrixSet,
 ): MapLocation {
   if (tileMatrix.identifier === targetTileMatrix.identifier) return location;
-  const projection = Projection.get(tileMatrix);
-  const coords = projection.fromWgs84([location.lon, location.lat]);
-  const center = tileMatrix.sourceToPixels(coords[0], coords[1], Math.round(location.zoom));
-  const tile = { x: center.x / tileMatrix.tileSize, y: center.y / tileMatrix.tileSize, z: Math.round(location.zoom) };
-  const wmTile = targetTileMatrix.tileToSource(tile);
-  const [lon, lat] = Projection.get(targetTileMatrix).toWgs84([wmTile.x, wmTile.y]);
-  return { lon: Math.round(lon * 1e8) / 1e8, lat: Math.round(lat * 1e8) / 1e8, zoom: location.zoom };
-}
+  if (!isGoogle(tileMatrix) && !isGoogle(targetTileMatrix)) {
+    throw new Error('Either tileMatrix or targetTileMatrix must be GoogleTms');
+  }
+  // Transform the source to the the tile it would be rendered on
+  const coords = Projection.get(tileMatrix).fromWgs84([location.lon, location.lat]);
+  const point = tileMatrix.sourceToPixels(coords[0], coords[1], Math.round(location.zoom));
 
-/** Re project WGS84 coordinates into the target tile matrix for use within maplibre */
-export function projectToGoogle(location: [number, number], targetTileMatrix: TileMatrixSet): [number, number] {
-  const projLocation = Projection.get(targetTileMatrix).fromWgs84(location);
+  const tile = { x: point.x / tileMatrix.tileSize, y: point.y / tileMatrix.tileSize, z: Math.round(location.zoom) };
 
-  const projSource = targetTileMatrix.sourceToPixels(projLocation[0], projLocation[1], targetTileMatrix.maxZoom);
-  const projTile = {
-    x: projSource.x / targetTileMatrix.tileSize,
-    y: projSource.y / targetTileMatrix.tileSize,
-    z: targetTileMatrix.maxZoom,
-  };
-  const wmTile = GoogleTms.tileToSource(projTile);
-  return Projection.get(GoogleTms).toWgs84([wmTile.x, wmTile.y]) as [number, number];
+  // Translate the tile location into the target tile matrix
+  const source = targetTileMatrix.tileToSource(tile);
+  const lonLat = Projection.get(targetTileMatrix).toWgs84([source.x, source.y]);
+
+  return { lon: Math.round(lonLat[0] * 1e8) / 1e8, lat: Math.round(lonLat[1] * 1e8) / 1e8, zoom: location.zoom };
 }
 
 /**
@@ -86,9 +83,13 @@ export function projectGeoJson(g: GeoJSON.FeatureCollection, targetTileMatrix: T
 
     for (const poly of f.geometry.coordinates) {
       for (const coord of poly) {
-        const output = projectToGoogle(coord as [number, number], targetTileMatrix);
-        coord[0] = output[0];
-        coord[1] = output[1];
+        const output = locationTransform(
+          { lat: coord[1], lon: coord[0], zoom: targetTileMatrix.maxZoom },
+          targetTileMatrix,
+          GoogleTms,
+        );
+        coord[0] = output.lon;
+        coord[1] = output.lat;
       }
     }
   }

@@ -1,11 +1,10 @@
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Projection } from '@basemaps/shared/build/proj/projection.js';
-import { BBoxFeatureCollection } from '@linzjs/geojson';
 import o from 'ospec';
 import { projectGeoJson } from '../tile.matrix.js';
 
 /** This feautre is located in tile x:237, y:278, z:9 of NZTM2000Quad see ./NZTMTileLocation.png for a reference picture  */
-const feature: BBoxFeatureCollection = {
+const feature = {
   type: 'FeatureCollection',
   features: [
     {
@@ -41,14 +40,9 @@ o.spec('GeoJSONTransform', () => {
     const proj = Projection.get(GoogleTms).fromWgs84(firstPoint);
     const pixels = GoogleTms.sourceToPixels(proj[0], proj[1], 9);
 
-    const tile = {
-      x: pixels.x / GoogleTms.tileSize,
-      y: pixels.y / GoogleTms.tileSize,
-      z: 9,
-    };
+    const tile = { x: pixels.x / GoogleTms.tileSize, y: pixels.y / GoogleTms.tileSize };
 
     o(tile.x.toFixed(2)).equals('237.11');
     o(tile.y.toFixed(2)).equals('278.69');
-    o(tile.z).equals(9);
   });
 });
