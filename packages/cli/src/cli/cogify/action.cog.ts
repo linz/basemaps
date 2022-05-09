@@ -17,7 +17,7 @@ import { CliId } from '../base.cli.js';
 import { makeTempFolder } from '../folder.js';
 import path from 'path';
 import { ConfigProviderDynamo } from '@basemaps/config';
-import { JobStatus, ProcessingJobFailed } from '@basemaps/config/src/config/processing.job';
+import { ProcessingJobFailed, JobStatus } from '@basemaps/config';
 
 export class ActionCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
