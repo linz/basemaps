@@ -16,8 +16,8 @@ import { Gdal } from '../../gdal/gdal.js';
 import { CliId } from '../base.cli.js';
 import { makeTempFolder } from '../folder.js';
 import path from 'path';
-import { BasemapsConfigProvider, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
-import { ProcessingJobFailed } from '@basemaps/config/src/config/processing.job';
+import { ConfigProviderDynamo } from '@basemaps/config';
+import { JobStatus, ProcessingJobFailed } from '@basemaps/config/src/config/processing.job';
 
 export class ActionCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
@@ -164,6 +164,13 @@ export class ActionCogCreate extends CommandLineAction {
 
     if (expectedTiffs.size === 0) {
       logger.info({ tiffCount: jobSize, tiffTotal: jobSize }, 'CogCreate:JobComplete');
+      const jobId = Config.ProcessingJob.id(job.id);
+      const jobConfig = await Config.ProcessingJob.get(jobId);
+      if (jobConfig != null) {
+        jobConfig.status = JobStatus.Complete;
+        const config = new ConfigProviderDynamo(Const.TileMetadata.TableName);
+        await config.ProcessingJob.put(jobConfig);
+      }
     } else {
       logger.info({ tiffCount: jobSize, tiffRemaining: expectedTiffs.size }, 'CogCreate:JobProgress');
     }
