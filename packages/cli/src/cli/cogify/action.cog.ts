@@ -1,4 +1,4 @@
-import { Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
+import { Config, Const, Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
 import {
   CommandLineAction,
   CommandLineFlagParameter,
@@ -16,6 +16,8 @@ import { Gdal } from '../../gdal/gdal.js';
 import { CliId } from '../base.cli.js';
 import { makeTempFolder } from '../folder.js';
 import path from 'path';
+import { BasemapsConfigProvider, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
+import { ProcessingJobFailed } from '@basemaps/config/src/config/processing.job';
 
 export class ActionCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
@@ -125,6 +127,20 @@ export class ActionCogCreate extends CommandLineAction {
         await this.checkJobStatus(job, logger);
       } else {
         logger.warn('DryRun:Done');
+      }
+    } catch (e) {
+      const jobId = Config.ProcessingJob.id(job.id);
+      const jobConfig = await Config.ProcessingJob.get(jobId);
+      if (jobConfig != null) {
+        const jobFailed = jobConfig as ProcessingJobFailed;
+        jobFailed.status = 'failed';
+        if (typeof e === 'string') {
+          jobFailed.error = e;
+        } else if (e instanceof Error) {
+          jobFailed.error = e.message; // works, `e` narrowed to Error
+        }
+        const config = new ConfigProviderDynamo(Const.TileMetadata.TableName);
+        await config.ProcessingJob.put(jobFailed);
       }
     } finally {
       // Cleanup!
