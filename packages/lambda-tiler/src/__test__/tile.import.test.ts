@@ -9,7 +9,7 @@ import { Context } from 'aws-lambda';
 import { Import } from '../routes/import.js';
 import { RoleConfig } from '../import/imagery.find.js';
 import { CogJobFactory } from '@basemaps/cli';
-import { ConfigProcessingJob, ConfigProviderDynamo } from '@basemaps/config';
+import { ConfigProcessingJob } from '@basemaps/config';
 
 o.spec('Import', () => {
   const sandbox = sinon.createSandbox();

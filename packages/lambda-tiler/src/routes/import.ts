@@ -4,7 +4,7 @@ import { createHash } from 'crypto';
 import { findImagery, RoleRegister } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
 import { getJobCreationContext } from '../import/make.cog.js';
-import { ConfigDynamoBase, ConfigProcessingJob, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
+import { ConfigProcessingJob, ConfigProviderDynamo } from '@basemaps/config';
 import { CogJobFactory } from '@basemaps/cli';
 
 /**
