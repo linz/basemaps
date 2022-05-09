@@ -1,10 +1,10 @@
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { Config, fsa } from '@basemaps/shared';
+import { Config, Const, fsa } from '@basemaps/shared';
 import { createHash } from 'crypto';
 import { findImagery, RoleRegister } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
 import { getJobCreationContext } from '../import/make.cog.js';
-import { ConfigProcessingJob } from '@basemaps/config';
+import { ConfigDynamoBase, ConfigProcessingJob, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { CogJobFactory } from '@basemaps/cli';
 
 /**
@@ -50,6 +50,9 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
       name: path,
       status: 'processing',
     } as ConfigProcessingJob;
+
+    const config = new ConfigProviderDynamo(Const.TileMetadata.TableName);
+    await config.ProcessingJob.put(jobConfig);
   }
 
   const json = JSON.stringify(jobConfig);

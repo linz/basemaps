@@ -9,7 +9,7 @@ import { Context } from 'aws-lambda';
 import { Import } from '../routes/import.js';
 import { RoleConfig } from '../import/imagery.find.js';
 import { CogJobFactory } from '@basemaps/cli';
-import { ConfigProcessingJob } from '@basemaps/config';
+import { ConfigProcessingJob, ConfigProviderDynamo } from '@basemaps/config';
 
 o.spec('Import', () => {
   const sandbox = sinon.createSandbox();
@@ -115,28 +115,6 @@ o.spec('Import', () => {
     // When ...Then ...
     const res = await Import(req);
     o(res.body).equals('{"status":404,"message":"Imagery Not Found"}');
-  });
-
-  o('should return 200 with new import', async () => {
-    // Given... A new import with no existing config.
-    sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
-    sandbox.stub(fsa, 'list').callsFake(listFiles);
-    sandbox.stub(CogJobFactory, 'create').resolves(undefined);
-
-    sandbox.stub(Config.ProcessingJob, 'get').resolves(undefined);
-    const req = getRequest(path, '2193');
-
-    // When ...Then ...
-    const res = await Import(req);
-    o(res.status).equals(200);
-    const jobConfig = {
-      id: jobId,
-      name: path,
-      status: 'processing',
-    };
-
-    const body = Buffer.from(res.body ?? '', 'base64').toString();
-    o(JSON.parse(body)).deepEquals(jobConfig);
   });
 
   o('should return 200 with existing import', async () => {
