@@ -17,4 +17,5 @@ export { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
 export { ConfigDynamoBase } from './dynamo/dynamo.config.base.js';
 export { ConfigProviderMemory } from './memory/memory.config.js';
 export { TileSetNameComponents, TileSetNameParser } from './tile.set.name.js';
+export { ImageryConfig, ImageryConfigCache } from './imagery.config.js';
 export { parseHex, parseRgba } from './color.js';
