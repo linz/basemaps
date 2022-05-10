@@ -1,4 +1,4 @@
-import { Config, Const, Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
+import { Config, Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
 import {
   CommandLineAction,
   CommandLineFlagParameter,
@@ -16,7 +16,7 @@ import { Gdal } from '../../gdal/gdal.js';
 import { CliId } from '../base.cli.js';
 import { makeTempFolder } from '../folder.js';
 import path from 'path';
-import { ConfigProviderDynamo } from '@basemaps/config';
+import { ConfigDynamoBase } from '@basemaps/config';
 import { ProcessingJobFailed, JobStatus } from '@basemaps/config';
 
 export class ActionCogCreate extends CommandLineAction {
@@ -139,8 +139,8 @@ export class ActionCogCreate extends CommandLineAction {
         } else if (e instanceof Error) {
           jobFailed.error = e.message;
         }
-        const config = new ConfigProviderDynamo(Const.TileMetadata.TableName);
-        await config.ProcessingJob.put(jobFailed);
+        if (Config.ProcessingJob instanceof ConfigDynamoBase) await Config.ProcessingJob.put(jobFailed);
+        else throw new Error('Unable update the Processing Job status:' + jobFailed.id);
       }
     } finally {
       // Cleanup!
@@ -167,8 +167,8 @@ export class ActionCogCreate extends CommandLineAction {
       const jobConfig = await Config.ProcessingJob.get(jobId);
       if (jobConfig != null) {
         jobConfig.status = JobStatus.Complete;
-        const config = new ConfigProviderDynamo(Const.TileMetadata.TableName);
-        await config.ProcessingJob.put(jobConfig);
+        if (Config.ProcessingJob instanceof ConfigDynamoBase) await Config.ProcessingJob.put(jobConfig);
+        else throw new Error('Unable update the Processing Job status:' + jobConfig.id);
       }
       logger.info({ tiffCount: jobSize, tiffTotal: jobSize }, 'CogCreate:JobComplete');
     } else {
