@@ -4,7 +4,7 @@ import { createHash } from 'crypto';
 import { findImagery, RoleRegister } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
 import { getJobCreationContext } from '../import/make.cog.js';
-import { ConfigDynamoBase, ConfigProcessingJob } from '@basemaps/config';
+import { ConfigProcessingJob } from '@basemaps/config';
 import { CogJobFactory } from '@basemaps/cli';
 
 /**
@@ -50,7 +50,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
       status: 'processing',
     } as ConfigProcessingJob;
 
-    if (Config.ProcessingJob instanceof ConfigDynamoBase) await Config.ProcessingJob.put(jobConfig);
+    if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
     else return new LambdaHttpResponse(500, 'Unable to insert the Processing Job config');
 
     // Start processing job
