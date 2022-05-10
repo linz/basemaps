@@ -89,6 +89,20 @@ export abstract class BasemapsConfigObject<T extends BaseConfig> {
   constructor(prefix: ConfigPrefix) {
     this.prefix = prefix;
   }
+
+  /**
+   * Can this config object be written to with this.put()
+   * @example
+   * ```typescript
+   * if (this.isWriteable()) return this.put(obj)
+   * ```
+   *
+   * @returns true if writeable false otherwise
+   */
+  isWriteable(): this is BaseConfigWriteableObject<T> {
+    return false;
+  }
+
   /** Create a prefixed id for a object */
   id(name: string): string {
     if (name.startsWith(`${this.prefix}_`)) return name;
@@ -103,6 +117,10 @@ export abstract class BasemapsConfigObject<T extends BaseConfig> {
   abstract get(id: string): Promise<T | null>;
   /** Fetch all objects from the store */
   abstract getAll(id: Set<string>): Promise<Map<string, T>>;
+}
+
+export interface BaseConfigWriteableObject<T extends BaseConfig> extends BasemapsConfigObject<T> {
+  put(record: T): Promise<string>;
 }
 
 export const Config = new ConfigInstance();

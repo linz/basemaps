@@ -28,6 +28,12 @@ o.spec('ConfigProvider.Imagery', () => {
 
   const item: ConfigImagery = { id: 'im_foo', name: 'abc' } as any;
 
+  o('isWriteable', () => {
+    o(provider.Imagery.isWriteable()).equals(true);
+    // Validate the typing works
+    if (Config.Imagery.isWriteable()) o(typeof Config.Imagery.put).equals('function');
+  });
+
   o('prefix', () => {
     o(Config.prefix(ConfigPrefix.Imagery, '1234')).equals('im_1234');
     o(Config.prefix(ConfigPrefix.Imagery, 'im_1234')).equals('im_1234');
