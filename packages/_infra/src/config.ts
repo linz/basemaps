@@ -15,6 +15,12 @@ export interface BaseMapsConfig {
 
   /** Public URL base that tiles are served from */
   PublicUrlBase: string;
+
+  /** AWS role config bucket */
+  AwsRoleConfigBucket: string;
+
+  /** ImportImageryBucket */
+  ImportImageryBucket: string;
 }
 
 export const BaseMapsProdConfig: BaseMapsConfig = {
@@ -23,6 +29,8 @@ export const BaseMapsProdConfig: BaseMapsConfig = {
   AlbPublicDns: 'int.tiles.basemaps.linz.govt.nz',
   CloudFrontDns: ['basemaps.linz.govt.nz', 'tiles.basemaps.linz.govt.nz'],
   PublicUrlBase: 'https://basemaps.linz.govt.nz',
+  AwsRoleConfigBucket: 'linz-bucket-config',
+  ImportImageryBucket: 'linz-basemaps-cache',
 };
 
 export const BaseMapsDevConfig: BaseMapsConfig = {
@@ -31,6 +39,8 @@ export const BaseMapsDevConfig: BaseMapsConfig = {
   AlbPublicDns: 'dev.int.tiles.basemaps.linz.govt.nz',
   CloudFrontDns: ['dev.basemaps.linz.govt.nz', 'tiles.dev.basemaps.linz.govt.nz'],
   PublicUrlBase: 'https://dev.basemaps.linz.govt.nz',
+  AwsRoleConfigBucket: 'linz-bucket-config',
+  ImportImageryBucket: 'basemaps-cog-test',
 };
 
 export function getConfig(): BaseMapsConfig {

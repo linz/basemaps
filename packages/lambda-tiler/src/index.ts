@@ -8,6 +8,7 @@ import { createHash } from 'crypto';
 import { Imagery } from './routes/imagery.js';
 import { Esri } from './routes/esri/rest.js';
 import { St } from './source.tracer.js';
+import { Import } from './routes/import.js';
 
 const app = new Router();
 
@@ -17,6 +18,7 @@ app.get('version', Version);
 app.get('tiles', Tiles);
 app.get('imagery', Imagery);
 app.get('esri', Esri);
+app.get('import', Import);
 
 let slowTimer: NodeJS.Timer | null = null;
 export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
