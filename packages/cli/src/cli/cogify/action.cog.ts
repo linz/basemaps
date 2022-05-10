@@ -135,9 +135,9 @@ export class ActionCogCreate extends CommandLineAction {
         const jobFailed = jobConfig as ProcessingJobFailed;
         jobFailed.status = 'failed';
         if (typeof e === 'string') {
-          jobFailed.error = e;
+          jobFailed.error = String(e);
         } else if (e instanceof Error) {
-          jobFailed.error = e.message; // works, `e` narrowed to Error
+          jobFailed.error = e.message;
         }
         const config = new ConfigProviderDynamo(Const.TileMetadata.TableName);
         await config.ProcessingJob.put(jobFailed);
@@ -163,7 +163,6 @@ export class ActionCogCreate extends CommandLineAction {
     }
 
     if (expectedTiffs.size === 0) {
-      logger.info({ tiffCount: jobSize, tiffTotal: jobSize }, 'CogCreate:JobComplete');
       const jobId = Config.ProcessingJob.id(job.id);
       const jobConfig = await Config.ProcessingJob.get(jobId);
       if (jobConfig != null) {
@@ -171,6 +170,7 @@ export class ActionCogCreate extends CommandLineAction {
         const config = new ConfigProviderDynamo(Const.TileMetadata.TableName);
         await config.ProcessingJob.put(jobConfig);
       }
+      logger.info({ tiffCount: jobSize, tiffTotal: jobSize }, 'CogCreate:JobComplete');
     } else {
       logger.info({ tiffCount: jobSize, tiffRemaining: expectedTiffs.size }, 'CogCreate:JobProgress');
     }
