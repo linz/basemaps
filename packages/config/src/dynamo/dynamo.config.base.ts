@@ -1,5 +1,5 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
-import { BasemapsConfigObject } from '../base.config.js';
+import { BaseConfigWriteableObject, BasemapsConfigObject } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProviderDynamo } from './dynamo.config.js';
@@ -18,6 +18,10 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
 
   private get db(): DynamoDB {
     return this.cfg.dynamo;
+  }
+
+  isWriteable(): this is BaseConfigWriteableObject<T> {
+    return true;
   }
 
   clone(rec: T): T {
