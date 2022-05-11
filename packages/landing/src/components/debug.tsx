@@ -323,7 +323,6 @@ export class Debug extends Component<
   };
 
   adjustRaster(rasterId: 'osm' | 'linz-aerial', range: number): void {
-    // Config.map.setDebug(`debug-layer-${rasterId}`, range);
     if (this.props.map.getSource(rasterId) == null) {
       this.props.map.addSource(rasterId, {
         type: 'raster',
@@ -347,6 +346,13 @@ export class Debug extends Component<
         maxzoom: 24,
         paint: { 'raster-opacity': 0 },
       });
+
+      // Ensure this raster layers are below the vector layer
+      const sourceLayerId = `${Config.map.layerId}_source_fill`;
+      const isSourceLayerEnabled = this.props.map.getLayer(sourceLayerId) != null;
+      if (isSourceLayerEnabled) {
+        this.props.map.moveLayer(rasterId, sourceLayerId);
+      }
     }
     this.props.map.setPaintProperty(rasterId, 'raster-opacity', range);
   }
