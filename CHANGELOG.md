@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.25.0](https://github.com/linz/basemaps/compare/v6.24.2...v6.25.0) (2022-05-11)
+
+
+### Bug Fixes
+
+* **landing:** force the vector source layer to be above the raster imager ([#2185](https://github.com/linz/basemaps/issues/2185)) ([31f7708](https://github.com/linz/basemaps/commit/31f7708f8cc5d6180d879248c6677d0b6cf3307a))
+
+
+### Features
+
+* **config:** Add config job for imagery processing api ([#2162](https://github.com/linz/basemaps/issues/2162)) ([4ad2d37](https://github.com/linz/basemaps/commit/4ad2d370e7b75c45f4d16842e5399682fee475e0))
+* **config:** add type guard for if the config object can be written to ([#2183](https://github.com/linz/basemaps/issues/2183)) ([0a00e0e](https://github.com/linz/basemaps/commit/0a00e0efc30ad4df8e5c49899768ad37d6301152))
+* **config:** serve tilejson 3.0.0 and allow raster imagery ([#2173](https://github.com/linz/basemaps/issues/2173)) ([29f5313](https://github.com/linz/basemaps/commit/29f53131e917fa0b3ce6f280e8f9e09f4fe6e957))
+* **lambda-tiler:** Import api for import imagery jobs. ([#2170](https://github.com/linz/basemaps/issues/2170)) ([76b6175](https://github.com/linz/basemaps/commit/76b6175930db2a04f24437c7a05e7a70f160f7cd))
+* **landing:** add aerial basemap to landing debug ([#2174](https://github.com/linz/basemaps/issues/2174)) ([b16b905](https://github.com/linz/basemaps/commit/b16b90541d62c02b9fed0a4f423279668c364c25))
+* **landing:** add debug state into URL bar ([#2175](https://github.com/linz/basemaps/issues/2175)) ([da1833a](https://github.com/linz/basemaps/commit/da1833a1d603300ddcbc2405a341a303daebc125))
+* **landing:** support geojson reprojection into NZTM with maplibre ([#2178](https://github.com/linz/basemaps/issues/2178)) ([79e8845](https://github.com/linz/basemaps/commit/79e88450d533c5a5bb9cbd99dc968adcb369835d))
+
+
+
+
+
 ## [6.24.2](https://github.com/linz/basemaps/compare/v6.24.1...v6.24.2) (2022-04-20)
 
 

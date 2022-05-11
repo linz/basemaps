@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-tiler",
-  "version": "6.24.2",
+  "version": "6.25.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -22,13 +22,13 @@
   "types": "./build/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@basemaps/cli": "^6.24.2",
-    "@basemaps/config": "^6.24.2",
-    "@basemaps/geo": "^6.24.2",
+    "@basemaps/cli": "^6.25.0",
+    "@basemaps/config": "^6.25.0",
+    "@basemaps/geo": "^6.25.0",
     "@basemaps/lambda": "^6.7.0",
-    "@basemaps/shared": "^6.24.2",
-    "@basemaps/tiler": "^6.24.2",
-    "@basemaps/tiler-sharp": "^6.24.2",
+    "@basemaps/shared": "^6.25.0",
+    "@basemaps/tiler": "^6.25.0",
+    "@basemaps/tiler-sharp": "^6.25.0",
     "@chunkd/fs": "^8.1.0",
     "@cogeotiff/core": "^7.0.0",
     "@cotar/core": "^5.3.0",
@@ -53,7 +53,7 @@
     "bundle": "./bundle.sh"
   },
   "devDependencies": {
-    "@basemaps/attribution": "^6.24.2",
+    "@basemaps/attribution": "^6.25.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/node": "^14.11.2",
     "@types/pixelmatch": "^5.0.0",
