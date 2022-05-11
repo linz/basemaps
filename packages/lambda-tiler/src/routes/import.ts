@@ -1,10 +1,10 @@
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { Config, Const, fsa } from '@basemaps/shared';
+import { Config, fsa } from '@basemaps/shared';
 import { createHash } from 'crypto';
 import { findImagery, RoleRegister } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
 import { getJobCreationContext } from '../import/make.cog.js';
-import { ConfigProcessingJob, ConfigProviderDynamo } from '@basemaps/config';
+import { ConfigProcessingJob } from '@basemaps/config';
 import { CogJobFactory } from '@basemaps/cli';
 
 /**
@@ -43,16 +43,18 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
     ctx.override!.id = id;
     ctx.outputLocation.path = fsa.join(ctx.outputLocation.path, id);
 
-    // Start processing job
-    await CogJobFactory.create(ctx);
+    // Insert Processing job config
     jobConfig = {
       id: jobId,
       name: path,
       status: 'processing',
     } as ConfigProcessingJob;
 
-    const config = new ConfigProviderDynamo(Const.TileMetadata.TableName);
-    await config.ProcessingJob.put(jobConfig);
+    if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
+    else return new LambdaHttpResponse(500, 'Unable to insert the Processing Job config');
+
+    // Start processing job
+    await CogJobFactory.create(ctx);
   }
 
   const json = JSON.stringify(jobConfig);
