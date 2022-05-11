@@ -26,9 +26,9 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   }
 
   // Find the imagery from s3
-  if (path == null || !path.startsWith('s3://')) return new LambdaHttpResponse(500, 'Invalid s3 path');
+  if (path == null || !path.startsWith('s3://')) return new LambdaHttpResponse(400, `Invalid s3 path: ${path}`);
   const role = await RoleRegister.findRole(path);
-  if (role == null) return new LambdaHttpResponse(500, 'Unable to Access the bucket');
+  if (role == null) return new LambdaHttpResponse(403, 'Unable to Access the s3 bucket');
   const files = await findImagery(path);
   if (files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
 
@@ -40,7 +40,6 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   let jobConfig = await Config.ProcessingJob.get(jobId);
   if (jobConfig == null) {
     // Add id back to JobCreationContext
-    ctx.override!.id = id;
     ctx.outputLocation.path = fsa.join(ctx.outputLocation.path, id);
 
     // Insert Processing job config
@@ -51,7 +50,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
     } as ConfigProcessingJob;
 
     if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
-    else return new LambdaHttpResponse(500, 'Unable to insert the Processing Job config');
+    else return new LambdaHttpResponse(403, 'Unable to insert the Processing Job config');
 
     // Start processing job
     await CogJobFactory.create(ctx);
