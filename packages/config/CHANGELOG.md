@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.25.0](https://github.com/linz/basemaps/compare/v6.24.2...v6.25.0) (2022-05-11)
+
+
+### Features
+
+* **config:** Add config job for imagery processing api ([#2162](https://github.com/linz/basemaps/issues/2162)) ([4ad2d37](https://github.com/linz/basemaps/commit/4ad2d370e7b75c45f4d16842e5399682fee475e0))
+* **config:** add type guard for if the config object can be written to ([#2183](https://github.com/linz/basemaps/issues/2183)) ([0a00e0e](https://github.com/linz/basemaps/commit/0a00e0efc30ad4df8e5c49899768ad37d6301152))
+* **config:** serve tilejson 3.0.0 and allow raster imagery ([#2173](https://github.com/linz/basemaps/issues/2173)) ([29f5313](https://github.com/linz/basemaps/commit/29f53131e917fa0b3ce6f280e8f9e09f4fe6e957))
+
+
+
+
+
 ## [6.24.2](https://github.com/linz/basemaps/compare/v6.24.1...v6.24.2) (2022-04-20)
 
 **Note:** Version bump only for package @basemaps/config

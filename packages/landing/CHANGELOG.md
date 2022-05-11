@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.25.0](https://github.com/linz/basemaps/compare/v6.24.2...v6.25.0) (2022-05-11)
+
+
+### Bug Fixes
+
+* **landing:** force the vector source layer to be above the raster imager ([#2185](https://github.com/linz/basemaps/issues/2185)) ([31f7708](https://github.com/linz/basemaps/commit/31f7708f8cc5d6180d879248c6677d0b6cf3307a))
+
+
+### Features
+
+* **landing:** add aerial basemap to landing debug ([#2174](https://github.com/linz/basemaps/issues/2174)) ([b16b905](https://github.com/linz/basemaps/commit/b16b90541d62c02b9fed0a4f423279668c364c25))
+* **landing:** add debug state into URL bar ([#2175](https://github.com/linz/basemaps/issues/2175)) ([da1833a](https://github.com/linz/basemaps/commit/da1833a1d603300ddcbc2405a341a303daebc125))
+* **landing:** support geojson reprojection into NZTM with maplibre ([#2178](https://github.com/linz/basemaps/issues/2178)) ([79e8845](https://github.com/linz/basemaps/commit/79e88450d533c5a5bb9cbd99dc968adcb369835d))
+
+
+
+
+
 ## [6.24.2](https://github.com/linz/basemaps/compare/v6.24.1...v6.24.2) (2022-04-20)
 
 **Note:** Version bump only for package @basemaps/landing
