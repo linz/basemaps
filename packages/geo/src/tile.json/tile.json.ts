@@ -61,7 +61,7 @@ export interface TileJsonV3 {
   center?: number[] | [number, number] | [number, number, number];
 
   /** An array of objects. Each object describes one layer of vector tile data. */
-  vector_layers: TileJsonVectorLayer[];
+  vector_layers?: TileJsonVectorLayer[];
 }
 
 export interface TileJsonVectorLayer {
