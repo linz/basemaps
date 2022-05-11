@@ -205,7 +205,6 @@ o.spec('LambdaXyz', () => {
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(JSON.parse(body)).deepEquals({
         tiles: [`https://tiles.test/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.webp?api=${apiKey}`],
-        vector_layers: [],
         tilejson: '3.0.0',
       });
     });
@@ -219,7 +218,6 @@ o.spec('LambdaXyz', () => {
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(JSON.parse(body)).deepEquals({
         tiles: [`https://tiles.test/v1/tiles/topographic/EPSG:3857/{z}/{x}/{y}.pbf?api=${apiKey}`],
-        vector_layers: [],
         tilejson: '3.0.0',
       });
     });
@@ -237,7 +235,6 @@ o.spec('LambdaXyz', () => {
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(JSON.parse(body)).deepEquals({
         tiles: [`https://tiles.test/v1/tiles/fake-vector/EPSG:3857/{z}/{x}/{y}.pbf?api=${apiKey}`],
-        vector_layers: [],
         maxzoom: 15,
         minzoom: 3,
         tilejson: '3.0.0',
@@ -258,7 +255,6 @@ o.spec('LambdaXyz', () => {
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(JSON.parse(body)).deepEquals({
         tiles: [`https://tiles.test/v1/tiles/fake-vector/NZTM2000Quad/{z}/{x}/{y}.pbf?api=${apiKey}`],
-        vector_layers: [],
         maxzoom: 13,
         minzoom: 0,
         tilejson: '3.0.0',
