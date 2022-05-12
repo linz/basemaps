@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.26.0](https://github.com/linz/basemaps/compare/v6.25.0...v6.26.0) (2022-05-12)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Fix the insert of processing job config and actually start job after inserting config. ([#2182](https://github.com/linz/basemaps/issues/2182)) ([65d9c84](https://github.com/linz/basemaps/commit/65d9c841d3cbdde1c9a3753f3ae81fd67c5aef80))
+* **lambda-tiler:** remove vector_layers as maplibre uses it as a validator ([#2189](https://github.com/linz/basemaps/issues/2189)) ([457d978](https://github.com/linz/basemaps/commit/457d978527f2c42408562021cef7b48ff9ce1afb))
+
+
+### Features
+
+* **lambda-tiler:** Remove the job id to use ulid and update HTTP status code. ([#2188](https://github.com/linz/basemaps/issues/2188)) ([7d72f0c](https://github.com/linz/basemaps/commit/7d72f0c94ce4eefe0342b01b1ac2c8c153fc7c10))
+
+
+
+
+
 # [6.25.0](https://github.com/linz/basemaps/compare/v6.24.2...v6.25.0) (2022-05-11)
 
 

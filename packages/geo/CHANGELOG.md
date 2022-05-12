@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.26.0](https://github.com/linz/basemaps/compare/v6.25.0...v6.26.0) (2022-05-12)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** remove vector_layers as maplibre uses it as a validator ([#2189](https://github.com/linz/basemaps/issues/2189)) ([457d978](https://github.com/linz/basemaps/commit/457d978527f2c42408562021cef7b48ff9ce1afb))
+
+
+
+
+
 # [6.25.0](https://github.com/linz/basemaps/compare/v6.24.2...v6.25.0) (2022-05-11)
 
 
