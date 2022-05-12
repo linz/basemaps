@@ -16,6 +16,7 @@ import { Gdal } from '../../gdal/gdal.js';
 import { CliId } from '../base.cli.js';
 import { makeTempFolder } from '../folder.js';
 import path from 'path';
+import { insertConfigImagery, insertConfigTileSet } from './imagery.config.js';
 
 export class ActionCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
@@ -147,6 +148,9 @@ export class ActionCogCreate extends CommandLineAction {
     }
 
     if (expectedTiffs.size === 0) {
+      // Insert Imagery and TileSet Config
+      await insertConfigImagery(job, logger);
+      await insertConfigTileSet(job, logger);
       logger.info({ tiffCount: jobSize, tiffTotal: jobSize }, 'CogCreate:JobComplete');
     } else {
       logger.info({ tiffCount: jobSize, tiffRemaining: expectedTiffs.size }, 'CogCreate:JobProgress');
