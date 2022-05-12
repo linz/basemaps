@@ -128,18 +128,20 @@ export class ActionCogCreate extends CommandLineAction {
         logger.warn('DryRun:Done');
       }
     } catch (e) {
-      const jobId = Config.ProcessingJob.id(job.id);
-      const jobConfig = await Config.ProcessingJob.get(jobId);
-      if (jobConfig != null) {
-        const jobFailed = jobConfig as ProcessingJobFailed;
-        jobFailed.status = 'failed';
-        if (typeof e === 'string') {
-          jobFailed.error = String(e);
-        } else if (e instanceof Error) {
-          jobFailed.error = e.message;
+      if (job.processingId != null) {
+        // Update job status if this is the processing job.
+        const jobConfig = await Config.ProcessingJob.get(job.processingId);
+        if (jobConfig != null) {
+          const jobFailed = jobConfig as ProcessingJobFailed;
+          jobFailed.status = 'failed';
+          if (typeof e === 'string') {
+            jobFailed.error = String(e);
+          } else if (e instanceof Error) {
+            jobFailed.error = e.message;
+          }
+          if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobFailed);
+          else throw new Error('Unable update the Processing Job status:' + jobFailed.id);
         }
-        if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobFailed);
-        else throw new Error('Unable update the Processing Job status:' + jobFailed.id);
       }
     } finally {
       // Cleanup!
@@ -162,12 +164,14 @@ export class ActionCogCreate extends CommandLineAction {
     }
 
     if (expectedTiffs.size === 0) {
-      const jobId = Config.ProcessingJob.id(job.id);
-      const jobConfig = await Config.ProcessingJob.get(jobId);
-      if (jobConfig != null) {
-        jobConfig.status = JobStatus.Complete;
-        if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
-        else throw new Error('Unable update the Processing Job status:' + jobConfig.id);
+      if (job.processingId != null) {
+        // Update job status if this is the processing job.
+        const jobConfig = await Config.ProcessingJob.get(job.processingId);
+        if (jobConfig != null) {
+          jobConfig.status = JobStatus.Complete;
+          if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
+          else throw new Error('Unable update the Processing Job status:' + jobConfig.id);
+        }
       }
       logger.info({ tiffCount: jobSize, tiffTotal: jobSize }, 'CogCreate:JobComplete');
     } else {
