@@ -3,7 +3,12 @@ export { BaseConfig } from './config/base.js';
 export { ConfigImagery } from './config/imagery.js';
 export { ConfigPrefix } from './config/prefix.js';
 export { ConfigProvider } from './config/provider.js';
-export { JobStatus, ProcessingJob, ProcessingJobFailed, ConfigProcessingJob } from './config/processing.job.js';
+export {
+  ProcessingJob,
+  ProcessingJobComplete,
+  ProcessingJobFailed,
+  ConfigProcessingJob,
+} from './config/processing.job.js';
 export {
   ConfigLayer,
   ConfigTileSet,

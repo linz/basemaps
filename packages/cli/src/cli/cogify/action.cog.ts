@@ -16,7 +16,8 @@ import { Gdal } from '../../gdal/gdal.js';
 import { CliId } from '../base.cli.js';
 import { makeTempFolder } from '../folder.js';
 import path from 'path';
-import { ProcessingJobFailed, JobStatus } from '@basemaps/config';
+import { ProcessingJobComplete, ProcessingJobFailed } from '@basemaps/config';
+import { prepareUrl } from '../util.js';
 
 export class ActionCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
@@ -168,7 +169,10 @@ export class ActionCogCreate extends CommandLineAction {
         // Update job status if this is the processing job.
         const jobConfig = await Config.ProcessingJob.get(job.processingId);
         if (jobConfig != null) {
-          jobConfig.status = JobStatus.Complete;
+          const jobComplete = jobConfig as ProcessingJobComplete;
+          jobComplete.status = 'complete';
+          jobComplete.projection = job.tileMatrix.projection.code;
+          jobComplete.url = await prepareUrl(job);
           if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
           else throw new Error('Unable update the Processing Job status:' + jobConfig.id);
         }
