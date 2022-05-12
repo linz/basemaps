@@ -135,11 +135,7 @@ export class ActionCogCreate extends CommandLineAction {
         if (jobConfig != null) {
           const jobFailed = jobConfig as ProcessingJobFailed;
           jobFailed.status = 'failed';
-          if (typeof e === 'string') {
-            jobFailed.error = String(e);
-          } else if (e instanceof Error) {
-            jobFailed.error = e.message;
-          }
+          jobFailed.error = String(e);
           if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobFailed);
           else throw new Error('Unable update the Processing Job status:' + jobFailed.id);
         }
@@ -165,19 +161,20 @@ export class ActionCogCreate extends CommandLineAction {
     }
 
     if (expectedTiffs.size === 0) {
+      const url = await prepareUrl(job);
       if (job.processingId != null) {
         // Update job status if this is the processing job.
         const jobConfig = await Config.ProcessingJob.get(job.processingId);
         if (jobConfig != null) {
           const jobComplete = jobConfig as ProcessingJobComplete;
           jobComplete.status = 'complete';
-          jobComplete.projection = job.tileMatrix.projection.code;
-          jobComplete.url = await prepareUrl(job);
+          jobComplete.tileMatrix = job.tileMatrix;
+          jobComplete.url = url;
           if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
           else throw new Error('Unable update the Processing Job status:' + jobConfig.id);
         }
       }
-      logger.info({ tiffCount: jobSize, tiffTotal: jobSize }, 'CogCreate:JobComplete');
+      logger.info({ tiffCount: jobSize, tiffTotal: jobSize, url }, 'CogCreate:JobComplete');
     } else {
       logger.info({ tiffCount: jobSize, tiffRemaining: expectedTiffs.size }, 'CogCreate:JobProgress');
     }
