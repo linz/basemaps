@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "6.25.0",
+  "version": "6.26.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -29,10 +29,10 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
-    "@basemaps/attribution": "^6.25.0",
-    "@basemaps/geo": "^6.25.0",
-    "@basemaps/infra": "^6.25.0",
-    "@basemaps/shared": "^6.25.0",
+    "@basemaps/attribution": "^6.26.0",
+    "@basemaps/geo": "^6.26.0",
+    "@basemaps/infra": "^6.26.0",
+    "@basemaps/shared": "^6.26.0",
     "@linzjs/lui": "^10.11.3",
     "@servie/events": "^3.0.0",
     "@splitsoftware/splitio": "^10.16.1",
