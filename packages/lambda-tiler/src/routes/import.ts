@@ -39,7 +39,8 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   const jobId = Config.ProcessingJob.id(id);
   let jobConfig = await Config.ProcessingJob.get(jobId);
   if (jobConfig == null) {
-    // Add id back to JobCreationContext
+    // Add processing job Id into job
+    ctx.override!.processingId = jobId;
     ctx.outputLocation.path = fsa.join(ctx.outputLocation.path, id);
 
     // Insert Processing job config

@@ -74,6 +74,11 @@ export interface JobCreationContext {
      * @Default  GdalCogBuilderDefaults.resampling
      */
     resampling?: GdalCogBuilderResampling;
+
+    /**
+     * Override job processing Id
+     */
+    processingId?: string;
   };
 
   /**
@@ -110,6 +115,7 @@ export class CogStacJob implements CogJob {
     gsd: number;
     zoom: number;
   };
+  processingId: string;
 
   /**
      * Load the job.json
@@ -209,6 +215,9 @@ export class CogStacJob implements CogJob {
         oneCogCovering: ctx.oneCogCovering,
       },
     });
+
+    // Only include processing ID if exists
+    if (ctx.override?.processingId != null) job.processingId = ctx.override?.processingId;
 
     const nowStr = new Date().toISOString();
 
