@@ -4,6 +4,7 @@ export { ConfigImagery } from './config/imagery.js';
 export { ConfigPrefix } from './config/prefix.js';
 export { ConfigProvider } from './config/provider.js';
 export {
+  JobStatus,
   ProcessingJob,
   ProcessingJobComplete,
   ProcessingJobFailed,
