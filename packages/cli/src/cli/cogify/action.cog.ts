@@ -132,13 +132,12 @@ export class ActionCogCreate extends CommandLineAction {
       if (job.processingId != null) {
         // Update job status if this is the processing job.
         const jobConfig = await Config.ProcessingJob.get(job.processingId);
-        if (jobConfig != null) {
-          const jobFailed = jobConfig as ProcessingJobFailed;
-          jobFailed.status = 'failed';
-          jobFailed.error = String(e);
-          if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobFailed);
-          else throw new Error('Unable update the Processing Job status:' + jobFailed.id);
-        }
+        if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + job.processingId);
+        const jobFailed = jobConfig as ProcessingJobFailed;
+        jobFailed.status = 'failed';
+        jobFailed.error = String(e);
+        if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobFailed);
+        else throw new Error('Unable update the Processing Job status:' + jobFailed.id);
       }
     } finally {
       // Cleanup!
@@ -165,14 +164,13 @@ export class ActionCogCreate extends CommandLineAction {
       if (job.processingId != null) {
         // Update job status if this is the processing job.
         const jobConfig = await Config.ProcessingJob.get(job.processingId);
-        if (jobConfig != null) {
-          const jobComplete = jobConfig as ProcessingJobComplete;
-          jobComplete.status = 'complete';
-          jobComplete.tileMatrix = job.tileMatrix;
-          jobComplete.url = url;
-          if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
-          else throw new Error('Unable update the Processing Job status:' + jobConfig.id);
-        }
+        if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + job.processingId);
+        const jobComplete = jobConfig as ProcessingJobComplete;
+        jobComplete.status = 'complete';
+        jobComplete.tileMatrix = job.tileMatrix.identifier;
+        jobComplete.url = url;
+        if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
+        else throw new Error('Unable update the Processing Job status:' + jobConfig.id);
       }
       logger.info({ tiffCount: jobSize, tiffTotal: jobSize, url }, 'CogCreate:JobComplete');
     } else {
