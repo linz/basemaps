@@ -268,6 +268,7 @@ function makeImageRecord(id: string, name: string, x = 10): ConfigImagery {
     id,
     name,
     projection: EpsgCode.Google,
+    tileMatrix: 'WebMercatorQuad',
     uri: 's3://bucket/path/' + name,
     bounds: GoogleTms.tileToSourceBounds({ x, y: 10, z: 5 }),
     files: [0, 1].map((i) => {
