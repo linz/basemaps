@@ -33,12 +33,16 @@ export class Debug extends Component<
   }
 
   waitForMap = (): void => {
-    if (this.props.map == null) {
+    const map = this.props.map;
+    if (map == null) {
       setTimeout(this.waitForMap, 20);
       return;
     }
-    this.props.map.resize();
-    this.props.map.once('load', () => {
+
+    (window as any).MaplibreMap = map;
+
+    map.resize();
+    map.once('load', () => {
       Config.map.on('change', () => {
         if (this.props.map == null) return;
         const locationHash = WindowUrl.toHash(Config.map.getLocation(this.props.map));
@@ -47,6 +51,11 @@ export class Debug extends Component<
         this.updateFromConfig();
       });
       this.updateFromConfig();
+
+      // Jam  div into the page once the map has loaded so tools like playwright can see the map has finished loading
+      const loadedDiv = document.createElement('div');
+      loadedDiv.id = 'map-loaded';
+      document.body.appendChild(loadedDiv);
     });
   };
 
@@ -74,15 +83,22 @@ export class Debug extends Component<
           <div className="debug__value">{Config.map.tileMatrix.identifier}</div>
         </div>
         {this.renderSliders()}
-        <div className="debug__info">
-          <label className="debug__label">Purple</label>
-          <input
-            type="checkbox"
-            onClick={this.togglePurple}
-            checked={Config.map.debug['debug.background'] === 'magenta'}
-          />
-        </div>
+        {this.renderPurple()}
         {this.renderSourceToggle()}
+      </div>
+    );
+  }
+
+  renderPurple(): ComponentChild | null {
+    if (Config.map.debug['debug.screenshot']) return;
+    return (
+      <div className="debug__info">
+        <label className="debug__label">Purple</label>
+        <input
+          type="checkbox"
+          onClick={this.togglePurple}
+          checked={Config.map.debug['debug.background'] === 'magenta'}
+        />
       </div>
     );
   }
@@ -216,6 +232,8 @@ export class Debug extends Component<
   }
 
   renderSliders(): ComponentChild | null {
+    // Disable the sliders for screenshots
+    if (Config.map.debug['debug.screenshot']) return;
     // Only 3857 currently works with OSM/Topographic map
     if (Config.map.tileMatrix.identifier !== GoogleTms.identifier) {
       return (

@@ -58,6 +58,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
    * As it does not work with the projection logic we are currently using
    */
   ensureGeoControl(): void {
+    if (Config.map.debug['debug.screenshot']) return;
     if (Config.map.tileMatrix === GoogleTms) {
       if (this.controlGeo != null) return;
       this.controlGeo = new maplibre.GeolocateControl({});
@@ -86,6 +87,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   componentDidMount(): void {
     // Force the URL to be read before loading the map
     Config.map.updateFromUrl();
+    console.log(Config.map.debug);
     this.el = document.getElementById('map') as HTMLDivElement;
 
     if (this.el == null) throw new Error('Unable to find #map element');
@@ -104,10 +106,11 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     this.mapAttr = new MapAttribution(this.map);
 
-    const nav = new maplibre.NavigationControl({ visualizePitch: true });
-    this.map.addControl(nav, 'top-left');
-
-    this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
+    if (Config.map.debug['debug.screenshot'] !== true) {
+      const nav = new maplibre.NavigationControl({ visualizePitch: true });
+      this.map.addControl(nav, 'top-left');
+      this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
+    }
 
     this.map.on('render', this.onRender);
     this.map.on('load', () => {
