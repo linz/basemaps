@@ -4,8 +4,9 @@ import { createHash } from 'crypto';
 import { findImagery, RoleRegister } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
 import { getJobCreationContext } from '../import/make.cog.js';
-import { ConfigProcessingJob } from '@basemaps/config';
+import { ConfigProcessingJob, JobStatus } from '@basemaps/config';
 import { CogJobFactory } from '@basemaps/cli';
+import * as ulid from 'ulid';
 
 /**
  * Trigger import imagery job by this endpoint
@@ -35,18 +36,23 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   // Prepare Cog jobs
   const ctx = await getJobCreationContext(path, targetTms, role, files);
 
-  const id = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
-  const jobId = Config.ProcessingJob.id(id);
+  const hash = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
+  const jobId = Config.ProcessingJob.id(hash);
   let jobConfig = await Config.ProcessingJob.get(jobId);
   if (jobConfig == null) {
-    // Add id back to JobCreationContext
+    // Add ids into JobCreationContext
+    const id = ulid.ulid();
+    ctx.override!.id = id;
+    ctx.override!.processingId = jobId;
     ctx.outputLocation.path = fsa.join(ctx.outputLocation.path, id);
 
     // Insert Processing job config
     jobConfig = {
       id: jobId,
       name: path,
-      status: 'processing',
+      status: JobStatus.Processing,
+      tileMatrix: targetTms.identifier,
+      tileSet: Config.TileSet.id(id),
     } as ConfigProcessingJob;
 
     if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
