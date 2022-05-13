@@ -1,9 +1,7 @@
 import { TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, LogConfig, LogType, Projection } from '@basemaps/shared';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import Batch from 'aws-sdk/clients/batch.js';
 import { createHash } from 'crypto';
-import { CogStacJob } from '../../cog/cog.stac.job.js';
 import { CogJob } from '../../cog/types.js';
 
 const JobQueue = 'CogBatchJobQueue';
@@ -25,19 +23,7 @@ export function extractResolutionFromName(name: string): number {
   return parseFloat(matches[1].replace('-', '.')) * 1000;
 }
 
-export class ActionBatchJob extends CommandLineAction {
-  private job?: CommandLineStringParameter;
-  private commit?: CommandLineFlagParameter;
-  private oneCog?: CommandLineStringParameter;
-
-  public constructor() {
-    super({
-      actionName: 'batch',
-      summary: 'AWS batch jobs',
-      documentation: 'Submit a list of cogs to a AWS Batch queue to be process',
-    });
-  }
-
+export class BatchJob {
   /**
    * Create a id for a job
    *
@@ -59,7 +45,7 @@ export class ActionBatchJob extends CommandLineAction {
     name: string,
     isCommit: boolean,
   ): Promise<{ jobName: string; jobId: string; memory: number }> {
-    const jobName = ActionBatchJob.id(job, name);
+    const jobName = BatchJob.id(job, name);
     const tile = TileMatrixSet.nameToTile(name);
     const alignmentLevels = Projection.findAlignmentLevels(job.tileMatrix, tile, job.source.gsd);
     // Give 25% more memory to larger jobs
@@ -112,19 +98,6 @@ export class ActionBatchJob extends CommandLineAction {
     return okMap;
   }
 
-  async onExecute(): Promise<void> {
-    if (this.job?.value == null) {
-      throw new Error('Failed to read parameters');
-    }
-
-    await ActionBatchJob.batchJob(
-      await CogStacJob.load(this.job.value),
-      this.commit?.value,
-      this.oneCog?.value,
-      LogConfig.get(),
-    );
-  }
-
   static async batchJob(job: CogJob, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
     const jobPath = job.getJobPath('job.json');
     if (!jobPath.startsWith('s3://')) {
@@ -136,12 +109,12 @@ export class ActionBatchJob extends CommandLineAction {
     const batch = new Batch({ region });
 
     fsa.configure(job.output.location);
-    const runningJobs = await ActionBatchJob.getCurrentJobList(batch);
+    const runningJobs = await BatchJob.getCurrentJobList(batch);
 
     const stats = await Promise.all(
       job.output.files.map(async ({ name }) => {
         if (oneCog != null && oneCog !== name) return { name, ok: true };
-        const jobName = ActionBatchJob.id(job, name);
+        const jobName = BatchJob.id(job, name);
         const isRunning = runningJobs.get(jobName);
         if (isRunning) {
           logger.info({ jobName }, 'JobRunning');
@@ -172,7 +145,7 @@ export class ActionBatchJob extends CommandLineAction {
     );
 
     for (const name of toSubmit) {
-      const jobStatus = await ActionBatchJob.batchOne(jobPath, job, batch, name, commit);
+      const jobStatus = await BatchJob.batchOne(jobPath, job, batch, name, commit);
       logger.info(jobStatus, 'JobSubmitted');
     }
 
@@ -180,27 +153,5 @@ export class ActionBatchJob extends CommandLineAction {
       logger.warn('DryRun:Done');
       return;
     }
-  }
-
-  protected onDefineParameters(): void {
-    this.job = this.defineStringParameter({
-      argumentName: 'JOB',
-      parameterLongName: '--job',
-      description: 'Job config source to access',
-      required: true,
-    });
-
-    this.oneCog = this.defineStringParameter({
-      argumentName: 'COG_NAME',
-      parameterLongName: '--one-cog',
-      description: 'Restrict batch to build a single COG file',
-      required: false,
-    });
-
-    this.commit = this.defineFlagParameter({
-      parameterLongName: '--commit',
-      description: 'Begin the transformation',
-      required: false,
-    });
   }
 }
