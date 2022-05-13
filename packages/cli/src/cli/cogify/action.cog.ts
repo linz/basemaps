@@ -16,6 +16,7 @@ import { Gdal } from '../../gdal/gdal.js';
 import { CliId } from '../base.cli.js';
 import { makeTempFolder } from '../folder.js';
 import path from 'path';
+import { insertConfigImagery, insertConfigTileSet } from './imagery.config.js';
 import { JobStatus, ProcessingJobComplete, ProcessingJobFailed } from '@basemaps/config';
 import { prepareUrl } from '../util.js';
 
@@ -160,9 +161,13 @@ export class ActionCogCreate extends CommandLineAction {
     }
 
     if (expectedTiffs.size === 0) {
+      // Insert Imagery and TileSet Config
+      await insertConfigImagery(job, logger);
+      await insertConfigTileSet(job, logger);
+
+      // Update job status if this is the processing job.
       const url = await prepareUrl(job);
       if (job.processingId != null) {
-        // Update job status if this is the processing job.
         const jobConfig = await Config.ProcessingJob.get(job.processingId);
         if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + job.processingId);
         const jobComplete = jobConfig as ProcessingJobComplete;
