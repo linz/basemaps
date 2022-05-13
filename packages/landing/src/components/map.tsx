@@ -87,7 +87,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   componentDidMount(): void {
     // Force the URL to be read before loading the map
     Config.map.updateFromUrl();
-    console.log(Config.map.debug);
     this.el = document.getElementById('map') as HTMLDivElement;
 
     if (this.el == null) throw new Error('Unable to find #map element');
