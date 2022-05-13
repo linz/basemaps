@@ -295,6 +295,8 @@ export class Debug extends Component<
 
     const layers = styleJson.layers?.filter((f) => f.type !== 'custom' && f.source === 'LINZ Basemaps') ?? [];
 
+    // Do not hide topographic layers when trying to inspect the topographic layer
+    if (Config.map.layerId === 'topographic') return;
     // Force all the layers to be invisible to start, otherwise the map will "flash" on then off
     for (const layer of layers) {
       if (layer.type === 'custom') continue;
