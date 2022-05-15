@@ -37,6 +37,8 @@ export class LambdaTiler extends Construct {
       code: lambda.Code.fromAsset(CODE_PATH),
       environment: {
         [Env.PublicUrlBase]: config.PublicUrlBase,
+        [Env.AwsRoleConfigBucket]: config.AwsRoleConfigBucket,
+        [Env.ImportImageryBucket]: config.ImportImageryBucket,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       },
       logRetention: RetentionDays.ONE_MONTH,
