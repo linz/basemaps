@@ -2,19 +2,18 @@ import { JobCreationContext } from '@basemaps/cli/build/cog/cog.stac.job';
 import { TileMatrixSet } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 import { RoleConfig } from './imagery.find.js';
-import { basename } from 'path';
 
 export async function getJobCreationContext(
   path: string,
   tileMatrix: TileMatrixSet,
-  name: string | null,
+  name: string,
   role: RoleConfig,
   files: string[],
 ): Promise<JobCreationContext> {
   const bucket = Env.get(Env.ImportImageryBucket);
   if (bucket == null) throw new Error('Output AWS s3 bucket Not Found.');
   const ctx: JobCreationContext = {
-    imageryName: name != null ? name : basename(path),
+    imageryName: name,
     override: {
       projection: tileMatrix.projection,
       resampling: {

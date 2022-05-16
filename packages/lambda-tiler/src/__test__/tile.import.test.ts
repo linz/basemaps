@@ -30,7 +30,7 @@ o.spec('Import', () => {
 
   const tileMatrix = Nztm2000Tms;
   const bucket = 'testSourceBucket';
-  const path = `s3://${bucket}/imagery/`;
+  const path = `s3://${bucket}/imagery_2022/`;
   const role: RoleConfig = {
     bucket,
     accountId: '123456',
@@ -43,7 +43,7 @@ o.spec('Import', () => {
   }
 
   const ctx: JobCreationContext = {
-    imageryName: 'testImagery',
+    imageryName: 'imagery_2022',
     override: {
       projection: tileMatrix.projection,
       resampling: {
@@ -97,7 +97,7 @@ o.spec('Import', () => {
   o('should return Unable to access bucket', async () => {
     // Given... different bucket have no access role
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
-    const req = getRequest(`s3://wrong-bucket/imagery/`, '2193');
+    const req = getRequest(`s3://wrong-bucket/imagery_2022/`, '2193');
 
     // When ...Then ...
     const res = await Import(req);
