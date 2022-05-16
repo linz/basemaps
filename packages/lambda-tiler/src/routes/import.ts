@@ -16,6 +16,7 @@ import { CogJobFactory } from '@basemaps/cli';
 export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
   const path = req.query.get('path');
   const projection = req.query.get('p');
+  const imageryName = req.query.get('name');
 
   // Parse projection as target, default to process both NZTM2000Quad
   let targetTms = Nztm2000Tms;
@@ -33,7 +34,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   if (files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
 
   // Prepare Cog jobs
-  const ctx = await getJobCreationContext(path, targetTms, role, files);
+  const ctx = await getJobCreationContext(path, targetTms, imageryName, role, files);
 
   const id = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
   const jobId = Config.ProcessingJob.id(id);

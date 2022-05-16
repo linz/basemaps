@@ -43,6 +43,7 @@ o.spec('Import', () => {
   }
 
   const ctx: JobCreationContext = {
+    imageryName: 'testImagery',
     override: {
       projection: tileMatrix.projection,
       resampling: {
