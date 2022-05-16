@@ -46,13 +46,14 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   if (files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
 
   // Prepare Cog jobs
-  const ctx = await getJobCreationContext(path, targetTms, imageryName, role, files);
+  const ctx = await getJobCreationContext(path, targetTms, role, files);
 
   const hash = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
   const jobId = Config.ProcessingJob.id(hash);
   let jobConfig = await Config.ProcessingJob.get(jobId);
   if (jobConfig == null) {
     // Add ids into JobCreationContext
+    ctx.imageryName = imageryName;
     ctx.override!.id = id;
     ctx.override!.processingId = jobId;
     ctx.outputLocation.path = fsa.join(ctx.outputLocation.path, id);

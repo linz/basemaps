@@ -34,7 +34,8 @@ import {
 export const MaxConcurrencyDefault = 50;
 
 export interface JobCreationContext {
-  imageryName: string;
+  /** Custom Imagery Name if defined */
+  imageryName?: string;
 
   /** Source config */
   sourceLocation: FileConfig | FileConfigPath;

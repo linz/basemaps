@@ -7,6 +7,7 @@ import { Gdal } from '../gdal/gdal.js';
 import { CogStacJob, JobCreationContext } from './cog.stac.job.js';
 import { Cutline } from './cutline.js';
 import { CogJob } from './types.js';
+import { basename } from 'path';
 
 export const MaxConcurrencyDefault = 50;
 
@@ -21,7 +22,10 @@ export const CogJobFactory = {
    */
   async create(ctx: JobCreationContext): Promise<CogJob> {
     const id = ctx.override?.id ?? ulid.ulid();
-    const logger = LogConfig.get().child({ id, imageryName: ctx.imageryName });
+    let imageryName = ctx.imageryName;
+    if (imageryName == null) imageryName = basename(ctx.sourceLocation.path).replace(/\./g, '-'); // batch does not allow '.' in names
+
+    const logger = LogConfig.get().child({ id, imageryName });
 
     const gdalVersion = await Gdal.version(logger);
     logger.info({ version: gdalVersion }, 'GdalVersion');
@@ -99,7 +103,7 @@ export const CogJobFactory = {
 
     const job = await CogStacJob.create({
       id,
-      imageryName: ctx.imageryName,
+      imageryName,
       metadata,
       ctx,
       addAlpha,

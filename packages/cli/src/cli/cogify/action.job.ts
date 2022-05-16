@@ -6,7 +6,6 @@ import {
   CommandLineIntegerParameter,
   CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
-import { basename } from 'path';
 import { JobCreationContext } from '../../cog/cog.stac.job.js';
 import { CogJobFactory, MaxConcurrencyDefault } from '../../cog/job.factory.js';
 import { GdalCogBuilderDefaults, GdalCogBuilderResampling, GdalResamplingOptions } from '../../gdal/gdal.config.js';
@@ -121,7 +120,6 @@ export class ActionJobCreate extends CommandLineAction {
     }
 
     const ctx: JobCreationContext = {
-      imageryName: basename(sourceLocation.path),
       sourceLocation,
       outputLocation,
       cutline,

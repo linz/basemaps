@@ -6,14 +6,12 @@ import { RoleConfig } from './imagery.find.js';
 export async function getJobCreationContext(
   path: string,
   tileMatrix: TileMatrixSet,
-  name: string,
   role: RoleConfig,
   files: string[],
 ): Promise<JobCreationContext> {
   const bucket = Env.get(Env.ImportImageryBucket);
   if (bucket == null) throw new Error('Output AWS s3 bucket Not Found.');
   const ctx: JobCreationContext = {
-    imageryName: name,
     override: {
       projection: tileMatrix.projection,
       resampling: {
