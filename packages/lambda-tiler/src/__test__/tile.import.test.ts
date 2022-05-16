@@ -30,7 +30,7 @@ o.spec('Import', () => {
 
   const tileMatrix = Nztm2000Tms;
   const bucket = 'testSourceBucket';
-  const path = `s3://${bucket}/imagery_2022/`;
+  const path = `s3://${bucket}/imagery/`;
   const role: RoleConfig = {
     bucket,
     accountId: '123456',
@@ -43,7 +43,6 @@ o.spec('Import', () => {
   }
 
   const ctx: JobCreationContext = {
-    imageryName: 'imagery',
     override: {
       projection: tileMatrix.projection,
       resampling: {
