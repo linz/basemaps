@@ -29,7 +29,7 @@ export const TileMetadataTableArn = {
     return cdk.Arn.format(
       {
         service: 'dynamodb',
-        region: Const.Aws.Region,
+        region: '*',
         resource: 'table',
         resourceName: Const.TileMetadata.TableName,
       },
