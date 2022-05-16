@@ -23,7 +23,7 @@ export const CogJobFactory = {
   async create(ctx: JobCreationContext): Promise<CogJob> {
     const id = ctx.override?.id ?? ulid.ulid();
     let imageryName = ctx.imageryName;
-    if (imageryName == null) imageryName = basename(ctx.sourceLocation.path).replace(/\./g, '-'); // batch does not allow '.' in names
+    if (imageryName == null) imageryName = basename(ctx.sourceLocation.path);
 
     const logger = LogConfig.get().child({ id, imageryName });
 
