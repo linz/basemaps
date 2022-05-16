@@ -1,5 +1,5 @@
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { Config, fsa } from '@basemaps/shared';
+import { Config, extractYearRangeFromName, fsa } from '@basemaps/shared';
 import { createHash } from 'crypto';
 import { findImagery, RoleRegister } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
@@ -7,6 +7,7 @@ import { getJobCreationContext } from '../import/make.cog.js';
 import { ConfigProcessingJob, JobStatus } from '@basemaps/config';
 import { CogJobFactory } from '@basemaps/cli';
 import * as ulid from 'ulid';
+import { basename } from 'path';
 
 /**
  * Trigger import imagery job by this endpoint
@@ -17,6 +18,7 @@ import * as ulid from 'ulid';
 export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
   const path = req.query.get('path');
   const projection = req.query.get('p');
+  const id = ulid.ulid();
 
   // Parse projection as target, default to process both NZTM2000Quad
   let targetTms = Nztm2000Tms;
@@ -26,8 +28,18 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
     targetTms = tileMatrix;
   }
 
-  // Find the imagery from s3
+  // Validate the s3 path
   if (path == null || !path.startsWith('s3://')) return new LambdaHttpResponse(400, `Invalid s3 path: ${path}`);
+
+  // Check if the imagery name contains a year
+  let imageryName = basename(path);
+  const years = extractYearRangeFromName(imageryName);
+  if (years[0] === -1) {
+    const year = new Date().getFullYear().toString();
+    imageryName = `${id}_${year}`;
+  }
+
+  // Find the imagery from s3
   const role = await RoleRegister.findRole(path);
   if (role == null) return new LambdaHttpResponse(403, 'Unable to Access the s3 bucket');
   const files = await findImagery(path);
@@ -41,7 +53,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   let jobConfig = await Config.ProcessingJob.get(jobId);
   if (jobConfig == null) {
     // Add ids into JobCreationContext
-    const id = ulid.ulid();
+    ctx.imageryName = imageryName;
     ctx.override!.id = id;
     ctx.override!.processingId = jobId;
     ctx.outputLocation.path = fsa.join(ctx.outputLocation.path, id);

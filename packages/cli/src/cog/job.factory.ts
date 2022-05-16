@@ -1,6 +1,5 @@
 import { Bounds } from '@basemaps/geo';
 import { fsa, isConfigS3Role, isFileConfigPath, LogConfig } from '@basemaps/shared';
-import { basename } from 'path';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../index.js';
 import { BatchJob } from '../cli/cogify/batch.job.js';
@@ -8,6 +7,7 @@ import { Gdal } from '../gdal/gdal.js';
 import { CogStacJob, JobCreationContext } from './cog.stac.job.js';
 import { Cutline } from './cutline.js';
 import { CogJob } from './types.js';
+import { basename } from 'path';
 
 export const MaxConcurrencyDefault = 50;
 
@@ -22,7 +22,9 @@ export const CogJobFactory = {
    */
   async create(ctx: JobCreationContext): Promise<CogJob> {
     const id = ctx.override?.id ?? ulid.ulid();
-    const imageryName = basename(ctx.sourceLocation.path).replace(/\./g, '-'); // batch does not allow '.' in names
+    let imageryName = ctx.imageryName;
+    if (imageryName == null) imageryName = basename(ctx.sourceLocation.path);
+
     const logger = LogConfig.get().child({ id, imageryName });
 
     const gdalVersion = await Gdal.version(logger);

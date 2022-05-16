@@ -96,6 +96,7 @@ export class ActionCogCreate extends CommandLineAction {
     // Output file exists don't try and overwrite it
     if (outputExists) {
       logger.warn({ targetPath }, 'CogCreate:OutputExists');
+      await this.checkJobStatus(job, logger);
       return;
     }
 
