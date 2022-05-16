@@ -18,6 +18,7 @@ import { basename } from 'path';
 export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
   const path = req.query.get('path');
   const projection = req.query.get('p');
+  const id = ulid.ulid();
 
   // Parse projection as target, default to process both NZTM2000Quad
   let targetTms = Nztm2000Tms;
@@ -35,7 +36,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   const years = extractYearRangeFromName(imageryName);
   if (years[0] === -1) {
     const year = new Date().getFullYear().toString();
-    imageryName = `${imageryName}_${year}`;
+    imageryName = `${id}_${year}`;
   }
 
   // Find the imagery from s3
@@ -52,7 +53,6 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   let jobConfig = await Config.ProcessingJob.get(jobId);
   if (jobConfig == null) {
     // Add ids into JobCreationContext
-    const id = ulid.ulid();
     ctx.override!.id = id;
     ctx.override!.processingId = jobId;
     ctx.outputLocation.path = fsa.join(ctx.outputLocation.path, id);
