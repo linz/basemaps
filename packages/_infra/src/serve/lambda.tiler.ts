@@ -47,5 +47,7 @@ export class LambdaTiler extends Construct {
       const cogBucket = s3.Bucket.fromBucketName(this, `CogBucket${bucketName}`, bucketName);
       cogBucket.grantRead(this.lambda);
     }
+    const configBucket = s3.Bucket.fromBucketName(this, 'ConfigBucket', Env.AwsRoleConfigBucket);
+    configBucket.grantRead(this.lambda);
   }
 }
