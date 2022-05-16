@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/infra",
-  "version": "6.24.2",
+  "version": "6.26.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -24,8 +24,8 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "devDependencies": {
-    "@basemaps/lambda-tiler": "^6.24.2",
-    "@basemaps/shared": "^6.24.2",
+    "@basemaps/lambda-tiler": "^6.26.0",
+    "@basemaps/shared": "^6.26.0",
     "aws-cdk": "^2.20.0",
     "aws-cdk-lib": "^2.20.0",
     "constructs": "^10.0.119"

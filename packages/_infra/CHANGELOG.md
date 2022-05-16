@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.26.0](https://github.com/linz/basemaps/compare/v6.25.0...v6.26.0) (2022-05-12)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+# [6.25.0](https://github.com/linz/basemaps/compare/v6.24.2...v6.25.0) (2022-05-11)
+
+
+### Features
+
+* **lambda-tiler:** Import api for import imagery jobs. ([#2170](https://github.com/linz/basemaps/issues/2170)) ([76b6175](https://github.com/linz/basemaps/commit/76b6175930db2a04f24437c7a05e7a70f160f7cd))
+
+
+
+
+
 ## [6.24.2](https://github.com/linz/basemaps/compare/v6.24.1...v6.24.2) (2022-04-20)
 
 

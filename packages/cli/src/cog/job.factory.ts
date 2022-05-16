@@ -2,7 +2,7 @@ import { Bounds } from '@basemaps/geo';
 import { fsa, isConfigS3Role, isFileConfigPath, LogConfig } from '@basemaps/shared';
 import * as ulid from 'ulid';
 import { CogBuilder } from '../index.js';
-import { ActionBatchJob } from '../cli/cogify/action.batch.js';
+import { BatchJob } from '../cli/cogify/batch.job.js';
 import { Gdal } from '../gdal/gdal.js';
 import { CogStacJob, JobCreationContext } from './cog.stac.job.js';
 import { Cutline } from './cutline.js';
@@ -106,7 +106,7 @@ export const CogJobFactory = {
       cutlinePoly: cutline.clipPoly,
     });
 
-    if (ctx.batch) await ActionBatchJob.batchJob(job, true, undefined, logger);
+    if (ctx.batch) await BatchJob.batchJob(job, true, undefined, logger);
     logger.info({ tileMatrix: ctx.tileMatrix.identifier, job: job.getJobPath() }, 'Done');
 
     return job;

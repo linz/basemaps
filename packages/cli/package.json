@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "6.24.2",
+  "version": "6.26.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -37,9 +37,9 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "dependencies": {
-    "@basemaps/config": "^6.24.2",
-    "@basemaps/geo": "^6.24.2",
-    "@basemaps/shared": "^6.24.2",
+    "@basemaps/config": "^6.26.0",
+    "@basemaps/geo": "^6.26.0",
+    "@basemaps/shared": "^6.26.0",
     "@chunkd/fs": "^8.1.0",
     "@cogeotiff/core": "^7.0.0",
     "@linzjs/geojson": "^6.21.1",

@@ -1,4 +1,4 @@
-import { fsa, LogConfig } from '@basemaps/shared';
+import { Env, fsa, LogConfig, Projection } from '@basemaps/shared';
 import CloudFormation from 'aws-sdk/clients/cloudformation.js';
 import CloudFront from 'aws-sdk/clients/cloudfront.js';
 import S3 from 'aws-sdk/clients/s3.js';
@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import path from 'path';
 import { gzip } from 'zlib';
 import { promisify } from 'util';
+import { CogStacJob } from '../cog/cog.stac.job.js';
 
 // Cloudfront has to be defined in us-east-1
 const cloudFormation = new CloudFormation({ region: 'us-east-1' });
@@ -125,4 +126,18 @@ export async function uploadStaticFile(
     })
     .promise();
   return true;
+}
+
+/**
+ * Prepare QA urls with center location
+ */
+export async function prepareUrl(job: CogStacJob): Promise<string> {
+  const bounds = job.output.bounds;
+  const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+  const proj = Projection.get(job.tileMatrix.projection);
+  const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
+  const targetZoom = Math.max(job.tileMatrix.findBestZoom(job.output.gsd) - 12, 0);
+  const base = Env.get(Env.PublicUrlBase);
+  const url = `${base}/?i=${job.id}&p=${job.tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`;
+  return url;
 }

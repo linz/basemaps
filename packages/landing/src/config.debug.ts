@@ -1,9 +1,16 @@
 export interface DebugState {
   debug: boolean;
+  /** What color should the background be */
   'debug.background': string | false;
+  /** Should the source tiles */
   'debug.source': boolean;
+  /** Should things be hidden to make a better screenshot */
+  'debug.screenshot': boolean;
+  /** What opacity is the aerial layer, 0 is off */
   'debug.layer.linz-aerial': number;
+  /** What opacity is the topographic layer, 0 is off */
   'debug.layer.linz-topographic': number;
+  /** What opacity is the open streetmap layer, 0 is off*/
   'debug.layer.osm': number;
 }
 
@@ -11,6 +18,7 @@ export const DebugDefaults: DebugState = {
   debug: false,
   'debug.background': false,
   'debug.source': false,
+  'debug.screenshot': false,
   'debug.layer.linz-aerial': 0,
   'debug.layer.linz-topographic': 0,
   'debug.layer.osm': 0,
@@ -43,6 +51,7 @@ export class ConfigDebug {
     isChanged = setKey(opt, 'debug', true);
     isChanged = setKey(opt, 'debug.background', url.get('debug.background')) || isChanged;
     isChanged = setKey(opt, 'debug.source', url.get('debug.source') != null) || isChanged;
+    isChanged = setKey(opt, 'debug.screenshot', url.get('debug.screenshot') != null) || isChanged;
     isChanged = setNum(opt, 'debug.layer.linz-aerial', url.get('debug.layer.linz-aerial')) || isChanged;
     isChanged = setNum(opt, 'debug.layer.linz-topographic', url.get('debug.layer.linz-topographic')) || isChanged;
     isChanged = setNum(opt, 'debug.layer.osm', url.get('debug.layer.osm')) || isChanged;

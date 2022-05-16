@@ -4,6 +4,9 @@ import { BaseConfig } from './base.js';
 export interface ConfigImagery extends BaseConfig {
   projection: EpsgCode;
 
+  /** tileMatrix identifier */
+  tileMatrix: string;
+
   /** The tile for the imagery set and showing name if not defined */
   title?: string;
 

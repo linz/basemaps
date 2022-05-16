@@ -3,6 +3,45 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.26.0](https://github.com/linz/basemaps/compare/v6.25.0...v6.26.0) (2022-05-12)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Fix the insert of processing job config and actually start job after inserting config. ([#2182](https://github.com/linz/basemaps/issues/2182)) ([65d9c84](https://github.com/linz/basemaps/commit/65d9c841d3cbdde1c9a3753f3ae81fd67c5aef80))
+* **lambda-tiler:** remove vector_layers as maplibre uses it as a validator ([#2189](https://github.com/linz/basemaps/issues/2189)) ([457d978](https://github.com/linz/basemaps/commit/457d978527f2c42408562021cef7b48ff9ce1afb))
+
+
+### Features
+
+* **lambda-tiler:** Remove the job id to use ulid and update HTTP status code. ([#2188](https://github.com/linz/basemaps/issues/2188)) ([7d72f0c](https://github.com/linz/basemaps/commit/7d72f0c94ce4eefe0342b01b1ac2c8c153fc7c10))
+
+
+
+
+
+# [6.25.0](https://github.com/linz/basemaps/compare/v6.24.2...v6.25.0) (2022-05-11)
+
+
+### Bug Fixes
+
+* **landing:** force the vector source layer to be above the raster imager ([#2185](https://github.com/linz/basemaps/issues/2185)) ([31f7708](https://github.com/linz/basemaps/commit/31f7708f8cc5d6180d879248c6677d0b6cf3307a))
+
+
+### Features
+
+* **config:** Add config job for imagery processing api ([#2162](https://github.com/linz/basemaps/issues/2162)) ([4ad2d37](https://github.com/linz/basemaps/commit/4ad2d370e7b75c45f4d16842e5399682fee475e0))
+* **config:** add type guard for if the config object can be written to ([#2183](https://github.com/linz/basemaps/issues/2183)) ([0a00e0e](https://github.com/linz/basemaps/commit/0a00e0efc30ad4df8e5c49899768ad37d6301152))
+* **config:** serve tilejson 3.0.0 and allow raster imagery ([#2173](https://github.com/linz/basemaps/issues/2173)) ([29f5313](https://github.com/linz/basemaps/commit/29f53131e917fa0b3ce6f280e8f9e09f4fe6e957))
+* **lambda-tiler:** Import api for import imagery jobs. ([#2170](https://github.com/linz/basemaps/issues/2170)) ([76b6175](https://github.com/linz/basemaps/commit/76b6175930db2a04f24437c7a05e7a70f160f7cd))
+* **landing:** add aerial basemap to landing debug ([#2174](https://github.com/linz/basemaps/issues/2174)) ([b16b905](https://github.com/linz/basemaps/commit/b16b90541d62c02b9fed0a4f423279668c364c25))
+* **landing:** add debug state into URL bar ([#2175](https://github.com/linz/basemaps/issues/2175)) ([da1833a](https://github.com/linz/basemaps/commit/da1833a1d603300ddcbc2405a341a303daebc125))
+* **landing:** support geojson reprojection into NZTM with maplibre ([#2178](https://github.com/linz/basemaps/issues/2178)) ([79e8845](https://github.com/linz/basemaps/commit/79e88450d533c5a5bb9cbd99dc968adcb369835d))
+
+
+
+
+
 ## [6.24.2](https://github.com/linz/basemaps/compare/v6.24.1...v6.24.2) (2022-04-20)
 
 
