@@ -18,7 +18,6 @@ import { basename } from 'path';
 export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
   const path = req.query.get('path');
   const projection = req.query.get('p');
-  const name = req.query.get('name');
 
   // Parse projection as target, default to process both NZTM2000Quad
   let targetTms = Nztm2000Tms;
@@ -32,10 +31,11 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   if (path == null || !path.startsWith('s3://')) return new LambdaHttpResponse(400, `Invalid s3 path: ${path}`);
 
   // Check if the imagery name contains a year
-  const imageryName = name != null ? name : basename(path);
+  let imageryName = basename(path);
   const years = extractYearRangeFromName(imageryName);
   if (years[0] === -1) {
-    return new LambdaHttpResponse(400, `Invalid Imagery Name: ${imageryName}`);
+    const year = new Date().getFullYear().toString();
+    imageryName = `${imageryName}_${year}`;
   }
 
   // Find the imagery from s3
