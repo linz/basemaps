@@ -5,7 +5,7 @@ import { lf } from '@linzjs/lambda';
 import { ALBEvent, ALBResult, APIGatewayProxyResultV2, CloudFrontRequestResult, Context } from 'aws-lambda';
 import fastify, { FastifyInstance } from 'fastify';
 import { createRequire } from 'module';
-import path, { dirname } from 'path';
+import path from 'path';
 import ulid from 'ulid';
 import { URL } from 'url';
 
