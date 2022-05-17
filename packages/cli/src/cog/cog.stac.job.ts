@@ -217,10 +217,8 @@ export class CogStacJob implements CogJob {
         bounds: metadata.targetBounds,
         oneCogCovering: ctx.oneCogCovering,
       },
+      processingId: ctx.override?.processingId,
     });
-
-    // Only include processing ID if exists
-    if (ctx.override?.processingId != null) job.processingId = ctx.override?.processingId;
 
     const nowStr = new Date().toISOString();
 
