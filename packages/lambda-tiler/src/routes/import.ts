@@ -44,7 +44,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   if (role == null) return new LambdaHttpResponse(403, 'Unable to Access the s3 bucket');
   const files = await findImagery(path);
   if (files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
-  if (files.length >= 500) return new LambdaHttpResponse(400, `Too many files to process. Files: ${files.length}`);
+  if (files.length >= 5_000) return new LambdaHttpResponse(400, `Too many files to process. Files: ${files.length}`);
 
   // Prepare Cog jobs
   const ctx = await getJobCreationContext(path, targetTms, role, files);
