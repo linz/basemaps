@@ -70,6 +70,7 @@ export class Debug extends Component<
   }
 
   render(): ComponentChild {
+    if (Config.map.debug['debug.screenshot']) return null;
     return (
       <div className="debug">
         <div className="debug__info">
