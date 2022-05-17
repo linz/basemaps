@@ -8,6 +8,7 @@ import { createHash } from 'crypto';
 import { TileMetadataTableArn } from '../serve/db.js';
 import { ScratchData } from './mount.folder.js';
 import { Construct } from 'constructs';
+import { getConfig } from '../config.js';
 
 /**
  * Cogification infrastructure
@@ -126,6 +127,8 @@ export class CogBuilderStack extends cdk.Stack {
       },
     });
 
+    const config = getConfig();
+
     new batch.CfnJobDefinition(this, 'CogBatchJobDef', {
       jobDefinitionName: 'CogBatchJob',
       type: 'container',
@@ -145,7 +148,7 @@ export class CogBuilderStack extends cdk.Stack {
          * Eg a instance with 8192MB allocates 7953MB usable
          */
         memory: 3900,
-        environment: [{ name: Env.TempFolder, value: ScratchData.Folder }],
+        environment: [{ name: Env.TempFolder, value: ScratchData.Folder, [Env.PublicUrlBase]: config.PublicUrlBase }],
         mountPoints: [{ containerPath: ScratchData.Folder, sourceVolume: 'scratch' }],
         volumes: [{ name: 'scratch', host: { sourcePath: ScratchData.Folder } }],
       },

@@ -24,7 +24,7 @@ export class ConfigProviderDynamo extends BasemapsConfigProvider {
 
   constructor(tableName: string) {
     super();
-    this.dynamo = new DynamoDB({});
+    this.dynamo = new DynamoDB({ region: 'ap-southeast-2' });
     this.tableName = tableName;
   }
 
