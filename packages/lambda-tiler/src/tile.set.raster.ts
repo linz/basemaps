@@ -165,7 +165,6 @@ export class TileSetRaster {
 
       const imagery = this.imagery.get(imgId);
       if (imagery == null) {
-        console.log('Failed', { imagery, i: this.imagery, ts: this.tileSet.layers });
         log?.warn(
           { layer: layer.name, projection: this.tileMatrix.projection.code, imgId },
           'Failed to lookup imagery',

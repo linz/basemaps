@@ -33,3 +33,15 @@ For example given a structure where there are two folders full of tiffs
 ```
 
 running `basemaps-server --config /images` will create two tile sets one for each folder `gebco_2021...` and `geographx_nz_t...` and then also create a combined layer in the order the tiffs are found.
+
+
+## Developing
+
+When running the `@basemaps/server` in development mode, ensure `@basemaps/landing` page has been bundled
+
+```bash
+cd packages/landing
+yarn bundle
+```
+
+This will package all the static assets into `landing/dist` and will be served from `http://localhost:3000`

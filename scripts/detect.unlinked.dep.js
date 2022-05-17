@@ -13,6 +13,7 @@ function getAllImports(path) {
   const data = cp.execSync(`grep -R "'@basemaps" ${path}/src || true`).toString().split('\n');
 
   for (const line of data) {
+    if (line.includes('require.resolve')) continue;
     const pkgName = line.split(' ').pop().replace(/[';]/g, '').trim();
 
     if (pkgName.length > 0) allImports.add(pkgName);

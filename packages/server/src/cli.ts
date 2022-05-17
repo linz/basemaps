@@ -6,7 +6,7 @@ import { Config, Env, LogConfig } from '@basemaps/shared';
 import { fsa } from '@linzjs/s3fs';
 import { Command, flags } from '@oclif/command';
 import { basename, dirname } from 'path';
-import { BasemapsServer } from './server.js';
+import { createServer } from './server.js';
 
 const logger = LogConfig.get();
 
@@ -98,7 +98,7 @@ export class BasemapsServerCommand extends Command {
     // Force a default url base so WMTS requests know their relative url
     process.env[Env.PublicUrlBase] = process.env[Env.PublicUrlBase] ?? `http://localhost:${flags.port}`;
 
-    BasemapsServer.listen(flags.port, () => {
+    createServer(logger).listen(flags.port, () => {
       logger.info({ url: ServerUrl }, 'ServerStarted');
     });
   }

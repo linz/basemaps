@@ -1,7 +1,6 @@
 {
   "name": "@basemaps/landing",
   "version": "6.26.0",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -43,6 +42,13 @@
     "proj4": "^2.6.2",
     "ulid": "^2.3.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "build"
+  ],
   "bundle": [
     {
       "entry": "../../node_modules/@linzjs/lui/dist/assets/images/nz-govt-logo-rev.svg",
