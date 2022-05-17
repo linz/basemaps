@@ -1,13 +1,13 @@
 import { handler } from '@basemaps/lambda-tiler';
+import { LogConfig } from '@basemaps/shared';
 import fastifyStatic from '@fastify/static';
 import { lf } from '@linzjs/lambda';
 import { ALBEvent, ALBResult, APIGatewayProxyResultV2, CloudFrontRequestResult, Context } from 'aws-lambda';
 import fastify from 'fastify';
-import { exists, existsSync } from 'fs';
 import { createRequire } from 'module';
 import { dirname } from 'path';
 import ulid from 'ulid';
-import { fileURLToPath, pathToFileURL, URL } from 'url';
+import { URL } from 'url';
 
 export const BasemapsServer = fastify();
 
@@ -19,12 +19,13 @@ function isAlbResult(r: ALBResult | CloudFrontRequestResult | APIGatewayProxyRes
 
 const instanceId = ulid.ulid();
 
-// const fileName = dirname(fileURLToPath(import.meta.url));
-
 const require = createRequire(import.meta.url);
 const landingLocation = require.resolve('@basemaps/landing/dist');
-
-BasemapsServer.register(fastifyStatic, { root: dirname(landingLocation) });
+if (landingLocation == null) {
+  LogConfig.get().warn('Failed to find @basemaps/landing location');
+} else {
+  BasemapsServer.register(fastifyStatic, { root: dirname(landingLocation) });
+}
 
 BasemapsServer.get<{ Querystring: { api: string } }>('/v1/*', async (req, res) => {
   const url = new URL(`${req.protocol}://${req.hostname}${req.url}`);

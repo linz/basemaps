@@ -42,8 +42,13 @@
     "proj4": "^2.6.2",
     "ulid": "^2.3.0"
   },
-  "publishConfig": {"access": "public"},
-  "files": ["dist", "build"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "build"
+  ],
   "bundle": [
     {
       "entry": "../../node_modules/@linzjs/lui/dist/assets/images/nz-govt-logo-rev.svg",
