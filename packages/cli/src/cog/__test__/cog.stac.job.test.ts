@@ -158,6 +158,7 @@ o.spec('CogJob', () => {
           bounds: { x: 1, y: 2, width: 2, height: 3 },
           oneCogCovering: true,
         },
+        processingId: undefined,
       });
 
       o(job.id).equals(id);
