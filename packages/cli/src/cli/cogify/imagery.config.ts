@@ -17,7 +17,7 @@ export async function insertConfigImagery(job: CogStacJob, logger: LogType): Pro
     updatedAt: now,
     projection: job.tileMatrix.projection.code,
     tileMatrix: job.tileMatrix.identifier,
-    uri: job.output.location.path,
+    uri: job.getJobPath(),
     bounds: job.output.bounds,
     files: job.output.files,
   };
