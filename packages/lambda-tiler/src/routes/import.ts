@@ -9,6 +9,9 @@ import { CogJobFactory } from '@basemaps/cli';
 import * as ulid from 'ulid';
 import { basename } from 'path';
 
+const FILES_NUMBER_LIMIT = 10_000; // Limit to 10000 files
+const FILES_SIZE_LIMIT = 500_000_000_000; // Limit to 500GB in total size
+
 /**
  * Trigger import imagery job by this endpoint
  *
@@ -42,12 +45,16 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   // Find the imagery from s3
   const role = await RoleRegister.findRole(path);
   if (role == null) return new LambdaHttpResponse(403, 'Unable to Access the s3 bucket');
-  const files = await findImagery(path);
-  if (files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
-  if (files.length >= 5_000) return new LambdaHttpResponse(400, `Too many files to process. Files: ${files.length}`);
+  const fileInfo = await findImagery(path);
+  if (fileInfo.files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
+  if (fileInfo.files.length >= FILES_NUMBER_LIMIT || fileInfo.totalSize >= FILES_SIZE_LIMIT)
+    return new LambdaHttpResponse(
+      400,
+      `Too many files to process. Files: ${fileInfo.files.length}. TotalSize: ${fileInfo.totalSize}`,
+    );
 
   // Prepare Cog jobs
-  const ctx = await getJobCreationContext(path, targetTms, role, files);
+  const ctx = await getJobCreationContext(path, targetTms, role, fileInfo.files);
 
   const hash = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
   const jobId = Config.ProcessingJob.id(hash);

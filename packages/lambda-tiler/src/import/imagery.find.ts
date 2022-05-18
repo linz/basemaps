@@ -50,11 +50,16 @@ export class RoleRegister {
 }
 
 /** Search for the imagery across all of our buckets */
-export async function findImagery(path: string): Promise<string[]> {
+export async function findImagery(path: string): Promise<{ files: string[]; totalSize: number }> {
   const files: string[] = [];
-  for await (const key of fsa.list(path)) {
-    const searchKey = key.toLowerCase();
-    if (searchKey.endsWith('.tif') || searchKey.endsWith('.tiff')) files.push(key);
+  let totalSize = 0;
+  for await (const key of fsa.details(path)) {
+    console.log(key);
+    const searchKey = key.path.toLowerCase();
+    if (searchKey.endsWith('.tif') || searchKey.endsWith('.tiff')) {
+      files.push(key.path);
+      if (key.size != null) totalSize += key.size;
+    }
   }
-  return files;
+  return { files, totalSize };
 }
