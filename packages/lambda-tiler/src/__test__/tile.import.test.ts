@@ -38,8 +38,8 @@ o.spec('Import', () => {
   };
 
   const files = [`${path}/1.tiff`, `${path}/2.tiff`];
-  async function* listFiles(): AsyncGenerator<string, any, unknown> {
-    for (const key in files) yield files[key];
+  async function* listFiles(): AsyncGenerator<{ path: string; size: number }, any, unknown> {
+    for (const key in files) yield { path: files[key], size: 40_000_000 };
   }
 
   const ctx: JobCreationContext = {
@@ -106,8 +106,8 @@ o.spec('Import', () => {
   o('should return Imagery not found', async () => {
     // Given... none imagery find from bucket
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
-    sandbox.stub(fsa, 'list').callsFake(async function* () {
-      yield `${path}1.json`;
+    sandbox.stub(fsa, 'details').callsFake(async function* () {
+      yield { path: `${path}1.json`, size: 4000000 };
     });
 
     const req = getRequest(path, '2193');
@@ -120,7 +120,7 @@ o.spec('Import', () => {
   o('should return 200 with existing import', async () => {
     // Given... different bucket have no access role
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
-    sandbox.stub(fsa, 'list').callsFake(listFiles);
+    sandbox.stub(fsa, 'details').callsFake(listFiles);
     sandbox.stub(CogJobFactory, 'create').resolves(undefined);
 
     const jobConfig = {
