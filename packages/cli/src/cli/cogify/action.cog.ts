@@ -131,10 +131,11 @@ export class ActionCogCreate extends CommandLineAction {
         logger.warn('DryRun:Done');
       }
     } catch (e) {
-      if (job.processingId != null) {
+      const processingId = job.json.processingId;
+      if (processingId != null) {
         // Update job status if this is the processing job.
-        const jobConfig = await Config.ProcessingJob.get(job.processingId);
-        if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + job.processingId);
+        const jobConfig = await Config.ProcessingJob.get(processingId);
+        if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + processingId);
         const jobFailed = jobConfig as ProcessingJobFailed;
         jobFailed.status = JobStatus.Fail;
         jobFailed.error = String(e);
@@ -168,9 +169,11 @@ export class ActionCogCreate extends CommandLineAction {
 
       // Update job status if this is the processing job.
       const url = await prepareUrl(job);
-      if (job.processingId != null) {
-        const jobConfig = await Config.ProcessingJob.get(job.processingId);
-        if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + job.processingId);
+      const processingId = job.json.processingId;
+      if (processingId != null) {
+        const jobConfig = await Config.ProcessingJob.get(processingId);
+
+        if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + processingId);
         const jobComplete = jobConfig as ProcessingJobComplete;
         jobComplete.status = JobStatus.Complete;
         jobComplete.url = url;
