@@ -155,7 +155,7 @@ export class Cutline {
    * Generate an optimized WebMercator tile cover for the supplied source images
    * @param sourceMetadata contains images bounds and projection info
    */
-  optimizeCovering(sourceMetadata: SourceMetadata, maxImageSize?: number): NamedBounds[] {
+  optimizeCovering(sourceMetadata: SourceMetadata, maxImageSize: number = MaxImagePixelWidth): NamedBounds[] {
     if (this.oneCogCovering) {
       const extent = this.tileMatrix.extent.toJson();
       return [{ ...extent, name: '0-0-0' }];
@@ -165,7 +165,6 @@ export class Cutline {
     const { resZoom } = sourceMetadata;
 
     // Look for the biggest tile size we are allowed to create.
-    if (maxImageSize == null) maxImageSize = MaxImagePixelWidth;
     let minZ = resZoom - 1;
     while (
       minZ > 0 &&
