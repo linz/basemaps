@@ -19,8 +19,14 @@ export interface BaseMapsConfig {
   /** AWS role config bucket */
   AwsRoleConfigBucket: string;
 
-  /** ImportImageryBucket */
+  /** Import Imagery Bucket */
   ImportImageryBucket: string;
+
+  /** Import Imagery files number limit */
+  ImportFilesNumberLimit: string;
+
+  /** Import Imagery files total size limit in GB */
+  ImportFilesSizeLimit: string;
 }
 
 export const BaseMapsProdConfig: BaseMapsConfig = {
@@ -31,6 +37,8 @@ export const BaseMapsProdConfig: BaseMapsConfig = {
   PublicUrlBase: 'https://basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
   ImportImageryBucket: 'linz-basemaps-cache',
+  ImportFilesNumberLimit: '10000',
+  ImportFilesSizeLimit: '500',
 };
 
 export const BaseMapsDevConfig: BaseMapsConfig = {
@@ -41,6 +49,8 @@ export const BaseMapsDevConfig: BaseMapsConfig = {
   PublicUrlBase: 'https://dev.basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
   ImportImageryBucket: 'basemaps-cog-test',
+  ImportFilesNumberLimit: '10000',
+  ImportFilesSizeLimit: '500',
 };
 
 export function getConfig(): BaseMapsConfig {

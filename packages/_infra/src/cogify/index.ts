@@ -148,7 +148,10 @@ export class CogBuilderStack extends cdk.Stack {
          * Eg a instance with 8192MB allocates 7953MB usable
          */
         memory: 3900,
-        environment: [{ name: Env.TempFolder, value: ScratchData.Folder, [Env.PublicUrlBase]: config.PublicUrlBase }],
+        environment: [
+          { name: Env.TempFolder, value: ScratchData.Folder },
+          { name: Env.PublicUrlBase, value: config.PublicUrlBase },
+        ],
         mountPoints: [{ containerPath: ScratchData.Folder, sourceVolume: 'scratch' }],
         volumes: [{ name: 'scratch', host: { sourcePath: ScratchData.Folder } }],
       },

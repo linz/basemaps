@@ -1,5 +1,5 @@
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { Config, extractYearRangeFromName, fsa } from '@basemaps/shared';
+import { Config, Env, extractYearRangeFromName, fsa } from '@basemaps/shared';
 import { createHash } from 'crypto';
 import { findImagery, RoleRegister } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
@@ -42,9 +42,17 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   // Find the imagery from s3
   const role = await RoleRegister.findRole(path);
   if (role == null) return new LambdaHttpResponse(403, 'Unable to Access the s3 bucket');
-  const files = await findImagery(path);
-  if (files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
-  if (files.length >= 5_000) return new LambdaHttpResponse(400, `Too many files to process. Files: ${files.length}`);
+  const fileInfo = await findImagery(path);
+  if (fileInfo.files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
+  const files = fileInfo.files;
+  const numberLimit = Number(Env.get(Env.ImportFilesNumberLimit));
+  const sizeLimit = Number(Env.get(Env.ImportFilesSizeLimit));
+  const totalSizeInGB = Math.round((fileInfo.totalSize / Math.pow(1024, 3)) * 100) / 100;
+  if (files.length >= numberLimit || totalSizeInGB >= sizeLimit)
+    return new LambdaHttpResponse(
+      400,
+      `Too many files to process. Files: ${files.length}. TotalSize: ${totalSizeInGB}GB`,
+    );
 
   // Prepare Cog jobs
   const ctx = await getJobCreationContext(path, targetTms, role, files);
