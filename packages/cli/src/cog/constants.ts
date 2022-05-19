@@ -1,4 +1,4 @@
-/** Maximum desired image size */
+/** Default Maximum desired image size */
 export const MaxImagePixelWidth = 256000;
 
 /** When a tile has at least this much covering merge it up to parent */
