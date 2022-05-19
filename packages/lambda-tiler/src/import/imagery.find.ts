@@ -54,7 +54,6 @@ export async function findImagery(path: string): Promise<{ files: string[]; tota
   const files: string[] = [];
   let totalSize = 0;
   for await (const key of fsa.details(path)) {
-    console.log(key);
     const searchKey = key.path.toLowerCase();
     if (searchKey.endsWith('.tif') || searchKey.endsWith('.tiff')) {
       files.push(key.path);

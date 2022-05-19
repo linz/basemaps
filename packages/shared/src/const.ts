@@ -36,6 +36,12 @@ export const Env = {
   /** Import Imagery bucket */
   ImportImageryBucket: 'IMPORT_IMAGERY_BUCKET',
 
+  /** Import Imagery files number limit */
+  ImportFilesNumberLimit: 'FILES_NUMBER_LIMIT',
+
+  /** Import Imagery files total size limit in GB */
+  ImportFilesSizeLimit: 'FILES_SIZE_LIMIT',
+
   Gdal: {
     /** Should the gdal docker container be used? */
     UseDocker: 'GDAL_DOCKER',

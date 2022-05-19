@@ -1,5 +1,5 @@
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { Config, extractYearRangeFromName, fsa } from '@basemaps/shared';
+import { Config, Env, extractYearRangeFromName, fsa } from '@basemaps/shared';
 import { createHash } from 'crypto';
 import { findImagery, RoleRegister } from '../import/imagery.find.js';
 import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
@@ -8,9 +8,6 @@ import { ConfigProcessingJob, JobStatus } from '@basemaps/config';
 import { CogJobFactory } from '@basemaps/cli';
 import * as ulid from 'ulid';
 import { basename } from 'path';
-
-const FILES_NUMBER_LIMIT = 10_000; // Limit to 10000 files
-const FILES_SIZE_LIMIT = 500_000_000_000; // Limit to 500GB in total size
 
 /**
  * Trigger import imagery job by this endpoint
@@ -47,14 +44,18 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   if (role == null) return new LambdaHttpResponse(403, 'Unable to Access the s3 bucket');
   const fileInfo = await findImagery(path);
   if (fileInfo.files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
-  if (fileInfo.files.length >= FILES_NUMBER_LIMIT || fileInfo.totalSize >= FILES_SIZE_LIMIT)
+  const files = fileInfo.files;
+  const numberLimit = Number(Env.get(Env.ImportFilesNumberLimit));
+  const sizeLimit = Number(Env.get(Env.ImportFilesSizeLimit));
+  const totalSizeInGB = Math.round((fileInfo.totalSize / Math.pow(1024, 3)) * 100) / 100;
+  if (files.length >= numberLimit || totalSizeInGB >= sizeLimit)
     return new LambdaHttpResponse(
       400,
-      `Too many files to process. Files: ${fileInfo.files.length}. TotalSize: ${fileInfo.totalSize}`,
+      `Too many files to process. Files: ${files.length}. TotalSize: ${totalSizeInGB}GB`,
     );
 
   // Prepare Cog jobs
-  const ctx = await getJobCreationContext(path, targetTms, role, fileInfo.files);
+  const ctx = await getJobCreationContext(path, targetTms, role, files);
 
   const hash = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
   const jobId = Config.ProcessingJob.id(hash);
