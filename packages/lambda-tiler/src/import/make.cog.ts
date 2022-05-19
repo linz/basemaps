@@ -3,6 +3,8 @@ import { TileMatrixSet } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 import { RoleConfig } from './imagery.find.js';
 
+const MaxImagePixelSize = 256000;
+
 export async function getJobCreationContext(
   path: string,
   tileMatrix: TileMatrixSet,
@@ -18,6 +20,7 @@ export async function getJobCreationContext(
         warp: 'bilinear',
         overview: 'lanczos',
       },
+      maxImageSize: MaxImagePixelSize,
     },
     outputLocation: { type: 's3' as const, path: `s3://${bucket}` },
     sourceLocation: { type: 's3', path, ...role, files: files },

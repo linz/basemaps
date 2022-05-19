@@ -73,6 +73,11 @@ export interface JobCreationContext {
     projection?: Epsg;
 
     /**
+     * Override Maximum Image Pixel Size
+     */
+    maxImageSize?: number;
+
+    /**
      * Resampling method
      * @Default  GdalCogBuilderDefaults.resampling
      */

@@ -2,7 +2,7 @@ import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambd
 import { Config, Env, extractYearRangeFromName, fsa } from '@basemaps/shared';
 import { createHash } from 'crypto';
 import { findImagery, RoleRegister } from '../import/imagery.find.js';
-import { Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
+import { Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { getJobCreationContext } from '../import/make.cog.js';
 import { ConfigProcessingJob, JobStatus } from '@basemaps/config';
 import { CogJobFactory } from '@basemaps/cli';
@@ -21,7 +21,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   const id = ulid.ulid();
 
   // Parse projection as target, default to process both NZTM2000Quad
-  let targetTms = Nztm2000Tms;
+  let targetTms = Nztm2000QuadTms;
   if (projection != null) {
     const tileMatrix = TileMatrixSets.find(projection);
     if (tileMatrix == null) return new LambdaHttpResponse(404, 'Target projection Not found');

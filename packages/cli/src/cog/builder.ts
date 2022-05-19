@@ -215,11 +215,11 @@ export class CogBuilder {
    * @param tiffs list of source imagery to be converted
    * @returns List of Tile bounds covering tiffs
    */
-  async build(tiffs: ChunkSource[], cutline: Cutline): Promise<CogBuilderMetadata> {
+  async build(tiffs: ChunkSource[], cutline: Cutline, maxImageSize?: number): Promise<CogBuilderMetadata> {
     const metadata = await this.getMetadata(tiffs);
     // Ensure that the projection definition is loaded
     await ProjectionLoader.load(metadata.projection);
-    const files = cutline.optimizeCovering(metadata);
+    const files = cutline.optimizeCovering(metadata, maxImageSize);
     let union: Bounds | null = null;
     for (const bounds of files) {
       if (union == null) union = Bounds.fromJson(bounds);

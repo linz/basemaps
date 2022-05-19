@@ -56,7 +56,7 @@ export const CogJobFactory = {
     );
 
     const builder = new CogBuilder(ctx.tileMatrix, maxConcurrency, logger, ctx.override?.projection);
-    const metadata = await builder.build(tiffSource, cutline);
+    const metadata = await builder.build(tiffSource, cutline, ctx.override?.maxImageSize);
 
     if (cutline.clipPoly.length === 0) {
       // no cutline needed for this imagery set
