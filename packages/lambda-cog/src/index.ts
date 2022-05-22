@@ -1,15 +1,11 @@
 import { lf, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { LogConfig } from '@basemaps/shared';
-import { Ping, Health, Version } from './routes/api.js';
 import { Router } from './router.js';
 import { createHash } from 'crypto';
 import { Import } from './routes/import.js';
 
 const app = new Router();
 
-app.get('ping', Ping);
-app.get('health', Health);
-app.get('version', Version);
 app.get('import', Import);
 
 let slowTimer: NodeJS.Timer | null = null;
