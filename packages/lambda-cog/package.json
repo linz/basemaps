@@ -1,0 +1,50 @@
+{
+  "name": "@basemaps/lambda-cog",
+  "version": "6.26.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/lambda-cpg"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@basemaps/cli": "^6.26.0",
+    "@basemaps/config": "^6.26.0",
+    "@basemaps/geo": "^6.26.0",
+    "@basemaps/lambda": "^6.7.0",
+    "@basemaps/shared": "^6.26.0",
+    "@chunkd/fs": "^8.1.0",
+    "@linzjs/lambda": "^2.0.0"
+  },
+  "bundle": {
+    "entry": "src/index.ts",
+    "outdir": "dist/",
+    "external": [
+      "aws-sdk",
+      "pino-pretty"
+    ]
+  },
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js'",
+    "bundle": "./bundle.sh"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.75",
+    "@types/node": "^17.0.34",
+    "pretty-json-log": "^1.0.0"
+  }
+}
