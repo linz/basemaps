@@ -9,7 +9,7 @@ import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
 import iam from 'aws-cdk-lib/aws-iam';
 
-const CODE_PATH = '../lambda-cog/build';
+const CODE_PATH = '../lambda-cog/dist';
 
 export interface LambdaCogProps {
   vpc: IVpc;

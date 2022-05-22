@@ -40,7 +40,7 @@
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
-    "bundle": "./bundle.sh"
+    "bundle": "../../scripts/bundle.js package.json"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.75",
