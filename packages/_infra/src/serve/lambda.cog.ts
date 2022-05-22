@@ -11,27 +11,19 @@ import iam from 'aws-cdk-lib/aws-iam';
 
 const CODE_PATH = '../lambda-cog/dist';
 
-export interface LambdaCogProps {
-  vpc: IVpc;
-}
 /**
- * Create a API Key validation edge lambda
+ * Create a lambda for cogs import api
  */
 export class LambdaCog extends Construct {
   public lambda: lambda.Function;
   public functionUrl: lambda.FunctionUrl;
   public version: lambda.Version;
 
-  public constructor(scope: cdk.Stack, id: string, props: LambdaCogProps) {
+  public constructor(scope: cdk.Stack, id: string) {
     super(scope, id);
 
     const config = getConfig();
-    /**
-     * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
-     * see: https://github.com/aws/aws-cdk/issues/8253
-     */
     this.lambda = new lambda.Function(this, 'Cog', {
-      vpc: props.vpc,
       runtime: lambda.Runtime.NODEJS_14_X,
       memorySize: 2048,
       timeout: Duration.seconds(60),
@@ -55,7 +47,7 @@ export class LambdaCog extends Construct {
     stsPolicy.addActions('sts:AssumeRole');
     stsPolicy.addAllResources();
     this.lambda.role?.attachInlinePolicy(
-      new iam.Policy(this, 'assume-role-policy', {
+      new iam.Policy(this, 'AssumeRolePolicy', {
         statements: [stsPolicy],
       }),
     );
