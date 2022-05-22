@@ -19,6 +19,7 @@ export interface LambdaCogProps {
  */
 export class LambdaCog extends Construct {
   public lambda: lambda.Function;
+  public functionUrl: lambda.FunctionUrl;
   public version: lambda.Version;
 
   public constructor(scope: cdk.Stack, id: string, props: LambdaCogProps) {
@@ -58,5 +59,16 @@ export class LambdaCog extends Construct {
         statements: [stsPolicy],
       }),
     );
+
+    this.functionUrl = new lambda.FunctionUrl(this, 'LambdaCogUrl', {
+      function: this.lambda,
+      authType: lambda.FunctionUrlAuthType.NONE,
+      cors: {
+        allowedOrigins: ['*'],
+        allowedMethods: [lambda.HttpMethod.GET, lambda.HttpMethod.POST],
+        allowCredentials: true,
+        maxAge: cdk.Duration.minutes(1),
+      },
+    });
   }
 }
