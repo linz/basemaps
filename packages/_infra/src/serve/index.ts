@@ -28,15 +28,18 @@ export class ServeStack extends cdk.Stack {
      * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
      * see: https://github.com/aws/aws-cdk/issues/8253
      */
-    const lambda = new LambdaTiler(this, 'LambdaTiler', { vpc });
+    const lambdaTiler = new LambdaTiler(this, 'LambdaTiler', { vpc });
+    const lambdaCog = new LambdaTiler(this, 'LambdaCog', { vpc });
     const table = new TileMetadataTable(this, 'TileMetadata');
-    table.table.grantReadData(lambda.lambda);
+    table.table.grantReadData(lambdaTiler.lambda);
+    table.table.grantReadData(lambdaCog.lambda);
 
     const lb = new elbv2.ApplicationLoadBalancer(this, 'LB', { vpc, internetFacing: false });
 
-    const targetLambda = new targets.LambdaTarget(lambda.lambda);
+    const targetLambdaTiler = new targets.LambdaTarget(lambdaTiler.lambda);
+    const targetLambdaCog = new targets.LambdaTarget(lambdaCog.lambda);
     const targetGroup = new elbv2.ApplicationTargetGroup(this, 'TargetGroup', {
-      targets: [targetLambda],
+      targets: [targetLambdaTiler, targetLambdaCog],
       healthCheck: {
         path: '/health',
         healthyThresholdCount: 2,
