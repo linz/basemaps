@@ -22,7 +22,6 @@
   "types": "./build/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@basemaps/cli": "^6.26.0",
     "@basemaps/config": "^6.26.0",
     "@basemaps/geo": "^6.26.0",
     "@basemaps/lambda": "^6.7.0",
