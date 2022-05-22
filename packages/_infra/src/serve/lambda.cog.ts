@@ -9,7 +9,7 @@ import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
 import iam from 'aws-cdk-lib/aws-iam';
 
-const CODE_PATH = '../lambda-cog/dist';
+const CODE_PATH = '../lambda-cog/build';
 
 export interface LambdaCogProps {
   vpc: IVpc;
@@ -65,7 +65,7 @@ export class LambdaCog extends Construct {
       authType: lambda.FunctionUrlAuthType.NONE,
       cors: {
         allowedOrigins: ['*'],
-        allowedMethods: [lambda.HttpMethod.GET, lambda.HttpMethod.POST],
+        allowedMethods: [lambda.HttpMethod.GET],
         allowCredentials: true,
         maxAge: cdk.Duration.minutes(1),
       },

@@ -13,6 +13,7 @@
     { "path": "./packages/_infra" },
     { "path": "./packages/config" },
     { "path": "./packages/shared" },
+    { "path": "./packages/lambda-cog" },
     { "path": "./packages/lambda-tiler" },
     { "path": "./packages/lambda-analytics" },
     { "path": "./packages/attribution" },
