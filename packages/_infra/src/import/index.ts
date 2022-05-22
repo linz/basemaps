@@ -6,8 +6,8 @@ import r53 from 'aws-cdk-lib/aws-route53';
 import cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
-import { TileMetadataTable } from './db.js';
-import { LambdaTiler } from './lambda.tiler.js';
+import { LambdaCog } from './lambda.cog.js';
+import { TileMetadataTable } from '../serve/db.js';
 
 export interface ServeStackProps extends cdk.StackProps {
   /** ACM certificate to use for the ALB */
@@ -17,7 +17,7 @@ export interface ServeStackProps extends cdk.StackProps {
 /**
  * Tile serving infrastructure
  */
-export class ServeStack extends cdk.Stack {
+export class ServeImportStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props: ServeStackProps) {
     super(scope, id, props);
 
@@ -28,7 +28,7 @@ export class ServeStack extends cdk.Stack {
      * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
      * see: https://github.com/aws/aws-cdk/issues/8253
      */
-    const lambda = new LambdaTiler(this, 'LambdaTiler', { vpc });
+    const lambda = new LambdaCog(this, 'LambdaCog', { vpc });
     const table = new TileMetadataTable(this, 'TileMetadata');
     table.table.grantReadData(lambda.lambda);
 
@@ -67,11 +67,11 @@ export class ServeStack extends cdk.Stack {
     });
     const albDns = new r53.CnameRecord(this, 'AlbDnsInternal', {
       zone: dnsZone,
-      recordName: 'tiles',
+      recordName: 'cog',
       domainName: lb.loadBalancerDnsName,
     });
 
-    new cdk.CfnOutput(this, 'LambdaXyzAlb', { value: lb.loadBalancerDnsName });
-    new cdk.CfnOutput(this, 'LambdaXyzDns', { value: albDns.domainName });
+    new cdk.CfnOutput(this, 'LambdaCogAlb', { value: lb.loadBalancerDnsName });
+    new cdk.CfnOutput(this, 'LambdaCogDns', { value: albDns.domainName });
   }
 }
