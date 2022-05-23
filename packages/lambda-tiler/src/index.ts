@@ -48,4 +48,5 @@ export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpR
   }
 }
 
-export const handler = lf.http(handleRequest, LogConfig.get());
+export const handler = lf.http(LogConfig.get());
+handler.router.get('*', handleRequest);
