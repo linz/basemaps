@@ -909,10 +909,10 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@linzjs/lambda@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-3.0.0.tgz#1f702e20aa1e768e14eaa4450a9a777b3ec86f3d"
-  integrity sha512-yQkvgdUgVxieNVfw5snTsifUHusJjLhSIPBya2KZGBBF7xy8/DCQtLTWCQmFbEcJaGT1ITYWdYA2sjMX0QrAPA==
+"@linzjs/lambda@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-3.0.1.tgz#a9e93abcc329742d72b83287643142b33549b1dd"
+  integrity sha512-wvljQ5XEBM+C/bn45buyD4JXlJZkLI/myKtw+IOZAyY317OFkpv1X5aSKaN1zyCgQ8YjRyK7DAaYdTR1Puyjqw==
   dependencies:
     "@linzjs/metrics" "^6.21.1"
     pino "^7.9.1"
