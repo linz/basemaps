@@ -3,7 +3,7 @@ import { CompositeError, fsa, LoggerFatalError, LogType, Projection } from '@bas
 import { ChunkSource } from '@chunkd/core';
 import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { createHash } from 'crypto';
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, rmdirSync } from 'fs';
 import pLimit, { LimitFunction } from 'p-limit';
 import * as path from 'path';
 import { basename } from 'path';
@@ -13,7 +13,7 @@ import { CogBuilderMetadata, SourceMetadata } from './types.js';
 
 export const InvalidProjectionCode = 32767;
 export const CacheVersion = 'v3'; // bump this number to invalidate the cache
-export const CacheFolder = './.cache';
+export const CacheFolder = './tmp/.cache';
 
 /**
  * Attempt to guess the projection based off the WKT
@@ -226,6 +226,7 @@ export class CogBuilder {
       else union = Bounds.fromJson(bounds).union(union);
     }
     if (union == null) throw new Error('Bug! union can not be null');
+    if (existsSync(CacheFolder)) rmdirSync(CacheFolder);
     return { ...metadata, files, targetBounds: union.toJson() };
   }
 }
