@@ -40,10 +40,11 @@ export class CogStack extends Stack {
       },
       logRetention: RetentionDays.ONE_MONTH,
     });
-    for (const bucketName of config.CogBucket) {
-      const cogBucket = s3.Bucket.fromBucketName(this, `CogBucket${bucketName}`, bucketName);
-      cogBucket.grantRead(this.lambda);
-    }
+
+    // Grant access to s3
+    const cogBucket = s3.Bucket.fromBucketName(this, `CogBucket`, config.ImportImageryBucket);
+    cogBucket.grantRead(this.lambda);
+    cogBucket.grantWrite(this.lambda);
     const configBucket = s3.Bucket.fromBucketName(this, 'ConfigBucket', config.AwsRoleConfigBucket);
     configBucket.grantRead(this.lambda);
 
