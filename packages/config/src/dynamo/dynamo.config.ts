@@ -20,7 +20,7 @@ export class ConfigProviderDynamo extends BasemapsConfigProvider {
   Style = new ConfigDynamoCached<ConfigVectorStyle>(this, ConfigPrefix.Style);
   TileSet = new ConfigDynamoBase<ConfigTileSet>(this, ConfigPrefix.TileSet);
   Provider = new ConfigDynamoCached<ConfigProvider>(this, ConfigPrefix.Provider);
-  ProcessingJob = new ConfigDynamoCached<ConfigProcessingJob>(this, ConfigPrefix.ProcessingJob);
+  ProcessingJob = new ConfigDynamoBase<ConfigProcessingJob>(this, ConfigPrefix.ProcessingJob);
 
   constructor(tableName: string) {
     super();
