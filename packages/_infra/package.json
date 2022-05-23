@@ -26,8 +26,8 @@
   "devDependencies": {
     "@basemaps/lambda-tiler": "^6.26.0",
     "@basemaps/shared": "^6.26.0",
-    "aws-cdk": "^2.20.0",
-    "aws-cdk-lib": "^2.20.0",
+    "aws-cdk": "^2.21.0",
+    "aws-cdk-lib": "^2.21.0",
     "constructs": "^10.0.119"
   }
 }

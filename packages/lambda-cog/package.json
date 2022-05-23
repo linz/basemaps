@@ -1,10 +1,11 @@
 {
-  "name": "@basemaps/lambda-tiler",
+  "name": "@basemaps/lambda-cog",
   "version": "6.26.0",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
-    "directory": "packages/lambda-tiler"
+    "directory": "packages/lambda-cpg"
   },
   "author": {
     "name": "Land Information New Zealand",
@@ -15,48 +16,33 @@
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "license": "MIT",
   "dependencies": {
+    "@basemaps/cli": "^6.26.0",
     "@basemaps/config": "^6.26.0",
     "@basemaps/geo": "^6.26.0",
     "@basemaps/lambda": "^6.7.0",
     "@basemaps/shared": "^6.26.0",
-    "@basemaps/tiler": "^6.26.0",
-    "@basemaps/tiler-sharp": "^6.26.0",
     "@chunkd/fs": "^8.1.0",
-    "@cogeotiff/core": "^7.0.0",
-    "@cotar/core": "^5.3.0",
-    "@linzjs/geojson": "^6.21.1",
-    "@linzjs/lambda": "^3.0.1",
-    "p-limit": "^4.0.0",
-    "path-to-regexp": "^6.1.0",
-    "pixelmatch": "^5.1.0",
-    "sharp": "^0.29.3"
+    "@linzjs/lambda": "^3.0.1"
   },
   "bundle": {
     "entry": "src/index.ts",
     "outdir": "dist/",
     "external": [
       "aws-sdk",
-      "pino-pretty",
-      "sharp"
+      "pino-pretty"
     ]
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
-    "bundle": "./bundle.sh"
+    "bundle": "../../scripts/bundle.js package.json"
   },
   "devDependencies": {
-    "@basemaps/attribution": "^6.26.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/node": "^17.0.34",
-    "@types/pixelmatch": "^5.0.0",
-    "@types/sharp": "^0.29.3",
     "pretty-json-log": "^1.0.0"
   }
 }

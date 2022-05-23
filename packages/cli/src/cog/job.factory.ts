@@ -3,7 +3,6 @@ import { fsa, isConfigS3Role, isFileConfigPath, LogConfig } from '@basemaps/shar
 import * as ulid from 'ulid';
 import { CogBuilder } from '../index.js';
 import { BatchJob } from '../cli/cogify/batch.job.js';
-import { Gdal } from '../gdal/gdal.js';
 import { CogStacJob, JobCreationContext } from './cog.stac.job.js';
 import { Cutline } from './cutline.js';
 import { CogJob } from './types.js';
@@ -26,9 +25,6 @@ export const CogJobFactory = {
     if (imageryName == null) imageryName = basename(ctx.sourceLocation.path);
 
     const logger = LogConfig.get().child({ id, imageryName });
-
-    const gdalVersion = await Gdal.version(logger);
-    logger.info({ version: gdalVersion }, 'GdalVersion');
 
     const { sourceLocation } = ctx;
     logger.info(

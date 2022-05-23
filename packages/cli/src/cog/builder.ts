@@ -1,19 +1,14 @@
 import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
-import { CompositeError, fsa, LoggerFatalError, LogType, Projection } from '@basemaps/shared';
+import { CompositeError, LoggerFatalError, LogType, Projection } from '@basemaps/shared';
 import { ChunkSource } from '@chunkd/core';
 import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
-import { createHash } from 'crypto';
-import { existsSync, mkdirSync } from 'fs';
 import pLimit, { LimitFunction } from 'p-limit';
-import * as path from 'path';
 import { basename } from 'path';
 import { Cutline } from './cutline.js'; //
 import { ProjectionLoader } from './projection.loader.js';
 import { CogBuilderMetadata, SourceMetadata } from './types.js';
 
 export const InvalidProjectionCode = 32767;
-export const CacheVersion = 'v3'; // bump this number to invalidate the cache
-export const CacheFolder = './.cache';
 
 /**
  * Attempt to guess the projection based off the WKT
@@ -182,41 +177,13 @@ export class CogBuilder {
     return noDataNum;
   }
 
-  /** Cache the bounds lookup so we do not have to requery the bounds between CLI calls */
-  private async getMetadata(tiffs: ChunkSource[]): Promise<SourceMetadata> {
-    const cacheKey =
-      path.join(
-        CacheFolder,
-        CacheVersion +
-          createHash('sha256')
-            .update(this.targetTms.projection.toString())
-            .update(tiffs.map((c) => c.uri).join('\n'))
-            .digest('hex'),
-      ) + '.json';
-
-    if (existsSync(cacheKey)) {
-      this.logger.debug({ path: cacheKey }, 'MetadataCacheHit');
-      const metadata = await fsa.readJson<SourceMetadata>(cacheKey);
-      metadata.resZoom = Projection.getTiffResZoom(this.targetTms, metadata.pixelScale);
-      return metadata;
-    }
-
-    const metadata = await this.bounds(tiffs);
-
-    mkdirSync(CacheFolder, { recursive: true });
-    await fsa.writeJson(cacheKey, metadata);
-    this.logger.debug({ path: cacheKey }, 'MetadataCacheMiss');
-
-    return metadata;
-  }
-
   /**
    * Generate a list of tiles that need to be generated to cover the source tiffs
    * @param tiffs list of source imagery to be converted
    * @returns List of Tile bounds covering tiffs
    */
   async build(tiffs: ChunkSource[], cutline: Cutline, maxImageSize?: number): Promise<CogBuilderMetadata> {
-    const metadata = await this.getMetadata(tiffs);
+    const metadata = await this.bounds(tiffs);
     // Ensure that the projection definition is loaded
     await ProjectionLoader.load(metadata.projection);
     const files = cutline.optimizeCovering(metadata, maxImageSize);
