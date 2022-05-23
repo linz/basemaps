@@ -32,12 +32,13 @@ export async function insertConfigImagery(job: CogStacJob, logger: LogType): Pro
 export async function insertConfigTileSet(job: CogStacJob, logger: LogType): Promise<void> {
   const now = Date.now();
   const tsId = Config.TileSet.id(job.id);
+  const imId = Config.Imagery.id(job.id);
   const tileSet: ConfigTileSet = {
     type: TileSetType.Raster,
     format: ImageFormat.Webp,
     id: tsId,
     name: job.name,
-    layers: [{ [job.tileMatrix.projection.code]: tsId, name: job.name, minZoom: 0, maxZoom: 32 }],
+    layers: [{ [job.tileMatrix.projection.code]: imId, name: job.name, minZoom: 0, maxZoom: 32 }],
     background: { r: 0, g: 0, b: 0, alpha: 0 },
     createdAt: now,
     updatedAt: now,
