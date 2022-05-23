@@ -45,10 +45,9 @@ async function main(): Promise<void> {
    */
   const edge = new EdgeStack(basemaps, 'Edge', { env: { region: 'us-east-1', account }, cloudfrontCertificateArn });
   const serve = new ServeStack(basemaps, 'Serve', { env: { region: BaseMapsRegion, account }, albCertificateArn });
-  const cog = new CogStack(basemaps, 'LambdaCog', { env: { region: BaseMapsRegion, account } });
+  new CogStack(basemaps, 'LambdaCog', { env: { region: BaseMapsRegion, account } });
 
   edge.addDependency(serve);
-  edge.addDependency(cog);
 
   // TODO is there a better way of handling this,
   // since this requires Edge to be deployed this will not deploy on the first deployment of new accounts
