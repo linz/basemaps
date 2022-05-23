@@ -1,28 +1,29 @@
 import { Env } from '@basemaps/shared';
 import * as cdk from 'aws-cdk-lib';
-import { Duration } from 'aws-cdk-lib';
+import { Duration, Stack } from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
 import iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
 
 const CODE_PATH = '../lambda-cog/dist';
 
 /**
  * Create a lambda for cogs import api
  */
-export class LambdaCog extends Construct {
+
+export class CogStack extends Stack {
   public lambda: lambda.Function;
   public functionUrl: lambda.FunctionUrl;
   public version: lambda.Version;
 
-  public constructor(scope: cdk.Stack, id: string) {
-    super(scope, id);
+  public constructor(scope: Construct, id: string, props: cdk.StackProps) {
+    super(scope, id, props);
 
     const config = getConfig();
-    this.lambda = new lambda.Function(this, 'Cog', {
+    this.lambda = new lambda.Function(this, 'LambdaCog', {
       runtime: lambda.Runtime.NODEJS_14_X,
       memorySize: 2048,
       timeout: Duration.seconds(60),

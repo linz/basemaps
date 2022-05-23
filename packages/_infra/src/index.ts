@@ -8,6 +8,7 @@ import { DeployEnv } from './deploy.env.js';
 import { EdgeStack } from './edge/index.js';
 import { getEdgeParameters } from './parameters.js';
 import { ServeStack } from './serve/index.js';
+import { CogStack } from './serve/lambda.cog.js';
 
 /** Find a certificate for a given domain in a specific region */
 async function findCertForDomain(region: string, domain: string): Promise<string | undefined> {
@@ -44,8 +45,10 @@ async function main(): Promise<void> {
    */
   const edge = new EdgeStack(basemaps, 'Edge', { env: { region: 'us-east-1', account }, cloudfrontCertificateArn });
   const serve = new ServeStack(basemaps, 'Serve', { env: { region: BaseMapsRegion, account }, albCertificateArn });
+  const cog = new CogStack(basemaps, 'LambdaCog', { env: { region: BaseMapsRegion, account } });
 
   edge.addDependency(serve);
+  edge.addDependency(cog);
 
   // TODO is there a better way of handling this,
   // since this requires Edge to be deployed this will not deploy on the first deployment of new accounts
