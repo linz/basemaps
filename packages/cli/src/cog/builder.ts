@@ -13,7 +13,7 @@ import { CogBuilderMetadata, SourceMetadata } from './types.js';
 
 export const InvalidProjectionCode = 32767;
 export const CacheVersion = 'v3'; // bump this number to invalidate the cache
-export const CacheFolder = './tmp/.cache';
+export const CacheFolder = '/tmp/.cache';
 
 /**
  * Attempt to guess the projection based off the WKT
@@ -226,7 +226,7 @@ export class CogBuilder {
       else union = Bounds.fromJson(bounds).union(union);
     }
     if (union == null) throw new Error('Bug! union can not be null');
-    if (existsSync(CacheFolder)) rmdirSync(CacheFolder);
+    if (existsSync(CacheFolder)) rmdirSync(CacheFolder, { recursive: true });
     return { ...metadata, files, targetBounds: union.toJson() };
   }
 }
