@@ -7,7 +7,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import { getConfig } from '../config.js';
 import iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
-import { TileMetadataTable, TileMetadataTableArn } from './db.js';
+import { TileMetadataTableArn } from './db.js';
 
 const CODE_PATH = '../lambda-cog/dist';
 

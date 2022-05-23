@@ -27,9 +27,6 @@ export const CogJobFactory = {
 
     const logger = LogConfig.get().child({ id, imageryName });
 
-    const gdalVersion = await Gdal.version(logger);
-    logger.info({ version: gdalVersion }, 'GdalVersion');
-
     const { sourceLocation } = ctx;
     logger.info(
       { source: ctx.sourceLocation.path, sourceRole: isConfigS3Role(sourceLocation) && sourceLocation.roleArn },
