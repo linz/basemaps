@@ -76,11 +76,16 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
       tileSet: Config.TileSet.id(id),
     } as ConfigProcessingJob;
 
+    // Start processing job
+    try {
+      await CogJobFactory.create(ctx);
+    } catch (err: unknown) {
+      throw err;
+    }
+
+    // Insert the configs after submit the jobs
     if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
     else return new LambdaHttpResponse(403, 'Unable to insert the Processing Job config');
-
-    // Start processing job
-    await CogJobFactory.create(ctx);
   }
 
   const json = JSON.stringify(jobConfig);
