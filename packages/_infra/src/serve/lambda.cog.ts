@@ -67,6 +67,15 @@ export class CogStack extends Stack {
       }),
     );
 
+    const batchPolicy = new iam.PolicyStatement();
+    batchPolicy.addActions('batch:ListJobs', 'batch:SubmitJob');
+    batchPolicy.addAllResources();
+    this.lambda.role?.attachInlinePolicy(
+      new iam.Policy(this, 'BatchPolicy', {
+        statements: [batchPolicy],
+      }),
+    );
+
     this.functionUrl = new lambda.FunctionUrl(this, 'LambdaCogUrl', {
       function: this.lambda,
       authType: lambda.FunctionUrlAuthType.NONE,

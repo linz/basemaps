@@ -77,11 +77,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
     } as ConfigProcessingJob;
 
     // Start processing job
-    try {
-      await CogJobFactory.create(ctx);
-    } catch (err: unknown) {
-      throw err;
-    }
+    await CogJobFactory.create(ctx);
 
     // Insert the configs after submit the jobs
     if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
