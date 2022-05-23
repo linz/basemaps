@@ -7,6 +7,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import { getConfig } from '../config.js';
 import iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
+import { TileMetadataTable, TileMetadataTableArn } from './db.js';
 
 const CODE_PATH = '../lambda-cog/dist';
 
@@ -49,6 +50,15 @@ export class CogStack extends Stack {
     this.lambda.role?.attachInlinePolicy(
       new iam.Policy(this, 'AssumeRolePolicy', {
         statements: [stsPolicy],
+      }),
+    );
+
+    const dynamoPolicy = new iam.PolicyStatement();
+    dynamoPolicy.addActions('dynamoDB:getItem', 'dynamoDB:putItem');
+    dynamoPolicy.addResources(TileMetadataTableArn.getArn(this));
+    this.lambda.role?.attachInlinePolicy(
+      new iam.Policy(this, 'DynamoDBWritePolicy', {
+        statements: [dynamoPolicy],
       }),
     );
 
