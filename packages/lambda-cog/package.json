@@ -1,6 +1,7 @@
 {
   "name": "@basemaps/lambda-cog",
   "version": "6.26.0",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -14,9 +15,6 @@
   "type": "module",
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
