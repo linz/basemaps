@@ -38,7 +38,7 @@
     "@basemaps/landing": "^6.26.0",
     "@basemaps/shared": "^6.26.0",
     "@fastify/static": "^5.0.2",
-    "@linzjs/lambda": "^2.0.0",
+    "@linzjs/lambda": "^3.0.0",
     "@oclif/command": "^1.8.0",
     "fastify": "^3.27.4",
     "pretty-json-log": "^1.0.0"

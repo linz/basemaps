@@ -32,7 +32,7 @@
     "@cogeotiff/core": "^7.0.0",
     "@cotar/core": "^5.3.0",
     "@linzjs/geojson": "^6.21.1",
-    "@linzjs/lambda": "^2.0.0",
+    "@linzjs/lambda": "^3.0.0",
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
