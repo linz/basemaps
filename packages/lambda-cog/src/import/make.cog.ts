@@ -3,7 +3,7 @@ import { TileMatrixSet } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 import { RoleConfig } from './imagery.find.js';
 
-const MaxImagePixelSize = 256000;
+const MaxImagePixelSize = 128000;
 
 export async function getJobCreationContext(
   path: string,
