@@ -38,7 +38,7 @@ export const BaseMapsProdConfig: BaseMapsConfig = {
   AwsRoleConfigBucket: 'linz-bucket-config',
   ImportImageryBucket: 'linz-basemaps-cache',
   ImportFilesNumberLimit: '10000',
-  ImportFilesSizeLimit: '500',
+  ImportFilesSizeLimit: '1000',
 };
 
 export const BaseMapsDevConfig: BaseMapsConfig = {
@@ -50,7 +50,7 @@ export const BaseMapsDevConfig: BaseMapsConfig = {
   AwsRoleConfigBucket: 'linz-bucket-config',
   ImportImageryBucket: 'basemaps-cog-test',
   ImportFilesNumberLimit: '10000',
-  ImportFilesSizeLimit: '500',
+  ImportFilesSizeLimit: '1000',
 };
 
 export function getConfig(): BaseMapsConfig {
