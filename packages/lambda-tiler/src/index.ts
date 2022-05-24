@@ -1,5 +1,5 @@
-import { lf, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { LogConfig } from '@basemaps/shared';
+import { lf, LambdaHttpRequest, LambdaHttpResponse, LambdaUrlRequest } from '@linzjs/lambda';
+import { Env, LogConfig } from '@basemaps/shared';
 import { Ping, Version } from './routes/api.js';
 import { Health } from './routes/health.js';
 import { Tiles } from './routes/tile.js';
@@ -18,8 +18,15 @@ app.get('tiles', Tiles);
 app.get('imagery', Imagery);
 app.get('esri', Esri);
 
+const isMissingPublicUrl = process.env[Env.PublicUrlBase] == null;
 let slowTimer: NodeJS.Timer | null = null;
 export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+
+  // Set the public url base if not already set.
+  if (isMissingPublicUrl && LambdaUrlRequest.is(req.event)) {
+    process.env[Env.PublicUrlBase] = 'https://' + req.event.requestContext.domainName;
+  } 
+
   // Reset the request tracing
   St.reset();
 
