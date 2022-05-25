@@ -1,5 +1,5 @@
 import { ConfigTileSetVector, TileSetNameComponents, TileSetNameParser, TileSetType } from '@basemaps/config';
-import { TileMatrixSet, VectorFormat } from '@basemaps/geo';
+import { GoogleTms, TileMatrixSet, VectorFormat } from '@basemaps/geo';
 import { fsa, TileDataXyz } from '@basemaps/shared';
 import { Cotar } from '@cotar/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -53,6 +53,7 @@ export class TileSetVector {
 
   async tile(req: LambdaHttpRequest, xyz: TileDataXyz): Promise<LambdaHttpResponse> {
     if (xyz.ext !== VectorFormat.MapboxVectorTiles) return NotFound;
+    if (xyz.tileMatrix.identifier !== GoogleTms.identifier) return NotFound;
     if (this.tileSet.layers.length > 1) return new LambdaHttpResponse(500, 'Too many layers in tileset');
     const [layer] = this.tileSet.layers;
     if (layer[3857] == null) return new LambdaHttpResponse(500, 'Layer url not found from tileset Config');
