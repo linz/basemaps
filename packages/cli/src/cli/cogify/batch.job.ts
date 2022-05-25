@@ -49,15 +49,15 @@ export class BatchJob {
   ): Promise<{ jobName: string; jobId: string; memory: number }> {
     const jobName = BatchJob.id(job, names);
 
-    // Calculate the total size to provision memory
-    let res = 1;
-    for (const name of names) {
-      const tile = TileMatrixSet.nameToTile(name);
+    let memory = 3900;
+    if (names.length === 1) {
+      // Calculate the larger file to provision memory if there is only one imagery in job.
+      const tile = TileMatrixSet.nameToTile(names[0]);
       const alignmentLevels = Projection.findAlignmentLevels(job.tileMatrix, tile, job.source.gsd);
       // Give 25% more memory to larger jobs
-      res += Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
+      const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
+      memory *= resDiff;
     }
-    const memory = 3900 * res;
 
     if (!isCommit) {
       return { jobName, jobId: '', memory };
@@ -119,41 +119,49 @@ export class BatchJob {
     fsa.configure(job.output.location);
     const runningJobs = await BatchJob.getCurrentJobList(batch);
 
+    // Prepare chunk job and individual jobs based on imagery size.
+    const jobs: string[][] = [];
     const chunkJob: string[] = [];
-    const stats = await Promise.all(
-      job.output.files.map(async ({ name, width }) => {
-        // Check existence of the output.
-        const targetPath = job.getJobPath(`${name}.tiff`);
-        const exists = await fsa.exists(targetPath);
-        if (exists) {
-          logger.info({ targetPath }, 'FileExists');
-          return { names: [name], ok: true };
-        }
+    for (const file of job.output.files) {
+      const size = file.width / job.output.gsd;
+      if (size < ChunkJobSizeLimit) {
+        chunkJob.push(file.name);
+      }
+      jobs.push([file.name]);
+    }
 
-        // Calculate the imagery size and chunk the small ones into one job.
-        const size = width / job.output.gsd;
-        if (size < ChunkJobSizeLimit) chunkJob.push(name);
+    // add chunk job into jobs.
+    jobs.push(chunkJob);
 
-        // Check existence of the job running.
-        const jobName = BatchJob.id(job, [name]);
-        const isRunning = runningJobs.get(jobName);
-        if (isRunning) {
-          logger.info({ jobName }, 'JobRunning');
-          return { names: [name], ok: true };
-        }
+    // Get all the existing output tiffs
+    const targetPath = job.getJobPath();
+    const existTiffs: string[] = [];
+    for await (const fileName of fsa.list(job.getJobPath())) {
+      if (fileName.endsWith('.tiff')) existTiffs.push(fileName);
+    }
 
-        return { names: [name], ok: false };
-      }),
-    );
+    const toSubmit: string[][] = [];
+    for (const names of jobs) {
+      // Check existence of batch job running
+      const jobName = BatchJob.id(job, names);
+      const isRunning = runningJobs.get(jobName);
+      if (isRunning) {
+        logger.info({ jobName }, 'JobRunning');
+        continue;
+      }
 
-    const toSubmit = stats.filter((f) => f.ok === false).map((c) => c.names);
-    // Check existence of the chunk job running.
-    const jobName = BatchJob.id(job, chunkJob);
-    const isRunning = runningJobs.get(jobName);
-    if (isRunning) {
-      logger.info({ jobName }, 'JobRunning');
-    } else {
-      toSubmit.push(chunkJob);
+      // Check existence of all the output tiffs.
+      let allExists = true;
+      for (const name of names) {
+        if (!existTiffs.includes(job.getJobPath(`${name}.tiff`))) allExists = false;
+      }
+      if (allExists) {
+        logger.info({ targetPath, names }, 'FileExists');
+        continue;
+      }
+
+      // Ready to submit
+      toSubmit.push(names);
     }
 
     if (toSubmit.length === 0) {

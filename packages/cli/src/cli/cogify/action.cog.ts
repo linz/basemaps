@@ -35,7 +35,8 @@ export class ActionCogCreate extends CommandLineAction {
     });
   }
 
-  getName(job: CogJob): string[] | null {
+  getNames(job: CogJob): Set<string> | null {
+    const output: Set<string> = new Set<string>();
     const { files } = job.output;
     const batchIndex = Env.getNumber(Env.BatchIndex, -1);
     if (batchIndex > -1) {
@@ -46,32 +47,32 @@ export class ActionCogCreate extends CommandLineAction {
           'Failed to find cog name from batch index',
         );
       }
-      return [name];
+      output.add(name);
+      return output;
     }
 
     const cogIndex = this.cogIndex?.values;
     if (cogIndex != null && cogIndex.length > 0) {
-      const names: string[] = [];
       for (const i of cogIndex) {
-        const { name } = files[i];
-        names.push(name);
-        if (name == null) {
-          throw new LoggerFatalError({ cogIndex, tileMax: files.length - 1 }, 'Failed to find cog name from index');
+        if (i < 0 || i >= files.length) {
+          throw new LoggerFatalError({ cogIndex: i, tileMax: files.length - 1 }, 'Failed to find cog name from index');
         }
+        const { name } = files[i];
+        output.add(name);
       }
 
-      return names;
+      return output;
     }
+
     const names = this.name?.values;
     if (names == null) throw new LoggerFatalError({ names }, 'Names cannot be null');
-    const output: string[] = [];
     for (const name of names) {
       if (!files.find((r) => r.name === name))
         throw new LoggerFatalError(
           { name, names: files.map((r) => r.name).join(', ') },
           'Name does not exist inside job',
         );
-      output.push(name);
+      output.add(name);
     }
     return output;
   }
@@ -95,8 +96,8 @@ export class ActionCogCreate extends CommandLineAction {
     const gdalVersion = await Gdal.version(logger);
     logger.info({ version: gdalVersion }, 'CogCreate:GdalVersion');
 
-    const names = this.getName(job);
-    if (names == null) return;
+    const names = this.getNames(job);
+    if (names == null || names.size === 0) return;
 
     const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${CliId}`);
 
@@ -139,7 +140,7 @@ export class ActionCogCreate extends CommandLineAction {
           await fsa.write(targetPath, createReadStream(tmpTiff));
           await this.checkJobStatus(job, logger);
         } else {
-          logger.warn('DryRun:Done');
+          logger.warn({ name }, 'DryRun:Done');
         }
       }
     } catch (e) {
