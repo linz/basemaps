@@ -106,7 +106,7 @@ export const CogJobFactory = {
       cutlinePoly: cutline.clipPoly,
     });
 
-    if (ctx.batch) await BatchJob.batchJob(job, true, undefined, logger);
+    if (ctx.batch) await BatchJob.batchJob(job, true, logger);
     logger.info({ tileMatrix: ctx.tileMatrix.identifier, job: job.getJobPath() }, 'Done');
 
     return job;
