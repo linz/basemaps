@@ -132,7 +132,7 @@ export class BatchJob {
 
         // Calculate the imagery size and chunk the small ones into one job.
         const size = width / job.output.gsd;
-        if (size >= ChunkJobSizeLimit) chunkJob.push(name);
+        if (size < ChunkJobSizeLimit) chunkJob.push(name);
 
         // Check existence of the job running.
         const jobName = BatchJob.id(job, [name]);
