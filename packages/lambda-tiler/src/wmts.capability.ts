@@ -1,5 +1,4 @@
-import { ConfigProvider } from '@basemaps/config';
-import { Bounds, Nztm2000QuadTms, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
+import { Bounds, ImageFormat, Nztm2000QuadTms, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
 import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';
@@ -29,6 +28,14 @@ export function getTileMatrixId(tileMatrix: TileMatrixSet): string {
   return tileMatrix.projection.toEpsgString();
 }
 
+export interface WmtsCapabilitiesParams {
+  httpBase: string;
+  provider: WmtsProvider;
+  layers: TileSetRaster[];
+  apiKey?: string;
+  formats?: ImageFormat[];
+}
+
 export class WmtsCapabilities {
   httpBase: string;
   provider: WmtsProvider;
@@ -37,12 +44,13 @@ export class WmtsCapabilities {
 
   apiKey?: string;
   tileMatrixSets = new Map<string, TileMatrixSet>();
+  formats: ImageFormat[];
 
-  constructor(httpBase: string, provider: WmtsProvider, layers: TileSetRaster[], apiKey?: string) {
-    this.httpBase = httpBase;
-    this.provider = provider;
+  constructor(params: WmtsCapabilitiesParams) {
+    this.httpBase = params.httpBase;
+    this.provider = params.provider;
 
-    for (const layer of layers) {
+    for (const layer of params.layers) {
       // TODO is grouping by name the best option
       let existing = this.layers.get(layer.fullName);
       if (existing == null) {
@@ -54,7 +62,8 @@ export class WmtsCapabilities {
 
       this.tileMatrixSets.set(layer.tileMatrix.identifier, layer.tileMatrix);
     }
-    this.apiKey = apiKey;
+    this.apiKey = params.apiKey;
+    this.formats = params.formats ?? ImageFormatOrder;
   }
 
   buildWgs84BoundingBox(layers: TileSetRaster[], tagName = 'ows:WGS84BoundingBox'): VNodeElement {
@@ -153,9 +162,9 @@ export class WmtsCapabilities {
       ...layers.map((layer) => this.buildBoundingBox(layer.tileMatrix, layer.extent)),
       this.buildWgs84BoundingBox(layers),
       this.buildStyle(),
-      ...ImageFormatOrder.map((fmt) => V('Format', 'image/' + fmt)),
+      ...this.formats.map((fmt) => V('Format', 'image/' + fmt)),
       ...matrixSetNodes,
-      ...ImageFormatOrder.map((fmt) => this.buildResourceUrl(firstLayer, fmt)),
+      ...this.formats.map((fmt) => this.buildResourceUrl(firstLayer, fmt)),
     ]);
   }
 
@@ -193,11 +202,7 @@ export class WmtsCapabilities {
     return V('Capabilities', CapabilitiesAttrs, [...this.buildProvider(), V('Contents', layers)]);
   }
 
-  toString(): string {
+  toXml(): string {
     return '<?xml version="1.0"?>\n' + this.toVNode().toString();
-  }
-
-  static toXml(httpBase: string, provider: ConfigProvider, tileSet: TileSetRaster[], apiKey?: string): string {
-    return new WmtsCapabilities(httpBase, provider, tileSet, apiKey).toString();
   }
 }

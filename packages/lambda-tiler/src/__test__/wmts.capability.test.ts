@@ -1,4 +1,4 @@
-import { Bounds, Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
+import { Bounds, Epsg, GoogleTms, ImageFormat, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import { TileSetName, V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
 import { createHash } from 'crypto';
@@ -21,8 +21,30 @@ o.spec('WmtsCapabilities', () => {
   const tileSet = new FakeTileSet(TileSetName.aerial, GoogleTms);
   const tileSetImagery = new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', GoogleTms);
 
+  o('should output the requested formats', () => {
+    const wmts = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      layers: [tileSet],
+      apiKey,
+      formats: [ImageFormat.Avif],
+    }).toVNode();
+
+    const urls = tags(wmts, 'ResourceURL');
+    o(urls.length).equals(1);
+    o(urls[0].attrs.format).equals('image/avif');
+    o(urls[0].attrs.template).equals(
+      'https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234',
+    );
+  });
+
   o('should build capability xml for tileset and projection', () => {
-    const wmts = new WmtsCapabilities('https://basemaps.test', Provider, [tileSet], apiKey);
+    const wmts = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      layers: [tileSet],
+      apiKey,
+    });
 
     const raw = wmts.toVNode();
     const serviceId = raw.find('ows:ServiceIdentification');
@@ -102,7 +124,12 @@ o.spec('WmtsCapabilities', () => {
     compareMatrix(tileMatrices[0], '0', 1, 559082264.028717);
     compareMatrix(tileMatrices[10], '10', 1024, 545978.773465544);
 
-    const xml = WmtsCapabilities.toXml('https://basemaps.test', Provider, [tileSet], apiKey) ?? '';
+    const xml = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      layers: [tileSet],
+      apiKey,
+    }).toXml();
 
     o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
 
@@ -112,7 +139,11 @@ o.spec('WmtsCapabilities', () => {
   });
 
   o('should allow individual imagery sets', () => {
-    const raw = new WmtsCapabilities('https://basemaps.test', Provider, [tileSetImagery]).toVNode();
+    const raw = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      layers: [tileSetImagery],
+    }).toVNode();
 
     const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
 
@@ -128,7 +159,7 @@ o.spec('WmtsCapabilities', () => {
 
   o('should support multiple projections', () => {
     const ts = [new FakeTileSet(TileSetName.aerial, Nztm2000Tms), new FakeTileSet(TileSetName.aerial, GoogleTms)];
-    const xml = new WmtsCapabilities('basemaps.test', Provider, ts);
+    const xml = new WmtsCapabilities({ httpBase: 'basemaps.test', provider: Provider, layers: ts });
     const nodes = xml.toVNode();
 
     const layers = tags(nodes, 'Layer');
@@ -175,7 +206,7 @@ o.spec('WmtsCapabilities', () => {
       new FakeTileSet(TileSetName.aerial, Nztm2000Tms, 'aerial-title'),
       new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Nztm2000Tms, 'imagery-title'),
     ];
-    const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
+    const nodes = new WmtsCapabilities({ httpBase: 'basemaps.test', provider: Provider, layers: ts }).toVNode();
     const layers = tags(nodes, 'Layer');
     o(layers.length).equals(2);
 
@@ -199,7 +230,7 @@ o.spec('WmtsCapabilities', () => {
         'west-coast_rural_2016-17_0-3m',
       ),
     ];
-    const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
+    const nodes = new WmtsCapabilities({ httpBase: 'basemaps.test', provider: Provider, layers: ts }).toVNode();
     const layers = tags(nodes, 'Layer');
 
     o(layers.length).equals(2);
@@ -223,7 +254,7 @@ o.spec('WmtsCapabilities', () => {
     ts[1].extentOverride = new Bounds(1, 2, 2, 2);
 
     ts[2].tileSet.title = 'aerial_dunedin_urban';
-    const nodes = new WmtsCapabilities('basemaps.test', Provider, ts).toVNode();
+    const nodes = new WmtsCapabilities({ httpBase: 'basemaps.test', provider: Provider, layers: ts }).toVNode();
 
     const allMatrixes = tags(nodes, 'TileMatrixSet');
 

@@ -1,6 +1,7 @@
 import { Config, TileSetType } from '@basemaps/config';
-import { TileMatrixSet } from '@basemaps/geo';
+import { ImageFormat, TileMatrixSet } from '@basemaps/geo';
 import { Env, TileSetName, tileWmtsFromPath } from '@basemaps/shared';
+import { getImageFormat } from '@basemaps/tiler';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
 import { Router } from '../router.js';
@@ -9,6 +10,20 @@ import { TileSetRaster } from '../tile.set.raster.js';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { NotFound, NotModified } from './response.js';
 import { TileEtag } from './tile.etag.js';
+
+export function getImageFormats(req: LambdaHttpRequest): ImageFormat[] | undefined {
+  const formats = req.query.getAll('format');
+  if (formats == null || formats.length === 0) return undefined;
+
+  const output: Set<ImageFormat> = new Set();
+  for (const fmt of formats) {
+    const parsed = getImageFormat(fmt);
+    if (parsed == null) continue;
+    output.add(parsed);
+  }
+  if (output.size === 0) return undefined;
+  return [...output.values()];
+}
 
 /**
  * Serve a WMTS request
@@ -32,7 +47,13 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
   if (provider == null) return NotFound;
 
   const apiKey = Router.apiKey(req);
-  const xml = WmtsCapabilities.toXml(host, provider, tileSets, apiKey);
+  const xml = new WmtsCapabilities({
+    httpBase: host,
+    provider,
+    layers: tileSets,
+    apiKey,
+    formats: getImageFormats(req),
+  }).toXml();
   if (xml == null) return NotFound;
 
   const data = Buffer.from(xml);
