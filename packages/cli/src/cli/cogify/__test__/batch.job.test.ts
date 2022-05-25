@@ -34,4 +34,35 @@ o.spec('action.batch', () => {
       '01FHRPYJ5FV1XAARZAC4T4K6MC-9af5e139bbb3e502-it should over flow 128 characters_so it should be truncated at some point.tiff_this',
     );
   });
+
+  o('should prepare valid chunk jobs', async () => {
+    const fakeGsd = 0.9;
+    const chunkSizeLimit = 2500;
+    const maxChunkJob = 4;
+    const fakeFiles = [
+      { name: '1-2-1', width: chunkSizeLimit * fakeGsd - 1 },
+      { name: '1-2-2', width: chunkSizeLimit * fakeGsd - 1 },
+      { name: '1-2-3', width: chunkSizeLimit * fakeGsd + 1 }, // Large Job
+      { name: '1-2-4', width: chunkSizeLimit * fakeGsd - 1 },
+      { name: '1-2-5', width: chunkSizeLimit * fakeGsd - 1 },
+      { name: '1-2-6', width: chunkSizeLimit * fakeGsd + 0.1 }, // Large Job
+      { name: '1-2-7', width: chunkSizeLimit * fakeGsd - 1 }, // Single Chunk at end
+      { name: '1-2-8', width: chunkSizeLimit * fakeGsd + 10 }, // Large Job
+    ];
+    const fakeJob = { id: '01FHRPYJ5FV1XAARZAC4T4K6MC', output: { files: fakeFiles, gsd: fakeGsd } } as CogJob;
+    o(await BatchJob.getJobs(fakeJob, chunkSizeLimit, maxChunkJob)).deepEquals([
+      [fakeFiles[2].name],
+      [fakeFiles[0].name, fakeFiles[1].name, fakeFiles[3].name, fakeFiles[4].name],
+      [fakeFiles[5].name],
+      [fakeFiles[7].name],
+      [fakeFiles[6].name],
+    ]);
+
+    o(await BatchJob.getJobs(fakeJob, chunkSizeLimit, maxChunkJob + 10)).deepEquals([
+      [fakeFiles[2].name],
+      [fakeFiles[5].name],
+      [fakeFiles[7].name],
+      [fakeFiles[0].name, fakeFiles[1].name, fakeFiles[3].name, fakeFiles[4].name, fakeFiles[6].name],
+    ]);
+  });
 });

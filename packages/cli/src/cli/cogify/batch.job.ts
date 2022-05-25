@@ -7,6 +7,7 @@ import { CogJob } from '../../cog/types.js';
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
 const ChunkJobSizeLimit = 4097;
+const MaxChunkJob = 10;
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
@@ -36,7 +37,7 @@ export class BatchJob {
   static id(job: CogJob, fileNames: string[]): string {
     // Job names are uncontrolled so hash the name and grab a small slice to use as a identifier
     const jobName = createHash('sha256').update(job.name).digest('hex').slice(0, 16);
-    fileNames.sort((a, b) => (a > b ? 1 : -1));
+    fileNames.sort((a, b) => a.localeCompare(b));
     return `${job.id}-${jobName}-${fileNames.join('_')}`.slice(0, 128);
   }
 
@@ -120,18 +121,7 @@ export class BatchJob {
     const runningJobs = await BatchJob.getCurrentJobList(batch);
 
     // Prepare chunk job and individual jobs based on imagery size.
-    const jobs: string[][] = [];
-    const chunkJob: string[] = [];
-    for (const file of job.output.files) {
-      const size = file.width / job.output.gsd;
-      if (size < ChunkJobSizeLimit) {
-        chunkJob.push(file.name);
-      }
-      jobs.push([file.name]);
-    }
-
-    // add chunk job into jobs.
-    jobs.push(chunkJob);
+    const jobs = await this.getJobs(job, ChunkJobSizeLimit, MaxChunkJob);
 
     // Get all the existing output tiffs
     const targetPath = job.getJobPath();
@@ -188,5 +178,28 @@ export class BatchJob {
       logger.warn('DryRun:Done');
       return;
     }
+  }
+
+  /**
+   * Prepare the jobs from job files, and chunk the small images into single
+   * @returns List of jobs including single job and chunk jobs.
+   */
+  static async getJobs(job: CogJob, chunkSizeLimit: number, maxChunkJob: number): Promise<string[][]> {
+    const jobs: string[][] = [];
+    let chunkJob: string[] = [];
+    for (const file of job.output.files) {
+      const imageSize = file.width / job.output.gsd;
+      if (imageSize > chunkSizeLimit) {
+        jobs.push([file.name]);
+      } else {
+        chunkJob.push(file.name);
+        if (chunkJob.length >= maxChunkJob) {
+          jobs.push(chunkJob);
+          chunkJob = [];
+        }
+      }
+    }
+    if (chunkJob.length > 0) jobs.push(chunkJob);
+    return jobs;
   }
 }
