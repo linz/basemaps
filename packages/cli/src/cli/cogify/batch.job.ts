@@ -63,8 +63,8 @@ export class BatchJob {
       return { jobName, jobId: '', memory };
     }
 
-    const commandStr = ['-V', 'cog', '--job', jobPath, '--commit'];
-    for (const name of names) commandStr.concat(['--name', name]);
+    let commandStr = ['-V', 'cog', '--job', jobPath, '--commit'];
+    for (const name of names) commandStr = commandStr.concat(['--name', name]);
 
     const batchJob = await batch
       .submitJob({
@@ -153,7 +153,7 @@ export class BatchJob {
     if (isRunning) {
       logger.info({ jobName }, 'JobRunning');
     } else {
-      toSubmit.concat(chunkJob);
+      toSubmit.push(chunkJob);
     }
 
     if (toSubmit.length === 0) {
