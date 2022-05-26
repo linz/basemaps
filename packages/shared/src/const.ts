@@ -40,7 +40,7 @@ export const Env = {
   ImportFilesNumberLimit: 'FILES_NUMBER_LIMIT',
 
   /** Import Imagery files total size limit in GB */
-  ImportFilesSizeLimit: 'FILES_SIZE_LIMIT',
+  ImportFilesSizeLimitGb: 'FILES_SIZE_LIMIT_GB',
 
   Gdal: {
     /** Should the gdal docker container be used? */

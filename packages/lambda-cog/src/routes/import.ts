@@ -46,7 +46,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   if (fileInfo.files.length === 0) return new LambdaHttpResponse(404, 'Imagery Not Found');
   const files = fileInfo.files;
   const numberLimit = Number(Env.get(Env.ImportFilesNumberLimit));
-  const sizeLimit = Number(Env.get(Env.ImportFilesSizeLimit));
+  const sizeLimit = Number(Env.get(Env.ImportFilesSizeLimitGb));
   const totalSizeInGB = Math.round((fileInfo.totalSize / Math.pow(1024, 3)) * 100) / 100;
   if (files.length >= numberLimit || totalSizeInGB >= sizeLimit)
     return new LambdaHttpResponse(
