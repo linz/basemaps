@@ -37,32 +37,33 @@ o.spec('action.batch', () => {
 
   o('should prepare valid chunk jobs', async () => {
     const fakeGsd = 0.9;
-    const chunkSizeLimit = 2500;
-    const maxChunkJob = 4;
+    const ChunkJobSmall = { size: 4097, max: 50 };
+    const ChunkJobMiddle = { size: 8193, max: 10 };
+    const ChunkJobLarge = { size: 16384, max: 5 };
     const fakeFiles = [
-      { name: '1-2-1', width: chunkSizeLimit * fakeGsd - 1 },
-      { name: '1-2-2', width: chunkSizeLimit * fakeGsd - 1 },
-      { name: '1-2-3', width: chunkSizeLimit * fakeGsd + 1 }, // Large Job
-      { name: '1-2-4', width: chunkSizeLimit * fakeGsd - 1 },
-      { name: '1-2-5', width: chunkSizeLimit * fakeGsd - 1 },
-      { name: '1-2-6', width: chunkSizeLimit * fakeGsd + 0.1 }, // Large Job
-      { name: '1-2-7', width: chunkSizeLimit * fakeGsd - 1 }, // Single Chunk at end
-      { name: '1-2-8', width: chunkSizeLimit * fakeGsd + 10 }, // Large Job
+      { name: '1-2-1', width: ChunkJobSmall.size * fakeGsd - 1 }, // Small Job
+      { name: '1-2-2', width: ChunkJobSmall.size * fakeGsd - 1 }, // Small Job
+      { name: '1-2-3', width: ChunkJobLarge.size * fakeGsd + 1 }, // Single Job
+      { name: '1-2-4', width: ChunkJobMiddle.size * fakeGsd - 1 }, // Middle Job
+      { name: '1-2-5', width: ChunkJobMiddle.size * fakeGsd - 1 }, // Middle Job
+      { name: '1-2-6', width: ChunkJobLarge.size * fakeGsd + 0.1 }, // Single Job
+      { name: '1-2-7', width: ChunkJobMiddle.size * fakeGsd - 1 }, // Middle Job
+      { name: '1-2-8', width: ChunkJobLarge.size * fakeGsd - 1 }, // Large Job
+      { name: '1-2-9', width: ChunkJobLarge.size * fakeGsd - 1 }, // Large Job
+      { name: '1-2-10', width: ChunkJobLarge.size * fakeGsd - 1 }, // Large Job
+      { name: '1-2-11', width: ChunkJobLarge.size * fakeGsd - 1 }, // Large Job
+      { name: '1-2-12', width: ChunkJobLarge.size * fakeGsd - 1 }, // Large Job
+      { name: '1-2-13', width: ChunkJobLarge.size * fakeGsd - 1 }, // Large Job
     ];
-    const fakeJob = { id: '01FHRPYJ5FV1XAARZAC4T4K6MC', output: { files: fakeFiles, gsd: fakeGsd } } as CogJob;
-    o(await BatchJob.getJobs(fakeJob, chunkSizeLimit, maxChunkJob)).deepEquals([
-      [fakeFiles[2].name],
-      [fakeFiles[0].name, fakeFiles[1].name, fakeFiles[3].name, fakeFiles[4].name],
-      [fakeFiles[5].name],
-      [fakeFiles[7].name],
-      [fakeFiles[6].name],
-    ]);
 
-    o(await BatchJob.getJobs(fakeJob, chunkSizeLimit, maxChunkJob + 10)).deepEquals([
-      [fakeFiles[2].name],
-      [fakeFiles[5].name],
-      [fakeFiles[7].name],
-      [fakeFiles[0].name, fakeFiles[1].name, fakeFiles[3].name, fakeFiles[4].name, fakeFiles[6].name],
+    const fakeJob = { id: '01FHRPYJ5FV1XAARZAC4T4K6MC', output: { files: fakeFiles, gsd: fakeGsd } } as CogJob;
+    o(await BatchJob.getJobs(fakeJob)).deepEquals([
+      [fakeFiles[2].name], // First single Job
+      [fakeFiles[5].name], // Second single Job
+      [fakeFiles[7].name, fakeFiles[8].name, fakeFiles[9].name, fakeFiles[10].name, fakeFiles[11].name], // Large Jobs first Chunk
+      [fakeFiles[0].name, fakeFiles[1].name], // Small Jobs chunk
+      [fakeFiles[3].name, fakeFiles[4].name, fakeFiles[6].name], // Middle Jobs chunk
+      [fakeFiles[12].name], // Large Jobs second Chunk
     ]);
   });
 });

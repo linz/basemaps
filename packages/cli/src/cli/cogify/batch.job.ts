@@ -6,8 +6,9 @@ import { CogJob } from '../../cog/types.js';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
-const ChunkJobSizeLimit = 4097;
-const MaxChunkJob = 10;
+const ChunkJobSmall = { size: 4097, max: 50 };
+const ChunkJobMiddle = { size: 8193, max: 10 };
+const ChunkJobLarge = { size: 16384, max: 5 };
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
@@ -121,7 +122,7 @@ export class BatchJob {
     const runningJobs = await BatchJob.getCurrentJobList(batch);
 
     // Prepare chunk job and individual jobs based on imagery size.
-    const jobs = await this.getJobs(job, ChunkJobSizeLimit, MaxChunkJob);
+    const jobs = await this.getJobs(job);
 
     // Get all the existing output tiffs
     const targetPath = job.getJobPath();
@@ -184,22 +185,39 @@ export class BatchJob {
    * Prepare the jobs from job files, and chunk the small images into single
    * @returns List of jobs including single job and chunk jobs.
    */
-  static async getJobs(job: CogJob, chunkSizeLimit: number, maxChunkJob: number): Promise<string[][]> {
+  static async getJobs(job: CogJob): Promise<string[][]> {
     const jobs: string[][] = [];
-    let chunkJob: string[] = [];
+    let smallChunk: string[] = [];
+    let middleChunk: string[] = [];
+    let largeChunk: string[] = [];
     for (const file of job.output.files) {
       const imageSize = file.width / job.output.gsd;
-      if (imageSize > chunkSizeLimit) {
+      if (imageSize > ChunkJobLarge.size) {
         jobs.push([file.name]);
+      } else if (imageSize > ChunkJobMiddle.size) {
+        largeChunk.push(file.name);
+      } else if (imageSize > ChunkJobSmall.size) {
+        middleChunk.push(file.name);
       } else {
-        chunkJob.push(file.name);
-        if (chunkJob.length >= maxChunkJob) {
-          jobs.push(chunkJob);
-          chunkJob = [];
-        }
+        smallChunk.push(file.name);
+      }
+      if (smallChunk.length >= ChunkJobSmall.max) {
+        jobs.push(smallChunk);
+        smallChunk = [];
+      }
+      if (middleChunk.length >= ChunkJobMiddle.max) {
+        jobs.push(middleChunk);
+        middleChunk = [];
+      }
+      if (largeChunk.length >= ChunkJobLarge.max) {
+        jobs.push(largeChunk);
+        largeChunk = [];
       }
     }
-    if (chunkJob.length > 0) jobs.push(chunkJob);
+    if (smallChunk.length > 0) jobs.push(smallChunk);
+    if (middleChunk.length > 0) jobs.push(middleChunk);
+    if (largeChunk.length > 0) jobs.push(largeChunk);
+
     return jobs;
   }
 }
