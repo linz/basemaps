@@ -2,7 +2,8 @@ import { Config, Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemap
 import {
   CommandLineAction,
   CommandLineFlagParameter,
-  CommandLineIntegerParameter,
+  CommandLineIntegerListParameter,
+  CommandLineStringListParameter,
   CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
@@ -22,9 +23,9 @@ import { prepareUrl } from '../util.js';
 
 export class ActionCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
-  private name?: CommandLineStringParameter;
+  private name?: CommandLineStringListParameter;
   private commit?: CommandLineFlagParameter;
-  private cogIndex?: CommandLineIntegerParameter;
+  private cogIndex?: CommandLineIntegerListParameter;
 
   public constructor() {
     super({
@@ -34,7 +35,8 @@ export class ActionCogCreate extends CommandLineAction {
     });
   }
 
-  getName(job: CogJob): string | null {
+  getNames(job: CogJob): Set<string> | null {
+    const output: Set<string> = new Set<string>();
     const { files } = job.output;
     const batchIndex = Env.getNumber(Env.BatchIndex, -1);
     if (batchIndex > -1) {
@@ -45,25 +47,34 @@ export class ActionCogCreate extends CommandLineAction {
           'Failed to find cog name from batch index',
         );
       }
-      return name;
+      output.add(name);
+      return output;
     }
 
-    const cogIndex = this.cogIndex?.value;
-    if (cogIndex != null) {
-      const { name } = files[cogIndex];
-      if (name == null) {
-        throw new LoggerFatalError({ cogIndex, tileMax: files.length - 1 }, 'Failed to find cog name from index');
+    const cogIndex = this.cogIndex?.values;
+    if (cogIndex != null && cogIndex.length > 0) {
+      for (const i of cogIndex) {
+        if (i < 0 || i >= files.length) {
+          throw new LoggerFatalError({ cogIndex: i, tileMax: files.length - 1 }, 'Failed to find cog name from index');
+        }
+        const { name } = files[i];
+        output.add(name);
       }
-      return name;
+
+      return output;
     }
-    const name = this.name?.value;
-    if (name == null || !files.find((r) => r.name === name)) {
-      throw new LoggerFatalError(
-        { name, names: files.map((r) => r.name).join(', ') },
-        'Name does not exist inside job',
-      );
+
+    const names = this.name?.values;
+    if (names == null) throw new LoggerFatalError({ names }, 'Names cannot be null');
+    for (const name of names) {
+      if (!files.find((r) => r.name === name))
+        throw new LoggerFatalError(
+          { name, names: files.map((r) => r.name).join(', ') },
+          'Name does not exist inside job',
+        );
+      output.add(name);
     }
-    return name;
+    return output;
   }
 
   async onExecute(): Promise<void> {
@@ -85,50 +96,52 @@ export class ActionCogCreate extends CommandLineAction {
     const gdalVersion = await Gdal.version(logger);
     logger.info({ version: gdalVersion }, 'CogCreate:GdalVersion');
 
-    const name = this.getName(job);
-    if (name == null) return;
-
-    const targetPath = job.getJobPath(`${name}.tiff`);
-    fsa.configure(job.output.location);
-
-    const outputExists = await fsa.exists(targetPath);
-    logger.info({ targetPath, outputExists }, 'CogCreate:CheckExists');
-    // Output file exists don't try and overwrite it
-    if (outputExists) {
-      logger.warn({ targetPath }, 'CogCreate:OutputExists');
-      await this.checkJobStatus(job, logger);
-      return;
-    }
+    const names = this.getNames(job);
+    if (names == null || names.size === 0) return;
 
     const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${CliId}`);
 
     try {
-      let cutlineJson: FeatureCollection | undefined;
-      if (job.output.cutline != null) {
-        const cutlinePath = job.getJobPath('cutline.geojson.gz');
-        logger.info({ path: cutlinePath }, 'CogCreate:UsingCutLine');
-        cutlineJson = await Cutline.loadCutline(cutlinePath);
-      } else {
-        logger.warn('NoCutLine');
-      }
-      const cutline = new Cutline(job.tileMatrix, cutlineJson, job.output.cutline?.blend, job.output.oneCogCovering);
+      for (const name of names) {
+        const targetPath = job.getJobPath(`${name}.tiff`);
+        fsa.configure(job.output.location);
 
-      const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);
+        const outputExists = await fsa.exists(targetPath);
+        logger.info({ targetPath, outputExists }, 'CogCreate:CheckExists');
+        // Output file exists don't try and overwrite it
+        if (outputExists) {
+          logger.warn({ targetPath }, 'CogCreate:OutputExists');
+          await this.checkJobStatus(job, logger);
+          continue;
+        }
 
-      if (tmpVrtPath == null) {
-        logger.warn({ name }, 'CogCreate:NoMatchingSourceImagery');
-        return;
-      }
+        let cutlineJson: FeatureCollection | undefined;
+        if (job.output.cutline != null) {
+          const cutlinePath = job.getJobPath('cutline.geojson.gz');
+          logger.info({ path: cutlinePath }, 'CogCreate:UsingCutLine');
+          cutlineJson = await Cutline.loadCutline(cutlinePath);
+        } else {
+          logger.warn('NoCutLine');
+        }
+        const cutline = new Cutline(job.tileMatrix, cutlineJson, job.output.cutline?.blend, job.output.oneCogCovering);
 
-      const tmpTiff = fsa.join(tmpFolder, `${name}.tiff`);
+        const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);
 
-      await buildCogForName(job, name, tmpVrtPath, tmpTiff, logger, isCommit);
-      logger.info({ target: targetPath }, 'CogCreate:StoreTiff');
-      if (isCommit) {
-        await fsa.write(targetPath, createReadStream(tmpTiff));
-        await this.checkJobStatus(job, logger);
-      } else {
-        logger.warn('DryRun:Done');
+        if (tmpVrtPath == null) {
+          logger.warn({ name }, 'CogCreate:NoMatchingSourceImagery');
+          return;
+        }
+
+        const tmpTiff = fsa.join(tmpFolder, `${name}.tiff`);
+
+        await buildCogForName(job, name, tmpVrtPath, tmpTiff, logger, isCommit);
+        logger.info({ target: targetPath }, 'CogCreate:StoreTiff');
+        if (isCommit) {
+          await fsa.write(targetPath, createReadStream(tmpTiff));
+          await this.checkJobStatus(job, logger);
+        } else {
+          logger.warn({ name }, 'DryRun:Done');
+        }
       }
     } catch (e) {
       const processingId = job.json.processingId;
@@ -194,17 +207,17 @@ export class ActionCogCreate extends CommandLineAction {
       required: true,
     });
 
-    this.name = this.defineStringParameter({
+    this.name = this.defineStringListParameter({
       argumentName: 'NAME',
       parameterLongName: '--name',
-      description: 'cog name to process',
+      description: 'list of cog names to process',
       required: false,
     });
 
-    this.cogIndex = this.defineIntegerParameter({
+    this.cogIndex = this.defineIntegerListParameter({
       argumentName: 'COG_INDEX',
       parameterLongName: '--cog-index',
-      description: 'index of cog to process',
+      description: 'list of cog indexes to process',
       required: false,
     });
 

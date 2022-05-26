@@ -6,6 +6,8 @@ import { CogJob } from '../../cog/types.js';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
+const ChunkJobSizeLimit = 4097;
+const MaxChunkJob = 10;
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
@@ -29,34 +31,41 @@ export class BatchJob {
    *
    * This needs to be within `[a-Z_-]` upto 128 characters log
    * @param job job to process
-   * @param fileName output filename
+   * @param fileNames output filename
    * @returns job id
    */
-  static id(job: CogJob, fileName: string): string {
+  static id(job: CogJob, fileNames: string[]): string {
     // Job names are uncontrolled so hash the name and grab a small slice to use as a identifier
     const jobName = createHash('sha256').update(job.name).digest('hex').slice(0, 16);
-    return `${job.id}-${jobName}-${fileName}`.slice(0, 128);
+    fileNames.sort((a, b) => a.localeCompare(b));
+    return `${job.id}-${jobName}-${fileNames.join('_')}`.slice(0, 128);
   }
 
   static async batchOne(
     jobPath: string,
     job: CogJob,
     batch: Batch,
-    name: string,
+    names: string[],
     isCommit: boolean,
   ): Promise<{ jobName: string; jobId: string; memory: number }> {
-    const jobName = BatchJob.id(job, name);
-    const tile = TileMatrixSet.nameToTile(name);
-    const alignmentLevels = Projection.findAlignmentLevels(job.tileMatrix, tile, job.source.gsd);
-    // Give 25% more memory to larger jobs
-    const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
-    const memory = 3900 * resDiff;
+    const jobName = BatchJob.id(job, names);
+
+    let memory = 3900;
+    if (names.length === 1) {
+      // Calculate the larger file to provision memory if there is only one imagery in job.
+      const tile = TileMatrixSet.nameToTile(names[0]);
+      const alignmentLevels = Projection.findAlignmentLevels(job.tileMatrix, tile, job.source.gsd);
+      // Give 25% more memory to larger jobs
+      const resDiff = 1 + Math.max(alignmentLevels - MagicAlignmentLevel, 0) * 0.25;
+      memory *= resDiff;
+    }
 
     if (!isCommit) {
       return { jobName, jobId: '', memory };
     }
 
-    const commandStr = ['-V', 'cog', '--job', jobPath, '--commit', '--name', name];
+    let commandStr = ['-V', 'cog', '--job', jobPath, '--commit'];
+    for (const name of names) commandStr = commandStr.concat(['--name', name]);
 
     const batchJob = await batch
       .submitJob({
@@ -98,7 +107,7 @@ export class BatchJob {
     return okMap;
   }
 
-  static async batchJob(job: CogJob, commit = false, oneCog: string | undefined, logger: LogType): Promise<void> {
+  static async batchJob(job: CogJob, commit = false, logger: LogType): Promise<void> {
     const jobPath = job.getJobPath('job.json');
     if (!jobPath.startsWith('s3://')) {
       throw new Error(`AWS Batch collection.json have to be in S3, jobPath:${jobPath}`);
@@ -111,24 +120,40 @@ export class BatchJob {
     fsa.configure(job.output.location);
     const runningJobs = await BatchJob.getCurrentJobList(batch);
 
-    const stats = await Promise.all(
-      job.output.files.map(async ({ name }) => {
-        if (oneCog != null && oneCog !== name) return { name, ok: true };
-        const jobName = BatchJob.id(job, name);
-        const isRunning = runningJobs.get(jobName);
-        if (isRunning) {
-          logger.info({ jobName }, 'JobRunning');
-          return { name, ok: true };
-        }
+    // Prepare chunk job and individual jobs based on imagery size.
+    const jobs = await this.getJobs(job, ChunkJobSizeLimit, MaxChunkJob);
 
-        const targetPath = job.getJobPath(`${name}.tiff`);
-        const exists = await fsa.exists(targetPath);
-        if (exists) logger.info({ targetPath }, 'FileExists');
-        return { name, ok: exists };
-      }),
-    );
+    // Get all the existing output tiffs
+    const targetPath = job.getJobPath();
+    const existTiffs: string[] = [];
+    for await (const fileName of fsa.list(job.getJobPath())) {
+      if (fileName.endsWith('.tiff')) existTiffs.push(fileName);
+    }
 
-    const toSubmit = stats.filter((f) => f.ok === false).map((c) => c.name);
+    const toSubmit: string[][] = [];
+    for (const names of jobs) {
+      // Check existence of batch job running
+      const jobName = BatchJob.id(job, names);
+      const isRunning = runningJobs.get(jobName);
+      if (isRunning) {
+        logger.info({ jobName }, 'JobRunning');
+        continue;
+      }
+
+      // Check existence of all the output tiffs.
+      let allExists = true;
+      for (const name of names) {
+        if (!existTiffs.includes(job.getJobPath(`${name}.tiff`))) allExists = false;
+      }
+      if (allExists) {
+        logger.info({ targetPath, names }, 'FileExists');
+        continue;
+      }
+
+      // Ready to submit
+      toSubmit.push(names);
+    }
+
     if (toSubmit.length === 0) {
       logger.info('NoJobs');
       return;
@@ -144,8 +169,8 @@ export class BatchJob {
       'JobSubmit',
     );
 
-    for (const name of toSubmit) {
-      const jobStatus = await BatchJob.batchOne(jobPath, job, batch, name, commit);
+    for (const names of toSubmit) {
+      const jobStatus = await BatchJob.batchOne(jobPath, job, batch, names, commit);
       logger.info(jobStatus, 'JobSubmitted');
     }
 
@@ -153,5 +178,28 @@ export class BatchJob {
       logger.warn('DryRun:Done');
       return;
     }
+  }
+
+  /**
+   * Prepare the jobs from job files, and chunk the small images into single
+   * @returns List of jobs including single job and chunk jobs.
+   */
+  static async getJobs(job: CogJob, chunkSizeLimit: number, maxChunkJob: number): Promise<string[][]> {
+    const jobs: string[][] = [];
+    let chunkJob: string[] = [];
+    for (const file of job.output.files) {
+      const imageSize = file.width / job.output.gsd;
+      if (imageSize > chunkSizeLimit) {
+        jobs.push([file.name]);
+      } else {
+        chunkJob.push(file.name);
+        if (chunkJob.length >= maxChunkJob) {
+          jobs.push(chunkJob);
+          chunkJob = [];
+        }
+      }
+    }
+    if (chunkJob.length > 0) jobs.push(chunkJob);
+    return jobs;
   }
 }
