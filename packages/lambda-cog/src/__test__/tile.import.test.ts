@@ -20,19 +20,19 @@ o.spec('Import', () => {
   const origConfigBucket = process.env[Env.AwsRoleConfigBucket];
   const origOutputBucket = process.env[Env.ImportImageryBucket];
   const origFileNumberLimit = process.env[Env.ImportFilesNumberLimit];
-  const origFileSizeLimit = process.env[Env.ImportFilesSizeLimit];
+  const origFileSizeLimit = process.env[Env.ImportFilesSizeLimitGb];
   o.beforeEach(() => {
     process.env[Env.AwsRoleConfigBucket] = configBucket;
     process.env[Env.ImportImageryBucket] = outputBucket;
     process.env[Env.ImportFilesNumberLimit] = fileNumberLimit;
-    process.env[Env.ImportFilesSizeLimit] = fileSizeLimit;
+    process.env[Env.ImportFilesSizeLimitGb] = fileSizeLimit;
   });
 
   o.afterEach(() => {
     process.env[Env.AwsRoleConfigBucket] = origConfigBucket;
     process.env[Env.ImportImageryBucket] = origOutputBucket;
     process.env[Env.ImportFilesNumberLimit] = origFileNumberLimit;
-    process.env[Env.ImportFilesSizeLimit] = origFileSizeLimit;
+    process.env[Env.ImportFilesSizeLimitGb] = origFileSizeLimit;
     sandbox.restore();
   });
 

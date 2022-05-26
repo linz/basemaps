@@ -40,7 +40,7 @@ export class LambdaTiler extends Construct {
         [Env.AwsRoleConfigBucket]: config.AwsRoleConfigBucket,
         [Env.ImportImageryBucket]: config.ImportImageryBucket,
         [Env.ImportFilesNumberLimit]: config.ImportFilesNumberLimit,
-        [Env.ImportFilesSizeLimit]: config.ImportFilesSizeLimit,
+        [Env.ImportFilesSizeLimitGb]: config.ImportFilesSizeLimitGb,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       },
       logRetention: RetentionDays.ONE_MONTH,
