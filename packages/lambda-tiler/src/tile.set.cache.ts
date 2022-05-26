@@ -63,7 +63,7 @@ export class TileSetCache {
 
     // If we already have a copy and it hasn't been modified just return it
     const existing = this.tileSets.get(tileSetId);
-    if (existing?.tileSet.updatedAt === tileSet.updatedAt) {
+    if (existing != null && existing?.tileSet.updatedAt === tileSet.updatedAt) {
       return existing;
     }
 

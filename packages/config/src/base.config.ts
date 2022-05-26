@@ -76,6 +76,7 @@ export class ConfigInstance {
 }
 
 export abstract class BasemapsConfigProvider {
+  type: string;
   abstract TileSet: BasemapsConfigObject<ConfigTileSet>;
   abstract Imagery: BasemapsConfigObject<ConfigImagery>;
   abstract Style: BasemapsConfigObject<ConfigVectorStyle>;
