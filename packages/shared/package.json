@@ -29,7 +29,6 @@
     "@chunkd/source-aws-v2": "^8.1.0",
     "@linzjs/geojson": "^6.21.1",
     "@linzjs/metrics": "^6.21.1",
-    "@linzjs/s3fs": "^6.9.1",
     "aws-sdk": "^2.890.0",
     "pino": "^7.5.0",
     "proj4": "^2.6.2",

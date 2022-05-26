@@ -1,8 +1,7 @@
 import { ConfigJson, ConfigProvider, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { TileSetLocal } from '@basemaps/lambda-tiler/build/cli/tile.set.local.js';
 import { TileSets } from '@basemaps/lambda-tiler/build/tile.set.cache.js';
-import { Config, Env, LogConfig } from '@basemaps/shared';
-import { fsa } from '@linzjs/s3fs';
+import { Config, Env, fsa, LogConfig } from '@basemaps/shared';
 import { Command, flags } from '@oclif/command';
 import { basename, dirname } from 'path';
 import { createServer } from './server.js';
@@ -39,7 +38,7 @@ export class BasemapsServerCommand extends Command {
 
     const tifSets = new Map<string, TileSetLocal>();
 
-    for await (const file of fsa.listDetails(tiffPath)) {
+    for await (const file of fsa.details(tiffPath)) {
       const lowerPath = file.path.toLowerCase();
       if (lowerPath.endsWith('.tiff') || lowerPath.endsWith('.tif')) {
         const tiffPath = dirname(file.path);

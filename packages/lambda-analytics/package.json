@@ -18,8 +18,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/shared": "^6.26.0",
-    "@linzjs/s3fs": "^6.9.1"
+    "@basemaps/shared": "^6.26.0"
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
