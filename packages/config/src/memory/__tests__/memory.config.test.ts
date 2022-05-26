@@ -40,12 +40,11 @@ o.spec('MemoryConfig', () => {
     o(res).deepEquals([null, null, null, null]);
   });
 
-  o.only('should searialize to json', async () => {
+  o('should searialize to json', async () => {
     config.put(baseTs);
     config.put(baseImg);
 
     const json = await config.toJson();
-    console.log(json);
 
     o(json.imagery.length).equals(1);
     o(json.imagery[0].id).equals(baseImg.id);
@@ -57,7 +56,7 @@ o.spec('MemoryConfig', () => {
     o(json.provider.length).equals(0);
   });
 
-  o.only('should generate virtual tilesets', async () => {
+  o('should generate virtual tilesets', async () => {
     config.put(baseImg);
     o(config.toJson().tileSet.length).equals(0);
 
