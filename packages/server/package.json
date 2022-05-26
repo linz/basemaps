@@ -19,27 +19,41 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "ospec --globs 'build/**/*.test.js'"
+    "test": "ospec --globs 'build/**/*.test.js'",
+    "bundle": "../../scripts/bundle.js package.json"
   },
   "publishConfig": {
     "access": "public"
   },
   "bin": {
-    "basemaps-server": "./bin/basemaps-server.js"
+    "basemaps-server": "./bin/basemaps-server.cjs"
   },
+  "bundle": [
+    {
+      "entry": "src/cli.ts",
+      "outfile": "bin/basemaps-server.cjs",
+      "external": [
+        "pino-pretty",
+        "sharp"
+      ]
+    }
+  ],
   "files": [
     "build/",
     "bin/"
   ],
+  "optionalDependencies": {
+    "@basemaps/landing": "^6.26.0"
+  },
   "dependencies": {
+    "@basemaps/tiler-sharp": "^6.26.0"
+  },
+  "devDependencies": {
     "@basemaps/config": "^6.26.0",
     "@basemaps/geo": "^6.26.0",
     "@basemaps/lambda-tiler": "^6.26.0",
-    "@basemaps/landing": "^6.26.0",
     "@basemaps/shared": "^6.26.0",
     "@fastify/static": "^5.0.2",
-    "@linzjs/lambda": "^3.0.1",
-    "@oclif/command": "^1.8.0",
     "fastify": "^3.27.4",
     "pretty-json-log": "^1.0.0"
   }

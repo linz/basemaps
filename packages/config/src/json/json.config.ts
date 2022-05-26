@@ -51,6 +51,7 @@ export class ConfigJson {
     for await (const tsPath of fsa.list(fsa.join(basePath, 'tileset'))) {
       if (!tsPath.endsWith('.json')) continue;
       const ts = await cfg.tileSet(await fsa.readJson(tsPath));
+      // console.log('LoadTileSet', )
       cfg.mem.put(ts);
     }
 

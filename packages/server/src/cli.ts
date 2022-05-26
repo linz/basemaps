@@ -1,12 +1,12 @@
 import { ConfigJson, ConfigProvider, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { TileSetLocal } from '@basemaps/lambda-tiler/build/cli/tile.set.local.js';
 import { TileSets } from '@basemaps/lambda-tiler/build/tile.set.cache.js';
-import { Config, Env, fsa, LogConfig } from '@basemaps/shared';
-import { Command, flags } from '@oclif/command';
+import { Config, Const, Env, fsa, LogConfig, LogType } from '@basemaps/shared';
+import { BaseCommandLine, CliInfo } from '@basemaps/shared/build/cli/base.js';
 import { basename, dirname } from 'path';
 import { createServer } from './server.js';
 
-const logger = LogConfig.get();
+CliInfo.package = 'basemaps/server';
 
 const BaseProvider: ConfigProvider = {
   id: 'pv_linz',
@@ -20,19 +20,35 @@ const BaseProvider: ConfigProvider = {
   },
 } as any;
 
-export class BasemapsServerCommand extends Command {
-  static description = 'Create a WMTS/XYZ Tile server for basemaps config';
-  static flags = {
-    verbose: flags.boolean(),
-    port: flags.integer({ default: 5000 }),
-    dynamo: flags.string({ description: 'Dynamodb table', required: false }),
-    config: flags.string({ description: 'Configuration path', required: false }),
-    files: flags.string({ description: 'Use folders of tiffs as the configuration', required: false }),
-  };
+const DefaultPort = 5000;
+
+export class BasemapsServerCommand extends BaseCommandLine {
+  config = this.defineStringParameter({
+    argumentName: 'CONFIG',
+    parameterLongName: '--config',
+    description: 'Configuration source to user',
+  });
+  ignoreConfig = this.defineFlagParameter({
+    parameterLongName: '--no-config',
+    description: 'Assume no config and just load tiffs from the configuration path',
+  });
+  port = this.defineIntegerParameter({
+    argumentName: 'PORT',
+    parameterLongName: '--port',
+    description: 'port to use',
+    defaultValue: DefaultPort,
+  });
+
+  constructor() {
+    super({
+      toolFilename: 'bms',
+      toolDescription: 'Create a WMTS/XYZ Tile server from basemaps config',
+    });
+  }
 
   static args = [];
 
-  async loadTiffs(tiffPath: string, serverUrl: string): Promise<void> {
+  async loadTiffs(tiffPath: string, serverUrl: string, logger: LogType): Promise<void> {
     const config = new ConfigProviderMemory();
     Config.setConfigProvider(config);
 
@@ -58,40 +74,44 @@ export class BasemapsServerCommand extends Command {
     }
   }
 
-  async run(): Promise<void> {
-    const { flags } = this.parse(BasemapsServerCommand);
-    if (flags.verbose) logger.level = 'debug';
+  async onExecute(): Promise<void> {
+    await super.onExecute();
 
-    const ServerUrl = `http://localhost:${flags.port}`;
+    const logger = LogConfig.get();
+    logger.level = 'debug';
+    const config = this.config.value ?? 'dynamodb://' + Const.TileMetadata.TableName;
+    const port = this.port.value;
 
-    if (flags.config != null) {
-      // Load configuration from a collection of JSON files
-      logger.info({ path: flags.config, mode: 'config' }, 'Starting Server');
-
-      if (flags.config.endsWith('.json')) {
-        const configJson = await fsa.read(flags.config);
-        const mem = ConfigProviderMemory.fromJson(JSON.parse(configJson.toString()));
-        Config.setConfigProvider(mem);
-      } else {
-        const cj = await ConfigJson.fromPath(flags.config, logger);
-        Config.setConfigProvider(cj.mem);
-      }
-    } else if (flags.dynamo != null) {
-      // Load configuration from a dynamodb table
-      logger.info({ dynamo: flags.dynamo, mode: 'dynamo' }, 'Starting Server');
-      Config.setConfigProvider(new ConfigProviderDynamo(flags.dynamo));
-    } else if (flags.files != null) {
-      // Generate configuration form a collection of tiff files
-      logger.info({ path: flags.files, mode: 'files' }, 'Starting Server');
-      await this.loadTiffs(flags.files, ServerUrl);
-    } else {
-      throw new Error('Either a --config, --tiff or --dynamodb must be supplied');
-    }
+    const ServerUrl = Env.get(Env.PublicUrlBase) ?? `http://localhost:${port}`;
     // Force a default url base so WMTS requests know their relative url
-    process.env[Env.PublicUrlBase] = process.env[Env.PublicUrlBase] ?? `http://localhost:${flags.port}`;
+    process.env[Env.PublicUrlBase] = ServerUrl;
 
-    createServer(logger).listen(flags.port, () => {
+    if (config.startsWith('dynamodb://')) {
+      // Load config from dynamodb table
+      const table = config.slice('dynamodb://'.length);
+      logger.info({ path: config, table, mode: 'dynamo' }, 'Starting Server');
+      Config.setConfigProvider(new ConfigProviderDynamo(table));
+    } else if (config.endsWith('.json')) {
+      // Bundled config
+      logger.info({ path: config, mode: 'config' }, 'Starting Server');
+      const configJson = await fsa.read(config);
+      const mem = ConfigProviderMemory.fromJson(JSON.parse(configJson.toString()));
+      Config.setConfigProvider(mem);
+    } else if (this.ignoreConfig.value) {
+      // Load config directly from tiff files
+      logger.info({ path: config, mode: 'tiffs' }, 'Starting Server');
+      await this.loadTiffs(config, ServerUrl, logger);
+    } else {
+      // Assume the folder is a collection of config files
+      logger.info({ path: config, mode: 'config' }, 'Starting Server');
+      const cj = await ConfigJson.fromPath(config, logger);
+      Config.setConfigProvider(cj.mem);
+    }
+
+    createServer(logger).listen(port ?? DefaultPort, () => {
       logger.info({ url: ServerUrl }, 'ServerStarted');
     });
   }
 }
+
+new BasemapsServerCommand().execute();
