@@ -1,4 +1,4 @@
-import { CompositeError } from '@linzjs/s3fs';
+import { CompositeError } from '../../composite.error.js';
 import { fsa } from '../index.js';
 
 export interface MockFs {

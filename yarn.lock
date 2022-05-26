@@ -937,11 +937,6 @@
     tippy.js "^6.3.1"
     uuid "^8.3.2"
 
-"@linzjs/s3fs@^6.9.1":
-  version "6.9.1"
-  resolved "https://registry.yarnpkg.com/@linzjs/s3fs/-/s3fs-6.9.1.tgz#6292999dd13b588890757ecd55e05f3cb036931f"
-  integrity sha512-jUFIJd93vLwvxdZdIbAm0iYEUmFIAXBTh4Wn8ikofYZglf8VxSDjBnPDZ6Eu7WQAh7DeVP9TfK5v3wLO0xFIlg==
-
 "@linzjs/style@^3.7.0":
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/@linzjs/style/-/style-3.7.0.tgz#7d0d2a743dd0452500d32e098c5329f2125167dd"
