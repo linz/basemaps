@@ -75,8 +75,6 @@ export class BasemapsServerCommand extends Command {
         Config.setConfigProvider(mem);
       } else {
         const cj = await ConfigJson.fromPath(flags.config, logger);
-        const data = cj.mem.toJson();
-        await fsa.write('./foo.json', Buffer.from(JSON.stringify(data)));
         Config.setConfigProvider(cj.mem);
       }
     } else if (flags.dynamo != null) {
