@@ -15,7 +15,7 @@ import { Cutline } from '../../cog/cutline.js';
 import { CogJob } from '../../cog/types.js';
 import { Gdal } from '../../gdal/gdal.js';
 import { CliId } from '../base.cli.js';
-import { makeTempFolder } from '../folder.js';
+import { makeTempFolder, makeTiffFolder } from '../folder.js';
 import path from 'path';
 import { insertConfigImagery, insertConfigTileSet } from './imagery.config.js';
 import { JobStatus, ProcessingJobComplete, ProcessingJobFailed } from '@basemaps/config';
@@ -103,6 +103,7 @@ export class ActionCogCreate extends CommandLineAction {
 
     try {
       for (const name of names) {
+        const tiffFolder = await makeTiffFolder(tmpFolder, name);
         const targetPath = job.getJobPath(`${name}.tiff`);
         fsa.configure(job.output.location);
 
@@ -125,14 +126,14 @@ export class ActionCogCreate extends CommandLineAction {
         }
         const cutline = new Cutline(job.tileMatrix, cutlineJson, job.output.cutline?.blend, job.output.oneCogCovering);
 
-        const tmpVrtPath = await CogVrt.buildVrt(tmpFolder, job, cutline, name, logger);
+        const tmpVrtPath = await CogVrt.buildVrt(tiffFolder, job, cutline, name, logger);
 
         if (tmpVrtPath == null) {
           logger.warn({ name }, 'CogCreate:NoMatchingSourceImagery');
           return;
         }
 
-        const tmpTiff = fsa.join(tmpFolder, `${name}.tiff`);
+        const tmpTiff = fsa.join(tiffFolder, `${name}.tiff`);
 
         await buildCogForName(job, name, tmpVrtPath, tmpTiff, logger, isCommit);
         logger.info({ target: targetPath }, 'CogCreate:StoreTiff');
