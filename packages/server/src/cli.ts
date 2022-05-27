@@ -104,8 +104,9 @@ export class BasemapsServerCommand extends BaseCommandLine {
     } else {
       // Assume the folder is a collection of config files
       logger.info({ path: config, mode: 'config' }, 'Starting Server');
-      const cj = await ConfigJson.fromPath(config, logger);
-      Config.setConfigProvider(cj.mem);
+      const mem = await ConfigJson.fromPath(config, logger);
+      mem.createVirtualTileSets();
+      Config.setConfigProvider(mem);
     }
 
     createServer(logger).listen(port ?? DefaultPort, '0.0.0.0', () => {
@@ -114,4 +115,6 @@ export class BasemapsServerCommand extends BaseCommandLine {
   }
 }
 
-new BasemapsServerCommand().execute();
+new BasemapsServerCommand().executeWithoutErrorHandling().catch((c) => {
+  console.log(c);
+});

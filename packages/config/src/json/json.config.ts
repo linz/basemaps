@@ -22,10 +22,14 @@ export function guessIdFromUri(uri: string): string | null {
   const id = parts.pop();
 
   if (id == null) return null;
-  const date = new Date(ulid.decodeTime(id));
-  if (date.getUTCFullYear() < 2015) return null;
-  if (date.getUTCFullYear() > new Date().getUTCFullYear() + 1) return null;
-  return id;
+  try {
+    const date = new Date(ulid.decodeTime(id));
+    if (date.getUTCFullYear() < 2015) return null;
+    if (date.getUTCFullYear() > new Date().getUTCFullYear() + 1) return null;
+    return id;
+  } catch (e) {
+    return null;
+  }
 }
 
 export class ConfigJson {
@@ -41,7 +45,7 @@ export class ConfigJson {
   }
 
   /** Import configuration from a base path */
-  static async fromPath(basePath: string, log: LogType): Promise<ConfigJson> {
+  static async fromPath(basePath: string, log: LogType): Promise<ConfigProviderMemory> {
     const cfg = new ConfigJson(basePath, log);
 
     for await (const filePath of fsa.list(basePath)) {
@@ -68,7 +72,7 @@ export class ConfigJson {
           break;
       }
     }
-    return cfg;
+    return cfg.mem;
   }
 
   async provider(obj: unknown): Promise<ConfigProvider> {
