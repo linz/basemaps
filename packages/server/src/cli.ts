@@ -108,7 +108,7 @@ export class BasemapsServerCommand extends BaseCommandLine {
       Config.setConfigProvider(cj.mem);
     }
 
-    createServer(logger).listen(port ?? DefaultPort, () => {
+    createServer(logger).listen(port ?? DefaultPort, '0.0.0.0', () => {
       logger.info({ url: ServerUrl }, 'ServerStarted');
     });
   }
