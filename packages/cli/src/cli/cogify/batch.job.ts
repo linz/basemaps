@@ -6,8 +6,10 @@ import { CogJob } from '../../cog/types.js';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
-const ChunkJobSizeLimit = 4097;
-const MaxChunkJob = 10;
+const ChunkJobMax = 1000;
+const ChunkLargeUnit = 200; // Up to 5 large files in one job
+const ChunkMiddleUnit = 50; // Up to 20 middle files in one job
+const ChunkSmallUnit = 20; // Up to 50 small files in one job
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
@@ -121,7 +123,7 @@ export class BatchJob {
     const runningJobs = await BatchJob.getCurrentJobList(batch);
 
     // Prepare chunk job and individual jobs based on imagery size.
-    const jobs = await this.getJobs(job, ChunkJobSizeLimit, MaxChunkJob);
+    const jobs = await this.getJobs(job);
 
     // Get all the existing output tiffs
     const targetPath = job.getJobPath();
@@ -184,22 +186,32 @@ export class BatchJob {
    * Prepare the jobs from job files, and chunk the small images into single
    * @returns List of jobs including single job and chunk jobs.
    */
-  static async getJobs(job: CogJob, chunkSizeLimit: number, maxChunkJob: number): Promise<string[][]> {
+  static async getJobs(job: CogJob): Promise<string[][]> {
     const jobs: string[][] = [];
     let chunkJob: string[] = [];
+    let chunkUnit = 0; // Calculate the chunkUnit based on the size
     for (const file of job.output.files) {
       const imageSize = file.width / job.output.gsd;
-      if (imageSize > chunkSizeLimit) {
+      if (imageSize > 16385) {
         jobs.push([file.name]);
+      } else if (imageSize > 8193) {
+        chunkJob.push(file.name);
+        chunkUnit += ChunkLargeUnit;
+      } else if (imageSize > 4097) {
+        chunkJob.push(file.name);
+        chunkUnit += ChunkMiddleUnit;
       } else {
         chunkJob.push(file.name);
-        if (chunkJob.length >= maxChunkJob) {
-          jobs.push(chunkJob);
-          chunkJob = [];
-        }
+        chunkUnit += ChunkSmallUnit;
+      }
+      if (chunkUnit >= ChunkJobMax) {
+        jobs.push(chunkJob);
+        chunkJob = [];
+        chunkUnit = 0;
       }
     }
     if (chunkJob.length > 0) jobs.push(chunkJob);
+
     return jobs;
   }
 }
