@@ -105,11 +105,11 @@ export class ConfigJson {
     const imageryFetch: Promise<ConfigImagery>[] = [];
     if (ts.type === TileSetType.Raster) {
       for (const layer of ts.layers) {
-        if (layer[2193] != null && layer[2193].startsWith('s3://')) {
+        if (layer[2193] != null) {
           imageryFetch.push(this.loadImagery(layer[2193], Nztm2000QuadTms, layer.name));
         }
 
-        if (layer[3857] != null && layer[3857].startsWith('s3://')) {
+        if (layer[3857] != null) {
           imageryFetch.push(this.loadImagery(layer[3857], GoogleTms, layer.name));
         }
       }
