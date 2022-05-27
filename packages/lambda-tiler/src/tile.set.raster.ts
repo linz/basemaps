@@ -20,7 +20,7 @@ import { St } from './source.tracer.js';
 import { TiffCache } from './tiff.cache.js';
 import { TileSets } from './tile.set.cache.js';
 
-const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 5));
+const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
 
 export const TileComposer = new TileMakerSharp(256);
 
