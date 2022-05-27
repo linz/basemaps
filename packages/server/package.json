@@ -46,7 +46,7 @@
     "@basemaps/landing": "^6.26.0"
   },
   "dependencies": {
-    "@basemaps/tiler-sharp": "^6.26.0"
+    "sharp": "^0.29.3"
   },
   "devDependencies": {
     "@basemaps/config": "^6.26.0",
