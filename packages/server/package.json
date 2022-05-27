@@ -32,6 +32,7 @@
     {
       "entry": "src/cli.ts",
       "outfile": "bin/basemaps-server.cjs",
+      "executable": true,
       "external": [
         "pino-pretty",
         "sharp"
