@@ -9,7 +9,7 @@ import {
 import { JobCreationContext } from '../../cog/cog.stac.job.js';
 import { CogJobFactory, MaxConcurrencyDefault } from '../../cog/job.factory.js';
 import { GdalCogBuilderDefaults, GdalCogBuilderResampling, GdalResamplingOptions } from '../../gdal/gdal.config.js';
-import { CliId } from '../base.cli.js';
+import { CliId } from '@basemaps/shared/build/cli/base.js';
 
 export class CLiInputData {
   path: CommandLineStringParameter;

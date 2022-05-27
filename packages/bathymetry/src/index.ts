@@ -1,4 +1,4 @@
-import { BaseCommandLine } from '@basemaps/cli/build/cli/base.cli.js';
+import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
 import { makeTempFolder } from '@basemaps/cli/build/cli/folder.js';
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, LogConfig } from '@basemaps/shared';
