@@ -1,5 +1,6 @@
 import { Bounds, GoogleTms, ImageFormat, Nztm2000QuadTms, TileMatrixSet, VectorFormat } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
+import { createHash } from 'crypto';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { Config } from '../base.config.js';
@@ -16,14 +17,14 @@ import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { zTileSetConfig } from './parse.tile.set.js';
 
-export function guessIdFromUri(uri: string): string {
+export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
   const id = parts.pop();
 
-  if (id == null) throw new Error('Could not get id from URI: ' + uri);
+  if (id == null) return null;
   const date = new Date(ulid.decodeTime(id));
-  if (date.getUTCFullYear() < 2015) throw new Error('Could not get id from URI: ' + uri);
-  if (date.getUTCFullYear() > new Date().getUTCFullYear() + 1) throw new Error('Could not get id from URI: ' + uri);
+  if (date.getUTCFullYear() < 2015) return null;
+  if (date.getUTCFullYear() > new Date().getUTCFullYear() + 1) return null;
   return id;
 }
 
@@ -172,7 +173,8 @@ export class ConfigJson {
     this.logger.trace({ uri }, 'FetchImagery');
 
     // TODO is there a better way of guessing the imagery id & tile matrix?
-    const id = Config.prefix(ConfigPrefix.Imagery, guessIdFromUri(uri));
+    const imageId = guessIdFromUri(uri) ?? createHash('sha512').update(uri).digest('base64url');
+    const id = Config.prefix(ConfigPrefix.Imagery, imageId);
 
     const fileList = await fsa.toArray(fsa.list(uri));
     const tiffFiles = fileList.filter((f) => f.endsWith('.tiff'));
