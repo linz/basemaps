@@ -14,6 +14,7 @@ export interface TileMakerContext {
   format: ImageFormat;
   background: { r: number; g: number; b: number; alpha: number };
   resizeKernel: TileMakerResizeKernel;
+  metrics?: Metrics;
 }
 
 export interface Composition {

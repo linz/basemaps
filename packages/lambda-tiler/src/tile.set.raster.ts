@@ -122,17 +122,15 @@ export class TileSetRaster {
     req.set('layers', layers.length);
     if (TileEtag.isNotModified(req, cacheKey)) return NotModified;
 
-    req.timer.start('tile:compose');
     const res = await TileComposer.compose({
       layers,
       format: xyz.ext,
       background: this.tileSet.background ?? DefaultBackground,
       resizeKernel: this.tileSet.resizeKernel ?? DefaultResizeKernel,
+      metrics: req.timer,
     });
-    req.timer.end('tile:compose');
 
     req.set('layersUsed', res.layers);
-    req.set('allLayersUsed', res.layers === layers.length);
     req.set('bytes', res.buffer.byteLength);
 
     const response = new LambdaHttpResponse(200, 'ok');
