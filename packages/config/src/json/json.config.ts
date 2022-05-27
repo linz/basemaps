@@ -170,17 +170,18 @@ export class ConfigJson {
   }
 
   async _loadImagery(uri: string, tileMatrix: TileMatrixSet, name: string): Promise<ConfigImagery> {
-    this.logger.trace({ uri }, 'FetchImagery');
-
     // TODO is there a better way of guessing the imagery id & tile matrix?
     const imageId = guessIdFromUri(uri) ?? createHash('sha512').update(uri).digest('base64url');
     const id = Config.prefix(ConfigPrefix.Imagery, imageId);
+    this.logger.trace({ uri, imageId: id }, 'FetchImagery');
 
     const fileList = await fsa.toArray(fsa.list(uri));
-    const tiffFiles = fileList.filter((f) => f.endsWith('.tiff'));
+    const tiffFiles = fileList.filter((f) => f.endsWith('.tiff') || f.endsWith('.tif'));
 
     let bounds: Bounds | null = null;
     // Files are stored as `{z}-{x}-{y}.tiff`
+    // TODO the files could acutally be smaller than the tile size,
+    // we should really load the tiff at some point to validate the size
     const files = tiffFiles.map((c) => {
       const tileName = basename(c).replace('.tiff', '');
       const [z, x, y] = tileName.split('-').map((f) => Number(f));
@@ -210,7 +211,7 @@ export class ConfigJson {
       return bXyz[2] - aXyz[2];
     });
 
-    this.logger.debug({ uri, files: files.length }, 'FetchImagery:Done');
+    this.logger.debug({ uri, imageId, files: files.length }, 'FetchImagery:Done');
 
     if (bounds == null) throw new Error('Failed to get bounds from URI: ' + uri);
     const now = Date.now();
