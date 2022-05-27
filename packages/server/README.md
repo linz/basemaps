@@ -32,7 +32,7 @@ For example given a structure where there are two folders full of tiffs
 /images/10_geographx_nz_texture_shade_2012_8-0m_01FHRPYJ5FV1XAARZAC4T4K6MC/*.tiff
 ```
 
-running `basemaps-server --config /images` will create two tile sets one for each folder `gebco_2021...` and `geographx_nz_t...` and then also create a combined layer in the order the tiffs are found.
+running `basemaps-server --config /images --no-config` will create two tile sets one for each folder `gebco_2021...` and `geographx_nz_t...` and then also create a combined layer in the order the tiffs are found.
 
 
 ## Developing
@@ -40,8 +40,10 @@ running `basemaps-server --config /images` will create two tile sets one for eac
 When running the `@basemaps/server` in development mode, ensure `@basemaps/landing` page has been bundled
 
 ```bash
-cd packages/landing
-yarn bundle
+yarn
+yarn build
+
+npx lerna run bundle --stream # Bundle everything
 ```
 
-This will package all the static assets into `landing/dist` and will be served from `http://localhost:3000`
+This will package all the static assets into `landing/dist` and will be served from `http://localhost:5000`
