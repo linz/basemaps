@@ -175,7 +175,7 @@ export class ConfigJson {
 
   async _loadImagery(uri: string, tileMatrix: TileMatrixSet, name: string): Promise<ConfigImagery> {
     // TODO is there a better way of guessing the imagery id & tile matrix?
-    const imageId = guessIdFromUri(uri) ?? createHash('sha512').update(uri).digest('base64url');
+    const imageId = guessIdFromUri(uri) ?? createHash('sha256').update(uri).digest('base64url');
     const id = Config.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ uri, imageId: id }, 'FetchImagery');
 
@@ -184,7 +184,7 @@ export class ConfigJson {
 
     let bounds: Bounds | null = null;
     // Files are stored as `{z}-{x}-{y}.tiff`
-    // TODO the files could acutally be smaller than the tile size,
+    // TODO the files could actually be smaller than the tile size,
     // we should really load the tiff at some point to validate the size
     const files = tiffFiles.map((c) => {
       const tileName = basename(c).replace('.tiff', '');
