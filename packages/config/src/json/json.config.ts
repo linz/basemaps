@@ -4,6 +4,7 @@ import { basename } from 'path';
 import ulid from 'ulid';
 import { Config } from '../base.config.js';
 import { parseRgba } from '../color.js';
+import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
@@ -42,32 +43,38 @@ export class ConfigJson {
   static async fromPath(basePath: string, log: LogType): Promise<ConfigJson> {
     const cfg = new ConfigJson(basePath, log);
 
-    for await (const pvPath of fsa.list(fsa.join(basePath, 'provider'))) {
-      if (!pvPath.endsWith('.json')) continue;
-      const pv = await cfg.provider(await fsa.readJson(pvPath));
-      cfg.mem.put(pv);
-    }
+    for await (const filePath of fsa.list(basePath)) {
+      if (!filePath.endsWith('.json')) continue;
 
-    for await (const tsPath of fsa.list(fsa.join(basePath, 'tileset'))) {
-      if (!tsPath.endsWith('.json')) continue;
-      const ts = await cfg.tileSet(await fsa.readJson(tsPath));
-      // console.log('LoadTileSet', )
-      cfg.mem.put(ts);
-    }
+      const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
+      const prefix = Config.getPrefix(bc.id);
+      if (prefix == null) {
+        log.warn({ path: filePath }, 'Invalid JSON file found');
+        continue;
+      }
 
-    for await (const stylePath of fsa.list(fsa.join(basePath, 'style'))) {
-      if (!stylePath.endsWith('.json')) continue;
-      const ts = await cfg.style(await fsa.readJson(stylePath));
-      cfg.mem.put(ts);
-    }
+      log.trace({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
 
+      switch (prefix) {
+        case ConfigPrefix.TileSet:
+          cfg.mem.put(await cfg.tileSet(bc));
+          break;
+        case ConfigPrefix.Provider:
+          cfg.mem.put(await cfg.provider(bc));
+          break;
+        case ConfigPrefix.Style:
+          cfg.mem.put(await cfg.style(bc));
+          break;
+      }
+    }
     return cfg;
   }
 
   async provider(obj: unknown): Promise<ConfigProvider> {
     const pv = zProviderConfig.parse(obj);
+    this.logger.info({ config: pv.id }, 'Config:Loaded:Provider');
 
-    const provider: ConfigProvider = {
+    return {
       id: pv.id,
       name: Config.unprefix(ConfigPrefix.Provider, pv.id),
       serviceIdentification: pv.serviceIdentification,
@@ -76,11 +83,12 @@ export class ConfigJson {
       updatedAt: Date.now(),
       version: 1,
     };
-    return provider;
   }
 
   async style(obj: unknown): Promise<ConfigVectorStyle> {
     const st = zStyleJson.parse(obj);
+    this.logger.info({ config: st.id }, 'Config:Loaded:Style');
+
     return {
       id: st.id,
       name: st.name,
@@ -92,6 +100,7 @@ export class ConfigJson {
 
   async tileSet(obj: unknown): Promise<ConfigTileSet> {
     const ts = zTileSetConfig.parse(obj);
+    this.logger.info({ config: ts.id }, 'Config:Loaded:TileSet');
 
     const imageryFetch: Promise<ConfigImagery>[] = [];
     if (ts.type === TileSetType.Raster) {
