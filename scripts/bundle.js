@@ -5,7 +5,7 @@
 import { GitTag } from '../packages/shared/build/cli/git.tag.js';
 import crypto from 'crypto';
 import cp from 'child_process';
-import fs, { chmod, chmodSync } from 'fs';
+import fs, { chmodSync } from 'fs';
 import * as z from 'zod';
 import c from 'ansi-colors';
 import path from 'path';
