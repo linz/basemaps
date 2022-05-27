@@ -6,9 +6,10 @@ import { CogJob } from '../../cog/types.js';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
-const ChunkJobSmall = { size: 4097, max: 50 };
-const ChunkJobMiddle = { size: 8193, max: 10 };
-const ChunkJobLarge = { size: 16384, max: 5 };
+const ChunkJobMax = 1000;
+const ChunkLargeUnit = 200; // Up to 5 large files in one job
+const ChunkMiddleUnit = 50; // Up to 20 middle files in one job
+const ChunkSmallUnit = 20; // Up to 50 small files in one job
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;
@@ -187,36 +188,29 @@ export class BatchJob {
    */
   static async getJobs(job: CogJob): Promise<string[][]> {
     const jobs: string[][] = [];
-    let smallChunk: string[] = [];
-    let middleChunk: string[] = [];
-    let largeChunk: string[] = [];
+    let chunkJob: string[] = [];
+    let chunkUnit = 0; // Calculate the chunkUnit based on the size
     for (const file of job.output.files) {
       const imageSize = file.width / job.output.gsd;
-      if (imageSize > ChunkJobLarge.size) {
+      if (imageSize > 16385) {
         jobs.push([file.name]);
-      } else if (imageSize > ChunkJobMiddle.size) {
-        largeChunk.push(file.name);
-      } else if (imageSize > ChunkJobSmall.size) {
-        middleChunk.push(file.name);
+      } else if (imageSize > 8193) {
+        chunkJob.push(file.name);
+        chunkUnit += ChunkLargeUnit;
+      } else if (imageSize > 4097) {
+        chunkJob.push(file.name);
+        chunkUnit += ChunkMiddleUnit;
       } else {
-        smallChunk.push(file.name);
+        chunkJob.push(file.name);
+        chunkUnit += ChunkSmallUnit;
       }
-      if (smallChunk.length >= ChunkJobSmall.max) {
-        jobs.push(smallChunk);
-        smallChunk = [];
-      }
-      if (middleChunk.length >= ChunkJobMiddle.max) {
-        jobs.push(middleChunk);
-        middleChunk = [];
-      }
-      if (largeChunk.length >= ChunkJobLarge.max) {
-        jobs.push(largeChunk);
-        largeChunk = [];
+      if (chunkUnit >= ChunkJobMax) {
+        jobs.push(chunkJob);
+        chunkJob = [];
+        chunkUnit = 0;
       }
     }
-    if (smallChunk.length > 0) jobs.push(smallChunk);
-    if (middleChunk.length > 0) jobs.push(middleChunk);
-    if (largeChunk.length > 0) jobs.push(largeChunk);
+    if (chunkJob.length > 0) jobs.push(chunkJob);
 
     return jobs;
   }
