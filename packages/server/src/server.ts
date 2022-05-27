@@ -17,11 +17,19 @@ function isAlbResult(r: ALBResult | CloudFrontRequestResult | APIGatewayProxyRes
 
 const instanceId = ulid.ulid();
 
+function getLandingLocation(): string | null {
+  if (typeof require !== 'undefined' && typeof require.resolve === 'function') {
+    return require.resolve('@basemaps/landing/dist');
+  } else {
+    const require = createRequire(import.meta.url);
+    return require.resolve('@basemaps/landing/dist');
+  }
+}
+
 export function createServer(logger: LogType): FastifyInstance {
   const BasemapsServer = fastify();
 
-  const require = createRequire(import.meta.url);
-  const landingLocation = require.resolve('@basemaps/landing');
+  const landingLocation = getLandingLocation();
   if (landingLocation == null) {
     logger.warn('Server:Landing:Failed');
   } else {
