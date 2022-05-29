@@ -1,6 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { BaseConfig } from './config/base.js';
-import { ConfigPrefix } from './config/prefix.js';
+import { ConfigPrefix, ConfigPrefixes } from './config/prefix.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from './config/tile.set.js';
 import {
   ConfigImagery,
@@ -64,6 +64,15 @@ export class ConfigInstance {
     if (id === '') return id;
     if (id.startsWith(prefix)) return id;
     return `${prefix}_${id}`;
+  }
+
+  /** Attempt to get the configuration prefix from a id */
+  getPrefix(id: string): ConfigPrefix | null {
+    const joinIndex = id.indexOf('_');
+    if (joinIndex === -1) return null;
+    const prefix = id.slice(0, joinIndex) as ConfigPrefix;
+    if (ConfigPrefixes.has(prefix)) return prefix;
+    return null;
   }
 
   /**

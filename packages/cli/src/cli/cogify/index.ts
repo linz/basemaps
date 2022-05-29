@@ -1,6 +1,6 @@
 #!/usr/bin/env node
+import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
 import 'source-map-support/register.js';
-import { BaseCommandLine } from '../base.cli.js';
 import { ActionCogCreate } from './action.cog.js';
 import { ActionJobCreate } from './action.job.js';
 

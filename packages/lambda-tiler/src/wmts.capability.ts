@@ -30,7 +30,7 @@ export function getTileMatrixId(tileMatrix: TileMatrixSet): string {
 
 export interface WmtsCapabilitiesParams {
   httpBase: string;
-  provider: WmtsProvider;
+  provider?: WmtsProvider;
   layers: TileSetRaster[];
   apiKey?: string;
   formats?: ImageFormat[];
@@ -38,7 +38,7 @@ export interface WmtsCapabilitiesParams {
 
 export class WmtsCapabilities {
   httpBase: string;
-  provider: WmtsProvider;
+  provider?: WmtsProvider;
 
   layers: Map<string, TileSetRaster[]> = new Map();
 
@@ -90,6 +90,7 @@ export class WmtsCapabilities {
   }
 
   buildProvider(): VNodeElement[] {
+    if (this.provider == null) return [];
     const { serviceIdentification, serviceProvider } = this.provider;
     const { contact } = serviceProvider;
     return [

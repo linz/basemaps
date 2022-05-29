@@ -5,7 +5,7 @@
 import { GitTag } from '../packages/shared/build/cli/git.tag.js';
 import crypto from 'crypto';
 import cp from 'child_process';
-import fs from 'fs';
+import fs, { chmodSync } from 'fs';
 import * as z from 'zod';
 import c from 'ansi-colors';
 import path from 'path';
@@ -31,6 +31,7 @@ const BundleSchema = z.object({
 
   env: z.record(z.union([z.null(), z.string()])).optional(),
   external: z.array(z.string()).optional(),
+  executable: z.boolean().optional(),
 
   /** Suffix a hash  */
   suffix: z.boolean().optional(),
@@ -83,6 +84,9 @@ function bundleJs(basePath, cfg, outfile, isJsx = false) {
     buildCmd.push('--jsx-fragment=Fragment');
     buildCmd.push(`--inject:./preact-shim.js`);
   }
+  if (cfg.executable) {
+    buildCmd.push('--banner:js=#!/usr/bin/env node');
+  }
 
   if (process.env.NODE_ENV === 'production') buildCmd.push('--minify');
   console.log(buildCmd);
@@ -93,6 +97,8 @@ function bundleJs(basePath, cfg, outfile, isJsx = false) {
     console.log(res.stderr.toString().trim());
     process.exit(1);
   }
+
+  if (cfg.executable) chmodSync(outfile, 0o755);
 
   const fileData = fs.readFileSync(outfile).toString();
   console.log('Bundled', outfile, (fileData.length / 1024).toFixed(2), 'KB');

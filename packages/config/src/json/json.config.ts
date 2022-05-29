@@ -1,9 +1,11 @@
 import { Bounds, GoogleTms, ImageFormat, Nztm2000QuadTms, TileMatrixSet, VectorFormat } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
+import { createHash } from 'crypto';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { Config } from '../base.config.js';
 import { parseRgba } from '../color.js';
+import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
@@ -15,15 +17,19 @@ import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { zTileSetConfig } from './parse.tile.set.js';
 
-export function guessIdFromUri(uri: string): string {
+export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
   const id = parts.pop();
 
-  if (id == null) throw new Error('Could not get id from URI: ' + uri);
-  const date = new Date(ulid.decodeTime(id));
-  if (date.getUTCFullYear() < 2015) throw new Error('Could not get id from URI: ' + uri);
-  if (date.getUTCFullYear() > new Date().getUTCFullYear() + 1) throw new Error('Could not get id from URI: ' + uri);
-  return id;
+  if (id == null) return null;
+  try {
+    const date = new Date(ulid.decodeTime(id));
+    if (date.getUTCFullYear() < 2015) return null;
+    if (date.getUTCFullYear() > new Date().getUTCFullYear() + 1) return null;
+    return id;
+  } catch (e) {
+    return null;
+  }
 }
 
 export class ConfigJson {
@@ -39,34 +45,41 @@ export class ConfigJson {
   }
 
   /** Import configuration from a base path */
-  static async fromPath(basePath: string, log: LogType): Promise<ConfigJson> {
+  static async fromPath(basePath: string, log: LogType): Promise<ConfigProviderMemory> {
     const cfg = new ConfigJson(basePath, log);
 
-    for await (const pvPath of fsa.list(fsa.join(basePath, 'provider'))) {
-      if (!pvPath.endsWith('.json')) continue;
-      const pv = await cfg.provider(await fsa.readJson(pvPath));
-      cfg.mem.put(pv);
-    }
+    for await (const filePath of fsa.list(basePath)) {
+      if (!filePath.endsWith('.json')) continue;
 
-    for await (const tsPath of fsa.list(fsa.join(basePath, 'tileset'))) {
-      if (!tsPath.endsWith('.json')) continue;
-      const ts = await cfg.tileSet(await fsa.readJson(tsPath));
-      cfg.mem.put(ts);
-    }
+      const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
+      const prefix = Config.getPrefix(bc.id);
+      if (prefix == null) {
+        log.warn({ path: filePath }, 'Invalid JSON file found');
+        continue;
+      }
 
-    for await (const stylePath of fsa.list(fsa.join(basePath, 'style'))) {
-      if (!stylePath.endsWith('.json')) continue;
-      const ts = await cfg.style(await fsa.readJson(stylePath));
-      cfg.mem.put(ts);
-    }
+      log.trace({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
 
-    return cfg;
+      switch (prefix) {
+        case ConfigPrefix.TileSet:
+          cfg.mem.put(await cfg.tileSet(bc));
+          break;
+        case ConfigPrefix.Provider:
+          cfg.mem.put(await cfg.provider(bc));
+          break;
+        case ConfigPrefix.Style:
+          cfg.mem.put(await cfg.style(bc));
+          break;
+      }
+    }
+    return cfg.mem;
   }
 
   async provider(obj: unknown): Promise<ConfigProvider> {
     const pv = zProviderConfig.parse(obj);
+    this.logger.info({ config: pv.id }, 'Config:Loaded:Provider');
 
-    const provider: ConfigProvider = {
+    return {
       id: pv.id,
       name: Config.unprefix(ConfigPrefix.Provider, pv.id),
       serviceIdentification: pv.serviceIdentification,
@@ -75,11 +88,12 @@ export class ConfigJson {
       updatedAt: Date.now(),
       version: 1,
     };
-    return provider;
   }
 
   async style(obj: unknown): Promise<ConfigVectorStyle> {
     const st = zStyleJson.parse(obj);
+    this.logger.info({ config: st.id }, 'Config:Loaded:Style');
+
     return {
       id: st.id,
       name: st.name,
@@ -91,15 +105,16 @@ export class ConfigJson {
 
   async tileSet(obj: unknown): Promise<ConfigTileSet> {
     const ts = zTileSetConfig.parse(obj);
+    this.logger.info({ config: ts.id }, 'Config:Loaded:TileSet');
 
     const imageryFetch: Promise<ConfigImagery>[] = [];
     if (ts.type === TileSetType.Raster) {
       for (const layer of ts.layers) {
-        if (layer[2193] != null && layer[2193].startsWith('s3://')) {
+        if (layer[2193] != null) {
           imageryFetch.push(this.loadImagery(layer[2193], Nztm2000QuadTms, layer.name));
         }
 
-        if (layer[3857] != null && layer[3857].startsWith('s3://')) {
+        if (layer[3857] != null) {
           imageryFetch.push(this.loadImagery(layer[3857], GoogleTms, layer.name));
         }
       }
@@ -159,16 +174,18 @@ export class ConfigJson {
   }
 
   async _loadImagery(uri: string, tileMatrix: TileMatrixSet, name: string): Promise<ConfigImagery> {
-    this.logger.trace({ uri }, 'FetchImagery');
-
     // TODO is there a better way of guessing the imagery id & tile matrix?
-    const id = Config.prefix(ConfigPrefix.Imagery, guessIdFromUri(uri));
+    const imageId = guessIdFromUri(uri) ?? createHash('sha256').update(uri).digest('base64url');
+    const id = Config.prefix(ConfigPrefix.Imagery, imageId);
+    this.logger.trace({ uri, imageId: id }, 'FetchImagery');
 
     const fileList = await fsa.toArray(fsa.list(uri));
-    const tiffFiles = fileList.filter((f) => f.endsWith('.tiff'));
+    const tiffFiles = fileList.filter((f) => f.endsWith('.tiff') || f.endsWith('.tif'));
 
     let bounds: Bounds | null = null;
     // Files are stored as `{z}-{x}-{y}.tiff`
+    // TODO the files could actually be smaller than the tile size,
+    // we should really load the tiff at some point to validate the size
     const files = tiffFiles.map((c) => {
       const tileName = basename(c).replace('.tiff', '');
       const [z, x, y] = tileName.split('-').map((f) => Number(f));
@@ -198,7 +215,7 @@ export class ConfigJson {
       return bXyz[2] - aXyz[2];
     });
 
-    this.logger.debug({ uri, files: files.length }, 'FetchImagery:Done');
+    this.logger.debug({ uri, imageId, files: files.length }, 'FetchImagery:Done');
 
     if (bounds == null) throw new Error('Failed to get bounds from URI: ' + uri);
     const now = Date.now();

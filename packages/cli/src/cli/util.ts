@@ -2,7 +2,7 @@ import { Env, fsa, LogConfig, Projection } from '@basemaps/shared';
 import CloudFormation from 'aws-sdk/clients/cloudformation.js';
 import CloudFront from 'aws-sdk/clients/cloudfront.js';
 import S3 from 'aws-sdk/clients/s3.js';
-import { CliId } from './base.cli.js';
+import { CliId } from '@basemaps/shared/build/cli/base.js';
 import crypto from 'crypto';
 import path from 'path';
 import { gzip } from 'zlib';

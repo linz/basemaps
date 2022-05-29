@@ -6,3 +6,5 @@ export enum ConfigPrefix {
   Style = 'st',
   ProcessingJob = 'pj',
 }
+
+export const ConfigPrefixes: Set<ConfigPrefix> = new Set(Object.values(ConfigPrefix));

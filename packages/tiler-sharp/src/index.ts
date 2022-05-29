@@ -85,7 +85,7 @@ export class TileMakerSharp implements TileMaker {
   }
 
   public async compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics; layers: number }> {
-    const metrics = new Metrics();
+    const metrics = ctx.metrics ?? new Metrics();
     // TODO to prevent too many of these running, it should ideally be inside of a two step promise queue
     // 1. Load all image bytes
     // 2. Create image overlays

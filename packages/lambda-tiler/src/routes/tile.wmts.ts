@@ -36,6 +36,7 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
   const wmtsData = tileWmtsFromPath(action.rest);
   if (wmtsData == null) return NotFound;
   const host = Env.get(Env.PublicUrlBase) ?? '';
+  console.log('WMTS', req);
 
   req.timer.start('tileset:load');
   const tileSets = await wmtsLoadTileSets(wmtsData.name, wmtsData.tileMatrix);
@@ -44,12 +45,11 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
 
   const providerId = Config.Provider.id('linz');
   const provider = await Config.Provider.get(providerId);
-  if (provider == null) return NotFound;
 
   const apiKey = Router.apiKey(req);
   const xml = new WmtsCapabilities({
     httpBase: host,
-    provider,
+    provider: provider ?? undefined,
     layers: tileSets,
     apiKey,
     formats: getImageFormats(req),

@@ -1,4 +1,5 @@
 import { Config, Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
+import { CliId } from '@basemaps/shared/build/cli/base.js';
 import {
   CommandLineAction,
   CommandLineFlagParameter,
@@ -14,7 +15,6 @@ import { CogVrt } from '../../cog/cog.vrt.js';
 import { Cutline } from '../../cog/cutline.js';
 import { CogJob } from '../../cog/types.js';
 import { Gdal } from '../../gdal/gdal.js';
-import { CliId } from '../base.cli.js';
 import { makeTempFolder, makeTiffFolder } from '../folder.js';
 import path from 'path';
 import { insertConfigImagery, insertConfigTileSet } from './imagery.config.js';
