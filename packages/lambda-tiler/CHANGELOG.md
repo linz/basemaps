@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.27.0](https://github.com/linz/basemaps/compare/v6.26.0...v6.27.0) (2022-05-29)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** do not serve mvt in the wrong projection ([#2212](https://github.com/linz/basemaps/issues/2212)) ([a68e588](https://github.com/linz/basemaps/commit/a68e5889f2d0394676dcc41d831d00ede3df115d))
+
+
+### Features
+
+* **cli:** allow overriding imagery names ([#2169](https://github.com/linz/basemaps/issues/2169)) ([5c3bdd8](https://github.com/linz/basemaps/commit/5c3bdd89b664dd85df2b48d709653b71bdc348f7))
+* **cli:** Insert imagery and tileset config after cog creation complete ([#2191](https://github.com/linz/basemaps/issues/2191)) ([3ea5efd](https://github.com/linz/basemaps/commit/3ea5efd049b956f882a05c90471d764efb5d39fd))
+* **cli:** make cogs will update the process job status if exists. ([#2180](https://github.com/linz/basemaps/issues/2180)) ([855ce1c](https://github.com/linz/basemaps/commit/855ce1cb1f7b8bff575be342184e5ac387684f09))
+* **config:** add configuration parser and bundler ([#2200](https://github.com/linz/basemaps/issues/2200)) ([795e3f2](https://github.com/linz/basemaps/commit/795e3f224ee0b4cd1e66a242d05a1fd5357cae3a))
+* **lambda-cog:** New lambda Cog for import api. ([#2207](https://github.com/linz/basemaps/issues/2207)) ([79f4ae7](https://github.com/linz/basemaps/commit/79f4ae70ea3fc16a37dd575b843a0b60a1365df4))
+* **lambda-tiler:** Add file number limitation to import api. ([#2203](https://github.com/linz/basemaps/issues/2203)) ([4694e29](https://github.com/linz/basemaps/commit/4694e29a4444810391e72b290ec64f8b8541c369))
+* **lambda-tiler:** allow selection of output format for wmts with ?format= ([#2211](https://github.com/linz/basemaps/issues/2211)) ([e32e1ed](https://github.com/linz/basemaps/commit/e32e1ed6f48f5d70c47b9fd81032ebc8662d3a72))
+* **lambda-tiler:** Increase limit of total file size. ([#2205](https://github.com/linz/basemaps/issues/2205)) ([5246ea0](https://github.com/linz/basemaps/commit/5246ea0879a4bf6b20770fb633d63afac778d54d))
+* **lambda-tiler:** increase the max number of tiffs to load at once to 25 ([#2219](https://github.com/linz/basemaps/issues/2219)) ([d7d30a8](https://github.com/linz/basemaps/commit/d7d30a843201be91933c8627d99988098d783cec))
+* **lambda-tiler:** Load MaxImagePixelSize from import api. ([#2206](https://github.com/linz/basemaps/issues/2206)) ([b851934](https://github.com/linz/basemaps/commit/b85193401bc5df2ecb689c3801f62af71696cdf5))
+* **server:** use a bundled `@basemaps/landing` to serve static assets ([#2202](https://github.com/linz/basemaps/issues/2202)) ([c60f518](https://github.com/linz/basemaps/commit/c60f518893fe037a03f8bfd489c84d8427481678))
+
+
+
+
+
 # [6.26.0](https://github.com/linz/basemaps/compare/v6.25.0...v6.26.0) (2022-05-12)
 
 

@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.27.0](https://github.com/linz/basemaps/compare/v6.26.0...v6.27.0) (2022-05-29)
+
+
+### Bug Fixes
+
+* **landing:** remove the version information from the screenshot view ([#2198](https://github.com/linz/basemaps/issues/2198)) ([b982061](https://github.com/linz/basemaps/commit/b98206131c193a9ea3e70d97148b14943839ace0))
+
+
+### Features
+
+* **landing:** remove debug overlays to make it easier to screenshot ([#2193](https://github.com/linz/basemaps/issues/2193)) ([81dd275](https://github.com/linz/basemaps/commit/81dd2757690ccc21d3d6898108e1c23daf682458))
+* **server:** use a bundled `@basemaps/landing` to serve static assets ([#2202](https://github.com/linz/basemaps/issues/2202)) ([c60f518](https://github.com/linz/basemaps/commit/c60f518893fe037a03f8bfd489c84d8427481678))
+
+
+
+
+
 # [6.26.0](https://github.com/linz/basemaps/compare/v6.25.0...v6.26.0) (2022-05-12)
 
 **Note:** Version bump only for package @basemaps/landing
