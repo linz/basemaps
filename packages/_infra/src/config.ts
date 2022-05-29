@@ -36,7 +36,7 @@ export const BaseMapsProdConfig: BaseMapsConfig = {
   CloudFrontDns: ['basemaps.linz.govt.nz', 'tiles.basemaps.linz.govt.nz'],
   PublicUrlBase: 'https://basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
-  ImportImageryBucket: 'linz-basemaps-cache',
+  ImportImageryBucket: 'linz-basemaps',
   ImportFilesNumberLimit: '10000',
   ImportFilesSizeLimitGb: '1200',
 };
