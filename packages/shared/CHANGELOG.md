@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.27.0](https://github.com/linz/basemaps/compare/v6.26.0...v6.27.0) (2022-05-29)
+
+
+### Features
+
+* **infra:** Increase the import api size limitation to 1200GB. ([#2215](https://github.com/linz/basemaps/issues/2215)) ([94c4da8](https://github.com/linz/basemaps/commit/94c4da8eb0f07f03e46f5ac7a6759c486e56f5d4))
+* **lambda-tiler:** Increase limit of total file size. ([#2205](https://github.com/linz/basemaps/issues/2205)) ([5246ea0](https://github.com/linz/basemaps/commit/5246ea0879a4bf6b20770fb633d63afac778d54d))
+
+
+
+
+
 # [6.26.0](https://github.com/linz/basemaps/compare/v6.25.0...v6.26.0) (2022-05-12)
 
 **Note:** Version bump only for package @basemaps/shared

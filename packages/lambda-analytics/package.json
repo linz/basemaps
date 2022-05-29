@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-analytics",
-  "version": "6.26.0",
+  "version": "6.27.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/shared": "^6.26.0"
+    "@basemaps/shared": "^6.27.0"
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",

@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-cog",
-  "version": "6.26.0",
+  "version": "6.27.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -20,11 +20,11 @@
   "types": "./build/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@basemaps/cli": "^6.26.0",
-    "@basemaps/config": "^6.26.0",
+    "@basemaps/cli": "^6.27.0",
+    "@basemaps/config": "^6.27.0",
     "@basemaps/geo": "^6.26.0",
     "@basemaps/lambda": "^6.7.0",
-    "@basemaps/shared": "^6.26.0",
+    "@basemaps/shared": "^6.27.0",
     "@chunkd/fs": "^8.1.0",
     "@linzjs/lambda": "^3.0.1"
   },
