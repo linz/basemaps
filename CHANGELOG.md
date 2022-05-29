@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.27.0](https://github.com/linz/basemaps/compare/v6.26.0...v6.27.0) (2022-05-29)
+
+
+### Bug Fixes
+
+* **cli:** Action Cog get processing Id after read job json. ([#2204](https://github.com/linz/basemaps/issues/2204)) ([e459d2a](https://github.com/linz/basemaps/commit/e459d2a12363ded2a825c4266c79357324d17b97))
+* **infra:** Fix the cog batch job to put record to dynamodb. ([#2197](https://github.com/linz/basemaps/issues/2197)) ([3c89246](https://github.com/linz/basemaps/commit/3c89246e33e65439352cc27f151ec9c85165a2db))
+* **lambda-tiler:** do not serve mvt in the wrong projection ([#2212](https://github.com/linz/basemaps/issues/2212)) ([a68e588](https://github.com/linz/basemaps/commit/a68e5889f2d0394676dcc41d831d00ede3df115d))
+* **landing:** remove the version information from the screenshot view ([#2198](https://github.com/linz/basemaps/issues/2198)) ([b982061](https://github.com/linz/basemaps/commit/b98206131c193a9ea3e70d97148b14943839ace0))
+
+
+### Features
+
+* **cli:** allow overriding imagery names ([#2169](https://github.com/linz/basemaps/issues/2169)) ([5c3bdd8](https://github.com/linz/basemaps/commit/5c3bdd89b664dd85df2b48d709653b71bdc348f7))
+* **cli:** Chunk batch job based on the size. ([#2217](https://github.com/linz/basemaps/issues/2217)) ([770430c](https://github.com/linz/basemaps/commit/770430ce388f13f2690fa680e113c4e830df312a))
+* **cli:** Insert imagery and tileset config after cog creation complete ([#2191](https://github.com/linz/basemaps/issues/2191)) ([3ea5efd](https://github.com/linz/basemaps/commit/3ea5efd049b956f882a05c90471d764efb5d39fd))
+* **cli:** Make a sseperate folder for each tiff for group cogs batch job. ([#2213](https://github.com/linz/basemaps/issues/2213)) ([e2aef5e](https://github.com/linz/basemaps/commit/e2aef5e460e059a7f8f59cc143a606255d7d77e0))
+* **cli:** make cogs will update the process job status if exists. ([#2180](https://github.com/linz/basemaps/issues/2180)) ([855ce1c](https://github.com/linz/basemaps/commit/855ce1cb1f7b8bff575be342184e5ac387684f09))
+* **cli:** Pass processingId to action job cli for the batch job. ([#2199](https://github.com/linz/basemaps/issues/2199)) ([f962fe2](https://github.com/linz/basemaps/commit/f962fe21859d44fe6ace79aed4611f3343a0d1bd))
+* **cli:** Upgrade action cog to be able to group small jobs into a single batch job. ([#2210](https://github.com/linz/basemaps/issues/2210)) ([8a7de91](https://github.com/linz/basemaps/commit/8a7de912a3b633bfac631e61b0480f2839ceb2cc))
+* **config:** add configuration parser and bundler ([#2200](https://github.com/linz/basemaps/issues/2200)) ([795e3f2](https://github.com/linz/basemaps/commit/795e3f224ee0b4cd1e66a242d05a1fd5357cae3a))
+* **infra:** Add config bucket read permission to lambda-tiler ([#2196](https://github.com/linz/basemaps/issues/2196)) ([acd3414](https://github.com/linz/basemaps/commit/acd341489f7519a6dab2dc4d7a8b1c54cc7a801f))
+* **infra:** Add import api environments variables into lambda-tiler. ([#2195](https://github.com/linz/basemaps/issues/2195)) ([2788150](https://github.com/linz/basemaps/commit/278815098241a6abbb761261e408c3f56a69eaca))
+* **infra:** Increase the import api size limitation to 1200GB. ([#2215](https://github.com/linz/basemaps/issues/2215)) ([94c4da8](https://github.com/linz/basemaps/commit/94c4da8eb0f07f03e46f5ac7a6759c486e56f5d4))
+* **infra:** Increase the lambda cog timeout to 10 minutes. ([#2216](https://github.com/linz/basemaps/issues/2216)) ([0fdc09d](https://github.com/linz/basemaps/commit/0fdc09d93ba2dd3f9337384a9b7a8ee5c2f80535))
+* **lambda-cog:** New lambda Cog for import api. ([#2207](https://github.com/linz/basemaps/issues/2207)) ([79f4ae7](https://github.com/linz/basemaps/commit/79f4ae70ea3fc16a37dd575b843a0b60a1365df4))
+* **lambda-cog:** reduce the max pixel size and increase the limit of processing size ([#2208](https://github.com/linz/basemaps/issues/2208)) ([451109e](https://github.com/linz/basemaps/commit/451109ebf2ffe2f622a8f8f00616c880c73417bf))
+* **lambda-cog:** Update the import api output path ([#2220](https://github.com/linz/basemaps/issues/2220)) ([0122f85](https://github.com/linz/basemaps/commit/0122f854572c86a96e5e22564f1d741b26825810))
+* **lambda-tiler:** Add file number limitation to import api. ([#2203](https://github.com/linz/basemaps/issues/2203)) ([4694e29](https://github.com/linz/basemaps/commit/4694e29a4444810391e72b290ec64f8b8541c369))
+* **lambda-tiler:** allow selection of output format for wmts with ?format= ([#2211](https://github.com/linz/basemaps/issues/2211)) ([e32e1ed](https://github.com/linz/basemaps/commit/e32e1ed6f48f5d70c47b9fd81032ebc8662d3a72))
+* **lambda-tiler:** Increase limit of total file size. ([#2205](https://github.com/linz/basemaps/issues/2205)) ([5246ea0](https://github.com/linz/basemaps/commit/5246ea0879a4bf6b20770fb633d63afac778d54d))
+* **lambda-tiler:** increase the max number of tiffs to load at once to 25 ([#2219](https://github.com/linz/basemaps/issues/2219)) ([d7d30a8](https://github.com/linz/basemaps/commit/d7d30a843201be91933c8627d99988098d783cec))
+* **lambda-tiler:** Load MaxImagePixelSize from import api. ([#2206](https://github.com/linz/basemaps/issues/2206)) ([b851934](https://github.com/linz/basemaps/commit/b85193401bc5df2ecb689c3801f62af71696cdf5))
+* **landing:** remove debug overlays to make it easier to screenshot ([#2193](https://github.com/linz/basemaps/issues/2193)) ([81dd275](https://github.com/linz/basemaps/commit/81dd2757690ccc21d3d6898108e1c23daf682458))
+* **server:** use a bundled `@basemaps/landing` to serve static assets ([#2202](https://github.com/linz/basemaps/issues/2202)) ([c60f518](https://github.com/linz/basemaps/commit/c60f518893fe037a03f8bfd489c84d8427481678))
+
+
+
+
+
 # [6.26.0](https://github.com/linz/basemaps/compare/v6.25.0...v6.26.0) (2022-05-12)
 
 

@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.27.0](https://github.com/linz/basemaps/compare/v6.26.0...v6.27.0) (2022-05-29)
+
+
+### Bug Fixes
+
+* **infra:** Fix the cog batch job to put record to dynamodb. ([#2197](https://github.com/linz/basemaps/issues/2197)) ([3c89246](https://github.com/linz/basemaps/commit/3c89246e33e65439352cc27f151ec9c85165a2db))
+
+
+### Features
+
+* **infra:** Add config bucket read permission to lambda-tiler ([#2196](https://github.com/linz/basemaps/issues/2196)) ([acd3414](https://github.com/linz/basemaps/commit/acd341489f7519a6dab2dc4d7a8b1c54cc7a801f))
+* **infra:** Add import api environments variables into lambda-tiler. ([#2195](https://github.com/linz/basemaps/issues/2195)) ([2788150](https://github.com/linz/basemaps/commit/278815098241a6abbb761261e408c3f56a69eaca))
+* **infra:** Increase the import api size limitation to 1200GB. ([#2215](https://github.com/linz/basemaps/issues/2215)) ([94c4da8](https://github.com/linz/basemaps/commit/94c4da8eb0f07f03e46f5ac7a6759c486e56f5d4))
+* **infra:** Increase the lambda cog timeout to 10 minutes. ([#2216](https://github.com/linz/basemaps/issues/2216)) ([0fdc09d](https://github.com/linz/basemaps/commit/0fdc09d93ba2dd3f9337384a9b7a8ee5c2f80535))
+* **lambda-cog:** New lambda Cog for import api. ([#2207](https://github.com/linz/basemaps/issues/2207)) ([79f4ae7](https://github.com/linz/basemaps/commit/79f4ae70ea3fc16a37dd575b843a0b60a1365df4))
+* **lambda-cog:** reduce the max pixel size and increase the limit of processing size ([#2208](https://github.com/linz/basemaps/issues/2208)) ([451109e](https://github.com/linz/basemaps/commit/451109ebf2ffe2f622a8f8f00616c880c73417bf))
+* **lambda-cog:** Update the import api output path ([#2220](https://github.com/linz/basemaps/issues/2220)) ([0122f85](https://github.com/linz/basemaps/commit/0122f854572c86a96e5e22564f1d741b26825810))
+* **lambda-tiler:** Increase limit of total file size. ([#2205](https://github.com/linz/basemaps/issues/2205)) ([5246ea0](https://github.com/linz/basemaps/commit/5246ea0879a4bf6b20770fb633d63afac778d54d))
+
+
+
+
+
 # [6.26.0](https://github.com/linz/basemaps/compare/v6.25.0...v6.26.0) (2022-05-12)
 
 **Note:** Version bump only for package @basemaps/infra

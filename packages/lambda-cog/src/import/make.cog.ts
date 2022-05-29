@@ -1,6 +1,7 @@
 import { JobCreationContext } from '@basemaps/cli/build/cog/cog.stac.job';
 import { TileMatrixSet } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
+import { fsa } from '@chunkd/fs';
 import { RoleConfig } from './imagery.find.js';
 
 const MaxImagePixelSize = 128000;
@@ -22,7 +23,7 @@ export async function getJobCreationContext(
       },
       maxImageSize: MaxImagePixelSize,
     },
-    outputLocation: { type: 's3' as const, path: `s3://${bucket}` },
+    outputLocation: { type: 's3' as const, path: fsa.join(`s3://${bucket}`, 'cache') },
     sourceLocation: { type: 's3', path, ...role, files: files },
     batch: true,
     tileMatrix,
