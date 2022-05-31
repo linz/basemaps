@@ -35,6 +35,11 @@ export interface TileSetResponse {
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
+export function getTiffName(name: string): string {
+  if (name.endsWith('.tif') || name.endsWith('.tiff')) return name;
+  return `${name}.tiff`;
+}
+
 export class TileSetRaster {
   type: TileSetType.Raster = TileSetType.Raster;
 
@@ -45,17 +50,6 @@ export class TileSetRaster {
 
   components: TileSetNameComponents;
   tileSet: ConfigTileSetRaster;
-
-  /**
-   * Return the location of a imagery `record`
-   * @param record
-   * @param name the COG to locate. Return just the directory if `null`
-   */
-  static basePath(record: ConfigImagery, name?: string): string {
-    if (name == null) return record.uri;
-    if (record.uri.endsWith('/')) throw new Error("Invalid uri ending with '/' " + record.uri);
-    return `${record.uri}/${name}.tiff`;
-  }
 
   constructor(name: string, tileMatrix: TileMatrixSet) {
     this.components = TileSetNameParser.parse(name);
@@ -180,18 +174,18 @@ export class TileSetRaster {
     const output: CogTiff[] = [];
     for (const c of record.files) {
       if (!tileBounds.intersects(Bounds.fromJson(c))) continue;
+      const tiffPath = fsa.join(record.uri, getTiffName(c.name));
 
-      const tiffKey = `${record.id}_${c.name}`;
-      let existing = TiffCache.get(tiffKey);
+      let existing = TiffCache.get(tiffPath);
       if (existing == null) {
-        const source = fsa.source(TileSetRaster.basePath(record, c.name));
+        const source = fsa.source(tiffPath);
         if (source == null) {
-          throw new Error(`Failed to create CogSource from  ${TileSetRaster.basePath(record, c.name)}`);
+          throw new Error(`Failed to create CogSource from  ${tiffPath}`);
         }
 
         St.trace(source);
         existing = new CogTiff(source);
-        TiffCache.set(tiffKey, existing);
+        TiffCache.set(tiffPath, existing);
       }
 
       output.push(existing);

@@ -66,6 +66,7 @@ o.spec('TileSetCache', () => {
 
       const aTiff = subTileSet.getTiffsForTile({ x: 0, y: 0, z: 0 });
       o(aTiff.length).equals(1);
+      console.log(aTiff[0].source);
       o(aTiff[0].source.uri).equals('s3://foo/bar/foo.tiff');
 
       TileSets.cache.delete(subTileSet.id);
