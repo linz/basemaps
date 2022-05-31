@@ -37,10 +37,6 @@ export class LambdaTiler extends Construct {
       code: lambda.Code.fromAsset(CODE_PATH),
       environment: {
         [Env.PublicUrlBase]: config.PublicUrlBase,
-        [Env.AwsRoleConfigBucket]: config.AwsRoleConfigBucket,
-        [Env.ImportImageryBucket]: config.ImportImageryBucket,
-        [Env.ImportFilesNumberLimit]: config.ImportFilesNumberLimit,
-        [Env.ImportFilesSizeLimitGb]: config.ImportFilesSizeLimitGb,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       },
       logRetention: RetentionDays.ONE_MONTH,
@@ -49,7 +45,5 @@ export class LambdaTiler extends Construct {
       const cogBucket = s3.Bucket.fromBucketName(this, `CogBucket${bucketName}`, bucketName);
       cogBucket.grantRead(this.lambda);
     }
-    const configBucket = s3.Bucket.fromBucketName(this, 'ConfigBucket', config.AwsRoleConfigBucket);
-    configBucket.grantRead(this.lambda);
   }
 }
