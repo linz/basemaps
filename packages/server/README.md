@@ -2,15 +2,28 @@
 
 WMTS/XYZ Tile server command line interface.
 
-This wraps the @basemaps/lambda-tiler into a standalone express http server.
+This wraps the @basemaps/tiler into a standalone express http server.
 
 ## Usage
-Basemaps server exepects a folder tree full of configuration, with multiple tilesets and styles configuration files.
+Basemaps server expects a folder tree full of configuration, with multiple tilesets and styles configuration files.
 
 ```bash
 basemaps-server --config path/to/config/
 ```
 
+### Usage docker
+
+The server is also published as a docker container 
+
+```bash
+docker run -it \
+    --volume $PWD/config:/config \
+    --volume $PWD/tiffs:$PWD/tiffs \
+    -p 5000:5000 \
+     ghcr.io/linz/basemaps-server:v6.28.0 --config /config
+```
+
+Where `${PWD}/config` contains all the configuration and `${PWD}/tiffs` is all the relevant tiff files
 
 ### Bundled configuration
 
