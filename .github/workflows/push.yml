@@ -20,6 +20,8 @@ jobs:
         run: |
            npx lerna run bundle --stream
            npm pack --workspaces
+        env:
+           NODE_ENV: "production"
 
       - name: Build containers
         run: |
