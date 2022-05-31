@@ -26,7 +26,7 @@ export class BasemapsServerCommand extends BaseCommandLine {
   config = this.defineStringParameter({
     argumentName: 'CONFIG',
     parameterLongName: '--config',
-    description: 'Configuration source to user',
+    description: 'Configuration source to use',
   });
   ignoreConfig = this.defineFlagParameter({
     parameterLongName: '--no-config',

@@ -5,11 +5,20 @@ WMTS/XYZ Tile server command line interface.
 This wraps the @basemaps/lambda-tiler into a standalone express http server.
 
 ## Usage
+Basemaps server exepects a folder tree full of configuration, with multiple tilesets and styles configuration files.
 
-```
-basemaps-server --config path/to/config
+```bash
+basemaps-server --config path/to/config/
 ```
 
+Basemaps server can also be configured with a single configuration bundle file, a configuration bundle is all the configuration packaged into a single file. 
+
+```bash
+basemaps-server --config-bundle path/to/config
+```
+
+
+### Usage with LINZ imagery
 Usage with basemaps config, you will need access to basemaps' imagery cache 
 
 please contact basemaps@linz.govt.nz if you need access.
@@ -18,6 +27,8 @@ git clone github.com/linz/basemaps-config
 
 basemaps-server --config basemaps-config/config
 ```
+
+
 
 
 ### Direct TIFF access
