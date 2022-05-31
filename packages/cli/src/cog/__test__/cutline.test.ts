@@ -11,6 +11,7 @@ import { SourceTiffTestHelper } from './source.tiff.testhelper.js';
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 o.spec('cutline', () => {
+  o.specTimeout(1_000);
   const testDir = `${__dirname}/../../../__test.assets__`;
 
   o.spec('filterSourcesForName', () => {
