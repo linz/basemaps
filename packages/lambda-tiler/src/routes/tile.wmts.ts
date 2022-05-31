@@ -36,7 +36,6 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
   const wmtsData = tileWmtsFromPath(action.rest);
   if (wmtsData == null) return NotFound;
   const host = Env.get(Env.PublicUrlBase) ?? '';
-  console.log('WMTS', req);
 
   req.timer.start('tileset:load');
   const tileSets = await wmtsLoadTileSets(wmtsData.name, wmtsData.tileMatrix);
