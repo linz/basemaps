@@ -7,4 +7,7 @@ import { TilerFunction } from './serve/tiler.function.js';
 const basemaps = new App();
 const account = Env.get(DeployEnv.CdkAccount);
 
-new TilerFunction(basemaps, 'TilerFunction', { env: { region: BaseMapsRegion, account } });
+new TilerFunction(basemaps, 'TilerFunction', {
+  env: { region: BaseMapsRegion, account },
+  config: 's3://basemaps-cog-test/config-latest.json.gz',
+});

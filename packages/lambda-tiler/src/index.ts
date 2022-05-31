@@ -1,12 +1,13 @@
-import { lf, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { LogConfig } from '@basemaps/shared';
-import { Ping, Version } from './routes/api.js';
-import { Health } from './routes/health.js';
-import { Tiles } from './routes/tile.js';
-import { Router } from './router.js';
+import { Config, ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
+import { Env, fsa, LogConfig } from '@basemaps/shared';
+import { LambdaHttpRequest, LambdaHttpResponse, LambdaUrlRequest, lf } from '@linzjs/lambda';
 import { createHash } from 'crypto';
-import { Imagery } from './routes/imagery.js';
+import { Router } from './router.js';
+import { Ping, Version } from './routes/api.js';
 import { Esri } from './routes/esri/rest.js';
+import { Health } from './routes/health.js';
+import { Imagery } from './routes/imagery.js';
+import { Tiles } from './routes/tile.js';
 import { St } from './source.tracer.js';
 
 const app = new Router();
@@ -18,8 +19,39 @@ app.get('tiles', Tiles);
 app.get('imagery', Imagery);
 app.get('esri', Esri);
 
+const isMissingUrlBase = Env.get(Env.PublicUrlBase) == null;
+
+const configPath = Env.get(Env.ConfigPath);
+
+let configLoader: Promise<void> | null = null;
+/** Load configuration from a JSON file if specified */
+function loadConfig(req: LambdaHttpRequest): Promise<void> {
+  if (configLoader != null) return configLoader;
+  if (configPath == null) {
+    configLoader = Promise.resolve();
+    return configLoader;
+  }
+
+  req.timer.start('config:load');
+  req.log.info({ path: configPath }, 'Config:Load');
+  configLoader = Promise.resolve().then(async () => {
+    const data = await fsa.readJson<ConfigBundled>(configPath);
+    const mem = ConfigProviderMemory.fromJson(data);
+    Config.setConfigProvider(mem);
+    req.timer.end('config:load');
+    req.log.info({ path: configPath }, 'Config:Loaded');
+  });
+  return configLoader;
+}
+
 let slowTimer: NodeJS.Timer | null = null;
 export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+  // Ensure a public url is set
+  if (isMissingUrlBase && LambdaUrlRequest.is(req.event)) {
+    process.env[Env.PublicUrlBase] = req.event.requestContext.domainName;
+  }
+
+  await loadConfig(req);
   // Reset the request tracing
   St.reset();
 

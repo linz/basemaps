@@ -18,8 +18,8 @@ export interface LambdaTilerProps {
   /** Base public URL */
   publicUrlBase?: string;
 
-  /** Bundled configuration */
-  config?: ConfigBundled;
+  /** Bundled configuration path */
+  config?: string;
 }
 /**
  * Create a API Key validation edge lambda
@@ -36,6 +36,7 @@ export class LambdaTiler extends Construct {
     };
 
     if (props.publicUrlBase) environment[Env.PublicUrlBase] = props.publicUrlBase;
+    if (props.config) environment[Env.ConfigPath] = props.config;
 
     /**
      * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
