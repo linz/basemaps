@@ -7,9 +7,11 @@ import { ConfigProcessingJob } from '../config/processing.job.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
+import { ulid } from 'ulid';
 
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
+  id: string;
   imagery: ConfigImagery[];
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
@@ -33,7 +35,13 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   }
 
   toJson(): ConfigBundled {
-    const cfg: ConfigBundled = { imagery: [], style: [], provider: [], tileSet: [] };
+    const cfg: ConfigBundled = {
+      id: Config.prefix(ConfigPrefix.ConfigBundle, ulid()),
+      imagery: [],
+      style: [],
+      provider: [],
+      tileSet: [],
+    };
 
     for (const val of this.objects.values()) {
       const prefix = val.id.slice(0, val.id.indexOf('_'));
@@ -88,6 +96,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   /** Load a bundled configuration creating virtual tilesets for all imagery */
   static fromJson(cfg: ConfigBundled): ConfigProviderMemory {
+    if (cfg.id == null || Config.getPrefix(cfg.id) !== ConfigPrefix.ConfigBundle) {
+      throw new Error('Provided configuration file is not a basemaps config bundle.');
+    }
     // TODO this should validate the config
     const mem = new ConfigProviderMemory();
     for (const ts of cfg.tileSet) mem.put(ts);

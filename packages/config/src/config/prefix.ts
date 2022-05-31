@@ -5,6 +5,8 @@ export enum ConfigPrefix {
   ImageryRule = 'ir',
   Style = 'st',
   ProcessingJob = 'pj',
+  /** Configuration bundled into a single file */
+  ConfigBundle = 'cb',
 }
 
 export const ConfigPrefixes: Set<ConfigPrefix> = new Set(Object.values(ConfigPrefix));
