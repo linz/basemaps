@@ -11,7 +11,12 @@ import { getConfig } from '../config.js';
 const CODE_PATH = '../lambda-tiler/dist';
 
 export interface LambdaTilerProps {
-  vpc: IVpc;
+  vpc?: IVpc;
+  /** List of buckets to get read access from */
+  buckets: string[];
+
+  /** Base public URL */
+  publicUrlBase: string;
 }
 /**
  * Create a API Key validation edge lambda
@@ -23,25 +28,25 @@ export class LambdaTiler extends Construct {
   public constructor(scope: cdk.Stack, id: string, props: LambdaTilerProps) {
     super(scope, id);
 
-    const config = getConfig();
     /**
      * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
      * see: https://github.com/aws/aws-cdk/issues/8253
      */
     this.lambda = new lambda.Function(this, 'Tiler', {
-      vpc: props.vpc,
+      vpc: props?.vpc,
       runtime: lambda.Runtime.NODEJS_14_X,
       memorySize: 2048,
       timeout: Duration.seconds(60),
       handler: 'index.handler',
       code: lambda.Code.fromAsset(CODE_PATH),
       environment: {
-        [Env.PublicUrlBase]: config.PublicUrlBase,
+        [Env.PublicUrlBase]: props.publicUrlBase,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       },
       logRetention: RetentionDays.ONE_MONTH,
     });
-    for (const bucketName of config.CogBucket) {
+
+    for (const bucketName of props.buckets) {
       const cogBucket = s3.Bucket.fromBucketName(this, `CogBucket${bucketName}`, bucketName);
       cogBucket.grantRead(this.lambda);
     }

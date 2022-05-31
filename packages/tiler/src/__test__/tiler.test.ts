@@ -6,6 +6,8 @@ import { Tiler } from '../tiler.js';
 o.spec('tiler.test', () => {
   o.spec('getRasterTiffIntersection', () => {
     o('should intersect google', async () => {
+      o.timeout(1_000);
+
       const tiff = await TestTiff.Google.init();
       const tiler = new Tiler(GoogleTms);
 
@@ -18,19 +20,21 @@ o.spec('tiler.test', () => {
     ['0', '1', '2', '3'].forEach((qk) => {
       // Since this tiff centered in the middle tile, all of these tiffs should have 1/4 of their image taken up by it
       o(`should intersect google for qk:${qk}`, async () => {
+        o.timeout(1_000);
+
         const tiff = await TestTiff.Google.init();
         const tiler = new Tiler(GoogleTms);
 
         const tile = QuadKey.toTile(qk);
-        const o = tiler.getRasterTiffIntersection(tiff, tile.x, tile.y, tile.z);
+        const intersection = tiler.getRasterTiffIntersection(tiff, tile.x, tile.y, tile.z);
 
-        Approx.bounds(o?.tiff, { x: 128, y: 128, height: 256, width: 256 }, 'tiff');
+        Approx.bounds(intersection?.tiff, { x: 128, y: 128, height: 256, width: 256 }, 'tiff');
         Approx.bounds(
-          o?.intersection,
+          intersection?.intersection,
           { x: 128 + tile.x * 128, y: 128 + tile.y * 128, height: 128, width: 128 },
           'intersection',
         );
-        Approx.bounds(o?.tile, { x: 256 * tile.x, y: 256 * tile.y, width: 256, height: 256 }, 'tile');
+        Approx.bounds(intersection?.tile, { x: 256 * tile.x, y: 256 * tile.y, width: 256, height: 256 }, 'tile');
       });
     });
   });

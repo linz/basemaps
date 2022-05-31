@@ -9,6 +9,7 @@ import { EdgeStack } from './edge/index.js';
 import { getEdgeParameters } from './parameters.js';
 import { ServeStack } from './serve/index.js';
 import { CogStack } from './serve/lambda.cog.js';
+import { TilerFunction } from './serve/tiler.function.js';
 
 /** Find a certificate for a given domain in a specific region */
 async function findCertForDomain(region: string, domain: string): Promise<string | undefined> {
