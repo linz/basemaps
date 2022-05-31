@@ -17,7 +17,7 @@ jobs:
       - uses: linz/action-typescript@v1
       # Package all the files 
       - name: Bundle & Package all files
-        run:
+        run: |
            npx lerna run bundle --stream
            npm pack --workspaces
 
@@ -26,6 +26,8 @@ jobs:
           GIT_VERSION=$(git describe --tags --always --match 'v*')
 
           docker build packages/cli/ -t ghcr.io/linz/basemaps-cli:latest
+          # Files are packed into the base directory
+          cp *.tgz packages/server/
           docker build packages/server/ -t ghcr.io/linz/basemaps-server:latest
 
   build-deploy:
