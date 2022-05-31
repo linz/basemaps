@@ -11,10 +11,16 @@ Basemaps server exepects a folder tree full of configuration, with multiple tile
 basemaps-server --config path/to/config/
 ```
 
-Basemaps server can also be configured with a single configuration bundle file, a configuration bundle is all the configuration packaged into a single file. 
+
+### Bundled configuration
+
+Basemaps server can also be configured with a single configuration bundle file, which can be created from a configuration folder
+
+By bundling the configuration the startup time is greatly reduced as each individual tiff file does not have to be scanned for dimensions, it does mean that new tiffs will not be picked up until a new bundle is created.
 
 ```bash
-basemaps-server --config-bundle path/to/config
+basemaps-server --config path/to/config/ --bundle config.bundle.json
+basemaps-server --config config.bundle.json
 ```
 
 

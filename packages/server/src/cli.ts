@@ -32,6 +32,11 @@ export class BasemapsServerCommand extends BaseCommandLine {
     parameterLongName: '--no-config',
     description: 'Assume no config and just load tiffs from the configuration path',
   });
+  bundle = this.defineStringParameter({
+    argumentName: 'BUNDLE',
+    parameterLongName: '--bundle',
+    description: 'Compile the configuration into a bundle and output path',
+  });
   port = this.defineIntegerParameter({
     argumentName: 'PORT',
     parameterLongName: '--port',
@@ -102,11 +107,22 @@ export class BasemapsServerCommand extends BaseCommandLine {
       logger.info({ path: config, mode: 'tiffs' }, 'Starting Server');
       await this.loadTiffs(config, ServerUrl, logger);
     } else {
+      const mem = await ConfigJson.fromPath(config, logger);
+      const bundlePath = this.bundle.value;
+      if (bundlePath) {
+        await fsa.writeJson(bundlePath, mem.toJson());
+        logger.info({ path: bundlePath }, 'ConfigBundled');
+        return;
+      }
       // Assume the folder is a collection of config files
       logger.info({ path: config, mode: 'config' }, 'Starting Server');
-      const mem = await ConfigJson.fromPath(config, logger);
+
       mem.createVirtualTileSets();
       Config.setConfigProvider(mem);
+    }
+
+    if (this.bundle.value != null) {
+      throw new Error('--bundle path provided without providing a configuration path');
     }
 
     createServer(logger).listen(port ?? DefaultPort, '0.0.0.0', () => {
