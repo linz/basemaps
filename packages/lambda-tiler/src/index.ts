@@ -48,7 +48,7 @@ let slowTimer: NodeJS.Timer | null = null;
 export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
   // Ensure a public url is set
   if (isMissingUrlBase && LambdaUrlRequest.is(req.event)) {
-    process.env[Env.PublicUrlBase] = req.event.requestContext.domainName;
+    process.env[Env.PublicUrlBase] = `https://${req.event.requestContext.domainName}`;
   }
 
   await loadConfig(req);
