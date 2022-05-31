@@ -1,3 +1,4 @@
+import { ConfigBundled } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import * as cdk from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
@@ -6,7 +7,6 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-import { getConfig } from '../config.js';
 
 const CODE_PATH = '../lambda-tiler/dist';
 
@@ -16,7 +16,10 @@ export interface LambdaTilerProps {
   buckets: string[];
 
   /** Base public URL */
-  publicUrlBase: string;
+  publicUrlBase?: string;
+
+  /** Bundled configuration */
+  config?: ConfigBundled;
 }
 /**
  * Create a API Key validation edge lambda
@@ -27,6 +30,12 @@ export class LambdaTiler extends Construct {
 
   public constructor(scope: cdk.Stack, id: string, props: LambdaTilerProps) {
     super(scope, id);
+
+    const environment: Record<string, string> = {
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+    };
+
+    if (props.publicUrlBase) environment[Env.PublicUrlBase] = props.publicUrlBase;
 
     /**
      * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
@@ -39,10 +48,7 @@ export class LambdaTiler extends Construct {
       timeout: Duration.seconds(60),
       handler: 'index.handler',
       code: lambda.Code.fromAsset(CODE_PATH),
-      environment: {
-        [Env.PublicUrlBase]: props.publicUrlBase,
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      },
+      environment,
       logRetention: RetentionDays.ONE_MONTH,
     });
 

@@ -21,6 +21,9 @@ export const Env = {
   /** How many tiffs to load at one time */
   TiffConcurrency: 'TIFF_CONCURRENCY',
 
+  /** Path to configuration file if it exists */
+  ConfigPath: 'BASEMAPS_CONFIG_PATH',
+
   /** Temporary folder used for processing, @default /tmp */
   TempFolder: 'TEMP_FOLDER',
 
