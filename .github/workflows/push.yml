@@ -15,22 +15,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: linz/action-typescript@v1
-      # Package all the files 
+      # Package all the files
       - name: Bundle & Package all files
         run: |
-           npx lerna run bundle --stream
-           npm pack --workspaces
+          npx lerna run bundle --stream
+          npm pack --workspaces
         env:
-           NODE_ENV: "production"
+          NODE_ENV: "production"
 
       - name: Build containers
         run: |
-          GIT_VERSION=$(git describe --tags --always --match 'v*')
 
-          docker build packages/cli/ -t ghcr.io/linz/basemaps-cli:latest
+          docker build packages/cli/ --tag basemaps-cli --label "github_run_id=${GITHUB_RUN_ID}"
           # Files are packed into the base directory
           cp *.tgz packages/server/
-          docker build packages/server/ -t ghcr.io/linz/basemaps-server:latest
+          docker build packages/server/ --tag basemaps-server --label "github_run_id=${GITHUB_RUN_ID}"
+
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Publish Containers
+        run: |
+          GIT_VERSION=$(git describe --tags --always --match 'v*')
+
+          docker tag basemaps-server ghcr.io/linz/basemaps-server:${GIT_VERSION}
+          docker push ghcr.io/linz/basemaps-server:${GIT_VERSION}
 
   build-deploy:
     runs-on: ubuntu-latest
