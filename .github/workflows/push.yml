@@ -11,6 +11,23 @@ jobs:
     steps:
       - uses: linz/action-typescript@v1
 
+  build-containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: linz/action-typescript@v1
+      # Package all the files 
+      - name: Bundle & Package all files
+        run:
+           npx lerna run bundle --stream
+           npm pack --workspaces
+
+      - name: Build containers
+        run: |
+          GIT_VERSION=$(git describe --tags --always --match 'v*')
+
+          docker build packages/cli/ -t ghcr.io/linz/basemaps-cli:latest
+          docker build packages/server/ -t ghcr.io/linz/basemaps-server:latest
+
   build-deploy:
     runs-on: ubuntu-latest
     permissions:
