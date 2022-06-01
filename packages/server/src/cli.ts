@@ -1,4 +1,10 @@
-import { ConfigJson, ConfigProvider, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
+import {
+  ConfigBundled,
+  ConfigJson,
+  ConfigProvider,
+  ConfigProviderDynamo,
+  ConfigProviderMemory,
+} from '@basemaps/config';
 import { TileSetLocal } from '@basemaps/lambda-tiler/build/cli/tile.set.local.js';
 import { TileSets } from '@basemaps/lambda-tiler/build/tile.set.cache.js';
 import { Config, Const, Env, fsa, LogConfig, LogType } from '@basemaps/shared';
@@ -99,8 +105,8 @@ export class BasemapsServerCommand extends BaseCommandLine {
     } else if (config.endsWith('.json') || config.endsWith('.json.gz')) {
       // Bundled config
       logger.info({ path: config, mode: 'config' }, 'Starting Server');
-      const configJson = await fsa.read(config);
-      const mem = ConfigProviderMemory.fromJson(JSON.parse(configJson.toString()));
+      const configJson = await fsa.readJson<ConfigBundled>(config);
+      const mem = ConfigProviderMemory.fromJson(configJson);
       Config.setConfigProvider(mem);
     } else if (this.ignoreConfig.value) {
       // Load config directly from tiff files
