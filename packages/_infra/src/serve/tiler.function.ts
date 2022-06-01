@@ -1,4 +1,3 @@
-import { ConfigBundled } from '@basemaps/config';
 import cdk, { StackProps } from 'aws-cdk-lib';
 import lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';

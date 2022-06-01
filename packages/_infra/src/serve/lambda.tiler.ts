@@ -1,4 +1,3 @@
-import { ConfigBundled } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import * as cdk from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
@@ -31,9 +30,7 @@ export class LambdaTiler extends Construct {
   public constructor(scope: cdk.Stack, id: string, props: LambdaTilerProps) {
     super(scope, id);
 
-    const environment: Record<string, string> = {
-      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-    };
+    const environment: Record<string, string> = { AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1' };
 
     if (props.publicUrlBase) environment[Env.PublicUrlBase] = props.publicUrlBase;
     if (props.config) environment[Env.ConfigPath] = props.config;
