@@ -3,7 +3,7 @@ import { LogType } from '@basemaps/shared';
 import fastifyStatic from '@fastify/static';
 import { lf } from '@linzjs/lambda';
 import { ALBEvent, ALBResult, APIGatewayProxyResultV2, CloudFrontRequestResult, Context } from 'aws-lambda';
-import fastify, { FastifyInstance } from 'fastify';
+import fastify, { FastifyInstance, RouteHandlerMethod } from 'fastify';
 import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
@@ -26,6 +26,10 @@ function getLandingLocation(): string | null {
   }
 }
 
+function ensureApiKey(query: any): void {
+  if (query.api == null) query.api = 'c' + instanceId;
+}
+
 export function createServer(logger: LogType): FastifyInstance {
   const BasemapsServer = fastify();
 
@@ -38,7 +42,7 @@ export function createServer(logger: LogType): FastifyInstance {
     BasemapsServer.register(fastifyStatic, { root });
   }
 
-  BasemapsServer.get<{ Querystring: { api: string } }>('/v1/*', async (req, res) => {
+  const proxyToLambda: RouteHandlerMethod = async (req, res) => {
     const url = new URL(`${req.protocol}://${req.hostname}${req.url}`);
     const event: ALBEvent = {
       httpMethod: 'GET',
@@ -49,7 +53,8 @@ export function createServer(logger: LogType): FastifyInstance {
       body: null,
       isBase64Encoded: false,
     };
-    if (req.query.api == null) req.query.api = 'c' + instanceId;
+    // Ensure a api key is specified in query
+    ensureApiKey(req.query);
 
     handler(event, {} as Context, (err, r): void => {
       if (err || !isAlbResult(r)) {
@@ -63,7 +68,13 @@ export function createServer(logger: LogType): FastifyInstance {
       if (r.body) res.send(Buffer.from(r.body, r.isBase64Encoded ? 'base64' : 'utf8'));
       else res.send('Not found');
     });
-  });
+  };
+  console.log('here');
+
+  BasemapsServer.get('/v1/*', proxyToLambda);
+  // TODO to fully support these they should be bundled into /v1/sprites and served from the config
+  BasemapsServer.get('/sprites/*', proxyToLambda);
+  BasemapsServer.get('/glyphs/*', proxyToLambda);
 
   return BasemapsServer;
 }

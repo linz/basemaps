@@ -84,9 +84,10 @@ export const handler = lf.http(LogConfig.get());
 
 function redirectToBasemaps(req: LambdaHttpRequest): LambdaHttpResponse {
   const redirect = new LambdaHttpResponse(302, 'Found');
-  redirect.header('Loaction', fsa.join('https://basemaps.linz.govt.nz/', req.path));
+  redirect.header('Location', fsa.join('https://basemaps.linz.govt.nz/', req.path));
   return redirect;
 }
+
 // Sprites and glyphs are not bundled by the server redirect these to basemaps
 handler.router.get('/glyphs/*', redirectToBasemaps);
 handler.router.get('/sprites/*', redirectToBasemaps);
