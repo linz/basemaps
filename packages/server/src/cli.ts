@@ -110,8 +110,9 @@ export class BasemapsServerCommand extends BaseCommandLine {
       const mem = await ConfigJson.fromPath(config, logger);
       const bundlePath = this.bundle.value;
       if (bundlePath) {
-        await fsa.writeJson(bundlePath, mem.toJson());
-        logger.info({ path: bundlePath }, 'ConfigBundled');
+        const cfg = mem.toJson();
+        await fsa.writeJson(bundlePath, cfg);
+        logger.info({ path: bundlePath, hash: cfg.hash }, 'ConfigBundled');
         return;
       }
       // Assume the folder is a collection of config files

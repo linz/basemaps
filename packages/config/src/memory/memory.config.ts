@@ -1,4 +1,5 @@
 import { ImageFormat } from '@basemaps/geo';
+import { createHash } from 'crypto';
 import { BasemapsConfigObject, BasemapsConfigProvider, Config } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
@@ -7,11 +8,11 @@ import { ConfigProcessingJob } from '../config/processing.job.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
-import { ulid } from 'ulid';
 
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
   id: string;
+  hash: string;
   imagery: ConfigImagery[];
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
@@ -36,7 +37,8 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   toJson(): ConfigBundled {
     const cfg: ConfigBundled = {
-      id: Config.prefix(ConfigPrefix.ConfigBundle, ulid()),
+      id: '',
+      hash: '',
       imagery: [],
       style: [],
       provider: [],
@@ -45,6 +47,8 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
     for (const val of this.objects.values()) {
       const prefix = val.id.slice(0, val.id.indexOf('_'));
+      delete (val as any).createdAt;
+      delete (val as any).updatedAt;
       switch (prefix) {
         case ConfigPrefix.Imagery:
           cfg.imagery.push(val as ConfigImagery);
@@ -62,6 +66,11 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
           throw new Error('Unable to parse configuration id: ' + val.id);
       }
     }
+
+    const hash = createHash('sha256').update(JSON.stringify(cfg)).digest('base64url');
+
+    cfg.hash = hash;
+    cfg.id = Config.prefix(ConfigPrefix.ConfigBundle, hash);
 
     return cfg;
   }
