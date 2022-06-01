@@ -81,4 +81,15 @@ export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpR
 }
 
 export const handler = lf.http(LogConfig.get());
+
+function redirectToBasemaps(req: LambdaHttpRequest): LambdaHttpResponse {
+  const redirect = new LambdaHttpResponse(302, 'Found');
+  redirect.header('Loaction', fsa.join('https://basemaps.linz.govt.nz/', req.path));
+  return redirect;
+}
+// Sprites and glyphs are not bundled by the server redirect these to basemaps
+handler.router.get('/glyphs/*', redirectToBasemaps);
+handler.router.get('/sprites/*', redirectToBasemaps);
+
+// All other requests go via the old request handler
 handler.router.get('*', handleRequest);
