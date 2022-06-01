@@ -96,7 +96,7 @@ export class BasemapsServerCommand extends BaseCommandLine {
       const table = config.slice('dynamodb://'.length);
       logger.info({ path: config, table, mode: 'dynamo' }, 'Starting Server');
       Config.setConfigProvider(new ConfigProviderDynamo(table));
-    } else if (config.endsWith('.json')) {
+    } else if (config.endsWith('.json') || config.endsWith('.json.gz')) {
       // Bundled config
       logger.info({ path: config, mode: 'config' }, 'Starting Server');
       const configJson = await fsa.read(config);
