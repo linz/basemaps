@@ -12,6 +12,7 @@
     { "path": "./packages/bathymetry" },
     { "path": "./packages/_infra" },
     { "path": "./packages/config" },
+    { "path": "./packages/config-cli" },
     { "path": "./packages/shared" },
     { "path": "./packages/lambda-cog" },
     { "path": "./packages/lambda-tiler" },
