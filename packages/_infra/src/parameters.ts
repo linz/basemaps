@@ -30,7 +30,7 @@ export async function getEdgeParameters(edge: Stack): Promise<null | ParametersE
   const cfUsEast1 = new CloudFormation({ region: 'us-east-1' });
   const edgeStack = await cfUsEast1.describeStacks({ StackName: edge.stackName }).promise();
   if (edgeStack == null) {
-    console.log('Failed to lookup edge stack.. has it been deployed?');
+    console.error('Failed to lookup edge stack.. has it been deployed?');
     return null;
   }
 
@@ -38,7 +38,7 @@ export async function getEdgeParameters(edge: Stack): Promise<null | ParametersE
   for (const param of Object.values(Parameters.Edge)) {
     const edgeParam = edgeStack.Stacks?.[0].Outputs?.find((f) => f.OutputKey === param.cfnOutput)?.OutputValue;
     if (edgeParam == null) {
-      console.log(`Failed to find cfnOutput for ${param.cfnOutput}`);
+      console.error(`Failed to find cfnOutput for ${param.cfnOutput}`);
       continue;
     }
 
