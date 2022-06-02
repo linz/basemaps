@@ -5,7 +5,7 @@ import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-com
 import { z } from 'zod';
 
 enum TileMatrixIdentifier {
-  NZTM = 'NZTM2000Quad',
+  Nztm2000Quad = 'NZTM2000Quad',
   Google = 'WebMercatorQuad',
 }
 

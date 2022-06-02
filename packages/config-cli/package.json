@@ -28,9 +28,11 @@
     "access": "public"
   },
   "files": [
-    "build/"
+    "build/",
+    "bin/"
   ],
   "dependencies": {
+    "@basemaps/config-cli": "^6.27.0",
     "@basemaps/geo": "^6.26.0",
     "@basemaps/shared": "^6.27.0",
     "@rushstack/ts-command-line": "^4.3.13",
