@@ -20,7 +20,6 @@ export class CommandScreenShot extends CommandLineAction {
   private host: CommandLineStringParameter;
   private tag: CommandLineStringParameter;
   private tiles: CommandLineStringParameter;
-  private verbose?: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -52,19 +51,10 @@ export class CommandScreenShot extends CommandLineAction {
       description: 'JSON file path for the test tiles',
       defaultValue: './test-tiles/default.test.tiles.json',
     });
-
-    this.verbose = this.defineFlagParameter({
-      parameterLongName: '--verbose',
-      description: 'Verbose logging',
-      required: false,
-    });
   }
 
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
-    const verbose = this.verbose?.value ?? false;
-    if (verbose) logger.level = 'trace';
-
     logger.info('Page:Launch');
     const chrome = await chromium.launch();
 
