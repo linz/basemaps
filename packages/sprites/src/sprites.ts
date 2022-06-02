@@ -1,5 +1,5 @@
-import Sharp from 'sharp';
 import ShelfPack from '@mapbox/shelf-pack';
+import Sharp from 'sharp';
 
 export interface SvgId {
   /** Unique id for the sprite */
@@ -63,7 +63,9 @@ export const Sprites = {
         const spriteData = imageById.get(String(sprite.id));
         if (spriteData == null) throw new Error('Cannot find sprite: ' + sprite.id);
         composite.push({
-          input: await Sharp(spriteData.svg).resize({ width: sprite.w }).toBuffer(),
+          input: await Sharp(spriteData.svg)
+            .resize({ width: sprite.w * px })
+            .toBuffer(),
           top: sprite.y * px,
           left: sprite.x * px,
         });

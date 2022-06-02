@@ -1,6 +1,7 @@
 import { CommandLineParser } from '@rushstack/ts-command-line';
-import { readdir, readFile, writeFile } from 'fs/promises';
-import { basename, join } from 'path';
+import { writeFile } from 'fs/promises';
+import { basename } from 'path';
+import { listSprites } from './fs.js';
 import { Sprites } from './sprites.js';
 
 export class SpriteCli extends CommandLineParser {
@@ -24,14 +25,15 @@ export class SpriteCli extends CommandLineParser {
   }
 
   protected onDefineParameters(): void {
-    // noop
+    // Noop
   }
 
   protected async onExecute(): Promise<void> {
     if (this.remainder?.values == null || this.remainder.values.length === 0) {
       throw new Error('No sprite paths supplied');
     }
-    const ratio = [...this.ratio.values] ?? [1, 2];
+    const ratio = [...this.ratio.values];
+    if (ratio.length === 0) ratio.push(1, 2);
 
     let baseRatio = 1;
     if (this.retina.value) {
@@ -41,28 +43,14 @@ export class SpriteCli extends CommandLineParser {
 
     for (const spritePath of this.remainder.values) {
       const sheetName = basename(spritePath);
-      const files = await readdir(spritePath);
-      const svgs = files.filter((f) => f.toLowerCase().endsWith('.svg'));
-      if (svgs.length === 0) throw new Error('No .svg files found: ' + spritePath);
-
-      const svgData = await Promise.all(
-        svgs.map(async (c) => {
-          return {
-            id: c.slice(0, c.length - 4), // remove the .svg
-            svg: await readFile(join(spritePath, c)),
-          };
-        }),
-      );
-
-      const results = await Sprites.generate(svgData, ratio);
+      const sprites = await listSprites(spritePath);
+      const results = await Sprites.generate(sprites, ratio);
 
       for (const res of results) {
-        const scaleText = res.pixelRatio === baseRatio ? '' : `@${res.pixelRatio}x`;
+        const scaleText = res.pixelRatio / baseRatio === 1 ? '' : `@${res.pixelRatio / baseRatio}x`;
         await writeFile(`${sheetName}${scaleText}.json`, JSON.stringify(res.layout, null, 2));
         await writeFile(`${sheetName}${scaleText}.png`, res.buffer);
       }
     }
   }
 }
-
-new SpriteCli().execute();

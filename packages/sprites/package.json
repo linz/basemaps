@@ -19,8 +19,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "ospec --globs 'build/**/*.test.js'",
-    "bundle": "../../scripts/bundle.js package.json"
+    "test": "ospec --globs 'build/**/*.test.js'"
   },
   "publishConfig": {
     "access": "public"
@@ -35,7 +34,7 @@
   "dependencies": {
     "@rushstack/ts-command-line": "^4.3.13",
     "@mapbox/shelf-pack": "^3.2.0",
-    "sharp": "^0.29.3"
+    "sharp": "^0.30.2"
   },
   "devDependencies": {
     "@types/mapbox__shelf-pack": "^3.0.1",

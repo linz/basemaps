@@ -1,3 +1,5 @@
 #!/usr/bin/env node
 
-import '../build/cli.js';
+import { SpriteCli } from '../build/cli.js';
+
+new SpriteCli().execute();
