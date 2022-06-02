@@ -1,20 +1,29 @@
 import { Config, fsa, LogConfig, LogType } from '@basemaps/shared';
 import { mkdir } from 'fs/promises';
 import { Browser, chromium } from 'playwright';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { z } from 'zod';
 
-interface Location {
-  lat: number;
-  lng: number;
-  z: number;
+enum TileMatrixIdentifier {
+  NZTM = 'NZTM2000Quad',
+  Google = 'WebMercatorQuad',
 }
-interface TileTest {
-  name: string;
-  tileMatrix: string;
-  location: Location;
-  tileSet: string;
-  style?: string;
-}
+
+const zLocation = z.object({
+  lat: z.number().gte(-90).lte(90),
+  lng: z.number().gte(-180).lte(180),
+  z: z.number().gte(0).lte(32),
+});
+
+const zTileTest = z.object({
+  name: z.string(),
+  tileMatrix: z.nativeEnum(TileMatrixIdentifier),
+  location: zLocation,
+  tileSet: z.string(),
+  style: z.string().optional(),
+});
+
+export type TileTestSchema = z.infer<typeof zTileTest>;
 
 export class CommandScreenShot extends CommandLineAction {
   private host: CommandLineStringParameter;
@@ -72,7 +81,7 @@ export class CommandScreenShot extends CommandLineAction {
     if (host == null || tag == null || tiles == null)
       throw new Error('Missing essential parameter to run the process.');
 
-    const TestTiles = await fsa.readJson<TileTest[]>(tiles);
+    const TestTiles = await fsa.readJson<TileTestSchema[]>(tiles);
     for (const test of TestTiles) {
       const page = await chrome.newPage();
 
