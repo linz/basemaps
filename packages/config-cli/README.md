@@ -2,17 +2,17 @@
 
 This package is to control the configuration in the LINZ basemaps product.
 
-## Usage
+## Usage -- Screenshots
 
 Dump the screenshots from basemaps production
 
 ```bash
-./screenshot.js screenshot
+./bmc.js screenshot
 ```
 
 Dump the screenshots from different host and tag
 
 ```bash
-./screenshot.js screenshot --host HOST --tag PR-TAG
+./bmc.js screenshot --host HOST --tag PR-TAG
 
 ```

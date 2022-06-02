@@ -1,56 +1,26 @@
-import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
-import { Config, LogConfig, LogType } from '@basemaps/shared';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import { Config, fsa, LogConfig, LogType } from '@basemaps/shared';
 import { mkdir } from 'fs/promises';
 import { Browser, chromium } from 'playwright';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 
-const TileTest = [
-  {
-    name: 'health-3857-z5',
-    tileMatrix: GoogleTms,
-    location: { lat: -41.8899962, lng: 174.0492437, z: 5 },
-    tileSet: 'health',
-    style: undefined,
-  },
-  {
-    name: 'health-2193-z5',
-    tileMatrix: Nztm2000QuadTms,
-    location: { lat: -41.8899962, lng: 174.0492437, z: 1 },
-    tileSet: 'aerial',
-  },
-  {
-    name: 'topographic-3857-z5',
-    tileMatrix: GoogleTms,
-    location: { lat: -41.8899962, lng: 174.0492437, z: 5 },
-    tileSet: 'topographic',
-    style: 'topographic',
-  },
-  {
-    name: 'topolite-3857-z5',
-    tileMatrix: GoogleTms,
-    location: { lat: -41.8899962, lng: 174.0492437, z: 5 },
-    tileSet: 'topographic',
-    style: 'topolite',
-  },
-  {
-    name: 'topographic-3857-z14',
-    tileMatrix: GoogleTms,
-    location: { lat: -41.8899962, lng: 174.0492437, z: 14 },
-    tileSet: 'topographic',
-    style: 'topographic',
-  },
-  {
-    name: 'topolite-3857-z17',
-    tileMatrix: GoogleTms,
-    location: { lat: -43.8063936, lng: 172.9679876, z: 17 },
-    tileSet: 'topographic',
-    style: 'topolite',
-  },
-];
+interface Location {
+  lat: number;
+  lng: number;
+  z: number;
+}
+interface TileTest {
+  name: string;
+  tileMatrix: string;
+  location: Location;
+  tileSet: string;
+  style?: string;
+}
 
 export class CommandScreenShot extends CommandLineAction {
   private host: CommandLineStringParameter;
   private tag: CommandLineStringParameter;
+  private tiles: CommandLineStringParameter;
   private verbose?: CommandLineFlagParameter;
 
   public constructor() {
@@ -75,6 +45,13 @@ export class CommandScreenShot extends CommandLineAction {
       parameterLongName: '--tag',
       description: 'PR tag(PR-number) or "production"',
       defaultValue: 'production',
+    });
+
+    this.tiles = this.defineStringParameter({
+      argumentName: 'TILES',
+      parameterLongName: '--tiles',
+      description: 'JSON file path for the test tiles',
+      defaultValue: './test-tiles/default.test.tiles.json',
     });
 
     this.verbose = this.defineFlagParameter({
@@ -102,16 +79,19 @@ export class CommandScreenShot extends CommandLineAction {
   async takeScreenshots(chrome: Browser, logger: LogType): Promise<void> {
     const host = this.host.value ?? this.host.defaultValue;
     const tag = this.tag.value ?? this.tag.defaultValue;
-    if (host == null || tag == null) throw new Error('Missing host or tag.');
+    const tiles = this.tiles.value ?? this.tiles.defaultValue;
+    if (host == null || tag == null || tiles == null)
+      throw new Error('Missing essential parameter to run the process.');
 
-    for (const test of TileTest) {
+    const TestTiles = await fsa.readJson<TileTest[]>(tiles);
+    for (const test of TestTiles) {
       const page = await chrome.newPage();
 
       const tileSetId = await this.getTileSetId(test.tileSet, tag);
       const styleId = await this.getStyleId(test.style, tag);
 
       const searchParam = new URLSearchParams();
-      searchParam.set('p', test.tileMatrix.identifier);
+      searchParam.set('p', test.tileMatrix);
       searchParam.set('i', tileSetId);
       if (styleId) searchParam.set('s', styleId);
 
@@ -127,13 +107,9 @@ export class CommandScreenShot extends CommandLineAction {
       await page.goto(url);
 
       try {
-        if (host.startsWith('dev')) {
-          await page.waitForSelector('div#map-loaded', { state: 'attached' });
-          await page.waitForTimeout(1000);
-          await page.waitForLoadState('networkidle');
-        } else {
-          throw new Error('Not supported on production yet');
-        }
+        await page.waitForSelector('div#map-loaded', { state: 'attached' });
+        await page.waitForTimeout(1000);
+        await page.waitForLoadState('networkidle');
         await page.screenshot({ path: fileName });
       } catch (e) {
         await page.screenshot({ path: fileName });

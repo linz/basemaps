@@ -3,7 +3,7 @@ import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
 import 'source-map-support/register.js';
 import { CommandScreenShot } from './screenshot.js';
 
-export class ScreenshotCommandLine extends BaseCommandLine {
+export class BasemapsConfig extends BaseCommandLine {
   constructor() {
     super({
       toolFilename: 'screenshot',
@@ -13,4 +13,4 @@ export class ScreenshotCommandLine extends BaseCommandLine {
   }
 }
 
-new ScreenshotCommandLine().run();
+new BasemapsConfig().run();
