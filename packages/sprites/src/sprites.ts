@@ -78,7 +78,7 @@ export const Sprites = {
         };
       }
 
-      const buffer = await outputImage.composite(composite).png().toBuffer();
+      const buffer = await outputImage.composite(composite).png({ palette: true, compressionLevel: 9 }).toBuffer();
       return { buffer, pixelRatio: px, layout };
     });
 
