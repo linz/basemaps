@@ -1,5 +1,5 @@
 import ShelfPack from '@mapbox/shelf-pack';
-import Sharp from 'sharp';
+import Sharp, { PngOptions } from 'sharp';
 
 export interface SvgId {
   /** Unique id for the sprite */
@@ -26,12 +26,18 @@ export type SpriteLoaded = {
   height: number;
 } & SvgId;
 
+const DefaultCompressionOptions: PngOptions = {};
+
 function heightAscThanNameComparator(a: { height: number; id: string }, b: { height: number; id: string }): number {
   return b.height - a.height || (a.id === b.id ? 0 : a.id < b.id ? -1 : 1);
 }
 
 export const Sprites = {
-  async generate(source: SvgId[], pixelRatio: readonly number[]): Promise<SpriteSheetResult[]> {
+  async generate(
+    source: SvgId[],
+    pixelRatio: readonly number[],
+    compress: PngOptions = DefaultCompressionOptions,
+  ): Promise<SpriteSheetResult[]> {
     const imageData: SpriteLoaded[] = [];
     const imageById = new Map<string, SpriteLoaded>();
     for (const img of source) {
@@ -78,7 +84,7 @@ export const Sprites = {
         };
       }
 
-      const buffer = await outputImage.composite(composite).png({ palette: true, compressionLevel: 9 }).toBuffer();
+      const buffer = await outputImage.composite(composite).png(compress).toBuffer();
       return { buffer, pixelRatio: px, layout };
     });
 

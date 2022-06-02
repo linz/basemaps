@@ -33,7 +33,6 @@ for (const res of generated) {
 npm install -g @basemaps/sprites
 
 basemaps-sprites --ratio 1 --ratio 2 --retina ./config/sprites/topographic
-
 ```
 
 Outputs: 
