@@ -132,5 +132,5 @@ export class BasemapsServerCommand extends BaseCommandLine {
 }
 
 new BasemapsServerCommand().executeWithoutErrorHandling().catch((c) => {
-  console.log(c);
+  console.error(c);
 });

@@ -1,5 +1,5 @@
 import { Bounds, EpsgCode, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
-import { qkToName } from '@basemaps/shared/build/proj/__test__/test.util.js';
+import { qkToName } from '@basemaps/shared/build/proj/__tests__/test.util.js';
 import { round } from '@basemaps/test/build/rounding.js';
 import { MultiPolygon } from '@linzjs/geojson';
 import o from 'ospec';
