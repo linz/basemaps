@@ -1,10 +1,10 @@
 {
-  "name": "@basemaps/tiler-sharp",
-  "version": "6.26.0",
+  "name": "@basemaps/sprites",
+  "version": "6.27.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
-    "directory": "packages/tiler-sharp"
+    "directory": "packages/sprites"
   },
   "author": {
     "name": "Land Information New Zealand",
@@ -21,23 +21,23 @@
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'"
   },
-  "dependencies": {
-    "@basemaps/geo": "^6.26.0",
-    "@basemaps/tiler": "^6.26.0",
-    "@linzjs/metrics": "^6.21.1",
-    "sharp": "^0.30.2"
-  },
-  "devDependencies": {
-    "@types/pixelmatch": "^5.2.3",
-    "@types/pngjs": "^6.0.0",
-    "@types/sharp": "^0.30.2",
-    "pixelmatch": "^5.1.0",
-    "pngjs": "^6.0.0"
-  },
   "publishConfig": {
     "access": "public"
   },
+  "bin": {
+    "basemaps-sprites": "bin/basemaps-sprites.mjs"
+  },
   "files": [
-    "build/"
-  ]
+    "build/",
+    "bin/"
+  ],
+  "dependencies": {
+    "@rushstack/ts-command-line": "^4.3.13",
+    "@mapbox/shelf-pack": "^3.2.0",
+    "sharp": "^0.30.2"
+  },
+  "devDependencies": {
+    "@types/mapbox__shelf-pack": "^3.0.1",
+    "@types/sharp": "^0.30.2"
+  }
 }
