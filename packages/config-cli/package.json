@@ -1,0 +1,42 @@
+{
+  "name": "@basemaps/config-cli",
+  "version": "6.27.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/config"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "bin": {
+    "bmc": "./bin/bmc.js"
+  },
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js'"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/",
+    "bin/"
+  ],
+  "dependencies": {
+    "@basemaps/config-cli": "^6.27.0",
+    "@basemaps/geo": "^6.26.0",
+    "@basemaps/shared": "^6.27.0",
+    "@rushstack/ts-command-line": "^4.3.13",
+    "playwright": "^1.22.0",
+    "zod": "^3.17.3"
+  }
+}
