@@ -7,21 +7,20 @@ export class SpriteCli extends CommandLineParser {
   ratio = this.defineIntegerListParameter({
     argumentName: 'RATIO',
     parameterLongName: '--ratio',
-    description: 'Pixel ratio',
+    description: 'Pixel ratio, default: "--ratio 1 --ratio 2"',
   });
 
   retina = this.defineFlagParameter({
     parameterLongName: '--retina',
-    description: 'Double the pixel ratios',
+    description: 'Double the pixel ratios, 1x becomes 2x',
   });
+  r = this.defineCommandLineRemainder({ description: 'Path to sprites' });
 
   constructor() {
     super({
       toolFilename: 'basemaps-sprites',
       toolDescription: 'Create a sprite sheet from a folder of sprites',
     });
-
-    this.defineCommandLineRemainder({ description: 'Path to sprites' });
   }
 
   protected onDefineParameters(): void {
@@ -30,7 +29,7 @@ export class SpriteCli extends CommandLineParser {
 
   protected async onExecute(): Promise<void> {
     if (this.remainder?.values == null || this.remainder.values.length === 0) {
-      throw new Error('No paths supplied');
+      throw new Error('No sprite paths supplied');
     }
     const ratio = [...this.ratio.values] ?? [1, 2];
 

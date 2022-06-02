@@ -31,7 +31,7 @@ function heightAscThanNameComparator(a: { height: number; id: string }, b: { hei
 }
 
 export const Sprites = {
-  async generate(source: SvgId[], pixelRatio: number[]): Promise<SpriteSheetResult[]> {
+  async generate(source: SvgId[], pixelRatio: readonly number[]): Promise<SpriteSheetResult[]> {
     const imageData: SpriteLoaded[] = [];
     const imageById = new Map<string, SpriteLoaded>();
     for (const img of source) {

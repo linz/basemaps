@@ -3,6 +3,8 @@
 Generate a sprite sheet from a list of sprites
 
 
+# Using the API
+
 ```typescript
 import { Sprites, SvgId } from '@basemaps/sprites';
 import { fsa } from '@chunkd/fs';
@@ -24,3 +26,20 @@ for (const res of generated) {
 }
 ```
 
+
+# From the command line
+
+```
+npm install -g @basemaps/sprites
+
+basemaps-sprites --ratio 1 --ratio 2 --retina ./config/sprites/topographic
+
+```
+
+Outputs: 
+
+topographic.json
+topographic.png
+
+topographic@2x.json
+topographic@2x.png
