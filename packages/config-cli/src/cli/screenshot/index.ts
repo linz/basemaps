@@ -6,8 +6,8 @@ import { CommandScreenShot } from './screenshot.js';
 export class BasemapsConfig extends BaseCommandLine {
   constructor() {
     super({
-      toolFilename: 'screenshot',
-      toolDescription: 'Dump screenshots from Basemaps',
+      toolFilename: 'bin',
+      toolDescription: 'Basemaps config command tools',
     });
     this.addAction(new CommandScreenShot());
   }
