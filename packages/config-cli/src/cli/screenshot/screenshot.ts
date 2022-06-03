@@ -4,6 +4,8 @@ import { Browser, chromium } from 'playwright';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { z } from 'zod';
 
+export const DefaultTestTiles = './test-tiles/default.test.tiles.json';
+
 enum TileMatrixIdentifier {
   Nztm2000Quad = 'NZTM2000Quad',
   Google = 'WebMercatorQuad',
@@ -58,7 +60,7 @@ export class CommandScreenShot extends CommandLineAction {
       argumentName: 'TILES',
       parameterLongName: '--tiles',
       description: 'JSON file path for the test tiles',
-      defaultValue: './test-tiles/default.test.tiles.json',
+      defaultValue: DefaultTestTiles,
     });
   }
 

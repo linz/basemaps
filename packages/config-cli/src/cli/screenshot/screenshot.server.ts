@@ -1,7 +1,7 @@
 import { Config, fsa, LogConfig } from '@basemaps/shared';
 import { chromium } from 'playwright';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { takeScreenshots } from './screenshot.js';
+import { DefaultTestTiles, takeScreenshots } from './screenshot.js';
 import { createServer } from '@basemaps/server';
 import { ConfigProviderMemory } from '@basemaps/config';
 import { ConfigBundled } from '@basemaps/config/build/memory/memory.config';
@@ -30,7 +30,7 @@ export class CommandScreenShotServer extends CommandLineAction {
       argumentName: 'TILES',
       parameterLongName: '--tiles',
       description: 'JSON file path for the test tiles',
-      defaultValue: './test-tiles/default.test.tiles.json',
+      defaultValue: DefaultTestTiles,
     });
   }
 
