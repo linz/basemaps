@@ -32,8 +32,10 @@
     "bin/"
   ],
   "dependencies": {
+    "@basemaps/config": "^6.27.0",
     "@basemaps/config-cli": "^6.27.0",
     "@basemaps/geo": "^6.26.0",
+    "@basemaps/server": "^6.27.0",
     "@basemaps/shared": "^6.27.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "playwright": "^1.22.0",

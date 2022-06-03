@@ -16,3 +16,11 @@ Dump the screenshots from different host and tag
 ./bin/bmc.js screenshot --host HOST --tag PR-TAG
 
 ```
+
+## Usage -- Screenshots-server
+
+Create a temporary server from a config bundle file and dump the screenshots
+
+```bash
+./bin/bmc.js screenshot-server - config s3://..../config.json.gz
+```

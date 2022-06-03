@@ -66,77 +66,83 @@ export class CommandScreenShot extends CommandLineAction {
     const logger = LogConfig.get();
     logger.info('Page:Launch');
     const chrome = await chromium.launch();
-
-    try {
-      await this.takeScreenshots(chrome, logger);
-    } finally {
-      await chrome.close();
-    }
-  }
-
-  async takeScreenshots(chrome: Browser, logger: LogType): Promise<void> {
     const host = this.host.value ?? this.host.defaultValue;
     const tag = this.tag.value ?? this.tag.defaultValue;
     const tiles = this.tiles.value ?? this.tiles.defaultValue;
     if (host == null || tag == null || tiles == null)
       throw new Error('Missing essential parameter to run the process.');
 
-    const TestTiles = await fsa.readJson<TileTestSchema[]>(tiles);
-    for (const test of TestTiles) {
-      const page = await chrome.newPage();
-
-      const tileSetId = await this.getTileSetId(test.tileSet, tag);
-      const styleId = await this.getStyleId(test.style, tag);
-
-      const searchParam = new URLSearchParams();
-      searchParam.set('p', test.tileMatrix);
-      searchParam.set('i', tileSetId);
-      if (styleId) searchParam.set('s', styleId);
-
-      const loc = `@${test.location.lat},${test.location.lng},z${test.location.z}`;
-      const fileName = '.artifacts/visual-snapshots/' + host + '_' + test.name + '.png';
-
-      await mkdir(`.artifacts/visual-snapshots/`, { recursive: true });
-
-      const url = `https://${host}/?${searchParam.toString()}&debug=true&debug.screenshot=true#${loc}`;
-
-      logger.info({ url, expected: fileName }, 'Page:Load');
-
-      await page.goto(url);
-
-      try {
-        await page.waitForSelector('div#map-loaded', { state: 'attached' });
-        await page.waitForTimeout(1000);
-        await page.waitForLoadState('networkidle');
-        await page.screenshot({ path: fileName });
-      } catch (e) {
-        await page.screenshot({ path: fileName });
-        throw e;
-      }
-      logger.info({ url, expected: fileName }, 'Page:Load:Done');
-      await page.close();
+    try {
+      await takeScreenshots(host, tag, tiles, chrome, logger);
+    } finally {
+      await chrome.close();
     }
   }
+}
 
-  async getTileSetId(tileSetId: string, tag: string): Promise<string> {
-    if (tag === 'production') return tileSetId;
+export async function takeScreenshots(
+  host: string,
+  tag: string,
+  tiles: string,
+  chrome: Browser,
+  logger: LogType,
+): Promise<void> {
+  const TestTiles = await fsa.readJson<TileTestSchema[]>(tiles);
+  for (const test of TestTiles) {
+    const page = await chrome.newPage();
 
-    const tileSetTagId = `${tileSetId}@${tag}`;
-    const dbId = Config.TileSet.id(tileSetTagId);
-    const tileSet = await Config.TileSet.get(dbId);
+    const tileSetId = await getTileSetId(test.tileSet, tag);
+    const styleId = await getStyleId(test.style, tag);
 
-    if (tileSet) return tileSetTagId;
-    return tileSetId;
+    const searchParam = new URLSearchParams();
+    searchParam.set('p', test.tileMatrix);
+    searchParam.set('i', tileSetId);
+    if (styleId) searchParam.set('s', styleId);
+
+    const loc = `@${test.location.lat},${test.location.lng},z${test.location.z}`;
+    const fileName = '.artifacts/visual-snapshots/' + host + '_' + test.name + '.png';
+
+    await mkdir(`.artifacts/visual-snapshots/`, { recursive: true });
+
+    let url = `${host}/?${searchParam.toString()}&debug=true&debug.screenshot=true#${loc}`;
+    if (!url.startsWith('http')) url = `https"//${url}`;
+
+    logger.info({ url, expected: fileName }, 'Page:Load');
+
+    await page.goto(url);
+
+    try {
+      await page.waitForSelector('div#map-loaded', { state: 'attached' });
+      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
+      await page.screenshot({ path: fileName });
+    } catch (e) {
+      await page.screenshot({ path: fileName });
+      throw e;
+    }
+    logger.info({ url, expected: fileName }, 'Page:Load:Done');
+    await page.close();
   }
+}
 
-  async getStyleId(styleId: string | undefined, tag: string): Promise<string> {
-    if (styleId == null) return '';
-    if (tag === 'production') return styleId ?? '';
+async function getTileSetId(tileSetId: string, tag: string): Promise<string> {
+  if (tag === 'production') return tileSetId;
 
-    const styleIdTagId = `${styleId}@${tag}`;
-    const dbId = Config.Style.id(styleIdTagId);
-    const style = await Config.Style.get(dbId);
-    if (style) return styleIdTagId;
-    return styleId;
-  }
+  const tileSetTagId = `${tileSetId}@${tag}`;
+  const dbId = Config.TileSet.id(tileSetTagId);
+  const tileSet = await Config.TileSet.get(dbId);
+
+  if (tileSet) return tileSetTagId;
+  return tileSetId;
+}
+
+async function getStyleId(styleId: string | undefined, tag: string): Promise<string> {
+  if (styleId == null) return '';
+  if (tag === 'production') return styleId ?? '';
+
+  const styleIdTagId = `${styleId}@${tag}`;
+  const dbId = Config.Style.id(styleIdTagId);
+  const style = await Config.Style.get(dbId);
+  if (style) return styleIdTagId;
+  return styleId;
 }
