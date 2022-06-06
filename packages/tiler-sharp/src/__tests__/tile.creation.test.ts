@@ -10,7 +10,7 @@ import url from 'url';
 import { TileMakerSharp } from '../index.js';
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 // To regenerate all the oed images set this to true and run the tests
-const WRITE_IMAGES = false;
+const WRITE_IMAGES = true;
 
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
 const resizeKernel = { in: 'nearest', out: 'lanczos3' } as const;
@@ -83,6 +83,13 @@ o.spec('TileCreation', () => {
     { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('301') },
     { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('302') },
     { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('303') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('3000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('30000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('300000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('3000000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('30000000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('300000000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('3000000000000') },
 
     { tileSize: 256, tms: Nztm2000Tms, tile: { x: 1, y: 2, z: 0 } },
     { tileSize: 256, tms: Nztm2000Tms, tile: { x: 1, y: 1, z: 0 } },
