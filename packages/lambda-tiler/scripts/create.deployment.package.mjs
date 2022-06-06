@@ -24,7 +24,7 @@ function getPackageVersion(packageName) {
 // the bundle is a commonjs module
 parentPackage.type = 'commonjs';
 parentPackage.main = 'index.js';
-parentPackage.dependencies = { sharp: getPackageVersion('sharp') };
+parentPackage.dependencies = { sharp: '0.29.2' };
 
 // Clean up
 delete parentPackage.types;
