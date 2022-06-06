@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Create a pacakge.json for the `dist` bundle based off the parent package.json
+ * Create a package.json for the `dist` bundle based off the parent package.json
  *
  * This is needed as libsharp has to be "installed" into the dist node_modules so that lambda has access to sharp
  */
@@ -9,7 +9,7 @@ import * as fs from 'fs';
 const parentPackage = JSON.parse(fs.readFileSync('../package.json').toString());
 
 // Find the exact version of a package in the yarn lock
-function getPackageVersion(packageName) {
+export function getPackageVersion(packageName) {
   const parentLock = fs.readFileSync('../../../yarn.lock').toString().split('\n');
 
   for (let i = 0; i < parentLock.length; i++) {
@@ -24,7 +24,7 @@ function getPackageVersion(packageName) {
 // the bundle is a commonjs module
 parentPackage.type = 'commonjs';
 parentPackage.main = 'index.js';
-parentPackage.dependencies = { sharp: getPackageVersion('sharp') };
+parentPackage.dependencies = { sharp: '0.29.2' };
 
 // Clean up
 delete parentPackage.types;
