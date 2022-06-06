@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/sprites",
-  "version": "6.27.0",
+  "version": "6.28.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -32,8 +32,8 @@
     "bin/"
   ],
   "dependencies": {
-    "@rushstack/ts-command-line": "^4.3.13",
     "@mapbox/shelf-pack": "^3.2.0",
+    "@rushstack/ts-command-line": "^4.3.13",
     "sharp": "^0.30.2"
   },
   "devDependencies": {

@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.28.0](https://github.com/linz/basemaps/compare/v6.27.0...v6.28.0) (2022-06-06)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** remove console.log ([#2224](https://github.com/linz/basemaps/issues/2224)) ([addc742](https://github.com/linz/basemaps/commit/addc74270235fe6348e53391444a5570b02fea3e))
+* **tiler:** down grade sharp to 0.29.2 as we are scaling webp past 16k ([#2237](https://github.com/linz/basemaps/issues/2237)) ([53cd5ef](https://github.com/linz/basemaps/commit/53cd5ef420698c2d8528735b5c02b84189c6b7f9))
+
+
+### Features
+
+* **lambda-tiler:** tiff paths should allow trailing slashes ([#2223](https://github.com/linz/basemaps/issues/2223)) ([4cd4948](https://github.com/linz/basemaps/commit/4cd49487dddc3a70123437d1644ff3e22d9dc12f))
+* **server:** bundle basemaps-server cli so its easier to install ([#2218](https://github.com/linz/basemaps/issues/2218)) ([8457b66](https://github.com/linz/basemaps/commit/8457b66be6d0f54decf43b515bb78853cefbc8ed))
+* **sprites:** create sprites using sharp ([#2235](https://github.com/linz/basemaps/issues/2235)) ([e7b6a9e](https://github.com/linz/basemaps/commit/e7b6a9e9c95359dc866b40e7a6988837a71d9d96))
+
+
+
+
+
 # [6.27.0](https://github.com/linz/basemaps/compare/v6.26.0...v6.27.0) (2022-05-29)
 
 
