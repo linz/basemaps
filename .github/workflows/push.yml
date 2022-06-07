@@ -68,35 +68,19 @@ jobs:
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.js
 
-      - name: (Prod) Setup git config
+      - name: (Prod) Create tag
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: (Prod) Create tag
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: |
           CURRENT_VERSION=$(node -p "require('./lerna.json').version")
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
           git push --tags
 
-      - name: Create github release
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: npx conventional-github-releaser -p angular
-        env:
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
       - name: Deploy - Bundle
         if: github.ref != 'refs/heads/master' || github.repository != 'linz/basemaps'
         run: npx lerna run bundle --stream
-
-      - name: (Prod) Publish NPM
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: npx lerna publish from-git --yes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
 
       - name: (NonProd) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
@@ -115,7 +99,6 @@ jobs:
           SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_NON_PROD}}
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
           NODE_ENV: "dev"
-          API_KEY: ${{secrets.API_KEY_NON_PROD}}
 
       - name: (Prod) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -134,7 +117,19 @@ jobs:
           NODE_ENV: "production"
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_PROD}}
-          API_KEY: ${{secrets.API_KEY_PROD}}
+
+      - name: (Prod) Create github release
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: npx conventional-github-releaser -p angular
+        env:
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: (Prod) Publish NPM
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: npx lerna publish from-git --yes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
 
       - name: Benchmark
         uses: blacha/hyperfine-action@v1

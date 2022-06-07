@@ -81,7 +81,6 @@
     {
       "entry": "src/index.tsx",
       "env": {
-        "API_KEY": null,
         "GOOGLE_ANALYTICS": null,
         "TILE_HOST": null,
         "SPLIT_IO_KEY": null
