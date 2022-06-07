@@ -148,6 +148,18 @@ export class TileMakerSharp implements TileMaker {
         fit: Sharp.fit.cover,
         kernel: composition.resize.scale > 1 ? resizeKernel.in : resizeKernel.out,
       };
+
+      // Extract the specific region before zooming in.
+      if (composition.resize.width >= 1024 && composition.crop != null) {
+        // Extract the region we want first;
+        sharp.extract({
+          top: Math.floor(composition.crop.y / composition.resize.scale),
+          left: Math.floor(composition.crop.x / composition.resize.scale),
+          width: Math.max(composition.crop.width / composition.resize.scale, 1), // Minimum of 1px x 1px
+          height: Math.max(composition.crop.height / composition.resize.scale, 1),
+        });
+      }
+
       sharp.resize(composition.resize.width, composition.resize.height, resizeOptions);
     }
 

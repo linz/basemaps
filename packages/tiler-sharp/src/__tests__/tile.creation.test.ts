@@ -44,6 +44,7 @@ o.spec('TileCreation', () => {
     o(topLeft?.resize).deepEquals({ width: 32, height: 32, scale: 2 });
     o(topLeft?.x).equals(64);
     o(topLeft?.y).equals(64);
+    await tiff.close();
   });
 
   o('should generate webp', async () => {
@@ -83,6 +84,13 @@ o.spec('TileCreation', () => {
     { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('301') },
     { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('302') },
     { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('303') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('3000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('30000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('300000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('3000000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('30000000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('300000000000') },
+    { tileSize: 256, tms: GoogleTms, tile: QuadKey.toTile('3000000000000') },
 
     { tileSize: 256, tms: Nztm2000Tms, tile: { x: 1, y: 2, z: 0 } },
     { tileSize: 256, tms: Nztm2000Tms, tile: { x: 1, y: 1, z: 0 } },
@@ -135,6 +143,7 @@ o.spec('TileCreation', () => {
       }
       o(missMatchedPixels).equals(0);
       console.timeEnd(timeStr);
+      await tiff.close();
     });
   });
 });
