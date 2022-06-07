@@ -119,65 +119,39 @@ export class TileMakerSharp implements TileMaker {
     return { buffer, metrics, layers: overlays.length };
   }
 
-  private async composeTile(
-    composition: Composition,
-    resizeKernel: TileMakerResizeKernel,
-  ): Promise<SharpOverlay | null> {
-    const source = composition.source;
-    const tile = await composition.tiff.getTile(source.x, source.y, source.imageId);
+  private async composeTile(comp: Composition, resizeKernel: TileMakerResizeKernel): Promise<SharpOverlay | null> {
+    const tile = await comp.tiff.getTile(comp.source.x, comp.source.y, comp.source.imageId);
     if (tile == null) return null;
+
     const sharp = Sharp(Buffer.from(tile.bytes));
 
-    // The stats function takes too long to run, its faster to just compose all the tiles anyway.
-    // const stats = await sharp.stats();
-    // const [red, green, blue] = stats.channels;
-    // // If there is no color this tile is not really worth doing anything with
-    // if (red.max === 0 && green.max === 0 && blue.max === 0) {
-    //     // TODO this could be made to be much more smart in terms of excluding images from the rendering
-    //     // If there is no area which has alpha then we may not need to compose all the tiles
-    //     // so we could cut the rendering pipeline down
-    //     return null;
-    // }
+    // Extract the vars to make it easier to reference later
+    const { extract, resize, crop } = comp;
 
-    if (composition.extract) {
-      sharp.extract({ top: 0, left: 0, width: composition.extract.width, height: composition.extract.height });
-    }
+    if (extract) sharp.extract({ top: 0, left: 0, width: extract.width, height: extract.height });
 
-    if (composition.resize) {
-      const resizeOptions: Sharp.ResizeOptions = {
-        fit: Sharp.fit.cover,
-        kernel: composition.resize.scale > 1 ? resizeKernel.in : resizeKernel.out,
-      };
+    if (resize) {
+      const resizeOptions = { fit: Sharp.fit.cover, kernel: resize.scale > 1 ? resizeKernel.in : resizeKernel.out };
 
-      // Extract the specific region before zooming in.
-      if (composition.resize.width >= 1024 && composition.crop != null) {
-        // Extract the region we want first;
+      // since libvips 8.13, we now have to manually extract the region before scaling it up as it can overflow the webp image size limit of 16k x 16k.
+      if (resize.width >= this.tileSize && crop != null) {
+        // Extract the region we want first, but it must be at least 1px x 1px and use whole pixels
         sharp.extract({
-          top: Math.floor(composition.crop.y / composition.resize.scale),
-          left: Math.floor(composition.crop.x / composition.resize.scale),
-          width: Math.max(composition.crop.width / composition.resize.scale, 1), // Minimum of 1px x 1px
-          height: Math.max(composition.crop.height / composition.resize.scale, 1),
+          top: Math.floor(crop.y / resize.scale),
+          left: Math.floor(crop.x / resize.scale),
+          width: Math.max(crop.width / resize.scale, 1),
+          height: Math.max(crop.height / resize.scale, 1),
         });
+        // Resize to the the target output, skipping the extract step
+        sharp.resize(crop.width, crop.height, resizeOptions);
+        return { input: await sharp.toBuffer(), top: comp.y, left: comp.x };
       }
-
-      sharp.resize(composition.resize.width, composition.resize.height, resizeOptions);
+      sharp.resize(resize.width, resize.height, resizeOptions);
     }
 
-    if (composition.crop) {
-      sharp.extract({
-        top: composition.crop.y,
-        left: composition.crop.x,
-        width: composition.crop.width,
-        height: composition.crop.height,
-      });
-    }
+    if (crop) sharp.extract({ top: crop.y, left: crop.x, width: crop.width, height: crop.height });
 
-    const input = await sharp.toBuffer();
-    return {
-      input,
-      top: composition.y,
-      left: composition.x,
-    };
+    return { input: await sharp.toBuffer(), top: comp.y, left: comp.x };
   }
 
   private createImage(background: Sharp.RGBA): Sharp.Sharp {

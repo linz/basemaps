@@ -106,7 +106,7 @@ o.spec('TileCreation', () => {
   RenderTests.forEach(({ tileSize, tms, tile }) => {
     const projection = tms.projection;
     const tileText = `${tile.x}, ${tile.y} z${tile.z}`;
-    o(`should render a tile ${tileText} tile: ${tileSize} projection: ${projection}`, async () => {
+    o.only(`should render a tile ${tileText} tile: ${tileSize} projection: ${projection}`, async () => {
       o.timeout(30 * 1000);
 
       const timeStr = `RenderTests(${projection}): ${tileText} ${tileSize}x${tileSize}  time`;
