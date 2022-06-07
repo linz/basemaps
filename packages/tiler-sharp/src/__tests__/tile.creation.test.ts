@@ -10,7 +10,7 @@ import url from 'url';
 import { TileMakerSharp } from '../index.js';
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 // To regenerate all the oed images set this to true and run the tests
-const WRITE_IMAGES = true;
+const WRITE_IMAGES = false;
 
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
 const resizeKernel = { in: 'nearest', out: 'lanczos3' } as const;
