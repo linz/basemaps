@@ -44,6 +44,7 @@ o.spec('TileCreation', () => {
     o(topLeft?.resize).deepEquals({ width: 32, height: 32, scale: 2 });
     o(topLeft?.x).equals(64);
     o(topLeft?.y).equals(64);
+    await tiff.close();
   });
 
   o('should generate webp', async () => {
@@ -142,6 +143,7 @@ o.spec('TileCreation', () => {
       }
       o(missMatchedPixels).equals(0);
       console.timeEnd(timeStr);
+      await tiff.close();
     });
   });
 });
