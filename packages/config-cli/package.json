@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/config-cli",
-  "version": "6.27.0",
+  "version": "6.28.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -32,9 +32,9 @@
     "bin/"
   ],
   "dependencies": {
-    "@basemaps/config-cli": "^6.27.0",
+    "@basemaps/config-cli": "^6.28.0",
     "@basemaps/geo": "^6.26.0",
-    "@basemaps/shared": "^6.27.0",
+    "@basemaps/shared": "^6.28.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "playwright": "^1.22.0",
     "zod": "^3.17.3"
