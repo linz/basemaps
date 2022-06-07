@@ -16,6 +16,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: linz/action-typescript@v1
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
+
+      - name: (Prod) Ensure tag exists
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
+          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
+
       # Package all the files
       - name: Bundle & Package all files
         run: |
@@ -26,7 +37,6 @@ jobs:
 
       - name: Build containers
         run: |
-
           docker build packages/cli/ --tag basemaps-cli --label "github_run_id=${GITHUB_RUN_ID}"
           # Files are packed into the base directory
           cp *.tgz packages/server/
