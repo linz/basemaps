@@ -2,6 +2,7 @@ import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
+import { NotFound } from './response.js';
 
 interface FontGet {
   Params: { fontStack: string; range: string };
@@ -9,7 +10,7 @@ interface FontGet {
 
 export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHttpResponse> {
   const assetLocation = Env.get(Env.AssetLocation);
-  if (assetLocation == null) return new LambdaHttpResponse(404, 'No Found');
+  if (assetLocation == null) return NotFound;
 
   try {
     const filePath = fsa.join(assetLocation, path.join('fonts', req.params.fontStack, req.params.range)) + '.pbf';
@@ -18,14 +19,14 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
     res.buffer(buf, 'application/x-protobuf');
     return res;
   } catch (e: any) {
-    if (e.code === 404) return new LambdaHttpResponse(404, 'No Found');
+    if (e.code === 404) return NotFound;
     throw e;
   }
 }
 
 export async function fontList(): Promise<LambdaHttpResponse> {
   const assetLocation = Env.get(Env.AssetLocation);
-  if (assetLocation == null) return new LambdaHttpResponse(404, 'No Found');
+  if (assetLocation == null) return NotFound;
 
   try {
     const filePath = fsa.join(assetLocation, '/fonts');
@@ -44,7 +45,7 @@ export async function fontList(): Promise<LambdaHttpResponse> {
     res.buffer(JSON.stringify([...fonts].sort()), 'application/json');
     return res;
   } catch (e: any) {
-    if (e.code === 404) return new LambdaHttpResponse(404, 'No Found');
+    if (e.code === 404) return NotFound;
     throw e;
   }
 }

@@ -2,6 +2,7 @@ import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import path from 'path';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { NotFound } from './response.js';
 
 interface SpriteGet {
   Params: {
@@ -15,11 +16,11 @@ Extensions.set('.json', 'application/json');
 
 export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<LambdaHttpResponse> {
   const spriteLocation = Env.get(Env.AssetLocation);
-  if (spriteLocation == null) return new LambdaHttpResponse(404, 'No Found');
+  if (spriteLocation == null) return NotFound;
 
   const extension = path.extname(req.params.spriteName);
   const mimeType = Extensions.get(extension);
-  if (mimeType == null) return new LambdaHttpResponse(404, 'No Found');
+  if (mimeType == null) return NotFound;
 
   try {
     const filePath = fsa.join(spriteLocation, fsa.join('/sprites', req.params.spriteName));
@@ -29,7 +30,7 @@ export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<Lamb
     res.buffer(buf, extension);
     return res;
   } catch (e: any) {
-    if (e.code === 404) return new LambdaHttpResponse(404, 'No Found');
+    if (e.code === 404) return NotFound;
     throw e;
   }
 }
