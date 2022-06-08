@@ -1,10 +1,10 @@
+import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
-import { fontGet, fontList, getFonts } from '../fonts.js';
-import { FsMemory } from './memory.fs.js';
-import { mockRequest } from '../../__tests__/xyz.util.js';
-import { Env } from '@basemaps/shared';
 import { handler } from '../../index.js';
+import { mockRequest } from '../../__tests__/xyz.util.js';
+import { fontList, getFonts } from '../fonts.js';
+import { FsMemory } from './memory.fs.js';
 
 o.spec('listFonts', () => {
   const memory = new FsMemory();
