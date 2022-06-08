@@ -18,11 +18,15 @@ function isAlbResult(r: ALBResult | CloudFrontRequestResult | APIGatewayProxyRes
 const instanceId = ulid.ulid();
 
 function getLandingLocation(): string | null {
-  if (typeof require !== 'undefined' && typeof require.resolve === 'function') {
-    return require.resolve('@basemaps/landing/dist');
-  } else {
-    const require = createRequire(import.meta.url);
-    return require.resolve('@basemaps/landing/dist');
+  try {
+    if (typeof require !== 'undefined' && typeof require.resolve === 'function') {
+      return require.resolve('@basemaps/landing/dist');
+    } else {
+      const require = createRequire(import.meta.url);
+      return require.resolve('@basemaps/landing/dist');
+    }
+  } catch (e) {
+    return null;
   }
 }
 

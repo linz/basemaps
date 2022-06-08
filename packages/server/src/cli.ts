@@ -37,6 +37,11 @@ export class BasemapsServerCommand extends BaseCommandLine {
     parameterLongName: '--bundle',
     description: 'Compile the configuration into a bundle and output path',
   });
+  assets = this.defineStringParameter({
+    argumentName: 'ASSETS',
+    parameterLongName: '--assets',
+    description: 'Where the assets (sprites, fonts) are located',
+  });
   port = this.defineIntegerParameter({
     argumentName: 'PORT',
     parameterLongName: '--port',
@@ -119,6 +124,12 @@ export class BasemapsServerCommand extends BaseCommandLine {
 
       mem.createVirtualTileSets();
       Config.setConfigProvider(mem);
+    }
+
+    if (this.assets.value) {
+      const isExists = await fsa.exists(this.assets.value);
+      if (!isExists) throw new Error('--asset path is missing');
+      process.env[Env.AssetLocation] = this.assets.value;
     }
 
     if (this.bundle.value != null) {

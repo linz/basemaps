@@ -8,6 +8,8 @@ import { createHash } from 'crypto';
 import { Imagery } from './routes/imagery.js';
 import { Esri } from './routes/esri/rest.js';
 import { St } from './source.tracer.js';
+import { spriteGet } from './routes/sprites.js';
+import { fontGet, fontList } from './routes/fonts.js';
 
 const app = new Router();
 
@@ -49,4 +51,9 @@ export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpR
 }
 
 export const handler = lf.http(LogConfig.get());
+
+handler.router.get('/v1/sprites/:spriteName', spriteGet);
+handler.router.get('/v1/fonts.json', fontList);
+handler.router.get('/v1/fonts/:fontStack/:range.pbf', fontGet);
+
 handler.router.get('*', handleRequest);
