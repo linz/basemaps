@@ -5,6 +5,7 @@ import { DefaultTestTiles, takeScreenshots } from './screenshot.js';
 import { createServer } from '@basemaps/server';
 import { ConfigProviderMemory } from '@basemaps/config';
 import { ConfigBundled } from '@basemaps/config/build/memory/memory.config';
+import getPort, { portNumbers } from 'get-port';
 
 export class CommandScreenShotServer extends CommandLineAction {
   private config: CommandLineStringParameter;
@@ -48,7 +49,7 @@ export class CommandScreenShotServer extends CommandLineAction {
     Config.setConfigProvider(mem);
 
     // Create a basemaps server.
-    const port = 5000;
+    const port = await getPort({ port: portNumbers(10000, 11000) });
     const ServerUrl = `http://localhost:${port}`;
     const BasemapsServer = createServer(logger);
     BasemapsServer.listen(port, '0.0.0.0', () => {
@@ -57,7 +58,7 @@ export class CommandScreenShotServer extends CommandLineAction {
 
     const chrome = await chromium.launch();
     try {
-      await takeScreenshots(ServerUrl, 'production', tiles, chrome, logger);
+      await takeScreenshots(ServerUrl, tiles, chrome, logger);
     } finally {
       await chrome.close();
       await BasemapsServer.close();

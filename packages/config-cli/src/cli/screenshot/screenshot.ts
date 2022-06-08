@@ -1,4 +1,4 @@
-import { Config, fsa, LogConfig, LogType } from '@basemaps/shared';
+import { fsa, LogConfig, LogType } from '@basemaps/shared';
 import { mkdir } from 'fs/promises';
 import { Browser, chromium } from 'playwright';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -48,14 +48,6 @@ export class CommandScreenShot extends CommandLineAction {
       defaultValue: 'basemaps.linz.govt.nz',
     });
 
-    this.tag = this.defineStringParameter({
-      argumentName: 'TAG',
-      parameterShortName: '-t',
-      parameterLongName: '--tag',
-      description: 'PR tag(PR-number) or "production"',
-      defaultValue: 'production',
-    });
-
     this.tiles = this.defineStringParameter({
       argumentName: 'TILES',
       parameterLongName: '--tiles',
@@ -75,31 +67,22 @@ export class CommandScreenShot extends CommandLineAction {
       throw new Error('Missing essential parameter to run the process.');
 
     try {
-      await takeScreenshots(host, tag, tiles, chrome, logger);
+      await takeScreenshots(host, tiles, chrome, logger);
     } finally {
       await chrome.close();
     }
   }
 }
 
-export async function takeScreenshots(
-  host: string,
-  tag: string,
-  tiles: string,
-  chrome: Browser,
-  logger: LogType,
-): Promise<void> {
+export async function takeScreenshots(host: string, tiles: string, chrome: Browser, logger: LogType): Promise<void> {
   const TestTiles = await fsa.readJson<TileTestSchema[]>(tiles);
   for (const test of TestTiles) {
     const page = await chrome.newPage();
 
-    const tileSetId = await getTileSetId(test.tileSet, tag);
-    const styleId = await getStyleId(test.style, tag);
-
     const searchParam = new URLSearchParams();
     searchParam.set('p', test.tileMatrix);
-    searchParam.set('i', tileSetId);
-    if (styleId) searchParam.set('s', styleId);
+    searchParam.set('i', test.tileSet);
+    if (test.style) searchParam.set('s', test.style);
 
     const loc = `@${test.location.lat},${test.location.lng},z${test.location.z}`;
     const fileName = '.artifacts/visual-snapshots/' + host + '_' + test.name + '.png';
@@ -125,26 +108,4 @@ export async function takeScreenshots(
     logger.info({ url, expected: fileName }, 'Page:Load:Done');
     await page.close();
   }
-}
-
-async function getTileSetId(tileSetId: string, tag: string): Promise<string> {
-  if (tag === 'production') return tileSetId;
-
-  const tileSetTagId = `${tileSetId}@${tag}`;
-  const dbId = Config.TileSet.id(tileSetTagId);
-  const tileSet = await Config.TileSet.get(dbId);
-
-  if (tileSet) return tileSetTagId;
-  return tileSetId;
-}
-
-async function getStyleId(styleId: string | undefined, tag: string): Promise<string> {
-  if (styleId == null) return '';
-  if (tag === 'production') return styleId ?? '';
-
-  const styleIdTagId = `${styleId}@${tag}`;
-  const dbId = Config.Style.id(styleIdTagId);
-  const style = await Config.Style.get(dbId);
-  if (style) return styleIdTagId;
-  return styleId;
 }

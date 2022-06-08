@@ -10,10 +10,10 @@ Dump the screenshots from basemaps production
 ./bin/bmc.js screenshot
 ```
 
-Dump the screenshots from different host and tag
+Dump the screenshots from different host
 
 ```bash
-./bin/bmc.js screenshot --host HOST --tag PR-TAG
+./bin/bmc.js screenshot --host HOST
 
 ```
 
