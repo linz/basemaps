@@ -38,7 +38,7 @@ export abstract class BaseCommandLine extends CommandLineParser {
     }
 
     const logger = LogConfig.get().child({ id: CliId });
-    logger.info({ package: CliInfo }, 'CliStart');
+    logger.info({ package: CliInfo }, 'Cli:Start');
     LogConfig.set(logger);
 
     return super.onExecute();
@@ -52,7 +52,7 @@ export abstract class BaseCommandLine extends CommandLineParser {
       if (err instanceof LoggerFatalError) {
         LogConfig.get().fatal(err.obj, err.message);
       } else {
-        LogConfig.get().fatal({ err }, 'Failed to run command');
+        LogConfig.get().fatal({ err }, 'Cli:Failed');
       }
       process.exit(1);
     });
