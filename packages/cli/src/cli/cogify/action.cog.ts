@@ -94,7 +94,7 @@ export class ActionCogCreate extends CommandLineAction {
     logger.info('CogCreate:Start');
 
     const gdalVersion = await Gdal.version(logger);
-    logger.info({ version: gdalVersion }, 'CogCreate:GdalVersion');
+    logger.info({ gdalVersion }, 'CogCreate:GdalVersion');
 
     const names = this.getNames(job);
     if (names == null || names.size === 0) return;
