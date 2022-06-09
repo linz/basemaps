@@ -122,7 +122,7 @@ export class ActionCogCreate extends CommandLineAction {
           logger.info({ path: cutlinePath }, 'CogCreate:UsingCutLine');
           cutlineJson = await Cutline.loadCutline(cutlinePath);
         } else {
-          logger.warn('NoCutLine');
+          logger.warn('CutLine:Skip');
         }
         const cutline = new Cutline(job.tileMatrix, cutlineJson, job.output.cutline?.blend, job.output.oneCogCovering);
 
@@ -156,6 +156,9 @@ export class ActionCogCreate extends CommandLineAction {
         if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobFailed);
         else throw new Error('Unable update the Processing Job status:' + jobFailed.id);
       }
+
+      // Ensure the error is thrown
+      throw e;
     } finally {
       // Cleanup!
       await fs.rm(tmpFolder, { recursive: true });
