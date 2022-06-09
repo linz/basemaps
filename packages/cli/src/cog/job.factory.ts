@@ -15,6 +15,16 @@ function filterTiff(a: string): boolean {
   return lowerA.endsWith('.tiff') || lowerA.endsWith('.tif');
 }
 
+/** Group a file list by its zoom */
+function groupFiles(files: { name: string }[]): Record<string, number> {
+  const fileCounts: Record<string, number> = {};
+  for (const f of files) {
+    const zoom = f.name.split('-')[0];
+    fileCounts[zoom] = (fileCounts[zoom] ?? 0) + 1;
+  }
+  return fileCounts;
+}
+
 export const CogJobFactory = {
   /**
    * Create a COG Job and potentially submit it to AWS Batch for processing
@@ -81,11 +91,9 @@ export const CogJobFactory = {
         ...metadata,
         tileMatrix: ctx.tileMatrix.identifier,
         bounds: undefined,
+        files: undefined,
         fileCount: files.length,
-        files: metadata.files
-          .map((r) => r.name)
-          .sort()
-          .join(' '),
+        fileGroups: groupFiles(metadata.files),
       },
       'CoveringGenerated',
     );
