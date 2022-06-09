@@ -38,7 +38,7 @@ export abstract class BaseCommandLine extends CommandLineParser {
     }
 
     const logger = LogConfig.get().child({ id: CliId });
-    logger.info(CliInfo, 'CliStart');
+    logger.info({ package: CliInfo }, 'CliStart');
     LogConfig.set(logger);
 
     return super.onExecute();
