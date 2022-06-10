@@ -78,11 +78,11 @@ export class ActionCogCreate extends CommandLineAction {
   }
 
   async onExecute(): Promise<void> {
-    const jobFn = this.job?.value;
-    if (jobFn == null) throw new Error('Missing job name');
+    const jobLocation = this.job?.value;
+    if (jobLocation == null) throw new Error('Missing job name');
 
-    const job = await CogStacJob.load(jobFn);
     const isCommit = this.commit?.value ?? false;
+    const job = await CogStacJob.load(jobLocation);
 
     const logger = LogConfig.get().child({
       correlationId: job.id,
@@ -103,46 +103,8 @@ export class ActionCogCreate extends CommandLineAction {
 
     try {
       for (const name of names) {
-        const tiffFolder = await makeTiffFolder(tmpFolder, name);
-        const targetPath = job.getJobPath(`${name}.tiff`);
-        fsa.configure(job.output.location);
-
-        const outputExists = await fsa.exists(targetPath);
-        logger.info({ targetPath, outputExists }, 'CogCreate:CheckExists');
-        // Output file exists don't try and overwrite it
-        if (outputExists) {
-          logger.warn({ targetPath }, 'CogCreate:OutputExists');
-          await this.checkJobStatus(job, logger);
-          continue;
-        }
-
-        let cutlineJson: FeatureCollection | undefined;
-        if (job.output.cutline != null) {
-          const cutlinePath = job.getJobPath('cutline.geojson.gz');
-          logger.info({ path: cutlinePath }, 'CogCreate:UsingCutLine');
-          cutlineJson = await Cutline.loadCutline(cutlinePath);
-        } else {
-          logger.warn('CutLine:Skip');
-        }
-        const cutline = new Cutline(job.tileMatrix, cutlineJson, job.output.cutline?.blend, job.output.oneCogCovering);
-
-        const tmpVrtPath = await CogVrt.buildVrt(tiffFolder, job, cutline, name, logger);
-
-        if (tmpVrtPath == null) {
-          logger.warn({ name }, 'CogCreate:NoMatchingSourceImagery');
-          return;
-        }
-
-        const tmpTiff = fsa.join(tiffFolder, `${name}.tiff`);
-
-        await buildCogForName(job, name, tmpVrtPath, tmpTiff, logger, isCommit);
-        logger.info({ target: targetPath }, 'CogCreate:StoreTiff');
-        if (isCommit) {
-          await fsa.write(targetPath, createReadStream(tmpTiff));
-          await this.checkJobStatus(job, logger);
-        } else {
-          logger.warn({ name }, 'DryRun:Done');
-        }
+        const tiffJob = await CogStacJob.load(jobLocation);
+        await this.processTiff(tiffJob, name, tmpFolder, isCommit, logger.child({ tiffName: name }));
       }
     } catch (e) {
       const processingId = job.json.processingId;
@@ -162,6 +124,55 @@ export class ActionCogCreate extends CommandLineAction {
     } finally {
       // Cleanup!
       await fs.rm(tmpFolder, { recursive: true });
+    }
+  }
+
+  async processTiff(
+    job: CogStacJob,
+    tiffName: string,
+    tmpFolder: string,
+    isCommit: boolean,
+    logger: LogType,
+  ): Promise<void> {
+    const tiffFolder = await makeTiffFolder(tmpFolder, tiffName);
+    const targetPath = job.getJobPath(`${tiffName}.tiff`);
+    fsa.configure(job.output.location);
+
+    const outputExists = await fsa.exists(targetPath);
+    logger.info({ targetPath, outputExists }, 'CogCreate:CheckExists');
+    // Output file exists don't try and overwrite it
+    if (outputExists) {
+      logger.warn({ targetPath }, 'CogCreate:OutputExists');
+      await this.checkJobStatus(job, logger);
+      return;
+    }
+
+    let cutlineJson: FeatureCollection | undefined;
+    if (job.output.cutline != null) {
+      const cutlinePath = job.getJobPath('cutline.geojson.gz');
+      logger.info({ path: cutlinePath }, 'CogCreate:UsingCutLine');
+      cutlineJson = await Cutline.loadCutline(cutlinePath);
+    } else {
+      logger.warn('CutLine:Skip');
+    }
+    const cutline = new Cutline(job.tileMatrix, cutlineJson, job.output.cutline?.blend, job.output.oneCogCovering);
+
+    const tmpVrtPath = await CogVrt.buildVrt(tiffFolder, job, cutline, tiffName, logger);
+
+    if (tmpVrtPath == null) {
+      logger.warn('CogCreate:NoMatchingSourceImagery');
+      return;
+    }
+
+    const tmpTiff = fsa.join(tiffFolder, `${tiffName}.tiff`);
+
+    await buildCogForName(job, tiffName, tmpVrtPath, tmpTiff, logger, isCommit);
+    logger.info({ target: targetPath }, 'CogCreate:StoreTiff');
+    if (isCommit) {
+      await fsa.write(targetPath, createReadStream(tmpTiff));
+      await this.checkJobStatus(job, logger);
+    } else {
+      logger.warn('DryRun:Done');
     }
   }
 
