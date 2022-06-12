@@ -17,10 +17,9 @@ Dump the screenshots from different host
 
 ```
 
-## Usage -- Screenshots-server
-
-Create a temporary server from a config bundle file and dump the screenshots
+Dump the screenshots with config file
 
 ```bash
-./bin/bmc.js screenshot-server - config s3://..../config.json.gz
+./bin/bmc.js screenshot - config s3://..../config.json.gz
+
 ```

@@ -3,8 +3,12 @@ import { mkdir } from 'fs/promises';
 import { Browser, chromium } from 'playwright';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { z } from 'zod';
+import getPort, { portNumbers } from 'get-port';
+import { createServer } from '@basemaps/server';
+import { FastifyInstance } from 'fastify/types/instance';
 
 export const DefaultTestTiles = './test-tiles/default.test.tiles.json';
+export const DefaultHost = 'basemaps.linz.govt.nz';
 
 enum TileMatrixIdentifier {
   Nztm2000Quad = 'NZTM2000Quad',
@@ -28,8 +32,8 @@ const zTileTest = z.object({
 export type TileTestSchema = z.infer<typeof zTileTest>;
 
 export class CommandScreenShot extends CommandLineAction {
+  private config: CommandLineStringParameter;
   private host: CommandLineStringParameter;
-  private tag: CommandLineStringParameter;
   private tiles: CommandLineStringParameter;
 
   public constructor() {
@@ -41,11 +45,17 @@ export class CommandScreenShot extends CommandLineAction {
   }
 
   protected onDefineParameters(): void {
+    this.config = this.defineStringParameter({
+      argumentName: 'CONFIG',
+      parameterLongName: '--config',
+      description: 'Path of config bundle file, could be both local file or s3.',
+    });
+
     this.host = this.defineStringParameter({
       argumentName: 'HOST',
       parameterLongName: '--host',
       description: 'Host to use',
-      defaultValue: 'basemaps.linz.govt.nz',
+      defaultValue: DefaultHost,
     });
 
     this.tiles = this.defineStringParameter({
@@ -58,18 +68,29 @@ export class CommandScreenShot extends CommandLineAction {
 
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
+    const config = this.config.value;
+    let host = this.host.value ?? DefaultHost;
+    const tiles = this.tiles.value ?? DefaultTestTiles;
+
+    let BasemapsServer: FastifyInstance | undefined = undefined;
+    if (config != null) {
+      const port = await getPort({ port: portNumbers(10000, 11000) });
+      host = `http://localhost:${port}`;
+      BasemapsServer = createServer(logger);
+
+      if (BasemapsServer == null) throw new Error('Failed to Create server with the config File');
+      BasemapsServer.listen(port, '0.0.0.0', () => {
+        logger.info({ url: host }, 'ServerStarted');
+      });
+    }
+
     logger.info('Page:Launch');
     const chrome = await chromium.launch();
-    const host = this.host.value ?? this.host.defaultValue;
-    const tag = this.tag.value ?? this.tag.defaultValue;
-    const tiles = this.tiles.value ?? this.tiles.defaultValue;
-    if (host == null || tag == null || tiles == null)
-      throw new Error('Missing essential parameter to run the process.');
-
     try {
       await takeScreenshots(host, tiles, chrome, logger);
     } finally {
       await chrome.close();
+      if (BasemapsServer != null) await BasemapsServer.close();
     }
   }
 }
