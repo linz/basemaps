@@ -79,9 +79,10 @@ export class CommandScreenShot extends CommandLineAction {
       const server = createServer(logger);
 
       if (server == null) throw new Error('Failed to Create server with the config File');
-      await new Promise<void>(() =>
+      await new Promise<void>((resolve) =>
         server.listen(port, '0.0.0.0', () => {
           logger.info({ url: host }, 'ServerStarted');
+          resolve();
         }),
       );
       BasemapsServer = server;
