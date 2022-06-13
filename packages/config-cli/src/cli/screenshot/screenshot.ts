@@ -136,8 +136,11 @@ async function startServer(host: string, port: number, config: string, logger: L
 
   // Start server
   const server = createServer(logger);
-  server.listen(port, '0.0.0.0', () => {
-    logger.info({ url: host }, 'ServerStarted');
-  });
+  await new Promise<void>((resolve) =>
+    server.listen(port, '0.0.0.0', () => {
+      logger.info({ url: host }, 'ServerStarted');
+      resolve();
+    }),
+  );
   return server;
 }
