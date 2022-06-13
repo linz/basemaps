@@ -106,7 +106,7 @@ export class BathyMaker {
     );
 
     const gdalVersion = await this.gdalVersion;
-    logger.info({ version: gdalVersion }, 'GdalVersion');
+    logger.info({ gdalVersion }, 'GdalVersion');
 
     const promises = [];
     let extent: Bounds | null = null;

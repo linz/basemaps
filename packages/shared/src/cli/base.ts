@@ -28,6 +28,15 @@ export abstract class BaseCommandLine extends CommandLineParser {
     description: 'Show extra extra logging detail',
   });
 
+  toolName: string;
+  toolDescription: string;
+
+  constructor(opt: { toolFilename: string; toolDescription: string }) {
+    super(opt);
+    this.toolName = opt.toolFilename;
+    this.toolDescription = opt.toolDescription;
+  }
+
   protected onExecute(): Promise<void> {
     if (this.verbose.value) {
       LogConfig.get().level = 'debug';
@@ -38,7 +47,7 @@ export abstract class BaseCommandLine extends CommandLineParser {
     }
 
     const logger = LogConfig.get().child({ id: CliId });
-    logger.info(CliInfo, 'CliStart');
+    logger.info({ package: CliInfo, cli: this.toolName }, 'Cli:Start');
     LogConfig.set(logger);
 
     return super.onExecute();
@@ -52,7 +61,7 @@ export abstract class BaseCommandLine extends CommandLineParser {
       if (err instanceof LoggerFatalError) {
         LogConfig.get().fatal(err.obj, err.message);
       } else {
-        LogConfig.get().fatal({ err }, 'Failed to run command');
+        LogConfig.get().fatal({ err, cli: this.toolName }, 'Cli:Failed');
       }
       process.exit(1);
     });
