@@ -1,4 +1,4 @@
-import { fsa, LogConfig, LogType } from '@basemaps/shared';
+import { Config, fsa, LogConfig, LogType } from '@basemaps/shared';
 import { mkdir } from 'fs/promises';
 import { Browser, chromium } from 'playwright';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -6,6 +6,8 @@ import { z } from 'zod';
 import getPort, { portNumbers } from 'get-port';
 import { createServer } from '@basemaps/server';
 import { FastifyInstance } from 'fastify/types/instance';
+import { ConfigProviderMemory } from '@basemaps/config';
+import { ConfigBundled } from '@basemaps/config/src/memory/memory.config';
 
 export const DefaultTestTiles = './test-tiles/default.test.tiles.json';
 export const DefaultHost = 'basemaps.linz.govt.nz';
@@ -76,16 +78,7 @@ export class CommandScreenShot extends CommandLineAction {
     if (config != null) {
       const port = await getPort({ port: portNumbers(10000, 11000) });
       host = `http://localhost:${port}`;
-      const server = createServer(logger);
-
-      if (server == null) throw new Error('Failed to Create server with the config File');
-      await new Promise<void>((resolve) =>
-        server.listen(port, '0.0.0.0', () => {
-          logger.info({ url: host }, 'ServerStarted');
-          resolve();
-        }),
-      );
-      BasemapsServer = server;
+      BasemapsServer = await startServer(host, port, config, logger);
     }
 
     logger.info('Page:Launch');
@@ -133,4 +126,18 @@ export async function takeScreenshots(host: string, tiles: string, chrome: Brows
     logger.info({ url, expected: fileName }, 'Page:Load:Done');
     await page.close();
   }
+}
+
+async function startServer(host: string, port: number, config: string, logger: LogType): Promise<FastifyInstance> {
+  // Bundle Config
+  const configJson = await fsa.readJson<ConfigBundled>(config);
+  const mem = ConfigProviderMemory.fromJson(configJson);
+  Config.setConfigProvider(mem);
+
+  // Start server
+  const server = createServer(logger);
+  server.listen(port, '0.0.0.0', () => {
+    logger.info({ url: host }, 'ServerStarted');
+  });
+  return server;
 }
