@@ -6,8 +6,7 @@ import { z } from 'zod';
 import getPort, { portNumbers } from 'get-port';
 import { createServer } from '@basemaps/server';
 import { FastifyInstance } from 'fastify/types/instance';
-import { ConfigProviderMemory } from '@basemaps/config';
-import { ConfigBundled } from '@basemaps/config/src/memory/memory.config';
+import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 
 export const DefaultTestTiles = './test-tiles/default.test.tiles.json';
 export const DefaultHost = 'basemaps.linz.govt.nz';

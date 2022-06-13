@@ -21,7 +21,7 @@ export {
 export { ConfigVectorStyle, Sources, StyleJson } from './config/vector.style.js';
 export { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
 export { ConfigDynamoBase } from './dynamo/dynamo.config.base.js';
-export { ConfigProviderMemory } from './memory/memory.config.js';
+export { ConfigProviderMemory, ConfigBundled } from './memory/memory.config.js';
 export { TileSetNameComponents, TileSetNameParser } from './tile.set.name.js';
 export { parseHex, parseRgba } from './color.js';
 export { ConfigJson } from './json/json.config.js';
