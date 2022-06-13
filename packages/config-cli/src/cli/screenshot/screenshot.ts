@@ -3,6 +3,13 @@ import { mkdir } from 'fs/promises';
 import { Browser, chromium } from 'playwright';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { z } from 'zod';
+import getPort, { portNumbers } from 'get-port';
+import { createServer } from '@basemaps/server';
+import { FastifyInstance } from 'fastify/types/instance';
+import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
+
+export const DefaultTestTiles = './test-tiles/default.test.tiles.json';
+export const DefaultHost = 'basemaps.linz.govt.nz';
 
 enum TileMatrixIdentifier {
   Nztm2000Quad = 'NZTM2000Quad',
@@ -26,8 +33,8 @@ const zTileTest = z.object({
 export type TileTestSchema = z.infer<typeof zTileTest>;
 
 export class CommandScreenShot extends CommandLineAction {
+  private config: CommandLineStringParameter;
   private host: CommandLineStringParameter;
-  private tag: CommandLineStringParameter;
   private tiles: CommandLineStringParameter;
 
   public constructor() {
@@ -39,104 +46,100 @@ export class CommandScreenShot extends CommandLineAction {
   }
 
   protected onDefineParameters(): void {
+    this.config = this.defineStringParameter({
+      argumentName: 'CONFIG',
+      parameterLongName: '--config',
+      description: 'Path of config bundle file, could be both local file or s3.',
+    });
+
     this.host = this.defineStringParameter({
       argumentName: 'HOST',
       parameterLongName: '--host',
       description: 'Host to use',
-      defaultValue: 'basemaps.linz.govt.nz',
-    });
-
-    this.tag = this.defineStringParameter({
-      argumentName: 'TAG',
-      parameterShortName: '-t',
-      parameterLongName: '--tag',
-      description: 'PR tag(PR-number) or "production"',
-      defaultValue: 'production',
+      defaultValue: DefaultHost,
     });
 
     this.tiles = this.defineStringParameter({
       argumentName: 'TILES',
       parameterLongName: '--tiles',
       description: 'JSON file path for the test tiles',
-      defaultValue: './test-tiles/default.test.tiles.json',
+      defaultValue: DefaultTestTiles,
     });
   }
 
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
+    const config = this.config.value;
+    let host = this.host.value ?? DefaultHost;
+    const tiles = this.tiles.value ?? DefaultTestTiles;
+
+    let BasemapsServer: FastifyInstance | undefined = undefined;
+    if (config != null) {
+      const port = await getPort({ port: portNumbers(10000, 11000) });
+      host = `http://localhost:${port}`;
+      BasemapsServer = await startServer(host, port, config, logger);
+    }
+
     logger.info('Page:Launch');
     const chrome = await chromium.launch();
-
     try {
-      await this.takeScreenshots(chrome, logger);
+      await takeScreenshots(host, tiles, chrome, logger);
     } finally {
       await chrome.close();
+      if (BasemapsServer != null) await BasemapsServer.close();
     }
   }
+}
 
-  async takeScreenshots(chrome: Browser, logger: LogType): Promise<void> {
-    const host = this.host.value ?? this.host.defaultValue;
-    const tag = this.tag.value ?? this.tag.defaultValue;
-    const tiles = this.tiles.value ?? this.tiles.defaultValue;
-    if (host == null || tag == null || tiles == null)
-      throw new Error('Missing essential parameter to run the process.');
+export async function takeScreenshots(host: string, tiles: string, chrome: Browser, logger: LogType): Promise<void> {
+  const TestTiles = await fsa.readJson<TileTestSchema[]>(tiles);
+  for (const test of TestTiles) {
+    const page = await chrome.newPage();
 
-    const TestTiles = await fsa.readJson<TileTestSchema[]>(tiles);
-    for (const test of TestTiles) {
-      const page = await chrome.newPage();
+    const searchParam = new URLSearchParams();
+    searchParam.set('p', test.tileMatrix);
+    searchParam.set('i', test.tileSet);
+    if (test.style) searchParam.set('s', test.style);
 
-      const tileSetId = await this.getTileSetId(test.tileSet, tag);
-      const styleId = await this.getStyleId(test.style, tag);
+    const loc = `@${test.location.lat},${test.location.lng},z${test.location.z}`;
+    const fileName = '.artifacts/visual-snapshots/' + host + '_' + test.name + '.png';
 
-      const searchParam = new URLSearchParams();
-      searchParam.set('p', test.tileMatrix);
-      searchParam.set('i', tileSetId);
-      if (styleId) searchParam.set('s', styleId);
+    await mkdir(`.artifacts/visual-snapshots/`, { recursive: true });
 
-      const loc = `@${test.location.lat},${test.location.lng},z${test.location.z}`;
-      const fileName = '.artifacts/visual-snapshots/' + host + '_' + test.name + '.png';
+    let url = `${host}/?${searchParam.toString()}&debug=true&debug.screenshot=true#${loc}`;
+    if (!url.startsWith('http')) url = `https"//${url}`;
 
-      await mkdir(`.artifacts/visual-snapshots/`, { recursive: true });
+    logger.info({ url, expected: fileName }, 'Page:Load');
 
-      const url = `https://${host}/?${searchParam.toString()}&debug=true&debug.screenshot=true#${loc}`;
+    await page.goto(url);
 
-      logger.info({ url, expected: fileName }, 'Page:Load');
-
-      await page.goto(url);
-
-      try {
-        await page.waitForSelector('div#map-loaded', { state: 'attached' });
-        await page.waitForTimeout(1000);
-        await page.waitForLoadState('networkidle');
-        await page.screenshot({ path: fileName });
-      } catch (e) {
-        await page.screenshot({ path: fileName });
-        throw e;
-      }
-      logger.info({ url, expected: fileName }, 'Page:Load:Done');
-      await page.close();
+    try {
+      await page.waitForSelector('div#map-loaded', { state: 'attached' });
+      await page.waitForTimeout(1000);
+      await page.waitForLoadState('networkidle');
+      await page.screenshot({ path: fileName });
+    } catch (e) {
+      await page.screenshot({ path: fileName });
+      throw e;
     }
+    logger.info({ url, expected: fileName }, 'Page:Load:Done');
+    await page.close();
   }
+}
 
-  async getTileSetId(tileSetId: string, tag: string): Promise<string> {
-    if (tag === 'production') return tileSetId;
+async function startServer(host: string, port: number, config: string, logger: LogType): Promise<FastifyInstance> {
+  // Bundle Config
+  const configJson = await fsa.readJson<ConfigBundled>(config);
+  const mem = ConfigProviderMemory.fromJson(configJson);
+  Config.setConfigProvider(mem);
 
-    const tileSetTagId = `${tileSetId}@${tag}`;
-    const dbId = Config.TileSet.id(tileSetTagId);
-    const tileSet = await Config.TileSet.get(dbId);
-
-    if (tileSet) return tileSetTagId;
-    return tileSetId;
-  }
-
-  async getStyleId(styleId: string | undefined, tag: string): Promise<string> {
-    if (styleId == null) return '';
-    if (tag === 'production') return styleId ?? '';
-
-    const styleIdTagId = `${styleId}@${tag}`;
-    const dbId = Config.Style.id(styleIdTagId);
-    const style = await Config.Style.get(dbId);
-    if (style) return styleIdTagId;
-    return styleId;
-  }
+  // Start server
+  const server = createServer(logger);
+  await new Promise<void>((resolve) =>
+    server.listen(port, '0.0.0.0', () => {
+      logger.info({ url: host }, 'ServerStarted');
+      resolve();
+    }),
+  );
+  return server;
 }
