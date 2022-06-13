@@ -20,6 +20,6 @@ Dump the screenshots from different host
 Dump the screenshots with config file
 
 ```bash
-./bin/bmc.js screenshot - config s3://..../config.json.gz
+./bin/bmc.js screenshot -- config s3://..../config.json.gz
 
 ```

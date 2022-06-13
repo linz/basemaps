@@ -76,12 +76,15 @@ export class CommandScreenShot extends CommandLineAction {
     if (config != null) {
       const port = await getPort({ port: portNumbers(10000, 11000) });
       host = `http://localhost:${port}`;
-      BasemapsServer = createServer(logger);
+      const server = createServer(logger);
 
-      if (BasemapsServer == null) throw new Error('Failed to Create server with the config File');
-      BasemapsServer.listen(port, '0.0.0.0', () => {
-        logger.info({ url: host }, 'ServerStarted');
-      });
+      if (server == null) throw new Error('Failed to Create server with the config File');
+      await new Promise<void>(() =>
+        server.listen(port, '0.0.0.0', () => {
+          logger.info({ url: host }, 'ServerStarted');
+        }),
+      );
+      BasemapsServer = server;
     }
 
     logger.info('Page:Launch');
