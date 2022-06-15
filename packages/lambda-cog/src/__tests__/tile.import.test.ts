@@ -1,6 +1,6 @@
 import { JobCreationContext } from '@basemaps/cli/build/cog/cog.stac.job';
 import { Nztm2000Tms } from '@basemaps/geo';
-import { Config, Env, fsa, LogConfig } from '@basemaps/shared';
+import { CompositeError, Config, Env, fsa, LogConfig } from '@basemaps/shared';
 import o from 'ospec';
 import { createHash } from 'crypto';
 import sinon from 'sinon';
@@ -48,6 +48,9 @@ o.spec('Import', () => {
   const files = [`${path}/1.tiff`, `${path}/2.tiff`];
   async function* listFiles(): AsyncGenerator<{ path: string; size: number }, any, unknown> {
     for (const key in files) yield { path: files[key], size: 40_000_000 };
+  }
+  async function* listEmpty(): AsyncGenerator<string> {
+    // Noop
   }
 
   const ctx: JobCreationContext = {
@@ -103,16 +106,27 @@ o.spec('Import', () => {
 
   o('should return Unable to access bucket', async () => {
     // Given... different bucket have no access role
+    async function* listException(): AsyncGenerator<string> {
+      throw new CompositeError('Access Denied', 403, new Error());
+    }
+
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
+    sandbox.stub(fsa, 'list').callsFake(listException);
+
     const req = getRequest(`s3://wrong-bucket/imagery/`, '2193');
 
     // When ...Then ...
-    const res = await Import(req);
-    o(res.body).equals('{"status":403,"message":"Unable to Access the s3 bucket"}');
+    try {
+      await Import(req);
+      o(true).equals(false); // should have failed
+    } catch (e) {
+      o(String(e)).equals('Error: Failed to read s3://wrong-bucket/imagery/');
+    }
   });
 
   o('should return Imagery not found', async () => {
     // Given... none imagery find from bucket
+    sandbox.stub(fsa, 'list').callsFake(listEmpty);
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
     sandbox.stub(fsa, 'details').callsFake(async function* () {
       yield { path: `${path}1.json`, size: 4000000 };
@@ -130,6 +144,7 @@ o.spec('Import', () => {
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
     sandbox.stub(fsa, 'details').callsFake(listFiles);
     sandbox.stub(CogJobFactory, 'create').resolves(undefined);
+    sandbox.stub(fsa, 'list').callsFake(listEmpty);
 
     const jobConfig = {
       id: jobId,
@@ -149,17 +164,26 @@ o.spec('Import', () => {
   o('should return 400 with reach file number limit', async () => {
     // Given... different bucket have no access role
     async function* listTooManyFiles(): AsyncGenerator<{ path: string; size: number }, any, unknown> {
-      const files = [`${path}/1.tiff`, `${path}/2.tiff`, `${path}/3.tiff`, `${path}/4.tiff`, `${path}/5.tiff`];
+      const files = [
+        `${path}/1.tiff`,
+        `${path}/2.tiff`,
+        `${path}/3.tiff`,
+        `${path}/4.tiff`,
+        `${path}/5.tiff`,
+        `${path}/6.tiff`,
+      ];
       for (const key in files) yield { path: files[key], size: 300_000_000 };
     }
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
     sandbox.stub(fsa, 'details').callsFake(listTooManyFiles);
     sandbox.stub(CogJobFactory, 'create').resolves(undefined);
+    sandbox.stub(fsa, 'list').callsFake(listEmpty);
+
     const req = getRequest(path, '2193');
 
     // When ...Then ...
     const res = await Import(req);
-    o(res.body).equals('{"status":400,"message":"Too many files to process. Files: 5. TotalSize: 1.4GB"}');
+    o(res.body).equals('{"status":400,"message":"Too many files to process. Files: 6. TotalSize: 1.68GB"}');
   });
 
   o('should return 400 with reach file size limit', async () => {
@@ -170,6 +194,8 @@ o.spec('Import', () => {
     }
     sandbox.stub(fsa, 'readJson').resolves({ buckets: [role] });
     sandbox.stub(fsa, 'details').callsFake(listTooLargeFiles);
+    sandbox.stub(fsa, 'list').callsFake(listEmpty);
+
     sandbox.stub(CogJobFactory, 'create').resolves(undefined);
     const req = getRequest(path, '2193');
 
