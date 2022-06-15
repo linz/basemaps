@@ -1,4 +1,4 @@
-import { Config, fsa, LogConfig, LogType } from '@basemaps/shared';
+import { Config, Env, fsa, LogConfig, LogType } from '@basemaps/shared';
 import { mkdir } from 'fs/promises';
 import { Browser, chromium } from 'playwright';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -77,6 +77,8 @@ export class CommandScreenShot extends CommandLineAction {
     if (config != null) {
       const port = await getPort();
       host = `http://localhost:${port}`;
+      // Force a default url base so WMTS requests know their relative url
+      process.env[Env.PublicUrlBase] = host;
       BasemapsServer = await startServer(port, config, logger);
       logger.info({ url: host }, 'ServerStarted');
     }
