@@ -3,11 +3,11 @@ import { ConfigJson } from '@basemaps/config';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 
 export const DefaultConfig = 'config/';
-export const DefaultBundle = 'config/config.json';
+export const DefaultOutput = 'config/config.json';
 
 export class CommandBundle extends CommandLineAction {
   private config: CommandLineStringParameter;
-  private bundle: CommandLineStringParameter;
+  private output: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -23,9 +23,9 @@ export class CommandBundle extends CommandLineAction {
       parameterLongName: '--config',
       description: 'Path of config files',
     });
-    this.bundle = this.defineStringParameter({
-      argumentName: 'BUNDLE',
-      parameterLongName: '--bundle',
+    this.output = this.defineStringParameter({
+      argumentName: 'OUTPUT',
+      parameterLongName: '--output',
       description: 'Output of the bundle file',
     });
   }
@@ -33,7 +33,7 @@ export class CommandBundle extends CommandLineAction {
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
     const config = this.config.value ?? DefaultConfig;
-    const bundle = this.bundle.value ?? DefaultBundle;
+    const bundle = this.output.value ?? DefaultOutput;
     const mem = await ConfigJson.fromPath(config, logger);
     await fsa.writeJson(bundle, mem.toJson());
     logger.info({ path: bundle }, 'ConfigBundled');

@@ -29,5 +29,5 @@ Dump the screenshots with config file
 Bundle config files into config bundle json from a given config path.
 
 ```bash
-./bin/bmc.js screenshot --config config/ --bundle config/config.json
+./bin/bmc.js screenshot --config config/ --output config.json
 ```
