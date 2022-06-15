@@ -1,6 +1,6 @@
-import { AwsCredentials } from '@chunkd/source-aws-v2';
-import { fsa } from '@chunkd/fs';
 import { Env } from '@basemaps/shared';
+import { fsa } from '@chunkd/fs';
+import { AwsCredentials } from '@chunkd/source-aws-v2';
 
 export interface RoleConfig {
   bucket: string;
@@ -19,6 +19,19 @@ interface BucketConfig {
   updatedAt: string;
 }
 
+/** Attempt to list the target path, if it fails with a 403 Forbidden assume we do not have permission to do read it */
+export async function canRead(path: string): Promise<boolean> {
+  try {
+    await fsa.list(path).next();
+    return true;
+  } catch (e: any) {
+    // Permission denied
+    if (e.code === 403) return false;
+    // Un related error
+    throw e;
+  }
+}
+
 export class RoleRegister {
   /** Get all imagery source aws roles */
   static async _loadRoles(): Promise<RoleConfig[]> {
@@ -26,15 +39,7 @@ export class RoleRegister {
     if (configBucket == null) return [];
     const configPath = `s3://${configBucket}/config.json`;
     const config: BucketConfig = await fsa.readJson(configPath);
-    const roles = [];
-    for (const role of config.buckets) {
-      fsa.register(
-        's3://' + role.bucket,
-        AwsCredentials.fsFromRole(role.roleArn, role.externalId, role.roleSessionDuration),
-      );
-      roles.push(role);
-    }
-    return roles;
+    return config.buckets;
   }
 
   static _loadRolesPromise: Promise<RoleConfig[]> | undefined;
@@ -44,8 +49,19 @@ export class RoleRegister {
   }
 
   static async findRole(path: string): Promise<RoleConfig | undefined> {
+    const isAbleToRead = await canRead(path);
+    // If we can directly read/write this path we don't need to register a role for it
+    if (isAbleToRead) return;
+
     const roles = await this.loadRoles();
-    return roles.find((f) => path.startsWith(`s3://${f.bucket}`));
+    const targetRole = roles.find((f) => path.startsWith(`s3://${f.bucket}`));
+    if (targetRole == null) throw new Error(`Failed to read ${path}`);
+
+    fsa.register(
+      `s3://${targetRole.bucket}`,
+      AwsCredentials.fsFromRole(targetRole.roleArn, targetRole.externalId, targetRole.roleSessionDuration),
+    );
+    return targetRole;
   }
 }
 
