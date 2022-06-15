@@ -23,3 +23,11 @@ Dump the screenshots with config file
 ./bin/bmc.js screenshot --config s3://..../config.json.gz
 
 ```
+
+## Usage -- Bundle
+
+Bundle config files into config bundle json from a given config path.
+
+```bash
+./bin/bmc.js bundle --config config/ --output config.json
+```

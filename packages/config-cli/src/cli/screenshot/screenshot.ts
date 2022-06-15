@@ -1,9 +1,9 @@
-import { Config, fsa, LogConfig, LogType } from '@basemaps/shared';
+import { Config, Env, fsa, LogConfig, LogType } from '@basemaps/shared';
 import { mkdir } from 'fs/promises';
 import { Browser, chromium } from 'playwright';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { z } from 'zod';
-import getPort, { portNumbers } from 'get-port';
+import getPort from 'get-port';
 import { createServer } from '@basemaps/server';
 import { FastifyInstance } from 'fastify/types/instance';
 import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
@@ -75,9 +75,12 @@ export class CommandScreenShot extends CommandLineAction {
 
     let BasemapsServer: FastifyInstance | undefined = undefined;
     if (config != null) {
-      const port = await getPort({ port: portNumbers(10000, 11000) });
-      host = `http://localhost:${port}`;
-      BasemapsServer = await startServer(host, port, config, logger);
+      const port = await getPort();
+      host = Env.get(Env.PublicUrlBase) ?? `http://localhost:${port}`;
+      // Force a default url base so WMTS requests know their relative url
+      process.env[Env.PublicUrlBase] = host;
+      BasemapsServer = await startServer(port, config, logger);
+      logger.info({ url: host }, 'ServerStarted');
     }
 
     logger.info('Page:Launch');
@@ -102,12 +105,12 @@ export async function takeScreenshots(host: string, tiles: string, chrome: Brows
     if (test.style) searchParam.set('s', test.style);
 
     const loc = `@${test.location.lat},${test.location.lng},z${test.location.z}`;
-    const fileName = '.artifacts/visual-snapshots/' + host + '_' + test.name + '.png';
+    const fileName = '.artifacts/visual-snapshots/' + test.name + '.png';
 
     await mkdir(`.artifacts/visual-snapshots/`, { recursive: true });
 
     let url = `${host}/?${searchParam.toString()}&debug=true&debug.screenshot=true#${loc}`;
-    if (!url.startsWith('http')) url = `https"//${url}`;
+    if (!url.startsWith('http')) url = `https://${url}`;
 
     logger.info({ url, expected: fileName }, 'Page:Load');
 
@@ -127,7 +130,7 @@ export async function takeScreenshots(host: string, tiles: string, chrome: Brows
   }
 }
 
-async function startServer(host: string, port: number, config: string, logger: LogType): Promise<FastifyInstance> {
+async function startServer(port: number, config: string, logger: LogType): Promise<FastifyInstance> {
   // Bundle Config
   const configJson = await fsa.readJson<ConfigBundled>(config);
   const mem = ConfigProviderMemory.fromJson(configJson);
@@ -135,11 +138,5 @@ async function startServer(host: string, port: number, config: string, logger: L
 
   // Start server
   const server = createServer(logger);
-  await new Promise<void>((resolve) =>
-    server.listen(port, '0.0.0.0', () => {
-      logger.info({ url: host }, 'ServerStarted');
-      resolve();
-    }),
-  );
-  return server;
+  return await new Promise<FastifyInstance>((resolve) => server.listen(port, '0.0.0.0', () => resolve(server)));
 }
