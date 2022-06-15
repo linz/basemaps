@@ -105,7 +105,7 @@ export async function takeScreenshots(host: string, tiles: string, chrome: Brows
     if (test.style) searchParam.set('s', test.style);
 
     const loc = `@${test.location.lat},${test.location.lng},z${test.location.z}`;
-    const fileName = '.artifacts/visual-snapshots/' + host + '_' + test.name + '.png';
+    const fileName = '.artifacts/visual-snapshots/' + test.name + '.png';
 
     await mkdir(`.artifacts/visual-snapshots/`, { recursive: true });
 
