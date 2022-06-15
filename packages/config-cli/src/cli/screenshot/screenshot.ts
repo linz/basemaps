@@ -76,7 +76,7 @@ export class CommandScreenShot extends CommandLineAction {
     let BasemapsServer: FastifyInstance | undefined = undefined;
     if (config != null) {
       const port = await getPort();
-      host = `http://localhost:${port}`;
+      host = Env.get(Env.PublicUrlBase) ?? `http://localhost:${port}`;
       // Force a default url base so WMTS requests know their relative url
       process.env[Env.PublicUrlBase] = host;
       BasemapsServer = await startServer(port, config, logger);
