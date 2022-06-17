@@ -23,11 +23,6 @@ export class TileSetUpdater extends Updater<ConfigTileSet> {
     for (const l of this.config.layers) {
       const layer = { ...l };
       layers.push(layer);
-
-      if (tileSet.type === TileSetType.Raster) {
-        if (layer[2193]) layer[2193] = layer[2193];
-        if (layer[3857]) layer[3857] = layer[3857];
-      }
     }
 
     if (this.config.title) tileSet.title = this.config.title;
