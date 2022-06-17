@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 Error.stackTraceLimit = 100;
-import { BasemapsConfig } from '../build/cli/screenshot/index.js';
+import { BasemapsConfig } from '../build/cli/bmc/index.js';
 
 new BasemapsConfig().run();
