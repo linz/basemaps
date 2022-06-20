@@ -4,7 +4,7 @@ import cf from 'aws-cdk-lib/aws-cloudfront';
 import s3, { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
-import { Parameters } from '../parameters.js';
+import { ParametersEdgeKeys } from '../parameters.js';
 
 export interface EdgeStackProps extends cdk.StackProps {
   /** ACM certificate to use for cloudfront */
@@ -94,10 +94,9 @@ export class EdgeStack extends cdk.Stack {
       loggingConfig: { bucket: this.logBucket },
     });
 
-    new cdk.CfnOutput(this, Parameters.Edge.LogBucketName.cfnOutput, { value: this.logBucket.bucketName });
-    new cdk.CfnOutput(this, Parameters.Edge.DistributionId.cfnOutput, { value: this.distribution.distributionId });
-
-    new cdk.CfnOutput(this, 'CloudFrontBucket', { value: s3BucketSource.bucketName });
+    new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontLogBucket, { value: this.logBucket.bucketName });
+    new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontDistributionId, { value: this.distribution.distributionId });
+    new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontBucket, { value: s3BucketSource.bucketName });
     new cdk.CfnOutput(this, 'CloudFrontId', { value: this.distribution.distributionDomainName });
     new cdk.CfnOutput(this, 'CloudFrontDomain', { value: this.distribution.distributionDomainName });
   }
