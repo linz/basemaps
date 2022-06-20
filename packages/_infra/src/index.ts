@@ -44,23 +44,27 @@ async function main(): Promise<void> {
    * The dynamoDb table needs to be close to our users that has to be deployed in ap-southeast-2
    */
   const edge = new EdgeStack(basemaps, 'Edge', { env: { region: 'us-east-1', account }, cloudfrontCertificateArn });
-  const serve = new ServeStack(basemaps, 'Serve', { env: { region: BaseMapsRegion, account }, albCertificateArn });
-  new CogStack(basemaps, 'LambdaCog', { env: { region: BaseMapsRegion, account } });
-
-  edge.addDependency(serve);
-
   // TODO is there a better way of handling this,
   // since this requires Edge to be deployed this will not deploy on the first deployment of new accounts
   const edgeParams = await getEdgeParameters(edge);
+
+  const serve = new ServeStack(basemaps, 'Serve', {
+    env: { region: BaseMapsRegion, account },
+    albCertificateArn,
+    staticBucketName: edgeParams?.CloudFrontBucket,
+  });
+  edge.addDependency(serve);
+
   if (edgeParams != null) {
     const analytics = new EdgeAnalytics(basemaps, 'Analytics', {
       env: { region: BaseMapsRegion, account },
-      logBucketName: edgeParams.cloudFrontLogBucketName,
-      distributionId: edgeParams.cloudFrontDistributionId,
+      logBucketName: edgeParams.CloudFrontLogBucket,
+      distributionId: edgeParams.CloudFrontDistributionId,
     });
     analytics.addDependency(edge);
   }
 
+  new CogStack(basemaps, 'LambdaCog', { env: { region: BaseMapsRegion, account } });
   new CogBuilderStack(basemaps, 'CogBuilder', { env: { region: BaseMapsRegion, account } });
 }
 

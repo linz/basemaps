@@ -12,6 +12,9 @@ import { LambdaTiler } from './lambda.tiler.js';
 export interface ServeStackProps extends cdk.StackProps {
   /** ACM certificate to use for the ALB */
   albCertificateArn: string;
+
+  /** Location of static files */
+  staticBucketName?: string;
 }
 
 /**
@@ -28,7 +31,7 @@ export class ServeStack extends cdk.Stack {
      * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
      * see: https://github.com/aws/aws-cdk/issues/8253
      */
-    const lambda = new LambdaTiler(this, 'LambdaTiler', { vpc });
+    const lambda = new LambdaTiler(this, 'LambdaTiler', { vpc, staticBucketName: props.staticBucketName });
     const table = new TileMetadataTable(this, 'TileMetadata');
     table.table.grantReadData(lambda.lambda);
 

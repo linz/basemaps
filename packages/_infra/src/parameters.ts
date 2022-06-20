@@ -1,25 +1,18 @@
 import { Stack } from 'aws-cdk-lib';
 import CloudFormation from 'aws-sdk/clients/cloudformation.js';
 
-export const Parameters = {
-  Edge: {
-    DistributionId: {
-      name: 'cloudFrontDistributionId',
-      // key: '/basemaps/edge/distributionId',
-      cfnOutput: 'CloudFrontDistributionId',
-    },
-    LogBucketName: {
-      name: 'cloudFrontLogBucketName',
-      // key: '/basemaps/edge/logBucketName',
-      cfnOutput: 'CloudFrontLogBucket',
-    },
-  },
-} as const;
-
 export interface ParametersEdge {
-  cloudFrontDistributionId: string;
-  cloudFrontLogBucketName: string;
+  CloudFrontBucket: string;
+  CloudFrontLogBucket: string;
+  CloudFrontDistributionId: string;
 }
+
+export const ParametersEdgeKeys: Record<keyof ParametersEdge, string> = {
+  CloudFrontBucket: 'CloudFrontBucket',
+  CloudFrontLogBucket: 'CloudFrontLogBucket',
+  CloudFrontDistributionId: 'CloudFrontDistributionId',
+};
+
 /**
  * Because cloudfront configuration has to be in US-East-1
  * We have to mirror cloudformation outputs into the Basemaps region of choice
@@ -35,14 +28,14 @@ export async function getEdgeParameters(edge: Stack): Promise<null | ParametersE
   }
 
   const output: Partial<ParametersEdge> = {};
-  for (const param of Object.values(Parameters.Edge)) {
-    const edgeParam = edgeStack.Stacks?.[0].Outputs?.find((f) => f.OutputKey === param.cfnOutput)?.OutputValue;
+  for (const param of Object.keys(ParametersEdgeKeys)) {
+    const edgeParam = edgeStack.Stacks?.[0].Outputs?.find((f) => f.OutputKey === param)?.OutputValue;
     if (edgeParam == null) {
-      console.error(`Failed to find cfnOutput for ${param.cfnOutput}`);
+      console.error(`Failed to find cfnOutput for ${param}`);
       continue;
     }
 
-    output[param.name] = edgeParam;
+    output[param as keyof ParametersEdge] = edgeParam;
   }
   if (Object.keys(output).length > 1) return output as ParametersEdge;
   return null;

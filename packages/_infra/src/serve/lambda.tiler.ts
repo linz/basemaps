@@ -12,6 +12,9 @@ const CODE_PATH = '../lambda-tiler/dist';
 
 export interface LambdaTilerProps {
   vpc: IVpc;
+
+  /** Location of static files */
+  staticBucketName?: string;
 }
 /**
  * Create a API Key validation edge lambda
@@ -24,6 +27,11 @@ export class LambdaTiler extends Construct {
     super(scope, id);
 
     const config = getConfig();
+
+    const environment: Record<string, string> = {
+      [Env.PublicUrlBase]: config.PublicUrlBase,
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+    };
     /**
      * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
      * see: https://github.com/aws/aws-cdk/issues/8253
@@ -35,12 +43,16 @@ export class LambdaTiler extends Construct {
       timeout: Duration.seconds(60),
       handler: 'index.handler',
       code: lambda.Code.fromAsset(CODE_PATH),
-      environment: {
-        [Env.PublicUrlBase]: config.PublicUrlBase,
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      },
+      environment,
       logRetention: RetentionDays.ONE_MONTH,
     });
+
+    if (props.staticBucketName) {
+      const staticBucket = s3.Bucket.fromBucketName(this, 'StaticBucket', props.staticBucketName);
+      staticBucket.grantRead(this.lambda);
+      environment[Env.AssetLocation] = props.staticBucketName;
+    }
+
     for (const bucketName of config.CogBucket) {
       const cogBucket = s3.Bucket.fromBucketName(this, `CogBucket${bucketName}`, bucketName);
       cogBucket.grantRead(this.lambda);
