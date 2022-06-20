@@ -1,21 +1,8 @@
 import { Env, fsa, LogConfig } from '@basemaps/shared';
-import { ConfigBundled, ConfigImagery, ConfigProvider, ConfigTileSet, ConfigVectorStyle } from '@basemaps/config';
+import { BaseConfig, ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { Q, Updater } from './config/base.config.js';
-import { StyleUpdater } from './config/updater/style.updater.js';
-import { ProviderUpdater } from './config/updater/provider.updater.js';
-import { TileSetUpdater } from './config/updater/tileset.updater.js';
+import { Q, Updater } from './config/config.update.js';
 import { invalidateCache } from '@basemaps/cli/build/cli/util.js';
-import { ImageryUpdater } from './config/updater/imagery.updater.js';
-import { ImageryTileSetUpdater } from './config/updater/imagery.tileset.updater.js';
-
-export enum UpdaterType {
-  Style = 'style',
-  TileSet = 'tileset',
-  Imagery = 'imagery',
-  ImageryTileSet = 'imagery_tileset',
-  Provider = 'provider',
-}
 
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;
@@ -63,23 +50,14 @@ export class CommandImport extends CommandLineAction {
       if (!res.ok) throw new Error('Cannot update basemaps is unhealthy');
     }
 
-    logger.info({ config: config }, 'Import:Load');
+    logger.info({ config }, 'Import:Load');
     const configJson = await fsa.readJson<ConfigBundled>(config);
+    const mem = ConfigProviderMemory.fromJson(configJson);
+    mem.createVirtualTileSets();
 
-    logger.info({ config: config }, 'Import:Style');
-    for await (const config of configJson.style) this.update(UpdaterType.Style, config, commit);
-
-    logger.info({ config: config }, 'Import:Provider');
-    for await (const config of configJson.provider) this.update(UpdaterType.Provider, config, commit);
-
-    logger.info({ config: config }, 'Import:TileSet');
-    for await (const config of configJson.tileSet) this.update(UpdaterType.TileSet, config, commit);
-
-    logger.info({ config: config }, 'Import:Imagery');
-    for await (const config of configJson.imagery) this.update(UpdaterType.Imagery, config, commit);
-
-    logger.info({ config: config }, 'Import:ImageryTileSet');
-    for await (const config of configJson.imagery) this.update(UpdaterType.ImageryTileSet, config, commit);
+    logger.info({ config }, 'Import:Start');
+    for (const config of mem.objects.values()) this.update(config, commit);
+    await Promise.all(this.promises);
 
     if (commit && this.invalidations.length > 0) {
       // Lots of invalidations just invalidate everything
@@ -98,21 +76,11 @@ export class CommandImport extends CommandLineAction {
     if (commit !== true) logger.info('DryRun:Done');
   }
 
-  getUpdater(type: UpdaterType, config: unknown, commit: boolean): Updater | ImageryTileSetUpdater {
-    if (type === UpdaterType.Style) return new StyleUpdater(config as ConfigVectorStyle, commit);
-    if (type === UpdaterType.Provider) return new ProviderUpdater(config as ConfigProvider, commit);
-    if (type === UpdaterType.TileSet) return new TileSetUpdater(config as ConfigTileSet, commit);
-    if (type === UpdaterType.Imagery) return new ImageryUpdater(config as ConfigImagery, commit);
-    if (type === UpdaterType.ImageryTileSet) return new ImageryTileSetUpdater(config as ConfigImagery, commit);
-    throw new Error(`Unable to find updater for type:${type}`);
-  }
-
-  update(type: UpdaterType, config: unknown, commit: boolean): void {
+  update(config: BaseConfig, commit: boolean): void {
     const promise = Q(async (): Promise<boolean> => {
-      const updater = this.getUpdater(type, config, commit);
+      const updater = new Updater(config, commit);
       const hasChanges = await updater.reconcile();
-      if (hasChanges && updater.invalidatePath) this.invalidations.push(updater.invalidatePath());
-
+      if (hasChanges) this.invalidations.push(updater.invalidatePath());
       return true;
     });
     this.promises.push(promise);
