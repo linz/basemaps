@@ -32,6 +32,9 @@ export class LambdaTiler extends Construct {
       [Env.PublicUrlBase]: config.PublicUrlBase,
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
     };
+
+    if (props.staticBucketName) environment[Env.AssetLocation] = `s3://${props.staticBucketName}`;
+
     /**
      * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
      * see: https://github.com/aws/aws-cdk/issues/8253
@@ -50,7 +53,6 @@ export class LambdaTiler extends Construct {
     if (props.staticBucketName) {
       const staticBucket = s3.Bucket.fromBucketName(this, 'StaticBucket', props.staticBucketName);
       staticBucket.grantRead(this.lambda);
-      environment[Env.AssetLocation] = props.staticBucketName;
     }
 
     for (const bucketName of config.CogBucket) {
