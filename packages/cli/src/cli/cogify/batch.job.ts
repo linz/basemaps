@@ -189,7 +189,7 @@ export class BatchJob {
    * Prepare the jobs from job files, and chunk the small images into single
    * @returns List of jobs including single job and chunk jobs.
    */
-  static async getJobs(job: CogJob, existing: Set<string>, log: LogType): Promise<string[][]> {
+  static getJobs(job: CogJob, existing: Set<string>, log: LogType): string[][] {
     const jobs: string[][] = [];
     let chunkJob: string[] = [];
     let chunkUnit = 0; // Calculate the chunkUnit based on the size
