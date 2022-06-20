@@ -6,6 +6,7 @@ import {
   ConfigImagery,
   ConfigProvider,
   ConfigVectorStyle,
+  ConfigPrefix,
 } from '@basemaps/config';
 import { BasemapsConfigObject } from '@basemaps/config/build/base.config.js';
 import { LogConfig, LogType } from '@basemaps/shared';
@@ -26,30 +27,32 @@ export class Updater<S extends BaseConfig = BaseConfig> {
    */
   constructor(config: S, isCommit: boolean) {
     this.config = config;
-    this.prefix = config.id.slice(0, 2);
+    const prefix = Config.getPrefix(config.id);
+    if (prefix == null) throw new Error(`Incorrect Config Id ${config.id}`);
+    this.prefix = prefix;
     this.isCommit = isCommit ? isCommit : false;
     this.logger = LogConfig.get();
   }
 
   getDB(): BasemapsConfigObject<ConfigTileSet | ConfigImagery | ConfigProvider | ConfigVectorStyle> {
-    if (this.prefix === 'im') return Config.Imagery;
-    if (this.prefix === 'ts') return Config.TileSet;
-    if (this.prefix === 'pv') return Config.Provider;
-    if (this.prefix === 'st') return Config.Style;
+    if (this.prefix === ConfigPrefix.Imagery) return Config.Imagery;
+    if (this.prefix === ConfigPrefix.TileSet) return Config.TileSet;
+    if (this.prefix === ConfigPrefix.Provider) return Config.Provider;
+    if (this.prefix === ConfigPrefix.Style) return Config.Style;
     throw Error(`Unable to find the database table for prefix ${this.prefix}`);
   }
 
   getConfig(): ConfigTileSet | ConfigImagery | ConfigProvider | ConfigVectorStyle {
-    if (this.prefix === 'im') return this.config as unknown as ConfigImagery;
-    if (this.prefix === 'ts') return this.config as unknown as ConfigTileSet;
-    if (this.prefix === 'pv') return this.config as unknown as ConfigProvider;
-    if (this.prefix === 'st') return this.config as unknown as ConfigVectorStyle;
+    if (this.prefix === ConfigPrefix.Imagery) return this.config as unknown as ConfigImagery;
+    if (this.prefix === ConfigPrefix.TileSet) return this.config as unknown as ConfigTileSet;
+    if (this.prefix === ConfigPrefix.Provider) return this.config as unknown as ConfigProvider;
+    if (this.prefix === ConfigPrefix.Style) return this.config as unknown as ConfigVectorStyle;
     throw Error(`Failed to cast the config ${this.config}`);
   }
 
   invalidatePath(): string {
-    if (this.prefix === 'pv') return '/v1/*/WMTSCapabilities.xml';
-    else if (this.prefix === 'st') return '/v1/tiles/togographic/style/${this.getId().slice(3)}.json';
+    if (this.prefix === ConfigPrefix.Provider) return '/v1/*/WMTSCapabilities.xml';
+    else if (this.prefix === ConfigPrefix.Style) return `/v1/tiles/togographic/style/${this.config.id.slice(3)}.json`;
     else return `/v1/tiles/${this.config.id.slice(3)}/*`;
   }
 
