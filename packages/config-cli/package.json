@@ -32,13 +32,17 @@
     "bin/"
   ],
   "dependencies": {
+    "@basemaps/cli": "^6.28.1",
     "@basemaps/config": "^6.28.1",
-    "@basemaps/server": "^6.28.1",
     "@basemaps/geo": "^6.28.1",
+    "@basemaps/server": "^6.28.1",
     "@basemaps/shared": "^6.28.1",
     "@rushstack/ts-command-line": "^4.3.13",
+    "deep-diff": "^1.0.2",
     "get-port": "^6.1.2",
-    "playwright": "^1.22.0",
-    "zod": "^3.17.3"
+    "playwright": "^1.22.0"
+  },
+  "devDependencies": {
+    "@types/deep-diff": "^1.0.1"
   }
 }

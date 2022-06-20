@@ -31,3 +31,11 @@ Bundle config files into config bundle json from a given config path.
 ```bash
 ./bin/bmc.js bundle --config config/ --output config.json
 ```
+
+## Usage -- Import
+
+Import all configs from a bundled config.json into dynamo db from a given config path
+
+```bash
+./bin/bmc.js import --config config.json --commit
+```

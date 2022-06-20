@@ -1,6 +1,7 @@
 import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
 import 'source-map-support/register.js';
 import { CommandBundle } from './bundle.config.js';
+import { CommandImport } from './import.config.js';
 import { CommandScreenShot } from './screenshot.js';
 
 export class BasemapsConfig extends BaseCommandLine {
@@ -11,5 +12,6 @@ export class BasemapsConfig extends BaseCommandLine {
     });
     this.addAction(new CommandScreenShot());
     this.addAction(new CommandBundle());
+    this.addAction(new CommandImport());
   }
 }
