@@ -6,7 +6,7 @@ import { mockRequest } from '../../__tests__/xyz.util.js';
 import { fontList, getFonts } from '../fonts.js';
 import { FsMemory } from './memory.fs.js';
 
-o.spec('listFonts', () => {
+o.spec('/v1/fonts', () => {
   const memory = new FsMemory();
   o.before(() => {
     fsa.register('memory://', memory);
@@ -52,6 +52,8 @@ o.spec('listFonts', () => {
     ]);
     const res = await fontList();
     o(res.status).equals(200);
+    o(res.header('content-type')).equals('application/json');
+    o(res.header('content-encoding')).equals(undefined);
     o(res.body).equals(JSON.stringify(['Roboto Black', 'Roboto Thin']));
   });
 
@@ -61,6 +63,7 @@ o.spec('listFonts', () => {
     const res255 = await handler.router.handle(mockRequest('/v1/fonts/Roboto Thin/0-255.pbf'));
     o(res255.status).equals(200);
     o(res255.header('content-type')).equals('application/x-protobuf');
+    o(res255.header('content-encoding')).equals(undefined);
 
     const res404 = await handler.router.handle(mockRequest('/v1/fonts/Roboto Thin/256-512.pbf'));
     o(res404.status).equals(404);

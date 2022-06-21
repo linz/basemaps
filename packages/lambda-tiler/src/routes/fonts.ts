@@ -15,9 +15,8 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
   try {
     const filePath = fsa.join(assetLocation, path.join('fonts', req.params.fontStack, req.params.range)) + '.pbf';
     const buf = await fsa.read(filePath);
-    const res = new LambdaHttpResponse(200, 'ok');
-    res.buffer(buf, 'application/x-protobuf');
-    return res;
+
+    return LambdaHttpResponse.ok().buffer(buf, 'application/x-protobuf');
   } catch (e: any) {
     if (e.code === 404) return NotFound;
     throw e;
@@ -47,8 +46,7 @@ export async function fontList(): Promise<LambdaHttpResponse> {
     const filePath = fsa.join(assetLocation, '/fonts');
     const fonts = await getFonts(filePath);
 
-    const res = new LambdaHttpResponse(200, 'ok');
-    return res.buffer(JSON.stringify(fonts), 'application/json');
+    return LambdaHttpResponse.ok().buffer(JSON.stringify(fonts), 'application/json');
   } catch (e: any) {
     if (e.code === 404) return NotFound;
     throw e;
