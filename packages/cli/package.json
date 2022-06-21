@@ -16,7 +16,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "bin": {
-    "cogify": "./cogify.js"
+    "bmc": "./bmc.js"
   },
   "scripts": {
     "build": "tsc",
