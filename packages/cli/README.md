@@ -1,35 +1,76 @@
-# @basemaps/cog
+# @basemaps/cli
 
-Create a collection of cloud optimized geotiff's from a collection of geotiff, that is optimized to be used in `@basemaps/tiler`
+CreateThis package is to control the configuration in the LINZ basemaps product.
 
 ## Install
 
 This script requires docker to be installed
 
-To install cogify
+To install
 
 ```bash
-npm i @basemaps/cog
+npm i @basemaps/cli
 ```
 
-## Usage
+
+## Usage -- Bundle
+
+Bundle config files into config bundle json from a given config path.
+
+```bash
+./bin/bmc.js bundle --config config/ --output config.json
+```
+
+## Usage -- Import
+
+Import all configs from a bundled config.json into dynamo db from a given config path
+
+```bash
+./bin/bmc.js import --config config.json --commit
+```
+
+## Usage -- Screenshots
+
+Dump the screenshots from basemaps production
+
+```bash
+./bin/bmc.js screenshot
+```
+
+Dump the screenshots from different host
+
+```bash
+./bin/bmc.js screenshot --host HOST
+
+```
+
+Dump the screenshots with config file
+
+```bash
+./bin/bmc.js screenshot --config s3://..../config.json.gz
+
+```
+
+## Usage -- cogify
+
+Create a collection of cloud optimized geotiff's from a collection of geotiff, that is optimized to be used in `@basemaps/tiler`
 
 Create a list of COG's to create
 
 ```bash
-cogify -V job --source ./source_folder/ --output ./source_folder/cogify/
+./bin/bmc.js -V job --source ./source_folder/ --output ./source_folder/cogify/
 ```
 
 Build a specific COG
 
 ```bash
-cogify -V cog --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --name 1-2-3 --commit
+./bin/bmc.js -V cog --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --name 1-2-3 --commit
 ```
 
 Build all the COGs using aws BATCH
 
 ```bash
-cogify -V batch --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --commit
+./bin/bmc.js -V batch --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --commit
 ```
 
 ## Advanced Job creation
@@ -39,7 +80,7 @@ Useful configuration options for `cogify job`
 ### Min Tile zoom `--min-zoom :number`
 
 using the argument `--min-zoom` will configure the highest COG tile that can be created
-for example, `--min-zoom 10` means tiles of zoom `0 - 10`  can be created but `11` cannot.
+for example, `--min-zoom 10` means tiles of zoom `0 - 10` can be created but `11` cannot.
 
 This is useful to control the size of COGS across varying imagery sets World level z0-5 vs region z12-15 vs specific area 20+
 
@@ -58,7 +99,6 @@ Outputs two GeoJSON files to provide a representation of the source and target i
 ## Building a COG collection
 
 The best way to build a cog collection is to create multiple JOBS with `--geojson` enabled while adjusting `--max-cogs` and `--min-zoom` when a good covering is found the job can then be submitted to AWS for processing.
-
 
 Using a large area of interest as shown in the imagery set below and is showing three different sets of parameters, The shaded green area is the original source imagery
 
