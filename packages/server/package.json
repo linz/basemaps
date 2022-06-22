@@ -25,20 +25,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "bin": {
-    "basemaps-server": "./bin/basemaps-server.cjs"
-  },
-  "bundle": [
-    {
-      "entry": "src/cli.ts",
-      "outfile": "bin/basemaps-server.cjs",
-      "executable": true,
-      "external": [
-        "pino-pretty",
-        "sharp"
-      ]
-    }
-  ],
   "files": [
     "build/",
     "bin/"
