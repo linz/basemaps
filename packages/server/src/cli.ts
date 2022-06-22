@@ -1,16 +1,10 @@
 import { ConfigJson, ConfigProvider, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { TileSetLocal } from '@basemaps/lambda-tiler/build/cli/tile.set.local.js';
 import { TileSets } from '@basemaps/lambda-tiler/build/tile.set.cache.js';
-import { createServer } from '@basemaps/server';
 import { Config, Const, Env, fsa, LogConfig, LogType } from '@basemaps/shared';
-import { CliInfo } from '@basemaps/shared/build/cli/base.js';
-import {
-  CommandLineAction,
-  CommandLineFlagParameter,
-  CommandLineIntegerParameter,
-  CommandLineStringParameter,
-} from '@rushstack/ts-command-line';
+import { BaseCommandLine, CliInfo } from '@basemaps/shared/build/cli/base.js';
 import { basename, dirname } from 'path';
+import { createServer } from './server.js';
 
 CliInfo.package = 'basemaps/server';
 
@@ -28,46 +22,37 @@ const BaseProvider: ConfigProvider = {
 
 const DefaultPort = 5000;
 
-export class CommandBasemapsServer extends CommandLineAction {
-  config: CommandLineStringParameter;
-  ignoreConfig: CommandLineFlagParameter;
-  bundle: CommandLineStringParameter;
-  assets: CommandLineStringParameter;
-  port: CommandLineIntegerParameter;
+export class BasemapsServerCommand extends BaseCommandLine {
+  config = this.defineStringParameter({
+    argumentName: 'CONFIG',
+    parameterLongName: '--config',
+    description: 'Configuration source to use',
+  });
+  ignoreConfig = this.defineFlagParameter({
+    parameterLongName: '--no-config',
+    description: 'Assume no config and just load tiffs from the configuration path',
+  });
+  bundle = this.defineStringParameter({
+    argumentName: 'BUNDLE',
+    parameterLongName: '--bundle',
+    description: 'Compile the configuration into a bundle and output path',
+  });
+  assets = this.defineStringParameter({
+    argumentName: 'ASSETS',
+    parameterLongName: '--assets',
+    description: 'Where the assets (sprites, fonts) are located',
+  });
+  port = this.defineIntegerParameter({
+    argumentName: 'PORT',
+    parameterLongName: '--port',
+    description: 'port to use',
+    defaultValue: DefaultPort,
+  });
 
-  protected onDefineParameters(): void {
-    this.config = this.defineStringParameter({
-      argumentName: 'CONFIG',
-      parameterLongName: '--config',
-      description: 'Configuration source to use',
-    });
-    this.ignoreConfig = this.defineFlagParameter({
-      parameterLongName: '--no-config',
-      description: 'Assume no config and just load tiffs from the configuration path',
-    });
-    this.bundle = this.defineStringParameter({
-      argumentName: 'BUNDLE',
-      parameterLongName: '--bundle',
-      description: 'Compile the configuration into a bundle and output path',
-    });
-    this.assets = this.defineStringParameter({
-      argumentName: 'ASSETS',
-      parameterLongName: '--assets',
-      description: 'Where the assets (sprites, fonts) are located',
-    });
-    this.port = this.defineIntegerParameter({
-      argumentName: 'PORT',
-      parameterLongName: '--port',
-      description: 'port to use',
-      defaultValue: DefaultPort,
-    });
-  }
-
-  public constructor() {
+  constructor() {
     super({
-      actionName: 'serve',
-      summary: 'run a basemaps server',
-      documentation: 'Create a WMTS/XYZ Tile server from basemaps config',
+      toolFilename: 'bms',
+      toolDescription: 'Create a WMTS/XYZ Tile server from basemaps config',
     });
   }
 
@@ -100,6 +85,8 @@ export class CommandBasemapsServer extends CommandLineAction {
   }
 
   async onExecute(): Promise<void> {
+    await super.onExecute();
+
     const logger = LogConfig.get();
     logger.level = 'debug';
     const config = this.config.value ?? 'dynamodb://' + Const.TileMetadata.TableName;
@@ -154,3 +141,7 @@ export class CommandBasemapsServer extends CommandLineAction {
     });
   }
 }
+
+new BasemapsServerCommand().executeWithoutErrorHandling().catch((c) => {
+  console.error(c);
+});

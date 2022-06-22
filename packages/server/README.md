@@ -4,9 +4,16 @@ WMTS/XYZ Tile server command line interface.
 
 This wraps the @basemaps/tiler into a standalone express http server.
 
+## Usage
+Basemaps server expects a folder tree full of configuration, with multiple tilesets and styles configuration files.
+
+```bash
+basemaps-server --config path/to/config/
+```
+
 ### Usage docker
 
-The server is also published as a docker container
+The server is also published as a docker container 
 
 ```bash
 docker run -it \
@@ -29,21 +36,24 @@ basemaps-server --config path/to/config/ --bundle config.bundle.json
 basemaps-server --config config.bundle.json
 ```
 
-### Usage with LINZ imagery
 
-Usage with basemaps config, you will need access to basemaps' imagery cache
+### Usage with LINZ imagery
+Usage with basemaps config, you will need access to basemaps' imagery cache 
 
 please contact basemaps@linz.govt.nz if you need access.
-
 ```
 git clone github.com/linz/basemaps-config
 
 basemaps-server --config basemaps-config/config
 ```
 
+
+
+
 ### Direct TIFF access
 
 If you have a folder of tiffs the basemaps-server can index the folder and create tiles from
+
 
 For example given a structure where there are two folders full of tiffs
 
@@ -53,6 +63,7 @@ For example given a structure where there are two folders full of tiffs
 ```
 
 running `basemaps-server --config /images --no-config` will create two tile sets one for each folder `gebco_2021...` and `geographx_nz_t...` and then also create a combined layer in the order the tiffs are found.
+
 
 ## Developing
 

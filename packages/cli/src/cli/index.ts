@@ -6,7 +6,6 @@ import { CommandJobCreate } from './cogify/action.job.js';
 import { CommandBundle } from './config/action.bundle.js';
 import { CommandImport } from './config/action.import.js';
 import { CommandScreenShot } from './screenshot/action.screenshot.js';
-import { CommandBasemapsServer } from './server/action.server.js';
 
 export class BasemapsConfigCommandLine extends BaseCommandLine {
   constructor() {
@@ -22,7 +21,5 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     this.addAction(new CommandImport());
 
     this.addAction(new CommandScreenShot());
-
-    this.addAction(new CommandBasemapsServer());
   }
 }

@@ -28,14 +28,6 @@ Import all configs from a bundled config.json into dynamo db from a given config
 ./bin/bmc.js import --config config.json --commit
 ```
 
-## Usage -- Server
-
-Basemaps server expects a folder tree full of configuration, with multiple tilesets and styles configuration files.
-
-```bash
-./bin/bmc.js serve --config path/to/config/
-```
-
 ## Usage -- Screenshots
 
 Dump the screenshots from basemaps production
