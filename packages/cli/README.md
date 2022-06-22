@@ -66,12 +66,6 @@ Build a specific COG
 ./bin/bmc.js -V cog --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --name 1-2-3 --commit
 ```
 
-Build all the COGs using aws BATCH
-
-```bash
-./bin/bmc.js -V batch --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --commit
-```
-
 ## Advanced Job creation
 
 Useful configuration options for `cogify job`
