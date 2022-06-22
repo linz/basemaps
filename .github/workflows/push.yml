@@ -60,6 +60,8 @@ jobs:
 
   build-deploy:
     runs-on: ubuntu-latest
+    concurrency: deploy-${{ github.head_ref }}
+
     permissions:
       id-token: write
       contents: write
