@@ -12,7 +12,6 @@ To install
 npm i @basemaps/cli
 ```
 
-
 ## Usage -- Bundle
 
 Bundle config files into config bundle json from a given config path.
@@ -27,6 +26,14 @@ Import all configs from a bundled config.json into dynamo db from a given config
 
 ```bash
 ./bin/bmc.js import --config config.json --commit
+```
+
+## Usage -- Server
+
+Basemaps server expects a folder tree full of configuration, with multiple tilesets and styles configuration files.
+
+```bash
+basemaps-server --config path/to/config/
 ```
 
 ## Usage -- Screenshots
