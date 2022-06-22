@@ -16,7 +16,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "bin": {
-    "cogify": "./cogify.js"
+    "bmc": "./bmc.js"
   },
   "scripts": {
     "build": "tsc",
@@ -25,7 +25,7 @@
   },
   "bundle": [
     {
-      "entry": "src/cli/cogify/index.ts",
+      "entry": "src/cli/index.ts",
       "outdir": "dist/",
       "external": [
         "pino-pretty"
@@ -39,18 +39,23 @@
   "dependencies": {
     "@basemaps/config": "^6.28.1",
     "@basemaps/geo": "^6.28.1",
+    "@basemaps/server": "^6.28.1",
     "@basemaps/shared": "^6.28.1",
     "@chunkd/fs": "^8.1.0",
     "@cogeotiff/core": "^7.0.0",
     "@linzjs/geojson": "^6.28.1",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
+    "deep-diff": "^1.0.2",
+    "get-port": "^6.1.2",
     "node-fetch": "^3.2.3",
     "p-limit": "^4.0.0",
+    "playwright": "^1.22.2",
     "pretty-json-log": "^1.0.0",
     "zod": "^3.17.3"
   },
   "devDependencies": {
+    "@types/deep-diff": "^1.0.1",
     "@types/geojson": "^7946.0.7",
     "@types/proj4": "^2.5.0"
   },

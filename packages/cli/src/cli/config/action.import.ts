@@ -1,8 +1,8 @@
 import { Env, fsa, LogConfig } from '@basemaps/shared';
 import { BaseConfig, ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { Q, Updater } from './config/config.update.js';
-import { invalidateCache } from '@basemaps/cli/build/cli/util.js';
+import { Q, Updater } from './config.update.js';
+import { invalidateCache } from '../util.js';
 
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;

@@ -21,7 +21,7 @@ import { insertConfigImagery, insertConfigTileSet } from './imagery.config.js';
 import { JobStatus, ProcessingJobComplete, ProcessingJobFailed } from '@basemaps/config';
 import { prepareUrl } from '../util.js';
 
-export class ActionCogCreate extends CommandLineAction {
+export class CommandCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
   private name?: CommandLineStringListParameter;
   private commit?: CommandLineFlagParameter;

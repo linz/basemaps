@@ -80,7 +80,7 @@ export class CommandScreenShot extends CommandLineAction {
       // Force a default url base so WMTS requests know their relative url
       process.env[Env.PublicUrlBase] = host;
       BasemapsServer = await startServer(port, config, logger);
-      logger.info({ url: host }, 'ServerStarted');
+      logger.info({ url: host }, 'Server:Started');
     }
 
     logger.info('Page:Launch');

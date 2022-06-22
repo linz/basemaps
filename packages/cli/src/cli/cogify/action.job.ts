@@ -40,7 +40,7 @@ export class CLiInputData {
   }
 }
 
-export class ActionJobCreate extends CommandLineAction {
+export class CommandJobCreate extends CommandLineAction {
   private source: CLiInputData;
   private output: CLiInputData;
   private maxConcurrency: CommandLineIntegerParameter;
