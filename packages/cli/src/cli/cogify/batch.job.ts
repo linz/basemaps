@@ -2,6 +2,7 @@ import { TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, LogConfig, LogType, Projection } from '@basemaps/shared';
 import Batch from 'aws-sdk/clients/batch.js';
 import { createHash } from 'crypto';
+import { basename } from 'path';
 import { CogJob } from '../../cog/types.js';
 
 const JobQueue = 'CogBatchJobQueue';
@@ -28,6 +29,13 @@ export function extractResolutionFromName(name: string): number {
 }
 
 export class BatchJob {
+  static _batch: Batch;
+  static get batch(): Batch {
+    if (this._batch) return this._batch;
+    const region = Env.get('AWS_REGION') ?? Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';
+    this._batch = new Batch({ region });
+    return this._batch;
+  }
   /**
    * Create a id for a job
    *
@@ -36,17 +44,17 @@ export class BatchJob {
    * @param fileNames output filename
    * @returns job id
    */
-  static id(job: CogJob, fileNames: string[]): string {
+  static id(job: CogJob, fileNames?: string[]): string {
     // Job names are uncontrolled so hash the name and grab a small slice to use as a identifier
     const jobName = createHash('sha256').update(job.name).digest('hex').slice(0, 16);
+    if (fileNames == null) return `${job.id}-${jobName}-`;
     fileNames.sort((a, b) => a.localeCompare(b));
-    return `${job.id}-${jobName}-${fileNames.join('_')}`.slice(0, 128);
+    return `${job.id}-${jobName}-${fileNames.length}x-${fileNames.join('_')}`.slice(0, 128);
   }
 
   static async batchOne(
     jobPath: string,
     job: CogJob,
-    batch: Batch,
     names: string[],
     isCommit: boolean,
   ): Promise<{ jobName: string; jobId: string; memory: number }> {
@@ -69,7 +77,7 @@ export class BatchJob {
     let commandStr = ['-V', 'cog', '--job', jobPath, '--commit'];
     for (const name of names) commandStr = commandStr.concat(['--name', name]);
 
-    const batchJob = await batch
+    const batchJob = await this.batch
       .submitJob({
         jobName,
         jobQueue: JobQueue,
@@ -88,25 +96,46 @@ export class BatchJob {
    * List all the current jobs in batch and their statuses
    * @returns a map of JobName to if their status is "ok" (not failed)
    */
-  static async getCurrentJobList(batch: Batch): Promise<Map<string, boolean>> {
+  static async getCurrentJobList(job: CogJob, logger: LogType): Promise<Set<string>> {
+    const jobPrefix = BatchJob.id(job);
     // For some reason AWS only lets us query one status at a time.
-    const allStatuses = ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'RUNNING', 'SUCCEEDED', 'FAILED'];
+    const allStatuses = ['SUBMITTED', 'PENDING', 'RUNNABLE', 'STARTING', 'RUNNING' /* 'SUCCEEDED' */];
+    // Succeeded is not needed as we check to see if the output file exists, if it succeeds and the output file doesn't exist then something has gone wrong
     const allJobs = await Promise.all(
-      allStatuses.map((jobStatus) => batch.listJobs({ jobQueue: JobQueue, jobStatus }).promise()),
+      allStatuses.map((jobStatus) => this.batch.listJobs({ jobQueue: JobQueue, jobStatus }).promise()),
     );
 
-    const okMap = new Map<string, boolean>();
+    const jobIds = new Set<string>();
 
+    // Find all the relevant jobs that start with our job prefix
     for (const status of allJobs) {
       for (const job of status.jobSummaryList) {
-        if (job.status === 'FAILED' && okMap.get(job.jobName) !== true) {
-          okMap.set(job.jobName, false);
-        } else {
-          okMap.set(job.jobName, true);
+        if (!job.jobName.startsWith(jobPrefix)) continue;
+        jobIds.add(job.jobId);
+      }
+    }
+
+    // Inspect all the jobs for what files are being "processed"
+    const tiffs = new Set<string>();
+    let allJobIds = [...jobIds];
+    while (allJobIds.length > 0) {
+      logger.info({ jobCount: allJobIds.length }, 'JobFetch');
+      const jobList = allJobIds.slice(0, 100);
+      allJobIds = allJobIds.slice(100);
+      const describedJobs = await this.batch.describeJobs({ jobs: jobList }).promise();
+      if (describedJobs.jobs == null) continue;
+      for (const job of describedJobs.jobs) {
+        const jobCommand = job.container?.command;
+        if (jobCommand == null) continue;
+
+        // Extract the tiff names from the job command
+        for (let i = 0; i < jobCommand.length; i++) {
+          if (jobCommand[i] === '--name') tiffs.add(jobCommand[i + 1]);
         }
       }
     }
-    return okMap;
+
+    return tiffs;
   }
 
   static async batchJob(job: CogJob, commit = false, logger: LogType): Promise<void> {
@@ -116,47 +145,21 @@ export class BatchJob {
     }
     LogConfig.set(logger.child({ correlationId: job.id, imageryName: job.name }));
 
-    const region = Env.get('AWS_DEFAULT_REGION') ?? 'ap-southeast-2';
-    const batch = new Batch({ region });
-
     fsa.configure(job.output.location);
-    const runningJobs = await BatchJob.getCurrentJobList(batch);
-
-    // Prepare chunk job and individual jobs based on imagery size.
-    const jobs = await this.getJobs(job);
 
     // Get all the existing output tiffs
-    const targetPath = job.getJobPath();
-    const existTiffs: string[] = [];
+    const existTiffs: Set<string> = new Set();
     for await (const fileName of fsa.list(job.getJobPath())) {
-      if (fileName.endsWith('.tiff')) existTiffs.push(fileName);
+      if (fileName.endsWith('.tiff')) existTiffs.add(basename(fileName));
     }
 
-    const toSubmit: string[][] = [];
-    for (const names of jobs) {
-      // Check existence of batch job running
-      const jobName = BatchJob.id(job, names);
-      const isRunning = runningJobs.get(jobName);
-      if (isRunning) {
-        logger.info({ jobName }, 'JobRunning');
-        continue;
-      }
+    const runningJobs = await this.getCurrentJobList(job, logger);
+    for (const tiffName of runningJobs) existTiffs.add(`${tiffName}.tiff`);
 
-      // Check existence of all the output tiffs.
-      let allExists = true;
-      for (const name of names) {
-        if (!existTiffs.includes(job.getJobPath(`${name}.tiff`))) allExists = false;
-      }
-      if (allExists) {
-        logger.info({ targetPath, names }, 'FileExists');
-        continue;
-      }
+    // Prepare chunk job and individual jobs based on imagery size.
+    const jobs = await this.getJobs(job, existTiffs, logger);
 
-      // Ready to submit
-      toSubmit.push(names);
-    }
-
-    if (toSubmit.length === 0) {
+    if (jobs.length === 0) {
       logger.info('NoJobs');
       return;
     }
@@ -164,15 +167,15 @@ export class BatchJob {
     logger.info(
       {
         jobTotal: job.output.files.length,
-        jobLeft: toSubmit.length,
+        jobLeft: jobs.length,
         jobQueue: JobQueue,
         jobDefinition: JobDefinition,
       },
       'JobSubmit',
     );
 
-    for (const names of toSubmit) {
-      const jobStatus = await BatchJob.batchOne(jobPath, job, batch, names, commit);
+    for (const names of jobs) {
+      const jobStatus = await BatchJob.batchOne(jobPath, job, names, commit);
       logger.info(jobStatus, 'JobSubmitted');
     }
 
@@ -186,11 +189,17 @@ export class BatchJob {
    * Prepare the jobs from job files, and chunk the small images into single
    * @returns List of jobs including single job and chunk jobs.
    */
-  static async getJobs(job: CogJob): Promise<string[][]> {
+  static getJobs(job: CogJob, existing: Set<string>, log: LogType): string[][] {
     const jobs: string[][] = [];
     let chunkJob: string[] = [];
     let chunkUnit = 0; // Calculate the chunkUnit based on the size
     for (const file of job.output.files) {
+      const outputFile = `${file.name}.tiff`;
+      if (existing.has(outputFile)) {
+        log.debug({ fileName: outputFile }, 'Skip:Exists');
+        continue;
+      }
+
       const imageSize = file.width / job.output.gsd;
       if (imageSize > 16385) {
         jobs.push([file.name]);

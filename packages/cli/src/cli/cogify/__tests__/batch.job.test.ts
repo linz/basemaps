@@ -1,3 +1,4 @@
+import { LogConfig } from '@basemaps/shared';
 import o from 'ospec';
 import { CogJob } from '../../../cog/types.js';
 import { BatchJob, extractResolutionFromName } from '../batch.job.js';
@@ -15,10 +16,12 @@ o.spec('action.batch', () => {
 
   o('should create valid jobNames', () => {
     const fakeJob = { id: '01FHRPYJ5FV1XAARZAC4T4K6MC', name: 'geographx_nz_texture_shade_2012_8-0m' } as CogJob;
-    o(BatchJob.id(fakeJob, ['0'])).equals('01FHRPYJ5FV1XAARZAC4T4K6MC-9af5e139bbb3e502-0');
+    o(BatchJob.id(fakeJob, ['0'])).equals('01FHRPYJ5FV1XAARZAC4T4K6MC-9af5e139bbb3e502-1x-0');
 
     fakeJob.name = 'ōtorohanga_urban_2021_0.1m_RGB';
-    o(BatchJob.id(fakeJob, ['0'])).equals('01FHRPYJ5FV1XAARZAC4T4K6MC-5294acface81c107-0');
+    o(BatchJob.id(fakeJob, ['0'])).equals('01FHRPYJ5FV1XAARZAC4T4K6MC-5294acface81c107-1x-0');
+
+    o(BatchJob.id(fakeJob)).equals('01FHRPYJ5FV1XAARZAC4T4K6MC-5294acface81c107-');
   });
 
   o('should truncate job names to 128 characters', () => {
@@ -31,11 +34,11 @@ o.spec('action.batch', () => {
         'so it should be truncated at some point.tiff',
       ]),
     ).equals(
-      '01FHRPYJ5FV1XAARZAC4T4K6MC-9af5e139bbb3e502-it should over flow 128 characters_so it should be truncated at some point.tiff_this',
+      '01FHRPYJ5FV1XAARZAC4T4K6MC-9af5e139bbb3e502-3x-it should over flow 128 characters_so it should be truncated at some point.tiff_t',
     );
   });
 
-  o('should prepare valid chunk jobs', async () => {
+  o.spec('ChunkJobs', () => {
     const fakeGsd = 0.9;
     const ChunkJobSmall = 4097;
     const ChunkJobMiddle = 8193;
@@ -59,23 +62,48 @@ o.spec('action.batch', () => {
     ];
 
     const fakeJob = { id: '01FHRPYJ5FV1XAARZAC4T4K6MC', output: { files: fakeFiles, gsd: fakeGsd } } as CogJob;
-    o(await BatchJob.getJobs(fakeJob)).deepEquals([
-      [fakeFiles[2].name], // First single Job
-      [fakeFiles[5].name], // Second single Job
-      [
-        fakeFiles[0].name,
-        fakeFiles[1].name,
-        fakeFiles[3].name,
-        fakeFiles[4].name,
-        fakeFiles[6].name,
-        fakeFiles[7].name,
-        fakeFiles[8].name,
-        fakeFiles[9].name,
-        fakeFiles[10].name,
-        fakeFiles[11].name,
-      ], // First chunk
-      [fakeFiles[13].name], // Third single Job
-      [fakeFiles[12].name, fakeFiles[14].name], // Second Chunk
-    ]);
+    o('should prepare valid chunk jobs', async () => {
+      o(BatchJob.getJobs(fakeJob, new Set(), LogConfig.get())).deepEquals([
+        [fakeFiles[2].name], // First single Job
+        [fakeFiles[5].name], // Second single Job
+        [
+          fakeFiles[0].name,
+          fakeFiles[1].name,
+          fakeFiles[3].name,
+          fakeFiles[4].name,
+          fakeFiles[6].name,
+          fakeFiles[7].name,
+          fakeFiles[8].name,
+          fakeFiles[9].name,
+          fakeFiles[10].name,
+          fakeFiles[11].name,
+        ], // First chunk
+        [fakeFiles[13].name], // Third single Job
+        [fakeFiles[12].name, fakeFiles[14].name], // Second Chunk
+      ]);
+    });
+
+    o('should skip tiffs that exist', () => {
+      const existing = new Set([
+        `${fakeFiles[0].name}.tiff`,
+        `${fakeFiles[1].name}.tiff`,
+        `${fakeFiles[13].name}.tiff`,
+      ]);
+      o(BatchJob.getJobs(fakeJob, existing, LogConfig.get())).deepEquals([
+        [fakeFiles[2].name], // First single Job
+        [fakeFiles[5].name], // Second single Job
+        [
+          fakeFiles[3].name,
+          fakeFiles[4].name,
+          fakeFiles[6].name,
+          fakeFiles[7].name,
+          fakeFiles[8].name,
+          fakeFiles[9].name,
+          fakeFiles[10].name,
+          fakeFiles[11].name,
+        ], // First chunk
+        [fakeFiles[12].name, fakeFiles[14].name], // Second Chunk
+      ]);
+    });
   });
 });
