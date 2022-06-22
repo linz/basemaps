@@ -65,7 +65,7 @@ export class CommandBasemapsServer extends CommandLineAction {
 
   public constructor() {
     super({
-      actionName: 'server',
+      actionName: 'serve',
       summary: 'run a basemaps server',
       documentation: 'Create a WMTS/XYZ Tile server from basemaps config',
     });
