@@ -132,20 +132,6 @@ export class TileMakerSharp implements TileMaker {
 
     if (resize) {
       const resizeOptions = { fit: Sharp.fit.cover, kernel: resize.scale > 1 ? resizeKernel.in : resizeKernel.out };
-
-      // since libvips 8.13, we now have to manually extract the region before scaling it up as it can overflow the webp image size limit of 16k x 16k.
-      if (resize.width >= this.tileSize && crop != null) {
-        // Extract the region we want first, but it must be at least 1px x 1px and use whole pixels
-        sharp.extract({
-          top: Math.floor(crop.y / resize.scale),
-          left: Math.floor(crop.x / resize.scale),
-          width: Math.max(crop.width / resize.scale, 1),
-          height: Math.max(crop.height / resize.scale, 1),
-        });
-        // Resize to the the target output, skipping the extract step
-        sharp.resize(crop.width, crop.height, resizeOptions);
-        return { input: await sharp.toBuffer(), top: comp.y, left: comp.x };
-      }
       sharp.resize(resize.width, resize.height, resizeOptions);
     }
 
