@@ -26,7 +26,7 @@
     "@basemaps/config": "^6.28.1",
     "@basemaps/geo": "^6.28.1",
     "@basemaps/tiler": "^6.28.1",
-    "@chunkd/source-aws-v2": "^8.1.0",
+    "@chunkd/source-aws-v2": "^8.4.0",
     "@linzjs/geojson": "^6.28.1",
     "@linzjs/metrics": "^6.28.1",
     "aws-sdk": "^2.890.0",

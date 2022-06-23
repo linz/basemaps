@@ -1,9 +1,12 @@
 export * from './file.config.js';
-import { fsa as fsaSource, FsAwsS3 } from '@chunkd/fs';
+import { parseUri } from '@chunkd/core';
+import { fsa as fsaSource } from '@chunkd/fs';
+import { FsAwsS3 } from '@chunkd/source-aws';
+import { AwsCredentials } from '@chunkd/source-aws-v2';
+import S3 from 'aws-sdk/clients/s3.js';
 import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
 import { FileConfig, isConfigS3Role } from './file.config.js';
-import { AwsCredentials } from '@chunkd/source-aws-v2';
 
 const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 
@@ -40,13 +43,10 @@ fsa.configure = function configure(cfg: FileConfig): void {
   if (cfg.type !== 's3') return; // ignore local configs
   if (!isConfigS3Role(cfg)) return; // ignore configs which don't need role assumptions
 
-  const { bucket } = FsAwsS3.parse(cfg.path);
-  const bucketUri = `s3://${bucket}/`;
+  const res = parseUri(cfg.path);
+  if (res == null) throw new Error('Failed to parse URI: ' + cfg.path);
+  const bucketUri = `s3://${res.bucket}/`;
   this.register(bucketUri, AwsCredentials.fsFromRole(cfg.roleArn, cfg.externalId));
 };
 
-/**
- *  Default to using the file handler useful for folders like
- * "C:\" or "directory_name/sub_directory"
- */
-fsa.register('', fsa.get('file://'));
+fsa.register('s3://', new FsAwsS3(new S3()));

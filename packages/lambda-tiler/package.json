@@ -28,7 +28,7 @@
     "@basemaps/shared": "^6.28.1",
     "@basemaps/tiler": "^6.28.1",
     "@basemaps/tiler-sharp": "^6.28.1",
-    "@chunkd/fs": "^8.1.0",
+    "@chunkd/fs": "^8.4.0",
     "@cogeotiff/core": "^7.0.0",
     "@cotar/core": "^5.3.0",
     "@linzjs/geojson": "^6.28.1",
