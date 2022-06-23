@@ -36,7 +36,6 @@ export class FakeTileSetVector extends TileSetVector {
 }
 
 export const Provider: ConfigProvider = {
-  createdAt: Date.now(),
   name: 'main',
   id: 'pv_main_production',
   updatedAt: Date.now(),

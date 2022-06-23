@@ -279,7 +279,6 @@ function makeImageRecord(id: string, name: string, x = 10): ConfigImagery {
       b.x += i * b.width;
       return b;
     }),
-    createdAt: Date.now(),
     updatedAt: Date.now(),
   };
 }
