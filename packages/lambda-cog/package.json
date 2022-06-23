@@ -25,7 +25,7 @@
     "@basemaps/geo": "^6.28.1",
     "@basemaps/lambda": "^6.7.0",
     "@basemaps/shared": "^6.28.1",
-    "@chunkd/fs": "^8.1.0",
+    "@chunkd/fs": "^8.4.0",
     "@linzjs/lambda": "^3.0.1"
   },
   "bundle": {
