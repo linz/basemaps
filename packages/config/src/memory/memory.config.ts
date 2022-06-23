@@ -7,7 +7,7 @@ import { ConfigProcessingJob } from '../config/processing.job.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
-import { ulid } from 'ulid';
+import { ulid, decodeTime } from 'ulid';
 import { createHash } from 'crypto';
 
 /** bundle the configuration as a single JSON object */
@@ -106,12 +106,16 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     if (cfg.id == null || Config.getPrefix(cfg.id) !== ConfigPrefix.ConfigBundle) {
       throw new Error('Provided configuration file is not a basemaps config bundle.');
     }
+    // Load the time the bundle was created from the ULID
+    const updatedAt = decodeTime(Config.unprefix(ConfigPrefix.ConfigBundle, cfg.id));
     // TODO this should validate the config
     const mem = new ConfigProviderMemory();
     for (const ts of cfg.tileSet) mem.put(ts);
     for (const st of cfg.style) mem.put(st);
     for (const pv of cfg.provider) mem.put(pv);
     for (const img of cfg.imagery) mem.put(img);
+
+    for (const obj of mem.objects.values()) obj.updatedAt = updatedAt;
 
     return mem;
   }
