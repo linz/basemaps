@@ -8,10 +8,13 @@ import { ConfigProvider } from '../config/provider.js';
 import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
 import { ulid } from 'ulid';
+import { createHash } from 'crypto';
 
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
   id: string;
+  /** Configuration hash */
+  hash: string;
   imagery: ConfigImagery[];
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
@@ -36,7 +39,8 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   toJson(): ConfigBundled {
     const cfg: ConfigBundled = {
-      id: Config.prefix(ConfigPrefix.ConfigBundle, ulid()),
+      id: '',
+      hash: '',
       imagery: [],
       style: [],
       provider: [],
@@ -45,6 +49,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
     for (const val of this.objects.values()) {
       const prefix = val.id.slice(0, val.id.indexOf('_'));
+      delete val.updatedAt;
       switch (prefix) {
         case ConfigPrefix.Imagery:
           cfg.imagery.push(val as ConfigImagery);
@@ -62,6 +67,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
           throw new Error('Unable to parse configuration id: ' + val.id);
       }
     }
+
+    cfg.hash = createHash('sha256').update(JSON.stringify(cfg)).digest('base64url');
+    cfg.id = Config.prefix(ConfigPrefix.ConfigBundle, ulid());
 
     return cfg;
   }
@@ -87,7 +95,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       format: ImageFormat.Webp,
       layers: [{ [i.projection]: i.id, name: i.name, minZoom: 0, maxZoom: 32 }],
       background: { r: 0, g: 0, b: 0, alpha: 0 },
-      createdAt: i.createdAt ? i.createdAt : now,
       updatedAt: now,
     };
 

@@ -84,7 +84,6 @@ export class ConfigJson {
       name: Config.unprefix(ConfigPrefix.Provider, pv.id),
       serviceIdentification: pv.serviceIdentification,
       serviceProvider: pv.serviceProvider,
-      createdAt: Date.now(),
       updatedAt: Date.now(),
       version: 1,
     };
@@ -98,7 +97,6 @@ export class ConfigJson {
       id: st.id,
       name: st.name,
       style: st as StyleJson,
-      createdAt: Date.now(),
       updatedAt: Date.now(),
     };
   }
@@ -222,7 +220,6 @@ export class ConfigJson {
     const output: ConfigImagery = {
       id,
       name,
-      createdAt: now,
       updatedAt: now,
       projection: tileMatrix.projection.code,
       tileMatrix: tileMatrix.identifier,
