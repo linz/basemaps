@@ -10,7 +10,7 @@ o.spec('Sprites', () => {
 
   o.specTimeout(2_500);
   o('should generate sprites from examples', async () => {
-    const baseSprites = join(__dirname, '../../static/sprites');
+    const baseSprites = join(__dirname, '../../../../static/sprites');
 
     const files = await listSprites(baseSprites);
     const res = await Sprites.generate(files, [1, 2]);
