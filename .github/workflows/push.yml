@@ -51,12 +51,17 @@ jobs:
       - name: Publish Containers
         run: |
           GIT_VERSION=$(git describe --tags --always --match 'v*')
+          
+          docker tag basemaps-cli ghcr.io/linz/basemaps/cli:${GIT_VERSION}
+          docker push ghcr.io/linz/basemaps/cli:${GIT_VERSION}
 
-          docker tag basemaps-server ghcr.io/linz/basemaps-server:${GIT_VERSION}
-          docker push ghcr.io/linz/basemaps-server:${GIT_VERSION}
+          docker tag basemaps-server ghcr.io/linz/basemaps/server:${GIT_VERSION}
+          docker push ghcr.io/linz/basemaps/server:${GIT_VERSION}
 
   build-deploy:
     runs-on: ubuntu-latest
+    concurrency: deploy-${{ github.head_ref }}
+
     permissions:
       id-token: write
       contents: write
