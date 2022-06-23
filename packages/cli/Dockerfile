@@ -8,6 +8,9 @@ RUN update-ca-certificates
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 
-COPY dist/* ./
+# Install sharp TODO update this when we change sharp versions
+RUN npm install sharp@0.30.7
 
-ENTRYPOINT [ "node", "./index.js" ]
+COPY dist/index.cjs ./
+
+ENTRYPOINT [ "node", "./index.cjs" ]

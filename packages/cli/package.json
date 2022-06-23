@@ -25,9 +25,10 @@
   },
   "bundle": [
     {
-      "entry": "src/cli/index.ts",
-      "outdir": "dist/",
+      "entry": "src/cli/bin.ts",
+      "outfile": "dist/index.cjs",
       "external": [
+        "sharp",
         "pino-pretty"
       ]
     }
