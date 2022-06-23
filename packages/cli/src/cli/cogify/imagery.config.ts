@@ -13,7 +13,6 @@ export async function insertConfigImagery(job: CogStacJob, logger: LogType): Pro
   const configImagery: ConfigImagery = {
     id: imgId,
     name: job.name,
-    createdAt: now,
     updatedAt: now,
     projection: job.tileMatrix.projection.code,
     tileMatrix: job.tileMatrix.identifier,
@@ -40,7 +39,6 @@ export async function insertConfigTileSet(job: CogStacJob, logger: LogType): Pro
     name: job.name,
     layers: [{ [job.tileMatrix.projection.code]: imId, name: job.name, minZoom: 0, maxZoom: 32 }],
     background: { r: 0, g: 0, b: 0, alpha: 0 },
-    createdAt: now,
     updatedAt: now,
   };
   if (Config.TileSet.isWriteable()) Config.TileSet.put(tileSet);

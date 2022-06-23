@@ -31,11 +31,6 @@ export class ConfigProviderDynamo extends BasemapsConfigProvider {
 
   record(): BaseConfig {
     const now = Date.now();
-    return {
-      id: '',
-      name: '',
-      createdAt: now,
-      updatedAt: now,
-    };
+    return { id: '', name: '', updatedAt: now };
   }
 }

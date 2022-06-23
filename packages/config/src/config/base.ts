@@ -10,9 +10,6 @@ export interface BaseConfig {
   /** name of the configuration */
   name: string;
 
-  /** Date that the key was created */
-  createdAt: number;
-
   /** Date the record was last modified */
-  updatedAt: number;
+  updatedAt?: number;
 }
