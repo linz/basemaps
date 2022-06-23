@@ -1,7 +1,9 @@
 export * from './file.config.js';
 import { parseUri } from '@chunkd/core';
 import { fsa as fsaSource } from '@chunkd/fs';
+import { FsAwsS3 } from '@chunkd/source-aws';
 import { AwsCredentials } from '@chunkd/source-aws-v2';
+import S3 from 'aws-sdk/clients/s3.js';
 import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
 import { FileConfig, isConfigS3Role } from './file.config.js';
@@ -46,3 +48,5 @@ fsa.configure = function configure(cfg: FileConfig): void {
   const bucketUri = `s3://${res.bucket}/`;
   this.register(bucketUri, AwsCredentials.fsFromRole(cfg.roleArn, cfg.externalId));
 };
+
+fsa.register('s3://', new FsAwsS3(new S3()));
