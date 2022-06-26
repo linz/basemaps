@@ -1,9 +1,12 @@
+import { fsa } from '@chunkd/fs';
 import {
   CommandLineAction,
   CommandLineFlagParameter,
   CommandLineIntegerListParameter,
   CommandLineStringListParameter,
+  CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
+import { promises as fs } from 'fs';
 import { writeFile } from 'fs/promises';
 import { basename } from 'path';
 import { listSprites } from './fs.js';
@@ -11,6 +14,7 @@ import { Sprites } from './sprites.js';
 
 export class CommandSprites extends CommandLineAction {
   paths: CommandLineStringListParameter;
+  output: CommandLineStringParameter;
   ratio: CommandLineIntegerListParameter;
   retina: CommandLineFlagParameter;
 
@@ -28,6 +32,13 @@ export class CommandSprites extends CommandLineAction {
       parameterLongName: '--path',
       description: 'Paths to the sprite files.',
     });
+
+    this.output = this.defineStringParameter({
+      argumentName: 'OUTPUT',
+      parameterLongName: '--output',
+      description: 'Paths of the output files',
+    });
+
     this.ratio = this.defineIntegerListParameter({
       argumentName: 'RATIO',
       parameterLongName: '--ratio',
@@ -60,8 +71,13 @@ export class CommandSprites extends CommandLineAction {
 
       for (const res of results) {
         const scaleText = res.pixelRatio / baseRatio === 1 ? '' : `@${res.pixelRatio / baseRatio}x`;
-        await writeFile(`${sheetName}${scaleText}.json`, JSON.stringify(res.layout, null, 2));
-        await writeFile(`${sheetName}${scaleText}.png`, res.buffer);
+        let output = `${sheetName}${scaleText}`;
+        if (this.output.value != null) {
+          await fs.mkdir(this.output.value, { recursive: true });
+          output = fsa.join(this.output.value, output);
+        }
+        await writeFile(`${output}.json`, JSON.stringify(res.layout, null, 2));
+        await writeFile(`${output}.png`, res.buffer);
       }
     }
   }

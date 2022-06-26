@@ -55,7 +55,7 @@ Dump the screenshots with config file
 Generate a sprite sheet from a list of sprites
 
 ```
-./bin/bmc.js sprites --ratio 1 --ratio 2 --path ./config/sprites/topographic
+./bin/bmc.js sprites --ratio 1 --ratio 2 --path ./config/sprites/topographic --output assets
 ```
 
 Outputs:
