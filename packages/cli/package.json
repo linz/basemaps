@@ -46,7 +46,6 @@
     "@chunkd/fs": "^8.4.0",
     "@cogeotiff/core": "^7.0.0",
     "@linzjs/geojson": "^6.28.1",
-    "@mapbox/shelf-pack": "^3.2.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
     "deep-diff": "^1.0.2",
@@ -55,15 +54,11 @@
     "p-limit": "^4.0.0",
     "playwright": "^1.22.2",
     "pretty-json-log": "^1.0.0",
-    "sharp": "^0.30.7",
     "zod": "^3.17.3"
   },
   "devDependencies": {
     "@types/deep-diff": "^1.0.1",
-    "@types/geojson": "^7946.0.7",
-    "@types/mapbox__shelf-pack": "^3.0.1",
-    "@types/proj4": "^2.5.0",
-    "@types/sharp": "^0.30.4"
+    "@types/geojson": "^7946.0.7"
   },
   "publishConfig": {
     "access": "public"
