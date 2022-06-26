@@ -5,6 +5,7 @@
     { "path": "./packages/linzjs-docker-command" },
     { "path": "./packages/linzjs-geojson" },
     { "path": "./packages/linzjs-metrics" },
+    { "path": "./packages/sprites" },
     { "path": "./packages/geo" },
     { "path": "./packages/tiler" },
     { "path": "./packages/tiler-sharp" },

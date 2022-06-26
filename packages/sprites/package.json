@@ -1,0 +1,43 @@
+{
+  "name": "@basemaps/sprites",
+  "version": "6.28.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/sprites"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js'"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "basemaps-sprites": "bin/basemaps-sprites.mjs"
+  },
+  "files": [
+    "build/",
+    "bin/"
+  ],
+  "dependencies": {
+    "@mapbox/shelf-pack": "^3.2.0",
+    "@rushstack/ts-command-line": "^4.3.13",
+    "sharp": "^0.30.7"
+  },
+  "devDependencies": {
+    "@types/mapbox__shelf-pack": "^3.0.1",
+    "@types/sharp": "^0.30.3"
+  }
+}
