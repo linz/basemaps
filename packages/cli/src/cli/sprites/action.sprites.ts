@@ -9,7 +9,8 @@ import {
 import { promises as fs } from 'fs';
 import { writeFile } from 'fs/promises';
 import { basename } from 'path';
-import { listSprites, Sprites } from '@basemaps/sprites';
+import { listSprites } from './fs.js';
+import { Sprites } from './sprites.js';
 
 export class CommandSprites extends CommandLineAction {
   paths: CommandLineStringListParameter;

@@ -24,8 +24,12 @@
   "publishConfig": {
     "access": "public"
   },
+  "bin": {
+    "basemaps-sprites": "bin/basemaps-sprites.mjs"
+  },
   "files": [
-    "build/"
+    "build/",
+    "bin/"
   ],
   "dependencies": {
     "@mapbox/shelf-pack": "^3.2.0",
