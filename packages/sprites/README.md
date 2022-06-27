@@ -24,3 +24,19 @@ for (const res of generated) {
   await fsa.write(outputJson, JSON.stringify(res.layout, null, 2));
 }
 ```
+
+## Usage -- from commmandline
+
+Generate a sprite sheet from a list of sprites
+
+```
+basemaps-sprites sprites --ratio 1 --ratio 2 --path ./config/sprites/topographic --output assets
+```
+
+Outputs:
+
+assets/topographic.json
+assets/topographic.png
+
+assets/topographic@2x.json
+assets/topographic@2x.png

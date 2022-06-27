@@ -2,4 +2,4 @@
 
 import { SpriteCli } from '../build/cli.js';
 
-new SpriteCli().execute();
+new SpriteCli().run();
