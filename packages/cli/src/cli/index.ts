@@ -6,7 +6,7 @@ import { CommandJobCreate } from './cogify/action.job.js';
 import { CommandBundle } from './config/action.bundle.js';
 import { CommandImport } from './config/action.import.js';
 import { CommandScreenShot } from './screenshot/action.screenshot.js';
-import { CommandSprites } from '@basemaps/sprites';
+import { CommandSprites } from './sprites/action.sprites.js';
 
 export class BasemapsConfigCommandLine extends BaseCommandLine {
   constructor() {
