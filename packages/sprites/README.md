@@ -2,6 +2,7 @@
 
 Generate a sprite sheet from a list of sprites
 
+
 # Using the API
 
 ```typescript
@@ -25,18 +26,19 @@ for (const res of generated) {
 }
 ```
 
-## Usage -- from commmandline
 
-Generate a sprite sheet from a list of sprites
+# From the command line
 
 ```
-basemaps-sprites sprites --ratio 1 --ratio 2 --path ./config/sprites/topographic --output assets
+npm install -g @basemaps/sprites
+
+basemaps-sprites --ratio 1 --ratio 2 --retina ./config/sprites/topographic
 ```
 
-Outputs:
+Outputs: 
 
-assets/topographic.json
-assets/topographic.png
+topographic.json
+topographic.png
 
-assets/topographic@2x.json
-assets/topographic@2x.png
+topographic@2x.json
+topographic@2x.png
