@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
+
+
+### Bug Fixes
+
+* **config:** include missing zod dependency ([#2245](https://github.com/linz/basemaps/issues/2245)) ([94914dc](https://github.com/linz/basemaps/commit/94914dc728b60c51d6382c4460a1bd4e233f00c5))
+
+
+### Features
+
+* **config:** create a hash of config bundles and use bundle created timestamp for records ([#2274](https://github.com/linz/basemaps/issues/2274)) ([bd9c7bb](https://github.com/linz/basemaps/commit/bd9c7bbf3f651417b60ba6ad2ca655f89f1f5cd9))
+* **config-cli:** Provide a cli for creating temporary server and dump screenshots. ([#2236](https://github.com/linz/basemaps/issues/2236)) ([0713b05](https://github.com/linz/basemaps/commit/0713b05e557f006ba6d253e854f57fd2de1ebf97))
+
+
+
+
+
 ## [6.28.1](https://github.com/linz/basemaps/compare/v6.28.0...v6.28.1) (2022-06-07)
 
 **Note:** Version bump only for package @basemaps/config

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
+
+
+### Bug Fixes
+
+* **cli:** look into batch to get exact list of tiffs being processed ([#2249](https://github.com/linz/basemaps/issues/2249)) ([69b722e](https://github.com/linz/basemaps/commit/69b722ea3190488231baf3b7023ce83e60e432c1))
+
+
+
+
+
 ## [6.28.1](https://github.com/linz/basemaps/compare/v6.28.0...v6.28.1) (2022-06-07)
 
 **Note:** Version bump only for package @basemaps/tiler
