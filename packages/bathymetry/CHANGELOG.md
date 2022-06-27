@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
+
+
+### Bug Fixes
+
+* **cli:** ensure errors are thrown ([#2248](https://github.com/linz/basemaps/issues/2248)) ([c0923fe](https://github.com/linz/basemaps/commit/c0923fe137ce36c610c6e13332292d5c7f573c16))
+
+
+
+
+
 ## [6.28.1](https://github.com/linz/basemaps/compare/v6.28.0...v6.28.1) (2022-06-07)
 
 **Note:** Version bump only for package @basemaps/bathymetry

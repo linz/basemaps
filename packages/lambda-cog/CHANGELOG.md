@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
+
+
+### Bug Fixes
+
+* **lambda-cog:** ensure /v1/version, health and ping endpoints exist ([#2247](https://github.com/linz/basemaps/issues/2247)) ([8eea093](https://github.com/linz/basemaps/commit/8eea09350b0d01027764ebf74f3fc9afb55036c8))
+* **lambda-cog:** only assume a read-only role if the current role does not have permission ([#2253](https://github.com/linz/basemaps/issues/2253)) ([189aec7](https://github.com/linz/basemaps/commit/189aec703ff8c7956842f159b60fcabe14debf18))
+
+
+
+
+
 ## [6.28.1](https://github.com/linz/basemaps/compare/v6.28.0...v6.28.1) (2022-06-07)
 
 **Note:** Version bump only for package @basemaps/lambda-cog
