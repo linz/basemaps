@@ -15,7 +15,7 @@ import { ConfigProviderMemory } from '../memory/memory.config.js';
 import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
-import { zTileSetConfig } from './parse.tile.set.js';
+import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
 
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
@@ -127,12 +127,36 @@ export class ConfigJson {
       name: Config.unprefix(Config.TileSet.prefix, ts.id),
       layers,
     };
-    function updateLayerUri(uri: string | undefined): string | undefined {
+    function updateLayerUri(
+      layer: TileSetConfigSchemaLayer,
+      uri: string | undefined,
+      logger: LogType,
+    ): string | undefined {
       if (uri == null) return uri;
       if (uri.startsWith(ConfigPrefix.Imagery)) return uri;
-      const record = imagery.find((f) => f.uri === uri)?.id; ///
+      const record = imagery.find((f) => f.uri === uri); ///
       if (record == null) throw new Error('Unable to find imagery id for uri:' + uri);
-      return record;
+
+      if (layer.title) {
+        if (record.title && record.title !== layer.title) {
+          logger.warn(
+            { layer: layer.name, imageryTitle: record.title, layerTitle: layer.title },
+            'Imagery:Title:Missmatch',
+          );
+        }
+        record.title = layer.title;
+      }
+      if (layer.category) {
+        if (record.category && record.category !== layer.category) {
+          logger.warn(
+            { layer: layer.name, imageryCategory: record.category, layerCategory: layer.category },
+            'Imagery:Category:Missmatch',
+          );
+        }
+        record.category = layer.category;
+      }
+
+      return record.id;
     }
 
     // Map the configuration sources into imagery ids
@@ -141,8 +165,8 @@ export class ConfigJson {
       layers.push(layer);
 
       if (tileSet.type === TileSetType.Raster) {
-        if (layer[2193]) layer[2193] = updateLayerUri(layer[2193]);
-        if (layer[3857]) layer[3857] = updateLayerUri(layer[3857]);
+        if (layer[2193]) layer[2193] = updateLayerUri(layer, layer[2193], this.logger);
+        if (layer[3857]) layer[3857] = updateLayerUri(layer, layer[3857], this.logger);
       }
     }
     if (ts.title) tileSet.title = ts.title;
