@@ -4,7 +4,6 @@ import path, { basename } from 'path';
 import { listSprites } from './fs.js';
 import { Sprites } from './sprites.js';
 import { promises as fs } from 'fs';
-import { fsa } from '@chunkd/fs';
 
 export class SpriteCli extends CommandLineParser {
   ratio = this.defineIntegerListParameter({
