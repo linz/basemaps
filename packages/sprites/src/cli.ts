@@ -1,6 +1,6 @@
 import { CommandLineParser } from '@rushstack/ts-command-line';
 import { writeFile } from 'fs/promises';
-import { basename } from 'path';
+import path, { basename } from 'path';
 import { listSprites } from './fs.js';
 import { Sprites } from './sprites.js';
 import { promises as fs } from 'fs';
@@ -59,7 +59,7 @@ export async function buildSprites(ratio: number[], retina: boolean, paths: stri
       let outputPath = `${sheetName}${scaleText}`;
       if (output != null) {
         await fs.mkdir(output, { recursive: true });
-        outputPath = fsa.join(output, outputPath);
+        outputPath = path.join(output, outputPath);
       }
 
       await writeFile(`${outputPath}.json`, JSON.stringify(res.layout, null, 2));
