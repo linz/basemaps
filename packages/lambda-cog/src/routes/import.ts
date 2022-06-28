@@ -2,12 +2,12 @@ import { CogJobFactory } from '@basemaps/cli';
 import { JobCreationContext } from '@basemaps/cli/build/cog/cog.stac.job';
 import { ConfigProcessingJob, JobStatus } from '@basemaps/config';
 import { Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
-import { Config, Env, extractYearRangeFromName, fsa } from '@basemaps/shared';
+import { Config, Env, extractYearRangeFromName, fsa, RoleRegister } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
 import { basename } from 'path';
 import * as ulid from 'ulid';
-import { findImagery, RoleRegister } from '../import/imagery.find.js';
+import { findImagery } from '../import/imagery.find.js';
 
 const MaxImagePixelSize = 128000;
 

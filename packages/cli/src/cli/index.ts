@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
 import 'source-map-support/register.js';
+import { CommandList } from './aws/action.aws.list.js';
 import { CommandCogCreate } from './cogify/action.cog.js';
 import { CommandJobCreate } from './cogify/action.job.js';
 import { CommandBundle } from './config/action.bundle.js';
@@ -24,5 +25,7 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     this.addAction(new CommandScreenShot());
 
     this.addAction(new CommandSprites());
+
+    this.addAction(new CommandList());
   }
 }
