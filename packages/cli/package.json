@@ -40,9 +40,9 @@
   "dependencies": {
     "@basemaps/config": "^6.29.0",
     "@basemaps/geo": "^6.28.1",
-    "@basemaps/sprites": "^6.28.1",
     "@basemaps/server": "^6.29.0",
     "@basemaps/shared": "^6.29.0",
+    "@basemaps/sprites": "^6.29.0",
     "@chunkd/fs": "^8.4.0",
     "@cogeotiff/core": "^7.0.0",
     "@linzjs/geojson": "^6.28.1",
