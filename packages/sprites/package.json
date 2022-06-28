@@ -32,7 +32,7 @@
     "bin/"
   ],
   "dependencies": {
-    "@basemaps/shared": "^6.28.1",
+    "@chunkd/fs": "^8.4.0",
     "@mapbox/shelf-pack": "^3.2.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "sharp": "^0.30.7"
