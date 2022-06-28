@@ -1,6 +1,6 @@
 import { CommandLineParser } from '@rushstack/ts-command-line';
 import { writeFile } from 'fs/promises';
-import path, { basename } from 'path';
+import path from 'path';
 import { listSprites } from './fs.js';
 import { Sprites } from './sprites.js';
 import { promises as fs } from 'fs';
@@ -49,7 +49,7 @@ export async function buildSprites(ratio: number[], retina: boolean, paths: stri
   }
 
   for (const spritePath of paths) {
-    const sheetName = basename(spritePath);
+    const sheetName = path.basename(spritePath);
     const sprites = await listSprites(spritePath);
     const results = await Sprites.generate(sprites, ratio);
 
