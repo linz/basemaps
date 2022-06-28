@@ -50,6 +50,22 @@ Dump the screenshots with config file
 
 ```
 
+## Usage -- sprites
+
+Generate a sprite sheet from a list of sprites
+
+```
+./bin/bmc.js sprites --ratio 1 --ratio 2 --path ./config/sprites/topographic --output assets
+```
+
+Outputs:
+
+assets/topographic.json
+assets/topographic.png
+
+assets/topographic@2x.json
+assets/topographic@2x.png
+
 ## Usage -- cogify
 
 Create a collection of cloud optimized geotiff's from a collection of geotiff, that is optimized to be used in `@basemaps/tiler`

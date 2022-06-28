@@ -36,6 +36,7 @@ export class CommandScreenShot extends CommandLineAction {
   private config: CommandLineStringParameter;
   private host: CommandLineStringParameter;
   private tiles: CommandLineStringParameter;
+  private assets: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -65,6 +66,11 @@ export class CommandScreenShot extends CommandLineAction {
       description: 'JSON file path for the test tiles',
       defaultValue: DefaultTestTiles,
     });
+    this.assets = this.defineStringParameter({
+      argumentName: 'ASSETS',
+      parameterLongName: '--assets',
+      description: 'Where the assets (sprites, fonts) are located',
+    });
   }
 
   async onExecute(): Promise<void> {
@@ -79,7 +85,7 @@ export class CommandScreenShot extends CommandLineAction {
       host = Env.get(Env.PublicUrlBase) ?? `http://localhost:${port}`;
       // Force a default url base so WMTS requests know their relative url
       process.env[Env.PublicUrlBase] = host;
-      BasemapsServer = await startServer(port, config, logger);
+      BasemapsServer = await this.startServer(port, config, logger);
       logger.info({ url: host }, 'Server:Started');
     }
 
@@ -91,6 +97,24 @@ export class CommandScreenShot extends CommandLineAction {
       await chrome.close();
       if (BasemapsServer != null) await BasemapsServer.close();
     }
+  }
+
+  async startServer(port: number, config: string, logger: LogType): Promise<FastifyInstance> {
+    // Bundle Config
+    const configJson = await fsa.readJson<ConfigBundled>(config);
+    const mem = ConfigProviderMemory.fromJson(configJson);
+    Config.setConfigProvider(mem);
+
+    // Setup the assets
+    if (this.assets.value) {
+      const isExists = await fsa.exists(this.assets.value);
+      if (!isExists) throw new Error('--asset path is missing');
+      process.env[Env.AssetLocation] = this.assets.value;
+    }
+
+    // Start server
+    const server = createServer(logger);
+    return await new Promise<FastifyInstance>((resolve) => server.listen(port, '0.0.0.0', () => resolve(server)));
   }
 }
 
@@ -128,15 +152,4 @@ export async function takeScreenshots(host: string, tiles: string, chrome: Brows
     logger.info({ url, expected: fileName }, 'Page:Load:Done');
     await page.close();
   }
-}
-
-async function startServer(port: number, config: string, logger: LogType): Promise<FastifyInstance> {
-  // Bundle Config
-  const configJson = await fsa.readJson<ConfigBundled>(config);
-  const mem = ConfigProviderMemory.fromJson(configJson);
-  Config.setConfigProvider(mem);
-
-  // Start server
-  const server = createServer(logger);
-  return await new Promise<FastifyInstance>((resolve) => server.listen(port, '0.0.0.0', () => resolve(server)));
 }
