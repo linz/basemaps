@@ -34,7 +34,7 @@ export const Env = {
   AwsRoleDurationHours: 'AWS_ROLE_DURATION_HOURS',
 
   /** AWS role config bucket */
-  AwsRoleConfigBucket: 'ROLE_CONFIG_BUCKET',
+  AwsRoleConfigPath: 'ROLE_CONFIG_PATH',
 
   /** Import Imagery bucket */
   ImportImageryBucket: 'IMPORT_IMAGERY_BUCKET',

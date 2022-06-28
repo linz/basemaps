@@ -40,9 +40,8 @@ export async function canRead(path: string): Promise<boolean> {
 export class RoleRegister {
   /** Get all imagery source aws roles */
   static async _loadRoles(): Promise<RoleConfig[]> {
-    const configBucket = Env.get(Env.AwsRoleConfigBucket);
-    if (configBucket == null) return [];
-    const configPath = `s3://${configBucket}/config.json`;
+    const configPath = Env.get(Env.AwsRoleConfigPath);
+    if (configPath == null) return [];
     const config: BucketConfig = await fsa.readJson(configPath);
     return config.buckets;
   }

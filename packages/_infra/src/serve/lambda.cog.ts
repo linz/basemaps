@@ -32,7 +32,7 @@ export class CogStack extends Stack {
       code: lambda.Code.fromAsset(CODE_PATH),
       environment: {
         [Env.PublicUrlBase]: config.PublicUrlBase,
-        [Env.AwsRoleConfigBucket]: config.AwsRoleConfigBucket,
+        [Env.AwsRoleConfigPath]: `s3://${config.AwsRoleConfigBucket}/config.json`,
         [Env.ImportImageryBucket]: config.ImportImageryBucket,
         [Env.ImportFilesNumberLimit]: config.ImportFilesNumberLimit,
         [Env.ImportFilesSizeLimitGb]: config.ImportFilesSizeLimitGb,
