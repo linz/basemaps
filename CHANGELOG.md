@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
+
+
+### Bug Fixes
+
+* **cli:** ensure cli can run inside of docker ([#2273](https://github.com/linz/basemaps/issues/2273)) ([8184167](https://github.com/linz/basemaps/commit/81841674efba2f86d9a39d01af62fccb1fe6f70f))
+* **cli:** ensure errors are thrown ([#2248](https://github.com/linz/basemaps/issues/2248)) ([c0923fe](https://github.com/linz/basemaps/commit/c0923fe137ce36c610c6e13332292d5c7f573c16))
+* **cli:** give each internal job a fresh copy of all data ([#2250](https://github.com/linz/basemaps/issues/2250)) ([52d59de](https://github.com/linz/basemaps/commit/52d59def25358e5a0f1fae5506edee6d8b17dbad))
+* **cli:** look into batch to get exact list of tiffs being processed ([#2249](https://github.com/linz/basemaps/issues/2249)) ([69b722e](https://github.com/linz/basemaps/commit/69b722ea3190488231baf3b7023ce83e60e432c1))
+* upgrade sharp to fix the bad webp upscalling behaviour ([#2261](https://github.com/linz/basemaps/issues/2261)) ([68fe14c](https://github.com/linz/basemaps/commit/68fe14c0549a884c0c4ededa40eb2d4bd7098590))
+* **config:** include missing zod dependency ([#2245](https://github.com/linz/basemaps/issues/2245)) ([94914dc](https://github.com/linz/basemaps/commit/94914dc728b60c51d6382c4460a1bd4e233f00c5))
+* **infra:** allow tiler to read from static bucket ([#2257](https://github.com/linz/basemaps/issues/2257)) ([07dbffb](https://github.com/linz/basemaps/commit/07dbffbd9b9c9a2a85031449648399bf0fb5824d))
+* **infra:** ensure a s3 prefixed asset location is set ([#2258](https://github.com/linz/basemaps/issues/2258)) ([ee85b1b](https://github.com/linz/basemaps/commit/ee85b1b204b3574b5d7368a1f1783031a7940f2c))
+* **lambda-cog:** ensure /v1/version, health and ping endpoints exist ([#2247](https://github.com/linz/basemaps/issues/2247)) ([8eea093](https://github.com/linz/basemaps/commit/8eea09350b0d01027764ebf74f3fc9afb55036c8))
+* **lambda-cog:** only assume a read-only role if the current role does not have permission ([#2253](https://github.com/linz/basemaps/issues/2253)) ([189aec7](https://github.com/linz/basemaps/commit/189aec703ff8c7956842f159b60fcabe14debf18))
+* **lambda-tiler:** serve sprites with correct mime types ([#2259](https://github.com/linz/basemaps/issues/2259)) ([1014e1c](https://github.com/linz/basemaps/commit/1014e1c8a58076278b76646cd0468f7eb5bc2581))
+* **landing:** ensure the bundled assets are exported ([#2244](https://github.com/linz/basemaps/issues/2244)) ([863c374](https://github.com/linz/basemaps/commit/863c37435dabdb26b0540b071004160c882b6011))
+* **tiler-sharp:** resize to the target window after extracting the region ([#2243](https://github.com/linz/basemaps/issues/2243)) ([4a29606](https://github.com/linz/basemaps/commit/4a2960605ad16ba7bd3a2e0f5a95adb9125b2cdf))
+
+
+### Features
+
+* **cli:** merge all cli from config-cli package and server package into cli package. ([#2260](https://github.com/linz/basemaps/issues/2260)) ([73afd61](https://github.com/linz/basemaps/commit/73afd610740f69e67504a0610c94a407a6ba4091))
+* **config:** create a hash of config bundles and use bundle created timestamp for records ([#2274](https://github.com/linz/basemaps/issues/2274)) ([bd9c7bb](https://github.com/linz/basemaps/commit/bd9c7bbf3f651417b60ba6ad2ca655f89f1f5cd9))
+* **config-cli:** New cli to import configs from a bundle config json into dynamo ([#2255](https://github.com/linz/basemaps/issues/2255)) ([a2e36ad](https://github.com/linz/basemaps/commit/a2e36ad9886dcc6d5d0ed7eefa52c056b3c9cd2d))
+* **config-cli:** new command tool to bundle config json from a config path ([#2252](https://github.com/linz/basemaps/issues/2252)) ([868636c](https://github.com/linz/basemaps/commit/868636c46d255bf39755a454644a664157187206))
+* **config-cli:** Provide a cli for creating temporary server and dump screenshots. ([#2236](https://github.com/linz/basemaps/issues/2236)) ([0713b05](https://github.com/linz/basemaps/commit/0713b05e557f006ba6d253e854f57fd2de1ebf97))
+* **lambda-tiler:** serve assets via /v1/sprites and /v1/fonts ([#2246](https://github.com/linz/basemaps/issues/2246)) ([0e04c63](https://github.com/linz/basemaps/commit/0e04c631363d5b540ae16bfc8c4c7910e1308412))
+* **tiler-sharp:** extract regions before rescaling them when overzooming ([#2240](https://github.com/linz/basemaps/issues/2240)) ([fe9b858](https://github.com/linz/basemaps/commit/fe9b8588bbbe1aa8e719f7c8c645eada8c7e2876))
+
+
+
+
+
 ## [6.28.1](https://github.com/linz/basemaps/compare/v6.28.0...v6.28.1) (2022-06-07)
 
 **Note:** Version bump only for package @basemaps/core

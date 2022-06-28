@@ -26,6 +26,8 @@ const zZoom = z.number().refine((val) => val >= ImageryConfigDefaults.minZoom &&
 const zLayerConfig = z
   .object({
     name: z.string(),
+    title: z.string().optional(),
+    category: z.string().optional(),
     2193: z.string().optional(),
     3857: z.string().optional(),
     minZoom: zZoom.optional(),
@@ -52,6 +54,7 @@ export const zTileSetConfig = z.object({
   format: z.union([z.nativeEnum(ImageFormat), z.nativeEnum(VectorFormat)]).optional(),
 });
 
+export type TileSetConfigSchemaLayer = z.infer<typeof zLayerConfig>;
 /**
  *  The Configuration for all the imagery in a TileSet
  */

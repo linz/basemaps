@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
+
+
+### Bug Fixes
+
+* **cli:** ensure cli can run inside of docker ([#2273](https://github.com/linz/basemaps/issues/2273)) ([8184167](https://github.com/linz/basemaps/commit/81841674efba2f86d9a39d01af62fccb1fe6f70f))
+* **cli:** ensure errors are thrown ([#2248](https://github.com/linz/basemaps/issues/2248)) ([c0923fe](https://github.com/linz/basemaps/commit/c0923fe137ce36c610c6e13332292d5c7f573c16))
+* **cli:** give each internal job a fresh copy of all data ([#2250](https://github.com/linz/basemaps/issues/2250)) ([52d59de](https://github.com/linz/basemaps/commit/52d59def25358e5a0f1fae5506edee6d8b17dbad))
+* **cli:** look into batch to get exact list of tiffs being processed ([#2249](https://github.com/linz/basemaps/issues/2249)) ([69b722e](https://github.com/linz/basemaps/commit/69b722ea3190488231baf3b7023ce83e60e432c1))
+* **config:** include missing zod dependency ([#2245](https://github.com/linz/basemaps/issues/2245)) ([94914dc](https://github.com/linz/basemaps/commit/94914dc728b60c51d6382c4460a1bd4e233f00c5))
+
+
+### Features
+
+* **cli:** merge all cli from config-cli package and server package into cli package. ([#2260](https://github.com/linz/basemaps/issues/2260)) ([73afd61](https://github.com/linz/basemaps/commit/73afd610740f69e67504a0610c94a407a6ba4091))
+* **config:** create a hash of config bundles and use bundle created timestamp for records ([#2274](https://github.com/linz/basemaps/issues/2274)) ([bd9c7bb](https://github.com/linz/basemaps/commit/bd9c7bbf3f651417b60ba6ad2ca655f89f1f5cd9))
+
+
+
+
+
 ## [6.28.1](https://github.com/linz/basemaps/compare/v6.28.0...v6.28.1) (2022-06-07)
 
 **Note:** Version bump only for package @basemaps/cli

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
+
+
+### Bug Fixes
+
+* **cli:** ensure cli can run inside of docker ([#2273](https://github.com/linz/basemaps/issues/2273)) ([8184167](https://github.com/linz/basemaps/commit/81841674efba2f86d9a39d01af62fccb1fe6f70f))
+* **landing:** ensure the bundled assets are exported ([#2244](https://github.com/linz/basemaps/issues/2244)) ([863c374](https://github.com/linz/basemaps/commit/863c37435dabdb26b0540b071004160c882b6011))
+
+
+
+
+
 ## [6.28.1](https://github.com/linz/basemaps/compare/v6.28.0...v6.28.1) (2022-06-07)
 
 **Note:** Version bump only for package @basemaps/landing
