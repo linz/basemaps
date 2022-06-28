@@ -1,4 +1,6 @@
 export * from './file.config.js';
+export { RoleRegister, RoleConfig, BucketConfig } from './role.registry.js';
+
 import { parseUri } from '@chunkd/core';
 import { fsa as fsaSource } from '@chunkd/fs';
 import { FsAwsS3 } from '@chunkd/source-aws';

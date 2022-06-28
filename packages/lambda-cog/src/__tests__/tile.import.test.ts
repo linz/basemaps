@@ -7,7 +7,7 @@ import sinon from 'sinon';
 import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import { Import } from '../routes/import.js';
-import { RoleConfig } from '../import/imagery.find.js';
+import { RoleConfig } from '@basemaps/shared';
 import { CogJobFactory } from '@basemaps/cli';
 import { ConfigProcessingJob } from '@basemaps/config';
 
