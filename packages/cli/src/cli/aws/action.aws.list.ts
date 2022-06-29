@@ -47,7 +47,7 @@ export class CommandList extends CommandLineAction {
     const config = this.config.value;
     if (config) {
       logger.info({ path: config }, 'Role:Config');
-      process.env[Env.AwsRoleConfigBucket] = config;
+      process.env[Env.AwsRoleConfigPath] = config;
     }
     const paths = this.remainder?.values ?? [];
     if (paths.length === 0) throw new Error('No listing paths given');
