@@ -68,7 +68,7 @@ export class CommandList extends CommandLineAction {
       for (const file of fileList) outputFiles.add(file);
     }
 
-    if (this.group.value == null) {
+    if (this.group.value == null || this.group.value < 1) {
       await fsa.write(outputPath, JSON.stringify([...outputFiles.values()]));
     } else {
       await fsa.write(outputPath, JSON.stringify(chunkArray(outputFiles, this.group.value)));
