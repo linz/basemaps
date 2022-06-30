@@ -14,6 +14,17 @@ o.spec('VDom', () => {
     o(res.toString()).equals('<div>text</div>');
   });
 
+  o('should encode text nodes', () => {
+    const res = V('div', 'text &amp; ; &lt; &gt; &amp;amp;');
+
+    o(res instanceof VNode).equals(true);
+
+    const tn = res.children[0] as VNodeText;
+
+    o(tn.text).equals('text');
+
+    o(res.toString()).equals('<div>text</div>');
+  });
   o('should create nodes', () => {
     const res = V('div', {}, V('b', [V('span', { style: 'color:red' }, 'text')]));
     o(res.toString()).equals('<div>\n  <b>\n    <span style="color:red">text</span>\n  </b>\n</div>');

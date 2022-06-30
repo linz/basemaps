@@ -1,3 +1,5 @@
+import { encodeXML } from 'entities';
+
 export type VNodeInput = string | number | VNode;
 
 const indent = (level: number): string => '  '.repeat(level);
@@ -26,7 +28,7 @@ export class VNodeText extends VNode {
 
   constructor(text: string) {
     super();
-    this.text = text;
+    this.text = encodeXML(text);
   }
 
   toString(level = 0): string {
