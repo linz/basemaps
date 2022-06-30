@@ -52,6 +52,8 @@ jobs:
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
         run: |
           npx lerna run bundle --stream
+          npm pack --workspaces
+          cp *.tgz packages/cli
           npx lerna run deploy:deploy --stream
         env:
           SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_NON_PROD}}
@@ -70,6 +72,8 @@ jobs:
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: |
           npx lerna run bundle --stream
+          npm pack --workspaces
+          cp *.tgz packages/cli
           npx lerna run deploy:deploy --stream
         env:
           NODE_ENV: "production"
