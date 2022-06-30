@@ -3,7 +3,6 @@ import maplibre from 'maplibre-gl';
 import { Component, ComponentChild } from 'preact';
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
-import { SplitIo } from '../split.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
 import { WindowUrl } from '../url.js';
 import { Debug } from './debug.js';
@@ -121,11 +120,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       );
 
       this.updateStyle();
-    });
-
-    SplitIo.getClient().then((f) => {
-      const isEnabled = f?.getTreatment('layer-switcher-button') === 'on';
-      this.setState({ isLayerSwitcherEnabled: isEnabled });
     });
   }
 
