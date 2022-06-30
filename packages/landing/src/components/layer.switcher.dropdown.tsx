@@ -63,7 +63,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     for (const layer of this.state.layers.values()) {
       if (!layer.projections.has(Config.map.tileMatrix.projection.code)) continue;
       const layerCategory = categories.get(layer.category ?? 'Unknown') ?? [];
-      layerCategory.push(<option value={layer.id}>{layer.name}</option>);
+      layerCategory.push(<option value={layer.id}>{layer.name.replace(` ${layer.category}`, '')}</option>);
       categories.set(layer.category ?? 'Unknown', layerCategory);
     }
 
