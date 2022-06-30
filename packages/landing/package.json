@@ -82,8 +82,7 @@
       "entry": "src/index.tsx",
       "env": {
         "GOOGLE_ANALYTICS": null,
-        "TILE_HOST": null,
-        "SPLIT_IO_KEY": null
+        "TILE_HOST": null
       },
       "platform": "browser"
     },
