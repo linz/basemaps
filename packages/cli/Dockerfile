@@ -1,5 +1,7 @@
 FROM osgeo/gdal:ubuntu-small-3.3.0
 
+ENV NODE_ENV=PRODUCTION
+
 WORKDIR /app/
 
 RUN apt-get update
