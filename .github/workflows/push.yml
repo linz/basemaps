@@ -12,7 +12,7 @@ jobs:
       - uses: linz/action-typescript@v1
 
   build-containers:
-    if: github.ref == 'refs/heads/master'
+    # if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: linz/action-typescript@v1
@@ -38,25 +38,43 @@ jobs:
         env:
           NODE_ENV: "production"
 
-      - name: Build containers
+      - name: Set up Docker Qemu
+        id: qemu
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: export GIT_VERSION
+        id: version
         run: |
-          docker build packages/cli/ --tag basemaps-cli --label "github_run_id=${GITHUB_RUN_ID}"
+          GIT_VERSION=$(git describe --tags --always --match 'v*')
+          echo "::set-output name=version::${GIT_VERSION}"
+
+      - name: cp packages
+        run: |
           # Files are packed into the base directory
           cp *.tgz packages/server/
-          docker build packages/server/ --tag basemaps-server --label "github_run_id=${GITHUB_RUN_ID}"
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
-      - name: Publish Containers
-        run: |
-          GIT_VERSION=$(git describe --tags --always --match 'v*')
-          
-          docker tag basemaps-cli ghcr.io/linz/basemaps/cli:${GIT_VERSION}
-          docker push ghcr.io/linz/basemaps/cli:${GIT_VERSION}
+      - name: basemaps/cli - Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: packages/cli
+          platforms: linux/arm64,linux/amd64
+          tags: ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }}
+          # push: true
 
-          docker tag basemaps-server ghcr.io/linz/basemaps/server:${GIT_VERSION}
-          docker push ghcr.io/linz/basemaps/server:${GIT_VERSION}
+      - name: basemaps/server - Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: packages/cli
+          platforms: linux/arm64,linux/amd64
+          tags: ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }}
+          # push: true
 
   build-deploy:
     runs-on: ubuntu-latest
