@@ -4,7 +4,6 @@ on: [push]
 
 jobs:
   build-containers:
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: linz/action-typescript@v1
