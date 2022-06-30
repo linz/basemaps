@@ -74,9 +74,9 @@ export class CommandList extends CommandLineAction {
 
       for (const file of fileList) {
         outputFiles.add(file);
-        if (limit > 0 && outputFiles.size > limit) break;
+        if (limit > 0 && outputFiles.size >= limit) break;
       }
-      if (limit > 0 && outputFiles.size > limit) break;
+      if (limit > 0 && outputFiles.size >= limit) break;
     }
 
     if (this.group.value == null || this.group.value < 1) {
