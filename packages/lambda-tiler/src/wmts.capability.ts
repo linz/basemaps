@@ -160,6 +160,7 @@ export class WmtsCapabilities {
       V('ows:Title', firstLayer.title),
       V('ows:Abstract', firstLayer.description),
       V('ows:Identifier', firstLayer.fullName),
+      this.buildKeywords(firstLayer),
       ...layers.map((layer) => this.buildBoundingBox(layer.tileMatrix, layer.extent)),
       this.buildWgs84BoundingBox(layers),
       this.buildStyle(),
@@ -167,6 +168,13 @@ export class WmtsCapabilities {
       ...matrixSetNodes,
       ...this.formats.map((fmt) => this.buildResourceUrl(firstLayer, fmt)),
     ]);
+  }
+
+  buildKeywords(layer: TileSetRaster): VNodeElement {
+    return V(
+      'ows:Keywords',
+      layer.keywords.map((keyword) => V('ows:Keyword', keyword)),
+    );
   }
 
   buildStyle(): VNodeElement {
@@ -204,6 +212,6 @@ export class WmtsCapabilities {
   }
 
   toXml(): string {
-    return '<?xml version="1.0"?>\n' + this.toVNode().toString();
+    return '<?xml version="1.0" encoding="utf-8"?>\n' + this.toVNode().toString();
   }
 }

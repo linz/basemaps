@@ -134,7 +134,7 @@ o.spec('WmtsCapabilities', () => {
     o(xml.split('\n')).deepEquals(['<?xml version="1.0" encoding="utf-8"?>', ...raw?.toString().split('\n')]);
 
     o(createHash('sha256').update(Buffer.from(xml)).digest('base64url')).equals(
-      'HhixVi513a-hWynNibPRMCl4vto1P66cRt8MgQId3Ac',
+      'eUuSQ9tje2v4yIFbHZ8Y-TWCBznCF8X14BFgxQH4VNU',
     );
   });
 
@@ -171,6 +171,7 @@ o.spec('WmtsCapabilities', () => {
       'ows:Title',
       'ows:Abstract',
       'ows:Identifier',
+      'ows:Keywords',
       'ows:BoundingBox',
       'ows:BoundingBox',
       'ows:WGS84BoundingBox',

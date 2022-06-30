@@ -146,7 +146,7 @@ o.spec('LambdaXyz', () => {
     o('should 304 if a xml is not modified', async () => {
       delete process.env[Env.PublicUrlBase];
       o.timeout(1000);
-      const key = 'uN3wqdOUBNheiOs3RBx6fCHlJGtICKive7CGZ6PCv70=';
+      const key = 'jYlhOJ0d9y7cO58ELT2GniwMiPjycpngtdUI910iEh8=';
       const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', {
         'if-none-match': key,
         ...apiKeyHeader,
