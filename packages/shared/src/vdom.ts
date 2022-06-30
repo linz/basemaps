@@ -24,19 +24,19 @@ export abstract class VNode {
  * Virtual Text Node for storing text leaf nodes
  **/
 export class VNodeText extends VNode {
-  text: string;
+  private text: string;
 
   constructor(text: string) {
     super();
-    this.text = encodeXML(text);
+    this.text = text;
   }
 
   toString(level = 0): string {
-    return indent(level) + this.text;
+    return indent(level) + this.textContent;
   }
 
   get textContent(): string {
-    return this.text;
+    return encodeXML(this.text);
   }
 
   set textContent(v: string) {
@@ -132,7 +132,7 @@ export class VNodeElement extends VNode {
     if (this.children.length === 0) return '';
     if (this.children.length === 1) {
       const n1 = this.children[0];
-      if (n1 instanceof VNodeText) return n1.text;
+      if (n1 instanceof VNodeText) return n1.textContent;
     }
     return `\n${this.children.map((c) => c.toString(level + 1)).join(`\n`)}\n${indent(level)}`;
   }

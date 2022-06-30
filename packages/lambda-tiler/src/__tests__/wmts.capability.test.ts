@@ -131,10 +131,10 @@ o.spec('WmtsCapabilities', () => {
       apiKey,
     }).toXml();
 
-    o(xml).deepEquals('<?xml version="1.0"?>\n' + raw?.toString());
+    o(xml.split('\n')).deepEquals(['<?xml version="1.0" encoding="utf-8"?>', ...raw?.toString().split('\n')]);
 
-    o(createHash('sha256').update(Buffer.from(xml)).digest('base64')).equals(
-      'beknYyMt8v74vK4p84AS3c1OnBSJ+ZE0kan+mMVQS1A=',
+    o(createHash('sha256').update(Buffer.from(xml)).digest('base64url')).equals(
+      'HhixVi513a-hWynNibPRMCl4vto1P66cRt8MgQId3Ac',
     );
   });
 
