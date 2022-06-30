@@ -10,12 +10,12 @@ RUN update-ca-certificates
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 
-# Install the landing assets
-COPY ../../basemaps-landing*.tgz /app/
-RUN npm install ./basemaps-landing*.tgz
-
 # Install sharp TODO update this when we change sharp versions
 RUN npm install sharp@0.30.7 playwright@1.22.2
+
+# Install the landing assets
+COPY ./basemaps-landing*.tgz /app/
+RUN npm install ./basemaps-landing*.tgz
 
 COPY dist/index.cjs /app/
 
