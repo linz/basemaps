@@ -162,6 +162,8 @@ export interface LayerInfo {
   id: string;
   /** Layer name */
   name: string;
+  /** Layer category */
+  category?: string;
   /* Bounding box */
   upperLeft: [number, number];
   lowerRight: [number, number];
@@ -189,6 +191,8 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
     if (title == null || id == null) continue;
     if (title === 'aerial') continue;
 
+    const category = layer.getElementsByTagName('ows:Keyword').item(0)?.textContent;
+
     const boundEl = layer.getElementsByTagName('ows:WGS84BoundingBox').item(0);
     const upperLeft = boundEl?.getElementsByTagName('ows:UpperCorner').item(0)?.textContent?.split(' ').map(Number);
     const lowerRight = boundEl?.getElementsByTagName('ows:LowerCorner').item(0)?.textContent?.split(' ').map(Number);
@@ -202,7 +206,14 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
     }
 
     if (upperLeft == null || lowerRight == null || upperLeft.length !== 2) continue;
-    allLayers.push({ id, name: title.replace('aerial ', ''), upperLeft, lowerRight, projections } as LayerInfo);
+    allLayers.push({
+      id,
+      name: title.replace('aerial ', ''),
+      upperLeft,
+      lowerRight,
+      projections,
+      category,
+    } as LayerInfo);
   }
 
   allLayers.sort((a, b) => a.name.localeCompare(b.name));

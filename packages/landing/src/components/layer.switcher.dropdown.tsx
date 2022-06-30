@@ -1,31 +1,19 @@
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
-import { SplitIo } from '../split.js';
 
 export interface LayerSwitcherDropdownState {
   layers?: Map<string, LayerInfo>;
-  /** Is the layer switcher turned on */
-  isEnabled?: boolean;
-  /** Can users select individual aerial imagery layers */
-  isIndividualEnabled?: boolean;
-  /** Can users select the basic style */
-  isBasicStyleEnabled?: boolean;
+
   currentLayer: string;
 }
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
   _events: (() => boolean)[] = [];
   componentWillMount(): void {
-    SplitIo.getClient().then((f) => {
-      const isEnabled = f?.getTreatment('layer-switcher-dropdown') === 'on';
-      const isIndividualEnabled = f?.getTreatment('layer-switcher-individual-layers') === 'on';
-      const isBasicStyleEnabled = f?.getTreatment('layer-switcher-basic') === 'on';
-      this.setState({ ...this.state, isEnabled, isIndividualEnabled, isBasicStyleEnabled });
-      /** Load all the map config layers */
-      if (isEnabled) Config.map.layers.then((layers) => this.setState({ ...this.state, layers }));
-    });
-
+    console.log('LoadLayerSwitcher');
     this.setState({ ...this.state, currentLayer: Config.map.layerKey });
+
+    Config.map.layers.then((layers) => this.setState({ ...this.state, layers }));
 
     this._events.push(
       Config.map.on('layer', () => this.setState({ ...this.state, currentLayer: Config.map.layerKey })),
@@ -55,7 +43,6 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
   };
 
   render(): ComponentChild {
-    if (this.state.isEnabled !== true) return;
     return (
       <div class="LuiDeprecatedForms">
         <h6>Layers</h6>
@@ -63,7 +50,6 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
           <optgroup label="Basemaps">
             <option value="aerial"> Aerial Imagery</option>
             <option value="topographic::topographic">Topographic</option>
-            {this.state.isBasicStyleEnabled ? <option value="topographic::basic">Basic</option> : undefined}
           </optgroup>
           {this.renderAerialLayers()}
         </select>
@@ -72,26 +58,24 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
   }
 
   renderAerialLayers(): ComponentChild {
-    if (this.state.isIndividualEnabled !== true) return;
     if (this.state.layers == null || this.state.layers.size === 0) return;
-
-    const rural: ComponentChild[] = [];
-    const urban: ComponentChild[] = [];
+    const categories: Map<string, ComponentChild[]> = new Map();
 
     for (const layer of this.state.layers.values()) {
       if (!layer.projections.has(Config.map.tileMatrix.projection.code)) continue;
-
-      const node = <option value={layer.id}>{layer.name}</option>;
-      if (layer.name.toLowerCase().includes(' rural ')) rural.push(node);
-      else urban.push(node);
+      const layerCategory = categories.get(layer.category ?? 'Unknown') ?? [];
+      layerCategory.push(<option value={layer.id}>{layer.name}</option>);
+      categories.set(layer.category ?? 'Unknown', layerCategory);
     }
 
-    if (rural.length === 0 || urban.length === 0) return;
-    return (
-      <Fragment>
-        <optgroup label="Aerial Imagery - Urban">{...urban}</optgroup>;
-        <optgroup label="Aerial Imagery - Rural">{...rural}</optgroup>;
-      </Fragment>
-    );
+    if (categories.size === 0) return;
+
+    const output: ComponentChild[] = [];
+    for (const [layerName, layers] of categories.entries()) {
+      if (layers.length === 0) continue;
+      output.push(<optgroup label={layerName}>{...layers}</optgroup>);
+    }
+
+    return <Fragment>{output}</Fragment>;
   }
 }
