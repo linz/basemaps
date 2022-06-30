@@ -10,7 +10,6 @@ export interface LayerSwitcherDropdownState {
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
   _events: (() => boolean)[] = [];
   componentWillMount(): void {
-    console.log('LoadLayerSwitcher');
     this.setState({ ...this.state, currentLayer: Config.map.layerKey });
 
     Config.map.layers.then((layers) => this.setState({ ...this.state, layers }));
