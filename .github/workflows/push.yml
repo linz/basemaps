@@ -12,7 +12,7 @@ jobs:
       - uses: linz/action-typescript@v1
 
   build-containers:
-    # if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: linz/action-typescript@v1
