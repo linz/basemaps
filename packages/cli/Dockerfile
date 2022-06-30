@@ -12,6 +12,7 @@ RUN apt-get install -y nodejs
 
 # Install sharp TODO update this when we change sharp versions
 RUN npm install sharp@0.30.7 playwright@1.22.2
+RUN npx playwright install --with-deps
 
 # Install the landing assets
 COPY ./basemaps-landing*.tgz /app/
