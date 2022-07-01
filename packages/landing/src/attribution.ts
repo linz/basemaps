@@ -3,6 +3,7 @@ import { AttributionBounds } from '@basemaps/attribution/build/attribution';
 import { AttributionCollection, GoogleTms, Stac, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
 import maplibre, { LngLatBounds } from 'maplibre-gl';
+import { onMapLoaded } from './components/map.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
 import { MapOptionType } from './url.js';
@@ -18,7 +19,7 @@ const AttributionSync: Map<string, Attribution> = new Map();
  * Handles displaying attributions for the OpenLayers interface
  */
 export class MapAttribution {
-  map: maplibre.Map;
+  map: maplibregl.Map;
 
   /** handle for scheduleRender setTimeout */
   private _scheduled: number | NodeJS.Timeout | undefined;
@@ -29,11 +30,11 @@ export class MapAttribution {
   bounds: LngLatBounds = new LngLatBounds([0, 0, 0, 0]);
   zoom = -1;
   filteredRecords: AttributionCollection[] = [];
-  attributionControl?: maplibre.AttributionControl | null;
+  attributionControl?: maplibregl.AttributionControl | null;
 
-  constructor(map: maplibre.Map) {
+  constructor(map: maplibregl.Map) {
     this.map = map;
-    map.on('load', this.resetAttribution);
+    onMapLoaded(map, this.resetAttribution);
     map.on('move', this.updateAttribution);
     Config.map.on('tileMatrix', this.resetAttribution);
     Config.map.on('layer', this.resetAttribution);
