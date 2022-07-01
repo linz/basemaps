@@ -1,4 +1,4 @@
-import { Bounds, ImageFormat, Nztm2000QuadTms, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
+import { Bounds, ImageFormat, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
 import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BBox, Wgs84 } from '@linzjs/geojson';

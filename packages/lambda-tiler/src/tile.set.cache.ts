@@ -1,5 +1,5 @@
 import { TileSetNameParser, TileSetType } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { Config } from '@basemaps/shared';
 import { TileSet } from './tile.set.js';
 import { TileSetRaster } from './tile.set.raster.js';

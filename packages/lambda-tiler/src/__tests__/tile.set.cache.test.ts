@@ -1,5 +1,5 @@
 import { ConfigImagery, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
-import { Epsg, GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
+import { Epsg, GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Config, TileSetName } from '@basemaps/shared';
 import o from 'ospec';
 import sinon from 'sinon';

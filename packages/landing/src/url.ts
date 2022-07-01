@@ -1,4 +1,4 @@
-import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { TileMatrixSet } from '@basemaps/geo';
 import { Config } from './config.js';
 
 export interface LonLat {
