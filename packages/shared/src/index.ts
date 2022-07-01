@@ -12,7 +12,6 @@ export { LogConfig, LogType } from './log.js';
 export * from './api.path.js';
 export * from './api.js';
 export { V, VNode, VNodeElement, VNodeText } from './vdom.js';
-export { VNodeParser } from './vdom.parse.js';
 export { CompositeError } from './composite.error.js';
 export { LoggerFatalError } from './logger.fatal.error.js';
 export { TileSetName, TileSetNameValues } from './proj/tile.set.name.js';

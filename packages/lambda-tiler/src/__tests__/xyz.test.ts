@@ -1,6 +1,6 @@
 import { ConfigProvider, StyleJson } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
-import { Config, Env, LogConfig, VNodeParser } from '@basemaps/shared';
+import { Config, Env, LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
 import sinon from 'sinon';
@@ -146,7 +146,7 @@ o.spec('LambdaXyz', () => {
     o('should 304 if a xml is not modified', async () => {
       delete process.env[Env.PublicUrlBase];
       o.timeout(1000);
-      const key = 'NuirTK8fozzCJV1iG1FznmdHhKvk6WaWuDhhEA1d40c=';
+      const key = 'jYlhOJ0d9y7cO58ELT2GniwMiPjycpngtdUI910iEh8=';
       const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', {
         'if-none-match': key,
         ...apiKeyHeader,
@@ -175,12 +175,11 @@ o.spec('LambdaXyz', () => {
 
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(body.slice(0, 100)).equals(
-        '<?xml version="1.0"?>\n' + '<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:ows="http://www.op',
+        '<?xml version="1.0" encoding="utf-8"?>\n' + '<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:o',
       );
 
-      const vdom = await VNodeParser.parse(body);
-      const url = vdom.tags('ResourceURL').next().value;
-      o(url?.toString()).equals(
+      const url = body.split('\n').find((f) => f.trim().startsWith('<ResourceURL'));
+      o(url?.trim()).equals(
         '<ResourceURL format="image/jpeg" resourceType="tile" ' +
           `template="https://tiles.test/v1/tiles/aerial@beta/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.jpeg?api=${apiKey}" />`,
       );

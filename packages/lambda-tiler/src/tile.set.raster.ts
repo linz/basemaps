@@ -51,6 +51,8 @@ export class TileSetRaster {
   components: TileSetNameComponents;
   tileSet: ConfigTileSetRaster;
 
+  keywords: string[] = [];
+
   constructor(name: string, tileMatrix: TileMatrixSet) {
     this.components = TileSetNameParser.parse(name);
     this.tileMatrix = tileMatrix;
@@ -213,8 +215,10 @@ export class TileSetRaster {
     child.tileSet = { ...this.tileSet };
     child.tileSet.background = undefined;
     const title = this.tileSet?.title ?? this.tileSet?.name;
-    child.tileSet.title = `${title} ${titleizeImageryName(image.name)}`;
+    child.tileSet.title = image.title ?? `${title} ${titleizeImageryName(image.name)}`;
     child.extentOverride = Bounds.fromJson(image.bounds);
+
+    if (image.category) child.keywords.push(image.category);
 
     const layer: ConfigLayer = { name: image.name, minZoom: 0, maxZoom: 100 };
     layer[this.tileMatrix.projection.code] = image.id;

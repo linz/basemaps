@@ -4,7 +4,6 @@ import { Component, ComponentChild } from 'preact';
 import { Fragment } from 'preact/jsx-runtime';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo } from '../config.map.js';
-import { SplitIo } from '../split.js';
 import { MapOptionType } from '../url.js';
 import { Copyable } from './copyable.js';
 import { LayerSwitcherDropdown } from './layer.switcher.dropdown.js';
@@ -18,10 +17,7 @@ export class Header extends Component<unknown, { isMenuOpen: boolean; layers?: M
     this._events.push(Config.map.on('change', () => this.setState(this.state)));
 
     // If individual layers are on, we need the layer info to determine if they can use NZTM2000Quad WMTS
-    SplitIo.getClient().then((f) => {
-      const isIndividualEnabled = f?.getTreatment('layer-switcher-individual-layers') === 'on';
-      if (isIndividualEnabled) Config.map.layers.then((layers) => this.setState({ ...this.state, layers }));
-    });
+    Config.map.layers.then((layers) => this.setState({ ...this.state, layers }));
   }
   componentWillUnmount(): void {
     for (const e of this._events) e();

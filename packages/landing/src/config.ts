@@ -15,9 +15,6 @@ export const Config = {
   get Version(): string {
     return process.env.GIT_VERSION ?? '';
   },
-  get SplitApiKey(): string {
-    return process.env.SPLIT_IO_KEY ?? '';
-  },
   map: new MapConfig(),
 };
 
