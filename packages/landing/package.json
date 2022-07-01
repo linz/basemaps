@@ -32,9 +32,8 @@
     "@basemaps/geo": "^6.28.1",
     "@basemaps/infra": "^6.29.0",
     "@basemaps/shared": "^6.29.0",
-    "@linzjs/lui": "^10.11.3",
+    "@linzjs/lui": "^17.5.5",
     "@servie/events": "^3.0.0",
-    "@splitsoftware/splitio": "^10.16.1",
     "@types/geojson": "^7946.0.7",
     "@types/proj4": "^2.5.0",
     "maplibre-gl": "^1.14.1-rc.2",
@@ -83,8 +82,7 @@
       "entry": "src/index.tsx",
       "env": {
         "GOOGLE_ANALYTICS": null,
-        "TILE_HOST": null,
-        "SPLIT_IO_KEY": null
+        "TILE_HOST": null
       },
       "platform": "browser"
     },
