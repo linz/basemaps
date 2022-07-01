@@ -57,6 +57,8 @@ export class Debug extends Component<
         if (Config.map.debug['debug.screenshot']) {
           const loadedDiv = document.createElement('div');
           loadedDiv.id = 'map-loaded';
+          loadedDiv.style.width = '1px';
+          loadedDiv.style.height = '1px';
           document.body.appendChild(loadedDiv);
         }
       });
