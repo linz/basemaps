@@ -85,13 +85,13 @@ o.spec('WindowUrl', () => {
     mc.updateFromUrl('');
 
     o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
-      `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
+      `https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}`,
     );
     o(mc.toTileUrl(MapOptionType.Wmts)).equals(
-      `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/WMTSCapabilities.xml?api=${apiKey}`,
+      `https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${apiKey}`,
     );
     o(mc.toTileUrl(MapOptionType.TileWmts)).equals(
-      `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
+      `https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
     );
   });
 
@@ -100,11 +100,11 @@ o.spec('WindowUrl', () => {
     mc.updateFromUrl('');
 
     o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
-      `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
+      `https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}`,
     );
     mc.tileMatrix = Nztm2000Tms;
     o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
-      `https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:2193/{z}/{x}/{y}.png?api=${apiKey}`,
+      `https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000/{z}/{x}/{y}.png?api=${apiKey}`,
     );
     mc.tileMatrix = Nztm2000QuadTms;
     o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
@@ -118,18 +118,18 @@ o.spec('WindowUrl', () => {
 
     process.env.TILE_HOST = 'https://foo.bar.com';
     o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
-      `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.png?api=${apiKey}`,
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}`,
     );
     o(mc.toTileUrl(MapOptionType.Wmts)).equals(
-      `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/WMTSCapabilities.xml?api=${apiKey}`,
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${apiKey}`,
     );
     o(mc.toTileUrl(MapOptionType.TileWmts)).equals(
-      `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{TileMatrix}/{TileCol}/{TileRow}.png?api=${apiKey}`,
     );
 
     WindowUrl.ImageFormat = 'webp';
     o(mc.toTileUrl(MapOptionType.TileWmts)).equals(
-      `https://foo.bar.com/v1/tiles/aerial/EPSG:3857/{TileMatrix}/{TileCol}/{TileRow}.webp?api=${apiKey}`,
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{TileMatrix}/{TileCol}/{TileRow}.webp?api=${apiKey}`,
     );
     WindowUrl.ImageFormat = 'png';
     delete process.env.TILE_HOST;
