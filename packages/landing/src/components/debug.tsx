@@ -52,16 +52,16 @@ export class Debug extends Component<
         this.updateFromConfig();
       });
       this.updateFromConfig();
-      map.once('idle', () => {
-        // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
-        if (Config.map.debug['debug.screenshot']) {
+      if (Config.map.debug['debug.screenshot']) {
+        map.once('idle', () => {
+          // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
           const loadedDiv = document.createElement('div');
           loadedDiv.id = 'map-loaded';
           loadedDiv.style.width = '1px';
           loadedDiv.style.height = '1px';
           document.body.appendChild(loadedDiv);
-        }
-      });
+        });
+      }
     });
   };
 
