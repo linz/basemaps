@@ -79,10 +79,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.setState(this.state);
   };
 
-  componentWillMount(): void {
-    this.setState({ isLayerSwitcherEnabled: false });
-  }
-
   componentDidMount(): void {
     // Force the URL to be read before loading the map
     Config.map.updateFromUrl();
@@ -132,8 +128,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   }
 
   render(): ComponentChild {
-    const isLayerSwitcherEnabled =
-      this.state.isLayerSwitcherEnabled && Config.map.tileMatrix === GoogleTms && !Config.map.isDebug;
+    const isLayerSwitcherEnabled = Config.map.tileMatrix === GoogleTms && !Config.map.isDebug;
     return (
       <div style={{ flex: 1, position: 'relative' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
