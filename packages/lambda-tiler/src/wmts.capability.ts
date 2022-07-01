@@ -19,15 +19,6 @@ function wgs84Extent(layer: TileSetRaster): BBox {
   return Projection.get(layer.tileMatrix).boundsToWgs84BoundingBox(layer.extent);
 }
 
-/**
- * Default the tile matrix id to the projection of the TileMatrixSet
- */
-export function getTileMatrixId(tileMatrix: TileMatrixSet): string {
-  // TODO this should really change everything to identifier
-  if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return Nztm2000QuadTms.identifier;
-  return tileMatrix.projection.toEpsgString();
-}
-
 export interface WmtsCapabilitiesParams {
   httpBase: string;
   provider?: WmtsProvider;
@@ -59,7 +50,6 @@ export class WmtsCapabilities {
       }
       // TODO should a error be thrown here if the projection is invalid
       existing.push(layer);
-
       this.tileMatrixSets.set(layer.tileMatrix.identifier, layer.tileMatrix);
     }
     this.apiKey = params.apiKey;
@@ -152,7 +142,7 @@ export class WmtsCapabilities {
     for (const layer of layers) {
       if (matrixSets.has(layer.tileMatrix.identifier)) continue;
       matrixSets.add(layer.tileMatrix.identifier);
-      matrixSetNodes.push(V('TileMatrixSetLink', [V('TileMatrixSet', getTileMatrixId(layer.tileMatrix))]));
+      matrixSetNodes.push(V('TileMatrixSetLink', [V('TileMatrixSet', layer.tileMatrix.identifier)]));
     }
 
     const [firstLayer] = layers;
@@ -185,7 +175,7 @@ export class WmtsCapabilities {
     return V('TileMatrixSet', [
       V('ows:Title', tms.def.title),
       tms.def.abstract ? V('ows:Abstract', tms.def.abstract) : null,
-      V('ows:Identifier', getTileMatrixId(tms)),
+      V('ows:Identifier', tms.identifier),
       V('ows:SupportedCRS', tms.projection.toUrn()),
       tms.def.wellKnownScaleSet ? V('WellKnownScaleSet', tms.def.wellKnownScaleSet) : null,
       ...tms.def.tileMatrix.map((c) => {

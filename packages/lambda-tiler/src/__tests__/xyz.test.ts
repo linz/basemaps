@@ -146,7 +146,7 @@ o.spec('LambdaXyz', () => {
     o('should 304 if a xml is not modified', async () => {
       delete process.env[Env.PublicUrlBase];
       o.timeout(1000);
-      const key = 'jYlhOJ0d9y7cO58ELT2GniwMiPjycpngtdUI910iEh8=';
+      const key = 'QnfUoeKstGqCAbSHMxuzVB/6jXEht3ILdgnSd5ESjG4=';
       const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', {
         'if-none-match': key,
         ...apiKeyHeader,
@@ -216,7 +216,7 @@ o.spec('LambdaXyz', () => {
 
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(JSON.parse(body)).deepEquals({
-        tiles: [`https://tiles.test/v1/tiles/topographic/EPSG:3857/{z}/{x}/{y}.pbf?api=${apiKey}`],
+        tiles: [`https://tiles.test/v1/tiles/topographic/WebMercatorQuad/{z}/{x}/{y}.pbf?api=${apiKey}`],
         tilejson: '3.0.0',
       });
     });
@@ -233,7 +233,7 @@ o.spec('LambdaXyz', () => {
 
       const body = Buffer.from(res.body ?? '', 'base64').toString();
       o(JSON.parse(body)).deepEquals({
-        tiles: [`https://tiles.test/v1/tiles/fake-vector/EPSG:3857/{z}/{x}/{y}.pbf?api=${apiKey}`],
+        tiles: [`https://tiles.test/v1/tiles/fake-vector/WebMercatorQuad/{z}/{x}/{y}.pbf?api=${apiKey}`],
         maxzoom: 15,
         minzoom: 3,
         tilejson: '3.0.0',

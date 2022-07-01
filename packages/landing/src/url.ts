@@ -81,9 +81,7 @@ export const WindowUrl = {
   toTileUrl(urlType: MapOptionType, tileMatrix: TileMatrixSet, layerId: string, style?: string | null): string {
     const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
 
-    const isDefaultTileMatrix = TileMatrixSets.get(tileMatrix.projection).identifier === tileMatrix.identifier;
-    const projectionPath = isDefaultTileMatrix ? tileMatrix.projection.toEpsgString() : tileMatrix.identifier;
-    const baseTileUrl = `${this.baseUrl()}/v1/tiles/${layerId}/${projectionPath}`;
+    const baseTileUrl = `${this.baseUrl()}/v1/tiles/${layerId}/${tileMatrix.identifier}`;
 
     if (urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
     if (urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${api}`;
