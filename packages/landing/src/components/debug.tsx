@@ -1,11 +1,12 @@
 import { GoogleTms } from '@basemaps/geo';
 import { BBoxFeatureCollection } from '@linzjs/geojson';
-import maplibre, { AnyLayer, Style } from 'maplibre-gl';
+import { StyleSpecification } from 'maplibre-gl';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { projectGeoJson } from '../tile.matrix.js';
 import { MapOptionType, WindowUrl } from '../url.js';
+import { onMapLoaded } from './map.js';
 
 function debugSlider(
   label: 'osm' | 'linz-topographic' | 'linz-aerial',
@@ -25,7 +26,7 @@ function debugSlider(
 }
 
 export class Debug extends Component<
-  { map: maplibre.Map },
+  { map: maplibregl.Map },
   { lastFeatureId: string | number | undefined; lastFeatureName: string | undefined }
 > {
   componentDidMount(): void {
@@ -42,7 +43,7 @@ export class Debug extends Component<
     (window as any).MaplibreMap = map;
 
     map.resize();
-    map.once('load', () => {
+    onMapLoaded(map, () => {
       Config.map.on('change', () => {
         if (this.props.map == null) return;
         const locationHash = WindowUrl.toHash(Config.map.getLocation(this.props.map));
@@ -51,12 +52,15 @@ export class Debug extends Component<
         this.updateFromConfig();
       });
       this.updateFromConfig();
-
-      // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
       if (Config.map.debug['debug.screenshot']) {
-        const loadedDiv = document.createElement('div');
-        loadedDiv.id = 'map-loaded';
-        document.body.appendChild(loadedDiv);
+        map.once('idle', () => {
+          // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
+          const loadedDiv = document.createElement('div');
+          loadedDiv.id = 'map-loaded';
+          loadedDiv.style.width = '1px';
+          loadedDiv.style.height = '1px';
+          document.body.appendChild(loadedDiv);
+        });
       }
     });
   };
@@ -265,8 +269,8 @@ export class Debug extends Component<
     );
   }
 
-  _styleJson: Promise<Style> | null = null;
-  get styleJson(): Promise<Style> {
+  _styleJson: Promise<StyleSpecification> | null = null;
+  get styleJson(): Promise<StyleSpecification> {
     if (this._styleJson == null) {
       this._styleJson = fetch(
         WindowUrl.toTileUrl(MapOptionType.TileVectorStyle, Config.map.tileMatrix, 'topographic', 'topographic'),
@@ -296,13 +300,12 @@ export class Debug extends Component<
       return;
     }
 
-    const layers = styleJson.layers?.filter((f) => f.type !== 'custom' && f.source === 'LINZ Basemaps') ?? [];
+    const layers = styleJson.layers?.filter((f) => f.type !== 'background' && f.source === 'LINZ Basemaps') ?? [];
 
     // Do not hide topographic layers when trying to inspect the topographic layer
     if (Config.map.layerId === 'topographic') return;
     // Force all the layers to be invisible to start, otherwise the map will "flash" on then off
     for (const layer of layers) {
-      if (layer.type === 'custom') continue;
       const paint = (layer.paint ?? {}) as Record<string, unknown>;
       if (layer.type === 'symbol') {
         paint['icon-opacity'] = 0;
@@ -324,7 +327,7 @@ export class Debug extends Component<
     // Ensure all the layers are loaded before styling
     if (map.getLayer(layers[0].id) == null) {
       if (value === 0) return;
-      for (const layer of layers) map.addLayer(layer as AnyLayer);
+      for (const layer of layers) map.addLayer(layer);
     }
 
     for (const layer of layers) {

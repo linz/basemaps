@@ -3,10 +3,11 @@ import { Component, ComponentChild } from 'preact';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { getTileGrid } from '../tile.matrix.js';
+import { onMapLoaded } from './map.js';
 
 export class MapSwitcher extends Component {
   _events: (() => boolean)[] = [];
-  map: maplibre.Map;
+  map: maplibregl.Map;
   el: HTMLDivElement;
   currentStyle: string;
 
@@ -33,7 +34,7 @@ export class MapSwitcher extends Component {
       attributionControl: false,
     });
 
-    this.map.on('load', () => {
+    onMapLoaded(this.map, () => {
       this._events.push(
         Config.map.on('location', this.update),
         Config.map.on('tileMatrix', this.update),

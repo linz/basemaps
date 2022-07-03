@@ -8,14 +8,23 @@ import { WindowUrl } from '../url.js';
 import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
 
+/**
+ * Map loading in maplibre is weird, the on('load') event is different to 'loaded'
+ * this function waits until the map.loaded() function is true before being run.
+ */
+export function onMapLoaded(map: maplibregl.Map, cb: () => void): void {
+  if (map.loaded()) return cb();
+  setTimeout(() => onMapLoaded(map, cb), 100);
+}
+
 export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boolean }> {
-  map: maplibre.Map;
+  map: maplibregl.Map;
   el: HTMLElement;
   mapAttr: MapAttribution;
   /** Ignore the location updates */
   ignoreNextLocationUpdate = false;
 
-  controlGeo: maplibre.GeolocateControl | null;
+  controlGeo: maplibregl.GeolocateControl | null;
 
   updateLocation = (): void => {
     if (this.ignoreNextLocationUpdate) {
@@ -27,10 +36,10 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.map.setCenter([location.lon, location.lat]);
   };
 
-  updateBounds = (bounds: maplibre.LngLatBoundsLike): void => {
+  updateBounds = (bounds: maplibregl.LngLatBoundsLike): void => {
     if (Config.map.tileMatrix !== GoogleTms) {
       // Transform bounds to current tileMatrix
-      const lngLatBounds: maplibre.LngLatBounds = maplibre.LngLatBounds.convert(bounds);
+      const lngLatBounds: maplibregl.LngLatBounds = maplibre.LngLatBounds.convert(bounds);
       const upperLeft = lngLatBounds.getNorthEast();
       const lowerRight = lngLatBounds.getSouthWest();
       const zoom = this.map.getZoom();
@@ -107,7 +116,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     }
 
     this.map.on('render', this.onRender);
-    this.map.on('load', () => {
+    onMapLoaded(this.map, () => {
       this._events.push(
         Config.map.on('location', this.updateLocation),
         Config.map.on('tileMatrix', this.updateStyle),
