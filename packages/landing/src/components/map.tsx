@@ -8,14 +8,13 @@ import { WindowUrl } from '../url.js';
 import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
 
-let Id = 0;
 /**
  * Map loading in maplibre is weird, the on('load') event is different to 'loaded'
  * this function waits until the map.loaded() function is true before being run.
  */
-export function onMapLoaded(map: maplibregl.Map, cb: () => void, id = Id++): void {
+export function onMapLoaded(map: maplibregl.Map, cb: () => void): void {
   if (map.loaded()) return cb();
-  setTimeout(() => onMapLoaded(map, cb, id), 100);
+  setTimeout(() => onMapLoaded(map, cb), 100);
 }
 
 export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boolean }> {
@@ -138,7 +137,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   }
 
   render(): ComponentChild {
-    const isLayerSwitcherEnabled = false; //Config.map.tileMatrix === GoogleTms && !Config.map.isDebug;
+    const isLayerSwitcherEnabled = Config.map.tileMatrix === GoogleTms && !Config.map.isDebug;
     return (
       <div style={{ flex: 1, position: 'relative' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />

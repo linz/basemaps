@@ -34,7 +34,6 @@ export class MapSwitcher extends Component {
       attributionControl: false,
     });
 
-    // console.log('MapSwitcher');
     onMapLoaded(this.map, () => {
       this._events.push(
         Config.map.on('location', this.update),
