@@ -1,6 +1,6 @@
 import { GoogleTms } from '@basemaps/geo';
 import { BBoxFeatureCollection } from '@linzjs/geojson';
-import { Style, StyleSpecification } from 'maplibre-gl';
+import { StyleSpecification } from 'maplibre-gl';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
