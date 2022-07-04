@@ -1,5 +1,5 @@
 import { TileSetNameParser, TileSetType } from '@basemaps/config';
-import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { Config } from '@basemaps/shared';
 import { TileSet } from './tile.set.js';
 import { TileSetRaster } from './tile.set.raster.js';
@@ -82,7 +82,7 @@ export class TileSetCache {
 
   async getAll(name: string, tileMatrix?: TileMatrixSet | null): Promise<TileSet[]> {
     const nameComp = TileSetNameParser.parse(name);
-    const tileMatrices = tileMatrix == null ? Array.from(TileMatrixSets.Defaults.values()) : [tileMatrix];
+    const tileMatrices = tileMatrix == null ? [GoogleTms, Nztm2000QuadTms] : [tileMatrix];
 
     const promises: Promise<TileSet | null>[] = [];
     for (const tileMatrix of tileMatrices) promises.push(this.get(name, tileMatrix));

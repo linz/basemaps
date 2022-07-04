@@ -1,5 +1,5 @@
 import { ConfigImagery, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
-import { Epsg, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
+import { Epsg, GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Config, TileSetName } from '@basemaps/shared';
 import o from 'ospec';
 import sinon from 'sinon';
@@ -92,7 +92,7 @@ o.spec('TileSetCache', () => {
       sandbox.stub(Config.TileSet, 'get');
 
       TileSets.add(new TileSetRaster('aerial', GoogleTms));
-      TileSets.add(new TileSetRaster('aerial', Nztm2000Tms));
+      TileSets.add(new TileSetRaster('aerial', Nztm2000QuadTms));
       const tileSets = await TileSets.getAll('aerial', null);
 
       o(tileSets.length).deepEquals(2);
@@ -109,7 +109,7 @@ o.spec('TileSetCache', () => {
     o('load all subset projections', async () => {
       sandbox.stub(Config.TileSet, 'get');
 
-      const ts1 = new TileSetRaster('aerial@head', Nztm2000Tms);
+      const ts1 = new TileSetRaster('aerial@head', Nztm2000QuadTms);
       ts1.imagery = imgMap;
       TileSets.add(ts1);
       const ts2 = new TileSetRaster('aerial@head', GoogleTms);
@@ -130,7 +130,7 @@ o.spec('TileSetCache', () => {
       const imgMap = new Map();
       imgMap.set(imageOne.id, imageOne);
       imgMap.set(imageTwo.id, imageTwo);
-      const ts1 = new TileSetRaster('aerial@head', Nztm2000Tms);
+      const ts1 = new TileSetRaster('aerial@head', Nztm2000QuadTms);
       ts1.imagery = imgMap;
       TileSets.add(ts1);
 

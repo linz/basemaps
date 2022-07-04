@@ -53,7 +53,7 @@ o.spec('WmtsCapabilities', () => {
     o(serviceId?.find('ows:Title')?.textContent).equals('the title');
 
     o(raw.find('TileMatrixSetLink')?.toString()).deepEquals(
-      V('TileMatrixSetLink', [V('TileMatrixSet', 'EPSG:3857')]).toString(),
+      V('TileMatrixSetLink', [V('TileMatrixSet', 'WebMercatorQuad')]).toString(),
     );
 
     const layer = raw?.find('Contents', 'Layer');
@@ -93,12 +93,12 @@ o.spec('WmtsCapabilities', () => {
         'template="https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234" />',
     );
 
-    o(layer?.find('TileMatrixSetLink', 'TileMatrixSet')?.textContent).equals('EPSG:3857');
+    o(layer?.find('TileMatrixSetLink', 'TileMatrixSet')?.textContent).equals('WebMercatorQuad');
 
     const matrix = tags(raw, 'TileMatrixSet')[1];
     const matrixId = raw?.find('Contents', 'TileMatrixSet', 'ows:Identifier') ?? null;
     o(matrix.find('ows:Identifier')).equals(matrixId);
-    o(matrixId?.textContent).equals('EPSG:3857');
+    o(matrixId?.textContent).equals('WebMercatorQuad');
 
     o(matrix.find('ows:SupportedCRS')?.textContent).deepEquals('urn:ogc:def:crs:EPSG::3857');
     o(matrix.find('WellKnownScaleSet')?.textContent).deepEquals(
@@ -134,7 +134,7 @@ o.spec('WmtsCapabilities', () => {
     o(xml.split('\n')).deepEquals(['<?xml version="1.0" encoding="utf-8"?>', ...raw?.toString().split('\n')]);
 
     o(createHash('sha256').update(Buffer.from(xml)).digest('base64url')).equals(
-      'eUuSQ9tje2v4yIFbHZ8Y-TWCBznCF8X14BFgxQH4VNU',
+      'cF_TLoyaARxsEn9qUCfkkG2oLZuy3jHhgQ2450_5aIQ',
     );
   });
 
@@ -147,7 +147,7 @@ o.spec('WmtsCapabilities', () => {
 
     const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
 
-    o(tms?.textContent).equals('EPSG:3857');
+    o(tms?.textContent).equals('WebMercatorQuad');
 
     const urls = Array.from(raw ? raw.tags('ResourceURL') : []);
     o(urls.length).equals(3);
@@ -189,16 +189,16 @@ o.spec('WmtsCapabilities', () => {
     const sets = tags(layer, 'TileMatrixSet');
 
     o(sets.length).equals(2);
-    o(sets[0].toString()).equals('<TileMatrixSet>EPSG:2193</TileMatrixSet>');
-    o(sets[1].toString()).equals('<TileMatrixSet>EPSG:3857</TileMatrixSet>');
+    o(sets[0].toString()).equals('<TileMatrixSet>NZTM2000</TileMatrixSet>');
+    o(sets[1].toString()).equals('<TileMatrixSet>WebMercatorQuad</TileMatrixSet>');
 
     const tms = tags(nodes, 'TileMatrixSet').filter((f) => f.find('ows:SupportedCRS') != null);
     o(tms.length).equals(2);
 
-    o(tms[0].find('ows:Identifier')?.textContent).equals('EPSG:2193');
+    o(tms[0].find('ows:Identifier')?.textContent).equals('NZTM2000');
     o(tms[0].find('ows:SupportedCRS')?.textContent).equals('urn:ogc:def:crs:EPSG::2193');
 
-    o(tms[1].find('ows:Identifier')?.textContent).equals('EPSG:3857');
+    o(tms[1].find('ows:Identifier')?.textContent).equals('WebMercatorQuad');
     o(tms[1].find('ows:SupportedCRS')?.textContent).equals('urn:ogc:def:crs:EPSG::3857');
   });
 
@@ -212,10 +212,10 @@ o.spec('WmtsCapabilities', () => {
     o(layers.length).equals(2);
 
     o(layers[0].find('ows:Title')?.textContent).equals('aerial-title');
-    o(layers[0].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
+    o(layers[0].find('TileMatrixSet')?.textContent).equals('NZTM2000');
 
     o(layers[1].find('ows:Title')?.textContent).equals('imagery-title');
-    o(layers[1].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
+    o(layers[1].find('TileMatrixSet')?.textContent).equals('NZTM2000');
   });
 
   o('should support child tile sets', () => {
@@ -259,13 +259,13 @@ o.spec('WmtsCapabilities', () => {
 
     const allMatrixes = tags(nodes, 'TileMatrixSet');
 
-    o(allMatrixes[0].children[0].textContent).equals('EPSG:2193');
-    o(allMatrixes[1].children[0].textContent).equals('EPSG:2193');
-    o(allMatrixes[2].children[0].textContent).equals('EPSG:3857');
+    o(allMatrixes[0].children[0].textContent).equals('NZTM2000');
+    o(allMatrixes[1].children[0].textContent).equals('NZTM2000');
+    o(allMatrixes[2].children[0].textContent).equals('WebMercatorQuad');
     o(allMatrixes[3].children[0].textContent).equals('NZTM2000Quad');
 
-    o(allMatrixes[4].find('ows:Identifier')?.textContent).equals('EPSG:2193');
-    o(allMatrixes[5].find('ows:Identifier')?.textContent).equals('EPSG:3857');
+    o(allMatrixes[4].find('ows:Identifier')?.textContent).equals('NZTM2000');
+    o(allMatrixes[5].find('ows:Identifier')?.textContent).equals('WebMercatorQuad');
     o(allMatrixes[6].find('ows:Identifier')?.textContent).equals('NZTM2000Quad');
     o(allMatrixes.length).equals(7);
 
@@ -273,10 +273,10 @@ o.spec('WmtsCapabilities', () => {
     o(layers.length).equals(3);
 
     o(layers[0].find('ows:Title')?.textContent).equals(TileSetName.aerial);
-    o(layers[0].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
+    o(layers[0].find('TileMatrixSet')?.textContent).equals('NZTM2000');
 
     o(layers[1].find('ows:Identifier')?.textContent).equals('01F75X9G7FQ3XMWPJFR9AMQFJ0');
-    o(layers[1].find('TileMatrixSet')?.textContent).equals('EPSG:2193');
+    o(layers[1].find('TileMatrixSet')?.textContent).equals('NZTM2000');
     o(layers[1].find('ows:BoundingBox')?.toString()).equals(
       '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::2193">\n' +
         '  <ows:LowerCorner>2 1</ows:LowerCorner>\n' +
@@ -286,7 +286,7 @@ o.spec('WmtsCapabilities', () => {
 
     o(layers[2].find('ows:Title')?.textContent).equals('aerial_dunedin_urban');
     o(layers[2].find('ows:Identifier')?.textContent).equals('01E7PJFR9AMQFJ05X9G7FQ3XMW');
-    o(layers[2].find('TileMatrixSet')?.textContent).equals('EPSG:3857');
+    o(layers[2].find('TileMatrixSet')?.textContent).equals('WebMercatorQuad');
     o(layers[2].find('ows:BoundingBox')?.toString()).equals(
       '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::3857">\n' +
         '  <ows:LowerCorner>-20037508.3427892 -20037508.3427892</ows:LowerCorner>\n' +

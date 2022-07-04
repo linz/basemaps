@@ -3,7 +3,6 @@ import { Env, extractTileMatrixSet } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Router } from '../router.js';
 import { TileSets } from '../tile.set.cache.js';
-import { getTileMatrixId } from '../wmts.capability.js';
 import { NotFound } from './response.js';
 
 export async function tileJson(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
@@ -22,7 +21,7 @@ export async function tileJson(req: LambdaHttpRequest): Promise<LambdaHttpRespon
   const host = Env.get(Env.PublicUrlBase) ?? '';
 
   const tileUrl =
-    [host, version, name, tileSet.fullName, getTileMatrixId(tileMatrix), '{z}', '{x}', '{y}'].join('/') +
+    [host, version, name, tileSet.fullName, tileMatrix.identifier, '{z}', '{x}', '{y}'].join('/') +
     `.${tileSet.format}?api=${apiKey}`;
 
   const tileJson: TileJson = { tiles: [tileUrl], tilejson: '3.0.0' };
