@@ -10,6 +10,7 @@ import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 
 export const DefaultTestTiles = './test-tiles/default.test.tiles.json';
 export const DefaultHost = 'basemaps.linz.govt.nz';
+export const DefaultOutput = '.artifacts/visual-snapshots/';
 
 enum TileMatrixIdentifier {
   Nztm2000Quad = 'NZTM2000Quad',
@@ -37,6 +38,7 @@ export class CommandScreenShot extends CommandLineAction {
   private host: CommandLineStringParameter;
   private tiles: CommandLineStringParameter;
   private assets: CommandLineStringParameter;
+  private output: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -66,10 +68,17 @@ export class CommandScreenShot extends CommandLineAction {
       description: 'JSON file path for the test tiles',
       defaultValue: DefaultTestTiles,
     });
+
     this.assets = this.defineStringParameter({
       argumentName: 'ASSETS',
       parameterLongName: '--assets',
       description: 'Where the assets (sprites, fonts) are located',
+    });
+
+    this.output = this.defineStringParameter({
+      argumentName: 'OUTPUT',
+      parameterLongName: '--output',
+      description: 'Output of the bundle file',
     });
   }
 
@@ -77,7 +86,6 @@ export class CommandScreenShot extends CommandLineAction {
     const logger = LogConfig.get();
     const config = this.config.value;
     let host = this.host.value ?? DefaultHost;
-    const tiles = this.tiles.value ?? DefaultTestTiles;
 
     let BasemapsServer: FastifyInstance | undefined = undefined;
     if (config != null) {
@@ -92,7 +100,7 @@ export class CommandScreenShot extends CommandLineAction {
     logger.info('Page:Launch');
     const chrome = await chromium.launch();
     try {
-      await takeScreenshots(host, tiles, chrome, logger);
+      await this.takeScreenshots(host, chrome, logger);
     } finally {
       await chrome.close();
       if (BasemapsServer != null) await BasemapsServer.close();
@@ -116,40 +124,43 @@ export class CommandScreenShot extends CommandLineAction {
     const server = createServer(logger);
     return await new Promise<FastifyInstance>((resolve) => server.listen(port, '0.0.0.0', () => resolve(server)));
   }
-}
+  async takeScreenshots(host: string, chrome: Browser, logger: LogType): Promise<void> {
+    const tiles = this.tiles.value ?? DefaultTestTiles;
+    const outputPath = this.output.value ?? DefaultOutput;
 
-export async function takeScreenshots(host: string, tiles: string, chrome: Browser, logger: LogType): Promise<void> {
-  const TestTiles = await fsa.readJson<TileTestSchema[]>(tiles);
-  for (const test of TestTiles) {
-    const page = await chrome.newPage();
+    const TestTiles = await fsa.readJson<TileTestSchema[]>(tiles);
+    for (const test of TestTiles) {
+      const page = await chrome.newPage();
 
-    const searchParam = new URLSearchParams();
-    searchParam.set('p', test.tileMatrix);
-    searchParam.set('i', test.tileSet);
-    if (test.style) searchParam.set('s', test.style);
+      const searchParam = new URLSearchParams();
+      searchParam.set('p', test.tileMatrix);
+      searchParam.set('i', test.tileSet);
+      if (test.style) searchParam.set('s', test.style);
 
-    const loc = `@${test.location.lat},${test.location.lng},z${test.location.z}`;
-    const fileName = '.artifacts/visual-snapshots/' + test.name + '.png';
+      const loc = `@${test.location.lat},${test.location.lng},z${test.location.z}`;
+      const fileName = test.name + '.png';
+      const output = fsa.join(outputPath, fileName);
 
-    await mkdir(`.artifacts/visual-snapshots/`, { recursive: true });
+      await mkdir(`.artifacts/visual-snapshots/`, { recursive: true });
 
-    let url = `${host}/?${searchParam.toString()}&debug=true&debug.screenshot=true#${loc}`;
-    if (!url.startsWith('http')) url = `https://${url}`;
+      let url = `${host}/?${searchParam.toString()}&debug=true&debug.screenshot=true#${loc}`;
+      if (!url.startsWith('http')) url = `https://${url}`;
 
-    logger.info({ url, expected: fileName }, 'Page:Load');
+      logger.info({ url, expected: output }, 'Page:Load');
 
-    await page.goto(url);
+      await page.goto(url);
 
-    try {
-      await page.waitForSelector('div#map-loaded', { state: 'attached' });
-      await page.waitForTimeout(1000);
-      await page.waitForLoadState('networkidle');
-      await page.screenshot({ path: fileName });
-    } catch (e) {
-      await page.screenshot({ path: fileName });
-      throw e;
+      try {
+        await page.waitForSelector('div#map-loaded', { state: 'attached' });
+        await page.waitForTimeout(1000);
+        await page.waitForLoadState('networkidle');
+        await page.screenshot({ path: output });
+      } catch (e) {
+        await page.screenshot({ path: output });
+        throw e;
+      }
+      logger.info({ url, expected: output }, 'Page:Load:Done');
+      await page.close();
     }
-    logger.info({ url, expected: fileName }, 'Page:Load:Done');
-    await page.close();
   }
 }
