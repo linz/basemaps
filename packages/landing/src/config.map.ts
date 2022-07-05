@@ -200,7 +200,7 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
     const tmsTags = layer.getElementsByTagName('TileMatrixSet');
     const projections: Set<EpsgCode> = new Set();
     for (let j = 0; j < tmsTags.length; j++) {
-      const epsg = Epsg.parse(tmsTags.item(j)?.textContent ?? '');
+      const epsg = tmsIdToEpsg(tmsTags.item(j)?.textContent ?? '');
       if (epsg == null) continue;
       projections.add(epsg.code);
     }
@@ -219,4 +219,12 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
   allLayers.sort((a, b) => a.name.localeCompare(b.name));
   for (const l of allLayers) output.set(l.id, l);
   return output;
+}
+
+/** Lookup a projection from either "EPSG:3857" or "WebMercatorQuad" */
+function tmsIdToEpsg(id: string): Epsg | null {
+  if (id.toLowerCase().startsWith('epsg')) return Epsg.parse(id);
+  const tms = TileMatrixSets.find(id);
+  if (tms == null) return null;
+  return tms.projection;
 }
