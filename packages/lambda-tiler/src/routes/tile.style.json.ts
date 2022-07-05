@@ -18,6 +18,8 @@ export function convertRelativeUrl(url?: string, apiKey?: string): string {
   if (url == null) return '';
   const host = Env.get(Env.PublicUrlBase) ?? '';
   if (!url.startsWith('/')) return url; // Not relative ignore
+  const assetLocation = Env.get(Env.AssetLocation);
+  if (assetLocation != null) return `/v1${url}`; // Serve from asset location
   const fullUrl = new URL(fsa.join(host, url));
   if (apiKey) fullUrl.searchParams.set('api', apiKey);
   return fullUrl.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');

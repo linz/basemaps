@@ -39,6 +39,12 @@ o.spec('TileStyleJson', () => {
     o(convertRelativeUrl('https://foo.com/foo?bar=baz', 'abc')).equals('https://foo.com/foo?bar=baz');
   });
 
+  o('should Convert to asset url', () => {
+    process.env[Env.AssetLocation] = 'assets/';
+    o(convertRelativeUrl('/foo')).equals('/v1/foo');
+    delete process.env[Env.AssetLocation];
+  });
+
   const baseStyleJson: StyleJson = {
     version: 8,
     id: 'style.id',
