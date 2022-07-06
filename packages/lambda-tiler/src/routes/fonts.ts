@@ -13,7 +13,8 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
   if (assetLocation == null) return NotFound;
 
   try {
-    const filePath = fsa.join(assetLocation, path.join('fonts', req.params.fontStack, req.params.range)) + '.pbf';
+    const fontStack = decodeURIComponent(req.params.fontStack);
+    const filePath = fsa.join(assetLocation, path.join('fonts', fontStack, req.params.range)) + '.pbf';
     const buf = await fsa.read(filePath);
 
     return LambdaHttpResponse.ok().buffer(buf, 'application/x-protobuf');
