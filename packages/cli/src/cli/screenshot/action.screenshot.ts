@@ -1,12 +1,11 @@
-import { Config, Env, fsa, LogConfig, LogType } from '@basemaps/shared';
-import { mkdir } from 'fs/promises';
-import { Browser, chromium } from 'playwright';
-import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { z } from 'zod';
-import getPort from 'get-port';
 import { createServer } from '@basemaps/server';
+import { Env, fsa, LogConfig, LogType } from '@basemaps/shared';
+import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { FastifyInstance } from 'fastify/types/instance';
-import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
+import { mkdir } from 'fs/promises';
+import getPort from 'get-port';
+import { Browser, chromium } from 'playwright';
+import { z } from 'zod';
 
 export const DefaultTestTiles = './test-tiles/default.test.tiles.json';
 export const DefaultHost = 'basemaps.linz.govt.nz';
