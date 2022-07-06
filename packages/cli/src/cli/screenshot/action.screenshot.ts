@@ -108,22 +108,11 @@ export class CommandScreenShot extends CommandLineAction {
   }
 
   async startServer(port: number, config: string, logger: LogType): Promise<FastifyInstance> {
-    // Bundle Config
-    const configJson = await fsa.readJson<ConfigBundled>(config);
-    const mem = ConfigProviderMemory.fromJson(configJson);
-    Config.setConfigProvider(mem);
-
-    // Setup the assets
-    if (this.assets.value) {
-      const isExists = await fsa.exists(this.assets.value);
-      if (!isExists) throw new Error('--asset path is missing');
-      process.env[Env.AssetLocation] = this.assets.value;
-    }
-
     // Start server
-    const server = createServer(logger);
+    const server = await createServer({ config, assets: this.assets.value }, logger);
     return await new Promise<FastifyInstance>((resolve) => server.listen(port, '0.0.0.0', () => resolve(server)));
   }
+
   async takeScreenshots(host: string, chrome: Browser, logger: LogType): Promise<void> {
     const tiles = this.tiles.value ?? DefaultTestTiles;
     const outputPath = this.output.value ?? DefaultOutput;

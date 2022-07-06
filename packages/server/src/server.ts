@@ -1,5 +1,6 @@
+import { Config, ConfigJson, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { handler } from '@basemaps/lambda-tiler';
-import { LogType } from '@basemaps/shared';
+import { Env, fsa, LogType } from '@basemaps/shared';
 import fastifyStatic from '@fastify/static';
 import { lf } from '@linzjs/lambda';
 import { ALBEvent, ALBResult, APIGatewayProxyResultV2, CloudFrontRequestResult, Context } from 'aws-lambda';
@@ -30,8 +31,41 @@ function getLandingLocation(): string | null {
   }
 }
 
-export function createServer(logger: LogType): FastifyInstance {
+export interface ServerOptions {
+  /** Path to assets */
+  assets?: string;
+
+  /** Path to configuration or a dynamdb table */
+  config: string;
+}
+
+export async function createServer(opts: ServerOptions, logger: LogType): Promise<FastifyInstance> {
   const BasemapsServer = fastify();
+
+  if (opts.config.startsWith('dynamodb://')) {
+    // Load config from dynamodb table
+    const table = opts.config.slice('dynamodb://'.length);
+    logger.info({ path: opts.config, table, mode: 'dynamo' }, 'Starting Server');
+    Config.setConfigProvider(new ConfigProviderDynamo(table));
+  } else if (opts.config.endsWith('.json')) {
+    // Bundled config
+    logger.info({ path: opts.config, mode: 'config:bundle' }, 'Starting Server');
+    const configJson = await fsa.read(opts.config);
+    const mem = ConfigProviderMemory.fromJson(JSON.parse(configJson.toString()));
+    Config.setConfigProvider(mem);
+  } else {
+    const mem = await ConfigJson.fromPath(opts.config, logger);
+    logger.info({ path: opts.config, mode: 'config' }, 'Starting Server');
+    mem.createVirtualTileSets();
+    Config.setConfigProvider(mem);
+  }
+
+  if (opts.assets) {
+    const isExists = await fsa.exists(opts.assets);
+    if (!isExists) throw new Error(`--assets path "${opts.assets}" does not exist`);
+    logger.info({ path: opts.assets }, 'Config:Assets');
+    process.env[Env.AssetLocation] = opts.assets;
+  }
 
   const landingLocation = getLandingLocation();
   if (landingLocation == null) {
