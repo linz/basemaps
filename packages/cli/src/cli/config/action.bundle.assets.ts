@@ -10,7 +10,7 @@ const Packing = 25; // Packing factor for the hash map
 const MaxSearch = 50; // Max search factor
 
 export class CommandBundleAssets extends CommandLineAction {
-  path: CommandLineStringParameter;
+  assets: CommandLineStringParameter;
   output: CommandLineStringParameter;
 
   public constructor() {
@@ -22,7 +22,7 @@ export class CommandBundleAssets extends CommandLineAction {
   }
 
   protected onDefineParameters(): void {
-    this.path = this.defineStringParameter({
+    this.assets = this.defineStringParameter({
       argumentName: 'ASSETS',
       parameterLongName: '--assets',
       description: 'Paths to the input assets files, must contain assets/sprites/ and assets/fonts.',
@@ -37,13 +37,13 @@ export class CommandBundleAssets extends CommandLineAction {
 
   protected async onExecute(): Promise<void> {
     const logger = LogConfig.get();
-    const path = this.path.value;
+    const assets = this.assets.value;
     const output = this.output.value;
-    if (path == null || output == null) throw new Error('Please provide a input or ouput path');
-    if (output.endsWith('.tar')) throw new Error(`Invalid output, needs to be .tar.co :"${output}"`);
+    if (assets == null || output == null) throw new Error('Please provide a input or ouput path');
+    if (!output.endsWith('.tar.co')) throw new Error(`Invalid output, needs to be .tar.co :"${output}"`);
 
-    logger.info({ indput: path }, 'BundleAssets:Start');
-    const tarFile = await this.buildTar(path, output, logger);
+    logger.info({ indput: assets }, 'BundleAssets:Start');
+    const tarFile = await this.buildTar(assets, output, logger);
     const cotarFile = await this.buildTarCo(tarFile, output, logger);
     logger.info({ output: cotarFile }, 'BundleAssets:Finish');
   }
@@ -59,7 +59,20 @@ export class CommandBundleAssets extends CommandLineAction {
     files.sort((a, b) => a.localeCompare(b));
     logger.info({ output: outputTar, files: files.length }, 'Tar:Create');
 
-    for (const file of files) await tarBuilder.write(file, await fsa.read(file));
+    for (const file of files) {
+      let fileName = file;
+      if (file.includes('fonts.json')) {
+        fileName = 'font.json';
+      } else if (file.includes('fonts')) {
+        fileName = file.substring(file.indexOf('fonts'));
+      } else if (file.includes('sprites')) {
+        fileName = file.substring(file.indexOf('sprites'));
+      } else {
+        logger.warn({ file }, 'Invalid Assets files');
+        continue;
+      }
+      await tarBuilder.write(fileName, await fsa.read(file));
+    }
 
     await tarBuilder.close();
 
