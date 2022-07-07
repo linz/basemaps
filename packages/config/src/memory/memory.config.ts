@@ -9,6 +9,7 @@ import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
 import { ulid, decodeTime } from 'ulid';
 import { createHash } from 'crypto';
+import { standardizeLayerName } from '../json/name.convertor.js';
 
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
@@ -19,6 +20,10 @@ export interface ConfigBundled {
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
   tileSet: ConfigTileSet[];
+}
+
+function isConfigImagery(i: BaseConfig): i is ConfigImagery {
+  return Config.getPrefix(i.id) === ConfigPrefix.Imagery;
 }
 
 export class ConfigProviderMemory extends BasemapsConfigProvider {
@@ -77,28 +82,45 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   /** Find all imagery inside this configuration and create a virtual tile set for it */
   createVirtualTileSets(): void {
     for (const obj of this.objects.values()) {
-      if (!obj.id.startsWith(ConfigPrefix.Imagery)) continue;
-      const ts = ConfigProviderMemory.imageryToTileSet(obj as ConfigImagery);
-
+      if (!isConfigImagery(obj)) continue;
+      const ts = ConfigProviderMemory.imageryToTileSet(obj);
       // TODO should this really overwrite existing tilesets
       this.put(ts);
+      this.imageryToTileSetName(obj);
     }
   }
 
-  static imageryToTileSet(i: ConfigImagery): ConfigTileSet {
-    const now = Date.now();
+  /** Create a tileset by the standardized name */
+  imageryToTileSetName(i: ConfigImagery): void {
+    const targetName = standardizeLayerName(i.name);
+    const targetId = Config.prefix(ConfigPrefix.TileSet, targetName);
+    let existing = this.objects.get(targetId) as ConfigTileSet;
+    if (existing == null) {
+      existing = {
+        type: TileSetType.Raster,
+        id: targetId,
+        name: targetName,
+        format: ImageFormat.Webp,
+        layers: [{ name: targetName, minZoom: 0, maxZoom: 32 }],
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+        updatedAt: Date.now(),
+      } as ConfigTileSet;
+      this.put(existing);
+    }
+    // TODO this overwrites existing layers
+    existing.layers[0][i.projection] = i.id;
+  }
 
-    const tileSet: ConfigTileSet = {
+  static imageryToTileSet(i: ConfigImagery): ConfigTileSet {
+    return {
       type: TileSetType.Raster,
       id: Config.prefix(ConfigPrefix.TileSet, Config.unprefix(ConfigPrefix.Imagery, i.id)),
       name: i.name,
       format: ImageFormat.Webp,
       layers: [{ [i.projection]: i.id, name: i.name, minZoom: 0, maxZoom: 32 }],
       background: { r: 0, g: 0, b: 0, alpha: 0 },
-      updatedAt: now,
+      updatedAt: Date.now(),
     };
-
-    return tileSet;
   }
 
   /** Load a bundled configuration creating virtual tilesets for all imagery */
