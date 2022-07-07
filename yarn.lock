@@ -52,11 +52,6 @@
     source-map-support "^0.5.19"
     ulid "^2.3.0"
 
-"@chunkd/core@^8.0.1":
-  version "8.0.3"
-  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-8.0.3.tgz#5ab9ef98ea1ccf33933d4de9717ed413a0c99b5a"
-  integrity sha512-BqfSpkOgTIfO5mDwx5x1RkKlARI5ZZYQSsC9KWU9aDbhPew33faOC/EkEW0kSYKbIL4pestI9XjAZ8WAhectkQ==
-
 "@chunkd/core@^8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-8.1.0.tgz#724da02f4059eef853c8b690af6729d77d54702c"
@@ -124,14 +119,21 @@
     "@chunkd/core" "^8.1.0"
     ieee754 "^1.1.13"
 
-"@cotar/core@^5.3.0":
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-5.3.0.tgz#69423f9ee77a8630325e486256d20c752e2e1193"
-  integrity sha512-4GaAqJsPCM5CwY6Z8p7GO/hA0d5DowuoH7xTje1buu8ggWF1IN2APSvg/TeV2iD7OctxedPTXIbZpMeg5DhOsw==
+"@cotar/core@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-5.4.0.tgz#9d10dee807044fb2f136852a7736a41edce859ff"
+  integrity sha512-hZOsojezrjHu73ZZUx0rz8BCzqmcTmdBBg5OaAg3MziJKIJnWGsCKA1OdL9cT9Csib+iW/DL4UxP/RfMlchZ3w==
   dependencies:
-    "@chunkd/core" "^8.0.1"
+    "@chunkd/core" "^8.4.0"
     "@sindresorhus/fnv1a" "^3.0.0"
     binparse "^2.0.1"
+
+"@cotar/tar@^5.4.1":
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/@cotar/tar/-/tar-5.4.1.tgz#f91a79c6050e81a8022a5529af373fabcc1f2280"
+  integrity sha512-2hsVUhjEzezX3RxKEA4ZKisxX4rGPaKy3L2f5PVogpSjuydzpq429+h3L0UPfrKUGBaqeoZkIKdF9j38gMg3OA==
+  dependencies:
+    tar-stream "^2.2.0"
 
 "@emotion/cache@^11.4.0", "@emotion/cache@^11.6.0":
   version "11.6.0"
@@ -7240,6 +7242,17 @@ tar-stream@^2.1.4:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/tar-stream/-/tar-stream-2.1.4.tgz#c4fb1a11eb0da29b893a5b25476397ba2d053bfa"
   integrity sha512-o3pS2zlG4gxr67GmFYBLlq+dM8gyRGUOvsrHclSkvtVtQbjV0s/+ZE8OpICbaj8clrX3tjeHngYGP7rweaBnuw==
+  dependencies:
+    bl "^4.0.3"
+    end-of-stream "^1.4.1"
+    fs-constants "^1.0.0"
+    inherits "^2.0.3"
+    readable-stream "^3.1.1"
+
+tar-stream@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/tar-stream/-/tar-stream-2.2.0.tgz#acad84c284136b060dc3faa64474aa9aebd77287"
+  integrity sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==
   dependencies:
     bl "^4.0.3"
     end-of-stream "^1.4.1"
