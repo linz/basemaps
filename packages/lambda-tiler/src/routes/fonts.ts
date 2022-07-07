@@ -2,6 +2,7 @@ import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
+import { CotarCache, serveFromCotar } from '../cotar.cache';
 import { NotFound } from './response.js';
 
 interface FontGet {
@@ -12,9 +13,13 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
   const assetLocation = Env.get(Env.AssetLocation);
   if (assetLocation == null) return NotFound;
 
+  const fontStack = decodeURIComponent(req.params.fontStack);
+  const targetFile = path.join('fonts', fontStack, req.params.range) + '.pbf';
+
+  if (assetLocation.endsWith('.tar.co')) return serveFromCotar(assetLocation, targetFile, 'application/x-protobuf');
+
   try {
-    const fontStack = decodeURIComponent(req.params.fontStack);
-    const filePath = fsa.join(assetLocation, path.join('fonts', fontStack, req.params.range)) + '.pbf';
+    const filePath = fsa.join(assetLocation, targetFile) + '.pbf';
     const buf = await fsa.read(filePath);
 
     return LambdaHttpResponse.ok().buffer(buf, 'application/x-protobuf');
@@ -42,6 +47,8 @@ export async function getFonts(fontPath: string): Promise<string[]> {
 export async function fontList(): Promise<LambdaHttpResponse> {
   const assetLocation = Env.get(Env.AssetLocation);
   if (assetLocation == null) return NotFound;
+
+  if (assetLocation.endsWith('.tar.co')) return serveFromCotar(assetLocation, 'fonts.json', 'application/json');
 
   try {
     const filePath = fsa.join(assetLocation, '/fonts');

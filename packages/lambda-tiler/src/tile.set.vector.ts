@@ -1,28 +1,10 @@
 import { ConfigTileSetVector, TileSetNameComponents, TileSetNameParser, TileSetType } from '@basemaps/config';
 import { GoogleTms, TileMatrixSet, VectorFormat } from '@basemaps/geo';
-import { fsa, TileDataXyz } from '@basemaps/shared';
-import { Cotar } from '@cotar/core';
+import { TileDataXyz } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { CotarCache } from './cotar.cache.js';
 import { NotFound } from './routes/response.js';
 import { TileSets } from './tile.set.cache.js';
-import { St } from './source.tracer.js';
-
-class CotarCache {
-  cache = new Map<string, Promise<Cotar | null>>();
-
-  get(uri: string): Promise<Cotar | null> {
-    let cotar = this.cache.get(uri);
-    if (cotar == null) {
-      const source = fsa.source(uri);
-      St.trace(source);
-      cotar = Cotar.fromTar(source);
-      this.cache.set(uri, cotar);
-    }
-    return cotar;
-  }
-}
-
-export const Layers = new CotarCache();
 
 export class TileSetVector {
   type: TileSetType.Vector = TileSetType.Vector;
@@ -59,7 +41,7 @@ export class TileSetVector {
     if (layer[3857] == null) return new LambdaHttpResponse(500, 'Layer url not found from tileset Config');
 
     req.timer.start('cotar:load');
-    const cotar = await Layers.get(layer[3857]);
+    const cotar = await CotarCache.get(layer[3857]);
     if (cotar == null) return new LambdaHttpResponse(500, 'Failed to load VectorTiles');
     req.timer.end('cotar:load');
 
