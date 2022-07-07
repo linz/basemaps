@@ -133,6 +133,22 @@
     "@sindresorhus/fnv1a" "^3.0.0"
     binparse "^2.0.1"
 
+"@cotar/core@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@cotar/core/-/core-5.4.0.tgz#9d10dee807044fb2f136852a7736a41edce859ff"
+  integrity sha512-hZOsojezrjHu73ZZUx0rz8BCzqmcTmdBBg5OaAg3MziJKIJnWGsCKA1OdL9cT9Csib+iW/DL4UxP/RfMlchZ3w==
+  dependencies:
+    "@chunkd/core" "^8.4.0"
+    "@sindresorhus/fnv1a" "^3.0.0"
+    binparse "^2.0.1"
+
+"@cotar/tar@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@cotar/tar/-/tar-5.4.0.tgz#f7508a09e509505fbc6b8dea544658536ba35040"
+  integrity sha512-fmWTPgzqEzmzlPxJs0dksBMeNuiLFsKK22Fy9T2tshWpP7ONJei410wQi2akb5glOqdw90ldZV7rq6a4Kupxfw==
+  dependencies:
+    tar-stream "^2.2.0"
+
 "@emotion/cache@^11.4.0", "@emotion/cache@^11.6.0":
   version "11.6.0"
   resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-11.6.0.tgz#65fbdbbe4382f1991d8b20853c38e63ecccec9a1"
@@ -7240,6 +7256,17 @@ tar-stream@^2.1.4:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/tar-stream/-/tar-stream-2.1.4.tgz#c4fb1a11eb0da29b893a5b25476397ba2d053bfa"
   integrity sha512-o3pS2zlG4gxr67GmFYBLlq+dM8gyRGUOvsrHclSkvtVtQbjV0s/+ZE8OpICbaj8clrX3tjeHngYGP7rweaBnuw==
+  dependencies:
+    bl "^4.0.3"
+    end-of-stream "^1.4.1"
+    fs-constants "^1.0.0"
+    inherits "^2.0.3"
+    readable-stream "^3.1.1"
+
+tar-stream@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/tar-stream/-/tar-stream-2.2.0.tgz#acad84c284136b060dc3faa64474aa9aebd77287"
+  integrity sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==
   dependencies:
     bl "^4.0.3"
     end-of-stream "^1.4.1"
