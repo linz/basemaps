@@ -7,7 +7,7 @@ o.spec('MemoryConfig', () => {
   const config = new ConfigProviderMemory();
   o.beforeEach(() => config.objects.clear());
 
-  const baseImg = { id: 'im_Image123' } as ConfigImagery;
+  const baseImg = { id: 'im_Image123', name: 'ōtorohanga_urban_2021_0-1m_RGB', projection: 3857 } as ConfigImagery;
   const baseTs = { id: 'ts_TileSet123', description: 'tileset' } as ConfigTileSet;
 
   o('should load correct objects from memory', async () => {
@@ -63,7 +63,54 @@ o.spec('MemoryConfig', () => {
     config.createVirtualTileSets();
 
     const cfg = config.toJson();
-    o(cfg.tileSet.length).equals(1);
+    o(cfg.tileSet.length).equals(2);
     o(cfg.tileSet[0].id).equals('ts_Image123');
+    o(cfg.tileSet[1].id).equals('ts_ōtorohanga-urban-2021-0.1m');
+  });
+
+  o('should create virtual tilesets by name', async () => {
+    config.put(baseImg);
+    config.put({ ...baseImg, projection: 2193, id: 'im_Image234' } as ConfigImagery);
+    o(config.toJson().tileSet.length).equals(0);
+
+    config.createVirtualTileSets();
+
+    const target = await config.TileSet.get('ōtorohanga-urban-2021-0.1m');
+    o(target?.layers.length).equals(1);
+    o(target?.layers[0][3857]).equals(baseImg.id);
+    o(target?.layers[0][2193]).equals('im_Image234');
+    o(target?.name).equals('ōtorohanga-urban-2021-0.1m');
+  });
+
+  o('virtual tilesets can be called multiple times', () => {
+    config.put(baseImg);
+    config.put({ ...baseImg, projection: 2193, id: 'im_Image234' } as ConfigImagery);
+
+    config.createVirtualTileSets();
+    config.createVirtualTileSets();
+    config.createVirtualTileSets();
+
+    const cfg = config.toJson();
+    // 1 tileset per imagery id (2x)
+    // 1 tileset per imagery name (1x)
+    o(cfg.tileSet.length).equals(3);
+    o(cfg.tileSet[0].id).equals('ts_Image123');
+    o(cfg.tileSet[1].id).equals('ts_ōtorohanga-urban-2021-0.1m');
+    o(cfg.tileSet[2].id).equals('ts_Image234');
+  });
+
+  o('virtual tilesets should overwrite existing projections', async () => {
+    config.put(baseImg);
+    config.put({ ...baseImg, id: 'im_Image234' } as ConfigImagery);
+
+    o(config.toJson().tileSet.length).equals(0);
+
+    config.createVirtualTileSets();
+
+    const target = await config.TileSet.get('ts_ōtorohanga-urban-2021-0.1m');
+    o(target?.layers.length).equals(1);
+    o(target?.layers[0][3857]).equals('im_Image234');
+    o(target?.layers[0][2193]).equals(undefined);
+    o(target?.name).equals('ōtorohanga-urban-2021-0.1m');
   });
 });
