@@ -46,7 +46,7 @@
     "@chunkd/fs": "^8.4.0",
     "@cogeotiff/core": "^7.0.0",
     "@cotar/core": "^5.4.0",
-    "@cotar/tar": "^5.4.0",
+    "@cotar/tar": "^5.4.1",
     "@linzjs/geojson": "^6.28.1",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
@@ -56,14 +56,12 @@
     "p-limit": "^4.0.0",
     "playwright": "^1.22.2",
     "pretty-json-log": "^1.0.0",
-    "tar-stream": "^2.2.0",
     "zod": "^3.17.3"
   },
   "devDependencies": {
     "@types/deep-diff": "^1.0.1",
     "@types/geojson": "^7946.0.7",
-    "@types/proj4": "^2.5.0",
-    "@types/tar-stream": "^2.2.2"
+    "@types/proj4": "^2.5.0"
   },
   "publishConfig": {
     "access": "public"
