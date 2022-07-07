@@ -61,7 +61,8 @@
   "devDependencies": {
     "@types/deep-diff": "^1.0.1",
     "@types/geojson": "^7946.0.7",
-    "@types/proj4": "^2.5.0"
+    "@types/proj4": "^2.5.0",
+    "@types/tar-stream": "^2.2.2"
   },
   "publishConfig": {
     "access": "public"
