@@ -60,9 +60,9 @@ export class CommandBundleAssets extends CommandLineAction {
     files.sort((a, b) => a.localeCompare(b));
     logger.info({ output: outputTar, files: files.length }, 'Tar:Create');
 
+    const basePath = path.resolve(input);
     for (const file of files) {
-      const basePath = path.resolve(input);
-      const filePath = file.replace(basePath, '');
+      const filePath = file.replace(basePath, '').slice(1); // Remove the leading '/'
       await tarBuilder.write(filePath, await fsa.read(file));
     }
 
