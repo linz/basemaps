@@ -5,6 +5,7 @@ import { LogConfig, LogType } from '@basemaps/shared';
 import { promises as fs } from 'fs';
 import { TarBuilder } from '@cotar/tar';
 import { fsa } from '@chunkd/fs';
+import * as path from 'path';
 
 const Packing = 25; // Packing factor for the hash map
 const MaxSearch = 50; // Max search factor
@@ -60,18 +61,9 @@ export class CommandBundleAssets extends CommandLineAction {
     logger.info({ output: outputTar, files: files.length }, 'Tar:Create');
 
     for (const file of files) {
-      let fileName = file;
-      if (file.includes('fonts.json')) {
-        fileName = 'font.json';
-      } else if (file.includes('fonts')) {
-        fileName = file.substring(file.indexOf('fonts'));
-      } else if (file.includes('sprites')) {
-        fileName = file.substring(file.indexOf('sprites'));
-      } else {
-        logger.warn({ file }, 'Invalid Assets files');
-        continue;
-      }
-      await tarBuilder.write(fileName, await fsa.read(file));
+      const basePath = path.resolve(input);
+      const filePath = file.replace(basePath, '');
+      await tarBuilder.write(filePath, await fsa.read(file));
     }
 
     await tarBuilder.close();
