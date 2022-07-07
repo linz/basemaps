@@ -2,7 +2,7 @@ import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
-import { serveFromCotar } from '../cotar.cache';
+import { serveFromCotar } from '../cotar.cache.js';
 import { NotFound } from './response.js';
 
 interface FontGet {
@@ -19,7 +19,7 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
   if (assetLocation.endsWith('.tar.co')) return serveFromCotar(assetLocation, targetFile, 'application/x-protobuf');
 
   try {
-    const filePath = fsa.join(assetLocation, targetFile) + '.pbf';
+    const filePath = fsa.join(assetLocation, targetFile);
     const buf = await fsa.read(filePath);
 
     return LambdaHttpResponse.ok().buffer(buf, 'application/x-protobuf');
