@@ -2,7 +2,7 @@ import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import o from 'ospec';
-import { handler, handleRequest } from '../index.js';
+import { handler } from '../index.js';
 
 o.spec('LambdaXyz index', () => {
   function req(path: string, method = 'get'): LambdaHttpRequest {
