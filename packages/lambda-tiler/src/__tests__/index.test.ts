@@ -2,7 +2,7 @@ import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import o from 'ospec';
-import { handleRequest } from '../index.js';
+import { handler, handleRequest } from '../index.js';
 
 o.spec('LambdaXyz index', () => {
   function req(path: string, method = 'get'): LambdaHttpRequest {
@@ -36,7 +36,7 @@ o.spec('LambdaXyz index', () => {
       process.env.GIT_VERSION = '1.2.3';
       process.env.GIT_HASH = 'abc456';
 
-      const response = await handleRequest(req('/version'));
+      const response = await handler.router.handle(req('/v1/version'));
 
       o(response.status).equals(200);
       o(response.statusDescription).equals('ok');
@@ -49,7 +49,7 @@ o.spec('LambdaXyz index', () => {
   });
 
   o('should respond to /ping', async () => {
-    const res = await handleRequest(req('/ping'));
+    const res = await handler.router.handle(req('/v1/ping'));
     o(res.status).equals(200);
     o(res.statusDescription).equals('ok');
     o(res.header('cache-control')).equals('no-store');
