@@ -2,7 +2,7 @@ import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
-import { CotarCache, serveFromCotar } from '../cotar.cache';
+import { serveFromCotar } from '../cotar.cache';
 import { NotFound } from './response.js';
 
 interface FontGet {
