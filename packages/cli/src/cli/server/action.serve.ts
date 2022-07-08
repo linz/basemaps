@@ -1,12 +1,10 @@
+import { CommandLineAction } from '@rushstack/ts-command-line';
+
+import { createServer } from '@basemaps/server';
 import { Const, Env, LogConfig } from '@basemaps/shared';
-import { BaseCommandLine, CliInfo } from '@basemaps/shared/build/cli/base.js';
-import { createServer } from './server.js';
-
-CliInfo.package = 'basemaps/server';
-
 const DefaultPort = 5000;
 
-export class BasemapsServerCommand extends BaseCommandLine {
+export class CommandServe extends CommandLineAction {
   config = this.defineStringParameter({
     argumentName: 'CONFIG',
     parameterLongName: '--config',
@@ -24,24 +22,27 @@ export class BasemapsServerCommand extends BaseCommandLine {
     defaultValue: DefaultPort,
   });
 
-  constructor() {
+  public constructor() {
     super({
-      toolFilename: 'basemaps-server',
-      toolDescription: 'Create a WMTS/XYZ Tile server from basemaps config',
+      actionName: 'serve',
+      summary: 'Cli tool to create sprite sheet',
+      documentation: 'Create a sprite sheet from a folder of sprites',
     });
   }
 
-  async onExecute(): Promise<void> {
-    await super.onExecute();
+  protected onDefineParameters(): void {
+    //noop
+  }
 
+  protected async onExecute(): Promise<void> {
     const logger = LogConfig.get();
-    logger.level = 'debug';
+
     const config = this.config.value ?? 'dynamodb://' + Const.TileMetadata.TableName;
     const port = this.port.value;
     const assets = this.assets.value;
 
-    const ServerUrl = Env.get(Env.PublicUrlBase) ?? `http://localhost:${port}`;
     // Force a default url base so WMTS requests know their relative url
+    const ServerUrl = Env.get(Env.PublicUrlBase) ?? `http://localhost:${port}`;
     process.env[Env.PublicUrlBase] = ServerUrl;
 
     const server = await createServer({ config, assets }, logger);

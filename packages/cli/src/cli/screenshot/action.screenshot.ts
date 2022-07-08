@@ -1,12 +1,11 @@
-import { Config, Env, fsa, LogConfig, LogType } from '@basemaps/shared';
-import { mkdir } from 'fs/promises';
-import { Browser, chromium } from 'playwright';
-import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { z } from 'zod';
-import getPort from 'get-port';
 import { createServer } from '@basemaps/server';
+import { Env, fsa, LogConfig, LogType } from '@basemaps/shared';
+import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { FastifyInstance } from 'fastify/types/instance';
-import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
+import { mkdir } from 'fs/promises';
+import getPort from 'get-port';
+import { Browser, chromium } from 'playwright';
+import { z } from 'zod';
 
 export const DefaultTestTiles = './test-tiles/default.test.tiles.json';
 export const DefaultHost = 'basemaps.linz.govt.nz';
@@ -108,22 +107,11 @@ export class CommandScreenShot extends CommandLineAction {
   }
 
   async startServer(port: number, config: string, logger: LogType): Promise<FastifyInstance> {
-    // Bundle Config
-    const configJson = await fsa.readJson<ConfigBundled>(config);
-    const mem = ConfigProviderMemory.fromJson(configJson);
-    Config.setConfigProvider(mem);
-
-    // Setup the assets
-    if (this.assets.value) {
-      const isExists = await fsa.exists(this.assets.value);
-      if (!isExists) throw new Error('--asset path is missing');
-      process.env[Env.AssetLocation] = this.assets.value;
-    }
-
     // Start server
-    const server = createServer(logger);
+    const server = await createServer({ config, assets: this.assets.value }, logger);
     return await new Promise<FastifyInstance>((resolve) => server.listen(port, '0.0.0.0', () => resolve(server)));
   }
+
   async takeScreenshots(host: string, chrome: Browser, logger: LogType): Promise<void> {
     const tiles = this.tiles.value ?? DefaultTestTiles;
     const outputPath = this.output.value ?? DefaultOutput;
