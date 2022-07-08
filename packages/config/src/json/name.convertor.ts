@@ -1,7 +1,10 @@
 /** Ensure GSDs are listed with a "." not "-" eg 0-10m to 0.10m */
 function fixChunkGsd(chunk: string): string | null {
-  if (chunk.endsWith('m') && chunk.startsWith('0-')) return chunk.replace('0-', '0.');
-  return null;
+  if (!chunk.endsWith('m')) return null;
+  if (!chunk.includes('-')) return null;
+  const num = Number(chunk.replace('-', '.').slice(0, chunk.length - 1));
+  if (isNaN(num)) return null;
+  return String(num) + 'm';
 }
 /** convert a 2022-23 year into a full year 2022-2023 */
 function fixYear(chunk: string): string | null {
