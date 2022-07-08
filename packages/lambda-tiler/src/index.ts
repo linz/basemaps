@@ -38,12 +38,16 @@ handler.router.hook('response', (req) => {
     req.set('requestCount', St.requests.length);
   }
 });
+// TODO some internal health checks hit these routes, we should change them all to point at /v1/
+handler.router.get('/ping', Ping);
+handler.router.get('/health', Health);
+handler.router.get('/version', Version);
 
 handler.router.get('/v1/ping', Ping);
 handler.router.get('/v1/health', Health);
 handler.router.get('/v1/version', Version);
-handler.router.get('/v1/imagery/:imageryId/:fileName', imageryGet);
 
+handler.router.get('/v1/imagery/:imageryId/:fileName', imageryGet);
 handler.router.get('/v1/sprites/:spriteName', spriteGet);
 handler.router.get('/v1/fonts.json', fontList);
 handler.router.get('/v1/fonts/:fontStack/:range.pbf', fontGet);
