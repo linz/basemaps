@@ -142,50 +142,6 @@ o.spec('LambdaXyz', () => {
     }
   });
 
-  o.spec('WMTSCapabilities', () => {
-    o('should 304 if a xml is not modified', async () => {
-      delete process.env[Env.PublicUrlBase];
-      o.timeout(1000);
-      const key = 'QnfUoeKstGqCAbSHMxuzVB/6jXEht3ILdgnSd5ESjG4=';
-      const request = mockRequest('/v1/tiles/WMTSCapabilities.xml', 'get', {
-        'if-none-match': key,
-        ...apiKeyHeader,
-      });
-
-      const res = await handleRequest(request);
-
-      if (res.status === 200) {
-        o(res.header('eTaG')).equals(key); // this line is useful for discovering the new etag
-        return;
-      }
-
-      o(res.status).equals(304);
-      o(rasterMock.calls.length).equals(0);
-
-      o(request.logContext['cache']).deepEquals({ key, match: key, hit: true });
-    });
-
-    o('should serve WMTSCapabilities for tile_set', async () => {
-      const request = mockRequest('/v1/tiles/aerial@beta/WMTSCapabilities.xml', 'get', apiKeyHeader);
-
-      const res = await handleRequest(request);
-      o(res.status).equals(200);
-      o(res.header('content-type')).equals('text/xml');
-      o(res.header('cache-control')).equals('max-age=0');
-
-      const body = Buffer.from(res.body ?? '', 'base64').toString();
-      o(body.slice(0, 100)).equals(
-        '<?xml version="1.0" encoding="utf-8"?>\n' + '<Capabilities xmlns="http://www.opengis.net/wmts/1.0" xmlns:o',
-      );
-
-      const url = body.split('\n').find((f) => f.trim().startsWith('<ResourceURL'));
-      o(url?.trim()).equals(
-        '<ResourceURL format="image/jpeg" resourceType="tile" ' +
-          `template="https://tiles.test/v1/tiles/aerial@beta/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.jpeg?api=${apiKey}" />`,
-      );
-    });
-  });
-
   o.spec('tileJson', () => {
     o('should 404 if invalid url is given', async () => {
       const request = mockRequest('/v1/tiles/tile.json', 'get', apiKeyHeader);

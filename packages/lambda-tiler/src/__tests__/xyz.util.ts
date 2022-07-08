@@ -24,7 +24,12 @@ export function mockRequest(path: string, method = 'get', headers: Record<string
 export class FakeTileSet extends TileSetRaster {
   constructor(name: string, tileMatrix: TileMatrixSet, title = `${name}:title`, description = `${name}:description`) {
     super(name, tileMatrix);
-    this.tileSet = { title, description } as any;
+    this.tileSet = {
+      name,
+      title,
+      description,
+      layers: [{ name: `imagery_${name}`, [tileMatrix.projection.code]: `im_${title}` }],
+    } as any;
   }
 }
 

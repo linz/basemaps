@@ -4,6 +4,8 @@
  * @example
  * `name:layer`
  * `aerial:tasman_rural_2018-19_0-3m`
+ *
+ * @deprecated use direct tileset names `tasman-rural-2018-2019-0.3m`
  */
 export interface TileSetNameComponents {
   name: string;
@@ -20,6 +22,8 @@ export const TileSetNameParser = {
    * aerial@head:tasman_rural_2018-19_0-3m => {name: aerial, tag: head, layer: tasman_rural_2018-19_0-3m}
    *
    * @param name String to parse
+   *
+   * @deprecated use direct tileset names `tasman-rural-2018-2019-0.3m`
    */
   parse(name: string): TileSetNameComponents {
     const output: TileSetNameComponents = { name };

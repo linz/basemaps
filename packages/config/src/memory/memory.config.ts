@@ -99,6 +99,8 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       existing = {
         type: TileSetType.Raster,
         id: targetId,
+        title: i.title,
+        category: i.category,
         name: targetName,
         format: ImageFormat.Webp,
         layers: [{ name: targetName, minZoom: 0, maxZoom: 32 }],

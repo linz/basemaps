@@ -1,6 +1,5 @@
 import { ConfigImagery, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
-import { Epsg, GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
-import { Config, TileSetName } from '@basemaps/shared';
+import { GoogleTms } from '@basemaps/geo';
 import o from 'ospec';
 import sinon from 'sinon';
 import { TileSets } from '../tile.set.cache.js';
@@ -10,14 +9,6 @@ o.spec('TileSetCache', () => {
   const imageOne = {
     id: 'im_id1',
     name: 'tasman_rural_2018-19_0-3m',
-    bounds: { x: 123, y: 456, width: 200, height: 300 },
-    files: [{ name: 'foo', x: 123, y: 456, width: 200, height: 300 }],
-    uri: 's3://foo/bar',
-  } as ConfigImagery;
-
-  const imageTwo = {
-    id: 'im_id2',
-    name: 'wellington_urban_2018-19_0-3m',
     bounds: { x: 123, y: 456, width: 200, height: 300 },
     files: [{ name: 'foo', x: 123, y: 456, width: 200, height: 300 }],
     uri: 's3://foo/bar',
@@ -84,63 +75,6 @@ o.spec('TileSetCache', () => {
 
       const subTileSet = await TileSets.get('aerial@head:fake', GoogleTms);
       o(subTileSet).equals(null);
-    });
-  });
-
-  o.spec('loadTileSets', () => {
-    o('load all', async () => {
-      sandbox.stub(Config.TileSet, 'get');
-
-      TileSets.add(new TileSetRaster('aerial', GoogleTms));
-      TileSets.add(new TileSetRaster('aerial', Nztm2000QuadTms));
-      const tileSets = await TileSets.getAll('aerial', null);
-
-      o(tileSets.length).deepEquals(2);
-
-      o(tileSets[0].fullName).equals(TileSetName.aerial);
-      o(tileSets[0].components.name).equals(TileSetName.aerial);
-      o(tileSets[0].tileMatrix.projection.code).equals(3857);
-
-      o(tileSets[1].fullName).equals(TileSetName.aerial);
-      o(tileSets[1].components.name).equals(TileSetName.aerial);
-      o(tileSets[1].tileMatrix.projection.code).equals(2193);
-    });
-
-    o('load all subset projections', async () => {
-      sandbox.stub(Config.TileSet, 'get');
-
-      const ts1 = new TileSetRaster('aerial@head', Nztm2000QuadTms);
-      ts1.imagery = imgMap;
-      TileSets.add(ts1);
-      const ts2 = new TileSetRaster('aerial@head', GoogleTms);
-      ts2.imagery = imgMap;
-      TileSets.add(ts2);
-      const tileSets = await TileSets.getAll('aerial@head:tasman_rural_2018-19_0-3m', null);
-
-      o(tileSets.length).deepEquals(2);
-
-      o(tileSets[0].fullName).equals('aerial@head:tasman_rural_2018-19_0-3m');
-      o(tileSets[0].tileMatrix.projection).equals(Epsg.Google);
-      o(tileSets[1].fullName).equals('aerial@head:tasman_rural_2018-19_0-3m');
-      o(tileSets[1].tileMatrix.projection).equals(Epsg.Nztm2000);
-    });
-
-    o('load all @tag', async () => {
-      sandbox.stub(Config.TileSet, 'get');
-      const imgMap = new Map();
-      imgMap.set(imageOne.id, imageOne);
-      imgMap.set(imageTwo.id, imageTwo);
-      const ts1 = new TileSetRaster('aerial@head', Nztm2000QuadTms);
-      ts1.imagery = imgMap;
-      TileSets.add(ts1);
-
-      const tileSets = await TileSets.getAll('aerial@head', null);
-
-      o(tileSets.length).deepEquals(3);
-
-      o(tileSets[0].fullName).equals('aerial@head');
-      o(tileSets[1].fullName).equals('aerial@head:tasman_rural_2018-19_0-3m');
-      o(tileSets[2].fullName).equals('aerial@head:wellington_urban_2018-19_0-3m');
     });
   });
 });
