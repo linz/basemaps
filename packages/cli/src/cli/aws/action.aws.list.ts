@@ -5,6 +5,7 @@ export class CommandList extends CommandLineAction {
   private filter: CommandLineStringParameter;
   private output: CommandLineStringParameter;
   private group: CommandLineIntegerParameter;
+  private limit: CommandLineIntegerParameter;
   private config: CommandLineStringParameter;
 
   public constructor() {
@@ -25,6 +26,11 @@ export class CommandList extends CommandLineAction {
       argumentName: 'GROUP',
       parameterLongName: '--group',
       description: 'Group files into this number per group',
+    });
+    this.limit = this.defineIntegerParameter({
+      argumentName: 'LIMIT',
+      parameterLongName: '--limit',
+      description: 'Limit the file count to this amount, -1 is no limit',
     });
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
@@ -54,6 +60,7 @@ export class CommandList extends CommandLineAction {
     const outputPath = this.output.value;
     if (outputPath == null) throw new Error('Missing --output path');
 
+    const limit = this.limit.value ?? -1; // no limit by default
     const filter = this.filter.value ?? '*'; // Filter everything by default
 
     const outputFiles = new Set<string>();
@@ -65,10 +72,14 @@ export class CommandList extends CommandLineAction {
       const fileList = await fsa.toArray(asyncFilter(fsa.list(targetPath), filter));
       logger.debug({ path: targetPath, fileCount: fileList.length }, 'List:Count');
 
-      for (const file of fileList) outputFiles.add(file);
+      for (const file of fileList) {
+        outputFiles.add(file);
+        if (limit > 0 && outputFiles.size >= limit) break;
+      }
+      if (limit > 0 && outputFiles.size >= limit) break;
     }
 
-    if (this.group.value == null) {
+    if (this.group.value == null || this.group.value < 1) {
       await fsa.write(outputPath, JSON.stringify([...outputFiles.values()]));
     } else {
       await fsa.write(outputPath, JSON.stringify(chunkArray(outputFiles, this.group.value)));
