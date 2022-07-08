@@ -4,7 +4,6 @@ import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambd
 import { createHash } from 'crypto';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
-import { Router } from '../router.js';
 import { NotModified } from './response.js';
 import { TileEtag } from './tile.etag.js';
 
@@ -17,6 +16,10 @@ export function isAllowedFile(f: string): boolean {
   return false;
 }
 
+interface ImageryGet {
+  Params: { imageryId: string; fileName: string };
+}
+
 /**
  * Get metadata around the imagery such as the source bounding box or the bounding box of the COGS
  *
@@ -27,15 +30,14 @@ export function isAllowedFile(f: string): boolean {
  * - /v1/imagery/:imageryId/collection.json - STAC Collection
  * - /v1/imagery/:imageryId/15-32659-21603.json - STAC Item
  */
-export async function Imagery(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
-  const { rest } = Router.action(req);
-  const [imageryId, requestType] = rest;
-  if (!isAllowedFile(requestType)) return new LambdaHttpResponse(404, 'Not found');
+export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<LambdaHttpResponse> {
+  const requestedFile = req.params.fileName;
+  if (!isAllowedFile(requestedFile)) return new LambdaHttpResponse(404, 'Not found');
 
-  const imagery = await Config.Imagery.get(Config.Imagery.id(imageryId));
+  const imagery = await Config.Imagery.get(Config.Imagery.id(req.params.imageryId));
   if (imagery == null) return new LambdaHttpResponse(404, 'Not found');
 
-  const targetPath = fsa.join(imagery.uri, requestType);
+  const targetPath = fsa.join(imagery.uri, requestedFile);
 
   try {
     const buf = await fsa.read(targetPath);
