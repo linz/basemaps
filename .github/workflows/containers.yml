@@ -87,7 +87,7 @@ jobs:
       id-token: write
       contents: write
       checks: write
-    needs: [containers]
+    needs: [build-containers]
     name: validate screenshots
     if: github.ref != 'refs/heads/master' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
