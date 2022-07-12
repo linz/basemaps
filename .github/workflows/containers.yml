@@ -5,6 +5,10 @@ on: [push]
 jobs:
   build-containers:
     runs-on: ubuntu-latest
+
+    permissions:
+      id-token: read
+      contents: read
     steps:
       - uses: linz/action-typescript@v1
 
@@ -65,7 +69,7 @@ jobs:
           tags: ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }}
           push: ${{github.ref == 'refs/heads/master'}}
 
-      - name: (NonProd) AWS Configure
+      - name: (NonProd) Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1.6.1
         with:
           aws-region: ap-southeast-2
