@@ -8,7 +8,7 @@ import { CommandBundleAssets } from './config/action.bundle.assets.js';
 import { CommandBundle } from './config/action.bundle.js';
 import { CommandImport } from './config/action.import.js';
 import { CommandScreenShot } from './screenshot/action.screenshot.js';
-import { CommandServe } from './server/action.serve.js';
+// import { CommandServe } from './server/action.serve.js';
 import { CommandSprites } from './sprites/action.sprites.js';
 
 export class BasemapsConfigCommandLine extends BaseCommandLine {
