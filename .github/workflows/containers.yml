@@ -74,7 +74,7 @@ jobs:
       
       - name: (Screenshot) Screenshot Pull Request Changes
         run: |
-          docker run -v $PWD:$PWD ${DOCKER_AWS_ENV} ${BASEMAPS_CONTAINER} screenshot --config s3://${BASEMAPS_BUCKET}/config-latest.json.gz --assets s3://${BASEMAPS_BUCKET}/assets-latest.tar.co --tiles $PWD/packages/cli/test-tiles/default.test.tiles.json --output $PWD/.artifacts/visual-snapshots
+          docker run -v $PWD:$PWD ${DOCKER_AWS_ENV} ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }} screenshot --config s3://${BASEMAPS_BUCKET}/config-latest.json.gz --assets s3://${BASEMAPS_BUCKET}/assets-latest.tar.co --tiles $PWD/packages/cli/test-tiles/default.test.tiles.json --output $PWD/.artifacts/visual-snapshots
 
       - name: Save snapshots
         uses: getsentry/action-visual-snapshot@v2
@@ -87,7 +87,7 @@ jobs:
       id-token: write
       contents: write
       checks: write
-    needs: [Containers]
+    needs: [containers]
     name: validate screenshots
     if: github.ref != 'refs/heads/master' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
