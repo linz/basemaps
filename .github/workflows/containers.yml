@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: read
+      id-token: write
       contents: read
     steps:
       - uses: linz/action-typescript@v1
