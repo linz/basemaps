@@ -28,7 +28,7 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     this.addAction(new CommandScreenShot());
 
     this.addAction(new CommandSprites());
-    this.addAction(new CommandServe());
+    // this.addAction(new CommandServe());
 
     this.addAction(new CommandList());
   }
