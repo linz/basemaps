@@ -29,7 +29,7 @@ jobs:
       
       - name: (Screenshot) Screenshot Pull Request Changes
         run: |
-          ./packages/bin/bmc.js screenshot --config s3://${BASEMAPS_BUCKET}/config-latest.json.gz --assets s3://${BASEMAPS_BUCKET}/assets-latest.tar.co --tiles $PWD/packages/cli/test-tiles/default.test.tiles.json --output $PWD/.artifacts/visual-snapshots
+          ./packages/cli/bin/bmc.js screenshot --config s3://${BASEMAPS_BUCKET}/config-latest.json.gz --assets s3://${BASEMAPS_BUCKET}/assets-latest.tar.co --tiles $PWD/packages/cli/test-tiles/default.test.tiles.json --output $PWD/.artifacts/visual-snapshots
 
       - name: Save snapshots
         uses: getsentry/action-visual-snapshot@v2
