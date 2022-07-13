@@ -9,7 +9,6 @@ import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
 import { URL } from 'url';
-import { createGunzip } from 'zlib';
 
 function isAlbResult(r: ALBResult | CloudFrontRequestResult | APIGatewayProxyResultV2): r is ALBResult {
   if (typeof r !== 'object') return false;
