@@ -1,4 +1,4 @@
-import { Config, ConfigJson, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
+import { Config, ConfigBundled, ConfigJson, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { handler } from '@basemaps/lambda-tiler';
 import { Env, fsa, LogType } from '@basemaps/shared';
 import fastifyStatic from '@fastify/static';
@@ -9,6 +9,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
 import { URL } from 'url';
+import { createGunzip } from 'zlib';
 
 function isAlbResult(r: ALBResult | CloudFrontRequestResult | APIGatewayProxyResultV2): r is ALBResult {
   if (typeof r !== 'object') return false;
@@ -47,11 +48,11 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     const table = opts.config.slice('dynamodb://'.length);
     logger.info({ path: opts.config, table, mode: 'dynamo' }, 'Starting Server');
     Config.setConfigProvider(new ConfigProviderDynamo(table));
-  } else if (opts.config.endsWith('.json')) {
+  } else if (opts.config.endsWith('.json') || opts.config.endsWith('.json.gz')) {
     // Bundled config
     logger.info({ path: opts.config, mode: 'config:bundle' }, 'Starting Server');
-    const configJson = await fsa.read(opts.config);
-    const mem = ConfigProviderMemory.fromJson(JSON.parse(configJson.toString()));
+    const configJson = await fsa.readJson<ConfigBundled>(opts.config);
+    const mem = ConfigProviderMemory.fromJson(configJson);
     Config.setConfigProvider(mem);
   } else {
     const mem = await ConfigJson.fromPath(opts.config, logger);
