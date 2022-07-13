@@ -5,6 +5,8 @@ on: [push]
 jobs:
   screenshot:
     runs-on: ubuntu-latest
+    env:
+      BASEMAPS_BUCKET: linz-basemaps
 
     permissions:
       id-token: write

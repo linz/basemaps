@@ -1,26 +1,13 @@
-import { CommandLineAction } from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 
 import { createServer } from '@basemaps/server';
 import { Const, Env, LogConfig } from '@basemaps/shared';
 const DefaultPort = 5000;
 
 export class CommandServe extends CommandLineAction {
-  config = this.defineStringParameter({
-    argumentName: 'CONFIG',
-    parameterLongName: '--config',
-    description: 'Configuration source to use',
-  });
-  assets = this.defineStringParameter({
-    argumentName: 'ASSETS',
-    parameterLongName: '--assets',
-    description: 'Where the assets (sprites, fonts) are located',
-  });
-  port = this.defineIntegerParameter({
-    argumentName: 'PORT',
-    parameterLongName: '--port',
-    description: 'port to use',
-    defaultValue: DefaultPort,
-  });
+  config: CommandLineStringParameter;
+  assets: CommandLineStringParameter;
+  port: CommandLineIntegerParameter;
 
   public constructor() {
     super({
@@ -31,7 +18,22 @@ export class CommandServe extends CommandLineAction {
   }
 
   protected onDefineParameters(): void {
-    //noop
+    this.config = this.defineStringParameter({
+      argumentName: 'CONFIG',
+      parameterLongName: '--config',
+      description: 'Configuration source to use',
+    });
+    this.assets = this.defineStringParameter({
+      argumentName: 'ASSETS',
+      parameterLongName: '--assets',
+      description: 'Where the assets (sprites, fonts) are located',
+    });
+    this.port = this.defineIntegerParameter({
+      argumentName: 'PORT',
+      parameterLongName: '--port',
+      description: 'port to use',
+      defaultValue: DefaultPort,
+    });
   }
 
   protected async onExecute(): Promise<void> {
