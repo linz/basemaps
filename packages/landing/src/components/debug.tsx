@@ -232,7 +232,6 @@ export class Debug extends Component<
     this.loadSourceLayer(layerId, type).then(() => {
       if (map.getLayer(layerLineId) != null) return;
 
-      // if (type === 'source') {
       // Fill is needed to make the mouse move work even though it has opacity 0
       map.addLayer({
         id: layerFillId,
@@ -244,7 +243,6 @@ export class Debug extends Component<
         },
       });
       this.trackMouseMove(layerId, type);
-      // }
 
       map.addLayer({
         id: layerLineId,
