@@ -27,7 +27,12 @@ function debugSlider(
 
 export class Debug extends Component<
   { map: maplibregl.Map },
-  { lastFeatureId: string | number | undefined; lastFeatureName: string | undefined }
+  {
+    featureCogId: string | number | undefined;
+    featureCogName: string | undefined;
+    featureSourceId: string | number | undefined;
+    featureSourceName: string | undefined;
+  }
 > {
   componentDidMount(): void {
     this.waitForMap();
@@ -127,6 +132,12 @@ export class Debug extends Component<
           </label>
           <input type="checkbox" onClick={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
         </div>
+        {this.state.featureSourceId == null ? null : (
+          <div className="debug__info" title={String(this.state.featureCogName)}>
+            <label className="debug__label">CogId</label>
+            {String(this.state.featureCogName).split('/').pop()}
+          </div>
+        )}
       </Fragment>
     );
   }
@@ -145,10 +156,10 @@ export class Debug extends Component<
           </label>
           <input type="checkbox" onClick={this.toggleSource} checked={Config.map.debug['debug.source']} />
         </div>
-        {this.state.lastFeatureId == null ? null : (
-          <div className="debug__info" title={String(this.state.lastFeatureName)}>
+        {this.state.featureSourceId == null ? null : (
+          <div className="debug__info" title={String(this.state.featureSourceName)}>
             <label className="debug__label">SourceId</label>
-            {String(this.state.lastFeatureName).split('/').pop()}
+            {String(this.state.featureSourceName).split('/').pop()}
           </div>
         )}
       </Fragment>
@@ -169,12 +180,13 @@ export class Debug extends Component<
     this.setVectorShown(target.checked, 'source');
   };
 
-  trackMouseMove(layerId: string): void {
-    const sourceId = `${layerId}_source`;
+  trackMouseMove(layerId: string, type: 'source' | 'cog'): void {
+    const sourceId = `${layerId}_${type}`;
     const layerFillId = `${sourceId}_fill`;
     const map = this.props.map;
 
     let lastFeatureId: string | number | undefined;
+    const stateName = type === 'source' ? `featureSource` : `featureCog`;
     map.on('mousemove', layerFillId, (e) => {
       const features = e.features;
       if (features == null || features.length === 0) return;
@@ -183,7 +195,11 @@ export class Debug extends Component<
       if (lastFeatureId != null) map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: false });
 
       lastFeatureId = firstFeature.id;
-      this.setState({ ...this.state, lastFeatureId, lastFeatureName: firstFeature.properties?.['name'] });
+      this.setState({
+        ...this.state,
+        [`${stateName}Id`]: lastFeatureId,
+        [`${stateName}Name`]: firstFeature.properties?.['name'],
+      });
       map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: true });
     });
     map.on('mouseleave', layerFillId, () => {
@@ -191,7 +207,7 @@ export class Debug extends Component<
       map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: false });
 
       lastFeatureId = undefined;
-      this.setState({ ...this.state, lastFeatureId, lastFeatureName: undefined });
+      this.setState({ ...this.state, [`${stateName}Id`]: undefined, [`${stateName}Name`]: undefined });
     });
   }
 
@@ -216,19 +232,19 @@ export class Debug extends Component<
     this.loadSourceLayer(layerId, type).then(() => {
       if (map.getLayer(layerLineId) != null) return;
 
-      if (type === 'source') {
-        // Fill is needed to make the mouse move work even though it has opacity 0
-        map.addLayer({
-          id: layerFillId,
-          type: 'fill',
-          source: sourceId,
-          paint: {
-            'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.25, 0],
-            'fill-color': color,
-          },
-        });
-        this.trackMouseMove(layerId);
-      }
+      // if (type === 'source') {
+      // Fill is needed to make the mouse move work even though it has opacity 0
+      map.addLayer({
+        id: layerFillId,
+        type: 'fill',
+        source: sourceId,
+        paint: {
+          'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.25, 0],
+          'fill-color': color,
+        },
+      });
+      this.trackMouseMove(layerId, type);
+      // }
 
       map.addLayer({
         id: layerLineId,
