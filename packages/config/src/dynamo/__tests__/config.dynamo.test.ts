@@ -75,35 +75,34 @@ o.spec('ConfigDynamo', () => {
     o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
   });
 
-  o('should get without prefix', async () => {
+  o('should throw without prefix', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
-    const ret = await Config.TileSet.get('abc123');
+    const ret = await Config.TileSet.get('abc123').catch((e) => e);
 
-    o(fakeDynamo.get).deepEquals([{ Key: { id: { S: 'ts_abc123' } }, TableName: 'Foo' }]);
-    o(ret).deepEquals({ id: 'ts_abc123' } as ConfigTileSet);
-  });
-
-  o('should get-all without prefix', async () => {
-    fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
-    fakeDynamo.values.set('ts_abc456', { id: 'ts_abc456' });
-    const ret = await Config.TileSet.getAll(new Set(['abc123', 'ts_abc456']));
-
-    o(fakeDynamo.getAll[0].RequestItems.Foo.Keys).deepEquals([{ id: { S: 'ts_abc123' } }, { id: { S: 'ts_abc456' } }]);
-    o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
+    o(fakeDynamo.get).deepEquals([]);
+    o(String(ret)).deepEquals('Error: Trying to query "abc123" expected prefix of ts');
   });
 
   o('should get-all partial', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
-    const ret = await Config.TileSet.getAll(new Set(['abc123', 'ts_abc456']));
+    const ret = await Config.TileSet.getAll(new Set(['ts_abc123', 'ts_abc456']));
     o(fakeDynamo.getAll[0].RequestItems.Foo.Keys).deepEquals([{ id: { S: 'ts_abc123' } }, { id: { S: 'ts_abc456' } }]);
     o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
   });
 
-  o('should force a prefix even if prefix is defined', async () => {
-    const ret = await Config.TileSet.get('im_abc123');
+  o('should throw if on wrong prefix', async () => {
+    const ret = await Config.TileSet.get('im_abc123').catch((e) => e);
+    o(fakeDynamo.get).deepEquals([]);
+    o(String(ret)).deepEquals('Error: Trying to query "im_abc123" expected prefix of ts');
+  });
 
-    o(fakeDynamo.get).deepEquals([{ Key: { id: { S: 'ts_im_abc123' } }, TableName: 'Foo' }]);
-    o(ret).deepEquals(null);
+  o('should throw on prefixed and un-prefixed', async () => {
+    fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
+
+    const ret = Config.TileSet.getAll(new Set(['abc123', 'ts_abc123']));
+    const err = await ret.then(() => null).catch((e) => e);
+    o(String(err)).equals('Error: Trying to query "abc123" expected prefix of ts');
+    o(fakeDynamo.getAll).deepEquals([]);
   });
 
   o.spec('DynamoCached', () => {
@@ -113,7 +112,7 @@ o.spec('ConfigDynamo', () => {
 
       const cached = Config.Imagery as ConfigDynamoCached<ConfigImagery>;
       cached.cache.set('im_abc123', { id: 'im_abc123' } as ConfigImagery);
-      const ret = await Config.Imagery.getAll(new Set(['abc123', 'im_abc456']));
+      const ret = await Config.Imagery.getAll(new Set(['im_abc123', 'im_abc456']));
 
       o(fakeDynamo.getAll[0].RequestItems.Foo.Keys).deepEquals([{ id: { S: 'im_abc456' } }]);
       o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
@@ -124,14 +123,10 @@ o.spec('ConfigDynamo', () => {
 
       const cached = Config.Imagery as ConfigDynamoCached<ConfigImagery>;
       cached.cache.set('im_abc123', { id: 'im_abc123' } as ConfigImagery);
-      const ret = await Config.Imagery.get('abc123');
+      const ret = await Config.Imagery.get('im_abc123');
 
       o(fakeDynamo.get).deepEquals([]);
       o(ret).deepEquals({ id: 'im_abc123' } as ConfigImagery);
-
-      const retPrefixed = await Config.Imagery.get('im_abc123');
-      o(fakeDynamo.get).deepEquals([]);
-      o(retPrefixed).deepEquals({ id: 'im_abc123' } as ConfigImagery);
     });
   });
 });

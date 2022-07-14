@@ -65,34 +65,6 @@ o.spec('ConfigProvider.Imagery', () => {
     o(result.get('im_foo4')).deepEquals(item);
   });
 
-  o('should get un-prefixed', async () => {
-    const get = sandbox.stub(provider.dynamo, 'getItem').returns({ promise: () => Promise.resolve(null) } as any);
-    await provider.Imagery.get('foo1');
-    o(get.callCount).equals(1);
-    o(get.firstCall.args[0]).deepEquals({ Key: { id: { S: 'im_foo1' } }, TableName: 'Foo' } as any);
-  });
-
-  o('should getall un-prefixed', async () => {
-    const keys = ['foo1', 'im_foo2', 'foo3'];
-    const get = sandbox.stub(provider.dynamo, 'batchGetItem').returns({
-      promise: () =>
-        Promise.resolve({
-          Responses: {
-            [provider.tableName]: keys
-              .map((c) => Config.prefix(ConfigPrefix.Imagery, c))
-              .map((id) => {
-                return DynamoDB.Converter.marshall({ id });
-              }),
-          },
-        }),
-    } as any);
-    await provider.Imagery.getAll(new Set(keys));
-    o(get.callCount).equals(1);
-    o(get.firstCall.args[0]).deepEquals({
-      RequestItems: { Foo: { Keys: [{ id: { S: 'im_foo1' } }, { id: { S: 'im_foo2' } }, { id: { S: 'im_foo3' } }] } },
-    } as any);
-  });
-
   o('should handle unprocessed keys', async () => {
     const bulk = sandbox.stub(provider.dynamo, 'batchGetItem').callsFake((req: any) => {
       const keys = req.RequestItems[provider.tableName].Keys;
