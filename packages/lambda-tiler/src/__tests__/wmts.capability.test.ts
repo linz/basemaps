@@ -131,13 +131,13 @@ o.spec('WmtsCapabilities', () => {
     const layer = tags(wmts, 'Layer')[0];
 
     const title = layer.find('ows:Title')?.toString();
-    o(title).equals('<ows:Title>&#x1f984; &#x1f308; Imagery (2022)</ows:Title>');
+    o(title).equals('<ows:Title>🦄 🌈 Imagery (2022)</ows:Title>');
 
     const abstract = layer.find('ows:Abstract')?.toString();
-    o(abstract).equals('<ows:Abstract>&#x1f984; &#x1f308; Description</ows:Abstract>');
+    o(abstract).equals('<ows:Abstract>🦄 🌈 Description</ows:Abstract>');
 
     const identifier = layer.find('ows:Identifier')?.toString();
-    o(identifier).equals('<ows:Identifier>&#x1f984;-&#x1f308;-2022-0.5m</ows:Identifier>');
+    o(identifier).equals('<ows:Identifier>🦄-🌈-2022-0.5m</ows:Identifier>');
   });
 
   o('should build capability xml for tileset and projection', () => {
@@ -272,8 +272,8 @@ o.spec('WmtsCapabilities', () => {
     o(layers.length).equals(2);
     o(layers[0].find('ows:Title')?.textContent).equals('Aerial Imagery');
 
-    o(layers[1].find('ows:Title')?.textContent).equals('&#x14c;torohanga 0.1m Urban Aerial Photos (2021)');
-    o(layers[1].find('ows:Identifier')?.textContent).equals('&#x14d;torohanga-urban-2021-0.1m');
+    o(layers[1].find('ows:Title')?.textContent).equals('Ōtorohanga 0.1m Urban Aerial Photos (2021)');
+    o(layers[1].find('ows:Identifier')?.textContent).equals('ōtorohanga-urban-2021-0.1m');
     o(layers[1].find('ows:Keywords', 'ows:Keyword')?.textContent).equals('Urban Aerial Photos');
   });
 
