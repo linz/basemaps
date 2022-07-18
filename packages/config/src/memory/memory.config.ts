@@ -1,4 +1,6 @@
 import { ImageFormat } from '@basemaps/geo';
+import { createHash } from 'crypto';
+import { decodeTime, ulid } from 'ulid';
 import { BasemapsConfigObject, BasemapsConfigProvider, Config } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
@@ -7,8 +9,6 @@ import { ConfigProcessingJob } from '../config/processing.job.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
-import { ulid, decodeTime } from 'ulid';
-import { createHash } from 'crypto';
 import { standardizeLayerName } from '../json/name.convertor.js';
 
 /** bundle the configuration as a single JSON object */
@@ -24,6 +24,21 @@ export interface ConfigBundled {
 
 function isConfigImagery(i: BaseConfig): i is ConfigImagery {
   return Config.getPrefix(i.id) === ConfigPrefix.Imagery;
+}
+
+/** Force a unknown object into a Record<string, unknown> type */
+function isObject(obj: unknown): obj is Record<string, unknown> {
+  if (obj == null) return false;
+  if (typeof obj !== 'object') return false;
+  return true;
+}
+
+/** Remove all "undefined" keys from a object */
+function removeUndefined(obj: unknown): void {
+  if (!isObject(obj)) return;
+  for (const key of Object.keys(obj)) {
+    if (obj[key] === undefined) delete obj[key];
+  }
 }
 
 export class ConfigProviderMemory extends BasemapsConfigProvider {
@@ -107,6 +122,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
         background: { r: 0, g: 0, b: 0, alpha: 0 },
         updatedAt: Date.now(),
       } as ConfigTileSet;
+      removeUndefined(existing);
       this.put(existing);
     }
     // TODO this overwrites existing layers

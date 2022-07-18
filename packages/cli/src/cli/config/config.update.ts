@@ -62,6 +62,8 @@ export class Updater<S extends BaseConfig = BaseConfig> {
   async reconcile(): Promise<boolean> {
     const db = this.getDB();
 
+    if (this.config.id !== 'ts_topo50-gridless-2020-4.23m') return false;
+
     const oldData = await db.get(this.config.id);
     const newData = this.getConfig();
 
