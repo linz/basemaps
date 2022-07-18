@@ -94,7 +94,7 @@ o.spec('api.path', () => {
 
     o(tileWmtsFromPath([])).deepEquals({
       type: TileType.WMTS,
-      name: '',
+      name: 'aerial',
       tileMatrix: null,
     });
   });
