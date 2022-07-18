@@ -25,6 +25,14 @@ o.spec('VDom', () => {
 
     o(res.toString()).equals('<div>text &amp; ; &lt; &gt; &amp;amp;</div>');
   });
+
+  o('should not encode valid utf8', () => {
+    const res = V('div', 'Kaikōura 🦄 🌈');
+
+    o(res.textContent).equals('Kaikōura 🦄 🌈');
+    o(res.toString()).equals('<div>Kaikōura 🦄 🌈</div>');
+  });
+
   o('should create nodes', () => {
     const res = V('div', {}, V('b', [V('span', { style: 'color:red' }, 'text')]));
     o(res.toString()).equals('<div>\n  <b>\n    <span style="color:red">text</span>\n  </b>\n</div>');
