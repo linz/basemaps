@@ -1,10 +1,10 @@
-import { ConfigImagery, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
+import { ConfigImagery } from '@basemaps/config';
 import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability.js';
-import { Provider } from './xyz.util.js';
+import { Imagery2193, Imagery3857, Provider, TileSetAerial } from './config.data.js';
 
 function tags(node: VNodeElement | null | undefined, tag: string): VNodeElement[] {
   if (node == null) return [];
@@ -17,66 +17,16 @@ function listTag(node: VNodeElement | null | undefined, tag: string): string[] {
 o.spec('WmtsCapabilities', () => {
   const apiKey = 'secret1234';
 
-  const tileSetAerial: ConfigTileSetRaster = {
-    id: 'ts_aerial',
-    name: 'aerial',
-    type: TileSetType.Raster,
-    format: ImageFormat.Webp,
-    description: 'aerial__description',
-    title: 'Aerial Imagery',
-    category: 'Basemap',
-    layers: [
-      {
-        2193: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
-        3857: 'im_01FYWKATAEK2ZTJQ2PX44Y0XNT',
-        title: 'Ōtorohanga 0.1m Urban Aerial Photos (2021)',
-        category: 'Urban Aerial Photos',
-        name: 'ōtorohanga_urban_2021_0-1m_RGB',
-      },
-    ],
-  };
-  const imagery2193: ConfigImagery = {
-    id: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
-    name: 'ōtorohanga_urban_2021_0-1m_RGB',
-    title: 'Ōtorohanga 0.1m Urban Aerial Photos (2021)',
-    category: 'Urban Aerial Photos',
-    projection: 2193,
-    tileMatrix: 'NZTM2000Quad',
-    uri: 's3://linz-basemaps/2193/ōtorohanga_urban_2021_0-1m_RGB/01FYWKAJ86W9P7RWM1VB62KD0H',
-    bounds: {
-      x: 1757351.3044652338,
-      y: 5766358.996410044,
-      width: 40970.247160854284,
-      height: 26905.833956381306,
-    },
-    files: [],
-  };
-  const imagery3857: ConfigImagery = {
-    id: 'im_01FYWKATAEK2ZTJQ2PX44Y0XNT',
-    name: 'ōtorohanga_urban_2021_0-1m_RGB',
-    title: 'Ōtorohanga 0.1m Urban Aerial Photos (2021)',
-    category: 'Urban Aerial Photos',
-    projection: 3857,
-    tileMatrix: 'WebMercatorQuad',
-    uri: 's3://linz-basemaps/3857/ōtorohanga_urban_2021_0-1m_RGB/01FYWKATAEK2ZTJQ2PX44Y0XNT',
-    bounds: {
-      x: 19457809.920274343,
-      y: -4609458.55370921,
-      width: 51977.179234057665,
-      height: 30574.81131407339,
-    },
-    files: [],
-  };
   const allImagery = new Map();
-  allImagery.set(imagery2193.id, imagery2193);
-  allImagery.set(imagery3857.id, imagery3857);
+  allImagery.set(Imagery2193.id, Imagery2193);
+  allImagery.set(Imagery3857.id, Imagery3857);
 
   o('should output the requested formats', () => {
     const wmts = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       provider: Provider,
       tileMatrix: [GoogleTms],
-      tileSet: tileSetAerial,
+      tileSet: TileSetAerial,
       imagery: allImagery,
       apiKey,
       formats: [ImageFormat.Avif],
@@ -96,7 +46,7 @@ o.spec('WmtsCapabilities', () => {
       httpBase: 'https://basemaps.test',
       provider: Provider,
       tileMatrix: [GoogleTms],
-      tileSet: tileSetAerial,
+      tileSet: TileSetAerial,
       imagery: allImagery,
       apiKey,
       formats: [ImageFormat.Avif],
@@ -107,7 +57,7 @@ o.spec('WmtsCapabilities', () => {
   });
 
   o('should support unicorns and rainbows', () => {
-    const tileSet = { ...tileSetAerial };
+    const tileSet = { ...TileSetAerial };
     tileSet.name = '🦄_🌈_2022_0-5m';
     tileSet.title = '🦄 🌈 Imagery (2022)';
     tileSet.description = '🦄 🌈 Description';
@@ -142,12 +92,12 @@ o.spec('WmtsCapabilities', () => {
 
   o('should build capability xml for tileset and projection', () => {
     const imagery = new Map();
-    imagery.set(imagery3857.id, imagery3857);
+    imagery.set(Imagery3857.id, Imagery3857);
     const wmts = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       provider: Provider,
       tileMatrix: [GoogleTms],
-      tileSet: tileSetAerial,
+      tileSet: TileSetAerial,
       imagery,
       apiKey,
       isIndividualLayers: false,
@@ -199,7 +149,7 @@ o.spec('WmtsCapabilities', () => {
       httpBase: 'https://basemaps.test',
       provider: Provider,
       tileMatrix: [GoogleTms],
-      tileSet: tileSetAerial,
+      tileSet: TileSetAerial,
       imagery: allImagery,
       apiKey,
       isIndividualLayers: false,
@@ -240,13 +190,13 @@ o.spec('WmtsCapabilities', () => {
 
   o('should output individual imagery sets', () => {
     const imagery = new Map<string, ConfigImagery>();
-    imagery.set(imagery3857.id, imagery3857);
-    imagery.set(imagery2193.id, imagery2193);
+    imagery.set(Imagery3857.id, Imagery3857);
+    imagery.set(Imagery2193.id, Imagery2193);
     const raw = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       provider: Provider,
       tileMatrix: [GoogleTms],
-      tileSet: tileSetAerial,
+      tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
       isIndividualLayers: true,
@@ -279,13 +229,13 @@ o.spec('WmtsCapabilities', () => {
 
   o('should support multiple projections', () => {
     const imagery = new Map<string, ConfigImagery>();
-    imagery.set(imagery3857.id, imagery3857);
-    imagery.set(imagery2193.id, imagery2193);
+    imagery.set(Imagery3857.id, Imagery3857);
+    imagery.set(Imagery2193.id, Imagery2193);
     const raw = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       provider: Provider,
       tileMatrix: [GoogleTms, Nztm2000QuadTms],
-      tileSet: tileSetAerial,
+      tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
       isIndividualLayers: false,
@@ -350,7 +300,7 @@ o.spec('WmtsCapabilities', () => {
       httpBase: 'https://basemaps.test',
       provider: Provider,
       tileMatrix: [Nztm2000QuadTms],
-      tileSet: tileSetAerial,
+      tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
       isIndividualLayers: true,
@@ -359,12 +309,12 @@ o.spec('WmtsCapabilities', () => {
     const layers = tags(raw, 'Layer');
     o(layers.length).equals(1);
 
-    imagery.set(imagery3857.id, imagery3857);
+    imagery.set(Imagery3857.id, Imagery3857);
     const rawB = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       provider: Provider,
       tileMatrix: [Nztm2000QuadTms],
-      tileSet: tileSetAerial,
+      tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
       isIndividualLayers: true,

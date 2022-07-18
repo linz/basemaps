@@ -1,4 +1,3 @@
-import { ConfigProvider } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
@@ -39,32 +38,3 @@ export class FakeTileSetVector extends TileSetVector {
     this.tileSet = {} as any;
   }
 }
-
-export const Provider: ConfigProvider = {
-  name: 'main',
-  id: 'pv_main_production',
-  updatedAt: Date.now(),
-  version: 1,
-  serviceIdentification: {
-    accessConstraints: 'the accessConstraints',
-    description: 'the description',
-    fees: 'the fees',
-    title: 'the title',
-  },
-  serviceProvider: {
-    contact: {
-      address: {
-        city: 'the city',
-        country: 'the country',
-        deliveryPoint: 'the deliveryPoint',
-        email: 'email address',
-        postalCode: 'the postalCode',
-      },
-      individualName: 'the contact name',
-      phone: 'the phone',
-      position: 'the position',
-    },
-    name: 'the name',
-    site: 'https://example.provider.com',
-  },
-};
