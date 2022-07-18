@@ -51,8 +51,6 @@ export class TileSetRaster {
   components: TileSetNameComponents;
   tileSet: ConfigTileSetRaster;
 
-  keywords: string[] = [];
-
   constructor(name: string, tileMatrix: TileMatrixSet) {
     this.components = TileSetNameParser.parse(name);
     this.tileMatrix = tileMatrix;
@@ -86,7 +84,7 @@ export class TileSetRaster {
 
   async init(record: ConfigTileSetRaster): Promise<void> {
     this.tileSet = record;
-    this.imagery = await Config.getAllImagery(this.tileSet.layers, this.tileMatrix.projection);
+    this.imagery = await Config.getAllImagery(this.tileSet.layers, [this.tileMatrix.projection]);
   }
 
   async initTiffs(tile: Tile, log: LogType): Promise<CogTiff[]> {
@@ -218,7 +216,7 @@ export class TileSetRaster {
     child.tileSet.title = image.title ?? `${title} ${titleizeImageryName(image.name)}`;
     child.extentOverride = Bounds.fromJson(image.bounds);
 
-    if (image.category) child.keywords.push(image.category);
+    if (image.category) child.tileSet.category = image.category;
 
     const layer: ConfigLayer = { name: image.name, minZoom: 0, maxZoom: 100 };
     layer[this.tileMatrix.projection.code] = image.id;

@@ -48,11 +48,13 @@ export class ConfigInstance {
     return s.type === TileSetType.Vector;
   }
 
-  async getAllImagery(layers: ConfigLayer[], projection: Epsg): Promise<Map<string, ConfigImagery>> {
+  async getAllImagery(layers: ConfigLayer[], projections: Epsg[]): Promise<Map<string, ConfigImagery>> {
     const imgIds = new Set<string>();
-    for (const layer of layers) {
-      const imgId = layer[projection.code];
-      if (imgId) imgIds.add(this.Imagery.id(imgId));
+    for (const projection of projections) {
+      for (const layer of layers) {
+        const imgId = layer[projection.code];
+        if (imgId) imgIds.add(this.Imagery.id(imgId));
+      }
     }
     return this.Imagery.getAll(imgIds);
   }

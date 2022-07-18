@@ -1,8 +1,9 @@
-import { Bounds, ImageFormat, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
+import { Config, ConfigImagery, ConfigLayer, ConfigTileSet, standardizeLayerName } from '@basemaps/config';
+import { Bounds, GoogleTms, ImageFormat, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
 import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
+import { BoundingBox } from '@cogeotiff/core';
 import { BBox, Wgs84 } from '@linzjs/geojson';
-import { TileSetRaster } from './tile.set.raster.js';
 
 const CapabilitiesAttrs = {
   xmlns: 'http://www.opengis.net/wmts/1.0',
@@ -15,55 +16,74 @@ const CapabilitiesAttrs = {
   version: '1.0.0',
 };
 
-function wgs84Extent(layer: TileSetRaster): BBox {
-  return Projection.get(layer.tileMatrix).boundsToWgs84BoundingBox(layer.extent);
+function wgs84Extent(tileMatrix: TileMatrixSet, bbox: BoundingBox): BBox {
+  return Projection.get(tileMatrix).boundsToWgs84BoundingBox(bbox);
 }
 
 export interface WmtsCapabilitiesParams {
+  /** Base URL for tile server */
   httpBase: string;
   provider?: WmtsProvider;
-  layers: TileSetRaster[];
+  /** Tileset to export into WMTS */
+  tileSet: ConfigTileSet;
+  /** List of tile matrixes to output */
+  tileMatrix: TileMatrixSet[];
+  /** Should WMTS Layers be created for each imagery set inside this tileSet */
+  isIndividualLayers: boolean;
+  /** All the imagery used by the tileSet and tileMatrixes */
+  imagery: Map<string, ConfigImagery>;
+  /** API key to append to all resource urls */
   apiKey?: string;
+  /** Limit the output to the following image formats other wise @see ImageFormatOrder */
   formats?: ImageFormat[];
 }
 
 export class WmtsCapabilities {
   httpBase: string;
   provider?: WmtsProvider;
-
-  layers: Map<string, TileSetRaster[]> = new Map();
-
+  tileSet: ConfigTileSet;
   apiKey?: string;
   tileMatrixSets = new Map<string, TileMatrixSet>();
+  imagery: Map<string, ConfigImagery>;
   formats: ImageFormat[];
+  isIndividualLayers = false;
 
   constructor(params: WmtsCapabilitiesParams) {
     this.httpBase = params.httpBase;
     this.provider = params.provider;
-
-    for (const layer of params.layers) {
-      // TODO is grouping by name the best option
-      let existing = this.layers.get(layer.fullName);
-      if (existing == null) {
-        existing = [];
-        this.layers.set(layer.fullName, existing);
-      }
-      // TODO should a error be thrown here if the projection is invalid
-      existing.push(layer);
-      this.tileMatrixSets.set(layer.tileMatrix.identifier, layer.tileMatrix);
-    }
+    this.tileSet = params.tileSet;
+    this.isIndividualLayers = params.isIndividualLayers;
+    for (const tms of params.tileMatrix) this.tileMatrixSets.set(tms.identifier, tms);
     this.apiKey = params.apiKey;
     this.formats = params.formats ?? ImageFormatOrder;
+    this.imagery = params.imagery;
   }
 
-  buildWgs84BoundingBox(layers: TileSetRaster[], tagName = 'ows:WGS84BoundingBox'): VNodeElement {
-    let bbox = wgs84Extent(layers[0]);
-    for (let i = 1; i < layers.length; ++i) {
-      bbox = Wgs84.union(bbox, wgs84Extent(layers[i]));
+  async loadImagery(): Promise<void> {
+    const ids = new Set<string>();
+    for (const tms of this.tileMatrixSets.values()) {
+      for (const layer of this.tileSet.layers) {
+        const layerId = layer[tms.projection.code];
+        if (layerId != null) ids.add(layerId);
+      }
+    }
+    this.imagery = await Config.Imagery.getAll(ids);
+  }
+
+  buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {
+    let bbox: BBox;
+    if (layers.length > 0) {
+      bbox = wgs84Extent(tms, layers[0]);
+      for (let i = 1; i < layers.length; i++) {
+        bbox = Wgs84.union(bbox, wgs84Extent(tms, layers[i]));
+      }
+    } else {
+      // No layers provided assume extent is the size of the tile matrix set :shrug: ?
+      bbox = wgs84Extent(tms, tms.extent);
     }
 
     return V(
-      tagName,
+      'ows:WGS84BoundingBox',
       { crs: 'urn:ogc:def:crs:OGC:2:84' },
       bbox[2] > 180
         ? [V('ows:LowerCorner', `-180 -90`), V('ows:UpperCorner', `180 90`)]
@@ -71,8 +91,20 @@ export class WmtsCapabilities {
     );
   }
 
-  buildBoundingBox(tms: TileMatrixSet, extent: Bounds): VNodeElement {
-    const bbox = extent.toBbox();
+  /** Combine all the bounds of the imagery inside the layers into a extent for the imagery set */
+  buildBoundingBoxFromImagery(tms: TileMatrixSet, layers: ConfigLayer[]): VNodeElement | null {
+    let bounds;
+    for (const layer of layers) {
+      const imgId = layer[tms.projection.code];
+      if (imgId == null) continue;
+      const img = this.imagery.get(imgId);
+      if (img == null) continue;
+      if (bounds == null) bounds = Bounds.fromJson(img.bounds);
+      else bounds = bounds.union(Bounds.fromJson(img.bounds));
+    }
+    if (bounds == null) return null;
+
+    const bbox = bounds.toBbox();
     return V('ows:BoundingBox', { crs: tms.projection.toUrn() }, [
       V('ows:LowerCorner', `${bbox[tms.indexX]} ${bbox[tms.indexY]}`),
       V('ows:UpperCorner', `${bbox[tms.indexX + 2]} ${bbox[tms.indexY + 2]}`),
@@ -114,13 +146,13 @@ export class WmtsCapabilities {
     ];
   }
 
-  buildTileUrl(tileSet: TileSetRaster, suffix: string): string {
+  buildTileUrl(tileSetId: string, suffix: string): string {
     const apiSuffix = this.apiKey ? `?api=${this.apiKey}` : '';
     return [
       this.httpBase,
       'v1',
       'tiles',
-      tileSet.fullName,
+      tileSetId,
       '{TileMatrixSet}',
       '{TileMatrix}',
       '{TileCol}',
@@ -128,43 +160,89 @@ export class WmtsCapabilities {
     ].join('/');
   }
 
-  buildResourceUrl(tileSet: TileSetRaster, suffix: string): VNodeElement {
+  buildResourceUrl(tileSetId: string, suffix: string): VNodeElement {
     return V('ResourceURL', {
       format: 'image/' + suffix,
       resourceType: 'tile',
-      template: this.buildTileUrl(tileSet, suffix),
+      template: this.buildTileUrl(tileSetId, suffix),
     });
   }
 
-  buildLayer(layers: TileSetRaster[]): VNodeElement {
-    const matrixSets = new Set<string>();
+  buildLayerFromImagery(layer: ConfigLayer): VNodeElement | null {
+    const matrixSets = new Set<TileMatrixSet>();
     const matrixSetNodes: VNodeElement[] = [];
-    for (const layer of layers) {
-      if (matrixSets.has(layer.tileMatrix.identifier)) continue;
-      matrixSets.add(layer.tileMatrix.identifier);
-      matrixSetNodes.push(V('TileMatrixSetLink', [V('TileMatrixSet', layer.tileMatrix.identifier)]));
+    for (const tms of this.tileMatrixSets.values()) {
+      const imdIg = layer[tms.projection.code];
+      if (imdIg == null) continue;
+      const img = this.imagery.get(imdIg);
+      if (img == null) continue;
+      matrixSetNodes.push(V('TileMatrixSetLink', [V('TileMatrixSet', tms.identifier)]));
+      matrixSets.add(tms);
     }
 
-    const [firstLayer] = layers;
+    const layerNameId = standardizeLayerName(layer.name);
+    const matrixSetList = [...matrixSets.values()];
+    const firstMatrix = matrixSetList[0];
+    if (firstMatrix == null) return null;
+    const firstImg = this.imagery.get(layer[firstMatrix.projection.code] ?? '');
+    if (firstImg == null) return null;
+
     return V('Layer', [
-      V('ows:Title', firstLayer.title),
-      V('ows:Abstract', firstLayer.description),
-      V('ows:Identifier', firstLayer.fullName),
-      this.buildKeywords(firstLayer),
-      ...layers.map((layer) => this.buildBoundingBox(layer.tileMatrix, layer.extent)),
-      this.buildWgs84BoundingBox(layers),
+      V('ows:Title', layer.title ?? layerNameId),
+      V('ows:Abstract', ''),
+      V('ows:Identifier', layerNameId),
+      this.buildKeywords(firstImg),
+      ...matrixSetList.map((tms) => {
+        return this.buildBoundingBoxFromImagery(tms, [layer]);
+      }),
+      this.buildWgs84BoundingBox(firstMatrix, [Bounds.fromJson(firstImg.bounds)]),
       this.buildStyle(),
       ...this.formats.map((fmt) => V('Format', 'image/' + fmt)),
       ...matrixSetNodes,
-      ...this.formats.map((fmt) => this.buildResourceUrl(firstLayer, fmt)),
+      ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt)),
     ]);
   }
 
-  buildKeywords(layer: TileSetRaster): VNodeElement {
-    return V(
-      'ows:Keywords',
-      layer.keywords.map((keyword) => V('ows:Keyword', keyword)),
-    );
+  buildLayer(layer: ConfigTileSet): VNodeElement {
+    const matrixSets = new Set<TileMatrixSet>();
+    const matrixSetNodes: VNodeElement[] = [];
+    for (const tms of this.tileMatrixSets.values()) {
+      if (layer.layers.find((f) => f[tms.projection.code] != null)) {
+        matrixSetNodes.push(V('TileMatrixSetLink', [V('TileMatrixSet', tms.identifier)]));
+        matrixSets.add(tms);
+      }
+    }
+    const layerNameId = standardizeLayerName(layer.name);
+    const matrixSetList = [...matrixSets.values()];
+    const firstMatrix = matrixSetList[0];
+    if (firstMatrix == null) throw new Error('No matrix sets found for layer ' + layer.name);
+
+    // Prefer using the web mercator tms for bounds
+    const webMercatorOrFirst = matrixSetList.find((f) => f.identifier === GoogleTms.identifier) ?? firstMatrix;
+    const bounds: Bounds[] = [];
+    for (const l of layer.layers) {
+      const img = this.imagery.get(l[webMercatorOrFirst.projection.code] ?? '');
+      if (img == null) continue;
+      bounds.push(Bounds.fromJson(img.bounds));
+    }
+
+    return V('Layer', [
+      V('ows:Title', layer.title ?? layerNameId),
+      V('ows:Abstract', layer.description ?? ''),
+      V('ows:Identifier', layerNameId),
+      this.buildKeywords(layer),
+      ...[...matrixSets.values()].map((tms) => this.buildBoundingBoxFromImagery(tms, layer.layers)),
+      this.buildWgs84BoundingBox(webMercatorOrFirst, bounds),
+      this.buildStyle(),
+      ...this.formats.map((fmt) => V('Format', 'image/' + fmt)),
+      ...matrixSetNodes,
+      ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt)),
+    ]);
+  }
+
+  buildKeywords(tileSet: { category?: string }): VNodeElement {
+    if (tileSet.category == null) return V('ows:Keywords');
+    return V('ows:Keywords', [V('ows:Keyword', tileSet.category)]);
   }
 
   buildStyle(): VNodeElement {
@@ -192,10 +270,18 @@ export class WmtsCapabilities {
     ]);
   }
   toVNode(): VNodeElement {
-    const layers: VNodeElement[] = [];
-    for (const tileSets of this.layers.values()) {
-      layers.push(this.buildLayer(tileSets));
+    const layers: (VNodeElement | null)[] = [];
+    layers.push(this.buildLayer(this.tileSet));
+
+    if (this.isIndividualLayers) {
+      const layerByName = new Map<string, ConfigLayer>();
+      // Dedupe the layers by unique name
+      for (const img of this.tileSet.layers) layerByName.set(standardizeLayerName(img.name), img);
+      for (const img of layerByName.values()) {
+        layers.push(this.buildLayerFromImagery(img));
+      }
     }
+
     for (const tms of this.tileMatrixSets.values()) layers.push(this.buildTileMatrixSet(tms));
 
     return V('Capabilities', CapabilitiesAttrs, [...this.buildProvider(), V('Contents', layers)]);

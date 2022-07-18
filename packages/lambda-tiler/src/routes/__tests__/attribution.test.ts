@@ -363,7 +363,7 @@ o.spec('attribution', () => {
       const res = await attribution(request);
 
       o(res.status).equals(200);
-      o(res.header(HttpHeader.ETag)).equals('3edkgmltK4/LUyTCTYU9MeiNSwlfUvJAx/qORSisUzM=');
+      o(res.header(HttpHeader.ETag)).equals('GAwx9M7X1ygnn2kr9KPCin2gcaGq7DwYMY1dCpJj3no=');
       o(res.header(HttpHeader.CacheControl)).equals('public, max-age=86400, stale-while-revalidate=604800');
 
       const body = round(JSON.parse(res.body as string), 4);
@@ -372,10 +372,9 @@ o.spec('attribution', () => {
 
     o('should 304 with etag match', async () => {
       const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`, 'get', {
-        [HttpHeader.IfNoneMatch]: '3edkgmltK4/LUyTCTYU9MeiNSwlfUvJAx/qORSisUzM=',
+        [HttpHeader.IfNoneMatch]: 'GAwx9M7X1ygnn2kr9KPCin2gcaGq7DwYMY1dCpJj3no=',
       });
       const res = await attribution(request);
-
       o(res.status).equals(304);
     });
 

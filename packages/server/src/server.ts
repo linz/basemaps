@@ -52,6 +52,7 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     logger.info({ path: opts.config, mode: 'config:bundle' }, 'Starting Server');
     const configJson = await fsa.read(opts.config);
     const mem = ConfigProviderMemory.fromJson(JSON.parse(configJson.toString()));
+    mem.createVirtualTileSets();
     Config.setConfigProvider(mem);
   } else {
     const mem = await ConfigJson.fromPath(opts.config, logger);

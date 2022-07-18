@@ -56,7 +56,7 @@ o.spec('ConfigProvider.Imagery', () => {
 
     const layers = [{ [3857]: 'foo1' }, { [3857]: 'im_foo2' }, { [2193]: 'foo3', [3857]: 'im_foo4' }] as any;
 
-    const result = await Config.getAllImagery(layers, Epsg.Google);
+    const result = await Config.getAllImagery(layers, [Epsg.Google]);
     o(get.callCount).equals(1);
     o([...get.firstCall.firstArg.keys()]).deepEquals(['im_foo1', 'im_foo2', 'im_foo4']);
     o(result.get('im_foo1')).deepEquals(item);

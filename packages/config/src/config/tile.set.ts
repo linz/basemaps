@@ -10,6 +10,17 @@ export interface ConfigLayer extends Partial<Record<EpsgCode, string>> {
   /** Layer name*/
   name: string;
 
+  /** Human friendly display name for the layer */
+  title?: string;
+
+  /**
+   * Keywords used to categorize the tileset
+   * @example
+   * - Bathymetry
+   * - Satellite Imagery
+   */
+  category?: string;
+
   /** Minimal zoom to show the layer @default 0 */
   minZoom?: number;
 
@@ -20,8 +31,18 @@ export interface ConfigLayer extends Partial<Record<EpsgCode, string>> {
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
 
 export interface ConfigTileSetBase extends BaseConfig {
+  /** Human friendly display name for the tileset */
   title?: string;
+
+  /** Human friendly description of the tileset */
   description?: string;
+
+  /**
+   * Keywords used to categorize the tileset
+   * @example
+   * - Basemap
+   */
+  category?: string;
 
   /**
    * The rendering layer for imagery in this tileset
@@ -33,6 +54,7 @@ export interface ConfigTileSetBase extends BaseConfig {
 
   /** Minimum zoom level for this tileSet @default 0 */
   minZoom?: number;
+
   /** Maximum zoom level for this tileSet @default 30 */
   maxZoom?: number;
 }

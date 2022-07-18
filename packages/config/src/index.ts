@@ -25,3 +25,4 @@ export { ConfigProviderMemory, ConfigBundled } from './memory/memory.config.js';
 export { TileSetNameComponents, TileSetNameParser } from './tile.set.name.js';
 export { parseHex, parseRgba } from './color.js';
 export { ConfigJson } from './json/json.config.js';
+export { standardizeLayerName } from './json/name.convertor.js';
