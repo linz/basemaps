@@ -1,4 +1,4 @@
-import { Epsg, EpsgCode, NamedBounds, QuadKey, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import o from 'ospec';
 import sinon from 'sinon';
@@ -8,14 +8,6 @@ import { ConfigPrefix } from '../../index.js';
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
 const sandbox = sinon.createSandbox();
-
-export function qkToNamedBounds(quadKeys: string[]): NamedBounds[] {
-  const tms = TileMatrixSets.get(EpsgCode.Google);
-  return quadKeys.map((qk) => ({
-    name: TileMatrixSet.tileToName(QuadKey.toTile(qk)),
-    ...tms.tileToSourceBounds(QuadKey.toTile(qk)),
-  }));
-}
 
 o.spec('ConfigProvider.Imagery', () => {
   const provider = new ConfigProviderDynamo('Foo');

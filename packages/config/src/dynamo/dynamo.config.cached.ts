@@ -5,11 +5,12 @@ export class ConfigDynamoCached<T extends BaseConfig> extends ConfigDynamoBase<T
   cache: Map<string, T> = new Map();
 
   public async get(id: string): Promise<T | null> {
-    let existing: T | null | undefined = this.cache.get(id);
+    const queryKey = this.ensureId(id);
+    let existing: T | null | undefined = this.cache.get(queryKey);
     if (existing == null) {
-      existing = await super.get(id);
+      existing = await super.get(queryKey);
       if (existing == null) return null;
-      this.cache.set(id, existing);
+      this.cache.set(queryKey, existing);
     }
 
     return existing;
@@ -20,11 +21,12 @@ export class ConfigDynamoCached<T extends BaseConfig> extends ConfigDynamoBase<T
     const toFetch = new Set<string>();
 
     for (const id of ids) {
-      const existing = this.cache.get(id);
+      const queryKey = this.ensureId(id);
+      const existing = this.cache.get(queryKey);
       if (existing == null) {
-        toFetch.add(id);
+        toFetch.add(queryKey);
       } else {
-        output.set(id, existing);
+        output.set(queryKey, existing);
       }
     }
 
