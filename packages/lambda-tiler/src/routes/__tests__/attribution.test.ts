@@ -9,10 +9,11 @@ import sinon from 'sinon';
 const sandbox = sinon.createSandbox();
 import { TileSets } from '../../tile.set.cache.js';
 import { TileSetRaster } from '../../tile.set.raster.js';
-import { FakeTileSet, mockRequest, Provider } from '../../__tests__/xyz.util.js';
+import { FakeTileSet, mockRequest } from '../../__tests__/xyz.util.js';
 import { attribution, createAttributionCollection } from '../attribution.js';
 import { TileEtag } from '../tile.etag.js';
 import { Attribution } from '@basemaps/attribution';
+import { Provider } from '../../__tests__/config.data.js';
 
 const ExpectedJson = {
   id: 'aerial_WebMercatorQuad',

@@ -8,7 +8,8 @@ import { handleRequest } from '../index.js';
 import { TileEtag } from '../routes/tile.etag.js';
 import { TileSets } from '../tile.set.cache.js';
 import { TileComposer } from '../tile.set.raster.js';
-import { FakeTileSet, FakeTileSetVector, mockRequest, Provider } from './xyz.util.js';
+import { Provider } from './config.data.js';
+import { FakeTileSet, FakeTileSetVector, mockRequest } from './xyz.util.js';
 
 const sandbox = sinon.createSandbox();
 

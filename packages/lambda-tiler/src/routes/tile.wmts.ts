@@ -40,8 +40,7 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
   req.timer.end('tileset:load');
   if (tileSet == null || tileSet.type !== TileSetType.Raster) return NotFound;
 
-  const providerId = Config.Provider.id('linz');
-  const provider = await Config.Provider.get(providerId);
+  const provider = await Config.Provider.get(Config.Provider.id('linz'));
 
   const tileMatrix = wmtsData.tileMatrix == null ? [GoogleTms, Nztm2000QuadTms] : [wmtsData.tileMatrix];
   req.timer.start('imagery:load');

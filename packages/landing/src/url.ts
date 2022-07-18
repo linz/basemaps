@@ -71,7 +71,7 @@ export const WindowUrl = {
 
   toBaseWmts(): string {
     const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
-    return `${this.baseUrl()}/v1/tiles/WMTSCapabilities.xml${api}`;
+    return `${this.baseUrl()}/v1/tiles/aerial/WMTSCapabilities.xml${api}`;
   },
 
   toImageryUrl(layerId: string, imageryType: string): string {
