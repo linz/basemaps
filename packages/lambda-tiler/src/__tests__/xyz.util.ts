@@ -1,4 +1,3 @@
-import { ConfigProvider } from '@basemaps/config';
 import { TileMatrixSet } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
