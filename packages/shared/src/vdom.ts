@@ -1,4 +1,4 @@
-import { encodeXML } from 'entities';
+import { escapeUTF8 } from 'entities';
 
 export type VNodeInput = string | number | VNode;
 
@@ -36,7 +36,7 @@ export class VNodeText extends VNode {
   }
 
   get textContent(): string {
-    return encodeXML(this.text);
+    return escapeUTF8(this.text);
   }
 
   set textContent(v: string) {
