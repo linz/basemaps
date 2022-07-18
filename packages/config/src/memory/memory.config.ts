@@ -27,9 +27,9 @@ function isConfigImagery(i: BaseConfig): i is ConfigImagery {
 }
 
 /** Force a unknown object into a Record<string, unknown> type */
-function isObject(obj: unknown): obj is Record<string, unknown> {
-  if (obj == null) return false;
+export function isObject(obj: unknown): obj is Record<string, unknown> {
   if (typeof obj !== 'object') return false;
+  if (obj == null || Array.isArray(obj)) return false;
   return true;
 }
 
