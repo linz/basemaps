@@ -277,9 +277,10 @@ export class WmtsCapabilities {
       const layerByName = new Map<string, ConfigLayer>();
       // Dedupe the layers by unique name
       for (const img of this.tileSet.layers) layerByName.set(standardizeLayerName(img.name), img);
-      for (const img of layerByName.values()) {
-        layers.push(this.buildLayerFromImagery(img));
-      }
+      const orderedLayers = Array.from(layerByName.values()).sort((a, b) =>
+        (a.title ?? a.name).localeCompare(b.title ?? b.name),
+      );
+      for (const img of orderedLayers) layers.push(this.buildLayerFromImagery(img));
     }
 
     for (const tms of this.tileMatrixSets.values()) layers.push(this.buildTileMatrixSet(tms));
