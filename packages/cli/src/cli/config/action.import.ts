@@ -13,7 +13,7 @@ export class CommandImport extends CommandLineAction {
   /** List of paths to invalidate at the end of the request */
   invalidations: string[] = [];
   /** List of paths to invalidate at the end of the request */
-  backupConfig: ConfigProviderMemory;
+  backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
 
   public constructor() {
     super({
@@ -47,6 +47,7 @@ export class CommandImport extends CommandLineAction {
     logger.level = 'trace';
     const commit = this.commit.value ?? false;
     const config = this.config.value;
+    const backup = this.backup.value;
     if (config == null) throw new Error('Please provide a config json');
 
     const HostPrefix = Env.isProduction() ? '' : 'dev.';
@@ -79,6 +80,10 @@ export class CommandImport extends CommandLineAction {
 
       const res = await fetch(healthEndpoint);
       if (!res.ok) throw new Error('Basemaps is unhealthy');
+    }
+
+    if (backup) {
+      await fsa.writeJson(backup, this.backupConfig.toJson());
     }
 
     if (commit !== true) logger.info('DryRun:Done');
