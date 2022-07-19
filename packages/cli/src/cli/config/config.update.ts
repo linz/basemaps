@@ -57,12 +57,10 @@ export class Updater<S extends BaseConfig = BaseConfig> {
     else return `/v1/tiles/${this.config.id.slice(3)}/*`;
   }
 
-  async getOldData(): Promise<ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null> {
+  getOldData(): Promise<ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null> {
     if (this._oldData) return this._oldData;
-    const db = this.getDB();
-    const oldData = db.get(this.config.id);
-    this._oldData = oldData;
-    return oldData;
+    this._oldData = this.getDB().get(this.config.id);
+    return this._oldData;
   }
 
   /**
