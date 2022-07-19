@@ -8,6 +8,7 @@ export const DefaultOutput = 'config/config.json';
 export class CommandBundle extends CommandLineAction {
   private config: CommandLineStringParameter;
   private output: CommandLineStringParameter;
+  private assets: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -28,6 +29,11 @@ export class CommandBundle extends CommandLineAction {
       parameterLongName: '--output',
       description: 'Output of the bundle file',
     });
+    this.assets = this.defineStringParameter({
+      argumentName: 'ASSETS',
+      parameterLongName: '--assets',
+      description: 'Add assets location into the config bundle file',
+    });
   }
 
   async onExecute(): Promise<void> {
@@ -35,7 +41,10 @@ export class CommandBundle extends CommandLineAction {
     const config = this.config.value ?? DefaultConfig;
     const bundle = this.output.value ?? DefaultOutput;
     const mem = await ConfigJson.fromPath(config, logger);
-    await fsa.writeJson(bundle, mem.toJson());
+    const configJson = mem.toJson();
+    const assets = this.assets.value;
+    if (assets) configJson.assets = assets;
+    await fsa.writeJson(bundle, configJson);
     logger.info({ path: bundle }, 'ConfigBundled');
     return;
   }
