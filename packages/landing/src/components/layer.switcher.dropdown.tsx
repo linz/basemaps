@@ -1,4 +1,3 @@
-import { EpsgCode } from '@basemaps/geo';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
