@@ -92,12 +92,11 @@ export class CommandImport extends CommandLineAction {
   update(config: BaseConfig, commit: boolean): void {
     const promise = Q(async (): Promise<boolean> => {
       const updater = new Updater(config, commit);
-      const db = updater.getDB();
 
       const hasChanges = await updater.reconcile();
       if (hasChanges) {
         this.invalidations.push(updater.invalidatePath());
-        const oldData = await db.get(config.id);
+        const oldData = await updater.getOldData();
         if (oldData != null) this.backupConfig.put(oldData); // No need to backup anything if there is new insert
       } else {
         this.backupConfig.put(config);

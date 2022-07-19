@@ -17,6 +17,7 @@ export const Q = PLimit(10);
 
 export class Updater<S extends BaseConfig = BaseConfig> {
   config: S;
+  oldData: ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null;
   prefix: string;
   isCommit: boolean;
   logger: LogType;
@@ -56,15 +57,20 @@ export class Updater<S extends BaseConfig = BaseConfig> {
     else return `/v1/tiles/${this.config.id.slice(3)}/*`;
   }
 
+  async getOldData(): Promise<ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null> {
+    if (this.oldData) return this.oldData;
+    const db = this.getDB();
+    const oldData = await db.get(this.config.id);
+    return oldData;
+  }
+
   /**
    * Reconcile the differences between the config and the tile metadata DB and update if changed.
    */
   async reconcile(): Promise<boolean> {
-    const db = this.getDB();
-
-    const oldData = await db.get(this.config.id);
     const newData = this.getConfig();
-
+    const db = this.getDB();
+    const oldData = await this.getOldData();
     if (oldData == null || ConfigDiff.showDiff(db.prefix, oldData, newData, this.logger)) {
       const operation = oldData == null ? 'Insert' : 'Update';
       this.logger.info({ type: db.prefix, record: newData.id, commit: this.isCommit }, `Change:${operation}`);
