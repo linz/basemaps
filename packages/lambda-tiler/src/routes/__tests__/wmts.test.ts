@@ -41,6 +41,18 @@ o.spec('GetImageFormats', () => {
     const formats = getImageFormats(req);
     o(formats).deepEquals([ImageFormat.Png, ImageFormat.Jpeg]);
   });
+
+  o('should support "tileFormat" Alias all formats', () => {
+    const req = newRequest('/v1/blank', 'tileFormat=png&format=jpeg');
+    const formats = getImageFormats(req);
+    o(formats).deepEquals([ImageFormat.Jpeg, ImageFormat.Png]);
+  });
+
+  o('should not duplicate "tileFormat" alias all formats', () => {
+    const req = newRequest('/v1/blank', 'tileFormat=jpeg&format=jpeg');
+    const formats = getImageFormats(req);
+    o(formats).deepEquals([ImageFormat.Jpeg]);
+  });
 });
 
 o.spec('WMTSRouting', () => {

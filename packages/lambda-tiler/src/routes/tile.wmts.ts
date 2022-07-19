@@ -10,8 +10,8 @@ import { NotFound, NotModified } from './response.js';
 import { TileEtag } from './tile.etag.js';
 
 export function getImageFormats(req: LambdaHttpRequest): ImageFormat[] | undefined {
-  const formats = req.query.getAll('format');
-  if (formats == null || formats.length === 0) return undefined;
+  const formats = [...req.query.getAll('format'), ...req.query.getAll('tileFormat')];
+  if (formats.length === 0) return;
 
   const output: Set<ImageFormat> = new Set();
   for (const fmt of formats) {
@@ -19,7 +19,7 @@ export function getImageFormats(req: LambdaHttpRequest): ImageFormat[] | undefin
     if (parsed == null) continue;
     output.add(parsed);
   }
-  if (output.size === 0) return undefined;
+  if (output.size === 0) return;
   return [...output.values()];
 }
 
