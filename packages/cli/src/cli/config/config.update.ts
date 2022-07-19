@@ -17,7 +17,7 @@ export const Q = PLimit(10);
 
 export class Updater<S extends BaseConfig = BaseConfig> {
   config: S;
-  oldData: ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null;
+  _oldData: Promise<ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null>;
   prefix: string;
   isCommit: boolean;
   logger: LogType;
@@ -58,9 +58,10 @@ export class Updater<S extends BaseConfig = BaseConfig> {
   }
 
   async getOldData(): Promise<ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null> {
-    if (this.oldData) return this.oldData;
+    if (this._oldData) return this._oldData;
     const db = this.getDB();
-    const oldData = await db.get(this.config.id);
+    const oldData = db.get(this.config.id);
+    this._oldData = oldData;
     return oldData;
   }
 
