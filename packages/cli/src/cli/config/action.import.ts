@@ -6,11 +6,14 @@ import { invalidateCache } from '../util.js';
 
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;
+  private backup: CommandLineStringParameter;
   private commit: CommandLineFlagParameter;
 
   promises: Promise<boolean>[] = [];
   /** List of paths to invalidate at the end of the request */
   invalidations: string[] = [];
+  /** List of paths to invalidate at the end of the request */
+  backupConfig: ConfigProviderMemory;
 
   public constructor() {
     super({
@@ -26,6 +29,11 @@ export class CommandImport extends CommandLineAction {
       parameterLongName: '--config',
       description: 'Path of config json',
       required: true,
+    });
+    this.backup = this.defineStringParameter({
+      argumentName: 'BACKUP',
+      parameterLongName: '--backup',
+      description: 'Backup the old config into a config bundle json',
     });
     this.commit = this.defineFlagParameter({
       parameterLongName: '--commit',
@@ -79,10 +87,19 @@ export class CommandImport extends CommandLineAction {
   update(config: BaseConfig, commit: boolean): void {
     const promise = Q(async (): Promise<boolean> => {
       const updater = new Updater(config, commit);
+      const db = updater.getDB();
+
       const hasChanges = await updater.reconcile();
-      if (hasChanges) this.invalidations.push(updater.invalidatePath());
+      if (hasChanges) {
+        this.invalidations.push(updater.invalidatePath());
+        const oldData = await db.get(config.id);
+        if (oldData != null) this.backupConfig.put(oldData); // No need to backup anything if there is new insert
+      } else {
+        this.backupConfig.put(config);
+      }
       return true;
     });
+
     this.promises.push(promise);
   }
 }
