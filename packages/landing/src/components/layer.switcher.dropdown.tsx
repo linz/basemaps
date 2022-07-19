@@ -1,4 +1,3 @@
-import { EpsgCode } from '@basemaps/geo';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
@@ -47,19 +46,10 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
       <div class="LuiDeprecatedForms">
         <h6>Layers</h6>
         <select onChange={this.onChange} value={this.state.currentLayer}>
-          <optgroup label="Basemaps">
-            <option value="aerial"> Aerial Imagery</option>
-            {this.renderTopographicLayer()}
-          </optgroup>
           {this.renderAerialLayers()}
         </select>
       </div>
     );
-  }
-
-  renderTopographicLayer(): ComponentChild | null {
-    if (Config.map.tileMatrix.projection.code !== EpsgCode.Google) return;
-    return <option value="topographic::topographic">Topographic</option>;
   }
 
   renderAerialLayers(): ComponentChild {
