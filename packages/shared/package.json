@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/shared",
-  "version": "6.29.0",
+  "version": "6.30.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@basemaps/config": "^6.29.0",
+    "@basemaps/config": "^6.30.0",
     "@basemaps/geo": "^6.28.1",
     "@basemaps/tiler": "^6.29.0",
     "@chunkd/source-aws-v2": "^8.4.0",

@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** allow /v1/tiles/WMTSCapabilities.xml and default to using "aerial" ([#2329](https://github.com/linz/basemaps/issues/2329)) ([4615d3a](https://github.com/linz/basemaps/commit/4615d3a776fb6f5b9bed86824b931224469ed278))
+* **shared:** assume vdom output is always utf8 ([#2327](https://github.com/linz/basemaps/issues/2327)) ([f458132](https://github.com/linz/basemaps/commit/f458132d8c0cdf93e1e2ddb9d9d7638fff18c141))
+
+
+### Features
+
+* **cli:** add cli for listing, filtering and grouping files in AWS ([#2281](https://github.com/linz/basemaps/issues/2281)) ([b4dec98](https://github.com/linz/basemaps/commit/b4dec98c3006161972250f7a535423d874b1dd4e))
+* **cli:** allow using a local path for role configuration ([#2282](https://github.com/linz/basemaps/issues/2282)) ([e985ea2](https://github.com/linz/basemaps/commit/e985ea26ef70edd2beb5a5d474932a3a3ed1f4b1))
+* **shared:** update wmts titles to use imagery title and category ([#2285](https://github.com/linz/basemaps/issues/2285)) ([2580636](https://github.com/linz/basemaps/commit/25806362b322e075bb25ce058e6e56d582b84320))
+
+
+
+
+
 # [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
 
 

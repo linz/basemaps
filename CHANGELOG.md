@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
+
+
+### Bug Fixes
+
+* **cli:**  serve was sometimes crashing due to parameters being defined too early ([#2321](https://github.com/linz/basemaps/issues/2321)) ([5dc92b7](https://github.com/linz/basemaps/commit/5dc92b75d6ce0df5c342b02ec18fc64263e45635))
+* **cli:** ensure diff is printed for changes ([#2328](https://github.com/linz/basemaps/issues/2328)) ([653fdb9](https://github.com/linz/basemaps/commit/653fdb9e98b74c08a2155d10f316c89658ead73e))
+* **cli:** when group is negative dont group ([#2283](https://github.com/linz/basemaps/issues/2283)) ([c812bf2](https://github.com/linz/basemaps/commit/c812bf264147425acc7eda9903ea4196b8410c1d))
+* **config:** improve handling of GSD math when standardizing layer names ([#2313](https://github.com/linz/basemaps/issues/2313)) ([cc8a14c](https://github.com/linz/basemaps/commit/cc8a14cf06c9aab47d3da7d680eec665a12fc1f6))
+* **lambda-tiler:** allow /v1/tiles/WMTSCapabilities.xml and default to using "aerial" ([#2329](https://github.com/linz/basemaps/issues/2329)) ([4615d3a](https://github.com/linz/basemaps/commit/4615d3a776fb6f5b9bed86824b931224469ed278))
+* **lambda-tiler:** unescape %20 when looking for fonts ([#2305](https://github.com/linz/basemaps/issues/2305)) ([a64a626](https://github.com/linz/basemaps/commit/a64a626bd345ceb09ddf65031b01aa0910998fa3))
+* **landing:** disable vector tiles in nztm ([#2319](https://github.com/linz/basemaps/issues/2319)) ([6c6acd5](https://github.com/linz/basemaps/commit/6c6acd5747af853577269f853b4109f02a61e05f))
+* **landing:** do not duplicate the basemap layers in the layer selector ([#2330](https://github.com/linz/basemaps/issues/2330)) ([c1e73f4](https://github.com/linz/basemaps/commit/c1e73f431503d26affb96648925328e93bb9ba5a))
+* **landing:** lookup epsg code for layers from the tile matrix id ([#2302](https://github.com/linz/basemaps/issues/2302)) ([bd36eba](https://github.com/linz/basemaps/commit/bd36eba474966c52cf9a7bf14d5da39a26e06fdb))
+* **landing:** Remove the check for layer switcher ([#2294](https://github.com/linz/basemaps/issues/2294)) ([43cd22b](https://github.com/linz/basemaps/commit/43cd22b5f82969fda540945c638a149a833072db))
+* **landing:** wait for map to be actually loaded before adding a "#map-loaded" div ([#2298](https://github.com/linz/basemaps/issues/2298)) ([1b18400](https://github.com/linz/basemaps/commit/1b18400924c50f2096e16d20f4434cf82fee5e26))
+* **shared:** assume vdom output is always utf8 ([#2327](https://github.com/linz/basemaps/issues/2327)) ([f458132](https://github.com/linz/basemaps/commit/f458132d8c0cdf93e1e2ddb9d9d7638fff18c141))
+
+
+### Features
+
+* **cli:** Add assets location into bundle json file. ([#2334](https://github.com/linz/basemaps/issues/2334)) ([f90a6be](https://github.com/linz/basemaps/commit/f90a6bea904fc22f7dbe5417be8642b837ba692f))
+* **cli:** add bmc serve to create a server from a bundled config ([#2306](https://github.com/linz/basemaps/issues/2306)) ([700c729](https://github.com/linz/basemaps/commit/700c7295ddae15d436bbf1932757c88feb4686ea))
+* **cli:** add cli for listing, filtering and grouping files in AWS ([#2281](https://github.com/linz/basemaps/issues/2281)) ([b4dec98](https://github.com/linz/basemaps/commit/b4dec98c3006161972250f7a535423d874b1dd4e))
+* **cli:** Add output path for the dump screenshots. ([#2300](https://github.com/linz/basemaps/issues/2300)) ([3358caa](https://github.com/linz/basemaps/commit/3358caa231a45ad5f9166e7ed147a2ef07d4615c))
+* **cli:** allow using a local path for role configuration ([#2282](https://github.com/linz/basemaps/issues/2282)) ([e985ea2](https://github.com/linz/basemaps/commit/e985ea26ef70edd2beb5a5d474932a3a3ed1f4b1))
+* **cli:** install playwright and basemaps/landing for the screenshot util ([#2286](https://github.com/linz/basemaps/issues/2286)) ([4e6559b](https://github.com/linz/basemaps/commit/4e6559be31da2f2eb578533fc8c88667ea27dca4))
+* **cli:** Merge sprites cli into @basemaps/cli and update screenshot cli to support server assets. ([#2275](https://github.com/linz/basemaps/issues/2275)) ([0ee4f83](https://github.com/linz/basemaps/commit/0ee4f83bb26132fe387e66d039181ce2a3eb70d2))
+* **cli:** New cli to bundle the assets into cotar file. ([#2311](https://github.com/linz/basemaps/issues/2311)) ([d632301](https://github.com/linz/basemaps/commit/d632301c69240fccc2e6a52851ac0ad1f6cc840a))
+* **cli:** update import cli to optional output backup database  ([#2331](https://github.com/linz/basemaps/issues/2331)) ([4ee5603](https://github.com/linz/basemaps/commit/4ee56033446c464eb92101fa8ca866b0abd3a7e1))
+* **config:** add category and title to imagery ([#2278](https://github.com/linz/basemaps/issues/2278)) ([4d5d8e7](https://github.com/linz/basemaps/commit/4d5d8e79d87d42cc7f79f77949f7129df66fe3a0))
+* **config:** create virtual tileset by imagery name ([#2309](https://github.com/linz/basemaps/issues/2309)) ([50ca2b5](https://github.com/linz/basemaps/commit/50ca2b5af5e63ff8b6fd2bee64df51def90a301c))
+* **config:** ensure ids are prefixed before querying with them ([#2322](https://github.com/linz/basemaps/issues/2322)) ([ad0d3c4](https://github.com/linz/basemaps/commit/ad0d3c42a851767a8dadca2d7feb9965c78aa2f8))
+* **config:** make layer names more standard ([#2308](https://github.com/linz/basemaps/issues/2308)) ([8be654c](https://github.com/linz/basemaps/commit/8be654c7ee037aa413283b903f0bb49ad242407d))
+* **lambda-tiler:** allow serving assets from a cotar file ([#2310](https://github.com/linz/basemaps/issues/2310)) ([ba43fa5](https://github.com/linz/basemaps/commit/ba43fa5ce93cd92b97f47ea865842aa3b3f61f89))
+* **lambda-tiler:** order wmts extra layers by name ([#2332](https://github.com/linz/basemaps/issues/2332)) ([114b366](https://github.com/linz/basemaps/commit/114b366ced1844ab921ce6c8695c51b8bebf0cee))
+* **lambda-tiler:** prefer using route handler for managing routes ([#2312](https://github.com/linz/basemaps/issues/2312)) ([3c481dd](https://github.com/linz/basemaps/commit/3c481dd60032f277d38a7cf5bc0ec69a21aefb3b))
+* **landing:** support ?tileFormat as a alias to format BM-636 ([#2333](https://github.com/linz/basemaps/issues/2333)) ([9b646b0](https://github.com/linz/basemaps/commit/9b646b07f62bc146e1c211bbd743c6d42743a65a))
+* use better names for WMTS ([#2314](https://github.com/linz/basemaps/issues/2314)) ([fbbf6c1](https://github.com/linz/basemaps/commit/fbbf6c140afe54b1a0227a15766bcc045a19bab2))
+* **lambda-tiler:** prefer WebMercatorQuad for tileMatrix name over EPSG:3857 ([#2295](https://github.com/linz/basemaps/issues/2295)) ([a35f239](https://github.com/linz/basemaps/commit/a35f23986d78d18d1204b0993d78faffc434cba3))
+* **shared:** update wmts titles to use imagery title and category ([#2285](https://github.com/linz/basemaps/issues/2285)) ([2580636](https://github.com/linz/basemaps/commit/25806362b322e075bb25ce058e6e56d582b84320))
+
+
+
+
+
 # [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
 
 

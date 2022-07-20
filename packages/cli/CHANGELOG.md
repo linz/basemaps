@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
+
+
+### Bug Fixes
+
+* **cli:**  serve was sometimes crashing due to parameters being defined too early ([#2321](https://github.com/linz/basemaps/issues/2321)) ([5dc92b7](https://github.com/linz/basemaps/commit/5dc92b75d6ce0df5c342b02ec18fc64263e45635))
+* **cli:** ensure diff is printed for changes ([#2328](https://github.com/linz/basemaps/issues/2328)) ([653fdb9](https://github.com/linz/basemaps/commit/653fdb9e98b74c08a2155d10f316c89658ead73e))
+* **cli:** when group is negative dont group ([#2283](https://github.com/linz/basemaps/issues/2283)) ([c812bf2](https://github.com/linz/basemaps/commit/c812bf264147425acc7eda9903ea4196b8410c1d))
+
+
+### Features
+
+* **cli:** Add assets location into bundle json file. ([#2334](https://github.com/linz/basemaps/issues/2334)) ([f90a6be](https://github.com/linz/basemaps/commit/f90a6bea904fc22f7dbe5417be8642b837ba692f))
+* **cli:** add bmc serve to create a server from a bundled config ([#2306](https://github.com/linz/basemaps/issues/2306)) ([700c729](https://github.com/linz/basemaps/commit/700c7295ddae15d436bbf1932757c88feb4686ea))
+* **cli:** add cli for listing, filtering and grouping files in AWS ([#2281](https://github.com/linz/basemaps/issues/2281)) ([b4dec98](https://github.com/linz/basemaps/commit/b4dec98c3006161972250f7a535423d874b1dd4e))
+* **cli:** Add output path for the dump screenshots. ([#2300](https://github.com/linz/basemaps/issues/2300)) ([3358caa](https://github.com/linz/basemaps/commit/3358caa231a45ad5f9166e7ed147a2ef07d4615c))
+* **cli:** allow using a local path for role configuration ([#2282](https://github.com/linz/basemaps/issues/2282)) ([e985ea2](https://github.com/linz/basemaps/commit/e985ea26ef70edd2beb5a5d474932a3a3ed1f4b1))
+* **cli:** install playwright and basemaps/landing for the screenshot util ([#2286](https://github.com/linz/basemaps/issues/2286)) ([4e6559b](https://github.com/linz/basemaps/commit/4e6559be31da2f2eb578533fc8c88667ea27dca4))
+* **cli:** Merge sprites cli into @basemaps/cli and update screenshot cli to support server assets. ([#2275](https://github.com/linz/basemaps/issues/2275)) ([0ee4f83](https://github.com/linz/basemaps/commit/0ee4f83bb26132fe387e66d039181ce2a3eb70d2))
+* **cli:** New cli to bundle the assets into cotar file. ([#2311](https://github.com/linz/basemaps/issues/2311)) ([d632301](https://github.com/linz/basemaps/commit/d632301c69240fccc2e6a52851ac0ad1f6cc840a))
+* **cli:** update import cli to optional output backup database  ([#2331](https://github.com/linz/basemaps/issues/2331)) ([4ee5603](https://github.com/linz/basemaps/commit/4ee56033446c464eb92101fa8ca866b0abd3a7e1))
+
+
+
+
+
 # [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
 
 
