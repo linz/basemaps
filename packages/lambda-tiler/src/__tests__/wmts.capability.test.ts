@@ -90,6 +90,46 @@ o.spec('WmtsCapabilities', () => {
     o(identifier).equals('<ows:Identifier>🦄-🌈-2022-0.5m</ows:Identifier>');
   });
 
+  o('should sort the sub imagery layers', () => {
+    const imageryA = { ...Imagery3857 };
+    imageryA.id = 'im_a';
+    imageryA.name = 'aaaa';
+    imageryA.title = 'aaaa';
+
+    const imageryB = { ...Imagery3857 };
+    imageryB.id = 'im_b';
+    imageryB.name = 'bbbb';
+    imageryB.title = 'bbbb';
+
+    const imagery = new Map();
+    imagery.set(Imagery3857.id, Imagery3857);
+    imagery.set(imageryB.id, imageryB);
+    imagery.set(imageryA.id, imageryA);
+    const tileSet = {
+      ...TileSetAerial,
+      layers: [
+        ...TileSetAerial.layers,
+        { [3857]: imageryB.id, title: imageryB.title, name: imageryB.name },
+        { [3857]: imageryA.id, title: imageryA.title, name: imageryA.name },
+      ],
+    };
+
+    const wmts = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet,
+      imagery,
+      apiKey,
+      isIndividualLayers: true,
+    }).toVNode();
+
+    const layers = tags(wmts, 'Layer').map((c) => c.find('ows:Title')?.textContent);
+
+    // The base layer "Aerial Imagery" should always be first then all sub layers after
+    o(layers).deepEquals(['Aerial Imagery', 'aaaa', 'bbbb', 'Ōtorohanga 0.1m Urban Aerial Photos (2021)']);
+  });
+
   o('should build capability xml for tileset and projection', () => {
     const imagery = new Map();
     imagery.set(Imagery3857.id, Imagery3857);
