@@ -9,6 +9,7 @@ import { ConfigTileSet } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
 import { ConfigDynamoBase } from './dynamo.config.base.js';
 import { ConfigDynamoCached } from './dynamo.config.cached.js';
+import { ConfigBundle } from '../config/config.bundle.js';
 
 export class ConfigProviderDynamo extends BasemapsConfigProvider {
   Prefix = ConfigPrefix;
@@ -22,6 +23,7 @@ export class ConfigProviderDynamo extends BasemapsConfigProvider {
   TileSet = new ConfigDynamoBase<ConfigTileSet>(this, ConfigPrefix.TileSet);
   Provider = new ConfigDynamoCached<ConfigProvider>(this, ConfigPrefix.Provider);
   ProcessingJob = new ConfigDynamoBase<ConfigProcessingJob>(this, ConfigPrefix.ProcessingJob);
+  ConfigBundle = new ConfigDynamoBase<ConfigBundle>(this, ConfigPrefix.ConfigBundle);
 
   constructor(tableName: string) {
     super();

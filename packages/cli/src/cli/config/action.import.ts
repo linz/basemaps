@@ -1,5 +1,5 @@
 import { Env, fsa, LogConfig } from '@basemaps/shared';
-import { BaseConfig, ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
+import { BaseConfig, Config, ConfigBundle, ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { Q, Updater } from './config.update.js';
 import { invalidateCache } from '../util.js';
@@ -27,7 +27,7 @@ export class CommandImport extends CommandLineAction {
     this.config = this.defineStringParameter({
       argumentName: 'CONFIG',
       parameterLongName: '--config',
-      description: 'Path of config json',
+      description: 'Path of config json, this can be both a local path or s3 location',
       required: true,
     });
     this.backup = this.defineStringParameter({
@@ -49,6 +49,8 @@ export class CommandImport extends CommandLineAction {
     const config = this.config.value;
     const backup = this.backup.value;
     if (config == null) throw new Error('Please provide a config json');
+    if (commit && !config.startsWith('s3://'))
+      throw new Error('To acturally import into dynamo has to use the config file from s3.');
 
     const HostPrefix = Env.isProduction() ? '' : 'dev.';
     const healthEndpoint = `https://${HostPrefix}basemaps.linz.govt.nz/v1/health`;
@@ -67,6 +69,17 @@ export class CommandImport extends CommandLineAction {
     logger.info({ config }, 'Import:Start');
     for (const config of mem.objects.values()) this.update(config, commit);
     await Promise.all(this.promises);
+
+    if (commit) {
+      const configBundle: ConfigBundle = {
+        id: Config.ConfigBundle.id(configJson.id),
+        name: Config.ConfigBundle.id(`config-${configJson.hash}.json`),
+        path: config,
+        hash: configJson.hash,
+      };
+      logger.info({ config }, 'Import:ConfigBundle');
+      if (Config.ConfigBundle.isWriteable()) await Config.ConfigBundle.put(configBundle);
+    }
 
     if (commit && this.invalidations.length > 0) {
       // Lots of invalidations just invalidate everything
