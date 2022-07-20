@@ -9,6 +9,7 @@ import { ConfigProcessingJob } from '../config/processing.job.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
+import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
 
 /** bundle the configuration as a single JSON object */
@@ -51,6 +52,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   TileSet = new MemoryConfigObject<ConfigTileSet>(this, ConfigPrefix.TileSet);
   Provider = new MemoryConfigObject<ConfigProvider>(this, ConfigPrefix.Provider);
   ProcessingJob = new MemoryConfigObject<ConfigProcessingJob>(this, ConfigPrefix.ProcessingJob);
+  ConfigBundle = new MemoryConfigObject<ConfigBundle>(this, ConfigPrefix.ConfigBundle);
 
   /** Memory cache of all objects */
   objects = new Map<string, BaseConfig>();
