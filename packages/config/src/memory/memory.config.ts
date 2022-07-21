@@ -1,5 +1,4 @@
 import { ImageFormat } from '@basemaps/geo';
-import { createHash } from 'crypto';
 import { decodeTime, ulid } from 'ulid';
 import { BasemapsConfigObject, BasemapsConfigProvider, Config } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
@@ -11,6 +10,7 @@ import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
 import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
+import { sha256base58 } from '../base58.js';
 
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
@@ -92,7 +92,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       }
     }
 
-    cfg.hash = createHash('sha256').update(JSON.stringify(cfg)).digest('base64url');
+    cfg.hash = sha256base58(JSON.stringify(cfg));
     cfg.id = Config.prefix(ConfigPrefix.ConfigBundle, ulid());
 
     return cfg;
