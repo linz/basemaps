@@ -1,9 +1,7 @@
 import { ConfigImagery } from '@basemaps/config';
-import { Bounds, GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
-import { Projection, V, VNodeElement } from '@basemaps/shared';
+import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
+import { V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
-import { toFeaturePolygon, Wgs84 } from '@linzjs/geojson';
-import { writeFileSync } from 'fs';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { Imagery2193, Imagery3857, Provider, TileSetAerial } from './config.data.js';
