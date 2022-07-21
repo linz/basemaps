@@ -2,13 +2,25 @@ import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-com
 import { SourceMemory } from '@chunkd/core';
 import { CotarIndexBinary, CotarIndexBuilder, CotarIndexOptions, TarReader } from '@cotar/core';
 import { LogConfig, LogType } from '@basemaps/shared';
-import { promises as fs } from 'fs';
+import { createReadStream, promises as fs } from 'fs';
 import { TarBuilder } from '@cotar/tar';
 import { fsa } from '@chunkd/fs';
 import * as path from 'path';
+import { Readable } from 'stream';
+import { createHash } from 'crypto';
+import { base58 } from '@basemaps/config';
 
 const Packing = 25; // Packing factor for the hash map
 const MaxSearch = 50; // Max search factor
+
+export async function hashFile(stream: Readable): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const hash = createHash('sha256');
+    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('end', () => resolve(base58.encode(hash.digest())));
+    stream.on('error', (err) => reject(err));
+  });
+}
 
 export class CommandBundleAssets extends CommandLineAction {
   assets: CommandLineStringParameter;
@@ -46,7 +58,11 @@ export class CommandBundleAssets extends CommandLineAction {
     logger.info({ indput: assets }, 'BundleAssets:Start');
     const tarFile = await this.buildTar(assets, output, logger);
     const cotarFile = await this.buildTarCo(tarFile, output, logger);
-    logger.info({ output: cotarFile }, 'BundleAssets:Finish');
+    const cotarHash = await hashFile(createReadStream(cotarFile));
+
+    await fs.rename(cotarFile, cotarFile.replace('.tar.co', `-${cotarHash}.tar.co`));
+
+    logger.info({ output: cotarFile, hash: cotarHash }, 'BundleAssets:Finish');
   }
 
   async buildTar(input: string, output: string, logger: LogType): Promise<string> {

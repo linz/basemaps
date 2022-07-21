@@ -27,3 +27,4 @@ export { TileSetNameComponents, TileSetNameParser } from './tile.set.name.js';
 export { parseHex, parseRgba } from './color.js';
 export { ConfigJson } from './json/json.config.js';
 export { standardizeLayerName } from './json/name.convertor.js';
+export { base58, sha256base58 } from './base58.js';
