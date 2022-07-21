@@ -3,7 +3,7 @@ import { Bounds, GoogleTms, ImageFormat, TileMatrixSet, WmtsProvider } from '@ba
 import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BoundingBox } from '@cogeotiff/core';
-import { BBox, Wgs84 } from '@linzjs/geojson';
+import { BBox } from '@linzjs/geojson';
 
 const CapabilitiesAttrs = {
   xmlns: 'http://www.opengis.net/wmts/1.0',
@@ -73,22 +73,25 @@ export class WmtsCapabilities {
   buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {
     let bbox: BBox;
     if (layers.length > 0) {
-      bbox = wgs84Extent(tms, layers[0]);
+      let bounds = layers[0];
       for (let i = 1; i < layers.length; i++) {
-        bbox = Wgs84.union(bbox, wgs84Extent(tms, layers[i]));
+        bounds = bounds.union(layers[i]);
       }
+      bbox = wgs84Extent(tms, bounds.toJson());
     } else {
       // No layers provided assume extent is the size of the tile matrix set :shrug: ?
       bbox = wgs84Extent(tms, tms.extent);
     }
 
-    return V(
-      'ows:WGS84BoundingBox',
-      { crs: 'urn:ogc:def:crs:OGC:2:84' },
-      bbox[2] > 180
-        ? [V('ows:LowerCorner', `-180 -90`), V('ows:UpperCorner', `180 90`)]
-        : [V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`), V('ows:UpperCorner', `${bbox[2]} ${bbox[3]}`)],
-    );
+    // Is East less than West? if so this has crossed the anti meridian
+    // Ignore the bounding box and just use the tile matrix extent
+    // TODO is this the correct behaviour
+    if (bbox[2] < bbox[0]) bbox = wgs84Extent(tms, tms.extent);
+
+    return V('ows:WGS84BoundingBox', { crs: 'urn:ogc:def:crs:OGC:2:84' }, [
+      V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`),
+      V('ows:UpperCorner', `${bbox[2]} ${bbox[3]}`),
+    ]);
   }
 
   /** Combine all the bounds of the imagery inside the layers into a extent for the imagery set */

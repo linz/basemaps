@@ -1,7 +1,9 @@
 import { ConfigImagery } from '@basemaps/config';
-import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
-import { V, VNodeElement } from '@basemaps/shared';
+import { Bounds, GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
+import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
+import { toFeaturePolygon, Wgs84 } from '@linzjs/geojson';
+import { writeFileSync } from 'fs';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { Imagery2193, Imagery3857, Provider, TileSetAerial } from './config.data.js';
@@ -362,5 +364,84 @@ o.spec('WmtsCapabilities', () => {
 
     const layersB = tags(rawB, 'Layer');
     o(layersB.length).equals(1);
+  });
+
+  o('should cover the entire WebMercatorBounds', () => {
+    const halfSize = GoogleTms.extent.width / 2;
+    // Create two fake imagery sets one covers tile z1 x0 y0 another covers tile z1 x1 y1
+    // so the entire bounding box should be tile z0 x0 y0 or the full extent
+    const imagery = new Map();
+    const imageTopLeft = { ...Imagery3857, id: 'im_top_left', name: 'top_left' };
+    imageTopLeft.bounds = { x: -halfSize, y: 0, width: halfSize, height: halfSize };
+    imagery.set(imageTopLeft.id, imageTopLeft);
+
+    const imageBottomRight = { ...Imagery3857, id: 'im_bottom_right', name: 'bottom_right' };
+    imageBottomRight.bounds = { x: 0, y: -halfSize, width: halfSize, height: halfSize };
+    imagery.set(imageBottomRight.id, imageBottomRight);
+
+    const tileSet = { ...TileSetAerial };
+    tileSet.layers = [
+      { 3857: imageTopLeft.id, name: 'a_top_left' },
+      { 3857: imageBottomRight.id, name: 'b_bottom_right' },
+    ];
+
+    const raw = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet,
+      imagery,
+      formats: [ImageFormat.Png],
+      isIndividualLayers: true,
+    }).toVNode();
+
+    const boundingBox = tags(raw, 'ows:WGS84BoundingBox').map((c) =>
+      roundNumbersInString(c.toString(), 4)
+        .split('\n')
+        .map((c) => c.trim()),
+    );
+    o(boundingBox[0][1]).deepEquals('<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
+    o(boundingBox[0][2]).equals('<ows:UpperCorner>180 85.0511</ows:UpperCorner>');
+
+    o(boundingBox[1][1]).deepEquals('<ows:LowerCorner>-180 0</ows:LowerCorner>');
+    o(boundingBox[1][2]).equals('<ows:UpperCorner>0 85.0511</ows:UpperCorner>');
+
+    o(boundingBox[2][1]).deepEquals('<ows:LowerCorner>0 -85.0511</ows:LowerCorner>');
+    o(boundingBox[2][2]).equals('<ows:UpperCorner>180 0</ows:UpperCorner>');
+  });
+
+  o('should work when crossing anti meridian', () => {
+    const halfSize = GoogleTms.extent.width / 2;
+
+    const imagery = new Map();
+    // This image covers z1 x1.5 y1 to z1 x0.5 y1
+    // which cross the AM and covers half the width of two tiles
+    const imageBottomRight = { ...Imagery3857, id: 'im_bottom_right', name: 'bottom_right' };
+    imageBottomRight.bounds = { x: halfSize / 2, y: -halfSize, width: halfSize, height: halfSize };
+    imagery.set(imageBottomRight.id, imageBottomRight);
+
+    const tileSet = { ...TileSetAerial };
+    tileSet.layers = [{ 3857: imageBottomRight.id, name: 'b_bottom_right' }];
+
+    const raw = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet,
+      imagery,
+      formats: [ImageFormat.Png],
+      isIndividualLayers: true,
+    }).toVNode();
+
+    const boundingBox = tags(raw, 'ows:WGS84BoundingBox').map((c) =>
+      roundNumbersInString(c.toString(), 4)
+        .split('\n')
+        .map((c) => c.trim()),
+    );
+    o(boundingBox[0][1]).deepEquals('<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
+    o(boundingBox[0][2]).equals('<ows:UpperCorner>180 85.0511</ows:UpperCorner>');
+
+    o(boundingBox[1][1]).deepEquals('<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
+    o(boundingBox[1][2]).equals('<ows:UpperCorner>180 85.0511</ows:UpperCorner>');
   });
 });
