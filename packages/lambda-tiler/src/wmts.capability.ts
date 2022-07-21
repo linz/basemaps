@@ -46,6 +46,11 @@ function formatCoords(x: number, precision: number): string {
   return Number(x.toFixed(precision)).toString();
 }
 
+/** Format a bounding box XY as `${x} ${y}` while restricting to precision decimal places */
+function formatBbox(x: number, y: number, precision: number): string {
+  return `${formatCoords(x, precision)} ${formatCoords(y, precision)}`;
+}
+
 export class WmtsCapabilities {
   httpBase: string;
   provider?: WmtsProvider;
@@ -98,8 +103,8 @@ export class WmtsCapabilities {
     }
 
     return V('ows:WGS84BoundingBox', { crs: 'urn:ogc:def:crs:OGC:2:84' }, [
-      V('ows:LowerCorner', `${formatCoords(bbox[0], LngLatPrecision)} ${formatCoords(bbox[1], LngLatPrecision)}`),
-      V('ows:UpperCorner', `${formatCoords(bbox[2], LngLatPrecision)} ${formatCoords(bbox[3], LngLatPrecision)}`),
+      V('ows:LowerCorner', formatBbox(bbox[0], bbox[1], LngLatPrecision)),
+      V('ows:UpperCorner', formatBbox(bbox[2], bbox[3], LngLatPrecision)),
     ]);
   }
 
@@ -118,14 +123,8 @@ export class WmtsCapabilities {
 
     const bbox = bounds.toBbox();
     return V('ows:BoundingBox', { crs: tms.projection.toUrn() }, [
-      V(
-        'ows:LowerCorner',
-        `${formatCoords(bbox[tms.indexX], MeterPrecision)} ${formatCoords(bbox[tms.indexY], MeterPrecision)}`,
-      ),
-      V(
-        'ows:UpperCorner',
-        `${formatCoords(bbox[tms.indexX + 2], MeterPrecision)} ${formatCoords(bbox[tms.indexY + 2], MeterPrecision)}`,
-      ),
+      V('ows:LowerCorner', formatBbox(bbox[tms.indexX], bbox[tms.indexY], MeterPrecision)),
+      V('ows:UpperCorner', formatBbox(bbox[tms.indexX + 2], bbox[tms.indexY + 2], MeterPrecision)),
     ]);
   }
 
