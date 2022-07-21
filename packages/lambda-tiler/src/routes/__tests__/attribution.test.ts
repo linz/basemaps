@@ -401,7 +401,7 @@ o.spec('attribution', () => {
       const ts = new TileSetRaster('Fake', Nztm2000Tms);
       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
 
-      const output = createAttributionCollection(ts, null, fakeIm, fakeLayer, fakeHost, null as any);
+      const output = createAttributionCollection(ts, fakeIm, fakeLayer, fakeHost, null as any);
       o(output.title).equals('SomeName');
       o(output.summaries['linz:zoom']).deepEquals({ min: 5, max: 11 });
     });
@@ -409,7 +409,7 @@ o.spec('attribution', () => {
     o('should generate with correct zooms for NZTM2000Quad', () => {
       const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
-      const output = createAttributionCollection(ts, null, fakeIm, fakeLayer, fakeHost, null as any);
+      const output = createAttributionCollection(ts, fakeIm, fakeLayer, fakeHost, null as any);
       o(output.title).equals('SomeName');
       o(output.summaries['linz:zoom']).deepEquals({ min: 7, max: 14 });
     });
@@ -418,7 +418,7 @@ o.spec('attribution', () => {
       const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 15 };
       const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
-      const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
+      const output = createAttributionCollection(ts, fakeIm, fakeGebco, fakeHost, null as any);
       o(output.title).equals('SomeName');
       o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: 13 });
     });
@@ -427,7 +427,7 @@ o.spec('attribution', () => {
       const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 32 };
       const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
-      const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
+      const output = createAttributionCollection(ts, fakeIm, fakeGebco, fakeHost, null as any);
       o(output.title).equals('SomeName');
       o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });
     });
