@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
+
+
+### Bug Fixes
+
+* **cli:** ensure diff is printed for changes ([#2328](https://github.com/linz/basemaps/issues/2328)) ([653fdb9](https://github.com/linz/basemaps/commit/653fdb9e98b74c08a2155d10f316c89658ead73e))
+* **config:** improve handling of GSD math when standardizing layer names ([#2313](https://github.com/linz/basemaps/issues/2313)) ([cc8a14c](https://github.com/linz/basemaps/commit/cc8a14cf06c9aab47d3da7d680eec665a12fc1f6))
+
+
+### Features
+
+* **cli:** Add assets location into bundle json file. ([#2334](https://github.com/linz/basemaps/issues/2334)) ([f90a6be](https://github.com/linz/basemaps/commit/f90a6bea904fc22f7dbe5417be8642b837ba692f))
+* use better names for WMTS ([#2314](https://github.com/linz/basemaps/issues/2314)) ([fbbf6c1](https://github.com/linz/basemaps/commit/fbbf6c140afe54b1a0227a15766bcc045a19bab2))
+* **config:** add category and title to imagery ([#2278](https://github.com/linz/basemaps/issues/2278)) ([4d5d8e7](https://github.com/linz/basemaps/commit/4d5d8e79d87d42cc7f79f77949f7129df66fe3a0))
+* **config:** create virtual tileset by imagery name ([#2309](https://github.com/linz/basemaps/issues/2309)) ([50ca2b5](https://github.com/linz/basemaps/commit/50ca2b5af5e63ff8b6fd2bee64df51def90a301c))
+* **config:** ensure ids are prefixed before querying with them ([#2322](https://github.com/linz/basemaps/issues/2322)) ([ad0d3c4](https://github.com/linz/basemaps/commit/ad0d3c42a851767a8dadca2d7feb9965c78aa2f8))
+* **config:** make layer names more standard ([#2308](https://github.com/linz/basemaps/issues/2308)) ([8be654c](https://github.com/linz/basemaps/commit/8be654c7ee037aa413283b903f0bb49ad242407d))
+
+
+
+
+
 # [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
 
 

@@ -1,4 +1,5 @@
 import { ImageFormat } from '@basemaps/geo';
+import { decodeTime, ulid } from 'ulid';
 import { BasemapsConfigObject, BasemapsConfigProvider, Config } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
@@ -7,15 +8,17 @@ import { ConfigProcessingJob } from '../config/processing.job.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
-import { ulid, decodeTime } from 'ulid';
-import { createHash } from 'crypto';
+import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
+import { sha256base58 } from '../base58.js';
 
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
   id: string;
   /** Configuration hash */
   hash: string;
+  /** Assets location */
+  assets?: string;
   imagery: ConfigImagery[];
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
@@ -26,6 +29,21 @@ function isConfigImagery(i: BaseConfig): i is ConfigImagery {
   return Config.getPrefix(i.id) === ConfigPrefix.Imagery;
 }
 
+/** Force a unknown object into a Record<string, unknown> type */
+export function isObject(obj: unknown): obj is Record<string, unknown> {
+  if (typeof obj !== 'object') return false;
+  if (obj == null || Array.isArray(obj)) return false;
+  return true;
+}
+
+/** Remove all "undefined" keys from a object */
+function removeUndefined(obj: unknown): void {
+  if (!isObject(obj)) return;
+  for (const key of Object.keys(obj)) {
+    if (obj[key] === undefined) delete obj[key];
+  }
+}
+
 export class ConfigProviderMemory extends BasemapsConfigProvider {
   type: 'memory' = 'memory';
 
@@ -34,6 +52,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   TileSet = new MemoryConfigObject<ConfigTileSet>(this, ConfigPrefix.TileSet);
   Provider = new MemoryConfigObject<ConfigProvider>(this, ConfigPrefix.Provider);
   ProcessingJob = new MemoryConfigObject<ConfigProcessingJob>(this, ConfigPrefix.ProcessingJob);
+  ConfigBundle = new MemoryConfigObject<ConfigBundle>(this, ConfigPrefix.ConfigBundle);
 
   /** Memory cache of all objects */
   objects = new Map<string, BaseConfig>();
@@ -73,7 +92,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       }
     }
 
-    cfg.hash = createHash('sha256').update(JSON.stringify(cfg)).digest('base64url');
+    cfg.hash = sha256base58(JSON.stringify(cfg));
     cfg.id = Config.prefix(ConfigPrefix.ConfigBundle, ulid());
 
     return cfg;
@@ -99,12 +118,15 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       existing = {
         type: TileSetType.Raster,
         id: targetId,
+        title: i.title,
+        category: i.category,
         name: targetName,
         format: ImageFormat.Webp,
         layers: [{ name: targetName, minZoom: 0, maxZoom: 32 }],
         background: { r: 0, g: 0, b: 0, alpha: 0 },
         updatedAt: Date.now(),
       } as ConfigTileSet;
+      removeUndefined(existing);
       this.put(existing);
     }
     // TODO this overwrites existing layers

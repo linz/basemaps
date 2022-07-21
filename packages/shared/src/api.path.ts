@@ -84,15 +84,15 @@ export function tileAttributionFromPath(path: string[]): TileDataAttribution | n
  * Extract WMTS information from a path
  *
  * @example
- * - /v1/aerial/2193/WMTSCapabilities
- * - /v1/aerial/WMTSCapabilities
+ * - /v1/tiles/aerial/2193/WMTSCapabilities
+ * - /v1/tiles/aerial/WMTSCapabilities
  * @param path
  * @param tileSet
  */
 export function tileWmtsFromPath(path: string[]): TileDataWmts | null {
   if (path.length > 3) return null;
 
-  const name = path.length < 2 ? '' : path[0];
+  const name = path.length < 2 ? 'aerial' : path[0]; // Default to "aerial layer"
   if (path.length === 3) {
     const tileMatrix = extractTileMatrixSet(path[1]);
     if (tileMatrix == null) return null;

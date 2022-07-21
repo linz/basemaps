@@ -4,7 +4,8 @@ import { BaseConfig } from '../config/base.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProviderDynamo } from './dynamo.config.js';
 
-function toId(id: string): { id: { S: string } } {
+export type IdQuery = { id: { S: string } };
+function toId(id: string): IdQuery {
   return { id: { S: id } };
 }
 
@@ -14,6 +15,12 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
   constructor(cfg: ConfigProviderDynamo, prefix: ConfigPrefix) {
     super(prefix);
     this.cfg = cfg;
+  }
+
+  /** Ensure the ID is prefixed before querying */
+  ensureId(id: string): string {
+    if (id.startsWith(this.prefix + '_')) return id;
+    throw new Error(`Trying to query "${id}" expected prefix of ${this.prefix}`);
   }
 
   private get db(): DynamoDB {
@@ -29,7 +36,9 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
   }
 
   public async get(key: string): Promise<T | null> {
-    const item = await this.db.getItem({ Key: { id: { S: key } }, TableName: this.cfg.tableName }).promise();
+    const item = await this.db
+      .getItem({ Key: { id: { S: this.ensureId(key) } }, TableName: this.cfg.tableName })
+      .promise();
     if (item == null || item.Item == null) return null;
     const obj = DynamoDB.Converter.unmarshall(item.Item) as BaseConfig;
     if (this.is(obj)) return obj;
@@ -38,7 +47,8 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
 
   /** Get all records with the id */
   public async getAll(keys: Set<string>): Promise<Map<string, T>> {
-    let mappedKeys = Array.from(keys, toId);
+    let mappedKeys: IdQuery[] = [];
+    for (const key of keys) mappedKeys.push(toId(this.ensureId(key)));
 
     const output: Map<string, T> = new Map();
 
@@ -52,7 +62,7 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
         const items = await this.db.batchGetItem({ RequestItems }).promise();
 
         const metadataItems = items.Responses?.[this.cfg.tableName];
-        if (metadataItems == null) throw new Error('Failed to fetch metadata from ' + this.cfg.tableName);
+        if (metadataItems == null) throw new Error('Failed to fetch from ' + this.cfg.tableName);
 
         for (const row of metadataItems) {
           const item = DynamoDB.Converter.unmarshall(row) as BaseConfig;

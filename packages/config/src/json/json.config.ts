@@ -171,6 +171,7 @@ export class ConfigJson {
     }
     if (ts.title) tileSet.title = ts.title;
     if (ts.description) tileSet.description = ts.description;
+    if (ts.category) tileSet.category = ts.category;
     if (ts.minZoom) tileSet.minZoom = ts.minZoom;
     if (ts.maxZoom) tileSet.maxZoom = ts.maxZoom;
     if (ts.background && tileSet.type === TileSetType.Raster) {

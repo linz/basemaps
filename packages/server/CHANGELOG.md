@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
+
+
+### Features
+
+* use better names for WMTS ([#2314](https://github.com/linz/basemaps/issues/2314)) ([fbbf6c1](https://github.com/linz/basemaps/commit/fbbf6c140afe54b1a0227a15766bcc045a19bab2))
+* **cli:** add bmc serve to create a server from a bundled config ([#2306](https://github.com/linz/basemaps/issues/2306)) ([700c729](https://github.com/linz/basemaps/commit/700c7295ddae15d436bbf1932757c88feb4686ea))
+* **cli:** install playwright and basemaps/landing for the screenshot util ([#2286](https://github.com/linz/basemaps/issues/2286)) ([4e6559b](https://github.com/linz/basemaps/commit/4e6559be31da2f2eb578533fc8c88667ea27dca4))
+
+
+
+
+
 # [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
 
 

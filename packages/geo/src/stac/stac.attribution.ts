@@ -4,6 +4,7 @@ import { StacCatalog, StacCollection, StacItem } from './index.js';
  * A Single File STAC compliant collection with zoom and priority for calculating attribution of an extent
  */
 export type AttributionCollection = StacCollection<{
+  'linz:category'?: string;
   'linz:zoom': { min: number; max: number };
   'linz:priority': [number];
 }>;
@@ -13,6 +14,7 @@ export type AttributionCollection = StacCollection<{
  */
 export type AttributionItem = StacItem<{
   title: string;
+  category?: string;
   datetime: null;
   start_datetime: string;
   end_datetime: string;

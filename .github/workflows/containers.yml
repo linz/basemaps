@@ -16,7 +16,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           CURRENT_VERSION=$(node -p "require('./lerna.json').version")
-          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
+          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
 
       # Package all the files
       - name: Bundle & Package all files

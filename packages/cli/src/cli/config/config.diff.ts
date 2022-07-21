@@ -5,13 +5,13 @@ import diff from 'deep-diff';
 export const IgnoredProperties = ['id', 'createdAt', 'updatedAt', 'year', 'resolution'];
 
 export class ConfigDiff {
-  static printDiff<T>(changes: diff.Diff<T, T>[]): string {
+  static getDiff<T>(changes: diff.Diff<T, T>[]): string {
     let output = '';
     let isArray = false;
     for (const change of changes) {
       if (change.kind === 'A') {
         if (change.path) output += change.path.join();
-        output += this.printDiff([change.item]);
+        output += this.getDiff([change.item]);
         isArray = true; // Stop displaying the array changes for each line.
       } else {
         if (isArray) continue;
@@ -28,14 +28,16 @@ export class ConfigDiff {
         }
       }
     }
-    return output;
+    return output.trim();
   }
 
   static showDiff<T extends { id: string }>(type: string, oldData: T, newData: T, logger: LogType): boolean {
     const changes = diff.diff(oldData, newData, (_path: string[], key: string) => IgnoredProperties.indexOf(key) >= 0);
     if (changes) {
+      const changeDif = ConfigDiff.getDiff(changes);
       logger.info({ type, record: newData.id }, 'Changes');
-      ConfigDiff.printDiff(changes);
+      // eslint-disable-next-line no-console
+      console.log(changeDif);
       return true;
     }
     return false;

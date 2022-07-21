@@ -1,19 +1,17 @@
 import { Config, TileSetType } from '@basemaps/config';
-import { ImageFormat, TileMatrixSet } from '@basemaps/geo';
-import { Env, TileSetName, tileWmtsFromPath } from '@basemaps/shared';
+import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
+import { Env, tileWmtsFromPath } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
 import { Router } from '../router.js';
-import { TileSets } from '../tile.set.cache.js';
-import { TileSetRaster } from '../tile.set.raster.js';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { NotFound, NotModified } from './response.js';
 import { TileEtag } from './tile.etag.js';
 
 export function getImageFormats(req: LambdaHttpRequest): ImageFormat[] | undefined {
-  const formats = req.query.getAll('format');
-  if (formats == null || formats.length === 0) return undefined;
+  const formats = [...req.query.getAll('format'), ...req.query.getAll('tileFormat')];
+  if (formats.length === 0) return;
 
   const output: Set<ImageFormat> = new Set();
   for (const fmt of formats) {
@@ -21,7 +19,7 @@ export function getImageFormats(req: LambdaHttpRequest): ImageFormat[] | undefin
     if (parsed == null) continue;
     output.add(parsed);
   }
-  if (output.size === 0) return undefined;
+  if (output.size === 0) return;
   return [...output.values()];
 }
 
@@ -38,18 +36,28 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
   const host = Env.get(Env.PublicUrlBase) ?? '';
 
   req.timer.start('tileset:load');
-  const tileSets = await wmtsLoadTileSets(wmtsData.name, wmtsData.tileMatrix);
+  const tileSet = await Config.TileSet.get(Config.TileSet.id(wmtsData.name ?? 'aerial'));
   req.timer.end('tileset:load');
-  if (tileSets.length === 0) return NotFound;
+  if (tileSet == null || tileSet.type !== TileSetType.Raster) return NotFound;
 
-  const providerId = Config.Provider.id('linz');
-  const provider = await Config.Provider.get(providerId);
+  const provider = await Config.Provider.get(Config.Provider.id('linz'));
+
+  const tileMatrix = wmtsData.tileMatrix == null ? [GoogleTms, Nztm2000QuadTms] : [wmtsData.tileMatrix];
+  req.timer.start('imagery:load');
+  const imagery = await Config.getAllImagery(
+    tileSet.layers,
+    tileMatrix.map((tms) => tms.projection),
+  );
+  req.timer.end('imagery:load');
 
   const apiKey = Router.apiKey(req);
   const xml = new WmtsCapabilities({
     httpBase: host,
     provider: provider ?? undefined,
-    layers: tileSets,
+    tileSet,
+    tileMatrix,
+    isIndividualLayers: wmtsData.tileMatrix == null,
+    imagery,
     apiKey,
     formats: getImageFormats(req),
   }).toXml();
@@ -66,14 +74,4 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
   response.buffer(data, 'text/xml');
   req.set('bytes', data.byteLength);
   return response;
-}
-
-async function wmtsLoadTileSets(name: string, tileMatrix: TileMatrixSet | null): Promise<TileSetRaster[]> {
-  if (tileMatrix != null) {
-    const ts = await TileSets.get(name, tileMatrix);
-    if (ts == null || ts.type === TileSetType.Vector) return [];
-    return [ts];
-  }
-  if (name === '') name = TileSetName.aerial;
-  return (await TileSets.getAll(name, tileMatrix)).filter((f) => f.type === 'raster') as TileSetRaster[];
 }

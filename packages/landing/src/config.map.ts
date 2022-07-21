@@ -182,6 +182,7 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
   const layers = xmlDoc.getElementsByTagName('Layer') as HTMLCollection;
 
   const allLayers: LayerInfo[] = [];
+
   for (let i = 0; i < layers.length; i++) {
     const layer = layers.item(i);
     if (layer == null) continue;
@@ -217,10 +218,26 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
   }
 
   allLayers.sort((a, b) => a.name.localeCompare(b.name));
+  addDefaultLayers(output);
   for (const l of allLayers) output.set(l.id, l);
   return output;
 }
 
+function addDefaultLayers(output: Map<string, LayerInfo>): void {
+  output.set('aerial', {
+    id: 'aerial',
+    name: 'Aerial Imagery',
+    projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+    category: 'Basemaps',
+  } as LayerInfo);
+
+  output.set('topographic::topographic', {
+    id: 'topographic::topographic',
+    name: 'Topographic',
+    projections: new Set([EpsgCode.Google]),
+    category: 'Basemaps',
+  } as LayerInfo);
+}
 /** Lookup a projection from either "EPSG:3857" or "WebMercatorQuad" */
 function tmsIdToEpsg(id: string): Epsg | null {
   if (id.toLowerCase().startsWith('epsg')) return Epsg.parse(id);

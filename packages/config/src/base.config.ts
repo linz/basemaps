@@ -1,5 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 import { BaseConfig } from './config/base.js';
+import { ConfigBundle } from './config/config.bundle.js';
 import { ConfigPrefix, ConfigPrefixes } from './config/prefix.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from './config/tile.set.js';
 import {
@@ -34,6 +35,10 @@ export class ConfigInstance {
     return this.cfg.ProcessingJob;
   }
 
+  get ConfigBundle(): BasemapsConfigObject<ConfigBundle> {
+    return this.cfg.ConfigBundle;
+  }
+
   setConfigProvider(cfg: BasemapsConfigProvider): void {
     this.cfg = cfg;
   }
@@ -48,11 +53,13 @@ export class ConfigInstance {
     return s.type === TileSetType.Vector;
   }
 
-  async getAllImagery(layers: ConfigLayer[], projection: Epsg): Promise<Map<string, ConfigImagery>> {
+  async getAllImagery(layers: ConfigLayer[], projections: Epsg[]): Promise<Map<string, ConfigImagery>> {
     const imgIds = new Set<string>();
-    for (const layer of layers) {
-      const imgId = layer[projection.code];
-      if (imgId) imgIds.add(this.Imagery.id(imgId));
+    for (const projection of projections) {
+      for (const layer of layers) {
+        const imgId = layer[projection.code];
+        if (imgId) imgIds.add(this.Imagery.id(imgId));
+      }
     }
     return this.Imagery.getAll(imgIds);
   }
@@ -91,6 +98,7 @@ export abstract class BasemapsConfigProvider {
   abstract Style: BasemapsConfigObject<ConfigVectorStyle>;
   abstract Provider: BasemapsConfigObject<ConfigProvider>;
   abstract ProcessingJob: BasemapsConfigObject<ConfigProcessingJob>;
+  abstract ConfigBundle: BasemapsConfigObject<ConfigBundle>;
 }
 
 export abstract class BasemapsConfigObject<T extends BaseConfig> {

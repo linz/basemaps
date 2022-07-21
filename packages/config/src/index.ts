@@ -3,6 +3,7 @@ export { BaseConfig } from './config/base.js';
 export { ConfigImagery } from './config/imagery.js';
 export { ConfigPrefix } from './config/prefix.js';
 export { ConfigProvider } from './config/provider.js';
+export { ConfigBundle } from './config/config.bundle.js';
 export {
   JobStatus,
   ProcessingJob,
@@ -25,3 +26,5 @@ export { ConfigProviderMemory, ConfigBundled } from './memory/memory.config.js';
 export { TileSetNameComponents, TileSetNameParser } from './tile.set.name.js';
 export { parseHex, parseRgba } from './color.js';
 export { ConfigJson } from './json/json.config.js';
+export { standardizeLayerName } from './json/name.convertor.js';
+export { base58, sha256base58 } from './base58.js';

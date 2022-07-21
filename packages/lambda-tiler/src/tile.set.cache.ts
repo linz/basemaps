@@ -1,5 +1,5 @@
 import { TileSetNameParser, TileSetType } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import { TileMatrixSet } from '@basemaps/geo';
 import { Config } from '@basemaps/shared';
 import { TileSet } from './tile.set.js';
 import { TileSetRaster } from './tile.set.raster.js';
@@ -78,33 +78,6 @@ export class TileSetCache {
     await ts.init(tileSet);
     this.tileSets.set(tileSetId, ts);
     return ts;
-  }
-
-  async getAll(name: string, tileMatrix?: TileMatrixSet | null): Promise<TileSet[]> {
-    const nameComp = TileSetNameParser.parse(name);
-    const tileMatrices = tileMatrix == null ? [GoogleTms, Nztm2000QuadTms] : [tileMatrix];
-
-    const promises: Promise<TileSet | null>[] = [];
-    for (const tileMatrix of tileMatrices) promises.push(this.get(name, tileMatrix));
-    const tileMatrixSets = await Promise.all(promises);
-
-    const tileSets: TileSetRaster[] = [];
-    for (const parent of tileMatrixSets) {
-      if (parent == null) continue;
-      if (parent.type === TileSetType.Vector) continue;
-
-      tileSets.push(parent);
-      if (nameComp.layer != null) {
-        parent.components.name = nameComp.name;
-      } else if (parent.imagery != null && parent.imagery.size > 1) {
-        for (const imageId of parent.imagery.keys()) {
-          const childImg = parent.child(imageId);
-          if (childImg == null) continue;
-          tileSets.push(childImg);
-        }
-      }
-    }
-    return tileSets.sort((a, b) => a.title.localeCompare(b.title));
   }
 }
 

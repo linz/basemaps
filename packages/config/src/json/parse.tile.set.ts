@@ -46,6 +46,7 @@ export const zTileSetConfig = z.object({
   type: z.nativeEnum(TileSetType),
   id: z.string(),
   title: z.string().optional(),
+  category: z.string().optional(),
   description: z.string().optional(),
   background: zBackground.optional(),
   layers: z.array(zLayerConfig),

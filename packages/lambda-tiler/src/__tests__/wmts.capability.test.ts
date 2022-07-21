@@ -1,12 +1,10 @@
-import { Bounds, Epsg, GoogleTms, ImageFormat, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
-import { TileSetName, V, VNodeElement } from '@basemaps/shared';
+import { ConfigImagery } from '@basemaps/config';
+import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
+import { V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
-import { createHash } from 'crypto';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability.js';
-import { FakeTileSet, Provider } from './xyz.util.js';
-
-import 'source-map-support/register.js';
+import { Imagery2193, Imagery3857, Provider, TileSetAerial } from './config.data.js';
 
 function tags(node: VNodeElement | null | undefined, tag: string): VNodeElement[] {
   if (node == null) return [];
@@ -18,16 +16,21 @@ function listTag(node: VNodeElement | null | undefined, tag: string): string[] {
 
 o.spec('WmtsCapabilities', () => {
   const apiKey = 'secret1234';
-  const tileSet = new FakeTileSet(TileSetName.aerial, GoogleTms);
-  const tileSetImagery = new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', GoogleTms);
+
+  const allImagery = new Map();
+  allImagery.set(Imagery2193.id, Imagery2193);
+  allImagery.set(Imagery3857.id, Imagery3857);
 
   o('should output the requested formats', () => {
     const wmts = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       provider: Provider,
-      layers: [tileSet],
+      tileMatrix: [GoogleTms],
+      tileSet: TileSetAerial,
+      imagery: allImagery,
       apiKey,
       formats: [ImageFormat.Avif],
+      isIndividualLayers: false,
     }).toVNode();
 
     const urls = tags(wmts, 'ResourceURL');
@@ -38,12 +41,106 @@ o.spec('WmtsCapabilities', () => {
     );
   });
 
-  o('should build capability xml for tileset and projection', () => {
+  o('should be seting encoding to utf-8', () => {
+    const xml = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet: TileSetAerial,
+      imagery: allImagery,
+      apiKey,
+      formats: [ImageFormat.Avif],
+      isIndividualLayers: false,
+    }).toXml();
+
+    o(xml.split('\n')[0]).deepEquals('<?xml version="1.0" encoding="utf-8"?>');
+  });
+
+  o('should support unicorns and rainbows', () => {
+    const tileSet = { ...TileSetAerial };
+    tileSet.name = '🦄_🌈_2022_0-5m';
+    tileSet.title = '🦄 🌈 Imagery (2022)';
+    tileSet.description = '🦄 🌈 Description';
     const wmts = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       provider: Provider,
-      layers: [tileSet],
+      tileMatrix: [GoogleTms],
+      tileSet,
+      imagery: allImagery,
       apiKey,
+      formats: [ImageFormat.Avif],
+      isIndividualLayers: false,
+    }).toVNode();
+
+    const urls = tags(wmts, 'ResourceURL');
+    o(urls.length).equals(1);
+    o(urls[0].attrs.template).equals(
+      'https://basemaps.test/v1/tiles/🦄-🌈-2022-0.5m/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234',
+    );
+
+    const layer = tags(wmts, 'Layer')[0];
+
+    const title = layer.find('ows:Title')?.toString();
+    o(title).equals('<ows:Title>🦄 🌈 Imagery (2022)</ows:Title>');
+
+    const abstract = layer.find('ows:Abstract')?.toString();
+    o(abstract).equals('<ows:Abstract>🦄 🌈 Description</ows:Abstract>');
+
+    const identifier = layer.find('ows:Identifier')?.toString();
+    o(identifier).equals('<ows:Identifier>🦄-🌈-2022-0.5m</ows:Identifier>');
+  });
+
+  o('should sort the sub imagery layers', () => {
+    const imageryA = { ...Imagery3857 };
+    imageryA.id = 'im_a';
+    imageryA.name = 'aaaa';
+    imageryA.title = 'aaaa';
+
+    const imageryB = { ...Imagery3857 };
+    imageryB.id = 'im_b';
+    imageryB.name = 'bbbb';
+    imageryB.title = 'bbbb';
+
+    const imagery = new Map();
+    imagery.set(Imagery3857.id, Imagery3857);
+    imagery.set(imageryB.id, imageryB);
+    imagery.set(imageryA.id, imageryA);
+    const tileSet = {
+      ...TileSetAerial,
+      layers: [
+        ...TileSetAerial.layers,
+        { [3857]: imageryB.id, title: imageryB.title, name: imageryB.name },
+        { [3857]: imageryA.id, title: imageryA.title, name: imageryA.name },
+      ],
+    };
+
+    const wmts = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet,
+      imagery,
+      apiKey,
+      isIndividualLayers: true,
+    }).toVNode();
+
+    const layers = tags(wmts, 'Layer').map((c) => c.find('ows:Title')?.textContent);
+
+    // The base layer "Aerial Imagery" should always be first then all sub layers after
+    o(layers).deepEquals(['Aerial Imagery', 'aaaa', 'bbbb', 'Ōtorohanga 0.1m Urban Aerial Photos (2021)']);
+  });
+
+  o('should build capability xml for tileset and projection', () => {
+    const imagery = new Map();
+    imagery.set(Imagery3857.id, Imagery3857);
+    const wmts = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet: TileSetAerial,
+      imagery,
+      apiKey,
+      isIndividualLayers: false,
     });
 
     const raw = wmts.toVNode();
@@ -56,7 +153,7 @@ o.spec('WmtsCapabilities', () => {
       V('TileMatrixSetLink', [V('TileMatrixSet', 'WebMercatorQuad')]).toString(),
     );
 
-    const layer = raw?.find('Contents', 'Layer');
+    const layer = raw.find('Contents', 'Layer');
 
     o(listTag(layer, 'Format')).deepEquals([
       V('Format', 'image/jpeg').toString(),
@@ -64,34 +161,40 @@ o.spec('WmtsCapabilities', () => {
       V('Format', 'image/png').toString(),
     ]);
 
-    o(listTag(layer, 'ows:BoundingBox')).deepEquals([
-      V('ows:BoundingBox', { crs: Epsg.Google.toUrn() }, [
-        V('ows:LowerCorner', '-20037508.3427892 -20037508.3427892'),
-        V('ows:UpperCorner', '20037508.3427892 20037508.3427892'),
-      ]).toString(),
+    o(listTag(layer, 'ows:BoundingBox').map((s) => roundNumbersInString(s, 4))).deepEquals([
+      '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::3857">\n' +
+        '  <ows:LowerCorner>19457809.9203 -4609458.5537</ows:LowerCorner>\n' +
+        '  <ows:UpperCorner>19509787.0995 -4578883.7424</ows:UpperCorner>\n' +
+        '</ows:BoundingBox>',
     ]);
 
     o(listTag(layer, 'ows:WGS84BoundingBox').map((s) => roundNumbersInString(s, 4))).deepEquals([
       '<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84">\n' +
-        '  <ows:LowerCorner>-180 -85.0511</ows:LowerCorner>\n' +
-        '  <ows:UpperCorner>180 85.0511</ows:UpperCorner>\n' +
+        '  <ows:LowerCorner>174.7925 -38.2123</ows:LowerCorner>\n' +
+        '  <ows:UpperCorner>175.2594 -37.9962</ows:UpperCorner>\n' +
         '</ows:WGS84BoundingBox>',
     ]);
 
-    o(layer?.find('ows:Abstract')?.textContent).equals('aerial:description');
-    o(layer?.find('ows:Title')?.textContent).equals('aerial:title');
     o(layer?.find('ows:Identifier')?.textContent).equals('aerial');
+    o(layer?.find('ows:Title')?.textContent).equals('Aerial Imagery');
+    o(layer?.find('ows:Abstract')?.textContent).equals('aerial__description');
 
     o(layer?.find('Style')?.toString()).equals(
       V('Style', { isDefault: 'true' }, [V('ows:Title', 'Default Style'), V('ows:Identifier', 'default')]).toString(),
     );
+  });
 
-    const urls = tags(layer, 'ResourceURL');
-    o(urls.length).equals(3);
-    o(urls[2].toString()).deepEquals(
-      '<ResourceURL format="image/png" resourceType="tile" ' +
-        'template="https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png?api=secret1234" />',
-    );
+  o('should include output the correct TileMatrix', () => {
+    const raw = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet: TileSetAerial,
+      imagery: allImagery,
+      apiKey,
+      isIndividualLayers: false,
+    }).toVNode();
+    const layer = raw.find('Contents', 'Layer');
 
     o(layer?.find('TileMatrixSetLink', 'TileMatrixSet')?.textContent).equals('WebMercatorQuad');
 
@@ -123,26 +226,20 @@ o.spec('WmtsCapabilities', () => {
 
     compareMatrix(tileMatrices[0], '0', 1, 559082264.028717);
     compareMatrix(tileMatrices[10], '10', 1024, 545978.773465544);
-
-    const xml = new WmtsCapabilities({
-      httpBase: 'https://basemaps.test',
-      provider: Provider,
-      layers: [tileSet],
-      apiKey,
-    }).toXml();
-
-    o(xml.split('\n')).deepEquals(['<?xml version="1.0" encoding="utf-8"?>', ...raw?.toString().split('\n')]);
-
-    o(createHash('sha256').update(Buffer.from(xml)).digest('base64url')).equals(
-      'cF_TLoyaARxsEn9qUCfkkG2oLZuy3jHhgQ2450_5aIQ',
-    );
   });
 
-  o('should allow individual imagery sets', () => {
+  o('should output individual imagery sets', () => {
+    const imagery = new Map<string, ConfigImagery>();
+    imagery.set(Imagery3857.id, Imagery3857);
+    imagery.set(Imagery2193.id, Imagery2193);
     const raw = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       provider: Provider,
-      layers: [tileSetImagery],
+      tileMatrix: [GoogleTms],
+      tileSet: TileSetAerial,
+      imagery: imagery,
+      formats: [ImageFormat.Png],
+      isIndividualLayers: true,
     }).toVNode();
 
     const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
@@ -150,19 +247,41 @@ o.spec('WmtsCapabilities', () => {
     o(tms?.textContent).equals('WebMercatorQuad');
 
     const urls = Array.from(raw ? raw.tags('ResourceURL') : []);
-    o(urls.length).equals(3);
-    o(urls[2].toString()).deepEquals(
+    o(urls.length).equals(2);
+    o(urls[0].toString()).deepEquals(
       '<ResourceURL format="image/png" resourceType="tile" ' +
-        'template="https://basemaps.test/v1/tiles/01E7PJFR9AMQFJ05X9G7FQ3XMW/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png" />',
+        'template="https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png" />',
     );
+    o(urls[1].toString()).deepEquals(
+      '<ResourceURL format="image/png" resourceType="tile" ' +
+        'template="https://basemaps.test/v1/tiles/ōtorohanga-urban-2021-0.1m/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png" />',
+    );
+
+    const layers = [...raw.tags('Layer')];
+
+    o(layers.length).equals(2);
+    o(layers[0].find('ows:Title')?.textContent).equals('Aerial Imagery');
+
+    o(layers[1].find('ows:Title')?.textContent).equals('Ōtorohanga 0.1m Urban Aerial Photos (2021)');
+    o(layers[1].find('ows:Identifier')?.textContent).equals('ōtorohanga-urban-2021-0.1m');
+    o(layers[1].find('ows:Keywords', 'ows:Keyword')?.textContent).equals('Urban Aerial Photos');
   });
 
   o('should support multiple projections', () => {
-    const ts = [new FakeTileSet(TileSetName.aerial, Nztm2000Tms), new FakeTileSet(TileSetName.aerial, GoogleTms)];
-    const xml = new WmtsCapabilities({ httpBase: 'basemaps.test', provider: Provider, layers: ts });
-    const nodes = xml.toVNode();
+    const imagery = new Map<string, ConfigImagery>();
+    imagery.set(Imagery3857.id, Imagery3857);
+    imagery.set(Imagery2193.id, Imagery2193);
+    const raw = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [GoogleTms, Nztm2000QuadTms],
+      tileSet: TileSetAerial,
+      imagery: imagery,
+      formats: [ImageFormat.Png],
+      isIndividualLayers: false,
+    }).toVNode();
 
-    const layers = tags(nodes, 'Layer');
+    const layers = tags(raw, 'Layer');
     o(layers.length).equals(1);
     const layer = layers[0];
 
@@ -177,121 +296,71 @@ o.spec('WmtsCapabilities', () => {
       'ows:WGS84BoundingBox',
       'Style',
       'Format',
-      'Format',
-      'Format',
       'TileMatrixSetLink',
       'TileMatrixSetLink',
-      'ResourceURL',
-      'ResourceURL',
       'ResourceURL',
     ]);
+
+    o(layer.find('ows:Title')?.textContent).equals('Aerial Imagery');
+    o(layer.find('ows:Keywords')?.toString()).equals(
+      '<ows:Keywords>\n  <ows:Keyword>Basemap</ows:Keyword>\n</ows:Keywords>',
+    );
+    o(layer.find('ows:Identifier')?.textContent).equals('aerial');
 
     const sets = tags(layer, 'TileMatrixSet');
 
     o(sets.length).equals(2);
-    o(sets[0].toString()).equals('<TileMatrixSet>NZTM2000</TileMatrixSet>');
-    o(sets[1].toString()).equals('<TileMatrixSet>WebMercatorQuad</TileMatrixSet>');
+    o(sets[0].toString()).equals('<TileMatrixSet>WebMercatorQuad</TileMatrixSet>');
+    o(sets[1].toString()).equals('<TileMatrixSet>NZTM2000Quad</TileMatrixSet>');
 
-    const tms = tags(nodes, 'TileMatrixSet').filter((f) => f.find('ows:SupportedCRS') != null);
-    o(tms.length).equals(2);
+    const boundingBoxes = tags(layer, 'ows:BoundingBox');
+    o(boundingBoxes.length).equals(2);
+    o(boundingBoxes[0].attrs.crs).equals('urn:ogc:def:crs:EPSG::3857');
+    o(boundingBoxes[0].children.map((c) => roundNumbersInString(c.textContent, 4))).deepEquals([
+      '19457809.9203 -4609458.5537',
+      '19509787.0995 -4578883.7424',
+    ]);
+    o(boundingBoxes[1].attrs.crs).equals('urn:ogc:def:crs:EPSG::2193');
+    o(boundingBoxes[1].children.map((c) => roundNumbersInString(c.textContent, 4))).deepEquals([
+      '5766358.9964 1757351.3045',
+      '5793264.8304 1798321.5516',
+    ]);
 
-    o(tms[0].find('ows:Identifier')?.textContent).equals('NZTM2000');
-    o(tms[0].find('ows:SupportedCRS')?.textContent).equals('urn:ogc:def:crs:EPSG::2193');
-
-    o(tms[1].find('ows:Identifier')?.textContent).equals('WebMercatorQuad');
-    o(tms[1].find('ows:SupportedCRS')?.textContent).equals('urn:ogc:def:crs:EPSG::3857');
+    const wgs84 = layer.find('ows:WGS84BoundingBox');
+    o(wgs84?.attrs.crs).equals('urn:ogc:def:crs:OGC:2:84');
+    o(wgs84?.children.map((c) => roundNumbersInString(c.textContent, 4))).deepEquals([
+      '174.7925 -38.2123',
+      '175.2594 -37.9962',
+    ]);
   });
 
-  o('should support multiple tilesets', () => {
-    const ts = [
-      new FakeTileSet(TileSetName.aerial, Nztm2000Tms, 'aerial-title'),
-      new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Nztm2000Tms, 'imagery-title'),
-    ];
-    const nodes = new WmtsCapabilities({ httpBase: 'basemaps.test', provider: Provider, layers: ts }).toVNode();
-    const layers = tags(nodes, 'Layer');
-    o(layers.length).equals(2);
+  o('should only output imagery if exists', () => {
+    const imagery = new Map<string, ConfigImagery>();
+    const raw = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [Nztm2000QuadTms],
+      tileSet: TileSetAerial,
+      imagery: imagery,
+      formats: [ImageFormat.Png],
+      isIndividualLayers: true,
+    }).toVNode();
 
-    o(layers[0].find('ows:Title')?.textContent).equals('aerial-title');
-    o(layers[0].find('TileMatrixSet')?.textContent).equals('NZTM2000');
+    const layers = tags(raw, 'Layer');
+    o(layers.length).equals(1);
 
-    o(layers[1].find('ows:Title')?.textContent).equals('imagery-title');
-    o(layers[1].find('TileMatrixSet')?.textContent).equals('NZTM2000');
-  });
+    imagery.set(Imagery3857.id, Imagery3857);
+    const rawB = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [Nztm2000QuadTms],
+      tileSet: TileSetAerial,
+      imagery: imagery,
+      formats: [ImageFormat.Png],
+      isIndividualLayers: true,
+    }).toVNode();
 
-  o('should support child tile sets', () => {
-    const ts = [
-      new FakeTileSet(
-        `${TileSetName.aerial}:wairoa_urban_2014-2015_0-10m_RGBA`,
-        Nztm2000Tms,
-        'wairoa_urban_2014-2015_0-10m_RGBA',
-      ),
-      new FakeTileSet(
-        `${TileSetName.aerial}:west-coast_rural_2016-17_0-3m`,
-        Nztm2000Tms,
-        'west-coast_rural_2016-17_0-3m',
-      ),
-    ];
-    const nodes = new WmtsCapabilities({ httpBase: 'basemaps.test', provider: Provider, layers: ts }).toVNode();
-    const layers = tags(nodes, 'Layer');
-
-    o(layers.length).equals(2);
-
-    const boundingBoxes = tags(layers[0], 'ows:BoundingBox');
-    o(boundingBoxes.length).equals(1);
-
-    const firstTitle = layers[0].children[0].textContent;
-    o(firstTitle).equals('wairoa_urban_2014-2015_0-10m_RGBA');
-    const secondTitle = layers[1].children[0].textContent;
-    o(secondTitle).equals('west-coast_rural_2016-17_0-3m');
-  });
-
-  o('should support multiple different projections on different tiles sets', () => {
-    const ts = [
-      new FakeTileSet(TileSetName.aerial, Nztm2000Tms, TileSetName.aerial),
-      new FakeTileSet('01F75X9G7FQ3XMWPJFR9AMQFJ0', Nztm2000Tms, '01F75X9G7FQ3XMWPJFR9AMQFJ0'),
-      new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', GoogleTms, '01E7PJFR9AMQFJ05X9G7FQ3XMW'),
-      new FakeTileSet('01E7PJFR9AMQFJ05X9G7FQ3XMW', Nztm2000QuadTms, '01E7PJFR9AMQFJ05X9G7FQ3XMW'),
-    ];
-    ts[1].extentOverride = new Bounds(1, 2, 2, 2);
-
-    ts[2].tileSet.title = 'aerial_dunedin_urban';
-    const nodes = new WmtsCapabilities({ httpBase: 'basemaps.test', provider: Provider, layers: ts }).toVNode();
-
-    const allMatrixes = tags(nodes, 'TileMatrixSet');
-
-    o(allMatrixes[0].children[0].textContent).equals('NZTM2000');
-    o(allMatrixes[1].children[0].textContent).equals('NZTM2000');
-    o(allMatrixes[2].children[0].textContent).equals('WebMercatorQuad');
-    o(allMatrixes[3].children[0].textContent).equals('NZTM2000Quad');
-
-    o(allMatrixes[4].find('ows:Identifier')?.textContent).equals('NZTM2000');
-    o(allMatrixes[5].find('ows:Identifier')?.textContent).equals('WebMercatorQuad');
-    o(allMatrixes[6].find('ows:Identifier')?.textContent).equals('NZTM2000Quad');
-    o(allMatrixes.length).equals(7);
-
-    const layers = tags(nodes, 'Layer');
-    o(layers.length).equals(3);
-
-    o(layers[0].find('ows:Title')?.textContent).equals(TileSetName.aerial);
-    o(layers[0].find('TileMatrixSet')?.textContent).equals('NZTM2000');
-
-    o(layers[1].find('ows:Identifier')?.textContent).equals('01F75X9G7FQ3XMWPJFR9AMQFJ0');
-    o(layers[1].find('TileMatrixSet')?.textContent).equals('NZTM2000');
-    o(layers[1].find('ows:BoundingBox')?.toString()).equals(
-      '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::2193">\n' +
-        '  <ows:LowerCorner>2 1</ows:LowerCorner>\n' +
-        '  <ows:UpperCorner>4 3</ows:UpperCorner>\n' +
-        '</ows:BoundingBox>',
-    );
-
-    o(layers[2].find('ows:Title')?.textContent).equals('aerial_dunedin_urban');
-    o(layers[2].find('ows:Identifier')?.textContent).equals('01E7PJFR9AMQFJ05X9G7FQ3XMW');
-    o(layers[2].find('TileMatrixSet')?.textContent).equals('WebMercatorQuad');
-    o(layers[2].find('ows:BoundingBox')?.toString()).equals(
-      '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::3857">\n' +
-        '  <ows:LowerCorner>-20037508.3427892 -20037508.3427892</ows:LowerCorner>\n' +
-        '  <ows:UpperCorner>20037508.3427892 20037508.3427892</ows:UpperCorner>\n' +
-        '</ows:BoundingBox>',
-    );
+    const layersB = tags(rawB, 'Layer');
+    o(layersB.length).equals(1);
   });
 });

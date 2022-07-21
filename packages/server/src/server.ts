@@ -47,11 +47,20 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     const table = opts.config.slice('dynamodb://'.length);
     logger.info({ path: opts.config, table, mode: 'dynamo' }, 'Starting Server');
     Config.setConfigProvider(new ConfigProviderDynamo(table));
+  } else if (opts.config.startsWith(Config.ConfigBundle.prefix)) {
+    // Load Bundled config by dynamo refference
+    const cb = await Config.ConfigBundle.get(opts.config);
+    if (cb == null) throw new Error(`Config bunble not exists for ${opts.config}`);
+    const configJson = await fsa.readJson<ConfigBundled>(cb.path);
+    const mem = ConfigProviderMemory.fromJson(configJson);
+    mem.createVirtualTileSets();
+    Config.setConfigProvider(mem);
   } else if (opts.config.endsWith('.json') || opts.config.endsWith('.json.gz')) {
     // Bundled config
     logger.info({ path: opts.config, mode: 'config:bundle' }, 'Starting Server');
     const configJson = await fsa.readJson<ConfigBundled>(opts.config);
     const mem = ConfigProviderMemory.fromJson(configJson);
+    mem.createVirtualTileSets();
     Config.setConfigProvider(mem);
   } else {
     const mem = await ConfigJson.fromPath(opts.config, logger);

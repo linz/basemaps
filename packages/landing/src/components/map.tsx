@@ -112,7 +112,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (Config.map.debug['debug.screenshot'] !== true) {
       const nav = new maplibre.NavigationControl({ visualizePitch: true });
       this.map.addControl(nav, 'top-left');
-      this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
+      if (!Config.map.isDebug) this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
     }
 
     this.map.on('render', this.onRender);

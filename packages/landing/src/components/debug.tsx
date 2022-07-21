@@ -27,7 +27,12 @@ function debugSlider(
 
 export class Debug extends Component<
   { map: maplibregl.Map },
-  { lastFeatureId: string | number | undefined; lastFeatureName: string | undefined }
+  {
+    featureCogId: string | number | undefined;
+    featureCogName: string | undefined;
+    featureSourceId: string | number | undefined;
+    featureSourceName: string | undefined;
+  }
 > {
   componentDidMount(): void {
     this.waitForMap();
@@ -70,7 +75,8 @@ export class Debug extends Component<
     this.adjustRaster('osm', Config.map.debug['debug.layer.osm']);
     this.adjustRaster('linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
     this.adjustVector(Config.map.debug['debug.layer.linz-topographic']);
-    this.setSourceShown(Config.map.debug['debug.source']);
+    this.setVectorShown(Config.map.debug['debug.source'], 'source');
+    this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
   }
 
   render(): ComponentChild {
@@ -91,6 +97,7 @@ export class Debug extends Component<
         </div>
         {this.renderSliders()}
         {this.renderPurple()}
+        {this.renderCogToggle()}
         {this.renderSourceToggle()}
       </div>
     );
@@ -110,20 +117,49 @@ export class Debug extends Component<
     );
   }
 
-  renderSourceToggle(): ComponentChild {
+  renderCogToggle(): ComponentChild {
     // TODO this is a nasty hack to detect if a direct imageryId is being viewed
     if (!Config.map.layerId.startsWith('01')) return null;
+    const cogLocation = WindowUrl.toImageryUrl(`im_${Config.map.layerId}`, 'covering.geojson');
 
     return (
       <Fragment>
         <div className="debug__info">
-          <label className="debug__label">Source</label>
+          <label className="debug__label">
+            <a href={cogLocation} title="Source geojson">
+              Cogs
+            </a>
+          </label>
+          <input type="checkbox" onClick={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
+        </div>
+        {this.state.featureSourceId == null ? null : (
+          <div className="debug__info" title={String(this.state.featureCogName)}>
+            <label className="debug__label">CogId</label>
+            {String(this.state.featureCogName).split('/').pop()}
+          </div>
+        )}
+      </Fragment>
+    );
+  }
+
+  renderSourceToggle(): ComponentChild {
+    // TODO this is a nasty hack to detect if a direct imageryId is being viewed
+    if (!Config.map.layerId.startsWith('01')) return null;
+    const sourceLocation = WindowUrl.toImageryUrl(`im_${Config.map.layerId}`, 'source.geojson');
+    return (
+      <Fragment>
+        <div className="debug__info">
+          <label className="debug__label">
+            <a href={sourceLocation} title="Source geojson">
+              Source
+            </a>
+          </label>
           <input type="checkbox" onClick={this.toggleSource} checked={Config.map.debug['debug.source']} />
         </div>
-        {this.state.lastFeatureId == null ? null : (
-          <div className="debug__info" title={String(this.state.lastFeatureName)}>
+        {this.state.featureSourceId == null ? null : (
+          <div className="debug__info" title={String(this.state.featureSourceName)}>
             <label className="debug__label">SourceId</label>
-            {String(this.state.lastFeatureName).split('/').pop()}
+            {String(this.state.featureSourceName).split('/').pop()}
           </div>
         )}
       </Fragment>
@@ -131,18 +167,26 @@ export class Debug extends Component<
   }
 
   /** Show the source bounding box ont he map */
+  toggleCogs = (e: Event): void => {
+    const target = e.target as HTMLInputElement;
+    Config.map.setDebug('debug.cog', target.checked);
+    this.setVectorShown(target.checked, 'cog');
+  };
+
+  /** Show the source bounding box ont he map */
   toggleSource = (e: Event): void => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.source', target.checked);
-    this.setSourceShown(target.checked);
+    this.setVectorShown(target.checked, 'source');
   };
 
-  trackMouseMove(layerId: string): void {
-    const sourceId = `${layerId}_source`;
+  trackMouseMove(layerId: string, type: 'source' | 'cog'): void {
+    const sourceId = `${layerId}_${type}`;
     const layerFillId = `${sourceId}_fill`;
     const map = this.props.map;
 
     let lastFeatureId: string | number | undefined;
+    const stateName = type === 'source' ? `featureSource` : `featureCog`;
     map.on('mousemove', layerFillId, (e) => {
       const features = e.features;
       if (features == null || features.length === 0) return;
@@ -151,7 +195,11 @@ export class Debug extends Component<
       if (lastFeatureId != null) map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: false });
 
       lastFeatureId = firstFeature.id;
-      this.setState({ ...this.state, lastFeatureId, lastFeatureName: firstFeature.properties?.['name'] });
+      this.setState({
+        ...this.state,
+        [`${stateName}Id`]: lastFeatureId,
+        [`${stateName}Name`]: firstFeature.properties?.['name'],
+      });
       map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: true });
     });
     map.on('mouseleave', layerFillId, () => {
@@ -159,15 +207,15 @@ export class Debug extends Component<
       map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: false });
 
       lastFeatureId = undefined;
-      this.setState({ ...this.state, lastFeatureId, lastFeatureName: undefined });
+      this.setState({ ...this.state, [`${stateName}Id`]: undefined, [`${stateName}Name`]: undefined });
     });
   }
 
-  setSourceShown(isShown: boolean): void {
+  setVectorShown(isShown: boolean, type: 'source' | 'cog'): void {
     const map = this.props.map;
 
     const layerId = Config.map.layerId;
-    const sourceId = `${layerId}_source`;
+    const sourceId = `${layerId}_${type}`;
     const layerFillId = `${sourceId}_fill`;
     const layerLineId = `${sourceId}_line`;
     if (isShown === false) {
@@ -177,10 +225,13 @@ export class Debug extends Component<
       return;
     }
 
-    if (map.getLayer(layerFillId) != null) return;
+    if (map.getLayer(layerLineId) != null) return;
 
-    this.loadSourceLayer(layerId).then(() => {
-      if (map.getLayer(layerFillId) != null) return;
+    const color = type === 'source' ? '#ff00ff' : '#ff0000';
+
+    this.loadSourceLayer(layerId, type).then(() => {
+      if (map.getLayer(layerLineId) != null) return;
+
       // Fill is needed to make the mouse move work even though it has opacity 0
       map.addLayer({
         id: layerFillId,
@@ -188,42 +239,46 @@ export class Debug extends Component<
         source: sourceId,
         paint: {
           'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.25, 0],
-          'fill-color': '#ff00ff',
+          'fill-color': color,
         },
       });
+      this.trackMouseMove(layerId, type);
+
       map.addLayer({
         id: layerLineId,
         type: 'line',
         source: sourceId,
         paint: {
-          'line-color': '#ff00ff',
+          'line-color': color,
           'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5],
           'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 1],
         },
       });
-
-      this.trackMouseMove(layerId);
     });
   }
 
   _layerLoading: Map<string, Promise<void>> = new Map();
-  loadSourceLayer(layerId: string): Promise<void> {
-    let existing = this._layerLoading.get(layerId);
+  loadSourceLayer(layerId: string, type: 'source' | 'cog'): Promise<void> {
+    const layerKey = `${layerId}-${type}`;
+    let existing = this._layerLoading.get(layerKey);
     if (existing == null) {
-      existing = this._loadSourceLayer(layerId);
-      this._layerLoading.set(layerId, existing);
+      existing = this._loadSourceLayer(layerId, type);
+      this._layerLoading.set(layerKey, existing);
     }
     return existing;
   }
 
-  async _loadSourceLayer(layerId: string): Promise<void> {
+  async _loadSourceLayer(layerId: string, type: 'source' | 'cog'): Promise<void> {
     const map = this.props.map;
 
-    const sourceId = `${layerId}_source`;
+    const sourceId = `${layerId}_${type}`;
     const layerFillId = `${sourceId}_fill`;
     if (map.getLayer(layerFillId) != null) return;
 
-    const sourceUri = WindowUrl.toImageryUrl(`im_${layerId}`, 'source.geojson');
+    const sourceUri = WindowUrl.toImageryUrl(
+      `im_${layerId}`,
+      type === 'source' ? 'source.geojson' : 'covering.geojson',
+    );
 
     const res = await fetch(sourceUri);
     if (!res.ok) return;

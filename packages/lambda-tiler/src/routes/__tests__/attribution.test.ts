@@ -9,10 +9,11 @@ import sinon from 'sinon';
 const sandbox = sinon.createSandbox();
 import { TileSets } from '../../tile.set.cache.js';
 import { TileSetRaster } from '../../tile.set.raster.js';
-import { FakeTileSet, mockRequest, Provider } from '../../__tests__/xyz.util.js';
+import { FakeTileSet, mockRequest } from '../../__tests__/xyz.util.js';
 import { attribution, createAttributionCollection } from '../attribution.js';
 import { TileEtag } from '../tile.etag.js';
 import { Attribution } from '@basemaps/attribution';
+import { Provider } from '../../__tests__/config.data.js';
 
 const ExpectedJson = {
   id: 'aerial_WebMercatorQuad',
@@ -363,7 +364,7 @@ o.spec('attribution', () => {
       const res = await attribution(request);
 
       o(res.status).equals(200);
-      o(res.header(HttpHeader.ETag)).equals('3edkgmltK4/LUyTCTYU9MeiNSwlfUvJAx/qORSisUzM=');
+      o(res.header(HttpHeader.ETag)).equals('GAwx9M7X1ygnn2kr9KPCin2gcaGq7DwYMY1dCpJj3no=');
       o(res.header(HttpHeader.CacheControl)).equals('public, max-age=86400, stale-while-revalidate=604800');
 
       const body = round(JSON.parse(res.body as string), 4);
@@ -372,10 +373,9 @@ o.spec('attribution', () => {
 
     o('should 304 with etag match', async () => {
       const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`, 'get', {
-        [HttpHeader.IfNoneMatch]: '3edkgmltK4/LUyTCTYU9MeiNSwlfUvJAx/qORSisUzM=',
+        [HttpHeader.IfNoneMatch]: 'GAwx9M7X1ygnn2kr9KPCin2gcaGq7DwYMY1dCpJj3no=',
       });
       const res = await attribution(request);
-
       o(res.status).equals(304);
     });
 
@@ -401,7 +401,7 @@ o.spec('attribution', () => {
       const ts = new TileSetRaster('Fake', Nztm2000Tms);
       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
 
-      const output = createAttributionCollection(ts, null, fakeIm, fakeLayer, fakeHost, null as any);
+      const output = createAttributionCollection(ts, fakeIm, fakeLayer, fakeHost, null as any);
       o(output.title).equals('SomeName');
       o(output.summaries['linz:zoom']).deepEquals({ min: 5, max: 11 });
     });
@@ -409,7 +409,7 @@ o.spec('attribution', () => {
     o('should generate with correct zooms for NZTM2000Quad', () => {
       const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
-      const output = createAttributionCollection(ts, null, fakeIm, fakeLayer, fakeHost, null as any);
+      const output = createAttributionCollection(ts, fakeIm, fakeLayer, fakeHost, null as any);
       o(output.title).equals('SomeName');
       o(output.summaries['linz:zoom']).deepEquals({ min: 7, max: 14 });
     });
@@ -418,7 +418,7 @@ o.spec('attribution', () => {
       const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 15 };
       const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
-      const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
+      const output = createAttributionCollection(ts, fakeIm, fakeGebco, fakeHost, null as any);
       o(output.title).equals('SomeName');
       o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: 13 });
     });
@@ -427,7 +427,7 @@ o.spec('attribution', () => {
       const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 32 };
       const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
-      const output = createAttributionCollection(ts, null, fakeIm, fakeGebco, fakeHost, null as any);
+      const output = createAttributionCollection(ts, fakeIm, fakeGebco, fakeHost, null as any);
       o(output.title).equals('SomeName');
       o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });
     });

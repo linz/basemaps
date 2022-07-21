@@ -1,4 +1,4 @@
-import { Epsg, EpsgCode, NamedBounds, QuadKey, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import o from 'ospec';
 import sinon from 'sinon';
@@ -8,14 +8,6 @@ import { ConfigPrefix } from '../../index.js';
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
 const sandbox = sinon.createSandbox();
-
-export function qkToNamedBounds(quadKeys: string[]): NamedBounds[] {
-  const tms = TileMatrixSets.get(EpsgCode.Google);
-  return quadKeys.map((qk) => ({
-    name: TileMatrixSet.tileToName(QuadKey.toTile(qk)),
-    ...tms.tileToSourceBounds(QuadKey.toTile(qk)),
-  }));
-}
 
 o.spec('ConfigProvider.Imagery', () => {
   const provider = new ConfigProviderDynamo('Foo');
@@ -64,7 +56,7 @@ o.spec('ConfigProvider.Imagery', () => {
 
     const layers = [{ [3857]: 'foo1' }, { [3857]: 'im_foo2' }, { [2193]: 'foo3', [3857]: 'im_foo4' }] as any;
 
-    const result = await Config.getAllImagery(layers, Epsg.Google);
+    const result = await Config.getAllImagery(layers, [Epsg.Google]);
     o(get.callCount).equals(1);
     o([...get.firstCall.firstArg.keys()]).deepEquals(['im_foo1', 'im_foo2', 'im_foo4']);
     o(result.get('im_foo1')).deepEquals(item);

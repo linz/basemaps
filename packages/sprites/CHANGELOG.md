@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
+
+
+### Features
+
+* **cli:** Merge sprites cli into @basemaps/cli and update screenshot cli to support server assets. ([#2275](https://github.com/linz/basemaps/issues/2275)) ([0ee4f83](https://github.com/linz/basemaps/commit/0ee4f83bb26132fe387e66d039181ce2a3eb70d2))
+
+
+
+
+
 # [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
 
 

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** allow /v1/tiles/WMTSCapabilities.xml and default to using "aerial" ([#2329](https://github.com/linz/basemaps/issues/2329)) ([4615d3a](https://github.com/linz/basemaps/commit/4615d3a776fb6f5b9bed86824b931224469ed278))
+* **landing:** disable vector tiles in nztm ([#2319](https://github.com/linz/basemaps/issues/2319)) ([6c6acd5](https://github.com/linz/basemaps/commit/6c6acd5747af853577269f853b4109f02a61e05f))
+* **landing:** do not duplicate the basemap layers in the layer selector ([#2330](https://github.com/linz/basemaps/issues/2330)) ([c1e73f4](https://github.com/linz/basemaps/commit/c1e73f431503d26affb96648925328e93bb9ba5a))
+* **landing:** lookup epsg code for layers from the tile matrix id ([#2302](https://github.com/linz/basemaps/issues/2302)) ([bd36eba](https://github.com/linz/basemaps/commit/bd36eba474966c52cf9a7bf14d5da39a26e06fdb))
+* **landing:** Remove the check for layer switcher ([#2294](https://github.com/linz/basemaps/issues/2294)) ([43cd22b](https://github.com/linz/basemaps/commit/43cd22b5f82969fda540945c638a149a833072db))
+* **landing:** wait for map to be actually loaded before adding a "#map-loaded" div ([#2298](https://github.com/linz/basemaps/issues/2298)) ([1b18400](https://github.com/linz/basemaps/commit/1b18400924c50f2096e16d20f4434cf82fee5e26))
+
+
+### Features
+
+* **lambda-tiler:** prefer WebMercatorQuad for tileMatrix name over EPSG:3857 ([#2295](https://github.com/linz/basemaps/issues/2295)) ([a35f239](https://github.com/linz/basemaps/commit/a35f23986d78d18d1204b0993d78faffc434cba3))
+* **shared:** update wmts titles to use imagery title and category ([#2285](https://github.com/linz/basemaps/issues/2285)) ([2580636](https://github.com/linz/basemaps/commit/25806362b322e075bb25ce058e6e56d582b84320))
+
+
+
+
+
 # [6.29.0](https://github.com/linz/basemaps/compare/v6.28.1...v6.29.0) (2022-06-27)
 
 

@@ -87,7 +87,6 @@ async function readStac(uri: string): Promise<StacCollection | null> {
 
 export function createAttributionCollection(
   tileSet: TileSetRaster,
-  stac: StacCollection | null | undefined,
   imagery: ConfigImagery,
   layer: ConfigLayer,
   host: ConfigProvider,
@@ -96,16 +95,15 @@ export function createAttributionCollection(
   const tileMatrix = tileSet.tileMatrix;
   return {
     stac_version: Stac.Version,
-    license: stac?.license ?? Stac.License,
+    license: Stac.License,
     id: imagery.id,
-    providers: stac?.providers ?? [
-      { name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] },
-    ],
-    title: stac?.title ?? titleizeImageryName(imagery.name),
-    description: stac?.description ?? 'No description',
+    providers: [{ name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] }],
+    title: imagery.title ?? titleizeImageryName(imagery.name),
+    description: 'No description',
     extent,
     links: [],
     summaries: {
+      'linz:category': imagery.category,
       'linz:zoom': {
         min: TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true),
         max: TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true),
@@ -146,18 +144,13 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
     if (imgId == null) continue;
     const im = tileSet.imagery.get(imgId);
     if (im == null) continue;
-    const stac = await stacFiles.get(im.uri);
 
     const bbox = proj.boundsToWgs84BoundingBox(im.bounds).map(roundNumber) as BBox;
 
-    let interval: [string, string][] | undefined = stac?.extent.temporal.interval;
-    if (interval == null) {
-      const years = extractYearRangeFromName(im.name);
-      if (years[0] === -1) {
-        throw new Error('Missing date in imagery name: ' + im.name);
-      }
-      interval = [years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]];
-    }
+    const years = extractYearRangeFromName(im.name);
+    if (years[0] === -1) throw new Error('Missing date in imagery name: ' + im.name);
+    const interval = [years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]];
+
     const extent: StacExtent = { spatial: { bbox: [bbox] }, temporal: { interval } };
 
     items.push({
@@ -173,14 +166,15 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
         coordinates: createCoordinates(bbox, im.files, proj),
       },
       properties: {
-        title: titleizeImageryName(im.name),
+        title: im.title ?? titleizeImageryName(im.name),
+        category: im.category,
         datetime: null,
         start_datetime: interval[0][0],
         end_datetime: interval[0][1],
       },
     });
 
-    cols.push(createAttributionCollection(tileSet, stac, im, layer, host, extent));
+    cols.push(createAttributionCollection(tileSet, im, layer, host, extent));
   }
   return {
     id: tileSet.id,
