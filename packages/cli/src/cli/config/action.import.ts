@@ -72,13 +72,20 @@ export class CommandImport extends CommandLineAction {
 
     if (commit) {
       const configBundle: ConfigBundle = {
-        id: Config.ConfigBundle.id(configJson.id),
+        id: Config.ConfigBundle.id(configJson.hash),
         name: Config.ConfigBundle.id(`config-${configJson.hash}.json`),
         path: config,
         hash: configJson.hash,
       };
       logger.info({ config }, 'Import:ConfigBundle');
-      if (Config.ConfigBundle.isWriteable()) await Config.ConfigBundle.put(configBundle);
+
+      if (Config.ConfigBundle.isWriteable()) {
+        // Insert a cb_hash record for reference
+        await Config.ConfigBundle.put(configBundle);
+        // Update the cb_latest record
+        configBundle.id = Config.ConfigBundle.id('latest');
+        await Config.ConfigBundle.put(configBundle);
+      }
     }
 
     if (commit && this.invalidations.length > 0) {
