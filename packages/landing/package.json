@@ -35,11 +35,11 @@
     "@linzjs/lui": "^10.11.3",
     "@servie/events": "^3.0.0",
     "@types/geojson": "^7946.0.7",
-    "@types/proj4": "^2.5.0",
+    "@types/proj4": "^2.5.2",
     "maplibre-gl": "^2.1.9",
     "mime-types": "^2.1.35",
     "preact": "^10.5.15",
-    "proj4": "^2.6.2",
+    "proj4": "^2.8.0",
     "ulid": "^2.3.0"
   },
   "publishConfig": {

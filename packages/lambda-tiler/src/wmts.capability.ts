@@ -38,6 +38,19 @@ export interface WmtsCapabilitiesParams {
   formats?: ImageFormat[];
 }
 
+/** Number of decimal places to use in lat lng */
+const LngLatPrecision = 6;
+const MeterPrecision = 4;
+
+function formatCoords(x: number, precision: number): string {
+  return Number(x.toFixed(precision)).toString();
+}
+
+/** Format a bounding box XY as `${x} ${y}` while restricting to precision decimal places */
+function formatBbox(x: number, y: number, precision: number): string {
+  return `${formatCoords(x, precision)} ${formatCoords(y, precision)}`;
+}
+
 export class WmtsCapabilities {
   httpBase: string;
   provider?: WmtsProvider;
@@ -83,14 +96,15 @@ export class WmtsCapabilities {
       bbox = wgs84Extent(tms, tms.extent);
     }
 
-    // Is East less than West? if so this has crossed the anti meridian
-    // Ignore the bounding box and just use the tile matrix extent
-    // TODO is this the correct behaviour
-    if (bbox[2] < bbox[0]) bbox = wgs84Extent(tms, tms.extent);
+    // If east is less than west, then this has crossed the anti meridian, so cover the entire globe
+    if (bbox[2] < bbox[0]) {
+      bbox[0] = -180;
+      bbox[2] = 180;
+    }
 
     return V('ows:WGS84BoundingBox', { crs: 'urn:ogc:def:crs:OGC:2:84' }, [
-      V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`),
-      V('ows:UpperCorner', `${bbox[2]} ${bbox[3]}`),
+      V('ows:LowerCorner', formatBbox(bbox[0], bbox[1], LngLatPrecision)),
+      V('ows:UpperCorner', formatBbox(bbox[2], bbox[3], LngLatPrecision)),
     ]);
   }
 
@@ -109,8 +123,8 @@ export class WmtsCapabilities {
 
     const bbox = bounds.toBbox();
     return V('ows:BoundingBox', { crs: tms.projection.toUrn() }, [
-      V('ows:LowerCorner', `${bbox[tms.indexX]} ${bbox[tms.indexY]}`),
-      V('ows:UpperCorner', `${bbox[tms.indexX + 2]} ${bbox[tms.indexY + 2]}`),
+      V('ows:LowerCorner', formatBbox(bbox[tms.indexX], bbox[tms.indexY], MeterPrecision)),
+      V('ows:UpperCorner', formatBbox(bbox[tms.indexX + 2], bbox[tms.indexY + 2], MeterPrecision)),
     ]);
   }
 

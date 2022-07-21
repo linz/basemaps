@@ -1,4 +1,4 @@
-import { Bounds, Epsg, EpsgCode, GoogleTms, Nztm2000Tms, Stac } from '@basemaps/geo';
+import { Bounds, Epsg, EpsgCode, GoogleTms, Nztm2000Tms, Stac, StacCollection } from '@basemaps/geo';
 import { Projection } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__tests__/file.operator.test.helper.js';
 import { round } from '@basemaps/test/build/rounding.js';
@@ -96,12 +96,8 @@ o.spec('CogJob', () => {
         rel: 'sourceImagery',
         type: 'application/json',
       });
-      o(round(stac.extent, 4)).deepEquals({
-        spatial: { bbox: [[169.3341, -51.8754, -146.1432, -32.8952]] },
-        temporal: {
-          interval: [['2020-01-01T00:00:00.000', '2020-08-08T19:18:23.456Z']],
-        },
-      });
+      o(round(stac.extent.spatial.bbox, 4)).deepEquals([[169.3347, -51.868, -145.9143, -32.8496]]);
+      o(stac.extent.temporal).deepEquals({ interval: [['2020-01-01T00:00:00.000', '2020-08-08T19:18:23.456Z']] });
     });
 
     o('no source collection.json', async () => {
@@ -115,60 +111,50 @@ o.spec('CogJob', () => {
         cutlinePoly: [],
       });
       const afterNow = Date.now();
+      const jobJson = round(job.json, 4) as CogJobJson;
 
-      o(job.json).equals(mockFs.jsStore[jobPath + '/job.json']);
-
-      o(round(job.json, 4)).deepEquals({
-        id: 'jobid1',
-        name: 'auckland_rural_2010-2012_0-50m',
-        title: 'Auckland rural 2010-2012 0.50m',
-        description: 'No description',
-        source: {
-          gsd: 0.075,
-          epsg: 2193,
-          files: [
-            {
-              x: 1347679.1521,
-              y: 5301577.5257,
-              width: 1277913.1519,
-              height: 201072.6389,
-              name: 'ring0',
-            },
-            {
-              x: 4728764.4861,
-              y: 4246465.1768,
-              width: 838463.4123,
-              height: 610363.6056,
-              name: 'ring1',
-            },
-          ],
-          location: { type: 's3', path: 's3://source-bucket/path' },
-        },
-        output: {
-          gsd: 0.0373,
-          epsg: 3857,
-          tileMatrix: 'WebMercatorQuad',
-          files: [{ name: '0-0-0', x: 1, y: 2, width: 2, height: 3 }],
-          location: { type: 's3', path: 's3://target-bucket/path' },
-          resampling: { warp: 'bilinear', overview: 'lanczos' },
-          quality: 90,
-          cutline: { blend: 20, href: 's3://curline-bucket/path' },
-          addAlpha: true,
-          nodata: 0,
-          bounds: { x: 1, y: 2, width: 2, height: 3 },
-          oneCogCovering: true,
-        },
-        processingId: undefined,
+      o(jobJson).deepEquals(round(mockFs.jsStore[jobPath + '/job.json'], 4));
+      o(jobJson.id).equals('jobid1');
+      o(jobJson.name).equals('auckland_rural_2010-2012_0-50m');
+      o(jobJson.title).equals('Auckland rural 2010-2012 0.50m');
+      o(jobJson.description).equals('No description');
+      o(jobJson.source.gsd).equals(0.075);
+      o(jobJson.source.epsg).equals(2193);
+      o(jobJson.source.files[0]).deepEquals({
+        x: 1347679.1521,
+        y: 5301577.5262,
+        width: 1277913.1293,
+        height: 201072.641,
+        name: 'ring0',
       });
+      o(jobJson.source.files[1]).deepEquals({
+        x: 4728648.2332,
+        y: 4247288.7253,
+        width: 837784.3351,
+        height: 609622.9622,
+        name: 'ring1',
+      });
+      o(jobJson.source.location).deepEquals({ type: 's3', path: 's3://source-bucket/path' });
+      o(jobJson.output.gsd).equals(0.0373);
+      o(jobJson.output.epsg).equals(3857);
+      o(jobJson.output.tileMatrix).equals('WebMercatorQuad');
+      o(jobJson.output.files).deepEquals([{ name: '0-0-0', x: 1, y: 2, width: 2, height: 3 }]);
+      o(jobJson.output.location).deepEquals({ type: 's3', path: 's3://target-bucket/path' });
+      o(jobJson.output.resampling).deepEquals({ warp: 'bilinear', overview: 'lanczos' });
+      o(jobJson.output.quality).equals(90);
+      o(jobJson.output.cutline).deepEquals({ blend: 20, href: 's3://curline-bucket/path' });
+      o(jobJson.output.addAlpha).equals(true);
+      o(jobJson.output.nodata).equals(0);
+      o(jobJson.output.bounds).deepEquals({ x: 1, y: 2, width: 2, height: 3 });
 
       o(job.id).equals(id);
       o(job.source.gsd).equals(0.075);
       o(round(job.output.gsd, 4)).equals(0.0373);
       o(job.output.oneCogCovering).equals(true);
 
-      const stac = round(mockFs.jsStore[jobPath + '/collection.json'], 4);
+      const stac = round(mockFs.jsStore[jobPath + '/collection.json'], 4) as StacCollection;
 
-      const stacMeta = stac.summaries;
+      const stacMeta = stac.summaries as any;
 
       const generated = stacMeta['linz:generated'][0];
 
@@ -177,65 +163,35 @@ o.spec('CogJob', () => {
 
       // split so that scripts/detect.unlinked.dep.js does not think it is an import
       o(generated.package).equals('@' + 'basemaps/cli');
-
-      const exp = {
-        id: 'jobid1',
-        title: 'Auckland rural 2010-2012 0.50m',
-        description: 'No description',
-        stac_version: Stac.Version,
-        stac_extensions: [Stac.BaseMapsExtension],
-        extent: {
-          spatial: { bbox: [[169.3341, -51.8754, -146.1432, -32.8952]] },
-          temporal: { interval: [['2010-01-01T00:00:00Z', '2011-01-01T00:00:00Z']] },
-        },
-        license: Stac.License,
-        keywords: ['Imagery', 'New Zealand'],
-        providers: [],
-        summaries: {
-          gsd: [0.075],
-          'proj:epsg': [3857],
-          'linz:output': [
-            {
-              resampling: { warp: 'bilinear', overview: 'lanczos' },
-              quality: 90,
-              cutlineBlend: 20,
-              addAlpha: true,
-              nodata: 0,
-            },
-          ],
-          'linz:generated': [generated],
-        },
-        links: [
+      o(stac.id).equals(job.id);
+      o(stac.extent.spatial.bbox).deepEquals([[169.3347, -51.868, -145.9143, -32.8496]]);
+      o(stac.extent.temporal).deepEquals({ interval: [['2010-01-01T00:00:00Z', '2011-01-01T00:00:00Z']] });
+      o(stac.stac_version).equals(Stac.Version);
+      o(stac.stac_extensions).deepEquals([Stac.BaseMapsExtension]);
+      o(stac.license).deepEquals(Stac.License);
+      o(stac.keywords).deepEquals(['Imagery', 'New Zealand']);
+      o(stac.summaries).deepEquals({
+        gsd: [0.075],
+        'proj:epsg': [3857],
+        'linz:output': [
           {
-            href: 's3://target-bucket/path/collection.json',
-            type: 'application/json',
-            rel: 'self',
+            resampling: { warp: 'bilinear', overview: 'lanczos' },
+            quality: 90,
+            cutlineBlend: 20,
+            addAlpha: true,
+            nodata: 0,
           },
-          {
-            href: 'job.json',
-            type: 'application/json',
-            rel: 'linz.basemaps.job',
-          },
-          {
-            href: 'cutline.geojson.gz',
-            type: 'application/geo+json+gzip',
-            rel: 'linz.basemaps.cutline',
-          },
-          {
-            href: 'covering.geojson',
-            type: 'application/geo+json',
-            rel: 'linz.basemaps.covering',
-          },
-          {
-            href: 'source.geojson',
-            type: 'application/geo+json',
-            rel: 'linz.basemaps.source',
-          },
-          { href: '0-0-0.json', type: 'application/geo+json', rel: 'item' },
         ],
-      };
-
-      o(stac).deepEquals(exp);
+        'linz:generated': [generated],
+      });
+      o(stac.links).deepEquals([
+        { href: 's3://target-bucket/path/collection.json', type: 'application/json', rel: 'self' },
+        { href: 'job.json', type: 'application/json', rel: 'linz.basemaps.job' },
+        { href: 'cutline.geojson.gz', type: 'application/geo+json+gzip', rel: 'linz.basemaps.cutline' },
+        { href: 'covering.geojson', type: 'application/geo+json', rel: 'linz.basemaps.covering' },
+        { href: 'source.geojson', type: 'application/geo+json', rel: 'linz.basemaps.source' },
+        { href: '0-0-0.json', type: 'application/geo+json', rel: 'item' },
+      ]);
 
       o(round(mockFs.jsStore[jobPath + '/cutline.geojson.gz'], 4)).deepEquals({
         type: 'FeatureCollection',
@@ -312,55 +268,54 @@ o.spec('CogJob', () => {
         ],
       });
 
-      o(round(mockFs.jsStore[jobPath + '/source.geojson'], 4)).deepEquals({
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            geometry: {
-              type: 'MultiPolygon',
-              coordinates: [
-                [
-                  [
-                    [169.9343, -42.3971],
-                    [180, -42.2199],
-                    [180, -40.4109],
-                    [170.0185, -40.5885],
-                    [169.9343, -42.3971],
-                  ],
-                ],
-                [
-                  [
-                    [-180, -42.2199],
-                    [-174.6708, -41.7706],
-                    [-175, -40],
-                    [-180, -40.4109],
-                    [-180, -42.2199],
-                  ],
-                ],
+      const sourceGeoJson = mockFs.jsStore[jobPath + '/source.geojson'];
+      o(sourceGeoJson.type).equals('FeatureCollection');
+      o(sourceGeoJson.features.length).equals(2);
+      o(round(sourceGeoJson.features[0], 4)).deepEquals({
+        type: 'Feature',
+        geometry: {
+          type: 'MultiPolygon',
+          coordinates: [
+            [
+              [
+                [169.9343, -42.3971],
+                [180, -42.2199],
+                [180, -40.4109],
+                [170.0185, -40.5885],
+                [169.9343, -42.3971],
               ],
-            },
-            properties: { name: 'ring0' },
-            bbox: [169.9343, -42.3971, -175, -40],
-          },
-          {
-            type: 'Feature',
-            geometry: {
-              type: 'Polygon',
-              coordinates: [
-                [
-                  [-147.7182, -44.5617],
-                  [-150.6057, -40.2044],
-                  [-143.8327, -37.2693],
-                  [-142.0209, -41.3698],
-                  [-147.7182, -44.5617],
-                ],
+            ],
+            [
+              [
+                [-180, -42.2199],
+                [-174.6708, -41.7706],
+                [-175, -40],
+                [-180, -40.4109],
+                [-180, -42.2199],
               ],
-            },
-            properties: { name: 'ring1' },
-            bbox: [-147.7182, -44.5617, -143.8327, -37.2693],
-          },
-        ],
+            ],
+          ],
+        },
+        properties: { name: 'ring0' },
+        bbox: [169.9343, -42.3971, -175, -40],
+      });
+
+      o(round(sourceGeoJson.features[1], 4)).deepEquals({
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [-147.4403, -44.5167],
+              [-150.5162, -40.1908],
+              [-143.1693, -37.1443],
+              [-140, -41],
+              [-147.4403, -44.5167],
+            ],
+          ],
+        },
+        properties: { name: 'ring1' },
+        bbox: [-147.4403, -44.5167, -143.1693, -37.1443],
       });
     });
 

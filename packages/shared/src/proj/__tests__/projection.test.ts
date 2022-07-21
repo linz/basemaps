@@ -124,19 +124,14 @@ o.spec('Projection', () => {
     const poly = [bboxToPolygon([18494091.86765497, -6051366.655280836, 19986142.659781612, -4016307.214216303])];
 
     o(googleProj.projectMultipolygon(poly, googleProj)).equals(poly);
+    const projected = round(googleProj.projectMultipolygon(poly, nztmProj), 4);
+    o(projected.length).equals(1);
+    o(projected[0].length).equals(1);
 
-    const ans = round(googleProj.projectMultipolygon(poly, nztmProj), 4);
-
-    o(round(ans, 4)).deepEquals([
-      [
-        [
-          [1084733.8967, 4698018.9435],
-          [2090794.171, 4700144.6365],
-          [2204979.5633, 6228860.047],
-          [964788.1197, 6226878.2808],
-          [1084733.8967, 4698018.9435],
-        ],
-      ],
-    ]);
+    o(projected[0][0][0]).deepEquals([1084733.8969, 4698018.9435]);
+    o(projected[0][0][1]).deepEquals([2090794.1708, 4700144.6365]);
+    o(projected[0][0][2]).deepEquals([2204979.5628, 6228860.047]);
+    o(projected[0][0][3]).deepEquals([964788.1204, 6226878.2808]);
+    o(projected[0][0][4]).deepEquals([1084733.8969, 4698018.9435]);
   });
 });
