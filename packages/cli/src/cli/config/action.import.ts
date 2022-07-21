@@ -3,6 +3,7 @@ import { BaseConfig, Config, ConfigBundle, ConfigBundled, ConfigProviderMemory }
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { Q, Updater } from './config.update.js';
 import { invalidateCache } from '../util.js';
+import fetch from 'node-fetch';
 
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;
@@ -49,8 +50,9 @@ export class CommandImport extends CommandLineAction {
     const config = this.config.value;
     const backup = this.backup.value;
     if (config == null) throw new Error('Please provide a config json');
-    if (commit && !config.startsWith('s3://'))
-      throw new Error('To acturally import into dynamo has to use the config file from s3.');
+    if (commit && !config.startsWith('s3://')) {
+      throw new Error('To actually import into dynamo has to use the config file from s3.');
+    }
 
     const HostPrefix = Env.isProduction() ? '' : 'dev.';
     const healthEndpoint = `https://${HostPrefix}basemaps.linz.govt.nz/v1/health`;
