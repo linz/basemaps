@@ -68,8 +68,8 @@ o.spec('ProjectionTileMatrixSet', () => {
     o('should create centers for web mercator', () => {
       const center = Projection.tileCenterToLatLon(GoogleTms, QuadKey.toTile('3120123'));
       isValidLatLong(center);
-      o(round(center, 8)).deepEquals({
-        lat: -47.98992167,
+      o(round(center, 6)).deepEquals({
+        lat: -47.989922,
         lon: 105.46875,
       });
     });
@@ -83,7 +83,7 @@ o.spec('ProjectionTileMatrixSet', () => {
     o('should create centers for NZTMQuad', () => {
       const center = Projection.tileCenterToLatLon(Nztm2000QuadTms, { x: 200, y: 500, z: 10 });
       isValidLatLong(center);
-      o(round(center, 8)).deepEquals({ lat: -35.79628765, lon: 141.39377624 });
+      o(round(center, 7)).deepEquals({ lat: -35.7940688, lon: 141.3785792 });
 
       const centerB = Projection.tileCenterToLatLon(Nztm2000QuadTms, { x: 1000, y: 1000, z: 10 });
       isValidLatLong(centerB);
@@ -129,7 +129,7 @@ o.spec('ProjectionTileMatrixSet', () => {
     o('should handle antimeridian', () => {
       const pt = Projection.tileToWgs84Bbox(Nztm2000Tms, { x: 2, y: 1, z: 1 });
 
-      o(round(pt)).deepEquals([170.05982382, -20.71836222, -179.34441046, -10.28396555]);
+      o(round(pt)).deepEquals([170.05982382, -20.71836222, -179.34441047, -10.28396555]);
     });
 
     o('should convert base tiles', () => {

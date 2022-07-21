@@ -20,6 +20,10 @@ function wgs84Extent(tileMatrix: TileMatrixSet, bbox: BoundingBox): BBox {
   return Projection.get(tileMatrix).boundsToWgs84BoundingBox(bbox);
 }
 
+// function formatCoords(crd: number): string {
+//   const text = crd.toPrecision(6);
+// }
+
 export interface WmtsCapabilitiesParams {
   /** Base URL for tile server */
   httpBase: string;
@@ -83,14 +87,15 @@ export class WmtsCapabilities {
       bbox = wgs84Extent(tms, tms.extent);
     }
 
-    // Is East less than West? if so this has crossed the anti meridian
-    // Ignore the bounding box and just use the tile matrix extent
-    // TODO is this the correct behaviour
-    if (bbox[2] < bbox[0]) bbox = wgs84Extent(tms, tms.extent);
+    // If east is less than west, then this has crossed the anti meridian cover the entire globe
+    if (bbox[2] < bbox[0]) {
+      bbox[0] = -180;
+      bbox[2] = 180;
+    }
 
     return V('ows:WGS84BoundingBox', { crs: 'urn:ogc:def:crs:OGC:2:84' }, [
-      V('ows:LowerCorner', `${bbox[0]} ${bbox[1]}`),
-      V('ows:UpperCorner', `${bbox[2]} ${bbox[3]}`),
+      V('ows:LowerCorner', `${bbox[0].toFixed(6)} ${bbox[1].toPrecision(6)}`),
+      V('ows:UpperCorner', `${bbox[2].toFixed(6)} ${bbox[3].toPrecision(6)}`),
     ]);
   }
 

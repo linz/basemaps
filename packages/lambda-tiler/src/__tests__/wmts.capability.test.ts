@@ -1,7 +1,10 @@
 import { ConfigImagery } from '@basemaps/config';
-import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
-import { V, VNodeElement } from '@basemaps/shared';
+import { GoogleTms, ImageFormat, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
+import { Projection, V, VNodeElement } from '@basemaps/shared';
+import { Nztm2000 } from '@basemaps/shared/src/proj/nztm2000.js';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
+import { Wgs84 } from '@linzjs/geojson';
+import { writeFileSync } from 'fs';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { Imagery2193, Imagery3857, Provider, TileSetAerial } from './config.data.js';
@@ -437,9 +440,35 @@ o.spec('WmtsCapabilities', () => {
         .map((c) => c.trim()),
     );
     o(boundingBox[0][1]).deepEquals('<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
-    o(boundingBox[0][2]).equals('<ows:UpperCorner>180 85.0511</ows:UpperCorner>');
+    o(boundingBox[0][2]).equals('<ows:UpperCorner>180 0</ows:UpperCorner>');
 
     o(boundingBox[1][1]).deepEquals('<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
-    o(boundingBox[1][2]).equals('<ows:UpperCorner>180 85.0511</ows:UpperCorner>');
+    o(boundingBox[1][2]).equals('<ows:UpperCorner>180 0</ows:UpperCorner>');
+  });
+
+  o('should work with NZTM2000Quad', () => {
+    const wmts = new WmtsCapabilities({ tileMatrix: [] } as any);
+
+    // Full NZTM200Quad coverage
+    const bbox = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, []);
+    o(bbox.children[0].textContent).equals('-180.000000 -49.9299');
+    o(bbox.children[1].textContent).equals('180.000000 2.93860');
+
+    // Full NZTM200Quad coverage at z1
+    const bboxB = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, [
+      Nztm2000QuadTms.tileToSourceBounds({ z: 1, x: 0, y: 0 }),
+      Nztm2000QuadTms.tileToSourceBounds({ z: 1, x: 1, y: 1 }),
+    ]);
+    o(bboxB.children[0].textContent).equals('-180.000000 -49.9299');
+    o(bboxB.children[1].textContent).equals('180.000000 2.93860');
+
+    // Full NZTM200Quad coverage at z5
+    const tileCount = Nztm2000QuadTms.zooms[5].matrixWidth;
+    const bboxC = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, [
+      Nztm2000QuadTms.tileToSourceBounds({ z: 5, x: 0, y: 0 }),
+      Nztm2000QuadTms.tileToSourceBounds({ z: 5, x: tileCount - 1, y: tileCount - 1 }),
+    ]);
+    o(bboxC.children[0].textContent).equals('-180.000000 -49.9299');
+    o(bboxC.children[1].textContent).equals('180.000000 2.93860');
   });
 });
