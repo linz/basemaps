@@ -1,10 +1,7 @@
 import { ConfigImagery } from '@basemaps/config';
-import { GoogleTms, ImageFormat, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
-import { Projection, V, VNodeElement } from '@basemaps/shared';
-import { Nztm2000 } from '@basemaps/shared/src/proj/nztm2000.js';
+import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
+import { V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
-import { Wgs84 } from '@linzjs/geojson';
-import { writeFileSync } from 'fs';
 import o from 'ospec';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { Imagery2193, Imagery3857, Provider, TileSetAerial } from './config.data.js';
