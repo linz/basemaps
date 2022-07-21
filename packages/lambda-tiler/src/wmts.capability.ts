@@ -40,6 +40,11 @@ export interface WmtsCapabilitiesParams {
 
 /** Number of decimal places to use in lat lng */
 const LngLatPrecision = 6;
+const MeterPrecision = 4;
+
+function formatCoords(x: number, precision: number): string {
+  return Number(x.toFixed(precision)).toString();
+}
 
 export class WmtsCapabilities {
   httpBase: string;
@@ -93,8 +98,8 @@ export class WmtsCapabilities {
     }
 
     return V('ows:WGS84BoundingBox', { crs: 'urn:ogc:def:crs:OGC:2:84' }, [
-      V('ows:LowerCorner', `${Number(bbox[0].toFixed(LngLatPrecision))} ${Number(bbox[1].toFixed(LngLatPrecision))}`),
-      V('ows:UpperCorner', `${Number(bbox[2].toFixed(LngLatPrecision))} ${Number(bbox[3].toFixed(LngLatPrecision))}`),
+      V('ows:LowerCorner', `${formatCoords(bbox[0], LngLatPrecision)} ${formatCoords(bbox[1], LngLatPrecision)}`),
+      V('ows:UpperCorner', `${formatCoords(bbox[2], LngLatPrecision)} ${formatCoords(bbox[3], LngLatPrecision)}`),
     ]);
   }
 
@@ -113,8 +118,14 @@ export class WmtsCapabilities {
 
     const bbox = bounds.toBbox();
     return V('ows:BoundingBox', { crs: tms.projection.toUrn() }, [
-      V('ows:LowerCorner', `${bbox[tms.indexX]} ${bbox[tms.indexY]}`),
-      V('ows:UpperCorner', `${bbox[tms.indexX + 2]} ${bbox[tms.indexY + 2]}`),
+      V(
+        'ows:LowerCorner',
+        `${formatCoords(bbox[tms.indexX], MeterPrecision)} ${formatCoords(bbox[tms.indexY], MeterPrecision)}`,
+      ),
+      V(
+        'ows:UpperCorner',
+        `${formatCoords(bbox[tms.indexX + 2], MeterPrecision)} ${formatCoords(bbox[tms.indexY + 2], MeterPrecision)}`,
+      ),
     ]);
   }
 

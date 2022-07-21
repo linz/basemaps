@@ -316,22 +316,19 @@ o.spec('WmtsCapabilities', () => {
     const boundingBoxes = tags(layer, 'ows:BoundingBox');
     o(boundingBoxes.length).equals(2);
     o(boundingBoxes[0].attrs.crs).equals('urn:ogc:def:crs:EPSG::3857');
-    o(boundingBoxes[0].children.map((c) => roundNumbersInString(c.textContent, 4))).deepEquals([
+    o(boundingBoxes[0].children.map((c) => c.textContent)).deepEquals([
       '19457809.9203 -4609458.5537',
       '19509787.0995 -4578883.7424',
     ]);
     o(boundingBoxes[1].attrs.crs).equals('urn:ogc:def:crs:EPSG::2193');
-    o(boundingBoxes[1].children.map((c) => roundNumbersInString(c.textContent, 4))).deepEquals([
+    o(boundingBoxes[1].children.map((c) => c.textContent)).deepEquals([
       '5766358.9964 1757351.3045',
       '5793264.8304 1798321.5516',
     ]);
 
     const wgs84 = layer.find('ows:WGS84BoundingBox');
     o(wgs84?.attrs.crs).equals('urn:ogc:def:crs:OGC:2:84');
-    o(wgs84?.children.map((c) => roundNumbersInString(c.textContent, 4))).deepEquals([
-      '174.7925 -38.2123',
-      '175.2594 -37.9962',
-    ]);
+    o(wgs84?.children.map((c) => c.textContent)).deepEquals(['174.79248 -38.212288', '175.259399 -37.996163']);
   });
 
   o('should only output imagery if exists', () => {
@@ -394,17 +391,18 @@ o.spec('WmtsCapabilities', () => {
     }).toVNode();
 
     const boundingBox = tags(raw, 'ows:WGS84BoundingBox').map((c) =>
-      roundNumbersInString(c.toString(), 4)
+      c
+        .toString()
         .split('\n')
         .map((c) => c.trim()),
     );
-    o(boundingBox[0][1]).deepEquals('<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
-    o(boundingBox[0][2]).equals('<ows:UpperCorner>180 85.0511</ows:UpperCorner>');
+    o(boundingBox[0][1]).deepEquals('<ows:LowerCorner>-180 -85.051129</ows:LowerCorner>');
+    o(boundingBox[0][2]).equals('<ows:UpperCorner>180 85.051129</ows:UpperCorner>');
 
     o(boundingBox[1][1]).deepEquals('<ows:LowerCorner>-180 0</ows:LowerCorner>');
-    o(boundingBox[1][2]).equals('<ows:UpperCorner>0 85.0511</ows:UpperCorner>');
+    o(boundingBox[1][2]).equals('<ows:UpperCorner>0 85.051129</ows:UpperCorner>');
 
-    o(boundingBox[2][1]).deepEquals('<ows:LowerCorner>0 -85.0511</ows:LowerCorner>');
+    o(boundingBox[2][1]).deepEquals('<ows:LowerCorner>0 -85.051129</ows:LowerCorner>');
     o(boundingBox[2][2]).equals('<ows:UpperCorner>180 0</ows:UpperCorner>');
   });
 
