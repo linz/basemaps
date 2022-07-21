@@ -125,7 +125,6 @@ o.spec('Projection', () => {
 
     o(googleProj.projectMultipolygon(poly, googleProj)).equals(poly);
     const projected = round(googleProj.projectMultipolygon(poly, nztmProj), 4);
-    // const ans = round(), 4);
     o(projected.length).equals(1);
     o(projected[0].length).equals(1);
 

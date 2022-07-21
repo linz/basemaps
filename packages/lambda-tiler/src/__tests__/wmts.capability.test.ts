@@ -448,16 +448,16 @@ o.spec('WmtsCapabilities', () => {
 
     // Full NZTM200Quad coverage
     const bbox = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, []);
-    o(bbox.children[0].textContent).equals('-180.000000 -49.9299');
-    o(bbox.children[1].textContent).equals('180.000000 2.93860');
+    o(bbox.children[0].textContent).equals('-180 -49.929855');
+    o(bbox.children[1].textContent).equals('180 2.938603');
 
     // Full NZTM200Quad coverage at z1
     const bboxB = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, [
       Nztm2000QuadTms.tileToSourceBounds({ z: 1, x: 0, y: 0 }),
       Nztm2000QuadTms.tileToSourceBounds({ z: 1, x: 1, y: 1 }),
     ]);
-    o(bboxB.children[0].textContent).equals('-180.000000 -49.9299');
-    o(bboxB.children[1].textContent).equals('180.000000 2.93860');
+    o(bboxB.children[0].textContent).equals('-180 -49.929855');
+    o(bboxB.children[1].textContent).equals('180 2.938603');
 
     // Full NZTM200Quad coverage at z5
     const tileCount = Nztm2000QuadTms.zooms[5].matrixWidth;
@@ -465,7 +465,7 @@ o.spec('WmtsCapabilities', () => {
       Nztm2000QuadTms.tileToSourceBounds({ z: 5, x: 0, y: 0 }),
       Nztm2000QuadTms.tileToSourceBounds({ z: 5, x: tileCount - 1, y: tileCount - 1 }),
     ]);
-    o(bboxC.children[0].textContent).equals('-180.000000 -49.9299');
-    o(bboxC.children[1].textContent).equals('180.000000 2.93860');
+    o(bboxC.children[0].textContent).equals('-180 -49.929855');
+    o(bboxC.children[1].textContent).equals('180 2.938603');
   });
 });

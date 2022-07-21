@@ -20,10 +20,6 @@ function wgs84Extent(tileMatrix: TileMatrixSet, bbox: BoundingBox): BBox {
   return Projection.get(tileMatrix).boundsToWgs84BoundingBox(bbox);
 }
 
-// function formatCoords(crd: number): string {
-//   const text = crd.toPrecision(6);
-// }
-
 export interface WmtsCapabilitiesParams {
   /** Base URL for tile server */
   httpBase: string;
@@ -41,6 +37,9 @@ export interface WmtsCapabilitiesParams {
   /** Limit the output to the following image formats other wise @see ImageFormatOrder */
   formats?: ImageFormat[];
 }
+
+/** Number of decimal places to use in lat lng */
+const LngLatPrecision = 6;
 
 export class WmtsCapabilities {
   httpBase: string;
@@ -87,15 +86,15 @@ export class WmtsCapabilities {
       bbox = wgs84Extent(tms, tms.extent);
     }
 
-    // If east is less than west, then this has crossed the anti meridian cover the entire globe
+    // If east is less than west, then this has crossed the anti meridian, so cover the entire globe
     if (bbox[2] < bbox[0]) {
       bbox[0] = -180;
       bbox[2] = 180;
     }
 
     return V('ows:WGS84BoundingBox', { crs: 'urn:ogc:def:crs:OGC:2:84' }, [
-      V('ows:LowerCorner', `${bbox[0].toFixed(6)} ${bbox[1].toPrecision(6)}`),
-      V('ows:UpperCorner', `${bbox[2].toFixed(6)} ${bbox[3].toPrecision(6)}`),
+      V('ows:LowerCorner', `${Number(bbox[0].toFixed(LngLatPrecision))} ${Number(bbox[1].toFixed(LngLatPrecision))}`),
+      V('ows:UpperCorner', `${Number(bbox[2].toFixed(LngLatPrecision))} ${Number(bbox[3].toFixed(LngLatPrecision))}`),
     ]);
   }
 
