@@ -1,5 +1,4 @@
 import { ImageFormat } from '@basemaps/geo';
-import { createHash } from 'crypto';
 import { decodeTime, ulid } from 'ulid';
 import { BasemapsConfigObject, BasemapsConfigProvider, Config } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
