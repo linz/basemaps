@@ -193,8 +193,6 @@ o.spec('CogJob', () => {
         { href: '0-0-0.json', type: 'application/geo+json', rel: 'item' },
       ]);
 
-      // o(stac).deepEquals(exp);
-
       o(round(mockFs.jsStore[jobPath + '/cutline.geojson.gz'], 4)).deepEquals({
         type: 'FeatureCollection',
         features: [
