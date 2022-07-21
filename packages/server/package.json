@@ -30,7 +30,7 @@
   },
   "bundle": [
     {
-      "entry": "src/cli.ts",
+      "entry": "src/bin.ts",
       "outfile": "bin/basemaps-server.cjs",
       "executable": true,
       "external": [
