@@ -8,6 +8,7 @@ import fetch from 'node-fetch';
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;
   private backup: CommandLineStringParameter;
+  private assets: CommandLineStringParameter;
   private commit: CommandLineFlagParameter;
 
   promises: Promise<boolean>[] = [];
@@ -36,6 +37,11 @@ export class CommandImport extends CommandLineAction {
       parameterLongName: '--backup',
       description: 'Backup the old config into a config bundle json',
     });
+    this.assets = this.defineStringParameter({
+      argumentName: 'ASSETS',
+      parameterLongName: '--assets',
+      description: 'Add assets location into the config bundle file',
+    });
     this.commit = this.defineFlagParameter({
       parameterLongName: '--commit',
       description: 'Actually start the import',
@@ -49,6 +55,7 @@ export class CommandImport extends CommandLineAction {
     const commit = this.commit.value ?? false;
     const config = this.config.value;
     const backup = this.backup.value;
+    const assets = this.assets.value;
     if (config == null) throw new Error('Please provide a config json');
     if (commit && !config.startsWith('s3://')) {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
@@ -79,6 +86,7 @@ export class CommandImport extends CommandLineAction {
         path: config,
         hash: configJson.hash,
       };
+      if (assets) configBundle.assets = assets;
       logger.info({ config }, 'Import:ConfigBundle');
 
       if (Config.ConfigBundle.isWriteable()) {
