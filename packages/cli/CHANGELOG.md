@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.31.0](https://github.com/linz/basemaps/compare/v6.30.0...v6.31.0) (2022-07-22)
+
+
+### Bug Fixes
+
+* **cli:** do not use built in fetch ([#2341](https://github.com/linz/basemaps/issues/2341)) ([415b877](https://github.com/linz/basemaps/commit/415b877767561bcc2462652e36bead2bc82617ea))
+
+
+### Features
+
+* upgrade proj to 2.8.0 as it has improved transverse mercator projection logic BM-631 ([#2346](https://github.com/linz/basemaps/issues/2346)) ([4b74efb](https://github.com/linz/basemaps/commit/4b74efb07f69ceeaea9351d8e8012bc214c7614c))
+* **cli:** Import config will update the latest ConfigBundle dynamo record. ([#2338](https://github.com/linz/basemaps/issues/2338)) ([25e864c](https://github.com/linz/basemaps/commit/25e864cb767af08bbe1d3df245666c2b6e8ecb44))
+* **config:** Insert a config bundle records in dynamodb to refference the config file in s3. ([#2335](https://github.com/linz/basemaps/issues/2335)) ([143eeda](https://github.com/linz/basemaps/commit/143eeda69ab6eb6de70c7aed0247b6333ebb5bdf))
+* **config:** use base58 hashes ([#2342](https://github.com/linz/basemaps/issues/2342)) ([8688351](https://github.com/linz/basemaps/commit/8688351834b0e00827024b25709d790d96522cb9))
+
+
+
+
+
 # [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
 
 

@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.31.0](https://github.com/linz/basemaps/compare/v6.30.0...v6.31.0) (2022-07-22)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** correct wgs84 bounding box when layers are large BM-631 ([#2345](https://github.com/linz/basemaps/issues/2345)) ([5d469f9](https://github.com/linz/basemaps/commit/5d469f96f9aee0cfff8200805bb8a69a03c61928))
+* **lambda-tiler:** use the imagery title if we have it over the title from the collection.json ([#2340](https://github.com/linz/basemaps/issues/2340)) ([d73c48a](https://github.com/linz/basemaps/commit/d73c48a26328c1bda63b1e9b458f0eba27ffefc9))
+
+
+### Features
+
+* upgrade proj to 2.8.0 as it has improved transverse mercator projection logic BM-631 ([#2346](https://github.com/linz/basemaps/issues/2346)) ([4b74efb](https://github.com/linz/basemaps/commit/4b74efb07f69ceeaea9351d8e8012bc214c7614c))
+
+
+
+
+
 # [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
 
 
