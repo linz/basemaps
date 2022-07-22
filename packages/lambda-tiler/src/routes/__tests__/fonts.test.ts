@@ -60,7 +60,7 @@ o.spec('/v1/fonts', () => {
   o('should get the correct font', async () => {
     await fsa.write('memory://fonts/Roboto Thin/0-255.pbf', Buffer.from(''));
 
-    const res255 = await handler.router.handle(mockRequest(encodeURI('/v1/fonts/Roboto Thin/0-255.pbf')));
+    const res255 = await handler.router.handle(mockRequest('/v1/fonts/Roboto Thin/0-255.pbf'));
     o(res255.status).equals(200);
     o(res255.header('content-type')).equals('application/x-protobuf');
     o(res255.header('content-encoding')).equals(undefined);
@@ -72,7 +72,7 @@ o.spec('/v1/fonts', () => {
   o('should get the correct utf8 font', async () => {
     await fsa.write('memory://fonts/🦄 🌈/0-255.pbf', Buffer.from(''));
 
-    const res255 = await handler.router.handle(mockRequest(encodeURI('/v1/fonts/🦄 🌈/0-255.pbf')));
+    const res255 = await handler.router.handle(mockRequest('/v1/fonts/🦄 🌈/0-255.pbf'));
     o(res255.status).equals(200);
     o(res255.header('content-type')).equals('application/x-protobuf');
     o(res255.header('content-encoding')).equals(undefined);

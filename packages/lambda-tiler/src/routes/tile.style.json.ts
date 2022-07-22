@@ -2,11 +2,10 @@ import { Sources, StyleJson } from '@basemaps/config';
 import { Config, Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { createHash } from 'crypto';
 import { URL } from 'url';
-import { Router } from '../router.js';
-import { NotFound, NotModified } from './response.js';
-import { TileEtag } from './tile.etag.js';
+import { NotFound, NotModified } from '../util/response.js';
+import { Validate } from '../util/validate.js';
+import { Etag } from '../util/etag.js';
 
 /**
  * Convert relative URLS into a full hostname url
@@ -54,10 +53,15 @@ export function convertStyleJson(style: StyleJson, apiKey: string): StyleJson {
   } as StyleJson;
 }
 
-export async function styleJson(req: LambdaHttpRequest, fileName: string): Promise<LambdaHttpResponse> {
-  const apiKey = Router.apiKey(req);
-  if (apiKey == null) return new LambdaHttpResponse(400, 'Invalid API Key.');
-  const styleName = fileName.split('.json')[0];
+export interface StyleGet {
+  Params: {
+    styleName: string;
+  };
+}
+
+export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<LambdaHttpResponse> {
+  const apiKey = Validate.apiKey(req);
+  const styleName = req.params.styleName;
 
   // Get style Config from db
   const dbId = Config.Style.id(styleName);
@@ -68,9 +72,8 @@ export async function styleJson(req: LambdaHttpRequest, fileName: string): Promi
   const style = convertStyleJson(styleConfig.style, apiKey);
   const data = Buffer.from(JSON.stringify(style));
 
-  const cacheKey = createHash('sha256').update(data).digest('base64');
-
-  if (TileEtag.isNotModified(req, cacheKey)) return NotModified;
+  const cacheKey = Etag.key(data);
+  if (Etag.isNotModified(req, cacheKey)) return NotModified;
 
   const response = new LambdaHttpResponse(200, 'ok');
   response.header(HttpHeader.ETag, cacheKey);

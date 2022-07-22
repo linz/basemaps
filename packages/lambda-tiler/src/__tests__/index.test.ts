@@ -1,24 +1,8 @@
-import { LogConfig } from '@basemaps/shared';
-import { LambdaAlbRequest, LambdaHttpRequest } from '@linzjs/lambda';
-import { Context } from 'aws-lambda';
 import o from 'ospec';
 import { handler } from '../index.js';
+import { mockRequest } from './xyz.util.js';
 
 o.spec('LambdaXyz index', () => {
-  function req(path: string, method = 'get'): LambdaHttpRequest {
-    return new LambdaAlbRequest(
-      {
-        requestContext: null as any,
-        httpMethod: method.toUpperCase(),
-        path,
-        body: null,
-        isBase64Encoded: false,
-      },
-      {} as Context,
-      LogConfig.get(),
-    );
-  }
-
   o('should export handler', async () => {
     const foo = await import('../index.js');
     o(typeof foo.handler).equals('function');
@@ -36,7 +20,7 @@ o.spec('LambdaXyz index', () => {
       process.env.GIT_VERSION = '1.2.3';
       process.env.GIT_HASH = 'abc456';
 
-      const response = await handler.router.handle(req('/v1/version'));
+      const response = await handler.router.handle(mockRequest('/v1/version'));
 
       o(response.status).equals(200);
       o(response.statusDescription).equals('ok');
@@ -49,7 +33,7 @@ o.spec('LambdaXyz index', () => {
   });
 
   o('should respond to /ping', async () => {
-    const res = await handler.router.handle(req('/v1/ping'));
+    const res = await handler.router.handle(mockRequest('/v1/ping'));
     o(res.status).equals(200);
     o(res.statusDescription).equals('ok');
     o(res.header('cache-control')).equals('no-store');

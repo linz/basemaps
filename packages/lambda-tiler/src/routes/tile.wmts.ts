@@ -1,48 +1,48 @@
 import { Config, TileSetType } from '@basemaps/config';
-import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
-import { Env, tileWmtsFromPath } from '@basemaps/shared';
-import { getImageFormat } from '@basemaps/tiler';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import { Env } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
-import { Router } from '../router.js';
+import { NotFound, NotModified } from '../util/response.js';
+import { Validate } from '../util/validate.js';
 import { WmtsCapabilities } from '../wmts.capability.js';
-import { NotFound, NotModified } from './response.js';
-import { TileEtag } from './tile.etag.js';
+import { Etag } from '../util/etag.js';
 
-export function getImageFormats(req: LambdaHttpRequest): ImageFormat[] | undefined {
-  const formats = [...req.query.getAll('format'), ...req.query.getAll('tileFormat')];
-  if (formats.length === 0) return;
-
-  const output: Set<ImageFormat> = new Set();
-  for (const fmt of formats) {
-    const parsed = getImageFormat(fmt);
-    if (parsed == null) continue;
-    output.add(parsed);
-  }
-  if (output.size === 0) return;
-  return [...output.values()];
+export interface WmtsCapabilitiesGet {
+  Params: {
+    tileSet?: string;
+    tileMatrix?: string;
+  };
 }
 
+export function getWmtsTileMatrix(tileMatrixParam?: string): TileMatrixSet[] | null {
+  if (tileMatrixParam == null) return [GoogleTms, Nztm2000QuadTms];
+  const tileMatrix = Validate.getTileMatrixSet(tileMatrixParam);
+  if (tileMatrix == null) return null;
+  return [tileMatrix];
+}
 /**
  * Serve a WMTS request
  *
  * /v1/tiles/:tileSet/:tileMatrixSet/WMTSCapabilities.xml
  * @example `/v1/tiles/aerial/NZTM2000Quad/WMTSCapabilities.xml`
  */
-export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
-  const action = Router.action(req);
-  const wmtsData = tileWmtsFromPath(action.rest);
-  if (wmtsData == null) return NotFound;
+export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitiesGet>): Promise<LambdaHttpResponse> {
+  const apiKey = Validate.apiKey(req);
+
+  const tileSetName = req.params.tileSet ?? 'aerial';
+  const tileMatrix = getWmtsTileMatrix(req.params.tileMatrix);
+  if (tileMatrix == null) return NotFound;
+
   const host = Env.get(Env.PublicUrlBase) ?? '';
 
   req.timer.start('tileset:load');
-  const tileSet = await Config.TileSet.get(Config.TileSet.id(wmtsData.name ?? 'aerial'));
+  const tileSet = await Config.TileSet.get(Config.TileSet.id(tileSetName ?? 'aerial'));
   req.timer.end('tileset:load');
   if (tileSet == null || tileSet.type !== TileSetType.Raster) return NotFound;
 
   const provider = await Config.Provider.get(Config.Provider.id('linz'));
 
-  const tileMatrix = wmtsData.tileMatrix == null ? [GoogleTms, Nztm2000QuadTms] : [wmtsData.tileMatrix];
   req.timer.start('imagery:load');
   const imagery = await Config.getAllImagery(
     tileSet.layers,
@@ -50,23 +50,22 @@ export async function wmts(req: LambdaHttpRequest): Promise<LambdaHttpResponse> 
   );
   req.timer.end('imagery:load');
 
-  const apiKey = Router.apiKey(req);
   const xml = new WmtsCapabilities({
     httpBase: host,
     provider: provider ?? undefined,
     tileSet,
     tileMatrix,
-    isIndividualLayers: wmtsData.tileMatrix == null,
+    isIndividualLayers: req.params.tileMatrix == null,
     imagery,
     apiKey,
-    formats: getImageFormats(req),
+    formats: Validate.getRequestedFormats(req),
   }).toXml();
   if (xml == null) return NotFound;
 
   const data = Buffer.from(xml);
 
   const cacheKey = createHash('sha256').update(data).digest('base64');
-  if (TileEtag.isNotModified(req, cacheKey)) return NotModified;
+  if (Etag.isNotModified(req, cacheKey)) return NotModified;
 
   const response = new LambdaHttpResponse(200, 'ok');
   response.header(HttpHeader.ETag, cacheKey);

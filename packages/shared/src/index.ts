@@ -9,7 +9,6 @@ Config.setConfigProvider(new ConfigProviderDynamo(Const.TileMetadata.TableName))
 export { Config } from '@basemaps/config';
 export { Const, Env } from './const.js';
 export { LogConfig, LogType } from './log.js';
-export * from './api.path.js';
 export * from './api.js';
 export { V, VNode, VNodeElement, VNodeText } from './vdom.js';
 export { CompositeError } from './composite.error.js';

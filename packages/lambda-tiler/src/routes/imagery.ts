@@ -4,8 +4,8 @@ import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambd
 import { createHash } from 'crypto';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
-import { NotModified } from './response.js';
-import { TileEtag } from './tile.etag.js';
+import { NotModified } from '../util/response.js';
+import { Etag } from '../util/etag.js';
 
 const gzipP = promisify(gzip);
 
@@ -43,7 +43,7 @@ export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<La
     const buf = await fsa.read(targetPath);
     const cacheKey = createHash('sha256').update(buf).digest('base64');
 
-    if (TileEtag.isNotModified(req, cacheKey)) return NotModified;
+    if (Etag.isNotModified(req, cacheKey)) return NotModified;
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);

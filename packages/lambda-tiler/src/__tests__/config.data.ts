@@ -1,5 +1,5 @@
-import { ConfigTileSetRaster, TileSetType, ConfigImagery, ConfigProvider } from '@basemaps/config';
-import { ImageFormat } from '@basemaps/geo';
+import { ConfigImagery, ConfigProvider, ConfigTileSetRaster, ConfigTileSetVector, TileSetType } from '@basemaps/config';
+import { ImageFormat, VectorFormat } from '@basemaps/geo';
 
 export const TileSetAerial: ConfigTileSetRaster = {
   id: 'ts_aerial',
@@ -19,6 +19,24 @@ export const TileSetAerial: ConfigTileSetRaster = {
     },
   ],
 };
+export const TileSetVector: ConfigTileSetVector = {
+  id: 'ts_topographic',
+  type: TileSetType.Vector,
+  name: 'topotgrpahic',
+  description: 'topotgrpahic__description',
+  title: 'topotgrpahic Imagery',
+  category: 'Basemap',
+  format: VectorFormat.MapboxVectorTiles,
+  layers: [
+    {
+      3857: 's3://linz-basemaps/01G7WQMGHB7V946M0YWJJBZ6DW/topopgraphic.tar.co',
+      title: 'Vector tiles',
+      category: 'Vector Tiles',
+      name: 'Vector tiles',
+    },
+  ],
+};
+
 export const Imagery2193: ConfigImagery = {
   id: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
   name: 'ōtorohanga_urban_2021_0-1m_RGB',
@@ -80,3 +98,23 @@ export const Provider: ConfigProvider = {
     site: 'https://example.provider.com',
   },
 };
+
+export class FakeData {
+  static tileSetRaster(name: string): ConfigTileSetRaster {
+    const tileSet = JSON.parse(JSON.stringify(TileSetAerial));
+
+    tileSet.name = name;
+    tileSet.id = `ts_${name};`;
+
+    return tileSet;
+  }
+
+  static tileSetVector(name: string): ConfigTileSetVector {
+    const tileSet = JSON.parse(JSON.stringify(TileSetAerial));
+
+    tileSet.name = name;
+    tileSet.id = `ts_${name};`;
+
+    return tileSet;
+  }
+}
