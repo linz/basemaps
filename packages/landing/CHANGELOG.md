@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.31.0](https://github.com/linz/basemaps/compare/v6.30.0...v6.31.0) (2022-07-22)
+
+
+### Bug Fixes
+
+* **landing:** ignore all layers with " dem " in the title ([#2350](https://github.com/linz/basemaps/issues/2350)) ([a90e179](https://github.com/linz/basemaps/commit/a90e179754b950ab319181789830b7bcdd8e8713))
+* **landing:** remove full screen button in debug mode as it obsures text BM-635 ([#2344](https://github.com/linz/basemaps/issues/2344)) ([052f45c](https://github.com/linz/basemaps/commit/052f45c3625704aeada3bd3d7bba2550c99268d5))
+
+
+### Features
+
+* upgrade proj to 2.8.0 as it has improved transverse mercator projection logic BM-631 ([#2346](https://github.com/linz/basemaps/issues/2346)) ([4b74efb](https://github.com/linz/basemaps/commit/4b74efb07f69ceeaea9351d8e8012bc214c7614c))
+
+
+
+
+
 # [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
 
 
