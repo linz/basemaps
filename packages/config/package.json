@@ -29,6 +29,8 @@
   ],
   "dependencies": {
     "@basemaps/geo": "^6.28.1",
+    "@chunkd/fs": "^8.4.0",
+    "@cotar/core": "^5.4.0",
     "base-x": "^4.0.0",
     "zod": "^3.17.3"
   }

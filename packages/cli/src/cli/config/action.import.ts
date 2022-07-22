@@ -41,6 +41,7 @@ export class CommandImport extends CommandLineAction {
       argumentName: 'ASSETS',
       parameterLongName: '--assets',
       description: 'Add assets location into the config bundle file',
+      required: true,
     });
     this.commit = this.defineFlagParameter({
       parameterLongName: '--commit',
@@ -56,7 +57,7 @@ export class CommandImport extends CommandLineAction {
     const config = this.config.value;
     const backup = this.backup.value;
     const assets = this.assets.value;
-    if (config == null) throw new Error('Please provide a config json');
+    if (config == null || assets == null) throw new Error('Please provide a config json and assets location');
     if (commit && !config.startsWith('s3://')) {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
     }
@@ -84,9 +85,9 @@ export class CommandImport extends CommandLineAction {
         id: Config.ConfigBundle.id(configJson.hash),
         name: Config.ConfigBundle.id(`config-${configJson.hash}.json`),
         path: config,
+        assets,
         hash: configJson.hash,
       };
-      if (assets) configBundle.assets = assets;
       logger.info({ config }, 'Import:ConfigBundle');
 
       if (Config.ConfigBundle.isWriteable()) {
