@@ -1,5 +1,4 @@
 import { Epsg } from '@basemaps/geo';
-import { AssetProvider } from './assets.config.js';
 import { BaseConfig } from './config/base.js';
 import { ConfigBundle } from './config/config.bundle.js';
 import { ConfigPrefix, ConfigPrefixes } from './config/prefix.js';

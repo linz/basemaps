@@ -1,9 +1,9 @@
 import { Env } from '@basemaps/shared';
-import { fsa } from '@chunkd/fs';
 import path from 'path';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { NotFound } from './response.js';
-import { isGzip, serveFromCotar } from '../cotar.cache.js';
+import { serveAssets } from '../cotar.cache.js';
+import { fsa } from '@chunkd/fs';
 
 interface SpriteGet {
   Params: {
@@ -16,6 +16,7 @@ Extensions.set('.png', 'image/png');
 Extensions.set('.json', 'application/json');
 
 export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<LambdaHttpResponse> {
+  //TODO: Replace this with cb_.assets
   const assetLocation = Env.get(Env.AssetLocation);
   if (assetLocation == null) return NotFound;
 
@@ -24,18 +25,5 @@ export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<Lamb
   if (mimeType == null) return NotFound;
 
   const targetFile = fsa.join('sprites', req.params.spriteName);
-  if (assetLocation.endsWith('.tar.co')) return serveFromCotar(assetLocation, targetFile, mimeType);
-
-  try {
-    const filePath = fsa.join(assetLocation, targetFile);
-    req.set('target', filePath);
-
-    const buf = await fsa.read(filePath);
-    const res = LambdaHttpResponse.ok().buffer(buf, mimeType);
-    if (isGzip(buf)) res.header('content-encoding', 'gzip');
-    return res;
-  } catch (e: any) {
-    if (e.code === 404) return NotFound;
-    throw e;
-  }
+  return serveAssets(assetLocation, targetFile, mimeType);
 }

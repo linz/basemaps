@@ -3,7 +3,7 @@ import { fsa } from '@chunkd/fs';
 import o from 'ospec';
 import { handler } from '../../index.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
-import { fontList, getFonts } from '../fonts.js';
+import { fontList } from '../fonts.js';
 import { FsMemory } from './memory.fs.js';
 
 o.spec('/v1/fonts', () => {
@@ -21,21 +21,9 @@ o.spec('/v1/fonts', () => {
     memory.files.clear();
   });
 
-  o('should list font types', async () => {
-    await Promise.all([
-      fsa.write('memory://fonts/Roboto Thin/0-255.pbf', Buffer.from('')),
-      fsa.write('memory://fonts/Roboto Thin/256-512.pbf', Buffer.from('')),
-      fsa.write('memory://fonts/Roboto Black/0-255.pbf', Buffer.from('')),
-    ]);
-
-    const fonts = await getFonts('memory://fonts/');
-    o(fonts).deepEquals(['Roboto Black', 'Roboto Thin']);
-  });
-
-  o('should return empty list if no fonts found', async () => {
+  o('should return 404 for non font.json', async () => {
     const res = await fontList();
-    o(res.status).equals(200);
-    o(res.body).equals('[]');
+    o(res.status).equals(404);
   });
 
   o('should return 404 if no assets defined', async () => {
@@ -45,16 +33,12 @@ o.spec('/v1/fonts', () => {
   });
 
   o('should return a list of fonts found', async () => {
-    await Promise.all([
-      fsa.write('memory://fonts/Roboto Thin/0-255.pbf', Buffer.from('')),
-      fsa.write('memory://fonts/Roboto Thin/256-512.pbf', Buffer.from('')),
-      fsa.write('memory://fonts/Roboto Black/0-255.pbf', Buffer.from('')),
-    ]);
+    await fsa.write('memory://fonts.json', Buffer.from(JSON.stringify(['Roboto Black', 'Roboto Thin'])));
     const res = await fontList();
     o(res.status).equals(200);
     o(res.header('content-type')).equals('application/json');
     o(res.header('content-encoding')).equals(undefined);
-    o(res.body).equals(JSON.stringify(['Roboto Black', 'Roboto Thin']));
+    o(res._body?.toString()).equals(JSON.stringify(['Roboto Black', 'Roboto Thin']));
   });
 
   o('should get the correct font', async () => {

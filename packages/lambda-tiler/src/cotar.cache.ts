@@ -1,3 +1,4 @@
+import { AssetProvider } from '@basemaps/config';
 import { fsa } from '@chunkd/fs';
 import { Cotar } from '@cotar/core';
 import { LambdaHttpResponse } from '@linzjs/lambda';
@@ -20,22 +21,16 @@ export class CotarCache {
 }
 
 /**
- *  Load a cotar and look for a file inside the cotar returning the file back as a LambdaResponse
+ *  Load a assets from local path or cotar returning the file back as a LambdaResponse
  *
  * This will also set two headers
  * - Content-Encoding if the file starts with gzip magic
  * - Content-Type from the parameter contentType
  */
-export async function serveFromCotar(
-  cotarPath: string,
-  assetPath: string,
-  contentType: string,
-): Promise<LambdaHttpResponse> {
-  const cotar = await CotarCache.get(cotarPath);
-  if (cotar == null) return NotFound;
-  const fileData = await cotar.get(assetPath);
-  if (fileData == null) return NotFound;
-  const buf = Buffer.from(fileData);
+export async function serveAssets(path: string, file: string, contentType: string): Promise<LambdaHttpResponse> {
+  const assetsProvider = new AssetProvider(path);
+  const buf = await assetsProvider.get(file);
+  if (buf == null) return NotFound;
   const ret = LambdaHttpResponse.ok().buffer(buf, contentType);
   if (isGzip(buf)) ret.header('content-encoding', 'gzip');
   return ret;
