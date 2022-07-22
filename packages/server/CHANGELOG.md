@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.31.0](https://github.com/linz/basemaps/compare/v6.30.0...v6.31.0) (2022-07-22)
+
+
+### Bug Fixes
+
+* **server:** actually start the server from the cli ([#2347](https://github.com/linz/basemaps/issues/2347)) ([a5e382b](https://github.com/linz/basemaps/commit/a5e382b681d80136a1602dbe681a8b2c511aa818))
+
+
+### Features
+
+* **server:** Allow to start server from a config bundle dynamo reference ([#2339](https://github.com/linz/basemaps/issues/2339)) ([366ef79](https://github.com/linz/basemaps/commit/366ef793312b82a498d3ab56bc60b01e0574f6d4))
+
+
+
+
+
 # [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
 
 

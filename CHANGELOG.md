@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.31.0](https://github.com/linz/basemaps/compare/v6.30.0...v6.31.0) (2022-07-22)
+
+
+### Bug Fixes
+
+* **cli:** do not use built in fetch ([#2341](https://github.com/linz/basemaps/issues/2341)) ([415b877](https://github.com/linz/basemaps/commit/415b877767561bcc2462652e36bead2bc82617ea))
+* **lambda-tiler:** correct wgs84 bounding box when layers are large BM-631 ([#2345](https://github.com/linz/basemaps/issues/2345)) ([5d469f9](https://github.com/linz/basemaps/commit/5d469f96f9aee0cfff8200805bb8a69a03c61928))
+* **lambda-tiler:** use the imagery title if we have it over the title from the collection.json ([#2340](https://github.com/linz/basemaps/issues/2340)) ([d73c48a](https://github.com/linz/basemaps/commit/d73c48a26328c1bda63b1e9b458f0eba27ffefc9))
+* **landing:** remove full screen button in debug mode as it obsures text BM-635 ([#2344](https://github.com/linz/basemaps/issues/2344)) ([052f45c](https://github.com/linz/basemaps/commit/052f45c3625704aeada3bd3d7bba2550c99268d5))
+* **server:** actually start the server from the cli ([#2347](https://github.com/linz/basemaps/issues/2347)) ([a5e382b](https://github.com/linz/basemaps/commit/a5e382b681d80136a1602dbe681a8b2c511aa818))
+
+
+### Features
+
+* upgrade proj to 2.8.0 as it has improved transverse mercator projection logic BM-631 ([#2346](https://github.com/linz/basemaps/issues/2346)) ([4b74efb](https://github.com/linz/basemaps/commit/4b74efb07f69ceeaea9351d8e8012bc214c7614c))
+* **cli:** Import config will update the latest ConfigBundle dynamo record. ([#2338](https://github.com/linz/basemaps/issues/2338)) ([25e864c](https://github.com/linz/basemaps/commit/25e864cb767af08bbe1d3df245666c2b6e8ecb44))
+* **config:** Insert a config bundle records in dynamodb to refference the config file in s3. ([#2335](https://github.com/linz/basemaps/issues/2335)) ([143eeda](https://github.com/linz/basemaps/commit/143eeda69ab6eb6de70c7aed0247b6333ebb5bdf))
+* **config:** use base58 hashes ([#2342](https://github.com/linz/basemaps/issues/2342)) ([8688351](https://github.com/linz/basemaps/commit/8688351834b0e00827024b25709d790d96522cb9))
+* **server:** Allow to start server from a config bundle dynamo reference ([#2339](https://github.com/linz/basemaps/issues/2339)) ([366ef79](https://github.com/linz/basemaps/commit/366ef793312b82a498d3ab56bc60b01e0574f6d4))
+
+
+
+
+
 # [6.30.0](https://github.com/linz/basemaps/compare/v6.29.0...v6.30.0) (2022-07-20)
 
 
