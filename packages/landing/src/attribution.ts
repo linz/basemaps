@@ -74,7 +74,8 @@ export class MapAttribution {
 
   // Ignore DEMS from the attribution list
   isIgnored = (attr: AttributionBounds): boolean => {
-    return attr.collection.title.toLowerCase().startsWith('geographx');
+    const title = attr.collection.title.toLowerCase();
+    return title.startsWith('geographx') || title.includes(' dem ');
   };
 
   /**
