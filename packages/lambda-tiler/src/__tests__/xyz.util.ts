@@ -1,4 +1,3 @@
-import { TileMatrixSet } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaUrlRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
@@ -18,11 +17,11 @@ export function mockRequest(path: string, method = 'get', headers: Record<string
   );
 }
 
-export function mockUrlRequest(path: string, query: string): LambdaHttpRequest {
+export function mockUrlRequest(path: string, query = '', headers: Record<string, unknown> = {}): LambdaHttpRequest {
   return new LambdaUrlRequest(
     {
       requestContext: { http: { method: 'GET' } },
-      headers: {},
+      headers,
       rawPath: encodeURI(path),
       rawQueryString: query,
       isBase64Encoded: false,
@@ -31,25 +30,6 @@ export function mockUrlRequest(path: string, query: string): LambdaHttpRequest {
     LogConfig.get(),
   );
 }
-
-// export class FakeTileSet extends TileSetRaster {
-//   constructor(name: string, tileMatrix: TileMatrixSet, title = `${name}:title`, description = `${name}:description`) {
-//     super(name, tileMatrix);
-//     this.tileSet = {
-//       name,
-//       title,
-//       description,
-//       layers: [{ name: `imagery_${name}`, [tileMatrix.projection.code]: `im_${title}` }],
-//     } as any;
-//   }
-// }
-
-// export class FakeTileSetVector extends TileSetVector {
-//   constructor(name: string, tileMatrix: TileMatrixSet) {
-//     super(name, tileMatrix);
-//     this.tileSet = {} as any;
-//   }
-// }
 
 export const Api = {
   key: 'd01f7w7rnhdzg0p7fyrc9v9ard1',

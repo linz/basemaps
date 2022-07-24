@@ -105,7 +105,7 @@ o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
   });
 
   o('should serve vector tiles with min/max zoom', async () => {
-    const fakeTileSet = FakeData.tileSetVector('fakvector');
+    const fakeTileSet = FakeData.tileSetVector('fake-vector');
     fakeTileSet.maxZoom = 15;
     fakeTileSet.minZoom = 3;
     config.put(fakeTileSet);
@@ -124,7 +124,7 @@ o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
   });
 
   o('should serve convert zoom to tile matrix', async () => {
-    const fakeTileSet = FakeData.tileSetVector('fakvector');
+    const fakeTileSet = FakeData.tileSetVector('fake-vector');
     fakeTileSet.maxZoom = 15;
     fakeTileSet.minZoom = 1;
     config.put(fakeTileSet);

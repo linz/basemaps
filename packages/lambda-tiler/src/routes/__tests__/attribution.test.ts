@@ -1,20 +1,13 @@
-// import { ConfigImagery, ConfigLayer, ConfigProvider } from '@basemaps/config';
-// import { EpsgCode, GoogleTms, NamedBounds, Nztm2000QuadTms, Nztm2000Tms, Stac, TileMatrixSets } from '@basemaps/geo';
-// import { HttpHeader } from '@linzjs/lambda';
-// import { Config } from '@basemaps/shared';
-// import { mockFileOperator } from '@basemaps/shared/build/file/__tests__/file.operator.test.helper.js';
-// import { round } from '@basemaps/test/build/rounding.js';
-// import o from 'ospec';
-// import sinon from 'sinon';
-// const sandbox = sinon.createSandbox();
-// import { TileSets } from '../../tile.set.cache.js';
-// import { TileSetRaster } from '../../tile.set.raster.js';
-// import { FakeTileSet, mockRequest } from '../../__tests__/xyz.util.js';
-// import { createAttributionCollection } from '../attribution.js';
-// import { Etag } from '../../util/etag.js';
-// import { Attribution } from '@basemaps/attribution';
-// import { Provider } from '../../__tests__/config.data.js';
-// import { handler } from '../../index.js';
+import { Attribution } from '@basemaps/attribution';
+import { Config, ConfigProviderMemory } from '@basemaps/config';
+import { Nztm2000QuadTms } from '@basemaps/geo';
+import { LogConfig } from '@basemaps/shared';
+import { HttpHeader } from '@linzjs/lambda';
+import o from 'ospec';
+import sinon from 'sinon';
+import { handler } from '../../index.js';
+import { FakeData, Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
+import { mockUrlRequest } from '../../__tests__/xyz.util.js';
 
 // const ExpectedJson = {
 //   id: 'aerial_WebMercatorQuad',
@@ -284,153 +277,112 @@
 //     updatedAt: Date.now(),
 //   };
 // }
-// o.spec('/v1/attribution', () => {
-//   o.spec('fetch', () => {
-//     const origTileEtag = Etag.generate;
-//     const generateMock = o.spy(() => 'foo');
-//     const TileSetNames = ['aerial', 'aerial@head', 'aerial@beta', '01E7PJFR9AMQFJ05X9G7FQ3XMW'];
+o.spec('/v1/attribution', () => {
+  const config = new ConfigProviderMemory();
+  const sandbox = sinon.createSandbox();
 
-//     const mockFs = mockFileOperator();
+  o.beforeEach(() => {
+    LogConfig.get().level = 'silent';
+    Config.setConfigProvider(config);
+    config.objects.clear();
 
-//     o.beforeEach(() => {
-//       mockFs.setup();
-//       Etag.generate = generateMock;
-//       // Mock the tile generation
-//       for (const tileSetName of TileSetNames) {
-//         for (const tileMatrix of TileMatrixSets.Defaults.values()) {
-//           const tileSet = new FakeTileSet(tileSetName, tileMatrix);
-//           TileSets.add(tileSet);
-//           const layers: ConfigLayer[] = [];
-//           const imagery = new Map<string, ConfigImagery>();
-//           const addRule = (id: string, name: string, minZoom = 10): void => {
-//             const imgId = Config.Imagery.id(id);
-//             imagery.set(imgId, makeImageRecord(imgId, name, minZoom));
-//             layers.push({
-//               [3857]: imgId,
-//               name,
-//               minZoom,
-//               maxZoom: minZoom + 2,
-//             });
-//           };
-//           addRule('imageId1', 'hastings-district_urban_2011-13_0.1m', 14);
-//           addRule('imageId2', 'hastings-district_urban_2013-14_0.1m', 15);
-//           addRule('imageId3', 'hastings-district_urban_2015-17_0.1m', 16);
-//           addRule('imageId4', 'hastings-district_urban_2017-18_0.1m', 14);
-//           tileSet.tileSet.layers = layers;
-//           tileSet.imagery = imagery;
-//         }
-//       }
-//       sandbox.stub(Config.Provider, 'get').callsFake(() => Promise.resolve(Provider));
-//     });
+    config.put(TileSetAerial);
+    config.put(Imagery2193);
+    config.put(Imagery3857);
+    config.put(Provider);
+  });
 
-//     o.afterEach(() => {
-//       sandbox.restore();
-//       mockFs.teardown();
-//       TileSets.cache.clear();
-//       Etag.generate = origTileEtag;
-//     });
+  o.afterEach(() => {
+    sandbox.restore();
+  });
 
-//     o('should notFound', async () => {
-//       const request = mockRequest(`/v1/attribution/aerial/1234/summary.json`);
-//       const res = await handler.router.handle(request);
+  o('should notFound', async () => {
+    const request = mockUrlRequest(`/v1/attribution/aerial/1234/summary.json`);
+    const res = await handler.router.handle(request);
 
-//       o(res.status).equals(404);
-//     });
+    o(res.status).equals(404);
+  });
 
-//     o('should 200 with etag mismatch', async () => {
-//       mockFs.jsStore['s3://bucket/path/image1/collection.json'] = {
-//         extent: {
-//           spatial: { bbox: [1, 2, 3, 4] },
-//           temporal: { interval: [['2018-02-03T01:02:03Z', '2018-09-13T11:32:43Z']] },
-//         },
-//         title: 'image one',
-//         description: 'image one description',
-//         license: Stac.License,
-//         providers: [
-//           {
-//             name: 'p1',
-//           },
-//         ],
-//         summaries: {},
-//       };
-//       mockFs.jsStore['s3://bucket/path/image2/collection.json'] = {
-//         extent: {
-//           spatial: { bbox: [5, 6, 7, 8] },
-//           temporal: { interval: [['2016-02-03T01:02:03Z', '2018-09-13T11:32:43Z']] },
-//         },
-//         summaries: {},
-//       };
+  o('should 304 with etag match', async () => {
+    const request = mockUrlRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`, 'get', {
+      [HttpHeader.IfNoneMatch]: 'E5HGpTqF8AiJ7VgGVKLehYnVfLN9jaVw8Sy6UafJRh2f',
+    });
 
-//       const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`);
-//       const res = await handler.router.handle(request);
+    const res = await handler.router.handle(request);
 
-//       o(res.status).equals(200);
-//       o(res.header(HttpHeader.ETag)).equals('2csa58C4NkewyWwRoArqD5uLra6UwgRL1PkYXtDze1uT');
-//       o(res.header(HttpHeader.CacheControl)).equals('public, max-age=86400, stale-while-revalidate=604800');
+    if (res.status === 200) o(res.header('etag')).equals('E5HGpTqF8AiJ7VgGVKLehYnVfLN9jaVw8Sy6UafJRh2f');
 
-//       const body = round(JSON.parse(res.body as string), 4);
-//       o(body).deepEquals(ExpectedJson);
-//     });
+    console.log(res.header('etag'));
+    o(res.status).equals(304);
+  });
 
-//     o('should 304 with etag match', async () => {
-//       const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`, 'get', {
-//         [HttpHeader.IfNoneMatch]: '2csa58C4NkewyWwRoArqD5uLra6UwgRL1PkYXtDze1uT',
-//       });
-//       const res = await handler.router.handle(request);
-//       o(res.status).equals(304);
-//     });
+  o('should parse attribution', async () => {
+    const request = mockUrlRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`);
+    const res = await handler.router.handle(request);
+    o(res.status).equals(200);
 
-//     o('should parse attribution', async () => {
-//       const request = mockRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`);
-//       const res = await handler.router.handle(request);
+    const json = JSON.parse(res.body);
 
-//       const json = JSON.parse(res.body as string);
+    const attr = Attribution.fromStac(json);
+    o(attr.attributions.length).equals(1);
+    o(attr.attributions[0].minZoom).equals(0);
+    o(attr.attributions[0].maxZoom).equals(32);
+  });
 
-//       const attr = Attribution.fromStac(json);
-//       o(attr.attributions.length).equals(4);
-//       o(attr.attributions[0].minZoom).equals(14);
-//       o(attr.attributions[0].maxZoom).equals(16);
-//     });
-//   });
+  o.spec('ImageryRules', () => {
+    const fakeLayer = { [2193]: Imagery2193.id, name: 'image', minZoom: 9, maxZoom: 16 };
+    const ts = FakeData.tileSetRaster('fake');
 
-//   o.spec('ImageryRule', () => {
-//     const fakeIm = { name: 'someName' } as ConfigImagery;
-//     const fakeHost = { serviceProvider: {} } as ConfigProvider;
-//     const fakeLayer = { [2193]: 'id', name: 'image', minZoom: 9, maxZoom: 16 };
+    o.beforeEach(() => {
+      ts.layers = [fakeLayer];
+      config.put(Imagery2193);
+      config.put(ts);
+    });
 
-//     o('should generate for NZTM', () => {
-//       const ts = new TileSetRaster('Fake', Nztm2000Tms);
-//       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
+    o('should generate for NZTM', async () => {
+      const req = mockUrlRequest('/v1/tiles/fake/NZTM2000/attribution.json', '');
+      const res = await handler.router.handle(req);
+      o(res.status).equals(200);
 
-//       const output = createAttributionCollection(ts, fakeIm, fakeLayer, fakeHost, null as any);
-//       o(output.title).equals('SomeName');
-//       o(output.summaries['linz:zoom']).deepEquals({ min: 5, max: 11 });
-//     });
+      const output = JSON.parse(res.body);
+      o(output.title).equals(ts.title);
+      o(output.collections[0].summaries['linz:zoom']).deepEquals({ min: 5, max: 11 });
+    });
 
-//     o('should generate with correct zooms for NZTM2000Quad', () => {
-//       const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
-//       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
-//       const output = createAttributionCollection(ts, fakeIm, fakeLayer, fakeHost, null as any);
-//       o(output.title).equals('SomeName');
-//       o(output.summaries['linz:zoom']).deepEquals({ min: 7, max: 14 });
-//     });
+    o('should generate with correct zooms for NZTM2000Quad', async () => {
+      const req = mockUrlRequest('/v1/tiles/fake/NZTM2000Quad/attribution.json', '');
+      const res = await handler.router.handle(req);
+      o(res.status).equals(200);
 
-//     o('should generate with correct zooms for gebco NZTM2000Quad', () => {
-//       const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 15 };
-//       const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
-//       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
-//       const output = createAttributionCollection(ts, fakeIm, fakeGebco, fakeHost, null as any);
-//       o(output.title).equals('SomeName');
-//       o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: 13 });
-//     });
+      const output = JSON.parse(res.body);
+      o(output.title).equals(ts.title);
+      o(output.collections[0].summaries['linz:zoom']).deepEquals({ min: 7, max: 14 });
+    });
 
-//     o('should generate with correct zooms for nz sentinel NZTM2000Quad', () => {
-//       const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 32 };
-//       const ts = new TileSetRaster('Fake', Nztm2000QuadTms);
-//       ts.tileSet = { ...ts.tileSet, layers: [fakeLayer] };
-//       const output = createAttributionCollection(ts, fakeIm, fakeGebco, fakeHost, null as any);
-//       o(output.title).equals('SomeName');
-//       o(output.summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });
-//     });
-//   });
-// });
+    o('should generate with correct zooms for gebco NZTM2000Quad', async () => {
+      const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 15 };
+      ts.layers = [fakeGebco];
+
+      const req = mockUrlRequest('/v1/tiles/fake/NZTM2000Quad/attribution.json', '');
+      const res = await handler.router.handle(req);
+      o(res.status).equals(200);
+
+      const output = JSON.parse(res.body);
+      o(output.title).equals(ts.title);
+      o(output.collections[0].summaries['linz:zoom']).deepEquals({ min: 0, max: 13 });
+    });
+
+    o('should generate with correct zooms for nz sentinel NZTM2000Quad', async () => {
+      const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 32 };
+      ts.layers = [fakeGebco];
+
+      const req = mockUrlRequest('/v1/tiles/fake/NZTM2000Quad/attribution.json', '');
+      const res = await handler.router.handle(req);
+      o(res.status).equals(200);
+
+      const output = JSON.parse(res.body);
+      o(output.title).equals(ts.title);
+      o(output.collections[0].summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });
+    });
+  });
+});

@@ -72,7 +72,7 @@ export const Imagery3857: ConfigImagery = {
 
 export const Provider: ConfigProvider = {
   name: 'main',
-  id: 'pv_main_production',
+  id: 'pv_linz',
   updatedAt: Date.now(),
   version: 1,
   serviceIdentification: {
@@ -104,16 +104,16 @@ export class FakeData {
     const tileSet = JSON.parse(JSON.stringify(TileSetAerial));
 
     tileSet.name = name;
-    tileSet.id = `ts_${name};`;
+    tileSet.id = `ts_${name}`;
 
     return tileSet;
   }
 
   static tileSetVector(name: string): ConfigTileSetVector {
-    const tileSet = JSON.parse(JSON.stringify(TileSetAerial));
+    const tileSet = JSON.parse(JSON.stringify(TileSetVector));
 
     tileSet.name = name;
-    tileSet.id = `ts_${name};`;
+    tileSet.id = `ts_${name}`;
 
     return tileSet;
   }
