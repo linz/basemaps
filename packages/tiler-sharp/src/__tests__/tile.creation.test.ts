@@ -31,7 +31,8 @@ function getExpectedTile(projection: Epsg, tileSize: number, tile: Tile): PNG {
 
 o.spec('TileCreation', () => {
   // Ensure macosx has enough time to generate tiles
-  o.timeout(5000);
+  o.specTimeout(5000);
+
   o('should generate a tile', async () => {
     const tiff = await TestTiff.Google.init();
     const tiler = new Tiler(GoogleTms);
