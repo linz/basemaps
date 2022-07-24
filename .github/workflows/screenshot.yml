@@ -1,0 +1,65 @@
+name: Screenshot
+
+on: [push]
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    env:
+      BASEMAPS_BUCKET: linz-basemaps
+
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: linz/action-typescript@v1
+
+      # Package all the files
+      - name: Bundle & Package all files
+        run: |
+          npx lerna run bundle --stream
+          npm pack --workspaces
+        env:
+          NODE_ENV: "production"
+
+      - name: (NonProd) Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_NON_PROD }}
+      
+      - name: (Screenshot) Screenshot Pull Request Changes
+        run: |
+          ./packages/cli/bin/bmc.js screenshot --tiles packages/cli/test-tiles/default.test.tiles.json --output .artifacts/visual-snapshots
+
+      - name: Save snapshots
+        uses: getsentry/action-visual-snapshot@v2
+        with:
+          save-only: true
+          snapshot-path: .artifacts/visual-snapshots
+
+  visual-diff:
+    permissions:
+      id-token: write
+      contents: write
+      checks: write
+    needs: [screenshot]
+    name: validate screenshots
+    if: github.ref != 'refs/heads/master' && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: AWS Configure
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
+
+      - name: Diff snapshots
+        id: visual-snapshots-diff
+        uses: blacha/action-visual-snapshot@v2
+        with:
+          storage-prefix: "s3://linz-basemaps-screenshot"
+          storage-url: "https://d25mfjh9syaxsr.cloudfront.net"
