@@ -33,11 +33,12 @@ export class ServeStack extends cdk.Stack {
      */
     const lambda = new LambdaTiler(this, 'LambdaTiler', { vpc, staticBucketName: props.staticBucketName });
     const table = new TileMetadataTable(this, 'TileMetadata');
-    table.table.grantReadData(lambda.lambda);
+    table.table.grantReadData(lambda.lambdaVpc);
+    table.table.grantReadData(lambda.lambdaNoVpc);
 
     const lb = new elbv2.ApplicationLoadBalancer(this, 'LB', { vpc, internetFacing: false });
 
-    const targetLambda = new targets.LambdaTarget(lambda.lambda);
+    const targetLambda = new targets.LambdaTarget(lambda.lambdaVpc);
     const targetGroup = new elbv2.ApplicationTargetGroup(this, 'TargetGroup', {
       targets: [targetLambda],
       healthCheck: {
