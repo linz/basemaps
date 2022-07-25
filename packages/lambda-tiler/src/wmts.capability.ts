@@ -35,7 +35,7 @@ export interface WmtsCapabilitiesParams {
   /** API key to append to all resource urls */
   apiKey?: string;
   /** Limit the output to the following image formats other wise @see ImageFormatOrder */
-  formats?: ImageFormat[];
+  formats?: ImageFormat[] | null;
 }
 
 /** Number of decimal places to use in lat lng */

@@ -1,23 +1,6 @@
-import { fsa } from '@chunkd/fs';
-import { Cotar } from '@cotar/core';
-import { LambdaHttpResponse } from '@linzjs/lambda';
-import { NotFound } from './routes/response.js';
-import { St } from './source.tracer.js';
-
-export class CotarCache {
-  static cache = new Map<string, Promise<Cotar | null>>();
-
-  static get(uri: string): Promise<Cotar | null> {
-    let existing = CotarCache.cache.get(uri);
-    if (existing == null) {
-      const source = fsa.source(uri);
-      St.trace(source);
-      existing = Cotar.fromTar(source);
-      CotarCache.cache.set(uri, existing);
-    }
-    return existing;
-  }
-}
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
+import { NotFound } from './response.js';
+import { CoSources } from './source.cache.js';
 
 /**
  *  Load a cotar and look for a file inside the cotar returning the file back as a LambdaResponse
@@ -31,13 +14,13 @@ export async function serveFromCotar(
   assetPath: string,
   contentType: string,
 ): Promise<LambdaHttpResponse> {
-  const cotar = await CotarCache.get(cotarPath);
+  const cotar = await CoSources.getCotar(cotarPath);
   if (cotar == null) return NotFound;
   const fileData = await cotar.get(assetPath);
   if (fileData == null) return NotFound;
   const buf = Buffer.from(fileData);
   const ret = LambdaHttpResponse.ok().buffer(buf, contentType);
-  if (isGzip(buf)) ret.header('content-encoding', 'gzip');
+  if (isGzip(buf)) ret.header(HttpHeader.ContentEncoding, 'gzip');
   return ret;
 }
 

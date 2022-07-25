@@ -1,59 +1,9 @@
-import { ImageFormat } from '@basemaps/geo';
-import { Config, LogConfig } from '@basemaps/shared';
-import { LambdaHttpRequest, LambdaUrlRequest } from '@linzjs/lambda';
-import { Context } from 'aws-lambda';
+import { Config } from '@basemaps/shared';
 import o from 'ospec';
-import { handleRequest } from '../../index.js';
-import { ulid } from 'ulid';
-import { getImageFormats } from '../tile.wmts.js';
 import { createSandbox } from 'sinon';
+import { handler } from '../../index.js';
 import { Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
-
-function newRequest(path: string, query: string): LambdaHttpRequest {
-  return new LambdaUrlRequest(
-    {
-      requestContext: { http: { method: 'GET' } },
-      headers: {},
-      rawPath: path,
-      rawQueryString: query,
-      isBase64Encoded: false,
-    } as any,
-    {} as Context,
-    LogConfig.get(),
-  );
-}
-
-o.spec('GetImageFormats', () => {
-  o('should parse all formats', () => {
-    const req = newRequest('/v1/blank', 'format=png&format=jpeg');
-    const formats = getImageFormats(req);
-    o(formats).deepEquals([ImageFormat.Png, ImageFormat.Jpeg]);
-  });
-
-  o('should ignore bad formats', () => {
-    const req = newRequest('/v1/blank', 'format=fake&format=mvt');
-    const formats = getImageFormats(req);
-    o(formats).equals(undefined);
-  });
-
-  o('should de-dupe formats', () => {
-    const req = newRequest('/v1/blank', 'format=png&format=jpeg&format=png&format=jpeg&format=png&format=jpeg');
-    const formats = getImageFormats(req);
-    o(formats).deepEquals([ImageFormat.Png, ImageFormat.Jpeg]);
-  });
-
-  o('should support "tileFormat" Alias all formats', () => {
-    const req = newRequest('/v1/blank', 'tileFormat=png&format=jpeg');
-    const formats = getImageFormats(req);
-    o(formats).deepEquals([ImageFormat.Jpeg, ImageFormat.Png]);
-  });
-
-  o('should not duplicate "tileFormat" alias all formats', () => {
-    const req = newRequest('/v1/blank', 'tileFormat=jpeg&format=jpeg');
-    const formats = getImageFormats(req);
-    o(formats).deepEquals([ImageFormat.Jpeg]);
-  });
-});
+import { Api, mockUrlRequest } from '../../__tests__/xyz.util.js';
 
 o.spec('WMTSRouting', () => {
   const sandbox = createSandbox();
@@ -70,8 +20,8 @@ o.spec('WMTSRouting', () => {
     const imageryStub = sandbox.stub(Config.Imagery, 'getAll').returns(Promise.resolve(imagery));
     const providerStub = sandbox.stub(Config.Provider, 'get').returns(Promise.resolve(Provider));
 
-    const req = newRequest('/v1/tiles/WMTSCapabilities.xml', 'format=png&api=c' + ulid());
-    const res = await handleRequest(req);
+    const req = mockUrlRequest('/v1/tiles/WMTSCapabilities.xml', `format=png&api=${Api.key}`);
+    const res = await handler.router.handle(req);
 
     o(tileSetStub.calledOnce).equals(true);
     o(tileSetStub.args[0][0]).equals('ts_aerial');

@@ -1,4 +1,4 @@
-import { ConfigImagery, ConfigLayer, ConfigProvider, TileSetType } from '@basemaps/config';
+import { ConfigTileSet, TileSetType } from '@basemaps/config';
 import {
   AttributionCollection,
   AttributionItem,
@@ -7,26 +7,15 @@ import {
   GoogleTms,
   NamedBounds,
   Stac,
-  StacCollection,
   StacExtent,
   TileMatrixSet,
 } from '@basemaps/geo';
-import {
-  CompositeError,
-  Config,
-  extractYearRangeFromName,
-  fsa,
-  Projection,
-  setNameAndProjection,
-  tileAttributionFromPath,
-  titleizeImageryName,
-} from '@basemaps/shared';
+import { Config, extractYearRangeFromName, Projection, titleizeImageryName } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { createHash } from 'crypto';
-import { Router } from '../router.js';
-import { TileSets } from '../tile.set.cache.js';
-import { TileSetRaster } from '../tile.set.raster.js';
+
+import { Etag } from '../util/etag.js';
+import { Validate } from '../util/validate.js';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
@@ -74,75 +63,30 @@ function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projection): 
   return multiPolygonToWgs84(coordinates, roundToWgs84);
 }
 
-async function readStac(uri: string): Promise<StacCollection | null> {
-  try {
-    return await fsa.readJson<StacCollection>(uri);
-  } catch (err) {
-    if (CompositeError.isCompositeError(err) && err.code < 500) {
-      return null;
-    }
-    throw err;
-  }
-}
-
-export function createAttributionCollection(
-  tileSet: TileSetRaster,
-  imagery: ConfigImagery,
-  layer: ConfigLayer,
-  host: ConfigProvider,
-  extent: StacExtent,
-): AttributionCollection {
-  const tileMatrix = tileSet.tileMatrix;
-  return {
-    stac_version: Stac.Version,
-    license: Stac.License,
-    id: imagery.id,
-    providers: [{ name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] }],
-    title: imagery.title ?? titleizeImageryName(imagery.name),
-    description: 'No description',
-    extent,
-    links: [],
-    summaries: {
-      'linz:category': imagery.category,
-      'linz:zoom': {
-        min: TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true),
-        max: TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true),
-      },
-      'linz:priority': [1000 + tileSet.tileSet.layers.indexOf(layer)],
-    },
-  };
-}
-
 /**
  * Build a Single File STAC for the given TileSet.
  *
  * For now this is the minimal set required for attribution. This can be embellished later with
  * links and assets for a more comprehensive STAC file.
  */
-async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionStac | null> {
-  const proj = Projection.get(tileSet.tileMatrix);
-  const stacFiles = new Map<string, Promise<StacCollection | null>>();
+async function tileSetAttribution(
+  req: LambdaHttpRequest,
+  tileSet: ConfigTileSet,
+  tileMatrix: TileMatrixSet,
+): Promise<AttributionStac | null> {
+  const proj = Projection.get(tileMatrix);
   const cols: AttributionCollection[] = [];
   const items: AttributionItem[] = [];
 
-  // read all stac files in parallel
-  for (const layer of tileSet.tileSet.layers) {
-    const imgId = layer[proj.epsg.code];
-    if (imgId == null) continue;
-    const im = tileSet.imagery.get(imgId);
-    if (im == null) continue;
-    if (stacFiles.get(im.uri) == null) {
-      stacFiles.set(im.uri, readStac(fsa.join(im.uri, 'collection.json')));
-    }
-  }
+  const imagery = await Config.getAllImagery(tileSet.layers, [tileMatrix.projection]);
 
   const host = await Config.Provider.get(Config.Provider.id('linz'));
   if (host == null) return null;
 
-  for (const layer of tileSet.tileSet.layers) {
+  for (const layer of tileSet.layers) {
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
-    const im = tileSet.imagery.get(imgId);
+    const im = imagery.get(imgId);
     if (im == null) continue;
 
     const bbox = proj.boundsToWgs84BoundingBox(im.bounds).map(roundNumber) as BBox;
@@ -161,10 +105,7 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
       assets: {},
       links: [],
       bbox,
-      geometry: {
-        type: 'MultiPolygon',
-        coordinates: createCoordinates(bbox, im.files, proj),
-      },
+      geometry: { type: 'MultiPolygon', coordinates: createCoordinates(bbox, im.files, proj) },
       properties: {
         title: im.title ?? titleizeImageryName(im.name),
         category: im.category,
@@ -174,45 +115,61 @@ async function tileSetAttribution(tileSet: TileSetRaster): Promise<AttributionSt
       },
     });
 
-    cols.push(createAttributionCollection(tileSet, im, layer, host, extent));
+    const zoomMin = TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true);
+    const zoomMax = TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true);
+    cols.push({
+      stac_version: Stac.Version,
+      license: Stac.License,
+      id: im.id,
+      providers: [{ name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] }],
+      title: im.title ?? titleizeImageryName(im.name),
+      description: 'No description',
+      extent,
+      links: [],
+      summaries: {
+        'linz:category': im.category,
+        'linz:zoom': { min: zoomMin, max: zoomMax },
+        'linz:priority': [1000 + tileSet.layers.indexOf(layer)],
+      },
+    });
   }
   return {
     id: tileSet.id,
     type: 'FeatureCollection',
     stac_version: Stac.Version,
     stac_extensions: ['single-file-stac'],
-    title: tileSet.title,
-    description: tileSet.description,
+    title: tileSet.title ?? 'No title',
+    description: tileSet.description ?? 'No Description',
     features: items,
     collections: cols,
     links: [],
   };
 }
 
+export interface TileAttributionGet {
+  Params: {
+    tileSet: string;
+    tileMatrix: string;
+  };
+}
+
 /**
  * Create a LambdaHttpResponse for a attribution request
  */
-export async function attribution(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
-  const action = Router.action(req);
-  const data = tileAttributionFromPath(action.rest);
-  if (data == null) return NotFound;
-  setNameAndProjection(req, data);
+export async function tileAttributionGet(req: LambdaHttpRequest<TileAttributionGet>): Promise<LambdaHttpResponse> {
+  const tileMatrix = Validate.getTileMatrixSet(req.params.tileMatrix);
+  if (tileMatrix == null) throw new LambdaHttpResponse(404, 'Tile Matrix not found');
 
   req.timer.start('tileset:load');
-  const tileSet = await TileSets.get(data.name, data.tileMatrix);
+  const tileSet = await Config.TileSet.get(Config.TileSet.id(req.params.tileSet));
   req.timer.end('tileset:load');
   if (tileSet == null || tileSet.type === TileSetType.Vector) return NotFound;
 
-  const cacheKey = createHash('sha256').update(JSON.stringify(tileSet.tileSet)).digest('base64');
-
-  const ifNoneMatch = req.header(HttpHeader.IfNoneMatch);
-  if (ifNoneMatch != null && ifNoneMatch.indexOf(cacheKey) > -1) {
-    req.set('cache', { key: cacheKey, hit: true, match: ifNoneMatch });
-    return new LambdaHttpResponse(304, 'Not modified');
-  }
+  const cacheKey = Etag.key(JSON.stringify(tileSet));
+  if (Etag.isNotModified(req, cacheKey)) return new LambdaHttpResponse(304, 'Not modified');
 
   req.timer.start('stac:load');
-  const attributions = await tileSetAttribution(tileSet);
+  const attributions = await tileSetAttribution(req, tileSet, tileMatrix);
   req.timer.end('stac:load');
 
   if (attributions == null) return NotFound;
@@ -224,6 +181,5 @@ export async function attribution(req: LambdaHttpRequest): Promise<LambdaHttpRes
   response.header(HttpHeader.CacheControl, 'public, max-age=86400, stale-while-revalidate=604800');
 
   response.json(attributions);
-
   return response;
 }

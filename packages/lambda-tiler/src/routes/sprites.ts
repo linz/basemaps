@@ -2,8 +2,8 @@ import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import path from 'path';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { NotFound } from './response.js';
-import { isGzip, serveFromCotar } from '../cotar.cache.js';
+import { NotFound } from '../util/response.js';
+import { isGzip, serveFromCotar } from '../util/cotar.serve.js';
 
 interface SpriteGet {
   Params: {

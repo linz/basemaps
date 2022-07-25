@@ -1,56 +1,80 @@
 import { LogConfig } from '@basemaps/shared';
-import { LambdaHttpRequest, LambdaHttpResponse, lf } from '@linzjs/lambda';
-import { createHash } from 'crypto';
-import { Router } from './router.js';
-import { Ping, Version } from './routes/api.js';
+import { LambdaHttpResponse, lf } from '@linzjs/lambda';
+import { tileAttributionGet } from './routes/attribution.js';
 import { fontGet, fontList } from './routes/fonts.js';
-import { Health } from './routes/health.js';
+import { healthGet } from './routes/health.js';
 import { imageryGet } from './routes/imagery.js';
+import { pingGet } from './routes/ping.js';
 import { spriteGet } from './routes/sprites.js';
-import { Tiles } from './routes/tile.js';
-import { St } from './source.tracer.js';
-
-const app = new Router();
-
-app.get('tiles', Tiles);
-
-export async function handleRequest(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
-  const apiKey = Router.apiKey(req);
-  if (apiKey != null) {
-    const apiKeyHash = createHash('sha256').update(apiKey).digest('base64');
-    req.set('api', apiKeyHash);
-  }
-  return await app.handle(req);
-}
+import { tileJsonGet } from './routes/tile.json.js';
+import { styleJsonGet } from './routes/tile.style.json.js';
+import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
+import { tileXyzGet } from './routes/tile.xyz.js';
+import { versionGet } from './routes/version.js';
+import { St } from './util/source.tracer.js';
 
 export const handler = lf.http(LogConfig.get());
 
 handler.router.hook('request', (req) => {
   req.set('name', 'LambdaTiler');
+
   // Reset the request tracing before every request
   St.reset();
 });
 
-handler.router.hook('response', (req) => {
+handler.router.hook('response', (req, res) => {
   if (St.requests.length > 0) {
     // TODO this could be relaxed to every say 5% of requests if logging gets too verbose.
     req.set('requests', St.requests.slice(0, 100)); // limit to 100 requests (some tiles need 100s of requests)
     req.set('requestCount', St.requests.length);
   }
+
+  // Ensure CORS response headers are set
+  res.header('Access-Control-Allow-Origin', '*');
 });
+
+const CorsResponse = new LambdaHttpResponse(200, 'Options', {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Credentials': 'false',
+  'Access-Control-Allow-Methods': 'OPTIONS,GET',
+});
+handler.router.options('*', () => CorsResponse);
+
 // TODO some internal health checks hit these routes, we should change them all to point at /v1/
-handler.router.get('/ping', Ping);
-handler.router.get('/health', Health);
-handler.router.get('/version', Version);
+handler.router.get('/ping', pingGet);
+handler.router.get('/health', healthGet);
+handler.router.get('/version', versionGet);
 
-handler.router.get('/v1/ping', Ping);
-handler.router.get('/v1/health', Health);
-handler.router.get('/v1/version', Version);
+handler.router.get('/v1/ping', pingGet);
+handler.router.get('/v1/health', healthGet);
+handler.router.get('/v1/version', versionGet);
 
+// Image Metadata
 handler.router.get('/v1/imagery/:imageryId/:fileName', imageryGet);
+
+// Sprites
 handler.router.get('/v1/sprites/:spriteName', spriteGet);
+
+// Fonts
 handler.router.get('/v1/fonts.json', fontList);
 handler.router.get('/v1/fonts/:fontStack/:range.pbf', fontGet);
 
-// Catch all for old requests
-handler.router.get('*', handleRequest);
+// StyleJSON
+handler.router.get('/v1/styles/:styleName.json', styleJsonGet);
+/** @deprecated 2022-07-22 all styles should be being served from /v1/styles/:styleName.json */
+handler.router.get('/v1/tiles/:tileSet/:tileMatrix/style/:styleName.json', styleJsonGet);
+
+// TileJSON
+handler.router.get('/v1/tiles/:tileSet/:tileMatrix/tile.json', tileJsonGet);
+
+// Tiles
+handler.router.get('/v1/tiles/:tileSet/:tileMatrix/:z/:x/:y.:tileType', tileXyzGet);
+
+// Attribution
+handler.router.get('/v1/tiles/:tileSet/:tileMatrix/attribution.json', tileAttributionGet);
+handler.router.get('/v1/attribution/:tileSet/:tileMatrix/summary.json', tileAttributionGet);
+
+// WMTS Capabilities
+handler.router.get('/v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml', wmtsCapabilitiesGet);
+handler.router.get('/v1/tiles/:tileSet/WMTSCapabilities.xml', wmtsCapabilitiesGet);
+handler.router.get('/v1/tiles/WMTSCapabilities.xml', wmtsCapabilitiesGet);
