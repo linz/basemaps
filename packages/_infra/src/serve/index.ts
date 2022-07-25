@@ -75,6 +75,7 @@ export class ServeStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, 'LambdaXyzAlb', { value: lb.loadBalancerDnsName });
+    new cdk.CfnOutput(this, 'LambdaXyzUrl', { value: lambda.functionUrl.url });
     new cdk.CfnOutput(this, 'LambdaXyzDns', { value: albDns.domainName });
   }
 }
