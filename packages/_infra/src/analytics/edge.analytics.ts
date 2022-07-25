@@ -29,7 +29,7 @@ export class EdgeAnalytics extends Stack {
 
     const cacheBucket = new Bucket(this, 'AnalyticCacheBucket');
     this.lambda = new lf.Function(this, 'AnalyticLambda', {
-      runtime: lf.Runtime.NODEJS_14_X,
+      runtime: lf.Runtime.NODEJS_16_X,
       memorySize: 2048,
       timeout: Duration.minutes(10),
       handler: 'index.handler',
