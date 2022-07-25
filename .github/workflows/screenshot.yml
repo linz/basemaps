@@ -1,4 +1,4 @@
-name: Screenshot
+name: screenshot
 
 on: [push]
 
