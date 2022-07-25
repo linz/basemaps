@@ -154,8 +154,14 @@ export class CogBuilder {
       return epsg;
     }
 
-    this.logger.error({ tiff: tiff.source.uri, projection, imgWkt }, 'Failed find projection');
-    if (this.srcProj != null) return this.srcProj;
+    if (this.srcProj != null) {
+      this.logger.warn(
+        { tiff: tiff.source.uri, projection, imgWkt, defaultProjection: this.srcProj },
+        'Default findProjection',
+      );
+      return this.srcProj;
+    }
+    this.logger.error({ tiff: tiff.source.uri, projection, imgWkt }, 'Failed findProjection');
     throw new Error('Failed to find projection');
   }
 
