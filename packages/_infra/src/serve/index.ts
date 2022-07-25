@@ -8,6 +8,7 @@ import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
 import { TileMetadataTable } from './db.js';
 import { LambdaTiler } from './lambda.tiler.js';
+import { ParametersServeKeys } from '../parameters.js';
 
 export interface ServeStackProps extends cdk.StackProps {
   /** ACM certificate to use for the ALB */
@@ -33,11 +34,12 @@ export class ServeStack extends cdk.Stack {
      */
     const lambda = new LambdaTiler(this, 'LambdaTiler', { vpc, staticBucketName: props.staticBucketName });
     const table = new TileMetadataTable(this, 'TileMetadata');
-    table.table.grantReadData(lambda.lambda);
+    table.table.grantReadData(lambda.lambdaVpc);
+    table.table.grantReadData(lambda.lambdaNoVpc);
 
     const lb = new elbv2.ApplicationLoadBalancer(this, 'LB', { vpc, internetFacing: false });
 
-    const targetLambda = new targets.LambdaTarget(lambda.lambda);
+    const targetLambda = new targets.LambdaTarget(lambda.lambdaVpc);
     const targetGroup = new elbv2.ApplicationTargetGroup(this, 'TargetGroup', {
       targets: [targetLambda],
       healthCheck: {
@@ -74,8 +76,8 @@ export class ServeStack extends cdk.Stack {
       domainName: lb.loadBalancerDnsName,
     });
 
-    new cdk.CfnOutput(this, 'LambdaXyzAlb', { value: lb.loadBalancerDnsName });
-    new cdk.CfnOutput(this, 'LambdaXyzUrl', { value: lambda.functionUrl.url });
-    new cdk.CfnOutput(this, 'LambdaXyzDns', { value: albDns.domainName });
+    new cdk.CfnOutput(this, ParametersServeKeys.LambdaXyzAlb, { value: lb.loadBalancerDnsName });
+    new cdk.CfnOutput(this, ParametersServeKeys.LambdaXyzUrl, { value: lambda.functionUrl.url });
+    new cdk.CfnOutput(this, ParametersServeKeys.LambdaXyzDns, { value: albDns.domainName });
   }
 }

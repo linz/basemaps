@@ -6,7 +6,7 @@ import { CogBuilderStack } from './cogify/index.js';
 import { BaseMapsRegion, getConfig } from './config.js';
 import { DeployEnv } from './deploy.env.js';
 import { EdgeStack } from './edge/index.js';
-import { getEdgeParameters } from './parameters.js';
+import { getParameters, ParametersEdgeKeys, ParametersServeKeys } from './parameters.js';
 import { ServeStack } from './serve/index.js';
 import { CogStack } from './serve/lambda.cog.js';
 
@@ -38,15 +38,22 @@ async function main(): Promise<void> {
     console.error('Unable to find CloudFront Certificate');
     return;
   }
-
-  /**
-   * Because we are using Lambda@Edge the edge stack has to be deployed into us-east-1,
-   * The dynamoDb table needs to be close to our users that has to be deployed in ap-southeast-2
-   */
-  const edge = new EdgeStack(basemaps, 'Edge', { env: { region: 'us-east-1', account }, cloudfrontCertificateArn });
   // TODO is there a better way of handling this,
   // since this requires Edge to be deployed this will not deploy on the first deployment of new accounts
-  const edgeParams = await getEdgeParameters(edge);
+  const [edgeParams, serveParams] = await Promise.all([
+    getParameters('us-east-1', 'Edge', ParametersEdgeKeys),
+    getParameters('ap-southeast-2', 'Serve', ParametersServeKeys),
+  ]);
+
+  /**
+   * Because we are using CloudFront the edge stack has to be deployed into us-east-1,
+   * The dynamoDb table needs to be close to our users that has to be deployed in ap-southeast-2
+   */
+  const edge = new EdgeStack(basemaps, 'Edge', {
+    env: { region: 'us-east-1', account },
+    cloudfrontCertificateArn,
+    lambdaUrl: serveParams?.LambdaXyzUrl,
+  });
 
   const serve = new ServeStack(basemaps, 'Serve', {
     env: { region: BaseMapsRegion, account },
