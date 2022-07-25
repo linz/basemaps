@@ -1,19 +1,8 @@
-// import { ConfigProvider, ConfigProviderMemory } from '@basemaps/config';
-// import { GoogleTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-// import { Config, Env, LogConfig } from '@basemaps/shared';
 import { Config, ConfigProviderMemory } from '@basemaps/config';
 import { LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
-
 import o from 'ospec';
 import sinon from 'sinon';
-// import { handler } from '../index.js';
-// import { Etag } from '../util/etag.js';
-// import { TileSets } from '../tile.set.cache.js';
-// import { TileComposer } from '../tile.set.raster.js';
-// import { Provider } from './config.data.js';
-// import { Api, FakeTileSet, FakeTileSetVector, mockRequest } from './xyz.util.js';
-
 import { handler } from '../../index.js';
 import { Etag } from '../../util/etag.js';
 import { FakeData } from '../../__tests__/config.data.js';
