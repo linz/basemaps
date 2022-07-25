@@ -5,7 +5,7 @@ import { FastifyInstance } from 'fastify/types/instance';
 import { mkdir } from 'fs/promises';
 import getPort from 'get-port';
 import { Browser, chromium } from 'playwright';
-import { DefaultTestTiles, TileTestSchema } from './test.tiles';
+import { DefaultTestTiles, TileTestSchema } from './test.tiles.js';
 
 export const DefaultHost = 'basemaps.linz.govt.nz';
 export const DefaultOutput = '.artifacts/visual-snapshots/';
