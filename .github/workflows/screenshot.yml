@@ -1,4 +1,4 @@
-name: screenshot
+name: Screenshot
 
 on: 
   pull_request:
