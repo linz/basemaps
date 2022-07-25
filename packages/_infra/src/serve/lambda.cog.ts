@@ -25,7 +25,7 @@ export class CogStack extends Stack {
 
     const config = getConfig();
     this.lambda = new lambda.Function(this, 'LambdaCog', {
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
       memorySize: 2048,
       timeout: Duration.minutes(10),
       handler: 'index.handler',

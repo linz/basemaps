@@ -42,7 +42,7 @@ export class LambdaTiler extends Construct {
      */
     this.lambda = new lambda.Function(this, 'Tiler', {
       vpc: props.vpc,
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
       memorySize: 2048,
       timeout: Duration.seconds(60),
       handler: 'index.handler',
