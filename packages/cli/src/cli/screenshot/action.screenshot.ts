@@ -5,32 +5,10 @@ import { FastifyInstance } from 'fastify/types/instance';
 import { mkdir } from 'fs/promises';
 import getPort from 'get-port';
 import { Browser, chromium } from 'playwright';
-import { z } from 'zod';
+import { DefaultTestTiles, TileTestSchema } from './test.tiles.js';
 
-export const DefaultTestTiles = './test-tiles/default.test.tiles.json';
 export const DefaultHost = 'basemaps.linz.govt.nz';
 export const DefaultOutput = '.artifacts/visual-snapshots/';
-
-enum TileMatrixIdentifier {
-  Nztm2000Quad = 'NZTM2000Quad',
-  Google = 'WebMercatorQuad',
-}
-
-const zLocation = z.object({
-  lat: z.number().gte(-90).lte(90),
-  lng: z.number().gte(-180).lte(180),
-  z: z.number().gte(0).lte(32),
-});
-
-const zTileTest = z.object({
-  name: z.string(),
-  tileMatrix: z.nativeEnum(TileMatrixIdentifier),
-  location: zLocation,
-  tileSet: z.string(),
-  style: z.string().optional(),
-});
-
-export type TileTestSchema = z.infer<typeof zTileTest>;
 
 export class CommandScreenShot extends CommandLineAction {
   private config: CommandLineStringParameter;
@@ -65,7 +43,6 @@ export class CommandScreenShot extends CommandLineAction {
       argumentName: 'TILES',
       parameterLongName: '--tiles',
       description: 'JSON file path for the test tiles',
-      defaultValue: DefaultTestTiles,
     });
 
     this.assets = this.defineStringParameter({
@@ -113,11 +90,14 @@ export class CommandScreenShot extends CommandLineAction {
   }
 
   async takeScreenshots(host: string, chrome: Browser, logger: LogType): Promise<void> {
-    const tiles = this.tiles.value ?? DefaultTestTiles;
+    const tiles = this.tiles.value;
     const outputPath = this.output.value ?? DefaultOutput;
 
-    const TestTiles = await fsa.readJson<TileTestSchema[]>(tiles);
-    for (const test of TestTiles) {
+    let testTiles = DefaultTestTiles;
+    if (tiles) {
+      testTiles = await fsa.readJson<TileTestSchema[]>(tiles);
+    }
+    for (const test of testTiles) {
       const page = await chrome.newPage();
 
       const searchParam = new URLSearchParams();
