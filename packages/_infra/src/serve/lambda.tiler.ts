@@ -22,6 +22,7 @@ export interface LambdaTilerProps {
 export class LambdaTiler extends Construct {
   public lambda: lambda.Function;
   public version: lambda.Version;
+  public functionUrl: lambda.FunctionUrl;
 
   public constructor(scope: cdk.Stack, id: string, props: LambdaTilerProps) {
     super(scope, id);
@@ -48,6 +49,17 @@ export class LambdaTiler extends Construct {
       code: lambda.Code.fromAsset(CODE_PATH),
       environment,
       logRetention: RetentionDays.ONE_MONTH,
+    });
+
+    this.functionUrl = new lambda.FunctionUrl(this, 'LambdaCogUrl', {
+      function: this.lambda,
+      authType: lambda.FunctionUrlAuthType.NONE,
+      cors: {
+        allowedOrigins: ['*'],
+        allowedMethods: [lambda.HttpMethod.GET, lambda.HttpMethod.OPTIONS],
+        allowCredentials: false,
+        maxAge: cdk.Duration.minutes(1),
+      },
     });
 
     if (props.staticBucketName) {
