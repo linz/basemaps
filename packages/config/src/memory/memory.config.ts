@@ -1,4 +1,4 @@
-import { ImageFormat } from '@basemaps/geo';
+import { EpsgCode, ImageFormat } from '@basemaps/geo';
 import { decodeTime, ulid } from 'ulid';
 import { BasemapsConfigObject, BasemapsConfigProvider, Config } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
@@ -6,7 +6,7 @@ import { ConfigImagery } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProcessingJob } from '../config/processing.job.js';
 import { ConfigProvider } from '../config/provider.js';
-import { ConfigTileSet, TileSetType } from '../config/tile.set.js';
+import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
 import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
@@ -27,6 +27,9 @@ export interface ConfigBundled {
 
 function isConfigImagery(i: BaseConfig): i is ConfigImagery {
   return Config.getPrefix(i.id) === ConfigPrefix.Imagery;
+}
+function isConfigTileSet(i: BaseConfig): i is ConfigTileSet {
+  return Config.getPrefix(i.id) === ConfigPrefix.TileSet;
 }
 
 /** Force a unknown object into a Record<string, unknown> type */
@@ -101,11 +104,17 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   /** Find all imagery inside this configuration and create a virtual tile set for it */
   createVirtualTileSets(): void {
     for (const obj of this.objects.values()) {
-      if (!isConfigImagery(obj)) continue;
-      const ts = ConfigProviderMemory.imageryToTileSet(obj);
-      // TODO should this really overwrite existing tilesets
-      this.put(ts);
-      this.imageryToTileSetName(obj);
+      // Limit child tileset generation to `aerial` layers only
+      if (isConfigTileSet(obj) && obj.name === 'aerial') {
+        for (const layer of obj.layers) {
+          this.imageryToChildTileSet(obj, layer, EpsgCode.Nztm2000);
+          this.imageryToChildTileSet(obj, layer, EpsgCode.Google);
+        }
+      } else if (isConfigImagery(obj)) {
+        // TODO should this really overwrite existing tilesets
+        this.put(ConfigProviderMemory.imageryToTileSet(obj));
+        this.imageryToTileSetName(obj);
+      }
     }
   }
 
@@ -133,6 +142,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     existing.layers[0][i.projection] = i.id;
   }
 
+  /** Create a tile set of direct to imagery name `ts_imageId */
   static imageryToTileSet(i: ConfigImagery): ConfigTileSet {
     return {
       type: TileSetType.Raster,
@@ -143,6 +153,37 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       background: { r: 0, g: 0, b: 0, alpha: 0 },
       updatedAt: Date.now(),
     };
+  }
+
+  /**
+   * Create a tileset with a name `ts_aerial:child_name`
+   * @deprecated Prefer using imageryToTileSet
+   **/
+  imageryToChildTileSet(ts: ConfigTileSet, layer: ConfigLayer, projection: EpsgCode): void {
+    const imageId = layer[projection];
+    if (imageId == null) return;
+    const i = this.objects.get(imageId) as ConfigImagery;
+    if (i == null) return;
+
+    const targetName = ts.name + ':' + i.name;
+    const targetId = Config.prefix(ConfigPrefix.TileSet, targetName);
+    let existing = this.objects.get(targetId) as ConfigTileSet;
+    if (existing == null) {
+      existing = {
+        type: TileSetType.Raster,
+        id: targetId,
+        title: layer.title ?? i.title,
+        category: layer.category ?? i.category,
+        name: standardizeLayerName(i.name),
+        format: ImageFormat.Webp,
+        layers: [{ name: targetName, minZoom: 0, maxZoom: 32 }],
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+        updatedAt: Date.now(),
+      } as ConfigTileSet;
+      removeUndefined(existing);
+      this.put(existing);
+    }
+    existing.layers[0][i.projection] = i.id;
   }
 
   /** Load a bundled configuration creating virtual tilesets for all imagery */

@@ -1,6 +1,7 @@
 import o from 'ospec';
+import { BaseConfig } from '../../config/base.js';
 import { ConfigImagery } from '../../config/imagery.js';
-import { ConfigTileSet } from '../../config/tile.set.js';
+import { ConfigTileSetRaster } from '../../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory.config.js';
 
 o.spec('MemoryConfig', () => {
@@ -8,7 +9,7 @@ o.spec('MemoryConfig', () => {
   o.beforeEach(() => config.objects.clear());
 
   const baseImg = { id: 'im_Image123', name: 'ōtorohanga_urban_2021_0-1m_RGB', projection: 3857 } as ConfigImagery;
-  const baseTs = { id: 'ts_TileSet123', description: 'tileset' } as ConfigTileSet;
+  const baseTs = { id: 'ts_TileSet123', description: 'tileset' } as ConfigTileSetRaster;
 
   o('should load correct objects from memory', async () => {
     config.put(baseTs);
@@ -111,6 +112,47 @@ o.spec('MemoryConfig', () => {
     o(target?.layers.length).equals(1);
     o(target?.layers[0][3857]).equals('im_Image234');
     o(target?.layers[0][2193]).equals(undefined);
+    o(target?.name).equals('ōtorohanga-urban-2021-0.1m');
+  });
+
+  o('virtual tilesets should be created with `:`', async () => {
+    config.objects.clear();
+    config.put({
+      ...baseTs,
+      name: 'aerial',
+      id: 'ts_aerial',
+      layers: [
+        {
+          name: baseImg.name,
+          title: '',
+          category: '',
+          2193: 'im_image-2193',
+          3857: 'im_image-3857',
+        },
+      ],
+    } as BaseConfig);
+    config.put({ ...baseImg, id: 'im_image-2193', projection: 2193 } as ConfigImagery);
+    config.put({ ...baseImg, id: 'im_image-3857', projection: 3857 } as ConfigImagery);
+
+    o(config.toJson().tileSet.length).equals(1);
+
+    config.createVirtualTileSets();
+
+    const tileSets = config.toJson().tileSet.map((c) => c.id);
+
+    o(tileSets).deepEquals([
+      'ts_aerial',
+      'ts_aerial:ōtorohanga_urban_2021_0-1m_RGB', // deprecated by child `:`
+      'ts_image-2193', // By image id
+      'ts_ōtorohanga-urban-2021-0.1m', // By name
+      'ts_image-3857', // By image id
+    ]);
+
+    const target = await config.TileSet.get('ts_aerial:ōtorohanga_urban_2021_0-1m_RGB');
+    o(target?.layers.length).equals(1);
+    o(target?.layers[0][3857]).equals('im_image-3857');
+    o(target?.layers[0][2193]).equals('im_image-2193');
+    // the name should be mapped back to the expected name so tiles will be served via the same endpoints as by name
     o(target?.name).equals('ōtorohanga-urban-2021-0.1m');
   });
 });
