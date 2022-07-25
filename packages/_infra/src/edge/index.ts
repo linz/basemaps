@@ -3,12 +3,15 @@ import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import cf from 'aws-cdk-lib/aws-cloudfront';
 import s3, { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-import { getConfig } from '../config.js';
+import { BaseMapsConfig, getConfig } from '../config.js';
 import { ParametersEdgeKeys } from '../parameters.js';
 
 export interface EdgeStackProps extends cdk.StackProps {
   /** ACM certificate to use for cloudfront */
   cloudfrontCertificateArn: string;
+
+  /** Is the lambda deployed as a function url somewhere */
+  lambdaUrl?: string;
 }
 /**
  * Edge infrastructure
@@ -58,7 +61,32 @@ export class EdgeStack extends cdk.Stack {
       ],
     };
 
-    const tileSource: cf.SourceConfiguration = {
+    const acmCert = Certificate.fromCertificateArn(this, 'Cert', props.cloudfrontCertificateArn);
+    const viewerCertificate = cf.ViewerCertificate.fromAcmCertificate(acmCert, {
+      aliases: config.CloudFrontDns,
+    });
+    new cdk.CfnOutput(this, 'CloudFrontPublicDomain', { value: config.CloudFrontDns.join(', ') });
+
+    this.logBucket = new s3.Bucket(this, 'EdgeLogBucket');
+
+    this.distribution = new cf.CloudFrontWebDistribution(this, 'Distribution', {
+      viewerCertificate,
+      priceClass: cf.PriceClass.PRICE_CLASS_ALL,
+      httpVersion: cf.HttpVersion.HTTP2,
+      viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      originConfigs: [s3Source, props.lambdaUrl ? this.lambdaUrlSource(props.lambdaUrl) : this.lambdaAlbSource(config)],
+      loggingConfig: { bucket: this.logBucket },
+    });
+
+    new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontLogBucket, { value: this.logBucket.bucketName });
+    new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontDistributionId, { value: this.distribution.distributionId });
+    new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontBucket, { value: s3BucketSource.bucketName });
+    new cdk.CfnOutput(this, 'CloudFrontId', { value: this.distribution.distributionDomainName });
+    new cdk.CfnOutput(this, 'CloudFrontDomain', { value: this.distribution.distributionDomainName });
+  }
+
+  lambdaAlbSource(config: BaseMapsConfig): cf.SourceConfiguration {
+    return {
       customOriginSource: {
         domainName: config.AlbPublicDns,
         originProtocolPolicy: cf.OriginProtocolPolicy.HTTPS_ONLY,
@@ -76,28 +104,26 @@ export class EdgeStack extends cdk.Stack {
         },
       ],
     };
-
-    const acmCert = Certificate.fromCertificateArn(this, 'Cert', props.cloudfrontCertificateArn);
-    const viewerCertificate = cf.ViewerCertificate.fromAcmCertificate(acmCert, {
-      aliases: config.CloudFrontDns,
-    });
-    new cdk.CfnOutput(this, 'CloudFrontPublicDomain', { value: config.CloudFrontDns.join(', ') });
-
-    this.logBucket = new s3.Bucket(this, 'EdgeLogBucket');
-
-    this.distribution = new cf.CloudFrontWebDistribution(this, 'Distribution', {
-      viewerCertificate,
-      priceClass: cf.PriceClass.PRICE_CLASS_ALL,
-      httpVersion: cf.HttpVersion.HTTP2,
-      viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      originConfigs: [s3Source, tileSource],
-      loggingConfig: { bucket: this.logBucket },
-    });
-
-    new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontLogBucket, { value: this.logBucket.bucketName });
-    new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontDistributionId, { value: this.distribution.distributionId });
-    new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontBucket, { value: s3BucketSource.bucketName });
-    new cdk.CfnOutput(this, 'CloudFrontId', { value: this.distribution.distributionDomainName });
-    new cdk.CfnOutput(this, 'CloudFrontDomain', { value: this.distribution.distributionDomainName });
+  }
+  lambdaUrlSource(lambdaUrl: string): cf.SourceConfiguration {
+    const trimmedUrl = new URL(lambdaUrl); // LambdaURLS include https:// and a trailing /
+    return {
+      customOriginSource: {
+        domainName: trimmedUrl.hostname,
+        originProtocolPolicy: cf.OriginProtocolPolicy.HTTPS_ONLY,
+      },
+      behaviors: [
+        {
+          pathPattern: '/v1*',
+          allowedMethods: cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
+          forwardedValues: {
+            /** Forward all query strings but do not use them for caching */
+            queryString: true,
+            queryStringCacheKeys: ['NOT_A_CACHE_KEY'],
+          },
+          lambdaFunctionAssociations: [],
+        },
+      ],
+    };
   }
 }

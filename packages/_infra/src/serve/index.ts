@@ -8,6 +8,7 @@ import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
 import { TileMetadataTable } from './db.js';
 import { LambdaTiler } from './lambda.tiler.js';
+import { ParametersServeKeys } from '../parameters.js';
 
 export interface ServeStackProps extends cdk.StackProps {
   /** ACM certificate to use for the ALB */
@@ -75,8 +76,8 @@ export class ServeStack extends cdk.Stack {
       domainName: lb.loadBalancerDnsName,
     });
 
-    new cdk.CfnOutput(this, 'LambdaXyzAlb', { value: lb.loadBalancerDnsName });
-    new cdk.CfnOutput(this, 'LambdaXyzUrl', { value: lambda.functionUrl.url });
-    new cdk.CfnOutput(this, 'LambdaXyzDns', { value: albDns.domainName });
+    new cdk.CfnOutput(this, ParametersServeKeys.LambdaXyzAlb, { value: lb.loadBalancerDnsName });
+    new cdk.CfnOutput(this, ParametersServeKeys.LambdaXyzUrl, { value: lambda.functionUrl.url });
+    new cdk.CfnOutput(this, ParametersServeKeys.LambdaXyzDns, { value: albDns.domainName });
   }
 }

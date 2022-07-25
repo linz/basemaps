@@ -1,4 +1,3 @@
-import { Stack } from 'aws-cdk-lib';
 import CloudFormation from 'aws-sdk/clients/cloudformation.js';
 
 export interface ParametersEdge {
@@ -7,11 +6,24 @@ export interface ParametersEdge {
   CloudFrontDistributionId: string;
 }
 
+export interface ParametersServe {
+  LambdaXyzAlb: string;
+  LambdaXyzUrl: string;
+  LambdaXyzDns: string;
+}
+export const ParametersServeKeys: Record<keyof ParametersServe, string> = {
+  LambdaXyzAlb: 'LambdaXyzAlb',
+  LambdaXyzUrl: 'LambdaXyzUrl',
+  LambdaXyzDns: 'LambdaXyzDns',
+};
+
 export const ParametersEdgeKeys: Record<keyof ParametersEdge, string> = {
   CloudFrontBucket: 'CloudFrontBucket',
   CloudFrontLogBucket: 'CloudFrontLogBucket',
   CloudFrontDistributionId: 'CloudFrontDistributionId',
 };
+
+export type ParameterKeys = typeof ParametersServeKeys | typeof ParametersEdgeKeys;
 
 /**
  * Because cloudfront configuration has to be in US-East-1
@@ -19,24 +31,28 @@ export const ParametersEdgeKeys: Record<keyof ParametersEdge, string> = {
  *
  * This function will lookup the configuration output from the `Edge` stack and provide them to following stacks
  */
-export async function getEdgeParameters(edge: Stack): Promise<null | ParametersEdge> {
-  const cfUsEast1 = new CloudFormation({ region: 'us-east-1' });
-  const edgeStack = await cfUsEast1.describeStacks({ StackName: edge.stackName }).promise();
-  if (edgeStack == null) {
+export async function getParameters<T extends ParameterKeys>(
+  region: string,
+  stackName: string,
+  keys: T,
+): Promise<null | T> {
+  const cfRegion = new CloudFormation({ region });
+  const targetStack = await cfRegion.describeStacks({ StackName: stackName }).promise();
+  if (targetStack == null) {
     console.error('Failed to lookup edge stack.. has it been deployed?');
     return null;
   }
 
-  const output: Partial<ParametersEdge> = {};
-  for (const param of Object.keys(ParametersEdgeKeys)) {
-    const edgeParam = edgeStack.Stacks?.[0].Outputs?.find((f) => f.OutputKey === param)?.OutputValue;
+  const output: Partial<T> = {};
+  for (const param of Object.keys(keys)) {
+    const edgeParam = targetStack.Stacks?.[0].Outputs?.find((f) => f.OutputKey === param)?.OutputValue;
     if (edgeParam == null) {
       console.error(`Failed to find cfnOutput for ${param}`);
       continue;
     }
 
-    output[param as keyof ParametersEdge] = edgeParam;
+    output[param as keyof T] = edgeParam as any;
   }
-  if (Object.keys(output).length > 1) return output as ParametersEdge;
+  if (Object.keys(output).length > 1) return output as T;
   return null;
 }

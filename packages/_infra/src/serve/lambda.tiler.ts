@@ -75,7 +75,7 @@ export class LambdaTiler extends Construct {
       authType: lambda.FunctionUrlAuthType.NONE,
       cors: {
         allowedOrigins: ['*'],
-        allowedMethods: [lambda.HttpMethod.GET, lambda.HttpMethod.OPTIONS],
+        allowedMethods: [lambda.HttpMethod.GET],
         allowCredentials: false,
         maxAge: cdk.Duration.minutes(1),
       },
