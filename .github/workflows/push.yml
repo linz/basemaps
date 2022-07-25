@@ -13,7 +13,7 @@ jobs:
 
   build-deploy:
     runs-on: ubuntu-latest
-    concurrency: deploy-${{ github.head_ref }}
+    concurrency: deploy-${{ github.ref }}
 
     permissions:
       id-token: write
