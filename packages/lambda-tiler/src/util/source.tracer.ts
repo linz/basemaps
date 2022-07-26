@@ -1,6 +1,8 @@
+import { sha256base58 } from '@basemaps/config';
 import { ChunkSource } from '@chunkd/core';
 
 interface SourceRequest {
+  id?: string;
   offset: number;
   length?: number;
   source: string;
@@ -20,6 +22,8 @@ export class SourceTracer {
     const originFetch = source.fetchBytes;
     source.fetchBytes = async (offset: number, length?: number): Promise<ArrayBuffer> => {
       const request: SourceRequest = { source: source.uri, offset, length };
+      const traceId = sha256base58(`${request.source}:${request.offset}:${request.length}`);
+      request.id = traceId;
       this.requests.push(request);
       const startTime = Date.now();
 
