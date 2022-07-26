@@ -40,8 +40,6 @@ handler.router.hook('response', (req, res) => {
     cacheB: CoSources.cache.cacheB.size,
   });
 
-  req.log.level = 'silent';
-
   // Ensure CORS response headers are set
   res.header('Access-Control-Allow-Origin', '*');
 });
