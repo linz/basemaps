@@ -32,12 +32,15 @@ handler.router.hook('response', (req, res) => {
 
   // Log the source cache hit/miss ratio
   req.set('sources', {
-    hit: CoSources.cache.hit,
-    miss: CoSources.cache.miss,
-    sizeBytes: CoSources.cache.currentSize,
+    hits: CoSources.cache.hits,
+    misses: CoSources.cache.misses,
+    size: CoSources.cache.currentSize,
+    resets: CoSources.cache.resets,
     cacheA: CoSources.cache.cacheA.size,
     cacheB: CoSources.cache.cacheB.size,
   });
+
+  req.log.level = 'silent';
 
   // Ensure CORS response headers are set
   res.header('Access-Control-Allow-Origin', '*');

@@ -3,8 +3,9 @@ export class SwappingLru<T extends { size: number }> {
   cacheB: Map<string, T> = new Map();
   maxSize: number;
 
-  hit = 0;
-  miss = 0;
+  hits = 0;
+  misses = 0;
+  resets = 0;
 
   _lastCheckedAt = -1;
 
@@ -14,14 +15,18 @@ export class SwappingLru<T extends { size: number }> {
 
   get(id: string): T | null {
     const cacheA = this.cacheA.get(id);
-    this.hit++;
-    if (cacheA) return cacheA;
+    if (cacheA) {
+      this.hits++;
+      return cacheA;
+    }
 
     const cacheB = this.cacheB.get(id);
     if (cacheB == null) {
-      this.miss++;
+      this.misses++;
       return null;
     }
+
+    this.hits++;
     // If a object is still useful move it into the main cache
     this.cacheA.set(id, cacheB);
     this.cacheB.delete(id);
@@ -44,6 +49,7 @@ export class SwappingLru<T extends { size: number }> {
     this._lastCheckedAt = Date.now();
     if (this.maxSize <= 0) return;
     if (this.currentSize <= this.maxSize) return;
+    this.resets++;
     this.cacheB = this.cacheA;
     this.cacheA = new Map();
   }
