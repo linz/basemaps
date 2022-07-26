@@ -1,9 +1,10 @@
 import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
-import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
 import { serveFromCotar } from '../util/cotar.serve.js';
-import { NotFound } from '../util/response.js';
+import { Etag } from '../util/etag.js';
+import { NotFound, NotModified } from '../util/response.js';
 
 interface FontGet {
   Params: { fontStack: string; range: string };
@@ -14,13 +15,21 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
   if (assetLocation == null) return NotFound;
 
   const targetFile = path.join('fonts', req.params.fontStack, req.params.range) + '.pbf';
-  if (assetLocation.endsWith('.tar.co')) return serveFromCotar(assetLocation, targetFile, 'application/x-protobuf');
+  if (assetLocation.endsWith('.tar.co')) {
+    return serveFromCotar(req, assetLocation, targetFile, 'application/x-protobuf');
+  }
 
   try {
     const filePath = fsa.join(assetLocation, targetFile);
     const buf = await fsa.read(filePath);
 
-    return LambdaHttpResponse.ok().buffer(buf, 'application/x-protobuf');
+    const cacheKey = Etag.key(JSON.stringify(buf));
+    if (Etag.isNotModified(req, cacheKey)) return NotModified;
+
+    const response = LambdaHttpResponse.ok().buffer(buf, 'application/x-protobuf');
+    response.header(HttpHeader.ETag, cacheKey);
+    response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
+    return response;
   } catch (e: any) {
     if (e.code === 404) return NotFound;
     throw e;
@@ -42,17 +51,23 @@ export async function getFonts(fontPath: string): Promise<string[]> {
   return [...fonts].sort();
 }
 
-export async function fontList(): Promise<LambdaHttpResponse> {
+export async function fontList(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
   const assetLocation = Env.get(Env.AssetLocation);
   if (assetLocation == null) return NotFound;
 
-  if (assetLocation.endsWith('.tar.co')) return serveFromCotar(assetLocation, 'fonts.json', 'application/json');
+  if (assetLocation.endsWith('.tar.co')) return serveFromCotar(req, assetLocation, 'fonts.json', 'application/json');
 
   try {
     const filePath = fsa.join(assetLocation, '/fonts');
     const fonts = await getFonts(filePath);
 
-    return LambdaHttpResponse.ok().buffer(JSON.stringify(fonts), 'application/json');
+    const cacheKey = Etag.key(JSON.stringify(fonts));
+    if (Etag.isNotModified(req, cacheKey)) return NotModified;
+
+    const response = LambdaHttpResponse.ok().buffer(JSON.stringify(fonts), 'application/json');
+    response.header(HttpHeader.ETag, cacheKey);
+    response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
+    return response;
   } catch (e: any) {
     if (e.code === 404) return NotFound;
     throw e;

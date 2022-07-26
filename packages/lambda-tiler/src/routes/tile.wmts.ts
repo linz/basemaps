@@ -69,7 +69,7 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
 
   const response = new LambdaHttpResponse(200, 'ok');
   response.header(HttpHeader.ETag, cacheKey);
-  response.header(HttpHeader.CacheControl, 'max-age=0');
+  response.header(HttpHeader.CacheControl, 'no-store');
   response.buffer(data, 'text/xml');
   req.set('bytes', data.byteLength);
   return response;

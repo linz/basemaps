@@ -69,6 +69,8 @@ o.spec('/v1/tiles', () => {
       );
       o(res.status).equals(200);
       o(res.header('content-type')).equals(`image/${fmt}`);
+      o(res.header('etag')).notEquals(undefined);
+      o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
       //   o(rasterMock.calls.length).equals(1);
     });
   });
@@ -104,6 +106,8 @@ o.spec('/v1/tiles', () => {
     const res = await handler.router.handle(req);
     o(res.status).equals(200);
     o(res.header('content-type')).equals('image/png');
+    o(res.header('etag')).notEquals(undefined);
+    o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
   });
 
   ['/favicon.ico', '/index.html', '/foo/bar'].forEach((path) => {

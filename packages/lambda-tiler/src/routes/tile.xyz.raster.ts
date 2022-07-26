@@ -99,7 +99,7 @@ export const TileXyzRaster = {
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
-    response.header(HttpHeader.CacheControl, 'public, max-age=604800');
+    response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
     response.buffer(res.buffer, 'image/' + xyz.tileType);
     return response;
   },

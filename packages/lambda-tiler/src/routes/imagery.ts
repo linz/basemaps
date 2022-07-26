@@ -41,13 +41,14 @@ export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<La
 
   try {
     const buf = await fsa.read(targetPath);
-    const cacheKey = createHash('sha256').update(buf).digest('base64');
 
+    const cacheKey = Etag.key(buf);
     if (Etag.isNotModified(req, cacheKey)) return NotModified;
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.ContentEncoding, 'gzip');
+    response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
     response.buffer(await gzipP(buf), 'application/json');
     req.set('bytes', buf.byteLength);
     return response;

@@ -24,8 +24,8 @@ export const tileXyzVector = {
     const tilePath = `tiles/${xyz.tile.z}/${xyz.tile.x}/${y}.pbf.gz`;
     const tileId = `${layerId}#${tilePath}`;
 
-    const eTag = Etag.key(tileId);
-    if (Etag.isNotModified(req, eTag)) return NotModified;
+    const cacheKey = Etag.key(tileId);
+    if (Etag.isNotModified(req, cacheKey)) return NotModified;
 
     req.timer.start('cotar:load');
     const cotar = await CoSources.getCotar(layerId);
@@ -39,7 +39,8 @@ export const tileXyzVector = {
 
     const tileBuffer = Buffer.from(tile);
     const response = LambdaHttpResponse.ok().buffer(tileBuffer, 'application/x-protobuf');
-    response.header(HttpHeader.ETag, eTag);
+    response.header(HttpHeader.ETag, cacheKey);
+    response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
     if (isGzip(tileBuffer)) response.header(HttpHeader.ContentEncoding, 'gzip');
     return response;
   },

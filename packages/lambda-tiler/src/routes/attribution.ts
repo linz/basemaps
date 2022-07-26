@@ -177,9 +177,8 @@ export async function tileAttributionGet(req: LambdaHttpRequest<TileAttributionG
   const response = new LambdaHttpResponse(200, 'ok');
 
   response.header(HttpHeader.ETag, cacheKey);
-  // Keep fresh for one day; otherwise use cache but refresh cache for next time
-  response.header(HttpHeader.CacheControl, 'public, max-age=86400, stale-while-revalidate=604800');
-
+  // Keep fresh for 7 days; otherwise use cache but refresh cache for next time
+  response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
   response.json(attributions);
   return response;
 }
