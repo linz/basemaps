@@ -11,6 +11,7 @@ import { styleJsonGet } from './routes/tile.style.json.js';
 import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
+import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
 
 export const handler = lf.http(LogConfig.get());
@@ -28,6 +29,16 @@ handler.router.hook('response', (req, res) => {
     req.set('requests', St.requests.slice(0, 100)); // limit to 100 requests (some tiles need 100s of requests)
     req.set('requestCount', St.requests.length);
   }
+
+  // Log the source cache hit/miss ratio
+  req.set('sources', {
+    hits: CoSources.cache.hits,
+    misses: CoSources.cache.misses,
+    size: CoSources.cache.currentSize,
+    resets: CoSources.cache.resets,
+    cacheA: CoSources.cache.cacheA.size,
+    cacheB: CoSources.cache.cacheB.size,
+  });
 
   // Ensure CORS response headers are set
   res.header('Access-Control-Allow-Origin', '*');
