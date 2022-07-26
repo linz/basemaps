@@ -68,4 +68,8 @@ export class SourceCache {
   }
 }
 
-export const CoSources = new SourceCache(256 * 1024 * 1024);
+const OneMegaByte = 1024 * 1024;
+/** 1GB cache */
+const CacheSize = OneMegaByte * 1024;
+
+export const CoSources = new SourceCache(CacheSize);
