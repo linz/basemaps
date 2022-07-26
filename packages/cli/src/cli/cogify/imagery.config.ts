@@ -36,8 +36,8 @@ export async function insertConfigTileSet(job: CogStacJob, logger: LogType): Pro
     type: TileSetType.Raster,
     format: ImageFormat.Webp,
     id: tsId,
-    name: job.name,
-    layers: [{ [job.tileMatrix.projection.code]: imId, name: job.name, minZoom: 0, maxZoom: 32 }],
+    name: job.id,
+    layers: [{ [job.tileMatrix.projection.code]: imId, name: job.id, minZoom: 0, maxZoom: 32 }],
     background: { r: 0, g: 0, b: 0, alpha: 0 },
     updatedAt: now,
   };
