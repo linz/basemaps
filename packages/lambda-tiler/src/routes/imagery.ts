@@ -3,6 +3,7 @@ import { fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
+import { isGzip } from '../util/cotar.serve.js';
 import { Etag } from '../util/etag.js';
 import { NotModified } from '../util/response.js';
 
@@ -48,7 +49,7 @@ export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<La
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.ContentEncoding, 'gzip');
     response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
-    response.buffer(await gzipP(buf), 'application/json');
+    response.buffer(isGzip(buf) ? buf : await gzipP(buf), 'application/json');
     req.set('bytes', buf.byteLength);
     return response;
   } catch (e) {
