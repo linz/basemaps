@@ -56,11 +56,18 @@ export const DefaultTestTiles: TileTestSchema[] = [
     style: 'topographic',
   },
   {
-    name: 'topographic-3857-ngauranga-z14',
+    name: 'topographic-3857-ngauranga-z15',
     tileMatrix: TileMatrixIdentifier.Google,
-    location: { lat: -41.2454458, lng: 174.8101136, z: 14 },
+    location: { lat: -41.2454458, lng: 174.8101136, z: 15 },
     tileSet: 'topographic',
     style: 'topographic',
+  },
+  {
+    name: 'topolite-3857-ngauranga-z15',
+    tileMatrix: TileMatrixIdentifier.Google,
+    location: { lat: -41.2454458, lng: 174.8101136, z: 15 },
+    tileSet: 'topographic',
+    style: 'topolite',
   },
   {
     name: 'topolite-3857-z17',
