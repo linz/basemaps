@@ -1,14 +1,17 @@
+import { Config, ConfigBundle } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
+import { createSandbox } from 'sinon';
 import { gunzipSync, gzipSync } from 'zlib';
 import { handler } from '../../index.js';
 import { assetProvider } from '../../util/assets.provider.js';
-import { mockRequest } from '../../__tests__/xyz.util.js';
+import { mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { FsMemory } from './memory.fs.js';
 
 o.spec('/v1/sprites', () => {
   const memory = new FsMemory();
+  const sandbox = createSandbox();
   o.before(() => {
     fsa.register('memory://', memory);
   });
@@ -22,6 +25,7 @@ o.spec('/v1/sprites', () => {
   o.afterEach(() => {
     assetProvider.set(assetLocation);
     memory.files.clear();
+    sandbox.restore();
   });
   o('should return 404 if no assets defined', async () => {
     delete process.env[Env.AssetLocation];
@@ -67,5 +71,27 @@ o.spec('/v1/sprites', () => {
     o(res.header('etag')).notEquals(undefined);
     o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
     o(JSON.parse(gunzipSync(Buffer.from(res.body, 'base64')).toString())).deepEquals({ test: true });
+  });
+
+  o('should get correct record from the config asset location', async () => {
+    const configId = 'cb_01g6phsge6rmy3812gdr2twgb7';
+    const assets = 'memory://assets/';
+    const configBundle: ConfigBundle = {
+      id: configId,
+      name: configId,
+      path: 's3://basemaps/config.json',
+      hash: 'BcSvC4eS6ym5kDZiJkd5wBWbpaKWdQrxK',
+      assets,
+    };
+    sandbox.stub(Config.ConfigBundle, 'get').resolves(configBundle);
+    await Promise.all([
+      fsa.write('memory://assets/sprites/topographic.json', Buffer.from(JSON.stringify({ test: true }))),
+      fsa.write('memory://assets/sprites/topographic@2x.png', Buffer.from('')),
+    ]);
+    const res = await handler.router.handle(mockUrlRequest('/v1/sprites/topographic@2x.png', `config=${configId}`));
+    o(res.status).equals(200);
+    o(res.header('content-type')).equals('image/png');
+    o(res.header('etag')).notEquals(undefined);
+    o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
   });
 });

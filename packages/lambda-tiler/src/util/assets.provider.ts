@@ -1,3 +1,4 @@
+import { Config } from '@basemaps/config';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpResponse, LambdaHttpRequest, HttpHeader } from '@linzjs/lambda';
 import { isGzip } from './cotar.serve.js';
@@ -42,30 +43,33 @@ export class AssetProvider {
     const data = await cotar.get(fileName);
     return data ? Buffer.from(data) : data;
   }
+
+  /**
+   *  Load a assets from local path or cotar returning the file back as a LambdaResponse
+   *
+   * This will also set two headers
+   * - Content-Encoding if the file starts with gzip magic
+   * - Content-Type from the parameter contentType
+   */
+  async serve(req: LambdaHttpRequest, file: string, contentType: string): Promise<LambdaHttpResponse> {
+    const config = req.query.get('config');
+    if (config) {
+      const configBundle = await Config.ConfigBundle.get(config);
+      if (configBundle == null) return NotFound();
+      this.set(configBundle.assets);
+    }
+
+    const buf = await assetProvider.get(file);
+    if (buf == null) return NotFound();
+    const cacheKey = Etag.key(buf);
+    if (Etag.isNotModified(req, cacheKey)) return NotModified();
+
+    const response = LambdaHttpResponse.ok().buffer(buf, contentType);
+    response.header(HttpHeader.ETag, cacheKey);
+    response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
+    if (isGzip(buf)) response.header(HttpHeader.ContentEncoding, 'gzip');
+    return response;
+  }
 }
 
 export const assetProvider = new AssetProvider();
-
-/**
- *  Load a assets from local path or cotar returning the file back as a LambdaResponse
- *
- * This will also set two headers
- * - Content-Encoding if the file starts with gzip magic
- * - Content-Type from the parameter contentType
- */
-export async function serveAssets(
-  req: LambdaHttpRequest,
-  file: string,
-  contentType: string,
-): Promise<LambdaHttpResponse> {
-  const buf = await assetProvider.get(file);
-  if (buf == null) return NotFound();
-  const cacheKey = Etag.key(buf);
-  if (Etag.isNotModified(req, cacheKey)) return NotModified();
-
-  const response = LambdaHttpResponse.ok().buffer(buf, contentType);
-  response.header(HttpHeader.ETag, cacheKey);
-  response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
-  if (isGzip(buf)) response.header(HttpHeader.ContentEncoding, 'gzip');
-  return response;
-}
