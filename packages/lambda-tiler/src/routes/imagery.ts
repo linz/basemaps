@@ -1,11 +1,10 @@
 import { Config } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { createHash } from 'crypto';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
-import { NotModified } from '../util/response.js';
 import { Etag } from '../util/etag.js';
+import { NotModified } from '../util/response.js';
 
 const gzipP = promisify(gzip);
 
