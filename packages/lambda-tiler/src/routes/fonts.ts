@@ -12,7 +12,7 @@ interface FontGet {
 
 export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHttpResponse> {
   const assetLocation = Env.get(Env.AssetLocation);
-  if (assetLocation == null) return NotFound;
+  if (assetLocation == null) return NotFound();
 
   const targetFile = path.join('fonts', req.params.fontStack, req.params.range) + '.pbf';
   if (assetLocation.endsWith('.tar.co')) {
@@ -24,7 +24,7 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
     const buf = await fsa.read(filePath);
 
     const cacheKey = Etag.key(buf);
-    if (Etag.isNotModified(req, cacheKey)) return NotModified;
+    if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
     const response = LambdaHttpResponse.ok().buffer(buf, 'application/x-protobuf');
     response.header(HttpHeader.ETag, cacheKey);
@@ -32,7 +32,7 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
     if (isGzip(buf)) response.header(HttpHeader.ContentEncoding, 'gzip');
     return response;
   } catch (e: any) {
-    if (e.code === 404) return NotFound;
+    if (e.code === 404) return NotFound();
     throw e;
   }
 }
@@ -54,7 +54,7 @@ export async function getFonts(fontPath: string): Promise<string[]> {
 
 export async function fontList(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
   const assetLocation = Env.get(Env.AssetLocation);
-  if (assetLocation == null) return NotFound;
+  if (assetLocation == null) return NotFound();
 
   if (assetLocation.endsWith('.tar.co')) return serveFromCotar(req, assetLocation, 'fonts.json', 'application/json');
 
@@ -63,14 +63,14 @@ export async function fontList(req: LambdaHttpRequest): Promise<LambdaHttpRespon
     const fonts = await getFonts(filePath);
 
     const cacheKey = Etag.key(fonts);
-    if (Etag.isNotModified(req, cacheKey)) return NotModified;
+    if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
     const response = LambdaHttpResponse.ok().buffer(JSON.stringify(fonts), 'application/json');
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
     return response;
   } catch (e: any) {
-    if (e.code === 404) return NotFound;
+    if (e.code === 404) return NotFound();
     throw e;
   }
 }

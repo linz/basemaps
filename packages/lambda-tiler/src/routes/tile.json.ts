@@ -13,14 +13,14 @@ export interface TileJsonGet {
 
 export async function tileJsonGet(req: LambdaHttpRequest<TileJsonGet>): Promise<LambdaHttpResponse> {
   const tileMatrix = Validate.getTileMatrixSet(req.params.tileMatrix);
-  if (tileMatrix == null) return NotFound;
+  if (tileMatrix == null) return NotFound();
 
   const apiKey = Validate.apiKey(req);
 
   req.timer.start('tileset:load');
   const tileSet = await Config.TileSet.get(Config.TileSet.id(req.params.tileSet));
   req.timer.end('tileset:load');
-  if (tileSet == null) return NotFound;
+  if (tileSet == null) return NotFound();
 
   const format = Validate.getRequestedFormats(req) ?? [tileSet.format];
 

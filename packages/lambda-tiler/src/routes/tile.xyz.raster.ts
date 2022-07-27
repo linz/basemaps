@@ -63,11 +63,11 @@ export const TileXyzRaster = {
   },
 
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<LambdaHttpResponse> {
-    if (xyz.tileType === VectorFormat.MapboxVectorTiles) return NotFound;
+    if (xyz.tileType === VectorFormat.MapboxVectorTiles) return NotFound();
 
     const tiffPaths = await this.getTiffsForTile(req, tileSet, xyz);
     const cacheKey = Etag.key(tiffPaths);
-    if (Etag.isNotModified(req, cacheKey)) return NotModified;
+    if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
     const toLoad: Promise<CogTiff | null>[] = [];
     for (const tiffPath of tiffPaths) {

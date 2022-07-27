@@ -66,14 +66,14 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   // Get style Config from db
   const dbId = Config.Style.id(styleName);
   const styleConfig = await Config.Style.get(dbId);
-  if (styleConfig == null) return NotFound;
+  if (styleConfig == null) return NotFound();
 
   // Prepare sources and add linz source
   const style = convertStyleJson(styleConfig.style, apiKey);
   const data = Buffer.from(JSON.stringify(style));
 
   const cacheKey = Etag.key(data);
-  if (Etag.isNotModified(req, cacheKey)) return NotModified;
+  if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
   const response = new LambdaHttpResponse(200, 'ok');
   response.header(HttpHeader.ETag, cacheKey);

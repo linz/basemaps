@@ -32,7 +32,7 @@ export async function tileXyzGet(req: LambdaHttpRequest<TileXyzGet>): Promise<La
   req.timer.start('tileset:load');
   const tileSet = await Config.TileSet.get(Config.TileSet.id(xyzData.tileSet));
   req.timer.end('tileset:load');
-  if (tileSet == null) return NotFound;
+  if (tileSet == null) return NotFound();
 
   switch (tileSet.type) {
     case TileSetType.Vector:
