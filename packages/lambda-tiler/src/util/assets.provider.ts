@@ -18,7 +18,7 @@ export class AssetProvider {
   /** Path of the assets location */
   path: string | undefined;
 
-  async set(path?: string): Promise<void> {
+  set(path?: string): void {
     this.path = path;
   }
 
