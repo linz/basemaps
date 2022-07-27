@@ -31,7 +31,7 @@ jobs:
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_ROLE_NON_PROD }}
+          role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
       
       - name: (Screenshot) Screenshot Pull Request Changes
         run: |
