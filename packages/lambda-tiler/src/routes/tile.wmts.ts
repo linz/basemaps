@@ -32,14 +32,14 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
 
   const tileSetName = req.params.tileSet ?? 'aerial';
   const tileMatrix = getWmtsTileMatrix(req.params.tileMatrix);
-  if (tileMatrix == null) return NotFound;
+  if (tileMatrix == null) return NotFound();
 
   const host = Env.get(Env.PublicUrlBase) ?? '';
 
   req.timer.start('tileset:load');
   const tileSet = await Config.TileSet.get(Config.TileSet.id(tileSetName ?? 'aerial'));
   req.timer.end('tileset:load');
-  if (tileSet == null || tileSet.type !== TileSetType.Raster) return NotFound;
+  if (tileSet == null || tileSet.type !== TileSetType.Raster) return NotFound();
 
   const provider = await Config.Provider.get(Config.Provider.id('linz'));
 
@@ -60,12 +60,12 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
     apiKey,
     formats: Validate.getRequestedFormats(req),
   }).toXml();
-  if (xml == null) return NotFound;
+  if (xml == null) return NotFound();
 
   const data = Buffer.from(xml);
 
   const cacheKey = createHash('sha256').update(data).digest('base64');
-  if (Etag.isNotModified(req, cacheKey)) return NotModified;
+  if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
   const response = new LambdaHttpResponse(200, 'ok');
   response.header(HttpHeader.ETag, cacheKey);

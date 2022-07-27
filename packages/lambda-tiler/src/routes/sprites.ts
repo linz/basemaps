@@ -18,11 +18,11 @@ Extensions.set('.json', 'application/json');
 
 export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<LambdaHttpResponse> {
   const assetLocation = Env.get(Env.AssetLocation);
-  if (assetLocation == null) return NotFound;
+  if (assetLocation == null) return NotFound();
 
   const extension = path.extname(req.params.spriteName);
   const mimeType = Extensions.get(extension);
-  if (mimeType == null) return NotFound;
+  if (mimeType == null) return NotFound();
 
   const targetFile = fsa.join('sprites', req.params.spriteName);
   if (assetLocation.endsWith('.tar.co')) return serveFromCotar(req, assetLocation, targetFile, mimeType);
@@ -33,7 +33,7 @@ export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<Lamb
 
     const buf = await fsa.read(filePath);
     const cacheKey = Etag.key(buf);
-    if (Etag.isNotModified(req, cacheKey)) return NotModified;
+    if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
     const response = LambdaHttpResponse.ok().buffer(buf, mimeType);
     response.header(HttpHeader.ETag, cacheKey);
@@ -41,7 +41,7 @@ export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<Lamb
     if (isGzip(buf)) response.header(HttpHeader.ContentEncoding, 'gzip');
     return response;
   } catch (e: any) {
-    if (e.code === 404) return NotFound;
+    if (e.code === 404) return NotFound();
     throw e;
   }
 }

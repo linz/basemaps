@@ -5,7 +5,7 @@ import { promisify } from 'util';
 import { gzip } from 'zlib';
 import { isGzip } from '../util/cotar.serve.js';
 import { Etag } from '../util/etag.js';
-import { NotModified } from '../util/response.js';
+import { NotFound, NotModified } from '../util/response.js';
 
 const gzipP = promisify(gzip);
 
@@ -32,10 +32,10 @@ interface ImageryGet {
  */
 export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<LambdaHttpResponse> {
   const requestedFile = req.params.fileName;
-  if (!isAllowedFile(requestedFile)) return new LambdaHttpResponse(404, 'Not found');
+  if (!isAllowedFile(requestedFile)) return NotFound();
 
   const imagery = await Config.Imagery.get(Config.Imagery.id(req.params.imageryId));
-  if (imagery == null) return new LambdaHttpResponse(404, 'Not found');
+  if (imagery == null) return NotFound();
 
   const targetPath = fsa.join(imagery.uri, requestedFile);
 
@@ -43,7 +43,7 @@ export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<La
     const buf = await fsa.read(targetPath);
 
     const cacheKey = Etag.key(buf);
-    if (Etag.isNotModified(req, cacheKey)) return NotModified;
+    if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
@@ -54,6 +54,6 @@ export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<La
     return response;
   } catch (e) {
     req.log.warn({ targetPath }, 'ImageryMetadata:Failed');
-    return new LambdaHttpResponse(404, 'Not found');
+    return NotFound();
   }
 }

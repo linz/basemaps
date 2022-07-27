@@ -10,8 +10,8 @@ import { TileXyz } from '../util/validate.js';
 export const tileXyzVector = {
   /** Serve a MVT vector tile */
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetVector, xyz: TileXyz): Promise<LambdaHttpResponse> {
-    if (xyz.tileType !== VectorFormat.MapboxVectorTiles) return NotFound;
-    if (xyz.tileMatrix.identifier !== GoogleTms.identifier) return NotFound;
+    if (xyz.tileType !== VectorFormat.MapboxVectorTiles) return NotFound();
+    if (xyz.tileMatrix.identifier !== GoogleTms.identifier) return NotFound();
 
     if (tileSet.layers.length > 1) return new LambdaHttpResponse(500, 'Too many layers in tileset');
     const [layer] = tileSet.layers;
@@ -25,7 +25,7 @@ export const tileXyzVector = {
     const tileId = `${layerId}#${tilePath}`;
 
     const cacheKey = Etag.key(tileId);
-    if (Etag.isNotModified(req, cacheKey)) return NotModified;
+    if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
     req.timer.start('cotar:load');
     const cotar = await CoSources.getCotar(layerId);
@@ -34,7 +34,7 @@ export const tileXyzVector = {
 
     req.timer.start('cotar:tile');
     const tile = await cotar.get(tilePath);
-    if (tile == null) return NotFound;
+    if (tile == null) return NotFound();
     req.timer.end('cotar:tile');
 
     const tileBuffer = Buffer.from(tile);

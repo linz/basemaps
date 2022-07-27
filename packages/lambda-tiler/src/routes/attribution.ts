@@ -15,12 +15,11 @@ import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@li
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { Etag } from '../util/etag.js';
+import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
-
-const NotFound = new LambdaHttpResponse(404, 'Not Found');
 
 const Precision = 10 ** 8;
 
@@ -163,16 +162,16 @@ export async function tileAttributionGet(req: LambdaHttpRequest<TileAttributionG
   req.timer.start('tileset:load');
   const tileSet = await Config.TileSet.get(Config.TileSet.id(req.params.tileSet));
   req.timer.end('tileset:load');
-  if (tileSet == null || tileSet.type === TileSetType.Vector) return NotFound;
+  if (tileSet == null || tileSet.type === TileSetType.Vector) return NotFound();
 
   const cacheKey = Etag.key(tileSet);
-  if (Etag.isNotModified(req, cacheKey)) return new LambdaHttpResponse(304, 'Not modified');
+  if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
   req.timer.start('stac:load');
   const attributions = await tileSetAttribution(req, tileSet, tileMatrix);
   req.timer.end('stac:load');
 
-  if (attributions == null) return NotFound;
+  if (attributions == null) return NotFound();
 
   const response = new LambdaHttpResponse(200, 'ok');
 

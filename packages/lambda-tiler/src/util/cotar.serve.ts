@@ -17,14 +17,14 @@ export async function serveFromCotar(
   contentType: string,
 ): Promise<LambdaHttpResponse> {
   const cotar = await CoSources.getCotar(cotarPath);
-  if (cotar == null) return NotFound;
+  if (cotar == null) return NotFound();
   const fileData = await cotar.get(assetPath);
-  if (fileData == null) return NotFound;
+  if (fileData == null) return NotFound();
 
   const buf = Buffer.from(fileData);
 
   const cacheKey = Etag.key(buf);
-  if (Etag.isNotModified(req, cacheKey)) return NotModified;
+  if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
   const response = LambdaHttpResponse.ok().buffer(buf, contentType);
   response.header(HttpHeader.ETag, cacheKey);
