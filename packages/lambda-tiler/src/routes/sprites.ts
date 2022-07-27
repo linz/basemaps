@@ -1,9 +1,10 @@
 import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import path from 'path';
-import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { NotFound } from '../util/response.js';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { NotFound, NotModified } from '../util/response.js';
 import { isGzip, serveFromCotar } from '../util/cotar.serve.js';
+import { Etag } from '../util/etag.js';
 
 interface SpriteGet {
   Params: {
@@ -24,16 +25,21 @@ export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<Lamb
   if (mimeType == null) return NotFound;
 
   const targetFile = fsa.join('sprites', req.params.spriteName);
-  if (assetLocation.endsWith('.tar.co')) return serveFromCotar(assetLocation, targetFile, mimeType);
+  if (assetLocation.endsWith('.tar.co')) return serveFromCotar(req, assetLocation, targetFile, mimeType);
 
   try {
     const filePath = fsa.join(assetLocation, targetFile);
     req.set('target', filePath);
 
     const buf = await fsa.read(filePath);
-    const res = LambdaHttpResponse.ok().buffer(buf, mimeType);
-    if (isGzip(buf)) res.header('content-encoding', 'gzip');
-    return res;
+    const cacheKey = Etag.key(buf);
+    if (Etag.isNotModified(req, cacheKey)) return NotModified;
+
+    const response = LambdaHttpResponse.ok().buffer(buf, mimeType);
+    response.header(HttpHeader.ETag, cacheKey);
+    response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
+    if (isGzip(buf)) response.header(HttpHeader.ContentEncoding, 'gzip');
+    return response;
   } catch (e: any) {
     if (e.code === 404) return NotFound;
     throw e;

@@ -1,5 +1,6 @@
-import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
-import { NotFound } from './response.js';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { Etag } from './etag.js';
+import { NotFound, NotModified } from './response.js';
 import { CoSources } from './source.cache.js';
 
 /**
@@ -10,6 +11,7 @@ import { CoSources } from './source.cache.js';
  * - Content-Type from the parameter contentType
  */
 export async function serveFromCotar(
+  req: LambdaHttpRequest,
   cotarPath: string,
   assetPath: string,
   contentType: string,
@@ -18,10 +20,17 @@ export async function serveFromCotar(
   if (cotar == null) return NotFound;
   const fileData = await cotar.get(assetPath);
   if (fileData == null) return NotFound;
+
   const buf = Buffer.from(fileData);
-  const ret = LambdaHttpResponse.ok().buffer(buf, contentType);
-  if (isGzip(buf)) ret.header(HttpHeader.ContentEncoding, 'gzip');
-  return ret;
+
+  const cacheKey = Etag.key(buf);
+  if (Etag.isNotModified(req, cacheKey)) return NotModified;
+
+  const response = LambdaHttpResponse.ok().buffer(buf, contentType);
+  response.header(HttpHeader.ETag, cacheKey);
+  response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
+  if (isGzip(buf)) response.header(HttpHeader.ContentEncoding, 'gzip');
+  return response;
 }
 
 /**

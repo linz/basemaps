@@ -33,14 +33,16 @@ o.spec('/v1/fonts', () => {
   });
 
   o('should return empty list if no fonts found', async () => {
-    const res = await fontList();
+    const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(200);
     o(res.body).equals('[]');
+    o(res.header('etag')).notEquals(undefined);
+    o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
   });
 
   o('should return 404 if no assets defined', async () => {
     delete process.env[Env.AssetLocation];
-    const res = await fontList();
+    const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(404);
   });
 
@@ -50,7 +52,7 @@ o.spec('/v1/fonts', () => {
       fsa.write('memory://fonts/Roboto Thin/256-512.pbf', Buffer.from('')),
       fsa.write('memory://fonts/Roboto Black/0-255.pbf', Buffer.from('')),
     ]);
-    const res = await fontList();
+    const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(200);
     o(res.header('content-type')).equals('application/json');
     o(res.header('content-encoding')).equals(undefined);
@@ -64,6 +66,8 @@ o.spec('/v1/fonts', () => {
     o(res255.status).equals(200);
     o(res255.header('content-type')).equals('application/x-protobuf');
     o(res255.header('content-encoding')).equals(undefined);
+    o(res255.header('etag')).notEquals(undefined);
+    o(res255.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
 
     const res404 = await handler.router.handle(mockRequest('/v1/fonts/Roboto Thin/256-512.pbf'));
     o(res404.status).equals(404);
@@ -76,5 +80,7 @@ o.spec('/v1/fonts', () => {
     o(res255.status).equals(200);
     o(res255.header('content-type')).equals('application/x-protobuf');
     o(res255.header('content-encoding')).equals(undefined);
+    o(res255.header('etag')).notEquals(undefined);
+    o(res255.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
   });
 });

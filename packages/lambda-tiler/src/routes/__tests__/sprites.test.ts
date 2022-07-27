@@ -36,6 +36,8 @@ o.spec('/v1/sprites', () => {
     o(res.status).equals(200);
     o(res.header('content-type')).equals('application/json');
     o(res.header('content-encoding')).equals(undefined);
+    o(res.header('etag')).notEquals(undefined);
+    o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
 
     o(JSON.parse(Buffer.from(res.body, 'base64').toString())).deepEquals({ test: true });
   });
@@ -48,6 +50,8 @@ o.spec('/v1/sprites', () => {
     const res = await handler.router.handle(mockRequest('/v1/sprites/topographic@2x.png'));
     o(res.status).equals(200);
     o(res.header('content-type')).equals('image/png');
+    o(res.header('etag')).notEquals(undefined);
+    o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
   });
 
   o('should detect gziped files and set content-encoding', async () => {
@@ -58,7 +62,8 @@ o.spec('/v1/sprites', () => {
     o(res.status).equals(200);
     o(res.header('content-type')).equals('application/json');
     o(res.header('content-encoding')).equals('gzip');
-
+    o(res.header('etag')).notEquals(undefined);
+    o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
     o(JSON.parse(gunzipSync(Buffer.from(res.body, 'base64')).toString())).deepEquals({ test: true });
   });
 });
