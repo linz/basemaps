@@ -2,7 +2,7 @@ import { sha256base58 } from '@basemaps/config';
 import { HttpHeader, LambdaHttpRequest } from '@linzjs/lambda';
 
 export const Etag = {
-  key(obj: Record<string, unknown> | Buffer | string): string {
+  key(obj: unknown): string {
     if (Buffer.isBuffer(obj) || typeof obj === 'string') return sha256base58(obj);
     return sha256base58(JSON.stringify(obj));
   },

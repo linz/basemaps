@@ -165,7 +165,7 @@ export async function tileAttributionGet(req: LambdaHttpRequest<TileAttributionG
   req.timer.end('tileset:load');
   if (tileSet == null || tileSet.type === TileSetType.Vector) return NotFound;
 
-  const cacheKey = Etag.key(JSON.stringify(tileSet));
+  const cacheKey = Etag.key(tileSet);
   if (Etag.isNotModified(req, cacheKey)) return new LambdaHttpResponse(304, 'Not modified');
 
   req.timer.start('stac:load');

@@ -38,7 +38,7 @@ export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<Lamb
     const response = LambdaHttpResponse.ok().buffer(buf, mimeType);
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
-    if (isGzip(buf)) response.header('content-encoding', 'gzip');
+    if (isGzip(buf)) response.header(HttpHeader.ContentEncoding, 'gzip');
     return response;
   } catch (e: any) {
     if (e.code === 404) return NotFound;

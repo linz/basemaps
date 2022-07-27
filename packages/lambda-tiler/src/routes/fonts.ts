@@ -2,7 +2,7 @@ import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
-import { serveFromCotar } from '../util/cotar.serve.js';
+import { isGzip, serveFromCotar } from '../util/cotar.serve.js';
 import { Etag } from '../util/etag.js';
 import { NotFound, NotModified } from '../util/response.js';
 
@@ -23,12 +23,13 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
     const filePath = fsa.join(assetLocation, targetFile);
     const buf = await fsa.read(filePath);
 
-    const cacheKey = Etag.key(JSON.stringify(buf));
+    const cacheKey = Etag.key(buf);
     if (Etag.isNotModified(req, cacheKey)) return NotModified;
 
     const response = LambdaHttpResponse.ok().buffer(buf, 'application/x-protobuf');
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
+    if (isGzip(buf)) response.header(HttpHeader.ContentEncoding, 'gzip');
     return response;
   } catch (e: any) {
     if (e.code === 404) return NotFound;
@@ -61,7 +62,7 @@ export async function fontList(req: LambdaHttpRequest): Promise<LambdaHttpRespon
     const filePath = fsa.join(assetLocation, '/fonts');
     const fonts = await getFonts(filePath);
 
-    const cacheKey = Etag.key(JSON.stringify(fonts));
+    const cacheKey = Etag.key(fonts);
     if (Etag.isNotModified(req, cacheKey)) return NotModified;
 
     const response = LambdaHttpResponse.ok().buffer(JSON.stringify(fonts), 'application/json');

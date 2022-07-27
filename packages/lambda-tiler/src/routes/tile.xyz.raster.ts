@@ -66,7 +66,7 @@ export const TileXyzRaster = {
     if (xyz.tileType === VectorFormat.MapboxVectorTiles) return NotFound;
 
     const tiffPaths = await this.getTiffsForTile(req, tileSet, xyz);
-    const cacheKey = Etag.key(JSON.stringify(tiffPaths));
+    const cacheKey = Etag.key(tiffPaths);
     if (Etag.isNotModified(req, cacheKey)) return NotModified;
 
     const toLoad: Promise<CogTiff | null>[] = [];
