@@ -11,6 +11,7 @@ import { styleJsonGet } from './routes/tile.style.json.js';
 import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
+import { NotFound } from './util/response.js';
 import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
 
@@ -29,7 +30,6 @@ handler.router.hook('response', (req, res) => {
     req.set('requests', St.requests.slice(0, 100)); // limit to 100 requests (some tiles need 100s of requests)
     req.set('requestCount', St.requests.length);
   }
-
   // Log the source cache hit/miss ratio
   req.set('sources', {
     hits: CoSources.cache.hits,
@@ -40,16 +40,16 @@ handler.router.hook('response', (req, res) => {
     cacheB: CoSources.cache.cacheB.size,
   });
 
-  // Ensure CORS response headers are set
-  res.header('Access-Control-Allow-Origin', '*');
+  // Ensure CORS is set
+  if (req.header('origin')) res.header('access-control-allow-origin', '*');
 });
 
-const CorsResponse = new LambdaHttpResponse(200, 'Options', {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Credentials': 'false',
-  'Access-Control-Allow-Methods': 'OPTIONS,GET',
+// CORS is handled by response hook so just return ok if the route exists
+handler.router.options('*', (req) => {
+  const route = handler.router.router.find('GET', req.path);
+  if (route == null) return NotFound();
+  return LambdaHttpResponse.ok();
 });
-handler.router.options('*', () => CorsResponse);
 
 // TODO some internal health checks hit these routes, we should change them all to point at /v1/
 handler.router.get('/ping', pingGet);
