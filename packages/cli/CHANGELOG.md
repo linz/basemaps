@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.32.0](https://github.com/linz/basemaps/compare/v6.31.0...v6.32.0) (2022-07-28)
+
+
+### Bug Fixes
+
+* **cli:** when importing imagery do not use a custom name ([#2369](https://github.com/linz/basemaps/issues/2369)) ([93e6e2a](https://github.com/linz/basemaps/commit/93e6e2a7b57c7d3d9f59a5bd8d28a329f5011b2a))
+
+
+### Features
+
+* **cli:** Move the default test tile into cli package ([#2367](https://github.com/linz/basemaps/issues/2367)) ([fec8fb4](https://github.com/linz/basemaps/commit/fec8fb4099fc07e202dac18345853fd28f00663b))
+
+
+
+
+
 # [6.31.0](https://github.com/linz/basemaps/compare/v6.30.0...v6.31.0) (2022-07-22)
 
 
