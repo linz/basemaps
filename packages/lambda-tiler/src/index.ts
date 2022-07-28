@@ -40,7 +40,7 @@ handler.router.hook('response', (req, res) => {
     cacheB: CoSources.cache.cacheB.size,
   });
 
-  // FunctionURLs automatically inject CORS responses for us
+  // Force access-control-allow-origin to everything
   res.header('access-control-allow-origin', '*');
 });
 
