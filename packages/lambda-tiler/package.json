@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-tiler",
-  "version": "6.32.1",
+  "version": "6.32.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
