@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.33.0](https://github.com/linz/basemaps/compare/v6.31.0...v6.33.0) (2022-07-28)
+
+
+### Features
+
+* **lambda-tiler:** log cache hit percentages ([#2368](https://github.com/linz/basemaps/issues/2368)) ([3f7bf0c](https://github.com/linz/basemaps/commit/3f7bf0c39ba46797b1a271a191fe51fc578abffc))
+
+
+
+
+
 # [6.32.0](https://github.com/linz/basemaps/compare/v6.31.0...v6.32.0) (2022-07-28)
 
 

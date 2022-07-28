@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.33.0](https://github.com/linz/basemaps/compare/v6.31.0...v6.33.0) (2022-07-28)
+
+
+### Features
+
+* **infra:** create a function url for the lambda-tiler ([#2359](https://github.com/linz/basemaps/issues/2359)) ([16b2962](https://github.com/linz/basemaps/commit/16b296261fed52127eff9926a46f65128bdad6c7))
+
+
+
+
+
 # [6.32.0](https://github.com/linz/basemaps/compare/v6.31.0...v6.32.0) (2022-07-28)
 
 
