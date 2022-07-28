@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-cog",
-  "version": "6.32.1",
+  "version": "6.32.2",
   "private": true,
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
   "types": "./build/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@basemaps/cli": "^6.32.1",
+    "@basemaps/cli": "^6.32.2",
     "@basemaps/config": "^6.32.1",
     "@basemaps/geo": "^6.32.1",
     "@basemaps/lambda": "^6.7.0",
