@@ -40,6 +40,7 @@ handler.router.hook('response', (req, res) => {
     misses: CoSources.cache.misses,
     size: CoSources.cache.currentSize,
     resets: CoSources.cache.resets,
+    clears: CoSources.cache.clears,
     cacheA: CoSources.cache.cacheA.size,
     cacheB: CoSources.cache.cacheB.size,
   });
