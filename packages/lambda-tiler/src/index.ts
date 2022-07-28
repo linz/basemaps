@@ -41,9 +41,7 @@ handler.router.hook('response', (req, res) => {
   });
 
   // FunctionURLs automatically inject CORS responses for us
-  if (!(req instanceof LambdaUrlRequest) && req.headers.has('origin')) {
-    res.header('access-control-allow-origin', '*');
-  }
+  res.header('access-control-allow-origin', '*');
 });
 
 // CORS is handled by function url hook so just return ok if the route exists

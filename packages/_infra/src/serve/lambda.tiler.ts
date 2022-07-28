@@ -73,12 +73,6 @@ export class LambdaTiler extends Construct {
     this.functionUrl = new lambda.FunctionUrl(this, 'LambdaCogUrl', {
       function: this.lambdaNoVpc,
       authType: lambda.FunctionUrlAuthType.NONE,
-      cors: {
-        allowedOrigins: ['*'],
-        allowedMethods: [lambda.HttpMethod.GET],
-        allowCredentials: false,
-        maxAge: cdk.Duration.minutes(1),
-      },
     });
 
     if (props.staticBucketName) {
