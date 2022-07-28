@@ -1,5 +1,5 @@
 import { LogConfig } from '@basemaps/shared';
-import { LambdaHttpResponse, LambdaUrlRequest, lf } from '@linzjs/lambda';
+import { LambdaHttpResponse, lf } from '@linzjs/lambda';
 import { tileAttributionGet } from './routes/attribution.js';
 import { fontGet, fontList } from './routes/fonts.js';
 import { healthGet } from './routes/health.js';
@@ -44,7 +44,7 @@ handler.router.hook('response', (req, res) => {
   res.header('access-control-allow-origin', '*');
 });
 
-// CORS is handled by function url hook so just return ok if the route exists
+// CORS is handled by response hook so just return ok if the route exists
 handler.router.options('*', (req) => {
   const route = handler.router.router.find('GET', req.path);
   if (route == null) return NotFound();
