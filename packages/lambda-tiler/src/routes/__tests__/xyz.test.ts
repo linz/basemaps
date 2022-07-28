@@ -63,7 +63,8 @@ o.spec('/v1/tiles', () => {
 
   ['png', 'webp', 'jpeg', 'avif'].forEach((fmt) => {
     o(`should 200 with empty ${fmt} if a tile is out of bounds`, async () => {
-      // tiler.tile = async () => [];
+      o.timeout(1_000);
+
       const res = await handler.router.handle(
         mockRequest(`/v1/tiles/aerial/global-mercator/0/0/0.${fmt}`, 'get', Api.header),
       );
@@ -71,7 +72,6 @@ o.spec('/v1/tiles', () => {
       o(res.header('content-type')).equals(`image/${fmt}`);
       o(res.header('etag')).notEquals(undefined);
       o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
-      //   o(rasterMock.calls.length).equals(1);
     });
   });
 
