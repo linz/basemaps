@@ -68,4 +68,5 @@ export class SourceCache {
   }
 }
 
-export const CoSources = new SourceCache(256 * 1024 * 1024);
+/** Approx 1GB */
+export const CoSources = new SourceCache(1000 * 1000 * 1000);
