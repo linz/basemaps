@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.32.2](https://github.com/linz/basemaps/compare/v6.32.1...v6.32.2) (2022-07-28)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** always include access-control-allow-origin ([#2385](https://github.com/linz/basemaps/issues/2385)) ([1edc2b6](https://github.com/linz/basemaps/commit/1edc2b6ccef295ad9c1b6ed32045f6d19827ba06))
+
+
+
+
+
+## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+# [6.32.0](https://github.com/linz/basemaps/compare/v6.31.0...v6.32.0) (2022-07-28)
+
+
+### Features
+
+* **infra:** create a function url for the lambda-tiler ([#2359](https://github.com/linz/basemaps/issues/2359)) ([16b2962](https://github.com/linz/basemaps/commit/16b296261fed52127eff9926a46f65128bdad6c7))
+
+
+
+
+
 # [6.31.0](https://github.com/linz/basemaps/compare/v6.30.0...v6.31.0) (2022-07-22)
 
 **Note:** Version bump only for package @basemaps/infra

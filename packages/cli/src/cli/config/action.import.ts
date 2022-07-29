@@ -52,7 +52,6 @@ export class CommandImport extends CommandLineAction {
 
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
-    logger.level = 'trace';
     const commit = this.commit.value ?? false;
     const config = this.config.value;
     const assets = this.assets.value;

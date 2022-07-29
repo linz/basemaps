@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
+
+**Note:** Version bump only for package @basemaps/config
+
+
+
+
+
+# [6.32.0](https://github.com/linz/basemaps/compare/v6.31.0...v6.32.0) (2022-07-28)
+
+
+### Features
+
+* **config:** generate all the deprecated child tilesets BM-361 ([#2360](https://github.com/linz/basemaps/issues/2360)) ([1d9df13](https://github.com/linz/basemaps/commit/1d9df13b36b04af2e6749ce2d8ef45073cbc6f2b))
+
+
+
+
+
 # [6.31.0](https://github.com/linz/basemaps/compare/v6.30.0...v6.31.0) (2022-07-22)
 
 

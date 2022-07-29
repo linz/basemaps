@@ -6,6 +6,7 @@ export class SwappingLru<T extends { size: number }> {
   hits = 0;
   misses = 0;
   resets = 0;
+  clears = 0;
 
   _lastCheckedAt = -1;
 
@@ -37,6 +38,7 @@ export class SwappingLru<T extends { size: number }> {
   clear(): void {
     this.cacheA.clear();
     this.cacheB.clear();
+    this.clears++;
   }
 
   set(id: string, tiff: T): void {
@@ -50,6 +52,11 @@ export class SwappingLru<T extends { size: number }> {
     if (this.maxSize <= 0) return;
     if (this.currentSize <= this.maxSize) return;
     this.resets++;
+    // Paranoia if we are resetting too often something is wrong, reset the entire cache.
+    if (this.resets > 100) {
+      this.resets = 0;
+      return this.clear();
+    }
     this.cacheB = this.cacheA;
     this.cacheA = new Map();
   }

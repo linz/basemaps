@@ -12,6 +12,7 @@ import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
 import { assetProvider } from './util/assets.provider.js';
+import { NotFound } from './util/response.js';
 import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
 
@@ -28,33 +29,37 @@ handler.router.hook('request', (req) => {
   St.reset();
 });
 
+let totalRequests = 0;
 handler.router.hook('response', (req, res) => {
+  totalRequests++;
+  req.set('requestsTotal', totalRequests); // Number of requests served by this lambda
+
   if (St.requests.length > 0) {
     // TODO this could be relaxed to every say 5% of requests if logging gets too verbose.
     req.set('requests', St.requests.slice(0, 100)); // limit to 100 requests (some tiles need 100s of requests)
     req.set('requestCount', St.requests.length);
   }
-
   // Log the source cache hit/miss ratio
   req.set('sources', {
     hits: CoSources.cache.hits,
     misses: CoSources.cache.misses,
     size: CoSources.cache.currentSize,
     resets: CoSources.cache.resets,
+    clears: CoSources.cache.clears,
     cacheA: CoSources.cache.cacheA.size,
     cacheB: CoSources.cache.cacheB.size,
   });
 
-  // Ensure CORS response headers are set
-  res.header('Access-Control-Allow-Origin', '*');
+  // Force access-control-allow-origin to everything
+  res.header('access-control-allow-origin', '*');
 });
 
-const CorsResponse = new LambdaHttpResponse(200, 'Options', {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Credentials': 'false',
-  'Access-Control-Allow-Methods': 'OPTIONS,GET',
+// CORS is handled by response hook so just return ok if the route exists
+handler.router.options('*', (req) => {
+  const route = handler.router.router.find('GET', req.path);
+  if (route == null) return NotFound();
+  return LambdaHttpResponse.ok();
 });
-handler.router.options('*', () => CorsResponse);
 
 // TODO some internal health checks hit these routes, we should change them all to point at /v1/
 handler.router.get('/ping', pingGet);

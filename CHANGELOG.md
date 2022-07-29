@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.32.2](https://github.com/linz/basemaps/compare/v6.32.1...v6.32.2) (2022-07-28)
+
+
+### Bug Fixes
+
+* **cli:** do not trace everything by default ([#2383](https://github.com/linz/basemaps/issues/2383)) ([39eba95](https://github.com/linz/basemaps/commit/39eba95b1f297f794592d9eddef10b05b5bfe08b))
+* **lambda-tiler:** always include access-control-allow-origin ([#2385](https://github.com/linz/basemaps/issues/2385)) ([1edc2b6](https://github.com/linz/basemaps/commit/1edc2b6ccef295ad9c1b6ed32045f6d19827ba06))
+* **lambda-tiler:** increase source cache to approx 1GB ([#2384](https://github.com/linz/basemaps/issues/2384)) ([83236fb](https://github.com/linz/basemaps/commit/83236fb4115f5190cbec1258f845449aa4406a03))
+
+
+
+
+
+## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
+
+**Note:** Version bump only for package @basemaps/core
+
+
+
+
+
+# [6.32.0](https://github.com/linz/basemaps/compare/v6.31.0...v6.32.0) (2022-07-28)
+
+
+### Bug Fixes
+
+* **ci:** Screenshot cannot find the imagery to compare ([#2366](https://github.com/linz/basemaps/issues/2366)) ([4f1c3a2](https://github.com/linz/basemaps/commit/4f1c3a28b2553720868ab808a16df7007cc87917))
+* **cli:** when importing imagery do not use a custom name ([#2369](https://github.com/linz/basemaps/issues/2369)) ([93e6e2a](https://github.com/linz/basemaps/commit/93e6e2a7b57c7d3d9f59a5bd8d28a329f5011b2a))
+* **lambda-tiler:** CORS is handled by the function url. ([#2376](https://github.com/linz/basemaps/issues/2376)) ([8ad2bf1](https://github.com/linz/basemaps/commit/8ad2bf10f4e9b131c35c33273afd6c2d3460b46c))
+* **lambda-tiler:** do not cache responses as they can be modifed ([#2372](https://github.com/linz/basemaps/issues/2372)) ([686e978](https://github.com/linz/basemaps/commit/686e978926261847eeda5fd8d1fafc718adb2b4b))
+* **lambda-tiler:** ignore cors for function urls ([#2377](https://github.com/linz/basemaps/issues/2377)) ([96f5d66](https://github.com/linz/basemaps/commit/96f5d669c41a3154e3914955fd5f6d057bc4bf2a))
+
+
+### Features
+
+* **cli:** Move the default test tile into cli package ([#2367](https://github.com/linz/basemaps/issues/2367)) ([fec8fb4](https://github.com/linz/basemaps/commit/fec8fb4099fc07e202dac18345853fd28f00663b))
+* **config:** generate all the deprecated child tilesets BM-361 ([#2360](https://github.com/linz/basemaps/issues/2360)) ([1d9df13](https://github.com/linz/basemaps/commit/1d9df13b36b04af2e6749ce2d8ef45073cbc6f2b))
+* **infra:** create a function url for the lambda-tiler ([#2359](https://github.com/linz/basemaps/issues/2359)) ([16b2962](https://github.com/linz/basemaps/commit/16b296261fed52127eff9926a46f65128bdad6c7))
+* **lambda-tiler:** create unique id for source requests ([#2370](https://github.com/linz/basemaps/issues/2370)) ([59c90a7](https://github.com/linz/basemaps/commit/59c90a7110f2ea8ef76a3f4dcb02b0170ea134df))
+* **lambda-tiler:** force more aggressive cache control on most endpoints ([#2371](https://github.com/linz/basemaps/issues/2371)) ([18f9e67](https://github.com/linz/basemaps/commit/18f9e674aa762901d027b67ef14026d86e2442b9))
+* **lambda-tiler:** log cache hit percentages ([#2368](https://github.com/linz/basemaps/issues/2368)) ([3f7bf0c](https://github.com/linz/basemaps/commit/3f7bf0c39ba46797b1a271a191fe51fc578abffc))
+* **lambda-tiler:** move all routes to route handler ([#2354](https://github.com/linz/basemaps/issues/2354)) ([4896e7c](https://github.com/linz/basemaps/commit/4896e7c47488389845ce22fdf46a8aadf79495a2))
+
+
+
+
+
 # [6.31.0](https://github.com/linz/basemaps/compare/v6.30.0...v6.31.0) (2022-07-22)
 
 
