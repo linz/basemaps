@@ -68,5 +68,5 @@ export class SourceCache {
   }
 }
 
-/** Approx 1GB */
-export const CoSources = new SourceCache(1000 * 1000 * 1000);
+/** Approx ~1.4GB 2x~700MB caches */
+export const CoSources = new SourceCache(700 * 1000 * 1000);
