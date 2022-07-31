@@ -3,7 +3,7 @@ import { GoogleTms, VectorFormat } from '@basemaps/geo';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { isGzip } from '../util/cotar.serve.js';
 import { Etag } from '../util/etag.js';
-import { NonContent, NotFound, NotModified } from '../util/response.js';
+import { NoContent, NotFound, NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
 import { TileXyz } from '../util/validate.js';
 
@@ -34,7 +34,7 @@ export const tileXyzVector = {
 
     req.timer.start('cotar:tile');
     const tile = await cotar.get(tilePath);
-    if (tile == null) return NonContent();
+    if (tile == null) return NoContent();
     req.timer.end('cotar:tile');
 
     const tileBuffer = Buffer.from(tile);
