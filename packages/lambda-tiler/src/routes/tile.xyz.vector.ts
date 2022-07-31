@@ -7,6 +7,8 @@ import { NotFound, NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
 import { TileXyz } from '../util/validate.js';
 
+export const NonContent = (): LambdaHttpResponse => new LambdaHttpResponse(204, 'No Content');
+
 export const tileXyzVector = {
   /** Serve a MVT vector tile */
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetVector, xyz: TileXyz): Promise<LambdaHttpResponse> {
@@ -34,7 +36,7 @@ export const tileXyzVector = {
 
     req.timer.start('cotar:tile');
     const tile = await cotar.get(tilePath);
-    if (tile == null) return NotFound();
+    if (tile == null) return NonContent();
     req.timer.end('cotar:tile');
 
     const tileBuffer = Buffer.from(tile);
