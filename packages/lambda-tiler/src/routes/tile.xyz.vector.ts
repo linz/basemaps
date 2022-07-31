@@ -3,11 +3,9 @@ import { GoogleTms, VectorFormat } from '@basemaps/geo';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { isGzip } from '../util/cotar.serve.js';
 import { Etag } from '../util/etag.js';
-import { NotFound, NotModified } from '../util/response.js';
+import { NonContent, NotFound, NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
 import { TileXyz } from '../util/validate.js';
-
-export const NonContent = (): LambdaHttpResponse => new LambdaHttpResponse(204, 'No Content');
 
 export const tileXyzVector = {
   /** Serve a MVT vector tile */
