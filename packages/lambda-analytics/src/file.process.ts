@@ -2,6 +2,7 @@ import { LogType, getUrlHost, fsa, isValidApiKey } from '@basemaps/shared';
 import { createInterface, Interface } from 'readline';
 import { createGunzip } from 'zlib';
 import { LogStats } from './stats.js';
+import { getUserAgent } from './ua.js';
 
 export const FileProcess = {
   reader(fileName: string): AsyncGenerator<string> | Interface {
@@ -24,19 +25,20 @@ export const FileProcess = {
 
       const uri = lineData[7];
       const status = lineData[8];
-      const referer = lineData[9] === '-' ? undefined : getUrlHost(lineData[9]);
+      const referer = lineData[9] === '-' ? '' : getUrlHost(lineData[9]);
+      const userAgent = getUserAgent(lineData[10]);
       const query = lineData[11];
       const hit = lineData[13] === 'Hit' || lineData[13] === 'RefreshHit';
 
       // Ignore requests which are not tile requests
       if (!uri.startsWith('/v1')) continue;
+
       const search = new URLSearchParams(query);
       const apiKey = search.get('api');
       const apiValid = isValidApiKey(apiKey);
       if (apiValid.valid || apiValid.message === 'expired') {
-        stats.track(apiKey as string, referer, uri.toLowerCase(), parseInt(status), hit);
+        stats.track(apiKey as string, referer ?? '', userAgent, uri.toLowerCase(), parseInt(status), hit);
       }
-      // TODO should we track non apikeys
     }
   },
 };

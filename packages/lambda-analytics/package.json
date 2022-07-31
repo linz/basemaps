@@ -20,14 +20,16 @@
   "dependencies": {
     "@basemaps/config": "^6.32.1",
     "@basemaps/geo": "^6.32.1",
-    "@basemaps/shared": "^6.32.1"
+    "@basemaps/shared": "^6.32.1",
+    "ua-parser-js": "^1.0.2"
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
     "bundle": "../../scripts/bundle.js package.json"
   },
   "devDependencies": {
-    "@types/node": "^17.0.34"
+    "@types/node": "^17.0.34",
+    "@types/ua-parser-js": "^0.7.36"
   },
   "bundle": {
     "entry": "src/index.ts",

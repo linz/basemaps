@@ -67,7 +67,7 @@ o.spec('FileProcess', () => {
 
     o(logData.stats.size).equals(2);
     const devStats = logData.getStats(DevApiKey, 'bar.com');
-    const clientStats = logData.getStats(ClientApiKey);
+    const clientStats = logData.getStats(ClientApiKey, '');
 
     o(devStats?.total).equals(3);
     o(devStats?.apiType).equals('d');
