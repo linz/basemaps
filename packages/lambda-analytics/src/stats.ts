@@ -1,6 +1,5 @@
 import { sha256base58 } from '@basemaps/config';
-import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { createHash } from 'crypto';
+import { TileMatrixSets } from '@basemaps/geo';
 
 /** Changing this number will cause all the statistics to be recomputed */
 export const RollupVersion = 1;
