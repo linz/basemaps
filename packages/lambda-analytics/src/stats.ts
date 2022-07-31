@@ -1,3 +1,5 @@
+import { sha256base58 } from '@basemaps/config';
+import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { createHash } from 'crypto';
 
 /** Changing this number will cause all the statistics to be recomputed */
@@ -26,17 +28,17 @@ export interface TileRequestStats {
   status: Record<number, number>;
   /** Tile file extensions used */
   extension: { webp: number; jpeg: number; png: number; wmts: number; pbf: number; other: number };
-  /** Projections used */
-  projection: { 2193: number; 3857: number };
+  /** Tile Matrixes used */
+  tileMatrix: Record<string, number>;
   /** Tilesets accessed */
-  tileSet: { aerial: number; aerialIndividual: number; topo50: number; direct: number };
+  tileSet: Record<string, number>;
   /** How was this rollup generated */
   generated: { v: number; hash?: string; version?: string };
 }
 
 function newStat(timestamp: string, api: string, referer: string | undefined): TileRequestStats {
   return {
-    statId: timestamp + '_' + createHash('sha3-256').update(`${api}_${referer}`).digest('hex'),
+    statId: timestamp + '_' + sha256base58(`${api}_${referer}`),
     timestamp,
     api,
     referer,
@@ -45,8 +47,8 @@ function newStat(timestamp: string, api: string, referer: string | undefined): T
     status: {},
     cache: { hit: 0, miss: 0 },
     extension: { webp: 0, jpeg: 0, png: 0, wmts: 0, pbf: 0, other: 0 },
-    projection: { 2193: 0, 3857: 0 },
-    tileSet: { aerial: 0, aerialIndividual: 0, topo50: 0, direct: 0 },
+    tileSet: {},
+    tileMatrix: {},
     generated: {
       v: RollupVersion,
       hash: process.env.GIT_HASH,
@@ -74,24 +76,19 @@ function track(stat: TileRequestStats, uri: string, status: number, isHit: boole
     stat.extension.wmts++;
   } else stat.extension.other++;
 
-  const [, , , tileSet, projection] = uri.split('/');
+  const [, , , tileSet, projectionStr] = uri.split('/');
   // no projection means this url is weirdly formatted
-  if (projection == null) return;
+  if (projectionStr == null) return;
+
+  const tileMatrix = TileMatrixSets.find(projectionStr);
+  if (tileMatrix == null) return;
 
   // Projection
-  if (projection.includes('3857')) stat.projection['3857']++;
-  else if (projection.includes('2193')) stat.projection['2193']++;
-  else return; // Unknown projection this is likely not a tile
+  stat.tileMatrix[tileMatrix.identifier] = (stat.tileMatrix[tileMatrix.identifier] ?? 0) + 1;
 
   // Tile set
-  if (tileSet === 'aerial') stat.tileSet.aerial++;
-  else if (tileSet === 'topo50') stat.tileSet.topo50++;
-  // TODO do we want to get the real names for these
-  else if (tileSet.startsWith('aerial:')) stat.tileSet.aerialIndividual++;
-  else if (tileSet.startsWith('01')) stat.tileSet.direct++;
-  else {
-    // TODO do we care about these other tile sets
-  }
+  if (tileSet.startsWith('01')) stat.tileSet['byId'] = (stat.tileSet['byId'] ?? 0) + 1;
+  else stat.tileSet[tileSet] = (stat.tileSet[tileSet] ?? 0) + 1;
 }
 
 export class LogStats {

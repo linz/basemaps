@@ -2,9 +2,10 @@ import { LogConfig } from '@basemaps/shared';
 import o from 'ospec';
 import { FileProcess } from '../file.process.js';
 import { LogStats } from '../stats.js';
+import { ulid } from 'ulid';
 
-const DevApiKey = 'dThisIsNotAKey';
-const ClientApiKey = 'cThisIsNotAKey';
+const DevApiKey = 'd' + ulid().toLowerCase();
+const ClientApiKey = 'c' + ulid().toLowerCase();
 
 export const ExampleLogs = `#Version: 1.0
 #Fields: date time x-edge-location sc-bytes c-ip cs-method cs(Host) cs-uri-stem sc-status cs(Referer) cs(User-Agent) cs-uri-query cs(Cookie) x-edge-result-type x-edge-request-id x-host-header cs-protocol cs-bytes time-taken x-forwarded-for ssl-protocol ssl-cipher x-edge-response-result-type cs-protocol-version fle-status fle-encrypted-fields c-port time-to-first-byte x-edge-detailed-result-type sc-content-type sc-content-len sc-range-start sc-range-end
@@ -54,7 +55,7 @@ o.spec('FileProcess', () => {
     o(apiStats?.apiType).equals('d');
     o(apiStats?.total).equals(1);
     o(apiStats?.cache).deepEquals({ hit: 1, miss: 0 });
-    o(apiStats?.projection).deepEquals({ 2193: 0, 3857: 1 });
+    o(apiStats?.tileMatrix).deepEquals({ WebMercatorQuad: 1 });
   });
 
   o('should extract and track a bunch of hits', async () => {
@@ -71,15 +72,15 @@ o.spec('FileProcess', () => {
     o(devStats?.total).equals(3);
     o(devStats?.apiType).equals('d');
     o(devStats?.cache).deepEquals({ hit: 2, miss: 1 });
-    o(devStats?.projection).deepEquals({ 2193: 0, 3857: 3 });
+    o(devStats?.tileMatrix).deepEquals({ WebMercatorQuad: 3 });
     o(devStats?.extension).deepEquals({ webp: 1, jpeg: 1, png: 1, wmts: 0, other: 0, pbf: 0 });
-    o(devStats?.tileSet).deepEquals({ aerial: 2, aerialIndividual: 0, topo50: 1, direct: 0 });
+    o(devStats?.tileSet).deepEquals({ aerial: 2, topo50: 1 });
 
     o(clientStats?.total).equals(2);
     o(clientStats?.apiType).equals('c');
     o(clientStats?.cache).deepEquals({ hit: 2, miss: 0 });
-    o(clientStats?.projection).deepEquals({ 2193: 0, 3857: 2 });
+    o(clientStats?.tileMatrix).deepEquals({ WebMercatorQuad: 2 });
     o(clientStats?.extension).deepEquals({ webp: 0, jpeg: 0, png: 0, wmts: 1, other: 0, pbf: 1 });
-    o(clientStats?.tileSet).deepEquals({ aerial: 0, aerialIndividual: 0, topo50: 2, direct: 0 });
+    o(clientStats?.tileSet).deepEquals({ topo50: 2 });
   });
 });
