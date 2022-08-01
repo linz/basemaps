@@ -6,16 +6,22 @@ function isBot(userAgent: string): string | void {
   if (userAgent.includes('Googlebot')) return 'bot_google';
   if (userAgent.includes('Discordbot')) return 'bot_discord';
   if (userAgent.includes('bingbot')) return 'bot_bing';
+  if (userAgent.includes('UptimeRobot/')) return 'bot_uptime-robot';
   if (userAgent.includes('/bot.html')) return 'bot_unknown';
 }
 
 function isSoftware(userAgent: string): string | void {
   if (userAgent.startsWith('python-requests/')) {
-    return 'python_requests_' + userAgent.slice('python-requests/'.length, userAgent.lastIndexOf('.'));
+    return 'python-requests_' + userAgent.slice('python-requests/'.length, userAgent.lastIndexOf('.'));
   }
-  if (userAgent.startsWith('Python-urllib/')) return 'python_urllib_' + userAgent.replace('python-urllib/', '');
+  if (userAgent.startsWith('Python-urllib/')) return 'python-urllib_' + userAgent.replace('python-urllib/', '');
   if (userAgent.startsWith('axios/')) return userAgent.slice(0, userAgent.lastIndexOf('.')).replace('/', '_');
   if (userAgent.startsWith('okhttp/')) return userAgent.slice(0, userAgent.lastIndexOf('.')).replace('/', '_');
+  if (userAgent.startsWith('Go-http-client/')) return userAgent.replace('Go-http-client/', 'go-http_');
+  if (userAgent.startsWith('Dart/')) return userAgent.split(' ')[0].replace('Dart/', 'dart_');
+  if (userAgent.startsWith('Apache-HttpClient/')) {
+    return userAgent.slice(0, userAgent.lastIndexOf('.')).replace('Apache-HttpClient/', 'apache-http_');
+  }
 }
 
 function isGis(userAgent: string): string | void {
@@ -34,6 +40,12 @@ function isGis(userAgent: string): string | void {
     return `qgis_${(qgisVersion / 10000).toFixed(2)}`;
   }
 
+  if (userAgent.startsWith('QGIS/')) {
+    const qgisVersion = Number(userAgent.split('/')[1]);
+    if (isNaN(qgisVersion)) return 'qgis_unknown';
+    return `qgis_${(qgisVersion / 10000).toFixed(2)}`;
+  }
+
   /** Arc GIS */
   // ArcGISRuntime-NET/100.11.2 ...
   // ArcGISRuntime-Qt/100.10 ...
@@ -41,14 +53,14 @@ function isGis(userAgent: string): string | void {
     const chunks = userAgent.split('/');
     const variant = chunks[0].replace('ArcGISRuntime-', '').toLowerCase();
     const version = chunks[1].slice(0, chunks[1].indexOf('.'));
-    return 'arcgis_' + variant + '_' + version;
+    return 'arcgis-' + variant + '_' + version;
   }
 
-  if (userAgent.startsWith('ArcGIS Client')) return 'arcgis_client';
+  if (userAgent.startsWith('ArcGIS Client')) return 'arcgis-client';
   // ArcGIS Pro 2.7.3 (00000000000) - ArcGISPro
   // ArcGIS Pro 3.0.0 (00000000000) - ArcGISPro
   if (userAgent.startsWith('ArcGIS Pro')) {
-    return 'arcgis_pro_' + userAgent.slice('ArcGIS Pro'.length, userAgent.lastIndexOf('.')).trim();
+    return 'arcgis-pro_' + userAgent.slice('ArcGIS Pro'.length, userAgent.lastIndexOf('.')).trim();
   }
 
   // MapFishPrint/3.29.2 Apache-HttpClient/4.5.13 (Java/1.8.0_312)
@@ -58,7 +70,7 @@ function isGis(userAgent: string): string | void {
 
   //MapProxy-1.12.0
   if (userAgent.startsWith('MapProxy-')) {
-    return userAgent.slice(0, userAgent.lastIndexOf('.')).replace('MapProxy-', 'mapproxy_');
+    return userAgent.slice(0, userAgent.lastIndexOf('.')).replace('MapProxy-', 'map-proxy_');
   }
 
   // FME/2022.7.43.22343  libcurl/7.79.1 (OpenSSL/1.1.1n) Schannel zlib/1.2.11 WinIDN libssh2/1.10.0 nghttp2/1.44.0
@@ -69,6 +81,11 @@ function isGis(userAgent: string): string | void {
 
   // GDAL WMS driver (http://www.gdal.org/frmt_wms.html)
   if (userAgent.startsWith('GDAL WMS')) return 'gdal_wms';
+
+  // MapInfoPro/21.0.0.0172 (MapInfoPro.exe)
+  if (userAgent.startsWith('MapInfoPro/')) {
+    return userAgent.slice(0, userAgent.indexOf('.')).replace('MapInfoPro/', 'map-info-pro_');
+  }
 }
 
 function parseUserAgent(userAgent: string): string {

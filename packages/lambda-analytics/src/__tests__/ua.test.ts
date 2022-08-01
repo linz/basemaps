@@ -30,6 +30,7 @@ o.spec('UserAgent', () => {
   });
 
   o('should parse qgis', () => {
+    o(getUserAgent('QGIS/31613')).equals('qgis_3.16');
     o(getUserAgent('Mozilla/5.0%20QGIS/31006')).equals('qgis_3.10');
     o(getUserAgent('Mozilla/5.0%20QGIS/31607')).equals('qgis_3.16');
     o(getUserAgent('Mozilla/5.0%20QGIS/32402/macOS%2012.4')).equals('qgis_3.24');
@@ -43,33 +44,33 @@ o.spec('UserAgent', () => {
       getUserAgent(
         'ArcGISRuntime-NET/100.11.2%20(Windows%2010.0.18363;%20Win64;%20WOW64;%20UAP;%20Windows.Desktop)%20Esri.4378442FBC3A7/21.0.2',
       ),
-    ).equals('arcgis_net_100');
+    ).equals('arcgis-net_100');
     o(getUserAgent('ArcGISRuntime-Qt/100.10%20(iOS%2015.6;%20arm64;%20Qt%205.15.2;%20AppStudio%205.0.148)')).equals(
-      'arcgis_qt_100',
+      'arcgis-qt_100',
     );
     o(getUserAgent('ArcGISRuntime-NET/100.4%20(Windows%2010.0.17134;%20Win64;%20WOW64;%20.NET%204.7.2+)')).equals(
-      'arcgis_net_100',
+      'arcgis-net_100',
     );
 
     o(getUserAgent('ArcGISRuntime-Qt/100.10%20(Android%2011.0;%20arm64;%20Qt%205.15.2;%20AppStudio%205.0.148)')).equals(
-      'arcgis_qt_100',
+      'arcgis-qt_100',
     );
     o(getUserAgent('ArcGISRuntime-Android/100.13%20(Android%209.0;%20arm64-v8a;%20SAMSUNG-SM-A530F)')).equals(
-      'arcgis_android_100',
+      'arcgis-android_100',
     );
     o(
       getUserAgent(
         'ArcGISRuntime-iOS/100.14.1%20(iOS%2015.5;%20iPhone12,1)%20com.crittermap.backcountrynavigator.xe/0.6.19',
       ),
-    ).equals('arcgis_ios_100');
+    ).equals('arcgis-ios_100');
   });
 
   o('should parse arcgis pro', () => {
-    o(getUserAgent('ArcGIS%20Pro%202.7.3%20(00000000000)%20-%20ArcGISPro')).equals('arcgis_pro_2.7');
-    o(getUserAgent('ArcGIS%20Pro%203.0.0%20(00000000000)%20-%20ArcGISPro')).equals('arcgis_pro_3.0');
-    o(getUserAgent('ArcGIS%20Pro%202.9.3%20(00000000000)%20-%20ArcGISPro')).equals('arcgis_pro_2.9');
-    o(getUserAgent('ArcGIS%20Pro%202.9.2%20(00000000000)%20-%20ArcGISPro')).equals('arcgis_pro_2.9');
-    o(getUserAgent('ArcGIS%20Pro%202.8.0%20(00000000000)%20-%20ArcGISPro')).equals('arcgis_pro_2.8');
+    o(getUserAgent('ArcGIS%20Pro%202.7.3%20(00000000000)%20-%20ArcGISPro')).equals('arcgis-pro_2.7');
+    o(getUserAgent('ArcGIS%20Pro%203.0.0%20(00000000000)%20-%20ArcGISPro')).equals('arcgis-pro_3.0');
+    o(getUserAgent('ArcGIS%20Pro%202.9.3%20(00000000000)%20-%20ArcGISPro')).equals('arcgis-pro_2.9');
+    o(getUserAgent('ArcGIS%20Pro%202.9.2%20(00000000000)%20-%20ArcGISPro')).equals('arcgis-pro_2.9');
+    o(getUserAgent('ArcGIS%20Pro%202.8.0%20(00000000000)%20-%20ArcGISPro')).equals('arcgis-pro_2.8');
   });
 
   o('should decode double encoded', () => {
@@ -87,14 +88,17 @@ o.spec('UserAgent', () => {
     o(getUserAgent('JOSM/1.5 (18513 en) Windows 10 64-Bit Java/11.0.15')).equals('josm_1.5');
 
     o(getUserAgent('GDAL WMS driver (http://www.gdal.org/frmt_wms.html)')).equals('gdal_wms');
+
+    o(getUserAgent('MapInfoPro/21.0.0.0172 (MapInfoPro.exe) ')).equals('map-info-pro_21');
   });
 
   o('should handle software', () => {
-    o(getUserAgent('python-requests/2.23.0')).equals('python_requests_2.23');
-    o(getUserAgent('MapProxy-1.12.0')).equals('mapproxy_1.12');
-    o(getUserAgent('MapProxy-1.13.2')).equals('mapproxy_1.13');
-
+    o(getUserAgent('python-requests/2.23.0')).equals('python-requests_2.23');
+    o(getUserAgent('MapProxy-1.12.0')).equals('map-proxy_1.12');
+    o(getUserAgent('MapProxy-1.13.2')).equals('map-proxy_1.13');
     o(getUserAgent('okhttp/3.12.3')).equals('okhttp_3.12');
     o(getUserAgent('axios/0.21.1')).equals('axios_0.21');
+    o(getUserAgent('Dart/2.16 (dart:io) ')).equals('dart_2.16');
+    o(getUserAgent('Apache-HttpClient/4.5.13')).equals('apache-http_4.5');
   });
 });
