@@ -1,11 +1,9 @@
-import { ConfigBundled } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
-import * as ulid from 'ulid';
 import { handler } from '../../index.js';
 import { assetProvider } from '../../util/assets.provider.js';
-import { mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
+import { mockRequest } from '../../__tests__/xyz.util.js';
 import { fontList } from '../fonts.js';
 import { FsMemory } from './memory.fs.js';
 
