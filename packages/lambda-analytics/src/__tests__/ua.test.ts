@@ -88,14 +88,17 @@ o.spec('UserAgent', () => {
     o(getUserAgent('JOSM/1.5 (18513 en) Windows 10 64-Bit Java/11.0.15')).equals('josm_1.5');
 
     o(getUserAgent('GDAL WMS driver (http://www.gdal.org/frmt_wms.html)')).equals('gdal_wms');
+
+    o(getUserAgent('MapInfoPro/21.0.0.0172 (MapInfoPro.exe) ')).equals('mapinfopro_21');
   });
 
   o('should handle software', () => {
     o(getUserAgent('python-requests/2.23.0')).equals('python_requests_2.23');
     o(getUserAgent('MapProxy-1.12.0')).equals('mapproxy_1.12');
     o(getUserAgent('MapProxy-1.13.2')).equals('mapproxy_1.13');
-
     o(getUserAgent('okhttp/3.12.3')).equals('okhttp_3.12');
     o(getUserAgent('axios/0.21.1')).equals('axios_0.21');
+    o(getUserAgent('Dart/2.16 (dart:io) ')).equals('dart_2.16');
+    o(getUserAgent('Apache-HttpClient/4.5.13')).equals('apache_http_4.5');
   });
 });

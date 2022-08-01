@@ -6,6 +6,7 @@ function isBot(userAgent: string): string | void {
   if (userAgent.includes('Googlebot')) return 'bot_google';
   if (userAgent.includes('Discordbot')) return 'bot_discord';
   if (userAgent.includes('bingbot')) return 'bot_bing';
+  if (userAgent.includes('UptimeRobot/')) return 'bot_uptime_robot';
   if (userAgent.includes('/bot.html')) return 'bot_unknown';
 }
 
@@ -16,6 +17,11 @@ function isSoftware(userAgent: string): string | void {
   if (userAgent.startsWith('Python-urllib/')) return 'python_urllib_' + userAgent.replace('python-urllib/', '');
   if (userAgent.startsWith('axios/')) return userAgent.slice(0, userAgent.lastIndexOf('.')).replace('/', '_');
   if (userAgent.startsWith('okhttp/')) return userAgent.slice(0, userAgent.lastIndexOf('.')).replace('/', '_');
+  if (userAgent.startsWith('Go-http-client/')) return userAgent.replace('Go-http-client/', 'go_http_');
+  if (userAgent.startsWith('Dart/')) return userAgent.split(' ')[0].replace('Dart/', 'dart_');
+  if (userAgent.startsWith('Apache-HttpClient/')) {
+    return userAgent.slice(0, userAgent.lastIndexOf('.')).replace('Apache-HttpClient/', 'apache_http_');
+  }
 }
 
 function isGis(userAgent: string): string | void {
@@ -75,6 +81,11 @@ function isGis(userAgent: string): string | void {
 
   // GDAL WMS driver (http://www.gdal.org/frmt_wms.html)
   if (userAgent.startsWith('GDAL WMS')) return 'gdal_wms';
+
+  // MapInfoPro/21.0.0.0172 (MapInfoPro.exe)
+  if (userAgent.startsWith('MapInfoPro/')) {
+    return userAgent.slice(0, userAgent.indexOf('.')).replace('MapInfoPro/', 'mapinfopro_');
+  }
 }
 
 function parseUserAgent(userAgent: string): string {
