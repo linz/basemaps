@@ -75,4 +75,26 @@ o.spec('UserAgent', () => {
   o('should decode double encoded', () => {
     o(getUserAgent('Tracks%2520NZ/1%20CFNetwork/1335.0.3%20Darwin/21.6.0')).equals('ios_tracksnz');
   });
+
+  o('should parse, random gis software', () => {
+    o(getUserAgent('MapFishPrint/3.29.2%20Apache-HttpClient/4.5.13%20(Java/1.8.0_312)')).equals('mapfishprint_3.29');
+    o(
+      getUserAgent(
+        'FME/2022.7.43.22343%20%20libcurl/7.79.1%20(OpenSSL/1.1.1n)%20Schannel%20zlib/1.2.11%20WinIDN%20libssh2/1.10.0%20nghttp2/1.44.0',
+      ),
+    ).equals('fme_2022.7');
+
+    o(getUserAgent('JOSM/1.5 (18513 en) Windows 10 64-Bit Java/11.0.15')).equals('josm_1.5');
+
+    o(getUserAgent('GDAL WMS driver (http://www.gdal.org/frmt_wms.html)')).equals('gdal_wms');
+  });
+
+  o('should handle software', () => {
+    o(getUserAgent('python-requests/2.23.0')).equals('python_requests_2.23');
+    o(getUserAgent('MapProxy-1.12.0')).equals('mapproxy_1.12');
+    o(getUserAgent('MapProxy-1.13.2')).equals('mapproxy_1.13');
+
+    o(getUserAgent('okhttp/3.12.3')).equals('okhttp_3.12');
+    o(getUserAgent('axios/0.21.1')).equals('axios_0.21');
+  });
 });
