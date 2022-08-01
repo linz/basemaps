@@ -1,6 +1,5 @@
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpResponse, LambdaHttpRequest, HttpHeader } from '@linzjs/lambda';
-import { CachedConfig } from './config.cache.js';
 import { isGzip } from './cotar.serve.js';
 import { Etag } from './etag.js';
 import { NotFound, NotModified } from './response.js';
@@ -52,13 +51,6 @@ export class AssetProvider {
    * - Content-Type from the parameter contentType
    */
   async serve(req: LambdaHttpRequest, file: string, contentType: string): Promise<LambdaHttpResponse> {
-    const config = req.query.get('config');
-    if (config) {
-      const configProvider = await CachedConfig.getConfig(config);
-      if (configProvider == null) return NotFound();
-      this.set(configProvider.assets);
-    }
-
     const buf = await assetProvider.get(file);
     if (buf == null) return NotFound();
     const cacheKey = Etag.key(buf);

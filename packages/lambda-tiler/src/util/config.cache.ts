@@ -3,14 +3,19 @@ import { fsa } from '@chunkd/fs';
 import { SwappingLru } from './swapping.lru.js';
 
 class LruConfig {
-  value: ConfigProviderMemory;
+  configProvider: Promise<ConfigProviderMemory>;
 
-  constructor(mem: ConfigProviderMemory) {
-    this.value = mem;
+  constructor(config: Promise<ConfigBundled>) {
+    this.configProvider = config.then((c) => {
+      const configProvider = ConfigProviderMemory.fromJson(c);
+      configProvider.createVirtualTileSets();
+      return configProvider;
+    });
   }
 
   get size(): number {
-    return JSON.stringify(this.value.toJson()).length;
+    // Return size 1 for the config and cache the number of configs based on size number.
+    return 1;
   }
 }
 
@@ -20,21 +25,20 @@ export class ConfigCache {
     this.cache = new SwappingLru<LruConfig>(maxSize);
   }
 
-  async getConfig(location: string): Promise<ConfigProviderMemory | null> {
-    const existing = this.cache.get(location)?.value;
+  getConfig(location: string): Promise<ConfigProviderMemory | null> {
+    const existing = this.cache.get(location)?.configProvider;
     if (existing != null) return existing;
     try {
-      const configJson = await fsa.readJson<ConfigBundled>(location);
-      const mem = ConfigProviderMemory.fromJson(configJson);
-      mem.createVirtualTileSets();
-      this.cache.set(location, new LruConfig(mem));
-      return mem;
+      const configJson = fsa.readJson<ConfigBundled>(location);
+      const config = new LruConfig(configJson);
+      this.cache.set(location, config);
+      return config.configProvider;
     } catch (e: any) {
-      if (e.code === 404) return null;
+      if (e.code === 404) return Promise.resolve(null);
       throw e;
     }
   }
 }
 
-/** Approx 10MB around 20 configs(less than 500KB each)*/
-export const CachedConfig = new ConfigCache(10 * 1000 * 1000);
+/** Cache 20 configs(Around 500KB each)*/
+export const CachedConfig = new ConfigCache(20);

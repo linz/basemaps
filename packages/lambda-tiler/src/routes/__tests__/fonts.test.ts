@@ -70,36 +70,4 @@ o.spec('/v1/fonts', () => {
     const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(404);
   });
-
-  o('should return 404 if config record not found', async () => {
-    const config = 'memory://config.json';
-    const res = await fontList(mockUrlRequest('/v1/fonts.json', `config=${config}`));
-    o(res.status).equals(404);
-  });
-
-  o('should get correct record from the config asset location', async () => {
-    const id = ulid.ulid();
-    const config = 'memory://config.json';
-    const assets = 'memory://assets/';
-    const cfg: ConfigBundled = {
-      id: `cb_${id}`,
-      hash: '01g6phsge6rmy3812gdr2twgb7',
-      assets,
-      imagery: [],
-      style: [],
-      provider: [],
-      tileSet: [],
-    };
-    await Promise.all([
-      fsa.write(config, Buffer.from(JSON.stringify(cfg))),
-      fsa.write('memory://assets/fonts/Roboto Thin/0-255.pbf', Buffer.from('')),
-    ]);
-
-    const res255 = await handler.router.handle(mockUrlRequest('/v1/fonts/Roboto Thin/0-255.pbf', `config=${config}`));
-    o(res255.status).equals(200);
-    o(res255.header('content-type')).equals('application/x-protobuf');
-    o(res255.header('content-encoding')).equals(undefined);
-    o(res255.header('etag')).notEquals(undefined);
-    o(res255.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
-  });
 });
