@@ -17,6 +17,8 @@ export interface ConfigBundled {
   id: string;
   /** Configuration hash */
   hash: string;
+  /** Assets location */
+  assets?: string;
   imagery: ConfigImagery[];
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
