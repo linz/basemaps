@@ -55,7 +55,7 @@
     "@basemaps/lambda-tiler": "^6.33.0",
     "@basemaps/landing": "^6.27.0",
     "@basemaps/shared": "^6.33.0",
-    "@fastify/static": "^5.0.2",
+    "@fastify/static": "^6.5.0",
     "fastify": "^3.27.4",
     "pretty-json-log": "^1.0.0"
   }
