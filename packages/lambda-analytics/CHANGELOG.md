@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.33.0](https://github.com/linz/basemaps/compare/v6.32.2...v6.33.0) (2022-08-01)
+
+
+### Bug Fixes
+
+* **lambda-analytics:** do not track invalid api keys BM-642 ([#2392](https://github.com/linz/basemaps/issues/2392)) ([9f84285](https://github.com/linz/basemaps/commit/9f84285ed203bf3443f288b20482cb18d6b13c40))
+
+
+### Features
+
+* **lambda-analytics:** support more user agents ([#2400](https://github.com/linz/basemaps/issues/2400)) ([c6965ad](https://github.com/linz/basemaps/commit/c6965ad3e7d1a7bb875e0324d33e19b8b5db5c8b))
+* **lambda-analytics:** track analytics for some user agents ([#2393](https://github.com/linz/basemaps/issues/2393)) ([b3c95fb](https://github.com/linz/basemaps/commit/b3c95fb1769f1800b399b82f90b6044d6ab9c558))
+
+
+
+
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/lambda-analytics
