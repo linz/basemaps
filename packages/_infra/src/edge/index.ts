@@ -3,7 +3,7 @@ import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import cf from 'aws-cdk-lib/aws-cloudfront';
 import s3, { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-import { BaseMapsConfig, getConfig } from '../config.js';
+import { getConfig } from '../config.js';
 import { ParametersEdgeKeys } from '../parameters.js';
 
 export interface EdgeStackProps extends cdk.StackProps {
