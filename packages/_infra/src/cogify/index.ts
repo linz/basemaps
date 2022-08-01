@@ -62,6 +62,7 @@ export class CogBuilderStack extends cdk.Stack {
 
     const container = new ecrAssets.DockerImageAsset(this, 'CogContainer', {
       directory: '../cli/',
+      file: 'Dockerfile.aws',
     });
 
     const vpc = ec2.Vpc.fromLookup(this, 'AlbVpc', { tags: { default: 'true' } });
