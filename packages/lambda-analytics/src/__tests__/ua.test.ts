@@ -30,6 +30,7 @@ o.spec('UserAgent', () => {
   });
 
   o('should parse qgis', () => {
+    o(getUserAgent('QGIS/31613')).equals('qgis_3.16');
     o(getUserAgent('Mozilla/5.0%20QGIS/31006')).equals('qgis_3.10');
     o(getUserAgent('Mozilla/5.0%20QGIS/31607')).equals('qgis_3.16');
     o(getUserAgent('Mozilla/5.0%20QGIS/32402/macOS%2012.4')).equals('qgis_3.24');

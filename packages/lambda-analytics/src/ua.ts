@@ -34,6 +34,12 @@ function isGis(userAgent: string): string | void {
     return `qgis_${(qgisVersion / 10000).toFixed(2)}`;
   }
 
+  if (userAgent.startsWith('QGIS/')) {
+    const qgisVersion = Number(userAgent.split('/')[1]);
+    if (isNaN(qgisVersion)) return 'qgis_unknown';
+    return `qgis_${(qgisVersion / 10000).toFixed(2)}`;
+  }
+
   /** Arc GIS */
   // ArcGISRuntime-NET/100.11.2 ...
   // ArcGISRuntime-Qt/100.10 ...
