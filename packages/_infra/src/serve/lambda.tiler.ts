@@ -11,8 +11,6 @@ import { getConfig } from '../config.js';
 const CODE_PATH = '../lambda-tiler/dist';
 
 export interface LambdaTilerProps {
-  vpc: IVpc;
-
   /** Location of static files */
   staticBucketName?: string;
 }
@@ -40,20 +38,6 @@ export class LambdaTiler extends Construct {
     if (props.staticBucketName) environment[Env.AssetLocation] = `s3://${props.staticBucketName}`;
 
     const code = lambda.Code.fromAsset(CODE_PATH);
-    /**
-     * WARNING: changing this lambda name while attached to a alb will cause cloudformation to die
-     * see: https://github.com/aws/aws-cdk/issues/8253
-     */
-    this.lambdaVpc = new lambda.Function(this, 'Tiler', {
-      vpc: props.vpc,
-      runtime: lambda.Runtime.NODEJS_16_X,
-      memorySize: 2048,
-      timeout: Duration.seconds(60),
-      handler: 'index.handler',
-      code,
-      environment,
-      logRetention: RetentionDays.ONE_MONTH,
-    });
 
     /**
      * While moving to function URLS create two separate lambda functions
