@@ -1,8 +1,8 @@
-import { ConfigBundle } from '@basemaps/config';
-import { Config, Env } from '@basemaps/shared';
+import { ConfigBundled } from '@basemaps/config';
+import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
-import { createSandbox } from 'sinon';
+import * as ulid from 'ulid';
 import { handler } from '../../index.js';
 import { assetProvider } from '../../util/assets.provider.js';
 import { mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
@@ -11,7 +11,6 @@ import { FsMemory } from './memory.fs.js';
 
 o.spec('/v1/fonts', () => {
   const memory = new FsMemory();
-  const sandbox = createSandbox();
   o.before(() => {
     fsa.register('memory://', memory);
   });
@@ -25,7 +24,6 @@ o.spec('/v1/fonts', () => {
   o.afterEach(() => {
     assetProvider.set(assetLocation);
     memory.files.clear();
-    sandbox.restore();
   });
 
   o('should return 404 if no font found', async () => {
@@ -34,7 +32,7 @@ o.spec('/v1/fonts', () => {
   });
 
   o('should return a list of fonts found', async () => {
-    await await fsa.write('memory://fonts.json', Buffer.from(JSON.stringify(['Roboto Black', 'Roboto Thin'])));
+    await fsa.write('memory://fonts.json', Buffer.from(JSON.stringify(['Roboto Black', 'Roboto Thin'])));
     const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(200);
     o(res.header('content-type')).equals('application/json');
@@ -74,26 +72,30 @@ o.spec('/v1/fonts', () => {
   });
 
   o('should return 404 if config record not found', async () => {
-    const configId = 'cb_01g6phsge6rmy3812gdr2twgb7';
-    sandbox.stub(Config.ConfigBundle, 'get').resolves(null);
-    const res = await fontList(mockUrlRequest('/v1/fonts.json', `config=${configId}`));
+    const config = 'memory://config.json';
+    const res = await fontList(mockUrlRequest('/v1/fonts.json', `config=${config}`));
     o(res.status).equals(404);
   });
 
   o('should get correct record from the config asset location', async () => {
-    const configId = 'cb_01g6phsge6rmy3812gdr2twgb7';
+    const id = ulid.ulid();
+    const config = 'memory://config.json';
     const assets = 'memory://assets/';
-    const configBundle: ConfigBundle = {
-      id: configId,
-      name: configId,
-      path: 's3://basemaps/config.json',
-      hash: 'BcSvC4eS6ym5kDZiJkd5wBWbpaKWdQrxK',
+    const cfg: ConfigBundled = {
+      id: `cb_${id}`,
+      hash: '01g6phsge6rmy3812gdr2twgb7',
       assets,
+      imagery: [],
+      style: [],
+      provider: [],
+      tileSet: [],
     };
-    sandbox.stub(Config.ConfigBundle, 'get').resolves(configBundle);
-    await fsa.write('memory://assets/fonts/Roboto Thin/0-255.pbf', Buffer.from(''));
+    await Promise.all([
+      fsa.write(config, Buffer.from(JSON.stringify(cfg))),
+      fsa.write('memory://assets/fonts/Roboto Thin/0-255.pbf', Buffer.from('')),
+    ]);
 
-    const res255 = await handler.router.handle(mockUrlRequest('/v1/fonts/Roboto Thin/0-255.pbf', `config=${configId}`));
+    const res255 = await handler.router.handle(mockUrlRequest('/v1/fonts/Roboto Thin/0-255.pbf', `config=${config}`));
     o(res255.status).equals(200);
     o(res255.header('content-type')).equals('application/x-protobuf');
     o(res255.header('content-encoding')).equals(undefined);

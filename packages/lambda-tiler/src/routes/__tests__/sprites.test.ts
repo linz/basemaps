@@ -1,13 +1,14 @@
-import { Config, ConfigBundle } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
+import * as ulid from 'ulid';
 import { createSandbox } from 'sinon';
 import { gunzipSync, gzipSync } from 'zlib';
 import { handler } from '../../index.js';
 import { assetProvider } from '../../util/assets.provider.js';
 import { mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { FsMemory } from './memory.fs.js';
+import { ConfigBundled } from '@basemaps/config';
 
 o.spec('/v1/sprites', () => {
   const memory = new FsMemory();
@@ -74,21 +75,25 @@ o.spec('/v1/sprites', () => {
   });
 
   o('should get correct record from the config asset location', async () => {
-    const configId = 'cb_01g6phsge6rmy3812gdr2twgb7';
+    const id = ulid.ulid();
+    const config = 'memory://config.json';
     const assets = 'memory://assets/';
-    const configBundle: ConfigBundle = {
-      id: configId,
-      name: configId,
-      path: 's3://basemaps/config.json',
-      hash: 'BcSvC4eS6ym5kDZiJkd5wBWbpaKWdQrxK',
+    const cfg: ConfigBundled = {
+      id: `cb_${id}`,
+      hash: '01g6phsge6rmy3812gdr2twgb7',
       assets,
+      imagery: [],
+      style: [],
+      provider: [],
+      tileSet: [],
     };
-    sandbox.stub(Config.ConfigBundle, 'get').resolves(configBundle);
+
     await Promise.all([
+      fsa.write(config, Buffer.from(JSON.stringify(cfg))),
       fsa.write('memory://assets/sprites/topographic.json', Buffer.from(JSON.stringify({ test: true }))),
       fsa.write('memory://assets/sprites/topographic@2x.png', Buffer.from('')),
     ]);
-    const res = await handler.router.handle(mockUrlRequest('/v1/sprites/topographic@2x.png', `config=${configId}`));
+    const res = await handler.router.handle(mockUrlRequest('/v1/sprites/topographic@2x.png', `config=${config}`));
     o(res.status).equals(200);
     o(res.header('content-type')).equals('image/png');
     o(res.header('etag')).notEquals(undefined);

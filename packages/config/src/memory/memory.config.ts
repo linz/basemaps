@@ -18,7 +18,7 @@ export interface ConfigBundled {
   /** Configuration hash */
   hash: string;
   /** Assets location */
-  assets?: string;
+  assets: string;
   imagery: ConfigImagery[];
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
@@ -60,6 +60,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   /** Memory cache of all objects */
   objects = new Map<string, BaseConfig>();
 
+  /** Asset path from the config bundle */
+  assets: string;
+
   put(obj: BaseConfig): void {
     this.objects.set(obj.id, obj);
   }
@@ -68,6 +71,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     const cfg: ConfigBundled = {
       id: '',
       hash: '',
+      assets: this.assets,
       imagery: [],
       style: [],
       provider: [],
@@ -201,6 +205,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     for (const img of cfg.imagery) mem.put(img);
 
     for (const obj of mem.objects.values()) obj.updatedAt = updatedAt;
+    mem.assets = cfg.assets;
 
     return mem;
   }

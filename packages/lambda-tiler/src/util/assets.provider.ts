@@ -1,6 +1,7 @@
 import { Config } from '@basemaps/config';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpResponse, LambdaHttpRequest, HttpHeader } from '@linzjs/lambda';
+import { CachedConfig } from './config.cache.js';
 import { isGzip } from './cotar.serve.js';
 import { Etag } from './etag.js';
 import { NotFound, NotModified } from './response.js';
@@ -54,9 +55,9 @@ export class AssetProvider {
   async serve(req: LambdaHttpRequest, file: string, contentType: string): Promise<LambdaHttpResponse> {
     const config = req.query.get('config');
     if (config) {
-      const configBundle = await Config.ConfigBundle.get(config);
-      if (configBundle == null) return NotFound();
-      this.set(configBundle.assets);
+      const configProvider = await CachedConfig.getConfig(config);
+      if (configProvider == null) return NotFound();
+      this.set(configProvider.assets);
     }
 
     const buf = await assetProvider.get(file);
