@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.33.0](https://github.com/linz/basemaps/compare/v6.32.2...v6.33.0) (2022-08-01)
+
+
+### Bug Fixes
+
+* **lambda-analytics:** do not track invalid api keys BM-642 ([#2392](https://github.com/linz/basemaps/issues/2392)) ([9f84285](https://github.com/linz/basemaps/commit/9f84285ed203bf3443f288b20482cb18d6b13c40))
+* **lambda-tiler:** lower cache amount to two 700MB caches ([#2394](https://github.com/linz/basemaps/issues/2394)) ([02bcc42](https://github.com/linz/basemaps/commit/02bcc4240b4301b82699423537ac684d28ba6420))
+* **lambda-tiler:** Return 204 non content for empty 404 vector tile. ([#2391](https://github.com/linz/basemaps/issues/2391)) ([0d4373e](https://github.com/linz/basemaps/commit/0d4373e3a7f3c0f0880da52024e932f0dbcc0396))
+
+
+### Features
+
+* **lambda-analytics:** support more user agents ([#2400](https://github.com/linz/basemaps/issues/2400)) ([c6965ad](https://github.com/linz/basemaps/commit/c6965ad3e7d1a7bb875e0324d33e19b8b5db5c8b))
+* **lambda-analytics:** track analytics for some user agents ([#2393](https://github.com/linz/basemaps/issues/2393)) ([b3c95fb](https://github.com/linz/basemaps/commit/b3c95fb1769f1800b399b82f90b6044d6ab9c558))
+* **lambda-tiler:** count number of requests served ([#2387](https://github.com/linz/basemaps/issues/2387)) ([e94b613](https://github.com/linz/basemaps/commit/e94b613c1be0e3782ae2c3395b7eeadb14030145))
+
+
+
+
+
 ## [6.32.2](https://github.com/linz/basemaps/compare/v6.32.1...v6.32.2) (2022-07-28)
 
 
