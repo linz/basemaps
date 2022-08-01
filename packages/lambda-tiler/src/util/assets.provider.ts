@@ -1,4 +1,3 @@
-import { Config } from '@basemaps/config';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpResponse, LambdaHttpRequest, HttpHeader } from '@linzjs/lambda';
 import { CachedConfig } from './config.cache.js';
