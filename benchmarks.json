@@ -1,5 +1,35 @@
 [
   {
+    "hash": "b3c95fb1769f1800b399b82f90b6044d6ab9c558",
+    "createdAt": "2022-08-01T02:26:24.140Z",
+    "results": [
+      {
+        "name": "Tile 256x256",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 256",
+        "mean": 0.321344523965,
+        "stddev": 0.01305856240847777,
+        "median": 0.32252685156500005,
+        "user": 0.31307378,
+        "system": 0.05285008,
+        "min": 0.305405229565,
+        "max": 0.34707169256500003
+      },
+      {
+        "name": "Tile 512x512",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 512",
+        "mean": 0.32511371553,
+        "stddev": 0.009753797937242322,
+        "median": 0.32030665323000007,
+        "user": 0.3270997299999999,
+        "system": 0.04955507,
+        "min": 0.31340686223,
+        "max": 0.34011067623
+      }
+    ]
+  },
+  {
     "hash": "9f84285ed203bf3443f288b20482cb18d6b13c40",
     "createdAt": "2022-08-01T01:35:03.632Z",
     "results": [
@@ -14966,36 +14996,6 @@
         "system": 0.369532265,
         "min": 0.839200925635,
         "max": 0.888788340635
-      }
-    ]
-  },
-  {
-    "hash": "ba0ad6055255b611b6e3e292cf4f4dee617661ee",
-    "createdAt": "2021-09-09T03:05:17.286Z",
-    "results": [
-      {
-        "name": "Tile 256x256",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 256",
-        "mean": 0.514323681795,
-        "stddev": 0.011271924916809697,
-        "median": 0.511399315395,
-        "user": 0.501603885,
-        "system": 0.16259412,
-        "min": 0.504583082895,
-        "max": 0.537890128895
-      },
-      {
-        "name": "Tile 512x512",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 512",
-        "mean": 0.85260161212,
-        "stddev": 0.010662722310150355,
-        "median": 0.84833644632,
-        "user": 0.924858765,
-        "system": 0.34819942,
-        "min": 0.84054767182,
-        "max": 0.87308177482
       }
     ]
   }
