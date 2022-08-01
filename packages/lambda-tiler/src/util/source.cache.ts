@@ -1,5 +1,4 @@
 import { fsa } from '@basemaps/shared';
-import { ChunkSourceBase } from '@chunkd/core';
 import { CogTiff } from '@cogeotiff/core';
 import { Cotar } from '@cotar/core';
 import { St } from './source.tracer.js';
@@ -24,12 +23,6 @@ class LruStrutObj<T extends LruStrut> {
   constructor(ob: T) {
     this.ob = ob;
     if (this.ob._value == null) this.ob.value.then((c) => (this.ob._value = c));
-  }
-
-  get size(): number {
-    const val = this.ob._value;
-    if (val == null) return 0;
-    return val.source.chunkSize * (val.source as ChunkSourceBase).chunks.size;
   }
 }
 
@@ -68,5 +61,5 @@ export class SourceCache {
   }
 }
 
-/** Approx 1GB */
-export const CoSources = new SourceCache(1000 * 1000 * 1000);
+/** Track the last 5,000 Sources so we don't have to re-init them */
+export const CoSources = new SourceCache(5_000);

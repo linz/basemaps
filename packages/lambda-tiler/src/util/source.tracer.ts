@@ -1,5 +1,6 @@
 import { sha256base58 } from '@basemaps/config';
-import { ChunkSource } from '@chunkd/core';
+import { ChunkSource, ChunkSourceBase } from '@chunkd/core';
+import { SharedSourceCache } from './chunk.cache.js';
 
 interface SourceRequest {
   id?: string;
@@ -20,6 +21,14 @@ export class SourceTracer {
   /** Override the fetchByte function to trace all requests for this source  */
   trace(source: ChunkSource): void {
     const originFetch = source.fetchBytes;
+
+    // Override how chunks are stored
+    if (source instanceof ChunkSourceBase) {
+      source.chunks = new SharedSourceCache(source);
+    } else {
+      throw new Error('Unknown ChunkSource');
+    }
+
     source.fetchBytes = async (offset: number, length?: number): Promise<ArrayBuffer> => {
       const request: SourceRequest = { source: source.uri, offset, length };
       const traceId = sha256base58(`${request.source}:${request.offset}:${request.length}`);

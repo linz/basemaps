@@ -11,8 +11,8 @@ import { styleJsonGet } from './routes/tile.style.json.js';
 import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
+import { ChunkCache } from './util/chunk.cache.js';
 import { NotFound } from './util/response.js';
-import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
 
 export const handler = lf.http(LogConfig.get());
@@ -35,14 +35,14 @@ handler.router.hook('response', (req, res) => {
     req.set('requestCount', St.requests.length);
   }
   // Log the source cache hit/miss ratio
-  req.set('sources', {
-    hits: CoSources.cache.hits,
-    misses: CoSources.cache.misses,
-    size: CoSources.cache.currentSize,
-    resets: CoSources.cache.resets,
-    clears: CoSources.cache.clears,
-    cacheA: CoSources.cache.cacheA.size,
-    cacheB: CoSources.cache.cacheB.size,
+  req.set('chunks', {
+    hits: ChunkCache.hits,
+    misses: ChunkCache.misses,
+    size: ChunkCache.currentSize,
+    resets: ChunkCache.resets,
+    clears: ChunkCache.clears,
+    cacheA: ChunkCache.cacheA.size,
+    cacheB: ChunkCache.cacheB.size,
   });
 
   // Force access-control-allow-origin to everything

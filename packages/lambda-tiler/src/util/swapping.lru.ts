@@ -1,4 +1,4 @@
-export class SwappingLru<T extends { size: number }> {
+export class SwappingLru<T> {
   cacheA: Map<string, T> = new Map();
   cacheB: Map<string, T> = new Map();
   maxSize: number;
@@ -10,11 +10,15 @@ export class SwappingLru<T extends { size: number }> {
 
   _lastCheckedAt = -1;
 
-  constructor(maxSize: number) {
+  constructor(maxSize: number, getSize?: (lru: SwappingLru<T>) => number) {
     this.maxSize = maxSize;
+    this.getSizeTotal = getSize;
   }
 
-  get(id: string): T | null {
+  /** Optional method to get the "size" of the cache */
+  getSizeTotal?: (lru: SwappingLru<T>) => number;
+
+  get(id: string): T | undefined {
     const cacheA = this.cacheA.get(id);
     if (cacheA) {
       this.hits++;
@@ -24,7 +28,7 @@ export class SwappingLru<T extends { size: number }> {
     const cacheB = this.cacheB.get(id);
     if (cacheB == null) {
       this.misses++;
-      return null;
+      return;
     }
 
     this.hits++;
@@ -63,8 +67,7 @@ export class SwappingLru<T extends { size: number }> {
 
   /** Calculate the total number of bytes used by this cache */
   get currentSize(): number {
-    let size = 0;
-    for (const value of this.cacheA.values()) size += value.size;
-    return size;
+    if (this.getSizeTotal) return this.getSizeTotal(this);
+    return this.cacheA.size;
   }
 }
