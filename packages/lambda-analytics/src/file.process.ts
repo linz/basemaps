@@ -1,4 +1,4 @@
-import { LogType, getUrlHost, fsa } from '@basemaps/shared';
+import { LogType, getUrlHost, fsa, isValidApiKey } from '@basemaps/shared';
 import { createInterface, Interface } from 'readline';
 import { createGunzip } from 'zlib';
 import { LogStats } from './stats.js';
@@ -30,14 +30,13 @@ export const FileProcess = {
 
       // Ignore requests which are not tile requests
       if (!uri.startsWith('/v1')) continue;
-      if (!query.startsWith('api=')) {
-        logger.debug({ uri, query }, 'NoApiKey');
-        continue;
+      const search = new URLSearchParams(query);
+      const apiKey = search.get('api');
+      const apiValid = isValidApiKey(apiKey);
+      if (apiValid.valid || apiValid.message === 'expired') {
+        stats.track(apiKey as string, referer, uri.toLowerCase(), parseInt(status), hit);
       }
-      // TODO This could be switched to a QueryString parser
-      const endIndex = query.indexOf('&');
-      const apiKey = query.slice('api='.length, endIndex === -1 ? query.length : endIndex);
-      stats.track(apiKey, referer, uri.toLowerCase(), parseInt(status), hit);
+      // TODO should we track non apikeys
     }
   },
 };
