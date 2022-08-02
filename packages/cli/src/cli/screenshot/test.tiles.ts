@@ -98,7 +98,7 @@ export const DefaultTestTiles: TileTestSchema[] = [
   {
     name: 'topographic-3857-mount-cook-village-z12',
     tileMatrix: TileMatrixIdentifier.Google,
-    location: { lat: -43.717227, lng: 170.0844837, z: 17 },
+    location: { lat: -43.717227, lng: 170.0844837, z: 12 },
     tileSet: 'topographic',
     style: 'topographic',
   },
