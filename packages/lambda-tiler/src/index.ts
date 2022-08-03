@@ -1,5 +1,7 @@
 import { LogConfig } from '@basemaps/shared';
 import { LambdaHttpResponse, lf } from '@linzjs/lambda';
+import { arcgisStyleJsonGet } from './arcgis/arcgis.style.json.js';
+import { arcgisTileServerGet } from './arcgis/vector.tile.server.js';
 import { tileAttributionGet } from './routes/attribution.js';
 import { fontGet, fontList } from './routes/fonts.js';
 import { healthGet } from './routes/health.js';
@@ -94,3 +96,7 @@ handler.router.get('/v1/attribution/:tileSet/:tileMatrix/summary.json', tileAttr
 handler.router.get('/v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 handler.router.get('/v1/tiles/:tileSet/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 handler.router.get('/v1/tiles/WMTSCapabilities.xml', wmtsCapabilitiesGet);
+
+// Eris Vector
+handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer', arcgisTileServerGet);
+handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer/root.json', arcgisStyleJsonGet);
