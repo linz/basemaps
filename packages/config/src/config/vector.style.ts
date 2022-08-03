@@ -15,6 +15,22 @@ interface SourceRaster {
   attribution?: string;
 }
 
+/**
+ * https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/
+ */
+interface Layer {
+  id: string;
+  type: string;
+  filter?: unknown[];
+  layout?: unknown;
+  minzoom?: number;
+  maxzoom?: number;
+  metadata?: unknown;
+  paint?: unknown;
+  source?: string;
+  'source-layer'?: string;
+}
+
 type Source = SourceVector | SourceRaster;
 
 export type Sources = Record<string, Source>;
@@ -41,7 +57,7 @@ export interface StyleJson {
   sources: Sources;
 
   /** Layers will be drawn in the order of this array. */
-  layers: unknown[];
+  layers: Layer[];
 }
 
 export interface ConfigVectorStyle extends BaseConfig {
