@@ -7,7 +7,7 @@ import { Validate } from '../util/validate.js';
 
 /** Zoom level for the tilematrix which will be slice by 1 during the covertion to arcgis tileserve lods */
 const MaxTileMatrixZoom = 18;
-const MinTileMatrixZoom = 18;
+const MinTileMatrixZoom = 1;
 
 export interface VectorTileServer {
   Params: {
