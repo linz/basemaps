@@ -1,10 +1,10 @@
 import { Config, Sources, StyleJson, TileSetType } from '@basemaps/config';
 import { Env, fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { convertRelativeUrl } from '../routes/tile.style.json';
-import { Etag } from '../util/etag';
-import { NotFound, NotModified } from '../util/response';
-import { Validate } from '../util/validate';
+import { convertRelativeUrl } from '../routes/tile.style.json.js';
+import { Etag } from '../util/etag.js';
+import { NotFound, NotModified } from '../util/response.js';
+import { Validate } from '../util/validate.js';
 
 interface StyleGet {
   Params: {

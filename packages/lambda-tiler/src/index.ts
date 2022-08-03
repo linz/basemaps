@@ -97,6 +97,6 @@ handler.router.get('/v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml', wmtsCa
 handler.router.get('/v1/tiles/:tileSet/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 handler.router.get('/v1/tiles/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 
-// Eris Vector
+// Arcgis Vector
 handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer', arcgisTileServerGet);
 handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer/root.json', arcgisStyleJsonGet);

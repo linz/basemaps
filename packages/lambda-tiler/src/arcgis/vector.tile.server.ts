@@ -1,9 +1,13 @@
 import { Config, TileSetType } from '@basemaps/config';
 import { GoogleTms } from '@basemaps/geo';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { convertRelativeUrl } from '../routes/tile.style.json';
-import { NotFound } from '../util/response';
-import { Validate } from '../util/validate';
+import { convertRelativeUrl } from '../routes/tile.style.json.js';
+import { NotFound } from '../util/response.js';
+import { Validate } from '../util/validate.js';
+
+/** Zoom level for the tilematrix which will be slice by 1 during the covertion to arcgis tileserve lods */
+const MaxTileMatrixZoom = 18;
+const MinTileMatrixZoom = 18;
 
 export interface VectorTileServer {
   Params: {
@@ -39,14 +43,13 @@ export async function arcgisTileServerGet(req: LambdaHttpRequest<VectorTileServe
     minScale: 0.0,
     maxScale: 0.0,
     tileInfo: {
-      // TODO are all the pbf 256x256?
       rows: 512,
       cols: 512,
       dpi: 96,
       format: 'pbf',
       origin: { x: GoogleTms.extent.x, y: GoogleTms.extent.bottom },
       spatialReference: { wkid: 102100, latestWkid: GoogleTms.projection.code },
-      lods: GoogleTms.zooms.slice(1, 18).map((c, i) => {
+      lods: GoogleTms.zooms.slice(MinTileMatrixZoom, MaxTileMatrixZoom).map((c, i) => {
         return {
           level: i,
           resolution: c.scaleDenominator * 0.28e-3,
