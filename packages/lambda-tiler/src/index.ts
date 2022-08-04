@@ -1,5 +1,6 @@
 import { LogConfig } from '@basemaps/shared';
 import { LambdaHttpResponse, lf } from '@linzjs/lambda';
+import { arcgisInfoGet } from './arcgis/arcgis.info.js';
 import { arcgisStyleJsonGet } from './arcgis/arcgis.style.json.js';
 import { arcgisTileServerGet } from './arcgis/vector.tile.server.js';
 import { tileAttributionGet } from './routes/attribution.js';
@@ -13,7 +14,7 @@ import { styleJsonGet } from './routes/tile.style.json.js';
 import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
-import { NotFound } from './util/response.js';
+import { NotFound, OkResponse } from './util/response.js';
 import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
 
@@ -99,4 +100,6 @@ handler.router.get('/v1/tiles/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 
 // Arcgis Vector
 handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer', arcgisTileServerGet);
+handler.router.post('/v1/arcgis/rest/services/:tileSet/VectorTileServer', OkResponse);
 handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer/root.json', arcgisStyleJsonGet);
+handler.router.get('/v1/arcgis/rest/info', arcgisInfoGet);
