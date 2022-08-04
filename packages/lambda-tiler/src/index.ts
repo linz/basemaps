@@ -15,6 +15,7 @@ import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
 import { assetProvider } from './util/assets.provider.js';
+import { OkPostResponse } from './util/response.js';
 import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
 
@@ -104,6 +105,6 @@ handler.router.get('/v1/tiles/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 
 // Arcgis Vector
 handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer', arcgisTileServerGet);
-handler.router.post('/v1/arcgis/rest/services/:tileSet/VectorTileServer', OkResponse);
+handler.router.post('/v1/arcgis/rest/services/:tileSet/VectorTileServer', OkPostResponse);
 handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer/root.json', arcgisStyleJsonGet);
 handler.router.get('/v1/arcgis/rest/info', arcgisInfoGet);
