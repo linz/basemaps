@@ -2,8 +2,9 @@ import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
 import { handler } from '../../index.js';
+import { assetProvider } from '../../util/assets.provider.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
-import { fontList, getFonts } from '../fonts.js';
+import { fontList } from '../fonts.js';
 import { FsMemory } from './memory.fs.js';
 
 o.spec('/v1/fonts', () => {
@@ -11,52 +12,30 @@ o.spec('/v1/fonts', () => {
   o.before(() => {
     fsa.register('memory://', memory);
   });
+  const assetLocation = process.env[Env.AssetLocation];
 
   o.beforeEach(() => {
     process.env[Env.AssetLocation] = 'memory://';
+    assetProvider.set('memory://');
   });
 
   o.afterEach(() => {
-    delete process.env[Env.AssetLocation];
+    assetProvider.set(assetLocation);
     memory.files.clear();
   });
 
-  o('should list font types', async () => {
-    await Promise.all([
-      fsa.write('memory://fonts/Roboto Thin/0-255.pbf', Buffer.from('')),
-      fsa.write('memory://fonts/Roboto Thin/256-512.pbf', Buffer.from('')),
-      fsa.write('memory://fonts/Roboto Black/0-255.pbf', Buffer.from('')),
-    ]);
-
-    const fonts = await getFonts('memory://fonts/');
-    o(fonts).deepEquals(['Roboto Black', 'Roboto Thin']);
-  });
-
-  o('should return empty list if no fonts found', async () => {
-    const res = await fontList(mockRequest('/v1/fonts.json'));
-    o(res.status).equals(200);
-    o(res.body).equals('[]');
-    o(res.header('etag')).notEquals(undefined);
-    o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
-  });
-
-  o('should return 404 if no assets defined', async () => {
-    delete process.env[Env.AssetLocation];
+  o('should return 404 if no font found', async () => {
     const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(404);
   });
 
   o('should return a list of fonts found', async () => {
-    await Promise.all([
-      fsa.write('memory://fonts/Roboto Thin/0-255.pbf', Buffer.from('')),
-      fsa.write('memory://fonts/Roboto Thin/256-512.pbf', Buffer.from('')),
-      fsa.write('memory://fonts/Roboto Black/0-255.pbf', Buffer.from('')),
-    ]);
+    await fsa.write('memory://fonts.json', Buffer.from(JSON.stringify(['Roboto Black', 'Roboto Thin'])));
     const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(200);
     o(res.header('content-type')).equals('application/json');
     o(res.header('content-encoding')).equals(undefined);
-    o(res.body).equals(JSON.stringify(['Roboto Black', 'Roboto Thin']));
+    o(res._body?.toString()).equals(JSON.stringify(['Roboto Black', 'Roboto Thin']));
   });
 
   o('should get the correct font', async () => {
@@ -82,5 +61,11 @@ o.spec('/v1/fonts', () => {
     o(res255.header('content-encoding')).equals(undefined);
     o(res255.header('etag')).notEquals(undefined);
     o(res255.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
+  });
+
+  o('should return 404 if no asset location set', async () => {
+    assetProvider.set(undefined);
+    const res = await fontList(mockRequest('/v1/fonts.json'));
+    o(res.status).equals(404);
   });
 });

@@ -1,26 +1,31 @@
 import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
+import { createSandbox } from 'sinon';
 import { gunzipSync, gzipSync } from 'zlib';
 import { handler } from '../../index.js';
+import { assetProvider } from '../../util/assets.provider.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
 import { FsMemory } from './memory.fs.js';
 
 o.spec('/v1/sprites', () => {
   const memory = new FsMemory();
+  const sandbox = createSandbox();
   o.before(() => {
     fsa.register('memory://', memory);
   });
+  const assetLocation = process.env[Env.AssetLocation];
 
   o.beforeEach(() => {
     process.env[Env.AssetLocation] = 'memory://';
+    assetProvider.set('memory://');
   });
 
   o.afterEach(() => {
-    delete process.env[Env.AssetLocation];
+    assetProvider.set(assetLocation);
     memory.files.clear();
+    sandbox.restore();
   });
-
   o('should return 404 if no assets defined', async () => {
     delete process.env[Env.AssetLocation];
     const res404 = await handler.router.handle(mockRequest('/v1/sprites/topographic.json'));
