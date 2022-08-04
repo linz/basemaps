@@ -15,7 +15,7 @@ import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
 import { assetProvider } from './util/assets.provider.js';
-import { OkPostResponse } from './util/response.js';
+import { NotFound, OkPostResponse } from './util/response.js';
 import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
 
