@@ -3,7 +3,7 @@ import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import cf from 'aws-cdk-lib/aws-cloudfront';
 import s3, { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-import { BaseMapsConfig, getConfig } from '../config.js';
+import { getConfig } from '../config.js';
 import { ParametersEdgeKeys } from '../parameters.js';
 
 export interface EdgeStackProps extends cdk.StackProps {
@@ -68,13 +68,15 @@ export class EdgeStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'CloudFrontPublicDomain', { value: config.CloudFrontDns.join(', ') });
 
     this.logBucket = new s3.Bucket(this, 'EdgeLogBucket');
+    const originConfigs = [s3Source];
+    if (props.lambdaUrl) originConfigs.push(this.lambdaUrlSource(props.lambdaUrl));
 
     this.distribution = new cf.CloudFrontWebDistribution(this, 'Distribution', {
       viewerCertificate,
       priceClass: cf.PriceClass.PRICE_CLASS_ALL,
       httpVersion: cf.HttpVersion.HTTP2,
       viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      originConfigs: [s3Source, props.lambdaUrl ? this.lambdaUrlSource(props.lambdaUrl) : this.lambdaAlbSource(config)],
+      originConfigs,
       loggingConfig: { bucket: this.logBucket },
     });
 
@@ -85,26 +87,6 @@ export class EdgeStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'CloudFrontDomain', { value: this.distribution.distributionDomainName });
   }
 
-  lambdaAlbSource(config: BaseMapsConfig): cf.SourceConfiguration {
-    return {
-      customOriginSource: {
-        domainName: config.AlbPublicDns,
-        originProtocolPolicy: cf.OriginProtocolPolicy.HTTPS_ONLY,
-      },
-      behaviors: [
-        {
-          pathPattern: '/v1*',
-          allowedMethods: cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
-          forwardedValues: {
-            /** Forward all query strings but do not use them for caching */
-            queryString: true,
-            queryStringCacheKeys: ['NOT_A_CACHE_KEY'],
-          },
-          lambdaFunctionAssociations: [],
-        },
-      ],
-    };
-  }
   lambdaUrlSource(lambdaUrl: string): cf.SourceConfiguration {
     const trimmedUrl = new URL(lambdaUrl); // LambdaURLS include https:// and a trailing /
     return {
