@@ -1,4 +1,4 @@
-import { LogConfig } from '@basemaps/shared';
+import { Env, LogConfig } from '@basemaps/shared';
 import { LambdaHttpResponse, lf } from '@linzjs/lambda';
 import { arcgisStyleJsonGet } from './arcgis/arcgis.style.json.js';
 import { arcgisTileServerGet } from './arcgis/vector.tile.server.js';
@@ -13,6 +13,7 @@ import { styleJsonGet } from './routes/tile.style.json.js';
 import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
+import { assetProvider } from './util/assets.provider.js';
 import { NotFound } from './util/response.js';
 import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
@@ -21,6 +22,10 @@ export const handler = lf.http(LogConfig.get());
 
 handler.router.hook('request', (req) => {
   req.set('name', 'LambdaTiler');
+
+  // Set the asset location for asset provider
+  const assetLocation = Env.get(Env.AssetLocation);
+  assetProvider.set(assetLocation);
 
   // Reset the request tracing before every request
   St.reset();
