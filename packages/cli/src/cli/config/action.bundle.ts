@@ -33,6 +33,7 @@ export class CommandBundle extends CommandLineAction {
       argumentName: 'ASSETS',
       parameterLongName: '--assets',
       description: 'Add assets location into the config bundle file',
+      required: true,
     });
   }
 
@@ -43,7 +44,8 @@ export class CommandBundle extends CommandLineAction {
     const mem = await ConfigJson.fromPath(config, logger);
     const configJson = mem.toJson();
     const assets = this.assets.value;
-    if (assets) configJson.assets = assets;
+    if (assets == null) throw new Error('Please provide a asset path.');
+    configJson.assets = assets;
     await fsa.writeJson(bundle, configJson);
     logger.info({ path: bundle }, 'ConfigBundled');
     return;
