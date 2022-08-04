@@ -115,7 +115,7 @@ export class EdgeStack extends cdk.Stack {
       behaviors: [
         {
           pathPattern: '/v1*',
-          allowedMethods: cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
+          allowedMethods: cf.CloudFrontAllowedMethods.ALL,
           forwardedValues: {
             /** Forward all query strings but do not use them for caching */
             queryString: true,

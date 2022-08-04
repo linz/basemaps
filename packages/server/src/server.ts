@@ -5,6 +5,7 @@ import fastifyStatic from '@fastify/static';
 import { lf } from '@linzjs/lambda';
 import { ALBEvent, ALBResult, APIGatewayProxyResultV2, CloudFrontRequestResult, Context } from 'aws-lambda';
 import fastify, { FastifyInstance } from 'fastify';
+import formBodyPlugin from '@fastify/formbody';
 import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
@@ -41,6 +42,7 @@ export interface ServerOptions {
 
 export async function createServer(opts: ServerOptions, logger: LogType): Promise<FastifyInstance> {
   const BasemapsServer = fastify();
+  BasemapsServer.register(formBodyPlugin);
 
   if (opts.config.startsWith('dynamodb://')) {
     // Load config from dynamodb table
@@ -85,10 +87,10 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     BasemapsServer.register(fastifyStatic, { root });
   }
 
-  BasemapsServer.get<{ Querystring: { api: string } }>('/v1/*', async (req, res) => {
+  BasemapsServer.all<{ Querystring: { api: string } }>('/v1/*', (req, res) => {
     const url = new URL(`${req.protocol}://${req.hostname}${req.url}`);
     const event: ALBEvent = {
-      httpMethod: 'GET',
+      httpMethod: req.method,
       requestContext: { elb: { targetGroupArn: 'arn:fake' } },
       path: url.pathname,
       headers: req.headers as Record<string, string>,
