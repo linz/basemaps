@@ -49,6 +49,7 @@ export async function getParameters<T extends ParameterKeys>(
 
     output[param as keyof T] = edgeParam as any;
   }
-  if (Object.keys(output).length > 1) return output as T;
+
+  if (Object.keys(output).length > 0) return output as T;
   return null;
 }
