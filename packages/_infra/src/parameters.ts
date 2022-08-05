@@ -7,14 +7,10 @@ export interface ParametersEdge {
 }
 
 export interface ParametersServe {
-  LambdaXyzAlb: string;
   LambdaXyzUrl: string;
-  LambdaXyzDns: string;
 }
 export const ParametersServeKeys: Record<keyof ParametersServe, string> = {
-  LambdaXyzAlb: 'LambdaXyzAlb',
   LambdaXyzUrl: 'LambdaXyzUrl',
-  LambdaXyzDns: 'LambdaXyzDns',
 };
 
 export const ParametersEdgeKeys: Record<keyof ParametersEdge, string> = {
