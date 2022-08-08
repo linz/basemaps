@@ -1,4 +1,4 @@
-import { Config, StyleJson } from '@basemaps/config';
+import { Config } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
