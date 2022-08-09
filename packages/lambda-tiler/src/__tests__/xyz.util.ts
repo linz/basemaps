@@ -17,10 +17,15 @@ export function mockRequest(path: string, method = 'get', headers: Record<string
   );
 }
 
-export function mockUrlRequest(path: string, query = '', headers: Record<string, unknown> = {}): LambdaHttpRequest {
+export function mockUrlRequest(
+  path: string,
+  query = '',
+  headers: Record<string, unknown> = {},
+  method?: string,
+): LambdaHttpRequest {
   return new LambdaUrlRequest(
     {
-      requestContext: { http: { method: 'GET' } },
+      requestContext: { http: { method: method ? method.toUpperCase() : 'GET' } },
       headers,
       rawPath: encodeURI(path),
       rawQueryString: query,
