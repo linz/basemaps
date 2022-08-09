@@ -17,12 +17,10 @@ export interface LambdaTilerProps {
  * Create a API Key validation edge lambda
  */
 export class LambdaTiler extends Construct {
-  public lambda: lambda.Function[];
   public version: lambda.Version;
   public functionUrl: lambda.FunctionUrl;
 
   public lambdaNoVpc: lambda.Function;
-  public lambdaVpc: lambda.Function;
 
   public constructor(scope: cdk.Stack, id: string, props: LambdaTilerProps) {
     super(scope, id);
@@ -61,13 +59,11 @@ export class LambdaTiler extends Construct {
     if (props.staticBucketName) {
       const staticBucket = s3.Bucket.fromBucketName(this, 'StaticBucket', props.staticBucketName);
       staticBucket.grantRead(this.lambdaNoVpc);
-      staticBucket.grantRead(this.lambdaVpc);
     }
 
     for (const bucketName of config.CogBucket) {
       const cogBucket = s3.Bucket.fromBucketName(this, `CogBucket${bucketName}`, bucketName);
       cogBucket.grantRead(this.lambdaNoVpc);
-      cogBucket.grantRead(this.lambdaVpc);
     }
   }
 }

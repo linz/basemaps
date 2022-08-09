@@ -21,7 +21,6 @@ export class ServeStack extends cdk.Stack {
 
     const lambda = new LambdaTiler(this, 'LambdaTiler', { staticBucketName: props.staticBucketName });
     const table = new TileMetadataTable(this, 'TileMetadata');
-    table.table.grantReadData(lambda.lambdaVpc);
     table.table.grantReadData(lambda.lambdaNoVpc);
 
     new cdk.CfnOutput(this, ParametersServeKeys.LambdaXyzUrl, { value: lambda.functionUrl.url });

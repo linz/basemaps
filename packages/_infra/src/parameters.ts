@@ -7,14 +7,10 @@ export interface ParametersEdge {
 }
 
 export interface ParametersServe {
-  LambdaXyzAlb: string;
   LambdaXyzUrl: string;
-  LambdaXyzDns: string;
 }
 export const ParametersServeKeys: Record<keyof ParametersServe, string> = {
-  LambdaXyzAlb: 'LambdaXyzAlb',
   LambdaXyzUrl: 'LambdaXyzUrl',
-  LambdaXyzDns: 'LambdaXyzDns',
 };
 
 export const ParametersEdgeKeys: Record<keyof ParametersEdge, string> = {
@@ -53,6 +49,7 @@ export async function getParameters<T extends ParameterKeys>(
 
     output[param as keyof T] = edgeParam as any;
   }
-  if (Object.keys(output).length > 1) return output as T;
+
+  if (Object.keys(output).length > 0) return output as T;
   return null;
 }

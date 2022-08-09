@@ -75,4 +75,7 @@ async function main(): Promise<void> {
   new CogBuilderStack(basemaps, 'CogBuilder', { env: { region: BaseMapsRegion, account } });
 }
 
-main().catch((e) => console.error(e));
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
