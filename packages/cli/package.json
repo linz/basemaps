@@ -61,6 +61,7 @@
   "devDependencies": {
     "@types/deep-diff": "^1.0.1",
     "@types/geojson": "^7946.0.7",
+    "@types/prettier": "^2.7.0",
     "@types/proj4": "^2.5.2"
   },
   "publishConfig": {
