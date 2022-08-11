@@ -2,6 +2,7 @@ import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParame
 
 import { createServer } from '@basemaps/server';
 import { Const, Env, LogConfig } from '@basemaps/shared';
+
 const DefaultPort = 5000;
 
 export class CommandServe extends CommandLineAction {
@@ -48,8 +49,12 @@ export class CommandServe extends CommandLineAction {
     process.env[Env.PublicUrlBase] = ServerUrl;
 
     const server = await createServer({ config, assets }, logger);
-    server.listen(port ?? DefaultPort, '0.0.0.0', () => {
-      logger.info({ url: ServerUrl }, 'ServerStarted');
+    await new Promise<void>((resolve, reject) => {
+      server.listen(port ?? DefaultPort, '0.0.0.0', (err) => {
+        if (err) reject(err);
+        logger.info({ url: ServerUrl }, 'ServerStarted');
+        resolve();
+      });
     });
   }
 }
