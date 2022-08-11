@@ -1,5 +1,5 @@
 import { CogTiff } from '@cogeotiff/core';
-import { Config, ConfigBundle, ConfigProviderMemory } from '@basemaps/config';
+import { Config, ConfigProviderMemory } from '@basemaps/config';
 import { Nztm2000QuadTms, Bounds } from '@basemaps/geo';
 import { ulid } from 'ulid';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -99,16 +99,6 @@ export class CommandImageryConfig extends CommandLineAction {
       const output = fsa.join(path, 'config.json.gz');
       const configJson = provider.toJson();
       await fsa.writeJson(output, configJson);
-
-      logger.info({ hash: configJson.hash }, 'ImageryConfig:ConfigBundle');
-      const configBundle: ConfigBundle = {
-        id: Config.ConfigBundle.id(configJson.hash),
-        name: Config.ConfigBundle.id(`config-${configJson.hash}.json`),
-        path: output,
-        hash: configJson.hash,
-      };
-
-      if (Config.ConfigBundle.isWriteable()) await Config.ConfigBundle.put(configBundle);
     } else {
       logger.info('DryRun:Done');
     }
