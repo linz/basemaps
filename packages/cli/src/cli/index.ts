@@ -6,6 +6,7 @@ import { CommandCogCreate } from './cogify/action.cog.js';
 import { CommandJobCreate } from './cogify/action.job.js';
 import { CommandBundleAssets } from './config/action.bundle.assets.js';
 import { CommandBundle } from './config/action.bundle.js';
+import { CommandImageryConfig } from './config/action.imagery.config.js';
 import { CommandImport } from './config/action.import.js';
 import { CommandImportStyle } from './config/action.style.import.js';
 import { CommandScreenShot } from './screenshot/action.screenshot.js';
@@ -26,6 +27,7 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     this.addAction(new CommandBundleAssets());
     this.addAction(new CommandImport());
     this.addAction(new CommandImportStyle());
+    this.addAction(new CommandImageryConfig());
 
     this.addAction(new CommandScreenShot());
 

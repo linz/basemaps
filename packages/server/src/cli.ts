@@ -45,8 +45,12 @@ export class BasemapsServerCommand extends BaseCommandLine {
     process.env[Env.PublicUrlBase] = ServerUrl;
 
     const server = await createServer({ config, assets }, logger);
-    server.listen(port ?? DefaultPort, '0.0.0.0', () => {
-      logger.info({ url: ServerUrl }, 'ServerStarted');
+    await new Promise<void>((resolve, reject) => {
+      server.listen(port ?? DefaultPort, '0.0.0.0', (err) => {
+        if (err) reject(err);
+        logger.info({ url: ServerUrl }, 'ServerStarted');
+        resolve();
+      });
     });
   }
 }
