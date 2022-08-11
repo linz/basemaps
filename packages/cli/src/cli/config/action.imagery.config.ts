@@ -96,7 +96,7 @@ export class CommandImageryConfig extends CommandLineAction {
 
     if (commit) {
       logger.info({ path }, 'ImageryConfig:UploadConfig');
-      const output = fsa.join(path, 'config.json.gz');
+      const output = fsa.join(path, 'basemaps-config.json.gz');
       const configJson = provider.toJson();
       await fsa.writeJson(output, configJson);
     } else {
