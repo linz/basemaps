@@ -1,11 +1,9 @@
 import { CogTiff } from '@cogeotiff/core';
-import { FsAwsS3 } from '@chunkd/source-aws';
-import S3 from 'aws-sdk/clients/s3.js';
-import { Config, ConfigProviderMemory } from '@basemaps/config';
+import { Config, ConfigBundle, ConfigProviderMemory } from '@basemaps/config';
 import { Nztm2000QuadTms, Bounds } from '@basemaps/geo';
 import { ulid } from 'ulid';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { fsa, LogConfig } from '@basemaps/shared';
+import { fsa, LogConfig, RoleRegister } from '@basemaps/shared';
 
 export class CommandImageryConfig extends CommandLineAction {
   private path: CommandLineStringParameter;
@@ -38,18 +36,27 @@ export class CommandImageryConfig extends CommandLineAction {
     let path = this.path.value;
     if (path == null) throw new Error('Please provide valid a path for the imagery');
     if (!path.endsWith('/')) path += '/';
-    fsa.register('s3://', new FsAwsS3(new S3()));
     const commit = this.commit.value ?? false;
 
+    const assumedRole = await RoleRegister.findRole(path);
+    if (assumedRole) logger.debug({ path, roleArn: assumedRole?.roleArn }, 'ImageryConfig:AssumeRole');
+
+    logger.info({ path }, 'ImageryConfig:List');
     const sourceFiles = await fsa.toArray(fsa.list(path));
     const tiffs = await Promise.all(
-      sourceFiles.filter((f) => f.endsWith('.tif')).map((c) => CogTiff.create(fsa.source(c))),
+      sourceFiles
+        .filter((f) => f.toLocaleLowerCase().endsWith('.tif') || f.toLocaleLowerCase().endsWith('.tiff'))
+        .map((c) => CogTiff.create(fsa.source(c))),
     );
 
-    if (tiffs.length === 0) throw new Error('Provid path does not have tif imagery.');
+    if (tiffs.length === 0) throw new Error('Provided path does not have tif and tiff imagery.');
+
+    logger.info({ path }, 'ImageryConfig:CreateConfig');
     let bounds = null;
     const files = [];
     for (const tif of tiffs) {
+      await tif.getImage(0).loadGeoTiffTags();
+      if (tif.getImage(0).epsg !== Nztm2000QuadTms.projection.code) throw new Error('Imagery is not NZTM Projection.');
       const imgBounds = Bounds.fromBbox(tif.getImage(0).bbox);
       if (bounds == null) bounds = imgBounds;
       else bounds = bounds.union(imgBounds);
@@ -88,8 +95,20 @@ export class CommandImageryConfig extends CommandLineAction {
     provider.put(tileSet);
 
     if (commit) {
+      logger.info({ path }, 'ImageryConfig:UploadConfig');
       const output = fsa.join(path, 'config.json.gz');
-      await fsa.writeJson(output, provider.toJson());
+      const configJson = provider.toJson();
+      await fsa.writeJson(output, configJson);
+
+      logger.info({ hash: configJson.hash }, 'ImageryConfig:ConfigBundle');
+      const configBundle: ConfigBundle = {
+        id: Config.ConfigBundle.id(configJson.hash),
+        name: Config.ConfigBundle.id(`config-${configJson.hash}.json`),
+        path: output,
+        hash: configJson.hash,
+      };
+
+      if (Config.ConfigBundle.isWriteable()) await Config.ConfigBundle.put(configBundle);
     } else {
       logger.info('DryRun:Done');
     }
