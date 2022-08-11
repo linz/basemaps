@@ -3,10 +3,11 @@ import { Config, ConfigProviderMemory } from '@basemaps/config';
 import { Nztm2000QuadTms, Bounds } from '@basemaps/geo';
 import { ulid } from 'ulid';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { fsa, LogConfig, RoleRegister } from '@basemaps/shared';
+import { Env, fsa, LogConfig, RoleRegister } from '@basemaps/shared';
 
 export class CommandImageryConfig extends CommandLineAction {
   private path: CommandLineStringParameter;
+  private config: CommandLineStringParameter;
   private commit: CommandLineFlagParameter;
 
   public constructor() {
@@ -24,6 +25,11 @@ export class CommandImageryConfig extends CommandLineAction {
       description: 'Path of raw imagery, this can be both a local path or s3 location',
       required: true,
     });
+    this.config = this.defineStringParameter({
+      argumentName: 'CONFIG',
+      parameterLongName: '--config',
+      description: 'Location of a configuration file containing role->bucket mapping information',
+    });
     this.commit = this.defineFlagParameter({
       parameterLongName: '--commit',
       description: 'Actually upload the config to s3.',
@@ -38,6 +44,11 @@ export class CommandImageryConfig extends CommandLineAction {
     if (!path.endsWith('/')) path += '/';
     const commit = this.commit.value ?? false;
 
+    const config = this.config.value;
+    if (config) {
+      logger.info({ path: config }, 'Role:Config');
+      process.env[Env.AwsRoleConfigPath] = config;
+    }
     const assumedRole = await RoleRegister.findRole(path);
     if (assumedRole) logger.debug({ path, roleArn: assumedRole?.roleArn }, 'ImageryConfig:AssumeRole');
 
