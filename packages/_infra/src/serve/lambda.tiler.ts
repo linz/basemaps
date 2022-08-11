@@ -61,6 +61,9 @@ export class LambdaTiler extends Construct {
       staticBucket.grantRead(this.lambdaNoVpc);
     }
 
+    const configBucket = s3.Bucket.fromBucketName(this, 'WorkflowBucket', config.WorkflowArtifactsBucket);
+    configBucket.grantRead(this.lambdaNoVpc);
+
     for (const bucketName of config.CogBucket) {
       const cogBucket = s3.Bucket.fromBucketName(this, `CogBucket${bucketName}`, bucketName);
       cogBucket.grantRead(this.lambdaNoVpc);

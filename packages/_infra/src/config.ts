@@ -19,6 +19,9 @@ export interface BaseMapsConfig {
   /** AWS role config bucket */
   AwsRoleConfigBucket: string;
 
+  /** LINZ Argo workflow artifact bucket */
+  WorkflowArtifactsBucket: string;
+
   /** Import Imagery Bucket */
   ImportImageryBucket: string;
 
@@ -36,6 +39,7 @@ export const BaseMapsProdConfig: BaseMapsConfig = {
   CloudFrontDns: ['basemaps.linz.govt.nz', 'tiles.basemaps.linz.govt.nz'],
   PublicUrlBase: 'https://basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
+  WorkflowArtifactsBucket: 'linz-workflow-artifacts',
   ImportImageryBucket: 'linz-basemaps',
   ImportFilesNumberLimit: '10000',
   ImportFilesSizeLimitGb: '1200',
@@ -48,6 +52,7 @@ export const BaseMapsDevConfig: BaseMapsConfig = {
   CloudFrontDns: ['dev.basemaps.linz.govt.nz', 'tiles.dev.basemaps.linz.govt.nz'],
   PublicUrlBase: 'https://dev.basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
+  WorkflowArtifactsBucket: 'linz-workflow-artifacts',
   ImportImageryBucket: 'basemaps-cog-test',
   ImportFilesNumberLimit: '10000',
   ImportFilesSizeLimitGb: '1200',
