@@ -4,7 +4,7 @@ import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambd
 import * as fs from 'fs';
 import * as path from 'path';
 import PixelMatch from 'pixelmatch';
-import Sharp from 'sharp';
+import type { Sharp } from 'sharp';
 import url from 'url';
 import { TileXyz } from '../util/validate.js';
 import { TileXyzRaster } from './tile.xyz.raster.js';
@@ -36,10 +36,11 @@ export async function getTestBuffer(test: TestTile): Promise<Buffer> {
 
 export async function updateExpectedTile(test: TestTile, newTileData: Buffer, difference: Buffer): Promise<void> {
   const tile = test.tile;
+  const Sharp = await import('sharp');
 
   const expectedFileName = `static/expected_tile_${test.tileMatrix.identifier}_${tile.x}_${tile.y}_z${tile.z}.${test.tileType}`;
   await fs.promises.writeFile(expectedFileName, newTileData);
-  const imgPng = await Sharp(difference, { raw: { width: TileSize, height: TileSize, channels: 4 } })
+  const imgPng = await Sharp.default(difference, { raw: { width: TileSize, height: TileSize, channels: 4 } })
     .png()
     .toBuffer();
   await fs.promises.writeFile(`${expectedFileName}.diff.png`, imgPng);
@@ -53,6 +54,8 @@ export async function updateExpectedTile(test: TestTile, newTileData: Buffer, di
  * @throws LambdaHttpResponse for failure health test
  */
 export async function healthGet(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
+  const Sharp = await import('sharp');
+
   const tileSet = await Config.TileSet.get(Config.TileSet.id('health'));
   if (tileSet == null) throw new LambdaHttpResponse(500, 'TileSet: "health" not found');
   for (const test of TestTiles) {
@@ -60,12 +63,12 @@ export async function healthGet(req: LambdaHttpRequest): Promise<LambdaHttpRespo
     const response = await TileXyzRaster.tile(req, tileSet as ConfigTileSetRaster, test);
     if (response.status !== 200) return new LambdaHttpResponse(500, response.statusDescription);
     if (!Buffer.isBuffer(response._body)) throw new LambdaHttpResponse(500, 'Not a Buffer response content.');
-    const resImgBuffer = await Sharp(response._body).raw().toBuffer();
+    const resImgBuffer = await Sharp.default(response._body).raw().toBuffer();
 
     // Get test tile to compare
     const testBuffer = await getTestBuffer(test);
     test.buf = testBuffer;
-    const testImgBuffer = await Sharp(testBuffer).raw().toBuffer();
+    const testImgBuffer = await Sharp.default(testBuffer).raw().toBuffer();
 
     const outputBuffer = Buffer.alloc(testImgBuffer.length);
     const missMatchedPixels = PixelMatch(testImgBuffer, resImgBuffer, outputBuffer, TileSize, TileSize);

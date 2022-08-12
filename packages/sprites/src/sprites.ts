@@ -1,5 +1,5 @@
 import ShelfPack from '@mapbox/shelf-pack';
-import Sharp, { PngOptions } from 'sharp';
+import type { PngOptions, OverlayOptions } from 'sharp';
 
 export interface SvgId {
   /** Unique id for the sprite */
@@ -38,10 +38,11 @@ export const Sprites = {
     pixelRatio: readonly number[],
     compress: PngOptions = DefaultCompressionOptions,
   ): Promise<SpriteSheetResult[]> {
+    const Sharp = await import('sharp');
     const imageData: SpriteLoaded[] = [];
     const imageById = new Map<string, SpriteLoaded>();
     for (const img of source) {
-      const metadata = await Sharp(img.svg).metadata();
+      const metadata = await Sharp.default(img.svg).metadata();
       if (metadata.width == null || metadata.height == null) throw new Error('Unable to get width of image: ' + img.id);
       if (imageById.has(img.id)) throw new Error('Duplicate sprite id ' + img.id);
       const data = { width: metadata.width, height: metadata.height, id: img.id, svg: img.svg };
@@ -54,7 +55,7 @@ export const Sprites = {
     const sprites = sprite.pack(imageData);
 
     const sheets = pixelRatio.map(async (px): Promise<SpriteSheetResult> => {
-      const outputImage = Sharp({
+      const outputImage = Sharp.default({
         create: {
           width: sprite.w * px,
           height: sprite.h * px,
@@ -64,12 +65,12 @@ export const Sprites = {
       });
 
       const layout: SpriteSheetLayout = {};
-      const composite: Sharp.OverlayOptions[] = [];
+      const composite: OverlayOptions[] = [];
       for (const sprite of sprites) {
         const spriteData = imageById.get(String(sprite.id));
         if (spriteData == null) throw new Error('Cannot find sprite: ' + sprite.id);
         composite.push({
-          input: await Sharp(spriteData.svg)
+          input: await Sharp.default(spriteData.svg)
             .resize({ width: sprite.w * px })
             .toBuffer(),
           top: sprite.y * px,
