@@ -79,7 +79,7 @@ export class CommandImageryConfig extends CommandLineAction {
 
     const provider = new ConfigProviderMemory();
     const id = ulid();
-    let name = path.split('/').at(-1);
+    let name = path.split('/').at(-2);
     if (name == null) {
       logger.warn({ path, id }, `Unable to extract the imagery name from path, use uild id instead.`);
       name = id;
