@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.75",
-    "@types/node": "^17.0.34",
+    "@types/node": "^18.7.6",
     "pretty-json-log": "^1.0.0"
   }
 }
