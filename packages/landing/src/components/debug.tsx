@@ -2,7 +2,7 @@ import { GoogleTms } from '@basemaps/geo';
 import { BBoxFeatureCollection } from '@linzjs/geojson';
 import { StyleSpecification } from 'maplibre-gl';
 import { Component, ComponentChild, Fragment } from 'preact';
-import { Attributions, MapAttribution } from '../attribution.js';
+import { Attributions } from '../attribution.js';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { projectGeoJson } from '../tile.matrix.js';
