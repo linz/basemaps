@@ -30,7 +30,7 @@ o.spec('/v1/health', async () => {
   const fakeTileSet = FakeData.tileSetRaster('health');
   o.beforeEach(() => {
     config.objects.clear();
-    sandbox.stub(ConfigLoader, 'load').resolves(config);
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
     config.put(fakeTileSet);
   });
 

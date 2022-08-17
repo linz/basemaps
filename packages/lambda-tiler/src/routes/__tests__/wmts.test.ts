@@ -11,7 +11,7 @@ o.spec('WMTSRouting', () => {
   const config = new ConfigProviderMemory();
 
   o.before(() => {
-    sandbox.stub(ConfigLoader, 'load').resolves(config);
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
   });
 
   o.afterEach(() => {

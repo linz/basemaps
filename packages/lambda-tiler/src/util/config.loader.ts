@@ -1,4 +1,4 @@
-import { BasemapsConfigProvider } from '@basemaps/config';
+import { base58, BasemapsConfigProvider } from '@basemaps/config';
 import { LambdaHttpResponse } from '@linzjs/lambda';
 import { parseUri } from '@chunkd/core';
 import { LambdaHttpRequest } from '@linzjs/lambda';
@@ -7,20 +7,28 @@ import { getDefaultConfig } from '@basemaps/shared';
 
 // FIXME load this from process.env COG BUCKETS?
 const SafeBuckets = new Set(['linz-workflow-artifacts', 'linz-basemaps']);
+const SafeProtocols = new Set(['s3', 'memory']);
 
 export class ConfigLoader {
+  /** Exposed for testing */
+  static async getDefaultConfig(): Promise<BasemapsConfigProvider> {
+    return getDefaultConfig();
+  }
   static async load(req: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
     const rawLocation = req.query.get('config');
-    if (rawLocation == null) return getDefaultConfig();
+    if (rawLocation == null) return this.getDefaultConfig();
 
-    const configLocation = rawLocation.startsWith('s3://')
+    const configLocation = rawLocation.includes('://')
       ? rawLocation
-      : Buffer.from(rawLocation, 'base64url').toString();
+      : Buffer.from(base58.decode(rawLocation)).toString();
 
     const r = parseUri(configLocation);
+
     if (r == null) throw new LambdaHttpResponse(400, 'Invalid config location');
-    if (r.protocol !== 's3') throw new LambdaHttpResponse(400, `Invalid configuration location protocol:${r.protocol}`);
-    if (SafeBuckets.has(r.bucket)) {
+    if (!SafeProtocols.has(r.protocol)) {
+      throw new LambdaHttpResponse(400, `Invalid configuration location protocol:${r.protocol}`);
+    }
+    if (!SafeBuckets.has(r.bucket)) {
       throw new LambdaHttpResponse(400, `Bucket: "${r.bucket}" is not a allowed bucket location`);
     }
 

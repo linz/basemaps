@@ -17,7 +17,7 @@ o.spec('arcgis/VectorTileServer', () => {
   });
 
   o.beforeEach(() => {
-    sandbox.stub(ConfigLoader, 'load').resolves(config);
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
     config.objects.clear();
   });
 
