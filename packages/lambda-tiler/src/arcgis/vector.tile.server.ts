@@ -1,7 +1,8 @@
-import { Config, TileSetType } from '@basemaps/config';
+import { TileSetType } from '@basemaps/config';
 import { GoogleTms } from '@basemaps/geo';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { convertRelativeUrl } from '../routes/tile.style.json.js';
+import { ConfigLoader } from '../util/config.loader.js';
 import { NotFound } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 
@@ -16,7 +17,9 @@ export interface VectorTileServer {
 }
 
 export async function arcgisTileServerGet(req: LambdaHttpRequest<VectorTileServer>): Promise<LambdaHttpResponse> {
-  const tileSet = await Config.TileSet.get(Config.TileSet.id(req.params.tileSet));
+  const config = await ConfigLoader.load(req);
+
+  const tileSet = await config.TileSet.get(config.TileSet.id(req.params.tileSet));
   if (tileSet?.type !== TileSetType.Vector) return NotFound();
   const apiKey = Validate.apiKey(req);
   const f = req.query.get('f');

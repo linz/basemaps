@@ -1,4 +1,4 @@
-import { ConfigTileSet, TileSetType } from '@basemaps/config';
+import { ConfigHelper, ConfigTileSet, TileSetType } from '@basemaps/config';
 import {
   AttributionCollection,
   AttributionItem,
@@ -10,9 +10,10 @@ import {
   StacExtent,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { Config, extractYearRangeFromName, Projection, titleizeImageryName } from '@basemaps/shared';
+import { extractYearRangeFromName, Projection, titleizeImageryName } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { ConfigLoader } from '../util/config.loader.js';
 
 import { Etag } from '../util/etag.js';
 import { NotFound, NotModified } from '../util/response.js';
@@ -77,9 +78,10 @@ async function tileSetAttribution(
   const cols: AttributionCollection[] = [];
   const items: AttributionItem[] = [];
 
-  const imagery = await Config.getAllImagery(tileSet.layers, [tileMatrix.projection]);
+  const config = await ConfigLoader.load(req);
+  const imagery = await ConfigHelper.getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
 
-  const host = await Config.Provider.get(Config.Provider.id('linz'));
+  const host = await config.Provider.get(config.Provider.id('linz'));
   if (host == null) return null;
 
   for (const layer of tileSet.layers) {
@@ -159,8 +161,10 @@ export async function tileAttributionGet(req: LambdaHttpRequest<TileAttributionG
   const tileMatrix = Validate.getTileMatrixSet(req.params.tileMatrix);
   if (tileMatrix == null) throw new LambdaHttpResponse(404, 'Tile Matrix not found');
 
+  const config = await ConfigLoader.load(req);
+
   req.timer.start('tileset:load');
-  const tileSet = await Config.TileSet.get(Config.TileSet.id(req.params.tileSet));
+  const tileSet = await config.TileSet.get(config.TileSet.id(req.params.tileSet));
   req.timer.end('tileset:load');
   if (tileSet == null || tileSet.type === TileSetType.Vector) return NotFound();
 

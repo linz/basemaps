@@ -25,7 +25,7 @@ export class ConfigCache {
     this.cache = new SwappingLru<LruConfig>(maxSize);
   }
 
-  getConfig(location: string): Promise<ConfigProviderMemory | null> {
+  get(location: string): Promise<ConfigProviderMemory | null> {
     const existing = this.cache.get(location)?.configProvider;
     if (existing != null) return existing;
     try {

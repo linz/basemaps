@@ -1,21 +1,29 @@
-import { Config, ConfigProviderMemory } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import o from 'ospec';
+import sinon from 'sinon';
 import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { CoSources } from '../../util/source.cache.js';
 import { FakeData } from '../../__tests__/config.data.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 
 o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
   const config = new ConfigProviderMemory();
+  const sandbox = sinon.createSandbox();
+
   o.before(() => {
     process.env[Env.PublicUrlBase] = 'https://tiles.test';
-    Config.setConfigProvider(config);
   });
 
   o.beforeEach(() => {
+    sandbox.stub(ConfigLoader, 'load').resolves(config);
     config.objects.clear();
     CoSources.cache.clear();
+  });
+
+  o.afterEach(() => {
+    sandbox.restore();
   });
 
   o('should 404 if invalid url is given', async () => {

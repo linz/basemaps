@@ -1,6 +1,6 @@
-import { Config, ConfigBundled, ConfigJson, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
+import { ConfigBundled, ConfigJson, ConfigPrefix, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { handler } from '@basemaps/lambda-tiler';
-import { Env, fsa, LogType } from '@basemaps/shared';
+import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import fastifyStatic from '@fastify/static';
 import { lf } from '@linzjs/lambda';
 import { ALBEvent, ALBResult, APIGatewayProxyResultV2, CloudFrontRequestResult, Context } from 'aws-lambda';
@@ -48,27 +48,27 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     // Load config from dynamodb table
     const table = opts.config.slice('dynamodb://'.length);
     logger.info({ path: opts.config, table, mode: 'dynamo' }, 'Starting Server');
-    Config.setConfigProvider(new ConfigProviderDynamo(table));
-  } else if (opts.config.startsWith(Config.ConfigBundle.prefix)) {
+    setDefaultConfig(new ConfigProviderDynamo(table));
+  } else if (opts.config.startsWith(ConfigPrefix.ConfigBundle)) {
     // Load Bundled config by dynamo refference
-    const cb = await Config.ConfigBundle.get(opts.config);
+    const cb = await getDefaultConfig().ConfigBundle.get(opts.config);
     if (cb == null) throw new Error(`Config bunble not exists for ${opts.config}`);
     const configJson = await fsa.readJson<ConfigBundled>(cb.path);
     const mem = ConfigProviderMemory.fromJson(configJson);
     mem.createVirtualTileSets();
-    Config.setConfigProvider(mem);
+    setDefaultConfig(mem);
   } else if (opts.config.endsWith('.json') || opts.config.endsWith('.json.gz')) {
     // Bundled config
     logger.info({ path: opts.config, mode: 'config:bundle' }, 'Starting Server');
     const configJson = await fsa.readJson<ConfigBundled>(opts.config);
     const mem = ConfigProviderMemory.fromJson(configJson);
     mem.createVirtualTileSets();
-    Config.setConfigProvider(mem);
+    setDefaultConfig(mem);
   } else {
     const mem = await ConfigJson.fromPath(opts.config, logger);
     logger.info({ path: opts.config, mode: 'config' }, 'Starting Server');
     mem.createVirtualTileSets();
-    Config.setConfigProvider(mem);
+    setDefaultConfig(mem);
   }
 
   if (opts.assets) {

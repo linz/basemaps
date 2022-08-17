@@ -1,4 +1,4 @@
-import { Config, ConfigTileSetRaster } from '@basemaps/config';
+import { ConfigHelper, ConfigTileSetRaster } from '@basemaps/config';
 import { Bounds, Epsg, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
 import { Env, fsa } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
@@ -6,6 +6,7 @@ import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import pLimit from 'p-limit';
+import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
@@ -26,7 +27,8 @@ const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
 export const TileXyzRaster = {
   async getTiffsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<string[]> {
-    const imagery = await Config.getAllImagery(tileSet.layers, [xyz.tileMatrix.projection]);
+    const config = await ConfigLoader.load(req);
+    const imagery = await ConfigHelper.getAllImagery(config, tileSet.layers, [xyz.tileMatrix.projection]);
 
     const output: string[] = [];
     const tileBounds = xyz.tileMatrix.tileToSourceBounds(xyz.tile);

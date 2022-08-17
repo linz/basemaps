@@ -1,24 +1,28 @@
-import { Config, StyleJson } from '@basemaps/config';
+import { ConfigProviderMemory, StyleJson } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { Api, mockRequest } from '../../__tests__/xyz.util.js';
 
 o.spec('/v1/styles', () => {
   const host = 'https://tiles.test';
+  const config = new ConfigProviderMemory();
   const sandbox = createSandbox();
 
   o.before(() => {
     process.env[Env.PublicUrlBase] = host;
   });
-  //   o.beforeEach(() => {});
-  o.afterEach(() => sandbox.restore());
+  o.beforeEach(() => {
+    sandbox.stub(ConfigLoader, 'load').resolves(config);
+  });
+  o.afterEach(() => {
+    sandbox.restore();
+    config.objects.clear();
+  });
   o('should not found style json', async () => {
     const request = mockRequest('/v1/tiles/topographic/Google/style/topographic.json', 'get', Api.header);
-
-    sandbox.stub(Config.Style, 'get').resolves(null);
-
     const res = await handler.router.handle(request);
     o(res.status).equals(404);
   });
@@ -71,12 +75,12 @@ o.spec('/v1/styles', () => {
     };
 
     const fakeRecord = {
-      id: 'st_topographic_production',
+      id: 'st_topographic',
       name: 'topographic',
       style: fakeStyle,
     };
 
-    sandbox.stub(Config.Style, 'get').resolves(fakeRecord as any);
+    config.put(fakeRecord);
 
     const res = await handler.router.handle(request);
     o(res.status).equals(200);

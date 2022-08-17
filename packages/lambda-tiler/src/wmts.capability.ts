@@ -1,4 +1,4 @@
-import { Config, ConfigImagery, ConfigLayer, ConfigTileSet, standardizeLayerName } from '@basemaps/config';
+import { ConfigImagery, ConfigLayer, ConfigTileSet, standardizeLayerName } from '@basemaps/config';
 import { Bounds, GoogleTms, ImageFormat, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
 import { Projection, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
@@ -70,17 +70,6 @@ export class WmtsCapabilities {
     this.apiKey = params.apiKey;
     this.formats = params.formats ?? ImageFormatOrder;
     this.imagery = params.imagery;
-  }
-
-  async loadImagery(): Promise<void> {
-    const ids = new Set<string>();
-    for (const tms of this.tileMatrixSets.values()) {
-      for (const layer of this.tileSet.layers) {
-        const layerId = layer[tms.projection.code];
-        if (layerId != null) ids.add(layerId);
-      }
-    }
-    this.imagery = await Config.Imagery.getAll(ids);
   }
 
   buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {

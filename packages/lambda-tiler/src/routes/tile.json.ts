@@ -1,6 +1,7 @@
 import { GoogleTms, TileJson, TileMatrixSet } from '@basemaps/geo';
-import { Config, Env } from '@basemaps/shared';
+import { Env } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { ConfigLoader } from '../util/config.loader.js';
 import { NotFound } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 
@@ -18,7 +19,8 @@ export async function tileJsonGet(req: LambdaHttpRequest<TileJsonGet>): Promise<
   const apiKey = Validate.apiKey(req);
 
   req.timer.start('tileset:load');
-  const tileSet = await Config.TileSet.get(Config.TileSet.id(req.params.tileSet));
+  const config = await ConfigLoader.load(req);
+  const tileSet = await config.TileSet.get(config.TileSet.id(req.params.tileSet));
   req.timer.end('tileset:load');
   if (tileSet == null) return NotFound();
 

@@ -1,23 +1,32 @@
-import { Config, StyleJson } from '@basemaps/config';
+import { BaseConfig, ConfigProviderMemory, StyleJson } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { FakeData } from '../../__tests__/config.data.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 
-o.spec('v1/arcgis/rest/services/', () => {
+o.spec('arcgis/stylejson', () => {
   const host = 'https://tiles.test';
   const sandbox = createSandbox();
+  const config = new ConfigProviderMemory();
 
   o.before(() => {
     process.env[Env.PublicUrlBase] = host;
   });
-  o.afterEach(() => sandbox.restore());
+
+  o.beforeEach(() => {
+    sandbox.stub(ConfigLoader, 'load').resolves(config);
+    config.objects.clear();
+  });
+
+  o.afterEach(() => {
+    sandbox.restore();
+  });
+
   o('should not found tile set', async () => {
     const request = mockRequest('/v1/arcgis/rest/services/topographic/VectorTileServer/root.json', 'get', Api.header);
-
-    sandbox.stub(Config.TileSet, 'get').resolves(null);
 
     const res = await handler.router.handle(request);
     o(res.status).equals(404);
@@ -25,9 +34,7 @@ o.spec('v1/arcgis/rest/services/', () => {
 
   o('should not found style', async () => {
     const request = mockRequest('/v1/arcgis/rest/services/topographic/VectorTileServer/root.json', 'get', Api.header);
-
-    sandbox.stub(Config.TileSet, 'get').resolves(FakeData.tileSetVector('topographic'));
-    sandbox.stub(Config.Style, 'get').resolves(null);
+    config.put(FakeData.tileSetVector('topographic'));
 
     const res = await handler.router.handle(request);
     o(res.status).equals(404);
@@ -87,8 +94,8 @@ o.spec('v1/arcgis/rest/services/', () => {
   o('should serve style json and remove the raster source and layers, then replace the vector url', async () => {
     const request = mockRequest('/v1/arcgis/rest/services/topographic/VectorTileServer/root.json', 'get', Api.header);
 
-    sandbox.stub(Config.TileSet, 'get').resolves(FakeData.tileSetVector('topographic'));
-    sandbox.stub(Config.Style, 'get').resolves(fakeRecord as any);
+    config.put(FakeData.tileSetVector('topographic'));
+    config.put(fakeRecord);
 
     const res = await handler.router.handle(request);
     o(res.status).equals(200);
@@ -112,8 +119,8 @@ o.spec('v1/arcgis/rest/services/', () => {
   o('should not found for raster tileset', async () => {
     const request = mockRequest('/v1/arcgis/rest/services/raster/VectorTileServer/root.json', 'get', Api.header);
 
-    sandbox.stub(Config.TileSet, 'get').resolves(FakeData.tileSetRaster('raster'));
-    sandbox.stub(Config.Style, 'get').resolves(fakeRecord as any);
+    config.put(FakeData.tileSetRaster('raster'));
+    config.put(fakeRecord);
 
     const res = await handler.router.handle(request);
     o(res.status).equals(404);
@@ -126,11 +133,8 @@ o.spec('v1/arcgis/rest/services/', () => {
       Api.header,
     );
 
-    sandbox.stub(Config.TileSet, 'get').resolves(FakeData.tileSetVector('topographic'));
-    sandbox
-      .stub(Config.Style, 'get')
-      .withArgs('st_topolite')
-      .resolves(fakeRecord as any);
+    config.put({ id: 'st_topolite', name: 'topographic', style: fakeStyle } as BaseConfig);
+    config.put(FakeData.tileSetVector('topographic'));
 
     const res = await handler.router.handle(request);
     o(res.status).equals(200);

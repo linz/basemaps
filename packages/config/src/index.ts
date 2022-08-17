@@ -1,4 +1,4 @@
-export { BasemapsConfigProvider, Config, ConfigInstance } from './base.config.js';
+export { BasemapsConfigProvider, BasemapsConfigObject, ConfigHelper, ConfigId, ConfigInstance } from './base.config.js';
 export { BaseConfig } from './config/base.js';
 export { ConfigImagery } from './config/imagery.js';
 export { ConfigPrefix } from './config/prefix.js';

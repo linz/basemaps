@@ -24,7 +24,6 @@
   "dependencies": {
     "@basemaps/config": "^6.34.0",
     "@basemaps/geo": "^6.32.1",
-    "@basemaps/lambda": "^6.7.0",
     "@basemaps/shared": "^6.34.0",
     "@basemaps/tiler": "^6.32.1",
     "@basemaps/tiler-sharp": "^6.32.1",

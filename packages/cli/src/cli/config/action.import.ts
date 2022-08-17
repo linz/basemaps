@@ -1,5 +1,12 @@
-import { Env, fsa, LogConfig } from '@basemaps/shared';
-import { BaseConfig, Config, ConfigBundle, ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
+import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
+import {
+  BaseConfig,
+  ConfigBundle,
+  ConfigBundled,
+  ConfigId,
+  ConfigPrefix,
+  ConfigProviderMemory,
+} from '@basemaps/config';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { Q, Updater } from './config.update.js';
 import { invalidateCache } from '../util.js';
@@ -48,6 +55,7 @@ export class CommandImport extends CommandLineAction {
     const commit = this.commit.value ?? false;
     const config = this.config.value;
     const backup = this.backup.value;
+    const cfg = getDefaultConfig();
     if (config == null) throw new Error('Please provide a config json');
     if (commit && !config.startsWith('s3://')) {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
@@ -73,19 +81,19 @@ export class CommandImport extends CommandLineAction {
 
     if (commit) {
       const configBundle: ConfigBundle = {
-        id: Config.ConfigBundle.id(configJson.hash),
-        name: Config.ConfigBundle.id(`config-${configJson.hash}.json`),
+        id: ConfigId.prefix(ConfigPrefix.ConfigBundle, configJson.hash),
+        name: ConfigId.prefix(ConfigPrefix.ConfigBundle, `config-${configJson.hash}.json`),
         path: config,
         hash: configJson.hash,
       };
       logger.info({ config }, 'Import:ConfigBundle');
 
-      if (Config.ConfigBundle.isWriteable()) {
+      if (cfg.ConfigBundle.isWriteable()) {
         // Insert a cb_hash record for reference
-        await Config.ConfigBundle.put(configBundle);
+        await cfg.ConfigBundle.put(configBundle);
         // Update the cb_latest record
-        configBundle.id = Config.ConfigBundle.id('latest');
-        await Config.ConfigBundle.put(configBundle);
+        configBundle.id = cfg.ConfigBundle.id('latest');
+        await cfg.ConfigBundle.put(configBundle);
       }
     }
 

@@ -1,7 +1,8 @@
-import { Config, Sources, StyleJson, TileSetType } from '@basemaps/config';
+import { ConfigId, ConfigPrefix, Sources, StyleJson, TileSetType } from '@basemaps/config';
 import { Env, fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { convertRelativeUrl } from '../routes/tile.style.json.js';
+import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
@@ -54,15 +55,16 @@ function convertStyleJson(tileSet: string, style: StyleJson, apiKey: string): St
 
 export async function arcgisStyleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<LambdaHttpResponse> {
   const apiKey = Validate.apiKey(req);
-  const tileSet = await Config.TileSet.get(Config.TileSet.id(req.params.tileSet));
+  const config = await ConfigLoader.load(req);
+  const tileSet = await config.TileSet.get(config.TileSet.id(req.params.tileSet));
   if (tileSet?.type !== TileSetType.Vector) return NotFound();
 
   const style = req.query.get('style');
   const styleName = style ? style : 'topographic'; // Defalut to topographic style
 
   // Get style Config from db
-  const dbId = Config.Style.id(styleName);
-  const styleConfig = await Config.Style.get(dbId);
+  const dbId = ConfigId.prefix(ConfigPrefix.Style, styleName);
+  const styleConfig = await config.Style.get(dbId);
   if (styleConfig == null) return NotFound();
 
   // Prepare sources and add linz source
