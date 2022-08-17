@@ -1,4 +1,4 @@
-import { ConfigHelper, ConfigTileSetRaster } from '@basemaps/config';
+import { getAllImagery, ConfigTileSetRaster } from '@basemaps/config';
 import { Bounds, Epsg, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
 import { Env, fsa } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
@@ -28,7 +28,7 @@ const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 export const TileXyzRaster = {
   async getTiffsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<string[]> {
     const config = await ConfigLoader.load(req);
-    const imagery = await ConfigHelper.getAllImagery(config, tileSet.layers, [xyz.tileMatrix.projection]);
+    const imagery = await getAllImagery(config, tileSet.layers, [xyz.tileMatrix.projection]);
 
     const output: string[] = [];
     const tileBounds = xyz.tileMatrix.tileToSourceBounds(xyz.tile);

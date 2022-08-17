@@ -81,7 +81,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   };
 
   const hash = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
-  const jobId = ConfigId.prefix(ConfigPrefix.ProcessingJob, hash);
+  const jobId = cfg.ProcessingJob.id(hash);
   let jobConfig = await cfg.ProcessingJob.get(jobId);
   if (jobConfig == null) {
     // Add ids into JobCreationContext
@@ -97,7 +97,7 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
       name: path,
       status: JobStatus.Processing,
       tileMatrix: targetTms.identifier,
-      tileSet: ConfigId.prefix(ConfigPrefix.TileSet, id),
+      tileSet: cfg.TileSet.id(id),
     } as ConfigProcessingJob;
 
     // Start processing job

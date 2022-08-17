@@ -126,29 +126,17 @@ export const ConfigId = {
   },
 };
 
-export const ConfigHelper = {
-  isTileSetRaster(s: ConfigTileSet | null): s is ConfigTileSetRaster {
-    if (s == null) return false;
-    return s.type == null || s.type === TileSetType.Raster;
-  },
-
-  isTileSetVector(s: ConfigTileSet | null): s is ConfigTileSetVector {
-    if (s == null) return false;
-    return s.type === TileSetType.Vector;
-  },
-
-  async getAllImagery(
-    provider: BasemapsConfigProvider,
-    layers: ConfigLayer[],
-    projections: Epsg[],
-  ): Promise<Map<string, ConfigImagery>> {
-    const imgIds = new Set<string>();
-    for (const projection of projections) {
-      for (const layer of layers) {
-        const imgId = layer[projection.code];
-        if (imgId) imgIds.add(provider.Imagery.id(imgId));
-      }
+export async function getAllImagery(
+  provider: BasemapsConfigProvider,
+  layers: ConfigLayer[],
+  projections: Epsg[],
+): Promise<Map<string, ConfigImagery>> {
+  const imgIds = new Set<string>();
+  for (const projection of projections) {
+    for (const layer of layers) {
+      const imgId = layer[projection.code];
+      if (imgId) imgIds.add(provider.Imagery.id(imgId));
     }
-    return provider.Imagery.getAll(imgIds);
-  },
-};
+  }
+  return provider.Imagery.getAll(imgIds);
+}

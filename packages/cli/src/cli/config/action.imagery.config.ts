@@ -1,9 +1,9 @@
-import { CogTiff } from '@cogeotiff/core';
-import { ConfigId, ConfigPrefix, ConfigProviderMemory } from '@basemaps/config';
-import { Nztm2000QuadTms, Bounds } from '@basemaps/geo';
-import { ulid } from 'ulid';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { ConfigProviderMemory } from '@basemaps/config';
+import { Bounds, Nztm2000QuadTms } from '@basemaps/geo';
 import { Env, fsa, LogConfig, RoleRegister } from '@basemaps/shared';
+import { CogTiff } from '@cogeotiff/core';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { ulid } from 'ulid';
 
 export class CommandImageryConfig extends CommandLineAction {
   private path: CommandLineStringParameter;
@@ -85,7 +85,7 @@ export class CommandImageryConfig extends CommandLineAction {
       name = id;
     }
     const imagery = {
-      id: ConfigId.prefix(ConfigPrefix.Imagery, id),
+      id: provider.Imagery.id(id),
       name,
       updatedAt: Date.now(),
       projection: Nztm2000QuadTms.projection.code,

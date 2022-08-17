@@ -1,4 +1,4 @@
-import { ConfigHelper, TileSetType } from '@basemaps/config';
+import { getAllImagery, TileSetType } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -47,7 +47,7 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
   const provider = await config.Provider.get(config.Provider.id('linz'));
 
   req.timer.start('imagery:load');
-  const imagery = await ConfigHelper.getAllImagery(
+  const imagery = await getAllImagery(
     config,
     tileSet.layers,
     tileMatrix.map((tms) => tms.projection),

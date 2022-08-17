@@ -1,4 +1,4 @@
-import { ConfigHelper, ConfigTileSet, TileSetType } from '@basemaps/config';
+import { ConfigTileSet, getAllImagery, TileSetType } from '@basemaps/config';
 import {
   AttributionCollection,
   AttributionItem,
@@ -79,7 +79,7 @@ async function tileSetAttribution(
   const items: AttributionItem[] = [];
 
   const config = await ConfigLoader.load(req);
-  const imagery = await ConfigHelper.getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
+  const imagery = await getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
 
   const host = await config.Provider.get(config.Provider.id('linz'));
   if (host == null) return null;

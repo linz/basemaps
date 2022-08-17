@@ -81,8 +81,8 @@ export class CommandImport extends CommandLineAction {
 
     if (commit) {
       const configBundle: ConfigBundle = {
-        id: ConfigId.prefix(ConfigPrefix.ConfigBundle, configJson.hash),
-        name: ConfigId.prefix(ConfigPrefix.ConfigBundle, `config-${configJson.hash}.json`),
+        id: cfg.ConfigBundle.id(configJson.hash),
+        name: cfg.ConfigBundle.id(`config-${configJson.hash}.json`),
         path: config,
         hash: configJson.hash,
       };

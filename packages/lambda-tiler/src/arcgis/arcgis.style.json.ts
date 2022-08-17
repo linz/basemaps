@@ -63,7 +63,7 @@ export async function arcgisStyleJsonGet(req: LambdaHttpRequest<StyleGet>): Prom
   const styleName = style ? style : 'topographic'; // Defalut to topographic style
 
   // Get style Config from db
-  const dbId = ConfigId.prefix(ConfigPrefix.Style, styleName);
+  const dbId = config.Style.id(styleName);
   const styleConfig = await config.Style.get(dbId);
   if (styleConfig == null) return NotFound();
 

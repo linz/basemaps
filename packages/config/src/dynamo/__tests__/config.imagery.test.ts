@@ -4,7 +4,7 @@ import o from 'ospec';
 import sinon from 'sinon';
 import { ConfigId } from '../../base.config.js';
 import { ConfigImagery } from '../../config/imagery.js';
-import { ConfigHelper, ConfigPrefix } from '../../index.js';
+import { getAllImagery, ConfigPrefix } from '../../index.js';
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
 const sandbox = sinon.createSandbox();
@@ -52,7 +52,7 @@ o.spec('ConfigProvider.Imagery', () => {
 
     const layers = [{ [3857]: 'foo1' }, { [3857]: 'im_foo2' }, { [2193]: 'foo3', [3857]: 'im_foo4' }] as any;
 
-    const result = await ConfigHelper.getAllImagery(provider, layers, [Epsg.Google]);
+    const result = await getAllImagery(provider, layers, [Epsg.Google]);
     o(get.callCount).equals(1);
     o([...get.firstCall.firstArg.keys()]).deepEquals(['im_foo1', 'im_foo2', 'im_foo4']);
     o(result.get('im_foo1')).deepEquals(item);

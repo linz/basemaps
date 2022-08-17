@@ -1,11 +1,4 @@
-import {
-  BasemapsConfigProvider,
-  ConfigId,
-  ConfigImagery,
-  ConfigPrefix,
-  ConfigTileSet,
-  TileSetType,
-} from '@basemaps/config';
+import { BasemapsConfigProvider, ConfigImagery, ConfigTileSet, TileSetType } from '@basemaps/config';
 import { ImageFormat } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { CogStacJob } from '../../cog/cog.stac.job';
@@ -20,7 +13,7 @@ export async function insertConfigImagery(
   logger: LogType,
 ): Promise<void> {
   const now = Date.now();
-  const imgId = ConfigId.prefix(ConfigPrefix.Imagery, job.id);
+  const imgId = cfg.Imagery.id(job.id);
   const configImagery: ConfigImagery = {
     id: imgId,
     name: job.name,
@@ -45,8 +38,8 @@ export async function insertConfigTileSet(
   logger: LogType,
 ): Promise<void> {
   const now = Date.now();
-  const tsId = ConfigId.prefix(ConfigPrefix.TileSet, job.id);
-  const imId = ConfigId.prefix(ConfigPrefix.Imagery, job.id);
+  const tsId = cfg.TileSet.id(job.id);
+  const imId = cfg.Imagery.id(job.id);
   const tileSet: ConfigTileSet = {
     type: TileSetType.Raster,
     format: ImageFormat.Webp,
