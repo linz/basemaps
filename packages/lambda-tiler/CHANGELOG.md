@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** the min tile matrix zoom number ([#2404](https://github.com/linz/basemaps/issues/2404)) ([58b7d08](https://github.com/linz/basemaps/commit/58b7d087b38b86d126b3bea8c55187415cc7501a))
+
+
+### Features
+
+* **lambda-tiler:** Assets provider to get assets from any location. ([#2374](https://github.com/linz/basemaps/issues/2374)) ([c145f28](https://github.com/linz/basemaps/commit/c145f283bf5875d5e7b15909cc37811b029303f4))
+* **lambda-tiler:** Provide get info api and post tileserver api for arcgis BM-78 ([#2407](https://github.com/linz/basemaps/issues/2407)) ([d9b091b](https://github.com/linz/basemaps/commit/d9b091bf4e6fd2b91804a7b9bbcd388dd8b75ee8))
+* **lambda-tiler:** Provide support for Arcgis online vector map. BM-78 ([#2403](https://github.com/linz/basemaps/issues/2403)) ([900a84e](https://github.com/linz/basemaps/commit/900a84e2b0275ae84fe327e9a91493f0aaa5c2e7))
+* **lambda-tiler:** Some unit test for the arcgis api. BM-78 ([#2412](https://github.com/linz/basemaps/issues/2412)) ([67aff51](https://github.com/linz/basemaps/commit/67aff5179f8a64d7ca3fb52fed1e5cac93ba3736))
+
+
+
+
+
 # [6.33.0](https://github.com/linz/basemaps/compare/v6.32.2...v6.33.0) (2022-08-01)
 
 
