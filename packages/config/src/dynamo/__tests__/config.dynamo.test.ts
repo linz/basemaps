@@ -1,7 +1,6 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import o from 'ospec';
 import sinon from 'sinon';
-import { ConfigId } from '../../base.config.js';
 import { ConfigImagery } from '../../config/imagery.js';
 import { ConfigTileSet } from '../../config/tile.set.js';
 import { ConfigDynamoCached } from '../dynamo.config.cached.js';

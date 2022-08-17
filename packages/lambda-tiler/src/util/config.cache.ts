@@ -1,5 +1,5 @@
 import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
-import { fsa } from '@chunkd/fs';
+import { fsa } from '@basemaps/shared';
 import { SwappingLru } from './swapping.lru.js';
 
 class LruConfig {

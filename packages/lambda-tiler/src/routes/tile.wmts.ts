@@ -37,8 +37,9 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
 
   const host = Env.get(Env.PublicUrlBase) ?? '';
 
-  req.timer.start('tileset:load');
   const config = await ConfigLoader.load(req);
+
+  req.timer.start('tileset:load');
   const tileSet = await config.TileSet.get(config.TileSet.id(tileSetName ?? 'aerial'));
   req.timer.end('tileset:load');
   if (tileSet == null || tileSet.type !== TileSetType.Raster) return NotFound();
