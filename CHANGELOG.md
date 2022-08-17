@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
+
+
+### Bug Fixes
+
+* **cli:** include sharp in batch container ([#2420](https://github.com/linz/basemaps/issues/2420)) ([da8a216](https://github.com/linz/basemaps/commit/da8a216b4a1a0c898b9d4eef07f508bff3ba8ce5))
+* **cli:** Need to set AwsRoleConfigPath for RoleRegister ([#2427](https://github.com/linz/basemaps/issues/2427)) ([cd564b1](https://github.com/linz/basemaps/commit/cd564b11bbe8c9277030b43c0ad52ae5ef4829da))
+* **cli:** path always ending with /, we need get the name by at(-2). ([#2432](https://github.com/linz/basemaps/issues/2432)) ([759163f](https://github.com/linz/basemaps/commit/759163f2756613ecbc8e57feb93733624e546923))
+* **infra:** fail deployments if something goes wrong ([#2410](https://github.com/linz/basemaps/issues/2410)) ([faaee5c](https://github.com/linz/basemaps/commit/faaee5c7b826a99e0c8d3cc4c282facf8430b4f8))
+* **lambda-tiler:** the min tile matrix zoom number ([#2404](https://github.com/linz/basemaps/issues/2404)) ([58b7d08](https://github.com/linz/basemaps/commit/58b7d087b38b86d126b3bea8c55187415cc7501a))
+* **server:** error if port is in use ([#2418](https://github.com/linz/basemaps/issues/2418)) ([a469af3](https://github.com/linz/basemaps/commit/a469af3685899c9ece6f6a4394089a341c0672b5))
+
+
+### Features
+
+* **cli:** add --group-size to group by a size limit ([#2438](https://github.com/linz/basemaps/issues/2438)) ([b22a03a](https://github.com/linz/basemaps/commit/b22a03a61c78d1d19dc60787812c26b69f2877cb))
+* **cli:** Add some new screenshot default tests. BM-640 ([#2402](https://github.com/linz/basemaps/issues/2402)) ([f0caee1](https://github.com/linz/basemaps/commit/f0caee104b2ab0286bbfcf95b240bf1b2ee3479c))
+* **cli:** New cli tool to create config.json for raw imagery. ([#2423](https://github.com/linz/basemaps/issues/2423)) ([2cbfb40](https://github.com/linz/basemaps/commit/2cbfb4094b1c1ae7eba31e6cfc8acb837d0efbe1))
+* **infra:** Grant read access to workflow artifact buckets. ([#2428](https://github.com/linz/basemaps/issues/2428)) ([14deef8](https://github.com/linz/basemaps/commit/14deef8298df4383f78dc041e43a0e6d2dfb0497))
+* **lambda-tiler:** Assets provider to get assets from any location. ([#2374](https://github.com/linz/basemaps/issues/2374)) ([c145f28](https://github.com/linz/basemaps/commit/c145f283bf5875d5e7b15909cc37811b029303f4))
+* **lambda-tiler:** Provide get info api and post tileserver api for arcgis BM-78 ([#2407](https://github.com/linz/basemaps/issues/2407)) ([d9b091b](https://github.com/linz/basemaps/commit/d9b091bf4e6fd2b91804a7b9bbcd388dd8b75ee8))
+* **lambda-tiler:** Provide support for Arcgis online vector map. BM-78 ([#2403](https://github.com/linz/basemaps/issues/2403)) ([900a84e](https://github.com/linz/basemaps/commit/900a84e2b0275ae84fe327e9a91493f0aaa5c2e7))
+* **lambda-tiler:** Some unit test for the arcgis api. BM-78 ([#2412](https://github.com/linz/basemaps/issues/2412)) ([67aff51](https://github.com/linz/basemaps/commit/67aff5179f8a64d7ca3fb52fed1e5cac93ba3736))
+
+
+
+
+
 # [6.33.0](https://github.com/linz/basemaps/compare/v6.32.2...v6.33.0) (2022-08-01)
 
 
