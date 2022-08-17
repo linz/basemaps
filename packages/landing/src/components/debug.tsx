@@ -2,6 +2,7 @@ import { GoogleTms } from '@basemaps/geo';
 import { BBoxFeatureCollection } from '@linzjs/geojson';
 import { StyleSpecification } from 'maplibre-gl';
 import { Component, ComponentChild, Fragment } from 'preact';
+import { Attributions, MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { projectGeoJson } from '../tile.matrix.js';
@@ -58,7 +59,9 @@ export class Debug extends Component<
       });
       this.updateFromConfig();
       if (Config.map.debug['debug.screenshot']) {
-        map.once('idle', () => {
+        map.once('idle', async () => {
+          // Ensure all the attribution data has loaded
+          await Promise.all([...Attributions.values()]);
           // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
           const loadedDiv = document.createElement('div');
           loadedDiv.id = 'map-loaded';
