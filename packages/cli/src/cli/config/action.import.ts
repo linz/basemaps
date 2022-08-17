@@ -1,16 +1,9 @@
+import { BaseConfig, ConfigBundle, ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
-import {
-  BaseConfig,
-  ConfigBundle,
-  ConfigBundled,
-  ConfigId,
-  ConfigPrefix,
-  ConfigProviderMemory,
-} from '@basemaps/config';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { Q, Updater } from './config.update.js';
-import { invalidateCache } from '../util.js';
 import fetch from 'node-fetch';
+import { invalidateCache } from '../util.js';
+import { Q, Updater } from './config.update.js';
 
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;

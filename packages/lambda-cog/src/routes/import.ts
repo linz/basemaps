@@ -1,6 +1,6 @@
 import { CogJobFactory } from '@basemaps/cli';
 import { JobCreationContext } from '@basemaps/cli/build/cog/cog.stac.job';
-import { ConfigId, ConfigPrefix, ConfigProcessingJob, JobStatus } from '@basemaps/config';
+import { ConfigProcessingJob, JobStatus } from '@basemaps/config';
 import { Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, extractYearRangeFromName, fsa, getDefaultConfig, RoleRegister } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';

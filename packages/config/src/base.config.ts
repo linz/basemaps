@@ -2,15 +2,8 @@ import { Epsg } from '@basemaps/geo';
 import { BaseConfig } from './config/base.js';
 import { ConfigBundle } from './config/config.bundle.js';
 import { ConfigPrefix, ConfigPrefixes } from './config/prefix.js';
-import { ConfigLayer, ConfigTileSet, TileSetType } from './config/tile.set.js';
-import {
-  ConfigImagery,
-  ConfigProvider,
-  ConfigTileSetRaster,
-  ConfigTileSetVector,
-  ConfigVectorStyle,
-  ConfigProcessingJob,
-} from './index.js';
+import { ConfigLayer, ConfigTileSet } from './config/tile.set.js';
+import { ConfigImagery, ConfigProcessingJob, ConfigProvider, ConfigVectorStyle } from './index.js';
 
 export class ConfigInstance {
   cfg: BasemapsConfigProvider;

@@ -1,4 +1,4 @@
-import { ConfigId, ConfigPrefix, Sources, StyleJson, TileSetType } from '@basemaps/config';
+import { Sources, StyleJson, TileSetType } from '@basemaps/config';
 import { Env, fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { convertRelativeUrl } from '../routes/tile.style.json.js';
