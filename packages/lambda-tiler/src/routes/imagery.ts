@@ -1,8 +1,8 @@
-import { Config } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
+import { ConfigLoader } from '../util/config.loader.js';
 import { isGzip } from '../util/cotar.serve.js';
 import { Etag } from '../util/etag.js';
 import { NotFound, NotModified } from '../util/response.js';
@@ -34,7 +34,8 @@ export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<La
   const requestedFile = req.params.fileName;
   if (!isAllowedFile(requestedFile)) return NotFound();
 
-  const imagery = await Config.Imagery.get(Config.Imagery.id(req.params.imageryId));
+  const config = await ConfigLoader.load(req);
+  const imagery = await config.Imagery.get(config.Imagery.id(req.params.imageryId));
   if (imagery == null) return NotFound();
 
   const targetPath = fsa.join(imagery.uri, requestedFile);

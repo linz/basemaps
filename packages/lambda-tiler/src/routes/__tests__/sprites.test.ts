@@ -1,10 +1,9 @@
-import { Env } from '@basemaps/shared';
+import { Env, getDefaultConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { gunzipSync, gzipSync } from 'zlib';
 import { handler } from '../../index.js';
-import { assetProvider } from '../../util/assets.provider.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
 import { FsMemory } from './memory.fs.js';
 
@@ -18,11 +17,11 @@ o.spec('/v1/sprites', () => {
 
   o.beforeEach(() => {
     process.env[Env.AssetLocation] = 'memory://';
-    assetProvider.set('memory://');
+    getDefaultConfig().assets = 'memory://';
   });
 
   o.afterEach(() => {
-    assetProvider.set(assetLocation);
+    getDefaultConfig().assets = assetLocation;
     memory.files.clear();
     sandbox.restore();
   });

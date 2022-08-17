@@ -3,7 +3,7 @@ import { fsa } from '@chunkd/fs';
 import { createHash } from 'crypto';
 import { basename } from 'path';
 import ulid from 'ulid';
-import { Config } from '../base.config.js';
+import { ConfigId } from '../base.config.js';
 import { parseRgba } from '../color.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
@@ -52,7 +52,7 @@ export class ConfigJson {
       if (!filePath.endsWith('.json')) continue;
 
       const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
-      const prefix = Config.getPrefix(bc.id);
+      const prefix = ConfigId.getPrefix(bc.id);
       if (prefix == null) {
         log.warn({ path: filePath }, 'Invalid JSON file found');
         continue;
@@ -81,7 +81,7 @@ export class ConfigJson {
 
     return {
       id: pv.id,
-      name: Config.unprefix(ConfigPrefix.Provider, pv.id),
+      name: ConfigId.unprefix(ConfigPrefix.Provider, pv.id),
       serviceIdentification: pv.serviceIdentification,
       serviceProvider: pv.serviceProvider,
       updatedAt: Date.now(),
@@ -124,7 +124,7 @@ export class ConfigJson {
     const tileSet: Partial<ConfigTileSet> = {
       type: ts.type,
       id: ts.id,
-      name: Config.unprefix(Config.TileSet.prefix, ts.id),
+      name: ConfigId.unprefix(ConfigPrefix.TileSet, ts.id),
       layers,
     };
     function updateLayerUri(
@@ -199,7 +199,7 @@ export class ConfigJson {
   async _loadImagery(uri: string, tileMatrix: TileMatrixSet, name: string): Promise<ConfigImagery> {
     // TODO is there a better way of guessing the imagery id & tile matrix?
     const imageId = guessIdFromUri(uri) ?? createHash('sha256').update(uri).digest('base64url');
-    const id = Config.prefix(ConfigPrefix.Imagery, imageId);
+    const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ uri, imageId: id }, 'FetchImagery');
 
     const fileList = await fsa.toArray(fsa.list(uri));

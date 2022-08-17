@@ -2,7 +2,7 @@ import { CogJobFactory } from '@basemaps/cli';
 import { JobCreationContext } from '@basemaps/cli/build/cog/cog.stac.job';
 import { ConfigProcessingJob, JobStatus } from '@basemaps/config';
 import { Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
-import { Config, Env, extractYearRangeFromName, fsa, RoleRegister } from '@basemaps/shared';
+import { Env, extractYearRangeFromName, fsa, getDefaultConfig, RoleRegister } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
 import { basename } from 'path';
@@ -21,6 +21,8 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   const path = req.query.get('path');
   const projection = req.query.get('p');
   const id = ulid.ulid();
+
+  const cfg = getDefaultConfig();
 
   // Parse projection as target, default to process both NZTM2000Quad
   let targetTms = Nztm2000QuadTms;
@@ -79,8 +81,8 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
   };
 
   const hash = createHash('sha256').update(JSON.stringify(ctx)).digest('base64');
-  const jobId = Config.ProcessingJob.id(hash);
-  let jobConfig = await Config.ProcessingJob.get(jobId);
+  const jobId = cfg.ProcessingJob.id(hash);
+  let jobConfig = await cfg.ProcessingJob.get(jobId);
   if (jobConfig == null) {
     // Add ids into JobCreationContext
     ctx.imageryName = imageryName;
@@ -95,14 +97,14 @@ export async function Import(req: LambdaHttpRequest): Promise<LambdaHttpResponse
       name: path,
       status: JobStatus.Processing,
       tileMatrix: targetTms.identifier,
-      tileSet: Config.TileSet.id(id),
+      tileSet: cfg.TileSet.id(id),
     } as ConfigProcessingJob;
 
     // Start processing job
     await CogJobFactory.create(ctx);
 
     // Insert the configs after submit the jobs
-    if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
+    if (cfg.ProcessingJob.isWriteable()) await cfg.ProcessingJob.put(jobConfig);
     else return new LambdaHttpResponse(403, 'Unable to insert the Processing Job config');
   }
 

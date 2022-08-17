@@ -1,11 +1,12 @@
 import { Attribution } from '@basemaps/attribution';
-import { Config, ConfigProviderMemory } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
 import { Nztm2000QuadTms } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { HttpHeader } from '@linzjs/lambda';
 import o from 'ospec';
 import sinon from 'sinon';
 import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { FakeData, Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
 
@@ -283,7 +284,7 @@ o.spec('/v1/attribution', () => {
 
   o.beforeEach(() => {
     LogConfig.get().level = 'silent';
-    Config.setConfigProvider(config);
+    sandbox.stub(ConfigLoader, 'load').resolves(config);
     config.objects.clear();
 
     config.put(TileSetAerial);

@@ -1,11 +1,12 @@
 import { Sources, StyleJson } from '@basemaps/config';
-import { Config, Env } from '@basemaps/shared';
+import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { URL } from 'url';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 import { Etag } from '../util/etag.js';
+import { ConfigLoader } from '../util/config.loader.js';
 
 /**
  * Convert relative URLS into a full hostname url
@@ -64,8 +65,9 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const styleName = req.params.styleName;
 
   // Get style Config from db
-  const dbId = Config.Style.id(styleName);
-  const styleConfig = await Config.Style.get(dbId);
+  const config = await ConfigLoader.load(req);
+  const dbId = config.Style.id(styleName);
+  const styleConfig = await config.Style.get(dbId);
   if (styleConfig == null) return NotFound();
 
   // Prepare sources and add linz source

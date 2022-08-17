@@ -1,8 +1,7 @@
-import { Env } from '@basemaps/shared';
+import { Env, getDefaultConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
 import { handler } from '../../index.js';
-import { assetProvider } from '../../util/assets.provider.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
 import { fontList } from '../fonts.js';
 import { FsMemory } from './memory.fs.js';
@@ -16,11 +15,11 @@ o.spec('/v1/fonts', () => {
 
   o.beforeEach(() => {
     process.env[Env.AssetLocation] = 'memory://';
-    assetProvider.set('memory://');
+    getDefaultConfig().assets = 'memory://';
   });
 
   o.afterEach(() => {
-    assetProvider.set(assetLocation);
+    getDefaultConfig().assets = assetLocation;
     memory.files.clear();
   });
 
@@ -64,7 +63,7 @@ o.spec('/v1/fonts', () => {
   });
 
   o('should return 404 if no asset location set', async () => {
-    assetProvider.set(undefined);
+    getDefaultConfig().assets = undefined;
     const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(404);
   });

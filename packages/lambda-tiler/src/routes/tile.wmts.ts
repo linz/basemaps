@@ -1,4 +1,4 @@
-import { Config, TileSetType } from '@basemaps/config';
+import { getAllImagery, TileSetType } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -7,6 +7,7 @@ import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { Etag } from '../util/etag.js';
+import { ConfigLoader } from '../util/config.loader.js';
 
 export interface WmtsCapabilitiesGet {
   Params: {
@@ -36,15 +37,18 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
 
   const host = Env.get(Env.PublicUrlBase) ?? '';
 
+  const config = await ConfigLoader.load(req);
+
   req.timer.start('tileset:load');
-  const tileSet = await Config.TileSet.get(Config.TileSet.id(tileSetName ?? 'aerial'));
+  const tileSet = await config.TileSet.get(config.TileSet.id(tileSetName ?? 'aerial'));
   req.timer.end('tileset:load');
   if (tileSet == null || tileSet.type !== TileSetType.Raster) return NotFound();
 
-  const provider = await Config.Provider.get(Config.Provider.id('linz'));
+  const provider = await config.Provider.get(config.Provider.id('linz'));
 
   req.timer.start('imagery:load');
-  const imagery = await Config.getAllImagery(
+  const imagery = await getAllImagery(
+    config,
     tileSet.layers,
     tileMatrix.map((tms) => tms.projection),
   );

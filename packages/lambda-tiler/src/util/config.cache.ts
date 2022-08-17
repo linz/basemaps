@@ -1,5 +1,5 @@
 import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
-import { fsa } from '@chunkd/fs';
+import { fsa } from '@basemaps/shared';
 import { SwappingLru } from './swapping.lru.js';
 
 class LruConfig {
@@ -25,7 +25,7 @@ export class ConfigCache {
     this.cache = new SwappingLru<LruConfig>(maxSize);
   }
 
-  getConfig(location: string): Promise<ConfigProviderMemory | null> {
+  get(location: string): Promise<ConfigProviderMemory | null> {
     const existing = this.cache.get(location)?.configProvider;
     if (existing != null) return existing;
     try {
