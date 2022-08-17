@@ -1,10 +1,17 @@
 import { Env, fsa, LogConfig, RoleRegister } from '@basemaps/shared';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { parseSize } from './sizes.js';
+
+export interface FileSizeInfo {
+  path: string;
+  size?: number;
+}
 
 export class CommandList extends CommandLineAction {
   private filter: CommandLineStringParameter;
   private output: CommandLineStringParameter;
   private group: CommandLineIntegerParameter;
+  private groupSize: CommandLineStringParameter;
   private limit: CommandLineIntegerParameter;
   private config: CommandLineStringParameter;
 
@@ -26,6 +33,11 @@ export class CommandList extends CommandLineAction {
       argumentName: 'GROUP',
       parameterLongName: '--group',
       description: 'Group files into this number per group',
+    });
+    this.groupSize = this.defineStringParameter({
+      argumentName: 'GROUP_SIZE',
+      parameterLongName: '--group-size',
+      description: 'Group files into this size per group, eg "5Gi" or "3TB"',
     });
     this.limit = this.defineIntegerParameter({
       argumentName: 'LIMIT',
@@ -63,48 +75,55 @@ export class CommandList extends CommandLineAction {
     const limit = this.limit.value ?? -1; // no limit by default
     const filter = this.filter.value ?? '*'; // Filter everything by default
 
-    const outputFiles = new Set<string>();
+    const outputFiles: FileSizeInfo[] = [];
     for (const targetPath of paths) {
       logger.debug({ path: targetPath }, 'List');
       const assumedRole = await RoleRegister.findRole(targetPath);
       if (assumedRole) logger.debug({ path: targetPath, roleArn: assumedRole?.roleArn }, 'List:Role');
 
-      const fileList = await fsa.toArray(asyncFilter(fsa.list(targetPath), filter));
+      const fileList = await fsa.toArray(asyncFilter(fsa.details(targetPath), filter));
       logger.debug({ path: targetPath, fileCount: fileList.length }, 'List:Count');
 
       for (const file of fileList) {
-        outputFiles.add(file);
-        if (limit > 0 && outputFiles.size >= limit) break;
+        outputFiles.push(file);
+        if (limit > 0 && outputFiles.length >= limit) break;
       }
-      if (limit > 0 && outputFiles.size >= limit) break;
+      if (limit > 0 && outputFiles.length >= limit) break;
     }
 
-    if (this.group.value == null || this.group.value < 1) {
-      await fsa.write(outputPath, JSON.stringify([...outputFiles.values()]));
-    } else {
-      await fsa.write(outputPath, JSON.stringify(chunkArray(outputFiles, this.group.value)));
-    }
+    const maxSize = parseSize(this.groupSize.value ?? '-1');
+    const maxLength = this.group.value ?? -1;
+    await fsa.write(outputPath, JSON.stringify(chunkFiles(outputFiles, maxLength, maxSize)));
   }
 }
 
-export async function* asyncFilter(source: AsyncGenerator<string>, filter: string): AsyncGenerator<string> {
+export async function* asyncFilter<T extends { path: string }>(
+  source: AsyncGenerator<T>,
+  filter: string,
+): AsyncGenerator<T> {
   if (filter === '*') return yield* source;
 
   const re = new RegExp(filter.toLowerCase(), 'i');
   for await (const f of source) {
     // Always match on lowercase
-    if (re.test(f.toLowerCase())) yield f;
+    if (re.test(f.path.toLowerCase())) yield f;
   }
 }
 
-export function chunkArray<T>(values: Set<T> | T[], size: number): T[][] {
-  const output: T[][] = [];
-  let current: T[] = [];
+/** Chunk files into a max size (eg 1GB chunks) or max count (eg 100 files) or what ever comes first when both are defined */
+export function chunkFiles(values: FileSizeInfo[], count: number, size: number): string[][] {
+  if (count == null && size == null) return [values.map((c) => c.path)];
+
+  const output: string[][] = [];
+  let current: string[] = [];
+  let totalSize = 0;
   for (const v of values) {
-    current.push(v);
-    if (current.length >= size) {
+    current.push(v.path);
+    if (v.size) totalSize += v.size;
+    if ((count > 0 && current.length >= count) || (size > 0 && totalSize >= size)) {
       output.push(current);
       current = [];
+      totalSize = 0;
     }
   }
   if (current.length > 0) output.push(current);
