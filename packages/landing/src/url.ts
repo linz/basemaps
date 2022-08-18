@@ -1,5 +1,6 @@
 import { GoogleTms, ImageFormat, TileMatrixSet } from '@basemaps/geo';
 import { Config } from './config.js';
+import { toQueryString } from '@basemaps/shared/build/url.js';
 
 export interface LonLat {
   lat: number;
@@ -70,8 +71,8 @@ export const WindowUrl = {
   },
 
   toBaseWmts(): string {
-    const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
-    return `${this.baseUrl()}/v1/tiles/aerial/WMTSCapabilities.xml${api}`;
+    const query = toQueryString({ api: Config.ApiKey, config: Config.map.config });
+    return `${this.baseUrl()}/v1/tiles/aerial/WMTSCapabilities.xml${query}`;
   },
 
   toImageryUrl(layerId: string, imageryType: string): string {
