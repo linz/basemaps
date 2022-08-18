@@ -43,7 +43,7 @@ export class ConfigLoader {
     req.timer.start('config:load');
     return CachedConfig.get(configLocation).then((f) => {
       req.timer.end('config:load');
-      if (f == null) throw new LambdaHttpResponse(400, `Invalid config location`);
+      if (f == null) throw new LambdaHttpResponse(404, `Config Not Fond from the location`);
       return f;
     });
   }
