@@ -38,9 +38,12 @@ export async function canRead(path: string): Promise<boolean> {
 }
 
 export class RoleRegister {
+  static get configPath(): string | undefined {
+    return Env.get(Env.AwsRoleConfigPath);
+  }
   /** Get all imagery source aws roles */
   static async _loadRoles(): Promise<RoleConfig[]> {
-    const configPath = Env.get(Env.AwsRoleConfigPath);
+    const configPath = this.configPath;
     if (configPath == null) return [];
     const config: BucketConfig = await fsa.readJson(configPath);
     return config.buckets;
@@ -60,6 +63,8 @@ export class RoleRegister {
    * @returns Role if exists
    */
   static async findRole(path: string, attemptRead = true): Promise<RoleConfig | undefined> {
+    // Cannot lookup a role to find the config!
+    if (path === this.configPath) return;
     if (attemptRead) {
       const isAbleToRead = await canRead(path);
       // If we can directly read/write this path we don't need to register a role for it
