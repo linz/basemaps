@@ -88,7 +88,7 @@ export class CommandImageryConfig extends CommandLineAction {
     }
     const imagery = {
       id: provider.Imagery.id(id),
-      name,
+      name: `${name}-${new Date().getFullYear()}`, // Add a year into name for attribution to extract
       updatedAt: Date.now(),
       projection: Nztm2000QuadTms.projection.code,
       tileMatrix: Nztm2000QuadTms.identifier,
