@@ -18,8 +18,9 @@ export async function tileJsonGet(req: LambdaHttpRequest<TileJsonGet>): Promise<
 
   const apiKey = Validate.apiKey(req);
 
-  req.timer.start('tileset:load');
   const config = await ConfigLoader.load(req);
+
+  req.timer.start('tileset:load');
   const tileSet = await config.TileSet.get(config.TileSet.id(req.params.tileSet));
   req.timer.end('tileset:load');
   if (tileSet == null) return NotFound();
@@ -28,9 +29,15 @@ export async function tileJsonGet(req: LambdaHttpRequest<TileJsonGet>): Promise<
 
   const host = Env.get(Env.PublicUrlBase) ?? '';
 
+  const configLocation = req.query.get('config');
+  const queryParams = new URLSearchParams();
+  queryParams.set('api', apiKey);
+  if (configLocation) queryParams.set('config', configLocation);
+
   const tileUrl =
     [host, 'v1', 'tiles', tileSet.name, tileMatrix.identifier, '{z}', '{x}', '{y}'].join('/') +
-    `.${format[0]}?api=${apiKey}`;
+    `.${format[0]}?` +
+    queryParams.toString();
 
   const tileJson: TileJson = { tiles: [tileUrl], tilejson: '3.0.0' };
   const maxZoom = TileMatrixSet.convertZoomLevel(tileSet.maxZoom ?? 30, GoogleTms, tileMatrix, true);

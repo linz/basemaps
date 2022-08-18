@@ -17,7 +17,7 @@ o.spec('arcgis/stylejson', () => {
   });
 
   o.beforeEach(() => {
-    sandbox.stub(ConfigLoader, 'load').resolves(config);
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
     config.objects.clear();
   });
 

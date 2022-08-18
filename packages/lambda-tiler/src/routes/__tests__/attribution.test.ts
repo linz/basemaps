@@ -284,7 +284,8 @@ o.spec('/v1/attribution', () => {
 
   o.beforeEach(() => {
     LogConfig.get().level = 'silent';
-    sandbox.stub(ConfigLoader, 'load').resolves(config);
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
+
     config.objects.clear();
 
     config.put(TileSetAerial);

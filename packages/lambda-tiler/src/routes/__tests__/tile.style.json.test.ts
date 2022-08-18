@@ -15,7 +15,7 @@ o.spec('/v1/styles', () => {
     process.env[Env.PublicUrlBase] = host;
   });
   o.beforeEach(() => {
-    sandbox.stub(ConfigLoader, 'load').resolves(config);
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
   });
   o.afterEach(() => {
     sandbox.restore();
