@@ -45,6 +45,17 @@ o.spec('WindowUrl', () => {
     o(mc.layerId).equals('aerial');
     o(mc.style).equals(null);
     o(mc.isDebug).equals(false);
+    o(mc.config).equals(null);
+  });
+
+  o('should support "tileMatrix"', () => {
+    mc.updateFromUrl('?tileMatrix=nztm2000quad');
+    o(mc.tileMatrix).equals(Nztm2000QuadTms);
+  });
+
+  o('should support config locations', () => {
+    mc.updateFromUrl('?config=s3://linz-basemaps/config/bar.json');
+    o(mc.config).equals('s3://linz-basemaps/config/bar.json');
   });
 
   o('should support vector tiles', () => {
@@ -133,6 +144,31 @@ o.spec('WindowUrl', () => {
     );
     WindowUrl.ImageFormat = 'png';
     delete process.env.TILE_HOST;
+  });
+
+  o('should include config in all requests', () => {
+    const apiKey = Config.ApiKey;
+
+    mc.updateFromUrl('?config=s3://linz-basemaps/config.json');
+    process.env.TILE_HOST = 'https://foo.bar.com';
+
+    o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json`,
+    );
+    o(mc.toTileUrl(MapOptionType.TileVectorXyz)).equals(
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.pbf?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json`,
+    );
+    o(mc.toTileUrl(MapOptionType.Attribution)).equals(
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json`,
+    );
+    o(mc.toTileUrl(MapOptionType.Wmts)).equals(
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json`,
+    );
+
+    WindowUrl.ImageFormat = 'png';
+    o(mc.toTileUrl(MapOptionType.Style)).equals(
+      `https://foo.bar.com/v1/styles/aerial.json?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json&format=png`,
+    );
   });
 
   o('should remove im_ prefix from imagery', () => {
