@@ -966,12 +966,11 @@
     npmlog "^6.0.2"
     write-file-atomic "^3.0.3"
 
-"@linzjs/lambda@^3.2.1":
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-3.2.1.tgz#61264b4a8ee5c3d0a7fc7687bd7f4c1ddb6bf4c8"
-  integrity sha512-gtNeumdN0/aqS0WJlwNoN9otfcL1kVGCppU9hLaco+sK+uX9rUdzOiiaiCCtJ3qODUwZwv7onP8lTpgSdm5hCQ==
+"@linzjs/lambda@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-4.0.0.tgz#807b894ede39f763ab1634993d4d32fc97e12fa6"
+  integrity sha512-gJgpNZ4ARWKJU1Lv1pIQA8dQ1irhiaF63Rsll6t3LxSaTDRgi4N5zKwRpVvLKM7MQt7EHiT7l/NLtUbM/GsWog==
   dependencies:
-    "@linzjs/metrics" "^6.21.1"
     find-my-way "^7.0.0"
     pino "^8.3.0"
     ulid "^2.3.0"
