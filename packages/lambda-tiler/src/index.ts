@@ -27,11 +27,7 @@ handler.router.hook('request', (req) => {
   St.reset();
 });
 
-let totalRequests = 0;
 handler.router.hook('response', (req, res) => {
-  totalRequests++;
-  req.set('requestsTotal', totalRequests); // Number of requests served by this lambda
-
   if (St.requests.length > 0) {
     // TODO this could be relaxed to every say 5% of requests if logging gets too verbose.
     req.set('requests', St.requests.slice(0, 100)); // limit to 100 requests (some tiles need 100s of requests)
