@@ -2,20 +2,14 @@ import { ConfigBundled, ConfigJson, ConfigPrefix, ConfigProviderDynamo, ConfigPr
 import { handler } from '@basemaps/lambda-tiler';
 import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import fastifyStatic from '@fastify/static';
-import { lf } from '@linzjs/lambda';
-import { ALBEvent, ALBResult, APIGatewayProxyResultV2, CloudFrontRequestResult, Context } from 'aws-lambda';
+import { lf, LambdaUrlRequest } from '@linzjs/lambda';
 import fastify, { FastifyInstance } from 'fastify';
 import formBodyPlugin from '@fastify/formbody';
 import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
 import { URL } from 'url';
-
-function isAlbResult(r: ALBResult | CloudFrontRequestResult | APIGatewayProxyResultV2): r is ALBResult {
-  if (typeof r !== 'object') return false;
-  if (r == null) return false;
-  return 'statusCode' in r;
-}
+import { Context } from 'aws-lambda';
 
 const instanceId = ulid.ulid();
 
@@ -89,29 +83,36 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
 
   BasemapsServer.all<{ Querystring: { api: string } }>('/v1/*', (req, res) => {
     const url = new URL(`${req.protocol}://${req.hostname}${req.url}`);
-    const event: ALBEvent = {
-      httpMethod: req.method,
-      requestContext: { elb: { targetGroupArn: 'arn:fake' } },
-      path: url.pathname,
-      headers: req.headers as Record<string, string>,
-      queryStringParameters: req.query as Record<string, string>,
-      body: null,
-      isBase64Encoded: false,
-    };
     if (req.query.api == null) req.query.api = 'c' + instanceId;
 
-    handler(event, {} as Context, (err, r): void => {
-      if (err || !isAlbResult(r)) {
-        lf.Logger.fatal({ err }, 'RequestFailed');
-        res.send(err);
-        return;
-      }
+    const request = new LambdaUrlRequest(
+      {
+        requestContext: { http: { method: req.method.toUpperCase() } },
+        headers: req.headers,
+        rawPath: url.pathname,
+        rawQueryString: new URLSearchParams(req.query).toString(),
+        isBase64Encoded: false,
+      } as any,
+      {} as Context,
+      logger,
+    );
 
-      res.status(r.statusCode);
-      for (const [key, value] of Object.entries(r.headers ?? {})) res.header(key, String(value));
-      if (r.body) res.send(Buffer.from(r.body, r.isBase64Encoded ? 'base64' : 'utf8'));
-      else res.send('Not found');
-    });
+    handler.router
+      .handle(request)
+      .then((r) => {
+        res.status(r.status);
+        for (const [key, value] of r.headers.entries()) res.header(key, String(value));
+        res.send(Buffer.from(r.body, r.isBase64Encoded ? 'base64' : undefined));
+
+        if (r.status > 499) request.log.error(request.logContext, 'Lambda:Done');
+        else if (r.status > 399) request.log.warn(request.logContext, 'Lambda:Done');
+        else request.log.info(request.logContext, 'Lambda:Done');
+      })
+      .catch((e) => {
+        request.log.fatal({ err: e }, 'RequestFailed');
+        res.status(500);
+        res.send(e);
+      });
   });
 
   return BasemapsServer;
