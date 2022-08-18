@@ -103,10 +103,6 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
         res.status(r.status);
         for (const [key, value] of r.headers.entries()) res.header(key, String(value));
         res.send(Buffer.from(r.body, r.isBase64Encoded ? 'base64' : undefined));
-
-        if (r.status > 499) request.log.error(request.logContext, 'Lambda:Done');
-        else if (r.status > 399) request.log.warn(request.logContext, 'Lambda:Done');
-        else request.log.info(request.logContext, 'Lambda:Done');
       })
       .catch((e) => {
         request.log.fatal({ err: e }, 'RequestFailed');
