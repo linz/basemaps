@@ -26,7 +26,7 @@ export const fsa = fsaSource as any as FsaJson;
 
 fsa.attemptRead = async function attemptRead(filePath: string, roleLookup = true): Promise<Buffer> {
   try {
-    return this.read(filePath);
+    return await this.read(filePath);
   } catch (e: any) {
     if (!filePath.startsWith('s3://')) throw e;
     if (e.code === 403 && roleLookup) {
