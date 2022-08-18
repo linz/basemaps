@@ -6,6 +6,7 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
+import iam from 'aws-cdk-lib/aws-iam';
 
 const CODE_PATH = '../lambda-tiler/dist';
 
@@ -29,6 +30,7 @@ export class LambdaTiler extends Construct {
 
     const environment: Record<string, string> = {
       [Env.PublicUrlBase]: config.PublicUrlBase,
+      [Env.AwsRoleConfigPath]: `s3://${config.AwsRoleConfigBucket}/config.json`,
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
     };
 
@@ -55,6 +57,11 @@ export class LambdaTiler extends Construct {
       function: this.lambdaNoVpc,
       authType: lambda.FunctionUrlAuthType.NONE,
     });
+
+    const stsPolicy = new iam.PolicyStatement();
+    stsPolicy.addActions('sts:AssumeRole');
+    stsPolicy.addAllResources();
+    this.lambdaNoVpc.role?.attachInlinePolicy(new iam.Policy(this, 'AssumeRolePolicy', { statements: [stsPolicy] }));
 
     if (props.staticBucketName) {
       const staticBucket = s3.Bucket.fromBucketName(this, 'StaticBucket', props.staticBucketName);
