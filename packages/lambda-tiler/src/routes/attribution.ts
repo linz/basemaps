@@ -1,4 +1,4 @@
-import { ConfigTileSet, getAllImagery, TileSetType } from '@basemaps/config';
+import { ConfigProvider, ConfigTileSet, getAllImagery, TileSetType } from '@basemaps/config';
 import {
   AttributionCollection,
   AttributionItem,
@@ -8,6 +8,7 @@ import {
   NamedBounds,
   Stac,
   StacExtent,
+  StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
 import { extractYearRangeFromName, Projection, titleizeImageryName } from '@basemaps/shared';
@@ -63,6 +64,11 @@ function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projection): 
   return multiPolygonToWgs84(coordinates, roundToWgs84);
 }
 
+function getHost(host: ConfigProvider | null): StacProvider[] | undefined {
+  if (host == null) return undefined;
+  return [{ name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] }];
+}
+
 /**
  * Build a Single File STAC for the given TileSet.
  *
@@ -82,7 +88,6 @@ async function tileSetAttribution(
   const imagery = await getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
 
   const host = await config.Provider.get(config.Provider.id('linz'));
-  if (host == null) return null;
 
   for (const layer of tileSet.layers) {
     const imgId = layer[proj.epsg.code];
@@ -122,7 +127,7 @@ async function tileSetAttribution(
       stac_version: Stac.Version,
       license: Stac.License,
       id: im.id,
-      providers: [{ name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] }],
+      providers: getHost(host),
       title: im.title ?? titleizeImageryName(im.name),
       description: 'No description',
       extent,
