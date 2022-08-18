@@ -83,7 +83,7 @@ o.spec('ConfigLoader', () => {
 
     o(error instanceof LambdaHttpResponse).equals(true);
     o((error as LambdaHttpResponse).status).equals(404);
-    o((error as LambdaHttpResponse).statusDescription).equals('Config not found from the location');
+    o((error as LambdaHttpResponse).statusDescription).equals(`Config not found at ${location}`);
   });
 
   o('should get expected config file', async () => {

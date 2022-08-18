@@ -104,7 +104,6 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
-  console.log('---Missing', config);
   const dbId = config.Style.id(styleName);
   const styleConfig = await config.Style.get(dbId);
   if (styleConfig == null) {
