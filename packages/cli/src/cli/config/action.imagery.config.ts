@@ -1,6 +1,6 @@
 import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { Bounds, Nztm2000QuadTms } from '@basemaps/geo';
-import { Env, fsa, LogConfig, RoleRegister } from '@basemaps/shared';
+import { Env, fsa, LogConfig, Projection, RoleRegister } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { ulid } from 'ulid';
@@ -64,11 +64,13 @@ export class CommandImageryConfig extends CommandLineAction {
 
     logger.info({ path }, 'ImageryConfig:CreateConfig');
     let bounds = null;
+    let gsd = null;
     const files = [];
     for (const tif of tiffs) {
       await tif.getImage(0).loadGeoTiffTags();
       if (tif.getImage(0).epsg !== Nztm2000QuadTms.projection.code) throw new Error('Imagery is not NZTM Projection.');
       const imgBounds = Bounds.fromBbox(tif.getImage(0).bbox);
+      if (gsd == null) gsd = tif.getImage(0).resolution[0];
       if (bounds == null) bounds = imgBounds;
       else bounds = bounds.union(imgBounds);
       files.push({
@@ -105,6 +107,16 @@ export class CommandImageryConfig extends CommandLineAction {
     };
     provider.put(tileSet);
 
+    // Prepare the center location
+    let location = '';
+    if (bounds && gsd) {
+      const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+      const proj = Projection.get(Nztm2000QuadTms);
+      const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
+      const targetZoom = Math.max(Nztm2000QuadTms.findBestZoom(gsd) - 12, 0);
+      location = `#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`;
+    }
+
     if (commit) {
       logger.info({ path }, 'ImageryConfig:UploadConfig');
       const configJson = provider.toJson();
@@ -112,7 +124,7 @@ export class CommandImageryConfig extends CommandLineAction {
       await fsa.writeJson(output, configJson);
       const configPath = base58.encode(Buffer.from(output));
       logger.info(
-        { path: output, url: `https://basemaps.linz.govt.nz/?config=${configPath}&tileMatrix=NZTM2000Quad` },
+        { path: output, url: `https://basemaps.linz.govt.nz/?config=${configPath}&tileMatrix=NZTM2000Quad${location}` },
         'ImageryConfig:Done',
       );
     } else {
