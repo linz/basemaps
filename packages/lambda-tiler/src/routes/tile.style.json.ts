@@ -107,7 +107,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const dbId = config.Style.id(styleName);
   const styleConfig = await config.Style.get(dbId);
   if (styleConfig == null) {
-    // Were we given a tileset name instead, generat
+    // Were we given a tileset name instead, generated
     const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
     if (tileSet == null) return NotFound();
     if (tileSet.type !== TileSetType.Raster) return NotFound();
