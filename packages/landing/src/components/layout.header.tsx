@@ -164,7 +164,7 @@ Your Service/App URL:
     if (Config.map.isVector) {
       return (
         <Fragment>
-          <Copyable header="StyleJSON" value={Config.map.toTileUrl(MapOptionType.TileVectorStyle)} />
+          <Copyable header="StyleJSON" value={Config.map.toTileUrl(MapOptionType.Style)} />
           <Copyable header="XYZ" value={Config.map.toTileUrl(MapOptionType.TileVectorXyz)} />
         </Fragment>
       );

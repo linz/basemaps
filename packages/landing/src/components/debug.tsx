@@ -328,7 +328,7 @@ export class Debug extends Component<
   get styleJson(): Promise<StyleSpecification> {
     if (this._styleJson == null) {
       this._styleJson = fetch(
-        WindowUrl.toTileUrl(MapOptionType.TileVectorStyle, Config.map.tileMatrix, 'topographic', 'topographic'),
+        WindowUrl.toTileUrl(MapOptionType.Style, Config.map.tileMatrix, 'topographic', 'topographic'),
       ).then((f) => f.json());
     }
     return this._styleJson;

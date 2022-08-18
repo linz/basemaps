@@ -25,7 +25,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   style: string | null = null;
   layerId = 'aerial';
   tileMatrix: TileMatrixSet = GoogleTms;
-
+  config: string | null;
   debug: DebugState = { ...DebugDefaults };
 
   private _layers: Promise<Map<string, LayerInfo>>;
@@ -79,10 +79,11 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   updateFromUrl(search: string = window.location.search): void {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s') ?? urlParams.get('style');
+    const config = urlParams.get('c') ?? urlParams.get('config');
 
     const layerId = urlParams.get('i') ?? 'aerial';
 
-    const projectionParam = (urlParams.get('p') ?? GoogleTms.identifier).toLowerCase();
+    const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
     if (tileMatrix == null) tileMatrix = TileMatrixSets.get(Epsg.parse(projectionParam) ?? Epsg.Google);
     if (tileMatrix.identifier === Nztm2000Tms.identifier) tileMatrix = Nztm2000QuadTms;
@@ -92,6 +93,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
     const previousUrl = MapConfig.toUrl(this);
 
+    this.config = config;
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
@@ -106,14 +108,21 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   static toUrl(opts: MapConfig): string {
     const urlParams = new URLSearchParams();
     if (opts.style) urlParams.append('s', opts.style);
+    if (opts.config) urlParams.append('config', opts.config);
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('p', opts.tileMatrix.identifier);
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
   }
 
-  toTileUrl(urlType: MapOptionType, tileMatrix = this.tileMatrix, layerId = this.layerId, style = this.style): string {
-    return WindowUrl.toTileUrl(urlType, tileMatrix, layerId, style);
+  toTileUrl(
+    urlType: MapOptionType,
+    tileMatrix = this.tileMatrix,
+    layerId = this.layerId,
+    style = this.style,
+    config = this.config,
+  ): string {
+    return WindowUrl.toTileUrl(urlType, tileMatrix, layerId, style, config);
   }
 
   getLocation(map: maplibregl.Map): MapLocation {

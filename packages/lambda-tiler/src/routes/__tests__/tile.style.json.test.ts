@@ -4,7 +4,8 @@ import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
-import { Api, mockRequest } from '../../__tests__/xyz.util.js';
+import { FakeData } from '../../__tests__/config.data.js';
+import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 
 o.spec('/v1/styles', () => {
   const host = 'https://tiles.test';
@@ -105,5 +106,59 @@ o.spec('/v1/styles', () => {
     fakeStyle.glyphs = `${host}/glyphs`;
 
     o(JSON.parse(body)).deepEquals(fakeStyle);
+  });
+
+  o('should create raster styles', async () => {
+    const request = mockUrlRequest('/v1/styles/aerial.json', '', Api.header);
+    const tileSet = FakeData.tileSetRaster('aerial');
+    config.put(tileSet);
+    const res = await handler.router.handle(request);
+    o(res.status).equals(200);
+
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+
+    o(body.version).equals(8);
+    o(body.sources['basemaps-aerial'].type).deepEquals('raster');
+    o(body.sources['basemaps-aerial'].tiles).deepEquals([
+      `https://tiles.test/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=${Api.key}`,
+    ]);
+    o(body.sources['basemaps-aerial'].tileSize).deepEquals(256);
+    o(body.layers).deepEquals([{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
+  });
+
+  o('should support parameters', async () => {
+    const request = mockUrlRequest('/v1/styles/aerial.json', '?tileMatrix=NZTM2000Quad&format=jpg', Api.header);
+    const tileSet = FakeData.tileSetRaster('aerial');
+    config.put(tileSet);
+    const res = await handler.router.handle(request);
+    o(res.status).equals(200);
+
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+
+    o(body.version).equals(8);
+    o(body.sources['basemaps-aerial'].type).deepEquals('raster');
+    o(body.sources['basemaps-aerial'].tiles).deepEquals([
+      `https://tiles.test/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.jpeg?api=${Api.key}`,
+    ]);
+    o(body.sources['basemaps-aerial'].tileSize).deepEquals(256);
+    o(body.layers).deepEquals([{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
+  });
+
+  o('should create raster styles from custom config', async () => {
+    const configId = FakeData.bundle([FakeData.tileSetRaster('aerial')]);
+    const request = mockUrlRequest('/v1/styles/aerial.json', `?config=${configId}`, Api.header);
+
+    const res = await handler.router.handle(request);
+    o(res.status).equals(200);
+
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+
+    o(body.version).equals(8);
+    o(body.sources['basemaps-aerial'].type).deepEquals('raster');
+    o(body.sources['basemaps-aerial'].tiles).deepEquals([
+      `https://tiles.test/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=${Api.key}&config=${configId}`,
+    ]);
+    o(body.sources['basemaps-aerial'].tileSize).deepEquals(256);
+    o(body.layers).deepEquals([{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
   });
 });
