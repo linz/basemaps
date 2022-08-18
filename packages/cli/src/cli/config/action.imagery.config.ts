@@ -8,6 +8,7 @@ import { ulid } from 'ulid';
 export class CommandImageryConfig extends CommandLineAction {
   private path: CommandLineStringParameter;
   private config: CommandLineStringParameter;
+  private output: CommandLineStringParameter;
   private commit: CommandLineFlagParameter;
 
   public constructor() {
@@ -30,6 +31,11 @@ export class CommandImageryConfig extends CommandLineAction {
       parameterLongName: '--config',
       description: 'Location of a configuration file containing role->bucket mapping information',
     });
+    this.output = this.defineStringParameter({
+      argumentName: 'OUTPUT',
+      parameterLongName: '--output',
+      description: 'An url written to the output file',
+    });
     this.commit = this.defineFlagParameter({
       parameterLongName: '--commit',
       description: 'Actually upload the config to s3.',
@@ -43,7 +49,7 @@ export class CommandImageryConfig extends CommandLineAction {
     if (path == null) throw new Error('Please provide valid a path for the imagery');
     if (!path.endsWith('/')) path += '/';
     const commit = this.commit.value ?? false;
-
+    const output = this.output.value;
     const config = this.config.value;
     if (config) {
       logger.info({ path: config }, 'Role:Config');
@@ -122,16 +128,12 @@ export class CommandImageryConfig extends CommandLineAction {
     if (commit) {
       logger.info({ path }, 'ImageryConfig:UploadConfig');
       const configJson = provider.toJson();
-      const output = fsa.join(path, `basemaps-config-${configJson.hash}.json.gz`);
-      await fsa.writeJson(output, configJson);
-      const configPath = base58.encode(Buffer.from(output));
-      logger.info(
-        {
-          path: output,
-          url: `https://basemaps.linz.govt.nz/?config=${configPath}&i=${name}&tileMatrix=NZTM2000Quad${location}`,
-        },
-        'ImageryConfig:Done',
-      );
+      const outputPath = fsa.join(path, `basemaps-config-${configJson.hash}.json.gz`);
+      await fsa.writeJson(outputPath, configJson);
+      const configPath = base58.encode(Buffer.from(outputPath));
+      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${name}&tileMatrix=NZTM2000Quad${location}`;
+      logger.info({ path: output, url }, 'ImageryConfig:Done');
+      if (output != null) fsa.write(output, url);
     } else {
       logger.info('DryRun:Done');
     }
