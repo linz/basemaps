@@ -1,15 +1,15 @@
 import { ConfigBundled, ConfigJson, ConfigPrefix, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { handler } from '@basemaps/lambda-tiler';
 import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
-import fastifyStatic from '@fastify/static';
-import { lf, LambdaUrlRequest } from '@linzjs/lambda';
-import fastify, { FastifyInstance } from 'fastify';
 import formBodyPlugin from '@fastify/formbody';
+import fastifyStatic from '@fastify/static';
+import { LambdaUrlRequest } from '@linzjs/lambda';
+import { Context } from 'aws-lambda';
+import fastify, { FastifyInstance } from 'fastify';
 import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
 import { URL } from 'url';
-import { Context } from 'aws-lambda';
 
 const instanceId = ulid.ulid();
 

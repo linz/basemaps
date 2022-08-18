@@ -8,6 +8,7 @@ import {
   NamedBounds,
   Stac,
   StacExtent,
+  StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
 import { extractYearRangeFromName, Projection, titleizeImageryName } from '@basemaps/shared';
@@ -63,7 +64,7 @@ function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projection): 
   return multiPolygonToWgs84(coordinates, roundToWgs84);
 }
 
-function getHost(host: ConfigProvider | null) {
+function getHost(host: ConfigProvider | null): StacProvider[] | undefined {
   if (host == null) return undefined;
   return [{ name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] }];
 }
