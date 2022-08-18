@@ -70,7 +70,7 @@ export class CommandImageryConfig extends CommandLineAction {
       await tif.getImage(0).loadGeoTiffTags();
       if (tif.getImage(0).epsg !== Nztm2000QuadTms.projection.code) throw new Error('Imagery is not NZTM Projection.');
       const imgBounds = Bounds.fromBbox(tif.getImage(0).bbox);
-      gsd = tif.getImage(0).resolution[0];
+      if (gsd == null) gsd = tif.getImage(0).resolution[0];
       if (bounds == null) bounds = imgBounds;
       else bounds = bounds.union(imgBounds);
       files.push({
