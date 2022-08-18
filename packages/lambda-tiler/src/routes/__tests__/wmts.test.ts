@@ -11,7 +11,7 @@ o.spec('WMTSRouting', () => {
   const config = new ConfigProviderMemory();
 
   o.before(() => {
-    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
+    sandbox.stub(ConfigLoader, 'load').resolves(config);
   });
 
   o.afterEach(() => {
@@ -29,7 +29,10 @@ o.spec('WMTSRouting', () => {
     config.put(Imagery3857);
     config.put(Provider);
 
-    const req = mockUrlRequest('/v1/tiles/WMTSCapabilities.xml', `format=png&api=${Api.key}`);
+    const req = mockUrlRequest(
+      '/v1/tiles/WMTSCapabilities.xml',
+      `format=png&api=${Api.key}&config=s3://linz-basemaps/config.json`,
+    );
     const res = await handler.router.handle(req);
 
     o(res.status).equals(200);
@@ -42,6 +45,12 @@ o.spec('WMTSRouting', () => {
       '<ows:Title>Ōtorohanga 0.1m Urban Aerial Photos (2021)</ows:Title>',
       '<ows:Title>Google Maps Compatible for the World</ows:Title>',
       '<ows:Title>LINZ NZTM2000 Map Tile Grid V2</ows:Title>',
+    ]);
+
+    const resourceURLs = lines.filter((f) => f.includes('<ResourceURL')).map((f) => f.trim());
+    o(resourceURLs).deepEquals([
+      '<ResourceURL format="image/png" resourceType="tile" template="https://tiles.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png?api=d01f7w7rnhdzg0p7fyrc9v9ard1&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M" />',
+      '<ResourceURL format="image/png" resourceType="tile" template="https://tiles.test/v1/tiles/ōtorohanga-urban-2021-0.1m/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png?api=d01f7w7rnhdzg0p7fyrc9v9ard1&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M" />',
     ]);
   });
 });

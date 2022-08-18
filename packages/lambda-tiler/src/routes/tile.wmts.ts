@@ -62,6 +62,7 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
     isIndividualLayers: req.params.tileMatrix == null,
     imagery,
     apiKey,
+    config: ConfigLoader.extract(req),
     formats: Validate.getRequestedFormats(req),
   }).toXml();
   if (xml == null) return NotFound();

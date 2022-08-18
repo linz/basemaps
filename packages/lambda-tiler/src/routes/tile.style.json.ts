@@ -1,5 +1,5 @@
 import { ConfigTileSetRaster, Sources, StyleJson, TileSetType } from '@basemaps/config';
-import { Env } from '@basemaps/shared';
+import { Env, toQueryString } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { URL } from 'url';
@@ -15,12 +15,13 @@ import { GoogleTms, ImageFormat, TileMatrixSets } from '@basemaps/geo';
  * @param apiKey ApiKey to append with ?api= if required
  * @returns Updated Url or empty string if url is empty
  */
-export function convertRelativeUrl(url?: string, apiKey?: string): string {
+export function convertRelativeUrl(url?: string, apiKey?: string, config?: string | null): string {
   if (url == null) return '';
   const host = Env.get(Env.PublicUrlBase) ?? '';
   if (!url.startsWith('/')) return url; // Not relative ignore
   const fullUrl = new URL(fsa.join(host, url));
   if (apiKey) fullUrl.searchParams.set('api', apiKey);
+  if (config) fullUrl.searchParams.set('config', config);
   return fullUrl.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
 }
 
@@ -30,14 +31,14 @@ export function convertRelativeUrl(url?: string, apiKey?: string): string {
  * @param apiKey api key to inject
  * @returns new stylejson
  */
-export function convertStyleJson(style: StyleJson, apiKey: string): StyleJson {
+export function convertStyleJson(style: StyleJson, apiKey: string, config: string | null): StyleJson {
   const sources: Sources = JSON.parse(JSON.stringify(style.sources));
   for (const [key, value] of Object.entries(sources)) {
     if (value.type === 'vector') {
-      value.url = convertRelativeUrl(value.url, apiKey);
+      value.url = convertRelativeUrl(value.url, apiKey, config);
     } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
       for (let i = 0; i < value.tiles.length; i++) {
-        value.tiles[i] = convertRelativeUrl(value.tiles[i], apiKey);
+        value.tiles[i] = convertRelativeUrl(value.tiles[i], apiKey, config);
       }
     }
     sources[key] = value;
@@ -50,8 +51,8 @@ export function convertStyleJson(style: StyleJson, apiKey: string): StyleJson {
     sources,
     layers: style.layers,
     metadata: style.metadata ?? {},
-    glyphs: convertRelativeUrl(style.glyphs),
-    sprite: convertRelativeUrl(style.sprite),
+    glyphs: convertRelativeUrl(style.glyphs, undefined, config),
+    sprite: convertRelativeUrl(style.sprite, undefined, config),
   } as StyleJson;
 }
 
@@ -71,14 +72,12 @@ export async function tileSetToStyle(
   const [tileFormat] = Validate.getRequestedFormats(req) ?? [ImageFormat.Webp];
   if (tileFormat == null) return new LambdaHttpResponse(400, 'Invalid image format');
 
-  const urlQuery = new URLSearchParams();
-  const configLocation = req.query.get('config');
-  urlQuery.append('api', apiKey);
-  if (configLocation) urlQuery.append('config', configLocation);
+  const configLocation = ConfigLoader.extract(req);
+  const query = toQueryString({ config: configLocation, api: apiKey });
 
   const tileUrl = fsa.join(
     Env.get(Env.PublicUrlBase) ?? '',
-    `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}?${urlQuery.toString()}`,
+    `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`,
   );
   const styleId = `basemaps-${tileSet.name}`;
   const style = {
@@ -116,7 +115,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   }
 
   // Prepare sources and add linz source
-  const style = convertStyleJson(styleConfig.style, apiKey);
+  const style = convertStyleJson(styleConfig.style, apiKey, ConfigLoader.extract(req));
   const data = Buffer.from(JSON.stringify(style));
 
   const cacheKey = Etag.key(data);

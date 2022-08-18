@@ -14,13 +14,20 @@ export class ConfigLoader {
   static async getDefaultConfig(): Promise<BasemapsConfigProvider> {
     return getDefaultConfig();
   }
+
+  /** Lookup the config path from a request and return a standardized location */
+  static extract(req: LambdaHttpRequest): string | null {
+    const rawLocation = req.query.get('config');
+    if (rawLocation == null) return null;
+    if (rawLocation.includes('/')) return base58.encode(Buffer.from(rawLocation));
+    return rawLocation;
+  }
+
   static async load(req: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
     const rawLocation = req.query.get('config');
     if (rawLocation == null) return this.getDefaultConfig();
 
-    const configLocation = rawLocation.includes('://')
-      ? rawLocation
-      : Buffer.from(base58.decode(rawLocation)).toString();
+    const configLocation = rawLocation.includes('/') ? rawLocation : Buffer.from(base58.decode(rawLocation)).toString();
 
     const r = parseUri(configLocation);
 
