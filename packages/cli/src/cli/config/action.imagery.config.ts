@@ -1,4 +1,4 @@
-import { ConfigProviderMemory } from '@basemaps/config';
+import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { Bounds, Nztm2000QuadTms } from '@basemaps/geo';
 import { Env, fsa, LogConfig, RoleRegister } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
@@ -107,9 +107,14 @@ export class CommandImageryConfig extends CommandLineAction {
 
     if (commit) {
       logger.info({ path }, 'ImageryConfig:UploadConfig');
-      const output = fsa.join(path, 'basemaps-config.json.gz');
       const configJson = provider.toJson();
+      const output = fsa.join(path, `basemaps-config-${configJson.hash}.json.gz`);
       await fsa.writeJson(output, configJson);
+      const configPath = base58.encode(Buffer.from(output));
+      logger.info(
+        { path: output, url: `https://basemaps.linz.govt.nz/?config=${configPath}&tileMatrix=NZTM2000Quad` },
+        'ImageryConfig:Done',
+      );
     } else {
       logger.info('DryRun:Done');
     }
