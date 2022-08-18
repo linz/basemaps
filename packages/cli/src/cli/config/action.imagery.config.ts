@@ -100,7 +100,9 @@ export class CommandImageryConfig extends CommandLineAction {
 
     const tileSet = {
       id: 'ts_aerial',
-      name,
+      name: 'aerial',
+      title: 'Aerial Imagery Basemap',
+      category: 'Basemaps',
       type: 'raster',
       format: 'webp',
       layers: [{ 2193: imagery.id, name: imagery.name, title: imagery.name }],
@@ -124,7 +126,10 @@ export class CommandImageryConfig extends CommandLineAction {
       await fsa.writeJson(output, configJson);
       const configPath = base58.encode(Buffer.from(output));
       logger.info(
-        { path: output, url: `https://basemaps.linz.govt.nz/?config=${configPath}&tileMatrix=NZTM2000Quad${location}` },
+        {
+          path: output,
+          url: `https://basemaps.linz.govt.nz/?config=${configPath}&i=${name}&tileMatrix=NZTM2000Quad${location}`,
+        },
         'ImageryConfig:Done',
       );
     } else {
