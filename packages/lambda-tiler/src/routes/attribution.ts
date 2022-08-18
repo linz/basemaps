@@ -98,7 +98,13 @@ async function tileSetAttribution(
     const bbox = proj.boundsToWgs84BoundingBox(im.bounds).map(roundNumber) as BBox;
 
     const years = extractYearRangeFromName(im.name);
-    if (years[0] === -1) throw new Error('Missing date in imagery name: ' + im.name);
+    if (years[0] === -1) {
+      req.log.debug({ imagery: im.name }, 'Attribution:DefaultYear');
+      // Put it in the future so people know its a "fake" date
+      years[0] = new Date().getUTCFullYear() + 1;
+      years[1] = years[0] + 1;
+    }
+
     const interval = [years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]];
 
     const extent: StacExtent = { spatial: { bbox: [bbox] }, temporal: { interval } };
