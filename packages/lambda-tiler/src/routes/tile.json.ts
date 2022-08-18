@@ -1,5 +1,5 @@
 import { GoogleTms, TileJson, TileMatrixSet } from '@basemaps/geo';
-import { Env } from '@basemaps/shared';
+import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
 import { NotFound } from '../util/response.js';
@@ -29,15 +29,12 @@ export async function tileJsonGet(req: LambdaHttpRequest<TileJsonGet>): Promise<
 
   const host = Env.get(Env.PublicUrlBase) ?? '';
 
-  const configLocation = req.query.get('config');
-  const queryParams = new URLSearchParams();
-  queryParams.set('api', apiKey);
-  if (configLocation) queryParams.set('config', configLocation);
+  const configLocation = ConfigLoader.extract(req);
+
+  const query = toQueryString({ api: apiKey, config: configLocation });
 
   const tileUrl =
-    [host, 'v1', 'tiles', tileSet.name, tileMatrix.identifier, '{z}', '{x}', '{y}'].join('/') +
-    `.${format[0]}?` +
-    queryParams.toString();
+    [host, 'v1', 'tiles', tileSet.name, tileMatrix.identifier, '{z}', '{x}', '{y}'].join('/') + `.${format[0]}${query}`;
 
   const tileJson: TileJson = { tiles: [tileUrl], tilejson: '3.0.0' };
   const maxZoom = TileMatrixSet.convertZoomLevel(tileSet.maxZoom ?? 30, GoogleTms, tileMatrix, true);

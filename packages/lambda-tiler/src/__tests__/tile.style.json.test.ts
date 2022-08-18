@@ -55,7 +55,7 @@ o.spec('TileStyleJson', () => {
 
   o('should not destroy the original configuration', () => {
     const apiKey = 'abc123';
-    const converted = convertStyleJson(baseStyleJson, apiKey);
+    const converted = convertStyleJson(baseStyleJson, apiKey, null);
 
     o(converted.sources.vector).deepEquals({
       type: 'vector',
@@ -68,7 +68,7 @@ o.spec('TileStyleJson', () => {
 
     o(JSON.stringify(baseStyleJson).includes(apiKey)).equals(false);
 
-    const convertedB = convertStyleJson(baseStyleJson, '0x1234');
+    const convertedB = convertStyleJson(baseStyleJson, '0x1234', null);
     o(convertedB.sources.vector).deepEquals({
       type: 'vector',
       url: 'https://tiles.test/v1/tiles/topographic/EPSG:3857/tile.json?api=0x1234',
@@ -85,11 +85,27 @@ o.spec('TileStyleJson', () => {
 
   o('should convert relative glyphs and sprites', () => {
     const apiKey = '0x9f9f';
-    const converted = convertStyleJson(baseStyleJson, apiKey);
+    const converted = convertStyleJson(baseStyleJson, apiKey, null);
     o(converted.sprite).equals('https://tiles.test/v1/sprites');
     o(converted.glyphs).equals('https://tiles.test/v1/glyphs');
 
     o(JSON.stringify(baseStyleJson).includes(apiKey)).equals(false);
     o(JSON.stringify(baseStyleJson).includes('?api=')).equals(false);
+  });
+
+  o('should convert with config', () => {
+    const apiKey = '0x9f9f';
+    const converted = convertStyleJson(baseStyleJson, apiKey, 'config.json');
+    o(converted.sprite).equals('https://tiles.test/v1/sprites?config=config.json');
+    o(converted.glyphs).equals('https://tiles.test/v1/glyphs?config=config.json');
+
+    o(converted.sources.vector).deepEquals({
+      type: 'vector',
+      url: 'https://tiles.test/v1/tiles/topographic/EPSG:3857/tile.json?api=0x9f9f&config=config.json',
+    });
+    o(converted.sources.raster).deepEquals({
+      type: 'raster',
+      tiles: ['https://tiles.test/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=0x9f9f&config=config.json'],
+    });
   });
 });

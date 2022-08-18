@@ -1,6 +1,6 @@
 import { ConfigImagery, ConfigLayer, ConfigTileSet, standardizeLayerName } from '@basemaps/config';
 import { Bounds, GoogleTms, ImageFormat, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
-import { Projection, V, VNodeElement } from '@basemaps/shared';
+import { Projection, toQueryString, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BoundingBox } from '@cogeotiff/core';
 import { BBox } from '@linzjs/geojson';
@@ -36,6 +36,8 @@ export interface WmtsCapabilitiesParams {
   apiKey?: string;
   /** Limit the output to the following image formats other wise @see ImageFormatOrder */
   formats?: ImageFormat[] | null;
+  /** Config location */
+  config?: string | null;
 }
 
 /** Number of decimal places to use in lat lng */
@@ -56,6 +58,7 @@ export class WmtsCapabilities {
   provider?: WmtsProvider;
   tileSet: ConfigTileSet;
   apiKey?: string;
+  config?: string | null;
   tileMatrixSets = new Map<string, TileMatrixSet>();
   imagery: Map<string, ConfigImagery>;
   formats: ImageFormat[];
@@ -65,6 +68,7 @@ export class WmtsCapabilities {
     this.httpBase = params.httpBase;
     this.provider = params.provider;
     this.tileSet = params.tileSet;
+    this.config = params.config;
     this.isIndividualLayers = params.isIndividualLayers;
     for (const tms of params.tileMatrix) this.tileMatrixSets.set(tms.identifier, tms);
     this.apiKey = params.apiKey;
@@ -153,7 +157,8 @@ export class WmtsCapabilities {
   }
 
   buildTileUrl(tileSetId: string, suffix: string): string {
-    const apiSuffix = this.apiKey ? `?api=${this.apiKey}` : '';
+    const query = toQueryString({ api: this.apiKey, config: this.config });
+
     return [
       this.httpBase,
       'v1',
@@ -162,7 +167,7 @@ export class WmtsCapabilities {
       '{TileMatrixSet}',
       '{TileMatrix}',
       '{TileCol}',
-      `{TileRow}.${suffix}${apiSuffix}`,
+      `{TileRow}.${suffix}${query}`,
     ].join('/');
   }
 
