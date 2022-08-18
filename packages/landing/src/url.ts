@@ -86,7 +86,6 @@ export const WindowUrl = {
     style?: string | null,
     config?: string | null,
   ): string {
-    // console.trace('toTileUrl', arguments);
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
     if (config != null) queryParams.set('config', config);
