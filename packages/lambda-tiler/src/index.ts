@@ -4,6 +4,7 @@ import { arcgisInfoGet } from './arcgis/arcgis.info.js';
 import { arcgisStyleJsonGet } from './arcgis/arcgis.style.json.js';
 import { arcgisTileServerGet } from './arcgis/vector.tile.server.js';
 import { tileAttributionGet } from './routes/attribution.js';
+import { configImageryGet, configTileSetGet } from './routes/config.js';
 import { fontGet, fontList } from './routes/fonts.js';
 import { healthGet } from './routes/health.js';
 import { imageryGet } from './routes/imagery.js';
@@ -102,3 +103,7 @@ handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer', arcgisT
 handler.router.post('/v1/arcgis/rest/services/:tileSet/VectorTileServer', OkResponse);
 handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer/root.json', arcgisStyleJsonGet);
 handler.router.get('/v1/arcgis/rest/info', arcgisInfoGet);
+
+// Config
+handler.router.get('/v1/config/:tileSet.json', configTileSetGet);
+handler.router.get('/v1/config/:tileSet/:imageryId.json', configImageryGet);

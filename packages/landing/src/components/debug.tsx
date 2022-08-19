@@ -1,7 +1,11 @@
-import { GoogleTms } from '@basemaps/geo';
+import { ConfigImagery } from '@basemaps/config/src/config/imagery.js';
+import { ConfigTileSetRaster } from '@basemaps/config/src/config/tile.set.js';
+import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
+import { Projection } from '@basemaps/shared/src/proj/projection.js';
 import { BBoxFeatureCollection } from '@linzjs/geojson';
-import { StyleSpecification } from 'maplibre-gl';
+import { GeoJSONFeature, StyleSpecification } from 'maplibre-gl';
 import { Component, ComponentChild, Fragment } from 'preact';
+import { ConfigData } from '../config.data.js';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { projectGeoJson } from '../tile.matrix.js';
@@ -32,6 +36,10 @@ export class Debug extends Component<
     featureCogName: string | undefined;
     featureSourceId: string | number | undefined;
     featureSourceName: string | undefined;
+    tileSetId: string | null;
+    tileSet: ConfigTileSetRaster | null;
+    imageryId: string | null;
+    imagery: ConfigImagery | null;
   }
 > {
   componentDidMount(): void {
@@ -51,6 +59,7 @@ export class Debug extends Component<
     onMapLoaded(map, () => {
       Config.map.on('change', () => {
         if (this.props.map == null) return;
+
         const locationHash = WindowUrl.toHash(Config.map.getLocation(this.props.map));
         const locationSearch = '?' + MapConfig.toUrl(Config.map);
         window.history.replaceState(null, '', locationSearch + locationHash);
@@ -71,12 +80,38 @@ export class Debug extends Component<
   };
 
   updateFromConfig(): void {
+    console.log('updateFromConfig');
     this.setPurple(Config.map.debug['debug.background'] === 'magenta');
     this.adjustRaster('osm', Config.map.debug['debug.layer.osm']);
     this.adjustRaster('linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
     this.adjustVector(Config.map.debug['debug.layer.linz-topographic']);
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
+
+    if (this.state.tileSetId !== Config.map.layerId) {
+      this._loadingTileSet = this._loadingTileSet.then(() => this.loadTileSetConfig());
+    }
+  }
+
+  _loadingTileSet: Promise<void> = Promise.resolve();
+  async loadTileSetConfig(): Promise<void> {
+    const tileSetId = Config.map.layerId;
+    if (this.state.tileSet?.id === tileSetId) return;
+    return ConfigData.getTileSet(tileSetId).then((tileSet) => {
+      if (this.state.tileSetId === tileSet?.id) return;
+      this.setState({ ...this.state, tileSet, tileSetId, imageryId: null });
+
+      if (tileSet == null) return;
+      if (tileSet.layers.length !== 1) return;
+
+      const projectionCode = Config.map.tileMatrix.projection.code;
+      const imageryId = tileSet.layers[0][projectionCode];
+      if (imageryId == null) return;
+
+      return ConfigData.getImagery(tileSetId, imageryId).then((imagery) => {
+        this.setState({ ...this.state, tileSetId, imagery, imageryId: imagery?.id }, () => this.updateFromConfig());
+      });
+    });
   }
 
   render(): ComponentChild {
@@ -95,10 +130,21 @@ export class Debug extends Component<
           <label className="debug__label">TileMatrix </label>
           <div className="debug__value">{Config.map.tileMatrix.identifier}</div>
         </div>
+        {this.renderImageryInfo()}
         {this.renderSliders()}
         {this.renderPurple()}
         {this.renderCogToggle()}
         {this.renderSourceToggle()}
+      </div>
+    );
+  }
+
+  renderImageryInfo(): ComponentChild | null {
+    if (this.state.imagery == null) return null;
+    return (
+      <div className="debug__info">
+        <label className="debug__label">Imagery </label>
+        <div className="debug__value">{this.state.imagery.id}</div>
       </div>
     );
   }
@@ -118,26 +164,24 @@ export class Debug extends Component<
   }
 
   renderCogToggle(): ComponentChild {
-    // TODO this is a nasty hack to detect if a direct imageryId is being viewed
-    if (!Config.map.layerId.startsWith('01')) return null;
-    const cogLocation = WindowUrl.toImageryUrl(`im_${Config.map.layerId}`, 'covering.geojson');
+    if (this.state.imagery == null) return null;
 
     return (
       <Fragment>
         <div className="debug__info">
           <label className="debug__label">
-            <a href={cogLocation} title="Source geojson">
-              Cogs
-            </a>
+            {/* <a href={cogLocation} title="Source geojson"> */}
+            Cogs
+            {/* </a> */}
           </label>
           <input type="checkbox" onClick={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
         </div>
-        {this.state.featureSourceId == null ? null : (
-          <div className="debug__info" title={String(this.state.featureCogName)}>
-            <label className="debug__label">CogId</label>
-            {String(this.state.featureCogName).split('/').pop()}
-          </div>
-        )}
+        {/* {this.state.featureSourceId == null ? null : ( */}
+        <div className="debug__info" title={String(this.state.featureCogName)}>
+          <label className="debug__label">CogId</label>
+          {String(this.state.featureCogName).split('/').pop()}
+        </div>
+        {/* )} */}
       </Fragment>
     );
   }
@@ -170,7 +214,7 @@ export class Debug extends Component<
   toggleCogs = (e: Event): void => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.cog', target.checked);
-    this.setVectorShown(target.checked, 'cog');
+    this.setVectorShown(target.checked, 'config');
   };
 
   /** Show the source bounding box ont he map */
@@ -180,7 +224,7 @@ export class Debug extends Component<
     this.setVectorShown(target.checked, 'source');
   };
 
-  trackMouseMove(layerId: string, type: 'source' | 'cog'): void {
+  trackMouseMove(layerId: string, type: 'source' | 'cog' | 'config'): void {
     const sourceId = `${layerId}_${type}`;
     const layerFillId = `${sourceId}_fill`;
     const map = this.props.map;
@@ -211,7 +255,10 @@ export class Debug extends Component<
     });
   }
 
-  setVectorShown(isShown: boolean, type: 'source' | 'cog'): void {
+  setVectorShown(isShown: boolean, type: 'source' | 'cog' | 'config'): void {
+    if (type === 'cog' && this.state.imagery == null) return;
+
+    console.log('setVectorShown', this.state.imagery);
     const map = this.props.map;
 
     const layerId = Config.map.layerId;
@@ -258,8 +305,9 @@ export class Debug extends Component<
   }
 
   _layerLoading: Map<string, Promise<void>> = new Map();
-  loadSourceLayer(layerId: string, type: 'source' | 'cog'): Promise<void> {
+  loadSourceLayer(layerId: string, type: 'source' | 'cog' | 'config'): Promise<void> {
     const layerKey = `${layerId}-${type}`;
+
     let existing = this._layerLoading.get(layerKey);
     if (existing == null) {
       existing = this._loadSourceLayer(layerId, type);
@@ -268,22 +316,17 @@ export class Debug extends Component<
     return existing;
   }
 
-  async _loadSourceLayer(layerId: string, type: 'source' | 'cog'): Promise<void> {
+  async _loadSourceLayer(layerId: string, type: 'source' | 'cog' | 'config'): Promise<void> {
     const map = this.props.map;
 
     const sourceId = `${layerId}_${type}`;
     const layerFillId = `${sourceId}_fill`;
     if (map.getLayer(layerFillId) != null) return;
 
-    const sourceUri = WindowUrl.toImageryUrl(
-      `im_${layerId}`,
-      type === 'source' ? 'source.geojson' : 'covering.geojson',
-    );
+    const data = await fetchGeoJson(layerId, type, this.state.imagery);
+    if (data == null) return;
+    console.log(data);
 
-    const res = await fetch(sourceUri);
-    if (!res.ok) return;
-
-    const data: BBoxFeatureCollection = await res.json();
     if (Config.map.tileMatrix.projection !== GoogleTms.projection) projectGeoJson(data, Config.map.tileMatrix);
 
     let id = 0;
@@ -457,4 +500,25 @@ export function getTileServerUrl(tileServer: 'osm' | 'linz-aerial'): string {
   }
 
   throw new Error('Unknown tile server');
+}
+
+async function fetchGeoJson(
+  layerId: string,
+  type: 'source' | 'cog' | 'config',
+  imagery: ConfigImagery | null,
+): Promise<BBoxFeatureCollection | void> {
+  if (type === 'cog') {
+    if (imagery == null) return;
+    const tileMatrix = TileMatrixSets.find(imagery.tileMatrix);
+    if (tileMatrix == null) return;
+    return Projection.get(tileMatrix).toGeoJson(imagery.files);
+  }
+
+  const sourceUri = WindowUrl.toImageryUrl(`im_${layerId}`, type === 'source' ? 'source.geojson' : 'covering.geojson');
+
+  const res = await fetch(sourceUri);
+  if (!res.ok) return;
+
+  const data: BBoxFeatureCollection = await res.json();
+  return data;
 }

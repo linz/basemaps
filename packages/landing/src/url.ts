@@ -79,6 +79,16 @@ export const WindowUrl = {
     return `${this.baseUrl()}/v1/imagery/${layerId}/${imageryType}`;
   },
 
+  toConfigUrl(layerId: string, config: string | null = Config.map.config): string {
+    const query = toQueryString({ api: Config.ApiKey, config });
+    return `${this.baseUrl()}/v1/config/${layerId}.json${query}`;
+  },
+
+  toConfigImageryUrl(layerId: string, imageryId: string, config: string | null = Config.map.config): string {
+    const query = toQueryString({ api: Config.ApiKey, config });
+    return `${this.baseUrl()}/v1/config/${layerId}/${imageryId}.json${query}`;
+  },
+
   toTileUrl(
     urlType: MapOptionType,
     tileMatrix: TileMatrixSet,
