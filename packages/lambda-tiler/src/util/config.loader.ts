@@ -1,4 +1,4 @@
-import { base58, BasemapsConfigProvider } from '@basemaps/config';
+import { base58, BasemapsConfigProvider, isBase58 } from '@basemaps/config';
 import { LambdaHttpResponse } from '@linzjs/lambda';
 import { parseUri } from '@chunkd/core';
 import { LambdaHttpRequest } from '@linzjs/lambda';
@@ -27,7 +27,7 @@ export class ConfigLoader {
     const rawLocation = req.query.get('config');
     if (rawLocation == null) return this.getDefaultConfig();
 
-    const configLocation = rawLocation.includes('/') ? rawLocation : Buffer.from(base58.decode(rawLocation)).toString();
+    const configLocation = isBase58(rawLocation) ? Buffer.from(base58.decode(rawLocation)).toString() : rawLocation;
 
     const r = parseUri(configLocation);
 
