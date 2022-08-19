@@ -10,7 +10,7 @@ import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
 import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
-import { sha256base58 } from '../base58.js';
+import { sha256base58 } from '../base58.node.js';
 
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {

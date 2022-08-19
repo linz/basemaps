@@ -4,7 +4,7 @@ import maplibregl, { LngLatBoundsLike } from 'maplibre-gl';
 import { DebugState, DebugDefaults, ConfigDebug } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
-import { MapLocation, MapOptionType, WindowUrl } from './url.js';
+import { ensureBase58, MapLocation, MapOptionType, WindowUrl } from './url.js';
 
 /** Default center point if none provided */
 const DefaultCenter: Record<string, MapLocation> = {
@@ -108,7 +108,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   static toUrl(opts: MapConfig): string {
     const urlParams = new URLSearchParams();
     if (opts.style) urlParams.append('s', opts.style);
-    if (opts.config) urlParams.append('config', opts.config);
+    if (opts.config) urlParams.append('config', ensureBase58(opts.config));
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('p', opts.tileMatrix.identifier);
     ConfigDebug.toUrl(opts.debug, urlParams);

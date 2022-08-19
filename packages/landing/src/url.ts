@@ -1,6 +1,7 @@
 import { GoogleTms, ImageFormat, TileMatrixSet } from '@basemaps/geo';
 import { Config } from './config.js';
 import { toQueryString } from '@basemaps/shared/build/url.js';
+import { isBase58, base58 } from '@basemaps/config/build/base58.js';
 
 export interface LonLat {
   lat: number;
@@ -18,6 +19,17 @@ export const enum MapOptionType {
   TileWmts = 'tile-wmts',
   Wmts = 'wmts',
   Attribution = 'attribution',
+}
+
+export function ensureBase58(s: null): null;
+export function ensureBase58(s: string): string;
+export function ensureBase58(s: string | null): string | null;
+export function ensureBase58(s: string | null): string | null {
+  if (s == null) return null;
+  if (isBase58(s)) return s;
+  const text = new TextEncoder();
+  const buffer = text.encode(s);
+  return base58.encode(buffer);
 }
 
 export const WindowUrl = {
@@ -71,7 +83,7 @@ export const WindowUrl = {
   },
 
   toBaseWmts(): string {
-    const query = toQueryString({ api: Config.ApiKey, config: Config.map.config });
+    const query = toQueryString({ api: Config.ApiKey, config: ensureBase58(Config.map.config) });
     return `${this.baseUrl()}/v1/tiles/aerial/WMTSCapabilities.xml${query}`;
   },
 
@@ -88,7 +100,7 @@ export const WindowUrl = {
   ): string {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
-    if (config != null) queryParams.set('config', config);
+    if (config != null) queryParams.set('config', ensureBase58(config));
 
     if (urlType === MapOptionType.Style) {
       if (tileMatrix.identifier !== GoogleTms.identifier) queryParams.set('tileMatrix', tileMatrix.identifier);

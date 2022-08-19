@@ -153,21 +153,21 @@ o.spec('WindowUrl', () => {
     process.env.TILE_HOST = 'https://foo.bar.com';
 
     o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
-      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json`,
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M`,
     );
     o(mc.toTileUrl(MapOptionType.TileVectorXyz)).equals(
-      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.pbf?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json`,
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.pbf?api=${apiKey}&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M`,
     );
     o(mc.toTileUrl(MapOptionType.Attribution)).equals(
-      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json`,
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${apiKey}&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M`,
     );
     o(mc.toTileUrl(MapOptionType.Wmts)).equals(
-      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json`,
+      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${apiKey}&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M`,
     );
 
     WindowUrl.ImageFormat = 'png';
     o(mc.toTileUrl(MapOptionType.Style)).equals(
-      `https://foo.bar.com/v1/styles/aerial.json?api=${apiKey}&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json&format=png`,
+      `https://foo.bar.com/v1/styles/aerial.json?api=${apiKey}&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M&format=png`,
     );
   });
 
