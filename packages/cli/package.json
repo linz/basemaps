@@ -51,6 +51,7 @@
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
     "deep-diff": "^1.0.2",
+    "flatgeobuf": "^3.23.1",
     "get-port": "^6.1.2",
     "node-fetch": "^3.2.3",
     "p-limit": "^4.0.0",
