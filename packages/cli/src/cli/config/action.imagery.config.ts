@@ -131,7 +131,7 @@ export class CommandImageryConfig extends CommandLineAction {
       const outputPath = fsa.join(path, `basemaps-config-${configJson.hash}.json.gz`);
       await fsa.writeJson(outputPath, configJson);
       const configPath = base58.encode(Buffer.from(outputPath));
-      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${imagery.name}&tileMatrix=NZTM2000Quad${location}`;
+      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${imagery.name}&tileMatrix=NZTM2000Quad&debug${location}`;
       logger.info({ path: output, url }, 'ImageryConfig:Done');
       if (output != null) await fsa.write(output, url);
     } else {
