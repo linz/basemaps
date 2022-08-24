@@ -8,7 +8,6 @@ import { DeployEnv } from './deploy.env.js';
 import { EdgeStack } from './edge/index.js';
 import { getParameters, ParametersEdgeKeys, ParametersServeKeys } from './parameters.js';
 import { ServeStack } from './serve/index.js';
-import { CogStack } from './serve/lambda.cog.js';
 
 /** Find a certificate for a given domain in a specific region */
 async function findCertForDomain(region: string, domain: string): Promise<string | undefined> {
@@ -24,13 +23,6 @@ async function main(): Promise<void> {
   const account = Env.get(DeployEnv.CdkAccount);
 
   const config = getConfig();
-
-  // Alb certificates have to be deployed in the same region
-  const albCertificateArn = await findCertForDomain(BaseMapsRegion, config.Route53Zone);
-  if (albCertificateArn == null) {
-    console.error('Unable to find ALB Certificate');
-    return;
-  }
 
   // Cloudfront certs have to be deployed into us-east-1
   const cloudfrontCertificateArn = await findCertForDomain('us-east-1', config.CloudFrontDns[0]);
@@ -57,7 +49,6 @@ async function main(): Promise<void> {
 
   const serve = new ServeStack(basemaps, 'Serve', {
     env: { region: BaseMapsRegion, account },
-    albCertificateArn,
     staticBucketName: edgeParams?.CloudFrontBucket,
   });
   edge.addDependency(serve);
@@ -71,7 +62,6 @@ async function main(): Promise<void> {
     analytics.addDependency(edge);
   }
 
-  new CogStack(basemaps, 'LambdaCog', { env: { region: BaseMapsRegion, account } });
   new CogBuilderStack(basemaps, 'CogBuilder', { env: { region: BaseMapsRegion, account } });
 }
 

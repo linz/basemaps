@@ -52,30 +52,30 @@
   resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-8.4.0.tgz#749434f6ae6d8fd95405bb0b33d73ebae6583d79"
   integrity sha512-ayU+POyD/klSRJVf/x4ePeNnl6o+AFD87gTkqvwCuvh00snaJZGgtO7q8zzErAcDcvLla6mCElHtaQO6kn3dVw==
 
-"@chunkd/fs@^8.4.0":
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-8.4.0.tgz#cbb4add22a163b1a610e2af1339d88de9ea4585d"
-  integrity sha512-0PghRk1R8aJAP6YrGLQlQHlQNDEClAvwD6fN4J/K+FZ4ik0/RqzrcPWP54pNmGoZvGWqnNs0M2gG+bq2hJi8+g==
+"@chunkd/fs@^8.5.1":
+  version "8.5.1"
+  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-8.5.1.tgz#ac08b115f2e8b399441b6356ff83f48ca8368c41"
+  integrity sha512-C0OpeONuvIASxuEgF7jAEy0K2Xz5ITgeiza/5tx8je2SHNWFsqIVC/YTkLiG3IkQdI1UFYTdHcFV5VK+CKSNvA==
   dependencies:
     "@chunkd/core" "^8.4.0"
     "@chunkd/source-file" "^8.4.0"
     "@chunkd/source-http" "^8.4.0"
   optionalDependencies:
-    "@chunkd/source-aws" "^8.4.0"
+    "@chunkd/source-aws" "^8.5.1"
     "@chunkd/source-google-cloud" "^8.4.0"
 
-"@chunkd/source-aws-v2@^8.4.0":
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-aws-v2/-/source-aws-v2-8.4.0.tgz#5e44bb31e8cdcb41991250cb0b2b4c04cec1ef8f"
-  integrity sha512-B7RlfLpuagtOYU414AGOPXSWMqHo+6d9NA6R6UdpEalvMDkT1M/hXkJG443Gpu0jViyq+x2YxEjupBU1ZeoZdQ==
+"@chunkd/source-aws-v2@^8.5.1":
+  version "8.5.1"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws-v2/-/source-aws-v2-8.5.1.tgz#c3a2a3f9660e740cf495420f86ba22f0a88d1cf1"
+  integrity sha512-ABmgcqJu+6hob5n7li1tb7aQzukvThJ/hSqBtA+y6I1Dvbq7wxpiutYK90L+1Fd6PnGj24i7SQ/WZD7ab1XiDg==
   dependencies:
     "@chunkd/core" "^8.4.0"
-    "@chunkd/source-aws" "^8.4.0"
+    "@chunkd/source-aws" "^8.5.1"
 
-"@chunkd/source-aws@^8.4.0":
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-8.4.0.tgz#4dc8ab748a87fd15f29d93ef872375998e90f0e2"
-  integrity sha512-GwUuQ2Z6mdws1hRv7nilszvTnGZx+X3IMtB+wR8oT76ISxd1fXp19tGB7YqtcHnqQIBMWCk+XzjfDoFyGJ2xcg==
+"@chunkd/source-aws@^8.5.1":
+  version "8.5.1"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-8.5.1.tgz#6d07b904820c3f4ab5339eadcca61e34af7a6921"
+  integrity sha512-jJ5N6WktOSE5k+uq7lXJl9d9RR/b2sKBJP3nY76gy2SZE8rbOC3kLUMShKiMSiOZSPPZr6Q4Oqgbg5R4L3FG5g==
   dependencies:
     "@chunkd/core" "^8.4.0"
 

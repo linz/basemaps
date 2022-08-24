@@ -1,6 +1,6 @@
 import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { Bounds, Nztm2000QuadTms } from '@basemaps/geo';
-import { fsa, LogConfig, Projection, RoleRegister } from '@basemaps/shared';
+import { fsa, LogConfig, Projection } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { ulid } from 'ulid';
@@ -44,9 +44,6 @@ export class CommandImageryConfig extends CommandLineAction {
     if (!path.endsWith('/')) path += '/';
     const commit = this.commit.value ?? false;
     const output = this.output.value;
-
-    const assumedRole = await RoleRegister.findRole(path);
-    if (assumedRole) logger.debug({ path, roleArn: assumedRole?.roleArn }, 'ImageryConfig:AssumeRole');
 
     logger.info({ path }, 'ImageryConfig:List');
     const sourceFiles = await fsa.toArray(fsa.list(path));

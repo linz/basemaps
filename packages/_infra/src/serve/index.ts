@@ -5,9 +5,6 @@ import { TileMetadataTable } from './db.js';
 import { LambdaTiler } from './lambda.tiler.js';
 
 export interface ServeStackProps extends cdk.StackProps {
-  /** ACM certificate to use for the ALB */
-  albCertificateArn: string;
-
   /** Location of static files */
   staticBucketName?: string;
 }
