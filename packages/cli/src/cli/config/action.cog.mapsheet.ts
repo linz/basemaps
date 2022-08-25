@@ -83,6 +83,7 @@ export class CommandCogMapSheet extends CommandLineAction {
       const bounds = Bounds.fromMultiPolygon((feature.geometry as MultiPolygon).coordinates);
 
       for (const layer of layers) {
+        if (layer.minZoom != null && layer.minZoom >= 32) continue;
         if (layer[2193] == null) continue;
         const img = imagery.get(layer[2193]);
         if (img == null) continue;
