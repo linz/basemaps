@@ -66,7 +66,9 @@ export class CommandCogMapSheet extends CommandLineAction {
 
     const aerial = await men.TileSet.get('ts_aerial');
     if (aerial == null) throw new Error('Invalid config file.');
-    const layers = aerial.layers.filter((c) => c[2193] != null && (c.maxZoom == null || c.maxZoom > 19));
+    const layers = aerial.layers.filter(
+      (c) => c[2193] != null && (c.maxZoom == null || c.maxZoom > 19) && (c.minZoom == null || c.minZoom < 32),
+    );
     const imageryIds = new Set<string>();
     for (const layer of layers) {
       if (layer[2193] != null) imageryIds.add(layer[2193]);
@@ -83,7 +85,6 @@ export class CommandCogMapSheet extends CommandLineAction {
       const bounds = Bounds.fromMultiPolygon((feature.geometry as MultiPolygon).coordinates);
 
       for (const layer of layers) {
-        if (layer.minZoom != null && layer.minZoom >= 32) continue;
         if (layer[2193] == null) continue;
         const img = imagery.get(layer[2193]);
         if (img == null) continue;
