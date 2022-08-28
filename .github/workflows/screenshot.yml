@@ -36,6 +36,11 @@ jobs:
       - name: (Screenshot) Screenshot Pull Request Changes
         run: |
           ./packages/cli/bin/bmc.js serve &
+          
+          # Wait for the server to start
+          sleep 1
+          curl http://localhost:5000/v1/version
+          
           docker run --rm -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1.1.1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
         
       - name: Save snapshots
