@@ -38,9 +38,12 @@ export async function canRead(path: string): Promise<boolean> {
 }
 
 export class RoleRegister {
+  static get configPath(): string | undefined {
+    return Env.get(Env.AwsRoleConfigPath);
+  }
   /** Get all imagery source aws roles */
   static async _loadRoles(): Promise<RoleConfig[]> {
-    const configPath = Env.get(Env.AwsRoleConfigPath);
+    const configPath = this.configPath;
     if (configPath == null) return [];
     const config: BucketConfig = await fsa.readJson(configPath);
     return config.buckets;
@@ -52,10 +55,21 @@ export class RoleRegister {
     return RoleRegister._loadRolesPromise;
   }
 
-  static async findRole(path: string): Promise<RoleConfig | undefined> {
-    const isAbleToRead = await canRead(path);
-    // If we can directly read/write this path we don't need to register a role for it
-    if (isAbleToRead) return;
+  /**
+   * Attempt to read a s3 location if it fails attempt to lookup a read role for it.
+   *
+   * @param path location to read
+   * @param attemptRead Should a read be attempted first
+   * @returns Role if exists
+   */
+  static async findRole(path: string, attemptRead = true): Promise<RoleConfig | undefined> {
+    // Cannot lookup a role to find the config!
+    if (path === this.configPath) return;
+    if (attemptRead) {
+      const isAbleToRead = await canRead(path);
+      // If we can directly read/write this path we don't need to register a role for it
+      if (isAbleToRead) return;
+    }
 
     const roles = await this.loadRoles();
     const targetRole = roles.find((f) => path.startsWith(`s3://${f.bucket}`));

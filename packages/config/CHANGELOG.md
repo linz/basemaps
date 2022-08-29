@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
+
+
+### Features
+
+* **lambda-tiler:** Assets provider to get assets from any location. ([#2374](https://github.com/linz/basemaps/issues/2374)) ([c145f28](https://github.com/linz/basemaps/commit/c145f283bf5875d5e7b15909cc37811b029303f4))
+* **lambda-tiler:** Provide support for Arcgis online vector map. BM-78 ([#2403](https://github.com/linz/basemaps/issues/2403)) ([900a84e](https://github.com/linz/basemaps/commit/900a84e2b0275ae84fe327e9a91493f0aaa5c2e7))
+
+
+
+
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/config

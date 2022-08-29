@@ -1,9 +1,10 @@
-import { Config, ConfigProviderMemory } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
 import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import o from 'ospec';
 import sinon from 'sinon';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { FakeData } from '../../__tests__/config.data.js';
 
 import { getTestBuffer, healthGet, TestTiles } from '../health.js';
@@ -29,11 +30,12 @@ o.spec('/v1/health', async () => {
   const fakeTileSet = FakeData.tileSetRaster('health');
   o.beforeEach(() => {
     config.objects.clear();
-    Config.setConfigProvider(config);
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
     config.put(fakeTileSet);
   });
 
   o.afterEach(() => {
+    config.objects.clear();
     sandbox.restore();
   });
 

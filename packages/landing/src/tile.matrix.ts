@@ -1,6 +1,7 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet } from '@basemaps/geo';
 import { Projection } from '@basemaps/shared/build/proj/projection.js';
 import { StyleSpecification } from 'maplibre-gl';
+import { Config } from './config.js';
 import { MapLocation, MapOptionType, WindowUrl } from './url.js';
 
 export class TileGrid {
@@ -11,21 +12,8 @@ export class TileGrid {
     this.extraZoomLevels = extraZoomLevels;
   }
 
-  getStyle(layerId: string, style?: string | null): StyleSpecification | string {
-    if (layerId === 'topographic') {
-      return WindowUrl.toTileUrl(MapOptionType.TileVectorStyle, this.tileMatrix, layerId, style);
-    }
-    return {
-      version: 8,
-      sources: {
-        basemaps: {
-          type: 'raster',
-          tiles: [WindowUrl.toTileUrl(MapOptionType.TileRaster, this.tileMatrix, layerId)],
-          tileSize: 256,
-        },
-      },
-      layers: [{ id: 'LINZ Raster Basemaps', type: 'raster', source: 'basemaps' }],
-    };
+  getStyle(layerId: string, style?: string | null, config = Config.map.config): StyleSpecification | string {
+    return WindowUrl.toTileUrl(MapOptionType.Style, this.tileMatrix, layerId, style, config);
   }
 }
 

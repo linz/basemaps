@@ -1,10 +1,14 @@
+/** This file is able to be directly imported in the web, soo all nodejs logic is in ./base58.node.ts */
 import baseX from 'base-x';
-import { BinaryLike, createHash } from 'crypto';
 
 const Base58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 export const base58 = baseX(Base58);
 
-/** Hash something with sha256 then encode it as a base58 text string */
-export function sha256base58(obj: BinaryLike): string {
-  return base58.encode(createHash('sha256').update(obj).digest());
+const Base58ValidCharacters = new Set(Base58);
+
+export function isBase58(s: string): boolean {
+  for (let i = 0; i < s.length; i++) {
+    if (!Base58ValidCharacters.has(s.charAt(i))) return false;
+  }
+  return true;
 }

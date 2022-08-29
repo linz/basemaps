@@ -1,4 +1,4 @@
-import { ConfigTileSet, TileSetType } from '@basemaps/config';
+import { ConfigProvider, ConfigTileSet, getAllImagery, TileSetType } from '@basemaps/config';
 import {
   AttributionCollection,
   AttributionItem,
@@ -8,11 +8,13 @@ import {
   NamedBounds,
   Stac,
   StacExtent,
+  StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { Config, extractYearRangeFromName, Projection, titleizeImageryName } from '@basemaps/shared';
+import { extractYearRangeFromName, Projection, titleizeImageryName } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { ConfigLoader } from '../util/config.loader.js';
 
 import { Etag } from '../util/etag.js';
 import { NotFound, NotModified } from '../util/response.js';
@@ -62,6 +64,11 @@ function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projection): 
   return multiPolygonToWgs84(coordinates, roundToWgs84);
 }
 
+function getHost(host: ConfigProvider | null): StacProvider[] | undefined {
+  if (host == null) return undefined;
+  return [{ name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] }];
+}
+
 /**
  * Build a Single File STAC for the given TileSet.
  *
@@ -77,10 +84,10 @@ async function tileSetAttribution(
   const cols: AttributionCollection[] = [];
   const items: AttributionItem[] = [];
 
-  const imagery = await Config.getAllImagery(tileSet.layers, [tileMatrix.projection]);
+  const config = await ConfigLoader.load(req);
+  const imagery = await getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
 
-  const host = await Config.Provider.get(Config.Provider.id('linz'));
-  if (host == null) return null;
+  const host = await config.Provider.get(config.Provider.id('linz'));
 
   for (const layer of tileSet.layers) {
     const imgId = layer[proj.epsg.code];
@@ -91,7 +98,13 @@ async function tileSetAttribution(
     const bbox = proj.boundsToWgs84BoundingBox(im.bounds).map(roundNumber) as BBox;
 
     const years = extractYearRangeFromName(im.name);
-    if (years[0] === -1) throw new Error('Missing date in imagery name: ' + im.name);
+    if (years[0] === -1) {
+      req.log.debug({ imagery: im.name }, 'Attribution:DefaultYear');
+      // Put it in the future so people know its a "fake" date
+      years[0] = new Date().getUTCFullYear() + 1;
+      years[1] = years[0] + 1;
+    }
+
     const interval = [years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]];
 
     const extent: StacExtent = { spatial: { bbox: [bbox] }, temporal: { interval } };
@@ -120,7 +133,7 @@ async function tileSetAttribution(
       stac_version: Stac.Version,
       license: Stac.License,
       id: im.id,
-      providers: [{ name: host.serviceProvider.name, url: host.serviceProvider.site, roles: ['host'] }],
+      providers: getHost(host),
       title: im.title ?? titleizeImageryName(im.name),
       description: 'No description',
       extent,
@@ -159,8 +172,10 @@ export async function tileAttributionGet(req: LambdaHttpRequest<TileAttributionG
   const tileMatrix = Validate.getTileMatrixSet(req.params.tileMatrix);
   if (tileMatrix == null) throw new LambdaHttpResponse(404, 'Tile Matrix not found');
 
+  const config = await ConfigLoader.load(req);
+
   req.timer.start('tileset:load');
-  const tileSet = await Config.TileSet.get(Config.TileSet.id(req.params.tileSet));
+  const tileSet = await config.TileSet.get(config.TileSet.id(req.params.tileSet));
   req.timer.end('tileset:load');
   if (tileSet == null || tileSet.type === TileSetType.Vector) return NotFound();
 

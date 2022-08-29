@@ -1,7 +1,6 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import o from 'ospec';
 import sinon from 'sinon';
-import { Config } from '../../base.config.js';
 import { ConfigImagery } from '../../config/imagery.js';
 import { ConfigTileSet } from '../../config/tile.set.js';
 import { ConfigDynamoCached } from '../dynamo.config.cached.js';
@@ -44,7 +43,6 @@ o.spec('ConfigDynamo', () => {
 
   o.beforeEach(() => {
     provider = new ConfigProviderDynamo('Foo');
-    Config.setConfigProvider(provider);
     fakeDynamo = new FakeDynamoDb();
     provider.dynamo = fakeDynamo as any;
   });
@@ -52,7 +50,7 @@ o.spec('ConfigDynamo', () => {
   o.afterEach(() => sandbox.restore());
 
   o('should not get if missing', async () => {
-    const ret = await Config.TileSet.get('ts_abc123');
+    const ret = await provider.TileSet.get('ts_abc123');
 
     o(fakeDynamo.get).deepEquals([{ Key: { id: { S: 'ts_abc123' } }, TableName: 'Foo' }]);
     o(ret).equals(null);
@@ -60,7 +58,7 @@ o.spec('ConfigDynamo', () => {
 
   o('should get', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
-    const ret = await Config.TileSet.get('ts_abc123');
+    const ret = await provider.TileSet.get('ts_abc123');
 
     o(fakeDynamo.get).deepEquals([{ Key: { id: { S: 'ts_abc123' } }, TableName: 'Foo' }]);
     o(ret).deepEquals({ id: 'ts_abc123' } as ConfigTileSet);
@@ -69,7 +67,7 @@ o.spec('ConfigDynamo', () => {
   o('should get-all', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
     fakeDynamo.values.set('ts_abc456', { id: 'ts_abc456' });
-    const ret = await Config.TileSet.getAll(new Set(fakeDynamo.values.keys()));
+    const ret = await provider.TileSet.getAll(new Set(fakeDynamo.values.keys()));
 
     o(fakeDynamo.getAll[0].RequestItems.Foo.Keys).deepEquals([{ id: { S: 'ts_abc123' } }, { id: { S: 'ts_abc456' } }]);
     o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
@@ -77,7 +75,7 @@ o.spec('ConfigDynamo', () => {
 
   o('should throw without prefix', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
-    const ret = await Config.TileSet.get('abc123').catch((e) => e);
+    const ret = await provider.TileSet.get('abc123').catch((e) => e);
 
     o(fakeDynamo.get).deepEquals([]);
     o(String(ret)).deepEquals('Error: Trying to query "abc123" expected prefix of ts');
@@ -85,13 +83,13 @@ o.spec('ConfigDynamo', () => {
 
   o('should get-all partial', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
-    const ret = await Config.TileSet.getAll(new Set(['ts_abc123', 'ts_abc456']));
+    const ret = await provider.TileSet.getAll(new Set(['ts_abc123', 'ts_abc456']));
     o(fakeDynamo.getAll[0].RequestItems.Foo.Keys).deepEquals([{ id: { S: 'ts_abc123' } }, { id: { S: 'ts_abc456' } }]);
     o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
   });
 
   o('should throw if on wrong prefix', async () => {
-    const ret = await Config.TileSet.get('im_abc123').catch((e) => e);
+    const ret = await provider.TileSet.get('im_abc123').catch((e) => e);
     o(fakeDynamo.get).deepEquals([]);
     o(String(ret)).deepEquals('Error: Trying to query "im_abc123" expected prefix of ts');
   });
@@ -99,7 +97,7 @@ o.spec('ConfigDynamo', () => {
   o('should throw on prefixed and un-prefixed', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
 
-    const ret = Config.TileSet.getAll(new Set(['abc123', 'ts_abc123']));
+    const ret = provider.TileSet.getAll(new Set(['abc123', 'ts_abc123']));
     const err = await ret.then(() => null).catch((e) => e);
     o(String(err)).equals('Error: Trying to query "abc123" expected prefix of ts');
     o(fakeDynamo.getAll).deepEquals([]);
@@ -110,9 +108,9 @@ o.spec('ConfigDynamo', () => {
       fakeDynamo.values.set('im_abc123', { id: 'im_abc123' });
       fakeDynamo.values.set('im_abc456', { id: 'im_abc456' });
 
-      const cached = Config.Imagery as ConfigDynamoCached<ConfigImagery>;
+      const cached = provider.Imagery as ConfigDynamoCached<ConfigImagery>;
       cached.cache.set('im_abc123', { id: 'im_abc123' } as ConfigImagery);
-      const ret = await Config.Imagery.getAll(new Set(['im_abc123', 'im_abc456']));
+      const ret = await provider.Imagery.getAll(new Set(['im_abc123', 'im_abc456']));
 
       o(fakeDynamo.getAll[0].RequestItems.Foo.Keys).deepEquals([{ id: { S: 'im_abc456' } }]);
       o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
@@ -121,9 +119,9 @@ o.spec('ConfigDynamo', () => {
     o('should get with cache', async () => {
       fakeDynamo.values.set('im_abc123', { id: 'im_abc123' });
 
-      const cached = Config.Imagery as ConfigDynamoCached<ConfigImagery>;
+      const cached = provider.Imagery as ConfigDynamoCached<ConfigImagery>;
       cached.cache.set('im_abc123', { id: 'im_abc123' } as ConfigImagery);
-      const ret = await Config.Imagery.get('im_abc123');
+      const ret = await provider.Imagery.get('im_abc123');
 
       o(fakeDynamo.get).deepEquals([]);
       o(ret).deepEquals({ id: 'im_abc123' } as ConfigImagery);

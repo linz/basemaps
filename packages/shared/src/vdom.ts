@@ -123,7 +123,7 @@ export class VNodeElement extends VNode {
     for (const key of keys) {
       const val = this.attrs[key];
       if (val == null) continue;
-      out += ` ${key}="${val}"`;
+      out += ` ${key}="${escapeUTF8(val)}"`;
     }
     return out;
   }

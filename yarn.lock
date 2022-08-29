@@ -42,16 +42,6 @@
   resolved "https://registry.yarnpkg.com/@balena/dockerignore/-/dockerignore-1.0.2.tgz#9ffe4726915251e8eb69f44ef3547e0da2c03e0d"
   integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
 
-"@basemaps/lambda@^6.7.0":
-  version "6.7.0"
-  resolved "https://registry.yarnpkg.com/@basemaps/lambda/-/lambda-6.7.0.tgz#7e7f002aa875b6ee2421b3f33ca1fd8b77669296"
-  integrity sha512-mO3YJpdaJDhtfyENQke44KoDPreD026ZMGRz/77c4vV9RnBhD8bcCGGpgPWTk5J7qor5Fjpu//yQmYnTrfC4CQ==
-  dependencies:
-    "@basemaps/shared" "^6.7.0"
-    "@linzjs/metrics" "^6.0.0"
-    source-map-support "^0.5.19"
-    ulid "^2.3.0"
-
 "@chunkd/core@^8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-8.1.0.tgz#724da02f4059eef853c8b690af6729d77d54702c"
@@ -976,12 +966,11 @@
     npmlog "^6.0.2"
     write-file-atomic "^3.0.3"
 
-"@linzjs/lambda@^3.2.1":
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-3.2.1.tgz#61264b4a8ee5c3d0a7fc7687bd7f4c1ddb6bf4c8"
-  integrity sha512-gtNeumdN0/aqS0WJlwNoN9otfcL1kVGCppU9hLaco+sK+uX9rUdzOiiaiCCtJ3qODUwZwv7onP8lTpgSdm5hCQ==
+"@linzjs/lambda@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lambda/-/lambda-4.0.0.tgz#807b894ede39f763ab1634993d4d32fc97e12fa6"
+  integrity sha512-gJgpNZ4ARWKJU1Lv1pIQA8dQ1irhiaF63Rsll6t3LxSaTDRgi4N5zKwRpVvLKM7MQt7EHiT7l/NLtUbM/GsWog==
   dependencies:
-    "@linzjs/metrics" "^6.21.1"
     find-my-way "^7.0.0"
     pino "^8.3.0"
     ulid "^2.3.0"
@@ -1373,6 +1362,11 @@
   version "2.10.2"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.10.2.tgz#0798c03351f0dea1a5a4cabddf26a55a7cbee590"
   integrity sha512-IXf3XA7+XyN7CP9gGh/XB0UxVMlvARGEgGXLubFICsUMGz6Q+DU+i4gGlpOxTjKvXjkJDJC8YdqdKkDj9qZHEQ==
+
+"@repeaterjs/repeater@3.0.4":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@repeaterjs/repeater/-/repeater-3.0.4.tgz#a04d63f4d1bf5540a41b01a921c9a7fddc3bd1ca"
+  integrity sha512-AW8PKd6iX3vAZ0vA43nOUOnbq/X5ihgU+mSXXqunMkeQADGiqw/PY0JNeYtD5sr0PAy51YPgAPbDoeapv9r8WA==
 
 "@rushstack/ts-command-line@^4.3.13":
   version "4.11.1"
@@ -3675,6 +3669,20 @@ flat-cache@^3.0.4:
   dependencies:
     flatted "^3.1.0"
     rimraf "^3.0.2"
+
+flatbuffers@2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/flatbuffers/-/flatbuffers-2.0.6.tgz#3aa3a39d282af9a660b4a0cdd1bb7ad91874abfc"
+  integrity sha512-QTTZTXTbVfuOVQu2X6eLOw4vefUxnFJZxAKeN3rEPhjEzBtIbehimJLfVGHPM8iX0Na+9i76SBEg0skf0c0sCA==
+
+flatgeobuf@^3.23.1:
+  version "3.23.1"
+  resolved "https://registry.yarnpkg.com/flatgeobuf/-/flatgeobuf-3.23.1.tgz#c2aab304be8209269894ea4c8e1833ede6da3b0e"
+  integrity sha512-u3MQnbMzL28Eiq7TbyzT6V/Ai70TI+zr1E8tu/m0g9bcxmuO2lT1iaocRX/7wYRLIijiZz2V4SVxCVenFG3JOg==
+  dependencies:
+    "@repeaterjs/repeater" "3.0.4"
+    flatbuffers "2.0.6"
+    slice-source "0.4.1"
 
 flatted@^3.1.0:
   version "3.1.0"
@@ -6033,18 +6041,6 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-core@1.22.2:
-  version "1.22.2"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.22.2.tgz#ed2963d79d71c2a18d5a6fd25b60b9f0a344661a"
-  integrity sha512-w/hc/Ld0RM4pmsNeE6aL/fPNWw8BWit2tg+TfqJ3+p59c6s3B6C8mXvXrIPmfQEobkcFDc+4KirNzOQ+uBSP1Q==
-
-playwright@^1.22.2:
-  version "1.22.2"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.22.2.tgz#353a7c29f89ca9600edc7a9a30aed790823c797d"
-  integrity sha512-hUTpg7LytIl3/O4t0AQJS1V6hWsaSY5uZ7w1oCC8r3a1AQN5d6otIdCkiB3cbzgQkcMaRxisinjMFMVqZkybdQ==
-  dependencies:
-    playwright-core "1.22.2"
-
 pngjs@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-4.0.1.tgz#f803869bb2fc1bfe1bf99aa4ec21c108117cfdbe"
@@ -6890,6 +6886,11 @@ slash@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
+
+slice-source@0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/slice-source/-/slice-source-0.4.1.tgz#40a57ac03c6668b5da200e05378e000bf2a61d79"
+  integrity sha512-YiuPbxpCj4hD9Qs06hGAz/OZhQ0eDuALN0lRWJez0eD/RevzKqGdUx1IOMUnXgpr+sXZLq3g8ERwbAH0bCb8vg==
 
 smart-buffer@^4.1.0:
   version "4.1.0"

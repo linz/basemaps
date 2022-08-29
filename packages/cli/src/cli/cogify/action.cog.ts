@@ -1,4 +1,4 @@
-import { Config, Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
+import { Env, fsa, getDefaultConfig, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
 import { CliId } from '@basemaps/shared/build/cli/base.js';
 import {
   CommandLineAction,
@@ -81,6 +81,8 @@ export class CommandCogCreate extends CommandLineAction {
     const jobLocation = this.job?.value;
     if (jobLocation == null) throw new Error('Missing job name');
 
+    const cfg = getDefaultConfig();
+
     const isCommit = this.commit?.value ?? false;
     const job = await CogStacJob.load(jobLocation);
 
@@ -110,12 +112,12 @@ export class CommandCogCreate extends CommandLineAction {
       const processingId = job.json.processingId;
       if (processingId != null) {
         // Update job status if this is the processing job.
-        const jobConfig = await Config.ProcessingJob.get(processingId);
+        const jobConfig = await cfg.ProcessingJob.get(processingId);
         if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + processingId);
         const jobFailed = jobConfig as ProcessingJobFailed;
         jobFailed.status = JobStatus.Fail;
         jobFailed.error = String(e);
-        if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobFailed);
+        if (cfg.ProcessingJob.isWriteable()) await cfg.ProcessingJob.put(jobFailed);
         else throw new Error('Unable update the Processing Job status:' + jobFailed.id);
       }
 
@@ -190,23 +192,23 @@ export class CommandCogCreate extends CommandLineAction {
       expectedTiffs.delete(basename);
     }
 
+    const cfg = getDefaultConfig();
     if (expectedTiffs.size === 0) {
       // Insert Imagery and TileSet Config
-      await insertConfigImagery(job, logger);
-      await insertConfigTileSet(job, logger);
+      await insertConfigImagery(cfg, job, logger);
+      await insertConfigTileSet(cfg, job, logger);
 
       // Update job status if this is the processing job.
       const url = await prepareUrl(job);
       const processingId = job.json.processingId;
       if (processingId != null) {
-        const jobConfig = await Config.ProcessingJob.get(processingId);
+        const jobConfig = await cfg.ProcessingJob.get(processingId);
 
         if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + processingId);
         const jobComplete = jobConfig as ProcessingJobComplete;
         jobComplete.status = JobStatus.Complete;
         jobComplete.url = url;
-        if (Config.ProcessingJob.isWriteable()) await Config.ProcessingJob.put(jobConfig);
-        else throw new Error('Unable update the Processing Job status:' + jobConfig.id);
+        if (cfg.ProcessingJob.isWriteable()) await cfg.ProcessingJob.put(jobConfig);
       }
       logger.info({ tiffCount: jobSize, tiffTotal: jobSize, url }, 'CogCreate:JobComplete');
     } else {

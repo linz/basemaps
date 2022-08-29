@@ -1,4 +1,4 @@
-import { Config, ConfigTileSetRaster } from '@basemaps/config';
+import { ConfigTileSetRaster } from '@basemaps/config';
 import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import * as fs from 'fs';
@@ -6,6 +6,7 @@ import * as path from 'path';
 import PixelMatch from 'pixelmatch';
 import Sharp from 'sharp';
 import url from 'url';
+import { ConfigLoader } from '../util/config.loader.js';
 import { TileXyz } from '../util/validate.js';
 import { TileXyzRaster } from './tile.xyz.raster.js';
 
@@ -53,7 +54,8 @@ export async function updateExpectedTile(test: TestTile, newTileData: Buffer, di
  * @throws LambdaHttpResponse for failure health test
  */
 export async function healthGet(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
-  const tileSet = await Config.TileSet.get(Config.TileSet.id('health'));
+  const config = await ConfigLoader.load(req);
+  const tileSet = await config.TileSet.get(config.TileSet.id('health'));
   if (tileSet == null) throw new LambdaHttpResponse(500, 'TileSet: "health" not found');
   for (const test of TestTiles) {
     // Get the parse response tile to raw buffer

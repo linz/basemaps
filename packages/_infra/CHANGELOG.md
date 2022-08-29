@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
+
+
+### Bug Fixes
+
+* **infra:** fail deployments if something goes wrong ([#2410](https://github.com/linz/basemaps/issues/2410)) ([faaee5c](https://github.com/linz/basemaps/commit/faaee5c7b826a99e0c8d3cc4c282facf8430b4f8))
+
+
+### Features
+
+* **infra:** Grant read access to workflow artifact buckets. ([#2428](https://github.com/linz/basemaps/issues/2428)) ([14deef8](https://github.com/linz/basemaps/commit/14deef8298df4383f78dc041e43a0e6d2dfb0497))
+* **lambda-tiler:** Provide get info api and post tileserver api for arcgis BM-78 ([#2407](https://github.com/linz/basemaps/issues/2407)) ([d9b091b](https://github.com/linz/basemaps/commit/d9b091bf4e6fd2b91804a7b9bbcd388dd8b75ee8))
+
+
+
+
+
 # [6.33.0](https://github.com/linz/basemaps/compare/v6.32.2...v6.33.0) (2022-08-01)
 
 **Note:** Version bump only for package @basemaps/infra

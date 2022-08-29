@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
+
+
+### Bug Fixes
+
+* **server:** error if port is in use ([#2418](https://github.com/linz/basemaps/issues/2418)) ([a469af3](https://github.com/linz/basemaps/commit/a469af3685899c9ece6f6a4394089a341c0672b5))
+
+
+### Features
+
+* **lambda-tiler:** Provide get info api and post tileserver api for arcgis BM-78 ([#2407](https://github.com/linz/basemaps/issues/2407)) ([d9b091b](https://github.com/linz/basemaps/commit/d9b091bf4e6fd2b91804a7b9bbcd388dd8b75ee8))
+
+
+
+
+
 # [6.33.0](https://github.com/linz/basemaps/compare/v6.32.2...v6.33.0) (2022-08-01)
 
 **Note:** Version bump only for package @basemaps/server

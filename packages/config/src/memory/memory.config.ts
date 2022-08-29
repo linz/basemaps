@@ -1,6 +1,6 @@
 import { EpsgCode, ImageFormat } from '@basemaps/geo';
 import { decodeTime, ulid } from 'ulid';
-import { BasemapsConfigObject, BasemapsConfigProvider, Config } from '../base.config.js';
+import { BasemapsConfigObject, BasemapsConfigProvider, ConfigId } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
@@ -10,7 +10,7 @@ import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
 import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
-import { sha256base58 } from '../base58.js';
+import { sha256base58 } from '../base58.node.js';
 
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
@@ -26,10 +26,10 @@ export interface ConfigBundled {
 }
 
 function isConfigImagery(i: BaseConfig): i is ConfigImagery {
-  return Config.getPrefix(i.id) === ConfigPrefix.Imagery;
+  return ConfigId.getPrefix(i.id) === ConfigPrefix.Imagery;
 }
 function isConfigTileSet(i: BaseConfig): i is ConfigTileSet {
-  return Config.getPrefix(i.id) === ConfigPrefix.TileSet;
+  return ConfigId.getPrefix(i.id) === ConfigPrefix.TileSet;
 }
 
 /** Force a unknown object into a Record<string, unknown> type */
@@ -100,7 +100,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     }
 
     cfg.hash = sha256base58(JSON.stringify(cfg));
-    cfg.id = Config.prefix(ConfigPrefix.ConfigBundle, ulid());
+    cfg.id = ConfigId.prefix(ConfigPrefix.ConfigBundle, ulid());
 
     return cfg;
   }
@@ -125,7 +125,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   /** Create a tileset by the standardized name */
   imageryToTileSetName(i: ConfigImagery): void {
     const targetName = standardizeLayerName(i.name);
-    const targetId = Config.prefix(ConfigPrefix.TileSet, targetName);
+    const targetId = ConfigId.prefix(ConfigPrefix.TileSet, targetName);
     let existing = this.objects.get(targetId) as ConfigTileSet;
     if (existing == null) {
       existing = {
@@ -150,7 +150,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   static imageryToTileSet(i: ConfigImagery): ConfigTileSet {
     return {
       type: TileSetType.Raster,
-      id: Config.prefix(ConfigPrefix.TileSet, Config.unprefix(ConfigPrefix.Imagery, i.id)),
+      id: ConfigId.prefix(ConfigPrefix.TileSet, ConfigId.unprefix(ConfigPrefix.Imagery, i.id)),
       name: i.name,
       format: ImageFormat.Webp,
       layers: [{ [i.projection]: i.id, name: i.name, minZoom: 0, maxZoom: 32 }],
@@ -170,7 +170,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     if (i == null) return;
 
     const targetName = ts.name + ':' + i.name;
-    const targetId = Config.prefix(ConfigPrefix.TileSet, targetName);
+    const targetId = ConfigId.prefix(ConfigPrefix.TileSet, targetName);
     let existing = this.objects.get(targetId) as ConfigTileSet;
     if (existing == null) {
       existing = {
@@ -192,11 +192,11 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   /** Load a bundled configuration creating virtual tilesets for all imagery */
   static fromJson(cfg: ConfigBundled): ConfigProviderMemory {
-    if (cfg.id == null || Config.getPrefix(cfg.id) !== ConfigPrefix.ConfigBundle) {
+    if (cfg.id == null || ConfigId.getPrefix(cfg.id) !== ConfigPrefix.ConfigBundle) {
       throw new Error('Provided configuration file is not a basemaps config bundle.');
     }
     // Load the time the bundle was created from the ULID
-    const updatedAt = decodeTime(Config.unprefix(ConfigPrefix.ConfigBundle, cfg.id));
+    const updatedAt = decodeTime(ConfigId.unprefix(ConfigPrefix.ConfigBundle, cfg.id));
     // TODO this should validate the config
     const mem = new ConfigProviderMemory();
     for (const ts of cfg.tileSet) mem.put(ts);

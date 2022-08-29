@@ -1,4 +1,4 @@
-import { Config, ConfigImagery, ConfigTileSet, TileSetType } from '@basemaps/config';
+import { BasemapsConfigProvider, ConfigImagery, ConfigTileSet, TileSetType } from '@basemaps/config';
 import { ImageFormat } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { CogStacJob } from '../../cog/cog.stac.job';
@@ -7,9 +7,13 @@ import { CogStacJob } from '../../cog/cog.stac.job';
  * Prepare and insert Imagery Config for the cog creation job.
  * @returns
  */
-export async function insertConfigImagery(job: CogStacJob, logger: LogType): Promise<void> {
+export async function insertConfigImagery(
+  cfg: BasemapsConfigProvider,
+  job: CogStacJob,
+  logger: LogType,
+): Promise<void> {
   const now = Date.now();
-  const imgId = Config.Imagery.id(job.id);
+  const imgId = cfg.Imagery.id(job.id);
   const configImagery: ConfigImagery = {
     id: imgId,
     name: job.name,
@@ -20,7 +24,7 @@ export async function insertConfigImagery(job: CogStacJob, logger: LogType): Pro
     bounds: job.output.bounds,
     files: job.output.files,
   };
-  if (Config.Imagery.isWriteable()) Config.Imagery.put(configImagery);
+  if (cfg.Imagery.isWriteable()) cfg.Imagery.put(configImagery);
   logger.info({ imgId }, 'CogCreate:InsertConfigImagery');
 }
 
@@ -28,10 +32,14 @@ export async function insertConfigImagery(job: CogStacJob, logger: LogType): Pro
  * Prepare and insert TileSet Config for the cog creation job.
  * @returns
  */
-export async function insertConfigTileSet(job: CogStacJob, logger: LogType): Promise<void> {
+export async function insertConfigTileSet(
+  cfg: BasemapsConfigProvider,
+  job: CogStacJob,
+  logger: LogType,
+): Promise<void> {
   const now = Date.now();
-  const tsId = Config.TileSet.id(job.id);
-  const imId = Config.Imagery.id(job.id);
+  const tsId = cfg.TileSet.id(job.id);
+  const imId = cfg.Imagery.id(job.id);
   const tileSet: ConfigTileSet = {
     type: TileSetType.Raster,
     format: ImageFormat.Webp,
@@ -41,6 +49,6 @@ export async function insertConfigTileSet(job: CogStacJob, logger: LogType): Pro
     background: { r: 0, g: 0, b: 0, alpha: 0 },
     updatedAt: now,
   };
-  if (Config.TileSet.isWriteable()) Config.TileSet.put(tileSet);
+  if (cfg.TileSet.isWriteable()) cfg.TileSet.put(tileSet);
   logger.info({ tsId }, 'CogCreate:InsertConfigTileSet');
 }

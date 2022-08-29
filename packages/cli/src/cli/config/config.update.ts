@@ -1,15 +1,15 @@
 import {
   BaseConfig,
   ConfigDynamoBase,
-  Config,
   ConfigTileSet,
   ConfigImagery,
   ConfigProvider,
   ConfigVectorStyle,
   ConfigPrefix,
+  BasemapsConfigProvider,
 } from '@basemaps/config';
-import { BasemapsConfigObject } from '@basemaps/config/build/base.config.js';
-import { LogConfig, LogType } from '@basemaps/shared';
+import { BasemapsConfigObject, ConfigId } from '@basemaps/config';
+import { getDefaultConfig, LogConfig, LogType } from '@basemaps/shared';
 import { ConfigDiff } from './config.diff.js';
 import PLimit from 'p-limit';
 
@@ -21,6 +21,7 @@ export class Updater<S extends BaseConfig = BaseConfig> {
   prefix: string;
   isCommit: boolean;
   logger: LogType;
+  cfg: BasemapsConfigProvider;
 
   /**
    * Class to apply an TileSetConfig source to the tile metadata db
@@ -28,7 +29,8 @@ export class Updater<S extends BaseConfig = BaseConfig> {
    */
   constructor(config: S, isCommit: boolean) {
     this.config = config;
-    const prefix = Config.getPrefix(config.id);
+    this.cfg = getDefaultConfig();
+    const prefix = ConfigId.getPrefix(config.id);
     if (prefix == null) throw new Error(`Incorrect Config Id ${config.id}`);
     this.prefix = prefix;
     this.isCommit = isCommit ? isCommit : false;
@@ -36,10 +38,10 @@ export class Updater<S extends BaseConfig = BaseConfig> {
   }
 
   getDB(): BasemapsConfigObject<ConfigTileSet | ConfigImagery | ConfigProvider | ConfigVectorStyle> {
-    if (this.prefix === ConfigPrefix.Imagery) return Config.Imagery;
-    if (this.prefix === ConfigPrefix.TileSet) return Config.TileSet;
-    if (this.prefix === ConfigPrefix.Provider) return Config.Provider;
-    if (this.prefix === ConfigPrefix.Style) return Config.Style;
+    if (this.prefix === ConfigPrefix.Imagery) return this.cfg.Imagery;
+    if (this.prefix === ConfigPrefix.TileSet) return this.cfg.TileSet;
+    if (this.prefix === ConfigPrefix.Provider) return this.cfg.Provider;
+    if (this.prefix === ConfigPrefix.Style) return this.cfg.Style;
     throw Error(`Unable to find the database table for prefix ${this.prefix}`);
   }
 

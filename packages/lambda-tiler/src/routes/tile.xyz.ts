@@ -1,5 +1,6 @@
-import { Config, TileSetType } from '@basemaps/config';
+import { TileSetType } from '@basemaps/config';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { ConfigLoader } from '../util/config.loader.js';
 import { NotFound } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 import { TileXyzRaster } from './tile.xyz.raster.js';
@@ -29,8 +30,10 @@ export interface TileXyzGet {
 export async function tileXyzGet(req: LambdaHttpRequest<TileXyzGet>): Promise<LambdaHttpResponse> {
   const xyzData = Validate.xyz(req);
 
+  const config = await ConfigLoader.load(req);
+
   req.timer.start('tileset:load');
-  const tileSet = await Config.TileSet.get(Config.TileSet.id(xyzData.tileSet));
+  const tileSet = await config.TileSet.get(config.TileSet.id(xyzData.tileSet));
   req.timer.end('tileset:load');
   if (tileSet == null) return NotFound();
 

@@ -41,6 +41,27 @@ o.spec('WmtsCapabilities', () => {
     );
   });
 
+  o('should include config location', () => {
+    const wmts = new WmtsCapabilities({
+      httpBase: 'https://basemaps.test',
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet: TileSetAerial,
+      imagery: allImagery,
+      apiKey,
+      config: 's3://linz-basemaps/config.json',
+      formats: [ImageFormat.Avif],
+      isIndividualLayers: false,
+    }).toVNode();
+
+    const urls = tags(wmts, 'ResourceURL');
+    o(urls.length).equals(1);
+    o(urls[0].attrs.format).equals('image/avif');
+    o(urls[0].attrs.template).equals(
+      'https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json',
+    );
+  });
+
   o('should be seting encoding to utf-8', () => {
     const xml = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',

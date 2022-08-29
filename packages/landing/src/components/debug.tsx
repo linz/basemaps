@@ -2,6 +2,7 @@ import { GoogleTms } from '@basemaps/geo';
 import { BBoxFeatureCollection } from '@linzjs/geojson';
 import { StyleSpecification } from 'maplibre-gl';
 import { Component, ComponentChild, Fragment } from 'preact';
+import { Attributions } from '../attribution.js';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { projectGeoJson } from '../tile.matrix.js';
@@ -58,7 +59,10 @@ export class Debug extends Component<
       });
       this.updateFromConfig();
       if (Config.map.debug['debug.screenshot']) {
-        map.once('idle', () => {
+        map.once('idle', async () => {
+          // Ensure all the attribution data has loaded
+          await Promise.all([...Attributions.values()]);
+          await new Promise((r) => setTimeout(r, 250));
           // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
           const loadedDiv = document.createElement('div');
           loadedDiv.id = 'map-loaded';
@@ -328,7 +332,7 @@ export class Debug extends Component<
   get styleJson(): Promise<StyleSpecification> {
     if (this._styleJson == null) {
       this._styleJson = fetch(
-        WindowUrl.toTileUrl(MapOptionType.TileVectorStyle, Config.map.tileMatrix, 'topographic', 'topographic'),
+        WindowUrl.toTileUrl(MapOptionType.Style, Config.map.tileMatrix, 'topographic', 'topographic', null),
       ).then((f) => f.json());
     }
     return this._styleJson;
@@ -453,7 +457,7 @@ export class Debug extends Component<
 export function getTileServerUrl(tileServer: 'osm' | 'linz-aerial'): string {
   if (tileServer === 'osm') return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   if (tileServer === 'linz-aerial') {
-    return WindowUrl.toTileUrl(MapOptionType.TileRaster, Config.map.tileMatrix, 'aerial');
+    return WindowUrl.toTileUrl(MapOptionType.TileRaster, Config.map.tileMatrix, 'aerial', undefined, null);
   }
 
   throw new Error('Unknown tile server');

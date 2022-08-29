@@ -1,21 +1,31 @@
-import { Config, ConfigProviderMemory } from '@basemaps/config';
+import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
+import { fsa } from '@chunkd/fs';
 import o from 'ospec';
+import sinon from 'sinon';
 import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { CoSources } from '../../util/source.cache.js';
 import { FakeData } from '../../__tests__/config.data.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
+import { FsMemory } from './memory.fs.js';
 
 o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
   const config = new ConfigProviderMemory();
+  const sandbox = sinon.createSandbox();
+
   o.before(() => {
     process.env[Env.PublicUrlBase] = 'https://tiles.test';
-    Config.setConfigProvider(config);
   });
 
   o.beforeEach(() => {
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
     config.objects.clear();
     CoSources.cache.clear();
+  });
+
+  o.afterEach(() => {
+    sandbox.restore();
   });
 
   o('should 404 if invalid url is given', async () => {
@@ -121,6 +131,24 @@ o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
       minzoom: 3,
       tilejson: '3.0.0',
     });
+  });
+
+  o('should load from config bundle', async () => {
+    const memoryFs = new FsMemory();
+    fsa.register('memory://', memoryFs);
+    const fakeTileSet = FakeData.tileSetRaster('🦄 🌈');
+
+    const cfgBundle = new ConfigProviderMemory();
+    cfgBundle.put(fakeTileSet);
+    memoryFs.write('memory://linz-basemaps/bar.json', JSON.stringify(cfgBundle.toJson()));
+
+    const configLocation = base58.encode(Buffer.from('memory://linz-basemaps/bar.json'));
+    const request = mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${configLocation}`, Api.header);
+    const res = await handler.router.handle(request);
+    o(res.status).equals(200);
+
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+    o(body.tiles[0].includes(`config=${configLocation}`)).equals(true);
   });
 
   o('should serve convert zoom to tile matrix', async () => {

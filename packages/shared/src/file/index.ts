@@ -9,10 +9,13 @@ import S3 from 'aws-sdk/clients/s3.js';
 import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
 import { FileConfig, isConfigS3Role } from './file.config.js';
+import { RoleRegister } from './role.registry.js';
 
 const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 
 export type FsaJson = typeof fsaSource & {
+  /** Attempt to read a location, if it fails with 403, then lookup role using RoleRegister */
+  attemptRead(filePath: string, roleLookup?: boolean): Promise<Buffer>;
   readJson<T>(filePath: string): Promise<T>;
   writeJson<T>(filePath: string, obj: T): Promise<void>;
   /** Add a file system configuration */
@@ -21,8 +24,21 @@ export type FsaJson = typeof fsaSource & {
 
 export const fsa = fsaSource as any as FsaJson;
 
+fsa.attemptRead = async function attemptRead(filePath: string, roleLookup = true): Promise<Buffer> {
+  try {
+    return await this.read(filePath);
+  } catch (e: any) {
+    if (!filePath.startsWith('s3://')) throw e;
+    if (e.code === 403 && roleLookup) {
+      const role = await RoleRegister.findRole(filePath);
+      if (role) return this.attemptRead(filePath, false);
+    }
+    throw e;
+  }
+};
+
 fsa.readJson = async function readJson<T>(filePath: string): Promise<T> {
-  const data = await this.read(filePath);
+  const data = await this.attemptRead(filePath);
   if (filePath.endsWith('.gz')) {
     return JSON.parse((await pGunzip(data)).toString()) as T;
   } else {

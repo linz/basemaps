@@ -1,5 +1,7 @@
-import { TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, ImageFormat, TileMatrixSet } from '@basemaps/geo';
 import { Config } from './config.js';
+import { toQueryString } from '@basemaps/shared/build/url.js';
+import { isBase58, base58 } from '@basemaps/config/build/base58.js';
 
 export interface LonLat {
   lat: number;
@@ -12,11 +14,22 @@ export interface MapLocation extends LonLat {
 
 export const enum MapOptionType {
   TileRaster = 'raster',
-  TileVectorStyle = 'style',
+  Style = 'style',
   TileVectorXyz = 'vector-xyz',
   TileWmts = 'tile-wmts',
   Wmts = 'wmts',
   Attribution = 'attribution',
+}
+
+export function ensureBase58(s: null): null;
+export function ensureBase58(s: string): string;
+export function ensureBase58(s: string | null): string | null;
+export function ensureBase58(s: string | null): string | null {
+  if (s == null) return null;
+  if (isBase58(s)) return s;
+  const text = new TextEncoder();
+  const buffer = text.encode(s);
+  return base58.encode(buffer);
 }
 
 export const WindowUrl = {
@@ -70,26 +83,41 @@ export const WindowUrl = {
   },
 
   toBaseWmts(): string {
-    const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
-    return `${this.baseUrl()}/v1/tiles/aerial/WMTSCapabilities.xml${api}`;
+    const query = toQueryString({ api: Config.ApiKey, config: ensureBase58(Config.map.config) });
+    return `${this.baseUrl()}/v1/tiles/aerial/WMTSCapabilities.xml${query}`;
   },
 
   toImageryUrl(layerId: string, imageryType: string): string {
     return `${this.baseUrl()}/v1/imagery/${layerId}/${imageryType}`;
   },
 
-  toTileUrl(urlType: MapOptionType, tileMatrix: TileMatrixSet, layerId: string, style?: string | null): string {
-    const api = Config.ApiKey == null || Config.ApiKey === '' ? '' : `?api=${Config.ApiKey}`;
+  toTileUrl(
+    urlType: MapOptionType,
+    tileMatrix: TileMatrixSet,
+    layerId: string,
+    style?: string | null,
+    config?: string | null,
+  ): string {
+    const queryParams = new URLSearchParams();
+    if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
+    if (config != null) queryParams.set('config', ensureBase58(config));
+
+    if (urlType === MapOptionType.Style) {
+      if (tileMatrix.identifier !== GoogleTms.identifier) queryParams.set('tileMatrix', tileMatrix.identifier);
+      if (WindowUrl.ImageFormat !== ImageFormat.Webp) queryParams.set('format', WindowUrl.ImageFormat);
+    }
+
+    const q = '?' + queryParams.toString();
 
     const baseTileUrl = `${this.baseUrl()}/v1/tiles/${layerId}/${tileMatrix.identifier}`;
 
-    if (urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${api}`;
-    if (urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${api}`;
-    if (urlType === MapOptionType.TileVectorStyle) return `${baseTileUrl}/style/${style}.json${api}`;
-    if (urlType === MapOptionType.Wmts) return `${baseTileUrl}/WMTSCapabilities.xml${api}`;
-    if (urlType === MapOptionType.Attribution) return `${baseTileUrl}/attribution.json${api}`;
+    if (urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${q}`;
+    if (urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${q}`;
+    if (urlType === MapOptionType.Style) return `${this.baseUrl()}/v1/styles/${style ?? layerId}.json${q}`;
+    if (urlType === MapOptionType.Wmts) return `${baseTileUrl}/WMTSCapabilities.xml${q}`;
+    if (urlType === MapOptionType.Attribution) return `${baseTileUrl}/attribution.json${q}`;
     if (urlType === MapOptionType.TileWmts) {
-      return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${api}`;
+      return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${q}`;
     }
 
     throw new Error('Unknown url type: ' + urlType);

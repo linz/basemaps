@@ -1,4 +1,4 @@
-import { Env, LogConfig } from '@basemaps/shared';
+import { LogConfig } from '@basemaps/shared';
 import { LambdaHttpResponse, lf } from '@linzjs/lambda';
 import { arcgisInfoGet } from './arcgis/arcgis.info.js';
 import { arcgisStyleJsonGet } from './arcgis/arcgis.style.json.js';
@@ -14,29 +14,23 @@ import { styleJsonGet } from './routes/tile.style.json.js';
 import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
-import { assetProvider } from './util/assets.provider.js';
 import { NotFound, OkResponse } from './util/response.js';
 import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
 
 export const handler = lf.http(LogConfig.get());
 
+/** If the request takes too long, respond with a 408 timeout when there is approx 1 second remaining */
+handler.router.timeoutEarlyMs = 1_000;
+
 handler.router.hook('request', (req) => {
   req.set('name', 'LambdaTiler');
-
-  // Set the asset location for asset provider
-  const assetLocation = Env.get(Env.AssetLocation);
-  assetProvider.set(assetLocation);
 
   // Reset the request tracing before every request
   St.reset();
 });
 
-let totalRequests = 0;
 handler.router.hook('response', (req, res) => {
-  totalRequests++;
-  req.set('requestsTotal', totalRequests); // Number of requests served by this lambda
-
   if (St.requests.length > 0) {
     // TODO this could be relaxed to every say 5% of requests if logging gets too verbose.
     req.set('requests', St.requests.slice(0, 100)); // limit to 100 requests (some tiles need 100s of requests)
