@@ -11,7 +11,7 @@ import { MapOptionType } from './url.js';
 const Copyright = `© ${Stac.License} LINZ`;
 
 /** Cache the loading of attribution */
-const Attributions: Map<string, Promise<Attribution | null>> = new Map();
+export const Attributions: Map<string, Promise<Attribution | null>> = new Map();
 /** Rendering process needs synch access */
 const AttributionSync: Map<string, Attribution> = new Map();
 
