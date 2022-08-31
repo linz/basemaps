@@ -32,7 +32,7 @@
     "@basemaps/geo": "^6.32.1",
     "@basemaps/infra": "^6.34.0",
     "@basemaps/shared": "^6.34.0",
-    "@linzjs/lui": "^10.11.3",
+    "@linzjs/lui": "^17.12.5",
     "@servie/events": "^3.0.0",
     "@types/proj4": "^2.5.2",
     "maplibre-gl": "^2.1.9",
