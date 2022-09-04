@@ -8,5 +8,5 @@
     "lib": ["DOM"]
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../geo" }, { "path": "../shared" }]
+  "references": [{ "path": "../config" }, { "path": "../geo" }, { "path": "../shared" }]
 }

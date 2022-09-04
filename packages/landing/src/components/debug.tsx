@@ -1,7 +1,9 @@
+import { ConfigImagery, ConfigTileSetRaster } from '@basemaps/config';
 import { GoogleTms } from '@basemaps/geo';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Attributions } from '../attribution.js';
 import { Config } from '../config.js';
+import { ConfigData } from '../config.layer.js';
 import { MapConfig } from '../config.map.js';
 import { DebugMap } from '../debug.map.js';
 import { WindowUrl } from '../url.js';
@@ -31,6 +33,8 @@ export class Debug extends Component<
     featureCogName: string | undefined;
     featureSourceId: string | number | undefined;
     featureSourceName: string | undefined;
+    tileSet: ConfigTileSetRaster | null;
+    imagery: ConfigImagery | null;
   }
 > {
   debugMap = new DebugMap();
@@ -97,6 +101,26 @@ export class Debug extends Component<
     this.setVectorShown(target.checked, 'source');
   };
 
+  _loadingConfig: Promise<void> = Promise.resolve();
+  async loadConfig(): Promise<void> {
+    const tileSetId = Config.map.layerId;
+    if (this.state.tileSet?.id === tileSetId) return;
+    return ConfigData.getTileSet(tileSetId).then((tileSet) => {
+      this.setState({ ...this.state, tileSet });
+
+      if (tileSet == null) return;
+      if (tileSet.layers.length !== 1) return;
+
+      const projectionCode = Config.map.tileMatrix.projection.code;
+      const imageryId = tileSet.layers[0][projectionCode];
+      if (imageryId == null) return;
+
+      return ConfigData.getImagery(tileSetId, imageryId).then((imagery) => {
+        this.setState({ ...this.state, imagery }, () => this.updateFromConfig());
+      });
+    });
+  }
+
   render(): ComponentChild {
     if (Config.map.debug['debug.screenshot']) return null;
     return (
@@ -161,9 +185,8 @@ export class Debug extends Component<
   }
 
   renderSourceToggle(): ComponentChild {
-    // TODO this is a nasty hack to detect if a direct imageryId is being viewed
-    if (!Config.map.layerId.startsWith('01')) return null;
-    const sourceLocation = WindowUrl.toImageryUrl(`im_${Config.map.layerId}`, 'source.geojson');
+    if (this.state.imagery == null) return null;
+    const sourceLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'source.geojson');
     return (
       <Fragment>
         <div className="debug__info">
