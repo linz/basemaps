@@ -1,4 +1,5 @@
-import { ConfigImagery, ConfigTileSetRaster } from '@basemaps/config';
+import { ConfigImagery } from '@basemaps/config/src/config/imagery.js';
+import { ConfigTileSetRaster } from '@basemaps/config/src/config/tile.set.js';
 import { GoogleTms } from '@basemaps/geo';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Attributions } from '../attribution.js';
@@ -35,6 +36,7 @@ export class Debug extends Component<
     featureSourceName: string | undefined;
     tileSet: ConfigTileSetRaster | null;
     imagery: ConfigImagery | null;
+    config: string | null;
   }
 > {
   debugMap = new DebugMap();
@@ -79,6 +81,10 @@ export class Debug extends Component<
   };
 
   updateFromConfig(): void {
+    if (this.state.tileSet?.id !== Config.map.layerId || this.state.config !== Config.map.config) {
+      this._loadingConfig = this._loadingConfig.then(() => this.loadConfig());
+    }
+
     this.debugMap.setPurple(Config.map.debug['debug.background'] === 'magenta');
     this.debugMap.adjustRaster(this.props.map, 'osm', Config.map.debug['debug.layer.osm']);
     this.debugMap.adjustRaster(this.props.map, 'linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
@@ -116,7 +122,7 @@ export class Debug extends Component<
       if (imageryId == null) return;
 
       return ConfigData.getImagery(tileSetId, imageryId).then((imagery) => {
-        this.setState({ ...this.state, imagery }, () => this.updateFromConfig());
+        this.setState({ ...this.state, imagery });
       });
     });
   }
@@ -160,9 +166,8 @@ export class Debug extends Component<
   }
 
   renderCogToggle(): ComponentChild {
-    // TODO this is a nasty hack to detect if a direct imageryId is being viewed
-    if (!Config.map.layerId.startsWith('01')) return null;
-    const cogLocation = WindowUrl.toImageryUrl(`im_${Config.map.layerId}`, 'covering.geojson');
+    if (this.state.imagery == null) return null;
+    const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'covering.geojson');
 
     return (
       <Fragment>
@@ -287,9 +292,9 @@ export class Debug extends Component<
 
     const color = type === 'source' ? '#ff00ff' : '#ff0000';
 
-    this.debugMap.loadSourceLayer(this.props.map, layerId, type).then(() => {
+    if (this.state.imagery == null) return;
+    this.debugMap.loadSourceLayer(this.props.map, layerId, this.state.imagery, type).then(() => {
       if (map.getLayer(layerLineId) != null) return;
-
       // Fill is needed to make the mouse move work even though it has opacity 0
       map.addLayer({
         id: layerFillId,

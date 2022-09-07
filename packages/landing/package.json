@@ -29,7 +29,6 @@
   ],
   "devDependencies": {
     "@basemaps/attribution": "^6.32.1",
-    "@basemaps/config": "^6.34.0",
     "@basemaps/geo": "^6.32.1",
     "@basemaps/infra": "^6.34.0",
     "@basemaps/shared": "^6.34.0",

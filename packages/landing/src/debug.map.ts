@@ -1,31 +1,36 @@
 import { Config } from './config.js';
 import { MapOptionType, WindowUrl } from './url.js';
-import { BBoxFeatureCollection } from '@linzjs/geojson';
 import { StyleSpecification } from 'maplibre-gl';
 import { GoogleTms } from '@basemaps/geo';
 import { projectGeoJson } from './tile.matrix.js';
+import { ConfigImagery } from '@basemaps/config/src/config/imagery.js';
+import { ConfigData } from './config.layer.js';
+import { BBoxFeatureCollection } from '@linzjs/geojson';
 
 export class DebugMap {
   _layerLoading: Map<string, Promise<void>> = new Map();
-  loadSourceLayer(map: maplibregl.Map, layerId: string, type: 'source' | 'cog'): Promise<void> {
+  loadSourceLayer(map: maplibregl.Map, layerId: string, imagery: ConfigImagery, type: 'source' | 'cog'): Promise<void> {
     const layerKey = `${layerId}-${type}`;
     let existing = this._layerLoading.get(layerKey);
     if (existing == null) {
-      existing = this._loadSourceLayer(map, layerId, type);
+      existing = this._loadSourceLayer(map, layerId, imagery, type);
+      if (existing == null && type === 'cog') existing = this._loadCogLayer(map, layerId, imagery);
       this._layerLoading.set(layerKey, existing);
     }
     return existing;
   }
 
-  async _loadSourceLayer(map: maplibregl.Map, layerId: string, type: 'source' | 'cog'): Promise<void> {
+  async _loadSourceLayer(
+    map: maplibregl.Map,
+    layerId: string,
+    imagery: ConfigImagery,
+    type: 'source' | 'cog',
+  ): Promise<void> {
     const sourceId = `${layerId}_${type}`;
     const layerFillId = `${sourceId}_fill`;
     if (map.getLayer(layerFillId) != null) return;
 
-    const sourceUri = WindowUrl.toImageryUrl(
-      `im_${layerId}`,
-      type === 'source' ? 'source.geojson' : 'covering.geojson',
-    );
+    const sourceUri = WindowUrl.toImageryUrl(imagery.id, type === 'source' ? 'source.geojson' : 'covering.geojson');
 
     const res = await fetch(sourceUri);
     if (!res.ok) return;
@@ -37,6 +42,21 @@ export class DebugMap {
     // Ensure there is a id on each feature
     for (const f of data.features) f.id = id++;
 
+    map.addSource(sourceId, { type: 'geojson', data });
+  }
+
+  async _loadCogLayer(map: maplibregl.Map, layerId: string, imagery: ConfigImagery): Promise<void> {
+    const sourceId = `${layerId}_cog`;
+    const layerFillId = `${sourceId}_fill`;
+    if (map.getLayer(layerFillId) != null) return;
+
+    const data = ConfigData.getGeoJson(imagery);
+    if (data == null) return;
+    if (Config.map.tileMatrix.projection !== GoogleTms.projection) projectGeoJson(data, Config.map.tileMatrix);
+
+    let id = 0;
+    // Ensure there is a id on each feature
+    for (const f of data.features) f.id = id++;
     map.addSource(sourceId, { type: 'geojson', data });
   }
 

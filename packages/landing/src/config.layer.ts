@@ -1,12 +1,15 @@
-import { ConfigImagery, ConfigTileSetRaster } from '@basemaps/config';
+import { ConfigImagery } from '@basemaps/config/src/config/imagery.js';
+import { ConfigTileSetRaster } from '@basemaps/config/src/config/tile.set.js';
 import { TileMatrixSets } from '@basemaps/geo';
-import { Projection } from '@basemaps/shared';
+import { Projection } from '@basemaps/shared/src/proj/projection.js';
+
 import { BBoxFeatureCollection } from '@linzjs/geojson';
 import { WindowUrl } from './url.js';
 
 export class ConfigData {
   static tileSets = new Map<string, Promise<ConfigTileSetRaster | null>>();
   static imagery = new Map<string, Promise<ConfigImagery | null>>();
+  static config: string;
 
   static getTileSet(tileSetId: string): Promise<ConfigTileSetRaster | null> {
     const tileSetUrl = WindowUrl.toConfigUrl(tileSetId);
