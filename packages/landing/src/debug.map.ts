@@ -5,7 +5,6 @@ import { GoogleTms } from '@basemaps/geo';
 import { projectGeoJson } from './tile.matrix.js';
 import { ConfigImagery } from '@basemaps/config/src/config/imagery.js';
 import { ConfigData } from './config.layer.js';
-import { BBoxFeatureCollection } from '@linzjs/geojson';
 
 export class DebugMap {
   _layerLoading: Map<string, Promise<void>> = new Map();
