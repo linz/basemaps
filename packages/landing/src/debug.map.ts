@@ -13,24 +13,21 @@ export class DebugMap {
     const layerKey = `${layerId}-${type}`;
     let existing = this._layerLoading.get(layerKey);
     if (existing == null) {
-      existing = this._loadSourceLayer(map, layerId, imagery, type);
-      if (existing == null && type === 'cog') existing = this._loadCogLayer(map, layerId, imagery);
+      if (type === 'cog') existing = this._loadCogLayer(map, layerId, imagery);
+      else {
+        existing = this._loadSourceLayer(map, layerId, imagery);
+      }
       this._layerLoading.set(layerKey, existing);
     }
     return existing;
   }
 
-  async _loadSourceLayer(
-    map: maplibregl.Map,
-    layerId: string,
-    imagery: ConfigImagery,
-    type: 'source' | 'cog',
-  ): Promise<void> {
-    const sourceId = `${layerId}_${type}`;
+  async _loadSourceLayer(map: maplibregl.Map, layerId: string, imagery: ConfigImagery): Promise<void> {
+    const sourceId = `${layerId}_source`;
     const layerFillId = `${sourceId}_fill`;
     if (map.getLayer(layerFillId) != null) return;
 
-    const sourceUri = WindowUrl.toImageryUrl(imagery.id, type === 'source' ? 'source.geojson' : 'covering.geojson');
+    const sourceUri = WindowUrl.toImageryUrl(imagery.id, 'source.geojson');
 
     const res = await fetch(sourceUri);
     if (!res.ok) return;
