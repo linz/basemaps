@@ -112,7 +112,7 @@ export class Debug extends Component<
     const tileSetId = Config.map.layerId;
     if (this.state.tileSet?.id === tileSetId) return;
     return ConfigData.getTileSet(tileSetId).then((tileSet) => {
-      this.setState({ ...this.state, tileSet });
+      this.setState({ ...this.state, tileSet, config: Config.map.config });
 
       if (tileSet == null) return;
       if (tileSet.layers.length !== 1) return;
@@ -122,7 +122,7 @@ export class Debug extends Component<
       if (imageryId == null) return;
 
       return ConfigData.getImagery(tileSetId, imageryId).then((imagery) => {
-        this.setState({ ...this.state, imagery });
+        this.setState({ ...this.state, imagery, config: Config.map.config });
       });
     });
   }
