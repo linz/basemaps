@@ -29,15 +29,17 @@ export class DebugMap {
     const layerFillId = `${sourceId}_fill`;
     if (map.getLayer(layerFillId) != null) return;
 
-    const sourceUri = WindowUrl.toImageryUrl(imagery.id, type === 'source' ? 'source.geojson' : 'covering.geojson');
-
-    const res = await fetch(sourceUri);
     let data;
-    if (res.ok) {
-      data = await res.json();
-    } else if (type === 'source') {
+    if (Config.map.config && !this.isCog(Config.map.config)) {
+      if (type === 'cog') return;
       data = ConfigData.getGeoJson(imagery);
+    } else {
+      const sourceUri = WindowUrl.toImageryUrl(imagery.id, type === 'source' ? 'source.geojson' : 'covering.geojson');
+      const res = await fetch(sourceUri);
+      if (!res.ok) return;
+      data = await res.json();
     }
+
     if (Config.map.tileMatrix.projection !== GoogleTms.projection) projectGeoJson(data, Config.map.tileMatrix);
 
     let id = 0;
