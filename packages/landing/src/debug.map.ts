@@ -5,6 +5,7 @@ import { GoogleTms } from '@basemaps/geo';
 import { projectGeoJson } from './tile.matrix.js';
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigData } from './config.layer.js';
+import { base58, isBase58 } from '@basemaps/config/build/base58';
 
 export class DebugMap {
   _layerLoading: Map<string, Promise<void>> = new Map();
@@ -34,7 +35,7 @@ export class DebugMap {
     let data;
     if (res.ok) {
       data = await res.json();
-    } else {
+    } else if (type === 'source') {
       data = ConfigData.getGeoJson(imagery);
     }
     if (Config.map.tileMatrix.projection !== GoogleTms.projection) projectGeoJson(data, Config.map.tileMatrix);
@@ -177,5 +178,10 @@ export class DebugMap {
     }
 
     throw new Error('Unknown tile server');
+  }
+
+  isCog(config: string): boolean {
+    const configLocation = isBase58(config) ? new TextDecoder().decode(base58.decode(config)) : config;
+    return configLocation.includes('linz-basemaps');
   }
 }

@@ -168,7 +168,7 @@ export class Debug extends Component<
   renderCogToggle(): ComponentChild {
     if (this.state.imagery == null) return null;
     const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'covering.geojson');
-
+    if (this.state.config && !this.debugMap.isCog(this.state.config)) return;
     return (
       <Fragment>
         <div className="debug__info">
