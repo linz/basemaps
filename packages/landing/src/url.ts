@@ -122,4 +122,14 @@ export const WindowUrl = {
 
     throw new Error('Unknown url type: ' + urlType);
   },
+
+  toConfigUrl(layerId: string, config: string | null = Config.map.config): string {
+    const query = toQueryString({ api: Config.ApiKey, config });
+    return `${this.baseUrl()}/v1/config/${layerId}.json${query}`;
+  },
+
+  toConfigImageryUrl(layerId: string, imageryId: string, config: string | null = Config.map.config): string {
+    const query = toQueryString({ api: Config.ApiKey, config });
+    return `${this.baseUrl()}/v1/config/${layerId}/${imageryId}.json${query}`;
+  },
 };
