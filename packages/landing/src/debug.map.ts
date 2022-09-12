@@ -3,7 +3,7 @@ import { MapOptionType, WindowUrl } from './url.js';
 import { StyleSpecification } from 'maplibre-gl';
 import { GoogleTms } from '@basemaps/geo';
 import { projectGeoJson } from './tile.matrix.js';
-import { ConfigImagery } from '@basemaps/config/src/config/imagery.js';
+import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigData } from './config.layer.js';
 
 export class DebugMap {

@@ -1,7 +1,7 @@
-import { ConfigImagery } from '@basemaps/config/src/config/imagery.js';
-import { ConfigTileSetRaster } from '@basemaps/config/src/config/tile.set.js';
+import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
+import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { TileMatrixSets } from '@basemaps/geo';
-import { Projection } from '@basemaps/shared/src/proj/projection.js';
+import { Projection } from '@basemaps/shared/build/proj/projection.js';
 
 import { BBoxFeatureCollection } from '@linzjs/geojson';
 import { WindowUrl } from './url.js';

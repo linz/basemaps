@@ -1,5 +1,5 @@
-import { ConfigImagery } from '@basemaps/config/src/config/imagery.js';
-import { ConfigTileSetRaster } from '@basemaps/config/src/config/tile.set.js';
+import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
+import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { GoogleTms } from '@basemaps/geo';
 import { Component, ComponentChild, Fragment } from 'preact';
 import { Attributions } from '../attribution.js';
