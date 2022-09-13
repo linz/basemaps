@@ -38,9 +38,9 @@ export class ConfigData {
     return existing;
   }
 
-  static getGeoJson(imagery: ConfigImagery): BBoxFeatureCollection | null {
+  static getGeoJson(imagery: ConfigImagery): BBoxFeatureCollection | undefined {
     const tileMatrix = TileMatrixSets.find(imagery.tileMatrix);
-    if (tileMatrix == null) return null;
+    if (tileMatrix == null) return;
     return Projection.get(tileMatrix).toGeoJson(imagery.files);
   }
 }

@@ -5,6 +5,7 @@ import { GoogleTms } from '@basemaps/geo';
 import { projectGeoJson } from './tile.matrix.js';
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigData } from './config.layer.js';
+import { BBoxFeatureCollection } from '@linzjs/geojson/build/types';
 
 export class DebugMap {
   _layerLoading: Map<string, Promise<void>> = new Map();
@@ -28,15 +29,12 @@ export class DebugMap {
     const layerFillId = `${sourceId}_fill`;
     if (map.getLayer(layerFillId) != null) return;
 
-    const sourceUri = WindowUrl.toImageryUrl(imagery.id, type === 'source' ? 'source.geojson' : 'covering.geojson');
-
-    const res = await fetch(sourceUri);
-    let data;
-    if (res.ok) {
-      data = await res.json();
-    } else {
+    let data = await this.fetchSourceLayer(imagery.id, type);
+    if (data == null && type === 'source') {
       data = ConfigData.getGeoJson(imagery);
     }
+    if (data == null) return;
+
     if (Config.map.tileMatrix.projection !== GoogleTms.projection) projectGeoJson(data, Config.map.tileMatrix);
 
     let id = 0;
@@ -44,6 +42,19 @@ export class DebugMap {
     for (const f of data.features) f.id = id++;
 
     map.addSource(sourceId, { type: 'geojson', data });
+  }
+
+  _source: Map<string, Promise<BBoxFeatureCollection>> = new Map();
+  async fetchSourceLayer(imageryId: string, type: string): Promise<BBoxFeatureCollection | undefined> {
+    const id = `${imageryId}_${type}`;
+    let existing = this._source.get(id);
+    if (existing == null) {
+      const sourceUri = WindowUrl.toImageryUrl(imageryId, type === 'source' ? 'source.geojson' : 'covering.geojson');
+      const res = await fetch(sourceUri);
+      if (!res.ok) return;
+      existing = await res.json();
+    }
+    return existing;
   }
 
   _styleJson: Promise<StyleSpecification> | null = null;

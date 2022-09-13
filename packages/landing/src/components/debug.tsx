@@ -37,6 +37,7 @@ export class Debug extends Component<
     tileSet: ConfigTileSetRaster | null;
     imagery: ConfigImagery | null;
     config: string | null;
+    isCog: boolean;
   }
 > {
   debugMap = new DebugMap();
@@ -121,6 +122,14 @@ export class Debug extends Component<
       const imageryId = tileSet.layers[0][projectionCode];
       if (imageryId == null) return;
 
+      this.debugMap.fetchSourceLayer(imageryId, 'cog').then((cog) => {
+        if (cog != null) {
+          this.setState({ ...this.state, isCog: true });
+        } else {
+          this.setState({ ...this.state, isCog: false });
+        }
+      });
+
       return ConfigData.getImagery(tileSetId, imageryId).then((imagery) => {
         this.setState({ ...this.state, imagery, config: Config.map.config });
       });
@@ -168,7 +177,7 @@ export class Debug extends Component<
   renderCogToggle(): ComponentChild {
     if (this.state.imagery == null) return null;
     const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'covering.geojson');
-
+    if (!this.state.isCog) return;
     return (
       <Fragment>
         <div className="debug__info">
