@@ -14,8 +14,6 @@ import { FileConfig, isConfigS3Role } from './file.config.js';
 const pGunzip = promisify(gunzip) as (data: Buffer) => Promise<Buffer>;
 
 export type FsaJson = typeof fsaSource & {
-  /** Attempt to read a location, if it fails with 403, then lookup role using RoleRegister */
-  attemptRead(filePath: string, roleLookup?: boolean): Promise<Buffer>;
   readJson<T>(filePath: string): Promise<T>;
   writeJson<T>(filePath: string, obj: T): Promise<void>;
   /** Add a file system configuration */
