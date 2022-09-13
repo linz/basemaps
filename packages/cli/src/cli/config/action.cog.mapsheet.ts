@@ -1,6 +1,6 @@
 import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 import { Bounds } from '@basemaps/geo';
-import { fsa, LogConfig, RoleRegister } from '@basemaps/shared';
+import { fsa, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as fgb from 'flatgeobuf/lib/mjs/geojson.js';
 import { FeatureCollection, MultiPolygon } from 'geojson';
@@ -50,9 +50,7 @@ export class CommandCogMapSheet extends CommandLineAction {
     if (path == null) throw new Error('Please provide valid a fgb path.');
     const config = this.config.value;
     if (config == null) throw new Error('Please provide valid a config path.');
-    // TODO: Remove RoleRegister in PR-2473
-    const assumedRole = await RoleRegister.findRole(config);
-    if (assumedRole) logger.debug({ path, roleArn: assumedRole?.roleArn }, 'ImageryConfig:AssumeRole');
+
     const outputPath = this.output.value;
     if (outputPath == null) throw new Error('Please provide valid a output path.');
 

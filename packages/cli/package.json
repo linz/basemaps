@@ -43,7 +43,7 @@
     "@basemaps/server": "^6.34.0",
     "@basemaps/shared": "^6.34.0",
     "@basemaps/sprites": "^6.32.1",
-    "@chunkd/fs": "^8.4.0",
+    "@chunkd/fs": "^8.5.1",
     "@cogeotiff/core": "^7.0.0",
     "@cotar/core": "^5.4.0",
     "@cotar/tar": "^5.4.1",
@@ -60,7 +60,6 @@
   },
   "devDependencies": {
     "@types/deep-diff": "^1.0.1",
-    "@types/geojson": "^7946.0.7",
     "@types/proj4": "^2.5.2"
   },
   "publishConfig": {

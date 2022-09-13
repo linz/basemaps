@@ -36,15 +36,6 @@ export const Env = {
   /** AWS role config bucket */
   AwsRoleConfigPath: 'AWS_ROLE_CONFIG_PATH',
 
-  /** Import Imagery bucket */
-  ImportImageryBucket: 'IMPORT_IMAGERY_BUCKET',
-
-  /** Import Imagery files number limit */
-  ImportFilesNumberLimit: 'FILES_NUMBER_LIMIT',
-
-  /** Import Imagery files total size limit in GB */
-  ImportFilesSizeLimitGb: 'FILES_SIZE_LIMIT_GB',
-
   Gdal: {
     /** Should the gdal docker container be used? */
     UseDocker: 'GDAL_DOCKER',
