@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+
+### Features
+
+* switch to aws role provider from chunkd ([#2473](https://github.com/linz/basemaps/issues/2473)) ([87be0e0](https://github.com/linz/basemaps/commit/87be0e08610f02003cb4ec3f6ced9b2051ee1617))
+
+
+
+
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/tiler

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** ensure wmts and style propagate config location ([#2445](https://github.com/linz/basemaps/issues/2445)) ([d93a34b](https://github.com/linz/basemaps/commit/d93a34b50bce9b49a30baa1fbfd7142332738d23))
+* **shared:** actually catch read errors ([#2451](https://github.com/linz/basemaps/issues/2451)) ([e349f3e](https://github.com/linz/basemaps/commit/e349f3e81a1eb75d27bf69a1a6474f70a5b02ef8))
+* **shared:** do not attempt to lookup roles for the role config data ([#2461](https://github.com/linz/basemaps/issues/2461)) ([bdd5c72](https://github.com/linz/basemaps/commit/bdd5c72f084d988f36c01204ebdae6641c9011aa))
+* **shared:** ensure & is escaped in xml ([#2456](https://github.com/linz/basemaps/issues/2456)) ([665e433](https://github.com/linz/basemaps/commit/665e4335cbf52aeb2292295aba40fa40abf4c1b0))
+
+
+### Features
+
+* switch to aws role provider from chunkd ([#2473](https://github.com/linz/basemaps/issues/2473)) ([87be0e0](https://github.com/linz/basemaps/commit/87be0e08610f02003cb4ec3f6ced9b2051ee1617))
+* use $AWS_ROLE_CONFIG_PATH to be more consistent ([#2476](https://github.com/linz/basemaps/issues/2476)) ([e5d0f1f](https://github.com/linz/basemaps/commit/e5d0f1f6cdefd383366c2b7c53994568a5f67a21))
+* **cli:** New cli to create cog map sheet from a give fgb file and config. ([#2472](https://github.com/linz/basemaps/issues/2472)) ([6cf2563](https://github.com/linz/basemaps/commit/6cf25638e2ae4fe365aa78ab77cd0d319c02d7a0))
+* allow loading config from ?config ([#2442](https://github.com/linz/basemaps/issues/2442)) ([8f946d8](https://github.com/linz/basemaps/commit/8f946d8ffb155304b80c26aca0faf4c64136390f))
+
+
+
+
+
 # [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
 
 **Note:** Version bump only for package @basemaps/shared

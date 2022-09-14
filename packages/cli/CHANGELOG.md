@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+
+### Bug Fixes
+
+* **cli:** Add a year at end of imagery name to fix the broken attribution ([#2455](https://github.com/linz/basemaps/issues/2455)) ([05b5ec8](https://github.com/linz/basemaps/commit/05b5ec8621244fe2b210a31e5495e6578bc3910f))
+* **cli:** Filter out the removed layers with minZoom:32. ([#2477](https://github.com/linz/basemaps/issues/2477)) ([d3c9adb](https://github.com/linz/basemaps/commit/d3c9adb8e2f254731243d5bb29ce8d1fc8a8d261))
+* **cli:** Fix the output url to include the -year at end, and add debug into url. ([#2467](https://github.com/linz/basemaps/issues/2467)) ([8481e8d](https://github.com/linz/basemaps/commit/8481e8db1a9eebbd4f10eee96294981468f71068))
+
+
+### Features
+
+* **cli:** New cli to make cog and create job.json for it. ([#2497](https://github.com/linz/basemaps/issues/2497)) ([41f1379](https://github.com/linz/basemaps/commit/41f1379ca3265e985f316baa13c99546495a89e1))
+* switch to aws role provider from chunkd ([#2473](https://github.com/linz/basemaps/issues/2473)) ([87be0e0](https://github.com/linz/basemaps/commit/87be0e08610f02003cb4ec3f6ced9b2051ee1617))
+* **cli:** Add a output for written url to argo workflow output. ([#2459](https://github.com/linz/basemaps/issues/2459)) ([d1bcc95](https://github.com/linz/basemaps/commit/d1bcc95ca4c6b00dccb0ba0c3a70161890bfd1a2))
+* **cli:** Config creation cli to include centre location in the output url. ([#2453](https://github.com/linz/basemaps/issues/2453)) ([06a9e5b](https://github.com/linz/basemaps/commit/06a9e5baacf57eb00e47c89b31585ba7ef14aea7))
+* **cli:** include url for processed imagery ([#2447](https://github.com/linz/basemaps/issues/2447)) ([150550e](https://github.com/linz/basemaps/commit/150550e06b7ce0382157196b03ed9cfb36e49972))
+* **cli:** move screenshot tool into linz/basemaps-screenshot ([#2429](https://github.com/linz/basemaps/issues/2429)) ([27463d3](https://github.com/linz/basemaps/commit/27463d35b424669d6f2e945184a0b15ca3067801))
+* **cli:** New cli to create cog map sheet from a give fgb file and config. ([#2472](https://github.com/linz/basemaps/issues/2472)) ([6cf2563](https://github.com/linz/basemaps/commit/6cf25638e2ae4fe365aa78ab77cd0d319c02d7a0))
+* **cli:** Remove the role config parameter as confusing with config, pass it with env. ([#2474](https://github.com/linz/basemaps/issues/2474)) ([79619ee](https://github.com/linz/basemaps/commit/79619ee2797563bc768abdd4ce20a0302149180f))
+* allow loading config from ?config ([#2442](https://github.com/linz/basemaps/issues/2442)) ([8f946d8](https://github.com/linz/basemaps/commit/8f946d8ffb155304b80c26aca0faf4c64136390f))
+
+
+
+
+
 # [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
 
 

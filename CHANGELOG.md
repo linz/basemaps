@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+
+### Bug Fixes
+
+* **cli:** Add a year at end of imagery name to fix the broken attribution ([#2455](https://github.com/linz/basemaps/issues/2455)) ([05b5ec8](https://github.com/linz/basemaps/commit/05b5ec8621244fe2b210a31e5495e6578bc3910f))
+* **cli:** Filter out the removed layers with minZoom:32. ([#2477](https://github.com/linz/basemaps/issues/2477)) ([d3c9adb](https://github.com/linz/basemaps/commit/d3c9adb8e2f254731243d5bb29ce8d1fc8a8d261))
+* **cli:** Fix the output url to include the -year at end, and add debug into url. ([#2467](https://github.com/linz/basemaps/issues/2467)) ([8481e8d](https://github.com/linz/basemaps/commit/8481e8db1a9eebbd4f10eee96294981468f71068))
+* **infra:** allow tiler to assume roles ([#2448](https://github.com/linz/basemaps/issues/2448)) ([dbd1516](https://github.com/linz/basemaps/commit/dbd1516268d42b513f766ad717211b8dd0a8d612))
+* **infra:** give lambda-tiler access to config bucket ([#2457](https://github.com/linz/basemaps/issues/2457)) ([788c995](https://github.com/linz/basemaps/commit/788c995256642f89458e2b72c2bddec8ab8fb1b7))
+* **lambda-tiler:** allow reading config from memory ([#2443](https://github.com/linz/basemaps/issues/2443)) ([9f98719](https://github.com/linz/basemaps/commit/9f987192f67c04a6bb1e97ab30680ef48a71db0e))
+* **lambda-tiler:** assume current year when imagery has no date ([#2462](https://github.com/linz/basemaps/issues/2462)) ([289df66](https://github.com/linz/basemaps/commit/289df66ff78dc07361af56c1bafc663ea1beaf36))
+* **lambda-tiler:** ensure wmts and style propagate config location ([#2445](https://github.com/linz/basemaps/issues/2445)) ([d93a34b](https://github.com/linz/basemaps/commit/d93a34b50bce9b49a30baa1fbfd7142332738d23))
+* **lambda-tiler:** send 408 timeout response rather than timing out. ([#2460](https://github.com/linz/basemaps/issues/2460)) ([8d31469](https://github.com/linz/basemaps/commit/8d31469829a65739ccbe525031897259d9ae2ae4))
+* **landing:** base url should include config ([#2452](https://github.com/linz/basemaps/issues/2452)) ([3414d90](https://github.com/linz/basemaps/commit/3414d9074fc27223c99957029f5ab862d551aa13))
+* **landing:** ensure tileMatrix is being passed correctly ([#2454](https://github.com/linz/basemaps/issues/2454)) ([3b66dee](https://github.com/linz/basemaps/commit/3b66dee9700074d578328d434cae9c6f6c20dfff))
+* **landing:** ensure url is loaded before render ([#2449](https://github.com/linz/basemaps/issues/2449)) ([73518a7](https://github.com/linz/basemaps/commit/73518a7e9c5cab823f8e70f7d0a964a119ec25cc))
+* **landing:** force config to always be in base58 ([#2463](https://github.com/linz/basemaps/issues/2463)) ([a2447e9](https://github.com/linz/basemaps/commit/a2447e9228c1fdc2f28af70699261f200a201226))
+* **shared:** actually catch read errors ([#2451](https://github.com/linz/basemaps/issues/2451)) ([e349f3e](https://github.com/linz/basemaps/commit/e349f3e81a1eb75d27bf69a1a6474f70a5b02ef8))
+* **shared:** do not attempt to lookup roles for the role config data ([#2461](https://github.com/linz/basemaps/issues/2461)) ([bdd5c72](https://github.com/linz/basemaps/commit/bdd5c72f084d988f36c01204ebdae6641c9011aa))
+* **shared:** ensure & is escaped in xml ([#2456](https://github.com/linz/basemaps/issues/2456)) ([665e433](https://github.com/linz/basemaps/commit/665e4335cbf52aeb2292295aba40fa40abf4c1b0))
+
+
+### Features
+
+* **cli:** New cli to make cog and create job.json for it. ([#2497](https://github.com/linz/basemaps/issues/2497)) ([41f1379](https://github.com/linz/basemaps/commit/41f1379ca3265e985f316baa13c99546495a89e1))
+* switch to aws role provider from chunkd ([#2473](https://github.com/linz/basemaps/issues/2473)) ([87be0e0](https://github.com/linz/basemaps/commit/87be0e08610f02003cb4ec3f6ced9b2051ee1617))
+* **cli:** Add a output for written url to argo workflow output. ([#2459](https://github.com/linz/basemaps/issues/2459)) ([d1bcc95](https://github.com/linz/basemaps/commit/d1bcc95ca4c6b00dccb0ba0c3a70161890bfd1a2))
+* **cli:** Config creation cli to include centre location in the output url. ([#2453](https://github.com/linz/basemaps/issues/2453)) ([06a9e5b](https://github.com/linz/basemaps/commit/06a9e5baacf57eb00e47c89b31585ba7ef14aea7))
+* **cli:** include url for processed imagery ([#2447](https://github.com/linz/basemaps/issues/2447)) ([150550e](https://github.com/linz/basemaps/commit/150550e06b7ce0382157196b03ed9cfb36e49972))
+* **cli:** move screenshot tool into linz/basemaps-screenshot ([#2429](https://github.com/linz/basemaps/issues/2429)) ([27463d3](https://github.com/linz/basemaps/commit/27463d35b424669d6f2e945184a0b15ca3067801))
+* **cli:** New cli to create cog map sheet from a give fgb file and config. ([#2472](https://github.com/linz/basemaps/issues/2472)) ([6cf2563](https://github.com/linz/basemaps/commit/6cf25638e2ae4fe365aa78ab77cd0d319c02d7a0))
+* **cli:** Remove the role config parameter as confusing with config, pass it with env. ([#2474](https://github.com/linz/basemaps/issues/2474)) ([79619ee](https://github.com/linz/basemaps/commit/79619ee2797563bc768abdd4ce20a0302149180f))
+* **lambda-tiler:** Add tests for the config loader. ([#2446](https://github.com/linz/basemaps/issues/2446)) ([73c5a95](https://github.com/linz/basemaps/commit/73c5a9568b0fc9fc061c0752f9bb2474fb6ef347))
+* **lambda-tiler:** Set Default asset location when config.asset is null ([#2450](https://github.com/linz/basemaps/issues/2450)) ([a244879](https://github.com/linz/basemaps/commit/a244879d7249da806bf35b4ad0f325066276e96c))
+* **landing:** always use latest config for the aerial layer ([#2464](https://github.com/linz/basemaps/issues/2464)) ([4f0a1fb](https://github.com/linz/basemaps/commit/4f0a1fbc41b30609ee9e4eb1582f6b5cd68aedfd))
+* **landing:** Disable the debug.cog checkbox when loading config outside basemaps. ([#2494](https://github.com/linz/basemaps/issues/2494)) ([37ce12b](https://github.com/linz/basemaps/commit/37ce12b1503f1e4ec6f73c3a0622948d220a9056))
+* **landing:** Load config into debug pages. ([#2486](https://github.com/linz/basemaps/issues/2486)) ([bf6b601](https://github.com/linz/basemaps/commit/bf6b601e46ee4693122dfa23ac18566ebc084aa4))
+* allow loading config from ?config ([#2442](https://github.com/linz/basemaps/issues/2442)) ([8f946d8](https://github.com/linz/basemaps/commit/8f946d8ffb155304b80c26aca0faf4c64136390f))
+* support styles from raster tile sets ([#2444](https://github.com/linz/basemaps/issues/2444)) ([bcd521f](https://github.com/linz/basemaps/commit/bcd521f3d240f07a41a4b09a2874d49283bcd3de))
+* use $AWS_ROLE_CONFIG_PATH to be more consistent ([#2476](https://github.com/linz/basemaps/issues/2476)) ([e5d0f1f](https://github.com/linz/basemaps/commit/e5d0f1f6cdefd383366c2b7c53994568a5f67a21))
+
+
+
+
+
 # [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
 
 

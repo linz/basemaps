@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+
+### Bug Fixes
+
+* **infra:** allow tiler to assume roles ([#2448](https://github.com/linz/basemaps/issues/2448)) ([dbd1516](https://github.com/linz/basemaps/commit/dbd1516268d42b513f766ad717211b8dd0a8d612))
+* **infra:** give lambda-tiler access to config bucket ([#2457](https://github.com/linz/basemaps/issues/2457)) ([788c995](https://github.com/linz/basemaps/commit/788c995256642f89458e2b72c2bddec8ab8fb1b7))
+
+
+### Features
+
+* switch to aws role provider from chunkd ([#2473](https://github.com/linz/basemaps/issues/2473)) ([87be0e0](https://github.com/linz/basemaps/commit/87be0e08610f02003cb4ec3f6ced9b2051ee1617))
+* **cli:** move screenshot tool into linz/basemaps-screenshot ([#2429](https://github.com/linz/basemaps/issues/2429)) ([27463d3](https://github.com/linz/basemaps/commit/27463d35b424669d6f2e945184a0b15ca3067801))
+* allow loading config from ?config ([#2442](https://github.com/linz/basemaps/issues/2442)) ([8f946d8](https://github.com/linz/basemaps/commit/8f946d8ffb155304b80c26aca0faf4c64136390f))
+
+
+
+
+
 # [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
 
 
