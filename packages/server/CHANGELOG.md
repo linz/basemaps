@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** send 408 timeout response rather than timing out. ([#2460](https://github.com/linz/basemaps/issues/2460)) ([8d31469](https://github.com/linz/basemaps/commit/8d31469829a65739ccbe525031897259d9ae2ae4))
+* **landing:** ensure tileMatrix is being passed correctly ([#2454](https://github.com/linz/basemaps/issues/2454)) ([3b66dee](https://github.com/linz/basemaps/commit/3b66dee9700074d578328d434cae9c6f6c20dfff))
+
+
+### Features
+
+* allow loading config from ?config ([#2442](https://github.com/linz/basemaps/issues/2442)) ([8f946d8](https://github.com/linz/basemaps/commit/8f946d8ffb155304b80c26aca0faf4c64136390f))
+
+
+
+
+
 # [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
 
 

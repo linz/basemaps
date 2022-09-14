@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+
+### Bug Fixes
+
+* **landing:** base url should include config ([#2452](https://github.com/linz/basemaps/issues/2452)) ([3414d90](https://github.com/linz/basemaps/commit/3414d9074fc27223c99957029f5ab862d551aa13))
+* **landing:** ensure tileMatrix is being passed correctly ([#2454](https://github.com/linz/basemaps/issues/2454)) ([3b66dee](https://github.com/linz/basemaps/commit/3b66dee9700074d578328d434cae9c6f6c20dfff))
+* **landing:** ensure url is loaded before render ([#2449](https://github.com/linz/basemaps/issues/2449)) ([73518a7](https://github.com/linz/basemaps/commit/73518a7e9c5cab823f8e70f7d0a964a119ec25cc))
+* **landing:** force config to always be in base58 ([#2463](https://github.com/linz/basemaps/issues/2463)) ([a2447e9](https://github.com/linz/basemaps/commit/a2447e9228c1fdc2f28af70699261f200a201226))
+
+
+### Features
+
+* **cli:** move screenshot tool into linz/basemaps-screenshot ([#2429](https://github.com/linz/basemaps/issues/2429)) ([27463d3](https://github.com/linz/basemaps/commit/27463d35b424669d6f2e945184a0b15ca3067801))
+* **cli:** New cli to create cog map sheet from a give fgb file and config. ([#2472](https://github.com/linz/basemaps/issues/2472)) ([6cf2563](https://github.com/linz/basemaps/commit/6cf25638e2ae4fe365aa78ab77cd0d319c02d7a0))
+* **landing:** always use latest config for the aerial layer ([#2464](https://github.com/linz/basemaps/issues/2464)) ([4f0a1fb](https://github.com/linz/basemaps/commit/4f0a1fbc41b30609ee9e4eb1582f6b5cd68aedfd))
+* **landing:** Disable the debug.cog checkbox when loading config outside basemaps. ([#2494](https://github.com/linz/basemaps/issues/2494)) ([37ce12b](https://github.com/linz/basemaps/commit/37ce12b1503f1e4ec6f73c3a0622948d220a9056))
+* **landing:** Load config into debug pages. ([#2486](https://github.com/linz/basemaps/issues/2486)) ([bf6b601](https://github.com/linz/basemaps/commit/bf6b601e46ee4693122dfa23ac18566ebc084aa4))
+* support styles from raster tile sets ([#2444](https://github.com/linz/basemaps/issues/2444)) ([bcd521f](https://github.com/linz/basemaps/commit/bcd521f3d240f07a41a4b09a2874d49283bcd3de))
+
+
+
+
+
 # [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
 
 **Note:** Version bump only for package @basemaps/landing

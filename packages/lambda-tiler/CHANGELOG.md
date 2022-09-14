@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+
+### Bug Fixes
+
+* **infra:** give lambda-tiler access to config bucket ([#2457](https://github.com/linz/basemaps/issues/2457)) ([788c995](https://github.com/linz/basemaps/commit/788c995256642f89458e2b72c2bddec8ab8fb1b7))
+* **lambda-tiler:** allow reading config from memory ([#2443](https://github.com/linz/basemaps/issues/2443)) ([9f98719](https://github.com/linz/basemaps/commit/9f987192f67c04a6bb1e97ab30680ef48a71db0e))
+* **lambda-tiler:** assume current year when imagery has no date ([#2462](https://github.com/linz/basemaps/issues/2462)) ([289df66](https://github.com/linz/basemaps/commit/289df66ff78dc07361af56c1bafc663ea1beaf36))
+* **lambda-tiler:** ensure wmts and style propagate config location ([#2445](https://github.com/linz/basemaps/issues/2445)) ([d93a34b](https://github.com/linz/basemaps/commit/d93a34b50bce9b49a30baa1fbfd7142332738d23))
+* **lambda-tiler:** send 408 timeout response rather than timing out. ([#2460](https://github.com/linz/basemaps/issues/2460)) ([8d31469](https://github.com/linz/basemaps/commit/8d31469829a65739ccbe525031897259d9ae2ae4))
+* **landing:** ensure tileMatrix is being passed correctly ([#2454](https://github.com/linz/basemaps/issues/2454)) ([3b66dee](https://github.com/linz/basemaps/commit/3b66dee9700074d578328d434cae9c6f6c20dfff))
+* **landing:** force config to always be in base58 ([#2463](https://github.com/linz/basemaps/issues/2463)) ([a2447e9](https://github.com/linz/basemaps/commit/a2447e9228c1fdc2f28af70699261f200a201226))
+* **shared:** ensure & is escaped in xml ([#2456](https://github.com/linz/basemaps/issues/2456)) ([665e433](https://github.com/linz/basemaps/commit/665e4335cbf52aeb2292295aba40fa40abf4c1b0))
+
+
+### Features
+
+* switch to aws role provider from chunkd ([#2473](https://github.com/linz/basemaps/issues/2473)) ([87be0e0](https://github.com/linz/basemaps/commit/87be0e08610f02003cb4ec3f6ced9b2051ee1617))
+* **lambda-tiler:** Add tests for the config loader. ([#2446](https://github.com/linz/basemaps/issues/2446)) ([73c5a95](https://github.com/linz/basemaps/commit/73c5a9568b0fc9fc061c0752f9bb2474fb6ef347))
+* **lambda-tiler:** Set Default asset location when config.asset is null ([#2450](https://github.com/linz/basemaps/issues/2450)) ([a244879](https://github.com/linz/basemaps/commit/a244879d7249da806bf35b4ad0f325066276e96c))
+* **landing:** Load config into debug pages. ([#2486](https://github.com/linz/basemaps/issues/2486)) ([bf6b601](https://github.com/linz/basemaps/commit/bf6b601e46ee4693122dfa23ac18566ebc084aa4))
+* allow loading config from ?config ([#2442](https://github.com/linz/basemaps/issues/2442)) ([8f946d8](https://github.com/linz/basemaps/commit/8f946d8ffb155304b80c26aca0faf4c64136390f))
+* support styles from raster tile sets ([#2444](https://github.com/linz/basemaps/issues/2444)) ([bcd521f](https://github.com/linz/basemaps/commit/bcd521f3d240f07a41a4b09a2874d49283bcd3de))
+
+
+
+
+
 # [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
 
 
