@@ -85,7 +85,7 @@ Build a specific COG
 Make cog job json
 
 ```bash
-./bin/bmc.js -V make-cog --imagery s3://imagery_path --bucket destination_bucket --name imagery_name --target NZTM2000Quad --output ./jobs.json
+./bin/bmc.js -V make-cog --imagery s3://imagery_path --target destination_bucket --name imagery_name --tile-matrix NZTM2000Quad --output ./jobs.json
 ```
 
 ## Advanced Job creation

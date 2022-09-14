@@ -9,7 +9,7 @@ import { CogJobFactory } from '../../cog/job.factory.js';
 
 export class CommandMakeCog extends CommandLineAction {
   private imagery: CommandLineStringParameter;
-  private bucket: CommandLineStringParameter;
+  private tileMatrix: CommandLineStringParameter;
   private name: CommandLineStringParameter;
   private target: CommandLineStringParameter;
   private cutline: CommandLineStringParameter;
@@ -32,11 +32,11 @@ export class CommandMakeCog extends CommandLineAction {
       description: 'Path of source imagery to import.',
       required: true,
     });
-    this.bucket = this.defineStringParameter({
+    this.target = this.defineStringParameter({
       argumentName: 'BUCKET',
-      parameterShortName: '-b',
-      parameterLongName: '--bucket',
-      description: 'Bucket for job.json',
+      parameterShortName: '-t',
+      parameterLongName: '--target',
+      description: 'Target bucket for job.json',
       required: true,
     });
     this.name = this.defineStringParameter({
@@ -46,10 +46,9 @@ export class CommandMakeCog extends CommandLineAction {
       description: 'Custome imagery name',
       required: false,
     });
-    this.target = this.defineStringParameter({
-      argumentName: 'TARGET',
-      parameterShortName: '-t',
-      parameterLongName: '--target',
+    this.tileMatrix = this.defineStringParameter({
+      argumentName: 'TILE_MATRIX',
+      parameterLongName: '--tile-matrix',
       description: 'Target tile matrix',
       required: false,
     });
@@ -86,14 +85,13 @@ export class CommandMakeCog extends CommandLineAction {
     if (name == null) name = source.split('/').filter(Boolean).pop();
     if (name == null) throw new Error('Failed to find imagery set name');
 
-    const target = this.target.value;
-    const targets: string[] = target ? [target] : ['NZTM2000Quad', 'WebMercatorQuad'];
+    const tileMatrix: string[] = this.tileMatrix.value ? [this.tileMatrix.value] : ['NZTM2000Quad', 'WebMercatorQuad'];
 
     const outputs: string[] = [];
-    for (const target of targets) {
+    for (const identifier of tileMatrix) {
       const id = ulid.ulid();
-      const tileMatrix = TileMatrixSets.find(target);
-      if (tileMatrix == null) throw new Error(`Cannot find tile matrix: ${target}`);
+      const tileMatrix = TileMatrixSets.find(identifier);
+      if (tileMatrix == null) throw new Error(`Cannot find tile matrix: ${identifier}`);
       logger.info({ id, tileMatrix: tileMatrix.identifier }, 'SetTileMatrix');
       const job = await this.makeCog(id, name, tileMatrix, source);
       outputs.push(job.getJobPath('job.json'));
@@ -107,7 +105,7 @@ export class CommandMakeCog extends CommandLineAction {
   }
 
   async makeCog(id: string, imageryName: string, tileMatrix: TileMatrixSet, uri: string): Promise<CogStacJob> {
-    const bucket = this.bucket.value;
+    const bucket = this.target.value;
     if (bucket == null) throw new Error('Please provide a validate bucket for output job.json');
     let resampling;
     /** Process Gebco 2193 as one cog of full extent to avoid antimeridian problems */
