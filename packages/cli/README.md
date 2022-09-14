@@ -82,6 +82,12 @@ Build a specific COG
 ./bin/bmc.js -V cog --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --name 1-2-3 --commit
 ```
 
+Make cog job json
+
+```bash
+./bin/bmc.js -V make-cog --imagery s3://imagery_path --bucket destination_bucket --name imagery_name --target NZTM2000Quad --output ./jobs.json
+```
+
 ## Advanced Job creation
 
 Useful configuration options for `cogify job`

@@ -55,14 +55,12 @@ export class CommandMakeCog extends CommandLineAction {
     });
     this.cutline = this.defineStringParameter({
       argumentName: 'CUTLINE',
-      parameterShortName: '-c',
       parameterLongName: '--cutline',
       description: 'Path of import cutline',
       required: false,
     });
     this.blend = this.defineIntegerParameter({
       argumentName: 'BLEND',
-      parameterShortName: '-b',
       parameterLongName: '--blend',
       description: 'Cutline blend',
       required: false,
