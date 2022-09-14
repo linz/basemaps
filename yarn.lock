@@ -1456,9 +1456,9 @@
   integrity sha512-ebDJ9b0e702Yr7pWgB0jzm+CX4Srzz8RcXtLJDJB+BSccqMa36uyH/zUsSYao5+BD1ytv3k3rPYCq4mAE1hsXA==
 
 "@types/aws-lambda@^8.10.75":
-  version "8.10.78"
-  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.78.tgz#dbb509837b6082962d6e7bc19f814e067ac9f5a2"
-  integrity sha512-+lZ8NuHT0qKEEpiZR4bF1G24SLrLwzdu0i9Cjdc3BGq6XJU6gBBYS5I0RJ8RdDCtgqgGdW8sOwsiZGHrC6mp0Q==
+  version "8.10.104"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.104.tgz#01ec1d55a08bdf1201150d9ecae39ff7cca9ff4a"
+  integrity sha512-HXZJH8aBa06re9NCtFudOr21izYZycgXIVjd8vFBSNSf6Ca4GYD77TfKqwYgcDqv4olqj5KK+Ks7Xi5IXFbNGA==
 
 "@types/color-name@^1.1.1":
   version "1.1.1"
