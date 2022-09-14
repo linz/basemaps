@@ -88,6 +88,12 @@ Make cog job json
 ./bin/bmc.js -V make-cog --imagery s3://imagery_path --target destination_bucket --name imagery_name --tile-matrix NZTM2000Quad --output ./jobs.json
 ```
 
+Split make cog job into chunked sub-jobs
+
+```bash
+./bin/bmc.js -V split-job --job s3://imagery_path/job.json --output jobs.json
+```
+
 ## Advanced Job creation
 
 Useful configuration options for `cogify job`

@@ -1,13 +1,10 @@
-import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { CogStacJob, JobCreationContext } from '../../cog/cog.stac.job.js';
-import { ProjectionLoader } from '../../cog/projection.loader.js';
-import * as ulid from 'ulid';
-import { getCutline } from './cutline.js';
-import { CogJobFactory } from '../../cog/job.factory.js';
+import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CogStacJob } from '../../cog/cog.stac.job.js';
+import { BatchJob } from './batch.job.js';
+import { basename } from 'path';
 
-export class CommandMakeCog extends CommandLineAction {
+export class CommandSplitJob extends CommandLineAction {
   private job: CommandLineStringParameter;
   private output: CommandLineStringParameter;
 
@@ -43,13 +40,30 @@ export class CommandMakeCog extends CommandLineAction {
 
     const job = await CogStacJob.load(jobLocation);
     logger.info({ jobLocation }, 'SplitJob:LoadingJob');
-    
 
+    // Get all the existing output tiffs
+    const existTiffs: Set<string> = new Set();
+    for await (const fileName of fsa.list(job.getJobPath())) {
+      if (fileName.endsWith('.tiff')) existTiffs.add(basename(fileName));
+    }
+
+    const runningJobs = await BatchJob.getCurrentJobList(job, logger);
+    for (const tiffName of runningJobs) existTiffs.add(`${tiffName}.tiff`);
+
+    // Prepare chunk job and individual jobs based on imagery size.
+    const jobs = await BatchJob.getJobs(job, existTiffs, logger);
+
+    if (jobs.length === 0) {
+      logger.info('NoJobs');
+      return;
+    }
+
+    logger.info({ jobTotal: job.output.files.length, jobLeft: jobs.length }, 'SplitJob:ChunkedJobs');
 
     // Write the output job json
     const output = this.output.value;
     if (output) {
-      fsa.write(output, JSON.stringify(outputs));
+      fsa.write(output, JSON.stringify(jobs));
     }
   }
 }
