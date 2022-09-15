@@ -1,6 +1,11 @@
 import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import {
+  CommandLineAction,
+  CommandLineIntegerParameter,
+  CommandLineStringListParameter,
+  CommandLineStringParameter,
+} from '@rushstack/ts-command-line';
 import { CogStacJob, JobCreationContext } from '../../cog/cog.stac.job.js';
 import { ProjectionLoader } from '../../cog/projection.loader.js';
 import * as ulid from 'ulid';
@@ -85,18 +90,14 @@ export class CommandMakeCog extends CommandLineAction {
     if (name == null) name = source.split('/').filter(Boolean).pop();
     if (name == null) throw new Error('Failed to find imagery set name');
 
-    const tileMatrix: string[] = [];
-    if (this.tileMatrix.value && this.tileMatrix.value === 'All') {
-      tileMatrix.push('NZTM2000Quad');
-      tileMatrix.push('WebMercatorQuad');
-    } else if (this.tileMatrix.value) {
-      tileMatrix.push(this.tileMatrix.value);
-    } else {
-      throw new Error('Please provide a valid tile set matrix.');
-    }
+    let tileMatrixSets: string[] = [];
+    const tileMatrix = this.tileMatrix.value;
+    if (tileMatrix == null) throw new Error('Please provide valid tile set matrix.');
+    if (tileMatrix.includes(',')) tileMatrixSets = tileMatrixSets.concat(tileMatrix.split(','));
+    else tileMatrixSets.push(tileMatrix);
 
     const outputs: string[] = [];
-    for (const identifier of tileMatrix) {
+    for (const identifier of tileMatrixSets) {
       const id = ulid.ulid();
       const tileMatrix = TileMatrixSets.find(identifier);
       if (tileMatrix == null) throw new Error(`Cannot find tile matrix: ${identifier}`);
