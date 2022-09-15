@@ -85,7 +85,15 @@ export class CommandMakeCog extends CommandLineAction {
     if (name == null) name = source.split('/').filter(Boolean).pop();
     if (name == null) throw new Error('Failed to find imagery set name');
 
-    const tileMatrix: string[] = this.tileMatrix.value ? [this.tileMatrix.value] : ['NZTM2000Quad', 'WebMercatorQuad'];
+    const tileMatrix: string[] = [];
+    if (this.tileMatrix.value && this.tileMatrix.value === 'All') {
+      tileMatrix.push('NZTM2000Quad');
+      tileMatrix.push('WebMercatorQuad');
+    } else if (this.tileMatrix.value) {
+      tileMatrix.push(this.tileMatrix.value);
+    } else {
+      throw new Error('Please provide a valid tile set matrix.');
+    }
 
     const outputs: string[] = [];
     for (const identifier of tileMatrix) {
