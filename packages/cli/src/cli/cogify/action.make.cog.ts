@@ -1,11 +1,6 @@
 import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import {
-  CommandLineAction,
-  CommandLineIntegerParameter,
-  CommandLineStringListParameter,
-  CommandLineStringParameter,
-} from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CogStacJob, JobCreationContext } from '../../cog/cog.stac.job.js';
 import { ProjectionLoader } from '../../cog/projection.loader.js';
 import * as ulid from 'ulid';
