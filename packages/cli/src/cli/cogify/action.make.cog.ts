@@ -76,7 +76,7 @@ export class CommandMakeCog extends CommandLineAction {
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
     const imagery = this.imagery.value;
-    let name = this.name.value;
+    let name = this.name.value === '' ? undefined : this.name.value;
     if (imagery == null) throw new Error('Please provide a valid imagery source');
     await Promise.all([3791, 3790, 3789, 3788].map((code) => ProjectionLoader.load(code)));
 
@@ -85,10 +85,14 @@ export class CommandMakeCog extends CommandLineAction {
     if (name == null) name = source.split('/').filter(Boolean).pop();
     if (name == null) throw new Error('Failed to find imagery set name');
 
-    const tileMatrix: string[] = this.tileMatrix.value ? [this.tileMatrix.value] : ['NZTM2000Quad', 'WebMercatorQuad'];
+    let tileMatrixSets: string[] = [];
+    const tileMatrix = this.tileMatrix.value;
+    if (tileMatrix == null) throw new Error('Please provide valid tile set matrix.');
+    if (tileMatrix.includes('/')) tileMatrixSets = tileMatrixSets.concat(tileMatrix.split('/'));
+    else tileMatrixSets.push(tileMatrix);
 
     const outputs: string[] = [];
-    for (const identifier of tileMatrix) {
+    for (const identifier of tileMatrixSets) {
       const id = ulid.ulid();
       const tileMatrix = TileMatrixSets.find(identifier);
       if (tileMatrix == null) throw new Error(`Cannot find tile matrix: ${identifier}`);
@@ -125,8 +129,10 @@ export class CommandMakeCog extends CommandLineAction {
 
     // Prepare the cutline
     let cutline: { href: string; blend: number } | undefined;
-    if (this.cutline.value && this.blend.value) cutline = { href: this.cutline.value, blend: this.blend.value };
-    else if (this.cutline.value) new Error('Please provide a blend for the cutline');
+    const cutlinePath = this.cutline.value === '' ? undefined : this.cutline.value;
+    const blend = this.blend.value === 0 ? undefined : this.blend.value;
+    if (cutlinePath && blend) cutline = { href: cutlinePath, blend };
+    else if (cutlinePath) new Error('Please provide a blend for the cutline');
     else cutline = getCutline(imageryName);
     if (cutline == null) throw new Error(`Cannot found default cutline from imagery name: ${imageryName}`);
 
