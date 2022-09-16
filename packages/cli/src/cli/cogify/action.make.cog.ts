@@ -88,7 +88,7 @@ export class CommandMakeCog extends CommandLineAction {
     let tileMatrixSets: string[] = [];
     const tileMatrix = this.tileMatrix.value;
     if (tileMatrix == null) throw new Error('Please provide valid tile set matrix.');
-    if (tileMatrix.includes(',')) tileMatrixSets = tileMatrixSets.concat(tileMatrix.split(','));
+    if (tileMatrix.includes('/')) tileMatrixSets = tileMatrixSets.concat(tileMatrix.split(','));
     else tileMatrixSets.push(tileMatrix);
 
     const outputs: string[] = [];
