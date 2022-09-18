@@ -47,9 +47,6 @@ export class CommandSplitJob extends CommandLineAction {
       if (fileName.endsWith('.tiff')) existTiffs.add(basename(fileName));
     }
 
-    const runningJobs = await BatchJob.getCurrentJobList(job, logger);
-    for (const tiffName of runningJobs) existTiffs.add(`${tiffName}.tiff`);
-
     // Prepare chunk job and individual jobs based on imagery size.
     const jobs = await BatchJob.getJobs(job, existTiffs, logger);
 
