@@ -39,7 +39,7 @@ export const TileMatrixSets = {
     const epsg = Epsg.parse(identifier);
     if (epsg != null) return TileMatrixSets.tryGet(epsg);
     for (const tileMatrix of TileMatrixSets.All) {
-      if (tileMatrix.identifier.toLocaleLowerCase() === identifier.toLocaleLowerCase()) return tileMatrix;
+      if (tileMatrix.identifier.toLowerCase() === identifier.toLowerCase()) return tileMatrix;
     }
     return null;
   },
