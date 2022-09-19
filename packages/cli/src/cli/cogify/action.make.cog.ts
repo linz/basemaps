@@ -1,5 +1,5 @@
 import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogConfig, LogType } from '@basemaps/shared';
+import { Env, FileConfigS3Role, fsa, LogConfig, LogType } from '@basemaps/shared';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CogStacJob, JobCreationContext } from '../../cog/cog.stac.job.js';
 import { ProjectionLoader } from '../../cog/projection.loader.js';
@@ -8,6 +8,7 @@ import { getCutline } from './cutline.js';
 import { CogJobFactory } from '../../cog/job.factory.js';
 import { basename } from 'path';
 import { BatchJob } from './batch.job.js';
+import { CredentialSourceJson } from '@chunkd/source-aws-v2';
 
 interface Output {
   job: string;
@@ -150,8 +151,8 @@ export class CommandMakeCog extends CommandLineAction {
     const ctx: JobCreationContext = {
       imageryName,
       override: { id, projection: Epsg.Nztm2000, resampling },
-      outputLocation: { type: 's3' as const, path: `s3://${bucket}` },
-      sourceLocation: { type: 's3', path: uri },
+      outputLocation: await this.findLocation(`s3://${bucket}/`),
+      sourceLocation: await this.findLocation(uri),
       cutline,
       batch: false, // Only create the job.json in the make cog cli
       tileMatrix,
@@ -176,5 +177,15 @@ export class CommandMakeCog extends CommandLineAction {
     }
     logger.info({ jobTotal: job.output.files.length, jobLeft: jobs.length }, 'SplitJob:ChunkedJobs');
     return jobs;
+  }
+
+  async findLocation(path: string): Promise<FileConfigS3Role> {
+    const configPath = Env.get(Env.AwsRoleConfigPath);
+    if (configPath == null) throw new Error('No aws config path provided');
+    const configs = await fsa.readJson<CredentialSourceJson>(configPath);
+    for (const prefix of configs.prefixes) {
+      if (path.startsWith(prefix.prefix)) return { type: 's3', path, roleArn: prefix.roleArn };
+    }
+    throw new Error(`No valid role to find the path: ${path}`);
   }
 }
