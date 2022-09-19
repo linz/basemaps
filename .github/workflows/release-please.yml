@@ -25,16 +25,11 @@ jobs:
     permissions:
       id-token: write
       contents: write
-      
+
     if: ${{ needs.release-please.outputs.release_created }}
     steps:
       - name: Build and test
         uses: linz/action-typescript@v1
-
-      - name: Publish to NPM
-        run: npx lerna publish from-package --no-push --no-private --yes
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: (Prod) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -64,7 +59,7 @@ jobs:
 
       - name: (Prod) Publish NPM
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: npx lerna publish from-git --yes
+        run: npx lerna publish from-package --no-push --no-private --yes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
