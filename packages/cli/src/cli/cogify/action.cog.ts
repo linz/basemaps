@@ -79,7 +79,7 @@ export class CommandCogCreate extends CommandLineAction {
 
     const namesStr = this.names?.value;
     if (namesStr == null) throw new LoggerFatalError({ names }, 'Names cannot be null');
-    const namesArr = namesStr.replace('[', '').replace(']', '').split(',');
+    const namesArr = JSON.parse(namesStr);
     for (const name of namesArr) {
       if (!files.find((r) => r.name === name))
         throw new LoggerFatalError(
