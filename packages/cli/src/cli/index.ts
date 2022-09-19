@@ -4,7 +4,6 @@ import 'source-map-support/register.js';
 import { CommandCogCreate } from './cogify/action.cog.js';
 import { CommandJobCreate } from './cogify/action.job.js';
 import { CommandMakeCog } from './cogify/action.make.cog.js';
-import { CommandSplitJob } from './cogify/action.split.job.js';
 import { CommandBundleAssets } from './config/action.bundle.assets.js';
 import { CommandBundle } from './config/action.bundle.js';
 import { CommandCogMapSheet } from './config/action.cog.mapsheet.js';
@@ -23,7 +22,6 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     this.addAction(new CommandCogCreate());
     this.addAction(new CommandJobCreate());
     this.addAction(new CommandMakeCog());
-    this.addAction(new CommandSplitJob());
 
     this.addAction(new CommandBundle());
     this.addAction(new CommandBundleAssets());
