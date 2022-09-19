@@ -35,6 +35,15 @@ export class CommandCogCreate extends CommandLineAction {
     });
   }
 
+  parseName(name: string): string[] {
+    // Name could both be a string or a array type of string
+    try {
+      return JSON.parse(name);
+    } catch (e) {
+      return [name];
+    }
+  }
+
   getNames(job: CogJob): Set<string> | null {
     const output: Set<string> = new Set<string>();
     const { files } = job.output;
@@ -65,15 +74,20 @@ export class CommandCogCreate extends CommandLineAction {
     }
 
     const names = this.name?.values;
-    if (names == null) throw new LoggerFatalError({ names }, 'Names cannot be null');
-    for (const name of names) {
-      if (!files.find((r) => r.name === name))
-        throw new LoggerFatalError(
-          { name, names: files.map((r) => r.name).join(', ') },
-          'Name does not exist inside job',
-        );
-      output.add(name);
+    if (names != null) {
+      for (const nameStr of names) {
+        const nameArr = this.parseName(nameStr);
+        for (const name of nameArr) {
+          if (!files.find((r) => r.name === name))
+            throw new LoggerFatalError(
+              { name, names: files.map((r) => r.name).join(', ') },
+              'Name does not exist inside job',
+            );
+          output.add(name);
+        }
+      }
     }
+
     return output;
   }
 
