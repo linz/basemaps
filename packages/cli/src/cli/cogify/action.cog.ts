@@ -24,7 +24,6 @@ import { prepareUrl } from '../util.js';
 export class CommandCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
   private name?: CommandLineStringListParameter;
-  private names?: CommandLineStringParameter;
   private commit?: CommandLineFlagParameter;
   private cogIndex?: CommandLineIntegerListParameter;
 
@@ -34,6 +33,15 @@ export class CommandCogCreate extends CommandLineAction {
       summary: 'create a COG',
       documentation: 'Create a COG for the specified cog name',
     });
+  }
+
+  parseName(name: string): string[] {
+    // Name could both be a string or a array type of string
+    try {
+      return JSON.parse(name);
+    } catch (e) {
+      return [name];
+    }
   }
 
   getNames(job: CogJob): Set<string> | null {
@@ -67,26 +75,17 @@ export class CommandCogCreate extends CommandLineAction {
 
     const names = this.name?.values;
     if (names != null) {
-      for (const name of names) {
-        if (!files.find((r) => r.name === name))
-          throw new LoggerFatalError(
-            { name, names: files.map((r) => r.name).join(', ') },
-            'Name does not exist inside job',
-          );
-        output.add(name);
+      for (const nameStr of names) {
+        const nameArr = this.parseName(nameStr);
+        for (const name of nameArr) {
+          if (!files.find((r) => r.name === name))
+            throw new LoggerFatalError(
+              { name, names: files.map((r) => r.name).join(', ') },
+              'Name does not exist inside job',
+            );
+          output.add(name);
+        }
       }
-    }
-
-    const namesStr = this.names?.value;
-    if (namesStr == null) throw new LoggerFatalError({ names }, 'Names cannot be null');
-    const namesArr = JSON.parse(namesStr);
-    for (const name of namesArr) {
-      if (!files.find((r) => r.name === name))
-        throw new LoggerFatalError(
-          { name, names: files.map((r) => r.name).join(', ') },
-          'Name does not exist inside job',
-        );
-      output.add(name);
     }
 
     return output;
@@ -243,13 +242,6 @@ export class CommandCogCreate extends CommandLineAction {
       argumentName: 'NAME',
       parameterLongName: '--name',
       description: 'list of cog names to process',
-      required: false,
-    });
-
-    this.names = this.defineStringParameter({
-      argumentName: 'NAMES',
-      parameterLongName: '--names',
-      description: 'String type of Arrary from Argo input with names to process',
       required: false,
     });
 
