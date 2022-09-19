@@ -1,11 +1,18 @@
 import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogConfig } from '@basemaps/shared';
+import { fsa, LogConfig, LogType } from '@basemaps/shared';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CogStacJob, JobCreationContext } from '../../cog/cog.stac.job.js';
 import { ProjectionLoader } from '../../cog/projection.loader.js';
 import * as ulid from 'ulid';
 import { getCutline } from './cutline.js';
 import { CogJobFactory } from '../../cog/job.factory.js';
+import { basename } from 'path';
+import { BatchJob } from './batch.job.js';
+
+interface Output {
+  job: string;
+  names: string[];
+}
 
 export class CommandMakeCog extends CommandLineAction {
   private imagery: CommandLineStringParameter;
@@ -91,17 +98,21 @@ export class CommandMakeCog extends CommandLineAction {
     if (tileMatrix.includes('/')) tileMatrixSets = tileMatrixSets.concat(tileMatrix.split('/'));
     else tileMatrixSets.push(tileMatrix);
 
-    const outputs: string[] = [];
+    const outputs: Output[] = [];
     for (const identifier of tileMatrixSets) {
       const id = ulid.ulid();
       const tileMatrix = TileMatrixSets.find(identifier);
       if (tileMatrix == null) throw new Error(`Cannot find tile matrix: ${identifier}`);
       logger.info({ id, tileMatrix: tileMatrix.identifier }, 'SetTileMatrix');
       const job = await this.makeCog(id, name, tileMatrix, source);
-      outputs.push(job.getJobPath('job.json'));
+      const jobLocation = job.getJobPath('job.json');
+      // Split the jobs into chunked tasks
+      const chunkedJobs = await this.splitJob(job, logger);
+      for (const names of chunkedJobs) {
+        outputs.push({ job: jobLocation, names });
+      }
     }
 
-    // Write the output job json
     const output = this.output.value;
     if (output) {
       fsa.write(output, JSON.stringify(outputs));
@@ -148,5 +159,22 @@ export class CommandMakeCog extends CommandLineAction {
     };
     const job = (await CogJobFactory.create(ctx)) as CogStacJob;
     return job;
+  }
+
+  async splitJob(job: CogStacJob, logger: LogType): Promise<string[][]> {
+    // Get all the existing output tiffs
+    const existTiffs: Set<string> = new Set();
+    for await (const fileName of fsa.list(job.getJobPath())) {
+      if (fileName.endsWith('.tiff')) existTiffs.add(basename(fileName));
+    }
+
+    // Prepare chunk job and individual jobs based on imagery size.
+    const jobs = await BatchJob.getJobs(job, existTiffs, logger);
+    if (jobs.length === 0) {
+      logger.info('NoJobs');
+      return [];
+    }
+    logger.info({ jobTotal: job.output.files.length, jobLeft: jobs.length }, 'SplitJob:ChunkedJobs');
+    return jobs;
   }
 }
