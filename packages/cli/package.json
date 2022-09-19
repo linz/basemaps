@@ -44,6 +44,7 @@
     "@basemaps/shared": "^6.35.0",
     "@basemaps/sprites": "^6.32.1",
     "@chunkd/fs": "^8.5.1",
+    "@chunkd/source-aws-v2": "^8.5.1",
     "@cogeotiff/core": "^7.0.0",
     "@cotar/core": "^5.4.0",
     "@cotar/tar": "^5.4.1",
