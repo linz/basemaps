@@ -1,0 +1,72 @@
+on:
+  push:
+    branches:
+      - master
+
+name: release-please
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          command: manifest
+          release-type: node
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-release:
+    needs: release-please
+    runs-on: ubuntu-latest
+    concurrency: deploy-${{ github.ref }}
+
+    permissions:
+      id-token: write
+      contents: write
+      
+    if: ${{ needs.release-please.outputs.release_created }}
+    steps:
+      - name: Build and test
+        uses: linz/action-typescript@v1
+
+      - name: Publish to NPM
+        run: npx lerna publish from-package --no-push --no-private --yes
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: (Prod) Configure AWS Credentials
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        uses: aws-actions/configure-aws-credentials@v1.6.1
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_PROD }}
+
+      - name: (Prod) Deploy
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: |
+          npx lerna run bundle --stream
+          npm pack --workspaces
+          cp *.tgz packages/cli
+          npx lerna run deploy:deploy --stream
+        env:
+          NODE_ENV: "production"
+          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
+          SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_PROD}}
+
+      - name: (Prod) Create github release
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: npx conventional-github-releaser -p angular
+        env:
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: (Prod) Publish NPM
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: npx lerna publish from-git --yes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
+
+

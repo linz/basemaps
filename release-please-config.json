@@ -1,0 +1,22 @@
+{
+  "bootstrap-sha": "dcebd7149ab318ea979b5d1ba34a9f82fc41b935",
+  "packages": {
+    "packages/attribution": {},
+    "packages/bathymetry": {},
+    "packages/cli": {},
+    "packages/config": {},
+    "packages/geo": {},
+    "packages/lambda-analytics": {},
+    "packages/lambda-cog": {},
+    "packages/lambda-tiler": {},
+    "packages/landing": {},
+    "packages/linzjs-docker-command": {},
+    "packages/linzjs-geojson": {},
+    "packages/linzjs-metrics": {},
+    "packages/server": {},
+    "packages/shared": {},
+    "packages/sprites": {},
+    "packages/tiler": {},
+    "packages/tiler-sharp": {}
+  }
+}
