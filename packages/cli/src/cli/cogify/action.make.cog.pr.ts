@@ -64,7 +64,7 @@ export class CommandCogPullRequest extends CommandLineAction {
 
     const output = this.output.value;
     if (output) {
-      const prUrl = `https://github.com/${owner}/${repo}//pull/${prNumber}`;
+      const prUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}`;
       fsa.write(output, prUrl);
     }
   }
