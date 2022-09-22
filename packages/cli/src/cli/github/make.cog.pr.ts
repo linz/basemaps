@@ -48,7 +48,7 @@ export class MakeCogGithub extends Github {
     const branch = `feat/config-${this.imagery}`;
     const ref = `refs/heads/${branch}`;
     // Create branch first
-    const existing = this.getBranch(branch);
+    const existing = await this.getBranch(branch);
     if (existing == null) await this.createBranch(branch, ref);
 
     // Create blob for the tileset config
