@@ -1,5 +1,5 @@
-import { Epsg, EpsgCode, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Env, FileConfigS3Role, fsa, LogConfig, LogType, Projection, titleizeImageryName } from '@basemaps/shared';
+import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Env, FileConfigS3Role, fsa, LogConfig, LogType } from '@basemaps/shared';
 import {
   CommandLineAction,
   CommandLineFlagParameter,
@@ -14,10 +14,8 @@ import { CogJobFactory } from '../../cog/job.factory.js';
 import { basename } from 'path';
 import { BatchJob } from './batch.job.js';
 import { CredentialSourceJson } from '@chunkd/source-aws-v2';
-import { ConfigLayer } from '@basemaps/config';
-import { ImageryUrl } from '../github/make.cog.pr.js';
 
-interface OutputJobs {
+interface Output {
   job: string;
   names: string[];
 }
@@ -112,9 +110,7 @@ export class CommandMakeCog extends CommandLineAction {
     if (tileMatrix.includes('/')) tileMatrixSets = tileMatrixSets.concat(tileMatrix.split('/'));
     else tileMatrixSets.push(tileMatrix);
 
-    const outputJobs: OutputJobs[] = [];
-    const configLayer: ConfigLayer = { name, title: titleizeImageryName(name) };
-    const urls: ImageryUrl[] = [];
+    const outputs: Output[] = [];
     for (const identifier of tileMatrixSets) {
       const id = ulid.ulid();
       const tileMatrix = TileMatrixSets.find(identifier);
@@ -125,22 +121,13 @@ export class CommandMakeCog extends CommandLineAction {
       // Split the jobs into chunked tasks
       const chunkedJobs = await this.splitJob(job, logger);
       for (const names of chunkedJobs) {
-        outputJobs.push({ job: jobLocation, names });
+        outputs.push({ job: jobLocation, names });
       }
-
-      // Set config layer for output
-      configLayer[tileMatrix.projection.code] = jobLocation.replace('/job.json', '');
-
-      // Get urls for ouput
-      const url = await this.prepareUrl(job);
-      urls.push({ tileMatrix: identifier, url });
     }
 
     const output = this.output.value;
     if (output) {
-      fsa.write(fsa.join(output, 'jobs.json'), JSON.stringify(outputJobs));
-      fsa.write(fsa.join(output, 'layer.json'), JSON.stringify(configLayer));
-      fsa.write(fsa.join(output, 'urls.json'), JSON.stringify(urls));
+      fsa.write(output, JSON.stringify(outputs));
     }
   }
 
@@ -213,19 +200,5 @@ export class CommandMakeCog extends CommandLineAction {
       if (path.startsWith(prefix.prefix)) return { type: 's3', path, roleArn: prefix.roleArn };
     }
     throw new Error(`No valid role to find the path: ${path}`);
-  }
-
-  /**
-   * Prepare QA urls with center location
-   */
-  async prepareUrl(job: CogStacJob): Promise<string> {
-    const bounds = job.output.bounds;
-    const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
-    const proj = Projection.get(job.tileMatrix.projection);
-    const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
-    const targetZoom = Math.max(job.tileMatrix.findBestZoom(job.output.gsd) - 12, 0);
-    const base = Env.get(Env.PublicUrlBase);
-    const url = `${base}/?i=${job.id}&p=${job.tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`;
-    return url;
   }
 }

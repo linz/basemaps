@@ -36,9 +36,6 @@ export const Env = {
   /** AWS role config bucket */
   AwsRoleConfigPath: 'AWS_ROLE_CONFIG_PATH',
 
-  /** Github api token */
-  GitHubToken: 'GITHUB_API_TOKEN',
-
   Gdal: {
     /** Should the gdal docker container be used? */
     UseDocker: 'GDAL_DOCKER',

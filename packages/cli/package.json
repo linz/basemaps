@@ -49,7 +49,6 @@
     "@cotar/core": "^5.4.0",
     "@cotar/tar": "^5.4.1",
     "@linzjs/geojson": "^6.32.1",
-    "@octokit/core": "^4.0.5",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
     "deep-diff": "^1.0.2",
