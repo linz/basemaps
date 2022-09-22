@@ -27,6 +27,7 @@ export class CommandMakeCog extends CommandLineAction {
   private target: CommandLineStringParameter;
   private cutline: CommandLineStringParameter;
   private blend: CommandLineIntegerParameter;
+  private maxPixelWidth: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
   private aws: CommandLineFlagParameter;
 
@@ -76,6 +77,12 @@ export class CommandMakeCog extends CommandLineAction {
       argumentName: 'BLEND',
       parameterLongName: '--blend',
       description: 'Cutline blend',
+      required: false,
+    });
+    this.maxPixelWidth = this.defineIntegerParameter({
+      argumentName: 'MaxPixelWidth',
+      parameterLongName: '--max-pixel',
+      description: 'Maximum Pixel Width for the cogs',
       required: false,
     });
     this.output = this.defineStringParameter({
@@ -161,7 +168,7 @@ export class CommandMakeCog extends CommandLineAction {
 
     const ctx: JobCreationContext = {
       imageryName,
-      override: { id, projection: Epsg.Nztm2000, resampling, maxImageSize: 16385 },
+      override: { id, projection: Epsg.Nztm2000, resampling, maxImageSize: this.maxPixelWidth.value },
       outputLocation: this.aws.value
         ? await this.findLocation(`s3://${bucket}/`)
         : { type: 'local' as const, path: '.' },
@@ -171,6 +178,7 @@ export class CommandMakeCog extends CommandLineAction {
       tileMatrix,
       oneCogCovering: false,
     };
+
     const job = (await CogJobFactory.create(ctx)) as CogStacJob;
     return job;
   }
