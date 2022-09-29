@@ -141,6 +141,11 @@ button {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
 }
 
+.lui-checkbox-container label{
+  margin-left: 10px;
+  margin-top:  0px;
+}
+
 .debug {
   font-size: 12px;
   position: absolute;
