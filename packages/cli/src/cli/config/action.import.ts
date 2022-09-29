@@ -1,13 +1,24 @@
-import { BaseConfig, ConfigBundle, ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
-import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
+import {
+  BaseConfig,
+  BasemapsConfigProvider,
+  ConfigBundle,
+  ConfigBundled,
+  ConfigProviderMemory,
+} from '@basemaps/config';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import { Env, fsa, getDefaultConfig, LogConfig, Projection } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import fetch from 'node-fetch';
+import { CogStacJob } from '../../cog/cog.stac.job.js';
 import { invalidateCache } from '../util.js';
 import { Q, Updater } from './config.update.js';
+
+const PublicUrlBase = 'https://basemaps.linz.govt.nz/';
 
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;
   private backup: CommandLineStringParameter;
+  private output: CommandLineStringParameter;
   private commit: CommandLineFlagParameter;
 
   promises: Promise<boolean>[] = [];
@@ -35,6 +46,11 @@ export class CommandImport extends CommandLineAction {
       argumentName: 'BACKUP',
       parameterLongName: '--backup',
       description: 'Backup the old config into a config bundle json',
+    });
+    this.output = this.defineStringParameter({
+      argumentName: 'OUTPUT',
+      parameterLongName: '--output',
+      description: 'Output a markdown file with the config changes',
     });
     this.commit = this.defineFlagParameter({
       parameterLongName: '--commit',
@@ -108,6 +124,9 @@ export class CommandImport extends CommandLineAction {
       await fsa.writeJson(backup, this.backupConfig.toJson());
     }
 
+    const output = this.output.value;
+    if (output) await this.outputChange(output, mem, cfg);
+
     if (commit !== true) logger.info('DryRun:Done');
   }
 
@@ -127,5 +146,75 @@ export class CommandImport extends CommandLineAction {
     });
 
     this.promises.push(promise);
+  }
+
+  async outputChange(output: string, mem: BasemapsConfigProvider, cfg: BasemapsConfigProvider): Promise<void> {
+    const inserts: string[] = ['# New Layers\n'];
+    const updates: string[] = ['# Updates\n'];
+    const id = 'ts_aerial';
+    const newData = await mem.TileSet.get(id);
+    const oldData = await cfg.TileSet.get(id);
+    if (newData == null || oldData == null) throw new Error('Failed to fetch aerial config data.');
+    for (const layer of newData.layers) {
+      const existing = oldData.layers.find((l) => l.name === layer.name);
+      if (layer.name === 'chatham-islands_digital-globe_2014-2019_0-5m') continue; // Ignore duplicated layer.
+      if (existing) {
+        const change: string[] = [`### ${layer.name}\n`];
+        if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
+          change.push(` - Zoom level updated\n`);
+        }
+        if (layer[2193] && layer[2193] !== existing[2193]) {
+          const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
+          change.push(`- Layer update [NZTM200Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+        }
+        if (layer[3857] && layer[3857] !== existing[3857]) {
+          const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
+          change.push(`- Layer update [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+        }
+        if (change.length > 1) updates.push(change.join(''));
+      } else {
+        // New layers
+        inserts.push(`### ${layer.name}\n`);
+        if (layer[2193]) {
+          const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
+          inserts.push(` - [NZTM200Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+        }
+        if (layer[3857]) {
+          const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
+          inserts.push(` - [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+        }
+      }
+    }
+
+    let md = '';
+    if (inserts.length > 1) md += inserts.join('');
+    if (updates.length > 1) md += updates.join('');
+
+    if (md !== '') fsa.write(output, md);
+
+    return;
+  }
+
+  /**
+   * Prepare QA urls with center location
+   */
+  async prepareUrl(
+    id: string,
+    mem: BasemapsConfigProvider,
+    tileMatrix: TileMatrixSet,
+  ): Promise<{ layer: string; tag: string }> {
+    const configImagey = await mem.Imagery.get(id);
+    if (configImagey == null) throw new Error(`Failed to find imagery config from config bundel file. Id: ${id}`);
+    const job = await fsa.readJson<CogStacJob>(fsa.join(configImagey.uri, 'job.json'));
+    const bounds = configImagey.bounds;
+    const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+    const proj = Projection.get(configImagey.projection);
+    const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
+    const targetZoom = Math.max(tileMatrix.findBestZoom(job.output.gsd) - 12, 0);
+    const urls = {
+      layer: `${PublicUrlBase}?i=${job.id}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
+      tag: `${PublicUrlBase}?config=${this.config.value}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
+    };
+    return urls;
   }
 }
