@@ -4,13 +4,13 @@ import { LayerInfo, MapConfig } from '../config.map.js';
 
 export interface LayerSwitcherDropdownState {
   layers?: Map<string, LayerInfo>;
-  extend: boolean;
+  zoomToExtent: boolean;
   currentLayer: string;
 }
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
   _events: (() => boolean)[] = [];
   componentWillMount(): void {
-    this.setState({ ...this.state, extend: true, currentLayer: Config.map.layerKey });
+    this.setState({ ...this.state, zoomToExtent: true, currentLayer: Config.map.layerKey });
 
     Config.map.layers.then((layers) => this.setState({ ...this.state, layers }));
 
@@ -32,7 +32,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     gaEvent(GaEvent.Ui, 'layer:' + target.value);
 
     // Configure the bounds of the map to match the new layer
-    if (this.state.extend) {
+    if (this.state.zoomToExtent) {
       Config.map.layers.then((f) => {
         const layer = f.get(layerId);
         if (layer == null) return;
@@ -45,7 +45,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
   onClick = (e: Event): void => {
     const target = e.target as HTMLInputElement;
-    this.setState({ extend: target.checked });
+    this.setState({ zoomToExtent: target.checked });
   };
 
   render(): ComponentChild {
@@ -57,7 +57,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
         </select>
         <div class="lui-input-group-wrapper">
           <div class="lui-checkbox-container">
-            <input type="checkbox" onClick={this.onClick} checked={this.state.extend} />
+            <input type="checkbox" onClick={this.onClick} checked={this.state.zoomToExtent} />
             <label>Zoom to Extent</label>
           </div>
         </div>
