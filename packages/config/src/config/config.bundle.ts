@@ -8,5 +8,5 @@ export interface ConfigBundle extends BaseConfig {
   hash: string;
 
   /** Path of the asset file */
-  asset: string;
+  assets: string;
 }
