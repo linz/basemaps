@@ -259,6 +259,19 @@ export class Debug extends Component<
 
     let lastFeatureId: string | number | undefined;
     const stateName = type === 'source' ? `featureSource` : `featureCog`;
+
+    // Onclick copy the location into the clipboard
+    map.on('click', layerFillId, (e) => {
+      const features = e.features;
+      if (features == null || features.length === 0) return;
+      const firstFeature = features[0];
+
+      // TODO name does not include `s3://...`
+      const name = firstFeature.properties?.['name'];
+      if (name == null) return;
+      navigator.clipboard.writeText(name);
+    });
+
     map.on('mousemove', layerFillId, (e) => {
       const features = e.features;
       if (features == null || features.length === 0) return;
