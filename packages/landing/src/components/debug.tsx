@@ -198,14 +198,29 @@ export class Debug extends Component<
     );
   }
 
+  downloadSource = async (): Promise<void> => {
+    const im = this.state.imagery;
+    if (im == null) return;
+    const geoJson = ConfigData.getGeoJson(im);
+    if (geoJson == null) return;
+
+    // Create a magic a href to download the geojson
+    const dataStr = `data:text/json;charset=utf-8,` + encodeURIComponent(JSON.stringify(geoJson));
+    const aEl = document.createElement('a');
+    aEl.setAttribute('href', dataStr);
+    aEl.setAttribute('download', im.name + '.json');
+    document.body.appendChild(aEl);
+    aEl.click();
+    aEl.remove();
+  };
+
   renderSourceToggle(): ComponentChild {
     if (this.state.imagery == null) return null;
-    const sourceLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'source.geojson');
     return (
       <Fragment>
         <div className="debug__info">
           <label className="debug__label">
-            <a href={sourceLocation} title="Source geojson">
+            <a onClick={this.downloadSource} href="#" title="Source geojson">
               Source
             </a>
           </label>
@@ -266,10 +281,9 @@ export class Debug extends Component<
       if (features == null || features.length === 0) return;
       const firstFeature = features[0];
 
-      // TODO name does not include `s3://...`
-      const name = firstFeature.properties?.['name'];
-      if (name == null) return;
-      navigator.clipboard.writeText(name);
+      const location = firstFeature.properties?.['location'] ?? firstFeature.properties?.['name'];
+      if (location == null) return;
+      navigator.clipboard.writeText(location);
     });
 
     map.on('mousemove', layerFillId, (e) => {
