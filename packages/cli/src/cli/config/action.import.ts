@@ -78,7 +78,7 @@ export class CommandImport extends CommandLineAction {
         name: cfg.ConfigBundle.id(`config-${configJson.hash}.json`),
         path: config,
         hash: configJson.hash,
-        asset: configJson.assets,
+        assets: configJson.assets,
       };
       logger.info({ config }, 'Import:ConfigBundle');
 
