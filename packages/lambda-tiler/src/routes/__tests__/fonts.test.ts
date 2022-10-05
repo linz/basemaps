@@ -1,9 +1,11 @@
 import { base58, ConfigProviderMemory } from '@basemaps/config';
-import { Env, getDefaultConfig } from '@basemaps/shared';
+import { getDefaultConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
+import { createSandbox } from 'sinon';
 import { handler } from '../../index.js';
 import { CachedConfig } from '../../util/config.cache.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { CoSources } from '../../util/source.cache.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { fontList } from '../fonts.js';
@@ -11,18 +13,20 @@ import { FsMemory } from './memory.fs.js';
 
 o.spec('/v1/fonts', () => {
   const memory = new FsMemory();
+  const sandbox = createSandbox();
+  const config = new ConfigProviderMemory();
+
   o.before(() => {
     fsa.register('memory://', memory);
   });
-  const assetLocation = process.env[Env.AssetLocation];
 
   o.beforeEach(() => {
-    process.env[Env.AssetLocation] = 'memory://config';
-    getDefaultConfig().assets = 'memory://';
+    config.assets = 'memory://';
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
   });
 
   o.afterEach(() => {
-    getDefaultConfig().assets = assetLocation;
+    sandbox.restore();
     CachedConfig.cache.clear();
     CoSources.cache.clear();
     memory.files.clear();
@@ -44,7 +48,6 @@ o.spec('/v1/fonts', () => {
 
   o('should get the correct font', async () => {
     await fsa.write('memory://fonts/Roboto Thin/0-255.pbf', Buffer.from(''));
-
     const res255 = await handler.router.handle(mockRequest('/v1/fonts/Roboto Thin/0-255.pbf'));
     o(res255.status).equals(200);
     o(res255.header('content-type')).equals('application/x-protobuf');
@@ -58,7 +61,6 @@ o.spec('/v1/fonts', () => {
 
   o('should get the correct utf8 font', async () => {
     await fsa.write('memory://fonts/🦄 🌈/0-255.pbf', Buffer.from(''));
-
     const res255 = await handler.router.handle(mockRequest('/v1/fonts/🦄 🌈/0-255.pbf'));
     o(res255.status).equals(200);
     o(res255.header('content-type')).equals('application/x-protobuf');
@@ -74,14 +76,12 @@ o.spec('/v1/fonts', () => {
   });
 
   o('should get the correct utf8 font with default assets', async () => {
-    const cfgBundle = new ConfigProviderMemory();
-    await fsa.write('memory://linz-basemaps/bar.json', JSON.stringify(cfgBundle.toJson()));
-    await fsa.write('memory://config/fonts/🦄 🌈/0-255.pbf', Buffer.from(''));
-
-    const configLocation = base58.encode(Buffer.from('memory://linz-basemaps/bar.json'));
-    const res255 = await handler.router.handle(
-      mockUrlRequest('/v1/fonts/🦄 🌈/0-255.pbf', `?config=${configLocation}`, Api.header),
-    );
+    getDefaultConfig().assets = undefined;
+    sandbox
+      .stub(config.ConfigBundle, 'get')
+      .resolves({ id: 'cb_latest', name: 'latest', path: 'latest', hash: 'hash', asset: 'memory://' });
+    await fsa.write('memory://fonts/Roboto Thin/0-255.pbf', Buffer.from(''));
+    const res255 = await handler.router.handle(mockRequest('/v1/fonts/Roboto Thin/0-255.pbf'));
     o(res255.status).equals(200);
     o(res255.header('content-type')).equals('application/x-protobuf');
     o(res255.header('content-encoding')).equals(undefined);

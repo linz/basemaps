@@ -69,7 +69,7 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     const isExists = await fsa.exists(opts.assets);
     if (!isExists) throw new Error(`--assets path "${opts.assets}" does not exist`);
     logger.info({ path: opts.assets }, 'Config:Assets');
-    process.env[Env.AssetLocation] = opts.assets;
+    getDefaultConfig().assets = opts.assets;
   }
 
   const landingLocation = getLandingLocation();

@@ -12,7 +12,11 @@ const SafeProtocols = new Set(['s3', 'memory']);
 export class ConfigLoader {
   /** Exposed for testing */
   static async getDefaultConfig(): Promise<BasemapsConfigProvider> {
-    return getDefaultConfig();
+    const config = getDefaultConfig();
+    const cb = await config.ConfigBundle.get(config.ConfigBundle.id('latest'));
+    if (cb == null) throw new LambdaHttpResponse(400, 'Unable to get lastest config bundle for asset.');
+    config.assets = cb.asset;
+    return config;
   }
 
   /** Lookup the config path from a request and return a standardized location */
