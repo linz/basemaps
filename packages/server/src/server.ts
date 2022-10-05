@@ -1,6 +1,6 @@
 import { ConfigBundled, ConfigJson, ConfigPrefix, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { handler } from '@basemaps/lambda-tiler';
-import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
+import { fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
 import { LambdaUrlRequest } from '@linzjs/lambda';
