@@ -7,5 +7,6 @@ export interface ConfigBundle extends BaseConfig {
   /** Hash of the config bundle file */
   hash: string;
 
+  /** Path of the asset file */
   asset: string;
 }
