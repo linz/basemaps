@@ -34,7 +34,7 @@ o.spec('/v1/fonts', () => {
   });
 
   o('should return a list of fonts found', async () => {
-    await fsa.write('memory://fonts.json', Buffer.from(JSON.stringify(['Roboto Black', 'Roboto Thin'])));
+    await fsa.write('memory://fonts/fonts.json', Buffer.from(JSON.stringify(['Roboto Black', 'Roboto Thin'])));
     const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(200);
     o(res.header('content-type')).equals('application/json');
