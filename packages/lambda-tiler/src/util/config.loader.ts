@@ -15,7 +15,7 @@ export class ConfigLoader {
     const config = getDefaultConfig();
     const cb = await config.ConfigBundle.get(config.ConfigBundle.id('latest'));
     if (cb == null) throw new LambdaHttpResponse(400, 'Unable to get lastest config bundle for asset.');
-    config.assets = cb.asset;
+    config.assets = cb.assets;
     return config;
   }
 

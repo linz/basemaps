@@ -79,7 +79,7 @@ o.spec('/v1/fonts', () => {
     getDefaultConfig().assets = undefined;
     sandbox
       .stub(config.ConfigBundle, 'get')
-      .resolves({ id: 'cb_latest', name: 'latest', path: 'latest', hash: 'hash', asset: 'memory://' });
+      .resolves({ id: 'cb_latest', name: 'latest', path: 'latest', hash: 'hash', assets: 'memory://' });
     await fsa.write('memory://fonts/Roboto Thin/0-255.pbf', Buffer.from(''));
     const res255 = await handler.router.handle(mockRequest('/v1/fonts/Roboto Thin/0-255.pbf'));
     o(res255.status).equals(200);
