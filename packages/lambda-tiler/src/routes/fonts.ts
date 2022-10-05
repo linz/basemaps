@@ -12,5 +12,5 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
 }
 
 export async function fontList(req: LambdaHttpRequest): Promise<LambdaHttpResponse> {
-  return assetProvider.serve(req, 'fonts.json', 'application/json');
+  return assetProvider.serve(req, path.join('fonts', 'fonts.json'), 'application/json');
 }
