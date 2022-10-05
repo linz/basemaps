@@ -156,12 +156,15 @@ export class CommandImport extends CommandLineAction {
     const oldData = await cfg.TileSet.get(id);
     if (newData == null || oldData == null) throw new Error('Failed to fetch aerial config data.');
     for (const layer of newData.layers) {
-      const existing = oldData.layers.find((l) => l.name === layer.name);
       if (layer.name === 'chatham-islands_digital-globe_2014-2019_0-5m') continue; // Ignore duplicated layer.
+      const existing = oldData.layers.find((l) => l.name === layer.name);
       if (existing) {
         const change: string[] = [`### ${layer.name}\n`];
         if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
-          change.push(` - Zoom level updated\n`);
+          let msg = ' - Zoom level updated.';
+          if (layer.minZoom !== existing.minZoom) msg += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
+          if (layer.maxZoom !== existing.maxZoom) msg += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
+          change.push(`${msg}\n`);
         }
         if (layer[2193] && layer[2193] !== existing[2193]) {
           const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
@@ -190,9 +193,18 @@ export class CommandImport extends CommandLineAction {
     if (inserts.length > 1) md += inserts.join('');
     if (updates.length > 1) md += updates.join('');
 
-    if (md !== '') fsa.write(output, md);
+    if (md !== '') await fsa.write(output, md);
 
     return;
+  }
+
+  _jobs: Map<string, CogStacJob> = new Map<string, CogStacJob>();
+  async _loadJob(path: string): Promise<CogStacJob> {
+    const existing = this._jobs.get(path);
+    if (existing) return existing;
+    const job = await fsa.readJson<CogStacJob>(path);
+    this._jobs.set(path, job);
+    return job;
   }
 
   /**
@@ -205,7 +217,7 @@ export class CommandImport extends CommandLineAction {
   ): Promise<{ layer: string; tag: string }> {
     const configImagey = await mem.Imagery.get(id);
     if (configImagey == null) throw new Error(`Failed to find imagery config from config bundel file. Id: ${id}`);
-    const job = await fsa.readJson<CogStacJob>(fsa.join(configImagey.uri, 'job.json'));
+    const job = await this._loadJob(fsa.join(configImagey.uri, 'job.json'));
     const bounds = configImagey.bounds;
     const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
     const proj = Projection.get(configImagey.projection);
