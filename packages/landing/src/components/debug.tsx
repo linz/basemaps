@@ -292,7 +292,15 @@ export class Debug extends Component<
 
       const location = firstFeature.properties?.['location'] ?? firstFeature.properties?.['name'];
       if (location == null) return;
-      navigator.clipboard.writeText(location);
+
+      navigator.clipboard.writeText(location).then(() => {
+        const div = document.createElement('div');
+        div.innerText = `Copied ${location}`;
+        div.className = 'toast-message';
+        div.title = location;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 2500);
+      });
     });
 
     map.on('mousemove', layerFillId, (e) => {
