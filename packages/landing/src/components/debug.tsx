@@ -197,7 +197,7 @@ export class Debug extends Component<
           </label>
           <input type="checkbox" onClick={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
         </div>
-        {this.state.featureSourceId == null ? null : (
+        {this.state.featureCogId == null ? null : (
           <div className="debug__info" title={String(this.state.featureCogName)}>
             <label className="debug__label">CogId</label>
             {String(this.state.featureCogName).split('/').pop()}
