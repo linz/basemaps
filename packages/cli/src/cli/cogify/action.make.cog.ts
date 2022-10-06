@@ -80,7 +80,7 @@ export class CommandMakeCog extends CommandLineAction {
       required: false,
     });
     this.maxPixelWidth = this.defineIntegerParameter({
-      argumentName: 'MaxPixelWidth',
+      argumentName: 'MAX_PIXEL_WIDTH',
       parameterLongName: '--max-pixel',
       description: 'Maximum Pixel Width for the cogs',
       required: false,
