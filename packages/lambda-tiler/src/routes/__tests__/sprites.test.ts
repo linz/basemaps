@@ -1,34 +1,30 @@
-import { Env, getDefaultConfig } from '@basemaps/shared';
+import { ConfigProviderMemory } from '@basemaps/config';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { gunzipSync, gzipSync } from 'zlib';
 import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
 import { FsMemory } from './memory.fs.js';
 
 o.spec('/v1/sprites', () => {
   const memory = new FsMemory();
   const sandbox = createSandbox();
+  const config = new ConfigProviderMemory();
+
   o.before(() => {
     fsa.register('memory://', memory);
   });
-  const assetLocation = process.env[Env.AssetLocation];
 
   o.beforeEach(() => {
-    process.env[Env.AssetLocation] = 'memory://';
-    getDefaultConfig().assets = 'memory://';
+    config.assets = 'memory://';
+    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
   });
 
   o.afterEach(() => {
-    getDefaultConfig().assets = assetLocation;
     memory.files.clear();
     sandbox.restore();
-  });
-  o('should return 404 if no assets defined', async () => {
-    delete process.env[Env.AssetLocation];
-    const res404 = await handler.router.handle(mockRequest('/v1/sprites/topographic.json'));
-    o(res404.status).equals(404);
   });
 
   o('should fetch a json document', async () => {

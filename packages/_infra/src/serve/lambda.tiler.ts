@@ -34,8 +34,6 @@ export class LambdaTiler extends Construct {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
     };
 
-    if (props.staticBucketName) environment[Env.AssetLocation] = `s3://${props.staticBucketName}`;
-
     const code = lambda.Code.fromAsset(CODE_PATH);
 
     /**

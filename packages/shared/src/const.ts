@@ -18,9 +18,6 @@ export const Env = {
   /** Public URL base that tiles are served from */
   PublicUrlBase: 'BASEMAPS_PUBLIC_URL',
 
-  /** Location of sprites and glyphs */
-  AssetLocation: 'BASEMAPS_ASSEST_LOCATION',
-
   /** How many tiffs to load at one time */
   TiffConcurrency: 'TIFF_CONCURRENCY',
 
