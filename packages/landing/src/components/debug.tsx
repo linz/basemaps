@@ -7,7 +7,7 @@ import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
 import { MapConfig } from '../config.map.js';
 import { DebugMap } from '../debug.map.js';
-import { WindowUrl } from '../url.js';
+import { MapOptionType, WindowUrl } from '../url.js';
 import { onMapLoaded } from './map.js';
 
 function debugSlider(
@@ -138,18 +138,27 @@ export class Debug extends Component<
 
   render(): ComponentChild {
     if (Config.map.debug['debug.screenshot']) return null;
+    const wmtsUrl = WindowUrl.toTileUrl(
+      MapOptionType.Wmts,
+      Config.map.tileMatrix,
+      Config.map.layerId,
+      undefined,
+      Config.map.config,
+    );
     return (
       <div className="debug">
         <div className="debug__info">
-          <label className="debug__label">ImageId</label>
+          <label className="debug__label">Id</label>
           <div className="debug__value">{Config.map.layerId}</div>
         </div>
         <div className="debug__info">
-          <label className="debug__label">Projection </label>
-          <div className="debug__value">{Config.map.tileMatrix.projection.toEpsgString()}</div>
+          <label className="debug__label"></label>
+          <div className="debug__value">
+            {Config.map.tileMatrix.projection.toEpsgString()} - <a href={wmtsUrl}>WMTS</a>
+          </div>
         </div>
         <div className="debug__info">
-          <label className="debug__label">TileMatrix </label>
+          <label className="debug__label">TileMatrix</label>
           <div className="debug__value">{Config.map.tileMatrix.identifier}</div>
         </div>
         {this.renderSliders()}
