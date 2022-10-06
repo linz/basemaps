@@ -13,9 +13,11 @@ export class ConfigLoader {
   /** Exposed for testing */
   static async getDefaultConfig(): Promise<BasemapsConfigProvider> {
     const config = getDefaultConfig();
-    const cb = await config.ConfigBundle.get(config.ConfigBundle.id('latest'));
-    if (cb == null) throw new LambdaHttpResponse(400, 'Unable to get lastest config bundle for asset.');
-    config.assets = cb.assets;
+    if (config.assets == null) {
+      const cb = await config.ConfigBundle.get(config.ConfigBundle.id('latest'));
+      if (cb == null) throw new LambdaHttpResponse(400, 'Unable to get lastest config bundle for asset.');
+      config.assets = cb.assets;
+    }
     return config;
   }
 
