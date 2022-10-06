@@ -47,12 +47,15 @@ export class DebugMap {
   _source: Map<string, Promise<BBoxFeatureCollection>> = new Map();
   async fetchSourceLayer(imageryId: string, type: string): Promise<BBoxFeatureCollection | undefined> {
     const id = `${imageryId}_${type}`;
-    let existing = this._source.get(id);
+    const existing = this._source.get(id);
     if (existing == null) {
       const sourceUri = WindowUrl.toImageryUrl(imageryId, type === 'source' ? 'source.geojson' : 'covering.geojson');
-      const res = await fetch(sourceUri);
-      if (!res.ok) return;
-      existing = await res.json();
+      const res = fetch(sourceUri).then((r) => {
+        if (r.ok) return r.json();
+        return;
+      });
+
+      this._source.set(id, res);
     }
     return existing;
   }
