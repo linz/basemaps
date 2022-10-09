@@ -1,6 +1,11 @@
 import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, FileConfigS3Role, fsa, LogConfig, LogType } from '@basemaps/shared';
-import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import {
+  CommandLineAction,
+  CommandLineFlagParameter,
+  CommandLineIntegerParameter,
+  CommandLineStringParameter,
+} from '@rushstack/ts-command-line';
 import { CogStacJob, JobCreationContext } from '../../cog/cog.stac.job.js';
 import { ProjectionLoader } from '../../cog/projection.loader.js';
 import * as ulid from 'ulid';
@@ -22,7 +27,9 @@ export class CommandMakeCog extends CommandLineAction {
   private target: CommandLineStringParameter;
   private cutline: CommandLineStringParameter;
   private blend: CommandLineIntegerParameter;
+  private maxPixelWidth: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
+  private aws: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -72,11 +79,22 @@ export class CommandMakeCog extends CommandLineAction {
       description: 'Cutline blend',
       required: false,
     });
+    this.maxPixelWidth = this.defineIntegerParameter({
+      argumentName: 'MAX_PIXEL_WIDTH',
+      parameterLongName: '--max-pixel',
+      description: 'Maximum Pixel Width for the cogs',
+      required: false,
+    });
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
       parameterShortName: '-o',
       parameterLongName: '--output',
       description: 'Output job.json path',
+      required: false,
+    });
+    this.aws = this.defineFlagParameter({
+      parameterLongName: '--aws',
+      description: 'Running the job on aws',
       required: false,
     });
   }
@@ -122,7 +140,7 @@ export class CommandMakeCog extends CommandLineAction {
 
   async makeCog(id: string, imageryName: string, tileMatrix: TileMatrixSet, uri: string): Promise<CogStacJob> {
     const bucket = this.target.value;
-    if (bucket == null) throw new Error('Please provide a validate bucket for output job.json');
+    if (bucket == null && this.aws.value) throw new Error('Please provide a validate bucket for output job.json');
     let resampling;
     /** Process Gebco 2193 as one cog of full extent to avoid antimeridian problems */
     if (tileMatrix.projection === Epsg.Nztm2000 && imageryName.includes('gebco')) {
@@ -150,14 +168,17 @@ export class CommandMakeCog extends CommandLineAction {
 
     const ctx: JobCreationContext = {
       imageryName,
-      override: { id, projection: Epsg.Nztm2000, resampling },
-      outputLocation: await this.findLocation(`s3://${bucket}/`),
+      override: { id, projection: Epsg.Nztm2000, resampling, maxImageSize: this.maxPixelWidth.value },
+      outputLocation: this.aws.value
+        ? await this.findLocation(`s3://${bucket}/`)
+        : { type: 'local' as const, path: '.' },
       sourceLocation: await this.findLocation(uri),
       cutline,
       batch: false, // Only create the job.json in the make cog cli
       tileMatrix,
       oneCogCovering: false,
     };
+
     const job = (await CogJobFactory.create(ctx)) as CogStacJob;
     return job;
   }
