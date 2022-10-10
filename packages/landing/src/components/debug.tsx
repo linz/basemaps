@@ -7,7 +7,7 @@ import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
 import { MapConfig } from '../config.map.js';
 import { DebugMap } from '../debug.map.js';
-import { WindowUrl } from '../url.js';
+import { MapOptionType, WindowUrl } from '../url.js';
 import { onMapLoaded } from './map.js';
 
 function debugSlider(
@@ -138,18 +138,27 @@ export class Debug extends Component<
 
   render(): ComponentChild {
     if (Config.map.debug['debug.screenshot']) return null;
+    const wmtsUrl = WindowUrl.toTileUrl(
+      MapOptionType.Wmts,
+      Config.map.tileMatrix,
+      Config.map.layerId,
+      undefined,
+      Config.map.config,
+    );
     return (
       <div className="debug">
         <div className="debug__info">
-          <label className="debug__label">ImageId</label>
+          <label className="debug__label">Id</label>
           <div className="debug__value">{Config.map.layerId}</div>
         </div>
         <div className="debug__info">
-          <label className="debug__label">Projection </label>
-          <div className="debug__value">{Config.map.tileMatrix.projection.toEpsgString()}</div>
+          <label className="debug__label"></label>
+          <div className="debug__value">
+            {Config.map.tileMatrix.projection.toEpsgString()} - <a href={wmtsUrl}>WMTS</a>
+          </div>
         </div>
         <div className="debug__info">
-          <label className="debug__label">TileMatrix </label>
+          <label className="debug__label">TileMatrix</label>
           <div className="debug__value">{Config.map.tileMatrix.identifier}</div>
         </div>
         {this.renderSliders()}
@@ -188,7 +197,7 @@ export class Debug extends Component<
           </label>
           <input type="checkbox" onClick={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
         </div>
-        {this.state.featureSourceId == null ? null : (
+        {this.state.featureCogId == null ? null : (
           <div className="debug__info" title={String(this.state.featureCogName)}>
             <label className="debug__label">CogId</label>
             {String(this.state.featureCogName).split('/').pop()}
@@ -198,14 +207,29 @@ export class Debug extends Component<
     );
   }
 
+  downloadSource = async (): Promise<void> => {
+    const im = this.state.imagery;
+    if (im == null) return;
+    const geoJson = ConfigData.getGeoJson(im);
+    if (geoJson == null) return;
+
+    // Create a magic a href to download the geojson
+    const dataStr = `data:text/json;charset=utf-8,` + encodeURIComponent(JSON.stringify(geoJson));
+    const aEl = document.createElement('a');
+    aEl.setAttribute('href', dataStr);
+    aEl.setAttribute('download', im.name + '.json');
+    document.body.appendChild(aEl);
+    aEl.click();
+    aEl.remove();
+  };
+
   renderSourceToggle(): ComponentChild {
     if (this.state.imagery == null) return null;
-    const sourceLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'source.geojson');
     return (
       <Fragment>
         <div className="debug__info">
           <label className="debug__label">
-            <a href={sourceLocation} title="Source geojson">
+            <a onClick={this.downloadSource} href="#" title="Source geojson">
               Source
             </a>
           </label>
@@ -259,6 +283,26 @@ export class Debug extends Component<
 
     let lastFeatureId: string | number | undefined;
     const stateName = type === 'source' ? `featureSource` : `featureCog`;
+
+    // Onclick copy the location into the clipboard
+    map.on('click', layerFillId, (e) => {
+      const features = e.features;
+      if (features == null || features.length === 0) return;
+      const firstFeature = features[0];
+
+      const location = firstFeature.properties?.['location'] ?? firstFeature.properties?.['name'];
+      if (location == null) return;
+
+      navigator.clipboard.writeText(location).then(() => {
+        const div = document.createElement('div');
+        div.innerText = `Copied ${location}`;
+        div.className = 'toast-message';
+        div.title = location;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 2500);
+      });
+    });
+
     map.on('mousemove', layerFillId, (e) => {
       const features = e.features;
       if (features == null || features.length === 0) return;

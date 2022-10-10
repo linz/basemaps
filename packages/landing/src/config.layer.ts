@@ -2,6 +2,7 @@ import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { TileMatrixSets } from '@basemaps/geo';
 import { Projection } from '@basemaps/shared/build/proj/projection.js';
+import { joinUri } from '@chunkd/core';
 
 import { BBoxFeatureCollection } from '@linzjs/geojson';
 import { WindowUrl } from './url.js';
@@ -41,6 +42,24 @@ export class ConfigData {
   static getGeoJson(imagery: ConfigImagery): BBoxFeatureCollection | undefined {
     const tileMatrix = TileMatrixSets.find(imagery.tileMatrix);
     if (tileMatrix == null) return;
-    return Projection.get(tileMatrix).toGeoJson(imagery.files);
+    const gj = Projection.get(tileMatrix).toGeoJson(imagery.files);
+
+    // Improve the GeoJSON with some attributes that are useful
+    for (const f of gj.features) {
+      f.properties = f.properties ?? {};
+      const fileName = f.properties['name'];
+      f.properties['location'] = joinUri(imagery.uri, f.properties['name']);
+      f.properties['epsg'] = imagery.projection;
+      f.properties['tileMatrix'] = imagery.tileMatrix;
+      const source = imagery.files.find((f) => f.name === fileName);
+      if (source != null) {
+        f.properties['x'] = source.x;
+        f.properties['y'] = source.y;
+        f.properties['width'] = source.width;
+        f.properties['height'] = source.height;
+      }
+    }
+
+    return gj;
   }
 }

@@ -141,6 +141,11 @@ button {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
 }
 
+.lui-checkbox-container label{
+  margin-left: 10px;
+  margin-top:  0px;
+}
+
 .debug {
   font-size: 12px;
   position: absolute;
@@ -172,4 +177,21 @@ button {
   width: 75% !important;
   padding: 0 !important;
   min-height: 0 !important;
+}
+
+
+.toast-message {
+  position: absolute;
+  background-color: #eaeaea;
+  border-radius: 4px;
+  border: 1px solid #00425d;
+  margin: 4px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  top: 0;
+  padding: 8px;
+  left: 48px;
+  width: 600px;
+  height: 40px;
 }

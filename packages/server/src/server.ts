@@ -1,6 +1,6 @@
 import { ConfigBundled, ConfigJson, ConfigPrefix, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { handler } from '@basemaps/lambda-tiler';
-import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
+import { fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
 import { LambdaUrlRequest } from '@linzjs/lambda';
@@ -69,7 +69,7 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     const isExists = await fsa.exists(opts.assets);
     if (!isExists) throw new Error(`--assets path "${opts.assets}" does not exist`);
     logger.info({ path: opts.assets }, 'Config:Assets');
-    process.env[Env.AssetLocation] = opts.assets;
+    getDefaultConfig().assets = opts.assets;
   }
 
   const landingLocation = getLandingLocation();
