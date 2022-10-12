@@ -4,10 +4,10 @@ import { Bounds, ImageFormat, NamedBounds, QuadKey, Tile, TileMatrixSet } from '
 import { LogConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import pLimit from 'p-limit';
-import { TileComposer } from '@basemaps/lambda-tiler/build/routes/tile.xyz.raster.js';
 import { CogTiff } from '@cogeotiff/core';
 import { CoSources } from '@basemaps/lambda-tiler/build/util/source.cache.js';
 import { Tiler } from '@basemaps/tiler';
+import { TileMakerSharp } from '@basemaps/tiler-sharp';
 
 export interface JobTiles {
   tileMatrix: TileMatrixSet;
@@ -74,7 +74,8 @@ async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer> 
   const tiler = new Tiler(tileMatrix);
   const layers = await tiler.tile(tiffs, tile.x, tile.y, tile.z);
 
-  // TODO: How to find the background and resizeKernel?
+  // TODO: How to find the background and resizeKernel? and size 256?
+  const TileComposer = new TileMakerSharp(256);
   const res = await TileComposer.compose({
     layers,
     format: ImageFormat.Webp,
