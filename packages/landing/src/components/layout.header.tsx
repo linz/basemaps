@@ -8,10 +8,14 @@ import { Copyable } from './copyable.js';
 import { LayerSwitcherDropdown } from './layer.switcher.dropdown.js';
 import { Icon, Link } from './link.js';
 
-export class Header extends Component<unknown, { isMenuOpen: boolean; layers?: Map<string, LayerInfo> }> {
+export interface HeaderState {
+  isMenuOpen: boolean;
+  layers?: Map<string, LayerInfo>;
+}
+export class Header extends Component<unknown, HeaderState> {
   _events: (() => boolean)[] = [];
 
-  state = { isMenuOpen: false };
+  state: HeaderState = { isMenuOpen: false };
 
   componentDidMount(): void {
     this._events.push(Config.map.on('change', () => this.setState(this.state)));
