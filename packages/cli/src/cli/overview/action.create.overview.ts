@@ -1,11 +1,13 @@
-import { fsa, LogConfig, LogType } from '@basemaps/shared';
+import { fsa, LogConfig } from '@basemaps/shared';
 import * as path from 'path';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { QuadKey, TileMatrixSets } from '@basemaps/geo';
-import * as ulid from 'ulid';
+import { Bounds, NamedBounds, QuadKey, TileMatrixSets } from '@basemaps/geo';
 import os from 'os';
 import { WorkerRpcPool } from '@wtrpc/core';
 import { JobTiles } from './tile.generator.js';
+import { CogTiff } from '@cogeotiff/core';
+import * as cover from '@mapbox/tile-cover';
+import { Polygon } from 'geojson';
 
 // Create tiles per worker invocation
 const WorkerTaskSize = 500;
@@ -18,7 +20,6 @@ const DefaultMaxZoom = 15;
 export class CommandCreateOverview extends CommandLineAction {
   private source: CommandLineStringParameter;
   private maxZoom: CommandLineIntegerParameter;
-  private output: CommandLineStringParameter;
 
   private tiles = new Set<string>();
 
@@ -42,13 +43,6 @@ export class CommandCreateOverview extends CommandLineAction {
       parameterLongName: '--max-zoom',
       description: 'Output of the bundle file',
     });
-    this.output = this.defineStringParameter({
-      argumentName: 'OUTPUT',
-      parameterShortName: '-o',
-      parameterLongName: '--output',
-      description: 'Output job.json path',
-      required: false,
-    });
   }
 
   async onExecute(): Promise<void> {
@@ -56,10 +50,35 @@ export class CommandCreateOverview extends CommandLineAction {
     const source = this.source.value;
     const maxZoom = this.maxZoom.value ?? DefaultMaxZoom;
     if (source == null) throw new Error('Please provide a path for the source imagery.');
-    const { id, tileMatrix } = this.parseSource(source, logger);
+
+    logger.info({ source }, 'CreateOverview: ListTiffs');
+    const sourceFiles = await fsa.toArray(fsa.list(source));
+    const tiffs = await Promise.all(
+      sourceFiles
+        .filter((f) => f.toLocaleLowerCase().endsWith('.tif') || f.toLocaleLowerCase().endsWith('.tiff'))
+        .map((c) => CogTiff.create(fsa.source(c))),
+    );
+    if (tiffs.length === 0) throw new Error('Provided path does not have tif and tiff imagery.');
+
+    logger.info({ path }, 'CreateOverview:PrepareFiles');
+    let tileMatrix;
+    let bounds;
+    const files: NamedBounds[] = [];
+    for (const tif of tiffs) {
+      await tif.getImage(0).loadGeoTiffTags();
+      if (tileMatrix == null) tileMatrix = TileMatrixSets.tryGet(tif.getImage(0).epsg);
+      const imgBounds = Bounds.fromBbox(tif.getImage(0).bbox);
+      if (bounds == null) bounds = imgBounds;
+      else bounds = bounds.union(imgBounds);
+      files.push({
+        name: tif.source.uri,
+        ...imgBounds,
+      });
+    }
+    if (tileMatrix == null) throw new Error('Unable to find the imagery tileMatrix');
 
     logger.info({ source }, 'CreateOverview: PrepareTiles');
-    await this.prepareTiles(source, maxZoom);
+    await this.prepareTiles(tiffs, maxZoom);
     if (this.tiles.size < 1) throw new Error('Failed to prepare tiles.');
 
     logger.info({ source }, 'CreateOverview: GenerateTiles');
@@ -68,7 +87,7 @@ export class CommandCreateOverview extends CommandLineAction {
     while (currentTiles.length > 0) {
       const todo = currentTiles.slice(0, WorkerTaskSize);
       currentTiles = currentTiles.slice(WorkerTaskSize);
-      const jobTiles: JobTiles = { id, tileMatrix, tiles: todo };
+      const jobTiles: JobTiles = { files, tileMatrix, tiles: todo };
       promises.push(pool.run('tile', jobTiles));
     }
 
@@ -77,18 +96,19 @@ export class CommandCreateOverview extends CommandLineAction {
     return;
   }
 
-  async prepareTiles(source: string, maxZoom: number): Promise<void> {
-    for await (const file of fsa.list(source)) {
-      if (!file.endsWith('tiff')) continue;
-      const filename = path.basename(file).replace('.tiff', '');
-      const [z, x, y] = filename.split('-').map(Number);
-      let qk = QuadKey.fromTile({ z, x, y });
-
-      this.addChildren(qk, maxZoom);
-      while (qk.length > 0) {
-        if (this.tiles.has(qk)) break;
-        this.tiles.add(qk);
-        qk = QuadKey.parent(qk);
+  async prepareTiles(tiffs: CogTiff[], maxZoom: number): Promise<void> {
+    for (const tiff of tiffs) {
+      const bbox = tiff.getImage(0).bbox;
+      const geom: Polygon = { type: 'Polygon', coordinates: Bounds.fromBbox(bbox).toPolygon() };
+      const tiles = cover.tiles(geom, { min_zoom: 5, max_zoom: maxZoom }); // TODO: What is min zoom here?
+      for (const tile of tiles) {
+        let qk = QuadKey.fromTile({ x: tile[0], y: tile[1], z: tile[2] });
+        this.addChildren(qk, maxZoom);
+        while (qk.length > 0) {
+          if (this.tiles.has(qk)) break;
+          this.tiles.add(qk);
+          qk = QuadKey.parent(qk);
+        }
       }
     }
   }
@@ -98,13 +118,5 @@ export class CommandCreateOverview extends CommandLineAction {
       this.tiles.add(child);
       if (child.length < maxZoom) this.addChildren(child, maxZoom);
     }
-  }
-
-  parseSource(source: string, logger: LogType): { id: string; tileMatrix: string } {
-    const [bucket, espg, name, id] = source.replace('s3://', '').split('/');
-    const tileMatrix = TileMatrixSets.find(espg);
-    if (tileMatrix == null || !ulid.decodeTime(id)) throw new Error('Please provide a valid Basemaps imagery Path');
-    logger.info({ id, name, bucket, tileMatrix: tileMatrix.identifier }, 'CreateOverview:ParseSourcePath');
-    return { id, tileMatrix: tileMatrix.identifier };
   }
 }
