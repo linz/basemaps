@@ -1,11 +1,11 @@
-import { Component, RenderableProps, ComponentChild } from 'preact';
+import { Component, ReactNode } from 'react';
 
 interface IconProps {
   name: string;
 }
 export class Icon extends Component<IconProps> {
-  render(props: RenderableProps<IconProps>): ComponentChild {
-    return <i class="material-icons-round md-36">{props.name}</i>;
+  render(): ReactNode {
+    return <i className="material-icons-round md-36">{this.props.name}</i>;
   }
 }
 
@@ -13,13 +13,20 @@ interface LinkProps {
   href: string;
   icon?: string;
   ariaLabel?: string;
+  children: ReactNode[] | ReactNode;
 }
 export class Link extends Component<LinkProps> {
-  render(props: RenderableProps<LinkProps>): ComponentChild {
+  render(): ReactNode {
     return (
-      <a rel="noopener" target="_blank" href={props.href} style="display:flex;" aria-label={props.ariaLabel}>
-        {props.children}
-        {props.icon ? <Icon name={props.icon} /> : undefined}
+      <a
+        rel="noopener"
+        target="_blank"
+        href={this.props.href}
+        style={{ display: 'flex' }}
+        aria-label={this.props.ariaLabel}
+      >
+        {this.props.children}
+        {this.props.icon ? <Icon name={this.props.icon} /> : undefined}
       </a>
     );
   }

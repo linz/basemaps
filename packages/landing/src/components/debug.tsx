@@ -1,7 +1,7 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { GoogleTms } from '@basemaps/geo';
-import { Component, ComponentChild, Fragment } from 'preact';
+import { Component, FormEventHandler, Fragment, ReactNode, MouseEventHandler } from 'react';
 import { Attributions } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
@@ -10,10 +10,7 @@ import { DebugMap } from '../debug.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { onMapLoaded } from './map.js';
 
-function debugSlider(
-  label: 'osm' | 'linz-topographic' | 'linz-aerial',
-  onInput: (e: Event) => unknown,
-): ComponentChild {
+function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput: FormEventHandler): ReactNode {
   return (
     <input
       className="debug__slider"
@@ -95,14 +92,14 @@ export class Debug extends Component<
   }
 
   /** Show the source bounding box ont he map */
-  toggleCogs = (e: Event): void => {
+  toggleCogs: MouseEventHandler<unknown> = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.cog', target.checked);
     this.setVectorShown(target.checked, 'cog');
   };
 
   /** Show the source bounding box ont he map */
-  toggleSource = (e: Event): void => {
+  toggleSource: MouseEventHandler<unknown> = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.source', target.checked);
     this.setVectorShown(target.checked, 'source');
@@ -136,7 +133,7 @@ export class Debug extends Component<
     });
   }
 
-  render(): ComponentChild {
+  render(): ReactNode {
     if (Config.map.debug['debug.screenshot']) return null;
     const wmtsUrl = WindowUrl.toTileUrl(
       MapOptionType.Wmts,
@@ -169,7 +166,7 @@ export class Debug extends Component<
     );
   }
 
-  renderPurple(): ComponentChild | null {
+  renderPurple(): ReactNode | null {
     if (Config.map.debug['debug.screenshot']) return;
     return (
       <div className="debug__info">
@@ -183,7 +180,7 @@ export class Debug extends Component<
     );
   }
 
-  renderCogToggle(): ComponentChild {
+  renderCogToggle(): ReactNode {
     if (this.state.imagery == null) return null;
     const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'covering.geojson');
     if (!this.state.isCog) return;
@@ -223,7 +220,7 @@ export class Debug extends Component<
     aEl.remove();
   };
 
-  renderSourceToggle(): ComponentChild {
+  renderSourceToggle(): ReactNode {
     if (this.state.imagery == null) return null;
     return (
       <Fragment>
@@ -245,7 +242,7 @@ export class Debug extends Component<
     );
   }
 
-  renderSliders(): ComponentChild | null {
+  renderSliders(): ReactNode | null {
     // Disable the sliders for screenshots
     if (Config.map.debug['debug.screenshot']) return;
     // Only 3857 currently works with OSM/Topographic map

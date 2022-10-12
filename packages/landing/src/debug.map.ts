@@ -6,6 +6,7 @@ import { projectGeoJson } from './tile.matrix.js';
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigData } from './config.layer.js';
 import { BBoxFeatureCollection } from '@linzjs/geojson/build/types';
+import { FormEventHandler } from 'react';
 
 export class DebugMap {
   _layerLoading: Map<string, Promise<void>> = new Map();
@@ -70,7 +71,7 @@ export class DebugMap {
     return this._styleJson;
   }
 
-  adjustTopographic = (e: Event): void => {
+  adjustTopographic: FormEventHandler<unknown> = (e) => {
     const slider = e.target as HTMLInputElement;
     Config.map.setDebug('debug.layer.linz-topographic', Number(slider.value));
   };
@@ -131,10 +132,10 @@ export class DebugMap {
     }
   }
 
-  adjustOsm = (e: Event): void => {
+  adjustOsm: FormEventHandler = (e) => {
     Config.map.setDebug('debug.layer.osm', Number((e.target as HTMLInputElement).value));
   };
-  adjustLinzAerial = (e: Event): void => {
+  adjustLinzAerial: FormEventHandler = (e) => {
     Config.map.setDebug('debug.layer.linz-aerial', Number((e.target as HTMLInputElement).value));
   };
 
@@ -173,7 +174,7 @@ export class DebugMap {
     map.setPaintProperty(rasterId, 'raster-opacity', range);
   }
 
-  togglePurple = (e: Event): void => {
+  togglePurple: FormEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     this.setPurple(target.checked);
   };

@@ -1,6 +1,6 @@
 import { GoogleTms } from '@basemaps/geo';
 import maplibre from 'maplibre-gl';
-import { Component, ComponentChild } from 'preact';
+import { Component, ReactNode } from 'react';
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
@@ -136,7 +136,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this._events = [];
   }
 
-  render(): ComponentChild {
+  render(): ReactNode {
     const isLayerSwitcherEnabled = Config.map.tileMatrix === GoogleTms && !Config.map.isDebug;
     return (
       <div style={{ flex: 1, position: 'relative' }}>

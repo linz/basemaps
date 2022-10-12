@@ -1,5 +1,5 @@
 import maplibre from 'maplibre-gl';
-import { Component, ComponentChild } from 'preact';
+import { Component, ReactNode } from 'react';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { getTileGrid } from '../tile.matrix.js';
@@ -85,10 +85,10 @@ export class MapSwitcher extends Component {
     window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   };
 
-  render(): ComponentChild {
+  render(): ReactNode {
     const layerTitle = `Switch map to ${this.getStyleType().layerId}`;
     return (
-      <div id="map-switcher" class="map-switcher" onClick={this.switchLayer} title={layerTitle}>
+      <div id="map-switcher" className="map-switcher" onClick={this.switchLayer} title={layerTitle}>
         <div id="map-switcher-map" style={{ width: '100%', height: '100%', pointerEvents: 'none' }} />
       </div>
     );
