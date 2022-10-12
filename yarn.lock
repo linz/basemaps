@@ -1692,6 +1692,11 @@
     "@typescript-eslint/types" "5.15.0"
     eslint-visitor-keys "^3.0.0"
 
+"@wtrpc/core@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@wtrpc/core/-/core-1.0.0.tgz#8d3afe0871ef1de43ad562b20d841ac53c9da94c"
+  integrity sha512-thoQtOzyXszZLyd6LnD/6x2jYTnWJ7TD20PXBASlmv+IQSPjmrIDBXUnSXfzoWBSUcVxSSu64qh7jm6ODCKnDQ==
+
 "@zxing/text-encoding@0.9.0":
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/@zxing/text-encoding/-/text-encoding-0.9.0.tgz#fb50ffabc6c7c66a0c96b4c03e3d9be74864b70b"
