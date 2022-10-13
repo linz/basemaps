@@ -7,15 +7,13 @@ import os from 'os';
 import tar from 'tar';
 import { WorkerRpcPool } from '@wtrpc/core';
 import { JobTiles } from './tile.generator.js';
-import { CogTiff } from '@cogeotiff/core';
-import * as cover from '@mapbox/tile-cover';
-import { Polygon } from 'geojson';
 import { CotarIndexBinary, CotarIndexBuilder, CotarIndexOptions, TarReader } from '@cotar/core';
-import { SourceMemory } from '@chunkd/core';
-import pLimit from 'p-limit';
+import { SourceMemory, ChunkSource } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
-
-const Q = pLimit(1);
+import { CogBuilder } from '../../cog/builder.js';
+import { filterTiff, MaxConcurrencyDefault } from '../../cog/job.factory.js';
+import { Cutline } from '../../cog/cutline.js';
+import { CogTiff } from '@cogeotiff/core';
 
 // Create tiles per worker invocation
 const WorkerTaskSize = 500;
@@ -33,7 +31,6 @@ export class CommandCreateOverview extends CommandLineAction {
 
   tiles = new Set<string>();
   files: NamedBounds[] = [];
-  tileMatrix: TileMatrixSet | null;
 
   public constructor() {
     super({
@@ -65,59 +62,39 @@ export class CommandCreateOverview extends CommandLineAction {
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
     const source = this.source.value;
-    const maxZoom = this.maxZoom.value ?? DefaultMaxZoom;
     if (source == null) throw new Error('Please provide a path for the source imagery.');
+    const maxZoom = this.maxZoom.value ?? DefaultMaxZoom;
 
     logger.info({ source }, 'CreateOverview: ListTiffs');
-    const sourceFiles = await fsa.toArray(fsa.list(source));
-    let count = 0;
-    const todo = sourceFiles.map((f) => {
-      return Q(async () => {
-        if (f.toLocaleLowerCase().endsWith('.tif') || f.toLocaleLowerCase().endsWith('.tiff')) {
-          const tiff = await CogTiff.create(fsa.source(f));
-          logger.info({ total: sourceFiles.length, count }, 'CreateOverview:PrepareOverview');
-          await this.createOverview(tiff, maxZoom);
-        }
-        count++;
-      });
-    });
-    await Promise.all(todo);
+    const tiffList = (await fsa.toArray(fsa.list(source))).filter(filterTiff);
+    const tiffSource = tiffList.map((path: string) => fsa.source(path));
+
+    logger.info({ source }, 'CreateOverview: prepareSourceFiles');
+    const tileMatrix = await this.prepareSourceFiles(tiffSource);
+
+    logger.info({ source }, 'CreateOverview: PrepareCovering');
+    const cutline = new Cutline(tileMatrix);
+    const builder = new CogBuilder(tileMatrix, MaxConcurrencyDefault, logger);
+    const metadata = await builder.build(tiffSource, cutline);
+
+    logger.info({ source }, 'CreateOverview: prepareTiles');
+    this.prepareTiles(metadata.files, maxZoom);
     if (this.tiles.size < 1) throw new Error('Failed to prepare overviews.');
 
     logger.info({ source }, 'CreateOverview: GenerateTiles');
-    await this.generateTiles();
+    await this.generateTiles(tileMatrix);
 
-    logger.info({ source }, 'CreateOverview: GenerateTiles');
+    logger.info({ source }, 'CreateOverview: CreatingTarFile');
     const output = this.output.value ?? DefaultOuput;
     await this.createTar(output);
     return;
   }
 
-  async createOverview(tiff: CogTiff, maxZoom: number): Promise<void> {
-    let bounds;
-    await tiff.getImage(0).loadGeoTiffTags();
-    if (this.tileMatrix == null) this.tileMatrix = TileMatrixSets.tryGet(tiff.getImage(0).epsg);
-    const imgBounds = Bounds.fromBbox(tiff.getImage(0).bbox);
-    if (bounds == null) bounds = imgBounds;
-    bounds = bounds.union(imgBounds);
-    this.files.push({
-      name: tiff.source.uri,
-      ...imgBounds,
-    });
-
-    await this.prepareTiles(tiff, maxZoom);
-  }
-
-  async prepareTiles(tiff: CogTiff, maxZoom: number): Promise<void> {
-    const bbox = tiff.getImage(0).bbox;
-    const geom: Polygon = { type: 'Polygon', coordinates: Bounds.fromBbox(bbox).toPolygon() };
-    const lastTime = performance.now();
-    console.log('start');
-    const tiles = cover.tiles(geom, { min_zoom: maxZoom, max_zoom: maxZoom }); // TODO: What is min zoom here? and this takes forever to run?
-    const duration = performance.now() - lastTime;
-    console.log('finish', duration);
-    for (const tile of tiles) {
-      let qk = QuadKey.fromTile({ x: tile[0], y: tile[1], z: tile[2] });
+  async prepareTiles(files: NamedBounds[], maxZoom: number): Promise<void> {
+    for (const file of files) {
+      const name = file.name;
+      const [z, x, y] = path.basename(name).replace('.tiff', '').split('-').map(Number);
+      let qk = QuadKey.fromTile({ x, y, z });
       this.addChildren(qk, maxZoom);
       while (qk.length > 0) {
         if (this.tiles.has(qk)) break;
@@ -128,20 +105,36 @@ export class CommandCreateOverview extends CommandLineAction {
   }
 
   addChildren(qk: string, maxZoom: number): void {
+    if (qk.length >= maxZoom) return;
     for (const child of QuadKey.children(qk)) {
       this.tiles.add(child);
       if (child.length < maxZoom) this.addChildren(child, maxZoom);
     }
   }
 
-  async generateTiles(): Promise<void> {
-    if (this.tileMatrix == null) throw new Error('Unable to find the imagery tileMatrix');
+  async prepareSourceFiles(sources: ChunkSource[]): Promise<TileMatrixSet> {
+    let tileMatrix;
+    for (const source of sources) {
+      const tiff = await CogTiff.create(source);
+      await tiff.getImage(0).loadGeoTiffTags();
+      if (tileMatrix == null) tileMatrix = TileMatrixSets.tryGet(tiff.getImage(0).epsg);
+      const imgBounds = Bounds.fromBbox(tiff.getImage(0).bbox);
+      this.files.push({
+        name: tiff.source.uri,
+        ...imgBounds,
+      });
+    }
+    if (tileMatrix == null) throw new Error('Unable to find the imagery tileMatrix');
+    return tileMatrix;
+  }
+
+  async generateTiles(tileMatrix: TileMatrixSet): Promise<void> {
     const promises = [];
     let currentTiles = Array.from(this.tiles);
     while (currentTiles.length > 0) {
       const todo = currentTiles.slice(0, WorkerTaskSize);
       currentTiles = currentTiles.slice(WorkerTaskSize);
-      const jobTiles: JobTiles = { files: this.files, tileMatrix: this.tileMatrix, tiles: todo };
+      const jobTiles: JobTiles = { files: this.files, tileMatrix: tileMatrix.identifier, tiles: todo };
       promises.push(pool.run('tile', jobTiles));
     }
 
@@ -152,8 +145,11 @@ export class CommandCreateOverview extends CommandLineAction {
   async createTar(output: string): Promise<void> {
     const tarFile = fsa.join(output, 'overview.co.tar');
     const tarIndex = fsa.join(output, 'overview.tar.index');
-
-    tar.c({ file: tarFile }, ['./tiles/']).then(() => {
+    await fs.mkdir(output, { recursive: true });
+    const tiles = await fsa.toArray(fsa.list('./tiles/'));
+    const cwd = `${process.cwd()}/`;
+    const paths = tiles.map((c) => c.replace(cwd, ''));
+    tar.c({ file: tarFile, C: cwd }, paths).then(() => {
       `${tarFile} file created`;
     });
 

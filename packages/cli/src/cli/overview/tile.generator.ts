@@ -1,6 +1,15 @@
 import { WorkerRpc } from '@wtrpc/core';
 import { parentPort } from 'node:worker_threads';
-import { Bounds, ImageFormat, NamedBounds, QuadKey, Tile, TileMatrixSet } from '@basemaps/geo';
+import {
+  Bounds,
+  GoogleTms,
+  ImageFormat,
+  NamedBounds,
+  Nztm2000QuadTms,
+  QuadKey,
+  Tile,
+  TileMatrixSet,
+} from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import pLimit from 'p-limit';
@@ -9,8 +18,20 @@ import { CoSources } from '@basemaps/lambda-tiler/build/util/source.cache.js';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 
+const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
+const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
+const TileComposer = new TileMakerSharp(256);
+const tilerNZTM = new Tiler(Nztm2000QuadTms);
+const tilerGoogle = new Tiler(GoogleTms);
+
+function getTiler(tileMatrix: string): { tiler: Tiler; tileMatrix: TileMatrixSet } {
+  if (tileMatrix === GoogleTms.identifier) return { tiler: tilerGoogle, tileMatrix: GoogleTms };
+  else if (tileMatrix === Nztm2000QuadTms.identifier) return { tiler: tilerNZTM, tileMatrix: Nztm2000QuadTms };
+  else throw new Error(`Invalid Tile Matrix provided ${tileMatrix}`);
+}
+
 export interface JobTiles {
-  tileMatrix: TileMatrixSet;
+  tileMatrix: string;
   tiles: string[];
   files: NamedBounds[];
 }
@@ -55,9 +76,8 @@ if (parentPort) worker.bind(parentPort);
 
 async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer> {
   const files = jobTiles.files;
-  const tileMatrix = jobTiles.tileMatrix;
-
   const tiffPaths: string[] = [];
+  const { tiler, tileMatrix } = getTiler(jobTiles.tileMatrix);
   const tileBounds = tileMatrix.tileToSourceBounds(tile);
   for (const c of files) {
     if (!tileBounds.intersects(Bounds.fromJson(c))) continue;
@@ -65,22 +85,20 @@ async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer> 
     tiffPaths.push(tiffPath);
   }
 
-  const tiffs: CogTiff[] = [];
+  const todoTiffs: Promise<CogTiff>[] = [];
   for (const tiffPath of tiffPaths) {
-    const tiff = await CoSources.getCog(tiffPath);
-    tiffs.push(tiff);
+    const tiff = CoSources.getCog(tiffPath);
+    todoTiffs.push(tiff);
   }
 
-  const tiler = new Tiler(tileMatrix);
+  const tiffs = await Promise.all(todoTiffs);
   const layers = await tiler.tile(tiffs, tile.x, tile.y, tile.z);
 
-  // TODO: How to find the background and resizeKernel? and size 256?
-  const TileComposer = new TileMakerSharp(256);
   const res = await TileComposer.compose({
     layers,
     format: ImageFormat.Webp,
-    background: { r: 0, g: 0, b: 0, alpha: 0 },
-    resizeKernel: { in: 'lanczos3', out: 'lanczos3' },
+    background: DefaultBackground,
+    resizeKernel: DefaultResizeKernel,
   });
 
   return res.buffer;
