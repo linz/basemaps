@@ -5,7 +5,7 @@ import { Link } from './link.js';
 export class Footer extends Component {
   _events: (() => boolean)[] = [];
   componentDidMount(): void {
-    this._events.push(Config.map.on('change', () => this.setState(this.state)));
+    this._events.push(Config.map.on('change', () => this.forceUpdate()));
   }
   componentWillUnmount(): void {
     for (const e of this._events) e();

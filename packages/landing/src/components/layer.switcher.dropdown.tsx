@@ -28,7 +28,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
     this._events.push(
       Config.map.on('layer', () => this.setState({ currentLayer: Config.map.layerKey })),
-      Config.map.on('tileMatrix', () => this.setState(this.state)),
+      Config.map.on('tileMatrix', () => this.forceUpdate()),
     );
   }
 

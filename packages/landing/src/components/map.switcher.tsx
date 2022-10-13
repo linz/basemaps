@@ -75,7 +75,7 @@ export class MapSwitcher extends Component {
 
     this.map.setZoom(Math.max(location.zoom - 4, 0));
     this.map.setCenter([location.lon, location.lat]);
-    this.setState(this.state);
+    this.forceUpdate();
   };
 
   switchLayer = (): void => {

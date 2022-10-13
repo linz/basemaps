@@ -18,7 +18,7 @@ export class Header extends Component<unknown, HeaderState> {
   state: HeaderState = { isMenuOpen: false };
 
   componentDidMount(): void {
-    this._events.push(Config.map.on('change', () => this.setState(this.state)));
+    this._events.push(Config.map.on('change', () => this.forceUpdate()));
 
     // If individual layers are on, we need the layer info to determine if they can use NZTM2000Quad WMTS
     Config.map.layers.then((layers) => this.setState({ layers }));

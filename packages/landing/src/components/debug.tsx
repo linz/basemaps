@@ -1,7 +1,7 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { GoogleTms } from '@basemaps/geo';
-import { Component, FormEventHandler, Fragment, ReactNode, MouseEventHandler, ChangeEventHandler } from 'react';
+import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
 import { Attributions } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
@@ -120,12 +120,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       if (imageryId == null) return;
 
       this.debugMap.fetchSourceLayer(imageryId, 'cog').then((cog) => {
-        console.log('GotCog', imageryId, cog != null);
-        if (cog != null) {
-          this.setState({ isCog: true });
-        } else {
-          this.setState({ isCog: false });
-        }
+        this.setState({ isCog: cog != null });
       });
 
       return ConfigData.getImagery(tileSetId, imageryId).then((imagery) => {

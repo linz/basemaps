@@ -85,7 +85,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
     else this.map.setMaxBounds();
-    this.setState(this.state);
+    this.forceUpdate();
   };
 
   componentDidMount(): void {
