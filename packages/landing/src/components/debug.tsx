@@ -164,7 +164,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   renderPurple(): ReactNode | null {
     if (Config.map.debug['debug.screenshot']) return;
-    console.log(Config.map.debug);
     return (
       <div className="debug__info">
         <label className="debug__label">Purple</label>
@@ -178,7 +177,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   renderCogToggle(): ReactNode {
-    console.log('renderCogToggle', { isCog: this.state.isCog, imagery: this.state.imagery != null });
     if (this.state.imagery == null) return null;
     const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'covering.geojson');
     if (!this.state.isCog) return;
