@@ -10,6 +10,17 @@ import { DebugMap } from '../debug.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { onMapLoaded } from './map.js';
 
+export interface DebugState {
+  featureCogId: string | number | undefined;
+  featureCogName: string | undefined;
+  featureSourceId: string | number | undefined;
+  featureSourceName: string | undefined;
+  tileSet: ConfigTileSetRaster | null;
+  imagery: ConfigImagery | null;
+  config: string | null;
+  isCog: boolean;
+}
+
 function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput: FormEventHandler): ReactNode {
   return (
     <input
@@ -24,19 +35,7 @@ function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput:
   );
 }
 
-export class Debug extends Component<
-  { map: maplibregl.Map },
-  {
-    featureCogId: string | number | undefined;
-    featureCogName: string | undefined;
-    featureSourceId: string | number | undefined;
-    featureSourceName: string | undefined;
-    tileSet: ConfigTileSetRaster | null;
-    imagery: ConfigImagery | null;
-    config: string | null;
-    isCog: boolean;
-  }
-> {
+export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   debugMap = new DebugMap();
 
   componentDidMount(): void {
@@ -110,7 +109,7 @@ export class Debug extends Component<
     const tileSetId = Config.map.layerId;
     if (this.state.tileSet?.id === tileSetId) return;
     return ConfigData.getTileSet(tileSetId).then((tileSet) => {
-      this.setState({ ...this.state, tileSet, config: Config.map.config });
+      this.setState({ tileSet, config: Config.map.config });
 
       if (tileSet == null) return;
       if (tileSet.layers.length !== 1) return;
@@ -121,14 +120,14 @@ export class Debug extends Component<
 
       this.debugMap.fetchSourceLayer(imageryId, 'cog').then((cog) => {
         if (cog != null) {
-          this.setState({ ...this.state, isCog: true });
+          this.setState({ isCog: true });
         } else {
-          this.setState({ ...this.state, isCog: false });
+          this.setState({ isCog: false });
         }
       });
 
       return ConfigData.getImagery(tileSetId, imageryId).then((imagery) => {
-        this.setState({ ...this.state, imagery, config: Config.map.config });
+        this.setState({ imagery, config: Config.map.config });
       });
     });
   }
@@ -309,10 +308,9 @@ export class Debug extends Component<
 
       lastFeatureId = firstFeature.id;
       this.setState({
-        ...this.state,
         [`${stateName}Id`]: lastFeatureId,
         [`${stateName}Name`]: firstFeature.properties?.['name'],
-      });
+      } as DebugState);
       map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: true });
     });
     map.on('mouseleave', layerFillId, () => {
@@ -320,7 +318,7 @@ export class Debug extends Component<
       map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: false });
 
       lastFeatureId = undefined;
-      this.setState({ ...this.state, [`${stateName}Id`]: undefined, [`${stateName}Name`]: undefined });
+      this.setState({ [`${stateName}Id`]: undefined, [`${stateName}Name`]: undefined } as unknown as DebugState);
     });
   }
 

@@ -155,7 +155,7 @@ function bundleHtml(basePath, cfg, outfile) {
 
 function bundleCss(basePath, cfg, outfile) {
   const bundle = [];
-  for (const cssFile of [cfg.entry].concat(cfg.external.map((f) => require.resolve(f , { paths: [basePath]})) || [])) {
+  for (const cssFile of [cfg.entry].concat(cfg.external.map((f) => require.resolve(f, { paths: [basePath] })) || [])) {
     console.log(cssFile);
     const cssData = fs.readFileSync(cssFile);
     bundle.push(cssData.toString());

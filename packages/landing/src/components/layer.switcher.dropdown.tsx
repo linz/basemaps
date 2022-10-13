@@ -1,7 +1,7 @@
-import { Component, ReactNode, Fragment, MouseEventHandler, ChangeEventHandler } from 'react';
+import { ChangeEventHandler, Component, ReactNode } from 'react';
+import Select from 'react-select';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
-import Select from 'react-select';
 
 export interface GroupedOptions {
   label: string;
@@ -22,12 +22,12 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
   state: LayerSwitcherDropdownState = { zoomToExtent: true, currentLayer: 'unknown' };
 
   componentDidMount(): void {
-    this.setState({ ...this.state, zoomToExtent: true, currentLayer: Config.map.layerKey });
+    this.setState({ zoomToExtent: true, currentLayer: Config.map.layerKey });
 
-    Config.map.layers.then((layers) => this.setState({ ...this.state, layers }));
+    Config.map.layers.then((layers) => this.setState({ layers }));
 
     this._events.push(
-      Config.map.on('layer', () => this.setState({ ...this.state, currentLayer: Config.map.layerKey })),
+      Config.map.on('layer', () => this.setState({ currentLayer: Config.map.layerKey })),
       Config.map.on('tileMatrix', () => this.setState(this.state)),
     );
   }

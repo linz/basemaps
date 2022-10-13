@@ -21,7 +21,7 @@ export class Header extends Component<unknown, HeaderState> {
     this._events.push(Config.map.on('change', () => this.setState(this.state)));
 
     // If individual layers are on, we need the layer info to determine if they can use NZTM2000Quad WMTS
-    Config.map.layers.then((layers) => this.setState({ ...this.state, layers }));
+    Config.map.layers.then((layers) => this.setState({ layers }));
   }
   componentWillUnmount(): void {
     for (const e of this._events) e();
@@ -31,7 +31,7 @@ export class Header extends Component<unknown, HeaderState> {
   menuToggle = (): void => {
     const isMenuOpen = !this.state.isMenuOpen;
     gaEvent(GaEvent.Ui, isMenuOpen ? 'menu:open' : 'menu:close');
-    this.setState({ ...this.state, isMenuOpen });
+    this.setState({ isMenuOpen });
   };
 
   render(): ReactNode {
