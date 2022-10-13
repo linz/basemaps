@@ -1,7 +1,7 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { GoogleTms } from '@basemaps/geo';
-import { Component, FormEventHandler, Fragment, ReactNode, MouseEventHandler } from 'react';
+import { Component, FormEventHandler, Fragment, ReactNode, MouseEventHandler, ChangeEventHandler } from 'react';
 import { Attributions } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
@@ -11,14 +11,14 @@ import { MapOptionType, WindowUrl } from '../url.js';
 import { onMapLoaded } from './map.js';
 
 export interface DebugState {
-  featureCogId: string | number | undefined;
-  featureCogName: string | undefined;
-  featureSourceId: string | number | undefined;
-  featureSourceName: string | undefined;
-  tileSet: ConfigTileSetRaster | null;
-  imagery: ConfigImagery | null;
-  config: string | null;
-  isCog: boolean;
+  featureCogId?: string | number;
+  featureCogName?: string;
+  featureSourceId?: string | number;
+  featureSourceName?: string;
+  tileSet?: ConfigTileSetRaster | null;
+  imagery?: ConfigImagery | null;
+  config?: string | null;
+  isCog?: boolean;
 }
 
 function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput: FormEventHandler): ReactNode {
@@ -37,6 +37,7 @@ function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput:
 
 export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   debugMap = new DebugMap();
+  state: DebugState = {};
 
   componentDidMount(): void {
     this.waitForMap();
@@ -91,7 +92,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   /** Show the source bounding box ont he map */
-  toggleCogs: MouseEventHandler<unknown> = (e) => {
+  toggleCogs: ChangeEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.cog', target.checked);
     this.setVectorShown(target.checked, 'cog');
@@ -172,7 +173,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         <label className="debug__label">Purple</label>
         <input
           type="checkbox"
-          onClick={this.debugMap.togglePurple}
+          onChange={this.debugMap.togglePurple}
           checked={Config.map.debug['debug.background'] === 'magenta'}
         />
       </div>
@@ -191,7 +192,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
               Cogs
             </a>
           </label>
-          <input type="checkbox" onClick={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
+          <input type="checkbox" onChange={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
         </div>
         {this.state.featureCogId == null ? null : (
           <div className="debug__info" title={String(this.state.featureCogName)}>
