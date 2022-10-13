@@ -48,15 +48,15 @@ export class DebugMap {
   _source: Map<string, Promise<BBoxFeatureCollection>> = new Map();
   async fetchSourceLayer(imageryId: string, type: string): Promise<BBoxFeatureCollection | undefined> {
     const id = `${imageryId}_${type}`;
-    const existing = this._source.get(id);
+    let existing = this._source.get(id);
     if (existing == null) {
       const sourceUri = WindowUrl.toImageryUrl(imageryId, type === 'source' ? 'source.geojson' : 'covering.geojson');
-      const res = fetch(sourceUri).then((r) => {
+      existing = fetch(sourceUri).then((r) => {
         if (r.ok) return r.json();
         return;
       });
 
-      this._source.set(id, res);
+      this._source.set(id, existing);
     }
     return existing;
   }
@@ -70,11 +70,6 @@ export class DebugMap {
     }
     return this._styleJson;
   }
-
-  adjustTopographic: FormEventHandler<unknown> = (e) => {
-    const slider = e.target as HTMLInputElement;
-    Config.map.setDebug('debug.layer.linz-topographic', Number(slider.value));
-  };
 
   async adjustVector(map: maplibregl.Map, value: number): Promise<void> {
     const styleJson = await this.styleJson;
@@ -132,6 +127,9 @@ export class DebugMap {
     }
   }
 
+  adjustTopographic: FormEventHandler = (e) => {
+    Config.map.setDebug('debug.layer.linz-topographic', Number((e.target as HTMLInputElement).value));
+  };
   adjustOsm: FormEventHandler = (e) => {
     Config.map.setDebug('debug.layer.osm', Number((e.target as HTMLInputElement).value));
   };

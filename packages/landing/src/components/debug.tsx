@@ -29,8 +29,8 @@ function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput:
       min="0"
       max="1"
       step="0.05"
-      value={String(Config.map.debug[`debug.layer.${label}`])}
-      onInput={onInput}
+      defaultValue={String(Config.map.debug[`debug.layer.${label}`])}
+      onChange={onInput}
     />
   );
 }
@@ -99,7 +99,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   };
 
   /** Show the source bounding box ont he map */
-  toggleSource: MouseEventHandler<unknown> = (e) => {
+  toggleSource: ChangeEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.source', target.checked);
     this.setVectorShown(target.checked, 'source');
@@ -120,6 +120,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       if (imageryId == null) return;
 
       this.debugMap.fetchSourceLayer(imageryId, 'cog').then((cog) => {
+        console.log('GotCog', imageryId, cog != null);
         if (cog != null) {
           this.setState({ isCog: true });
         } else {
@@ -168,6 +169,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   renderPurple(): ReactNode | null {
     if (Config.map.debug['debug.screenshot']) return;
+    console.log(Config.map.debug);
     return (
       <div className="debug__info">
         <label className="debug__label">Purple</label>
@@ -181,6 +183,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   renderCogToggle(): ReactNode {
+    console.log('renderCogToggle', { isCog: this.state.isCog, imagery: this.state.imagery != null });
     if (this.state.imagery == null) return null;
     const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'covering.geojson');
     if (!this.state.isCog) return;
@@ -230,7 +233,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
               Source
             </a>
           </label>
-          <input type="checkbox" onClick={this.toggleSource} checked={Config.map.debug['debug.source']} />
+          <input type="checkbox" onChange={this.toggleSource} checked={Config.map.debug['debug.source']} />
         </div>
         {this.state.featureSourceId == null ? null : (
           <div className="debug__info" title={String(this.state.featureSourceName)}>

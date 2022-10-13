@@ -125,6 +125,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       );
 
       this.updateStyle();
+      // Need to ensure the debug layer has access to the map
+      this.forceUpdate();
     });
   }
 
