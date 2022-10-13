@@ -1,4 +1,4 @@
-import { Component, ComponentChild } from 'preact';
+import { Component, ReactNode } from 'react';
 import clsx from 'clsx';
 import { Config, GaEvent, gaEvent } from '../config.js';
 
@@ -8,15 +8,21 @@ export interface CopyableProps {
 }
 
 export class Copyable extends Component<CopyableProps, { copied: boolean }> {
-  render(): ComponentChild {
+  render(): ReactNode {
     return (
-      <div class="LuiDeprecatedForms">
+      <div className="LuiDeprecatedForms">
         <label>{this.props.header}</label>
-        <div class={clsx({ 'lui-menu-label': true, 'menu-copyable': true, 'menu-copyable-copied': this.state.copied })}>
-          <button class="menu-copyable-icon-button" title="Copy" onClick={this.copy}>
-            <i class="material-icons-round">{this.state.copied ? 'check' : 'content_copy'}</i>
+        <div
+          className={clsx({
+            'lui-menu-label': true,
+            'menu-copyable': true,
+            'menu-copyable-copied': this.state?.copied,
+          })}
+        >
+          <button className="menu-copyable-icon-button" title="Copy" onClick={this.copy}>
+            <i className="material-icons-round">{this.state?.copied ? 'check' : 'content_copy'}</i>
           </button>
-          <input value={this.props.value} readonly={true} />
+          <input value={this.props.value} readOnly={true} />
         </div>
       </div>
     );
