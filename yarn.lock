@@ -1116,9 +1116,9 @@
     ulid "^2.3.0"
 
 "@linzjs/lui@^17.16.2":
-  version "17.16.2"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-17.16.2.tgz#9b476ff76c9cc1c68c11621ff9ff8aa2d04225b0"
-  integrity sha512-uUMixjeoNG862csS899t+tkckhVZG4rUQxWqyyi6J8ueQxISX2begCtsIP1//XLswS3D28c3xAADACClPM6TcA==
+  version "17.18.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-17.18.0.tgz#8769612ecfe3a6e90392e9e91e23449df35c0389"
+  integrity sha512-pDRXecc2AgmDeFn9k7heJa5c0JQbwaN4SiJTZLpaeqGflUoFmw/C1T3Y3jRXH/piboc8sYMB+wb6/17ZaTncOw==
   dependencies:
     "@fontsource/open-sans" "^4.5.1"
     "@react-aria/focus" "^3.7.0"
