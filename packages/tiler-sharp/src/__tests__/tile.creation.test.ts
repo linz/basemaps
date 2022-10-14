@@ -1,6 +1,6 @@
 import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile, ImageFormat } from '@basemaps/geo';
 import { TestTiff } from '@basemaps/test';
-import { Tiler } from '@basemaps/tiler';
+import { CompositionTiff, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
 import o from 'ospec';
 import * as path from 'path';
@@ -37,13 +37,13 @@ o.spec('TileCreation', () => {
     const tiff = await TestTiff.Google.init();
     const tiler = new Tiler(GoogleTms);
 
-    const layer0 = await tiler.tile([tiff], 0, 0, 0);
+    const layer0 = (await tiler.tile([tiff], 0, 0, 0)) as CompositionTiff[];
     // There are 16 tiles in this tiff, all should be used
     o(layer0.length).equals(16);
 
     const topLeft = layer0.find((f) => f.source.x === 0 && f.source.y === 0);
     o(topLeft?.source).deepEquals({ x: 0, y: 0, imageId: 0, width: 16, height: 16 });
-    o(topLeft?.tiff.source.uri).equals(tiff.source.uri);
+    o(topLeft?.asset.source.uri).equals(tiff.source.uri);
     o(topLeft?.resize).deepEquals({ width: 32, height: 32, scale: 2 });
     o(topLeft?.x).equals(64);
     o(topLeft?.y).equals(64);

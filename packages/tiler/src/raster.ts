@@ -1,6 +1,7 @@
 import { Bounds, ImageFormat, Size } from '@basemaps/geo';
 import { Metrics } from '@linzjs/metrics';
 import { CogTiff } from '@cogeotiff/core';
+import { Cotar } from '@cotar/core';
 
 export interface TileMaker {
   compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics }>;
@@ -16,10 +17,12 @@ export interface TileMakerContext {
   resizeKernel: TileMakerResizeKernel;
   metrics?: Metrics;
 }
+export type Composition = CompositionTiff | CompositionCotar;
 
-export interface Composition {
-  /** Tiff Id */
-  tiff: CogTiff;
+export interface CompositionTiff {
+  type: 'tiff';
+  /** Tiff */
+  asset: CogTiff;
   /** Source tile used */
   source: {
     x: number;
@@ -39,6 +42,13 @@ export interface Composition {
   };
   /** Crop after the resize */
   crop?: Bounds;
+}
+
+export interface CompositionCotar {
+  type: 'cotar';
+  asset: Cotar;
+  /** Location in the archive for the tile */
+  path: string;
 }
 
 export const ImageFormatOrder = [ImageFormat.Jpeg, ImageFormat.Webp, ImageFormat.Png];
