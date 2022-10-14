@@ -1,4 +1,4 @@
-import { LogConfig } from '@basemaps/shared';
+import { LogConfig, LogType } from '@basemaps/shared';
 import * as path from 'path';
 import { promises as fs } from 'fs';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -14,6 +14,7 @@ import { CogBuilder } from '../../cog/builder.js';
 import { filterTiff, MaxConcurrencyDefault } from '../../cog/job.factory.js';
 import { Cutline } from '../../cog/cutline.js';
 import { CogTiff } from '@cogeotiff/core';
+import { createHash } from 'crypto';
 
 // Create tiles per worker invocation
 const WorkerTaskSize = 500;
@@ -22,7 +23,6 @@ const threadCount = os.cpus().length / 8;
 const pool = new WorkerRpcPool(threadCount, workerUrl);
 
 const DefaultMaxZoom = 15;
-const DefaultOuput = './output/';
 
 export class CommandCreateOverview extends CommandLineAction {
   private source: CommandLineStringParameter;
@@ -64,29 +64,32 @@ export class CommandCreateOverview extends CommandLineAction {
     const source = this.source.value;
     if (source == null) throw new Error('Please provide a path for the source imagery.');
     const maxZoom = this.maxZoom.value ?? DefaultMaxZoom;
+    const hash = createHash('sha256').update(source).digest('hex');
+    const path = fsa.join('overview', hash);
 
-    logger.info({ source }, 'CreateOverview: ListTiffs');
+    logger.info({ source, path }, 'CreateOverview: ListTiffs');
     const tiffList = (await fsa.toArray(fsa.list(source))).filter(filterTiff);
     const tiffSource = tiffList.map((path: string) => fsa.source(path));
 
-    logger.info({ source }, 'CreateOverview: prepareSourceFiles');
+    logger.info({ source, path }, 'CreateOverview: prepareSourceFiles');
     const tileMatrix = await this.prepareSourceFiles(tiffSource);
 
-    logger.info({ source }, 'CreateOverview: PrepareCovering');
+    logger.info({ source, path }, 'CreateOverview: PrepareCovering');
     const cutline = new Cutline(tileMatrix);
     const builder = new CogBuilder(tileMatrix, MaxConcurrencyDefault, logger);
     const metadata = await builder.build(tiffSource, cutline);
 
-    logger.info({ source }, 'CreateOverview: prepareTiles');
+    logger.info({ source, path }, 'CreateOverview: prepareTiles');
     this.prepareTiles(metadata.files, maxZoom);
     if (this.tiles.size < 1) throw new Error('Failed to prepare overviews.');
 
-    logger.info({ source }, 'CreateOverview: GenerateTiles');
-    await this.generateTiles(tileMatrix);
+    logger.info({ source, path }, 'CreateOverview: GenerateTiles');
+    await this.generateTiles(path, tileMatrix);
 
-    logger.info({ source }, 'CreateOverview: CreatingTarFile');
-    const output = this.output.value ?? DefaultOuput;
-    await this.createTar(output);
+    logger.info({ source, path }, 'CreateOverview: CreatingTarFile');
+    await this.createTar(path, logger);
+
+    logger.info({ source, path }, 'CreateOverview: Finished');
     return;
   }
 
@@ -128,13 +131,13 @@ export class CommandCreateOverview extends CommandLineAction {
     return tileMatrix;
   }
 
-  async generateTiles(tileMatrix: TileMatrixSet): Promise<void> {
+  async generateTiles(path: string, tileMatrix: TileMatrixSet): Promise<void> {
     const promises = [];
     let currentTiles = Array.from(this.tiles);
     while (currentTiles.length > 0) {
       const todo = currentTiles.slice(0, WorkerTaskSize);
       currentTiles = currentTiles.slice(WorkerTaskSize);
-      const jobTiles: JobTiles = { files: this.files, tileMatrix: tileMatrix.identifier, tiles: todo };
+      const jobTiles: JobTiles = { path, files: this.files, tileMatrix: tileMatrix.identifier, tiles: todo };
       promises.push(pool.run('tile', jobTiles));
     }
 
@@ -142,22 +145,34 @@ export class CommandCreateOverview extends CommandLineAction {
     await pool.close();
   }
 
-  async createTar(output: string): Promise<void> {
-    const tarFile = fsa.join(output, 'overview.co.tar');
-    const tarIndex = fsa.join(output, 'overview.tar.index');
-    await fs.mkdir(output, { recursive: true });
-    const tiles = await fsa.toArray(fsa.list('./tiles/'));
-    const cwd = `${process.cwd()}/`;
-    const paths = tiles.map((c) => c.replace(cwd, ''));
-    tar.c({ file: tarFile, C: cwd }, paths).then(() => {
+  async createTar(path: string, logger: LogType): Promise<void> {
+    const tarFile = 'overview.co.tar';
+    const tarIndex = 'overview.tar.index';
+    const tarFilePath = fsa.join(path, tarFile);
+    const tarIndexPath = fsa.join(path, tarIndex);
+
+    // Create tar file
+    const tiles = await fsa.toArray(fsa.list(`${path}/tiles/`));
+    const cwd = fsa.join(process.cwd(), path);
+    const paths = tiles.map((c) => c.replace(`${cwd}/`, ''));
+    tar.c({ file: tarFilePath, C: cwd }, paths).then(() => {
       `${tarFile} file created`;
     });
 
-    const fd = await fs.open(tarFile, 'r');
+    // Creating tar index
+    const fd = await fs.open(tarFilePath, 'r');
     const opts: CotarIndexOptions = { packingFactor: 1.25, maxSearch: 50 }; // Default package rule.
     const index = await CotarIndexBuilder.create(fd, opts);
     const indexBinary = await CotarIndexBinary.create(new SourceMemory('index', index.buffer));
     await TarReader.validate(fd, indexBinary);
-    await fs.writeFile(tarIndex, index.buffer);
+    await fs.writeFile(tarIndexPath, index.buffer);
+
+    // Copy the output into s3 location
+    const output = this.output.value;
+    if (output) {
+      logger.info({ output }, 'CreateOverview: UploadOutput');
+      await fsa.write(fsa.join(output, tarFile), await fsa.read(tarFilePath));
+      await fsa.write(fsa.join(output, tarIndex), index.buffer);
+    }
   }
 }

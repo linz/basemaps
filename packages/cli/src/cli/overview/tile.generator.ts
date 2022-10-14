@@ -17,7 +17,9 @@ import { CogTiff } from '@cogeotiff/core';
 import { CoSources } from '@basemaps/lambda-tiler/build/util/source.cache.js';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
+import { createHash } from 'node:crypto';
 
+const EmptyWebpHash = 'a86c943ef5be84a397829ee7eefab5f3192311edac9c81e900868d53608830c8';
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 const TileComposer = new TileMakerSharp(256);
@@ -31,6 +33,7 @@ function getTiler(tileMatrix: string): { tiler: Tiler; tileMatrix: TileMatrixSet
 }
 
 export interface JobTiles {
+  path: string;
   tileMatrix: string;
   tiles: string[];
   files: NamedBounds[];
@@ -57,14 +60,15 @@ const worker = new WorkerRpc({
           logger.info({ count, total: jobTiles.tiles.length, duration }, 'Progress');
         }
 
-        const outputFile = `./tiles/${tile.z}/${tile.x}/${tile.y}.webp`;
+        const outputTile = `tiles/${tile.z}/${tile.x}/${tile.y}.webp`;
+        const outputFile = fsa.join(jobTiles.path, outputTile);
         const exists = await fsa.exists(outputFile);
         if (exists) {
           skipped++;
           return;
         }
         const buffer = await getComposedTile(jobTiles, tile);
-        await fsa.write(outputFile, buffer);
+        if (buffer != null) await fsa.write(outputFile, buffer);
       });
     });
 
@@ -74,7 +78,7 @@ const worker = new WorkerRpc({
 
 if (parentPort) worker.bind(parentPort);
 
-async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer> {
+async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer | undefined> {
   const files = jobTiles.files;
   const tiffPaths: string[] = [];
   const { tiler, tileMatrix } = getTiler(jobTiles.tileMatrix);
@@ -93,13 +97,19 @@ async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer> 
 
   const tiffs = await Promise.all(todoTiffs);
   const layers = await tiler.tile(tiffs, tile.x, tile.y, tile.z);
-
+  if (layers.length === 0) return;
   const res = await TileComposer.compose({
     layers,
     format: ImageFormat.Webp,
     background: DefaultBackground,
     resizeKernel: DefaultResizeKernel,
   });
+  if (res.layers === 0) return;
 
+  // Check and skip if the buffer is empty webp
+  if (res.buffer.byteLength < 215) {
+    const hash = createHash('sha256').update(res.buffer).digest('hex');
+    if (hash === EmptyWebpHash) return;
+  }
   return res.buffer;
 }
