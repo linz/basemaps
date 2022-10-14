@@ -43,6 +43,8 @@
     "@basemaps/server": "^6.35.0",
     "@basemaps/shared": "^6.35.0",
     "@basemaps/sprites": "^6.32.1",
+    "@basemaps/tiler": "^6.35.0",
+    "@basemaps/tiler-sharp": "^6.35.0",
     "@chunkd/fs": "^8.5.1",
     "@chunkd/source-aws-v2": "^8.5.1",
     "@cogeotiff/core": "^7.0.0",
