@@ -6,6 +6,7 @@ import {
   ImageFormat,
   NamedBounds,
   Nztm2000QuadTms,
+  Nztm2000Tms,
   QuadKey,
   Tile,
   TileMatrixSet,
@@ -23,12 +24,13 @@ const EmptyWebpHash = 'a86c943ef5be84a397829ee7eefab5f3192311edac9c81e900868d536
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 const TileComposer = new TileMakerSharp(256);
-const tilerNZTM = new Tiler(Nztm2000QuadTms);
+const tilerNZTM2000Quad = new Tiler(Nztm2000QuadTms);
 const tilerGoogle = new Tiler(GoogleTms);
 
 function getTiler(tileMatrix: string): { tiler: Tiler; tileMatrix: TileMatrixSet } {
   if (tileMatrix === GoogleTms.identifier) return { tiler: tilerGoogle, tileMatrix: GoogleTms };
-  else if (tileMatrix === Nztm2000QuadTms.identifier) return { tiler: tilerNZTM, tileMatrix: Nztm2000QuadTms };
+  else if (tileMatrix === Nztm2000QuadTms.identifier || tileMatrix === Nztm2000Tms.identifier)
+    return { tiler: tilerNZTM2000Quad, tileMatrix: Nztm2000QuadTms };
   else throw new Error(`Invalid Tile Matrix provided ${tileMatrix}`);
 }
 
@@ -106,10 +108,12 @@ async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer |
   });
   if (res.layers === 0) return;
 
+  console.log(res.buffer.byteLength);
   // Check and skip if the buffer is empty webp
   if (res.buffer.byteLength < 215) {
     const hash = createHash('sha256').update(res.buffer).digest('hex');
     if (hash === EmptyWebpHash) return;
   }
+
   return res.buffer;
 }

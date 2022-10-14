@@ -2,7 +2,15 @@ import { LogConfig, LogType } from '@basemaps/shared';
 import * as path from 'path';
 import { promises as fs } from 'fs';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { Bounds, NamedBounds, QuadKey, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import {
+  Bounds,
+  NamedBounds,
+  Nztm2000QuadTms,
+  Nztm2000Tms,
+  QuadKey,
+  TileMatrixSet,
+  TileMatrixSets,
+} from '@basemaps/geo';
 import os from 'os';
 import tar from 'tar';
 import { WorkerRpcPool } from '@wtrpc/core';
@@ -50,7 +58,7 @@ export class CommandCreateOverview extends CommandLineAction {
     this.maxZoom = this.defineIntegerParameter({
       argumentName: 'MAX_ZOOM',
       parameterLongName: '--max-zoom',
-      description: 'Output of the bundle file',
+      description: 'Maximum zoom level for the overview',
     });
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
@@ -128,6 +136,7 @@ export class CommandCreateOverview extends CommandLineAction {
       });
     }
     if (tileMatrix == null) throw new Error('Unable to find the imagery tileMatrix');
+    if (tileMatrix.identifier === Nztm2000Tms.identifier) tileMatrix = Nztm2000QuadTms;
     return tileMatrix;
   }
 
@@ -146,7 +155,7 @@ export class CommandCreateOverview extends CommandLineAction {
   }
 
   async createTar(path: string, logger: LogType): Promise<void> {
-    const tarFile = 'overview.co.tar';
+    const tarFile = 'overview.tar.co';
     const tarIndex = 'overview.tar.index';
     const tarFilePath = fsa.join(path, tarFile);
     const tarIndexPath = fsa.join(path, tarIndex);
