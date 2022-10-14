@@ -155,9 +155,7 @@ export class CommandCreateOverview extends CommandLineAction {
     const tiles = await fsa.toArray(fsa.list(`${path}/tiles/`));
     const cwd = fsa.join(process.cwd(), path);
     const paths = tiles.map((c) => c.replace(`${cwd}/`, ''));
-    tar.c({ file: tarFilePath, C: cwd }, paths).then(() => {
-      `${tarFile} file created`;
-    });
+    await tar.c({ file: tarFilePath, C: cwd }, paths);
 
     // Creating tar index
     const fd = await fs.open(tarFilePath, 'r');
