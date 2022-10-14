@@ -108,7 +108,6 @@ async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer |
   });
   if (res.layers === 0) return;
 
-  console.log(res.buffer.byteLength);
   // Check and skip if the buffer is empty webp
   if (res.buffer.byteLength < 215) {
     const hash = createHash('sha256').update(res.buffer).digest('hex');
