@@ -1,12 +1,22 @@
-import { Bounds, GoogleTms, ImageFormat, Nztm2000QuadTms, TileMatrixSet, VectorFormat } from '@basemaps/geo';
+import {
+  Bounds,
+  GoogleTms,
+  ImageFormat,
+  Nztm2000QuadTms,
+  QuadKey,
+  TileMatrixSet,
+  TileMatrixSets,
+  VectorFormat,
+} from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
+import { Cotar } from '@cotar/core';
 import { createHash } from 'crypto';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { ConfigId } from '../base.config.js';
 import { parseRgba } from '../color.js';
 import { BaseConfig } from '../config/base.js';
-import { ConfigImagery } from '../config/imagery.js';
+import { ConfigImagery, ConfigImageryOverview } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
@@ -252,9 +262,60 @@ export class ConfigJson {
       bounds,
       files,
     };
+
+    output.overviews = await ConfigJson.findImageryOverviews(output);
     this.mem.put(output);
     // Ensure there is also a tile set for each imagery set
     // this.mem.put(ConfigJson.imageryToTileSet(output));
     return output;
+  }
+
+  static async findImageryOverviews(cfg: ConfigImagery): Promise<ConfigImageryOverview | undefined> {
+    if (cfg.overviews) throw new Error('Overviews exist already for config: ' + cfg.id);
+
+    const targetOverviews = fsa.join(cfg.uri, 'overviews.tar.co');
+    const exists = await fsa.exists(targetOverviews);
+    if (!exists) return;
+
+    const smallestTiff = cfg.files.reduce((prev, current) => {
+      if (prev.width < current.width) return prev;
+      return current;
+    }, cfg.files[0]);
+
+    const tileMatrix = TileMatrixSets.tryGet(cfg.projection);
+    if (tileMatrix == null) throw new Error('Missing tileMatrix for imagery:' + cfg.id);
+
+    // Find a maximum tile that could be used in this overview
+    const maxZoomLoc = tileMatrix.sourceToPixels(smallestTiff.x, smallestTiff.y, tileMatrix.maxZoom);
+    const maxTile = tileMatrix.pixelsToTile(maxZoomLoc.x, maxZoomLoc.y, tileMatrix.maxZoom);
+    let qk = QuadKey.fromTile(maxTile);
+
+    const cotar = await Cotar.fromTar(fsa.source(targetOverviews));
+
+    // Query all the quadkeys looking to see what tiles exists
+    const queries: Promise<string | null>[] = [];
+    while (qk.length > 0) {
+      qk = QuadKey.parent(qk);
+      const tile = QuadKey.toTile(qk);
+      queries.push(
+        cotar.index.find(`tiles/${tile.z}/${tile.x}/${tile.y}.webp`).then((c) => {
+          if (c == null) return null;
+          return qk;
+        }),
+      );
+    }
+
+    const result = await Promise.all(queries);
+
+    const overview: ConfigImageryOverview = { path: 'overviews.tar.co', minZoom: tileMatrix.maxZoom, maxZoom: 0 };
+    for (const r of result) {
+      if (r == null) continue;
+      if (r.length < overview.minZoom) overview.minZoom = r.length;
+      if (r.length > overview.maxZoom) overview.maxZoom = r.length;
+    }
+
+    if (overview.minZoom === tileMatrix.maxZoom) return;
+    if (overview.maxZoom === 0) return;
+    return overview;
   }
 }

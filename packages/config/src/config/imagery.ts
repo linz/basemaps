@@ -21,4 +21,23 @@ export interface ConfigImagery extends BaseConfig {
 
   /** list of file basenames and their bounding box */
   files: NamedBounds[];
+
+  /** Separate overview cache */
+  overviews?: ConfigImageryOverview;
+}
+
+export interface ConfigImageryOverview {
+  /** Path to overview archive */
+  path: string;
+  /**
+   * Minium zoom level of overviews
+   * @example 0 means tiles for z0 exist in this overview archive
+   */
+  minZoom: number;
+  /**
+   *  Maximum zoom level of overviews
+   * @example
+   * 15 means tiles for z15 exist in this overview archive
+   */
+  maxZoom: number;
 }

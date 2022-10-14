@@ -1,4 +1,11 @@
-import { base58, ConfigImagery, ConfigProviderMemory, ConfigTileSet, TileSetType } from '@basemaps/config';
+import {
+  base58,
+  ConfigImagery,
+  ConfigJson,
+  ConfigProviderMemory,
+  ConfigTileSetRaster,
+  TileSetType,
+} from '@basemaps/config';
 import { Bounds, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { fsa, LogConfig, Projection } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
@@ -73,12 +80,11 @@ export class CommandImageryConfig extends CommandLineAction {
       if (gsd == null) gsd = tif.getImage(0).resolution[0];
       if (bounds == null) bounds = imgBounds;
       else bounds = bounds.union(imgBounds);
-      files.push({
-        name: tif.source.uri.replace(path, ''),
-        ...imgBounds,
-      });
+      files.push({ name: tif.source.uri.replace(path, ''), ...imgBounds });
     }
     if (bounds == null) throw new Error('No imagery bounds were extracted');
+
+    if (bounds == null) throw new Error('Failed to extract imagery bounds');
 
     const provider = new ConfigProviderMemory();
     const id = ulid();
@@ -95,12 +101,14 @@ export class CommandImageryConfig extends CommandLineAction {
       projection: Nztm2000QuadTms.projection.code,
       tileMatrix: Nztm2000QuadTms.identifier,
       uri: path,
-      bounds,
+      bounds: bounds.toJson(),
       files,
     };
+    imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
+
     provider.put(imagery);
 
-    const tileSet: ConfigTileSet = {
+    const tileSet: ConfigTileSetRaster = {
       id: 'ts_aerial',
       name: 'aerial',
       title: 'Aerial Imagery Basemap',
