@@ -1,6 +1,6 @@
 import { GoogleTms } from '@basemaps/geo';
 import maplibre from 'maplibre-gl';
-import { Component, ComponentChild } from 'preact';
+import { Component, ReactNode } from 'react';
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
@@ -85,7 +85,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
     else this.map.setMaxBounds();
-    this.setState(this.state);
+    this.forceUpdate();
   };
 
   componentDidMount(): void {
@@ -125,6 +125,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       );
 
       this.updateStyle();
+      // Need to ensure the debug layer has access to the map
+      this.forceUpdate();
     });
   }
 
@@ -136,7 +138,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this._events = [];
   }
 
-  render(): ComponentChild {
+  render(): ReactNode {
     const isLayerSwitcherEnabled = Config.map.tileMatrix === GoogleTms && !Config.map.isDebug;
     return (
       <div style={{ flex: 1, position: 'relative' }}>
