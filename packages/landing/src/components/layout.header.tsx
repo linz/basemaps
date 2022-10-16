@@ -66,7 +66,7 @@ export class Header extends Component<unknown, { isMenuOpen: boolean; layers?: M
 
           <h6>Developer API Keys</h6>
           <p>Contact us for free API keys with better support for public web and mobile apps.</p>
-          <button class="lui-button contact-us" onClick={this.contactUs}>
+          <button className="lui-button contact-us" onClick={this.contactUs}>
             Contact us
           </button>
 
