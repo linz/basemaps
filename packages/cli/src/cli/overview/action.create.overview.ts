@@ -12,7 +12,6 @@ import {
   TileMatrixSets,
 } from '@basemaps/geo';
 import os from 'os';
-import tar from 'tar';
 import { WorkerRpcPool } from '@wtrpc/core';
 import { JobTiles } from './tile.generator.js';
 import { CotarIndexBinary, CotarIndexBuilder, CotarIndexOptions, TarReader } from '@cotar/core';
@@ -23,6 +22,7 @@ import { filterTiff, MaxConcurrencyDefault } from '../../cog/job.factory.js';
 import { Cutline } from '../../cog/cutline.js';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
+import { TarBuilder } from '@cotar/tar';
 
 // Create tiles per worker invocation
 const WorkerTaskSize = 500;
@@ -38,7 +38,6 @@ export class CommandCreateOverview extends CommandLineAction {
   private output: CommandLineStringParameter;
 
   tiles = new Set<string>();
-  files: NamedBounds[] = [];
 
   public constructor() {
     super({
@@ -80,11 +79,11 @@ export class CommandCreateOverview extends CommandLineAction {
     const tiffSource = tiffList.map((path: string) => fsa.source(path));
 
     logger.info({ source, path }, 'CreateOverview: prepareSourceFiles');
-    const tileMatrix = await this.prepareSourceFiles(tiffSource);
+    const sourceFiles = await this.prepareSourceFiles(tiffSource);
 
     logger.info({ source, path }, 'CreateOverview: PrepareCovering');
-    const cutline = new Cutline(tileMatrix);
-    const builder = new CogBuilder(tileMatrix, MaxConcurrencyDefault, logger);
+    const cutline = new Cutline(sourceFiles.tileMatrix);
+    const builder = new CogBuilder(sourceFiles.tileMatrix, MaxConcurrencyDefault, logger);
     const metadata = await builder.build(tiffSource, cutline);
 
     logger.info({ source, path }, 'CreateOverview: prepareTiles');
@@ -92,7 +91,7 @@ export class CommandCreateOverview extends CommandLineAction {
     if (this.tiles.size < 1) throw new Error('Failed to prepare overviews.');
 
     logger.info({ source, path }, 'CreateOverview: GenerateTiles');
-    await this.generateTiles(path, tileMatrix);
+    await this.generateTiles(path, sourceFiles.tileMatrix, sourceFiles.files);
 
     logger.info({ source, path }, 'CreateOverview: CreatingTarFile');
     await this.createTar(path, logger);
@@ -123,30 +122,31 @@ export class CommandCreateOverview extends CommandLineAction {
     }
   }
 
-  async prepareSourceFiles(sources: ChunkSource[]): Promise<TileMatrixSet> {
+  async prepareSourceFiles(sources: ChunkSource[]): Promise<{ tileMatrix: TileMatrixSet; files: NamedBounds[] }> {
     let tileMatrix;
+    const files: NamedBounds[] = [];
     for (const source of sources) {
       const tiff = await CogTiff.create(source);
       await tiff.getImage(0).loadGeoTiffTags();
       if (tileMatrix == null) tileMatrix = TileMatrixSets.tryGet(tiff.getImage(0).epsg);
       const imgBounds = Bounds.fromBbox(tiff.getImage(0).bbox);
-      this.files.push({
+      files.push({
         name: tiff.source.uri,
         ...imgBounds,
       });
     }
     if (tileMatrix == null) throw new Error('Unable to find the imagery tileMatrix');
     if (tileMatrix.identifier === Nztm2000Tms.identifier) tileMatrix = Nztm2000QuadTms;
-    return tileMatrix;
+    return { tileMatrix, files };
   }
 
-  async generateTiles(path: string, tileMatrix: TileMatrixSet): Promise<void> {
+  async generateTiles(path: string, tileMatrix: TileMatrixSet, files: NamedBounds[]): Promise<void> {
     const promises = [];
     let currentTiles = Array.from(this.tiles);
     while (currentTiles.length > 0) {
       const todo = currentTiles.slice(0, WorkerTaskSize);
       currentTiles = currentTiles.slice(WorkerTaskSize);
-      const jobTiles: JobTiles = { path, files: this.files, tileMatrix: tileMatrix.identifier, tiles: todo };
+      const jobTiles: JobTiles = { path, files, tileMatrix: tileMatrix.identifier, tiles: todo };
       promises.push(pool.run('tile', jobTiles));
     }
 
@@ -162,9 +162,9 @@ export class CommandCreateOverview extends CommandLineAction {
 
     // Create tar file
     const tiles = await fsa.toArray(fsa.list(`${path}/tiles/`));
-    const cwd = fsa.join(process.cwd(), path);
-    const paths = tiles.map((c) => c.replace(`${cwd}/`, ''));
-    await tar.c({ file: tarFilePath, C: cwd }, paths);
+    const tarBuilder = new TarBuilder(tarFilePath);
+    tiles.sort((a, b) => a.localeCompare(b));
+    for (const file of tiles) await tarBuilder.write(file.slice(file.indexOf('tiles/')), await fsa.read(file));
 
     // Creating tar index
     const fd = await fs.open(tarFilePath, 'r');
