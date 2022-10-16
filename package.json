@@ -41,7 +41,8 @@
       "packages/*"
     ],
     "nohoist": [
-      "**/@types/**"
+      "**/@types/**",
+      "**/react"
     ]
   },
   "resolutions": {

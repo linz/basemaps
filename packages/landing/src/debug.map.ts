@@ -6,6 +6,7 @@ import { projectGeoJson } from './tile.matrix.js';
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigData } from './config.layer.js';
 import { BBoxFeatureCollection } from '@linzjs/geojson/build/types';
+import { FormEventHandler } from 'react';
 
 export class DebugMap {
   _layerLoading: Map<string, Promise<void>> = new Map();
@@ -47,15 +48,15 @@ export class DebugMap {
   _source: Map<string, Promise<BBoxFeatureCollection>> = new Map();
   async fetchSourceLayer(imageryId: string, type: string): Promise<BBoxFeatureCollection | undefined> {
     const id = `${imageryId}_${type}`;
-    const existing = this._source.get(id);
+    let existing = this._source.get(id);
     if (existing == null) {
       const sourceUri = WindowUrl.toImageryUrl(imageryId, type === 'source' ? 'source.geojson' : 'covering.geojson');
-      const res = fetch(sourceUri).then((r) => {
+      existing = fetch(sourceUri).then((r) => {
         if (r.ok) return r.json();
         return;
       });
 
-      this._source.set(id, res);
+      this._source.set(id, existing);
     }
     return existing;
   }
@@ -69,11 +70,6 @@ export class DebugMap {
     }
     return this._styleJson;
   }
-
-  adjustTopographic = (e: Event): void => {
-    const slider = e.target as HTMLInputElement;
-    Config.map.setDebug('debug.layer.linz-topographic', Number(slider.value));
-  };
 
   async adjustVector(map: maplibregl.Map, value: number): Promise<void> {
     const styleJson = await this.styleJson;
@@ -131,10 +127,13 @@ export class DebugMap {
     }
   }
 
-  adjustOsm = (e: Event): void => {
+  adjustTopographic: FormEventHandler = (e) => {
+    Config.map.setDebug('debug.layer.linz-topographic', Number((e.target as HTMLInputElement).value));
+  };
+  adjustOsm: FormEventHandler = (e) => {
     Config.map.setDebug('debug.layer.osm', Number((e.target as HTMLInputElement).value));
   };
-  adjustLinzAerial = (e: Event): void => {
+  adjustLinzAerial: FormEventHandler = (e) => {
     Config.map.setDebug('debug.layer.linz-aerial', Number((e.target as HTMLInputElement).value));
   };
 
@@ -173,7 +172,7 @@ export class DebugMap {
     map.setPaintProperty(rasterId, 'raster-opacity', range);
   }
 
-  togglePurple = (e: Event): void => {
+  togglePurple: FormEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     this.setPurple(target.checked);
   };

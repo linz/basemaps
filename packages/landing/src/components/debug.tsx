@@ -1,7 +1,7 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { GoogleTms } from '@basemaps/geo';
-import { Component, ComponentChild, Fragment } from 'preact';
+import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
 import { Attributions } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
@@ -10,10 +10,18 @@ import { DebugMap } from '../debug.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { onMapLoaded } from './map.js';
 
-function debugSlider(
-  label: 'osm' | 'linz-topographic' | 'linz-aerial',
-  onInput: (e: Event) => unknown,
-): ComponentChild {
+export interface DebugState {
+  featureCogId?: string | number;
+  featureCogName?: string;
+  featureSourceId?: string | number;
+  featureSourceName?: string;
+  tileSet?: ConfigTileSetRaster | null;
+  imagery?: ConfigImagery | null;
+  config?: string | null;
+  isCog?: boolean;
+}
+
+function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput: FormEventHandler): ReactNode {
   return (
     <input
       className="debug__slider"
@@ -21,26 +29,15 @@ function debugSlider(
       min="0"
       max="1"
       step="0.05"
-      value={String(Config.map.debug[`debug.layer.${label}`])}
-      onInput={onInput}
+      defaultValue={String(Config.map.debug[`debug.layer.${label}`])}
+      onChange={onInput}
     />
   );
 }
 
-export class Debug extends Component<
-  { map: maplibregl.Map },
-  {
-    featureCogId: string | number | undefined;
-    featureCogName: string | undefined;
-    featureSourceId: string | number | undefined;
-    featureSourceName: string | undefined;
-    tileSet: ConfigTileSetRaster | null;
-    imagery: ConfigImagery | null;
-    config: string | null;
-    isCog: boolean;
-  }
-> {
+export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   debugMap = new DebugMap();
+  state: DebugState = {};
 
   componentDidMount(): void {
     this.waitForMap();
@@ -95,14 +92,14 @@ export class Debug extends Component<
   }
 
   /** Show the source bounding box ont he map */
-  toggleCogs = (e: Event): void => {
+  toggleCogs: ChangeEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.cog', target.checked);
     this.setVectorShown(target.checked, 'cog');
   };
 
   /** Show the source bounding box ont he map */
-  toggleSource = (e: Event): void => {
+  toggleSource: ChangeEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.source', target.checked);
     this.setVectorShown(target.checked, 'source');
@@ -113,7 +110,7 @@ export class Debug extends Component<
     const tileSetId = Config.map.layerId;
     if (this.state.tileSet?.id === tileSetId) return;
     return ConfigData.getTileSet(tileSetId).then((tileSet) => {
-      this.setState({ ...this.state, tileSet, config: Config.map.config });
+      this.setState({ tileSet, config: Config.map.config });
 
       if (tileSet == null) return;
       if (tileSet.layers.length !== 1) return;
@@ -123,20 +120,16 @@ export class Debug extends Component<
       if (imageryId == null) return;
 
       this.debugMap.fetchSourceLayer(imageryId, 'cog').then((cog) => {
-        if (cog != null) {
-          this.setState({ ...this.state, isCog: true });
-        } else {
-          this.setState({ ...this.state, isCog: false });
-        }
+        this.setState({ isCog: cog != null });
       });
 
       return ConfigData.getImagery(tileSetId, imageryId).then((imagery) => {
-        this.setState({ ...this.state, imagery, config: Config.map.config });
+        this.setState({ imagery, config: Config.map.config });
       });
     });
   }
 
-  render(): ComponentChild {
+  render(): ReactNode {
     if (Config.map.debug['debug.screenshot']) return null;
     const wmtsUrl = WindowUrl.toTileUrl(
       MapOptionType.Wmts,
@@ -169,21 +162,21 @@ export class Debug extends Component<
     );
   }
 
-  renderPurple(): ComponentChild | null {
+  renderPurple(): ReactNode | null {
     if (Config.map.debug['debug.screenshot']) return;
     return (
       <div className="debug__info">
         <label className="debug__label">Purple</label>
         <input
           type="checkbox"
-          onClick={this.debugMap.togglePurple}
+          onChange={this.debugMap.togglePurple}
           checked={Config.map.debug['debug.background'] === 'magenta'}
         />
       </div>
     );
   }
 
-  renderCogToggle(): ComponentChild {
+  renderCogToggle(): ReactNode {
     if (this.state.imagery == null) return null;
     const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'covering.geojson');
     if (!this.state.isCog) return;
@@ -195,7 +188,7 @@ export class Debug extends Component<
               Cogs
             </a>
           </label>
-          <input type="checkbox" onClick={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
+          <input type="checkbox" onChange={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
         </div>
         {this.state.featureCogId == null ? null : (
           <div className="debug__info" title={String(this.state.featureCogName)}>
@@ -223,7 +216,7 @@ export class Debug extends Component<
     aEl.remove();
   };
 
-  renderSourceToggle(): ComponentChild {
+  renderSourceToggle(): ReactNode {
     if (this.state.imagery == null) return null;
     return (
       <Fragment>
@@ -233,7 +226,7 @@ export class Debug extends Component<
               Source
             </a>
           </label>
-          <input type="checkbox" onClick={this.toggleSource} checked={Config.map.debug['debug.source']} />
+          <input type="checkbox" onChange={this.toggleSource} checked={Config.map.debug['debug.source']} />
         </div>
         {this.state.featureSourceId == null ? null : (
           <div className="debug__info" title={String(this.state.featureSourceName)}>
@@ -245,7 +238,7 @@ export class Debug extends Component<
     );
   }
 
-  renderSliders(): ComponentChild | null {
+  renderSliders(): ReactNode | null {
     // Disable the sliders for screenshots
     if (Config.map.debug['debug.screenshot']) return;
     // Only 3857 currently works with OSM/Topographic map
@@ -312,10 +305,9 @@ export class Debug extends Component<
 
       lastFeatureId = firstFeature.id;
       this.setState({
-        ...this.state,
         [`${stateName}Id`]: lastFeatureId,
         [`${stateName}Name`]: firstFeature.properties?.['name'],
-      });
+      } as DebugState);
       map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: true });
     });
     map.on('mouseleave', layerFillId, () => {
@@ -323,7 +315,7 @@ export class Debug extends Component<
       map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: false });
 
       lastFeatureId = undefined;
-      this.setState({ ...this.state, [`${stateName}Id`]: undefined, [`${stateName}Name`]: undefined });
+      this.setState({ [`${stateName}Id`]: undefined, [`${stateName}Name`]: undefined } as unknown as DebugState);
     });
   }
 
