@@ -179,7 +179,6 @@ export class CommandCreateOverview extends CommandLineAction {
     if (output) {
       logger.info({ output }, 'CreateOverview: UploadOutput');
       await fsa.write(fsa.join(output, tarFile), await fsa.read(tarFilePath));
-      await fsa.write(fsa.join(output, tarIndex), index.buffer);
     }
   }
 }
