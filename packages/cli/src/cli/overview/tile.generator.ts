@@ -46,7 +46,11 @@ const Q = pLimit(2);
 let count = 0;
 let skipped = 0;
 
-const worker = new WorkerRpc({
+export type RpcContract = {
+  tile(jobTiles: JobTiles): Promise<void>;
+};
+
+const worker = new WorkerRpc<RpcContract>({
   async tile(jobTiles: JobTiles): Promise<void> {
     const logger = LogConfig.get().child({ workerId: worker.id, messageId: worker.messageCount });
     logger.info({ count, skipped }, 'TaskCount');

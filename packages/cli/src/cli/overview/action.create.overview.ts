@@ -13,7 +13,7 @@ import {
 } from '@basemaps/geo';
 import os from 'os';
 import { WorkerRpcPool } from '@wtrpc/core';
-import { JobTiles } from './tile.generator.js';
+import { JobTiles, RpcContract } from './tile.generator.js';
 import { CotarIndexBinary, CotarIndexBuilder, CotarIndexOptions, TarReader } from '@cotar/core';
 import { SourceMemory, ChunkSource } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
@@ -28,7 +28,7 @@ import { TarBuilder } from '@cotar/tar';
 const WorkerTaskSize = 500;
 const workerUrl = new URL('./tile.generator.js', import.meta.url);
 const threadCount = os.cpus().length / 8;
-const pool = new WorkerRpcPool(threadCount, workerUrl);
+const pool = new WorkerRpcPool<RpcContract>(threadCount, workerUrl);
 
 const DefaultMaxZoom = 15;
 
