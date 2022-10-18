@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
+
+
+### Bug Fixes
+
+* **landing:** Udate contact button to lui primary style as the lui tertiary style changed. ([#2546](https://github.com/linz/basemaps/issues/2546)) ([7ef8e9d](https://github.com/linz/basemaps/commit/7ef8e9ddc2a60d61c2b89dd3b71e6d1d2f3cba9b))
+* Remove AssetLocation and using cb_lastest to get default assets. BM-693 ([#2527](https://github.com/linz/basemaps/issues/2527)) ([fce8607](https://github.com/linz/basemaps/commit/fce860786fb838a6fcbe65f35ca9ec6f12eeaf97))
+* **cli:** Remove check list aws batch running jobs in the split job cli. ([#2507](https://github.com/linz/basemaps/issues/2507)) ([b376db5](https://github.com/linz/basemaps/commit/b376db56229f8dabbf9fd97d636dac2be11af046))
+* **lambda-tiler:** Fix the font.json api which should get from assests/fonts/fonts.json ([#2526](https://github.com/linz/basemaps/issues/2526)) ([174d95f](https://github.com/linz/basemaps/commit/174d95fff3fb76d14f17c174bfbc52ee199ba7c3))
+* **landing:** cache requests to source/covering data ([#2532](https://github.com/linz/basemaps/issues/2532)) ([f780c3a](https://github.com/linz/basemaps/commit/f780c3a10251671f97e8a87da5e585e7bdba9167))
+* **landing:** dont show "undefined" as a cog name ([#2530](https://github.com/linz/basemaps/issues/2530)) ([a83c998](https://github.com/linz/basemaps/commit/a83c9987c5fb0a3005e15ee3e980c6ca152ebb56))
+
+
+### Features
+
+* searchable layer dropdown ([#2543](https://github.com/linz/basemaps/issues/2543)) ([e331835](https://github.com/linz/basemaps/commit/e331835ad5f79680d04385b7c2babcd90790ac8f))
+* **cli:** Add asset into config bundle record BM-693 ([#2528](https://github.com/linz/basemaps/issues/2528)) ([72bdd9b](https://github.com/linz/basemaps/commit/72bdd9bbccf6b9d4c865c931f1fafb3f56c98729))
+* **cli:** Allow empty string as null values in the make-cog cli. ([#2504](https://github.com/linz/basemaps/issues/2504)) ([05aadd7](https://github.com/linz/basemaps/commit/05aadd77a2aa4fe30fe4df996c6789abf264155e))
+* **cli:** Find the source and output location with the aws role. ([#2510](https://github.com/linz/basemaps/issues/2510)) ([660a53d](https://github.com/linz/basemaps/commit/660a53da6bc40cdf27888fa0bef0decfd1942f65))
+* **cli:** Make cog to limit the maxImageSize and support local output. ([#2514](https://github.com/linz/basemaps/issues/2514)) ([9673c86](https://github.com/linz/basemaps/commit/9673c86108a6f0475c2b17b50a838107cb0c5c5c))
+* **cli:** Merge make-cog and split-job cli into one cli. ([#2508](https://github.com/linz/basemaps/issues/2508)) ([9599b14](https://github.com/linz/basemaps/commit/9599b14230a5a9749c3147fdccaf401c239b94e2))
+* **cli:** New split job cli to chunk job.json into sub jobs. ([#2502](https://github.com/linz/basemaps/issues/2502)) ([a2ac1ee](https://github.com/linz/basemaps/commit/a2ac1eed03bc589623d9fbe2424be362137b9c32))
+* **cli:** Prepare markdown for config changes to update the pull request BM-605 ([#2520](https://github.com/linz/basemaps/issues/2520)) ([be64a25](https://github.com/linz/basemaps/commit/be64a254ef070a2f8b9fd0841312376434925672))
+* **landing:** add link to WMTS on debug page ([#2531](https://github.com/linz/basemaps/issues/2531)) ([f061b71](https://github.com/linz/basemaps/commit/f061b71f664080e100591a2fd689745d4d104490))
+* **landing:** Add the zoomToExtent checkbox for layer selector #BM-666 ([#2525](https://github.com/linz/basemaps/issues/2525)) ([cf23c3a](https://github.com/linz/basemaps/commit/cf23c3a66d13f5b0739c73320984996eb65eb1f9)), closes [#BM-666](https://github.com/linz/basemaps/issues/BM-666)
+* **landing:** improve the geojson download when clicking the "source" button ([#2529](https://github.com/linz/basemaps/issues/2529)) ([ac5771c](https://github.com/linz/basemaps/commit/ac5771c6c1b3541066a0f8cc989089dc2aa7aee8))
+* **landing:** show a toast message when things are copied ([#2533](https://github.com/linz/basemaps/issues/2533)) ([1d74fda](https://github.com/linz/basemaps/commit/1d74fdaea185b8d86c88356e077e24974c72f2ba))
+
+
+
+
+
 # [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
 
 

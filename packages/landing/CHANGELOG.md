@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
+
+
+### Bug Fixes
+
+* **landing:** cache requests to source/covering data ([#2532](https://github.com/linz/basemaps/issues/2532)) ([f780c3a](https://github.com/linz/basemaps/commit/f780c3a10251671f97e8a87da5e585e7bdba9167))
+* **landing:** dont show "undefined" as a cog name ([#2530](https://github.com/linz/basemaps/issues/2530)) ([a83c998](https://github.com/linz/basemaps/commit/a83c9987c5fb0a3005e15ee3e980c6ca152ebb56))
+* **landing:** Udate contact button to lui primary style as the lui tertiary style changed. ([#2546](https://github.com/linz/basemaps/issues/2546)) ([7ef8e9d](https://github.com/linz/basemaps/commit/7ef8e9ddc2a60d61c2b89dd3b71e6d1d2f3cba9b))
+
+
+### Features
+
+* searchable layer dropdown ([#2543](https://github.com/linz/basemaps/issues/2543)) ([e331835](https://github.com/linz/basemaps/commit/e331835ad5f79680d04385b7c2babcd90790ac8f))
+* **landing:** add link to WMTS on debug page ([#2531](https://github.com/linz/basemaps/issues/2531)) ([f061b71](https://github.com/linz/basemaps/commit/f061b71f664080e100591a2fd689745d4d104490))
+* **landing:** Add the zoomToExtent checkbox for layer selector #BM-666 ([#2525](https://github.com/linz/basemaps/issues/2525)) ([cf23c3a](https://github.com/linz/basemaps/commit/cf23c3a66d13f5b0739c73320984996eb65eb1f9)), closes [#BM-666](https://github.com/linz/basemaps/issues/BM-666)
+* **landing:** improve the geojson download when clicking the "source" button ([#2529](https://github.com/linz/basemaps/issues/2529)) ([ac5771c](https://github.com/linz/basemaps/commit/ac5771c6c1b3541066a0f8cc989089dc2aa7aee8))
+* **landing:** show a toast message when things are copied ([#2533](https://github.com/linz/basemaps/issues/2533)) ([1d74fda](https://github.com/linz/basemaps/commit/1d74fdaea185b8d86c88356e077e24974c72f2ba))
+
+
+
+
+
 # [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
 
 

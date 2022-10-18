@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
+
+
+### Bug Fixes
+
+* Remove AssetLocation and using cb_lastest to get default assets. BM-693 ([#2527](https://github.com/linz/basemaps/issues/2527)) ([fce8607](https://github.com/linz/basemaps/commit/fce860786fb838a6fcbe65f35ca9ec6f12eeaf97))
+* **lambda-tiler:** Fix the font.json api which should get from assests/fonts/fonts.json ([#2526](https://github.com/linz/basemaps/issues/2526)) ([174d95f](https://github.com/linz/basemaps/commit/174d95fff3fb76d14f17c174bfbc52ee199ba7c3))
+
+
+
+
+
 # [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
 
 
