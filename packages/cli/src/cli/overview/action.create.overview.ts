@@ -155,10 +155,8 @@ export class CommandCreateOverview extends CommandLineAction {
   }
 
   async createTar(path: string, logger: LogType): Promise<void> {
-    const tarFile = 'overview.tar.co';
-    const tarIndex = 'overview.tar.index';
+    const tarFile = 'overviews.tar.co';
     const tarFilePath = fsa.join(path, tarFile);
-    const tarIndexPath = fsa.join(path, tarIndex);
 
     // Create tar file
     const tiles = await fsa.toArray(fsa.list(`${path}/tiles/`));
@@ -172,6 +170,8 @@ export class CommandCreateOverview extends CommandLineAction {
     const index = await CotarIndexBuilder.create(fd, opts);
     const indexBinary = await CotarIndexBinary.create(new SourceMemory('index', index.buffer));
     await TarReader.validate(fd, indexBinary);
+    await fd.close();
+    await fs.appendFile(tarFilePath, index.buffer);
 
     // Copy the output into s3 location
     const output = this.output.value;
