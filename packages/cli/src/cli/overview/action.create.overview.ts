@@ -172,7 +172,6 @@ export class CommandCreateOverview extends CommandLineAction {
     const index = await CotarIndexBuilder.create(fd, opts);
     const indexBinary = await CotarIndexBinary.create(new SourceMemory('index', index.buffer));
     await TarReader.validate(fd, indexBinary);
-    await fs.writeFile(tarIndexPath, index.buffer);
 
     // Copy the output into s3 location
     const output = this.output.value;
