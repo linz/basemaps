@@ -1,5 +1,7 @@
 import { Env, LogType } from '@basemaps/shared';
 import { Octokit } from '@octokit/core';
+import { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types.js';
+import { restEndpointMethods } from '@octokit/plugin-rest-endpoint-methods';
 
 export const owner = 'linz'; // The Owner of the Github repository
 export const repo = 'basemaps-config'; // Github repository name
@@ -19,14 +21,14 @@ export interface Blob {
 }
 
 export class Github {
-  octokit: Octokit;
+  octokit: Api;
   logger: LogType;
 
   constructor(logger: LogType) {
     this.logger = logger;
     const token = Env.get(Env.GitHubToken);
     if (token == null) throw new Error('Please set up github token environment variable.');
-    this.octokit = new Octokit({ auth: token });
+    this.octokit = restEndpointMethods(new Octokit({ auth: token }));
   }
 
   isOk = (s: number): boolean => s >= 200 && s <= 299;
@@ -38,7 +40,7 @@ export class Github {
    */
   async getBranch(branch: string): Promise<string | undefined> {
     this.logger.info({ branch }, 'GitHub: Get branch');
-    const response = await this.octokit.request('GET /repos/{owner}/{repo}/branches/{branch}', {
+    const response = await this.octokit.rest.repos.getBranch({
       owner,
       repo,
       branch,
@@ -54,13 +56,13 @@ export class Github {
    */
   async createBranch(branch: string, ref: string): Promise<void> {
     // Get the latest sha from master branch
-    const master = await this.octokit.request(`GET /repos/{owner}/{repo}/git/refs/heads/${base}`, { owner, repo });
+    const master = await this.octokit.rest.git.getRef({ owner, repo, ref: `heads/${base}` });
     if (!this.isOk(master.status)) throw new Error('Failed to get master head.');
     const sha = master.data.object.sha;
 
     // Create new branch from the latest master
     this.logger.info({ branch }, 'GitHub: Create branch');
-    const response = await this.octokit.request(`POST /repos/{owner}/{repo}/git/refs`, {
+    const response = await this.octokit.rest.git.createRef({
       owner,
       repo,
       ref,
@@ -72,7 +74,7 @@ export class Github {
   async createBlobs(content: string, path: string): Promise<Blob> {
     // Create the blobs with the files content
     this.logger.info({ path }, 'GitHub: Create blob');
-    const blobRes = await this.octokit.request(`POST /repos/{owner}/{repo}/git/blobs`, {
+    const blobRes = await this.octokit.rest.git.createBlob({
       owner,
       repo,
       content,
@@ -90,13 +92,13 @@ export class Github {
   async commit(branch: string, ref: string, blobs: Blob[], message: string): Promise<void> {
     // Get the last commit SHA of a specific branch
     this.logger.info({ branch }, 'GitHub: Commit Changes');
-    const branchRes = await this.octokit.request(`GET /repos/{owner}/{repo}/git/${ref}`, { owner, repo });
+    const branchRes = await this.octokit.rest.git.getRef({ owner, repo, ref });
     if (!this.isOk(branchRes.status)) throw new Error(`Failed to get ${branch} head.`);
 
     const lastCommitSha = branchRes.data.object.sha;
 
     // Create a tree which defines the folder structure
-    const treeRes = await this.octokit.request(`POST /repos/{owner}/{repo}/git/trees`, {
+    const treeRes = await this.octokit.rest.git.createTree({
       owner,
       repo,
       base_tree: lastCommitSha,
@@ -107,7 +109,7 @@ export class Github {
     const treeSha = treeRes.data.sha;
 
     // Create the commit
-    const commitRes = await this.octokit.request(`POST /repos/{owner}/{repo}/git/commits`, {
+    const commitRes = await this.octokit.rest.git.createCommit({
       owner,
       repo,
       message,
@@ -119,7 +121,7 @@ export class Github {
     const commitSha = commitRes.data.sha;
 
     // Update the reference of your branch to point to the new commit SHA
-    const response = await this.octokit.request(`POST /repos/{owner}/{repo}/git/${ref}`, {
+    const response = await this.octokit.rest.git.createRef({
       owner,
       repo,
       ref,
@@ -133,7 +135,7 @@ export class Github {
    */
   async createPullRequest(branch: string, ref: string, title: string, body: string, draft: boolean): Promise<number> {
     // Create pull request from the give head
-    const response = await this.octokit.request(`POST /repos/{owner}/{repo}/pulls`, {
+    const response = await this.octokit.rest.pulls.create({
       owner,
       repo,
       title,
@@ -152,7 +154,7 @@ export class Github {
    */
   async updatePullRequest(branch: string, title: string, body: string, pull_number: number): Promise<void> {
     // Update pull request by given pull_number
-    const response = await this.octokit.request(`PATCH /repos/{owner}/{repo}/pulls/{pull_number}`, {
+    const response = await this.octokit.rest.pulls.update({
       owner,
       repo,
       pull_number,

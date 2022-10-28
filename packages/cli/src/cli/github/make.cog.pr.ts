@@ -19,15 +19,18 @@ export class MakeCogGithub extends Github {
    */
   async getTileSetConfig(): Promise<ConfigTileSetRaster> {
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const file_path = 'config/tileset/aerial.json';
-    const response = await this.octokit.request(`GET /repos/{owner}/{repo}/contents/{file_path}`, {
+    const path = 'config/tileset/aerial.json';
+    const response = await this.octokit.rest.repos.getContent({
       owner,
       repo,
-      file_path,
+      path,
     });
     if (!this.isOk(response.status)) throw new Error('Failed to get aerial TileSet config.');
-
-    return JSON.parse(Buffer.from(response.data.content, 'base64').toString());
+    if ('content' in response.data) {
+      return JSON.parse(Buffer.from(response.data.content, 'base64').toString());
+    } else {
+      throw new Error('Unable to find the content.');
+    }
   }
 
   /**
