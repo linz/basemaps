@@ -14,7 +14,7 @@ import {
 import os from 'os';
 import { WorkerRpcPool } from '@wtrpc/core';
 import { JobTiles, RpcContract } from './tile.generator.js';
-import { CotarIndexBinary, CotarIndexBuilder, CotarIndexOptions, TarReader } from '@cotar/core';
+import { CotarIndexBinary, CotarIndexBuilder, TarReader } from '@cotar/core';
 import { SourceMemory, ChunkSource } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
 import { CogBuilder } from '../../cog/builder.js';
@@ -97,7 +97,6 @@ export class CommandCreateOverview extends CommandLineAction {
     await this.createTar(path, logger);
 
     logger.info({ source, path }, 'CreateOverview: Finished');
-    return;
   }
 
   async prepareTiles(files: NamedBounds[], maxZoom: number): Promise<void> {
@@ -166,8 +165,7 @@ export class CommandCreateOverview extends CommandLineAction {
 
     // Creating tar index
     const fd = await fs.open(tarFilePath, 'r');
-    const opts: CotarIndexOptions = { packingFactor: 1.25, maxSearch: 50 }; // Default package rule.
-    const index = await CotarIndexBuilder.create(fd, opts);
+    const index = await CotarIndexBuilder.create(fd);
     const indexBinary = await CotarIndexBinary.create(new SourceMemory('index', index.buffer));
     await TarReader.validate(fd, indexBinary);
     await fd.close();
@@ -177,7 +175,7 @@ export class CommandCreateOverview extends CommandLineAction {
     const output = this.output.value;
     if (output) {
       logger.info({ output }, 'CreateOverview: UploadOutput');
-      await fsa.write(fsa.join(output, tarFile), await fsa.read(tarFilePath));
+      await fsa.write(fsa.join(output, tarFile), fsa.stream(tarFilePath));
     }
   }
 }
