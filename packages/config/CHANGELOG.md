@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
+
+
+### Features
+
+* **cli:** Add asset into config bundle record BM-693 ([#2528](https://github.com/linz/basemaps/issues/2528)) ([72bdd9b](https://github.com/linz/basemaps/commit/72bdd9bbccf6b9d4c865c931f1fafb3f56c98729))
+
+
+
+
+
 # [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
 
 

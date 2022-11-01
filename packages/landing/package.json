@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "6.35.0",
+  "version": "6.36.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -20,7 +20,7 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
-    "start": "TILE_HOST=${TILE_HOST:-https://dev.basemaps.linz.govt.nz} nodemon ../../scripts/bundle.js -e 'ts html css' -i 'dist/*' -- package.json",
+    "start": "TILE_HOST=${TILE_HOST:-https://dev.basemaps.linz.govt.nz} nodemon ../../scripts/bundle.js -e 'ts tsx html css' -i 'dist/*' -- package.json",
     "bundle": "../../scripts/bundle.js package.json",
     "deploy:deploy": "node scripts/deploy.js"
   },
@@ -29,16 +29,14 @@
   ],
   "devDependencies": {
     "@basemaps/attribution": "^6.32.1",
-    "@basemaps/config": "^6.35.0",
+    "@basemaps/config": "^6.36.0",
     "@basemaps/geo": "^6.32.1",
-    "@basemaps/infra": "^6.35.0",
-    "@basemaps/shared": "^6.35.0",
-    "@linzjs/lui": "^10.11.3",
+    "@basemaps/infra": "^6.36.0",
+    "@basemaps/shared": "^6.36.0",
     "@servie/events": "^3.0.0",
     "@types/proj4": "^2.5.2",
     "maplibre-gl": "^2.1.9",
     "mime-types": "^2.1.35",
-    "preact": "^10.5.15",
     "proj4": "^2.8.0",
     "ulid": "^2.3.0"
   },
@@ -51,15 +49,15 @@
   ],
   "bundle": [
     {
-      "entry": "../../node_modules/@linzjs/lui/dist/assets/images/nz-govt-logo-rev.svg",
+      "entry": "./node_modules/@linzjs/lui/dist/assets/images/nz-govt-logo-rev.svg",
       "outfile": "dist/assets/logo-nz-govt.svg"
     },
     {
-      "entry": "../../node_modules/@linzjs/lui/dist/assets/images/linz-logo-col-n-white-txt.svg",
+      "entry": "./node_modules/@linzjs/lui/dist/assets/images/linz-logo-col-n-white-txt.svg",
       "outfile": "dist/assets/logo-linz.svg"
     },
     {
-      "entry": "../../node_modules/@linzjs/lui/dist/assets/fonts",
+      "entry": "./node_modules/@linzjs/lui/dist/assets/fonts",
       "outfile": "dist/assets/fonts"
     },
     {
@@ -100,5 +98,11 @@
         "$CSS_FILE": "index.css"
       }
     }
-  ]
+  ],
+  "dependencies": {
+    "@linzjs/lui": "^17.16.2",
+    "@types/react-dom": "^18.0.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
 }

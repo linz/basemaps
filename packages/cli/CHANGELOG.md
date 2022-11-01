@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
+
+
+### Bug Fixes
+
+* **cli:** Remove check list aws batch running jobs in the split job cli. ([#2507](https://github.com/linz/basemaps/issues/2507)) ([b376db5](https://github.com/linz/basemaps/commit/b376db56229f8dabbf9fd97d636dac2be11af046))
+
+
+### Features
+
+* **cli:** Add asset into config bundle record BM-693 ([#2528](https://github.com/linz/basemaps/issues/2528)) ([72bdd9b](https://github.com/linz/basemaps/commit/72bdd9bbccf6b9d4c865c931f1fafb3f56c98729))
+* **cli:** Allow empty string as null values in the make-cog cli. ([#2504](https://github.com/linz/basemaps/issues/2504)) ([05aadd7](https://github.com/linz/basemaps/commit/05aadd77a2aa4fe30fe4df996c6789abf264155e))
+* **cli:** Find the source and output location with the aws role. ([#2510](https://github.com/linz/basemaps/issues/2510)) ([660a53d](https://github.com/linz/basemaps/commit/660a53da6bc40cdf27888fa0bef0decfd1942f65))
+* **cli:** Make cog to limit the maxImageSize and support local output. ([#2514](https://github.com/linz/basemaps/issues/2514)) ([9673c86](https://github.com/linz/basemaps/commit/9673c86108a6f0475c2b17b50a838107cb0c5c5c))
+* **cli:** Merge make-cog and split-job cli into one cli. ([#2508](https://github.com/linz/basemaps/issues/2508)) ([9599b14](https://github.com/linz/basemaps/commit/9599b14230a5a9749c3147fdccaf401c239b94e2))
+* **cli:** New split job cli to chunk job.json into sub jobs. ([#2502](https://github.com/linz/basemaps/issues/2502)) ([a2ac1ee](https://github.com/linz/basemaps/commit/a2ac1eed03bc589623d9fbe2424be362137b9c32))
+* **cli:** Prepare markdown for config changes to update the pull request BM-605 ([#2520](https://github.com/linz/basemaps/issues/2520)) ([be64a25](https://github.com/linz/basemaps/commit/be64a254ef070a2f8b9fd0841312376434925672))
+
+
+
+
+
 # [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
 
 

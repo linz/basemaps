@@ -1,4 +1,5 @@
-import { Component, ComponentChild, Fragment, render } from 'preact';
+import { Component, ReactNode, Fragment } from 'react';
+import { createRoot } from 'react-dom/client';
 import { Footer } from './components/layout.footer.js';
 import { Header } from './components/layout.header.js';
 import { Basemaps } from './components/map.js';
@@ -7,7 +8,7 @@ import { WindowUrl } from './url.js';
 import { isWebpSupported } from './webp.js';
 
 class Page extends Component {
-  render(): ComponentChild {
+  render(): ReactNode {
     return (
       <Fragment>
         <Header />
@@ -26,5 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const mainEl = document.getElementById('main');
   if (mainEl == null) throw new Error('Missing #main');
-  render(<Page />, mainEl);
+  const root = createRoot(mainEl);
+  root.render(<Page />);
 });

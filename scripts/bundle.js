@@ -80,9 +80,8 @@ function bundleJs(basePath, cfg, outfile, isJsx = false) {
   ];
   if (isJsx) {
     buildCmd.push('--loader:.svg=dataurl');
-    buildCmd.push('--jsx-factory=h');
-    buildCmd.push('--jsx-fragment=Fragment');
-    buildCmd.push(`--inject:./preact-shim.js`);
+    buildCmd.push('--jsx=automatic');
+    // buildCmd.push('--jsx-fragment=Fragment');
   }
   if (cfg.executable) {
     buildCmd.push('--banner:js=#!/usr/bin/env node');
@@ -156,7 +155,7 @@ function bundleHtml(basePath, cfg, outfile) {
 
 function bundleCss(basePath, cfg, outfile) {
   const bundle = [];
-  for (const cssFile of [cfg.entry].concat(cfg.external.map((f) => require.resolve(f)) || [])) {
+  for (const cssFile of [cfg.entry].concat(cfg.external.map((f) => require.resolve(f, { paths: [basePath] })) || [])) {
     console.log(cssFile);
     const cssData = fs.readFileSync(cssFile);
     bundle.push(cssData.toString());
