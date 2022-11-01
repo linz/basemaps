@@ -40,11 +40,7 @@ export class Github {
    */
   async getBranch(branch: string): Promise<string | undefined> {
     this.logger.info({ branch }, 'GitHub: Get branch');
-    const response = await this.octokit.rest.repos.getBranch({
-      owner,
-      repo,
-      branch,
-    });
+    const response = await this.octokit.rest.repos.getBranch({ owner, repo, branch });
     if (this.isOk(response.status)) return response.data.name;
     return;
   }
@@ -62,24 +58,14 @@ export class Github {
 
     // Create new branch from the latest master
     this.logger.info({ branch }, 'GitHub: Create branch');
-    const response = await this.octokit.rest.git.createRef({
-      owner,
-      repo,
-      ref,
-      sha,
-    });
+    const response = await this.octokit.rest.git.createRef({ owner, repo, ref, sha });
     if (!this.isOk(response.status)) throw new Error(`Failed to create branch ${branch}.`);
   }
 
   async createBlobs(content: string, path: string): Promise<Blob> {
     // Create the blobs with the files content
     this.logger.info({ path }, 'GitHub: Create blob');
-    const blobRes = await this.octokit.rest.git.createBlob({
-      owner,
-      repo,
-      content,
-      encoding: 'utf-8',
-    });
+    const blobRes = await this.octokit.rest.git.createBlob({ owner, repo, content, encoding: 'utf-8' });
     if (!this.isOk(blobRes.status)) throw new Error(`Failed to create data blob.`);
 
     const blobSha = blobRes.data.sha;
@@ -98,12 +84,7 @@ export class Github {
     const lastCommitSha = branchRes.data.object.sha;
 
     // Create a tree which defines the folder structure
-    const treeRes = await this.octokit.rest.git.createTree({
-      owner,
-      repo,
-      base_tree: lastCommitSha,
-      tree: blobs,
-    });
+    const treeRes = await this.octokit.rest.git.createTree({ owner, repo, base_tree: lastCommitSha, tree: blobs });
     if (!this.isOk(treeRes.status)) throw new Error(`Failed to create tree.`);
 
     const treeSha = treeRes.data.sha;
@@ -121,12 +102,7 @@ export class Github {
     const commitSha = commitRes.data.sha;
 
     // Update the reference of your branch to point to the new commit SHA
-    const response = await this.octokit.rest.git.createRef({
-      owner,
-      repo,
-      ref,
-      sha: commitSha,
-    });
+    const response = await this.octokit.rest.git.createRef({ owner, repo, ref, sha: commitSha });
     if (!this.isOk(response.status)) throw new Error(`Failed to update branch ${branch} sha.`);
   }
 
@@ -135,15 +111,7 @@ export class Github {
    */
   async createPullRequest(branch: string, ref: string, title: string, body: string, draft: boolean): Promise<number> {
     // Create pull request from the give head
-    const response = await this.octokit.rest.pulls.create({
-      owner,
-      repo,
-      title,
-      body,
-      head: ref,
-      base,
-      draft,
-    });
+    const response = await this.octokit.rest.pulls.create({ owner, repo, title, body, head: ref, base, draft });
     if (!this.isOk(response.status)) throw new Error('Failed to create pull request.');
     this.logger.info({ branch, url: response.data.html_url }, 'GitHub: Create Pull Request');
     return response.data.number;
@@ -154,14 +122,7 @@ export class Github {
    */
   async updatePullRequest(branch: string, title: string, body: string, pull_number: number): Promise<void> {
     // Update pull request by given pull_number
-    const response = await this.octokit.rest.pulls.update({
-      owner,
-      repo,
-      pull_number,
-      title,
-      body,
-      base,
-    });
+    const response = await this.octokit.rest.pulls.update({ owner, repo, pull_number, title, body, base });
     if (!this.isOk(response.status)) throw new Error('Failed to update pull request.');
     this.logger.info({ branch, pull_number }, 'GitHub: Update Pull Request');
   }
