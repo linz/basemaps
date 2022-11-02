@@ -2,15 +2,7 @@ import { LogConfig, LogType } from '@basemaps/shared';
 import * as path from 'path';
 import { promises as fs } from 'fs';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import {
-  Bounds,
-  NamedBounds,
-  Nztm2000QuadTms,
-  Nztm2000Tms,
-  QuadKey,
-  TileMatrixSet,
-  TileMatrixSets,
-} from '@basemaps/geo';
+import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
 import os from 'os';
 import { WorkerRpcPool } from '@wtrpc/core';
 import { JobTiles, RpcContract } from './tile.generator.js';
@@ -36,8 +28,6 @@ export class CommandCreateOverview extends CommandLineAction {
   private source: CommandLineStringParameter;
   private maxZoom: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
-
-  tiles = new Set<string>();
 
   public constructor() {
     super({
@@ -79,19 +69,19 @@ export class CommandCreateOverview extends CommandLineAction {
     const tiffSource = tiffList.map((path: string) => fsa.source(path));
 
     logger.info({ source, path }, 'CreateOverview: prepareSourceFiles');
-    const sourceFiles = await this.prepareSourceFiles(tiffSource);
+    const tileMatrix = await this.getTileMatrix(tiffSource);
 
     logger.info({ source, path }, 'CreateOverview: PrepareCovering');
-    const cutline = new Cutline(sourceFiles.tileMatrix);
-    const builder = new CogBuilder(sourceFiles.tileMatrix, MaxConcurrencyDefault, logger);
+    const cutline = new Cutline(tileMatrix);
+    const builder = new CogBuilder(tileMatrix, MaxConcurrencyDefault, logger);
     const metadata = await builder.build(tiffSource, cutline);
 
     logger.info({ source, path }, 'CreateOverview: prepareTiles');
-    this.prepareTiles(metadata.files, maxZoom);
-    if (this.tiles.size < 1) throw new Error('Failed to prepare overviews.');
+    const tiles = await this.prepareTiles(metadata.files, maxZoom);
+    if (tiles.size < 1) throw new Error('Failed to prepare overviews.');
 
     logger.info({ source, path }, 'CreateOverview: GenerateTiles');
-    await this.generateTiles(path, sourceFiles.tileMatrix, sourceFiles.files);
+    await this.generateTiles(path, tileMatrix, metadata.bounds, tiles);
 
     logger.info({ source, path }, 'CreateOverview: CreatingTarFile');
     await this.createTar(path, logger);
@@ -99,49 +89,48 @@ export class CommandCreateOverview extends CommandLineAction {
     logger.info({ source, path }, 'CreateOverview: Finished');
   }
 
-  async prepareTiles(files: NamedBounds[], maxZoom: number): Promise<void> {
+  async prepareTiles(files: NamedBounds[], maxZoom: number): Promise<Set<string>> {
+    const tiles = new Set<string>();
     for (const file of files) {
       const name = file.name;
       const [z, x, y] = path.basename(name).replace('.tiff', '').split('-').map(Number);
       let qk = QuadKey.fromTile({ x, y, z });
-      this.addChildren(qk, maxZoom);
+      this.addChildren(qk, maxZoom, tiles);
       while (qk.length > 0) {
-        if (this.tiles.has(qk)) break;
-        this.tiles.add(qk);
+        if (tiles.has(qk)) break;
+        tiles.add(qk);
         qk = QuadKey.parent(qk);
       }
     }
+    return tiles;
   }
 
-  addChildren(qk: string, maxZoom: number): void {
+  addChildren(qk: string, maxZoom: number, tiles: Set<string>): void {
     if (qk.length >= maxZoom) return;
     for (const child of QuadKey.children(qk)) {
-      this.tiles.add(child);
-      if (child.length < maxZoom) this.addChildren(child, maxZoom);
+      tiles.add(child);
+      if (child.length < maxZoom) this.addChildren(child, maxZoom, tiles);
     }
   }
 
-  async prepareSourceFiles(sources: ChunkSource[]): Promise<{ tileMatrix: TileMatrixSet; files: NamedBounds[] }> {
-    let tileMatrix;
-    const files: NamedBounds[] = [];
-    for (const source of sources) {
-      const tiff = await CogTiff.create(source);
-      await tiff.getImage(0).loadGeoTiffTags();
-      if (tileMatrix == null) tileMatrix = TileMatrixSets.tryGet(tiff.getImage(0).epsg);
-      const imgBounds = Bounds.fromBbox(tiff.getImage(0).bbox);
-      files.push({
-        name: tiff.source.uri,
-        ...imgBounds,
-      });
-    }
-    if (tileMatrix == null) throw new Error('Unable to find the imagery tileMatrix');
-    if (tileMatrix.identifier === Nztm2000Tms.identifier) tileMatrix = Nztm2000QuadTms;
-    return { tileMatrix, files };
+  async getTileMatrix(sources: ChunkSource[]): Promise<TileMatrixSet> {
+    const tiff = await CogTiff.create(sources[0]);
+    await tiff.getImage(0).loadGeoTiffTags();
+    const projection = tiff.getImage(0).epsg;
+    if (projection == null) throw new Error('Failed to find the projection from the imagery.');
+    else if (projection === 2193) return Nztm2000QuadTms;
+    else if (projection === 3857) return GoogleTms;
+    else throw new Error(`Projection code: ${projection} not supported`);
   }
 
-  async generateTiles(path: string, tileMatrix: TileMatrixSet, files: NamedBounds[]): Promise<void> {
+  async generateTiles(
+    path: string,
+    tileMatrix: TileMatrixSet,
+    files: NamedBounds[],
+    tiles: Set<string>,
+  ): Promise<void> {
     const promises = [];
-    let currentTiles = Array.from(this.tiles);
+    let currentTiles = Array.from(tiles);
     while (currentTiles.length > 0) {
       const todo = currentTiles.slice(0, WorkerTaskSize);
       currentTiles = currentTiles.slice(WorkerTaskSize);
