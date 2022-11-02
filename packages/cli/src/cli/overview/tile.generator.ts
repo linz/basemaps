@@ -20,7 +20,6 @@ import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import Sharp from 'sharp';
 
-const EmptyChannel = `{"min":0,"max":0,"sum":0,"squaresSum":0,"mean":0,"stdev":0,"minX":0,"minY":0,"maxX":0,"maxY":0}`;
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 const TileComposer = new TileMakerSharp(256);
@@ -116,10 +115,7 @@ async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer |
   if (res.buffer.byteLength < 215) {
     const image = Sharp(Buffer.from(res.buffer));
     const stat = await image.stats();
-    for (const channel of stat.channels) {
-      if (JSON.stringify(channel) !== EmptyChannel) return res.buffer;
-    }
-    return;
+    if (stat.channels[stat.channels.length - 1].max === 0) return;
   }
   return res.buffer;
 }
