@@ -105,7 +105,12 @@ export class MakeCogGithub extends Github {
           break;
         }
       }
-    } else this.logger.warn({ imagery: layer.name }, 'Not an rural or urban imagery, stop creating tileset config.');
+    } else {
+      // Add new layer at the bottom
+      layer.minZoom = 32;
+      layer.category = 'New Aerial Photos';
+      tileSet.layers.push(layer);
+    }
 
     return tileSet;
   }
