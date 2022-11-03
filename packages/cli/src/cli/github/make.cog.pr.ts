@@ -2,11 +2,6 @@ import { ConfigLayer, ConfigTileSetRaster } from '@basemaps/config';
 import { LogType } from '@basemaps/shared';
 import { Github, owner, repo } from './github.js';
 
-export interface ImageryUrl {
-  tileMatrix: string;
-  url: string;
-}
-
 export class MakeCogGithub extends Github {
   imagery: string;
   constructor(imagery: string, logger: LogType) {
@@ -32,11 +27,7 @@ export class MakeCogGithub extends Github {
   /**
    * Prepare and create pull request for the aerial tileset config
    */
-  async createTileSetPullRequest(
-    layer: ConfigLayer,
-    urls: ImageryUrl[],
-    jira: string | undefined,
-  ): Promise<number | undefined> {
+  async createTileSetPullRequest(layer: ConfigLayer, jira: string | undefined): Promise<number | undefined> {
     // Prepare new aerial tileset config
     const tileSet = await this.getTileSetConfig();
     const newTileSet = await this.prepareTileSetConfig(layer, tileSet);
@@ -45,10 +36,10 @@ export class MakeCogGithub extends Github {
     if (newTileSet == null) return;
 
     const branch = `feat/config-${this.imagery}`;
-    const ref = `refs/heads/${branch}`;
+    const ref = `heads/${branch}`;
     // Create branch first
-    const existing = await this.getBranch(branch);
-    if (existing == null) await this.createBranch(branch, ref);
+    let sha = await this.getBranch(ref);
+    if (sha == null) sha = await this.createBranch(branch, ref);
 
     // Create blob for the tileset config
     const content = JSON.stringify(newTileSet, null, 2) + '\n'; // Add a new line at end to match the prettier.
@@ -57,13 +48,10 @@ export class MakeCogGithub extends Github {
 
     // commit blobs to tree
     const message = `feat(imagery): Add imagery ${this.imagery} config file.`;
-    await this.commit(branch, ref, [blob], message);
+    await this.commit(branch, ref, [blob], message, sha);
     // Create imagery import pull request
     const title = `feat(aerial): Config imagery ${this.imagery} into Aerial Map. ${jira ? jira : ''}`;
-    // Prepare pull request body
-    let body = `Imagery imported for ${this.imagery}, please use the following QA url once the aws job finished.\n\n`;
-    for (const url of urls) body += `Individual Imagery ${url.tileMatrix}: ${url.url}\n\n`;
-    const prNumber = await this.createPullRequest(branch, ref, title, body, true);
+    const prNumber = await this.createPullRequest(branch, title, true);
     return prNumber;
   }
 

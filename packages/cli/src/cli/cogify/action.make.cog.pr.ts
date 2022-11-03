@@ -2,7 +2,7 @@ import { ConfigLayer } from '@basemaps/config';
 import { fsa, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { owner, repo } from '../github/github.js';
-import { ImageryUrl, MakeCogGithub } from '../github/make.cog.pr.js';
+import { MakeCogGithub } from '../github/make.cog.pr.js';
 
 export class CommandCogPullRequest extends CommandLineAction {
   private layer: CommandLineStringParameter;
@@ -25,12 +25,6 @@ export class CommandCogPullRequest extends CommandLineAction {
       description: 'Input config layer',
       required: true,
     });
-    this.urls = this.defineStringParameter({
-      argumentName: 'URLS',
-      parameterLongName: '--urls',
-      description: 'Input imagery urls',
-      required: true,
-    });
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
       parameterLongName: '--output',
@@ -48,19 +42,16 @@ export class CommandCogPullRequest extends CommandLineAction {
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
     const layerStr = this.layer.value;
-    const urlsStr = this.urls.value;
-    if (layerStr == null || urlsStr == null) throw new Error('Please provide a valid input layer and urls');
+    if (layerStr == null) throw new Error('Please provide a valid input layer and urls');
     let layer: ConfigLayer;
-    let urls: ImageryUrl[];
     try {
       layer = JSON.parse(layerStr);
-      urls = JSON.parse(urlsStr);
     } catch {
-      throw new Error('Please provide a valid input layer and urls');
+      throw new Error('Please provide a valid input layer');
     }
 
     const git = new MakeCogGithub(layer.name, logger);
-    const prNumber = await git.createTileSetPullRequest(layer, urls, this.jira.value);
+    const prNumber = await git.createTileSetPullRequest(layer, this.jira.value);
 
     const output = this.output.value;
     if (output) {

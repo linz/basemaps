@@ -15,11 +15,15 @@ import { basename } from 'path';
 import { BatchJob } from './batch.job.js';
 import { CredentialSourceJson } from '@chunkd/source-aws-v2';
 import { ConfigLayer } from '@basemaps/config';
-import { ImageryUrl } from '../github/make.cog.pr.js';
 
 interface OutputJobs {
   job: string;
   names: string[];
+}
+
+interface ImageryUrl {
+  tileMatrix: string;
+  url: string;
 }
 
 export class CommandMakeCog extends CommandLineAction {
