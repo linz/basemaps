@@ -191,13 +191,14 @@ export class CogBuilder {
   async build(
     tiffs: ChunkSource[],
     cutline: Cutline,
+    tileMatrix: TileMatrixSet,
     maxImageSize?: number,
     minZoom?: number,
   ): Promise<CogBuilderMetadata> {
     const metadata = await this.bounds(tiffs);
     // Ensure that the projection definition is loaded
     await ProjectionLoader.load(metadata.projection);
-    const files = cutline.optimizeCovering(metadata, maxImageSize, minZoom);
+    const files = cutline.optimizeCovering(metadata, tileMatrix, maxImageSize, minZoom);
     let union: Bounds | null = null;
     for (const bounds of files) {
       if (union == null) union = Bounds.fromJson(bounds);

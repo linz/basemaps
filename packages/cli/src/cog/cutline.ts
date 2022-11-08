@@ -1,4 +1,4 @@
-import { Bounds, Epsg, NamedBounds, Tile, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, Epsg, GoogleTms, NamedBounds, Tile, TileMatrixSet } from '@basemaps/geo';
 import { compareName, fsa, Projection } from '@basemaps/shared';
 import {
   clipMultipolygon,
@@ -169,6 +169,7 @@ export class Cutline {
    */
   optimizeCovering(
     sourceMetadata: SourceMetadata,
+    tileMatrix: TileMatrixSet,
     maxImageSize: number = MaxImagePixelWidth,
     minZoom?: number,
   ): NamedBounds[] {
@@ -181,7 +182,12 @@ export class Cutline {
     const { resZoom } = sourceMetadata;
 
     // Look for the biggest tile size we are allowed to create.
-    const minZ = minZoom ? minZoom : this.findMinZoomByPixelWidth(resZoom, maxImageSize);
+    let minZ = 0;
+    if (minZoom) {
+      minZ = TileMatrixSet.convertZoomLevel(minZoom, GoogleTms, tileMatrix, true);
+    } else {
+      minZ = this.findMinZoomByPixelWidth(resZoom, maxImageSize);
+    }
 
     let tiles: Tile[] = [];
 
