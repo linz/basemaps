@@ -78,6 +78,11 @@ export interface JobCreationContext {
     maxImageSize?: number;
 
     /**
+     * Override Minimum Image Zoom level
+     */
+    minZoom?: number;
+
+    /**
      * Resampling method
      * @Default  GdalCogBuilderDefaults.resampling
      */

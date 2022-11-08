@@ -34,6 +34,7 @@ export class CommandMakeCog extends CommandLineAction {
   private cutline: CommandLineStringParameter;
   private blend: CommandLineIntegerParameter;
   private maxPixelWidth: CommandLineIntegerParameter;
+  private minZoom: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
   private aws: CommandLineFlagParameter;
 
@@ -89,6 +90,12 @@ export class CommandMakeCog extends CommandLineAction {
       argumentName: 'MAX_PIXEL_WIDTH',
       parameterLongName: '--max-pixel',
       description: 'Maximum Pixel Width for the cogs',
+      required: false,
+    });
+    this.minZoom = this.defineIntegerParameter({
+      argumentName: 'MIN_ZOOM',
+      parameterLongName: '--min-zoom',
+      description: 'Minimum zoom for the cogs',
       required: false,
     });
     this.output = this.defineStringParameter({
@@ -185,7 +192,13 @@ export class CommandMakeCog extends CommandLineAction {
 
     const ctx: JobCreationContext = {
       imageryName,
-      override: { id, projection: Epsg.Nztm2000, resampling, maxImageSize: this.maxPixelWidth.value },
+      override: {
+        id,
+        projection: Epsg.Nztm2000,
+        resampling,
+        maxImageSize: this.maxPixelWidth.value,
+        minZoom: this.minZoom.value,
+      },
       outputLocation: this.aws.value
         ? await this.findLocation(`s3://${bucket}/`)
         : { type: 'local' as const, path: '.' },

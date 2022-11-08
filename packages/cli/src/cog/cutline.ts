@@ -151,11 +151,27 @@ export class Cutline {
       .map(({ name }) => name);
   }
 
+  findMinZoomByPixelWidth(resZoom: number, maxImageSize: number): number {
+    let minZ = resZoom - 1;
+    while (
+      minZ > 0 &&
+      Projection.getImagePixelWidth(this.tileMatrix, { x: 0, y: 0, z: minZ }, resZoom) < maxImageSize
+    ) {
+      --minZ;
+    }
+    minZ = Math.max(1, minZ + 1);
+    return minZ;
+  }
+
   /**
    * Generate an optimized WebMercator tile cover for the supplied source images
    * @param sourceMetadata contains images bounds and projection info
    */
-  optimizeCovering(sourceMetadata: SourceMetadata, maxImageSize: number = MaxImagePixelWidth): NamedBounds[] {
+  optimizeCovering(
+    sourceMetadata: SourceMetadata,
+    maxImageSize: number = MaxImagePixelWidth,
+    minZoom?: number,
+  ): NamedBounds[] {
     if (this.oneCogCovering) {
       const extent = this.tileMatrix.extent.toJson();
       return [{ ...extent, name: '0-0-0' }];
@@ -165,14 +181,7 @@ export class Cutline {
     const { resZoom } = sourceMetadata;
 
     // Look for the biggest tile size we are allowed to create.
-    let minZ = resZoom - 1;
-    while (
-      minZ > 0 &&
-      Projection.getImagePixelWidth(this.tileMatrix, { x: 0, y: 0, z: minZ }, resZoom) < maxImageSize
-    ) {
-      --minZ;
-    }
-    minZ = Math.max(1, minZ + 1);
+    const minZ = minZoom ? minZoom : this.findMinZoomByPixelWidth(resZoom, maxImageSize);
 
     let tiles: Tile[] = [];
 
