@@ -73,14 +73,9 @@ export interface JobCreationContext {
     projection?: Epsg;
 
     /**
-     * Override Maximum Image Pixel Size
+     * Override Default aligned zoom level
      */
-    maxImageSize?: number;
-
-    /**
-     * Override Minimum Image Zoom level
-     */
-    minZoom?: number;
+    alignedLevel?: number;
 
     /**
      * Resampling method
