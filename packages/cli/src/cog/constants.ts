@@ -1,6 +1,3 @@
-/** Default Maximum desired image size */
-export const MaxImagePixelWidth = 256000;
-
 /** Default Aligned levels between resolution zoom level and cog zoom level */
 export const AlignedLevel = 6;
 
