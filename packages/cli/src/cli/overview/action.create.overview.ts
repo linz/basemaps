@@ -18,7 +18,7 @@ import { TarBuilder } from '@cotar/tar';
 
 // Create tiles per worker invocation
 const WorkerTaskSize = 500;
-const workerUrl = new URL('./tile.generator.js', import.meta.url);
+const workerUrl = new URL(`file:${path.resolve('./build/cli/overview/tile.generator.js')}`);
 const threadCount = os.cpus().length / 8;
 const pool = new WorkerRpcPool<RpcContract>(threadCount, workerUrl);
 
