@@ -10,7 +10,7 @@ import { basename } from 'path';
 
 export const MaxConcurrencyDefault = 50;
 
-function filterTiff(a: string): boolean {
+export function filterTiff(a: string): boolean {
   const lowerA = a.toLowerCase();
   return lowerA.endsWith('.tiff') || lowerA.endsWith('.tif');
 }

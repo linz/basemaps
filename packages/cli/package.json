@@ -43,6 +43,8 @@
     "@basemaps/server": "^6.36.0",
     "@basemaps/shared": "^6.36.0",
     "@basemaps/sprites": "^6.32.1",
+    "@basemaps/tiler": "^6.35.0",
+    "@basemaps/tiler-sharp": "^6.35.0",
     "@chunkd/fs": "^8.5.1",
     "@chunkd/source-aws-v2": "^8.5.1",
     "@cogeotiff/core": "^7.0.0",
@@ -51,6 +53,7 @@
     "@linzjs/geojson": "^6.32.1",
     "@octokit/core": "^4.0.5",
     "@rushstack/ts-command-line": "^4.3.13",
+    "@wtrpc/core": "^1.0.0",
     "ansi-colors": "^4.1.1",
     "deep-diff": "^1.0.2",
     "flatgeobuf": "^3.23.1",
@@ -62,7 +65,8 @@
   },
   "devDependencies": {
     "@types/deep-diff": "^1.0.1",
-    "@types/proj4": "^2.5.2"
+    "@types/proj4": "^2.5.2",
+    "@types/sharp": "^0.31.0"
   },
   "publishConfig": {
     "access": "public"
