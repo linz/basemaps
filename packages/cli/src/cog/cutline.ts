@@ -151,18 +151,6 @@ export class Cutline {
       .map(({ name }) => name);
   }
 
-  findMinZoomByPixelWidth(resZoom: number, maxImageSize: number): number {
-    let minZ = resZoom - 1;
-    while (
-      minZ > 0 &&
-      Projection.getImagePixelWidth(this.tileMatrix, { x: 0, y: 0, z: minZ }, resZoom) < maxImageSize
-    ) {
-      --minZ;
-    }
-    minZ = Math.max(1, minZ + 1);
-    return minZ;
-  }
-
   /**
    * Generate an optimized WebMercator tile cover for the supplied source images
    * @param sourceMetadata contains images bounds and projection info
@@ -177,8 +165,7 @@ export class Cutline {
     const { resZoom } = sourceMetadata;
 
     // Fix the cog Minimum Zoom by the aligned level
-    let minZ = resZoom - alignedLevel;
-    if (minZ < 0) minZ = 0;
+    const minZ = Math.max(0, resZoom - alignedLevel);
 
     let tiles: Tile[] = [];
 
