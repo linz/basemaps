@@ -1,5 +1,5 @@
-import { base58, ConfigProviderMemory } from '@basemaps/config';
-import { Bounds, Nztm2000QuadTms } from '@basemaps/geo';
+import { base58, ConfigImagery, ConfigProviderMemory, ConfigTileSet, TileSetType } from '@basemaps/config';
+import { Bounds, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { fsa, LogConfig, Projection } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -9,6 +9,7 @@ export class CommandImageryConfig extends CommandLineAction {
   private path: CommandLineStringParameter;
   private output: CommandLineStringParameter;
   private commit: CommandLineFlagParameter;
+  private title: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -24,6 +25,12 @@ export class CommandImageryConfig extends CommandLineAction {
       parameterLongName: '--path',
       description: 'Path of raw imagery, this can be both a local path or s3 location',
       required: true,
+    });
+    this.title = this.defineStringParameter({
+      argumentName: 'TITLE',
+      parameterLongName: '--title',
+      description: 'Optional title for the config',
+      required: false,
     });
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
@@ -71,6 +78,7 @@ export class CommandImageryConfig extends CommandLineAction {
         ...imgBounds,
       });
     }
+    if (bounds == null) throw new Error('No imagery bounds were extracted');
 
     const provider = new ConfigProviderMemory();
     const id = ulid();
@@ -79,9 +87,10 @@ export class CommandImageryConfig extends CommandLineAction {
       logger.warn({ path, id }, `Unable to extract the imagery name from path, use uild id instead.`);
       name = id;
     }
-    const imagery = {
+    const imagery: ConfigImagery = {
       id: provider.Imagery.id(id),
       name: `${name}-${new Date().getFullYear()}`, // Add a year into name for attribution to extract
+      title: this.title.value,
       updatedAt: Date.now(),
       projection: Nztm2000QuadTms.projection.code,
       tileMatrix: Nztm2000QuadTms.identifier,
@@ -91,14 +100,14 @@ export class CommandImageryConfig extends CommandLineAction {
     };
     provider.put(imagery);
 
-    const tileSet = {
+    const tileSet: ConfigTileSet = {
       id: 'ts_aerial',
       name: 'aerial',
       title: 'Aerial Imagery Basemap',
       category: 'Basemaps',
-      type: 'raster',
-      format: 'webp',
-      layers: [{ 2193: imagery.id, name: imagery.name, title: imagery.name }],
+      type: TileSetType.Raster,
+      format: ImageFormat.Webp,
+      layers: [{ 2193: imagery.id, name: imagery.name, title: imagery.title ?? imagery.name }],
     };
     provider.put(tileSet);
 
@@ -119,7 +128,10 @@ export class CommandImageryConfig extends CommandLineAction {
       await fsa.writeJson(outputPath, configJson);
       const configPath = base58.encode(Buffer.from(outputPath));
       const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${imagery.name}&tileMatrix=NZTM2000Quad&debug${location}`;
-      logger.info({ path: output, url }, 'ImageryConfig:Done');
+      logger.info(
+        { path: output, url, tileMatrix: Nztm2000QuadTms.identifier, config: configPath, title: this.title.value },
+        'ImageryConfig:Done',
+      );
       if (output != null) await fsa.write(output, url);
     } else {
       logger.info('DryRun:Done');
