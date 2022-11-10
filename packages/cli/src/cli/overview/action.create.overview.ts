@@ -15,13 +15,11 @@ import { Cutline } from '../../cog/cutline.js';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import { TarBuilder } from '@cotar/tar';
+import { resolve } from 'import-meta-resolve';
 
 // Create tiles per worker invocation
 const WorkerTaskSize = 500;
-const workerUrl = new URL(`file:${path.resolve('./build/cli/overview/tile.generator.js')}`);
 const threadCount = os.cpus().length / 8;
-const pool = new WorkerRpcPool<RpcContract>(threadCount, workerUrl);
-
 const DefaultMaxZoom = 15;
 
 export class CommandCreateOverview extends CommandLineAction {
@@ -129,6 +127,8 @@ export class CommandCreateOverview extends CommandLineAction {
     files: NamedBounds[],
     tiles: Set<string>,
   ): Promise<void> {
+    const workerUrl = new URL(await resolve('./tile.generator.js', import.meta.url));
+    const pool = new WorkerRpcPool<RpcContract>(threadCount, workerUrl);
     const promises = [];
     let currentTiles = Array.from(tiles);
     while (currentTiles.length > 0) {
