@@ -18,6 +18,6 @@ COPY ./basemaps-landing*.tgz /app/
 RUN npm install ./basemaps-landing*.tgz
 
 COPY dist/index.cjs /app/
-COPY dist/tile.generator.js /app/
+COPY dist/tile.generator.js /app/build/cli/overview/
 
 ENTRYPOINT [ "node", "./index.cjs" ]

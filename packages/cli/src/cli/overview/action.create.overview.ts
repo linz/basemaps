@@ -1,5 +1,5 @@
 import { LogConfig, LogType } from '@basemaps/shared';
-import * as path from 'path';
+import { basename, resolve } from 'path';
 import { promises as fs } from 'fs';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
@@ -15,7 +15,6 @@ import { Cutline } from '../../cog/cutline.js';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import { TarBuilder } from '@cotar/tar';
-import { resolve } from 'import-meta-resolve';
 
 // Create tiles per worker invocation
 const WorkerTaskSize = 500;
@@ -91,7 +90,7 @@ export class CommandCreateOverview extends CommandLineAction {
     const tiles = new Set<string>();
     for (const file of files) {
       const name = file.name;
-      const [z, x, y] = path.basename(name).replace('.tiff', '').split('-').map(Number);
+      const [z, x, y] = basename(name).replace('.tiff', '').split('-').map(Number);
       let qk = QuadKey.fromTile({ x, y, z });
       this.addChildren(qk, maxZoom, tiles);
       while (qk.length > 0) {
@@ -127,7 +126,7 @@ export class CommandCreateOverview extends CommandLineAction {
     files: NamedBounds[],
     tiles: Set<string>,
   ): Promise<void> {
-    const workerUrl = new URL(await resolve('./tile.generator.js', import.meta.url));
+    const workerUrl = new URL(`${resolve('./build/cli/overview/tile.generator.js')}`, 'file:');
     const pool = new WorkerRpcPool<RpcContract>(threadCount, workerUrl);
     const promises = [];
     let currentTiles = Array.from(tiles);
