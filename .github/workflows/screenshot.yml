@@ -35,8 +35,7 @@ jobs:
       
       - name: (Screenshot) Screenshot Pull Request Changes
         run: |
-          cd packages/cli &
-          ./bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
+          cd packages/cli;./bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
           
           # Wait for the server to start
           sleep 3
