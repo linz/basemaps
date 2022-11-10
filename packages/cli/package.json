@@ -25,6 +25,10 @@
   },
   "bundle": [
     {
+      "entry": "build/cli/overview/tile.generator.js",
+      "outfile": "dist/tile.generator.js"
+    },
+    {
       "entry": "src/cli/bin.ts",
       "outfile": "dist/index.cjs",
       "external": [
