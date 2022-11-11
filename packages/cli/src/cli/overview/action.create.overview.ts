@@ -13,7 +13,7 @@ import { CogBuilder } from '../../cog/builder.js';
 import { filterTiff, MaxConcurrencyDefault } from '../../cog/job.factory.js';
 import { Cutline } from '../../cog/cutline.js';
 import { CogTiff } from '@cogeotiff/core';
-import { tile, JobTiles } from './action.tile.generator.js';
+import { tile, JobTile } from './action.tile.generator.js';
 import { createTar } from './action.create.tar.js';
 
 const WorkerTaskSize = 500;
@@ -23,6 +23,7 @@ export class CommandCreateOverview extends CommandLineAction {
   private source: CommandLineStringParameter;
   private maxZoom: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
+  private jobOutput: CommandLineStringParameter;
   private local: CommandLineFlagParameter;
 
   public constructor() {
@@ -45,12 +46,16 @@ export class CommandCreateOverview extends CommandLineAction {
       parameterLongName: '--max-zoom',
       description: 'Maximum zoom level for the overview',
     });
-
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
       parameterLongName: '--output',
       description: 'Path of output tar and index file',
       required: true,
+    });
+    this.jobOutput = this.defineStringParameter({
+      argumentName: 'JOB_OUTPUT',
+      parameterLongName: '--job-output',
+      description: 'Job Tiles output for Tile generator action',
     });
     this.local = this.defineFlagParameter({
       parameterLongName: '--local',
@@ -85,7 +90,7 @@ export class CommandCreateOverview extends CommandLineAction {
     await this.generateTiles(output, tileMatrix, metadata.bounds, tiles);
 
     logger.info({ source, output }, 'CreateOverview: CreatingTarFile');
-    await createTar(output, output, logger);
+    if (this.local.value) await createTar(output, output, logger);
 
     logger.info({ source, output }, 'CreateOverview: Finished');
   }
@@ -131,14 +136,22 @@ export class CommandCreateOverview extends CommandLineAction {
     tiles: Set<string>,
   ): Promise<void> {
     const promises = [];
+    const jobTiles: JobTile[] = [];
     let currentTiles = Array.from(tiles);
     while (currentTiles.length > 0) {
       const todo = currentTiles.slice(0, WorkerTaskSize);
       currentTiles = currentTiles.slice(WorkerTaskSize);
-      const jobTiles: JobTiles = { path, tileMatrix: tileMatrix.identifier, tiles: todo };
-      if (this.local.value) promises.push(tile(jobTiles, files));
+      const jobTile: JobTile = { path, tileMatrix: tileMatrix.identifier, tiles: todo };
+      jobTiles.push(jobTile);
+      if (this.local.value) promises.push(tile(jobTile, files));
     }
 
-    await Promise.all(promises);
+    const jobOutput = this.jobOutput.value;
+    if (jobOutput) {
+      fsa.write(fsa.join(jobOutput, 'jobTiles.json'), JSON.stringify(jobTiles));
+      fsa.write(fsa.join(jobOutput, 'files.json'), JSON.stringify(files));
+    }
+
+    if (this.local.value) await Promise.all(promises);
   }
 }

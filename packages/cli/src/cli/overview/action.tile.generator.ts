@@ -27,14 +27,14 @@ const tilerGoogle = new Tiler(GoogleTms);
 
 const Q = pLimit(2);
 
-export interface JobTiles {
+export interface JobTile {
   path: string;
   tileMatrix: string;
   tiles: string[];
 }
 
 export class CommandTileGenerator extends CommandLineAction {
-  private jobTiles: CommandLineStringParameter;
+  private jobTile: CommandLineStringParameter;
   private files: CommandLineStringParameter;
 
   public constructor() {
@@ -46,9 +46,9 @@ export class CommandTileGenerator extends CommandLineAction {
   }
 
   protected onDefineParameters(): void {
-    this.jobTiles = this.defineStringParameter({
-      argumentName: 'JOB_TILES',
-      parameterLongName: '--job_tiles',
+    this.jobTile = this.defineStringParameter({
+      argumentName: 'JOB_TILE',
+      parameterLongName: '--job_tile',
       description: 'Tiles to create for the job',
       required: true,
     });
@@ -61,13 +61,13 @@ export class CommandTileGenerator extends CommandLineAction {
   }
 
   async onExecute(): Promise<void> {
-    const jobTilesStr = this.jobTiles.value;
+    const jobTileStr = this.jobTile.value;
     const filesStr = this.files.value;
-    if (jobTilesStr == null || filesStr == null)
-      throw new Error('Please provide job tiles and files for generating tiles');
-    let jobTiles: JobTiles;
+    if (jobTileStr == null || filesStr == null)
+      throw new Error('Please provide the job tile and files for generating tiles');
+    let jobTiles: JobTile;
     try {
-      jobTiles = JSON.parse(jobTilesStr);
+      jobTiles = JSON.parse(jobTileStr);
     } catch {
       throw new Error('Please provide a valid jobTiles');
     }
@@ -82,7 +82,7 @@ export class CommandTileGenerator extends CommandLineAction {
   }
 }
 
-export async function tile(jobTiles: JobTiles, files: NamedBounds[]): Promise<void> {
+export async function tile(jobTiles: JobTile, files: NamedBounds[]): Promise<void> {
   const logger = LogConfig.get();
   let count = 0;
   let lastTime = performance.now();
@@ -115,7 +115,7 @@ async function getTiler(tileMatrix: string): Promise<{ tiler: Tiler; tileMatrix:
   else throw new Error(`Invalid Tile Matrix provided ${tileMatrix}`);
 }
 
-async function getComposedTile(jobTiles: JobTiles, files: NamedBounds[], tile: Tile): Promise<Buffer | undefined> {
+async function getComposedTile(jobTiles: JobTile, files: NamedBounds[], tile: Tile): Promise<Buffer | undefined> {
   const tiffPaths: string[] = [];
   const { tiler, tileMatrix } = await getTiler(jobTiles.tileMatrix);
   const tileBounds = tileMatrix.tileToSourceBounds(tile);
