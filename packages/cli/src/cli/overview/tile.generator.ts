@@ -1,5 +1,3 @@
-import { WorkerRpc } from '@wtrpc/core';
-import { parentPort } from 'node:worker_threads';
 import {
   Bounds,
   GoogleTms,
@@ -11,7 +9,7 @@ import {
   Tile,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { LogConfig } from '@basemaps/shared';
+import { LogType } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import pLimit from 'p-limit';
 import { CogTiff } from '@cogeotiff/core';
@@ -40,48 +38,42 @@ export interface JobTiles {
   files: NamedBounds[];
 }
 
-const Q = pLimit(2);
-
-let count = 0;
-let skipped = 0;
+const Q = pLimit(20);
 
 export type RpcContract = {
   tile(jobTiles: JobTiles): Promise<void>;
 };
 
-const worker = new WorkerRpc<RpcContract>({
-  async tile(jobTiles: JobTiles): Promise<void> {
-    const logger = LogConfig.get().child({ workerId: worker.id, messageId: worker.messageCount });
-    logger.info({ count, skipped }, 'TaskCount');
+export async function tile(jobTiles: JobTiles, logger: LogType): Promise<void> {
+  let count = 0;
+  let skipped = 0;
+  logger.info({ count, skipped }, 'TaskCount');
 
-    let lastTime = performance.now();
-    const todo = jobTiles.tiles.map((qk) => {
-      return Q(async () => {
-        const tile = QuadKey.toTile(qk);
-        count++;
-        if (count % 100 === 0) {
-          const duration = performance.now() - lastTime;
-          lastTime = Number(performance.now().toFixed(4));
-          logger.info({ count, total: jobTiles.tiles.length, duration }, 'Progress');
-        }
+  let lastTime = performance.now();
+  const todo = jobTiles.tiles.map((qk) => {
+    return Q(async () => {
+      const tile = QuadKey.toTile(qk);
+      count++;
+      if (count % 100 === 0) {
+        const duration = performance.now() - lastTime;
+        lastTime = Number(performance.now().toFixed(4));
+        logger.info({ count, total: jobTiles.tiles.length, duration }, 'Progress');
+      }
 
-        const outputTile = `tiles/${tile.z}/${tile.x}/${tile.y}.webp`;
-        const outputFile = fsa.join(jobTiles.path, outputTile);
-        const exists = await fsa.exists(outputFile);
-        if (exists) {
-          skipped++;
-          return;
-        }
-        const buffer = await getComposedTile(jobTiles, tile);
-        if (buffer != null) await fsa.write(outputFile, buffer);
-      });
+      const outputTile = `tiles/${tile.z}/${tile.x}/${tile.y}.webp`;
+      const outputFile = fsa.join(jobTiles.path, outputTile);
+      const exists = await fsa.exists(outputFile);
+      if (exists) {
+        skipped++;
+        return;
+      }
+      const buffer = await getComposedTile(jobTiles, tile);
+      if (buffer != null) await fsa.write(outputFile, buffer);
     });
+  });
 
-    await Promise.all(todo);
-  },
-});
-
-if (parentPort) worker.bind(parentPort);
+  await Promise.all(todo);
+}
 
 async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer | undefined> {
   const files = jobTiles.files;
