@@ -126,7 +126,8 @@ export class CommandCreateOverview extends CommandLineAction {
     const tarFilePath = fsa.join(path, tarFile);
 
     // Create tar file
-    const tiles = await fsa.toArray(fsa.list(`${path}/tiles/`));
+    const files = await fsa.toArray(fsa.list(`${path}/tiles/`));
+    const tiles = files.filter((f) => f.endsWith('.webp'));
     const tarBuilder = new TarBuilder(tarFilePath);
     tiles.sort((a, b) => a.localeCompare(b));
     for (const file of tiles) {
