@@ -3,9 +3,7 @@ import * as path from 'path';
 import { promises as fs } from 'fs';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
-import os from 'os';
-import { WorkerRpcPool } from '@wtrpc/core';
-import { JobTiles, RpcContract } from './tile.generator.js';
+import { JobTiles, tile } from './tile.generator.js';
 import { CotarIndexBinary, CotarIndexBuilder, TarReader } from '@cotar/core';
 import { SourceMemory, ChunkSource } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
@@ -15,12 +13,6 @@ import { Cutline } from '../../cog/cutline.js';
 import { CogTiff } from '@cogeotiff/core';
 import { createHash } from 'crypto';
 import { TarBuilder } from '@cotar/tar';
-
-// Create tiles per worker invocation
-const WorkerTaskSize = 500;
-const workerUrl = new URL('./tile.generator.js', import.meta.url);
-const threadCount = os.cpus().length / 8;
-const pool = new WorkerRpcPool<RpcContract>(threadCount, workerUrl);
 
 const DefaultMaxZoom = 15;
 
@@ -81,7 +73,13 @@ export class CommandCreateOverview extends CommandLineAction {
     if (tiles.size < 1) throw new Error('Failed to prepare overviews.');
 
     logger.info({ source, path }, 'CreateOverview: GenerateTiles');
-    await this.generateTiles(path, tileMatrix, metadata.bounds, tiles);
+    const jobTiles: JobTiles = {
+      path,
+      files: metadata.bounds,
+      tileMatrix: tileMatrix.identifier,
+      tiles: Array.from(tiles.values()),
+    };
+    await tile(jobTiles, logger);
 
     logger.info({ source, path }, 'CreateOverview: CreatingTarFile');
     await this.createTar(path, logger);
@@ -121,25 +119,6 @@ export class CommandCreateOverview extends CommandLineAction {
     else if (projection === 2193) return Nztm2000QuadTms;
     else if (projection === 3857) return GoogleTms;
     else throw new Error(`Projection code: ${projection} not supported`);
-  }
-
-  async generateTiles(
-    path: string,
-    tileMatrix: TileMatrixSet,
-    files: NamedBounds[],
-    tiles: Set<string>,
-  ): Promise<void> {
-    const promises = [];
-    let currentTiles = Array.from(tiles);
-    while (currentTiles.length > 0) {
-      const todo = currentTiles.slice(0, WorkerTaskSize);
-      currentTiles = currentTiles.slice(WorkerTaskSize);
-      const jobTiles: JobTiles = { path, files, tileMatrix: tileMatrix.identifier, tiles: todo };
-      promises.push(pool.run('tile', jobTiles));
-    }
-
-    await Promise.all(promises);
-    await pool.close();
   }
 
   async createTar(path: string, logger: LogType): Promise<void> {

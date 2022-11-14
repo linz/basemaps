@@ -53,7 +53,6 @@
     "@linzjs/geojson": "^6.32.1",
     "@octokit/core": "^4.0.5",
     "@rushstack/ts-command-line": "^4.3.13",
-    "@wtrpc/core": "^1.0.0",
     "ansi-colors": "^4.1.1",
     "deep-diff": "^1.0.2",
     "flatgeobuf": "^3.23.1",
