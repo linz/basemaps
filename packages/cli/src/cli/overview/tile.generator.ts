@@ -64,11 +64,17 @@ export async function tile(jobTiles: JobTiles, logger: LogType): Promise<void> {
       const outputFile = fsa.join(jobTiles.path, outputTile);
       const exists = await fsa.exists(outputFile);
       if (exists) {
+        logger.info({ outputFile }, 'Skip: FileExist');
         skipped++;
         return;
       }
       const buffer = await getComposedTile(jobTiles, tile);
-      if (buffer != null) await fsa.write(outputFile, buffer);
+      if (buffer != null) {
+        logger.info({ outputFile }, 'Progress: Write');
+        await fsa.write(outputFile, buffer);
+      } else {
+        logger.info({ outputFile }, 'Skip: EmptyTile');
+      }
     });
   });
 

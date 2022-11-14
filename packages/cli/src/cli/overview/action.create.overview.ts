@@ -129,13 +129,18 @@ export class CommandCreateOverview extends CommandLineAction {
     const tiles = await fsa.toArray(fsa.list(`${path}/tiles/`));
     const tarBuilder = new TarBuilder(tarFilePath);
     tiles.sort((a, b) => a.localeCompare(b));
-    for (const file of tiles) await tarBuilder.write(file.slice(file.indexOf('tiles/')), await fsa.read(file));
+    for (const file of tiles) {
+      const target = file.slice(file.indexOf('tiles/'));
+      logger.trace({ file, target }, 'TarBuilder');
+      await tarBuilder.write(target, await fsa.read(file));
+    }
 
     // Creating tar index
     const fd = await fs.open(tarFilePath, 'r');
     const index = await CotarIndexBuilder.create(fd);
     const indexBinary = await CotarIndexBinary.create(new SourceMemory('index', index.buffer));
-    await TarReader.validate(fd, indexBinary);
+    const validate = await TarReader.validate(fd, indexBinary);
+    logger.trace({ tarFilePath, validate }, 'TarValidation');
     await fd.close();
     await fs.appendFile(tarFilePath, index.buffer);
 
