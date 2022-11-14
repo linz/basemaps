@@ -140,7 +140,7 @@ export class CommandCreateOverview extends CommandLineAction {
     const index = await CotarIndexBuilder.create(fd);
     const indexBinary = await CotarIndexBinary.create(new SourceMemory('index', index.buffer));
     const validate = await TarReader.validate(fd, indexBinary);
-    logger.trace({ tarFilePath, validate }, 'TarValidation');
+    logger.info({ tarFilePath, validate }, 'TarValidation');
     await fd.close();
     await fs.appendFile(tarFilePath, index.buffer);
 
