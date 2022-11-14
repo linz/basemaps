@@ -10,7 +10,7 @@ import {
   union,
 } from '@linzjs/geojson';
 import { FeatureCollection } from 'geojson';
-import { CoveringFraction, MaxImagePixelWidth } from './constants.js';
+import { AlignedLevel, CoveringFraction } from './constants.js';
 import { CogJob, FeatureCollectionWithCrs, SourceMetadata } from './types.js';
 
 /** Padding to always apply to image boundies */
@@ -155,7 +155,7 @@ export class Cutline {
    * Generate an optimized WebMercator tile cover for the supplied source images
    * @param sourceMetadata contains images bounds and projection info
    */
-  optimizeCovering(sourceMetadata: SourceMetadata, maxImageSize: number = MaxImagePixelWidth): NamedBounds[] {
+  optimizeCovering(sourceMetadata: SourceMetadata, alignedLevel: number = AlignedLevel): NamedBounds[] {
     if (this.oneCogCovering) {
       const extent = this.tileMatrix.extent.toJson();
       return [{ ...extent, name: '0-0-0' }];
@@ -164,15 +164,8 @@ export class Cutline {
 
     const { resZoom } = sourceMetadata;
 
-    // Look for the biggest tile size we are allowed to create.
-    let minZ = resZoom - 1;
-    while (
-      minZ > 0 &&
-      Projection.getImagePixelWidth(this.tileMatrix, { x: 0, y: 0, z: minZ }, resZoom) < maxImageSize
-    ) {
-      --minZ;
-    }
-    minZ = Math.max(1, minZ + 1);
+    // Fix the cog Minimum Zoom by the aligned level
+    const minZ = Math.max(0, resZoom - alignedLevel);
 
     let tiles: Tile[] = [];
 

@@ -33,7 +33,7 @@ export class CommandMakeCog extends CommandLineAction {
   private target: CommandLineStringParameter;
   private cutline: CommandLineStringParameter;
   private blend: CommandLineIntegerParameter;
-  private maxPixelWidth: CommandLineIntegerParameter;
+  private alignedLevel: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
   private aws: CommandLineFlagParameter;
 
@@ -85,10 +85,10 @@ export class CommandMakeCog extends CommandLineAction {
       description: 'Cutline blend',
       required: false,
     });
-    this.maxPixelWidth = this.defineIntegerParameter({
-      argumentName: 'MAX_PIXEL_WIDTH',
-      parameterLongName: '--max-pixel',
-      description: 'Maximum Pixel Width for the cogs',
+    this.alignedLevel = this.defineIntegerParameter({
+      argumentName: 'ALIGNED_LEVEL',
+      parameterLongName: '--aligned-level',
+      description: 'Aligned level between resolution and cog',
       required: false,
     });
     this.output = this.defineStringParameter({
@@ -185,7 +185,12 @@ export class CommandMakeCog extends CommandLineAction {
 
     const ctx: JobCreationContext = {
       imageryName,
-      override: { id, projection: Epsg.Nztm2000, resampling, maxImageSize: this.maxPixelWidth.value },
+      override: {
+        id,
+        projection: Epsg.Nztm2000,
+        resampling,
+        alignedLevel: this.alignedLevel.value,
+      },
       outputLocation: this.aws.value
         ? await this.findLocation(`s3://${bucket}/`)
         : { type: 'local' as const, path: '.' },

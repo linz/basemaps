@@ -5,6 +5,7 @@ import { MultiPolygon } from '@linzjs/geojson';
 import o from 'ospec';
 import path from 'path';
 import url from 'url';
+import { AlignedLevel } from '../constants.js';
 import { Cutline, polyContainsBounds } from '../cutline.js';
 import { SourceMetadata } from '../types.js';
 import { SourceTiffTestHelper } from './source.tiff.testhelper.js';
@@ -163,11 +164,14 @@ o.spec('cutline', () => {
 
     o('full-extent 3857', () => {
       const cutline = new Cutline(GoogleTms);
-      const covering = cutline.optimizeCovering({
-        projection: EpsgCode.Google,
-        bounds: [{ ...GoogleTms.extent, name: 'gebco' }],
-        resZoom: 5,
-      } as SourceMetadata);
+      const covering = cutline.optimizeCovering(
+        {
+          projection: EpsgCode.Google,
+          bounds: [{ ...GoogleTms.extent, name: 'gebco' }],
+          resZoom: 5,
+        } as SourceMetadata,
+        4,
+      );
 
       o(round(covering, 4)).deepEquals([
         {
@@ -207,7 +211,7 @@ o.spec('cutline', () => {
       const covering = cutline.optimizeCovering({
         projection: EpsgCode.Nztm2000,
         bounds,
-        resZoom: 14,
+        resZoom: 7 + AlignedLevel,
       } as SourceMetadata);
 
       o(covering[4]).deepEquals({
@@ -253,11 +257,14 @@ o.spec('cutline', () => {
       const bounds = [tiff1, tiff2];
       const cutline = new Cutline(GoogleTms, await Cutline.loadCutline(testDir + '/kapiti.geojson'), 500);
 
-      const covering = cutline.optimizeCovering({
-        projection: EpsgCode.Nztm2000,
-        bounds,
-        resZoom: 22,
-      } as SourceMetadata);
+      const covering = cutline.optimizeCovering(
+        {
+          projection: EpsgCode.Nztm2000,
+          bounds,
+          resZoom: 22,
+        } as SourceMetadata,
+        8,
+      );
 
       o(round(cutline.clipPoly, 4)).deepEquals([
         [
@@ -298,11 +305,14 @@ o.spec('cutline', () => {
         },
       ];
 
-      const covering = cutline.optimizeCovering({
-        projection: EpsgCode.Nztm2000,
-        bounds,
-        resZoom: 22,
-      } as SourceMetadata);
+      const covering = cutline.optimizeCovering(
+        {
+          projection: EpsgCode.Nztm2000,
+          bounds,
+          resZoom: 22,
+        } as SourceMetadata,
+        8,
+      );
 
       o(round(cutline.clipPoly, 4)).deepEquals([
         [
@@ -328,22 +338,28 @@ o.spec('cutline', () => {
     o('low res', () => {
       const cutline = new Cutline(GoogleTms);
 
-      const covering = cutline.optimizeCovering({
-        projection: EpsgCode.Nztm2000,
-        bounds,
-        resZoom: 13,
-      } as SourceMetadata);
+      const covering = cutline.optimizeCovering(
+        {
+          projection: EpsgCode.Nztm2000,
+          bounds,
+          resZoom: 13,
+        } as SourceMetadata,
+        9,
+      );
 
       o(covering.length).equals(covering.length);
       o(covering.map((c) => c.name)).deepEquals(['8-252-159', '8-252-160']);
     });
 
     o('hi res', () => {
-      const covering2 = new Cutline(GoogleTms).optimizeCovering({
-        projection: EpsgCode.Nztm2000,
-        bounds,
-        resZoom: 18,
-      } as SourceMetadata);
+      const covering2 = new Cutline(GoogleTms).optimizeCovering(
+        {
+          projection: EpsgCode.Nztm2000,
+          bounds,
+          resZoom: 18,
+        } as SourceMetadata,
+        8,
+      );
 
       o(covering2.length).equals(covering2.length);
 
