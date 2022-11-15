@@ -102,8 +102,5 @@
         "$CSS_FILE": "index.css"
       }
     }
-  ],
-  "dependencies": {
-
-  }
+  ]
 }
