@@ -9,7 +9,7 @@ import { ConfigLoader } from '../../util/config.loader.js';
 import { CoSources } from '../../util/source.cache.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { fontList } from '../fonts.js';
-import { FsMemory } from './memory.fs.js';
+import { FsMemory } from '@chunkd/source-memory';
 
 o.spec('/v1/fonts', () => {
   const memory = new FsMemory();
