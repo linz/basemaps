@@ -74,4 +74,7 @@ export class FsMemory implements FileSystem {
   source(): ChunkSource {
     throw new Error('Method not implemented.');
   }
+  delete(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 }
