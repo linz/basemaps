@@ -8,7 +8,7 @@ import { ConfigLoader } from '../../util/config.loader.js';
 import { CoSources } from '../../util/source.cache.js';
 import { FakeData } from '../../__tests__/config.data.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
-import { FsMemory } from './memory.fs.js';
+import { FsMemory } from '@chunkd/source-memory';
 
 o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
   const config = new ConfigProviderMemory();

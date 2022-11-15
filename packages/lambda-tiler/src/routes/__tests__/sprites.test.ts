@@ -6,7 +6,7 @@ import { gunzipSync, gzipSync } from 'zlib';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
-import { FsMemory } from './memory.fs.js';
+import { FsMemory } from '@chunkd/source-memory';
 
 o.spec('/v1/sprites', () => {
   const memory = new FsMemory();

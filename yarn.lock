@@ -127,6 +127,13 @@
     "@chunkd/core" "^10.0.0"
     node-fetch "^3.1.0"
 
+"@chunkd/source-memory@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-memory/-/source-memory-10.0.0.tgz#17880ca2161bd3fc5af042d6b392cbcf42e36b0a"
+  integrity sha512-0s+rCuFpeJ2cO3Zjrhsxr08H0ujeVDnXl6VMWaOX97jDGZUGR4Nbiy3Azx3tfvL8X5LjeMuxXrs0e1gm70UpMw==
+  dependencies:
+    "@chunkd/core" "^10.0.0"
+
 "@cogeotiff/core@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-7.2.0.tgz#9c93596c8f8dea9a0a823c9f420d4e4a9a73bb84"
@@ -4522,9 +4529,9 @@ hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.1:
     react-is "^16.7.0"
 
 hosted-git-info@>=2.8.9, hosted-git-info@^2.1.4, hosted-git-info@^4.0.1, hosted-git-info@^5.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-6.0.0.tgz#2e9b726a8ac0d68a907c6a8dc4abecac5e0ed69a"
-  integrity sha512-NURrKJX36ihI69iCqcvN4uuIk9fHcc1C+uax/5fPh4Tr5WJnATir+QM/CMJNKrcOOvxQDsAdS5C9oJliM80X7g==
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-6.1.1.tgz#629442c7889a69c05de604d52996b74fe6f26d58"
+  integrity sha512-r0EI+HBMcXadMrugk0GCQ+6BQV39PiWAZVfq7oIckeGiN7sjRGyQxPdft3nQekFTCQbYxLBH+/axZMeH8UX6+w==
   dependencies:
     lru-cache "^7.5.1"
 
