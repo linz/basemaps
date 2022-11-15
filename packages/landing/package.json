@@ -33,11 +33,15 @@
     "@basemaps/geo": "^6.32.1",
     "@basemaps/infra": "^6.36.0",
     "@basemaps/shared": "^6.36.0",
+    "@linzjs/lui": "^17.16.2",
     "@servie/events": "^3.0.0",
     "@types/proj4": "^2.5.2",
+    "@types/react-dom": "^18.0.6",
     "maplibre-gl": "^2.1.9",
     "mime-types": "^2.1.35",
     "proj4": "^2.8.0",
+    "react-dom": "^18.2.0",
+    "react": "^18.2.0",
     "ulid": "^2.3.0"
   },
   "publishConfig": {
@@ -100,9 +104,6 @@
     }
   ],
   "dependencies": {
-    "@linzjs/lui": "^17.16.2",
-    "@types/react-dom": "^18.0.6",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+
   }
 }
