@@ -1116,9 +1116,9 @@
     ulid "^2.3.0"
 
 "@linzjs/lui@^17.16.2":
-  version "17.16.2"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-17.16.2.tgz#9b476ff76c9cc1c68c11621ff9ff8aa2d04225b0"
-  integrity sha512-uUMixjeoNG862csS899t+tkckhVZG4rUQxWqyyi6J8ueQxISX2begCtsIP1//XLswS3D28c3xAADACClPM6TcA==
+  version "17.21.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-17.21.0.tgz#f511136f8e612a658c23ce4d2b24bc2571f14a68"
+  integrity sha512-QAL+mUifeITqzAQwxtA4mYHWi3WE6z1iEPjFuQsmYcDpBrl0eQUPsH5TU35BpeJ6SrdKTd9fDYBrgwGpa7mheA==
   dependencies:
     "@fontsource/open-sans" "^4.5.1"
     "@react-aria/focus" "^3.7.0"
@@ -4527,9 +4527,9 @@ hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.1:
     react-is "^16.7.0"
 
 hosted-git-info@>=2.8.9, hosted-git-info@^2.1.4, hosted-git-info@^4.0.1, hosted-git-info@^5.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-6.0.0.tgz#2e9b726a8ac0d68a907c6a8dc4abecac5e0ed69a"
-  integrity sha512-NURrKJX36ihI69iCqcvN4uuIk9fHcc1C+uax/5fPh4Tr5WJnATir+QM/CMJNKrcOOvxQDsAdS5C9oJliM80X7g==
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-6.1.1.tgz#629442c7889a69c05de604d52996b74fe6f26d58"
+  integrity sha512-r0EI+HBMcXadMrugk0GCQ+6BQV39PiWAZVfq7oIckeGiN7sjRGyQxPdft3nQekFTCQbYxLBH+/axZMeH8UX6+w==
   dependencies:
     lru-cache "^7.5.1"
 
