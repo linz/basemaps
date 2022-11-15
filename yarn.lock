@@ -73,69 +73,64 @@
   resolved "https://registry.yarnpkg.com/@balena/dockerignore/-/dockerignore-1.0.2.tgz#9ffe4726915251e8eb69f44ef3547e0da2c03e0d"
   integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
 
-"@chunkd/core@^8.1.0":
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-8.1.0.tgz#724da02f4059eef853c8b690af6729d77d54702c"
-  integrity sha512-Ij+UlGyz9kQW27/NKBDYh89v+6jOHoVdKv6bhxNG1SQzJRThumbnJelbm27rOYzF1MTbgvECIWjEqHTeSljtOQ==
+"@chunkd/core@>=10.0.0", "@chunkd/core@^10.0.0", "@chunkd/core@^8.1.0", "@chunkd/core@^8.4.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-10.0.0.tgz#d66fd49993cad99886eb2eb20df24a3056ebb218"
+  integrity sha512-8AvtnYUUwn8AcRrjnjstczCj2wJT1Kj+JUy/Cxo6mdsxxQiR1L+2vD46Wj/Q5s/K2toQta3/bSBys3NfYweWGg==
 
-"@chunkd/core@^8.4.0":
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-8.4.0.tgz#749434f6ae6d8fd95405bb0b33d73ebae6583d79"
-  integrity sha512-ayU+POyD/klSRJVf/x4ePeNnl6o+AFD87gTkqvwCuvh00snaJZGgtO7q8zzErAcDcvLla6mCElHtaQO6kn3dVw==
-
-"@chunkd/fs@^8.5.1":
-  version "8.5.1"
-  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-8.5.1.tgz#ac08b115f2e8b399441b6356ff83f48ca8368c41"
-  integrity sha512-C0OpeONuvIASxuEgF7jAEy0K2Xz5ITgeiza/5tx8je2SHNWFsqIVC/YTkLiG3IkQdI1UFYTdHcFV5VK+CKSNvA==
+"@chunkd/fs@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-10.0.0.tgz#9be6a4beb88c0c41c41eeff808f394320dd55e04"
+  integrity sha512-17/s45iX7DH+lJxJn1Qo9Ju1xBzxJK5JB99+V0nQXAgIM7U+EULC+FrmK/nmnutlY/djJE7fQlA/YmwpQua8bw==
   dependencies:
-    "@chunkd/core" "^8.4.0"
-    "@chunkd/source-file" "^8.4.0"
-    "@chunkd/source-http" "^8.4.0"
+    "@chunkd/core" "^10.0.0"
+    "@chunkd/source-file" "^10.0.0"
+    "@chunkd/source-http" "^10.0.0"
   optionalDependencies:
-    "@chunkd/source-aws" "^8.5.1"
-    "@chunkd/source-google-cloud" "^8.4.0"
+    "@chunkd/source-aws" "^10.0.0"
+    "@chunkd/source-google-cloud" "^10.0.0"
 
-"@chunkd/source-aws-v2@^8.5.1":
-  version "8.5.1"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-aws-v2/-/source-aws-v2-8.5.1.tgz#c3a2a3f9660e740cf495420f86ba22f0a88d1cf1"
-  integrity sha512-ABmgcqJu+6hob5n7li1tb7aQzukvThJ/hSqBtA+y6I1Dvbq7wxpiutYK90L+1Fd6PnGj24i7SQ/WZD7ab1XiDg==
+"@chunkd/source-aws-v2@^9.2.0":
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws-v2/-/source-aws-v2-9.2.0.tgz#acaa5ea63b461b67ba32dba20e9d7d27863bf39f"
+  integrity sha512-EknYCUGvem1AfdsAz6A2qNPa2YOl7qn/ZP5GLYrc+wLQqFWLheSidf6Fk0vD47ZctKBjXo4xtM+FeZLGQXZdcA==
   dependencies:
-    "@chunkd/core" "^8.4.0"
-    "@chunkd/source-aws" "^8.5.1"
+    "@chunkd/core" "^10.0.0"
+    "@chunkd/source-aws" "^10.0.0"
 
-"@chunkd/source-aws@^8.5.1":
-  version "8.5.1"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-8.5.1.tgz#6d07b904820c3f4ab5339eadcca61e34af7a6921"
-  integrity sha512-jJ5N6WktOSE5k+uq7lXJl9d9RR/b2sKBJP3nY76gy2SZE8rbOC3kLUMShKiMSiOZSPPZr6Q4Oqgbg5R4L3FG5g==
+"@chunkd/source-aws@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-10.0.0.tgz#9e8f726eb69745b832e81114a57a891ea63214db"
+  integrity sha512-Kx6tFWpM7D4fWJXiEvx2iXzQ/5+jauBzS8FFTWdyyfR14dIM+eosghh8nDQd0+9hNEVK4gNcxxdG4u38IQT6DA==
   dependencies:
-    "@chunkd/core" "^8.4.0"
+    "@chunkd/core" "^10.0.0"
 
-"@chunkd/source-file@^8.4.0":
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-file/-/source-file-8.4.0.tgz#6567f4170e3b8b762fb78db01b5d15f8bf3c9dc3"
-  integrity sha512-yk0PRpSO24MrkXJbDseeVErZ7SAOj/FptNvh3GNGd6tUEIFpQIROsQdrRyGWBKh+geK0JI/edE/r+rmDzCC6eQ==
+"@chunkd/source-file@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-file/-/source-file-10.0.0.tgz#3a53a4e3fe5b8a4efbce0e903a281a2b29573ebf"
+  integrity sha512-hqJoYiF50X7+BBdbOYBuwz85nnUuSa/IZAVW1lBIvUz1sjk7xUnITxHGgQTHGy6nBBF+0keA7LsXBAGJOz7V/A==
   dependencies:
-    "@chunkd/core" "^8.4.0"
+    "@chunkd/core" "^10.0.0"
 
-"@chunkd/source-google-cloud@^8.4.0":
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-google-cloud/-/source-google-cloud-8.4.0.tgz#4dc7b74817ac73ceb5bcb1cbd38e99875ad5b8a4"
-  integrity sha512-36q9p5j6tL719y3PMZe+LO0wVZpaWFxAwnoY064aT430+H4FCPjJQ0Eon0Z+akEl0LU6+c3USS7hkHpchsKhMg==
+"@chunkd/source-google-cloud@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-google-cloud/-/source-google-cloud-10.0.0.tgz#5659990467ff34609633a129cef3d7909e532b73"
+  integrity sha512-appsxa/CPw+eElDrZw/l33B5BcWUaYUc10z88LEqMrKA+AUMRUpZg04+Vau9yBWOKvn5hRK/HpU/bvN9NKWI3Q==
   dependencies:
-    "@chunkd/core" "^8.4.0"
+    "@chunkd/core" "^10.0.0"
 
-"@chunkd/source-http@^8.4.0":
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-http/-/source-http-8.4.0.tgz#a8e2260aaa0c1293f528f8d36d7b2a7e79dcb026"
-  integrity sha512-IXkErCyuKC/WcIZGjREy4OQsXyA29yhFtu2fGXmv5AroEVRltDX7wA9dVzzOBw/jhgLTuvbFvHvtdWn1A8OWxA==
+"@chunkd/source-http@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-http/-/source-http-10.0.0.tgz#09d0449ed72c6264de52f9505c453c6a283dfe1f"
+  integrity sha512-lwCn2hotROHV+XnYryZwigC/0fJZ1oBv5C1wTv/i6JTbL+9wf8h8VrduDGC7aB4z4PBd2hJ2fGp+jnu9S5sy2g==
   dependencies:
-    "@chunkd/core" "^8.4.0"
+    "@chunkd/core" "^10.0.0"
     node-fetch "^3.1.0"
 
-"@cogeotiff/core@^7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-7.0.0.tgz#18a617229e100ab7cc03ce2a6c4e5bf15443d0bb"
-  integrity sha512-YqIOmd6jYxR0u+m1Xode+2UP+UGapsrFxofkghmsc0Ym1DDcAVMHyAkNlPPBTzBOFtyaTA+bhhyZWJLwcfsKvQ==
+"@cogeotiff/core@^7.2.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@cogeotiff/core/-/core-7.2.0.tgz#9c93596c8f8dea9a0a823c9f420d4e4a9a73bb84"
+  integrity sha512-450a12/vUnfvj+bnAB1KLtpXxpe93F2y7jFfrqNWGK1URXUi9BpC7XfWYO6sJ1Z1BonAkV592pAVbIzC0qFxbg==
   dependencies:
     "@chunkd/core" "^8.1.0"
     ieee754 "^1.1.13"
