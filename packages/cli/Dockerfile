@@ -1,13 +1,13 @@
-FROM osgeo/gdal:ubuntu-small-3.3.0
+FROM osgeo/gdal:ubuntu-small-3.6.0
 
 ENV NODE_ENV=PRODUCTION
 
 WORKDIR /app/
 
-RUN apt-get update
-RUN apt-get install -y openssl ca-certificates > /dev/null 2>&1
-RUN update-ca-certificates
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+# RUN apt-get update
+# RUN apt-get install -y openssl ca-certificates > /dev/null 2>&1
+# RUN update-ca-certificates
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get install -y nodejs
 
 # Install sharp TODO update this when we change sharp versions
