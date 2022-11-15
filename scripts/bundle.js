@@ -32,6 +32,7 @@ const BundleSchema = z.object({
   env: z.record(z.union([z.null(), z.string()])).optional(),
   external: z.array(z.string()).optional(),
   executable: z.boolean().optional(),
+  minify: z.boolean().optional(),
 
   /** Suffix a hash  */
   suffix: z.boolean().optional(),
@@ -87,7 +88,7 @@ function bundleJs(basePath, cfg, outfile, isJsx = false) {
     buildCmd.push('--banner:js=#!/usr/bin/env node');
   }
 
-  if (process.env.NODE_ENV === 'production') buildCmd.push('--minify');
+  if (process.env.NODE_ENV === 'production' && cfg.minify !== false) buildCmd.push('--minify');
   console.log(buildCmd);
 
   const res = cp.spawnSync('npx', buildCmd);
