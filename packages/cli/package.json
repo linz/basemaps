@@ -26,6 +26,7 @@
   "bundle": [
     {
       "entry": "src/cli/bin.ts",
+      "minify": false,
       "outfile": "dist/index.cjs",
       "external": [
         "sharp",
