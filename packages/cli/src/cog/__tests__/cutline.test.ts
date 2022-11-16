@@ -142,25 +142,8 @@ o.spec('cutline', () => {
     o((cutline as any).srcPoly.length).equals(1);
   });
 
-  o.spec('optmize', async () => {
+  o.spec('optimize', async () => {
     const bounds = SourceTiffTestHelper.tiffNztmBounds();
-    o('one-cog', () => {
-      const cutline = new Cutline(Nztm2000Tms, undefined, 0, true);
-      const covering = cutline.optimizeCovering({
-        projection: EpsgCode.Nztm2000,
-        bounds,
-        resZoom: 14,
-      } as SourceMetadata);
-
-      o(covering.length).equals(1);
-      o(covering[0]).deepEquals({
-        x: 274000,
-        y: 3087000,
-        width: 3053000,
-        height: 4086000,
-        name: '0-0-0',
-      });
-    });
 
     o('full-extent 3857', () => {
       const cutline = new Cutline(GoogleTms);

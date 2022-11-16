@@ -59,8 +59,7 @@ export class Cutline {
   tileMatrix: TileMatrixSet; // convience to targetPtms.tms
   /** How much blending to apply at the clip line boundary */
   blend: number;
-  /** For just one cog to cover the imagery */
-  oneCogCovering: boolean;
+
   /** the polygon outlining a area covered by the source imagery and clip polygon */
   srcPoly: MultiPolygon = [];
 
@@ -75,10 +74,9 @@ export class Cutline {
 
      * @param blend How much blending to consider when working out boundaries.
      */
-  constructor(tileMatrix: TileMatrixSet, clipPoly?: FeatureCollection, blend = 0, oneCogCovering = false) {
+  constructor(tileMatrix: TileMatrixSet, clipPoly?: FeatureCollection, blend = 0) {
     this.tileMatrix = tileMatrix;
     this.blend = blend;
-    this.oneCogCovering = oneCogCovering;
     if (clipPoly == null) {
       this.clipPoly = [];
       return;
@@ -115,7 +113,6 @@ export class Cutline {
    * @returns names of source files required to render Cog
    */
   filterSourcesForName(name: string, job: CogJob): string[] {
-    if (this.oneCogCovering) return job.source.files.map(({ name }) => name);
     const tile = TileMatrixSet.nameToTile(name);
     const sourceCode = Projection.get(job.source.epsg);
     const targetCode = Projection.get(this.tileMatrix);
@@ -156,12 +153,7 @@ export class Cutline {
    * @param sourceMetadata contains images bounds and projection info
    */
   optimizeCovering(sourceMetadata: SourceMetadata, alignedLevel: number = AlignedLevel): NamedBounds[] {
-    if (this.oneCogCovering) {
-      const extent = this.tileMatrix.extent.toJson();
-      return [{ ...extent, name: '0-0-0' }];
-    }
     this.findCovering(sourceMetadata);
-
     const { resZoom } = sourceMetadata;
 
     // Fix the cog Minimum Zoom by the aligned level
@@ -205,9 +197,9 @@ export class Cutline {
   /**
    * Merge child nodes that have at least a covering fraction
    * @param tile the tile to descend
-   * @param srcArea the aread of interest
+   * @param srcArea the area of interest
    * @param minZ Only produce tiles for zoom levels at least `minZ` and no sibling tiles
-   * greater than `minZ +2`
+   * greater than `minZ + 4`
    * @param coveringFraction merge tiles that cover at least this fraction
    * @return the tiles and fraction covered of the tile by this srcArea
    */
