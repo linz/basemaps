@@ -150,6 +150,7 @@ export class CommandCreateOverview extends CommandLineAction {
     for (const file of tiles) await tarBuilder.write(file.slice(targetPath.length + 1), await fsa.read(file));
 
     await tarBuilder.close();
+    logger.info(tarBuilder.stats, 'CreateOver:TarCreated');
 
     // Creating tar index
     const fd = await fs.open(tarFilePath, 'r');
