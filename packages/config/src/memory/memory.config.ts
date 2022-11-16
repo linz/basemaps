@@ -48,7 +48,7 @@ function removeUndefined(obj: unknown): void {
 }
 
 export class ConfigProviderMemory extends BasemapsConfigProvider {
-  type: 'memory' = 'memory';
+  type = 'memory' as const;
 
   Imagery = new MemoryConfigObject<ConfigImagery>(this, ConfigPrefix.Imagery);
   Style = new MemoryConfigObject<ConfigVectorStyle>(this, ConfigPrefix.Style);

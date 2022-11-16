@@ -16,7 +16,7 @@ export class ConfigProviderDynamo extends BasemapsConfigProvider {
 
   dynamo: DynamoDB;
   tableName: string;
-  type: 'dynamo' = 'dynamo';
+  type = 'dynamo' as const;
 
   Imagery = new ConfigDynamoCached<ConfigImagery>(this, ConfigPrefix.Imagery);
   Style = new ConfigDynamoCached<ConfigVectorStyle>(this, ConfigPrefix.Style);
