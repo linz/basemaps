@@ -64,6 +64,9 @@ export class WmtsCapabilities {
   formats: ImageFormat[];
   isIndividualLayers = false;
 
+  minZoom = 0;
+  maxZoom = 32;
+
   constructor(params: WmtsCapabilitiesParams) {
     this.httpBase = params.httpBase;
     this.provider = params.provider;
@@ -267,7 +270,7 @@ export class WmtsCapabilities {
       V('ows:Identifier', tms.identifier),
       V('ows:SupportedCRS', tms.projection.toUrn()),
       tms.def.wellKnownScaleSet ? V('WellKnownScaleSet', tms.def.wellKnownScaleSet) : null,
-      ...tms.def.tileMatrix.map((c) => {
+      ...tms.def.tileMatrix.slice(this.minZoom, this.maxZoom).map((c) => {
         return V('TileMatrix', [
           V('ows:Identifier', c.identifier),
           V('ScaleDenominator', c.scaleDenominator),

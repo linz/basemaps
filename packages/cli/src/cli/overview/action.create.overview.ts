@@ -12,6 +12,7 @@ import * as path from 'path';
 import { CogBuilder } from '../../cog/builder.js';
 import { Cutline } from '../../cog/cutline.js';
 import { filterTiff, MaxConcurrencyDefault } from '../../cog/job.factory.js';
+import { createOverviewWmtsCapabilities } from './overview.wmts.js';
 import { JobTiles, tile } from './tile.generator.js';
 
 class SimpleTimer {
@@ -105,6 +106,9 @@ export class CommandCreateOverview extends CommandLineAction {
     await tile(jobTiles, logger);
     logger.info({ source, path, duration: st.tick() }, 'CreateOverview:GenerateTiles:Done');
 
+    const wmts = createOverviewWmtsCapabilities(tileMatrix, maxZoom);
+    await fsa.write(fsa.join(path, 'WMTSCapabilities.xml'), wmts);
+
     logger.info({ source, path }, 'CreateOverview:CreatingTarFile');
     await this.createTar(path, logger);
     logger.debug({ source, path, duration: st.tick() }, 'CreateOverview:CreatingTarFile:Done');
@@ -152,6 +156,8 @@ export class CommandCreateOverview extends CommandLineAction {
 
     // Create tar file
     const tiles = await fsa.toArray(fsa.list(fsa.join(path, 'tiles')));
+    tiles.push(fsa.join(path, 'WMTSCapabilities.xml'));
+
     const tarBuilder = new TarBuilder(tarFilePath);
     tiles.sort((a, b) => a.localeCompare(b));
     for (const file of tiles) await tarBuilder.write(file.slice(file.indexOf('tiles/')), await fsa.read(file));
