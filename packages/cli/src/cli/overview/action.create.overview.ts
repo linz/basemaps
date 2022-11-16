@@ -117,7 +117,7 @@ export class CommandCreateOverview extends CommandLineAction {
   }
 
   async prepareTiles(files: NamedBounds[], maxZoom: number): Promise<Set<string>> {
-    const tiles = new Set<string>();
+    const tiles = new Set<string>(['']);
     for (const file of files) {
       const name = file.name;
       const [z, x, y] = path.basename(name).replace('.tiff', '').split('-').map(Number);
@@ -125,7 +125,7 @@ export class CommandCreateOverview extends CommandLineAction {
       this.addChildren(qk, maxZoom, tiles);
       while (qk.length > 0) {
         if (tiles.has(qk)) break;
-        tiles.add(qk);
+        if (qk.length < maxZoom) tiles.add(qk);
         qk = QuadKey.parent(qk);
       }
     }
