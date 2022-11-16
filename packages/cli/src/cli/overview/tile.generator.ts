@@ -47,7 +47,6 @@ export type RpcContract = {
 export async function tile(jobTiles: JobTiles, logger: LogType): Promise<void> {
   let count = 0;
   let skipped = 0;
-  logger.info({ count, skipped }, 'TaskCount');
 
   let lastTime = performance.now();
   const todo = jobTiles.tiles.map((qk) => {
@@ -57,7 +56,7 @@ export async function tile(jobTiles: JobTiles, logger: LogType): Promise<void> {
       if (count % 100 === 0) {
         const duration = performance.now() - lastTime;
         lastTime = Number(performance.now().toFixed(4));
-        logger.info({ count, total: jobTiles.tiles.length, duration }, 'Progress');
+        logger.info({ count, total: jobTiles.tiles.length, duration }, 'Tiles:Progress');
       }
 
       const outputTile = `tiles/${tile.z}/${tile.x}/${tile.y}.webp`;
@@ -73,6 +72,7 @@ export async function tile(jobTiles: JobTiles, logger: LogType): Promise<void> {
   });
 
   await Promise.all(todo);
+  logger.info({ count, skipped }, 'Tiles:Created');
 }
 
 async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer | undefined> {
