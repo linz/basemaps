@@ -58,7 +58,6 @@ export const CogJobFactory = {
       ctx.tileMatrix,
       ctx.cutline && (await Cutline.loadCutline(ctx.cutline.href)),
       ctx.cutline?.blend,
-      ctx.oneCogCovering,
     );
 
     const builder = new CogBuilder(ctx.tileMatrix, maxConcurrency, logger, ctx.override?.projection);

@@ -171,7 +171,7 @@ export class CommandCogCreate extends CommandLineAction {
     } else {
       logger.warn('CutLine:Skip');
     }
-    const cutline = new Cutline(job.tileMatrix, cutlineJson, job.output.cutline?.blend, job.output.oneCogCovering);
+    const cutline = new Cutline(job.tileMatrix, cutlineJson, job.output.cutline?.blend);
 
     const tmpVrtPath = await CogVrt.buildVrt(tiffFolder, job, cutline, tiffName, logger);
 
