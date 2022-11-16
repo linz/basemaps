@@ -137,7 +137,7 @@ export class CommandCreateOverview extends CommandLineAction {
   }
 
   async createTar(path: string, logger: LogType): Promise<void> {
-    const tarFile = 'overviews.tar';
+    const tarFile = 'overviews.tar.co';
     const tarFilePath = fsa.join(path, tarFile);
 
     const targetPath = resolve(path);
