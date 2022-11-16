@@ -17,6 +17,7 @@ import { CoSources } from '@basemaps/lambda-tiler/build/util/source.cache.js';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import Sharp from 'sharp';
+import { SimpleTimer } from './timer';
 
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
@@ -45,19 +46,16 @@ export type RpcContract = {
 };
 
 export async function tile(jobTiles: JobTiles, logger: LogType): Promise<void> {
+  const timer = new SimpleTimer();
   let count = 0;
   let skipped = 0;
-  logger.info({ count, skipped }, 'TaskCount');
 
-  let lastTime = performance.now();
   const todo = jobTiles.tiles.map((qk) => {
     return Q(async () => {
       const tile = QuadKey.toTile(qk);
       count++;
       if (count % 100 === 0) {
-        const duration = performance.now() - lastTime;
-        lastTime = Number(performance.now().toFixed(4));
-        logger.info({ count, total: jobTiles.tiles.length, duration }, 'Progress');
+        logger.info({ count, total: jobTiles.tiles.length, duration: timer.tick() }, 'Tiles:Progress');
       }
 
       const outputTile = `tiles/${tile.z}/${tile.x}/${tile.y}.webp`;
@@ -73,6 +71,7 @@ export async function tile(jobTiles: JobTiles, logger: LogType): Promise<void> {
   });
 
   await Promise.all(todo);
+  logger.info({ count, skipped, duration: timer.total() }, 'Tiles:Created');
 }
 
 async function getComposedTile(jobTiles: JobTiles, tile: Tile): Promise<Buffer | undefined> {
