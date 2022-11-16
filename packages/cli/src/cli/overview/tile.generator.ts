@@ -17,7 +17,7 @@ import { CoSources } from '@basemaps/lambda-tiler/build/util/source.cache.js';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import Sharp from 'sharp';
-import { SimpleTimer } from './timer';
+import { SimpleTimer } from './timer.js';
 
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
