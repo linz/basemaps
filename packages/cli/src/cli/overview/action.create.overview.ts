@@ -1,3 +1,4 @@
+import { sha256base58 } from '@basemaps/config';
 import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
 import { LogConfig, LogType } from '@basemaps/shared';
 import { ChunkSource, SourceMemory } from '@chunkd/core';
@@ -6,32 +7,15 @@ import { CogTiff } from '@cogeotiff/core';
 import { CotarIndexBinary, CotarIndexBuilder, TarReader } from '@cotar/core';
 import { TarBuilder } from '@cotar/tar';
 import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { createHash } from 'crypto';
 import { promises as fs } from 'fs';
 import * as path from 'path';
+import { resolve } from 'path';
 import { CogBuilder } from '../../cog/builder.js';
 import { Cutline } from '../../cog/cutline.js';
 import { filterTiff, MaxConcurrencyDefault } from '../../cog/job.factory.js';
 import { createOverviewWmtsCapabilities } from './overview.wmts.js';
 import { JobTiles, tile } from './tile.generator.js';
-
-class SimpleTimer {
-  lastTime: number;
-  startTime: number;
-  constructor() {
-    this.lastTime = performance.now();
-    this.startTime = this.lastTime;
-  }
-
-  tick(): number {
-    const duration = Number((performance.now() - this.lastTime).toFixed(4));
-    this.lastTime = performance.now();
-    return duration;
-  }
-  total(): number {
-    return Number((performance.now() - this.startTime).toFixed(4));
-  }
-}
+import { SimpleTimer } from './timer.js';
 
 const DefaultMaxZoom = 15;
 
@@ -63,7 +47,7 @@ export class CommandCreateOverview extends CommandLineAction {
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
       parameterLongName: '--output',
-      description: 'Path of output tar and index file',
+      description: 'Path of output tar file',
     });
   }
 
@@ -72,31 +56,33 @@ export class CommandCreateOverview extends CommandLineAction {
     const source = this.source.value;
     if (source == null) throw new Error('Please provide a path for the source imagery.');
     const maxZoom = this.maxZoom.value ?? DefaultMaxZoom;
-    const hash = createHash('sha256').update(source).digest('hex');
+    const hash = sha256base58(source);
+
+    logger.info({ source, hash, maxZoom }, 'CreateOverview');
     const path = fsa.join('overview', hash);
 
     const st = new SimpleTimer();
-    logger.debug({ source, path }, 'CreateOverview:ListTiffs');
+    logger.debug({ source }, 'CreateOverview:ListTiffs');
     const tiffList = (await fsa.toArray(fsa.list(source))).filter(filterTiff);
     const tiffSource = tiffList.map((path: string) => fsa.source(path));
-    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:ListTiffs:Done');
+    logger.info({ source, duration: st.tick() }, 'CreateOverview:ListTiffs:Done');
 
-    logger.debug({ source, path }, 'CreateOverview:PrepareSourceFiles');
+    logger.debug({ source }, 'CreateOverview:PrepareSourceFiles');
     const tileMatrix = await this.getTileMatrix(tiffSource);
-    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:PrepareSourceFiles:Done');
+    logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareSourceFiles:Done');
 
-    logger.debug({ source, path }, 'CreateOverview:PrepareCovering');
+    logger.debug({ source }, 'CreateOverview:PrepareCovering');
     const cutline = new Cutline(tileMatrix);
     const builder = new CogBuilder(tileMatrix, MaxConcurrencyDefault, logger);
-    const metadata = await builder.build(tiffSource, cutline);
-    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:PrepareCovering:Done');
+    const metadata = await builder.build(tiffSource, cutline, 10);
+    logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareCovering:Done');
 
-    logger.debug({ source, path }, 'CreateOverview:PrepareTiles');
+    logger.debug({ source }, 'CreateOverview:PrepareTiles');
     const tiles = await this.prepareTiles(metadata.files, maxZoom);
     if (tiles.size < 1) throw new Error('Failed to prepare overviews.');
-    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:PrepareTiles:Done');
+    logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareTiles:Done');
 
-    logger.debug({ source, path }, 'CreateOverview:GenerateTiles');
+    logger.debug({ source }, 'CreateOverview:GenerateTiles');
     const jobTiles: JobTiles = {
       path,
       files: metadata.bounds,
@@ -104,16 +90,16 @@ export class CommandCreateOverview extends CommandLineAction {
       tiles: Array.from(tiles.values()),
     };
     await tile(jobTiles, logger);
-    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:GenerateTiles:Done');
+    logger.info({ source, duration: st.tick() }, 'CreateOverview:GenerateTiles:Done');
 
     const wmts = createOverviewWmtsCapabilities(tileMatrix, maxZoom);
     await fsa.write(fsa.join(path, 'WMTSCapabilities.xml'), wmts);
 
-    logger.info({ source, path }, 'CreateOverview:CreatingTarFile');
+    logger.debug({ source }, 'CreateOverview:CreatingTar');
     await this.createTar(path, logger);
-    logger.debug({ source, path, duration: st.tick() }, 'CreateOverview:CreatingTarFile:Done');
+    logger.info({ source, duration: st.tick() }, 'CreateOverview:CreatingTar:Done');
 
-    logger.info({ source, path, duration: st.total() }, 'CreateOverview:Done');
+    logger.info({ source, duration: st.total() }, 'CreateOverview:Done');
   }
 
   async prepareTiles(files: NamedBounds[], maxZoom: number): Promise<Set<string>> {
@@ -154,13 +140,16 @@ export class CommandCreateOverview extends CommandLineAction {
     const tarFile = 'overviews.tar.co';
     const tarFilePath = fsa.join(path, tarFile);
 
+    const targetPath = resolve(path);
     // Create tar file
-    const tiles = await fsa.toArray(fsa.list(fsa.join(path, 'tiles')));
-    tiles.push(fsa.join(path, 'WMTSCapabilities.xml'));
+    const tiles = await fsa.toArray(fsa.list(fsa.join(targetPath, 'tiles/')));
+    tiles.push(fsa.join(targetPath, 'WMTSCapabilities.xml'));
 
     const tarBuilder = new TarBuilder(tarFilePath);
     tiles.sort((a, b) => a.localeCompare(b));
-    for (const file of tiles) await tarBuilder.write(file.slice(file.indexOf('tiles/')), await fsa.read(file));
+    for (const file of tiles) await tarBuilder.write(file.slice(targetPath.length), await fsa.read(file));
+
+    await tarBuilder.close();
 
     // Creating tar index
     const fd = await fs.open(tarFilePath, 'r');
@@ -174,7 +163,7 @@ export class CommandCreateOverview extends CommandLineAction {
     const output = this.output.value;
     if (output) {
       const outputFile = fsa.join(output, tarFile);
-      logger.info({ outputFile }, 'CreateOverview: UploadOutput');
+      logger.info({ target: outputFile }, 'CreateOverview:UploadOutput');
       await fsa.write(outputFile, fsa.stream(tarFilePath));
     }
   }
