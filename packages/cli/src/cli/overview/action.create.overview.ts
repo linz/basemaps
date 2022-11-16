@@ -1,18 +1,36 @@
-import { LogConfig, LogType } from '@basemaps/shared';
-import * as path from 'path';
-import { promises as fs } from 'fs';
-import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
-import { JobTiles, tile } from './tile.generator.js';
-import { CotarIndexBinary, CotarIndexBuilder, TarReader } from '@cotar/core';
-import { SourceMemory, ChunkSource } from '@chunkd/core';
+import { LogConfig, LogType } from '@basemaps/shared';
+import { ChunkSource, SourceMemory } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
-import { CogBuilder } from '../../cog/builder.js';
-import { filterTiff, MaxConcurrencyDefault } from '../../cog/job.factory.js';
-import { Cutline } from '../../cog/cutline.js';
 import { CogTiff } from '@cogeotiff/core';
-import { createHash } from 'crypto';
+import { CotarIndexBinary, CotarIndexBuilder, TarReader } from '@cotar/core';
 import { TarBuilder } from '@cotar/tar';
+import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { createHash } from 'crypto';
+import { promises as fs } from 'fs';
+import * as path from 'path';
+import { CogBuilder } from '../../cog/builder.js';
+import { Cutline } from '../../cog/cutline.js';
+import { filterTiff, MaxConcurrencyDefault } from '../../cog/job.factory.js';
+import { JobTiles, tile } from './tile.generator.js';
+
+class SimpleTimer {
+  lastTime: number;
+  startTime: number;
+  constructor() {
+    this.lastTime = performance.now();
+    this.startTime = this.lastTime;
+  }
+
+  tick(): number {
+    const duration = Number((performance.now() - this.lastTime).toFixed(4));
+    this.lastTime = performance.now();
+    return duration;
+  }
+  total(): number {
+    return Number((performance.now() - this.startTime).toFixed(4));
+  }
+}
 
 const DefaultMaxZoom = 15;
 
@@ -56,23 +74,28 @@ export class CommandCreateOverview extends CommandLineAction {
     const hash = createHash('sha256').update(source).digest('hex');
     const path = fsa.join('overview', hash);
 
-    logger.info({ source, path }, 'CreateOverview: ListTiffs');
+    const st = new SimpleTimer();
+    logger.debug({ source, path }, 'CreateOverview:ListTiffs');
     const tiffList = (await fsa.toArray(fsa.list(source))).filter(filterTiff);
     const tiffSource = tiffList.map((path: string) => fsa.source(path));
+    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:ListTiffs:Done');
 
-    logger.info({ source, path }, 'CreateOverview: prepareSourceFiles');
+    logger.debug({ source, path }, 'CreateOverview:PrepareSourceFiles');
     const tileMatrix = await this.getTileMatrix(tiffSource);
+    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:PrepareSourceFiles:Done');
 
-    logger.info({ source, path }, 'CreateOverview: PrepareCovering');
+    logger.debug({ source, path }, 'CreateOverview:PrepareCovering');
     const cutline = new Cutline(tileMatrix);
     const builder = new CogBuilder(tileMatrix, MaxConcurrencyDefault, logger);
     const metadata = await builder.build(tiffSource, cutline);
+    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:PrepareCovering:Done');
 
-    logger.info({ source, path }, 'CreateOverview: prepareTiles');
+    logger.debug({ source, path }, 'CreateOverview:PrepareTiles');
     const tiles = await this.prepareTiles(metadata.files, maxZoom);
     if (tiles.size < 1) throw new Error('Failed to prepare overviews.');
+    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:PrepareTiles:Done');
 
-    logger.info({ source, path }, 'CreateOverview: GenerateTiles');
+    logger.debug({ source, path }, 'CreateOverview:GenerateTiles');
     const jobTiles: JobTiles = {
       path,
       files: metadata.bounds,
@@ -80,11 +103,13 @@ export class CommandCreateOverview extends CommandLineAction {
       tiles: Array.from(tiles.values()),
     };
     await tile(jobTiles, logger);
+    logger.info({ source, path, duration: st.tick() }, 'CreateOverview:GenerateTiles:Done');
 
-    logger.info({ source, path }, 'CreateOverview: CreatingTarFile');
+    logger.info({ source, path }, 'CreateOverview:CreatingTarFile');
     await this.createTar(path, logger);
+    logger.debug({ source, path, duration: st.tick() }, 'CreateOverview:CreatingTarFile:Done');
 
-    logger.info({ source, path }, 'CreateOverview: Finished');
+    logger.info({ source, path, duration: st.total() }, 'CreateOverview:Done');
   }
 
   async prepareTiles(files: NamedBounds[], maxZoom: number): Promise<Set<string>> {
@@ -126,7 +151,7 @@ export class CommandCreateOverview extends CommandLineAction {
     const tarFilePath = fsa.join(path, tarFile);
 
     // Create tar file
-    const tiles = await fsa.toArray(fsa.list(`${path}/tiles/`));
+    const tiles = await fsa.toArray(fsa.list(fsa.join(path, 'tiles')));
     const tarBuilder = new TarBuilder(tarFilePath);
     tiles.sort((a, b) => a.localeCompare(b));
     for (const file of tiles) await tarBuilder.write(file.slice(file.indexOf('tiles/')), await fsa.read(file));
