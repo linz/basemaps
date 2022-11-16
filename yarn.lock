@@ -78,30 +78,30 @@
   resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-10.0.0.tgz#d66fd49993cad99886eb2eb20df24a3056ebb218"
   integrity sha512-8AvtnYUUwn8AcRrjnjstczCj2wJT1Kj+JUy/Cxo6mdsxxQiR1L+2vD46Wj/Q5s/K2toQta3/bSBys3NfYweWGg==
 
-"@chunkd/fs@^10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-10.0.0.tgz#9be6a4beb88c0c41c41eeff808f394320dd55e04"
-  integrity sha512-17/s45iX7DH+lJxJn1Qo9Ju1xBzxJK5JB99+V0nQXAgIM7U+EULC+FrmK/nmnutlY/djJE7fQlA/YmwpQua8bw==
+"@chunkd/fs@^10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@chunkd/fs/-/fs-10.0.1.tgz#6d37caaa4a3af2cedd9c20fa21c5001a0652aa23"
+  integrity sha512-WddvTt4JIJQif7CgqB+nbU+LyAhGofRiFqA7S9xuqjdTIY4lCT/dKCKFr8Qn3XV6Rwubvz3n4wjwJoYBgRMlWQ==
   dependencies:
     "@chunkd/core" "^10.0.0"
     "@chunkd/source-file" "^10.0.0"
     "@chunkd/source-http" "^10.0.0"
   optionalDependencies:
-    "@chunkd/source-aws" "^10.0.0"
+    "@chunkd/source-aws" "^10.0.1"
     "@chunkd/source-google-cloud" "^10.0.0"
 
 "@chunkd/source-aws-v2@^9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-aws-v2/-/source-aws-v2-9.2.0.tgz#acaa5ea63b461b67ba32dba20e9d7d27863bf39f"
-  integrity sha512-EknYCUGvem1AfdsAz6A2qNPa2YOl7qn/ZP5GLYrc+wLQqFWLheSidf6Fk0vD47ZctKBjXo4xtM+FeZLGQXZdcA==
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws-v2/-/source-aws-v2-9.3.0.tgz#26d2fd59caa9bc0e19a67280f4e76f80954d4b97"
+  integrity sha512-RBFpSbBoaZf9IPVQaz2Naafmn3xdocR7oPTZcrg6n8x4fcRmoSdwW5O2A1tHgP9kmb79C2Yf0g0Gz+zpkzQN/A==
   dependencies:
     "@chunkd/core" "^10.0.0"
-    "@chunkd/source-aws" "^10.0.0"
+    "@chunkd/source-aws" "^10.0.1"
 
-"@chunkd/source-aws@^10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-10.0.0.tgz#9e8f726eb69745b832e81114a57a891ea63214db"
-  integrity sha512-Kx6tFWpM7D4fWJXiEvx2iXzQ/5+jauBzS8FFTWdyyfR14dIM+eosghh8nDQd0+9hNEVK4gNcxxdG4u38IQT6DA==
+"@chunkd/source-aws@^10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@chunkd/source-aws/-/source-aws-10.0.1.tgz#a149d7364d8a0e42b78bfb60882a6cc3127b3122"
+  integrity sha512-bXJ730T1HufjbryDNPAtv52qZsxp5lV3UNgmbKAQQpxObKeJZ7lLU4lmbV+8UejIfxJ43/Yn0MMkrgCTmcPzpw==
   dependencies:
     "@chunkd/core" "^10.0.0"
 

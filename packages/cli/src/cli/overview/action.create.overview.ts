@@ -142,9 +142,9 @@ export class CommandCreateOverview extends CommandLineAction {
     // Copy the output into s3 location
     const output = this.output.value;
     if (output) {
-      const outputFile = fsa.join(output, tarFile);
+      const outputFile = fsa.join(output, tarFile)
       logger.info({ outputFile }, 'CreateOverview: UploadOutput');
-      await fsa.write(outputFile, await fsa.read(tarFilePath));
+      await fsa.write(outputFile, fsa.stream(tarFilePath));
     }
   }
 }
