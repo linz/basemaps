@@ -20,7 +20,7 @@ o.spec('cog', () => {
       let gdalCogBuilder: GdalCogBuilder | null = null;
       let convertArgs: any = null;
       const convert = function (this: any, ...args: any[]): void {
-        gdalCogBuilder = this;
+        gdalCogBuilder = this; // eslint-disable-line @typescript-eslint/no-this-alias
         convertArgs = args;
       };
       GdalCogBuilder.prototype.convert = convert as any;
