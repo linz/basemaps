@@ -1,5 +1,4 @@
 import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
-import { WmtsCapabilities } from '@basemaps/lambda-tiler/src/wmts.capability.js';
 import { LogConfig, LogType } from '@basemaps/shared';
 import { ChunkSource, SourceMemory } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
