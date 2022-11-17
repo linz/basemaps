@@ -7,7 +7,7 @@ import { CogJob } from '../../cog/types.js';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
-const ChunkJobMax = 1000;
+const ChunkJobMax = 2000;
 const ChunkLargeUnit = 200; // Up to 5 large files in one job
 const ChunkMiddleUnit = 50; // Up to 20 middle files in one job
 const ChunkSmallUnit = 20; // Up to 50 small files in one job
