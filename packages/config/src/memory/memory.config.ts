@@ -4,7 +4,6 @@ import { BasemapsConfigObject, BasemapsConfigProvider, ConfigId } from '../base.
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
-import { ConfigProcessingJob } from '../config/processing.job.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
@@ -54,7 +53,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   Style = new MemoryConfigObject<ConfigVectorStyle>(this, ConfigPrefix.Style);
   TileSet = new MemoryConfigObject<ConfigTileSet>(this, ConfigPrefix.TileSet);
   Provider = new MemoryConfigObject<ConfigProvider>(this, ConfigPrefix.Provider);
-  ProcessingJob = new MemoryConfigObject<ConfigProcessingJob>(this, ConfigPrefix.ProcessingJob);
   ConfigBundle = new MemoryConfigObject<ConfigBundle>(this, ConfigPrefix.ConfigBundle);
 
   /** Memory cache of all objects */

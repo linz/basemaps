@@ -1,4 +1,4 @@
-import { Env, fsa, getDefaultConfig, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
+import { Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
 import { CliId } from '@basemaps/shared/build/cli/base.js';
 import {
   CommandLineAction,
@@ -17,7 +17,6 @@ import { CogJob } from '../../cog/types.js';
 import { Gdal } from '../../gdal/gdal.js';
 import { makeTempFolder, makeTiffFolder } from '../folder.js';
 import path from 'path';
-import { JobStatus, ProcessingJobComplete, ProcessingJobFailed } from '@basemaps/config';
 import { prepareUrl } from '../util.js';
 
 export class CommandCogCreate extends CommandLineAction {
@@ -94,8 +93,6 @@ export class CommandCogCreate extends CommandLineAction {
     const jobLocation = this.job?.value;
     if (jobLocation == null) throw new Error('Missing job name');
 
-    const cfg = getDefaultConfig();
-
     const isCommit = this.commit?.value ?? false;
     const job = await CogStacJob.load(jobLocation);
 
@@ -122,18 +119,6 @@ export class CommandCogCreate extends CommandLineAction {
         await this.processTiff(tiffJob, name, tmpFolder, isCommit, logger.child({ tiffName: name }));
       }
     } catch (e) {
-      const processingId = job.json.processingId;
-      if (processingId != null) {
-        // Update job status if this is the processing job.
-        const jobConfig = await cfg.ProcessingJob.get(processingId);
-        if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + processingId);
-        const jobFailed = jobConfig as ProcessingJobFailed;
-        jobFailed.status = JobStatus.Fail;
-        jobFailed.error = String(e);
-        if (cfg.ProcessingJob.isWriteable()) await cfg.ProcessingJob.put(jobFailed);
-        else throw new Error('Unable update the Processing Job status:' + jobFailed.id);
-      }
-
       // Ensure the error is thrown
       throw e;
     } finally {
@@ -205,20 +190,8 @@ export class CommandCogCreate extends CommandLineAction {
       expectedTiffs.delete(basename);
     }
 
-    const cfg = getDefaultConfig();
     if (expectedTiffs.size === 0) {
-      // Update job status if this is the processing job.
       const url = await prepareUrl(job);
-      const processingId = job.json.processingId;
-      if (processingId != null) {
-        const jobConfig = await cfg.ProcessingJob.get(processingId);
-
-        if (jobConfig == null) throw new Error('Unable to find Job Processing Config:' + processingId);
-        const jobComplete = jobConfig as ProcessingJobComplete;
-        jobComplete.status = JobStatus.Complete;
-        jobComplete.url = url;
-        if (cfg.ProcessingJob.isWriteable()) await cfg.ProcessingJob.put(jobConfig);
-      }
       logger.info({ tiffCount: jobSize, tiffTotal: jobSize, url }, 'CogCreate:JobComplete');
     } else {
       logger.info({ tiffCount: jobSize, tiffRemaining: expectedTiffs.size }, 'CogCreate:JobProgress');

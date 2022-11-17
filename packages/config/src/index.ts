@@ -11,13 +11,6 @@ export { ConfigPrefix } from './config/prefix.js';
 export { ConfigProvider } from './config/provider.js';
 export { ConfigBundle } from './config/config.bundle.js';
 export {
-  JobStatus,
-  ProcessingJob,
-  ProcessingJobComplete,
-  ProcessingJobFailed,
-  ConfigProcessingJob,
-} from './config/processing.job.js';
-export {
   ConfigLayer,
   ConfigTileSet,
   ConfigTileSetRaster,
