@@ -68,8 +68,6 @@ export interface CogJobJson {
 
   source: CogSourceProperties;
   output: CogOutputProperties;
-
-  processingId?: string;
 }
 
 export interface CogJob extends CogJobJson {

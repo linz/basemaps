@@ -54,7 +54,6 @@ export class CommandJobCreate extends CommandLineAction {
   private tileMatrix: CommandLineStringParameter;
   private oneCog: CommandLineFlagParameter;
   private fileList: CommandLineStringParameter;
-  private processingId: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -131,7 +130,6 @@ export class CommandJobCreate extends CommandLineAction {
         id: this.overrideId?.value ?? CliId,
         projection: Epsg.tryGet(this.sourceProjection?.value),
         resampling,
-        processingId: this.processingId?.value,
       },
       batch: this.submitBatch?.value ?? false,
       oneCogCovering: this.oneCog?.value ?? false,
@@ -219,13 +217,6 @@ export class CommandJobCreate extends CommandLineAction {
       argumentName: 'FILE_LIST',
       parameterLongName: '--filelist',
       description: 'supply a list of files to use as source imagery',
-      required: false,
-    });
-
-    this.processingId = this.defineStringParameter({
-      argumentName: 'PROCESSING_ID',
-      parameterLongName: '--processing-id',
-      description: 'pass the job processing id',
       required: false,
     });
   }
