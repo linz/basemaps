@@ -17,7 +17,6 @@ import { CogJob } from '../../cog/types.js';
 import { Gdal } from '../../gdal/gdal.js';
 import { makeTempFolder, makeTiffFolder } from '../folder.js';
 import path from 'path';
-import { insertConfigImagery, insertConfigTileSet } from './imagery.config.js';
 import { JobStatus, ProcessingJobComplete, ProcessingJobFailed } from '@basemaps/config';
 import { prepareUrl } from '../util.js';
 
@@ -208,10 +207,6 @@ export class CommandCogCreate extends CommandLineAction {
 
     const cfg = getDefaultConfig();
     if (expectedTiffs.size === 0) {
-      // Insert Imagery and TileSet Config
-      await insertConfigImagery(cfg, job, logger);
-      await insertConfigTileSet(cfg, job, logger);
-
       // Update job status if this is the processing job.
       const url = await prepareUrl(job);
       const processingId = job.json.processingId;
