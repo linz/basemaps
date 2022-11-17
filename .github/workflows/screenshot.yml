@@ -16,7 +16,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: linz/action-typescript@v1
+      - uses: linz/action-typescript@v18
 
       # Package all the files
       - name: Bundle & Package all files
