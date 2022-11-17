@@ -82,8 +82,6 @@ export class CommandImageryConfig extends CommandLineAction {
       else bounds = bounds.union(imgBounds);
       files.push({ name: tif.source.uri.replace(path, ''), ...imgBounds });
     }
-    if (bounds == null) throw new Error('No imagery bounds were extracted');
-
     if (bounds == null) throw new Error('Failed to extract imagery bounds');
 
     const provider = new ConfigProviderMemory();
