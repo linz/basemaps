@@ -282,7 +282,7 @@ export class ConfigJson {
       return current;
     }, cfg.files[0]);
 
-    const tileMatrix = TileMatrixSets.tryGet(cfg.projection);
+    const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
     if (tileMatrix == null) throw new Error('Missing tileMatrix for imagery:' + cfg.id);
 
     // Find a maximum tile that could be used in this overview
