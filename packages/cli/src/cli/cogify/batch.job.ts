@@ -7,10 +7,10 @@ import { CogJob } from '../../cog/types.js';
 
 const JobQueue = 'CogBatchJobQueue';
 const JobDefinition = 'CogBatchJob';
-const ChunkJobMax = 1000;
-const ChunkLargeUnit = 200; // Up to 5 large files in one job
-const ChunkMiddleUnit = 50; // Up to 20 middle files in one job
-const ChunkSmallUnit = 20; // Up to 50 small files in one job
+const ChunkJobMax = 2000;
+const ChunkLargeUnit = 200; // Up to 10 large files in one job
+const ChunkMiddleUnit = 50; // Up to 40 middle files in one job
+const ChunkSmallUnit = 20; // Up to 100 small files in one job
 
 /** The base alignment level used by GDAL, Tiffs that are bigger or smaller than this should scale the compute resources */
 const MagicAlignmentLevel = 7;

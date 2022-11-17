@@ -66,6 +66,7 @@ o.spec('action.batch', () => {
       o(BatchJob.getJobs(fakeJob, new Set(), LogConfig.get())).deepEquals([
         [fakeFiles[2].name], // First single Job
         [fakeFiles[5].name], // Second single Job
+        [fakeFiles[13].name], // Second single Job
         [
           fakeFiles[0].name,
           fakeFiles[1].name,
@@ -77,9 +78,9 @@ o.spec('action.batch', () => {
           fakeFiles[9].name,
           fakeFiles[10].name,
           fakeFiles[11].name,
-        ], // First chunk
-        [fakeFiles[13].name], // Third single Job
-        [fakeFiles[12].name, fakeFiles[14].name], // Second Chunk
+          fakeFiles[12].name,
+          fakeFiles[14].name,
+        ],
       ]);
     });
 
@@ -101,8 +102,9 @@ o.spec('action.batch', () => {
           fakeFiles[9].name,
           fakeFiles[10].name,
           fakeFiles[11].name,
-        ], // First chunk
-        [fakeFiles[12].name, fakeFiles[14].name], // Second Chunk
+          fakeFiles[12].name,
+          fakeFiles[14].name,
+        ],
       ]);
     });
   });
