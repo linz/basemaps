@@ -208,10 +208,6 @@ export class CommandCogCreate extends CommandLineAction {
 
     const cfg = getDefaultConfig();
     if (expectedTiffs.size === 0) {
-      // Insert Imagery and TileSet Config
-      await insertConfigImagery(cfg, job, logger);
-      await insertConfigTileSet(cfg, job, logger);
-
       // Update job status if this is the processing job.
       const url = await prepareUrl(job);
       const processingId = job.json.processingId;

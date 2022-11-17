@@ -225,7 +225,7 @@ export class CommandImport extends CommandLineAction {
     const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
     const targetZoom = Math.max(tileMatrix.findBestZoom(job.output.gsd) - 12, 0);
     const urls = {
-      layer: `${PublicUrlBase}?i=${job.id}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
+      layer: `${PublicUrlBase}?config=${this.config.value}&i=${job.id}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
       tag: `${PublicUrlBase}?config=${this.config.value}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
     };
     return urls;
