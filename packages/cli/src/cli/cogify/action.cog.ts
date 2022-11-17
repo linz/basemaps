@@ -17,7 +17,6 @@ import { CogJob } from '../../cog/types.js';
 import { Gdal } from '../../gdal/gdal.js';
 import { makeTempFolder, makeTiffFolder } from '../folder.js';
 import path from 'path';
-import { insertConfigImagery, insertConfigTileSet } from './imagery.config.js';
 import { JobStatus, ProcessingJobComplete, ProcessingJobFailed } from '@basemaps/config';
 import { prepareUrl } from '../util.js';
 
