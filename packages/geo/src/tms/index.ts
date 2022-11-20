@@ -33,13 +33,20 @@ export const TileMatrixSets = {
   /**
    * Find a tile matrix set given a identifier or epsg string
    * @param identifier Tile matrix set identifier
+   * @param caseSensitive Should this compare case sensitively
    */
-  find(identifier: string | Nullish): TileMatrixSet | null {
+  find(identifier: string | Nullish, caseSensitive = true): TileMatrixSet | null {
     if (identifier == null) return null;
     const epsg = Epsg.parse(identifier);
     if (epsg != null) return TileMatrixSets.tryGet(epsg);
+    if (caseSensitive) {
+      for (const tileMatrix of TileMatrixSets.All) {
+        if (tileMatrix.identifier === identifier) return tileMatrix;
+      }
+      return null;
+    }
     for (const tileMatrix of TileMatrixSets.All) {
-      if (tileMatrix.identifier === identifier) return tileMatrix;
+      if (tileMatrix.identifier.toLowerCase() === identifier.toLowerCase()) return tileMatrix;
     }
     return null;
   },

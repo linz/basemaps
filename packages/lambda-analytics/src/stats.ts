@@ -82,7 +82,7 @@ function track(stat: TileRequestStats, userAgent: string, uri: string, status: n
   // no projection means this url is weirdly formatted
   if (projectionStr == null) return;
 
-  const tileMatrix = TileMatrixSets.find(projectionStr);
+  const tileMatrix = TileMatrixSets.find(projectionStr, false);
   if (tileMatrix == null) return;
 
   // Projection

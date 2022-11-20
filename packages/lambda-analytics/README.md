@@ -23,9 +23,9 @@ export interface TileRequestStats {
     /** Tile exensions used */
     extension: { webp: 0; jpeg: 0; png: 0; wmts: 0; other: 0 };
     /** Projections used */
-    projection: { 2193: 0; 3857: 0 };
+    tileMatrix: { NZTM2000Quad: number, WebMercatorQuad: number, NZTM2000Old: number },
     /** Tilesets accessed */
-    tileSet: { aerial: 0; aerialIndividual: 0; topo50: 0; direct: 0 };
+    tileSet: Record<string, number>;
     /** How was this rollup generated */
     generated: { 
         timestamp: string; 
