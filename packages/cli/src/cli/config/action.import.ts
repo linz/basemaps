@@ -66,7 +66,7 @@ export class CommandImport extends CommandLineAction {
     const backup = this.backup.value;
     const cfg = getDefaultConfig();
     if (config == null) throw new Error('Please provide a config json');
-    if (commit && !config.startsWith('s3://')) {
+    if (commit && !config.startsWith('s3://') && Env.isProduction()) {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
     }
 
