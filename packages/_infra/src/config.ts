@@ -22,7 +22,7 @@ export const BaseMapsProdConfig: BaseMapsConfig = {
 };
 
 export const BaseMapsDevConfig: BaseMapsConfig = {
-  CogBucket: ['basemaps-cog-test', ...BaseMapsProdConfig.CogBucket],
+  CogBucket: ['basemaps-cog-test', `linz-basemaps-staging`, ...BaseMapsProdConfig.CogBucket],
   CloudFrontDns: ['dev.basemaps.linz.govt.nz', 'tiles.dev.basemaps.linz.govt.nz'],
   PublicUrlBase: 'https://dev.basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
