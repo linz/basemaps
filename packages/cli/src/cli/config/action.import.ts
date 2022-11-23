@@ -4,6 +4,7 @@ import {
   ConfigBundle,
   ConfigBundled,
   ConfigProviderMemory,
+  standardizeLayerName,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, getDefaultConfig, LogConfig, Projection } from '@basemaps/shared';
@@ -13,7 +14,7 @@ import { CogStacJob } from '../../cog/cog.stac.job.js';
 import { invalidateCache } from '../util.js';
 import { Q, Updater } from './config.update.js';
 
-const PublicUrlBase = 'https://basemaps.linz.govt.nz/';
+const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;
@@ -224,8 +225,9 @@ export class CommandImport extends CommandLineAction {
     const proj = Projection.get(configImagey.projection);
     const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
     const targetZoom = Math.max(tileMatrix.findBestZoom(job.output.gsd) - 12, 0);
+    const name = standardizeLayerName(job.name);
     const urls = {
-      layer: `${PublicUrlBase}?config=${this.config.value}&i=${job.id}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
+      layer: `${PublicUrlBase}?config=${this.config.value}&i=${name}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
       tag: `${PublicUrlBase}?config=${this.config.value}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
     };
     return urls;
