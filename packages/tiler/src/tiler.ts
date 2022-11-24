@@ -1,6 +1,7 @@
 import { Bounds, TileMatrixSet, Point, Size } from '@basemaps/geo';
 import { CogTiff, CogTiffImage } from '@cogeotiff/core';
 import { Composition } from './raster.js';
+import { Cotar } from '@cotar/core';
 
 export interface RasterPixelBounds {
   /** Bounds in Raster Pixels of the output tile */
@@ -15,6 +16,11 @@ export interface RasterPixelBounds {
 
 /** The amount to bias the Bounds.round function to cover a larger, rather than smaller, area. */
 const ROUND_BIAS = 0.2;
+
+export type CloudArchive = CogTiff | Cotar;
+function isCotar(x: CloudArchive): x is Cotar {
+  return x.source.uri.endsWith('.tar.co');
+}
 
 export class Tiler {
   /** Tile size for the tiler and sub objects */
@@ -39,13 +45,17 @@ export class Tiler {
    * @param zoom WebMercator Zoom
    * @param logger
    */
-  public async tile(tiffs: CogTiff[], x: number, y: number, zoom: number): Promise<Composition[]> {
+  public async tile(assets: CloudArchive[], x: number, y: number, zoom: number): Promise<Composition[]> {
     let layers: Composition[] = [];
 
-    for (const tiff of tiffs) {
-      const tileOverlays = this.getTiles(tiff, x, y, zoom);
-      if (tileOverlays == null) continue;
-      layers = layers.concat(tileOverlays);
+    for (const asset of assets) {
+      if (isCotar(asset)) {
+        layers.push({ type: 'cotar', asset, path: `tiles/${zoom}/${x}/${y}.webp` });
+      } else {
+        const tileOverlays = this.getTiles(asset, x, y, zoom);
+        if (tileOverlays == null) continue;
+        layers = layers.concat(tileOverlays);
+      }
     }
 
     return layers;
@@ -101,7 +111,8 @@ export class Tiler {
 
     const drawAtRegion = target.subtract(raster.tile);
     const composition: Composition = {
-      tiff: img.tif,
+      type: 'tiff',
+      asset: img.tif,
       source: { x, y, imageId: img.id, width: source.width, height: source.height },
       y: Math.max(0, Math.round(drawAtRegion.y)),
       x: Math.max(0, Math.round(drawAtRegion.x)),

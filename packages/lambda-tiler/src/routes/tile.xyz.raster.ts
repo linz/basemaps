@@ -4,6 +4,7 @@ import { Env, fsa } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { CogTiff } from '@cogeotiff/core';
+import { Cotar } from '@cotar/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import pLimit from 'p-limit';
 import { ConfigLoader } from '../util/config.loader.js';
@@ -20,13 +21,15 @@ export function getTiffName(name: string): string {
   return `${name}.tiff`;
 }
 
+export type CloudArchive = CogTiff | Cotar;
+
 export const TileComposer = new TileMakerSharp(256);
 
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 
 export const TileXyzRaster = {
-  async getTiffsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<string[]> {
+  async getAssetsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<string[]> {
     const config = await ConfigLoader.load(req);
     const imagery = await getAllImagery(config, tileSet.layers, [xyz.tileMatrix.projection]);
 
@@ -55,6 +58,12 @@ export const TileXyzRaster = {
       }
       if (!tileBounds.intersects(Bounds.fromJson(img.bounds))) continue;
 
+      // FIXME is this meant to be >= <=
+      if (img.overviews && img.overviews.maxZoom >= filterZoom && img.overviews.minZoom <= filterZoom) {
+        output.push(fsa.join(img.uri, img.overviews.path));
+        continue;
+      }
+
       for (const c of img.files) {
         if (!tileBounds.intersects(Bounds.fromJson(c))) continue;
         const tiffPath = fsa.join(img.uri, getTiffName(c.name));
@@ -67,26 +76,32 @@ export const TileXyzRaster = {
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<LambdaHttpResponse> {
     if (xyz.tileType === VectorFormat.MapboxVectorTiles) return NotFound();
 
-    const tiffPaths = await this.getTiffsForTile(req, tileSet, xyz);
-    const cacheKey = Etag.key(tiffPaths);
+    const assetPaths = await this.getAssetsForTile(req, tileSet, xyz);
+    const cacheKey = Etag.key(assetPaths);
     if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
-    const toLoad: Promise<CogTiff | null>[] = [];
-    for (const tiffPath of tiffPaths) {
+    const toLoad: Promise<CloudArchive | null>[] = [];
+    for (const assetPath of assetPaths) {
       toLoad.push(
-        LoadingQueue(() => {
-          return CoSources.getCog(tiffPath).catch((error) => {
-            req.log.warn({ error, tiff: tiffPath }, 'TiffLoadFailed');
+        LoadingQueue((): Promise<CloudArchive | null> => {
+          if (assetPath.endsWith('.tar.co')) {
+            return CoSources.getCotar(assetPath).catch((error) => {
+              req.log.warn({ error, tiff: assetPath }, 'Load:Cotar:Failed');
+              return null;
+            });
+          }
+          return CoSources.getCog(assetPath).catch((error) => {
+            req.log.warn({ error, tiff: assetPath }, 'Load:Tiff:Failed');
             return null;
           });
         }),
       );
     }
 
-    const tiffs = (await Promise.all(toLoad)).filter((f) => f != null) as CogTiff[];
+    const assets = (await Promise.all(toLoad)).filter((f) => f != null) as CloudArchive[];
 
     const tiler = new Tiler(xyz.tileMatrix);
-    const layers = await tiler.tile(tiffs, xyz.tile.x, xyz.tile.y, xyz.tile.z);
+    const layers = await tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z);
 
     const res = await TileComposer.compose({
       layers,

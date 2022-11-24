@@ -1,5 +1,12 @@
 import Sharp from 'sharp';
-import { TileMaker, TileMakerContext, Composition, TileMakerResizeKernel } from '@basemaps/tiler';
+import {
+  TileMaker,
+  TileMakerContext,
+  Composition,
+  TileMakerResizeKernel,
+  CompositionTiff,
+  CompositionCotar,
+} from '@basemaps/tiler';
 import { Metrics } from '@linzjs/metrics';
 import sharp from 'sharp';
 import { ImageFormat } from '@basemaps/geo';
@@ -20,6 +27,7 @@ export class TileMakerSharp implements TileMaker {
   }
 
   protected isTooLarge(composition: Composition): boolean {
+    if (composition.type === 'cotar') return false;
     if (composition.resize) {
       if (composition.resize.width >= TileMakerSharp.MaxImageSize) {
         return true;
@@ -63,16 +71,28 @@ export class TileMakerSharp implements TileMaker {
     return this.toImage(format, this.createImage(background).composite(layers));
   }
 
+  /** Can we just serve the image directly from the cotar */
+  private isDirectCotar(ctx: TileMakerContext): boolean {
+    if (ctx.layers.length !== 1) return false;
+    const firstLayer = ctx.layers[0];
+    if (firstLayer.type !== 'cotar') return false;
+    if (this.tileSize !== 256) return false; // TODO this should not be hard coded
+    if (ctx.format !== ImageFormat.Webp) return false; // TODO this should not be hard coded
+    if (ctx.background.alpha !== 0) return false;
+    return true;
+  }
+
   /** Are we just serving the source tile directly back to the user without any modifications */
   private isDirectImage(ctx: TileMakerContext): boolean {
     if (ctx.layers.length !== 1) return false;
     const firstLayer = ctx.layers[0];
+    if (firstLayer.type !== 'tiff') return false;
     // Has to be rendered at the top left with no modification
     if (firstLayer.x !== 0 || firstLayer.y !== 0) return false;
     if (firstLayer.crop != null || firstLayer.extract != null || firstLayer.resize != null) return false;
 
     // Validate tile size is expected
-    const img = firstLayer.tiff.getImage(firstLayer.source.imageId);
+    const img = firstLayer.asset.getImage(firstLayer.source.imageId);
     const tileSize = img.tileSize;
     if (tileSize.height !== this.tileSize || tileSize.width !== this.tileSize) return false;
 
@@ -91,10 +111,19 @@ export class TileMakerSharp implements TileMaker {
     // 2. Create image overlays
     metrics.start('compose:overlay');
 
+    if (this.isDirectCotar(ctx)) {
+      const firstLayer = ctx.layers[0] as CompositionCotar;
+      const buf = await firstLayer.asset.get(firstLayer.path);
+      if (buf == null) return { buffer: await this.getEmptyImage(ctx.format, ctx.background), metrics, layers: 0 };
+      metrics.start('compose:direct');
+      metrics.end('compose:direct');
+      return { buffer: Buffer.from(buf), metrics, layers: 1 };
+    }
+
     // If we are serving a single tile back to the user, sometimes we can serve the raw image buffer from the tiff
     if (this.isDirectImage(ctx)) {
-      const firstLayer = ctx.layers[0];
-      const buf = await firstLayer.tiff.getTile(firstLayer.source.x, firstLayer.source.y, firstLayer.source.imageId);
+      const firstLayer = ctx.layers[0] as CompositionTiff;
+      const buf = await firstLayer.asset.getTile(firstLayer.source.x, firstLayer.source.y, firstLayer.source.imageId);
       metrics.end('compose:overlay');
 
       if (buf == null) return { buffer: await this.getEmptyImage(ctx.format, ctx.background), metrics, layers: 0 };
@@ -120,7 +149,22 @@ export class TileMakerSharp implements TileMaker {
   }
 
   private async composeTile(comp: Composition, resizeKernel: TileMakerResizeKernel): Promise<SharpOverlay | null> {
-    const tile = await comp.tiff.getTile(comp.source.x, comp.source.y, comp.source.imageId);
+    if (comp.type === 'tiff') return this.composeTileTiff(comp, resizeKernel);
+    if (comp.type === 'cotar') return this.composeTileTar(comp);
+    throw new Error('Failed to compose tile from source');
+  }
+
+  private async composeTileTar(comp: CompositionCotar): Promise<SharpOverlay | null> {
+    const buf = await comp.asset.get(comp.path);
+    if (buf == null) return null;
+    return { input: Buffer.from(buf), top: 0, left: 0 };
+  }
+
+  private async composeTileTiff(
+    comp: CompositionTiff,
+    resizeKernel: TileMakerResizeKernel,
+  ): Promise<SharpOverlay | null> {
+    const tile = await comp.asset.getTile(comp.source.x, comp.source.y, comp.source.imageId);
     if (tile == null) return null;
 
     const sharp = Sharp(Buffer.from(tile.bytes));

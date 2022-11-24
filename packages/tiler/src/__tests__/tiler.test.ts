@@ -1,6 +1,7 @@
 import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { Approx, TestTiff } from '@basemaps/test';
 import o from 'ospec';
+import { CompositionTiff } from '../raster.js';
 import { Tiler } from '../tiler.js';
 
 o.spec('tiler.test', () => {
@@ -57,11 +58,12 @@ o.spec('tiler.test', () => {
       tile: new Bounds(4133632, 2623488, 256, 256),
     };
 
-    const ans = tiler.createComposition(img, 0, 0, 0.5, raster);
+    const ans = tiler.createComposition(img, 0, 0, 0.5, raster) as CompositionTiff;
     if (ans == null) throw new Error('Composition should return results');
     const { crop } = ans;
     o(ans).deepEquals({
-      tiff: ans.tiff,
+      type: 'tiff',
+      asset: ans.asset,
       source: { x: 0, y: 0, imageId: 6, width: 512, height: 387 },
       y: 0,
       x: 64,
