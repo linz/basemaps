@@ -13,6 +13,7 @@ import { CommandImageryConfig } from './config/action.imagery.config.js';
 import { CommandImport } from './config/action.import.js';
 import { CommandServe } from './server/action.serve.js';
 import { CommandSprites } from './sprites/action.sprites.js';
+import { CommandCreateAllOverviews } from './overview/action.create.all.overviews.js';
 
 export class BasemapsConfigCommandLine extends BaseCommandLine {
   constructor() {
@@ -25,6 +26,7 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     this.addAction(new CommandJobCreate());
     this.addAction(new CommandMakeCog());
     this.addAction(new CommandCreateOverview());
+    this.addAction(new CommandCreateAllOverviews());
     this.addAction(new CommandCogPullRequest());
 
     this.addAction(new CommandBundle());
