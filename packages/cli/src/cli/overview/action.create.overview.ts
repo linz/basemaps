@@ -1,12 +1,12 @@
 import { sha256base58 } from '@basemaps/config';
 import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
-import { LogConfig, LogType } from '@basemaps/shared';
-import { ChunkSource, SourceMemory } from '@chunkd/core';
+import { LogConfig, LogType, Projection } from '@basemaps/shared';
+import { SourceMemory } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
 import { CotarIndexBinary, CotarIndexBuilder, TarReader } from '@cotar/core';
 import { TarBuilder } from '@cotar/tar';
-import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { resolve } from 'path';
@@ -17,11 +17,11 @@ import { createOverviewWmtsCapabilities } from './overview.wmts.js';
 import { JobTiles, tile } from './tile.generator.js';
 import { SimpleTimer } from './timer.js';
 
-const DefaultMaxZoom = 15;
+const DefaultMaxZoom = 15; // Limitation of maximum overview zoom level to create
+const MaxNumberTiles = 250000; // Limitation of maximum number of tiles we can create for overview.
 
 export class CommandCreateOverview extends CommandLineAction {
   private source: CommandLineStringParameter;
-  private maxZoom: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
 
   public constructor() {
@@ -39,11 +39,6 @@ export class CommandCreateOverview extends CommandLineAction {
       description: 'Path of source imagery files',
       required: true,
     });
-    this.maxZoom = this.defineIntegerParameter({
-      argumentName: 'MAX_ZOOM',
-      parameterLongName: '--max-zoom',
-      description: 'Maximum zoom level for the overview',
-    });
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
       parameterLongName: '--output',
@@ -55,20 +50,30 @@ export class CommandCreateOverview extends CommandLineAction {
     const logger = LogConfig.get();
     const source = this.source.value;
     if (source == null) throw new Error('Please provide a path for the source imagery.');
-    const maxZoom = this.maxZoom.value ?? DefaultMaxZoom;
+
     const hash = sha256base58(source);
 
-    logger.info({ source, hash, maxZoom }, 'CreateOverview');
+    logger.info({ source, hash }, 'CreateOverview');
     const path = fsa.join('overview', hash);
 
     const st = new SimpleTimer();
     logger.debug({ source }, 'CreateOverview:ListTiffs');
     const tiffList = (await fsa.toArray(fsa.list(source))).filter(filterTiff);
     const tiffSource = tiffList.map((path: string) => fsa.source(path));
+
     logger.info({ source, duration: st.tick() }, 'CreateOverview:ListTiffs:Done');
 
     logger.debug({ source }, 'CreateOverview:PrepareSourceFiles');
-    const tileMatrix = await this.getTileMatrix(tiffSource);
+    let tiff: CogTiff;
+    try {
+      tiff = await CogTiff.create(tiffSource[0]);
+      await tiff.init(true);
+    } catch {
+      throw new Error(`Source: ${tiffSource[0]} is not a valid tiff file.`);
+    }
+    const tileMatrix = await this.getTileMatrix(tiff);
+    const maxZoom = this.getMaxZoomFromGSD(tiff, tileMatrix);
+    await tiff.close();
     logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareSourceFiles:Done');
 
     logger.debug({ source }, 'CreateOverview:PrepareCovering');
@@ -78,7 +83,7 @@ export class CommandCreateOverview extends CommandLineAction {
     logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareCovering:Done');
 
     logger.debug({ source }, 'CreateOverview:PrepareTiles');
-    const tiles = await this.prepareTiles(metadata.files, maxZoom);
+    const tiles = this.prepareTiles(metadata.files, maxZoom);
     if (tiles.size < 1) throw new Error('Failed to prepare overviews.');
     logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareTiles:Done');
 
@@ -102,7 +107,7 @@ export class CommandCreateOverview extends CommandLineAction {
     logger.info({ source, duration: st.total() }, 'CreateOverview:Done');
   }
 
-  async prepareTiles(files: NamedBounds[], maxZoom: number): Promise<Set<string>> {
+  prepareTiles(files: NamedBounds[], maxZoom: number): Set<string> {
     const tiles = new Set<string>(['']);
     for (const file of files) {
       const name = file.name;
@@ -115,6 +120,7 @@ export class CommandCreateOverview extends CommandLineAction {
         qk = QuadKey.parent(qk);
       }
     }
+    if (tiles.size > MaxNumberTiles) return this.prepareTiles(files, maxZoom - 1);
     return tiles;
   }
 
@@ -126,14 +132,19 @@ export class CommandCreateOverview extends CommandLineAction {
     }
   }
 
-  async getTileMatrix(sources: ChunkSource[]): Promise<TileMatrixSet> {
-    const tiff = await CogTiff.create(sources[0]);
+  async getTileMatrix(tiff: CogTiff): Promise<TileMatrixSet> {
     await tiff.getImage(0).loadGeoTiffTags();
     const projection = tiff.getImage(0).epsg;
     if (projection == null) throw new Error('Failed to find the projection from the imagery.');
     else if (projection === 2193) return Nztm2000QuadTms;
     else if (projection === 3857) return GoogleTms;
     else throw new Error(`Projection code: ${projection} not supported`);
+  }
+
+  getMaxZoomFromGSD(tiff: CogTiff, tileMatrix: TileMatrixSet): number {
+    const gsd = tiff.getImage(tiff.images.length - 1).resolution[0];
+    const resZoom = Projection.getTiffResZoom(tileMatrix, gsd);
+    return Math.min(resZoom + 2, DefaultMaxZoom);
   }
 
   async createTar(path: string, logger: LogType): Promise<void> {
