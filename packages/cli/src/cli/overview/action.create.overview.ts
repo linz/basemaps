@@ -1,7 +1,7 @@
 import { sha256base58 } from '@basemaps/config';
 import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
 import { LogConfig, LogType, Projection } from '@basemaps/shared';
-import { ChunkSource, SourceMemory } from '@chunkd/core';
+import { SourceMemory } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
 import { CotarIndexBinary, CotarIndexBuilder, TarReader } from '@cotar/core';
@@ -66,7 +66,7 @@ export class CommandCreateOverview extends CommandLineAction {
     logger.debug({ source }, 'CreateOverview:PrepareSourceFiles');
     const tiff = await CogTiff.create(tiffSource[0]);
     const tileMatrix = await this.getTileMatrix(tiff);
-    const maxZoom = await this.getGSD(tiff, tileMatrix);
+    const maxZoom = await this.getMaxZoomFromGSD(tiff, tileMatrix);
     logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareSourceFiles:Done');
 
     logger.debug({ source }, 'CreateOverview:PrepareCovering');
@@ -133,10 +133,9 @@ export class CommandCreateOverview extends CommandLineAction {
     else throw new Error(`Projection code: ${projection} not supported`);
   }
 
-  async getGSD(tiff: CogTiff, tileMatrix: TileMatrixSet): Promise<number> {
+  async getMaxZoomFromGSD(tiff: CogTiff, tileMatrix: TileMatrixSet): Promise<number> {
     await tiff.init(true);
-    const lastIndex = tiff.images.length - 1;
-    const gsd = tiff.getImage(lastIndex).resolution[0];
+    const gsd = tiff.getImage(tiff.images.length - 1).resolution[0];
     const resZoom = Projection.getTiffResZoom(tileMatrix, gsd);
     return Math.min(resZoom + 2, DefaultMaxZoom);
   }
