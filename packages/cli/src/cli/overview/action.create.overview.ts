@@ -1,6 +1,6 @@
 import { sha256base58 } from '@basemaps/config';
 import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
-import { LogConfig, LogType } from '@basemaps/shared';
+import { LogConfig, LogType, Projection } from '@basemaps/shared';
 import { ChunkSource, SourceMemory } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
@@ -39,11 +39,6 @@ export class CommandCreateOverview extends CommandLineAction {
       description: 'Path of source imagery files',
       required: true,
     });
-    this.maxZoom = this.defineIntegerParameter({
-      argumentName: 'MAX_ZOOM',
-      parameterLongName: '--max-zoom',
-      description: 'Maximum zoom level for the overview',
-    });
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
       parameterLongName: '--output',
@@ -55,20 +50,23 @@ export class CommandCreateOverview extends CommandLineAction {
     const logger = LogConfig.get();
     const source = this.source.value;
     if (source == null) throw new Error('Please provide a path for the source imagery.');
-    const maxZoom = this.maxZoom.value ?? DefaultMaxZoom;
+
     const hash = sha256base58(source);
 
-    logger.info({ source, hash, maxZoom }, 'CreateOverview');
+    logger.info({ source, hash }, 'CreateOverview');
     const path = fsa.join('overview', hash);
 
     const st = new SimpleTimer();
     logger.debug({ source }, 'CreateOverview:ListTiffs');
     const tiffList = (await fsa.toArray(fsa.list(source))).filter(filterTiff);
     const tiffSource = tiffList.map((path: string) => fsa.source(path));
+
     logger.info({ source, duration: st.tick() }, 'CreateOverview:ListTiffs:Done');
 
     logger.debug({ source }, 'CreateOverview:PrepareSourceFiles');
-    const tileMatrix = await this.getTileMatrix(tiffSource);
+    const tiff = await CogTiff.create(tiffSource[0]);
+    const tileMatrix = await this.getTileMatrix(tiff);
+    const maxZoom = await this.getGSD(tiff, tileMatrix);
     logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareSourceFiles:Done');
 
     logger.debug({ source }, 'CreateOverview:PrepareCovering');
@@ -126,14 +124,21 @@ export class CommandCreateOverview extends CommandLineAction {
     }
   }
 
-  async getTileMatrix(sources: ChunkSource[]): Promise<TileMatrixSet> {
-    const tiff = await CogTiff.create(sources[0]);
+  async getTileMatrix(tiff: CogTiff): Promise<TileMatrixSet> {
     await tiff.getImage(0).loadGeoTiffTags();
     const projection = tiff.getImage(0).epsg;
     if (projection == null) throw new Error('Failed to find the projection from the imagery.');
     else if (projection === 2193) return Nztm2000QuadTms;
     else if (projection === 3857) return GoogleTms;
     else throw new Error(`Projection code: ${projection} not supported`);
+  }
+
+  async getGSD(tiff: CogTiff, tileMatrix: TileMatrixSet): Promise<number> {
+    await tiff.init(true);
+    const lastIndex = tiff.images.length - 1;
+    const gsd = tiff.getImage(lastIndex).resolution[0];
+    const resZoom = Projection.getTiffResZoom(tileMatrix, gsd);
+    return Math.min(resZoom + 2, DefaultMaxZoom);
   }
 
   async createTar(path: string, logger: LogType): Promise<void> {
