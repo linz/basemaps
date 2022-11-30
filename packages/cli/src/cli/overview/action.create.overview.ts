@@ -18,6 +18,7 @@ import { JobTiles, tile } from './tile.generator.js';
 import { SimpleTimer } from './timer.js';
 
 const DefaultMaxZoom = 15;
+const MaxNumberTiles = 250000;
 
 export class CommandCreateOverview extends CommandLineAction {
   private source: CommandLineStringParameter;
@@ -113,6 +114,7 @@ export class CommandCreateOverview extends CommandLineAction {
         qk = QuadKey.parent(qk);
       }
     }
+    if (tiles.size > MaxNumberTiles) this.prepareTiles(files, maxZoom - 1);
     return tiles;
   }
 
