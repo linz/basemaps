@@ -6,7 +6,6 @@ import { MakeCogGithub } from '../github/make.cog.pr.js';
 
 export class CommandCogPullRequest extends CommandLineAction {
   private layer: CommandLineStringParameter;
-  private urls: CommandLineStringParameter;
   private output: CommandLineStringParameter;
   private jira: CommandLineStringParameter;
 

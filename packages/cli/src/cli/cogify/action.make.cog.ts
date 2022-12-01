@@ -1,5 +1,5 @@
 import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Env, FileConfigS3Role, fsa, LogConfig, LogType, Projection, titleizeImageryName } from '@basemaps/shared';
+import { Env, FileConfigS3Role, fsa, LogConfig, LogType, titleizeImageryName } from '@basemaps/shared';
 import {
   CommandLineAction,
   CommandLineFlagParameter,
@@ -19,11 +19,6 @@ import { ConfigLayer } from '@basemaps/config';
 interface OutputJobs {
   job: string;
   names: string[];
-}
-
-interface ImageryUrl {
-  tileMatrix: string;
-  url: string;
 }
 
 export class CommandMakeCog extends CommandLineAction {
@@ -125,7 +120,7 @@ export class CommandMakeCog extends CommandLineAction {
 
     const outputJobs: OutputJobs[] = [];
     const configLayer: ConfigLayer = { name, title: titleizeImageryName(name) };
-    const urls: ImageryUrl[] = [];
+    const paths: string[] = [];
     for (const identifier of tileMatrixSets) {
       const id = ulid.ulid();
       const tileMatrix = TileMatrixSets.find(identifier);
@@ -140,18 +135,16 @@ export class CommandMakeCog extends CommandLineAction {
       }
 
       // Set config layer for output
-      configLayer[tileMatrix.projection.code] = jobLocation.replace('/job.json', '');
-
-      // Get urls for ouput
-      const url = await this.prepareUrl(job);
-      urls.push({ tileMatrix: identifier, url });
+      const path = jobLocation.replace('/job.json', '');
+      configLayer[tileMatrix.projection.code] = path;
+      paths.push(path);
     }
 
     const output = this.output.value;
     if (output) {
       fsa.write(fsa.join(output, 'jobs.json'), JSON.stringify(outputJobs));
       fsa.write(fsa.join(output, 'layer.json'), JSON.stringify(configLayer));
-      fsa.write(fsa.join(output, 'urls.json'), JSON.stringify(urls));
+      fsa.write(fsa.join(output, 'paths.json'), JSON.stringify(paths));
     }
   }
 
@@ -230,19 +223,5 @@ export class CommandMakeCog extends CommandLineAction {
       if (path.startsWith(prefix.prefix)) return { type: 's3', path, roleArn: prefix.roleArn };
     }
     throw new Error(`No valid role to find the path: ${path}`);
-  }
-
-  /**
-   * Prepare QA urls with center location
-   */
-  async prepareUrl(job: CogStacJob): Promise<string> {
-    const bounds = job.output.bounds;
-    const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
-    const proj = Projection.get(job.tileMatrix.projection);
-    const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
-    const targetZoom = Math.max(job.tileMatrix.findBestZoom(job.output.gsd) - 12, 0);
-    const base = Env.get(Env.PublicUrlBase);
-    const url = `${base}/?i=${job.id}&p=${job.tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`;
-    return url;
   }
 }
