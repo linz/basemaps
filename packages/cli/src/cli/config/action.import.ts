@@ -170,7 +170,7 @@ export class CommandImport extends CommandLineAction {
         }
         if (layer[2193] && layer[2193] !== existing[2193]) {
           const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
-          change.push(`- Layer update [NZTM200Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+          change.push(`- Layer update [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
         }
         if (layer[3857] && layer[3857] !== existing[3857]) {
           const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
@@ -182,7 +182,7 @@ export class CommandImport extends CommandLineAction {
         inserts.push(`### ${layer.name}\n`);
         if (layer[2193]) {
           const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
-          inserts.push(` - [NZTM200Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+          inserts.push(` - [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
         }
         if (layer[3857]) {
           const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
