@@ -14,7 +14,7 @@ export class CommandCogMapSheet extends CommandLineAction {
   private path: CommandLineStringParameter;
   private config: CommandLineStringParameter;
   private output: CommandLineStringParameter;
-  private excludes: CommandLineStringParameter;
+  private exclude: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -43,9 +43,9 @@ export class CommandCogMapSheet extends CommandLineAction {
       description: 'Output of the mapsheet file',
       required: true,
     });
-    this.excludes = this.defineStringParameter({
+    this.exclude = this.defineStringParameter({
       argumentName: 'EXCLUDE',
-      parameterLongName: '--excludes',
+      parameterLongName: '--exclude',
       description: 'Exclude the layers with the pattern in the layer name.',
       required: false,
     });
@@ -58,15 +58,7 @@ export class CommandCogMapSheet extends CommandLineAction {
     const config = this.config.value;
     if (config == null) throw new Error('Please provide valid a config path.');
 
-    const excludeStr = this.excludes.value;
-    let excludes: string[] = [];
-    if (excludeStr) {
-      try {
-        excludes = JSON.parse(excludeStr);
-      } catch {
-        throw new Error('Please provide a valid input layer');
-      }
-    }
+    const exclude = this.exclude.value ? new RegExp(this.exclude.value.toLowerCase(), 'i') : undefined;
 
     const outputPath = this.output.value;
     if (outputPath == null) throw new Error('Please provide valid a output path.');
@@ -86,7 +78,7 @@ export class CommandCogMapSheet extends CommandLineAction {
     );
     const imageryIds = new Set<string>();
     for (const layer of layers) {
-      if (excludes.find((e) => layer.name.includes(e))) continue;
+      if (exclude && exclude.test(layer.name)) continue;
       if (layer[2193] != null) imageryIds.add(layer[2193]);
     }
     const imagery = await men.Imagery.getAll(imageryIds);
