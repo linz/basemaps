@@ -1,7 +1,7 @@
 import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 import { Bounds } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as fgb from 'flatgeobuf/lib/mjs/geojson.js';
 import { FeatureCollection, MultiPolygon } from 'geojson';
 
@@ -14,6 +14,7 @@ export class CommandCogMapSheet extends CommandLineAction {
   private path: CommandLineStringParameter;
   private config: CommandLineStringParameter;
   private output: CommandLineStringParameter;
+  private satellite: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -42,6 +43,11 @@ export class CommandCogMapSheet extends CommandLineAction {
       description: 'Output of the mapsheet file',
       required: true,
     });
+    this.satellite = this.defineFlagParameter({
+      parameterLongName: '--satellite',
+      description: 'Include the satellite layers',
+      required: false,
+    });
   }
 
   async onExecute(): Promise<void> {
@@ -69,6 +75,7 @@ export class CommandCogMapSheet extends CommandLineAction {
     );
     const imageryIds = new Set<string>();
     for (const layer of layers) {
+      if (!this.satellite.value && layer.name.includes('satellite')) continue;
       if (layer[2193] != null) imageryIds.add(layer[2193]);
     }
     const imagery = await men.Imagery.getAll(imageryIds);
