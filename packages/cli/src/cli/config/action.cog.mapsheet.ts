@@ -1,7 +1,7 @@
 import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 import { Bounds } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import * as fgb from 'flatgeobuf/lib/mjs/geojson.js';
 import { FeatureCollection, MultiPolygon } from 'geojson';
 
@@ -14,7 +14,7 @@ export class CommandCogMapSheet extends CommandLineAction {
   private path: CommandLineStringParameter;
   private config: CommandLineStringParameter;
   private output: CommandLineStringParameter;
-  private satellite: CommandLineFlagParameter;
+  private excludes: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -43,9 +43,10 @@ export class CommandCogMapSheet extends CommandLineAction {
       description: 'Output of the mapsheet file',
       required: true,
     });
-    this.satellite = this.defineFlagParameter({
-      parameterLongName: '--satellite',
-      description: 'Include the satellite layers',
+    this.excludes = this.defineStringParameter({
+      argumentName: 'EXCLUDE',
+      parameterLongName: '--excludes',
+      description: 'Exclude the layers with the pattern in the layer name.',
       required: false,
     });
   }
@@ -56,6 +57,16 @@ export class CommandCogMapSheet extends CommandLineAction {
     if (path == null) throw new Error('Please provide valid a fgb path.');
     const config = this.config.value;
     if (config == null) throw new Error('Please provide valid a config path.');
+
+    const excludeStr = this.excludes.value;
+    let excludes: string[] = [];
+    if (excludeStr) {
+      try {
+        excludes = JSON.parse(excludeStr);
+      } catch {
+        throw new Error('Please provide a valid input layer');
+      }
+    }
 
     const outputPath = this.output.value;
     if (outputPath == null) throw new Error('Please provide valid a output path.');
@@ -75,7 +86,7 @@ export class CommandCogMapSheet extends CommandLineAction {
     );
     const imageryIds = new Set<string>();
     for (const layer of layers) {
-      if (!this.satellite.value && layer.name.includes('satellite')) continue;
+      if (excludes.find((e) => layer.name.includes(e))) continue;
       if (layer[2193] != null) imageryIds.add(layer[2193]);
     }
     const imagery = await men.Imagery.getAll(imageryIds);
