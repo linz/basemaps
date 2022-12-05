@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "6.36.0",
+  "version": "6.37.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -28,11 +28,11 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
-    "@basemaps/attribution": "^6.32.1",
-    "@basemaps/config": "^6.36.0",
-    "@basemaps/geo": "^6.32.1",
-    "@basemaps/infra": "^6.36.0",
-    "@basemaps/shared": "^6.36.0",
+    "@basemaps/attribution": "^6.37.0",
+    "@basemaps/config": "^6.37.0",
+    "@basemaps/geo": "^6.37.0",
+    "@basemaps/infra": "^6.37.0",
+    "@basemaps/shared": "^6.37.0",
     "@linzjs/lui": "^17.16.2",
     "@servie/events": "^3.0.0",
     "@types/proj4": "^2.5.2",
@@ -40,8 +40,8 @@
     "maplibre-gl": "^2.1.9",
     "mime-types": "^2.1.35",
     "proj4": "^2.8.0",
-    "react-dom": "^18.2.0",
     "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "ulid": "^2.3.0"
   },
   "publishConfig": {

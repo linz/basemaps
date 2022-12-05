@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
+
+
+### Bug Fixes
+
+* **cli:** Fix the output for the overview cli as fsa.stream corrupt the file write to aws. ([#2585](https://github.com/linz/basemaps/issues/2585)) ([5875514](https://github.com/linz/basemaps/commit/5875514baeb5bbf3905460aad0dcef9ba0887322))
+
+
+### Features
+
+* **cli:** New cli to create github pr for the import imagery workflow. ([#2515](https://github.com/linz/basemaps/issues/2515)) ([8f51284](https://github.com/linz/basemaps/commit/8f51284a48e02b6a0209afb02095351368555f39))
+* **cli:** New cli to create overview of imagery BM-628 ([#2540](https://github.com/linz/basemaps/issues/2540)) ([7c21ca0](https://github.com/linz/basemaps/commit/7c21ca0f56cca472b92972f488380313b3de31ee))
+
+
+
+
+
 # [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
 
 

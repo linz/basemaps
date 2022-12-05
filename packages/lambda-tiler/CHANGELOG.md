@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
+
+
+### Bug Fixes
+
+* **cli:** Fix the output for the overview cli as fsa.stream corrupt the file write to aws. ([#2585](https://github.com/linz/basemaps/issues/2585)) ([5875514](https://github.com/linz/basemaps/commit/5875514baeb5bbf3905460aad0dcef9ba0887322))
+
+
+### Features
+
+* add overview archive to imagery config ([#2545](https://github.com/linz/basemaps/issues/2545)) ([ac463ef](https://github.com/linz/basemaps/commit/ac463efdaf8b6773c21b011a70327b606e4fafcb))
+* **cli:** create WMTSCapabilties.xml for the overviews cotar ([#2590](https://github.com/linz/basemaps/issues/2590)) ([51421f6](https://github.com/linz/basemaps/commit/51421f60cc9e5b74581434617fca93d03f3fd993))
+* **lambda-tiler:** Allow to load config json from linz-basemaps-staging bucket. ([#2605](https://github.com/linz/basemaps/issues/2605)) ([5cf8133](https://github.com/linz/basemaps/commit/5cf8133e75467e25e2cd7396ec1e56a575bc9113))
+
+
+
+
+
 # [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
 
 

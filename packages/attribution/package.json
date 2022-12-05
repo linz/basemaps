@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/attribution",
-  "version": "6.32.1",
+  "version": "6.37.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -30,7 +30,7 @@
     "build/"
   ],
   "dependencies": {
-    "@basemaps/geo": "^6.32.1",
+    "@basemaps/geo": "^6.37.0",
     "@linzjs/geojson": "^6.32.1"
   },
   "bundle": {
