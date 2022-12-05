@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
+
+
+### Bug Fixes
+
+* **lambda-analytics:** correctly track NZTM2000Quad tileMatrix ([#2602](https://github.com/linz/basemaps/issues/2602)) ([aa86362](https://github.com/linz/basemaps/commit/aa8636223334d32aeefacdeb62dcca9e14757246))
+
+
+
+
+
 # [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
 
 **Note:** Version bump only for package @basemaps/lambda-analytics

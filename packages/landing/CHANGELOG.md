@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
+
+
+### Bug Fixes
+
+* **landing:** do not install bundled deps when installing landing ([#2581](https://github.com/linz/basemaps/issues/2581)) ([acd6def](https://github.com/linz/basemaps/commit/acd6defd139828c21dd4ca91dda8c4da90ff1ffc))
+
+
+
+
+
 # [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
 
 

@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
+
+
+### Bug Fixes
+
+* **cli:**  NZTM2000Quad PR link ([#2614](https://github.com/linz/basemaps/issues/2614)) ([93545c0](https://github.com/linz/basemaps/commit/93545c0c0e3fffe3a87d080226fdbaf2860ca541))
+* **cli:** Convert overview cli to single thread to fix the import.meta.url not working in cjs ([#2576](https://github.com/linz/basemaps/issues/2576)) ([b92256b](https://github.com/linz/basemaps/commit/b92256b02882b931692fd2dd007cb866c7f1758c))
+* **cli:** do not minify the cli to make it easier to debug ([#2580](https://github.com/linz/basemaps/issues/2580)) ([e5973bd](https://github.com/linz/basemaps/commit/e5973bdb899b08c99d60739c035fc52c90bd3f35))
+* **cli:** ensure only 0 to --max-zoom tiles are created ([#2593](https://github.com/linz/basemaps/issues/2593)) ([7b251d5](https://github.com/linz/basemaps/commit/7b251d50fc0b9057c81b80330694cad19679e0a2))
+* **cli:** Fix the output for the overview cli as fsa.stream corrupt the file write to aws. ([#2585](https://github.com/linz/basemaps/issues/2585)) ([5875514](https://github.com/linz/basemaps/commit/5875514baeb5bbf3905460aad0dcef9ba0887322))
+* **cli:** Fix update the url to load imagery into dev and imagery name as layer. ([#2607](https://github.com/linz/basemaps/issues/2607)) ([1730580](https://github.com/linz/basemaps/commit/1730580af1c42844fa06fba30590baf984ea6b45))
+* **cli:** make tile paths relative not absolute ([#2595](https://github.com/linz/basemaps/issues/2595)) ([dae0e9b](https://github.com/linz/basemaps/commit/dae0e9be274aa53fba7cd933b19dd1eb4f216353))
+* **cli:** remove the insert config in create-cog cli. ([#2597](https://github.com/linz/basemaps/issues/2597)) ([4f9d61b](https://github.com/linz/basemaps/commit/4f9d61bfecf74e1f3e1c627df0f789335dcd39ae))
+* **cli:** tidy up overview creation ensure tar is valid ([#2594](https://github.com/linz/basemaps/issues/2594)) ([754e76a](https://github.com/linz/basemaps/commit/754e76ae0ede669c2127e3284d819f2dab9c21c6))
+* **lambda-analytics:** correctly track NZTM2000Quad tileMatrix ([#2602](https://github.com/linz/basemaps/issues/2602)) ([aa86362](https://github.com/linz/basemaps/commit/aa8636223334d32aeefacdeb62dcca9e14757246))
+* **landing:** do not install bundled deps when installing landing ([#2581](https://github.com/linz/basemaps/issues/2581)) ([acd6def](https://github.com/linz/basemaps/commit/acd6defd139828c21dd4ca91dda8c4da90ff1ffc))
+
+
+### Features
+
+* **cli:** Add flag to exclude the all satellite layers for create mapsheet. ([#2613](https://github.com/linz/basemaps/issues/2613)) ([4cf4f28](https://github.com/linz/basemaps/commit/4cf4f28d18eafdfc9be7470ac43e109fa8b1b75d))
+* **cli:** Allow to import config into dev dynamodb from a local config.json file. ([#2604](https://github.com/linz/basemaps/issues/2604)) ([53152aa](https://github.com/linz/basemaps/commit/53152aadd83d70a24ef00d4df990d74b57a8a8cb))
+* **cli:** allow users to specify a title for the imagery config ([#2572](https://github.com/linz/basemaps/issues/2572)) ([59a3e7f](https://github.com/linz/basemaps/commit/59a3e7fa847f64f5c83fc876b071db947407d14d))
+* **cli:** Create-overview determine max zoom overview from the gsd ([#2612](https://github.com/linz/basemaps/issues/2612)) ([59a01e6](https://github.com/linz/basemaps/commit/59a01e665715097b9d3f577fce1258e2d1bc00e9))
+* **cli:** Double the number of maximum chunk in single job. ([#2599](https://github.com/linz/basemaps/issues/2599)) ([5583e43](https://github.com/linz/basemaps/commit/5583e439f1f7d746a63347440eaead014b3fb113))
+* **cli:** Make cog to output paths for create overviews. ([#2615](https://github.com/linz/basemaps/issues/2615)) ([c50b85c](https://github.com/linz/basemaps/commit/c50b85ccc2c227a1f7ed042f45778094fa2335e5))
+* add overview archive to imagery config ([#2545](https://github.com/linz/basemaps/issues/2545)) ([ac463ef](https://github.com/linz/basemaps/commit/ac463efdaf8b6773c21b011a70327b606e4fafcb))
+* **cli:** create WMTSCapabilties.xml for the overviews cotar ([#2590](https://github.com/linz/basemaps/issues/2590)) ([51421f6](https://github.com/linz/basemaps/commit/51421f60cc9e5b74581434617fca93d03f3fd993))
+* **cli:** make cog with aligned level, stop using MaxPixelWitdh to calculate zoom levels. BM-703 ([#2571](https://github.com/linz/basemaps/issues/2571)) ([3a15f37](https://github.com/linz/basemaps/commit/3a15f37d8aa4c9bdc5bf6041a971c5dc4e943939))
+* **cli:** New cli to create github pr for the import imagery workflow. ([#2515](https://github.com/linz/basemaps/issues/2515)) ([8f51284](https://github.com/linz/basemaps/commit/8f51284a48e02b6a0209afb02095351368555f39))
+* **cli:** New cli to create overview of imagery BM-628 ([#2540](https://github.com/linz/basemaps/issues/2540)) ([7c21ca0](https://github.com/linz/basemaps/commit/7c21ca0f56cca472b92972f488380313b3de31ee))
+* **cli:** remove one cog covering logic as its not used ([#2592](https://github.com/linz/basemaps/issues/2592)) ([a8e39a2](https://github.com/linz/basemaps/commit/a8e39a28a36d89fd633483886171ee39e1bc7f07))
+* **cli:** Remove unused github api calls, remove pull request body. ([#2567](https://github.com/linz/basemaps/issues/2567)) ([3728245](https://github.com/linz/basemaps/commit/3728245605e34032bed6d6e8868481f2b41e7ff3))
+* **cli:** track time of each step in overview creation ([#2589](https://github.com/linz/basemaps/issues/2589)) ([0736a83](https://github.com/linz/basemaps/commit/0736a834ddcd2719eb1b2109e04f2ddd8fc99b22))
+* **cli:** use latest version of GDAL ([#2582](https://github.com/linz/basemaps/issues/2582)) ([39e7488](https://github.com/linz/basemaps/commit/39e7488e05d88a23f8f89b3a31dcc80649f23ec4))
+* **config:** remove all the processingJob configuration. ([#2598](https://github.com/linz/basemaps/issues/2598)) ([542401d](https://github.com/linz/basemaps/commit/542401d145f036518c0e14cd0873033122b5c096))
+* **infra:** Add access to the linz-basemaps-staging bucket for dev lambda. ([#2603](https://github.com/linz/basemaps/issues/2603)) ([a48c7db](https://github.com/linz/basemaps/commit/a48c7db6a90ce7240d62238f2400b4a3d73a6709))
+* **lambda-tiler:** Allow to load config json from linz-basemaps-staging bucket. ([#2605](https://github.com/linz/basemaps/issues/2605)) ([5cf8133](https://github.com/linz/basemaps/commit/5cf8133e75467e25e2cd7396ec1e56a575bc9113))
+
+
+
+
+
 # [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
 
 

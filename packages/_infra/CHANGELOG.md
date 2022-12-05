@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
+
+
+### Features
+
+* **infra:** Add access to the linz-basemaps-staging bucket for dev lambda. ([#2603](https://github.com/linz/basemaps/issues/2603)) ([a48c7db](https://github.com/linz/basemaps/commit/a48c7db6a90ce7240d62238f2400b4a3d73a6709))
+
+
+
+
+
 # [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
 
 
