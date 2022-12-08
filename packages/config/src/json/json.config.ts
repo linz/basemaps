@@ -277,45 +277,50 @@ export class ConfigJson {
     const exists = await fsa.exists(targetOverviews);
     if (!exists) return;
 
-    const smallestTiff = cfg.files.reduce((prev, current) => {
-      if (prev.width < current.width) return prev;
-      return current;
-    }, cfg.files[0]);
-
     const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
     if (tileMatrix == null) throw new Error('Missing tileMatrix for imagery:' + cfg.id);
 
-    // Find a maximum tile that could be used in this overview
-    const maxZoomLoc = tileMatrix.sourceToPixels(smallestTiff.x, smallestTiff.y, tileMatrix.maxZoom);
-    const maxTile = tileMatrix.pixelsToTile(maxZoomLoc.x, maxZoomLoc.y, tileMatrix.maxZoom);
-    let qk = QuadKey.fromTile(maxTile);
-
     const cotar = await Cotar.fromTar(fsa.source(targetOverviews));
 
-    // Query all the quadkeys looking to see what tiles exists
-    const queries: Promise<string | null>[] = [];
-    while (qk.length > 0) {
-      qk = QuadKey.parent(qk);
-      const tile = QuadKey.toTile(qk);
-      queries.push(
-        cotar.index.find(`tiles/${tile.z}/${tile.x}/${tile.y}.webp`).then((c) => {
-          if (c == null) return null;
-          return qk;
-        }),
-      );
-    }
+    // When the cotars are made a WMTSCapabilties is added so it easy to view in something like QGIS
+    // We can use the WMTSCapabitities to figure out the tileMatrix and zoom levels
+    const wmtsRaw = await cotar.get('WMTSCapabilities.xml');
+    if (wmtsRaw == null) return;
 
-    const result = await Promise.all(queries);
+    const wmts = Buffer.from(wmtsRaw).toString();
 
-    const overview: ConfigImageryOverview = { path: 'overviews.tar.co', minZoom: tileMatrix.maxZoom, maxZoom: 0 };
-    for (const r of result) {
-      if (r == null) continue;
-      if (r.length < overview.minZoom) overview.minZoom = r.length;
-      if (r.length > overview.maxZoom) overview.maxZoom = r.length;
-    }
+    const zoomLevels = zoomLevelsFromWmts(wmts, tileMatrix);
+    if (zoomLevels == null) return;
 
-    if (overview.minZoom === tileMatrix.maxZoom) return;
-    if (overview.maxZoom === 0) return;
+    const overview: ConfigImageryOverview = {
+      path: 'overviews.tar.co',
+      minZoom: zoomLevels.minZoom,
+      maxZoom: zoomLevels.maxZoom,
+    };
+
     return overview;
   }
+}
+
+/** Attempt to parse a cotar WMTSCapabilties to figure out what zoom levels are applicable */
+export function zoomLevelsFromWmts(
+  wmts: string,
+  tileMatrix: TileMatrixSet,
+): { minZoom: number; maxZoom: number } | null {
+  const owsIds = wmts
+    .split('\n')
+    .filter((f) => f.includes('ows:Identifier'))
+    .map((c) => c.trim().replace('<ows:Identifier>', '').replace('</ows:Identifier>', ''));
+
+  const tileMatrixOffset = owsIds.indexOf(tileMatrix.identifier);
+  if (tileMatrixOffset === -1) return null;
+
+  const minZoom = Number(owsIds[tileMatrixOffset + 1]);
+  const maxZoom = Number(owsIds[owsIds.length - 1]);
+
+  if (isNaN(minZoom)) return null;
+  if (isNaN(maxZoom)) return null;
+  if (maxZoom < minZoom) return null;
+  if (maxZoom === 0) return null;
+  return { minZoom, maxZoom };
 }
