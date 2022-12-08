@@ -29,8 +29,8 @@ export function titleizeImageryName(name: string): string {
 export function nameImageryTitle(title: string): string {
   return title
     .replace(/ /g, '_')
-    .replace('.', '-')
-    .replace(/[^a-zA-Z0-9-_]/g, '')
+    .replace(/\.+/g, '-')
+    .replace(/[^a-zA-ZÀ-ȕ0-9-_]/u, '')
     .replace(/_+/g, '_')
     .toLocaleLowerCase();
 }
