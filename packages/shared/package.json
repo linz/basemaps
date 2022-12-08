@@ -34,14 +34,12 @@
     "entities": "^4.3.0",
     "pino": "^8.6.1",
     "proj4": "^2.8.0",
-    "sax": "^1.2.4",
     "source-map-support": "^0.5.19",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.75",
-    "@types/proj4": "^2.5.2",
-    "@types/sax": "^1.2.1"
+    "@types/proj4": "^2.5.2"
   },
   "publishConfig": {
     "access": "public"

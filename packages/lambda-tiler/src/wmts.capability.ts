@@ -270,7 +270,7 @@ export class WmtsCapabilities {
       V('ows:Identifier', tms.identifier),
       V('ows:SupportedCRS', tms.projection.toUrn()),
       tms.def.wellKnownScaleSet ? V('WellKnownScaleSet', tms.def.wellKnownScaleSet) : null,
-      ...tms.def.tileMatrix.slice(this.minZoom, this.maxZoom).map((c) => {
+      ...tms.def.tileMatrix.slice(this.minZoom, this.maxZoom + 1).map((c) => {
         return V('TileMatrix', [
           V('ows:Identifier', c.identifier),
           V('ScaleDenominator', c.scaleDenominator),
