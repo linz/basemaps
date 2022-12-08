@@ -165,7 +165,7 @@ export class CommandCreateOverview extends CommandLineAction {
 
     // Creating tar index
     const fd = await fs.open(tarFilePath, 'r');
-    const index = await CotarIndexBuilder.create(fd);
+    const index = await CotarIndexBuilder.create(fd, { packingFactor: 1.25 });
     const indexBinary = await CotarIndexBinary.create(new SourceMemory('index', index.buffer));
     await TarReader.validate(fd, indexBinary);
     await fd.close();
