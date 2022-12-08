@@ -3,7 +3,6 @@ import {
   GoogleTms,
   ImageFormat,
   Nztm2000QuadTms,
-  QuadKey,
   TileMatrixSet,
   TileMatrixSets,
   VectorFormat,
@@ -292,13 +291,7 @@ export class ConfigJson {
     const zoomLevels = zoomLevelsFromWmts(wmts, tileMatrix);
     if (zoomLevels == null) return;
 
-    const overview: ConfigImageryOverview = {
-      path: 'overviews.tar.co',
-      minZoom: zoomLevels.minZoom,
-      maxZoom: zoomLevels.maxZoom,
-    };
-
-    return overview;
+    return { path: 'overviews.tar.co', minZoom: zoomLevels.minZoom, maxZoom: zoomLevels.maxZoom };
   }
 }
 
