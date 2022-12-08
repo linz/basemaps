@@ -139,8 +139,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       Config.map.config,
     );
 
-    let title;
-    if (this.state.imagery) title = this.state.imagery?.title;
+    const title = this.state.imagery?.title;
     return (
       <div className="debug">
         <div className="debug__info">
