@@ -138,12 +138,20 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       undefined,
       Config.map.config,
     );
+
+    const title = this.state.imagery?.title;
     return (
       <div className="debug">
         <div className="debug__info">
           <label className="debug__label">Id</label>
           <div className="debug__value">{Config.map.layerId}</div>
         </div>
+        {title == null ? null : (
+          <div className="debug__info">
+            <label className="debug__label">Title</label>
+            <div className="debug__value">{title}</div>
+          </div>
+        )}
         <div className="debug__info">
           <label className="debug__label"></label>
           <div className="debug__value">
