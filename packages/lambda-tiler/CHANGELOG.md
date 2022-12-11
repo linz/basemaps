@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.38.0](https://github.com/linz/basemaps/compare/v6.37.0...v6.38.0) (2022-12-11)
+
+
+### Features
+
+* **config:** load the min/max zoom levels of a cotar overview from the wmtscapabilties ([#2621](https://github.com/linz/basemaps/issues/2621)) ([3fe70cf](https://github.com/linz/basemaps/commit/3fe70cf4f934a84e303a935bd3f7f8f6fcc41652))
+
+
+
+
+
 # [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
 
 
