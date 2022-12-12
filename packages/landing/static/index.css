@@ -169,6 +169,8 @@ button {
 
 .debug__value {
   display: flex;
+  overflow: hidden;
+  white-space:nowrap;
   align-items: center;
 }
 
