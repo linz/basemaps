@@ -3,6 +3,8 @@ import {
   BasemapsConfigProvider,
   ConfigBundle,
   ConfigBundled,
+  ConfigId,
+  ConfigPrefix,
   ConfigProviderMemory,
   standardizeLayerName,
 } from '@basemaps/config';
@@ -16,6 +18,8 @@ import { Q, Updater } from './config.update.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
+const VectorStyles = ['topographic', 'topolite', 'aerialhybrid']; // Vector styles that we want to review if changes.
+
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;
   private backup: CommandLineStringParameter;
@@ -25,6 +29,10 @@ export class CommandImport extends CommandLineAction {
   promises: Promise<boolean>[] = [];
   /** List of paths to invalidate at the end of the request */
   invalidations: string[] = [];
+
+  /** List of changed config ids */
+  changes: string[] = [];
+
   /** List of paths to invalidate at the end of the request */
   backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
 
@@ -138,6 +146,7 @@ export class CommandImport extends CommandLineAction {
 
       const hasChanges = await updater.reconcile();
       if (hasChanges) {
+        this.changes.push(config.id);
         this.invalidations.push(updater.invalidatePath());
         const oldData = await updater.getOldData();
         if (oldData != null) this.backupConfig.put(oldData); // No need to backup anything if there is new insert
@@ -151,11 +160,12 @@ export class CommandImport extends CommandLineAction {
   }
 
   async outputChange(output: string, mem: BasemapsConfigProvider, cfg: BasemapsConfigProvider): Promise<void> {
+    // Output for aerial config changes
     const inserts: string[] = ['# New Layers\n'];
     const updates: string[] = ['# Updates\n'];
-    const id = 'ts_aerial';
-    const newData = await mem.TileSet.get(id);
-    const oldData = await cfg.TileSet.get(id);
+    const aerialId = 'ts_aerial';
+    const newData = await mem.TileSet.get(aerialId);
+    const oldData = await cfg.TileSet.get(aerialId);
     if (newData == null || oldData == null) throw new Error('Failed to fetch aerial config data.');
     for (const layer of newData.layers) {
       if (layer.name === 'chatham-islands_digital-globe_2014-2019_0-5m') continue; // Ignore duplicated layer.
@@ -191,9 +201,25 @@ export class CommandImport extends CommandLineAction {
       }
     }
 
+    // Output for vector config changes
+    const vectorUpdate = ['# Vector Data Update\n'];
+    const styleUpdate = ['# Vector Style Update\n'];
+    for (const change of this.changes) {
+      if (change === 'ts_topographic') {
+        for (const style of VectorStyles) {
+          vectorUpdate.push(`* [${style}](${PublicUrlBase}?config=${this.config.value}&i=${style}&debug)\n`);
+        }
+      }
+      if (change.startsWith(ConfigPrefix.Style)) {
+        const style = ConfigId.unprefix(ConfigPrefix.Style, change);
+        styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${this.config.value}&i=${style}&debug)\n`);
+      }
+    }
     let md = '';
     if (inserts.length > 1) md += inserts.join('');
     if (updates.length > 1) md += updates.join('');
+    if (vectorUpdate.length > 1) md += vectorUpdate.join('');
+    if (styleUpdate.length > 1) md += styleUpdate.join('');
 
     if (md !== '') await fsa.write(output, md);
 
