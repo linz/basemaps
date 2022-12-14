@@ -18,7 +18,7 @@ import { Q, Updater } from './config.update.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
-const VectorStyles = ['topographic', 'topolite', 'aerialhybrid']; // Vector styles that we want to review if changes.
+const VectorStyles = ['topographic', 'topolite', 'aerialhybrid']; // Vector styles that we want to review if vector data changes.
 
 export class CommandImport extends CommandLineAction {
   private config: CommandLineStringParameter;
@@ -207,12 +207,14 @@ export class CommandImport extends CommandLineAction {
     for (const change of this.changes) {
       if (change === 'ts_topographic') {
         for (const style of VectorStyles) {
-          vectorUpdate.push(`* [${style}](${PublicUrlBase}?config=${this.config.value}&i=${style}&debug)\n`);
+          vectorUpdate.push(
+            `* [${style}](${PublicUrlBase}?config=${this.config.value}&i=topographic&s=${style}&debug)\n`,
+          );
         }
       }
       if (change.startsWith(ConfigPrefix.Style)) {
         const style = ConfigId.unprefix(ConfigPrefix.Style, change);
-        styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${this.config.value}&i=${style}&debug)\n`);
+        styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${this.config.value}&i=topographic&s=${style}&debug)\n`);
       }
     }
     let md = '';
