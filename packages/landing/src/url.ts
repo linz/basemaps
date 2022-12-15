@@ -97,6 +97,7 @@ export const WindowUrl = {
     layerId: string,
     style?: string | null,
     config?: string | null,
+    excludedLayers?: string[],
   ): string {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
@@ -106,6 +107,11 @@ export const WindowUrl = {
       if (tileMatrix.identifier !== GoogleTms.identifier) queryParams.set('tileMatrix', tileMatrix.identifier);
       if (WindowUrl.ImageFormat !== ImageFormat.Webp) queryParams.set('format', WindowUrl.ImageFormat);
     }
+
+    if (excludedLayers != null && excludedLayers.length > 0)
+      for (const layer of excludedLayers) {
+        queryParams.set('e', layer);
+      }
 
     const q = '?' + queryParams.toString();
 
