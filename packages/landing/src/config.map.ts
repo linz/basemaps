@@ -84,7 +84,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
     const layerId = urlParams.get('i') ?? 'aerial';
 
-    this.excludedLayers = urlParams.getAll('e');
+    this.excludedLayers = urlParams.getAll('exclude');
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);

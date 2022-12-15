@@ -101,7 +101,8 @@ export async function tileSetToStyle(
 export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<LambdaHttpResponse> {
   const apiKey = Validate.apiKey(req);
   const styleName = req.params.styleName;
-  const excludeLayers = req.query.getAll('e');
+  const excludeLayers = req.query.getAll('exclude');
+  const excluded = new Set(excludeLayers.map((l) => l.toLowerCase()));
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
@@ -117,7 +118,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     const layers = styleConfig.style.layers;
     styleConfig.style.layers = [];
     for (const layer of layers) {
-      if (excludeLayers.find((l) => l.toLowerCase() === layer.id.toLowerCase())) continue;
+      if (excluded.has(layer.id.toLowerCase())) continue;
       styleConfig.style.layers.push(layer);
     }
   }
