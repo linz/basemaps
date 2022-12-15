@@ -134,7 +134,7 @@ o.spec('/v1/styles', () => {
     config.put(fakeRecord);
     const request = mockUrlRequest(
       '/v1/tiles/topographic/Google/style/topographic.json',
-      '?e=background1&e=background2',
+      '?exclude=background1&exclude=BACKGROUND2',
       Api.header,
     );
 
