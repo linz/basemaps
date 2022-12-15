@@ -27,6 +27,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   tileMatrix: TileMatrixSet = GoogleTms;
   config: string | null;
   debug: DebugState = { ...DebugDefaults };
+  excludedLayers: string[];
 
   private _layers: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -82,6 +83,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const config = urlParams.get('c') ?? urlParams.get('config');
 
     const layerId = urlParams.get('i') ?? 'aerial';
+
+    this.excludedLayers = urlParams.getAll('e');
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);

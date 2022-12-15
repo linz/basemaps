@@ -101,6 +101,7 @@ export async function tileSetToStyle(
 export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<LambdaHttpResponse> {
   const apiKey = Validate.apiKey(req);
   const styleName = req.params.styleName;
+  const excludeLayers = req.query.getAll('e');
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
@@ -112,6 +113,13 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     if (tileSet == null) return NotFound();
     if (tileSet.type !== TileSetType.Raster) return NotFound();
     return tileSetToStyle(req, tileSet, apiKey);
+  } else {
+    const layers = styleConfig.style.layers;
+    styleConfig.style.layers = [];
+    for (const layer of layers) {
+      if (excludeLayers.find((l) => l.toLowerCase() === layer.id.toLowerCase())) continue;
+      styleConfig.style.layers.push(layer);
+    }
   }
 
   // Prepare sources and add linz source
