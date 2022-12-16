@@ -159,7 +159,7 @@ o.spec('/v1/styles', () => {
 
     fakeStyle.sprite = `${host}/sprite`;
     fakeStyle.glyphs = `${host}/glyphs`;
-    fakeStyle.layers = fakeStyle.layers.splice(0, 2);
+    fakeStyle.layers = [fakeStyle.layers[2]];
 
     o(JSON.parse(body)).deepEquals(fakeStyle);
   });
