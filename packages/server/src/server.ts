@@ -35,7 +35,7 @@ export interface ServerOptions {
 }
 
 export async function createServer(opts: ServerOptions, logger: LogType): Promise<FastifyInstance> {
-  const BasemapsServer = fastify();
+  const BasemapsServer = fastify({});
   BasemapsServer.register(formBodyPlugin);
 
   if (opts.config.startsWith('dynamodb://')) {
@@ -83,14 +83,14 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
 
   BasemapsServer.all<{ Querystring: { api: string } }>('/v1/*', (req, res) => {
     const url = new URL(`${req.protocol}://${req.hostname}${req.url}`);
-    if (req.query.api == null) req.query.api = 'c' + instanceId;
+    if (!url.searchParams.has('api')) url.searchParams.set('api', 'c' + instanceId);
 
     const request = new LambdaUrlRequest(
       {
         requestContext: { http: { method: req.method.toUpperCase() } },
         headers: req.headers,
         rawPath: url.pathname,
-        rawQueryString: new URLSearchParams(req.query).toString(),
+        rawQueryString: url.searchParams.toString(),
         isBase64Encoded: false,
       } as any,
       {} as Context,
