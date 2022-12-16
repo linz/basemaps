@@ -110,7 +110,7 @@ export const WindowUrl = {
 
     if (excludedLayers != null && excludedLayers.length > 0)
       for (const layer of excludedLayers) {
-        queryParams.set('exclude', layer);
+        queryParams.append('exclude', layer);
       }
 
     const q = '?' + queryParams.toString();

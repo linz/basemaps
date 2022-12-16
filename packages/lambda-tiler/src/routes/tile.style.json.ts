@@ -8,6 +8,7 @@ import { Validate } from '../util/validate.js';
 import { Etag } from '../util/etag.js';
 import { ConfigLoader } from '../util/config.loader.js';
 import { GoogleTms, ImageFormat, TileMatrixSets } from '@basemaps/geo';
+import { Layer } from '@basemaps/config/src/config/vector.style.js';
 
 /**
  * Convert relative URLS into a full hostname url
@@ -31,7 +32,7 @@ export function convertRelativeUrl(url?: string, apiKey?: string, config?: strin
  * @param apiKey api key to inject
  * @returns new stylejson
  */
-export function convertStyleJson(style: StyleJson, apiKey: string, config: string | null): StyleJson {
+export function convertStyleJson(style: StyleJson, apiKey: string, config: string | null, layers?: Layer[]): StyleJson {
   const sources: Sources = JSON.parse(JSON.stringify(style.sources));
   for (const [key, value] of Object.entries(sources)) {
     if (value.type === 'vector') {
@@ -49,7 +50,7 @@ export function convertStyleJson(style: StyleJson, apiKey: string, config: strin
     id: style.id,
     name: style.name,
     sources,
-    layers: style.layers,
+    layers: layers ? layers : style.layers,
     metadata: style.metadata ?? {},
     glyphs: convertRelativeUrl(style.glyphs, undefined, config),
     sprite: convertRelativeUrl(style.sprite, undefined, config),
@@ -103,6 +104,11 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const styleName = req.params.styleName;
   const excludeLayers = req.query.getAll('exclude');
   const excluded = new Set(excludeLayers.map((l) => l.toLowerCase()));
+  // console.log(req.query);
+  // console.log(excludeLayers);
+  // console.log(excludeLayers.map((l) => l.toLowerCase()));
+  // console.log(excluded.size);
+  const layers: Layer[] = [];
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
@@ -115,16 +121,19 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     if (tileSet.type !== TileSetType.Raster) return NotFound();
     return tileSetToStyle(req, tileSet, apiKey);
   } else {
-    const layers = styleConfig.style.layers;
-    styleConfig.style.layers = [];
-    for (const layer of layers) {
+    for (const layer of styleConfig.style.layers) {
       if (excluded.has(layer.id.toLowerCase())) continue;
-      styleConfig.style.layers.push(layer);
+      layers.push(layer);
     }
   }
 
   // Prepare sources and add linz source
-  const style = convertStyleJson(styleConfig.style, apiKey, ConfigLoader.extract(req));
+  const style = convertStyleJson(
+    styleConfig.style,
+    apiKey,
+    ConfigLoader.extract(req),
+    layers.length > 0 ? layers : undefined,
+  );
   const data = Buffer.from(JSON.stringify(style));
 
   const cacheKey = Etag.key(data);
