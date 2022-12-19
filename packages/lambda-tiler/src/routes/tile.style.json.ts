@@ -1,4 +1,4 @@
-import { ConfigTileSetRaster, Sources, StyleJson, TileSetType } from '@basemaps/config';
+import { ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
 import { Env, toQueryString } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -8,7 +8,6 @@ import { Validate } from '../util/validate.js';
 import { Etag } from '../util/etag.js';
 import { ConfigLoader } from '../util/config.loader.js';
 import { GoogleTms, ImageFormat, TileMatrixSets } from '@basemaps/geo';
-import { Layer } from '@basemaps/config/src/config/vector.style.js';
 
 /**
  * Convert relative URLS into a full hostname url
@@ -104,10 +103,6 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const styleName = req.params.styleName;
   const excludeLayers = req.query.getAll('exclude');
   const excluded = new Set(excludeLayers.map((l) => l.toLowerCase()));
-  // console.log(req.query);
-  // console.log(excludeLayers);
-  // console.log(excludeLayers.map((l) => l.toLowerCase()));
-  // console.log(excluded.size);
   const layers: Layer[] = [];
 
   // Get style Config from db
