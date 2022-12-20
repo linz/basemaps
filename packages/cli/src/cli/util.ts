@@ -8,6 +8,7 @@ import path from 'path';
 import { gzip } from 'zlib';
 import { promisify } from 'util';
 import { CogStacJob } from '../cog/cog.stac.job.js';
+import slugify from 'slugify';
 
 // Cloudfront has to be defined in us-east-1
 const cloudFormation = new CloudFormation({ region: 'us-east-1' });
@@ -140,4 +141,13 @@ export async function prepareUrl(job: CogStacJob): Promise<string> {
   const base = Env.get(Env.PublicUrlBase);
   const url = `${base}/?i=${job.id}&p=${job.tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`;
   return url;
+}
+
+/**
+ * Make a tile imagery title as imagery name
+ * @example
+ *  'Tasman rural 2018-19 0.3m' => 'tasman_rural_2018-19_0-3m'
+ */
+export function nameImageryTitle(title: string): string {
+  return slugify(title.replace(/\.+/g, '-'), { replacement: '_', lower: true, trim: true });
 }

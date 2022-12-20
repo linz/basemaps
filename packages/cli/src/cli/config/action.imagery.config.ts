@@ -11,6 +11,7 @@ import { fsa, LogConfig, Projection } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { ulid } from 'ulid';
+import { nameImageryTitle } from '../util.js';
 
 export class CommandImageryConfig extends CommandLineAction {
   private path: CommandLineStringParameter;
@@ -93,7 +94,7 @@ export class CommandImageryConfig extends CommandLineAction {
     }
     const imagery: ConfigImagery = {
       id: provider.Imagery.id(id),
-      name: `${name}-${new Date().getFullYear()}`, // Add a year into name for attribution to extract
+      name: this.title.value ? nameImageryTitle(this.title.value) : `${name}-${new Date().getFullYear()}`, // Add a year into name for attribution to extract
       title: this.title.value,
       updatedAt: Date.now(),
       projection: Nztm2000QuadTms.projection.code,

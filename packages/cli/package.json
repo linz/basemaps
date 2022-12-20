@@ -61,6 +61,7 @@
     "node-fetch": "^3.2.3",
     "p-limit": "^4.0.0",
     "pretty-json-log": "^1.0.0",
+    "slugify": "^1.6.5",
     "zod": "^3.17.3"
   },
   "devDependencies": {
