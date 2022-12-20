@@ -7,10 +7,11 @@ import {
   TileSetType,
 } from '@basemaps/config';
 import { Bounds, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
-import { fsa, LogConfig, nameImageryTitle, Projection } from '@basemaps/shared';
+import { fsa, LogConfig, Projection } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { ulid } from 'ulid';
+import { nameImageryTitle } from '../util.js';
 
 export class CommandImageryConfig extends CommandLineAction {
   private path: CommandLineStringParameter;

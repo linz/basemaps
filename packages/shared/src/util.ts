@@ -22,20 +22,6 @@ export function titleizeImageryName(name: string): string {
 }
 
 /**
- * Make a tile imagery title as imagery name
- * @example
- *  'Tasman rural 2018-19 0.3m' => 'tasman_rural_2018-19_0-3m'
- */
-export function nameImageryTitle(title: string): string {
-  return title
-    .replace(/ /g, '_')
-    .replace(/\.+/g, '-')
-    .replace(/[^a-zA-ZÀ-ȕ0-9-_]/u, '')
-    .replace(/_+/g, '_')
-    .toLocaleLowerCase();
-}
-
-/**
  * Attempt to parse a year from a imagery name
  * @example wellington_urban_2017_0.10m -> 2017
  * @param name Imagery name to parse
