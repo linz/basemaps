@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { extractYearRangeFromName, getUrlHost, nameImageryTitle, s3ToVsis3, titleizeImageryName } from '../util.js';
+import { extractYearRangeFromName, getUrlHost, s3ToVsis3, titleizeImageryName } from '../util.js';
 
 o.spec('util', () => {
   o('extractYearRangeFromName', () => {
@@ -19,14 +19,6 @@ o.spec('util', () => {
     o(titleizeImageryName('palmerston-north_urban_2016-17_12-125_RGBA')).equals(
       'Palmerston-north urban 2016-17 12-125 RGBA',
     );
-  });
-
-  o('nameImageryTitle', () => {
-    o(nameImageryTitle('Palmerston-north urban 2016-17 12.125m')).equals('palmerston-north_urban_2016-17_12-125m');
-    o(nameImageryTitle('Palmerston-north urban 2016-17 12-125')).equals('palmerston-north_urban_2016-17_12-125');
-    o(nameImageryTitle('Palmerston-north / urban 2016-17 12.125')).equals('palmerston-north_urban_2016-17_12-125');
-    o(nameImageryTitle('Palmerston.north / urban 2016-17 12.125')).equals('palmerston-north_urban_2016-17_12-125');
-    o(nameImageryTitle('Manawatū urban 2016-17 12.125m')).equals('manawatū_urban_2016-17_12-125m');
   });
 
   o('s3ToVsis3', () => {
