@@ -59,6 +59,16 @@ o.spec('/v1/fonts', () => {
     o(res404.status).equals(404);
   });
 
+  o('should fallback to the next font in array', async () => {
+    await fsa.write('memory://fonts/Roboto Thin/0-255.pbf', Buffer.from(''));
+    const res255 = await handler.router.handle(mockRequest('/v1/fonts/Roboto,Roboto Bold,Roboto Thin/0-255.pbf'));
+    o(res255.status).equals(200);
+    o(res255.header('content-type')).equals('application/x-protobuf');
+    o(res255.header('content-encoding')).equals(undefined);
+    o(res255.header('etag')).notEquals(undefined);
+    o(res255.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
+  });
+
   o('should get the correct utf8 font', async () => {
     await fsa.write('memory://fonts/🦄 🌈/0-255.pbf', Buffer.from(''));
     const res255 = await handler.router.handle(mockRequest('/v1/fonts/🦄 🌈/0-255.pbf'));
