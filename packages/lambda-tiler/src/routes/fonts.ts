@@ -12,7 +12,7 @@ export async function fontGet(req: LambdaHttpRequest<FontGet>): Promise<LambdaHt
   for (const font of targetFonts) {
     const targetFile = path.join('fonts', font, req.params.range) + '.pbf';
     const response = await assetProvider.serve(req, targetFile, 'application/x-protobuf');
-    if (response.status !== 404) return assetProvider.serve(req, targetFile, 'application/x-protobuf');
+    if (response.status !== 404) return response;
   }
   return NotFound();
 }
