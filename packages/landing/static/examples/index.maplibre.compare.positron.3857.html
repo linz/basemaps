@@ -59,42 +59,26 @@
                 throw new Error('Missing api-key in localStorage');
             }
 
-            // vector layers
-            const styleUrl =
+            // topographic layers
+            const topographicStyleUrl =
                 'https://basemaps.linz.govt.nz/v1/tiles/topographic/EPSG:3857/style/topographic.json?api=' + apiKey;
 
             // Raster layers
-            const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=' + apiKey;
+            const positronStyleUrl = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=' + apiKey;
 
             const startPos = [173, -40.5];
             const startZoom = 6;
 
-            var raster = new maplibregl.Map({
-                container: 'raster', // Container ID
-                style: {
-                    version: 8,
-                    sources: {
-                        'raster-tiles': {
-                            type: 'raster',
-                            tiles: [url],
-                            tileSize: 256,
-                        },
-                    },
-                    layers: [
-                        {
-                            id: 'LINZ Raster Basemaps',
-                            type: 'raster',
-                            source: 'raster-tiles',
-                        },
-                    ],
-                },
+            var topographic = new maplibregl.Map({
+                container: 'vector', // Container ID
+                style: topographicStyleUrl,
                 center: startPos,
                 zoom: startZoom,
             });
 
-            var vector = new maplibregl.Map({
+            var positron = new maplibregl.Map({
                 container: 'vector', // Container ID
-                style: styleUrl,
+                style: positronStyleUrl,
                 center: startPos,
                 zoom: startZoom,
             });
@@ -102,7 +86,7 @@
             // A selector or reference to HTML element
             var container = '#comparison-container';
 
-            new mapboxgl.Compare(raster, vector, container, {
+            new mapboxgl.Compare(topographic, positron, container, {
                 mousemove: false, // Optional. Set to true to enable swiping during cursor movement.
                 orientation: 'vertical', // Optional. Sets the orientation of swiper to horizontal or vertical, defaults to vertical
             });
