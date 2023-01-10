@@ -3,7 +3,7 @@ import { handler } from '@basemaps/lambda-tiler';
 import { fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
-import { LambdaUrlRequest } from '@linzjs/lambda';
+import { LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import fastify, { FastifyInstance } from 'fastify';
 import { createRequire } from 'module';
@@ -92,7 +92,7 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
         rawPath: url.pathname,
         rawQueryString: url.searchParams.toString(),
         isBase64Encoded: false,
-      } as any,
+      } as UrlEvent,
       {} as Context,
       logger,
     );
