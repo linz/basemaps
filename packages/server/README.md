@@ -2,7 +2,7 @@
 
 WMTS/XYZ Tile server command line interface.
 
-This wraps the @basemaps/tiler into a standalone express http server.
+This wraps the [@basemaps/lambda-tiler](https://github.com/linz/basemaps/blob/master/packages/lambda-tiler/README.md) into a standalone http server.
 
 ## Usage
 Basemaps server expects a folder tree full of configuration, with multiple tilesets and styles configuration files.
@@ -27,12 +27,12 @@ Where `${PWD}/config` contains all the configuration and `${PWD}/tiffs` is all t
 
 ### Bundled configuration
 
-Basemaps server can also be configured with a single configuration bundle file, which can be created from a configuration folder
+Basemaps server can also be configured with a single JSON configuration bundle file using [@basemaps/cli](https://github.com/linz/basemaps/blob/master/packages/cli/README.md)
 
 By bundling the configuration the startup time is greatly reduced as each individual tiff file does not have to be scanned for dimensions, it does mean that new tiffs will not be picked up until a new bundle is created.
 
 ```bash
-basemaps-server --config path/to/config/ --bundle config.bundle.json
+bmc bundle --config config/ --output config.bundle.json
 basemaps-server --config config.bundle.json
 ```
 
@@ -41,18 +41,18 @@ basemaps-server --config config.bundle.json
 Usage with basemaps config, you will need access to basemaps' imagery cache 
 
 please contact basemaps@linz.govt.nz if you need access.
-```
+
+```bash
 git clone github.com/linz/basemaps-config
 
-basemaps-server --config basemaps-config/config
+bmc bundle --config basemaps-config/config --output config.bundle.json
+basemaps-server --config config.bundle.json
 ```
-
-
 
 
 ### Direct TIFF access
 
-If you have a folder of tiffs the basemaps-server can index the folder and create tiles from
+If you have a folder of tiffs the `@basemaps/server` can index the folder and create tiles from it
 
 
 For example given a structure where there are two folders full of tiffs
@@ -67,7 +67,7 @@ running `basemaps-server --config /images --no-config` will create two tile sets
 
 ## Developing
 
-When running the `@basemaps/server` in development mode, ensure `@basemaps/landing` page has been bundled
+When running the `@basemaps/server` in development mode, ensure `@basemaps/landing` page has been built and bundled
 
 ```bash
 yarn
