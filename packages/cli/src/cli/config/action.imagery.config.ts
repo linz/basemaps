@@ -4,6 +4,7 @@ import {
   ConfigJson,
   ConfigProviderMemory,
   ConfigTileSetRaster,
+  standardizeLayerName,
   TileSetType,
 } from '@basemaps/config';
 import { Bounds, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
@@ -134,7 +135,8 @@ export class CommandImageryConfig extends CommandLineAction {
       const outputPath = fsa.join(path, `basemaps-config-${configJson.hash}.json.gz`);
       await fsa.writeJson(outputPath, configJson);
       const configPath = base58.encode(Buffer.from(outputPath));
-      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${imagery.name}&tileMatrix=NZTM2000Quad&debug${location}`;
+      const virtualTileSetId = standardizeLayerName(imagery.name);
+      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${virtualTileSetId}&tileMatrix=NZTM2000Quad&debug${location}`;
       logger.info(
         { path: output, url, tileMatrix: Nztm2000QuadTms.identifier, config: configPath, title: this.title.value },
         'ImageryConfig:Done',
