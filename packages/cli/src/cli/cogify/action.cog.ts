@@ -118,7 +118,7 @@ export class CommandCogCreate extends CommandLineAction {
 
     const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${CliId}`);
 
-    const Q = pLimit(this.concurrency?.value ? this.concurrency.value : DefaultConcurrency);
+    const Q = pLimit(this.concurrency?.value ?? DefaultConcurrency);
 
     try {
       Promise.all(
