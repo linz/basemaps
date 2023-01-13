@@ -115,13 +115,13 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       } else if (isConfigImagery(obj)) {
         // TODO should this really overwrite existing tilesets
         this.put(ConfigProviderMemory.imageryToTileSet(obj));
-        this.imageryToTileSetName(obj);
+        this.imageryToTileSetByName(obj);
       }
     }
   }
 
   /** Create a tileset by the standardized name */
-  imageryToTileSetName(i: ConfigImagery): void {
+  imageryToTileSetByName(i: ConfigImagery): ConfigTileSet {
     const targetName = standardizeLayerName(i.name);
     const targetId = ConfigId.prefix(ConfigPrefix.TileSet, targetName);
     let existing = this.objects.get(targetId) as ConfigTileSet;
@@ -142,6 +142,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     }
     // TODO this overwrites existing layers
     existing.layers[0][i.projection] = i.id;
+    return existing;
   }
 
   /** Create a tile set of direct to imagery name `ts_imageId */
