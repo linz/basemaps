@@ -44,7 +44,7 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     logger.info({ path: opts.config, table, mode: 'dynamo' }, 'Starting Server');
     setDefaultConfig(new ConfigProviderDynamo(table));
   } else if (opts.config.startsWith(ConfigPrefix.ConfigBundle)) {
-    // Load Bundled config by dynamo refference
+    // Load Bundled config by dynamo reference
     const cb = await getDefaultConfig().ConfigBundle.get(opts.config);
     if (cb == null) throw new Error(`Config bunble not exists for ${opts.config}`);
     const configJson = await fsa.readJson<ConfigBundled>(cb.path);
