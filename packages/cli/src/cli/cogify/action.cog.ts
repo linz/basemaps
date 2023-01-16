@@ -125,7 +125,7 @@ export class CommandCogCreate extends CommandLineAction {
         Array.from(names).map((name) =>
           Q(async () => {
             const tiffJob = await CogStacJob.load(jobLocation);
-            this.processTiff(tiffJob, name, tmpFolder, isCommit, logger.child({ tiffName: name }));
+            await this.processTiff(tiffJob, name, tmpFolder, isCommit, logger.child({ tiffName: name }));
           }),
         ),
       );
