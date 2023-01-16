@@ -103,7 +103,6 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const styleName = req.params.styleName;
   const excludeLayers = req.query.getAll('exclude');
   const excluded = new Set(excludeLayers.map((l) => l.toLowerCase()));
-  const layers: Layer[] = [];
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
@@ -115,11 +114,6 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     if (tileSet == null) return NotFound();
     if (tileSet.type !== TileSetType.Raster) return NotFound();
     return tileSetToStyle(req, tileSet, apiKey);
-  } else {
-    for (const layer of styleConfig.style.layers) {
-      if (excluded.has(layer.id.toLowerCase())) continue;
-      layers.push(layer);
-    }
   }
 
   // Prepare sources and add linz source
@@ -127,7 +121,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     styleConfig.style,
     apiKey,
     ConfigLoader.extract(req),
-    layers.length > 0 ? layers : undefined,
+    styleConfig.style.layers.filter((f) => !excluded.has(f.id.toLowerCase())),
   );
   const data = Buffer.from(JSON.stringify(style));
 
