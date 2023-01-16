@@ -13,7 +13,7 @@ export class TileGrid {
   }
 
   getStyle(layerId: string, style?: string | null, config = Config.map.config): StyleSpecification | string {
-    return WindowUrl.toTileUrl(MapOptionType.Style, this.tileMatrix, layerId, style, config, Config.map.excludedLayers);
+    return WindowUrl.toTileUrl(MapOptionType.Style, this.tileMatrix, layerId, style, config);
   }
 }
 
