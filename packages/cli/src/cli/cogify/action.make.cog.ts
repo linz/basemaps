@@ -29,7 +29,7 @@ export class CommandMakeCog extends CommandLineAction {
   private cutline: CommandLineStringParameter;
   private blend: CommandLineIntegerParameter;
   private alignedLevel: CommandLineIntegerParameter;
-  private concurrency: CommandLineIntegerParameter;
+  private maxChunkUnit: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
   private aws: CommandLineFlagParameter;
 
@@ -87,10 +87,10 @@ export class CommandMakeCog extends CommandLineAction {
       description: 'Aligned level between resolution and cog',
       required: false,
     });
-    this.concurrency = this.defineIntegerParameter({
-      argumentName: 'CONCURRENCY',
-      parameterLongName: '--concurrency',
-      description: 'Number of concurrency create cog jobs',
+    this.maxChunkUnit = this.defineIntegerParameter({
+      argumentName: 'MAX_CHUNK_UNIT',
+      parameterLongName: '--max-chunk-unit',
+      description: 'Number of small jobs are chunked into one job',
       required: false,
     });
     this.output = this.defineStringParameter({
@@ -213,7 +213,7 @@ export class CommandMakeCog extends CommandLineAction {
     }
 
     // Prepare chunk job and individual jobs based on imagery size.
-    const jobs = await BatchJob.getJobs(job, existTiffs, logger, this.concurrency.value);
+    const jobs = await BatchJob.getJobs(job, existTiffs, logger, this.maxChunkUnit.value);
     if (jobs.length === 0) {
       logger.info('NoJobs');
       return [];

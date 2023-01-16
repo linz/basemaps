@@ -189,9 +189,8 @@ export class BatchJob {
    * Prepare the jobs from job files, and chunk the small images into single
    * @returns List of jobs including single job and chunk jobs.
    */
-  static getJobs(job: CogJob, existing: Set<string>, log: LogType, concurrency = 1): string[][] {
+  static getJobs(job: CogJob, existing: Set<string>, log: LogType, maxChunkUnit = ChunkJobMax): string[][] {
     const jobs: string[][] = [];
-    const maxChunkUnit = ChunkJobMax * concurrency;
     let chunkJob: string[] = [];
     let chunkUnit = 0; // Calculate the chunkUnit based on the size
     for (const file of job.output.files) {
