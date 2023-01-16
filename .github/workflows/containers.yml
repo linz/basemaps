@@ -71,7 +71,7 @@ jobs:
           platforms: linux/arm64,linux/amd64
           # Publish :v6 and :v6.38 tags when publishing a release
           tags: |
-            ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version_major }} 
+            ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version_major }}
             ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version_major_minor }}
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')}}
 
@@ -81,7 +81,7 @@ jobs:
           context: packages/server
           platforms: linux/arm64,linux/amd64
           tags: |
-           ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }} |
+           ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }}
            ghcr.io/linz/basemaps/server:latest
           push: ${{github.ref == 'refs/heads/master'}}
 
@@ -92,6 +92,6 @@ jobs:
           platforms: linux/arm64,linux/amd64
           # Publish :v6 and :v6.38 tags when publishing a release
           tags: |
-            ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version_major }} 
+            ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version_major }}
             ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version_major_minor }}
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')}}
