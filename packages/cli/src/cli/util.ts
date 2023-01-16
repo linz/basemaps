@@ -151,8 +151,7 @@ export async function prepareUrl(job: CogStacJob): Promise<string> {
 export function nameImageryTitle(title: string): string {
   return slugify(title.replace(/\.+/g, '-'), {
     replacement: '_',
-    remove: /[$&+,:;=?@#|'<>.^*()%!\/]/g,
     lower: true,
     trim: true,
-  });
+  }).replace(/[^\w-_]/gi, '');
 }
