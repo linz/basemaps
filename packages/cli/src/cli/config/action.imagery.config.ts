@@ -107,7 +107,7 @@ export class CommandImageryConfig extends CommandLineAction {
 
     provider.put(imagery);
 
-    const tileSet: ConfigTileSetRaster = {
+    const aerialTileSet: ConfigTileSetRaster = {
       id: 'ts_aerial',
       name: 'aerial',
       title: 'Aerial Imagery Basemap',
@@ -116,7 +116,8 @@ export class CommandImageryConfig extends CommandLineAction {
       format: ImageFormat.Webp,
       layers: [{ 2193: imagery.id, name: imagery.name, title: imagery.title ?? imagery.name }],
     };
-    provider.put(tileSet);
+    provider.put(aerialTileSet);
+    const tileSet = provider.imageryToTileSetByName(imagery);
 
     // Prepare the center location
     let location = '';
@@ -134,7 +135,7 @@ export class CommandImageryConfig extends CommandLineAction {
       const outputPath = fsa.join(path, `basemaps-config-${configJson.hash}.json.gz`);
       await fsa.writeJson(outputPath, configJson);
       const configPath = base58.encode(Buffer.from(outputPath));
-      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${imagery.name}&tileMatrix=NZTM2000Quad&debug${location}`;
+      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${tileSet.name}&tileMatrix=NZTM2000Quad&debug${location}`;
       logger.info(
         { path: output, url, tileMatrix: Nztm2000QuadTms.identifier, config: configPath, title: this.title.value },
         'ImageryConfig:Done',
