@@ -1,4 +1,4 @@
-FROM osgeo/gdal:ubuntu-small-3.6.0
+FROM osgeo/gdal:ubuntu-small-3.6.1
 
 ENV NODE_ENV=PRODUCTION
 

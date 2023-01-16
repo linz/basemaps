@@ -189,7 +189,7 @@ export class BatchJob {
    * Prepare the jobs from job files, and chunk the small images into single
    * @returns List of jobs including single job and chunk jobs.
    */
-  static getJobs(job: CogJob, existing: Set<string>, log: LogType): string[][] {
+  static getJobs(job: CogJob, existing: Set<string>, log: LogType, maxChunkUnit = ChunkJobMax): string[][] {
     const jobs: string[][] = [];
     let chunkJob: string[] = [];
     let chunkUnit = 0; // Calculate the chunkUnit based on the size
@@ -213,7 +213,7 @@ export class BatchJob {
         chunkJob.push(file.name);
         chunkUnit += ChunkSmallUnit;
       }
-      if (chunkUnit >= ChunkJobMax) {
+      if (chunkUnit >= maxChunkUnit) {
         jobs.push(chunkJob);
         chunkJob = [];
         chunkUnit = 0;

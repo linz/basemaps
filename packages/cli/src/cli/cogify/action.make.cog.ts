@@ -1,5 +1,5 @@
-import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Env, FileConfigS3Role, fsa, LogConfig, LogType, titleizeImageryName } from '@basemaps/shared';
+import { Epsg, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Env, FileConfig, fsa, LogConfig, LogType, titleizeImageryName } from '@basemaps/shared';
 import {
   CommandLineAction,
   CommandLineFlagParameter,
@@ -15,6 +15,7 @@ import { basename } from 'path';
 import { BatchJob } from './batch.job.js';
 import { CredentialSourceJson } from '@chunkd/source-aws-v2';
 import { ConfigLayer } from '@basemaps/config';
+import { AlignedLevel } from '../../cog/constants.js';
 
 interface OutputJobs {
   job: string;
@@ -29,6 +30,7 @@ export class CommandMakeCog extends CommandLineAction {
   private cutline: CommandLineStringParameter;
   private blend: CommandLineIntegerParameter;
   private alignedLevel: CommandLineIntegerParameter;
+  private maxChunkUnit: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
   private aws: CommandLineFlagParameter;
 
@@ -84,6 +86,12 @@ export class CommandMakeCog extends CommandLineAction {
       argumentName: 'ALIGNED_LEVEL',
       parameterLongName: '--aligned-level',
       description: 'Aligned level between resolution and cog',
+      required: false,
+    });
+    this.maxChunkUnit = this.defineIntegerParameter({
+      argumentName: 'MAX_CHUNK_UNIT',
+      parameterLongName: '--max-chunk-unit',
+      description: 'Number of small jobs are chunked into one job',
       required: false,
     });
     this.output = this.defineStringParameter({
@@ -176,13 +184,15 @@ export class CommandMakeCog extends CommandLineAction {
     else cutline = getCutline(imageryName);
     if (cutline == null) throw new Error(`Cannot found default cutline from imagery name: ${imageryName}`);
 
+    const alignedLevel = this.alignedLevel.value ?? AlignedLevel;
+
     const ctx: JobCreationContext = {
       imageryName,
       override: {
         id,
         projection: Epsg.Nztm2000,
         resampling,
-        alignedLevel: this.alignedLevel.value,
+        alignedLevel: this.adjustAlignedLevel(tileMatrix, alignedLevel),
       },
       outputLocation: this.aws.value
         ? await this.findLocation(`s3://${bucket}/`)
@@ -206,7 +216,7 @@ export class CommandMakeCog extends CommandLineAction {
     }
 
     // Prepare chunk job and individual jobs based on imagery size.
-    const jobs = await BatchJob.getJobs(job, existTiffs, logger);
+    const jobs = await BatchJob.getJobs(job, existTiffs, logger, this.maxChunkUnit.value);
     if (jobs.length === 0) {
       logger.info('NoJobs');
       return [];
@@ -215,13 +225,26 @@ export class CommandMakeCog extends CommandLineAction {
     return jobs;
   }
 
-  async findLocation(path: string): Promise<FileConfigS3Role> {
-    const configPath = Env.get(Env.AwsRoleConfigPath);
-    if (configPath == null) throw new Error('No aws config path provided');
-    const configs = await fsa.readJson<CredentialSourceJson>(configPath);
-    for (const prefix of configs.prefixes) {
-      if (path.startsWith(prefix.prefix)) return { type: 's3', path, roleArn: prefix.roleArn };
+  async findLocation(path: string): Promise<FileConfig> {
+    if (path.startsWith('s3://')) {
+      const configPath = Env.get(Env.AwsRoleConfigPath);
+      if (configPath == null) throw new Error('No aws config path provided');
+      const configs = await fsa.readJson<CredentialSourceJson>(configPath);
+      for (const prefix of configs.prefixes) {
+        if (path.startsWith(prefix.prefix)) return { type: 's3', path, roleArn: prefix.roleArn };
+      }
+    } else {
+      return { type: 'local', path: path };
     }
+
     throw new Error(`No valid role to find the path: ${path}`);
+  }
+
+  /**
+   * Adjust alignedLevel on less down for the NZTM2000Quad TileMatrix to make sure generate similar size of cogs as Google TileMatrix.
+   */
+  adjustAlignedLevel(tileMatrix: TileMatrixSet, alignedLevel: number): number {
+    if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return alignedLevel + 1;
+    else return alignedLevel;
   }
 }

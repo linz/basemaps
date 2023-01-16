@@ -4,6 +4,7 @@ import {
   CommandLineAction,
   CommandLineFlagParameter,
   CommandLineIntegerListParameter,
+  CommandLineIntegerParameter,
   CommandLineStringListParameter,
   CommandLineStringParameter,
 } from '@rushstack/ts-command-line';
@@ -18,12 +19,16 @@ import { Gdal } from '../../gdal/gdal.js';
 import { makeTempFolder, makeTiffFolder } from '../folder.js';
 import path from 'path';
 import { prepareUrl } from '../util.js';
+import pLimit from 'p-limit';
+
+const DefaultConcurrency = 2;
 
 export class CommandCogCreate extends CommandLineAction {
   private job?: CommandLineStringParameter;
   private name?: CommandLineStringListParameter;
   private commit?: CommandLineFlagParameter;
   private cogIndex?: CommandLineIntegerListParameter;
+  private concurrency?: CommandLineIntegerParameter;
 
   public constructor() {
     super({
@@ -113,11 +118,17 @@ export class CommandCogCreate extends CommandLineAction {
 
     const tmpFolder = await makeTempFolder(`basemaps-${job.id}-${CliId}`);
 
+    const Q = pLimit(this.concurrency?.value ?? DefaultConcurrency);
+
     try {
-      for (const name of names) {
-        const tiffJob = await CogStacJob.load(jobLocation);
-        await this.processTiff(tiffJob, name, tmpFolder, isCommit, logger.child({ tiffName: name }));
-      }
+      Promise.all(
+        Array.from(names).map((name) =>
+          Q(async () => {
+            const tiffJob = await CogStacJob.load(jobLocation);
+            await this.processTiff(tiffJob, name, tmpFolder, isCommit, logger.child({ tiffName: name }));
+          }),
+        ),
+      );
     } catch (e) {
       // Ensure the error is thrown
       throw e;
@@ -217,6 +228,13 @@ export class CommandCogCreate extends CommandLineAction {
       argumentName: 'COG_INDEX',
       parameterLongName: '--cog-index',
       description: 'list of cog indexes to process',
+      required: false,
+    });
+
+    this.concurrency = this.defineIntegerParameter({
+      argumentName: 'CONCURRENCY',
+      parameterLongName: '--concurrency',
+      description: 'Number of concurrency create cog jobs',
       required: false,
     });
 
