@@ -18,7 +18,7 @@ interface SourceRaster {
 /**
  * https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/
  */
-interface Layer {
+export interface Layer {
   id: string;
   type: string;
   filter?: unknown[];

@@ -18,7 +18,7 @@ export {
   TileResizeKernel,
   TileSetType,
 } from './config/tile.set.js';
-export { ConfigVectorStyle, Sources, StyleJson } from './config/vector.style.js';
+export { ConfigVectorStyle, Layer, Sources, StyleJson } from './config/vector.style.js';
 export { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
 export { ConfigDynamoBase } from './dynamo/dynamo.config.base.js';
 export { ConfigProviderMemory, ConfigBundled } from './memory/memory.config.js';

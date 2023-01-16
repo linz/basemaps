@@ -1,4 +1,4 @@
-import { ConfigTileSetRaster, Sources, StyleJson, TileSetType } from '@basemaps/config';
+import { ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
 import { Env, toQueryString } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -31,7 +31,7 @@ export function convertRelativeUrl(url?: string, apiKey?: string, config?: strin
  * @param apiKey api key to inject
  * @returns new stylejson
  */
-export function convertStyleJson(style: StyleJson, apiKey: string, config: string | null): StyleJson {
+export function convertStyleJson(style: StyleJson, apiKey: string, config: string | null, layers?: Layer[]): StyleJson {
   const sources: Sources = JSON.parse(JSON.stringify(style.sources));
   for (const [key, value] of Object.entries(sources)) {
     if (value.type === 'vector') {
@@ -49,7 +49,7 @@ export function convertStyleJson(style: StyleJson, apiKey: string, config: strin
     id: style.id,
     name: style.name,
     sources,
-    layers: style.layers,
+    layers: layers ? layers : style.layers,
     metadata: style.metadata ?? {},
     glyphs: convertRelativeUrl(style.glyphs, undefined, config),
     sprite: convertRelativeUrl(style.sprite, undefined, config),
@@ -101,6 +101,8 @@ export async function tileSetToStyle(
 export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<LambdaHttpResponse> {
   const apiKey = Validate.apiKey(req);
   const styleName = req.params.styleName;
+  const excludeLayers = req.query.getAll('exclude');
+  const excluded = new Set(excludeLayers.map((l) => l.toLowerCase()));
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
@@ -115,7 +117,12 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   }
 
   // Prepare sources and add linz source
-  const style = convertStyleJson(styleConfig.style, apiKey, ConfigLoader.extract(req));
+  const style = convertStyleJson(
+    styleConfig.style,
+    apiKey,
+    ConfigLoader.extract(req),
+    styleConfig.style.layers.filter((f) => !excluded.has(f.id.toLowerCase())),
+  );
   const data = Buffer.from(JSON.stringify(style));
 
   const cacheKey = Etag.key(data);
