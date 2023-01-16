@@ -155,10 +155,9 @@ export class Cutline {
   optimizeCovering(sourceMetadata: SourceMetadata, alignedLevel: number = AlignedLevel): NamedBounds[] {
     this.findCovering(sourceMetadata);
     const { resZoom } = sourceMetadata;
-    // Adjust alignedLevel by TileMatrix
 
     // Fix the cog Minimum Zoom by the aligned level
-    const minZ = Math.max(0, resZoom - this.adjustAlignedLevel(sourceMetadata.projection, alignedLevel));
+    const minZ = Math.max(0, resZoom - alignedLevel);
 
     let tiles: Tile[] = [];
 
@@ -302,13 +301,5 @@ export class Cutline {
     const widthScale = (bounds.width + px * (PixelPadding + this.blend) * 2) / bounds.width;
     const heightScale = (bounds.height + px * (PixelPadding + this.blend) * 2) / bounds.height;
     return bounds.scaleFromCenter(widthScale, heightScale);
-  }
-
-  /**
-   * Adjust alignedLevel on less down for the NZTM2000Quad TileMatrix to make sure generate similar size of cogs as Google TileMatrix.
-   */
-  adjustAlignedLevel(projection: EpsgCode, alignedLevel: number): number {
-    if (projection === EpsgCode.Nztm2000) return alignedLevel + 1;
-    else return alignedLevel;
   }
 }
