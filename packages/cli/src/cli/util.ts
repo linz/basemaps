@@ -149,5 +149,9 @@ export async function prepareUrl(job: CogStacJob): Promise<string> {
  *  'Tasman rural 2018-19 0.3m' => 'tasman_rural_2018-19_0-3m'
  */
 export function nameImageryTitle(title: string): string {
-  return slugify(title.replace(/\.+/g, '-'), { replacement: '_', lower: true, trim: true });
+  return slugify(title.replace(/\.+/g, '-'), {
+    replacement: '_',
+    lower: true,
+    trim: true,
+  }).replace(/[^\w-_]/gi, '');
 }
