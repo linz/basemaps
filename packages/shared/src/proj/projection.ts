@@ -96,11 +96,11 @@ export class Projection {
   }
 
   /**
-     * Project the points in a MultiPolygon array to the `targetProjection`.
-
-     * @return if multipoly is not projected return it verbatim otherwise creates a new multi
-     * polygon
-     */
+   * Project the points in a MultiPolygon array to the `targetProjection`.
+   *
+   * @return if multipoly is not projected return it verbatim otherwise creates a new multi
+   * polygon
+   */
   projectMultipolygon(multipoly: Position[][][], targetProjection: Projection): Position[][][] {
     if (targetProjection.epsg.code === this.epsg.code) return multipoly;
 
@@ -125,12 +125,12 @@ export class Projection {
   }
 
   /**
-     * Convert a source Bounds to GeoJSON WGS84 BoundingBox. In particular if the bounds crosses the
-     * anti-meridian then the east component will be less than the west component.
-
-     * @param source
-     * @returns [west, south, east, north]
-     */
+   * Convert a source Bounds to GeoJSON WGS84 BoundingBox. In particular if the bounds crosses the
+   * anti-meridian then the east component will be less than the west component.
+   *
+   * @param source
+   * @returns [west, south, east, north]
+   */
   boundsToWgs84BoundingBox(source: BoundingBox): BBox {
     const sw = this.toWgs84([source.x, source.y]);
     const ne = this.toWgs84([source.x + source.width, source.y + source.height]);
@@ -139,14 +139,14 @@ export class Projection {
   }
 
   /**
-     * Convert a source bounds to a WSG84 GeoJSON Feature
-
-     * @param bounds in source epsg
-     * @param properties any properties to include in the feature such as name
-
-     * @returns If `bounds` crosses the antimeridian then and east and west pair of non crossing
-     * polygons will be returned; otherwise a single Polygon will be returned.
-     */
+   * Convert a source bounds to a WSG84 GeoJSON Feature
+   *
+   * @param bounds in source epsg
+   * @param properties any properties to include in the feature such as name
+   *
+   * @returns If `bounds` crosses the antimeridian then and east and west pair of non crossing
+   * polygons will be returned; otherwise a single Polygon will be returned.
+   */
   boundsToGeoJsonFeature(bounds: BoundingBox, properties = {}): BBoxFeature {
     const sw = [bounds.x, bounds.y];
     const se = [bounds.x + bounds.width, bounds.y];
@@ -171,18 +171,18 @@ export class Projection {
   }
 
   /**
-     * Find the closest zoom level to `gsd` (Ground Sampling Distance meters per pixel) that is at
-     * least as good as `gsd`.
-
-     * @param gsd
-
-     * @param blockFactor How many time bigger the blockSize is compared to tileSize. Leave as 1 to
-     * not take into account.
-     */
+   * Find the closest zoom level to `gsd` (Ground Sampling Distance meters per pixel) that is at
+   * least as good as `gsd`.
+   *
+   * @param gsd Ground sample distance
+   *
+   * @param blockFactor How many time bigger the blockSize is compared to tileSize. Leave as 1 to
+   * not take into account.
+   */
   static getTiffResZoom(tms: TileMatrixSet, gsd: number, blockFactor = 1): number {
     // Get best image resolution
     let z = 0;
-    for (; z < tms.zooms.length; ++z) {
+    for (; z < tms.zooms.length; z++) {
       if (tms.pixelScale(z) <= gsd * blockFactor) return z;
     }
     if (z === tms.zooms.length) return z - 1;
