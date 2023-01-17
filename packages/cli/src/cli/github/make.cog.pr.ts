@@ -56,7 +56,7 @@ export class MakeCogGithub extends Github {
     await this.commit(branch, ref, [blob], message, sha);
     // Create imagery import pull request
     const title = `feat(aerial): Config imagery ${this.imagery} into Aerial Map. ${jira ? jira : ''}`;
-    const prNumber = await this.createPullRequest(branch, title, true);
+    const prNumber = await this.createPullRequest(branch, title, false);
     return prNumber;
   }
 
