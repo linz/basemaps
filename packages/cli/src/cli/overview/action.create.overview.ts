@@ -64,14 +64,10 @@ export class CommandCreateOverview extends CommandLineAction {
     logger.info({ source, duration: st.tick() }, 'CreateOverview:ListTiffs:Done');
 
     logger.debug({ source }, 'CreateOverview:PrepareSourceFiles');
-    let tiff: CogTiff;
-    try {
-      tiff = await CogTiff.create(tiffSource[0]);
-      await tiff.init(true);
-    } catch {
-      throw new Error(`Source: ${tiffSource[0]} is not a valid tiff file.`);
-    }
+    const tiff: CogTiff = new CogTiff(tiffSource[0]);
+    await tiff.init(true);
     const tileMatrix = await this.getTileMatrix(tiff);
+
     const maxZoom = this.getMaxZoomFromGSD(tiff, tileMatrix);
     await tiff.close();
     logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareSourceFiles:Done');
@@ -87,6 +83,13 @@ export class CommandCreateOverview extends CommandLineAction {
     if (tiles.size < 1) throw new Error('Failed to prepare overviews.');
     logger.info({ source, duration: st.tick() }, 'CreateOverview:PrepareTiles:Done');
 
+    const tilesByZoom: number[] = [];
+    let maxZoomGenerated = 0;
+    for (const tile of tiles) {
+      tilesByZoom[tile.length] = (tilesByZoom[tile.length] ?? 0) + 1;
+      maxZoomGenerated = Math.max(tile.length, maxZoomGenerated);
+    }
+
     logger.debug({ source }, 'CreateOverview:GenerateTiles');
     const jobTiles: JobTiles = {
       path,
@@ -95,9 +98,9 @@ export class CommandCreateOverview extends CommandLineAction {
       tiles: Array.from(tiles.values()),
     };
     await tile(jobTiles, logger);
-    logger.info({ source, duration: st.tick() }, 'CreateOverview:GenerateTiles:Done');
+    logger.info({ source, duration: st.tick(), tilesByZoom }, 'CreateOverview:GenerateTiles:Done');
 
-    const wmts = createOverviewWmtsCapabilities(tileMatrix, maxZoom);
+    const wmts = createOverviewWmtsCapabilities(tileMatrix, maxZoomGenerated);
     await fsa.write(fsa.join(path, 'WMTSCapabilities.xml'), wmts);
 
     logger.debug({ source }, 'CreateOverview:CreatingTar');
@@ -133,7 +136,6 @@ export class CommandCreateOverview extends CommandLineAction {
   }
 
   async getTileMatrix(tiff: CogTiff): Promise<TileMatrixSet> {
-    await tiff.getImage(0).loadGeoTiffTags();
     const projection = tiff.getImage(0).epsg;
     if (projection == null) throw new Error('Failed to find the projection from the imagery.');
     else if (projection === 2193) return Nztm2000QuadTms;
