@@ -64,14 +64,9 @@ o.spec('action.batch', () => {
     const fakeJob = { id: '01FHRPYJ5FV1XAARZAC4T4K6MC', output: { files: fakeFiles, gsd: fakeGsd } } as CogJob;
     o('should prepare valid chunk jobs', async () => {
       o(BatchJob.getJobs(fakeJob, new Set(), LogConfig.get())).deepEquals([
-        [fakeFiles[2].name], // First single Job
-        [fakeFiles[5].name], // Second single Job
-        [fakeFiles[13].name], // Second single Job
+        [fakeFiles[0].name, fakeFiles[1].name, fakeFiles[2].name],
+        [fakeFiles[3].name, fakeFiles[4].name, fakeFiles[5].name],
         [
-          fakeFiles[0].name,
-          fakeFiles[1].name,
-          fakeFiles[3].name,
-          fakeFiles[4].name,
           fakeFiles[6].name,
           fakeFiles[7].name,
           fakeFiles[8].name,
@@ -79,8 +74,9 @@ o.spec('action.batch', () => {
           fakeFiles[10].name,
           fakeFiles[11].name,
           fakeFiles[12].name,
-          fakeFiles[14].name,
+          fakeFiles[13].name,
         ],
+        [fakeFiles[14].name],
       ]);
     });
 
@@ -92,10 +88,8 @@ o.spec('action.batch', () => {
       ]);
       o(BatchJob.getJobs(fakeJob, existing, LogConfig.get())).deepEquals([
         [fakeFiles[2].name], // First single Job
-        [fakeFiles[5].name], // Second single Job
+        [fakeFiles[3].name, fakeFiles[4].name, fakeFiles[5].name], // Second single Job
         [
-          fakeFiles[3].name,
-          fakeFiles[4].name,
           fakeFiles[6].name,
           fakeFiles[7].name,
           fakeFiles[8].name,
