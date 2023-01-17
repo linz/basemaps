@@ -244,7 +244,7 @@ export class CommandMakeCog extends CommandLineAction {
    * Adjust alignedLevel on less down for the NZTM2000Quad TileMatrix to make sure generate similar size of cogs as Google TileMatrix.
    */
   adjustAlignedLevel(tileMatrix: TileMatrixSet, alignedLevel: number): number {
-    if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return alignedLevel + 1;
+    if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return alignedLevel >= 1 ? alignedLevel - 1 : 0;
     else return alignedLevel;
   }
 }
