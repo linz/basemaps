@@ -4,10 +4,26 @@ import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-com
 import { owner, repo } from '../github/github.js';
 import { MakeCogGithub } from '../github/make.cog.pr.js';
 
+export enum Category {
+  Urban = 'Urban Aerial Photos',
+  Rural = 'Rural Aerial Photos',
+  Satellite = 'Satellite Imagery',
+  Other = 'New Aerial Photos',
+}
+
+export function parseCategory(category: string): Category {
+  const c = category.toLocaleLowerCase();
+  if (c.includes('urban')) return Category.Urban;
+  else if (c.includes('rural')) return Category.Rural;
+  else if (c.includes('satellite')) return Category.Satellite;
+  else return Category.Other;
+}
+
 export class CommandCogPullRequest extends CommandLineAction {
   private layer: CommandLineStringParameter;
   private output: CommandLineStringParameter;
   private jira: CommandLineStringParameter;
+  private category: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -36,11 +52,18 @@ export class CommandCogPullRequest extends CommandLineAction {
       description: 'Jira number to add to pull request title',
       required: false,
     });
+    this.category = this.defineStringParameter({
+      argumentName: 'CATEGORY',
+      parameterLongName: '--category',
+      description: 'New Imagery Category, like Rural Aerial Photos, Urban Aerial Photos, Satellite Imagery',
+      required: false,
+    });
   }
 
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
     const layerStr = this.layer.value;
+    const category = this.category.value ? parseCategory(this.category.value) : Category.Other;
     if (layerStr == null) throw new Error('Please provide a valid input layer and urls');
     let layer: ConfigLayer;
     try {
@@ -50,7 +73,7 @@ export class CommandCogPullRequest extends CommandLineAction {
     }
 
     const git = new MakeCogGithub(layer.name, logger);
-    const prNumber = await git.createTileSetPullRequest(layer, this.jira.value);
+    const prNumber = await git.createTileSetPullRequest(layer, this.jira.value, category);
 
     const output = this.output.value;
     if (output) {
