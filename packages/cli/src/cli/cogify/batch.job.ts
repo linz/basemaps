@@ -202,7 +202,8 @@ export class BatchJob {
 
       const imageSize = file.width / job.output.gsd;
       if (imageSize > 16385) {
-        jobs.push([file.name]);
+        chunkJob.push(file.name);
+        chunkUnit += ChunkJobMax;
       } else if (imageSize > 8193) {
         chunkJob.push(file.name);
         chunkUnit += ChunkLargeUnit;
