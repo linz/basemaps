@@ -32,6 +32,10 @@ function getEpsgCode(epsgCode?: Epsg | EpsgCode | TileMatrixSet): EpsgCode | nul
 }
 
 export class Projection {
+  /** If floating point numbers differ by this amount they are close enough */
+  static AllowedFloatingError = 1e-8;
+
+  /** EPSG code for the projection other than Epsg.Wgs84 */
   epsg: Epsg;
 
   /** Transform coordinates to and from Wgs84 */
@@ -171,22 +175,19 @@ export class Projection {
   }
 
   /**
-   * Find the closest zoom level to `gsd` (Ground Sampling Distance meters per pixel) that is at
-   * least as good as `gsd`.
+   * Find the closest zoom level to `pixelScale` that is at
+   * least as good as `pixelScale` or within the error bounds (+- 1e-8)
    *
-   * @param gsd Ground sample distance
+   * @see Projection.AllowedFloatingError.
    *
-   * @param blockFactor How many time bigger the blockSize is compared to tileSize. Leave as 1 to
-   * not take into account.
+   * @param pixelScale A pixel's resolution in metres
    */
-  static getTiffResZoom(tms: TileMatrixSet, gsd: number, blockFactor = 1): number {
-    // Get best image resolution
-    let z = 0;
-    for (; z < tms.zooms.length; z++) {
-      if (tms.pixelScale(z) <= gsd * blockFactor) return z;
+  static getTiffResZoom(tms: TileMatrixSet, pixelScale: number): number {
+    for (let z = 0; z < tms.zooms.length; z++) {
+      const diff = tms.pixelScale(z) - pixelScale;
+      if (diff < this.AllowedFloatingError) return z;
     }
-    if (z === tms.zooms.length) return z - 1;
-    throw new Error('ResZoom not found');
+    return tms.zooms.length - 1;
   }
 
   /** Convert a tile to the wgs84 bounds */
@@ -259,7 +260,7 @@ export class Projection {
    * @param gsd the pixel resolution of the source imagery
    */
   static findAlignmentLevels(tms: TileMatrixSet, tile: Tile, gsd: number): number {
-    return Math.max(0, this.getTiffResZoom(tms, gsd, 2) - tile.z);
+    return Math.max(0, this.getTiffResZoom(tms, gsd * 2) - tile.z);
   }
 
   /**

@@ -35,12 +35,22 @@ function isValidLatLong(x: LatLon): void {
 o.spec('ProjectionTileMatrixSet', () => {
   o('getTiffResZoom', () => {
     o(Projection.getTiffResZoom(GoogleTms, 10)).equals(14);
-    o(Projection.getTiffResZoom(GoogleTms, 10, 2)).equals(13);
+    o(Projection.getTiffResZoom(GoogleTms, 10 * 2)).equals(13);
     o(Projection.getTiffResZoom(GoogleTms, 0.075)).equals(21);
-
     o(Projection.getTiffResZoom(Nztm2000Tms, 10)).equals(10);
-    o(Projection.getTiffResZoom(Nztm2000Tms, 10, 2)).equals(9);
+    o(Projection.getTiffResZoom(Nztm2000Tms, 10 * 2)).equals(9);
     o(Projection.getTiffResZoom(Nztm2000Tms, 0.075)).equals(16);
+  });
+
+  [Nztm2000QuadTms, GoogleTms].forEach((tms) => {
+    o(`should getTiffResZoom when floating errors happen (${tms.identifier})`, () => {
+      // Shift the resolution  by a very small amount
+      const shiftAmount = 1e-9;
+      for (let i = 0; i < tms.maxZoom; i++) {
+        o(Projection.getTiffResZoom(tms, tms.pixelScale(i) - shiftAmount)).equals(i);
+        o(Projection.getTiffResZoom(tms, tms.pixelScale(i) + shiftAmount)).equals(i);
+      }
+    });
   });
 
   o('getTileSize', async () => {
