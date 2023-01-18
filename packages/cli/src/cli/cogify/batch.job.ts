@@ -193,7 +193,10 @@ export class BatchJob {
     const jobs: string[][] = [];
     let chunkJob: string[] = [];
     let chunkUnit = 0; // Calculate the chunkUnit based on the size
-    for (const file of job.output.files) {
+
+    // Shuffle the array randomly before chunk job.
+    const shuffledFiles = job.output.files.slice().sort(() => Math.random() - 0.5);
+    for (const file of shuffledFiles) {
       const outputFile = `${file.name}.tiff`;
       if (existing.has(outputFile)) {
         log.debug({ fileName: outputFile }, 'Skip:Exists');
