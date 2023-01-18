@@ -1,4 +1,3 @@
-import { LogConfig } from '@basemaps/shared';
 import o from 'ospec';
 import { CogJob } from '../../../cog/types.js';
 import { BatchJob, extractResolutionFromName } from '../batch.job.js';
