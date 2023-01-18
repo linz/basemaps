@@ -254,13 +254,13 @@ export class Projection {
   }
 
   /**
-   * Find the number of alignment levels required to render the tile. Min 1
+   * Find the number of alignment levels required to render the tile. Min 0
    *
    * @param tile
    * @param gsd the pixel resolution of the source imagery
    */
-  static findAlignmentLevels(tms: TileMatrixSet, tile: Tile, gsd: number): number {
-    return Math.max(0, this.getTiffResZoom(tms, gsd * 2) - tile.z);
+  static findAlignmentLevels(tms: TileMatrixSet, tile: Tile, gsd: number, blockFactor = 2): number {
+    return Math.max(0, this.getTiffResZoom(tms, gsd * blockFactor) - tile.z);
   }
 
   /**
