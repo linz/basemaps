@@ -264,8 +264,7 @@ export class Projection {
   }
 
   /**
-   * Return the expected width in pixels of an image at the tile resolution. Uses
-   * `this.blockFactor` for HiDPI tiles.
+   * Return the expected width in pixels of an image at the tile resolution.
    *
    * @param tile
    * @param targetZoom The desired zoom level for the imagery
