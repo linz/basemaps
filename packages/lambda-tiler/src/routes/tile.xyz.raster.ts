@@ -58,14 +58,14 @@ export const TileXyzRaster = {
       }
       if (!tileBounds.intersects(Bounds.fromJson(img.bounds))) continue;
 
-      // FIXME is this meant to be >= <=
-      if (img.overviews && img.overviews.maxZoom >= filterZoom && img.overviews.minZoom <= filterZoom) {
-        output.push(fsa.join(img.uri, img.overviews.path));
-        continue;
-      }
-
       for (const c of img.files) {
         if (!tileBounds.intersects(Bounds.fromJson(c))) continue;
+
+        if (img.overviews && img.overviews.maxZoom >= filterZoom && img.overviews.minZoom <= filterZoom) {
+          output.push(fsa.join(img.uri, img.overviews.path));
+          break;
+        }
+
         const tiffPath = fsa.join(img.uri, getTiffName(c.name));
         output.push(tiffPath);
       }
