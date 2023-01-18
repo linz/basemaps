@@ -264,12 +264,12 @@ export class Projection {
   }
 
   /**
-     * Return the expected width in pixels of an image at the tile resolution. Uses
-     * `this.blockFactor` for HiDPI tiles.
-
-     * @param tile
-     * @param targetZoom The desired zoom level for the imagery
-     */
+   * Return the expected width in pixels of an image at the tile resolution. Uses
+   * `this.blockFactor` for HiDPI tiles.
+   *
+   * @param tile
+   * @param targetZoom The desired zoom level for the imagery
+   */
   static getImagePixelWidth(tms: TileMatrixSet, tile: Tile, targetZoom: number): number {
     const ul = tms.tileToSource(tile);
     const lr = tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
