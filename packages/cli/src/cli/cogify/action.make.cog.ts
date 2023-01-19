@@ -192,7 +192,7 @@ export class CommandMakeCog extends CommandLineAction {
         id,
         projection: Epsg.Nztm2000,
         resampling,
-        alignedLevel: alignedLevel,
+        alignedLevel,
       },
       outputLocation: this.aws.value
         ? await this.findLocation(`s3://${bucket}/`)
