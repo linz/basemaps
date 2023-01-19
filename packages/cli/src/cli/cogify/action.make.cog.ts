@@ -1,4 +1,4 @@
-import { Epsg, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, FileConfig, fsa, LogConfig, LogType, titleizeImageryName } from '@basemaps/shared';
 import {
   CommandLineAction,
@@ -192,7 +192,7 @@ export class CommandMakeCog extends CommandLineAction {
         id,
         projection: Epsg.Nztm2000,
         resampling,
-        alignedLevel: this.adjustAlignedLevel(tileMatrix, alignedLevel),
+        alignedLevel,
       },
       outputLocation: this.aws.value
         ? await this.findLocation(`s3://${bucket}/`)
@@ -238,13 +238,5 @@ export class CommandMakeCog extends CommandLineAction {
     }
 
     throw new Error(`No valid role to find the path: ${path}`);
-  }
-
-  /**
-   * Adjust alignedLevel on less down for the NZTM2000Quad TileMatrix to make sure generate similar size of cogs as Google TileMatrix.
-   */
-  adjustAlignedLevel(tileMatrix: TileMatrixSet, alignedLevel: number): number {
-    if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return alignedLevel >= 1 ? alignedLevel - 1 : 0;
-    else return alignedLevel;
   }
 }
