@@ -1,4 +1,4 @@
-import { Epsg, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, FileConfig, fsa, LogConfig, LogType, titleizeImageryName } from '@basemaps/shared';
 import {
   CommandLineAction,
