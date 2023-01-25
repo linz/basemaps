@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
+
+
+### Bug Fixes
+
+* **shared:** res zoom should allow for a tiny amount of floating point error ([#2653](https://github.com/linz/basemaps/issues/2653)) ([7fcc9c5](https://github.com/linz/basemaps/commit/7fcc9c58ad4282036d93dd221284db43863a5a81))
+
+
+
+
+
 # [6.38.0](https://github.com/linz/basemaps/compare/v6.37.0...v6.38.0) (2022-12-11)
 
 

@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
+
+
+### Bug Fixes
+
+* **cli:** Create config to parse the title back to imagery name ([#2622](https://github.com/linz/basemaps/issues/2622)) ([1c304a2](https://github.com/linz/basemaps/commit/1c304a206170a2a4469411e5edfda370ef513e55))
+* **cli:** Fix NZTM aligned level adjustment and allow to chunk more large jobs  ([#2648](https://github.com/linz/basemaps/issues/2648)) ([ce1990b](https://github.com/linz/basemaps/commit/ce1990b3c21847e23fdae3011e3b705144479a27))
+* **cli:** Fix the TileSet id for the create-config output url. ([#2641](https://github.com/linz/basemaps/issues/2641)) ([3ed158d](https://github.com/linz/basemaps/commit/3ed158d9f917700d2bc58dcf6b483f293ba4b2d1))
+* **cli:** Remove the special charactors from title to the imagery name. ([#2643](https://github.com/linz/basemaps/issues/2643)) ([dc6d8cd](https://github.com/linz/basemaps/commit/dc6d8cdaca9b92d7efa303b9bb935be6dfae8d64))
+* **cli:** restrict WMTSCapabilities to the maxZoom of the tiles generated ([#2650](https://github.com/linz/basemaps/issues/2650)) ([657ddb2](https://github.com/linz/basemaps/commit/657ddb257187fb8ed6d37a685816e6723917cf16))
+
+
+### Features
+
+* **cli:** Add category when creating imagery import pull request. ([#2647](https://github.com/linz/basemaps/issues/2647)) ([4113f21](https://github.com/linz/basemaps/commit/4113f213cb459da9f3ed5c34ce64d4a7a8d7c25c))
+* **cli:** Add Concurrency for the make cog cli. ([#2640](https://github.com/linz/basemaps/issues/2640)) ([d95537f](https://github.com/linz/basemaps/commit/d95537ff7051ee3468b70aa441410b74e9dcf39f))
+* **cli:** Remove the nztm aligned level offset adjustment. ([#2655](https://github.com/linz/basemaps/issues/2655)) ([d4715ac](https://github.com/linz/basemaps/commit/d4715ac0b57171da4d97787d59b0b11d63ac94fb))
+* **cli:** Update urls for the vector data and style changes. ([#2626](https://github.com/linz/basemaps/issues/2626)) ([6eab1a8](https://github.com/linz/basemaps/commit/6eab1a8f81749f60fbff881597bede31fb5db6b4))
+
+
+
+
+
 # [6.38.0](https://github.com/linz/basemaps/compare/v6.37.0...v6.38.0) (2022-12-11)
 
 

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** only use a overview if one if the source tiffs are present in the bounding box ([#2651](https://github.com/linz/basemaps/issues/2651)) ([bcfdbd1](https://github.com/linz/basemaps/commit/bcfdbd13b8257a26ef605ec636ee14f8e9d46461))
+
+
+### Features
+
+* **tiler:** Exclude layers from style json. BM-730 ([#2629](https://github.com/linz/basemaps/issues/2629)) ([4683358](https://github.com/linz/basemaps/commit/468335895dc5b5536d780fdf1257df2408ef00ee)), closes [#2630](https://github.com/linz/basemaps/issues/2630)
+* **tiler:** Support fonts array to fallback to next font if not fond. ([#2633](https://github.com/linz/basemaps/issues/2633)) ([5d8e0be](https://github.com/linz/basemaps/commit/5d8e0bea0ab0c29c2aa5264c9011a7eb6f51a946))
+
+
+### Reverts
+
+* Revert "feat(tiler): Support fonts array to fallback to next font if not fond. (#2633) (#2642) ([a678c36](https://github.com/linz/basemaps/commit/a678c36cf9fca326f5ee9e3e713e259f6c53002e)), closes [#2633](https://github.com/linz/basemaps/issues/2633) [#2642](https://github.com/linz/basemaps/issues/2642)
+
+
+
+
+
 # [6.38.0](https://github.com/linz/basemaps/compare/v6.37.0...v6.38.0) (2022-12-11)
 
 
