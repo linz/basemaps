@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
+
+
+### Features
+
+* **landing:** Hidden overflow title in the debug page. ([#2625](https://github.com/linz/basemaps/issues/2625)) ([cd3a192](https://github.com/linz/basemaps/commit/cd3a192b019bc822ba4127f5304092949ef54615))
+
+
+
+
+
 # [6.38.0](https://github.com/linz/basemaps/compare/v6.37.0...v6.38.0) (2022-12-11)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
+
+
+### Features
+
+* **tiler:** Exclude layers from style json. BM-730 ([#2629](https://github.com/linz/basemaps/issues/2629)) ([4683358](https://github.com/linz/basemaps/commit/468335895dc5b5536d780fdf1257df2408ef00ee)), closes [#2630](https://github.com/linz/basemaps/issues/2630)
+
+
+
+
+
 # [6.38.0](https://github.com/linz/basemaps/compare/v6.37.0...v6.38.0) (2022-12-11)
 
 

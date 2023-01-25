@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "6.38.0",
+  "version": "6.39.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -29,10 +29,10 @@
   ],
   "devDependencies": {
     "@basemaps/attribution": "^6.37.0",
-    "@basemaps/config": "^6.38.0",
+    "@basemaps/config": "^6.39.0",
     "@basemaps/geo": "^6.37.0",
-    "@basemaps/infra": "^6.38.0",
-    "@basemaps/shared": "^6.38.0",
+    "@basemaps/infra": "^6.39.0",
+    "@basemaps/shared": "^6.39.0",
     "@linzjs/lui": "^17.16.2",
     "@servie/events": "^3.0.0",
     "@types/proj4": "^2.5.2",

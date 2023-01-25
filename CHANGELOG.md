@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
+
+
+### Bug Fixes
+
+* **cli:** Create config to parse the title back to imagery name ([#2622](https://github.com/linz/basemaps/issues/2622)) ([1c304a2](https://github.com/linz/basemaps/commit/1c304a206170a2a4469411e5edfda370ef513e55))
+* **cli:** Fix NZTM aligned level adjustment and allow to chunk more large jobs  ([#2648](https://github.com/linz/basemaps/issues/2648)) ([ce1990b](https://github.com/linz/basemaps/commit/ce1990b3c21847e23fdae3011e3b705144479a27))
+* **cli:** Fix the TileSet id for the create-config output url. ([#2641](https://github.com/linz/basemaps/issues/2641)) ([3ed158d](https://github.com/linz/basemaps/commit/3ed158d9f917700d2bc58dcf6b483f293ba4b2d1))
+* **cli:** Remove the special charactors from title to the imagery name. ([#2643](https://github.com/linz/basemaps/issues/2643)) ([dc6d8cd](https://github.com/linz/basemaps/commit/dc6d8cdaca9b92d7efa303b9bb935be6dfae8d64))
+* **cli:** restrict WMTSCapabilities to the maxZoom of the tiles generated ([#2650](https://github.com/linz/basemaps/issues/2650)) ([657ddb2](https://github.com/linz/basemaps/commit/657ddb257187fb8ed6d37a685816e6723917cf16))
+* **lambda-tiler:** only use a overview if one if the source tiffs are present in the bounding box ([#2651](https://github.com/linz/basemaps/issues/2651)) ([bcfdbd1](https://github.com/linz/basemaps/commit/bcfdbd13b8257a26ef605ec636ee14f8e9d46461))
+* **server:** correctly forward array query strings to the lambda function ([#2630](https://github.com/linz/basemaps/issues/2630)) ([4a021b2](https://github.com/linz/basemaps/commit/4a021b20ad55709861bcb910cd48a2d0e9d3c26b))
+* **shared:** res zoom should allow for a tiny amount of floating point error ([#2653](https://github.com/linz/basemaps/issues/2653)) ([7fcc9c5](https://github.com/linz/basemaps/commit/7fcc9c58ad4282036d93dd221284db43863a5a81))
+
+
+### Features
+
+* **cli:** Add category when creating imagery import pull request. ([#2647](https://github.com/linz/basemaps/issues/2647)) ([4113f21](https://github.com/linz/basemaps/commit/4113f213cb459da9f3ed5c34ce64d4a7a8d7c25c))
+* **cli:** Add Concurrency for the make cog cli. ([#2640](https://github.com/linz/basemaps/issues/2640)) ([d95537f](https://github.com/linz/basemaps/commit/d95537ff7051ee3468b70aa441410b74e9dcf39f))
+* **cli:** Remove the nztm aligned level offset adjustment. ([#2655](https://github.com/linz/basemaps/issues/2655)) ([d4715ac](https://github.com/linz/basemaps/commit/d4715ac0b57171da4d97787d59b0b11d63ac94fb))
+* **cli:** Update urls for the vector data and style changes. ([#2626](https://github.com/linz/basemaps/issues/2626)) ([6eab1a8](https://github.com/linz/basemaps/commit/6eab1a8f81749f60fbff881597bede31fb5db6b4))
+* **landing:** Hidden overflow title in the debug page. ([#2625](https://github.com/linz/basemaps/issues/2625)) ([cd3a192](https://github.com/linz/basemaps/commit/cd3a192b019bc822ba4127f5304092949ef54615))
+* **tiler:** Exclude layers from style json. BM-730 ([#2629](https://github.com/linz/basemaps/issues/2629)) ([4683358](https://github.com/linz/basemaps/commit/468335895dc5b5536d780fdf1257df2408ef00ee)), closes [#2630](https://github.com/linz/basemaps/issues/2630)
+* **tiler:** Support fonts array to fallback to next font if not fond. ([#2633](https://github.com/linz/basemaps/issues/2633)) ([5d8e0be](https://github.com/linz/basemaps/commit/5d8e0bea0ab0c29c2aa5264c9011a7eb6f51a946))
+
+
+### Reverts
+
+* Revert "feat(tiler): Support fonts array to fallback to next font if not fond. (#2633) (#2642) ([a678c36](https://github.com/linz/basemaps/commit/a678c36cf9fca326f5ee9e3e713e259f6c53002e)), closes [#2633](https://github.com/linz/basemaps/issues/2633) [#2642](https://github.com/linz/basemaps/issues/2642)
+
+
+
+
+
 # [6.38.0](https://github.com/linz/basemaps/compare/v6.37.0...v6.38.0) (2022-12-11)
 
 
