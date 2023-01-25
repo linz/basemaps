@@ -74,9 +74,9 @@
   integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
 
 "@chunkd/core@>=10.0.0", "@chunkd/core@^10.0.0", "@chunkd/core@^8.1.0", "@chunkd/core@^8.4.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-10.0.0.tgz#d66fd49993cad99886eb2eb20df24a3056ebb218"
-  integrity sha512-8AvtnYUUwn8AcRrjnjstczCj2wJT1Kj+JUy/Cxo6mdsxxQiR1L+2vD46Wj/Q5s/K2toQta3/bSBys3NfYweWGg==
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-10.1.1.tgz#2f7193baba36049507354bbadc2e06717a7cca98"
+  integrity sha512-dd6+7KluZWFAa4Zzj/SQsi0WVu+I8oTlDAEYDzyyY7deYwgrHUnmtciKBL9Owc0kAChbrzzrAbZrZzqaneSStg==
 
 "@chunkd/fs@^10.0.2":
   version "10.0.2"
@@ -1123,9 +1123,9 @@
     ulid "^2.3.0"
 
 "@linzjs/lui@^17.16.2":
-  version "17.16.2"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-17.16.2.tgz#9b476ff76c9cc1c68c11621ff9ff8aa2d04225b0"
-  integrity sha512-uUMixjeoNG862csS899t+tkckhVZG4rUQxWqyyi6J8ueQxISX2begCtsIP1//XLswS3D28c3xAADACClPM6TcA==
+  version "17.26.0"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-17.26.0.tgz#5838abc6989e9dfaf8b8d933fd3684424af8a418"
+  integrity sha512-2Ww1KzKf2wev4iJrDlqZ1aZAyzeLpliR8zPzl0tnWCBMapovCbvLjsKwxfwciUnDQswtMD2/q/nscG4i3C6M1A==
   dependencies:
     "@fontsource/open-sans" "^4.5.1"
     "@react-aria/focus" "^3.7.0"
