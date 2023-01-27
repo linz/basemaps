@@ -42,7 +42,7 @@ export interface StacExtent {
   spatial: {
     bbox: [number, number, number, number][];
   };
-  temporal: {
+  temporal?: {
     interval: [string, string][];
   };
 }

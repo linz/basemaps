@@ -15,9 +15,9 @@ export type AttributionCollection = StacCollection<{
 export type AttributionItem = StacItem<{
   title: string;
   category?: string;
-  datetime: null;
-  start_datetime: string;
-  end_datetime: string;
+  datetime?: null;
+  start_datetime?: string;
+  end_datetime?: string;
 }>;
 
 /**

@@ -8,6 +8,7 @@ import { Validate } from '../util/validate.js';
 import { Etag } from '../util/etag.js';
 import { ConfigLoader } from '../util/config.loader.js';
 import { GoogleTms, ImageFormat, TileMatrixSets } from '@basemaps/geo';
+import { getFilters } from '../util/filter.js';
 
 /**
  * Convert relative URLS into a full hostname url
@@ -73,7 +74,7 @@ export async function tileSetToStyle(
   if (tileFormat == null) return new LambdaHttpResponse(400, 'Invalid image format');
 
   const configLocation = ConfigLoader.extract(req);
-  const query = toQueryString({ config: configLocation, api: apiKey });
+  const query = toQueryString({ config: configLocation, api: apiKey, ...getFilters(req) });
 
   const tileUrl = fsa.join(
     Env.get(Env.PublicUrlBase) ?? '',

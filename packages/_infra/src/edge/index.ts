@@ -101,7 +101,7 @@ export class EdgeStack extends cdk.Stack {
           forwardedValues: {
             /** Forward all query strings but do not use them for caching */
             queryString: true,
-            queryStringCacheKeys: ['config', 'exclude'],
+            queryStringCacheKeys: ['config', 'exclude', 'date[before]', 'date[after]'],
           },
           lambdaFunctionAssociations: [],
         },
