@@ -27,11 +27,11 @@ export class AttributionBounds {
   }
 
   /**
-     * Does this AttributionCollection intersect with `extent`
-
-     * @param extent The extent to test for intersection against
-     * @param zoom only test extent if `zoom` is between `minZoom` and `maxZoom`
-     */
+   * Does this AttributionCollection intersect with `extent`
+   *
+   * @param extent The extent to test for intersection against
+   * @param zoom only test extent if `zoom` is between `minZoom` and `maxZoom`
+   */
   intersects(extent: BBox, zoom: number): boolean {
     if (zoom > this.maxZoom || zoom < this.minZoom) return false;
     if (!Wgs84.intersects(extent, this.bbox)) return false;
@@ -99,7 +99,7 @@ function convertToBounds(stac: AttributionStac): AttributionBounds[] {
 
 /** Get the year range for an AttributionCollection */
 function getYears(col: AttributionCollection): [number, number] {
-  const { interval } = col.extent.temporal;
+  const interval = col.extent?.temporal?.interval;
   if (interval == null || interval.length === 0) return [-1, -1];
   const range = interval[0];
   const y1 = new Date(range[0]).getFullYear();
@@ -120,10 +120,10 @@ export class Attribution {
   }
 
   /**
-     * Fetch the AttributionStac from server and load into `attributions`
-
-     * @param url the location of the AttributionStac file
-     */
+   * Fetch the AttributionStac from server and load into `attributions`
+   *
+   * @param url the location of the AttributionStac file
+   */
   static async load(url: string): Promise<Attribution> {
     const resp = await fetch(url);
     if (resp.ok) {
@@ -139,11 +139,11 @@ export class Attribution {
   }
 
   /**
-     * Filter the attributions to just those that intersect with `extent` and `zoom`
-
-     * @param extent a bounding box in the projection supplied to the constructor
-     * @param zoom the zoom level the extent is viewed at
-     */
+   * Filter the attributions to just those that intersect with `extent` and `zoom`
+   *
+   * @param extent a bounding box in the projection supplied to the constructor
+   * @param zoom the zoom level the extent is viewed at
+   */
   filter(extent: BBox, zoom: number): AttributionCollection[] {
     zoom = Math.round(zoom);
 
@@ -162,10 +162,10 @@ export class Attribution {
   isIgnored?: (attr: AttributionBounds) => boolean;
 
   /**
-     * Render the filtered attributions as a simple string suitable to display as attribution
-
-     * @param list the filtered list of attributions
-     */
+   * Render the filtered attributions as a simple string suitable to display as attribution
+   *
+   * @param list the filtered list of attributions
+   */
   renderList(list: AttributionCollection[]): string {
     if (list.length === 0) return '';
     let result = escapeHtml(list[0].title);
