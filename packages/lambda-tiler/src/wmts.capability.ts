@@ -29,7 +29,7 @@ export interface WmtsCapabilitiesParams {
   /** List of tile matrixes to output */
   tileMatrix: TileMatrixSet[];
   /** Should WMTS Layers be created for each imagery set inside this tileSet */
-  isIndividualLayers: boolean;
+  // isIndividualLayers: boolean;
   /** All the imagery used by the tileSet and tileMatrixes */
   imagery: Map<string, ConfigImagery>;
   /** API key to append to all resource urls */
@@ -38,6 +38,8 @@ export interface WmtsCapabilitiesParams {
   formats?: ImageFormat[] | null;
   /** Config location */
   config?: string | null;
+  /** Specific layers to add to the WMTS */
+  layers?: ConfigLayer[] | null;
 }
 
 /** Number of decimal places to use in lat lng */
@@ -66,17 +68,19 @@ export class WmtsCapabilities {
 
   minZoom = 0;
   maxZoom = 32;
+  layers: ConfigLayer[] | null | undefined;
 
   constructor(params: WmtsCapabilitiesParams) {
     this.httpBase = params.httpBase;
     this.provider = params.provider;
     this.tileSet = params.tileSet;
     this.config = params.config;
-    this.isIndividualLayers = params.isIndividualLayers;
+    // this.isIndividualLayers = params.isIndividualLayers;
     for (const tms of params.tileMatrix) this.tileMatrixSets.set(tms.identifier, tms);
     this.apiKey = params.apiKey;
     this.formats = params.formats ?? ImageFormatOrder;
     this.imagery = params.imagery;
+    this.layers = params.layers;
   }
 
   buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {
@@ -287,10 +291,10 @@ export class WmtsCapabilities {
     const layers: (VNodeElement | null)[] = [];
     layers.push(this.buildLayer(this.tileSet));
 
-    if (this.isIndividualLayers) {
+    if (this.layers) {
       const layerByName = new Map<string, ConfigLayer>();
       // Dedupe the layers by unique name
-      for (const img of this.tileSet.layers) layerByName.set(standardizeLayerName(img.name), img);
+      for (const img of this.layers) layerByName.set(standardizeLayerName(img.name), img);
       const orderedLayers = Array.from(layerByName.values()).sort((a, b) =>
         (a.title ?? a.name).localeCompare(b.title ?? b.name),
       );

@@ -33,7 +33,7 @@ export const TileXyzRaster = {
   async getAssetsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<string[]> {
     const config = await ConfigLoader.load(req);
     const imagery = await getAllImagery(config, tileSet.layers, [xyz.tileMatrix.projection]);
-    const filteredLayers = await filterLayers(req, tileSet.layers);
+    const filteredLayers = filterLayers(req, tileSet.layers);
 
     const output: string[] = [];
     const tileBounds = xyz.tileMatrix.tileToSourceBounds(xyz.tile);

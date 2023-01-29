@@ -87,7 +87,7 @@ async function tileSetAttribution(
 
   const config = await ConfigLoader.load(req);
   const imagery = await getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
-  const filteredLayers = await filterLayers(req, tileSet.layers);
+  const filteredLayers = filterLayers(req, tileSet.layers);
 
   const host = await config.Provider.get(config.Provider.id('linz'));
 
@@ -119,10 +119,10 @@ async function tileSetAttribution(
     const years = extractYearRangeFromTitle(im.title);
     if (years) {
       const interval = yearRangeToInterval(years);
-      extent.temporal = { interval: [interval] };
+      extent.temporal = { interval: [[interval[0].toISOString(), interval[1].toISOString()]] };
       item.properties.datetime = null;
-      item.properties.start_datetime = interval[0];
-      item.properties.end_datetime = interval[1];
+      item.properties.start_datetime = interval[0].toISOString();
+      item.properties.end_datetime = interval[1].toISOString();
     }
     items.push(item);
 

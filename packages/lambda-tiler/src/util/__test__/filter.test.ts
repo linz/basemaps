@@ -23,55 +23,55 @@ o.spec('filterLayers', () => {
     },
   ];
 
-  o('should not filter with empty parameters', async () => {
-    const layers = await filterLayers(mockUrlRequest('/foo/bar,js'), sourceLayers);
+  o('should not filter with empty parameters', () => {
+    const layers = filterLayers(mockUrlRequest('/foo/bar,js'), sourceLayers);
     o(layers).deepEquals(sourceLayers);
   });
 
-  o('should filter date[after]', async () => {
+  o('should filter date[after]', () => {
     const dateAfter = '2003-12-31T23:59:59.999';
-    const layers = await filterLayers(mockUrlRequest('/foo/bar,js', `?date[after]=${dateAfter}`), sourceLayers);
+    const layers = filterLayers(mockUrlRequest('/foo/bar,js', `?date[after]=${dateAfter}`), sourceLayers);
     o(layers).deepEquals([sourceLayers[0]]);
   });
 
-  o('should filter date[before]', async () => {
+  o('should filter date[before]', () => {
     const dateBefore = '2003-01-01T00:00:00.000Z';
-    const layers = await filterLayers(mockUrlRequest('/foo/bar,js', `?date[before]=${dateBefore}`), sourceLayers);
+    const layers = filterLayers(mockUrlRequest('/foo/bar,js', `?date[before]=${dateBefore}`), sourceLayers);
     o(layers).deepEquals(sourceLayers.slice(1));
   });
 
-  o('should filter date[before] in between years', async () => {
+  o('should filter date[before] in between years', () => {
     const dateBefore = '2026-01-01T00:00:00.000Z';
     const layer = [{ name: '', title: 'Waikato 0.625m SNC12836 (2020-2028)' }];
-    const layers = await filterLayers(mockUrlRequest('/foo/bar,js', `?date[before]=${dateBefore}`), layer);
+    const layers = filterLayers(mockUrlRequest('/foo/bar,js', `?date[before]=${dateBefore}`), layer);
     o(layers).deepEquals(layer);
   });
 
-  o('should filter date[after] in between years', async () => {
+  o('should filter date[after] in between years', () => {
     const dateAfter = '2026-12-31T23:59:59.999Z';
     const layer = [{ name: '', title: 'Waikato 0.625m SNC12836 (2020-2028)' }];
-    const layers = await filterLayers(mockUrlRequest('/foo/bar,js', `?date[after]=${dateAfter}`), layer);
+    const layers = filterLayers(mockUrlRequest('/foo/bar,js', `?date[after]=${dateAfter}`), layer);
     o(layers).deepEquals(layer);
   });
 
-  o('should filter date[after] and date[before] in between years', async () => {
+  o('should filter date[after] and date[before] in between years', () => {
     const dateAfter = '2026-12-31T23:59:59.999Z';
     const dateBefore = '2028-01-01T00:00:00.000Z';
 
     const layer = [{ name: '', title: 'Waikato 0.625m SNC12836 (2020-2028)' }];
-    const layers = await filterLayers(
+    const layers = filterLayers(
       mockUrlRequest('/foo/bar,js', `?date[after]=${dateAfter}&date[before]=${dateBefore}`),
       layer,
     );
     o(layers).deepEquals(layer);
   });
 
-  o('should filter date[after] and date[before] in between years', async () => {
+  o('should filter date[after] and date[before] in between years with single year', () => {
     const dateAfter = '2026-12-31T23:59:59.999Z';
     const dateBefore = '2028-01-01T00:00:00.000Z';
 
     const layer = [{ name: '', title: 'Waikato 0.625m SNC12836 (2028)' }];
-    const layers = await filterLayers(
+    const layers = filterLayers(
       mockUrlRequest('/foo/bar,js', `?date[after]=${dateAfter}&date[before]=${dateBefore}`),
       layer,
     );

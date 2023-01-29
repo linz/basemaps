@@ -18,19 +18,19 @@ export function getFilters(req: LambdaHttpRequest): Record<string, string | unde
  *
  * Expand to the full year of jan 1st 00:00 -> Dec 31st 23:59
  */
-export function yearRangeToInterval(x: [number] | [number, number]): [string, string] {
-  if (x.length === 1) return [`${x[0]}-01-01T00:00:00.000Z`, `${x[0]}-12-31T23:59:59.999Z`];
-  return [`${x[0]}-01-01T00:00:00.000Z`, `${x[1]}-12-31T23:59:59.999Z`];
+export function yearRangeToInterval(x: [number] | [number, number]): [Date, Date] {
+  if (x.length === 1) return [new Date(`${x[0]}-01-01T00:00:00.000Z`), new Date(`${x[0]}-12-31T23:59:59.999Z`)];
+  return [new Date(`${x[0]}-01-01T00:00:00.000Z`), new Date(`${x[1]}-12-31T23:59:59.999Z`)];
 }
 
-function parseDateAsIso(s: string | null): string | null {
+function parseDateAsIso(s: string | null): Date | null {
   if (s == null) return null;
   const date = new Date(s);
   if (isNaN(date.getTime())) throw new LambdaHttpResponse(400, `Invalid date format: "${s}"`);
-  return date.toISOString();
+  return date;
 }
 
-export async function filterLayers(req: LambdaHttpRequest, layers: ConfigLayer[]): Promise<ConfigLayer[]> {
+export function filterLayers(req: LambdaHttpRequest, layers: ConfigLayer[]): ConfigLayer[] {
   const dateAfterQuery = req.query.get(FilterNames.DateAfter);
   const dateBeforeQuery = req.query.get(FilterNames.DateBefore);
 
