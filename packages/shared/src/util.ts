@@ -56,7 +56,7 @@ export function extractYearRangeFromTitle(t: string): [number] | [number, number
     .split('-')
     .map(Number);
   if (chunks.length === 1 && !isNaN(chunks[0])) return chunks as [number];
-  else if (chunks.length === 2 && !isNaN(chunks[0]) && !isNaN(chunks[0])) return chunks as [number, number];
+  else if (chunks.length === 2 && !isNaN(chunks[0]) && !isNaN(chunks[1])) return chunks as [number, number];
   return null;
 }
 

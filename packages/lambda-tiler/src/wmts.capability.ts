@@ -28,8 +28,6 @@ export interface WmtsCapabilitiesParams {
   tileSet: ConfigTileSet;
   /** List of tile matrixes to output */
   tileMatrix: TileMatrixSet[];
-  /** Should WMTS Layers be created for each imagery set inside this tileSet */
-  // isIndividualLayers: boolean;
   /** All the imagery used by the tileSet and tileMatrixes */
   imagery: Map<string, ConfigImagery>;
   /** API key to append to all resource urls */
@@ -64,7 +62,6 @@ export class WmtsCapabilities {
   tileMatrixSets = new Map<string, TileMatrixSet>();
   imagery: Map<string, ConfigImagery>;
   formats: ImageFormat[];
-  isIndividualLayers = false;
 
   minZoom = 0;
   maxZoom = 32;
@@ -75,7 +72,6 @@ export class WmtsCapabilities {
     this.provider = params.provider;
     this.tileSet = params.tileSet;
     this.config = params.config;
-    // this.isIndividualLayers = params.isIndividualLayers;
     for (const tms of params.tileMatrix) this.tileMatrixSets.set(tms.identifier, tms);
     this.apiKey = params.apiKey;
     this.formats = params.formats ?? ImageFormatOrder;
