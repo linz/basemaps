@@ -11,7 +11,7 @@ import {
   StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { extractYearRangeFromTitle, Projection } from '@basemaps/shared';
+import { extractYearRangeFromName, extractYearRangeFromTitle, Projection, titleizeImageryName } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
@@ -96,7 +96,7 @@ async function tileSetAttribution(
     if (imgId == null) continue;
     const im = imagery.get(imgId);
     if (im == null) continue;
-    if (im.title == null) continue;
+    const title = im.title ?? titleizeImageryName(im.name);
 
     const bbox = proj.boundsToWgs84BoundingBox(im.bounds).map(roundNumber) as BBox;
 
@@ -112,11 +112,11 @@ async function tileSetAttribution(
       bbox,
       geometry: { type: 'MultiPolygon', coordinates: createCoordinates(bbox, im.files, proj) },
       properties: {
-        title: im.title,
+        title,
         category: im.category,
       },
     };
-    const years = extractYearRangeFromTitle(im.title);
+    const years = im.title ? extractYearRangeFromTitle(im.title) : extractYearRangeFromName(im.name);
     if (years) {
       const interval = yearRangeToInterval(years);
       extent.temporal = { interval: [[interval[0].toISOString(), interval[1].toISOString()]] };
@@ -133,7 +133,7 @@ async function tileSetAttribution(
       license: Stac.License,
       id: im.id,
       providers: getHost(host),
-      title: im.title,
+      title,
       description: 'No description',
       extent,
       links: [],
