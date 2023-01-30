@@ -55,7 +55,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
       - name: "@basemaps/cli - Build and push"
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: packages/cli
           platforms: linux/arm64,linux/amd64
@@ -65,7 +65,7 @@ jobs:
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:') == false}}
 
       - name: "@basemaps/cli - Build and push Major/Minor"
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: packages/cli
           platforms: linux/arm64,linux/amd64
@@ -79,7 +79,7 @@ jobs:
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')}}
 
       - name: "@basemaps/server - Build and push"
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: packages/server
           platforms: linux/arm64,linux/amd64
@@ -89,7 +89,7 @@ jobs:
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:') == false}}
 
       - name: "@basemaps/server - Build and push Major/Minor"
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: packages/cli
           platforms: linux/arm64,linux/amd64
