@@ -11,12 +11,13 @@ import {
   StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { extractYearRangeFromName, Projection, titleizeImageryName } from '@basemaps/shared';
+import { extractYearRangeFromName, extractYearRangeFromTitle, Projection, titleizeImageryName } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
 
 import { Etag } from '../util/etag.js';
+import { filterLayers, yearRangeToInterval } from '../util/filter.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 
@@ -86,30 +87,22 @@ async function tileSetAttribution(
 
   const config = await ConfigLoader.load(req);
   const imagery = await getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
+  const filteredLayers = filterLayers(req, tileSet.layers);
 
   const host = await config.Provider.get(config.Provider.id('linz'));
 
-  for (const layer of tileSet.layers) {
+  for (const layer of filteredLayers) {
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
     const im = imagery.get(imgId);
     if (im == null) continue;
+    const title = im.title ?? titleizeImageryName(im.name);
 
     const bbox = proj.boundsToWgs84BoundingBox(im.bounds).map(roundNumber) as BBox;
 
-    const years = extractYearRangeFromName(im.name);
-    if (years[0] === -1) {
-      req.log.debug({ imagery: im.name }, 'Attribution:DefaultYear');
-      // Put it in the future so people know its a "fake" date
-      years[0] = new Date().getUTCFullYear() + 1;
-      years[1] = years[0] + 1;
-    }
+    const extent: StacExtent = { spatial: { bbox: [bbox] } };
 
-    const interval = [years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]];
-
-    const extent: StacExtent = { spatial: { bbox: [bbox] }, temporal: { interval } };
-
-    items.push({
+    const item: AttributionItem = {
       type: 'Feature',
       stac_version: Stac.Version,
       id: imgId + '_item',
@@ -119,13 +112,19 @@ async function tileSetAttribution(
       bbox,
       geometry: { type: 'MultiPolygon', coordinates: createCoordinates(bbox, im.files, proj) },
       properties: {
-        title: im.title ?? titleizeImageryName(im.name),
+        title,
         category: im.category,
-        datetime: null,
-        start_datetime: interval[0][0],
-        end_datetime: interval[0][1],
       },
-    });
+    };
+    const years = im.title ? extractYearRangeFromTitle(im.title) : extractYearRangeFromName(im.name);
+    if (years) {
+      const interval = yearRangeToInterval(years);
+      extent.temporal = { interval: [[interval[0].toISOString(), interval[1].toISOString()]] };
+      item.properties.datetime = null;
+      item.properties.start_datetime = interval[0].toISOString();
+      item.properties.end_datetime = interval[1].toISOString();
+    }
+    items.push(item);
 
     const zoomMin = TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true);
     const zoomMax = TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true);
@@ -134,7 +133,7 @@ async function tileSetAttribution(
       license: Stac.License,
       id: im.id,
       providers: getHost(host),
-      title: im.title ?? titleizeImageryName(im.name),
+      title,
       description: 'No description',
       extent,
       links: [],

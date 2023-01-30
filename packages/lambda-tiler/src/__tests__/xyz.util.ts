@@ -3,6 +3,8 @@ import { LambdaAlbRequest, LambdaHttpRequest, LambdaUrlRequest } from '@linzjs/l
 import { Context } from 'aws-lambda';
 
 export function mockRequest(path: string, method = 'get', headers: Record<string, string> = {}): LambdaHttpRequest {
+  const log = LogConfig.get();
+  log.level = 'silent';
   return new LambdaAlbRequest(
     {
       requestContext: null as any,
@@ -13,7 +15,7 @@ export function mockRequest(path: string, method = 'get', headers: Record<string
       isBase64Encoded: false,
     },
     {} as Context,
-    LogConfig.get(),
+    log,
   );
 }
 
@@ -23,6 +25,8 @@ export function mockUrlRequest(
   headers: Record<string, unknown> = {},
   method?: string,
 ): LambdaHttpRequest {
+  const log = LogConfig.get();
+  log.level = 'silent';
   return new LambdaUrlRequest(
     {
       requestContext: { http: { method: method ? method.toUpperCase() : 'GET' } },
@@ -32,7 +36,7 @@ export function mockUrlRequest(
       isBase64Encoded: false,
     } as any,
     {} as Context,
-    LogConfig.get(),
+    log,
   );
 }
 

@@ -8,6 +8,7 @@ import { Validate } from '../util/validate.js';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { Etag } from '../util/etag.js';
 import { ConfigLoader } from '../util/config.loader.js';
+import { filterLayers } from '../util/filter.js';
 
 export interface WmtsCapabilitiesGet {
   Params: {
@@ -59,11 +60,11 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
     provider: provider ?? undefined,
     tileSet,
     tileMatrix,
-    isIndividualLayers: req.params.tileMatrix == null,
     imagery,
     apiKey,
     config: ConfigLoader.extract(req),
     formats: Validate.getRequestedFormats(req),
+    layers: req.params.tileMatrix == null ? filterLayers(req, tileSet.layers) : null,
   }).toXml();
   if (xml == null) return NotFound();
 

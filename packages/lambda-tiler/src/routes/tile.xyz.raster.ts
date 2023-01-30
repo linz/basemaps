@@ -9,6 +9,7 @@ import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambd
 import pLimit from 'p-limit';
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
+import { filterLayers } from '../util/filter.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
 import { TileXyz } from '../util/validate.js';
@@ -32,13 +33,14 @@ export const TileXyzRaster = {
   async getAssetsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<string[]> {
     const config = await ConfigLoader.load(req);
     const imagery = await getAllImagery(config, tileSet.layers, [xyz.tileMatrix.projection]);
+    const filteredLayers = filterLayers(req, tileSet.layers);
 
     const output: string[] = [];
     const tileBounds = xyz.tileMatrix.tileToSourceBounds(xyz.tile);
 
     // All zoom level config is stored as Google zoom levels
     const filterZoom = TileMatrixSet.convertZoomLevel(xyz.tile.z, xyz.tileMatrix, TileMatrixSets.get(Epsg.Google));
-    for (const layer of tileSet.layers) {
+    for (const layer of filteredLayers) {
       if (layer.maxZoom != null && filterZoom > layer.maxZoom) continue;
       if (layer.minZoom != null && filterZoom < layer.minZoom) continue;
 

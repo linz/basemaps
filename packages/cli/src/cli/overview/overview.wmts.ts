@@ -22,7 +22,6 @@ export function createOverviewWmtsCapabilities(
     formats: [ImageFormat.Webp],
     httpBase: '',
     imagery: new Map(),
-    isIndividualLayers: false,
   });
 
   wmts.maxZoom = maxZoom;

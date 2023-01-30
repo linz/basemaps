@@ -2,6 +2,7 @@ import { GoogleTms, TileJson, TileMatrixSet } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
+import { getFilters } from '../util/filter.js';
 import { NotFound } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 
@@ -31,7 +32,7 @@ export async function tileJsonGet(req: LambdaHttpRequest<TileJsonGet>): Promise<
 
   const configLocation = ConfigLoader.extract(req);
 
-  const query = toQueryString({ api: apiKey, config: configLocation });
+  const query = toQueryString({ api: apiKey, config: configLocation, ...getFilters(req) });
 
   const tileUrl =
     [host, 'v1', 'tiles', tileSet.name, tileMatrix.identifier, '{z}', '{x}', '{y}'].join('/') + `.${format[0]}${query}`;

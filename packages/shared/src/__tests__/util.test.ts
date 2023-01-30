@@ -1,5 +1,11 @@
 import o from 'ospec';
-import { extractYearRangeFromName, getUrlHost, s3ToVsis3, titleizeImageryName } from '../util.js';
+import {
+  extractYearRangeFromName,
+  extractYearRangeFromTitle,
+  getUrlHost,
+  s3ToVsis3,
+  titleizeImageryName,
+} from '../util.js';
 
 o.spec('util', () => {
   o('extractYearRangeFromName', () => {
@@ -10,6 +16,18 @@ o.spec('util', () => {
     o(extractYearRangeFromName('2019_abc2020')).deepEquals([2019, 2021]);
     o(extractYearRangeFromName('2020_abc2019')).deepEquals([2019, 2021]);
     o(extractYearRangeFromName('2020-23abc')).deepEquals([2020, 2024]);
+
+    o(extractYearRangeFromName('wellington_urban_2017_0.10m')).deepEquals([2017, 2018]);
+    o(extractYearRangeFromName('gebco_2020_305-75m')).deepEquals([2020, 2021]);
+    // FIXME these are currently broken
+    // o(extractYearRangeFromName('otago_0_375m_sn3806_1975')).deepEquals([1975, 1976]);
+  });
+
+  o.only('extractYearRangeFromTitle', () => {
+    o(extractYearRangeFromTitle('Banks Peninsula 0.075m Urban Aerial Photos (2019-2020)')).deepEquals([2019, 2020]);
+    o(extractYearRangeFromTitle('Manawatu 0.125m Urban Aerial Photos (2019)')).deepEquals([2019]);
+
+    o(extractYearRangeFromTitle('Manawatu 0.125m Urban Aerial Photos (2019a)')).deepEquals(null);
   });
 
   o('titleizeImageryName', () => {

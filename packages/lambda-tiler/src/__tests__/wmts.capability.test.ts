@@ -30,7 +30,6 @@ o.spec('WmtsCapabilities', () => {
       imagery: allImagery,
       apiKey,
       formats: [ImageFormat.Avif],
-      isIndividualLayers: false,
     }).toVNode();
 
     const urls = tags(wmts, 'ResourceURL');
@@ -51,7 +50,6 @@ o.spec('WmtsCapabilities', () => {
       apiKey,
       config: 's3://linz-basemaps/config.json',
       formats: [ImageFormat.Avif],
-      isIndividualLayers: false,
     }).toVNode();
 
     const urls = tags(wmts, 'ResourceURL');
@@ -71,7 +69,6 @@ o.spec('WmtsCapabilities', () => {
       imagery: allImagery,
       apiKey,
       formats: [ImageFormat.Avif],
-      isIndividualLayers: false,
     }).toXml();
 
     o(xml.split('\n')[0]).deepEquals('<?xml version="1.0" encoding="utf-8"?>');
@@ -90,7 +87,6 @@ o.spec('WmtsCapabilities', () => {
       imagery: allImagery,
       apiKey,
       formats: [ImageFormat.Avif],
-      isIndividualLayers: false,
     }).toVNode();
 
     const urls = tags(wmts, 'ResourceURL');
@@ -142,7 +138,7 @@ o.spec('WmtsCapabilities', () => {
       tileSet,
       imagery,
       apiKey,
-      isIndividualLayers: true,
+      layers: tileSet.layers,
     }).toVNode();
 
     const layers = tags(wmts, 'Layer').map((c) => c.find('ows:Title')?.textContent);
@@ -161,7 +157,6 @@ o.spec('WmtsCapabilities', () => {
       tileSet: TileSetAerial,
       imagery,
       apiKey,
-      isIndividualLayers: false,
     });
 
     const raw = wmts.toVNode();
@@ -213,7 +208,6 @@ o.spec('WmtsCapabilities', () => {
       tileSet: TileSetAerial,
       imagery: allImagery,
       apiKey,
-      isIndividualLayers: false,
     }).toVNode();
     const layer = raw.find('Contents', 'Layer');
 
@@ -260,7 +254,7 @@ o.spec('WmtsCapabilities', () => {
       tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
-      isIndividualLayers: true,
+      layers: TileSetAerial.layers,
     }).toVNode();
 
     const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
@@ -299,7 +293,6 @@ o.spec('WmtsCapabilities', () => {
       tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
-      isIndividualLayers: false,
     }).toVNode();
 
     const layers = tags(raw, 'Layer');
@@ -361,7 +354,7 @@ o.spec('WmtsCapabilities', () => {
       tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
-      isIndividualLayers: true,
+      layers: TileSetAerial.layers,
     }).toVNode();
 
     const layers = tags(raw, 'Layer');
@@ -375,7 +368,7 @@ o.spec('WmtsCapabilities', () => {
       tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
-      isIndividualLayers: true,
+      layers: TileSetAerial.layers,
     }).toVNode();
 
     const layersB = tags(rawB, 'Layer');
@@ -408,7 +401,7 @@ o.spec('WmtsCapabilities', () => {
       tileSet,
       imagery,
       formats: [ImageFormat.Png],
-      isIndividualLayers: true,
+      layers: tileSet.layers,
     }).toVNode();
 
     const boundingBox = tags(raw, 'ows:WGS84BoundingBox').map((c) =>
@@ -447,7 +440,7 @@ o.spec('WmtsCapabilities', () => {
       tileSet,
       imagery,
       formats: [ImageFormat.Png],
-      isIndividualLayers: true,
+      layers: tileSet.layers,
     }).toVNode();
 
     const boundingBox = tags(raw, 'ows:WGS84BoundingBox').map((c) =>
