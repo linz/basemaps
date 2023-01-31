@@ -390,8 +390,8 @@ o.spec('WmtsCapabilities', () => {
 
     const tileSet = { ...TileSetAerial };
     tileSet.layers = [
-      { 3857: imageTopLeft.id, name: 'a_top_left' },
-      { 3857: imageBottomRight.id, name: 'b_bottom_right' },
+      { 3857: imageTopLeft.id, name: 'a_top_left', title: 'A Top Left' },
+      { 3857: imageBottomRight.id, name: 'b_bottom_right', title: 'B Bottom Right' },
     ];
 
     const raw = new WmtsCapabilities({
@@ -431,7 +431,7 @@ o.spec('WmtsCapabilities', () => {
     imagery.set(imageBottomRight.id, imageBottomRight);
 
     const tileSet = { ...TileSetAerial };
-    tileSet.layers = [{ 3857: imageBottomRight.id, name: 'b_bottom_right' }];
+    tileSet.layers = [{ 3857: imageBottomRight.id, name: 'b_bottom_right', title: 'B Bottom Right' }];
 
     const raw = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',

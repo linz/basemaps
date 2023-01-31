@@ -11,7 +11,7 @@ export interface ConfigLayer extends Partial<Record<EpsgCode, string>> {
   name: string;
 
   /** Human friendly display name for the layer */
-  title?: string;
+  title: string;
 
   /**
    * Keywords used to categorize the tileset
@@ -32,7 +32,7 @@ export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
 
 export interface ConfigTileSetBase extends BaseConfig {
   /** Human friendly display name for the tileset */
-  title?: string;
+  title: string;
 
   /** Human friendly description of the tileset */
   description?: string;

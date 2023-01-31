@@ -332,7 +332,7 @@ o.spec('/v1/attribution', () => {
   });
 
   o.spec('ImageryRules', () => {
-    const fakeLayer = { [2193]: Imagery2193.id, name: 'image', minZoom: 9, maxZoom: 16 };
+    const fakeLayer = { [2193]: Imagery2193.id, name: 'image', minZoom: 9, maxZoom: 16, title: 'Image' };
     const ts = FakeData.tileSetRaster('fake');
 
     o.beforeEach(() => {

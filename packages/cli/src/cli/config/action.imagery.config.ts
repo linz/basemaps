@@ -38,7 +38,7 @@ export class CommandImageryConfig extends CommandLineAction {
       argumentName: 'TITLE',
       parameterLongName: '--title',
       description: 'Optional title for the config',
-      required: false,
+      required: true,
     });
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
@@ -56,6 +56,8 @@ export class CommandImageryConfig extends CommandLineAction {
     const logger = LogConfig.get();
     let path = this.path.value;
     if (path == null) throw new Error('Please provide valid a path for the imagery');
+    const title = this.title.value;
+    if (title == null) throw new Error('Please provide valid a title for the imagery');
     if (!path.endsWith('/')) path += '/';
     const commit = this.commit.value ?? false;
     const output = this.output.value;
@@ -94,8 +96,8 @@ export class CommandImageryConfig extends CommandLineAction {
     }
     const imagery: ConfigImagery = {
       id: provider.Imagery.id(id),
-      name: this.title.value ? nameImageryTitle(this.title.value) : `${name}-${new Date().getFullYear()}`, // Add a year into name for attribution to extract
-      title: this.title.value,
+      name: nameImageryTitle(title),
+      title,
       updatedAt: Date.now(),
       projection: Nztm2000QuadTms.projection.code,
       tileMatrix: Nztm2000QuadTms.identifier,
@@ -114,7 +116,7 @@ export class CommandImageryConfig extends CommandLineAction {
       category: 'Basemaps',
       type: TileSetType.Raster,
       format: ImageFormat.Webp,
-      layers: [{ 2193: imagery.id, name: imagery.name, title: imagery.title ?? imagery.name }],
+      layers: [{ 2193: imagery.id, name: imagery.name, title: imagery.title }],
     };
     provider.put(aerialTileSet);
     const tileSet = provider.imageryToTileSetByName(imagery);
@@ -137,7 +139,7 @@ export class CommandImageryConfig extends CommandLineAction {
       const configPath = base58.encode(Buffer.from(outputPath));
       const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${tileSet.name}&tileMatrix=NZTM2000Quad&debug${location}`;
       logger.info(
-        { path: output, url, tileMatrix: Nztm2000QuadTms.identifier, config: configPath, title: this.title.value },
+        { path: output, url, tileMatrix: Nztm2000QuadTms.identifier, config: configPath, title },
         'ImageryConfig:Done',
       );
       if (output != null) await fsa.write(output, url);

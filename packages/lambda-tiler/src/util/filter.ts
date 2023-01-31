@@ -39,7 +39,6 @@ export function filterLayers(req: LambdaHttpRequest, layers: ConfigLayer[]): Con
   const dateBefore = parseDateAsIso(dateBeforeQuery);
 
   return layers.filter((l) => {
-    if (l.title == null) return false;
     const yearRange = extractYearRangeFromTitle(l.title);
     if (yearRange == null) return false;
 

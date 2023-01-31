@@ -8,7 +8,7 @@ export interface ConfigImagery extends BaseConfig {
   tileMatrix: string;
 
   /** The tile for the imagery set and showing name if not defined */
-  title?: string;
+  title: string;
 
   /** Categorize imagery into a group, eg Rural vs Urban vs Satellite vs DEM */
   category?: string;
