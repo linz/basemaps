@@ -104,7 +104,6 @@ export class MakeCogGithub extends Github {
       }
     } else {
       // Add new layer at the bottom
-      layer.minZoom = 32;
       layer.category = Category.Other;
       tileSet.layers.push(layer);
     }
