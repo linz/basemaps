@@ -38,6 +38,8 @@ export interface WmtsCapabilitiesParams {
   config?: string | null;
   /** Specific layers to add to the WMTS */
   layers?: ConfigLayer[] | null;
+  /** Specific DateRange for the wmts layers */
+  dateRange?: Record<string, string | undefined>;
 }
 
 /** Number of decimal places to use in lat lng */
@@ -62,6 +64,7 @@ export class WmtsCapabilities {
   tileMatrixSets = new Map<string, TileMatrixSet>();
   imagery: Map<string, ConfigImagery>;
   formats: ImageFormat[];
+  dateRange?: Record<string, string | undefined>;
 
   minZoom = 0;
   maxZoom = 32;
@@ -77,6 +80,7 @@ export class WmtsCapabilities {
     this.formats = params.formats ?? ImageFormatOrder;
     this.imagery = params.imagery;
     this.layers = params.layers;
+    this.dateRange = params.dateRange;
   }
 
   buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {
@@ -160,7 +164,7 @@ export class WmtsCapabilities {
   }
 
   buildTileUrl(tileSetId: string, suffix: string): string {
-    const query = toQueryString({ api: this.apiKey, config: this.config });
+    const query = toQueryString({ api: this.apiKey, config: this.config, ...this.dateRange });
 
     return [
       this.httpBase,
