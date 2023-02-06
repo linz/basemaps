@@ -26,7 +26,7 @@ const zZoom = z.number().refine((val) => val >= ImageryConfigDefaults.minZoom &&
 const zLayerConfig = z
   .object({
     name: z.string(),
-    title: z.string().optional(),
+    title: z.string(),
     category: z.string().optional(),
     2193: z.string().optional(),
     3857: z.string().optional(),
@@ -45,7 +45,7 @@ const zLayerConfig = z
 export const zTileSetConfig = z.object({
   type: z.nativeEnum(TileSetType),
   id: z.string(),
-  title: z.string().optional(),
+  title: z.string(),
   category: z.string().optional(),
   description: z.string().optional(),
   background: zBackground.optional(),

@@ -202,7 +202,7 @@ export class WmtsCapabilities {
     if (firstImg == null) return null;
 
     return V('Layer', [
-      V('ows:Title', layer.title ?? layerNameId),
+      V('ows:Title', layer.title),
       V('ows:Abstract', ''),
       V('ows:Identifier', layerNameId),
       this.buildKeywords(firstImg),
@@ -241,7 +241,7 @@ export class WmtsCapabilities {
     }
 
     return V('Layer', [
-      V('ows:Title', layer.title ?? layerNameId),
+      V('ows:Title', layer.title),
       V('ows:Abstract', layer.description ?? ''),
       V('ows:Identifier', layerNameId),
       this.buildKeywords(layer),
