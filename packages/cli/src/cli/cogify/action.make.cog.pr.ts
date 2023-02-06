@@ -1,6 +1,6 @@
 import { ConfigLayer } from '@basemaps/config';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { owner, repo } from '../github/github.js';
 import { MakeCogGithub } from '../github/make.cog.pr.js';
 
@@ -24,7 +24,6 @@ export class CommandCogPullRequest extends CommandLineAction {
   private output: CommandLineStringParameter;
   private jira: CommandLineStringParameter;
   private category: CommandLineStringParameter;
-  private disable: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -59,11 +58,6 @@ export class CommandCogPullRequest extends CommandLineAction {
       description: 'New Imagery Category, like Rural Aerial Photos, Urban Aerial Photos, Satellite Imagery',
       required: false,
     });
-    this.disable = this.defineFlagParameter({
-      parameterLongName: '--disable',
-      description: 'Add disable flag for the new inserted layer.',
-      required: false,
-    });
   }
 
   async onExecute(): Promise<void> {
@@ -77,8 +71,6 @@ export class CommandCogPullRequest extends CommandLineAction {
     } catch {
       throw new Error('Please provide a valid input layer');
     }
-
-    if (this.disable.value) layer.disable = true;
 
     const git = new MakeCogGithub(layer.name, logger);
     const prNumber = await git.createTileSetPullRequest(layer, this.jira.value, category);
