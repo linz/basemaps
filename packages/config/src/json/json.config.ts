@@ -171,6 +171,7 @@ export class ConfigJson {
     // Map the configuration sources into imagery ids
     for (const l of ts.layers) {
       const layer = { ...l };
+      if (layer.disable) layer.minZoom = 32;
       layers.push(layer);
 
       if (tileSet.type === TileSetType.Raster) {

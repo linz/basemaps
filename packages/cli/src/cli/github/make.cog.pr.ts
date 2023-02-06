@@ -74,7 +74,7 @@ export class MakeCogGithub extends Github {
       layer.category = Category.Rural;
       for (let i = 0; i < tileSet.layers.length; i++) {
         // Add new layer at the end of rural
-        if (tileSet.layers[i].minZoom === 14) {
+        if (tileSet.layers[i].category === Category.Rural && tileSet.layers[i].minZoom === 14) {
           // Find first valid Urban and insert new record above that.
           tileSet.layers.splice(i, 0, layer);
           break;
@@ -85,7 +85,7 @@ export class MakeCogGithub extends Github {
       layer.category = Category.Urban;
       // Add new layer at the end of urban
       for (let i = tileSet.layers.length - 1; i >= 0; i--) {
-        if (tileSet.layers[i].category === Category.Urban) {
+        if (tileSet.layers[i].category === Category.Urban && tileSet.minZoom === 14) {
           // Find first Urban from the bottom up and insert the record below that.
           tileSet.layers.splice(i + 1, 0, layer);
           break;

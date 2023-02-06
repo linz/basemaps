@@ -32,6 +32,7 @@ const zLayerConfig = z
     3857: z.string().optional(),
     minZoom: zZoom.optional(),
     maxZoom: zZoom.optional(),
+    disable: z.boolean().optional(),
   })
   .refine(
     ({ minZoom, maxZoom }) =>
