@@ -41,6 +41,7 @@ export const TileXyzRaster = {
     // All zoom level config is stored as Google zoom levels
     const filterZoom = TileMatrixSet.convertZoomLevel(xyz.tile.z, xyz.tileMatrix, TileMatrixSets.get(Epsg.Google));
     for (const layer of filteredLayers) {
+      if (layer.disable) continue;
       if (layer.maxZoom != null && filterZoom > layer.maxZoom) continue;
       if (layer.minZoom != null && filterZoom < layer.minZoom) continue;
 
