@@ -38,7 +38,8 @@ export function filterLayers(req: LambdaHttpRequest, layers: ConfigLayer[]): Con
   const dateAfter = parseDateAsIso(dateAfterQuery);
   const dateBefore = parseDateAsIso(dateBeforeQuery);
 
-  return layers.filter((l) => {
+  const filtered = layers.filter((l) => {
+    if (l.title == null) return false;
     const yearRange = extractYearRangeFromTitle(l.title);
     if (yearRange == null) return false;
 
@@ -47,4 +48,13 @@ export function filterLayers(req: LambdaHttpRequest, layers: ConfigLayer[]): Con
     const endYear = ranges[1];
     return (dateAfter == null || endYear >= dateAfter) && (dateBefore == null || startYear <= dateBefore);
   });
+
+  // Trace that layers have been filtered
+  req.set('layerFilter', {
+    [FilterNames.DateBefore]: dateBefore?.toISOString(),
+    [FilterNames.DateAfter]: dateAfter?.toISOString(),
+    layerCount: layers.length,
+    filterCount: filtered.length,
+  });
+  return filtered;
 }
