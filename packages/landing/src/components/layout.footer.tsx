@@ -24,7 +24,6 @@ export class Footer extends Component {
           </div>
           <div className="justify-end">
             <ul className="lui-footer-list">
-              <li className="lui-footer-inline-list-item">© 2021 Land Information New Zealand</li>
               <li className="lui-footer-inline-list-item">
                 <Link href="https://www.linz.govt.nz/contact-us">Contact</Link>
               </li>
@@ -35,6 +34,9 @@ export class Footer extends Component {
                 <Link href="https://www.linz.govt.nz/data/linz-data/linz-basemaps/data-attribution">
                   Data Attribution
                 </Link>
+              </li>
+              <li className="lui-footer-inline-list-item">
+                <Link href="https://www.linz.govt.nz/copyright">Copyright</Link>
               </li>
             </ul>
           </div>
