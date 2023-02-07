@@ -151,8 +151,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       type: TileSetType.Raster,
       id: ConfigId.prefix(ConfigPrefix.TileSet, ConfigId.unprefix(ConfigPrefix.Imagery, i.id)),
       name: i.name,
+      title: i.title,
       format: ImageFormat.Webp,
-      layers: [{ [i.projection]: i.id, name: i.name, minZoom: 0, maxZoom: 32 }],
+      layers: [{ [i.projection]: i.id, name: i.name, minZoom: 0, maxZoom: 32, title: i.title }],
       background: { r: 0, g: 0, b: 0, alpha: 0 },
       updatedAt: Date.now(),
     };
@@ -175,7 +176,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       existing = {
         type: TileSetType.Raster,
         id: targetId,
-        title: layer.title ?? i.title,
+        title: layer.title,
         category: layer.category ?? i.category,
         name: standardizeLayerName(i.name),
         format: ImageFormat.Webp,

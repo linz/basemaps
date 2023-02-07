@@ -118,11 +118,11 @@ export class ConfigJson {
     if (ts.type === TileSetType.Raster) {
       for (const layer of ts.layers) {
         if (layer[2193] != null) {
-          imageryFetch.push(this.loadImagery(layer[2193], Nztm2000QuadTms, layer.name));
+          imageryFetch.push(this.loadImagery(layer[2193], Nztm2000QuadTms, layer.name, layer.title));
         }
 
         if (layer[3857] != null) {
-          imageryFetch.push(this.loadImagery(layer[3857], GoogleTms, layer.name));
+          imageryFetch.push(this.loadImagery(layer[3857], GoogleTms, layer.name, layer.title));
         }
       }
     }
@@ -134,6 +134,7 @@ export class ConfigJson {
       type: ts.type,
       id: ts.id,
       name: ConfigId.unprefix(ConfigPrefix.TileSet, ts.id),
+      title: ts.title,
       layers,
     };
     function updateLayerUri(
@@ -146,15 +147,14 @@ export class ConfigJson {
       const record = imagery.find((f) => f.uri === uri); ///
       if (record == null) throw new Error('Unable to find imagery id for uri:' + uri);
 
-      if (layer.title) {
-        if (record.title && record.title !== layer.title) {
-          logger.warn(
-            { layer: layer.name, imageryTitle: record.title, layerTitle: layer.title },
-            'Imagery:Title:Missmatch',
-          );
-        }
-        record.title = layer.title;
+      if (record.title && record.title !== layer.title) {
+        logger.warn(
+          { layer: layer.name, imageryTitle: record.title, layerTitle: layer.title },
+          'Imagery:Title:Missmatch',
+        );
       }
+      record.title = layer.title;
+
       if (layer.category) {
         if (record.category && record.category !== layer.category) {
           logger.warn(
@@ -178,7 +178,6 @@ export class ConfigJson {
         if (layer[3857]) layer[3857] = updateLayerUri(layer, layer[3857], this.logger);
       }
     }
-    if (ts.title) tileSet.title = ts.title;
     if (ts.description) tileSet.description = ts.description;
     if (ts.category) tileSet.category = ts.category;
     if (ts.minZoom) tileSet.minZoom = ts.minZoom;
@@ -196,16 +195,16 @@ export class ConfigJson {
     return tileSet as ConfigTileSet;
   }
 
-  loadImagery(path: string, tileMatrix: TileMatrixSet, name: string): Promise<ConfigImagery> {
+  loadImagery(path: string, tileMatrix: TileMatrixSet, name: string, title: string): Promise<ConfigImagery> {
     let existing = this.cache.get(path);
     if (existing == null) {
-      existing = this._loadImagery(path, tileMatrix, name);
+      existing = this._loadImagery(path, tileMatrix, name, title);
       this.cache.set(path, existing);
     }
     return existing;
   }
 
-  async _loadImagery(uri: string, tileMatrix: TileMatrixSet, name: string): Promise<ConfigImagery> {
+  async _loadImagery(uri: string, tileMatrix: TileMatrixSet, name: string, title: string): Promise<ConfigImagery> {
     // TODO is there a better way of guessing the imagery id & tile matrix?
     const imageId = guessIdFromUri(uri) ?? createHash('sha256').update(uri).digest('base64url');
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
@@ -254,6 +253,7 @@ export class ConfigJson {
     const output: ConfigImagery = {
       id,
       name,
+      title,
       updatedAt: now,
       projection: tileMatrix.projection.code,
       tileMatrix: tileMatrix.identifier,
