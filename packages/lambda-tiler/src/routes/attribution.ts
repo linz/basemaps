@@ -92,7 +92,7 @@ async function tileSetAttribution(
   const host = await config.Provider.get(config.Provider.id('linz'));
 
   for (const layer of filteredLayers) {
-    if (layer.disable) continue;
+    if (layer.disabled) continue;
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
     const im = imagery.get(imgId);

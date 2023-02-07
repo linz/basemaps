@@ -151,7 +151,7 @@ export class CommandMakeCog extends CommandLineAction {
       // Set config layer for output
       const path = jobLocation.replace('/job.json', '');
       configLayer[tileMatrix.projection.code] = path;
-      if (this.disable.value) configLayer.disable = true;
+      if (this.disable.value) configLayer.disabled = true;
       paths.push(path);
     }
 
