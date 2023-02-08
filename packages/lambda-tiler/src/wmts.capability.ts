@@ -163,8 +163,9 @@ export class WmtsCapabilities {
     ];
   }
 
-  buildTileUrl(tileSetId: string, suffix: string): string {
-    const query = toQueryString({ api: this.apiKey, config: this.config, ...this.dateRange });
+  buildTileUrl(tileSetId: string, suffix: string, filter = false): string {
+    let query = { api: this.apiKey, config: this.config };
+    if (filter) query = { api: this.apiKey, config: this.config, ...this.dateRange };
 
     return [
       this.httpBase,
@@ -174,15 +175,15 @@ export class WmtsCapabilities {
       '{TileMatrixSet}',
       '{TileMatrix}',
       '{TileCol}',
-      `{TileRow}.${suffix}${query}`,
+      `{TileRow}.${suffix}${toQueryString(query)}`,
     ].join('/');
   }
 
-  buildResourceUrl(tileSetId: string, suffix: string): VNodeElement {
+  buildResourceUrl(tileSetId: string, suffix: string, filter = false): VNodeElement {
     return V('ResourceURL', {
       format: 'image/' + suffix,
       resourceType: 'tile',
-      template: this.buildTileUrl(tileSetId, suffix),
+      template: this.buildTileUrl(tileSetId, suffix, filter),
     });
   }
 
@@ -254,7 +255,7 @@ export class WmtsCapabilities {
       this.buildStyle(),
       ...this.formats.map((fmt) => V('Format', 'image/' + fmt)),
       ...matrixSetNodes,
-      ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt)),
+      ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt, true)),
     ]);
   }
 

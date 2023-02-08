@@ -111,7 +111,7 @@ o.spec('WMTSRouting', () => {
     const resourceURLs = lines.filter((f) => f.includes('<ResourceURL')).map((f) => f.trim());
     o(resourceURLs).deepEquals([
       '<ResourceURL format="image/png" resourceType="tile" template="https://tiles.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png?api=d01f7w7rnhdzg0p7fyrc9v9ard1&amp;config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M&amp;date%5Bbefore%5D=2021" />',
-      '<ResourceURL format="image/png" resourceType="tile" template="https://tiles.test/v1/tiles/ōtorohanga-urban-2021-0.1m/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png?api=d01f7w7rnhdzg0p7fyrc9v9ard1&amp;config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M&amp;date%5Bbefore%5D=2021" />',
+      '<ResourceURL format="image/png" resourceType="tile" template="https://tiles.test/v1/tiles/ōtorohanga-urban-2021-0.1m/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png?api=d01f7w7rnhdzg0p7fyrc9v9ard1&amp;config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M" />',
     ]);
   });
 });
