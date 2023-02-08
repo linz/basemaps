@@ -38,8 +38,8 @@ export interface WmtsCapabilitiesParams {
   config?: string | null;
   /** Specific layers to add to the WMTS */
   layers?: ConfigLayer[] | null;
-  /** Specific DateRange for the wmts layers */
-  dateRange?: Record<string, string | undefined>;
+  /** Specific DateRange filter for the wmts layers */
+  filters?: Record<string, string | undefined>;
 }
 
 /** Number of decimal places to use in lat lng */
@@ -64,7 +64,7 @@ export class WmtsCapabilities {
   tileMatrixSets = new Map<string, TileMatrixSet>();
   imagery: Map<string, ConfigImagery>;
   formats: ImageFormat[];
-  dateRange?: Record<string, string | undefined>;
+  filters?: Record<string, string | undefined>;
 
   minZoom = 0;
   maxZoom = 32;
@@ -80,7 +80,7 @@ export class WmtsCapabilities {
     this.formats = params.formats ?? ImageFormatOrder;
     this.imagery = params.imagery;
     this.layers = params.layers;
-    this.dateRange = params.dateRange;
+    this.filters = params.filters;
   }
 
   buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {
@@ -163,9 +163,9 @@ export class WmtsCapabilities {
     ];
   }
 
-  buildTileUrl(tileSetId: string, suffix: string, filter = false): string {
+  buildTileUrl(tileSetId: string, suffix: string, AddFilter = false): string {
     let query = { api: this.apiKey, config: this.config };
-    if (filter) query = { api: this.apiKey, config: this.config, ...this.dateRange };
+    if (AddFilter) query = { api: this.apiKey, config: this.config, ...this.filters };
 
     return [
       this.httpBase,
@@ -179,11 +179,11 @@ export class WmtsCapabilities {
     ].join('/');
   }
 
-  buildResourceUrl(tileSetId: string, suffix: string, filter = false): VNodeElement {
+  buildResourceUrl(tileSetId: string, suffix: string, AddFilter = false): VNodeElement {
     return V('ResourceURL', {
       format: 'image/' + suffix,
       resourceType: 'tile',
-      template: this.buildTileUrl(tileSetId, suffix, filter),
+      template: this.buildTileUrl(tileSetId, suffix, AddFilter),
     });
   }
 

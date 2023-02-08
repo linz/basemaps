@@ -65,7 +65,7 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
     config: ConfigLoader.extract(req),
     formats: Validate.getRequestedFormats(req),
     layers: req.params.tileMatrix == null ? filterLayers(req, tileSet.layers) : null,
-    dateRange: getFilters(req),
+    filters: getFilters(req),
   }).toXml();
   if (xml == null) return NotFound();
 
