@@ -163,9 +163,9 @@ export class WmtsCapabilities {
     ];
   }
 
-  buildTileUrl(tileSetId: string, suffix: string, AddFilter = false): string {
+  buildTileUrl(tileSetId: string, suffix: string, addFilter = false): string {
     let query = { api: this.apiKey, config: this.config };
-    if (AddFilter) query = { api: this.apiKey, config: this.config, ...this.filters };
+    if (addFilter) query = { api: this.apiKey, config: this.config, ...this.filters };
 
     return [
       this.httpBase,
@@ -179,11 +179,11 @@ export class WmtsCapabilities {
     ].join('/');
   }
 
-  buildResourceUrl(tileSetId: string, suffix: string, AddFilter = false): VNodeElement {
+  buildResourceUrl(tileSetId: string, suffix: string, addFilter = false): VNodeElement {
     return V('ResourceURL', {
       format: 'image/' + suffix,
       resourceType: 'tile',
-      template: this.buildTileUrl(tileSetId, suffix, AddFilter),
+      template: this.buildTileUrl(tileSetId, suffix, addFilter),
     });
   }
 
