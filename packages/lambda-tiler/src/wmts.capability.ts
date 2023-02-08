@@ -38,6 +38,8 @@ export interface WmtsCapabilitiesParams {
   config?: string | null;
   /** Specific layers to add to the WMTS */
   layers?: ConfigLayer[] | null;
+  /** Specific DateRange filter for the wmts layers */
+  filters?: Record<string, string | undefined>;
 }
 
 /** Number of decimal places to use in lat lng */
@@ -62,6 +64,7 @@ export class WmtsCapabilities {
   tileMatrixSets = new Map<string, TileMatrixSet>();
   imagery: Map<string, ConfigImagery>;
   formats: ImageFormat[];
+  filters?: Record<string, string | undefined>;
 
   minZoom = 0;
   maxZoom = 32;
@@ -77,6 +80,7 @@ export class WmtsCapabilities {
     this.formats = params.formats ?? ImageFormatOrder;
     this.imagery = params.imagery;
     this.layers = params.layers;
+    this.filters = params.filters;
   }
 
   buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {
@@ -159,8 +163,9 @@ export class WmtsCapabilities {
     ];
   }
 
-  buildTileUrl(tileSetId: string, suffix: string): string {
-    const query = toQueryString({ api: this.apiKey, config: this.config });
+  buildTileUrl(tileSetId: string, suffix: string, addFilter = false): string {
+    let query = { api: this.apiKey, config: this.config };
+    if (addFilter) query = { api: this.apiKey, config: this.config, ...this.filters };
 
     return [
       this.httpBase,
@@ -170,15 +175,15 @@ export class WmtsCapabilities {
       '{TileMatrixSet}',
       '{TileMatrix}',
       '{TileCol}',
-      `{TileRow}.${suffix}${query}`,
+      `{TileRow}.${suffix}${toQueryString(query)}`,
     ].join('/');
   }
 
-  buildResourceUrl(tileSetId: string, suffix: string): VNodeElement {
+  buildResourceUrl(tileSetId: string, suffix: string, addFilter = false): VNodeElement {
     return V('ResourceURL', {
       format: 'image/' + suffix,
       resourceType: 'tile',
-      template: this.buildTileUrl(tileSetId, suffix),
+      template: this.buildTileUrl(tileSetId, suffix, addFilter),
     });
   }
 
@@ -250,7 +255,7 @@ export class WmtsCapabilities {
       this.buildStyle(),
       ...this.formats.map((fmt) => V('Format', 'image/' + fmt)),
       ...matrixSetNodes,
-      ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt)),
+      ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt, true)),
     ]);
   }
 
