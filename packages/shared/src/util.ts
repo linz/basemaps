@@ -25,9 +25,9 @@ export function titleizeImageryName(name: string): string {
  * Attempt to parse a year from a imagery name
  * @example wellington_urban_2017_0.10m -> 2017
  * @param name Imagery name to parse
- * @return imagery year, -1 for failure to parse
+ * @return imagery year, null for failure to parse
  */
-export function extractYearRangeFromName(name: string): [number, number] {
+export function extractYearRangeFromName(name: string): null | [number, number] {
   const re = /(?:^|\D)(\d{4})(?:-(\d{2}))?(?:$|\D)/g;
 
   const years: number[] = [];
@@ -37,9 +37,7 @@ export function extractYearRangeFromName(name: string): [number, number] {
     if (m[2] != null) years.push(parseInt(m[1].slice(0, 2) + m[2]));
   }
 
-  if (years.length === 0) {
-    return [-1, -1];
-  }
+  if (years.length === 0) null;
 
   years.sort();
 

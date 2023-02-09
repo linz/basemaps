@@ -133,9 +133,8 @@ async function createCollection(
 
   if (interval.length === 0) {
     const years = extractYearRangeFromName(name);
-    if (years[0] === -1) {
-      throw new Error('Missing date in imagery name: ' + name);
-    }
+    if (years == null) throw new Error('Missing date in imagery name: ' + name);
+
     interval.push(years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]);
   }
 
