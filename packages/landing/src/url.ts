@@ -1,7 +1,8 @@
+import { base58, isBase58 } from '@basemaps/config/build/base58.js';
 import { GoogleTms, ImageFormat, TileMatrixSet } from '@basemaps/geo';
-import { Config } from './config.js';
 import { toQueryString } from '@basemaps/shared/build/url.js';
-import { isBase58, base58 } from '@basemaps/config/build/base58.js';
+import { DateRangeState } from './components/daterange.js';
+import { Config } from './config.js';
 
 export interface LonLat {
   lat: number;
@@ -97,10 +98,13 @@ export const WindowUrl = {
     layerId: string,
     style?: string | null,
     config?: string | null,
+    dateRange?: DateRangeState,
   ): string {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
     if (config != null) queryParams.set('config', ensureBase58(config));
+    if (dateRange != null && dateRange.yearAfter != null) queryParams.set('date[after]', dateRange.yearAfter);
+    if (dateRange != null && dateRange.yearBefore != null) queryParams.set('date[before]', dateRange.yearBefore);
 
     if (urlType === MapOptionType.Style) {
       if (tileMatrix.identifier !== GoogleTms.identifier) queryParams.set('tileMatrix', tileMatrix.identifier);

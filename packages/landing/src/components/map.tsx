@@ -1,10 +1,11 @@
 import { GoogleTms } from '@basemaps/geo';
-import maplibre from 'maplibre-gl';
-import { Component, ReactNode } from 'react';
+import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
+import { Component, Fragment, ReactNode } from 'react';
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
-import { WindowUrl } from '../url.js';
+import { MapOptionType, WindowUrl } from '../url.js';
+import { DateRange } from './daterange.js';
 import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
 
@@ -80,12 +81,80 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   updateStyle = (): void => {
     this.ensureGeoControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style);
+    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.dateRange);
     this.map.setStyle(style);
 
     if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
     else this.map.setMaxBounds();
+    // TODO check and only update when Config.map.layer changes.
     this.forceUpdate();
+  };
+
+  updateVisibleLayers = (newLayers: string): void => {
+    if (!Config.map.visibleLayers) Config.map.visibleLayers = newLayers;
+    if (newLayers !== Config.map.visibleLayers) {
+      Config.map.visibleLayers = newLayers;
+
+      const newStyleId = `${Config.map.styleId}_after=${Config.map.dateRange.yearAfter}&before=${Config.map.dateRange.yearBefore}`;
+      if (this.map.getSource(newStyleId) == null) {
+        this.map.addSource(newStyleId, {
+          type: 'raster',
+          tiles: [
+            WindowUrl.toTileUrl(
+              MapOptionType.TileRaster,
+              Config.map.tileMatrix,
+              Config.map.layerId,
+              undefined,
+              undefined,
+              Config.map.dateRange,
+            ),
+          ],
+          tileSize: 256,
+        });
+        this.map.addLayer({
+          id: newStyleId,
+          type: 'raster',
+          source: newStyleId,
+          paint: { 'raster-opacity': 0 },
+        });
+        this.map.moveLayer(newStyleId);
+
+        let startTime: number;
+        let previousTime: number;
+        let isDone = false;
+        const fadeTime = 1000;
+        const endOpacity = 1;
+        const rate = endOpacity / fadeTime;
+
+        const stepAnimation = (nowTime: number): void => {
+          if (startTime === undefined) startTime = nowTime;
+          const elapsed = nowTime - startTime;
+          if (previousTime !== nowTime) {
+            const opacity = Math.min(rate * elapsed, endOpacity);
+            this.map.setPaintProperty(newStyleId, 'raster-opacity', opacity);
+            if (opacity === endOpacity) isDone = true;
+          }
+          if (elapsed < fadeTime) {
+            previousTime = nowTime;
+            if (!isDone) window.requestAnimationFrame(stepAnimation);
+          }
+        };
+
+        window.requestAnimationFrame(stepAnimation);
+      }
+    }
+  };
+
+  removeOldLayers = (): void => {
+    const filteredLayers = this.map
+      .getStyle()
+      .layers.filter((layer) => layer.id.startsWith(Config.map.styleId)) as RasterLayerSpecification[];
+    // The last item in the array is the top layer, we pop that to ensure it isn't removed
+    filteredLayers.pop();
+    for (const layer of filteredLayers) {
+      this.map.removeLayer(layer.id);
+      this.map.removeSource(layer.source);
+    }
   };
 
   componentDidMount(): void {
@@ -116,12 +185,14 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     }
 
     this.map.on('render', this.onRender);
+    this.map.on('idle', this.removeOldLayers);
     onMapLoaded(this.map, () => {
       this._events.push(
         Config.map.on('location', this.updateLocation),
         Config.map.on('tileMatrix', this.updateStyle),
         Config.map.on('layer', this.updateStyle),
         Config.map.on('bounds', this.updateBounds),
+        Config.map.on('visibleLayers', this.updateVisibleLayers),
       );
 
       this.updateStyle();
@@ -143,7 +214,12 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     return (
       <div style={{ flex: 1, position: 'relative' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
-        {Config.map.isDebug ? <Debug map={this.map} /> : undefined}
+        {Config.map.isDebug ? (
+          <Fragment>
+            <Debug map={this.map} />
+            <DateRange />
+          </Fragment>
+        ) : undefined}
         {isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
       </div>
     );

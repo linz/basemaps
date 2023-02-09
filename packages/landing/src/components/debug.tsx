@@ -137,6 +137,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       Config.map.layerId,
       undefined,
       Config.map.config,
+      Config.map.dateRange,
     );
 
     const title = this.state.imagery?.title;

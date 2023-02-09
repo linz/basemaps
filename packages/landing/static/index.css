@@ -197,3 +197,18 @@ button {
   width: 600px;
   height: 40px;
 }
+
+.date-range {
+  background:rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 0.5rem 0.5rem rgb(0 0 0 / 10%);
+  border: 2px solid rgba(255, 255, 255);
+  border-radius: 0.5rem;
+  padding: 0 1rem 1rem 1rem;
+  position: absolute;
+  right: 1rem;
+  bottom: 2rem;
+}
+
+.date-range p {
+  margin-top: 1rem;
+}
