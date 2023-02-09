@@ -9,10 +9,10 @@ import {
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
 import { Cotar } from '@cotar/core';
-import { createHash } from 'crypto';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { ConfigId } from '../base.config.js';
+import { sha256base58 } from '../base58.node.js';
 import { parseRgba } from '../color.js';
 import { BaseConfig } from '../config/base.js';
 import { ConfigImagery, ConfigImageryOverview } from '../config/imagery.js';
@@ -206,7 +206,7 @@ export class ConfigJson {
 
   async _loadImagery(uri: string, tileMatrix: TileMatrixSet, name: string, title: string): Promise<ConfigImagery> {
     // TODO is there a better way of guessing the imagery id & tile matrix?
-    const imageId = guessIdFromUri(uri) ?? createHash('sha256').update(uri).digest('base64url');
+    const imageId = guessIdFromUri(uri) ?? sha256base58(uri);
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ uri, imageId: id }, 'FetchImagery');
 
