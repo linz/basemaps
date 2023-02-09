@@ -68,11 +68,11 @@ o.spec('tiler.test', () => {
       y: 0,
       x: 64,
       extract: { width: 512, height: 387 },
-      resize: { width: 256, height: 194, scale: 0.5 },
+      resize: { width: 256, height: 194, scaleX: 0.5, scaleY: 0.5 },
       crop,
     });
 
-    o(crop?.toJson()).deepEquals(new Bounds(0, 64, 192, 130).toJson());
+    o(crop).deepEquals(new Bounds(0, 64, 192, 130).toJson());
   });
 
   o('should clamp required tiles', () => {
