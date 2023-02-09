@@ -31,20 +31,27 @@ export class AttributionBounds {
   }
 
   /**
-   * Does this AttributionCollection intersect with `extent`
+   * Does this AttributionCollection intersect with an extent at a specified
+   * zoom level, optionally within a specified date range.
    *
    * @param extent The extent to test for intersection against
    * @param zoom only test extent if `zoom` is between `minZoom` and `maxZoom`
+   * @param dateAfter ISO 8601 format datetime for the start of the range of
+   *        time to test whether this occurs within.
+   * @param dateBefore ISO 8601 format datetime for the end of the range of
+   *        time to test whether this occurs within.
    */
   intersects(extent: BBox, zoom: number, dateAfter?: string, dateBefore?: string): boolean {
     if (zoom > this.maxZoom || zoom < this.minZoom) return false;
     if (!Wgs84.intersects(extent, this.bbox)) return false;
     const poly = Wgs84.bboxToMultiPolygon(extent);
-    return (
-      (this.endDate == null || dateAfter == null || this.endDate >= dateAfter) &&
-      (this.startDate == null || dateBefore == null || this.startDate <= dateBefore) &&
-      this.intersection(poly)
-    );
+    // Is the endDate later than the supplied dateAfter date.
+    // Default to true so as not to exclude if either is null.
+    const isEndAfter = this.endDate == null || dateAfter == null || this.endDate >= dateAfter;
+    // Is the startDate earlier than the supplied dateBefore date.
+    // Default to true so as not to exclude if either is null.
+    const isStartBefore = this.startDate == null || dateBefore == null || this.startDate <= dateBefore;
+    return isEndAfter && isStartBefore && this.intersection(poly);
   }
 
   /**
