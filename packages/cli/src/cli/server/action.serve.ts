@@ -1,4 +1,9 @@
-import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import {
+  CommandLineAction,
+  CommandLineFlagParameter,
+  CommandLineIntegerParameter,
+  CommandLineStringParameter,
+} from '@rushstack/ts-command-line';
 
 import { createServer } from '@basemaps/server';
 import { Const, Env, LogConfig } from '@basemaps/shared';
@@ -9,6 +14,7 @@ export class CommandServe extends CommandLineAction {
   config: CommandLineStringParameter;
   assets: CommandLineStringParameter;
   port: CommandLineIntegerParameter;
+  noConfig: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -35,6 +41,11 @@ export class CommandServe extends CommandLineAction {
       description: 'port to use',
       defaultValue: DefaultPort,
     });
+
+    this.noConfig = this.defineFlagParameter({
+      parameterLongName: '--no-config',
+      description: 'Generate a configuration directly from imagery',
+    });
   }
 
   protected async onExecute(): Promise<void> {
@@ -48,7 +59,7 @@ export class CommandServe extends CommandLineAction {
     const ServerUrl = Env.get(Env.PublicUrlBase) ?? `http://localhost:${port}`;
     process.env[Env.PublicUrlBase] = ServerUrl;
 
-    const server = await createServer({ config, assets }, logger);
+    const server = await createServer({ config, assets, noConfig: this.noConfig.value }, logger);
     await server.listen({ port: port ?? DefaultPort, host: '0.0.0.0' });
     logger.info({ url: ServerUrl }, 'ServerStarted');
   }

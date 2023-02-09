@@ -58,8 +58,8 @@ If you have a folder of tiffs the `@basemaps/server` can index the folder and cr
 For example given a structure where there are two folders full of tiffs
 
 ```
-/images/00_gebco_2021_305-75m/01G0DBCAEQAAPD0D2F2VZS40XM/*.tiff
-/images/10_geographx_nz_texture_shade_2012_8-0m_01FHRPYJ5FV1XAARZAC4T4K6MC/*.tiff
+/images/00_gebco_2021_305-75m/*.tiff
+/images/10_geographx_nz_texture_shade_2012_8-0m/*.tiff
 ```
 
 running `basemaps-server --config /images --no-config` will create two tile sets one for each folder `gebco_2021...` and `geographx_nz_t...` and then also create a combined layer in the order the tiffs are found.

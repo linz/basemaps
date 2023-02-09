@@ -78,7 +78,7 @@ async function loadStacFromPath(target: string): Promise<StacCollection | null> 
  *
  * @returns Imagery configuration generated from the path
  */
-export async function imageryFromTiffPath(target: string, Q: pLimit.Limit): Promise<ConfigImagery> {
+export async function imageryFromTiffPath(target: string | string, Q: pLimit.Limit): Promise<ConfigImagery> {
   const sourceFiles = await fsa.toArray(fsa.list(target));
   const tiffs = await Promise.all(
     sourceFiles.filter(isTiff).map((c) => Q(() => new CogTiff(fsa.source(c)).init(true))),
@@ -145,7 +145,7 @@ export async function initConfigFromPath(
   provider: ConfigProviderMemory,
   target: string,
   concurrency = 25,
-): Promise<ConfigTileSetRaster> {
+): Promise<{ tileSet: ConfigTileSetRaster; imagery: ConfigImagery[] }> {
   const q = pLimit(concurrency);
   // TODO listing the entire folder to see if it contains a tiff seems expensive, for local folders this should be pretty quick though
   const targets = await fsa.toArray(fsa.details(target, { recursive: false }));
@@ -184,5 +184,5 @@ export async function initConfigFromPath(
     existingLayer[cfg.projection] = cfg.id;
   }
 
-  return aerialTileSet;
+  return { tileSet: aerialTileSet, imagery: configs };
 }

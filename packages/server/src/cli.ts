@@ -24,6 +24,11 @@ export class BasemapsServerCommand extends BaseCommandLine {
     defaultValue: DefaultPort,
   });
 
+  noConfig = this.defineFlagParameter({
+    parameterLongName: '--no-config',
+    description: 'Generate a configuration directly from imagery',
+  });
+
   constructor() {
     super({
       toolFilename: 'basemaps-server',
@@ -44,7 +49,7 @@ export class BasemapsServerCommand extends BaseCommandLine {
     // Force a default url base so WMTS requests know their relative url
     process.env[Env.PublicUrlBase] = ServerUrl;
 
-    const server = await createServer({ config, assets }, logger);
+    const server = await createServer({ config, assets, noConfig: this.noConfig.value }, logger);
 
     await server.listen({ port: port ?? DefaultPort, host: '0.0.0.0' });
     logger.info({ url: ServerUrl }, 'ServerStarted');

@@ -118,7 +118,7 @@ async function tileSetAttribution(
       },
     };
     const years = extractYearRangeFromTitle(im.title) ?? extractYearRangeFromName(im.name);
-    if (years) {
+    if (years && years[0] !== -1) {
       const interval = yearRangeToInterval(years);
       extent.temporal = { interval: [[interval[0].toISOString(), interval[1].toISOString()]] };
       item.properties.datetime = null;
