@@ -2,7 +2,7 @@ import { Component, ReactNode } from 'react';
 import { Config } from '../config';
 
 const minYear = '1950';
-const maxYear = '2023';
+const maxYear = new Date().getFullYear().toString();
 
 export interface DateRangeState {
   yearAfter?: string;
