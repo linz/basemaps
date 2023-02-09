@@ -103,8 +103,8 @@ export const WindowUrl = {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
     if (config != null) queryParams.set('config', ensureBase58(config));
-    if (dateRange != null && dateRange.yearAfter != null) queryParams.set('date[after]', dateRange.yearAfter);
-    if (dateRange != null && dateRange.yearBefore != null) queryParams.set('date[before]', dateRange.yearBefore);
+    if (dateRange?.dateAfter != null) queryParams.set('date[after]', dateRange.dateAfter);
+    if (dateRange?.dateBefore != null) queryParams.set('date[before]', dateRange.dateBefore);
 
     if (urlType === MapOptionType.Style) {
       if (tileMatrix.identifier !== GoogleTms.identifier) queryParams.set('tileMatrix', tileMatrix.identifier);

@@ -118,14 +118,8 @@ export class MapAttribution {
     // For example, 512×512 tiles at zoom level 4 are equivalent to 256×256 tiles at zoom level 5.
     this.zoom += 1;
 
-    const dateAfter = Config.map.dateRange.yearAfter
-      ? `${Config.map.dateRange.yearAfter}-01-01T00:00:00.000Z`
-      : undefined;
-    const dateBefore = Config.map.dateRange.yearAfter
-      ? `${Config.map.dateRange.yearBefore}-12-31T23:59:59.999Z`
-      : undefined;
     const bbox = this.mapboxBoundToBbox(this.bounds, Config.map.tileMatrix);
-    const filtered = attr.filter(bbox, this.zoom, dateAfter, dateBefore);
+    const filtered = attr.filter(bbox, this.zoom, Config.map.dateRange.dateAfter, Config.map.dateRange.dateBefore);
     const filteredLayerIds = filtered.map((x) => x.id).join('_');
     Config.map.emit('visibleLayers', filteredLayerIds);
 

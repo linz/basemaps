@@ -1,19 +1,27 @@
 import { Component, ReactNode } from 'react';
 import { Config } from '../config';
 
-const minYear = '1950';
-const maxYear = new Date().getFullYear().toString();
+const minDate = '1950-01-01T00:00:00.000Z';
+const maxDate = `${new Date().getFullYear().toString()}-12-31T23:59:59.999Z`;
 
 export interface DateRangeState {
-  yearAfter?: string;
-  yearBefore?: string;
+  dateAfter?: string;
+  dateBefore?: string;
 }
 
 export class DateRange extends Component {
-  state: DateRangeState = { yearAfter: minYear, yearBefore: maxYear };
+  state: DateRangeState = { dateAfter: minDate, dateBefore: maxDate };
 
   private _scheduled: number | NodeJS.Timeout | undefined;
   private _raf = 0;
+
+  get yearAfter(): string | undefined {
+    return this.state.dateAfter?.slice(0, 4);
+  }
+
+  get yearBefore(): string | undefined {
+    return this.state.dateBefore?.slice(0, 4);
+  }
 
   private scheduleUpdateConfig(): void {
     if (this._scheduled != null || this._raf !== 0) return;
@@ -25,16 +33,16 @@ export class DateRange extends Component {
 
   updateConfig = (): void => {
     this._raf = 0;
-    Config.map.dateRange.yearAfter = this.state.yearAfter;
-    Config.map.dateRange.yearBefore = this.state.yearBefore;
+    Config.map.dateRange.dateAfter = this.state.dateAfter;
+    Config.map.dateRange.dateBefore = this.state.dateBefore;
     Config.map.emit('dateRange', this.state);
   };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     if (event.target.id === 'after') {
-      this.setState({ yearAfter: event.target.value });
+      this.setState({ dateAfter: `${event.target.value}-01-01T00:00:00.000Z` });
     } else if (event.target.id === 'before') {
-      this.setState({ yearBefore: event.target.value });
+      this.setState({ dateBefore: `${event.target.value}-12-31T23:59:59.999Z` });
     }
     this.scheduleUpdateConfig();
   };
@@ -42,24 +50,24 @@ export class DateRange extends Component {
   render(): ReactNode {
     return (
       <div className="date-range">
-        <p>After: {this.state.yearAfter}</p>
+        <p>After: {this.yearAfter}</p>
         <input
           id="after"
           type="range"
-          min={minYear}
-          max={this.state.yearBefore}
+          min={minDate.slice(0, 4)}
+          max={this.yearBefore}
           step="1"
-          value={this.state.yearAfter}
+          value={this.yearAfter}
           onChange={this.handleChange}
         ></input>
-        <p>Before: {this.state.yearBefore}</p>
+        <p>Before: {this.yearBefore}</p>
         <input
           id="before"
           type="range"
-          min={this.state.yearAfter}
-          max={maxYear}
+          min={this.yearAfter}
+          max={maxDate.slice(0, 4)}
           step="1"
-          value={this.state.yearBefore}
+          value={this.yearBefore}
           onChange={this.handleChange}
         ></input>
       </div>

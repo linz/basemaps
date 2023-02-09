@@ -94,8 +94,10 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (!Config.map.visibleLayers) Config.map.visibleLayers = newLayers;
     if (newLayers !== Config.map.visibleLayers) {
       Config.map.visibleLayers = newLayers;
-
-      const newStyleId = `${Config.map.styleId}_after=${Config.map.dateRange.yearAfter}&before=${Config.map.dateRange.yearBefore}`;
+      const newStyleId =
+        `${Config.map.styleId}` +
+        `_after=${Config.map.dateRange.dateAfter?.slice(0, 4)}` +
+        `&before=${Config.map.dateRange.dateBefore?.slice(0, 4)}`;
       if (this.map.getSource(newStyleId) == null) {
         this.map.addSource(newStyleId, {
           type: 'raster',

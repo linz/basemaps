@@ -30,7 +30,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   tileMatrix: TileMatrixSet = GoogleTms;
   config: string | null;
   debug: DebugState = { ...DebugDefaults };
-  dateRange: DateRangeState = { yearAfter: undefined, yearBefore: undefined };
+  dateRange: DateRangeState = { dateAfter: undefined, dateBefore: undefined };
   visibleLayers: string;
 
   private _layers: Promise<Map<string, LayerInfo>>;
