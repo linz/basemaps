@@ -9,14 +9,13 @@ import {
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
+import pLimit from 'p-limit';
+import { basename } from 'path';
 import { sha256base58 } from '../base58.node.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory/memory.config.js';
 import { ConfigJson } from './json.config.js';
-
-import pLimit from 'p-limit';
-import { basename, dirname } from 'path';
 
 function isTiff(f: string): boolean {
   const lowered = f.toLocaleLowerCase();

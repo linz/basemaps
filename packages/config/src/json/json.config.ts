@@ -9,7 +9,6 @@ import {
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
 import { Cotar } from '@cotar/core';
-import { createHash } from 'crypto';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { ConfigId } from '../base.config.js';
