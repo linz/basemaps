@@ -18,7 +18,7 @@ import { JobTiles, tile } from './tile.generator.js';
 import { SimpleTimer } from './timer.js';
 
 const DefaultMaxZoom = 15; // Limitation of maximum overview zoom level to create
-const MaxNumberTiles = 250000; // Limitation of maximum number of tiles we can create for overview.
+const MaxNumberTiles = 25000; // Limitation of maximum number of tiles we can create for overview.
 
 export class CommandCreateOverview extends CommandLineAction {
   private source: CommandLineStringParameter;
