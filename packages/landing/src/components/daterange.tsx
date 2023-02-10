@@ -8,12 +8,6 @@ export interface DateRangeState {
   dateAfter?: string;
   dateBefore?: string;
 }
-
-enum DateRangeControlKind {
-  After = 'after',
-  Before = 'before',
-}
-
 export class DateRange extends Component {
   state: DateRangeState = { dateAfter: minDate, dateBefore: maxDate };
 
@@ -43,12 +37,14 @@ export class DateRange extends Component {
     Config.map.emit('dateRange', this.state);
   };
 
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>, id: DateRangeControlKind): void => {
+  handleChange = (event: React.ChangeEvent<HTMLInputElement>, id: 'before' | 'after'): void => {
     switch (id) {
-      case DateRangeControlKind.After:
+      case 'after':
         this.setState({ dateAfter: `${event.target.value}-01-01T00:00:00.000Z` });
-      case DateRangeControlKind.Before:
+        break;
+      case 'before':
         this.setState({ dateBefore: `${event.target.value}-12-31T23:59:59.999Z` });
+        break;
     }
     this.scheduleUpdateConfig();
   };
@@ -63,7 +59,7 @@ export class DateRange extends Component {
           max={this.yearBefore}
           step="1"
           value={this.yearAfter}
-          onChange={(e): void => this.handleChange(e, DateRangeControlKind.After)}
+          onChange={(e): void => this.handleChange(e, 'after')}
         ></input>
         <p>Before: {this.yearBefore}</p>
         <input
@@ -72,7 +68,7 @@ export class DateRange extends Component {
           max={maxDate.slice(0, 4)}
           step="1"
           value={this.yearBefore}
-          onChange={(e): void => this.handleChange(e, DateRangeControlKind.Before)}
+          onChange={(e): void => this.handleChange(e, 'before')}
         ></input>
       </div>
     );
