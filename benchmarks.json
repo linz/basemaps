@@ -1,5 +1,35 @@
 [
   {
+    "hash": "271e6c40ee56f67054af7d093b03be7a810e3b96",
+    "createdAt": "2023-02-10T01:03:49.292Z",
+    "results": [
+      {
+        "name": "Tile 256x256",
+        "count": 11,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 256",
+        "mean": 0.23400926454454546,
+        "stddev": 0.009835442970346239,
+        "median": 0.23172548509000002,
+        "user": 0.21143214318181816,
+        "system": 0.040165253181818183,
+        "min": 0.22657134809,
+        "max": 0.26167567909
+      },
+      {
+        "name": "Tile 512x512",
+        "count": 12,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 512",
+        "mean": 0.23441756207666667,
+        "stddev": 0.004248772874486185,
+        "median": 0.23369461791,
+        "user": 0.21774221833333332,
+        "system": 0.04068253,
+        "min": 0.22737744991000003,
+        "max": 0.24334027491000002
+      }
+    ]
+  },
+  {
     "hash": "e9bdad545a28b230d81f54090b15fe230a4a5d04",
     "createdAt": "2023-02-10T00:35:40.388Z",
     "results": [
@@ -14966,36 +14996,6 @@
         "system": 0.346392425,
         "min": 1.158712359035,
         "max": 1.275009093035
-      }
-    ]
-  },
-  {
-    "hash": "ce1d4ff540fa6b9de09963bd89646fa41d98abad",
-    "createdAt": "2021-11-30T21:33:32.693Z",
-    "results": [
-      {
-        "name": "Tile 256x256",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 256",
-        "mean": 0.889766826945,
-        "stddev": 0.021929286770198432,
-        "median": 0.8880483612450001,
-        "user": 0.9053445049999999,
-        "system": 0.209411925,
-        "min": 0.859332413745,
-        "max": 0.9399187397450001
-      },
-      {
-        "name": "Tile 512x512",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 512",
-        "mean": 1.223987607275,
-        "stddev": 0.04151986941778107,
-        "median": 1.2124069045749999,
-        "user": 1.36121497,
-        "system": 0.34378169000000003,
-        "min": 1.169390162575,
-        "max": 1.310249136575
       }
     ]
   }
