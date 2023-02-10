@@ -43,15 +43,10 @@ export class AttributionBounds {
    */
   intersects(extent: BBox, zoom: number, dateAfter?: string, dateBefore?: string): boolean {
     if (zoom > this.maxZoom || zoom < this.minZoom) return false;
+    if (dateAfter && this.endDate && dateAfter > this.endDate) return false;
+    if (dateBefore && this.startDate && dateBefore < this.startDate) return false;
     if (!Wgs84.intersects(extent, this.bbox)) return false;
-    const poly = Wgs84.bboxToMultiPolygon(extent);
-    // Is the endDate later than the supplied dateAfter date.
-    // Default to true so as not to exclude if either is null.
-    const isEndAfter = this.endDate == null || dateAfter == null || this.endDate >= dateAfter;
-    // Is the startDate earlier than the supplied dateBefore date.
-    // Default to true so as not to exclude if either is null.
-    const isStartBefore = this.startDate == null || dateBefore == null || this.startDate <= dateBefore;
-    return isEndAfter && isStartBefore && this.intersection(poly);
+    return this.intersection(Wgs84.bboxToMultiPolygon(extent));
   }
 
   /**
