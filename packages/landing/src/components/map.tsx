@@ -1,6 +1,6 @@
 import { GoogleTms } from '@basemaps/geo';
 import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
-import { Component, Fragment, ReactNode } from 'react';
+import { Component, ReactNode } from 'react';
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
@@ -216,12 +216,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     return (
       <div style={{ flex: 1, position: 'relative' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
-        {Config.map.isDebug ? (
-          <Fragment>
-            <Debug map={this.map} />
-            <DateRange />
-          </Fragment>
-        ) : undefined}
+        {Config.map.isDebug ? <Debug map={this.map} /> : undefined}
+        {Config.map.isDebug && !Config.map.debug['debug.screenshot'] ? <DateRange /> : undefined}
         {isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
       </div>
     );
