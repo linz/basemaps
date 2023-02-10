@@ -1,7 +1,8 @@
 import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
-import maplibregl, { LngLatBoundsLike } from 'maplibre-gl';
-import { DebugState, DebugDefaults, ConfigDebug } from './config.debug.js';
+import { LngLatBoundsLike } from 'maplibre-gl';
+import { DateRangeState } from './components/daterange.js';
+import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
 import { ensureBase58, MapLocation, MapOptionType, WindowUrl } from './url.js';
@@ -18,7 +19,9 @@ export interface MapConfigEvents {
   tileMatrix: [TileMatrixSet];
   layer: [string, string | null | undefined];
   bounds: [LngLatBoundsLike];
+  dateRange: [DateRangeState];
   change: null;
+  visibleLayers: [string];
 }
 
 export class MapConfig extends Emitter<MapConfigEvents> {
@@ -27,6 +30,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   tileMatrix: TileMatrixSet = GoogleTms;
   config: string | null;
   debug: DebugState = { ...DebugDefaults };
+  dateRange: DateRangeState = { dateAfter: undefined, dateBefore: undefined };
+  visibleLayers: string;
 
   private _layers: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -76,6 +81,11 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return `${this.layerKey}::${this.tileMatrix.identifier}`;
   }
 
+  /** Used as source and layer id in the Style JSON for a given layer ID */
+  get styleId(): string {
+    return `basemaps-${Config.map.layerId}`;
+  }
+
   updateFromUrl(search: string = window.location.search): void {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s') ?? urlParams.get('style');
@@ -121,8 +131,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     layerId = this.layerId,
     style = this.style,
     config = this.config,
+    dateRange = this.dateRange,
   ): string {
-    return WindowUrl.toTileUrl(urlType, tileMatrix, layerId, style, config);
+    return WindowUrl.toTileUrl(urlType, tileMatrix, layerId, style, config, dateRange);
   }
 
   getLocation(map: maplibregl.Map): MapLocation {
