@@ -3,6 +3,7 @@ import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
+import { WmtsCapabilitiesBuilder } from '../wmts.capability.js';
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { Imagery2193, Imagery3857, Provider, TileSetAerial } from './config.data.js';
 
@@ -22,17 +23,19 @@ o.spec('WmtsCapabilities', () => {
   allImagery.set(Imagery3857.id, Imagery3857);
 
   o('should output the requested formats', () => {
-    const wmts = new WmtsCapabilities({
+    const wmts = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
-      provider: Provider,
-      tileMatrix: [GoogleTms],
-      tileSet: TileSetAerial,
-      imagery: allImagery,
       apiKey,
-      formats: [ImageFormat.Avif],
-    }).toVNode();
+    });
 
-    const urls = tags(wmts, 'ResourceURL');
+    wmts.setTileMatrix([GoogleTms]);
+    wmts.setImagery(allImagery);
+    wmts.setFormats([ImageFormat.Avif]);
+    wmts.buildProvider(Provider);
+    wmts.buildLayer(TileSetAerial);
+    const wmtsCapability = wmts.buildWmtsCapabilities();
+
+    const urls = tags(wmtsCapability, 'ResourceURL');
     o(urls.length).equals(1);
     o(urls[0].attrs.format).equals('image/avif');
     o(urls[0].attrs.template).equals(
@@ -41,18 +44,20 @@ o.spec('WmtsCapabilities', () => {
   });
 
   o('should include config location', () => {
-    const wmts = new WmtsCapabilities({
+    const wmts = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
-      provider: Provider,
-      tileMatrix: [GoogleTms],
-      tileSet: TileSetAerial,
-      imagery: allImagery,
       apiKey,
       config: 's3://linz-basemaps/config.json',
-      formats: [ImageFormat.Avif],
-    }).toVNode();
+    });
 
-    const urls = tags(wmts, 'ResourceURL');
+    wmts.setTileMatrix([GoogleTms]);
+    wmts.setImagery(allImagery);
+    wmts.setFormats([ImageFormat.Avif]);
+    wmts.buildProvider(Provider);
+    wmts.buildLayer(TileSetAerial);
+    const wmtsCapability = wmts.buildWmtsCapabilities();
+
+    const urls = tags(wmtsCapability, 'ResourceURL');
     o(urls.length).equals(1);
     o(urls[0].attrs.format).equals('image/avif');
     o(urls[0].attrs.template).equals(
@@ -61,13 +66,16 @@ o.spec('WmtsCapabilities', () => {
   });
 
   o('should be seting encoding to utf-8', () => {
-    const xml = new WmtsCapabilities({
+    const wmts = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
+      apiKey,
+    });
+
+    const xml = new WmtsCapabilities(wmts, {
       provider: Provider,
       tileMatrix: [GoogleTms],
       tileSet: TileSetAerial,
       imagery: allImagery,
-      apiKey,
       formats: [ImageFormat.Avif],
     }).toXml();
 
@@ -79,23 +87,26 @@ o.spec('WmtsCapabilities', () => {
     tileSet.name = '🦄_🌈_2022_0-5m';
     tileSet.title = '🦄 🌈 Imagery (2022)';
     tileSet.description = '🦄 🌈 Description';
-    const wmts = new WmtsCapabilities({
-      httpBase: 'https://basemaps.test',
-      provider: Provider,
-      tileMatrix: [GoogleTms],
-      tileSet,
-      imagery: allImagery,
-      apiKey,
-      formats: [ImageFormat.Avif],
-    }).toVNode();
 
-    const urls = tags(wmts, 'ResourceURL');
+    const wmts = new WmtsCapabilitiesBuilder({
+      httpBase: 'https://basemaps.test',
+      apiKey,
+    });
+
+    wmts.setTileMatrix([GoogleTms]);
+    wmts.setImagery(allImagery);
+    wmts.setFormats([ImageFormat.Avif]);
+    wmts.buildProvider(Provider);
+    wmts.buildLayer(tileSet);
+    const wmtsCapability = wmts.buildWmtsCapabilities();
+
+    const urls = tags(wmtsCapability, 'ResourceURL');
     o(urls.length).equals(1);
     o(urls[0].attrs.template).equals(
       'https://basemaps.test/v1/tiles/🦄-🌈-2022-0.5m/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234',
     );
 
-    const layer = tags(wmts, 'Layer')[0];
+    const layer = tags(wmtsCapability, 'Layer')[0];
 
     const title = layer.find('ows:Title')?.toString();
     o(title).equals('<ows:Title>🦄 🌈 Imagery (2022)</ows:Title>');
@@ -131,17 +142,19 @@ o.spec('WmtsCapabilities', () => {
       ],
     };
 
-    const wmts = new WmtsCapabilities({
+    const wmts = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
-      provider: Provider,
-      tileMatrix: [GoogleTms],
-      tileSet,
-      imagery,
       apiKey,
-      layers: tileSet.layers,
-    }).toVNode();
+    });
 
-    const layers = tags(wmts, 'Layer').map((c) => c.find('ows:Title')?.textContent);
+    wmts.setTileMatrix([GoogleTms]);
+    wmts.setImagery(imagery);
+    wmts.buildProvider(Provider);
+    wmts.buildLayer(tileSet);
+    wmts.buildAllImageryLayers(tileSet.layers);
+    const wmtsCapability = wmts.buildWmtsCapabilities();
+
+    const layers = tags(wmtsCapability, 'Layer').map((c) => c.find('ows:Title')?.textContent);
 
     // The base layer "Aerial Imagery" should always be first then all sub layers after
     o(layers).deepEquals(['Aerial Imagery', 'aaaa', 'bbbb', 'Ōtorohanga 0.1m Urban Aerial Photos (2021)']);
@@ -150,16 +163,18 @@ o.spec('WmtsCapabilities', () => {
   o('should build capability xml for tileset and projection', () => {
     const imagery = new Map();
     imagery.set(Imagery3857.id, Imagery3857);
-    const wmts = new WmtsCapabilities({
+
+    const wmts = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
-      provider: Provider,
-      tileMatrix: [GoogleTms],
-      tileSet: TileSetAerial,
-      imagery,
       apiKey,
     });
 
-    const raw = wmts.toVNode();
+    wmts.setTileMatrix([GoogleTms]);
+    wmts.setImagery(imagery);
+    wmts.buildProvider(Provider);
+    wmts.buildLayer(TileSetAerial);
+    wmts.buildAllImageryLayers(TileSetAerial.layers);
+    const raw = wmts.buildWmtsCapabilities();
     const serviceId = raw.find('ows:ServiceIdentification');
 
     o(serviceId?.find('ows:Abstract')?.textContent).equals('the description');
@@ -201,14 +216,17 @@ o.spec('WmtsCapabilities', () => {
   });
 
   o('should include output the correct TileMatrix', () => {
-    const raw = new WmtsCapabilities({
+    const wmts = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
-      provider: Provider,
-      tileMatrix: [GoogleTms],
-      tileSet: TileSetAerial,
-      imagery: allImagery,
       apiKey,
-    }).toVNode();
+    });
+
+    wmts.setTileMatrix([GoogleTms]);
+    wmts.setImagery(allImagery);
+    wmts.buildProvider(Provider);
+    wmts.buildLayer(TileSetAerial);
+    const raw = wmts.buildWmtsCapabilities();
+
     const layer = raw.find('Contents', 'Layer');
 
     o(layer?.find('TileMatrixSetLink', 'TileMatrixSet')?.textContent).equals('WebMercatorQuad');
@@ -247,15 +265,21 @@ o.spec('WmtsCapabilities', () => {
     const imagery = new Map<string, ConfigImagery>();
     imagery.set(Imagery3857.id, Imagery3857);
     imagery.set(Imagery2193.id, Imagery2193);
-    const raw = new WmtsCapabilities({
+
+    const builder = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
+    });
+
+    const wmts = new WmtsCapabilities(builder, {
       provider: Provider,
       tileMatrix: [GoogleTms],
       tileSet: TileSetAerial,
-      imagery: imagery,
-      formats: [ImageFormat.Png],
+      imagery,
       layers: TileSetAerial.layers,
-    }).toVNode();
+      formats: [ImageFormat.Png],
+    });
+
+    const raw = wmts.builder.buildWmtsCapabilities();
 
     const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
 
@@ -286,15 +310,20 @@ o.spec('WmtsCapabilities', () => {
     const imagery = new Map<string, ConfigImagery>();
     imagery.set(Imagery3857.id, Imagery3857);
     imagery.set(Imagery2193.id, Imagery2193);
-    const raw = new WmtsCapabilities({
+
+    const builder = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
+    });
+
+    const wmts = new WmtsCapabilities(builder, {
       provider: Provider,
       tileMatrix: [GoogleTms, Nztm2000QuadTms],
       tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
-    }).toVNode();
+    });
 
+    const raw = wmts.builder.buildWmtsCapabilities();
     const layers = tags(raw, 'Layer');
     o(layers.length).equals(1);
     const layer = layers[0];
@@ -347,30 +376,37 @@ o.spec('WmtsCapabilities', () => {
 
   o('should only output imagery if exists', () => {
     const imagery = new Map<string, ConfigImagery>();
-    const raw = new WmtsCapabilities({
+    const builderA = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
+    });
+    const wmtsA = new WmtsCapabilities(builderA, {
       provider: Provider,
       tileMatrix: [Nztm2000QuadTms],
       tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
       layers: TileSetAerial.layers,
-    }).toVNode();
+    });
 
-    const layers = tags(raw, 'Layer');
+    const rawA = wmtsA.builder.buildWmtsCapabilities();
+
+    const layers = tags(rawA, 'Layer');
     o(layers.length).equals(1);
 
     imagery.set(Imagery3857.id, Imagery3857);
-    const rawB = new WmtsCapabilities({
+    const builderB = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
+    });
+    const wmtsB = new WmtsCapabilities(builderB, {
       provider: Provider,
       tileMatrix: [Nztm2000QuadTms],
       tileSet: TileSetAerial,
       imagery: imagery,
       formats: [ImageFormat.Png],
       layers: TileSetAerial.layers,
-    }).toVNode();
+    });
 
+    const rawB = wmtsB.builder.buildWmtsCapabilities();
     const layersB = tags(rawB, 'Layer');
     o(layersB.length).equals(1);
   });
@@ -394,15 +430,19 @@ o.spec('WmtsCapabilities', () => {
       { 3857: imageBottomRight.id, name: 'b_bottom_right', title: 'B Bottom Right' },
     ];
 
-    const raw = new WmtsCapabilities({
+    const builder = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
+    });
+    const wmts = new WmtsCapabilities(builder, {
       provider: Provider,
       tileMatrix: [GoogleTms],
       tileSet,
       imagery,
       formats: [ImageFormat.Png],
       layers: tileSet.layers,
-    }).toVNode();
+    });
+
+    const raw = wmts.builder.buildWmtsCapabilities();
 
     const boundingBox = tags(raw, 'ows:WGS84BoundingBox').map((c) =>
       c
@@ -433,15 +473,18 @@ o.spec('WmtsCapabilities', () => {
     const tileSet = { ...TileSetAerial };
     tileSet.layers = [{ 3857: imageBottomRight.id, name: 'b_bottom_right', title: 'B Bottom Right' }];
 
-    const raw = new WmtsCapabilities({
+    const builder = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
+    });
+    const wmts = new WmtsCapabilities(builder, {
       provider: Provider,
       tileMatrix: [GoogleTms],
       tileSet,
       imagery,
       formats: [ImageFormat.Png],
       layers: tileSet.layers,
-    }).toVNode();
+    });
+    const raw = wmts.builder.buildWmtsCapabilities();
 
     const boundingBox = tags(raw, 'ows:WGS84BoundingBox').map((c) =>
       roundNumbersInString(c.toString(), 4)
@@ -456,15 +499,15 @@ o.spec('WmtsCapabilities', () => {
   });
 
   o('should work with NZTM2000Quad', () => {
-    const wmts = new WmtsCapabilities({ tileMatrix: [] } as any);
+    const builder = new WmtsCapabilitiesBuilder({ tileMatrix: [] } as any);
 
     // Full NZTM200Quad coverage
-    const bbox = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, []);
+    const bbox = builder.buildWgs84BoundingBox(Nztm2000QuadTms, []);
     o(bbox.children[0].textContent).equals('-180 -49.929855');
     o(bbox.children[1].textContent).equals('180 2.938603');
 
     // Full NZTM200Quad coverage at z1
-    const bboxB = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, [
+    const bboxB = builder.buildWgs84BoundingBox(Nztm2000QuadTms, [
       Nztm2000QuadTms.tileToSourceBounds({ z: 1, x: 0, y: 0 }),
       Nztm2000QuadTms.tileToSourceBounds({ z: 1, x: 1, y: 1 }),
     ]);
@@ -473,7 +516,7 @@ o.spec('WmtsCapabilities', () => {
 
     // Full NZTM200Quad coverage at z5
     const tileCount = Nztm2000QuadTms.zooms[5].matrixWidth;
-    const bboxC = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, [
+    const bboxC = builder.buildWgs84BoundingBox(Nztm2000QuadTms, [
       Nztm2000QuadTms.tileToSourceBounds({ z: 5, x: 0, y: 0 }),
       Nztm2000QuadTms.tileToSourceBounds({ z: 5, x: tileCount - 1, y: tileCount - 1 }),
     ]);

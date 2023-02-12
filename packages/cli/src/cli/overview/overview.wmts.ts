@@ -1,6 +1,6 @@
 import { ConfigLayer, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
 import { ImageFormat, TileMatrixSet } from '@basemaps/geo';
-import { WmtsCapabilities } from '@basemaps/lambda-tiler/build/wmts.capability.js';
+import { WmtsCapabilitiesBuilder } from '@basemaps/lambda-tiler/build/wmts.capability.js';
 
 export function createOverviewWmtsCapabilities(
   tileMatrix: TileMatrixSet,
@@ -16,17 +16,17 @@ export function createOverviewWmtsCapabilities(
     layers: [fakeLayer],
     title,
   };
-  const wmts = new WmtsCapabilities({
-    tileSet,
-    tileMatrix: [tileMatrix],
-    formats: [ImageFormat.Webp],
+  const wmts = new WmtsCapabilitiesBuilder({
     httpBase: '',
-    imagery: new Map(),
   });
+
+  wmts.setFormats([ImageFormat.Webp]);
+  wmts.setTileMatrix([tileMatrix]);
+  wmts.buildLayer(tileSet);
 
   wmts.maxZoom = maxZoom;
 
-  const nodes = wmts.toVNode();
+  const nodes = wmts.buildWmtsCapabilities();
 
   const resourceUrl = nodes.find('ResourceURL');
   if (resourceUrl == null) throw new Error('Failed to create WMTSCapabilities missing resourceUrl');

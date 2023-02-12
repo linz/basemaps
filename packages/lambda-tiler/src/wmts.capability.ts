@@ -20,28 +20,6 @@ function wgs84Extent(tileMatrix: TileMatrixSet, bbox: BoundingBox): BBox {
   return Projection.get(tileMatrix).boundsToWgs84BoundingBox(bbox);
 }
 
-export interface WmtsCapabilitiesParams {
-  /** Base URL for tile server */
-  httpBase: string;
-  provider?: WmtsProvider;
-  /** Tileset to export into WMTS */
-  tileSet: ConfigTileSet;
-  /** List of tile matrixes to output */
-  tileMatrix: TileMatrixSet[];
-  /** All the imagery used by the tileSet and tileMatrixes */
-  imagery: Map<string, ConfigImagery>;
-  /** API key to append to all resource urls */
-  apiKey?: string;
-  /** Limit the output to the following image formats other wise @see ImageFormatOrder */
-  formats?: ImageFormat[] | null;
-  /** Config location */
-  config?: string | null;
-  /** Specific layers to add to the WMTS */
-  layers?: ConfigLayer[] | null;
-  /** Specific DateRange filter for the wmts layers */
-  filters?: Record<string, string | undefined>;
-}
-
 /** Number of decimal places to use in lat lng */
 const LngLatPrecision = 6;
 const MeterPrecision = 4;
@@ -55,32 +33,61 @@ function formatBbox(x: number, y: number, precision: number): string {
   return `${formatCoords(x, precision)} ${formatCoords(y, precision)}`;
 }
 
-export class WmtsCapabilities {
+export interface WmtsBuilderParams {
+  /** Base URL for tile server */
   httpBase: string;
-  provider?: WmtsProvider;
-  tileSet: ConfigTileSet;
+  apiKey?: string;
+  /** Config location */
+  config?: string | null;
+  /** Specific DateRange filter for the wmts layers */
+  filters?: Record<string, string | undefined>;
+}
+
+export class WmtsBuilder {
+  httpBase: string;
   apiKey?: string;
   config?: string | null;
-  tileMatrixSets = new Map<string, TileMatrixSet>();
-  imagery: Map<string, ConfigImagery>;
-  formats: ImageFormat[];
   filters?: Record<string, string | undefined>;
 
-  minZoom = 0;
-  maxZoom = 32;
-  layers: ConfigLayer[] | null | undefined;
+  /** All the imagery used by the tileSet and tileMatrixes */
+  imagery: Map<string, ConfigImagery> = new Map();
+  /** All the imagery used by the tileSet and tileMatrixes */
+  formats: ImageFormat[] = ImageFormatOrder;
 
-  constructor(params: WmtsCapabilitiesParams) {
+  tileMatrixSets = new Map<string, TileMatrixSet>();
+
+  constructor(params: WmtsBuilderParams) {
     this.httpBase = params.httpBase;
-    this.provider = params.provider;
-    this.tileSet = params.tileSet;
-    this.config = params.config;
-    for (const tms of params.tileMatrix) this.tileMatrixSets.set(tms.identifier, tms);
     this.apiKey = params.apiKey;
-    this.formats = params.formats ?? ImageFormatOrder;
-    this.imagery = params.imagery;
-    this.layers = params.layers;
+    this.config = params.config;
     this.filters = params.filters;
+  }
+
+  setTileMatrix(tileMatrix: TileMatrixSet[]): void {
+    for (const tms of tileMatrix) this.tileMatrixSets.set(tms.identifier, tms);
+  }
+
+  setImagery(imagery: Map<string, ConfigImagery>): void {
+    this.imagery = imagery;
+  }
+
+  setFormats(formats?: ImageFormat[]): void {
+    this.formats = formats ? formats : ImageFormatOrder;
+  }
+
+  getMatrixSets(tileSet: ConfigTileSet): Set<TileMatrixSet> {
+    const matrixSets = new Set<TileMatrixSet>();
+    for (const tms of this.tileMatrixSets.values()) {
+      if (tileSet.layers.find((f) => f[tms.projection.code] != null)) {
+        matrixSets.add(tms);
+      }
+    }
+    return matrixSets;
+  }
+
+  buildKeywords(tileSet: { category?: string }): VNodeElement {
+    if (tileSet.category == null) return V('ows:Keywords');
+    return V('ows:Keywords', [V('ows:Keyword', tileSet.category)]);
   }
 
   buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {
@@ -128,39 +135,16 @@ export class WmtsCapabilities {
     ]);
   }
 
-  buildProvider(): VNodeElement[] {
-    if (this.provider == null) return [];
-    const { serviceIdentification, serviceProvider } = this.provider;
-    const { contact } = serviceProvider;
-    return [
-      V('ows:ServiceIdentification', [
-        V('ows:Title', serviceIdentification.title),
-        V('ows:Abstract', serviceIdentification.description),
-        V('ows:ServiceType', 'OGC WMTS'),
-        V('ows:ServiceTypeVersion', '1.0.0'),
-        V('ows:Fees', serviceIdentification.fees),
-        V('ows:AccessConstraints', serviceIdentification.accessConstraints),
-      ]),
+  buildStyle(): VNodeElement {
+    return V('Style', { isDefault: 'true' }, [V('ows:Title', 'Default Style'), V('ows:Identifier', 'default')]);
+  }
 
-      V('ows:ServiceProvider', [
-        V('ows:ProviderName', serviceProvider.name),
-        V('ows:ProviderSite', { 'xlink:href': serviceProvider.site }),
-        V('ows:ServiceContact', [
-          V('ows:IndividualName', contact.individualName),
-          V('ows:PositionName', contact.position),
-          V('ows:ContactInfo', [
-            V('ows:Phone', [V('ows:Voice', contact.phone)]),
-            V('ows:Address', [
-              V('ows:DeliveryPoint', contact.address.deliveryPoint),
-              V('ows:City', contact.address.city),
-              V('ows:PostalCode', contact.address.postalCode),
-              V('ows:Country', contact.address.country),
-              V('ows:ElectronicMailAddress', contact.address.email),
-            ]),
-          ]),
-        ]),
-      ]),
-    ];
+  buildResourceUrl(tileSetId: string, suffix: string, addFilter = false): VNodeElement {
+    return V('ResourceURL', {
+      format: 'image/' + suffix,
+      resourceType: 'tile',
+      template: this.buildTileUrl(tileSetId, suffix, addFilter),
+    });
   }
 
   buildTileUrl(tileSetId: string, suffix: string, addFilter = false): string {
@@ -179,12 +163,18 @@ export class WmtsCapabilities {
     ].join('/');
   }
 
-  buildResourceUrl(tileSetId: string, suffix: string, addFilter = false): VNodeElement {
-    return V('ResourceURL', {
-      format: 'image/' + suffix,
-      resourceType: 'tile',
-      template: this.buildTileUrl(tileSetId, suffix, addFilter),
-    });
+  buildFormats(): VNodeElement[] {
+    return this.formats.map((fmt) => V('Format', 'image/' + fmt));
+  }
+
+  buildTileMatrixLink(tileSet: ConfigTileSet): VNodeElement[] {
+    const matrixSetNodes: VNodeElement[] = [];
+    for (const tms of this.tileMatrixSets.values()) {
+      if (tileSet.layers.find((f) => f[tms.projection.code] != null)) {
+        matrixSetNodes.push(V('TileMatrixSetLink', [V('TileMatrixSet', tms.identifier)]));
+      }
+    }
+    return matrixSetNodes;
   }
 
   buildLayerFromImagery(layer: ConfigLayer): VNodeElement | null {
@@ -221,51 +211,98 @@ export class WmtsCapabilities {
       ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt)),
     ]);
   }
+}
 
-  buildLayer(layer: ConfigTileSet): VNodeElement {
-    const matrixSets = new Set<TileMatrixSet>();
-    const matrixSetNodes: VNodeElement[] = [];
-    for (const tms of this.tileMatrixSets.values()) {
-      if (layer.layers.find((f) => f[tms.projection.code] != null)) {
-        matrixSetNodes.push(V('TileMatrixSetLink', [V('TileMatrixSet', tms.identifier)]));
-        matrixSets.add(tms);
-      }
-    }
-    const layerNameId = standardizeLayerName(layer.name);
+export class WmtsCapabilitiesBuilder extends WmtsBuilder {
+  minZoom = 0;
+  maxZoom = 32;
+  /** Wmts Provider information */
+  provider: VNodeElement[] = [];
+  /** Wmts tileSet layer and imagery layers information */
+  layers: VNodeElement[] = [];
+
+  constructor(params: WmtsBuilderParams) {
+    super(params);
+  }
+
+  buildProvider(provider?: WmtsProvider): void {
+    if (provider == null) return;
+    const { serviceIdentification, serviceProvider } = provider;
+    const { contact } = serviceProvider;
+    this.provider = [
+      V('ows:ServiceIdentification', [
+        V('ows:Title', serviceIdentification.title),
+        V('ows:Abstract', serviceIdentification.description),
+        V('ows:ServiceType', 'OGC WMTS'),
+        V('ows:ServiceTypeVersion', '1.0.0'),
+        V('ows:Fees', serviceIdentification.fees),
+        V('ows:AccessConstraints', serviceIdentification.accessConstraints),
+      ]),
+
+      V('ows:ServiceProvider', [
+        V('ows:ProviderName', serviceProvider.name),
+        V('ows:ProviderSite', { 'xlink:href': serviceProvider.site }),
+        V('ows:ServiceContact', [
+          V('ows:IndividualName', contact.individualName),
+          V('ows:PositionName', contact.position),
+          V('ows:ContactInfo', [
+            V('ows:Phone', [V('ows:Voice', contact.phone)]),
+            V('ows:Address', [
+              V('ows:DeliveryPoint', contact.address.deliveryPoint),
+              V('ows:City', contact.address.city),
+              V('ows:PostalCode', contact.address.postalCode),
+              V('ows:Country', contact.address.country),
+              V('ows:ElectronicMailAddress', contact.address.email),
+            ]),
+          ]),
+        ]),
+      ]),
+    ];
+  }
+
+  buildLayer(tileSet: ConfigTileSet): void {
+    const matrixSets = this.getMatrixSets(tileSet);
     const matrixSetList = [...matrixSets.values()];
     const firstMatrix = matrixSetList[0];
-    if (firstMatrix == null) throw new Error('No matrix sets found for layer ' + layer.name);
+    if (firstMatrix == null) throw new Error('No matrix sets found for layer ' + tileSet.name);
 
     // Prefer using the web mercator tms for bounds
     const webMercatorOrFirst = matrixSetList.find((f) => f.identifier === GoogleTms.identifier) ?? firstMatrix;
     const bounds: Bounds[] = [];
-    for (const l of layer.layers) {
+    for (const l of tileSet.layers) {
       const img = this.imagery.get(l[webMercatorOrFirst.projection.code] ?? '');
       if (img == null) continue;
       bounds.push(Bounds.fromJson(img.bounds));
     }
 
-    return V('Layer', [
-      V('ows:Title', layer.title),
-      V('ows:Abstract', layer.description ?? ''),
+    const layerNameId = standardizeLayerName(tileSet.name);
+    const layer = V('Layer', [
+      V('ows:Title', tileSet.title),
+      V('ows:Abstract', tileSet.description ?? ''),
       V('ows:Identifier', layerNameId),
-      this.buildKeywords(layer),
-      ...[...matrixSets.values()].map((tms) => this.buildBoundingBoxFromImagery(tms, layer.layers)),
+      this.buildKeywords(tileSet),
+      ...[...matrixSets.values()].map((tms) => this.buildBoundingBoxFromImagery(tms, tileSet.layers)),
       this.buildWgs84BoundingBox(webMercatorOrFirst, bounds),
       this.buildStyle(),
-      ...this.formats.map((fmt) => V('Format', 'image/' + fmt)),
-      ...matrixSetNodes,
+      ...this.buildFormats(),
+      ...this.buildTileMatrixLink(tileSet),
       ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt, true)),
     ]);
+    this.layers.push(layer);
   }
 
-  buildKeywords(tileSet: { category?: string }): VNodeElement {
-    if (tileSet.category == null) return V('ows:Keywords');
-    return V('ows:Keywords', [V('ows:Keyword', tileSet.category)]);
-  }
-
-  buildStyle(): VNodeElement {
-    return V('Style', { isDefault: 'true' }, [V('ows:Title', 'Default Style'), V('ows:Identifier', 'default')]);
+  buildAllImageryLayers(configLayers?: ConfigLayer[]): void {
+    if (configLayers == null) return;
+    const layerByName = new Map<string, ConfigLayer>();
+    // Dedupe the layers by unique name
+    for (const img of configLayers) layerByName.set(standardizeLayerName(img.name), img);
+    const orderedLayers = Array.from(layerByName.values()).sort((a, b) =>
+      (a.title ?? a.name).localeCompare(b.title ?? b.name),
+    );
+    for (const img of orderedLayers) {
+      const layer = this.buildLayerFromImagery(img);
+      if (layer) this.layers.push(layer);
+    }
   }
 
   buildTileMatrixSet(tms: TileMatrixSet): VNodeElement {
@@ -288,26 +325,54 @@ export class WmtsCapabilities {
       }),
     ]);
   }
-  toVNode(): VNodeElement {
-    const layers: (VNodeElement | null)[] = [];
-    layers.push(this.buildLayer(this.tileSet));
 
-    if (this.layers) {
-      const layerByName = new Map<string, ConfigLayer>();
-      // Dedupe the layers by unique name
-      for (const img of this.layers) layerByName.set(standardizeLayerName(img.name), img);
-      const orderedLayers = Array.from(layerByName.values()).sort((a, b) =>
-        (a.title ?? a.name).localeCompare(b.title ?? b.name),
-      );
-      for (const img of orderedLayers) layers.push(this.buildLayerFromImagery(img));
-    }
+  buildWmtsCapabilities(): VNodeElement {
+    for (const tms of this.tileMatrixSets.values()) this.layers.push(this.buildTileMatrixSet(tms));
+    return V('Capabilities', CapabilitiesAttrs, [...this.provider, V('Contents', this.layers)]);
+  }
+}
 
-    for (const tms of this.tileMatrixSets.values()) layers.push(this.buildTileMatrixSet(tms));
+export interface WmtsCapabilitiesParams {
+  provider?: WmtsProvider;
+  /** Tileset to export into WMTS */
+  tileSet: ConfigTileSet;
+  /** List of tile matrixes to output */
+  tileMatrix: TileMatrixSet[];
+  /** All the imagery used by the tileSet and tileMatrixes */
+  imagery: Map<string, ConfigImagery>;
+  /** Limit the output to the following image formats other wise @see ImageFormatOrder */
+  formats?: ImageFormat[];
+  /** Specific layers to add to the WMTS */
+  layers?: ConfigLayer[];
+}
 
-    return V('Capabilities', CapabilitiesAttrs, [...this.buildProvider(), V('Contents', layers)]);
+/**
+ * WMTS Capabilities Builder
+ *
+ * /v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml
+ * /v1/tiles/:tileSet/WMTSCapabilities.xml
+ * /v1/tiles/WMTSCapabilities.xml
+ *
+ * @example
+ *
+ */
+export class WmtsCapabilities {
+  builder: WmtsCapabilitiesBuilder;
+
+  constructor(builder: WmtsCapabilitiesBuilder, params: WmtsCapabilitiesParams) {
+    this.builder = builder;
+    // Set Builder variables
+    this.builder.setTileMatrix(params.tileMatrix);
+    this.builder.setImagery(params.imagery);
+    this.builder.setFormats(params.formats);
+
+    // Build wmts capabilities
+    this.builder.buildLayer(params.tileSet);
+    this.builder.buildAllImageryLayers(params.layers);
+    this.builder.buildProvider(params.provider);
   }
 
   toXml(): string {
-    return '<?xml version="1.0" encoding="utf-8"?>\n' + this.toVNode().toString();
+    return '<?xml version="1.0" encoding="utf-8"?>\n' + this.builder.buildWmtsCapabilities().toString();
   }
 }
