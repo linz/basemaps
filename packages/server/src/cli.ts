@@ -13,7 +13,13 @@ export const BasemapsServerCommand = command({
   description: 'Create a basemaps server',
   args: {
     config: option({ type: optional(string), long: 'config', description: 'Configuration to use' }),
-    port: option({ type: optional(number), long: 'port', description: 'Port to use', defaultValue: () => DefaultPort }),
+    port: option({
+      type: optional(number),
+      long: 'port',
+      description: 'Port to use',
+      defaultValue: () => DefaultPort,
+      env: 'PORT',
+    }),
     verbose: flag({ long: 'verbose', description: 'Enable verbose logging' }),
     assets: option({
       type: optional(string),
@@ -22,7 +28,6 @@ export const BasemapsServerCommand = command({
     }),
     paths: restPositionals({ type: string, displayName: 'path', description: 'Path to imagery' }),
   },
-
   handler: async (args) => {
     const logger = LogConfig.get();
     if (args.verbose) logger.level = 'debug';
