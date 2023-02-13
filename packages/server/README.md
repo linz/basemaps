@@ -2,7 +2,7 @@
 
 WMTS/XYZ Tile server command line interface.
 
-This wraps the [@basemaps/lambda-tiler](https://github.com/linz/basemaps/blob/master/packages/lambda-tiler/README.md) into a standalone http server.
+This wraps the [@basemaps/lambda-tiler](https://github.com/linz/basemaps/blob/master/packages/lambda-tiler/README.md) into a standalone http server using [fastify](https://www.fastify.io/).
 
 ## Usage
 Basemaps server expects a folder tree full of configuration, with multiple tilesets and styles configuration files.

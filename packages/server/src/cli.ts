@@ -9,6 +9,7 @@ const DefaultPort = 5000;
 
 export const BasemapsServerCommand = command({
   name: 'basemaps-server',
+  version: CliInfo.version,
   description: 'Create a basemaps server',
   args: {
     config: option({ type: optional(string), long: 'config', description: 'Configuration to use' }),
