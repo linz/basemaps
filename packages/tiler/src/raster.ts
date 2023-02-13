@@ -1,7 +1,7 @@
-import { Bounds, ImageFormat, Point, Size } from '@basemaps/geo';
-import { Metrics } from '@linzjs/metrics';
+import { ImageFormat, Point, Size } from '@basemaps/geo';
 import { CogTiff } from '@cogeotiff/core';
 import { Cotar } from '@cotar/core';
+import { Metrics } from '@linzjs/metrics';
 
 export interface TileMaker {
   compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics }>;
