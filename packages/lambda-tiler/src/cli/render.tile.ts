@@ -1,5 +1,5 @@
 import { ConfigProviderMemory } from '@basemaps/config';
-import { initConfigFromPath } from '@basemaps/config/build/json/tiff.config.js';
+import { initConfigFromPaths } from '@basemaps/config/build/json/tiff.config.js';
 import { ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
@@ -15,7 +15,7 @@ async function main(): Promise<void> {
   const log = LogConfig.get();
   const provider = new ConfigProviderMemory();
   setDefaultConfig(provider);
-  const { tileSet, imagery } = await initConfigFromPath(provider, target);
+  const { tileSet, imagery } = await initConfigFromPaths(provider, [target]);
 
   if (tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + target);
   log.info({ tileSet: tileSet.name, layers: tileSet.layers.length }, 'TileSet:Loaded');

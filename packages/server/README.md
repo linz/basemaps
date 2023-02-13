@@ -20,7 +20,7 @@ docker run -it \
     --volume $PWD/config:/config \
     --volume $PWD/tiffs:$PWD/tiffs \
     -p 5000:5000 \
-     ghcr.io/linz/basemaps-server:v6.28.0 --config /config
+     ghcr.io/linz/basemaps-server:v6 --config /config
 ```
 
 Where `${PWD}/config` contains all the configuration and `${PWD}/tiffs` is all the relevant tiff files
@@ -62,7 +62,7 @@ For example given a structure where there are two folders full of tiffs
 /images/10_geographx_nz_texture_shade_2012_8-0m/*.tiff
 ```
 
-running `basemaps-server --config /images --no-config` will create two tile sets one for each folder `gebco_2021...` and `geographx_nz_t...` and then also create a combined layer in the order the tiffs are found.
+running `basemaps-server /images/00_gebco_2021_305-75m/ /images/10_geographx_nz_texture_shade_2012_8-0m/` will create two tile sets one for each folder `gebco_2021...` and `geographx_nz_t...` and then also create a combined layer in the order the tiffs are found.
 
 
 ## Developing

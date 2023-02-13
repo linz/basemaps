@@ -1,5 +1,5 @@
 import { Env, fsa, LogConfig, LoggerFatalError, LogType } from '@basemaps/shared';
-import { CliId } from '@basemaps/shared/build/cli/base.js';
+import { CliId } from '@basemaps/shared/build/cli/info.js';
 import {
   CommandLineAction,
   CommandLineFlagParameter,
