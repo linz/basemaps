@@ -78,7 +78,7 @@ async function loadStacFromPath(target: string): Promise<StacCollection | null> 
  *
  * @returns Imagery configuration generated from the path
  */
-export async function imageryFromTiffPath(target: string | string, Q: pLimit.Limit): Promise<ConfigImagery> {
+export async function imageryFromTiffPath(target: string, Q: pLimit.Limit): Promise<ConfigImagery> {
   const sourceFiles = await fsa.toArray(fsa.list(target));
   const tiffs = await Promise.all(
     sourceFiles.filter(isTiff).map((c) => Q(() => new CogTiff(fsa.source(c)).init(true))),
