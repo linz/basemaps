@@ -26,7 +26,7 @@ export function createOverviewWmtsCapabilities(
 
   wmts.maxZoom = maxZoom;
 
-  const nodes = wmts.buildWmtsCapabilities();
+  const nodes = wmts.toVNode();
 
   const resourceUrl = nodes.find('ResourceURL');
   if (resourceUrl == null) throw new Error('Failed to create WMTSCapabilities missing resourceUrl');

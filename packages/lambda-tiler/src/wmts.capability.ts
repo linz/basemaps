@@ -326,7 +326,7 @@ export class WmtsCapabilitiesBuilder extends WmtsBuilder {
     ]);
   }
 
-  buildWmtsCapabilities(): VNodeElement {
+  toVNode(): VNodeElement {
     for (const tms of this.tileMatrixSets.values()) this.layers.push(this.buildTileMatrixSet(tms));
     return V('Capabilities', CapabilitiesAttrs, [...this.provider, V('Contents', this.layers)]);
   }
@@ -373,6 +373,6 @@ export class WmtsCapabilities {
   }
 
   toXml(): string {
-    return '<?xml version="1.0" encoding="utf-8"?>\n' + this.builder.buildWmtsCapabilities().toString();
+    return '<?xml version="1.0" encoding="utf-8"?>\n' + this.builder.toVNode().toString();
   }
 }

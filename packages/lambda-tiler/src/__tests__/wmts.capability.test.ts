@@ -33,7 +33,7 @@ o.spec('WmtsCapabilities', () => {
     wmts.setFormats([ImageFormat.Avif]);
     wmts.buildProvider(Provider);
     wmts.buildLayer(TileSetAerial);
-    const wmtsCapability = wmts.buildWmtsCapabilities();
+    const wmtsCapability = wmts.toVNode();
 
     const urls = tags(wmtsCapability, 'ResourceURL');
     o(urls.length).equals(1);
@@ -55,7 +55,7 @@ o.spec('WmtsCapabilities', () => {
     wmts.setFormats([ImageFormat.Avif]);
     wmts.buildProvider(Provider);
     wmts.buildLayer(TileSetAerial);
-    const wmtsCapability = wmts.buildWmtsCapabilities();
+    const wmtsCapability = wmts.toVNode();
 
     const urls = tags(wmtsCapability, 'ResourceURL');
     o(urls.length).equals(1);
@@ -98,7 +98,7 @@ o.spec('WmtsCapabilities', () => {
     wmts.setFormats([ImageFormat.Avif]);
     wmts.buildProvider(Provider);
     wmts.buildLayer(tileSet);
-    const wmtsCapability = wmts.buildWmtsCapabilities();
+    const wmtsCapability = wmts.toVNode();
 
     const urls = tags(wmtsCapability, 'ResourceURL');
     o(urls.length).equals(1);
@@ -152,7 +152,7 @@ o.spec('WmtsCapabilities', () => {
     wmts.buildProvider(Provider);
     wmts.buildLayer(tileSet);
     wmts.buildAllImageryLayers(tileSet.layers);
-    const wmtsCapability = wmts.buildWmtsCapabilities();
+    const wmtsCapability = wmts.toVNode();
 
     const layers = tags(wmtsCapability, 'Layer').map((c) => c.find('ows:Title')?.textContent);
 
@@ -174,7 +174,7 @@ o.spec('WmtsCapabilities', () => {
     wmts.buildProvider(Provider);
     wmts.buildLayer(TileSetAerial);
     wmts.buildAllImageryLayers(TileSetAerial.layers);
-    const raw = wmts.buildWmtsCapabilities();
+    const raw = wmts.toVNode();
     const serviceId = raw.find('ows:ServiceIdentification');
 
     o(serviceId?.find('ows:Abstract')?.textContent).equals('the description');
@@ -225,7 +225,7 @@ o.spec('WmtsCapabilities', () => {
     wmts.setImagery(allImagery);
     wmts.buildProvider(Provider);
     wmts.buildLayer(TileSetAerial);
-    const raw = wmts.buildWmtsCapabilities();
+    const raw = wmts.toVNode();
 
     const layer = raw.find('Contents', 'Layer');
 
@@ -279,7 +279,7 @@ o.spec('WmtsCapabilities', () => {
       formats: [ImageFormat.Png],
     });
 
-    const raw = wmts.builder.buildWmtsCapabilities();
+    const raw = wmts.builder.toVNode();
 
     const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
 
@@ -323,7 +323,7 @@ o.spec('WmtsCapabilities', () => {
       formats: [ImageFormat.Png],
     });
 
-    const raw = wmts.builder.buildWmtsCapabilities();
+    const raw = wmts.builder.toVNode();
     const layers = tags(raw, 'Layer');
     o(layers.length).equals(1);
     const layer = layers[0];
@@ -388,7 +388,7 @@ o.spec('WmtsCapabilities', () => {
       layers: TileSetAerial.layers,
     });
 
-    const rawA = wmtsA.builder.buildWmtsCapabilities();
+    const rawA = wmtsA.builder.toVNode();
 
     const layers = tags(rawA, 'Layer');
     o(layers.length).equals(1);
@@ -406,7 +406,7 @@ o.spec('WmtsCapabilities', () => {
       layers: TileSetAerial.layers,
     });
 
-    const rawB = wmtsB.builder.buildWmtsCapabilities();
+    const rawB = wmtsB.builder.toVNode();
     const layersB = tags(rawB, 'Layer');
     o(layersB.length).equals(1);
   });
@@ -442,7 +442,7 @@ o.spec('WmtsCapabilities', () => {
       layers: tileSet.layers,
     });
 
-    const raw = wmts.builder.buildWmtsCapabilities();
+    const raw = wmts.builder.toVNode();
 
     const boundingBox = tags(raw, 'ows:WGS84BoundingBox').map((c) =>
       c
@@ -484,7 +484,7 @@ o.spec('WmtsCapabilities', () => {
       formats: [ImageFormat.Png],
       layers: tileSet.layers,
     });
-    const raw = wmts.builder.buildWmtsCapabilities();
+    const raw = wmts.builder.toVNode();
 
     const boundingBox = tags(raw, 'ows:WGS84BoundingBox').map((c) =>
       roundNumbersInString(c.toString(), 4)
