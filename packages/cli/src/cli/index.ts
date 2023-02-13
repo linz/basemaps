@@ -11,6 +11,7 @@ import { CommandBundle } from './config/action.bundle.js';
 import { CommandCogMapSheet } from './config/action.cog.mapsheet.js';
 import { CommandImageryConfig } from './config/action.imagery.config.js';
 import { CommandImport } from './config/action.import.js';
+import { CommandServe } from './server/action.serve.js';
 import { CommandSprites } from './sprites/action.sprites.js';
 
 export class BasemapsConfigCommandLine extends BaseCommandLine {
@@ -32,6 +33,7 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     this.addAction(new CommandImageryConfig());
 
     this.addAction(new CommandSprites());
+    this.addAction(new CommandServe());
 
     this.addAction(new CommandCogMapSheet());
   }
