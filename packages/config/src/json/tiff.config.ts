@@ -22,6 +22,9 @@ function isTiff(f: string): boolean {
   return lowered.endsWith('.tif') || lowered.endsWith('.tiff');
 }
 
+/** Ground sample Distance is a floating point, allow a small amount of error between tiffs */
+const GsdFloatingErrorAllowance = 0.000001;
+
 /**
  * Read all tiffs from a target path and ensure all tiffs contain the same GSD and EPSG code,
  * while computing bounding boxes for the entire imagery set
@@ -40,8 +43,11 @@ function computeTiffParameters(
 
     /** Ground sample distance must be the same for all iamgery */
     if (gsd == null) gsd = firstImage.resolution[0];
-    else if (gsd !== firstImage.resolution[0]) {
-      throw new Error(`GSD miss match on imagery ${gsd} vs ${firstImage.resolution[0]} source:` + tiff.source.uri);
+    else {
+      const gsdDiff = Math.abs(gsd - firstImage.resolution[0]);
+      if (gsdDiff > GsdFloatingErrorAllowance) {
+        throw new Error(`GSD miss match on imagery ${gsd} vs ${firstImage.resolution[0]} source:` + tiff.source.uri);
+      }
     }
 
     // Validate all EPSG codes are the same for each imagery set
