@@ -25,7 +25,7 @@ export const BasemapsServerCommand = command({
   handler: async (args) => {
     const logger = LogConfig.get();
     if (args.verbose) logger.level = 'debug';
-    if (args.paths.length == 0 && args.config == null) {
+    if (args.paths.length === 0 && args.config == null) {
       throw new Error('Either --config or paths must be used. see --help');
     }
     logger.info({ package: CliInfo, cli: 'server' }, 'Cli:Start');
