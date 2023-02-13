@@ -46,14 +46,14 @@ function computeTiffParameters(
     else {
       const gsdDiff = Math.abs(gsd - firstImage.resolution[0]);
       if (gsdDiff > GsdFloatingErrorAllowance) {
-        throw new Error(`GSD miss match on imagery ${gsd} vs ${firstImage.resolution[0]} source:` + tiff.source.uri);
+        throw new Error(`GSD mismatch on imagery ${gsd} vs ${firstImage.resolution[0]} source:` + tiff.source.uri);
       }
     }
 
     // Validate all EPSG codes are the same for each imagery set
     if (epsg == null) epsg = firstImage.epsg;
     else if (epsg !== firstImage.epsg) {
-      throw new Error(`ESPG projection miss match on imagery ${epsg} vs ${firstImage.epsg} source:` + tiff.source.uri);
+      throw new Error(`ESPG projection mismatch on imagery ${epsg} vs ${firstImage.epsg} source:` + tiff.source.uri);
     }
 
     if (bounds == null) bounds = imgBounds;
@@ -169,7 +169,7 @@ export async function initConfigFromPath(
   const aerialTileSet: ConfigTileSetRaster = {
     id: 'ts_aerial',
     name: 'aerial',
-    title: 'Basemap',
+    title: 'Basemaps',
     category: 'Basemaps',
     type: TileSetType.Raster,
     format: ImageFormat.Webp,
