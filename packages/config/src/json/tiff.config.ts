@@ -145,7 +145,7 @@ export async function initConfigFromPath(
   provider: ConfigProviderMemory,
   target: string,
   concurrency = 25,
-): Promise<ConfigTileSetRaster> {
+): Promise<{ tileSet: ConfigTileSetRaster; imagery: ConfigImagery[] }> {
   const q = pLimit(concurrency);
   // TODO listing the entire folder to see if it contains a tiff seems expensive, for local folders this should be pretty quick though
   const targets = await fsa.toArray(fsa.details(target, { recursive: false }));
@@ -184,5 +184,5 @@ export async function initConfigFromPath(
     existingLayer[cfg.projection] = cfg.id;
   }
 
-  return aerialTileSet;
+  return { tileSet: aerialTileSet, imagery: configs };
 }

@@ -1,6 +1,6 @@
-import { ConfigProviderMemory, getAllImagery } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromPath } from '@basemaps/config/build/json/tiff.config.js';
-import { Epsg, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
+import { ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
@@ -15,12 +15,11 @@ async function main(): Promise<void> {
   const log = LogConfig.get();
   const provider = new ConfigProviderMemory();
   setDefaultConfig(provider);
-  const tileSet = await initConfigFromPath(provider, target);
+  const { tileSet, imagery } = await initConfigFromPath(provider, target);
 
   if (tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + target);
   log.info({ tileSet: tileSet.name, layers: tileSet.layers.length }, 'TileSet:Loaded');
-  const imagery = await getAllImagery(provider, tileSet.layers, [Epsg.Nztm2000, Epsg.Google]);
-  for (const im of imagery.values()) {
+  for (const im of imagery) {
     log.info({ imagery: im.uri, title: im.title, tileMatrix: im.tileMatrix, files: im.files.length }, 'Imagery:Loaded');
   }
   const request = new LambdaUrlRequest({ headers: {} } as UrlEvent, {} as Context, log) as LambdaHttpRequest;
