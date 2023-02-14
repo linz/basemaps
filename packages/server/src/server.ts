@@ -9,7 +9,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
 import { URL } from 'url';
-import { loadConfig } from './config.js';
+import { loadConfig, ServerOptions } from './config.js';
 
 const instanceId = ulid.ulid();
 
@@ -26,22 +26,11 @@ function getLandingLocation(): string | null {
   }
 }
 
-export interface ServerOptions {
-  /** Path to assets */
-  assets?: string;
-
-  /** Path to configuration or a dynamdb table */
-  config: string;
-
-  /** Load config directly from imagery */
-  noConfig: boolean;
-}
-
 export async function createServer(opts: ServerOptions, logger: LogType): Promise<FastifyInstance> {
   const BasemapsServer = fastify({});
   BasemapsServer.register(formBodyPlugin);
 
-  const cfg = await loadConfig(opts.config, opts.noConfig, logger);
+  const cfg = await loadConfig(opts, logger);
   setDefaultConfig(cfg);
 
   if (opts.assets) {

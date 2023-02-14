@@ -6,25 +6,35 @@ import {
   ConfigProviderDynamo,
   ConfigProviderMemory,
 } from '@basemaps/config';
-import { initConfigFromPath } from '@basemaps/config/build/json/tiff.config.js';
+import { initConfigFromPaths } from '@basemaps/config/build/json/tiff.config.js';
 import { fsa, getDefaultConfig, LogType } from '@basemaps/shared';
 
+export type ServerOptions = ServerOptionsTiffs | ServerOptionsConfig;
+
+/** Load configuration from folders */
+export interface ServerOptionsTiffs {
+  assets?: string;
+  paths: string[];
+}
+
+/** Load configuration from a config file/dynamodb */
+export interface ServerOptionsConfig {
+  assets?: string;
+  config: string;
+}
+
 /**
- * Attempt to load a confiugration file from a number of sources
+ * Attempt to load a configuration file from a number of sources
  *
  * @param configPath Location to where the configuration is stored
- * @param noConfig Wheter to generate a config directly from the source imagery
+ * @param noConfig Whether to generate a config directly from the source imagery
  *
  */
-export async function loadConfig(
-  configPath: string,
-  noConfig: boolean,
-  logger: LogType,
-): Promise<BasemapsConfigProvider> {
+export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<BasemapsConfigProvider> {
   // Load the config directly from the source tiff files
-  if (noConfig) {
+  if ('paths' in opts) {
     const mem = new ConfigProviderMemory();
-    const ret = await initConfigFromPath(mem, configPath);
+    const ret = await initConfigFromPaths(mem, opts.paths);
     logger.info({ tileSet: ret.tileSet.name, layers: ret.tileSet.layers.length }, 'TileSet:Loaded');
     for (const im of ret.imagery) {
       logger.info(
@@ -35,6 +45,7 @@ export async function loadConfig(
     return mem;
   }
 
+  const configPath = opts.config;
   // Load config from dynamodb table
   if (configPath.startsWith('dynamodb://')) {
     const table = configPath.slice('dynamodb://'.length);

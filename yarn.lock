@@ -74,9 +74,9 @@
   integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
 
 "@chunkd/core@>=10.0.0", "@chunkd/core@^10.0.0", "@chunkd/core@^8.1.0", "@chunkd/core@^8.4.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-10.0.0.tgz#d66fd49993cad99886eb2eb20df24a3056ebb218"
-  integrity sha512-8AvtnYUUwn8AcRrjnjstczCj2wJT1Kj+JUy/Cxo6mdsxxQiR1L+2vD46Wj/Q5s/K2toQta3/bSBys3NfYweWGg==
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-10.1.1.tgz#2f7193baba36049507354bbadc2e06717a7cca98"
+  integrity sha512-dd6+7KluZWFAa4Zzj/SQsi0WVu+I8oTlDAEYDzyyY7deYwgrHUnmtciKBL9Owc0kAChbrzzrAbZrZzqaneSStg==
 
 "@chunkd/fs@^10.0.2":
   version "10.0.2"
@@ -2780,6 +2780,16 @@ cmd-shim@^5.0.0:
   dependencies:
     mkdirp-infer-owner "^2.0.0"
 
+cmd-ts@^0.12.1:
+  version "0.12.1"
+  resolved "https://registry.yarnpkg.com/cmd-ts/-/cmd-ts-0.12.1.tgz#5ddf69f27887e7380ce6d50a07a3850cb82ea3f7"
+  integrity sha512-k93f6LgFEzx7/vBy5qV+tu1VI8YuH0DZmwNXPvRaDR4Qp7Fl9+pUSylX/CKHrWoKqHMJjNOLb1NeYTvHOjQ2Kw==
+  dependencies:
+    chalk "^4.0.0"
+    debug "^4.3.4"
+    didyoumean "^1.2.2"
+    strip-ansi "^6.0.0"
+
 color-convert@^1.9.0:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.3.tgz#bb71850690e1f136567de629d2d5471deda4c1e8"
@@ -3356,6 +3366,11 @@ dezalgo@^1.0.0:
   dependencies:
     asap "^2.0.0"
     wrappy "1"
+
+didyoumean@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/didyoumean/-/didyoumean-1.2.2.tgz#989346ffe9e839b4555ecf5666edea0d3e8ad037"
+  integrity sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==
 
 diff@^5.0.0:
   version "5.0.0"
