@@ -23,9 +23,6 @@ function isTiff(f: string): boolean {
   return lowered.endsWith('.tif') || lowered.endsWith('.tiff');
 }
 
-/** Ground sample Distance is a floating point, allow a small amount of error between tiffs */
-const GsdFloatingErrorAllowance = 0.000001;
-
 /** Summary of a collection of tiffs */
 interface TiffSummary {
   /** List of tiffs and their extents */
