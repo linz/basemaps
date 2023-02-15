@@ -136,6 +136,11 @@ export class TileMakerSharp implements TileMaker {
     const todo: Promise<SharpOverlay | null>[] = [];
     for (const comp of ctx.layers) {
       if (this.isTooLarge(comp)) continue;
+      // Track that a scaleOverride was used, this can be removed once we determine how often this override is used.
+      if (comp.type === 'tiff' && comp.resize && comp.resize.scaleOverride) {
+        metrics.start('compose:scale:override');
+        metrics.end('compose:scale:override');
+      }
       todo.push(this.composeTile(comp, ctx.resizeKernel));
     }
     const overlays = await Promise.all(todo).then((items) => items.filter(notEmpty));
