@@ -1,12 +1,11 @@
 import { Bounds } from '@basemaps/geo';
 import { fsa, isConfigS3Role, isFileConfigPath, LogConfig } from '@basemaps/shared';
+import { basename } from 'path';
 import * as ulid from 'ulid';
-import { CogBuilder } from '../index.js';
 import { BatchJob } from '../cli/cogify/batch.job.js';
+import { CogBuilder } from '../index.js';
 import { CogStacJob, JobCreationContext } from './cog.stac.job.js';
 import { Cutline } from './cutline.js';
-import { CogJob } from './types.js';
-import { basename } from 'path';
 
 export const MaxConcurrencyDefault = 50;
 
