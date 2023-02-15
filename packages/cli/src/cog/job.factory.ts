@@ -29,7 +29,7 @@ export const CogJobFactory = {
   /**
    * Create a COG Job and potentially submit it to AWS Batch for processing
    */
-  async create(ctx: JobCreationContext): Promise<CogJob> {
+  async create(ctx: JobCreationContext): Promise<CogStacJob> {
     const id = ctx.override?.id ?? ulid.ulid();
     let imageryName = ctx.imageryName;
     if (imageryName == null) imageryName = basename(ctx.sourceLocation.path);

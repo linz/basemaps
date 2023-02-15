@@ -131,10 +131,9 @@ export class CogStacJob implements CogJob {
   }
 
   /**
-     * Create job.json, collection.json, source.geojson, covering.geojson, cutlint.geojson.gz and
-     * stac descriptions of the target COGs
-
-     */
+   * Create job.json, collection.json, source.geojson, covering.geojson, cutlint.geojson.gz and
+   * stac descriptions of the target COGs
+   */
   static async create({
     id,
     imageryName,
