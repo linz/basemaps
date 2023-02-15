@@ -136,6 +136,11 @@ export class TileMakerSharp implements TileMaker {
     const todo: Promise<SharpOverlay | null>[] = [];
     for (const comp of ctx.layers) {
       if (this.isTooLarge(comp)) continue;
+      // Track that a scaleOverride was used, this can be removed once we determine how often this override is used.
+      if (comp.type === 'tiff' && comp.resize && comp.resize.scaleOverride) {
+        metrics.start('compose:scale:override');
+        metrics.end('compose:scale:override');
+      }
       todo.push(this.composeTile(comp, ctx.resizeKernel));
     }
     const overlays = await Promise.all(todo).then((items) => items.filter(notEmpty));
@@ -175,7 +180,11 @@ export class TileMakerSharp implements TileMaker {
     if (extract) sharp.extract({ top: 0, left: 0, width: extract.width, height: extract.height });
 
     if (resize) {
-      const resizeOptions = { fit: Sharp.fit.cover, kernel: resize.scaleX > 1 ? resizeKernel.in : resizeKernel.out };
+      const resizeOptions: Sharp.ResizeOptions = {
+        fit: Sharp.fit.cover,
+        kernel: resize.scaleX > 1 ? resizeKernel.in : resizeKernel.out,
+      };
+      // if (Math.abs(resize.scaleX - resize.scaleY) > 0.01) resizeOptions.fit = Sharp.fit.contain;
       sharp.resize(resize.width, resize.height, resizeOptions);
     }
 
