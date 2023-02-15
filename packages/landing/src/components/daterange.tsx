@@ -2,8 +2,8 @@ import { Component, ReactNode } from 'react';
 import { Config } from '../config';
 import { MapConfig } from '../config.map.js';
 
-const minDate = '1950-01-01T00:00:00.000Z';
-const maxDate = `${new Date().getFullYear().toString()}-12-31T23:59:59.999Z`;
+export const minDate = '1950-01-01T00:00:00.000Z';
+export const maxDate = `${new Date().getFullYear().toString()}-12-31T23:59:59.999Z`;
 
 export interface DateRangeState {
   dateAfter?: string;
@@ -36,8 +36,6 @@ export class DateRange extends Component {
     Config.map.dateRange.dateAfter = this.state.dateAfter;
     Config.map.dateRange.dateBefore = this.state.dateBefore;
     Config.map.emit('dateRange', this.state);
-    const dateRangeSearch = '?' + MapConfig.toUrl(Config.map);
-    window.history.replaceState(null, '', dateRangeSearch);
   };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>, id: 'before' | 'after'): void => {
@@ -53,9 +51,14 @@ export class DateRange extends Component {
   };
 
   componentDidMount(): void {
-    Config.map.updateFromUrl();
-    this.state.dateBefore = Config.map.dateRange.dateBefore;
-    this.state.dateAfter = Config.map.dateRange.dateAfter;
+    window.addEventListener('popstate', function () {
+      Config.map.updateFromUrl();
+    });
+
+    // Force to reset the url to valid range.
+    this.setState(Config.map.dateRange);
+    const dateRangeSearch = '?' + MapConfig.toUrl(Config.map);
+    window.history.pushState(null, '', dateRangeSearch);
   }
 
   render(): ReactNode {

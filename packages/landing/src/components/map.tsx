@@ -3,6 +3,7 @@ import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
+import { MapConfig } from '../config.map.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { DateRange } from './daterange.js';
@@ -195,6 +196,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         Config.map.on('layer', this.updateStyle),
         Config.map.on('bounds', this.updateBounds),
         Config.map.on('visibleLayers', this.updateVisibleLayers),
+        Config.map.on('dateRange', this.updateUrlDateRange),
       );
 
       this.updateStyle();
@@ -240,4 +242,9 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const path = WindowUrl.toHash(location);
     window.history.replaceState(null, '', path);
   }
+
+  updateUrlDateRange = (): void => {
+    const dateRangeSearch = '?' + MapConfig.toUrl(Config.map);
+    window.history.pushState(null, '', dateRangeSearch);
+  };
 }

@@ -1,7 +1,7 @@
 import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
-import { DateRangeState } from './components/daterange.js';
+import { DateRangeState, maxDate, minDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
@@ -92,8 +92,13 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const config = urlParams.get('c') ?? urlParams.get('config');
 
     const layerId = urlParams.get('i') ?? 'aerial';
-    const dateBefore = urlParams.get('date[before]');
-    const dateAfter = urlParams.get('date[after]');
+    let dateBefore = urlParams.get('date[before]');
+    let dateAfter = urlParams.get('date[after]');
+
+    // Limit the dateRange to be valid
+    if (dateBefore) dateBefore = dateBefore > maxDate ? maxDate : dateBefore;
+    if (dateAfter) dateAfter = dateAfter < minDate ? minDate : dateAfter;
+    if (dateAfter && dateBefore && dateAfter > dateBefore) dateBefore = dateAfter;
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
