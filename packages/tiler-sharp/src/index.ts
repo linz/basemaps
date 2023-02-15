@@ -180,11 +180,7 @@ export class TileMakerSharp implements TileMaker {
     if (extract) sharp.extract({ top: 0, left: 0, width: extract.width, height: extract.height });
 
     if (resize) {
-      const resizeOptions: Sharp.ResizeOptions = {
-        fit: Sharp.fit.cover,
-        kernel: resize.scaleX > 1 ? resizeKernel.in : resizeKernel.out,
-      };
-      // if (Math.abs(resize.scaleX - resize.scaleY) > 0.01) resizeOptions.fit = Sharp.fit.contain;
+      const resizeOptions = { fit: Sharp.fit.cover, kernel: resize.scaleX > 1 ? resizeKernel.in : resizeKernel.out };
       sharp.resize(resize.width, resize.height, resizeOptions);
     }
 
