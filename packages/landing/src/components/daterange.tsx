@@ -56,7 +56,10 @@ export class DateRange extends Component {
     });
 
     // Force to reset the url to valid range.
-    this.setState(Config.map.dateRange);
+    this.setState({
+      dateAfter: Config.map.dateRange.dateAfter ?? minDate,
+      dateBefore: Config.map.dateRange.dateBefore ?? maxDate,
+    });
     const dateRangeSearch = '?' + MapConfig.toUrl(Config.map);
     window.history.pushState(null, '', dateRangeSearch);
   }

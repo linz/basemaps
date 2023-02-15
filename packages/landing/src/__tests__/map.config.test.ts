@@ -103,6 +103,18 @@ o.spec('WindowUrl', () => {
     o(mc.dateRange.dateAfter).equals('1952-01-01T00:00:00.000Z');
   });
 
+  o('should resolve the invalid dateRange', () => {
+    mc.updateFromUrl('?i=abc123&p=nztm2000&d=true&debug=yes&date[before]=1949-12-31T23:59:59.999Z');
+    o(mc.dateRange.dateBefore).equals(undefined);
+    o(mc.dateRange.dateAfter).equals(undefined);
+    mc.updateFromUrl('?date[after]=1952-01-01T00:00:00.000Z&date[before]=2099-12-31T23:59:59.999Z');
+    o(mc.dateRange.dateBefore).equals(undefined);
+    o(mc.dateRange.dateAfter).equals('1952-01-01T00:00:00.000Z');
+    mc.updateFromUrl('?date%5Bafter%5D=1988-01-01T00%3A00%3A00.000Z&date%5Bbefore%5D=1987-12-31T23%3A59%3A59.999Z');
+    o(mc.dateRange.dateBefore).equals(undefined);
+    o(mc.dateRange.dateAfter).equals(undefined);
+  });
+
   o('should convert to a url', () => {
     const apiKey = Config.ApiKey;
     mc.updateFromUrl('');

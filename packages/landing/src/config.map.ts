@@ -86,19 +86,28 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return `basemaps-${Config.map.layerId}`;
   }
 
+  getDateRangeFromUrl(urlParams: URLSearchParams): DateRangeState {
+    let dateBefore = urlParams.get('date[before]') ?? undefined;
+    let dateAfter = urlParams.get('date[after]') ?? undefined;
+
+    // Limit the dateRange to be valid
+    if (dateBefore) dateBefore = dateBefore > maxDate || dateBefore < minDate ? undefined : dateBefore;
+    if (dateAfter) dateAfter = dateAfter > maxDate || dateAfter < minDate ? undefined : dateAfter;
+    if (dateBefore && dateAfter && dateAfter > dateBefore) {
+      dateBefore = undefined;
+      dateAfter = undefined;
+    }
+
+    return { dateAfter, dateBefore };
+  }
+
   updateFromUrl(search: string = window.location.search): void {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s') ?? urlParams.get('style');
     const config = urlParams.get('c') ?? urlParams.get('config');
 
     const layerId = urlParams.get('i') ?? 'aerial';
-    let dateBefore = urlParams.get('date[before]');
-    let dateAfter = urlParams.get('date[after]');
-
-    // Limit the dateRange to be valid
-    if (dateBefore) dateBefore = dateBefore > maxDate ? maxDate : dateBefore;
-    if (dateAfter) dateAfter = dateAfter < minDate ? minDate : dateAfter;
-    if (dateAfter && dateBefore && dateAfter > dateBefore) dateBefore = dateAfter;
+    this.dateRange = this.getDateRangeFromUrl(urlParams);
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
@@ -114,12 +123,10 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
-    this.dateRange.dateBefore = dateBefore ?? undefined;
-    this.dateRange.dateAfter = dateAfter ?? undefined;
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
 
-    if (dateBefore || dateAfter) this.emit('dateRange', this.dateRange);
+    if (this.dateRange.dateBefore || this.dateRange.dateAfter) this.emit('dateRange', this.dateRange);
     this.emit('tileMatrix', this.tileMatrix);
     this.emit('layer', this.layerId, this.style);
     if (previousUrl !== MapConfig.toUrl(this)) this.emit('change');
