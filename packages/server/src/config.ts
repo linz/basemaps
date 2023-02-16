@@ -44,7 +44,6 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
     }
     return mem;
   }
-
   const configPath = opts.config;
   // Load config from dynamodb table
   if (configPath.startsWith('dynamodb://')) {
