@@ -20,9 +20,9 @@ export function createOverviewWmtsCapabilities(
     httpBase: '',
   });
 
-  wmts.setFormats([ImageFormat.Webp]);
-  wmts.setTileMatrix([tileMatrix]);
-  wmts.buildLayer(tileSet);
+  wmts.addFormats([ImageFormat.Webp]);
+  wmts.addTileMatrix([tileMatrix]);
+  wmts.addTileSet(tileSet);
 
   wmts.maxZoom = maxZoom;
 

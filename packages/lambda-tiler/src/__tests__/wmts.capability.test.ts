@@ -28,11 +28,11 @@ o.spec('WmtsCapabilities', () => {
       apiKey,
     });
 
-    wmts.setTileMatrix([GoogleTms]);
-    wmts.setImagery(allImagery);
-    wmts.setFormats([ImageFormat.Avif]);
-    wmts.buildProvider(Provider);
-    wmts.buildLayer(TileSetAerial);
+    wmts.addTileMatrix([GoogleTms]);
+    wmts.addImagery(allImagery);
+    wmts.addFormats([ImageFormat.Avif]);
+    wmts.addProvider(Provider);
+    wmts.addTileSet(TileSetAerial);
     const wmtsCapability = wmts.toVNode();
 
     const urls = tags(wmtsCapability, 'ResourceURL');
@@ -50,11 +50,11 @@ o.spec('WmtsCapabilities', () => {
       config: 's3://linz-basemaps/config.json',
     });
 
-    wmts.setTileMatrix([GoogleTms]);
-    wmts.setImagery(allImagery);
-    wmts.setFormats([ImageFormat.Avif]);
-    wmts.buildProvider(Provider);
-    wmts.buildLayer(TileSetAerial);
+    wmts.addTileMatrix([GoogleTms]);
+    wmts.addImagery(allImagery);
+    wmts.addFormats([ImageFormat.Avif]);
+    wmts.addProvider(Provider);
+    wmts.addTileSet(TileSetAerial);
     const wmtsCapability = wmts.toVNode();
 
     const urls = tags(wmtsCapability, 'ResourceURL');
@@ -65,7 +65,7 @@ o.spec('WmtsCapabilities', () => {
     );
   });
 
-  o('should be seting encoding to utf-8', () => {
+  o('should be adding encoding to utf-8', () => {
     const wmts = new WmtsCapabilitiesBuilder({
       httpBase: 'https://basemaps.test',
       apiKey,
@@ -93,11 +93,11 @@ o.spec('WmtsCapabilities', () => {
       apiKey,
     });
 
-    wmts.setTileMatrix([GoogleTms]);
-    wmts.setImagery(allImagery);
-    wmts.setFormats([ImageFormat.Avif]);
-    wmts.buildProvider(Provider);
-    wmts.buildLayer(tileSet);
+    wmts.addTileMatrix([GoogleTms]);
+    wmts.addImagery(allImagery);
+    wmts.addFormats([ImageFormat.Avif]);
+    wmts.addProvider(Provider);
+    wmts.addTileSet(tileSet);
     const wmtsCapability = wmts.toVNode();
 
     const urls = tags(wmtsCapability, 'ResourceURL');
@@ -147,11 +147,11 @@ o.spec('WmtsCapabilities', () => {
       apiKey,
     });
 
-    wmts.setTileMatrix([GoogleTms]);
-    wmts.setImagery(imagery);
-    wmts.buildProvider(Provider);
-    wmts.buildLayer(tileSet);
-    wmts.buildAllImageryLayers(tileSet.layers);
+    wmts.addTileMatrix([GoogleTms]);
+    wmts.addImagery(imagery);
+    wmts.addProvider(Provider);
+    wmts.addTileSet(tileSet);
+    wmts.addLayers(tileSet.layers);
     const wmtsCapability = wmts.toVNode();
 
     const layers = tags(wmtsCapability, 'Layer').map((c) => c.find('ows:Title')?.textContent);
@@ -160,7 +160,7 @@ o.spec('WmtsCapabilities', () => {
     o(layers).deepEquals(['Aerial Imagery', 'aaaa', 'bbbb', 'Ōtorohanga 0.1m Urban Aerial Photos (2021)']);
   });
 
-  o('should build capability xml for tileset and projection', () => {
+  o('should build capability xml for tileSet and projection', () => {
     const imagery = new Map();
     imagery.set(Imagery3857.id, Imagery3857);
 
@@ -169,11 +169,11 @@ o.spec('WmtsCapabilities', () => {
       apiKey,
     });
 
-    wmts.setTileMatrix([GoogleTms]);
-    wmts.setImagery(imagery);
-    wmts.buildProvider(Provider);
-    wmts.buildLayer(TileSetAerial);
-    wmts.buildAllImageryLayers(TileSetAerial.layers);
+    wmts.addTileMatrix([GoogleTms]);
+    wmts.addImagery(imagery);
+    wmts.addProvider(Provider);
+    wmts.addTileSet(TileSetAerial);
+    wmts.addLayers(TileSetAerial.layers);
     const raw = wmts.toVNode();
     const serviceId = raw.find('ows:ServiceIdentification');
 
@@ -221,10 +221,10 @@ o.spec('WmtsCapabilities', () => {
       apiKey,
     });
 
-    wmts.setTileMatrix([GoogleTms]);
-    wmts.setImagery(allImagery);
-    wmts.buildProvider(Provider);
-    wmts.buildLayer(TileSetAerial);
+    wmts.addTileMatrix([GoogleTms]);
+    wmts.addImagery(allImagery);
+    wmts.addProvider(Provider);
+    wmts.addTileSet(TileSetAerial);
     const raw = wmts.toVNode();
 
     const layer = raw.find('Contents', 'Layer');
@@ -261,7 +261,7 @@ o.spec('WmtsCapabilities', () => {
     compareMatrix(tileMatrices[10], '10', 1024, 545978.773465544);
   });
 
-  o('should output individual imagery sets', () => {
+  o('should output individual imagery adds', () => {
     const imagery = new Map<string, ConfigImagery>();
     imagery.set(Imagery3857.id, Imagery3857);
     imagery.set(Imagery2193.id, Imagery2193);
@@ -350,11 +350,11 @@ o.spec('WmtsCapabilities', () => {
     );
     o(layer.find('ows:Identifier')?.textContent).equals('aerial');
 
-    const sets = tags(layer, 'TileMatrixSet');
+    const adds = tags(layer, 'TileMatrixSet');
 
-    o(sets.length).equals(2);
-    o(sets[0].toString()).equals('<TileMatrixSet>WebMercatorQuad</TileMatrixSet>');
-    o(sets[1].toString()).equals('<TileMatrixSet>NZTM2000Quad</TileMatrixSet>');
+    o(adds.length).equals(2);
+    o(adds[0].toString()).equals('<TileMatrixSet>WebMercatorQuad</TileMatrixSet>');
+    o(adds[1].toString()).equals('<TileMatrixSet>NZTM2000Quad</TileMatrixSet>');
 
     const boundingBoxes = tags(layer, 'ows:BoundingBox');
     o(boundingBoxes.length).equals(2);
@@ -413,7 +413,7 @@ o.spec('WmtsCapabilities', () => {
 
   o('should cover the entire WebMercatorBounds', () => {
     const halfSize = GoogleTms.extent.width / 2;
-    // Create two fake imagery sets one covers tile z1 x0 y0 another covers tile z1 x1 y1
+    // Create two fake imagery adds one covers tile z1 x0 y0 another covers tile z1 x1 y1
     // so the entire bounding box should be tile z0 x0 y0 or the full extent
     const imagery = new Map();
     const imageTopLeft = { ...Imagery3857, id: 'im_top_left', name: 'top_left' };

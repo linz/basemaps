@@ -51,7 +51,6 @@ export class WmtsBuilder {
 
   /** All the imagery used by the tileSet and tileMatrixes */
   imagery: Map<string, ConfigImagery> = new Map();
-  /** All the imagery used by the tileSet and tileMatrixes */
   formats: ImageFormat[] = ImageFormatOrder;
 
   tileMatrixSets = new Map<string, TileMatrixSet>();
@@ -63,16 +62,16 @@ export class WmtsBuilder {
     this.filters = params.filters;
   }
 
-  setTileMatrix(tileMatrix: TileMatrixSet[]): void {
+  addTileMatrix(tileMatrix: TileMatrixSet[]): void {
     for (const tms of tileMatrix) this.tileMatrixSets.set(tms.identifier, tms);
   }
 
-  setImagery(imagery: Map<string, ConfigImagery>): void {
+  addImagery(imagery: Map<string, ConfigImagery>): void {
     this.imagery = imagery;
   }
 
-  setFormats(formats?: ImageFormat[]): void {
-    this.formats = formats ? formats : ImageFormatOrder;
+  addFormats(formats?: ImageFormat[]): void {
+    if (formats) this.formats = formats;
   }
 
   getMatrixSets(tileSet: ConfigTileSet): Set<TileMatrixSet> {
@@ -216,20 +215,34 @@ export class WmtsBuilder {
 export class WmtsCapabilitiesBuilder extends WmtsBuilder {
   minZoom = 0;
   maxZoom = 32;
-  /** Wmts Provider information */
-  provider: VNodeElement[] = [];
   /** Wmts tileSet layer and imagery layers information */
-  layers: VNodeElement[] = [];
+  tileSet: ConfigTileSet;
+  configLayers?: ConfigLayer[];
+
+  /** Wmts Provider information */
+  provider?: WmtsProvider;
 
   constructor(params: WmtsBuilderParams) {
     super(params);
   }
 
-  buildProvider(provider?: WmtsProvider): void {
-    if (provider == null) return;
+  addTileSet(tileSet: ConfigTileSet): void {
+    this.tileSet = tileSet;
+  }
+
+  addLayers(configLayers?: ConfigLayer[]): void {
+    this.configLayers = configLayers;
+  }
+
+  addProvider(provider?: WmtsProvider): void {
+    this.provider = provider;
+  }
+
+  toProviderVNode(provider?: WmtsProvider): VNodeElement[] | [] {
+    if (provider == null) return [];
     const { serviceIdentification, serviceProvider } = provider;
     const { contact } = serviceProvider;
-    this.provider = [
+    return [
       V('ows:ServiceIdentification', [
         V('ows:Title', serviceIdentification.title),
         V('ows:Abstract', serviceIdentification.description),
@@ -260,7 +273,7 @@ export class WmtsCapabilitiesBuilder extends WmtsBuilder {
     ];
   }
 
-  buildLayer(tileSet: ConfigTileSet): void {
+  toLayerVNode(tileSet: ConfigTileSet): VNodeElement {
     const matrixSets = this.getMatrixSets(tileSet);
     const matrixSetList = [...matrixSets.values()];
     const firstMatrix = matrixSetList[0];
@@ -276,7 +289,7 @@ export class WmtsCapabilitiesBuilder extends WmtsBuilder {
     }
 
     const layerNameId = standardizeLayerName(tileSet.name);
-    const layer = V('Layer', [
+    return V('Layer', [
       V('ows:Title', tileSet.title),
       V('ows:Abstract', tileSet.description ?? ''),
       V('ows:Identifier', layerNameId),
@@ -288,11 +301,11 @@ export class WmtsCapabilitiesBuilder extends WmtsBuilder {
       ...this.buildTileMatrixLink(tileSet),
       ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt, true)),
     ]);
-    this.layers.push(layer);
   }
 
-  buildAllImageryLayers(configLayers?: ConfigLayer[]): void {
-    if (configLayers == null) return;
+  toAllImageryLayersVNode(configLayers?: ConfigLayer[]): VNodeElement[] {
+    if (configLayers == null) return [];
+    const layersVNode: VNodeElement[] = [];
     const layerByName = new Map<string, ConfigLayer>();
     // Dedupe the layers by unique name
     for (const img of configLayers) layerByName.set(standardizeLayerName(img.name), img);
@@ -301,8 +314,9 @@ export class WmtsCapabilitiesBuilder extends WmtsBuilder {
     );
     for (const img of orderedLayers) {
       const layer = this.buildLayerFromImagery(img);
-      if (layer) this.layers.push(layer);
+      if (layer) layersVNode.push(layer);
     }
+    return layersVNode;
   }
 
   buildTileMatrixSet(tms: TileMatrixSet): VNodeElement {
@@ -327,8 +341,18 @@ export class WmtsCapabilitiesBuilder extends WmtsBuilder {
   }
 
   toVNode(): VNodeElement {
-    for (const tms of this.tileMatrixSets.values()) this.layers.push(this.buildTileMatrixSet(tms));
-    return V('Capabilities', CapabilitiesAttrs, [...this.provider, V('Contents', this.layers)]);
+    // Prepare provider vNode if exists
+    const provider = this.toProviderVNode(this.provider);
+
+    // Build TileSet Layer VNodes
+    const layers: VNodeElement[] = [];
+    layers.push(this.toLayerVNode(this.tileSet));
+    const contents = layers.concat(this.toAllImageryLayersVNode(this.configLayers));
+
+    // Build TileMatrix Sets vNodes
+    for (const tms of this.tileMatrixSets.values()) contents.push(this.buildTileMatrixSet(tms));
+
+    return V('Capabilities', CapabilitiesAttrs, [...provider, V('Contents', contents)]);
   }
 }
 
@@ -362,14 +386,14 @@ export class WmtsCapabilities {
   constructor(builder: WmtsCapabilitiesBuilder, params: WmtsCapabilitiesParams) {
     this.builder = builder;
     // Set Builder variables
-    this.builder.setTileMatrix(params.tileMatrix);
-    this.builder.setImagery(params.imagery);
-    this.builder.setFormats(params.formats);
+    this.builder.addTileMatrix(params.tileMatrix);
+    this.builder.addImagery(params.imagery);
+    this.builder.addFormats(params.formats);
 
     // Build wmts capabilities
-    this.builder.buildLayer(params.tileSet);
-    this.builder.buildAllImageryLayers(params.layers);
-    this.builder.buildProvider(params.provider);
+    this.builder.addTileSet(params.tileSet);
+    this.builder.addLayers(params.layers);
+    this.builder.addProvider(params.provider);
   }
 
   toXml(): string {
