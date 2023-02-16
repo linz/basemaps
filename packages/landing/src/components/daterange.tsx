@@ -51,10 +51,6 @@ export class DateRange extends Component {
   };
 
   componentDidMount(): void {
-    window.addEventListener('popstate', function () {
-      Config.map.updateFromUrl();
-    });
-
     // Force to reset the url to valid range.
     this.setState({
       dateAfter: Config.map.dateRange.dateAfter ?? minDate,
