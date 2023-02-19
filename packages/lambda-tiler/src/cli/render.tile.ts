@@ -7,7 +7,7 @@ import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
-const target = `/home/blacha/tmp/basemaps/`;
+const target = `/home/blacha/tmp/basemaps`;
 const tile = { z: 18, x: 126359, y: 137603 };
 const tileMatrix = Nztm2000QuadTms;
 
@@ -32,6 +32,7 @@ async function main(): Promise<void> {
   });
 
   await fsa.write(`./${tile.z}_${tile.x}_${tile.y}.png`, Buffer.from(res.body, 'base64'));
+  log.info({ path: `./${tile.z}_${tile.x}_${tile.y}.png` }, 'Tile:Write');
 }
 
 main();

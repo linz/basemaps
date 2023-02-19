@@ -23,9 +23,6 @@ function isTiff(f: string): boolean {
   return lowered.endsWith('.tif') || lowered.endsWith('.tiff');
 }
 
-/** Ground sample Distance is a floating point, allow a small amount of error between tiffs */
-const GsdFloatingErrorAllowance = 0.000001;
-
 /** Summary of a collection of tiffs */
 interface TiffSummary {
   /** List of tiffs and their extents */
@@ -34,8 +31,6 @@ interface TiffSummary {
   bounds: Bounds;
   /** EpsgCode for the tiffs */
   epsg: number;
-  /** Ground sample distance of the tiffs */
-  gsd: number;
 }
 
 /**
@@ -51,24 +46,13 @@ function computeTiffSummary(target: string, tiffs: CogTiff[]): TiffSummary {
     const firstImage = tiff.getImage(0);
     const imgBounds = Bounds.fromBbox(firstImage.bbox);
 
-    /** Ground sample distance must be the same for all imagery */
-    if (res.gsd == null) res.gsd = firstImage.resolution[0];
-    else {
-      const gsdDiff = Math.abs(res.gsd - firstImage.resolution[0]);
-      if (gsdDiff > GsdFloatingErrorAllowance) {
-        throw new Error(`GSD mismatch on imagery ${res.gsd} vs ${firstImage.resolution[0]} source:` + tiff.source.uri);
-      }
-    }
-
     const epsg = firstImage.epsg;
     if (epsg == null) throw new Error(`No ESPG projection found. source:` + tiff.source.uri);
 
     // Validate all EPSG codes are the same for each imagery set
-    if (res.epsg == null) res.epsg;
-    else if (res.epsg !== res.epsg) {
-      throw new Error(
-        `ESPG projection mismatch on imagery ${res.epsg} vs ${firstImage.epsg} source:` + tiff.source.uri,
-      );
+    if (res.epsg == null) res.epsg = epsg;
+    else if (res.epsg !== epsg) {
+      throw new Error(`ESPG projection mismatch on imagery ${res.epsg} vs ${epsg} source:` + tiff.source.uri);
     }
 
     if (res.bounds == null) res.bounds = imgBounds;
@@ -78,7 +62,6 @@ function computeTiffSummary(target: string, tiffs: CogTiff[]): TiffSummary {
     res.files.push({ name: tiff.source.uri.replace(target, ''), ...imgBounds });
   }
   if (res.bounds == null) throw new Error('Failed to extract imagery bounds from:' + target);
-  if (res.gsd == null) throw new Error('Failed to extract imagery GSD from:' + target);
   if (res.epsg == null) throw new Error('Failed to extract imagery epsg from:' + target);
   if (res.files == null || res.files.length === 0) throw new Error('Failed to extract imagery from:' + target);
   return res as TiffSummary;
