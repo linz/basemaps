@@ -172,12 +172,6 @@ export class CommandImport extends CommandLineAction {
       const existing = oldData.layers.find((l) => l.name === layer.name);
       if (existing) {
         const change: string[] = [`### ${layer.name}\n`];
-        if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
-          let msg = ' - Zoom level updated.';
-          if (layer.minZoom !== existing.minZoom) msg += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
-          if (layer.maxZoom !== existing.maxZoom) msg += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
-          change.push(`${msg} -- [Aerial]((${PublicUrlBase}?config=${this.config.value}&debug))\n`);
-        }
         if (layer[2193] && layer[2193] !== existing[2193]) {
           const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
           change.push(`- Layer update [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
@@ -186,6 +180,14 @@ export class CommandImport extends CommandLineAction {
           const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
           change.push(`- Layer update [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
         }
+        let zoom = ' - Zoom level updated.';
+        if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
+          if (layer.minZoom !== existing.minZoom) zoom += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
+          if (layer.maxZoom !== existing.maxZoom) zoom += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
+          if (change.length === 0) zoom += ` -- [Aerial]((${PublicUrlBase}?config=${this.config.value}&debug))\n`;
+          change.push(zoom);
+        }
+
         if (change.length > 1) updates.push(change.join(''));
       } else {
         // New layers
