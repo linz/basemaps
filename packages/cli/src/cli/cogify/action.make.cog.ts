@@ -62,7 +62,7 @@ export class CommandMakeCog extends CommandLineAction {
       argumentName: 'NAME',
       parameterShortName: '-n',
       parameterLongName: '--name',
-      description: 'Custome imagery name',
+      description: 'Custom imagery name',
       required: false,
     });
     this.tileMatrix = this.defineStringParameter({
@@ -141,6 +141,8 @@ export class CommandMakeCog extends CommandLineAction {
       if (tileMatrix == null) throw new Error(`Cannot find tile matrix: ${identifier}`);
       logger.info({ id, tileMatrix: tileMatrix.identifier }, 'SetTileMatrix');
       const job = await this.makeCog(id, name, tileMatrix, source);
+      configLayer.title = job.title;
+
       const jobLocation = job.getJobPath('job.json');
       // Split the jobs into chunked tasks
       const chunkedJobs = await this.splitJob(job, logger);
@@ -211,8 +213,7 @@ export class CommandMakeCog extends CommandLineAction {
       oneCogCovering: false,
     };
 
-    const job = (await CogJobFactory.create(ctx)) as CogStacJob;
-    return job;
+    return await CogJobFactory.create(ctx);
   }
 
   async splitJob(job: CogStacJob, logger: LogType): Promise<string[][]> {
