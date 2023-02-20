@@ -9,6 +9,8 @@ import { DateRange } from './daterange.js';
 import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
 
+const layerFadeTime = 750;
+
 /**
  * Map loading in maplibre is weird, the on('load') event is different to 'loaded'
  * this function waits until the map.loaded() function is true before being run.
@@ -117,32 +119,18 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
           id: newStyleId,
           type: 'raster',
           source: newStyleId,
-          paint: { 'raster-opacity': 0 },
-        });
+          paint: {
+            'raster-opacity': 0,
+            'raster-opacity-transition': {
+              duration: layerFadeTime,
+              delay: 0,
+            },
+          },
+        } as any);
+        // `as any` needed above due to *-transition paint properties not appearing
+        // in TS typing, per https://github.com/maplibre/maplibre-gl-js/issues/1708
         this.map.moveLayer(newStyleId);
-
-        let startTime: number;
-        let previousTime: number;
-        let isDone = false;
-        const fadeTime = 1000;
-        const endOpacity = 1;
-        const rate = endOpacity / fadeTime;
-
-        const stepAnimation = (nowTime: number): void => {
-          if (startTime === undefined) startTime = nowTime;
-          const elapsed = nowTime - startTime;
-          if (previousTime !== nowTime) {
-            const opacity = Math.min(rate * elapsed, endOpacity);
-            this.map.setPaintProperty(newStyleId, 'raster-opacity', opacity);
-            if (opacity === endOpacity) isDone = true;
-          }
-          if (elapsed < fadeTime) {
-            previousTime = nowTime;
-            if (!isDone) window.requestAnimationFrame(stepAnimation);
-          }
-        };
-
-        window.requestAnimationFrame(stepAnimation);
+        this.map.setPaintProperty(newStyleId, 'raster-opacity', 1);
       }
     }
   };
@@ -154,8 +142,12 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     // The last item in the array is the top layer, we pop that to ensure it isn't removed
     filteredLayers.pop();
     for (const layer of filteredLayers) {
-      this.map.removeLayer(layer.id);
-      this.map.removeSource(layer.source);
+      this.map.setPaintProperty(layer.id, 'raster-opacity-transition', { duration: layerFadeTime });
+      this.map.setPaintProperty(layer.id, 'raster-opacity', 0);
+      setTimeout(() => {
+        this.map.removeLayer(layer.id);
+        this.map.removeSource(layer.source);
+      }, layerFadeTime);
     }
   };
 
