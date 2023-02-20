@@ -110,6 +110,8 @@ export async function imageryFromTiffPath(target: string, Q: pLimit.Limit): Prom
     files: params.files,
   };
   imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
+
+  await Promise.all(tiffs.map((t) => t.close()));
   return imagery;
 }
 
