@@ -1123,9 +1123,9 @@
     ulid "^2.3.0"
 
 "@linzjs/lui@^17.16.2":
-  version "17.16.2"
-  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-17.16.2.tgz#9b476ff76c9cc1c68c11621ff9ff8aa2d04225b0"
-  integrity sha512-uUMixjeoNG862csS899t+tkckhVZG4rUQxWqyyi6J8ueQxISX2begCtsIP1//XLswS3D28c3xAADACClPM6TcA==
+  version "17.36.3"
+  resolved "https://registry.yarnpkg.com/@linzjs/lui/-/lui-17.36.3.tgz#43e6843ca0816e9aa3dd24828d935601621f026a"
+  integrity sha512-1pOYpvqe3m85UPiVtnJRV1WLdahLBe6fjgT4VkwAdjXlgECdU9gsW3Kx51mmi/wLlzoX0aoE/BuU8VKprM1d8w==
   dependencies:
     "@fontsource/open-sans" "^4.5.1"
     "@react-aria/focus" "^3.7.0"
@@ -1140,9 +1140,10 @@
     framer-motion "4.1.17"
     lottie-web "^5.9.1"
     react-loading-skeleton "^3.1.0"
-    react-modal "^3.11.2"
+    react-modal "^3.16.1"
     react-query "2.26.3"
     react-select "^5.1.0"
+    react-split-grid "1.0.4"
     resolve-url-loader "^5.0.0"
     svgstore "^3.0.0-2"
     tippy.js "^6.3.1"
@@ -6759,7 +6760,7 @@ promzard@^0.3.0:
   dependencies:
     read "1"
 
-prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.7, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -6882,10 +6883,10 @@ react-loading-skeleton@^3.1.0:
   resolved "https://registry.yarnpkg.com/react-loading-skeleton/-/react-loading-skeleton-3.1.0.tgz#ce22942f1af77bfd60854417075792367f54f41e"
   integrity sha512-j1U1CWWs68nBPOg7tkQqnlFcAMFF6oEK6MgqAo15f8A5p7mjH6xyKn2gHbkcimpwfO0VQXqxAswnSYVr8lWzjw==
 
-react-modal@^3.11.2:
-  version "3.15.1"
-  resolved "https://registry.yarnpkg.com/react-modal/-/react-modal-3.15.1.tgz#950ce67bfef80971182dd0ed38f2d9b1a681288b"
-  integrity sha512-duB9bxOaYg7Zt6TMFldIFxQRtSP+Dg3F1ZX3FXxSUn+3tZZ/9JCgeAQKDg7rhZSAqopq8TFRw3yIbnx77gyFTw==
+react-modal@^3.16.1:
+  version "3.16.1"
+  resolved "https://registry.yarnpkg.com/react-modal/-/react-modal-3.16.1.tgz#34018528fc206561b1a5467fc3beeaddafb39b2b"
+  integrity sha512-VStHgI3BVcGo7OXczvnJN7yT2TWHJPDXZWyI/a0ssFNhGZWsPmB8cF0z33ewDXq4VfYMO1vXgiv/g8Nj9NDyWg==
   dependencies:
     exenv "^1.2.0"
     prop-types "^15.7.2"
@@ -6911,6 +6912,14 @@ react-select@^5.1.0:
     memoize-one "^5.0.0"
     prop-types "^15.6.0"
     react-transition-group "^4.3.0"
+
+react-split-grid@1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/react-split-grid/-/react-split-grid-1.0.4.tgz#e17d90c6229da76ac50f40c361a08ae6c7bae742"
+  integrity sha512-RMEzFFnntgn+u5GFq+ognmv30CsTgrR97zB4RkMx2VSX9Sw8A7fjzCUfw/Avj7m8GCEw19GIjoUQGOQUOOjlcA==
+  dependencies:
+    prop-types "^15.5.7"
+    split-grid "^1.0.9"
 
 react-transition-group@^4.3.0:
   version "4.4.5"
@@ -7615,6 +7624,11 @@ splaytree@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/splaytree/-/splaytree-3.1.0.tgz#17d4a0108a6da3627579690b7b847241e18ddec8"
   integrity sha512-gvUGR7xnOy0fLKTCxDeUZYgU/I1Tdf8M/lM1Qrf8L2TIOR5ipZjGk02uYcdv0o2x7WjVRgpm3iS2clLyuVAt0Q==
+
+split-grid@^1.0.9:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/split-grid/-/split-grid-1.0.11.tgz#2df26ac4fd4153f23a42471ab2f618ade81b69fd"
+  integrity sha512-ELtFtxc3r5we5GZfe6Fi0BFFxIi2M6BY1YEntBscKRDD3zx4JVHqx2VnTRSQu1BixCYSTH3MTjKd4esI2R7EgQ==
 
 split2@^2.0.0:
   version "2.2.0"
