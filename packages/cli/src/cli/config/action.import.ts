@@ -176,7 +176,7 @@ export class CommandImport extends CommandLineAction {
           let msg = ' - Zoom level updated.';
           if (layer.minZoom !== existing.minZoom) msg += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
           if (layer.maxZoom !== existing.maxZoom) msg += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
-          change.push(`${msg}\n`);
+          change.push(`${msg} -- [Aerial]((${PublicUrlBase}?config=${this.config.value}&debug))\n`);
         }
         if (layer[2193] && layer[2193] !== existing[2193]) {
           const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
