@@ -184,7 +184,7 @@ export class CommandImport extends CommandLineAction {
         if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
           if (layer.minZoom !== existing.minZoom) zoom += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
           if (layer.maxZoom !== existing.maxZoom) zoom += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
-          if (change.length === 0) zoom += ` -- [Aerial]((${PublicUrlBase}?config=${this.config.value}&debug))\n`;
+          if (change.length === 1) zoom += ` -- [Aerial]((${PublicUrlBase}?config=${this.config.value}&debug))\n`;
           change.push(zoom);
         }
 
