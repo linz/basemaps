@@ -181,14 +181,16 @@ export class CommandImport extends CommandLineAction {
         const change: string[] = [`### ${layer.name}\n`];
         if (layer[2193]) {
           const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
-          if (layer[2193] !== existing[2193])
+          if (layer[2193] !== existing[2193]) {
             change.push(`- Layer update [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+          }
           if (zoom) zoom += ` [NZTM2000Quad](${urls.tag})`;
         }
         if (layer[3857]) {
           const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
-          if (layer[3857] !== existing[3857])
+          if (layer[3857] !== existing[3857]) {
             change.push(`- Layer update [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+          }
           if (zoom) zoom += ` [WebMercatorQuad](${urls.tag})`;
         }
 
