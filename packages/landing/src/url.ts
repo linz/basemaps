@@ -22,6 +22,15 @@ export const enum MapOptionType {
   Attribution = 'attribution',
 }
 
+export interface TileUrlParams {
+  urlType: MapOptionType;
+  tileMatrix: TileMatrixSet;
+  layerId: string;
+  style?: string | null;
+  config?: string | null;
+  dateRange?: DateRangeState;
+}
+
 export function ensureBase58(s: null): null;
 export function ensureBase58(s: string): string;
 export function ensureBase58(s: string | null): string | null;
@@ -92,39 +101,32 @@ export const WindowUrl = {
     return `${this.baseUrl()}/v1/imagery/${layerId}/${imageryType}`;
   },
 
-  toTileUrl(
-    urlType: MapOptionType,
-    tileMatrix: TileMatrixSet,
-    layerId: string,
-    style?: string | null,
-    config?: string | null,
-    dateRange?: DateRangeState,
-  ): string {
+  toTileUrl(params: TileUrlParams): string {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
-    if (config != null) queryParams.set('config', ensureBase58(config));
-    if (dateRange?.dateAfter != null) queryParams.set('date[after]', dateRange.dateAfter);
-    if (dateRange?.dateBefore != null) queryParams.set('date[before]', dateRange.dateBefore);
+    if (params.config != null) queryParams.set('config', ensureBase58(params.config));
+    if (params.dateRange?.dateAfter != null) queryParams.set('date[after]', params.dateRange.dateAfter);
+    if (params.dateRange?.dateBefore != null) queryParams.set('date[before]', params.dateRange.dateBefore);
 
-    if (urlType === MapOptionType.Style) {
-      if (tileMatrix.identifier !== GoogleTms.identifier) queryParams.set('tileMatrix', tileMatrix.identifier);
+    if (params.urlType === MapOptionType.Style) {
+      if (params.tileMatrix.identifier !== GoogleTms.identifier) queryParams.set('tileMatrix', params.tileMatrix.identifier);
       if (WindowUrl.ImageFormat !== ImageFormat.Webp) queryParams.set('format', WindowUrl.ImageFormat);
     }
 
     const q = '?' + queryParams.toString();
 
-    const baseTileUrl = `${this.baseUrl()}/v1/tiles/${layerId}/${tileMatrix.identifier}`;
+    const baseTileUrl = `${this.baseUrl()}/v1/tiles/${params.layerId}/${params.tileMatrix.identifier}`;
 
-    if (urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${q}`;
-    if (urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${q}`;
-    if (urlType === MapOptionType.Style) return `${this.baseUrl()}/v1/styles/${style ?? layerId}.json${q}`;
-    if (urlType === MapOptionType.Wmts) return `${baseTileUrl}/WMTSCapabilities.xml${q}`;
-    if (urlType === MapOptionType.Attribution) return `${baseTileUrl}/attribution.json${q}`;
-    if (urlType === MapOptionType.TileWmts) {
+    if (params.urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${q}`;
+    if (params.urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${q}`;
+    if (params.urlType === MapOptionType.Style) return `${this.baseUrl()}/v1/styles/${params.style ?? params.layerId}.json${q}`;
+    if (params.urlType === MapOptionType.Wmts) return `${baseTileUrl}/WMTSCapabilities.xml${q}`;
+    if (params.urlType === MapOptionType.Attribution) return `${baseTileUrl}/attribution.json${q}`;
+    if (params.urlType === MapOptionType.TileWmts) {
       return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${q}`;
     }
 
-    throw new Error('Unknown url type: ' + urlType);
+    throw new Error('Unknown url type: ' + params.urlType);
   },
 
   toConfigUrl(layerId: string, config: string | null = Config.map.config): string {

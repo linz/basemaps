@@ -1,6 +1,6 @@
 import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
-import { LngLatBoundsLike } from 'maplibre-gl';
+import { LngLatBoundsLike, Tile } from 'maplibre-gl';
 import { DateRangeState } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
@@ -133,7 +133,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     config = this.config,
     dateRange = this.dateRange,
   ): string {
-    return WindowUrl.toTileUrl(urlType, tileMatrix, layerId, style, config, dateRange);
+    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, dateRange });
   }
 
   getLocation(map: maplibregl.Map): MapLocation {
