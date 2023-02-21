@@ -109,7 +109,8 @@ export const WindowUrl = {
     if (params.dateRange?.dateBefore != null) queryParams.set('date[before]', params.dateRange.dateBefore);
 
     if (params.urlType === MapOptionType.Style) {
-      if (params.tileMatrix.identifier !== GoogleTms.identifier) queryParams.set('tileMatrix', params.tileMatrix.identifier);
+      if (params.tileMatrix.identifier !== GoogleTms.identifier)
+        queryParams.set('tileMatrix', params.tileMatrix.identifier);
       if (WindowUrl.ImageFormat !== ImageFormat.Webp) queryParams.set('format', WindowUrl.ImageFormat);
     }
 
@@ -119,7 +120,8 @@ export const WindowUrl = {
 
     if (params.urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${q}`;
     if (params.urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${q}`;
-    if (params.urlType === MapOptionType.Style) return `${this.baseUrl()}/v1/styles/${params.style ?? params.layerId}.json${q}`;
+    if (params.urlType === MapOptionType.Style)
+      return `${this.baseUrl()}/v1/styles/${params.style ?? params.layerId}.json${q}`;
     if (params.urlType === MapOptionType.Wmts) return `${baseTileUrl}/WMTSCapabilities.xml${q}`;
     if (params.urlType === MapOptionType.Attribution) return `${baseTileUrl}/attribution.json${q}`;
     if (params.urlType === MapOptionType.TileWmts) {

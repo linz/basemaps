@@ -1,6 +1,6 @@
 import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
-import { LngLatBoundsLike, Tile } from 'maplibre-gl';
+import { LngLatBoundsLike } from 'maplibre-gl';
 import { DateRangeState } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
