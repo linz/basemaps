@@ -43,6 +43,7 @@ export class AttributionBounds {
    */
   intersects(extent: BBox, zoom: number, dateAfter?: string, dateBefore?: string): boolean {
     if (zoom > this.maxZoom || zoom < this.minZoom) return false;
+    if (dateAfter && dateBefore && dateAfter > dateBefore) return false;
     if (dateAfter && this.endDate && dateAfter > this.endDate) return false;
     if (dateBefore && this.startDate && dateBefore < this.startDate) return false;
     if (!Wgs84.intersects(extent, this.bbox)) return false;
