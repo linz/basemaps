@@ -132,7 +132,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   render(): ReactNode {
     if (Config.map.debug['debug.screenshot']) return null;
-
     const title = this.state.imagery?.title;
     return (
       <div className="debug">
@@ -160,14 +159,13 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   setWMTSLink(): void {
-    const wmtsLink = WindowUrl.toTileUrl(
-      MapOptionType.Wmts,
-      Config.map.tileMatrix,
-      Config.map.layerId,
-      undefined,
-      Config.map.config,
-      Config.map.dateRange,
-    );
+    const wmtsLink = WindowUrl.toTileUrl({
+      urlType: MapOptionType.Wmts,
+      tileMatrix: Config.map.tileMatrix,
+      layerId: Config.map.layerId,
+      config: Config.map.config,
+      dateRange: Config.map.dateRange,
+    });
     this.setState({ wmtsLink });
   }
 

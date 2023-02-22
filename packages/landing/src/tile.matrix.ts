@@ -19,7 +19,14 @@ export class TileGrid {
     config = Config.map.config,
     dateRange?: DateRangeState,
   ): StyleSpecification | string {
-    return WindowUrl.toTileUrl(MapOptionType.Style, this.tileMatrix, layerId, style, config, dateRange);
+    return WindowUrl.toTileUrl({
+      urlType: MapOptionType.Style,
+      tileMatrix: this.tileMatrix,
+      layerId,
+      style,
+      config,
+      dateRange,
+    });
   }
 }
 
