@@ -62,7 +62,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         window.history.replaceState(null, '', locationSearch + locationHash);
         this.updateFromConfig();
       });
-      Config.map.on('dateRange', this.setWMTSLink);
+      Config.map.on('dateRange', () => this.setWMTSLink());
       this.updateFromConfig();
       if (Config.map.debug['debug.screenshot']) {
         map.once('idle', async () => {
