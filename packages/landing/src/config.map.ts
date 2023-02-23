@@ -152,7 +152,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     config = this.config,
     dateRange = this.dateRange,
   ): string {
-    return WindowUrl.toTileUrl(urlType, tileMatrix, layerId, style, config, dateRange);
+    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, dateRange });
   }
 
   getLocation(map: maplibregl.Map): MapLocation {

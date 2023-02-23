@@ -65,7 +65,12 @@ export class DebugMap {
   get styleJson(): Promise<StyleSpecification> {
     if (this._styleJson == null) {
       this._styleJson = fetch(
-        WindowUrl.toTileUrl(MapOptionType.Style, Config.map.tileMatrix, 'topographic', 'topographic', null),
+        WindowUrl.toTileUrl({
+          urlType: MapOptionType.Style,
+          tileMatrix: Config.map.tileMatrix,
+          layerId: 'topographic',
+          style: 'topographic',
+        }),
       ).then((f) => f.json());
     }
     return this._styleJson;
@@ -186,7 +191,11 @@ export class DebugMap {
   getTileServerUrl(tileServer: 'osm' | 'linz-aerial'): string {
     if (tileServer === 'osm') return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
     if (tileServer === 'linz-aerial') {
-      return WindowUrl.toTileUrl(MapOptionType.TileRaster, Config.map.tileMatrix, 'aerial', undefined, null);
+      return WindowUrl.toTileUrl({
+        urlType: MapOptionType.TileRaster,
+        tileMatrix: Config.map.tileMatrix,
+        layerId: 'aerial',
+      });
     }
 
     throw new Error('Unknown tile server');

@@ -103,14 +103,13 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         this.map.addSource(newStyleId, {
           type: 'raster',
           tiles: [
-            WindowUrl.toTileUrl(
-              MapOptionType.TileRaster,
-              Config.map.tileMatrix,
-              Config.map.layerId,
-              undefined,
-              Config.map.config,
-              Config.map.dateRange,
-            ),
+            WindowUrl.toTileUrl({
+              urlType: MapOptionType.TileRaster,
+              tileMatrix: Config.map.tileMatrix,
+              layerId: Config.map.layerId,
+              config: Config.map.config,
+              dateRange: Config.map.dateRange,
+            }),
           ],
           tileSize: 256,
         });

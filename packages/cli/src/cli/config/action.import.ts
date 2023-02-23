@@ -171,21 +171,30 @@ export class CommandImport extends CommandLineAction {
       if (layer.name === 'chatham-islands_digital-globe_2014-2019_0-5m') continue; // Ignore duplicated layer.
       const existing = oldData.layers.find((l) => l.name === layer.name);
       if (existing) {
-        const change: string[] = [`### ${layer.name}\n`];
+        let zoom = undefined;
         if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
-          let msg = ' - Zoom level updated.';
-          if (layer.minZoom !== existing.minZoom) msg += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
-          if (layer.maxZoom !== existing.maxZoom) msg += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
-          change.push(`${msg}\n`);
+          zoom = ' - Zoom level updated.';
+          if (layer.minZoom !== existing.minZoom) zoom += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
+          if (layer.maxZoom !== existing.maxZoom) zoom += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
         }
-        if (layer[2193] && layer[2193] !== existing[2193]) {
+
+        const change: string[] = [`### ${layer.name}\n`];
+        if (layer[2193]) {
           const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
-          change.push(`- Layer update [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+          if (layer[2193] !== existing[2193]) {
+            change.push(`- Layer update [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+          }
+          if (zoom) zoom += ` [NZTM2000Quad](${urls.tag})`;
         }
-        if (layer[3857] && layer[3857] !== existing[3857]) {
+        if (layer[3857]) {
           const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
-          change.push(`- Layer update [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+          if (layer[3857] !== existing[3857]) {
+            change.push(`- Layer update [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+          }
+          if (zoom) zoom += ` [WebMercatorQuad](${urls.tag})`;
         }
+
+        if (zoom) change.push(zoom);
         if (change.length > 1) updates.push(change.join(''));
       } else {
         // New layers

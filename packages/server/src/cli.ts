@@ -39,8 +39,11 @@ export const BasemapsServerCommand = command({
     const ServerUrl = Env.get(Env.PublicUrlBase) ?? `http://localhost:${args.port}`;
     // Force a default url base so WMTS requests know their relative url
     process.env[Env.PublicUrlBase] = ServerUrl;
+    const serverOptions = args.config
+      ? { assets: args.assets, config: args.config }
+      : { assets: args.assets, paths: args.paths };
 
-    const server = await createServer(args, logger);
+    const server = await createServer(serverOptions, logger);
 
     await server.listen({ port: args.port, host: '0.0.0.0' });
     logger.info({ url: ServerUrl }, 'ServerStarted');
