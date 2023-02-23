@@ -1,6 +1,6 @@
 import { ConfigLayer, ConfigTileSetRaster, TileSetType } from '@basemaps/config';
 import { ImageFormat, TileMatrixSet } from '@basemaps/geo';
-import { WmtsCapabilitiesBuilder } from '@basemaps/lambda-tiler/build/wmts.capability.js';
+import { WmtsCapabilities } from '@basemaps/lambda-tiler/build/wmts.capability.js';
 
 export function createOverviewWmtsCapabilities(
   tileMatrix: TileMatrixSet,
@@ -16,12 +16,12 @@ export function createOverviewWmtsCapabilities(
     layers: [fakeLayer],
     title,
   };
-  const wmts = new WmtsCapabilitiesBuilder({
+  const wmts = new WmtsCapabilities({
     httpBase: '',
   });
 
-  wmts.addFormats([ImageFormat.Webp]);
-  wmts.addTileMatrix([tileMatrix]);
+  wmts.addFormats(ImageFormat.Webp);
+  wmts.addTileMatrix(tileMatrix);
   wmts.addTileSet(tileSet);
 
   wmts.maxZoom = maxZoom;

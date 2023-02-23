@@ -32,7 +32,6 @@ function formatCoords(x: number, precision: number): string {
 function formatBbox(x: number, y: number, precision: number): string {
   return `${formatCoords(x, precision)} ${formatCoords(y, precision)}`;
 }
-
 export interface WmtsBuilderParams {
   /** Base URL for tile server */
   httpBase: string;
@@ -51,7 +50,7 @@ export class WmtsBuilder {
 
   /** All the imagery used by the tileSet and tileMatrixes */
   imagery: Map<string, ConfigImagery> = new Map();
-  formats: ImageFormat[] = ImageFormatOrder;
+  formats: ImageFormat[] = [];
 
   tileMatrixSets = new Map<string, TileMatrixSet>();
 
@@ -62,16 +61,21 @@ export class WmtsBuilder {
     this.filters = params.filters;
   }
 
-  addTileMatrix(tileMatrix: TileMatrixSet[]): void {
+  addImagery(...imagery: ConfigImagery[]): void {
+    for (const im of imagery) this.imagery.set(im.id, im);
+  }
+
+  addTileMatrix(...tileMatrix: TileMatrixSet[]): void {
     for (const tms of tileMatrix) this.tileMatrixSets.set(tms.identifier, tms);
   }
 
-  addImagery(imagery: Map<string, ConfigImagery>): void {
-    this.imagery = imagery;
+  addFormats(...formats: ImageFormat[]): void {
+    for (const format of formats) this.formats.push(format);
   }
 
-  addFormats(formats?: ImageFormat[]): void {
-    if (formats) this.formats = formats;
+  getFormats(): ImageFormat[] {
+    if (this.formats.length) return this.formats;
+    return ImageFormatOrder;
   }
 
   getMatrixSets(tileSet: ConfigTileSet): Set<TileMatrixSet> {
@@ -163,7 +167,7 @@ export class WmtsBuilder {
   }
 
   buildFormats(): VNodeElement[] {
-    return this.formats.map((fmt) => V('Format', 'image/' + fmt));
+    return this.getFormats().map((fmt) => V('Format', 'image/' + fmt));
   }
 
   buildTileMatrixLink(tileSet: ConfigTileSet): VNodeElement[] {
@@ -205,14 +209,38 @@ export class WmtsBuilder {
       }),
       this.buildWgs84BoundingBox(firstMatrix, [Bounds.fromJson(firstImg.bounds)]),
       this.buildStyle(),
-      ...this.formats.map((fmt) => V('Format', 'image/' + fmt)),
+      ...this.getFormats().map((fmt) => V('Format', 'image/' + fmt)),
       ...matrixSetNodes,
-      ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt)),
+      ...this.getFormats().map((fmt) => this.buildResourceUrl(layerNameId, fmt)),
     ]);
   }
 }
 
-export class WmtsCapabilitiesBuilder extends WmtsBuilder {
+export interface WmtsCapabilitiesParams {
+  provider?: WmtsProvider;
+  /** Tileset to export into WMTS */
+  tileSet: ConfigTileSet;
+  /** List of tile matrixes to output */
+  tileMatrix: TileMatrixSet[];
+  /** All the imagery used by the tileSet and tileMatrixes */
+  imagery: Map<string, ConfigImagery>;
+  /** Limit the output to the following image formats other wise @see ImageFormatOrder */
+  formats: ImageFormat[];
+  /** Specific layers to add to the WMTS */
+  layers?: ConfigLayer[];
+}
+
+/**
+ * WMTS Capabilities Builder
+ *
+ * /v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml
+ * /v1/tiles/:tileSet/WMTSCapabilities.xml
+ * /v1/tiles/WMTSCapabilities.xml
+ *
+ * @example
+ *
+ */
+export class WmtsCapabilities extends WmtsBuilder {
   minZoom = 0;
   maxZoom = 32;
   /** Wmts tileSet layer and imagery layers information */
@@ -299,7 +327,7 @@ export class WmtsCapabilitiesBuilder extends WmtsBuilder {
       this.buildStyle(),
       ...this.buildFormats(),
       ...this.buildTileMatrixLink(tileSet),
-      ...this.formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt, true)),
+      ...this.getFormats().map((fmt) => this.buildResourceUrl(layerNameId, fmt, true)),
     ]);
   }
 
@@ -354,49 +382,19 @@ export class WmtsCapabilitiesBuilder extends WmtsBuilder {
 
     return V('Capabilities', CapabilitiesAttrs, [...provider, V('Contents', contents)]);
   }
-}
-
-export interface WmtsCapabilitiesParams {
-  provider?: WmtsProvider;
-  /** Tileset to export into WMTS */
-  tileSet: ConfigTileSet;
-  /** List of tile matrixes to output */
-  tileMatrix: TileMatrixSet[];
-  /** All the imagery used by the tileSet and tileMatrixes */
-  imagery: Map<string, ConfigImagery>;
-  /** Limit the output to the following image formats other wise @see ImageFormatOrder */
-  formats?: ImageFormat[];
-  /** Specific layers to add to the WMTS */
-  layers?: ConfigLayer[];
-}
-
-/**
- * WMTS Capabilities Builder
- *
- * /v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml
- * /v1/tiles/:tileSet/WMTSCapabilities.xml
- * /v1/tiles/WMTSCapabilities.xml
- *
- * @example
- *
- */
-export class WmtsCapabilities {
-  builder: WmtsCapabilitiesBuilder;
-
-  constructor(builder: WmtsCapabilitiesBuilder, params: WmtsCapabilitiesParams) {
-    this.builder = builder;
-    // Set Builder variables
-    this.builder.addTileMatrix(params.tileMatrix);
-    this.builder.addImagery(params.imagery);
-    this.builder.addFormats(params.formats);
-
-    // Build wmts capabilities
-    this.builder.addTileSet(params.tileSet);
-    this.builder.addLayers(params.layers);
-    this.builder.addProvider(params.provider);
-  }
 
   toXml(): string {
-    return '<?xml version="1.0" encoding="utf-8"?>\n' + this.builder.toVNode().toString();
+    return '<?xml version="1.0" encoding="utf-8"?>\n' + this.toVNode().toString();
+  }
+
+  fromParams(params: WmtsCapabilitiesParams): void {
+    for (const tileMatrix of params.tileMatrix) this.addTileMatrix(tileMatrix);
+    for (const im of params.imagery.values()) this.addImagery(im);
+    for (const format of params.formats) this.addFormats(format);
+
+    // Build wmts capabilities
+    this.addTileSet(params.tileSet);
+    this.addLayers(params.layers);
+    this.addProvider(params.provider);
   }
 }
