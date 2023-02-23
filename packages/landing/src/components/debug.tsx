@@ -159,14 +159,13 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   setWMTSLink(): void {
-    const wmtsLink = WindowUrl.toTileUrl({
+    this.state.wmtsLink = WindowUrl.toTileUrl({
       urlType: MapOptionType.Wmts,
       tileMatrix: Config.map.tileMatrix,
       layerId: Config.map.layerId,
       config: Config.map.config,
       dateRange: Config.map.dateRange,
     });
-    this.setState({ wmtsLink });
   }
 
   renderWMTS(): ReactNode {
