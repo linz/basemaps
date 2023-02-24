@@ -14,12 +14,16 @@ const DefaultCenter: Record<string, MapLocation> = {
   [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 3 },
 };
 
+export interface Filter {
+  dateRange: DateRangeState;
+}
+
 export interface MapConfigEvents {
   location: [MapLocation];
   tileMatrix: [TileMatrixSet];
   layer: [string, string | null | undefined];
   bounds: [LngLatBoundsLike];
-  dateRange: [DateRangeState];
+  filter: [Filter];
   change: null;
   visibleLayers: [string];
 }
@@ -30,8 +34,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   tileMatrix: TileMatrixSet = GoogleTms;
   config: string | null;
   debug: DebugState = { ...DebugDefaults };
-  dateRange: DateRangeState = { dateAfter: undefined, dateBefore: undefined };
   visibleLayers: string;
+  filter: Filter = { dateRange: { dateAfter: undefined, dateBefore: undefined } };
 
   private _layers: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -131,7 +135,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     layerId = this.layerId,
     style = this.style,
     config = this.config,
-    dateRange = this.dateRange,
+    dateRange = this.filter.dateRange,
   ): string {
     return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, dateRange });
   }
@@ -159,6 +163,13 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   setTileMatrix(tms: TileMatrixSet): void {
     if (this.tileMatrix.identifier === tms.identifier) return;
     this.emit('tileMatrix', this.tileMatrix);
+    this.emit('change');
+  }
+
+  setFilterDateRange(dateAfter: string | undefined, dateBefore: string | undefined): void {
+    this.filter.dateRange.dateAfter = dateAfter;
+    this.filter.dateRange.dateBefore = dateBefore;
+    this.emit('filter', this.filter);
     this.emit('change');
   }
 

@@ -63,7 +63,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         window.history.replaceState(null, '', locationSearch + locationHash);
         this.updateFromConfig();
       });
-      this._events.push(Config.map.on('dateRange', () => this.renderWMTS()));
       this.updateFromConfig();
       if (Config.map.debug['debug.screenshot']) {
         map.once('idle', async () => {
@@ -91,6 +90,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
+    this.renderWMTS();
   }
 
   /** Show the source bounding box ont he map */
@@ -165,7 +165,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       tileMatrix: Config.map.tileMatrix,
       layerId: Config.map.layerId,
       config: Config.map.config,
-      dateRange: Config.map.dateRange,
+      dateRange: Config.map.filter.dateRange,
     });
   }
 

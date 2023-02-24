@@ -32,9 +32,7 @@ export class DateRange extends Component {
 
   updateConfig = (): void => {
     this._raf = 0;
-    Config.map.dateRange.dateAfter = this.state.dateAfter;
-    Config.map.dateRange.dateBefore = this.state.dateBefore;
-    Config.map.emit('dateRange', this.state);
+    Config.map.setFilterDateRange(this.state.dateAfter, this.state.dateBefore);
   };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>, id: 'before' | 'after'): void => {
