@@ -107,7 +107,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
               tileMatrix: Config.map.tileMatrix,
               layerId: Config.map.layerId,
               config: Config.map.config,
-              dateRange: Config.map.filter.date,
+              date: Config.map.filter.date,
             }),
           ],
           tileSize: 256,

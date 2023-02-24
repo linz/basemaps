@@ -135,9 +135,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     layerId = this.layerId,
     style = this.style,
     config = this.config,
-    dateRange = this.filter.date,
+    date = this.filter.date,
   ): string {
-    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, dateRange });
+    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, date });
   }
 
   getLocation(map: maplibregl.Map): MapLocation {
@@ -166,9 +166,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('change');
   }
 
-  setFilterDateRange(dateAfter: string | undefined, dateBefore: string | undefined): void {
-    this.filter.date.after = dateAfter;
-    this.filter.date.before = dateBefore;
+  setFilterDateRange(after: string | undefined, before: string | undefined): void {
+    this.filter.date.after = after;
+    this.filter.date.before = before;
     this.emit('filter', this.filter);
     this.emit('change');
   }
