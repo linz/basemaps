@@ -39,8 +39,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   debugMap = new DebugMap();
   state: DebugState = {};
 
-  _events: (() => boolean)[] = [];
-
   componentDidMount(): void {
     this.waitForMap();
   }
