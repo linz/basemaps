@@ -105,8 +105,8 @@ export const WindowUrl = {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
     if (params.config != null) queryParams.set('config', ensureBase58(params.config));
-    if (params.dateRange?.dateAfter != null) queryParams.set('date[after]', params.dateRange.dateAfter);
-    if (params.dateRange?.dateBefore != null) queryParams.set('date[before]', params.dateRange.dateBefore);
+    if (params.dateRange?.after != null) queryParams.set('date[after]', params.dateRange.after);
+    if (params.dateRange?.before != null) queryParams.set('date[before]', params.dateRange.before);
 
     if (params.urlType === MapOptionType.Style) {
       if (params.tileMatrix.identifier !== GoogleTms.identifier)

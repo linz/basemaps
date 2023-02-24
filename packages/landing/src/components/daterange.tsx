@@ -5,21 +5,21 @@ const minDate = '1950-01-01T00:00:00.000Z';
 const maxDate = `${new Date().getFullYear().toString()}-12-31T23:59:59.999Z`;
 
 export interface DateRangeState {
-  dateAfter?: string;
-  dateBefore?: string;
+  after?: string;
+  before?: string;
 }
 export class DateRange extends Component {
-  state: DateRangeState = { dateAfter: minDate, dateBefore: maxDate };
+  state: DateRangeState = { after: minDate, before: maxDate };
 
   private _scheduled: number | NodeJS.Timeout | undefined;
   private _raf = 0;
 
   get yearAfter(): string | undefined {
-    return this.state.dateAfter?.slice(0, 4);
+    return this.state.after?.slice(0, 4);
   }
 
   get yearBefore(): string | undefined {
-    return this.state.dateBefore?.slice(0, 4);
+    return this.state.before?.slice(0, 4);
   }
 
   private scheduleUpdateConfig(): void {
@@ -32,7 +32,7 @@ export class DateRange extends Component {
 
   updateConfig = (): void => {
     this._raf = 0;
-    Config.map.setFilterDateRange(this.state.dateAfter, this.state.dateBefore);
+    Config.map.setFilterDateRange(this.state.after, this.state.before);
   };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>, id: 'before' | 'after'): void => {

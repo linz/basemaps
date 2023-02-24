@@ -15,7 +15,7 @@ const DefaultCenter: Record<string, MapLocation> = {
 };
 
 export interface Filter {
-  dateRange: DateRangeState;
+  date: DateRangeState;
 }
 
 export interface MapConfigEvents {
@@ -35,7 +35,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   config: string | null;
   debug: DebugState = { ...DebugDefaults };
   visibleLayers: string;
-  filter: Filter = { dateRange: { dateAfter: undefined, dateBefore: undefined } };
+  filter: Filter = { date: { after: undefined, before: undefined } };
 
   private _layers: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -135,7 +135,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     layerId = this.layerId,
     style = this.style,
     config = this.config,
-    dateRange = this.filter.dateRange,
+    dateRange = this.filter.date,
   ): string {
     return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, dateRange });
   }
@@ -167,8 +167,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   }
 
   setFilterDateRange(dateAfter: string | undefined, dateBefore: string | undefined): void {
-    this.filter.dateRange.dateAfter = dateAfter;
-    this.filter.dateRange.dateBefore = dateBefore;
+    this.filter.date.after = dateAfter;
+    this.filter.date.before = dateBefore;
     this.emit('filter', this.filter);
     this.emit('change');
   }

@@ -185,7 +185,7 @@ Your Service/App URL:
         undefined,
         undefined,
         undefined,
-        Config.map.filter.dateRange,
+        Config.map.filter.date,
       );
       children.push(<Copyable key="NZTM2000Quad" header="WMTS: NZTM2000Quad" value={nztmTileUrl} />);
     }
@@ -197,7 +197,7 @@ Your Service/App URL:
         undefined,
         undefined,
         undefined,
-        Config.map.filter.dateRange,
+        Config.map.filter.date,
       );
       const googleXyzTileUrl = Config.map.toTileUrl(MapOptionType.TileRaster, GoogleTms);
       children.push(<Copyable key="WebMercatorQuad" header="WMTS: WebMercatorQuad" value={googleTileUrl} />);
