@@ -35,6 +35,7 @@ function formatBbox(x: number, y: number, precision: number): string {
 export interface WmtsBuilderParams {
   /** Base URL for tile server */
   httpBase: string;
+  /** API key to append to all resource urls */
   apiKey?: string;
   /** Config location */
   config?: string | null;
