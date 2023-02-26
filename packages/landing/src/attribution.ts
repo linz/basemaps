@@ -118,8 +118,13 @@ export class MapAttribution {
     // For example, 512×512 tiles at zoom level 4 are equivalent to 256×256 tiles at zoom level 5.
     this.zoom += 1;
 
-    const bbox = this.mapboxBoundToBbox(this.bounds, Config.map.tileMatrix);
-    const filtered = attr.filter(bbox, this.zoom, Config.map.filter.date.after, Config.map.filter.date.before);
+    const extent = this.mapboxBoundToBbox(this.bounds, Config.map.tileMatrix);
+    const filtered = attr.filter({
+      extent,
+      zoom: this.zoom,
+      dateAfter: Config.map.filter.date.after,
+      dateBefore: Config.map.filter.date.before,
+    });
     const filteredLayerIds = filtered.map((x) => x.id).join('_');
     Config.map.emit('visibleLayers', filteredLayerIds);
 
