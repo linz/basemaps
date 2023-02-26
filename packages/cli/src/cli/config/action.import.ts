@@ -194,7 +194,7 @@ export class CommandImport extends CommandLineAction {
           if (zoom) zoom += ` [WebMercatorQuad](${urls.tag})`;
         }
 
-        if (zoom) change.push(zoom);
+        if (zoom) change.push(`${zoom}\n`);
         if (change.length > 1) updates.push(change.join(''));
       } else {
         // New layers
