@@ -163,7 +163,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       tileMatrix: Config.map.tileMatrix,
       layerId: Config.map.layerId,
       config: Config.map.config,
-      date: Config.map.filter.date,
+      filter: Config.map.filter,
     });
   }
 

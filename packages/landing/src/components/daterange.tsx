@@ -8,6 +8,7 @@ export interface DateRangeState {
   after?: string;
   before?: string;
 }
+
 export class DateRange extends Component {
   state: DateRangeState = { after: minDate, before: maxDate };
 
@@ -38,10 +39,10 @@ export class DateRange extends Component {
   handleChange = (event: React.ChangeEvent<HTMLInputElement>, id: 'before' | 'after'): void => {
     switch (id) {
       case 'after':
-        this.setState({ dateAfter: `${event.target.value}-01-01T00:00:00.000Z` });
+        this.setState({ after: `${event.target.value}-01-01T00:00:00.000Z` });
         break;
       case 'before':
-        this.setState({ dateBefore: `${event.target.value}-12-31T23:59:59.999Z` });
+        this.setState({ before: `${event.target.value}-12-31T23:59:59.999Z` });
         break;
     }
     this.scheduleUpdateConfig();

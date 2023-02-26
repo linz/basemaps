@@ -81,7 +81,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   updateStyle = (): void => {
     this.ensureGeoControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
+    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter);
     this.map.setStyle(style);
 
     if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
@@ -101,15 +101,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       if (this.map.getSource(newStyleId) == null) {
         this.map.addSource(newStyleId, {
           type: 'raster',
-          tiles: [
-            WindowUrl.toTileUrl({
-              urlType: MapOptionType.TileRaster,
-              tileMatrix: Config.map.tileMatrix,
-              layerId: Config.map.layerId,
-              config: Config.map.config,
-              date: Config.map.filter.date,
-            }),
-          ],
+          tiles: [WindowUrl.toTileUrlConfig(MapOptionType.TileRaster)],
           tileSize: 256,
         });
         this.map.addLayer({

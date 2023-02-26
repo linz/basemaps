@@ -3,6 +3,7 @@ import { Projection } from '@basemaps/shared/build/proj/projection.js';
 import { StyleSpecification } from 'maplibre-gl';
 import { DateRangeState } from './components/daterange.js';
 import { Config } from './config.js';
+import { Filter } from './config.map.js';
 import { MapLocation, MapOptionType, WindowUrl } from './url.js';
 
 export class TileGrid {
@@ -17,7 +18,7 @@ export class TileGrid {
     layerId: string,
     style?: string | null,
     config = Config.map.config,
-    date?: DateRangeState,
+    filter?: Filter,
   ): StyleSpecification | string {
     return WindowUrl.toTileUrl({
       urlType: MapOptionType.Style,
@@ -25,7 +26,7 @@ export class TileGrid {
       layerId,
       style,
       config,
-      date,
+      filter,
     });
   }
 }

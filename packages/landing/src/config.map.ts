@@ -135,9 +135,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     layerId = this.layerId,
     style = this.style,
     config = this.config,
-    date = this.filter.date,
+    filter = this.filter,
   ): string {
-    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, date });
+    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, filter });
   }
 
   getLocation(map: maplibregl.Map): MapLocation {

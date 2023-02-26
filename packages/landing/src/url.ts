@@ -1,8 +1,8 @@
 import { base58, isBase58 } from '@basemaps/config/build/base58.js';
 import { GoogleTms, ImageFormat, TileMatrixSet } from '@basemaps/geo';
 import { toQueryString } from '@basemaps/shared/build/url.js';
-import { DateRangeState } from './components/daterange.js';
 import { Config } from './config.js';
+import { Filter } from './config.map.js';
 
 export interface LonLat {
   lat: number;
@@ -28,7 +28,7 @@ export interface TileUrlParams {
   layerId: string;
   style?: string | null;
   config?: string | null;
-  date?: DateRangeState;
+  filter?: Filter;
 }
 
 export function ensureBase58(s: null): null;
@@ -101,12 +101,23 @@ export const WindowUrl = {
     return `${this.baseUrl()}/v1/imagery/${layerId}/${imageryType}`;
   },
 
+  toTileUrlConfig(urlType: MapOptionType): string {
+    return this.toTileUrl({
+      urlType,
+      tileMatrix: Config.map.tileMatrix,
+      layerId: Config.map.layerId,
+      style: Config.map.style,
+      config: Config.map.config,
+      filter: Config.map.filter,
+    });
+  },
+
   toTileUrl(params: TileUrlParams): string {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
     if (params.config != null) queryParams.set('config', ensureBase58(params.config));
-    if (params.date?.after != null) queryParams.set('date[after]', params.date.after);
-    if (params.date?.before != null) queryParams.set('date[before]', params.date.before);
+    if (params.filter?.date?.after != null) queryParams.set('date[after]', params.filter.date.after);
+    if (params.filter?.date?.before != null) queryParams.set('date[before]', params.filter.date.before);
 
     if (params.urlType === MapOptionType.Style) {
       if (params.tileMatrix.identifier !== GoogleTms.identifier)
