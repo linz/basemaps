@@ -18,7 +18,6 @@ export interface DebugState {
   tileSet?: ConfigTileSetRaster | null;
   imagery?: ConfigImagery | null;
   config?: string | null;
-  wmtsLink?: string;
   isCog?: boolean;
 }
 
@@ -62,7 +61,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         window.history.replaceState(null, '', locationSearch + locationHash);
         this.updateFromConfig();
       });
-      Config.map.on('dateRange', this.setWMTSLink);
       this.updateFromConfig();
       if (Config.map.debug['debug.screenshot']) {
         map.once('idle', async () => {
@@ -90,6 +88,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
+    this.renderWMTS();
   }
 
   /** Show the source bounding box ont he map */
@@ -158,24 +157,22 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
-  setWMTSLink(): void {
-    const wmtsLink = WindowUrl.toTileUrl({
+  getWMTSLink(): string {
+    return WindowUrl.toTileUrl({
       urlType: MapOptionType.Wmts,
       tileMatrix: Config.map.tileMatrix,
       layerId: Config.map.layerId,
       config: Config.map.config,
-      dateRange: Config.map.dateRange,
+      date: Config.map.filter.date,
     });
-    this.setState({ wmtsLink });
   }
 
   renderWMTS(): ReactNode {
-    this.setWMTSLink();
     return (
       <div className="debug__info">
         <label className="debug__label"></label>
         <div className="debug__value">
-          {Config.map.tileMatrix.projection.toEpsgString()} - <a href={this.state.wmtsLink}>WMTS</a>
+          {Config.map.tileMatrix.projection.toEpsgString()} - <a href={this.getWMTSLink()}>WMTS</a>
         </div>
       </div>
     );

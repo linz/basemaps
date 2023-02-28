@@ -14,12 +14,16 @@ const DefaultCenter: Record<string, MapLocation> = {
   [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 3 },
 };
 
+export interface Filter {
+  date: DateRangeState;
+}
+
 export interface MapConfigEvents {
   location: [MapLocation];
   tileMatrix: [TileMatrixSet];
   layer: [string, string | null | undefined];
   bounds: [LngLatBoundsLike];
-  dateRange: [DateRangeState];
+  filter: [Filter];
   change: null;
   visibleLayers: [string];
 }
@@ -30,8 +34,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   tileMatrix: TileMatrixSet = GoogleTms;
   config: string | null;
   debug: DebugState = { ...DebugDefaults };
-  dateRange: DateRangeState = { dateAfter: undefined, dateBefore: undefined };
   visibleLayers: string;
+  filter: Filter = { date: { after: undefined, before: undefined } };
 
   private _layers: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -131,9 +135,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     layerId = this.layerId,
     style = this.style,
     config = this.config,
-    dateRange = this.dateRange,
+    date = this.filter.date,
   ): string {
-    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, dateRange });
+    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, date });
   }
 
   getLocation(map: maplibregl.Map): MapLocation {
@@ -159,6 +163,14 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   setTileMatrix(tms: TileMatrixSet): void {
     if (this.tileMatrix.identifier === tms.identifier) return;
     this.emit('tileMatrix', this.tileMatrix);
+    this.emit('change');
+  }
+
+  setFilterDateRange(after: string | undefined, before: string | undefined): void {
+    if (this.filter.date.after === after && this.filter.date.before === before) return;
+    this.filter.date.after = after;
+    this.filter.date.before = before;
+    this.emit('filter', this.filter);
     this.emit('change');
   }
 

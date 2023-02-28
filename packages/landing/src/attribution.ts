@@ -39,7 +39,7 @@ export class MapAttribution {
     Config.map.on('layer', this.resetAttribution);
 
     onMapLoaded(this.map, () => {
-      this._events.push(Config.map.on('dateRange', this.updateAttribution));
+      this._events.push(Config.map.on('filter', this.updateAttribution));
       this.resetAttribution();
     });
   }
@@ -119,7 +119,7 @@ export class MapAttribution {
     this.zoom += 1;
 
     const bbox = this.mapboxBoundToBbox(this.bounds, Config.map.tileMatrix);
-    const filtered = attr.filter(bbox, this.zoom, Config.map.dateRange.dateAfter, Config.map.dateRange.dateBefore);
+    const filtered = attr.filter(bbox, this.zoom, Config.map.filter.date.after, Config.map.filter.date.before);
     const filteredLayerIds = filtered.map((x) => x.id).join('_');
     Config.map.emit('visibleLayers', filteredLayerIds);
 

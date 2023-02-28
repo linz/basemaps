@@ -17,7 +17,7 @@ export class TileGrid {
     layerId: string,
     style?: string | null,
     config = Config.map.config,
-    dateRange?: DateRangeState,
+    date?: DateRangeState,
   ): StyleSpecification | string {
     return WindowUrl.toTileUrl({
       urlType: MapOptionType.Style,
@@ -25,7 +25,7 @@ export class TileGrid {
       layerId,
       style,
       config,
-      dateRange,
+      date,
     });
   }
 }
