@@ -88,7 +88,7 @@ export class Tiler {
     return { tiff: tiffBoundsPx, intersection: intersectionPx, tile: screenBoundsPx };
   }
 
-  static createComposition(
+  createComposition(
     img: CogTiffImage,
     x: number,
     y: number,
@@ -96,6 +96,7 @@ export class Tiler {
     raster: RasterPixelBounds,
   ): Composition | null {
     const source = Bounds.fromJson(img.getTileBounds(x, y));
+
     const target = source.scale(scaleFactor, scaleFactor).add(raster.tiff).round(ROUND_BIAS);
 
     // Validate that the requested COG tile actually intersects with the output raster
@@ -117,11 +118,9 @@ export class Tiler {
       x: Math.max(0, Math.round(drawAtRegion.x)),
     };
 
-    const tileSize = img.tileSize;
-
     // Sometimes the source image is smaller than the tile size,
     // Need to crop the tile down to the actual image extent
-    if (source.width < tileSize.width || source.height < tileSize.height) {
+    if (source.width < img.tileSize.width || source.height < img.tileSize.height) {
       composition.extract = { width: source.width, height: source.height };
     }
 
@@ -131,29 +130,9 @@ export class Tiler {
       const scaleX = target.width / source.width;
       const scaleY = target.height / source.height;
       composition.resize = { width: target.width, height: target.height, scaleX, scaleY };
-
-      /**
-       * Due to rounding to the nearest pixel sometimes thin lines ( 512x16 px or 16x512 ) can scale
-       * to a different ratio on X and Y,
-       *
-       * If the ratio differs too much (> 1%) it can cause distortions in the imagery.
-       * If this occurs, scale the imagery using the biggest dimension to keep the aspect ratio.
-       *
-       * For example a 512x16 scaled at 67.185% would result in a 343x12 image which is scaled at 68% and 75%.
-       *
-       * If the scale differs by X & Y and we it is going to extract a portion from the end of the image
-       * just scale it as a square then extract the portion
-       */
-      if (Math.abs(scaleX - scaleY) > 0.01 && composition.extract) {
-        delete composition.extract;
-        const sourceWidth = Math.max(source.width, source.height);
-        const width = Math.max(composition.resize.width, composition.resize.height);
-        const scale = width / sourceWidth;
-        composition.resize = { width, height: width, scaleX: scale, scaleY: scale, scaleOverride: true };
-      }
     }
 
-    // If the output XYZ tile needs a piece of a COG tile, extract the specific
+    // If the output XYZ tile needs a piece of a COG tile, extract the speicific
     // Bounding box
     if (
       tileBounds.y !== 0 ||
@@ -187,7 +166,7 @@ export class Tiler {
 
     // For each geotiff tile that is required, scale it to the size of the raster output tile
     for (const pt of Tiler.getRequiredTiles(requiredTifPixels, pixelScale, tileSize, tileCount)) {
-      const composition = Tiler.createComposition(img, pt.x, pt.y, pixelScaleInv, rasterBounds);
+      const composition = this.createComposition(img, pt.x, pt.y, pixelScaleInv, rasterBounds);
       if (composition != null) composites.push(composition);
     }
 
