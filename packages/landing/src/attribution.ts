@@ -125,6 +125,7 @@ export class MapAttribution {
       dateAfter: Config.map.filter.date.after,
       dateBefore: Config.map.filter.date.before,
     });
+
     const filteredLayerIds = filtered.map((x) => x.id).join('_');
     Config.map.emit('visibleLayers', filteredLayerIds);
 
