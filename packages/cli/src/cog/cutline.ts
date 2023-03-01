@@ -117,7 +117,7 @@ export class Cutline {
     const sourceCode = Projection.get(job.source.epsg);
     const targetCode = Projection.get(this.tileMatrix);
     const tileBounds = this.tileMatrix.tileToSourceBounds(tile);
-    const tilePadded = this.padBounds(tileBounds, job.targetZoom);
+    const tilePadded = this.padBounds(tileBounds, job.targetZoom, job.source.gsd);
 
     let tileBoundsInSrcProj = tilePadded;
 
@@ -272,7 +272,7 @@ export class Cutline {
     if (this.clipPoly.length === 0) return;
 
     const srcBounds = Bounds.fromMultiPolygon(srcPoly);
-    const boundsPadded = this.padBounds(srcBounds, resZoom).toBbox();
+    const boundsPadded = this.padBounds(srcBounds, resZoom, sourceMetadata.pixelScale).toBbox();
 
     const poly = clipMultipolygon(this.clipPoly, boundsPadded);
     if (poly.length === 0) {
@@ -294,12 +294,13 @@ export class Cutline {
      * @param bounds
      * @param resZoom the imagery resolution target zoom level
      */
-  private padBounds(bounds: Bounds, resZoom: number): Bounds {
+  private padBounds(bounds: Bounds, resZoom: number, gsd: number): Bounds {
     const px = this.tileMatrix.pixelScale(resZoom);
+    const pixelPadding = gsd > 1 ? PixelPadding * 2 : PixelPadding; //Double the padding to remove the white edges for low resolution imagery.
 
     // Ensure cutline blend does not interferre with non-costal edges
-    const widthScale = (bounds.width + px * (PixelPadding + this.blend) * 2) / bounds.width;
-    const heightScale = (bounds.height + px * (PixelPadding + this.blend) * 2) / bounds.height;
+    const widthScale = (bounds.width + px * (pixelPadding + this.blend) * 2) / bounds.width;
+    const heightScale = (bounds.height + px * (pixelPadding + this.blend) * 2) / bounds.height;
     return bounds.scaleFromCenter(widthScale, heightScale);
   }
 }
