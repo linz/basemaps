@@ -296,10 +296,11 @@ export class Cutline {
      */
   private padBounds(bounds: Bounds, resZoom: number): Bounds {
     const px = this.tileMatrix.pixelScale(resZoom);
+    const pixelPadding = px > 1 ? PixelPadding * 2 : PixelPadding; //Double the padding to remove the white edges for low resolution imagery.
 
     // Ensure cutline blend does not interferre with non-costal edges
-    const widthScale = (bounds.width + px * (PixelPadding + this.blend) * 2) / bounds.width;
-    const heightScale = (bounds.height + px * (PixelPadding + this.blend) * 2) / bounds.height;
+    const widthScale = (bounds.width + px * (pixelPadding + this.blend) * 2) / bounds.width;
+    const heightScale = (bounds.height + px * (pixelPadding + this.blend) * 2) / bounds.height;
     return bounds.scaleFromCenter(widthScale, heightScale);
   }
 }
