@@ -3,7 +3,6 @@ import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
-import { MapConfig } from '../config.map.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { DateRange } from './daterange.js';

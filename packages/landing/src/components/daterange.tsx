@@ -14,12 +14,12 @@ export class DateRange extends Component {
   private _scheduled: number | NodeJS.Timeout | undefined;
   private _raf = 0;
 
-  get yearAfter(): string | undefined {
-    return this.state.after?.slice(0, 4);
+  get yearAfter(): string {
+    return Config.map.filter.date.after == null ? MinDate.slice(0, 4) : Config.map.filter.date.after.slice(0, 4);
   }
 
-  get yearBefore(): string | undefined {
-    return this.state.before?.slice(0, 4);
+  get yearBefore(): string {
+    return Config.map.filter.date.before == null ? MaxDate.slice(0, 4) : Config.map.filter.date.before.slice(0, 4);
   }
 
   private scheduleUpdateConfig(): void {
