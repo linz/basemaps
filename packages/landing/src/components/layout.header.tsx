@@ -19,7 +19,7 @@ export class Header extends Component<unknown, HeaderState> {
 
   componentDidMount(): void {
     this._events.push(Config.map.on('change', () => this.forceUpdate()));
-    this._events.push(Config.map.on('dateRange', () => this.renderLinksTiles()));
+    this._events.push(Config.map.on('filter', () => this.renderLinksTiles()));
 
     // If individual layers are on, we need the layer info to determine if they can use NZTM2000Quad WMTS
     Config.map.layers.then((layers) => this.setState({ layers }));
@@ -185,7 +185,7 @@ Your Service/App URL:
         undefined,
         undefined,
         undefined,
-        Config.map.dateRange,
+        Config.map.filter.date,
       );
       children.push(<Copyable key="NZTM2000Quad" header="WMTS: NZTM2000Quad" value={nztmTileUrl} />);
     }
@@ -197,7 +197,7 @@ Your Service/App URL:
         undefined,
         undefined,
         undefined,
-        Config.map.dateRange,
+        Config.map.filter.date,
       );
       const googleXyzTileUrl = Config.map.toTileUrl(MapOptionType.TileRaster, GoogleTms);
       children.push(<Copyable key="WebMercatorQuad" header="WMTS: WebMercatorQuad" value={googleTileUrl} />);

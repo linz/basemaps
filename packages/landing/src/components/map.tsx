@@ -82,7 +82,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   updateStyle = (): void => {
     this.ensureGeoControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.dateRange);
+    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
     this.map.setStyle(style);
 
     if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
@@ -97,8 +97,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       Config.map.visibleLayers = newLayers;
       const newStyleId =
         `${Config.map.styleId}` +
-        `_after=${Config.map.dateRange.dateAfter?.slice(0, 4)}` +
-        `&before=${Config.map.dateRange.dateBefore?.slice(0, 4)}`;
+        `_after=${Config.map.filter.date.after?.slice(0, 4)}` +
+        `&before=${Config.map.filter.date.before?.slice(0, 4)}`;
       if (this.map.getSource(newStyleId) == null) {
         this.map.addSource(newStyleId, {
           type: 'raster',
@@ -108,7 +108,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
               tileMatrix: Config.map.tileMatrix,
               layerId: Config.map.layerId,
               config: Config.map.config,
-              dateRange: Config.map.dateRange,
+              date: Config.map.filter.date,
             }),
           ],
           tileSize: 256,

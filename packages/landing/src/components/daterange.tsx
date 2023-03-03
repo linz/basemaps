@@ -6,21 +6,22 @@ export const minDate = '1950-01-01T00:00:00.000Z';
 export const maxDate = `${new Date().getFullYear().toString()}-12-31T23:59:59.999Z`;
 
 export interface DateRangeState {
-  dateAfter?: string;
-  dateBefore?: string;
+  after?: string;
+  before?: string;
 }
+
 export class DateRange extends Component {
-  state: DateRangeState = { dateAfter: minDate, dateBefore: maxDate };
+  state: DateRangeState = { after: minDate, before: maxDate };
 
   private _scheduled: number | NodeJS.Timeout | undefined;
   private _raf = 0;
 
   get yearAfter(): string | undefined {
-    return this.state.dateAfter?.slice(0, 4);
+    return this.state.after?.slice(0, 4);
   }
 
   get yearBefore(): string | undefined {
-    return this.state.dateBefore?.slice(0, 4);
+    return this.state.before?.slice(0, 4);
   }
 
   private scheduleUpdateConfig(): void {
@@ -33,18 +34,16 @@ export class DateRange extends Component {
 
   updateConfig = (): void => {
     this._raf = 0;
-    Config.map.dateRange.dateAfter = this.state.dateAfter;
-    Config.map.dateRange.dateBefore = this.state.dateBefore;
-    Config.map.emit('dateRange', this.state);
+    Config.map.setFilterDateRange(this.state.after, this.state.before);
   };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>, id: 'before' | 'after'): void => {
     switch (id) {
       case 'after':
-        this.setState({ dateAfter: `${event.target.value}-01-01T00:00:00.000Z` });
+        this.setState({ after: `${event.target.value}-01-01T00:00:00.000Z` });
         break;
       case 'before':
-        this.setState({ dateBefore: `${event.target.value}-12-31T23:59:59.999Z` });
+        this.setState({ before: `${event.target.value}-12-31T23:59:59.999Z` });
         break;
     }
     this.scheduleUpdateConfig();
