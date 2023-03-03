@@ -1,9 +1,8 @@
 import { Component, ReactNode } from 'react';
 import { Config } from '../config.js';
-import { MapConfig } from '../config.map.js';
 
-export const minDate = '1950-01-01T00:00:00.000Z';
-export const maxDate = `${new Date().getFullYear().toString()}-12-31T23:59:59.999Z`;
+export const MinDate = '1950-01-01T00:00:00.000Z';
+export const MaxDate = `${new Date().getFullYear().toString()}-12-31T23:59:59.999Z`;
 
 export interface DateRangeState {
   after?: string;
@@ -11,8 +10,7 @@ export interface DateRangeState {
 }
 
 export class DateRange extends Component {
-  state: DateRangeState = { after: minDate, before: maxDate };
-
+  state: DateRangeState = { after: MinDate, before: MaxDate };
   private _scheduled: number | NodeJS.Timeout | undefined;
   private _raf = 0;
 
@@ -49,23 +47,13 @@ export class DateRange extends Component {
     this.scheduleUpdateConfig();
   };
 
-  componentDidMount(): void {
-    // Force to reset the url to valid range.
-    this.setState({
-      dateAfter: Config.map.dateRange.dateAfter ?? minDate,
-      dateBefore: Config.map.dateRange.dateBefore ?? maxDate,
-    });
-    const dateRangeSearch = '?' + MapConfig.toUrl(Config.map);
-    window.history.pushState(null, '', dateRangeSearch);
-  }
-
   render(): ReactNode {
     return (
       <div className="date-range">
         <p>After: {this.yearAfter}</p>
         <input
           type="range"
-          min={minDate.slice(0, 4)}
+          min={MinDate.slice(0, 4)}
           max={this.yearBefore}
           step="1"
           value={this.yearAfter}
@@ -75,7 +63,7 @@ export class DateRange extends Component {
         <input
           type="range"
           min={this.yearAfter}
-          max={maxDate.slice(0, 4)}
+          max={MaxDate.slice(0, 4)}
           step="1"
           value={this.yearBefore}
           onChange={(e): void => this.handleChange(e, 'before')}

@@ -1,7 +1,7 @@
 import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
-import { DateRangeState, maxDate, minDate } from './components/daterange.js';
+import { DateRangeState, MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
@@ -95,8 +95,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     let dateAfter = urlParams.get('date[after]') ?? undefined;
 
     // Limit the dateRange to be valid
-    if (dateBefore) dateBefore = dateBefore > maxDate || dateBefore < minDate ? undefined : dateBefore;
-    if (dateAfter) dateAfter = dateAfter > maxDate || dateAfter < minDate ? undefined : dateAfter;
+    if (dateBefore) dateBefore = dateBefore > MaxDate || dateBefore < MinDate ? undefined : dateBefore;
+    if (dateAfter) dateAfter = dateAfter > MaxDate || dateAfter < MinDate ? undefined : dateAfter;
     if (dateBefore && dateAfter && dateAfter > dateBefore) {
       dateBefore = undefined;
       dateAfter = undefined;
