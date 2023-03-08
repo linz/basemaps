@@ -248,7 +248,7 @@ o.spec('cutline', () => {
         } as SourceMetadata,
         8,
       );
-      // console.log(round(cutline.clipPoly, 4));
+
       o(round(cutline.clipPoly, 4)[0][0]).deepEquals([
         [19468576.3516, -4993284.6176],
         [19471093.8032, -4993284.6176],
