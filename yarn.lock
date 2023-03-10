@@ -7668,6 +7668,11 @@ ssri@^9.0.0:
   dependencies:
     minipass "^3.1.1"
 
+stac-ts@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/stac-ts/-/stac-ts-1.0.0.tgz#54e1d31ad4067370ae98acda5a3ce5b9a0c0c0db"
+  integrity sha512-akLofkdWE2ibp4nsvcM1VTCnaLBFmMFobFIJikeoGGVFBCW7yCpxQHuTau1U9xBKSUrYwaifWwQMTW7MrCzZFg==
+
 statuses@2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"

@@ -13,5 +13,7 @@ export { GoogleTms } from './tms/google.js';
 export { ImageFormat, VectorFormat } from './formats.js';
 export { TileJson, TileJsonV3, TileJsonVectorLayer } from './tile.json/tile.json.js';
 export { TileSetName, TileSetNameValues } from './proj/tile.set.name.js';
+export { Simplify } from './simplify.js';
+export { TileId } from './tile.js';
 
 export * from './proj/projection.js';

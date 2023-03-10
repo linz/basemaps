@@ -246,11 +246,11 @@ export class Cutline {
   }
 
   /**
-     * Find the polygon covering of source imagery and a (optional) clip cutline. Truncates the
-     * cutline to match.
-
-     * @param sourceMetadata
-     */
+   * Find the polygon covering of source imagery and a (optional) clip cutline. Truncates the
+   * cutline to match.
+   *
+   * @param sourceMetadata
+   */
   private findCovering(sourceMetadata: SourceMetadata): void {
     let srcPoly: MultiPolygon = [];
     const { resZoom } = sourceMetadata;
@@ -289,11 +289,11 @@ export class Cutline {
   }
 
   /**
-     * Pad the bounds to take in to consideration blending and 100 pixels of adjacent image data
-
-     * @param bounds
-     * @param resZoom the imagery resolution target zoom level
-     */
+   * Pad the bounds to take in to consideration blending and 100 pixels of adjacent image data
+   *
+   * @param bounds
+   * @param resZoom the imagery resolution target zoom level
+   */
   private padBounds(bounds: Bounds, resZoom: number): Bounds {
     const px = this.tileMatrix.pixelScale(resZoom);
     // Ensure cutline blend does not interferre with non-costal edges

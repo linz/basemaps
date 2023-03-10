@@ -1,3 +1,4 @@
+export * from './multipolygon/area.js';
 export * from './multipolygon/clipped.js';
 export * from './multipolygon/convert.js';
 export * from './types.js';

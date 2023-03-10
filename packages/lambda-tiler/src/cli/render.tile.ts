@@ -1,15 +1,16 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromPaths } from '@basemaps/config/build/json/tiff.config.js';
-import { ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
+import { GoogleTms, ImageFormat } from '@basemaps/geo';
 import { LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
-const target = `/home/blacha/tmp/basemaps`;
-const tile = { z: 18, x: 126359, y: 137603 };
-const tileMatrix = Nztm2000QuadTms;
+const target = `/home/blacha/tmp/basemaps/white-lines/nz-0.5m/`;
+const tile = { z: 10, x: 1013, y: 633 };
+const tileMatrix = GoogleTms;
+const imageFormat = ImageFormat.Webp;
 
 async function main(): Promise<void> {
   const log = LogConfig.get();
@@ -24,15 +25,16 @@ async function main(): Promise<void> {
   }
   const request = new LambdaUrlRequest({ headers: {} } as UrlEvent, {} as Context, log) as LambdaHttpRequest;
 
+  tileSet.background = { r: 255, g: 255, b: 255, alpha: 1 };
   const res = await TileXyzRaster.tile(request, tileSet, {
     tile,
     tileMatrix,
     tileSet: tileSet.id,
-    tileType: ImageFormat.Png,
+    tileType: imageFormat,
   });
 
-  await fsa.write(`./${tile.z}_${tile.x}_${tile.y}.png`, Buffer.from(res.body, 'base64'));
-  log.info({ path: `./${tile.z}_${tile.x}_${tile.y}.png` }, 'Tile:Write');
+  await fsa.write(`./${tile.z}_${tile.x}_${tile.y}.${imageFormat}`, Buffer.from(res.body, 'base64'));
+  log.info({ path: `./${tile.z}_${tile.x}_${tile.y}.${imageFormat}` }, 'Tile:Write');
 }
 
 main();
