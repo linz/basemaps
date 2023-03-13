@@ -92,7 +92,7 @@ async function tileSetAttribution(
   const host = await config.Provider.get(config.Provider.id('linz'));
 
   for (const layer of filteredLayers) {
-    if (layer.disabled) continue;
+    if (layer.disabled || layer.minZoom === 32) continue;
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
     const im = imagery.get(imgId);
