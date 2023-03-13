@@ -9,7 +9,7 @@ import { DateRange } from './daterange.js';
 import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
 
-const layerFadeTime = 750;
+const LayerFadeTime = 750;
 
 /**
  * Map loading in maplibre is weird, the on('load') event is different to 'loaded'
@@ -119,17 +119,10 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
           id: newStyleId,
           type: 'raster',
           source: newStyleId,
-          paint: {
-            'raster-opacity': 0,
-            'raster-opacity-transition': {
-              duration: layerFadeTime,
-              delay: 0,
-            },
-          },
-        } as any);
-        // `as any` needed above due to *-transition paint properties not appearing
-        // in TS typing, per https://github.com/maplibre/maplibre-gl-js/issues/1708
-        this.map.moveLayer(newStyleId);
+          paint: { 'raster-opacity': 0 },
+        });
+        this.map.moveLayer(newStyleId); // Move to front
+        this.map.setPaintProperty(newStyleId, 'raster-opacity-transition', { duration: LayerFadeTime });
         this.map.setPaintProperty(newStyleId, 'raster-opacity', 1);
       }
     }
@@ -142,12 +135,12 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     // The last item in the array is the top layer, we pop that to ensure it isn't removed
     filteredLayers.pop();
     for (const layer of filteredLayers) {
-      this.map.setPaintProperty(layer.id, 'raster-opacity-transition', { duration: layerFadeTime });
+      this.map.setPaintProperty(layer.id, 'raster-opacity-transition', { duration: LayerFadeTime });
       this.map.setPaintProperty(layer.id, 'raster-opacity', 0);
       setTimeout(() => {
         this.map.removeLayer(layer.id);
         this.map.removeSource(layer.source);
-      }, layerFadeTime);
+      }, LayerFadeTime);
     }
   };
 
