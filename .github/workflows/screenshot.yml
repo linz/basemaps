@@ -1,6 +1,6 @@
 name: screenshot
 
-on: 
+on:
   pull_request:
   push:
     branches:
@@ -24,7 +24,7 @@ jobs:
           npx lerna run bundle --stream
           npm pack --workspaces
         env:
-          NODE_ENV: "production"
+          NODE_ENV: 'production'
 
       - name: (NonProd) Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1.6.1
@@ -32,16 +32,29 @@ jobs:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
-      
+
       - name: (Screenshot) Screenshot Pull Request Changes
         run: |
           ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
-          
+
           # Wait for the server to start
           timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
-          
+
           docker run --rm --network="host" -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
-        
+
+      - name: (smoke-test) Screenshot Pull Request Changes
+        continue-on-error: true
+        run: |
+          # ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
+
+          # # Wait for the server to start
+          # timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
+
+          # Validation screenshot
+          curl -s -X GET http://localhost:5000/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_3857_local.json
+          curl -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_3857_prod.json # Give longer timeout as production have performance issue now.
+          diff <(jq --sort-keys . attribution_3857_local.json) <(jq --sort-keys . attribution_3857_prod.json)
+
       - name: Save snapshots
         uses: getsentry/action-visual-snapshot@v2
         with:
@@ -70,5 +83,5 @@ jobs:
         id: visual-snapshots-diff
         uses: blacha/action-visual-snapshot@v2
         with:
-          storage-prefix: "s3://linz-basemaps-screenshot"
-          storage-url: "https://d25mfjh9syaxsr.cloudfront.net"
+          storage-prefix: 's3://linz-basemaps-screenshot'
+          storage-url: 'https://d25mfjh9syaxsr.cloudfront.net'
