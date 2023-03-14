@@ -52,7 +52,6 @@ export function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projec
     return Wgs84.bboxToMultiPolygon(bbox);
   }
 
-  // let coordinates: MultiPolygon = [];
   const polygons: MultiPolygon = [];
   // merge imagery bounds
   for (const image of files) polygons.push(Bounds.fromJson(image).pad(SmoothPadding).toPolygon());
