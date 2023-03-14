@@ -40,7 +40,7 @@ jobs:
           # Wait for the server to start
           timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
 
-          docker run --rm --network="host" -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
+          # docker run --rm --network="host" -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
 
       - name: (smoke-test) Screenshot Pull Request Changes
         continue-on-error: true
@@ -52,9 +52,13 @@ jobs:
 
           # Validation screenshot
           curl -s -X GET http://localhost:5000/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_3857_local.json
-          curl -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_3857_prod.json # Give longer timeout as production have performance issue now.
+          curl --connect-timeout -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_3857_prod.json # Give longer timeout as production have performance issue now.
+          
+          curl -s -X GET http://localhost:5000/v1/tiles/aerial/NZTM2000Quad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_2193_local.json
+          curl --connect-timeout 100 -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_2193_prod.json # Give longer timeout as production have performance issue now.
+          
           diff <(jq --sort-keys . attribution_3857_local.json) <(jq --sort-keys . attribution_3857_prod.json)
-
+          diff <(jq --sort-keys . attribution_2193_local.json) <(jq --sort-keys . attribution_2193_prod.json)
       - name: Save snapshots
         uses: getsentry/action-visual-snapshot@v2
         with:
