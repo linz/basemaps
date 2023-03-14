@@ -91,7 +91,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   };
 
   updateVisibleLayers = (newLayers: string): void => {
-    if (Config.map.visibleLayers === undefined) Config.map.visibleLayers = newLayers;
+    if (Config.map.visibleLayers == null) Config.map.visibleLayers = newLayers;
     if (newLayers !== Config.map.visibleLayers) {
       Config.map.visibleLayers = newLayers;
       const newStyleId =
