@@ -43,13 +43,9 @@ jobs:
           # docker run --rm --network="host" -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
 
       - name: (smoke-test) Screenshot Pull Request Changes
+        id: attribution
+        continue-on-error: true
         run: |
-          # ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
-
-          # # Wait for the server to start
-          # timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
-
-          # Validation screenshot
           curl -s -X GET http://localhost:5000/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_3857_local.json
           curl --connect-timeout 100 -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_3857_prod.json # Give longer timeout as production have performance issue now.
           
@@ -58,7 +54,10 @@ jobs:
           
           diff <(jq --sort-keys . attribution_3857_local.json) <(jq --sort-keys . attribution_3857_prod.json)
           diff <(jq --sort-keys . attribution_2193_local.json) <(jq --sort-keys . attribution_2193_prod.json)
-        continue-on-error: true
+
+      - name: API validation
+        if: steps.attribution.outcome != 'success'
+        run: echo 'Attribution validation failure'
 
       - name: Save snapshots
         uses: getsentry/action-visual-snapshot@v2
