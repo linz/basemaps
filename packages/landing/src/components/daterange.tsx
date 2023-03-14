@@ -29,9 +29,7 @@ export class DateRange extends Component {
         this.setState({ before: `${event.target.value}-12-31T23:59:59.999Z` });
         break;
     }
-    Config.map.filter.date.after = this.state.after;
-    Config.map.filter.date.before = this.state.before;
-    Config.map.emit('filter', { date: this.state });
+    Config.map.setFilterDateRange(this.state.after, this.state.before);
   };
 
   render(): ReactNode {
