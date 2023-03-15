@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASEMAPS_BUCKET: linz-basemaps
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
       PR_NUMBER: ${{ github.event.number }}
     permissions:
       id-token: write
