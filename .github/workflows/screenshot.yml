@@ -62,13 +62,13 @@ jobs:
         id: wmts
         continue-on-error: true
         run: |
+          sudo apt-get install libxml2-utils
           curl -s -X GET http://localhost:5000/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_3857_local.xml
           curl -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_3857_prod.xml 
           
           curl -s -X GET http://localhost:5000/v1/tiles/aerial/NZTM2000Quad/WMTSCapabilities.xml?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_2193_local.xml
-          curl --connect-timeout 100 -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/WMTSCapabilities.xml?api=?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_2193_prod.xml 
+          curl -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/WMTSCapabilities.xml?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_2193_prod.xml 
 
-          sudo apt-get install libxml2-utils
           # Replace the localhost in the resource url before comparison
           sed -i -e 's,http://localhost:5000,https://basemaps.linz.govt.nz,g' wmts_3857_local.xml
           sed -i -e 's,http://localhost:5000,https://basemaps.linz.govt.nz,g' wmts_2193_local.xml
