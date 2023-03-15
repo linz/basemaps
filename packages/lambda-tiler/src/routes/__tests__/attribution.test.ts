@@ -1,7 +1,8 @@
 import { Attribution } from '@basemaps/attribution';
 import { ConfigProviderMemory } from '@basemaps/config';
-import { Nztm2000QuadTms } from '@basemaps/geo';
-import { LogConfig } from '@basemaps/shared';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import { LogConfig, Projection } from '@basemaps/shared';
+import { BBox } from '@linzjs/geojson';
 import { HttpHeader } from '@linzjs/lambda';
 import o from 'ospec';
 import sinon from 'sinon';
@@ -9,6 +10,7 @@ import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { FakeData, Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
+import { createCoordinates } from '../attribution.js';
 
 // const ExpectedJson = {
 //   id: 'aerial_WebMercatorQuad',
@@ -386,5 +388,65 @@ o.spec('/v1/attribution', () => {
       o(output.title).equals(ts.title);
       o(output.collections[0].summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });
     });
+  });
+
+  o('should create valid coordinates', async () => {
+    //bbox: BBox, files: NamedBounds[], proj: Projection
+    const bbox = [174.79248047, -38.21228805, 175.25939941, -37.99616268] as BBox;
+    const proj = Projection.get(GoogleTms);
+    const coordinates = createCoordinates(bbox, Imagery3857.files, proj);
+    console.log(JSON.stringify(coordinates));
+    o(coordinates).deepEquals([
+      [
+        [
+          [174.79247149, -38.09998972],
+          [174.81446211, -38.09998972],
+          [174.81446211, -38.09134368],
+          [174.82544844, -38.09134368],
+          [174.82544844, -38.08485848],
+          [174.82819502, -38.08485848],
+          [174.82819502, -38.08269662],
+          [174.83643476, -38.08269662],
+          [174.83643476, -38.06539942],
+          [174.85840742, -38.06539942],
+          [174.85840742, -37.9961556],
+          [174.81446211, -37.9961556],
+          [174.81446211, -37.9961556],
+          [174.79247149, -37.9961556],
+          [174.79247149, -38.01348331],
+          [174.80345781, -38.01348331],
+          [174.80345781, -38.02213855],
+          [174.81444414, -38.02213855],
+          [174.81444414, -38.04808399],
+          [174.79247149, -38.04808399],
+          [174.79247149, -38.09998972],
+        ],
+      ],
+      [
+        [
+          [175.16600664, -38.20366238],
+          [175.1879793, -38.20366238],
+          [175.1879793, -38.21229511],
+          [175.20996992, -38.21229511],
+          [175.20996992, -38.20797887],
+          [175.21546308, -38.20797887],
+          [175.21546308, -38.20366238],
+          [175.25391523, -38.20366238],
+          [175.25391523, -38.18207606],
+          [175.2594084, -38.18207606],
+          [175.2594084, -38.17342562],
+          [175.25391523, -38.17342562],
+          [175.25391523, -38.13454951],
+          [175.20995195, -38.13454951],
+          [175.20995195, -38.16046922],
+          [175.19896563, -38.16046922],
+          [175.19896563, -38.16694771],
+          [175.19621904, -38.16694771],
+          [175.19621904, -38.16910707],
+          [175.16600664, -38.16910707],
+          [175.16600664, -38.20366238],
+        ],
+      ],
+    ]);
   });
 });

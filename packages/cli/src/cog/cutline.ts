@@ -14,7 +14,7 @@ import { AlignedLevel, CoveringFraction } from './constants.js';
 import { CogJob, FeatureCollectionWithCrs, SourceMetadata } from './types.js';
 
 /** Padding to always apply to image boundies */
-const PixelPadding = 100;
+const PixelPadding = 200;
 
 /** fraction to scale source imagery to avoid degenerate edges */
 const SourceSmoothScale = 1 + 1e-8;
@@ -296,7 +296,6 @@ export class Cutline {
      */
   private padBounds(bounds: Bounds, resZoom: number): Bounds {
     const px = this.tileMatrix.pixelScale(resZoom);
-
     // Ensure cutline blend does not interferre with non-costal edges
     const widthScale = (bounds.width + px * (PixelPadding + this.blend) * 2) / bounds.width;
     const heightScale = (bounds.height + px * (PixelPadding + this.blend) * 2) / bounds.height;
