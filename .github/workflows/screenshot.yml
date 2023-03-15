@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASEMAPS_BUCKET: linz-basemaps
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PR_NUMBER: ${{ github.event.number }}
     permissions:
       id-token: write
@@ -65,6 +66,7 @@ jobs:
           curl -s -X GET http://localhost:5000/v1/tiles/aerial/NZTM2000Quad/WMTSCapabilities.xml?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_2193_local.xml
           curl --connect-timeout 100 -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/WMTSCapabilities.xml?api=?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_2193_prod.xml 
 
+          apt -y install libxml2-utils
           diff <(xmllint --c14n wmts_3857_local.xml) <(xmllint --c14n wmts_3857_prod.xml )
           diff <(xmllint --c14n wmts_2193_local.xml) <(xmllint --c14n wmts_2193_prod.xml)
 
