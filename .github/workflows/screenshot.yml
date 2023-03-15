@@ -70,8 +70,8 @@ jobs:
 
           sudo apt-get install libxml2-utils
           # Replace the localhost in the resource url before comparison
-          sed -i -e 's/http://localhost:5000/https://basemaps.linz.govt.nz/g' wmts_3857_local.xml
-          sed -i -e 's/http://localhost:5000/https://basemaps.linz.govt.nz/g' wmts_2193_local.xml
+          sed -i -e 's,http://localhost:5000,https://basemaps.linz.govt.nz,g' wmts_3857_local.xml
+          sed -i -e 's,http://localhost:5000,https://basemaps.linz.govt.nz,g' wmts_2193_local.xml
           diff <(xmllint --c14n wmts_3857_local.xml) <(xmllint --c14n wmts_3857_prod.xml )
           diff <(xmllint --c14n wmts_2193_local.xml) <(xmllint --c14n wmts_2193_prod.xml)
 
