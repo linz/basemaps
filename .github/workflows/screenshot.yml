@@ -16,6 +16,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      issues: write # This permission shouldn't needed as there is a bug currently for gh pr edit. https://github.com/cli/cli/issues/4631
+      pull-requests: write
     steps:
       - uses: linz/action-typescript@v2
 
