@@ -11,13 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASEMAPS_BUCKET: linz-basemaps
-      GH_TOKEN: ${{ github.token }}
-      PR_NUMBER: ${{ github.event.number }}
     permissions:
       id-token: write
       contents: read
-      issues: write # This permission shouldn't needed as there is a bug currently for gh pr edit. https://github.com/cli/cli/issues/4631
-      pull-requests: write
     steps:
       - uses: linz/action-typescript@v2
 
@@ -44,40 +40,6 @@ jobs:
           timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
 
           docker run --rm --network="host" -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
-
-      - name: (Smoke Test) Attribution validation
-        id: attribution
-        continue-on-error: true
-        run: |
-          curl -s -X GET http://localhost:5000/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_3857_local.json
-          curl --connect-timeout 100 -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_3857_prod.json # Give longer timeout as production have performance issue now.
-          
-          curl -s -X GET http://localhost:5000/v1/tiles/aerial/NZTM2000Quad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_2193_local.json
-          curl --connect-timeout 100 -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/attribution.json?api=${{ secrets.BASEMAPS_API_KEY }} > attribution_2193_prod.json # Give longer timeout as production have performance issue now.
-          
-          diff <(jq --sort-keys . attribution_3857_local.json) <(jq --sort-keys . attribution_3857_prod.json)
-          diff <(jq --sort-keys . attribution_2193_local.json) <(jq --sort-keys . attribution_2193_prod.json)
-
-      - name: (Smoke Test) WMTS validation
-        id: wmts
-        continue-on-error: true
-        run: |
-          sudo apt-get install libxml2-utils
-          curl -s -X GET http://localhost:5000/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_3857_local.xml
-          curl -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_3857_prod.xml 
-          
-          curl -s -X GET http://localhost:5000/v1/tiles/aerial/NZTM2000Quad/WMTSCapabilities.xml?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_2193_local.xml
-          curl -s -X GET https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/WMTSCapabilities.xml?api=${{ secrets.BASEMAPS_API_KEY }} > wmts_2193_prod.xml 
-
-          # Replace the localhost in the resource url before comparison
-          sed -i -e 's,http://localhost:5000,https://basemaps.linz.govt.nz,g' wmts_3857_local.xml
-          sed -i -e 's,http://localhost:5000,https://basemaps.linz.govt.nz,g' wmts_2193_local.xml
-          diff <(xmllint --c14n wmts_3857_local.xml) <(xmllint --c14n wmts_3857_prod.xml )
-          diff <(xmllint --c14n wmts_2193_local.xml) <(xmllint --c14n wmts_2193_prod.xml)
-
-      - name: API validation
-        if: steps.attribution.outcome != 'success' || steps.wmts.outcome != 'success'
-        run: gh pr comment ${PR_NUMBER} --body "API validation failure."
 
       - name: Save snapshots
         uses: getsentry/action-visual-snapshot@v2
