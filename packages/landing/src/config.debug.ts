@@ -14,6 +14,8 @@ export interface DebugState {
   'debug.layer.linz-topographic': number;
   /** What opacity is the open streetmap layer, 0 is off*/
   'debug.layer.osm': number;
+  /** Should the date range slider be shown */
+  'debug.date': boolean;
 }
 
 export const DebugDefaults: DebugState = {
@@ -25,6 +27,7 @@ export const DebugDefaults: DebugState = {
   'debug.layer.linz-aerial': 0,
   'debug.layer.linz-topographic': 0,
   'debug.layer.osm': 0,
+  'debug.date': false,
 };
 
 export class ConfigDebug {
@@ -59,6 +62,7 @@ export class ConfigDebug {
     isChanged = setNum(opt, 'debug.layer.linz-aerial', url.get('debug.layer.linz-aerial')) || isChanged;
     isChanged = setNum(opt, 'debug.layer.linz-topographic', url.get('debug.layer.linz-topographic')) || isChanged;
     isChanged = setNum(opt, 'debug.layer.osm', url.get('debug.layer.osm')) || isChanged;
+    isChanged = setKey(opt, 'debug.date', url.get('debug.date') != null) || isChanged;
     return isChanged;
   }
 }
