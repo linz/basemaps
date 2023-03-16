@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
+
+
+### Bug Fixes
+
+* **server:** make --no-config actually load the configuration from tiffs ([#2682](https://github.com/linz/basemaps/issues/2682)) ([019ee50](https://github.com/linz/basemaps/commit/019ee50ee22cda2ce143f9a012d4aaa9ffc0edc9))
+
+
+### Features
+
+* **server:** change CLI interface to support multiple tiff folders ([#2688](https://github.com/linz/basemaps/issues/2688)) ([7fcd310](https://github.com/linz/basemaps/commit/7fcd310425aaf02bbadab2bb3b89cce5b7462c8f))
+* filter layers by date ([#2662](https://github.com/linz/basemaps/issues/2662)) ([745b6b6](https://github.com/linz/basemaps/commit/745b6b6e0ae40c5094647cf602ddf2bdd29a7d5f))
+
+
+
+
+
 # [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
 
 
