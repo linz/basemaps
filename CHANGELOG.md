@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
+
+
+### Bug Fixes
+
+* increase PixelPadding to 200 ([#2723](https://github.com/linz/basemaps/issues/2723)) ([265e03a](https://github.com/linz/basemaps/commit/265e03a5350880125c411426dbc04e14eb2c2e1a))
+* **cli:** use the STAC title if it exists as the imagery title BM-784 ([#2692](https://github.com/linz/basemaps/issues/2692)) ([f7d45f6](https://github.com/linz/basemaps/commit/f7d45f6657e636750d61cdde951c20bd57c2e160))
+* **infra:** cloudfront needs query strings uri encoded ([#2663](https://github.com/linz/basemaps/issues/2663)) ([75c625d](https://github.com/linz/basemaps/commit/75c625d21ab6f8ffa3cbbbef6ee0241667489035))
+* **lambda-tiler:** do not crash server when assets are not found ([#2674](https://github.com/linz/basemaps/issues/2674)) ([77b75da](https://github.com/linz/basemaps/commit/77b75da7541a5ae3e521551d3b8530e2c06518d3))
+* **landing:** Stop set state in the render which lead to infinite loop ([#2706](https://github.com/linz/basemaps/issues/2706)) ([a7530b0](https://github.com/linz/basemaps/commit/a7530b0bd6b634a4d613f29b4174cc0f7b313b77))
+* **server:** allow a small variance between GSD ([#2687](https://github.com/linz/basemaps/issues/2687)) ([6713f0b](https://github.com/linz/basemaps/commit/6713f0b8e103c0cbce519c297fe605183bdf10bc))
+* **server:** close tiff connections once they have been queried ([#2698](https://github.com/linz/basemaps/issues/2698)) ([cd43cb4](https://github.com/linz/basemaps/commit/cd43cb4f54aaa99feae9835f48207ca08d0e3253))
+* **server:** Fix the server cli to load config from config path. ([#2690](https://github.com/linz/basemaps/issues/2690)) ([64d1f14](https://github.com/linz/basemaps/commit/64d1f14910324b04cf4355200141454fb1a3b0ad))
+* **server:** gsd does not actually need to match ([#2694](https://github.com/linz/basemaps/issues/2694)) ([3737628](https://github.com/linz/basemaps/commit/373762875c2615515ce0853ba9dadcd04a2d988f))
+* **server:** make --no-config actually load the configuration from tiffs ([#2682](https://github.com/linz/basemaps/issues/2682)) ([019ee50](https://github.com/linz/basemaps/commit/019ee50ee22cda2ce143f9a012d4aaa9ffc0edc9))
+* **tiler:** when scaling rectangles if the scaleX and scaleY differ scale using the larger dimension BM-772 ([#2693](https://github.com/linz/basemaps/issues/2693)) ([c498856](https://github.com/linz/basemaps/commit/c498856b1851026d0f3cb87fc9be4ac8cb0b4bc2))
+* pass config id to tile url ([#2683](https://github.com/linz/basemaps/issues/2683)) ([271e6c4](https://github.com/linz/basemaps/commit/271e6c40ee56f67054af7d093b03be7a810e3b96))
+
+
+### Features
+
+* **cli:** Double the padding for low resolution imagery. ([#2713](https://github.com/linz/basemaps/issues/2713)) ([b6dafa1](https://github.com/linz/basemaps/commit/b6dafa170903a9c822351b99fc6a2c46e3db6c69))
+* **cli:** Update a preview url for zoom level changes. ([#2699](https://github.com/linz/basemaps/issues/2699)) ([74ce320](https://github.com/linz/basemaps/commit/74ce3205a4317ae543a96432721a3f0f9ce4bf2c))
+* **config:** generate configuration from a folder of tiffs ([#2677](https://github.com/linz/basemaps/issues/2677)) ([6afad20](https://github.com/linz/basemaps/commit/6afad20bd0014d5caa28dc49142fab92cecd283f))
+* **config:** Make the config title as not null. ([#2667](https://github.com/linz/basemaps/issues/2667)) ([5e54854](https://github.com/linz/basemaps/commit/5e54854c10327385037122f7b7aada6adf312fae))
+* **lambda-tiler:** Move the union out of the calculation loop to improve the atrribution api performance ([#2732](https://github.com/linz/basemaps/issues/2732)) ([dbedf1b](https://github.com/linz/basemaps/commit/dbedf1b1794cc7b7b46f4c114a40f4a73289918a))
+* **lambda-tiler:** simple cli to trace the rendering of a tile ([#2678](https://github.com/linz/basemaps/issues/2678)) ([4a28aff](https://github.com/linz/basemaps/commit/4a28affa3737cd492143e485374fa4db6035da64))
+* **lambda-tiler:** trace if a filter has been applied to the layers ([#2664](https://github.com/linz/basemaps/issues/2664)) ([b4455e9](https://github.com/linz/basemaps/commit/b4455e9682a4dedcaaefde8e90cb72b6de29b8f6))
+* **lambda-tiler:** Update the wmts resource url to include the daterange. ([#2669](https://github.com/linz/basemaps/issues/2669)) ([2068610](https://github.com/linz/basemaps/commit/2068610631f7245e4fa063c3d2a8c12c7f011c0d))
+* **landing:** Change structure of WindowUrl.toTileUrl to receive args object ([#2703](https://github.com/linz/basemaps/issues/2703)) ([d725fd3](https://github.com/linz/basemaps/commit/d725fd3677e14a3d58d1dd13eb67a83f6a5e934d))
+* **landing:** Disable the date range slider as default and use debug.date to show it. ([#2737](https://github.com/linz/basemaps/issues/2737)) ([60c0bbf](https://github.com/linz/basemaps/commit/60c0bbfe9956a94a6f04153b285bcc9dcdc79b01))
+* add proof of concept date range slider ([#2681](https://github.com/linz/basemaps/issues/2681)) ([e9bdad5](https://github.com/linz/basemaps/commit/e9bdad545a28b230d81f54090b15fe230a4a5d04))
+* filter layers by date ([#2662](https://github.com/linz/basemaps/issues/2662)) ([745b6b6](https://github.com/linz/basemaps/commit/745b6b6e0ae40c5094647cf602ddf2bdd29a7d5f))
+* use transition property for fades, add fade when removing layer ([#2702](https://github.com/linz/basemaps/issues/2702)) ([0bee2df](https://github.com/linz/basemaps/commit/0bee2df6f9f9d9b56982e04b24350a6ef91fbd68))
+* **landing:** add copyright link ([#2672](https://github.com/linz/basemaps/issues/2672)) ([ad87344](https://github.com/linz/basemaps/commit/ad87344b247ea6214bc3223fbace65ec5d5c9bd2))
+* **server:** change CLI interface to support multiple tiff folders ([#2688](https://github.com/linz/basemaps/issues/2688)) ([7fcd310](https://github.com/linz/basemaps/commit/7fcd310425aaf02bbadab2bb3b89cce5b7462c8f))
+
+
+### Reverts
+
+* Revert "fix(tiler): when scaling rectangles if the scaleX and scaleY differ scale using the larger dimension BM-772 (#2693)" (#2711) ([c682963](https://github.com/linz/basemaps/commit/c682963171dce0a178e281ad62099edc53df93eb)), closes [#2693](https://github.com/linz/basemaps/issues/2693) [#2711](https://github.com/linz/basemaps/issues/2711)
+
+
+
+
+
 # [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
 
 
