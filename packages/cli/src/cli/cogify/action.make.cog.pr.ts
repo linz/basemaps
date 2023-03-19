@@ -61,8 +61,8 @@ export class CommandCogPullRequest extends CommandLineAction {
       required: false,
     });
     this.disabled = this.defineFlagParameter({
-      parameterLongName: '--aws',
-      description: 'Running the job on aws',
+      parameterLongName: '--disabled',
+      description: 'Disabled the layer in the config',
       required: false,
     });
   }
