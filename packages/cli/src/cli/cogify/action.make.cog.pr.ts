@@ -1,6 +1,6 @@
 import { ConfigLayer } from '@basemaps/config';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { owner, repo } from '../github/github.js';
 import { MakeCogGithub } from '../github/make.cog.pr.js';
 
@@ -24,6 +24,7 @@ export class CommandCogPullRequest extends CommandLineAction {
   private output: CommandLineStringParameter;
   private jira: CommandLineStringParameter;
   private category: CommandLineStringParameter;
+  private disabled: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -58,6 +59,11 @@ export class CommandCogPullRequest extends CommandLineAction {
       description: 'New Imagery Category, like Rural Aerial Photos, Urban Aerial Photos, Satellite Imagery',
       required: false,
     });
+    this.disabled = this.defineFlagParameter({
+      parameterLongName: '--aws',
+      description: 'Running the job on aws',
+      required: false,
+    });
   }
 
   async onExecute(): Promise<void> {
@@ -73,6 +79,7 @@ export class CommandCogPullRequest extends CommandLineAction {
     }
 
     const git = new MakeCogGithub(layer.name, logger);
+    if (this.disabled.value) layer.disabled = true;
     const prNumber = await git.createTileSetPullRequest(layer, this.jira.value, category);
 
     const output = this.output.value;

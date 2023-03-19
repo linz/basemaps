@@ -68,6 +68,14 @@ export class MakeCogGithub extends Github {
     tileSet: ConfigTileSetRaster,
     category: Category,
   ): Promise<ConfigTileSetRaster | undefined> {
+    //Reprocess existing layer
+    for (let i = 0; i < tileSet.layers.length; i++) {
+      if (tileSet.layers[i].name === layer.name) {
+        tileSet.layers[i] = layer;
+        return tileSet;
+      }
+    }
+
     // Set layer zoom level and add to latest order
     if (category === Category.Rural) {
       layer.minZoom = 13;
