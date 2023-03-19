@@ -61,6 +61,22 @@ export class MakeCogGithub extends Github {
   }
 
   /**
+   * Add new layer at the bottom of related category
+   */
+
+  addLayer(layer: ConfigLayer, tileSet: ConfigTileSetRaster, category: Category): ConfigTileSetRaster {
+    for (let i = tileSet.layers.length - 1; i >= 0; i--) {
+      // Add new layer at the end of category
+      if (tileSet.layers[i].category === category) {
+        // Find first valid Urban and insert new record above that.
+        tileSet.layers.splice(i + 1, 0, layer);
+        break;
+      }
+    }
+    return tileSet;
+  }
+
+  /**
    * Prepare aerial tileSet config json
    */
   async prepareTileSetConfig(
@@ -80,36 +96,15 @@ export class MakeCogGithub extends Github {
     if (category === Category.Rural) {
       layer.minZoom = 13;
       layer.category = Category.Rural;
-      for (let i = 0; i < tileSet.layers.length; i++) {
-        // Add new layer at the end of rural
-        if (tileSet.layers[i].category === Category.Rural && tileSet.layers[i].minZoom === 14) {
-          // Find first valid Urban and insert new record above that.
-          tileSet.layers.splice(i, 0, layer);
-          break;
-        }
-      }
+      this.addLayer(layer, tileSet, category);
     } else if (category === Category.Urban) {
       layer.minZoom = 14;
       layer.category = Category.Urban;
-      // Add new layer at the end of urban
-      for (let i = tileSet.layers.length - 1; i >= 0; i--) {
-        if (tileSet.layers[i].category === Category.Urban && tileSet.minZoom === 14) {
-          // Find first Urban from the bottom up and insert the record below that.
-          tileSet.layers.splice(i + 1, 0, layer);
-          break;
-        }
-      }
+      this.addLayer(layer, tileSet, category);
     } else if (category === Category.Satellite) {
       layer.minZoom = 5;
       layer.category = Category.Satellite;
-      // Add new layer at the end of satellite
-      for (let i = tileSet.layers.length - 1; i >= 0; i--) {
-        // Find first Satellite imagery from bottom up and insert the record below that.
-        if (tileSet.layers[i].category === Category.Satellite) {
-          tileSet.layers.splice(i + 1, 0, layer);
-          break;
-        }
-      }
+      this.addLayer(layer, tileSet, category);
     } else {
       // Add new layer at the bottom
       layer.category = Category.Other;
