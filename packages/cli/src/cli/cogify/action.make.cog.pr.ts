@@ -8,6 +8,7 @@ export enum Category {
   Urban = 'Urban Aerial Photos',
   Rural = 'Rural Aerial Photos',
   Satellite = 'Satellite Imagery',
+  Event = 'Event',
   Other = 'New Aerial Photos',
 }
 

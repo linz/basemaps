@@ -96,7 +96,14 @@ export class MakeCogGithub extends Github {
     if (category === Category.Rural) {
       layer.minZoom = 13;
       layer.category = Category.Rural;
-      this.addLayer(layer, tileSet, category);
+      for (let i = 0; i < tileSet.layers.length; i++) {
+        // Add new layer above the first Urban
+        if (tileSet.layers[i].category === Category.Urban) {
+          // Find first valid Urban and insert new record above that.
+          tileSet.layers.splice(i, 0, layer);
+          break;
+        }
+      }
     } else if (category === Category.Urban) {
       layer.minZoom = 14;
       layer.category = Category.Urban;
@@ -104,6 +111,10 @@ export class MakeCogGithub extends Github {
     } else if (category === Category.Satellite) {
       layer.minZoom = 5;
       layer.category = Category.Satellite;
+      this.addLayer(layer, tileSet, category);
+    } else if (category === Category.Event) {
+      layer.disabled = true;
+      layer.category = Category.Event;
       this.addLayer(layer, tileSet, category);
     } else {
       // Add new layer at the bottom
