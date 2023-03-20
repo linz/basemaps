@@ -34,6 +34,7 @@ o.spec('Attribution', () => {
         max: 12,
       },
       'linz:priority': [1001],
+      'linz:disabled': false,
     },
   };
   const feature: AttributionItem = {
