@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import { command, multioption, flag, number, restPositionals, array, string } from 'cmd-ts';
-import { writeFile } from 'fs/promises';
 import path from 'path';
 import { listSprites, ValidExtensions } from './fs.js';
 import { Sprites } from './sprites.js';
@@ -83,8 +82,8 @@ export async function buildSprites(
         outputPath = path.join(output, outputPath);
       }
 
-      await writeFile(`${outputPath}.json`, JSON.stringify(res.layout, null, 2));
-      await writeFile(`${outputPath}.png`, res.buffer);
+      await fs.writeFile(`${outputPath}.json`, JSON.stringify(res.layout, null, 2));
+      await fs.writeFile(`${outputPath}.png`, res.buffer);
       stats.push({
         sheet: sheetName,
         path: outputPath,
