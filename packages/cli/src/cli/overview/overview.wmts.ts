@@ -17,12 +17,12 @@ export function createOverviewWmtsCapabilities(
     title,
   };
   const wmts = new WmtsCapabilities({
-    tileSet,
-    tileMatrix: [tileMatrix],
-    formats: [ImageFormat.Webp],
     httpBase: '',
-    imagery: new Map(),
   });
+
+  wmts.addFormats(ImageFormat.Webp);
+  wmts.addTileMatrix(tileMatrix);
+  wmts.addTileSet(tileSet);
 
   wmts.maxZoom = maxZoom;
 

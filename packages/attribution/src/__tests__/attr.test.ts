@@ -199,13 +199,22 @@ o.spec('Attribution', () => {
   o('should find correct matches', () => {
     const ab = Attribution.fromStac(stac);
 
-    const r1 = ab.filter([-176.39344945738608, -44.83033160271776, -174.46936765305725, -44.180572883814044], 10);
+    const r1 = ab.filter({
+      extent: [-176.39344945738608, -44.83033160271776, -174.46936765305725, -44.180572883814044],
+      zoom: 10,
+    });
     o(r1.length).equals(1);
 
-    const r2 = ab.filter([-176.51378610374528, -44.08586625766628, -174.58970429941644, -43.86880564285871], 10);
+    const r2 = ab.filter({
+      extent: [-176.51378610374528, -44.08586625766628, -174.58970429941644, -43.86880564285871],
+      zoom: 10,
+    });
     o(r2.length).equals(1);
 
-    const r3 = ab.filter([-177.9303385717797, -43.746220943263886, -176.0062567674509, -43.52792030778592], 10);
+    const r3 = ab.filter({
+      extent: [-177.9303385717797, -43.746220943263886, -176.0062567674509, -43.52792030778592],
+      zoom: 10,
+    });
     o(r3.length).equals(1);
   });
 
@@ -226,7 +235,10 @@ o.spec('Attribution', () => {
      * .....
      * ....X
      */
-    const r2 = ab.filter([-176.39158207569128, -44.149224068909994, -176.34407960782733, -44.12924725546014], 10);
+    const r2 = ab.filter({
+      extent: [-176.39158207569128, -44.149224068909994, -176.34407960782733, -44.12924725546014],
+      zoom: 10,
+    });
     o(r2.length).equals(0);
 
     /**
@@ -240,47 +252,51 @@ o.spec('Attribution', () => {
      * ...Y.
      * ....X
      */
-    const r3 = ab.filter([-176.39158207569128, -44.19922406890999, -176.34407960782733, -44.18924725546014], 10);
+    const r3 = ab.filter({
+      extent: [-176.39158207569128, -44.19922406890999, -176.34407960782733, -44.18924725546014],
+      zoom: 10,
+    });
     o(r3.length).equals(0);
   });
   o('should filter out the dateRange', () => {
     const ab = Attribution.fromStac(stac);
 
-    const bounds: BBox = [-176.39344945738608, -44.83033160271776, -174.46936765305725, -44.180572883814044];
+    const extent: BBox = [-176.39344945738608, -44.83033160271776, -174.46936765305725, -44.180572883814044];
+    const zoom = 10;
     const dateAfter = '2015-01-01T00:00:01Z'; // After the endDate
-    const r1 = ab.filter(bounds, 10, dateAfter);
+    const r1 = ab.filter({ extent, zoom, dateAfter });
     o(r1.length).equals(0);
 
     const dateBefore = '2013-01-01T00:00:00Z'; // Before the startDate
-    const r2 = ab.filter(bounds, 10, undefined, dateBefore);
+    const r2 = ab.filter({ extent, zoom, dateBefore });
     o(r2.length).equals(0);
 
     // In the scope
-    const r3 = ab.filter(bounds, 10, '2013-01-01T00:00:01Z', '2015-02-01T00:00:01Z');
+    const r3 = ab.filter({ extent, zoom, dateAfter: '2013-01-01T00:00:01Z', dateBefore: '2015-02-01T00:00:01Z' });
     o(r3.length).equals(1);
 
     // DateBefore < DateAfter
-    const r4 = ab.filter(bounds, 10, '2014-02-01T00:00:01Z', '2014-01-01T00:00:01Z');
+    const r4 = ab.filter({ extent, zoom, dateAfter: '2014-02-01T00:00:01Z', dateBefore: '2014-01-01T00:00:01Z' });
     o(r4.length).equals(0);
 
     //DateBore = DateAfter in scope
-    const r5 = ab.filter(bounds, 10, '2014-02-01T00:00:01Z', '2014-02-01T00:00:01Z');
+    const r5 = ab.filter({ extent, zoom, dateAfter: '2014-02-01T00:00:01Z', dateBefore: '2014-02-01T00:00:01Z' });
     o(r5.length).equals(1);
 
     //DateBore out scope
-    const r6 = ab.filter(bounds, 10, '2013-02-01T00:00:01Z', '2013-02-01T00:00:01Z');
+    const r6 = ab.filter({ extent, zoom, dateAfter: '2013-02-01T00:00:01Z', dateBefore: '2013-02-01T00:00:01Z' });
     o(r6.length).equals(0);
 
     //DateAfter out scope
-    const r7 = ab.filter(bounds, 10, '2017-02-01T00:00:01Z', '2017-02-01T00:00:01Z');
+    const r7 = ab.filter({ extent, zoom, dateAfter: '2017-02-01T00:00:01Z', dateBefore: '2017-02-01T00:00:01Z' });
     o(r7.length).equals(0);
 
     // Only year in dateRange
-    const r8 = ab.filter(bounds, 10, '2012', '2017');
+    const r8 = ab.filter({ extent, zoom, dateAfter: '2012', dateBefore: '2017' });
     o(r8.length).equals(1);
 
     // Wrong DateRange Format
-    const r9 = ab.filter(bounds, 10, 'wrong', '2017');
+    const r9 = ab.filter({ extent, zoom, dateAfter: 'wrong', dateBefore: '2017' });
     o(r9.length).equals(0);
   });
 });
