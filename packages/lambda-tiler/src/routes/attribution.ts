@@ -138,6 +138,7 @@ async function tileSetAttribution(
         'linz:category': im.category,
         'linz:zoom': { min: zoomMin, max: zoomMax },
         'linz:priority': [1000 + tileSet.layers.indexOf(layer)],
+        'linz:disabled': layer.disabled ? true : false,
       },
     });
   }
