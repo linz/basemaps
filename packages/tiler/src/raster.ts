@@ -1,7 +1,7 @@
-import { Bounds, ImageFormat, Size } from '@basemaps/geo';
-import { Metrics } from '@linzjs/metrics';
+import { ImageFormat, Point, Size } from '@basemaps/geo';
 import { CogTiff } from '@cogeotiff/core';
 import { Cotar } from '@cotar/core';
+import { Metrics } from '@linzjs/metrics';
 
 export interface TileMaker {
   compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics }>;
@@ -37,11 +37,13 @@ export interface CompositionTiff {
   extract?: Size;
   /** Resize the image */
   resize?: Size & {
-    /** Scale  < 1 to zoom in, > 1 to zoom out */
-    scale: number;
+    /** Scale width  < 1 to zoom in, > 1 to zoom out, should generally be the same as scaleY */
+    scaleX: number;
+    /** Scale height  < 1 to zoom in, > 1 to zoom out */
+    scaleY: number;
   };
   /** Crop after the resize */
-  crop?: Bounds;
+  crop?: Size & Point;
 }
 
 export interface CompositionCotar {

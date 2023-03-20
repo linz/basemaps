@@ -17,6 +17,8 @@ export class AttributionBounds {
   boundaries: Ring[][] = [];
   minZoom: number;
   maxZoom: number;
+  startDate?: string;
+  endDate?: string;
 
   constructor(collection: AttributionCollection) {
     this.collection = collection;
@@ -24,16 +26,26 @@ export class AttributionBounds {
     this.minZoom = zoom.min;
     this.maxZoom = zoom.max;
     this.bbox = collection.extent.spatial.bbox[0];
+    this.startDate = collection.extent.temporal?.interval[0][0];
+    this.endDate = collection.extent.temporal?.interval[0][1];
   }
 
   /**
-   * Does this AttributionCollection intersect with `extent`
+   * Does this AttributionCollection intersect with an extent at a specified
+   * zoom level, optionally within a specified date range.
    *
    * @param extent The extent to test for intersection against
    * @param zoom only test extent if `zoom` is between `minZoom` and `maxZoom`
+   * @param dateAfter ISO 8601 format datetime for the start of the range of
+   *        time to test whether this occurs within.
+   * @param dateBefore ISO 8601 format datetime for the end of the range of
+   *        time to test whether this occurs within.
    */
-  intersects(extent: BBox, zoom: number): boolean {
+  intersects(extent: BBox, zoom: number, dateAfter?: string, dateBefore?: string): boolean {
     if (zoom > this.maxZoom || zoom < this.minZoom) return false;
+    if (dateAfter && dateBefore && dateAfter > dateBefore) return false;
+    if (dateAfter && this.endDate && dateAfter > this.endDate) return false;
+    if (dateBefore && this.startDate && dateBefore < this.startDate) return false;
     if (!Wgs84.intersects(extent, this.bbox)) return false;
     return this.intersection(Wgs84.bboxToMultiPolygon(extent));
   }
@@ -144,7 +156,7 @@ export class Attribution {
    * @param extent a bounding box in the projection supplied to the constructor
    * @param zoom the zoom level the extent is viewed at
    */
-  filter(extent: BBox, zoom: number): AttributionCollection[] {
+  filter(extent: BBox, zoom: number, dateAfter?: string, dateBefore?: string): AttributionCollection[] {
     zoom = Math.round(zoom);
 
     const filtered: AttributionCollection[] = [];
@@ -152,7 +164,7 @@ export class Attribution {
     if (attributions == null) return filtered;
     for (const attr of attributions) {
       if (this.isIgnored != null && this.isIgnored(attr)) continue;
-      if (attr.intersects(extent, zoom)) filtered.push(attr.collection);
+      if (attr.intersects(extent, zoom, dateAfter, dateBefore)) filtered.push(attr.collection);
     }
 
     return filtered;

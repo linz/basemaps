@@ -1,12 +1,11 @@
 import { Bounds } from '@basemaps/geo';
 import { fsa, isConfigS3Role, isFileConfigPath, LogConfig } from '@basemaps/shared';
+import { basename } from 'path';
 import * as ulid from 'ulid';
-import { CogBuilder } from '../index.js';
 import { BatchJob } from '../cli/cogify/batch.job.js';
+import { CogBuilder } from '../index.js';
 import { CogStacJob, JobCreationContext } from './cog.stac.job.js';
 import { Cutline } from './cutline.js';
-import { CogJob } from './types.js';
-import { basename } from 'path';
 
 export const MaxConcurrencyDefault = 50;
 
@@ -29,7 +28,7 @@ export const CogJobFactory = {
   /**
    * Create a COG Job and potentially submit it to AWS Batch for processing
    */
-  async create(ctx: JobCreationContext): Promise<CogJob> {
+  async create(ctx: JobCreationContext): Promise<CogStacJob> {
     const id = ctx.override?.id ?? ulid.ulid();
     let imageryName = ctx.imageryName;
     if (imageryName == null) imageryName = basename(ctx.sourceLocation.path);

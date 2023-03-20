@@ -8,9 +8,9 @@ A digital basemap provides a consistent background detail necessary to orient lo
 
 ## Building
 
-This repository requires [NodeJs](https://nodejs.org/en/) > 12 & [Yarn](https://yarnpkg.com/en/)
+This repository requires [NodeJs](https://nodejs.org/en/) > 16 & [Yarn](https://yarnpkg.com/en/)
 
-Use [n](https://github.com/tj/n) to manage nodeJs versions
+Use [n](https://github.com/tj/n) or [fnm](https://github.com/Schniz/fnm) to manage nodeJs versions
 
 ```bash
 # Download the latest nodejs & yarn

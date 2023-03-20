@@ -1,7 +1,11 @@
-import { CommandLineAction, CommandLineIntegerParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-
 import { createServer } from '@basemaps/server';
 import { Const, Env, LogConfig } from '@basemaps/shared';
+import {
+  CommandLineAction,
+  CommandLineFlagParameter,
+  CommandLineIntegerParameter,
+  CommandLineStringParameter,
+} from '@rushstack/ts-command-line';
 
 const DefaultPort = 5000;
 
@@ -9,6 +13,7 @@ export class CommandServe extends CommandLineAction {
   config: CommandLineStringParameter;
   assets: CommandLineStringParameter;
   port: CommandLineIntegerParameter;
+  noConfig: CommandLineFlagParameter;
 
   public constructor() {
     super({

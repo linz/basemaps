@@ -1,52 +1,51 @@
-import { Const, Env, LogConfig } from '@basemaps/shared';
-import { BaseCommandLine, CliInfo } from '@basemaps/shared/build/cli/base.js';
+import { Env, LogConfig } from '@basemaps/shared';
+import { CliInfo } from '@basemaps/shared/build/cli/info.js';
+import { command, flag, number, option, optional, restPositionals, string } from 'cmd-ts';
 import { createServer } from './server.js';
 
 CliInfo.package = 'basemaps/server';
 
 const DefaultPort = 5000;
 
-export class BasemapsServerCommand extends BaseCommandLine {
-  config = this.defineStringParameter({
-    argumentName: 'CONFIG',
-    parameterLongName: '--config',
-    description: 'Configuration source to use',
-  });
-  assets = this.defineStringParameter({
-    argumentName: 'ASSETS',
-    parameterLongName: '--assets',
-    description: 'Where the assets (sprites, fonts) are located',
-  });
-  port = this.defineIntegerParameter({
-    argumentName: 'PORT',
-    parameterLongName: '--port',
-    description: 'port to use',
-    defaultValue: DefaultPort,
-  });
-
-  constructor() {
-    super({
-      toolFilename: 'basemaps-server',
-      toolDescription: 'Create a WMTS/XYZ Tile server from basemaps config',
-    });
-  }
-
-  async onExecute(): Promise<void> {
-    await super.onExecute();
-
+export const BasemapsServerCommand = command({
+  name: 'basemaps-server',
+  version: CliInfo.version,
+  description: 'Create a basemaps server',
+  args: {
+    config: option({ type: optional(string), long: 'config', description: 'Configuration to use' }),
+    port: option({
+      type: optional(number),
+      long: 'port',
+      description: 'Port to use',
+      defaultValue: () => DefaultPort,
+      env: 'PORT',
+    }),
+    verbose: flag({ long: 'verbose', description: 'Enable verbose logging' }),
+    assets: option({
+      type: optional(string),
+      long: 'assets',
+      description: 'Where the assets (sprites, fonts) are located',
+    }),
+    paths: restPositionals({ type: string, displayName: 'path', description: 'Path to imagery' }),
+  },
+  handler: async (args) => {
     const logger = LogConfig.get();
-    logger.level = 'debug';
-    const config = this.config.value ?? 'dynamodb://' + Const.TileMetadata.TableName;
-    const port = this.port.value;
-    const assets = this.assets.value;
+    if (args.verbose) logger.level = 'debug';
+    if (args.paths.length === 0 && args.config == null) {
+      throw new Error('Either --config or paths must be used. see --help');
+    }
+    logger.info({ package: CliInfo, cli: 'server' }, 'Cli:Start');
 
-    const ServerUrl = Env.get(Env.PublicUrlBase) ?? `http://localhost:${port}`;
+    const ServerUrl = Env.get(Env.PublicUrlBase) ?? `http://localhost:${args.port}`;
     // Force a default url base so WMTS requests know their relative url
     process.env[Env.PublicUrlBase] = ServerUrl;
+    const serverOptions = args.config
+      ? { assets: args.assets, config: args.config }
+      : { assets: args.assets, paths: args.paths };
 
-    const server = await createServer({ config, assets }, logger);
+    const server = await createServer(serverOptions, logger);
 
-    await server.listen({ port: port ?? DefaultPort, host: '0.0.0.0' });
+    await server.listen({ port: args.port, host: '0.0.0.0' });
     logger.info({ url: ServerUrl }, 'ServerStarted');
-  }
-}
+  },
+});

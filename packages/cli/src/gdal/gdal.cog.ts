@@ -92,6 +92,10 @@ export class GdalCogBuilder {
       // Max CPU POWER
       '-co',
       'NUM_THREADS=ALL_CPUS',
+      // in GDAL 3.7.x NUM_THREADS will also set GDAL_NUM_THREADS
+      '--config',
+      'GDAL_NUM_THREADS',
+      'ALL_CPUS',
       // Force big tiff the extra few bytes savings of using little tiffs does not affect us
       '-co',
       'BIGTIFF=YES',

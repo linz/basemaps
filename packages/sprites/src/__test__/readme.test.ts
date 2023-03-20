@@ -6,7 +6,7 @@ import { basename } from 'path';
 export async function main(): Promise<void> {
   const sprites: SvgId[] = [];
   for await (const spritePath of fsa.list('./config/sprites')) {
-    sprites.push({ id: basename(spritePath).replace('.svg', ''), svg: await fsa.read(spritePath) });
+    sprites.push({ id: basename(spritePath).replace('.svg', ''), buffer: await fsa.read(spritePath) });
   }
 
   const generated = await Sprites.generate(sprites, [1, 2, 4]);

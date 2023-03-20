@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** do not crash server when assets are not found ([#2674](https://github.com/linz/basemaps/issues/2674)) ([77b75da](https://github.com/linz/basemaps/commit/77b75da7541a5ae3e521551d3b8530e2c06518d3))
+* **server:** gsd does not actually need to match ([#2694](https://github.com/linz/basemaps/issues/2694)) ([3737628](https://github.com/linz/basemaps/commit/373762875c2615515ce0853ba9dadcd04a2d988f))
+* **server:** make --no-config actually load the configuration from tiffs ([#2682](https://github.com/linz/basemaps/issues/2682)) ([019ee50](https://github.com/linz/basemaps/commit/019ee50ee22cda2ce143f9a012d4aaa9ffc0edc9))
+
+
+### Features
+
+* **config:** Make the config title as not null. ([#2667](https://github.com/linz/basemaps/issues/2667)) ([5e54854](https://github.com/linz/basemaps/commit/5e54854c10327385037122f7b7aada6adf312fae))
+* **lambda-tiler:** Move the union out of the calculation loop to improve the atrribution api performance ([#2732](https://github.com/linz/basemaps/issues/2732)) ([dbedf1b](https://github.com/linz/basemaps/commit/dbedf1b1794cc7b7b46f4c114a40f4a73289918a))
+* **lambda-tiler:** simple cli to trace the rendering of a tile ([#2678](https://github.com/linz/basemaps/issues/2678)) ([4a28aff](https://github.com/linz/basemaps/commit/4a28affa3737cd492143e485374fa4db6035da64))
+* **lambda-tiler:** trace if a filter has been applied to the layers ([#2664](https://github.com/linz/basemaps/issues/2664)) ([b4455e9](https://github.com/linz/basemaps/commit/b4455e9682a4dedcaaefde8e90cb72b6de29b8f6))
+* **lambda-tiler:** Update the wmts resource url to include the daterange. ([#2669](https://github.com/linz/basemaps/issues/2669)) ([2068610](https://github.com/linz/basemaps/commit/2068610631f7245e4fa063c3d2a8c12c7f011c0d))
+* **server:** change CLI interface to support multiple tiff folders ([#2688](https://github.com/linz/basemaps/issues/2688)) ([7fcd310](https://github.com/linz/basemaps/commit/7fcd310425aaf02bbadab2bb3b89cce5b7462c8f))
+* filter layers by date ([#2662](https://github.com/linz/basemaps/issues/2662)) ([745b6b6](https://github.com/linz/basemaps/commit/745b6b6e0ae40c5094647cf602ddf2bdd29a7d5f))
+
+
+
+
+
 # [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
 
 

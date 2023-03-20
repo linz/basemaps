@@ -1,20 +1,8 @@
-import { LogConfig } from '../log.js';
-import { LoggerFatalError } from '../logger.fatal.error.js';
-import { GitTag } from './git.tag.js';
 import { CommandLineParser } from '@rushstack/ts-command-line';
 import 'source-map-support/register.js';
-import * as ulid from 'ulid';
-
-/** Useful traceability information  */
-export const CliInfo: { package: string; version: string; hash: string } = {
-  // Detect unlinked packages looks for this string since its a package name, slightly work around it
-  package: '@' + 'basemaps/cli',
-  version: process.env.GIT_VERSION ?? GitTag().version,
-  hash: process.env.GIT_HASH ?? GitTag().hash,
-};
-
-/** Unique Id for this instance of the cli being run */
-export const CliId = ulid.ulid();
+import { LogConfig } from '../log.js';
+import { LoggerFatalError } from '../logger.fatal.error.js';
+import { CliId, CliInfo } from './info.js';
 
 export abstract class BaseCommandLine extends CommandLineParser {
   verbose = this.defineFlagParameter({

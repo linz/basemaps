@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
+
+
+### Bug Fixes
+
+* **landing:** Stop set state in the render which lead to infinite loop ([#2706](https://github.com/linz/basemaps/issues/2706)) ([a7530b0](https://github.com/linz/basemaps/commit/a7530b0bd6b634a4d613f29b4174cc0f7b313b77))
+* pass config id to tile url ([#2683](https://github.com/linz/basemaps/issues/2683)) ([271e6c4](https://github.com/linz/basemaps/commit/271e6c40ee56f67054af7d093b03be7a810e3b96))
+
+
+### Features
+
+* **landing:** Disable the date range slider as default and use debug.date to show it. ([#2737](https://github.com/linz/basemaps/issues/2737)) ([60c0bbf](https://github.com/linz/basemaps/commit/60c0bbfe9956a94a6f04153b285bcc9dcdc79b01))
+* use transition property for fades, add fade when removing layer ([#2702](https://github.com/linz/basemaps/issues/2702)) ([0bee2df](https://github.com/linz/basemaps/commit/0bee2df6f9f9d9b56982e04b24350a6ef91fbd68))
+* **landing:** Change structure of WindowUrl.toTileUrl to receive args object ([#2703](https://github.com/linz/basemaps/issues/2703)) ([d725fd3](https://github.com/linz/basemaps/commit/d725fd3677e14a3d58d1dd13eb67a83f6a5e934d))
+* add proof of concept date range slider ([#2681](https://github.com/linz/basemaps/issues/2681)) ([e9bdad5](https://github.com/linz/basemaps/commit/e9bdad545a28b230d81f54090b15fe230a4a5d04))
+* **landing:** add copyright link ([#2672](https://github.com/linz/basemaps/issues/2672)) ([ad87344](https://github.com/linz/basemaps/commit/ad87344b247ea6214bc3223fbace65ec5d5c9bd2))
+
+
+
+
+
 # [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
 
 

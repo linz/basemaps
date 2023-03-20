@@ -18,7 +18,7 @@ import {
   CompositeError,
 } from '@basemaps/shared';
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
-import { CliInfo } from '@basemaps/shared/build/cli/base.js';
+import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { GdalCogBuilderDefaults, GdalCogBuilderResampling } from '../gdal/gdal.config.js';
 import { ProjectionLoader } from './projection.loader.js';
 import { CogStac, CogStacItem, CogStacItemExtensions, CogStacKeywords } from './stac.js';
@@ -131,10 +131,9 @@ export class CogStacJob implements CogJob {
   }
 
   /**
-     * Create job.json, collection.json, source.geojson, covering.geojson, cutlint.geojson.gz and
-     * stac descriptions of the target COGs
-
-     */
+   * Create job.json, collection.json, source.geojson, covering.geojson, cutlint.geojson.gz and
+   * stac descriptions of the target COGs
+   */
   static async create({
     id,
     imageryName,
@@ -230,9 +229,7 @@ export class CogStacJob implements CogJob {
 
     if (interval.length === 0) {
       const years = extractYearRangeFromName(imageryName);
-      if (years[0] === -1) {
-        throw new Error('Missing date in imagery name: ' + imageryName);
-      }
+      if (years == null) throw new Error('Missing date in imagery name: ' + imageryName);
       interval.push(years.map((y) => `${y}-01-01T00:00:00Z`) as [string, string]);
     }
 

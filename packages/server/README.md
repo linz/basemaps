@@ -2,7 +2,7 @@
 
 WMTS/XYZ Tile server command line interface.
 
-This wraps the [@basemaps/lambda-tiler](https://github.com/linz/basemaps/blob/master/packages/lambda-tiler/README.md) into a standalone http server.
+This wraps the [@basemaps/lambda-tiler](https://github.com/linz/basemaps/blob/master/packages/lambda-tiler/README.md) into a standalone http server using [fastify](https://www.fastify.io/).
 
 ## Usage
 Basemaps server expects a folder tree full of configuration, with multiple tilesets and styles configuration files.
@@ -20,7 +20,7 @@ docker run -it \
     --volume $PWD/config:/config \
     --volume $PWD/tiffs:$PWD/tiffs \
     -p 5000:5000 \
-     ghcr.io/linz/basemaps-server:v6.28.0 --config /config
+     ghcr.io/linz/basemaps-server:v6 --config /config
 ```
 
 Where `${PWD}/config` contains all the configuration and `${PWD}/tiffs` is all the relevant tiff files
@@ -58,11 +58,11 @@ If you have a folder of tiffs the `@basemaps/server` can index the folder and cr
 For example given a structure where there are two folders full of tiffs
 
 ```
-/images/00_gebco_2021_305-75m/01G0DBCAEQAAPD0D2F2VZS40XM/*.tiff
-/images/10_geographx_nz_texture_shade_2012_8-0m_01FHRPYJ5FV1XAARZAC4T4K6MC/*.tiff
+/images/00_gebco_2021_305-75m/*.tiff
+/images/10_geographx_nz_texture_shade_2012_8-0m/*.tiff
 ```
 
-running `basemaps-server --config /images --no-config` will create two tile sets one for each folder `gebco_2021...` and `geographx_nz_t...` and then also create a combined layer in the order the tiffs are found.
+running `basemaps-server /images/00_gebco_2021_305-75m/ /images/10_geographx_nz_texture_shade_2012_8-0m/` will create two tile sets one for each folder `gebco_2021...` and `geographx_nz_t...` and then also create a combined layer in the order the tiffs are found.
 
 
 ## Developing

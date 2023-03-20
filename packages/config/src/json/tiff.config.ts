@@ -17,48 +17,54 @@ import { ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory/memory.config.js';
 import { ConfigJson } from './json.config.js';
 
+/** Does a file look like a tiff, ending in .tif or .tiff */
 function isTiff(f: string): boolean {
   const lowered = f.toLocaleLowerCase();
   return lowered.endsWith('.tif') || lowered.endsWith('.tiff');
 }
 
+/** Summary of a collection of tiffs */
+interface TiffSummary {
+  /** List of tiffs and their extents */
+  files: NamedBounds[];
+  /** Overall bounding box */
+  bounds: Bounds;
+  /** EpsgCode for the tiffs */
+  epsg: number;
+}
+
 /**
  * Read all tiffs from a target path and ensure all tiffs contain the same GSD and EPSG code,
  * while computing bounding boxes for the entire imagery set
+ *
+ * @throws if any of the tiffs have differing EPSG or GSD
  **/
-function computeTiffParameters(
-  target: string,
-  tiffs: CogTiff[],
-): { files: NamedBounds[]; bounds: Bounds; epsg: number; gsd: number } {
-  const files: NamedBounds[] = [];
-  let gsd: number | null = null;
-  let bounds: Bounds | null = null;
-  let epsg: number | null = null;
+function computeTiffSummary(target: string, tiffs: CogTiff[]): TiffSummary {
+  const res: Partial<TiffSummary> = { files: [] };
+
   for (const tiff of tiffs) {
     const firstImage = tiff.getImage(0);
     const imgBounds = Bounds.fromBbox(firstImage.bbox);
 
-    /** Ground sample distance must be the same for all iamgery */
-    if (gsd == null) gsd = firstImage.resolution[0];
-    else if (gsd !== firstImage.resolution[0]) {
-      throw new Error(`GSD miss match on imagery ${gsd} vs ${firstImage.resolution[0]} source:` + tiff.source.uri);
-    }
+    const epsg = firstImage.epsg;
+    if (epsg == null) throw new Error(`No ESPG projection found. source:` + tiff.source.uri);
 
     // Validate all EPSG codes are the same for each imagery set
-    if (epsg == null) epsg = firstImage.epsg;
-    else if (epsg !== firstImage.epsg) {
-      throw new Error(`ESPG projection miss match on imagery ${epsg} vs ${firstImage.epsg} source:` + tiff.source.uri);
+    if (res.epsg == null) res.epsg = epsg;
+    else if (res.epsg !== epsg) {
+      throw new Error(`ESPG projection mismatch on imagery ${res.epsg} vs ${epsg} source:` + tiff.source.uri);
     }
 
-    if (bounds == null) bounds = imgBounds;
-    else bounds = bounds.union(imgBounds);
-    files.push({ name: tiff.source.uri.replace(target, ''), ...imgBounds });
-  }
-  if (bounds == null) throw new Error('Failed to extract imagery bounds from:' + target);
-  if (gsd == null) throw new Error('Failed to extract imagery GSD from:' + target);
-  if (epsg == null) throw new Error('Failed to extract imagery epsg from:' + target);
+    if (res.bounds == null) res.bounds = imgBounds;
+    else res.bounds = res.bounds.union(imgBounds);
 
-  return { gsd, files, bounds, epsg };
+    if (res.files == null) res.files = [];
+    res.files.push({ name: tiff.source.uri.replace(target, ''), ...imgBounds });
+  }
+  if (res.bounds == null) throw new Error('Failed to extract imagery bounds from:' + target);
+  if (res.epsg == null) throw new Error('Failed to extract imagery epsg from:' + target);
+  if (res.files == null || res.files.length === 0) throw new Error('Failed to extract imagery from:' + target);
+  return res as TiffSummary;
 }
 
 /** Attempt to read a stac collection.json from the target path if it exists or return null if anything goes wrong. */
@@ -85,7 +91,7 @@ export async function imageryFromTiffPath(target: string, Q: pLimit.Limit): Prom
   );
 
   const stac = await loadStacFromPath(target);
-  const params = computeTiffParameters(target, tiffs);
+  const params = computeTiffSummary(target, tiffs);
 
   const folderName = basename(target);
   const title = stac?.title ?? folderName;
@@ -104,6 +110,8 @@ export async function imageryFromTiffPath(target: string, Q: pLimit.Limit): Prom
     files: params.files,
   };
   imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
+
+  await Promise.all(tiffs.map((t) => t.close()));
   return imagery;
 }
 
@@ -120,7 +128,7 @@ export async function imageryFromTiffPath(target: string, Q: pLimit.Limit): Prom
  * A. A single imagery datasets
  *
  * ```
- * target = "/imagery/invercargill_2022_0.05m/"
+ * target = ["/imagery/invercargill_2022_0.05m/"]
  * ```
  *
  * will load all tiffs from the resulting folder into a single tile set `aerial`
@@ -128,42 +136,35 @@ export async function imageryFromTiffPath(target: string, Q: pLimit.Limit): Prom
  * B: A tree of imagery datasets
  *
  * ```
- * target = "/imagery/"
+ * target = ["/imagery/invercargill_2022_0.05m/", "/imagery/wellington_2022_0.05/*.tiff"]
  * ```
  *
- * will load all tiffs from all folders inside /imagery into a single tile set "aerial",
- * then load each folder into their own tile set
+ * will load all tiffs from all folders targets into a single tile set "aerial",
+ * then load each folder into their own tile set.
+ *
+ * The rendering order will be the order of the target locations
  *
  * tile sets:  aerial, wellington_2022_0.05, invercargill_2022_0.05m
  *
  * @param provider where to store all the configuration generated
- * @param target the target location
+ * @param targets the target location
  * @param concurrency number of tiff files to load at a time
  * @returns
  */
-export async function initConfigFromPath(
+export async function initConfigFromPaths(
   provider: ConfigProviderMemory,
-  target: string,
+  targets: string[],
   concurrency = 25,
-): Promise<ConfigTileSetRaster> {
+): Promise<{ tileSet: ConfigTileSetRaster; imagery: ConfigImagery[] }> {
   const q = pLimit(concurrency);
-  // TODO listing the entire folder to see if it contains a tiff seems expensive, for local folders this should be pretty quick though
-  const targets = await fsa.toArray(fsa.details(target, { recursive: false }));
-  const imageryConfig: Promise<ConfigImagery>[] = [];
 
-  // Folder is a folder of tiffs
-  const hasTiff = targets.find((f) => isTiff(f.path));
-  if (hasTiff) imageryConfig.push(imageryFromTiffPath(target, q));
-  else {
-    for (const cfg of targets) {
-      if (cfg.isDirectory) imageryConfig.push(imageryFromTiffPath(cfg.path, q));
-    }
-  }
+  const imageryConfig: Promise<ConfigImagery>[] = [];
+  for (const target of targets) imageryConfig.push(imageryFromTiffPath(target, q));
 
   const aerialTileSet: ConfigTileSetRaster = {
     id: 'ts_aerial',
     name: 'aerial',
-    title: 'Basemap',
+    title: 'Basemaps',
     category: 'Basemaps',
     type: TileSetType.Raster,
     format: ImageFormat.Webp,
@@ -184,5 +185,5 @@ export async function initConfigFromPath(
     existingLayer[cfg.projection] = cfg.id;
   }
 
-  return aerialTileSet;
+  return { tileSet: aerialTileSet, imagery: configs };
 }

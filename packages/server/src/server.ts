@@ -1,4 +1,3 @@
-import { ConfigBundled, ConfigJson, ConfigPrefix, ConfigProviderDynamo, ConfigProviderMemory } from '@basemaps/config';
 import { handler } from '@basemaps/lambda-tiler';
 import { fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
@@ -10,6 +9,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
 import { URL } from 'url';
+import { loadConfig, ServerOptions } from './config.js';
 
 const instanceId = ulid.ulid();
 
@@ -26,44 +26,12 @@ function getLandingLocation(): string | null {
   }
 }
 
-export interface ServerOptions {
-  /** Path to assets */
-  assets?: string;
-
-  /** Path to configuration or a dynamdb table */
-  config: string;
-}
-
 export async function createServer(opts: ServerOptions, logger: LogType): Promise<FastifyInstance> {
   const BasemapsServer = fastify({});
   BasemapsServer.register(formBodyPlugin);
 
-  if (opts.config.startsWith('dynamodb://')) {
-    // Load config from dynamodb table
-    const table = opts.config.slice('dynamodb://'.length);
-    logger.info({ path: opts.config, table, mode: 'dynamo' }, 'Starting Server');
-    setDefaultConfig(new ConfigProviderDynamo(table));
-  } else if (opts.config.startsWith(ConfigPrefix.ConfigBundle)) {
-    // Load Bundled config by dynamo reference
-    const cb = await getDefaultConfig().ConfigBundle.get(opts.config);
-    if (cb == null) throw new Error(`Config bunble not exists for ${opts.config}`);
-    const configJson = await fsa.readJson<ConfigBundled>(cb.path);
-    const mem = ConfigProviderMemory.fromJson(configJson);
-    mem.createVirtualTileSets();
-    setDefaultConfig(mem);
-  } else if (opts.config.endsWith('.json') || opts.config.endsWith('.json.gz')) {
-    // Bundled config
-    logger.info({ path: opts.config, mode: 'config:bundle' }, 'Starting Server');
-    const configJson = await fsa.readJson<ConfigBundled>(opts.config);
-    const mem = ConfigProviderMemory.fromJson(configJson);
-    mem.createVirtualTileSets();
-    setDefaultConfig(mem);
-  } else {
-    const mem = await ConfigJson.fromPath(opts.config, logger);
-    logger.info({ path: opts.config, mode: 'config' }, 'Starting Server');
-    mem.createVirtualTileSets();
-    setDefaultConfig(mem);
-  }
+  const cfg = await loadConfig(opts, logger);
+  setDefaultConfig(cfg);
 
   if (opts.assets) {
     const isExists = await fsa.exists(opts.assets);
@@ -83,7 +51,7 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
 
   BasemapsServer.all<{ Querystring: { api: string } }>('/v1/*', (req, res) => {
     const url = new URL(`${req.protocol}://${req.hostname}${req.url}`);
-    if (!url.searchParams.has('api')) url.searchParams.set('api', 'c' + instanceId);
+    if (!url.searchParams.has('api')) url.searchParams.set('api', 'd' + instanceId);
 
     const request = new LambdaUrlRequest(
       {

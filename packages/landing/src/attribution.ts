@@ -34,11 +34,17 @@ export class MapAttribution {
 
   constructor(map: maplibregl.Map) {
     this.map = map;
-    onMapLoaded(map, this.resetAttribution);
     map.on('move', this.updateAttribution);
     Config.map.on('tileMatrix', this.resetAttribution);
     Config.map.on('layer', this.resetAttribution);
+
+    onMapLoaded(this.map, () => {
+      this._events.push(Config.map.on('filter', this.updateAttribution));
+      this.resetAttribution();
+    });
   }
+
+  _events: (() => boolean)[] = [];
 
   /**
    * Trigger an attribution text update.
@@ -55,17 +61,15 @@ export class MapAttribution {
   updateAttribution = (): void => {
     // Vector layers currently have no attribution
     if (Config.map.isVector) return this.vectorAttribution();
-
-    const tmsId = Config.map.layerKeyTms;
-    let loader = Attributions.get(tmsId);
+    const cacheKey = Config.map.layerKeyTms;
+    let loader = Attributions.get(cacheKey);
     if (loader == null) {
       loader = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
-      Attributions.set(tmsId, loader);
-
+      Attributions.set(cacheKey, loader);
       loader.then((attr) => {
         if (attr == null) return;
         attr.isIgnored = this.isIgnored;
-        AttributionSync.set(tmsId, attr);
+        AttributionSync.set(cacheKey, attr);
         this.scheduleRender();
       });
     }
@@ -115,7 +119,10 @@ export class MapAttribution {
     this.zoom += 1;
 
     const bbox = this.mapboxBoundToBbox(this.bounds, Config.map.tileMatrix);
-    const filtered = attr.filter(bbox, this.zoom);
+    const filtered = attr.filter(bbox, this.zoom, Config.map.filter.date.after, Config.map.filter.date.before);
+    const filteredLayerIds = filtered.map((x) => x.id).join('_');
+    Config.map.emit('visibleLayers', filteredLayerIds);
+
     let attributionHTML = attr.renderList(filtered);
     if (attributionHTML === '') {
       attributionHTML = Copyright;

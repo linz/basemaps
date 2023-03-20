@@ -82,13 +82,13 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     if (this.state.tileSet?.id !== Config.map.layerId || this.state.config !== Config.map.config) {
       this._loadingConfig = this._loadingConfig.then(() => this.loadConfig());
     }
-
     this.debugMap.setPurple(Config.map.debug['debug.background'] === 'magenta');
     this.debugMap.adjustRaster(this.props.map, 'osm', Config.map.debug['debug.layer.osm']);
     this.debugMap.adjustRaster(this.props.map, 'linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
     this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
+    this.renderWMTS();
   }
 
   /** Show the source bounding box ont he map */
@@ -131,14 +131,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   render(): ReactNode {
     if (Config.map.debug['debug.screenshot']) return null;
-    const wmtsUrl = WindowUrl.toTileUrl(
-      MapOptionType.Wmts,
-      Config.map.tileMatrix,
-      Config.map.layerId,
-      undefined,
-      Config.map.config,
-    );
-
     const title = this.state.imagery?.title;
     return (
       <div className="debug">
@@ -152,12 +144,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
             <div className="debug__value">{title}</div>
           </div>
         )}
-        <div className="debug__info">
-          <label className="debug__label"></label>
-          <div className="debug__value">
-            {Config.map.tileMatrix.projection.toEpsgString()} - <a href={wmtsUrl}>WMTS</a>
-          </div>
-        </div>
+        {this.renderWMTS()}
         <div className="debug__info">
           <label className="debug__label">TileMatrix</label>
           <div className="debug__value">{Config.map.tileMatrix.identifier}</div>
@@ -166,6 +153,27 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         {this.renderPurple()}
         {this.renderCogToggle()}
         {this.renderSourceToggle()}
+      </div>
+    );
+  }
+
+  getWMTSLink(): string {
+    return WindowUrl.toTileUrl({
+      urlType: MapOptionType.Wmts,
+      tileMatrix: Config.map.tileMatrix,
+      layerId: Config.map.layerId,
+      config: Config.map.config,
+      date: Config.map.filter.date,
+    });
+  }
+
+  renderWMTS(): ReactNode {
+    return (
+      <div className="debug__info">
+        <label className="debug__label"></label>
+        <div className="debug__value">
+          {Config.map.tileMatrix.projection.toEpsgString()} - <a href={this.getWMTSLink()}>WMTS</a>
+        </div>
       </div>
     );
   }
