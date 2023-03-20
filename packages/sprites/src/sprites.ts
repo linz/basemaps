@@ -4,9 +4,11 @@ import Sharp, { PngOptions } from 'sharp';
 export interface SvgId {
   /** Unique id for the sprite */
   id: string;
-  /** Sprite SVG as a buffer */
-  svg: Buffer;
+  /** Sprite as buffer */
+  buffer: Buffer;
 }
+/** Mirror the type SvgID as SpriteId as now sprites can be png, webp etc.. */
+export type SpriteId = SvgId;
 
 export interface SpriteSheetLayout {
   [id: string]: { width: number; height: number; x: number; y: number; pixelRatio: number };
@@ -41,10 +43,10 @@ export const Sprites = {
     const imageData: SpriteLoaded[] = [];
     const imageById = new Map<string, SpriteLoaded>();
     for (const img of source) {
-      const metadata = await Sharp(img.svg).metadata();
+      const metadata = await Sharp(img.buffer).metadata();
       if (metadata.width == null || metadata.height == null) throw new Error('Unable to get width of image: ' + img.id);
       if (imageById.has(img.id)) throw new Error('Duplicate sprite id ' + img.id);
-      const data = { width: metadata.width, height: metadata.height, id: img.id, svg: img.svg };
+      const data = { width: metadata.width, height: metadata.height, id: img.id, buffer: img.buffer };
       imageById.set(img.id, data);
       imageData.push(data);
     }
@@ -69,7 +71,7 @@ export const Sprites = {
         const spriteData = imageById.get(String(sprite.id));
         if (spriteData == null) throw new Error('Cannot find sprite: ' + sprite.id);
         composite.push({
-          input: await Sharp(spriteData.svg)
+          input: await Sharp(spriteData.buffer)
             .resize({ width: sprite.w * px })
             .toBuffer(),
           top: sprite.y * px,

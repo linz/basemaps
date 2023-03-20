@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
+
+
+### Bug Fixes
+
+* **server:** allow a small variance between GSD ([#2687](https://github.com/linz/basemaps/issues/2687)) ([6713f0b](https://github.com/linz/basemaps/commit/6713f0b8e103c0cbce519c297fe605183bdf10bc))
+* **server:** close tiff connections once they have been queried ([#2698](https://github.com/linz/basemaps/issues/2698)) ([cd43cb4](https://github.com/linz/basemaps/commit/cd43cb4f54aaa99feae9835f48207ca08d0e3253))
+* **server:** gsd does not actually need to match ([#2694](https://github.com/linz/basemaps/issues/2694)) ([3737628](https://github.com/linz/basemaps/commit/373762875c2615515ce0853ba9dadcd04a2d988f))
+* **server:** make --no-config actually load the configuration from tiffs ([#2682](https://github.com/linz/basemaps/issues/2682)) ([019ee50](https://github.com/linz/basemaps/commit/019ee50ee22cda2ce143f9a012d4aaa9ffc0edc9))
+
+
+### Features
+
+* **config:** generate configuration from a folder of tiffs ([#2677](https://github.com/linz/basemaps/issues/2677)) ([6afad20](https://github.com/linz/basemaps/commit/6afad20bd0014d5caa28dc49142fab92cecd283f))
+* **config:** Make the config title as not null. ([#2667](https://github.com/linz/basemaps/issues/2667)) ([5e54854](https://github.com/linz/basemaps/commit/5e54854c10327385037122f7b7aada6adf312fae))
+* **server:** change CLI interface to support multiple tiff folders ([#2688](https://github.com/linz/basemaps/issues/2688)) ([7fcd310](https://github.com/linz/basemaps/commit/7fcd310425aaf02bbadab2bb3b89cce5b7462c8f))
+
+
+
+
+
 # [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
 
 

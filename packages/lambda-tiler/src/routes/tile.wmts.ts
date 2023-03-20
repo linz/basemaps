@@ -55,18 +55,23 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
   );
   req.timer.end('imagery:load');
 
-  const xml = new WmtsCapabilities({
+  const wmts = new WmtsCapabilities({
     httpBase: host,
+    apiKey,
+    config: ConfigLoader.extract(req),
+    filters: getFilters(req),
+  });
+
+  wmts.fromParams({
     provider: provider ?? undefined,
     tileSet,
     tileMatrix,
     imagery,
-    apiKey,
-    config: ConfigLoader.extract(req),
-    formats: Validate.getRequestedFormats(req),
-    layers: req.params.tileMatrix == null ? filterLayers(req, tileSet.layers) : null,
-    filters: getFilters(req),
-  }).toXml();
+    formats: Validate.getRequestedFormats(req) ?? [],
+    layers: req.params.tileMatrix == null ? filterLayers(req, tileSet.layers) : undefined,
+  });
+
+  const xml = wmts.toXml();
   if (xml == null) return NotFound();
 
   const data = Buffer.from(xml);

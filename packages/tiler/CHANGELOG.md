@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
+
+
+### Bug Fixes
+
+* **server:** make --no-config actually load the configuration from tiffs ([#2682](https://github.com/linz/basemaps/issues/2682)) ([019ee50](https://github.com/linz/basemaps/commit/019ee50ee22cda2ce143f9a012d4aaa9ffc0edc9))
+* **tiler:** when scaling rectangles if the scaleX and scaleY differ scale using the larger dimension BM-772 ([#2693](https://github.com/linz/basemaps/issues/2693)) ([c498856](https://github.com/linz/basemaps/commit/c498856b1851026d0f3cb87fc9be4ac8cb0b4bc2))
+
+
+### Reverts
+
+* Revert "fix(tiler): when scaling rectangles if the scaleX and scaleY differ scale using the larger dimension BM-772 (#2693)" (#2711) ([c682963](https://github.com/linz/basemaps/commit/c682963171dce0a178e281ad62099edc53df93eb)), closes [#2693](https://github.com/linz/basemaps/issues/2693) [#2711](https://github.com/linz/basemaps/issues/2711)
+
+
+
+
+
 # [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
 
 

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
+
+
+### Bug Fixes
+
+* increase PixelPadding to 200 ([#2723](https://github.com/linz/basemaps/issues/2723)) ([265e03a](https://github.com/linz/basemaps/commit/265e03a5350880125c411426dbc04e14eb2c2e1a))
+* **cli:** use the STAC title if it exists as the imagery title BM-784 ([#2692](https://github.com/linz/basemaps/issues/2692)) ([f7d45f6](https://github.com/linz/basemaps/commit/f7d45f6657e636750d61cdde951c20bd57c2e160))
+* **server:** make --no-config actually load the configuration from tiffs ([#2682](https://github.com/linz/basemaps/issues/2682)) ([019ee50](https://github.com/linz/basemaps/commit/019ee50ee22cda2ce143f9a012d4aaa9ffc0edc9))
+
+
+### Features
+
+* **cli:** Double the padding for low resolution imagery. ([#2713](https://github.com/linz/basemaps/issues/2713)) ([b6dafa1](https://github.com/linz/basemaps/commit/b6dafa170903a9c822351b99fc6a2c46e3db6c69))
+* **cli:** Update a preview url for zoom level changes. ([#2699](https://github.com/linz/basemaps/issues/2699)) ([74ce320](https://github.com/linz/basemaps/commit/74ce3205a4317ae543a96432721a3f0f9ce4bf2c))
+* **config:** Make the config title as not null. ([#2667](https://github.com/linz/basemaps/issues/2667)) ([5e54854](https://github.com/linz/basemaps/commit/5e54854c10327385037122f7b7aada6adf312fae))
+* **server:** change CLI interface to support multiple tiff folders ([#2688](https://github.com/linz/basemaps/issues/2688)) ([7fcd310](https://github.com/linz/basemaps/commit/7fcd310425aaf02bbadab2bb3b89cce5b7462c8f))
+* filter layers by date ([#2662](https://github.com/linz/basemaps/issues/2662)) ([745b6b6](https://github.com/linz/basemaps/commit/745b6b6e0ae40c5094647cf602ddf2bdd29a7d5f))
+
+
+
+
+
 # [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
 
 

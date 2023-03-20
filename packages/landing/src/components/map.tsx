@@ -193,7 +193,9 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       <div style={{ flex: 1, position: 'relative' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
         {Config.map.isDebug ? <Debug map={this.map} /> : undefined}
-        {Config.map.isDebug && !Config.map.debug['debug.screenshot'] ? <DateRange /> : undefined}
+        {Config.map.isDebug && !Config.map.debug['debug.screenshot'] && Config.map.debug['debug.date'] ? (
+          <DateRange />
+        ) : undefined}
         {isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
       </div>
     );
