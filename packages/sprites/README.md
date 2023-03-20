@@ -12,7 +12,8 @@ import { basename } from 'path';
 
 const sprites: SvgId[] = [];
 for await (const spritePath of fsa.list('./config/sprites')) {
-  sprites.push({ id: basename(spritePath).replace('.svg', ''), svg: await fsa.read(spritePath) });
+  if (!spritePath.endsWith('.svg')) continue;
+  sprites.push({ id: basename(spritePath).replace('.svg', ''), buffer: await fsa.read(spritePath) });
 }
 
 const generated = await Sprites.generate(sprites, [1, 2, 4]);
@@ -42,3 +43,13 @@ topographic.png
 
 topographic@2x.json
 topographic@2x.png
+
+Sprites can also be in other formats such as PNG or WebP
+
+```
+# Load only png sprites
+basemaps-sprites --extension .png ./config/sprites/topographic
+
+# Load png, webp and svg sprites
+basemaps-sprites --extension .png --extension .svg --extension .webp ./config/sprites/topographic
+```
