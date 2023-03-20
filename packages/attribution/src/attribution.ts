@@ -41,8 +41,8 @@ export class AttributionBounds {
    * @param dateBefore ISO 8601 format datetime for the end of the range of
    *        time to test whether this occurs within.
    */
-  intersects(extent: BBox, zoom: number, dateAfter?: string, dateBefore?: string): boolean {
-    if (zoom > this.maxZoom || zoom < this.minZoom) return false;
+  intersects(extent: BBox, zoom?: number, dateAfter?: string, dateBefore?: string): boolean {
+    if (zoom) if (zoom > this.maxZoom || zoom < this.minZoom) return false;
     if (dateAfter && dateBefore && dateAfter > dateBefore) return false;
     if (dateAfter && this.endDate && dateAfter > this.endDate) return false;
     if (dateBefore && this.startDate && dateBefore < this.startDate) return false;
@@ -156,15 +156,13 @@ export class Attribution {
    * @param extent a bounding box in the projection supplied to the constructor
    * @param zoom the zoom level the extent is viewed at
    */
-  filter(extent: BBox, zoom: number, dateAfter?: string, dateBefore?: string): AttributionCollection[] {
-    zoom = Math.round(zoom);
-
-    const filtered: AttributionCollection[] = [];
+  filter(extent: BBox, zoom?: number, dateAfter?: string, dateBefore?: string): AttributionBounds[] {
+    const filtered: AttributionBounds[] = [];
     const { attributions } = this;
     if (attributions == null) return filtered;
     for (const attr of attributions) {
       if (this.isIgnored != null && this.isIgnored(attr)) continue;
-      if (attr.intersects(extent, zoom, dateAfter, dateBefore)) filtered.push(attr.collection);
+      if (attr.intersects(extent, zoom ? Math.round(zoom) : undefined, dateAfter, dateBefore)) filtered.push(attr);
     }
 
     return filtered;

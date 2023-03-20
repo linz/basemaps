@@ -15,6 +15,28 @@ export const Attributions: Map<string, Promise<Attribution | null>> = new Map();
 /** Rendering process needs synch access */
 const AttributionSync: Map<string, Attribution> = new Map();
 
+export interface MapAttributionState {
+  /** Load a attribution from a url, return a cached copy if we have one */
+  fetchAttribution(url: string): Promise<Attribution | null>;
+
+  /** Filter the attribution to the map bounding box */
+  filterAttributionToMap(map: maplibregl.Map): AttributionBounds[];
+
+  /**
+   * Covert Mapbox Bounds to tileMatrix BBox
+   */
+  // static mapboxBoundToBbox(bounds: LngLatBounds, zoom: number, tileMatrix: TileMatrixSet): BBox {
+  //   const swLocation = { lon: bounds.getWest(), lat: bounds.getSouth(), zoom: zoom };
+  //   const neLocation = { lon: bounds.getEast(), lat: bounds.getNorth(), zoom: zoom };
+  //   const swCoord = locationTransform(swLocation, GoogleTms, tileMatrix);
+  //   const neCoord = locationTransform(neLocation, GoogleTms, tileMatrix);
+  //   const bbox: BBox = [swCoord.lon, swCoord.lat, neCoord.lon, neCoord.lat];
+  //   return bbox;
+  // }
+}
+
+export const Mas: MapAttributionState = null as any;
+
 /**
  * Handles displaying attributions for the OpenLayers interface
  */
@@ -29,7 +51,7 @@ export class MapAttribution {
   attributionHtml = '';
   bounds: LngLatBounds = new LngLatBounds([0, 0, 0, 0]);
   zoom = -1;
-  filteredRecords: AttributionCollection[] = [];
+  // filteredRecords: AttributionCollection[] = [];
   attributionControl?: maplibregl.AttributionControl | null;
 
   constructor(map: maplibregl.Map) {
@@ -61,26 +83,30 @@ export class MapAttribution {
   updateAttribution = (): void => {
     // Vector layers currently have no attribution
     if (Config.map.isVector) return this.vectorAttribution();
-    const cacheKey = Config.map.layerKeyTms;
-    let loader = Attributions.get(cacheKey);
-    if (loader == null) {
-      loader = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
-      Attributions.set(cacheKey, loader);
-      loader.then((attr) => {
-        if (attr == null) return;
-        attr.isIgnored = this.isIgnored;
-        AttributionSync.set(cacheKey, attr);
-        this.scheduleRender();
-      });
-    }
-    this.scheduleRender();
+    const loader = Mas.fetchAttribution(Config.map.toTileUrl(MapOptionType.Attribution));
+    loader.then(() => this.scheduleRender());
   };
 
-  // Ignore DEMS from the attribution list
-  isIgnored = (attr: AttributionBounds): boolean => {
-    const title = attr.collection.title.toLowerCase();
-    return title.startsWith('geographx') || title.includes(' dem ');
-  };
+  // static getCurrentAttribution(): Promise<Attribution | null> {
+  //   const cacheKey = Config.map.layerKeyTms;
+  //   let loader = Attributions.get(cacheKey);
+  //   if (loader == null) {
+  //     loader = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
+  //     Attributions.set(cacheKey, loader);
+  //     loader.then((attr) => {
+  //       if (attr == null) return;
+  //       attr.isIgnored = this.isIgnored;
+  //       AttributionSync.set(cacheKey, attr);
+  //     });
+  //   }
+  //   return loader;
+  // }
+
+  // // Ignore DEMS from the attribution list
+  // static isIgnored = (attr: AttributionBounds): boolean => {
+  //   const title = attr.collection.title.toLowerCase();
+  //   return title.startsWith('geographx') || title.includes(' dem ');
+  // };
 
   /**
    * Only update attributions at most every 200ms
@@ -111,19 +137,22 @@ export class MapAttribution {
     this._raf = 0;
     const attr = AttributionSync.get(Config.map.layerKeyTms);
     if (attr == null) return this.removeAttribution();
-    this.zoom = Math.round(this.map.getZoom() ?? 0);
-    this.bounds = this.map.getBounds();
+    const filtered = Mas.filterAttributionToMap(this.map);
+    // this.zoom = Math.round(this.map.getZoom() ?? 0);
+    // this.bounds = this.map.getBounds();
 
-    // Note that Mapbox rendering 512×512 image tiles are offset by one zoom level compared to 256×256 tiles.
-    // For example, 512×512 tiles at zoom level 4 are equivalent to 256×256 tiles at zoom level 5.
-    this.zoom += 1;
+    // // Note that Mapbox rendering 512×512 image tiles are offset by one zoom level compared to 256×256 tiles.
+    // // For example, 512×512 tiles at zoom level 4 are equivalent to 256×256 tiles at zoom level 5.
+    // this.zoom += 1;
 
-    const bbox = this.mapboxBoundToBbox(this.bounds, Config.map.tileMatrix);
-    const filtered = attr.filter(bbox, this.zoom, Config.map.filter.date.after, Config.map.filter.date.before);
-    const filteredLayerIds = filtered.map((x) => x.id).join('_');
+    // const bbox = MapAttribution.mapboxBoundToBbox(this.bounds, this.zoom, Config.map.tileMatrix);
+    // const filtered = attr
+    //   .filter(bbox, this.zoom, Config.map.filter.date.after, Config.map.filter.date.before)
+    //   .map((f) => f.collection);
+    const filteredLayerIds = filtered.map((x) => x.collection.id).join('_');
     Config.map.emit('visibleLayers', filteredLayerIds);
 
-    let attributionHTML = attr.renderList(filtered);
+    let attributionHTML = attr.renderList(filtered.map((f) => f.collection));
     if (attributionHTML === '') {
       attributionHTML = Copyright;
     } else {
@@ -136,20 +165,8 @@ export class MapAttribution {
       this.map.addControl(this.attributionControl, 'bottom-right');
     }
 
-    this.filteredRecords = filtered;
+    // this.filteredRecords = filtered;
   };
-
-  /**
-   * Covert Mapbox Bounds to tileMatrix BBox
-   */
-  mapboxBoundToBbox(bounds: LngLatBounds, tileMatrix: TileMatrixSet): BBox {
-    const swLocation = { lon: bounds.getWest(), lat: bounds.getSouth(), zoom: this.zoom };
-    const neLocation = { lon: bounds.getEast(), lat: bounds.getNorth(), zoom: this.zoom };
-    const swCoord = locationTransform(swLocation, GoogleTms, tileMatrix);
-    const neCoord = locationTransform(neLocation, GoogleTms, tileMatrix);
-    const bbox: BBox = [swCoord.lon, swCoord.lat, neCoord.lon, neCoord.lat];
-    return bbox;
-  }
 
   /**
    * Add attribution for vector map
