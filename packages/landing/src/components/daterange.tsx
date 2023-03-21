@@ -11,8 +11,6 @@ export interface DateRangeState {
 
 export class DateRange extends Component {
   state: DateRangeState = { after: MinDate, before: MaxDate };
-  private _scheduled: number | NodeJS.Timeout | undefined;
-  private _raf = 0;
 
   get yearAfter(): string {
     return Config.map.filter.date.after == null ? MinDate.slice(0, 4) : Config.map.filter.date.after.slice(0, 4);
@@ -21,19 +19,6 @@ export class DateRange extends Component {
   get yearBefore(): string {
     return Config.map.filter.date.before == null ? MaxDate.slice(0, 4) : Config.map.filter.date.before.slice(0, 4);
   }
-
-  private scheduleUpdateConfig(): void {
-    if (this._scheduled != null || this._raf !== 0) return;
-    this._scheduled = setTimeout(() => {
-      this._scheduled = undefined;
-      this._raf = requestAnimationFrame(this.updateConfig);
-    }, 200);
-  }
-
-  updateConfig = (): void => {
-    this._raf = 0;
-    Config.map.setFilterDateRange(this.state.after, this.state.before);
-  };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>, id: 'before' | 'after'): void => {
     switch (id) {
@@ -44,7 +29,7 @@ export class DateRange extends Component {
         this.setState({ before: `${event.target.value}-12-31T23:59:59.999Z` });
         break;
     }
-    this.scheduleUpdateConfig();
+    Config.map.setFilterDateRange(this.state.after, this.state.before);
   };
 
   render(): ReactNode {
