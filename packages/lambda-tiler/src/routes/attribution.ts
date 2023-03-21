@@ -45,23 +45,19 @@ function roundPair(p: Pair): Pair {
  * @param files in target projection
  * @return MultiPolygon in WGS84
  */
-function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projection): MultiPolygon {
+export function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projection): MultiPolygon {
   if (Wgs84.delta(bbox[0], bbox[2]) <= 0) {
     // This bounds spans more than half the globe which multiPolygonToWgs84 can't handle; just
     // return bbox as polygon
     return Wgs84.bboxToMultiPolygon(bbox);
   }
 
-  let coordinates: MultiPolygon = [];
-
+  const polygons: MultiPolygon = [];
   // merge imagery bounds
-  for (const image of files) {
-    const poly = [Bounds.fromJson(image).pad(SmoothPadding).toPolygon()] as MultiPolygon;
-    coordinates = union(coordinates, poly);
-  }
+  for (const image of files) polygons.push(Bounds.fromJson(image).pad(SmoothPadding).toPolygon());
+  const coordinates = union(polygons);
 
   const roundToWgs84 = (p: number[]): number[] => roundPair(proj.toWgs84(p) as Pair);
-
   return multiPolygonToWgs84(coordinates, roundToWgs84);
 }
 
@@ -92,7 +88,6 @@ async function tileSetAttribution(
   const host = await config.Provider.get(config.Provider.id('linz'));
 
   for (const layer of filteredLayers) {
-    if (layer.disabled) continue;
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
     const im = imagery.get(imgId);
@@ -127,7 +122,8 @@ async function tileSetAttribution(
     }
     items.push(item);
 
-    const zoomMin = TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true);
+    const minZoom = layer.disabled ? 32 : layer.minZoom;
+    const zoomMin = TileMatrixSet.convertZoomLevel(minZoom ? minZoom : 0, GoogleTms, tileMatrix, true);
     const zoomMax = TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true);
     cols.push({
       stac_version: Stac.Version,
@@ -142,6 +138,7 @@ async function tileSetAttribution(
         'linz:category': im.category,
         'linz:zoom': { min: zoomMin, max: zoomMax },
         'linz:priority': [1000 + tileSet.layers.indexOf(layer)],
+        'linz:disabled': layer.disabled ? true : false,
       },
     });
   }

@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "6.39.0",
+  "version": "6.40.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -39,13 +39,13 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "dependencies": {
-    "@basemaps/config": "^6.39.0",
-    "@basemaps/geo": "^6.37.0",
-    "@basemaps/server": "^6.39.0",
-    "@basemaps/shared": "^6.39.0",
+    "@basemaps/config": "^6.40.0",
+    "@basemaps/geo": "^6.40.0",
+    "@basemaps/server": "^6.40.0",
+    "@basemaps/shared": "^6.40.0",
     "@basemaps/sprites": "^6.32.1",
-    "@basemaps/tiler": "^6.37.0",
-    "@basemaps/tiler-sharp": "^6.37.0",
+    "@basemaps/tiler": "^6.40.0",
+    "@basemaps/tiler-sharp": "^6.40.0",
     "@chunkd/fs": "^10.0.2",
     "@chunkd/source-aws-v2": "^9.3.1",
     "@cogeotiff/core": "^7.2.0",

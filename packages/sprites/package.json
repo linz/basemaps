@@ -33,7 +33,7 @@
   ],
   "dependencies": {
     "@mapbox/shelf-pack": "^3.2.0",
-    "@rushstack/ts-command-line": "^4.3.13",
+    "cmd-ts": "^0.12.1",
     "sharp": "^0.30.7"
   },
   "devDependencies": {

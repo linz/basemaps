@@ -1,6 +1,13 @@
 import { AttributionCollection, AttributionStac } from '@basemaps/geo';
 import { BBox, intersection, MultiPolygon, Ring, Wgs84 } from '@linzjs/geojson';
 
+export interface AttributionFilter {
+  extent: BBox;
+  zoom: number;
+  dateAfter?: string;
+  dateBefore?: string;
+}
+
 /** html escape function */
 function escapeHtml(text: string): string {
   const elm = document.createElement('span');
@@ -41,13 +48,13 @@ export class AttributionBounds {
    * @param dateBefore ISO 8601 format datetime for the end of the range of
    *        time to test whether this occurs within.
    */
-  intersects(extent: BBox, zoom: number, dateAfter?: string, dateBefore?: string): boolean {
-    if (zoom > this.maxZoom || zoom < this.minZoom) return false;
-    if (dateAfter && dateBefore && dateAfter > dateBefore) return false;
-    if (dateAfter && this.endDate && dateAfter > this.endDate) return false;
-    if (dateBefore && this.startDate && dateBefore < this.startDate) return false;
-    if (!Wgs84.intersects(extent, this.bbox)) return false;
-    return this.intersection(Wgs84.bboxToMultiPolygon(extent));
+  intersects(params: AttributionFilter): boolean {
+    if (params.zoom > this.maxZoom || params.zoom < this.minZoom) return false;
+    if (params.dateAfter && params.dateBefore && params.dateAfter > params.dateBefore) return false;
+    if (params.dateAfter && this.endDate && params.dateAfter > this.endDate) return false;
+    if (params.dateBefore && this.startDate && params.dateBefore < this.startDate) return false;
+    if (!Wgs84.intersects(params.extent, this.bbox)) return false;
+    return this.intersection(Wgs84.bboxToMultiPolygon(params.extent));
   }
 
   /**
@@ -156,15 +163,15 @@ export class Attribution {
    * @param extent a bounding box in the projection supplied to the constructor
    * @param zoom the zoom level the extent is viewed at
    */
-  filter(extent: BBox, zoom: number, dateAfter?: string, dateBefore?: string): AttributionCollection[] {
-    zoom = Math.round(zoom);
+  filter(params: AttributionFilter): AttributionCollection[] {
+    params.zoom = Math.round(params.zoom);
 
     const filtered: AttributionCollection[] = [];
     const { attributions } = this;
     if (attributions == null) return filtered;
     for (const attr of attributions) {
       if (this.isIgnored != null && this.isIgnored(attr)) continue;
-      if (attr.intersects(extent, zoom, dateAfter, dateBefore)) filtered.push(attr.collection);
+      if (attr.intersects(params)) filtered.push(attr.collection);
     }
 
     return filtered;

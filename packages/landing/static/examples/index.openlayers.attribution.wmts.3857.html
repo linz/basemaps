@@ -45,7 +45,7 @@
       map.addEventListener('moveend', () => {
         // Transform the extent into Lat/Long
         const extent = ol.proj.transformExtent(view.calculateExtent(), projection, 'EPSG:4326');
-        const filtered = attributions.filter(extent, view.getZoom());
+        const filtered = attributions.filter({ extent, zoom: view.getZoom() });
         source.setAttributions(attributions.renderList(filtered));
       });
     })();

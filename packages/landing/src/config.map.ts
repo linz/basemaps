@@ -1,7 +1,7 @@
 import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
-import { DateRangeState } from './components/daterange.js';
+import { DateRangeState, MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
@@ -90,12 +90,32 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return `basemaps-${Config.map.layerId}`;
   }
 
+  getDateRangeFromUrl(urlParams: URLSearchParams): DateRangeState {
+    let before = urlParams.get('date[before]') ?? undefined;
+    let after = urlParams.get('date[after]') ?? undefined;
+
+    // Limit the dateRange to be valid
+    if (before) before = before > MaxDate || before < MinDate ? undefined : before;
+    if (after) after = after > MaxDate || after < MinDate ? undefined : after;
+    if (before && after && after > before) {
+      before = undefined;
+      after = undefined;
+    }
+
+    return { after, before };
+  }
+
   updateFromUrl(search: string = window.location.search): void {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s') ?? urlParams.get('style');
     const config = urlParams.get('c') ?? urlParams.get('config');
 
     const layerId = urlParams.get('i') ?? 'aerial';
+    const date = this.getDateRangeFromUrl(urlParams);
+    if (this.filter.date.after !== date.after || this.filter.date.before !== date.before) {
+      this.filter.date = date;
+      this.emit('filter', this.filter);
+    }
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
@@ -113,7 +133,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.tileMatrix = tileMatrix;
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
-
     this.emit('tileMatrix', this.tileMatrix);
     this.emit('layer', this.layerId, this.style);
     if (previousUrl !== MapConfig.toUrl(this)) this.emit('change');
@@ -125,6 +144,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.config) urlParams.append('config', ensureBase58(opts.config));
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('p', opts.tileMatrix.identifier);
+    if (opts.filter.date.after) urlParams.append('date[after]', opts.filter.date.after);
+    if (opts.filter.date.before) urlParams.append('date[before]', opts.filter.date.before);
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
   }
