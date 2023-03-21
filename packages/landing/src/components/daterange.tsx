@@ -10,7 +10,7 @@ export interface DateRangeState {
 }
 
 export class DateRange extends Component {
-  state: DateRangeState = { after: minDate, before: maxDate };
+  state: DateRangeState = { after: MinDate, before: MaxDate };
 
   get yearAfter(): string {
     return Config.map.filter.date.after == null ? MinDate.slice(0, 4) : Config.map.filter.date.after.slice(0, 4);
