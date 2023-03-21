@@ -88,7 +88,6 @@ async function tileSetAttribution(
   const host = await config.Provider.get(config.Provider.id('linz'));
 
   for (const layer of filteredLayers) {
-    if (layer.disabled) continue;
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
     const im = imagery.get(imgId);
@@ -123,7 +122,8 @@ async function tileSetAttribution(
     }
     items.push(item);
 
-    const zoomMin = TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true);
+    const minZoom = layer.disabled ? 32 : layer.minZoom;
+    const zoomMin = TileMatrixSet.convertZoomLevel(minZoom ? minZoom : 0, GoogleTms, tileMatrix, true);
     const zoomMax = TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true);
     cols.push({
       stac_version: Stac.Version,
@@ -138,6 +138,7 @@ async function tileSetAttribution(
         'linz:category': im.category,
         'linz:zoom': { min: zoomMin, max: zoomMax },
         'linz:priority': [1000 + tileSet.layers.indexOf(layer)],
+        'linz:disabled': layer.disabled ? true : false,
       },
     });
   }
