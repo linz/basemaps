@@ -1,6 +1,6 @@
 import { ConfigLayer, ConfigTileSetRaster } from '@basemaps/config';
 import { LogType } from '@basemaps/shared';
-import { Category, DefaultDisabled, DefaultMinZoom } from '../cogify/action.make.cog.pr.js';
+import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
 import { Github, owner, repo } from './github.js';
 
 export class MakeCogGithub extends Github {
@@ -37,35 +37,48 @@ export class MakeCogGithub extends Github {
     const tileSet = await this.getTileSetConfig();
     const newTileSet = await this.prepareTileSetConfig(layer, tileSet, category);
 
-    // skip pull request if not an urban or rural imagery
-    if (newTileSet == null) return;
+    // // skip pull request if not an urban or rural imagery
+    // if (newTileSet == null) return;
 
-    const branch = `feat/config-${this.imagery}`;
-    const ref = `heads/${branch}`;
-    // Create branch first
-    let sha = await this.getBranch(ref);
-    if (sha == null) sha = await this.createBranch(branch, ref);
+    // const branch = `feat/config-${this.imagery}`;
+    // const ref = `heads/${branch}`;
+    // // Create branch first
+    // let sha = await this.getBranch(ref);
+    // if (sha == null) sha = await this.createBranch(branch, ref);
 
-    // Create blob for the tileset config
-    const content = JSON.stringify(newTileSet, null, 2) + '\n'; // Add a new line at end to match the prettier.
-    const path = `config/tileset/aerial.json`;
-    const blob = await this.createBlobs(content, path);
+    // // Create blob for the tileset config
+    // const content = JSON.stringify(newTileSet, null, 2) + '\n'; // Add a new line at end to match the prettier.
+    // const path = `config/tileset/aerial.json`;
+    // const blob = await this.createBlobs(content, path);
 
-    // commit blobs to tree
-    const message = `feat(imagery): Add imagery ${this.imagery} config file.`;
-    await this.commit(branch, ref, [blob], message, sha);
-    // Create imagery import pull request
-    const title = `feat(aerial): Config imagery ${this.imagery} into Aerial Map. ${jira ? jira : ''}`;
-    const prNumber = await this.createPullRequest(branch, title, false);
-    return prNumber;
+    // // commit blobs to tree
+    // const message = `feat(imagery): Add imagery ${this.imagery} config file.`;
+    // await this.commit(branch, ref, [blob], message, sha);
+    // // Create imagery import pull request
+    // const title = `feat(aerial): Config imagery ${this.imagery} into Aerial Map. ${jira ? jira : ''}`;
+    // const prNumber = await this.createPullRequest(branch, title, false);
+    return 1;
+  }
+
+  /**
+   * Add new layer at the bottom of related category
+   */
+  setDefaultConfig(layer: ConfigLayer, category: Category): ConfigLayer {
+    for (const setting of DefaultCategorySetting) {
+      if (category === setting.category) {
+        layer.category = setting.category;
+        if (setting.minZoom) layer.minZoom = setting.minZoom;
+        if (setting.disabled) layer.disabled = setting.disabled;
+      }
+    }
+    return layer;
   }
 
   /**
    * Add new layer at the bottom of related category
    */
   addLayer(layer: ConfigLayer, tileSet: ConfigTileSetRaster, category: Category): ConfigTileSetRaster {
-    if (DefaultDisabled[category]) layer.disabled = true;
-    layer.minZoom = DefaultMinZoom[category];
+    this.setDefaultConfig(layer, category);
     for (let i = tileSet.layers.length - 1; i >= 0; i--) {
       // Add new layer at the end of category
       if (tileSet.layers[i].category === category) {
@@ -95,8 +108,7 @@ export class MakeCogGithub extends Github {
 
     // Set layer zoom level and add to latest order
     if (category === Category.Rural) {
-      layer.minZoom = 13;
-      layer.category = Category.Rural;
+      this.setDefaultConfig(layer, category);
       for (let i = 0; i < tileSet.layers.length; i++) {
         // Add new layer above the first Urban
         if (tileSet.layers[i].category === Category.Urban) {
@@ -107,7 +119,7 @@ export class MakeCogGithub extends Github {
       }
     } else if (category === Category.Other) {
       // Add new layer at the bottom
-      layer.category = Category.Other;
+      this.setDefaultConfig(layer, category);
       tileSet.layers.push(layer);
     } else {
       this.addLayer(layer, tileSet, category);
