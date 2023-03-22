@@ -1,6 +1,6 @@
 import { ConfigLayer, ConfigTileSetRaster } from '@basemaps/config';
 import { LogType } from '@basemaps/shared';
-import { Category } from '../cogify/action.make.cog.pr.js';
+import { Category, DefaultDisabled, DefaultMinZoom } from '../cogify/action.make.cog.pr.js';
 import { Github, owner, repo } from './github.js';
 
 export class MakeCogGithub extends Github {
@@ -63,12 +63,13 @@ export class MakeCogGithub extends Github {
   /**
    * Add new layer at the bottom of related category
    */
-
   addLayer(layer: ConfigLayer, tileSet: ConfigTileSetRaster, category: Category): ConfigTileSetRaster {
+    if (DefaultDisabled[category]) layer.disabled = true;
+    layer.minZoom = DefaultMinZoom[category];
     for (let i = tileSet.layers.length - 1; i >= 0; i--) {
       // Add new layer at the end of category
       if (tileSet.layers[i].category === category) {
-        // Find first valid Urban and insert new record above that.
+        // Find first valid category and insert new record above that.
         tileSet.layers.splice(i + 1, 0, layer);
         break;
       }
@@ -84,7 +85,7 @@ export class MakeCogGithub extends Github {
     tileSet: ConfigTileSetRaster,
     category: Category,
   ): Promise<ConfigTileSetRaster | undefined> {
-    //Reprocess existing layer
+    // Reprocess existing layer
     for (let i = 0; i < tileSet.layers.length; i++) {
       if (tileSet.layers[i].name === layer.name) {
         tileSet.layers[i] = layer;
@@ -104,22 +105,12 @@ export class MakeCogGithub extends Github {
           break;
         }
       }
-    } else if (category === Category.Urban) {
-      layer.minZoom = 14;
-      layer.category = Category.Urban;
-      this.addLayer(layer, tileSet, category);
-    } else if (category === Category.Satellite) {
-      layer.minZoom = 5;
-      layer.category = Category.Satellite;
-      this.addLayer(layer, tileSet, category);
-    } else if (category === Category.Event) {
-      layer.disabled = true;
-      layer.category = Category.Event;
-      this.addLayer(layer, tileSet, category);
-    } else {
+    } else if (category === Category.Other) {
       // Add new layer at the bottom
       layer.category = Category.Other;
       tileSet.layers.push(layer);
+    } else {
+      this.addLayer(layer, tileSet, category);
     }
 
     return tileSet;

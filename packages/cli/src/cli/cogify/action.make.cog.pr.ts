@@ -12,6 +12,22 @@ export enum Category {
   Other = 'New Aerial Photos',
 }
 
+export const DefaultMinZoom = {
+  [Category.Satellite]: 5,
+  [Category.Rural]: 13,
+  [Category.Urban]: 14,
+  [Category.Other]: 32,
+  [Category.Event]: 32,
+};
+
+export const DefaultDisabled = {
+  [Category.Satellite]: false,
+  [Category.Rural]: false,
+  [Category.Urban]: false,
+  [Category.Other]: true,
+  [Category.Event]: true,
+};
+
 export function parseCategory(category: string): Category {
   const c = category.toLocaleLowerCase();
   if (c.includes('urban')) return Category.Urban;
@@ -62,7 +78,7 @@ export class CommandCogPullRequest extends CommandLineAction {
     });
     this.disabled = this.defineFlagParameter({
       parameterLongName: '--disabled',
-      description: 'Disabled the layer in the config',
+      description: 'Disable the layer in the config',
       required: false,
     });
   }
