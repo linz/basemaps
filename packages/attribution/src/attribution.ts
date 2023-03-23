@@ -3,7 +3,7 @@ import { BBox, intersection, MultiPolygon, Ring, Wgs84 } from '@linzjs/geojson';
 
 export interface AttributionFilter {
   extent: BBox;
-  zoom: number;
+  zoom?: number;
   dateAfter?: string;
   dateBefore?: string;
 }
@@ -24,8 +24,8 @@ export class AttributionBounds {
   boundaries: Ring[][] = [];
   minZoom: number;
   maxZoom: number;
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
 
   constructor(collection: AttributionCollection) {
     this.collection = collection;
@@ -33,8 +33,8 @@ export class AttributionBounds {
     this.minZoom = zoom.min;
     this.maxZoom = zoom.max;
     this.bbox = collection.extent.spatial.bbox[0];
-    this.startDate = collection.extent.temporal?.interval[0][0];
-    this.endDate = collection.extent.temporal?.interval[0][1];
+    this.startDate = collection.extent.temporal.interval[0][0];
+    this.endDate = collection.extent.temporal.interval[0][1];
   }
 
   /**
@@ -49,7 +49,7 @@ export class AttributionBounds {
    *        time to test whether this occurs within.
    */
   intersects(params: AttributionFilter): boolean {
-    if (params.zoom > this.maxZoom || params.zoom < this.minZoom) return false;
+    if (params.zoom) if (params.zoom > this.maxZoom || params.zoom < this.minZoom) return false;
     if (params.dateAfter && params.dateBefore && params.dateAfter > params.dateBefore) return false;
     if (params.dateAfter && this.endDate && params.dateAfter > this.endDate) return false;
     if (params.dateBefore && this.startDate && params.dateBefore < this.startDate) return false;
@@ -163,15 +163,15 @@ export class Attribution {
    * @param extent a bounding box in the projection supplied to the constructor
    * @param zoom the zoom level the extent is viewed at
    */
-  filter(params: AttributionFilter): AttributionCollection[] {
-    params.zoom = Math.round(params.zoom);
+  filter(params: AttributionFilter): AttributionBounds[] {
+    if (params.zoom) params.zoom = Math.round(params.zoom);
 
-    const filtered: AttributionCollection[] = [];
+    const filtered: AttributionBounds[] = [];
     const { attributions } = this;
     if (attributions == null) return filtered;
     for (const attr of attributions) {
       if (this.isIgnored != null && this.isIgnored(attr)) continue;
-      if (attr.intersects(params)) filtered.push(attr.collection);
+      if (attr.intersects(params)) filtered.push(attr);
     }
 
     return filtered;
@@ -185,16 +185,16 @@ export class Attribution {
    *
    * @param list the filtered list of attributions
    */
-  renderList(list: AttributionCollection[]): string {
+  renderList(list: AttributionBounds[]): string {
     if (list.length === 0) return '';
-    let result = escapeHtml(list[0].title);
+    let result = escapeHtml(list[0].collection.title);
     if (list.length > 1) {
       if (list.length === 2) {
-        result += ` & ${escapeHtml(list[1].title)}`;
+        result += ` & ${escapeHtml(list[1].collection.title)}`;
       } else {
-        let [minYear, maxYear] = getYears(list[1]);
+        let [minYear, maxYear] = getYears(list[1].collection);
         for (let i = 1; i < list.length; ++i) {
-          const [a, b] = getYears(list[i]);
+          const [a, b] = getYears(list[i].collection);
           if (a !== -1 && (minYear === -1 || a < minYear)) minYear = a;
           if (b !== -1 && (maxYear === -1 || b > maxYear)) maxYear = b;
         }

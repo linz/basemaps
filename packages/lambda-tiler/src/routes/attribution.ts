@@ -93,10 +93,16 @@ async function tileSetAttribution(
     const im = imagery.get(imgId);
     if (im == null) continue;
     const title = im.title;
+    const years = extractYearRangeFromTitle(im.title) ?? extractYearRangeFromName(im.name);
+    if (years == null) continue;
+    const interval = yearRangeToInterval(years);
 
     const bbox = proj.boundsToWgs84BoundingBox(im.bounds).map(roundNumber) as BBox;
 
-    const extent: StacExtent = { spatial: { bbox: [bbox] } };
+    const extent: StacExtent = {
+      spatial: { bbox: [bbox] },
+      temporal: { interval: [[interval[0].toISOString(), interval[1].toISOString()]] },
+    };
 
     const item: AttributionItem = {
       type: 'Feature',
@@ -110,16 +116,12 @@ async function tileSetAttribution(
       properties: {
         title,
         category: im.category,
+        datetime: null,
+        start_datetime: interval[0].toISOString(),
+        end_datetime: interval[1].toISOString(),
       },
     };
-    const years = extractYearRangeFromTitle(im.title) ?? extractYearRangeFromName(im.name);
-    if (years) {
-      const interval = yearRangeToInterval(years);
-      extent.temporal = { interval: [[interval[0].toISOString(), interval[1].toISOString()]] };
-      item.properties.datetime = null;
-      item.properties.start_datetime = interval[0].toISOString();
-      item.properties.end_datetime = interval[1].toISOString();
-    }
+
     items.push(item);
 
     const minZoom = layer.disabled ? 32 : layer.minZoom;

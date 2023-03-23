@@ -187,10 +187,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('change');
   }
 
-  setFilterDateRange(after: string | undefined, before: string | undefined): void {
-    if (this.filter.date.after === after && this.filter.date.before === before) return;
-    this.filter.date.after = after;
-    this.filter.date.before = before;
+  setFilterDateRange(daterange: DateRangeState): void {
+    if (this.filter.date === daterange) return;
+    this.filter.date = daterange;
     this.emit('filter', this.filter);
     this.emit('change');
   }
