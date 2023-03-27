@@ -1,4 +1,4 @@
-import { AttributionBounds } from '@basemaps/attribution';
+import { Attribution, AttributionBounds } from '@basemaps/attribution';
 import { Component, ReactNode } from 'react';
 import { MapAttributionState, MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
@@ -9,6 +9,7 @@ export const MaxDate = `${new Date().getFullYear().toString()}-12-31T23:59:59.99
 export interface DateRangeState {
   after?: string;
   before?: string;
+  attribution?: Attribution | null;
 }
 
 export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState> {
@@ -22,7 +23,7 @@ export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState
     return before.slice(0, 4);
   }
 
-  clampDates(): DateRangeState {
+  clampDates(): DateRangeState | undefined {
     const attrs = this.getFilteredAttrs(true);
     if (attrs === null || this.state.after === undefined || this.state.before === undefined)
       return { after: this.state.after, before: this.state.before };
@@ -69,15 +70,22 @@ export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState
   }
 
   getFilteredAttrs(useZoom = false): AttributionBounds[] | null {
-    const attr = MapAttrState.getCurrentAttributionSync();
-    if (attr === undefined) return null;
+    if (this.state.attribution == null) return null;
     const zoom = Math.round(this.props.map.getZoom() ?? 0);
     const bbox = MapAttributionState.mapboxBoundToBbox(this.props.map.getBounds(), zoom, Config.map.tileMatrix);
-    return attr.filter({ extent: bbox, zoom: useZoom ? zoom : undefined });
+    return this.state.attribution.filter({
+      extent: bbox,
+      zoom: useZoom ? zoom : undefined,
+      dateAfter: this.state.after,
+      dateBefore: this.state.before,
+    });
   }
 
   componentDidMount(): void {
     this.setState({ after: MinDate, before: MaxDate });
+    MapAttrState.getCurrentAttribution().then((attribution) => {
+      this.setState({ attribution });
+    });
   }
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>, id: 'before' | 'after'): void => {
@@ -91,22 +99,14 @@ export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState
     }
     const clampedDateRange = this.clampDates();
     console.log({ raw: this.state, clamped: clampedDateRange });
-    Config.map.setFilterDateRange(this.clampDates());
+    if (clampedDateRange) Config.map.setFilterDateRange(clampedDateRange);
   };
 
   render(): ReactNode {
     const map = this.props.map;
     if (map == null) return;
-    const attr = MapAttrState.getCurrentAttributionSync();
-    if (attr == null) {
-      console.log('Attr is null');
-      return;
-    }
-    const zoom = Math.round(map.getZoom() ?? 0);
-    const bounds = map.getBounds();
-    const bbox = MapAttributionState.mapboxBoundToBbox(bounds, zoom, Config.map.tileMatrix);
-    const filtered = attr.filter({ extent: bbox });
-
+    const filtered = this.getFilteredAttrs();
+    if (filtered == null) return;
     this.props.map.getBounds();
     // Filter it by map bounds
     let maxCount = 0;

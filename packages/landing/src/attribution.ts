@@ -22,20 +22,12 @@ export class MapAttributionState {
     if (attrs == null) {
       attrs = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
       this._attrs.set(cacheKey, attrs);
+      attrs.then((a) => {
+        if (a == null) return;
+        this._attrsSync.set(Config.map.layerKeyTms, a);
+      });
     }
     return attrs;
-  }
-
-  getCurrentAttributionSync(): Attribution | undefined {
-    const cacheKey = Config.map.layerKeyTms;
-    const attrSync = this._attrsSync.get(cacheKey);
-    if (attrSync) return attrSync;
-    const attrAsync = this.getCurrentAttribution();
-    attrAsync.then((a) => {
-      if (a == null) return;
-      this._attrsSync.set(Config.map.layerKeyTms, a); // Question? Can we get the resolved promises out from here?
-    });
-    return this._attrsSync.get(cacheKey);
   }
 
   /** Filter the attribution to the map bounding box */
@@ -51,6 +43,21 @@ export class MapAttributionState {
       dateAfter: Config.map.filter.date.after,
       dateBefore: Config.map.filter.date.before,
     });
+  }
+
+  getAttributionByYear(attribution: AttributionBounds[]): Map<number, AttributionBounds[]> {
+    const attrsByYear = new Map<number, AttributionBounds[]>();
+    for (const a of attribution) {
+      if (!a.startDate || !a.endDate) continue;
+      const startYear = Number(a.startDate.slice(0, 4));
+      const endYear = Number(a.endDate.slice(0, 4));
+      for (let year = startYear; year <= endYear; year++) {
+        const attrs = attrsByYear.get(year) ?? [];
+        attrs.push(a);
+        attrsByYear.set(year, attrs);
+      }
+    }
+    return attrsByYear;
   }
 
   /**
@@ -113,7 +120,8 @@ export class MapAttribution {
   updateAttribution = (): void => {
     // Vector layers currently have no attribution
     if (Config.map.isVector) return this.vectorAttribution();
-    this.scheduleRender();
+    const loader = MapAttrState.getCurrentAttribution();
+    loader.then(() => this.scheduleRender());
   };
 
   // Ignore DEMS from the attribution list
@@ -149,7 +157,7 @@ export class MapAttribution {
    */
   renderAttribution = (): void => {
     this._raf = 0;
-    const attr = MapAttrState.getCurrentAttributionSync();
+    const attr = MapAttrState._attrsSync.get(Config.map.layerKeyTms);
     if (attr == null) return this.removeAttribution();
     const filtered = MapAttrState.filterAttributionToMap(attr, this.map);
     const filteredLayerIds = filtered.map((x) => x.collection.id).join('_');
