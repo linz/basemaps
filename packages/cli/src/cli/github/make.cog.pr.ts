@@ -37,27 +37,27 @@ export class MakeCogGithub extends Github {
     const tileSet = await this.getTileSetConfig();
     const newTileSet = await this.prepareTileSetConfig(layer, tileSet, category);
 
-    // // skip pull request if not an urban or rural imagery
-    // if (newTileSet == null) return;
+    // skip pull request if not an urban or rural imagery
+    if (newTileSet == null) return;
 
-    // const branch = `feat/config-${this.imagery}`;
-    // const ref = `heads/${branch}`;
-    // // Create branch first
-    // let sha = await this.getBranch(ref);
-    // if (sha == null) sha = await this.createBranch(branch, ref);
+    const branch = `feat/config-${this.imagery}`;
+    const ref = `heads/${branch}`;
+    // Create branch first
+    let sha = await this.getBranch(ref);
+    if (sha == null) sha = await this.createBranch(branch, ref);
 
-    // // Create blob for the tileset config
-    // const content = JSON.stringify(newTileSet, null, 2) + '\n'; // Add a new line at end to match the prettier.
-    // const path = `config/tileset/aerial.json`;
-    // const blob = await this.createBlobs(content, path);
+    // Create blob for the tileset config
+    const content = JSON.stringify(newTileSet, null, 2) + '\n'; // Add a new line at end to match the prettier.
+    const path = `config/tileset/aerial.json`;
+    const blob = await this.createBlobs(content, path);
 
-    // // commit blobs to tree
-    // const message = `feat(imagery): Add imagery ${this.imagery} config file.`;
-    // await this.commit(branch, ref, [blob], message, sha);
-    // // Create imagery import pull request
-    // const title = `feat(aerial): Config imagery ${this.imagery} into Aerial Map. ${jira ? jira : ''}`;
-    // const prNumber = await this.createPullRequest(branch, title, false);
-    return 1;
+    // commit blobs to tree
+    const message = `feat(imagery): Add imagery ${this.imagery} config file.`;
+    await this.commit(branch, ref, [blob], message, sha);
+    // Create imagery import pull request
+    const title = `feat(aerial): Config imagery ${this.imagery} into Aerial Map. ${jira ? jira : ''}`;
+    const prNumber = await this.createPullRequest(branch, title, false);
+    return prNumber;
   }
 
   /**
