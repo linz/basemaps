@@ -35,6 +35,7 @@ export class MakeCogGithub extends Github {
   ): Promise<number | undefined> {
     // Prepare new aerial tileset config
     const tileSet = await this.getTileSetConfig();
+    this.setDefaultConfig(layer, category);
     const newTileSet = await this.prepareTileSetConfig(layer, tileSet, category);
 
     // skip pull request if not an urban or rural imagery
@@ -61,14 +62,14 @@ export class MakeCogGithub extends Github {
   }
 
   /**
-   * Add new layer at the bottom of related category
+   * Set the default setting for the category
    */
   setDefaultConfig(layer: ConfigLayer, category: Category): ConfigLayer {
     for (const setting of DefaultCategorySetting) {
       if (category === setting.category) {
         layer.category = setting.category;
-        if (setting.minZoom) layer.minZoom = setting.minZoom;
-        if (setting.disabled) layer.disabled = setting.disabled;
+        if (setting.minZoom != null && layer.minZoom != null) layer.minZoom = setting.minZoom;
+        if (setting.minZoom != null && layer.minZoom != null) layer.disabled = setting.disabled;
       }
     }
     return layer;
@@ -108,7 +109,6 @@ export class MakeCogGithub extends Github {
 
     // Set layer zoom level and add to latest order
     if (category === Category.Rural) {
-      this.setDefaultConfig(layer, category);
       for (let i = 0; i < tileSet.layers.length; i++) {
         // Add new layer above the first Urban
         if (tileSet.layers[i].category === Category.Urban) {
@@ -119,7 +119,6 @@ export class MakeCogGithub extends Github {
       }
     } else if (category === Category.Other) {
       // Add new layer at the bottom
-      this.setDefaultConfig(layer, category);
       tileSet.layers.push(layer);
     } else {
       this.addLayer(layer, tileSet, category);
