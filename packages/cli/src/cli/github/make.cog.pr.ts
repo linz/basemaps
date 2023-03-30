@@ -35,7 +35,6 @@ export class MakeCogGithub extends Github {
   ): Promise<number | undefined> {
     // Prepare new aerial tileset config
     const tileSet = await this.getTileSetConfig();
-    this.setDefaultConfig(layer, category);
     const newTileSet = await this.prepareTileSetConfig(layer, tileSet, category);
 
     // skip pull request if not an urban or rural imagery
@@ -106,6 +105,9 @@ export class MakeCogGithub extends Github {
         return tileSet;
       }
     }
+
+    // Set default Config if not existing layer
+    this.setDefaultConfig(layer, category);
 
     // Set layer zoom level and add to latest order
     if (category === Category.Rural) {
