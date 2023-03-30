@@ -65,13 +65,13 @@ export class MakeCogGithub extends Github {
    * Set the default setting for the category
    */
   setDefaultConfig(layer: ConfigLayer, category: Category): ConfigLayer {
-    for (const setting of DefaultCategorySetting) {
-      if (category === setting.category) {
-        layer.category = setting.category;
-        if (setting.minZoom != null && layer.minZoom != null) layer.minZoom = setting.minZoom;
-        if (setting.minZoom != null && layer.minZoom != null) layer.disabled = setting.disabled;
-      }
+    layer.category = category;
+    const defaultSetting = DefaultCategorySetting[category];
+    if (defaultSetting) {
+      if (defaultSetting.minZoom != null && layer.minZoom != null) layer.minZoom = defaultSetting.minZoom;
+      if (defaultSetting.minZoom != null && layer.minZoom != null) layer.disabled = defaultSetting.disabled;
     }
+
     return layer;
   }
 

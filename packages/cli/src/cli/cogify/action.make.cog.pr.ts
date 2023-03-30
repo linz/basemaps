@@ -12,19 +12,18 @@ export enum Category {
   Other = 'New Aerial Photos',
 }
 
-interface CategorySetting {
-  category: Category;
+export interface CategorySetting {
   minZoom?: number;
   disabled?: boolean;
 }
 
-export const DefaultCategorySetting: CategorySetting[] = [
-  { category: Category.Urban, minZoom: 14 },
-  { category: Category.Rural, minZoom: 13 },
-  { category: Category.Satellite, minZoom: 5 },
-  { category: Category.Event, disabled: true },
-  { category: Category.Other, disabled: true },
-];
+export const DefaultCategorySetting: Record<Category, CategorySetting> = {
+  [Category.Urban]: { minZoom: 14 },
+  [Category.Rural]: { minZoom: 13 },
+  [Category.Satellite]: { minZoom: 5 },
+  [Category.Event]: { disabled: true },
+  [Category.Other]: { disabled: true },
+};
 
 export function parseCategory(category: string): Category {
   const c = category.toLocaleLowerCase();
