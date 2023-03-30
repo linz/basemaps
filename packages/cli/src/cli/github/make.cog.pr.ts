@@ -78,7 +78,6 @@ export class MakeCogGithub extends Github {
    * Add new layer at the bottom of related category
    */
   addLayer(layer: ConfigLayer, tileSet: ConfigTileSetRaster, category: Category): ConfigTileSetRaster {
-    this.setDefaultConfig(layer, category);
     for (let i = tileSet.layers.length - 1; i >= 0; i--) {
       // Add new layer at the end of category
       if (tileSet.layers[i].category === category) {
