@@ -1,6 +1,6 @@
 import { ConfigLayer, ConfigTileSetRaster } from '@basemaps/config';
 import { LogType } from '@basemaps/shared';
-import { Category } from '../cogify/action.make.cog.pr.js';
+import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
 import { Github, owner, repo } from './github.js';
 
 export class MakeCogGithub extends Github {
@@ -61,6 +61,36 @@ export class MakeCogGithub extends Github {
   }
 
   /**
+   * Set the default setting for the category
+   */
+  setDefaultConfig(layer: ConfigLayer, category: Category): ConfigLayer {
+    layer.category = category;
+    const defaultSetting = DefaultCategorySetting[category];
+    if (defaultSetting) {
+      if (defaultSetting.minZoom != null && layer.minZoom != null) layer.minZoom = defaultSetting.minZoom;
+      if (defaultSetting.minZoom != null && layer.minZoom != null) layer.disabled = defaultSetting.disabled;
+    }
+
+    return layer;
+  }
+
+  /**
+   * Add new layer at the bottom of related category
+   */
+  addLayer(layer: ConfigLayer, tileSet: ConfigTileSetRaster, category: Category): ConfigTileSetRaster {
+    this.setDefaultConfig(layer, category);
+    for (let i = tileSet.layers.length - 1; i >= 0; i--) {
+      // Add new layer at the end of category
+      if (tileSet.layers[i].category === category) {
+        // Find first valid category and insert new record above that.
+        tileSet.layers.splice(i + 1, 0, layer);
+        break;
+      }
+    }
+    return tileSet;
+  }
+
+  /**
    * Prepare aerial tileSet config json
    */
   async prepareTileSetConfig(
@@ -68,44 +98,32 @@ export class MakeCogGithub extends Github {
     tileSet: ConfigTileSetRaster,
     category: Category,
   ): Promise<ConfigTileSetRaster | undefined> {
+    // Reprocess existing layer
+    for (let i = 0; i < tileSet.layers.length; i++) {
+      if (tileSet.layers[i].name === layer.name) {
+        tileSet.layers[i] = layer;
+        return tileSet;
+      }
+    }
+
+    // Set default Config if not existing layer
+    this.setDefaultConfig(layer, category);
+
     // Set layer zoom level and add to latest order
     if (category === Category.Rural) {
-      layer.minZoom = 13;
-      layer.category = Category.Rural;
       for (let i = 0; i < tileSet.layers.length; i++) {
-        // Add new layer at the end of rural
-        if (tileSet.layers[i].category === Category.Rural && tileSet.layers[i].minZoom === 14) {
+        // Add new layer above the first Urban
+        if (tileSet.layers[i].category === Category.Urban) {
           // Find first valid Urban and insert new record above that.
           tileSet.layers.splice(i, 0, layer);
           break;
         }
       }
-    } else if (category === Category.Urban) {
-      layer.minZoom = 14;
-      layer.category = Category.Urban;
-      // Add new layer at the end of urban
-      for (let i = tileSet.layers.length - 1; i >= 0; i--) {
-        if (tileSet.layers[i].category === Category.Urban && tileSet.minZoom === 14) {
-          // Find first Urban from the bottom up and insert the record below that.
-          tileSet.layers.splice(i + 1, 0, layer);
-          break;
-        }
-      }
-    } else if (category === Category.Satellite) {
-      layer.minZoom = 5;
-      layer.category = Category.Satellite;
-      // Add new layer at the end of satellite
-      for (let i = tileSet.layers.length - 1; i >= 0; i--) {
-        // Find first Satellite imagery from bottom up and insert the record below that.
-        if (tileSet.layers[i].category === Category.Satellite) {
-          tileSet.layers.splice(i + 1, 0, layer);
-          break;
-        }
-      }
-    } else {
+    } else if (category === Category.Other) {
       // Add new layer at the bottom
-      layer.category = Category.Other;
       tileSet.layers.push(layer);
+    } else {
+      this.addLayer(layer, tileSet, category);
     }
 
     return tileSet;
