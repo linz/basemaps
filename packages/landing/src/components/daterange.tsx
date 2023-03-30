@@ -13,6 +13,7 @@ export interface DateRangeState {
 }
 
 export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState> {
+
   get yearAfter(): string {
     const after = this.state.after ?? MinDate;
     return after.slice(0, 4);
@@ -23,51 +24,51 @@ export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState
     return before.slice(0, 4);
   }
 
-  clampDates(): DateRangeState | undefined {
-    const attrs = this.getFilteredAttrs(true);
-    if (attrs === null || this.state.after === undefined || this.state.before === undefined)
-      return { after: this.state.after, before: this.state.before };
+  // clampDates(): DateRangeState | undefined {
+  //   const attrs = this.getFilteredAttrs();
+  //   if (attrs === null || this.state.after === undefined || this.state.before === undefined)
+  //     return { after: this.state.after, before: this.state.before };
 
-    let clampedAfter;
-    let clampedBefore;
+  //   let clampedAfter;
+  //   let clampedBefore;
 
-    attrs.sort((a, b) => {
-      if (a.startDate < b.startDate) return -1;
-      if (a.startDate > b.startDate) return 1;
-      return 0;
-    });
-    const earliestStartDate = attrs[0].startDate;
-    const latestEndDate = attrs[attrs.length - 1].endDate;
+  //   attrs.sort((a, b) => {
+  //     if (a.startDate < b.startDate) return -1;
+  //     if (a.startDate > b.startDate) return 1;
+  //     return 0;
+  //   });
+  //   const earliestStartDate = attrs[0].startDate;
+  //   const latestEndDate = attrs[attrs.length - 1].endDate;
 
-    if (this.state.after === MinDate) {
-      clampedAfter = undefined;
-    } else if (this.state.after < earliestStartDate) {
-      clampedAfter = undefined;
-    } else if (this.state.after >= latestEndDate) {
-      clampedAfter = latestEndDate;
-    } else {
-      for (const a of attrs) {
-        clampedAfter = a.startDate;
-        if (this.state.after <= a.endDate) break;
-      }
-    }
+  //   if (this.state.after === MinDate) {
+  //     clampedAfter = undefined;
+  //   } else if (this.state.after < earliestStartDate) {
+  //     clampedAfter = undefined;
+  //   } else if (this.state.after >= latestEndDate) {
+  //     clampedAfter = latestEndDate;
+  //   } else {
+  //     for (const a of attrs) {
+  //       clampedAfter = a.startDate;
+  //       if (this.state.after <= a.endDate) break;
+  //     }
+  //   }
 
-    if (this.state.before === MaxDate) {
-      clampedBefore = undefined;
-    } else if (this.state.before > latestEndDate) {
-      clampedBefore = undefined;
-    } else if (this.state.before <= earliestStartDate) {
-      clampedBefore = earliestStartDate;
-    } else {
-      attrs.reverse();
-      for (const a of attrs) {
-        clampedBefore = a.endDate;
-        if (this.state.before <= a.endDate) break;
-      }
-    }
+  //   if (this.state.before === MaxDate) {
+  //     clampedBefore = undefined;
+  //   } else if (this.state.before > latestEndDate) {
+  //     clampedBefore = undefined;
+  //   } else if (this.state.before <= earliestStartDate) {
+  //     clampedBefore = earliestStartDate;
+  //   } else {
+  //     attrs.reverse();
+  //     for (const a of attrs) {
+  //       clampedBefore = a.endDate;
+  //       if (this.state.before <= a.endDate) break;
+  //     }
+  //   }
 
-    return { after: clampedAfter, before: clampedBefore };
-  }
+  //   return { after: clampedAfter, before: clampedBefore };
+  // }
 
   getFilteredAttrs(useZoom = false): AttributionBounds[] | null {
     if (this.state.attribution == null) return null;
@@ -83,6 +84,7 @@ export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState
 
   componentDidMount(): void {
     this.setState({ after: MinDate, before: MaxDate });
+    // this.props.map.on('moveend', this.updateBounds);
     MapAttrState.getCurrentAttribution().then((attribution) => {
       this.setState({ attribution });
     });
@@ -97,9 +99,7 @@ export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState
         this.setState({ before: `${event.target.value}-12-31T23:59:59.999Z` });
         break;
     }
-    const clampedDateRange = this.clampDates();
-    console.log({ raw: this.state, clamped: clampedDateRange });
-    if (clampedDateRange) Config.map.setFilterDateRange(clampedDateRange);
+    Config.map.setFilterDateRange({ after: this.state.after, before: this.state.before });
   };
 
   render(): ReactNode {
@@ -109,29 +109,13 @@ export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState
     if (filtered == null) return;
     this.props.map.getBounds();
     // Filter it by map bounds
-    let maxCount = 0;
-    const dateRange = { min: MaxDate, max: MinDate };
-    const attrsByYear = new Map<number, AttributionBounds[]>();
-    for (const a of filtered) {
-      if (!a.startDate || !a.endDate) continue;
-      if (a.endDate > dateRange.max) dateRange.max = a.endDate;
-      if (a.startDate < dateRange.min) dateRange.min = a.startDate;
-
-      const startYear = Number(a.startDate.slice(0, 4));
-      const endYear = Number(a.endDate.slice(0, 4));
-      for (let year = startYear; year <= endYear; year++) {
-        const attrs = attrsByYear.get(year) ?? [];
-        attrs.push(a);
-        if (attrs.length > maxCount) maxCount = attrs.length;
-        attrsByYear.set(year, attrs);
-      }
-    }
+    const attrsByYear = MapAttrState.getAttributionByYear(filtered);
     const allAttrs = [...attrsByYear.entries()];
     allAttrs.sort((a, b) => a[0] - b[0]);
     return (
       <div className="date-range">
         {allAttrs.map((f) => {
-          const boxSize = Math.round(100 * (f[1].length / maxCount));
+          const boxSize = Math.round(100 * (f[1].length / attrsByYear.size));
           return (
             <div style={{ width: '140px' }} key={f[0]}>
               <div style={{ width: `${boxSize}px`, background: '#ff00ff' }}>
