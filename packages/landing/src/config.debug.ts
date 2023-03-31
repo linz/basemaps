@@ -6,6 +6,8 @@ export interface DebugState {
   'debug.source': boolean;
   /** Should the cog outlines be shown */
   'debug.cog': boolean;
+  /** Should the map tile boundaries be shown */
+  'debug.tile': boolean;
   /** Should things be hidden to make a better screenshot */
   'debug.screenshot': boolean;
   /** What opacity is the aerial layer, 0 is off */
@@ -22,6 +24,7 @@ export const DebugDefaults: DebugState = {
   debug: false,
   'debug.background': false,
   'debug.source': false,
+  'debug.tile': false,
   'debug.cog': false,
   'debug.screenshot': false,
   'debug.layer.linz-aerial': 0,
@@ -56,6 +59,7 @@ export class ConfigDebug {
     }
     isChanged = setKey(opt, 'debug', true);
     isChanged = setKey(opt, 'debug.background', url.get('debug.background')) || isChanged;
+    isChanged = setKey(opt, 'debug.tile', url.get('debug.tile') != null) || isChanged;
     isChanged = setKey(opt, 'debug.source', url.get('debug.source') != null) || isChanged;
     isChanged = setKey(opt, 'debug.cog', url.get('debug.cog') != null) || isChanged;
     isChanged = setKey(opt, 'debug.screenshot', url.get('debug.screenshot') != null) || isChanged;
