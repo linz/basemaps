@@ -40,7 +40,6 @@ export class MapAttributionState {
     return attr.filter({
       extent,
       zoom: zoom,
-      dateAfter: Config.map.filter.date.after,
       dateBefore: Config.map.filter.date.before,
     });
   }
@@ -127,7 +126,7 @@ export class MapAttribution {
   // Ignore DEMS from the attribution list
   isIgnored = (attr: AttributionBounds): boolean => {
     const title = attr.collection.title.toLowerCase();
-    return title.startsWith('geographx') || title.includes(' dem ');
+    return title.startsWith('geographx') || title.includes(' dem ') || title.includes('bathymetry');
   };
 
   /**

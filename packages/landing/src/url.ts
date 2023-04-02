@@ -1,8 +1,8 @@
 import { base58, isBase58 } from '@basemaps/config/build/base58.js';
 import { GoogleTms, ImageFormat, TileMatrixSet } from '@basemaps/geo';
 import { toQueryString } from '@basemaps/shared/build/url.js';
-import { DateRangeState } from './components/daterange.js';
 import { Config } from './config.js';
+import { FilterDate } from './config.map.js';
 
 export interface LonLat {
   lat: number;
@@ -28,7 +28,7 @@ export interface TileUrlParams {
   layerId: string;
   style?: string | null;
   config?: string | null;
-  date?: DateRangeState;
+  date?: FilterDate;
 }
 
 export function ensureBase58(s: null): null;
@@ -105,7 +105,6 @@ export const WindowUrl = {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
     if (params.config != null) queryParams.set('config', ensureBase58(params.config));
-    if (params.date?.after != null) queryParams.set('date[after]', params.date.after);
     if (params.date?.before != null) queryParams.set('date[before]', params.date.before);
 
     if (params.urlType === MapOptionType.Style) {

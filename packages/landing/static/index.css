@@ -209,6 +209,16 @@ button {
   bottom: 32px;
 }
 
+.date-range__year {
+  border:1px solid gray;
+  backgroundColor:white;
+}
+
+.date-range__year--selected {
+  border:2px solid blue;
+  backgroundColor:lightblue;
+}
+
 .date-range p {
   margin-top: 16px;
 }
