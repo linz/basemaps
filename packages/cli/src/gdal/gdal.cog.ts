@@ -1,9 +1,8 @@
-import { GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
-import { Gdal } from './gdal.js';
 import { GdalCommand } from './gdal.command.js';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptions } from './gdal.config.js';
+import { Gdal } from './gdal.js';
 
 /** 1% Buffer to the tiff to help prevent gaps between tiles */
 // const TiffBuffer = 1.01;
@@ -63,21 +62,28 @@ export class GdalCogBuilder {
     if (this.config.bbox == null) {
       return [];
     }
-
     // TODO in theory this should be clamped to the lower right of the imagery, as there is no point generating large empty tiffs
     const [ulX, ulY, lrX, lrY] = this.config.bbox;
-    return ['-projwin', ulX, ulY, lrX, lrY, '-projwin_srs', this.config.tileMatrix.projection.toEpsgString()].map(
-      String,
-    );
-  }
-
-  get tileMatrixFileName(): string {
-    const tileMatrix = this.config.tileMatrix;
-    // Gdal built in TileMatrixSets
-    if (tileMatrix.identifier === GoogleTms.identifier) return 'GoogleMapsCompatible';
-    if (tileMatrix.identifier === Nztm2000Tms.identifier) return 'NZTM2000';
-
-    return 'https://raw.githubusercontent.com/linz/NZTM2000TileMatrixSet/master/raw/NZTM2000Quad.json';
+    const srs = this.config.tileMatrix.projection.toEpsgString();
+    return [
+      // Coordinates of subwindow in source image, expressed in SRS of target image
+      '-projwin',
+      ulX,
+      ulY,
+      lrX,
+      lrY,
+      // SRS of the coordinates of the `-projwin` subwindow above
+      '-projwin_srs',
+      srs,
+      // Coordinates of extent of target image. Note the order of y coordinates
+      // here is reversed compared to projwin above
+      // `-co EXTENT=minx,miny,maxx,maxy` vs `-projwin <ulx> <uly> <lrx> <lry>`
+      '-co',
+      `EXTENT=${ulX},${lrY},${lrX},${ulY}`,
+      // SRS of target image
+      '-co',
+      `TARGET_SRS=${srs}`,
+    ].map(String);
   }
 
   get args(): string[] {
@@ -86,9 +92,6 @@ export class GdalCogBuilder {
       // Force output using COG Driver
       '-of',
       'COG',
-      // Force GoogleMaps tiling
-      '-co',
-      `TILING_SCHEME=${this.tileMatrixFileName}`,
       // Max CPU POWER
       '-co',
       'NUM_THREADS=ALL_CPUS',
@@ -113,9 +116,6 @@ export class GdalCogBuilder {
       // User configured compression
       '-co',
       `COMPRESS=${this.config.compression}`,
-      // Number of levels to align to web mercator
-      '-co',
-      `ALIGNED_LEVELS=${this.config.alignmentLevels}`,
       // Default quality of 75 is too low for our needs
       '-co',
       `QUALITY=${this.config.quality}`,
@@ -131,7 +131,6 @@ export class GdalCogBuilder {
       tr,
       tr,
       ...this.getBounds(),
-
       this.source,
       this.target,
     ];

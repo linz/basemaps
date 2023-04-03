@@ -22,7 +22,6 @@ o.spec('GdalCogBuilder', () => {
 
     const args = builder.args;
 
-    o(args.includes('TILING_SCHEME=GoogleMapsCompatible')).equals(true);
     o(args.includes('COMPRESS=webp')).equals(true);
     o(builder.args.includes('BLOCKSIZE=512')).equals(true);
 
