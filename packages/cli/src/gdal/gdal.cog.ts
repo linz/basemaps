@@ -4,45 +4,32 @@ import { GdalCommand } from './gdal.command.js';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptions } from './gdal.config.js';
 import { Gdal } from './gdal.js';
 
-/** 1% Buffer to the tiff to help prevent gaps between tiles */
-// const TiffBuffer = 1.01;
-
 /**
- * A docker based GDAL Cog Builder
+ * GDAL Cog Builder.
  *
- * This uses the new 3.1 COG Driver https://gdal.org/drivers/raster/cog.html
+ * Converts the supplied source to a target COG using according to the specified
+ * config options, using the GDAL COG driver https://gdal.org/drivers/raster/cog.html
  *
- * When GDAL 3.1 is released docker could be removed from this process.
  */
 export class GdalCogBuilder {
+  /** Config with options configuring how to build the COG */
   config: GdalCogBuilderOptions;
-
-  /**
-   * Source file generally a .vrt
-   */
+  /** Source file, generally a .vrt */
   source: string;
-  /**
-   * Output file
-   */
+  /** Output file */
   target: string;
-
-  /**
-   * Current running child process
-   */
+  /** Currently running child process */
   child: ChildProcessWithoutNullStreams | null;
-  /**
-   * Promise waiting for child process to finish
-   */
+  /** Promise waiting for child process to finish */
   promise: Promise<void> | null;
   /** When the process started */
   startTime: number;
-  /** Gdal process */
+  /** GDAL process */
   gdal: GdalCommand;
 
   constructor(source: string, target: string, config: Partial<GdalCogBuilderOptions> = {}) {
     this.source = source;
     this.target = target;
-
     this.config = {
       bbox: config.bbox,
       compression: config.compression ?? GdalCogBuilderDefaults.compression,
@@ -88,7 +75,7 @@ export class GdalCogBuilder {
   get args(): string[] {
     const tr = this.config.targetRes.toString();
     return [
-      // Force output using COG Driver
+      // Use the COG Driver
       '-of',
       'COG',
       // Max CPU POWER
@@ -98,13 +85,13 @@ export class GdalCogBuilder {
       '--config',
       'GDAL_NUM_THREADS',
       'ALL_CPUS',
-      // Force big tiff the extra few bytes savings of using little tiffs does not affect us
+      // Force big tiff as the extra few bytes savings of using little tiffs does not affect us
       '-co',
       'BIGTIFF=YES',
       // Force a alpha layer
       '-co',
       'ADD_ALPHA=YES',
-      // User configured output block size
+      // Configured output block size
       '-co',
       `BLOCKSIZE=${this.config.blockSize}`,
       // Configured resampling methods
@@ -112,20 +99,20 @@ export class GdalCogBuilder {
       `WARP_RESAMPLING=${this.config.resampling.warp}`,
       '-co',
       `OVERVIEW_RESAMPLING=${this.config.resampling.overview}`,
-      // User configured compression
+      // Configured compression
       '-co',
       `COMPRESS=${this.config.compression}`,
-      // Default quality of 75 is too low for our needs
+      // Configured compression quality. The GDAL default of 75 is too low for our needs
       '-co',
       `QUALITY=${this.config.quality}`,
-      // most of the imagery contains a lot of empty tiles, no need to output them
+      // Most of the imagery contains a lot of empty tiles, no need to output them
       '-co',
       `SPARSE_OK=YES`,
       // Do not attempt to read sidecar files
       '--config',
       `GDAL_DISABLE_READDIR_ON_OPEN`,
       `EMPTY_DIR`,
-      // Force a target resolution to be better than the imagery not worse
+      // Set the target resolution to be better than the imagery not worse
       '-tr',
       tr,
       tr,
