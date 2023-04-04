@@ -12,7 +12,6 @@ o.spec('GdalCogBuilder', () => {
     o(builder.config.compression).equals('webp');
     o(builder.config.resampling).deepEquals({ warp: 'bilinear', overview: 'lanczos' });
     o(builder.config.blockSize).equals(512);
-    o(builder.config.alignmentLevels).equals(1);
 
     o(builder.config).deepEquals({ ...GdalCogBuilderDefaults, bbox: undefined });
   });

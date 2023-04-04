@@ -41,7 +41,6 @@ o.spec('cog', () => {
 
       o(config).deepEquals({
         bbox: [17532819.7999, -5009377.0857, 20037508.3428, -7514065.6285],
-        alignmentLevels: 13,
         compression: 'webp',
         tileMatrix: GoogleTms,
         resampling: { warp: 'bilinear', overview: 'lanczos' },

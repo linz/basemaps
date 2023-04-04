@@ -28,11 +28,6 @@ export interface GdalCogBuilderOptions {
    * How to align levels
    */
   tileMatrix: TileMatrixSet;
-  /**
-   * Number of aligned tile levels
-   * @default 1
-   */
-  alignmentLevels: number;
 
   /** Limit the output to a bounding box
    */
@@ -69,7 +64,6 @@ export const GdalCogBuilderDefaults: GdalCogBuilderOptions = {
   },
   compression: 'webp',
   tileMatrix: GoogleTms,
-  alignmentLevels: 1,
   targetRes: 0,
   blockSize: 512,
   quality: 90,

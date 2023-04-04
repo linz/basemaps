@@ -45,7 +45,6 @@ export class GdalCogBuilder {
 
     this.config = {
       bbox: config.bbox,
-      alignmentLevels: config.alignmentLevels ?? GdalCogBuilderDefaults.alignmentLevels,
       compression: config.compression ?? GdalCogBuilderDefaults.compression,
       tileMatrix: config.tileMatrix ?? GdalCogBuilderDefaults.tileMatrix,
       resampling: config.resampling ?? GdalCogBuilderDefaults.resampling,

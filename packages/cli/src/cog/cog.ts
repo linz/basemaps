@@ -1,10 +1,10 @@
 import { Bounds, TileMatrixSet } from '@basemaps/geo';
-import { Env, isConfigS3Role, LogType, Projection } from '@basemaps/shared';
+import { Env, LogType, Projection, isConfigS3Role } from '@basemaps/shared';
+import { AwsCredentials } from '@chunkd/source-aws-v2';
 import { GdalCogBuilder } from '../gdal/gdal.cog.js';
 import { GdalCommand } from '../gdal/gdal.command.js';
 import { GdalProgressParser } from '../gdal/gdal.progress.js';
 import { CogJob } from './types.js';
-import { AwsCredentials } from '@chunkd/source-aws-v2';
 
 /**
  * Create a onProgress logger
@@ -55,14 +55,12 @@ export async function buildCogForName(
   const tile = TileMatrixSet.nameToTile(name);
 
   const blockSize = tileMatrix.tileSize * 2; // FIXME is this blockFactor always 2
-  const alignmentLevels = Projection.findAlignmentLevels(tileMatrix, tile, job.source.gsd);
 
   const cogBuild = new GdalCogBuilder(vrtLocation, outputTiffPath, {
     bbox: [bounds.x, bounds.bottom, bounds.right, bounds.y],
     tileMatrix,
     blockSize,
     targetRes: job.output.gsd,
-    alignmentLevels,
     resampling: job.output.resampling,
     quality: job.output.quality,
   });
@@ -74,7 +72,6 @@ export async function buildCogForName(
       imageSize: Projection.getImagePixelWidth(tileMatrix, tile, targetZoom),
       name,
       tile,
-      alignmentLevels,
     },
     'CreateCog',
   );
