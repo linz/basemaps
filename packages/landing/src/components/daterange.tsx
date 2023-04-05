@@ -15,14 +15,14 @@ export interface DateRangeState {
 
 export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState> {
   handleAttributionBounds = (): void => {
-    this.setState({ filtered: this.getFilteredAttrs(true) });
+    this.setState({ filtered: this.getFilteredAttrs() });
   };
 
-  getFilteredAttrs(useZoom = false): AttributionBounds[] | null {
+  getFilteredAttrs(): AttributionBounds[] | null {
     if (this.state == null || this.state.attribution == null) return null;
     const zoom = Math.round(this.props.map.getZoom() ?? 0);
     const extent = MapAttributionState.mapboxBoundToBbox(this.props.map.getBounds(), zoom, Config.map.tileMatrix);
-    return this.state.attribution.filter({ extent, zoom: useZoom ? zoom : undefined });
+    return this.state.attribution.filter({ extent, zoom });
   }
 
   componentDidMount(): void {
