@@ -1,6 +1,6 @@
 import { ConfigLayer } from '@basemaps/config';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { owner, repo } from '../github/github.js';
 import { MakeCogGithub } from '../github/make.cog.pr.js';
 
@@ -8,8 +8,22 @@ export enum Category {
   Urban = 'Urban Aerial Photos',
   Rural = 'Rural Aerial Photos',
   Satellite = 'Satellite Imagery',
+  Event = 'Event',
   Other = 'New Aerial Photos',
 }
+
+export interface CategorySetting {
+  minZoom?: number;
+  disabled?: boolean;
+}
+
+export const DefaultCategorySetting: Record<Category, CategorySetting> = {
+  [Category.Urban]: { minZoom: 14 },
+  [Category.Rural]: { minZoom: 13 },
+  [Category.Satellite]: { minZoom: 5 },
+  [Category.Event]: { disabled: true },
+  [Category.Other]: { disabled: true },
+};
 
 export function parseCategory(category: string): Category {
   const c = category.toLocaleLowerCase();
@@ -24,6 +38,7 @@ export class CommandCogPullRequest extends CommandLineAction {
   private output: CommandLineStringParameter;
   private jira: CommandLineStringParameter;
   private category: CommandLineStringParameter;
+  private disabled: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -58,6 +73,11 @@ export class CommandCogPullRequest extends CommandLineAction {
       description: 'New Imagery Category, like Rural Aerial Photos, Urban Aerial Photos, Satellite Imagery',
       required: false,
     });
+    this.disabled = this.defineFlagParameter({
+      parameterLongName: '--disabled',
+      description: 'Disable the layer in the config',
+      required: false,
+    });
   }
 
   async onExecute(): Promise<void> {
@@ -73,6 +93,7 @@ export class CommandCogPullRequest extends CommandLineAction {
     }
 
     const git = new MakeCogGithub(layer.name, logger);
+    if (this.disabled.value) layer.disabled = true;
     const prNumber = await git.createTileSetPullRequest(layer, this.jira.value, category);
 
     const output = this.output.value;

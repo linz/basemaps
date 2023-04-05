@@ -92,6 +92,12 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   /** Show the source bounding box ont he map */
+  toggleTileBoundary: ChangeEventHandler = (e) => {
+    const target = e.target as HTMLInputElement;
+    Config.map.setDebug('debug.tile', target.checked);
+  };
+
+  /** Show the source bounding box ont he map */
   toggleCogs: ChangeEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.cog', target.checked);
@@ -153,6 +159,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         {this.renderPurple()}
         {this.renderCogToggle()}
         {this.renderSourceToggle()}
+        {this.renderTileToggle()}
       </div>
     );
   }
@@ -213,6 +220,15 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           </div>
         )}
       </Fragment>
+    );
+  }
+
+  renderTileToggle(): ReactNode {
+    return (
+      <div className="debug__info">
+        <label className="debug__label">Tile Boundaries</label>
+        <input type="checkbox" onChange={this.toggleTileBoundary} checked={Config.map.debug['debug.tile']} />
+      </div>
     );
   }
 
@@ -337,6 +353,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   setVectorShown(isShown: boolean, type: 'source' | 'cog'): void {
     const map = this.props.map;
+
+    map.showTileBoundaries = Config.map.debug['debug.tile'];
 
     const layerId = Config.map.layerId;
     const sourceId = `${layerId}_${type}`;
