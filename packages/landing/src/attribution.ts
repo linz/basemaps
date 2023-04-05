@@ -1,7 +1,8 @@
-import { Attribution, AttributionBounds } from '@basemaps/attribution';
+import { Attribution } from '@basemaps/attribution';
+import { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
 import { GoogleTms, Stac, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
-import maplibre, { LngLatBounds } from 'maplibre-gl';
+import * as maplibre from 'maplibre-gl';
 import { onMapLoaded } from './components/map.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
@@ -62,7 +63,7 @@ export class MapAttributionState {
   /**
    * Covert Mapbox Bounds to tileMatrix BBox
    */
-  static mapboxBoundToBbox(bounds: LngLatBounds, zoom: number, tileMatrix: TileMatrixSet): BBox {
+  static mapboxBoundToBbox(bounds: maplibre.LngLatBounds, zoom: number, tileMatrix: TileMatrixSet): BBox {
     const swLocation = { lon: bounds.getWest(), lat: bounds.getSouth(), zoom: zoom };
     const neLocation = { lon: bounds.getEast(), lat: bounds.getNorth(), zoom: zoom };
     const swCoord = locationTransform(swLocation, GoogleTms, tileMatrix);
@@ -86,7 +87,7 @@ export class MapAttribution {
   private _raf = 0;
 
   attributionHtml = '';
-  bounds: LngLatBounds = new LngLatBounds([0, 0, 0, 0]);
+  bounds: maplibre.LngLatBounds = new maplibre.LngLatBounds([0, 0, 0, 0]);
   zoom = -1;
   attributionControl?: maplibregl.AttributionControl | null;
 

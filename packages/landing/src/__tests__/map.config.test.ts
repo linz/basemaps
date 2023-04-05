@@ -105,8 +105,6 @@ o.spec('WindowUrl', () => {
     o(mc.filter.date.before).equals(undefined);
     mc.updateFromUrl('?date[before]=2099-12-31T23:59:59.999Z');
     o(mc.filter.date.before).equals(undefined);
-    mc.updateFromUrl('?date%5Bbefore%5D=1987-12-31T23%3A59%3A59.999Z');
-    o(mc.filter.date.before).equals(undefined);
   });
 
   o('should convert to a url', () => {

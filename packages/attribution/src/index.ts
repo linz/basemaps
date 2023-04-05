@@ -1,1 +1,1 @@
-export { Attribution, AttributionBounds } from './attribution.js';
+export { Attribution } from './attribution.js';

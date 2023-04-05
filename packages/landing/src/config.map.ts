@@ -95,16 +95,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
   getDateRangeFromUrl(urlParams: URLSearchParams): FilterDate {
     let before = urlParams.get('date[before]') ?? undefined;
-    let after = urlParams.get('date[after]') ?? undefined;
 
     // Limit the dateRange to be valid
     if (before) before = before > MaxDate || before < MinDate ? undefined : before;
-    if (after) after = after > MaxDate || after < MinDate ? undefined : after;
-    if (before && after && after > before) {
-      before = undefined;
-      after = undefined;
-    }
-
     return { before };
   }
 

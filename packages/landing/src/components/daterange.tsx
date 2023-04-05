@@ -1,4 +1,5 @@
-import { Attribution, AttributionBounds } from '@basemaps/attribution';
+import { Attribution } from '@basemaps/attribution';
+import { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
 import { Component, ReactNode } from 'react';
 import { MapAttributionState, MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
