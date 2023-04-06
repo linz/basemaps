@@ -25,6 +25,7 @@ export class MapAttributionState {
       this._attrs.set(cacheKey, attrs);
       attrs.then((a) => {
         if (a == null) return;
+        a.isIgnored = this.isIgnored;
         this._attrsSync.set(Config.map.layerKeyTms, a);
       });
     }
@@ -71,6 +72,12 @@ export class MapAttributionState {
     const bbox: BBox = [swCoord.lon, swCoord.lat, neCoord.lon, neCoord.lat];
     return bbox;
   }
+
+  // Ignore DEMS from the attribution list
+  isIgnored = (attr: AttributionBounds): boolean => {
+    const title = attr.collection.title.toLowerCase();
+    return title.startsWith('geographx') || title.includes(' dem ') || title.includes('bathymetry');
+  };
 }
 
 export const MapAttrState = new MapAttributionState();
@@ -122,12 +129,6 @@ export class MapAttribution {
     if (Config.map.isVector) return this.vectorAttribution();
     const loader = MapAttrState.getCurrentAttribution();
     loader.then(() => this.scheduleRender());
-  };
-
-  // Ignore DEMS from the attribution list
-  isIgnored = (attr: AttributionBounds): boolean => {
-    const title = attr.collection.title.toLowerCase();
-    return title.startsWith('geographx') || title.includes(' dem ') || title.includes('bathymetry');
   };
 
   /**
