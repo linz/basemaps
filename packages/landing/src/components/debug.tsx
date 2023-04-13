@@ -64,8 +64,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       this.updateFromConfig();
       if (Config.map.debug['debug.screenshot']) {
         map.once('idle', async () => {
-          // Ensure all the attribution data has loaded
-          await Promise.all([...MapAttrState._attrs.values()]); // Unsure if needed
+          // Ensure the attribution data has loaded
+          await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
           // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
           const loadedDiv = document.createElement('div');
