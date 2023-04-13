@@ -1,7 +1,7 @@
 import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
-import { DateRangeState, MaxDate, MinDate } from './components/daterange.js';
+import { MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
@@ -14,8 +14,11 @@ const DefaultCenter: Record<string, MapLocation> = {
   [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 3 },
 };
 
+export interface FilterDate {
+  before?: string;
+}
 export interface Filter {
-  date: DateRangeState;
+  date: FilterDate;
 }
 
 export interface MapConfigEvents {
@@ -35,7 +38,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   config: string | null;
   debug: DebugState = { ...DebugDefaults };
   visibleLayers: string;
-  filter: Filter = { date: { after: undefined, before: undefined } };
+  filter: Filter = { date: { before: undefined } };
 
   private _layers: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -90,19 +93,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return `basemaps-${Config.map.layerId}`;
   }
 
-  getDateRangeFromUrl(urlParams: URLSearchParams): DateRangeState {
+  getDateRangeFromUrl(urlParams: URLSearchParams): FilterDate {
     let before = urlParams.get('date[before]') ?? undefined;
-    let after = urlParams.get('date[after]') ?? undefined;
 
     // Limit the dateRange to be valid
     if (before) before = before > MaxDate || before < MinDate ? undefined : before;
-    if (after) after = after > MaxDate || after < MinDate ? undefined : after;
-    if (before && after && after > before) {
-      before = undefined;
-      after = undefined;
-    }
-
-    return { after, before };
+    return { before };
   }
 
   updateFromUrl(search: string = window.location.search): void {
@@ -112,7 +108,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
     const layerId = urlParams.get('i') ?? 'aerial';
     const date = this.getDateRangeFromUrl(urlParams);
-    if (this.filter.date.after !== date.after || this.filter.date.before !== date.before) {
+    if (this.filter.date.before !== date.before) {
       this.filter.date = date;
       this.emit('filter', this.filter);
     }
@@ -144,7 +140,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.config) urlParams.append('config', ensureBase58(opts.config));
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('p', opts.tileMatrix.identifier);
-    if (opts.filter.date.after) urlParams.append('date[after]', opts.filter.date.after);
+    // if (opts.filter.date.after) urlParams.append('date[after]', opts.filter.date.after);
     if (opts.filter.date.before) urlParams.append('date[before]', opts.filter.date.before);
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
@@ -187,10 +183,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('change');
   }
 
-  setFilterDateRange(after: string | undefined, before: string | undefined): void {
-    if (this.filter.date.after === after && this.filter.date.before === before) return;
-    this.filter.date.after = after;
-    this.filter.date.before = before;
+  setFilterDateRange(dateRange: FilterDate): void {
+    if (this.filter.date === dateRange) return;
+    this.filter.date = dateRange;
     this.emit('filter', this.filter);
     this.emit('change');
   }

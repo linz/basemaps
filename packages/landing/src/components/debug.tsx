@@ -2,7 +2,7 @@ import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { GoogleTms } from '@basemaps/geo';
 import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
-import { Attributions } from '../attribution.js';
+import { MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
 import { MapConfig } from '../config.map.js';
@@ -64,8 +64,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       this.updateFromConfig();
       if (Config.map.debug['debug.screenshot']) {
         map.once('idle', async () => {
-          // Ensure all the attribution data has loaded
-          await Promise.all([...Attributions.values()]);
+          // Ensure the attribution data has loaded
+          await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
           // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
           const loadedDiv = document.createElement('div');

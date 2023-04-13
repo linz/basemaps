@@ -96,10 +96,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (Config.map.visibleLayers == null) Config.map.visibleLayers = newLayers;
     if (newLayers !== Config.map.visibleLayers) {
       Config.map.visibleLayers = newLayers;
-      const newStyleId =
-        `${Config.map.styleId}` +
-        `_after=${Config.map.filter.date.after?.slice(0, 4)}` +
-        `&before=${Config.map.filter.date.before?.slice(0, 4)}`;
+      const newStyleId = `${Config.map.styleId}` + `before=${Config.map.filter.date.before?.slice(0, 4)}`;
       if (this.map.getSource(newStyleId) == null) {
         this.map.addSource(newStyleId, {
           type: 'raster',
@@ -200,9 +197,10 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     return (
       <div style={{ flex: 1, position: 'relative' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
-        {Config.map.isDebug ? <Debug map={this.map} /> : undefined}
-        {Config.map.isDebug && !Config.map.debug['debug.screenshot'] && Config.map.debug['debug.date'] ? (
-          <DateRange />
+
+        {this.map && Config.map.isDebug ? <Debug map={this.map} /> : undefined}
+        {this.map && Config.map.isDebug && !Config.map.debug['debug.screenshot'] && Config.map.debug['debug.date'] ? (
+          <DateRange map={this.map} />
         ) : undefined}
         {isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
       </div>

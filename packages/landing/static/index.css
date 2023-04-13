@@ -203,10 +203,20 @@ button {
   box-shadow: 0 0 8px 8px rgb(0 0 0 / 10%);
   border: 2px solid rgba(255, 255, 255);
   border-radius: 8px;
-  padding: 0 16px 16px 16px;
+  padding: 16px 16px 16px 16px;
   position: absolute;
   right: 16px;
   bottom: 32px;
+}
+
+.date-range__year {
+  border:1px solid gray;
+  backgroundColor:white;
+}
+
+.date-range__year--selected {
+  border:2px solid blue;
+  backgroundColor:lightblue;
 }
 
 .date-range p {
