@@ -1,8 +1,11 @@
+import { Bounds } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { GdalCommand } from './gdal.command.js';
 import { GdalCogBuilderDefaults, GdalCogBuilderOptions } from './gdal.config.js';
 import { Gdal } from './gdal.js';
+
+const EXPEND_PROJWIN = 1.01;
 
 /**
  * GDAL Cog Builder.
@@ -51,13 +54,14 @@ export class GdalCogBuilder {
     // TODO in theory this should be clamped to the lower right of the imagery, as there is no point generating large empty tiffs
     const [ulX, ulY, lrX, lrY] = this.config.bbox;
     const srs = this.config.tileMatrix.projection.toEpsgString();
+    const projwin = Bounds.fromBbox(this.config.bbox).scaleFromCenter(EXPEND_PROJWIN);
     return [
       // Coordinates of subwindow in source image, expressed in SRS of target image
       '-projwin',
-      ulX,
-      ulY,
-      lrX,
-      lrY,
+      projwin.x,
+      projwin.bottom,
+      projwin.right,
+      projwin.y,
       // SRS of the coordinates of the `-projwin` subwindow above
       '-projwin_srs',
       srs,
