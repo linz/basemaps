@@ -1,5 +1,6 @@
 import { Attribution } from '@basemaps/attribution';
 import { ConfigProviderMemory } from '@basemaps/config';
+import { createCoordinates } from '@basemaps/config/src/json/json.config.js';
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { LogConfig, Projection } from '@basemaps/shared';
 import { BBox } from '@linzjs/geojson';
@@ -10,7 +11,6 @@ import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { FakeData, Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
-import { createCoordinates } from '../attribution.js';
 
 // const ExpectedJson = {
 //   id: 'aerial_WebMercatorQuad',

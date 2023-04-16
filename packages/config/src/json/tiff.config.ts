@@ -9,13 +9,15 @@ import {
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
+import { BBox} from '@linzjs/geojson';
+import { Projection } from '@basemaps/shared';
 import pLimit from 'p-limit';
 import { basename } from 'path';
 import { sha256base58 } from '../base58.node.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory/memory.config.js';
-import { ConfigJson } from './json.config.js';
+import { ConfigJson, createCoordinates, roundNumber } from './json.config.js';
 
 /** Does a file look like a tiff, ending in .tif or .tiff */
 function isTiff(f: string): boolean {
@@ -97,7 +99,8 @@ export async function imageryFromTiffPath(target: string, Q: pLimit.Limit): Prom
   const title = stac?.title ?? folderName;
   const tileMatrix = params.epsg === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.tryGet(params.epsg);
   if (tileMatrix == null) throw new Error('No tile matrix found for projection: ' + params.epsg);
-
+  const proj = Projection.get(params.epsg);
+  const bbox = proj.boundsToWgs84BoundingBox(params.bounds).map(roundNumber) as BBox;
   const imagery: ConfigImagery = {
     id: sha256base58(target),
     name: folderName,
@@ -107,6 +110,7 @@ export async function imageryFromTiffPath(target: string, Q: pLimit.Limit): Prom
     tileMatrix: tileMatrix.identifier,
     uri: target,
     bounds: params.bounds,
+    geometry: { type: 'MultiPolygon', coordinates: createCoordinates(bbox, params.files, proj) },
     files: params.files,
   };
   imagery.overviews = await ConfigJson.findImageryOverviews(imagery);

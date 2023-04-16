@@ -1,18 +1,17 @@
 import { ConfigProvider, ConfigTileSet, getAllImagery, TileSetType } from '@basemaps/config';
+import { createCoordinates, roundNumber } from '@basemaps/config/src/json/json.config.js';
 import {
   AttributionCollection,
   AttributionItem,
   AttributionStac,
-  Bounds,
   GoogleTms,
-  NamedBounds,
   Stac,
   StacExtent,
   StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
 import { extractYearRangeFromName, extractYearRangeFromTitle, Projection } from '@basemaps/shared';
-import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
+import { BBox } from '@linzjs/geojson';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
 
@@ -20,46 +19,6 @@ import { Etag } from '../util/etag.js';
 import { filterLayers, yearRangeToInterval } from '../util/filter.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
-
-/** Amount to pad imagery bounds to avoid fragmenting polygons  */
-const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
-
-const Precision = 10 ** 8;
-
-/**
- * Limit precision to 8 decimal places.
- */
-function roundNumber(n: number): number {
-  return Math.round(n * Precision) / Precision;
-}
-
-function roundPair(p: Pair): Pair {
-  return [roundNumber(p[0]), roundNumber(p[1])];
-}
-
-/**
- * Convert a list of COG file bounds into a MultiPolygon. If the bounds spans more than half the
- * globe then return a simple MultiPolygon for the bounding box.
-
- * @param bbox in WGS84
- * @param files in target projection
- * @return MultiPolygon in WGS84
- */
-export function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projection): MultiPolygon {
-  if (Wgs84.delta(bbox[0], bbox[2]) <= 0) {
-    // This bounds spans more than half the globe which multiPolygonToWgs84 can't handle; just
-    // return bbox as polygon
-    return Wgs84.bboxToMultiPolygon(bbox);
-  }
-
-  const polygons: MultiPolygon = [];
-  // merge imagery bounds
-  for (const image of files) polygons.push(Bounds.fromJson(image).pad(SmoothPadding).toPolygon());
-  const coordinates = union(polygons);
-
-  const roundToWgs84 = (p: number[]): number[] => roundPair(proj.toWgs84(p) as Pair);
-  return multiPolygonToWgs84(coordinates, roundToWgs84);
-}
 
 function getHost(host: ConfigProvider | null): StacProvider[] | undefined {
   if (host == null) return undefined;

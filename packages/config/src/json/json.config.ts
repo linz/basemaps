@@ -2,6 +2,7 @@ import {
   Bounds,
   GoogleTms,
   ImageFormat,
+  NamedBounds,
   Nztm2000QuadTms,
   TileMatrixSet,
   TileMatrixSets,
@@ -9,6 +10,8 @@ import {
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
 import { Cotar } from '@cotar/core';
+import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
+import { Projection } from '@basemaps/shared';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { ConfigId } from '../base.config.js';
@@ -25,6 +28,21 @@ import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
+
+/** Amount to pad imagery bounds to avoid fragmenting polygons  */
+const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
+const Precision = 10 ** 8;
+
+/**
+ * Limit precision to 8 decimal places.
+ */
+export function roundNumber(n: number): number {
+  return Math.round(n * Precision) / Precision;
+}
+
+export function roundPair(p: Pair): Pair {
+  return [roundNumber(p[0]), roundNumber(p[1])];
+}
 
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
@@ -209,6 +227,7 @@ export class ConfigJson {
     const imageId = guessIdFromUri(uri) ?? sha256base58(uri);
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ uri, imageId: id }, 'FetchImagery');
+    const proj = Projection.get(tileMatrix.projection.code);
 
     const fileList = await fsa.toArray(fsa.list(uri));
     const tiffFiles = fileList.filter((f) => f.endsWith('.tiff') || f.endsWith('.tif'));
@@ -249,6 +268,7 @@ export class ConfigJson {
     this.logger.debug({ uri, imageId, files: files.length }, 'FetchImagery:Done');
 
     if (bounds == null) throw new Error('Failed to get bounds from URI: ' + uri);
+    const bbox = proj.boundsToWgs84BoundingBox(bounds).map(roundNumber) as BBox;
     const now = Date.now();
     const output: ConfigImagery = {
       id,
@@ -259,6 +279,7 @@ export class ConfigJson {
       tileMatrix: tileMatrix.identifier,
       uri,
       bounds,
+      geometry: { type: 'MultiPolygon', coordinates: createCoordinates(bbox, files, proj) },
       files,
     };
 
@@ -316,4 +337,28 @@ export function zoomLevelsFromWmts(
   if (maxZoom < minZoom) return null;
   if (maxZoom === 0) return null;
   return { minZoom, maxZoom };
+}
+
+/**
+ * Convert a list of COG file bounds into a MultiPolygon. If the bounds spans more than half the
+ * globe then return a simple MultiPolygon for the bounding box.
+
+ * @param bbox in WGS84
+ * @param files in target projection
+ * @return MultiPolygon in WGS84
+ */
+export function createCoordinates(bbox: BBox, files: NamedBounds[], proj: Projection): MultiPolygon {
+  if (Wgs84.delta(bbox[0], bbox[2]) <= 0) {
+    // This bounds spans more than half the globe which multiPolygonToWgs84 can't handle; just
+    // return bbox as polygon
+    return Wgs84.bboxToMultiPolygon(bbox);
+  }
+
+  const polygons: MultiPolygon = [];
+  // merge imagery bounds
+  for (const image of files) polygons.push(Bounds.fromJson(image).pad(SmoothPadding).toPolygon());
+  const coordinates = union(polygons);
+
+  const roundToWgs84 = (p: number[]): number[] => roundPair(proj.toWgs84(p) as Pair);
+  return multiPolygonToWgs84(coordinates, roundToWgs84);
 }

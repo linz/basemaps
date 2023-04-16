@@ -1,4 +1,5 @@
 import { NamedBounds, BoundingBox, EpsgCode } from '@basemaps/geo';
+import { Geometry } from 'geojson';
 import { BaseConfig } from './base.js';
 
 export interface ConfigImagery extends BaseConfig {
@@ -18,6 +19,9 @@ export interface ConfigImagery extends BaseConfig {
 
   /** the bounding box of all the COGs */
   bounds: BoundingBox;
+
+  /** All the file bounds into a MultiPolygon */
+  geometry: Geometry;
 
   /** list of file basenames and their bounding box */
   files: NamedBounds[];
