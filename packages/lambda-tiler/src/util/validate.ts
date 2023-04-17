@@ -1,5 +1,5 @@
-import { ImageFormat, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
-import { Const, isValidApiKey, Projection } from '@basemaps/shared';
+import { ImageFormat, Projection, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
+import { Const, isValidApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { TileXyzGet } from '../routes/tile.xyz';

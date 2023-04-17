@@ -6,13 +6,14 @@ import {
   Bounds,
   GoogleTms,
   NamedBounds,
+  Projection,
   Stac,
   StacExtent,
   StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { extractYearRangeFromName, extractYearRangeFromTitle, Projection } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
+import { extractYearRangeFromName, extractYearRangeFromTitle } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
 

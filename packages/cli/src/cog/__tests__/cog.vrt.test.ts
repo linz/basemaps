@@ -1,6 +1,6 @@
 import { EpsgCode, GoogleTms, Nztm2000Tms } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
-import { qkToName } from '@basemaps/shared/build/proj/__tests__/test.util.js';
+import { qkToName } from '@basemaps/geo/build/proj/__tests__/test.util.js';
 import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
 import path from 'path';

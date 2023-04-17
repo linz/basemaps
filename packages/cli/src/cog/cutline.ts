@@ -1,5 +1,5 @@
-import { Bounds, Epsg, NamedBounds, Tile, TileMatrixSet } from '@basemaps/geo';
-import { compareName, fsa, Projection } from '@basemaps/shared';
+import { Bounds, Epsg, NamedBounds, Projection, Tile, TileMatrixSet } from '@basemaps/geo';
+import { compareName, fsa } from '@basemaps/shared';
 import {
   clipMultipolygon,
   featuresToMultiPolygon,

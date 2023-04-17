@@ -16,7 +16,6 @@ import { ConfigImagery } from '../config/imagery.js';
 import { ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory/memory.config.js';
 import { ConfigJson } from './json.config.js';
-
 /** Does a file look like a tiff, ending in .tif or .tiff */
 function isTiff(f: string): boolean {
   const lowered = f.toLocaleLowerCase();

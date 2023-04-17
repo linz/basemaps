@@ -1,4 +1,5 @@
-import { Env, fsa, LogConfig, Projection } from '@basemaps/shared';
+import { Env, fsa, LogConfig } from '@basemaps/shared';
+import { Projection } from '@basemaps/geo';
 import CloudFormation from 'aws-sdk/clients/cloudformation.js';
 import CloudFront from 'aws-sdk/clients/cloudfront.js';
 import S3 from 'aws-sdk/clients/s3.js';

@@ -1,4 +1,3 @@
-import { BoundingBox, Epsg, EpsgCode, TileMatrixSet, Tile, NamedBounds } from '@basemaps/geo';
 import {
   BBox,
   BBoxFeature,
@@ -10,9 +9,12 @@ import {
 } from '@linzjs/geojson';
 import { Position } from 'geojson';
 import Proj from 'proj4';
-import { CompositeError } from '../composite.error.js';
+import { BoundingBox, NamedBounds } from '../bounds.js';
+import { Epsg, EpsgCode } from '../epsg.js';
+import { Tile, TileMatrixSet } from '../tile.matrix.set.js';
 import { Citm2000 } from './citm2000.js';
 import { Nztm2000 } from './nztm2000.js';
+import { CompositeError } from '@chunkd/core';
 
 Proj.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
 Proj.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
