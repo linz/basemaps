@@ -5,6 +5,7 @@ import {
   AttributionItem,
   AttributionStac,
   GoogleTms,
+  NamedBounds,
   Projection,
   Stac,
   StacExtent,
