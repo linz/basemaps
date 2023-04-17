@@ -6,6 +6,7 @@ import {
   ConfigTileSetRaster,
   TileSetType,
 } from '@basemaps/config';
+import { createImageryGeometry } from '@basemaps/config/src/json/json.config.js';
 import { Bounds, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { fsa, LogConfig, Projection } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
@@ -94,6 +95,7 @@ export class CommandImageryConfig extends CommandLineAction {
       logger.warn({ path, id }, `Unable to extract the imagery name from path, use uild id instead.`);
       name = id;
     }
+    const geometry = createImageryGeometry(bounds, files, Nztm2000QuadTms);
     const imagery: ConfigImagery = {
       id: provider.Imagery.id(id),
       name: nameImageryTitle(title),
@@ -103,6 +105,7 @@ export class CommandImageryConfig extends CommandLineAction {
       tileMatrix: Nztm2000QuadTms.identifier,
       uri: path,
       bounds: bounds.toJson(),
+      geometry,
       files,
     };
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);

@@ -10,7 +10,8 @@ import {
   StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { extractYearRangeFromName, extractYearRangeFromTitle, Projection } from '@basemaps/shared';
+import { extractYearRangeFromName, extractYearRangeFromTitle } from '@basemaps/shared';
+import { Projection } from '@basemaps/shared/build/proj/projection.js';
 import { BBox } from '@linzjs/geojson';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';

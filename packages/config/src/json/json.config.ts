@@ -11,7 +11,7 @@ import {
 import { fsa } from '@chunkd/fs';
 import { Cotar } from '@cotar/core';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
-import { Projection } from '@basemaps/shared';
+import { Projection } from '@basemaps/shared/build/proj/projection.js';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { ConfigId } from '../base.config.js';
@@ -28,6 +28,7 @@ import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
+import { Geometry } from 'geojson';
 
 /** Amount to pad imagery bounds to avoid fragmenting polygons  */
 const SmoothPadding = 1 + 1e-10; // about 1/100th of a millimeter at equator
@@ -227,7 +228,6 @@ export class ConfigJson {
     const imageId = guessIdFromUri(uri) ?? sha256base58(uri);
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ uri, imageId: id }, 'FetchImagery');
-    const proj = Projection.get(tileMatrix.projection.code);
 
     const fileList = await fsa.toArray(fsa.list(uri));
     const tiffFiles = fileList.filter((f) => f.endsWith('.tiff') || f.endsWith('.tif'));
@@ -268,7 +268,7 @@ export class ConfigJson {
     this.logger.debug({ uri, imageId, files: files.length }, 'FetchImagery:Done');
 
     if (bounds == null) throw new Error('Failed to get bounds from URI: ' + uri);
-    const bbox = proj.boundsToWgs84BoundingBox(bounds).map(roundNumber) as BBox;
+    const geometry = createImageryGeometry(bounds, files, tileMatrix);
     const now = Date.now();
     const output: ConfigImagery = {
       id,
@@ -279,7 +279,7 @@ export class ConfigJson {
       tileMatrix: tileMatrix.identifier,
       uri,
       bounds,
-      geometry: { type: 'MultiPolygon', coordinates: createCoordinates(bbox, files, proj) },
+      geometry,
       files,
     };
 
@@ -337,6 +337,12 @@ export function zoomLevelsFromWmts(
   if (maxZoom < minZoom) return null;
   if (maxZoom === 0) return null;
   return { minZoom, maxZoom };
+}
+
+export function createImageryGeometry(bounds: Bounds, files: NamedBounds[], tileMatrix: TileMatrixSet): Geometry {
+  const proj = Projection.get(tileMatrix);
+  const bbox = proj.boundsToWgs84BoundingBox(bounds).map(roundNumber) as BBox;
+  return { type: 'MultiPolygon', coordinates: createCoordinates(bbox, files, proj) };
 }
 
 /**
