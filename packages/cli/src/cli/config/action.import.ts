@@ -8,8 +8,8 @@ import {
   ConfigProviderMemory,
   standardizeLayerName,
 } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
-import { Env, fsa, getDefaultConfig, LogConfig, Projection } from '@basemaps/shared';
+import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps/geo';
+import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import fetch from 'node-fetch';
 import { CogStacJob } from '../../cog/cog.stac.job.js';

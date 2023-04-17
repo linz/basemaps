@@ -1,4 +1,8 @@
-import { EpsgCode, QuadKey, TileMatrixSet, Tile, TileMatrixSets, NamedBounds } from '@basemaps/geo';
+import { NamedBounds } from '../../bounds.js';
+import { EpsgCode } from '../../epsg.js';
+import { QuadKey } from '../../quad.key.js';
+import { Tile, TileMatrixSet } from '../../tile.matrix.set.js';
+import { TileMatrixSets } from '../../tms/index.js';
 
 export function qkToName(qk: string): string {
   return TileMatrixSet.tileToName(QuadKey.toTile(qk));

@@ -33,13 +33,11 @@
     "aws-sdk": "^2.890.0",
     "entities": "^4.3.0",
     "pino": "^8.6.1",
-    "proj4": "^2.8.0",
     "source-map-support": "^0.5.19",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.75",
-    "@types/proj4": "^2.5.2"
+    "@types/aws-lambda": "^8.10.75"
   },
   "publishConfig": {
     "access": "public"

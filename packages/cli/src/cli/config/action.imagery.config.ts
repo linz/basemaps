@@ -6,8 +6,8 @@ import {
   ConfigTileSetRaster,
   TileSetType,
 } from '@basemaps/config';
-import { Bounds, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
-import { fsa, LogConfig, Projection } from '@basemaps/shared';
+import { Bounds, ImageFormat, Nztm2000QuadTms, Projection } from '@basemaps/geo';
+import { fsa, LogConfig } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { ulid } from 'ulid';

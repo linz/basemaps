@@ -1,6 +1,7 @@
 import {
   Bounds,
   Epsg,
+  Projection,
   Stac,
   StacCollection,
   StacLink,
@@ -9,13 +10,12 @@ import {
   TileMatrixSets,
 } from '@basemaps/geo';
 import {
+  CompositeError,
   extractYearRangeFromName,
   FileConfig,
   FileConfigPath,
-  Projection,
   fsa,
   titleizeImageryName,
-  CompositeError,
 } from '@basemaps/shared';
 import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';

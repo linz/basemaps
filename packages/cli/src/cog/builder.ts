@@ -1,5 +1,5 @@
-import { Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
-import { CompositeError, LoggerFatalError, LogType, Projection } from '@basemaps/shared';
+import { Bounds, Epsg, Projection, TileMatrixSet } from '@basemaps/geo';
+import { CompositeError, LoggerFatalError, LogType } from '@basemaps/shared';
 import { ChunkSource } from '@chunkd/core';
 import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import pLimit, { LimitFunction } from 'p-limit';

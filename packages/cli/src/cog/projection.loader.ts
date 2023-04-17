@@ -1,5 +1,4 @@
-import { Epsg } from '@basemaps/geo';
-import { Projection } from '@basemaps/shared';
+import { Epsg, Projection } from '@basemaps/geo';
 import fetch from 'node-fetch';
 
 export class ProjectionLoader {

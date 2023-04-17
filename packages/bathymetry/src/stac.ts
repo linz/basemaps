@@ -1,5 +1,6 @@
 import {
   Bounds,
+  Projection,
   Stac as StacStatic,
   StacCollection,
   StacItem,
@@ -8,14 +9,7 @@ import {
   Tile,
   TileMatrixSet,
 } from '@basemaps/geo';
-import {
-  CompositeError,
-  extractYearRangeFromName,
-  fsa,
-  LogType,
-  Projection,
-  titleizeImageryName,
-} from '@basemaps/shared';
+import { CompositeError, extractYearRangeFromName, fsa, LogType, titleizeImageryName } from '@basemaps/shared';
 import * as cp from 'child_process';
 import { readFileSync } from 'fs';
 import path, { basename } from 'path';

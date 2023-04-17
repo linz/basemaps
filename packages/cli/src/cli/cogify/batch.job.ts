@@ -1,5 +1,5 @@
-import { TileMatrixSet } from '@basemaps/geo';
-import { Env, fsa, LogConfig, LogType, Projection } from '@basemaps/shared';
+import { Projection, TileMatrixSet } from '@basemaps/geo';
+import { Env, fsa, LogConfig, LogType } from '@basemaps/shared';
 import Batch from 'aws-sdk/clients/batch.js';
 import { createHash } from 'crypto';
 import { basename } from 'path';
