@@ -1,6 +1,6 @@
 import { ConfigImagery, ConfigLayer, ConfigTileSet, standardizeLayerName } from '@basemaps/config';
-import { Bounds, GoogleTms, ImageFormat, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
-import { Projection, toQueryString, V, VNodeElement } from '@basemaps/shared';
+import { Bounds, GoogleTms, ImageFormat, Projection, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
+import { toQueryString, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
 import { BoundingBox } from '@cogeotiff/core';
 import { BBox } from '@linzjs/geojson';

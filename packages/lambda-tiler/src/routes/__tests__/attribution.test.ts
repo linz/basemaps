@@ -1,8 +1,7 @@
 import { Attribution } from '@basemaps/attribution';
-import { ConfigProviderMemory } from '@basemaps/config';
-import { createCoordinates } from '@basemaps/config/src/json/json.config.js';
-import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
-import { LogConfig, Projection } from '@basemaps/shared';
+import { ConfigProviderMemory, createCoordinates } from '@basemaps/config';
+import { GoogleTms, Nztm2000QuadTms, Projection } from '@basemaps/geo';
+import { LogConfig } from '@basemaps/shared';
 import { BBox } from '@linzjs/geojson';
 import { HttpHeader } from '@linzjs/lambda';
 import o from 'ospec';

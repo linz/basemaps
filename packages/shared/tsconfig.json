@@ -5,6 +5,6 @@
     "rootDir": "./src",
     "outDir": "./build"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "composite.error.ts"],
   "references": [{ "path": "../config" }]
 }

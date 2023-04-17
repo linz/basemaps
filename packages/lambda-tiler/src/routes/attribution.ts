@@ -1,17 +1,17 @@
-import { ConfigProvider, ConfigTileSet, getAllImagery, TileSetType } from '@basemaps/config';
-import { createCoordinates, roundNumber } from '@basemaps/config/src/json/json.config.js';
+import { ConfigProvider, ConfigTileSet, createCoordinates, getAllImagery, TileSetType } from '@basemaps/config';
+import { roundNumber } from '@basemaps/config/build/json/json.config.js';
 import {
   AttributionCollection,
   AttributionItem,
   AttributionStac,
   GoogleTms,
+  Projection,
   Stac,
   StacExtent,
   StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
 import { extractYearRangeFromName, extractYearRangeFromTitle } from '@basemaps/shared';
-import { Projection } from '@basemaps/shared/build/proj/projection.js';
 import { BBox } from '@linzjs/geojson';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';

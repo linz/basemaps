@@ -73,7 +73,7 @@
   resolved "https://registry.yarnpkg.com/@balena/dockerignore/-/dockerignore-1.0.2.tgz#9ffe4726915251e8eb69f44ef3547e0da2c03e0d"
   integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
 
-"@chunkd/core@>=10.0.0", "@chunkd/core@^10.0.0", "@chunkd/core@^8.1.0", "@chunkd/core@^8.4.0":
+"@chunkd/core@>=10.0.0", "@chunkd/core@^10.0.0", "@chunkd/core@^10.1.1", "@chunkd/core@^8.1.0", "@chunkd/core@^8.4.0":
   version "10.1.1"
   resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-10.1.1.tgz#2f7193baba36049507354bbadc2e06717a7cca98"
   integrity sha512-dd6+7KluZWFAa4Zzj/SQsi0WVu+I8oTlDAEYDzyyY7deYwgrHUnmtciKBL9Owc0kAChbrzzrAbZrZzqaneSStg==

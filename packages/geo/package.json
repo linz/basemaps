@@ -28,9 +28,12 @@
     "build/"
   ],
   "devDependencies": {
-    "@types/geojson": "^7946.0.7"
+    "@types/geojson": "^7946.0.7",
+    "@types/proj4": "^2.5.2"
   },
   "dependencies": {
-    "@linzjs/tile-matrix-set": "^0.0.1"
+    "@chunkd/core": "^10.1.1",
+    "@linzjs/tile-matrix-set": "^0.0.1",
+    "proj4": "^2.8.0"
   }
 }

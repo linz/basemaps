@@ -1,7 +1,7 @@
-import { Epsg, EpsgCode } from '@basemaps/geo';
 import { round } from '@basemaps/test/build/rounding.js';
 import { bboxToPolygon } from '@linzjs/geojson';
 import o from 'ospec';
+import { Epsg, EpsgCode } from '../../epsg.js';
 import { Projection } from '../projection.js';
 import { qkToNamedBounds } from './test.util.js';
 

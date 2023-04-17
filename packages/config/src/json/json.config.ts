@@ -4,6 +4,7 @@ import {
   ImageFormat,
   NamedBounds,
   Nztm2000QuadTms,
+  Projection,
   TileMatrixSet,
   TileMatrixSets,
   VectorFormat,
@@ -11,7 +12,6 @@ import {
 import { fsa } from '@chunkd/fs';
 import { Cotar } from '@cotar/core';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
-import { Projection } from '@basemaps/shared/build/proj/projection.js';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { ConfigId } from '../base.config.js';

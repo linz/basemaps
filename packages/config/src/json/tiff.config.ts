@@ -9,15 +9,13 @@ import {
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
-import { BBox } from '@linzjs/geojson';
-import { Projection } from '@basemaps/shared/build/proj/projection.js';
 import pLimit from 'p-limit';
 import { basename } from 'path';
 import { sha256base58 } from '../base58.node.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory/memory.config.js';
-import { ConfigJson, createCoordinates, createImageryGeometry, roundNumber } from './json.config.js';
+import { ConfigJson, createImageryGeometry } from './json.config.js';
 
 /** Does a file look like a tiff, ending in .tif or .tiff */
 function isTiff(f: string): boolean {
