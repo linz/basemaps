@@ -15,7 +15,6 @@ import {
   FileConfig,
   FileConfigPath,
   fsa,
-  Projection,
   titleizeImageryName,
 } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';

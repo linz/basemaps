@@ -1,5 +1,5 @@
-import { Epsg, EpsgCode, Tile, TileMatrixSet } from '@basemaps/geo';
-import { fsa, Projection } from '@basemaps/shared';
+import { Epsg, EpsgCode, Projection, Tile, TileMatrixSet } from '@basemaps/geo';
+import { fsa } from '@basemaps/shared';
 import {
   FeatureCollectionWithCrs,
   featuresToMultiPolygon,

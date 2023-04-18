@@ -1,7 +1,7 @@
-import { ConfigImageryTiff } from '@basemaps/config/src/json/tiff.config';
-import { BoundingBox, Bounds, EpsgCode, QuadKey, Simplify, TileId, TileMatrixSet } from '@basemaps/geo';
-import { LogType, Projection } from '@basemaps/shared';
-import { CliInfo } from '@basemaps/shared/src/cli/info';
+import { ConfigImageryTiff } from '@basemaps/config/build/json/tiff.config.js';
+import { BoundingBox, Bounds, EpsgCode, Projection, QuadKey, Simplify, TileId, TileMatrixSet } from '@basemaps/geo';
+import { LogType } from '@basemaps/shared';
+import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { createCovering } from './cogify/covering.js';

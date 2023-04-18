@@ -1,7 +1,6 @@
 import { sha256base58 } from '@basemaps/config';
-import { LogType } from '@basemaps/config/src/json/log.js';
 import { TileId, TileMatrixSets } from '@basemaps/geo';
-import { fsa } from '@basemaps/shared';
+import { fsa, LogType } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, flag, option, positional, string } from 'cmd-ts';
 import { createHash } from 'crypto';

@@ -9,7 +9,7 @@ export const logArguments = {
 
 export function getLogger(cli: { name: string }, args: { verbose: boolean; extraVerbose: boolean }): LogType {
   const logger = LogConfig.get();
-  CliInfo.package = '@basemaps/cogify';
+  CliInfo.package = '@' + 'basemaps/cogify';
   if (args.verbose) logger.level = 'debug';
   if (args.extraVerbose) logger.level = 'trace';
   logger.info({ package: CliInfo, cli: cli.name, args }, 'Cli:Start');
