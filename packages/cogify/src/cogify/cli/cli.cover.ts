@@ -3,6 +3,7 @@ import { initConfigFromPaths } from '@basemaps/config/build/json/tiff.config.js'
 import { GoogleTms, Nztm2000QuadTms, TileId } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
+import { toFeatureCollection } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, restPositionals, string } from 'cmd-ts';
 import { CutlineOptimizer } from '../../cutline.js';
@@ -39,17 +40,18 @@ export const BasemapsCogifyCoverCommand = command({
     const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');
     const cfg = await initConfigFromPaths(mem, args.paths);
-    metrics.end('imagery:load');
+    const imageryLoadTime = metrics.end('imagery:load');
     if (cfg.imagery.length === 0) throw new Error('No imagery found');
     const im = cfg.imagery[0];
-    logger.info({ files: im.files.length, title: im.title }, 'Imagery:Loaded');
+    logger.info({ files: im.files.length, title: im.title, duration: imageryLoadTime }, 'Imagery:Loaded');
 
     const tms = SupportedTileMatrix.find((f) => f.identifier.toLowerCase() === args.tileMatrix.toLowerCase());
     if (tms == null) throw new Error('--tile-matrix: ' + args.tileMatrix + ' not found');
 
     metrics.start('cutline:load');
     const cutline = await CutlineOptimizer.load(args.cutline, args.cutlineBlend, tms);
-    metrics.end('cutline:load');
+    const cutlineLoadTime = metrics.end('cutline:load');
+    logger.info({ path: args.cutline, duration: cutlineLoadTime }, 'Cutline:Loaded');
 
     const ctx: TileCoverContext = {
       id: CliId,
@@ -66,6 +68,9 @@ export const BasemapsCogifyCoverCommand = command({
 
     const sourcePath = fsa.join(targetPath, 'source.json');
     await fsa.write(sourcePath, JSON.stringify(res.source, null, 2));
+
+    const coveringPath = fsa.join(targetPath, 'covering.json');
+    await fsa.write(coveringPath, JSON.stringify({ type: 'FeatureCollection', features: res.items }, null, 2));
 
     const collectionPath = fsa.join(targetPath, 'collection.json');
     await fsa.write(collectionPath, JSON.stringify(res.collection, null, 2));

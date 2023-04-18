@@ -58,6 +58,8 @@ export function createCovering(ctx: CoveringContext): Set<string> {
       if (visited.has(tileQk)) continue;
       visited.add(tileQk);
 
+      console.log(visited.size, todo.length, targetTiles.size);
+
       const tileSource = tileMatrix.tileToSourceBounds(currentTile);
       const tileArea = tileSource.width * tileSource.height;
       const tilePolygon = tileSource.toPolygon();

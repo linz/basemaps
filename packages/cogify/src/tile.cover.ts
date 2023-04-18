@@ -55,7 +55,8 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   const cutBounds = Simplify.multiPolygon(ctx.cutline.cut(sourceBounds), targetPixelScale);
   if (cutBounds == null) throw new Error('No tiles need creating');
 
-  ctx.metrics?.end('cutline:apply');
+  const cutlineDuration = ctx.metrics?.end('cutline:apply');
+  ctx.logger?.debug({ duration: cutlineDuration }, 'Cutline:Simplified');
 
   // Convert the source imagery to a geojson
   const sourceGeoJson = ctx.imagery.files.map((file) => {
