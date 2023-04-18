@@ -14,10 +14,10 @@ const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 export const BasemapsCogifyCoverCommand = command({
   name: 'cogify-cover',
   version: CliInfo.version,
-  description: 'Create a collection of COGs from source imagery',
+  description: 'Create a COG from a covering configuration',
   args: {
     ...logArguments,
-    target: option({ type: string, long: 'target', description: 'Where to write the output tiffs' }),
+    target: option({ type: string, long: 'target', description: 'Where to write the configuration' }),
     cutline: option({ type: optional(string), long: 'cutline', description: 'Cutline to cut tiffs' }),
     cutlineBlend: option({
       type: number,
@@ -30,7 +30,6 @@ export const BasemapsCogifyCoverCommand = command({
       type: string,
       long: 'tile-matrix',
       description: `Output TileMatrix to use [${SupportedTileMatrix.map((f) => f.identifier).join(', ')}]`,
-      defaultValue: () => 'WebMercatorQuad',
     }),
   },
   async handler(args) {

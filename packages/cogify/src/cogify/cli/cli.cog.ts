@@ -46,7 +46,7 @@ function isPathLocal(path: string): boolean {
 export const BasemapsCogifyCreateCommand = command({
   name: 'cogify-create',
   version: CliInfo.version,
-  description: 'Create a COG from imagery',
+  description: 'Create a covering configuration from a collection from source imagery',
   args: {
     ...logArguments,
     path: positional({ type: string, displayName: 'path', description: 'Path to collection.json' }),
