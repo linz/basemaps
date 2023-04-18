@@ -119,6 +119,8 @@ export const BasemapsCogifyCreateCommand = command({
     const sourceFileMap = new Map<string, string>();
     const tmpFolder = fsa.join(tmpdir(), CliId);
 
+    const gdalVersion = await new GdalRunner({ command: 'gdal_translate', args: ['--version'], output: '' }).run();
+
     try {
       await mkdir(tmpFolder, { recursive: true });
 
@@ -164,7 +166,10 @@ export const BasemapsCogifyCreateCommand = command({
           type: 'image/tiff; application=geotiff; profile=cloud-optimized',
           roles: ['data'],
         };
+
+        // Update the item to have
         item.assets['cog'] = asset;
+        item.properties['linz_basemaps:generated']['gdal'] = gdalVersion.stdout;
 
         const startTime = performance.now();
         const readStream = fsa.stream(outputTiffPath);

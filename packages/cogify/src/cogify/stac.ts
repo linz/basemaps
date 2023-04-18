@@ -60,6 +60,8 @@ export type CogifyStacItem = StacItem & {
       hash: string;
       /** ISO date of the time this file was generated */
       date: string;
+      /** version of GDAL used to create the COG */
+      gdal?: string;
     };
     'linz_basemaps:options': CogifyCreationOptions;
   };
