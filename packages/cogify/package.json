@@ -25,7 +25,7 @@
   },
   "bundle": [
     {
-      "entry": "src/cli/bin.ts",
+      "entry": "src/bin.ts",
       "minify": false,
       "outfile": "dist/index.cjs",
       "external": [
