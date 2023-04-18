@@ -10,11 +10,17 @@ import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacIt
 import { CutlineOptimizer } from './cutline.js';
 
 export interface TileCoverContext {
+  /** Unique id for the covering */
   id: string;
+  /** List of imagery to cover */
   imagery: ConfigImageryTiff;
+  /** Cutline to apply */
   cutline: CutlineOptimizer;
+  /** Output tile matrix */
   tileMatrix: TileMatrixSet;
+  /** Optional metrics provider to track how long actions take */
   metrics?: Metrics;
+  /** Optional logger to trace covering creation */
   logger?: LogType;
 }
 export interface TileCoverResult {
@@ -127,6 +133,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
       assets: {},
     };
 
+    // Add the source imagery as a STAC Link
     for (const src of source) {
       const srcLink: CogifyLinkSource = {
         href: src.name,
@@ -136,7 +143,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
       item.links.push(srcLink);
     }
 
-    // Add the cutline in if it exists
+    // Add the cutline as a STAC Link if it exists
     if (ctx.cutline.path) {
       const cutLink: CogifyLinkCutline = {
         href: ctx.cutline.path,
@@ -157,8 +164,8 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     stac_extensions: [],
     license: 'CC-BY-4.0',
     extent: {
-      temporal: { interval: [['', '']] },
-      spatial: { bbox: [] } as any, // FIXME
+      temporal: { interval: [['', '']] }, // TODO this should be created from the imagery metadata
+      spatial: { bbox: [] } as any, // TODO this should be created from the imagery polygon
     },
     title: ctx.imagery.title,
     description: '',

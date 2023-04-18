@@ -43,8 +43,7 @@
     "p-limit": "^4.0.0",
     "stac-ts": "^1.0.0"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "publishConfig": {
     "access": "public"
   },
