@@ -1,5 +1,5 @@
 import { ConfigImageryTiff } from '@basemaps/config/build/json/tiff.config.js';
-import { BoundingBox, Bounds, EpsgCode, Projection, QuadKey, Simplify, TileId, TileMatrixSet } from '@basemaps/geo';
+import { BoundingBox, Bounds, EpsgCode, Projection, QuadKey, TileId, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
@@ -35,7 +35,6 @@ export interface TileCoverResult {
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
   // Find the zoom level that is at least as good as the source imagery
   const targetBaseZoom = Projection.getTiffResZoom(ctx.tileMatrix, ctx.imagery.gsd);
-  const targetPixelScale = ctx.tileMatrix.pixelScale(targetBaseZoom);
 
   // The base zoom is 256x256 pixels at its resolution, we are trying to find a image that is <32k pixels wide/high
   // zooming out 7 levels converts a 256x256 image into 32k x 32k image
@@ -51,12 +50,6 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   );
   ctx.logger?.debug('Cutline:Apply');
   ctx.metrics?.start('cutline:apply');
-  // Reduce the complexity of the cutline applied polygon to same as one pixel
-  const cutBounds = Simplify.multiPolygon(ctx.cutline.cut(sourceBounds), targetPixelScale);
-  if (cutBounds == null) throw new Error('No tiles need creating');
-
-  const cutlineDuration = ctx.metrics?.end('cutline:apply');
-  ctx.logger?.debug({ duration: cutlineDuration }, 'Cutline:Simplified');
 
   // Convert the source imagery to a geojson
   const sourceGeoJson = ctx.imagery.files.map((file) => {
@@ -68,8 +61,11 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   ctx.metrics?.start('covering:create');
   const covering = createCovering({
     tileMatrix: ctx.tileMatrix,
-    source: cutBounds,
+    source: sourceBounds,
     targetZoom: optimalCoveringZoom,
+    baseZoom: targetBaseZoom,
+    cutline: ctx.cutline,
+    metrics: ctx.metrics,
   });
   ctx.metrics?.end('covering:create');
 
@@ -82,7 +78,8 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   });
 
   ctx.metrics?.start('covering:polygon');
-  const items = [...covering.values()].map((quadKey) => {
+  const items: CogifyStacItem[] = [];
+  for (const quadKey of covering) {
     const tile = QuadKey.toTile(quadKey);
     const bounds = ctx.tileMatrix.tileToSourceBounds(tile);
 
@@ -154,8 +151,8 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
       item.links.push(cutLink);
     }
 
-    return item;
-  }) as CogifyStacItem[];
+    items.push(item);
+  }
   ctx.metrics?.end('covering:polygon');
 
   const collection: CogifyStacCollection = {

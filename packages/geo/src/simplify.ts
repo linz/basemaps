@@ -1,4 +1,4 @@
-import { MultiPolygon, Pair } from '@linzjs/geojson';
+import { Area, MultiPolygon, Pair } from '@linzjs/geojson';
 
 // square distance between 2 points
 function getDistance(p1: Pair, p2: Pair): number {
@@ -95,7 +95,7 @@ export const Simplify = {
 
     return points;
   },
-  multiPolygon(coordinates: MultiPolygon, tolerance: number): MultiPolygon | null {
+  multiPolygon(coordinates: MultiPolygon, tolerance: number, removeArea = 1e-8): MultiPolygon | null {
     const output: MultiPolygon = [];
     for (let k = 0; k < coordinates.length; k++) {
       const outPoints = [];
@@ -103,9 +103,14 @@ export const Simplify = {
         const point = Simplify.points(coordinates[k][l], tolerance);
         if (point.length > 2) outPoints.push(point);
       }
-      if (outPoints.length > 0) output.push(outPoints);
+      if (outPoints.length > 0) {
+        // Skip any polygons that is less than removeArea size
+        if (removeArea > 0 && Area.polygon(outPoints) < removeArea) continue;
+        output.push(outPoints);
+      }
     }
     if (output.length === 0) return null;
+
     return output;
   },
 };

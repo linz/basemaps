@@ -49,7 +49,7 @@ export const BasemapsCogifyCreateCommand = command({
   description: 'Create a covering configuration from a collection from source imagery',
   args: {
     ...logArguments,
-    path: positional({ type: string, displayName: 'path', description: 'Path to collection.json' }),
+    path: positional({ type: string, displayName: 'path', description: 'Path to item json' }),
     force: flag({ long: 'force', description: 'Overwrite existing tiff files' }),
     index: option({ type: string, long: 'index', description: 'Tiles to create inside of collection' }),
   },

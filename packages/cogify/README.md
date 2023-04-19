@@ -16,7 +16,7 @@ npm install -g @basemaps/cogify
 ```
 $ cogify --help
 
-- cover - Create a collection of COGs from source imagery
+- cover - Create a covering configuration from a collection from source imagery
 - create - Create a COG from a covering configuration
 ```
 
@@ -33,6 +33,6 @@ cogify cover --tile-matrix WebMercatorQuad s3://linz-imagery/new-zealand/north-i
 
 Create the first COG from the list
 ```
-cogify create ./output/3857/north-island_2023_0.5m/*/collection.json --index 0
+cogify create ./output/3857/north-island_2023_0.5m/:id/collection.json --index 0
 ```
 

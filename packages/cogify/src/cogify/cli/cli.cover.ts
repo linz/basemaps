@@ -3,7 +3,6 @@ import { initConfigFromPaths } from '@basemaps/config/build/json/tiff.config.js'
 import { GoogleTms, Nztm2000QuadTms, TileId } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { toFeatureCollection } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, restPositionals, string } from 'cmd-ts';
 import { CutlineOptimizer } from '../../cutline.js';
@@ -76,13 +75,16 @@ export const BasemapsCogifyCoverCommand = command({
     await fsa.write(collectionPath, JSON.stringify(res.collection, null, 2));
     ctx.logger?.debug({ path: collectionPath }, 'Imagery:Stac:Collection:Write');
 
+    const tilesByZoom: number[] = [];
     for (const item of res.items) {
       const tileId = TileId.toTileId(item.properties['linz_basemaps:options'].tile);
       const itemPath = fsa.join(targetPath, `${tileId}.json`);
       await fsa.write(itemPath, JSON.stringify(item, null, 2));
-      ctx.logger?.debug({ path: itemPath }, 'Imagery:Stac:Item:Write');
+      const z = item.properties['linz_basemaps:options'].tile.z;
+      tilesByZoom[z] = (tilesByZoom[z] ?? 0) + 1;
+      ctx.logger?.trace({ path: itemPath }, 'Imagery:Stac:Item:Write');
     }
 
-    logger.info({ tiles: res.items.length, metrics: metrics.metrics }, 'Cover:Created');
+    logger.info({ tiles: res.items.length, metrics: metrics.metrics, tilesByZoom }, 'Cover:Created');
   },
 });

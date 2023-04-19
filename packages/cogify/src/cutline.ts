@@ -5,7 +5,7 @@ import {
   featuresToMultiPolygon,
   intersection,
   MultiPolygon,
-  multiPolygonArea,
+  Area,
   toFeatureCollection,
   toFeatureMultiPolygon,
 } from '@linzjs/geojson';
@@ -62,7 +62,7 @@ export class CutlineOptimizer {
     const optimized = intersection(this.cutline, scaledBounds.toPolygon());
 
     // Check how much of a change was the optimized cutline
-    const optimizedArea = multiPolygonArea(optimized);
+    const optimizedArea = Area.multiPolygon(optimized);
     const scaledArea = scaledBounds.width * scaledBounds.height;
     const areaPercent = 1 - optimizedArea / scaledArea;
 
