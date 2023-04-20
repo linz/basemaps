@@ -14,7 +14,7 @@ const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 export const BasemapsCogifyCoverCommand = command({
   name: 'cogify-cover',
   version: CliInfo.version,
-  description: 'Create a COG from a covering configuration',
+  description: 'Create a covering configuration from a collection from source imagery',
   args: {
     ...logArguments,
     target: option({ type: string, long: 'target', description: 'Where to write the configuration' }),
