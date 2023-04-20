@@ -1,5 +1,5 @@
 import { ConfigImageryTiff } from '@basemaps/config/build/json/tiff.config.js';
-import { BoundingBox, Bounds, EpsgCode, Projection, QuadKey, TileId, TileMatrixSet } from '@basemaps/geo';
+import { BoundingBox, Bounds, EpsgCode, Projection, TileId, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
@@ -69,8 +69,8 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   });
   ctx.metrics?.end('covering:create');
 
-  if (covering.size === 0) throw new Error('Unable to create tile covering, no tiles created.');
-  ctx.logger?.info({ tiles: covering.size, zoom: optimalCoveringZoom }, 'Imagery:Covering:Created');
+  if (covering.length === 0) throw new Error('Unable to create tile covering, no tiles created.');
+  ctx.logger?.info({ tiles: covering.length, zoom: optimalCoveringZoom }, 'Imagery:Covering:Created');
 
   const imageryBounds = ctx.imagery.files.map((f) => {
     const polygon = Bounds.fromJson(f).toPolygon();
@@ -79,8 +79,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
 
   ctx.metrics?.start('covering:polygon');
   const items: CogifyStacItem[] = [];
-  for (const quadKey of covering) {
-    const tile = QuadKey.toTile(quadKey);
+  for (const tile of covering) {
     const bounds = ctx.tileMatrix.tileToSourceBounds(tile);
 
     // Scale the tile bounds slightly to ensure we get all relevant imagery

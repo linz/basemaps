@@ -69,11 +69,11 @@ export interface CoveringContext {
   logger?: LogType;
 }
 
-export function createCovering(ctx: CoveringContext): Set<string> {
+export function createCovering(ctx: CoveringContext): Tile[] {
   const minCoveragePercent = ctx.minCoveragePercent ?? 0.25;
   const maxZoomDifference = ctx.maxZoomDifference ?? 2;
 
-  const targetTiles = new Set<string>();
+  const outputTiles: Tile[] = [];
   const tileMatrix = ctx.tileMatrix;
 
   // Reduce the complexity of the cutline applied polygon to same as one pixel at the covering resolution
@@ -135,15 +135,15 @@ export function createCovering(ctx: CoveringContext): Set<string> {
       addChildren(tile, todo);
     } else {
       zoomDifference = Math.max(zDiff, zoomDifference);
-      targetTiles.add(tileId);
+      outputTiles.push(tile);
       tilesByZoom[tile.z] = (tilesByZoom[tile.z] ?? 0) + 1;
-      if (targetTiles.size % 25 === 0) {
-        ctx.logger?.debug({ tiles: targetTiles.size, tilesByZoom }, 'Cover:Progress');
+      if (outputTiles.length % 25 === 0) {
+        ctx.logger?.debug({ tiles: outputTiles.length, tilesByZoom }, 'Cover:Progress');
       }
     }
 
     if (zDiff === 0) addSurrounding(tile, ctx.tileMatrix, todo, visited);
   }
 
-  return targetTiles;
+  return outputTiles;
 }
