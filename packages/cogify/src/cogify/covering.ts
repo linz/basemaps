@@ -1,25 +1,51 @@
-import { QuadKey, Simplify, Tile, TileMatrixSet } from '@basemaps/geo';
+import { Simplify, Tile, TileId, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { Area, intersection, MultiPolygon } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { CutlineOptimizer } from '../cutline';
 
-/** Tile offsets for surrounding tiles */
+/**
+ * Tile offsets for surrounding tiles
+ * In the order North, West, South, East
+ */
 const SurroundingTiles = [
   { x: 0, y: -1 }, // North
+  { x: 1, y: 0 }, // West
   { x: 0, y: 1 }, // South
-  { x: 1, y: 0 }, // East
-  { x: -1, y: 0 }, // West
+  { x: -1, y: 0 }, // East
 ];
 
-function addSurrounding(seen: Set<string>, todo: string[], tile: Tile, z: number): void {
+export function addChildren(tile: Tile, todo: Tile[] = []): Tile[] {
+  const childZ = tile.z + 1;
+  const xOffset = tile.x * 2;
+  const yOffset = tile.y * 2;
+  todo.push({ z: childZ, x: xOffset, y: yOffset }); //top left
+  todo.push({ z: childZ, x: xOffset + 1, y: yOffset }); // top right
+  todo.push({ z: childZ, x: xOffset, y: yOffset + 1 }); // bottom left
+  todo.push({ z: childZ, x: xOffset + 1, y: yOffset + 1 }); // bottom right
+  return todo;
+}
+
+export function addSurrounding(tile: Tile, tileMatrix: TileMatrixSet, todo: Tile[] = [], seen?: Set<string>): Tile[] {
+  // Zoom should not have surrounding tiles
+  if (tile.z === 0) return [];
   for (const sr of SurroundingTiles) {
     // TODO this should loop around if it goes outside the bounds of the tile matrix eg crossing the antimeridian
-    const nextTile = { z, x: sr.x + tile.x, y: sr.y + tile.y };
-    const tileQk = QuadKey.fromTile(nextTile);
-    if (seen.has(tileQk)) continue;
-    todo.push(tileQk);
+    const nextTile = { z: tile.z, x: sr.x + tile.x, y: sr.y + tile.y };
+
+    const tileZoom = tileMatrix.zooms[tile.z];
+    if (nextTile.x >= tileZoom.matrixWidth) nextTile.x = nextTile.x - tileZoom.matrixWidth;
+    if (nextTile.x < 0) nextTile.x = nextTile.x + tileZoom.matrixWidth;
+
+    if (nextTile.y >= tileZoom.matrixHeight) nextTile.y = nextTile.y - tileZoom.matrixHeight;
+    if (nextTile.y < 0) nextTile.y = nextTile.y + tileZoom.matrixHeight;
+    if (seen) {
+      const tileId = TileId.fromTile(nextTile);
+      if (seen?.has(tileId)) continue;
+    }
+    todo.push(nextTile);
   }
+  return todo;
 }
 
 export interface CoveringContext {
@@ -68,28 +94,30 @@ export function createCovering(ctx: CoveringContext): Set<string> {
 
   // Tiles that have been seen before
   const visited = new Set<string>();
-  const todo: string[] = [];
+  const todo: Tile[] = [];
 
   // Find the tile that intersects with the top left point of each polygon and use that as the starting point
   for (const poly of cutBounds) {
     const topLeftPoint = poly[0][0];
     const targetPx = tileMatrix.sourceToPixels(topLeftPoint[0], topLeftPoint[1], ctx.targetZoom);
-    const targetTile = tileMatrix.pixelsToTile(targetPx.x, targetPx.y, ctx.targetZoom);
-    const quadKey = QuadKey.fromTile(targetTile);
-    if (todo.includes(quadKey)) continue;
-    todo.push(quadKey);
+    const tile = tileMatrix.pixelsToTile(targetPx.x, targetPx.y, ctx.targetZoom);
+    const tileId = TileId.fromTile(tile);
+    if (visited.has(tileId)) continue;
+    todo.push(tile);
+    visited.add(tileId);
   }
+  visited.clear();
 
   const tilesByZoom: number[] = [];
   let zoomDifference = 0;
   while (todo.length > 0) {
-    const tileQk = todo.shift();
-    if (tileQk == null || visited.has(tileQk)) continue;
-    const currentTile = QuadKey.toTile(tileQk);
+    const tile = todo.shift();
+    if (tile == null) continue;
+    const tileId = TileId.fromTile(tile);
+    if (visited.has(tileId)) continue;
+    visited.add(tileId);
 
-    visited.add(tileQk);
-
-    const tileSource = tileMatrix.tileToSourceBounds(currentTile);
+    const tileSource = tileMatrix.tileToSourceBounds(tile);
     const tileArea = tileSource.width * tileSource.height;
     const tilePolygon = tileSource.toPolygon();
     const tileIntersection = intersection(cutBounds, tilePolygon);
@@ -100,21 +128,21 @@ export function createCovering(ctx: CoveringContext): Set<string> {
     const areaPercent = area / tileArea;
 
     // Is this tile a different zoom level to our target
-    const zDiff = currentTile.z - ctx.targetZoom;
+    const zDiff = tile.z - ctx.targetZoom;
 
     if (areaPercent < minCoveragePercent && zDiff < maxZoomDifference) {
       // Not enough coverage was found with this tile, use a more zoomed in tile and try again
-      todo.push(...QuadKey.children(tileQk));
+      addChildren(tile, todo);
     } else {
       zoomDifference = Math.max(zDiff, zoomDifference);
-      targetTiles.add(tileQk);
-      tilesByZoom[tileQk.length] = (tilesByZoom[tileQk.length] ?? 0) + 1;
+      targetTiles.add(tileId);
+      tilesByZoom[tile.z] = (tilesByZoom[tile.z] ?? 0) + 1;
       if (targetTiles.size % 25 === 0) {
         ctx.logger?.debug({ tiles: targetTiles.size, tilesByZoom }, 'Cover:Progress');
       }
     }
 
-    if (zDiff === 0) addSurrounding(visited, todo, currentTile, ctx.targetZoom);
+    if (zDiff === 0) addSurrounding(tile, ctx.tileMatrix, todo, visited);
   }
 
   return targetTiles;

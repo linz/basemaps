@@ -95,7 +95,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     const feature = Projection.get(ctx.tileMatrix).boundsToGeoJsonFeature(bounds);
     feature.geometry.coordinates;
 
-    const tileId = TileId.toTileId(tile);
+    const tileId = TileId.fromTile(tile);
 
     const item: CogifyStacItem = {
       id: `${ctx.id}/${tileId}`,
@@ -168,7 +168,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     title: ctx.imagery.title,
     description: '',
     links: items.map((item) => {
-      const tileId = TileId.toTileId(item.properties['linz_basemaps:options'].tile);
+      const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
       return { href: `./${tileId}.json`, rel: 'item', type: 'application/json' };
     }),
   };

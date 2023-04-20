@@ -10,7 +10,7 @@ export const TileId = {
     return tile;
   },
   /** Create a tileID `:z-:x-:y */
-  toTileId(tile: Tile): string {
+  fromTile(tile: Tile): string {
     return `${tile.z}-${tile.x}-${tile.y}`;
   },
 };

@@ -148,7 +148,7 @@ export const BasemapsCogifyCreateCommand = command({
         const cutlineLink = getCutline(item.links);
 
         const options = item.properties['linz_basemaps:options'];
-        const tileId = TileId.toTileId(options.tile);
+        const tileId = TileId.fromTile(options.tile);
         // Location to where the tiff should be stored
         const tiffPath = fsa.join(collectionPath, tileId + '.tiff');
         const itemPath = fsa.join(collectionPath, tileId + '.json');
@@ -192,7 +192,7 @@ export const BasemapsCogifyCreateCommand = command({
     logger.info(
       {
         count: toCreate.length,
-        files: toCreate.map((f) => TileId.toTileId(f.properties['linz_basemaps:options'].tile)),
+        files: toCreate.map((f) => TileId.fromTile(f.properties['linz_basemaps:options'].tile)),
       },
       'Cog:Done',
     );
@@ -215,7 +215,7 @@ export interface CogCreationContext {
 /** Create a cog from the creation options */
 async function createCog(ctx: CogCreationContext): Promise<string> {
   const options = ctx.options;
-  const tileId = TileId.toTileId(options.tile);
+  const tileId = TileId.fromTile(options.tile);
 
   const logger = ctx.logger?.child({ tileId });
 

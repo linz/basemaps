@@ -77,7 +77,7 @@ export const BasemapsCogifyCoverCommand = command({
 
     const tilesByZoom: number[] = [];
     for (const item of res.items) {
-      const tileId = TileId.toTileId(item.properties['linz_basemaps:options'].tile);
+      const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
       const itemPath = fsa.join(targetPath, `${tileId}.json`);
       await fsa.write(itemPath, JSON.stringify(item, null, 2));
       const z = item.properties['linz_basemaps:options'].tile.z;
