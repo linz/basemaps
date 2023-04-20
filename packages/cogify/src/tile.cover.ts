@@ -40,7 +40,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   // zooming out 7 levels converts a 256x256 image into 32k x 32k image
   // 256 * 2 ** 7 = 32,768 - 256x256 tile
   // 512 * 2 ** 6 = 32,768 - 512x512 tile
-  const optimalCoveringZoom = targetBaseZoom - 7; // z12 from z19
+  const optimalCoveringZoom = Math.max(1, targetBaseZoom - 7); // z12 from z19
   ctx.logger?.debug({ targetBaseZoom, cogOverZoom: optimalCoveringZoom }, 'Imagery:ZoomLevel');
 
   const sourceBounds = projectPolygon(
