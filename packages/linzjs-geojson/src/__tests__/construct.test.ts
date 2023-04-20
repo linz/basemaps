@@ -105,7 +105,7 @@ o.spec('construct', () => {
       });
     });
 
-    o('convert points, remove hoiles', () => {
+    o('convert points, remove holes', () => {
       const features = [toFeaturePolygon([[[5, 6]], [[5, 7]]]), toFeatureMultiPolygon(coordinates)];
       const ans = featuresToMultiPolygon(features, true, (p) => [-p[1], -p[0]]);
 

@@ -9,6 +9,7 @@
     { "path": "./packages/geo" },
     { "path": "./packages/tiler" },
     { "path": "./packages/tiler-sharp" },
+    { "path": "./packages/cogify" },
     { "path": "./packages/cli" },
     { "path": "./packages/bathymetry" },
     { "path": "./packages/_infra" },

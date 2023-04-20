@@ -15,10 +15,10 @@ function removeDegenerateEdges(polygons: MultiPolygon, bbox: BBox): MultiPolygon
 
 /**
  * Clip a MultiPolygon to a bounding box.
-
+ *
  * @param polygons a GeoJSON MultiPolygon not necessarily in WGS84 coordinates. Does not handle
  * lines crossing the antimeridian in WGS84.
-
+ *
  * @param bbox bounding box in the same coordinates and the `polygons`.
  */
 export function clipMultipolygon(polygons: MultiPolygon, bbox: BBox): MultiPolygon {

@@ -15,7 +15,7 @@ export const QuadKey = {
    */
   intersects(qkA: string, qkB: string): boolean {
     const shortestLength = Math.min(qkA.length, qkB.length);
-    return qkA.substr(0, shortestLength) === qkB.substr(0, shortestLength);
+    return qkA.slice(0, shortestLength) === qkB.slice(0, shortestLength);
   },
 
   /**
@@ -49,7 +49,7 @@ export const QuadKey = {
    * @param qk
    */
   parent(qk: string): string {
-    return qk.substr(0, qk.length - 1);
+    return qk.slice(0, qk.length - 1);
   },
 
   /**

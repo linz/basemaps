@@ -1,5 +1,5 @@
-import { fsa, LogConfig } from '@basemaps/shared';
 import { ConfigJson } from '@basemaps/config';
+import { fsa, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 
 export const DefaultConfig = 'config/';

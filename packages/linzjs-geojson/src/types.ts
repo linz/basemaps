@@ -21,3 +21,21 @@ export interface BBoxFeatureCollection<
 > extends GeoJSON.FeatureCollection<G, P> {
   features: Array<BBoxFeature<G, P>>;
 }
+
+/**
+ * GeoJSON FeatureCollection with coordinate reference
+ *
+ * Useful for creating non standard GeoJSON files with projection other than WGS84
+ */
+export interface FeatureCollectionWithCrs extends GeoJSON.FeatureCollection {
+  crs: {
+    type: string;
+    properties: {
+      /**
+       * CRS definition, a EPSG reference
+       * @example "urn:ogc:def:crs:EPSG::2193"
+       */
+      name: string;
+    };
+  };
+}
