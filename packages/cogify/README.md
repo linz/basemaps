@@ -27,7 +27,7 @@ The metadata for the optimized COGS is written into the output folder where the 
 
 
 ```
-cogify create ./output/WebMercatorQuad/porirua_2020_0.1m/01GY8W69EJEMAKKXNHYMRF7DCY/14-16150-10245.json
+cogify create ./output/WebMercatorQuad/porirua_2020_0.1m/01GY8W69EJEMAKKXNHYMRF7DCY/collection.json --index 0[0,1,2]
 ```
 
 The output COG can be validated to ensure it matches the tile exactly.
@@ -65,6 +65,6 @@ cogify cover --tile-matrix WebMercatorQuad s3://linz-imagery/new-zealand/north-i
 
 Create the first COG from the list
 ```
-cogify create ./output/3857/north-island_2023_0.5m/:id/14-16150-10245.json
+cogify create ./output/3857/north-island_2023_0.5m/:id/collection.json --index 0
 ```
 
