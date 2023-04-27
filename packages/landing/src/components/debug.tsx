@@ -175,11 +175,13 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   renderWMTS(): ReactNode {
+    const imagery = this.state.imagery;
     return (
       <div className="debug__info">
         <label className="debug__label"></label>
         <div className="debug__value">
-          {Config.map.tileMatrix.projection.toEpsgString()} - <a href={this.getWMTSLink()}>WMTS</a>
+          {Config.map.tileMatrix.projection.toEpsgString()} - <a href={this.getWMTSLink()}>WMTS </a>
+          {imagery == null ? null : <div title="Number of tiffs in imagery"> - {imagery.files.length} Tiffs</div>}
         </div>
       </div>
     );
