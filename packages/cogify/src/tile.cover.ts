@@ -106,7 +106,11 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
         type: feature.geometry.type,
         coordinates: feature.geometry.coordinates,
       } as any, // FIXME
-      links: [{ href: `./${tileId}.json`, rel: 'self' }],
+      links: [
+        { href: `./${tileId}.json`, rel: 'self' },
+        { href: './collection.json', rel: 'collection' },
+        { href: './collection.json', rel: 'parent' },
+      ],
       properties: {
         'proj:epsg': ctx.tileMatrix.projection.code,
         'linz_basemaps:options': {
