@@ -17,3 +17,4 @@ export { Simplify } from './simplify.js';
 export { TileId } from './tile.js';
 
 export * from './proj/projection.js';
+export { ProjectionLoader } from './proj/projection.loader.js';

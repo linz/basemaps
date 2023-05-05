@@ -116,7 +116,6 @@ export async function imageryFromTiffPath(target: string, Q: LimitFunction, log?
     const title = stac?.title ?? folderName;
     const tileMatrix =
       params.projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.tryGet(params.projection);
-    if (tileMatrix == null) throw new Error('No tile matrix found for projection: ' + params.projection);
 
     const imagery: ConfigImageryTiff = {
       id: sha256base58(target),
@@ -124,7 +123,7 @@ export async function imageryFromTiffPath(target: string, Q: LimitFunction, log?
       title,
       updatedAt: Date.now(),
       projection: params.projection,
-      tileMatrix: tileMatrix.identifier,
+      tileMatrix: tileMatrix?.identifier ?? 'none',
       gsd: params.gsd,
       uri: resolve(target),
       bounds: params.bounds,
