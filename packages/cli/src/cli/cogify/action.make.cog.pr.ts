@@ -1,7 +1,7 @@
 import { ConfigLayer } from '@basemaps/config';
 import { fsa, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { owner, repo } from '../github/github.js';
+import { owner, repo } from '../github/github.backup.js';
 import { MakeCogGithub } from '../github/make.cog.pr.js';
 
 export enum Category {

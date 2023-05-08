@@ -1,7 +1,7 @@
 import { ConfigLayer, ConfigTileSetRaster } from '@basemaps/config';
 import { LogType } from '@basemaps/shared';
 import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
-import { Github, owner, repo } from './github.js';
+import { Github, owner, repo } from './github.backup.js';
 
 export class MakeCogGithub extends Github {
   imagery: string;
