@@ -13,7 +13,7 @@ export class MakeCogGithub extends Github {
   /**
    * Prepare and create pull request for the aerial tileset config
    */
-  async updateRasterTileSet(config: string, layer: ConfigLayer, category: Category): Promise<void> {
+  async updateRasterTileSet(filename: string, layer: ConfigLayer, category: Category): Promise<void> {
     const branch = `feat/config-raster-${this.imagery}`;
 
     // Clone the basemaps-config repo and checkout branch
@@ -22,7 +22,7 @@ export class MakeCogGithub extends Github {
 
     // Prepare new aerial tileset config
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const path = `${this.repo}/config/tileset/${config}.json`;
+    const path = `${this.repo}/config/tileset/${filename}.json`;
     const tileSet = await fsa.readJson<ConfigTileSetRaster>(path);
     const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
 
@@ -107,7 +107,7 @@ export class MakeCogGithub extends Github {
   /**
    * Prepare and create pull request for the aerial tileset config
    */
-  async updateVectorTileSet(config: string, layer: ConfigLayer): Promise<void> {
+  async updateVectorTileSet(filename: string, layer: ConfigLayer): Promise<void> {
     const branch = `feat/config-vector-${this.imagery}`;
 
     // Clone the basemaps-config repo and checkout branch
@@ -116,7 +116,7 @@ export class MakeCogGithub extends Github {
 
     // Prepare new aerial tileset config
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const path = `${this.repo}/config/tileset/${config}.json`;
+    const path = `${this.repo}/config/tileset/${filename}.json`;
     const tileSet = await fsa.readJson<ConfigTileSetVector>(path);
     const newTileSet = await this.prepareVectorTileSetConfig(layer, tileSet);
 

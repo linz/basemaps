@@ -2,7 +2,7 @@ import { Env, LogType } from '@basemaps/shared';
 import { execFileSync } from 'child_process';
 
 export class Github {
-  repo = 'basemaps-config';
+  repo = 'linz/basemaps-config';
   logger: LogType;
 
   constructor(logger: LogType) {
@@ -14,7 +14,7 @@ export class Github {
    *
    */
   clone(): void {
-    const https = `https://github.com/linz/${this.repo}.git`;
+    const https = `https://github.com/${this.repo}.git`;
     this.logger.info({ repository: this.repo }, 'GitHub: Clone');
     execFileSync('git', ['clone', https]).toString().trim();
   }
@@ -57,7 +57,7 @@ export class Github {
    */
   commit(message: string): void {
     this.logger.info({ repository: this.repo }, 'GitHub: Commit all');
-    execFileSync('git', ['commit', '-am', `"${message}"`], { cwd: this.repo })
+    execFileSync('git', ['commit', '-am', `"${JSON.stringify(message)}"`], { cwd: this.repo })
       .toString()
       .trim();
   }
