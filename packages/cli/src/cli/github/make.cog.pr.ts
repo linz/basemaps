@@ -31,7 +31,7 @@ export class MakeCogGithub extends Github {
     await fsa.write(path, JSON.stringify(newTileSet, null, 2));
 
     // Commit and push the changes
-    const message = `feat(imagery): Add imagery ${this.imagery} config file.`;
+    const message = `config(raster): Add imagery ${this.imagery} to ${filename} config file.`;
     this.commit(message);
     this.push();
   }
@@ -125,7 +125,7 @@ export class MakeCogGithub extends Github {
     await fsa.write(path, JSON.stringify(newTileSet, null, 2));
 
     // Commit and push the changes
-    const message = `feat(imagery): Add imagery ${this.imagery} config file.`;
+    const message = `config(vector): Update the ${this.imagery} to ${filename} config file.`;
     this.commit(message);
     this.push();
   }
