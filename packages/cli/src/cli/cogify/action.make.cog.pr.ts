@@ -1,7 +1,6 @@
 import { ConfigLayer } from '@basemaps/config';
-import { fsa, LogConfig } from '@basemaps/shared';
+import { LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { owner, repo } from '../github/github.backup.js';
 import { MakeCogGithub } from '../github/make.cog.pr.js';
 
 export enum Category {
@@ -35,10 +34,9 @@ export function parseCategory(category: string): Category {
 
 export class CommandCogPullRequest extends CommandLineAction {
   private layer: CommandLineStringParameter;
-  private output: CommandLineStringParameter;
-  private jira: CommandLineStringParameter;
   private category: CommandLineStringParameter;
   private disabled: CommandLineFlagParameter;
+  private vector: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -53,18 +51,6 @@ export class CommandCogPullRequest extends CommandLineAction {
       argumentName: 'LAYER',
       parameterLongName: '--layer',
       description: 'Input config layer',
-      required: true,
-    });
-    this.output = this.defineStringParameter({
-      argumentName: 'OUTPUT',
-      parameterLongName: '--output',
-      description: 'Output the pull request url',
-      required: false,
-    });
-    this.jira = this.defineStringParameter({
-      argumentName: 'JIRA',
-      parameterLongName: '--jira',
-      description: 'Jira number to add to pull request title',
       required: false,
     });
     this.category = this.defineStringParameter({
@@ -76,6 +62,11 @@ export class CommandCogPullRequest extends CommandLineAction {
     this.disabled = this.defineFlagParameter({
       parameterLongName: '--disabled',
       description: 'Disable the layer in the config',
+      required: false,
+    });
+    this.vector = this.defineFlagParameter({
+      parameterLongName: '--vector',
+      description: 'Commit changes for vector map',
       required: false,
     });
   }
@@ -94,12 +85,7 @@ export class CommandCogPullRequest extends CommandLineAction {
 
     const git = new MakeCogGithub(layer.name, logger);
     if (this.disabled.value) layer.disabled = true;
-    const prNumber = await git.createTileSetPullRequest(layer, this.jira.value, category);
-
-    const output = this.output.value;
-    if (output) {
-      const prUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}`;
-      fsa.write(output, prUrl);
-    }
+    if (this.vector.value) await git.updateVectorTileSet('topographic', layer);
+    else await git.updateRasterTileSet('aerial', layer, category);
   }
 }
