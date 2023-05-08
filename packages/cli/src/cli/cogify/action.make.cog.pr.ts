@@ -35,6 +35,7 @@ export function parseCategory(category: string): Category {
 export class CommandCogPullRequest extends CommandLineAction {
   private layer: CommandLineStringParameter;
   private category: CommandLineStringParameter;
+  private repository: CommandLineStringParameter;
   private disabled: CommandLineFlagParameter;
   private vector: CommandLineFlagParameter;
 
@@ -59,6 +60,13 @@ export class CommandCogPullRequest extends CommandLineAction {
       description: 'New Imagery Category, like Rural Aerial Photos, Urban Aerial Photos, Satellite Imagery',
       required: false,
     });
+    this.repository = this.defineStringParameter({
+      argumentName: 'REPOSITORY',
+      parameterLongName: '--repository',
+      description: 'Github repository reference',
+      defaultValue: 'linz/basemaps-config',
+      required: false,
+    });
     this.disabled = this.defineFlagParameter({
       parameterLongName: '--disabled',
       description: 'Disable the layer in the config',
@@ -75,7 +83,9 @@ export class CommandCogPullRequest extends CommandLineAction {
     const logger = LogConfig.get();
     const layerStr = this.layer.value;
     const category = this.category.value ? parseCategory(this.category.value) : Category.Other;
+    const repo = this.repository.value ?? this.repository.defaultValue;
     if (layerStr == null) throw new Error('Please provide a valid input layer and urls');
+    if (repo == null) throw new Error('Please provide a repository');
     let layer: ConfigLayer;
     try {
       layer = JSON.parse(layerStr);
@@ -83,7 +93,7 @@ export class CommandCogPullRequest extends CommandLineAction {
       throw new Error('Please provide a valid input layer');
     }
 
-    const git = new MakeCogGithub(layer.name, logger);
+    const git = new MakeCogGithub(repo, layer.name, logger);
     if (this.disabled.value) layer.disabled = true;
     if (this.vector.value) await git.updateVectorTileSet('topographic', layer);
     else await git.updateRasterTileSet('aerial', layer, category);

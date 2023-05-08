@@ -5,8 +5,8 @@ import { Github } from './github.js';
 
 export class MakeCogGithub extends Github {
   imagery: string;
-  constructor(imagery: string, logger: LogType) {
-    super(logger);
+  constructor(imagery: string, repo: string, logger: LogType) {
+    super(repo, logger);
     this.imagery = imagery;
   }
 

@@ -2,10 +2,11 @@ import { Env, LogType } from '@basemaps/shared';
 import { execFileSync } from 'child_process';
 
 export class Github {
-  repo = 'linz/basemaps-config';
+  repo: string;
   logger: LogType;
 
-  constructor(logger: LogType) {
+  constructor(repo: string, logger: LogType) {
+    this.repo = repo;
     this.logger = logger;
   }
 
@@ -25,7 +26,6 @@ export class Github {
    * @returns {branch} github references or the new created branch
    */
   getBranch(branch: string): string {
-    // const basePath = path.dirname(repo);
     this.logger.info({ branch }, 'GitHub: Get branch');
     try {
       execFileSync('git', ['checkout', branch], { cwd: this.repo }).toString().trim();
