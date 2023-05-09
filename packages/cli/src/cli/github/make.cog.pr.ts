@@ -14,7 +14,7 @@ export class MakeCogGithub extends Github {
    * Prepare and create pull request for the aerial tileset config
    */
   async updateRasterTileSet(filename: string, layer: ConfigLayer, category: Category): Promise<void> {
-    const branch = `feat/config-raster-${this.imagery}`;
+    const branch = `feat/bot-config-raster-${this.imagery}`;
 
     // Clone the basemaps-config repo and checkout branch
     this.clone();
@@ -108,7 +108,7 @@ export class MakeCogGithub extends Github {
    * Prepare and create pull request for the aerial tileset config
    */
   async updateVectorTileSet(filename: string, layer: ConfigLayer): Promise<void> {
-    const branch = `feat/config-vector-${this.imagery}`;
+    const branch = `feat/bot-config-vector-${this.imagery}`;
 
     // Clone the basemaps-config repo and checkout branch
     this.clone();
