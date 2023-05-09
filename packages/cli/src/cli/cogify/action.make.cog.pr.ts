@@ -93,7 +93,7 @@ export class CommandCogPullRequest extends CommandLineAction {
       throw new Error('Please provide a valid input layer');
     }
 
-    const git = new MakeCogGithub(repo, layer.name, logger);
+    const git = new MakeCogGithub(layer.name, repo, logger);
     if (this.disabled.value) layer.disabled = true;
     if (this.vector.value) await git.updateVectorTileSet('topographic', layer);
     else await git.updateRasterTileSet('aerial', layer, category);
