@@ -1,7 +1,6 @@
 import { ConfigLayer } from '@basemaps/config';
-import { fsa, LogConfig } from '@basemaps/shared';
+import { LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { owner, repo } from '../github/github.js';
 import { MakeCogGithub } from '../github/make.cog.pr.js';
 
 export enum Category {
@@ -35,10 +34,10 @@ export function parseCategory(category: string): Category {
 
 export class CommandCogPullRequest extends CommandLineAction {
   private layer: CommandLineStringParameter;
-  private output: CommandLineStringParameter;
-  private jira: CommandLineStringParameter;
   private category: CommandLineStringParameter;
+  private repository: CommandLineStringParameter;
   private disabled: CommandLineFlagParameter;
+  private vector: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -53,18 +52,6 @@ export class CommandCogPullRequest extends CommandLineAction {
       argumentName: 'LAYER',
       parameterLongName: '--layer',
       description: 'Input config layer',
-      required: true,
-    });
-    this.output = this.defineStringParameter({
-      argumentName: 'OUTPUT',
-      parameterLongName: '--output',
-      description: 'Output the pull request url',
-      required: false,
-    });
-    this.jira = this.defineStringParameter({
-      argumentName: 'JIRA',
-      parameterLongName: '--jira',
-      description: 'Jira number to add to pull request title',
       required: false,
     });
     this.category = this.defineStringParameter({
@@ -73,9 +60,21 @@ export class CommandCogPullRequest extends CommandLineAction {
       description: 'New Imagery Category, like Rural Aerial Photos, Urban Aerial Photos, Satellite Imagery',
       required: false,
     });
+    this.repository = this.defineStringParameter({
+      argumentName: 'REPOSITORY',
+      parameterLongName: '--repository',
+      description: 'Github repository reference',
+      defaultValue: 'linz/basemaps-config',
+      required: false,
+    });
     this.disabled = this.defineFlagParameter({
       parameterLongName: '--disabled',
       description: 'Disable the layer in the config',
+      required: false,
+    });
+    this.vector = this.defineFlagParameter({
+      parameterLongName: '--vector',
+      description: 'Commit changes for vector map',
       required: false,
     });
   }
@@ -84,7 +83,9 @@ export class CommandCogPullRequest extends CommandLineAction {
     const logger = LogConfig.get();
     const layerStr = this.layer.value;
     const category = this.category.value ? parseCategory(this.category.value) : Category.Other;
+    const repo = this.repository.value ?? this.repository.defaultValue;
     if (layerStr == null) throw new Error('Please provide a valid input layer and urls');
+    if (repo == null) throw new Error('Please provide a repository');
     let layer: ConfigLayer;
     try {
       layer = JSON.parse(layerStr);
@@ -92,14 +93,9 @@ export class CommandCogPullRequest extends CommandLineAction {
       throw new Error('Please provide a valid input layer');
     }
 
-    const git = new MakeCogGithub(layer.name, logger);
+    const git = new MakeCogGithub(repo, layer.name, logger);
     if (this.disabled.value) layer.disabled = true;
-    const prNumber = await git.createTileSetPullRequest(layer, this.jira.value, category);
-
-    const output = this.output.value;
-    if (output) {
-      const prUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}`;
-      fsa.write(output, prUrl);
-    }
+    if (this.vector.value) await git.updateVectorTileSet('topographic', layer);
+    else await git.updateRasterTileSet('aerial', layer, category);
   }
 }
