@@ -1,12 +1,17 @@
-import { Projection, TileId, TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, Projection, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { CogTiff } from '@cogeotiff/core';
 import { Metrics } from '@linzjs/metrics';
 import { command, option, restPositionals, string } from 'cmd-ts';
 import { getLogger, logArguments } from '../../log.js';
-import { SupportedTileMatrix } from './cli.cover.js';
 import { CompositionTiff, Tiler } from '@basemaps/tiler';
+
+const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
+
+function isTiff(f: string): boolean {
+  return f.toLowerCase().endsWith('.tiff') || f.toLowerCase().endsWith('.tif');
+}
 
 export const BasemapsCogifyValidateCommand = command({
   name: 'cogify-validate',
@@ -21,16 +26,26 @@ export const BasemapsCogifyValidateCommand = command({
     }),
   },
   async handler(args) {
-    const metrics = new Metrics();
     const logger = getLogger(this, args);
 
     const tileMatrix = SupportedTileMatrix.find((f) => f.identifier.toLowerCase() === args.tileMatrix.toLowerCase());
     if (tileMatrix == null) throw new Error('Cannot find tileMatrix:' + args.tileMatrix);
 
-    let failed = false;
-    for (const path of args.paths) {
-      failed = (await validateCog(path, tileMatrix, logger)) || failed;
-    }
+    let failed = 0;
+    let count = 0;
+
+    await Promise.all(
+      args.paths.map(async (path) => {
+        if (!isTiff(path)) {
+          logger.warn({ path }, 'Cog:Validate:Skip:NotTiff');
+          return;
+        }
+        count++;
+        if ((await validateCog(path, tileMatrix, logger)) === false) failed++;
+      }),
+    );
+
+    logger.info({ count, failed }, 'Cog:Validated');
   },
 });
 
@@ -148,6 +163,8 @@ export async function tilesAlign(ctx: ValidationContext): Promise<boolean> {
   const tiler = new Tiler(ctx.tileMatrix);
   let isOk = true;
 
+  let tileCount = 0;
+  let expectedCount = 0;
   for (const im of ctx.tiff.images) {
     const resolution = im.resolution;
     const origin = im.origin;
@@ -171,10 +188,11 @@ export async function tilesAlign(ctx: ValidationContext): Promise<boolean> {
     ]);
 
     for (const tileId of tileCorners) {
+      expectedCount++;
       const tile = TileId.toTile(tileId);
       const composition = await tiler.tile([ctx.tiff], tile.x, tile.y, tile.z);
       // Tile is possibly null?
-      if (composition == null) continue;
+      if (composition == null || composition.length === 0) continue;
       // TIFF needs multiple tiles to render this tile
       if (composition.length !== 1) {
         ctx.logger.warn({ tileId }, 'Tile:Failed:MultipleTilesRequested');
@@ -196,7 +214,15 @@ export async function tilesAlign(ctx: ValidationContext): Promise<boolean> {
         isOk = false;
         break;
       }
+      tileCount++;
     }
+  }
+  // If no tiles were created possibly the imagery is just in the middle of the tiff and the edges contain no tiles
+  // TODO some of the overviews should create tiles so tileCount should never be 0
+  if (tileCount === 0) {
+    ctx.logger.warn({ tileCount, tilesTested: expectedCount }, 'Tile:Skipped');
+  } else {
+    ctx.logger.debug({ tileCount, tilesTested: expectedCount }, 'Tile:Counts');
   }
   return isOk;
 }
