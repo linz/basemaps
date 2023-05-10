@@ -6,7 +6,7 @@ import { createHash } from 'crypto';
 import { mkdir, rm } from 'fs/promises';
 import { tmpdir } from 'os';
 import { dirname } from 'path';
-import { StacAsset, StacCollection, StacItem } from 'stac-ts';
+import { StacAsset, StacCollection } from 'stac-ts';
 import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';

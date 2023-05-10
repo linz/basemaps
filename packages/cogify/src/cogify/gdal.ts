@@ -73,7 +73,7 @@ export function gdalBuildCog(id: string, sourceVrt: string, opt: CogifyCreationO
       ['-co', 'BLOCKSIZE=512'],
       ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
       ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
-      ['-co', `COMPRESS=${'lzw' ?? cfg.compression}`],
+      ['-co', `COMPRESS=${cfg.compression}`],
       ['-co', `QUALITY=${cfg.quality}`],
       ['-co', 'SPARSE_OK=YES'],
       ['-co', `TARGET_SRS=${tileMatrix.projection.toEpsgString()}`],
