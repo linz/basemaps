@@ -9,7 +9,8 @@ export class Github {
   constructor(repo: string, logger: LogType) {
     this.repo = repo;
     this.logger = logger;
-    this.repoName = repo.split('/').slice(-1)[0];
+    const [org, repoName] = repo.split('/');
+    if (org == null || repoName == null) throw 'Badly formatted repo name';
   }
 
   /**
