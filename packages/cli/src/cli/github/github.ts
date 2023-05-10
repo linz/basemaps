@@ -4,10 +4,14 @@ import { execFileSync } from 'child_process';
 export class Github {
   repo: string;
   logger: LogType;
+  repoName: string;
 
   constructor(repo: string, logger: LogType) {
     this.repo = repo;
     this.logger = logger;
+    const [org, repoName] = repo.split('/');
+    if (org == null || repoName == null) throw new Error(`Badly formatted repo name: ${repo}`);
+    this.repoName = repoName;
   }
 
   /**
@@ -28,12 +32,12 @@ export class Github {
   getBranch(branch: string): string {
     this.logger.info({ branch }, 'GitHub: Get branch');
     try {
-      execFileSync('git', ['checkout', branch], { cwd: this.repo }).toString().trim();
+      execFileSync('git', ['checkout', branch], { cwd: this.repoName }).toString().trim();
       this.logger.info({ branch }, 'GitHub: Branch Checkout');
       return branch;
     } catch {
       this.logger.info({ branch }, 'GitHub: Create New Branch');
-      execFileSync('git', ['checkout', '-b', branch], { cwd: this.repo }).toString().trim();
+      execFileSync('git', ['checkout', '-b', branch], { cwd: this.repoName }).toString().trim();
       return branch;
     }
   }
@@ -46,9 +50,9 @@ export class Github {
     const email = Env.get('GIT_USER_EMAIL') ?? 'basemaps@linz.govt.nz';
     const name = Env.get('GIT_USER_NAME') ?? 'basemaps[bot]';
     this.logger.info({ repository: this.repo }, 'GitHub: Config User Email');
-    execFileSync('git', ['config', 'user.email', email], { cwd: this.repo }).toString().trim();
+    execFileSync('git', ['config', 'user.email', email], { cwd: this.repoName }).toString().trim();
     this.logger.info({ repository: this.repo }, 'GitHub: Config User Name');
-    execFileSync('git', ['config', 'user.name', name], { cwd: this.repo }).toString().trim();
+    execFileSync('git', ['config', 'user.name', name], { cwd: this.repoName }).toString().trim();
   }
 
   /**
@@ -57,7 +61,7 @@ export class Github {
    */
   commit(message: string): void {
     this.logger.info({ repository: this.repo }, 'GitHub: Commit all');
-    execFileSync('git', ['commit', '-am', `"${JSON.stringify(message)}"`], { cwd: this.repo })
+    execFileSync('git', ['commit', '-am', `"${JSON.stringify(message)}"`], { cwd: this.repoName })
       .toString()
       .trim();
   }
@@ -68,6 +72,6 @@ export class Github {
    */
   push(): void {
     this.logger.info({ repository: this.repo }, 'GitHub: Push');
-    execFileSync('git', ['push', 'origin', 'HEAD'], { cwd: this.repo }).toString().trim();
+    execFileSync('git', ['push', 'origin', 'HEAD'], { cwd: this.repoName }).toString().trim();
   }
 }

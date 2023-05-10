@@ -22,7 +22,7 @@ export class MakeCogGithub extends Github {
 
     // Prepare new aerial tileset config
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const path = `${this.repo}/config/tileset/${filename}.json`;
+    const path = `${this.repoName}/config/tileset/${filename}.json`;
     const tileSet = await fsa.readJson<ConfigTileSetRaster>(path);
     const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
 
@@ -116,7 +116,7 @@ export class MakeCogGithub extends Github {
 
     // Prepare new aerial tileset config
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const path = `${this.repo}/config/tileset/${filename}.json`;
+    const path = `${this.repoName}/config/tileset/${filename}.json`;
     const tileSet = await fsa.readJson<ConfigTileSetVector>(path);
     const newTileSet = await this.prepareVectorTileSetConfig(layer, tileSet);
 
