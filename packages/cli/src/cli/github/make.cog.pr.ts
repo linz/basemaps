@@ -18,6 +18,7 @@ export class MakeCogGithub extends Github {
 
     // Clone the basemaps-config repo and checkout branch
     this.clone();
+    this.configUser();
     this.getBranch(branch);
 
     // Prepare new aerial tileset config
@@ -112,6 +113,7 @@ export class MakeCogGithub extends Github {
 
     // Clone the basemaps-config repo and checkout branch
     this.clone();
+    this.configUser();
     this.getBranch(branch);
 
     // Prepare new aerial tileset config
