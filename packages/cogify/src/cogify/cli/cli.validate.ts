@@ -1,11 +1,10 @@
 import { GoogleTms, Nztm2000QuadTms, Projection, TileId, TileMatrixSet } from '@basemaps/geo';
-import { fsa, LogType } from '@basemaps/shared';
+import { LogType, fsa } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
+import { CompositionTiff, Tiler } from '@basemaps/tiler';
 import { CogTiff } from '@cogeotiff/core';
-import { Metrics } from '@linzjs/metrics';
 import { command, option, restPositionals, string } from 'cmd-ts';
 import { getLogger, logArguments } from '../../log.js';
-import { CompositionTiff, Tiler } from '@basemaps/tiler';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
@@ -80,6 +79,7 @@ async function validateCog(path: string, tileMatrix: TileMatrixSet, logger: LogT
   return false;
 }
 
+/** Imagery overviews should always scale out at a power of two */
 export async function imageryOverviewResolution(ctx: ValidationContext): Promise<boolean> {
   let isOk = true;
   let lastImageSize = -1;
@@ -101,6 +101,7 @@ export async function imageryOverviewResolution(ctx: ValidationContext): Promise
   return isOk;
 }
 
+/** A perfectly aligned COG should be a square as tile matrixes are generally starting from 256x256 tiles */
 export async function imageryIsSquare(ctx: ValidationContext): Promise<boolean> {
   let isOk = true;
   for (const im of ctx.tiff.images) {
@@ -121,6 +122,16 @@ function isPowerOfTwo(x: number): boolean {
   return (x & (x - 1)) === 0;
 }
 
+/**
+ * Tile Matrix width/height should all be a multiple of 256 (which is a multiple of 2)
+ *
+ * ```
+ * 256x256
+ * 512x512
+ * 1024x1024
+ * ...
+ * ```
+ */
 export async function imageryIsPowerOfTwo(ctx: ValidationContext): Promise<boolean> {
   let isOk = true;
   for (const im of ctx.tiff.images) {
@@ -139,6 +150,11 @@ export async function imageryIsPowerOfTwo(ctx: ValidationContext): Promise<boole
   return isOk;
 }
 
+/**
+ * All images in the COG should have a resolution that closely matches a resoltution in the target tile matrix
+ *
+ * A small error is allowed (+- 1x10^-8 meters) for floating point math
+ */
 export async function imageryMatchesResolutions(ctx: ValidationContext): Promise<boolean> {
   let isOk = true;
   for (const im of ctx.tiff.images) {
@@ -159,12 +175,19 @@ export async function imageryMatchesResolutions(ctx: ValidationContext): Promise
   return isOk;
 }
 
+/**
+ * To validate that the tile serving logic will not need to request multiple tiles to serve a single tile
+ *
+ * Check all four corner tiles of every resolution and ensure only one tile is requested from the tiff to create the output tile.
+ */
 export async function tilesAlign(ctx: ValidationContext): Promise<boolean> {
   const tiler = new Tiler(ctx.tileMatrix);
   let isOk = true;
 
-  let tileCount = 0;
-  let expectedCount = 0;
+  // Not all tiles will have data in the tiff so these two numbers will vary
+  // `tileCount` should be somewhere close to `expectedCount`
+  let tileCount = 0; // Number of tiles validated
+  let expectedCount = 0; // Total number checked
   for (const im of ctx.tiff.images) {
     const resolution = im.resolution;
     const origin = im.origin;
@@ -180,6 +203,7 @@ export async function tilesAlign(ctx: ValidationContext): Promise<boolean> {
       targetBaseZoom,
     );
 
+    // De duplicate the tile corners
     const tileCorners = new Set([
       TileId.fromTile({ z: targetBaseZoom, x: topLeftTile.x, y: topLeftTile.y }), // Top Left
       TileId.fromTile({ z: targetBaseZoom, x: bottomRightTile.x, y: topLeftTile.y }), // Top Right
