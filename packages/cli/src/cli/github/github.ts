@@ -19,9 +19,9 @@ export class Github {
    *
    */
   clone(): void {
-    const https = `https://github.com/${this.repo}.git`;
+    const ssh = `git@github.com:${this.repo}.git`;
     this.logger.info({ repository: this.repo }, 'GitHub: Clone');
-    execFileSync('git', ['clone', https]).toString().trim();
+    execFileSync('git', ['clone', ssh]).toString().trim();
   }
 
   /**
@@ -61,7 +61,7 @@ export class Github {
    */
   commit(message: string): void {
     this.logger.info({ repository: this.repo }, 'GitHub: Commit all');
-    execFileSync('git', ['commit', '-am', `"${JSON.stringify(message)}"`], { cwd: this.repoName })
+    execFileSync('git', ['commit', '-am', JSON.stringify(message)], { cwd: this.repoName })
       .toString()
       .trim();
   }
