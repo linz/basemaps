@@ -1,46 +1,21 @@
-import { sha256base58 } from '@basemaps/config';
 import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogType } from '@basemaps/shared';
+import { LogType, fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { command, flag, option, positional, restPositionals, string } from 'cmd-ts';
+import { command, flag, restPositionals, string } from 'cmd-ts';
 import { createHash } from 'crypto';
-import { mkdir } from 'fs/promises';
+import { mkdir, rm } from 'fs/promises';
 import { tmpdir } from 'os';
-import { dirname, extname, isAbsolute } from 'path';
+import { dirname } from 'path';
 import { StacAsset, StacCollection, StacItem } from 'stac-ts';
 import { CutlineOptimizer } from '../../cutline.js';
+import { SourceDownloader } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';
 import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.js';
 import { GdalRunner } from '../gdal.runner.js';
-import { CogifyCreationOptions, CogifyStacCollection, CogifyStacItem, getCutline, getSources } from '../stac.js';
-
-export function parseIndexNumbers(s: string): number[] {
-  if (s.includes(',')) return s.split(',').map(Number);
-  return [Number(s)];
-}
-/**
- * Read either a single index "1" or a comma separated list of indexes "1,2,3"
- *
- * @throws if any index is not a number;
- */
-export function extractIndexNumbers(s: string): number[] {
-  const num = parseIndexNumbers(s);
-  for (const n of num) if (isNaN(n)) throw new Error('Index is not a number: ' + s);
-  return num;
-}
-
-/** Convert a path starting with "./" to a absolute path */
-function resolvePath(s: string, basePath: string): string {
-  if (s.startsWith('./')) return fsa.join(basePath, s.slice(2));
-  return s;
-}
+import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 
 function extractSourceFiles(item: CogifyStacItem): string[] {
   return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => link.href);
-}
-
-function isPathLocal(path: string): boolean {
-  return path.startsWith('./') || path.startsWith('/');
 }
 
 function isUrl(path: string): boolean {
@@ -50,6 +25,37 @@ function isUrl(path: string): boolean {
   } catch (e) {
     return false;
   }
+}
+
+const Collections = new Map<string, Promise<StacCollection>>();
+
+export interface CogItem {
+  itemPath: string;
+  item: CogifyStacItem;
+  collection: StacCollection;
+}
+async function loadItem(p: string, logger: LogType): Promise<CogItem | null> {
+  const item = await fsa.readJson<CogifyStacItem>(p);
+  if (item.stac_version !== '1.0.0' || item.type !== 'Feature') {
+    logger.warn({ path: p }, 'Cog:Skip:NotStacItem');
+    return null;
+  }
+  const collectionLink = item.links.find((f) => f.rel === 'collection');
+  if (collectionLink == null) throw new Error(`Unable to find collection for ${p}`);
+
+  const itemPath = dirname(p);
+  const collectionPath = isUrl(collectionLink.href) ? collectionLink.href : fsa.join(dirname(p), collectionLink.href);
+
+  const collectionFetch = Collections.get(collectionPath) ?? fsa.readJson<StacCollection>(collectionPath);
+  Collections.set(collectionPath, collectionFetch);
+
+  const collection = await collectionFetch;
+
+  if (collection.stac_version !== '1.0.0') {
+    throw new Error(`Invalid Collection JSON: ${item.id} stac version number mismatch ${collection.stac_version}`);
+  }
+
+  return { itemPath, item, collection };
 }
 
 export const BasemapsCogifyCreateCommand = command({
@@ -65,99 +71,43 @@ export const BasemapsCogifyCreateCommand = command({
   async handler(args) {
     const logger = getLogger(this, args);
 
-    const collections = new Map<string, Promise<StacCollection>>();
-    const toCreate = await Promise.all(
-      args.path.map(async (p) => {
-        const item = await fsa.readJson<CogifyStacItem>(p);
-        if (item.stac_version !== '1.0.0' || item.type !== 'Feature') {
-          logger.warn({ path: p }, 'Cog:Skip:NotStacItem');
-          return;
-        }
-        const collectionLink = item.links.find((f) => f.rel === 'collection');
-        if (collectionLink == null) throw new Error(`Unable to find collection for ${p}`);
+    const toCreate = await Promise.all(args.path.map(async (p) => loadItem(p, logger)));
+    // Filter out any missing items, also excluding items which already have COGs created
+    const filtered = toCreate.filter((f) => {
+      if (f == null) return false;
 
-        const itemPath = dirname(p);
-        const collectionPath = isUrl(collectionLink.href)
-          ? collectionLink.href
-          : fsa.join(dirname(p), collectionLink.href);
+      const cogAsset = f.item.assets['cog'];
+      if (cogAsset == null) return true;
+      // Force overwrite existing COGs
+      if (args.force) {
+        logger.warn({ item: f.item.id, asset: cogAsset.href }, 'Cog:Create:Overwrite');
+        return true;
+      }
 
-        const collectionFetch = collections.get(collectionPath) ?? fsa.readJson<StacCollection>(collectionPath);
-        collections.set(collectionPath, collectionFetch);
+      logger.info({ item: f.item.id, asset: cogAsset.href }, 'Cog:Create:Exists');
+      return false;
+    }) as CogItem[];
 
-        const collection = await collectionFetch;
-
-        if (collection.stac_version !== '1.0.0') {
-          throw new Error(
-            `Invalid Collection JSON: ${item.id} stac version number mismatch ${collection.stac_version}`,
-          );
-        }
-
-        const cogAsset = item.assets['cog'];
-        if (cogAsset != null) {
-          // Force overwrite existing files
-          if (args.force) {
-            logger.info({ item: item.id, asset: cogAsset.href }, 'Cog:Create:Overwrite');
-          } else {
-            logger.info({ item: item.id, asset: cogAsset.href }, 'Cog:Create:Exists');
-            return null;
-          }
-        }
-
-        return { itemPath, item, collection };
-      }),
-    );
-    const filtered = toCreate.filter((f) => f != null) as {
-      itemPath: string;
-      item: CogifyStacItem;
-      collection: StacCollection;
-    }[];
+    // No items left to be created
     if (filtered.length === 0) {
       logger.info({ toCreate: filtered.length }, 'Cog:Create:Done');
+      return;
     }
+    const tmpFolder = fsa.join(tmpdir(), CliId);
 
     // Get list of unique source files needed for all files
-    const sourceFiles = new Set<string>();
+    const sources = new SourceDownloader(tmpFolder);
     for (const i of filtered) {
       const files = getSources(i.item.links);
-      for (const src of files) sourceFiles.add(src.href);
-
-      const cutline = getCutline(i.item.links);
-      if (cutline) sourceFiles.add(cutline.href);
+      for (const src of files) sources.register(src.href, i.item.id);
     }
 
     const gdalVersion = await new GdalRunner({ command: 'gdal_translate', args: ['--version'], output: '' }).run();
 
-    // Mapping of remote filename to source filename
-    const sourceFileMap = new Map<string, string>();
-    const tmpFolder = fsa.join(tmpdir(), CliId);
-
-    for (const i of toCreate) {
-      if (i == null) continue;
-    }
-
     try {
       await mkdir(tmpFolder, { recursive: true });
 
-      await Promise.all(
-        [...sourceFiles].map(async (f) => {
-          // No need to download files that exist locally
-          if (isPathLocal(f)) {
-            sourceFileMap.set(f, f);
-            return;
-          }
-          // Create a temporary file name that is the base58 encoded path, this allows us to
-          const newFileName = sha256base58(Buffer.from(f)) + extname(f);
-          const targetFile = fsa.joinAll(tmpFolder, 'source', newFileName);
-
-          logger.debug({ source: f, target: targetFile }, 'Cog:Source:Download');
-          const startTime = performance.now();
-          await fsa.write(targetFile, fsa.stream(f));
-          const duration = performance.now() - startTime;
-          logger.debug({ source: f, target: targetFile, duration }, 'Cog:Source:Download:Done');
-          sourceFileMap.set(f, targetFile);
-        }),
-      );
-
+      // TODO should COG creation be run concurrently?
       for (const { itemPath, item } of filtered) {
         const cutlineLink = getCutline(item.links);
         const options = item.properties['linz_basemaps:options'];
@@ -169,9 +119,19 @@ export const BasemapsCogifyCreateCommand = command({
         const tileMatrix = TileMatrixSets.find(options.tileMatrix);
         if (tileMatrix == null) throw new Error('Failed to find tileMatrix: ' + options.tileMatrix);
         const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
-        const sourceFiles = extractSourceFiles(item).map((sourcePath) => sourceFileMap.get(sourcePath)) as string[];
+        const sourceFiles = extractSourceFiles(item);
+        const sourceLocations = await Promise.all(sourceFiles.map((f) => sources.get(f, logger)));
         // Create the tiff
-        const outputTiffPath = await createCog({ options, tempFolder: tmpFolder, sourceFiles, cutline, logger });
+        const outputTiffPath = await createCog({
+          options,
+          tempFolder: tmpFolder,
+          sourceFiles: sourceLocations,
+          cutline,
+          logger,
+        });
+        // Cleanup any source files used in the COG creation
+        await Promise.all(sourceFiles.map((f) => sources.done(f, item.id, logger)));
+
         const asset: StacAsset = {
           href: `./${tileId}.tiff`,
           type: 'image/tiff; application=geotiff; profile=cloud-optimized',
@@ -180,22 +140,26 @@ export const BasemapsCogifyCreateCommand = command({
         // Update the item to have
         item.assets['cog'] = asset;
         item.properties['linz_basemaps:generated']['gdal'] = gdalVersion.stdout;
+
         const startTime = performance.now();
+        // Upload the output COG into the target location
         const readStream = fsa.stream(outputTiffPath);
         const hash = createHash('sha256');
         readStream.on('data', (chunk) => hash.update(chunk));
         await fsa.write(tiffPath, readStream);
+
         // Create a multihash, 0x12: sha256, 0x20: 32 characters long
         const digest = '1220' + hash.digest('hex');
         asset['file:checksum'] = digest;
         logger.debug({ target: tiffPath, hash: digest, duration: performance.now() - startTime }, 'Cog:Create:Write');
+        // Write the STAC metadata
         await fsa.write(itemStacPath, JSON.stringify(item, null, 2));
         logger.info({ tileId, tiffPath }, 'Cog:Create:Done');
       }
     } finally {
       // Cleanup the temporary folder once everything is done
       logger.info({ path: tmpFolder }, 'Cog:Cleanup');
-      // await rm(tmpFolder, { recursive: true, force: true });
+      await rm(tmpFolder, { recursive: true, force: true });
     }
     logger.info(
       {
