@@ -11,6 +11,7 @@ export class Github {
     this.logger = logger;
     const [org, repoName] = repo.split('/');
     if (org == null || repoName == null) throw 'Badly formatted repo name';
+    this.repoName = repoName;
   }
 
   /**
