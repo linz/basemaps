@@ -1,63 +1,39 @@
-import { ConfigLayer, ConfigTileSetRaster } from '@basemaps/config';
-import { LogType } from '@basemaps/shared';
+import { ConfigLayer, ConfigTileSetRaster, ConfigTileSetVector } from '@basemaps/config';
+import { LogType, fsa } from '@basemaps/shared';
 import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
-import { Github, owner, repo } from './github.js';
+import { Github } from './github.js';
 
 export class MakeCogGithub extends Github {
   imagery: string;
-  constructor(imagery: string, logger: LogType) {
-    super(logger);
+  constructor(imagery: string, repo: string, logger: LogType) {
+    super(repo, logger);
     this.imagery = imagery;
-  }
-
-  /**
-   * Get the master aerial tileset config from the basemaps config repo
-   */
-  async getTileSetConfig(): Promise<ConfigTileSetRaster> {
-    this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const path = 'config/tileset/aerial.json';
-    const response = await this.octokit.rest.repos.getContent({ owner, repo, path });
-    if (!this.isOk(response.status)) throw new Error('Failed to get aerial TileSet config.');
-    if ('content' in response.data) {
-      return JSON.parse(Buffer.from(response.data.content, 'base64').toString());
-    } else {
-      throw new Error('Unable to find the content.');
-    }
   }
 
   /**
    * Prepare and create pull request for the aerial tileset config
    */
-  async createTileSetPullRequest(
-    layer: ConfigLayer,
-    jira: string | undefined,
-    category: Category,
-  ): Promise<number | undefined> {
+  async updateRasterTileSet(filename: string, layer: ConfigLayer, category: Category): Promise<void> {
+    const branch = `feat/bot-config-raster-${this.imagery}`;
+
+    // Clone the basemaps-config repo and checkout branch
+    this.clone();
+    this.getBranch(branch);
+
     // Prepare new aerial tileset config
-    const tileSet = await this.getTileSetConfig();
-    const newTileSet = await this.prepareTileSetConfig(layer, tileSet, category);
+    this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
+    const path = `${this.repo}/config/tileset/${filename}.json`;
+    const tileSet = await fsa.readJson<ConfigTileSetRaster>(path);
+    const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
 
     // skip pull request if not an urban or rural imagery
     if (newTileSet == null) return;
+    await fsa.write(path, JSON.stringify(newTileSet, null, 2));
 
-    const branch = `feat/config-${this.imagery}`;
-    const ref = `heads/${branch}`;
-    // Create branch first
-    let sha = await this.getBranch(ref);
-    if (sha == null) sha = await this.createBranch(branch, ref);
-
-    // Create blob for the tileset config
-    const content = JSON.stringify(newTileSet, null, 2) + '\n'; // Add a new line at end to match the prettier.
-    const path = `config/tileset/aerial.json`;
-    const blob = await this.createBlobs(content, path);
-
-    // commit blobs to tree
-    const message = `feat(imagery): Add imagery ${this.imagery} config file.`;
-    await this.commit(branch, ref, [blob], message, sha);
-    // Create imagery import pull request
-    const title = `feat(aerial): Config imagery ${this.imagery} into Aerial Map. ${jira ? jira : ''}`;
-    const prNumber = await this.createPullRequest(branch, title, false);
-    return prNumber;
+    // Commit and push the changes
+    const message = `config(raster): Add imagery ${this.imagery} to ${filename} config file.`;
+    this.commit(message);
+    this.push();
   }
 
   /**
@@ -90,9 +66,9 @@ export class MakeCogGithub extends Github {
   }
 
   /**
-   * Prepare aerial tileSet config json
+   * Prepare raster tileSet config json
    */
-  async prepareTileSetConfig(
+  async prepareRasterTileSetConfig(
     layer: ConfigLayer,
     tileSet: ConfigTileSetRaster,
     category: Category,
@@ -125,6 +101,46 @@ export class MakeCogGithub extends Github {
       this.addLayer(layer, tileSet, category);
     }
 
+    return tileSet;
+  }
+
+  /**
+   * Prepare and create pull request for the aerial tileset config
+   */
+  async updateVectorTileSet(filename: string, layer: ConfigLayer): Promise<void> {
+    const branch = `feat/bot-config-vector-${this.imagery}`;
+
+    // Clone the basemaps-config repo and checkout branch
+    this.clone();
+    this.getBranch(branch);
+
+    // Prepare new aerial tileset config
+    this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
+    const path = `${this.repo}/config/tileset/${filename}.json`;
+    const tileSet = await fsa.readJson<ConfigTileSetVector>(path);
+    const newTileSet = await this.prepareVectorTileSetConfig(layer, tileSet);
+
+    // skip pull request if not an urban or rural imagery
+    if (newTileSet == null) return;
+    await fsa.write(path, JSON.stringify(newTileSet, null, 2));
+
+    // Commit and push the changes
+    const message = `config(vector): Update the ${this.imagery} to ${filename} config file.`;
+    this.commit(message);
+    this.push();
+  }
+
+  /**
+   * Prepare raster tileSet config json
+   */
+  async prepareVectorTileSetConfig(layer: ConfigLayer, tileSet: ConfigTileSetVector): Promise<ConfigTileSetVector> {
+    // Reprocess existing layer
+    for (let i = 0; i < tileSet.layers.length; i++) {
+      if (tileSet.layers[i].name === layer.name) {
+        tileSet.layers[i] = layer;
+        return tileSet;
+      }
+    }
     return tileSet;
   }
 }
