@@ -43,6 +43,7 @@ export class GdalRunner {
         {
           cmd: this.cmd.command,
           output: this.cmd.output,
+          commandHash,
           duration: Number(duration.toFixed(3)),
           progress: Number(progress.toFixed(3)),
         },

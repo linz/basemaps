@@ -1,5 +1,5 @@
 import { ConfigImageryTiff } from '@basemaps/config/build/json/tiff.config.js';
-import { BoundingBox, Bounds, EpsgCode, Projection, TileId, TileMatrixSet } from '@basemaps/geo';
+import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
@@ -33,6 +33,9 @@ export interface TileCoverResult {
 }
 
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
+  // Ensure we have the projection loaded for the source imagery
+  await ProjectionLoader.load(ctx.imagery.projection);
+
   // Find the zoom level that is at least as good as the source imagery
   const targetBaseZoom = Projection.getTiffResZoom(ctx.tileMatrix, ctx.imagery.gsd);
 
