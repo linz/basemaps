@@ -34,10 +34,6 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Set up Docker Metadata
-        id: meta
-        uses: docker/metadata-action@v4
-
       - name: Setup tags
         id: version
         run: |
@@ -64,7 +60,6 @@ jobs:
           context: packages/cli
           platforms: linux/amd64
           tags: |
-            ghcr.io/${{github.repository}}/cli:latest
-            ghcr.io/${{github.repository}}/cli:${{ steps.version.outputs.version }}
-          labels: ${{ steps.meta.outputs.labels }}
+            ghcr.io/${{github.repository}}:latest
+            ghcr.io/${{github.repository}}:${{ steps.version.outputs.version }}
 
