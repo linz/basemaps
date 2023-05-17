@@ -59,6 +59,7 @@ jobs:
         with:
           context: packages/cli
           platforms: linux/amd64
+          push: true
           tags: |
             ghcr.io/${{github.repository}}:latest
             ghcr.io/${{github.repository}}:${{ steps.version.outputs.version }}
