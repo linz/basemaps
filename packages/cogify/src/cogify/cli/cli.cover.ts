@@ -8,6 +8,7 @@ import { command, number, option, optional, restPositionals, string } from 'cmd-
 import { CutlineOptimizer } from '../../cutline.js';
 import { getLogger, logArguments } from '../../log.js';
 import { createTileCover, TileCoverContext } from '../../tile.cover.js';
+import { isArgo } from '../../argo.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
@@ -75,14 +76,24 @@ export const BasemapsCogifyCoverCommand = command({
     await fsa.write(collectionPath, JSON.stringify(res.collection, null, 2));
     ctx.logger?.debug({ path: collectionPath }, 'Imagery:Stac:Collection:Write');
 
+    const items = [];
     const tilesByZoom: number[] = [];
     for (const item of res.items) {
       const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
       const itemPath = fsa.join(targetPath, `${tileId}.json`);
+      items.push({ path: itemPath });
       await fsa.write(itemPath, JSON.stringify(item, null, 2));
       const z = item.properties['linz_basemaps:options'].tile.z;
       tilesByZoom[z] = (tilesByZoom[z] ?? 0) + 1;
       ctx.logger?.trace({ path: itemPath }, 'Imagery:Stac:Item:Write');
+    }
+
+    /** If running in argo dump out output information to be used by further steps */
+    if (isArgo()) {
+      /** Where the JSON files were written to */
+      await fsa.write('/tmp/cogify/cover-target', targetPath);
+      /** List of all the tiles to be processed */
+      await fsa.write('/tmp/cogify/cover-items.json', JSON.stringify(items));
     }
 
     logger.info({ tiles: res.items.length, metrics: metrics.metrics, tilesByZoom }, 'Cover:Created');
