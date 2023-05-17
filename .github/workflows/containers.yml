@@ -8,16 +8,6 @@ jobs:
     steps:
       - uses: linz/action-typescript@v2
 
-      - name: (Prod) Ensure tag exists
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: |
-          git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
-          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
-
       # Package all the files
       - name: Bundle & Package all files
         run: |
@@ -51,8 +41,12 @@ jobs:
           cp *.tgz packages/server/
           cp *.tgz packages/cli/
 
-      - name: Log in to registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "@basemaps/cli - Build and push"
         uses: docker/build-push-action@v3
