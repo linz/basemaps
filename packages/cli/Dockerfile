@@ -18,5 +18,8 @@ COPY ./basemaps-landing*.tgz /app/
 COPY ./basemaps-cogify*.tgz /app/
 
 RUN npm install ./basemaps-landing*.tgz ./basemaps-cogify*.tgz
+RUN mv /app/node_modules/@basemaps/cogify/dist/index.cjs /app/cogify.cjs
+
+COPY dist/index.cjs /app/
 
 ENTRYPOINT [ "node", "./index.cjs" ]
