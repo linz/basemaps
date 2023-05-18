@@ -39,18 +39,19 @@ export class SourceDownloader {
   }
 
   /** Once a item is done with a asset clean it up if no other items need it */
-  async done(url: URL, itemId: string, logger: LogType): Promise<void> {
+  async done(url: URL, itemId: string, logger: LogType): Promise<boolean> {
     const asset = this.items.get(url.href);
     if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + url);
 
     // Remove the itemId
     asset.items = asset.items.filter((f) => f !== itemId);
-    if (asset.items.length > 0) return;
-    if (asset.asset == null) return;
+    if (asset.items.length > 0) return false;
+    if (asset.asset == null) return false;
     // No more items need this asset, clean it up
     const targetFile = await asset.asset;
     logger.info({ source: asset.url, target: targetFile }, 'Cog:Source:Cleanup');
     await fsa.delete(targetFile);
+    return true;
   }
 
   /**
@@ -67,6 +68,18 @@ export class SourceDownloader {
     return asset.asset;
   }
 
+  _checked = new Map<string, Promise<unknown>>();
+  /** Validate that the host can be read from before attempting to stream files */
+  _checkHost(url: URL): Promise<unknown> {
+    if (url.protocol === 'file:') return Promise.resolve();
+    const host = url.hostname;
+    let ret = this._checked.get(host);
+    if (ret) return ret;
+    ret = fsa.head(urlToString(url)) as Promise<unknown>;
+    this._checked.set(host, ret);
+    return ret;
+  }
+
   /**
    * Download a file into a hashed target location, using @see {this.Q} to manage concurrency of downloads
    *
@@ -81,14 +94,17 @@ export class SourceDownloader {
       const newFileName = sha256base58(Buffer.from(asset.url.href)) + extname(asset.url.href);
       const targetFile = fsa.joinAll(this.cachePath, 'source', newFileName);
 
-      // Ensure permissions have been setup for the source location
-      if (asset.url.protocol !== 'file:') await fsa.head(asset.url.href);
-
+      await this._checkHost(asset.url);
       logger.debug({ source: asset.url, target: targetFile }, 'Cog:Source:Download');
       const startTime = performance.now();
       await fsa.write(targetFile, fsa.stream(urlToString(asset.url)));
       const duration = performance.now() - startTime;
-      logger.info({ source: asset.url, target: targetFile, items: asset.items, duration }, 'Cog:Source:Download:Done');
+
+      const stat = await fsa.head(targetFile);
+      logger.info(
+        { source: asset.url, target: targetFile, items: asset.items, size: stat?.size, duration },
+        'Cog:Source:Download:Done',
+      );
       return targetFile;
     });
   }

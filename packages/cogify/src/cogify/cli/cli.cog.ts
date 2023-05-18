@@ -14,6 +14,7 @@ import { getLogger, logArguments } from '../../log.js';
 import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.js';
 import { GdalRunner } from '../gdal.runner.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
+import { CogTiff } from '@cogeotiff/core';
 
 function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
   return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => new URL(link.href, baseUrl));
@@ -135,8 +136,11 @@ export const BasemapsCogifyCreateCommand = command({
           cutline,
           logger,
         });
+
         // Cleanup any source files used in the COG creation
-        await Promise.all(sourceFiles.map((f) => sources.done(f, item.id, logger)));
+        logger.debug({ files: sourceFiles.length }, 'Cog:Cleanup');
+        const deleted = await Promise.all(sourceFiles.map((f) => sources.done(f, item.id, logger)));
+        logger.info({ files: sourceFiles.length, deleted: deleted.filter(Boolean).length }, 'Cog:Cleanup:Done');
 
         const asset: StacAsset = {
           href: `./${tileId}.tiff`,
@@ -147,6 +151,9 @@ export const BasemapsCogifyCreateCommand = command({
         item.assets['cog'] = asset;
         item.properties['linz_basemaps:generated']['gdal'] = gdalVersion.stdout;
 
+        const cogStat = await fsa.head(outputTiffPath);
+
+        await validateOuptutTiff(outputTiffPath, logger);
         metrics.start(`${tileId}:write`);
         // Upload the output COG into the target location
         const readStream = fsa.stream(outputTiffPath);
@@ -157,11 +164,17 @@ export const BasemapsCogifyCreateCommand = command({
         // Create a multihash, 0x12: sha256, 0x20: 32 characters long
         const digest = '1220' + hash.digest('hex');
         asset['file:checksum'] = digest;
-        logger.debug({ target: tiffPath, hash: digest, duration: metrics.end(`${tileId}:write`) }, 'Cog:Create:Write');
+        logger.debug(
+          { target: tiffPath, hash: digest, size: cogStat?.size, duration: metrics.end(`${tileId}:write`) },
+          'Cog:Create:Write',
+        );
         // Write the STAC metadata
         await fsa.write(urlToString(itemStacPath), JSON.stringify(item, null, 2));
         logger.info({ tileId, tiffPath, duration: metrics.end(tileId) }, 'Cog:Create:Done');
       }
+    } catch (err) {
+      logger.error({ err }, 'Cog:Create:Failed');
+      throw err;
     } finally {
       // Cleanup the temporary folder once everything is done
       logger.info({ path: tmpFolder }, 'Cog:Cleanup');
@@ -243,4 +256,19 @@ async function createCog(ctx: CogCreationContext): Promise<string> {
   const cogCreateCommand = gdalBuildCog(tmpItemPath, vrtWarpCommand.output, options);
   await new GdalRunner(cogCreateCommand).run(logger);
   return cogCreateCommand.output;
+}
+
+async function validateOuptutTiff(path: string, logger: LogType): Promise<void> {
+  logger.info({ path }, 'Cog:Validate');
+  try {
+    const tiff = await new CogTiff(fsa.source(path)).init(true);
+    const tiffStats = tiff.images.map((t) => {
+      return { id: t.id, ...t.size, tiles: t.tileCount };
+    });
+    logger.info({ path }, 'Cog:Validate:Ok');
+    logger.info({ tiffStats }, 'Cog:Validate:Stats');
+  } catch (err) {
+    logger.error({ path, err }, 'Cog:ValidateFailed');
+    throw err;
+  }
 }
