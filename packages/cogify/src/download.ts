@@ -91,8 +91,13 @@ export class SourceDownloader {
   }
 }
 
+/**
+ * When chunkd moves to URLs this can be removed
+ *
+ * But reading a file as a string with `file://....` does not work in node
+ * it needs to be converted with `fileURLToPath`
+ */
 export function urlToString(u: URL): string {
-  const href = u.href;
-  if (href.startsWith('file://')) return fileURLToPath(u);
-  return href;
+  if (u.protocol === 'file:') return fileURLToPath(u);
+  return u.href;
 }
