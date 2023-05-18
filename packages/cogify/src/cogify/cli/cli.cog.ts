@@ -153,14 +153,13 @@ export const BasemapsCogifyCreateCommand = command({
 
         const cogStat = await fsa.head(outputTiffPath);
 
-        await validateOuptutTiff(outputTiffPath, logger);
         metrics.start(`${tileId}:write`);
         // Upload the output COG into the target location
         const readStream = fsa.stream(outputTiffPath);
         const hash = createHash('sha256');
-        readStream.on('data', (chunk) => hash.update(chunk));
+        // readStream.on('data', (chunk) => hash.update(chunk));
         await fsa.write(urlToString(tiffPath), readStream);
-
+        await validateOutputTiff(urlToString(tiffPath), logger);
         // Create a multihash, 0x12: sha256, 0x20: 32 characters long
         const digest = '1220' + hash.digest('hex');
         asset['file:checksum'] = digest;
@@ -258,7 +257,7 @@ async function createCog(ctx: CogCreationContext): Promise<string> {
   return cogCreateCommand.output;
 }
 
-async function validateOuptutTiff(path: string, logger: LogType): Promise<void> {
+async function validateOutputTiff(path: string, logger: LogType): Promise<void> {
   logger.info({ path }, 'Cog:Validate');
   try {
     const tiff = await new CogTiff(fsa.source(path)).init(true);
@@ -267,6 +266,7 @@ async function validateOuptutTiff(path: string, logger: LogType): Promise<void> 
     });
     logger.info({ path }, 'Cog:Validate:Ok');
     logger.info({ tiffStats }, 'Cog:Validate:Stats');
+    await tiff.close();
   } catch (err) {
     logger.error({ path, err }, 'Cog:ValidateFailed');
     throw err;
