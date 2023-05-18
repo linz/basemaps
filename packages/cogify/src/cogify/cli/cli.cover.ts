@@ -93,7 +93,7 @@ export const BasemapsCogifyCoverCommand = command({
       /** Where the JSON files were written to */
       await fsa.write('/tmp/cogify/cover-target', targetPath);
       /** List of all the tiles to be processed */
-      await fsa.write('/tmp/cogify/cover-items.json', JSON.stringify(items));
+      await fsa.write('/tmp/cogify/cover-items.json', JSON.stringify(items.slice(0, 5))); // FIXME remove the slice once testing is done
     }
 
     logger.info({ tiles: res.items.length, metrics: metrics.metrics, tilesByZoom }, 'Cover:Created');
