@@ -1,11 +1,12 @@
 import { sha256base58 } from '@basemaps/config';
 import { LogType, fsa } from '@basemaps/shared';
 import pLimit, { LimitFunction } from 'p-limit';
-import { extname } from 'path';
+import { extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export interface SourceFile {
   /** Source location */
-  href: string;
+  url: URL;
   /** List of items that need the source */
   items: string[];
   /**  */
@@ -31,16 +32,16 @@ export class SourceDownloader {
   }
 
   /** Register that a item needs a specific source file for processing */
-  register(href: string, itemId: string): void {
-    const assets: SourceFile = this.items.get(href) ?? { items: [], href };
+  register(url: URL, itemId: string): void {
+    const assets: SourceFile = this.items.get(url.href) ?? { items: [], url };
     assets.items.push(itemId);
-    this.items.set(href, assets);
+    this.items.set(url.href, assets);
   }
 
   /** Once a item is done with a asset clean it up if no other items need it */
-  async done(href: string, itemId: string, logger: LogType): Promise<void> {
-    const asset = this.items.get(href);
-    if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + href);
+  async done(url: URL, itemId: string, logger: LogType): Promise<void> {
+    const asset = this.items.get(url.href);
+    if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + url);
 
     // Remove the itemId
     asset.items = asset.items.filter((f) => f !== itemId);
@@ -48,7 +49,7 @@ export class SourceDownloader {
     if (asset.asset == null) return;
     // No more items need this asset, clean it up
     const targetFile = await asset.asset;
-    logger.info({ source: asset.href, target: targetFile }, 'Cog:Source:Cleanup');
+    logger.info({ source: asset.url, target: targetFile }, 'Cog:Source:Cleanup');
     await fsa.delete(targetFile);
   }
 
@@ -57,9 +58,9 @@ export class SourceDownloader {
    *
    * This will start downloading the file into the temporary location
    */
-  get(href: string, logger: LogType): Promise<string> {
-    const asset = this.items.get(href);
-    if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + href);
+  get(url: URL, logger: LogType): Promise<string> {
+    const asset = this.items.get(url.href);
+    if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + url);
     if (asset.asset) return asset.asset;
 
     asset.asset = this._downloadFile(asset, logger);
@@ -77,15 +78,21 @@ export class SourceDownloader {
    */
   _downloadFile(asset: SourceFile, logger: LogType): Promise<string> {
     return this.Q(async () => {
-      const newFileName = sha256base58(Buffer.from(asset.href)) + extname(asset.href);
+      const newFileName = sha256base58(Buffer.from(asset.url.href)) + extname(asset.url.href);
       const targetFile = fsa.joinAll(this.cachePath, 'source', newFileName);
 
-      logger.debug({ source: asset.href, target: targetFile }, 'Cog:Source:Download');
+      logger.debug({ source: asset.url, target: targetFile }, 'Cog:Source:Download');
       const startTime = performance.now();
-      await fsa.write(targetFile, fsa.stream(asset.href));
+      await fsa.write(targetFile, fsa.stream(urlToString(asset.url)));
       const duration = performance.now() - startTime;
-      logger.info({ source: asset.href, target: targetFile, items: asset.items, duration }, 'Cog:Source:Download:Done');
+      logger.info({ source: asset.url, target: targetFile, items: asset.items, duration }, 'Cog:Source:Download:Done');
       return targetFile;
     });
   }
+}
+
+export function urlToString(u: URL): string {
+  const href = u.href;
+  if (href.startsWith('file://')) return fileURLToPath(u);
+  return href;
 }

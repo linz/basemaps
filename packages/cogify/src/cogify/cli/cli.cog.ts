@@ -1,53 +1,46 @@
 import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
 import { LogType, fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { command, flag, restPositionals, string } from 'cmd-ts';
+import { Metrics } from '@linzjs/metrics';
+import { Type, command, flag, restPositionals } from 'cmd-ts';
 import { createHash } from 'crypto';
 import { mkdir, rm } from 'fs/promises';
+import { pathToFileURL } from 'node:url';
 import { tmpdir } from 'os';
-import { dirname } from 'path';
 import { StacAsset, StacCollection } from 'stac-ts';
 import { CutlineOptimizer } from '../../cutline.js';
-import { SourceDownloader } from '../../download.js';
+import { SourceDownloader, urlToString } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';
 import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.js';
 import { GdalRunner } from '../gdal.runner.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 
-function extractSourceFiles(item: CogifyStacItem): string[] {
-  return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => link.href);
-}
-
-function isUrl(path: string): boolean {
-  try {
-    new URL(path);
-    return true;
-  } catch (e) {
-    return false;
-  }
+function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
+  return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => new URL(link.href, baseUrl));
 }
 
 const Collections = new Map<string, Promise<StacCollection>>();
 
 export interface CogItem {
-  itemPath: string;
+  url: URL;
   item: CogifyStacItem;
   collection: StacCollection;
 }
-async function loadItem(p: string, logger: LogType): Promise<CogItem | null> {
-  const item = await fsa.readJson<CogifyStacItem>(p);
+async function loadItem(url: URL, logger: LogType): Promise<CogItem | null> {
+  const item = await fsa.readJson<CogifyStacItem>(urlToString(url));
   if (item.stac_version !== '1.0.0' || item.type !== 'Feature') {
-    logger.warn({ path: p }, 'Cog:Skip:NotStacItem');
+    logger.warn({ path: url }, 'Cog:Skip:NotStacItem');
     return null;
   }
   const collectionLink = item.links.find((f) => f.rel === 'collection');
-  if (collectionLink == null) throw new Error(`Unable to find collection for ${p}`);
+  if (collectionLink == null) throw new Error(`Unable to find collection for ${url}`);
 
-  const itemPath = dirname(p);
-  const collectionPath = isUrl(collectionLink.href) ? collectionLink.href : fsa.join(dirname(p), collectionLink.href);
+  const collectionPath = new URL(collectionLink.href, url);
+  const collectionPathHref = collectionPath.href;
 
-  const collectionFetch = Collections.get(collectionPath) ?? fsa.readJson<StacCollection>(collectionPath);
-  Collections.set(collectionPath, collectionFetch);
+  const collectionFetch =
+    Collections.get(collectionPathHref) ?? fsa.readJson<StacCollection>(urlToString(collectionPath));
+  Collections.set(collectionPathHref, collectionFetch);
 
   const collection = await collectionFetch;
 
@@ -55,8 +48,19 @@ async function loadItem(p: string, logger: LogType): Promise<CogItem | null> {
     throw new Error(`Invalid Collection JSON: ${item.id} stac version number mismatch ${collection.stac_version}`);
   }
 
-  return { itemPath, item, collection };
+  return { url: url, item, collection };
 }
+
+const Url: Type<string, URL> = {
+  async from(str) {
+    try {
+      return new URL(str);
+    } catch (e) {
+      if (str.includes(':')) throw e;
+      return pathToFileURL(str);
+    }
+  },
+};
 
 export const BasemapsCogifyCreateCommand = command({
   name: 'cogify-create',
@@ -64,15 +68,16 @@ export const BasemapsCogifyCreateCommand = command({
   description: 'Create a COG from a covering configuration',
   args: {
     ...logArguments,
-    path: restPositionals({ type: string, displayName: 'path', description: 'Path to item json' }),
+    path: restPositionals({ type: Url, displayName: 'path', description: 'Path to item json' }),
     force: flag({ long: 'force', description: 'Overwrite existing tiff files' }),
   },
 
   async handler(args) {
+    const metrics = new Metrics();
     const logger = getLogger(this, args);
 
     const toCreate = await Promise.all(args.path.map(async (p) => loadItem(p, logger)));
-    // Filter out any missing items, also excluding items which already have COGs created
+    // // Filter out any missing items, also excluding items which already have COGs created
     const filtered = toCreate.filter((f) => {
       if (f == null) return false;
 
@@ -99,7 +104,7 @@ export const BasemapsCogifyCreateCommand = command({
     const sources = new SourceDownloader(tmpFolder);
     for (const i of filtered) {
       const files = getSources(i.item.links);
-      for (const src of files) sources.register(src.href, i.item.id);
+      for (const src of files) sources.register(new URL(src.href, i.url), i.item.id);
     }
 
     const gdalVersion = await new GdalRunner({ command: 'gdal_translate', args: ['--version'], output: '' }).run();
@@ -108,18 +113,19 @@ export const BasemapsCogifyCreateCommand = command({
       await mkdir(tmpFolder, { recursive: true });
 
       // TODO should COG creation be run concurrently?
-      for (const { itemPath, item } of filtered) {
+      for (const { url, item } of filtered) {
         const cutlineLink = getCutline(item.links);
         const options = item.properties['linz_basemaps:options'];
         const tileId = TileId.fromTile(options.tile);
+        metrics.start(tileId);
 
         // Location to where the tiff should be stored
-        const tiffPath = fsa.join(itemPath, tileId + '.tiff');
-        const itemStacPath = fsa.join(itemPath, tileId + '.json');
+        const tiffPath = new URL(tileId + '.tiff', url);
+        const itemStacPath = new URL(tileId + '.json', url);
         const tileMatrix = TileMatrixSets.find(options.tileMatrix);
         if (tileMatrix == null) throw new Error('Failed to find tileMatrix: ' + options.tileMatrix);
         const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
-        const sourceFiles = extractSourceFiles(item);
+        const sourceFiles = extractSourceFiles(item, url);
         const sourceLocations = await Promise.all(sourceFiles.map((f) => sources.get(f, logger)));
         // Create the tiff
         const outputTiffPath = await createCog({
@@ -141,20 +147,20 @@ export const BasemapsCogifyCreateCommand = command({
         item.assets['cog'] = asset;
         item.properties['linz_basemaps:generated']['gdal'] = gdalVersion.stdout;
 
-        const startTime = performance.now();
+        metrics.start(`${tileId}:write`);
         // Upload the output COG into the target location
         const readStream = fsa.stream(outputTiffPath);
         const hash = createHash('sha256');
         readStream.on('data', (chunk) => hash.update(chunk));
-        await fsa.write(tiffPath, readStream);
+        await fsa.write(urlToString(tiffPath), readStream);
 
         // Create a multihash, 0x12: sha256, 0x20: 32 characters long
         const digest = '1220' + hash.digest('hex');
         asset['file:checksum'] = digest;
-        logger.debug({ target: tiffPath, hash: digest, duration: performance.now() - startTime }, 'Cog:Create:Write');
+        logger.debug({ target: tiffPath, hash: digest, duration: metrics.end(`${tileId}:write`) }, 'Cog:Create:Write');
         // Write the STAC metadata
-        await fsa.write(itemStacPath, JSON.stringify(item, null, 2));
-        logger.info({ tileId, tiffPath }, 'Cog:Create:Done');
+        await fsa.write(urlToString(itemStacPath), JSON.stringify(item, null, 2));
+        logger.info({ tileId, tiffPath, duration: metrics.end(tileId) }, 'Cog:Create:Done');
       }
     } finally {
       // Cleanup the temporary folder once everything is done
