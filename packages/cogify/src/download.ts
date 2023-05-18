@@ -81,6 +81,9 @@ export class SourceDownloader {
       const newFileName = sha256base58(Buffer.from(asset.url.href)) + extname(asset.url.href);
       const targetFile = fsa.joinAll(this.cachePath, 'source', newFileName);
 
+      // Ensure permissions have been setup for the source location
+      if (asset.url.protocol !== 'file:') await fsa.head(asset.url.href);
+
       logger.debug({ source: asset.url, target: targetFile }, 'Cog:Source:Download');
       const startTime = performance.now();
       await fsa.write(targetFile, fsa.stream(urlToString(asset.url)));
