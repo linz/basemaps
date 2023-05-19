@@ -3,6 +3,7 @@ import { LogType, fsa } from '@basemaps/shared';
 import pLimit, { LimitFunction } from 'p-limit';
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { HashTransform } from './hash.stream.js';
 
 export interface SourceFile {
   /** Source location */
@@ -11,6 +12,10 @@ export interface SourceFile {
   items: string[];
   /**  */
   asset?: Promise<string>;
+
+  size?: number;
+  /** multihash of the file if it exists */
+  hash?: string;
 }
 /**
  * Store assets used for creating COGs, (Tiffs, Cutlines) etc in a temporary location
@@ -96,13 +101,24 @@ export class SourceDownloader {
 
       await this._checkHost(asset.url);
       logger.debug({ source: asset.url, target: targetFile }, 'Cog:Source:Download');
+      const hashStream = fsa.stream(urlToString(asset.url)).pipe(new HashTransform('sha256'));
       const startTime = performance.now();
-      await fsa.write(targetFile, fsa.stream(urlToString(asset.url)));
+      await fsa.write(targetFile, hashStream);
       const duration = performance.now() - startTime;
 
+      asset.size = hashStream.size;
+      asset.hash = hashStream.digestMultiHash();
       const stat = await fsa.head(targetFile);
       logger.info(
-        { source: asset.url, target: targetFile, items: asset.items, size: stat?.size, duration },
+        {
+          source: asset.url,
+          target: targetFile,
+          items: asset.items,
+          size: stat?.size,
+          hash: asset.hash,
+          assetSize: asset.size,
+          duration,
+        },
         'Cog:Source:Download:Done',
       );
       return targetFile;

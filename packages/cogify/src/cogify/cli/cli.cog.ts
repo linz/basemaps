@@ -1,21 +1,20 @@
 import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
 import { LogType, fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
+import { CogTiff } from '@cogeotiff/core';
 import { Metrics } from '@linzjs/metrics';
 import { Type, command, flag, restPositionals } from 'cmd-ts';
-import { createHash } from 'crypto';
 import { mkdir, rm } from 'fs/promises';
 import { pathToFileURL } from 'node:url';
 import { tmpdir } from 'os';
 import { StacAsset, StacCollection } from 'stac-ts';
 import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader, urlToString } from '../../download.js';
+import { HashTransform } from '../../hash.stream.js';
 import { getLogger, logArguments } from '../../log.js';
 import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.js';
 import { GdalRunner } from '../gdal.runner.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
-import { CogTiff } from '@cogeotiff/core';
-import { HashTransform } from '../../hash.stream.js';
 
 function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
   return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => new URL(link.href, baseUrl));
@@ -140,7 +139,27 @@ export const BasemapsCogifyCreateCommand = command({
 
         // Cleanup any source files used in the COG creation
         logger.debug({ files: sourceFiles.length }, 'Cog:Cleanup');
-        const deleted = await Promise.all(sourceFiles.map((f) => sources.done(f, item.id, logger)));
+        const deleted = await Promise.all(
+          sourceFiles.map(async (f) => {
+            const asset = sources.items.get(f.href);
+
+            await sources.done(f, item.id, logger);
+            if (asset == null || asset.size == null || asset.hash == null) return;
+            const link = item.links.find((f) => f.href === asset.url.href);
+            if (link == null) return;
+            if (link['file:checksum'] && link['file:checksum'] !== asset.hash) {
+              logger.warn(
+                { path: f.href, linkHash: link['file:checksum'], assetHash: asset.hash },
+                'FileHash:Mismatch',
+              );
+            }
+            link['file:checksum'] = asset.hash;
+            if (link['file:size'] && link['file:size'] !== asset.size) {
+              logger.warn({ path: f.href, linkSize: link['file:size'], assetSize: asset.size }, 'FileSize:Mismatch');
+            }
+            link['file:size'] = asset.size;
+          }),
+        );
         logger.info({ files: sourceFiles.length, deleted: deleted.filter(Boolean).length }, 'Cog:Cleanup:Done');
 
         const asset: StacAsset = {
@@ -159,12 +178,19 @@ export const BasemapsCogifyCreateCommand = command({
         const readStream = fsa.stream(outputTiffPath).pipe(new HashTransform('sha256'));
         await fsa.write(urlToString(tiffPath), readStream);
         await validateOutputTiff(urlToString(tiffPath), logger);
-        // Create a multihash, 0x12: sha256, 0x20: 32 characters long
-        const digest = '1220' + readStream.digest('hex');
-        asset['file:checksum'] = digest;
-        asset['file:size'] = cogStat?.size;
+        asset['file:checksum'] = readStream.digestMultiHash();
+        asset['file:size'] = readStream.size;
+        if (readStream.size !== cogStat?.size) {
+          logger.warn({ readStream: readStream.size, stat: cogStat?.size }, 'SizeMismatch');
+        }
+
         logger.debug(
-          { target: tiffPath, hash: digest, size: cogStat?.size, duration: metrics.end(`${tileId}:write`) },
+          {
+            target: tiffPath,
+            hash: asset['file:checksum'],
+            size: asset['file:size'],
+            duration: metrics.end(`${tileId}:write`),
+          },
           'Cog:Create:Write',
         );
         // Write the STAC metadata
