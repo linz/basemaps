@@ -15,6 +15,7 @@ import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.js';
 import { GdalRunner } from '../gdal.runner.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 import { CogTiff } from '@cogeotiff/core';
+import { HashTransform } from '../../hash.stream.js';
 
 function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
   return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => new URL(link.href, baseUrl));
@@ -155,14 +156,13 @@ export const BasemapsCogifyCreateCommand = command({
 
         metrics.start(`${tileId}:write`);
         // Upload the output COG into the target location
-        const readStream = fsa.stream(outputTiffPath);
-        const hash = createHash('sha256');
-        // readStream.on('data', (chunk) => hash.update(chunk));
+        const readStream = fsa.stream(outputTiffPath).pipe(new HashTransform('sha256'));
         await fsa.write(urlToString(tiffPath), readStream);
         await validateOutputTiff(urlToString(tiffPath), logger);
         // Create a multihash, 0x12: sha256, 0x20: 32 characters long
-        const digest = '1220' + hash.digest('hex');
+        const digest = '1220' + readStream.digest('hex');
         asset['file:checksum'] = digest;
+        asset['file:size'] = cogStat?.size;
         logger.debug(
           { target: tiffPath, hash: digest, size: cogStat?.size, duration: metrics.end(`${tileId}:write`) },
           'Cog:Create:Write',
