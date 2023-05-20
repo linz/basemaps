@@ -64,9 +64,13 @@ o.spec('MemoryConfig', () => {
     config.createVirtualTileSets();
 
     const cfg = config.toJson();
-    o(cfg.tileSet.length).equals(2);
+    o(cfg.tileSet.length).equals(3);
     o(cfg.tileSet[0].id).equals('ts_Image123');
     o(cfg.tileSet[1].id).equals('ts_ōtorohanga-urban-2021-0.1m');
+    o(cfg.tileSet[2].id).equals('ts_all');
+    const allTileSet = cfg.tileSet[2];
+    o(allTileSet.layers.length).equals(1);
+    o(allTileSet.layers[0].name).equals('ōtorohanga-urban-2021-0.1m');
   });
 
   o('should create virtual tilesets by name', async () => {
@@ -94,10 +98,16 @@ o.spec('MemoryConfig', () => {
     const cfg = config.toJson();
     // 1 tileset per imagery id (2x)
     // 1 tileset per imagery name (1x)
-    o(cfg.tileSet.length).equals(3);
+    o(cfg.tileSet.length).equals(4);
     o(cfg.tileSet[0].id).equals('ts_Image123');
     o(cfg.tileSet[1].id).equals('ts_ōtorohanga-urban-2021-0.1m');
     o(cfg.tileSet[2].id).equals('ts_Image234');
+    o(cfg.tileSet[3].id).equals('ts_all');
+    o(cfg.tileSet[3].layers.length).equals(1);
+    o(cfg.tileSet[3].layers[0][2193]).equals('im_Image234');
+    o(cfg.tileSet[3].layers[0][3857]).equals('im_Image123');
+    o(cfg.tileSet[3].layers[0].maxZoom).equals(undefined);
+    o(cfg.tileSet[3].layers[0].minZoom).equals(32);
   });
 
   o('virtual tilesets should overwrite existing projections', async () => {
@@ -135,7 +145,6 @@ o.spec('MemoryConfig', () => {
     config.put({ ...baseImg, id: 'im_image-3857', projection: 3857 } as ConfigImagery);
 
     o(config.toJson().tileSet.length).equals(1);
-
     config.createVirtualTileSets();
 
     const tileSets = config.toJson().tileSet.map((c) => c.id);
@@ -146,6 +155,7 @@ o.spec('MemoryConfig', () => {
       'ts_image-2193', // By image id
       'ts_ōtorohanga-urban-2021-0.1m', // By name
       'ts_image-3857', // By image id
+      'ts_all', // By image id
     ]);
 
     const target = await config.TileSet.get('ts_aerial:ōtorohanga_urban_2021_0-1m_RGB');

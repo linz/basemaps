@@ -105,6 +105,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   /** Find all imagery inside this configuration and create a virtual tile set for it */
   createVirtualTileSets(): void {
+    const allLayers: ConfigLayer[] = [];
     for (const obj of this.objects.values()) {
       // Limit child tileset generation to `aerial` layers only
       if (isConfigTileSet(obj) && obj.name === 'aerial') {
@@ -115,9 +116,34 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       } else if (isConfigImagery(obj)) {
         // TODO should this really overwrite existing tilesets
         this.put(ConfigProviderMemory.imageryToTileSet(obj));
-        this.imageryToTileSetByName(obj);
+        const tileSet = this.imageryToTileSetByName(obj);
+        allLayers.push(tileSet.layers[0]);
       }
     }
+    // Create an all tileset contains all raster layers
+    if (allLayers.length) this.createVirtualAllTileSet(allLayers);
+  }
+
+  createVirtualAllTileSet(layers: ConfigLayer[]): void {
+    const layerByName = new Map<string, ConfigLayer>();
+    // Set all layers as minZoom:32
+    for (const l of layers) {
+      delete l.maxZoom;
+      l.minZoom = 32;
+      // TODO: This might overwrite the layer id for duplicated configImagery
+      if (layerByName.has(l.name)) layerByName.set(l.name, { ...layerByName.get(l.name), ...l });
+      else layerByName.set(l.name, l);
+    }
+    const allTileset: ConfigTileSet = {
+      type: TileSetType.Raster,
+      id: 'ts_all',
+      name: 'all_imagery',
+      title: 'All Imagery Basemaps',
+      category: 'Basemaps',
+      format: ImageFormat.Webp,
+      layers: Array.from(layerByName.values()),
+    };
+    this.put(allTileset);
   }
 
   /** Create a tileset by the standardized name */
