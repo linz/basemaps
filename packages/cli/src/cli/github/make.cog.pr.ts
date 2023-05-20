@@ -29,7 +29,7 @@ export class MakeCogGithub extends Github {
 
     // skip pull request if not an urban or rural imagery
     if (newTileSet == null) return;
-    await fsa.write(path, JSON.stringify(newTileSet, null, 2));
+    await fsa.write(path, JSON.stringify(newTileSet, null, 2) + '\n');
 
     // Commit and push the changes
     const message = `config(raster): Add imagery ${this.imagery} to ${filename} config file.`;
@@ -124,7 +124,7 @@ export class MakeCogGithub extends Github {
 
     // skip pull request if not an urban or rural imagery
     if (newTileSet == null) return;
-    await fsa.write(path, JSON.stringify(newTileSet, null, 2));
+    await fsa.write(path, JSON.stringify(newTileSet, null, 2) + '\n');
 
     // Commit and push the changes
     const message = `config(vector): Update the ${this.imagery} to ${filename} config file.`;
