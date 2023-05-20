@@ -155,7 +155,7 @@ o.spec('MemoryConfig', () => {
       'ts_image-2193', // By image id
       'ts_ōtorohanga-urban-2021-0.1m', // By name
       'ts_image-3857', // By image id
-      'ts_all', // By image id
+      'ts_all',
     ]);
 
     const target = await config.TileSet.get('ts_aerial:ōtorohanga_urban_2021_0-1m_RGB');
