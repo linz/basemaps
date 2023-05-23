@@ -67,5 +67,5 @@ function getImageryCenterZoom(im: ConfigImageryTiff): { lat: number; lon: number
   const proj = Projection.get(tms);
   const centerLatLon = proj.toWgs84([center.x, center.y]);
   const targetZoom = Math.max(tms.findBestZoom(im.gsd) - 12, 0);
-  return { lat: centerLatLon[1], lon: centerLatLon[1], zoom: targetZoom };
+  return { lat: centerLatLon[1], lon: centerLatLon[0], zoom: targetZoom };
 }
