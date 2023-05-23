@@ -56,7 +56,7 @@ export const BasemapsCogifyConfigCommand = command({
       // A URL to where the imagery can be viewed
       await fsa.write('/tmp/cogify/config-url.json', JSON.stringify(outputUrls));
     }
-    logger.info({ metrics: metrics.metrics }, 'ImageryConfig:Done');
+    logger.info({ metrics: metrics.metrics }, 'ImageryConfig:Metrics');
   },
 });
 
