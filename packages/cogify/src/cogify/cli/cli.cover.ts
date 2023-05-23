@@ -88,11 +88,13 @@ export const BasemapsCogifyCoverCommand = command({
       ctx.logger?.trace({ path: itemPath }, 'Imagery:Stac:Item:Write');
     }
 
-    /** If running in argo dump out output information to be used by further steps */
+    // If running in argo dump out output information to be used by further steps
     if (isArgo()) {
-      /** Where the JSON files were written to */
-      await fsa.write('/tmp/cogify/result.json', JSON.stringify({ target: targetPath, title: ctx.imagery.title }));
-      /** List of all the tiles to be processed */
+      // Where the JSON files were written to
+      await fsa.write('/tmp/cogify/cover-target', targetPath);
+      // Title of the imagery
+      await fsa.write('/tmp/cogify/cover-title', ctx.imagery.title);
+      // List of all the tiles to be processed
       await fsa.write('/tmp/cogify/cover-items.json', JSON.stringify(items));
     }
 
