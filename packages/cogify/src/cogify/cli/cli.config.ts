@@ -41,13 +41,23 @@ export const BasemapsCogifyConfigCommand = command({
     await fsa.writeJson(outputPath, config);
     const configPath = base58.encode(Buffer.from(outputPath));
 
-    const outputUrls = [];
+    const outputUrls: string[] = [];
     for (const im of cfg.imagery) {
       const location = getImageryCenterZoom(im);
       const locationHash = `#@${location.lon.toFixed(6)},${location.lat.toFixed(6)},z${location.zoom}`;
       const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${im.name}&tileMatrix=${im.tileMatrix}&debug${locationHash}`;
       outputUrls.push(url);
-      logger.info({ path: outputPath, url, config: configPath, title: im.title }, 'ImageryConfig:Done');
+      logger.info(
+        {
+          path: outputPath,
+          url,
+          config: configPath,
+          title: im.title,
+          tileMatrix: im.tileMatrix,
+          projection: im.projection,
+        },
+        'ImageryConfig:Done',
+      );
     }
 
     if (isArgo()) {
