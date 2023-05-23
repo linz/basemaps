@@ -180,7 +180,7 @@ export const BasemapsCogifyCreateCommand = command({
         const readStream = fsa.stream(outputTiffPath).pipe(new HashTransform('sha256'));
         await fsa.write(urlToString(tiffPath), readStream);
         await validateOutputTiff(urlToString(tiffPath), logger);
-        asset['file:checksum'] = readStream.digestMultiHash();
+        asset['file:checksum'] = readStream.multihash;
         asset['file:size'] = readStream.size;
         if (readStream.size !== cogStat?.size) {
           logger.warn({ readStream: readStream.size, stat: cogStat?.size }, 'SizeMismatch');

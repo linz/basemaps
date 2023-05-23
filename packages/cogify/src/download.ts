@@ -107,7 +107,7 @@ export class SourceDownloader {
       const duration = performance.now() - startTime;
 
       asset.size = hashStream.size;
-      asset.hash = hashStream.digestMultiHash();
+      asset.hash = hashStream.multihash;
       const stat = await fsa.head(targetFile);
       logger.info(
         {
