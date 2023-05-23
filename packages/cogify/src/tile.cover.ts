@@ -1,9 +1,10 @@
 import { ConfigImageryTiff } from '@basemaps/config/build/json/tiff.config.js';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
+import { LogType, fsa } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
+import { MultiPolygon, intersection, toFeatureCollection, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
+import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 import { createCovering } from './cogify/covering.js';
 import { CogifyDefaults } from './cogify/gdal.js';
 import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem } from './cogify/stac.js';
@@ -32,6 +33,15 @@ export interface TileCoverResult {
   source: GeoJSON.FeatureCollection;
 }
 
+function getDateTime(ctx: TileCoverContext): { start: string | null; end: string | null } {
+  const interval = ctx.imagery.collection?.extent?.temporal?.interval?.[0];
+
+  if (interval) return { start: interval[0], end: interval[1] };
+
+  // TODO should we guess datetime
+  return { start: null, end: null };
+}
+
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
   // Ensure we have the projection loaded for the source imagery
   await ProjectionLoader.load(ctx.imagery.projection);
@@ -53,6 +63,9 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   );
   ctx.logger?.debug('Cutline:Apply');
   ctx.metrics?.start('cutline:apply');
+
+  const dateTime = getDateTime(ctx);
+  const cliDate = new Date().toISOString();
 
   // Convert the source imagery to a geojson
   const sourceGeoJson = ctx.imagery.files.map((file) => {
@@ -95,7 +108,6 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     const source = imageryBounds.filter((f) => intersection(tileBounds, f.polygon).length > 0);
 
     const feature = Projection.get(ctx.tileMatrix).boundsToGeoJsonFeature(bounds);
-    feature.geometry.coordinates;
 
     const tileId = TileId.fromTile(tile);
 
@@ -105,16 +117,17 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
       collection: ctx.id,
       stac_version: '1.0.0',
       stac_extensions: [],
-      geometry: {
-        type: feature.geometry.type,
-        coordinates: feature.geometry.coordinates,
-      } as any, // FIXME
+      geometry: feature.geometry as GeoJSONPolygon,
+      bbox: Projection.get(ctx.tileMatrix).boundsToWgs84BoundingBox(bounds),
       links: [
         { href: `./${tileId}.json`, rel: 'self' },
         { href: './collection.json', rel: 'collection' },
         { href: './collection.json', rel: 'parent' },
       ],
       properties: {
+        datetime: dateTime.start ? null : cliDate,
+        start_datetime: dateTime.start ?? undefined,
+        end_datetime: dateTime.end ?? undefined,
         'proj:epsg': ctx.tileMatrix.projection.code,
         'linz_basemaps:options': {
           tile,
@@ -131,7 +144,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
           package: CliInfo.package,
           hash: CliInfo.hash,
           version: CliInfo.version,
-          date: new Date().toISOString(),
+          date: cliDate,
         },
       },
       assets: {},
@@ -166,13 +179,15 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     type: 'Collection',
     stac_version: '1.0.0',
     stac_extensions: [],
-    license: 'CC-BY-4.0',
-    extent: {
-      temporal: { interval: [['', '']] }, // TODO this should be created from the imagery metadata
-      spatial: { bbox: [] } as any, // TODO this should be created from the imagery polygon
-    },
+    license: ctx.imagery.collection?.license ?? 'CC-BY-4.0',
     title: ctx.imagery.title,
-    description: '',
+    description: ctx.imagery.collection?.description ?? 'Missing source STAC',
+    providers: ctx.imagery.collection?.providers,
+    extent: {
+      spatial: { bbox: [Projection.get(ctx.imagery.projection).boundsToWgs84BoundingBox(ctx.imagery.bounds)] },
+      // Default  the temporal time today if no times were found as it is required for STAC
+      temporal: { interval: dateTime.start ? [[dateTime.start, dateTime.end]] : [[cliDate, null]] },
+    },
     links: items.map((item) => {
       const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
       return { href: `./${tileId}.json`, rel: 'item', type: 'application/json' };
@@ -181,6 +196,14 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
 
   // Add a self link to the links
   collection.links.unshift({ rel: 'self', href: './collection.json', type: 'application/json' });
+  // Include a link back to the source collection
+  if (ctx.imagery.collection) {
+    collection.links.push({
+      rel: 'linz_basemaps:source_collection',
+      href: fsa.join(ctx.imagery.uri, 'collection.json'),
+      type: 'application/json',
+    });
+  }
 
   return { collection, items, source: toFeatureCollection(sourceGeoJson) };
 }

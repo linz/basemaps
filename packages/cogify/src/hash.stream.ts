@@ -24,7 +24,6 @@ export class HashTransform extends Transform {
   digestMultiHash(): string {
     if (this.hashType !== 'sha256') throw new Error('Invalid hashType requires "sha256" ' + this.hashType);
     // Create a multihash, 0x12: sha256, 0x20: 32 characters long
-
     return `1220` + this.digest('hex');
   }
 }

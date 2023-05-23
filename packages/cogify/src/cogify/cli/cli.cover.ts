@@ -64,7 +64,7 @@ export const BasemapsCogifyCoverCommand = command({
 
     const res = await createTileCover(ctx);
 
-    const targetPath = fsa.joinAll(args.target, String(tms.projection.code), im.name, CliId);
+    const targetPath = fsa.joinAll(args.target, String(tms.projection.code), im.name);
 
     const sourcePath = fsa.join(targetPath, 'source.json');
     await fsa.write(sourcePath, JSON.stringify(res.source, null, 2));
