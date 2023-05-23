@@ -32,6 +32,12 @@ export const BasemapsCogifyCoverCommand = command({
       long: 'tile-matrix',
       description: `Output TileMatrix to use [${SupportedTileMatrix.map((f) => f.identifier).join(', ')}]`,
     }),
+    limit: option({
+      type: number,
+      long: 'limit',
+      description: 'Limit output to this number of tiffs',
+      defaultValue: () => -1,
+    }),
   },
   async handler(args) {
     const metrics = new Metrics();
@@ -86,6 +92,9 @@ export const BasemapsCogifyCoverCommand = command({
       const z = item.properties['linz_basemaps:options'].tile.z;
       tilesByZoom[z] = (tilesByZoom[z] ?? 0) + 1;
       ctx.logger?.trace({ path: itemPath }, 'Imagery:Stac:Item:Write');
+
+      // Limit the number of output tiles to create useful for debugging
+      if (args.limit > 0 && items.length >= args.limit) break;
     }
 
     /** If running in argo dump out output information to be used by further steps */
