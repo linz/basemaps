@@ -8,7 +8,7 @@ import { command, option, optional, positional } from 'cmd-ts';
 import { isArgo } from '../../argo.js';
 import { urlToString } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';
-import { Url } from './cli.cog.js';
+import { Url } from '../parsers.js';
 
 export const BasemapsCogifyConfigCommand = command({
   name: 'cogify-config',

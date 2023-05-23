@@ -3,9 +3,8 @@ import { LogType, fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { CogTiff } from '@cogeotiff/core';
 import { Metrics } from '@linzjs/metrics';
-import { Type, command, flag, restPositionals } from 'cmd-ts';
+import { command, flag, restPositionals } from 'cmd-ts';
 import { mkdir, rm } from 'fs/promises';
-import { pathToFileURL } from 'node:url';
 import { tmpdir } from 'os';
 import { StacAsset, StacCollection } from 'stac-ts';
 import { CutlineOptimizer } from '../../cutline.js';
@@ -14,6 +13,7 @@ import { HashTransform } from '../../hash.stream.js';
 import { getLogger, logArguments } from '../../log.js';
 import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.js';
 import { GdalRunner } from '../gdal.runner.js';
+import { Url } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 
 function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
@@ -51,17 +51,6 @@ async function loadItem(url: URL, logger: LogType): Promise<CogItem | null> {
 
   return { url: url, item, collection };
 }
-
-const Url: Type<string, URL> = {
-  async from(str) {
-    try {
-      return new URL(str);
-    } catch (e) {
-      if (str.includes(':')) throw e;
-      return pathToFileURL(str);
-    }
-  },
-};
 
 export const BasemapsCogifyCreateCommand = command({
   name: 'cogify-create',
