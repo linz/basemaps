@@ -273,6 +273,10 @@ async function createCog(ctx: CogCreationContext): Promise<string> {
   return cogCreateCommand.output;
 }
 
+/**
+ * Very basic checking for the output tiff to ensure it was uploaded ok
+ * Just open it as a COG and ensure the metadata looks about  right
+ */
 async function validateOutputTiff(path: string, logger: LogType): Promise<void> {
   logger.info({ path }, 'Cog:Validate');
   try {
