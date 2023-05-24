@@ -24,7 +24,7 @@ jobs:
           npx lerna run bundle --stream
           npm pack --workspaces
         env:
-          NODE_ENV: "production"
+          NODE_ENV: 'production'
 
       - name: Set up Docker Qemu
         id: qemu
@@ -54,7 +54,7 @@ jobs:
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
-      - name: "@basemaps/cli - Build and push"
+      - name: '@basemaps/cli - Build and push'
         uses: docker/build-push-action@v3
         with:
           context: packages/cli
@@ -64,7 +64,7 @@ jobs:
             ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }}
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:') == false}}
 
-      - name: "@basemaps/cli - Build and push Major/Minor"
+      - name: '@basemaps/cli - Build and push Major/Minor'
         uses: docker/build-push-action@v3
         with:
           context: packages/cli
@@ -78,17 +78,17 @@ jobs:
 
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')}}
 
-      - name: "@basemaps/server - Build and push"
+      - name: '@basemaps/server - Build and push'
         uses: docker/build-push-action@v3
         with:
           context: packages/server
           platforms: linux/arm64,linux/amd64
           tags: |
-           ghcr.io/linz/basemaps/server:latest
-           ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }}
+            ghcr.io/linz/basemaps/server:latest
+            ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }}
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:') == false}}
 
-      - name: "@basemaps/server - Build and push Major/Minor"
+      - name: '@basemaps/server - Build and push Major/Minor'
         uses: docker/build-push-action@v3
         with:
           context: packages/cli

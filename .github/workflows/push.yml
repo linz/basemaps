@@ -56,7 +56,7 @@ jobs:
         env:
           SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_NON_PROD}}
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
-          NODE_ENV: "dev"
+          NODE_ENV: 'dev'
 
       - name: (Prod) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -74,7 +74,7 @@ jobs:
           cp *.tgz packages/cli
           npx lerna run deploy:deploy --stream
         env:
-          NODE_ENV: "production"
+          NODE_ENV: 'production'
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
           SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_PROD}}
 
