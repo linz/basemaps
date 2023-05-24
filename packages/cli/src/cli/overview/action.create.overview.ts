@@ -67,9 +67,9 @@ export class CommandCreateOverview extends CommandLineAction {
 
     logger.info({ source, tiffs: tiffList.length, duration: st.tick() }, 'CreateOverview:ListTiffs:Done');
     logger.debug({ source, first: tiffSource[0].uri }, 'CreateOverview:PrepareSourceFiles');
+    // To ensure that permissions are setup correctly attempt to read the first tiff
     await fsa.head(tiffSource[0].uri);
 
-    // console.log()
     const tiff: CogTiff = new CogTiff(tiffSource[0]);
     await tiff.init(true);
     const tileMatrix = await this.getTileMatrix(tiff);
