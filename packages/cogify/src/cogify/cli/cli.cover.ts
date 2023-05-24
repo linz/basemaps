@@ -5,10 +5,11 @@ import { fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, restPositionals, string } from 'cmd-ts';
+import { isArgo } from '../../argo.js';
 import { CutlineOptimizer } from '../../cutline.js';
 import { getLogger, logArguments } from '../../log.js';
-import { createTileCover, TileCoverContext } from '../../tile.cover.js';
-import { isArgo } from '../../argo.js';
+import { TileCoverContext, createTileCover } from '../../tile.cover.js';
+import { createFileStats } from '../stac.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
@@ -66,11 +67,25 @@ export const BasemapsCogifyCoverCommand = command({
 
     const targetPath = fsa.joinAll(args.target, String(tms.projection.code), im.name, CliId);
 
-    const sourcePath = fsa.join(targetPath, 'source.json');
-    await fsa.write(sourcePath, JSON.stringify(res.source, null, 2));
+    const sourcePath = fsa.join(targetPath, 'source.geojson');
+    const sourceData = JSON.stringify(res.source, null, 2);
+    await fsa.write(sourcePath, sourceData);
 
-    const coveringPath = fsa.join(targetPath, 'covering.json');
-    await fsa.write(coveringPath, JSON.stringify({ type: 'FeatureCollection', features: res.items }, null, 2));
+    const coveringPath = fsa.join(targetPath, 'covering.geojson');
+    const coveringData = JSON.stringify({ type: 'FeatureCollection', features: res.items }, null, 2);
+    await fsa.write(coveringPath, coveringData);
+
+    res.collection.assets = res.collection.assets ?? {};
+    res.collection.assets['covering'] = {
+      title: 'GeoJSON FeatureCollection of output',
+      href: './covering.geojson',
+      ...createFileStats(coveringData),
+    };
+    res.collection.assets['source'] = {
+      title: 'GeoJSON FeatureCollection of all source files used',
+      href: './source.geojson',
+      ...createFileStats(sourceData),
+    };
 
     const collectionPath = fsa.join(targetPath, 'collection.json');
     await fsa.write(collectionPath, JSON.stringify(res.collection, null, 2));

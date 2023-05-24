@@ -7,7 +7,13 @@ import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 import { createCovering } from './cogify/covering.js';
 import { CogifyDefaults } from './cogify/gdal.js';
-import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem } from './cogify/stac.js';
+import {
+  CogifyLinkCutline,
+  CogifyLinkSource,
+  CogifyStacCollection,
+  CogifyStacItem,
+  createFileStats,
+} from './cogify/stac.js';
 import { CutlineOptimizer } from './cutline.js';
 
 export interface TileCoverContext {
@@ -198,10 +204,13 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   collection.links.unshift({ rel: 'self', href: './collection.json', type: 'application/json' });
   // Include a link back to the source collection
   if (ctx.imagery.collection) {
+    const target = fsa.join(ctx.imagery.uri, 'collection.json');
+    const stac = await fsa.read(target);
     collection.links.push({
       rel: 'linz_basemaps:source_collection',
       href: fsa.join(ctx.imagery.uri, 'collection.json'),
       type: 'application/json',
+      ...createFileStats(stac),
     });
   }
 

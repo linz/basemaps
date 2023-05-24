@@ -1,4 +1,5 @@
 import { Tile } from '@basemaps/geo';
+import { createHash } from 'node:crypto';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 
 export interface CogifyCreationOptions {
@@ -79,4 +80,11 @@ export function getSources(links: StacLink[]): CogifyLinkSource[] {
 
 export function getCutline(links: StacLink[]): CogifyLinkCutline | null {
   return links.find((f) => f.rel === 'linz_basemaps:cutline') as CogifyLinkCutline;
+}
+
+export function createFileStats(data: string | Buffer): { 'file:size': number; 'file:checksum': string } {
+  return {
+    'file:size': Buffer.isBuffer(data) ? data.byteLength : data.length,
+    'file:checksum': '1220' + createHash('sha256').update(data).digest('hex'),
+  };
 }

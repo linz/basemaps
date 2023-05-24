@@ -131,11 +131,10 @@ export const BasemapsCogifyCreateCommand = command({
         const deleted = await Promise.all(
           sourceFiles.map(async (f) => {
             const asset = sources.items.get(f.href);
-
             await sources.done(f, item.id, logger);
             // Update the STAC Document with the checksum and file size of the files used to create this asset
             if (asset == null || asset.size == null || asset.hash == null) return;
-            const link = item.links.find((f) => f.href === asset.url.href);
+            const link = item.links.find((link) => new URL(link.href, url).href === asset.url.href);
             if (link == null) return;
             // Checksum differs in the STAC document to what was downloaded
             if (link['file:checksum'] && link['file:checksum'] !== asset.hash) {
