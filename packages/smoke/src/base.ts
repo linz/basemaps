@@ -23,10 +23,14 @@ if (host.endsWith('/')) host = host.slice(0, host.length - 1);
  * ````
  */
 async function req(path: string, opts?: RequestInit): Promise<Response> {
-  logger.trace({ path }, 'Fetch');
+  const target = new URL(path, host);
+  logger.trace({ path, url: target.href }, 'Fetch');
   const startTime = performance.now();
-  const res = await fetch(host + path, opts);
-  logger.info({ path, status: res.status, ...opts, duration: performance.now() - startTime }, 'Fetch:Done');
+  const res = await fetch(target, opts);
+  logger.info(
+    { path, url: target.href, status: res.status, ...opts, duration: performance.now() - startTime },
+    'Fetch:Done',
+  );
   return res;
 }
 
