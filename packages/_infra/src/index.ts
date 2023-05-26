@@ -2,7 +2,6 @@ import { Env } from '@basemaps/shared';
 import { App } from 'aws-cdk-lib';
 import ACM from 'aws-sdk/clients/acm.js';
 import { EdgeAnalytics } from './analytics/edge.analytics.js';
-import { CogBuilderStack } from './cogify/index.js';
 import { BaseMapsRegion, getConfig } from './config.js';
 import { DeployEnv } from './deploy.env.js';
 import { EdgeStack } from './edge/index.js';
@@ -61,8 +60,6 @@ async function main(): Promise<void> {
     });
     analytics.addDependency(edge);
   }
-
-  new CogBuilderStack(basemaps, 'CogBuilder', { env: { region: BaseMapsRegion, account } });
 }
 
 main().catch((e) => {
