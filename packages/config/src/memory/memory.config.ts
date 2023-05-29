@@ -128,11 +128,13 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     const layerByName = new Map<string, ConfigLayer>();
     // Set all layers as minZoom:32
     for (const l of layers) {
-      delete l.maxZoom;
-      l.minZoom = 32;
+      const newLayer = { ...l };
+      delete newLayer.maxZoom;
+      newLayer.minZoom = 32;
       // TODO: This might overwrite the layer id for duplicated configImagery
-      if (layerByName.has(l.name)) layerByName.set(l.name, { ...layerByName.get(l.name), ...l });
-      else layerByName.set(l.name, l);
+      if (layerByName.has(newLayer.name))
+        layerByName.set(newLayer.name, { ...layerByName.get(newLayer.name), ...newLayer });
+      else layerByName.set(newLayer.name, newLayer);
     }
     const allTileset: ConfigTileSet = {
       type: TileSetType.Raster,
