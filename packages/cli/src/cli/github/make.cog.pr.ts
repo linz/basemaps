@@ -1,13 +1,25 @@
-import { ConfigLayer, ConfigTileSetRaster, ConfigTileSetVector } from '@basemaps/config';
+import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, ConfigTileSetVector } from '@basemaps/config';
 import { LogType, fsa } from '@basemaps/shared';
 import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
 import { Github } from './github.js';
+import prettier from 'prettier';
 
 export class MakeCogGithub extends Github {
   imagery: string;
   constructor(imagery: string, repo: string, logger: LogType) {
     super(repo, logger);
     this.imagery = imagery;
+  }
+
+  async formatConfigFile(tileSet: ConfigTileSet): Promise<string> {
+    const cfg = await prettier.resolveConfigFile();
+    if (cfg == null) {
+      this.logger.error('Prettier:MissingConfig');
+      return JSON.stringify(tileSet, null, 2);
+    }
+    const options = await prettier.resolveConfig(cfg);
+    const formatted = prettier.format(JSON.stringify(tileSet), { ...options, parser: 'json' });
+    return formatted;
   }
 
   /**
@@ -29,7 +41,7 @@ export class MakeCogGithub extends Github {
 
     // skip pull request if not an urban or rural imagery
     if (newTileSet == null) return;
-    await fsa.write(path, JSON.stringify(newTileSet, null, 2) + '\n');
+    await fsa.write(path, await this.formatConfigFile(newTileSet));
 
     // Commit and push the changes
     const message = `config(raster): Add imagery ${this.imagery} to ${filename} config file.`;
@@ -124,7 +136,7 @@ export class MakeCogGithub extends Github {
 
     // skip pull request if not an urban or rural imagery
     if (newTileSet == null) return;
-    await fsa.write(path, JSON.stringify(newTileSet, null, 2) + '\n');
+    await fsa.write(path, await this.formatConfigFile(newTileSet));
 
     // Commit and push the changes
     const message = `config(vector): Update the ${this.imagery} to ${filename} config file.`;
