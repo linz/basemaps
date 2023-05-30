@@ -19,6 +19,7 @@
     { "path": "./packages/lambda-analytics" },
     { "path": "./packages/attribution" },
     { "path": "./packages/landing" },
-    { "path": "./packages/server" }
+    { "path": "./packages/server" },
+    { "path": "./packages/smoke" }
   ]
 }
