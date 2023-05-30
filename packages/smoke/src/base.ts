@@ -1,4 +1,5 @@
 import { LogConfig } from '@basemaps/shared';
+import assert from 'node:assert';
 import ulid from 'ulid';
 
 const logger = LogConfig.get();
@@ -35,3 +36,10 @@ async function req(path: string, opts?: RequestInit): Promise<Response> {
 }
 
 export const ctx = { logger, host, Cors, apiKey, req };
+
+/** Validate that the response was not a cached response */
+export function assertCacheMiss(res: Response): void {
+  const cacheHeader = res.headers.get('x-cache');
+  if (cacheHeader == null) return; // No header is a miss
+  assert.equal(cacheHeader.startsWith('Miss'), true, `Should be a cache Miss ${res.headers.get('x-cache')}`);
+}
