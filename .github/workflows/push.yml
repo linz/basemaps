@@ -60,7 +60,7 @@ jobs:
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
           NODE_ENV: "dev"
 
-      - name: (NonProd) Deploy
+      - name: (NonProd) After Deploy Smoke Test
         if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
         run: |
             cd packages/smoke
