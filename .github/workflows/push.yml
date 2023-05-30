@@ -60,6 +60,12 @@ jobs:
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
           NODE_ENV: "dev"
 
+      - name: (NonProd) After Deploy Smoke Test
+        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
+        run: |
+            cd packages/smoke
+            node --test
+        
       - name: (Prod) Configure AWS Credentials
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         uses: aws-actions/configure-aws-credentials@v2.0.0
