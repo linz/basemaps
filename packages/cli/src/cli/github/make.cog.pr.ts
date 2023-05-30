@@ -11,13 +11,14 @@ export class MakeCogGithub extends Github {
     this.imagery = imagery;
   }
 
-  async formatConfigFile(tileSet: ConfigTileSet): Promise<string> {
-    const cfg = await prettier.resolveConfigFile();
+  async formatConfigFile(targetPath: string, tileSet: ConfigTileSet): Promise<string> {
+    const cfg = await prettier.resolveConfigFile(targetPath);
     if (cfg == null) {
       this.logger.error('Prettier:MissingConfig');
       return JSON.stringify(tileSet, null, 2);
     }
     const options = await prettier.resolveConfig(cfg);
+    this.logger.info({ configPath: cfg, prettierOptions: options }, 'Prettier:Config');
     const formatted = prettier.format(JSON.stringify(tileSet), { ...options, parser: 'json' });
     return formatted;
   }
@@ -35,13 +36,13 @@ export class MakeCogGithub extends Github {
 
     // Prepare new aerial tileset config
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const path = `${this.repoName}/config/tileset/${filename}.json`;
-    const tileSet = await fsa.readJson<ConfigTileSetRaster>(path);
+    const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', `${filename}.json`);
+    const tileSet = await fsa.readJson<ConfigTileSetRaster>(tileSetPath);
     const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
 
     // skip pull request if not an urban or rural imagery
     if (newTileSet == null) return;
-    await fsa.write(path, await this.formatConfigFile(newTileSet));
+    await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
 
     // Commit and push the changes
     const message = `config(raster): Add imagery ${this.imagery} to ${filename} config file.`;
@@ -130,13 +131,13 @@ export class MakeCogGithub extends Github {
 
     // Prepare new aerial tileset config
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const path = `${this.repoName}/config/tileset/${filename}.json`;
-    const tileSet = await fsa.readJson<ConfigTileSetVector>(path);
+    const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', `${filename}.json`);
+    const tileSet = await fsa.readJson<ConfigTileSetVector>(tileSetPath);
     const newTileSet = await this.prepareVectorTileSetConfig(layer, tileSet);
 
     // skip pull request if not an urban or rural imagery
     if (newTileSet == null) return;
-    await fsa.write(path, await this.formatConfigFile(newTileSet));
+    await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
 
     // Commit and push the changes
     const message = `config(vector): Update the ${this.imagery} to ${filename} config file.`;
