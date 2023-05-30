@@ -9,7 +9,7 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     steps:
-      - uses: linz/action-typescript@v2
+      - uses: linz/action-typescript@v3
 
   build-deploy:
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - uses: linz/action-typescript@v2
+      - uses: linz/action-typescript@v3
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
 
