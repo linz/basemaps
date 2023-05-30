@@ -34,7 +34,6 @@
     "entry": "src/index.ts",
     "outdir": "dist/",
     "external": [
-      "aws-sdk",
       "pino-pretty"
     ]
   }
