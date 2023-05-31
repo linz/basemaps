@@ -124,15 +124,34 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     if (allLayers.length) this.createVirtualAllTileSet(allLayers);
   }
 
+  /** Get the last id from the s3 path and compare to get the latest id based on the timestamp */
+  findLatestId(pathA: string, pathB: string): string {
+    const idA = pathA.split('/')[-1];
+    const idB = pathB.split('/')[-1];
+    const timeA = decodeTime(idA);
+    const timeB = decodeTime(idB);
+    if (timeA >= timeB) return idA;
+    else return idB;
+  }
+
   createVirtualAllTileSet(layers: ConfigLayer[]): void {
     const layerByName = new Map<string, ConfigLayer>();
     // Set all layers as minZoom:32
     for (const l of layers) {
       const newLayer = { ...l, maxZoom: undefined, minZoom: 32 };
       // TODO: This might overwrite the layer id for duplicated configImagery
-      if (layerByName.has(newLayer.name))
-        layerByName.set(newLayer.name, { ...layerByName.get(newLayer.name), ...newLayer });
-      else layerByName.set(newLayer.name, newLayer);
+      const existing = layerByName.get(newLayer.name);
+      if (existing) {
+        if (existing[2193] && newLayer[2193]) {
+          layerByName.set(newLayer.name, { ...existing, '2193': this.findLatestId(existing[2193], newLayer[2193]) });
+        } else if (existing[3857] && newLayer[3857]) {
+          layerByName.set(newLayer.name, { ...existing, '3857': this.findLatestId(existing[3857], newLayer[3857]) });
+        } else {
+          layerByName.set(newLayer.name, { ...existing, ...newLayer });
+        }
+      } else {
+        layerByName.set(newLayer.name, newLayer);
+      }
     }
     const allTileset: ConfigTileSet = {
       type: TileSetType.Raster,
