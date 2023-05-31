@@ -114,7 +114,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
           this.imageryToChildTileSet(obj, layer, EpsgCode.Google);
         }
       } else if (isConfigImagery(obj)) {
-        // TODO should this really overwrite existing tilesets
         this.put(ConfigProviderMemory.imageryToTileSet(obj));
         const tileSet = this.imageryToTileSetByName(obj);
         allLayers.push(tileSet.layers[0]);
@@ -125,13 +124,18 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   }
 
   /** Get the last id from the s3 path and compare to get the latest id based on the timestamp */
-  findLatestId(pathA: string, pathB: string): string {
-    const idA = pathA.split('/')[-1];
-    const idB = pathB.split('/')[-1];
-    const timeA = decodeTime(idA);
-    const timeB = decodeTime(idB);
-    if (timeA >= timeB) return idA;
-    else return idB;
+  findLatestId(idA: string, idB: string): string {
+    const ulidA = ConfigId.unprefix(ConfigPrefix.Imagery, idA);
+    const ulidB = ConfigId.unprefix(ConfigPrefix.Imagery, idB);
+    try {
+      const timeA = decodeTime(ulidA);
+      const timeB = decodeTime(ulidB);
+      if (timeA >= timeB) return idA;
+      else return idB;
+    } finally {
+      //If not ulid return the idB
+      return idB;
+    }
   }
 
   createVirtualAllTileSet(layers: ConfigLayer[]): void {
@@ -139,19 +143,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     // Set all layers as minZoom:32
     for (const l of layers) {
       const newLayer = { ...l, maxZoom: undefined, minZoom: 32 };
-      // TODO: This might overwrite the layer id for duplicated configImagery
-      const existing = layerByName.get(newLayer.name);
-      if (existing) {
-        if (existing[2193] && newLayer[2193]) {
-          layerByName.set(newLayer.name, { ...existing, '2193': this.findLatestId(existing[2193], newLayer[2193]) });
-        } else if (existing[3857] && newLayer[3857]) {
-          layerByName.set(newLayer.name, { ...existing, '3857': this.findLatestId(existing[3857], newLayer[3857]) });
-        } else {
-          layerByName.set(newLayer.name, { ...existing, ...newLayer });
-        }
-      } else {
-        layerByName.set(newLayer.name, newLayer);
-      }
+      layerByName.set(newLayer.name, { ...layerByName.get(l.name), ...newLayer });
     }
     const allTileset: ConfigTileSet = {
       type: TileSetType.Raster,
@@ -185,8 +177,14 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       removeUndefined(existing);
       this.put(existing);
     }
-    // TODO this overwrites existing layers
-    existing.layers[0][i.projection] = i.id;
+    // The latest imagery overwrite the earlier ones.
+    const existingImageryId = existing.layers[0][i.projection];
+    if (existingImageryId) {
+      existing.layers[0][i.projection] = this.findLatestId(existingImageryId, i.id);
+    } else {
+      existing.layers[0][i.projection] = i.id;
+    }
+
     return existing;
   }
 
