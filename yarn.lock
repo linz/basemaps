@@ -89,9 +89,9 @@
   integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
 
 "@chunkd/core@>=10.0.0", "@chunkd/core@^10.0.0", "@chunkd/core@^10.1.1", "@chunkd/core@^8.1.0", "@chunkd/core@^8.4.0":
-  version "10.1.1"
-  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-10.1.1.tgz#2f7193baba36049507354bbadc2e06717a7cca98"
-  integrity sha512-dd6+7KluZWFAa4Zzj/SQsi0WVu+I8oTlDAEYDzyyY7deYwgrHUnmtciKBL9Owc0kAChbrzzrAbZrZzqaneSStg==
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/@chunkd/core/-/core-10.3.0.tgz#1775eba69fcb2b5a87edde3d84cdb8e5dab13933"
+  integrity sha512-a284uWnisLtDbMBMRMPHWsHConhcozOUmRKhw27FXbleuvoqYAHlwE7nfSFFOg6ho1wWhbEIyVfh/nTz8kLkOA==
 
 "@chunkd/fs@^10.0.2":
   version "10.0.2"
@@ -1777,9 +1777,9 @@
   integrity sha512-AW8PKd6iX3vAZ0vA43nOUOnbq/X5ihgU+mSXXqunMkeQADGiqw/PY0JNeYtD5sr0PAy51YPgAPbDoeapv9r8WA==
 
 "@rushstack/ts-command-line@^4.3.13":
-  version "4.11.1"
-  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.11.1.tgz#10b80960ddaed685445289807c75743e4ef0b5e9"
-  integrity sha512-Xo8LaQOXlNSfp+qIuIPb1tfX7b4H21ksqiMo/HbeZI5AX1klHMqKjWcEs0AqgE9huvQj6cvnCla8Eq/GDcwMIg==
+  version "4.13.3"
+  resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.13.3.tgz#39c1cd4b0a8d86a6552a7a0635671f164a22d904"
+  integrity sha512-6aQIv/o1EgsC/+SpgUyRmzg2QIAL6sudEzw3sWzJKwWuQTc5XRsyZpyldfE7WAmIqMXDao9QG35/NYORjHm5Zw==
   dependencies:
     "@types/argparse" "1.0.38"
     argparse "~1.0.9"
