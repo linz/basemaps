@@ -1,4 +1,4 @@
-import { ConfigLayer } from '@basemaps/config';
+import { ConfigLayer, standardizeLayerName } from '@basemaps/config';
 import { LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { MakeCogGithub } from '../github/make.cog.pr.js';
@@ -92,6 +92,9 @@ export class CommandCogPullRequest extends CommandLineAction {
     } catch {
       throw new Error('Please provide a valid input layer');
     }
+
+    //Make sure the imagery name is standardized before update the config
+    layer.name = standardizeLayerName(layer.name);
 
     const git = new MakeCogGithub(layer.name, repo, logger);
     if (this.disabled.value) layer.disabled = true;
