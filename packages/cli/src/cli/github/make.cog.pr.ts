@@ -11,7 +11,7 @@ import { LogType, fsa } from '@basemaps/shared';
 import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
 import { Github } from './github.js';
 import prettier from 'prettier';
-import { TileSetConfigSchema } from '@basemaps/config/src/json/parse.tile.set.js';
+import { TileSetConfigSchema } from '@basemaps/config/build/json/parse.tile.set.js';
 
 export class MakeCogGithub extends Github {
   imagery: string;
