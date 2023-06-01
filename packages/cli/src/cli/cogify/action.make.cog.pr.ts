@@ -96,6 +96,6 @@ export class CommandCogPullRequest extends CommandLineAction {
     const git = new MakeCogGithub(layer.name, repo, logger);
     if (this.disabled.value) layer.disabled = true;
     if (this.vector.value) await git.updateVectorTileSet('topographic', layer);
-    else await git.updateRasterTileSet('aerial', layer, category);
+    else await git.updateRasterTileSet('aerial', layer, category, this.disabled.value);
   }
 }
