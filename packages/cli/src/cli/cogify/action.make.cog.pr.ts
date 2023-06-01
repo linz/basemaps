@@ -20,8 +20,8 @@ export const DefaultCategorySetting: Record<Category, CategorySetting> = {
   [Category.Urban]: { minZoom: 14 },
   [Category.Rural]: { minZoom: 13 },
   [Category.Satellite]: { minZoom: 5 },
-  [Category.Event]: { disabled: true },
-  [Category.Other]: { disabled: true },
+  [Category.Event]: { minZoom: 32 },
+  [Category.Other]: { minZoom: 32 },
 };
 
 export function parseCategory(category: string): Category {
@@ -94,7 +94,6 @@ export class CommandCogPullRequest extends CommandLineAction {
     }
 
     const git = new MakeCogGithub(layer.name, repo, logger);
-    if (this.disabled.value) layer.disabled = true;
     if (this.vector.value) await git.updateVectorTileSet('topographic', layer);
     else await git.updateRasterTileSet('aerial', layer, category, this.disabled.value);
   }
