@@ -1,0 +1,31 @@
+{
+  "name": "@basemaps/smoke",
+  "version": "6.32.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/smoke"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT",
+  "scripts": {},
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/",
+    "bin/"
+  ],
+  "dependencies": {
+    "@basemaps/shared": "^6.40.0"
+  },
+  "devDependencies": {}
+}
