@@ -1,9 +1,9 @@
-name: "Code Scanning - Action"
+name: 'Code Scanning - Action'
 
-on: 
+on:
   push:
     branches:
-    - master
+      - master
 
 jobs:
   CodeQL-Build:

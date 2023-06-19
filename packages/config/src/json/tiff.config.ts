@@ -5,13 +5,13 @@ import {
   ImageFormat,
   NamedBounds,
   Nztm2000QuadTms,
-  StacCollection,
   TileMatrixSets,
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
 import pLimit, { LimitFunction } from 'p-limit';
 import { basename, resolve } from 'path';
+import { StacCollection } from 'stac-ts';
 import { sha256base58 } from '../base58.node.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
@@ -35,6 +35,8 @@ interface TiffSummary {
   projection: number;
   /** Ground sample distance, number of meters per pixel */
   gsd: number;
+  /** STAC collection if it was found with the imagery  */
+  collection?: StacCollection;
 }
 
 export type ConfigImageryTiff = ConfigImagery & TiffSummary;
@@ -128,6 +130,7 @@ export async function imageryFromTiffPath(target: string, Q: LimitFunction, log?
       uri: resolve(target),
       bounds: params.bounds,
       files: params.files,
+      collection: stac ?? undefined,
     };
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
     log?.info({ title, files: imagery.files.length }, 'Tiff:Loaded');
