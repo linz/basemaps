@@ -3,6 +3,7 @@ import { Const, isValidApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { TileXyzGet } from '../routes/tile.xyz';
+import { hashApiKey } from '@basemaps/config';
 
 export interface TileXyz {
   tile: { x: number; y: number; z: number };
@@ -25,7 +26,8 @@ export const Validate = {
     const valid = isValidApiKey(apiKey);
 
     if (!valid.valid) throw new LambdaHttpResponse(400, 'API Key Invalid: ' + valid.message);
-    req.set('api', apiKey);
+    // Hash the API Key so we are not logging the key
+    if (apiKey) req.set('api', hashApiKey(apiKey));
     return apiKey as string;
   },
 

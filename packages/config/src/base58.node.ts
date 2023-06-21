@@ -14,3 +14,8 @@ export function ensureBase58(s: string | null): string | null {
   if (isBase58(s)) return s;
   return base58.encode(Buffer.from(s));
 }
+
+/** Hash the API key while keeping the type of the api key as prefix */
+export function hashApiKey(k: string): string {
+  return k.slice(0, 1) + sha256base58(k);
+}
