@@ -14,14 +14,3 @@ export function ensureBase58(s: string | null): string | null {
   if (isBase58(s)) return s;
   return base58.encode(Buffer.from(s));
 }
-
-/**
- * Use the first # of bytes of result for the hash length
- * Base58 encodes sha256 into 44 Bytes ~5.8 bits / byte
- * 15 characters of output is 87 bits of randomness and creates a 16 character string
- */
-const KeyHashLength = 15;
-/** Hash the API key while keeping the type of the api key as prefix */
-export function hashApiKey(k: string): string {
-  return k.slice(0, 1) + sha256base58(k).slice(0, KeyHashLength);
-}
