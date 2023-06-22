@@ -108,15 +108,6 @@ export const TileXyzRaster = {
 
     const background = tileSet.background ?? DefaultBackground;
 
-    // If no layers are used and the tile is going to be transparent
-    // return 204 no content instead of a empty image
-    if (layers.length === 0 && background.alpha === 0) {
-      const response = NoContent();
-      response.header(HttpHeader.ETag, cacheKey);
-      response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
-      return response;
-    }
-
     const res = await TileComposer.compose({
       layers,
       format: xyz.tileType,
