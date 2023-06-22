@@ -117,9 +117,12 @@ export const TileXyzRaster = {
     });
 
     // If no layers are used and the tile is going to be transparent
-    // return 204 no content instead
-    if (res.layers === 0 && layers.length === 1) {
-      if (background.alpha === 0) return NoContent();
+    // return 204 no content instead of a empty image
+    if (res.layers === 0 && background.alpha === 0) {
+      const response = NoContent();
+      response.header(HttpHeader.ETag, cacheKey);
+      response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
+      return response;
     }
 
     req.set('layersUsed', res.layers);
