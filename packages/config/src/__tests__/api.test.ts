@@ -13,7 +13,7 @@ o.spec('ApiKeyTruncate', () => {
     o(truncateApiKey(1)).equals('invalid');
   });
 
-  o('should truncate truncated', () => {
+  o('should not truncate truncated', () => {
     o(truncateApiKey('cbda80e')).equals('cbda80e');
     o(truncateApiKey('dbda80e')).equals('dbda80e');
   });
