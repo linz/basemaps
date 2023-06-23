@@ -20,6 +20,7 @@ export const TileSetAerial: ConfigTileSetRaster = {
   description: 'aerial__description',
   title: 'Aerial Imagery',
   category: 'Basemap',
+  background: { r: 0xff, g: 0x00, b: 0xff, alpha: 0.5 },
   layers: [
     {
       2193: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
