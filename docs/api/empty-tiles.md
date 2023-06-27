@@ -1,9 +1,10 @@
 # Sparse Datasets and empty tiles
 
 ## TLDR
-Basemaps should serve Transparent images for areas that do not have any data for maximum coverage of clients, once clients upgrade and fix bugs Http 204 No Content or 200 Ok with a 0 byte payload are both appropriate.
 
-Further investigation should also be done on `OATiles-hint: empty` and converting more users to TileJSON which can specify a bounding box to restrict a client to.
+Basemaps should serve Transparent images for areas that do not have any data for maximum compatibility for clients, once clients upgrade and fix bugs either `204 No Content` or `200 Ok` with a 0 byte payload are both appropriate.
+
+Further investigation should also be done on `OATiles-hint: empty` and converting more clients to TileJSON which can specify a bounding box to restrict a client requests to.
 
 # Background
 
@@ -28,9 +29,11 @@ For Mapbox vector tiles a 0 byte response either `204 No Content` or `200 Ok` bo
 Serve a valid image in the request format for example if a client requests a png serve a fully transparent PNG back to the user
 
 Pros:
+
 - ✔️ Supported Everywhere
 
 Cons:
+
 - ❌ Jpeg does not support transparency so users get a black image
 - ❌ Much larger responses 1KB vs 0 byte payload
 - ❌ Difficult to know in logs to know if imagery actually exists
@@ -40,20 +43,23 @@ Cons:
 Serve HTTP 200 Ok, With a `content-length: 0` which is a 0 byte response.
 
 Pros:
+
 - ✔️ Supported in GIS ArcGIS/QGIS
 - ✔️ Supported by ArcGIS Online, Leaflet, OpenLayers
 - ✔️ Supported by HTTP RFC "May return 0 byte 200"
 - ✔️ Recommended option from OGC Tile API
 
 Cons:
-- ❌ Not supported by maplibre
+
+- ❌ Not supported by maplibre/mapbox
 - ❌ HTTP RFC suggests that while valid servers "ought to return 204 No content"
 
 ## 204 No Content
 
-return HTTP 204 No Content with  no body
+return HTTP 204 No Content with no body
 
 Pros:
+
 - ✔️ Supported in GIS ArcGIS/QGIS
 - ✔️ Supported by LeafLet, OpenLayers
 - ✔️ Supported by HTTP RFC "ought to return 204"
@@ -66,16 +72,16 @@ Cons:
   - https://github.com/maplibre/maplibre-gl-js/pull/2325
   - https://github.com/maplibre/maplibre-gl-js/pull/1586
 - ❌ Not supported by mapbox gl
-  - https://github.com/mapbox/mapbox-gl-js/issues/9304 
+  - https://github.com/mapbox/mapbox-gl-js/issues/9304
 
 204 No content not always cached by browser
 
 ## 404 Tile Not found
+
 Return a error state saying the tile is not found
 
 - ❌ Is a error state
-- ❌ Not always Cached (leaflet ignores 404 and does not cache it)
-
+- ❌ Not always Cached, Browsers/CDN often ignore caching 404
 
 # References
 
@@ -83,5 +89,5 @@ Return a error state saying the tile is not found
 - https://github.com/opengeospatial/ogcapi-tiles/issues/21
 
 Simple proxy that converts `204 No Content` into different results.
-- https://github.com/blacha/tile-status-code
 
+- https://github.com/blacha/tile-status-code
