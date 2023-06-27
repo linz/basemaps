@@ -36,7 +36,7 @@ Cons:
 
 - ❌ Jpeg does not support transparency so users get a black image
 - ❌ Much larger responses 1KB vs 0 byte payload
-- ❌ Difficult to know in logs to know if imagery actually exists
+- ❌ Difficult to know in logs if the tile request was for a valid region
 
 ## 200 - 0 Byte
 
