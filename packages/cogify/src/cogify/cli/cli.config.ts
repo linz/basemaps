@@ -1,5 +1,5 @@
 import { ConfigProviderMemory, base58 } from '@basemaps/config';
-import { ConfigImageryTiff, initConfigFromPaths } from '@basemaps/config/build/json/tiff.config.js';
+import { ConfigImageryTiff, initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
 import { Projection, TileMatrixSets } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
@@ -30,7 +30,7 @@ export const BasemapsCogifyConfigCommand = command({
 
     const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');
-    const cfg = await initConfigFromPaths(mem, [urlToString(args.path)]);
+    const cfg = await initConfigFromUrls(mem, [args.path]);
     metrics.end('imagery:load');
     logger.info({ imagery: cfg.imagery.length, titles: cfg.imagery.map((f) => f.title) }, 'ImageryConfig:Loaded');
 
