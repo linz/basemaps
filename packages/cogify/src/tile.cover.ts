@@ -150,7 +150,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
           package: CliInfo.package,
           hash: CliInfo.hash,
           version: CliInfo.version,
-          date: cliDate,
+          datetime: cliDate,
         },
       },
       assets: {},
