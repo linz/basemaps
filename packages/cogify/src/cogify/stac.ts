@@ -60,7 +60,7 @@ export type CogifyStacItem = StacItem & {
       /** Git commit hash that the file was generated with */
       hash: string;
       /** ISO date of the time this file was generated */
-      date: string;
+      datetime: string;
       /** version of GDAL used to create the COG */
       gdal?: string;
     };
