@@ -59,4 +59,3 @@ o.spec('config import', () => {
   });
 });
 
-o.run();
