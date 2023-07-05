@@ -74,7 +74,7 @@ Cons:
 - ❌ Not supported by mapbox gl
   - https://github.com/mapbox/mapbox-gl-js/issues/9304
 
-204 No content not always cached by browser
+- Not always cached by browser
 
 ## 404 Tile Not found
 
