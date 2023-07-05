@@ -8,7 +8,7 @@ Further investigation should also be done on `OATiles-hint: empty` response head
 
 # Background
 
-LINZ has imagery datasets that are very sparse with large gaps between the sections of valid data, for example Gisborne Urban 2022-2023
+LINZ has imagery datasets which are very sparse, with large empty areas between smaller sections of valid data, for example [Gisborne Urban 2022-2023](https://basemaps.linz.govt.nz/?i=gisborne-2022-2023-0.1m).
 
 [![Gisborne 2023](./static/2023-06-26-gisborne-2023.png)](https://basemaps.linz.govt.nz/?i=gisborne-2022-2023-0.1m)
 
