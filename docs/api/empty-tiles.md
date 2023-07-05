@@ -40,7 +40,7 @@ Cons:
 
 ## 200 - 0 Byte
 
-Serve HTTP 200 Ok, With a `content-length: 0` which is a 0 byte response.
+Serve HTTP `200 Ok`, With a `content-length: 0` response header, which is a 0 byte response
 
 Pros:
 
