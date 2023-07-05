@@ -79,7 +79,7 @@ Cons:
 
 Return a error state saying the tile is not found
 
-- ❌ Is a error state
+- ❌ Is an error state
 - ❌ Not always cached: browsers / CDNs often do not cache 404 responses
 
 # References
