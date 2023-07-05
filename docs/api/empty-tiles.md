@@ -20,7 +20,7 @@ What is the best way to tell clients that the area they are requesting has no da
 
 # Response Options
 
-The server can use different responses to clients to signal that there is no data, the following section is specifically for imagery responses PNG, Jpeg and WebP.
+A server can return different responses to clients to signal that there is no data. The following section is specifically for WebP, JPEG and PNG imagery tiles returned from a tile server.
 
 For Mapbox vector tiles a 0 byte response either `204 No Content` or `200 Ok` both works as a 0 byte vector tile is a valid vector tile.
 
