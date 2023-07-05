@@ -12,7 +12,7 @@ LINZ has imagery datasets that are very sparse with large gaps between the secti
 
 [![Gisborne 2023](./static/2023-06-26-gisborne-2023.png)](https://basemaps.linz.govt.nz/?i=gisborne-2022-2023-0.1m)
 
-Even when providing a bounding box for the imagery there are a huge amount of empty areas.
+Even when providing a bounding box for the imagery, there is still a very large amount of empty space, which results in a large number of empty tiles being served.
 
 # Question
 
