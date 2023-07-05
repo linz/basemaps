@@ -73,7 +73,6 @@ Cons:
   - https://github.com/maplibre/maplibre-gl-js/pull/1586
 - ❌ Not supported by mapbox gl
   - https://github.com/mapbox/mapbox-gl-js/issues/9304
-
 - Not always cached by browser
 
 ## 404 Tile Not found
