@@ -22,7 +22,7 @@ What is the best way to tell clients that the area they are requesting has no da
 
 A server can return different responses to clients to signal that there is no data. The following section is specifically for WebP, JPEG and PNG imagery tiles returned from a tile server.
 
-For Mapbox vector tiles a 0 byte response either `204 No Content` or `200 Ok` both works as a 0 byte vector tile is a valid vector tile.
+For Mapbox Vector Tiles, a 0 byte response of either `204 No Content` or `200 Ok` works in clients as a 0 byte vector tile is a valid vector tile.
 
 ## 200 Transparent Image
 
