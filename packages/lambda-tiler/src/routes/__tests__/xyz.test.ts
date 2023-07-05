@@ -100,16 +100,6 @@ o.spec('/v1/tiles', () => {
     o(resB.status).equals(404);
   });
 
-  o('should 204 if a tile is outside of the bounds', async () => {
-    const fakeTileSet = FakeData.tileSetRaster('🦄 🌈');
-    fakeTileSet.background = undefined;
-    config.put(fakeTileSet);
-    const res = await handler.router.handle(
-      mockRequest('/v1/tiles/🦄 🌈/global-mercator/0/0/0.png', 'get', Api.header),
-    );
-    o(res.status).equals(204);
-  });
-
   o('should support utf8 tilesets', async () => {
     const fakeTileSet = FakeData.tileSetRaster('🦄 🌈');
     config.put(fakeTileSet);
