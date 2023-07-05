@@ -58,4 +58,3 @@ o.spec('config import', () => {
     o(ret.tileSet.layers[1].name).equals(ret.imagery[1].name);
   });
 });
-
