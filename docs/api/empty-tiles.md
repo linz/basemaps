@@ -30,7 +30,7 @@ Serve a valid image in the request format (e.g. WebP, JPEG, or PNG). For example
 
 Pros:
 
-- ✔️ Supported Everywhere
+- ✔️ Supported everywhere
 
 Cons:
 
