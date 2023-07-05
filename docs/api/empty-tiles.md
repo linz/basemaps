@@ -44,7 +44,7 @@ Serve HTTP `200 Ok`, With a `content-length: 0` response header, which is a 0 by
 
 Pros:
 
-- ✔️ Supported in GIS ArcGIS/QGIS
+- ✔️ Supported in ArcGIS Pro and QGIS
 - ✔️ Supported by ArcGIS Online, Leaflet, OpenLayers
 - ✔️ Supported by HTTP RFC "May return 0 byte 200"
 - ✔️ Recommended option from OGC Tile API
