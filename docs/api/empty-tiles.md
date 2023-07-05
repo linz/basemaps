@@ -2,7 +2,7 @@
 
 ## TLDR
 
-Basemaps should serve Transparent images for areas that do not have any data for maximum compatibility for clients, once clients upgrade and fix bugs either `204 No Content` or `200 Ok` with a 0 byte payload are both appropriate.
+Basemaps should continue to serve transparent images for areas which do not have any data, for maximum compatibility with clients. Once clients upgrade and fix bugs, either HTTP `204 No Content` or HTTP `200 Ok` with a 0 byte payload responses would be preferable.
 
 Further investigation should also be done on `OATiles-hint: empty` and converting more clients to TileJSON which can specify a bounding box to restrict a client requests to.
 
