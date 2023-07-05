@@ -52,7 +52,7 @@ Pros:
 Cons:
 
 - ❌ Not supported by maplibre/mapbox
-- ❌ HTTP RFC suggests that while valid servers "ought to return 204 No content"
+- ❌ [HTTP RFC](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok) suggests that while valid, servers "ought to return 204 No content"
 
 ## 204 No Content
 
