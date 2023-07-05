@@ -34,7 +34,7 @@ Pros:
 
 Cons:
 
-- ❌ Jpeg does not support transparency so users get a black image
+- ❌ JPEG does not support transparency, so users get a black image
 - ❌ Much larger responses 1KB vs 0 byte payload
 - ❌ Difficult to know in logs if the tile request was for a valid region
 
