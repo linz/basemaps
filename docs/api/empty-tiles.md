@@ -45,8 +45,8 @@ Serve HTTP `200 Ok`, With a `content-length: 0` response header, which is a 0 by
 Pros:
 
 - ✔️ Supported in ArcGIS Pro and QGIS
-- ✔️ Supported by ArcGIS Online, Leaflet, OpenLayers
-- ✔️ Supported by HTTP RFC "May return 0 byte 200"
+- ✔️ Supported by ArcGIS Online, Leaflet, and OpenLayers
+- ✔️ Supported by [HTTP RFC](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok), which allows 0 byte `200 Ok` responses as long as the message framing indicates this (via `Content-length=0` response header
 - ✔️ Recommended option from OGC Tile API
 
 Cons:
@@ -60,8 +60,8 @@ Return HTTP `204 No Content`, with no body
 
 Pros:
 
-- ✔️ Supported in GIS ArcGIS/QGIS
-- ✔️ Supported by LeafLet, OpenLayers
+- ✔️ Supported in ArcGIS Pro and QGIS
+- ✔️ Supported by Leaflet and OpenLayers
 - ✔️ Supported by [HTTP RFC](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok):  "server ought to return 204 No content"
 - ✔️ Recommended option from OGC Tile API
 
