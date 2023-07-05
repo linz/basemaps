@@ -10,7 +10,7 @@ import pLimit from 'p-limit';
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { filterLayers } from '../util/filter.js';
-import { NoContent, NotFound, NotModified } from '../util/response.js';
+import { NotFound, NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
 import { TileXyz } from '../util/validate.js';
 
@@ -106,24 +106,13 @@ export const TileXyzRaster = {
     const tiler = new Tiler(xyz.tileMatrix);
     const layers = await tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z);
 
-    const background = tileSet.background ?? DefaultBackground;
-
     const res = await TileComposer.compose({
       layers,
       format: xyz.tileType,
-      background,
+      background: tileSet.background ?? DefaultBackground,
       resizeKernel: tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
     });
-
-    // If no layers are used and the tile is going to be transparent
-    // return 204 no content instead of a empty image
-    if (res.layers === 0 && background.alpha === 0) {
-      const response = NoContent();
-      response.header(HttpHeader.ETag, cacheKey);
-      response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
-      return response;
-    }
 
     req.set('layersUsed', res.layers);
     req.set('bytes', res.buffer.byteLength);
