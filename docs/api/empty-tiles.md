@@ -56,7 +56,7 @@ Cons:
 
 ## 204 No Content
 
-return HTTP 204 No Content with no body
+Return HTTP `204 No Content`, with no body
 
 Pros:
 
