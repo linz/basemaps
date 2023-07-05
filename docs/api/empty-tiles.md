@@ -62,7 +62,7 @@ Pros:
 
 - ✔️ Supported in GIS ArcGIS/QGIS
 - ✔️ Supported by LeafLet, OpenLayers
-- ✔️ Supported by HTTP RFC "ought to return 204"
+- ✔️ Supported by [HTTP RFC](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok):  "server ought to return 204 No content"
 - ✔️ Recommended option from OGC Tile API
 
 Cons:
