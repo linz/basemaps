@@ -26,7 +26,7 @@ For Mapbox Vector Tiles, a 0 byte response of either `204 No Content` or `200 Ok
 
 ## 200 Transparent Image
 
-Serve a valid image in the request format for example if a client requests a png serve a fully transparent PNG back to the user
+Serve a valid image in the request format (e.g. WebP, JPEG, or PNG). For example if a client requests a PNG, serve a fully transparent PNG tile.
 
 Pros:
 
