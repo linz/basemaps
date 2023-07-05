@@ -16,7 +16,7 @@ Even when providing a bounding box for the imagery, there is still a very large 
 
 # Question
 
-What is the best way to tell clients that the area they are requesting has no data.
+What is the best way to tell clients that the area they are requesting has no data?
 
 # Response Options
 
