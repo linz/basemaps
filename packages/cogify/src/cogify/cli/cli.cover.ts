@@ -4,13 +4,14 @@ import { GoogleTms, Nztm2000QuadTms, TileId } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
-import { command, number, option, optional, restPositionals, string } from 'cmd-ts';
+import { command, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 import { isArgo } from '../../argo.js';
 import { CutlineOptimizer } from '../../cutline.js';
 import { getLogger, logArguments } from '../../log.js';
 import { TileCoverContext, createTileCover } from '../../tile.cover.js';
 import { createFileStats } from '../stac.js';
 import { Url } from '../parsers.js';
+import { Presets } from '../../preset.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
@@ -29,6 +30,13 @@ export const BasemapsCogifyCoverCommand = command({
       defaultValue: () => 20,
     }),
     paths: restPositionals({ type: Url, displayName: 'path', description: 'Path to source imagery' }),
+    preset: option({
+      type: oneOf(Object.keys(Presets)),
+      long: 'preset',
+      description: 'GDAL compression preset',
+      defaultValue: () => 'webp',
+      defaultValueIsSerializable: true,
+    }),
     tileMatrix: option({
       type: string,
       long: 'tile-matrix',
@@ -62,6 +70,7 @@ export const BasemapsCogifyCoverCommand = command({
       logger,
       metrics,
       cutline,
+      preset: args.preset,
     };
 
     const res = await createTileCover(ctx);

@@ -6,7 +6,6 @@ import { MultiPolygon, intersection, toFeatureCollection, union } from '@linzjs/
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 import { createCovering } from './cogify/covering.js';
-import { CogifyDefaults } from './cogify/gdal.js';
 import {
   CogifyLinkCutline,
   CogifyLinkSource,
@@ -15,6 +14,7 @@ import {
   createFileStats,
 } from './cogify/stac.js';
 import { CutlineOptimizer } from './cutline.js';
+import { Presets } from './preset.js';
 
 export interface TileCoverContext {
   /** Unique id for the covering */
@@ -29,6 +29,8 @@ export interface TileCoverContext {
   metrics?: Metrics;
   /** Optional logger to trace covering creation */
   logger?: LogType;
+  /** GDAL configuration preset */
+  preset: string;
 }
 export interface TileCoverResult {
   /** Stac collection for the imagery */
@@ -136,15 +138,12 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
         end_datetime: dateTime.end ?? undefined,
         'proj:epsg': ctx.tileMatrix.projection.code,
         'linz_basemaps:options': {
+          preset: ctx.preset,
+          ...Presets[ctx.preset].options,
           tile,
           tileMatrix: ctx.tileMatrix.identifier,
           sourceEpsg: ctx.imagery.projection,
-          blockSize: CogifyDefaults.blockSize,
-          compression: CogifyDefaults.compression,
-          quality: CogifyDefaults.quality,
           zoomLevel: targetBaseZoom,
-          warpResampling: CogifyDefaults.warpResampling,
-          overviewResampling: CogifyDefaults.overviewResampling,
         },
         'linz_basemaps:generated': {
           package: CliInfo.package,

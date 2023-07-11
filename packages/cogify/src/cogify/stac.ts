@@ -3,6 +3,9 @@ import { createHash } from 'node:crypto';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 
 export interface CogifyCreationOptions {
+  /** Preset GDAL config to use */
+  preset: string;
+
   /** Tile to be created */
   tile: Tile;
 
@@ -16,7 +19,7 @@ export interface CogifyCreationOptions {
    *
    * @default 'webp'
    */
-  compression?: 'webp' | 'jpeg';
+  compression?: 'webp' | 'jpeg' | 'lerc';
 
   /**
    * Output tile size
@@ -34,6 +37,9 @@ export interface CogifyCreationOptions {
    * @default 90
    */
   quality?: number;
+
+  /** Max Z Error only used when compression is `lerc` */
+  maxZError?: number;
 
   /**
    * Resampling for warping

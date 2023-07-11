@@ -54,7 +54,7 @@ export class SourceDownloader {
     if (asset.asset == null) return false;
     // No more items need this asset, clean it up
     const targetFile = await asset.asset;
-    logger.info({ source: asset.url, target: targetFile }, 'Cog:Source:Cleanup');
+    logger.debug({ source: asset.url, target: targetFile }, 'Cog:Source:Cleanup');
     await fsa.delete(targetFile);
     return true;
   }
@@ -100,7 +100,7 @@ export class SourceDownloader {
       const targetFile = fsa.joinAll(this.cachePath, 'source', newFileName);
 
       await this._checkHost(asset.url);
-      logger.debug({ source: asset.url, target: targetFile }, 'Cog:Source:Download');
+      logger.trace({ source: asset.url, target: targetFile }, 'Cog:Source:Download');
       const hashStream = fsa.stream(urlToString(asset.url)).pipe(new HashTransform('sha256'));
       const startTime = performance.now();
       await fsa.write(targetFile, hashStream);
