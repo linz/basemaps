@@ -1,5 +1,5 @@
 import { ConfigProviderMemory } from '@basemaps/config';
-import { initConfigFromPaths } from '@basemaps/config/build/json/tiff.config.js';
+import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
 import { GoogleTms, Nztm2000QuadTms, TileId } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
@@ -10,6 +10,7 @@ import { CutlineOptimizer } from '../../cutline.js';
 import { getLogger, logArguments } from '../../log.js';
 import { TileCoverContext, createTileCover } from '../../tile.cover.js';
 import { createFileStats } from '../stac.js';
+import { Url } from '../parsers.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
@@ -27,7 +28,7 @@ export const BasemapsCogifyCoverCommand = command({
       description: 'Cutline blend amount see GDAL_TRANSLATE -cblend',
       defaultValue: () => 20,
     }),
-    paths: restPositionals({ type: string, displayName: 'path', description: 'Path to source imagery' }),
+    paths: restPositionals({ type: Url, displayName: 'path', description: 'Path to source imagery' }),
     tileMatrix: option({
       type: string,
       long: 'tile-matrix',
@@ -40,7 +41,7 @@ export const BasemapsCogifyCoverCommand = command({
 
     const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');
-    const cfg = await initConfigFromPaths(mem, args.paths);
+    const cfg = await initConfigFromUrls(mem, args.paths);
     const imageryLoadTime = metrics.end('imagery:load');
     if (cfg.imagery.length === 0) throw new Error('No imagery found');
     const im = cfg.imagery[0];

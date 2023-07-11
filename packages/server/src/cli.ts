@@ -1,11 +1,25 @@
 import { Env, LogConfig } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { command, flag, number, option, optional, restPositionals, string } from 'cmd-ts';
+import { Type, command, flag, number, option, optional, restPositionals, string } from 'cmd-ts';
+import { pathToFileURL } from 'node:url';
 import { createServer } from './server.js';
 
 CliInfo.package = 'basemaps/server';
 
 const DefaultPort = 5000;
+/**
+ * Parse a input parameter as a URL,
+ * if it looks like a file path convert it using `pathToFileURL`
+ **/
+export const Url: Type<string, URL> = {
+  async from(str) {
+    try {
+      return new URL(str);
+    } catch (e) {
+      return pathToFileURL(str);
+    }
+  },
+};
 
 export const BasemapsServerCommand = command({
   name: 'basemaps-server',
@@ -26,7 +40,7 @@ export const BasemapsServerCommand = command({
       long: 'assets',
       description: 'Where the assets (sprites, fonts) are located',
     }),
-    paths: restPositionals({ type: string, displayName: 'path', description: 'Path to imagery' }),
+    paths: restPositionals({ type: Url, displayName: 'path', description: 'Path to imagery' }),
   },
   handler: async (args) => {
     const logger = LogConfig.get();

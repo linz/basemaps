@@ -10,8 +10,6 @@ export const Url: Type<string, URL> = {
     try {
       return new URL(str);
     } catch (e) {
-      // Possibly already a URL
-      if (str.includes(':')) throw e;
       return pathToFileURL(str);
     }
   },
