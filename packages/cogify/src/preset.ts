@@ -24,8 +24,8 @@ const webP: Preset = {
   },
 };
 
-const lerc1cm: Preset = {
-  name: 'lerc_0.01',
+const lerc10mm: Preset = {
+  name: 'lerc_10mm',
   options: {
     blockSize: CogifyDefaults.blockSize,
     compression: 'lerc',
@@ -37,7 +37,7 @@ const lerc1cm: Preset = {
 };
 
 const lerc1mm: Preset = {
-  name: 'lerc_0.01',
+  name: 'lerc_1mm',
   options: {
     blockSize: CogifyDefaults.blockSize,
     compression: 'lerc',
@@ -48,4 +48,4 @@ const lerc1mm: Preset = {
   },
 };
 
-export const Presets = { [webP.name]: webP, [lerc1cm.name]: lerc1cm, [lerc1mm.name]: lerc1mm };
+export const Presets = { [webP.name]: webP, [lerc10mm.name]: lerc10mm, [lerc1mm.name]: lerc1mm };
