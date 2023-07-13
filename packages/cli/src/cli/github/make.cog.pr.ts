@@ -2,7 +2,7 @@ import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, ConfigTileSetVector } 
 import { LogType, fsa } from '@basemaps/shared';
 import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
 import { Github } from './github.js';
-import prettier from 'prettier/index.js';
+import prettier from 'prettier';
 
 export class MakeCogGithub extends Github {
   imagery: string;
