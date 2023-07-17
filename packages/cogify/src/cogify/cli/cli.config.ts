@@ -16,9 +16,9 @@ export const BasemapsCogifyConfigCommand = command({
   description: 'Create a Basemaps configuration from a path to imagery',
   args: {
     ...logArguments,
-    output: option({
+    target: option({
       type: optional(Url),
-      long: 'output',
+      long: 'target',
       description: 'Where to write the config json, Defaults to imagery path',
     }),
     path: positional({ type: Url, displayName: 'path', description: 'Path to imagery' }),
@@ -35,7 +35,7 @@ export const BasemapsCogifyConfigCommand = command({
     logger.info({ imagery: cfg.imagery.length, titles: cfg.imagery.map((f) => f.title) }, 'ImageryConfig:Loaded');
 
     const config = mem.toJson();
-    const outputPath = urlToString(new URL(`basemaps-config-${config.hash}.json.gz`, args.output ?? args.path));
+    const outputPath = urlToString(new URL(`basemaps-config-${config.hash}.json.gz`, args.target ?? args.path));
 
     logger.info({ output: outputPath, hash: config.hash }, 'ImageryConfig:Write');
     await fsa.writeJson(outputPath, config);
@@ -44,7 +44,7 @@ export const BasemapsCogifyConfigCommand = command({
     const outputUrls: string[] = [];
     for (const im of cfg.imagery) {
       const location = getImageryCenterZoom(im);
-      const locationHash = `#@${location.lon.toFixed(6)},${location.lat.toFixed(6)},z${location.zoom}`;
+      const locationHash = `#@${location.lat.toFixed(7)},${location.lon.toFixed(7)},z${location.zoom}`;
       const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${im.name}&tileMatrix=${im.tileMatrix}&debug${locationHash}`;
       outputUrls.push(url);
       logger.info(
