@@ -36,8 +36,10 @@ interface TiffSummary {
   projection: number;
   /** Ground sample distance, number of meters per pixel */
   gsd: number;
-  /** STAC collection if it was found with the imagery  */
+  /** STAC collection if it was found with the imagery */
   collection?: StacCollection;
+  /** URL to the base of the imagery */
+  url: string;
 }
 
 export type ConfigImageryTiff = ConfigImagery & TiffSummary;
@@ -150,6 +152,7 @@ export async function imageryFromTiffUrl(target: URL, Q: LimitFunction, log?: Lo
       tileMatrix: tileMatrix?.identifier ?? 'none',
       gsd: params.gsd,
       uri: targetPath,
+      url: target.href,
       bounds: params.bounds,
       files: params.files,
       collection: stac ?? undefined,

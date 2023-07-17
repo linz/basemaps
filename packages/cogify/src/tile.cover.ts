@@ -158,7 +158,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     // Add the source imagery as a STAC Link
     for (const src of source) {
       const srcLink: CogifyLinkSource = {
-        href: src.name,
+        href: new URL(src.name, ctx.imagery.url).href,
         rel: 'linz_basemaps:source',
         type: 'image/tiff; application=geotiff;',
       };
