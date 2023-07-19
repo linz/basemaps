@@ -3,7 +3,7 @@ import { LogType, fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { CogTiff, TiffTag } from '@cogeotiff/core';
 import { Metrics } from '@linzjs/metrics';
-import { command, flag, restPositionals } from 'cmd-ts';
+import { command, flag, option, optional, restPositionals } from 'cmd-ts';
 import { mkdir, rm } from 'fs/promises';
 import { tmpdir } from 'os';
 import { StacAsset, StacCollection } from 'stac-ts';
@@ -13,7 +13,7 @@ import { HashTransform } from '../../hash.stream.js';
 import { getLogger, logArguments } from '../../log.js';
 import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.command.js';
 import { GdalRunner } from '../gdal.runner.js';
-import { Url } from '../parsers.js';
+import { Url, UrlArrayJsonFile } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 
 // FIXME: HACK @cogeotiff/core to include the Lerc tiff tag
@@ -61,15 +61,24 @@ export const BasemapsCogifyCreateCommand = command({
   description: 'Create a COG from a covering configuration',
   args: {
     ...logArguments,
-    path: restPositionals({ type: Url, displayName: 'path', description: 'Path to item json' }),
+    path: restPositionals({ type: Url, displayName: 'path', description: 'Path to covering configuration' }),
     force: flag({ long: 'force', description: 'Overwrite existing tiff files' }),
+    fromFile: option({
+      type: optional(UrlArrayJsonFile),
+      long: 'from-file',
+      description:
+        'Path to JSON file containing array of paths to covering configurations. ' +
+        'File must be an array of objects with key "path" and value of a path to a covering configuration.',
+    }),
   },
 
   async handler(args) {
     const metrics = new Metrics();
     const logger = getLogger(this, args);
 
-    const toCreate = await Promise.all(args.path.map(async (p) => loadItem(p, logger)));
+    const paths = args.fromFile != null ? args.path.concat(args.fromFile) : args.path;
+
+    const toCreate = await Promise.all(paths.map(async (p) => loadItem(p, logger)));
     // // Filter out any missing items, also excluding items which already have COGs created
     const filtered = toCreate.filter((f) => {
       if (f == null) return false;
