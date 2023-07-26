@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* **config:** allow initializing config from URLs ([#2830](https://github.com/linz/basemaps/issues/2830)) ([0ea552e](https://github.com/linz/basemaps/commit/0ea552ec32ad723f98c96d533f18a8afc51d9657))
+* truncate the api key when logging ([#2828](https://github.com/linz/basemaps/issues/2828)) ([3396593](https://github.com/linz/basemaps/commit/33965937fdc6cce4bc50b5ed41616a65c830ec6f))
+
+
+### Features
+
+* **lambda-tiler:** return 204 no content instead of a empty images ([#2829](https://github.com/linz/basemaps/issues/2829)) ([db3ff1b](https://github.com/linz/basemaps/commit/db3ff1b09f849a26d7287925c7b57d71e1fa6d76))
+* upgrade lambdas to nodejs 18 ([#2639](https://github.com/linz/basemaps/issues/2639)) ([17471e1](https://github.com/linz/basemaps/commit/17471e1d56fbe17b695e4a49b1fbe55ece215596))
+* **cogify:** retile imagery into COGS aligned to a tile matrix ([#2759](https://github.com/linz/basemaps/issues/2759)) ([ddd99d3](https://github.com/linz/basemaps/commit/ddd99d3548c65ec4ce5b7c608d6bf9360f053635))
+* **lambda-tiler:** Include the disabled layers in the attribution with minZoom of 32. ([#2746](https://github.com/linz/basemaps/issues/2746)) ([d87e8dd](https://github.com/linz/basemaps/commit/d87e8dd1a0c24d511fc786078111fadc752bc4ab))
+* **lambda-tiler:** Refactoring the wmts Capablity to builder interface. ([#2686](https://github.com/linz/basemaps/issues/2686)) ([4d223b6](https://github.com/linz/basemaps/commit/4d223b6b02675a271d1393ff4c6d0e7f8348084b))
+* **landing:** Update the daterange slider to years button. ([#2764](https://github.com/linz/basemaps/issues/2764)) ([ef93543](https://github.com/linz/basemaps/commit/ef935433df6065f4baeb458b3c8a9efec06621fa))
+
+
+### Reverts
+
+* Revert "feat(lambda-tiler): return 204 no content instead of a empty images (#2829)" (#2836) ([f1ed481](https://github.com/linz/basemaps/commit/f1ed481db08702189f169e745bf0ff7dad697175)), closes [#2829](https://github.com/linz/basemaps/issues/2829) [#2836](https://github.com/linz/basemaps/issues/2836)
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

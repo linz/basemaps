@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* **sprites:** correct imports for node12 ([#2749](https://github.com/linz/basemaps/issues/2749)) ([73d4d22](https://github.com/linz/basemaps/commit/73d4d228f44d3ca77d144e9562d220b0c691ab3f))
+
+
+### Features
+
+* **sprites:** support non svg sprites ([#2736](https://github.com/linz/basemaps/issues/2736)) ([37fcc19](https://github.com/linz/basemaps/commit/37fcc19969995d329243cd1fdb790b60c6debdcf))
+
+
+
+
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/sprites
