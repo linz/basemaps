@@ -2,11 +2,12 @@ import {
   base58,
   ConfigImagery,
   ConfigJson,
+  ConfigLayer,
   ConfigProviderMemory,
   ConfigTileSetRaster,
   TileSetType,
 } from '@basemaps/config';
-import { Bounds, ImageFormat, Nztm2000QuadTms, Projection } from '@basemaps/geo';
+import { Bounds, GoogleTms, ImageFormat, Nztm2000QuadTms, Projection } from '@basemaps/geo';
 import { fsa, LogConfig } from '@basemaps/shared';
 import { CogTiff } from '@cogeotiff/core';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
@@ -75,16 +76,22 @@ export class CommandImageryConfig extends CommandLineAction {
     logger.info({ path }, 'ImageryConfig:CreateConfig');
     let bounds = null;
     let gsd = null;
+    let tileMatrix = null;
     const files = [];
     for (const tif of tiffs) {
       await tif.getImage(0).loadGeoTiffTags();
-      if (tif.getImage(0).epsg !== Nztm2000QuadTms.projection.code) throw new Error('Imagery is not NZTM Projection.');
+      if (tif.getImage(0).epsg === Nztm2000QuadTms.projection.code) {
+        tileMatrix = Nztm2000QuadTms;
+      } else if (tif.getImage(0).epsg === GoogleTms.projection.code) {
+        tileMatrix = GoogleTms;
+      } else throw new Error('Imagery is not Valid Projection.');
       const imgBounds = Bounds.fromBbox(tif.getImage(0).bbox);
       if (gsd == null) gsd = tif.getImage(0).resolution[0];
       if (bounds == null) bounds = imgBounds;
       else bounds = bounds.union(imgBounds);
       files.push({ name: tif.source.uri.replace(path, ''), ...imgBounds });
     }
+    if (tileMatrix == null) throw new Error('Imagery projection is not supported');
     if (bounds == null) throw new Error('Failed to extract imagery bounds');
 
     const provider = new ConfigProviderMemory();
@@ -99,8 +106,8 @@ export class CommandImageryConfig extends CommandLineAction {
       name: nameImageryTitle(title),
       title,
       updatedAt: Date.now(),
-      projection: Nztm2000QuadTms.projection.code,
-      tileMatrix: Nztm2000QuadTms.identifier,
+      projection: tileMatrix.projection.code,
+      tileMatrix: tileMatrix.identifier,
       uri: path,
       bounds: bounds.toJson(),
       files,
@@ -109,6 +116,13 @@ export class CommandImageryConfig extends CommandLineAction {
 
     provider.put(imagery);
 
+    const layers: ConfigLayer[] = [];
+    if (tileMatrix.identifier === 'NZTM2000Quad') {
+      layers.push({ 2193: imagery.id, name: imagery.name, title: imagery.title });
+    } else if (tileMatrix.identifier === 'WebMercatorQuad') {
+      layers.push({ 3857: imagery.id, name: imagery.name, title: imagery.title });
+    }
+
     const aerialTileSet: ConfigTileSetRaster = {
       id: 'ts_aerial',
       name: 'aerial',
@@ -116,7 +130,7 @@ export class CommandImageryConfig extends CommandLineAction {
       category: 'Basemaps',
       type: TileSetType.Raster,
       format: ImageFormat.Webp,
-      layers: [{ 2193: imagery.id, name: imagery.name, title: imagery.title }],
+      layers,
     };
     provider.put(aerialTileSet);
     const tileSet = provider.imageryToTileSetByName(imagery);
@@ -125,9 +139,9 @@ export class CommandImageryConfig extends CommandLineAction {
     let location = '';
     if (bounds && gsd) {
       const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
-      const proj = Projection.get(Nztm2000QuadTms);
+      const proj = Projection.get(tileMatrix);
       const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
-      const targetZoom = Math.max(Nztm2000QuadTms.findBestZoom(gsd) - 12, 0);
+      const targetZoom = Math.max(tileMatrix.findBestZoom(gsd) - 12, 0);
       location = `#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`;
     }
 
@@ -137,9 +151,9 @@ export class CommandImageryConfig extends CommandLineAction {
       const outputPath = fsa.join(path, `basemaps-config-${configJson.hash}.json.gz`);
       await fsa.writeJson(outputPath, configJson);
       const configPath = base58.encode(Buffer.from(outputPath));
-      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${tileSet.name}&tileMatrix=NZTM2000Quad&debug${location}`;
+      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${tileSet.name}&tileMatrix=${tileMatrix.identifier}&debug${location}`;
       logger.info(
-        { path: output, url, tileMatrix: Nztm2000QuadTms.identifier, config: configPath, title },
+        { path: output, url, tileMatrix: tileMatrix.identifier, config: configPath, title },
         'ImageryConfig:Done',
       );
       if (output != null) await fsa.write(output, url);
