@@ -47,7 +47,7 @@
     "@basemaps/landing": "^6.41.0"
   },
   "dependencies": {
-    "sharp": "^0.30.7"
+    "sharp": "^0.32.4"
   },
   "devDependencies": {
     "@basemaps/config": "^6.41.0",
