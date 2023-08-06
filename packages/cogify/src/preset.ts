@@ -27,24 +27,22 @@ const webP: Preset = {
 const lerc10mm: Preset = {
   name: 'lerc_10mm',
   options: {
-    blockSize: CogifyDefaults.blockSize,
+    blockSize: 512,
     compression: 'lerc',
     maxZError: 0.01,
-    // TODO should a different resampling be used for LERC?
-    warpResampling: CogifyDefaults.warpResampling,
-    overviewResampling: CogifyDefaults.overviewResampling,
+    warpResampling: 'bilinear',
+    overviewResampling: 'bilinear',
   },
 };
 
 const lerc1mm: Preset = {
   name: 'lerc_1mm',
   options: {
-    blockSize: CogifyDefaults.blockSize,
+    blockSize: 512,
     compression: 'lerc',
     maxZError: 0.001,
-    // TODO should a different resampling be used for LERC?
-    warpResampling: CogifyDefaults.warpResampling,
-    overviewResampling: CogifyDefaults.overviewResampling,
+    warpResampling: 'bilinear',
+    overviewResampling: 'bilinear',
   },
 };
 
