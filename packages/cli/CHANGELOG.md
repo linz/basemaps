@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.42.0](https://github.com/linz/basemaps/compare/v6.41.0...v6.42.0) (2023-08-06)
+
+
+### Features
+
+* **cli:** ensure the layer name been standardized before creating pull request. BM-827 ([#2808](https://github.com/linz/basemaps/issues/2808)) ([35e22fa](https://github.com/linz/basemaps/commit/35e22fad527a1d17e8985dbbcbc3f9f10747bf09))
+
+
+
+
+
 # [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
 
 
