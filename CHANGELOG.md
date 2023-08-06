@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.42.1](https://github.com/linz/basemaps/compare/v6.42.0...v6.42.1) (2023-08-06)
+
+
+### Bug Fixes
+
+* **cogify:** lerc should be using bilinear resampling ([#2870](https://github.com/linz/basemaps/issues/2870)) ([5dfab8c](https://github.com/linz/basemaps/commit/5dfab8c4ae6928cdaf4932136d125b1c22867564))
+* remove split.io as it is not used ([#2869](https://github.com/linz/basemaps/issues/2869)) ([df4ac6c](https://github.com/linz/basemaps/commit/df4ac6cfd4bdcba0888aab2c201197aa8df83b2e))
+
+
+
+
+
 # [6.42.0](https://github.com/linz/basemaps/compare/v6.41.0...v6.42.0) (2023-08-06)
 
 
