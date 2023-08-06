@@ -181,19 +181,12 @@ export class TileMakerSharp implements TileMaker {
 
     if (crop) sharp.extract({ top: crop.y, left: crop.x, width: crop.width, height: crop.height });
 
-    const width = crop?.width ?? resize?.width ?? extract?.width ?? 256;
-    const height = crop?.height ?? resize?.height ?? extract?.height ?? 256;
-    const buf = await sharp.raw().toBuffer();
-    const channels = (buf.length / (width * height)) as 1 | 2 | 3 | 4;
+    const ret = await sharp.raw().toBuffer({ resolveWithObject: true });
     return {
-      input: buf,
+      input: ret.data,
       top: comp.y,
       left: comp.x,
-      raw: {
-        width,
-        height,
-        channels,
-      },
+      raw: ret.info,
     };
   }
 
