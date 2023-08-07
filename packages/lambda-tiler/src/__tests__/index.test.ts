@@ -9,11 +9,10 @@ o.spec('LambdaXyz index', () => {
   });
 
   o.spec('version', () => {
-    const origVersion: any = process.env.GIT_VERSION;
-    const origHash: any = process.env.GIT_HASH;
-    o.after(() => {
-      process.env.GIT_VERSION = origVersion;
-      process.env.GIT_HASH = origHash;
+    o.afterEach(() => {
+      delete process.env.GIT_VERSION;
+      delete process.env.GIT_HASH;
+      delete process.env.BUILD_ID;
     });
 
     o('should return version', async () => {
@@ -29,6 +28,23 @@ o.spec('LambdaXyz index', () => {
         version: '1.2.3',
         hash: 'abc456',
       });
+    });
+
+    o('should include buildId if exists', async () => {
+      process.env.GIT_VERSION = '1.2.3';
+      process.env.BUILD_ID = '1658821493-3';
+
+      const response = await handler.router.handle(mockRequest('/v1/version'));
+
+      const body = JSON.parse(response.body as string);
+      o(response.status).equals(200);
+      o(response.statusDescription).equals('ok');
+      o(response.header('cache-control')).equals('no-store');
+      o(body).deepEquals({
+        version: '1.2.3',
+        buildId: '1658821493-3',
+      });
+      console.log({ body });
     });
   });
 
