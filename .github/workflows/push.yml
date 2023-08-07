@@ -80,8 +80,6 @@ jobs:
       - name: (NonProd) Deploy
         run: |
           npx lerna run bundle --stream
-          npm pack --workspaces
-          cp *.tgz packages/cli
           npx lerna run deploy:deploy --stream
         env:
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
@@ -120,8 +118,6 @@ jobs:
       - name: (Prod) Deploy
         run: |
           npx lerna run bundle --stream
-          npm pack --workspaces
-          cp *.tgz packages/cli
           npx lerna run deploy:deploy --stream
         env:
           NODE_ENV: 'production'
