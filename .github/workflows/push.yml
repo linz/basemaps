@@ -75,7 +75,7 @@ jobs:
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_ROLE_NON_PROD }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
       - name: (NonProd) Deploy
         run: |
@@ -115,7 +115,7 @@ jobs:
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_ROLE_PROD }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
       - name: (Prod) Deploy
         run: |
