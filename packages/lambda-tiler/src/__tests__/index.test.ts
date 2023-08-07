@@ -44,7 +44,6 @@ o.spec('LambdaXyz index', () => {
         version: '1.2.3',
         buildId: '1658821493-3',
       });
-      console.log({ body });
     });
   });
 
