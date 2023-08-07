@@ -57,6 +57,10 @@ jobs:
     needs: [build-deploy]
     if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
 
+    environment:
+      name: nonprod
+      url: https://dev.basemaps.linz.govt.nz
+
     permissions:
       id-token: write
       contents: write
@@ -93,6 +97,10 @@ jobs:
     concurrency: deploy-prod-${{ github.ref }}
     needs: [deploy-nonprod]
     if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+
+    environment: 
+      name: production
+      url: https://basemaps.linz.govt.nz
 
     permissions:
       id-token: write
