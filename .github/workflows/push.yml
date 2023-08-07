@@ -126,3 +126,8 @@ jobs:
         env:
           NODE_ENV: 'production'
           GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
+
+      - name: (Prod) After Deploy Smoke Test
+        run: |
+            cd packages/smoke
+            BASEMAPS_HOST=https://basemaps.linz.govt.nz node --test
