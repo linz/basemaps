@@ -19,7 +19,10 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - uses: linz/action-typescript@v2
+      - uses: linz/action-typescript@v3
+        with:
+          package-manager: yarn
+
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
 
