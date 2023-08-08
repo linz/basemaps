@@ -39,8 +39,9 @@ function findLatestId(idA: string, idB: string): string {
   try {
     const timeA = decodeTime(ulidA);
     const timeB = decodeTime(ulidB);
-    if (timeA >= timeB) return idA;
-    else return idB;
+    if (timeA >= timeB) {
+      return idA;
+    } else return idB;
   } finally {
     //If not ulid return the return id alphabetically.
     return idA.localeCompare(idB) ? idA : idB;
@@ -78,7 +79,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   assets: string;
 
   /** Catch configs with the same imagery that using the different imagery ids. */
-  duplicateImagery: ConfigTileSet[];
+  duplicateImagery: ConfigTileSet[] = [];
 
   put(obj: BaseConfig): void {
     this.objects.set(obj.id, obj);
@@ -187,7 +188,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     // The latest imagery overwrite the earlier ones.
     const existingImageryId = existing.layers[0][i.projection];
     if (existingImageryId) {
-      existing.layers[0][i.projection] = findLatestId(existingImageryId, i.id);
+      existing.layers[0][i.projection] = findLatestId(i.id, existingImageryId);;
     } else {
       existing.layers[0][i.projection] = i.id;
     }
