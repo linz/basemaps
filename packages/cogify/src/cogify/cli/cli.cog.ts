@@ -1,53 +1,50 @@
 import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
 import { LogType, fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { command, flag, restPositionals, string } from 'cmd-ts';
-import { createHash } from 'crypto';
+import { CogTiff, TiffTag } from '@cogeotiff/core';
+import { Metrics } from '@linzjs/metrics';
+import { command, flag, option, optional, restPositionals } from 'cmd-ts';
 import { mkdir, rm } from 'fs/promises';
 import { tmpdir } from 'os';
-import { dirname } from 'path';
 import { StacAsset, StacCollection } from 'stac-ts';
 import { CutlineOptimizer } from '../../cutline.js';
-import { SourceDownloader } from '../../download.js';
+import { SourceDownloader, urlToString } from '../../download.js';
+import { HashTransform } from '../../hash.stream.js';
 import { getLogger, logArguments } from '../../log.js';
-import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.js';
+import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.command.js';
 import { GdalRunner } from '../gdal.runner.js';
+import { Url, UrlArrayJsonFile } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 
-function extractSourceFiles(item: CogifyStacItem): string[] {
-  return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => link.href);
-}
+// FIXME: HACK @cogeotiff/core to include the Lerc tiff tag
+if (TiffTag[0xc5f2] == null) (TiffTag as any)[0xc5f2] = 'Lerc';
 
-function isUrl(path: string): boolean {
-  try {
-    new URL(path);
-    return true;
-  } catch (e) {
-    return false;
-  }
+function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
+  return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => new URL(link.href, baseUrl));
 }
 
 const Collections = new Map<string, Promise<StacCollection>>();
 
 export interface CogItem {
-  itemPath: string;
+  url: URL;
   item: CogifyStacItem;
   collection: StacCollection;
 }
-async function loadItem(p: string, logger: LogType): Promise<CogItem | null> {
-  const item = await fsa.readJson<CogifyStacItem>(p);
+async function loadItem(url: URL, logger: LogType): Promise<CogItem | null> {
+  const item = await fsa.readJson<CogifyStacItem>(urlToString(url));
   if (item.stac_version !== '1.0.0' || item.type !== 'Feature') {
-    logger.warn({ path: p }, 'Cog:Skip:NotStacItem');
+    logger.warn({ path: url }, 'Cog:Skip:NotStacItem');
     return null;
   }
   const collectionLink = item.links.find((f) => f.rel === 'collection');
-  if (collectionLink == null) throw new Error(`Unable to find collection for ${p}`);
+  if (collectionLink == null) throw new Error(`Unable to find collection for ${url}`);
 
-  const itemPath = dirname(p);
-  const collectionPath = isUrl(collectionLink.href) ? collectionLink.href : fsa.join(dirname(p), collectionLink.href);
+  const collectionPath = new URL(collectionLink.href, url);
+  const collectionPathHref = collectionPath.href;
 
-  const collectionFetch = Collections.get(collectionPath) ?? fsa.readJson<StacCollection>(collectionPath);
-  Collections.set(collectionPath, collectionFetch);
+  const collectionFetch =
+    Collections.get(collectionPathHref) ?? fsa.readJson<StacCollection>(urlToString(collectionPath));
+  Collections.set(collectionPathHref, collectionFetch);
 
   const collection = await collectionFetch;
 
@@ -55,7 +52,7 @@ async function loadItem(p: string, logger: LogType): Promise<CogItem | null> {
     throw new Error(`Invalid Collection JSON: ${item.id} stac version number mismatch ${collection.stac_version}`);
   }
 
-  return { itemPath, item, collection };
+  return { url: url, item, collection };
 }
 
 export const BasemapsCogifyCreateCommand = command({
@@ -64,15 +61,25 @@ export const BasemapsCogifyCreateCommand = command({
   description: 'Create a COG from a covering configuration',
   args: {
     ...logArguments,
-    path: restPositionals({ type: string, displayName: 'path', description: 'Path to item json' }),
+    path: restPositionals({ type: Url, displayName: 'path', description: 'Path to covering configuration' }),
     force: flag({ long: 'force', description: 'Overwrite existing tiff files' }),
+    fromFile: option({
+      type: optional(UrlArrayJsonFile),
+      long: 'from-file',
+      description:
+        'Path to JSON file containing array of paths to covering configurations. ' +
+        'File must be an array of objects with key "path" and value of a path to a covering configuration.',
+    }),
   },
 
   async handler(args) {
+    const metrics = new Metrics();
     const logger = getLogger(this, args);
 
-    const toCreate = await Promise.all(args.path.map(async (p) => loadItem(p, logger)));
-    // Filter out any missing items, also excluding items which already have COGs created
+    const paths = args.fromFile != null ? args.path.concat(args.fromFile) : args.path;
+
+    const toCreate = await Promise.all(paths.map(async (p) => loadItem(p, logger)));
+    // // Filter out any missing items, also excluding items which already have COGs created
     const filtered = toCreate.filter((f) => {
       if (f == null) return false;
 
@@ -99,7 +106,7 @@ export const BasemapsCogifyCreateCommand = command({
     const sources = new SourceDownloader(tmpFolder);
     for (const i of filtered) {
       const files = getSources(i.item.links);
-      for (const src of files) sources.register(src.href, i.item.id);
+      for (const src of files) sources.register(new URL(src.href, i.url), i.item.id);
     }
 
     const gdalVersion = await new GdalRunner({ command: 'gdal_translate', args: ['--version'], output: '' }).run();
@@ -108,18 +115,19 @@ export const BasemapsCogifyCreateCommand = command({
       await mkdir(tmpFolder, { recursive: true });
 
       // TODO should COG creation be run concurrently?
-      for (const { itemPath, item } of filtered) {
+      for (const { url, item } of filtered) {
         const cutlineLink = getCutline(item.links);
         const options = item.properties['linz_basemaps:options'];
         const tileId = TileId.fromTile(options.tile);
+        metrics.start(tileId);
 
         // Location to where the tiff should be stored
-        const tiffPath = fsa.join(itemPath, tileId + '.tiff');
-        const itemStacPath = fsa.join(itemPath, tileId + '.json');
+        const tiffPath = new URL(tileId + '.tiff', url);
+        const itemStacPath = new URL(tileId + '.json', url);
         const tileMatrix = TileMatrixSets.find(options.tileMatrix);
         if (tileMatrix == null) throw new Error('Failed to find tileMatrix: ' + options.tileMatrix);
         const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
-        const sourceFiles = extractSourceFiles(item);
+        const sourceFiles = extractSourceFiles(item, url);
         const sourceLocations = await Promise.all(sourceFiles.map((f) => sources.get(f, logger)));
         // Create the tiff
         const outputTiffPath = await createCog({
@@ -129,8 +137,32 @@ export const BasemapsCogifyCreateCommand = command({
           cutline,
           logger,
         });
+
         // Cleanup any source files used in the COG creation
-        await Promise.all(sourceFiles.map((f) => sources.done(f, item.id, logger)));
+        logger.debug({ files: sourceFiles.length }, 'Cog:Cleanup');
+        const deleted = await Promise.all(
+          sourceFiles.map(async (f) => {
+            const asset = sources.items.get(f.href);
+            await sources.done(f, item.id, logger);
+            // Update the STAC Document with the checksum and file size of the files used to create this asset
+            if (asset == null || asset.size == null || asset.hash == null) return;
+            const link = item.links.find((link) => new URL(link.href, url).href === asset.url.href);
+            if (link == null) return;
+            // Checksum differs in the STAC document to what was downloaded
+            if (link['file:checksum'] && link['file:checksum'] !== asset.hash) {
+              logger.warn(
+                { path: f.href, linkHash: link['file:checksum'], assetHash: asset.hash },
+                'FileHash:Mismatch',
+              );
+            }
+            link['file:checksum'] = asset.hash;
+            if (link['file:size'] && link['file:size'] !== asset.size) {
+              logger.warn({ path: f.href, linkSize: link['file:size'], assetSize: asset.size }, 'FileSize:Mismatch');
+            }
+            link['file:size'] = asset.size;
+          }),
+        );
+        logger.info({ files: sourceFiles.length, deleted: deleted.filter(Boolean).length }, 'Cog:Cleanup:Done');
 
         const asset: StacAsset = {
           href: `./${tileId}.tiff`,
@@ -141,21 +173,35 @@ export const BasemapsCogifyCreateCommand = command({
         item.assets['cog'] = asset;
         item.properties['linz_basemaps:generated']['gdal'] = gdalVersion.stdout;
 
-        const startTime = performance.now();
-        // Upload the output COG into the target location
-        const readStream = fsa.stream(outputTiffPath);
-        const hash = createHash('sha256');
-        readStream.on('data', (chunk) => hash.update(chunk));
-        await fsa.write(tiffPath, readStream);
+        const cogStat = await fsa.head(outputTiffPath);
 
-        // Create a multihash, 0x12: sha256, 0x20: 32 characters long
-        const digest = '1220' + hash.digest('hex');
-        asset['file:checksum'] = digest;
-        logger.debug({ target: tiffPath, hash: digest, duration: performance.now() - startTime }, 'Cog:Create:Write');
+        metrics.start(`${tileId}:write`);
+        // Upload the output COG into the target location
+        const readStream = fsa.stream(outputTiffPath).pipe(new HashTransform('sha256'));
+        await fsa.write(urlToString(tiffPath), readStream);
+        await validateOutputTiff(urlToString(tiffPath), logger);
+        asset['file:checksum'] = readStream.multihash;
+        asset['file:size'] = readStream.size;
+        if (readStream.size !== cogStat?.size) {
+          logger.warn({ readStream: readStream.size, stat: cogStat?.size }, 'SizeMismatch');
+        }
+
+        logger.debug(
+          {
+            target: tiffPath,
+            hash: asset['file:checksum'],
+            size: asset['file:size'],
+            duration: metrics.end(`${tileId}:write`),
+          },
+          'Cog:Create:Write',
+        );
         // Write the STAC metadata
-        await fsa.write(itemStacPath, JSON.stringify(item, null, 2));
-        logger.info({ tileId, tiffPath }, 'Cog:Create:Done');
+        await fsa.write(urlToString(itemStacPath), JSON.stringify(item, null, 2));
+        logger.info({ tileId, tiffPath, duration: metrics.end(tileId) }, 'Cog:Create:Done');
       }
+    } catch (err) {
+      logger.error({ err }, 'Cog:Create:Failed');
+      throw err;
     } finally {
       // Cleanup the temporary folder once everything is done
       logger.info({ path: tmpFolder }, 'Cog:Cleanup');
@@ -237,4 +283,24 @@ async function createCog(ctx: CogCreationContext): Promise<string> {
   const cogCreateCommand = gdalBuildCog(tmpItemPath, vrtWarpCommand.output, options);
   await new GdalRunner(cogCreateCommand).run(logger);
   return cogCreateCommand.output;
+}
+
+/**
+ * Very basic checking for the output tiff to ensure it was uploaded ok
+ * Just open it as a COG and ensure the metadata looks about  right
+ */
+async function validateOutputTiff(path: string, logger: LogType): Promise<void> {
+  logger.info({ path }, 'Cog:Validate');
+  try {
+    const tiff = await new CogTiff(fsa.source(path)).init(true);
+    const tiffStats = tiff.images.map((t) => {
+      return { id: t.id, ...t.size, tiles: t.tileCount };
+    });
+    logger.info({ path }, 'Cog:Validate:Ok');
+    logger.info({ tiffStats }, 'Cog:Validate:Stats');
+    await tiff.close();
+  } catch (err) {
+    logger.error({ path, err }, 'Cog:ValidateFailed');
+    throw err;
+  }
 }

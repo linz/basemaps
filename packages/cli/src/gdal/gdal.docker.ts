@@ -50,8 +50,8 @@ export class GdalDocker extends GdalCommand {
 
   /** this could contain sensitive info like AWS access keys */
   private async getDockerArgs(): Promise<string[]> {
-    const DOCKER_CONTAINER = Env.get(Env.Gdal.DockerContainer) ?? 'osgeo/gdal';
-    const DOCKER_CONTAINER_TAG = Env.get(Env.Gdal.DockerContainerTag) ?? 'ubuntu-small-3.6.1';
+    const DOCKER_CONTAINER = Env.get(Env.Gdal.DockerContainer) ?? 'ghcr.io/osgeo/gdal';
+    const DOCKER_CONTAINER_TAG = Env.get(Env.Gdal.DockerContainerTag) ?? 'ubuntu-small-3.7.0';
     const userInfo = os.userInfo();
     const credentials = await this.getCredentials();
     return [

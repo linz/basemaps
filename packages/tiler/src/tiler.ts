@@ -1,6 +1,6 @@
 import { Bounds, TileMatrixSet, Point, Size } from '@basemaps/geo';
 import { CogTiff, CogTiffImage } from '@cogeotiff/core';
-import { Composition } from './raster.js';
+import { Composition, CompositionTiff } from './raster.js';
 import { Cotar } from '@cotar/core';
 
 export interface RasterPixelBounds {
@@ -15,7 +15,7 @@ export interface RasterPixelBounds {
 }
 
 /** The amount to bias the Bounds.round function to cover a larger, rather than smaller, area. */
-const ROUND_BIAS = 0.2;
+const ROUND_BIAS = process.env.TILE_ROUNDING_BIAS ? Number(process.env.TILE_ROUNDING_BIAS) : 0.1;
 
 export type CloudArchive = CogTiff | Cotar;
 function isCotar(x: CloudArchive): x is Cotar {
@@ -27,11 +27,11 @@ export class Tiler {
   public readonly tms: TileMatrixSet;
 
   /**
-     * Tiler for a TileMatrixSet
-
-     * @param tms
-     * @param convertZ override the default convertZ
-     */
+   * Tiler for a TileMatrixSet
+   *
+   * @param tms
+   * @param convertZ override the default convertZ
+   */
   public constructor(tms: TileMatrixSet) {
     this.tms = tms;
   }
@@ -94,10 +94,11 @@ export class Tiler {
     y: number,
     scaleFactor: number,
     raster: RasterPixelBounds,
-  ): Composition | null {
+    roundBias = ROUND_BIAS,
+  ): CompositionTiff | null {
     const source = Bounds.fromJson(img.getTileBounds(x, y));
 
-    const target = source.scale(scaleFactor, scaleFactor).add(raster.tiff).round(ROUND_BIAS);
+    const target = source.scale(scaleFactor, scaleFactor).add(raster.tiff).round(roundBias);
 
     // Validate that the requested COG tile actually intersects with the output raster
     const tileIntersection = target.intersection(raster.tile);
@@ -167,7 +168,20 @@ export class Tiler {
     // For each geotiff tile that is required, scale it to the size of the raster output tile
     for (const pt of Tiler.getRequiredTiles(requiredTifPixels, pixelScale, tileSize, tileCount)) {
       const composition = this.createComposition(img, pt.x, pt.y, pixelScaleInv, rasterBounds);
-      if (composition != null) composites.push(composition);
+      if (composition == null) continue;
+      // Sometimes when creating compositions the aspect ration skews too far in one direction,
+      // if we lower the rounding bias we can sometimes make a better composition
+      const aDiff = aspectDiff(composition);
+      if (aDiff > 0.01) {
+        const newComp = this.createComposition(img, pt.x, pt.y, pixelScaleInv, rasterBounds, ROUND_BIAS / 2);
+        const nDiff = aspectDiff(newComp);
+        if (newComp != null && nDiff < aDiff) {
+          composites.push(newComp);
+          continue;
+        }
+      }
+
+      composites.push(composition);
     }
 
     if (composites.length === 0) return null;
@@ -191,4 +205,11 @@ export class Tiler {
       }
     }
   }
+}
+
+/** Calculate the scale difference between scaleX and scaleY if it exists, returns 0 if there is no difference */
+function aspectDiff(c?: CompositionTiff | null): number {
+  if (c == null) return 0;
+  if (c.resize == null) return 0;
+  return Math.abs(c.resize.scaleX - c.resize.scaleY);
 }

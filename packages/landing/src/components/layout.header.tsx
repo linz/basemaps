@@ -128,7 +128,10 @@ Your Service/App URL:
           {this.renderAboutLi('Github', 'https://github.com/linz/basemaps', this.renderGithubLogo())}
           <li>
             <Link href="https://github.com/linz/basemaps/blob/master/CHANGELOG.md">
-              Version <span className="basemaps-version">{Config.Version}</span>
+              Version{' '}
+              <span className="basemaps-version" title={`Build: ${Config.BuildId}`}>
+                {Config.Version}
+              </span>
             </Link>
           </li>
         </ul>

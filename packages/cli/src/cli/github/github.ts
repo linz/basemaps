@@ -1,10 +1,15 @@
 import { Env, LogType } from '@basemaps/shared';
 import { execFileSync } from 'child_process';
+import { Octokit } from '@octokit/core';
+import { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types.js';
+import { restEndpointMethods } from '@octokit/plugin-rest-endpoint-methods';
 
 export class Github {
   repo: string;
+  org: string;
   logger: LogType;
   repoName: string;
+  octokit: Api;
 
   constructor(repo: string, logger: LogType) {
     this.repo = repo;
@@ -12,7 +17,13 @@ export class Github {
     const [org, repoName] = repo.split('/');
     if (org == null || repoName == null) throw new Error(`Badly formatted repo name: ${repo}`);
     this.repoName = repoName;
+
+    const token = Env.get(Env.GitHubToken);
+    if (token == null) throw new Error('Please set up github token environment variable.');
+    this.octokit = restEndpointMethods(new Octokit({ auth: token }));
   }
+
+  isOk = (s: number): boolean => s >= 200 && s <= 299;
 
   /**
    * Clone the repository
@@ -61,9 +72,7 @@ export class Github {
    */
   commit(message: string): void {
     this.logger.info({ repository: this.repo }, 'GitHub: Commit all');
-    execFileSync('git', ['commit', '-am', JSON.stringify(message)], { cwd: this.repoName })
-      .toString()
-      .trim();
+    execFileSync('git', ['commit', '-am', message], { cwd: this.repoName }).toString().trim();
   }
 
   /**
@@ -73,5 +82,25 @@ export class Github {
   push(): void {
     this.logger.info({ repository: this.repo }, 'GitHub: Push');
     execFileSync('git', ['push', 'origin', 'HEAD'], { cwd: this.repoName }).toString().trim();
+  }
+
+  /**
+   * Create pull request
+   * This needs to use github API to create Pull request by access token.
+   *
+   */
+  async createPullRequests(branch: string, title: string, draft: boolean): Promise<number> {
+    // Create pull request from the give head
+    const response = await this.octokit.rest.pulls.create({
+      owner: this.org,
+      repo: this.repoName,
+      title,
+      head: branch,
+      base: 'master',
+      draft,
+    });
+    if (!this.isOk(response.status)) throw new Error('Failed to create pull request.');
+    this.logger.info({ branch, url: response.data.html_url }, 'GitHub: Create Pull Request');
+    return response.data.number;
   }
 }
