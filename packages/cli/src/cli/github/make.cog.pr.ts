@@ -73,6 +73,7 @@ export class MakeCogGithub extends Github {
     const message = `config(raster): Add imagery ${this.imagery} to ${filename} config file.`;
     this.commit(message);
     this.push();
+    await this.createPullRequests(branch, message, false);
   }
 
   /**
@@ -164,6 +165,7 @@ export class MakeCogGithub extends Github {
     const message = `config(vector): Update the ${this.imagery} to ${filename} config file.`;
     this.commit(message);
     this.push();
+    await this.createPullRequests(branch, message, false);
   }
 
   /**

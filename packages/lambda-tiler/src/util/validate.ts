@@ -1,5 +1,5 @@
 import { ImageFormat, Projection, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
-import { Const, isValidApiKey } from '@basemaps/shared';
+import { Const, isValidApiKey, truncateApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { TileXyzGet } from '../routes/tile.xyz';
@@ -25,7 +25,8 @@ export const Validate = {
     const valid = isValidApiKey(apiKey);
 
     if (!valid.valid) throw new LambdaHttpResponse(400, 'API Key Invalid: ' + valid.message);
-    req.set('api', apiKey);
+    // Truncate the API Key so we are not logging the full key
+    req.set('api', truncateApiKey(apiKey));
     return apiKey as string;
   },
 

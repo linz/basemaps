@@ -16,6 +16,7 @@ RUN npm install sharp@0.30.7
 # Install the landing assets
 COPY ./basemaps-landing*.tgz /app/
 COPY ./basemaps-cogify*.tgz /app/
+COPY ./.prettierrc.js /app/node_modules/@linzjs/.prettierrc.js
 
 RUN npm install ./basemaps-landing*.tgz ./basemaps-cogify*.tgz
 

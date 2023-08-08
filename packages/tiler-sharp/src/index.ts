@@ -181,7 +181,13 @@ export class TileMakerSharp implements TileMaker {
 
     if (crop) sharp.extract({ top: crop.y, left: crop.x, width: crop.width, height: crop.height });
 
-    return { input: await sharp.toBuffer(), top: comp.y, left: comp.x };
+    const ret = await sharp.raw().toBuffer({ resolveWithObject: true });
+    return {
+      input: ret.data,
+      top: comp.y,
+      left: comp.x,
+      raw: ret.info,
+    };
   }
 
   private createImage(background: Sharp.RGBA): Sharp.Sharp {

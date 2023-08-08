@@ -5,13 +5,14 @@ import {
   ImageFormat,
   NamedBounds,
   Nztm2000QuadTms,
-  StacCollection,
   TileMatrixSets,
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
 import pLimit, { LimitFunction } from 'p-limit';
-import { basename, resolve } from 'path';
+import { basename } from 'path';
+import { StacCollection } from 'stac-ts';
+import { fileURLToPath } from 'url';
 import { sha256base58 } from '../base58.node.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
@@ -35,6 +36,10 @@ interface TiffSummary {
   projection: number;
   /** Ground sample distance, number of meters per pixel */
   gsd: number;
+  /** STAC collection if it was found with the imagery */
+  collection?: StacCollection;
+  /** URL to the base of the imagery */
+  url: string;
 }
 
 export type ConfigImageryTiff = ConfigImagery & TiffSummary;
@@ -45,9 +50,10 @@ export type ConfigImageryTiff = ConfigImagery & TiffSummary;
  *
  * @throws if any of the tiffs have differing EPSG or GSD
  **/
-function computeTiffSummary(target: string, tiffs: CogTiff[]): TiffSummary {
+function computeTiffSummary(target: URL, tiffs: CogTiff[]): TiffSummary {
   const res: Partial<TiffSummary> = { files: [] };
 
+  const targetPath = urlToString(target);
   let bounds: Bounds | undefined;
   for (const tiff of tiffs) {
     const firstImage = tiff.getImage(0);
@@ -76,7 +82,9 @@ function computeTiffSummary(target: string, tiffs: CogTiff[]): TiffSummary {
     else bounds = bounds.union(imgBounds);
 
     if (res.files == null) res.files = [];
-    res.files.push({ name: tiff.source.uri, ...imgBounds });
+
+    const relativePath = toRelative(targetPath, tiff.source.uri);
+    res.files.push({ name: relativePath, ...imgBounds });
   }
   res.bounds = bounds?.toJson();
   if (res.bounds == null) throw new Error('Failed to extract imagery bounds from:' + target);
@@ -85,11 +93,28 @@ function computeTiffSummary(target: string, tiffs: CogTiff[]): TiffSummary {
   return res as TiffSummary;
 }
 
+/** Convert a path to a relative path
+ * @param base the path to be relative to
+ * @param other the path to convert
+ */
+function toRelative(base: string, other: string): string {
+  if (!other.startsWith(base)) throw new Error('Paths are not relative');
+  const part = other.slice(base.length);
+  if (part.startsWith('/') || part.startsWith('\\')) return part.slice(1);
+  return part;
+}
+
+/** Convert a URL to a string using fileUrlToPath if the URL is a file:// */
+function urlToString(u: URL): string {
+  if (u.protocol === 'file:') return fileURLToPath(u);
+  return u.href;
+}
+
 /** Attempt to read a stac collection.json from the target path if it exists or return null if anything goes wrong. */
-async function loadStacFromPath(target: string): Promise<StacCollection | null> {
-  const collectionPath = fsa.join(target, 'collection.json');
+async function loadStacFromURL(target: URL): Promise<StacCollection | null> {
+  const collectionPath = new URL('collection.json', target);
   try {
-    return await fsa.readJson(collectionPath);
+    return await fsa.readJson(urlToString(collectionPath));
   } catch (e) {
     return null;
   }
@@ -102,32 +127,35 @@ async function loadStacFromPath(target: string): Promise<StacCollection | null> 
  *
  * @returns Imagery configuration generated from the path
  */
-export async function imageryFromTiffPath(target: string, Q: LimitFunction, log?: LogType): Promise<ConfigImageryTiff> {
-  const sourceFiles = await fsa.toArray(fsa.list(target));
+export async function imageryFromTiffUrl(target: URL, Q: LimitFunction, log?: LogType): Promise<ConfigImageryTiff> {
+  const targetPath = urlToString(target);
+  const sourceFiles = await fsa.toArray(fsa.list(targetPath));
   const tiffs = await Promise.all(
     sourceFiles.filter(isTiff).map((c) => Q(() => new CogTiff(fsa.source(c)).init(true))),
   );
 
   try {
-    const stac = await loadStacFromPath(target);
+    const stac = await loadStacFromURL(target);
     const params = computeTiffSummary(target, tiffs);
 
-    const folderName = basename(target);
+    const folderName = basename(targetPath);
     const title = stac?.title ?? folderName;
     const tileMatrix =
       params.projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.tryGet(params.projection);
 
     const imagery: ConfigImageryTiff = {
-      id: sha256base58(target),
+      id: sha256base58(target.href),
       name: folderName,
       title,
       updatedAt: Date.now(),
       projection: params.projection,
       tileMatrix: tileMatrix?.identifier ?? 'none',
       gsd: params.gsd,
-      uri: resolve(target),
+      uri: targetPath,
+      url: target.href,
       bounds: params.bounds,
       files: params.files,
+      collection: stac ?? undefined,
     };
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
     log?.info({ title, files: imagery.files.length }, 'Tiff:Loaded');
@@ -174,16 +202,16 @@ export async function imageryFromTiffPath(target: string, Q: LimitFunction, log?
  * @param concurrency number of tiff files to load at a time
  * @returns
  */
-export async function initConfigFromPaths(
+export async function initConfigFromUrls(
   provider: ConfigProviderMemory,
-  targets: string[],
+  targets: URL[],
   concurrency = 25,
   log?: LogType,
 ): Promise<{ tileSet: ConfigTileSetRaster; imagery: ConfigImageryTiff[] }> {
   const q = pLimit(concurrency);
 
   const imageryConfig: Promise<ConfigImageryTiff>[] = [];
-  for (const target of targets) imageryConfig.push(imageryFromTiffPath(target, q, log));
+  for (const target of targets) imageryConfig.push(imageryFromTiffUrl(target, q, log));
 
   const aerialTileSet: ConfigTileSetRaster = {
     id: 'ts_aerial',

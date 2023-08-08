@@ -31,61 +31,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           CURRENT_VERSION=$(node -p "require('./lerna.json').version")
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
           git push --tags
-
-      - name: Deploy - Bundle
-        if: github.ref != 'refs/heads/master' || github.repository != 'linz/basemaps'
-        run: npx lerna run bundle --stream
-
-      - name: (NonProd) Configure AWS Credentials
-        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
-        uses: aws-actions/configure-aws-credentials@v2.0.0
-        with:
-          aws-region: ap-southeast-2
-          mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_ROLE_NON_PROD }}
-
-      - name: (NonProd) Deploy
-        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
-        run: |
-          npx lerna run bundle --stream
-          npm pack --workspaces
-          cp *.tgz packages/cli
-          npx lerna run deploy:deploy --stream
-        env:
-          SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_NON_PROD}}
-          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
-          NODE_ENV: "dev"
-
-      - name: (NonProd) After Deploy Smoke Test
-        if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
-        run: |
-            cd packages/smoke
-            node --test
-        
-      - name: (Prod) Configure AWS Credentials
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        uses: aws-actions/configure-aws-credentials@v2.0.0
-        with:
-          aws-region: ap-southeast-2
-          mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_ROLE_PROD }}
-
-      - name: (Prod) Deploy
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: |
-          npx lerna run bundle --stream
-          npm pack --workspaces
-          cp *.tgz packages/cli
-          npx lerna run deploy:deploy --stream
-        env:
-          NODE_ENV: "production"
-          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
-          SPLIT_IO_KEY: ${{secrets.SPLIT_IO_KEY_PROD}}
-
+    
       - name: (Prod) Create github release
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx conventional-github-releaser -p angular
@@ -94,10 +43,87 @@ jobs:
 
       - name: (Prod) Publish NPM
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: npx lerna publish from-git --yes
+        run: npx lerna publish from-git --yes 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
 
       - name: Benchmark
         uses: blacha/hyperfine-action@v1
+
+  deploy-nonprod:
+    runs-on: ubuntu-latest
+    concurrency: deploy-nonprod-${{ github.ref }}
+    needs: [build-deploy]
+    if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
+
+    environment:
+      name: nonprod
+      url: https://dev.basemaps.linz.govt.nz
+
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: linz/action-typescript@v2
+      # pulls all tags (needed for lerna to correctly version)
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
+
+      - name: (NonProd) Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2.0.0
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: (NonProd) Deploy
+        run: |
+          npx lerna run bundle --stream
+          npx lerna run deploy:deploy --stream
+        env:
+          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
+          NODE_ENV: 'dev'
+
+      - name: (NonProd) After Deploy Smoke Test
+        run: |
+            cd packages/smoke
+            node --test
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    concurrency: deploy-prod-${{ github.ref }}
+    needs: [deploy-nonprod]
+    if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+
+    environment: 
+      name: production
+      url: https://basemaps.linz.govt.nz
+
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: linz/action-typescript@v2
+      # pulls all tags (needed for lerna to correctly version)
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
+ 
+      - name: (Prod) Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2.0.0
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: (Prod) Deploy
+        run: |
+          npx lerna run bundle --stream
+          npx lerna run deploy:deploy --stream
+        env:
+          NODE_ENV: 'production'
+          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
+
+      - name: (Prod) After Deploy Smoke Test
+        run: |
+            cd packages/smoke
+            BASEMAPS_HOST=https://basemaps.linz.govt.nz node --test

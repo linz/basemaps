@@ -3,6 +3,80 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.42.1](https://github.com/linz/basemaps/compare/v6.42.0...v6.42.1) (2023-08-06)
+
+
+### Bug Fixes
+
+* **cogify:** lerc should be using bilinear resampling ([#2870](https://github.com/linz/basemaps/issues/2870)) ([5dfab8c](https://github.com/linz/basemaps/commit/5dfab8c4ae6928cdaf4932136d125b1c22867564))
+* remove split.io as it is not used ([#2869](https://github.com/linz/basemaps/issues/2869)) ([df4ac6c](https://github.com/linz/basemaps/commit/df4ac6cfd4bdcba0888aab2c201197aa8df83b2e))
+
+
+
+
+
+# [6.42.0](https://github.com/linz/basemaps/compare/v6.41.0...v6.42.0) (2023-08-06)
+
+
+### Features
+
+* **cli:** ensure the layer name been standardized before creating pull request. BM-827 ([#2808](https://github.com/linz/basemaps/issues/2808)) ([35e22fa](https://github.com/linz/basemaps/commit/35e22fad527a1d17e8985dbbcbc3f9f10747bf09))
+
+
+
+
+
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* **cli:** Copy the missing @linzjs/style/.prettierrc.js file into cli docker container. ([#2844](https://github.com/linz/basemaps/issues/2844)) ([05ee834](https://github.com/linz/basemaps/commit/05ee8344e21039d2ff889f660ea2568b0019f297))
+* **cli:** Fix config json format by adding the missing newline and remove double quotes from commit message. ([#2795](https://github.com/linz/basemaps/issues/2795)) ([76a77ae](https://github.com/linz/basemaps/commit/76a77aed12e8695022e8c6e9714a63b30814a279))
+* **cli:** Fix remove the ref from the repository and get the repo name from it. ([#2784](https://github.com/linz/basemaps/issues/2784)) ([6b395b8](https://github.com/linz/basemaps/commit/6b395b8ed0147cf8bb53cd6139d8cbc434382b9a))
+* **cli:** multithread warp ([#2744](https://github.com/linz/basemaps/issues/2744)) ([1b00735](https://github.com/linz/basemaps/commit/1b007354dde9e48632b685ad5a8f8b6baf944a89))
+* **cogify:** cogify create should create from stac item json ([#2785](https://github.com/linz/basemaps/issues/2785)) ([637df77](https://github.com/linz/basemaps/commit/637df7736e78d38e19b62dfe29f7e4ad09e4205a))
+* **cogify:** correct ordering of lat lon ([#2846](https://github.com/linz/basemaps/issues/2846)) ([b6afd57](https://github.com/linz/basemaps/commit/b6afd57cb63ca0ca7827674fe0c98504a90394b4)), closes [/github.com/linz/basemaps/blob/master/packages/landing/src/url.ts#L53](https://github.com//github.com/linz/basemaps/blob/master/packages/landing/src/url.ts/issues/L53)
+* **cogify:** include collection and parent links in item.json ([#2778](https://github.com/linz/basemaps/issues/2778)) ([e79e440](https://github.com/linz/basemaps/commit/e79e44011f3fc9179b5d00f4302eca6761342f50))
+* **cogify:** support blocksize being customized ([#2842](https://github.com/linz/basemaps/issues/2842)) ([9b859c8](https://github.com/linz/basemaps/commit/9b859c862b516dd0d58bb80db0ff2c04966b4957))
+* **cogify:** use a URL in the cogify STAC documents ([#2843](https://github.com/linz/basemaps/issues/2843)) ([eb3f0fe](https://github.com/linz/basemaps/commit/eb3f0fe41b5a02ea71c2ea63e1a0057cc6d502d2))
+* **cogify:** use datetime to be consistent with STAC ([#2832](https://github.com/linz/basemaps/issues/2832)) ([87a7e37](https://github.com/linz/basemaps/commit/87a7e3745b3a478b211a891f457a19a149a9066d))
+* **config:** allow initializing config from URLs ([#2830](https://github.com/linz/basemaps/issues/2830)) ([0ea552e](https://github.com/linz/basemaps/commit/0ea552ec32ad723f98c96d533f18a8afc51d9657))
+* ensure layer loads when dateBefore set early, then moved back late ([#2701](https://github.com/linz/basemaps/issues/2701)) ([1b34d9a](https://github.com/linz/basemaps/commit/1b34d9ab2d51ba298398d036aef62a151ca05af6))
+* truncate the api key when logging ([#2828](https://github.com/linz/basemaps/issues/2828)) ([3396593](https://github.com/linz/basemaps/commit/33965937fdc6cce4bc50b5ed41616a65c830ec6f))
+* **sprites:** correct imports for node12 ([#2749](https://github.com/linz/basemaps/issues/2749)) ([73d4d22](https://github.com/linz/basemaps/commit/73d4d228f44d3ca77d144e9562d220b0c691ab3f))
+
+
+### Features
+
+* add --from-file option to cogify create command ([#2851](https://github.com/linz/basemaps/issues/2851)) ([3fab3c7](https://github.com/linz/basemaps/commit/3fab3c7b703358b893f76f7058374c32d37bdd2a))
+* **cli:** Add disabled flag for the create pr cli, and bug fixes. ([#2745](https://github.com/linz/basemaps/issues/2745)) ([714a113](https://github.com/linz/basemaps/commit/714a113b348f47b81e73a042e81e21d64da9e244))
+* **cli:** bundle cogify command into docker container ([#2792](https://github.com/linz/basemaps/issues/2792)) ([d0e45c7](https://github.com/linz/basemaps/commit/d0e45c7b19c0897f99b76b4795cc48052ae73601))
+* **cli:** move to ghcr for osgeo/gdal ([#2790](https://github.com/linz/basemaps/issues/2790)) ([cb96bf6](https://github.com/linz/basemaps/commit/cb96bf61335d2f42eb2e32f751623d718f0777fd))
+* **cli:** Refactoring the pull request creation to use git commands and support vector map update. ([#2780](https://github.com/linz/basemaps/issues/2780)) ([0ac677d](https://github.com/linz/basemaps/commit/0ac677da3c381b9439a207db5d1810f1ab4d1a5b))
+* **cogify:** add --preset lerc_0.01 to create a 1cm error lerc cog ([#2841](https://github.com/linz/basemaps/issues/2841)) ([c7e3605](https://github.com/linz/basemaps/commit/c7e3605ab01c19c2ec576a7347965d0af0bc8f8a))
+* **cogify:** improve cogify ([#2800](https://github.com/linz/basemaps/issues/2800)) ([cb16a44](https://github.com/linz/basemaps/commit/cb16a44aa44aa10ed69d1ab188a0539756f9ee72))
+* **cogify:** retile imagery into COGS aligned to a tile matrix ([#2759](https://github.com/linz/basemaps/issues/2759)) ([ddd99d3](https://github.com/linz/basemaps/commit/ddd99d3548c65ec4ce5b7c608d6bf9360f053635))
+* **lambda-tiler:** Include the disabled layers in the attribution with minZoom of 32. ([#2746](https://github.com/linz/basemaps/issues/2746)) ([d87e8dd](https://github.com/linz/basemaps/commit/d87e8dd1a0c24d511fc786078111fadc752bc4ab))
+* **lambda-tiler:** Refactoring the wmts Capablity to builder interface. ([#2686](https://github.com/linz/basemaps/issues/2686)) ([4d223b6](https://github.com/linz/basemaps/commit/4d223b6b02675a271d1393ff4c6d0e7f8348084b))
+* **lambda-tiler:** return 204 no content instead of a empty images ([#2829](https://github.com/linz/basemaps/issues/2829)) ([db3ff1b](https://github.com/linz/basemaps/commit/db3ff1b09f849a26d7287925c7b57d71e1fa6d76))
+* **landing:** show number of COGs in current imagery ([#2772](https://github.com/linz/basemaps/issues/2772)) ([78a019a](https://github.com/linz/basemaps/commit/78a019a1eb8c0c9e028601e7597b1e730674f401))
+* **landing:** toggle to show map tile boundaries ([#2758](https://github.com/linz/basemaps/issues/2758)) ([d7f0b50](https://github.com/linz/basemaps/commit/d7f0b5001bd2fe06c7a0dfaa82c35d194ac8ac30))
+* **smoke:** simple smoke tests after deploy ([#2802](https://github.com/linz/basemaps/issues/2802)) ([c33dda4](https://github.com/linz/basemaps/commit/c33dda437830243161b3895042dd1e023713bb55))
+* upgrade lambdas to nodejs 18 ([#2639](https://github.com/linz/basemaps/issues/2639)) ([17471e1](https://github.com/linz/basemaps/commit/17471e1d56fbe17b695e4a49b1fbe55ece215596))
+* **landing:** update and load date range from window URL ([#2691](https://github.com/linz/basemaps/issues/2691)) ([ac1e02d](https://github.com/linz/basemaps/commit/ac1e02d9c8a61aa58b66c36b2df87f46e9f3f2ae))
+* **landing:** Update the daterange slider to years button. ([#2764](https://github.com/linz/basemaps/issues/2764)) ([ef93543](https://github.com/linz/basemaps/commit/ef935433df6065f4baeb458b3c8a9efec06621fa))
+* **sprites:** support non svg sprites ([#2736](https://github.com/linz/basemaps/issues/2736)) ([37fcc19](https://github.com/linz/basemaps/commit/37fcc19969995d329243cd1fdb790b60c6debdcf))
+
+
+### Reverts
+
+* Revert "feat(lambda-tiler): return 204 no content instead of a empty images (#2829)" (#2836) ([f1ed481](https://github.com/linz/basemaps/commit/f1ed481db08702189f169e745bf0ff7dad697175)), closes [#2829](https://github.com/linz/basemaps/issues/2829) [#2836](https://github.com/linz/basemaps/issues/2836)
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

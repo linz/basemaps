@@ -1,6 +1,6 @@
 import o from 'ospec';
-import { getApiKey, OneDayMs } from '../api.js';
-import { ulid, decodeTime, encodeTime } from 'ulid';
+import { decodeTime, encodeTime, ulid } from 'ulid';
+import { getApiKey, OneDayMs, truncateApiKey } from '../api.js';
 
 declare const global: {
   localStorage?: { getItem: (a: string) => string | null; setItem: (k: string, v: string) => void };
@@ -51,5 +51,23 @@ o.spec('ApiKey', () => {
     o(newApiKey).notEquals(fakeUlid.toLocaleLowerCase());
     // new key should be made recently (within 1second)
     o(Date.now() - decodeTime(newApiKey.slice(1).toUpperCase()) < 1000).equals(true);
+  });
+});
+
+o.spec('ApiKeyTruncate', () => {
+  o('should truncate apikeys', () => {
+    o(truncateApiKey('c01h3e17kjsw5evq8ndjxbda80e')).equals('cbda80e');
+    o(truncateApiKey('d01h3e17kjsw5evq8ndjxbda80e')).equals('dbda80e');
+  });
+
+  o('should not truncate invalid api keys', () => {
+    o(truncateApiKey([{ hello: 'world' }])).deepEquals('invalid');
+    o(truncateApiKey(null)).equals('invalid');
+    o(truncateApiKey(1)).equals('invalid');
+  });
+
+  o('should not truncate truncated', () => {
+    o(truncateApiKey('cbda80e')).equals('cbda80e');
+    o(truncateApiKey('dbda80e')).equals('dbda80e');
   });
 });
