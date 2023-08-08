@@ -57,7 +57,7 @@ export class MakeCogGithub extends Github {
         title: layer.title,
         layers: [layer],
       };
-      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'imagery', `${layer.name}.json`);
+      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', 'individual', `${layer.name}.json`);
       await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, tileSet));
     } else {
       // Prepare new aerial tileset config

@@ -67,7 +67,7 @@ export class CommandCogPullRequest extends CommandLineAction {
       required: false,
     });
     this.addToAerial = this.defineFlagParameter({
-      parameterLongName: '--add_to_aerial',
+      parameterLongName: '--add-to-aerial',
       description: 'Disable the layer in the config',
       required: false,
     });
