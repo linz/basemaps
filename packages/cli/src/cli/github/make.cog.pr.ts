@@ -39,7 +39,7 @@ export class MakeCogGithub extends Github {
     filename: string,
     layer: ConfigLayer,
     category: Category,
-    disabled: boolean,
+    addToAerial: boolean,
   ): Promise<void> {
     const branch = `feat/bot-config-raster-${this.imagery}`;
 
@@ -49,7 +49,7 @@ export class MakeCogGithub extends Github {
     this.getBranch(branch);
 
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    if (disabled) {
+    if (addToAerial || category === Category.Event || category === Category.Other) {
       // Prepare new standalone tileset config
       const tileSet: TileSetConfigSchema = {
         type: TileSetType.Raster,
@@ -82,7 +82,6 @@ export class MakeCogGithub extends Github {
     layer.category = category;
     const defaultSetting = DefaultCategorySetting[category];
     if (defaultSetting.minZoom != null && layer.minZoom != null) layer.minZoom = defaultSetting.minZoom;
-
     return layer;
   }
 

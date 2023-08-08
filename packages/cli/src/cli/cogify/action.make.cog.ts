@@ -33,7 +33,6 @@ export class CommandMakeCog extends CommandLineAction {
   private maxChunkUnit: CommandLineIntegerParameter;
   private output: CommandLineStringParameter;
   private aws: CommandLineFlagParameter;
-  private disabled: CommandLineFlagParameter;
 
   public constructor() {
     super({
@@ -107,11 +106,6 @@ export class CommandMakeCog extends CommandLineAction {
       description: 'Running the job on aws',
       required: false,
     });
-    this.disabled = this.defineFlagParameter({
-      parameterLongName: '--disable',
-      description: 'Add disable flag for the new inserted layer.',
-      required: false,
-    });
   }
 
   async onExecute(): Promise<void> {
@@ -153,7 +147,6 @@ export class CommandMakeCog extends CommandLineAction {
       // Set config layer for output
       const path = jobLocation.replace('/job.json', '');
       configLayer[tileMatrix.projection.code] = path;
-      if (this.disabled.value) configLayer.disabled = true;
       paths.push(path);
     }
 

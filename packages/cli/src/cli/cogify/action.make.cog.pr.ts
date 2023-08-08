@@ -13,15 +13,14 @@ export enum Category {
 
 export interface CategorySetting {
   minZoom?: number;
-  disabled?: boolean;
 }
 
 export const DefaultCategorySetting: Record<Category, CategorySetting> = {
   [Category.Urban]: { minZoom: 14 },
   [Category.Rural]: { minZoom: 13 },
   [Category.Satellite]: { minZoom: 5 },
-  [Category.Event]: { minZoom: 32 },
-  [Category.Other]: { minZoom: 32 },
+  [Category.Event]: {},
+  [Category.Other]: {},
 };
 
 export function parseCategory(category: string): Category {
@@ -36,7 +35,7 @@ export class CommandCogPullRequest extends CommandLineAction {
   private layer: CommandLineStringParameter;
   private category: CommandLineStringParameter;
   private repository: CommandLineStringParameter;
-  private disabled: CommandLineFlagParameter;
+  private addToAerial: CommandLineFlagParameter;
   private vector: CommandLineFlagParameter;
 
   public constructor() {
@@ -67,8 +66,8 @@ export class CommandCogPullRequest extends CommandLineAction {
       defaultValue: 'linz/basemaps-config',
       required: false,
     });
-    this.disabled = this.defineFlagParameter({
-      parameterLongName: '--disabled',
+    this.addToAerial = this.defineFlagParameter({
+      parameterLongName: '--add_to_aerial',
       description: 'Disable the layer in the config',
       required: false,
     });
@@ -95,6 +94,6 @@ export class CommandCogPullRequest extends CommandLineAction {
 
     const git = new MakeCogGithub(layer.name, repo, logger);
     if (this.vector.value) await git.updateVectorTileSet('topographic', layer);
-    else await git.updateRasterTileSet('aerial', layer, category, this.disabled.value);
+    else await git.updateRasterTileSet('aerial', layer, category, this.addToAerial.value);
   }
 }
