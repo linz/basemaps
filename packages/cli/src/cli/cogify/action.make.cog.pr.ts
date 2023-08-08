@@ -13,14 +13,15 @@ export enum Category {
 
 export interface CategorySetting {
   minZoom?: number;
+  addToAerial?: boolean;
 }
 
 export const DefaultCategorySetting: Record<Category, CategorySetting> = {
   [Category.Urban]: { minZoom: 14 },
   [Category.Rural]: { minZoom: 13 },
   [Category.Satellite]: { minZoom: 5 },
-  [Category.Event]: {},
-  [Category.Other]: {},
+  [Category.Event]: { addToAerial: false },
+  [Category.Other]: { addToAerial: false },
 };
 
 export function parseCategory(category: string): Category {
