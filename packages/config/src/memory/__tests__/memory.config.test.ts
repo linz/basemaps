@@ -133,6 +133,7 @@ o.spec('MemoryConfig', () => {
 
   o('virtual tilesets should be created with `:`', async () => {
     const idA = ulid();
+    await new Promise((resolve) => setTimeout(resolve, 5));
     const idB = ulid();
     config.objects.clear();
     config.put({
