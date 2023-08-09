@@ -7,7 +7,6 @@ export type AttributionCollection = StacCollection<{
   'linz:category'?: string;
   'linz:zoom': { min: number; max: number };
   'linz:priority': [number];
-  'linz:disabled': boolean;
 }>;
 
 /**

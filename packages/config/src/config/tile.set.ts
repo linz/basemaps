@@ -26,9 +26,6 @@ export interface ConfigLayer extends Partial<Record<EpsgCode, string>> {
 
   /** Max zoom to show the layer @default 30 */
   maxZoom?: number;
-
-  /** Disable the layer from the TileSet @default false*/
-  disabled?: boolean;
 }
 
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';

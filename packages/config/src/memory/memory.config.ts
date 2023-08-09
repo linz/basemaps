@@ -22,10 +22,25 @@ export interface ConfigBundled {
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
   tileSet: ConfigTileSet[];
+  duplicateImagery: ConfigTileSet[];
 }
 
 function isConfigImagery(i: BaseConfig): i is ConfigImagery {
   return ConfigId.getPrefix(i.id) === ConfigPrefix.Imagery;
+}
+
+/** Get the last id from the s3 path and compare to get the latest id based on the timestamp */
+function findLatestId(idA: string, idB: string): string {
+  const ulidA = ConfigId.unprefix(ConfigPrefix.Imagery, idA);
+  const ulidB = ConfigId.unprefix(ConfigPrefix.Imagery, idB);
+  try {
+    const timeA = decodeTime(ulidA);
+    const timeB = decodeTime(ulidB);
+    if (timeA >= timeB) return idA;
+  } finally {
+    //If not ulid return the return id alphabetically.
+    return idA.localeCompare(idB) > 0 ? idA : idB;
+  }
 }
 
 /** Force a unknown object into a Record<string, unknown> type */
@@ -58,6 +73,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   /** Asset path from the config bundle */
   assets: string;
 
+  /** Catch configs with the same imagery that using the different imagery ids. */
+  duplicateImagery: ConfigTileSet[] = [];
+
   put(obj: BaseConfig): void {
     this.objects.set(obj.id, obj);
   }
@@ -71,6 +89,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       style: [],
       provider: [],
       tileSet: [],
+      duplicateImagery: this.duplicateImagery,
     };
 
     for (const val of this.objects.values()) {
@@ -113,22 +132,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     // Create an all tileset contains all raster layers
     if (allLayers.length) this.createVirtualAllTileSet(allLayers);
   }
-
-  /** Get the last id from the s3 path and compare to get the latest id based on the timestamp */
-  findLatestId(idA: string, idB: string): string {
-    const ulidA = ConfigId.unprefix(ConfigPrefix.Imagery, idA);
-    const ulidB = ConfigId.unprefix(ConfigPrefix.Imagery, idB);
-    try {
-      const timeA = decodeTime(ulidA);
-      const timeB = decodeTime(ulidB);
-      if (timeA >= timeB) return idA;
-      else return idB;
-    } finally {
-      //If not ulid return the idB
-      return idB;
-    }
-  }
-
   createVirtualAllTileSet(layers: ConfigLayer[]): void {
     const layerByName = new Map<string, ConfigLayer>();
     // Set all layers as minZoom:32
@@ -171,7 +174,8 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     // The latest imagery overwrite the earlier ones.
     const existingImageryId = existing.layers[0][i.projection];
     if (existingImageryId) {
-      existing.layers[0][i.projection] = this.findLatestId(existingImageryId, i.id);
+      existing.layers[0][i.projection] = findLatestId(i.id, existingImageryId);
+      this.duplicateImagery.push(existing);
     } else {
       existing.layers[0][i.projection] = i.id;
     }

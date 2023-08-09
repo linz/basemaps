@@ -2,6 +2,7 @@ import { sha256base58 } from '@basemaps/config';
 import { LogType } from '@basemaps/shared';
 import { spawn } from 'child_process';
 import { EventEmitter } from 'events';
+import { dirname } from 'path';
 
 export interface GdalCommand {
   /** Output file location */
@@ -10,6 +11,22 @@ export interface GdalCommand {
   command: 'gdalwarp' | 'gdalbuildvrt' | 'gdal_translate';
   /** GDAL arguments to use */
   args: string[];
+}
+
+function getDockerContainer(): string {
+  const containerPath = process.env['GDAL_DOCKER_CONTAINER'] ?? 'ghcr.io/osgeo/gdal';
+  const tag = process.env['GDAL_DOCKER_CONTAINER_TAG'] ?? 'ubuntu-small-3.7.0';
+  return `${containerPath}:${tag}`;
+}
+
+/** Convert a GDAL command to run using docker */
+function toDockerArgs(cmd: GdalCommand): string[] {
+  const dirName = dirname(cmd.output);
+
+  const args = ['run'];
+  if (cmd.output) args.push(...['-v', `${dirName}:${dirName}`]);
+  args.push(...[getDockerContainer(), cmd.command, ...cmd.args]);
+  return args;
 }
 
 export class GdalRunner {
@@ -52,7 +69,12 @@ export class GdalRunner {
     });
     this.startTime = performance.now();
 
-    const child = spawn(this.cmd.command, this.cmd.args);
+    const useDocker = !!process.env['GDAL_DOCKER'];
+    if (useDocker) {
+      logger?.info({ command: this.cmd.command, commandHash, container: getDockerContainer() }, 'Gdal:Docker');
+    }
+
+    const child = useDocker ? spawn('docker', toDockerArgs(this.cmd)) : spawn(this.cmd.command, this.cmd.args);
 
     const outputBuff: Buffer[] = [];
     const errBuff: Buffer[] = [];

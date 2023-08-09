@@ -4,6 +4,8 @@ import { ConfigImagery } from '../../config/imagery.js';
 import { ConfigTileSetRaster } from '../../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory.config.js';
 import { ulid } from 'ulid';
+import timers from 'node:timers/promises';
+
 
 o.spec('MemoryConfig', () => {
   const config = new ConfigProviderMemory();
@@ -175,6 +177,7 @@ o.spec('MemoryConfig', () => {
 
   o('The latest imagery should overwrite the old ones', async () => {
     const idLater = ulid();
+    await timers.setTimeout(5);
     const idLatest = ulid();
     config.put(baseImg);
     config.put({ ...baseImg, id: `im_${idLater}` } as ConfigImagery);

@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* ensure layer loads when dateBefore set early, then moved back late ([#2701](https://github.com/linz/basemaps/issues/2701)) ([1b34d9a](https://github.com/linz/basemaps/commit/1b34d9ab2d51ba298398d036aef62a151ca05af6))
+
+
+### Features
+
+* **landing:** show number of COGs in current imagery ([#2772](https://github.com/linz/basemaps/issues/2772)) ([78a019a](https://github.com/linz/basemaps/commit/78a019a1eb8c0c9e028601e7597b1e730674f401))
+* **landing:** toggle to show map tile boundaries ([#2758](https://github.com/linz/basemaps/issues/2758)) ([d7f0b50](https://github.com/linz/basemaps/commit/d7f0b5001bd2fe06c7a0dfaa82c35d194ac8ac30))
+* **landing:** update and load date range from window URL ([#2691](https://github.com/linz/basemaps/issues/2691)) ([ac1e02d](https://github.com/linz/basemaps/commit/ac1e02d9c8a61aa58b66c36b2df87f46e9f3f2ae))
+* **landing:** Update the daterange slider to years button. ([#2764](https://github.com/linz/basemaps/issues/2764)) ([ef93543](https://github.com/linz/basemaps/commit/ef935433df6065f4baeb458b3c8a9efec06621fa))
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

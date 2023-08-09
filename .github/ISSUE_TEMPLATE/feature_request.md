@@ -2,15 +2,15 @@
 name: Feature request
 about: Suggest an idea for this project
 labels: enhancement
-
 ---
 
 ### User Story
 
-In order to [accomplish goal] as a [role] I want [capability] 
+In order to [accomplish goal] as a [role] I want [capability]
 (optional: instead of [existing behaviour]).
 
 #### Acceptance Criteria
+
 - [ ] ...
 - [ ] ...
 - [ ] ...

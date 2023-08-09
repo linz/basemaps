@@ -3,6 +3,42 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.42.0](https://github.com/linz/basemaps/compare/v6.41.0...v6.42.0) (2023-08-06)
+
+
+### Features
+
+* **cli:** ensure the layer name been standardized before creating pull request. BM-827 ([#2808](https://github.com/linz/basemaps/issues/2808)) ([35e22fa](https://github.com/linz/basemaps/commit/35e22fad527a1d17e8985dbbcbc3f9f10747bf09))
+
+
+
+
+
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* **cli:** Copy the missing @linzjs/style/.prettierrc.js file into cli docker container. ([#2844](https://github.com/linz/basemaps/issues/2844)) ([05ee834](https://github.com/linz/basemaps/commit/05ee8344e21039d2ff889f660ea2568b0019f297))
+* **cli:** Fix config json format by adding the missing newline and remove double quotes from commit message. ([#2795](https://github.com/linz/basemaps/issues/2795)) ([76a77ae](https://github.com/linz/basemaps/commit/76a77aed12e8695022e8c6e9714a63b30814a279))
+* **cli:** Fix remove the ref from the repository and get the repo name from it. ([#2784](https://github.com/linz/basemaps/issues/2784)) ([6b395b8](https://github.com/linz/basemaps/commit/6b395b8ed0147cf8bb53cd6139d8cbc434382b9a))
+* **cli:** multithread warp ([#2744](https://github.com/linz/basemaps/issues/2744)) ([1b00735](https://github.com/linz/basemaps/commit/1b007354dde9e48632b685ad5a8f8b6baf944a89))
+
+
+### Features
+
+* **cli:** Add disabled flag for the create pr cli, and bug fixes. ([#2745](https://github.com/linz/basemaps/issues/2745)) ([714a113](https://github.com/linz/basemaps/commit/714a113b348f47b81e73a042e81e21d64da9e244))
+* **cli:** bundle cogify command into docker container ([#2792](https://github.com/linz/basemaps/issues/2792)) ([d0e45c7](https://github.com/linz/basemaps/commit/d0e45c7b19c0897f99b76b4795cc48052ae73601))
+* **cli:** move to ghcr for osgeo/gdal ([#2790](https://github.com/linz/basemaps/issues/2790)) ([cb96bf6](https://github.com/linz/basemaps/commit/cb96bf61335d2f42eb2e32f751623d718f0777fd))
+* **cli:** Refactoring the pull request creation to use git commands and support vector map update. ([#2780](https://github.com/linz/basemaps/issues/2780)) ([0ac677d](https://github.com/linz/basemaps/commit/0ac677da3c381b9439a207db5d1810f1ab4d1a5b))
+* **cogify:** improve cogify ([#2800](https://github.com/linz/basemaps/issues/2800)) ([cb16a44](https://github.com/linz/basemaps/commit/cb16a44aa44aa10ed69d1ab188a0539756f9ee72))
+* **cogify:** retile imagery into COGS aligned to a tile matrix ([#2759](https://github.com/linz/basemaps/issues/2759)) ([ddd99d3](https://github.com/linz/basemaps/commit/ddd99d3548c65ec4ce5b7c608d6bf9360f053635))
+* **lambda-tiler:** Refactoring the wmts Capablity to builder interface. ([#2686](https://github.com/linz/basemaps/issues/2686)) ([4d223b6](https://github.com/linz/basemaps/commit/4d223b6b02675a271d1393ff4c6d0e7f8348084b))
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

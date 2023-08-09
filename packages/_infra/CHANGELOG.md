@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Features
+
+* upgrade lambdas to nodejs 18 ([#2639](https://github.com/linz/basemaps/issues/2639)) ([17471e1](https://github.com/linz/basemaps/commit/17471e1d56fbe17b695e4a49b1fbe55ece215596))
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

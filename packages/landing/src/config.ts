@@ -15,6 +15,10 @@ export const Config = {
   get Version(): string {
     return process.env.GIT_VERSION ?? '';
   },
+  /** Github buildId */
+  get BuildId(): string {
+    return process.env.BUILD_ID ?? '';
+  },
   map: new MapConfig(),
 };
 
