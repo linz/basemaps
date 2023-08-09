@@ -6,7 +6,9 @@ jobs:
   build-containers:
     runs-on: ubuntu-latest
     steps:
-      - uses: linz/action-typescript@v2
+      - uses: linz/action-typescript@v3
+        with:
+          package-manager: yarn
 
       - name: (Prod) Ensure tag exists
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
