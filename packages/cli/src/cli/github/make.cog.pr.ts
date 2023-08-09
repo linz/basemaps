@@ -1,8 +1,17 @@
-import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, ConfigTileSetVector } from '@basemaps/config';
+import {
+  ConfigId,
+  ConfigLayer,
+  ConfigPrefix,
+  ConfigTileSet,
+  ConfigTileSetRaster,
+  ConfigTileSetVector,
+  TileSetType,
+} from '@basemaps/config';
 import { LogType, fsa } from '@basemaps/shared';
 import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
 import { Github } from './github.js';
 import prettier from 'prettier';
+import { TileSetConfigSchema } from '@basemaps/config/build/json/parse.tile.set.js';
 
 export class MakeCogGithub extends Github {
   imagery: string;
@@ -11,7 +20,7 @@ export class MakeCogGithub extends Github {
     this.imagery = imagery;
   }
 
-  async formatConfigFile(targetPath: string, tileSet: ConfigTileSet): Promise<string> {
+  async formatConfigFile(targetPath: string, tileSet: ConfigTileSet | TileSetConfigSchema): Promise<string> {
     const cfg = await prettier.resolveConfigFile(targetPath);
     if (cfg == null) {
       this.logger.error('Prettier:MissingConfig');
@@ -26,7 +35,12 @@ export class MakeCogGithub extends Github {
   /**
    * Prepare and create pull request for the aerial tileset config
    */
-  async updateRasterTileSet(filename: string, layer: ConfigLayer, category: Category): Promise<void> {
+  async updateRasterTileSet(
+    filename: string,
+    layer: ConfigLayer,
+    category: Category,
+    individual: boolean,
+  ): Promise<void> {
     const branch = `feat/bot-config-raster-${this.imagery}`;
 
     // Clone the basemaps-config repo and checkout branch
@@ -34,15 +48,26 @@ export class MakeCogGithub extends Github {
     this.configUser();
     this.getBranch(branch);
 
-    // Prepare new aerial tileset config
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', `${filename}.json`);
-    const tileSet = await fsa.readJson<ConfigTileSetRaster>(tileSetPath);
-    const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
-
-    // skip pull request if not an urban or rural imagery
-    if (newTileSet == null) return;
-    await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
+    if (individual) {
+      // Prepare new standalone tileset config
+      const tileSet: TileSetConfigSchema = {
+        type: TileSetType.Raster,
+        id: ConfigId.prefix(ConfigPrefix.TileSet, layer.name),
+        title: layer.title,
+        layers: [layer],
+      };
+      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', 'individual', `${layer.name}.json`);
+      await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, tileSet));
+    } else {
+      // Prepare new aerial tileset config
+      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', `${filename}.json`);
+      const tileSet = await fsa.readJson<ConfigTileSetRaster>(tileSetPath);
+      const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
+      // skip pull request if not an urban or rural imagery
+      if (newTileSet == null) return;
+      await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
+    }
 
     // Commit and push the changes
     const message = `config(raster): Add imagery ${this.imagery} to ${filename} config file.`;
@@ -57,11 +82,7 @@ export class MakeCogGithub extends Github {
   setDefaultConfig(layer: ConfigLayer, category: Category): ConfigLayer {
     layer.category = category;
     const defaultSetting = DefaultCategorySetting[category];
-    if (defaultSetting) {
-      if (defaultSetting.minZoom != null && layer.minZoom != null) layer.minZoom = defaultSetting.minZoom;
-      if (defaultSetting.minZoom != null && layer.minZoom != null) layer.disabled = defaultSetting.disabled;
-    }
-
+    if (defaultSetting.minZoom != null && layer.minZoom != null) layer.minZoom = defaultSetting.minZoom;
     return layer;
   }
 

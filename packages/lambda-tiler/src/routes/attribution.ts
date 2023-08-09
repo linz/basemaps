@@ -125,8 +125,7 @@ async function tileSetAttribution(
 
     items.push(item);
 
-    const minZoom = layer.disabled ? 32 : layer.minZoom;
-    const zoomMin = TileMatrixSet.convertZoomLevel(minZoom ? minZoom : 0, GoogleTms, tileMatrix, true);
+    const zoomMin = TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true);
     const zoomMax = TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true);
     cols.push({
       stac_version: Stac.Version,
@@ -141,7 +140,6 @@ async function tileSetAttribution(
         'linz:category': im.category,
         'linz:zoom': { min: zoomMin, max: zoomMax },
         'linz:priority': [1000 + tileSet.layers.indexOf(layer)],
-        'linz:disabled': layer.disabled ? true : false,
       },
     });
   }
