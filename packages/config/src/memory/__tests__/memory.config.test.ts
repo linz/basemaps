@@ -133,7 +133,6 @@ o.spec('MemoryConfig', () => {
 
   o('virtual tilesets should be created with `:`', async () => {
     const idA = ulid();
-    await new Promise((resolve) => setTimeout(resolve, 5));
     const idB = ulid();
     config.objects.clear();
     config.put({
@@ -176,7 +175,9 @@ o.spec('MemoryConfig', () => {
   });
 
   o('The latest imagery should overwrite the old ones', async () => {
+    await new Promise((resolve) => setTimeout(resolve, 5));
     const idLater = ulid();
+    await new Promise((resolve) => setTimeout(resolve, 5));
     const idLatest = ulid();
     config.put(baseImg);
     config.put({ ...baseImg, id: `im_${idLater}` } as ConfigImagery);
