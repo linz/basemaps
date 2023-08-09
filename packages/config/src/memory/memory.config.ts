@@ -22,7 +22,7 @@ export interface ConfigBundled {
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
   tileSet: ConfigTileSet[];
-  duplicateImagery: ConfigTileSet[];
+  duplicateImagery: string[];
 }
 
 function isConfigImagery(i: BaseConfig): i is ConfigImagery {
@@ -74,7 +74,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   assets: string;
 
   /** Catch configs with the same imagery that using the different imagery ids. */
-  duplicateImagery: ConfigTileSet[] = [];
+  duplicateImagery: string[] = [];
 
   put(obj: BaseConfig): void {
     this.objects.set(obj.id, obj);
@@ -174,8 +174,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     // The latest imagery overwrite the earlier ones.
     const existingImageryId = existing.layers[0][i.projection];
     if (existingImageryId) {
-      existing.layers[0][i.projection] = findLatestId(i.id, existingImageryId);
-      this.duplicateImagery.push(existing);
+      const newId = findLatestId(i.id, existingImageryId);
+      existing.layers[0][i.projection] = newId;
+      if (newId !== existingImageryId) this.duplicateImagery.push(existingImageryId);
     } else {
       existing.layers[0][i.projection] = i.id;
     }

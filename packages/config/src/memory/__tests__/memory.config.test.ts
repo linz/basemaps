@@ -6,7 +6,6 @@ import { ConfigProviderMemory } from '../memory.config.js';
 import { ulid } from 'ulid';
 import timers from 'node:timers/promises';
 
-
 o.spec('MemoryConfig', () => {
   const config = new ConfigProviderMemory();
   o.beforeEach(() => config.objects.clear());
