@@ -175,7 +175,6 @@ o.spec('MemoryConfig', () => {
   });
 
   o('The latest imagery should overwrite the old ones', async () => {
-    await new Promise((resolve) => setTimeout(resolve, 5));
     const idLater = ulid();
     await new Promise((resolve) => setTimeout(resolve, 5));
     const idLatest = ulid();
