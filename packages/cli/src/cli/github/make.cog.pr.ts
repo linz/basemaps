@@ -39,7 +39,7 @@ export class MakeCogGithub extends Github {
     filename: string,
     layer: ConfigLayer,
     category: Category,
-    addToAerial: boolean,
+    individual: boolean,
   ): Promise<void> {
     const branch = `feat/bot-config-raster-${this.imagery}`;
 
@@ -49,15 +49,7 @@ export class MakeCogGithub extends Github {
     this.getBranch(branch);
 
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    if (addToAerial) {
-      // Prepare new aerial tileset config
-      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', `${filename}.json`);
-      const tileSet = await fsa.readJson<ConfigTileSetRaster>(tileSetPath);
-      const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
-      // skip pull request if not an urban or rural imagery
-      if (newTileSet == null) return;
-      await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
-    } else {
+    if (individual) {
       // Prepare new standalone tileset config
       const tileSet: TileSetConfigSchema = {
         type: TileSetType.Raster,
@@ -67,6 +59,14 @@ export class MakeCogGithub extends Github {
       };
       const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', 'individual', `${layer.name}.json`);
       await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, tileSet));
+    } else {
+      // Prepare new aerial tileset config
+      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', `${filename}.json`);
+      const tileSet = await fsa.readJson<ConfigTileSetRaster>(tileSetPath);
+      const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
+      // skip pull request if not an urban or rural imagery
+      if (newTileSet == null) return;
+      await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
     }
 
     // Commit and push the changes
