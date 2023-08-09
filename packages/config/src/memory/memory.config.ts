@@ -152,7 +152,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     const allTileset: ConfigTileSet = {
       type: TileSetType.Raster,
       id: 'ts_all',
-      name: 'all_imagery',
+      name: 'all',
       title: 'All Imagery Basemaps',
       category: 'Basemaps',
       format: ImageFormat.Webp,
@@ -174,7 +174,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
         category: i.category,
         name: targetName,
         format: ImageFormat.Webp,
-        layers: [{ name: targetName, minZoom: 0, maxZoom: 32 }],
+        layers: [{ name: targetName, title: i.title, minZoom: 0, maxZoom: 32 }],
         background: { r: 0, g: 0, b: 0, alpha: 0 },
         updatedAt: Date.now(),
       } as ConfigTileSet;
