@@ -42,7 +42,7 @@ function findLatestId(idA: string, idB: string): string {
     if (timeA >= timeB) return idA;
   } finally {
     //If not ulid return the return id alphabetically.
-    return idA.localeCompare(idB) ? idA : idB;
+    return idA.localeCompare(idB) > 0 ? idA : idB;
   }
 }
 
@@ -180,13 +180,12 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       } as ConfigTileSet;
       removeUndefined(existing);
       this.put(existing);
-    } else {
-      this.duplicateImagery.push(existing);
     }
     // The latest imagery overwrite the earlier ones.
     const existingImageryId = existing.layers[0][i.projection];
     if (existingImageryId) {
       existing.layers[0][i.projection] = findLatestId(i.id, existingImageryId);
+      this.duplicateImagery.push(existing);
     } else {
       existing.layers[0][i.projection] = i.id;
     }
