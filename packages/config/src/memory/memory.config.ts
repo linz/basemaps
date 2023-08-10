@@ -153,7 +153,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       type: TileSetType.Raster,
       id: 'ts_all',
       name: 'all',
-      title: 'All Imagery Basemaps',
+      title: 'All Imagery',
       category: 'Basemaps',
       format: ImageFormat.Webp,
       layers: Array.from(layerByName.values()),
