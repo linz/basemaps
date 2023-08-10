@@ -9,7 +9,8 @@ import {
   standardizeLayerName,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps/geo';
-import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
+import { ConfigLoader } from '@basemaps/lambda-tiler';
+import { Env, LogConfig, fsa } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import fetch from 'node-fetch';
 import { CogStacJob } from '../../cog/cog.stac.job.js';
@@ -73,7 +74,7 @@ export class CommandImport extends CommandLineAction {
     const commit = this.commit.value ?? false;
     const config = this.config.value;
     const backup = this.backup.value;
-    const cfg = getDefaultConfig();
+    const cfg = await ConfigLoader.getDefaultConfig();
     if (config == null) throw new Error('Please provide a config json');
     if (commit && !config.startsWith('s3://') && Env.isProduction()) {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
@@ -94,7 +95,7 @@ export class CommandImport extends CommandLineAction {
     mem.createVirtualTileSets();
 
     logger.info({ config }, 'Import:Start');
-    for (const config of mem.objects.values()) this.update(config, commit);
+    for (const config of mem.objects.values()) this.update(config, cfg, commit);
     await Promise.all(this.promises);
 
     if (commit) {
@@ -107,13 +108,11 @@ export class CommandImport extends CommandLineAction {
       };
       logger.info({ config }, 'Import:ConfigBundle');
 
-      if (cfg.ConfigBundle.isWriteable()) {
-        // Insert a cb_hash record for reference
-        await cfg.ConfigBundle.put(configBundle);
-        // Update the cb_latest record
-        configBundle.id = cfg.ConfigBundle.id('latest');
-        await cfg.ConfigBundle.put(configBundle);
-      }
+      // Insert a cb_hash record for reference
+      await ConfigLoader.Dynamo.setConfig(configBundle);
+      // Update the cb_latest record
+      configBundle.id = cfg.ConfigBundle.id('latest');
+      await ConfigLoader.Dynamo.setConfig(configBundle);
     }
 
     if (commit && this.invalidations.length > 0) {
@@ -140,9 +139,9 @@ export class CommandImport extends CommandLineAction {
     if (commit !== true) logger.info('DryRun:Done');
   }
 
-  update(config: BaseConfig, commit: boolean): void {
+  update(config: BaseConfig, currentConfig: BasemapsConfigProvider, commit: boolean): void {
     const promise = Q(async (): Promise<boolean> => {
-      const updater = new Updater(config, commit);
+      const updater = new Updater(config, currentConfig, commit);
 
       const hasChanges = await updater.reconcile();
       if (hasChanges) {

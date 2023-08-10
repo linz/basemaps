@@ -5,18 +5,19 @@ export const Const = {
   },
   ApiKey: {
     QueryString: 'api',
-    TableName: 'ApiKey',
-    RequestLimitMinute: 1000,
   },
+
   TileMetadata: {
     TableName: 'TileMetadata',
-    RequestLimitMinute: 1000,
   },
 };
 
 export const Env = {
   /** Public URL base that tiles are served from */
   PublicUrlBase: 'BASEMAPS_PUBLIC_URL',
+
+  /** URL to where the basemaps config is stored */
+  ConfigLocation: 'BASEMAPS_CONFIG_URL',
 
   /** How many tiffs to load at one time */
   TiffConcurrency: 'TIFF_CONCURRENCY',

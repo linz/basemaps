@@ -5,7 +5,6 @@ export { LogConfig, LogType } from './log.js';
 export * from './api.js';
 export { V, VNode, VNodeElement, VNodeText } from './vdom.js';
 export { LoggerFatalError } from './logger.fatal.error.js';
-export { setDefaultConfig, getDefaultConfig } from './config.js';
 export { toQueryString } from './url.js';
 export { CompositeError } from './composite.error.js';
 

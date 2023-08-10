@@ -21,6 +21,8 @@ import { St } from './util/source.tracer.js';
 
 export const handler = lf.http(LogConfig.get());
 
+export { ConfigLoader } from './util/config.loader.js';
+
 /** If the request takes too long, respond with a 408 timeout when there is approx 1 second remaining */
 handler.router.timeoutEarlyMs = 1_000;
 

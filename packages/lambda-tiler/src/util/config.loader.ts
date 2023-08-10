@@ -1,34 +1,78 @@
-import { base58, BasemapsConfigProvider, isBase58 } from '@basemaps/config';
+import { base58, BasemapsConfigProvider, ConfigBundle, ConfigId, ConfigPrefix, isBase58 } from '@basemaps/config';
 import { LambdaHttpResponse } from '@linzjs/lambda';
 import { parseUri } from '@chunkd/core';
 import { LambdaHttpRequest } from '@linzjs/lambda';
 import { CachedConfig } from './config.cache.js';
-import { getDefaultConfig } from '@basemaps/shared';
+import { Const, Env } from '@basemaps/shared';
+import DynamoDb from 'aws-sdk/clients/dynamodb.js';
 
 // FIXME load this from process.env COG BUCKETS?
 const SafeBuckets = new Set(['linz-workflow-artifacts', 'linz-basemaps', 'linz-basemaps-staging']);
 const SafeProtocols = new Set(['s3', 'memory']);
 
-export class ConfigLoader {
-  /** Exposed for testing */
-  static async getDefaultConfig(): Promise<BasemapsConfigProvider> {
-    const config = getDefaultConfig();
-    if (config.assets == null) {
-      const cb = await config.ConfigBundle.get(config.ConfigBundle.id('latest'));
-      if (cb) config.assets = cb.assets;
+export const ConfigLoader = {
+  defaultConfig: null as Promise<BasemapsConfigProvider> | null,
+
+  // TODO it would be great to remove dynamoDb from our stack,
+  // could config just be referenced using ${Env.ConfigLocation}
+  Dynamo: {
+    client: new DynamoDb({ region: Const.Aws.Region }),
+    /** Load a configuration pointer from dynamoDb */
+    async getConfig(id = 'latest'): Promise<null | ConfigBundle> {
+      const item = await this.client
+        .getItem({
+          Key: { id: { S: ConfigId.prefix(ConfigPrefix.ConfigBundle, id) } },
+          TableName: Const.TileMetadata.TableName,
+        })
+        .promise();
+
+      if (item == null || item.Item == null) return null;
+      return DynamoDb.Converter.unmarshall(item.Item) as ConfigBundle;
+    },
+    /** Set a configuration pointer into dynamoDB */
+    async setConfig(record: ConfigBundle): Promise<string> {
+      record.updatedAt = Date.now();
+      await this.client
+        .putItem({ TableName: Const.TileMetadata.TableName, Item: DynamoDb.Converter.marshall(record) })
+        .promise();
+      return record.id;
+    },
+  },
+
+  async loadDefaultConfig(): Promise<BasemapsConfigProvider> {
+    // Load a config set from the environment
+    const configLocation = Env.get(Env.ConfigLocation);
+    if (configLocation) {
+      return CachedConfig.get(configLocation).then((f) => {
+        if (f == null) throw new LambdaHttpResponse(404, `Config not found at ${configLocation}`);
+        return f;
+      });
     }
-    return config;
-  }
+
+    // Load `cb_latest` from dynamodb then read the config from wherever its is pointing
+    const cb = await ConfigLoader.Dynamo.getConfig('latest');
+    if (cb == null) throw new LambdaHttpResponse(404, `Config not found at "cb_latest" or ${Env.ConfigLocation}`);
+    return CachedConfig.get(cb.path).then((f) => {
+      if (f == null) throw new LambdaHttpResponse(404, `Config not found at ${configLocation}`);
+      return f;
+    });
+  },
+
+  /** Exposed for testing */
+  getDefaultConfig(): Promise<BasemapsConfigProvider> {
+    if (this.defaultConfig == null) this.defaultConfig = this.loadDefaultConfig();
+    return this.defaultConfig;
+  },
 
   /** Lookup the config path from a request and return a standardized location */
-  static extract(req: LambdaHttpRequest): string | null {
+  extract(req: LambdaHttpRequest): string | null {
     const rawLocation = req.query.get('config');
     if (rawLocation == null) return null;
     if (rawLocation.includes('/')) return base58.encode(Buffer.from(rawLocation));
     return rawLocation;
-  }
+  },
 
-  static async load(req: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
+  async load(req: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
     const rawLocation = req.query.get('config');
     if (rawLocation == null) return this.getDefaultConfig();
 
@@ -51,5 +95,5 @@ export class ConfigLoader {
       if (f == null) throw new LambdaHttpResponse(404, `Config not found at ${configLocation}`);
       return f;
     });
-  }
-}
+  },
+};

@@ -1,12 +1,13 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
 import { ImageFormat, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { LogConfig, setDefaultConfig } from '@basemaps/shared';
+import { LogConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import { pathToFileURL } from 'url';
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
+import { ConfigLoader } from '../util/config.loader.js';
 
 const target = pathToFileURL(`/home/blacha/tmp/imagery/southland-0.25-rural-2023/`);
 const tile = fromPath('/18/117833/146174.webp');
@@ -25,7 +26,7 @@ function fromPath(s: string): Tile {
 async function main(): Promise<void> {
   const log = LogConfig.get();
   const provider = new ConfigProviderMemory();
-  setDefaultConfig(provider);
+  ConfigLoader.defaultConfig = Promise.resolve(provider);
   const { tileSet, imagery } = await initConfigFromUrls(provider, [target]);
 
   if (tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + target);

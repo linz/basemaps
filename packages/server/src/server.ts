@@ -1,5 +1,5 @@
-import { handler } from '@basemaps/lambda-tiler';
-import { fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
+import { handler, ConfigLoader } from '@basemaps/lambda-tiler';
+import { fsa, LogType } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
 import { LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
@@ -31,13 +31,13 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
   BasemapsServer.register(formBodyPlugin);
 
   const cfg = await loadConfig(opts, logger);
-  setDefaultConfig(cfg);
+  ConfigLoader.defaultConfig = Promise.resolve(cfg);
 
   if (opts.assets) {
     const isExists = await fsa.exists(opts.assets);
     if (!isExists) throw new Error(`--assets path "${opts.assets}" does not exist`);
     logger.info({ path: opts.assets }, 'Config:Assets');
-    getDefaultConfig().assets = opts.assets;
+    cfg.assets = opts.assets;
   }
 
   const landingLocation = getLandingLocation();

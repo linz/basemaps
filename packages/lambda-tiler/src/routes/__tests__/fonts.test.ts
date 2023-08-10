@@ -1,5 +1,4 @@
 import { base58, ConfigProviderMemory } from '@basemaps/config';
-import { getDefaultConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
@@ -70,13 +69,11 @@ o.spec('/v1/fonts', () => {
   });
 
   o('should return 404 if no asset location set', async () => {
-    getDefaultConfig().assets = undefined;
     const res = await fontList(mockRequest('/v1/fonts.json'));
     o(res.status).equals(404);
   });
 
   o('should get the correct utf8 font with default assets', async () => {
-    getDefaultConfig().assets = undefined;
     sandbox
       .stub(config.ConfigBundle, 'get')
       .resolves({ id: 'cb_latest', name: 'latest', path: 'latest', hash: 'hash', assets: 'memory://' });

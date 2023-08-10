@@ -1,13 +1,6 @@
-import {
-  BasemapsConfigProvider,
-  ConfigBundled,
-  ConfigJson,
-  ConfigPrefix,
-  ConfigProviderDynamo,
-  ConfigProviderMemory,
-} from '@basemaps/config';
+import { BasemapsConfigProvider, ConfigBundled, ConfigJson, ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
-import { fsa, getDefaultConfig, LogType } from '@basemaps/shared';
+import { LogType, fsa } from '@basemaps/shared';
 
 export type ServerOptions = ServerOptionsTiffs | ServerOptionsConfig;
 
@@ -17,7 +10,7 @@ export interface ServerOptionsTiffs {
   paths: URL[];
 }
 
-/** Load configuration from a config file/dynamodb */
+/** Load configuration from a config file */
 export interface ServerOptionsConfig {
   assets?: string;
   config: string;
@@ -45,22 +38,6 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
     return mem;
   }
   const configPath = opts.config;
-  // Load config from dynamodb table
-  if (configPath.startsWith('dynamodb://')) {
-    const table = configPath.slice('dynamodb://'.length);
-    logger.info({ path: configPath, table, mode: 'dynamo' }, 'Starting Server');
-    return new ConfigProviderDynamo(table);
-  }
-
-  // Load a bundled config by loading it from the default dynamo reference
-  if (configPath.startsWith(ConfigPrefix.ConfigBundle)) {
-    const cb = await getDefaultConfig().ConfigBundle.get(configPath);
-    if (cb == null) throw new Error(`Config bundle does not exist ${configPath}`);
-    const configJson = await fsa.readJson<ConfigBundled>(cb.path);
-    const mem = ConfigProviderMemory.fromJson(configJson);
-    mem.createVirtualTileSets();
-    return mem;
-  }
 
   // Read a bundled config directly from a JSON file.
   if (configPath.endsWith('.json') || configPath.endsWith('.json.gz')) {
