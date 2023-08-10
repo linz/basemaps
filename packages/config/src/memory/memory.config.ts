@@ -1,4 +1,4 @@
-import { ImageFormat } from '@basemaps/geo';
+import { EpsgCode, ImageFormat } from '@basemaps/geo';
 import { decodeTime, ulid } from 'ulid';
 import { BasemapsConfigObject, BasemapsConfigProvider, ConfigId } from '../base.config.js';
 import { BaseConfig } from '../config/base.js';
@@ -11,6 +11,12 @@ import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
 import { sha256base58 } from '../base58.node.js';
 
+interface DuplicatedImagery {
+  id: string;
+  name: string;
+  projection: EpsgCode;
+}
+
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
   id: string;
@@ -22,7 +28,7 @@ export interface ConfigBundled {
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
   tileSet: ConfigTileSet[];
-  duplicateImagery: string[];
+  duplicateImagery: DuplicatedImagery[];
 }
 
 function isConfigImagery(i: BaseConfig): i is ConfigImagery {
@@ -74,7 +80,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   assets: string;
 
   /** Catch configs with the same imagery that using the different imagery ids. */
-  duplicateImagery: string[] = [];
+  duplicateImagery: DuplicatedImagery[] = [];
 
   put(obj: BaseConfig): void {
     this.objects.set(obj.id, obj);
@@ -176,7 +182,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     if (existingImageryId) {
       const newId = findLatestId(i.id, existingImageryId);
       existing.layers[0][i.projection] = newId;
-      if (newId !== existingImageryId) this.duplicateImagery.push(existingImageryId);
+      if (newId !== existingImageryId) {
+        this.duplicateImagery.push({ id: existingImageryId, name: i.name, projection: i.projection });
+      }
     } else {
       existing.layers[0][i.projection] = i.id;
     }
