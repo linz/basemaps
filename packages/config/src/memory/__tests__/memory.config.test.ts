@@ -160,14 +160,13 @@ o.spec('MemoryConfig', () => {
 
     o(tileSets).deepEquals([
       'ts_aerial',
-      'ts_aerial:ōtorohanga_urban_2021_0-1m_RGB', // deprecated by child `:`
       `ts_${idA}`, // By image id
       'ts_ōtorohanga-urban-2021-0.1m', // By name
       `ts_${idB}`, // By image id
       'ts_all',
     ]);
 
-    const target = await config.TileSet.get('ts_aerial:ōtorohanga_urban_2021_0-1m_RGB');
+    const target = await config.TileSet.get('ts_ōtorohanga-urban-2021-0.1m');
     o(target?.layers.length).equals(1);
     o(target?.layers[0][3857]).equals(`im_${idB}`);
     o(target?.layers[0][2193]).equals(`im_${idA}`);
