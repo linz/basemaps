@@ -35,12 +35,7 @@ export class MakeCogGithub extends Github {
   /**
    * Prepare and create pull request for the aerial tileset config
    */
-  async updateRasterTileSet(
-    filename: string,
-    layer: ConfigLayer,
-    category: Category,
-    individual: boolean,
-  ): Promise<void> {
+  async updateRasterTileSet(filename: string, layer: ConfigLayer, category: Category): Promise<void> {
     const branch = `feat/bot-config-raster-${this.imagery}`;
 
     // Clone the basemaps-config repo and checkout branch
@@ -49,7 +44,7 @@ export class MakeCogGithub extends Github {
     this.getBranch(branch);
 
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    if (individual) {
+    if (filename === 'individual') {
       // Prepare new standalone tileset config
       const tileSet: TileSetConfigSchema = {
         type: TileSetType.Raster,
@@ -57,7 +52,7 @@ export class MakeCogGithub extends Github {
         title: layer.title,
         layers: [layer],
       };
-      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', 'individual', `${layer.name}.json`);
+      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', filename, `${layer.name}.json`);
       await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, tileSet));
     } else {
       // Prepare new aerial tileset config

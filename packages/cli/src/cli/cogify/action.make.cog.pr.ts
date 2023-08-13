@@ -36,7 +36,7 @@ export class CommandCogPullRequest extends CommandLineAction {
   private layer: CommandLineStringParameter;
   private category: CommandLineStringParameter;
   private repository: CommandLineStringParameter;
-  private individual: CommandLineFlagParameter;
+  private filename: CommandLineStringParameter;
   private vector: CommandLineFlagParameter;
 
   public constructor() {
@@ -67,10 +67,11 @@ export class CommandCogPullRequest extends CommandLineAction {
       defaultValue: 'linz/basemaps-config',
       required: false,
     });
-    this.individual = this.defineFlagParameter({
-      parameterLongName: '--individual',
-      description: 'Import imagery as individual layer in basemaps.',
-      required: false,
+    this.filename = this.defineStringParameter({
+      argumentName: 'FILENAME',
+      parameterLongName: '--filename',
+      description: 'Which tileset config file to import into',
+      defaultValue: 'aerial',
     });
     this.vector = this.defineFlagParameter({
       parameterLongName: '--vector',
@@ -84,8 +85,10 @@ export class CommandCogPullRequest extends CommandLineAction {
     const layerStr = this.layer.value;
     const category = this.category.value ? parseCategory(this.category.value) : Category.Other;
     const repo = this.repository.value ?? this.repository.defaultValue;
+    const filename = this.filename.value ?? this.filename.defaultValue;
     if (layerStr == null) throw new Error('Please provide a valid input layer and urls');
     if (repo == null) throw new Error('Please provide a repository');
+    if (filename == null) throw new Error('Please provide a tileset config filename');
     let layer: ConfigLayer;
     try {
       layer = JSON.parse(layerStr);
@@ -98,6 +101,6 @@ export class CommandCogPullRequest extends CommandLineAction {
 
     const git = new MakeCogGithub(layer.name, repo, logger);
     if (this.vector.value) await git.updateVectorTileSet('topographic', layer);
-    else await git.updateRasterTileSet('aerial', layer, category, this.individual.value);
+    else await git.updateRasterTileSet(filename, layer, category);
   }
 }
