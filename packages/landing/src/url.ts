@@ -94,7 +94,7 @@ export const WindowUrl = {
 
   toBaseWmts(): string {
     const query = toQueryString({ api: Config.ApiKey, config: ensureBase58(Config.map.config) });
-    return `${this.baseUrl()}/v1/tiles/all/WMTSCapabilities.xml${query}`;
+    return `${this.baseUrl()}/v1/tiles/aerial/WMTSCapabilities.xml${query}`;
   },
 
   toImageryUrl(layerId: string, imageryType: string): string {
