@@ -18,7 +18,7 @@ export interface LayerSwitcherDropdownState {
   currentLayer: string;
 }
 
-const ignoredLayers = ['all'];
+const ignoredLayers = new Set(['all']);
 
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
   _events: (() => boolean)[] = [];
@@ -87,7 +87,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     let current: Option | null = null;
 
     for (const layer of this.state.layers.values()) {
-      if (ignoredLayers.includes(layer.id)) continue;
+      if (ignoredLayers.has(layer.id)) continue;
       if (!layer.projections.has(Config.map.tileMatrix.projection.code)) continue;
       const layerId = layer.category ?? 'Unknown';
       const layerCategory = categories.get(layerId) ?? { label: layerId, options: [] };
