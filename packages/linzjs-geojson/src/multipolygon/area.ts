@@ -17,14 +17,14 @@ export const Area = {
    * Calculate the cartesian area of a polygon using the shoelace formula.
    * Assumes the polygon is well-formed and simple (i.e. not self-intersecting).
    *
-   * [GeoJSON Polygons][1] are an array of rings, where the first ring is the exterior,
-   * and any subsequent rings are interior rings (holes) The coordinates of the
-   * exterior ring are ordered counterclockwise, while the coordinates of
-   * interior rings are ordered clockwise. Area.ring() gives a negative area
-   * value for these clockwise interior rings, hence adding the area of all
-   * rings together gives the valid area of the polygon, as adding the negative
-   * area of the interior rings subtracts it from the positive area of the
-   * exterior ring.
+   * [GeoJSON Polygons][1] are an array of rings, where the first ring is the
+   * exterior, and any subsequent rings are interior rings (holes).
+   * The coordinates of the exterior ring are ordered counterclockwise,
+   * while the coordinates of interior rings are ordered clockwise.
+   * Area.ring() gives a negative area value for these clockwise interior rings,
+   * hence adding the area of all rings together gives the valid area of the
+   * polygon, as adding the negative area of the interior rings subtracts it
+   * from the positive area of the exterior ring.
    *
    * [1]: https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.6
    * @param poly The polygon to calculate the area of.
