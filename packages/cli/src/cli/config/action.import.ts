@@ -166,16 +166,26 @@ export class CommandImport extends CommandLineAction {
    * @param mem new config data read from config bundle file
    * @param layer new config tileset layer
    * @param inserts string array to save all the lines for markdown output
+   * @param aerial output preview link for aerial map
    */
-  async outputNewLayers(mem: ConfigProviderMemory, layer: ConfigLayer, inserts: string[]): Promise<void> {
+  async outputNewLayers(
+    mem: ConfigProviderMemory,
+    layer: ConfigLayer,
+    inserts: string[],
+    aerial?: boolean,
+  ): Promise<void> {
     inserts.push(`### ${layer.name}\n`);
     if (layer[2193]) {
       const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
-      inserts.push(` - [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+      inserts.push(` - [NZTM2000Quad](${urls.layer})`);
+      if (aerial) inserts.push(` -- [Aerial](${urls.tag})\n`);
+      else inserts.push('\n');
     }
     if (layer[3857]) {
       const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
-      inserts.push(` - [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+      inserts.push(` - [WebMercatorQuad](${urls.layer})`);
+      if (aerial) inserts.push(` -- [Aerial](${urls.tag})\n`);
+      else inserts.push('\n');
     }
   }
 
@@ -185,12 +195,14 @@ export class CommandImport extends CommandLineAction {
    * @param layer new config tileset layer
    * @param existing existing config tileset layer
    * @param updates string array to save all the lines for markdown output
+   * @param aerial output preview link for aerial map
    */
   async outputUpdatedLayers(
     mem: ConfigProviderMemory,
     layer: ConfigLayer,
     existing: ConfigLayer,
     updates: string[],
+    aerial?: boolean,
   ): Promise<void> {
     let zoom = undefined;
     if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
@@ -203,14 +215,18 @@ export class CommandImport extends CommandLineAction {
     if (layer[2193]) {
       const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
       if (layer[2193] !== existing[2193]) {
-        change.push(`- Layer update [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+        change.push(`- Layer update [NZTM2000Quad](${urls.layer})`);
+        if (aerial) updates.push(` -- [Aerial](${urls.tag})\n`);
+        else updates.push('\n');
       }
       if (zoom) zoom += ` [NZTM2000Quad](${urls.tag})`;
     }
     if (layer[3857]) {
       const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
       if (layer[3857] !== existing[3857]) {
-        change.push(`- Layer update [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+        change.push(`- Layer update [WebMercatorQuad](${urls.layer})`);
+        if (aerial) updates.push(` -- [Aerial](${urls.tag})\n`);
+        else updates.push('\n');
       }
       if (zoom) zoom += ` [WebMercatorQuad](${urls.tag})`;
     }
@@ -242,8 +258,8 @@ export class CommandImport extends CommandLineAction {
     for (const layer of newData.layers) {
       if (layer.name === 'chatham-islands_digital-globe_2014-2019_0-5m') continue; // Ignore duplicated layer.
       const existing = oldData.layers.find((l) => l.name === layer.name);
-      if (existing) await this.outputUpdatedLayers(mem, layer, existing, updates);
-      else await this.outputNewLayers(mem, layer, inserts);
+      if (existing) await this.outputUpdatedLayers(mem, layer, existing, updates, true);
+      else await this.outputNewLayers(mem, layer, inserts, true);
     }
 
     // Output for individual tileset config changes or inserts
