@@ -4,8 +4,10 @@ import {
   ConfigBundle,
   ConfigBundled,
   ConfigId,
+  ConfigLayer,
   ConfigPrefix,
   ConfigProviderMemory,
+  ConfigTileSet,
   standardizeLayerName,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps/geo';
@@ -159,10 +161,80 @@ export class CommandImport extends CommandLineAction {
     this.promises.push(promise);
   }
 
-  async outputChange(output: string, mem: BasemapsConfigProvider, cfg: BasemapsConfigProvider): Promise<void> {
+  /**
+   * This function prepare for the markdown lines with preview urls for new inserted config layers
+   * @param mem new config data read from config bundle file
+   * @param layer new config tileset layer
+   * @param inserts string array to save all the lines for markdown output
+   */
+  async outputNewLayers(mem: ConfigProviderMemory, layer: ConfigLayer, inserts: string[]): Promise<void> {
+    inserts.push(`### ${layer.name}\n`);
+    if (layer[2193]) {
+      const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
+      inserts.push(` - [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+    }
+    if (layer[3857]) {
+      const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
+      inserts.push(` - [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+    }
+  }
+
+  /**
+   * This function compared new config tileset layer with existing one, then output the markdown lines for updates and preview urls.
+   * @param mem new config data read from config bundle file
+   * @param layer new config tileset layer
+   * @param existing existing config tileset layer
+   * @param updates string array to save all the lines for markdown output
+   */
+  async outputUpdatedLayers(
+    mem: ConfigProviderMemory,
+    layer: ConfigLayer,
+    existing: ConfigLayer,
+    updates: string[],
+  ): Promise<void> {
+    let zoom = undefined;
+    if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
+      zoom = ' - Zoom level updated.';
+      if (layer.minZoom !== existing.minZoom) zoom += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
+      if (layer.maxZoom !== existing.maxZoom) zoom += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
+    }
+
+    const change: string[] = [`### ${layer.name}\n`];
+    if (layer[2193]) {
+      const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
+      if (layer[2193] !== existing[2193]) {
+        change.push(`- Layer update [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+      }
+      if (zoom) zoom += ` [NZTM2000Quad](${urls.tag})`;
+    }
+    if (layer[3857]) {
+      const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
+      if (layer[3857] !== existing[3857]) {
+        change.push(`- Layer update [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
+      }
+      if (zoom) zoom += ` [WebMercatorQuad](${urls.tag})`;
+    }
+
+    if (zoom) change.push(`${zoom}\n`);
+    if (change.length > 1) updates.push(change.join(''));
+  }
+
+  /**
+   * This function compared new config with existing and output a markdown document to highlight the inserts and changes
+   * Changes includes
+   * - aerial config
+   * - vector config
+   * - vector style
+   * - individual config
+   *
+   * @param output a string of output markdown location
+   * @param mem new config data read from config bundle file
+   * @param cfg existing config data
+   */
+  async outputChange(output: string, mem: ConfigProviderMemory, cfg: BasemapsConfigProvider): Promise<void> {
     // Output for aerial config changes
-    const inserts: string[] = ['# New Layers\n'];
-    const updates: string[] = ['# Updates\n'];
+    const inserts: string[] = ['# Aerial Config Inserts\n'];
+    const updates: string[] = ['# Aerial Config Updates\n'];
     const aerialId = 'ts_aerial';
     const newData = await mem.TileSet.get(aerialId);
     const oldData = await cfg.TileSet.get(aerialId);
@@ -170,44 +242,22 @@ export class CommandImport extends CommandLineAction {
     for (const layer of newData.layers) {
       if (layer.name === 'chatham-islands_digital-globe_2014-2019_0-5m') continue; // Ignore duplicated layer.
       const existing = oldData.layers.find((l) => l.name === layer.name);
-      if (existing) {
-        let zoom = undefined;
-        if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
-          zoom = ' - Zoom level updated.';
-          if (layer.minZoom !== existing.minZoom) zoom += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
-          if (layer.maxZoom !== existing.maxZoom) zoom += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
-        }
+      if (existing) await this.outputUpdatedLayers(mem, layer, existing, updates);
+      else await this.outputNewLayers(mem, layer, inserts);
+    }
 
-        const change: string[] = [`### ${layer.name}\n`];
-        if (layer[2193]) {
-          const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
-          if (layer[2193] !== existing[2193]) {
-            change.push(`- Layer update [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
-          }
-          if (zoom) zoom += ` [NZTM2000Quad](${urls.tag})`;
-        }
-        if (layer[3857]) {
-          const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
-          if (layer[3857] !== existing[3857]) {
-            change.push(`- Layer update [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
-          }
-          if (zoom) zoom += ` [WebMercatorQuad](${urls.tag})`;
-        }
-
-        if (zoom) change.push(`${zoom}\n`);
-        if (change.length > 1) updates.push(change.join(''));
-      } else {
-        // New layers
-        inserts.push(`### ${layer.name}\n`);
-        if (layer[2193]) {
-          const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
-          inserts.push(` - [NZTM2000Quad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
-        }
-        if (layer[3857]) {
-          const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
-          inserts.push(` - [WebMercatorQuad](${urls.layer}) -- [Aerial](${urls.tag})\n`);
-        }
-      }
+    // Output for individual tileset config changes or inserts
+    const individualInserts: string[] = ['# Individual Layer Inserts\n'];
+    const individualUpdates: string[] = ['# Individual Layer Updates\n'];
+    for (const config of mem.objects.values()) {
+      if (!config.id.startsWith(ConfigPrefix.TileSet)) continue;
+      if (config.id === 'ts_aerial' || config.id === 'ts_topographic') continue;
+      const tileSet = config as ConfigTileSet;
+      if (tileSet.layers.length > 1) continue; // Not an individual layer
+      const existing = await cfg.TileSet.get(config.id);
+      const layer = tileSet.layers[0];
+      if (existing) await this.outputUpdatedLayers(mem, layer, existing.layers[0], individualUpdates);
+      else await this.outputNewLayers(mem, layer, individualInserts);
     }
 
     // Output for vector config changes
@@ -226,9 +276,12 @@ export class CommandImport extends CommandLineAction {
         styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${this.config.value}&i=topographic&s=${style}&debug)\n`);
       }
     }
+
     let md = '';
     if (inserts.length > 1) md += inserts.join('');
     if (updates.length > 1) md += updates.join('');
+    if (individualInserts.length > 1) md += individualInserts.join('');
+    if (individualUpdates.length > 1) md += individualUpdates.join('');
     if (vectorUpdate.length > 1) md += vectorUpdate.join('');
     if (styleUpdate.length > 1) md += styleUpdate.join('');
 
