@@ -2,7 +2,6 @@ import {
   ConfigId,
   ConfigLayer,
   ConfigPrefix,
-  ConfigTileSet,
   ConfigTileSetRaster,
   ConfigTileSetVector,
   TileSetType,
@@ -10,8 +9,8 @@ import {
 import { LogType, fsa } from '@basemaps/shared';
 import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
 import { Github } from './github.js';
-import prettier from 'prettier';
 import { TileSetConfigSchema } from '@basemaps/config/build/json/parse.tile.set.js';
+import { execFileSync } from 'child_process';
 
 export class MakeCogGithub extends Github {
   imagery: string;
@@ -20,16 +19,12 @@ export class MakeCogGithub extends Github {
     this.imagery = imagery;
   }
 
-  async formatConfigFile(targetPath: string, tileSet: ConfigTileSet | TileSetConfigSchema): Promise<string> {
-    const cfg = await prettier.resolveConfigFile(targetPath);
-    if (cfg == null) {
-      this.logger.error('Prettier:MissingConfig');
-      return JSON.stringify(tileSet, null, 2);
-    }
-    const options = await prettier.resolveConfig(cfg);
-    this.logger.info({ configPath: cfg, prettierOptions: options }, 'Prettier:Config');
-    const formatted = prettier.format(JSON.stringify(tileSet), { ...options, parser: 'json' });
-    return formatted;
+  /**
+   * Format the config files by prettier
+   */
+  formatConfigFile(): void {
+    this.logger.info({ repository: this.repo }, 'GitHub: Prettier');
+    execFileSync('npx', ['prettier', '-w', 'config'], { cwd: this.repoName });
   }
 
   /**
@@ -58,7 +53,9 @@ export class MakeCogGithub extends Github {
         layers: [layer],
       };
       const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', 'individual', `${layer.name}.json`);
-      await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, tileSet));
+      await fsa.write(tileSetPath, JSON.stringify(tileSet));
+      // Format the config file by prettier
+      this.formatConfigFile();
     } else {
       // Prepare new aerial tileset config
       const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', `${filename}.json`);
@@ -66,7 +63,9 @@ export class MakeCogGithub extends Github {
       const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
       // skip pull request if not an urban or rural imagery
       if (newTileSet == null) return;
-      await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
+      await fsa.write(tileSetPath, JSON.stringify(newTileSet));
+      // Format the config file by prettier
+      this.formatConfigFile();
     }
 
     // Commit and push the changes
@@ -159,7 +158,9 @@ export class MakeCogGithub extends Github {
 
     // skip pull request if not an urban or rural imagery
     if (newTileSet == null) return;
-    await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
+    await fsa.write(tileSetPath, JSON.stringify(newTileSet));
+    // Format the config file by prettier
+    this.formatConfigFile();
 
     // Commit and push the changes
     const message = `config(vector): Update the ${this.imagery} to ${filename} config file.`;
