@@ -27,45 +27,50 @@ export const BasemapsCogifyConfigCommand = command({
   async handler(args) {
     const metrics = new Metrics();
     const logger = getLogger(this, args);
-
     const mem = new ConfigProviderMemory();
+
     metrics.start('imagery:load');
     const cfg = await initConfigFromUrls(mem, [args.path]);
     metrics.end('imagery:load');
-    logger.info({ imagery: cfg.imagery.length, titles: cfg.imagery.map((f) => f.title) }, 'ImageryConfig:Loaded');
+
+    if (cfg.imagery.length !== 1) {
+      process.exitCode = 1;
+      logger.fatal({ length: cfg.imagery.length }, 'ImageryConfig:LengthNotOne');
+      return;
+    }
+
+    const im = cfg.imagery[0];
+    logger.info({ files: im.files.length, titles: im.title }, 'ImageryConfig:Loaded');
 
     const config = mem.toJson();
     const outputPath = urlToString(new URL(`basemaps-config-${config.hash}.json.gz`, args.target ?? args.path));
 
     logger.info({ output: outputPath, hash: config.hash }, 'ImageryConfig:Write');
     await fsa.writeJson(outputPath, config);
-    const configPath = base58.encode(Buffer.from(outputPath));
 
-    const outputUrls: string[] = [];
-    for (const im of cfg.imagery) {
-      const location = getImageryCenterZoom(im);
-      const locationHash = `#@${location.lat.toFixed(7)},${location.lon.toFixed(7)},z${location.zoom}`;
-      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${im.name}&tileMatrix=${im.tileMatrix}&debug${locationHash}`;
-      outputUrls.push(url);
-      logger.info(
-        {
-          path: outputPath,
-          url,
-          config: configPath,
-          title: im.title,
-          tileMatrix: im.tileMatrix,
-          projection: im.projection,
-        },
-        'ImageryConfig:Done',
-      );
-    }
+    const configPath = base58.encode(Buffer.from(outputPath));
+    const location = getImageryCenterZoom(im);
+    const locationHash = `#@${location.lat.toFixed(7)},${location.lon.toFixed(7)},z${location.zoom}`;
+    const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${im.name}&tileMatrix=${im.tileMatrix}&debug${locationHash}`;
+    logger.info(
+      {
+        path: outputPath,
+        url,
+        config: configPath,
+        title: im.title,
+        tileMatrix: im.tileMatrix,
+        projection: im.projection,
+      },
+      'ImageryConfig:Done',
+    );
 
     if (isArgo()) {
       // Path to where the config is located
       await fsa.write('/tmp/cogify/config-path', outputPath);
       // A URL to where the imagery can be viewed
-      await fsa.write('/tmp/cogify/config-url.json', JSON.stringify(outputUrls));
+      await fsa.write('/tmp/cogify/config-url', url);
     }
+
     logger.info({ metrics: metrics.metrics }, 'ImageryConfig:Metrics');
   },
 });
