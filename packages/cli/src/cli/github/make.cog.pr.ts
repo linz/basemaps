@@ -2,7 +2,6 @@ import {
   ConfigId,
   ConfigLayer,
   ConfigPrefix,
-  ConfigTileSet,
   ConfigTileSetRaster,
   ConfigTileSetVector,
   TileSetType,
@@ -10,8 +9,8 @@ import {
 import { LogType, fsa } from '@basemaps/shared';
 import { Category, DefaultCategorySetting } from '../cogify/action.make.cog.pr.js';
 import { Github } from './github.js';
-import prettier from 'prettier';
 import { TileSetConfigSchema } from '@basemaps/config/build/json/parse.tile.set.js';
+import { execFileSync } from 'child_process';
 
 export class MakeCogGithub extends Github {
   imagery: string;
@@ -20,16 +19,12 @@ export class MakeCogGithub extends Github {
     this.imagery = imagery;
   }
 
-  async formatConfigFile(targetPath: string, tileSet: ConfigTileSet | TileSetConfigSchema): Promise<string> {
-    const cfg = await prettier.resolveConfigFile(targetPath);
-    if (cfg == null) {
-      this.logger.error('Prettier:MissingConfig');
-      return JSON.stringify(tileSet, null, 2);
-    }
-    const options = await prettier.resolveConfig(cfg);
-    this.logger.info({ configPath: cfg, prettierOptions: options }, 'Prettier:Config');
-    const formatted = prettier.format(JSON.stringify(tileSet), { ...options, parser: 'json' });
-    return formatted;
+  /**
+   * Format the config files by prettier
+   */
+  formatConfigFile(path = './config/'): void {
+    this.logger.info({ repository: this.repo }, 'GitHub: Prettier');
+    execFileSync('npx', ['prettier', '-w', path], { cwd: this.repoName });
   }
 
   /**
@@ -57,16 +52,22 @@ export class MakeCogGithub extends Github {
         title: layer.title,
         layers: [layer],
       };
-      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', 'individual', `${layer.name}.json`);
-      await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, tileSet));
+      const tileSetPath = fsa.joinAll('config', 'tileset', 'individual', `${layer.name}.json`);
+      const fullPath = fsa.join(this.repoName, tileSetPath);
+      await fsa.write(fullPath, JSON.stringify(tileSet));
+      // Format the config file by prettier
+      this.formatConfigFile(tileSetPath);
     } else {
       // Prepare new aerial tileset config
-      const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', `${filename}.json`);
-      const tileSet = await fsa.readJson<ConfigTileSetRaster>(tileSetPath);
+      const tileSetPath = fsa.joinAll('config', 'tileset', `${filename}.json`);
+      const fullPath = fsa.join(this.repoName, tileSetPath);
+      const tileSet = await fsa.readJson<ConfigTileSetRaster>(fullPath);
       const newTileSet = await this.prepareRasterTileSetConfig(layer, tileSet, category);
       // skip pull request if not an urban or rural imagery
       if (newTileSet == null) return;
-      await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
+      await fsa.write(fullPath, JSON.stringify(newTileSet));
+      // Format the config file by prettier
+      this.formatConfigFile(tileSetPath);
     }
 
     // Commit and push the changes
@@ -153,13 +154,16 @@ export class MakeCogGithub extends Github {
 
     // Prepare new aerial tileset config
     this.logger.info({ imagery: this.imagery }, 'GitHub: Get the master TileSet config file');
-    const tileSetPath = fsa.joinAll(this.repoName, 'config', 'tileset', `${filename}.json`);
-    const tileSet = await fsa.readJson<ConfigTileSetVector>(tileSetPath);
+    const tileSetPath = fsa.joinAll('config', 'tileset', `${filename}.json`);
+    const fullPath = fsa.join(this.repoName, tileSetPath);
+    const tileSet = await fsa.readJson<ConfigTileSetVector>(fullPath);
     const newTileSet = await this.prepareVectorTileSetConfig(layer, tileSet);
 
     // skip pull request if not an urban or rural imagery
     if (newTileSet == null) return;
-    await fsa.write(tileSetPath, await this.formatConfigFile(tileSetPath, newTileSet));
+    await fsa.write(fullPath, JSON.stringify(newTileSet));
+    // Format the config file by prettier
+    this.formatConfigFile(tileSetPath);
 
     // Commit and push the changes
     const message = `config(vector): Update the ${this.imagery} to ${filename} config file.`;
