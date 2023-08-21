@@ -1,10 +1,11 @@
 import { ConfigProviderMemory, base58 } from '@basemaps/config';
-import { ConfigImageryTiff, initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
+import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config/build/json/tiff.config.js';
 import { Projection, TileMatrixSets } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
-import { command, option, optional, positional } from 'cmd-ts';
+import { command, number, option, optional, positional } from 'cmd-ts';
+import pLimit from 'p-limit';
 import { isArgo } from '../../argo.js';
 import { urlToString } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';
@@ -21,51 +22,56 @@ export const BasemapsCogifyConfigCommand = command({
       long: 'target',
       description: 'Where to write the config json, Defaults to imagery path',
     }),
+    concurrency: option({
+      type: number,
+      long: 'concurrency',
+      description: 'How many COGs to initialise at once',
+      defaultValue: () => 25,
+      defaultValueIsSerializable: true,
+    }),
     path: positional({ type: Url, displayName: 'path', description: 'Path to imagery' }),
   },
 
   async handler(args) {
     const metrics = new Metrics();
     const logger = getLogger(this, args);
+    const provider = new ConfigProviderMemory();
+    const q = pLimit(args.concurrency);
 
-    const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');
-    const cfg = await initConfigFromUrls(mem, [args.path]);
+    const im = await initImageryFromTiffUrl(provider, args.path, q, logger);
     metrics.end('imagery:load');
-    logger.info({ imagery: cfg.imagery.length, titles: cfg.imagery.map((f) => f.title) }, 'ImageryConfig:Loaded');
 
-    const config = mem.toJson();
+    logger.info({ files: im.files.length, titles: im.title }, 'ImageryConfig:Loaded');
+
+    const config = provider.toJson();
     const outputPath = urlToString(new URL(`basemaps-config-${config.hash}.json.gz`, args.target ?? args.path));
-
     logger.info({ output: outputPath, hash: config.hash }, 'ImageryConfig:Write');
     await fsa.writeJson(outputPath, config);
-    const configPath = base58.encode(Buffer.from(outputPath));
 
-    const outputUrls: string[] = [];
-    for (const im of cfg.imagery) {
-      const location = getImageryCenterZoom(im);
-      const locationHash = `#@${location.lat.toFixed(7)},${location.lon.toFixed(7)},z${location.zoom}`;
-      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${im.name}&tileMatrix=${im.tileMatrix}&debug${locationHash}`;
-      outputUrls.push(url);
-      logger.info(
-        {
-          path: outputPath,
-          url,
-          config: configPath,
-          title: im.title,
-          tileMatrix: im.tileMatrix,
-          projection: im.projection,
-        },
-        'ImageryConfig:Done',
-      );
-    }
+    const configPath = base58.encode(Buffer.from(outputPath));
+    const location = getImageryCenterZoom(im);
+    const locationHash = `#@${location.lat.toFixed(7)},${location.lon.toFixed(7)},z${location.zoom}`;
+    const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${im.name}&tileMatrix=${im.tileMatrix}&debug${locationHash}`;
+    logger.info(
+      {
+        path: outputPath,
+        url,
+        config: configPath,
+        title: im.title,
+        tileMatrix: im.tileMatrix,
+        projection: im.projection,
+      },
+      'ImageryConfig:Done',
+    );
 
     if (isArgo()) {
       // Path to where the config is located
       await fsa.write('/tmp/cogify/config-path', outputPath);
       // A URL to where the imagery can be viewed
-      await fsa.write('/tmp/cogify/config-url.json', JSON.stringify(outputUrls));
+      await fsa.write('/tmp/cogify/config-url', url);
     }
+
     logger.info({ metrics: metrics.metrics }, 'ImageryConfig:Metrics');
   },
 });
