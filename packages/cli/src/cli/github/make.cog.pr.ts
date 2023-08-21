@@ -22,9 +22,9 @@ export class MakeCogGithub extends Github {
   /**
    * Format the config files by prettier
    */
-  formatConfigFile(): void {
+  formatConfigFile(path = './config/'): void {
     this.logger.info({ repository: this.repo }, 'GitHub: Prettier');
-    execFileSync('npx', ['prettier', '-w', 'config'], { cwd: this.repoName });
+    execFileSync('npx', ['prettier', '-w', path], { cwd: this.repoName });
   }
 
   /**
