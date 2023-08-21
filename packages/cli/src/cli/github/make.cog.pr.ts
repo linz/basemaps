@@ -19,7 +19,6 @@ export class MakeCogGithub extends Github {
     this.imagery = imagery;
   }
 
-
   /**
    * Install the dependencies for the cloned repo
    */
