@@ -14,15 +14,26 @@ import { execFileSync } from 'child_process';
 
 export class MakeCogGithub extends Github {
   imagery: string;
+  _formatInstalled = false;
   constructor(imagery: string, repo: string, logger: LogType) {
     super(repo, logger);
     this.imagery = imagery;
   }
 
   /**
+   * Install the dependencies for the cloned repo
+   */
+  npmInstall(): boolean {
+    this.logger.info({ repository: this.repo }, 'GitHub: Npm Install');
+    execFileSync('npm', ['install', '--include=dev'], { cwd: this.repoName });
+    return true;
+  }
+
+  /**
    * Format the config files by prettier
    */
   formatConfigFile(path = './config/'): void {
+    if (!this._formatInstalled) this._formatInstalled = this.npmInstall();
     this.logger.info({ repository: this.repo }, 'GitHub: Prettier');
     execFileSync('npx', ['prettier', '-w', path], { cwd: this.repoName });
   }
