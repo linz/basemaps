@@ -74,9 +74,9 @@ export class MakeCogGithub extends Github {
 
     // Commit and push the changes
     const message = `config(raster): Add imagery ${this.imagery} to ${filename} config file.`;
-    // this.commit(message);
-    // this.push();
-    // await this.createPullRequests(branch, message, false);
+    this.commit(message);
+    this.push();
+    await this.createPullRequests(branch, message, false);
   }
 
   /**
