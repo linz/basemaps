@@ -19,12 +19,19 @@ export class MakeCogGithub extends Github {
     this.imagery = imagery;
   }
 
+
+  /**
+   * Install the dependencies for the cloned repo
+   */
+  npmInstall(): void {
+    this.logger.info({ repository: this.repo }, 'GitHub: Npm Install');
+    execFileSync('npm', ['install', '--include=dev'], { cwd: this.repoName });
+  }
+
   /**
    * Format the config files by prettier
    */
   formatConfigFile(path = './config/'): void {
-    this.logger.info({ repository: this.repo }, 'GitHub: Npm Install');
-    execFileSync('npm', ['install', '--include=dev'], { cwd: this.repoName });
     this.logger.info({ repository: this.repo }, 'GitHub: Prettier');
     execFileSync('npx', ['prettier', '-w', path], { cwd: this.repoName });
   }
@@ -42,6 +49,7 @@ export class MakeCogGithub extends Github {
 
     // Clone the basemaps-config repo and checkout branch
     this.clone();
+    this.npmInstall();
     this.configUser();
     this.getBranch(branch);
 
@@ -151,6 +159,7 @@ export class MakeCogGithub extends Github {
 
     // Clone the basemaps-config repo and checkout branch
     this.clone();
+    this.npmInstall();
     this.configUser();
     this.getBranch(branch);
 
