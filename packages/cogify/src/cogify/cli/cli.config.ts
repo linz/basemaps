@@ -1,10 +1,11 @@
 import { ConfigProviderMemory, base58 } from '@basemaps/config';
-import { ConfigImageryTiff, initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
+import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config/build/json/tiff.config.js';
 import { Projection, TileMatrixSets } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
-import { command, option, optional, positional } from 'cmd-ts';
+import { command, number, option, optional, positional } from 'cmd-ts';
+import pLimit from 'p-limit';
 import { isArgo } from '../../argo.js';
 import { urlToString } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';
@@ -21,30 +22,30 @@ export const BasemapsCogifyConfigCommand = command({
       long: 'target',
       description: 'Where to write the config json, Defaults to imagery path',
     }),
+    concurrency: option({
+      type: number,
+      long: 'concurrency',
+      description: 'How many COGs to initialise at once',
+      defaultValue: () => 25,
+      defaultValueIsSerializable: true,
+    }),
     path: positional({ type: Url, displayName: 'path', description: 'Path to imagery' }),
   },
 
   async handler(args) {
     const metrics = new Metrics();
     const logger = getLogger(this, args);
-    const mem = new ConfigProviderMemory();
+    const provider = new ConfigProviderMemory();
+    const q = pLimit(args.concurrency);
 
     metrics.start('imagery:load');
-    const cfg = await initConfigFromUrls(mem, [args.path]);
+    const im = await initImageryFromTiffUrl(provider, args.path, q, logger);
     metrics.end('imagery:load');
 
-    if (cfg.imagery.length !== 1) {
-      process.exitCode = 1;
-      logger.fatal({ length: cfg.imagery.length }, 'ImageryConfig:LengthNotOne');
-      return;
-    }
-
-    const im = cfg.imagery[0];
     logger.info({ files: im.files.length, titles: im.title }, 'ImageryConfig:Loaded');
 
-    const config = mem.toJson();
+    const config = provider.toJson();
     const outputPath = urlToString(new URL(`basemaps-config-${config.hash}.json.gz`, args.target ?? args.path));
-
     logger.info({ output: outputPath, hash: config.hash }, 'ImageryConfig:Write');
     await fsa.writeJson(outputPath, config);
 
