@@ -16,6 +16,7 @@ export class Github {
     this.logger = logger;
     const [org, repoName] = repo.split('/');
     if (org == null || repoName == null) throw new Error(`Badly formatted repo name: ${repo}`);
+    this.org = org;
     this.repoName = repoName;
 
     const token = Env.get(Env.GitHubToken);
