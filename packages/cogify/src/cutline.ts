@@ -1,20 +1,21 @@
 import { Epsg, EpsgCode, Projection, Tile, TileMatrixSet } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import {
+  Area,
   FeatureCollectionWithCrs,
+  MultiPolygon,
   featuresToMultiPolygon,
   intersection,
-  MultiPolygon,
-  Area,
   toFeatureCollection,
   toFeatureMultiPolygon,
 } from '@linzjs/geojson';
 import { CogifyLinkCutline } from './cogify/stac';
+import { urlToString } from './download';
 
-export async function loadCutline(path: string): Promise<{ polygon: MultiPolygon; projection: EpsgCode }> {
-  const buf = await fsa.read(path);
+export async function loadCutline(path: URL): Promise<{ polygon: MultiPolygon; projection: EpsgCode }> {
+  const buf = await fsa.read(urlToString(path));
 
-  if (path.endsWith('.geojson') || path.endsWith('.json')) {
+  if (path.pathname.endsWith('.geojson') || path.pathname.endsWith('.json')) {
     const data = JSON.parse(buf.toString());
     const projection = Epsg.parseCode(data.crs?.properties?.name ?? '') ?? EpsgCode.Wgs84;
     const polygon = featuresToMultiPolygon(data.features, true).coordinates as MultiPolygon;
@@ -27,12 +28,12 @@ export async function loadCutline(path: string): Promise<{ polygon: MultiPolygon
 export class CutlineOptimizer {
   /** Pad tiles by 200m when optimizing cutlines so blending will not be affected */
   static TilePixelPadding = 200;
-  path: string | null;
+  path: URL | null;
   cutline: MultiPolygon | null;
   blend: number;
   tileMatrix: TileMatrixSet;
 
-  constructor(path: string | null, cutline: MultiPolygon | null, blend: number, tileMatrix: TileMatrixSet) {
+  constructor(path: URL | null, cutline: MultiPolygon | null, blend: number, tileMatrix: TileMatrixSet) {
     this.path = path;
     this.cutline = cutline;
     this.blend = blend;
@@ -86,7 +87,7 @@ export class CutlineOptimizer {
     return feature;
   }
 
-  static async load(path: string | undefined, blend: number, tileMatrix: TileMatrixSet): Promise<CutlineOptimizer> {
+  static async load(path: URL | undefined, blend: number, tileMatrix: TileMatrixSet): Promise<CutlineOptimizer> {
     if (path == null) return new CutlineOptimizer(null, null, blend, tileMatrix);
     const cut = await loadCutline(path);
 
@@ -104,6 +105,6 @@ export class CutlineOptimizer {
   /** Create a cutline optimizer from a STAC cutline link */
   static async loadFromLink(l: CogifyLinkCutline | null, tileMatrix: TileMatrixSet): Promise<CutlineOptimizer> {
     if (l == null) return new CutlineOptimizer(null, null, 0, tileMatrix);
-    return this.load(l.href, l.blend, tileMatrix);
+    return this.load(new URL(l.href), l.blend, tileMatrix);
   }
 }

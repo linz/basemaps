@@ -7,11 +7,12 @@ import { Metrics } from '@linzjs/metrics';
 import { command, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 import { isArgo } from '../../argo.js';
 import { CutlineOptimizer } from '../../cutline.js';
+import { urlToString } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';
-import { TileCoverContext, createTileCover } from '../../tile.cover.js';
-import { createFileStats } from '../stac.js';
-import { Url } from '../parsers.js';
 import { Presets } from '../../preset.js';
+import { TileCoverContext, createTileCover } from '../../tile.cover.js';
+import { Url, UrlFolder } from '../parsers.js';
+import { createFileStats } from '../stac.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
@@ -21,15 +22,15 @@ export const BasemapsCogifyCoverCommand = command({
   description: 'Create a covering configuration from a collection from source imagery',
   args: {
     ...logArguments,
-    target: option({ type: string, long: 'target', description: 'Where to write the configuration' }),
-    cutline: option({ type: optional(string), long: 'cutline', description: 'Cutline to cut tiffs' }),
+    target: option({ type: UrlFolder, long: 'target', description: 'Where to write the configuration' }),
+    cutline: option({ type: optional(Url), long: 'cutline', description: 'Cutline to cut tiffs' }),
     cutlineBlend: option({
       type: number,
       long: 'cutline-blend',
       description: 'Cutline blend amount see GDAL_TRANSLATE -cblend',
       defaultValue: () => 20,
     }),
-    paths: restPositionals({ type: Url, displayName: 'path', description: 'Path to source imagery' }),
+    paths: restPositionals({ type: UrlFolder, displayName: 'path', description: 'Path to source imagery' }),
     preset: option({
       type: oneOf(Object.keys(Presets)),
       long: 'preset',
@@ -75,15 +76,15 @@ export const BasemapsCogifyCoverCommand = command({
 
     const res = await createTileCover(ctx);
 
-    const targetPath = fsa.joinAll(args.target, String(tms.projection.code), im.name, CliId);
+    const targetPath = new URL(`${tms.projection.code}/${im.name}/${CliId}/`, args.target);
 
-    const sourcePath = fsa.join(targetPath, 'source.geojson');
+    const sourcePath = new URL('source.geojson', targetPath);
     const sourceData = JSON.stringify(res.source, null, 2);
-    await fsa.write(sourcePath, sourceData);
+    await fsa.write(urlToString(sourcePath), sourceData);
 
-    const coveringPath = fsa.join(targetPath, 'covering.geojson');
+    const coveringPath = new URL('covering.geojson', targetPath);
     const coveringData = JSON.stringify({ type: 'FeatureCollection', features: res.items }, null, 2);
-    await fsa.write(coveringPath, coveringData);
+    await fsa.write(urlToString(coveringPath), coveringData);
 
     res.collection.assets = res.collection.assets ?? {};
     res.collection.assets['covering'] = {
@@ -97,17 +98,17 @@ export const BasemapsCogifyCoverCommand = command({
       ...createFileStats(sourceData),
     };
 
-    const collectionPath = fsa.join(targetPath, 'collection.json');
-    await fsa.write(collectionPath, JSON.stringify(res.collection, null, 2));
+    const collectionPath = new URL('collection.json', targetPath);
+    await fsa.write(urlToString(collectionPath), JSON.stringify(res.collection, null, 2));
     ctx.logger?.debug({ path: collectionPath }, 'Imagery:Stac:Collection:Write');
 
     const items = [];
     const tilesByZoom: number[] = [];
     for (const item of res.items) {
       const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
-      const itemPath = fsa.join(targetPath, `${tileId}.json`);
+      const itemPath = new URL(`${tileId}.json`, targetPath);
       items.push({ path: itemPath });
-      await fsa.write(itemPath, JSON.stringify(item, null, 2));
+      await fsa.write(urlToString(itemPath), JSON.stringify(item, null, 2));
       const z = item.properties['linz_basemaps:options'].tile.z;
       tilesByZoom[z] = (tilesByZoom[z] ?? 0) + 1;
       ctx.logger?.trace({ path: itemPath }, 'Imagery:Stac:Item:Write');
@@ -116,7 +117,7 @@ export const BasemapsCogifyCoverCommand = command({
     // If running in argo dump out output information to be used by further steps
     if (isArgo()) {
       // Where the JSON files were written to
-      await fsa.write('/tmp/cogify/cover-target', targetPath);
+      await fsa.write('/tmp/cogify/cover-target', urlToString(targetPath));
       // Title of the imagery
       await fsa.write('/tmp/cogify/cover-title', ctx.imagery.title);
       // List of all the tiles to be processed
