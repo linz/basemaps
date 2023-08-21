@@ -23,6 +23,8 @@ export class MakeCogGithub extends Github {
    * Format the config files by prettier
    */
   formatConfigFile(path = './config/'): void {
+    this.logger.info({ repository: this.repo }, 'GitHub: Npm Install');
+    execFileSync('npm', ['install', '--include=dev'], { cwd: this.repoName });
     this.logger.info({ repository: this.repo }, 'GitHub: Prettier');
     execFileSync('npx', ['prettier', '-w', path], { cwd: this.repoName });
   }
@@ -72,9 +74,9 @@ export class MakeCogGithub extends Github {
 
     // Commit and push the changes
     const message = `config(raster): Add imagery ${this.imagery} to ${filename} config file.`;
-    this.commit(message);
-    this.push();
-    await this.createPullRequests(branch, message, false);
+    // this.commit(message);
+    // this.push();
+    // await this.createPullRequests(branch, message, false);
   }
 
   /**
