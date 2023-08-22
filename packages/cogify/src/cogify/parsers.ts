@@ -3,8 +3,9 @@ import { Type } from 'cmd-ts';
 import { pathToFileURL } from 'node:url';
 
 /**
- * Parse a input parameter as a URL,
- * if it looks like a file path convert it using `pathToFileURL`
+ * Parse a input parameter as a URL.
+ *
+ * If it looks like a file path, it will be converted using `pathToFileURL`.
  **/
 export const Url: Type<string, URL> = {
   async from(str) {
@@ -13,6 +14,23 @@ export const Url: Type<string, URL> = {
     } catch (e) {
       return pathToFileURL(str);
     }
+  },
+};
+
+/**
+ * Parse a input parameter as a URL which represents a folder.
+ *
+ * If it looks like a file path, it will be converted using `pathToFileURL`.
+ * Any search parameters or hash will be removed, and a trailing slash added
+ * to the path section if it's not present.
+ **/
+export const UrlFolder: Type<string, URL> = {
+  async from(str) {
+    const url = await Url.from(str);
+    url.search = '';
+    url.hash = '';
+    if (!url.pathname.endsWith('/')) url.pathname += '/';
+    return url;
   },
 };
 

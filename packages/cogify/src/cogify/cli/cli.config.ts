@@ -9,7 +9,7 @@ import pLimit from 'p-limit';
 import { isArgo } from '../../argo.js';
 import { urlToString } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';
-import { Url } from '../parsers.js';
+import { UrlFolder } from '../parsers.js';
 
 export const BasemapsCogifyConfigCommand = command({
   name: 'cogify-config',
@@ -18,7 +18,7 @@ export const BasemapsCogifyConfigCommand = command({
   args: {
     ...logArguments,
     target: option({
-      type: optional(Url),
+      type: optional(UrlFolder),
       long: 'target',
       description: 'Where to write the config json, Defaults to imagery path',
     }),
@@ -29,7 +29,7 @@ export const BasemapsCogifyConfigCommand = command({
       defaultValue: () => 25,
       defaultValueIsSerializable: true,
     }),
-    path: positional({ type: Url, displayName: 'path', description: 'Path to imagery' }),
+    path: positional({ type: UrlFolder, displayName: 'path', description: 'Path to imagery' }),
   },
 
   async handler(args) {

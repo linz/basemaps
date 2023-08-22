@@ -14,6 +14,7 @@ import {
   createFileStats,
 } from './cogify/stac.js';
 import { CutlineOptimizer } from './cutline.js';
+import { urlToString } from './download.js';
 import { Presets } from './preset.js';
 
 export interface TileCoverContext {
@@ -168,7 +169,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     // Add the cutline as a STAC Link if it exists
     if (ctx.cutline.path) {
       const cutLink: CogifyLinkCutline = {
-        href: ctx.cutline.path,
+        href: urlToString(ctx.cutline.path),
         rel: 'linz_basemaps:cutline',
         blend: ctx.cutline.blend,
       };
