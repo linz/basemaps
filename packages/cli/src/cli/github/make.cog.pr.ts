@@ -68,6 +68,7 @@ export class MakeCogGithub extends Github {
       await fsa.write(fullPath, JSON.stringify(tileSet));
       // Format the config file by prettier
       this.formatConfigFile(tileSetPath);
+      this.add([tileSetPath]);
     } else {
       // Prepare new aerial tileset config
       const tileSetPath = fsa.joinAll('config', 'tileset', `${filename}.json`);
@@ -79,6 +80,7 @@ export class MakeCogGithub extends Github {
       await fsa.write(fullPath, JSON.stringify(newTileSet));
       // Format the config file by prettier
       this.formatConfigFile(tileSetPath);
+      this.add([tileSetPath]);
     }
 
     // Commit and push the changes
@@ -178,6 +180,7 @@ export class MakeCogGithub extends Github {
 
     // Commit and push the changes
     const message = `config(vector): Update the ${this.imagery} to ${filename} config file.`;
+    this.add([tileSetPath]);
     this.commit(message);
     this.push();
     await this.createPullRequests(branch, message, false);
