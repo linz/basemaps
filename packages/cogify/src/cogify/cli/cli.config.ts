@@ -55,7 +55,7 @@ export const BasemapsCogifyConfigCommand = command({
     const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${im.name}&tileMatrix=${im.tileMatrix}&debug${locationHash}`;
     logger.info(
       {
-        id: im.id,
+        imageryId: im.id,
         path: outputPath,
         url,
         config: configPath,

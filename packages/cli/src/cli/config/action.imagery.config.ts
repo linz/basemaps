@@ -139,7 +139,7 @@ export class CommandImageryConfig extends CommandLineAction {
       const configPath = base58.encode(Buffer.from(outputPath));
       const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${tileSet.name}&tileMatrix=NZTM2000Quad&debug${location}`;
       logger.info(
-        { id, path: output, url, tileMatrix: Nztm2000QuadTms.identifier, config: configPath, title },
+        { imageryId: id, path: output, url, tileMatrix: Nztm2000QuadTms.identifier, config: configPath, title },
         'ImageryConfig:Done',
       );
       if (output != null) await fsa.write(output, url);
