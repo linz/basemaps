@@ -71,6 +71,17 @@ export class Github {
    * Commit the changes to current branch
    *
    */
+  add(paths: string[]): void {
+    this.logger.info({ repository: this.repo }, 'GitHub: Add Path');
+    for (const path of paths) {
+      execFileSync('git', ['add', path], { cwd: this.repoName }).toString().trim();
+    }
+  }
+
+  /**
+   * Commit the changes to current branch
+   *
+   */
   commit(message: string): void {
     this.logger.info({ repository: this.repo }, 'GitHub: Commit all');
     execFileSync('git', ['commit', '-am', message], { cwd: this.repoName }).toString().trim();
