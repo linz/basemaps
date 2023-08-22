@@ -83,8 +83,8 @@ export class Github {
    *
    */
   commit(message: string): void {
-    this.logger.info({ repository: this.repo }, 'GitHub: Commit');
-    execFileSync('git', ['commit', '-m', message], { cwd: this.repoName }).toString().trim();
+    this.logger.info({ repository: this.repo }, 'GitHub: Commit all');
+    execFileSync('git', ['commit', '-am', message], { cwd: this.repoName }).toString().trim();
   }
 
   /**
