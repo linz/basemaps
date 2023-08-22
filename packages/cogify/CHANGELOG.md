@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Features
+
+* **cogify:** ensure cogify path-like args have trailing slashes. BM-858 ([#2903](https://github.com/linz/basemaps/issues/2903)) ([f6b35ed](https://github.com/linz/basemaps/commit/f6b35edc9ef3258e122c22456fce70516d4b4188))
+* **cogify:** output single URL in cogify config command BM-822 ([#2899](https://github.com/linz/basemaps/issues/2899)) ([fbdbb95](https://github.com/linz/basemaps/commit/fbdbb9521ffc813fcb032345ab16f43230441b44))
+
+
+
+
+
 ## [6.42.1](https://github.com/linz/basemaps/compare/v6.42.0...v6.42.1) (2023-08-06)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Features
+
+* **linzjs-geojson:** add Area.ring() method and Area tests ([#2891](https://github.com/linz/basemaps/issues/2891)) ([e10a7e8](https://github.com/linz/basemaps/commit/e10a7e8c921dc3f90127c917d946c342b29760c1))
+
+
+
+
+
 # [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
 
 

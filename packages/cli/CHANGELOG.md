@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Bug Fixes
+
+* **cli:** Correct the path of linzijs prettierrc.js location. ([#2894](https://github.com/linz/basemaps/issues/2894)) ([348a7f7](https://github.com/linz/basemaps/commit/348a7f7094f817603d8740e54b141e7c45a1bac3))
+* **cli:** Fix to set org in the github to be used in create pull request api. ([#2902](https://github.com/linz/basemaps/issues/2902)) ([0081275](https://github.com/linz/basemaps/commit/0081275606e055765105d5082cfd53c5983965d1))
+* **cli:** new created file need to add to git before commit. ([#2904](https://github.com/linz/basemaps/issues/2904)) ([24fbf6d](https://github.com/linz/basemaps/commit/24fbf6d40073bf72780783bf3b1a4d01e91dbd4e))
+* **cli:** Run npm install in the basemaps-config to install the @linz/style ([#2900](https://github.com/linz/basemaps/issues/2900)) ([fb7930c](https://github.com/linz/basemaps/commit/fb7930c38af4e1dc94e649a4dd6ae2a72483e16f))
+
+
+### Features
+
+* **cli:** Create pull request cli to format the config files by npx prettier. BM-810 ([#2898](https://github.com/linz/basemaps/issues/2898)) ([061b605](https://github.com/linz/basemaps/commit/061b60528c2e9d2104a9e51dc8373aca84a1d7d9))
+* **cli:** Create pull request via Github api and access token. ([#2838](https://github.com/linz/basemaps/issues/2838)) ([ef5e29f](https://github.com/linz/basemaps/commit/ef5e29fd8964eb4f3e001de6f8b880233f47b9dc))
+* **cli:** Create standalone imagery config and remove disabled layer. BM-810 ([#2810](https://github.com/linz/basemaps/issues/2810)) ([e956851](https://github.com/linz/basemaps/commit/e956851983ad5f90d24cbb7c50f75824869e0e08))
+* **cli:** Update the import cli to output preview links for individual configs. BM-869 ([#2897](https://github.com/linz/basemaps/issues/2897)) ([e70280a](https://github.com/linz/basemaps/commit/e70280a5729f75cc808f149d81cdad3051bb2574))
+
+
+
+
+
 # [6.42.0](https://github.com/linz/basemaps/compare/v6.41.0...v6.42.0) (2023-08-06)
 
 

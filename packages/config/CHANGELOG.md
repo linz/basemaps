@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Bug Fixes
+
+* **cli:** Add missing layer titles from the imagery to tileset. ([#2882](https://github.com/linz/basemaps/issues/2882)) ([8cfe830](https://github.com/linz/basemaps/commit/8cfe8301e579c266ff1f7d9543d36b190d5a085a))
+
+
+### Features
+
+* **cli:** Create standalone imagery config and remove disabled layer. BM-810 ([#2810](https://github.com/linz/basemaps/issues/2810)) ([e956851](https://github.com/linz/basemaps/commit/e956851983ad5f90d24cbb7c50f75824869e0e08))
+* **cogify:** output single URL in cogify config command BM-822 ([#2899](https://github.com/linz/basemaps/issues/2899)) ([fbdbb95](https://github.com/linz/basemaps/commit/fbdbb9521ffc813fcb032345ab16f43230441b44))
+* **config:** Create an all tileset from imagery configs. BM-805 ([#2794](https://github.com/linz/basemaps/issues/2794)) ([a2d64c8](https://github.com/linz/basemaps/commit/a2d64c8cdb03e6dd26cd16118880faaeab3143d9))
+* **config:** Remove the chirld aerial: tileset from configs. BM-825 ([#2812](https://github.com/linz/basemaps/issues/2812)) ([4f26aac](https://github.com/linz/basemaps/commit/4f26aacdb54186273d67ffdac1b55bbe0bff88e3))
+
+
+
+
+
 # [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
 
 

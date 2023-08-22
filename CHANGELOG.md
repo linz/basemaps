@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Bug Fixes
+
+* **cli:** Add missing layer titles from the imagery to tileset. ([#2882](https://github.com/linz/basemaps/issues/2882)) ([8cfe830](https://github.com/linz/basemaps/commit/8cfe8301e579c266ff1f7d9543d36b190d5a085a))
+* **cli:** Correct the path of linzijs prettierrc.js location. ([#2894](https://github.com/linz/basemaps/issues/2894)) ([348a7f7](https://github.com/linz/basemaps/commit/348a7f7094f817603d8740e54b141e7c45a1bac3))
+* **cli:** Fix to set org in the github to be used in create pull request api. ([#2902](https://github.com/linz/basemaps/issues/2902)) ([0081275](https://github.com/linz/basemaps/commit/0081275606e055765105d5082cfd53c5983965d1))
+* **cli:** new created file need to add to git before commit. ([#2904](https://github.com/linz/basemaps/issues/2904)) ([24fbf6d](https://github.com/linz/basemaps/commit/24fbf6d40073bf72780783bf3b1a4d01e91dbd4e))
+* **cli:** Run npm install in the basemaps-config to install the @linz/style ([#2900](https://github.com/linz/basemaps/issues/2900)) ([fb7930c](https://github.com/linz/basemaps/commit/fb7930c38af4e1dc94e649a4dd6ae2a72483e16f))
+* **tiler:** allow modification of the rounding bias to help reduce aspect ratio skews ([#2877](https://github.com/linz/basemaps/issues/2877)) ([ec899a7](https://github.com/linz/basemaps/commit/ec899a73e5802dd502dc0b6c4f8956b6156ca860))
+
+
+### Features
+
+* **cli:** Create pull request cli to format the config files by npx prettier. BM-810 ([#2898](https://github.com/linz/basemaps/issues/2898)) ([061b605](https://github.com/linz/basemaps/commit/061b60528c2e9d2104a9e51dc8373aca84a1d7d9))
+* **cli:** Create pull request via Github api and access token. ([#2838](https://github.com/linz/basemaps/issues/2838)) ([ef5e29f](https://github.com/linz/basemaps/commit/ef5e29fd8964eb4f3e001de6f8b880233f47b9dc))
+* **cli:** Create standalone imagery config and remove disabled layer. BM-810 ([#2810](https://github.com/linz/basemaps/issues/2810)) ([e956851](https://github.com/linz/basemaps/commit/e956851983ad5f90d24cbb7c50f75824869e0e08))
+* **cli:** Update the import cli to output preview links for individual configs. BM-869 ([#2897](https://github.com/linz/basemaps/issues/2897)) ([e70280a](https://github.com/linz/basemaps/commit/e70280a5729f75cc808f149d81cdad3051bb2574))
+* **cogify:** ensure cogify path-like args have trailing slashes. BM-858 ([#2903](https://github.com/linz/basemaps/issues/2903)) ([f6b35ed](https://github.com/linz/basemaps/commit/f6b35edc9ef3258e122c22456fce70516d4b4188))
+* **cogify:** output single URL in cogify config command BM-822 ([#2899](https://github.com/linz/basemaps/issues/2899)) ([fbdbb95](https://github.com/linz/basemaps/commit/fbdbb9521ffc813fcb032345ab16f43230441b44))
+* **config:** Create an all tileset from imagery configs. BM-805 ([#2794](https://github.com/linz/basemaps/issues/2794)) ([a2d64c8](https://github.com/linz/basemaps/commit/a2d64c8cdb03e6dd26cd16118880faaeab3143d9))
+* **config:** Remove the chirld aerial: tileset from configs. BM-825 ([#2812](https://github.com/linz/basemaps/issues/2812)) ([4f26aac](https://github.com/linz/basemaps/commit/4f26aacdb54186273d67ffdac1b55bbe0bff88e3))
+* **landing:** Ignore layers in the layer drop down selector. ([#2886](https://github.com/linz/basemaps/issues/2886)) ([98633cb](https://github.com/linz/basemaps/commit/98633cb304cc4cd3a993aff8ca379e871f04f054))
+* **landing:** Update the layer selector to use all imagery tileset. BM-807 ([#2809](https://github.com/linz/basemaps/issues/2809)) ([10eb750](https://github.com/linz/basemaps/commit/10eb750b32dccb4a5f5496862bebb7cb51ca8ee9))
+* **linzjs-geojson:** add Area.ring() method and Area tests ([#2891](https://github.com/linz/basemaps/issues/2891)) ([e10a7e8](https://github.com/linz/basemaps/commit/e10a7e8c921dc3f90127c917d946c342b29760c1))
+* **tiler-sharp:** do not recompress intermediate tiffs ([#2864](https://github.com/linz/basemaps/issues/2864)) ([dd44ee9](https://github.com/linz/basemaps/commit/dd44ee9227affd8abefa37cd487244b189730511))
+* add github build id to cli, landing and tiler ([#2874](https://github.com/linz/basemaps/issues/2874)) ([eb8c7b9](https://github.com/linz/basemaps/commit/eb8c7b97822cda117c38d0341a5d6e3506c63c57))
+
+
+
+
+
 ## [6.42.1](https://github.com/linz/basemaps/compare/v6.42.0...v6.42.1) (2023-08-06)
 
 

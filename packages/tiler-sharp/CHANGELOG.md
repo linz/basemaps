@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Features
+
+* **tiler-sharp:** do not recompress intermediate tiffs ([#2864](https://github.com/linz/basemaps/issues/2864)) ([dd44ee9](https://github.com/linz/basemaps/commit/dd44ee9227affd8abefa37cd487244b189730511))
+
+
+
+
+
 # [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
 
 **Note:** Version bump only for package @basemaps/tiler-sharp

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Features
+
+* **landing:** Ignore layers in the layer drop down selector. ([#2886](https://github.com/linz/basemaps/issues/2886)) ([98633cb](https://github.com/linz/basemaps/commit/98633cb304cc4cd3a993aff8ca379e871f04f054))
+* **landing:** Update the layer selector to use all imagery tileset. BM-807 ([#2809](https://github.com/linz/basemaps/issues/2809)) ([10eb750](https://github.com/linz/basemaps/commit/10eb750b32dccb4a5f5496862bebb7cb51ca8ee9))
+* add github build id to cli, landing and tiler ([#2874](https://github.com/linz/basemaps/issues/2874)) ([eb8c7b9](https://github.com/linz/basemaps/commit/eb8c7b97822cda117c38d0341a5d6e3506c63c57))
+
+
+
+
+
 # [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
 
 
