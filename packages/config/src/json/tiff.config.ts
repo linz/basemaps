@@ -189,14 +189,14 @@ export async function initImageryFromTiffUrl(
     if (stac == null) log?.warn({ target: targetPath }, 'Tiff:StacNotFound');
     const params = computeTiffSummary(target, tiffs);
 
-    const folderName = getImageryName(target);
-    const title = stac?.title ?? folderName;
+    const imageryName = getImageryName(target);
+    const title = stac?.title ?? imageryName;
     const tileMatrix =
       params.projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.tryGet(params.projection);
 
     const imagery: ConfigImageryTiff = {
       id: provider.Imagery.id(sha256base58(target.href)),
-      name: folderName,
+      name: imageryName,
       title,
       updatedAt: Date.now(),
       projection: params.projection,
@@ -209,7 +209,7 @@ export async function initImageryFromTiffUrl(
       collection: stac ?? undefined,
     };
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
-    log?.info({ title, files: imagery.files.length }, 'Tiff:Loaded');
+    log?.info({ title, imageryName, files: imagery.files.length }, 'Tiff:Loaded');
     provider.put(imagery);
 
     return imagery;
