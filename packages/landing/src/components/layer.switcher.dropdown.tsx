@@ -18,7 +18,7 @@ export interface LayerSwitcherDropdownState {
   currentLayer: string;
 }
 
-const ignoredLayers = new Set(['all']);
+const ignoredLayers = new Set(['all', 'topo50-gridless-2020-4.23m', 'topo250-2020-21.17m']);
 
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
   _events: (() => boolean)[] = [];
