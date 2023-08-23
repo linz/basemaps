@@ -120,6 +120,54 @@ async function loadStacFromURL(target: URL): Promise<StacCollection | null> {
   }
 }
 
+/** When attempting to guess a folder name, try and ignore common imagery types and projection */
+const IgnoredTitles = new Set([
+  // Imagery
+  'rgb',
+  'rgbi',
+  // Elevation
+  'dem_1m',
+  'dsm_1m',
+  //Projections
+  '2193',
+  '3857',
+]);
+
+/**
+ * Guess a better imagery name from a target URL
+ *
+ * A lot of our source paths include the type of imagery eg "rgb", "rgbi" or "dem_1m",
+ * these names are not super helpful and often there are better names further up the pathname
+ *
+ * @example
+ * ```typescript
+ * getImageryName('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/rgb/')
+ * // auckland_sn5600_1979_0.375m
+ * ```
+ *
+ * The list of paths ignored are from
+ *
+ * @see {IgnoredTitles}
+ *
+ * For common imagery paths see:
+ *
+ * @see {@link https://github.com/linz/imagery}
+ * @see {@link https://github.com/linz/elevation}
+ */
+export function getImageryName(target: URL): string {
+  const parts = target.pathname.split('/'); // URL folders are always "/"
+
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const part = parts[i];
+    if (part === '') continue;
+    if (IgnoredTitles.has(part.toLowerCase())) continue;
+    return part;
+  }
+
+  // Everything is ignored just use basename
+  return basename(target.pathname);
+}
+
 /**
  * Attempt to load all imagery inside of a path and create a configuration from it
  *
@@ -144,14 +192,14 @@ export async function initImageryFromTiffUrl(
     if (stac == null) log?.warn({ target: targetPath }, 'Tiff:StacNotFound');
     const params = computeTiffSummary(target, tiffs);
 
-    const folderName = basename(targetPath);
-    const title = stac?.title ?? folderName;
+    const imageryName = getImageryName(target);
+    const title = stac?.title ?? imageryName;
     const tileMatrix =
       params.projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.tryGet(params.projection);
 
     const imagery: ConfigImageryTiff = {
       id: provider.Imagery.id(sha256base58(target.href)),
-      name: folderName,
+      name: imageryName,
       title,
       updatedAt: Date.now(),
       projection: params.projection,
@@ -164,7 +212,7 @@ export async function initImageryFromTiffUrl(
       collection: stac ?? undefined,
     };
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
-    log?.info({ title, files: imagery.files.length }, 'Tiff:Loaded');
+    log?.info({ title, imageryName, files: imagery.files.length }, 'Tiff:Loaded');
     provider.put(imagery);
 
     return imagery;
@@ -178,14 +226,14 @@ export async function initImageryFromTiffUrl(
  *
  * Given the following folder structure
  *
- * ```
- * /imagery/invercargill_2022_0.05m/*.tiff
- * /imagery/wellington_2022_0.05/*.tiff
+ * ```typescript
+ * "/imagery/invercargill_2022_0.05m/*.tiff"
+ * "/imagery/wellington_2022_0.05/*.tiff"
  * ```
  *
  * A. A single imagery datasets
  *
- * ```
+ * ```typescript
  * target = ["/imagery/invercargill_2022_0.05m/"]
  * ```
  *
@@ -193,8 +241,8 @@ export async function initImageryFromTiffUrl(
  *
  * B: A tree of imagery datasets
  *
- * ```
- * target = ["/imagery/invercargill_2022_0.05m/", "/imagery/wellington_2022_0.05/*.tiff"]
+ * ```typescript
+ * target = ["/imagery/invercargill_2022_0.05m/*.tiff", "/imagery/wellington_2022_0.05/*.tiff"]
  * ```
  *
  * will load all tiffs from all folders targets into a single tile set "aerial",
