@@ -10,7 +10,7 @@ import {
   toFeatureMultiPolygon,
 } from '@linzjs/geojson';
 import { CogifyLinkCutline } from './cogify/stac';
-import { urlToString } from './download';
+import { urlToString } from './download.js';
 
 export async function loadCutline(path: URL): Promise<{ polygon: MultiPolygon; projection: EpsgCode }> {
   const buf = await fsa.read(urlToString(path));
