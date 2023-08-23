@@ -1,5 +1,35 @@
 [
   {
+    "hash": "821b6287f307db608f013adcaba2910fcff5f431",
+    "createdAt": "2023-08-23T00:30:24.430Z",
+    "results": [
+      {
+        "name": "Tile 256x256",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 256",
+        "mean": 0.37047967500000006,
+        "stddev": 0.03337041499340969,
+        "median": 0.3610314334,
+        "user": 0.33773069499999997,
+        "system": 0.05385474,
+        "min": 0.3509450379,
+        "max": 0.4631596029
+      },
+      {
+        "name": "Tile 512x512",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 512",
+        "mean": 0.355951853165,
+        "stddev": 0.008657366025611277,
+        "median": 0.35532131706500003,
+        "user": 0.33760068499999996,
+        "system": 0.049991604999999995,
+        "min": 0.34286584606500004,
+        "max": 0.36838419406500006
+      }
+    ]
+  },
+  {
     "hash": "07165a20b8a60827d3f4653f42533f4b0ad55cb5",
     "createdAt": "2023-08-22T23:42:55.006Z",
     "results": [
@@ -14966,36 +14996,6 @@
         "system": 0.06905234499999999,
         "min": 0.399077266495,
         "max": 0.435099638495
-      }
-    ]
-  },
-  {
-    "hash": "1144d40482a302b6bca522ce105629209860242d",
-    "createdAt": "2022-03-15T21:46:05.614Z",
-    "results": [
-      {
-        "name": "Tile 256x256",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 256",
-        "mean": 0.30728812269500005,
-        "stddev": 0.004146708026781725,
-        "median": 0.306099144895,
-        "user": 0.32459077499999994,
-        "system": 0.04948197499999999,
-        "min": 0.302528886895,
-        "max": 0.313123123895
-      },
-      {
-        "name": "Tile 512x512",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 512",
-        "mean": 0.312922738215,
-        "stddev": 0.0048560871465481185,
-        "median": 0.31354765911500004,
-        "user": 0.32951739,
-        "system": 0.05317189,
-        "min": 0.304544184615,
-        "max": 0.318906403615
       }
     ]
   }
