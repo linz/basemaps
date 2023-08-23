@@ -134,25 +134,28 @@ const IgnoredTitles = new Set([
 ]);
 
 /**
- * Guess a better imagery name from a target
+ * Guess a better imagery name from a target URL
  *
  * A lot of our source paths include the type of imagery eg "rgb", "rgbi" or "dem_1m",
  * these names are not super helpful and often there are better names further up the pathname
  *
  * @example
  * ```typescript
- * getImageryName('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/rgb/') // auckland_sn5600_1979_0.375m
+ * getImageryName('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/rgb/')
+ * // auckland_sn5600_1979_0.375m
  * ```
+ *
+ * The list of paths ignored are from
  *
  * @see {IgnoredTitles}
  *
- * For more common paths see:
- * https://github.com/linz/imagery
- * https://github.com/linz/elevation
+ * For common imagery paths see:
+ *
+ * @see {@link https://github.com/linz/imagery}
+ * @see {@link https://github.com/linz/elevation}
  */
 export function getImageryName(target: URL): string {
-  const pathName = target.pathname;
-  const parts = target.pathname.split('/');
+  const parts = target.pathname.split('/'); // URL folders are always "/"
 
   for (let i = parts.length - 1; i >= 0; i--) {
     const part = parts[i];
@@ -162,7 +165,7 @@ export function getImageryName(target: URL): string {
   }
 
   // Everything is ignored just use basename
-  return basename(pathName);
+  return basename(target.pathname);
 }
 
 /**
@@ -223,14 +226,14 @@ export async function initImageryFromTiffUrl(
  *
  * Given the following folder structure
  *
- * ```
- * /imagery/invercargill_2022_0.05m/*.tiff
- * /imagery/wellington_2022_0.05/*.tiff
+ * ```typescript
+ * "/imagery/invercargill_2022_0.05m/*.tiff"
+ * "/imagery/wellington_2022_0.05/*.tiff"
  * ```
  *
  * A. A single imagery datasets
  *
- * ```
+ * ```typescript
  * target = ["/imagery/invercargill_2022_0.05m/"]
  * ```
  *
@@ -238,8 +241,8 @@ export async function initImageryFromTiffUrl(
  *
  * B: A tree of imagery datasets
  *
- * ```
- * target = ["/imagery/invercargill_2022_0.05m/", "/imagery/wellington_2022_0.05/*.tiff"]
+ * ```typescript
+ * target = ["/imagery/invercargill_2022_0.05m/*.tiff", "/imagery/wellington_2022_0.05/*.tiff"]
  * ```
  *
  * will load all tiffs from all folders targets into a single tile set "aerial",
