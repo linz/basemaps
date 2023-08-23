@@ -3,7 +3,7 @@ import { FsMemory, SourceMemory } from '@chunkd/source-memory';
 import { fileURLToPath } from 'node:url';
 import o from 'ospec';
 import { ConfigProviderMemory } from '../../memory/memory.config.js';
-import { initConfigFromUrls } from '../tiff.config.js';
+import { getImageryName, initConfigFromUrls } from '../tiff.config.js';
 
 const simpleTiff = new URL('../../../../__tests__/static/rgba8_tiled.tiff', import.meta.url);
 
@@ -56,5 +56,40 @@ o.spec('config import', () => {
     o(ret.tileSet.layers[0].name).equals(ret.imagery[0].name);
     o(ret.tileSet.layers[1][3857]).equals(ret.imagery[1].id);
     o(ret.tileSet.layers[1].name).equals(ret.imagery[1].name);
+  });
+
+  o('should load tiff from filesystem with projection and imagery type in name', async () => {
+    const buf = await fsa.read(fileURLToPath(simpleTiff));
+    await fsa.write('memory://tiffs/tile-tiff-name/2193/rgb/tiff-a.tiff', buf);
+
+    const cfg = new ConfigProviderMemory();
+    const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name/2193/rgb/')]);
+
+    o(ret.imagery.length).equals(1);
+    const imagery = ret.imagery[0];
+    o(imagery.name).equals('tile-tiff-name');
+    o(imagery.files).deepEquals([{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
+  });
+
+  o('should ignore 2193 and rgb from imagery names', () => {
+    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/rgb/'))).equals(
+      'auckland_sn5600_1979_0.375m',
+    );
+    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/rgbi/'))).equals(
+      'auckland_sn5600_1979_0.375m',
+    );
+    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/dem_1m/'))).equals(
+      'auckland_sn5600_1979_0.375m',
+    );
+    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/dsm_1m/'))).equals(
+      'auckland_sn5600_1979_0.375m',
+    );
+    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/3857/dsm_1m/'))).equals(
+      'auckland_sn5600_1979_0.375m',
+    );
+
+    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/3857/DSM_1m/'))).equals(
+      'auckland_sn5600_1979_0.375m',
+    );
   });
 });
