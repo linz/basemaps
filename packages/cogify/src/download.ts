@@ -30,6 +30,12 @@ export class SourceDownloader {
   items: Map<string, SourceFile>;
   /** Local cache location */
   cachePath: string;
+
+  /**
+   * Unique set of hosts eg "s3://linz-basemaps",
+   * This has to be strings as each instance of a URL is unique.
+   */
+  hosts: Map<string, URL> = new Map();
   constructor(cachePath: string) {
     this.cachePath = cachePath;
     this.Q = pLimit(10);
@@ -41,6 +47,11 @@ export class SourceDownloader {
     const assets: SourceFile = this.items.get(url.href) ?? { items: [], url };
     assets.items.push(itemId);
     this.items.set(url.href, assets);
+    if (url.protocol !== 'file') {
+      const host = new URL(url.href);
+      host.pathname = '/'; // remove the file path;
+      this.hosts.set(host.href, url);
+    }
   }
 
   /** Once a item is done with a asset clean it up if no other items need it */
