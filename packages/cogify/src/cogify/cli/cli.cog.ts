@@ -137,6 +137,13 @@ export const BasemapsCogifyCreateCommand = command({
         const tileMatrix = TileMatrixSets.find(options.tileMatrix);
         if (tileMatrix == null) throw new Error('Failed to find tileMatrix: ' + options.tileMatrix);
         const sourceFiles = extractSourceFiles(item, url);
+
+        // Skip creating the COG if the item STAC contains no source tiffs
+        if (sourceFiles.length === 0) {
+          logger.error({ stacPath: itemStacPath, target: tiffPath }, 'Cog:NoSourceFiles');
+          return;
+        }
+
         // Create the tiff concurrently
         const outputTiffPath = await Q(async () => {
           metrics.start(tileId); // Only start the timer when the cog is actually being processed
