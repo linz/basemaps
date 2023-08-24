@@ -47,7 +47,7 @@ export class SourceDownloader {
     const assets: SourceFile = this.items.get(url.href) ?? { items: [], url };
     assets.items.push(itemId);
     this.items.set(url.href, assets);
-    if (url.protocol !== 'file') {
+    if (url.protocol !== 'file:') {
       const host = new URL(url.href);
       host.pathname = '/'; // remove the file path;
       this.hosts.set(host.href, url);
