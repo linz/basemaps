@@ -130,18 +130,20 @@ export const BasemapsCogifyCreateCommand = command({
         const cutlineLink = getCutline(item.links);
         const options = item.properties['linz_basemaps:options'];
         const tileId = TileId.fromTile(options.tile);
-        metrics.start(tileId);
 
         // Location to where the tiff should be stored
         const tiffPath = new URL(tileId + '.tiff', url);
         const itemStacPath = new URL(tileId + '.json', url);
         const tileMatrix = TileMatrixSets.find(options.tileMatrix);
         if (tileMatrix == null) throw new Error('Failed to find tileMatrix: ' + options.tileMatrix);
-        const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
         const sourceFiles = extractSourceFiles(item, url);
-        const sourceLocations = await Promise.all(sourceFiles.map((f) => sources.get(f, logger)));
         // Create the tiff concurrently
-        const outputTiffPath = await Q(() => {
+        const outputTiffPath = await Q(async () => {
+          metrics.start(tileId); // Only start the timer when the cog is actually being processed
+
+          const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
+          const sourceLocations = await Promise.all(sourceFiles.map((f) => sources.get(f, logger)));
+
           return createCog({ options, tempFolder: tmpFolder, sourceFiles: sourceLocations, cutline, logger });
         });
 
