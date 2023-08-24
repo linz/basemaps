@@ -17,7 +17,7 @@ import { sha256base58 } from '../base58.node.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory/memory.config.js';
-import { ConfigJson } from './json.config.js';
+import { ConfigJson, isEmptyTiff } from './json.config.js';
 import { LogType } from './log.js';
 
 /** Does a file look like a tiff, ending in .tif or .tiff */
@@ -183,9 +183,19 @@ export async function initImageryFromTiffUrl(
 ): Promise<ConfigImageryTiff> {
   const targetPath = urlToString(target);
   const sourceFiles = await fsa.toArray(fsa.list(targetPath));
-  const tiffs = await Promise.all(
-    sourceFiles.filter(isTiff).map((c) => Q(() => new CogTiff(fsa.source(c)).init(true))),
-  );
+
+  // Load metadata about all the tiffs ignoring any empty sparse tiffs
+  const tiffs = (
+    await Promise.all(
+      sourceFiles.filter(isTiff).map((c) =>
+        Q(async () => {
+          const tiff = await new CogTiff(fsa.source(c)).init(true);
+          if (await isEmptyTiff(tiff)) return null;
+          return tiff;
+        }),
+      ),
+    )
+  ).filter((f) => f != null) as CogTiff[];
 
   try {
     const stac = await loadStacFromURL(target);

@@ -49,20 +49,20 @@ export function guessIdFromUri(uri: string): string | null {
 const SmallTiffSizeBytes = 256 * 1024;
 
 /**
- * Check to see if this tiff has any meaninful amounts of data
+ * Check to see if this tiff has any data
  *
- * This looks at the first few overview levels to see if any internal tiff tiles contain data
+ * This looks at tiff tile offset arrays see if any internal tiff tiles contain any data
  *
- * @param path path to check
+ * @param toCheck Path or tiff check
  * @returns true if the tiff is empty, false otherwise
  */
-async function isEmptyTiff(path: string): Promise<boolean> {
-  const tiff = await CogTiff.create(fsa.source(path));
+export async function isEmptyTiff(toCheck: string | CogTiff): Promise<boolean> {
+  const tiff = typeof toCheck === 'string' ? await CogTiff.create(fsa.source(toCheck)) : toCheck;
 
   // Starting the smallest tiff overview greatly reduces the amount of data needing to be read
   // if the tiff contains data.
-  for (const img of tiff.images.reverse()) {
-    const tileOffsets = img.tileOffset;
+  for (let i = tiff.images.length - 1; i >= 0; i--) {
+    const tileOffsets = tiff.images[i].tileOffset;
     await tileOffsets.load();
     const offsets = tileOffsets.value ?? [];
     // If any tile offset is above 0 then there is data at that offset.
