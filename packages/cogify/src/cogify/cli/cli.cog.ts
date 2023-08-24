@@ -3,9 +3,10 @@ import { LogType, fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { CogTiff, TiffTag } from '@cogeotiff/core';
 import { Metrics } from '@linzjs/metrics';
-import { command, flag, option, optional, restPositionals } from 'cmd-ts';
+import { command, flag, number, option, optional, restPositionals } from 'cmd-ts';
 import { mkdir, rm } from 'fs/promises';
 import { tmpdir } from 'os';
+import pLimit from 'p-limit';
 import { StacAsset, StacCollection } from 'stac-ts';
 import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader, urlToString } from '../../download.js';
@@ -63,6 +64,13 @@ export const BasemapsCogifyCreateCommand = command({
     ...logArguments,
     path: restPositionals({ type: Url, displayName: 'path', description: 'Path to covering configuration' }),
     force: flag({ long: 'force', description: 'Overwrite existing tiff files' }),
+    concurrency: option({
+      type: number,
+      long: 'concurrency',
+      description: 'Number of COGS to process at the same type',
+      defaultValue: () => 4,
+      defaultValueIsSerializable: true,
+    }),
     fromFile: option({
       type: optional(UrlArrayJsonFile),
       long: 'from-file',
@@ -111,11 +119,14 @@ export const BasemapsCogifyCreateCommand = command({
 
     const gdalVersion = await new GdalRunner({ command: 'gdal_translate', args: ['--version'], output: '' }).run();
 
+    /** Limit the creation of COGs to concurrency at the same time */
+    const Q = pLimit(args.concurrency);
+
     try {
       await mkdir(tmpFolder, { recursive: true });
-
       // TODO should COG creation be run concurrently?
-      for (const { url, item } of filtered) {
+      const promises = filtered.map(async (f) => {
+        const { item, url } = f;
         const cutlineLink = getCutline(item.links);
         const options = item.properties['linz_basemaps:options'];
         const tileId = TileId.fromTile(options.tile);
@@ -129,13 +140,9 @@ export const BasemapsCogifyCreateCommand = command({
         const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
         const sourceFiles = extractSourceFiles(item, url);
         const sourceLocations = await Promise.all(sourceFiles.map((f) => sources.get(f, logger)));
-        // Create the tiff
-        const outputTiffPath = await createCog({
-          options,
-          tempFolder: tmpFolder,
-          sourceFiles: sourceLocations,
-          cutline,
-          logger,
+        // Create the tiff concurrently
+        const outputTiffPath = await Q(() => {
+          return createCog({ options, tempFolder: tmpFolder, sourceFiles: sourceLocations, cutline, logger });
         });
 
         // Cleanup any source files used in the COG creation
@@ -198,7 +205,9 @@ export const BasemapsCogifyCreateCommand = command({
         // Write the STAC metadata
         await fsa.write(urlToString(itemStacPath), JSON.stringify(item, null, 2));
         logger.info({ tileId, tiffPath, duration: metrics.end(tileId) }, 'Cog:Create:Done');
-      }
+      });
+
+      await Promise.all(promises);
     } catch (err) {
       logger.error({ err }, 'Cog:Create:Failed');
       throw err;
