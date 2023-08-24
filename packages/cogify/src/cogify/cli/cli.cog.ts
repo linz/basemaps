@@ -124,7 +124,7 @@ export const BasemapsCogifyCreateCommand = command({
 
     try {
       await mkdir(tmpFolder, { recursive: true });
-      // TODO should COG creation be run concurrently?
+
       const promises = filtered.map(async (f) => {
         const { item, url } = f;
         const cutlineLink = getCutline(item.links);
