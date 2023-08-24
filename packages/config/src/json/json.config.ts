@@ -59,7 +59,7 @@ const SmallTiffSizeBytes = 256 * 1024;
 async function isEmptyTiff(path: string): Promise<boolean> {
   const tiff = await CogTiff.create(fsa.source(path));
 
-  // Starting the smallest tiff overview greatly reduces teh amount of data needing to be read
+  // Starting the smallest tiff overview greatly reduces the amount of data needing to be read
   // if the tiff contains data.
   for (const img of tiff.images.reverse()) {
     const tileOffsets = img.tileOffset;
