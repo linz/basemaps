@@ -3,6 +3,19 @@ import Select from 'react-select';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
 
+type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;
+
+const CategoryOrder = new Map<string, number>([
+  ['Basemaps', 1],
+  ['Satellite Imagery', 2],
+  ['Urban Aerial Photos', 3],
+  ['Rural Aerial Photos', 4],
+  ['Scanned Aerial Imagery', 5],
+  ['Event', 6],
+  ['Bathymetry', 7],
+  ['Elevation', 8],
+]);
+
 export interface GroupedOptions {
   label: string;
   options: Option[];
@@ -82,7 +95,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
   makeOptions(): { options: GroupedOptions[]; current: Option | null } {
     if (this.state.layers == null || this.state.layers.size === 0) return { options: [], current: null };
-    const categories: Map<string, { label: string; options: { label: string; value: string }[] }> = new Map();
+    const categories: CategoryMap = new Map();
     const currentLayer = this.state.currentLayer;
     let current: Option | null = null;
 
@@ -96,7 +109,16 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
       categories.set(layerId, layerCategory);
       if (layer.id === currentLayer) current = opt;
     }
-
-    return { options: [...categories.values()], current: current };
+    const orderedCategories: CategoryMap = new Map(
+      [...categories].sort((a, b) => {
+        const fallbackOrder = 999;
+        const orderA = CategoryOrder.get(a[0]) ?? fallbackOrder;
+        const orderB = CategoryOrder.get(b[0]) ?? fallbackOrder;
+        if (orderA > orderB) return 1;
+        if (orderA < orderB) return -1;
+        return a[0].localeCompare(b[0]);
+      }),
+    );
+    return { options: [...orderedCategories.values()], current: current };
   }
 }
