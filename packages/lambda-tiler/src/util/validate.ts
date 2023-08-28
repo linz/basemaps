@@ -1,4 +1,4 @@
-import { ImageFormat, Projection, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
+import { ImageFormat, LatLon, Projection, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
 import { Const, isValidApiKey, truncateApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -54,6 +54,15 @@ export const Validate = {
     if (ext) return ext;
     if (tileType === VectorFormat.MapboxVectorTiles) return VectorFormat.MapboxVectorTiles;
     return null;
+  },
+
+  /** Validate that a lat and lon are between  -90/90 and -180/180 */
+  getLocation(lonIn: string, latIn: string): LatLon | null {
+    const lat = parseFloat(latIn);
+    const lon = parseFloat(lonIn);
+    if (isNaN(lon) || lon < -90 || lon > 90) return null;
+    if (isNaN(lat) || lat < -180 || lat > 180) return null;
+    return { lon, lat };
   },
   /**
    * Validate that the tile request is somewhat valid
