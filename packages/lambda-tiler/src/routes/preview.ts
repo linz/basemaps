@@ -1,14 +1,13 @@
+import { ConfigTileSetRaster } from '@basemaps/config';
 import { Bounds, ImageFormat, LatLon, Projection, TileMatrixSet, VectorFormat } from '@basemaps/geo';
 import { CompositionTiff, Tiler } from '@basemaps/tiler';
 import { SharpOverlay, TileMakerSharp } from '@basemaps/tiler-sharp';
-import sharp from 'sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 import { DefaultBackground, DefaultResizeKernel, TileXyzRaster, isArchiveTiff } from './tile.xyz.raster.js';
-import { ConfigTileSetRaster } from '@basemaps/config';
 
 export interface PreviewGet {
   Params: {
