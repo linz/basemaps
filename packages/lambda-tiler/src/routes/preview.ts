@@ -150,7 +150,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   response.buffer(buf, 'image/' + ctx.outputFormat);
 
   const shortLocation = [ctx.location.lon.toFixed(7), ctx.location.lat.toFixed(7)].join('_');
-  const suggestedFileName = `preview_${ctx.tileSet.name}_${shortLocation}.webp`;
+  const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}.webp`;
   response.header('Content-Disposition', `inline; filename=\"${suggestedFileName}\"`);
 
   return response;
