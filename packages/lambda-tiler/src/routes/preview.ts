@@ -13,7 +13,6 @@ export interface PreviewGet {
   Params: {
     tileSet: string;
     tileMatrix: string;
-    imageFormat: string;
     lat: string;
     lon: string;
     z: string;
@@ -21,14 +20,15 @@ export interface PreviewGet {
 }
 
 const PreviewSize = { width: 1200, height: 630 };
+const OutputFormat = ImageFormat.Webp;
 
 /**
  * Serve a preview of a imagery set
  *
- * /v1/preview/:tileSet/:tileMatrixSet/:z/:lon/:lat.:tileType
+ * /v1/preview/:tileSet/:tileMatrixSet/:z/:lon/:lat
  *
  * @example
- * Raster Tile `/v1/preview/aerial/WebMercatorQuad/177.3998405/-39.0852555.webp`
+ * Raster Tile `/v1/preview/aerial/WebMercatorQuad/177.3998405/-39.0852555`
  *
  */
 export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promise<LambdaHttpResponse> {
@@ -38,13 +38,8 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   req.set('tileMatrix', tileMatrix.identifier);
   req.set('projection', tileMatrix.projection.code);
 
-  const outputFormat = Validate.getTileFormat(req.params.imageFormat);
-  if (outputFormat == null) throw new LambdaHttpResponse(404, 'Preview extension not found');
-  // Vector tile previews are not supported
-  if (outputFormat === VectorFormat.MapboxVectorTiles) {
-    throw new LambdaHttpResponse(404, 'Preview extension not supported');
-  }
-  req.set('extension', outputFormat);
+  // TODO we should detect the format based off the "Accept" header and maybe default back to webp
+  req.set('extension', OutputFormat);
 
   const location = Validate.getLocation(req.params.lon, req.params.lat);
   if (location == null) throw new LambdaHttpResponse(404, 'Preview location not found');
@@ -62,7 +57,7 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   // Only raster previews are supported
   if (tileSet.type !== 'raster') throw new LambdaHttpResponse(404, 'Preview invalid tile set type');
 
-  return renderPreview(req, { tileSet, tileMatrix, location, outputFormat, z });
+  return renderPreview(req, { tileSet, tileMatrix, location, outputFormat: OutputFormat, z });
 }
 
 interface PreviewRenderContext {
@@ -153,5 +148,10 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   response.header(HttpHeader.ETag, cacheKey);
   response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
   response.buffer(buf, 'image/' + ctx.outputFormat);
+
+  const shortLocation = [ctx.location.lon.toFixed(7), ctx.location.lat.toFixed(7)].join('_');
+  const suggestedFileName = `preview_${ctx.tileSet.name}_${shortLocation}.webp`;
+  response.header('Content-Disposition', `inline; filename=\"${suggestedFileName}\"`);
+
   return response;
 }

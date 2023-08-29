@@ -56,12 +56,12 @@ export const Validate = {
     return null;
   },
 
-  /** Validate that a lat and lon are between  -90/90 and -180/180 */
+  /** Validate that a lat and lon are between -90/90 and -180/180 */
   getLocation(lonIn: string, latIn: string): LatLon | null {
     const lat = parseFloat(latIn);
     const lon = parseFloat(lonIn);
-    if (isNaN(lon) || lon < -90 || lon > 90) return null;
-    if (isNaN(lat) || lat < -180 || lat > 180) return null;
+    if (isNaN(lon) || lon < -180 || lon > 180) return null;
+    if (isNaN(lat) || lat < -90 || lat > 90) return null;
     return { lon, lat };
   },
   /**

@@ -95,7 +95,7 @@ handler.router.get('/v1/tiles/:tileSet/:tileMatrix/tile.json', tileJsonGet);
 handler.router.get('/v1/tiles/:tileSet/:tileMatrix/:z/:x/:y.:tileType', tileXyzGet);
 
 // Preview
-handler.router.get('/v1/preview/:tileSet/:tileMatrix/:z/:lon/:lat.:tileType', tilePreviewGet);
+handler.router.get('/v1/preview/:tileSet/:tileMatrix/:z/:lon/:lat', tilePreviewGet);
 
 // Attribution
 handler.router.get('/v1/tiles/:tileSet/:tileMatrix/attribution.json', tileAttributionGet);
