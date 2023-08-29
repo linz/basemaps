@@ -25,9 +25,6 @@ import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
-import PLimit from 'p-limit';
-
-export const Q = PLimit(50);
 
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
