@@ -25,6 +25,9 @@ import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
+import PLimit from 'p-limit';
+
+export const Q = PLimit(50);
 
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
@@ -57,30 +60,33 @@ export class ConfigJson {
   static async fromPath(basePath: string, log: LogType): Promise<ConfigProviderMemory> {
     const cfg = new ConfigJson(basePath, log);
 
+    const filePaths: string[] = [];
     for await (const filePath of fsa.list(basePath)) {
       if (!filePath.endsWith('.json')) continue;
-
-      const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
-      const prefix = ConfigId.getPrefix(bc.id);
-      if (prefix == null) {
-        log.warn({ path: filePath }, 'Invalid JSON file found');
-        continue;
-      }
-
-      log.trace({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
-
-      switch (prefix) {
-        case ConfigPrefix.TileSet:
-          cfg.mem.put(await cfg.tileSet(bc));
-          break;
-        case ConfigPrefix.Provider:
-          cfg.mem.put(await cfg.provider(bc));
-          break;
-        case ConfigPrefix.Style:
-          cfg.mem.put(await cfg.style(bc));
-          break;
-      }
+      filePaths.push(filePath);
     }
+
+    await Promise.all(
+      filePaths.map(async (filePath) => {
+        const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
+        const prefix = ConfigId.getPrefix(bc.id);
+        if (prefix) {
+          log.trace({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
+          switch (prefix) {
+            case ConfigPrefix.TileSet:
+              cfg.mem.put(await cfg.tileSet(bc));
+              break;
+            case ConfigPrefix.Provider:
+              cfg.mem.put(await cfg.provider(bc));
+              break;
+            case ConfigPrefix.Style:
+              cfg.mem.put(await cfg.style(bc));
+              break;
+          }
+        } else log.warn({ path: filePath }, 'Invalid JSON file found');
+      }),
+    );
+
     return cfg.mem;
   }
 
