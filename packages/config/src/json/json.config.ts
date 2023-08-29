@@ -60,14 +60,11 @@ export class ConfigJson {
   static async fromPath(basePath: string, log: LogType): Promise<ConfigProviderMemory> {
     const cfg = new ConfigJson(basePath, log);
 
-    const filePaths: string[] = [];
-    for await (const filePath of fsa.list(basePath)) {
-      if (!filePath.endsWith('.json')) continue;
-      filePaths.push(filePath);
-    }
+    const files = await fsa.toArray(fsa.list(basePath));
 
     await Promise.all(
-      filePaths.map(async (filePath) => {
+      files.map(async (filePath) => {
+        if (!filePath.endsWith('.json')) return;
         const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
         const prefix = ConfigId.getPrefix(bc.id);
         if (prefix) {
