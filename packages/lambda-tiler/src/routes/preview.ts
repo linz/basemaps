@@ -1,5 +1,5 @@
 import { ConfigTileSetRaster } from '@basemaps/config';
-import { Bounds, ImageFormat, LatLon, Projection, TileMatrixSet, VectorFormat } from '@basemaps/geo';
+import { Bounds, ImageFormat, LatLon, Projection, TileMatrixSet } from '@basemaps/geo';
 import { CompositionTiff, Tiler } from '@basemaps/tiler';
 import { SharpOverlay, TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
