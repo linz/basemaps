@@ -74,6 +74,7 @@ o.spec('/v1/tiles', () => {
       o(res.header('content-type')).equals(`image/${fmt}`);
       o(res.header('etag')).notEquals(undefined);
       o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
+      o(res.header('content-disposition')).equals(`inline; filename=\"aerial_0_0_0.${fmt}\"`);
     });
   });
 
@@ -110,6 +111,7 @@ o.spec('/v1/tiles', () => {
     o(res.header('content-type')).equals('image/png');
     o(res.header('etag')).notEquals(undefined);
     o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
+    o(res.header('content-disposition')).equals('inline; filename="🦄 🌈_0_0_0.png"');
   });
 
   ['/favicon.ico', '/index.html', '/foo/bar'].forEach((path) => {

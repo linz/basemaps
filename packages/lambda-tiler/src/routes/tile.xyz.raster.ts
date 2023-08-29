@@ -1,5 +1,5 @@
 import { getAllImagery, ConfigTileSetRaster } from '@basemaps/config';
-import { Bounds, Epsg, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
+import { Bounds, Epsg, ImageFormat, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
 import { Env, fsa } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
@@ -116,9 +116,12 @@ export const TileXyzRaster = {
     req.set('layersUsed', res.layers);
     req.set('bytes', res.buffer.byteLength);
 
+    const suggestedFilename = [tileSet.name, xyz.tile.z, xyz.tile.x, xyz.tile.y].join('_') + `.${xyz.tileType}`;
+
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
+    response.header('Content-Disposition', `inline; filename="${suggestedFilename}"`);
     response.buffer(res.buffer, 'image/' + xyz.tileType);
     return response;
   },
