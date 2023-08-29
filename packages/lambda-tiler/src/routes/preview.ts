@@ -28,7 +28,7 @@ const OutputFormat = ImageFormat.Webp;
  * /v1/preview/:tileSet/:tileMatrixSet/:z/:lon/:lat
  *
  * @example
- * Raster Tile `/v1/preview/aerial/WebMercatorQuad/177.3998405/-39.0852555`
+ * Raster Tile `/v1/preview/aerial/WebMercatorQuad/12/177.3998405/-39.0852555`
  *
  */
 export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promise<LambdaHttpResponse> {
@@ -150,7 +150,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   response.buffer(buf, 'image/' + ctx.outputFormat);
 
   const shortLocation = [ctx.location.lon.toFixed(7), ctx.location.lat.toFixed(7)].join('_');
-  const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}.webp`;
+  const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}.${ctx.outputFormat}`;
   response.header('Content-Disposition', `inline; filename=\"${suggestedFileName}\"`);
 
   return response;
