@@ -73,14 +73,8 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
           options={ret.options}
           onChange={this.onLayerChange}
           value={ret.current}
-          styles={{
-            groupHeading: (baseStyles) => ({
-              ...baseStyles,
-              fontSize: '90%',
-              color: '#00425d',
-              letterSpacing: '1px',
-            }),
-          }}
+          classNamePrefix="layer-selector"
+          id="layer-selector"
         />
         <div className="lui-input-group-wrapper">
           <div className="lui-checkbox-container">
