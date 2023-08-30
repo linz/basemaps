@@ -1,3 +1,6 @@
+import type { TileMatrixSet } from './tile.matrix.set.js';
+import { TileMatrixSets } from './tms/index.js';
+
 export interface LonLat {
   /** Latitude */
   lat: number;
@@ -10,7 +13,21 @@ export interface LonLatZoom extends LonLat {
 }
 
 export interface LocationQueryConfig {
+  /** Style name which is generally a `tileSetId`
+   *
+   * @example
+   * "aerial"
+   * "aerialhybrid"
+   * "bounty-islands-satellite-2020-0.5m"
+   */
   style: string;
+  /**
+   *  TileMatrixId {@link TileMatrixSet.identifier}
+   *
+   * @example
+   * "WebMercatorQuad"
+   * "NZTM2000Quad"
+   */
   tileMatrix: string;
 }
 
@@ -103,15 +120,27 @@ export const LocationUrl = {
     return output as LonLatZoom;
   },
 
-  /** Parse common query string  */
+  /*
+   * Parse common query string parameters and defaulting
+   * `style` reads `?style=:style` then `?s=style` the `?i=:imageryId` defaults `aerial`
+   * `tileMatrix` reads `?tileMatrix=:tileMatrixId` then `?p=:epsg|tileMatrix` then defaults to `WebMercatorQuad`
+   */
   parseQuery(str: { get: (x: string) => string | null }): LocationQueryConfig {
+    const tms = TileMatrixSets.find(str.get('tileMatrix') ?? str.get('p'), false);
     return {
+      /** Style ordering, falling back onto the deprecated `?i=:imageryId  if it exists otherwise a default of `aerial` */
       style: str.get('style') ?? str.get('s') ?? str.get('i') ?? 'aerial',
-      tileMatrix: str.get('tileMatrix') ?? str.get('p') ?? 'WebMercatorQuad',
+      tileMatrix: tms?.identifier ?? 'WebMercatorQuad',
     };
   },
 };
 
+/**
+ * locations have a number of starting options, trim them out to make parsing easier
+ * - full pathname `/@`
+ * - hash path `#@`
+ * - partial string `@`
+ */
 function removeLocationPrefix(str: string): string {
   if (str.startsWith('/@')) return str.slice(2);
   if (str.startsWith('#@')) return str.slice(2);

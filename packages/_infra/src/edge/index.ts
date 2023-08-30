@@ -112,7 +112,13 @@ export class EdgeStack extends cdk.Stack {
           forwardedValues: {
             /** Forward all query strings but do not use them for caching */
             queryString: true,
-            queryStringCacheKeys: ['config', 'exclude', 'tileSet', 'style'].map(encodeURIComponent),
+            queryStringCacheKeys: [
+              'config',
+              'exclude',
+              'tileSet',
+              'style',
+              'i', // ?i=:imageryId is deprecated and should be removed at some point
+            ].map(encodeURIComponent),
           },
           lambdaFunctionAssociations: [],
         },

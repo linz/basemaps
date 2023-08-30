@@ -76,6 +76,13 @@ export class TileMatrixSet {
     return this.zooms.length - 1;
   }
 
+  /**
+   *  Unique identifier of the TileMatrix {@link TileMatrixSetType.identifier}
+   *
+   * @example
+   * "WebMercatorQuad"
+   * "NZTM2000Quad"
+   */
   get identifier(): string {
     return this.def.identifier;
   }
