@@ -2,6 +2,7 @@ import {
   Bounds,
   GoogleTms,
   ImageFormat,
+  NamedBounds,
   Nztm2000QuadTms,
   TileMatrixSet,
   TileMatrixSets,
@@ -9,6 +10,7 @@ import {
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
 import { Cotar } from '@cotar/core';
+import { CogTiff } from '@cogeotiff/core';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { ConfigId } from '../base.config.js';
@@ -39,6 +41,37 @@ export function guessIdFromUri(uri: string): string | null {
   } catch (e) {
     return null;
   }
+}
+
+/**
+ * If a tiff is smaller than this size, Validate that the tiff actually has meaningful amounts of data
+ */
+const SmallTiffSizeBytes = 256 * 1024;
+
+/**
+ * Check to see if this tiff has any data
+ *
+ * This looks at tiff tile offset arrays see if any internal tiff tiles contain any data
+ *
+ * @param toCheck Path or tiff check
+ * @returns true if the tiff is empty, false otherwise
+ */
+export async function isEmptyTiff(toCheck: string | CogTiff): Promise<boolean> {
+  const tiff = typeof toCheck === 'string' ? await CogTiff.create(fsa.source(toCheck)) : toCheck;
+
+  // Starting the smallest tiff overview greatly reduces the amount of data needing to be read
+  // if the tiff contains data.
+  for (let i = tiff.images.length - 1; i >= 0; i--) {
+    const tileOffsets = tiff.images[i].tileOffset;
+    await tileOffsets.load();
+    const offsets = tileOffsets.value ?? [];
+    // If any tile offset is above 0 then there is data at that offset.
+    for (const offset of offsets) {
+      // There exists a tile that contains some data, so this tiff is not empty
+      if (offset > 0) return false;
+    }
+  }
+  return true;
 }
 
 export class ConfigJson {
@@ -210,25 +243,39 @@ export class ConfigJson {
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ uri, imageId: id }, 'FetchImagery');
 
-    const fileList = await fsa.toArray(fsa.list(uri));
-    const tiffFiles = fileList.filter((f) => f.endsWith('.tiff') || f.endsWith('.tif'));
+    const fileList = await fsa.toArray(fsa.details(uri));
+    const tiffFiles = fileList.filter((f) => f.path.endsWith('.tiff') || f.path.endsWith('.tif'));
 
     let bounds: Bounds | null = null;
     // Files are stored as `{z}-{x}-{y}.tiff`
     // TODO the files could actually be smaller than the tile size,
     // we should really load the tiff at some point to validate the size
-    const files = tiffFiles.map((c) => {
-      const tileName = basename(c).replace('.tiff', '');
-      const [z, x, y] = tileName.split('-').map((f) => Number(f));
-      if (isNaN(z) || isNaN(y) || isNaN(z)) throw new Error('Failed to parse XYZ from: ' + c);
+    const imageList = await Promise.all(
+      tiffFiles.map(async (c) => {
+        const tileName = basename(c.path).replace('.tiff', '');
+        const [z, x, y] = tileName.split('-').map((f) => Number(f));
+        if (isNaN(z) || isNaN(y) || isNaN(z)) throw new Error('Failed to parse XYZ from: ' + c);
 
-      const tile = tileMatrix.tileToSourceBounds({ z, x, y });
-      // Expand the total bounds to cover this tile
-      if (bounds == null) bounds = Bounds.fromJson(tile);
-      else bounds = bounds.union(Bounds.fromJson(tile));
-      return { ...tile, name: tileName };
-    });
+        // This tiff is really small, validate that the tiff actually has data
+        if (c.size != null && c.size < SmallTiffSizeBytes) {
+          const isEmpty = await isEmptyTiff(c.path);
+          if (isEmpty) {
+            this.logger.warn({ uri: c.path, imageId: id, size: c.size }, 'Imagery:Empty');
+            return null;
+          } else {
+            this.logger.trace({ uri: c.path, imageId: id, size: c.size }, 'Imagery:CheckSmall:NotEmpty');
+          }
+        }
 
+        const tile = tileMatrix.tileToSourceBounds({ z, x, y });
+        // Expand the total bounds to cover this tile
+        if (bounds == null) bounds = Bounds.fromJson(tile);
+        else bounds = bounds.union(Bounds.fromJson(tile));
+        return { ...tile, name: tileName };
+      }),
+    );
+
+    const files = imageList.filter((f) => f != null) as NamedBounds[];
     // Sort the files by Z, X, Y
     files.sort((a, b): number => {
       const widthSize = a.width - b.width;
