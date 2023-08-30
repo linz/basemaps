@@ -117,6 +117,16 @@ export const BasemapsCogifyCreateCommand = command({
       for (const src of files) sources.register(new URL(src.href, i.url), i.item.id);
     }
 
+    // Check that we have read access to all the hosts that have files that we need
+    // This prevents us assuming a multiple roles when file are attempted to download
+    await Promise.all(
+      [...sources.hosts].map(async ([hostName, url]) => {
+        logger.debug({ hostName }, 'Cog:Create:ValidateAccess');
+        await fsa.head(urlToString(url));
+        logger.info({ hostName, url }, 'Cog:Create:ValidateAccess:Ok');
+      }),
+    );
+
     const gdalVersion = await new GdalRunner({ command: 'gdal_translate', args: ['--version'], output: '' }).run();
 
     /** Limit the creation of COGs to concurrency at the same time */
