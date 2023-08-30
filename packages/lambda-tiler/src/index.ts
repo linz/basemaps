@@ -19,6 +19,7 @@ import { NotFound, OkResponse } from './util/response.js';
 import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
 import { tilePreviewGet } from './routes/preview.js';
+import { previewIndexGet } from './routes/preview.index.js';
 
 export const handler = lf.http(LogConfig.get());
 
@@ -96,6 +97,8 @@ handler.router.get('/v1/tiles/:tileSet/:tileMatrix/:z/:x/:y.:tileType', tileXyzG
 
 // Preview
 handler.router.get('/v1/preview/:tileSet/:tileMatrix/:z/:lon/:lat', tilePreviewGet);
+handler.router.get('/v1/@:location', previewIndexGet);
+handler.router.get('/@:location', previewIndexGet);
 
 // Attribution
 handler.router.get('/v1/tiles/:tileSet/:tileMatrix/attribution.json', tileAttributionGet);

@@ -89,6 +89,7 @@ export class EdgeStack extends cdk.Stack {
 
   lambdaUrlSource(lambdaUrl: string): cf.SourceConfiguration {
     const trimmedUrl = new URL(lambdaUrl); // LambdaURLS include https:// and a trailing /
+
     return {
       customOriginSource: {
         domainName: trimmedUrl.hostname,
@@ -101,7 +102,17 @@ export class EdgeStack extends cdk.Stack {
           forwardedValues: {
             /** Forward all query strings but do not use them for caching */
             queryString: true,
-            queryStringCacheKeys: ['config', 'exclude', 'date[before]', 'date[after]'].map(encodeURIComponent),
+            queryStringCacheKeys: ['config', 'exclude'].map(encodeURIComponent),
+          },
+          lambdaFunctionAssociations: [],
+        },
+        {
+          pathPattern: '/@*',
+          allowedMethods: cf.CloudFrontAllowedMethods.ALL,
+          forwardedValues: {
+            /** Forward all query strings but do not use them for caching */
+            queryString: true,
+            queryStringCacheKeys: ['config', 'exclude', 'tileSet', 'style'].map(encodeURIComponent),
           },
           lambdaFunctionAssociations: [],
         },

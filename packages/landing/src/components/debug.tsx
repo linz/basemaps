@@ -1,6 +1,6 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
-import { GoogleTms } from '@basemaps/geo';
+import { GoogleTms, LocationUrl } from '@basemaps/geo';
 import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
 import { MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
@@ -56,9 +56,9 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     onMapLoaded(map, () => {
       Config.map.on('change', () => {
         if (this.props.map == null) return;
-        const locationHash = WindowUrl.toHash(Config.map.getLocation(this.props.map));
+        const loc = LocationUrl.toLocation(Config.map.getLocation(this.props.map));
         const locationSearch = '?' + MapConfig.toUrl(Config.map);
-        window.history.replaceState(null, '', locationSearch + locationHash);
+        window.history.replaceState(null, '', loc + locationSearch);
         this.updateFromConfig();
       });
       this.updateFromConfig();

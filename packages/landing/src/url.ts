@@ -45,46 +45,6 @@ export function ensureBase58(s: string | null): string | null {
 export const WindowUrl = {
   ImageFormat: 'png',
 
-  /**
-   * Encode a location into the window.hash
-   * Google uses ${lat},${lon},z${zoom}
-   * TODO do we want to follow this
-   */
-  toHash(loc: MapLocation): string {
-    return `#@${loc.lat.toFixed(7)},${loc.lon.toFixed(7)},z${loc.zoom}`;
-  },
-
-  /**
-   * Support parsing of zooms with `z14` or `14z`
-   * @param zoom string to parse zoom from
-   */
-  parseZoom(zoom: string | null): number {
-    if (zoom == null || zoom === '') return NaN;
-    if (zoom.startsWith('z')) return parseFloat(zoom.slice(1));
-    if (zoom.endsWith('z')) return parseFloat(zoom);
-    return NaN;
-  },
-
-  /** Parse a location from window.hash if it exists */
-  fromHash(str: string): Partial<MapLocation> {
-    const output: Partial<MapLocation> = {};
-    const hash = str.replace('#@', '');
-    const [latS, lonS, zoomS] = hash.split(',');
-    const lat = parseFloat(latS);
-    const lon = parseFloat(lonS);
-    if (!isNaN(lat) && !isNaN(lon)) {
-      output.lat = lat;
-      output.lon = lon;
-    }
-
-    const newZoom = WindowUrl.parseZoom(zoomS);
-    if (!isNaN(newZoom)) {
-      output.zoom = newZoom;
-    }
-
-    return output;
-  },
-
   baseUrl(): string {
     const baseUrl = Config.BaseUrl;
     if (baseUrl === '') return window.location.origin;

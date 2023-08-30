@@ -33,7 +33,7 @@ const OutputFormat = ImageFormat.Webp;
  */
 export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promise<LambdaHttpResponse> {
   const tileMatrix = Validate.getTileMatrixSet(req.params.tileMatrix);
-  if (tileMatrix == null) throw new LambdaHttpResponse(404, 'Tile Matrix not found');
+  if (tileMatrix == null) return new LambdaHttpResponse(404, 'Tile Matrix not found');
 
   req.set('tileMatrix', tileMatrix.identifier);
   req.set('projection', tileMatrix.projection.code);
@@ -42,20 +42,20 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   req.set('extension', OutputFormat);
 
   const location = Validate.getLocation(req.params.lon, req.params.lat);
-  if (location == null) throw new LambdaHttpResponse(404, 'Preview location not found');
+  if (location == null) return new LambdaHttpResponse(404, 'Preview location not found');
   req.set('location', location);
 
-  const z = Math.round(parseFloat(req.params.z));
-  if (isNaN(z) || z < 0 || z > tileMatrix.maxZoom) throw new LambdaHttpResponse(404, 'Preview zoom invalid');
+  const z = Math.ceil(parseFloat(req.params.z));
+  if (isNaN(z) || z < 0 || z > tileMatrix.maxZoom) return new LambdaHttpResponse(404, 'Preview zoom invalid');
 
   const config = await ConfigLoader.load(req);
 
   req.timer.start('tileset:load');
   const tileSet = await config.TileSet.get(config.TileSet.id(req.params.tileSet));
   req.timer.end('tileset:load');
-  if (tileSet == null) return NotFound();
+  if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset not found');
   // Only raster previews are supported
-  if (tileSet.type !== 'raster') throw new LambdaHttpResponse(404, 'Preview invalid tile set type');
+  if (tileSet.type !== 'raster') return new LambdaHttpResponse(404, 'Preview invalid tile set type');
 
   return renderPreview(req, { tileSet, tileMatrix, location, outputFormat: OutputFormat, z });
 }
@@ -135,7 +135,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   req.timer.end('compose:overlay');
 
   // Create the output image and render all the individual pieces into them
-  const img = tilerSharp.createImage(DefaultBackground);
+  const img = tilerSharp.createImage({ r: 255, g: 0, b: 255, alpha: 0.1 });
   img.composite(overlays);
 
   req.timer.start('compose:compress');
