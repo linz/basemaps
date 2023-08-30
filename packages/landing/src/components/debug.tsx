@@ -56,7 +56,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     onMapLoaded(map, () => {
       Config.map.on('change', () => {
         if (this.props.map == null) return;
-        const loc = LocationUrl.toLocation(Config.map.getLocation(this.props.map));
+        const loc = LocationUrl.toSlug(Config.map.getLocation(this.props.map));
         const locationSearch = '?' + MapConfig.toUrl(Config.map);
         window.history.replaceState(null, '', loc + locationSearch);
         this.updateFromConfig();

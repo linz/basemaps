@@ -47,7 +47,7 @@ o.spec('/@*', async () => {
 
   o('Should redirect with querystring and location on failure to load', async () => {
     const evt: ALBEvent = { ...baseRequest, queryStringParameters: { config: 'config-latest.json' } };
-    const loc = LocationUrl.fromLocation(evt.path);
+    const loc = LocationUrl.fromSlug(evt.path);
     const ctx: LambdaHttpRequest = new LambdaAlbRequest(evt, {} as Context, LogConfig.get());
 
     const res = await loadAndServeIndexHtml(ctx, loc);

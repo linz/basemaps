@@ -55,7 +55,7 @@ export interface LocationQueryConfig {
   tileMatrix: string;
 }
 
-export const LocationUrl = {
+export const LocationSlug = {
   /**
    * Truncate a lat lon based on the zoom level
    *
@@ -84,7 +84,7 @@ export const LocationUrl = {
   /**
    * Encode a location into the format `@${lat},${lon},z${zoom}`
    *
-   * This will truncate the lat, lon and zoom with {@link LocationUrl.truncateLatLon}
+   * This will truncate the lat, lon and zoom with {@link LocationSlug.truncateLatLon}
    *
    * @example`
    * ```
@@ -92,8 +92,8 @@ export const LocationUrl = {
    * @-39.30426,174.07941,z13.5
    * ```
    */
-  toLocation(loc: LonLatZoom): string {
-    const fixed = LocationUrl.truncateLatLon(loc);
+  toSlug(loc: LonLatZoom): string {
+    const fixed = LocationSlug.truncateLatLon(loc);
     return `@${fixed.lat},${fixed.lon},z${fixed.zoom}`;
   },
 
@@ -126,7 +126,7 @@ export const LocationUrl = {
    *
    * @returns location if parsed and validates, null otherwise
    */
-  fromLocation(str: string): LonLatZoom | null {
+  fromSlug(str: string): LonLatZoom | null {
     const output: Partial<LonLatZoom> = {};
     const [latS, lonS, zoomS] = removeLocationPrefix(str).split(',');
 
@@ -138,7 +138,7 @@ export const LocationUrl = {
     if (isNaN(lon) || lon < -180 || lon > 180) return null;
     output.lon = lon;
 
-    const zoom = LocationUrl.parseZoom(zoomS);
+    const zoom = LocationSlug.parseZoom(zoomS);
     if (zoom == null || isNaN(zoom) || zoom < 0 || zoom > 32) return null;
     output.zoom = zoom;
 

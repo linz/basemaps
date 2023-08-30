@@ -33,7 +33,7 @@ export async function loadAndServeIndexHtml(
   loc?: LonLatZoom | null,
   tags?: Map<string, string>,
 ): Promise<LambdaHttpResponse> {
-  const locUrl = loc ? `#` + LocationUrl.toLocation(loc) : '';
+  const locUrl = loc ? `#` + LocationUrl.toSlug(loc) : '';
   // If the static location is given to us replace
   const staticLocation = Env.get(Env.StaticAssetLocation);
   // No static assets defined, just redirect back to the main page
@@ -82,7 +82,7 @@ export async function loadAndServeIndexHtml(
 
 export async function previewIndexGet(req: LambdaHttpRequest<PreviewIndexGet>): Promise<LambdaHttpResponse> {
   const config = await ConfigLoader.load(req);
-  const loc = LocationUrl.fromLocation(req.params.location);
+  const loc = LocationUrl.fromSlug(req.params.location);
   if (loc == null) return loadAndServeIndexHtml(req);
 
   const query = LocationUrl.parseQuery(req.query);

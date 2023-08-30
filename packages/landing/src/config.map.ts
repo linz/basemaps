@@ -68,16 +68,16 @@ export class MapConfig extends Emitter<MapConfigEvents> {
           ...DefaultCenter[this.tileMatrix.identifier],
           // TODO 2023-09 location.hash for storing basemaps locations
           // is deprecated we should remove this at some stage
-          ...LocationUrl.fromLocation(window.location.hash),
-          ...LocationUrl.fromLocation(window.location.pathname),
+          ...LocationUrl.fromSlug(window.location.hash),
+          ...LocationUrl.fromSlug(window.location.pathname),
         };
         this.setLocation(location);
       });
       this.updateFromUrl();
       this._location = {
         ...DefaultCenter[this.tileMatrix.identifier],
-        ...LocationUrl.fromLocation(window.location.hash),
-        ...LocationUrl.fromLocation(window.location.pathname),
+        ...LocationUrl.fromSlug(window.location.hash),
+        ...LocationUrl.fromSlug(window.location.pathname),
       };
     }
 
