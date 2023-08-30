@@ -115,7 +115,7 @@ export class EdgeStack extends cdk.Stack {
             queryStringCacheKeys: [
               'config',
               'exclude',
-              'tileSet',
+              'tileMatrix',
               'style',
               // Deprecated single character query params for style and projection
               's',
