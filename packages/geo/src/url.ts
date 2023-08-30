@@ -11,6 +11,30 @@ export interface LonLatZoom extends LonLat {
   zoom: number;
 }
 
+/**
+ * Look backwards through a string for the first number that is not a zero
+ * Then trim back to there only if there is a decimal place
+ *
+ * @example
+ * ```typescript
+ * removeTrailingZeros('3.0') // 3
+ * removeTrailingZeros('10') // 10
+ *```
+ * @param s string to remove trailing zerso from
+ * @returns
+ */
+export function removeTrailingZeros(s: string): string {
+  if (!s.includes('.')) return s;
+  let i = s.length - 1;
+  while (i >= 0) {
+    if (s[i] !== '0') break;
+    i--;
+  }
+
+  if (s[i] === '.') return s.slice(0, i);
+  return s.slice(0, i + 1);
+}
+
 export interface LocationQueryConfig {
   /**
    * Style name which is generally a `tileSetId`
@@ -51,9 +75,9 @@ export const LocationUrl = {
 
     return {
       // Trim trailing zeros from the fixed numbers then convert back to a string
-      lon: String(Number(loc.lon.toFixed(fixedLevel))),
-      lat: String(Number(loc.lat.toFixed(fixedLevel))),
-      zoom: String(Number(loc.zoom.toFixed(2))),
+      lon: removeTrailingZeros(loc.lon.toFixed(fixedLevel)),
+      lat: removeTrailingZeros(loc.lat.toFixed(fixedLevel)),
+      zoom: removeTrailingZeros(loc.zoom.toFixed(4)),
     };
   },
 
@@ -107,11 +131,11 @@ export const LocationUrl = {
     const [latS, lonS, zoomS] = removeLocationPrefix(str).split(',');
 
     const lat = parseFloat(latS);
-    if (isNaN(lat) || lat < -180 || lat > 180) return null;
+    if (isNaN(lat) || lat < -90 || lat > 90) return null;
     output.lat = lat;
 
     const lon = parseFloat(lonS);
-    if (isNaN(lon) || lon < -90 || lon > 90) return null;
+    if (isNaN(lon) || lon < -180 || lon > 180) return null;
     output.lon = lon;
 
     const zoom = LocationUrl.parseZoom(zoomS);
