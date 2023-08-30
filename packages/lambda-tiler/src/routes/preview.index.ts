@@ -103,12 +103,15 @@ export async function previewIndexGet(req: LambdaHttpRequest<PreviewIndexGet>): 
   const tileMatrixId = tileMatrix.identifier === GoogleTms.identifier ? '' : ` [${tileMatrix.identifier}]`;
   // List of tags to replace in the index.html
   const ogTags = new Map([
-    ['og:title', `<meta property="og:title" content="LINZ Basemaps">`],
+    ['og:title', `<meta name="twitter:title" property="og:title" content="LINZ Basemaps">`],
     // TODO attribution could be used to get exactly what imagery is being looked at.
-    ['og:description', `<meta property="og:description" content="${tileSet.title}${tileMatrixId}" />`],
+    [
+      'og:description',
+      `<meta name="twitter:description" property="og:description" content="${tileSet.title}${tileMatrixId}" />`,
+    ],
     [
       'og:image',
-      `<meta property="og:image" content="/v1/preview/${tileSet.name}/${tileMatrix.identifier}/${shortLocation}" />`,
+      `<meta name="twitter:image" property="og:image" content="/v1/preview/${tileSet.name}/${tileMatrix.identifier}/${shortLocation}" />`,
     ],
   ]);
 
