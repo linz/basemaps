@@ -27,7 +27,6 @@ o.spec('/@*', async () => {
     if (lastLocation == null) delete process.env[Env.StaticAssetLocation];
     else process.env[Env.StaticAssetLocation] = lastLocation;
   });
-  //   const sandbox = sinon.createSandbox();
 
   o('Should redirect on failure to load', async () => {
     const ctx: LambdaHttpRequest = new LambdaAlbRequest(baseRequest, {} as Context, LogConfig.get());
