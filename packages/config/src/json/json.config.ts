@@ -25,6 +25,9 @@ import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
+import PLimit from 'p-limit';
+
+const Q = PLimit(10);
 
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
@@ -59,8 +62,8 @@ export class ConfigJson {
 
     const files = await fsa.toArray(fsa.list(basePath));
 
-    await Promise.all(
-      files.map(async (filePath) => {
+    const todo = files.map(async (filePath) =>
+      Q(async () => {
         if (!filePath.endsWith('.json')) return;
         const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
         const prefix = ConfigId.getPrefix(bc.id);
@@ -80,6 +83,8 @@ export class ConfigJson {
         } else log.warn({ path: filePath }, 'Invalid JSON file found');
       }),
     );
+
+    await Promise.all(todo);
 
     return cfg.mem;
   }
