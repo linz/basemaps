@@ -95,9 +95,9 @@ export class ConfigJson {
 
     const files = await fsa.toArray(fsa.list(basePath));
 
-    const todo = files.map(async (filePath) =>
+    const todo = files.map(async (filePath) => {
+      if (!filePath.endsWith('.json')) return;
       Q(async () => {
-        if (!filePath.endsWith('.json')) return;
         const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
         const prefix = ConfigId.getPrefix(bc.id);
         if (prefix) {
@@ -114,8 +114,8 @@ export class ConfigJson {
               break;
           }
         } else log.warn({ path: filePath }, 'Invalid JSON file found');
-      }),
-    );
+      });
+    });
 
     await Promise.all(todo);
 
