@@ -1,4 +1,3 @@
-import type { TileMatrixSet } from './tile.matrix.set.js';
 import { TileMatrixSets } from './tms/index.js';
 
 export interface LonLat {
@@ -13,7 +12,8 @@ export interface LonLatZoom extends LonLat {
 }
 
 export interface LocationQueryConfig {
-  /** Style name which is generally a `tileSetId`
+  /**
+   * Style name which is generally a `tileSetId`
    *
    * @example
    * "aerial"
@@ -22,7 +22,7 @@ export interface LocationQueryConfig {
    */
   style: string;
   /**
-   *  TileMatrixId {@link TileMatrixSet.identifier}
+   * TileMatrixSet identifier
    *
    * @example
    * "WebMercatorQuad"
