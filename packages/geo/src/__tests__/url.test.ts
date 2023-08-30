@@ -6,8 +6,11 @@ o.spec('LocationUrl', () => {
     o(LocationUrl.toLocation({ lat: 174.7763921, lon: -41.277848, zoom: 8 })).equals(`@174.77639,-41.27785,z8`);
     o(LocationUrl.toLocation({ lat: 174.7763921, lon: -41.277848, zoom: 10 })).equals(`@174.77639,-41.27785,z10`);
     o(LocationUrl.toLocation({ lat: 174.7763921, lon: -41.277848, zoom: 18 })).equals(`@174.776392,-41.277848,z18`);
-    o(LocationUrl.toLocation({ lat: 174.7763921, lon: -41.277848, zoom: 20 })).equals(`@174.7763921,-41.2778480,z20`);
-    o(LocationUrl.toLocation({ lat: 174.7763921, lon: -41.277848, zoom: 22 })).equals(`@174.7763921,-41.2778480,z22`);
+    o(LocationUrl.toLocation({ lat: 174.7763921, lon: -41.2778481, zoom: 20 })).equals(`@174.7763921,-41.2778481,z20`);
+    o(LocationUrl.toLocation({ lat: 174.7763921, lon: -41.2778481, zoom: 22 })).equals(`@174.7763921,-41.2778481,z22`);
+
+    // Common floating point fun
+    o(LocationUrl.toLocation({ lat: 0.1 + 0.2, lon: -41.2778481, zoom: 22 })).equals(`@0.3,-41.2778481,z22`);
   });
 
   o('should round trip', () => {
@@ -40,6 +43,6 @@ o.spec('LocationUrl', () => {
     o(LocationUrl.toLocation({ lat: 174, lon: -41, zoom: 8.000001 })).equals(`@174,-41,z8`);
 
     // TODO is this desired behaviour?
-    o(LocationUrl.toLocation({ lat: 174, lon: -41.10000001, zoom: 8.000001 })).equals(`@174,-41.10000,z8`);
+    o(LocationUrl.toLocation({ lat: 174, lon: -41.10000001, zoom: 8.000001 })).equals(`@174,-41.1,z8`);
   });
 });

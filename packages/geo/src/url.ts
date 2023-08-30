@@ -40,7 +40,7 @@ export const LocationUrl = {
    * When zoomed out use a lower precision 5 decimal places (~1m)
    * and as zoom increased increase the precision to 6DP then 7DP
    *
-   * Truncates zoom to 2 decimal places
+   * Truncates zoom to at most 2 decimal places
    *
    * @param loc location to truncate
    */
@@ -51,10 +51,9 @@ export const LocationUrl = {
     else fixedLevel = 7;
 
     return {
-      lon: loc.lon.toFixed(fixedLevel).replace(TrailingZeros, ''),
-      lat: loc.lat.toFixed(fixedLevel).replace(TrailingZeros, ''),
-      // Trim off trailing zeros from the zoom
-      zoom: loc.zoom.toFixed(2).replace(TrailingZeros, ''),
+      lon: String(Number(loc.lon.toFixed(fixedLevel))),
+      lat: String(Number(loc.lat.toFixed(fixedLevel))),
+      zoom: String(Number(loc.zoom.toFixed(2))),
     };
   },
 
