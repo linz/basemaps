@@ -19,7 +19,7 @@ const ROUND_BIAS = process.env.TILE_ROUNDING_BIAS ? Number(process.env.TILE_ROUN
 
 export type CloudArchive = CogTiff | Cotar;
 function isCotar(x: CloudArchive): x is Cotar {
-  return x.source.uri.endsWith('.tar.co');
+  return x.source.uri.endsWith('.tar.co') || x.source.uri.endsWith('.tar');
 }
 
 export class Tiler {
@@ -47,12 +47,15 @@ export class Tiler {
    */
   public async tile(assets: CloudArchive[], x: number, y: number, zoom: number): Promise<Composition[]> {
     let layers: Composition[] = [];
+    /** Raster pixels of the output tile */
+    const screenPx = this.tms.tileToPixels(x, y);
+    const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, this.tms.tileSize, this.tms.tileSize);
 
     for (const asset of assets) {
       if (isCotar(asset)) {
         layers.push({ type: 'cotar', asset, path: `tiles/${zoom}/${x}/${y}.webp` });
       } else {
-        const tileOverlays = this.getTiles(asset, x, y, zoom);
+        const tileOverlays = this.getTiles(asset, screenBoundsPx, zoom);
         if (tileOverlays == null) continue;
         layers = layers.concat(tileOverlays);
       }
@@ -65,15 +68,10 @@ export class Tiler {
    * Does this tiff have any imagery inside the WebMercator XYZ tile
    *
    * @param tiff CoGeoTiff to check bounds of
-   * @param x WebMercator x
-   * @param y WebMercator y
+   * @param screenBoundsPx Bounding box of the output image
    * @param zoom WebMercator zoom
    */
-  public getRasterTiffIntersection(tiff: CogTiff, x: number, y: number, zoom: number): RasterPixelBounds | null {
-    /** Raster pixels of the output tile */
-    const screenPx = this.tms.tileToPixels(x, y);
-    const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, this.tms.tileSize, this.tms.tileSize);
-
+  public getRasterTiffIntersection(tiff: CogTiff, screenBoundsPx: Bounds, zoom: number): RasterPixelBounds | null {
     /** Raster pixels of the input geotiff */
     const bbox = tiff.images[0].bbox;
     const ul = this.tms.sourceToPixels(bbox[0], bbox[3], zoom);
@@ -147,8 +145,8 @@ export class Tiler {
     return composition;
   }
 
-  protected getTiles(tiff: CogTiff, x: number, y: number, z: number): Composition[] | null {
-    const rasterBounds = this.getRasterTiffIntersection(tiff, x, y, z);
+  public getTiles(tiff: CogTiff, bounds: Bounds, z: number): CompositionTiff[] | null {
+    const rasterBounds = this.getRasterTiffIntersection(tiff, bounds, z);
     if (rasterBounds == null) return null;
 
     // Find the best internal overview tiff to use with the desired XYZ resolution

@@ -82,7 +82,13 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     return (
       <div className="LuiDeprecatedForms">
         <h6>Layers</h6>
-        <Select<Option> options={ret.options} onChange={this.onLayerChange} value={ret.current} />
+        <Select<Option>
+          options={ret.options}
+          onChange={this.onLayerChange}
+          value={ret.current}
+          classNamePrefix="layer-selector"
+          id="layer-selector"
+        />
         <div className="lui-input-group-wrapper">
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onZoomExtentChange} checked={this.state.zoomToExtent} />

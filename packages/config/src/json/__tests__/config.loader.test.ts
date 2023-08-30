@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import o from 'ospec';
 import { ConfigProviderMemory } from '../../memory/memory.config.js';
 import { getImageryName, initConfigFromUrls } from '../tiff.config.js';
+import { CogTiff } from '@cogeotiff/core';
 
 const simpleTiff = new URL('../../../../__tests__/static/rgba8_tiled.tiff', import.meta.url);
 
@@ -23,6 +24,32 @@ o.spec('config import', () => {
   o('should load tiff from filesystem', async () => {
     const buf = await fsa.read(fileURLToPath(simpleTiff));
     await fsa.write('memory://tiffs/tile-tiff-name/tiff-a.tiff', buf);
+
+    const cfg = new ConfigProviderMemory();
+    const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name')]);
+
+    o(ret.imagery.length).equals(1);
+    const imagery = ret.imagery[0];
+    o(imagery.name).equals('tile-tiff-name');
+    o(imagery.files).deepEquals([{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
+  });
+
+  o('should skip empty tiffs from filesystem', async () => {
+    const buf = await fsa.read(fileURLToPath(simpleTiff));
+    await fsa.write('memory://tiffs/tile-tiff-name/tiff-a.tiff', buf);
+    const tiff = await CogTiff.create(new SourceMemory('memory://', buf));
+
+    // Fun tiff hacking, find all the tileOffset arrays and set them all to 0!
+    const emptyTiff = Buffer.from(buf);
+    for (const img of tiff.images) {
+      const tileOffsets = img.tileOffset;
+      // Location in the file where this tag starts
+      const tagOffset = tileOffsets.valuePointer;
+
+      for (let i = 0; i < tileOffsets.dataLength; i++) emptyTiff[tagOffset + i] = 0;
+    }
+
+    await fsa.write('memory://tiffs/tile-tiff-name/tiff-b.tiff', emptyTiff);
 
     const cfg = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name')]);

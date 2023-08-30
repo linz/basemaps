@@ -51,13 +51,18 @@ export const BasemapsCogifyConfigCommand = command({
 
     const configPath = base58.encode(Buffer.from(outputPath));
     const location = getImageryCenterZoom(im);
-    const locationHash = `#@${location.lat.toFixed(7)},${location.lon.toFixed(7)},z${location.zoom}`;
+    const lat = location.lat.toFixed(7);
+    const lon = location.lon.toFixed(7);
+    const locationHash = `#@${lat},${lon},z${location.zoom}`;
     const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${im.name}&tileMatrix=${im.tileMatrix}&debug${locationHash}`;
+    const preview = `https://basemaps.linz.govt.nz/v1/preview/${im.name}/${im.tileMatrix}/${location.zoom}/${lon}/${lat}.webp?config=${configPath}`;
+
     logger.info(
       {
         imageryId: im.id,
         path: outputPath,
         url,
+        urlPreview: preview,
         config: configPath,
         title: im.title,
         tileMatrix: im.tileMatrix,
