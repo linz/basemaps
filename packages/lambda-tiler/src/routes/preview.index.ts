@@ -99,11 +99,13 @@ export async function previewIndexGet(req: LambdaHttpRequest<PreviewIndexGet>): 
   const short = LocationUrl.truncateLatLon(loc);
   const shortLocation = [short.zoom, short.lon, short.lat].join('/');
 
+  // Include tile matrix name eg "[NZTM2000Quad]" in the title if its not WebMercatorQuad
+  const tileMatrixId = tileMatrix.identifier === GoogleTms.identifier ? '' : ` [${tileMatrix.identifier}]`;
   // List of tags to replace in the index.html
   const ogTags = new Map([
     ['og:title', `<meta property="og:title" content="LINZ Basemaps">`],
     // TODO attribution could be used to get exactly what imagery is being looked at.
-    ['og:description', `<meta property="og:description" content="${tileSet.title}" />`],
+    ['og:description', `<meta property="og:description" content="${tileSet.title}${tileMatrixId}" />`],
     [
       'og:image',
       `<meta property="og:image" content="/v1/preview/${tileSet.name}/${tileMatrix.identifier}/${shortLocation}" />`,
