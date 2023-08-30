@@ -222,3 +222,14 @@ button {
 .date-range p {
   margin-top: 16px;
 }
+
+/*
+The additional #layer-selector id selector is needed to ensure these styles
+have higher specifity than the default styles of the react-select component
+*/
+#layer-selector .layer-selector__group-heading {
+  font-size: 90%;
+  color: #00425d;
+  letter-spacing: 1px;
+}
+
