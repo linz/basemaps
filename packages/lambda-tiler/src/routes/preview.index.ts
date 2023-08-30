@@ -28,9 +28,9 @@ export interface PreviewIndexGet {
  *
  * @returns response containing the output HTML
  */
-async function loadAndServeIndexHtml(
+export async function loadAndServeIndexHtml(
   req: LambdaHttpRequest,
-  loc?: LonLatZoom,
+  loc?: LonLatZoom | null,
   tags?: Map<string, string>,
 ): Promise<LambdaHttpResponse> {
   const locUrl = loc ? `#` + LocationUrl.toLocation(loc) : '';
