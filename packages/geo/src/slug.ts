@@ -33,7 +33,7 @@ export interface LocationQueryConfig {
 
 export const LocationSlug = {
   /**
-   * Number of decimal places to fix a decimal lattidue/longitude
+   * Number of decimal places to fix a decimal latitude/longitude
    *
    * 7 Decimal places is approx 0.011m of precision,
    *
@@ -55,7 +55,6 @@ export const LocationSlug = {
    */
   truncateLatLon(loc: LonLatZoom): { lon: string; lat: string; zoom: string } {
     return {
-      // Trim trailing zeros from the fixed numbers then convert back to a string
       lon: loc.lon.toFixed(LocationSlug.LonLatFixed),
       lat: loc.lat.toFixed(LocationSlug.LonLatFixed),
       zoom: loc.zoom.toFixed(LocationSlug.ZoomFixed).replace(/\.0+$/, ''), // convert 8.00 into 8
@@ -67,7 +66,7 @@ export const LocationSlug = {
    *
    * This will truncate the lat, lon and zoom with {@link LocationSlug.truncateLatLon}
    *
-   * @example`
+   * @example
    * ```
    * @-39.3042625,174.0794181,z22
    * @-39.30426,174.07941,z13.5
