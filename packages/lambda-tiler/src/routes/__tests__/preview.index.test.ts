@@ -12,7 +12,7 @@ o.spec('/@*', async () => {
   const baseRequest: ALBEvent = {
     requestContext: null as any,
     httpMethod: 'get',
-    path: '/@-41.89000,174.04924,z5',
+    path: '/@-41.8900012,174.0492432,z5',
     body: null,
     isBase64Encoded: false,
   };
@@ -52,7 +52,7 @@ o.spec('/@*', async () => {
 
     const res = await loadAndServeIndexHtml(ctx, loc);
     o(res.status).equals(302);
-    o(res.header('location')).equals('/?config=config-latest.json#@-41.89,174.04924,z5');
+    o(res.header('location')).equals('/?config=config-latest.json#@-41.8900012,174.0492432,z5');
   });
 
   o('should redirect on failure to load index.html', async () => {
@@ -74,7 +74,7 @@ o.spec('/@*', async () => {
         V('meta', { name: 'viewport' }),
       ]),
     ]).toString();
-    console.log(indexHtml);
+
     await fsa.write('memory://assets/index.html', indexHtml);
 
     // Pass back the body un altered
