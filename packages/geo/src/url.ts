@@ -31,14 +31,12 @@ export interface LocationQueryConfig {
   tileMatrix: string;
 }
 
-const TrailingZeros = /\.0+$/;
-
 export const LocationUrl = {
   /**
    * Truncate a lat lon based on the zoom level
    *
    * When zoomed out use a lower precision 5 decimal places (~1m)
-   * and as zoom increased increase the precision to 6DP then 7DP
+   * and as zoom increased increase the precision to 6DP (~0.1m) then 7DP (0.01m)
    *
    * Truncates zoom to at most 2 decimal places
    *
@@ -46,11 +44,13 @@ export const LocationUrl = {
    */
   truncateLatLon(loc: LonLatZoom): { lon: string; lat: string; zoom: string } {
     let fixedLevel: number;
-    if (loc.zoom < 18) fixedLevel = 5;
-    else if (loc.zoom < 20) fixedLevel = 6;
-    else fixedLevel = 7;
+    // These zoom levels were chosen somewhat randomly and can be tweaked.
+    if (loc.zoom < 17) fixedLevel = 5; // z17 is 1M / pixel vs 5DP ~1.1m
+    else if (loc.zoom < 20) fixedLevel = 6; // z20 is 0.15m / pixel vs 6DP ~0.1m
+    else fixedLevel = 7; // 7DP is ~0.01m precision
 
     return {
+      // Trim trailing zeros from the fixed numbers then convert back to a string
       lon: String(Number(loc.lon.toFixed(fixedLevel))),
       lat: String(Number(loc.lat.toFixed(fixedLevel))),
       zoom: String(Number(loc.zoom.toFixed(2))),
