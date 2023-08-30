@@ -11,30 +11,6 @@ export interface LonLatZoom extends LonLat {
   zoom: number;
 }
 
-/**
- * Look backwards through a string for the first number that is not a zero
- * Then trim back to there only if there is a decimal place
- *
- * @example
- * ```typescript
- * removeTrailingZeros('3.0') // 3
- * removeTrailingZeros('10') // 10
- *```
- * @param s string to remove trailing zerso from
- * @returns
- */
-export function removeTrailingZeros(s: string): string {
-  if (!s.includes('.')) return s;
-  let i = s.length - 1;
-  while (i >= 0) {
-    if (s[i] !== '0') break;
-    i--;
-  }
-
-  if (s[i] === '.') return s.slice(0, i);
-  return s.slice(0, i + 1);
-}
-
 export interface LocationQueryConfig {
   /**
    * Style name which is generally a `tileSetId`
@@ -57,27 +33,32 @@ export interface LocationQueryConfig {
 
 export const LocationSlug = {
   /**
+   * Number of decimal places to fix a decimal lattidue/longitude
+   *
+   * 7 Decimal places is approx 0.011m of precision,
+   *
+   * Every decimal place is a factor of 10 precision
+   * 5DP - 1.11m
+   * 6DP - 0.11m
+   * 7DP - 0.01m
+   *
+   */
+  LonLatFixed: 7,
+
+  /** Number of decimal places to fix a location zoom too */
+  ZoomFixed: 2,
+
+  /**
    * Truncate a lat lon based on the zoom level
-   *
-   * When zoomed out use a lower precision 5 decimal places (~1m)
-   * and as zoom increased increase the precision to 6DP (~0.1m) then 7DP (0.01m)
-   *
-   * Truncates zoom to at most 2 decimal places
    *
    * @param loc location to truncate
    */
   truncateLatLon(loc: LonLatZoom): { lon: string; lat: string; zoom: string } {
-    let fixedLevel: number;
-    // These zoom levels were chosen somewhat randomly and can be tweaked.
-    if (loc.zoom < 17) fixedLevel = 5; // z17 is 1M / pixel vs 5DP ~1.1m
-    else if (loc.zoom < 20) fixedLevel = 6; // z20 is 0.15m / pixel vs 6DP ~0.1m
-    else fixedLevel = 7; // 7DP is ~0.01m precision
-
     return {
       // Trim trailing zeros from the fixed numbers then convert back to a string
-      lon: removeTrailingZeros(loc.lon.toFixed(fixedLevel)),
-      lat: removeTrailingZeros(loc.lat.toFixed(fixedLevel)),
-      zoom: removeTrailingZeros(loc.zoom.toFixed(4)),
+      lon: loc.lon.toFixed(LocationSlug.LonLatFixed),
+      lat: loc.lat.toFixed(LocationSlug.LonLatFixed),
+      zoom: loc.zoom.toFixed(LocationSlug.ZoomFixed).replace(/\.0+$/, ''), // convert 8.00 into 8
     };
   },
 
