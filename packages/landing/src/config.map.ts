@@ -66,10 +66,11 @@ export class MapConfig extends Emitter<MapConfigEvents> {
       window.addEventListener('popstate', () => {
         const location = {
           ...DefaultCenter[this.tileMatrix.identifier],
+          // TODO 2023-09 location.hash for storing basemaps locations
+          // is deprecated we should remove this at some stage
           ...LocationUrl.fromLocation(window.location.hash),
           ...LocationUrl.fromLocation(window.location.pathname),
         };
-        console.log('SetLocation', location);
         this.setLocation(location);
       });
       this.updateFromUrl();
