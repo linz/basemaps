@@ -117,6 +117,9 @@ export class EdgeStack extends cdk.Stack {
               'exclude',
               'tileSet',
               'style',
+              // Deprecated single character query params for style and projection
+              's',
+              'p',
               'i', // ?i=:imageryId is deprecated and should be removed at some point
             ].map(encodeURIComponent),
           },

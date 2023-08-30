@@ -5,9 +5,9 @@ import { SharpOverlay, TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
-import { NotFound, NotModified } from '../util/response.js';
+import { NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
-import { DefaultBackground, DefaultResizeKernel, TileXyzRaster, isArchiveTiff } from './tile.xyz.raster.js';
+import { DefaultResizeKernel, TileXyzRaster, isArchiveTiff } from './tile.xyz.raster.js';
 
 export interface PreviewGet {
   Params: {
@@ -135,7 +135,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   req.timer.end('compose:overlay');
 
   // Create the output image and render all the individual pieces into them
-  const img = tilerSharp.createImage({ r: 255, g: 0, b: 255, alpha: 0.1 });
+  const img = tilerSharp.createImage({ r: 255, g: 0, b: 255, alpha: 0.05 });
   img.composite(overlays);
 
   req.timer.start('compose:compress');
