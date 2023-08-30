@@ -31,12 +31,14 @@ export interface LocationQueryConfig {
   tileMatrix: string;
 }
 
+const TrailingZeros = /\.0+$/;
+
 export const LocationUrl = {
   /**
    * Truncate a lat lon based on the zoom level
    *
    * When zoomed out use a lower precision 5 decimal places (~1m)
-   * and as zoom  increased increase the precision to 6DP then 7DP
+   * and as zoom increased increase the precision to 6DP then 7DP
    *
    * Truncates zoom to 2 decimal places
    *
@@ -49,10 +51,10 @@ export const LocationUrl = {
     else fixedLevel = 7;
 
     return {
-      lon: loc.lon.toFixed(fixedLevel),
-      lat: loc.lat.toFixed(fixedLevel),
+      lon: loc.lon.toFixed(fixedLevel).replace(TrailingZeros, ''),
+      lat: loc.lat.toFixed(fixedLevel).replace(TrailingZeros, ''),
       // Trim off trailing zeros from the zoom
-      zoom: loc.zoom.toFixed(2).replace(/\.0+$/, ''),
+      zoom: loc.zoom.toFixed(2).replace(TrailingZeros, ''),
     };
   },
 
@@ -69,7 +71,7 @@ export const LocationUrl = {
    */
   toLocation(loc: LonLatZoom): string {
     const fixed = LocationUrl.truncateLatLon(loc);
-    return `@${fixed.lat},${fixed.lon},z${loc.zoom}`;
+    return `@${fixed.lat},${fixed.lon},z${fixed.zoom}`;
   },
 
   /**
@@ -106,11 +108,11 @@ export const LocationUrl = {
     const [latS, lonS, zoomS] = removeLocationPrefix(str).split(',');
 
     const lat = parseFloat(latS);
-    if (isNaN(lat) || lat < -90 || lat > 90) return null;
+    if (isNaN(lat) || lat < -180 || lat > 180) return null;
     output.lat = lat;
 
     const lon = parseFloat(lonS);
-    if (isNaN(lon) || lon < -180 || lon > 180) return null;
+    if (isNaN(lon) || lon < -90 || lon > 90) return null;
     output.lon = lon;
 
     const zoom = LocationUrl.parseZoom(zoomS);
