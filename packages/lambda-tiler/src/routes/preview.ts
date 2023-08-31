@@ -8,6 +8,7 @@ import { Etag } from '../util/etag.js';
 import { NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 import { DefaultResizeKernel, TileXyzRaster, isArchiveTiff } from './tile.xyz.raster.js';
+import sharp from 'sharp';
 
 export interface PreviewGet {
   Params: {
@@ -20,7 +21,13 @@ export interface PreviewGet {
 }
 
 const PreviewSize = { width: 1200, height: 630 };
+const TilerSharp = new TileMakerSharp(PreviewSize.width, PreviewSize.height);
+
 const OutputFormat = ImageFormat.Webp;
+/** Slightly grey color for the checker background */
+const PreviewBackgroundFillColor = 0xef;
+/** Make th e checkered background 30x30px */
+const PreviewBackgroundSizePx = 30;
 
 /**
  * Serve a preview of a imagery set
@@ -126,20 +133,19 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
     compositions.push(...result);
   }
 
-  const tilerSharp = new TileMakerSharp(PreviewSize.width, PreviewSize.height);
   // Load all the tiff tiles and resize/them into the correct locations
   req.timer.start('compose:overlay');
   const overlays = (await Promise.all(
-    compositions.map((comp) => tilerSharp.composeTileTiff(comp, DefaultResizeKernel)),
+    compositions.map((comp) => TilerSharp.composeTileTiff(comp, DefaultResizeKernel)),
   ).then((items) => items.filter((f) => f != null))) as SharpOverlay[];
   req.timer.end('compose:overlay');
 
   // Create the output image and render all the individual pieces into them
-  const img = tilerSharp.createImage({ r: 255, g: 0, b: 255, alpha: 0.05 });
+  const img = getBaseImage(ctx.tileSet.background);
   img.composite(overlays);
 
   req.timer.start('compose:compress');
-  const buf = await tilerSharp.toImage(ctx.outputFormat, img);
+  const buf = await TilerSharp.toImage(ctx.outputFormat, img);
   req.timer.end('compose:compress');
 
   req.set('layersUsed', overlays.length);
@@ -154,4 +160,75 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   response.header('Content-Disposition', `inline; filename=\"${suggestedFileName}\"`);
 
   return response;
+}
+
+function getBaseImage(bg?: { r: number; g: number; b: number; alpha: number }): sharp.Sharp {
+  if (bg == null || bg.alpha === 0) {
+    const buf = createCheckerBoard({
+      width: PreviewSize.width,
+      height: PreviewSize.height,
+      colors: { fill: PreviewBackgroundFillColor, background: 0xff },
+      size: PreviewBackgroundSizePx,
+    });
+    return sharp(buf.buffer, { raw: buf.raw });
+  }
+  return TilerSharp.createImage(bg);
+}
+
+export interface CheckerBoard {
+  /** Output image width in pixels */
+  width: number;
+  /** Output image height in pixels */
+  height: number;
+  colors: {
+    /** Color of the checker board eg 0xef */
+    fill: number;
+    /** Color of the background eg 0xff */
+    background: number;
+  };
+  /** Size of the checkers */
+  size: number;
+}
+
+/** Create a chess/checkerboard background alternating between two colors */
+function createCheckerBoard(ctx: CheckerBoard): {
+  buffer: Buffer;
+  raw: { width: number; height: number; channels: 1 };
+} {
+  const { width, height, size } = ctx;
+  const fillColor = ctx.colors.fill;
+  // Create a one band image, which starts off as full white
+  const buf = Buffer.alloc(height * width, ctx.colors.background); // 1 band grey buffer;
+
+  // Number of squares to make in x/y directions
+  const tileY = height / size;
+  const tileX = width / size;
+
+  // Fill in a square at the x/y pixel offsets
+  function fillSquare(xOffset: number, yOffset: number): void {
+    for (let y = 0; y < size; y++) {
+      const yPx = (yOffset + y) * width;
+      for (let x = 0; x < size; x++) {
+        const px = yPx + xOffset + x;
+        // Actually set the color
+        buf[px] = fillColor;
+      }
+    }
+  }
+  for (let tX = 0; tX < tileX; tX++) {
+    for (let tY = 0; tY < tileY; tY++) {
+      const yOffset = tY * size;
+      const y2 = tY % 2;
+
+      // Draw every second tile alternating on rows
+      const x2 = tX % 2;
+      if (x2 === 0 && y2 === 1) continue;
+      if (x2 === 1 && y2 === 0) continue;
+
+      const xOffset = tX * size;
+      fillSquare(xOffset, yOffset);
+    }
+  }
+
+  return { buffer: buf, raw: { width, height, channels: 1 } };
 }
