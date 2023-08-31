@@ -18,3 +18,4 @@ export { TileId } from './tile.js';
 
 export * from './proj/projection.js';
 export { ProjectionLoader } from './proj/projection.loader.js';
+export { LocationSlug as LocationUrl, LonLat, LonLatZoom } from './slug.js';

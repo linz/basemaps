@@ -18,6 +18,12 @@ export const Env = {
   /** Public URL base that tiles are served from */
   PublicUrlBase: 'BASEMAPS_PUBLIC_URL',
 
+  /**
+   * Location to index.html & css/js
+   * @example `s3://linz-basemaps-static/`
+   */
+  StaticAssetLocation: 'BASEMAPS_STATIC_ASSETS',
+
   /** How many tiffs to load at one time */
   TiffConcurrency: 'TIFF_CONCURRENCY',
 

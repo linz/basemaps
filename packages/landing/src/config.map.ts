@@ -1,4 +1,13 @@
-import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import {
+  Epsg,
+  EpsgCode,
+  GoogleTms,
+  LocationUrl,
+  Nztm2000QuadTms,
+  Nztm2000Tms,
+  TileMatrixSet,
+  TileMatrixSets,
+} from '@basemaps/geo';
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
 import { MaxDate, MinDate } from './components/daterange.js';
@@ -57,12 +66,19 @@ export class MapConfig extends Emitter<MapConfigEvents> {
       window.addEventListener('popstate', () => {
         const location = {
           ...DefaultCenter[this.tileMatrix.identifier],
-          ...WindowUrl.fromHash(window.location.hash),
+          // TODO 2023-09 location.hash for storing basemaps locations
+          // is deprecated we should remove this at some stage
+          ...LocationUrl.fromSlug(window.location.hash),
+          ...LocationUrl.fromSlug(window.location.pathname),
         };
         this.setLocation(location);
       });
       this.updateFromUrl();
-      this._location = { ...DefaultCenter[this.tileMatrix.identifier], ...WindowUrl.fromHash(window.location.hash) };
+      this._location = {
+        ...DefaultCenter[this.tileMatrix.identifier],
+        ...LocationUrl.fromSlug(window.location.hash),
+        ...LocationUrl.fromSlug(window.location.pathname),
+      };
     }
 
     return this._location;
@@ -136,12 +152,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
   static toUrl(opts: MapConfig): string {
     const urlParams = new URLSearchParams();
-    if (opts.style) urlParams.append('s', opts.style);
-    if (opts.config) urlParams.append('config', ensureBase58(opts.config));
+    if (opts.style) urlParams.append('style', opts.style);
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
-    if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('p', opts.tileMatrix.identifier);
-    // if (opts.filter.date.after) urlParams.append('date[after]', opts.filter.date.after);
-    if (opts.filter.date.before) urlParams.append('date[before]', opts.filter.date.before);
+    if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('tileMatrix', opts.tileMatrix.identifier);
+    // Config by far the longest so make it the last parameter
+    if (opts.config) urlParams.append('config', ensureBase58(opts.config));
+
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
   }

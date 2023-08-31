@@ -1,4 +1,4 @@
-import { GoogleTms } from '@basemaps/geo';
+import { GoogleTms, LocationUrl } from '@basemaps/geo';
 import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
 import { MapAttribution } from '../attribution.js';
@@ -221,7 +221,10 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.ignoreNextLocationUpdate = true;
     Config.map.setLocation(location);
 
-    const path = WindowUrl.toHash(location);
-    window.history.replaceState(null, '', path);
+    const path = LocationUrl.toSlug(location);
+    const url = new URL(window.location.href);
+    url.pathname = path;
+    url.hash = ''; // Ensure the hash is removed, to ensure the redirect from #@location to /@location
+    window.history.replaceState(null, '', url);
   }
 }
