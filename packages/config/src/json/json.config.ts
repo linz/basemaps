@@ -27,6 +27,9 @@ import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
+import PLimit from 'p-limit';
+
+const Q = PLimit(10);
 
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
@@ -90,30 +93,32 @@ export class ConfigJson {
   static async fromPath(basePath: string, log: LogType): Promise<ConfigProviderMemory> {
     const cfg = new ConfigJson(basePath, log);
 
-    for await (const filePath of fsa.list(basePath)) {
-      if (!filePath.endsWith('.json')) continue;
+    const files = await fsa.toArray(fsa.list(basePath));
 
-      const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
-      const prefix = ConfigId.getPrefix(bc.id);
-      if (prefix == null) {
-        log.warn({ path: filePath }, 'Invalid JSON file found');
-        continue;
-      }
+    const todo = files.map(async (filePath) => {
+      if (!filePath.endsWith('.json')) return;
+      Q(async () => {
+        const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
+        const prefix = ConfigId.getPrefix(bc.id);
+        if (prefix) {
+          log.trace({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
+          switch (prefix) {
+            case ConfigPrefix.TileSet:
+              cfg.mem.put(await cfg.tileSet(bc));
+              break;
+            case ConfigPrefix.Provider:
+              cfg.mem.put(await cfg.provider(bc));
+              break;
+            case ConfigPrefix.Style:
+              cfg.mem.put(await cfg.style(bc));
+              break;
+          }
+        } else log.warn({ path: filePath }, 'Invalid JSON file found');
+      });
+    });
 
-      log.trace({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
+    await Promise.all(todo);
 
-      switch (prefix) {
-        case ConfigPrefix.TileSet:
-          cfg.mem.put(await cfg.tileSet(bc));
-          break;
-        case ConfigPrefix.Provider:
-          cfg.mem.put(await cfg.provider(bc));
-          break;
-        case ConfigPrefix.Style:
-          cfg.mem.put(await cfg.style(bc));
-          break;
-      }
-    }
     return cfg.mem;
   }
 
