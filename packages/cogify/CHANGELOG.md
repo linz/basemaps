@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Bug Fixes
+
+* **cogify:** validate that we have access to all the files before starting ([#2912](https://github.com/linz/basemaps/issues/2912)) ([2d43235](https://github.com/linz/basemaps/commit/2d43235923878664d7ebf2870e5e0054d9a506b8))
+* skip creating cog when no source files BM-860 ([#2914](https://github.com/linz/basemaps/issues/2914)) ([f854789](https://github.com/linz/basemaps/commit/f8547894a1481d65ec65119990b77c94e1a2e859))
+* **cogify:** correct import path ([#2907](https://github.com/linz/basemaps/issues/2907)) ([3ed4f5d](https://github.com/linz/basemaps/commit/3ed4f5dc9deb5eeb896691d88f628609163c9a0d))
+
+
+### Features
+
+* **cli:** Add imagery id in the create config done log for slack notifications. ([#2905](https://github.com/linz/basemaps/issues/2905)) ([821b628](https://github.com/linz/basemaps/commit/821b6287f307db608f013adcaba2910fcff5f431))
+* **cogify:** add --concurrency to allow concurrent gdal_translates ([#2911](https://github.com/linz/basemaps/issues/2911)) ([7237c69](https://github.com/linz/basemaps/commit/7237c692ff1672a89ed6949633a89421492f1130))
+* **lambda-tiler:** create preview images for og:image BM-264 ([#2921](https://github.com/linz/basemaps/issues/2921)) ([a074cc4](https://github.com/linz/basemaps/commit/a074cc45b40e35d5a593380f067f4932ef9e8da4))
+
+
+
+
+
 # [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
 
 

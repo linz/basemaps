@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Features
+
+* add og:image preview to all basemaps links BM-264 ([#2925](https://github.com/linz/basemaps/issues/2925)) ([de00528](https://github.com/linz/basemaps/commit/de005285eac0c2f5e2c83c8eeaa61aafeff8edde))
+* **landing:** increase visual prominence of category in layer dropdown ([#2917](https://github.com/linz/basemaps/issues/2917)) ([f158f57](https://github.com/linz/basemaps/commit/f158f571c6a3725b4b5283a9f23dcf844ebe037b)), closes [#999999](https://github.com/linz/basemaps/issues/999999) [#00425](https://github.com/linz/basemaps/issues/00425)
+* **landing:** Order the categories in the layer dropdown BM-880 ([#2916](https://github.com/linz/basemaps/issues/2916)) ([7f70bd0](https://github.com/linz/basemaps/commit/7f70bd0098ee6b85d761203e46106bf3a9883adf))
+
+
+
+
+
 # [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
 
 

@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Bug Fixes
+
+* **config:** do not use "rgb" or projection codes for imagery names ([#2908](https://github.com/linz/basemaps/issues/2908)) ([6f3c9a8](https://github.com/linz/basemaps/commit/6f3c9a8d28cade31114e5e449d39d2ff8bad6638))
+
+
+### Features
+
+* **cli:** Update config bundle to running asynchronously. ([#2923](https://github.com/linz/basemaps/issues/2923)) ([30b7d70](https://github.com/linz/basemaps/commit/30b7d70bde883806d170d63fd8d88ab6ac0e68df))
+* **config:** detect empty images and ignore them ([#2915](https://github.com/linz/basemaps/issues/2915)) ([7b7cc1d](https://github.com/linz/basemaps/commit/7b7cc1d92d2437cff1ed38f9d8a2d487589e2e28))
+
+
+
+
+
 # [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
 
 
