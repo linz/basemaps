@@ -8,4 +8,4 @@ cd dist
 # Make the new package a commonjs module
 cp -r ../static .
 # @see https://sharp.pixelplumbing.com/en/stable/install/#aws-lambda
-npm install --arch=arm64 --platform=linux --production
+npm install --arch=x64 --platform=linux --production

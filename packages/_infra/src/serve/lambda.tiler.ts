@@ -51,7 +51,6 @@ export class LambdaTiler extends Construct {
       timeout: Duration.seconds(60),
       handler: 'index.handler',
       code,
-      architecture: lambda.Architecture.ARM_64,
       environment,
       logRetention: RetentionDays.ONE_MONTH,
     });
