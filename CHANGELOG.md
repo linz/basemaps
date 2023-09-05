@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Bug Fixes
+
+* **cogify:** validate that we have access to all the files before starting ([#2912](https://github.com/linz/basemaps/issues/2912)) ([2d43235](https://github.com/linz/basemaps/commit/2d43235923878664d7ebf2870e5e0054d9a506b8))
+* skip creating cog when no source files BM-860 ([#2914](https://github.com/linz/basemaps/issues/2914)) ([f854789](https://github.com/linz/basemaps/commit/f8547894a1481d65ec65119990b77c94e1a2e859))
+* **cogify:** correct import path ([#2907](https://github.com/linz/basemaps/issues/2907)) ([3ed4f5d](https://github.com/linz/basemaps/commit/3ed4f5dc9deb5eeb896691d88f628609163c9a0d))
+* **config:** do not use "rgb" or projection codes for imagery names ([#2908](https://github.com/linz/basemaps/issues/2908)) ([6f3c9a8](https://github.com/linz/basemaps/commit/6f3c9a8d28cade31114e5e449d39d2ff8bad6638))
+
+
+### Features
+
+* **cli:** Add imagery id in the create config done log for slack notifications. ([#2905](https://github.com/linz/basemaps/issues/2905)) ([821b628](https://github.com/linz/basemaps/commit/821b6287f307db608f013adcaba2910fcff5f431))
+* **cli:** Update config bundle to running asynchronously. ([#2923](https://github.com/linz/basemaps/issues/2923)) ([30b7d70](https://github.com/linz/basemaps/commit/30b7d70bde883806d170d63fd8d88ab6ac0e68df))
+* **cogify:** add --concurrency to allow concurrent gdal_translates ([#2911](https://github.com/linz/basemaps/issues/2911)) ([7237c69](https://github.com/linz/basemaps/commit/7237c692ff1672a89ed6949633a89421492f1130))
+* **config:** detect empty images and ignore them ([#2915](https://github.com/linz/basemaps/issues/2915)) ([7b7cc1d](https://github.com/linz/basemaps/commit/7b7cc1d92d2437cff1ed38f9d8a2d487589e2e28))
+* **lambda-tiler:** create preview images for og:image BM-264 ([#2921](https://github.com/linz/basemaps/issues/2921)) ([a074cc4](https://github.com/linz/basemaps/commit/a074cc45b40e35d5a593380f067f4932ef9e8da4))
+* **lambda-tiler:** try arm based lambdas ([#2910](https://github.com/linz/basemaps/issues/2910)) ([e5bd68d](https://github.com/linz/basemaps/commit/e5bd68df37f487c4cc543c69fbedc66f13c5fdc0))
+* **lambda-tiler:** use the same checker background that the landing does for previews BM-264 ([#2929](https://github.com/linz/basemaps/issues/2929)) ([9318588](https://github.com/linz/basemaps/commit/9318588bd929b6f41d10217138726331fa8115b2))
+* add og:image preview to all basemaps links BM-264 ([#2925](https://github.com/linz/basemaps/issues/2925)) ([de00528](https://github.com/linz/basemaps/commit/de005285eac0c2f5e2c83c8eeaa61aafeff8edde))
+* **landing:** increase visual prominence of category in layer dropdown ([#2917](https://github.com/linz/basemaps/issues/2917)) ([f158f57](https://github.com/linz/basemaps/commit/f158f571c6a3725b4b5283a9f23dcf844ebe037b)), closes [#999999](https://github.com/linz/basemaps/issues/999999) [#00425](https://github.com/linz/basemaps/issues/00425)
+* **landing:** Order the categories in the layer dropdown BM-880 ([#2916](https://github.com/linz/basemaps/issues/2916)) ([7f70bd0](https://github.com/linz/basemaps/commit/7f70bd0098ee6b85d761203e46106bf3a9883adf))
+
+
+
+
+
 # [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
 
 

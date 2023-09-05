@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Features
+
+* **lambda-tiler:** use the same checker background that the landing does for previews BM-264 ([#2929](https://github.com/linz/basemaps/issues/2929)) ([9318588](https://github.com/linz/basemaps/commit/9318588bd929b6f41d10217138726331fa8115b2))
+* add og:image preview to all basemaps links BM-264 ([#2925](https://github.com/linz/basemaps/issues/2925)) ([de00528](https://github.com/linz/basemaps/commit/de005285eac0c2f5e2c83c8eeaa61aafeff8edde))
+* **lambda-tiler:** create preview images for og:image BM-264 ([#2921](https://github.com/linz/basemaps/issues/2921)) ([a074cc4](https://github.com/linz/basemaps/commit/a074cc45b40e35d5a593380f067f4932ef9e8da4))
+* **lambda-tiler:** try arm based lambdas ([#2910](https://github.com/linz/basemaps/issues/2910)) ([e5bd68d](https://github.com/linz/basemaps/commit/e5bd68df37f487c4cc543c69fbedc66f13c5fdc0))
+
+
+
+
+
 # [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
 
 
