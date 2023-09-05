@@ -3,9 +3,11 @@ import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs
 import { ALBEvent, Context } from 'aws-lambda';
 import o from 'ospec';
 
-import { loadAndServeIndexHtml } from '../preview.index.js';
+import { PreviewIndexGet, loadAndServeIndexHtml, previewIndexGet } from '../preview.index.js';
 import { LocationUrl } from '@basemaps/geo';
 import { FsMemory } from '@chunkd/source-memory';
+import { ConfigProviderMemory } from '@basemaps/config';
+import { FakeData } from '../../__tests__/config.data.js';
 
 o.spec('/@*', async () => {
   o.specTimeout(1000);
@@ -84,6 +86,46 @@ o.spec('/@*', async () => {
     // Replace og:title with a <fake tag />
     const resB = await loadAndServeIndexHtml(ctx, null, new Map([['og:title', '<fake tag />']]));
     o(getBody(resB)?.toString().includes('<fake tag />')).equals(true);
+  });
+
+  o('should include config url', async () => {
+    const ctx = new LambdaAlbRequest(
+      {
+        ...baseRequest,
+        queryStringParameters: { config: 'memory://linz-basemaps/config-latest.json', i: 'imagery-name' },
+      },
+      {} as Context,
+      LogConfig.get(),
+    ) as unknown as LambdaHttpRequest<PreviewIndexGet>;
+    ctx.params = { location: '@-41.8900012,174.0492432,z5' };
+
+    // Create a fake config to use
+    const expectedConfig = new ConfigProviderMemory();
+    expectedConfig.put(FakeData.tileSetRaster('imagery-name'));
+    await fsa.write('memory://linz-basemaps/config-latest.json', JSON.stringify(expectedConfig.toJson()));
+
+    process.env[Env.StaticAssetLocation] = 'memory://assets/';
+
+    const indexHtml = V('html', [
+      V('head', [
+        V('meta', { property: 'og:title', content: 'LINZ Basemaps' }),
+        V('meta', { property: 'og:image', content: '/basemaps-card.jepg' }),
+        V('meta', { name: 'viewport' }),
+      ]),
+    ]).toString();
+
+    await fsa.write('memory://assets/index.html', indexHtml);
+
+    const res = await previewIndexGet(ctx);
+    o(res.status).equals(200);
+
+    const ogImage = getBody(res)
+      ?.toString()
+      .split('\n')
+      .find((f) => f.includes('og:image'));
+    o(ogImage).equals(
+      '<meta name="twitter:image" property="og:image" content="/v1/preview/imagery-name/WebMercatorQuad/5/174.0492432/-41.8900012?config=QzX7ZsK6qG6p42wHZaF9dhihsgprX942gAuKwfryknM429iqxdDiRSGu" />',
+    );
   });
 });
 
