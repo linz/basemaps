@@ -119,4 +119,10 @@ o.spec('config import', () => {
       'auckland_sn5600_1979_0.375m',
     );
   });
+
+  o('should ignore argo folder names', () => {
+    o(
+      getImageryName(new URL('s3://linz-workflow-artifacts/2023-09/05-ecan-banks-peninsula-original-9mjdj/flat/')),
+    ).equals('05-ecan-banks-peninsula-original-9mjdj');
+  });
 });

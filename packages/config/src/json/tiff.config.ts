@@ -128,6 +128,8 @@ const IgnoredTitles = new Set([
   // Elevation
   'dem_1m',
   'dsm_1m',
+  // Argo folders
+  'flat',
   //Projections
   '2193',
   '3857',
