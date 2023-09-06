@@ -86,6 +86,7 @@ export class CommandImageryConfig extends CommandLineAction {
       files.push({ name: tif.source.uri.replace(path, ''), ...imgBounds });
     }
     if (bounds == null) throw new Error('Failed to extract imagery bounds');
+    if (gsd == null) throw new Error('Failed to get imagery GSD');
 
     const provider = new ConfigProviderMemory();
     const id = ulid();
@@ -94,7 +95,7 @@ export class CommandImageryConfig extends CommandLineAction {
       logger.warn({ path, id }, `Unable to extract the imagery name from path, use uild id instead.`);
       name = id;
     }
-    const imagery: ConfigImagery = {
+    const im: ConfigImagery = {
       id: provider.Imagery.id(id),
       name: nameImageryTitle(title),
       title,
@@ -105,9 +106,9 @@ export class CommandImageryConfig extends CommandLineAction {
       bounds: bounds.toJson(),
       files,
     };
-    imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
+    im.overviews = await ConfigJson.findImageryOverviews(im);
 
-    provider.put(imagery);
+    provider.put(im);
 
     const aerialTileSet: ConfigTileSetRaster = {
       id: 'ts_aerial',
@@ -116,20 +117,16 @@ export class CommandImageryConfig extends CommandLineAction {
       category: 'Basemaps',
       type: TileSetType.Raster,
       format: ImageFormat.Webp,
-      layers: [{ 2193: imagery.id, name: imagery.name, title: imagery.title }],
+      layers: [{ 2193: im.id, name: im.name, title: im.title }],
     };
     provider.put(aerialTileSet);
-    const tileSet = provider.imageryToTileSetByName(imagery);
+    provider.imageryToTileSetByName(im);
 
-    // Prepare the center location
-    let location = '';
-    if (bounds && gsd) {
-      const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
-      const proj = Projection.get(Nztm2000QuadTms);
-      const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
-      const targetZoom = Math.max(Nztm2000QuadTms.findBestZoom(gsd) - 12, 0);
-      location = `#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`;
-    }
+    const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+    const proj = Projection.get(Nztm2000QuadTms);
+    const [lon, lat] = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
+    const targetZoom = Math.max(Nztm2000QuadTms.findBestZoom(gsd) - 12, 0);
+    const locationHash = `@${lat},${lon},z${targetZoom}`;
 
     if (commit) {
       logger.info({ path }, 'ImageryConfig:UploadConfig');
@@ -137,9 +134,20 @@ export class CommandImageryConfig extends CommandLineAction {
       const outputPath = fsa.join(path, `basemaps-config-${configJson.hash}.json.gz`);
       await fsa.writeJson(outputPath, configJson);
       const configPath = base58.encode(Buffer.from(outputPath));
-      const url = `https://basemaps.linz.govt.nz/?config=${configPath}&i=${tileSet.name}&tileMatrix=NZTM2000Quad&debug${location}`;
+
+      const url = `https://basemaps.linz.govt.nz/${locationHash}?i=${im.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`;
+      const urlPreview = `https://basemaps.linz.govt.nz/v1/preview/${im.name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}?config=${configPath}`;
+
       logger.info(
-        { imageryId: id, path: output, url, tileMatrix: Nztm2000QuadTms.identifier, config: configPath, title },
+        {
+          imageryId: id,
+          path: output,
+          url,
+          urlPreview,
+          tileMatrix: Nztm2000QuadTms.identifier,
+          config: configPath,
+          title,
+        },
         'ImageryConfig:Done',
       );
       if (output != null) await fsa.write(output, url);
