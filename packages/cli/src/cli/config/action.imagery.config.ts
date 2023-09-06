@@ -120,7 +120,7 @@ export class CommandImageryConfig extends CommandLineAction {
       layers: [{ 2193: im.id, name: im.name, title: im.title }],
     };
     provider.put(aerialTileSet);
-    provider.imageryToTileSetByName(im);
+    const tileSet = provider.imageryToTileSetByName(im);
 
     const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
     const proj = Projection.get(Nztm2000QuadTms);
@@ -135,8 +135,8 @@ export class CommandImageryConfig extends CommandLineAction {
       await fsa.writeJson(outputPath, configJson);
       const configPath = base58.encode(Buffer.from(outputPath));
 
-      const url = `https://basemaps.linz.govt.nz/${locationHash}?i=${im.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`;
-      const urlPreview = `https://basemaps.linz.govt.nz/v1/preview/${im.name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}?config=${configPath}`;
+      const url = `https://basemaps.linz.govt.nz/${locationHash}?i=${tileSet.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`;
+      const urlPreview = `https://basemaps.linz.govt.nz/v1/preview/${tileSet.name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}?config=${configPath}`;
 
       logger.info(
         {
