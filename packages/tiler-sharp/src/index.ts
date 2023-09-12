@@ -1,15 +1,14 @@
-import Sharp from 'sharp';
+import { ImageFormat } from '@basemaps/geo';
 import {
+  Composition,
+  CompositionCotar,
+  CompositionTiff,
   TileMaker,
   TileMakerContext,
-  Composition,
   TileMakerResizeKernel,
-  CompositionTiff,
-  CompositionCotar,
 } from '@basemaps/tiler';
 import { Metrics } from '@linzjs/metrics';
-import sharp from 'sharp';
-import { ImageFormat } from '@basemaps/geo';
+import Sharp from 'sharp';
 
 function notEmpty<T>(value: T | null | undefined): value is T {
   return value != null;
@@ -61,7 +60,7 @@ export class TileMakerSharp implements TileMaker {
    * @throws if unsupported image format is used
    * @returns image as the supplied image format
    */
-  toImage(format: ImageFormat, pipeline: sharp.Sharp): Promise<Buffer> {
+  toImage(format: ImageFormat, pipeline: Sharp.Sharp): Promise<Buffer> {
     switch (format) {
       case ImageFormat.Jpeg:
         return pipeline.jpeg().toBuffer();
@@ -193,7 +192,7 @@ export class TileMakerSharp implements TileMaker {
       input: ret.data,
       top: comp.y,
       left: comp.x,
-      raw: ret.info,
+      raw: { width: ret.info.width, height: ret.info.height, channels: ret.info.channels },
     };
   }
 
