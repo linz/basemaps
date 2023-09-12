@@ -320,11 +320,13 @@ export class CommandImport extends CommandLineAction {
   async _loadJob(path: string): Promise<CogStacJob | undefined> {
     const existing = this._jobs.get(path);
     if (existing) return existing;
-    const exist = await fsa.exists(path);
-    if (!exist) return;
-    const job = await fsa.readJson<CogStacJob>(path);
-    this._jobs.set(path, job);
-    return job;
+    try {
+      const job = await fsa.readJson<CogStacJob>(path);
+      this._jobs.set(path, job);
+      return job;
+    } catch {
+      return;
+    }
   }
 
   _coverings: Map<string, FeatureCollection> = new Map<string, FeatureCollection>();
