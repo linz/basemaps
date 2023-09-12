@@ -97,7 +97,7 @@ export class ConfigJson {
 
     const todo = files.map(async (filePath) => {
       if (!filePath.endsWith('.json')) return;
-      Q(async () => {
+      return Q(async () => {
         const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
         const prefix = ConfigId.getPrefix(bc.id);
         if (prefix) {
