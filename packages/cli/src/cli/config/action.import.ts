@@ -261,9 +261,11 @@ export class CommandImport extends CommandLineAction {
     const aerialId = 'ts_aerial';
     const newData = await mem.TileSet.get(aerialId);
     const oldData = await cfg.TileSet.get(aerialId);
+    const aerialLayers: Set<string> = new Set<string>();
     if (newData == null || oldData == null) throw new Error('Failed to fetch aerial config data.');
     for (const layer of newData.layers) {
-      if (layer.name === 'chatham-islands_digital-globe_2014-2019_0-5m') continue; // Ignore duplicated layer.
+      aerialLayers.add(layer.name);
+      if (layer.name === 'chatham-islands-digital-globe-2014-2019-0.5m') continue; // Ignore duplicated layer.
       const existing = oldData.layers.find((l) => l.name === layer.name);
       if (existing) await this.outputUpdatedLayers(mem, layer, existing, updates, true);
       else await this.outputNewLayers(mem, layer, inserts, true);
@@ -275,6 +277,7 @@ export class CommandImport extends CommandLineAction {
     for (const config of mem.objects.values()) {
       if (!config.id.startsWith(ConfigPrefix.TileSet)) continue;
       if (config.id === 'ts_aerial' || config.id === 'ts_topographic') continue;
+      if (aerialLayers.has(config.name)) continue;
       const tileSet = config as ConfigTileSet;
       if (tileSet.layers.length > 1) continue; // Not an individual layer
       const existing = await cfg.TileSet.get(config.id);
