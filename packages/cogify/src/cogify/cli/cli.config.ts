@@ -56,12 +56,15 @@ export const BasemapsCogifyConfigCommand = command({
     const lon = location.lon.toFixed(7);
     const locationHash = `@${lat},${lon},z${location.zoom}`;
 
+    // Preview thumbnails get too zoomed in, zoom out slightly to provide more context
+    const previewZoom = Math.max(0, targetZoom - 2);
+
     const url = `https://basemaps.linz.govt.nz/${locationHash}?i=${im.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`;
-    const urlPreview = `https://basemaps.linz.govt.nz/v1/preview/${im.name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}?config=${configPath}`;
+    const urlPreview = `https://basemaps.linz.govt.nz/v1/preview/${im.name}/${im.tileMatrix}/${previewZoom}/${lon}/${lat}?config=${configPath}`;
 
     logger.info(
       {
-        imageryId: im.id,
+        imageryId: im.collection?.id ?? im.name,
         path: outputPath,
         url,
         urlPreview,
