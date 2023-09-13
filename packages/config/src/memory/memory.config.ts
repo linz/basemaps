@@ -152,7 +152,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       title: 'All Imagery',
       category: 'Basemaps',
       format: ImageFormat.Webp,
-      layers: Array.from(layerByName.values()),
+      layers: Array.from(layerByName.values()).sort((a, b) => a.name.localeCompare(b.name)),
     };
     this.put(allTileset);
   }

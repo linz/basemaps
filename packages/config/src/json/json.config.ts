@@ -95,7 +95,7 @@ export class ConfigJson {
 
     const files = await fsa.toArray(fsa.list(basePath));
 
-    const todo = files.map(async (filePath) => {
+    const todo = files.map((filePath) => {
       if (!filePath.endsWith('.json')) return;
       return Q(async () => {
         const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
