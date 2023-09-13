@@ -63,6 +63,11 @@ export function gdalBuildCog(id: string, sourceVrt: string, opt: CogifyCreationO
       ['--config', 'GDAL_NUM_THREADS', 'all_cpus'], // Also required to NUM_THREADS till gdal 3.7.x
       ['-co', 'BIGTIFF=IF_NEEDED'], // BigTiff is somewhat slower and most (All?) of the COGS should be well below 4GB
       ['-co', 'ADD_ALPHA=YES'],
+      /**
+       *  GDAL will recompress existing overviews if they exist which will compound
+       *  any lossly compression on the overview, so compute new overviews instead
+       */
+      ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
       ['-co', `BLOCKSIZE=${cfg.blockSize}`],
       ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
       ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
