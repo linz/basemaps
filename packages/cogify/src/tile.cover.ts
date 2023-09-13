@@ -91,6 +91,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     baseZoom: targetBaseZoom,
     cutline: ctx.cutline,
     metrics: ctx.metrics,
+    logger: ctx.logger,
   });
   ctx.metrics?.end('covering:create');
 

@@ -119,6 +119,7 @@ export function createCovering(ctx: CoveringContext): Tile[] {
 
     const tileSource = tileMatrix.tileToSourceBounds(tile);
     const tileArea = tileSource.width * tileSource.height;
+
     const tilePolygon = tileSource.toPolygon();
     const tileIntersection = intersection(cutBounds, tilePolygon);
     if (tileIntersection.length === 0) continue;
@@ -130,16 +131,23 @@ export function createCovering(ctx: CoveringContext): Tile[] {
     // Is this tile a different zoom level to our target
     const zDiff = tile.z - ctx.targetZoom;
 
+    // Count the number of pixels in the output tiff that would be used
+    const tileScale = tileSource.width / ctx.tileMatrix.tileSize;
+    const pixelCount = (tileArea * areaPercent) / tileScale;
+
     if (areaPercent < minCoveragePercent && zDiff < maxZoomDifference) {
       // Not enough coverage was found with this tile, use a more zoomed in tile and try again
       addChildren(tile, todo);
-    } else {
+    } else if (pixelCount > 1) {
       zoomDifference = Math.max(zDiff, zoomDifference);
       outputTiles.push(tile);
       tilesByZoom[tile.z] = (tilesByZoom[tile.z] ?? 0) + 1;
+      ctx.logger?.debug({ tileId, areaPercent: Number((areaPercent * 100).toFixed(2)) }, 'Cover:Tile');
       if (outputTiles.length % 25 === 0) {
-        ctx.logger?.debug({ tiles: outputTiles.length, tilesByZoom }, 'Cover:Progress');
+        ctx.logger?.info({ tiles: outputTiles.length, tilesByZoom }, 'Cover:Progress');
       }
+    } else {
+      ctx.logger?.debug({ pixelCount, tileId }, 'Cover:SkipTile');
     }
 
     if (zDiff === 0) addSurrounding(tile, ctx.tileMatrix, todo, visited);
