@@ -1,6 +1,6 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
-import { GoogleTms, Nztm2000QuadTms, TileId } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
@@ -122,6 +122,8 @@ export const BasemapsCogifyCoverCommand = command({
       await fsa.write('/tmp/cogify/cover-title', ctx.imagery.title);
       // List of all the tiles to be processed
       await fsa.write('/tmp/cogify/cover-items.json', JSON.stringify(items));
+      // Write the target output for each tileMatrix
+      await fsa.write(`/tmp/cogify/${tms.identifier}/target.json`, urlToString(targetPath));
     }
 
     logger.info({ tiles: res.items.length, metrics: metrics.metrics, tilesByZoom }, 'Cover:Created');
