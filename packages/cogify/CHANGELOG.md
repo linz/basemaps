@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+
+### Bug Fixes
+
+* **cogify:** ignore existing overviews so they are not recompressed ([#2954](https://github.com/linz/basemaps/issues/2954)) ([131ec70](https://github.com/linz/basemaps/commit/131ec706df81a5e70bc97999fa67eb75cb657952))
+
+
+### Features
+
+* **cli:** include urlPreview for preview links ([#2938](https://github.com/linz/basemaps/issues/2938)) ([96fe7b5](https://github.com/linz/basemaps/commit/96fe7b515f52de4d8e2b78295ccd5d31d0a7f7b8))
+* **cogify:** skip creating any tiles that are below 1 pixel in coverage ([#2959](https://github.com/linz/basemaps/issues/2959)) ([1f52b19](https://github.com/linz/basemaps/commit/1f52b1901a817d76c22d4ab75bede363663aa1c7))
+
+
+
+
+
 # [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
 
 
