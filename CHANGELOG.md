@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+
+### Bug Fixes
+
+* **cli:** Fix the missing return in plimit queue. ([#2952](https://github.com/linz/basemaps/issues/2952)) ([83c0ade](https://github.com/linz/basemaps/commit/83c0ade5ed138aa7fda3dbf3b5f516f98251c771))
+* **cogify:** ignore existing overviews so they are not recompressed ([#2954](https://github.com/linz/basemaps/issues/2954)) ([131ec70](https://github.com/linz/basemaps/commit/131ec706df81a5e70bc97999fa67eb75cb657952))
+* **config:** ignore the argo folder "flat/" in guessing imagery names ([#2939](https://github.com/linz/basemaps/issues/2939)) ([781d981](https://github.com/linz/basemaps/commit/781d9813ebdbb93053971472b06f6f738816b18e))
+* **lambda-tiler:** generate previews from config urls too ([#2937](https://github.com/linz/basemaps/issues/2937)) ([ebe499f](https://github.com/linz/basemaps/commit/ebe499fc81ab31a0f1f45ac0ee7262a9b66431e9))
+* **tiler-sharp:** do not multiply imagery with the background color BM-885 ([#2953](https://github.com/linz/basemaps/issues/2953)) ([412676d](https://github.com/linz/basemaps/commit/412676d2abf813d0f25fe2971ce64aa187801af3))
+
+
+### Features
+
+* **cli:** include urlPreview for preview links ([#2938](https://github.com/linz/basemaps/issues/2938)) ([96fe7b5](https://github.com/linz/basemaps/commit/96fe7b515f52de4d8e2b78295ccd5d31d0a7f7b8))
+* **cli:** Sort the ts_all config by the imagery name. ([#2955](https://github.com/linz/basemaps/issues/2955)) ([7b29348](https://github.com/linz/basemaps/commit/7b293487b0e8ceb5f04b621a0a3ff40fd80b52e4))
+* **cogify:** skip creating any tiles that are below 1 pixel in coverage ([#2959](https://github.com/linz/basemaps/issues/2959)) ([1f52b19](https://github.com/linz/basemaps/commit/1f52b1901a817d76c22d4ab75bede363663aa1c7))
+
+
+
+
+
 # [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
 
 
