@@ -1,6 +1,7 @@
 export {
   BasemapsConfigProvider,
   BasemapsConfigObject,
+  BaseConfigWriteableObject,
   getAllImagery,
   ConfigId,
   ConfigInstance,
@@ -19,8 +20,6 @@ export {
   TileSetType,
 } from './config/tile.set.js';
 export { ConfigVectorStyle, Layer, Sources, StyleJson } from './config/vector.style.js';
-export { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
-export { ConfigDynamoBase } from './dynamo/dynamo.config.base.js';
 export { ConfigProviderMemory, ConfigBundled } from './memory/memory.config.js';
 export { TileSetNameComponents, TileSetNameParser } from './tile.set.name.js';
 export { parseHex, parseRgba } from './color.js';
