@@ -3,11 +3,10 @@ import {
   ConfigBundled,
   ConfigJson,
   ConfigPrefix,
-  ConfigProviderDynamo,
   ConfigProviderMemory,
 } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
-import { fsa, getDefaultConfig, LogType } from '@basemaps/shared';
+import { fsa, getDefaultConfig, LogType, ConfigProviderDynamo } from '@basemaps/shared';
 
 export type ServerOptions = ServerOptionsTiffs | ServerOptionsConfig;
 

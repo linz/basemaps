@@ -8,6 +8,8 @@ export { LoggerFatalError } from './logger.fatal.error.js';
 export { setDefaultConfig, getDefaultConfig } from './config.js';
 export { toQueryString } from './url.js';
 export { CompositeError } from './composite.error.js';
+export { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
+export { ConfigDynamoBase } from './dynamo/dynamo.config.base.js';
 
 export * from './file/index.js';
 export * from './util.js';
