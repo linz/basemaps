@@ -1,10 +1,8 @@
+import { ConfigId, ConfigImagery, ConfigPrefix, getAllImagery } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import o from 'ospec';
 import sinon from 'sinon';
-import { ConfigId } from '../../base.config.js';
-import { ConfigImagery } from '../../config/imagery.js';
-import { getAllImagery, ConfigPrefix } from '../../index.js';
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
 const sandbox = sinon.createSandbox();

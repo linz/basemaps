@@ -1,4 +1,4 @@
-import { BaseConfig } from '../config/base.js';
+import { BaseConfig } from '@basemaps/config';
 import { ConfigDynamoBase } from './dynamo.config.base.js';
 
 export class ConfigDynamoCached<T extends BaseConfig> extends ConfigDynamoBase<T> {
