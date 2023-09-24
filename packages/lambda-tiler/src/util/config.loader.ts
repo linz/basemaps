@@ -46,10 +46,14 @@ export class ConfigLoader {
 
     req.set('config', configLocation);
     req.timer.start('config:load');
-    return CachedConfig.get(configLocation).then((f) => {
-      req.timer.end('config:load');
-      if (f == null) throw new LambdaHttpResponse(404, `Config not found at ${configLocation}`);
-      return f;
-    });
+    return CachedConfig.get(configLocation)
+      .then((f) => {
+        req.timer.end('config:load');
+        if (f == null) throw new LambdaHttpResponse(404, `Config not found at ${configLocation}`);
+        return f;
+      })
+      .catch((e) => {
+        throw new LambdaHttpResponse(e.status, e.statusDescription);
+      });
   }
 }

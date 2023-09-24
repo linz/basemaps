@@ -113,4 +113,17 @@ o.spec('ConfigLoader', () => {
 
     o(await provider.Imagery.get('topographic')).deepEquals(await expectedConfig.Imagery.get('topographic'));
   });
+
+  const deletedLocation = 'memory://linz-basemaps/config-deleted.json';
+  o('should Error 404 if config file not exists', async () => {
+    const error = await ConfigLoader.load(
+      mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${deletedLocation}`, Api.header),
+    )
+      .then(() => null)
+      .catch((e) => e);
+
+    o(error instanceof LambdaHttpResponse).equals(true);
+    o((error as LambdaHttpResponse).status).equals(404);
+    o((error as LambdaHttpResponse).statusDescription).equals(`Config not found at ${deletedLocation}`);
+  });
 });
