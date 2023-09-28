@@ -229,8 +229,8 @@ export interface LayerInfo {
   /** Layer category */
   category?: string;
   /* Bounding box */
-  upperLeft: [number, number];
-  lowerRight: [number, number];
+  upperLeft?: [number, number];
+  lowerRight?: [number, number];
   /** What projections are enabled for this layer */
   projections: Set<EpsgCode>;
 }
@@ -287,20 +287,44 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
   return output;
 }
 
+/**
+ * The server currently has no way of telling the client the full list of tilesets it could use
+ * so hard code a few default tilesets with their projections
+ *
+ * @param output layers list to add to
+ */
 function addDefaultLayers(output: Map<string, LayerInfo>): void {
-  output.set('aerial', {
-    id: 'aerial',
-    name: 'Aerial Imagery',
-    projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
-    category: 'Basemaps',
-  } as LayerInfo);
+  const layers: LayerInfo[] = [
+    {
+      id: 'aerial',
+      name: 'Aerial Imagery',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Basemaps',
+    },
 
-  output.set('topographic::topographic', {
-    id: 'topographic::topographic',
-    name: 'Topographic',
-    projections: new Set([EpsgCode.Google]),
-    category: 'Basemaps',
-  } as LayerInfo);
+    {
+      id: 'topographic::topographic',
+      name: 'Topographic',
+      projections: new Set([EpsgCode.Google]),
+      category: 'Basemaps',
+    },
+
+    {
+      id: 'scanned-aerial-imagery-pre-1990-01-01',
+      name: 'Scanned Aerial Imagery pre 1 January 1990',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Scanned Aerial Imagery',
+    },
+
+    {
+      id: 'scanned-aerial-imagery-post-1989-12-31"',
+      name: 'Scanned Aerial Imagery post 31 December 1989',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Scanned Aerial Imagery',
+    },
+  ];
+
+  for (const l of layers) output.set(l.id, l);
 }
 /** Lookup a projection from either "EPSG:3857" or "WebMercatorQuad" */
 function tmsIdToEpsg(id: string): Epsg | null {

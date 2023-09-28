@@ -64,6 +64,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
       Config.map.layers.then((f) => {
         const layer = f.get(layerId);
         if (layer == null) return;
+        if (layer.upperLeft == null || layer.lowerRight == null) return;
         Config.map.emit('bounds', [layer.upperLeft, layer.lowerRight]);
       });
     }
