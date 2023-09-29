@@ -1,6 +1,6 @@
 import maplibre from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
-import { Config } from '../config.js';
+import { Config, GaEvent, gaEvent } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { getTileGrid } from '../tile.matrix.js';
 import { onMapLoaded } from './map.js';
@@ -79,6 +79,9 @@ export class MapSwitcher extends Component {
   };
 
   switchLayer = (): void => {
+    // Both a click event and layer switch even will be fired from this action
+    gaEvent(GaEvent.Ui, 'map-switcher:click');
+
     const target = this.getStyleType();
     Config.map.setLayerId(target.layerId, target.style);
     this.updateMap();
