@@ -5,16 +5,17 @@ import { LayerInfo, MapConfig } from '../config.map.js';
 
 type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;
 
-const CategoryOrder = new Map<string, number>([
-  ['Basemaps', 1],
-  ['Satellite Imagery', 2],
-  ['Urban Aerial Photos', 3],
-  ['Rural Aerial Photos', 4],
-  ['Scanned Aerial Imagery', 5],
-  ['Event', 6],
-  ['Bathymetry', 7],
-  ['Elevation', 8],
-]);
+const Categories = [
+  'Basemaps',
+  'Satellite Imagery',
+  'Urban Aerial Photos',
+  'Rural Aerial Photos',
+  'Scanned Aerial Imagery Basemaps',
+  'Scanned Aerial Imagery',
+  'Event',
+  'Bathymetry',
+  'Elevation',
+];
 
 export interface GroupedOptions {
   label: string;
@@ -118,12 +119,11 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     }
     const orderedCategories: CategoryMap = new Map(
       [...categories].sort((a, b) => {
-        const fallbackOrder = 999;
-        const orderA = CategoryOrder.get(a[0]) ?? fallbackOrder;
-        const orderB = CategoryOrder.get(b[0]) ?? fallbackOrder;
-        if (orderA > orderB) return 1;
-        if (orderA < orderB) return -1;
-        return a[0].localeCompare(b[0]);
+        const orderA = Categories.indexOf(a[0]);
+        const orderB = Categories.indexOf(b[0]);
+        if (orderA === orderB) return a[0].localeCompare(b[0]);
+        if (orderA === -1 || orderA < orderB) return -1;
+        return 1;
       }),
     );
     return { options: [...orderedCategories.values()], current: current };
