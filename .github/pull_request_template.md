@@ -1,9 +1,9 @@
-#### Description
+#### Motivation
 *What does this change aim to achieve?*
 
 
 
-#### Intention
+#### Modification
 *Why is this change being made? What implications or other considerations are there?*
 
 
