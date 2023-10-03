@@ -5,9 +5,10 @@ import { SwappingLru } from './swapping.lru.js';
 class LruConfig {
   configProvider: Promise<ConfigProviderMemory | null>;
 
-  constructor(config: Promise<ConfigBundled>) {
+  constructor(config: Promise<ConfigBundled | null>) {
     this.configProvider = config
       .then((c) => {
+        if (c == null) return null;
         const configProvider = ConfigProviderMemory.fromJson(c);
         configProvider.createVirtualTileSets();
         return configProvider;
@@ -33,7 +34,9 @@ export class ConfigCache {
   get(location: string): Promise<ConfigProviderMemory | null> {
     const existing = this.cache.get(location)?.configProvider;
     if (existing != null) return existing;
-    const configJson = fsa.readJson<ConfigBundled>(location);
+    const configJson = fsa.readJson<ConfigBundled>(location).catch(() => {
+      return null;
+    });
     const config = new LruConfig(configJson);
     this.cache.set(location, config);
     return config.configProvider;

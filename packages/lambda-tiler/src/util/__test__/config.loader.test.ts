@@ -82,8 +82,8 @@ o.spec('ConfigLoader', () => {
       .catch((e) => e);
 
     o(error instanceof LambdaHttpResponse).equals(true);
-    o((error as LambdaHttpResponse).status).equals(404);
-    o((error as LambdaHttpResponse).statusDescription).equals(`Config not found at ${location}`);
+    o((error as LambdaHttpResponse).status).equals(400);
+    o((error as LambdaHttpResponse).statusDescription).equals(`Invalid config location at ${location}`);
   });
 
   o('should get expected config file', async () => {
@@ -112,5 +112,18 @@ o.spec('ConfigLoader', () => {
     );
 
     o(await provider.Imagery.get('topographic')).deepEquals(await expectedConfig.Imagery.get('topographic'));
+  });
+
+  const deletedLocation = 'memory://linz-basemaps/config-deleted.json';
+  o('should Error 400 if config file not exists', async () => {
+    const error = await ConfigLoader.load(
+      mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${deletedLocation}`, Api.header),
+    )
+      .then(() => null)
+      .catch((e) => e);
+
+    o(error instanceof LambdaHttpResponse).equals(true);
+    o((error as LambdaHttpResponse).status).equals(400);
+    o((error as LambdaHttpResponse).statusDescription).equals(`Invalid config location at ${deletedLocation}`);
   });
 });
