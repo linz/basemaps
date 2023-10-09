@@ -317,7 +317,7 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
     },
 
     {
-      id: 'scanned-aerial-imagery-post-1989-12-31"',
+      id: 'scanned-aerial-imagery-post-1989-12-31',
       name: 'Scanned Aerial Imagery post 31 December 1989',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Scanned Aerial Imagery Basemaps',
