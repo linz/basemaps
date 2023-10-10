@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+
+### Features
+
+* **cli:** Allow bundle to guess the imagery ID from the url with slash ending. ([#2976](https://github.com/linz/basemaps/issues/2976)) ([92fb6dd](https://github.com/linz/basemaps/commit/92fb6dde1f71171fa0ab26ed855f846f004b0dc9))
+
+
+
+
+
 # [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
 
 

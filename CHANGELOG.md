@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Catch the error code while reading the config file in api. BM-898 ([#2969](https://github.com/linz/basemaps/issues/2969)) ([c2f3132](https://github.com/linz/basemaps/commit/c2f313221cdd20954b0002721d4605659a2b4e12))
+* **landing:** correct broken tileset name ([#2974](https://github.com/linz/basemaps/issues/2974)) ([3c92d3f](https://github.com/linz/basemaps/commit/3c92d3f1ff8b546ce240f0f401ebce2c727cc222))
+
+
+### Features
+
+* **cli:** Allow bundle to guess the imagery ID from the url with slash ending. ([#2976](https://github.com/linz/basemaps/issues/2976)) ([92fb6dd](https://github.com/linz/basemaps/commit/92fb6dde1f71171fa0ab26ed855f846f004b0dc9))
+* **landing:** hard code scanned aerial imagery layers BM-892 ([#2970](https://github.com/linz/basemaps/issues/2970)) ([62697c3](https://github.com/linz/basemaps/commit/62697c3a1e344a4de0a236bf48042ae138db5620))
+* **landing:** track when the map switcher is clicked ([#2971](https://github.com/linz/basemaps/issues/2971)) ([fa5d77d](https://github.com/linz/basemaps/commit/fa5d77d4dc2b3efccb43859489fdcb25c95a053c))
+
+
+
+
+
 # [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
 
 
