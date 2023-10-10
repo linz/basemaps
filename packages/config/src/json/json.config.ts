@@ -33,7 +33,8 @@ const Q = PLimit(10);
 
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
-  const id = parts.pop();
+  let id = parts.pop();
+  if (uri.endsWith('/')) id = parts.pop();
 
   if (id == null) return null;
   try {
