@@ -3,6 +3,86 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Catch the error code while reading the config file in api. BM-898 ([#2969](https://github.com/linz/basemaps/issues/2969)) ([c2f3132](https://github.com/linz/basemaps/commit/c2f313221cdd20954b0002721d4605659a2b4e12))
+
+
+
+
+
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** generate previews from config urls too ([#2937](https://github.com/linz/basemaps/issues/2937)) ([ebe499f](https://github.com/linz/basemaps/commit/ebe499fc81ab31a0f1f45ac0ee7262a9b66431e9))
+
+
+
+
+
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Features
+
+* **lambda-tiler:** use the same checker background that the landing does for previews BM-264 ([#2929](https://github.com/linz/basemaps/issues/2929)) ([9318588](https://github.com/linz/basemaps/commit/9318588bd929b6f41d10217138726331fa8115b2))
+* add og:image preview to all basemaps links BM-264 ([#2925](https://github.com/linz/basemaps/issues/2925)) ([de00528](https://github.com/linz/basemaps/commit/de005285eac0c2f5e2c83c8eeaa61aafeff8edde))
+* **lambda-tiler:** create preview images for og:image BM-264 ([#2921](https://github.com/linz/basemaps/issues/2921)) ([a074cc4](https://github.com/linz/basemaps/commit/a074cc45b40e35d5a593380f067f4932ef9e8da4))
+* **lambda-tiler:** try arm based lambdas ([#2910](https://github.com/linz/basemaps/issues/2910)) ([e5bd68d](https://github.com/linz/basemaps/commit/e5bd68df37f487c4cc543c69fbedc66f13c5fdc0))
+
+
+
+
+
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Bug Fixes
+
+* **tiler:** allow modification of the rounding bias to help reduce aspect ratio skews ([#2877](https://github.com/linz/basemaps/issues/2877)) ([ec899a7](https://github.com/linz/basemaps/commit/ec899a73e5802dd502dc0b6c4f8956b6156ca860))
+
+
+### Features
+
+* **cli:** Create standalone imagery config and remove disabled layer. BM-810 ([#2810](https://github.com/linz/basemaps/issues/2810)) ([e956851](https://github.com/linz/basemaps/commit/e956851983ad5f90d24cbb7c50f75824869e0e08))
+* add github build id to cli, landing and tiler ([#2874](https://github.com/linz/basemaps/issues/2874)) ([eb8c7b9](https://github.com/linz/basemaps/commit/eb8c7b97822cda117c38d0341a5d6e3506c63c57))
+
+
+
+
+
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* **config:** allow initializing config from URLs ([#2830](https://github.com/linz/basemaps/issues/2830)) ([0ea552e](https://github.com/linz/basemaps/commit/0ea552ec32ad723f98c96d533f18a8afc51d9657))
+* truncate the api key when logging ([#2828](https://github.com/linz/basemaps/issues/2828)) ([3396593](https://github.com/linz/basemaps/commit/33965937fdc6cce4bc50b5ed41616a65c830ec6f))
+
+
+### Features
+
+* **lambda-tiler:** return 204 no content instead of a empty images ([#2829](https://github.com/linz/basemaps/issues/2829)) ([db3ff1b](https://github.com/linz/basemaps/commit/db3ff1b09f849a26d7287925c7b57d71e1fa6d76))
+* upgrade lambdas to nodejs 18 ([#2639](https://github.com/linz/basemaps/issues/2639)) ([17471e1](https://github.com/linz/basemaps/commit/17471e1d56fbe17b695e4a49b1fbe55ece215596))
+* **cogify:** retile imagery into COGS aligned to a tile matrix ([#2759](https://github.com/linz/basemaps/issues/2759)) ([ddd99d3](https://github.com/linz/basemaps/commit/ddd99d3548c65ec4ce5b7c608d6bf9360f053635))
+* **lambda-tiler:** Include the disabled layers in the attribution with minZoom of 32. ([#2746](https://github.com/linz/basemaps/issues/2746)) ([d87e8dd](https://github.com/linz/basemaps/commit/d87e8dd1a0c24d511fc786078111fadc752bc4ab))
+* **lambda-tiler:** Refactoring the wmts Capablity to builder interface. ([#2686](https://github.com/linz/basemaps/issues/2686)) ([4d223b6](https://github.com/linz/basemaps/commit/4d223b6b02675a271d1393ff4c6d0e7f8348084b))
+* **landing:** Update the daterange slider to years button. ([#2764](https://github.com/linz/basemaps/issues/2764)) ([ef93543](https://github.com/linz/basemaps/commit/ef935433df6065f4baeb458b3c8a9efec06621fa))
+
+
+### Reverts
+
+* Revert "feat(lambda-tiler): return 204 no content instead of a empty images (#2829)" (#2836) ([f1ed481](https://github.com/linz/basemaps/commit/f1ed481db08702189f169e745bf0ff7dad697175)), closes [#2829](https://github.com/linz/basemaps/issues/2829) [#2836](https://github.com/linz/basemaps/issues/2836)
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

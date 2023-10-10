@@ -1,4 +1,4 @@
-FROM osgeo/gdal:ubuntu-small-3.6.1
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.7.0
 
 ENV NODE_ENV=PRODUCTION
 
@@ -8,14 +8,16 @@ WORKDIR /app/
 # RUN apt-get install -y openssl ca-certificates > /dev/null 2>&1
 # RUN update-ca-certificates
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-RUN apt-get install -y nodejs
+RUN apt-get install -y nodejs git
 
 # Install sharp TODO update this when we change sharp versions
 RUN npm install sharp@0.30.7
 
 # Install the landing assets
 COPY ./basemaps-landing*.tgz /app/
-RUN npm install ./basemaps-landing*.tgz
+COPY ./basemaps-cogify*.tgz /app/
+
+RUN npm install ./basemaps-landing*.tgz ./basemaps-cogify*.tgz
 
 COPY dist/index.cjs /app/
 

@@ -1,5 +1,5 @@
 import { Bounds, Epsg, EpsgCode, GoogleTms, Nztm2000Tms, Stac, StacCollection } from '@basemaps/geo';
-import { Projection } from '@basemaps/shared';
+import { Projection } from '@basemaps/geo';
 import { mockFileOperator } from '@basemaps/shared/build/file/__tests__/file.operator.test.helper.js';
 import { round } from '@basemaps/test/build/rounding.js';
 import { Ring } from '@linzjs/geojson';

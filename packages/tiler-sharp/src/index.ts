@@ -1,15 +1,14 @@
-import Sharp from 'sharp';
+import { ImageFormat } from '@basemaps/geo';
 import {
+  Composition,
+  CompositionCotar,
+  CompositionTiff,
   TileMaker,
   TileMakerContext,
-  Composition,
   TileMakerResizeKernel,
-  CompositionTiff,
-  CompositionCotar,
 } from '@basemaps/tiler';
 import { Metrics } from '@linzjs/metrics';
-import sharp from 'sharp';
-import { ImageFormat } from '@basemaps/geo';
+import Sharp from 'sharp';
 
 function notEmpty<T>(value: T | null | undefined): value is T {
   return value != null;
@@ -20,10 +19,12 @@ const EmptyImage = new Map<string, Promise<Buffer>>();
 
 export class TileMakerSharp implements TileMaker {
   static readonly MaxImageSize = 256 * 2 ** 15;
-  private tileSize: number;
+  private width: number;
+  private height: number;
 
-  public constructor(tileSize: number) {
-    this.tileSize = tileSize;
+  public constructor(width: number, height = width) {
+    this.width = width;
+    this.height = height;
   }
 
   protected isTooLarge(composition: Composition): boolean {
@@ -51,7 +52,15 @@ export class TileMakerSharp implements TileMaker {
     return existing;
   }
 
-  private toImage(format: ImageFormat, pipeline: sharp.Sharp): Promise<Buffer> {
+  /**
+   * Convert the image to the correct output format then output it into a buffer
+   * @param format output image format
+   * @param pieline Image pipeline to convert
+   *
+   * @throws if unsupported image format is used
+   * @returns image as the supplied image format
+   */
+  toImage(format: ImageFormat, pipeline: Sharp.Sharp): Promise<Buffer> {
     switch (format) {
       case ImageFormat.Jpeg:
         return pipeline.jpeg().toBuffer();
@@ -76,7 +85,7 @@ export class TileMakerSharp implements TileMaker {
     if (ctx.layers.length !== 1) return false;
     const firstLayer = ctx.layers[0];
     if (firstLayer.type !== 'cotar') return false;
-    if (this.tileSize !== 256) return false; // TODO this should not be hard coded
+    if (this.width !== 256 || this.height !== 256) return false; // TODO this should not be hard coded
     if (ctx.format !== ImageFormat.Webp) return false; // TODO this should not be hard coded
     if (ctx.background.alpha !== 0) return false;
     return true;
@@ -94,7 +103,7 @@ export class TileMakerSharp implements TileMaker {
     // Validate tile size is expected
     const img = firstLayer.asset.getImage(firstLayer.source.imageId);
     const tileSize = img.tileSize;
-    if (tileSize.height !== this.tileSize || tileSize.width !== this.tileSize) return false;
+    if (tileSize.height !== this.height || tileSize.width !== this.width) return false;
 
     // Image format has to match
     if (!img.compression?.includes(ctx.format)) return false;
@@ -160,10 +169,7 @@ export class TileMakerSharp implements TileMaker {
     return { input: Buffer.from(buf), top: 0, left: 0 };
   }
 
-  private async composeTileTiff(
-    comp: CompositionTiff,
-    resizeKernel: TileMakerResizeKernel,
-  ): Promise<SharpOverlay | null> {
+  async composeTileTiff(comp: CompositionTiff, resizeKernel: TileMakerResizeKernel): Promise<SharpOverlay | null> {
     const tile = await comp.asset.getTile(comp.source.x, comp.source.y, comp.source.imageId);
     if (tile == null) return null;
 
@@ -181,14 +187,21 @@ export class TileMakerSharp implements TileMaker {
 
     if (crop) sharp.extract({ top: crop.y, left: crop.x, width: crop.width, height: crop.height });
 
-    return { input: await sharp.toBuffer(), top: comp.y, left: comp.x };
+    const ret = await sharp.raw().toBuffer({ resolveWithObject: true });
+    return {
+      input: ret.data,
+      top: comp.y,
+      left: comp.x,
+      raw: { width: ret.info.width, height: ret.info.height, channels: ret.info.channels },
+    };
   }
 
-  private createImage(background: Sharp.RGBA): Sharp.Sharp {
+  /** Create a empty base image to be used with the output composition */
+  createImage(background: Sharp.RGBA): Sharp.Sharp {
     return Sharp({
       create: {
-        width: this.tileSize,
-        height: this.tileSize,
+        width: this.width,
+        height: this.height,
         channels: 4,
         background,
       },

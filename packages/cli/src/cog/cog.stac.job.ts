@@ -1,6 +1,7 @@
 import {
   Bounds,
   Epsg,
+  Projection,
   Stac,
   StacCollection,
   StacLink,
@@ -9,16 +10,15 @@ import {
   TileMatrixSets,
 } from '@basemaps/geo';
 import {
+  CompositeError,
   extractYearRangeFromName,
   FileConfig,
   FileConfigPath,
-  Projection,
   fsa,
   titleizeImageryName,
-  CompositeError,
 } from '@basemaps/shared';
-import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
+import { MultiPolygon, toFeatureCollection, toFeatureMultiPolygon } from '@linzjs/geojson';
 import { GdalCogBuilderDefaults, GdalCogBuilderResampling } from '../gdal/gdal.config.js';
 import { ProjectionLoader } from './projection.loader.js';
 import { CogStac, CogStacItem, CogStacItemExtensions, CogStacKeywords } from './stac.js';

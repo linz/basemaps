@@ -3,6 +3,76 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+
+### Bug Fixes
+
+* **landing:** correct broken tileset name ([#2974](https://github.com/linz/basemaps/issues/2974)) ([3c92d3f](https://github.com/linz/basemaps/commit/3c92d3f1ff8b546ce240f0f401ebce2c727cc222))
+
+
+### Features
+
+* **landing:** hard code scanned aerial imagery layers BM-892 ([#2970](https://github.com/linz/basemaps/issues/2970)) ([62697c3](https://github.com/linz/basemaps/commit/62697c3a1e344a4de0a236bf48042ae138db5620))
+* **landing:** track when the map switcher is clicked ([#2971](https://github.com/linz/basemaps/issues/2971)) ([fa5d77d](https://github.com/linz/basemaps/commit/fa5d77d4dc2b3efccb43859489fdcb25c95a053c))
+
+
+
+
+
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Features
+
+* add og:image preview to all basemaps links BM-264 ([#2925](https://github.com/linz/basemaps/issues/2925)) ([de00528](https://github.com/linz/basemaps/commit/de005285eac0c2f5e2c83c8eeaa61aafeff8edde))
+* **landing:** increase visual prominence of category in layer dropdown ([#2917](https://github.com/linz/basemaps/issues/2917)) ([f158f57](https://github.com/linz/basemaps/commit/f158f571c6a3725b4b5283a9f23dcf844ebe037b)), closes [#999999](https://github.com/linz/basemaps/issues/999999) [#00425](https://github.com/linz/basemaps/issues/00425)
+* **landing:** Order the categories in the layer dropdown BM-880 ([#2916](https://github.com/linz/basemaps/issues/2916)) ([7f70bd0](https://github.com/linz/basemaps/commit/7f70bd0098ee6b85d761203e46106bf3a9883adf))
+
+
+
+
+
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Features
+
+* **landing:** Ignore layers in the layer drop down selector. ([#2886](https://github.com/linz/basemaps/issues/2886)) ([98633cb](https://github.com/linz/basemaps/commit/98633cb304cc4cd3a993aff8ca379e871f04f054))
+* **landing:** Update the layer selector to use all imagery tileset. BM-807 ([#2809](https://github.com/linz/basemaps/issues/2809)) ([10eb750](https://github.com/linz/basemaps/commit/10eb750b32dccb4a5f5496862bebb7cb51ca8ee9))
+* add github build id to cli, landing and tiler ([#2874](https://github.com/linz/basemaps/issues/2874)) ([eb8c7b9](https://github.com/linz/basemaps/commit/eb8c7b97822cda117c38d0341a5d6e3506c63c57))
+
+
+
+
+
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* ensure layer loads when dateBefore set early, then moved back late ([#2701](https://github.com/linz/basemaps/issues/2701)) ([1b34d9a](https://github.com/linz/basemaps/commit/1b34d9ab2d51ba298398d036aef62a151ca05af6))
+
+
+### Features
+
+* **landing:** show number of COGs in current imagery ([#2772](https://github.com/linz/basemaps/issues/2772)) ([78a019a](https://github.com/linz/basemaps/commit/78a019a1eb8c0c9e028601e7597b1e730674f401))
+* **landing:** toggle to show map tile boundaries ([#2758](https://github.com/linz/basemaps/issues/2758)) ([d7f0b50](https://github.com/linz/basemaps/commit/d7f0b5001bd2fe06c7a0dfaa82c35d194ac8ac30))
+* **landing:** update and load date range from window URL ([#2691](https://github.com/linz/basemaps/issues/2691)) ([ac1e02d](https://github.com/linz/basemaps/commit/ac1e02d9c8a61aa58b66c36b2df87f46e9f3f2ae))
+* **landing:** Update the daterange slider to years button. ([#2764](https://github.com/linz/basemaps/issues/2764)) ([ef93543](https://github.com/linz/basemaps/commit/ef935433df6065f4baeb458b3c8a9efec06621fa))
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

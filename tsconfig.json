@@ -9,6 +9,7 @@
     { "path": "./packages/geo" },
     { "path": "./packages/tiler" },
     { "path": "./packages/tiler-sharp" },
+    { "path": "./packages/cogify" },
     { "path": "./packages/cli" },
     { "path": "./packages/bathymetry" },
     { "path": "./packages/_infra" },
@@ -18,6 +19,7 @@
     { "path": "./packages/lambda-analytics" },
     { "path": "./packages/attribution" },
     { "path": "./packages/landing" },
-    { "path": "./packages/server" }
+    { "path": "./packages/server" },
+    { "path": "./packages/smoke" }
   ]
 }

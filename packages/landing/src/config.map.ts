@@ -1,7 +1,16 @@
-import { Epsg, EpsgCode, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import {
+  Epsg,
+  EpsgCode,
+  GoogleTms,
+  LocationUrl,
+  Nztm2000QuadTms,
+  Nztm2000Tms,
+  TileMatrixSet,
+  TileMatrixSets,
+} from '@basemaps/geo';
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
-import { DateRangeState } from './components/daterange.js';
+import { MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
@@ -14,8 +23,11 @@ const DefaultCenter: Record<string, MapLocation> = {
   [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 3 },
 };
 
+export interface FilterDate {
+  before?: string;
+}
 export interface Filter {
-  date: DateRangeState;
+  date: FilterDate;
 }
 
 export interface MapConfigEvents {
@@ -35,7 +47,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   config: string | null;
   debug: DebugState = { ...DebugDefaults };
   visibleLayers: string;
-  filter: Filter = { date: { after: undefined, before: undefined } };
+  filter: Filter = { date: { before: undefined } };
 
   private _layers: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -54,12 +66,19 @@ export class MapConfig extends Emitter<MapConfigEvents> {
       window.addEventListener('popstate', () => {
         const location = {
           ...DefaultCenter[this.tileMatrix.identifier],
-          ...WindowUrl.fromHash(window.location.hash),
+          // TODO 2023-09 location.hash for storing basemaps locations
+          // is deprecated we should remove this at some stage
+          ...LocationUrl.fromSlug(window.location.hash),
+          ...LocationUrl.fromSlug(window.location.pathname),
         };
         this.setLocation(location);
       });
       this.updateFromUrl();
-      this._location = { ...DefaultCenter[this.tileMatrix.identifier], ...WindowUrl.fromHash(window.location.hash) };
+      this._location = {
+        ...DefaultCenter[this.tileMatrix.identifier],
+        ...LocationUrl.fromSlug(window.location.hash),
+        ...LocationUrl.fromSlug(window.location.pathname),
+      };
     }
 
     return this._location;
@@ -90,12 +109,25 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return `basemaps-${Config.map.layerId}`;
   }
 
+  getDateRangeFromUrl(urlParams: URLSearchParams): FilterDate {
+    let before = urlParams.get('date[before]') ?? undefined;
+
+    // Limit the dateRange to be valid
+    if (before) before = before > MaxDate || before < MinDate ? undefined : before;
+    return { before };
+  }
+
   updateFromUrl(search: string = window.location.search): void {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s') ?? urlParams.get('style');
     const config = urlParams.get('c') ?? urlParams.get('config');
 
     const layerId = urlParams.get('i') ?? 'aerial';
+    const date = this.getDateRangeFromUrl(urlParams);
+    if (this.filter.date.before !== date.before) {
+      this.filter.date = date;
+      this.emit('filter', this.filter);
+    }
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
@@ -113,7 +145,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.tileMatrix = tileMatrix;
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
-
     this.emit('tileMatrix', this.tileMatrix);
     this.emit('layer', this.layerId, this.style);
     if (previousUrl !== MapConfig.toUrl(this)) this.emit('change');
@@ -121,10 +152,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
   static toUrl(opts: MapConfig): string {
     const urlParams = new URLSearchParams();
-    if (opts.style) urlParams.append('s', opts.style);
-    if (opts.config) urlParams.append('config', ensureBase58(opts.config));
+    if (opts.style) urlParams.append('style', opts.style);
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
-    if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('p', opts.tileMatrix.identifier);
+    if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('tileMatrix', opts.tileMatrix.identifier);
+    // Config by far the longest so make it the last parameter
+    if (opts.config) urlParams.append('config', ensureBase58(opts.config));
+
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
   }
@@ -166,10 +199,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('change');
   }
 
-  setFilterDateRange(after: string | undefined, before: string | undefined): void {
-    if (this.filter.date.after === after && this.filter.date.before === before) return;
-    this.filter.date.after = after;
-    this.filter.date.before = before;
+  setFilterDateRange(dateRange: FilterDate): void {
+    if (this.filter.date === dateRange) return;
+    this.filter.date = dateRange;
     this.emit('filter', this.filter);
     this.emit('change');
   }
@@ -197,8 +229,8 @@ export interface LayerInfo {
   /** Layer category */
   category?: string;
   /* Bounding box */
-  upperLeft: [number, number];
-  lowerRight: [number, number];
+  upperLeft?: [number, number];
+  lowerRight?: [number, number];
   /** What projections are enabled for this layer */
   projections: Set<EpsgCode>;
 }
@@ -255,20 +287,44 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
   return output;
 }
 
+/**
+ * The server currently has no way of telling the client the full list of tilesets it could use
+ * so hard code a few default tilesets with their projections
+ *
+ * @param output layers list to add to
+ */
 function addDefaultLayers(output: Map<string, LayerInfo>): void {
-  output.set('aerial', {
-    id: 'aerial',
-    name: 'Aerial Imagery',
-    projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
-    category: 'Basemaps',
-  } as LayerInfo);
+  const layers: LayerInfo[] = [
+    {
+      id: 'aerial',
+      name: 'Aerial Imagery',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Basemaps',
+    },
 
-  output.set('topographic::topographic', {
-    id: 'topographic::topographic',
-    name: 'Topographic',
-    projections: new Set([EpsgCode.Google]),
-    category: 'Basemaps',
-  } as LayerInfo);
+    {
+      id: 'topographic::topographic',
+      name: 'Topographic',
+      projections: new Set([EpsgCode.Google]),
+      category: 'Basemaps',
+    },
+
+    {
+      id: 'scanned-aerial-imagery-pre-1990-01-01',
+      name: 'Scanned Aerial Imagery pre 1 January 1990',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Scanned Aerial Imagery Basemaps',
+    },
+
+    {
+      id: 'scanned-aerial-imagery-post-1989-12-31',
+      name: 'Scanned Aerial Imagery post 31 December 1989',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Scanned Aerial Imagery Basemaps',
+    },
+  ];
+
+  for (const l of layers) output.set(l.id, l);
 }
 /** Lookup a projection from either "EPSG:3857" or "WebMercatorQuad" */
 function tmsIdToEpsg(id: string): Epsg | null {

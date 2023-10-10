@@ -1,6 +1,6 @@
 import { sha256base58 } from '@basemaps/config';
-import { GoogleTms, NamedBounds, Nztm2000QuadTms, QuadKey, TileMatrixSet } from '@basemaps/geo';
-import { LogConfig, LogType, Projection } from '@basemaps/shared';
+import { GoogleTms, NamedBounds, Nztm2000QuadTms, Projection, QuadKey, TileMatrixSet } from '@basemaps/geo';
+import { LogConfig, LogType } from '@basemaps/shared';
 import { SourceMemory } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
 import { CogTiff } from '@cogeotiff/core';
@@ -59,11 +59,17 @@ export class CommandCreateOverview extends CommandLineAction {
     const st = new SimpleTimer();
     logger.debug({ source }, 'CreateOverview:ListTiffs');
     const tiffList = (await fsa.toArray(fsa.list(source))).filter(filterTiff);
+    if (tiffList.length === 0) {
+      logger.warn('CreateOverview:NoTiffs');
+      return;
+    }
     const tiffSource = tiffList.map((path: string) => fsa.source(path));
 
-    logger.info({ source, duration: st.tick() }, 'CreateOverview:ListTiffs:Done');
+    logger.info({ source, tiffs: tiffList.length, duration: st.tick() }, 'CreateOverview:ListTiffs:Done');
+    logger.debug({ source, first: tiffSource[0].uri }, 'CreateOverview:PrepareSourceFiles');
+    // To ensure that permissions are setup correctly attempt to read the first tiff
+    await fsa.head(tiffSource[0].uri);
 
-    logger.debug({ source }, 'CreateOverview:PrepareSourceFiles');
     const tiff: CogTiff = new CogTiff(tiffSource[0]);
     await tiff.init(true);
     const tileMatrix = await this.getTileMatrix(tiff);

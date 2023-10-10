@@ -16,28 +16,6 @@ o.spec('WindowUrl', () => {
   o.afterEach(() => {
     delete global.window;
   });
-  const googleLoc = { lat: 174.7763921, lon: -41.277848, zoom: 8 };
-
-  o.spec('Hash', () => {
-    o('should encode lon lat', () => {
-      const output = WindowUrl.toHash(googleLoc);
-      o(output).equals('#@174.7763921,-41.2778480,z8');
-      o(WindowUrl.fromHash(output)).deepEquals(googleLoc);
-      o(WindowUrl.fromHash('#@174.7763921,-41.2778480,8z')).deepEquals(googleLoc);
-    });
-
-    o('should encode fractional zooms', () => {
-      o(WindowUrl.fromHash('#@174.7763921,-41.2778480,14.25z').zoom).deepEquals(14.25);
-      o(WindowUrl.fromHash('#@174.7763921,-41.2778480,z14.25').zoom).deepEquals(14.25);
-    });
-
-    o('should not fail if parts are missing', () => {
-      const missingZoom = WindowUrl.fromHash('#@174.7763921,-41.2778480,');
-      o(missingZoom).deepEquals({ lat: googleLoc.lat, lon: googleLoc.lon });
-      const missingParam = WindowUrl.fromHash('#@174.7763921,');
-      o(missingParam).deepEquals({});
-    });
-  });
 
   o('should extract default information', () => {
     mc.updateFromUrl('');
@@ -89,6 +67,22 @@ o.spec('WindowUrl', () => {
     o(mc.tileMatrix).equals(Nztm2000QuadTms);
     mc.updateFromUrl('?i=abc123&s=basic&p=NZTM2000Quad&d=true&debug=yes');
     o(mc.tileMatrix).equals(Nztm2000QuadTms);
+  });
+
+  o('should extract dateRange', () => {
+    mc.updateFromUrl('?i=abc123&p=nztm2000&d=true&debug=yes&date[before]=1975-12-31T23:59:59.999Z');
+    o(mc.filter.date.before).equals('1975-12-31T23:59:59.999Z');
+    mc.updateFromUrl('?date[after]=1952-01-01T00:00:00.000Z&date[before]=1975-12-31T23:59:59.999Z');
+    o(mc.filter.date.before).equals('1975-12-31T23:59:59.999Z');
+    mc.updateFromUrl('?date%5Bafter%5D=1952-01-01T00%3A00%3A00.000Z&date%5Bbefore%5D=1975-12-31T23%3A59%3A59.999Z');
+    o(mc.filter.date.before).equals('1975-12-31T23:59:59.999Z');
+  });
+
+  o('should resolve the invalid dateRange', () => {
+    mc.updateFromUrl('?i=abc123&p=nztm2000&d=true&debug=yes&date[before]=1949-12-31T23:59:59.999Z');
+    o(mc.filter.date.before).equals(undefined);
+    mc.updateFromUrl('?date[before]=2099-12-31T23:59:59.999Z');
+    o(mc.filter.date.before).equals(undefined);
   });
 
   o('should convert to a url', () => {

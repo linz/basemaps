@@ -1,6 +1,6 @@
 import { Bounds, TileMatrixSet, Point, Size } from '@basemaps/geo';
 import { CogTiff, CogTiffImage } from '@cogeotiff/core';
-import { Composition } from './raster.js';
+import { Composition, CompositionTiff } from './raster.js';
 import { Cotar } from '@cotar/core';
 
 export interface RasterPixelBounds {
@@ -15,11 +15,11 @@ export interface RasterPixelBounds {
 }
 
 /** The amount to bias the Bounds.round function to cover a larger, rather than smaller, area. */
-const ROUND_BIAS = 0.2;
+const ROUND_BIAS = process.env.TILE_ROUNDING_BIAS ? Number(process.env.TILE_ROUNDING_BIAS) : 0.1;
 
 export type CloudArchive = CogTiff | Cotar;
 function isCotar(x: CloudArchive): x is Cotar {
-  return x.source.uri.endsWith('.tar.co');
+  return x.source.uri.endsWith('.tar.co') || x.source.uri.endsWith('.tar');
 }
 
 export class Tiler {
@@ -27,11 +27,11 @@ export class Tiler {
   public readonly tms: TileMatrixSet;
 
   /**
-     * Tiler for a TileMatrixSet
-
-     * @param tms
-     * @param convertZ override the default convertZ
-     */
+   * Tiler for a TileMatrixSet
+   *
+   * @param tms
+   * @param convertZ override the default convertZ
+   */
   public constructor(tms: TileMatrixSet) {
     this.tms = tms;
   }
@@ -47,12 +47,15 @@ export class Tiler {
    */
   public async tile(assets: CloudArchive[], x: number, y: number, zoom: number): Promise<Composition[]> {
     let layers: Composition[] = [];
+    /** Raster pixels of the output tile */
+    const screenPx = this.tms.tileToPixels(x, y);
+    const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, this.tms.tileSize, this.tms.tileSize);
 
     for (const asset of assets) {
       if (isCotar(asset)) {
         layers.push({ type: 'cotar', asset, path: `tiles/${zoom}/${x}/${y}.webp` });
       } else {
-        const tileOverlays = this.getTiles(asset, x, y, zoom);
+        const tileOverlays = this.getTiles(asset, screenBoundsPx, zoom);
         if (tileOverlays == null) continue;
         layers = layers.concat(tileOverlays);
       }
@@ -65,15 +68,10 @@ export class Tiler {
    * Does this tiff have any imagery inside the WebMercator XYZ tile
    *
    * @param tiff CoGeoTiff to check bounds of
-   * @param x WebMercator x
-   * @param y WebMercator y
+   * @param screenBoundsPx Bounding box of the output image
    * @param zoom WebMercator zoom
    */
-  public getRasterTiffIntersection(tiff: CogTiff, x: number, y: number, zoom: number): RasterPixelBounds | null {
-    /** Raster pixels of the output tile */
-    const screenPx = this.tms.tileToPixels(x, y);
-    const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, this.tms.tileSize, this.tms.tileSize);
-
+  public getRasterTiffIntersection(tiff: CogTiff, screenBoundsPx: Bounds, zoom: number): RasterPixelBounds | null {
     /** Raster pixels of the input geotiff */
     const bbox = tiff.images[0].bbox;
     const ul = this.tms.sourceToPixels(bbox[0], bbox[3], zoom);
@@ -94,10 +92,11 @@ export class Tiler {
     y: number,
     scaleFactor: number,
     raster: RasterPixelBounds,
-  ): Composition | null {
+    roundBias = ROUND_BIAS,
+  ): CompositionTiff | null {
     const source = Bounds.fromJson(img.getTileBounds(x, y));
 
-    const target = source.scale(scaleFactor, scaleFactor).add(raster.tiff).round(ROUND_BIAS);
+    const target = source.scale(scaleFactor, scaleFactor).add(raster.tiff).round(roundBias);
 
     // Validate that the requested COG tile actually intersects with the output raster
     const tileIntersection = target.intersection(raster.tile);
@@ -146,8 +145,8 @@ export class Tiler {
     return composition;
   }
 
-  protected getTiles(tiff: CogTiff, x: number, y: number, z: number): Composition[] | null {
-    const rasterBounds = this.getRasterTiffIntersection(tiff, x, y, z);
+  public getTiles(tiff: CogTiff, bounds: Bounds, z: number): CompositionTiff[] | null {
+    const rasterBounds = this.getRasterTiffIntersection(tiff, bounds, z);
     if (rasterBounds == null) return null;
 
     // Find the best internal overview tiff to use with the desired XYZ resolution
@@ -167,7 +166,20 @@ export class Tiler {
     // For each geotiff tile that is required, scale it to the size of the raster output tile
     for (const pt of Tiler.getRequiredTiles(requiredTifPixels, pixelScale, tileSize, tileCount)) {
       const composition = this.createComposition(img, pt.x, pt.y, pixelScaleInv, rasterBounds);
-      if (composition != null) composites.push(composition);
+      if (composition == null) continue;
+      // Sometimes when creating compositions the aspect ration skews too far in one direction,
+      // if we lower the rounding bias we can sometimes make a better composition
+      const aDiff = aspectDiff(composition);
+      if (aDiff > 0.01) {
+        const newComp = this.createComposition(img, pt.x, pt.y, pixelScaleInv, rasterBounds, ROUND_BIAS / 2);
+        const nDiff = aspectDiff(newComp);
+        if (newComp != null && nDiff < aDiff) {
+          composites.push(newComp);
+          continue;
+        }
+      }
+
+      composites.push(composition);
     }
 
     if (composites.length === 0) return null;
@@ -191,4 +203,11 @@ export class Tiler {
       }
     }
   }
+}
+
+/** Calculate the scale difference between scaleX and scaleY if it exists, returns 0 if there is no difference */
+function aspectDiff(c?: CompositionTiff | null): number {
+  if (c == null) return 0;
+  if (c.resize == null) return 0;
+  return Math.abs(c.resize.scaleX - c.resize.scaleY);
 }

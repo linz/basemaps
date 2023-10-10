@@ -3,6 +3,55 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+**Note:** Version bump only for package @basemaps/shared
+
+
+
+
+
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+**Note:** Version bump only for package @basemaps/shared
+
+
+
+
+
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Features
+
+* add og:image preview to all basemaps links BM-264 ([#2925](https://github.com/linz/basemaps/issues/2925)) ([de00528](https://github.com/linz/basemaps/commit/de005285eac0c2f5e2c83c8eeaa61aafeff8edde))
+
+
+
+
+
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Features
+
+* add github build id to cli, landing and tiler ([#2874](https://github.com/linz/basemaps/issues/2874)) ([eb8c7b9](https://github.com/linz/basemaps/commit/eb8c7b97822cda117c38d0341a5d6e3506c63c57))
+
+
+
+
+
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* truncate the api key when logging ([#2828](https://github.com/linz/basemaps/issues/2828)) ([3396593](https://github.com/linz/basemaps/commit/33965937fdc6cce4bc50b5ed41616a65c830ec6f))
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

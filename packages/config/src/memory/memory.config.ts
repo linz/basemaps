@@ -11,6 +11,12 @@ import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
 import { sha256base58 } from '../base58.node.js';
 
+interface DuplicatedImagery {
+  id: string;
+  name: string;
+  projection: EpsgCode;
+}
+
 /** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
   id: string;
@@ -22,13 +28,25 @@ export interface ConfigBundled {
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
   tileSet: ConfigTileSet[];
+  duplicateImagery: DuplicatedImagery[];
 }
 
 function isConfigImagery(i: BaseConfig): i is ConfigImagery {
   return ConfigId.getPrefix(i.id) === ConfigPrefix.Imagery;
 }
-function isConfigTileSet(i: BaseConfig): i is ConfigTileSet {
-  return ConfigId.getPrefix(i.id) === ConfigPrefix.TileSet;
+
+/** Get the last id from the s3 path and compare to get the latest id based on the timestamp */
+function findLatestId(idA: string, idB: string): string {
+  const ulidA = ConfigId.unprefix(ConfigPrefix.Imagery, idA);
+  const ulidB = ConfigId.unprefix(ConfigPrefix.Imagery, idB);
+  try {
+    const timeA = decodeTime(ulidA);
+    const timeB = decodeTime(ulidB);
+    if (timeA >= timeB) return idA;
+  } finally {
+    //If not ulid return the return id alphabetically.
+    return idA.localeCompare(idB) > 0 ? idA : idB;
+  }
 }
 
 /** Force a unknown object into a Record<string, unknown> type */
@@ -61,6 +79,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   /** Asset path from the config bundle */
   assets: string;
 
+  /** Catch configs with the same imagery that using the different imagery ids. */
+  duplicateImagery: DuplicatedImagery[] = [];
+
   put(obj: BaseConfig): void {
     this.objects.set(obj.id, obj);
   }
@@ -74,6 +95,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       style: [],
       provider: [],
       tileSet: [],
+      duplicateImagery: this.duplicateImagery,
     };
 
     for (const val of this.objects.values()) {
@@ -105,19 +127,34 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   /** Find all imagery inside this configuration and create a virtual tile set for it */
   createVirtualTileSets(): void {
+    const allLayers: ConfigLayer[] = [];
     for (const obj of this.objects.values()) {
-      // Limit child tileset generation to `aerial` layers only
-      if (isConfigTileSet(obj) && obj.name === 'aerial') {
-        for (const layer of obj.layers) {
-          this.imageryToChildTileSet(obj, layer, EpsgCode.Nztm2000);
-          this.imageryToChildTileSet(obj, layer, EpsgCode.Google);
-        }
-      } else if (isConfigImagery(obj)) {
-        // TODO should this really overwrite existing tilesets
+      if (isConfigImagery(obj)) {
         this.put(ConfigProviderMemory.imageryToTileSet(obj));
-        this.imageryToTileSetByName(obj);
+        const tileSet = this.imageryToTileSetByName(obj);
+        allLayers.push(tileSet.layers[0]);
       }
     }
+    // Create an all tileset contains all raster layers
+    if (allLayers.length) this.createVirtualAllTileSet(allLayers);
+  }
+  createVirtualAllTileSet(layers: ConfigLayer[]): void {
+    const layerByName = new Map<string, ConfigLayer>();
+    // Set all layers as minZoom:32
+    for (const l of layers) {
+      const newLayer = { ...l, maxZoom: undefined, minZoom: 32 };
+      layerByName.set(newLayer.name, { ...layerByName.get(l.name), ...newLayer });
+    }
+    const allTileset: ConfigTileSet = {
+      type: TileSetType.Raster,
+      id: 'ts_all',
+      name: 'all',
+      title: 'All Imagery',
+      category: 'Basemaps',
+      format: ImageFormat.Webp,
+      layers: Array.from(layerByName.values()).sort((a, b) => a.name.localeCompare(b.name)),
+    };
+    this.put(allTileset);
   }
 
   /** Create a tileset by the standardized name */
@@ -133,15 +170,25 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
         category: i.category,
         name: targetName,
         format: ImageFormat.Webp,
-        layers: [{ name: targetName, minZoom: 0, maxZoom: 32 }],
+        layers: [{ name: targetName, title: i.title, minZoom: 0, maxZoom: 32 }],
         background: { r: 0, g: 0, b: 0, alpha: 0 },
         updatedAt: Date.now(),
       } as ConfigTileSet;
       removeUndefined(existing);
       this.put(existing);
     }
-    // TODO this overwrites existing layers
-    existing.layers[0][i.projection] = i.id;
+    // The latest imagery overwrite the earlier ones.
+    const existingImageryId = existing.layers[0][i.projection];
+    if (existingImageryId) {
+      const newId = findLatestId(i.id, existingImageryId);
+      existing.layers[0][i.projection] = newId;
+      if (newId !== existingImageryId) {
+        this.duplicateImagery.push({ id: existingImageryId, name: i.name, projection: i.projection });
+      }
+    } else {
+      existing.layers[0][i.projection] = i.id;
+    }
+
     return existing;
   }
 
@@ -157,37 +204,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       background: { r: 0, g: 0, b: 0, alpha: 0 },
       updatedAt: Date.now(),
     };
-  }
-
-  /**
-   * Create a tileset with a name `ts_aerial:child_name`
-   * @deprecated Prefer using imageryToTileSet
-   **/
-  imageryToChildTileSet(ts: ConfigTileSet, layer: ConfigLayer, projection: EpsgCode): void {
-    const imageId = layer[projection];
-    if (imageId == null) return;
-    const i = this.objects.get(imageId) as ConfigImagery;
-    if (i == null) return;
-
-    const targetName = ts.name + ':' + i.name;
-    const targetId = ConfigId.prefix(ConfigPrefix.TileSet, targetName);
-    let existing = this.objects.get(targetId) as ConfigTileSet;
-    if (existing == null) {
-      existing = {
-        type: TileSetType.Raster,
-        id: targetId,
-        title: layer.title,
-        category: layer.category ?? i.category,
-        name: standardizeLayerName(i.name),
-        format: ImageFormat.Webp,
-        layers: [{ name: targetName, minZoom: 0, maxZoom: 32 }],
-        background: { r: 0, g: 0, b: 0, alpha: 0 },
-        updatedAt: Date.now(),
-      } as ConfigTileSet;
-      removeUndefined(existing);
-      this.put(existing);
-    }
-    existing.layers[0][i.projection] = i.id;
   }
 
   /** Load a bundled configuration creating virtual tilesets for all imagery */

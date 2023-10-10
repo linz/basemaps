@@ -4,7 +4,7 @@ import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
 import { LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
-import fastify, { FastifyInstance } from 'fastify';
+import fastify, { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
@@ -49,7 +49,7 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     BasemapsServer.register(fastifyStatic, { root });
   }
 
-  BasemapsServer.all<{ Querystring: { api: string } }>('/v1/*', (req, res) => {
+  function queryHandler(req: FastifyRequest, res: FastifyReply): void {
     const url = new URL(`${req.protocol}://${req.hostname}${req.url}`);
     if (!url.searchParams.has('api')) url.searchParams.set('api', 'd' + instanceId);
 
@@ -77,7 +77,10 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
         res.status(500);
         res.send(e);
       });
-  });
+  }
+
+  BasemapsServer.all<{ Querystring: { api: string } }>('/v1/*', queryHandler);
+  BasemapsServer.all<{ Querystring: { api: string } }>('/@*', queryHandler);
 
   return BasemapsServer;
 }

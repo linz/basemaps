@@ -1,8 +1,8 @@
 import { base58, isBase58 } from '@basemaps/config/build/base58.js';
 import { GoogleTms, ImageFormat, TileMatrixSet } from '@basemaps/geo';
 import { toQueryString } from '@basemaps/shared/build/url.js';
-import { DateRangeState } from './components/daterange.js';
 import { Config } from './config.js';
+import { FilterDate } from './config.map.js';
 
 export interface LonLat {
   lat: number;
@@ -28,7 +28,7 @@ export interface TileUrlParams {
   layerId: string;
   style?: string | null;
   config?: string | null;
-  date?: DateRangeState;
+  date?: FilterDate;
 }
 
 export function ensureBase58(s: null): null;
@@ -45,46 +45,6 @@ export function ensureBase58(s: string | null): string | null {
 export const WindowUrl = {
   ImageFormat: 'png',
 
-  /**
-   * Encode a location into the window.hash
-   * Google uses ${lat},${lon},z${zoom}
-   * TODO do we want to follow this
-   */
-  toHash(loc: MapLocation): string {
-    return `#@${loc.lat.toFixed(7)},${loc.lon.toFixed(7)},z${loc.zoom}`;
-  },
-
-  /**
-   * Support parsing of zooms with `z14` or `14z`
-   * @param zoom string to parse zoom from
-   */
-  parseZoom(zoom: string | null): number {
-    if (zoom == null || zoom === '') return NaN;
-    if (zoom.startsWith('z')) return parseFloat(zoom.slice(1));
-    if (zoom.endsWith('z')) return parseFloat(zoom);
-    return NaN;
-  },
-
-  /** Parse a location from window.hash if it exists */
-  fromHash(str: string): Partial<MapLocation> {
-    const output: Partial<MapLocation> = {};
-    const hash = str.replace('#@', '');
-    const [latS, lonS, zoomS] = hash.split(',');
-    const lat = parseFloat(latS);
-    const lon = parseFloat(lonS);
-    if (!isNaN(lat) && !isNaN(lon)) {
-      output.lat = lat;
-      output.lon = lon;
-    }
-
-    const newZoom = WindowUrl.parseZoom(zoomS);
-    if (!isNaN(newZoom)) {
-      output.zoom = newZoom;
-    }
-
-    return output;
-  },
-
   baseUrl(): string {
     const baseUrl = Config.BaseUrl;
     if (baseUrl === '') return window.location.origin;
@@ -94,7 +54,7 @@ export const WindowUrl = {
 
   toBaseWmts(): string {
     const query = toQueryString({ api: Config.ApiKey, config: ensureBase58(Config.map.config) });
-    return `${this.baseUrl()}/v1/tiles/aerial/WMTSCapabilities.xml${query}`;
+    return `${this.baseUrl()}/v1/tiles/all/WMTSCapabilities.xml${query}`;
   },
 
   toImageryUrl(layerId: string, imageryType: string): string {
@@ -105,7 +65,6 @@ export const WindowUrl = {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
     if (params.config != null) queryParams.set('config', ensureBase58(params.config));
-    if (params.date?.after != null) queryParams.set('date[after]', params.date.after);
     if (params.date?.before != null) queryParams.set('date[before]', params.date.before);
 
     if (params.urlType === MapOptionType.Style) {

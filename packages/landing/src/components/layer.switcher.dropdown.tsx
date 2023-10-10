@@ -3,6 +3,20 @@ import Select from 'react-select';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
 
+type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;
+
+const Categories = [
+  'Basemaps',
+  'Satellite Imagery',
+  'Urban Aerial Photos',
+  'Rural Aerial Photos',
+  'Scanned Aerial Imagery Basemaps',
+  'Scanned Aerial Imagery',
+  'Event',
+  'Bathymetry',
+  'Elevation',
+];
+
 export interface GroupedOptions {
   label: string;
   options: Option[];
@@ -17,6 +31,9 @@ export interface LayerSwitcherDropdownState {
   zoomToExtent: boolean;
   currentLayer: string;
 }
+
+const ignoredLayers = new Set(['all']);
+
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
   _events: (() => boolean)[] = [];
   state: LayerSwitcherDropdownState = { zoomToExtent: true, currentLayer: 'unknown' };
@@ -48,6 +65,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
       Config.map.layers.then((f) => {
         const layer = f.get(layerId);
         if (layer == null) return;
+        if (layer.upperLeft == null || layer.lowerRight == null) return;
         Config.map.emit('bounds', [layer.upperLeft, layer.lowerRight]);
       });
     }
@@ -66,7 +84,13 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     return (
       <div className="LuiDeprecatedForms">
         <h6>Layers</h6>
-        <Select<Option> options={ret.options} onChange={this.onLayerChange} value={ret.current} />
+        <Select<Option>
+          options={ret.options}
+          onChange={this.onLayerChange}
+          value={ret.current}
+          classNamePrefix="layer-selector"
+          id="layer-selector"
+        />
         <div className="lui-input-group-wrapper">
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onZoomExtentChange} checked={this.state.zoomToExtent} />
@@ -79,11 +103,12 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
   makeOptions(): { options: GroupedOptions[]; current: Option | null } {
     if (this.state.layers == null || this.state.layers.size === 0) return { options: [], current: null };
-    const categories: Map<string, { label: string; options: { label: string; value: string }[] }> = new Map();
+    const categories: CategoryMap = new Map();
     const currentLayer = this.state.currentLayer;
     let current: Option | null = null;
 
     for (const layer of this.state.layers.values()) {
+      if (ignoredLayers.has(layer.id)) continue;
       if (!layer.projections.has(Config.map.tileMatrix.projection.code)) continue;
       const layerId = layer.category ?? 'Unknown';
       const layerCategory = categories.get(layerId) ?? { label: layerId, options: [] };
@@ -92,7 +117,15 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
       categories.set(layerId, layerCategory);
       if (layer.id === currentLayer) current = opt;
     }
-
-    return { options: [...categories.values()], current: current };
+    const orderedCategories: CategoryMap = new Map(
+      [...categories].sort((a, b) => {
+        const orderA = Categories.indexOf(a[0]);
+        const orderB = Categories.indexOf(b[0]);
+        if (orderA === orderB) return a[0].localeCompare(b[0]);
+        if (orderA === -1 || orderA < orderB) return -1;
+        return 1;
+      }),
+    );
+    return { options: [...orderedCategories.values()], current: current };
   }
 }

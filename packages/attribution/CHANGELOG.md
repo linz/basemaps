@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+**Note:** Version bump only for package @basemaps/attribution
+
+
+
+
+
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Features
+
+* **cli:** Create standalone imagery config and remove disabled layer. BM-810 ([#2810](https://github.com/linz/basemaps/issues/2810)) ([e956851](https://github.com/linz/basemaps/commit/e956851983ad5f90d24cbb7c50f75824869e0e08))
+
+
+
+
+
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Features
+
+* **lambda-tiler:** Include the disabled layers in the attribution with minZoom of 32. ([#2746](https://github.com/linz/basemaps/issues/2746)) ([d87e8dd](https://github.com/linz/basemaps/commit/d87e8dd1a0c24d511fc786078111fadc752bc4ab))
+* **landing:** Update the daterange slider to years button. ([#2764](https://github.com/linz/basemaps/issues/2764)) ([ef93543](https://github.com/linz/basemaps/commit/ef935433df6065f4baeb458b3c8a9efec06621fa))
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

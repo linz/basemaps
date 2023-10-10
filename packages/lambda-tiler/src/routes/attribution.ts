@@ -6,13 +6,14 @@ import {
   Bounds,
   GoogleTms,
   NamedBounds,
+  Projection,
   Stac,
   StacExtent,
   StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { extractYearRangeFromName, extractYearRangeFromTitle, Projection } from '@basemaps/shared';
 import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
+import { extractYearRangeFromName, extractYearRangeFromTitle } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
 
@@ -88,16 +89,21 @@ async function tileSetAttribution(
   const host = await config.Provider.get(config.Provider.id('linz'));
 
   for (const layer of filteredLayers) {
-    if (layer.disabled) continue;
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
     const im = imagery.get(imgId);
     if (im == null) continue;
     const title = im.title;
+    const years = extractYearRangeFromTitle(im.title) ?? extractYearRangeFromName(im.name);
+    if (years == null) continue;
+    const interval = yearRangeToInterval(years);
 
     const bbox = proj.boundsToWgs84BoundingBox(im.bounds).map(roundNumber) as BBox;
 
-    const extent: StacExtent = { spatial: { bbox: [bbox] } };
+    const extent: StacExtent = {
+      spatial: { bbox: [bbox] },
+      temporal: { interval: [[interval[0].toISOString(), interval[1].toISOString()]] },
+    };
 
     const item: AttributionItem = {
       type: 'Feature',
@@ -111,16 +117,12 @@ async function tileSetAttribution(
       properties: {
         title,
         category: im.category,
+        datetime: null,
+        start_datetime: interval[0].toISOString(),
+        end_datetime: interval[1].toISOString(),
       },
     };
-    const years = extractYearRangeFromTitle(im.title) ?? extractYearRangeFromName(im.name);
-    if (years) {
-      const interval = yearRangeToInterval(years);
-      extent.temporal = { interval: [[interval[0].toISOString(), interval[1].toISOString()]] };
-      item.properties.datetime = null;
-      item.properties.start_datetime = interval[0].toISOString();
-      item.properties.end_datetime = interval[1].toISOString();
-    }
+
     items.push(item);
 
     const zoomMin = TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true);

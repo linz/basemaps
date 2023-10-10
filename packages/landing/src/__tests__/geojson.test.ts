@@ -1,5 +1,4 @@
-import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
-import { Projection } from '@basemaps/shared/build/proj/projection.js';
+import { GoogleTms, Nztm2000QuadTms, Projection } from '@basemaps/geo';
 import o from 'ospec';
 import { projectGeoJson } from '../tile.matrix.js';
 

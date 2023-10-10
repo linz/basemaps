@@ -34,6 +34,10 @@ export class LambdaTiler extends Construct {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
     };
 
+    if (props.staticBucketName) {
+      environment[Env.StaticAssetLocation] = `s3://${props.staticBucketName}/`;
+    }
+
     const code = lambda.Code.fromAsset(CODE_PATH);
 
     /**
@@ -42,11 +46,12 @@ export class LambdaTiler extends Construct {
      */
 
     this.lambdaNoVpc = new lambda.Function(this, 'TilerNoVpc', {
-      runtime: lambda.Runtime.NODEJS_16_X,
+      runtime: lambda.Runtime.NODEJS_18_X,
       memorySize: 2048,
       timeout: Duration.seconds(60),
       handler: 'index.handler',
       code,
+      architecture: lambda.Architecture.ARM_64,
       environment,
       logRetention: RetentionDays.ONE_MONTH,
     });

@@ -1,9 +1,9 @@
 import o from 'ospec';
 import { ProjectionLoader } from '../projection.loader.js';
 import sinon from 'sinon';
-import { Nztm2000 } from '@basemaps/shared/build/proj/nztm2000.js';
+import { Nztm2000 } from '@basemaps/geo/build/proj/nztm2000.js';
 import { Epsg } from '@basemaps/geo';
-import { Projection } from '@basemaps/shared';
+import { Projection } from '@basemaps/geo';
 
 o.spec('ProjectionLoader', () => {
   const sandbox = sinon.createSandbox();

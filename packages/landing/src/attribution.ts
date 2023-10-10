@@ -1,8 +1,8 @@
 import { Attribution } from '@basemaps/attribution';
-import { AttributionBounds } from '@basemaps/attribution/build/attribution';
-import { AttributionCollection, GoogleTms, Stac, TileMatrixSet } from '@basemaps/geo';
+import { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
+import { GoogleTms, Stac, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
-import maplibre, { LngLatBounds } from 'maplibre-gl';
+import * as maplibre from 'maplibre-gl';
 import { onMapLoaded } from './components/map.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
@@ -10,10 +10,77 @@ import { MapOptionType } from './url.js';
 
 const Copyright = `© ${Stac.License} LINZ`;
 
-/** Cache the loading of attribution */
-export const Attributions: Map<string, Promise<Attribution | null>> = new Map();
-/** Rendering process needs synch access */
-const AttributionSync: Map<string, Attribution> = new Map();
+export class MapAttributionState {
+  /** Cache the loading of attribution */
+  _attrs: Map<string, Promise<Attribution | null>> = new Map();
+  /** Rendering process needs synch access */
+  _attrsSync: Map<string, Attribution> = new Map();
+
+  /** Load a attribution from a url, return a cached copy if we have one */
+  getCurrentAttribution(): Promise<Attribution | null> {
+    const cacheKey = Config.map.layerKeyTms;
+    let attrs = this._attrs.get(cacheKey);
+    if (attrs == null) {
+      attrs = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
+      this._attrs.set(cacheKey, attrs);
+      attrs.then((a) => {
+        if (a == null) return;
+        a.isIgnored = this.isIgnored;
+        this._attrsSync.set(Config.map.layerKeyTms, a);
+      });
+    }
+    return attrs;
+  }
+
+  /** Filter the attribution to the map bounding box */
+  filterAttributionToMap(attr: Attribution, map: maplibregl.Map): AttributionBounds[] {
+    let zoom = Math.round(map.getZoom() ?? 0);
+    // Note that Mapbox rendering 512×512 image tiles are offset by one zoom level compared to 256×256 tiles.
+    // For example, 512×512 tiles at zoom level 4 are equivalent to 256×256 tiles at zoom level 5.
+    zoom += 1;
+    const extent = MapAttributionState.mapboxBoundToBbox(map.getBounds(), zoom, Config.map.tileMatrix);
+    return attr.filter({
+      extent,
+      zoom: zoom,
+      dateBefore: Config.map.filter.date.before,
+    });
+  }
+
+  getAttributionByYear(attribution: AttributionBounds[]): Map<number, AttributionBounds[]> {
+    const attrsByYear = new Map<number, AttributionBounds[]>();
+    for (const a of attribution) {
+      if (!a.startDate || !a.endDate) continue;
+      const startYear = Number(a.startDate.slice(0, 4));
+      const endYear = Number(a.endDate.slice(0, 4));
+      for (let year = startYear; year <= endYear; year++) {
+        const attrs = attrsByYear.get(year) ?? [];
+        attrs.push(a);
+        attrsByYear.set(year, attrs);
+      }
+    }
+    return attrsByYear;
+  }
+
+  /**
+   * Covert Mapbox Bounds to tileMatrix BBox
+   */
+  static mapboxBoundToBbox(bounds: maplibre.LngLatBounds, zoom: number, tileMatrix: TileMatrixSet): BBox {
+    const swLocation = { lon: bounds.getWest(), lat: bounds.getSouth(), zoom: zoom };
+    const neLocation = { lon: bounds.getEast(), lat: bounds.getNorth(), zoom: zoom };
+    const swCoord = locationTransform(swLocation, GoogleTms, tileMatrix);
+    const neCoord = locationTransform(neLocation, GoogleTms, tileMatrix);
+    const bbox: BBox = [swCoord.lon, swCoord.lat, neCoord.lon, neCoord.lat];
+    return bbox;
+  }
+
+  // Ignore DEMS from the attribution list
+  isIgnored = (attr: AttributionBounds): boolean => {
+    const title = attr.collection.title.toLowerCase();
+    return title.startsWith('geographx') || title.includes(' dem ');
+  };
+}
+
+export const MapAttrState = new MapAttributionState();
 
 /**
  * Handles displaying attributions for the OpenLayers interface
@@ -27,9 +94,8 @@ export class MapAttribution {
   private _raf = 0;
 
   attributionHtml = '';
-  bounds: LngLatBounds = new LngLatBounds([0, 0, 0, 0]);
+  bounds: maplibre.LngLatBounds = new maplibre.LngLatBounds([0, 0, 0, 0]);
   zoom = -1;
-  filteredRecords: AttributionCollection[] = [];
   attributionControl?: maplibregl.AttributionControl | null;
 
   constructor(map: maplibregl.Map) {
@@ -61,25 +127,8 @@ export class MapAttribution {
   updateAttribution = (): void => {
     // Vector layers currently have no attribution
     if (Config.map.isVector) return this.vectorAttribution();
-    const cacheKey = Config.map.layerKeyTms;
-    let loader = Attributions.get(cacheKey);
-    if (loader == null) {
-      loader = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
-      Attributions.set(cacheKey, loader);
-      loader.then((attr) => {
-        if (attr == null) return;
-        attr.isIgnored = this.isIgnored;
-        AttributionSync.set(cacheKey, attr);
-        this.scheduleRender();
-      });
-    }
-    this.scheduleRender();
-  };
-
-  // Ignore DEMS from the attribution list
-  isIgnored = (attr: AttributionBounds): boolean => {
-    const title = attr.collection.title.toLowerCase();
-    return title.startsWith('geographx') || title.includes(' dem ');
+    const loader = MapAttrState.getCurrentAttribution();
+    loader.then(() => this.scheduleRender());
   };
 
   /**
@@ -109,18 +158,10 @@ export class MapAttribution {
    */
   renderAttribution = (): void => {
     this._raf = 0;
-    const attr = AttributionSync.get(Config.map.layerKeyTms);
+    const attr = MapAttrState._attrsSync.get(Config.map.layerKeyTms);
     if (attr == null) return this.removeAttribution();
-    this.zoom = Math.round(this.map.getZoom() ?? 0);
-    this.bounds = this.map.getBounds();
-
-    // Note that Mapbox rendering 512×512 image tiles are offset by one zoom level compared to 256×256 tiles.
-    // For example, 512×512 tiles at zoom level 4 are equivalent to 256×256 tiles at zoom level 5.
-    this.zoom += 1;
-
-    const bbox = this.mapboxBoundToBbox(this.bounds, Config.map.tileMatrix);
-    const filtered = attr.filter(bbox, this.zoom, Config.map.filter.date.after, Config.map.filter.date.before);
-    const filteredLayerIds = filtered.map((x) => x.id).join('_');
+    const filtered = MapAttrState.filterAttributionToMap(attr, this.map);
+    const filteredLayerIds = filtered.map((x) => x.collection.id).join('_');
     Config.map.emit('visibleLayers', filteredLayerIds);
 
     let attributionHTML = attr.renderList(filtered);
@@ -130,26 +171,12 @@ export class MapAttribution {
       attributionHTML = Copyright + ' - ' + attributionHTML;
     }
     if (attributionHTML !== this.attributionHtml) {
-      const customAttribution = (this.attributionHtml = attributionHTML);
+      this.attributionHtml = attributionHTML;
       this.removeAttribution();
-      this.attributionControl = new maplibre.AttributionControl({ compact: false, customAttribution });
+      this.attributionControl = new maplibre.AttributionControl({ compact: false, customAttribution: attributionHTML });
       this.map.addControl(this.attributionControl, 'bottom-right');
     }
-
-    this.filteredRecords = filtered;
   };
-
-  /**
-   * Covert Mapbox Bounds to tileMatrix BBox
-   */
-  mapboxBoundToBbox(bounds: LngLatBounds, tileMatrix: TileMatrixSet): BBox {
-    const swLocation = { lon: bounds.getWest(), lat: bounds.getSouth(), zoom: this.zoom };
-    const neLocation = { lon: bounds.getEast(), lat: bounds.getNorth(), zoom: this.zoom };
-    const swCoord = locationTransform(swLocation, GoogleTms, tileMatrix);
-    const neCoord = locationTransform(neLocation, GoogleTms, tileMatrix);
-    const bbox: BBox = [swCoord.lon, swCoord.lat, neCoord.lon, neCoord.lat];
-    return bbox;
-  }
 
   /**
    * Add attribution for vector map

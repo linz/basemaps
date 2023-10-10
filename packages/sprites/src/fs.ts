@@ -1,11 +1,11 @@
-import { readdir, readFile } from 'node:fs/promises';
+import { promises as fs } from 'node:fs';
 import path, { join, parse } from 'node:path';
 import { SvgId } from './sprites.js';
 
 export const ValidExtensions = new Set(['.svg']);
 
 export async function listSprites(spritePath: string, validExtensions = ValidExtensions): Promise<SvgId[]> {
-  const files = await readdir(spritePath);
+  const files = await fs.readdir(spritePath);
   const sprites = files.filter((f) => validExtensions.has(path.extname(f.toLowerCase())));
   if (sprites.length === 0) {
     throw new Error('No files found: ' + spritePath + ' with extension: ' + [...ValidExtensions].join(','));
@@ -15,7 +15,7 @@ export async function listSprites(spritePath: string, validExtensions = ValidExt
     sprites.map(async (c) => {
       return {
         id: parse(c).name, // remove the extension .svg
-        buffer: await readFile(join(spritePath, c)),
+        buffer: await fs.readFile(join(spritePath, c)),
       };
     }),
   );

@@ -3,6 +3,89 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+
+### Features
+
+* **cli:** Allow bundle to guess the imagery ID from the url with slash ending. ([#2976](https://github.com/linz/basemaps/issues/2976)) ([92fb6dd](https://github.com/linz/basemaps/commit/92fb6dde1f71171fa0ab26ed855f846f004b0dc9))
+
+
+
+
+
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+
+### Bug Fixes
+
+* **cli:** Fix the missing return in plimit queue. ([#2952](https://github.com/linz/basemaps/issues/2952)) ([83c0ade](https://github.com/linz/basemaps/commit/83c0ade5ed138aa7fda3dbf3b5f516f98251c771))
+* **config:** ignore the argo folder "flat/" in guessing imagery names ([#2939](https://github.com/linz/basemaps/issues/2939)) ([781d981](https://github.com/linz/basemaps/commit/781d9813ebdbb93053971472b06f6f738816b18e))
+
+
+### Features
+
+* **cli:** Sort the ts_all config by the imagery name. ([#2955](https://github.com/linz/basemaps/issues/2955)) ([7b29348](https://github.com/linz/basemaps/commit/7b293487b0e8ceb5f04b621a0a3ff40fd80b52e4))
+
+
+
+
+
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Bug Fixes
+
+* **config:** do not use "rgb" or projection codes for imagery names ([#2908](https://github.com/linz/basemaps/issues/2908)) ([6f3c9a8](https://github.com/linz/basemaps/commit/6f3c9a8d28cade31114e5e449d39d2ff8bad6638))
+
+
+### Features
+
+* **cli:** Update config bundle to running asynchronously. ([#2923](https://github.com/linz/basemaps/issues/2923)) ([30b7d70](https://github.com/linz/basemaps/commit/30b7d70bde883806d170d63fd8d88ab6ac0e68df))
+* **config:** detect empty images and ignore them ([#2915](https://github.com/linz/basemaps/issues/2915)) ([7b7cc1d](https://github.com/linz/basemaps/commit/7b7cc1d92d2437cff1ed38f9d8a2d487589e2e28))
+
+
+
+
+
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Bug Fixes
+
+* **cli:** Add missing layer titles from the imagery to tileset. ([#2882](https://github.com/linz/basemaps/issues/2882)) ([8cfe830](https://github.com/linz/basemaps/commit/8cfe8301e579c266ff1f7d9543d36b190d5a085a))
+
+
+### Features
+
+* **cli:** Create standalone imagery config and remove disabled layer. BM-810 ([#2810](https://github.com/linz/basemaps/issues/2810)) ([e956851](https://github.com/linz/basemaps/commit/e956851983ad5f90d24cbb7c50f75824869e0e08))
+* **cogify:** output single URL in cogify config command BM-822 ([#2899](https://github.com/linz/basemaps/issues/2899)) ([fbdbb95](https://github.com/linz/basemaps/commit/fbdbb9521ffc813fcb032345ab16f43230441b44))
+* **config:** Create an all tileset from imagery configs. BM-805 ([#2794](https://github.com/linz/basemaps/issues/2794)) ([a2d64c8](https://github.com/linz/basemaps/commit/a2d64c8cdb03e6dd26cd16118880faaeab3143d9))
+* **config:** Remove the chirld aerial: tileset from configs. BM-825 ([#2812](https://github.com/linz/basemaps/issues/2812)) ([4f26aac](https://github.com/linz/basemaps/commit/4f26aacdb54186273d67ffdac1b55bbe0bff88e3))
+
+
+
+
+
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* **cogify:** cogify create should create from stac item json ([#2785](https://github.com/linz/basemaps/issues/2785)) ([637df77](https://github.com/linz/basemaps/commit/637df7736e78d38e19b62dfe29f7e4ad09e4205a))
+* **cogify:** use a URL in the cogify STAC documents ([#2843](https://github.com/linz/basemaps/issues/2843)) ([eb3f0fe](https://github.com/linz/basemaps/commit/eb3f0fe41b5a02ea71c2ea63e1a0057cc6d502d2))
+* **config:** allow initializing config from URLs ([#2830](https://github.com/linz/basemaps/issues/2830)) ([0ea552e](https://github.com/linz/basemaps/commit/0ea552ec32ad723f98c96d533f18a8afc51d9657))
+
+
+### Features
+
+* **cogify:** improve cogify ([#2800](https://github.com/linz/basemaps/issues/2800)) ([cb16a44](https://github.com/linz/basemaps/commit/cb16a44aa44aa10ed69d1ab188a0539756f9ee72))
+* **cogify:** retile imagery into COGS aligned to a tile matrix ([#2759](https://github.com/linz/basemaps/issues/2759)) ([ddd99d3](https://github.com/linz/basemaps/commit/ddd99d3548c65ec4ce5b7c608d6bf9360f053635))
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

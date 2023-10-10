@@ -1,8 +1,8 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
-import { GoogleTms } from '@basemaps/geo';
+import { GoogleTms, LocationUrl } from '@basemaps/geo';
 import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
-import { Attributions } from '../attribution.js';
+import { MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
 import { MapConfig } from '../config.map.js';
@@ -56,16 +56,16 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     onMapLoaded(map, () => {
       Config.map.on('change', () => {
         if (this.props.map == null) return;
-        const locationHash = WindowUrl.toHash(Config.map.getLocation(this.props.map));
+        const loc = LocationUrl.toSlug(Config.map.getLocation(this.props.map));
         const locationSearch = '?' + MapConfig.toUrl(Config.map);
-        window.history.replaceState(null, '', locationSearch + locationHash);
+        window.history.replaceState(null, '', loc + locationSearch);
         this.updateFromConfig();
       });
       this.updateFromConfig();
       if (Config.map.debug['debug.screenshot']) {
         map.once('idle', async () => {
-          // Ensure all the attribution data has loaded
-          await Promise.all([...Attributions.values()]);
+          // Ensure the attribution data has loaded
+          await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
           // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
           const loadedDiv = document.createElement('div');
@@ -90,6 +90,12 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
     this.renderWMTS();
   }
+
+  /** Show the source bounding box ont he map */
+  toggleTileBoundary: ChangeEventHandler = (e) => {
+    const target = e.target as HTMLInputElement;
+    Config.map.setDebug('debug.tile', target.checked);
+  };
 
   /** Show the source bounding box ont he map */
   toggleCogs: ChangeEventHandler = (e) => {
@@ -153,6 +159,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         {this.renderPurple()}
         {this.renderCogToggle()}
         {this.renderSourceToggle()}
+        {this.renderTileToggle()}
       </div>
     );
   }
@@ -168,11 +175,13 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   renderWMTS(): ReactNode {
+    const imagery = this.state.imagery;
     return (
       <div className="debug__info">
         <label className="debug__label"></label>
         <div className="debug__value">
-          {Config.map.tileMatrix.projection.toEpsgString()} - <a href={this.getWMTSLink()}>WMTS</a>
+          {Config.map.tileMatrix.projection.toEpsgString()} - <a href={this.getWMTSLink()}>WMTS </a>
+          {imagery == null ? null : <div title="Number of tiffs in imagery"> - {imagery.files.length} Tiffs</div>}
         </div>
       </div>
     );
@@ -213,6 +222,15 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           </div>
         )}
       </Fragment>
+    );
+  }
+
+  renderTileToggle(): ReactNode {
+    return (
+      <div className="debug__info">
+        <label className="debug__label">Tile Boundaries</label>
+        <input type="checkbox" onChange={this.toggleTileBoundary} checked={Config.map.debug['debug.tile']} />
+      </div>
     );
   }
 
@@ -337,6 +355,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   setVectorShown(isShown: boolean, type: 'source' | 'cog'): void {
     const map = this.props.map;
+
+    map.showTileBoundaries = Config.map.debug['debug.tile'];
 
     const layerId = Config.map.layerId;
     const sourceId = `${layerId}_${type}`;

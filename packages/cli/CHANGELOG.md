@@ -3,6 +3,99 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+
+### Bug Fixes
+
+* **config:** ignore the argo folder "flat/" in guessing imagery names ([#2939](https://github.com/linz/basemaps/issues/2939)) ([781d981](https://github.com/linz/basemaps/commit/781d9813ebdbb93053971472b06f6f738816b18e))
+
+
+### Features
+
+* **cli:** include urlPreview for preview links ([#2938](https://github.com/linz/basemaps/issues/2938)) ([96fe7b5](https://github.com/linz/basemaps/commit/96fe7b515f52de4d8e2b78295ccd5d31d0a7f7b8))
+
+
+
+
+
+# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Features
+
+* **cli:** Add imagery id in the create config done log for slack notifications. ([#2905](https://github.com/linz/basemaps/issues/2905)) ([821b628](https://github.com/linz/basemaps/commit/821b6287f307db608f013adcaba2910fcff5f431))
+
+
+
+
+
+# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Bug Fixes
+
+* **cli:** Correct the path of linzijs prettierrc.js location. ([#2894](https://github.com/linz/basemaps/issues/2894)) ([348a7f7](https://github.com/linz/basemaps/commit/348a7f7094f817603d8740e54b141e7c45a1bac3))
+* **cli:** Fix to set org in the github to be used in create pull request api. ([#2902](https://github.com/linz/basemaps/issues/2902)) ([0081275](https://github.com/linz/basemaps/commit/0081275606e055765105d5082cfd53c5983965d1))
+* **cli:** new created file need to add to git before commit. ([#2904](https://github.com/linz/basemaps/issues/2904)) ([24fbf6d](https://github.com/linz/basemaps/commit/24fbf6d40073bf72780783bf3b1a4d01e91dbd4e))
+* **cli:** Run npm install in the basemaps-config to install the @linz/style ([#2900](https://github.com/linz/basemaps/issues/2900)) ([fb7930c](https://github.com/linz/basemaps/commit/fb7930c38af4e1dc94e649a4dd6ae2a72483e16f))
+
+
+### Features
+
+* **cli:** Create pull request cli to format the config files by npx prettier. BM-810 ([#2898](https://github.com/linz/basemaps/issues/2898)) ([061b605](https://github.com/linz/basemaps/commit/061b60528c2e9d2104a9e51dc8373aca84a1d7d9))
+* **cli:** Create pull request via Github api and access token. ([#2838](https://github.com/linz/basemaps/issues/2838)) ([ef5e29f](https://github.com/linz/basemaps/commit/ef5e29fd8964eb4f3e001de6f8b880233f47b9dc))
+* **cli:** Create standalone imagery config and remove disabled layer. BM-810 ([#2810](https://github.com/linz/basemaps/issues/2810)) ([e956851](https://github.com/linz/basemaps/commit/e956851983ad5f90d24cbb7c50f75824869e0e08))
+* **cli:** Update the import cli to output preview links for individual configs. BM-869 ([#2897](https://github.com/linz/basemaps/issues/2897)) ([e70280a](https://github.com/linz/basemaps/commit/e70280a5729f75cc808f149d81cdad3051bb2574))
+
+
+
+
+
+# [6.42.0](https://github.com/linz/basemaps/compare/v6.41.0...v6.42.0) (2023-08-06)
+
+
+### Features
+
+* **cli:** ensure the layer name been standardized before creating pull request. BM-827 ([#2808](https://github.com/linz/basemaps/issues/2808)) ([35e22fa](https://github.com/linz/basemaps/commit/35e22fad527a1d17e8985dbbcbc3f9f10747bf09))
+
+
+
+
+
+# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Bug Fixes
+
+* **cli:** Copy the missing @linzjs/style/.prettierrc.js file into cli docker container. ([#2844](https://github.com/linz/basemaps/issues/2844)) ([05ee834](https://github.com/linz/basemaps/commit/05ee8344e21039d2ff889f660ea2568b0019f297))
+* **cli:** Fix config json format by adding the missing newline and remove double quotes from commit message. ([#2795](https://github.com/linz/basemaps/issues/2795)) ([76a77ae](https://github.com/linz/basemaps/commit/76a77aed12e8695022e8c6e9714a63b30814a279))
+* **cli:** Fix remove the ref from the repository and get the repo name from it. ([#2784](https://github.com/linz/basemaps/issues/2784)) ([6b395b8](https://github.com/linz/basemaps/commit/6b395b8ed0147cf8bb53cd6139d8cbc434382b9a))
+* **cli:** multithread warp ([#2744](https://github.com/linz/basemaps/issues/2744)) ([1b00735](https://github.com/linz/basemaps/commit/1b007354dde9e48632b685ad5a8f8b6baf944a89))
+
+
+### Features
+
+* **cli:** Add disabled flag for the create pr cli, and bug fixes. ([#2745](https://github.com/linz/basemaps/issues/2745)) ([714a113](https://github.com/linz/basemaps/commit/714a113b348f47b81e73a042e81e21d64da9e244))
+* **cli:** bundle cogify command into docker container ([#2792](https://github.com/linz/basemaps/issues/2792)) ([d0e45c7](https://github.com/linz/basemaps/commit/d0e45c7b19c0897f99b76b4795cc48052ae73601))
+* **cli:** move to ghcr for osgeo/gdal ([#2790](https://github.com/linz/basemaps/issues/2790)) ([cb96bf6](https://github.com/linz/basemaps/commit/cb96bf61335d2f42eb2e32f751623d718f0777fd))
+* **cli:** Refactoring the pull request creation to use git commands and support vector map update. ([#2780](https://github.com/linz/basemaps/issues/2780)) ([0ac677d](https://github.com/linz/basemaps/commit/0ac677da3c381b9439a207db5d1810f1ab4d1a5b))
+* **cogify:** improve cogify ([#2800](https://github.com/linz/basemaps/issues/2800)) ([cb16a44](https://github.com/linz/basemaps/commit/cb16a44aa44aa10ed69d1ab188a0539756f9ee72))
+* **cogify:** retile imagery into COGS aligned to a tile matrix ([#2759](https://github.com/linz/basemaps/issues/2759)) ([ddd99d3](https://github.com/linz/basemaps/commit/ddd99d3548c65ec4ce5b7c608d6bf9360f053635))
+* **lambda-tiler:** Refactoring the wmts Capablity to builder interface. ([#2686](https://github.com/linz/basemaps/issues/2686)) ([4d223b6](https://github.com/linz/basemaps/commit/4d223b6b02675a271d1393ff4c6d0e7f8348084b))
+
+
+
+
+
 # [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
 
 

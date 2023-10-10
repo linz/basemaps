@@ -1,5 +1,5 @@
-import { ImageFormat, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
-import { Const, isValidApiKey, Projection } from '@basemaps/shared';
+import { ImageFormat, LatLon, Projection, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
+import { Const, isValidApiKey, truncateApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { TileXyzGet } from '../routes/tile.xyz';
@@ -25,7 +25,8 @@ export const Validate = {
     const valid = isValidApiKey(apiKey);
 
     if (!valid.valid) throw new LambdaHttpResponse(400, 'API Key Invalid: ' + valid.message);
-    req.set('api', apiKey);
+    // Truncate the API Key so we are not logging the full key
+    req.set('api', truncateApiKey(apiKey));
     return apiKey as string;
   },
 
@@ -53,6 +54,15 @@ export const Validate = {
     if (ext) return ext;
     if (tileType === VectorFormat.MapboxVectorTiles) return VectorFormat.MapboxVectorTiles;
     return null;
+  },
+
+  /** Validate that a lat and lon are between -90/90 and -180/180 */
+  getLocation(lonIn: string, latIn: string): LatLon | null {
+    const lat = parseFloat(latIn);
+    const lon = parseFloat(lonIn);
+    if (isNaN(lon) || lon < -180 || lon > 180) return null;
+    if (isNaN(lat) || lat < -90 || lat > 90) return null;
+    return { lon, lat };
   },
   /**
    * Validate that the tile request is somewhat valid

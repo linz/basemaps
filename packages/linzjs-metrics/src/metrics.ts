@@ -8,10 +8,7 @@ export class Metrics {
   timers: Map<string, { start: number; duration?: number }> = new Map();
 
   constructor() {
-    if (typeof process !== 'undefined' && typeof process.hrtime.bigint === 'function') {
-      const NanoSecondsToMs = BigInt(1000000);
-      this.getTime = (): number => Number(process.hrtime.bigint() / NanoSecondsToMs);
-    } else if (typeof typeof performance !== 'undefined') {
+    if (typeof performance !== 'undefined') {
       this.getTime = (): number => performance.now();
     } else {
       this.getTime = (): number => Date.now();

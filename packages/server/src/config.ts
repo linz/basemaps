@@ -3,18 +3,17 @@ import {
   ConfigBundled,
   ConfigJson,
   ConfigPrefix,
-  ConfigProviderDynamo,
   ConfigProviderMemory,
 } from '@basemaps/config';
-import { initConfigFromPaths } from '@basemaps/config/build/json/tiff.config.js';
-import { fsa, getDefaultConfig, LogType } from '@basemaps/shared';
+import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
+import { fsa, getDefaultConfig, LogType, ConfigProviderDynamo } from '@basemaps/shared';
 
 export type ServerOptions = ServerOptionsTiffs | ServerOptionsConfig;
 
 /** Load configuration from folders */
 export interface ServerOptionsTiffs {
   assets?: string;
-  paths: string[];
+  paths: URL[];
 }
 
 /** Load configuration from a config file/dynamodb */
@@ -34,7 +33,7 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
   // Load the config directly from the source tiff files
   if ('paths' in opts) {
     const mem = new ConfigProviderMemory();
-    const ret = await initConfigFromPaths(mem, opts.paths);
+    const ret = await initConfigFromUrls(mem, opts.paths);
     logger.info({ tileSet: ret.tileSet.name, layers: ret.tileSet.layers.length }, 'TileSet:Loaded');
     for (const im of ret.imagery) {
       logger.info(

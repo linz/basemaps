@@ -3,7 +3,7 @@ import { GdalCommand } from '@basemaps/cli/build/gdal/gdal.command.js';
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, s3ToVsis3 } from '@basemaps/shared';
 import * as os from 'os';
-import type { Limit } from 'p-limit';
+import type { LimitFunction } from 'p-limit';
 import PLimit from 'p-limit';
 import * as path from 'path';
 import { basename } from 'path';
@@ -50,7 +50,7 @@ export class BathyMaker {
   /** Current gdal version @see Gdal.version */
   gdalVersion: Promise<string>;
   /** Concurrent limiting queue, all work should be done inside the queue */
-  q: Limit;
+  q: LimitFunction;
 
   constructor(ctx: BathyMakerContext) {
     this.config = { ...BathyMakerContextDefault, ...ctx };

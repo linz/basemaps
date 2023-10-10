@@ -1,6 +1,6 @@
 name: screenshot
 
-on: 
+on:
   pull_request:
   push:
     branches:
@@ -16,7 +16,9 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: linz/action-typescript@v2
+      - uses: linz/action-typescript@v3
+        with:
+          package-manager: yarn
 
       # Package all the files
       - name: Bundle & Package all files
@@ -24,24 +26,24 @@ jobs:
           npx lerna run bundle --stream
           npm pack --workspaces
         env:
-          NODE_ENV: "production"
+          NODE_ENV: 'production'
 
       - name: (NonProd) Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1.6.1
+        uses: aws-actions/configure-aws-credentials@v2.0.0
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
-      
+
       - name: (Screenshot) Screenshot Pull Request Changes
         run: |
           ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
-          
+
           # Wait for the server to start
           timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
-          
+
           docker run --rm --network="host" -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
-        
+
       - name: Save snapshots
         uses: getsentry/action-visual-snapshot@v2
         with:
@@ -60,7 +62,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: AWS Configure
-        uses: aws-actions/configure-aws-credentials@v1.6.1
+        uses: aws-actions/configure-aws-credentials@v2.0.0
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
@@ -70,5 +72,5 @@ jobs:
         id: visual-snapshots-diff
         uses: blacha/action-visual-snapshot@v2
         with:
-          storage-prefix: "s3://linz-basemaps-screenshot"
-          storage-url: "https://d25mfjh9syaxsr.cloudfront.net"
+          storage-prefix: 's3://linz-basemaps-screenshot'
+          storage-url: 'https://d25mfjh9syaxsr.cloudfront.net'

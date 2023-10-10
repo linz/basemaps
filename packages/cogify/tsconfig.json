@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./build"
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../config" },
+    { "path": "../geo" },
+    { "path": "../server" },
+    { "path": "../shared" },
+    { "path": "../lambda-tiler" },
+    { "path": "../tiler-sharp" }
+  ]
+}
