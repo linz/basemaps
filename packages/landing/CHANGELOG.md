@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+
+### Bug Fixes
+
+* **landing:** correct broken tileset name ([#2974](https://github.com/linz/basemaps/issues/2974)) ([3c92d3f](https://github.com/linz/basemaps/commit/3c92d3f1ff8b546ce240f0f401ebce2c727cc222))
+
+
+### Features
+
+* **landing:** hard code scanned aerial imagery layers BM-892 ([#2970](https://github.com/linz/basemaps/issues/2970)) ([62697c3](https://github.com/linz/basemaps/commit/62697c3a1e344a4de0a236bf48042ae138db5620))
+* **landing:** track when the map switcher is clicked ([#2971](https://github.com/linz/basemaps/issues/2971)) ([fa5d77d](https://github.com/linz/basemaps/commit/fa5d77d4dc2b3efccb43859489fdcb25c95a053c))
+
+
+
+
+
 # [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
 
 **Note:** Version bump only for package @basemaps/landing
