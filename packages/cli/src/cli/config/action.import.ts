@@ -14,10 +14,10 @@ import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps
 import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import fetch from 'node-fetch';
-import { CogStacJob } from '../../cog/cog.stac.job.js';
 import { invalidateCache } from '../util.js';
 import { Q, Updater } from './config.update.js';
 import { FeatureCollection } from 'geojson';
+import { CogJobJson } from '../../cog/types.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
@@ -316,12 +316,12 @@ export class CommandImport extends CommandLineAction {
     return;
   }
 
-  _jobs: Map<string, CogStacJob> = new Map<string, CogStacJob>();
-  async _loadJob(path: string): Promise<CogStacJob | undefined> {
+  _jobs: Map<string, CogJobJson> = new Map<string, CogJobJson>();
+  async _loadJob(path: string): Promise<CogJobJson | undefined> {
     const existing = this._jobs.get(path);
     if (existing) return existing;
     try {
-      const job = await fsa.readJson<CogStacJob>(path);
+      const job = await fsa.readJson<CogJobJson>(path);
       this._jobs.set(path, job);
       return job;
     } catch {

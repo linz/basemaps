@@ -41,9 +41,7 @@
   "dependencies": {
     "@basemaps/config": "^6.46.0",
     "@basemaps/geo": "^6.44.0",
-    "@basemaps/server": "^6.46.0",
     "@basemaps/shared": "^6.46.0",
-    "@basemaps/sprites": "^6.41.0",
     "@basemaps/tiler": "^6.44.0",
     "@basemaps/tiler-sharp": "^6.45.0",
     "@chunkd/fs": "^10.0.2",
@@ -52,12 +50,10 @@
     "@cotar/core": "^5.4.0",
     "@cotar/tar": "^5.4.1",
     "@linzjs/geojson": "^6.43.0",
-    "@octokit/core": "^4.0.5",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
     "deep-diff": "^1.0.2",
     "flatgeobuf": "^3.23.1",
-    "get-port": "^6.1.2",
     "node-fetch": "^3.2.3",
     "p-limit": "^4.0.0",
     "pretty-json-log": "^1.0.0",
@@ -66,7 +62,6 @@
   },
   "devDependencies": {
     "@types/deep-diff": "^1.0.1",
-    "@types/proj4": "^2.5.2",
     "@types/sharp": "^0.31.0"
   },
   "publishConfig": {
