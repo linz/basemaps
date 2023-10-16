@@ -91,4 +91,3 @@ export class GdalDocker extends GdalCommand {
     return super.run('docker', [...dockerArgs, cmd, ...args], log);
   }
 }
-	
