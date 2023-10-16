@@ -7,6 +7,7 @@ import { CommandBundle } from './config/action.bundle.js';
 import { CommandCogMapSheet } from './config/action.cog.mapsheet.js';
 import { CommandImageryConfig } from './config/action.imagery.config.js';
 import { CommandImport } from './config/action.import.js';
+import { CommandServe } from './server/action.serve.js';
 
 export class BasemapsConfigCommandLine extends BaseCommandLine {
   constructor() {
@@ -24,5 +25,7 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     // Argo
     this.addAction(new CommandCogMapSheet());
     this.addAction(new CommandCreateOverview());
+
+    this.addAction(new CommandServe());
   }
 }
