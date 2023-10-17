@@ -12,13 +12,18 @@ import * as path from 'path';
 import { resolve } from 'path';
 import { CogBuilder } from '../../cog/builder.js';
 import { Cutline } from '../../cog/cutline.js';
-import { filterTiff, MaxConcurrencyDefault } from '../../cog/job.factory.js';
 import { createOverviewWmtsCapabilities } from './overview.wmts.js';
 import { JobTiles, tile } from './tile.generator.js';
 import { SimpleTimer } from './timer.js';
 
 const DefaultMaxZoom = 15; // Limitation of maximum overview zoom level to create
 const MaxNumberTiles = 25000; // Limitation of maximum number of tiles we can create for overview.
+export const MaxConcurrencyDefault = 50;
+
+export function filterTiff(a: string): boolean {
+  const lowerA = a.toLowerCase();
+  return lowerA.endsWith('.tiff') || lowerA.endsWith('.tif');
+}
 
 export class CommandCreateOverview extends CommandLineAction {
   private source: CommandLineStringParameter;
