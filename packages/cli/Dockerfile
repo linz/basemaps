@@ -11,7 +11,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get install -y nodejs git
 
 # Install sharp TODO update this when we change sharp versions
-RUN npm install sharp@0.30.7
+RUN npm install sharp@0.32.6
 
 # Install the landing assets
 COPY ./basemaps-landing*.tgz /app/
