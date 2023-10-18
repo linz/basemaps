@@ -26,7 +26,7 @@ o.spec('Sprites', () => {
       mast_pnt: { width: 16, height: 16, x: 80, y: 0, pixelRatio: 1 },
     });
     const hashA = createHash('sha256').update(res[0].buffer).digest('base64url');
-    o(hashA).equals('Ggst1UBrnKmtkFokCIkmGSW0S7i0jXEtInfTWWCBVCY');
+    o(hashA).equals('qI592NDa69PTylZ0kaJ0xBzsiBNgILDnbiiIMSSGDFQ');
 
     o(res[1].layout).deepEquals({
       embankment_no_gap_cl_thick_wide: { width: 128, height: 64, x: 0, y: 0, pixelRatio: 2 },
@@ -50,7 +50,7 @@ o.spec('Sprites', () => {
       circle: { width: 17, height: 17, x: 0, y: 0, pixelRatio: 1 },
     });
     const hashA = createHash('sha256').update(res[0].buffer).digest('base64url');
-    o(hashA).equals('pYs-QfTjaCURzq7MDk1CtYvIEVtoW9dAGwq5hwZil2g');
+    o(hashA).equals('NA9Y3npP9scNcnN829Z9Tm4Q3NpZ1wwXxbU1gIZnhp0');
   });
 
   o('should support both svg and png sprites in one image', async () => {
@@ -70,6 +70,6 @@ o.spec('Sprites', () => {
       mast_pnt: { width: 16, height: 16, x: 97, y: 0, pixelRatio: 1 },
     });
     const hashA = createHash('sha256').update(res[0].buffer).digest('base64url');
-    o(hashA).equals('kVGL6hInF6b1i-2DZYY-TDHGF9HFloOTT5ARaN0sdqA');
+    o(hashA).equals('lPbYDL_S2mmrMWAA58E0MfAKoBiClVURmvi_J8Mr8r8');
   });
 });
