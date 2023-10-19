@@ -33,7 +33,7 @@ const Q = PLimit(10);
 
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
-  const id = parts.pop();
+  const id = uri.endsWith('/') ? parts.at(-2) : parts.at(-1);
 
   if (id == null) return null;
   try {
@@ -95,9 +95,9 @@ export class ConfigJson {
 
     const files = await fsa.toArray(fsa.list(basePath));
 
-    const todo = files.map(async (filePath) => {
+    const todo = files.map((filePath) => {
       if (!filePath.endsWith('.json')) return;
-      Q(async () => {
+      return Q(async () => {
         const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
         const prefix = ConfigId.getPrefix(bc.id);
         if (prefix) {

@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/smoke",
-  "version": "6.44.0",
+  "version": "6.46.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -25,6 +25,6 @@
     "bin/"
   ],
   "dependencies": {
-    "@basemaps/shared": "^6.44.0"
+    "@basemaps/shared": "^6.46.0"
   }
 }

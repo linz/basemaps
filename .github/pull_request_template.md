@@ -1,15 +1,15 @@
-#### Description
-*What does this change aim to achieve?*
+#### Motivation
 
+_What does this change aim to achieve?_
 
+#### Modification
 
-#### Intention
-*Why is this change being made? What implications or other considerations are there?*
-
-
+_Why is this change being made? What implications or other considerations are there?_
 
 #### Checklist
-*If not applicable, provide explanation of why.*
+
+_If not applicable, provide explanation of why._
+
 - [ ] Tests updated
 - [ ] Docs updated
 - [ ] Issue linked in Title

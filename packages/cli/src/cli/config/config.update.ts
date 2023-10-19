@@ -1,6 +1,5 @@
 import {
   BaseConfig,
-  ConfigDynamoBase,
   ConfigTileSet,
   ConfigImagery,
   ConfigProvider,
@@ -9,7 +8,7 @@ import {
   BasemapsConfigProvider,
 } from '@basemaps/config';
 import { BasemapsConfigObject, ConfigId } from '@basemaps/config';
-import { getDefaultConfig, LogConfig, LogType } from '@basemaps/shared';
+import { getDefaultConfig, LogConfig, LogType, ConfigDynamoBase } from '@basemaps/shared';
 import { ConfigDiff } from './config.diff.js';
 import PLimit from 'p-limit';
 

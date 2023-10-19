@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Catch the error code while reading the config file in api. BM-898 ([#2969](https://github.com/linz/basemaps/issues/2969)) ([c2f3132](https://github.com/linz/basemaps/commit/c2f313221cdd20954b0002721d4605659a2b4e12))
+
+
+
+
+
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** generate previews from config urls too ([#2937](https://github.com/linz/basemaps/issues/2937)) ([ebe499f](https://github.com/linz/basemaps/commit/ebe499fc81ab31a0f1f45ac0ee7262a9b66431e9))
+
+
+
+
+
 # [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
 
 

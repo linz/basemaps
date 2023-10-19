@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+
+### Bug Fixes
+
+* **tiler-sharp:** do not multiply imagery with the background color BM-885 ([#2953](https://github.com/linz/basemaps/issues/2953)) ([412676d](https://github.com/linz/basemaps/commit/412676d2abf813d0f25fe2971ce64aa187801af3))
+
+
+
+
+
 # [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
 
 

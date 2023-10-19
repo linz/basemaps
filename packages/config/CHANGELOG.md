@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+
+### Features
+
+* **cli:** Allow bundle to guess the imagery ID from the url with slash ending. ([#2976](https://github.com/linz/basemaps/issues/2976)) ([92fb6dd](https://github.com/linz/basemaps/commit/92fb6dde1f71171fa0ab26ed855f846f004b0dc9))
+
+
+
+
+
+# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+
+### Bug Fixes
+
+* **cli:** Fix the missing return in plimit queue. ([#2952](https://github.com/linz/basemaps/issues/2952)) ([83c0ade](https://github.com/linz/basemaps/commit/83c0ade5ed138aa7fda3dbf3b5f516f98251c771))
+* **config:** ignore the argo folder "flat/" in guessing imagery names ([#2939](https://github.com/linz/basemaps/issues/2939)) ([781d981](https://github.com/linz/basemaps/commit/781d9813ebdbb93053971472b06f6f738816b18e))
+
+
+### Features
+
+* **cli:** Sort the ts_all config by the imagery name. ([#2955](https://github.com/linz/basemaps/issues/2955)) ([7b29348](https://github.com/linz/basemaps/commit/7b293487b0e8ceb5f04b621a0a3ff40fd80b52e4))
+
+
+
+
+
 # [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
 
 

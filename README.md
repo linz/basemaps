@@ -35,7 +35,6 @@ See https://basemaps.linz.govt.nz/examples
 
 This system is licensed under the MIT License, except where otherwise specified. See the [LICENSE](https://github.com/linz/basemaps/blob/master/LICENSE) file for more details.
 
-
 ## Deployment
 
 Deployments of Basemaps are managed with github actions.
@@ -44,3 +43,13 @@ To trigger a deployment, make sure your branch is up to date and run the version
 This script will create a `release:` commit and branch, please review the commit then create a pull request from it.
 
 Once the release pull request is merged the CI system will deploy the released version into dev then into production.
+
+## Deployment Rollback
+
+when a Deployment Breaks Badly, don't try to fix that on the fly, this risk of introducing more errors and downtime. The fastest way is to rollback to previous release immediately and fix the problem before next release.
+
+As Basemaps deployments are managed with github actions, every release will bundle the release packages and deployment in the github action automatically. So, it is very simple for use to roll back to previous release as all the previous deployment are remained in the github actions history. Please use the following steps to trigger a deployment roll when needed.
+
+- On the main page of the repository, above the file list, click :clock4: commits
+- To navigate to the previous release commit, click the tick mark to see all the previous github actions for this commit.
+- Select `Build / deploy-prod (push)` workflow and rerun the it to roll back to previous release.

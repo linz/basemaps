@@ -14,9 +14,10 @@ import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps
 import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import fetch from 'node-fetch';
-import { CogStacJob } from '../../cog/cog.stac.job.js';
 import { invalidateCache } from '../util.js';
 import { Q, Updater } from './config.update.js';
+import { FeatureCollection } from 'geojson';
+import { CogJobJson } from '../../cog/types.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
@@ -213,22 +214,28 @@ export class CommandImport extends CommandLineAction {
 
     const change: string[] = [`### ${layer.name}\n`];
     if (layer[2193]) {
-      const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
       if (layer[2193] !== existing[2193]) {
+        const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
         change.push(`- Layer update [NZTM2000Quad](${urls.layer})`);
         if (aerial) updates.push(` -- [Aerial](${urls.tag})\n`);
         else updates.push('\n');
       }
-      if (zoom) zoom += ` [NZTM2000Quad](${urls.tag})`;
+      if (zoom) {
+        const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
+        zoom += ` [NZTM2000Quad](${urls.tag})`;
+      }
     }
     if (layer[3857]) {
-      const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
       if (layer[3857] !== existing[3857]) {
+        const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
         change.push(`- Layer update [WebMercatorQuad](${urls.layer})`);
         if (aerial) updates.push(` -- [Aerial](${urls.tag})\n`);
         else updates.push('\n');
       }
-      if (zoom) zoom += ` [WebMercatorQuad](${urls.tag})`;
+      if (zoom) {
+        const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
+        zoom += ` [WebMercatorQuad](${urls.tag})`;
+      }
     }
 
     if (zoom) change.push(`${zoom}\n`);
@@ -254,9 +261,11 @@ export class CommandImport extends CommandLineAction {
     const aerialId = 'ts_aerial';
     const newData = await mem.TileSet.get(aerialId);
     const oldData = await cfg.TileSet.get(aerialId);
+    const aerialLayers: Set<string> = new Set<string>();
     if (newData == null || oldData == null) throw new Error('Failed to fetch aerial config data.');
     for (const layer of newData.layers) {
-      if (layer.name === 'chatham-islands_digital-globe_2014-2019_0-5m') continue; // Ignore duplicated layer.
+      aerialLayers.add(layer.name);
+      if (layer.name === 'chatham-islands-digital-globe-2014-2019-0.5m') continue; // Ignore duplicated layer.
       const existing = oldData.layers.find((l) => l.name === layer.name);
       if (existing) await this.outputUpdatedLayers(mem, layer, existing, updates, true);
       else await this.outputNewLayers(mem, layer, inserts, true);
@@ -268,6 +277,7 @@ export class CommandImport extends CommandLineAction {
     for (const config of mem.objects.values()) {
       if (!config.id.startsWith(ConfigPrefix.TileSet)) continue;
       if (config.id === 'ts_aerial' || config.id === 'ts_topographic') continue;
+      if (aerialLayers.has(config.name)) continue;
       const tileSet = config as ConfigTileSet;
       if (tileSet.layers.length > 1) continue; // Not an individual layer
       const existing = await cfg.TileSet.get(config.id);
@@ -306,13 +316,26 @@ export class CommandImport extends CommandLineAction {
     return;
   }
 
-  _jobs: Map<string, CogStacJob> = new Map<string, CogStacJob>();
-  async _loadJob(path: string): Promise<CogStacJob> {
+  _jobs: Map<string, CogJobJson> = new Map<string, CogJobJson>();
+  async _loadJob(path: string): Promise<CogJobJson | undefined> {
     const existing = this._jobs.get(path);
     if (existing) return existing;
-    const job = await fsa.readJson<CogStacJob>(path);
-    this._jobs.set(path, job);
-    return job;
+    try {
+      const job = await fsa.readJson<CogJobJson>(path);
+      this._jobs.set(path, job);
+      return job;
+    } catch {
+      return;
+    }
+  }
+
+  _coverings: Map<string, FeatureCollection> = new Map<string, FeatureCollection>();
+  async _loadCovering(path: string): Promise<FeatureCollection> {
+    const existing = this._coverings.get(path);
+    if (existing) return existing;
+    const covering = await fsa.readJson<FeatureCollection>(path);
+    this._coverings.set(path, covering);
+    return covering;
   }
 
   /**
@@ -325,13 +348,23 @@ export class CommandImport extends CommandLineAction {
   ): Promise<{ layer: string; tag: string }> {
     const configImagey = await mem.Imagery.get(id);
     if (configImagey == null) throw new Error(`Failed to find imagery config from config bundel file. Id: ${id}`);
+    let targetZoom;
     const job = await this._loadJob(fsa.join(configImagey.uri, 'job.json'));
+    if (job) {
+      // Calculate target zoom from gsd
+      targetZoom = Math.max(tileMatrix.findBestZoom(job.output.gsd) - 12, 0);
+    } else {
+      // Get target zoom from covering
+      const covering = await this._loadCovering(fsa.join(configImagey.uri, 'covering.geojson'));
+      const zoomLevel = covering.features[0]?.properties?.['linz_basemaps:options'].zoomLevel;
+      targetZoom = Math.max(zoomLevel - 12, 0);
+    }
+
     const bounds = configImagey.bounds;
     const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
     const proj = Projection.get(configImagey.projection);
     const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
-    const targetZoom = Math.max(tileMatrix.findBestZoom(job.output.gsd) - 12, 0);
-    const name = standardizeLayerName(job.name);
+    const name = standardizeLayerName(configImagey.name);
     const urls = {
       layer: `${PublicUrlBase}?config=${this.config.value}&i=${name}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
       tag: `${PublicUrlBase}?config=${this.config.value}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
