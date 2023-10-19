@@ -54,7 +54,7 @@ basemaps-sprites --extension .png --extension .svg --extension .webp ./config/sp
 
 # Refference of the test sprites in the unit tests.
 
-The following test sprites from [openstreetmap](https://zelonewolf.github.io/openstreetmap-americana/sprites/sprite@2x.png)
+The following test sprites come from [openstreetmap-americana](https://github.com/zelonewolf/openstreetmap-americana)
 
 - ./static/sprites/openstreetmap_poi_bus.svg
 - ./static/sprites/openstreetmap_poi_plane.svg
