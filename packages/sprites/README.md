@@ -2,7 +2,6 @@
 
 Generate a sprite sheet from a list of sprites
 
-
 # Using the API
 
 ```typescript
@@ -27,7 +26,6 @@ for (const res of generated) {
 }
 ```
 
-
 # From the command line
 
 ```
@@ -36,7 +34,7 @@ npm install -g @basemaps/sprites
 basemaps-sprites --ratio 1 --ratio 2 --retina ./config/sprites/topographic
 ```
 
-Outputs: 
+Outputs:
 
 topographic.json
 topographic.png
@@ -53,3 +51,8 @@ basemaps-sprites --extension .png ./config/sprites/topographic
 # Load png, webp and svg sprites
 basemaps-sprites --extension .png --extension .svg --extension .webp ./config/sprites/topographic
 ```
+
+# Refference of the test sprites in the unit tests.
+
+Some test sprites from openstreetmap
+https://zelonewolf.github.io/openstreetmap-americana/sprites/sprite@2x.png
