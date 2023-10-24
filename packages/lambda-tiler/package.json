@@ -35,7 +35,7 @@
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
-    "sharp": "^0.30.7"
+    "sharp": "^0.32.6"
   },
   "bundle": {
     "entry": "src/index.ts",
@@ -54,7 +54,7 @@
     "@chunkd/source-memory": "^10.0.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/pixelmatch": "^5.0.0",
-    "@types/sharp": "^0.30.3",
+    "@types/sharp": "^0.32.0",
     "pretty-json-log": "^1.0.0"
   }
 }
