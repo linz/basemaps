@@ -8,7 +8,7 @@ Library to determine to applicable attribution for a given extent and zoom level
 npm install @basemaps/attribution
 ```
 
-```js
+```typescript
 import { Attribution } from '@basemaps/attribution';
 
 const attributions = await Attribution.load('https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/attribution.json?api=...');

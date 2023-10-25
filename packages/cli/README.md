@@ -1,6 +1,6 @@
 # @basemaps/cli
 
-CreateThis package is to control the configuration in the LINZ basemaps product.
+This package contains cli that mainly use by configuration and ci/cd process in the LINZ Basemaps product. All the cli commands in this package will be build into docker container and publish as [github container](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fcli)
 
 ## Install
 
@@ -14,15 +14,15 @@ npm i @basemaps/cli
 
 ## Usage -- Bundle
 
-Bundle config files into config bundle json from a given config path.
+Bundle config files into config bundle json from a given config path. This is mainly use for [@basemaps-config](https://github.com/linz/basemaps-config) ci/cd process to bundle all the individual config json files into one.
 
 ```bash
-./bin/bmc.js bundle --config config/ --output config.json
+./bin/bmc.js bundle --config config/ --assets assets/asset.tar --output config.json
 ```
 
 ## Usage -- Import
 
-Import all configs from a bundled config.json into dynamo db from a given config path
+Import all configs from a bundled config.json into dynamo db from a given config path. This is mainly use for [linz/basemaps-config](https://github.com/linz/basemaps-config) repository ci/cd process to deploy the config changes into DynamoDB.
 
 ```bash
 ./bin/bmc.js import --config config.json --commit
@@ -30,7 +30,7 @@ Import all configs from a bundled config.json into dynamo db from a given config
 
 ## Usage -- Screenshots
 
-Dump the screenshots from basemaps production
+Dump the screenshots from basemaps production, this mainly using for the screenshot validation smoke tests in the basemaps ci/cd process.
 
 ```bash
 ./bin/bmc.js screenshot
@@ -50,94 +50,18 @@ Dump the screenshots with config file
 
 ```
 
-## Usage -- sprites
+## Usage -- Create Config
 
-Generate a sprite sheet from a list of sprites
-
-```
-./bin/bmc.js sprites --ratio 1 --ratio 2 --path ./config/sprites/topographic --output assets
-```
-
-Outputs:
-
-assets/topographic.json
-assets/topographic.png
-
-assets/topographic@2x.json
-assets/topographic@2x.png
-
-## Usage -- cogify
-
-Create a collection of cloud optimized geotiff's from a collection of geotiff, that is optimized to be used in `@basemaps/tiler`
-
-Create a list of COG's to create
+Create a individual config.json from a path of imageries for Basemaps to load as standalone server to view them. This is mainly used for the preview images for the Basemaps imagery import process.
 
 ```bash
-./bin/bmc.js -V job --source ./source_folder/ --output ./source_folder/cogify/
+./bin/bmc.js create-config --path s3://..../images/*.tiff --title image_title --commit
 ```
 
-Build a specific COG
+## Usage -- Overview
+
+Create a overview tar file of tiles from the given of imageries. This create low zoom level cogs for the individual imagery and significantly improve the performance of serving individual imagery by pre-render and save the cogs in overview instead of render them on the fly.
 
 ```bash
-./bin/bmc.js -V cog --job ./cogs/01DYREBEEFFXEPBAYBED2TMAFJ/job.json --name 1-2-3 --commit
+./bin/bmc.js create-overview --config s3://..../images/*.tiff --output overview/overviews.tar.co
 ```
-
-Make cog job json
-
-```bash
-./bin/bmc.js -V make-cog --imagery s3://imagery_path --target destination_bucket --name imagery_name --tile-matrix NZTM2000Quad --output ./jobs.json
-```
-
-Split make cog job into chunked sub-jobs
-
-```bash
-./bin/bmc.js -V split-job --job s3://imagery_path/job.json --output jobs.json
-```
-
-## Advanced Job creation
-
-Useful configuration options for `cogify job`
-
-### Min Tile zoom `--min-zoom :number`
-
-using the argument `--min-zoom` will configure the highest COG tile that can be created
-for example, `--min-zoom 10` means tiles of zoom `0 - 10` can be created but `11` cannot.
-
-This is useful to control the size of COGS across varying imagery sets World level z0-5 vs region z12-15 vs specific area 20+
-
-### Concurrency `--concurrency :number`
-
-To load metadata quickly from S3 a lot of actions are run concurrently. using `--concurrent` controls the number of requests that can be outstanding at one time.
-
-### Max COGs `--max-cogs :number`
-
-Controls the number of output COGs to create for small imagery sets (<50GB) this number should be low < 5 for larger imagery sets this number can be much larger (100+ for TB+ imagery sets)
-
-### GeoJson `--geojson`
-
-Outputs two GeoJSON files to provide a representation of the source and target imagery, this can be used to help tune the generation parameters
-
-## Building a COG collection
-
-The best way to build a cog collection is to create multiple JOBS with `--geojson` enabled while adjusting `--max-cogs` and `--min-zoom` when a good covering is found the job can then be submitted to AWS for processing.
-
-Using a large area of interest as shown in the imagery set below and is showing three different sets of parameters, The shaded green area is the original source imagery
-
-![Example Covering](./static/example-covering.png)
-
-### Green outline
-
-**Arguments:** `--max-cogs 5 --min-zoom 15`
-This has too much empty space inside the tile areas and is not a good example of a good collection of COGs to make.
-
-### Red outline
-
-**Arguments:** `--max-cogs 500 --min-zoom 25`
-
-This creates too many tiles with many only including one or two source images.
-
-### Blue outline
-
-**Arguments:** `--max-cogs 70 --min-zoom 20`
-
-This creates a decent covering without wasting too much space and not creating large area's of empty COG

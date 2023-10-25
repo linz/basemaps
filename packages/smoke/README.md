@@ -8,4 +8,4 @@ to run
 BASEMAPS_HOST=https://dev.basemaps.linz.govt.nz node --test
 ```
 
-*Requires Node >= 18*
+_Requires Node >= 18_

@@ -1,9 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./build"
+    "rootDir": "../c/src",
+    "outDir": "../c/build"
   },
-  "include": ["src/**/*"],
+  "include": ["../c/src/**/*"],
   "references": [{ "path": "../__tests__" }, { "path": "../shared" }, { "path": "../cli" }]
 }
