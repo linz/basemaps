@@ -51,3 +51,11 @@ basemaps-sprites --extension .png ./config/sprites/topographic
 # Load png, webp and svg sprites
 basemaps-sprites --extension .png --extension .svg --extension .webp ./config/sprites/topographic
 ```
+
+# Refference of the test sprites in the unit tests.
+
+The following test sprites come from [openstreetmap-americana](https://github.com/zelonewolf/openstreetmap-americana)
+
+- ./static/sprites/openstreetmap_poi_bus.svg
+- ./static/sprites/openstreetmap_poi_plane.svg
+- ./static/sprites/openstreetmap_shield_ca_qc_a_2.svg
