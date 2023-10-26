@@ -14,7 +14,7 @@ npm i @basemaps/cli
 
 ## Usage -- Bundle
 
-Bundle config files into config bundle json from a given config path. This is mainly use for [@basemaps-config](https://github.com/linz/basemaps-config) ci/cd process to bundle all the individual config json files into one.
+Bundle config files into config bundle json from a given config path. This is mainly use for [linz/basemaps-config](https://github.com/linz/basemaps-config) CICD process to bundle all the individual config json files into a single JSON bundle.
 
 ```bash
 ./bin/bmc.js bundle --config config/ --assets assets/asset.tar --output config.json
