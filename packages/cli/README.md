@@ -52,7 +52,7 @@ Dump the screenshots with config file
 
 ## Usage -- Create Config
 
-Create a individual config.json from a path of imageries for Basemaps to load as standalone server to view them. This is mainly used for the preview images for the Basemaps imagery import process.
+Create a individual config.json from a path of imagery for Basemaps to load as standalone server to view them. This is mainly used for the preview images for the Basemaps imagery import process.
 
 ```bash
 ./bin/bmc.js create-config --path s3://..../images/*.tiff --title image_title --commit
