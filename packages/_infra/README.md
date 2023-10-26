@@ -13,7 +13,7 @@ It is used to save the Metadata of the Basemaps configurations in the [@basemaps
 
 ### Serve
 
-The core tile generation service for [@basemaps/lambda-tiler](../lambda-tiler/) APIs, this service generates the tiles and serves them via a application load balancer which is connected to Edge
+The core tile generation service for [@basemaps/lambda-tiler](../lambda-tiler/) APIs, this service generates the tiles and serves them via a lambda URL which is connected to Edge CDN
 
 ### Edge
 
