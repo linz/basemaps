@@ -11,7 +11,7 @@ Basemaps stores its configuration into a single DynamoDB table and separates the
 - Style - Vector tile style configuration (Style.json)
 - Provider - Configuration about the owner of the service
 
-This configuration is generally stored as JSON files in a `linz/basemaps-config` repository to allow easy modification and then programmatically loaded into Basemaps Dynamodb table
+This configuration is generally stored as JSON files in a git repository (eg [linz/basemaps-config](https://github.com/linz/basemaps-config) ) to allow easy modification and then programmatically loaded into Basemaps DynamoDB table
 
 For LINZ's implementation of this configuration see [linz/basemaps-config](https://github.com/linz/basemaps-config)
 
