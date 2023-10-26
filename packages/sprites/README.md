@@ -59,3 +59,4 @@ The following test sprites come from [openstreetmap-americana](https://github.co
 - ./static/sprites/openstreetmap_poi_bus.svg
 - ./static/sprites/openstreetmap_poi_plane.svg
 - ./static/sprites/openstreetmap_shield_ca_qc_a_2.svg
+- ./static/sprites/openstreetmap_shield_kr_expressway_2.svg
