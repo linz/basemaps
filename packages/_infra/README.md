@@ -1,6 +1,6 @@
 # @basemaps/infra
 
-Infrastructure codes that using AWS CDK to deploy and manage the AWS infrastructures for Basemaps
+Infrastructure code that using [AWS CDK](https://github.com/aws/aws-cdk) to deploy and manage the AWS infrastructure for Basemaps
 
 ## Stacks
 
