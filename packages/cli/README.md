@@ -60,7 +60,7 @@ Create a individual config.json from a path of imagery for Basemaps to load as s
 
 ## Usage -- Overview
 
-Create a overview tar file of tiles from the given of imageries. This create low zoom level cogs for the individual imagery and significantly improve the performance of serving individual imagery by pre-render and save the cogs in overview instead of render them on the fly.
+Create a overview tar file of tiles from the given of imagery. This create low zoom level tiles for the individual imagery and significantly improve the performance of serving individual imagery by pre-rendering and saving the tiles instead of rendering them on the fly.
 
 ```bash
 ./bin/bmc.js create-overview --config s3://..../images/*.tiff --output overview/overviews.tar.co
