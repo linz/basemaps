@@ -26,7 +26,7 @@ A digital basemap provides a consistent background detail necessary to orient lo
 - [@basemaps/tiler](packages/tiler/) - Compose CogGeoTiffs for xyz tile server
 - [@basemaps/tiler-sharp](packages/tiler-sharp/) - Generate tiles by using [sharp](https://github.com/lovell/sharp) and [libvips](https://github.com/libvips/libvips)
 - [@linzjs/docker-command](packages/linzjs-docker-command/) - Utilities for running Docker Commands
-- [@linzjs/geojson](packages/linzjs-geojson/) - Utility for working with GeoJSO
+- [@linzjs/geojson](packages/linzjs-geojson/) - Utility for working with GeoJSON
 - [@linzjs/metrics](packages/linzjs-metrics/) - Simple timing metric tracker for NodeJS
 
 ## Building
