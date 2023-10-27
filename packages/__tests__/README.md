@@ -1,6 +1,6 @@
 # @basemaps/test
 
-Testing utlities and assets
+Testing utilities and assets
 
 ## Approx equal
 

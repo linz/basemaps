@@ -2,7 +2,6 @@
 
 The landing page for basemaps https://basemaps.linz.govt.nz
 
-
 ## Development
 
 To start a local test server there are two options
@@ -21,4 +20,3 @@ The simple local server is used to validate html/css/js changes in the landing p
 yarn bundle
 node serve.mjs
 ```
-
