@@ -14,7 +14,7 @@ basemaps-server --config path/to/config/
 
 ### Usage docker
 
-The server is also published as a [github container](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fserver)
+The server is also published as a [docker container](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fserver)
 
 ```bash
 docker run -it \
