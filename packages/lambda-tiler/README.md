@@ -93,11 +93,3 @@ Get WMTS xml from the server to support QGIS and Arcgis
 - GET [/v1/tiles/:tileSet/WMTSCapabilities.xml](./src/routes/tile.wmts.ts)
 - GET [/v1/tiles/WMTSCapabilities.xml](./src/routes/tile.wmts.ts)
 
-### Arcgis Vector APIs
-
-Provide support to serve basemaps vector map in Arcgis
-
-- GET [/v1/arcgis/rest/services/:tileSet/VectorTileServer](./src/arcgis/vector.tile.server.ts)
-- POST [/v1/arcgis/rest/services/:tileSet/VectorTileServer](./src/arcgis/vector.tile.server.ts)
-- POST [/v1/arcgis/rest/services/:tileSet/VectorTileServer/root.json](./src/arcgis/arcgis.style.json.ts)
-- POST [/v1/arcgis/rest/info](./src/arcgis/arcgis.info.ts)
