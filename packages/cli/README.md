@@ -28,28 +28,6 @@ Import all configs from a bundled config.json into dynamo db from a given config
 ./bin/bmc.js import --config config.json --commit
 ```
 
-## Usage -- Screenshots
-
-Dump the screenshots from basemaps production, this mainly using for the screenshot validation smoke tests in the basemaps ci/cd process.
-
-```bash
-./bin/bmc.js screenshot
-```
-
-Dump the screenshots from different host
-
-```bash
-./bin/bmc.js screenshot --host HOST
-
-```
-
-Dump the screenshots with config file
-
-```bash
-./bin/bmc.js screenshot --config s3://..../config.json.gz
-
-```
-
 ## Usage -- Create Config
 
 Create a individual config.json from a path of imagery for Basemaps to load as standalone server to view them. This is mainly used for the preview images for the Basemaps imagery import process.

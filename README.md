@@ -8,26 +8,26 @@ A digital basemap provides a consistent background detail necessary to orient lo
 
 ## Packages:
 
-- [@basemaps/test](packages/__tests__/)
-- [@basemaps/infra](packages/_infra/)
-- [@basemaps/attribution](packages/attribution/)
-- [@basemaps/bathymetry](packages/bathymetry/)
-- [@basemaps/cli](packages/cli/)
-- [@basemaps/cogify](packages/cogify/)
-- [@basemaps/config](packages/config/)
-- [@basemaps/geo](packages/geo/)
-- [@basemaps/lambda-analytics](packages/lambda-analytics/)
-- [@basemaps/lambda-tiler](packages/lambda-tiler/)
-- [@basemaps/landing](packages/landing/)
-- [@basemaps/server](packages/server/)
-- [@basemaps/shared](packages/shared/)
-- [@basemaps/smoke](packages/smoke/)
-- [@basemaps/sprites](packages/sprites/)
-- [@basemaps/tiler](packages/tiler/)
-- [@basemaps/tiler-sharp](packages/tiler-sharp/)
-- [@linzjs/docker-command](packages/linzjs-docker-command/)
-- [@linzjs/geojson](packages/linzjs-geojson/)
-- [@linzjs/metrics](packages/linzjs-metrics/)
+- [@basemaps/test](packages/__tests__/) - Testing utilities and assets
+- [@basemaps/infra](packages/_infra/) - Infrastructure code using [AWS CDK](https://github.com/aws/aws-cdk)
+- [@basemaps/attribution](packages/attribution/) - Calculate the attribution for given map location
+- [@basemaps/bathymetry](packages/bathymetry/) - Convert bathymetry from [GEBCO](https://www.gebco.net/) into colorized HillShade geotiff.
+- [@basemaps/cli](packages/cli/) - cli that using for CICD process
+- [@basemaps/cogify](packages/cogify/) - CLI to re-tile imagery into a Cloud Optimised Geotiffs (COG)
+- [@basemaps/config](packages/config/) - Configurations for Basemaps system
+- [@basemaps/geo](packages/geo/) - Utility to work with QuadKeys, Tiles and Projections.
+- [@basemaps/lambda-analytics](packages/lambda-analytics/) - Generate analytics from CloudFront distribution statistics
+- [@basemaps/lambda-tiler](packages/lambda-tiler/) - Lambda server for WMTS/XYZ map generation
+- [@basemaps/landing](packages/landing/) - The landing page for Basemaps
+- [@basemaps/server](packages/server/) - cli for WMTS/XYZ Tile server
+- [@basemaps/shared](packages/shared/) - Shared Utilities for other Basemaps packages
+- [@basemaps/smoke](packages/smoke/) - Smoke tests
+- [@basemaps/sprites](packages/sprites/) - sprite sheet generation
+- [@basemaps/tiler](packages/tiler/) - Compose CogGeoTiffs for xyz tile server
+- [@basemaps/tiler-sharp](packages/tiler-sharp/) - Generate tiles by using [sharp](https://github.com/lovell/sharp) and [libvips](https://github.com/libvips/libvips)
+- [@linzjs/docker-command](packages/linzjs-docker-command/) - Utilities for running Docker Commands
+- [@linzjs/geojson](packages/linzjs-geojson/) - Utility for working with GeoJSO
+- [@linzjs/metrics](packages/linzjs-metrics/) - Simple timing metric tracker for NodeJS
 
 ## Building
 

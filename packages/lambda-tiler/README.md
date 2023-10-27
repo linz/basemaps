@@ -4,28 +4,26 @@ Lambda server for xyz map generation to provide apis for serving both raster and
 
 ## APIs
 
+All available APIs are defined in the [index.ts](./src/index.ts)
+
 `Host: https://basemaps.linz.govt.nz/`
 
 ### Server APIs
 
 Validate the server status, health, version which is using for the ci/cd.
 
-```typescript
-handler.router.get('/ping', pingGet);
-handler.router.get('/health', healthGet);
-handler.router.get('/version', versionGet);
-handler.router.get('/v1/ping', pingGet);
-handler.router.get('/v1/health', healthGet);
-handler.router.get('/v1/version', versionGet);
-```
+- GET [/ping](./src/routes/ping.ts)
+- GET [/v1/ping](./src/routes/ping.ts)
+- GET [/version](./src/routes/version.ts)
+- GET [/v1/version](./src/routes/version.ts)
+- GET [/health](./src/routes/health.ts)
+- GET [/v1/health](./src/routes/health.ts)
 
 ### xyz tile generation API
 
 Get a tile from the xyz and format for map generation, support both vector and raster tileSet.
 
-```typescript
-handler.router.get('/v1/tiles/:tileSet/:tileMatrix/:z/:x/:y.:tileType', tileXyzGet);
-```
+- GET [/v1/tiles/:tileSet/:tileMatrix/:z/:x/:y.:tileType](./src/routes/tile.xyz.ts)
 
 Example:
 
@@ -38,9 +36,7 @@ Example:
 
 Fetch the imagery metadata based on the imageryId
 
-```typescript
-handler.router.get('/v1/imagery/:imageryId/:fileName', imageryGet);
-```
+- GET [/v1/imagery/:imageryId/:fileName](./src/routes/imagery.ts)
 
 Examples:
 
@@ -56,75 +52,52 @@ Examples:
 
 Fetch the imagery and tile set configurations
 
-```typescript
-handler.router.get('/v1/config/:tileSet.json', configTileSetGet);
-handler.router.get('/v1/config/:tileSet/:imageryId.json', configImageryGet);
-```
+- GET [/v1/config/:tileSet.json](./src/routes/config.ts)
+- GET [/v1/config/:tileSet/:imageryId.json](./src/routes/config.ts)
 
 ### Sprite and Fonts APIs
 
 To get the fonts and sprites for the vector map.
 
-```typescript
-// Sprites
-handler.router.get('/v1/sprites/:spriteName', spriteGet);
-
-// Fonts
-handler.router.get('/v1/fonts.json', fontList);
-handler.router.get('/v1/fonts/:fontStack/:range.pbf', fontGet);
-```
+- GET [/v1/sprites/:spriteName](./src/routes/sprites.ts)
+- GET [/v1/fonts.json](./src/routes/fonts.ts)
+- GET [/v1/fonts/:fontStack/:range.pbf](./src/routes/fonts.ts)
 
 ### StyleJSON and TileJSON APIs
 
 Get the style json and tile json for the vector map.
 
-```typescript
-// StyleJSON
-handler.router.get('/v1/styles/:styleName.json', styleJsonGet);
-
-// TileJSON
-handler.router.get('/v1/tiles/:tileSet/:tileMatrix/tile.json', tileJsonGet);
-```
+- GET [/v1/styles/:styleName.json](./src/routes/tile.style.json.ts)
+- GET [/v1/tiles/:tileSet/:tileMatrix/tile.json](./src/routes/tile.json.ts)
 
 ### Preview APIs
 
 Serve a preview of a imagery set
 
-```typescript
-handler.router.get('/v1/preview/:tileSet/:tileMatrix/:z/:lon/:lat', tilePreviewGet);
-handler.router.get('/v1/@:location', previewIndexGet);
-handler.router.get('/@:location', previewIndexGet);
-```
+- GET [/v1/preview/:tileSet/:tileMatrix/:z/:lon/:lat](./src/routes/preview.ts)
+- GET [/v1/@:location](./src/routes/preview.index.ts)
+- GET [/@:location](./src/routes/preview.index.ts)
 
 ### Attribution APIs
 
 Get attribution json for the map attributions.
 
-```typescript
-// Attribution
-handler.router.get('/v1/tiles/:tileSet/:tileMatrix/attribution.json', tileAttributionGet);
-handler.router.get('/v1/attribution/:tileSet/:tileMatrix/summary.json', tileAttributionGet);
-```
+- GET [/v1/tiles/:tileSet/:tileMatrix/attribution.json](./src/routes/attribution.ts)
+- GET [/v1/attribution/:tileSet/:tileMatrix/summary.json](./src/routes/attribution.ts)
 
 ### WMTS Capabilities APIs
 
 Get WMTS xml from the server to support QGIS and Arcgis
 
-```typescript
-// WMTS Capabilities
-handler.router.get('/v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml', wmtsCapabilitiesGet);
-handler.router.get('/v1/tiles/:tileSet/WMTSCapabilities.xml', wmtsCapabilitiesGet);
-handler.router.get('/v1/tiles/WMTSCapabilities.xml', wmtsCapabilitiesGet);
-```
+- GET [/v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml](./src/routes/tile.wmts.ts)
+- GET [/v1/tiles/:tileSet/WMTSCapabilities.xml](./src/routes/tile.wmts.ts)
+- GET [/v1/tiles/WMTSCapabilities.xml](./src/routes/tile.wmts.ts)
 
 ### Arcgis Vector APIs
 
 Provide support to serve basemaps vector map in Arcgis
 
-```typescript
-// Arcgis Vector
-handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer', arcgisTileServerGet);
-handler.router.post('/v1/arcgis/rest/services/:tileSet/VectorTileServer', OkResponse);
-handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer/root.json', arcgisStyleJsonGet);
-handler.router.get('/v1/arcgis/rest/info', arcgisInfoGet);
-```
+- GET [/v1/arcgis/rest/services/:tileSet/VectorTileServer](./src/arcgis/vector.tile.server.ts)
+- POST [/v1/arcgis/rest/services/:tileSet/VectorTileServer](./src/arcgis/vector.tile.server.ts)
+- POST [/v1/arcgis/rest/services/:tileSet/VectorTileServer/root.json](./src/arcgis/arcgis.style.json.ts)
+- POST [/v1/arcgis/rest/info](./src/arcgis/arcgis.info.ts)

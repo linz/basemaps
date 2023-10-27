@@ -17,7 +17,7 @@ The core tile generation service for [@basemaps/lambda-tiler](../lambda-tiler/) 
 
 ### Edge
 
-This is the edge of the tile serving, it is the egress point for all tiles. It deploys a CloudFront distribution with a lambda function that serve tiles for the Serve Stack
+This is the edge of the tile serving, it is the egress point for all tiles.
 
 ## Usage
 
@@ -27,8 +27,7 @@ The infrastructure needs a number of environment variables to run
 // The accountId that will be used to deploy into
 CDK_DEFAULT_ACCOUNT;
 
-// Due to the convoluted way that TLS certificates are made inside LINZ a hard coded TLS ARN is needed for the load balancer and Cloudfront
-ALB_CERTIFICATE_ARN;
+// Due to the convoluted way that TLS certificates are made inside LINZ a hard coded TLS ARN is needed for the Cloudfront
 CLOUDFRONT_CERTIFICATE_ARN;
 ```
 
@@ -51,6 +50,7 @@ npx cdk list
 ```
 
 To deploy `ServeStack` stack
+
 ```bash
 npx cdk deploy ServeStack
 ```
