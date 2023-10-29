@@ -6,7 +6,13 @@ import { CachedConfig } from './config.cache.js';
 import { getDefaultConfig } from '@basemaps/shared';
 
 // FIXME load this from process.env COG BUCKETS?
-const SafeBuckets = new Set(['linz-workflow-artifacts', 'linz-basemaps', 'linz-basemaps-staging']);
+const SafeBuckets = new Set([
+  'linz-workflows-scratch',
+  'linz-workflow-artifacts',
+  'linz-basemaps',
+  'linz-basemaps-staging',
+  'linz-basemaps-scratch',
+]);
 const SafeProtocols = new Set(['s3', 'memory']);
 
 export class ConfigLoader {

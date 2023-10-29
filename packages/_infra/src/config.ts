@@ -15,7 +15,14 @@ export interface BaseMapsConfig {
 }
 
 export const BaseMapsProdConfig: BaseMapsConfig = {
-  CogBucket: ['linz-basemaps', 'linz-basemaps-vector', `linz-basemaps-staging`, 'linz-workflow-artifacts'],
+  CogBucket: [
+    'linz-basemaps',
+    'linz-basemaps-vector',
+    `linz-basemaps-staging`,
+    `linz-basemaps-scratch`,
+    'linz-workflow-artifacts',
+    'linz-workflows-scratch',
+  ],
   CloudFrontDns: ['basemaps.linz.govt.nz', 'tiles.basemaps.linz.govt.nz'],
   PublicUrlBase: 'https://basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
