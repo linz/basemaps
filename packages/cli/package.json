@@ -57,12 +57,14 @@
     "flatgeobuf": "^3.23.1",
     "node-fetch": "^3.2.3",
     "p-limit": "^4.0.0",
+    "prettier": "^3.0.3",
     "pretty-json-log": "^1.0.0",
     "slugify": "^1.6.5",
     "zod": "^3.17.3"
   },
   "devDependencies": {
     "@types/deep-diff": "^1.0.1",
+    "@types/prettier": "^3.0.0",
     "@types/sharp": "^0.31.0"
   },
   "publishConfig": {

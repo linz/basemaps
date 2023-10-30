@@ -8,6 +8,7 @@ import { CommandCogMapSheet } from './config/action.cog.mapsheet.js';
 import { CommandImageryConfig } from './config/action.imagery.config.js';
 import { CommandImport } from './config/action.import.js';
 import { CommandServe } from './server/action.serve.js';
+import { CommandImportStyle } from './config/action.import.style.js';
 
 export class BasemapsConfigCommandLine extends BaseCommandLine {
   constructor() {
@@ -21,6 +22,7 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     this.addAction(new CommandBundleAssets());
     this.addAction(new CommandImport());
     this.addAction(new CommandImageryConfig());
+    this.addAction(new CommandImportStyle());
 
     // Argo
     this.addAction(new CommandCogMapSheet());
