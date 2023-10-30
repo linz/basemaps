@@ -34,10 +34,10 @@
   "dependencies": {
     "@mapbox/shelf-pack": "^3.2.0",
     "cmd-ts": "^0.12.1",
-    "sharp": "^0.30.7"
+    "sharp": "^0.32.6"
   },
   "devDependencies": {
     "@types/mapbox__shelf-pack": "^3.0.1",
-    "@types/sharp": "^0.30.3"
+    "@types/sharp": "^0.32.0"
   }
 }

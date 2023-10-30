@@ -1,11 +1,13 @@
-# GeoJSON computation
+# @linzjs/geojson
+
+## GeoJSON computation
 
 Utility functions for working with GeoJSON multi polygons and bounding boxes. In particular for handling the anti-meridian.
 
 ## Usage
 
-
 ### Wgs84
+
 ```javascript
 import { Wgs84 } from '@linzjs/geojson';
 
@@ -21,7 +23,7 @@ assert(deepEqual(Wgs84.union([175, -42, -178, -41], [-170, -43, -160, -42]), [17
 ### MultiPolygon
 
 ```javascript
-import { clipMultipolygon,  multiPolygonToWgs84 } from '@linzjs/geojson';
+import { clipMultipolygon, multiPolygonToWgs84 } from '@linzjs/geojson';
 import * as Proj from 'proj4';
 
 // polygons clipped to bounding box; no degenerate edges
