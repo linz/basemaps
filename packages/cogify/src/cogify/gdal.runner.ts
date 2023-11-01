@@ -15,7 +15,7 @@ export interface GdalCommand {
 
 function getDockerContainer(): string {
   const containerPath = process.env['GDAL_DOCKER_CONTAINER'] ?? 'ghcr.io/osgeo/gdal';
-  const tag = process.env['GDAL_DOCKER_CONTAINER_TAG'] ?? 'ubuntu-small-3.7.0';
+  const tag = process.env['GDAL_DOCKER_CONTAINER_TAG'] ?? 'ubuntu-small-3.7.2';
   return `${containerPath}:${tag}`;
 }
 
