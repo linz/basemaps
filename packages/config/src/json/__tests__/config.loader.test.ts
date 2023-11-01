@@ -124,5 +124,8 @@ o.spec('config import', () => {
     o(
       getImageryName(new URL('s3://linz-workflow-artifacts/2023-09/05-ecan-banks-peninsula-original-9mjdj/flat/')),
     ).equals('05-ecan-banks-peninsula-original-9mjdj');
+    o(
+      getImageryName(new URL('s3://linz-workflows-scratch/2023-09/05-ecan-banks-peninsula-original-9mjdj/flat/')),
+    ).equals('05-ecan-banks-peninsula-original-9mjdj');
   });
 });
