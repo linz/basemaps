@@ -1,5 +1,35 @@
 [
   {
+    "hash": "dfafadefe7500b44248577d523c81a75c0cbb03d",
+    "createdAt": "2023-11-02T22:30:20.975Z",
+    "results": [
+      {
+        "name": "Tile 256x256",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 256",
+        "mean": 0.315997134495,
+        "stddev": 0.028807779854457278,
+        "median": 0.308771989795,
+        "user": 0.29038854,
+        "system": 0.053854089999999986,
+        "min": 0.292398184295,
+        "max": 0.392057731295
+      },
+      {
+        "name": "Tile 512x512",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 512",
+        "mean": 0.312776969795,
+        "stddev": 0.01368801883050002,
+        "median": 0.311039138395,
+        "user": 0.2920262049999999,
+        "system": 0.05116820499999999,
+        "min": 0.293929277895,
+        "max": 0.34468800589500004
+      }
+    ]
+  },
+  {
     "hash": "6ebb1061b8b044e8bb519a26ddd5912b57494d22",
     "createdAt": "2023-11-02T01:14:27.915Z",
     "results": [
@@ -14966,36 +14996,6 @@
         "system": 0.063670015,
         "min": 0.36827932006,
         "max": 0.41579069006
-      }
-    ]
-  },
-  {
-    "hash": "764fdebaf7624c7761cede3a24c2184105bff9e2",
-    "createdAt": "2022-03-20T22:08:04.882Z",
-    "results": [
-      {
-        "name": "Tile 256x256",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 256",
-        "mean": 0.3657786989,
-        "stddev": 0.01123747447629494,
-        "median": 0.361680583,
-        "user": 0.37847109,
-        "system": 0.06823151499999999,
-        "min": 0.3550661705,
-        "max": 0.3892631585
-      },
-      {
-        "name": "Tile 512x512",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 512",
-        "mean": 0.3653052170650001,
-        "stddev": 0.006717274105607764,
-        "median": 0.36345222656500004,
-        "user": 0.378043305,
-        "system": 0.070960365,
-        "min": 0.35615114756500005,
-        "max": 0.37718421056500007
       }
     ]
   }
