@@ -9,7 +9,7 @@ The configuration can be stored as individual AWS DynamoDB objects or can be sto
 
 The configuration is generally generated directly from the source tiffs and associated STAC metadata using the [@basemaps/cli](../packages/cli/README.md) import process, with LINZ's specific configuration being stored in [linz/basemaps](https://github.com/linz/basemaps).
 
-This allows the configuration objects to be somewhat short, below is a snippet from the [aerial](https://github.com/linz/basemaps-config/blob/master/config/tileset/aerial.json) tile set configuration which layers 100+ aerial imagery layers together.  
+This allows the configuration objects to be somewhat short, below is a snippet from the [aerial](https://github.com/linz/basemaps-config/blob/master/config/tileset/aerial.json) tile set configuration which layers 100+ aerial imagery layers together.
 
 ```json5
 {
@@ -41,7 +41,7 @@ This allows the configuration objects to be somewhat short, below is a snippet f
 }
 ```
 
-When this configuration is imported it will list all of the source locations looking for `collection.json` and `*.tiff|*.tif` files. 
+When this configuration is imported it will list all of the source locations looking for `collection.json` and `*.tiff|*.tif` files.
 
 ### Dynamic configuration
 

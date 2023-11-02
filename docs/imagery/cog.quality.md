@@ -28,7 +28,6 @@ gdal_translate \
 done
 ```
 
-
 ## Overviews
 
 When creating COGs using the different resampling methods the output quality differs a lot.
@@ -37,13 +36,14 @@ Here are some overviews created using some of the different resampling methods:
 
 ![Resampling Quality](./images/quality__resampling-overview.webp)
 
-### Lanczos 
+### Lanczos
 
 Provides quite a nice and crisp output
 
 ![Lanczos Overview](./images/quality__i6.lanczos.webp)
 
 ### Cubic
+
 Creates weird artifacts around the edges
 
 ![Cubic Overview](./images/quality__i6.cubic.webp)
@@ -53,7 +53,6 @@ Creates weird artifacts around the edges
 looks blury
 
 ![Bilinear Overview](./images/quality__i6.bilinear.webp)
-
 
 Using lanczos looks best for our overview creation.
 
@@ -75,9 +74,7 @@ Creates a nice image
 
 ![Bilinear](./images/quality__005_006_0_bilinear.webp)
 
-
 For our aerial imagery reprojection seems to be best done as bilinear, where as Overview creation seems to be best done as lanczos.
-
 
 Using GDAL 3.2.x+ this can be configured with as it was fixed in [osgeo/gdal#2671](https://github.com/OSGeo/gdal/issues/2671)
 

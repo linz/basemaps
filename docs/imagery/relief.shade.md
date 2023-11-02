@@ -5,8 +5,8 @@
 - 8M DEM of NZ - [lds:51768](https://data.linz.govt.nz/layer/51768-nz-8m-digital-elevation-model-2012/)
 - GDAL
 
-
 Create a VRT of all the imagery
+
 ```bash
 gdalbuildvrt dem/*.tif dem.vrt
 ```
@@ -37,7 +37,6 @@ Base Image:
 gdaldem hillshade:
 ![Aerial imagery](./images/relief__base.webp)
 
-
 Using default color ramp applys whites
 ![Lighten](./images/relief__lighten.webp)
 
@@ -51,6 +50,6 @@ nv      0       0       0       0
 255      0       0       0       0
 ```
 
-`nv` - No value or NO_DATA  set full alpha
+`nv` - No value or NO_DATA set full alpha
 
 ![Lighten](./images/relief__darken.webp)
