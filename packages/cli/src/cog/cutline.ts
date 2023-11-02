@@ -10,8 +10,8 @@ import {
   union,
 } from '@linzjs/geojson';
 import { FeatureCollection } from 'geojson';
-import { AlignedLevel, CoveringFraction } from '@basemaps/shared/build/cog/constants.js';
-import { CogJob, FeatureCollectionWithCrs, SourceMetadata } from '@basemaps/shared/build/cog/types.js';
+import { AlignedLevel, CoveringFraction } from '@basemaps/shared';
+import { CogJob, FeatureCollectionWithCrs, SourceMetadata } from '@basemaps/shared';
 
 /** Padding to always apply to image boundies */
 const PixelPadding = 200;

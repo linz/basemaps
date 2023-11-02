@@ -5,8 +5,8 @@ import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import pLimit, { LimitFunction } from 'p-limit';
 import { basename } from 'path';
 import { Cutline } from './cutline.js'; //
-import { ProjectionLoader } from '@basemaps/geo/build/proj/projection.loader.js';
-import { CogBuilderMetadata, SourceMetadata } from '@basemaps/shared/build/cog/types.js';
+import { ProjectionLoader } from '@basemaps/geo';
+import { CogBuilderMetadata, SourceMetadata } from '@basemaps/shared';
 
 export const InvalidProjectionCode = 32767;
 

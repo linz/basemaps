@@ -17,7 +17,7 @@ import fetch from 'node-fetch';
 import { invalidateCache } from '../util.js';
 import { Q, Updater } from './config.update.js';
 import { FeatureCollection } from 'geojson';
-import { CogJobJson } from '@basemaps/shared/build/cog/types.js';
+import { CogJobJson } from '@basemaps/shared';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
