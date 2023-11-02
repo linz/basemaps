@@ -1,5 +1,3 @@
-import { Gdal } from '@basemaps/cli/build/gdal/gdal.js';
-import { GdalCommand } from '@basemaps/cli/build/gdal/gdal.command.js';
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, s3ToVsis3 } from '@basemaps/shared';
 import * as os from 'os';
@@ -11,6 +9,8 @@ import { FilePath, FileType } from './file.js';
 import { Hash } from './hash.js';
 import { MapnikRender } from './mapnik.js';
 import { Stac } from './stac.js';
+import { GdalCommand } from './gdal/gdal.command.js';
+import { Gdal } from './gdal/gdal.js';
 
 interface BathyMakerContext {
   /** unique id for this build */
@@ -108,7 +108,7 @@ export class BathyMaker {
     const gdalVersion = await this.gdalVersion;
     logger.info({ gdalVersion }, 'GdalVersion');
 
-    const promises = [];
+    const promises: Promise<string>[] = [];
     let extent: Bounds | null = null;
     for (let x = 0; x < tmsZoom.matrixWidth; x++) {
       for (let y = 0; y < tmsZoom.matrixHeight; y++) {
