@@ -1700,11 +1700,6 @@
   resolved "https://registry.yarnpkg.com/@react-types/shared/-/shared-3.15.0.tgz#a4a78f36bc8daaefe6e9a9df1f453271639c2233"
   integrity sha512-hwuE4BmgswqP+HRDSLMj7DcnYOCCK+ZRuKnc9AVhXS4LBrwRSkdUkNvXhgvqF5tav7IqTpG9pBYMR9wedehuhA==
 
-"@repeaterjs/repeater@3.0.4":
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/@repeaterjs/repeater/-/repeater-3.0.4.tgz#a04d63f4d1bf5540a41b01a921c9a7fddc3bd1ca"
-  integrity sha512-AW8PKd6iX3vAZ0vA43nOUOnbq/X5ihgU+mSXXqunMkeQADGiqw/PY0JNeYtD5sr0PAy51YPgAPbDoeapv9r8WA==
-
 "@rushstack/ts-command-line@^4.3.13":
   version "4.11.1"
   resolved "https://registry.yarnpkg.com/@rushstack/ts-command-line/-/ts-command-line-4.11.1.tgz#10b80960ddaed685445289807c75743e4ef0b5e9"
@@ -4143,20 +4138,6 @@ flat-cache@^3.0.4:
   dependencies:
     flatted "^3.1.0"
     rimraf "^3.0.2"
-
-flatbuffers@2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/flatbuffers/-/flatbuffers-2.0.6.tgz#3aa3a39d282af9a660b4a0cdd1bb7ad91874abfc"
-  integrity sha512-QTTZTXTbVfuOVQu2X6eLOw4vefUxnFJZxAKeN3rEPhjEzBtIbehimJLfVGHPM8iX0Na+9i76SBEg0skf0c0sCA==
-
-flatgeobuf@^3.23.1:
-  version "3.23.1"
-  resolved "https://registry.yarnpkg.com/flatgeobuf/-/flatgeobuf-3.23.1.tgz#c2aab304be8209269894ea4c8e1833ede6da3b0e"
-  integrity sha512-u3MQnbMzL28Eiq7TbyzT6V/Ai70TI+zr1E8tu/m0g9bcxmuO2lT1iaocRX/7wYRLIijiZz2V4SVxCVenFG3JOg==
-  dependencies:
-    "@repeaterjs/repeater" "3.0.4"
-    flatbuffers "2.0.6"
-    slice-source "0.4.1"
 
 flatted@^3.1.0:
   version "3.2.7"
@@ -7495,11 +7476,6 @@ slice-ansi@^4.0.0:
     ansi-styles "^4.0.0"
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
-
-slice-source@0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/slice-source/-/slice-source-0.4.1.tgz#40a57ac03c6668b5da200e05378e000bf2a61d79"
-  integrity sha512-YiuPbxpCj4hD9Qs06hGAz/OZhQ0eDuALN0lRWJez0eD/RevzKqGdUx1IOMUnXgpr+sXZLq3g8ERwbAH0bCb8vg==
 
 slugify@^1.6.5:
   version "1.6.5"
