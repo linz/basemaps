@@ -12,7 +12,7 @@ ENV NODE_MAJOR=18
 RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
 
 RUN apt-get update
-RUN apt-get install -y nodejs git
+RUN apt-get install -y nodejs
 
 # Install sharp TODO update this when we change sharp versions
 RUN npm install sharp@0.32.6

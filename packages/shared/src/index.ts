@@ -10,6 +10,8 @@ export { toQueryString } from './url.js';
 export { CompositeError } from './composite.error.js';
 export { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
 export { ConfigDynamoBase } from './dynamo/dynamo.config.base.js';
+export { CogJobJson, CogBuilderMetadata, CogJob, FeatureCollectionWithCrs, SourceMetadata } from './cog/types.js';
+export { AlignedLevel, CoveringFraction } from './cog/constants.js';
 
 export * from './file/index.js';
 export * from './util.js';
