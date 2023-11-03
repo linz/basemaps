@@ -28,7 +28,7 @@ jobs:
       - name: Build docs
         run: |
           npx typedoc
-          docker run --rm -it -v ${PWD}:/docs squidfunk/mkdocs-material build
+          docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material build
 
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
