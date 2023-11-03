@@ -34,7 +34,9 @@
     "lerna": "5.1.4",
     "ospec": "^4.0.1",
     "rimraf": "^3.0.0",
-    "sinon": "^13.0.1"
+    "sinon": "^13.0.1",
+    "typedoc": "^0.25.2",
+    "typedoc-plugin-markdown": "^4.0.0-next.25"
   },
   "workspaces": {
     "packages": [
