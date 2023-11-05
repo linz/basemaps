@@ -32,14 +32,14 @@ gdaldem color-relief -co COMPRESS=lzw -co TILED=yes -co NUM_THREADS=ALL_CPUS -of
 Relief shading with vector tiles the only imagery operation is "overlay", if any `white` exists in the relief shade it lightens the image
 
 Base Image:
-![Aerial imagery](./images/relief__aerial.webp)
+![Aerial imagery](./static/relief__aerial.webp)
 
 gdaldem hillshade:
-![Aerial imagery](./images/relief__base.webp)
+![Aerial imagery](./static/relief__base.webp)
 
 
 Using default color ramp applys whites
-![Lighten](./images/relief__lighten.webp)
+![Lighten](./static/relief__lighten.webp)
 
 Custom color ramp which only applys the darken
 
@@ -53,4 +53,4 @@ nv      0       0       0       0
 
 `nv` - No value or NO_DATA  set full alpha
 
-![Lighten](./images/relief__darken.webp)
+![Lighten](./static/relief__darken.webp)
