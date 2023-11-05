@@ -29,6 +29,12 @@ jobs:
         run: |
           npx typedoc
           docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material build
+      
+      - name: Store docs artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: packages/landing/dist/docs
 
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
