@@ -57,7 +57,7 @@ export const HashKey = 'linz-hash';
 
 export async function getHash(Bucket: string, Key: string): Promise<string | null> {
   try {
-    const obj = await s3.getObject({ Bucket, Key }).promise();
+    const obj = await s3.headObject({ Bucket, Key }).promise();
     return obj.Metadata?.[HashKey] ?? null;
   } catch (e: any) {
     if (e.code === 'NoSuchKey') return null;
@@ -69,14 +69,19 @@ export async function getHash(Bucket: string, Key: string): Promise<string | nul
  * Lookup the static bucket from cloudformation
  * @returns
  */
-let staticBucket: string | null = null;
-export async function getStaticBucket(): Promise<string | null> {
-  if (staticBucket != null) return staticBucket;
-  // Since the bucket is generated inside of CDK lets look up the bucket name
-  const stackInfo = await cloudFormation.describeStacks({ StackName: 'Edge' }).promise();
-  const bucket = stackInfo.Stacks?.[0]?.Outputs?.find((f) => f.OutputKey === 'CloudFrontBucket');
-  if (bucket == null) throw new Error('Failed to find EdgeBucket');
-  staticBucket = bucket.OutputValue ?? null;
+let staticBucket: Promise<string> | undefined;
+export function getStaticBucket(): Promise<string> {
+  if (staticBucket == null) {
+    // Since the bucket is generated inside of CDK lets look up the bucket name
+    staticBucket = cloudFormation
+      .describeStacks({ StackName: 'Edge' })
+      .promise()
+      .then((stackInfo) => {
+        const val = stackInfo.Stacks?.[0]?.Outputs?.find((f) => f.OutputKey === 'CloudFrontBucket')?.OutputValue;
+        if (val == null) throw new Error('Failed to find EdgeBucket');
+        return val;
+      });
+  }
   return staticBucket;
 }
 
@@ -103,7 +108,6 @@ export async function uploadStaticFile(
 
   // S3 keys should not start with a `/`
   if (target.startsWith('/')) target = target.slice(1);
-
   const bucket = await getStaticBucket();
   if (bucket == null) throw new Error('Unable to find static bucket');
 
