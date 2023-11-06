@@ -20,9 +20,10 @@ async function deploy() {
   const invalidationPaths = new Set();
 
   const fileList = await fsa.toArray(fsa.list(basePath));
-  const promises = fileList.map((filePath) =>
-    Q(async () => {
-      const targetKey = filePath.slice(basePath.length);
+  const promises = fileList.map((filePath) => {
+    const targetKey = filePath.slice(basePath.length);
+
+    return Q(async () => {
       const isVersioned = HasVersionRe.test(basename(filePath));
       const contentType = mime.contentType(extname(filePath));
 
@@ -50,8 +51,11 @@ async function deploy() {
       } else {
         invalidationPaths.add(targetKey);
       }
-    }),
-  );
+    }).catch((e) => {
+      console.error('UploadFailed', { targetKey, error: String(e) });
+      throw e;
+    });
+  });
 
   await Promise.all(promises);
 
