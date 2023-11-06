@@ -61,6 +61,7 @@ export async function getHash(Bucket: string, Key: string): Promise<string | nul
     return obj.Metadata?.[HashKey] ?? null;
   } catch (e: any) {
     if (e.code === 'NoSuchKey') return null;
+    if (e.code === 'NotFound') return null;
     throw e;
   }
 }
