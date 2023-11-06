@@ -1,8 +1,10 @@
-import mime from 'mime-types';
-import { extname, basename, resolve, dirname } from 'path';
 import { invalidateCache, uploadStaticFile } from '@basemaps/cli/build/cli/util.js';
+import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
+import { LogConfig } from '@basemaps/shared/build/log.js';
 import { fsa } from '@basemaps/shared';
+import mime from 'mime-types';
 import pLimit from 'p-limit';
+import { basename, extname, resolve } from 'path';
 
 const Q = pLimit(10);
 
@@ -12,15 +14,45 @@ const DistDir = './dist';
 const HasVersionRe = /-\d+\.\d+\.\d+-/;
 
 /**
+ * Determine the top level folder or file name to invalidate
+ *
+ * @example
+ *
+ * ```typescript
+ * getInvalidationPath("docs/index.html") // "/docs*"
+ * getInvalidationPath("docs/example/index.html") // "/docs*"
+ * getInvalidationPath("index.html") // "index.html"
+ * ```
+ *
+ * @param {string} targetKey
+ * @returns string
+ */
+export function getInvalidationPath(targetKey) {
+  if (!targetKey.startsWith('/')) targetKey = '/' + targetKey;
+  if (targetKey.includes('/', 1)) {
+    // Convert /docs/a/index.html => "/docs*"
+    const dirName = targetKey.split('/').at(1);
+    return `/${dirName}*`;
+  }
+
+  return targetKey;
+}
+
+/**
  * Deploy the built s3 assets into the Edge bucket
  */
 async function deploy() {
+  const logger = LogConfig.get().child({ id: CliId });
+  logger.info({ package: CliInfo }, 'Deploy:Start');
+  LogConfig.set(logger);
+
   const basePath = resolve(DistDir);
 
   const invalidationPaths = new Set();
 
   const fileList = await fsa.toArray(fsa.list(basePath));
   const promises = fileList.map((filePath) => {
+    // targetKey will always start with "/" eg: "/index.html" "/docs/index.html"
     const targetKey = filePath.slice(basePath.length);
 
     return Q(async () => {
@@ -40,19 +72,13 @@ async function deploy() {
 
       const isUploaded = await uploadStaticFile(filePath, targetKey, contentType, cacheControl);
       if (!isUploaded) return; // No need to invalidate objects not uploaded
-      console.log('FileUpload', targetKey, { isVersioned });
+      logger.info({ targetKey, isVersioned }, 'Deploy:Upload');
       if (isVersioned) return; // No need to invalidate versioned objects
 
       // Invalidate the top level directory only
-      // or the base file if it exists
-      if (targetKey.includes('/', 1)) {
-        const dir = dirname(targetKey);
-        invalidationPaths.add(dir + '/*');
-      } else {
-        invalidationPaths.add(targetKey);
-      }
+      invalidationPaths.add(getInvalidationPath(targetKey));
     }).catch((e) => {
-      console.error('UploadFailed', { targetKey, error: String(e) });
+      logger.error({ targetKey, error: String(e) }, 'Deploy:Failed');
       throw e;
     });
   });
@@ -61,8 +87,16 @@ async function deploy() {
 
   if (invalidationPaths.size > 0) {
     const toInvalidate = [...invalidationPaths];
-    console.log('Invalidate', toInvalidate);
-    await invalidateCache(toInvalidate, true);
+
+    // Only 15 wild cards can be used in a invalidation
+    const wildCardCount = toInvalidate.filter((f) => f.includes('*'));
+    if (wildCardCount > 14) {
+      logger.warn({ toInvalidate }, 'InvalidEverything');
+      await invalidateCache('/*', true);
+    } else {
+      logger.info({ toInvalidate }, 'Invalidate');
+      await invalidateCache(toInvalidate, true);
+    }
   }
 }
 
