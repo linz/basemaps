@@ -28,7 +28,7 @@ jobs:
       - name: Build docs
         run: |
           npx typedoc
-          docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material build
+          docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
       
       - name: Store docs artifact
         uses: actions/upload-artifact@v3
