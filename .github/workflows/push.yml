@@ -96,6 +96,12 @@ jobs:
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
+      - name: (Dev) Download docs artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docs
+          path: packages/landing/dist/docs
+
       - name: (Dev) Deploy
         run: |
           npx lerna run bundle --stream
