@@ -66,4 +66,7 @@ async function deploy() {
   }
 }
 
-deploy().catch(console.error);
+deploy().catch((e) => {
+  console.log(e);
+  process.exit(1);
+});
