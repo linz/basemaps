@@ -150,7 +150,7 @@ jobs:
           npx lerna run deploy:deploy --stream
         env:
           NODE_ENV: 'production'
-          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
+          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
 
       - name: (Prod) After Deploy Smoke Test
         run: |
