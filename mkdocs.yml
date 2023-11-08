@@ -14,3 +14,9 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+
+# Load google analytics from the $GOOGLE_ANALYTICS environment var
+extra:
+  analytics:
+    provider: google
+    property: !ENV [GOOGLE_ANALYTICS]
