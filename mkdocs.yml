@@ -11,14 +11,29 @@ theme:
   name: 'material'
   features:
     - navigation.indexes
+
 markdown_extensions:
+  # Syntax highlighting
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: '__span'
       pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
+
+  # Adds inline notes with `!!! note`
+  #
+  # https://squidfunk.github.io/mkdocs-material/reference/admonitions/
+  - admonition 
+
+  # Nested fences
+  #
+  # https://facelessuser.github.io/pymdown-extensions/extensions/superfences/
   - pymdownx.superfences
+
+  # Adds collapsable sections with `???` and expands admonition
+  #
+  # https://facelessuser.github.io/pymdown-extensions/extensions/details/
+  - pymdownx.details
+
 
 # Load google analytics from the $GOOGLE_ANALYTICS environment var
 extra:
