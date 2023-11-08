@@ -9,6 +9,7 @@ site_dir: './packages/landing/dist/docs'
 
 theme:
   name: 'material'
+  # This file is managed by @linzjs/lui and needs to be copied into /docs/
   logo: 'linz-motif.svg'
   features:
     - navigation.indexes
