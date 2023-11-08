@@ -1,6 +1,7 @@
 site_name: 'LINZ Basemaps'
 docs_dir: './docs'
 site_dir: './packages/landing/dist/docs'
+repo_url: 'https://github.com/linz/basemaps'
 theme:
   name: 'material'
   features:
