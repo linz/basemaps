@@ -4,7 +4,6 @@ import 'source-map-support/register.js';
 import { CommandCreateOverview } from './overview/action.create.overview.js';
 import { CommandBundleAssets } from './config/action.bundle.assets.js';
 import { CommandBundle } from './config/action.bundle.js';
-import { CommandCogMapSheet } from './config/action.cog.mapsheet.js';
 import { CommandImageryConfig } from './config/action.imagery.config.js';
 import { CommandImport } from './config/action.import.js';
 import { CommandServe } from './server/action.serve.js';
@@ -23,9 +22,9 @@ export class BasemapsConfigCommandLine extends BaseCommandLine {
     this.addAction(new CommandImageryConfig());
 
     // Argo
-    this.addAction(new CommandCogMapSheet());
     this.addAction(new CommandCreateOverview());
 
+    // CICD - Screenshot tests
     this.addAction(new CommandServe());
   }
 }

@@ -1,6 +1,6 @@
 # LINZ Basemaps
 
-[LINZ Basemaps](basemaps.linz.govt.nz) is a collection of tools to create and serve vector and raster basemaps using open source and open standards. It is designed to be light weight, cost efficient and fast.
+[LINZ Basemaps](https://basemaps.linz.govt.nz) is a collection of tools to create and serve vector and raster basemaps using open source and open standards. It is designed to be light weight, cost efficient and fast.
 
 Basemaps currently supports both [Imagery](#aerial--satellite-imagery) and [Vector data](#vector-data)
 
@@ -68,16 +68,6 @@ Vector data is processed from the LINZ topographic vector datasets using tippeca
 
 Deployments are handled by Github Actions see [Deployments](./deployment.md) for more information.
 
-## Research
-
-### Imagery
-
-- [COG Quality](./imagery/cog.quality.md) - Resampling methods and their affect on output quality COG
-- [Relief Shade](./imagery/relief.shade.md) - Relief shading for vector tiles using only imagery "overlay"
-
-### API
-
-- [Empty Tiles API](./api/empty-tiles.md) - Tile API specification research HTTP 204 vs HTTP 200 for non existing tiles
 
 ### Diagrams
 

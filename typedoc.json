@@ -1,0 +1,10 @@
+{
+  "entryPoints": ["./packages/*"],
+  "entryPointStrategy": "packages",
+  "exclude": ["./packages/__tests__"],
+  "plugin": ["typedoc-plugin-markdown"],
+  "out": "./docs/developer-guide/API",
+  "outputFileStrategy": "modules",
+  "readme": "none",
+  "githubPages": false
+}
