@@ -68,7 +68,6 @@ Vector data is processed from the LINZ topographic vector datasets using tippeca
 
 Deployments are handled by Github Actions see [Deployments](./deployment.md) for more information.
 
-
 ### Diagrams
 
 All diagrams across this repository are created with [excalidraw](https://excalidraw.com/) and embed the excalidraw configuration inside them, so can be re-edited on https://excalidraw.com/
