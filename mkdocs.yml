@@ -1,7 +1,12 @@
 site_name: 'LINZ Basemaps'
+site_url: !ENV [BASEMAPS_DOCS_URL, http://localhost:8000/docs/]
+repo_url: 'https://github.com/linz/basemaps'
+
+copyright: '<a href="https://www.linz.govt.nz/copyright">© CC BY 4.0 LINZ</a>'
+
 docs_dir: './docs'
 site_dir: './packages/landing/dist/docs'
-repo_url: 'https://github.com/linz/basemaps'
+
 theme:
   name: 'material'
   features:
