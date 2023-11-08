@@ -86,6 +86,13 @@ jobs:
         with:
           package-manager: yarn
 
+      - name: Build docs
+        run: |
+          npx typedoc
+          docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
+        env:
+          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
+
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
 
@@ -96,18 +103,12 @@ jobs:
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
-      - name: (Dev) Download docs artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: docs
-          path: packages/landing/dist/docs
-
       - name: (Dev) Deploy
         run: |
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
-          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
+          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           NODE_ENV: 'dev'
 
       - name: (Dev) After Deploy Smoke Test
