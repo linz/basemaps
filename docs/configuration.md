@@ -7,7 +7,7 @@ Basemaps has two main components to its configuration
 
 The configuration can be stored as individual AWS DynamoDB objects or can be stored as a bundled JSON object.
 
-The configuration is generally generated directly from the source tiffs and associated STAC metadata using the [@basemaps/cli](../packages/cli/README.md) import process, with LINZ's specific configuration being stored in [linz/basemaps](https://github.com/linz/basemaps).
+The configuration is generally generated directly from the source tiffs and associated STAC metadata using the [@basemaps/cli](../packages/cli/README.md) import process, with LINZ's specific configuration being stored in [linz/basemaps-config](https://github.com/linz/basemaps-config).
 
 This allows the configuration objects to be somewhat short, below is a snippet from the [aerial](https://github.com/linz/basemaps-config/blob/master/config/tileset/aerial.json) tile set configuration which layers 100+ aerial imagery layers together.
 
