@@ -16,15 +16,36 @@ theme:
     text: Open Sans
     code: Open Sans Mono
 
+  # Switch to dark mode if the user requests it
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
   features:
     - navigation.indexes
 
 markdown_extensions:
   # Syntax highlighting
+  # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: '__span'
       pygments_lang_class: true
+  # Additional syntax highlighting
+  - pymdownx.inlinehilite
+  # Copy / paste to code blocks
+  - pymdownx.snippets
 
   # Adds inline notes with `!!! note`
   #
