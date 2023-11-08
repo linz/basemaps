@@ -22,7 +22,7 @@ markdown_extensions:
   # Adds inline notes with `!!! note`
   #
   # https://squidfunk.github.io/mkdocs-material/reference/admonitions/
-  - admonition 
+  - admonition
 
   # Nested fences
   #
@@ -33,7 +33,6 @@ markdown_extensions:
   #
   # https://facelessuser.github.io/pymdown-extensions/extensions/details/
   - pymdownx.details
-
 
 # Load google analytics from the $GOOGLE_ANALYTICS environment var
 extra:
