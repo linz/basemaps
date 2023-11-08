@@ -4,7 +4,6 @@
 
 See http://www.textureshading.com/Home.html
 
-
 ## Process
 
 ```bash
@@ -14,7 +13,7 @@ See http://www.textureshading.com/Home.html
 #
 # This process requires a huge amount of memory, for the 8M geographx DEM it requires around 100GB of free memory
 # This process has been tested on a AWS R5D with 32VCPUs and 256GB of ram, starting with a base AWS centos image
-# 
+#
 #################
 # Install required software
 sudo yum groupinstall 'Development Tools'
@@ -24,7 +23,7 @@ sudo yum install tmux git
 sudo systemctl start docker
 sudo docker ps
 
-# Helper function to run docker 
+# Helper function to run docker
 function gdal_docker() {
     sudo docker run --rm -it -v $PWD:$PWD --workdir $PWD osgeo/gdal:ubuntu-small-3.3.3 "$@"
 }
@@ -70,7 +69,7 @@ gdal_docker gdalinfo Geographx-NZ-DEM-FLT.flt
 sudo chown ssm-user:ssm-user n1 -R
 
 # Texture shading takes a while run inside of tmux so the session can be resumed with `tmux attach`
-tmux 
+tmux
 ../texture-shade/bin/texture 1 Geographx-NZ-DEM-FLT.flt Geographx-NZ-DEM-FLT.detail_1.flt
 ../texture-shade/bin/texture_image +1.5 Geographx-NZ-DEM-FLT.detail_1.flt Geographx-NZ-DEM-FLT.detail_1.contrast_1.5.tif # texture-shade only allows ".tif"
 
@@ -84,11 +83,10 @@ gdal_docker gdal_translate -of Gtiff -co COMPRESS=lzw -co BIGTIFF=yes -co NUM_TH
 aws s3 cp Geographx-NZ-DEM-FLT.detail_1.contrast_1.5.lzw.tiff s3://linz-basemaps-source/Geographx-NZ-DEM-FLT/
 ```
 
-
 Once complete this gives a uint16 tiff that has values between 0-65,536 to make this image usage a color ramp is applied to create a semi transparent image
 
-
 At 0 create a 25% opacity black, `rgba(0,0,0,0.25)` then slowly ramp to 0% opacity at 32,768
+
 ```
 nv       0       0       0       0
 0        0       0       0       63
@@ -96,7 +94,6 @@ nv       0       0       0       0
 ```
 
 Using gdal apply the color-relief
-
 
 ```bash
 gdaldem color-relief \
