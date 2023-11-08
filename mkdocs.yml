@@ -11,6 +11,11 @@ theme:
   name: 'material'
   # This file is managed by @linzjs/lui and needs to be copied into /docs/
   logo: 'linz-motif.svg'
+
+  font:
+    text: Open Sans
+    code: Open Sans Mono
+
   features:
     - navigation.indexes
 
