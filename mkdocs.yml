@@ -9,6 +9,7 @@ site_dir: './packages/landing/dist/docs'
 
 theme:
   name: 'material'
+  logo: 'linz-motif.svg'
   features:
     - navigation.indexes
 

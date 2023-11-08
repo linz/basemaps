@@ -25,8 +25,10 @@ jobs:
         with:
           package-manager: yarn
 
+      # TODO: running a giant copy command to import CSS and SVG files into the docs file in not super ideal
       - name: Build docs
         run: |
+          cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
           npx typedoc
           docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
       
@@ -88,6 +90,7 @@ jobs:
 
       - name: Build docs
         run: |
+          cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
           npx typedoc
           docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
         env:
