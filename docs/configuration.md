@@ -20,7 +20,7 @@ This allows the configuration objects to be somewhat short, below is a snippet f
   // Human friendly name
   "title": "Aerial Imagery Basemap",
   "category": "Basemaps",
-  // If there is no data create a background color as heax RGBA
+  // If there is no data create a background color as hex RGBA
   "background": "dce9edff",
   "layers": [
     {

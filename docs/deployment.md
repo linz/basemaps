@@ -9,14 +9,14 @@ Once the release pull request is merged the CI system will deploy the released v
 
 ## Deployment Rollback
 
-If a Deployment Breaks Badly, don't try to fix that on the fly, this risk of introducing more errors and downtime. The fastest way is to rollback to previous release immediately and fix the problem before next release.
+If a deployment breaks production, don't try to fix it on the fly, this risks introducing more errors and downtime. The fastest way to ensure production is stable again is to roll back to the previous release immediately and then focus on fixing the problem before the next release.
 
-As Basemaps deployments are managed with github actions, every release will bundle the release packages and deployment in the github action automatically. So, it is very simple for use to roll back to previous release as all the previous deployment are remained in the github actions history. Please use the following steps to trigger a deployment roll when needed.
+As Basemaps deployments are managed with GitHub Actions, every release will bundle the release packages and deployment in the GitHub Action run automatically. So, it is very simple for us to roll back to a previous release as all the previous deployments remain in history. Please use the following steps to trigger a roll back when needed.
 
-- Open the basemaps deployments page - https://github.com/linz/basemaps/deployments
+- Open the Basemaps Deployments page - https://github.com/linz/basemaps/deployments
 - Choose the environment that needs to be rolled back
-- Open the workflow run for a older release
+- Open the workflow run for an older release
 
 ![Workflow runs for older releases](./static/workflow-run.png | width=400)
 
-- Select `Build / deploy-prod (push)` workflow and rerun the it to roll back to previous release.
+- Select the `Build / deploy-prod (push)` workflow and re-run it to roll back to a previous release.

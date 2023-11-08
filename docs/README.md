@@ -1,14 +1,14 @@
 # LINZ Basemaps
 
-[LINZ Basemaps](basemaps.linz.govt.nz) is a collection of tools to create and serve vector and raster basemaps using open source and open standards. It is deigned to be light weight, cost efficent and fast.
+[LINZ Basemaps](basemaps.linz.govt.nz) is a collection of tools to create and serve vector and raster basemaps using open source and open standards. It is designed to be light weight, cost efficient and fast.
 
 Basemaps currently supports both [Imagery](#aerial--satellite-imagery) and [Vector data](#vector-data)
 
 ## Background
 
-Land Information New Zealand has a large archive of aerial and satellite imagery freely aviable from [LINZ Data Service](https://data.linz.govt.nz) and [linz/imagery](https://github.com/linz/imagery) this imagery was a primary driver for the creation of the linz basemaps product and service. For more information on how LINZ acquires, ingests and publishes Aerial and satellite imagery see [linz/imagery](https://github.com/linz/imagery)
+Land Information New Zealand has a large archive of aerial and satellite imagery freely available from [LINZ Data Service](https://data.linz.govt.nz) and the [Registry of Open Data on AWS](https://registry.opendata.aws/nz-imagery/). This imagery was a primary driver for the creation of the LINZ Basemaps product and service. For more information on how LINZ acquires, ingests and publishes aerial and satellite imagery see [linz/imagery](https://github.com/linz/imagery).
 
-While linz/basemaps is public, its primary reason is to [work in the open](), so that we can share knoweldge and foster collaboration with peers across the world. While LINZ Basemaps serivce and product can be customised and deployed it is primarily focused on LINZ's usecases of sharing LINZ's aerial imagery archive and Topographic Vector Data
+While linz/basemaps is public, its primary reason is to [work in the open](https://www.digital.govt.nz/standards-and-guidance/digital-service-design-standard/principles/work-in-the-open/), so that we can share knowledge and foster collaboration with peers across the world. While the LINZ Basemaps product and services can be customised and deployed we are primarily focused on our own use cases of sharing New Zealand's Aerial Imagery archive and Topographic vector data.
 
 ## Basemaps Service
 
@@ -44,17 +44,17 @@ Imagery is stored as cloud optimised geotiffs by survey then layered together dy
 
 ### Vector tile requests
 
-Vector tiles pre-rendered as [mapbox vector tiles](https://docs.mapbox.com/data/tilesets/guides/vector-tiles-introduction/) and served directly from a [cloud optimised tar](https://github.com/linz/cotar) since there is no merging or dynamic configuration the tile server will just request the specified tile directly from the tar ``
+Vector tiles are pre-rendered as [Mapbox Vector Tiles](https://docs.mapbox.com/data/tilesets/guides/vector-tiles-introduction/) and served directly from a [Cloud Optimised Tar](https://github.com/linz/cotar). Since there is no merging or dynamic configuration the tile server will just request the specified tile directly from the tar file.
 
 ### Additional Processing
 
 #### Aerial & Satellite Imagery Processing
 
-To efficently serve Aerial Imagery to huge of consumers, it should be optimised into a format that makes it easy to serve. All of LINZ's imagery is stored as [cloud optimised geotiffs (COG)](https://www.cogeo.org/), to ensure they are served as efficently as possible some additional processing steps are generally pre-applied to the imagery.
+To efficiently serve aerial imagery to huge number of consumers, it should be optimised into a format that makes it easy to serve. All of LINZ's imagery is stored as [Cloud Optimised GeoTIFFs (COGs)](https://www.cogeo.org/), and to ensure they are served as efficiently as possible some additional processing steps are generally pre-applied to the imagery.
 
 - Reprojection: reprojecting the imagery into common consumption formats (EPSG:3857 and EPSG:2193) will greatly reduce the amount of load and complexity of the basemaps service service
 - Tile Alignment: By aligning the COGs to the output XYZ tile grid
-- Additional overviews: It is hard to fetch data from 1,000s of tiffs to create a single tile, so we create additional overviews up to z0.
+- Additional overviews: It is hard to fetch data from 1,000s of COGs to create a single tile, so we create additional overviews up to z0.
 
 These additional processing steps are part of the basemaps [import process](#TODO) and are controlled by [@basemaps/cogify](../packages/cogify/README.md)
 
