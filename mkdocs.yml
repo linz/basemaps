@@ -7,6 +7,7 @@ copyright: '<a href="https://www.linz.govt.nz/copyright">© CC BY 4.0 LINZ</a>'
 docs_dir: './docs'
 site_dir: './packages/landing/dist/docs'
 
+
 theme:
   name: 'material'
   # This file is managed by @linzjs/lui and needs to be copied into /docs/
@@ -34,6 +35,9 @@ theme:
 
   features:
     - navigation.indexes
+
+extra_css:
+  - "index.css"
 
 markdown_extensions:
   # Syntax highlighting
