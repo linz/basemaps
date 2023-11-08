@@ -31,7 +31,7 @@ markdown_extensions:
   # https://facelessuser.github.io/pymdown-extensions/extensions/superfences/
   - pymdownx.superfences
 
-  # Adds collapsable sections with `???` and expands admonition
+  # Adds collapsible sections with `???` and expands admonition
   #
   # https://facelessuser.github.io/pymdown-extensions/extensions/details/
   - pymdownx.details
