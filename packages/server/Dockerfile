@@ -9,5 +9,6 @@ COPY ./basemaps-server*.tgz /app/basemaps/
 RUN npm install ./basemaps-landing*.tgz
 RUN npm install ./basemaps-server*.tgz
 
-ENTRYPOINT ["node", "/app/basemaps/node_modules/.bin/basemaps-server"]
+# Use /bin/sh to allow ctrl+c to be properly handled to node whenn run in `docker run -it` mode
+ENTRYPOINT ["/bin/sh", "-c", "node /app/basemaps/node_modules/.bin/basemaps-server"]
 EXPOSE 5000
