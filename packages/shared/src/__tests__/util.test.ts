@@ -23,7 +23,7 @@ o.spec('util', () => {
     // o(extractYearRangeFromName('otago_0_375m_sn3806_1975')).deepEquals([1975, 1976]);
   });
 
-  o.only('extractYearRangeFromTitle', () => {
+  o('extractYearRangeFromTitle', () => {
     o(extractYearRangeFromTitle('Banks Peninsula 0.075m Urban Aerial Photos (2019-2020)')).deepEquals([2019, 2020]);
     o(extractYearRangeFromTitle('Manawatu 0.125m Urban Aerial Photos (2019)')).deepEquals([2019]);
 
