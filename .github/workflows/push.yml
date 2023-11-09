@@ -95,7 +95,13 @@ jobs:
           cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
 
           npx typedoc
-          docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
+
+          docker run \
+            --rm \
+            -v ${PWD}:/docs \
+            -e GOOGLE_ANALYTICS \
+            -e BASEMAPS_DOCS_URL \
+            squidfunk/mkdocs-material:9.4 build
         env:
           GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           BASEMAPS_DOCS_URL: https://dev.basemaps.linz.govt.nz/docs/
