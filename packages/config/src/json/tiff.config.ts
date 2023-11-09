@@ -93,7 +93,9 @@ function computeTiffSummary(target: URL, tiffs: CogTiff[]): TiffSummary {
   return res as TiffSummary;
 }
 
-/** Convert a path to a relative path
+/**
+ * Convert a path to a relative path
+ *
  * @param base the path to be relative to
  * @param other the path to convert
  */
@@ -117,8 +119,8 @@ export async function loadStacFromURL(target: URL): Promise<StacCollection | nul
   /**
    * If the target location does not end with a "/" it could be
    *
-   * a mistake "/imagery/otago_2017-2019_0.3m"
-   * a prefix "/imagery/otago_2017-2019_0.3m/CB_"
+   * - A mistake "/imagery/otago_2017-2019_0.3m"
+   * - A prefix "/imagery/otago_2017-2019_0.3m/CB_"
    *
    * So we need to check for both locations
    */
@@ -155,7 +157,7 @@ const IgnoredTitles = new Set([
   'dsm_1m',
   // Argo folders
   'flat',
-  //Projections
+  // Projections
   '2193',
   '3857',
 ]);
