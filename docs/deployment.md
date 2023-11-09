@@ -2,7 +2,8 @@
 
 Deployments of Basemaps are managed with github actions.
 
-To trigger a deployment, make sure your branch is up to date and run the version bump script [../scripts/version.bump.sh](https://github.com/linz/basemaps/blob/master/scripts/version.bump.sh)
+To trigger a deployment, make sure your branch is up to date and run the version bump script [version.bump.sh](https://github.com/linz/basemaps/blob/master/scripts/version.bump.sh).
+
 This script will create a `release:` commit and branch, please review the commit then create a pull request from it.
 
 Once the release pull request is merged the CI system will deploy the released version into dev then into production.
