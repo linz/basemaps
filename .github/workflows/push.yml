@@ -25,8 +25,10 @@ jobs:
         with:
           package-manager: yarn
 
+      # TODO: running a giant copy command to import CSS and SVG files into the docs file in not super ideal
       - name: Build docs
         run: |
+          cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
           npx typedoc
           docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
       
@@ -86,6 +88,15 @@ jobs:
         with:
           package-manager: yarn
 
+      - name: Build docs
+        run: |
+          cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
+          npx typedoc
+          docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
+        env:
+          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
+          BASEMAPS_DOCS_URL: https://dev.basemaps.linz.govt.nz/docs/
+
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
 
@@ -96,18 +107,12 @@ jobs:
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
-      - name: (Dev) Download docs artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: docs
-          path: packages/landing/dist/docs
-
       - name: (Dev) Deploy
         run: |
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
-          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_NON_PROD}}
+          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           NODE_ENV: 'dev'
 
       - name: (Dev) After Deploy Smoke Test
@@ -148,7 +153,7 @@ jobs:
           npx lerna run deploy:deploy --stream
         env:
           NODE_ENV: 'production'
-          GOOGLE_ANALYTICS: ${{secrets.GOOGLE_ANALYTICS_PROD}}
+          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
 
       - name: (Prod) After Deploy Smoke Test
         run: |

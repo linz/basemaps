@@ -1,15 +1,73 @@
 site_name: 'LINZ Basemaps'
+site_url: !ENV [BASEMAPS_DOCS_URL, http://localhost:8000/docs/]
+repo_url: 'https://github.com/linz/basemaps'
+
+copyright: '<a href="https://www.linz.govt.nz/copyright">© CC BY 4.0 LINZ</a>'
+
 docs_dir: './docs'
 site_dir: './packages/landing/dist/docs'
+
+
 theme:
   name: 'material'
+  # This file is managed by @linzjs/lui and needs to be copied into /docs/
+  logo: 'linz-motif.svg'
+
+  font:
+    text: Open Sans
+    code: Open Sans Mono
+
+  # Switch to dark mode if the user requests it
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
   features:
     - navigation.indexes
+
+extra_css:
+  - "index.css"
+
 markdown_extensions:
+  # Syntax highlighting
+  # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: '__span'
       pygments_lang_class: true
+  # Additional syntax highlighting
   - pymdownx.inlinehilite
+  # Copy / paste to code blocks
   - pymdownx.snippets
+
+  # Adds inline notes with `!!! note`
+  #
+  # https://squidfunk.github.io/mkdocs-material/reference/admonitions/
+  - admonition
+
+  # Nested fences
+  #
+  # https://facelessuser.github.io/pymdown-extensions/extensions/superfences/
   - pymdownx.superfences
+
+  # Adds collapsible sections with `???` and expands admonition
+  #
+  # https://facelessuser.github.io/pymdown-extensions/extensions/details/
+  - pymdownx.details
+
+# Load google analytics from the $GOOGLE_ANALYTICS environment var
+extra:
+  analytics:
+    provider: google
+    property: !ENV [GOOGLE_ANALYTICS]
