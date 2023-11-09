@@ -17,6 +17,6 @@ As Basemaps deployments are managed with GitHub Actions, every release will bund
 - Choose the environment that needs to be rolled back
 - Open the workflow run for an older release
 
-![Workflow runs for older releases](./static/workflow-run.png | width=400)
+![Workflow runs for older releases](./static/workflow-run.png)
 
 - Select the `Build / deploy-prod (push)` workflow and re-run it to roll back to a previous release.
