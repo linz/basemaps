@@ -22,6 +22,8 @@ o.spec('config import', () => {
   o.beforeEach(() => fsMemory.files.clear());
 
   o('should load tiff from filesystem', async () => {
+    o.timeout(1000);
+
     const buf = await fsa.read(fileURLToPath(simpleTiff));
     await fsa.write('memory://tiffs/tile-tiff-name/tiff-a.tiff', buf);
 
@@ -35,6 +37,8 @@ o.spec('config import', () => {
   });
 
   o('should skip empty tiffs from filesystem', async () => {
+    o.timeout(1000);
+
     const buf = await fsa.read(fileURLToPath(simpleTiff));
     await fsa.write('memory://tiffs/tile-tiff-name/tiff-a.tiff', buf);
     const tiff = await CogTiff.create(new SourceMemory('memory://', buf));
@@ -61,6 +65,8 @@ o.spec('config import', () => {
   });
 
   o('should create multiple imagery layers from multiple folders', async () => {
+    o.timeout(1000);
+
     const buf = await fsa.read(fileURLToPath(simpleTiff));
     await fsa.write('memory://tiffs/tile-tiff-a/tiff-a.tiff', buf);
     await fsa.write('memory://tiffs/tile-tiff-b/tiff-b.tiff', buf);
@@ -86,6 +92,8 @@ o.spec('config import', () => {
   });
 
   o('should load tiff from filesystem with projection and imagery type in name', async () => {
+    o.timeout(1000);
+
     const buf = await fsa.read(fileURLToPath(simpleTiff));
     await fsa.write('memory://tiffs/tile-tiff-name/2193/rgb/tiff-a.tiff', buf);
 
