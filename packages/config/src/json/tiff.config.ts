@@ -112,6 +112,28 @@ function urlToString(u: URL): string {
 
 /** Attempt to read a stac collection.json from the target path if it exists or return null if anything goes wrong. */
 async function loadStacFromURL(target: URL): Promise<StacCollection | null> {
+  if (!target.pathname.endsWith('/')) {
+    /**
+     * If the target location does not end with a "/" it could be
+     *
+     * a mistake "/imagery/otago_2017-2019_0.3m"
+     * a prefix "/imagery/otago_2017-2019_0.3m/CB_"
+     *
+     * So we need to check for both locations
+     */
+    const pathWithSlash = new URL('collection.json', target.href + '/');
+    const pathWithoutSlash = new URL('collection.json', target.href);
+
+    const [resWithSlash, resWithoutSlash] = await Promise.allSettled<StacCollection>([
+      fsa.readJson(urlToString(pathWithSlash)),
+      fsa.readJson(urlToString(pathWithoutSlash)),
+    ]);
+    // Collection path with the `/` should take priority as it is a more specific location
+    if (resWithSlash.status === 'fulfilled') return resWithSlash.value;
+    if (resWithoutSlash.status === 'fulfilled') return resWithoutSlash.value;
+    return null;
+  }
+
   const collectionPath = new URL('collection.json', target);
   try {
     return await fsa.readJson(urlToString(collectionPath));
