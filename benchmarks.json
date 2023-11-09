@@ -1,5 +1,35 @@
 [
   {
+    "hash": "9db2353d6bf3dc22ef2c295a6dc3de8a2022bc8c",
+    "createdAt": "2023-11-09T23:39:44.670Z",
+    "results": [
+      {
+        "name": "Tile 256x256",
+        "count": 12,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 256",
+        "mean": 0.2403402519233334,
+        "stddev": 0.003284500182483326,
+        "median": 0.24031521034000003,
+        "user": 0.2249445866666666,
+        "system": 0.04084880999999999,
+        "min": 0.23387838184,
+        "max": 0.24690333984
+      },
+      {
+        "name": "Tile 512x512",
+        "count": 12,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 512",
+        "mean": 0.24162746354666673,
+        "stddev": 0.0034324282999906386,
+        "median": 0.24290357713000002,
+        "user": 0.2250007683333333,
+        "system": 0.04369860666666667,
+        "min": 0.23506311313000003,
+        "max": 0.24687737313000002
+      }
+    ]
+  },
+  {
     "hash": "e0320caed495b68c7ba4aad9e8c99e096b69432b",
     "createdAt": "2023-11-09T23:28:08.332Z",
     "results": [
@@ -14966,36 +14996,6 @@
         "system": 0.052440434999999994,
         "min": 0.30890443961999997,
         "max": 0.31434991462
-      }
-    ]
-  },
-  {
-    "hash": "ce78bbbcd3ee244acf857f79d61ddaa22271e2ec",
-    "createdAt": "2022-03-21T01:59:07.254Z",
-    "results": [
-      {
-        "name": "Tile 256x256",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 256",
-        "mean": 0.4211859485800001,
-        "stddev": 0.015806159656420626,
-        "median": 0.41719399738,
-        "user": 0.43656086499999996,
-        "system": 0.06487833,
-        "min": 0.40549077188000004,
-        "max": 0.46073891588000004
-      },
-      {
-        "name": "Tile 512x512",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 512",
-        "mean": 0.4229535381950001,
-        "stddev": 0.009690504927204042,
-        "median": 0.422381679095,
-        "user": 0.441182155,
-        "system": 0.06817883,
-        "min": 0.40355733609500005,
-        "max": 0.43570290809500006
       }
     ]
   }
