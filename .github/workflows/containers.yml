@@ -93,7 +93,7 @@ jobs:
       - name: '@basemaps/server - Build and push Major/Minor'
         uses: docker/build-push-action@v3
         with:
-          context: packages/cli
+          context: packages/server
           platforms: linux/arm64,linux/amd64
           # Publish :v6 and :v6.38 tags when publishing a release
           tags: |
