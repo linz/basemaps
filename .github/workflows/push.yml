@@ -31,7 +31,7 @@ jobs:
           cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
           npx typedoc
           docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
-      
+
       - name: Store docs artifact
         uses: actions/upload-artifact@v3
         with:
@@ -90,7 +90,10 @@ jobs:
 
       - name: Build docs
         run: |
+          # dist folder must exist or it will be owned by root
+          mkdir -p packages/landing/dist 
           cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
+
           npx typedoc
           docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
         env:
