@@ -11,7 +11,7 @@ The configuration is generally generated directly from the source tiffs and asso
 
 This allows the configuration objects to be somewhat short, below is a snippet from the [aerial](https://github.com/linz/basemaps-config/blob/master/config/tileset/aerial.json) tile set configuration which layers 100+ aerial imagery layers together.
 
-```json5
+```json
 {
   // Raster or Vector layer
   "type": "raster",
