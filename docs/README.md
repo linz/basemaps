@@ -52,9 +52,9 @@ Vector tiles are pre-rendered as [Mapbox Vector Tiles](https://docs.mapbox.com/d
 
 To efficiently serve aerial imagery to huge number of consumers, it should be optimised into a format that makes it easy to serve. All of LINZ's imagery is stored as [Cloud Optimised GeoTIFFs (COGs)](https://www.cogeo.org/), and to ensure they are served as efficiently as possible some additional processing steps are generally pre-applied to the imagery.
 
-- Reprojection: reprojecting the imagery into common consumption formats (EPSG:3857 and EPSG:2193) will greatly reduce the amount of load and complexity of the basemaps service service
-- Tile Alignment: By aligning the COGs to the output XYZ tile grid
-- Additional overviews: It is hard to fetch data from 1,000s of COGs to create a single tile, so we create additional overviews up to z0.
+- **Reprojection**: reprojecting the imagery into common consumption formats (EPSG:3857 and EPSG:2193) will greatly reduce the amount of load and complexity of the basemaps service service
+- **Tile Alignment**: By aligning the COGs to the output XYZ tile grid
+- **Additional overviews**: It is hard to fetch data from 1,000s of COGs to create a single tile, so we create additional overviews up to z0.
 
 These additional processing steps are part of the basemaps [import process](#TODO) and are controlled by [@basemaps/cogify](../packages/cogify/README.md)
 
@@ -70,4 +70,4 @@ Deployments are handled by Github Actions see [Deployments](./deployment.md) for
 
 ### Diagrams
 
-All diagrams across this repository are created with [excalidraw](https://excalidraw.com/) and embed the excalidraw configuration inside them, so can be re-edited on https://excalidraw.com/
+All diagrams across this repository are created with [excalidraw](https://excalidraw.com/) and embed the excalidraw configuration inside them, so can be re-edited on [excalidraw](https://excalidraw.com/)
