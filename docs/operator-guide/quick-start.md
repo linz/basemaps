@@ -8,7 +8,6 @@ There are three options for LINZ basemaps server deployment
 
 The easiest option for running linz/basemaps is using `docker` and [@basemaps/server](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fserver) container
 
-
 As a base you will need some imagery, [docker](https://docs.docker.com/engine/install/) and the AWS Command line
 
 ## Sample Imagery
@@ -17,7 +16,7 @@ To use basemaps, we need some [Cloud optimised geotiffs](https://www.cogeo.org/)
 
 LINZ has a public bucket [`s3://nz-imagery`](https://github.com/linz/imagery) which contains COGs which work well with basemaps.
 
-Wānaka is a nice location so lets grab a combination of rural and urban imagery around Wānaka 
+Wānaka is a nice location so lets grab a combination of rural and urban imagery around Wānaka
 
 - [Queenstown-Lakes 2022-2023 0.1m](https://basemaps.linz.govt.nz/@-44.6966924,169.1330252,z14.74?i=queenstown-lakes-2022-2023-0.1m)
 - [Otago Rural 2017-2019 0.3m](https://basemaps.linz.govt.nz/@-44.6966924,169.1330252,z12.74?i=otago-rural-2017-2019-0.3m)
@@ -28,7 +27,6 @@ Make a location to put the imagery
 mkdir -p imagery/queenstown-lakes_2022-2023_0.1m/
 mkdir -p imagery/otago_2017-2019_0.3m/
 ```
-
 
 First download the `collection.json` since this bucket is public, use `--no-sign-request` with the aws cli
 
@@ -64,7 +62,6 @@ aws --no-sign-request s3 cp s3://nz-imagery/otago/queenstown-lakes_2022-2023_0.1
 aws --no-sign-request s3 cp s3://nz-imagery/otago/queenstown-lakes_2022-2023_0.1m/rgb/2193/CB12_1000_0538.tiff imagery/queenstown-lakes_2022-2023_0.1m/CB12_1000_0538.tiff
 ```
 
-
 ## Running Basemaps in Docker
 
 Basemaps server can be run in two modes
@@ -81,8 +78,9 @@ To start the server, mount the imagery into `/imagery` so the server has access 
 ```bash
 docker run --rm -v $PWD/imagery:$PWD/imagery -p 5000:5000 ghcr.io/linz/basemaps/server:latest $PWD/imagery/*
 ```
-!!! note 
-    Basemaps logs into structured JSON log format it can be useful to run a prettier over it such as [pretty-json-log](https://www.npmjs.com/package/pretty-json-log)
+
+!!! note
+Basemaps logs into structured JSON log format it can be useful to run a prettier over it such as [pretty-json-log](https://www.npmjs.com/package/pretty-json-log)
 
     ```bash
     docker run --rm -v $PWD/imagery:$PWD/imagery ghcr.io/linz/basemaps/server:latest $PWD/imagery/* | pjl
@@ -91,6 +89,7 @@ docker run --rm -v $PWD/imagery:$PWD/imagery -p 5000:5000 ghcr.io/linz/basemaps/
 The server should now be started and you should see the following log lines
 
 Informing you that two layers were loaded otago and queenstown in [NZTM2000Quad](https://github.com/linz/NZTM2000TileMatrixSet) tile matrix
+
 ```
 INFO Imagery:Loaded imagery=/home/blacha/tmp/basemaps-quick-start/imagery/otago_2017-2019_0.3m title=otago_2017-2019_0.3m tileMatrix=NZTM2000Quad files=4
 INFO Imagery:Loaded imagery=/home/blacha/tmp/basemaps-quick-start/imagery/queenstown-lakes_2022-2023_0.1m title=queenstown-lakes_2022-2023_0.1m tileMatrix=NZTM2000Quad files=10
@@ -105,18 +104,17 @@ http://localhost:5000/@-44.6997548,169.1115332,z15.20?p=nztm2000quad
 ```
 
 or individually
+
 ```
 http://localhost:5000/@-44.6997548,169.1115332,z15.20?p=nztm2000quad&i=otago_2017-2019_0.3m
 
 http://localhost:5000/@-44.6997548,169.1115332,z15.20?p=nztm2000quad&i=queenstown-lakes_2022-2023_0.1m
 ```
 
-
 !!! note
-    It is not recommended to run `:latest` for any prolonged period of time, all of the containers are published with the following tags
-    
+It is not recommended to run `:latest` for any prolonged period of time, all of the containers are published with the following tags
+
     - `:latest` - Current master branch
     - `:vX.Y.Z` - Specific release tag which does not move eg `:v0.0.0`
     - `:vX.Y` - Moving tag for the latest major.minor release eg `:v7.0`
     - `:vX` - Moving tag for the latest major release eg `:v7`
-
