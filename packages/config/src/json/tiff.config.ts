@@ -93,7 +93,9 @@ function computeTiffSummary(target: URL, tiffs: CogTiff[]): TiffSummary {
   return res as TiffSummary;
 }
 
-/** Convert a path to a relative path
+/**
+ * Convert a path to a relative path
+ *
  * @param base the path to be relative to
  * @param other the path to convert
  */
@@ -110,8 +112,33 @@ function urlToString(u: URL): string {
   return u.href;
 }
 
-/** Attempt to read a stac collection.json from the target path if it exists or return null if anything goes wrong. */
-async function loadStacFromURL(target: URL): Promise<StacCollection | null> {
+/**
+ * Attempt to read a stac collection.json from the target path if it exists or return null if anything goes wrong.
+ */
+export async function loadStacFromURL(target: URL): Promise<StacCollection | null> {
+  /**
+   * If the target location does not end with a "/" it could be
+   *
+   * - A mistake "/imagery/otago_2017-2019_0.3m"
+   * - A prefix "/imagery/otago_2017-2019_0.3m/CB_"
+   *
+   * So we need to check for both locations
+   */
+  if (!target.pathname.endsWith('/')) {
+    const pathWithSlash = new URL('collection.json', target.href + '/');
+    const pathWithoutSlash = new URL('collection.json', target.href);
+
+    const [resWithSlash, resWithoutSlash] = await Promise.allSettled<StacCollection>([
+      fsa.readJson(urlToString(pathWithSlash)),
+      fsa.readJson(urlToString(pathWithoutSlash)),
+    ]);
+
+    // Collection path with the `/` should take priority as it is a more specific location
+    if (resWithSlash.status === 'fulfilled') return resWithSlash.value;
+    if (resWithoutSlash.status === 'fulfilled') return resWithoutSlash.value;
+    return null;
+  }
+
   const collectionPath = new URL('collection.json', target);
   try {
     return await fsa.readJson(urlToString(collectionPath));
@@ -130,7 +157,7 @@ const IgnoredTitles = new Set([
   'dsm_1m',
   // Argo folders
   'flat',
-  //Projections
+  // Projections
   '2193',
   '3857',
 ]);

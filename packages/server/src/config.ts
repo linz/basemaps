@@ -41,8 +41,10 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
         'Imagery:Loaded',
       );
     }
+    mem.createVirtualTileSets();
     return mem;
   }
+
   const configPath = opts.config;
   // Load config from dynamodb table
   if (configPath.startsWith('dynamodb://')) {
