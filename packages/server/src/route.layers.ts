@@ -1,5 +1,4 @@
 import { BasemapsConfigProvider, ConfigImagery, getAllImagery, standardizeLayerName } from '@basemaps/config';
-import { ConfigImageryTiff } from '@basemaps/config/src/json/tiff.config.js';
 import { Epsg, GoogleTms, Projection, TileMatrixSets } from '@basemaps/geo';
 import { V } from '@basemaps/shared';
 
@@ -56,7 +55,7 @@ export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<str
   for (const img of layers) {
     let tileMatrix = TileMatrixSets.find(img.tileMatrix);
     if (tileMatrix == null) tileMatrix = GoogleTms;
-    const ret = getPreviewUrl(img as ConfigImageryTiff);
+    const ret = getPreviewUrl(img);
 
     const els = [
       V('div', { class: `layer-header`, style: 'display:flex; justify-content: space-around;' }, [
