@@ -60,6 +60,6 @@ export const BasemapsServerCommand = command({
     const server = await createServer(serverOptions, logger);
 
     await server.listen({ port: args.port, host: '0.0.0.0' });
-    logger.info({ url: ServerUrl }, 'ServerStarted');
+    logger.info({ url: ServerUrl + '/layers' }, 'ServerStarted');
   },
 });

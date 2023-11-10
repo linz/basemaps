@@ -10,6 +10,7 @@ import path from 'path';
 import ulid from 'ulid';
 import { URL } from 'url';
 import { loadConfig, ServerOptions } from './config.js';
+import { createLayersHtml } from './route.layers.js';
 
 const instanceId = ulid.ulid();
 
@@ -81,6 +82,14 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
 
   BasemapsServer.all<{ Querystring: { api: string } }>('/v1/*', queryHandler);
   BasemapsServer.all<{ Querystring: { api: string } }>('/@*', queryHandler);
+
+  // Preview a list of layers
+  BasemapsServer.get('/layers', async (req: FastifyRequest, res: FastifyReply) => {
+    const doc = await createLayersHtml(cfg);
+    res.status(200);
+    res.header('Content-Type', 'text/html');
+    res.send(doc);
+  });
 
   return BasemapsServer;
 }
