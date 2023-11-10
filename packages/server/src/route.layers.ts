@@ -4,6 +4,7 @@ import { V } from '@basemaps/shared';
 
 const previewSize = { width: 1200, height: 630 };
 
+// TODO this should be shared with all of the preview generation logic
 function getImageryCenterZoom(im: ConfigImagery): { lat: number; lon: number; zoom: number } {
   const center = { x: im.bounds.x + im.bounds.width / 2, y: im.bounds.y + im.bounds.height / 2 };
 
@@ -77,7 +78,7 @@ export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<str
 
   const style = `
 body {
-    font-family: 'Fira Sans';
+    font-family: 'Fira Sans', 'Open Sans';
 }
 .layer {
     margin: auto;
