@@ -5,9 +5,9 @@
     <title>Leaflet WGS84 Basemaps Demo</title>
     <link
       rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
       html,
       body {
@@ -20,12 +20,10 @@
   <body>
     <div id="map" style="width: 100%; height: 500px;"></div>
     <script>
-     const apiKey = 'd01hep5551e30kxb7w85hck49tp';
-
      const startPos = [-40.5, 173];
      const startZoom = 6;
 
-     const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api='+apiKey;
+     const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=d01hep5551e30kxb7w85hck49tp';
 
      const tiles = L.tileLayer(url, {
          attribution: '<a href="https://www.linz.govt.nz/data/linz-data/linz-basemaps/data-attribution">LINZ CC BY 4.0 © Imagery Basemap contributors</a>'

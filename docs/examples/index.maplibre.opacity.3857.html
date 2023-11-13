@@ -4,12 +4,8 @@
         <meta charset="utf-8" />
         <title>Adjust a layer's opacity</title>
         <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-        <script
-            src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"
-            integrity="sha384-YAsv3Nk7n9hAR/gbvgvtGvq2TV1hvEpFks3bGIs451f9D0jSn070rHje6Swuo7bL"
-            crossorigin="anonymous"
-        ></script>
-        <link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet" />
+        <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.css' />
+        <script src='https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.js'></script>
         <style>
             body {
                 margin: 0;
@@ -76,14 +72,12 @@
         </div>
 
         <script>
-            const apiKey = 'd01hep5551e30kxb7w85hck49tp';
-
             // vector layers
             const styleUrl =
-                'https://basemaps.linz.govt.nz/v1/tiles/topographic/EPSG:3857/style/topographic.json?api=' + apiKey;
+                'https://basemaps.linz.govt.nz/v1/tiles/topographic/WebMercatorQuad/style/topographic.json?api=d01hep5551e30kxb7w85hck49tp';
 
             // Raster layers
-            const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=' + apiKey;
+            const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=d01hep5551e30kxb7w85hck49tp';
 
             const startPos = [173, -40.5];
             const startZoom = 6;
