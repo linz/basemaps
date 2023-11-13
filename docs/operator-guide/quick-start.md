@@ -86,30 +86,16 @@ Basemaps logs into structured JSON log format it can be useful to run a prettier
     docker run --rm -v $PWD/imagery:$PWD/imagery ghcr.io/linz/basemaps/server:latest $PWD/imagery/* | pjl
     ```
 
-The server should now be started and you should see the following log lines
-
-Informing you that two layers were loaded otago and queenstown in [NZTM2000Quad](https://github.com/linz/NZTM2000TileMatrixSet) tile matrix
+The server should now be started and you should see the following log lines, informing you that two layers were loaded Otago and Queenstown in [NZTM2000Quad](https://github.com/linz/NZTM2000TileMatrixSet) tile matrix
 
 ```
-INFO Imagery:Loaded imagery=/home/blacha/tmp/basemaps-quick-start/imagery/otago_2017-2019_0.3m title=otago_2017-2019_0.3m tileMatrix=NZTM2000Quad files=4
-INFO Imagery:Loaded imagery=/home/blacha/tmp/basemaps-quick-start/imagery/queenstown-lakes_2022-2023_0.1m title=queenstown-lakes_2022-2023_0.1m tileMatrix=NZTM2000Quad files=10
+INFO Imagery:Loaded imagery=/home/user/tmp/basemaps-quick-start/imagery/otago_2017-2019_0.3m title=otago_2017-2019_0.3m tileMatrix=NZTM2000Quad files=4
+INFO Imagery:Loaded imagery=/home/user/tmp/basemaps-quick-start/imagery/queenstown-lakes_2022-2023_0.1m title=queenstown-lakes_2022-2023_0.1m tileMatrix=NZTM2000Quad files=10
 ```
 
-Then open a browser to `http://localhost:5000` This will load a blank basemaps page, the default location for the webmap is not where this imagery is.
+Then open a browser to `http://localhost:5000/layers` This will load a list of the layers that have been imported into the system, clicking on any of the layers will take you to the layer.
 
-To view these specific imagery sets combined:
-
-```
-http://localhost:5000/@-44.6997548,169.1115332,z15.20?p=nztm2000quad
-```
-
-or individually
-
-```
-http://localhost:5000/@-44.6997548,169.1115332,z15.20?p=nztm2000quad&i=otago_2017-2019_0.3m
-
-http://localhost:5000/@-44.6997548,169.1115332,z15.20?p=nztm2000quad&i=queenstown-lakes_2022-2023_0.1m
-```
+![QuickStart Layers](./static/quick-start__layers.png)
 
 !!! note
 It is not recommended to run `:latest` for any prolonged period of time, all of the containers are published with the following tags
