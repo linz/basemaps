@@ -1,38 +1,39 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Leaflet WGS84 Basemaps Demo</title>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-      }
-    </style>
-  </head>
 
-  <body>
-    <div id="map" style="width: 100%; height: 500px;"></div>
-    <script>
-     const startPos = [-40.5, 173];
-     const startZoom = 6;
+<head>
+  <meta charset="UTF-8" />
+  <title>Leaflet WGS84 Basemaps Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH"
+    crossorigin="anonymous"></script>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+  </style>
+</head>
 
-     const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=d01hep5551e30kxb7w85hck49tp';
+<body>
+  <div id="map" style="width: 100%; height: 500px;"></div>
+  <script>
+    const startPos = [-40.5, 173];
+    const startZoom = 6;
 
-     const tiles = L.tileLayer(url, {
-         attribution: '<a href="https://www.linz.govt.nz/data/linz-data/linz-basemaps/data-attribution">LINZ CC BY 4.0 © Imagery Basemap contributors</a>'
-      });
+    const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=d01hep5551e30kxb7w85hck49tp';
 
-     L.map('map')
+    const tiles = L.tileLayer(url, {
+      attribution: '<a href="https://www.linz.govt.nz/data/linz-data/linz-basemaps/data-attribution">LINZ CC BY 4.0 © Imagery Basemap contributors</a>'
+    });
+
+    L.map('map')
       .addLayer(tiles)
       .setView(startPos, startZoom);
 
-    </script>
-  </body>
+  </script>
+</body>
+
 </html>
