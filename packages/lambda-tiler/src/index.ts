@@ -1,25 +1,22 @@
 import { LogConfig } from '@basemaps/shared';
 import { LambdaHttpResponse, lf } from '@linzjs/lambda';
-import { arcgisInfoGet } from './arcgis/arcgis.info.js';
-import { arcgisStyleJsonGet } from './arcgis/arcgis.style.json.js';
-import { arcgisTileServerGet } from './arcgis/vector.tile.server.js';
 import { tileAttributionGet } from './routes/attribution.js';
 import { configImageryGet, configTileSetGet } from './routes/config.js';
 import { fontGet, fontList } from './routes/fonts.js';
 import { healthGet } from './routes/health.js';
 import { imageryGet } from './routes/imagery.js';
 import { pingGet } from './routes/ping.js';
+import { previewIndexGet } from './routes/preview.index.js';
+import { tilePreviewGet } from './routes/preview.js';
 import { spriteGet } from './routes/sprites.js';
 import { tileJsonGet } from './routes/tile.json.js';
 import { styleJsonGet } from './routes/tile.style.json.js';
 import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
-import { NotFound, OkResponse } from './util/response.js';
+import { NotFound } from './util/response.js';
 import { CoSources } from './util/source.cache.js';
 import { St } from './util/source.tracer.js';
-import { tilePreviewGet } from './routes/preview.js';
-import { previewIndexGet } from './routes/preview.index.js';
 
 export const handler = lf.http(LogConfig.get());
 
@@ -108,9 +105,3 @@ handler.router.get('/v1/attribution/:tileSet/:tileMatrix/summary.json', tileAttr
 handler.router.get('/v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 handler.router.get('/v1/tiles/:tileSet/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 handler.router.get('/v1/tiles/WMTSCapabilities.xml', wmtsCapabilitiesGet);
-
-// Arcgis Vector
-handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer', arcgisTileServerGet);
-handler.router.post('/v1/arcgis/rest/services/:tileSet/VectorTileServer', OkResponse);
-handler.router.get('/v1/arcgis/rest/services/:tileSet/VectorTileServer/root.json', arcgisStyleJsonGet);
-handler.router.get('/v1/arcgis/rest/info', arcgisInfoGet);
