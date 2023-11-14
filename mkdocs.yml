@@ -35,6 +35,7 @@ theme:
 
   features:
     - navigation.indexes
+    - content.code.copy
 
 extra_css:
   - "index.css"
@@ -48,8 +49,9 @@ markdown_extensions:
       pygments_lang_class: true
   # Additional syntax highlighting
   - pymdownx.inlinehilite
-  # Copy / paste to code blocks
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      base_path: 'docs'
+      check_paths: true
 
   # Adds inline notes with `!!! note`
   #
