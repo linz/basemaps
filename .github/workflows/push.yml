@@ -25,6 +25,11 @@ jobs:
         with:
           package-manager: yarn
 
+      - name: Format Docs
+        run: |
+          yarn run format
+          git diff --exit-code
+
       # TODO: running a giant copy command to import CSS and SVG files into the docs file in not super ideal
       - name: Build docs
         run: |

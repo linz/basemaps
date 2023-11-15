@@ -11,6 +11,7 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint . --quiet --fix --report-unused-disable-directives --ignore-path .gitignore",
+    "format": "prettier -w docs/ .github/",
     "test": "cross-env NODE_OPTIONS=--enable-source-maps lerna run test --parallel",
     "clean": "tsc -b --clean && rimraf 'packages/*/build' && yarn clean:dist",
     "clean:dist": "rimraf 'packages/*/dist' && rimraf 'packages/_infra/cdk.out'",
