@@ -104,3 +104,51 @@ It is not recommended to run `:latest` for any prolonged period of time, all of 
     - `:vX.Y.Z` - Specific release tag which does not move eg `:v0.0.0`
     - `:vX.Y` - Moving tag for the latest major.minor release eg `:v7.0`
     - `:vX` - Moving tag for the latest major release eg `:v7`
+
+### Creating a configuration from the tiff files
+
+Using the [basemaps CLI](https://github.com/linz/basemaps/tree/master/packages/cli#usage----bundle) a configuration bundle can be generated.
+
+A [tileset](../configuration.md) needs to be created as the entry point for the configuration.
+
+Below is a configuration for the two example layers, where the rural imagery sets underneath the urban imagery, and the urban imagery is only turned on when the zoom is greater than z15.
+
+storing this JSON into `config/aerial.json`
+
+```json
+{
+  "type": "raster",
+  "id": "ts_basic",
+  "title": "Basic Imagery Basemap",
+  "layers": [
+    {
+      // Source location for EPSG:2193 Imagery, has to be absolute
+      "2193": "/home/user/basemaps-quick-start/imagery/otago_2017-2019_0.3m/",
+      // url/slug friendly name of the imagery set
+      "name": "otago_2017-2019_0.3m",
+      "title": "Otago 0.3m Rural Aerial Photos (2017-2019)" // from collection.json#title
+    },
+    {
+      "2193": "/home/user/basemaps-quick-start/imagery/queenstown-lakes_2022-2023_0.1m/",
+      "name": "queenstown-lakes_2022-2023_0.1m",
+      "title": "Queenstown Lakes 0.1m Urban Aerial Photos (2022-2023)",
+      // Limit the imagery to greater than z15
+      "minZoom": 15
+    }
+  ]
+}
+```
+
+Then using the basemaps CLI a config can be bundled, assuming $PWD is the same folder that contains `imagery/` and `config/`
+
+```bash
+docker run --rm -v $PWD:$PWD -it ghcr.io/linz/basemaps/cli:latest bundle --config $PWD/config/ --output $PWD/
+```
+
+This generates a `config.json` which has all the information needed to start the server
+
+```bash
+docker run --rm -v $PWD:$PWD -p 5000:5000 ghcr.io/linz/basemaps/server:latest --config $PWD/config.json
+```
+
+For more advanced usage of configuration files please take a look at [linz/basemaps-config](https://github.com/linz/basemaps-config)
