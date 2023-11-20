@@ -1,0 +1,405 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "LINZ BASEMAPS APIs",
+    "description": "LINZ Basemaps APIs allow you to programmatically access LINZ map tile services to integrate into your mobile, web",
+    "contact": {
+      "email": "basemaps@linz.govt.nz"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://github.com/linz/basemaps/blob/master/LICENSE"
+    },
+    "version": "1.0.11"
+  },
+  "servers": [
+    {
+      "url": "https://basemaps.linz.govt.nz/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "WMTS",
+      "description": "LINZ Basemaps supports WMTS version 1.0.0. While best suited for use in GIS apps, WMTS can also be deployed in Javascript clients."
+    },
+    {
+      "name": "XYZ",
+      "description": "LINZ Basemaps supports XYZ style requests, for integration of our APIs in mapping clients such as Leaflet and OpenLayers. Some of the latest versions of GIS apps also now support XYZ map tiles services."
+    },
+    {
+      "name": "Vector",
+      "description": "LINZ  Basemaps supports StyleJSON version v8 for integration of our vector-based Topographic Basemap into GIS Applications (QGIS) and JavaScript clients."
+    }
+  ],
+  "paths": {
+    "/tiles/WMTSCapabilities.xml": {
+      "get": {
+        "tags": ["WMTS"],
+        "summary": "Get default WMTS",
+        "operationId": "get_wmts",
+        "parameters": [
+          {
+            "name": "api",
+            "in": "query",
+            "description": "LINZ Basemaps api key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "d01hep5551e30kxb7w85hck49tp"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid API Key supplied"
+          },
+          "5XX": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/tiles/{tileSet}/WMTSCapabilities.xml": {
+      "get": {
+        "tags": ["WMTS"],
+        "summary": "Get WMTS by the imagery tile set",
+        "operationId": "get_wmts_by_tileset",
+        "parameters": [
+          {
+            "name": "tileSet",
+            "in": "path",
+            "description": "Raster Imagery tile set",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "aerial"
+          },
+          {
+            "name": "api",
+            "in": "query",
+            "description": "LINZ Basemaps api key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "d01hep5551e30kxb7w85hck49tp"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid API Key supplied"
+          },
+          "404": {
+            "description": "tileSet not found"
+          },
+          "5XX": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/tiles/{tileSet}/{tileMatrix}/WMTSCapabilities.xml": {
+      "get": {
+        "tags": ["WMTS"],
+        "summary": "Get WMTS by the imagery tile set and tile matrix",
+        "operationId": "get_wmts_by_tileset_tilematrix",
+        "parameters": [
+          {
+            "name": "tileSet",
+            "in": "path",
+            "description": "Raster Imagery tile set",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "aerial"
+          },
+          {
+            "name": "api",
+            "in": "query",
+            "description": "LINZ Basemaps api key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "d01hep5551e30kxb7w85hck49tp"
+          },
+          {
+            "name": "tileMatrix",
+            "in": "path",
+            "description": "Supported Raster Tiling schemes",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["WebMercatorQuad", "NZTM2000QUAD"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid API Key supplied"
+          },
+          "404": {
+            "description": "tileSet or tileMatrix not found"
+          },
+          "5XX": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/tiles/{tileSet}/{tileMatrix}/{z}/{x}/{y}.{tileType}": {
+      "get": {
+        "tags": ["XYZ"],
+        "summary": "Get WMTS by the imagery tile set",
+        "operationId": "get_image_by_xyz",
+        "parameters": [
+          {
+            "name": "tileSet",
+            "in": "path",
+            "description": "Raster Imagery tile set",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "aerial"
+          },
+          {
+            "name": "api",
+            "in": "query",
+            "description": "LINZ Basemaps api key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "d01hep5551e30kxb7w85hck49tp"
+          },
+          {
+            "name": "tileMatrix",
+            "in": "path",
+            "description": "Supported Raster Tiling schemes",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["WebMercatorQuad", "NZTM2000QUAD"]
+            }
+          },
+          {
+            "in": "path",
+            "name": "tileType",
+            "description": "Image Format",
+            "schema": {
+              "type": "string",
+              "enum": ["webp", "png", "jpeg", "avif"]
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "x",
+            "description": "horizontal location offset of the tile",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "example": 64586
+          },
+          {
+            "in": "path",
+            "name": "y",
+            "description": "vertical location offset of the tile",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "example": 41036
+          },
+          {
+            "in": "path",
+            "name": "z",
+            "description": "zoom level of the tile",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "example": 16
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid API Key supplied"
+          },
+          "404": {
+            "description": "tileSet, tileMatrixnot, xyz or tileType not found"
+          },
+          "5XX": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/tiles/{tileSet}/{tileMatrix}/tile.json": {
+      "get": {
+        "tags": ["Vector"],
+        "summary": "Get vector tile json by the tileset and tileMatrix",
+        "operationId": "get_tile_json",
+        "parameters": [
+          {
+            "name": "api",
+            "in": "query",
+            "description": "LINZ Basemaps api key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "d01hep5551e30kxb7w85hck49tp"
+          },
+          {
+            "name": "tileSet",
+            "in": "path",
+            "description": "Vector Imagery tile set",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "topographic"
+          },
+          {
+            "name": "tileMatrix",
+            "in": "path",
+            "description": "Supported Raster Tiling schemes",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["WebMercatorQuad", "NZTM2000QUAD"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid API Key supplied"
+          },
+          "404": {
+            "description": "tileSet or tileMatrix not found"
+          },
+          "5XX": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/styles/{styleName}.json": {
+      "get": {
+        "tags": ["Vector"],
+        "summary": "Get vector map style json by the style name",
+        "operationId": "get_style_json",
+        "parameters": [
+          {
+            "name": "api",
+            "in": "query",
+            "description": "LINZ Basemaps api key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "d01hep5551e30kxb7w85hck49tp"
+          },
+          {
+            "in": "path",
+            "name": "styleName",
+            "description": "Style Name",
+            "schema": {
+              "type": "string",
+              "example": "topographic"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid API Key supplied"
+          },
+          "404": {
+            "description": "tileSet or tileMatrix not found"
+          },
+          "5XX": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "api": {
+        "name": "api",
+        "in": "query",
+        "description": "LINZ Basemaps api key",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "d01hep5551e30kxb7w85hck49tp"
+      },
+      "tileSetRaster": {
+        "name": "tileSet",
+        "in": "path",
+        "description": "Raster Imagery tile set",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "aerial"
+      },
+      "tileMatrixRaster": {
+        "name": "tileMatrix",
+        "in": "path",
+        "description": "Supported Raster Tiling schemes",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": ["WebMercatorQuad", "NZTM2000QUAD"]
+        }
+      },
+      "tileSetVector": {
+        "name": "tileSet",
+        "in": "path",
+        "description": "Vector Imagery tile set",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "topographic"
+      },
+      "tileMatrixVecotor": {
+        "name": "tileMatrix",
+        "in": "path",
+        "description": "Supported Vector Tiling schemes",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": ["WebMercatorQuad"]
+        }
+      }
+    }
+  }
+}
