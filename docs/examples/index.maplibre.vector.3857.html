@@ -1,45 +1,45 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>Maplibre WGS84 Topographic Vector Basemaps Demo</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.css' />
-    <script src="https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.js"
-        integrity="sha384-EYXW8ZhnlWPofZd2XtrFMKIJZXd8x1vTls280ww621jL26+4304H6YXxvU6RcKYd"
-        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.css" />
+    <script
+      src="https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.js"
+      integrity="sha384-EYXW8ZhnlWPofZd2XtrFMKIJZXd8x1vTls280ww621jL26+4304H6YXxvU6RcKYd"
+      crossorigin="anonymous"
+    ></script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        margin: 0;
+        padding: 0;
+      }
 
-        #map {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 100%;
-        }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="map"></div>
     <script>
-        const startPos = [173, -40.5];
-        const startZoom = 6;
+      const startPos = [173, -40.5];
+      const startZoom = 6;
 
-        // vector layers
-        const style =
-            'https://basemaps.linz.govt.nz/v1/tiles/topographic/WebMercatorQuad/style/topographic.json?api=d01hep5551e30kxb7w85hck49tp';
-        var map = new maplibregl.Map({
-            container: 'map', // container id
-            style: style, // style URL
-            center: startPos, // starting position [lng, lat]
-            zoom: startZoom, // starting zoom
-        });
+      // vector layers
+      const style =
+        'https://basemaps.linz.govt.nz/v1/tiles/topographic/WebMercatorQuad/style/topographic.json?api=d01hep5551e30kxb7w85hck49tp';
+      var map = new maplibregl.Map({
+        container: 'map', // container id
+        style: style, // style URL
+        center: startPos, // starting position [lng, lat]
+        zoom: startZoom, // starting zoom
+      });
     </script>
-</body>
-
+  </body>
 </html>
