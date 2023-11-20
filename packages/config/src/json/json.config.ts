@@ -9,8 +9,9 @@ import {
   VectorFormat,
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
-import { Cotar } from '@cotar/core';
 import { CogTiff } from '@cogeotiff/core';
+import { Cotar } from '@cotar/core';
+import PLimit from 'p-limit';
 import { basename } from 'path';
 import ulid from 'ulid';
 import { ConfigId } from '../base.config.js';
@@ -27,7 +28,7 @@ import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
-import PLimit from 'p-limit';
+import { loadTiffsFromPaths } from './tiff.config.js';
 
 const Q = PLimit(10);
 
@@ -251,38 +252,67 @@ export class ConfigJson {
     const fileList = await fsa.toArray(fsa.details(uri));
     const tiffFiles = fileList.filter((f) => f.path.endsWith('.tiff') || f.path.endsWith('.tif'));
 
+    const tiffTiles = [];
+    // Files can be stored as `{z}-{x}-{y}.tiff`
+    // Check to see if all tiffs match the z-x-y format
+    for (const tiff of tiffFiles) {
+      const tileName = basename(tiff.path).replace('.tiff', '');
+      const [z, x, y] = tileName.split('-').map((f) => Number(f));
+      if (isNaN(x) || isNaN(y) || isNaN(z)) break;
+
+      tiffTiles.push({ tiff, tile: { z, x, y } });
+    }
+
     let bounds: Bounds | null = null;
-    // Files are stored as `{z}-{x}-{y}.tiff`
-    // TODO the files could actually be smaller than the tile size,
-    // we should really load the tiff at some point to validate the size
-    const imageList = await Promise.all(
-      tiffFiles.map(async (c) => {
-        const tileName = basename(c.path).replace('.tiff', '');
-        const [z, x, y] = tileName.split('-').map((f) => Number(f));
-        if (isNaN(z) || isNaN(y) || isNaN(z)) throw new Error('Failed to parse XYZ from: ' + c);
 
-        // This tiff is really small, validate that the tiff actually has data
-        if (c.size != null && c.size < SmallTiffSizeBytes) {
-          const isEmpty = await isEmptyTiff(c.path);
-          if (isEmpty) {
-            this.logger.warn({ uri: c.path, imageId: id, size: c.size }, 'Imagery:Empty');
-            return null;
-          } else {
-            this.logger.trace({ uri: c.path, imageId: id, size: c.size }, 'Imagery:CheckSmall:NotEmpty');
-          }
-        }
+    const imageList: NamedBounds[] = [];
+    if (tiffTiles.length !== tiffFiles.length) {
+      // some of the tiffs are not named `{z}-{x}-{y}.tiff` so extract bounds from the tiff
+      const tiffs = await loadTiffsFromPaths(
+        tiffFiles.map((m) => m.path),
+        Q,
+      );
 
-        const tile = tileMatrix.tileToSourceBounds({ z, x, y });
-        // Expand the total bounds to cover this tile
-        if (bounds == null) bounds = Bounds.fromJson(tile);
-        else bounds = bounds.union(Bounds.fromJson(tile));
-        return { ...tile, name: tileName };
-      }),
-    );
+      for (const tiff of tiffs) {
+        const gsd = tiff.images[0].resolution[0];
 
-    const files = imageList.filter((f) => f != null) as NamedBounds[];
+        const gsdRound = Math.floor(gsd * 100) / 10000;
+        const bbox = tiff.images[0].bbox.map((f) => Math.floor(f / gsdRound) * gsdRound);
+        const imgBounds = Bounds.fromBbox(bbox);
+
+        if (bounds == null) bounds = imgBounds;
+        else bounds = bounds.union(imgBounds);
+
+        const tileName = basename(tiff.source.uri);
+        imageList.push({ ...imgBounds, name: tileName });
+      }
+    } else {
+      await Promise.all(
+        tiffTiles.map((t) => {
+          return Q(async () => {
+            if (t.tiff.size != null && t.tiff.size < SmallTiffSizeBytes) {
+              const isEmpty = await isEmptyTiff(t.tiff.path);
+              if (isEmpty) {
+                this.logger.warn({ uri: t.tiff.path, imageId: id, size: t.tiff.size }, 'Imagery:Empty');
+                return;
+              } else {
+                this.logger.trace({ uri: t.tiff.path, imageId: id, size: t.tiff.size }, 'Imagery:CheckSmall:NotEmpty');
+              }
+            }
+            const tileName = basename(t.tiff.path);
+
+            const tile = tileMatrix.tileToSourceBounds(t.tile);
+            // Expand the total bounds to cover this tile
+            if (bounds == null) bounds = Bounds.fromJson(tile);
+            else bounds = bounds.union(Bounds.fromJson(tile));
+            imageList.push({ ...tile, name: tileName });
+          });
+        }),
+      );
+    }
+
     // Sort the files by Z, X, Y
-    files.sort((a, b): number => {
+    imageList.sort((a, b): number => {
       const widthSize = a.width - b.width;
       if (widthSize !== 0) return widthSize;
 
@@ -298,7 +328,7 @@ export class ConfigJson {
       return bXyz[2] - aXyz[2];
     });
 
-    this.logger.debug({ uri, imageId, files: files.length }, 'FetchImagery:Done');
+    this.logger.debug({ uri, imageId, files: imageList.length }, 'FetchImagery:Done');
 
     if (bounds == null) throw new Error('Failed to get bounds from URI: ' + uri);
     const now = Date.now();
@@ -311,7 +341,7 @@ export class ConfigJson {
       tileMatrix: tileMatrix.identifier,
       uri,
       bounds,
-      files,
+      files: imageList,
     };
 
     output.overviews = await ConfigJson.findImageryOverviews(output);

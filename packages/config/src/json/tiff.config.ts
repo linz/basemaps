@@ -197,6 +197,21 @@ export function getImageryName(target: URL): string {
   return basename(target.pathname);
 }
 
+export async function loadTiffsFromPaths(sourceFiles: string[], Q: LimitFunction): Promise<CogTiff[]> {
+  // Load metadata about all the tiffs ignoring any empty sparse tiffs
+  return (
+    await Promise.all(
+      sourceFiles.filter(isTiff).map((c) =>
+        Q(async () => {
+          const tiff = await new CogTiff(fsa.source(c)).init(true);
+          if (await isEmptyTiff(tiff)) return null;
+          return tiff;
+        }),
+      ),
+    )
+  ).filter((f) => f != null) as CogTiff[];
+}
+
 /**
  * Attempt to load all imagery inside of a path and create a configuration from it
  *
@@ -212,19 +227,7 @@ export async function initImageryFromTiffUrl(
 ): Promise<ConfigImageryTiff> {
   const targetPath = urlToString(target);
   const sourceFiles = await fsa.toArray(fsa.list(targetPath));
-
-  // Load metadata about all the tiffs ignoring any empty sparse tiffs
-  const tiffs = (
-    await Promise.all(
-      sourceFiles.filter(isTiff).map((c) =>
-        Q(async () => {
-          const tiff = await new CogTiff(fsa.source(c)).init(true);
-          if (await isEmptyTiff(tiff)) return null;
-          return tiff;
-        }),
-      ),
-    )
-  ).filter((f) => f != null) as CogTiff[];
+  const tiffs = await loadTiffsFromPaths(sourceFiles, Q);
 
   try {
     const stac = await loadStacFromURL(target);
