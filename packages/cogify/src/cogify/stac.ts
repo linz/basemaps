@@ -41,6 +41,9 @@ export interface CogifyCreationOptions {
   /** Max Z Error only used when compression is `lerc` */
   maxZError?: number;
 
+  /** Max Z Error only used when compression is `lerc` defaults to {maxZError} */
+  maxZErrorOverview?: number;
+
   /**
    * Resampling for warping
    * @default 'bilinear'

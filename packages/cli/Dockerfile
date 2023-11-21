@@ -1,4 +1,4 @@
-FROM ghcr.io/osgeo/gdal:ubuntu-small-3.7.2
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.8.0
 
 ENV NODE_ENV=PRODUCTION
 
