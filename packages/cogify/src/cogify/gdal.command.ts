@@ -74,6 +74,7 @@ export function gdalBuildCog(id: string, sourceVrt: string, opt: CogifyCreationO
       ['-co', `COMPRESS=${cfg.compression}`],
       cfg.quality ? ['-co', `QUALITY=${cfg.quality}`] : undefined,
       cfg.maxZError ? ['-co', `MAX_Z_ERROR=${cfg.maxZError}`] : undefined,
+      cfg.maxZErrorOverview ? ['-co', `MAX_Z_ERROR_OVERVIEW=${cfg.maxZErrorOverview}`] : undefined,
       ['-co', 'SPARSE_OK=YES'],
       ['-co', `TARGET_SRS=${tileMatrix.projection.toEpsgString()}`],
       ['-co', `EXTENT=${tileExtent.join(',')},`],
