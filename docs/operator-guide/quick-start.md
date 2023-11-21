@@ -3,10 +3,10 @@
 There are three options for LINZ basemaps server deployment
 
 - Using docker and `@basemaps/server`
-- Running `@basemaps/server` manually
+- Running `@basemaps/server` directly
 - Deploying `@basemaps/server` as a AWS Lambda Function
 
-The easiest option for running linz/basemaps is using `docker` and [@basemaps/server](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fserver) container
+The easiest option for running linz/basemaps is using docker and [@basemaps/server container](https://github.com/linz/basemaps/pkgs/container/basemaps%2Fserver)
 
 As a base you will need some imagery, [docker](https://docs.docker.com/engine/install/) and the AWS Command line
 
@@ -28,7 +28,7 @@ mkdir -p imagery/queenstown-lakes_2022-2023_0.1m/
 mkdir -p imagery/otago_2017-2019_0.3m/
 ```
 
-First download the `collection.json` since this bucket is public, use `--no-sign-request` with the aws cli
+First download the `collection.json` since this bucket is public, use `--no-sign-request` with the aws cli to ensure your local aws credentials are not used.
 
 ```bash
 aws --no-sign-request s3 cp s3://nz-imagery/otago/queenstown-lakes_2022-2023_0.1m/rgb/2193/collection.json imagery/queenstown-lakes_2022-2023_0.1m/collection.json
@@ -76,14 +76,20 @@ Directly from the tiffs is easier and faster to setup but does not allow for a m
 To start the server, mount the imagery into `/imagery` so the server has access to it
 
 ```bash
-docker run --rm -v $PWD/imagery:$PWD/imagery -p 5000:5000 ghcr.io/linz/basemaps/server:latest $PWD/imagery/*
+docker run --rm \
+  -v $PWD:$PWD \
+  -p 5000:5000 \
+  ghcr.io/linz/basemaps/server:latest $PWD/imagery/*
 ```
 
 !!! note
-Basemaps logs into structured JSON log format it can be useful to run a prettier over it such as [pretty-json-log](https://www.npmjs.com/package/pretty-json-log)
+    Basemaps logs into structured JSON log format it can be useful to run a pretty printer over it such as [pretty-json-log](https://www.npmjs.com/package/pretty-json-log)
 
     ```bash
-    docker run --rm -v $PWD/imagery:$PWD/imagery ghcr.io/linz/basemaps/server:latest $PWD/imagery/* | pjl
+    docker run --rm \
+      -v $PWD:$PWD \
+      -p 5000:5000 \
+      ghcr.io/linz/basemaps/server:latest $PWD/imagery/* | pjl
     ```
 
 The server should now be started and you should see the following log lines, informing you that two layers were loaded Otago and Queenstown in [NZTM2000Quad](https://github.com/linz/NZTM2000TileMatrixSet) tile matrix
@@ -97,13 +103,12 @@ Then open a browser to `http://localhost:5000/layers` This will load a list of t
 
 ![QuickStart Layers](./static/quick-start__layers.png)
 
-!!! note
 It is not recommended to run `:latest` for any prolonged period of time, all of the containers are published with the following tags
 
-    - `:latest` - Current master branch
-    - `:vX.Y.Z` - Specific release tag which does not move eg `:v0.0.0`
-    - `:vX.Y` - Moving tag for the latest major.minor release eg `:v7.0`
-    - `:vX` - Moving tag for the latest major release eg `:v7`
+- `:latest` - Current master branch
+- `:vX.Y.Z` - Specific release tag which does not move eg `:v0.0.0`
+- `:vX.Y` - Moving tag for the latest major.minor release eg `:v7.0`
+- `:vX` - Moving tag for the latest major release eg `:v7`
 
 ### Creating a configuration from the tiff files
 
@@ -142,13 +147,18 @@ storing this JSON into `config/aerial.json`
 Then using the basemaps CLI a config can be bundled, assuming $PWD is the same folder that contains `imagery/` and `config/`
 
 ```bash
-docker run --rm -v $PWD:$PWD -it ghcr.io/linz/basemaps/cli:latest bundle --config $PWD/config/ --output $PWD/
+docker run --rm \
+  -v $PWD:$PWD \
+  -it ghcr.io/linz/basemaps/cli:latest bundle --config $PWD/config/ --output $PWD/
 ```
 
 This generates a `config.json` which has all the information needed to start the server
 
 ```bash
-docker run --rm -v $PWD:$PWD -p 5000:5000 ghcr.io/linz/basemaps/server:latest --config $PWD/config.json
+docker run --rm \
+  -v $PWD:$PWD \
+  -p 5000:5000 \
+  ghcr.io/linz/basemaps/server:latest --config $PWD/config.json
 ```
 
 For more advanced usage of configuration files please take a look at [linz/basemaps-config](https://github.com/linz/basemaps-config)
