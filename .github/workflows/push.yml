@@ -29,7 +29,7 @@ jobs:
       - name: Build docs
         run: |
           cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
-          docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material:9.4 build
+          docker run --rm -v ${PWD}:/docs ghcr.io/linz/basemaps-mkdocs:v1 build
 
       - name: Store docs artifact
         uses: actions/upload-artifact@v3

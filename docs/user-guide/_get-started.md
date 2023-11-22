@@ -6,10 +6,10 @@ The LINZ Basemaps API lets you build your own New Zealand-centric maps for mobil
 
 We've made getting started with LINZ Basemaps APIs easy.
 
-1. Pick a [LINZ Basemaps product](https://basemaps.linz.govt.nz/@-41.8899962,174.0492437,z5).
+1. Pick a [LINZ Basemaps product](https://basemaps.linz.govt.nz/).
 2. Grab a map tile API url from the menu bar.
 3. If you're a developer, email <basemaps@linz.govt.nz> for developer access
-4. Find the [Technical documentation](./technical-documentation.md), legals and how to's that will help you get mapping successfully.
+4. Find the [Technical documentation](./technical-documentation.md) and [API documentation](./api-documentation.md), legals and how to's that will help you get mapping successfully.
 
 ## Basics of our APIs
 

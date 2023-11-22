@@ -13,7 +13,7 @@ At a platform level, the LINZ Basemaps APIs supports:
 | **Protocols**            | WMTS and XYZ                                                  |
 | **Output tiling scheme** | NZTM2000 and Web Mercator                                     |
 | **Zoom levels**          | NZTM 0 - 17 and Web Mercator 0 - 22                           |
-| **Output formats**       | WebP, Jpeg or PNG                                             |
+| **Output formats**       | WebP, Jpeg, PNG, or Avif                                             |
 | **Applications**         | GIS (e.g QGIS, ArcGIS), CAD and Javascript web or mobile apps |
 
 ### LINZ Topographic Basemap
@@ -108,7 +108,7 @@ Authentication is managed via API key for Developer level access. Developers do 
 
 ## Aerial Imagery output format
 
-You can request raster tiles in WebP, PNG or JPEG format.
+You can request raster tiles in WebP, PNG, JPEG, or Avif format.
 
 Our recommended output format is WebP as it allows the quality of images to be maintained with relatively small file sizes and supports an alpha channel for transparency. This is also the default format in the XYZ URL you can copy from https://basemaps.linz.govt.nz
 
