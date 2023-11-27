@@ -29,6 +29,7 @@ export class CommandImport extends CommandLineAction {
   private backup!: CommandLineStringParameter;
   private output!: CommandLineStringParameter;
   private commit!: CommandLineFlagParameter;
+  private target!: CommandLineStringParameter;
 
   promises: Promise<boolean>[] = [];
   /** List of paths to invalidate at the end of the request */
@@ -65,6 +66,11 @@ export class CommandImport extends CommandLineAction {
       parameterLongName: '--output',
       description: 'Output a markdown file with the config changes',
     });
+    this.target = this.defineStringParameter({
+      argumentName: 'TARGET',
+      parameterLongName: '--target',
+      description: 'import location',
+    });
     this.commit = this.defineFlagParameter({
       parameterLongName: '--commit',
       description: 'Actually start the import',
@@ -77,10 +83,19 @@ export class CommandImport extends CommandLineAction {
     const commit = this.commit.value ?? false;
     const config = this.config.value;
     const backup = this.backup.value;
-    const cfg = getDefaultConfig();
+    let cfg = getDefaultConfig();
     if (config == null) throw new Error('Please provide a config json');
     if (commit && !config.startsWith('s3://') && Env.isProduction()) {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
+    }
+
+    // Load a configuration from a file, and use that as the comparision target
+    if (this.target.value) {
+      logger.info({ config: this.target.value }, 'Import:Target:Load');
+      const configJson = await fsa.readJson<ConfigBundled>(this.target.value);
+      const mem = ConfigProviderMemory.fromJson(configJson);
+      mem.createVirtualTileSets();
+      cfg = mem;
     }
 
     const HostPrefix = Env.isProduction() ? '' : 'dev.';

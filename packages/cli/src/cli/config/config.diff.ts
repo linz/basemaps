@@ -2,7 +2,7 @@ import { LogType } from '@basemaps/shared';
 import c from 'ansi-colors';
 import diff from 'deep-diff';
 
-export const IgnoredProperties = ['id', 'createdAt', 'updatedAt', 'year', 'resolution'];
+export const IgnoredProperties = new Set(['id', 'createdAt', 'updatedAt', 'year', 'resolution']);
 
 export class ConfigDiff {
   static getDiff<T>(changes: diff.Diff<T, T>[]): string {
@@ -32,7 +32,7 @@ export class ConfigDiff {
   }
 
   static showDiff<T extends { id: string }>(type: string, oldData: T, newData: T, logger: LogType): boolean {
-    const changes = diff.diff(oldData, newData, (_path: string[], key: string) => IgnoredProperties.indexOf(key) >= 0);
+    const changes = diff.diff(oldData, newData, (_path: string[], key: string) => IgnoredProperties.has(key));
     if (changes) {
       const changeDif = ConfigDiff.getDiff(changes);
       logger.info({ type, record: newData.id }, 'Changes');

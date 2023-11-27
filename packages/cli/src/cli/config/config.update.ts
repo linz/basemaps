@@ -72,6 +72,7 @@ export class Updater<S extends BaseConfig = BaseConfig> {
     const newData = this.getConfig();
     const db = this.getDB();
     const oldData = await this.getOldData();
+
     if (oldData == null || ConfigDiff.showDiff(db.prefix, oldData, newData, this.logger)) {
       const operation = oldData == null ? 'Insert' : 'Update';
       this.logger.info({ type: db.prefix, record: newData.id, commit: this.isCommit }, `Change:${operation}`);
