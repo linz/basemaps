@@ -2,7 +2,14 @@ import { ConfigImageryTiff } from '@basemaps/config/build/json/tiff.config.js';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { LogType, fsa } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { MultiPolygon, intersection, toFeatureCollection, union } from '@linzjs/geojson';
+import {
+  MultiPolygon,
+  intersection,
+  toFeatureCollection,
+  toFeatureMultiPolygon,
+  toFeaturePolygon,
+  union,
+} from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 import { createCovering } from './cogify/covering.js';
@@ -16,6 +23,7 @@ import {
 import { CutlineOptimizer } from './cutline.js';
 import { urlToString } from './download.js';
 import { Presets } from './preset.js';
+import { writeFileSync } from 'fs';
 
 export interface TileCoverContext {
   /** Unique id for the covering */
@@ -65,11 +73,17 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   const optimalCoveringZoom = Math.max(1, targetBaseZoom - 7); // z12 from z19
   ctx.logger?.debug({ targetBaseZoom, cogOverZoom: optimalCoveringZoom }, 'Imagery:ZoomLevel');
 
-  const sourceBounds = projectPolygon(
-    polygonFromBounds(ctx.imagery.files),
-    ctx.imagery.projection,
+  const imageryPolygon = polygonFromBounds(ctx.imagery.files);
+  // Clamp to the bounding box of the tileMatrix, as imagery may contain information outside the tilematrix
+  const tileMatrixExtent = projectPolygon(
+    polygonFromBounds([ctx.tileMatrix.extent]),
     ctx.tileMatrix.projection.code,
+    ctx.imagery.projection,
   );
+
+  const clampedPolygon = intersection(imageryPolygon, tileMatrixExtent);
+  const sourceBounds = projectPolygon(clampedPolygon, ctx.imagery.projection, ctx.tileMatrix.projection.code);
+
   ctx.logger?.debug('Cutline:Apply');
   ctx.metrics?.start('cutline:apply');
 
@@ -106,10 +120,14 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   ctx.metrics?.start('covering:polygon');
   const items: CogifyStacItem[] = [];
   for (const tile of covering) {
+    // if (tile.y != 2) continue;
+    // if (tile.x != 3) continue;
     const bounds = ctx.tileMatrix.tileToSourceBounds(tile);
 
     // Scale the tile bounds slightly to ensure we get all relevant imagery
-    const scaledBounds = bounds.scaleFromCenter(1.05);
+    const scaledBounds = bounds.scaleFromCenter(1.05).intersection(ctx.tileMatrix.extent);
+    if (scaledBounds == null) throw new Error('Bounds are not within tile extent');
+
     const tileBounds = Projection.get(ctx.tileMatrix).projectMultipolygon(
       [scaledBounds.toPolygon()],
       Projection.get(ctx.imagery.projection),
@@ -226,6 +244,7 @@ function polygonFromBounds(bounds: BoundingBox[], scale: number = 1 + 1e-8): Mul
   for (const image of bounds) {
     srcPoly.push(Bounds.fromJson(image).scaleFromCenter(scale).toPolygon());
   }
+
   return union(srcPoly);
 }
 

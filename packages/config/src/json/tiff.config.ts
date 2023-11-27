@@ -1,14 +1,16 @@
 import {
   BoundingBox,
   Bounds,
+  Epsg,
   EpsgCode,
   ImageFormat,
   NamedBounds,
   Nztm2000QuadTms,
+  Projection,
   TileMatrixSets,
 } from '@basemaps/geo';
 import { fsa } from '@chunkd/fs';
-import { CogTiff } from '@cogeotiff/core';
+import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import pLimit, { LimitFunction } from 'p-limit';
 import { basename } from 'path';
 import { StacCollection } from 'stac-ts';
@@ -19,6 +21,10 @@ import { ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory/memory.config.js';
 import { ConfigJson, isEmptyTiff } from './json.config.js';
 import { LogType } from './log.js';
+
+// FIXME: HACK @cogeotiff/core to include the Lerc tiff tag
+// can be removed when @cogeotiff/core is updated
+if (TiffTag[0xc5f2] == null) (TiffTag as any)[0xc5f2] = 'Lerc';
 
 /** Does a file look like a tiff, ending in .tif or .tiff */
 function isTiff(f: string): boolean {
@@ -58,7 +64,7 @@ function computeTiffSummary(target: URL, tiffs: CogTiff[]): TiffSummary {
   for (const tiff of tiffs) {
     const firstImage = tiff.getImage(0);
 
-    const epsg = firstImage.epsg;
+    const epsg = firstImage.epsg ?? (firstImage.valueGeo(TiffTagGeo.GeographicTypeGeoKey) as number);
     if (epsg == null) throw new Error(`No ESPG projection found. source:` + tiff.source.uri);
 
     // Validate all EPSG codes are the same for each imagery set
@@ -74,8 +80,13 @@ function computeTiffSummary(target: URL, tiffs: CogTiff[]): TiffSummary {
       if (gsdDiff > 0.001) throw new Error(`GSD mismatch on imagery ${res.gsd} vs ${gsd}`);
     }
 
+    // Round the bounding box down slightly
     const gsdRound = Math.floor(gsd * 100) / 10000;
-    const bbox = firstImage.bbox.map((f) => Math.floor(f / gsdRound) * gsdRound);
+    const bbox = firstImage.bbox.map((f) => {
+      // prevent dividing by zero
+      if (f === 0 || gsdRound === 0) return f;
+      return Math.floor(f / gsdRound) * gsdRound;
+    });
     const imgBounds = Bounds.fromBbox(bbox);
 
     if (bounds == null) bounds = imgBounds;
@@ -86,10 +97,17 @@ function computeTiffSummary(target: URL, tiffs: CogTiff[]): TiffSummary {
     const relativePath = toRelative(targetPath, tiff.source.uri);
     res.files.push({ name: relativePath, ...imgBounds });
   }
+
   res.bounds = bounds?.toJson();
   if (res.bounds == null) throw new Error('Failed to extract imagery bounds from:' + target);
   if (res.projection == null) throw new Error('Failed to extract imagery epsg from:' + target);
   if (res.files == null || res.files.length === 0) throw new Error('Failed to extract imagery from:' + target);
+  const proj = Projection.get(res.projection);
+  if (!proj.isMeters && res.gsd) {
+    // Convert gsd in degrees into approx meters
+    res.gsd = res.gsd * 111139; // Random Math
+  }
+
   return res as TiffSummary;
 }
 

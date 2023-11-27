@@ -8,10 +8,10 @@ import { Context } from 'aws-lambda';
 import { pathToFileURL } from 'url';
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
-const target = pathToFileURL(`/home/blacha/tmp/imagery/southland-0.25-rural-2023/`);
-const tile = fromPath('/18/117833/146174.webp');
+const target = pathToFileURL(`/home/blacha/git/linz/basemaps/packages/cogify/target/3857/float/taranaki_2021/`);
+const tile = fromPath('/7/125/79.png');
 
-const outputFormat = ImageFormat.Webp;
+const outputFormat = ImageFormat.Png;
 let tileMatrix: TileMatrixSet | null = null;
 
 /** Convert a tile path /:z/:x/:y.png into a tile */

@@ -41,7 +41,9 @@ export class Projection {
   epsg: Epsg;
 
   /** Transform coordinates to and from Wgs84 */
-  private projection: proj4.Converter;
+  convert: proj4.Converter;
+  /** Projection definition */
+  def: proj4.ProjectionDefinition;
 
   /**
    * Wrapper around TileMatrixSet with utilities for converting Points and Polygons
@@ -49,7 +51,8 @@ export class Projection {
   private constructor(epsg: Epsg) {
     this.epsg = epsg;
     try {
-      this.projection = Proj(epsg.toEpsgString(), Epsg.Wgs84.toEpsgString());
+      this.convert = Proj(epsg.toEpsgString(), Epsg.Wgs84.toEpsgString());
+      this.def = Proj.defs(epsg.toEpsgString());
     } catch (err: any) {
       throw new CompositeError(
         `Failed to create projection: ${epsg.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`,
@@ -57,6 +60,14 @@ export class Projection {
         err,
       );
     }
+  }
+
+  /**
+   * Is this projection in meters
+   * @returns true if projection definition is in meters
+   **/
+  get isMeters(): boolean {
+    return this.def.units === 'meter';
   }
 
   /** Ensure that a transformation in proj4.js is defined */
@@ -120,14 +131,14 @@ export class Projection {
    * Convert source `[x, y]` coordinates to `[lon, lat]`
    */
   get toWgs84(): (coordinates: Position) => Position {
-    return this.projection.forward;
+    return this.convert.forward;
   }
 
   /**
    * Convert `[lon, lat]` coordinates to source `[x, y]`
    */
   get fromWgs84(): (coordinates: Position) => Position {
-    return this.projection.inverse;
+    return this.convert.inverse;
   }
 
   /**

@@ -1,8 +1,16 @@
 import { Simplify, Tile, TileId, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
-import { Area, intersection, MultiPolygon } from '@linzjs/geojson';
+import {
+  Area,
+  FeatureCollectionWithCrs,
+  intersection,
+  MultiPolygon,
+  toFeatureCollection,
+  toFeatureMultiPolygon,
+} from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { CutlineOptimizer } from '../cutline';
+import { writeFileSync } from 'fs';
 
 /**
  * Tile offsets for surrounding tiles
@@ -39,6 +47,7 @@ export function addSurrounding(tile: Tile, tileMatrix: TileMatrixSet, todo: Tile
 
     if (nextTile.y >= tileZoom.matrixHeight) nextTile.y = nextTile.y - tileZoom.matrixHeight;
     if (nextTile.y < 0) nextTile.y = nextTile.y + tileZoom.matrixHeight;
+
     if (seen) {
       const tileId = TileId.fromTile(nextTile);
       if (seen?.has(tileId)) continue;
@@ -87,6 +96,7 @@ export function createCovering(ctx: CoveringContext): Tile[] {
     onePixelAtOverviewResolution,
     onePixelAtBaseResolution, // Remove any polygons that are less than 1 pixel
   );
+
   const cutlineDuration = ctx.metrics?.end('cutline:simplify');
   // No imagery was left after the cutline
   if (cutBounds == null) throw new Error('Cutline excludes all imagery');
@@ -101,8 +111,17 @@ export function createCovering(ctx: CoveringContext): Tile[] {
     const topLeftPoint = poly[0][0];
     const targetPx = tileMatrix.sourceToPixels(topLeftPoint[0], topLeftPoint[1], ctx.targetZoom);
     const tile = tileMatrix.pixelsToTile(targetPx.x, targetPx.y, ctx.targetZoom);
+    const tmsZoom = tileMatrix.zooms[ctx.targetZoom];
+
+    // Clamp the tile to the tile matrix as sometimes floating point math will put the bounds into the next tile
+    if (tile.x >= tmsZoom.matrixWidth) tile.x = tmsZoom.matrixWidth - 1;
+    if (tile.y >= tmsZoom.matrixHeight) tile.y = tmsZoom.matrixHeight - 1;
+    if (tile.x < 0) tile.x = 0;
+    if (tile.y < 0) tile.y = 0;
+
     const tileId = TileId.fromTile(tile);
-    if (visited.has(tileId)) continue;
+
+    if (visited.has(tileId)) break;
     todo.push(tile);
     visited.add(tileId);
   }
@@ -122,8 +141,10 @@ export function createCovering(ctx: CoveringContext): Tile[] {
 
     const tilePolygon = tileSource.toPolygon();
     const tileIntersection = intersection(cutBounds, tilePolygon);
+    // console.log(tilePolygon, tileIntersection);
     if (tileIntersection.length === 0) continue;
 
+    // console.log(tileIntersection);
     // Determine how big of a intersection there is
     const area = Area.multiPolygon(tileIntersection);
     const areaPercent = area / tileArea;
@@ -134,20 +155,50 @@ export function createCovering(ctx: CoveringContext): Tile[] {
     // Count the number of pixels in the output tiff that would be used
     const tileScale = tileSource.width / ctx.tileMatrix.tileSize;
     const pixelCount = (tileArea * areaPercent) / tileScale;
-
+    // console.log(tileSource);
+    // writeFileSync(
+    //   `./${tileId}.geojson`,
+    //   JSON.stringify({
+    //     type: 'FeatureCollection',
+    //     features: [
+    //       {
+    //         ...toFeatureMultiPolygon([tilePolygon], { name: tileId + '-tile' }),
+    //         crs: {
+    //           type: 'name',
+    //           properties: {
+    //             name: ctx.tileMatrix.projection.toEpsgString(),
+    //           },
+    //         },
+    //       },
+    //       {
+    //         ...toFeatureMultiPolygon(tileIntersection, { name: tileId + '-inter' }),
+    //         crs: {
+    //           type: 'name',
+    //           properties: {
+    //             name: ctx.tileMatrix.projection.toEpsgString(),
+    //           },
+    //         },
+    //       },
+    //     ],
+    //   }),
+    // );
+    // console.log(tileId, areaPercent, zDiff < maxZoomDifference);
     if (areaPercent < minCoveragePercent && zDiff < maxZoomDifference) {
+      // console.trace(tileId, 'Delve', areaPercent);
+
       // Not enough coverage was found with this tile, use a more zoomed in tile and try again
       addChildren(tile, todo);
-    } else if (pixelCount > 1) {
+    } else if (pixelCount > 100) {
+      // console.log({})
       zoomDifference = Math.max(zDiff, zoomDifference);
       outputTiles.push(tile);
       tilesByZoom[tile.z] = (tilesByZoom[tile.z] ?? 0) + 1;
-      ctx.logger?.debug({ tileId, areaPercent: Number((areaPercent * 100).toFixed(2)) }, 'Cover:Tile');
+      ctx.logger?.debug({ tileId, areaPercent: Number((areaPercent * 100).toFixed(2)), pixelCount }, 'Cover:Tile');
       if (outputTiles.length % 25 === 0) {
         ctx.logger?.info({ tiles: outputTiles.length, tilesByZoom }, 'Cover:Progress');
       }
     } else {
-      ctx.logger?.debug({ pixelCount, tileId }, 'Cover:SkipTile');
+      ctx.logger?.trace({ pixelCount, tileId }, 'Cover:SkipTile');
     }
 
     if (zDiff === 0) addSurrounding(tile, ctx.tileMatrix, todo, visited);

@@ -66,6 +66,8 @@ export async function isEmptyTiff(toCheck: string | CogTiff): Promise<boolean> {
   // Starting the smallest tiff overview greatly reduces the amount of data needing to be read
   // if the tiff contains data.
   for (let i = tiff.images.length - 1; i >= 0; i--) {
+    // Cannot easily check non tiled files
+    if (!tiff.images[i].isTiled()) return false;
     const tileOffsets = tiff.images[i].tileOffset;
     await tileOffsets.load();
     const offsets = tileOffsets.value ?? [];

@@ -25,6 +25,7 @@
     "@basemaps/geo": "^6.44.0",
     "@basemaps/tiler": "^6.44.0",
     "@linzjs/metrics": "^6.41.0",
+    "lerc": "^4.0.4",
     "sharp": "^0.32.6"
   },
   "devDependencies": {

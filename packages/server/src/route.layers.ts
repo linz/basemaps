@@ -17,7 +17,7 @@ function getImageryCenterZoom(im: ConfigImagery): { lat: number; lon: number; zo
   if (tms == null) throw new Error(`Failed to lookup tileMatrix: ${im.tileMatrix}`);
   const proj = Projection.get(tms);
   const centerLatLon = proj.toWgs84([center.x, center.y]);
-  const targetZoom = Math.max(tms.findBestZoom(bestAspect) - 7, 0);
+  const targetZoom = Math.max(tms.findBestZoom(bestAspect) - 10, 0);
   return { lat: centerLatLon[1], lon: centerLatLon[0], zoom: targetZoom };
 }
 

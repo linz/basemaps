@@ -17,19 +17,33 @@ export function gdalBuildVrtWarp(
 ): GdalCommand {
   const tileMatrix = TileMatrixSets.find(opt.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + opt.tileMatrix);
+  const targetExtent = tileMatrix.tileToSourceBounds(opt.tile).scaleFromCenter(1.05).intersection(tileMatrix.extent);
+  if (targetExtent == null) throw new Error('Unable to find target extent: ' + JSON.stringify(opt.tile));
+
+  let outputType = 'vrt';
+  if (sourceProjection === Epsg.Wgs84.code) {
+    outputType = 'gtiff';
+  }
+
   return {
-    output: id + '.' + tileMatrix.identifier + '.vrt',
+    output: id + '.' + tileMatrix.identifier + `.${outputType}`,
     command: 'gdalwarp',
     args: [
-      ['-of', 'VRT'], // Output as a VRT
+      ['-of', outputType], // Output as a VRT
       '-multi', // Mutithread IO
+      ['-co', 'TILED=YES'],
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
+      ['-co', 'COMPRESS=lzw'],
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
       ['-t_srs', tileMatrix.projection.toEpsgString()], // Target EPSG
+      // Force Float32 for LERC compression otherwise lerc compression doesnt really work (unless lossless)
+      // ['-ot', 'float32'],
+      ['-te', ...targetExtent?.toBbox()],
+      opt.compression === 'lerc' && (opt.maxZError ?? 0) > 0 ? ['-ot', 'float32'] : [],
       opt.warpResampling ? ['-r', opt.warpResampling] : undefined,
       cutline.path ? ['-cutline', cutline.path, '-cblend', cutline.blend] : undefined,
       sourceVrt,
-      id + '.' + tileMatrix.identifier + '.vrt',
+      id + '.' + tileMatrix.identifier + `.${outputType}`,
     ]
       .filter((f) => f != null)
       .flat()
@@ -61,7 +75,7 @@ export function gdalBuildCog(id: string, sourceVrt: string, opt: CogifyCreationO
       ['-of', 'COG'],
       ['-co', 'NUM_THREADS=ALL_CPUS'], // Use all CPUS
       ['--config', 'GDAL_NUM_THREADS', 'all_cpus'], // Also required to NUM_THREADS till gdal 3.7.x
-      ['-co', 'BIGTIFF=IF_NEEDED'], // BigTiff is somewhat slower and most (All?) of the COGS should be well below 4GB
+      ['-co', 'BIGTIFF=YES'], // BigTiff is somewhat slower and most (All?) of the COGS should be well below 4GB
       ['-co', 'ADD_ALPHA=YES'],
       /**
        *  GDAL will recompress existing overviews if they exist which will compound
