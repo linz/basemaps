@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
+
+
+### Bug Fixes
+
+* **cli:** assets are optional ([#3008](https://github.com/linz/basemaps/issues/3008)) ([5ea056b](https://github.com/linz/basemaps/commit/5ea056b7e5bd95c37e209086990e3d9651250251))
+* **config:** allow config to be loaded where tiffs are not in Z-X-Y.tiff format ([#3009](https://github.com/linz/basemaps/issues/3009)) ([bee7815](https://github.com/linz/basemaps/commit/bee78153467571d8f4632070c842ee8f505d870e))
+* **server:** create missing all tileset and stac lookup locations ([#3003](https://github.com/linz/basemaps/issues/3003)) ([d9fcbd9](https://github.com/linz/basemaps/commit/d9fcbd9be22f239e915e029912d48e038de13765))
+* macosx sometimes timesout when running filesystem tests ([#2995](https://github.com/linz/basemaps/issues/2995)) ([fae5caa](https://github.com/linz/basemaps/commit/fae5caad11ca2dec261faacb9cc832cce1a4f0ec))
+
+
+### Features
+
+* Add proof of concept docs site BM-917 ([#2990](https://github.com/linz/basemaps/issues/2990)) ([cabccc7](https://github.com/linz/basemaps/commit/cabccc730de0c0016e9d102dc8df6acbf1510e00))
+* allow reads from linz "-scratch" buckets TDE-906 ([#2982](https://github.com/linz/basemaps/issues/2982)) ([615334f](https://github.com/linz/basemaps/commit/615334f0f26bcda4f7155e4b3b83bc39f39701af))
+* **doc:** Improve the individual package documentations. BM-776 ([#2981](https://github.com/linz/basemaps/issues/2981)) ([5a4adcb](https://github.com/linz/basemaps/commit/5a4adcbbff15857a6f4c315d54280d542f785fec))
+
+
+
+
+
 # [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/shared",
-  "version": "6.46.0",
+  "version": "7.0.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -23,13 +23,13 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@basemaps/config": "^6.46.0",
-    "@basemaps/geo": "^6.44.0",
-    "@basemaps/tiler": "^6.44.0",
+    "@basemaps/config": "^7.0.0",
+    "@basemaps/geo": "^7.0.0",
+    "@basemaps/tiler": "^7.0.0",
     "@chunkd/fs": "^10.0.2",
     "@chunkd/source-aws-v2": "^9.3.1",
-    "@linzjs/geojson": "^6.43.0",
-    "@linzjs/metrics": "^6.41.0",
+    "@linzjs/geojson": "^7.0.0",
+    "@linzjs/metrics": "^7.0.0",
     "aws-sdk": "^2.890.0",
     "entities": "^4.3.0",
     "pino": "^8.6.1",

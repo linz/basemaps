@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
+
+
+### Features
+
+* Add proof of concept docs site BM-917 ([#2990](https://github.com/linz/basemaps/issues/2990)) ([cabccc7](https://github.com/linz/basemaps/commit/cabccc730de0c0016e9d102dc8df6acbf1510e00))
+* upgrade to gdal 3.8.0 and add max_z_overview setting ([#3014](https://github.com/linz/basemaps/issues/3014)) ([0d78a9a](https://github.com/linz/basemaps/commit/0d78a9acd8e260e3caba452e00b68a81a001a68f))
+
+
+
+
+
 # [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
 
 **Note:** Version bump only for package @basemaps/cogify
