@@ -30,7 +30,6 @@ import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
 import { loadTiffsFromPaths } from './tiff.config.js';
-import { ConfigBundle } from '../config/config.bundle.js';
 
 const Q = PLimit(10);
 
