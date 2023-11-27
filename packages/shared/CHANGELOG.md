@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
+
+
+### Bug Fixes
+
+* **server:** create missing all tileset and stac lookup locations ([#3003](https://github.com/linz/basemaps/issues/3003)) ([d9fcbd9](https://github.com/linz/basemaps/commit/d9fcbd9be22f239e915e029912d48e038de13765))
+
+
+### Features
+
+* Add proof of concept docs site BM-917 ([#2990](https://github.com/linz/basemaps/issues/2990)) ([cabccc7](https://github.com/linz/basemaps/commit/cabccc730de0c0016e9d102dc8df6acbf1510e00))
+* **cli:** Relocate dgal and cog from cli package. BM-879 ([#2984](https://github.com/linz/basemaps/issues/2984)) ([6ebb106](https://github.com/linz/basemaps/commit/6ebb1061b8b044e8bb519a26ddd5912b57494d22))
+
+
+
+
+
 # [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
 
 **Note:** Version bump only for package @basemaps/shared

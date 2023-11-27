@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
+
+
+### Bug Fixes
+
+* **server:** create missing all tileset and stac lookup locations ([#3003](https://github.com/linz/basemaps/issues/3003)) ([d9fcbd9](https://github.com/linz/basemaps/commit/d9fcbd9be22f239e915e029912d48e038de13765))
+
+
+### Features
+
+* **doc:** Improve the individual package documentations. BM-776 ([#2981](https://github.com/linz/basemaps/issues/2981)) ([5a4adcb](https://github.com/linz/basemaps/commit/5a4adcbbff15857a6f4c315d54280d542f785fec))
+* **server:** docker improvements ([#3002](https://github.com/linz/basemaps/issues/3002)) ([9db2353](https://github.com/linz/basemaps/commit/9db2353d6bf3dc22ef2c295a6dc3de8a2022bc8c))
+* **server:** layer preview page for local debugging ([#3004](https://github.com/linz/basemaps/issues/3004)) ([eea8cc5](https://github.com/linz/basemaps/commit/eea8cc504f81f47a0bedb7e5f142c2286f57da7a))
+* Add proof of concept docs site BM-917 ([#2990](https://github.com/linz/basemaps/issues/2990)) ([cabccc7](https://github.com/linz/basemaps/commit/cabccc730de0c0016e9d102dc8df6acbf1510e00))
+
+
+
+
+
 # [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
 
 **Note:** Version bump only for package @basemaps/server

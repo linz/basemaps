@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "6.46.0",
+  "version": "7.0.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -39,18 +39,18 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "dependencies": {
-    "@basemaps/config": "^6.46.0",
-    "@basemaps/geo": "^6.44.0",
-    "@basemaps/server": "^6.46.0",
-    "@basemaps/shared": "^6.46.0",
-    "@basemaps/tiler": "^6.44.0",
-    "@basemaps/tiler-sharp": "^6.45.0",
+    "@basemaps/config": "^7.0.0",
+    "@basemaps/geo": "^7.0.0",
+    "@basemaps/server": "^7.0.0",
+    "@basemaps/shared": "^7.0.0",
+    "@basemaps/tiler": "^7.0.0",
+    "@basemaps/tiler-sharp": "^7.0.0",
     "@chunkd/fs": "^10.0.2",
     "@chunkd/source-aws-v2": "^9.3.1",
     "@cogeotiff/core": "^7.2.0",
     "@cotar/core": "^5.4.0",
     "@cotar/tar": "^5.4.1",
-    "@linzjs/geojson": "^6.43.0",
+    "@linzjs/geojson": "^7.0.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",
     "deep-diff": "^1.0.2",

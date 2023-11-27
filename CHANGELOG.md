@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
+
+
+### Bug Fixes
+
+* **cli:** assets are optional ([#3008](https://github.com/linz/basemaps/issues/3008)) ([5ea056b](https://github.com/linz/basemaps/commit/5ea056b7e5bd95c37e209086990e3d9651250251))
+* **config:** allow config to be loaded where tiffs are not in Z-X-Y.tiff format ([#3009](https://github.com/linz/basemaps/issues/3009)) ([bee7815](https://github.com/linz/basemaps/commit/bee78153467571d8f4632070c842ee8f505d870e))
+* **server:** create missing all tileset and stac lookup locations ([#3003](https://github.com/linz/basemaps/issues/3003)) ([d9fcbd9](https://github.com/linz/basemaps/commit/d9fcbd9be22f239e915e029912d48e038de13765))
+* head can throw "NotFound" ([#2992](https://github.com/linz/basemaps/issues/2992)) ([5d63672](https://github.com/linz/basemaps/commit/5d63672b41ead80eda95ec4baa7a445fbf69d272))
+* macosx sometimes timesout when running filesystem tests ([#2995](https://github.com/linz/basemaps/issues/2995)) ([fae5caa](https://github.com/linz/basemaps/commit/fae5caad11ca2dec261faacb9cc832cce1a4f0ec))
+* only invalidate top level directories ([#2993](https://github.com/linz/basemaps/issues/2993)) ([c36ab5d](https://github.com/linz/basemaps/commit/c36ab5d5b88f746bbec77b4b12ba4755774347ad))
+* reduce the number of cloudfront invalidations ([#2991](https://github.com/linz/basemaps/issues/2991)) ([786e4e9](https://github.com/linz/basemaps/commit/786e4e9e3ece1410cb77983baa3a887e198d69b2))
+* **cli:** Fix the installiation of node js in the cli container. BM-916 ([#2985](https://github.com/linz/basemaps/issues/2985)) ([eb62388](https://github.com/linz/basemaps/commit/eb62388f7b56c3a842234b76354535f9c68b4acc))
+
+
+### Features
+
+* upgrade to gdal 3.8.0 and add max_z_overview setting ([#3014](https://github.com/linz/basemaps/issues/3014)) ([0d78a9a](https://github.com/linz/basemaps/commit/0d78a9acd8e260e3caba452e00b68a81a001a68f))
+* **cli:** Relocate dgal and cog from cli package. BM-879 ([#2984](https://github.com/linz/basemaps/issues/2984)) ([6ebb106](https://github.com/linz/basemaps/commit/6ebb1061b8b044e8bb519a26ddd5912b57494d22))
+* **cli:** Remove the create-mapsheet cli which is relocated into argo-tasks. BM-911 ([#2987](https://github.com/linz/basemaps/issues/2987)) ([e661201](https://github.com/linz/basemaps/commit/e661201627147478362c278287f7967c25f63d76))
+* **doc:** Improve the individual package documentations. BM-776 ([#2981](https://github.com/linz/basemaps/issues/2981)) ([5a4adcb](https://github.com/linz/basemaps/commit/5a4adcbbff15857a6f4c315d54280d542f785fec))
+* **server:** docker improvements ([#3002](https://github.com/linz/basemaps/issues/3002)) ([9db2353](https://github.com/linz/basemaps/commit/9db2353d6bf3dc22ef2c295a6dc3de8a2022bc8c))
+* **server:** layer preview page for local debugging ([#3004](https://github.com/linz/basemaps/issues/3004)) ([eea8cc5](https://github.com/linz/basemaps/commit/eea8cc504f81f47a0bedb7e5f142c2286f57da7a))
+* Add proof of concept docs site BM-917 ([#2990](https://github.com/linz/basemaps/issues/2990)) ([cabccc7](https://github.com/linz/basemaps/commit/cabccc730de0c0016e9d102dc8df6acbf1510e00))
+* allow reads from linz "-scratch" buckets TDE-906 ([#2982](https://github.com/linz/basemaps/issues/2982)) ([615334f](https://github.com/linz/basemaps/commit/615334f0f26bcda4f7155e4b3b83bc39f39701af))
+
+
+
+
+
 # [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
 
 
