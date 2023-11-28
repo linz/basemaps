@@ -37,9 +37,8 @@ const ignoredLayers = new Set(['all']);
 
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
   _events: (() => boolean)[] = [];
-  state: LayerSwitcherDropdownState = { zoomToExtent: true, currentLayer: 'unknown' };
 
-  componentDidMount(): void {
+  override componentDidMount(): void {
     this.setState({ zoomToExtent: true, currentLayer: Config.map.layerKey });
 
     Config.map.layers.then((layers) => this.setState({ layers }));
@@ -50,7 +49,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     );
   }
 
-  componentWillUnmount(): void {
+  override componentWillUnmount(): void {
     for (const e of this._events) e();
     this._events = [];
   }
@@ -79,13 +78,13 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     this.setState({ zoomToExtent: target.checked });
   };
 
-  render(): ReactNode {
+  override render(): ReactNode {
     const ret = this.makeOptions();
 
     return (
       <div className="LuiDeprecatedForms">
         <h6>Layers</h6>
-        <Select<Option>
+        <Select.default
           options={ret.options}
           onChange={this.onLayerChange}
           value={ret.current}

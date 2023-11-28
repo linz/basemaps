@@ -39,7 +39,7 @@ export async function getParameters<T extends ParameterKeys>(
     return null;
   }
 
-  const output: Partial<T> = {};
+  const output: Record<string, unknown> = {};
   for (const param of Object.keys(keys)) {
     const edgeParam = targetStack.Stacks?.[0].Outputs?.find((f) => f.OutputKey === param)?.OutputValue;
     if (edgeParam == null) {
@@ -47,7 +47,7 @@ export async function getParameters<T extends ParameterKeys>(
       continue;
     }
 
-    output[param as keyof T] = edgeParam as string;
+    output[param] = edgeParam;
   }
 
   if (Object.keys(output).length > 0) return output as T;

@@ -4,7 +4,7 @@ import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
 import { LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
-import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { fastify, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
@@ -30,7 +30,7 @@ function getLandingLocation(): string | null {
 
 export async function createServer(opts: ServerOptions, logger: LogType): Promise<FastifyInstance> {
   const BasemapsServer = fastify({});
-  BasemapsServer.register(formBodyPlugin);
+  BasemapsServer.register(formBodyPlugin.default);
 
   const cfg = await loadConfig(opts, logger);
   setDefaultConfig(cfg);
@@ -85,7 +85,7 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
   BasemapsServer.all<{ Querystring: { api: string } }>('/@*', queryHandler);
 
   // Preview a list of layers
-  BasemapsServer.get('/layers', async (req: FastifyRequest, res: FastifyReply) => {
+  BasemapsServer.get('/layers', async (_req: FastifyRequest, res: FastifyReply) => {
     const doc = await createLayersHtml(cfg);
     res.status(200);
     res.header('Content-Type', 'text/html');

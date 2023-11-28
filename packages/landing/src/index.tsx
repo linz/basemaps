@@ -9,7 +9,7 @@ import { WindowUrl } from './url.js';
 import { isWebpSupported } from './webp.js';
 
 class Page extends Component {
-  render(): ReactNode {
+  override render(): ReactNode {
     return (
       <Fragment>
         <Header />

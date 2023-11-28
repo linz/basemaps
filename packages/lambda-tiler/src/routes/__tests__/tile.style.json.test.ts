@@ -112,15 +112,15 @@ o.spec('/v1/styles', () => {
     o(res.header('cache-control')).equals('no-store');
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    fakeStyle.sources.basemaps_vector = {
+    fakeStyle.sources['basemaps_vector'] = {
       type: 'vector',
       url: `${host}/vector?api=${Api.key}`,
     };
-    fakeStyle.sources.basemaps_raster = {
+    fakeStyle.sources['basemaps_raster'] = {
       type: 'raster',
       tiles: [`${host}/raster?api=${Api.key}`],
     };
-    fakeStyle.sources.basemaps_raster_encode = {
+    fakeStyle.sources['basemaps_raster_encode'] = {
       type: 'raster',
       tiles: [`${host}/raster/{z}/{x}/{y}.webp?api=${Api.key}`],
     };
@@ -145,15 +145,15 @@ o.spec('/v1/styles', () => {
     o(res.header('cache-control')).equals('no-store');
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    fakeStyle.sources.basemaps_vector = {
+    fakeStyle.sources['basemaps_vector'] = {
       type: 'vector',
       url: `${host}/vector?api=${Api.key}`,
     };
-    fakeStyle.sources.basemaps_raster = {
+    fakeStyle.sources['basemaps_raster'] = {
       type: 'raster',
       tiles: [`${host}/raster?api=${Api.key}`],
     };
-    fakeStyle.sources.basemaps_raster_encode = {
+    fakeStyle.sources['basemaps_raster_encode'] = {
       type: 'raster',
       tiles: [`${host}/raster/{z}/{x}/{y}.webp?api=${Api.key}`],
     };

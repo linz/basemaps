@@ -38,9 +38,9 @@ function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput:
 
 export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   debugMap = new DebugMap();
-  state: DebugState = {};
 
-  componentDidMount(): void {
+  override componentDidMount(): void {
+    this.setState({});
     this.waitForMap();
   }
 
@@ -136,7 +136,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     });
   }
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (Config.map.debug['debug.screenshot']) return null;
     const title = this.state.imagery?.title;
     return (

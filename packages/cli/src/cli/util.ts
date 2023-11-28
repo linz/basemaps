@@ -60,10 +60,9 @@ export async function getHash(Bucket: string, Key: string): Promise<string | nul
     const obj = await s3.headObject({ Bucket, Key }).promise();
     return obj.Metadata?.[HashKey] ?? null;
   } catch (e) {
-    if (e != null && 'code' in e) {
-      if (e.code === 'NoSuchKey') return null;
-      if (e.code === 'NotFound') return null;
-    }
+    if ((e as { code: string })?.code === 'NoSuchKey') return null;
+    if ((e as { code: string })?.code === 'NotFound') return null;
+
     throw e;
   }
 }
@@ -141,9 +140,11 @@ export async function uploadStaticFile(
  *  'Tasman rural 2018-19 0.3m' => 'tasman_rural_2018-19_0-3m'
  */
 export function nameImageryTitle(title: string): string {
-  return slugify(title.replace(/\.+/g, '-'), {
-    replacement: '_',
-    lower: true,
-    trim: true,
-  }).replace(/[^\w-_]/gi, '');
+  return slugify
+    .default(title.replace(/\.+/g, '-'), {
+      replacement: '_',
+      lower: true,
+      trim: true,
+    })
+    .replace(/[^\w-_]/gi, '');
 }

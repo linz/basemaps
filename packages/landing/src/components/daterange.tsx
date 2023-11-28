@@ -1,6 +1,6 @@
 import { Attribution } from '@basemaps/attribution';
 import { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Component, ReactNode } from 'react';
 
 import { MapAttributionState, MapAttrState } from '../attribution.js';
@@ -26,13 +26,13 @@ export class DateRange extends Component<{ map: maplibregl.Map }, DateRangeState
     return this.state.attribution.filter({ extent, zoom });
   }
 
-  componentDidMount(): void {
+  override componentDidMount(): void {
     this.props.map.on('moveend', this.handleAttributionBounds);
     Config.map.on('filter', this.handleAttributionBounds);
     MapAttrState.getCurrentAttribution().then((attribution) => this.setState({ attribution }));
   }
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (this.state == null) return;
     const filtered = this.state.filtered;
     if (filtered == null) return;

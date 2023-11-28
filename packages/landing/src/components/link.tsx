@@ -4,7 +4,7 @@ interface IconProps {
   name: string;
 }
 export class Icon extends Component<IconProps> {
-  render(): ReactNode {
+  override render(): ReactNode {
     return <i className="material-icons-round md-36">{this.props.name}</i>;
   }
 }
@@ -16,7 +16,7 @@ interface LinkProps {
   children: ReactNode[] | ReactNode;
 }
 export class Link extends Component<LinkProps> {
-  render(): ReactNode {
+  override render(): ReactNode {
     return (
       <a
         rel="noopener noreferrer"

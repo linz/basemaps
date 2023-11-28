@@ -1,5 +1,5 @@
 import { EpsgCode, GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Component, Fragment, ReactNode } from 'react';
 
 import { Config, GaEvent, gaEvent } from '../config.js';
@@ -16,16 +16,15 @@ export interface HeaderState {
 export class Header extends Component<unknown, HeaderState> {
   _events: (() => boolean)[] = [];
 
-  state: HeaderState = { isMenuOpen: false };
-
-  componentDidMount(): void {
+  override componentDidMount(): void {
+    this.setState({ isMenuOpen: false });
     this._events.push(Config.map.on('change', () => this.forceUpdate()));
     this._events.push(Config.map.on('filter', () => this.renderLinksTiles()));
 
     // If individual layers are on, we need the layer info to determine if they can use NZTM2000Quad WMTS
     Config.map.layers.then((layers) => this.setState({ layers }));
   }
-  componentWillUnmount(): void {
+  override componentWillUnmount(): void {
     for (const e of this._events) e();
     this._events = [];
   }
@@ -36,7 +35,7 @@ export class Header extends Component<unknown, HeaderState> {
     this.setState({ isMenuOpen });
   };
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (Config.map.isDebug) return;
     return (
       <header className="lui-header">

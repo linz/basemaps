@@ -23,8 +23,8 @@ export async function hashFile(stream: Readable): Promise<string> {
 }
 
 export class CommandBundleAssets extends CommandLineAction {
-  assets: CommandLineStringParameter;
-  output: CommandLineStringParameter;
+  assets!: CommandLineStringParameter;
+  output!: CommandLineStringParameter;
 
   public constructor() {
     super({

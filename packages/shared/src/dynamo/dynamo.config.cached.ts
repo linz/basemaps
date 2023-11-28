@@ -5,7 +5,7 @@ import { ConfigDynamoBase } from './dynamo.config.base.js';
 export class ConfigDynamoCached<T extends BaseConfig> extends ConfigDynamoBase<T> {
   cache: Map<string, T> = new Map();
 
-  public async get(id: string): Promise<T | null> {
+  public override async get(id: string): Promise<T | null> {
     const queryKey = this.ensureId(id);
     let existing: T | null | undefined = this.cache.get(queryKey);
     if (existing == null) {
@@ -17,7 +17,7 @@ export class ConfigDynamoCached<T extends BaseConfig> extends ConfigDynamoBase<T
     return existing;
   }
 
-  public async getAll(ids: Set<string>): Promise<Map<string, T>> {
+  public override async getAll(ids: Set<string>): Promise<Map<string, T>> {
     const output = new Map<string, T>();
     const toFetch = new Set<string>();
 

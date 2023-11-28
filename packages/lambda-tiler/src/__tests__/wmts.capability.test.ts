@@ -37,8 +37,8 @@ o.spec('WmtsCapabilities', () => {
 
     const urls = tags(wmtsCapability, 'ResourceURL');
     o(urls.length).equals(1);
-    o(urls[0].attrs.format).equals('image/avif');
-    o(urls[0].attrs.template).equals(
+    o(urls[0].attrs['format']).equals('image/avif');
+    o(urls[0].attrs['template']).equals(
       'https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234',
     );
   });
@@ -59,8 +59,8 @@ o.spec('WmtsCapabilities', () => {
 
     const urls = tags(wmtsCapability, 'ResourceURL');
     o(urls.length).equals(1);
-    o(urls[0].attrs.format).equals('image/avif');
-    o(urls[0].attrs.template).equals(
+    o(urls[0].attrs['format']).equals('image/avif');
+    o(urls[0].attrs['template']).equals(
       'https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json',
     );
   });
@@ -103,7 +103,7 @@ o.spec('WmtsCapabilities', () => {
 
     const urls = tags(wmtsCapability, 'ResourceURL');
     o(urls.length).equals(1);
-    o(urls[0].attrs.template).equals(
+    o(urls[0].attrs['template']).equals(
       'https://basemaps.test/v1/tiles/🦄-🌈-2022-0.5m/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234',
     );
 
@@ -359,19 +359,19 @@ o.spec('WmtsCapabilities', () => {
 
     const boundingBoxes = tags(layer, 'ows:BoundingBox');
     o(boundingBoxes.length).equals(2);
-    o(boundingBoxes[0].attrs.crs).equals('urn:ogc:def:crs:EPSG::3857');
+    o(boundingBoxes[0].attrs['crs']).equals('urn:ogc:def:crs:EPSG::3857');
     o(boundingBoxes[0].children.map((c) => c.textContent)).deepEquals([
       '19457809.9203 -4609458.5537',
       '19509787.0995 -4578883.7424',
     ]);
-    o(boundingBoxes[1].attrs.crs).equals('urn:ogc:def:crs:EPSG::2193');
+    o(boundingBoxes[1].attrs['crs']).equals('urn:ogc:def:crs:EPSG::2193');
     o(boundingBoxes[1].children.map((c) => c.textContent)).deepEquals([
       '5766358.9964 1757351.3045',
       '5793264.8304 1798321.5516',
     ]);
 
     const wgs84 = layer.find('ows:WGS84BoundingBox');
-    o(wgs84?.attrs.crs).equals('urn:ogc:def:crs:OGC:2:84');
+    o(wgs84?.attrs['crs']).equals('urn:ogc:def:crs:OGC:2:84');
     o(wgs84?.children.map((c) => c.textContent)).deepEquals(['174.79248 -38.212288', '175.259399 -37.996163']);
   });
 

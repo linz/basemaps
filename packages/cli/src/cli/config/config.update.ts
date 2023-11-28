@@ -17,7 +17,7 @@ export const Q = PLimit(10);
 
 export class Updater<S extends BaseConfig = BaseConfig> {
   config: S;
-  _oldData: Promise<ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null>;
+  _oldData?: Promise<ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null>;
   prefix: string;
   isCommit: boolean;
   logger: LogType;

@@ -11,14 +11,14 @@ o.spec('LambdaXyz index', () => {
 
   o.spec('version', () => {
     o.afterEach(() => {
-      delete process.env.GIT_VERSION;
-      delete process.env.GIT_HASH;
-      delete process.env.BUILD_ID;
+      delete process.env['GIT_VERSION'];
+      delete process.env['GIT_HASH'];
+      delete process.env['BUILD_ID'];
     });
 
     o('should return version', async () => {
-      process.env.GIT_VERSION = '1.2.3';
-      process.env.GIT_HASH = 'abc456';
+      process.env['GIT_VERSION'] = '1.2.3';
+      process.env['GIT_HASH'] = 'abc456';
 
       const response = await handler.router.handle(mockRequest('/v1/version'));
 
@@ -32,8 +32,8 @@ o.spec('LambdaXyz index', () => {
     });
 
     o('should include buildId if exists', async () => {
-      process.env.GIT_VERSION = '1.2.3';
-      process.env.BUILD_ID = '1658821493-3';
+      process.env['GIT_VERSION'] = '1.2.3';
+      process.env['BUILD_ID'] = '1658821493-3';
 
       const response = await handler.router.handle(mockRequest('/v1/version'));
 

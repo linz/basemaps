@@ -25,10 +25,10 @@ const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'h
 const VectorStyles = ['topographic', 'topolite', 'aerialhybrid']; // Vector styles that we want to review if vector data changes.
 
 export class CommandImport extends CommandLineAction {
-  private config: CommandLineStringParameter;
-  private backup: CommandLineStringParameter;
-  private output: CommandLineStringParameter;
-  private commit: CommandLineFlagParameter;
+  private config!: CommandLineStringParameter;
+  private backup!: CommandLineStringParameter;
+  private output!: CommandLineStringParameter;
+  private commit!: CommandLineFlagParameter;
 
   promises: Promise<boolean>[] = [];
   /** List of paths to invalidate at the end of the request */

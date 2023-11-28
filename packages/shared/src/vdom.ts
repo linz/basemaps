@@ -31,7 +31,7 @@ export class VNodeText extends VNode {
     this.text = text;
   }
 
-  toString(level = 0): string {
+  override toString(level = 0): string {
     return indent(level) + this.textContent;
   }
 
@@ -71,7 +71,7 @@ export class VNodeElement extends VNode {
     this.children = [new VNodeText(v)];
   }
 
-  toString(level = 0): string {
+  override toString(level = 0): string {
     const attrs = this.toStringAttrs();
     const padding = indent(level);
     const children = this.toStringChildren(level);
@@ -181,8 +181,8 @@ function normalizeChildren(children?: VNodeInput[] | VNodeInput): VNode[] {
  */
 export function V(tag: string): VNodeElement;
 export function V(tag: string, children: VNodeInput[] | VNodeInput): VNodeElement;
-export function V(tag: string, attrs: Record<string, unknown>, children?: VNodeInput[] | VNodeInput): VNodeElement;
-export function V(tag: string, arg1?: unknown, children?: VNodeInput[] | VNodeInput): VNodeElement {
+export function V(tag: string, attrs: Record<string, any>, children?: VNodeInput[] | VNodeInput): VNodeElement;
+export function V(tag: string, arg1?: any, children?: VNodeInput[] | VNodeInput): VNodeElement {
   const hasAttrs = typeof arg1 === 'object' && !Array.isArray(arg1);
   if (!hasAttrs) {
     if (children != null) throw new Error('Invalid input');

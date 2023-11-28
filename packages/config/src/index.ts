@@ -3,7 +3,6 @@ export {
   BasemapsConfigObject,
   BasemapsConfigProvider,
   ConfigId,
-  ConfigInstance,
   getAllImagery,
 } from './base.config.js';
 export { base58, isBase58 } from './base58.js';

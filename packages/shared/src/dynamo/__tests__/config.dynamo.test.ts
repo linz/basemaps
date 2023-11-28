@@ -26,7 +26,7 @@ class FakeDynamoDb {
 
   batchGetItem(req: any): unknown {
     this.getAll.push(req);
-    const keys = req.RequestItems.Foo.Keys.map((c: any) => DynamoDB.Converter.unmarshall(c).id);
+    const keys = req.RequestItems.Foo.Keys.map((c: any) => DynamoDB.Converter.unmarshall(c)['id']);
     const output = keys.map((c: string) => this.values.get(c)).filter((f: unknown) => f != null);
     return {
       promise(): Promise<unknown> {

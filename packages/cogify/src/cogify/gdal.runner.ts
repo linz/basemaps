@@ -31,7 +31,7 @@ function toDockerArgs(cmd: GdalCommand): string[] {
 
 export class GdalRunner {
   parser: GdalProgressParser = new GdalProgressParser();
-  startTime: number;
+  startTime!: number;
   cmd: GdalCommand;
 
   constructor(cmd: GdalCommand) {

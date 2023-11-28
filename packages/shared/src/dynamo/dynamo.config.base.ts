@@ -26,7 +26,7 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
     return this.cfg.dynamo;
   }
 
-  isWriteable(): this is BaseConfigWriteableObject<T> {
+  override isWriteable(): this is BaseConfigWriteableObject<T> {
     return true;
   }
 

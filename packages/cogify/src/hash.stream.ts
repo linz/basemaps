@@ -9,7 +9,7 @@ export class HashTransform extends Transform {
   /** Number of bytes processed */
   size = 0;
   /** digest of hash */
-  private _digestHex: string | null;
+  private _digestHex?: string;
 
   constructor(hashType: string) {
     super();
@@ -17,7 +17,7 @@ export class HashTransform extends Transform {
     this.hash = createHash(hashType);
   }
 
-  _transform(chunk: Buffer, encoding: BufferEncoding, callback: TransformCallback): void {
+  override _transform(chunk: Buffer, _encoding: BufferEncoding, callback: TransformCallback): void {
     // Only update the hash if it has not been digested
     if (this._digestHex) return callback(new Error(`Conflict: Hash has already been digested`));
 

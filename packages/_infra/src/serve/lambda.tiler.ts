@@ -19,7 +19,6 @@ export interface LambdaTilerProps {
  * Create a API Key validation edge lambda
  */
 export class LambdaTiler extends Construct {
-  public version: lambda.Version;
   public functionUrl: lambda.FunctionUrl;
 
   public lambdaNoVpc: lambda.Function;

@@ -16,7 +16,7 @@ export interface RasterPixelBounds {
 }
 
 /** The amount to bias the Bounds.round function to cover a larger, rather than smaller, area. */
-const ROUND_BIAS = process.env.TILE_ROUNDING_BIAS ? Number(process.env.TILE_ROUNDING_BIAS) : 0.1;
+const ROUND_BIAS = process.env['TILE_ROUNDING_BIAS'] ? Number(process.env['TILE_ROUNDING_BIAS']) : 0.1;
 
 export type CloudArchive = CogTiff | Cotar;
 function isCotar(x: CloudArchive): x is Cotar {

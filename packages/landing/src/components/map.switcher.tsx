@@ -8,11 +8,11 @@ import { onMapLoaded } from './map.js';
 
 export class MapSwitcher extends Component {
   _events: (() => boolean)[] = [];
-  map: maplibregl.Map;
-  el: HTMLDivElement;
-  currentStyle: string;
+  map!: maplibregl.Map;
+  el!: HTMLDivElement;
+  currentStyle!: string;
 
-  componentDidMount(): void {
+  override componentDidMount(): void {
     // Force the URL to be read before loading the map
     Config.map.updateFromUrl();
     this.el = document.getElementById('map-switcher-map') as HTMLDivElement;
@@ -46,7 +46,7 @@ export class MapSwitcher extends Component {
     });
   }
 
-  componentWillUnmount(): void {
+  override componentWillUnmount(): void {
     if (this.map) this.map.remove();
     for (const e of this._events) e();
   }
@@ -89,7 +89,7 @@ export class MapSwitcher extends Component {
     window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   };
 
-  render(): ReactNode {
+  override render(): ReactNode {
     const layerTitle = `Switch map to ${this.getStyleType().layerId}`;
     return (
       <div id="map-switcher" className="map-switcher" onClick={this.switchLayer} title={layerTitle}>

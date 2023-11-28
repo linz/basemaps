@@ -53,8 +53,8 @@ function newStat(timestamp: string, api: string, referer: string): TileRequestSt
     tileMatrix: {},
     generated: {
       v: RollupVersion,
-      hash: process.env.GIT_HASH,
-      version: process.env.GIT_VERSION,
+      hash: process.env['GIT_HASH'],
+      version: process.env['GIT_VERSION'],
     },
   };
 }

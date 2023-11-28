@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Component, ReactNode } from 'react';
 
 import { Config, GaEvent, gaEvent } from '../config.js';
@@ -9,7 +9,7 @@ export interface CopyableProps {
 }
 
 export class Copyable extends Component<CopyableProps, { copied: boolean }> {
-  render(): ReactNode {
+  override render(): ReactNode {
     return (
       <div className="LuiDeprecatedForms">
         <label>{this.props.header}</label>

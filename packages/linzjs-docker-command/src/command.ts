@@ -7,7 +7,7 @@ export interface CommandOptions {
 export class Command {
   executable: string;
 
-  container: string;
+  container?: string;
   containerTag?: string;
 
   useDocker = true;

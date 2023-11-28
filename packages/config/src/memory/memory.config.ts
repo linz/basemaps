@@ -24,7 +24,7 @@ export interface ConfigBundled {
   /** Configuration hash */
   hash: string;
   /** Assets location */
-  assets: string;
+  assets?: string;
   imagery: ConfigImagery[];
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
@@ -66,7 +66,7 @@ function removeUndefined(obj: unknown): void {
 }
 
 export class ConfigProviderMemory extends BasemapsConfigProvider {
-  type = 'memory' as const;
+  override type = 'memory' as const;
 
   Imagery = new MemoryConfigObject<ConfigImagery>(this, ConfigPrefix.Imagery);
   Style = new MemoryConfigObject<ConfigVectorStyle>(this, ConfigPrefix.Style);
@@ -76,9 +76,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   /** Memory cache of all objects */
   objects = new Map<string, BaseConfig>();
-
-  /** Asset path from the config bundle */
-  assets: string;
 
   /** Catch configs with the same imagery that using the different imagery ids. */
   duplicateImagery: DuplicatedImagery[] = [];
@@ -229,7 +226,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 }
 
 export class MemoryConfigObject<T extends BaseConfig> extends BasemapsConfigObject<T> {
-  prefix: ConfigPrefix;
   cfg: ConfigProviderMemory;
 
   constructor(cfg: ConfigProviderMemory, prefix: ConfigPrefix) {

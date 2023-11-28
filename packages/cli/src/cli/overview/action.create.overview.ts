@@ -27,8 +27,8 @@ export function filterTiff(a: string): boolean {
 }
 
 export class CommandCreateOverview extends CommandLineAction {
-  private source: CommandLineStringParameter;
-  private output: CommandLineStringParameter;
+  private source!: CommandLineStringParameter;
+  private output!: CommandLineStringParameter;
 
   public constructor() {
     super({
