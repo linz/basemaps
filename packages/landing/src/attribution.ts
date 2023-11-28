@@ -86,29 +86,44 @@ export const MapAttrState = new MapAttributionState();
 /**
  * Handles displaying attributions for the OpenLayers interface
  */
-export class MapAttribution {
-  map: maplibregl.Map;
-
+export class MapAttribution implements maplibre.IControl {
   /** handle for scheduleRender setTimeout */
   private _scheduled: number | NodeJS.Timeout | undefined;
   /** handle for scheduleRender requestAnimationFrame */
   private _raf = 0;
-
-  attributionHtml = '';
   bounds: maplibre.LngLatBounds = new maplibre.LngLatBounds([0, 0, 0, 0]);
   zoom = -1;
-  attributionControl?: maplibregl.AttributionControl | null;
 
-  constructor(map: maplibregl.Map) {
+  attrHtml: HTMLDivElement;
+  attrContainer: HTMLDivElement;
+
+  map: maplibre.Map;
+
+  constructor() {
+    this.attrContainer = document.createElement('div');
+    this.attrContainer.className = 'maplibregl-ctrl maplibregl-ctrl-attrib';
+    this.attrHtml = document.createElement('div');
+    this.attrHtml.className = `maplibregl-ctrl-attrib-inner mapboxgl-ctrl-attrib-inner`;
+    this.attrContainer.appendChild(this.attrHtml);
+  }
+
+  onAdd(map: maplibre.Map): HTMLElement {
     this.map = map;
     map.on('move', this.updateAttribution);
-    Config.map.on('tileMatrix', this.resetAttribution);
-    Config.map.on('layer', this.resetAttribution);
-
-    onMapLoaded(this.map, () => {
+    onMapLoaded(map, () => {
       this._events.push(Config.map.on('filter', this.updateAttribution));
       this.resetAttribution();
     });
+
+    this._events.push(Config.map.on('tileMatrix', this.resetAttribution));
+    this._events.push(Config.map.on('layer', this.resetAttribution));
+    return this.attrContainer;
+  }
+
+  onRemove(map: maplibre.Map): void {
+    for (const evt of this._events) evt();
+    this._events = [];
+    map.off('move', this.updateAttribution);
   }
 
   _events: (() => boolean)[] = [];
@@ -117,7 +132,6 @@ export class MapAttribution {
    * Trigger an attribution text update.
    */
   resetAttribution = (): void => {
-    this.attributionHtml = '';
     this.updateAttribution();
   };
 
@@ -126,8 +140,13 @@ export class MapAttribution {
    * Will fetch attributions if needed
    */
   updateAttribution = (): void => {
-    // Vector layers currently have no attribution
-    if (Config.map.isVector) return this.vectorAttribution();
+    if (Config.map.isVector) {
+      for (const source of Object.values(this.map.style.sourceCaches)) {
+        const attr = source.getSource().attribution;
+        if (attr) return this.setAttribution(attr);
+      }
+      return this.setAttribution('© Toitū Te Whenua');
+    }
     const loader = MapAttrState.getCurrentAttribution();
     loader.then(() => this.scheduleRender());
   };
@@ -149,18 +168,13 @@ export class MapAttribution {
     }, 200);
   }
 
-  removeAttribution(): void {
-    if (this.attributionControl == null) return;
-    this.map.removeControl(this.attributionControl);
-    this.attributionControl = null;
-  }
   /**
    * Set the attribution text if needed
    */
   renderAttribution = (): void => {
     this._raf = 0;
     const attr = MapAttrState._attrsSync.get(Config.map.layerKeyTms);
-    if (attr == null) return this.removeAttribution();
+    if (attr == null) return this.setAttribution('');
     const filtered = MapAttrState.filterAttributionToMap(attr, this.map);
     const filteredLayerIds = filtered.map((x) => x.collection.id).join('_');
     Config.map.emit('visibleLayers', filteredLayerIds);
@@ -171,20 +185,11 @@ export class MapAttribution {
     } else {
       attributionHTML = Copyright + ' - ' + attributionHTML;
     }
-    if (attributionHTML !== this.attributionHtml) {
-      this.attributionHtml = attributionHTML;
-      this.removeAttribution();
-      this.attributionControl = new maplibre.AttributionControl({ compact: false, customAttribution: attributionHTML });
-      this.map.addControl(this.attributionControl, 'bottom-right');
-    }
+
+    this.setAttribution(attributionHTML);
   };
 
-  /**
-   * Add attribution for vector map
-   */
-  vectorAttribution(): void {
-    this.removeAttribution();
-    this.attributionControl = new maplibre.AttributionControl({ compact: false });
-    this.map.addControl(this.attributionControl, 'bottom-right');
+  setAttribution(text: string): void {
+    this.attrHtml.innerText = text;
   }
 }

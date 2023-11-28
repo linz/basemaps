@@ -161,12 +161,16 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       attributionControl: false,
     });
 
-    this.mapAttr = new MapAttribution(this.map);
+    this.mapAttr = new MapAttribution();
+    this.map.addControl(this.mapAttr, 'bottom-right');
 
     if (Config.map.debug['debug.screenshot'] !== true) {
       const nav = new maplibre.NavigationControl({ visualizePitch: true });
       this.map.addControl(nav, 'top-left');
       if (!Config.map.isDebug) this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
+
+      const scale = new maplibre.ScaleControl({});
+      this.map.addControl(scale, 'bottom-right');
     }
 
     this.map.on('render', this.onRender);
