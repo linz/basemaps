@@ -51,7 +51,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       return;
     }
 
-    (window as any).MaplibreMap = map;
+    window.MaplibreMap = map;
 
     map.resize();
     onMapLoaded(map, () => {

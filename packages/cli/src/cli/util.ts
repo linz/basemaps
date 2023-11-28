@@ -59,9 +59,11 @@ export async function getHash(Bucket: string, Key: string): Promise<string | nul
   try {
     const obj = await s3.headObject({ Bucket, Key }).promise();
     return obj.Metadata?.[HashKey] ?? null;
-  } catch (e: any) {
-    if (e.code === 'NoSuchKey') return null;
-    if (e.code === 'NotFound') return null;
+  } catch (e) {
+    if (e != null && 'code' in e) {
+      if (e.code === 'NoSuchKey') return null;
+      if (e.code === 'NotFound') return null;
+    }
     throw e;
   }
 }

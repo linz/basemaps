@@ -5,7 +5,7 @@ export interface FileConfigWithPaths {
   files: string[];
 }
 
-export function isFileConfigPath(r: any): r is FileConfigPath {
+export function isFileConfigPath(r: unknown): r is FileConfigPath {
   return Array.isArray(r['files']);
 }
 

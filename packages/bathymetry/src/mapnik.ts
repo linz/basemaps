@@ -69,6 +69,7 @@ async function render(bm: BathyMaker, tile: Tile, logger: LogType): Promise<stri
   if (fs.existsSync(outputPath)) return outputPath;
 
   const template = makeTemplate(warpedPath, hillShadePath);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = new mapnik.Map(bm.config.tileSize, bm.config.tileSize) as any;
 
   await new Promise<void>((resolve, reject) =>

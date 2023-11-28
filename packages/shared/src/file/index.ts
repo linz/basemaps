@@ -21,7 +21,7 @@ export type FsaJson = typeof fsaSource & {
   configure(fs: FileConfig): void;
 };
 
-export const fsa = fsaSource as any as FsaJson;
+export const fsa = fsaSource as unknown as FsaJson;
 
 fsa.readJson = async function readJson<T>(filePath: string): Promise<T> {
   const data = await this.read(filePath);

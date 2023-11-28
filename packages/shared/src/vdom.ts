@@ -181,13 +181,13 @@ function normalizeChildren(children?: VNodeInput[] | VNodeInput): VNode[] {
  */
 export function V(tag: string): VNodeElement;
 export function V(tag: string, children: VNodeInput[] | VNodeInput): VNodeElement;
-export function V(tag: string, attrs: Record<string, any>, children?: VNodeInput[] | VNodeInput): VNodeElement;
-export function V(tag: string, arg1?: any, children?: VNodeInput[] | VNodeInput): VNodeElement {
+export function V(tag: string, attrs: Record<string, unknown>, children?: VNodeInput[] | VNodeInput): VNodeElement;
+export function V(tag: string, arg1?: unknown, children?: VNodeInput[] | VNodeInput): VNodeElement {
   const hasAttrs = typeof arg1 === 'object' && !Array.isArray(arg1);
   if (!hasAttrs) {
     if (children != null) throw new Error('Invalid input');
-    children = arg1;
+    children = arg1 as VNodeInput;
   }
 
-  return new VNodeElement(tag, hasAttrs ? arg1 : {}, normalizeChildren(children));
+  return new VNodeElement(tag, hasAttrs ? (arg1 as Record<string, string>) : {}, normalizeChildren(children));
 }

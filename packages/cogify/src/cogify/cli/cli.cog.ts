@@ -19,7 +19,7 @@ import { Url, UrlArrayJsonFile } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 
 // FIXME: HACK @cogeotiff/core to include the Lerc tiff tag
-if (TiffTag[0xc5f2] == null) (TiffTag as any)[0xc5f2] = 'Lerc';
+if (TiffTag[0xc5f2] == null) (TiffTag as Record<number, string>)[0xc5f2] = 'Lerc';
 
 function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
   return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => new URL(link.href, baseUrl));

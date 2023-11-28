@@ -19,8 +19,8 @@ const PixelPadding = 200;
 /** fraction to scale source imagery to avoid degenerate edges */
 const SourceSmoothScale = 1 + 1e-8;
 
-function findGeoJsonProjection(geojson: any | null): Epsg {
-  return Epsg.parse(geojson?.crs?.properties?.name ?? '') ?? Epsg.Wgs84;
+function findGeoJsonProjection(geojson: FeatureCollection | null): Epsg {
+  return Epsg.parse((geojson as FeatureCollectionWithCrs)?.crs?.properties?.name ?? '') ?? Epsg.Wgs84;
 }
 
 function namedBounds(tms: TileMatrixSet, tile: Tile): NamedBounds {

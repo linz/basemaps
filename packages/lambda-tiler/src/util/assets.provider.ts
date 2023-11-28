@@ -25,7 +25,7 @@ export class AssetProvider {
     try {
       const filePath = fsa.join(path, fileName);
       return await fsa.read(filePath);
-    } catch (e: any) {
+    } catch (e) {
       if (e.code === 404) return null;
       throw e;
     }

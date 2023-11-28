@@ -29,7 +29,7 @@ export async function getTestBuffer(test: TestTile): Promise<Buffer> {
   // Initiate test img buffer if not defined
   try {
     return await fs.promises.readFile(expectedFile);
-  } catch (e: any) {
+  } catch (e) {
     if (e.code !== 'ENOENT') throw e;
     const otherFile = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..', expectedFile);
     return await fs.promises.readFile(otherFile);
