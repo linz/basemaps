@@ -1,8 +1,9 @@
 import { fsa } from '@chunkd/fs';
-import path from 'path';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { NotFound } from '../util/response.js';
+import path from 'path';
+
 import { assetProvider } from '../util/assets.provider.js';
+import { NotFound } from '../util/response.js';
 
 interface SpriteGet {
   Params: {

@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { ConfigId } from '../base.config.js';
 import { ConfigPrefix } from '../config/prefix.js';
 

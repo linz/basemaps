@@ -19,7 +19,7 @@ export class Link extends Component<LinkProps> {
   render(): ReactNode {
     return (
       <a
-        rel="noopener"
+        rel="noopener noreferrer"
         target="_blank"
         href={this.props.href}
         style={{ display: 'flex' }}

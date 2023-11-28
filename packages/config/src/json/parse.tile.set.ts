@@ -1,5 +1,6 @@
 import { ImageFormat, VectorFormat } from '@basemaps/geo';
 import { z } from 'zod';
+
 import { parseRgba } from '../color.js';
 import { TileSetType } from '../config/tile.set.js';
 

@@ -1,5 +1,7 @@
 import { Bounds, Epsg, NamedBounds, Projection, Tile, TileMatrixSet } from '@basemaps/geo';
 import { compareName, fsa } from '@basemaps/shared';
+import { AlignedLevel, CoveringFraction } from '@basemaps/shared';
+import { CogJob, FeatureCollectionWithCrs, SourceMetadata } from '@basemaps/shared';
 import {
   clipMultipolygon,
   featuresToMultiPolygon,
@@ -10,8 +12,6 @@ import {
   union,
 } from '@linzjs/geojson';
 import { FeatureCollection } from 'geojson';
-import { AlignedLevel, CoveringFraction } from '@basemaps/shared';
-import { CogJob, FeatureCollectionWithCrs, SourceMetadata } from '@basemaps/shared';
 
 /** Padding to always apply to image boundies */
 const PixelPadding = 200;

@@ -1,10 +1,11 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
-import { handler } from '../../index.js';
-import { ConfigLoader } from '../../util/config.loader.js';
+
 import { Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
 import { Api, mockUrlRequest } from '../../__tests__/xyz.util.js';
+import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 
 o.spec('WMTSRouting', () => {
   const sandbox = createSandbox();

@@ -1,4 +1,5 @@
 import { getApiKey } from '@basemaps/shared/build/api.js';
+
 import { MapConfig } from './config.map.js';
 
 const currentApiKey: string = getApiKey();

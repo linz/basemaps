@@ -2,10 +2,11 @@ import { ConfigProviderMemory, StyleJson } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
-import { handler } from '../../index.js';
-import { ConfigLoader } from '../../util/config.loader.js';
+
 import { FakeData } from '../../__tests__/config.data.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
+import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 
 o.spec('/v1/styles', () => {
   const host = 'https://tiles.test';

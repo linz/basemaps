@@ -1,13 +1,13 @@
 import { fsa, LogConfig } from '@basemaps/shared';
+import { CliId } from '@basemaps/shared/build/cli/info.js';
 import CloudFormation from 'aws-sdk/clients/cloudformation.js';
 import CloudFront from 'aws-sdk/clients/cloudfront.js';
 import S3 from 'aws-sdk/clients/s3.js';
-import { CliId } from '@basemaps/shared/build/cli/info.js';
 import crypto from 'crypto';
 import path from 'path';
-import { gzip } from 'zlib';
-import { promisify } from 'util';
 import slugify from 'slugify';
+import { promisify } from 'util';
+import { gzip } from 'zlib';
 
 // Cloudfront has to be defined in us-east-1
 const cloudFormation = new CloudFormation({ region: 'us-east-1' });

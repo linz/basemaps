@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { V, VNode, VNodeElement, VNodeText } from '../vdom.js';
 
 o.spec('VDom', () => {

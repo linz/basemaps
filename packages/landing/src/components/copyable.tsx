@@ -1,5 +1,6 @@
-import { Component, ReactNode } from 'react';
 import clsx from 'clsx';
+import { Component, ReactNode } from 'react';
+
 import { Config, GaEvent, gaEvent } from '../config.js';
 
 export interface CopyableProps {

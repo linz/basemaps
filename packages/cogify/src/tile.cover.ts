@@ -1,10 +1,11 @@
 import { ConfigImageryTiff } from '@basemaps/config/build/json/tiff.config.js';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
-import { LogType, fsa } from '@basemaps/shared';
+import { fsa, LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { MultiPolygon, intersection, toFeatureCollection, union } from '@linzjs/geojson';
+import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
+
 import { createCovering } from './cogify/covering.js';
 import {
   CogifyLinkCutline,

@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
-import { command, multioption, flag, number, restPositionals, array, string } from 'cmd-ts';
+import { array, command, flag, multioption, number, restPositionals, string } from 'cmd-ts';
+import { promises as fs } from 'fs';
 import path from 'path';
+
 import { listSprites, ValidExtensions } from './fs.js';
 import { Sprites } from './sprites.js';
-import { promises as fs } from 'fs';
 
 export const SpriteCli = command({
   name: 'basemaps-sprites',

@@ -1,7 +1,9 @@
+import { pathToFileURL } from 'node:url';
+
 import { Env, LogConfig } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { Type, command, flag, number, option, optional, restPositionals, string } from 'cmd-ts';
-import { pathToFileURL } from 'node:url';
+import { command, flag, number, option, optional, restPositionals, string, Type } from 'cmd-ts';
+
 import { createServer } from './server.js';
 
 CliInfo.package = 'basemaps/server';

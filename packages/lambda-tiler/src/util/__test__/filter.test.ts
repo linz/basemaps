@@ -1,5 +1,6 @@
 import { ConfigLayer } from '@basemaps/config';
 import o from 'ospec';
+
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { filterLayers } from '../filter.js';
 

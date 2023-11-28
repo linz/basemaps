@@ -1,7 +1,8 @@
 import { Epsg, EpsgCode, TileMatrixSets } from '@basemaps/geo';
+
+import { Presets } from '../preset.js';
 import { GdalCommand } from './gdal.runner.js';
 import { CogifyCreationOptions } from './stac.js';
-import { Presets } from '../preset.js';
 
 export function gdalBuildVrt(id: string, source: string[]): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + id);

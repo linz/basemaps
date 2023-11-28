@@ -2,6 +2,7 @@ import { ConfigImagery, ConfigTileSet } from '@basemaps/config';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import o from 'ospec';
 import sinon from 'sinon';
+
 import { ConfigDynamoCached } from '../dynamo.config.cached.js';
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 

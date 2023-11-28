@@ -12,12 +12,13 @@ import {
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
+import { CogJobJson } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { FeatureCollection } from 'geojson';
 import fetch from 'node-fetch';
+
 import { invalidateCache } from '../util.js';
 import { Q, Updater } from './config.update.js';
-import { FeatureCollection } from 'geojson';
-import { CogJobJson } from '@basemaps/shared';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 

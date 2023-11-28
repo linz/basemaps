@@ -1,5 +1,6 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
+
 import { assertCacheMiss, ctx } from './base.js';
 
 describe('health', () => {

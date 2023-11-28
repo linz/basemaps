@@ -3,12 +3,13 @@ import { fsa } from '@basemaps/shared';
 import {
   Area,
   FeatureCollectionWithCrs,
-  MultiPolygon,
   featuresToMultiPolygon,
   intersection,
+  MultiPolygon,
   toFeatureCollection,
   toFeatureMultiPolygon,
 } from '@linzjs/geojson';
+
 import { CogifyLinkCutline } from './cogify/stac';
 import { urlToString } from './download.js';
 

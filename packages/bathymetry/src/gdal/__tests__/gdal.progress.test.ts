@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { GdalProgressParser } from '../gdal.progress.js';
 
 o.spec('GdalProgressParser', () => {

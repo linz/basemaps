@@ -1,12 +1,13 @@
 export * from './file.config.js';
 
-import { parseUri, FileSystem } from '@chunkd/core';
+import { FileSystem, parseUri } from '@chunkd/core';
 import { fsa as fsaSource } from '@chunkd/fs';
 import { FsAwsS3 } from '@chunkd/source-aws';
 import { AwsCredentials, CredentialSource, FsAwsS3ProviderV2 } from '@chunkd/source-aws-v2';
 import S3 from 'aws-sdk/clients/s3.js';
 import { promisify } from 'util';
 import { createGzip, gunzip } from 'zlib';
+
 import { Env } from '../const.js';
 import { LogConfig } from '../log.js';
 import { FileConfig, isConfigS3Role } from './file.config.js';

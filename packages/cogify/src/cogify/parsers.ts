@@ -1,6 +1,7 @@
+import { pathToFileURL } from 'node:url';
+
 import { fsa } from '@basemaps/shared';
 import { Type } from 'cmd-ts';
-import { pathToFileURL } from 'node:url';
 
 /**
  * Parse a input parameter as a URL.

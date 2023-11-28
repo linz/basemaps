@@ -2,6 +2,7 @@ import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
 import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
+
 import { MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';

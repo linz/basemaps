@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { toQueryString } from '../url.js';
 
 o.spec('toQueryString', () => {

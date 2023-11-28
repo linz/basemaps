@@ -1,5 +1,6 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import o from 'ospec';
+
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';

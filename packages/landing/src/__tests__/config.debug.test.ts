@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { ConfigDebug, DebugDefaults, DebugState } from '../config.debug.js';
 
 function urlToString(o: Partial<DebugState>): string {

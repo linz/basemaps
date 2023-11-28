@@ -1,5 +1,6 @@
 import maplibre from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
+
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { getTileGrid } from '../tile.matrix.js';

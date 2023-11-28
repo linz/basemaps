@@ -1,8 +1,10 @@
-import { sha256base58 } from '@basemaps/config';
-import { LogType, fsa } from '@basemaps/shared';
-import pLimit, { LimitFunction } from 'p-limit';
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { sha256base58 } from '@basemaps/config';
+import { fsa, LogType } from '@basemaps/shared';
+import pLimit, { LimitFunction } from 'p-limit';
+
 import { HashTransform } from './hash.stream.js';
 
 export interface SourceFile {

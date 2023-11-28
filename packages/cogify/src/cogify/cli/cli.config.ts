@@ -1,4 +1,4 @@
-import { ConfigProviderMemory, base58 } from '@basemaps/config';
+import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config/build/json/tiff.config.js';
 import { Projection, TileMatrixSets } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
@@ -6,6 +6,7 @@ import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, positional } from 'cmd-ts';
 import pLimit from 'p-limit';
+
 import { isArgo } from '../../argo.js';
 import { urlToString } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';

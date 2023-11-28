@@ -1,6 +1,6 @@
+import { Const } from '@basemaps/shared';
 import cdk from 'aws-cdk-lib';
 import dynamoDb from 'aws-cdk-lib/aws-dynamodb';
-import { Const } from '@basemaps/shared';
 import { Construct } from 'constructs';
 
 export class TileMetadataTable extends Construct {

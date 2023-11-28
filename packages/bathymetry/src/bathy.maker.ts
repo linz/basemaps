@@ -5,12 +5,13 @@ import type { LimitFunction } from 'p-limit';
 import PLimit from 'p-limit';
 import * as path from 'path';
 import { basename } from 'path';
+
 import { FilePath, FileType } from './file.js';
+import { GdalCommand } from './gdal/gdal.command.js';
+import { Gdal } from './gdal/gdal.js';
 import { Hash } from './hash.js';
 import { MapnikRender } from './mapnik.js';
 import { Stac } from './stac.js';
-import { GdalCommand } from './gdal/gdal.command.js';
-import { Gdal } from './gdal/gdal.js';
 
 interface BathyMakerContext {
   /** unique id for this build */

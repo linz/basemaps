@@ -1,6 +1,7 @@
 import { StyleJson } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import o from 'ospec';
+
 import { convertRelativeUrl, convertStyleJson } from '../routes/tile.style.json.js';
 
 o.spec('TileStyleJson', () => {

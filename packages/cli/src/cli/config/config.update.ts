@@ -1,16 +1,17 @@
 import {
   BaseConfig,
-  ConfigTileSet,
-  ConfigImagery,
-  ConfigProvider,
-  ConfigVectorStyle,
-  ConfigPrefix,
   BasemapsConfigProvider,
+  ConfigImagery,
+  ConfigPrefix,
+  ConfigProvider,
+  ConfigTileSet,
+  ConfigVectorStyle,
 } from '@basemaps/config';
 import { BasemapsConfigObject, ConfigId } from '@basemaps/config';
-import { getDefaultConfig, LogConfig, LogType, ConfigDynamoBase } from '@basemaps/shared';
-import { ConfigDiff } from './config.diff.js';
+import { ConfigDynamoBase, getDefaultConfig, LogConfig, LogType } from '@basemaps/shared';
 import PLimit from 'p-limit';
+
+import { ConfigDiff } from './config.diff.js';
 
 export const Q = PLimit(10);
 

@@ -1,6 +1,7 @@
 import { Env } from '@basemaps/shared';
 import { App } from 'aws-cdk-lib';
 import ACM from 'aws-sdk/clients/acm.js';
+
 import { EdgeAnalytics } from './analytics/edge.analytics.js';
 import { BaseMapsRegion, getConfig } from './config.js';
 import { DeployEnv } from './deploy.env.js';

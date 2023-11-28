@@ -1,6 +1,7 @@
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
 import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
+
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';

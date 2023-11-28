@@ -3,11 +3,12 @@ import { LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
 import sinon from 'sinon';
+
+import { FakeData } from '../../__tests__/config.data.js';
+import { Api, mockRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { Etag } from '../../util/etag.js';
-import { FakeData } from '../../__tests__/config.data.js';
-import { Api, mockRequest } from '../../__tests__/xyz.util.js';
 
 const sandbox = sinon.createSandbox();
 

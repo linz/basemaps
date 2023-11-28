@@ -1,5 +1,6 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Projection, TileMatrixSet } from '@basemaps/geo';
 import { StyleSpecification } from 'maplibre-gl';
+
 import { Config } from './config.js';
 import { FilterDate } from './config.map.js';
 import { MapLocation, MapOptionType, WindowUrl } from './url.js';

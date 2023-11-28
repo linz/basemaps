@@ -1,15 +1,16 @@
 import { EpsgCode, ImageFormat } from '@basemaps/geo';
 import { decodeTime, ulid } from 'ulid';
+
 import { BasemapsConfigObject, BasemapsConfigProvider, ConfigId } from '../base.config.js';
+import { sha256base58 } from '../base58.node.js';
 import { BaseConfig } from '../config/base.js';
+import { ConfigBundle } from '../config/config.bundle.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
-import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
-import { sha256base58 } from '../base58.node.js';
 
 interface DuplicatedImagery {
   id: string;

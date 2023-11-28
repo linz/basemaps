@@ -4,11 +4,12 @@ import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
 import { LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
-import fastify, { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createRequire } from 'module';
 import path from 'path';
 import ulid from 'ulid';
 import { URL } from 'url';
+
 import { loadConfig, ServerOptions } from './config.js';
 import { createLayersHtml } from './route.layers.js';
 

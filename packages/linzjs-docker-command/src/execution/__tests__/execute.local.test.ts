@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { Command } from '../../command.js';
 
 o.spec('LocalExecution', () => {

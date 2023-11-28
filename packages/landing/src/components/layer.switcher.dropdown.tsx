@@ -1,5 +1,6 @@
 import { ChangeEventHandler, Component, ReactNode } from 'react';
 import Select from 'react-select';
+
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
 

@@ -1,5 +1,6 @@
-import { Tile } from '@basemaps/geo';
 import { createHash } from 'node:crypto';
+
+import { Tile } from '@basemaps/geo';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 
 export interface CogifyCreationOptions {

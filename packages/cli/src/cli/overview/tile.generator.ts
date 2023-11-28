@@ -9,14 +9,15 @@ import {
   Tile,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
-import { fsa } from '@chunkd/fs';
-import pLimit from 'p-limit';
-import { CogTiff } from '@cogeotiff/core';
 import { CoSources } from '@basemaps/lambda-tiler/build/util/source.cache.js';
+import { LogType } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
+import { fsa } from '@chunkd/fs';
+import { CogTiff } from '@cogeotiff/core';
+import pLimit from 'p-limit';
 import Sharp from 'sharp';
+
 import { SimpleTimer } from './timer.js';
 
 const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;

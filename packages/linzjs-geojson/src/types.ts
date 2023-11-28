@@ -1,4 +1,4 @@
-export { MultiPolygon, Polygon, Ring, Pair } from 'polygon-clipping';
+export { MultiPolygon, Pair, Polygon, Ring } from 'polygon-clipping';
 
 export type BBox = [number, number, number, number];
 

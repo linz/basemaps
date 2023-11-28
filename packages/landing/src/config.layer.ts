@@ -3,8 +3,8 @@ import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { TileMatrixSets } from '@basemaps/geo';
 import { Projection } from '@basemaps/geo';
 import { joinUri } from '@chunkd/core';
-
 import { BBoxFeatureCollection } from '@linzjs/geojson';
+
 import { WindowUrl } from './url.js';
 
 export class ConfigData {

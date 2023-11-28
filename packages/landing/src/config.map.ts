@@ -10,6 +10,7 @@ import {
 } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
+
 import { MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';

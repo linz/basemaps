@@ -1,5 +1,6 @@
 import { BaseConfig, BaseConfigWriteableObject, BasemapsConfigObject, ConfigPrefix } from '@basemaps/config';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
+
 import { ConfigProviderDynamo } from './dynamo.config.js';
 
 export type IdQuery = { id: { S: string } };

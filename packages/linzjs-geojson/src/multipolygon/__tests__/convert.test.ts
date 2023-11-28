@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { MultiPolygon } from '../../types.js';
 import { multiPolygonToWgs84 } from '../convert.js';
 

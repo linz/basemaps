@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { MultiPolygon, Polygon, Ring } from '../../types.js';
 import { Area } from '../area.js';
 

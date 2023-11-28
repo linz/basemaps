@@ -1,9 +1,10 @@
 import { Attribution } from '@basemaps/attribution';
 import { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
+import clsx from 'clsx';
 import { Component, ReactNode } from 'react';
+
 import { MapAttributionState, MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
-import clsx from 'clsx';
 
 export const MinDate = '1950-01-01T00:00:00.000Z';
 export const MaxDate = `${new Date().getFullYear().toString()}-12-31T23:59:59.999Z`;

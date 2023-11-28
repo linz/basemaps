@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { nameImageryTitle } from '../util.js';
 
 o.spec('util', () => {

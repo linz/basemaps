@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { getUserAgent } from '../ua.js';
 
 o.spec('UserAgent', () => {

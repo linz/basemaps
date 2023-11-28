@@ -1,6 +1,7 @@
-import { LogType, getUrlHost, fsa, isValidApiKey } from '@basemaps/shared';
+import { fsa, getUrlHost, isValidApiKey, LogType } from '@basemaps/shared';
 import { createInterface, Interface } from 'readline';
 import { createGunzip } from 'zlib';
+
 import { LogStats } from './stats.js';
 import { getUserAgent } from './ua.js';
 

@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { LocationSlug } from '../slug.js';
 
 o.spec('LocationUrl', () => {

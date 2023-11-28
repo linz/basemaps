@@ -1,6 +1,7 @@
 import { LogConfig, LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { flag } from 'cmd-ts';
+
 import { isArgo } from './argo.js';
 
 export const logArguments = {

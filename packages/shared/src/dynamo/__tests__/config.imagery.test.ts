@@ -3,6 +3,7 @@ import { Epsg } from '@basemaps/geo';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import o from 'ospec';
 import sinon from 'sinon';
+
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
 const sandbox = sinon.createSandbox();

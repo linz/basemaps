@@ -1,6 +1,7 @@
 import o from 'ospec';
 import path, { resolve } from 'path';
 import url from 'url';
+
 import { Hash } from '../hash.js';
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 

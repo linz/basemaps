@@ -1,5 +1,5 @@
-import { join } from 'path';
 import { promises as fs } from 'fs';
+import { join } from 'path';
 
 /**
  * call `callback` for every file in `topDir`. Sub directories a traversed unless callback returns false.

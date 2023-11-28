@@ -1,5 +1,5 @@
 import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
-import { LogType, fsa } from '@basemaps/shared';
+import { fsa, LogType } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { CogTiff, TiffTag } from '@cogeotiff/core';
 import { Metrics } from '@linzjs/metrics';
@@ -8,6 +8,7 @@ import { mkdir, rm } from 'fs/promises';
 import { tmpdir } from 'os';
 import pLimit from 'p-limit';
 import { StacAsset, StacCollection } from 'stac-ts';
+
 import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader, urlToString } from '../../download.js';
 import { HashTransform } from '../../hash.stream.js';

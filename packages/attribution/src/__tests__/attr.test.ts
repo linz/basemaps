@@ -1,6 +1,7 @@
 import { AttributionCollection, AttributionItem, AttributionStac } from '@basemaps/geo';
 import { BBox } from 'geojson';
 import o from 'ospec';
+
 import { Attribution } from '../attribution.js';
 
 o.spec('Attribution', () => {

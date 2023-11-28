@@ -3,6 +3,7 @@ import { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
 import { GoogleTms, Stac, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
 import * as maplibre from 'maplibre-gl';
+
 import { onMapLoaded } from './components/map.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';

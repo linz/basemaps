@@ -1,2 +1,2 @@
-export * from './tiler.js';
 export * from './raster.js';
+export * from './tiler.js';

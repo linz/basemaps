@@ -1,5 +1,6 @@
-import { Epsg } from '../epsg.js';
 import o from 'ospec';
+
+import { Epsg } from '../epsg.js';
 import { Nztm2000Tms } from '../tms/nztm2000.js';
 
 o.spec('Epsg', () => {
