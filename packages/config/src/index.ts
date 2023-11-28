@@ -3,7 +3,7 @@ export {
   BasemapsConfigObject,
   BasemapsConfigProvider,
   ConfigId,
-  getAllImagery,
+  getAllImagery
 } from './base.config.js';
 export { base58, isBase58 } from './base58.js';
 export { ensureBase58, sha256base58 } from './base58.node.js';
@@ -19,10 +19,11 @@ export {
   ConfigTileSetRaster,
   ConfigTileSetVector,
   TileResizeKernel,
-  TileSetType,
+  TileSetType
 } from './config/tile.set.js';
 export { ConfigVectorStyle, Layer, Sources, StyleJson } from './config/vector.style.js';
-export { ConfigJson, zoomLevelsFromWmts } from './json/json.config.js';
+export { ConfigJson, isEmptyTiff, zoomLevelsFromWmts } from './json/json.config.js';
 export { standardizeLayerName } from './json/name.convertor.js';
 export { ConfigBundled, ConfigProviderMemory } from './memory/memory.config.js';
 export { TileSetNameComponents, TileSetNameParser } from './tile.set.name.js';
+

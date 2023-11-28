@@ -1,3 +1,4 @@
+import { isEmptyTiff } from '@basemaps/config';
 import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
@@ -92,12 +93,21 @@ export const BasemapsCogifyCreateCommand = command({
     const filtered = toCreate.filter((f) => {
       if (f == null) return false;
 
+      const invalidReason = f.item.properties['linz_basemaps:generated'].invalid;
+
       const cogAsset = f.item.assets['cog'];
-      if (cogAsset == null) return true;
+      if (cogAsset == null && invalidReason == null) return true;
+
       // Force overwrite existing COGs
       if (args.force) {
         logger.warn({ item: f.item.id, asset: cogAsset.href }, 'Cog:Create:Overwrite');
         return true;
+      }
+
+      // The cog was already created but deemed invalid
+      if (invalidReason) {
+        logger.warn({ item: f.item.id, asset: cogAsset.href, reason: invalidReason }, 'Cog:Create:Exists:invalid');
+        return false;
       }
 
       logger.info({ item: f.item.id, asset: cogAsset.href }, 'Cog:Create:Exists');
@@ -201,12 +211,19 @@ export const BasemapsCogifyCreateCommand = command({
         item.properties['linz_basemaps:generated']['gdal'] = gdalVersion.stdout;
 
         const cogStat = await fsa.head(outputTiffPath);
+        if (await isEmptyTiff(outputTiffPath)) {
+          // Empty tiff created, removing it from the stac
+          logger.error({ tileId, tiffPath }, 'Cog:Empty');
+          delete item.assets['cog'];
+          item.properties['linz_basemaps:generated'].invalid = 'empty';
+        }
 
         metrics.start(`${tileId}:write`);
         // Upload the output COG into the target location
         const readStream = fsa.stream(outputTiffPath).pipe(new HashTransform('sha256'));
         await fsa.write(urlToString(tiffPath), readStream);
         await validateOutputTiff(urlToString(tiffPath), logger);
+
         asset['file:checksum'] = readStream.multihash;
         asset['file:size'] = readStream.size;
         if (readStream.size !== cogStat?.size) {

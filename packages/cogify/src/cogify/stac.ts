@@ -73,6 +73,16 @@ export type CogifyStacItem = StacItem & {
       datetime: string;
       /** version of GDAL used to create the COG */
       gdal?: string;
+
+      /**
+       * is the tiff invalid
+       *
+       * If the tiff was generated but then determined to be invalid this property explains why the tiff was rejected.
+       *
+       * Reasons:
+       * - "empty" - No data was produced by GDAL when creating the tiff
+       */
+      invalid?: 'empty';
     };
     'linz_basemaps:options': CogifyCreationOptions;
   };
