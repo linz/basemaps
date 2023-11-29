@@ -4,8 +4,9 @@ import * as reactSelect from 'react-select';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
 
+// TODO the typing here appears to be broken
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Select = reactSelect.default as any;
-console.log(reactSelect);
 
 type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;
 
