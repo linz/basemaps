@@ -44,19 +44,19 @@ export class Header extends Component<unknown, HeaderState> {
     const isMenuOpen = this.state?.isMenuOpen ?? false;
     if (Config.map.isDebug) return;
     return (
-      <header className="lui-header">
-        <div className="lui-header-row">
-          <div className="lui-header-col">
-            <div className="lui-header-logo">
-              <img className="linz-logo" src="/assets/logo-linz.svg" />
+      <header className="LuiHeaderV2 LuiHeaderV2-small">
+        <div className="LuiHeaderV2-row">
+          <div className="LuiHeaderV2-col">
+            <div className="LuiHeaderV2-logo">
+              <img className="LuiHeaderV2-linz-motif" src="/assets/logo-linz.svg" width="150px" />
             </div>
-            <div className="lui-header-title">
+            <div className="LuiHeaderV2-title">
               <h1>Basemaps</h1>
             </div>
           </div>
-          <div className="lui-header-col">
-            <div className="lui-header-menu-item">
-              <div className="lui-header-menu-icon">
+          <div className="LuiHeaderV2-col">
+            <div className="LuiHeaderV2-menu-item">
+              <div className="LuiHeaderV2-menu-icon">
                 <i className="material-icons-round md-36" onClick={this.menuToggle} style={{ cursor: 'pointer' }}>
                   {isMenuOpen ? 'close' : 'menu'}
                 </i>

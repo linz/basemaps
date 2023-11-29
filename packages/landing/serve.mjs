@@ -19,7 +19,7 @@ const srv = http.createServer(function (request, response) {
     fs.createReadStream(target, {
       bufferSize: 4 * 1024,
     }).pipe(response);
-    console.log(200, type, request.url);
+    console.log(new Date().toISOString(), 200, type, request.url);
     return;
   }
 
@@ -29,7 +29,7 @@ const srv = http.createServer(function (request, response) {
   }).pipe(response);
 });
 
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+const port = process.env.PORT ? Number(process.env.PORT) : 5000;
 srv.listen(port, () => {
   process.stdout.write(`listening.. http://localhost:${port}\n`);
 });

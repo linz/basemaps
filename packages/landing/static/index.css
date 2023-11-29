@@ -33,6 +33,8 @@ button {
   width: 450px;
   padding: 24px;
   z-index: 100;
+  margin-top: 56px;
+  padding-top: 0;
 }
 
 .lui-menu-drawer.lui-menu-drawer-wide.lui-menu-drawer-closed {
@@ -198,30 +200,6 @@ button {
   height: 40px;
 }
 
-.date-range {
-  background:rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 8px 8px rgb(0 0 0 / 10%);
-  border: 2px solid rgba(255, 255, 255);
-  border-radius: 8px;
-  padding: 16px 16px 16px 16px;
-  position: absolute;
-  right: 16px;
-  bottom: 32px;
-}
-
-.date-range__year {
-  border:1px solid gray;
-  backgroundColor:white;
-}
-
-.date-range__year--selected {
-  border:2px solid blue;
-  backgroundColor:lightblue;
-}
-
-.date-range p {
-  margin-top: 16px;
-}
 
 /*
 The additional #layer-selector id selector is needed to ensure these styles
@@ -233,11 +211,6 @@ have higher specifity than the default styles of the react-select component
   letter-spacing: 1px;
 }
 
-
-/** Override header logo size as its too big **/
-.linz-logo.linz-logo { 
-  width: 170px;
-}
 
 /** Force the footer links to be centered */
 .lui-footer.lui-footer .lui-footer-list li {
