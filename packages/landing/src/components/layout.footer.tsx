@@ -20,7 +20,7 @@ export class Footer extends Component {
         <div className="lui-footer-columns">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Link href="http://www.govt.nz/" ariaLabel="New Zealand Government">
-              <img src="/assets/logo-nz-govt.svg" />
+              <img src="/assets/logo-nz-govt.svg" width="211px" />
             </Link>
           </div>
           <div className="justify-end">
