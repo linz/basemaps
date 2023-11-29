@@ -2,7 +2,7 @@
 #
 # Create a deployment bundle with sharp/libvips prebuilt included
 #
-../../scripts/bundle.js package.json
+../../scripts/bundle.mjs package.json
 cd dist
 ../scripts/create.deployment.package.mjs
 # Make the new package a commonjs module
