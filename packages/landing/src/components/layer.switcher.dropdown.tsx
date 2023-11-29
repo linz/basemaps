@@ -1,8 +1,11 @@
 import { ChangeEventHandler, Component, ReactNode } from 'react';
-import Select from 'react-select';
+import * as reactSelect from 'react-select';
 
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
+
+const Select = reactSelect.default as any;
+console.log(reactSelect);
 
 type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;
 
@@ -37,6 +40,11 @@ const ignoredLayers = new Set(['all']);
 
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
   _events: (() => boolean)[] = [];
+
+  constructor(p: unknown) {
+    super(p);
+    this.state = { zoomToExtent: true, currentLayer: 'unknown' };
+  }
 
   override componentDidMount(): void {
     this.setState({ zoomToExtent: true, currentLayer: Config.map.layerKey });
@@ -84,7 +92,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     return (
       <div className="LuiDeprecatedForms">
         <h6>Layers</h6>
-        <Select.default
+        <Select
           options={ret.options}
           onChange={this.onLayerChange}
           value={ret.current}
