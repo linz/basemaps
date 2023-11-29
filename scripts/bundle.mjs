@@ -11,7 +11,7 @@ import path from 'path';
 import * as z from 'zod';
 
 import { GitTag } from '../packages/shared/build/cli/git.tag.js';
-import { recurseDirectory } from './file.util.js';
+import { recurseDirectory } from './file.util.mjs';
 
 const gitInfo = GitTag();
 const DefaultEnvVars = {

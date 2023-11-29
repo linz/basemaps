@@ -25,7 +25,7 @@
   },
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
-    "bundle": "../../scripts/bundle.js package.json"
+    "bundle": "../../scripts/bundle.mjs package.json"
   },
   "devDependencies": {
     "@types/ua-parser-js": "^0.7.36"

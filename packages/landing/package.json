@@ -20,9 +20,9 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
-    "start": "TILE_HOST=${TILE_HOST:-https://dev.basemaps.linz.govt.nz} nodemon ../../scripts/bundle.js -e 'ts tsx html css' -i 'dist/*' -- package.json",
-    "bundle": "../../scripts/bundle.js package.json",
-    "deploy:deploy": "node scripts/deploy.js"
+    "start": "TILE_HOST=${TILE_HOST:-https://dev.basemaps.linz.govt.nz} nodemon ../../scripts/bundle.mjs -e 'ts tsx html css' -i 'dist/*' -- package.json",
+    "bundle": "../../scripts/bundle.mjs package.json",
+    "deploy:deploy": "node scripts/deploy.mjs"
   },
   "browserslist": [
     "last 2 Chrome versions"

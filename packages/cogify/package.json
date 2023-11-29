@@ -20,7 +20,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "bundle": "../../scripts/bundle.js package.json",
+    "bundle": "../../scripts/bundle.mjs package.json",
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "bundle": [
