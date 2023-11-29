@@ -233,3 +233,14 @@ have higher specifity than the default styles of the react-select component
   letter-spacing: 1px;
 }
 
+
+/** Override header logo size as its too big **/
+.linz-logo.linz-logo { 
+  width: 170px;
+}
+
+/** Force the footer links to be centered */
+.lui-footer.lui-footer .lui-footer-list li {
+  margin-top: 0;
+  margin-bottom: 0;
+}

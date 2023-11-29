@@ -23,7 +23,7 @@ export class Footer extends Component {
               <img src="/assets/logo-nz-govt.svg" width="211px" />
             </Link>
           </div>
-          <div className="justify-end">
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <ul className="lui-footer-list">
               <li className="lui-footer-inline-list-item">
                 <Link href="https://www.linz.govt.nz/contact-us">Contact</Link>
