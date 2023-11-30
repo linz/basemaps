@@ -217,3 +217,8 @@ have higher specifity than the default styles of the react-select component
   margin-top: 0;
   margin-bottom: 0;
 }
+
+/** Attempt to align the hamburger menu to the map controls */
+.LuiHeaderV2-menu-icon {
+  padding-right: 8px;
+}
