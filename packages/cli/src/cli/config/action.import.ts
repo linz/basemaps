@@ -72,7 +72,7 @@ export class CommandImport extends CommandLineAction {
     });
   }
 
-  async getConfig(logger:LogType): Promise<BasemapsConfigProvider> {
+  async getConfig(logger: LogType): Promise<BasemapsConfigProvider> {
     if (this.target.value) {
       logger.info({ config: this.target.value }, 'Import:Target:Load');
       const configJson = await fsa.readJson<ConfigBundled>(this.target.value);
@@ -109,8 +109,17 @@ export class CommandImport extends CommandLineAction {
     const mem = ConfigProviderMemory.fromJson(configJson);
 
     logger.info({ config }, 'Import:Start');
-    for (const config of mem.objects.values()) this.update(config, cfg, commit);
+    const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
+    for (const config of mem.objects.values()) {
+      const objectType = ConfigId.getPrefix(config.id);
+      if (objectType) {
+        objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1
+      }
+      this.update(config, cfg, commit);
+    }
     await Promise.all(this.promises);
+
+    logger.info({ objects: mem.objects.size, types: objectTypes }, 'Import:Compare:Done')
 
     if (commit) {
       const configBundle: ConfigBundle = {
