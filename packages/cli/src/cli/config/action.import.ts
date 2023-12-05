@@ -78,7 +78,7 @@ export class CommandImport extends CommandLineAction {
       const configJson = await fsa.readJson<ConfigBundled>(this.target.value);
       const mem = ConfigProviderMemory.fromJson(configJson);
       setDefaultConfig(mem);
-      return mem
+      return mem;
     }
     return getDefaultConfig();
   }
@@ -113,13 +113,13 @@ export class CommandImport extends CommandLineAction {
     for (const config of mem.objects.values()) {
       const objectType = ConfigId.getPrefix(config.id);
       if (objectType) {
-        objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1
+        objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
       }
       this.update(config, cfg, commit);
     }
     await Promise.all(this.promises);
 
-    logger.info({ objects: mem.objects.size, types: objectTypes }, 'Import:Compare:Done')
+    logger.info({ objects: mem.objects.size, types: objectTypes }, 'Import:Compare:Done');
 
     if (commit) {
       const configBundle: ConfigBundle = {
@@ -138,7 +138,7 @@ export class CommandImport extends CommandLineAction {
         configBundle.id = cfg.ConfigBundle.id('latest');
         await cfg.ConfigBundle.put(configBundle);
       } else {
-        logger.error("Import:NotWriteable")
+        logger.error('Import:NotWriteable');
       }
     }
 
