@@ -47,17 +47,22 @@ function floatToImage(ret: { data: Buffer; info: Sharp.OutputInfo }): { data: Bu
 
 function floatToImageRamp(ret: { data: Buffer; info: Sharp.OutputInfo }): { data: Buffer; info: Sharp.OutputInfo } {
   const raw = new Uint8ClampedArray(ret.info.width * ret.info.height * 4);
+  // console.log(ret.data.length);
 
   // console.log(ret.data, ret.data.length);
   // const inputBuf = Float32Array.from(ret.data);
   // console.log(inputBuf);
 
-  for (let i = 0; i < ret.data.length; i += 4) {
+  for (let i = 0; i < ret.data.length; i += 16) {
     // const offset = i * 4;
-    const offset = i;
+    const offset = i / 4;
 
+    const alpha = ret.data.readFloatLE(i + 12);
+    if (alpha < 5) continue;
     const px = ret.data.readFloatLE(i);
-    if (px < -9000) continue;
+    // console.log(ret.data.slice(i + 12, i + 16), alpha);
+    // console.log(px, alpha);
+
     // console.log(px);
     const color = ramp.get(px);
 
@@ -70,7 +75,6 @@ function floatToImageRamp(ret: { data: Buffer; info: Sharp.OutputInfo }): { data
 }
 
 const EmptyImage = new Map<string, Promise<Buffer>>();
-
 export class TileMakerSharp implements TileMaker {
   static readonly MaxImageSize = 256 * 2 ** 15;
   private width: number;
@@ -245,9 +249,10 @@ export class TileMakerSharp implements TileMaker {
     if (crop) sharp.extract({ top: crop.y, left: crop.x, width: crop.width, height: crop.height });
 
     if (dec.type === 'application/lerc') {
-      const ret = await sharp.extractChannel(0).raw({ depth: 'float' }).toBuffer({ resolveWithObject: true });
+      const ret = await sharp.raw({ depth: 'float' }).toBuffer({ resolveWithObject: true });
+      console.log(ret.data.length, ret.data.length / 4, ret.info);
       // console.log(ret);
-      const f2i = floatToImage(ret);
+      const f2i = floatToImageRamp(ret);
       // console.log(f2i, f2i.data.length);
       return {
         input: f2i.data,

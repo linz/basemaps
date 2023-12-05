@@ -8,7 +8,9 @@ import { Context } from 'aws-lambda';
 import { pathToFileURL } from 'url';
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
-const target = pathToFileURL(`/home/blacha/git/linz/basemaps/packages/cogify/target/3857/float/taranaki_2021/`);
+const target = pathToFileURL(
+  `/home/blacha/git/linz/basemaps/packages/cogify/target/3857/nz-8m-dem-2012/01HGF1TK0Z8QN86BTFGJXTTZYF/`,
+);
 const tile = fromPath('/7/125/79.png');
 
 const outputFormat = ImageFormat.Png;

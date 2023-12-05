@@ -43,6 +43,8 @@ export class CutlineOptimizer {
   /** Cut a polygon to the cutline */
   cut(poly: MultiPolygon): MultiPolygon {
     if (this.cutline == null) return poly;
+    // console.log(this.cutline)
+
     // TODO buffer the cutline by this.blend so blended tiles will be included
     // although it is somewhat wasteful to make a cog just for a blended cut
     return intersection(poly, this.cutline);

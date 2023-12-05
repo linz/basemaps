@@ -81,8 +81,9 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     ctx.imagery.projection,
   );
 
-  const clampedPolygon = intersection(imageryPolygon, tileMatrixExtent);
-  const sourceBounds = projectPolygon(clampedPolygon, ctx.imagery.projection, ctx.tileMatrix.projection.code);
+  console.log(ctx.tileMatrix.identifier)
+  // const clampedPolygon = intersection(imageryPolygon, tileMatrixExtent);
+  const sourceBounds = projectPolygon(imageryPolygon, ctx.imagery.projection, ctx.tileMatrix.projection.code);
 
   ctx.logger?.debug('Cutline:Apply');
   ctx.metrics?.start('cutline:apply');

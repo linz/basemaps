@@ -46,7 +46,7 @@
     ]
   },
   "resolutions": {
-    "@chunkd/core": ">=10.0.0",
+    "@chunkd/core": "10.0.x",
     "hosted-git-info": ">=2.8.9",
     "lodash": ">=4.17.21",
     "trim-newlines": ">=3.0.1 <4.0.0",

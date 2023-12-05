@@ -91,11 +91,15 @@ export function createCovering(ctx: CoveringContext): Tile[] {
   ctx.metrics?.start('cutline:simplify');
   const onePixelAtOverviewResolution = ctx.tileMatrix.pixelScale(ctx.targetZoom);
   const onePixelAtBaseResolution = ctx.tileMatrix.pixelScale(ctx.baseZoom);
+
+  console.log(onePixelAtOverviewResolution, onePixelAtBaseResolution)
   const cutBounds = Simplify.multiPolygon(
     ctx.cutline.cut(ctx.source), // Cut the source to the cutline
     onePixelAtOverviewResolution,
     onePixelAtBaseResolution, // Remove any polygons that are less than 1 pixel
   );
+
+  console.log(JSON.stringify(ctx.source))
 
   const cutlineDuration = ctx.metrics?.end('cutline:simplify');
   // No imagery was left after the cutline
