@@ -212,33 +212,33 @@ export const BasemapsCogifyCreateCommand = command({
 
         const cogStat = await fsa.head(outputTiffPath);
         if (await isEmptyTiff(outputTiffPath)) {
-          // Empty tiff created, removing it from the stac
-          logger.error({ tileId, tiffPath }, 'Cog:Empty');
+          // Empty tiff created, remove it from the stac
+          logger.warn({ tileId, tiffPath }, 'Cog:Empty');
           delete item.assets['cog'];
           item.properties['linz_basemaps:generated'].invalid = 'empty';
+        } else {
+          metrics.start(`${tileId}:write`);
+          // Upload the output COG into the target location
+          const readStream = fsa.stream(outputTiffPath).pipe(new HashTransform('sha256'));
+          await fsa.write(urlToString(tiffPath), readStream);
+          await validateOutputTiff(urlToString(tiffPath), logger);
+
+          asset['file:checksum'] = readStream.multihash;
+          asset['file:size'] = readStream.size;
+          if (readStream.size !== cogStat?.size) {
+            logger.warn({ readStream: readStream.size, stat: cogStat?.size }, 'SizeMismatch');
+          }
+
+          logger.debug(
+            {
+              target: tiffPath,
+              hash: asset['file:checksum'],
+              size: asset['file:size'],
+              duration: metrics.end(`${tileId}:write`),
+            },
+            'Cog:Create:Write',
+          );
         }
-
-        metrics.start(`${tileId}:write`);
-        // Upload the output COG into the target location
-        const readStream = fsa.stream(outputTiffPath).pipe(new HashTransform('sha256'));
-        await fsa.write(urlToString(tiffPath), readStream);
-        await validateOutputTiff(urlToString(tiffPath), logger);
-
-        asset['file:checksum'] = readStream.multihash;
-        asset['file:size'] = readStream.size;
-        if (readStream.size !== cogStat?.size) {
-          logger.warn({ readStream: readStream.size, stat: cogStat?.size }, 'SizeMismatch');
-        }
-
-        logger.debug(
-          {
-            target: tiffPath,
-            hash: asset['file:checksum'],
-            size: asset['file:size'],
-            duration: metrics.end(`${tileId}:write`),
-          },
-          'Cog:Create:Write',
-        );
         // Write the STAC metadata
         await fsa.write(urlToString(itemStacPath), JSON.stringify(item, null, 2));
         logger.info({ tileId, tiffPath, duration: metrics.end(tileId) }, 'Cog:Create:Done');
