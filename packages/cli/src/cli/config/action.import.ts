@@ -11,7 +11,7 @@ import {
   standardizeLayerName,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps/geo';
-import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
+import { Env, fsa, getDefaultConfig, LogConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import { CogJobJson } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { FeatureCollection } from 'geojson';
@@ -26,7 +26,6 @@ const VectorStyles = ['topographic', 'topolite', 'aerialhybrid']; // Vector styl
 
 export class CommandImport extends CommandLineAction {
   private config!: CommandLineStringParameter;
-  private backup!: CommandLineStringParameter;
   private output!: CommandLineStringParameter;
   private commit!: CommandLineFlagParameter;
   private target!: CommandLineStringParameter;
@@ -56,11 +55,6 @@ export class CommandImport extends CommandLineAction {
       description: 'Path of config json, this can be both a local path or s3 location',
       required: true,
     });
-    this.backup = this.defineStringParameter({
-      argumentName: 'BACKUP',
-      parameterLongName: '--backup',
-      description: 'Backup the old config into a config bundle json',
-    });
     this.output = this.defineStringParameter({
       argumentName: 'OUTPUT',
       parameterLongName: '--output',
@@ -78,24 +72,28 @@ export class CommandImport extends CommandLineAction {
     });
   }
 
+  async getConfig(logger:LogType): Promise<BasemapsConfigProvider> {
+    if (this.target.value) {
+      logger.info({ config: this.target.value }, 'Import:Target:Load');
+      const configJson = await fsa.readJson<ConfigBundled>(this.target.value);
+      const mem = ConfigProviderMemory.fromJson(configJson);
+      setDefaultConfig(mem);
+      return mem
+    }
+    return getDefaultConfig();
+  }
+
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
     const commit = this.commit.value ?? false;
     const config = this.config.value;
-    const backup = this.backup.value;
-    let cfg = getDefaultConfig();
+
     if (config == null) throw new Error('Please provide a config json');
     if (commit && !config.startsWith('s3://') && Env.isProduction()) {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
     }
 
-    // Load a configuration from a file, and use that as the comparision target
-    if (this.target.value) {
-      logger.info({ config: this.target.value }, 'Import:Target:Load');
-      const configJson = await fsa.readJson<ConfigBundled>(this.target.value);
-      const mem = ConfigProviderMemory.fromJson(configJson);
-      cfg = mem;
-    }
+    const cfg = await this.getConfig(logger);
 
     const HostPrefix = Env.isProduction() ? '' : 'dev.';
     const healthEndpoint = `https://${HostPrefix}basemaps.linz.govt.nz/v1/health`;
@@ -111,7 +109,7 @@ export class CommandImport extends CommandLineAction {
     const mem = ConfigProviderMemory.fromJson(configJson);
 
     logger.info({ config }, 'Import:Start');
-    for (const config of mem.objects.values()) this.update(config, commit);
+    for (const config of mem.objects.values()) this.update(config, cfg, commit);
     await Promise.all(this.promises);
 
     if (commit) {
@@ -149,19 +147,15 @@ export class CommandImport extends CommandLineAction {
       if (!res.ok) throw new Error('Basemaps is unhealthy');
     }
 
-    if (backup) {
-      await fsa.writeJson(backup, this.backupConfig.toJson());
-    }
-
     const output = this.output.value;
     if (output) await this.outputChange(output, mem, cfg);
 
     if (commit !== true) logger.info('DryRun:Done');
   }
 
-  update(config: BaseConfig, commit: boolean): void {
+  update(config: BaseConfig, oldConfig: BasemapsConfigProvider, commit: boolean): void {
     const promise = Q(async (): Promise<boolean> => {
-      const updater = new Updater(config, commit);
+      const updater = new Updater(config, oldConfig, commit);
 
       const hasChanges = await updater.reconcile();
       if (hasChanges) {

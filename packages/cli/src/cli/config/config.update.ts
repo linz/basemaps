@@ -1,14 +1,15 @@
 import {
   BaseConfig,
+  BasemapsConfigObject,
   BasemapsConfigProvider,
+  ConfigId,
   ConfigImagery,
   ConfigPrefix,
   ConfigProvider,
   ConfigTileSet,
   ConfigVectorStyle,
 } from '@basemaps/config';
-import { BasemapsConfigObject, ConfigId } from '@basemaps/config';
-import { ConfigDynamoBase, getDefaultConfig, LogConfig, LogType } from '@basemaps/shared';
+import { ConfigDynamoBase, LogConfig, LogType } from '@basemaps/shared';
 import PLimit from 'p-limit';
 
 import { ConfigDiff } from './config.diff.js';
@@ -27,9 +28,9 @@ export class Updater<S extends BaseConfig = BaseConfig> {
    * Class to apply an TileSetConfig source to the tile metadata db
    * @param config a string or TileSetConfig to use
    */
-  constructor(config: S, isCommit: boolean) {
+  constructor(config: S, oldConfig: BasemapsConfigProvider, isCommit: boolean) {
     this.config = config;
-    this.cfg = getDefaultConfig();
+    this.cfg = oldConfig;
     const prefix = ConfigId.getPrefix(config.id);
     if (prefix == null) throw new Error(`Incorrect Config Id ${config.id}`);
     this.prefix = prefix;
