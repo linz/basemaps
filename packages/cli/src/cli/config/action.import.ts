@@ -94,7 +94,6 @@ export class CommandImport extends CommandLineAction {
       logger.info({ config: this.target.value }, 'Import:Target:Load');
       const configJson = await fsa.readJson<ConfigBundled>(this.target.value);
       const mem = ConfigProviderMemory.fromJson(configJson);
-      mem.createVirtualTileSets();
       cfg = mem;
     }
 
@@ -110,7 +109,6 @@ export class CommandImport extends CommandLineAction {
     logger.info({ config }, 'Import:Load');
     const configJson = await fsa.readJson<ConfigBundled>(config);
     const mem = ConfigProviderMemory.fromJson(configJson);
-    mem.createVirtualTileSets();
 
     logger.info({ config }, 'Import:Start');
     for (const config of mem.objects.values()) this.update(config, commit);
@@ -132,6 +130,8 @@ export class CommandImport extends CommandLineAction {
         // Update the cb_latest record
         configBundle.id = cfg.ConfigBundle.id('latest');
         await cfg.ConfigBundle.put(configBundle);
+      } else {
+        logger.error("Import:NotWriteable")
       }
     }
 
