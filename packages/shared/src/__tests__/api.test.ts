@@ -1,5 +1,6 @@
 import o from 'ospec';
 import { decodeTime, encodeTime, ulid } from 'ulid';
+
 import { getApiKey, OneDayMs, truncateApiKey } from '../api.js';
 
 declare const global: {

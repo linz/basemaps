@@ -1,8 +1,8 @@
 export class SimpleTimer {
   /** time of last .tick() call */
-  lastTime: number;
+  lastTime!: number;
   /** time SimpleTimer was created */
-  startTime: number;
+  startTime!: number;
 
   constructor() {
     this.reset();

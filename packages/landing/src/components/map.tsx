@@ -1,6 +1,7 @@
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
 import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
+
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
@@ -21,13 +22,13 @@ export function onMapLoaded(map: maplibregl.Map, cb: () => void): void {
 }
 
 export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boolean }> {
-  map: maplibregl.Map;
-  el: HTMLElement;
-  mapAttr: MapAttribution;
+  map!: maplibregl.Map;
+  el?: HTMLElement;
+  mapAttr?: MapAttribution;
   /** Ignore the location updates */
   ignoreNextLocationUpdate = false;
 
-  controlGeo: maplibregl.GeolocateControl | null;
+  controlGeo?: maplibregl.GeolocateControl | null;
 
   updateLocation = (): void => {
     if (this.ignoreNextLocationUpdate) {
@@ -126,8 +127,9 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
   removeOldLayers = (): void => {
     const filteredLayers = this.map
-      .getStyle()
+      ?.getStyle()
       .layers.filter((layer) => layer.id.startsWith(Config.map.styleId)) as RasterLayerSpecification[];
+    if (filteredLayers == null) return;
     // The last item in the array is the top layer, we pop that to ensure it isn't removed
     filteredLayers.pop();
     for (const layer of filteredLayers) {
@@ -140,7 +142,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     }
   };
 
-  componentDidMount(): void {
+  override componentDidMount(): void {
     // Force the URL to be read before loading the map
     Config.map.updateFromUrl();
     this.el = document.getElementById('map') as HTMLDivElement;
@@ -186,13 +188,13 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
   _events: (() => boolean)[] = [];
 
-  componentWillUnmount(): void {
+  override componentWillUnmount(): void {
     if (this.map) this.map.remove();
     for (const unbind of this._events) unbind();
     this._events = [];
   }
 
-  render(): ReactNode {
+  override render(): ReactNode {
     const isLayerSwitcherEnabled = Config.map.tileMatrix === GoogleTms && !Config.map.isDebug;
     return (
       <div style={{ flex: 1, position: 'relative' }}>

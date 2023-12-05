@@ -2,6 +2,7 @@ import { createHash } from 'crypto';
 import o from 'ospec';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+
 import { listSprites, ValidExtensions } from '../fs.js';
 import { Sprites } from '../sprites.js';
 

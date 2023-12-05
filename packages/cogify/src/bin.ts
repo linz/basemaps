@@ -2,6 +2,7 @@ Error.stackTraceLimit = 100;
 
 import { LogConfig } from '@basemaps/shared';
 import { run } from 'cmd-ts';
+
 import { CogifyCli } from './cogify/cli.js';
 
 run(CogifyCli, process.argv.slice(2)).catch((err) => {

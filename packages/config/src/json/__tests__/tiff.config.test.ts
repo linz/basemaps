@@ -1,6 +1,7 @@
 import { fsa } from '@chunkd/fs';
 import { FsMemory } from '@chunkd/source-memory';
 import o from 'ospec';
+
 import { loadStacFromURL } from '../tiff.config.js';
 
 o.spec('loadStacFromURL', () => {

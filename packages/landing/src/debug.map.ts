@@ -1,12 +1,13 @@
-import { Config } from './config.js';
-import { MapOptionType, WindowUrl } from './url.js';
-import { StyleSpecification } from 'maplibre-gl';
-import { GoogleTms } from '@basemaps/geo';
-import { projectGeoJson } from './tile.matrix.js';
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
-import { ConfigData } from './config.layer.js';
-import { BBoxFeatureCollection } from '@linzjs/geojson/build/types';
+import { GoogleTms } from '@basemaps/geo';
+import { BBoxFeatureCollection } from '@linzjs/geojson/build/types.js';
+import { StyleSpecification } from 'maplibre-gl';
 import { FormEventHandler } from 'react';
+
+import { Config } from './config.js';
+import { ConfigData } from './config.layer.js';
+import { projectGeoJson } from './tile.matrix.js';
+import { MapOptionType, WindowUrl } from './url.js';
 
 export class DebugMap {
   _layerLoading: Map<string, Promise<void>> = new Map();

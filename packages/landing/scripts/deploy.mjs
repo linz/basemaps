@@ -1,7 +1,7 @@
 import { invalidateCache, uploadStaticFile } from '@basemaps/cli/build/cli/util.js';
+import { fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { LogConfig } from '@basemaps/shared/build/log.js';
-import { fsa } from '@basemaps/shared';
 import mime from 'mime-types';
 import pLimit from 'p-limit';
 import { basename, extname, resolve } from 'path';

@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import o from 'ospec';
 import path from 'path';
 import url from 'url';
+
 import { fsa } from '../index.js';
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 

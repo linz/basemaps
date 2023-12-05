@@ -2,6 +2,7 @@ import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
 import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
+
 import { MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
@@ -37,9 +38,13 @@ function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput:
 
 export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   debugMap = new DebugMap();
-  state: DebugState = {};
 
-  componentDidMount(): void {
+  constructor(p: { map: maplibregl.Map }) {
+    super(p);
+    this.state = {};
+  }
+
+  override componentDidMount(): void {
     this.waitForMap();
   }
 
@@ -50,7 +55,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       return;
     }
 
-    (window as any).MaplibreMap = map;
+    window.MaplibreMap = map;
 
     map.resize();
     onMapLoaded(map, () => {
@@ -135,7 +140,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     });
   }
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (Config.map.debug['debug.screenshot']) return null;
     const title = this.state.imagery?.title;
     return (

@@ -1,40 +1,13 @@
 import { Epsg } from '@basemaps/geo';
+
 import { BaseConfig } from './config/base.js';
 import { ConfigBundle } from './config/config.bundle.js';
 import { ConfigPrefix, ConfigPrefixes } from './config/prefix.js';
 import { ConfigLayer, ConfigTileSet } from './config/tile.set.js';
 import { ConfigImagery, ConfigProvider, ConfigVectorStyle } from './index.js';
 
-export class ConfigInstance {
-  cfg: BasemapsConfigProvider;
-
-  get TileSet(): BasemapsConfigObject<ConfigTileSet> {
-    return this.cfg.TileSet;
-  }
-
-  get Imagery(): BasemapsConfigObject<ConfigImagery> {
-    return this.cfg.Imagery;
-  }
-
-  get Style(): BasemapsConfigObject<ConfigVectorStyle> {
-    return this.cfg.Style;
-  }
-
-  get Provider(): BasemapsConfigObject<ConfigProvider> {
-    return this.cfg.Provider;
-  }
-
-  get ConfigBundle(): BasemapsConfigObject<ConfigBundle> {
-    return this.cfg.ConfigBundle;
-  }
-
-  setConfigProvider(cfg: BasemapsConfigProvider): void {
-    this.cfg = cfg;
-  }
-}
-
 export abstract class BasemapsConfigProvider {
-  type: string;
+  abstract type: string;
   /** Location of the assets (Sprites/glyphs) */
   assets?: string;
   abstract TileSet: BasemapsConfigObject<ConfigTileSet>;
@@ -83,8 +56,6 @@ export abstract class BasemapsConfigObject<T extends BaseConfig> {
 export interface BaseConfigWriteableObject<T extends BaseConfig> extends BasemapsConfigObject<T> {
   put(record: T): Promise<string>;
 }
-
-// export const Config = new ConfigInstance();
 
 export const ConfigId = {
   /**

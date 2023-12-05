@@ -1,11 +1,11 @@
-import * as fs from 'fs';
-import { BathyMaker } from './bathy.maker.js';
 import { Tile, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
-import { FileType } from './file.js';
-
+import * as fs from 'fs';
 /** To prevent the long compile time of mapnik for development, only pull it in when needed */
 import mapnik from 'mapnik';
+
+import { BathyMaker } from './bathy.maker.js';
+import { FileType } from './file.js';
 mapnik.register_default_input_plugins();
 
 /** Create the mapnik template */
@@ -69,6 +69,7 @@ async function render(bm: BathyMaker, tile: Tile, logger: LogType): Promise<stri
   if (fs.existsSync(outputPath)) return outputPath;
 
   const template = makeTemplate(warpedPath, hillShadePath);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = new mapnik.Map(bm.config.tileSize, bm.config.tileSize) as any;
 
   await new Promise<void>((resolve, reject) =>

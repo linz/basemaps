@@ -3,7 +3,10 @@ export {};
 declare global {
   interface Window {
     // Google analytics
-    dataLayer: any[];
-    gtag(...args: any[]): void;
+    dataLayer: unknown[];
+    gtag(...args: unknown[]): void;
+
+    // Expose for testing
+    MaplibreMap?: maplibregl.Map;
   }
 }

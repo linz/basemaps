@@ -1,15 +1,16 @@
 import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { getDefaultConfig } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
+import { FsMemory } from '@chunkd/source-memory';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
+
+import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { CachedConfig } from '../../util/config.cache.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { CoSources } from '../../util/source.cache.js';
-import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { fontList } from '../fonts.js';
-import { FsMemory } from '@chunkd/source-memory';
 
 o.spec('/v1/fonts', () => {
   const memory = new FsMemory();

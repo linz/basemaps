@@ -22,7 +22,7 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "devDependencies": {
-    "@linzjs/style": "^3.15.0",
+    "@linzjs/style": "^5.1.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/geojson": "^7946.0.7",
     "@types/node": "^18.11.9",
@@ -30,7 +30,7 @@
     "@types/sinon": "^10.0.0",
     "conventional-github-releaser": "^3.1.5",
     "cross-env": "^7.0.3",
-    "esbuild": "^0.15.5",
+    "esbuild": "^0.19.8",
     "lerna": "5.1.4",
     "ospec": "^4.0.1",
     "rimraf": "^3.0.0",

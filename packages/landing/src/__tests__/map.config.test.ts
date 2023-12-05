@@ -1,5 +1,6 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import o from 'ospec';
+
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';
@@ -121,7 +122,7 @@ o.spec('WindowUrl', () => {
     const apiKey = Config.ApiKey;
     mc.updateFromUrl('');
 
-    process.env.TILE_HOST = 'https://foo.bar.com';
+    process.env['TILE_HOST'] = 'https://foo.bar.com';
     o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
       `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}`,
     );
@@ -137,14 +138,14 @@ o.spec('WindowUrl', () => {
       `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{TileMatrix}/{TileCol}/{TileRow}.webp?api=${apiKey}`,
     );
     WindowUrl.ImageFormat = 'png';
-    delete process.env.TILE_HOST;
+    delete process.env['TILE_HOST'];
   });
 
   o('should include config in all requests', () => {
     const apiKey = Config.ApiKey;
 
     mc.updateFromUrl('?config=s3://linz-basemaps/config.json');
-    process.env.TILE_HOST = 'https://foo.bar.com';
+    process.env['TILE_HOST'] = 'https://foo.bar.com';
 
     o(mc.toTileUrl(MapOptionType.TileRaster)).equals(
       `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.png?api=${apiKey}&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M`,

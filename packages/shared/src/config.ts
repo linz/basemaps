@@ -1,6 +1,7 @@
 import { BasemapsConfigProvider } from '@basemaps/config';
-import { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
+
 import { Const } from './const.js';
+import { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
 
 let ConfigDefault: BasemapsConfigProvider = new ConfigProviderDynamo(Const.TileMetadata.TableName);
 

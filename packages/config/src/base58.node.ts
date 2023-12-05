@@ -1,4 +1,5 @@
 import { BinaryLike, createHash } from 'crypto';
+
 import { base58, isBase58 } from './base58.js';
 
 /** Hash something with sha256 then encode it as a base58 text string */

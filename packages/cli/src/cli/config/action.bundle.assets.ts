@@ -1,14 +1,14 @@
-import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { SourceMemory } from '@chunkd/core';
-import { CotarIndexBinary, CotarIndexBuilder, CotarIndexOptions, TarReader } from '@cotar/core';
+import { base58 } from '@basemaps/config';
 import { LogConfig, LogType } from '@basemaps/shared';
-import { createReadStream, promises as fs } from 'fs';
-import { TarBuilder } from '@cotar/tar';
+import { SourceMemory } from '@chunkd/core';
 import { fsa } from '@chunkd/fs';
+import { CotarIndexBinary, CotarIndexBuilder, CotarIndexOptions, TarReader } from '@cotar/core';
+import { TarBuilder } from '@cotar/tar';
+import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { createHash } from 'crypto';
+import { createReadStream, promises as fs } from 'fs';
 import * as path from 'path';
 import { Readable } from 'stream';
-import { createHash } from 'crypto';
-import { base58 } from '@basemaps/config';
 
 const Packing = 25; // Packing factor for the hash map
 const MaxSearch = 50; // Max search factor
@@ -23,8 +23,8 @@ export async function hashFile(stream: Readable): Promise<string> {
 }
 
 export class CommandBundleAssets extends CommandLineAction {
-  assets: CommandLineStringParameter;
-  output: CommandLineStringParameter;
+  assets!: CommandLineStringParameter;
+  output!: CommandLineStringParameter;
 
   public constructor() {
     super({

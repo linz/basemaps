@@ -1,5 +1,6 @@
 import { fsa } from '@chunkd/fs';
-import { LambdaHttpResponse, LambdaHttpRequest, HttpHeader } from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+
 import { ConfigLoader } from './config.loader.js';
 import { isGzip } from './cotar.serve.js';
 import { Etag } from './etag.js';
@@ -24,8 +25,8 @@ export class AssetProvider {
     try {
       const filePath = fsa.join(path, fileName);
       return await fsa.read(filePath);
-    } catch (e: any) {
-      if (e.code === 404) return null;
+    } catch (e) {
+      if ((e as { code: number })?.code === 404) return null;
       throw e;
     }
   }

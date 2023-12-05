@@ -1,9 +1,10 @@
 import { base58, BasemapsConfigProvider, isBase58 } from '@basemaps/config';
-import { LambdaHttpResponse } from '@linzjs/lambda';
-import { parseUri } from '@chunkd/core';
-import { LambdaHttpRequest } from '@linzjs/lambda';
-import { CachedConfig } from './config.cache.js';
 import { getDefaultConfig } from '@basemaps/shared';
+import { parseUri } from '@chunkd/core';
+import { LambdaHttpResponse } from '@linzjs/lambda';
+import { LambdaHttpRequest } from '@linzjs/lambda';
+
+import { CachedConfig } from './config.cache.js';
 
 // FIXME load this from process.env COG BUCKETS?
 const SafeBuckets = new Set([

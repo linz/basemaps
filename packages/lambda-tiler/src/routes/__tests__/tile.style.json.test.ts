@@ -2,10 +2,11 @@ import { ConfigProviderMemory, StyleJson } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
-import { handler } from '../../index.js';
-import { ConfigLoader } from '../../util/config.loader.js';
+
 import { FakeData } from '../../__tests__/config.data.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
+import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 
 o.spec('/v1/styles', () => {
   const host = 'https://tiles.test';
@@ -111,15 +112,15 @@ o.spec('/v1/styles', () => {
     o(res.header('cache-control')).equals('no-store');
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    fakeStyle.sources.basemaps_vector = {
+    fakeStyle.sources['basemaps_vector'] = {
       type: 'vector',
       url: `${host}/vector?api=${Api.key}`,
     };
-    fakeStyle.sources.basemaps_raster = {
+    fakeStyle.sources['basemaps_raster'] = {
       type: 'raster',
       tiles: [`${host}/raster?api=${Api.key}`],
     };
-    fakeStyle.sources.basemaps_raster_encode = {
+    fakeStyle.sources['basemaps_raster_encode'] = {
       type: 'raster',
       tiles: [`${host}/raster/{z}/{x}/{y}.webp?api=${Api.key}`],
     };
@@ -144,15 +145,15 @@ o.spec('/v1/styles', () => {
     o(res.header('cache-control')).equals('no-store');
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    fakeStyle.sources.basemaps_vector = {
+    fakeStyle.sources['basemaps_vector'] = {
       type: 'vector',
       url: `${host}/vector?api=${Api.key}`,
     };
-    fakeStyle.sources.basemaps_raster = {
+    fakeStyle.sources['basemaps_raster'] = {
       type: 'raster',
       tiles: [`${host}/raster?api=${Api.key}`],
     };
-    fakeStyle.sources.basemaps_raster_encode = {
+    fakeStyle.sources['basemaps_raster_encode'] = {
       type: 'raster',
       tiles: [`${host}/raster/{z}/{x}/{y}.webp?api=${Api.key}`],
     };

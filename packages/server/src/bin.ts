@@ -2,6 +2,7 @@ Error.stackTraceLimit = 100;
 
 import { LogConfig } from '@basemaps/shared';
 import { run } from 'cmd-ts';
+
 import { BasemapsServerCommand } from './cli.js';
 
 run(BasemapsServerCommand, process.argv.slice(2)).catch((err) => {

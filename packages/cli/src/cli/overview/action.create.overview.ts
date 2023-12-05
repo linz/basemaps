@@ -10,6 +10,7 @@ import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-com
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { resolve } from 'path';
+
 import { CogBuilder } from '../../cog/builder.js';
 import { Cutline } from '../../cog/cutline.js';
 import { createOverviewWmtsCapabilities } from './overview.wmts.js';
@@ -26,8 +27,8 @@ export function filterTiff(a: string): boolean {
 }
 
 export class CommandCreateOverview extends CommandLineAction {
-  private source: CommandLineStringParameter;
-  private output: CommandLineStringParameter;
+  private source!: CommandLineStringParameter;
+  private output!: CommandLineStringParameter;
 
   public constructor() {
     super({

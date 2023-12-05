@@ -1,6 +1,7 @@
-import o from 'ospec';
 import { zoomLevelsFromWmts } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import o from 'ospec';
+
 import { createOverviewWmtsCapabilities } from '../overview.wmts.js';
 
 // This test should really live in @basemaps/config, but all the WMTS generation logic does not live in @basemaps/config

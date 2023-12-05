@@ -1,10 +1,12 @@
-import { GoogleTms, LocationUrl, LonLatZoom, TileMatrixSets } from '@basemaps/geo';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { ConfigLoader } from '../util/config.loader.js';
-import { Env, fsa } from '@basemaps/shared';
-import { isGzip } from '../util/cotar.serve.js';
-import { gunzip } from 'node:zlib';
 import { promisify } from 'node:util';
+import { gunzip } from 'node:zlib';
+
+import { GoogleTms, LocationUrl, LonLatZoom, TileMatrixSets } from '@basemaps/geo';
+import { Env, fsa } from '@basemaps/shared';
+import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+
+import { ConfigLoader } from '../util/config.loader.js';
+import { isGzip } from '../util/cotar.serve.js';
 import { Etag } from '../util/etag.js';
 
 const gunzipP = promisify(gunzip);

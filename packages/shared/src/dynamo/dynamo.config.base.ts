@@ -1,5 +1,6 @@
 import { BaseConfig, BaseConfigWriteableObject, BasemapsConfigObject, ConfigPrefix } from '@basemaps/config';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
+
 import { ConfigProviderDynamo } from './dynamo.config.js';
 
 export type IdQuery = { id: { S: string } };
@@ -25,7 +26,7 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
     return this.cfg.dynamo;
   }
 
-  isWriteable(): this is BaseConfigWriteableObject<T> {
+  override isWriteable(): this is BaseConfigWriteableObject<T> {
     return true;
   }
 

@@ -1,11 +1,12 @@
-import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
 import { makeTempFolder } from '@basemaps/cli/build/cli/folder.js';
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, LogConfig } from '@basemaps/shared';
+import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import * as os from 'os';
 import * as ulid from 'ulid';
+
 import { BathyMaker } from './bathy.maker.js';
 import { FilePath, FileType } from './file.js';
 

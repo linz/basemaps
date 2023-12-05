@@ -1,4 +1,5 @@
 import { Position } from 'geojson';
+
 import { BBox } from './types.js';
 
 /**

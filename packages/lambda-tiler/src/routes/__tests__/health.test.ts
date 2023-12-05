@@ -4,9 +4,9 @@ import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs
 import { Context } from 'aws-lambda';
 import o from 'ospec';
 import sinon from 'sinon';
-import { ConfigLoader } from '../../util/config.loader.js';
-import { FakeData } from '../../__tests__/config.data.js';
 
+import { FakeData } from '../../__tests__/config.data.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { getTestBuffer, healthGet, TestTiles } from '../health.js';
 import { TileXyzRaster } from '../tile.xyz.raster.js';
 

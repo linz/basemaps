@@ -1,4 +1,5 @@
 import o from 'ospec';
+
 import { Config } from '../config.js';
 
 o.spec('Config', () => {

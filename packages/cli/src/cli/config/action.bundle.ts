@@ -6,9 +6,9 @@ export const DefaultConfig = 'config/';
 export const DefaultOutput = 'config/config.json';
 
 export class CommandBundle extends CommandLineAction {
-  private config: CommandLineStringParameter;
-  private output: CommandLineStringParameter;
-  private assets: CommandLineStringParameter;
+  private config!: CommandLineStringParameter;
+  private output!: CommandLineStringParameter;
+  private assets!: CommandLineStringParameter;
 
   public constructor() {
     super({

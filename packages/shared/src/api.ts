@@ -1,4 +1,4 @@
-import { ulid, decodeTime } from 'ulid';
+import { decodeTime, ulid } from 'ulid';
 
 const hasLocalStorage = (): boolean => typeof localStorage !== 'undefined';
 export const OneDayMs = 24 * 60 * 60 * 1000;

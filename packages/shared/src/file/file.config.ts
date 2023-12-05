@@ -5,8 +5,8 @@ export interface FileConfigWithPaths {
   files: string[];
 }
 
-export function isFileConfigPath(r: any): r is FileConfigPath {
-  return Array.isArray(r['files']);
+export function isFileConfigPath(r: unknown): r is FileConfigPath {
+  return Array.isArray((r as Record<string, unknown>)['files']);
 }
 
 export type FileConfig = FileConfigLocal | FileConfigS3 | FileConfigS3Role;

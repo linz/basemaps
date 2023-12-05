@@ -1,7 +1,12 @@
 import { ChangeEventHandler, Component, ReactNode } from 'react';
-import Select from 'react-select';
+import * as reactSelect from 'react-select';
+
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
+
+// TODO the typing here appears to be broken
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Select = reactSelect.default as any;
 
 type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;
 
@@ -36,9 +41,13 @@ const ignoredLayers = new Set(['all']);
 
 export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropdownState> {
   _events: (() => boolean)[] = [];
-  state: LayerSwitcherDropdownState = { zoomToExtent: true, currentLayer: 'unknown' };
 
-  componentDidMount(): void {
+  constructor(p: unknown) {
+    super(p);
+    this.state = { zoomToExtent: true, currentLayer: 'unknown' };
+  }
+
+  override componentDidMount(): void {
     this.setState({ zoomToExtent: true, currentLayer: Config.map.layerKey });
 
     Config.map.layers.then((layers) => this.setState({ layers }));
@@ -49,7 +58,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     );
   }
 
-  componentWillUnmount(): void {
+  override componentWillUnmount(): void {
     for (const e of this._events) e();
     this._events = [];
   }
@@ -78,13 +87,13 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     this.setState({ zoomToExtent: target.checked });
   };
 
-  render(): ReactNode {
+  override render(): ReactNode {
     const ret = this.makeOptions();
 
     return (
       <div className="LuiDeprecatedForms">
         <h6>Layers</h6>
-        <Select<Option>
+        <Select
           options={ret.options}
           onChange={this.onLayerChange}
           value={ret.current}

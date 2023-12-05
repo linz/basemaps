@@ -2,6 +2,7 @@ import { Env, fsa, LogConfig } from '@basemaps/shared';
 import o from 'ospec';
 import PLimit from 'p-limit';
 import sinon from 'sinon';
+
 import { FileProcess } from '../file.process.js';
 import { dateByHour, getMaxDate, handler, listCacheFolder, MaxToProcess, Q } from '../index.js';
 import { LogStartDate, RollupVersion } from '../stats.js';
@@ -95,19 +96,19 @@ o.spec('handler', () => {
     sandbox.stub(FileProcess, 'reader').callsFake(lineReader(ExampleLogs, `${currentYear}-01-01T02`));
     const writeStub = sandbox.stub(fsa, 'write');
 
-    const listStub = sandbox
-      .stub(fsa, 'list')
-      .callsFake(async function* ListFiles(source: string): AsyncGenerator<string> {
-        if (source.startsWith(sourceBucket)) {
-          for (const filePath of sourceFiles) {
-            if (filePath.startsWith(source)) yield filePath;
-          }
+    const listStub = sandbox.stub(fsa, 'list').callsFake(async function* ListFiles(
+      source: string,
+    ): AsyncGenerator<string> {
+      if (source.startsWith(sourceBucket)) {
+        for (const filePath of sourceFiles) {
+          if (filePath.startsWith(source)) yield filePath;
         }
-        if (source.startsWith(cachePath)) {
-          yield `${cachePath}/${currentYear}-01-01T00.ndjson`;
-          yield `${cachePath}/${currentYear}-01-01T03.ndjson`;
-        }
-      });
+      }
+      if (source.startsWith(cachePath)) {
+        yield `${cachePath}/${currentYear}-01-01T00.ndjson`;
+        yield `${cachePath}/${currentYear}-01-01T03.ndjson`;
+      }
+    });
 
     await handler();
 

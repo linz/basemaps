@@ -1,6 +1,7 @@
 import { BoundingBox, EpsgCode, NamedBounds, TileMatrixSet } from '@basemaps/geo';
-import { GdalCogBuilderResampling } from './gdal.config.js';
+
 import { FileConfig } from '../file/file.config.js';
+import { GdalCogBuilderResampling } from './gdal.config.js';
 
 export interface FeatureCollectionWithCrs extends GeoJSON.FeatureCollection {
   crs: {

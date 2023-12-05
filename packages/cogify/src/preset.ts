@@ -1,4 +1,4 @@
-import { CogifyCreationOptions } from './cogify/stac';
+import { CogifyCreationOptions } from './cogify/stac.js';
 
 export const CogifyDefaults = {
   compression: 'webp',

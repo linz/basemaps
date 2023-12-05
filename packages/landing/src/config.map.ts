@@ -10,6 +10,7 @@ import {
 } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
+
 import { MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
@@ -36,7 +37,7 @@ export interface MapConfigEvents {
   layer: [string, string | null | undefined];
   bounds: [LngLatBoundsLike];
   filter: [Filter];
-  change: null;
+  change: [];
   visibleLayers: [string];
 }
 
@@ -44,12 +45,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   style: string | null = null;
   layerId = 'aerial';
   tileMatrix: TileMatrixSet = GoogleTms;
-  config: string | null;
+  config: string | null = null;
   debug: DebugState = { ...DebugDefaults };
-  visibleLayers: string;
+  visibleLayers: string | null = null;
   filter: Filter = { date: { before: undefined } };
 
-  private _layers: Promise<Map<string, LayerInfo>>;
+  private _layers?: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
     if (this._layers == null) this._layers = loadAllLayers();
     return this._layers;
@@ -60,7 +61,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   }
 
   /** Map location in WGS84 */
-  _location: MapLocation;
+  _location?: MapLocation;
   get location(): MapLocation {
     if (this._location == null) {
       window.addEventListener('popstate', () => {

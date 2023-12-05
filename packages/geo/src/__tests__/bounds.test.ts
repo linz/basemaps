@@ -1,6 +1,7 @@
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
+
 import { Bounds } from '../bounds.js';
 
 const TILE_SIZE = 256;

@@ -1,12 +1,13 @@
 import { Bounds, Epsg, Projection, TileMatrixSet } from '@basemaps/geo';
+import { ProjectionLoader } from '@basemaps/geo';
 import { CompositeError, LoggerFatalError, LogType } from '@basemaps/shared';
+import { CogBuilderMetadata, SourceMetadata } from '@basemaps/shared';
 import { ChunkSource } from '@chunkd/core';
 import { CogTiff, TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import pLimit, { LimitFunction } from 'p-limit';
 import { basename } from 'path';
+
 import { Cutline } from './cutline.js'; //
-import { ProjectionLoader } from '@basemaps/geo';
-import { CogBuilderMetadata, SourceMetadata } from '@basemaps/shared';
 
 export const InvalidProjectionCode = 32767;
 

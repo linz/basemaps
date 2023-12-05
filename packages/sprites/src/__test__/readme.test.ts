@@ -1,6 +1,7 @@
-import { Sprites, SvgId } from '../sprites.js';
 import { fsa } from '@chunkd/fs';
 import { basename } from 'path';
+
+import { Sprites, SvgId } from '../sprites.js';
 
 // Validate the readme example actually compiles
 export async function main(): Promise<void> {

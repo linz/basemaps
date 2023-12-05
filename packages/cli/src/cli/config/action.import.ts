@@ -12,22 +12,23 @@ import {
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, getDefaultConfig, LogConfig } from '@basemaps/shared';
+import { CogJobJson } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { FeatureCollection } from 'geojson';
 import fetch from 'node-fetch';
+
 import { invalidateCache } from '../util.js';
 import { Q, Updater } from './config.update.js';
-import { FeatureCollection } from 'geojson';
-import { CogJobJson } from '@basemaps/shared';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
 const VectorStyles = ['topographic', 'topolite', 'aerialhybrid']; // Vector styles that we want to review if vector data changes.
 
 export class CommandImport extends CommandLineAction {
-  private config: CommandLineStringParameter;
-  private backup: CommandLineStringParameter;
-  private output: CommandLineStringParameter;
-  private commit: CommandLineFlagParameter;
+  private config!: CommandLineStringParameter;
+  private backup!: CommandLineStringParameter;
+  private output!: CommandLineStringParameter;
+  private commit!: CommandLineFlagParameter;
 
   promises: Promise<boolean>[] = [];
   /** List of paths to invalidate at the end of the request */

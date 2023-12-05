@@ -1,5 +1,6 @@
 import o from 'ospec';
-import { featuresToMultiPolygon, toFeatureMultiPolygon, toFeaturePolygon, toFeatureCollection } from '../construct.js';
+
+import { featuresToMultiPolygon, toFeatureCollection, toFeatureMultiPolygon, toFeaturePolygon } from '../construct.js';
 
 o.spec('construct', () => {
   const coordinates = [

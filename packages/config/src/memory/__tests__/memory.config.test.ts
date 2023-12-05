@@ -1,10 +1,12 @@
+import timers from 'node:timers/promises';
+
 import o from 'ospec';
+import { ulid } from 'ulid';
+
 import { BaseConfig } from '../../config/base.js';
 import { ConfigImagery } from '../../config/imagery.js';
 import { ConfigTileSetRaster } from '../../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory.config.js';
-import { ulid } from 'ulid';
-import timers from 'node:timers/promises';
 
 o.spec('MemoryConfig', () => {
   const config = new ConfigProviderMemory();

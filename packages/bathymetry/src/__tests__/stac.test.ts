@@ -4,6 +4,7 @@ import { mockFileOperator } from '@basemaps/shared/build/file/__tests__/file.ope
 import { round } from '@basemaps/test/build/rounding.js';
 import o from 'ospec';
 import { dirname } from 'path';
+
 import { FilePath } from '../file.js';
 import { Hash } from '../hash.js';
 import { Stac } from '../stac.js';

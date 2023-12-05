@@ -3,12 +3,13 @@ import { Bounds, ImageFormat, LatLon, Projection, TileMatrixSet } from '@basemap
 import { CompositionTiff, Tiler } from '@basemaps/tiler';
 import { SharpOverlay, TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import sharp from 'sharp';
+
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
-import { DefaultResizeKernel, TileXyzRaster, isArchiveTiff } from './tile.xyz.raster.js';
-import sharp from 'sharp';
+import { DefaultResizeKernel, isArchiveTiff, TileXyzRaster } from './tile.xyz.raster.js';
 
 export interface PreviewGet {
   Params: {

@@ -1,15 +1,16 @@
-import { Epsg } from '../epsg.js';
 import o from 'ospec';
+
+import { Epsg, EpsgCode } from '../epsg.js';
 import { Nztm2000Tms } from '../tms/nztm2000.js';
 
 o.spec('Epsg', () => {
   o('should error on invalid epsg', () => {
-    o(() => Epsg.get(-1)).throws('Invalid EPSG:-1');
+    o(() => Epsg.get(-1 as EpsgCode)).throws('Invalid EPSG:-1');
   });
 
   o('should not allow duplicate EPSG codes', () => {
-    o(new Epsg(1).toJSON()).deepEquals(1);
-    o(() => new Epsg(1)).throws(`Duplicate EPSG code created: 1`);
+    o(new Epsg(1 as EpsgCode).toJSON()).deepEquals(1);
+    o(() => new Epsg(1 as EpsgCode)).throws(`Duplicate EPSG code created: 1`);
   });
 
   o('should parse Epsg codes', () => {

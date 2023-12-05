@@ -2,7 +2,8 @@ import { ImageFormat, LatLon, Projection, TileMatrixSet, TileMatrixSets, VectorF
 import { Const, isValidApiKey, truncateApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { TileXyzGet } from '../routes/tile.xyz';
+
+import { TileXyzGet } from '../routes/tile.xyz.js';
 
 export interface TileXyz {
   tile: { x: number; y: number; z: number };

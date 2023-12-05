@@ -10,10 +10,10 @@ import {
 const DefaultPort = 5000;
 
 export class CommandServe extends CommandLineAction {
-  config: CommandLineStringParameter;
-  assets: CommandLineStringParameter;
-  port: CommandLineIntegerParameter;
-  noConfig: CommandLineFlagParameter;
+  config!: CommandLineStringParameter;
+  assets!: CommandLineStringParameter;
+  port!: CommandLineIntegerParameter;
+  noConfig!: CommandLineFlagParameter;
 
   public constructor() {
     super({

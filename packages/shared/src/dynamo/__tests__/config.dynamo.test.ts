@@ -2,6 +2,7 @@ import { ConfigImagery, ConfigTileSet } from '@basemaps/config';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import o from 'ospec';
 import sinon from 'sinon';
+
 import { ConfigDynamoCached } from '../dynamo.config.cached.js';
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
@@ -25,7 +26,7 @@ class FakeDynamoDb {
 
   batchGetItem(req: any): unknown {
     this.getAll.push(req);
-    const keys = req.RequestItems.Foo.Keys.map((c: any) => DynamoDB.Converter.unmarshall(c).id);
+    const keys = req.RequestItems.Foo.Keys.map((c: any) => DynamoDB.Converter.unmarshall(c)['id']);
     const output = keys.map((c: string) => this.values.get(c)).filter((f: unknown) => f != null);
     return {
       promise(): Promise<unknown> {

@@ -1,5 +1,6 @@
 import { LogType } from '@basemaps/shared';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+
 import { GdalProgressParser } from './gdal.progress.js';
 
 /**

@@ -1,12 +1,13 @@
 import { Env } from '@basemaps/shared';
 import * as cdk from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
+import iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
+
 import { getConfig } from '../config.js';
-import iam from 'aws-cdk-lib/aws-iam';
 
 const CODE_PATH = '../lambda-tiler/dist';
 
@@ -18,7 +19,6 @@ export interface LambdaTilerProps {
  * Create a API Key validation edge lambda
  */
 export class LambdaTiler extends Construct {
-  public version: lambda.Version;
   public functionUrl: lambda.FunctionUrl;
 
   public lambdaNoVpc: lambda.Function;

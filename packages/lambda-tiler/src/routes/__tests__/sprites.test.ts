@@ -1,12 +1,13 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { fsa } from '@chunkd/fs';
+import { FsMemory } from '@chunkd/source-memory';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
 import { gunzipSync, gzipSync } from 'zlib';
+
+import { mockRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
-import { mockRequest } from '../../__tests__/xyz.util.js';
-import { FsMemory } from '@chunkd/source-memory';
 
 o.spec('/v1/sprites', () => {
   const memory = new FsMemory();

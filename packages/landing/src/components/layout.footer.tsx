@@ -1,18 +1,19 @@
 import { Component, ReactNode } from 'react';
+
 import { Config } from '../config.js';
 import { Link } from './link.js';
 
 export class Footer extends Component {
   _events: (() => boolean)[] = [];
-  componentDidMount(): void {
+  override componentDidMount(): void {
     this._events.push(Config.map.on('change', () => this.forceUpdate()));
   }
-  componentWillUnmount(): void {
+  override componentWillUnmount(): void {
     for (const e of this._events) e();
     this._events = [];
   }
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (Config.map.isDebug) return;
     return (
       <footer className="lui-footer lui-footer-small lui-hide-sm lui-hide-xs" role="contentinfo">

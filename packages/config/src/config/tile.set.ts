@@ -1,4 +1,5 @@
 import { EpsgCode, ImageFormat, VectorFormat } from '@basemaps/geo';
+
 import { BaseConfig } from './base.js';
 
 export enum TileSetType {

@@ -1,5 +1,7 @@
-import { CommandLineParser } from '@rushstack/ts-command-line';
 import 'source-map-support/register.js';
+
+import { CommandLineParser } from '@rushstack/ts-command-line';
+
 import { LogConfig } from '../log.js';
 import { LoggerFatalError } from '../logger.fatal.error.js';
 import { CliId, CliInfo } from './info.js';
@@ -25,7 +27,7 @@ export abstract class BaseCommandLine extends CommandLineParser {
     this.toolDescription = opt.toolDescription;
   }
 
-  protected onExecute(): Promise<void> {
+  protected override onExecute(): Promise<void> {
     if (this.verbose.value) {
       LogConfig.get().level = 'debug';
     } else if (this.extraVerbose.value) {

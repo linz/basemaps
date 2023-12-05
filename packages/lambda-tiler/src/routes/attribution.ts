@@ -12,11 +12,11 @@ import {
   StacProvider,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
 import { extractYearRangeFromName, extractYearRangeFromTitle } from '@basemaps/shared';
+import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { ConfigLoader } from '../util/config.loader.js';
 
+import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { filterLayers, yearRangeToInterval } from '../util/filter.js';
 import { NotFound, NotModified } from '../util/response.js';

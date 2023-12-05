@@ -1,3 +1,4 @@
+import { CompositeError } from '@chunkd/core';
 import {
   BBox,
   BBoxFeature,
@@ -9,12 +10,12 @@ import {
 } from '@linzjs/geojson';
 import { Position } from 'geojson';
 import Proj from 'proj4';
+
 import { BoundingBox, NamedBounds } from '../bounds.js';
 import { Epsg, EpsgCode } from '../epsg.js';
 import { Tile, TileMatrixSet } from '../tile.matrix.set.js';
 import { Citm2000 } from './citm2000.js';
 import { Nztm2000 } from './nztm2000.js';
-import { CompositeError } from '@chunkd/core';
 
 Proj.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
 Proj.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
@@ -50,7 +51,7 @@ export class Projection {
     this.epsg = epsg;
     try {
       this.projection = Proj(epsg.toEpsgString(), Epsg.Wgs84.toEpsgString());
-    } catch (err: any) {
+    } catch (err) {
       throw new CompositeError(
         `Failed to create projection: ${epsg.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`,
         500,

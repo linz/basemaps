@@ -20,7 +20,7 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
-    "bundle": "../../scripts/bundle.js package.json"
+    "bundle": "../../scripts/bundle.mjs package.json"
   },
   "publishConfig": {
     "access": "public"

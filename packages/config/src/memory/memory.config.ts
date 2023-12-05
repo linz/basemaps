@@ -1,15 +1,16 @@
 import { EpsgCode, ImageFormat } from '@basemaps/geo';
 import { decodeTime, ulid } from 'ulid';
+
 import { BasemapsConfigObject, BasemapsConfigProvider, ConfigId } from '../base.config.js';
+import { sha256base58 } from '../base58.node.js';
 import { BaseConfig } from '../config/base.js';
+import { ConfigBundle } from '../config/config.bundle.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
-import { ConfigBundle } from '../config/config.bundle.js';
 import { standardizeLayerName } from '../json/name.convertor.js';
-import { sha256base58 } from '../base58.node.js';
 
 interface DuplicatedImagery {
   id: string;
@@ -23,7 +24,7 @@ export interface ConfigBundled {
   /** Configuration hash */
   hash: string;
   /** Assets location */
-  assets: string;
+  assets?: string;
   imagery: ConfigImagery[];
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
@@ -65,7 +66,7 @@ function removeUndefined(obj: unknown): void {
 }
 
 export class ConfigProviderMemory extends BasemapsConfigProvider {
-  type = 'memory' as const;
+  override type = 'memory' as const;
 
   Imagery = new MemoryConfigObject<ConfigImagery>(this, ConfigPrefix.Imagery);
   Style = new MemoryConfigObject<ConfigVectorStyle>(this, ConfigPrefix.Style);
@@ -75,9 +76,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   /** Memory cache of all objects */
   objects = new Map<string, BaseConfig>();
-
-  /** Asset path from the config bundle */
-  assets: string;
 
   /** Catch configs with the same imagery that using the different imagery ids. */
   duplicateImagery: DuplicatedImagery[] = [];
@@ -228,7 +226,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 }
 
 export class MemoryConfigObject<T extends BaseConfig> extends BasemapsConfigObject<T> {
-  prefix: ConfigPrefix;
   cfg: ConfigProviderMemory;
 
   constructor(cfg: ConfigProviderMemory, prefix: ConfigPrefix) {

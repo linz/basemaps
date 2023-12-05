@@ -1,10 +1,12 @@
+import { fileURLToPath } from 'node:url';
+
 import { fsa } from '@chunkd/fs';
 import { FsMemory, SourceMemory } from '@chunkd/source-memory';
-import { fileURLToPath } from 'node:url';
+import { CogTiff } from '@cogeotiff/core';
 import o from 'ospec';
+
 import { ConfigProviderMemory } from '../../memory/memory.config.js';
 import { getImageryName, initConfigFromUrls } from '../tiff.config.js';
-import { CogTiff } from '@cogeotiff/core';
 
 const simpleTiff = new URL('../../../../__tests__/static/rgba8_tiled.tiff', import.meta.url);
 

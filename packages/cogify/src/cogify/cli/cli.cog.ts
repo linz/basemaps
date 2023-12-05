@@ -1,5 +1,5 @@
 import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
-import { LogType, fsa } from '@basemaps/shared';
+import { fsa, LogType } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { CogTiff, TiffTag } from '@cogeotiff/core';
 import { Metrics } from '@linzjs/metrics';
@@ -8,6 +8,7 @@ import { mkdir, rm } from 'fs/promises';
 import { tmpdir } from 'os';
 import pLimit from 'p-limit';
 import { StacAsset, StacCollection } from 'stac-ts';
+
 import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader, urlToString } from '../../download.js';
 import { HashTransform } from '../../hash.stream.js';
@@ -18,7 +19,7 @@ import { Url, UrlArrayJsonFile } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 
 // FIXME: HACK @cogeotiff/core to include the Lerc tiff tag
-if (TiffTag[0xc5f2] == null) (TiffTag as any)[0xc5f2] = 'Lerc';
+if (TiffTag[0xc5f2] == null) (TiffTag as Record<number, string>)[0xc5f2] = 'Lerc';
 
 function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
   return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => new URL(link.href, baseUrl));

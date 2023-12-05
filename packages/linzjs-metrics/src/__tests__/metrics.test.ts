@@ -1,5 +1,6 @@
-import { Metrics } from '../metrics.js';
 import o from 'ospec';
+
+import { Metrics } from '../metrics.js';
 
 o.spec('Metrics', () => {
   o('should give a empty object if no metrics were recorded', () => {

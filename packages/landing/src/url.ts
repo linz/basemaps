@@ -1,6 +1,7 @@
 import { base58, isBase58 } from '@basemaps/config/build/base58.js';
 import { GoogleTms, ImageFormat, TileMatrixSet } from '@basemaps/geo';
 import { toQueryString } from '@basemaps/shared/build/url.js';
+
 import { Config } from './config.js';
 import { FilterDate } from './config.map.js';
 

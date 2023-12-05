@@ -1,5 +1,6 @@
 import lineclip from 'lineclip';
 import pc from 'polygon-clipping';
+
 import { bboxToPolygon } from '../bbox.js';
 import { BBox, MultiPolygon, Polygon } from '../types.js';
 

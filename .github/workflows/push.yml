@@ -41,7 +41,7 @@ jobs:
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
 
       - name: Check Dependencies
-        run: node scripts/detect.unlinked.dep.js
+        run: node scripts/detect.unlinked.dep.mjs
 
       - name: (Prod) Create tag
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')

@@ -1,6 +1,7 @@
 import { EpsgCode, GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Component, Fragment, ReactNode } from 'react';
+
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo } from '../config.map.js';
 import { MapOptionType } from '../url.js';
@@ -15,16 +16,20 @@ export interface HeaderState {
 export class Header extends Component<unknown, HeaderState> {
   _events: (() => boolean)[] = [];
 
-  state: HeaderState = { isMenuOpen: false };
+  constructor(p: unknown) {
+    super(p);
+    this.state = { isMenuOpen: false };
+  }
 
-  componentDidMount(): void {
+  override componentDidMount(): void {
+    this.setState({ isMenuOpen: false });
     this._events.push(Config.map.on('change', () => this.forceUpdate()));
     this._events.push(Config.map.on('filter', () => this.renderLinksTiles()));
 
     // If individual layers are on, we need the layer info to determine if they can use NZTM2000Quad WMTS
     Config.map.layers.then((layers) => this.setState({ layers }));
   }
-  componentWillUnmount(): void {
+  override componentWillUnmount(): void {
     for (const e of this._events) e();
     this._events = [];
   }
@@ -35,7 +40,8 @@ export class Header extends Component<unknown, HeaderState> {
     this.setState({ isMenuOpen });
   };
 
-  render(): ReactNode {
+  override render(): ReactNode {
+    const isMenuOpen = this.state?.isMenuOpen ?? false;
     if (Config.map.isDebug) return;
     return (
       <header className="lui-header">
@@ -52,7 +58,7 @@ export class Header extends Component<unknown, HeaderState> {
             <div className="lui-header-menu-item">
               <div className="lui-header-menu-icon">
                 <i className="material-icons-round md-36" onClick={this.menuToggle} style={{ cursor: 'pointer' }}>
-                  {this.state.isMenuOpen ? 'close' : 'menu'}
+                  {isMenuOpen ? 'close' : 'menu'}
                 </i>
               </div>
             </div>
@@ -61,10 +67,10 @@ export class Header extends Component<unknown, HeaderState> {
         <div
           className={clsx({
             'lui-menu-drawer': true,
-            'lui-menu-drawer-closed': !this.state.isMenuOpen,
+            'lui-menu-drawer-closed': !isMenuOpen,
             'lui-menu-drawer-wide': true,
           })}
-          aria-hidden={this.state.isMenuOpen}
+          aria-hidden={isMenuOpen}
         >
           <LayerSwitcherDropdown />
           {this.renderLinks()}
@@ -164,7 +170,7 @@ Your Service/App URL:
   /** Projections to show WMTS links for */
   _validProjections = new Set<EpsgCode>([EpsgCode.Google, EpsgCode.Nztm2000]);
   validProjections(): Set<EpsgCode> {
-    if (this.state.layers == null) return this._validProjections;
+    if (this.state?.layers == null) return this._validProjections;
     return this.state.layers.get(Config.map.layerId)?.projections ?? this._validProjections;
   }
 

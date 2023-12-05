@@ -30,7 +30,9 @@ export const LogConfig = {
   /** Get the currently configured logger */
   get(): LogType {
     if (currentLog == null) {
-      currentLog = process.stdout.isTTY ? pino(defaultOpts, PrettyTransform.stream()) : pino(defaultOpts);
+      currentLog = process.stdout.isTTY
+        ? pino.default(defaultOpts, PrettyTransform.stream())
+        : pino.default(defaultOpts);
     }
     return currentLog;
   },

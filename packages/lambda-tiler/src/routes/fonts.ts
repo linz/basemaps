@@ -1,5 +1,6 @@
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
+
 import { assetProvider } from '../util/assets.provider.js';
 
 interface FontGet {

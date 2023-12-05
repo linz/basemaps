@@ -6,10 +6,11 @@ import { BBox } from '@linzjs/geojson';
 import { HttpHeader } from '@linzjs/lambda';
 import o from 'ospec';
 import sinon from 'sinon';
-import { handler } from '../../index.js';
-import { ConfigLoader } from '../../util/config.loader.js';
+
 import { FakeData, Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
+import { handler } from '../../index.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { createCoordinates } from '../attribution.js';
 
 // const ExpectedJson = {

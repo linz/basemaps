@@ -1,4 +1,4 @@
-import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile, ImageFormat } from '@basemaps/geo';
+import { Epsg, GoogleTms, ImageFormat, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
 import { TestTiff } from '@basemaps/test';
 import { CompositionTiff, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
@@ -7,6 +7,7 @@ import * as path from 'path';
 import PixelMatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 import url from 'url';
+
 import { TileMakerSharp } from '../index.js';
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 // To regenerate all the oed images set this to true and run the tests

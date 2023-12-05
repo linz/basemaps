@@ -1,5 +1,6 @@
-import { LogConfig } from '@basemaps/shared';
 import assert from 'node:assert';
+
+import { LogConfig } from '@basemaps/shared';
 import ulid from 'ulid';
 
 const logger = LogConfig.get();

@@ -1,9 +1,10 @@
 import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
+import { FsMemory } from '@chunkd/source-memory';
 import { LambdaHttpResponse } from '@linzjs/lambda';
 import o from 'ospec';
 import { createSandbox } from 'sinon';
-import { FsMemory } from '@chunkd/source-memory';
+
 import { FakeData } from '../../__tests__/config.data.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { CachedConfig } from '../config.cache.js';

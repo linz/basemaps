@@ -245,7 +245,7 @@ export class WmtsCapabilities extends WmtsBuilder {
   minZoom = 0;
   maxZoom = 32;
   /** Wmts tileSet layer and imagery layers information */
-  tileSet: ConfigTileSet;
+  tileSet?: ConfigTileSet;
   configLayers?: ConfigLayer[];
 
   /** Wmts Provider information */
@@ -370,6 +370,7 @@ export class WmtsCapabilities extends WmtsBuilder {
   }
 
   toVNode(): VNodeElement {
+    if (this.tileSet == null) throw new Error('No Tileset provided');
     // Prepare provider vNode if exists
     const provider = this.toProviderVNode(this.provider);
 

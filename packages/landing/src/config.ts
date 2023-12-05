@@ -1,23 +1,24 @@
 import { getApiKey } from '@basemaps/shared/build/api.js';
+
 import { MapConfig } from './config.map.js';
 
 const currentApiKey: string = getApiKey();
 export const Config = {
   get BaseUrl(): string {
-    return process.env.TILE_HOST ?? '';
+    return process.env['TILE_HOST'] ?? '';
   },
   get ApiKey(): string {
     return currentApiKey;
   },
   get GoogleAnalytics(): string {
-    return process.env.GOOGLE_ANALYTICS ?? '';
+    return process.env['GOOGLE_ANALYTICS'] ?? '';
   },
   get Version(): string {
-    return process.env.GIT_VERSION ?? '';
+    return process.env['GIT_VERSION'] ?? '';
   },
   /** Github buildId */
   get BuildId(): string {
-    return process.env.BUILD_ID ?? '';
+    return process.env['BUILD_ID'] ?? '';
   },
   map: new MapConfig(),
 };
