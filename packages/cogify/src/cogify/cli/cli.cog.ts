@@ -1,3 +1,4 @@
+import { isEmptyTiff } from '@basemaps/config';
 import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
@@ -92,12 +93,21 @@ export const BasemapsCogifyCreateCommand = command({
     const filtered = toCreate.filter((f) => {
       if (f == null) return false;
 
+      const invalidReason = f.item.properties['linz_basemaps:generated'].invalid;
+
       const cogAsset = f.item.assets['cog'];
-      if (cogAsset == null) return true;
+      if (cogAsset == null && invalidReason == null) return true;
+
       // Force overwrite existing COGs
       if (args.force) {
         logger.warn({ item: f.item.id, asset: cogAsset.href }, 'Cog:Create:Overwrite');
         return true;
+      }
+
+      // The cog was already created but deemed invalid
+      if (invalidReason) {
+        logger.warn({ item: f.item.id, asset: cogAsset.href, reason: invalidReason }, 'Cog:Create:Exists:invalid');
+        return false;
       }
 
       logger.info({ item: f.item.id, asset: cogAsset.href }, 'Cog:Create:Exists');
@@ -201,27 +211,34 @@ export const BasemapsCogifyCreateCommand = command({
         item.properties['linz_basemaps:generated']['gdal'] = gdalVersion.stdout;
 
         const cogStat = await fsa.head(outputTiffPath);
+        if (await isEmptyTiff(outputTiffPath)) {
+          // Empty tiff created, remove it from the stac
+          logger.warn({ tileId, tiffPath }, 'Cog:Empty');
+          delete item.assets['cog'];
+          item.properties['linz_basemaps:generated'].invalid = 'empty';
+        } else {
+          metrics.start(`${tileId}:write`);
+          // Upload the output COG into the target location
+          const readStream = fsa.stream(outputTiffPath).pipe(new HashTransform('sha256'));
+          await fsa.write(urlToString(tiffPath), readStream);
+          await validateOutputTiff(urlToString(tiffPath), logger);
 
-        metrics.start(`${tileId}:write`);
-        // Upload the output COG into the target location
-        const readStream = fsa.stream(outputTiffPath).pipe(new HashTransform('sha256'));
-        await fsa.write(urlToString(tiffPath), readStream);
-        await validateOutputTiff(urlToString(tiffPath), logger);
-        asset['file:checksum'] = readStream.multihash;
-        asset['file:size'] = readStream.size;
-        if (readStream.size !== cogStat?.size) {
-          logger.warn({ readStream: readStream.size, stat: cogStat?.size }, 'SizeMismatch');
+          asset['file:checksum'] = readStream.multihash;
+          asset['file:size'] = readStream.size;
+          if (readStream.size !== cogStat?.size) {
+            logger.warn({ readStream: readStream.size, stat: cogStat?.size }, 'SizeMismatch');
+          }
+
+          logger.debug(
+            {
+              target: tiffPath,
+              hash: asset['file:checksum'],
+              size: asset['file:size'],
+              duration: metrics.end(`${tileId}:write`),
+            },
+            'Cog:Create:Write',
+          );
         }
-
-        logger.debug(
-          {
-            target: tiffPath,
-            hash: asset['file:checksum'],
-            size: asset['file:size'],
-            duration: metrics.end(`${tileId}:write`),
-          },
-          'Cog:Create:Write',
-        );
         // Write the STAC metadata
         await fsa.write(urlToString(itemStacPath), JSON.stringify(item, null, 2));
         logger.info({ tileId, tiffPath, duration: metrics.end(tileId) }, 'Cog:Create:Done');
