@@ -143,6 +143,23 @@ jobs:
       - uses: linz/action-typescript@v3
         with:
           package-manager: yarn
+
+      - name: Build docs
+        run: |
+          # dist folder must exist or it will be owned by root
+          mkdir -p packages/landing/dist 
+          cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
+
+          docker run \
+            --rm \
+            -v ${PWD}:/docs \
+            -e GOOGLE_ANALYTICS \
+            -e BASEMAPS_DOCS_URL \
+            squidfunk/mkdocs-material:9.4 build
+        env:
+          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
+          BASEMAPS_DOCS_URL: https://basemaps.linz.govt.nz/docs/
+
       # pulls all tags (needed for lerna to correctly version)
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
 
