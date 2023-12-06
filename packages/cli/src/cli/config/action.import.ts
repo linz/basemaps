@@ -63,7 +63,7 @@ export class CommandImport extends CommandLineAction {
     this.target = this.defineStringParameter({
       argumentName: 'TARGET',
       parameterLongName: '--target',
-      description: 'import location',
+      description: 'Target config file to compare',
     });
     this.commit = this.defineFlagParameter({
       parameterLongName: '--commit',
