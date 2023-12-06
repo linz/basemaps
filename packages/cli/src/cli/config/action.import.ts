@@ -77,6 +77,8 @@ export class CommandImport extends CommandLineAction {
       logger.info({ config: this.target.value }, 'Import:Target:Load');
       const configJson = await fsa.readJson<ConfigBundled>(this.target.value);
       const mem = ConfigProviderMemory.fromJson(configJson);
+      mem.createVirtualTileSets();
+
       setDefaultConfig(mem);
       return mem;
     }
@@ -107,6 +109,7 @@ export class CommandImport extends CommandLineAction {
     logger.info({ config }, 'Import:Load');
     const configJson = await fsa.readJson<ConfigBundled>(config);
     const mem = ConfigProviderMemory.fromJson(configJson);
+    mem.createVirtualTileSets();
 
     logger.info({ config }, 'Import:Start');
     const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
