@@ -297,7 +297,8 @@ export class ConfigJson {
       }
     } else {
       for (const t of tiffTiles) {
-        const tileName = basename(t.tiff.path);
+        // TODO add the .tiff extension back in once the new basemaps-config workflow has been merged
+        const tileName = basename(t.tiff.path).replace('.tiff', '');
 
         const tile = tileMatrix.tileToSourceBounds(t.tile);
         // Expand the total bounds to cover this tile
