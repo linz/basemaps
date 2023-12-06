@@ -49,11 +49,6 @@ export function guessIdFromUri(uri: string): string | null {
 }
 
 /**
- * If a tiff is smaller than this size, Validate that the tiff actually has meaningful amounts of data
- */
-const SmallTiffSizeBytes = 256 * 1024;
-
-/**
  * Check to see if this tiff has any data
  *
  * This looks at tiff tile offset arrays see if any internal tiff tiles contain any data
