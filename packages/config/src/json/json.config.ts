@@ -105,26 +105,26 @@ export class ConfigJson {
 
     const files = await fsa.toArray(fsa.list(basePath));
 
-    const todo = files.map((filePath) => {
+    const todo = files.map(async (filePath) => {
       if (!filePath.endsWith('.json')) return;
-      return Q(async () => {
-        const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
-        const prefix = ConfigId.getPrefix(bc.id);
-        if (prefix) {
-          log.trace({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
-          switch (prefix) {
-            case ConfigPrefix.TileSet:
-              cfg.mem.put(await cfg.tileSet(bc));
-              break;
-            case ConfigPrefix.Provider:
-              cfg.mem.put(await cfg.provider(bc));
-              break;
-            case ConfigPrefix.Style:
-              cfg.mem.put(await cfg.style(bc));
-              break;
-          }
-        } else log.warn({ path: filePath }, 'Invalid JSON file found');
-      });
+      const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
+      const prefix = ConfigId.getPrefix(bc.id);
+      if (prefix) {
+        log.debug({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
+        switch (prefix) {
+          case ConfigPrefix.TileSet:
+            cfg.mem.put(await cfg.tileSet(bc));
+            break;
+          case ConfigPrefix.Provider:
+            cfg.mem.put(await cfg.provider(bc));
+            break;
+          case ConfigPrefix.Style:
+            cfg.mem.put(await cfg.style(bc));
+            break;
+        }
+      } else {
+        log.warn({ path: filePath }, 'Config:Invalid');
+      }
     });
 
     await Promise.all(todo);
@@ -256,7 +256,7 @@ export class ConfigJson {
     // TODO is there a better way of guessing the imagery id & tile matrix?
     const imageId = guessIdFromUri(uri) ?? sha256base58(uri);
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
-    this.logger.trace({ uri, imageId: id }, 'FetchImagery');
+    this.logger.trace({ uri, imageId: id }, 'Imagery:Fetch');
 
     const fileList = await fsa.toArray(fsa.details(uri));
     const tiffFiles = fileList.filter((f) => f.path.endsWith('.tiff') || f.path.endsWith('.tif'));
@@ -337,7 +337,7 @@ export class ConfigJson {
       return bXyz[2] - aXyz[2];
     });
 
-    this.logger.debug({ uri, imageId, files: imageList.length }, 'FetchImagery:Done');
+    this.logger.debug({ uri, imageId, files: imageList.length }, 'Imagery:Fetch:Done');
 
     if (bounds == null) throw new Error('Failed to get bounds from URI: ' + uri);
     const now = Date.now();
