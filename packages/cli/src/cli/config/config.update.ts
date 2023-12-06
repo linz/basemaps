@@ -1,14 +1,15 @@
 import {
   BaseConfig,
+  BasemapsConfigObject,
   BasemapsConfigProvider,
+  ConfigId,
   ConfigImagery,
   ConfigPrefix,
   ConfigProvider,
   ConfigTileSet,
   ConfigVectorStyle,
 } from '@basemaps/config';
-import { BasemapsConfigObject, ConfigId } from '@basemaps/config';
-import { ConfigDynamoBase, getDefaultConfig, LogConfig, LogType } from '@basemaps/shared';
+import { ConfigDynamoBase, LogConfig, LogType } from '@basemaps/shared';
 import PLimit from 'p-limit';
 
 import { ConfigDiff } from './config.diff.js';
@@ -27,9 +28,9 @@ export class Updater<S extends BaseConfig = BaseConfig> {
    * Class to apply an TileSetConfig source to the tile metadata db
    * @param config a string or TileSetConfig to use
    */
-  constructor(config: S, isCommit: boolean) {
+  constructor(config: S, oldConfig: BasemapsConfigProvider, isCommit: boolean) {
     this.config = config;
-    this.cfg = getDefaultConfig();
+    this.cfg = oldConfig;
     const prefix = ConfigId.getPrefix(config.id);
     if (prefix == null) throw new Error(`Incorrect Config Id ${config.id}`);
     this.prefix = prefix;
@@ -72,6 +73,7 @@ export class Updater<S extends BaseConfig = BaseConfig> {
     const newData = this.getConfig();
     const db = this.getDB();
     const oldData = await this.getOldData();
+
     if (oldData == null || ConfigDiff.showDiff(db.prefix, oldData, newData, this.logger)) {
       const operation = oldData == null ? 'Insert' : 'Update';
       this.logger.info({ type: db.prefix, record: newData.id, commit: this.isCommit }, `Change:${operation}`);

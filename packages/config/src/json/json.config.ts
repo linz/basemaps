@@ -24,7 +24,7 @@ import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle, StyleJson } from '../config/vector.style.js';
-import { ConfigProviderMemory } from '../memory/memory.config.js';
+import { ConfigBundled, ConfigProviderMemory } from '../memory/memory.config.js';
 import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
@@ -93,6 +93,14 @@ export class ConfigJson {
 
   /** Import configuration from a base path */
   static async fromPath(basePath: string, log: LogType): Promise<ConfigProviderMemory> {
+    if (basePath.endsWith('.json') || basePath.endsWith('.json.gz')) {
+      const config = await fsa.readJson<BaseConfig>(basePath);
+      if (config.id && config.id.startsWith('cb_')) {
+        // We have been given a config bundle just load that instead!
+        return ConfigProviderMemory.fromJson(config as unknown as ConfigBundled);
+      }
+    }
+
     const cfg = new ConfigJson(basePath, log);
 
     const files = await fsa.toArray(fsa.list(basePath));

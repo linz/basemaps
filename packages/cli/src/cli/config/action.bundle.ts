@@ -41,9 +41,8 @@ export class CommandBundle extends CommandLineAction {
     const config = this.config.value ?? DefaultConfig;
     const bundle = this.output.value ?? DefaultOutput;
     const mem = await ConfigJson.fromPath(config, logger);
+    if (this.assets.value) mem.assets = this.assets.value;
     const configJson = mem.toJson();
-    const assets = this.assets.value;
-    if (assets) configJson.assets = assets;
     await fsa.writeJson(bundle, configJson);
     logger.info({ path: bundle }, 'ConfigBundled');
     return;

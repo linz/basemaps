@@ -68,6 +68,9 @@ function removeUndefined(obj: unknown): void {
 export class ConfigProviderMemory extends BasemapsConfigProvider {
   override type = 'memory' as const;
 
+  /** Optional id of the configuration */
+  id?: string;
+
   Imagery = new MemoryConfigObject<ConfigImagery>(this, ConfigPrefix.Imagery);
   Style = new MemoryConfigObject<ConfigVectorStyle>(this, ConfigPrefix.Style);
   TileSet = new MemoryConfigObject<ConfigTileSet>(this, ConfigPrefix.TileSet);
@@ -118,7 +121,8 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     }
 
     cfg.hash = sha256base58(JSON.stringify(cfg));
-    cfg.id = ConfigId.prefix(ConfigPrefix.ConfigBundle, ulid());
+    this.id = this.id ?? ConfigId.prefix(ConfigPrefix.ConfigBundle, ulid());
+    cfg.id = this.id;
 
     return cfg;
   }
@@ -140,7 +144,8 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     const layerByName = new Map<string, ConfigLayer>();
     // Set all layers as minZoom:32
     for (const l of layers) {
-      const newLayer = { ...l, maxZoom: undefined, minZoom: 32 };
+      const newLayer = { ...l, minZoom: 32 };
+      delete newLayer.maxZoom; // max zoom not needed when minzoom is 32
       layerByName.set(newLayer.name, { ...layerByName.get(l.name), ...newLayer });
     }
     const allTileset: ConfigTileSet = {
@@ -209,17 +214,20 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     if (cfg.id == null || ConfigId.getPrefix(cfg.id) !== ConfigPrefix.ConfigBundle) {
       throw new Error('Provided configuration file is not a basemaps config bundle.');
     }
-    // Load the time the bundle was created from the ULID
-    const updatedAt = decodeTime(ConfigId.unprefix(ConfigPrefix.ConfigBundle, cfg.id));
     // TODO this should validate the config
     const mem = new ConfigProviderMemory();
+
     for (const ts of cfg.tileSet) mem.put(ts);
     for (const st of cfg.style) mem.put(st);
     for (const pv of cfg.provider) mem.put(pv);
     for (const img of cfg.imagery) mem.put(img);
 
+    // Load the time the bundle was created from the ULID
+    const updatedAt = decodeTime(ConfigId.unprefix(ConfigPrefix.ConfigBundle, cfg.id));
     for (const obj of mem.objects.values()) obj.updatedAt = updatedAt;
+
     mem.assets = cfg.assets;
+    mem.id = cfg.id;
 
     return mem;
   }
