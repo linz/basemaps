@@ -49,11 +49,6 @@ export function guessIdFromUri(uri: string): string | null {
 }
 
 /**
- * If a tiff is smaller than this size, Validate that the tiff actually has meaningful amounts of data
- */
-const SmallTiffSizeBytes = 256 * 1024;
-
-/**
  * Check to see if this tiff has any data
  *
  * This looks at tiff tile offset arrays see if any internal tiff tiles contain any data
@@ -296,28 +291,16 @@ export class ConfigJson {
         imageList.push({ ...imgBounds, name: tileName });
       }
     } else {
-      await Promise.all(
-        tiffTiles.map((t) => {
-          return Q(async () => {
-            if (t.tiff.size != null && t.tiff.size < SmallTiffSizeBytes) {
-              const isEmpty = await isEmptyTiff(t.tiff.path);
-              if (isEmpty) {
-                this.logger.warn({ uri: t.tiff.path, imageId: id, size: t.tiff.size }, 'Imagery:Empty');
-                return;
-              } else {
-                this.logger.trace({ uri: t.tiff.path, imageId: id, size: t.tiff.size }, 'Imagery:CheckSmall:NotEmpty');
-              }
-            }
-            const tileName = basename(t.tiff.path);
+      for (const t of tiffTiles) {
+        // TODO add the .tiff extension back in once the new basemaps-config workflow has been merged
+        const tileName = basename(t.tiff.path).replace('.tiff', '');
 
-            const tile = tileMatrix.tileToSourceBounds(t.tile);
-            // Expand the total bounds to cover this tile
-            if (bounds == null) bounds = Bounds.fromJson(tile);
-            else bounds = bounds.union(Bounds.fromJson(tile));
-            imageList.push({ ...tile, name: tileName });
-          });
-        }),
-      );
+        const tile = tileMatrix.tileToSourceBounds(t.tile);
+        // Expand the total bounds to cover this tile
+        if (bounds == null) bounds = Bounds.fromJson(tile);
+        else bounds = bounds.union(Bounds.fromJson(tile));
+        imageList.push({ ...tile, name: tileName });
+      }
     }
 
     // Sort the files by Z, X, Y
