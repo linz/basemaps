@@ -98,7 +98,7 @@ jobs:
             -v ${PWD}:/docs \
             -e GOOGLE_ANALYTICS \
             -e BASEMAPS_DOCS_URL \
-            squidfunk/mkdocs-material:9.4 build
+            ghcr.io/linz/basemaps-mkdocs:v1 build
         env:
           GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           BASEMAPS_DOCS_URL: https://dev.basemaps.linz.govt.nz/docs/
@@ -155,7 +155,7 @@ jobs:
             -v ${PWD}:/docs \
             -e GOOGLE_ANALYTICS \
             -e BASEMAPS_DOCS_URL \
-            squidfunk/mkdocs-material:9.4 build
+            ghcr.io/linz/basemaps-mkdocs:v1 build
         env:
           GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           BASEMAPS_DOCS_URL: https://basemaps.linz.govt.nz/docs/
