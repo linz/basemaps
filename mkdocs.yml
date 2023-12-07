@@ -73,3 +73,6 @@ extra:
   analytics:
     provider: google
     property: !ENV [GOOGLE_ANALYTICS]
+
+plugins:
+  - swagger-ui-tag
