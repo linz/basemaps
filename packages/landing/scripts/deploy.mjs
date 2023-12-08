@@ -52,8 +52,10 @@ async function deploy() {
 
   const invalidationPaths = new Set();
 
-  const fileList = await fsa.toArray(fsa.list(basePath).filter((f)=> !ignoredFiles.has(basename(f))));
+  const fileList = await fsa.toArray(fsa.list(basePath));
   const promises = fileList.map((filePath) => {
+    // Ignore the files that don't need to be deployed.
+    if(ignoredFiles.has(basename(filePath))) return
     // targetKey will always start with "/" eg: "/index.html" "/docs/index.html"
     const targetKey = filePath.slice(basePath.length);
 
