@@ -6,3 +6,4 @@ dist
 cdk.out
 cdk.context.json
 *.tgz
+.DS_Store
