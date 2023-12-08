@@ -10,6 +10,8 @@ const Q = pLimit(10);
 
 const DistDir = './dist';
 
+const ignoredFiles = new Set(['.DS_Store']);
+
 // match a string containing a version number
 const HasVersionRe = /-\d+\.\d+\.\d+-/;
 
@@ -52,6 +54,8 @@ async function deploy() {
 
   const fileList = await fsa.toArray(fsa.list(basePath));
   const promises = fileList.map((filePath) => {
+    // Ignore the files that don't need to be deployed.
+    if (ignoredFiles.has(basename(filePath))) return;
     // targetKey will always start with "/" eg: "/index.html" "/docs/index.html"
     const targetKey = filePath.slice(basePath.length);
 
