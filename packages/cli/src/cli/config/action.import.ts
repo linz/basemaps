@@ -11,8 +11,7 @@ import {
   standardizeLayerName,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps/geo';
-import { Env, fsa, getDefaultConfig, LogConfig, LogType, setDefaultConfig } from '@basemaps/shared';
-import { CogJobJson } from '@basemaps/shared';
+import { CogJobJson, Env, fsa, getDefaultConfig, LogConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { FeatureCollection } from 'geojson';
 import fetch from 'node-fetch';
@@ -197,18 +196,16 @@ export class CommandImport extends CommandLineAction {
     inserts: string[],
     aerial?: boolean,
   ): Promise<void> {
-    inserts.push(`### ${layer.name}\n`);
+    inserts.push(`\n### ${layer.name}\n`);
     if (layer[2193]) {
       const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
       inserts.push(` - [NZTM2000Quad](${urls.layer})`);
-      if (aerial) inserts.push(` -- [Aerial](${urls.tag})\n`);
-      else inserts.push('\n');
+      if (aerial) inserts.push(` - [Aerial](${urls.tag})`);
     }
     if (layer[3857]) {
       const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
       inserts.push(` - [WebMercatorQuad](${urls.layer})`);
-      if (aerial) inserts.push(` -- [Aerial](${urls.tag})\n`);
-      else inserts.push('\n');
+      if (aerial) inserts.push(` - [Aerial](${urls.tag})`);
     }
   }
 
@@ -234,14 +231,14 @@ export class CommandImport extends CommandLineAction {
       if (layer.maxZoom !== existing.maxZoom) zoom += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
     }
 
-    const change: string[] = [`### ${layer.name}\n`];
+    const change: string[] = [`\n### ${layer.name}\n`];
     if (layer[2193]) {
       if (layer[2193] !== existing[2193]) {
         const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
         change.push(`- Layer update [NZTM2000Quad](${urls.layer})`);
-        if (aerial) updates.push(` -- [Aerial](${urls.tag})\n`);
-        else updates.push('\n');
+        if (aerial) updates.push(` - [Aerial](${urls.tag})`);
       }
+
       if (zoom) {
         const urls = await this.prepareUrl(layer[2193], mem, Nztm2000QuadTms);
         zoom += ` [NZTM2000Quad](${urls.tag})`;
@@ -251,9 +248,9 @@ export class CommandImport extends CommandLineAction {
       if (layer[3857] !== existing[3857]) {
         const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
         change.push(`- Layer update [WebMercatorQuad](${urls.layer})`);
-        if (aerial) updates.push(` -- [Aerial](${urls.tag})\n`);
-        else updates.push('\n');
+        if (aerial) updates.push(` - [Aerial](${urls.tag})`);
       }
+
       if (zoom) {
         const urls = await this.prepareUrl(layer[3857], mem, GoogleTms);
         zoom += ` [WebMercatorQuad](${urls.tag})`;
@@ -277,28 +274,46 @@ export class CommandImport extends CommandLineAction {
    * @param cfg existing config data
    */
   async outputChange(output: string, mem: ConfigProviderMemory, cfg: BasemapsConfigProvider): Promise<void> {
+    const md: string[] = [];
     // Output for aerial config changes
-    const inserts: string[] = ['# Aerial Config Inserts\n'];
-    const updates: string[] = ['# Aerial Config Updates\n'];
+    const inserts: string[] = [];
+    const updates: string[] = [];
     const aerialId = 'ts_aerial';
     const newData = await mem.TileSet.get(aerialId);
     const oldData = await cfg.TileSet.get(aerialId);
+
     const aerialLayers: Set<string> = new Set<string>();
     if (newData == null || oldData == null) throw new Error('Failed to fetch aerial config data.');
+
     for (const layer of newData.layers) {
+      // if (aerialLayers.has(layer.name)) continue;
+
       aerialLayers.add(layer.name);
-      if (layer.name === 'chatham-islands-digital-globe-2014-2019-0.5m') continue; // Ignore duplicated layer.
-      const existing = oldData.layers.find((l) => l.name === layer.name);
-      if (existing) await this.outputUpdatedLayers(mem, layer, existing, updates, true);
-      else await this.outputNewLayers(mem, layer, inserts, true);
+
+      // There are duplicates layers inside the config this makes it hard to know what has changed
+      // so only allow comparisons to one layer at a time
+      const index = oldData.layers.findIndex((l) => l.name === layer.name);
+      if (index > -1) {
+        const [el] = oldData.layers.splice(index, 1);
+        await this.outputUpdatedLayers(mem, layer, el, updates, true);
+      } else await this.outputNewLayers(mem, layer, inserts, true);
+    }
+
+    if (inserts.length > 0) md.push('# Aerial Imagery Inserts', ...inserts);
+    if (updates.length > 0) md.push('# Aerial Imagery Updates', ...updates);
+
+    // Some layers were not removed from the old config so they no longer exist in the new config
+    if (oldData.layers.length > 0) {
+      md.push('# Aerial Imagery Deletes', ...oldData.layers.map((m) => `- ${m.title}`));
     }
 
     // Output for individual tileset config changes or inserts
-    const individualInserts: string[] = ['# Individual Layer Inserts\n'];
-    const individualUpdates: string[] = ['# Individual Layer Updates\n'];
+    const individualInserts: string[] = [];
+    const individualUpdates: string[] = [];
     for (const config of mem.objects.values()) {
       if (!config.id.startsWith(ConfigPrefix.TileSet)) continue;
       if (config.id === 'ts_aerial' || config.id === 'ts_topographic') continue;
+
       if (aerialLayers.has(config.name)) continue;
       const tileSet = config as ConfigTileSet;
       if (tileSet.layers.length > 1) continue; // Not an individual layer
@@ -308,9 +323,12 @@ export class CommandImport extends CommandLineAction {
       else await this.outputNewLayers(mem, layer, individualInserts);
     }
 
+    if (individualInserts.length > 0) md.push('# Individual Inserts', ...individualInserts);
+    if (individualUpdates.length > 0) md.push('# Individual Updates', ...individualUpdates);
+
     // Output for vector config changes
-    const vectorUpdate = ['# Vector Data Update\n'];
-    const styleUpdate = ['# Vector Style Update\n'];
+    const vectorUpdate = [];
+    const styleUpdate = [];
     for (const change of this.changes) {
       if (change === 'ts_topographic') {
         for (const style of VectorStyles) {
@@ -325,15 +343,12 @@ export class CommandImport extends CommandLineAction {
       }
     }
 
-    let md = '';
-    if (inserts.length > 1) md += inserts.join('');
-    if (updates.length > 1) md += updates.join('');
-    if (individualInserts.length > 1) md += individualInserts.join('');
-    if (individualUpdates.length > 1) md += individualUpdates.join('');
-    if (vectorUpdate.length > 1) md += vectorUpdate.join('');
-    if (styleUpdate.length > 1) md += styleUpdate.join('');
+    if (vectorUpdate.length > 0) md.push('# Vector Data Update', ...vectorUpdate);
+    if (styleUpdate.length > 0) md.push('# Vector Style Update', ...styleUpdate);
 
-    if (md !== '') await fsa.write(output, md);
+    if (md.length > 0) {
+      await fsa.write(output, md.join('\n'));
+    }
 
     return;
   }

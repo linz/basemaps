@@ -28,16 +28,24 @@ export class ConfigDiff {
         }
       }
     }
-    return output.trim();
+    return output;
   }
 
-  static showDiff<T extends { id: string }>(type: string, oldData: T, newData: T, logger: LogType): boolean {
+  static showDiff<T extends { id: string; name: string }>(
+    type: string,
+    oldData: T,
+    newData: T,
+    logger: LogType,
+  ): boolean {
     const changes = diff.diff(oldData, newData, (_path: string[], key: string) => IgnoredProperties.has(key));
     if (changes) {
       const changeDif = ConfigDiff.getDiff(changes);
-      logger.info({ type, record: newData.id }, 'Changes');
+      logger.info({ type, record: newData.id, description: newData.name }, 'Changes');
+      // eslint-disable-next-line no-console
+      console.log(newData.id, newData.name);
       // eslint-disable-next-line no-console
       console.log(changeDif);
+
       return true;
     }
     return false;
