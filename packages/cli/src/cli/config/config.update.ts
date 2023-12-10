@@ -76,7 +76,10 @@ export class Updater<S extends BaseConfig = BaseConfig> {
 
     if (oldData == null || ConfigDiff.showDiff(db.prefix, oldData, newData, this.logger)) {
       const operation = oldData == null ? 'Insert' : 'Update';
-      this.logger.info({ type: db.prefix, record: newData.id, commit: this.isCommit }, `Change:${operation}`);
+      this.logger.info(
+        { type: db.prefix, record: newData.id, description: newData.name, commit: this.isCommit },
+        `Change:${operation}`,
+      );
       if (this.isCommit) {
         if (db instanceof ConfigDynamoBase) await db.put(newData);
         else throw new Error('Unable to commit changes to: ' + db.prefix);
