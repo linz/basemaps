@@ -21,7 +21,7 @@
   "scripts": {
     "build": "tsc",
     "bundle": "../../scripts/bundle.mjs package.json",
-    "test": "ospec --globs 'build/**/*.test.js'"
+    "test": "node --test"
   },
   "bundle": [
     {

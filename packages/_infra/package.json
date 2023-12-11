@@ -21,7 +21,7 @@
     "deploy:synth": "cdk synth",
     "deploy:diff": "cdk diff || true",
     "deploy:deploy": "cdk deploy '*' -y --require-approval never",
-    "test": "ospec --globs 'build/**/*.test.js'"
+    "test": "node --test"
   },
   "devDependencies": {
     "@basemaps/lambda-tiler": "^7.0.0",

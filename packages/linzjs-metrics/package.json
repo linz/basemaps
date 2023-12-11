@@ -19,7 +19,7 @@
   "main": "./build/metrics.js",
   "types": "./build/metrics.d.ts",
   "scripts": {
-    "test": "ospec --globs 'build/**/*.test.js'"
+    "test": "node --test"
   },
   "publishConfig": {
     "access": "public"
