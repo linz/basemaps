@@ -4,29 +4,27 @@ We would love for you to contribute to basemaps and help make it even better tha
 
 ## Building
 
-This repository requires [NodeJs](https://nodejs.org/en/) > 16 & [Yarn](https://yarnpkg.com/en/)
+This repository requires [NodeJs](https://nodejs.org/en/) > 18
 
 Use [n](https://github.com/tj/n) or [fnm](https://github.com/Schniz/fnm) to manage nodeJs versions
 
 ```bash
-# Download the latest nodejs & yarn
+# Download the latest nodejs 
 n latest
-npm install -g yarn
-
 # Install node deps
-yarn
+npm install
 
 # Build everything into /build
-yarn run build
+npm run build
 
 # Run the unit tests
-yarn run test
+npm run test
 ```
 
 For a fresh rebuild
 
 ```bash
-yarn run clean
+npm run clean
 ```
 
 ## Packages

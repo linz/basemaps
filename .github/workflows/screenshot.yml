@@ -17,8 +17,6 @@ jobs:
       contents: read
     steps:
       - uses: linz/action-typescript@v3
-        with:
-          package-manager: yarn
 
       # Package all the files
       - name: Bundle & Package all files

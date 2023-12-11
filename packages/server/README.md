@@ -68,8 +68,8 @@ running `basemaps-server /images/00_gebco_2021_305-75m/ /images/10_geographx_nz_
 When running the `@basemaps/server` in development mode, ensure `@basemaps/landing` page has been built and bundled
 
 ```bash
-yarn
-yarn build
+npm install
+npm run build
 
 npx lerna run bundle --stream # Bundle everything
 ```
