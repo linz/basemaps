@@ -30,7 +30,7 @@
     "@chunkd/source-aws-v2": "^9.3.1",
     "@linzjs/geojson": "^7.0.0",
     "@linzjs/metrics": "^7.0.0",
-    "aws-sdk": "^2.1516.0",
+    "aws-sdk": "^2.890.0",
     "entities": "^4.3.0",
     "pino": "^8.6.1",
     "source-map-support": "^0.5.19",
