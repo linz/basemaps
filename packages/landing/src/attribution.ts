@@ -97,7 +97,7 @@ export class MapAttribution implements maplibre.IControl {
   attrHtml: HTMLDivElement;
   attrContainer: HTMLDivElement;
 
-  map: maplibre.Map;
+  map?: maplibre.Map;
 
   constructor() {
     this.attrContainer = document.createElement('div');
@@ -140,6 +140,7 @@ export class MapAttribution implements maplibre.IControl {
    * Will fetch attributions if needed
    */
   updateAttribution = (): void => {
+    if (this.map == null) return;
     if (Config.map.isVector) {
       for (const source of Object.values(this.map.style.sourceCaches)) {
         const attr = source.getSource().attribution;
@@ -155,6 +156,7 @@ export class MapAttribution implements maplibre.IControl {
    * Only update attributions at most every 200ms
    */
   private scheduleRender(): void {
+    if (this.map == null) return;
     if (this._scheduled != null || this._raf !== 0) return;
     if (this.map.getZoom() === this.zoom) {
       const bounds = this.map.getBounds();
@@ -172,6 +174,7 @@ export class MapAttribution implements maplibre.IControl {
    * Set the attribution text if needed
    */
   renderAttribution = (): void => {
+    if (this.map == null) return;
     this._raf = 0;
     const attr = MapAttrState._attrsSync.get(Config.map.layerKeyTms);
     if (attr == null) return this.setAttribution('');
