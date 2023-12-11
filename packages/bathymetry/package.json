@@ -35,9 +35,6 @@
     "multihashes": "^4.0.2",
     "ulid": "^2.3.0"
   },
-  "peerDependencies": {
-    "mapnik": "^4.4.0"
-  },
   "devDependencies": {
     "@types/mapnik": "^3.0.1"
   }
