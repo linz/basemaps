@@ -61,8 +61,7 @@
     "zod": "^3.17.3"
   },
   "devDependencies": {
-    "@types/deep-diff": "^1.0.1",
-    "@types/sharp": "^0.32.0"
+    "@types/deep-diff": "^1.0.1"
   },
   "publishConfig": {
     "access": "public"
