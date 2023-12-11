@@ -53,15 +53,15 @@
   ],
   "bundle": [
     {
-      "entry": "./node_modules/@linzjs/lui/dist/assets/images/nz-govt-logo-rev.svg",
+      "entry": "../../node_modules/@linzjs/lui/dist/assets/images/nz-govt-logo-rev.svg",
       "outfile": "dist/assets/logo-nz-govt.svg"
     },
     {
-      "entry": "./node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg",
+      "entry": "../../node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg",
       "outfile": "dist/assets/logo-linz.svg"
     },
     {
-      "entry": "./node_modules/@linzjs/lui/dist/assets/fonts",
+      "entry": "../../node_modules/@linzjs/lui/dist/assets/fonts",
       "outfile": "dist/assets/fonts"
     },
     {
