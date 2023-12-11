@@ -10,15 +10,9 @@ const parentPackage = JSON.parse(fs.readFileSync('../package.json').toString());
 
 // Find the exact version of a package in the yarn lock
 export function getPackageVersion(packageName) {
-  const parentLock = fs.readFileSync('../../../package-json.lock').toString().split('\n');
+  const parentLock = JSON.parse(fs.readFileSync('../../../package-lock.json').toString());
 
-  for (let i = 0; i < parentLock.length; i++) {
-    if (parentLock[i].startsWith(packageName + '@')) {
-      const versionList = parentLock[i + 1].trim();
-      if (!versionList.startsWith('version ')) throw new Error('Failed to find sharp version');
-      return JSON.parse(versionList.slice('version '.length));
-    }
-  }
+  return parentLock.packages['node_modules/' + packageName].version
 }
 
 // the bundle is a commonjs module
