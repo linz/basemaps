@@ -1,6 +1,8 @@
+import assert from 'node:assert';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+
 import { ConfigImagery, ConfigTileSet } from '@basemaps/config';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
-import o from 'ospec';
 import sinon from 'sinon';
 
 import { ConfigDynamoCached } from '../dynamo.config.cached.js';
@@ -37,74 +39,80 @@ class FakeDynamoDb {
   }
 }
 
-o.spec('ConfigDynamo', () => {
+describe('ConfigDynamo', () => {
   let provider: ConfigProviderDynamo;
   let fakeDynamo: FakeDynamoDb;
 
-  o.beforeEach(() => {
+  beforeEach(() => {
     provider = new ConfigProviderDynamo('Foo');
     fakeDynamo = new FakeDynamoDb();
     provider.dynamo = fakeDynamo as any;
   });
 
-  o.afterEach(() => sandbox.restore());
+  afterEach(() => sandbox.restore());
 
-  o('should not get if missing', async () => {
+  it('should not get if missing', async () => {
     const ret = await provider.TileSet.get('ts_abc123');
 
-    o(fakeDynamo.get).deepEquals([{ Key: { id: { S: 'ts_abc123' } }, TableName: 'Foo' }]);
-    o(ret).equals(null);
+    assert.deepEqual(fakeDynamo.get, [{ Key: { id: { S: 'ts_abc123' } }, TableName: 'Foo' }]);
+    assert.equal(ret, null);
   });
 
-  o('should get', async () => {
+  it('should get', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
     const ret = await provider.TileSet.get('ts_abc123');
 
-    o(fakeDynamo.get).deepEquals([{ Key: { id: { S: 'ts_abc123' } }, TableName: 'Foo' }]);
-    o(ret).deepEquals({ id: 'ts_abc123' } as ConfigTileSet);
+    assert.deepEqual(fakeDynamo.get, [{ Key: { id: { S: 'ts_abc123' } }, TableName: 'Foo' }]);
+    assert.deepEqual(ret, { id: 'ts_abc123' } as ConfigTileSet);
   });
 
-  o('should get-all', async () => {
+  it('should get-all', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
     fakeDynamo.values.set('ts_abc456', { id: 'ts_abc456' });
     const ret = await provider.TileSet.getAll(new Set(fakeDynamo.values.keys()));
 
-    o(fakeDynamo.getAll[0].RequestItems.Foo.Keys).deepEquals([{ id: { S: 'ts_abc123' } }, { id: { S: 'ts_abc456' } }]);
-    o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
+    assert.deepEqual(fakeDynamo.getAll[0].RequestItems.Foo.Keys, [
+      { id: { S: 'ts_abc123' } },
+      { id: { S: 'ts_abc456' } },
+    ]);
+    assert.deepEqual([...ret.values()], [...fakeDynamo.values.values()] as any);
   });
 
-  o('should throw without prefix', async () => {
+  it('should throw without prefix', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
     const ret = await provider.TileSet.get('abc123').catch((e) => e);
 
-    o(fakeDynamo.get).deepEquals([]);
-    o(String(ret)).deepEquals('Error: Trying to query "abc123" expected prefix of ts');
+    assert.deepEqual(fakeDynamo.get, []);
+    assert.deepEqual(String(ret), 'Error: Trying to query "abc123" expected prefix of ts');
   });
 
-  o('should get-all partial', async () => {
+  it('should get-all partial', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
     const ret = await provider.TileSet.getAll(new Set(['ts_abc123', 'ts_abc456']));
-    o(fakeDynamo.getAll[0].RequestItems.Foo.Keys).deepEquals([{ id: { S: 'ts_abc123' } }, { id: { S: 'ts_abc456' } }]);
-    o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
+    assert.deepEqual(fakeDynamo.getAll[0].RequestItems.Foo.Keys, [
+      { id: { S: 'ts_abc123' } },
+      { id: { S: 'ts_abc456' } },
+    ]);
+    assert.deepEqual([...ret.values()], [...fakeDynamo.values.values()] as any);
   });
 
-  o('should throw if on wrong prefix', async () => {
+  it('should throw if on wrong prefix', async () => {
     const ret = await provider.TileSet.get('im_abc123').catch((e) => e);
-    o(fakeDynamo.get).deepEquals([]);
-    o(String(ret)).deepEquals('Error: Trying to query "im_abc123" expected prefix of ts');
+    assert.deepEqual(fakeDynamo.get, []);
+    assert.deepEqual(String(ret), 'Error: Trying to query "im_abc123" expected prefix of ts');
   });
 
-  o('should throw on prefixed and un-prefixed', async () => {
+  it('should throw on prefixed and un-prefixed', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
 
     const ret = provider.TileSet.getAll(new Set(['abc123', 'ts_abc123']));
     const err = await ret.then(() => null).catch((e) => e);
-    o(String(err)).equals('Error: Trying to query "abc123" expected prefix of ts');
-    o(fakeDynamo.getAll).deepEquals([]);
+    assert.equal(String(err), 'Error: Trying to query "abc123" expected prefix of ts');
+    assert.deepEqual(fakeDynamo.getAll, []);
   });
 
-  o.spec('DynamoCached', () => {
-    o('should get-all with cache', async () => {
+  describe('DynamoCached', () => {
+    it('should get-all with cache', async () => {
       fakeDynamo.values.set('im_abc123', { id: 'im_abc123' });
       fakeDynamo.values.set('im_abc456', { id: 'im_abc456' });
 
@@ -112,19 +120,19 @@ o.spec('ConfigDynamo', () => {
       cached.cache.set('im_abc123', { id: 'im_abc123' } as ConfigImagery);
       const ret = await provider.Imagery.getAll(new Set(['im_abc123', 'im_abc456']));
 
-      o(fakeDynamo.getAll[0].RequestItems.Foo.Keys).deepEquals([{ id: { S: 'im_abc456' } }]);
-      o([...ret.values()]).deepEquals([...fakeDynamo.values.values()] as any);
+      assert.deepEqual(fakeDynamo.getAll[0].RequestItems.Foo.Keys, [{ id: { S: 'im_abc456' } }]);
+      assert.deepEqual([...ret.values()], [...fakeDynamo.values.values()] as any);
     });
 
-    o('should get with cache', async () => {
+    it('should get with cache', async () => {
       fakeDynamo.values.set('im_abc123', { id: 'im_abc123' });
 
       const cached = provider.Imagery as ConfigDynamoCached<ConfigImagery>;
       cached.cache.set('im_abc123', { id: 'im_abc123' } as ConfigImagery);
       const ret = await provider.Imagery.get('im_abc123');
 
-      o(fakeDynamo.get).deepEquals([]);
-      o(ret).deepEquals({ id: 'im_abc123' } as ConfigImagery);
+      assert.deepEqual(fakeDynamo.get, []);
+      assert.deepEqual(ret, { id: 'im_abc123' } as ConfigImagery);
     });
   });
 });

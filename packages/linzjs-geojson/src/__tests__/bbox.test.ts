@@ -1,21 +1,22 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { bboxContains, bboxToPolygon } from '../bbox.js';
 
-o.spec('bbox', () => {
-  o('bboxContains', () => {
-    o(bboxContains([4, 4, 6, 6], [4, 4, 5, 5])).equals(true);
-    o(bboxContains([4, 4, 6, 6], [4, 4, 6, 6])).equals(true);
-    o(bboxContains([4, 4, 6, 6], [4.5, 4.5, 5.5, 5.5])).equals(true);
+describe('bbox', () => {
+  it('bboxContains', () => {
+    assert.equal(bboxContains([4, 4, 6, 6], [4, 4, 5, 5]), true);
+    assert.equal(bboxContains([4, 4, 6, 6], [4, 4, 6, 6]), true);
+    assert.equal(bboxContains([4, 4, 6, 6], [4.5, 4.5, 5.5, 5.5]), true);
 
-    o(bboxContains([4, 4, 6, 6], [4.5, 4.5, 5.5, 6.5])).equals(false);
-    o(bboxContains([4, 4, 6, 6], [4.5, 4.5, 6.5, 5.5])).equals(false);
-    o(bboxContains([4, 4, 6, 6], [4.5, 3.5, 5.5, 5.5])).equals(false);
-    o(bboxContains([4, 4, 6, 6], [3.5, 4.5, 5.5, 5.5])).equals(false);
+    assert.equal(bboxContains([4, 4, 6, 6], [4.5, 4.5, 5.5, 6.5]), false);
+    assert.equal(bboxContains([4, 4, 6, 6], [4.5, 4.5, 6.5, 5.5]), false);
+    assert.equal(bboxContains([4, 4, 6, 6], [4.5, 3.5, 5.5, 5.5]), false);
+    assert.equal(bboxContains([4, 4, 6, 6], [3.5, 4.5, 5.5, 5.5]), false);
   });
 
-  o('bboxToPolygon', () => {
-    o(bboxToPolygon([74, -57, 94, -39])).deepEquals([
+  it('bboxToPolygon', () => {
+    assert.deepEqual(bboxToPolygon([74, -57, 94, -39]), [
       [
         [74, -57],
         [94, -57],

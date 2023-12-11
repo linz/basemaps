@@ -1,11 +1,12 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { GitTag } from '../git.tag.js';
 
-o.spec('git.tag', () => {
-  o('format', () => {
+describe('git.tag', () => {
+  it('format', () => {
     const ans = GitTag();
-    o(/^v\d+\.\d+\.\d+(-\d+-g[0-9a-f]+)?$/.test(ans.version)).equals(true)(`Got: ${ans.version}`);
-    o(/^[0-9a-f]+$/.test(ans.hash)).equals(true)(`Got: ${ans.hash}`);
+    assert.equal(/^v\d+\.\d+\.\d+(-\d+-g[0-9a-f]+)?$/.test(ans.version), true, `Got: ${ans.version}`);
+    assert.equal(/^[0-9a-f]+$/.test(ans.hash), true, `Got: ${ans.hash}`);
   });
 });

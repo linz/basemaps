@@ -1,5 +1,7 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { GoogleTms, Nztm2000QuadTms, Projection } from '@basemaps/geo';
-import o from 'ospec';
 
 import { projectGeoJson } from '../tile.matrix.js';
 
@@ -29,8 +31,8 @@ const feature = {
   ],
 };
 
-o.spec('GeoJSONTransform', () => {
-  o('should convert to the right tile location', () => {
+describe('GeoJSONTransform', () => {
+  it('should convert to the right tile location', () => {
     const newFeatures = JSON.parse(JSON.stringify(feature));
     projectGeoJson(newFeatures, Nztm2000QuadTms);
 
@@ -42,7 +44,7 @@ o.spec('GeoJSONTransform', () => {
 
     const tile = { x: pixels.x / GoogleTms.tileSize, y: pixels.y / GoogleTms.tileSize };
 
-    o(tile.x.toFixed(2)).equals('237.11');
-    o(tile.y.toFixed(2)).equals('278.69');
+    assert.equal(tile.x.toFixed(2), '237.11');
+    assert.equal(tile.y.toFixed(2), '278.69');
   });
 });

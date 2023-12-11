@@ -1,10 +1,11 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { Command } from '../../command.js';
 
-o.spec('LocalExecution', () => {
-  o('should run hello world', () => {
+describe('LocalExecution', () => {
+  it('should run hello world', () => {
     const cmd = Command.create('echo', { container: 'ubuntu' }).arg('hello world');
-    o(cmd.toCommand()).equals(`echo hello world`);
+    assert.equal(cmd.toCommand(), `echo hello world`);
   });
 });

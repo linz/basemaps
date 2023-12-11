@@ -1,54 +1,55 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { Metrics } from '../metrics.js';
 
-o.spec('Metrics', () => {
-  o('should give a empty object if no metrics were recorded', () => {
+describe('Metrics', () => {
+  it('should give a empty object if no metrics were recorded', () => {
     const metrics = new Metrics();
-    o(metrics.metrics).equals(undefined);
+    assert.equal(metrics.metrics, undefined);
   });
 
-  o('should throw if start/end mismatch', () => {
+  it('should throw if start/end mismatch', () => {
     const metrics = new Metrics();
     metrics.start('foo');
-    o(metrics.unfinished).deepEquals(['foo']);
+    assert.deepEqual(metrics.unfinished, ['foo']);
   });
 
-  o('should throw on duplicate start', () => {
+  it('should throw on duplicate start', () => {
     const metrics = new Metrics();
     metrics.start('foo');
-    o(() => metrics.start('foo')).throws(Error);
+    assert.throws(() => metrics.start('foo'), Error);
   });
 
-  o('should not throw on reusing timers', () => {
+  it('should not throw on reusing timers', () => {
     const metrics = new Metrics();
     metrics.start('foo');
-    o(metrics.unfinished).deepEquals(['foo']);
+    assert.deepEqual(metrics.unfinished, ['foo']);
     metrics.end('foo');
-    o(metrics.unfinished).equals(undefined);
+    assert.equal(metrics.unfinished, undefined);
 
     metrics.start('foo');
-    o(metrics.unfinished).deepEquals(['foo']);
+    assert.deepEqual(metrics.unfinished, ['foo']);
     metrics.end('foo');
-    o(metrics.unfinished).equals(undefined);
+    assert.equal(metrics.unfinished, undefined);
   });
 
-  o('should throw an Error if end before start', () => {
+  it('should throw an Error if end before start', () => {
     const metrics = new Metrics();
-    o(() => metrics.end('bar')).throws(Error);
+    assert.throws(() => metrics.end('bar'), Error);
   });
 
-  o('should return two unfinished entries', () => {
+  it('should return two unfinished entries', () => {
     const metrics = new Metrics();
     metrics.start('foo');
     metrics.start('bar');
-    o(metrics.unfinished).deepEquals(['foo', 'bar']);
+    assert.deepEqual(metrics.unfinished, ['foo', 'bar']);
   });
 
-  o('should return empty unfinished metric list using start/end', () => {
+  it('should return empty unfinished metric list using start/end', () => {
     const metrics = new Metrics();
     metrics.start('foo');
     metrics.end('foo');
-    o(metrics.unfinished).equals(undefined);
+    assert.equal(metrics.unfinished, undefined);
   });
 });

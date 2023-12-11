@@ -1,27 +1,29 @@
+import assert from 'node:assert';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+
 import { GoogleTms, StacCollection } from '@basemaps/geo';
 import { LogConfig, LogType } from '@basemaps/shared';
 import { mockFileOperator } from '@basemaps/shared/build/file/__tests__/file.operator.test.helper.js';
 import { round } from '@basemaps/test/build/rounding.js';
-import o from 'ospec';
 import { dirname } from 'path';
 
 import { FilePath } from '../file.js';
 import { Hash } from '../hash.js';
 import { Stac } from '../stac.js';
 
-o.spec('stac', () => {
+describe('stac', () => {
   const origHash = Hash.hash;
 
   const mockFs = mockFileOperator();
 
-  o.beforeEach(mockFs.setup);
+  beforeEach(mockFs.setup);
 
-  o.afterEach(() => {
+  afterEach(() => {
     Hash.hash = origHash;
     mockFs.teardown();
   });
 
-  o('createItem', async () => {
+  it('createItem', async () => {
     (Hash as any).hash = (v: string): string => 'hash' + v;
 
     const bm = {
@@ -39,9 +41,9 @@ o.spec('stac', () => {
 
     const date = Date.parse(stac.properties.datetime);
 
-    o(date >= now && date < now + 2000).equals(true);
+    assert.equal(date >= now && date < now + 2000, true);
 
-    o(round(stac, 4)).deepEquals({
+    assert.deepEqual(round(stac, 4), {
       stac_version: Stac.Version,
       stac_extensions: ['projection', Stac.BaseMapsExtension],
       id: 'id123/13-22-33',
@@ -79,7 +81,7 @@ o.spec('stac', () => {
     });
   });
 
-  o.spec('createCollection', () => {
+  describe('createCollection', () => {
     const logger = LogConfig.get();
     LogConfig.disable();
     const bm = {
@@ -97,13 +99,13 @@ o.spec('stac', () => {
     } as any;
     bm.config = bm;
 
-    o('createCollection without source collection.json', async () => {
+    it('createCollection without source collection.json', async () => {
       const bounds = GoogleTms.tileToSourceBounds({ x: 1, y: 2, z: 4 });
 
       const items = ['1-1-2.json'];
       const stac = await Stac.createCollection(bm, bounds, items, logger);
 
-      o(round(stac, 4)).deepEquals({
+      assert.deepEqual(round(stac, 4), {
         stac_version: Stac.Version,
         stac_extensions: ['projection'],
         id: 'id123',
@@ -129,7 +131,7 @@ o.spec('stac', () => {
       });
     });
 
-    o('createCollection with source collection.json', async () => {
+    it('createCollection with source collection.json', async () => {
       mockFs.jsStore['s3://test-source-bucket/gebco-2020/collection.json'] = {
         title: 'fancy title',
         description: 'collection description',
@@ -146,11 +148,11 @@ o.spec('stac', () => {
       const stac = await Stac.createCollection(bm, bounds, items, logger);
 
       const gitHubLink = stac.links[2];
-      o(gitHubLink.href.startsWith('https://github.com/linz/basemaps.git')).equals(true);
-      o(gitHubLink.rel).equals('derived_from');
-      o(/^\d+\.\d+\.\d+$/.test(gitHubLink.version as any)).equals(true);
+      assert.equal(gitHubLink.href.startsWith('https://github.com/linz/basemaps.git'), true);
+      assert.equal(gitHubLink.rel, 'derived_from');
+      assert.equal(/^\d+\.\d+\.\d+$/.test(gitHubLink.version as any), true);
 
-      o(round(stac, 4)).deepEquals({
+      assert.deepEqual(round(stac, 4), {
         stac_version: Stac.Version,
         stac_extensions: ['projection'],
         id: 'id123',

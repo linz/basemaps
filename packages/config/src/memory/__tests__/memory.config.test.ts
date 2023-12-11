@@ -1,6 +1,7 @@
+import assert from 'node:assert';
+import { beforeEach, describe, it } from 'node:test';
 import timers from 'node:timers/promises';
 
-import o from 'ospec';
 import { ulid } from 'ulid';
 
 import { BaseConfig } from '../../config/base.js';
@@ -8,9 +9,9 @@ import { ConfigImagery } from '../../config/imagery.js';
 import { ConfigTileSetRaster } from '../../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory.config.js';
 
-o.spec('MemoryConfig', () => {
+describe('MemoryConfig', () => {
   const config = new ConfigProviderMemory();
-  o.beforeEach(() => config.objects.clear());
+  beforeEach(() => config.objects.clear());
   const id = ulid();
   const imId = `im_${id}`;
   const tsId = `ts_${id}`;
@@ -18,26 +19,26 @@ o.spec('MemoryConfig', () => {
   const baseImg = { id: imId, name: 'ōtorohanga_urban_2021_0-1m_RGB', projection: 3857 } as ConfigImagery;
   const baseTs = { id: tsId, description: 'tileset' } as ConfigTileSetRaster;
 
-  o('should load correct objects from memory', async () => {
+  it('should load correct objects from memory', async () => {
     config.put(baseTs);
     config.put(baseImg);
 
     const img = await config.Imagery.get(imId);
-    o(img?.id).equals(imId);
+    assert.equal(img?.id, imId);
 
     const ts = await config.TileSet.get(tsId);
-    o(ts?.id).equals(tsId);
-    o(ts?.description).equals('tileset');
+    assert.equal(ts?.id, tsId);
+    assert.equal(ts?.description, 'tileset');
   });
 
-  o('should support prefixed keys', async () => {
+  it('should support prefixed keys', async () => {
     config.put(baseImg);
 
     const img = await config.Imagery.get(imId);
-    o(img?.id).equals(imId);
+    assert.equal(img?.id, imId);
   });
 
-  o('should not find objects', async () => {
+  it('should not find objects', async () => {
     const res = await Promise.all([
       config.Imagery.get('123'),
       config.TileSet.get('123'),
@@ -45,58 +46,58 @@ o.spec('MemoryConfig', () => {
       config.Style.get('123'),
     ]);
 
-    o(res).deepEquals([null, null, null, null]);
+    assert.deepEqual(res, [null, null, null, null]);
   });
 
-  o('should searialize to json', async () => {
+  it('should searialize to json', async () => {
     config.put(baseTs);
     config.put(baseImg);
 
     const json = await config.toJson();
 
-    o(json.imagery.length).equals(1);
-    o(json.imagery[0].id).equals(baseImg.id);
+    assert.equal(json.imagery.length, 1);
+    assert.equal(json.imagery[0].id, baseImg.id);
 
-    o(json.tileSet.length).equals(1);
-    o(json.tileSet[0].id).equals(baseTs.id);
+    assert.equal(json.tileSet.length, 1);
+    assert.equal(json.tileSet[0].id, baseTs.id);
 
-    o(json.style.length).equals(0);
-    o(json.provider.length).equals(0);
+    assert.equal(json.style.length, 0);
+    assert.equal(json.provider.length, 0);
   });
 
-  o('should generate virtual tilesets', async () => {
+  it('should generate virtual tilesets', async () => {
     config.put(baseImg);
-    o(config.toJson().tileSet.length).equals(0);
+    assert.equal(config.toJson().tileSet.length, 0);
 
     config.createVirtualTileSets();
 
     const cfg = config.toJson();
-    o(cfg.tileSet.length).equals(3);
-    o(cfg.tileSet[0].id).equals(tsId);
-    o(cfg.tileSet[1].id).equals('ts_ōtorohanga-urban-2021-0.1m');
-    o(cfg.tileSet[2].id).equals('ts_all');
+    assert.equal(cfg.tileSet.length, 3);
+    assert.equal(cfg.tileSet[0].id, tsId);
+    assert.equal(cfg.tileSet[1].id, 'ts_ōtorohanga-urban-2021-0.1m');
+    assert.equal(cfg.tileSet[2].id, 'ts_all');
     const allTileSet = cfg.tileSet[2];
-    o(allTileSet.layers.length).equals(1);
-    o(allTileSet.layers[0].name).equals('ōtorohanga-urban-2021-0.1m');
+    assert.equal(allTileSet.layers.length, 1);
+    assert.equal(allTileSet.layers[0].name, 'ōtorohanga-urban-2021-0.1m');
   });
 
   const newId = ulid();
   const newImId = `im_${newId}`;
-  o('should create virtual tilesets by name', async () => {
+  it('should create virtual tilesets by name', async () => {
     config.put(baseImg);
     config.put({ ...baseImg, projection: 2193, id: newImId } as ConfigImagery);
-    o(config.toJson().tileSet.length).equals(0);
+    assert.equal(config.toJson().tileSet.length, 0);
 
     config.createVirtualTileSets();
 
     const target = await config.TileSet.get('ōtorohanga-urban-2021-0.1m');
-    o(target?.layers.length).equals(1);
-    o(target?.layers[0][3857]).equals(baseImg.id);
-    o(target?.layers[0][2193]).equals(newImId);
-    o(target?.name).equals('ōtorohanga-urban-2021-0.1m');
+    assert.equal(target?.layers.length, 1);
+    assert.equal(target?.layers[0][3857], baseImg.id);
+    assert.equal(target?.layers[0][2193], newImId);
+    assert.equal(target?.name, 'ōtorohanga-urban-2021-0.1m');
   });
 
-  o('virtual tilesets can be called multiple times', () => {
+  it('virtual tilesets can be called multiple times', () => {
     config.put(baseImg);
     config.put({ ...baseImg, projection: 2193, id: newImId } as ConfigImagery);
 
@@ -107,34 +108,34 @@ o.spec('MemoryConfig', () => {
     const cfg = config.toJson();
     // 1 tileset per imagery id (2x)
     // 1 tileset per imagery name (1x)
-    o(cfg.tileSet.length).equals(4);
-    o(cfg.tileSet[0].id).equals(tsId);
-    o(cfg.tileSet[1].id).equals('ts_ōtorohanga-urban-2021-0.1m');
-    o(cfg.tileSet[2].id).equals(`ts_${newId}`);
-    o(cfg.tileSet[3].id).equals('ts_all');
-    o(cfg.tileSet[3].layers.length).equals(1);
-    o(cfg.tileSet[3].layers[0][2193]).equals(newImId);
-    o(cfg.tileSet[3].layers[0][3857]).equals(imId);
-    o(cfg.tileSet[3].layers[0].maxZoom).equals(undefined);
-    o(cfg.tileSet[3].layers[0].minZoom).equals(32);
+    assert.equal(cfg.tileSet.length, 4);
+    assert.equal(cfg.tileSet[0].id, tsId);
+    assert.equal(cfg.tileSet[1].id, 'ts_ōtorohanga-urban-2021-0.1m');
+    assert.equal(cfg.tileSet[2].id, `ts_${newId}`);
+    assert.equal(cfg.tileSet[3].id, 'ts_all');
+    assert.equal(cfg.tileSet[3].layers.length, 1);
+    assert.equal(cfg.tileSet[3].layers[0][2193], newImId);
+    assert.equal(cfg.tileSet[3].layers[0][3857], imId);
+    assert.equal(cfg.tileSet[3].layers[0].maxZoom, undefined);
+    assert.equal(cfg.tileSet[3].layers[0].minZoom, 32);
   });
 
-  o('virtual tilesets should overwrite existing projections', async () => {
+  it('virtual tilesets should overwrite existing projections', async () => {
     config.put(baseImg);
     config.put({ ...baseImg, id: newImId } as ConfigImagery);
 
-    o(config.toJson().tileSet.length).equals(0);
+    assert.equal(config.toJson().tileSet.length, 0);
 
     config.createVirtualTileSets();
 
     const target = await config.TileSet.get('ts_ōtorohanga-urban-2021-0.1m');
-    o(target?.layers.length).equals(1);
-    o(target?.layers[0][3857]).equals(newImId);
-    o(target?.layers[0][2193]).equals(undefined);
-    o(target?.name).equals('ōtorohanga-urban-2021-0.1m');
+    assert.equal(target?.layers.length, 1);
+    assert.equal(target?.layers[0][3857], newImId);
+    assert.equal(target?.layers[0][2193], undefined);
+    assert.equal(target?.name, 'ōtorohanga-urban-2021-0.1m');
   });
 
-  o('virtual tilesets should be created with `:`', async () => {
+  it('virtual tilesets should be created with `:`', async () => {
     const idA = ulid();
     const idB = ulid();
     config.objects.clear();
@@ -155,12 +156,12 @@ o.spec('MemoryConfig', () => {
     config.put({ ...baseImg, id: `im_${idA}`, projection: 2193 } as ConfigImagery);
     config.put({ ...baseImg, id: `im_${idB}`, projection: 3857 } as ConfigImagery);
 
-    o(config.toJson().tileSet.length).equals(1);
+    assert.equal(config.toJson().tileSet.length, 1);
     config.createVirtualTileSets();
 
     const tileSets = config.toJson().tileSet.map((c) => c.id);
 
-    o(tileSets).deepEquals([
+    assert.deepEqual(tileSets, [
       'ts_aerial',
       `ts_${idA}`, // By image id
       'ts_ōtorohanga-urban-2021-0.1m', // By name
@@ -169,14 +170,14 @@ o.spec('MemoryConfig', () => {
     ]);
 
     const target = await config.TileSet.get('ts_ōtorohanga-urban-2021-0.1m');
-    o(target?.layers.length).equals(1);
-    o(target?.layers[0][3857]).equals(`im_${idB}`);
-    o(target?.layers[0][2193]).equals(`im_${idA}`);
+    assert.equal(target?.layers.length, 1);
+    assert.equal(target?.layers[0][3857], `im_${idB}`);
+    assert.equal(target?.layers[0][2193], `im_${idA}`);
     // the name should be mapped back to the expected name so tiles will be served via the same endpoints as by name
-    o(target?.name).equals('ōtorohanga-urban-2021-0.1m');
+    assert.equal(target?.name, 'ōtorohanga-urban-2021-0.1m');
   });
 
-  o('The latest imagery should overwrite the old ones', async () => {
+  it('The latest imagery should overwrite the old ones', async () => {
     const idLater = ulid();
     await timers.setTimeout(5);
     const idLatest = ulid();
@@ -184,13 +185,13 @@ o.spec('MemoryConfig', () => {
     config.put({ ...baseImg, id: `im_${idLater}` } as ConfigImagery);
     config.put({ ...baseImg, id: `im_${idLatest}` } as ConfigImagery);
 
-    o(config.toJson().imagery.length).equals(3);
+    assert.equal(config.toJson().imagery.length, 3);
 
     config.createVirtualTileSets();
     const target = await config.TileSet.get('ts_ōtorohanga-urban-2021-0.1m');
-    o(target?.layers.length).equals(1);
-    o(target?.layers[0][3857]).equals(`im_${idLatest}`);
-    o(target?.layers[0][2193]).equals(undefined);
-    o(target?.name).equals('ōtorohanga-urban-2021-0.1m');
+    assert.equal(target?.layers.length, 1);
+    assert.equal(target?.layers[0][3857], `im_${idLatest}`);
+    assert.equal(target?.layers[0][2193], undefined);
+    assert.equal(target?.name, 'ōtorohanga-urban-2021-0.1m');
   });
 });

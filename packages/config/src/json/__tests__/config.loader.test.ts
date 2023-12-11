@@ -1,46 +1,43 @@
+import assert from 'node:assert';
+import { before, beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { fsa } from '@chunkd/fs';
 import { FsMemory, SourceMemory } from '@chunkd/source-memory';
 import { CogTiff } from '@cogeotiff/core';
-import o from 'ospec';
 
 import { ConfigProviderMemory } from '../../memory/memory.config.js';
 import { getImageryName, initConfigFromUrls } from '../tiff.config.js';
 
 const simpleTiff = new URL('../../../../__tests__/static/rgba8_tiled.tiff', import.meta.url);
 
-o.spec('config import', () => {
+describe('config import', () => {
   const fsMemory = new FsMemory();
 
   // TODO SourceMemory adds `memory://` to every url even if it already has a `memory://` prefix
   fsMemory.source = (filePath): SourceMemory => {
     const bytes = fsMemory.files.get(filePath);
     if (bytes == null) throw new Error('Failed to load file: ' + filePath);
-    return new SourceMemory(filePath.replace('memory://', ''), bytes);
+    return new SourceMemory(filePath.replace('memory://', ''), bytes.buffer);
   };
 
-  o.before(() => fsa.register('memory://', fsMemory));
-  o.beforeEach(() => fsMemory.files.clear());
+  before(() => fsa.register('memory://', fsMemory));
+  beforeEach(() => fsMemory.files.clear());
 
-  o('should load tiff from filesystem', async () => {
-    o.timeout(1000);
-
+  it('should load tiff from filesystem', async () => {
     const buf = await fsa.read(fileURLToPath(simpleTiff));
     await fsa.write('memory://tiffs/tile-tiff-name/tiff-a.tiff', buf);
 
     const cfg = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name')]);
 
-    o(ret.imagery.length).equals(1);
+    assert.equal(ret.imagery.length, 1);
     const imagery = ret.imagery[0];
-    o(imagery.name).equals('tile-tiff-name');
-    o(imagery.files).deepEquals([{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
+    assert.equal(imagery.name, 'tile-tiff-name');
+    assert.deepEqual(imagery.files, [{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
   });
 
-  o('should skip empty tiffs from filesystem', async () => {
-    o.timeout(1000);
-
+  it('should skip empty tiffs from filesystem', async () => {
     const buf = await fsa.read(fileURLToPath(simpleTiff));
     await fsa.write('memory://tiffs/tile-tiff-name/tiff-a.tiff', buf);
     const tiff = await CogTiff.create(new SourceMemory('memory://', buf));
@@ -60,15 +57,13 @@ o.spec('config import', () => {
     const cfg = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name')]);
 
-    o(ret.imagery.length).equals(1);
+    assert.equal(ret.imagery.length, 1);
     const imagery = ret.imagery[0];
-    o(imagery.name).equals('tile-tiff-name');
-    o(imagery.files).deepEquals([{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
+    assert.equal(imagery.name, 'tile-tiff-name');
+    assert.deepEqual(imagery.files, [{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
   });
 
-  o('should create multiple imagery layers from multiple folders', async () => {
-    o.timeout(1000);
-
+  it('should create multiple imagery layers from multiple folders', async () => {
     const buf = await fsa.read(fileURLToPath(simpleTiff));
     await fsa.write('memory://tiffs/tile-tiff-a/tiff-a.tiff', buf);
     await fsa.write('memory://tiffs/tile-tiff-b/tiff-b.tiff', buf);
@@ -79,63 +74,69 @@ o.spec('config import', () => {
       new URL('memory://tiffs/tile-tiff-b/'),
     ]);
 
-    o(ret.imagery.length).equals(2);
-    o(ret.imagery[0].name).equals('tile-tiff-a');
-    o(ret.imagery[0].files).deepEquals([{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
+    assert.equal(ret.imagery.length, 2);
+    assert.equal(ret.imagery[0].name, 'tile-tiff-a');
+    assert.deepEqual(ret.imagery[0].files, [{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
 
-    o(ret.imagery[1].name).equals('tile-tiff-b');
-    o(ret.imagery[1].files).deepEquals([{ name: 'tiff-b.tiff', x: 0, y: -64, width: 64, height: 64 }]);
+    assert.equal(ret.imagery[1].name, 'tile-tiff-b');
+    assert.deepEqual(ret.imagery[1].files, [{ name: 'tiff-b.tiff', x: 0, y: -64, width: 64, height: 64 }]);
 
-    o(ret.tileSet.layers.length).equals(2);
-    o(ret.tileSet.layers[0][3857]).equals(ret.imagery[0].id);
-    o(ret.tileSet.layers[0].name).equals(ret.imagery[0].name);
-    o(ret.tileSet.layers[1][3857]).equals(ret.imagery[1].id);
-    o(ret.tileSet.layers[1].name).equals(ret.imagery[1].name);
+    assert.equal(ret.tileSet.layers.length, 2);
+    assert.equal(ret.tileSet.layers[0][3857], ret.imagery[0].id);
+    assert.equal(ret.tileSet.layers[0].name, ret.imagery[0].name);
+    assert.equal(ret.tileSet.layers[1][3857], ret.imagery[1].id);
+    assert.equal(ret.tileSet.layers[1].name, ret.imagery[1].name);
   });
 
-  o('should load tiff from filesystem with projection and imagery type in name', async () => {
-    o.timeout(1000);
-
+  it('should load tiff from filesystem with projection and imagery type in name', async () => {
     const buf = await fsa.read(fileURLToPath(simpleTiff));
     await fsa.write('memory://tiffs/tile-tiff-name/2193/rgb/tiff-a.tiff', buf);
 
     const cfg = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name/2193/rgb/')]);
 
-    o(ret.imagery.length).equals(1);
+    assert.equal(ret.imagery.length, 1);
     const imagery = ret.imagery[0];
-    o(imagery.name).equals('tile-tiff-name');
-    o(imagery.files).deepEquals([{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
+    assert.equal(imagery.name, 'tile-tiff-name');
+    assert.deepEqual(imagery.files, [{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
   });
 
-  o('should ignore 2193 and rgb from imagery names', () => {
-    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/rgb/'))).equals(
+  it('should ignore 2193 and rgb from imagery names', () => {
+    assert.equal(
+      getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/rgb/')),
       'auckland_sn5600_1979_0.375m',
     );
-    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/rgbi/'))).equals(
+    assert.equal(
+      getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/rgbi/')),
       'auckland_sn5600_1979_0.375m',
     );
-    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/dem_1m/'))).equals(
+    assert.equal(
+      getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/dem_1m/')),
       'auckland_sn5600_1979_0.375m',
     );
-    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/dsm_1m/'))).equals(
+    assert.equal(
+      getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/2193/dsm_1m/')),
       'auckland_sn5600_1979_0.375m',
     );
-    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/3857/dsm_1m/'))).equals(
+    assert.equal(
+      getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/3857/dsm_1m/')),
       'auckland_sn5600_1979_0.375m',
     );
 
-    o(getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/3857/DSM_1m/'))).equals(
+    assert.equal(
+      getImageryName(new URL('s3://linz-imagery/auckland/auckland_sn5600_1979_0.375m/3857/DSM_1m/')),
       'auckland_sn5600_1979_0.375m',
     );
   });
 
-  o('should ignore argo folder names', () => {
-    o(
+  it('should ignore argo folder names', () => {
+    assert.equal(
       getImageryName(new URL('s3://linz-workflow-artifacts/2023-09/05-ecan-banks-peninsula-original-9mjdj/flat/')),
-    ).equals('05-ecan-banks-peninsula-original-9mjdj');
-    o(
+      '05-ecan-banks-peninsula-original-9mjdj',
+    );
+    assert.equal(
       getImageryName(new URL('s3://linz-workflows-scratch/2023-09/05-ecan-banks-peninsula-original-9mjdj/flat/')),
-    ).equals('05-ecan-banks-peninsula-original-9mjdj');
+      '05-ecan-banks-peninsula-original-9mjdj',
+    );
   });
 });

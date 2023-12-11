@@ -1,10 +1,11 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { MultiPolygon, Polygon, Ring } from '../../types.js';
 import { Area } from '../area.js';
 
-o.spec('Area', () => {
-  o('Ring', () => {
+describe('Area', () => {
+  it('Ring', () => {
     const ring: Ring = [
       [10, 10],
       [20, 10],
@@ -13,9 +14,9 @@ o.spec('Area', () => {
       [10, 10],
     ];
     const area = Area.ring(ring);
-    o(area).equals(100);
+    assert.equal(area, 100);
   });
-  o('Polygon, single exterior ring', () => {
+  it('Polygon, single exterior ring', () => {
     const poly: Polygon = [
       [
         [10, 10],
@@ -26,9 +27,9 @@ o.spec('Area', () => {
       ],
     ];
     const area = Area.polygon(poly);
-    o(area).equals(100);
+    assert.equal(area, 100);
   });
-  o('Polygon, interior rings', () => {
+  it('Polygon, interior rings', () => {
     const poly: Polygon = [
       [
         [10, 10],
@@ -53,9 +54,9 @@ o.spec('Area', () => {
       ],
     ];
     const area = Area.polygon(poly);
-    o(area).equals(80);
+    assert.equal(area, 80);
   });
-  o('MultiPolygon', () => {
+  it('MultiPolygon', () => {
     const multipoly: MultiPolygon = [
       [
         [
@@ -91,6 +92,6 @@ o.spec('Area', () => {
       ],
     ];
     const area = Area.multiPolygon(multipoly);
-    o(area).equals(180);
+    assert.equal(area, 180);
   });
 });

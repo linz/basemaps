@@ -1,70 +1,71 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { QuadKey } from '../quad.key.js';
 
-o.spec('QuadKey', () => {
-  o.spec('intersect', () => {
-    o('should intersect big to small', () => {
-      o(QuadKey.intersects('', '30003303')).equals(true);
+describe('QuadKey', () => {
+  describe('intersect', () => {
+    it('should intersect big to small', () => {
+      assert.equal(QuadKey.intersects('', '30003303'), true);
 
-      o(QuadKey.intersects('3', '30')).equals(true);
-      o(QuadKey.intersects('3', '301')).equals(true);
-      o(QuadKey.intersects('3', '333')).equals(true);
-      o(QuadKey.intersects('33', '30')).equals(false);
-      o(QuadKey.intersects('33', '301')).equals(false);
-      o(QuadKey.intersects('33', '333')).equals(true);
+      assert.equal(QuadKey.intersects('3', '30'), true);
+      assert.equal(QuadKey.intersects('3', '301'), true);
+      assert.equal(QuadKey.intersects('3', '333'), true);
+      assert.equal(QuadKey.intersects('33', '30'), false);
+      assert.equal(QuadKey.intersects('33', '301'), false);
+      assert.equal(QuadKey.intersects('33', '333'), true);
     });
 
-    o('should not intersect other cells', () => {
-      o(QuadKey.intersects('0', '30003303')).equals(false);
-      o(QuadKey.intersects('1', '30003303')).equals(false);
-      o(QuadKey.intersects('2', '30003303')).equals(false);
-      o(QuadKey.intersects('31', '30003303')).equals(false);
+    it('should not intersect other cells', () => {
+      assert.equal(QuadKey.intersects('0', '30003303'), false);
+      assert.equal(QuadKey.intersects('1', '30003303'), false);
+      assert.equal(QuadKey.intersects('2', '30003303'), false);
+      assert.equal(QuadKey.intersects('31', '30003303'), false);
     });
 
-    o('should intersect small to big', () => {
-      o(QuadKey.intersects('331', '3')).equals(true);
-      o(QuadKey.intersects('331', '30')).equals(false);
-      o(QuadKey.intersects('331', '301')).equals(false);
-      o(QuadKey.intersects('331', '333')).equals(false);
+    it('should intersect small to big', () => {
+      assert.equal(QuadKey.intersects('331', '3'), true);
+      assert.equal(QuadKey.intersects('331', '30'), false);
+      assert.equal(QuadKey.intersects('331', '301'), false);
+      assert.equal(QuadKey.intersects('331', '333'), false);
     });
   });
 
-  o('should get children', () => {
-    o(QuadKey.children('')).deepEquals(['0', '1', '2', '3']);
-    o(QuadKey.children('3')).deepEquals(['30', '31', '32', '33']);
-    o(QuadKey.children('3001')).deepEquals(['30010', '30011', '30012', '30013']);
+  it('should get children', () => {
+    assert.deepEqual(QuadKey.children(''), ['0', '1', '2', '3']);
+    assert.deepEqual(QuadKey.children('3'), ['30', '31', '32', '33']);
+    assert.deepEqual(QuadKey.children('3001'), ['30010', '30011', '30012', '30013']);
   });
 
-  o('should find parent', () => {
-    o(QuadKey.parent('')).equals('');
-    o(QuadKey.parent('3')).equals('');
-    o(QuadKey.parent('31')).equals('3');
-    o(QuadKey.parent('3001')).equals('300');
+  it('should find parent', () => {
+    assert.equal(QuadKey.parent(''), '');
+    assert.equal(QuadKey.parent('3'), '');
+    assert.equal(QuadKey.parent('31'), '3');
+    assert.equal(QuadKey.parent('3001'), '300');
   });
 
-  o('compareKeys', () => {
-    o(QuadKey.compareKeys('3201', '33')).equals(2);
-    o(QuadKey.compareKeys('33', '3201')).equals(-2);
-    o(QuadKey.compareKeys('33', '33')).equals(0);
-    o(QuadKey.compareKeys('31', '33')).equals(-1);
-    o(QuadKey.compareKeys('31', '22')).equals(1);
+  it('compareKeys', () => {
+    assert.equal(QuadKey.compareKeys('3201', '33'), 2);
+    assert.equal(QuadKey.compareKeys('33', '3201'), -2);
+    assert.equal(QuadKey.compareKeys('33', '33'), 0);
+    assert.equal(QuadKey.compareKeys('31', '33'), -1);
+    assert.equal(QuadKey.compareKeys('31', '22'), 1);
   });
 
-  o('toTile', () => {
-    o(QuadKey.toTile('')).deepEquals({ x: 0, y: 0, z: 0 });
-    o(QuadKey.toTile('31')).deepEquals({ x: 3, y: 2, z: 2 });
-    o(QuadKey.toTile('31021')).deepEquals({ x: 25, y: 18, z: 5 });
+  it('toTile', () => {
+    assert.deepEqual(QuadKey.toTile(''), { x: 0, y: 0, z: 0 });
+    assert.deepEqual(QuadKey.toTile('31'), { x: 3, y: 2, z: 2 });
+    assert.deepEqual(QuadKey.toTile('31021'), { x: 25, y: 18, z: 5 });
   });
 
-  o('fromTile', () => {
-    o(QuadKey.fromTile({ x: 0, y: 0, z: 0 })).equals('');
-    o(QuadKey.fromTile({ x: 0, y: 0, z: 32 })).equals('00000000000000000000000000000000');
-    o(QuadKey.fromTile({ x: 3, y: 2, z: 2 })).equals('31');
-    o(QuadKey.fromTile({ x: 25, y: 18, z: 5 })).equals('31021');
+  it('fromTile', () => {
+    assert.equal(QuadKey.fromTile({ x: 0, y: 0, z: 0 }), '');
+    assert.equal(QuadKey.fromTile({ x: 0, y: 0, z: 32 }), '00000000000000000000000000000000');
+    assert.equal(QuadKey.fromTile({ x: 3, y: 2, z: 2 }), '31');
+    assert.equal(QuadKey.fromTile({ x: 25, y: 18, z: 5 }), '31021');
 
-    o(QuadKey.fromTile({ x: 2 ** 24 - 1, y: 0, z: 24 })).equals('111111111111111111111111');
-    o(QuadKey.fromTile({ x: 0, y: 2 ** 24 - 1, z: 24 })).equals('222222222222222222222222');
-    o(QuadKey.fromTile({ x: 2 ** 24 - 1, y: 2 ** 24 - 1, z: 24 })).equals('333333333333333333333333');
+    assert.equal(QuadKey.fromTile({ x: 2 ** 24 - 1, y: 0, z: 24 }), '111111111111111111111111');
+    assert.equal(QuadKey.fromTile({ x: 0, y: 2 ** 24 - 1, z: 24 }), '222222222222222222222222');
+    assert.equal(QuadKey.fromTile({ x: 2 ** 24 - 1, y: 2 ** 24 - 1, z: 24 }), '333333333333333333333333');
   });
 });

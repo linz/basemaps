@@ -1,8 +1,10 @@
+import assert from 'node:assert';
+import { afterEach, before, beforeEach, describe, it } from 'node:test';
+
 import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
 import { FsMemory } from '@chunkd/source-memory';
-import o from 'ospec';
 import sinon from 'sinon';
 
 import { FakeData } from '../../__tests__/config.data.js';
@@ -11,59 +13,59 @@ import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { CoSources } from '../../util/source.cache.js';
 
-o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
+describe('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
   const config = new ConfigProviderMemory();
   const sandbox = sinon.createSandbox();
 
-  o.before(() => {
+  before(() => {
     process.env[Env.PublicUrlBase] = 'https://tiles.test';
   });
 
-  o.beforeEach(() => {
+  beforeEach(() => {
     sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
     config.objects.clear();
     CoSources.cache.clear();
   });
 
-  o.afterEach(() => {
+  afterEach(() => {
     sandbox.restore();
   });
 
-  o('should 404 if invalid url is given', async () => {
+  it('should 404 if invalid url is given', async () => {
     const request = mockRequest('/v1/tiles/tile.json', 'get', Api.header);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(404);
+    assert.equal(res.status, 404);
   });
 
-  o('should support utf8 tilesets', async () => {
+  it('should support utf8 tilesets', async () => {
     const request = mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `api=${Api.key}`);
-    o(request.path).equals('/v1/tiles/%F0%9F%A6%84%20%F0%9F%8C%88/NZTM2000Quad/tile.json');
+    assert.equal(request.path, '/v1/tiles/%F0%9F%A6%84%20%F0%9F%8C%88/NZTM2000Quad/tile.json');
 
     const fakeTileSet = FakeData.tileSetRaster('🦄 🌈');
     config.put(fakeTileSet);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
   });
 
-  o('should serve tile json for tile_set', async () => {
+  it('should serve tile json for tile_set', async () => {
     const request = mockRequest('/v1/tiles/aerial/NZTM2000Quad/tile.json', 'get', Api.header);
     const fakeTileSet = FakeData.tileSetRaster('aerial');
     config.put(fakeTileSet);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
-    o(res.header('cache-control')).equals('no-store');
+    assert.equal(res.status, 200);
+    assert.equal(res.header('cache-control'), 'no-store');
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    o(JSON.parse(body)).deepEquals({
+    assert.deepEqual(JSON.parse(body), {
       tiles: [`https://tiles.test/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.webp?api=${Api.key}`],
       tilejson: '3.0.0',
     });
   });
 
-  o('should use the correct format', async () => {
+  it('should use the correct format', async () => {
     const request = mockRequest('/v1/tiles/aerial/NZTM2000Quad/tile.json', 'get', Api.header);
     request.query.set('format', 'jpeg');
 
@@ -71,17 +73,17 @@ o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
     config.put(fakeTileSet);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
-    o(res.header('cache-control')).equals('no-store');
+    assert.equal(res.status, 200);
+    assert.equal(res.header('cache-control'), 'no-store');
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    o(JSON.parse(body)).deepEquals({
+    assert.deepEqual(JSON.parse(body), {
       tiles: [`https://tiles.test/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.jpeg?api=${Api.key}`],
       tilejson: '3.0.0',
     });
   });
 
-  o('should use the correct format when multiple set', async () => {
+  it('should use the correct format when multiple set', async () => {
     const request = mockRequest('/v1/tiles/aerial/NZTM2000Quad/tile.json', 'get', Api.header);
     request.query.append('format', 'png');
     request.query.append('format', 'jpeg');
@@ -90,32 +92,32 @@ o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
     config.put(fakeTileSet);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
-    o(res.header('cache-control')).equals('no-store');
+    assert.equal(res.status, 200);
+    assert.equal(res.header('cache-control'), 'no-store');
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    o(JSON.parse(body)).deepEquals({
+    assert.deepEqual(JSON.parse(body), {
       tiles: [`https://tiles.test/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.png?api=${Api.key}`],
       tilejson: '3.0.0',
     });
   });
 
-  o('should serve vector tiles', async () => {
+  it('should serve vector tiles', async () => {
     const request = mockRequest('/v1/tiles/topographic/EPSG:3857/tile.json', 'get', Api.header);
     const fakeTileSet = FakeData.tileSetVector('topographic');
     config.put(fakeTileSet);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    o(JSON.parse(body)).deepEquals({
+    assert.deepEqual(JSON.parse(body), {
       tiles: [`https://tiles.test/v1/tiles/topographic/WebMercatorQuad/{z}/{x}/{y}.pbf?api=${Api.key}`],
       tilejson: '3.0.0',
     });
   });
 
-  o('should serve vector tiles with min/max zoom', async () => {
+  it('should serve vector tiles with min/max zoom', async () => {
     const fakeTileSet = FakeData.tileSetVector('fake-vector');
     fakeTileSet.maxZoom = 15;
     fakeTileSet.minZoom = 3;
@@ -123,10 +125,10 @@ o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
     const request = mockRequest('/v1/tiles/fake-vector/WebMercatorQuad/tile.json', 'get', Api.header);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    o(JSON.parse(body)).deepEquals({
+    assert.deepEqual(JSON.parse(body), {
       tiles: [`https://tiles.test/v1/tiles/fake-vector/WebMercatorQuad/{z}/{x}/{y}.pbf?api=${Api.key}`],
       maxzoom: 15,
       minzoom: 3,
@@ -134,7 +136,7 @@ o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
     });
   });
 
-  o('should load from config bundle', async () => {
+  it('should load from config bundle', async () => {
     const memoryFs = new FsMemory();
     fsa.register('memory://', memoryFs);
     const fakeTileSet = FakeData.tileSetRaster('🦄 🌈');
@@ -146,13 +148,13 @@ o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
     const configLocation = base58.encode(Buffer.from('memory://linz-basemaps/bar.json'));
     const request = mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${configLocation}`, Api.header);
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
 
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
-    o(body.tiles[0].includes(`config=${configLocation}`)).equals(true);
+    assert.equal(body.tiles[0].includes(`config=${configLocation}`), true);
   });
 
-  o('should serve convert zoom to tile matrix', async () => {
+  it('should serve convert zoom to tile matrix', async () => {
     const fakeTileSet = FakeData.tileSetVector('fake-vector');
     fakeTileSet.maxZoom = 15;
     fakeTileSet.minZoom = 1;
@@ -161,10 +163,10 @@ o.spec('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
     const request = mockRequest('/v1/tiles/fake-vector/NZTM2000Quad/tile.json', 'get', Api.header);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
-    o(JSON.parse(body)).deepEquals({
+    assert.deepEqual(JSON.parse(body), {
       tiles: [`https://tiles.test/v1/tiles/fake-vector/NZTM2000Quad/{z}/{x}/{y}.pbf?api=${Api.key}`],
       maxzoom: 13,
       minzoom: 0,

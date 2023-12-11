@@ -1,75 +1,77 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { GoogleTms, ImageFormat, Nztm2000QuadTms, Nztm2000Tms, VectorFormat } from '@basemaps/geo';
-import o from 'ospec';
 
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { Validate } from '../validate.js';
 
-o.spec('GetImageFormats', () => {
-  o('should parse all formats', () => {
+describe('GetImageFormats', () => {
+  it('should parse all formats', () => {
     const req = mockUrlRequest('/v1/blank', 'format=png&format=jpeg');
     const formats = Validate.getRequestedFormats(req);
-    o(formats).deepEquals([ImageFormat.Png, ImageFormat.Jpeg]);
+    assert.deepEqual(formats, [ImageFormat.Png, ImageFormat.Jpeg]);
   });
 
-  o('should ignore bad formats', () => {
+  it('should ignore bad formats', () => {
     const req = mockUrlRequest('/v1/blank', 'format=fake&format=mvt');
     const formats = Validate.getRequestedFormats(req);
-    o(formats).equals(null);
+    assert.equal(formats, null);
   });
 
-  o('should de-dupe formats', () => {
+  it('should de-dupe formats', () => {
     const req = mockUrlRequest('/v1/blank', 'format=png&format=jpeg&format=png&format=jpeg&format=png&format=jpeg');
     const formats = Validate.getRequestedFormats(req);
-    o(formats).deepEquals([ImageFormat.Png, ImageFormat.Jpeg]);
+    assert.deepEqual(formats, [ImageFormat.Png, ImageFormat.Jpeg]);
   });
 
-  o('should support "tileFormat" Alias all formats', () => {
+  it('should support "tileFormat" Alias all formats', () => {
     const req = mockUrlRequest('/v1/blank', 'tileFormat=png&format=jpeg');
     const formats = Validate.getRequestedFormats(req);
-    o(formats).deepEquals([ImageFormat.Jpeg, ImageFormat.Png]);
+    assert.deepEqual(formats, [ImageFormat.Jpeg, ImageFormat.Png]);
   });
 
-  o('should not duplicate "tileFormat" alias all formats', () => {
+  it('should not duplicate "tileFormat" alias all formats', () => {
     const req = mockUrlRequest('/v1/blank', 'tileFormat=jpeg&format=jpeg');
     const formats = Validate.getRequestedFormats(req);
-    o(formats).deepEquals([ImageFormat.Jpeg]);
+    assert.deepEqual(formats, [ImageFormat.Jpeg]);
   });
 });
 
-o.spec('getTileMatrixSet', () => {
-  o('should lookup epsg codes', () => {
-    o(Validate.getTileMatrixSet('EPSG:3857')?.identifier).equals(GoogleTms.identifier);
-    o(Validate.getTileMatrixSet('EPSG:2193')?.identifier).equals(Nztm2000Tms.identifier);
+describe('getTileMatrixSet', () => {
+  it('should lookup epsg codes', () => {
+    assert.equal(Validate.getTileMatrixSet('EPSG:3857')?.identifier, GoogleTms.identifier);
+    assert.equal(Validate.getTileMatrixSet('EPSG:2193')?.identifier, Nztm2000Tms.identifier);
 
-    o(Validate.getTileMatrixSet('3857')?.identifier).equals(GoogleTms.identifier);
-    o(Validate.getTileMatrixSet('2193')?.identifier).equals(Nztm2000Tms.identifier);
+    assert.equal(Validate.getTileMatrixSet('3857')?.identifier, GoogleTms.identifier);
+    assert.equal(Validate.getTileMatrixSet('2193')?.identifier, Nztm2000Tms.identifier);
   });
 
-  o('should lookup by identifier', () => {
-    o(Validate.getTileMatrixSet('WebMercatorQuad')?.identifier).equals(GoogleTms.identifier);
-    o(Validate.getTileMatrixSet('NZTM2000Quad')?.identifier).equals(Nztm2000QuadTms.identifier);
-    o(Validate.getTileMatrixSet('Nztm2000')?.identifier).equals(Nztm2000Tms.identifier);
+  it('should lookup by identifier', () => {
+    assert.equal(Validate.getTileMatrixSet('WebMercatorQuad')?.identifier, GoogleTms.identifier);
+    assert.equal(Validate.getTileMatrixSet('NZTM2000Quad')?.identifier, Nztm2000QuadTms.identifier);
+    assert.equal(Validate.getTileMatrixSet('Nztm2000')?.identifier, Nztm2000Tms.identifier);
   });
 
-  o('should be case sensitive', () => {
-    o(Validate.getTileMatrixSet('Nztm2000Quad')?.identifier).equals(undefined);
+  it('should be case sensitive', () => {
+    assert.equal(Validate.getTileMatrixSet('Nztm2000Quad')?.identifier, undefined);
   });
 });
 
-o.spec('getTileFormat', () => {
+describe('getTileFormat', () => {
   for (const ext of Object.values(ImageFormat)) {
-    o('should support image format:' + ext, () => {
-      o(Validate.getTileFormat(ext)).equals(ext);
+    it('should support image format:' + ext, () => {
+      assert.equal(Validate.getTileFormat(ext), ext);
     });
   }
 
-  o('should support vector format: mvt', () => {
-    o(Validate.getTileFormat('pbf')).equals(VectorFormat.MapboxVectorTiles);
+  it('should support vector format: mvt', () => {
+    assert.equal(Validate.getTileFormat('pbf'), VectorFormat.MapboxVectorTiles);
   });
 
   for (const fmt of ['FAKE', /* 'JPEG' // TODO should this be case sensitive ,*/ 'mvt', 'json']) {
-    o('should not support format:' + fmt, () => {
-      o(Validate.getTileFormat(fmt)).equals(null);
+    it('should not support format:' + fmt, () => {
+      assert.equal(Validate.getTileFormat(fmt), null);
     });
   }
 });

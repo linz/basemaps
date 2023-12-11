@@ -1,6 +1,8 @@
+import assert from 'node:assert';
+import { afterEach, before, beforeEach, describe, it } from 'node:test';
+
 import { ConfigProviderMemory, StyleJson } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
-import o from 'ospec';
 import { createSandbox } from 'sinon';
 
 import { FakeData } from '../../__tests__/config.data.js';
@@ -8,25 +10,25 @@ import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 
-o.spec('/v1/styles', () => {
+describe('/v1/styles', () => {
   const host = 'https://tiles.test';
   const config = new ConfigProviderMemory();
   const sandbox = createSandbox();
 
-  o.before(() => {
+  before(() => {
     process.env[Env.PublicUrlBase] = host;
   });
-  o.beforeEach(() => {
+  beforeEach(() => {
     sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
   });
-  o.afterEach(() => {
+  afterEach(() => {
     sandbox.restore();
     config.objects.clear();
   });
-  o('should not found style json', async () => {
+  it('should not found style json', async () => {
     const request = mockRequest('/v1/tiles/topographic/Google/style/topographic.json', 'get', Api.header);
     const res = await handler.router.handle(request);
-    o(res.status).equals(404);
+    assert.equal(res.status, 404);
   });
 
   const fakeStyle: StyleJson = {
@@ -101,15 +103,15 @@ o.spec('/v1/styles', () => {
     style: fakeStyle,
   };
 
-  o('should serve style json', async () => {
+  it('should serve style json', async () => {
     config.put(fakeRecord);
 
     const request = mockRequest('/v1/tiles/topographic/Google/style/topographic.json', 'get', Api.header);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
-    o(res.header('content-type')).equals('application/json');
-    o(res.header('cache-control')).equals('no-store');
+    assert.equal(res.status, 200);
+    assert.equal(res.header('content-type'), 'application/json');
+    assert.equal(res.header('cache-control'), 'no-store');
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
     fakeStyle.sources['basemaps_vector'] = {
@@ -128,10 +130,10 @@ o.spec('/v1/styles', () => {
     fakeStyle.sprite = `${host}/sprite`;
     fakeStyle.glyphs = `${host}/glyphs`;
 
-    o(JSON.parse(body)).deepEquals(fakeStyle);
+    assert.deepEqual(JSON.parse(body), fakeStyle);
   });
 
-  o('should serve style json with excluded layers', async () => {
+  it('should serve style json with excluded layers', async () => {
     config.put(fakeRecord);
     const request = mockUrlRequest(
       '/v1/tiles/topographic/Google/style/topographic.json',
@@ -140,9 +142,9 @@ o.spec('/v1/styles', () => {
     );
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
-    o(res.header('content-type')).equals('application/json');
-    o(res.header('cache-control')).equals('no-store');
+    assert.equal(res.status, 200);
+    assert.equal(res.header('content-type'), 'application/json');
+    assert.equal(res.header('cache-control'), 'no-store');
 
     const body = Buffer.from(res.body ?? '', 'base64').toString();
     fakeStyle.sources['basemaps_vector'] = {
@@ -162,60 +164,60 @@ o.spec('/v1/styles', () => {
     fakeStyle.glyphs = `${host}/glyphs`;
     fakeStyle.layers = [fakeStyle.layers[2]];
 
-    o(JSON.parse(body)).deepEquals(fakeStyle);
+    assert.deepEqual(JSON.parse(body), fakeStyle);
   });
 
-  o('should create raster styles', async () => {
+  it('should create raster styles', async () => {
     const request = mockUrlRequest('/v1/styles/aerial.json', '', Api.header);
     const tileSet = FakeData.tileSetRaster('aerial');
     config.put(tileSet);
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
 
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
 
-    o(body.version).equals(8);
-    o(body.sources['basemaps-aerial'].type).deepEquals('raster');
-    o(body.sources['basemaps-aerial'].tiles).deepEquals([
+    assert.equal(body.version, 8);
+    assert.deepEqual(body.sources['basemaps-aerial'].type, 'raster');
+    assert.deepEqual(body.sources['basemaps-aerial'].tiles, [
       `https://tiles.test/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=${Api.key}`,
     ]);
-    o(body.sources['basemaps-aerial'].tileSize).deepEquals(256);
-    o(body.layers).deepEquals([{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
+    assert.deepEqual(body.sources['basemaps-aerial'].tileSize, 256);
+    assert.deepEqual(body.layers, [{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
   });
 
-  o('should support parameters', async () => {
+  it('should support parameters', async () => {
     const request = mockUrlRequest('/v1/styles/aerial.json', '?tileMatrix=NZTM2000Quad&format=jpg', Api.header);
     const tileSet = FakeData.tileSetRaster('aerial');
     config.put(tileSet);
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
 
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
 
-    o(body.version).equals(8);
-    o(body.sources['basemaps-aerial'].type).deepEquals('raster');
-    o(body.sources['basemaps-aerial'].tiles).deepEquals([
+    assert.equal(body.version, 8);
+    assert.deepEqual(body.sources['basemaps-aerial'].type, 'raster');
+    assert.deepEqual(body.sources['basemaps-aerial'].tiles, [
       `https://tiles.test/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.jpeg?api=${Api.key}`,
     ]);
-    o(body.sources['basemaps-aerial'].tileSize).deepEquals(256);
-    o(body.layers).deepEquals([{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
+    assert.deepEqual(body.sources['basemaps-aerial'].tileSize, 256);
+    assert.deepEqual(body.layers, [{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
   });
 
-  o('should create raster styles from custom config', async () => {
+  it('should create raster styles from custom config', async () => {
     const configId = FakeData.bundle([FakeData.tileSetRaster('aerial')]);
     const request = mockUrlRequest('/v1/styles/aerial.json', `?config=${configId}`, Api.header);
 
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
 
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
 
-    o(body.version).equals(8);
-    o(body.sources['basemaps-aerial'].type).deepEquals('raster');
-    o(body.sources['basemaps-aerial'].tiles).deepEquals([
+    assert.equal(body.version, 8);
+    assert.deepEqual(body.sources['basemaps-aerial'].type, 'raster');
+    assert.deepEqual(body.sources['basemaps-aerial'].tiles, [
       `https://tiles.test/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=${Api.key}&config=${configId}`,
     ]);
-    o(body.sources['basemaps-aerial'].tileSize).deepEquals(256);
-    o(body.layers).deepEquals([{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
+    assert.deepEqual(body.sources['basemaps-aerial'].tileSize, 256);
+    assert.deepEqual(body.layers, [{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
   });
 });

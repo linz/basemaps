@@ -1,8 +1,10 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { ConfigImagery } from '@basemaps/config';
 import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
-import o from 'ospec';
 
 import { WmtsCapabilities } from '../wmts.capability.js';
 import { Imagery2193, Imagery3857, Provider, TileSetAerial } from './config.data.js';
@@ -15,14 +17,14 @@ function listTag(node: VNodeElement | null | undefined, tag: string): string[] {
   return tags(node, tag).map((n) => n.toString());
 }
 
-o.spec('WmtsCapabilities', () => {
+describe('WmtsCapabilities', () => {
   const apiKey = 'secret1234';
 
   const allImagery = new Map();
   allImagery.set(Imagery2193.id, Imagery2193);
   allImagery.set(Imagery3857.id, Imagery3857);
 
-  o('should output the requested formats', () => {
+  it('should output the requested formats', () => {
     const wmts = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       apiKey,
@@ -36,14 +38,15 @@ o.spec('WmtsCapabilities', () => {
     const wmtsCapability = wmts.toVNode();
 
     const urls = tags(wmtsCapability, 'ResourceURL');
-    o(urls.length).equals(1);
-    o(urls[0].attrs['format']).equals('image/avif');
-    o(urls[0].attrs['template']).equals(
+    assert.equal(urls.length, 1);
+    assert.equal(urls[0].attrs['format'], 'image/avif');
+    assert.equal(
+      urls[0].attrs['template'],
       'https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234',
     );
   });
 
-  o('should include config location', () => {
+  it('should include config location', () => {
     const wmts = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       apiKey,
@@ -58,14 +61,15 @@ o.spec('WmtsCapabilities', () => {
     const wmtsCapability = wmts.toVNode();
 
     const urls = tags(wmtsCapability, 'ResourceURL');
-    o(urls.length).equals(1);
-    o(urls[0].attrs['format']).equals('image/avif');
-    o(urls[0].attrs['template']).equals(
+    assert.equal(urls.length, 1);
+    assert.equal(urls[0].attrs['format'], 'image/avif');
+    assert.equal(
+      urls[0].attrs['template'],
       'https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234&config=s3%3A%2F%2Flinz-basemaps%2Fconfig.json',
     );
   });
 
-  o('should be adding encoding to utf-8', () => {
+  it('should be adding encoding to utf-8', () => {
     const wmts = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       apiKey,
@@ -80,10 +84,10 @@ o.spec('WmtsCapabilities', () => {
     });
     const xml = wmts.toXml();
 
-    o(xml.split('\n')[0]).deepEquals('<?xml version="1.0" encoding="utf-8"?>');
+    assert.deepEqual(xml.split('\n')[0], '<?xml version="1.0" encoding="utf-8"?>');
   });
 
-  o('should support unicorns and rainbows', () => {
+  it('should support unicorns and rainbows', () => {
     const tileSet = { ...TileSetAerial };
     tileSet.name = '🦄_🌈_2022_0-5m';
     tileSet.title = '🦄 🌈 Imagery (2022)';
@@ -102,24 +106,25 @@ o.spec('WmtsCapabilities', () => {
     const wmtsCapability = wmts.toVNode();
 
     const urls = tags(wmtsCapability, 'ResourceURL');
-    o(urls.length).equals(1);
-    o(urls[0].attrs['template']).equals(
+    assert.equal(urls.length, 1);
+    assert.equal(
+      urls[0].attrs['template'],
       'https://basemaps.test/v1/tiles/🦄-🌈-2022-0.5m/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.avif?api=secret1234',
     );
 
     const layer = tags(wmtsCapability, 'Layer')[0];
 
     const title = layer.find('ows:Title')?.toString();
-    o(title).equals('<ows:Title>🦄 🌈 Imagery (2022)</ows:Title>');
+    assert.equal(title, '<ows:Title>🦄 🌈 Imagery (2022)</ows:Title>');
 
     const abstract = layer.find('ows:Abstract')?.toString();
-    o(abstract).equals('<ows:Abstract>🦄 🌈 Description</ows:Abstract>');
+    assert.equal(abstract, '<ows:Abstract>🦄 🌈 Description</ows:Abstract>');
 
     const identifier = layer.find('ows:Identifier')?.toString();
-    o(identifier).equals('<ows:Identifier>🦄-🌈-2022-0.5m</ows:Identifier>');
+    assert.equal(identifier, '<ows:Identifier>🦄-🌈-2022-0.5m</ows:Identifier>');
   });
 
-  o('should sort the sub imagery layers', () => {
+  it('should sort the sub imagery layers', () => {
     const imageryA = { ...Imagery3857 };
     imageryA.id = 'im_a';
     imageryA.name = 'aaaa';
@@ -158,10 +163,10 @@ o.spec('WmtsCapabilities', () => {
     const layers = tags(wmtsCapability, 'Layer').map((c) => c.find('ows:Title')?.textContent);
 
     // The base layer "Aerial Imagery" should always be first then all sub layers after
-    o(layers).deepEquals(['Aerial Imagery', 'aaaa', 'bbbb', 'Ōtorohanga 0.1m Urban Aerial Photos (2021)']);
+    assert.deepEqual(layers, ['Aerial Imagery', 'aaaa', 'bbbb', 'Ōtorohanga 0.1m Urban Aerial Photos (2021)']);
   });
 
-  o('should build capability xml for tileSet and projection', () => {
+  it('should build capability xml for tileSet and projection', () => {
     const imagery = new Map();
     imagery.set(Imagery3857.id, Imagery3857);
 
@@ -178,45 +183,53 @@ o.spec('WmtsCapabilities', () => {
     const raw = wmts.toVNode();
     const serviceId = raw.find('ows:ServiceIdentification');
 
-    o(serviceId?.find('ows:Abstract')?.textContent).equals('the description');
-    o(serviceId?.find('ows:Title')?.textContent).equals('the title');
+    assert.equal(serviceId?.find('ows:Abstract')?.textContent, 'the description');
+    assert.equal(serviceId?.find('ows:Title')?.textContent, 'the title');
 
-    o(raw.find('TileMatrixSetLink')?.toString()).deepEquals(
+    assert.deepEqual(
+      raw.find('TileMatrixSetLink')?.toString(),
       V('TileMatrixSetLink', [V('TileMatrixSet', 'WebMercatorQuad')]).toString(),
     );
 
     const layer = raw.find('Contents', 'Layer');
 
-    o(listTag(layer, 'Format')).deepEquals([
+    assert.deepEqual(listTag(layer, 'Format'), [
       V('Format', 'image/jpeg').toString(),
       V('Format', 'image/webp').toString(),
       V('Format', 'image/png').toString(),
     ]);
 
-    o(listTag(layer, 'ows:BoundingBox').map((s) => roundNumbersInString(s, 4))).deepEquals([
-      '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::3857">\n' +
-        '  <ows:LowerCorner>19457809.9203 -4609458.5537</ows:LowerCorner>\n' +
-        '  <ows:UpperCorner>19509787.0995 -4578883.7424</ows:UpperCorner>\n' +
-        '</ows:BoundingBox>',
-    ]);
+    assert.deepEqual(
+      listTag(layer, 'ows:BoundingBox').map((s) => roundNumbersInString(s, 4)),
+      [
+        '<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::3857">\n' +
+          '  <ows:LowerCorner>19457809.9203 -4609458.5537</ows:LowerCorner>\n' +
+          '  <ows:UpperCorner>19509787.0995 -4578883.7424</ows:UpperCorner>\n' +
+          '</ows:BoundingBox>',
+      ],
+    );
 
-    o(listTag(layer, 'ows:WGS84BoundingBox').map((s) => roundNumbersInString(s, 4))).deepEquals([
-      '<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84">\n' +
-        '  <ows:LowerCorner>174.7925 -38.2123</ows:LowerCorner>\n' +
-        '  <ows:UpperCorner>175.2594 -37.9962</ows:UpperCorner>\n' +
-        '</ows:WGS84BoundingBox>',
-    ]);
+    assert.deepEqual(
+      listTag(layer, 'ows:WGS84BoundingBox').map((s) => roundNumbersInString(s, 4)),
+      [
+        '<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84">\n' +
+          '  <ows:LowerCorner>174.7925 -38.2123</ows:LowerCorner>\n' +
+          '  <ows:UpperCorner>175.2594 -37.9962</ows:UpperCorner>\n' +
+          '</ows:WGS84BoundingBox>',
+      ],
+    );
 
-    o(layer?.find('ows:Identifier')?.textContent).equals('aerial');
-    o(layer?.find('ows:Title')?.textContent).equals('Aerial Imagery');
-    o(layer?.find('ows:Abstract')?.textContent).equals('aerial__description');
+    assert.equal(layer?.find('ows:Identifier')?.textContent, 'aerial');
+    assert.equal(layer?.find('ows:Title')?.textContent, 'Aerial Imagery');
+    assert.equal(layer?.find('ows:Abstract')?.textContent, 'aerial__description');
 
-    o(layer?.find('Style')?.toString()).equals(
+    assert.equal(
+      layer?.find('Style')?.toString(),
       V('Style', { isDefault: 'true' }, [V('ows:Title', 'Default Style'), V('ows:Identifier', 'default')]).toString(),
     );
   });
 
-  o('should include output the correct TileMatrix', () => {
+  it('should include output the correct TileMatrix', () => {
     const wmts = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
       apiKey,
@@ -230,39 +243,41 @@ o.spec('WmtsCapabilities', () => {
 
     const layer = raw.find('Contents', 'Layer');
 
-    o(layer?.find('TileMatrixSetLink', 'TileMatrixSet')?.textContent).equals('WebMercatorQuad');
+    assert.equal(layer?.find('TileMatrixSetLink', 'TileMatrixSet')?.textContent, 'WebMercatorQuad');
 
     const matrix = tags(raw, 'TileMatrixSet')[1];
     const matrixId = raw?.find('Contents', 'TileMatrixSet', 'ows:Identifier') ?? null;
-    o(matrix.find('ows:Identifier')).equals(matrixId);
-    o(matrixId?.textContent).equals('WebMercatorQuad');
+    assert.equal(matrix.find('ows:Identifier'), matrixId);
+    assert.equal(matrixId?.textContent, 'WebMercatorQuad');
 
-    o(matrix.find('ows:SupportedCRS')?.textContent).deepEquals('urn:ogc:def:crs:EPSG::3857');
-    o(matrix.find('WellKnownScaleSet')?.textContent).deepEquals(
+    assert.deepEqual(matrix.find('ows:SupportedCRS')?.textContent, 'urn:ogc:def:crs:EPSG::3857');
+    assert.deepEqual(
+      matrix.find('WellKnownScaleSet')?.textContent,
       'https://www.opengis.net/def/wkss/OGC/1.0/GoogleMapsCompatible',
     );
 
     const tileMatrices = Array.from(matrix.tags('TileMatrix'));
 
-    o(tileMatrices.length).equals(25);
+    assert.equal(tileMatrices.length, 25);
 
     function compareMatrix(x: VNodeElement, id: string, tileCount: number, scale: number): void {
-      o(x.find('ows:Identifier')?.toString()).equals(`<ows:Identifier>${id}</ows:Identifier>`);
-      o(x.find('ScaleDenominator')?.toString()).equals(`<ScaleDenominator>${scale}</ScaleDenominator>`);
-      o(x.find('TopLeftCorner')?.toString()).equals(
+      assert.equal(x.find('ows:Identifier')?.toString(), `<ows:Identifier>${id}</ows:Identifier>`);
+      assert.equal(x.find('ScaleDenominator')?.toString(), `<ScaleDenominator>${scale}</ScaleDenominator>`);
+      assert.equal(
+        x.find('TopLeftCorner')?.toString(),
         `<TopLeftCorner>-20037508.3427892 20037508.3427892</TopLeftCorner>`,
       );
-      o(x.find('TileWidth')?.toString()).equals(`<TileWidth>256</TileWidth>`);
-      o(x.find('TileHeight')?.toString()).equals(`<TileHeight>256</TileHeight>`);
-      o(x.find('MatrixWidth')?.toString()).equals(`<MatrixWidth>${tileCount}</MatrixWidth>`);
-      o(x.find('MatrixHeight')?.toString()).equals(`<MatrixHeight>${tileCount}</MatrixHeight>`);
+      assert.equal(x.find('TileWidth')?.toString(), `<TileWidth>256</TileWidth>`);
+      assert.equal(x.find('TileHeight')?.toString(), `<TileHeight>256</TileHeight>`);
+      assert.equal(x.find('MatrixWidth')?.toString(), `<MatrixWidth>${tileCount}</MatrixWidth>`);
+      assert.equal(x.find('MatrixHeight')?.toString(), `<MatrixHeight>${tileCount}</MatrixHeight>`);
     }
 
     compareMatrix(tileMatrices[0], '0', 1, 559082264.028717);
     compareMatrix(tileMatrices[10], '10', 1024, 545978.773465544);
   });
 
-  o('should output individual imagery adds', () => {
+  it('should output individual imagery adds', () => {
     const imagery = new Map<string, ConfigImagery>();
     imagery.set(Imagery3857.id, Imagery3857);
     imagery.set(Imagery2193.id, Imagery2193);
@@ -284,30 +299,32 @@ o.spec('WmtsCapabilities', () => {
 
     const tms = raw?.find('TileMatrixSet', 'ows:Identifier');
 
-    o(tms?.textContent).equals('WebMercatorQuad');
+    assert.equal(tms?.textContent, 'WebMercatorQuad');
 
     const urls = Array.from(raw ? raw.tags('ResourceURL') : []);
-    o(urls.length).equals(2);
-    o(urls[0].toString()).deepEquals(
+    assert.equal(urls.length, 2);
+    assert.deepEqual(
+      urls[0].toString(),
       '<ResourceURL format="image/png" resourceType="tile" ' +
         'template="https://basemaps.test/v1/tiles/aerial/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png" />',
     );
-    o(urls[1].toString()).deepEquals(
+    assert.deepEqual(
+      urls[1].toString(),
       '<ResourceURL format="image/png" resourceType="tile" ' +
         'template="https://basemaps.test/v1/tiles/ōtorohanga-urban-2021-0.1m/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png" />',
     );
 
     const layers = [...raw.tags('Layer')];
 
-    o(layers.length).equals(2);
-    o(layers[0].find('ows:Title')?.textContent).equals('Aerial Imagery');
+    assert.equal(layers.length, 2);
+    assert.equal(layers[0].find('ows:Title')?.textContent, 'Aerial Imagery');
 
-    o(layers[1].find('ows:Title')?.textContent).equals('Ōtorohanga 0.1m Urban Aerial Photos (2021)');
-    o(layers[1].find('ows:Identifier')?.textContent).equals('ōtorohanga-urban-2021-0.1m');
-    o(layers[1].find('ows:Keywords', 'ows:Keyword')?.textContent).equals('Urban Aerial Photos');
+    assert.equal(layers[1].find('ows:Title')?.textContent, 'Ōtorohanga 0.1m Urban Aerial Photos (2021)');
+    assert.equal(layers[1].find('ows:Identifier')?.textContent, 'ōtorohanga-urban-2021-0.1m');
+    assert.equal(layers[1].find('ows:Keywords', 'ows:Keyword')?.textContent, 'Urban Aerial Photos');
   });
 
-  o('should support multiple projections', () => {
+  it('should support multiple projections', () => {
     const imagery = new Map<string, ConfigImagery>();
     imagery.set(Imagery3857.id, Imagery3857);
     imagery.set(Imagery2193.id, Imagery2193);
@@ -326,11 +343,11 @@ o.spec('WmtsCapabilities', () => {
 
     const raw = wmts.toVNode();
     const layers = tags(raw, 'Layer');
-    o(layers.length).equals(1);
+    assert.equal(layers.length, 1);
     const layer = layers[0];
 
     // ensure order is valid
-    o(layer?.children.map((c) => (c instanceof VNodeElement ? c.tag : null))).deepEquals([
+    assert.deepEqual(layer?.children.map((c) => (c instanceof VNodeElement ? c.tag : null)), [
       'ows:Title',
       'ows:Abstract',
       'ows:Identifier',
@@ -345,37 +362,38 @@ o.spec('WmtsCapabilities', () => {
       'ResourceURL',
     ]);
 
-    o(layer.find('ows:Title')?.textContent).equals('Aerial Imagery');
-    o(layer.find('ows:Keywords')?.toString()).equals(
+    assert.equal(layer.find('ows:Title')?.textContent, 'Aerial Imagery');
+    assert.equal(
+      layer.find('ows:Keywords')?.toString(),
       '<ows:Keywords>\n  <ows:Keyword>Basemap</ows:Keyword>\n</ows:Keywords>',
     );
-    o(layer.find('ows:Identifier')?.textContent).equals('aerial');
+    assert.equal(layer.find('ows:Identifier')?.textContent, 'aerial');
 
     const adds = tags(layer, 'TileMatrixSet');
 
-    o(adds.length).equals(2);
-    o(adds[0].toString()).equals('<TileMatrixSet>WebMercatorQuad</TileMatrixSet>');
-    o(adds[1].toString()).equals('<TileMatrixSet>NZTM2000Quad</TileMatrixSet>');
+    assert.equal(adds.length, 2);
+    assert.equal(adds[0].toString(), '<TileMatrixSet>WebMercatorQuad</TileMatrixSet>');
+    assert.equal(adds[1].toString(), '<TileMatrixSet>NZTM2000Quad</TileMatrixSet>');
 
     const boundingBoxes = tags(layer, 'ows:BoundingBox');
-    o(boundingBoxes.length).equals(2);
-    o(boundingBoxes[0].attrs['crs']).equals('urn:ogc:def:crs:EPSG::3857');
-    o(boundingBoxes[0].children.map((c) => c.textContent)).deepEquals([
-      '19457809.9203 -4609458.5537',
-      '19509787.0995 -4578883.7424',
-    ]);
-    o(boundingBoxes[1].attrs['crs']).equals('urn:ogc:def:crs:EPSG::2193');
-    o(boundingBoxes[1].children.map((c) => c.textContent)).deepEquals([
-      '5766358.9964 1757351.3045',
-      '5793264.8304 1798321.5516',
-    ]);
+    assert.equal(boundingBoxes.length, 2);
+    assert.equal(boundingBoxes[0].attrs['crs'], 'urn:ogc:def:crs:EPSG::3857');
+    assert.deepEqual(
+      boundingBoxes[0].children.map((c) => c.textContent),
+      ['19457809.9203 -4609458.5537', '19509787.0995 -4578883.7424'],
+    );
+    assert.equal(boundingBoxes[1].attrs['crs'], 'urn:ogc:def:crs:EPSG::2193');
+    assert.deepEqual(
+      boundingBoxes[1].children.map((c) => c.textContent),
+      ['5766358.9964 1757351.3045', '5793264.8304 1798321.5516'],
+    );
 
     const wgs84 = layer.find('ows:WGS84BoundingBox');
-    o(wgs84?.attrs['crs']).equals('urn:ogc:def:crs:OGC:2:84');
-    o(wgs84?.children.map((c) => c.textContent)).deepEquals(['174.79248 -38.212288', '175.259399 -37.996163']);
+    assert.equal(wgs84?.attrs['crs'], 'urn:ogc:def:crs:OGC:2:84');
+    assert.deepEqual(wgs84?.children.map((c) => c.textContent), ['174.79248 -38.212288', '175.259399 -37.996163']);
   });
 
-  o('should only output imagery if exists', () => {
+  it('should only output imagery if exists', () => {
     const imagery = new Map<string, ConfigImagery>();
     const wmtsA = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
@@ -393,7 +411,7 @@ o.spec('WmtsCapabilities', () => {
     const rawA = wmtsA.toVNode();
 
     const layers = tags(rawA, 'Layer');
-    o(layers.length).equals(1);
+    assert.equal(layers.length, 1);
 
     imagery.set(Imagery3857.id, Imagery3857);
     const wmtsB = new WmtsCapabilities({
@@ -410,10 +428,10 @@ o.spec('WmtsCapabilities', () => {
 
     const rawB = wmtsB.toVNode();
     const layersB = tags(rawB, 'Layer');
-    o(layersB.length).equals(1);
+    assert.equal(layersB.length, 1);
   });
 
-  o('should cover the entire WebMercatorBounds', () => {
+  it('should cover the entire WebMercatorBounds', () => {
     const halfSize = GoogleTms.extent.width / 2;
     // Create two fake imagery adds one covers tile z1 x0 y0 another covers tile z1 x1 y1
     // so the entire bounding box should be tile z0 x0 y0 or the full extent
@@ -452,17 +470,17 @@ o.spec('WmtsCapabilities', () => {
         .split('\n')
         .map((c) => c.trim()),
     );
-    o(boundingBox[0][1]).deepEquals('<ows:LowerCorner>-180 -85.051129</ows:LowerCorner>');
-    o(boundingBox[0][2]).equals('<ows:UpperCorner>180 85.051129</ows:UpperCorner>');
+    assert.deepEqual(boundingBox[0][1], '<ows:LowerCorner>-180 -85.051129</ows:LowerCorner>');
+    assert.equal(boundingBox[0][2], '<ows:UpperCorner>180 85.051129</ows:UpperCorner>');
 
-    o(boundingBox[1][1]).deepEquals('<ows:LowerCorner>-180 0</ows:LowerCorner>');
-    o(boundingBox[1][2]).equals('<ows:UpperCorner>0 85.051129</ows:UpperCorner>');
+    assert.deepEqual(boundingBox[1][1], '<ows:LowerCorner>-180 0</ows:LowerCorner>');
+    assert.equal(boundingBox[1][2], '<ows:UpperCorner>0 85.051129</ows:UpperCorner>');
 
-    o(boundingBox[2][1]).deepEquals('<ows:LowerCorner>0 -85.051129</ows:LowerCorner>');
-    o(boundingBox[2][2]).equals('<ows:UpperCorner>180 0</ows:UpperCorner>');
+    assert.deepEqual(boundingBox[2][1], '<ows:LowerCorner>0 -85.051129</ows:LowerCorner>');
+    assert.equal(boundingBox[2][2], '<ows:UpperCorner>180 0</ows:UpperCorner>');
   });
 
-  o('should work when crossing anti meridian', () => {
+  it('should work when crossing anti meridian', () => {
     const halfSize = GoogleTms.extent.width / 2;
 
     const imagery = new Map();
@@ -494,28 +512,28 @@ o.spec('WmtsCapabilities', () => {
         .split('\n')
         .map((c) => c.trim()),
     );
-    o(boundingBox[0][1]).deepEquals('<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
-    o(boundingBox[0][2]).equals('<ows:UpperCorner>180 0</ows:UpperCorner>');
+    assert.deepEqual(boundingBox[0][1], '<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
+    assert.equal(boundingBox[0][2], '<ows:UpperCorner>180 0</ows:UpperCorner>');
 
-    o(boundingBox[1][1]).deepEquals('<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
-    o(boundingBox[1][2]).equals('<ows:UpperCorner>180 0</ows:UpperCorner>');
+    assert.deepEqual(boundingBox[1][1], '<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
+    assert.equal(boundingBox[1][2], '<ows:UpperCorner>180 0</ows:UpperCorner>');
   });
 
-  o('should work with NZTM2000Quad', () => {
+  it('should work with NZTM2000Quad', () => {
     const wmts = new WmtsCapabilities({ tileMatrix: [] } as any);
 
     // Full NZTM200Quad coverage
     const bbox = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, []);
-    o(bbox.children[0].textContent).equals('-180 -49.929855');
-    o(bbox.children[1].textContent).equals('180 2.938603');
+    assert.equal(bbox.children[0].textContent, '-180 -49.929855');
+    assert.equal(bbox.children[1].textContent, '180 2.938603');
 
     // Full NZTM200Quad coverage at z1
     const bboxB = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, [
       Nztm2000QuadTms.tileToSourceBounds({ z: 1, x: 0, y: 0 }),
       Nztm2000QuadTms.tileToSourceBounds({ z: 1, x: 1, y: 1 }),
     ]);
-    o(bboxB.children[0].textContent).equals('-180 -49.929855');
-    o(bboxB.children[1].textContent).equals('180 2.938603');
+    assert.equal(bboxB.children[0].textContent, '-180 -49.929855');
+    assert.equal(bboxB.children[1].textContent, '180 2.938603');
 
     // Full NZTM200Quad coverage at z5
     const tileCount = Nztm2000QuadTms.zooms[5].matrixWidth;
@@ -523,7 +541,7 @@ o.spec('WmtsCapabilities', () => {
       Nztm2000QuadTms.tileToSourceBounds({ z: 5, x: 0, y: 0 }),
       Nztm2000QuadTms.tileToSourceBounds({ z: 5, x: tileCount - 1, y: tileCount - 1 }),
     ]);
-    o(bboxC.children[0].textContent).equals('-180 -49.929855');
-    o(bboxC.children[1].textContent).equals('180 2.938603');
+    assert.equal(bboxC.children[0].textContent, '-180 -49.929855');
+    assert.equal(bboxC.children[1].textContent, '180 2.938603');
   });
 });

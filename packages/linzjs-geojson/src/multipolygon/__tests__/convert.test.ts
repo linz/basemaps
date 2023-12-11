@@ -1,4 +1,5 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { MultiPolygon } from '../../types.js';
 import { multiPolygonToWgs84 } from '../convert.js';
@@ -8,9 +9,9 @@ function intToWgs84(from: number[]): [number, number] {
   return [lon > 180 ? lon - 360 : lon, from[1] * 0.05 + -40.8];
 }
 
-o.spec('convert', () => {
-  o.spec('multiPolygonToWgs84', () => {
-    o('simple', () => {
+describe('convert', () => {
+  describe('multiPolygonToWgs84', () => {
+    it('simple', () => {
       const poly: MultiPolygon = [
         [
           [
@@ -25,7 +26,7 @@ o.spec('convert', () => {
 
       const ans = multiPolygonToWgs84(poly, intToWgs84);
 
-      o(ans).deepEquals([
+      assert.deepEqual(ans, [
         [
           [
             [174.5, -40.75],
@@ -38,7 +39,7 @@ o.spec('convert', () => {
       ]);
     });
 
-    o('crosses antimeridian', () => {
+    it('crosses antimeridian', () => {
       const poly: MultiPolygon = [
         [
           [
@@ -53,7 +54,7 @@ o.spec('convert', () => {
 
       const ans = multiPolygonToWgs84(poly, intToWgs84);
 
-      o(ans).deepEquals([
+      assert.deepEqual(ans, [
         [
           [
             [174.5, -40.8],

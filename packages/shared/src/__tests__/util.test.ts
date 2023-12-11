@@ -1,4 +1,5 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import {
   extractYearRangeFromName,
@@ -8,66 +9,68 @@ import {
   titleizeImageryName,
 } from '../util.js';
 
-o.spec('util', () => {
-  o('extractYearRangeFromName', () => {
-    o(extractYearRangeFromName('2013')).deepEquals([2013, 2014]);
-    o(extractYearRangeFromName('abc2017def')).deepEquals([2017, 2018]);
-    o(extractYearRangeFromName('2019_abc')).deepEquals([2019, 2020]);
-    o(extractYearRangeFromName('12019_abc')).deepEquals(null);
-    o(extractYearRangeFromName('2019_abc2020')).deepEquals([2019, 2021]);
-    o(extractYearRangeFromName('2020_abc2019')).deepEquals([2019, 2021]);
-    o(extractYearRangeFromName('2020-23abc')).deepEquals([2020, 2024]);
+describe('util', () => {
+  it('extractYearRangeFromName', () => {
+    assert.deepEqual(extractYearRangeFromName('2013'), [2013, 2014]);
+    assert.deepEqual(extractYearRangeFromName('abc2017def'), [2017, 2018]);
+    assert.deepEqual(extractYearRangeFromName('2019_abc'), [2019, 2020]);
+    assert.deepEqual(extractYearRangeFromName('12019_abc'), null);
+    assert.deepEqual(extractYearRangeFromName('2019_abc2020'), [2019, 2021]);
+    assert.deepEqual(extractYearRangeFromName('2020_abc2019'), [2019, 2021]);
+    assert.deepEqual(extractYearRangeFromName('2020-23abc'), [2020, 2024]);
 
-    o(extractYearRangeFromName('wellington_urban_2017_0.10m')).deepEquals([2017, 2018]);
-    o(extractYearRangeFromName('gebco_2020_305-75m')).deepEquals([2020, 2021]);
+    assert.deepEqual(extractYearRangeFromName('wellington_urban_2017_0.10m'), [2017, 2018]);
+    assert.deepEqual(extractYearRangeFromName('gebco_2020_305-75m'), [2020, 2021]);
     // FIXME these are currently broken
     // o(extractYearRangeFromName('otago_0_375m_sn3806_1975')).deepEquals([1975, 1976]);
   });
 
-  o('extractYearRangeFromTitle', () => {
-    o(extractYearRangeFromTitle('Banks Peninsula 0.075m Urban Aerial Photos (2019-2020)')).deepEquals([2019, 2020]);
-    o(extractYearRangeFromTitle('Manawatu 0.125m Urban Aerial Photos (2019)')).deepEquals([2019]);
+  it('extractYearRangeFromTitle', () => {
+    assert.deepEqual(extractYearRangeFromTitle('Banks Peninsula 0.075m Urban Aerial Photos (2019-2020)'), [2019, 2020]);
+    assert.deepEqual(extractYearRangeFromTitle('Manawatu 0.125m Urban Aerial Photos (2019)'), [2019]);
 
-    o(extractYearRangeFromTitle('Manawatu 0.125m Urban Aerial Photos (2019a)')).deepEquals(null);
+    assert.deepEqual(extractYearRangeFromTitle('Manawatu 0.125m Urban Aerial Photos (2019a)'), null);
   });
 
-  o('titleizeImageryName', () => {
-    o(titleizeImageryName('palmerston-north_urban_2016-17_12-125m_RGBA')).equals(
+  it('titleizeImageryName', () => {
+    assert.equal(
+      titleizeImageryName('palmerston-north_urban_2016-17_12-125m_RGBA'),
       'Palmerston-north urban 2016-17 12.125m RGBA',
     );
-    o(titleizeImageryName('palmerston-north_urban_2016-17_12-125_RGBA')).equals(
+    assert.equal(
+      titleizeImageryName('palmerston-north_urban_2016-17_12-125_RGBA'),
       'Palmerston-north urban 2016-17 12-125 RGBA',
     );
   });
 
-  o('s3ToVsis3', () => {
-    o(s3ToVsis3('s3://rest/of/path')).equals('/vsis3/rest/of/path');
-    o(s3ToVsis3('s3:/rest/of/path')).equals('s3:/rest/of/path');
-    o(s3ToVsis3('/s3://rest/of/path')).equals('/s3://rest/of/path');
+  it('s3ToVsis3', () => {
+    assert.equal(s3ToVsis3('s3://rest/of/path'), '/vsis3/rest/of/path');
+    assert.equal(s3ToVsis3('s3:/rest/of/path'), 's3:/rest/of/path');
+    assert.equal(s3ToVsis3('/s3://rest/of/path'), '/s3://rest/of/path');
   });
 
-  o.spec('getUrlHost', () => {
-    o("should normalize referer's", () => {
-      o(getUrlHost('https://127.0.0.244/')).equals('127.0.0.244');
-      o(getUrlHost('https://foo.d/')).equals('foo.d');
-      o(getUrlHost('https://foo.d/bar/baz.html?q=1234')).equals('foo.d');
-      o(getUrlHost('http://foo.d/bar/baz.html?q=1234')).equals('foo.d');
-      o(getUrlHost('http://basemaps.linz.govt.nz/?p=2193')).equals('basemaps.linz.govt.nz');
-      o(getUrlHost('s3://foo/bar/baz')).equals('foo');
-      o(getUrlHost('http://localhost:12344/bar/baz')).equals('localhost');
+  describe('getUrlHost', () => {
+    it("should normalize referer's", () => {
+      assert.equal(getUrlHost('https://127.0.0.244/'), '127.0.0.244');
+      assert.equal(getUrlHost('https://foo.d/'), 'foo.d');
+      assert.equal(getUrlHost('https://foo.d/bar/baz.html?q=1234'), 'foo.d');
+      assert.equal(getUrlHost('http://foo.d/bar/baz.html?q=1234'), 'foo.d');
+      assert.equal(getUrlHost('http://basemaps.linz.govt.nz/?p=2193'), 'basemaps.linz.govt.nz');
+      assert.equal(getUrlHost('s3://foo/bar/baz'), 'foo');
+      assert.equal(getUrlHost('http://localhost:12344/bar/baz'), 'localhost');
     });
 
-    o('should normalize www.foo.com and foo.com ', () => {
-      o(getUrlHost('https://www.foo.com/')).equals('foo.com');
-      o(getUrlHost('https://bar.foo.com/')).equals('bar.foo.com');
-      o(getUrlHost('https://www3.foo.com/')).equals('www3.foo.com');
-      o(getUrlHost('https://foo.com/')).equals('foo.com');
+    it('should normalize www.foo.com and foo.com ', () => {
+      assert.equal(getUrlHost('https://www.foo.com/'), 'foo.com');
+      assert.equal(getUrlHost('https://bar.foo.com/'), 'bar.foo.com');
+      assert.equal(getUrlHost('https://www3.foo.com/'), 'www3.foo.com');
+      assert.equal(getUrlHost('https://foo.com/'), 'foo.com');
     });
 
-    o('should not die with badly formatted urls', () => {
-      o(getUrlHost('foo/bar')).equals('foo/bar');
-      o(getUrlHost('some weird text')).equals('some weird text');
-      o(getUrlHost(undefined)).equals(undefined);
+    it('should not die with badly formatted urls', () => {
+      assert.equal(getUrlHost('foo/bar'), 'foo/bar');
+      assert.equal(getUrlHost('some weird text'), 'some weird text');
+      assert.equal(getUrlHost(undefined), undefined);
     });
   });
 });

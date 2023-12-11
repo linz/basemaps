@@ -1,8 +1,9 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { featuresToMultiPolygon, toFeatureCollection, toFeatureMultiPolygon, toFeaturePolygon } from '../construct.js';
 
-o.spec('construct', () => {
+describe('construct', () => {
   const coordinates = [
     [
       [
@@ -19,13 +20,13 @@ o.spec('construct', () => {
     ],
   ];
 
-  o('toFeatureCollection, toFeaturePolygon, toFeatureMultiPolygon, toPolygon', () => {
+  it('toFeatureCollection, toFeaturePolygon, toFeatureMultiPolygon, toPolygon', () => {
     const ans = toFeatureCollection([
       toFeatureMultiPolygon(coordinates, { tiff: '32.tiff' }),
       toFeaturePolygon(coordinates[0], { tiff: '31.tiff' }),
     ]);
 
-    o(ans).deepEquals({
+    assert.deepEqual(ans, {
       type: 'FeatureCollection',
       features: [
         {
@@ -67,8 +68,8 @@ o.spec('construct', () => {
     });
   });
 
-  o.spec('featuresToMultiPolygon', () => {
-    o('keep holes', () => {
+  describe('featuresToMultiPolygon', () => {
+    it('keep holes', () => {
       const features = [
         toFeaturePolygon([
           [
@@ -80,7 +81,7 @@ o.spec('construct', () => {
       ];
       const ans = featuresToMultiPolygon(features);
 
-      o(ans).deepEquals({
+      assert.deepEqual(ans, {
         type: 'MultiPolygon',
         coordinates: [
           [
@@ -106,11 +107,11 @@ o.spec('construct', () => {
       });
     });
 
-    o('convert points, remove holes', () => {
+    it('convert points, remove holes', () => {
       const features = [toFeaturePolygon([[[5, 6]], [[5, 7]]]), toFeatureMultiPolygon(coordinates)];
       const ans = featuresToMultiPolygon(features, true, (p) => [-p[1], -p[0]]);
 
-      o(ans).deepEquals({
+      assert.deepEqual(ans, {
         type: 'MultiPolygon',
         coordinates: [
           [[[-6, -5]]],

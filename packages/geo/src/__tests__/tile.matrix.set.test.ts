@@ -1,6 +1,8 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding.js';
-import o from 'ospec';
 
 import { Point } from '../bounds.js';
 import { Epsg } from '../epsg.js';
@@ -27,25 +29,28 @@ function getPixelsFromMeters(tX: number, tY: number, zoom: number): Point {
   return { x: pX, y: pY };
 }
 
-o.spec('TileMatrixSet', () => {
-  o.spec('load', () => {
-    o('should guess the projection', () => {
-      o(GoogleTms.projection).equals(Epsg.Google);
+describe('TileMatrixSet', () => {
+  describe('load', () => {
+    it('should guess the projection', () => {
+      assert.equal(GoogleTms.projection, Epsg.Google);
     });
-    o('should load all of the zoom levels', () => {
+    it('should load all of the zoom levels', () => {
       for (let i = 0; i < GoogleTms.def.tileMatrix.length; i++) {
-        o(GoogleTms.pixelScale(i) > 0).equals(true);
+        assert.equal(GoogleTms.pixelScale(i) > 0, true);
       }
     });
   });
 
-  o('extent', () => {
-    o(GoogleTms.extent.toBbox()).deepEquals([-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892]);
+  it('extent', () => {
+    assert.deepEqual(
+      GoogleTms.extent.toBbox(),
+      [-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892],
+    );
 
     const { lowerCorner, upperCorner } = Nztm2000Tms.def.boundingBox;
 
-    o(Nztm2000Tms.extent.toBbox()).deepEquals([274000, 3087000, 3327000, 7173000]);
-    o(Nztm2000Tms.extent.toBbox()).deepEquals([
+    assert.deepEqual(Nztm2000Tms.extent.toBbox(), [274000, 3087000, 3327000, 7173000]);
+    assert.deepEqual(Nztm2000Tms.extent.toBbox(), [
       lowerCorner[Nztm2000Tms.indexX],
       lowerCorner[Nztm2000Tms.indexY],
       upperCorner[Nztm2000Tms.indexX],
@@ -53,24 +58,24 @@ o.spec('TileMatrixSet', () => {
     ]);
   });
 
-  o('should have correct maxZoom', () => {
-    o(GoogleTms.maxZoom).equals(24);
-    o(GoogleTms.pixelScale(24) > 0).equals(true);
+  it('should have correct maxZoom', () => {
+    assert.equal(GoogleTms.maxZoom, 24);
+    assert.equal(GoogleTms.pixelScale(24) > 0, true);
 
-    o(Nztm2000Tms.maxZoom).equals(16);
-    o(Nztm2000Tms.pixelScale(16) > 0).equals(true);
+    assert.equal(Nztm2000Tms.maxZoom, 16);
+    assert.equal(Nztm2000Tms.pixelScale(16) > 0, true);
   });
 
-  o.spec('pixelScale', () => {
-    o('should match the old projection logic', () => {
+  describe('pixelScale', () => {
+    it('should match the old projection logic', () => {
       for (let i = 0; i < 25; i++) {
         Approx.equal(getResolution(i), GoogleTms.pixelScale(i), `${i}`);
       }
     });
   });
 
-  o.spec('sourceToPixels', () => {
-    o('should match the old projection logic', () => {
+  describe('sourceToPixels', () => {
+    it('should match the old projection logic', () => {
       for (let i = 0; i < 10; i++) {
         const oldP = getPixelsFromMeters(i, i, i);
         const newP = GoogleTms.sourceToPixels(i, i, i);
@@ -80,8 +85,8 @@ o.spec('TileMatrixSet', () => {
     });
   });
 
-  o.spec('pixelsToSource', () => {
-    o('should round trip', () => {
+  describe('pixelsToSource', () => {
+    it('should round trip', () => {
       for (let i = 3; i < 1000; i += 13) {
         const z = i % 20;
         const pixels = GoogleTms.sourceToPixels(i, i, z);
@@ -92,7 +97,7 @@ o.spec('TileMatrixSet', () => {
       }
     });
 
-    o(`should pixelsToSource ${Epsg.Google.toEpsgString()}`, () => {
+    it(`should pixelsToSource ${Epsg.Google.toEpsgString()}`, () => {
       const tileSize = 256;
       const googleBound = 20037508.3427892;
       for (let i = 0; i < 1; i++) {
@@ -110,7 +115,7 @@ o.spec('TileMatrixSet', () => {
       Approx.point(GoogleTms.pixelsToSource(256, 256, 0), { x: googleBound, y: -googleBound }, 'z0:extent:lr');
     });
 
-    o(`should pixelsToSource ${Epsg.Nztm2000.toEpsgString()}`, () => {
+    it(`should pixelsToSource ${Epsg.Nztm2000.toEpsgString()}`, () => {
       // Points looked at up in QGIS
       Approx.point(Nztm2000Tms.sourceToPixels(1293759.997, 5412479.999, 0), { x: 256, y: 512 });
       Approx.point(Nztm2000Tms.pixelsToSource(256, 512, 0), { x: 1293760, y: 5412480 });
@@ -122,7 +127,7 @@ o.spec('TileMatrixSet', () => {
 
   [Nztm2000Tms, GoogleTms].forEach((tms) => {
     tms.def.tileMatrix.slice(0, 2).forEach((tm, z) => {
-      o(`should sourceToPixels -> pixelsToSource ${tms.projection} z:${tm.identifier}`, () => {
+      it(`should sourceToPixels -> pixelsToSource ${tms.projection} z:${tm.identifier}`, () => {
         const startX = tm.topLeftCorner[tms.indexX];
         const startY = tm.topLeftCorner[tms.indexY];
         const scale = tms.pixelScale(z) * tm.tileWidth;
@@ -144,67 +149,67 @@ o.spec('TileMatrixSet', () => {
     });
   });
 
-  o.spec('tileToPixels', () => {
-    o('should convert to pixels', () => {
-      o(GoogleTms.tileToPixels(1, 1)).deepEquals({ x: 256, y: 256 });
-      o(GoogleTms.tileToPixels(2, 2)).deepEquals({ x: 512, y: 512 });
-      o(GoogleTms.tileToPixels(4, 0)).deepEquals({ x: 1024, y: 0 });
-      o(GoogleTms.tileToPixels(0, 4)).deepEquals({ x: 0, y: 1024 });
+  describe('tileToPixels', () => {
+    it('should convert to pixels', () => {
+      assert.deepEqual(GoogleTms.tileToPixels(1, 1), { x: 256, y: 256 });
+      assert.deepEqual(GoogleTms.tileToPixels(2, 2), { x: 512, y: 512 });
+      assert.deepEqual(GoogleTms.tileToPixels(4, 0), { x: 1024, y: 0 });
+      assert.deepEqual(GoogleTms.tileToPixels(0, 4), { x: 0, y: 1024 });
 
-      o(Nztm2000Tms.tileToPixels(1, 1)).deepEquals({ x: 256, y: 256 });
-      o(Nztm2000Tms.tileToPixels(2, 2)).deepEquals({ x: 512, y: 512 });
-      o(Nztm2000Tms.tileToPixels(4, 0)).deepEquals({ x: 1024, y: 0 });
-      o(Nztm2000Tms.tileToPixels(0, 4)).deepEquals({ x: 0, y: 1024 });
+      assert.deepEqual(Nztm2000Tms.tileToPixels(1, 1), { x: 256, y: 256 });
+      assert.deepEqual(Nztm2000Tms.tileToPixels(2, 2), { x: 512, y: 512 });
+      assert.deepEqual(Nztm2000Tms.tileToPixels(4, 0), { x: 1024, y: 0 });
+      assert.deepEqual(Nztm2000Tms.tileToPixels(0, 4), { x: 0, y: 1024 });
     });
   });
 
-  o.spec('pixelsToTile', () => {
-    o('should round trip', () => {
+  describe('pixelsToTile', () => {
+    it('should round trip', () => {
       for (let i = 3; i < 1000; i += 13) {
         const pixels = GoogleTms.tileToPixels(i, i);
         const tile = GoogleTms.pixelsToTile(pixels.x, pixels.y, i);
-        o(tile).deepEquals({ x: i, y: i, z: i });
+        assert.deepEqual(tile, { x: i, y: i, z: i });
       }
     });
   });
 
-  o.spec('tileToSource', () => {
-    o('should convert to source units', () => {
-      o(GoogleTms.tileToSource({ x: 0, y: 0, z: 0 })).deepEquals({
+  describe('tileToSource', () => {
+    it('should convert to source units', () => {
+      assert.deepEqual(GoogleTms.tileToSource({ x: 0, y: 0, z: 0 }), {
         x: -20037508.3427892,
         y: 20037508.3427892,
       });
 
-      o(GoogleTms.tileToSource({ x: 1, y: 1, z: 0 })).deepEquals({
+      assert.deepEqual(GoogleTms.tileToSource({ x: 1, y: 1, z: 0 }), {
         x: 20037508.342789236,
         y: -20037508.342789236,
       });
 
-      o(GoogleTms.tileToSource(QuadKey.toTile('311331222'))).deepEquals({
+      assert.deepEqual(GoogleTms.tileToSource(QuadKey.toTile('311331222')), {
         x: 19411336.207076784,
         y: -4304933.433020964,
       });
     });
   });
 
-  o.spec('convertZoomLevel', () => {
-    o('should match the zoom levels from nztm2000', () => {
+  describe('convertZoomLevel', () => {
+    it('should match the zoom levels from nztm2000', () => {
       for (let i = 0; i < Nztm2000Tms.maxZoom; i++) {
-        o(TileMatrixSet.convertZoomLevel(i, Nztm2000Tms, Nztm2000Tms)).equals(i);
+        assert.equal(TileMatrixSet.convertZoomLevel(i, Nztm2000Tms, Nztm2000Tms), i);
       }
     });
 
-    o('should match the zoom levels from google', () => {
+    it('should match the zoom levels from google', () => {
       for (let i = 0; i < GoogleTms.maxZoom; i++) {
-        o(TileMatrixSet.convertZoomLevel(i, GoogleTms, GoogleTms)).equals(i);
+        assert.equal(TileMatrixSet.convertZoomLevel(i, GoogleTms, GoogleTms), i);
       }
     });
 
-    o('should round trip from Google to NztmQuad', () => {
+    it('should round trip from Google to NztmQuad', () => {
       for (let i = 0; i < Nztm2000QuadTms.maxZoom; i++) {
         const nztmToGoogle = TileMatrixSet.convertZoomLevel(i, Nztm2000QuadTms, GoogleTms);
         const googleToNztm = TileMatrixSet.convertZoomLevel(nztmToGoogle, GoogleTms, Nztm2000QuadTms);
-        o(googleToNztm).equals(i);
+        assert.equal(googleToNztm, i);
       }
     });
 
@@ -213,52 +218,52 @@ o.spec('TileMatrixSet', () => {
       { google: 13, nztm: 9, name: 'rural' },
       { google: 14, nztm: 10, name: 'urban' },
     ];
-    o('should convert google to nztm', () => {
+    it('should convert google to nztm', () => {
       for (const zoom of CurrentZooms) {
         const googleToNztm = TileMatrixSet.convertZoomLevel(zoom.google, GoogleTms, Nztm2000Tms);
         const googleToNztmQuad = TileMatrixSet.convertZoomLevel(zoom.google, GoogleTms, Nztm2000QuadTms);
-        o(googleToNztm).equals(zoom.nztm)(`Converting ${zoom.name} from ${zoom.google} to ${zoom.nztm}`);
-        o(googleToNztmQuad).equals(zoom.google - 2);
+        assert.equal(googleToNztm, zoom.nztm, `Converting ${zoom.name} from ${zoom.google} to ${zoom.nztm}`);
+        assert.equal(googleToNztmQuad, zoom.google - 2);
       }
     });
 
-    o('should match zoom levels outside of the range of the target z', () => {
-      o(TileMatrixSet.convertZoomLevel(22, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
-      o(TileMatrixSet.convertZoomLevel(21, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
-      o(TileMatrixSet.convertZoomLevel(20, Nztm2000QuadTms, Nztm2000Tms)).equals(16);
+    it('should match zoom levels outside of the range of the target z', () => {
+      assert.equal(TileMatrixSet.convertZoomLevel(22, Nztm2000QuadTms, Nztm2000Tms), 16);
+      assert.equal(TileMatrixSet.convertZoomLevel(21, Nztm2000QuadTms, Nztm2000Tms), 16);
+      assert.equal(TileMatrixSet.convertZoomLevel(20, Nztm2000QuadTms, Nztm2000Tms), 16);
     });
 
-    o('should match the zoom levels from nztm2000 when using nztm2000quad', () => {
-      o(TileMatrixSet.convertZoomLevel(13, Nztm2000QuadTms, Nztm2000Tms)).equals(11);
-      o(TileMatrixSet.convertZoomLevel(12, Nztm2000QuadTms, Nztm2000Tms)).equals(10);
-      o(TileMatrixSet.convertZoomLevel(6, Nztm2000QuadTms, Nztm2000Tms)).equals(4);
+    it('should match the zoom levels from nztm2000 when using nztm2000quad', () => {
+      assert.equal(TileMatrixSet.convertZoomLevel(13, Nztm2000QuadTms, Nztm2000Tms), 11);
+      assert.equal(TileMatrixSet.convertZoomLevel(12, Nztm2000QuadTms, Nztm2000Tms), 10);
+      assert.equal(TileMatrixSet.convertZoomLevel(6, Nztm2000QuadTms, Nztm2000Tms), 4);
     });
 
-    o('should correctly convert Nztm2000 into Nztm2000Qud for rural and urban', () => {
+    it('should correctly convert Nztm2000 into Nztm2000Qud for rural and urban', () => {
       // Gebco turns on at 0
-      o(TileMatrixSet.convertZoomLevel(0, Nztm2000Tms, Nztm2000QuadTms)).equals(0);
+      assert.equal(TileMatrixSet.convertZoomLevel(0, Nztm2000Tms, Nztm2000QuadTms), 0);
 
       // Rural turns on at 9
-      o(TileMatrixSet.convertZoomLevel(9, Nztm2000Tms, Nztm2000QuadTms)).equals(12);
+      assert.equal(TileMatrixSet.convertZoomLevel(9, Nztm2000Tms, Nztm2000QuadTms), 12);
 
       // Urban turns on at 10
-      o(TileMatrixSet.convertZoomLevel(10, Nztm2000Tms, Nztm2000QuadTms)).equals(13);
+      assert.equal(TileMatrixSet.convertZoomLevel(10, Nztm2000Tms, Nztm2000QuadTms), 13);
 
       // Most things turn off at 17
-      o(TileMatrixSet.convertZoomLevel(17, Nztm2000Tms, Nztm2000QuadTms)).equals(Nztm2000QuadTms.maxZoom);
+      assert.equal(TileMatrixSet.convertZoomLevel(17, Nztm2000Tms, Nztm2000QuadTms), Nztm2000QuadTms.maxZoom);
     });
   });
 
-  o.spec('tileToSourceBounds', () => {
-    o('should convert to source bounds', () => {
-      o(round(GoogleTms.tileToSourceBounds({ x: 0, y: 0, z: 0 }).toJson(), 4)).deepEquals({
+  describe('tileToSourceBounds', () => {
+    it('should convert to source bounds', () => {
+      assert.deepEqual(round(GoogleTms.tileToSourceBounds({ x: 0, y: 0, z: 0 }).toJson(), 4), {
         x: -20037508.3428,
         y: -20037508.3428,
         width: 40075016.6856,
         height: 40075016.6856,
       });
 
-      o(round(GoogleTms.tileToSourceBounds(QuadKey.toTile('311331222')).toJson(), 4)).deepEquals({
+      assert.deepEqual(round(GoogleTms.tileToSourceBounds(QuadKey.toTile('311331222')).toJson(), 4), {
         x: 19411336.2071,
         y: -4383204.95,
         width: 78271.517,
@@ -267,10 +272,10 @@ o.spec('TileMatrixSet', () => {
     });
   });
 
-  o.spec('topLevelTiles', () => {
-    o('should return covering tiles of level 0 extent', () => {
-      o(Array.from(GoogleTms.topLevelTiles())).deepEquals([{ x: 0, y: 0, z: 0 }]);
-      o(Array.from(Nztm2000Tms.topLevelTiles())).deepEquals([
+  describe('topLevelTiles', () => {
+    it('should return covering tiles of level 0 extent', () => {
+      assert.deepEqual(Array.from(GoogleTms.topLevelTiles()), [{ x: 0, y: 0, z: 0 }]);
+      assert.deepEqual(Array.from(Nztm2000Tms.topLevelTiles()), [
         { x: 0, y: 0, z: 0 },
         { x: 1, y: 0, z: 0 },
         { x: 0, y: 1, z: 0 },
@@ -283,60 +288,60 @@ o.spec('TileMatrixSet', () => {
     });
   });
 
-  o.spec('tileToName nameToTile', () => {
-    o('should make a name of the tile z,x,y', () => {
-      o(TileMatrixSet.tileToName({ x: 4, y: 5, z: 6 })).equals('6-4-5');
-      o(TileMatrixSet.nameToTile('6-4-5')).deepEquals({ x: 4, y: 5, z: 6 });
+  describe('tileToName nameToTile', () => {
+    it('should make a name of the tile z,x,y', () => {
+      assert.equal(TileMatrixSet.tileToName({ x: 4, y: 5, z: 6 }), '6-4-5');
+      assert.deepEqual(TileMatrixSet.nameToTile('6-4-5'), { x: 4, y: 5, z: 6 });
     });
   });
 
-  o.spec('findBestZoom', () => {
-    o('should find a similar scale', () => {
-      o(GoogleTms.findBestZoom(GoogleTms.def.tileMatrix[1].scaleDenominator)).equals(1);
-      o(GoogleTms.findBestZoom(GoogleTms.def.tileMatrix[10].scaleDenominator)).equals(10);
-      o(GoogleTms.findBestZoom(GoogleTms.def.tileMatrix[15].scaleDenominator)).equals(15);
+  describe('findBestZoom', () => {
+    it('should find a similar scale', () => {
+      assert.equal(GoogleTms.findBestZoom(GoogleTms.def.tileMatrix[1].scaleDenominator), 1);
+      assert.equal(GoogleTms.findBestZoom(GoogleTms.def.tileMatrix[10].scaleDenominator), 10);
+      assert.equal(GoogleTms.findBestZoom(GoogleTms.def.tileMatrix[15].scaleDenominator), 15);
 
-      o(Nztm2000Tms.findBestZoom(Nztm2000Tms.def.tileMatrix[1].scaleDenominator)).equals(1);
-      o(Nztm2000Tms.findBestZoom(Nztm2000Tms.def.tileMatrix[10].scaleDenominator)).equals(10);
-      o(Nztm2000Tms.findBestZoom(Nztm2000Tms.def.tileMatrix[15].scaleDenominator)).equals(15);
+      assert.equal(Nztm2000Tms.findBestZoom(Nztm2000Tms.def.tileMatrix[1].scaleDenominator), 1);
+      assert.equal(Nztm2000Tms.findBestZoom(Nztm2000Tms.def.tileMatrix[10].scaleDenominator), 10);
+      assert.equal(Nztm2000Tms.findBestZoom(Nztm2000Tms.def.tileMatrix[15].scaleDenominator), 15);
 
-      o(Nztm2000QuadTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[1].scaleDenominator)).equals(1);
-      o(Nztm2000QuadTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[10].scaleDenominator)).equals(10);
-      o(Nztm2000QuadTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[15].scaleDenominator)).equals(15);
+      assert.equal(Nztm2000QuadTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[1].scaleDenominator), 1);
+      assert.equal(Nztm2000QuadTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[10].scaleDenominator), 10);
+      assert.equal(Nztm2000QuadTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[15].scaleDenominator), 15);
     });
 
-    o('should find similar scales across tile matrix sets', () => {
+    it('should find similar scales across tile matrix sets', () => {
       for (let i = 0; i < Nztm2000QuadTms.maxZoom; i++) {
-        o(GoogleTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[i].scaleDenominator)).equals(i + 2);
+        assert.equal(GoogleTms.findBestZoom(Nztm2000QuadTms.def.tileMatrix[i].scaleDenominator), i + 2);
       }
 
-      o(Nztm2000QuadTms.findBestZoom(Nztm2000Tms.def.tileMatrix[0].scaleDenominator)).equals(2);
+      assert.equal(Nztm2000QuadTms.findBestZoom(Nztm2000Tms.def.tileMatrix[0].scaleDenominator), 2);
     });
 
-    o('should map test urban/rural scales correctly', () => {
-      o(Nztm2000Tms.findBestZoom(GoogleTms.zooms[13].scaleDenominator)).equals(9);
-      o(Nztm2000Tms.findBestZoom(GoogleTms.zooms[14].scaleDenominator)).equals(10);
+    it('should map test urban/rural scales correctly', () => {
+      assert.equal(Nztm2000Tms.findBestZoom(GoogleTms.zooms[13].scaleDenominator), 9);
+      assert.equal(Nztm2000Tms.findBestZoom(GoogleTms.zooms[14].scaleDenominator), 10);
 
-      o(Nztm2000QuadTms.findBestZoom(GoogleTms.zooms[13].scaleDenominator)).equals(11);
-      o(Nztm2000QuadTms.findBestZoom(GoogleTms.zooms[14].scaleDenominator)).equals(12);
+      assert.equal(Nztm2000QuadTms.findBestZoom(GoogleTms.zooms[13].scaleDenominator), 11);
+      assert.equal(Nztm2000QuadTms.findBestZoom(GoogleTms.zooms[14].scaleDenominator), 12);
     });
   });
 
-  o.spec('coverTile', () => {
-    o('should return covering tiles of level n extent', () => {
-      o(Array.from(GoogleTms.coverTile({ x: 2, y: 3, z: 3 }))).deepEquals([
+  describe('coverTile', () => {
+    it('should return covering tiles of level n extent', () => {
+      assert.deepEqual(Array.from(GoogleTms.coverTile({ x: 2, y: 3, z: 3 })), [
         { x: 4, y: 6, z: 4 },
         { x: 5, y: 6, z: 4 },
         { x: 4, y: 7, z: 4 },
         { x: 5, y: 7, z: 4 },
       ]);
-      o(Array.from(Nztm2000Tms.coverTile({ x: 2, y: 3, z: 8 }))).deepEquals([
+      assert.deepEqual(Array.from(Nztm2000Tms.coverTile({ x: 2, y: 3, z: 8 })), [
         { x: 4, y: 6, z: 9 },
         { x: 5, y: 6, z: 9 },
         { x: 4, y: 7, z: 9 },
         { x: 5, y: 7, z: 9 },
       ]);
-      o(Array.from(Nztm2000Tms.coverTile({ x: 2, y: 3, z: 7 }))).deepEquals([
+      assert.deepEqual(Array.from(Nztm2000Tms.coverTile({ x: 2, y: 3, z: 7 })), [
         { x: 5, y: 7, z: 8 },
         { x: 6, y: 7, z: 8 },
         { x: 7, y: 7, z: 8 },
@@ -348,7 +353,7 @@ o.spec('TileMatrixSet', () => {
         { x: 7, y: 9, z: 8 },
       ]);
 
-      o(Array.from(Nztm2000Tms.coverTile({ x: 3, y: 2, z: 7 }))).deepEquals([
+      assert.deepEqual(Array.from(Nztm2000Tms.coverTile({ x: 3, y: 2, z: 7 })), [
         { x: 7, y: 5, z: 8 },
         { x: 8, y: 5, z: 8 },
         { x: 9, y: 5, z: 8 },
@@ -362,18 +367,18 @@ o.spec('TileMatrixSet', () => {
     });
   });
 
-  o.spec('TileMatrixSets', () => {
-    o('should find by epsg', () => {
-      o(TileMatrixSets.find('epsg:2193')?.identifier).equals(Nztm2000Tms.identifier);
-      o(TileMatrixSets.find('2193')?.identifier).equals(Nztm2000Tms.identifier);
-      o(TileMatrixSets.find('epsg:3857')?.identifier).equals(GoogleTms.identifier);
-      o(TileMatrixSets.find('3857')?.identifier).equals(GoogleTms.identifier);
+  describe('TileMatrixSets', () => {
+    it('should find by epsg', () => {
+      assert.equal(TileMatrixSets.find('epsg:2193')?.identifier, Nztm2000Tms.identifier);
+      assert.equal(TileMatrixSets.find('2193')?.identifier, Nztm2000Tms.identifier);
+      assert.equal(TileMatrixSets.find('epsg:3857')?.identifier, GoogleTms.identifier);
+      assert.equal(TileMatrixSets.find('3857')?.identifier, GoogleTms.identifier);
     });
 
-    o('should find by name', () => {
-      o(TileMatrixSets.find(Nztm2000Tms.identifier)?.identifier).equals(Nztm2000Tms.identifier);
-      o(TileMatrixSets.find(Nztm2000QuadTms.identifier)?.identifier).equals(Nztm2000QuadTms.identifier);
-      o(TileMatrixSets.find(GoogleTms.identifier)?.identifier).equals(GoogleTms.identifier);
+    it('should find by name', () => {
+      assert.equal(TileMatrixSets.find(Nztm2000Tms.identifier)?.identifier, Nztm2000Tms.identifier);
+      assert.equal(TileMatrixSets.find(Nztm2000QuadTms.identifier)?.identifier, Nztm2000QuadTms.identifier);
+      assert.equal(TileMatrixSets.find(GoogleTms.identifier)?.identifier, GoogleTms.identifier);
     });
   });
 });

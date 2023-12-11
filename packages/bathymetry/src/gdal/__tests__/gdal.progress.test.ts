@@ -1,14 +1,15 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe } from 'node:test';
 
 import { GdalProgressParser } from '../gdal.progress.js';
 
-o.spec('GdalProgressParser', () => {
+describe('GdalProgressParser', () => {
   o('should emit on progress', () => {
     const prog = new GdalProgressParser();
-    o(prog.progress).equals(0);
+    assert.equal(prog.progress, 0);
 
     prog.data(Buffer.from('\n.'));
-    o(prog.progress.toFixed(2)).equals('3.23');
+    assert.equal(prog.progress.toFixed(2), '3.23');
   });
 
   o('should take 31 dots to finish', () => {
@@ -19,8 +20,8 @@ o.spec('GdalProgressParser', () => {
 
     for (let i = 0; i < 31; i++) {
       prog.data(Buffer.from('.'));
-      o(processCount).equals(i + 1);
+      assert.equal(processCount, i + 1);
     }
-    o(prog.progress.toFixed(2)).equals('100.00');
+    assert.equal(prog.progress.toFixed(2), '100.00');
   });
 });
