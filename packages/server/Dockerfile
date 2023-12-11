@@ -1,4 +1,4 @@
-FROM node:18-slim@sha256:d2d8a6420c9fc6b7b403732d3a3c5395d016ebc4996f057aad1aded74202a476
+FROM node:20-slim@sha256:363a50faa3a561618775c1bab18dae9b4d0910a28f249bf8b72c0251c83791ff
 
 # Node does not like running as PID 1, use dumb-init to handle the init
 #
