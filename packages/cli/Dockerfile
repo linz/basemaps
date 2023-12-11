@@ -15,7 +15,7 @@ RUN apt-get update
 RUN apt-get install -y nodejs
 
 # Install sharp TODO update this when we change sharp versions
-RUN npm install sharp@0.32.6
+RUN npm install sharp@0.33.0
 
 # Install the landing assets
 COPY ./basemaps-landing*.tgz /app/
