@@ -8,7 +8,7 @@ To start a local test server there are two options
 
 ### Create a full basemaps server
 
-Using [@basemaps/server](../server/README.md) a entire local test environment can be run. to ensure the latest assets are served by the local server `yarn bundle` should be run first
+Using [@basemaps/server](../server/README.md) a entire local test environment can be run. to ensure the latest assets are served by the local server `npm run bundle` should be run first
 
 this is best when testing larger basemaps changes across multiple packages, but needs access to some imagery.
 
