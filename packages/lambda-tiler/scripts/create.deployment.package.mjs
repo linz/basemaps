@@ -10,7 +10,7 @@ const parentPackage = JSON.parse(fs.readFileSync('../package.json').toString());
 
 // Find the exact version of a package in the yarn lock
 export function getPackageVersion(packageName) {
-  const parentLock = fs.readFileSync('../../../yarn.lock').toString().split('\n');
+  const parentLock = fs.readFileSync('../../../package-json.lock').toString().split('\n');
 
   for (let i = 0; i < parentLock.length; i++) {
     if (parentLock[i].startsWith(packageName + '@')) {

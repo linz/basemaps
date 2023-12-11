@@ -16,13 +16,13 @@ You will need:
 
 ```bash
 # Install dependencies
-yarn add @basemaps/bathymetry
+npm install @basemaps/bathymetry
 
 # To prevent very long CI/Dev build times, mapnik will need to be manually installed
-yarn add mapnik
+npm install mapnik
 
 # Ensure the javascript has been built
-yarn build
+npm run build
 
 # Create a the data file
 node build/index.js -v create --input gebco_2020.nc --docker --output gebco/

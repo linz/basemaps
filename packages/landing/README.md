@@ -17,6 +17,6 @@ this is best when testing larger basemaps changes across multiple packages, but 
 The simple local server is used to validate html/css/js changes in the landing page this does not run a basemaps tile server and will default to `https://dev.basemaps.linz.govt.nz`
 
 ```bash
-yarn bundle
+npm run bundle
 node serve.mjs
 ```
