@@ -10,8 +10,6 @@ jobs:
         os: [macos-latest, windows-latest]
     steps:
       - uses: linz/action-typescript@v3
-        with:
-          package-manager: yarn
 
   build-deploy:
     runs-on: ubuntu-latest
@@ -22,8 +20,6 @@ jobs:
       contents: write
     steps:
       - uses: linz/action-typescript@v3
-        with:
-          package-manager: yarn
 
       # TODO: running a giant copy command to import CSS and SVG files into the docs file in not super ideal
       - name: Build docs
@@ -84,8 +80,6 @@ jobs:
 
     steps:
       - uses: linz/action-typescript@v3
-        with:
-          package-manager: yarn
 
       - name: Build docs
         run: |
@@ -141,8 +135,6 @@ jobs:
       contents: write
     steps:
       - uses: linz/action-typescript@v3
-        with:
-          package-manager: yarn
 
       - name: Build docs
         run: |
