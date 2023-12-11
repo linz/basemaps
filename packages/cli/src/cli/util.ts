@@ -1,8 +1,8 @@
+import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
+import { CloudFrontClient, CreateInvalidationCommand, ListDistributionsCommand } from '@aws-sdk/client-cloudfront';
+import { HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { fsa, LogConfig } from '@basemaps/shared';
 import { CliId } from '@basemaps/shared/build/cli/info.js';
-import CloudFormation from 'aws-sdk/clients/cloudformation.js';
-import CloudFront from 'aws-sdk/clients/cloudfront.js';
-import S3 from 'aws-sdk/clients/s3.js';
 import crypto from 'crypto';
 import path from 'path';
 import slugify from 'slugify';
@@ -10,9 +10,9 @@ import { promisify } from 'util';
 import { gzip } from 'zlib';
 
 // Cloudfront has to be defined in us-east-1
-const cloudFormation = new CloudFormation({ region: 'us-east-1' });
-const cloudFront = new CloudFront({ region: 'us-east-1' });
-const s3 = new S3({ region: 'us-east-1' });
+const cloudFormationClient = new CloudFormationClient({ region: 'us-east-1' });
+const cloudFrontClient = new CloudFrontClient({ region: 'us-east-1' });
+const s3Client = new S3Client({ region: 'us-east-1' });
 
 /** cloudfront invalidation references need to be unique */
 let InvalidationId = 0;
@@ -21,14 +21,15 @@ let InvalidationId = 0;
  * Invalidate the cloudfront distribution cache when updating imagery sets
  */
 export async function invalidateCache(path: string | string[], commit = false): Promise<void> {
-  const stackInfo = await cloudFormation.describeStacks({ StackName: 'Edge' }).promise();
-  if (stackInfo.Stacks?.[0].Outputs == null) {
+  const command = new DescribeStacksCommand({ StackName: 'Edge' });
+  const response = await cloudFormationClient.send(command);
+  if (response.Stacks?.[0].Outputs == null) {
     LogConfig.get().warn('Unable to find cloud front distribution');
     return;
   }
-  const cloudFrontDomain = stackInfo.Stacks[0].Outputs.find((f) => f.OutputKey === 'CloudFrontDomain');
-
-  const cloudFrontDistributions = await cloudFront.listDistributions().promise();
+  const cloudFrontDomain = response.Stacks[0].Outputs.find((f) => f.OutputKey === 'CloudFrontDomain');
+  const listDistributionCommand = new ListDistributionsCommand({});
+  const cloudFrontDistributions = await cloudFrontClient.send(listDistributionCommand);
   const cf = cloudFrontDistributions.DistributionList?.Items?.find(
     (f) => f.DomainName === cloudFrontDomain?.OutputValue,
   );
@@ -41,15 +42,14 @@ export async function invalidateCache(path: string | string[], commit = false): 
   LogConfig.get().info({ path, cfId: cf.Id }, 'Invalidating');
   const Items = Array.isArray(path) ? path : [path];
   if (commit) {
-    await cloudFront
-      .createInvalidation({
-        DistributionId: cf.Id,
-        InvalidationBatch: {
-          Paths: { Quantity: Items.length, Items },
-          CallerReference: `${CliId}-${InvalidationId++}`,
-        },
-      })
-      .promise();
+    const invalidationCommand = new CreateInvalidationCommand({
+      DistributionId: cf.Id,
+      InvalidationBatch: {
+        Paths: { Quantity: Items.length, Items },
+        CallerReference: `${CliId}-${InvalidationId++}`,
+      },
+    });
+    await cloudFrontClient.send(invalidationCommand);
   }
 }
 
@@ -57,7 +57,8 @@ export const HashKey = 'linz-hash';
 
 export async function getHash(Bucket: string, Key: string): Promise<string | null> {
   try {
-    const obj = await s3.headObject({ Bucket, Key }).promise();
+    const command = new HeadObjectCommand({ Bucket, Key });
+    const obj = await s3Client.send(command);
     return obj.Metadata?.[HashKey] ?? null;
   } catch (e) {
     if ((e as { code: string })?.code === 'NoSuchKey') return null;
@@ -75,14 +76,12 @@ let staticBucket: Promise<string> | undefined;
 export function getStaticBucket(): Promise<string> {
   if (staticBucket == null) {
     // Since the bucket is generated inside of CDK lets look up the bucket name
-    staticBucket = cloudFormation
-      .describeStacks({ StackName: 'Edge' })
-      .promise()
-      .then((stackInfo) => {
-        const val = stackInfo.Stacks?.[0]?.Outputs?.find((f) => f.OutputKey === 'CloudFrontBucket')?.OutputValue;
-        if (val == null) throw new Error('Failed to find EdgeBucket');
-        return val;
-      });
+    const command = new DescribeStacksCommand({ StackName: 'Edge' });
+    staticBucket = cloudFormationClient.send(command).then((stackInfo) => {
+      const val = stackInfo.Stacks?.[0]?.Outputs?.find((f) => f.OutputKey === 'CloudFrontBucket')?.OutputValue;
+      if (val == null) throw new Error('Failed to find EdgeBucket');
+      return val;
+    });
   }
   return staticBucket;
 }
@@ -119,18 +118,16 @@ export async function uploadStaticFile(
   // Should we compress the file before uploading
   const ext = path.extname(target);
   const contentEncoding = CompressExt.has(ext) ? 'gzip' : undefined;
-
-  await s3
-    .putObject({
-      Bucket: bucket,
-      Key: target,
-      Body: contentEncoding === 'gzip' ? await gzipPromise(fileData, { level: 9 }) : fileData,
-      Metadata: { [HashKey]: hash },
-      ContentType: contentType,
-      CacheControl: cacheControl,
-      ContentEncoding: contentEncoding,
-    })
-    .promise();
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: target,
+    Body: contentEncoding === 'gzip' ? await gzipPromise(fileData, { level: 9 }) : fileData,
+    Metadata: { [HashKey]: hash },
+    ContentType: contentType,
+    CacheControl: cacheControl,
+    ContentEncoding: contentEncoding,
+  });
+  await s3Client.send(command);
   return true;
 }
 

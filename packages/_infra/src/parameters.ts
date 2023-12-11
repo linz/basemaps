@@ -1,4 +1,4 @@
-import CloudFormation from 'aws-sdk/clients/cloudformation.js';
+import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
 
 export interface ParametersEdge {
   CloudFrontBucket: string;
@@ -32,16 +32,17 @@ export async function getParameters<T extends ParameterKeys>(
   stackName: string,
   keys: T,
 ): Promise<null | T> {
-  const cfRegion = new CloudFormation({ region });
-  const targetStack = await cfRegion.describeStacks({ StackName: stackName }).promise();
-  if (targetStack == null) {
+  const client = new CloudFormationClient({ region });
+  const command = new DescribeStacksCommand({ StackName: stackName });
+  const response = await client.send(command);
+  if (command == null) {
     console.error('Failed to lookup edge stack.. has it been deployed?');
     return null;
   }
 
   const output: Record<string, unknown> = {};
   for (const param of Object.keys(keys)) {
-    const edgeParam = targetStack.Stacks?.[0].Outputs?.find((f) => f.OutputKey === param)?.OutputValue;
+    const edgeParam = response.Stacks?.[0].Outputs?.find((f) => f.OutputKey === param)?.OutputValue;
     if (edgeParam == null) {
       console.error(`Failed to find cfnOutput for ${param}`);
       continue;
