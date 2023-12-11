@@ -54,7 +54,6 @@
     "@chunkd/source-memory": "^10.0.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/pixelmatch": "^5.0.0",
-    "@types/sharp": "^0.32.0",
     "pretty-json-log": "^1.0.0"
   }
 }
