@@ -24,7 +24,7 @@ jobs:
       # TODO: running a giant copy command to import CSS and SVG files into the docs file in not super ideal
       - name: Build docs
         run: |
-          cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
+          cp node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
           docker run --rm -v ${PWD}:/docs ghcr.io/linz/basemaps-mkdocs:v1 build
 
       - name: Store docs artifact
@@ -85,7 +85,7 @@ jobs:
         run: |
           # dist folder must exist or it will be owned by root
           mkdir -p packages/landing/dist 
-          cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
+          cp node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
 
           docker run \
             --rm \
@@ -140,7 +140,7 @@ jobs:
         run: |
           # dist folder must exist or it will be owned by root
           mkdir -p packages/landing/dist 
-          cp packages/landing/node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
+          cp node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
 
           docker run \
             --rm \
