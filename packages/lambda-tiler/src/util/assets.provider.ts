@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { fsa } from '@chunkd/fs';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
@@ -46,9 +47,12 @@ export class AssetProvider {
    */
   async serve(req: LambdaHttpRequest, file: string, contentType: string): Promise<LambdaHttpResponse> {
     const config = await ConfigLoader.load(req);
+    console.log('serve:' + file + ' config?: ' + config?.assets);
     if (config == null) return NotFound();
+
     if (config.assets == null) return NotFound();
     const buf = await assetProvider.get(config.assets, file);
+    console.log('buf', buf);
     if (buf == null) return NotFound();
     const cacheKey = Etag.key(buf);
     if (Etag.isNotModified(req, cacheKey)) return NotModified();
