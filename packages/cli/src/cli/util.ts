@@ -17,6 +17,10 @@ const s3Client = new S3Client({ region: 'us-east-1' });
 /** cloudfront invalidation references need to be unique */
 let InvalidationId = 0;
 
+export function isRecord<T = unknown>(value: unknown): value is Record<string, T> {
+  return typeof value === 'object' && value !== null;
+}
+
 /**
  * Invalidate the cloudfront distribution cache when updating imagery sets
  */
@@ -61,8 +65,9 @@ export async function getHash(Bucket: string, Key: string): Promise<string | nul
     const obj = await s3Client.send(command);
     return obj.Metadata?.[HashKey] ?? null;
   } catch (e) {
-    if ((e as { code: string })?.code === 'NoSuchKey') return null;
-    if ((e as { code: string })?.code === 'NotFound') return null;
+    if (isRecord(e) && isRecord(e['$metadata']) && typeof e['$metadata']['httpStatusCode'] === 'number') {
+      if (e['$metadata']['httpStatusCode'] === 404) return null;
+    }
 
     throw e;
   }
