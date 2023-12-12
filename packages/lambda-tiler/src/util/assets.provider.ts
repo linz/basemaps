@@ -1,4 +1,4 @@
-import { fsa } from '@chunkd/fs';
+import { fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from './config.loader.js';
@@ -17,13 +17,13 @@ export class AssetProvider {
    * s3://linz-basemaps/assets/assets-b4ff211a.tar.co # Remote Cotar
    */
 
-  async get(path: string, fileName: string): Promise<Buffer | null> {
+  async get(url: URL, fileName: string): Promise<Buffer | null> {
     // get assets file from cotar
-    if (path.endsWith('.tar.co')) return await this.getFromCotar(path, fileName);
+    if (url.pathname.endsWith('.tar.co')) return await this.getFromCotar(url, fileName);
 
     // get assets file for directory
     try {
-      const filePath = fsa.join(path, fileName);
+      const filePath = new URL(fileName, url);
       return await fsa.read(filePath);
     } catch (e) {
       if ((e as { code: number })?.code === 404) return null;
@@ -31,7 +31,7 @@ export class AssetProvider {
     }
   }
 
-  async getFromCotar(path: string, fileName: string): Promise<Buffer | null> {
+  async getFromCotar(path: URL, fileName: string): Promise<Buffer | null> {
     const cotar = await CoSources.getCotar(path);
     const data = await cotar.get(fileName);
     return data ? Buffer.from(data) : data;
@@ -48,7 +48,7 @@ export class AssetProvider {
     const config = await ConfigLoader.load(req);
     if (config == null) return NotFound();
     if (config.assets == null) return NotFound();
-    const buf = await assetProvider.get(config.assets, file);
+    const buf = await assetProvider.get(fsa.toUrl(config.assets), file);
     if (buf == null) return NotFound();
     const cacheKey = Etag.key(buf);
     if (Etag.isNotModified(req, cacheKey)) return NotModified();

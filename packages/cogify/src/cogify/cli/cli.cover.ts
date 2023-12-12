@@ -81,11 +81,11 @@ export const BasemapsCogifyCoverCommand = command({
 
     const sourcePath = new URL('source.geojson', targetPath);
     const sourceData = JSON.stringify(res.source, null, 2);
-    await fsa.write(urlToString(sourcePath), sourceData);
+    await fsa.write(sourcePath, sourceData);
 
     const coveringPath = new URL('covering.geojson', targetPath);
     const coveringData = JSON.stringify({ type: 'FeatureCollection', features: res.items }, null, 2);
-    await fsa.write(urlToString(coveringPath), coveringData);
+    await fsa.write(coveringPath, coveringData);
 
     res.collection.assets = res.collection.assets ?? {};
     res.collection.assets['covering'] = {
@@ -100,7 +100,7 @@ export const BasemapsCogifyCoverCommand = command({
     };
 
     const collectionPath = new URL('collection.json', targetPath);
-    await fsa.write(urlToString(collectionPath), JSON.stringify(res.collection, null, 2));
+    await fsa.write(collectionPath, JSON.stringify(res.collection, null, 2));
     ctx.logger?.debug({ path: collectionPath }, 'Imagery:Stac:Collection:Write');
 
     const items = [];
@@ -109,7 +109,7 @@ export const BasemapsCogifyCoverCommand = command({
       const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
       const itemPath = new URL(`${tileId}.json`, targetPath);
       items.push({ path: itemPath });
-      await fsa.write(urlToString(itemPath), JSON.stringify(item, null, 2));
+      await fsa.write(itemPath, JSON.stringify(item, null, 2));
       const z = item.properties['linz_basemaps:options'].tile.z;
       tilesByZoom[z] = (tilesByZoom[z] ?? 0) + 1;
       ctx.logger?.trace({ path: itemPath }, 'Imagery:Stac:Item:Write');
@@ -118,11 +118,11 @@ export const BasemapsCogifyCoverCommand = command({
     // If running in argo dump out output information to be used by further steps
     if (isArgo()) {
       // Where the JSON files were written to
-      await fsa.write('/tmp/cogify/cover-target', urlToString(targetPath));
+      await fsa.write(fsa.toUrl('/tmp/cogify/cover-target'), urlToString(targetPath));
       // Title of the imagery
-      await fsa.write('/tmp/cogify/cover-title', ctx.imagery.title);
+      await fsa.write(fsa.toUrl('/tmp/cogify/cover-title'), ctx.imagery.title);
       // List of all the tiles to be processed
-      await fsa.write('/tmp/cogify/cover-items.json', JSON.stringify(items));
+      await fsa.write(fsa.toUrl('/tmp/cogify/cover-items.json'), JSON.stringify(items));
     }
 
     logger.info({ tiles: res.items.length, metrics: metrics.metrics, tilesByZoom }, 'Cover:Created');

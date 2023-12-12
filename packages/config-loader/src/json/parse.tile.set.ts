@@ -1,8 +1,6 @@
+import { parseRgba, TileSetType } from '@basemaps/config';
 import { ImageFormat, VectorFormat } from '@basemaps/geo';
 import { z } from 'zod';
-
-import { parseRgba } from '../color.js';
-import { TileSetType } from '../config/tile.set.js';
 
 export function validateColor(str: string): boolean {
   try {

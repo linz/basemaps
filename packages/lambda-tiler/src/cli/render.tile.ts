@@ -1,15 +1,13 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
 import { ImageFormat, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { LogConfig, setDefaultConfig } from '@basemaps/shared';
-import { fsa } from '@chunkd/fs';
+import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
-import { pathToFileURL } from 'url';
 
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
-const target = pathToFileURL(`/home/blacha/tmp/imagery/southland-0.25-rural-2023/`);
+const target = fsa.toUrl(`/home/blacha/tmp/imagery/southland-0.25-rural-2023/`);
 const tile = fromPath('/18/117833/146174.webp');
 
 const outputFormat = ImageFormat.Webp;
@@ -51,7 +49,7 @@ async function main(): Promise<void> {
     tileType: outputFormat,
   });
 
-  await fsa.write(`./${tile.z}_${tile.x}_${tile.y}.${outputFormat}`, Buffer.from(res.body, 'base64'));
+  await fsa.write(fsa.toUrl(`./${tile.z}_${tile.x}_${tile.y}.${outputFormat}`), Buffer.from(res.body, 'base64'));
   log.info({ path: `./${tile.z}_${tile.x}_${tile.y}.${outputFormat}` }, 'Tile:Write');
 }
 

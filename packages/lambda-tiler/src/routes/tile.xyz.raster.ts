@@ -1,10 +1,8 @@
 import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
 import { Bounds, Epsg, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
-import { Env, fsa } from '@basemaps/shared';
+import { Cotar, Env, fsa, Tiff } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
-import { CogTiff } from '@cogeotiff/core';
-import { Cotar } from '@cotar/core';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import pLimit from 'p-limit';
 
@@ -23,13 +21,13 @@ export function getTiffName(name: string): string {
   return `${name}.tiff`;
 }
 
-export type CloudArchive = CogTiff | Cotar;
+export type CloudArchive = Tiff | Cotar;
 
 /** Check to see if a cloud archive is a Tiff or a Cotar */
-export function isArchiveTiff(x: CloudArchive): x is CogTiff {
-  if (x instanceof CogTiff) return true;
-  if (x.source.uri.endsWith('.tiff')) return true;
-  if (x.source.uri.endsWith('.tif')) return true;
+export function isArchiveTiff(x: CloudArchive): x is Tiff {
+  if (x instanceof Tiff) return true;
+  if (x.source.url.pathname.endsWith('.tiff')) return true;
+  if (x.source.url.pathname.endsWith('.tif')) return true;
   return false;
 }
 
@@ -46,12 +44,12 @@ export const TileXyzRaster = {
     bounds: Bounds,
     zoom: number,
     ignoreOverview = false,
-  ): Promise<string[]> {
+  ): Promise<URL[]> {
     const config = await ConfigLoader.load(req);
     const imagery = await getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
     const filteredLayers = filterLayers(req, tileSet.layers);
 
-    const output: string[] = [];
+    const output: URL[] = [];
 
     // All zoom level config is stored as Google zoom levels
     const filterZoom = TileMatrixSet.convertZoomLevel(zoom, tileMatrix, TileMatrixSets.get(Epsg.Google));
@@ -70,6 +68,7 @@ export const TileXyzRaster = {
       }
       if (!bounds.intersects(Bounds.fromJson(img.bounds))) continue;
 
+      const imgUrl = fsa.toUrl(img.uri);
       for (const c of img.files) {
         if (!bounds.intersects(Bounds.fromJson(c))) continue;
 
@@ -81,23 +80,23 @@ export const TileXyzRaster = {
           img.overviews.minZoom <= filterZoom &&
           ignoreOverview !== true
         ) {
-          output.push(fsa.join(img.uri, img.overviews.path));
+          output.push(new URL(img.overviews.path, imgUrl));
           break;
         }
 
-        const tiffPath = fsa.join(img.uri, getTiffName(c.name));
+        const tiffPath = new URL(getTiffName(c.name), imgUrl);
         output.push(tiffPath);
       }
     }
     return output;
   },
 
-  async loadAssets(req: LambdaHttpRequest, assets: string[]): Promise<CloudArchive[]> {
+  async loadAssets(req: LambdaHttpRequest, assets: URL[]): Promise<CloudArchive[]> {
     const toLoad: Promise<CloudArchive | null>[] = [];
     for (const assetPath of assets) {
       toLoad.push(
         LoadingQueue((): Promise<CloudArchive | null> => {
-          if (assetPath.endsWith('.tar.co')) {
+          if (assetPath.pathname.endsWith('.tar.co')) {
             return CoSources.getCotar(assetPath).catch((error) => {
               req.log.warn({ error, tiff: assetPath }, 'Load:Cotar:Failed');
               return null;
@@ -114,7 +113,7 @@ export const TileXyzRaster = {
     return (await Promise.all(toLoad)).filter((f) => f != null) as CloudArchive[];
   },
 
-  async getAssetsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<string[]> {
+  async getAssetsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<URL[]> {
     const tileBounds = xyz.tileMatrix.tileToSourceBounds(xyz.tile);
     return TileXyzRaster.getAssetsForBounds(req, tileSet, xyz.tileMatrix, tileBounds, xyz.tile.z);
   },

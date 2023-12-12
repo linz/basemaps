@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 import { S3Client } from '@aws-sdk/client-s3';
 import { FileSystem, fsa } from '@chunkd/fs';
 import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
@@ -35,3 +37,24 @@ fsa.register('s3://', s3Fs);
 fsa.register('s3://nz-imagery', s3FsPublic);
 
 export const Fsa = fsa;
+
+// FIXME add tests / docs
+/**
+ * When chunkd moves to URLs this can be removed
+ *
+ * But reading a file as a string with `file://....` does not work in node
+ * it needs to be converted with `fileURLToPath`
+ */
+export function urlToString(u: URL): string {
+  if (u.protocol === 'file:') return fileURLToPath(u);
+  return u.href;
+}
+
+/**
+ *  Ensure a folder has a trailing slash
+ **/
+export function stringToUrlFolder(str: string): URL {
+  const url = fsa.toUrl(str);
+  if (url.pathname.endsWith('/')) return url;
+  return new URL(url.href + '/');
+}

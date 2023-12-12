@@ -5,12 +5,13 @@ export { getDefaultConfig, setDefaultConfig } from './config.js';
 export { Const, Env } from './const.js';
 export { ConfigDynamoBase } from './dynamo/dynamo.config.base.js';
 export { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
+export { Fsa as fsa, stringToUrlFolder, urlToString } from './file.system.js';
 export { getImageryCenterZoom, getPreviewUrl, PreviewSize } from './imagery.url.js';
 export { LogConfig, LogType } from './log.js';
 export { LoggerFatalError } from './logger.fatal.error.js';
 export { toQueryString } from './url.js';
 export * from './util.js';
 export { V, VNode, VNodeElement, VNodeText } from './vdom.js';
-
-import { Fsa } from './file.system.js';
-export const fsa = Fsa;
+export { SourceMemory } from '@chunkd/source-memory';
+export { Tiff, TiffTag } from '@cogeotiff/core';
+export { Cotar } from '@cotar/core';

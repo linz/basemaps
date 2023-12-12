@@ -14,6 +14,7 @@
     { "path": "./packages/bathymetry" },
     { "path": "./packages/_infra" },
     { "path": "./packages/config" },
+    { "path": "./packages/config-loader" },
     { "path": "./packages/shared" },
     { "path": "./packages/lambda-tiler" },
     { "path": "./packages/lambda-analytics" },

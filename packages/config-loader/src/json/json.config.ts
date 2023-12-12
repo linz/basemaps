@@ -1,4 +1,21 @@
 import {
+  BaseConfig,
+  ConfigBundled,
+  ConfigId,
+  ConfigImagery,
+  ConfigLayer,
+  ConfigPrefix,
+  ConfigProvider,
+  ConfigProviderMemory,
+  ConfigTileSet,
+  ConfigVectorStyle,
+  parseRgba,
+  sha256base58,
+  StyleJson,
+  TileSetType,
+} from '@basemaps/config';
+import { ConfigImageryOverview } from '@basemaps/config/src/config/imagery.js';
+import {
   Bounds,
   GoogleTms,
   ImageFormat,
@@ -8,23 +25,11 @@ import {
   TileMatrixSets,
   VectorFormat,
 } from '@basemaps/geo';
-import { fsa } from '@chunkd/fs';
-import { CogTiff } from '@cogeotiff/core';
-import { Cotar } from '@cotar/core';
+import { Cotar, fsa, stringToUrlFolder, Tiff, TiffTag } from '@basemaps/shared';
 import PLimit from 'p-limit';
 import { basename } from 'path';
 import ulid from 'ulid';
 
-import { ConfigId } from '../base.config.js';
-import { sha256base58 } from '../base58.node.js';
-import { parseRgba } from '../color.js';
-import { BaseConfig } from '../config/base.js';
-import { ConfigImagery, ConfigImageryOverview } from '../config/imagery.js';
-import { ConfigPrefix } from '../config/prefix.js';
-import { ConfigProvider } from '../config/provider.js';
-import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
-import { ConfigVectorStyle, StyleJson } from '../config/vector.style.js';
-import { ConfigBundled, ConfigProviderMemory } from '../memory/memory.config.js';
 import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
@@ -32,6 +37,11 @@ import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
 import { loadTiffsFromPaths } from './tiff.config.js';
 
 const Q = PLimit(10);
+
+function isTiff(u: URL): boolean {
+  const filePath = u.pathname.toLowerCase();
+  return filePath.endsWith('.tiff') || filePath.endsWith('.tif');
+}
 
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
@@ -56,17 +66,16 @@ export function guessIdFromUri(uri: string): string | null {
  * @param toCheck Path or tiff check
  * @returns true if the tiff is empty, false otherwise
  */
-export async function isEmptyTiff(toCheck: string | CogTiff): Promise<boolean> {
-  const tiff = typeof toCheck === 'string' ? await CogTiff.create(fsa.source(toCheck)) : toCheck;
+export async function isEmptyTiff(toCheck: URL | Tiff): Promise<boolean> {
+  const tiff = toCheck instanceof URL ? await Tiff.create(fsa.source(toCheck)) : toCheck;
 
   // Starting the smallest tiff overview greatly reduces the amount of data needing to be read
   // if the tiff contains data.
   for (let i = tiff.images.length - 1; i >= 0; i--) {
-    const tileOffsets = tiff.images[i].tileOffset;
-    await tileOffsets.load();
-    const offsets = tileOffsets.value ?? [];
+    const tileOffsets = await tiff.images[i].fetch(TiffTag.TileByteCounts);
+    if (tileOffsets == null) continue;
     // If any tile offset is above 0 then there is data at that offset.
-    for (const offset of offsets) {
+    for (const offset of tileOffsets) {
       // There exists a tile that contains some data, so this tiff is not empty
       if (offset > 0) return false;
     }
@@ -76,19 +85,19 @@ export async function isEmptyTiff(toCheck: string | CogTiff): Promise<boolean> {
 
 export class ConfigJson {
   mem: ConfigProviderMemory;
-  path: string;
+  url: URL;
   cache: Map<string, Promise<ConfigImagery>> = new Map();
   logger: LogType;
 
-  constructor(path: string, log: LogType) {
-    this.path = path;
+  constructor(url: URL, log: LogType) {
+    this.url = url;
     this.mem = new ConfigProviderMemory();
     this.logger = log;
   }
 
   /** Import configuration from a base path */
-  static async fromPath(basePath: string, log: LogType): Promise<ConfigProviderMemory> {
-    if (basePath.endsWith('.json') || basePath.endsWith('.json.gz')) {
+  static async fromUrl(basePath: URL, log: LogType): Promise<ConfigProviderMemory> {
+    if (basePath.pathname.endsWith('.json') || basePath.pathname.endsWith('.json.gz')) {
       const config = await fsa.readJson<BaseConfig>(basePath);
       if (config.id && config.id.startsWith('cb_')) {
         // We have been given a config bundle just load that instead!
@@ -101,7 +110,7 @@ export class ConfigJson {
     const files = await fsa.toArray(fsa.list(basePath));
 
     const todo = files.map(async (filePath) => {
-      if (!filePath.endsWith('.json')) return;
+      if (!filePath.pathname.endsWith('.json')) return;
       const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
       const prefix = ConfigId.getPrefix(bc.id);
       if (prefix) {
@@ -161,11 +170,11 @@ export class ConfigJson {
     if (ts.type === TileSetType.Raster) {
       for (const layer of ts.layers) {
         if (layer[2193] != null) {
-          imageryFetch.push(this.loadImagery(layer[2193], Nztm2000QuadTms, layer.name, layer.title));
+          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[2193]), Nztm2000QuadTms, layer.name, layer.title));
         }
 
         if (layer[3857] != null) {
-          imageryFetch.push(this.loadImagery(layer[3857], GoogleTms, layer.name, layer.title));
+          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[3857]), GoogleTms, layer.name, layer.title));
         }
       }
     }
@@ -238,29 +247,29 @@ export class ConfigJson {
     return tileSet as ConfigTileSet;
   }
 
-  loadImagery(path: string, tileMatrix: TileMatrixSet, name: string, title: string): Promise<ConfigImagery> {
-    let existing = this.cache.get(path);
+  loadImagery(url: URL, tileMatrix: TileMatrixSet, name: string, title: string): Promise<ConfigImagery> {
+    let existing = this.cache.get(url.href);
     if (existing == null) {
-      existing = this._loadImagery(path, tileMatrix, name, title);
-      this.cache.set(path, existing);
+      existing = this._loadImagery(url, tileMatrix, name, title);
+      this.cache.set(url.href, existing);
     }
     return existing;
   }
 
-  async _loadImagery(uri: string, tileMatrix: TileMatrixSet, name: string, title: string): Promise<ConfigImagery> {
+  async _loadImagery(url: URL, tileMatrix: TileMatrixSet, name: string, title: string): Promise<ConfigImagery> {
     // TODO is there a better way of guessing the imagery id & tile matrix?
-    const imageId = guessIdFromUri(uri) ?? sha256base58(uri);
+    const imageId = guessIdFromUri(url.href) ?? sha256base58(url.href);
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
-    this.logger.trace({ uri, imageId: id }, 'Imagery:Fetch');
+    this.logger.trace({ url: url.href, imageId: id }, 'Imagery:Fetch');
 
-    const fileList = await fsa.toArray(fsa.details(uri));
-    const tiffFiles = fileList.filter((f) => f.path.endsWith('.tiff') || f.path.endsWith('.tif'));
+    const fileList = await fsa.toArray(fsa.details(url));
+    const tiffFiles = fileList.filter((f) => isTiff(f.url));
 
     const tiffTiles = [];
     // Files can be stored as `{z}-{x}-{y}.tiff`
     // Check to see if all tiffs match the z-x-y format
     for (const tiff of tiffFiles) {
-      const tileName = basename(tiff.path).replace('.tiff', '');
+      const tileName = basename(tiff.url.pathname).replace('.tiff', '');
       const [z, x, y] = tileName.split('-').map((f) => Number(f));
       if (isNaN(x) || isNaN(y) || isNaN(z)) break;
 
@@ -273,7 +282,7 @@ export class ConfigJson {
     if (tiffTiles.length !== tiffFiles.length) {
       // some of the tiffs are not named `{z}-{x}-{y}.tiff` so extract bounds from the tiff
       const tiffs = await loadTiffsFromPaths(
-        tiffFiles.map((m) => m.path),
+        tiffFiles.map((m) => m.url),
         Q,
       );
 
@@ -287,13 +296,13 @@ export class ConfigJson {
         if (bounds == null) bounds = imgBounds;
         else bounds = bounds.union(imgBounds);
 
-        const tileName = basename(tiff.source.uri);
+        const tileName = basename(tiff.source.url.pathname);
         imageList.push({ ...imgBounds, name: tileName });
       }
     } else {
       for (const t of tiffTiles) {
         // TODO add the .tiff extension back in once the new basemaps-config workflow has been merged
-        const tileName = basename(t.tiff.path).replace('.tiff', '');
+        const tileName = basename(t.tiff.url.pathname).replace('.tiff', '');
 
         const tile = tileMatrix.tileToSourceBounds(t.tile);
         // Expand the total bounds to cover this tile
@@ -320,9 +329,9 @@ export class ConfigJson {
       return bXyz[2] - aXyz[2];
     });
 
-    this.logger.debug({ uri, imageId, files: imageList.length }, 'Imagery:Fetch:Done');
+    this.logger.debug({ url, imageId, files: imageList.length }, 'Imagery:Fetch:Done');
 
-    if (bounds == null) throw new Error('Failed to get bounds from URI: ' + uri);
+    if (bounds == null) throw new Error('Failed to get bounds from URL: ' + url.href);
     const now = Date.now();
     const output: ConfigImagery = {
       id,
@@ -331,7 +340,8 @@ export class ConfigJson {
       updatedAt: now,
       projection: tileMatrix.projection.code,
       tileMatrix: tileMatrix.identifier,
-      uri,
+      uri: url.href,
+      // url,
       bounds,
       files: imageList,
     };
@@ -346,7 +356,7 @@ export class ConfigJson {
   static async findImageryOverviews(cfg: ConfigImagery): Promise<ConfigImageryOverview | undefined> {
     if (cfg.overviews) throw new Error('Overviews exist already for config: ' + cfg.id);
 
-    const targetOverviews = fsa.join(cfg.uri, 'overviews.tar.co');
+    const targetOverviews = new URL('overviews.tar.co', fsa.toUrl(cfg.uri));
     const exists = await fsa.exists(targetOverviews);
     if (!exists) return;
 

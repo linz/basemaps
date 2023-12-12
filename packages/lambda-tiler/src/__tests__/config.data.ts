@@ -1,16 +1,13 @@
 import {
-  base58,
   BaseConfig,
   ConfigImagery,
   ConfigProvider,
-  ConfigProviderMemory,
   ConfigTileSetRaster,
   ConfigTileSetVector,
   TileSetType,
 } from '@basemaps/config';
 import { ImageFormat, VectorFormat } from '@basemaps/geo';
-import { fsa } from '@basemaps/shared';
-import { FsMemory } from '@chunkd/source-memory';
+// import { FsMemory } from '@chunkd/fs';
 
 export const TileSetAerial: ConfigTileSetRaster = {
   id: 'ts_aerial',
@@ -270,16 +267,17 @@ export class FakeData {
     return tileSet;
   }
 
-  static bundle(configs: BaseConfig[]): string {
-    const cfg = new ConfigProviderMemory();
-    for (const rec of configs) cfg.put(rec);
-    const output = cfg.toJson();
-    const fsMemory = new FsMemory();
+  static bundle(_configs: BaseConfig[]): string {
+    //     const cfg = new ConfigProviderMemory();
+    //     for (const rec of configs) cfg.put(rec);
+    //     const output = cfg.toJson();
+    //     const fsMemory = new FsMemory();
 
-    const configPath = `memory://linz-basemaps/${output.hash}.json`;
-    fsMemory.files.set(configPath, Buffer.from(JSON.stringify(output)));
-    fsa.register(configPath, fsMemory);
+    //     const configPath = `memory://linz-basemaps/${output.hash}.json`;
+    //     fsMemory.files.set(configPath, Buffer.from(JSON.stringify(output)));
+    //     fsa.register(configPath, fsMemory);
 
-    return base58.encode(Buffer.from(configPath));
+    //     return base58.encode(Buffer.from(configPath));
+    return ''; // FIXME
   }
 }

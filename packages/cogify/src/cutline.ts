@@ -11,10 +11,9 @@ import {
 } from '@linzjs/geojson';
 
 import { CogifyLinkCutline } from './cogify/stac.js';
-import { urlToString } from './download.js';
 
 export async function loadCutline(path: URL): Promise<{ polygon: MultiPolygon; projection: EpsgCode }> {
-  const buf = await fsa.read(urlToString(path));
+  const buf = await fsa.read(path);
 
   if (path.pathname.endsWith('.geojson') || path.pathname.endsWith('.json')) {
     const data = JSON.parse(buf.toString());

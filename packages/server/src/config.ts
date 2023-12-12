@@ -1,11 +1,6 @@
-import {
-  BasemapsConfigProvider,
-  ConfigBundled,
-  ConfigJson,
-  ConfigPrefix,
-  ConfigProviderMemory,
-} from '@basemaps/config';
+import { BasemapsConfigProvider, ConfigBundled, ConfigPrefix, ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
+import { ConfigJson } from '@basemaps/config-loader';
 import { ConfigProviderDynamo, fsa, getDefaultConfig, LogType } from '@basemaps/shared';
 
 export type ServerOptions = ServerOptionsTiffs | ServerOptionsConfig;
@@ -57,7 +52,7 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
   if (configPath.startsWith(ConfigPrefix.ConfigBundle)) {
     const cb = await getDefaultConfig().ConfigBundle.get(configPath);
     if (cb == null) throw new Error(`Config bundle does not exist ${configPath}`);
-    const configJson = await fsa.readJson<ConfigBundled>(cb.path);
+    const configJson = await fsa.readJson<ConfigBundled>(fsa.toUrl(cb.path));
     const mem = ConfigProviderMemory.fromJson(configJson);
     mem.createVirtualTileSets();
     return mem;
@@ -66,7 +61,7 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
   // Read a bundled config directly from a JSON file.
   if (configPath.endsWith('.json') || configPath.endsWith('.json.gz')) {
     logger.info({ path: configPath, mode: 'config:bundle' }, 'Starting Server');
-    const configJson = await fsa.readJson<ConfigBundled>(configPath);
+    const configJson = await fsa.readJson<ConfigBundled>(fsa.toUrl(configPath));
     const mem = ConfigProviderMemory.fromJson(configJson);
     mem.createVirtualTileSets();
     return mem;

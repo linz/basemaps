@@ -16,8 +16,6 @@ import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
 import { NotFound } from './util/response.js';
-import { CoSources } from './util/source.cache.js';
-import { St } from './util/source.tracer.js';
 
 export const handler = lf.http(LogConfig.get());
 
@@ -26,28 +24,9 @@ handler.router.timeoutEarlyMs = 1_000;
 
 handler.router.hook('request', (req) => {
   req.set('name', 'LambdaTiler');
-
-  // Reset the request tracing before every request
-  St.reset();
 });
 
-handler.router.hook('response', (req, res) => {
-  if (St.requests.length > 0) {
-    // TODO this could be relaxed to every say 5% of requests if logging gets too verbose.
-    req.set('requests', St.requests.slice(0, 100)); // limit to 100 requests (some tiles need 100s of requests)
-    req.set('requestCount', St.requests.length);
-  }
-  // Log the source cache hit/miss ratio
-  req.set('sources', {
-    hits: CoSources.cache.hits,
-    misses: CoSources.cache.misses,
-    size: CoSources.cache.currentSize,
-    resets: CoSources.cache.resets,
-    clears: CoSources.cache.clears,
-    cacheA: CoSources.cache.cacheA.size,
-    cacheB: CoSources.cache.cacheB.size,
-  });
-
+handler.router.hook('response', (_req, res) => {
   // Force access-control-allow-origin to everything
   res.header('access-control-allow-origin', '*');
 });

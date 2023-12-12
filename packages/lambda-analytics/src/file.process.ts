@@ -6,11 +6,11 @@ import { LogStats } from './stats.js';
 import { getUserAgent } from './ua.js';
 
 export const FileProcess = {
-  reader(fileName: string): AsyncGenerator<string> | Interface {
-    return createInterface({ input: fsa.stream(fileName).pipe(createGunzip()) });
+  reader(url: URL): AsyncGenerator<string> | Interface {
+    return createInterface({ input: fsa.readStream(url).pipe(createGunzip()) });
   },
-  async process(fileName: string, stats: LogStats, logger: LogType): Promise<void> {
-    const lineReader = FileProcess.reader(fileName);
+  async process(url: URL, stats: LogStats, logger: LogType): Promise<void> {
+    const lineReader = FileProcess.reader(url);
     for await (const line of lineReader) {
       if (line.startsWith('#')) continue;
       const lineData = line.split('\t');

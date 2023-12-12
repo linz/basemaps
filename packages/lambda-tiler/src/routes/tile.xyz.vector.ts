@@ -1,5 +1,6 @@
 import { ConfigTileSetVector } from '@basemaps/config';
 import { GoogleTms, VectorFormat } from '@basemaps/geo';
+import { fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { isGzip } from '../util/cotar.serve.js';
@@ -29,7 +30,7 @@ export const tileXyzVector = {
     if (Etag.isNotModified(req, cacheKey)) return NotModified();
 
     req.timer.start('cotar:load');
-    const cotar = await CoSources.getCotar(layerId);
+    const cotar = await CoSources.getCotar(fsa.toUrl(layerId));
     if (cotar == null) return new LambdaHttpResponse(500, 'Failed to load VectorTiles');
     req.timer.end('cotar:load');
 

@@ -22,7 +22,6 @@ export {
   TileSetType,
 } from './config/tile.set.js';
 export { ConfigVectorStyle, Layer, Sources, StyleJson } from './config/vector.style.js';
-export { ConfigJson, isEmptyTiff, zoomLevelsFromWmts } from './json/json.config.js';
-export { standardizeLayerName } from './json/name.convertor.js';
 export { ConfigBundled, ConfigProviderMemory } from './memory/memory.config.js';
+export { standardizeLayerName } from './name.convertor.js';
 export { TileSetNameComponents, TileSetNameParser } from './tile.set.name.js';

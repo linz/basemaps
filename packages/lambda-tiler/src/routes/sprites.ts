@@ -1,4 +1,3 @@
-import { fsa } from '@chunkd/fs';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
 
@@ -20,6 +19,5 @@ export async function spriteGet(req: LambdaHttpRequest<SpriteGet>): Promise<Lamb
   const mimeType = Extensions.get(extension);
   if (mimeType == null) return NotFound();
 
-  const targetFile = fsa.join('sprites', req.params.spriteName);
-  return assetProvider.serve(req, targetFile, mimeType);
+  return assetProvider.serve(req, `sprites/${req.params.spriteName}`, mimeType);
 }

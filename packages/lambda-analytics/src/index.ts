@@ -36,22 +36,22 @@ export function* dateByHour(startDate: number): Generator<number> {
 }
 
 /** Look at the existing files in the cache bucket and find the latest cache file */
-export async function listCacheFolder(cachePath: string): Promise<Set<string>> {
+export async function listCacheFolder(cachePath: URL): Promise<Set<string>> {
   const existingFiles: Set<string> = new Set();
   // Find where the last script finished processing
-  const cachePathList = fsa.join(cachePath, CacheFolder);
-  if (cachePathList.startsWith('s3://') || (await fsa.exists(cachePathList))) {
+  const cachePathList = new URL(CacheFolder, cachePath);
+  if (cachePathList.href.startsWith('s3://') || (await fsa.exists(cachePathList))) {
     for await (const file of fsa.list(cachePathList)) {
-      if (!file.endsWith(CacheExtension)) continue;
-      existingFiles.add(file.replace(cachePathList, '').replace(CacheExtension, ''));
+      if (!file.pathname.endsWith(CacheExtension)) continue;
+      existingFiles.add(file.href.replace(cachePathList.href, '').replace(CacheExtension, ''));
     }
   }
   return existingFiles;
 }
 
 export async function handler(): Promise<void> {
-  const SourceLocation = process.env[Env.Analytics.CloudFrontSourceBucket];
-  const CacheLocation = process.env[Env.Analytics.CacheBucket];
+  const SourceLocation = fsa.toUrl(process.env[Env.Analytics.CloudFrontSourceBucket] ?? '');
+  const CacheLocation = fsa.toUrl(process.env[Env.Analytics.CacheBucket] ?? '');
   const CloudFrontId = process.env[Env.Analytics.CloudFrontId];
 
   if (SourceLocation == null) throw new Error(`Missing $${Env.Analytics.CloudFrontSourceBucket}`);
@@ -77,18 +77,18 @@ export async function handler(): Promise<void> {
     if (existingFiles.has(nextDateToProcess)) continue;
 
     const nextDateKey = nextDateToProcess.replace('T', '-');
-    const cacheKey = fsa.join(CacheFolder, nextDateToProcess + CacheExtension);
+    const cacheKey = `${CacheFolder}/${nextDateToProcess}${CacheExtension}`;
 
     processedCount++;
 
     const promise = Q.time(async () => {
       // Filter for files in the date range we are looking for
-      const todoFiles = await fsa.toArray(fsa.list(fsa.join(SourceLocation, `${CloudFrontId}.${nextDateKey}`)));
+      const todoFiles = await fsa.toArray(fsa.list(new URL(`${CloudFrontId}.${nextDateKey}`, SourceLocation)));
       if (todoFiles.length === 0) {
         Logger.debug({ startAt }, 'Skipped');
 
         // Nothing to process, need to store that we have looked at this date range
-        await fsa.write(fsa.join(CacheLocation, cacheKey), Buffer.from(''));
+        await fsa.write(new URL(cacheKey, CacheLocation), Buffer.from(''));
         return;
       }
 
@@ -106,7 +106,7 @@ export async function handler(): Promise<void> {
         Logger.info({ ...apiData, '@type': 'rollup' }, 'RequestSummary');
       }
 
-      await fsa.write(fsa.join(CacheLocation, cacheKey), Buffer.from(output.join('\n')));
+      await fsa.write(new URL(cacheKey, CacheLocation), Buffer.from(output.join('\n')));
     });
     promises.push(promise);
   }

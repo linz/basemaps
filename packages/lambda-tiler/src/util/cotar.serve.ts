@@ -13,11 +13,11 @@ import { CoSources } from './source.cache.js';
  */
 export async function serveFromCotar(
   req: LambdaHttpRequest,
-  cotarPath: string,
+  url: URL,
   assetPath: string,
   contentType: string,
 ): Promise<LambdaHttpResponse> {
-  const cotar = await CoSources.getCotar(cotarPath);
+  const cotar = await CoSources.getCotar(url);
   if (cotar == null) return NotFound();
   const fileData = await cotar.get(assetPath);
   if (fileData == null) return NotFound();

@@ -32,14 +32,14 @@ export class ConfigCache {
     this.cache = new SwappingLru<LruConfig>(maxSize);
   }
 
-  get(location: string): Promise<ConfigProviderMemory | null> {
-    const existing = this.cache.get(location)?.configProvider;
+  get(location: URL): Promise<ConfigProviderMemory | null> {
+    const existing = this.cache.get(location.href)?.configProvider;
     if (existing != null) return existing;
     const configJson = fsa.readJson<ConfigBundled>(location).catch(() => {
       return null;
     });
     const config = new LruConfig(configJson);
-    this.cache.set(location, config);
+    this.cache.set(location.href, config);
     return config.configProvider;
   }
 }
