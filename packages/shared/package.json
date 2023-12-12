@@ -23,6 +23,8 @@
     "test": "node --test"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.470.0",
+    "@aws-sdk/util-dynamodb": "^3.470.0",
     "@basemaps/config": "^7.0.0",
     "@basemaps/geo": "^7.0.0",
     "@basemaps/tiler": "^7.0.0",

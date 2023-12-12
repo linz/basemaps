@@ -1,3 +1,4 @@
+import { DynamoDB } from '@aws-sdk/client-dynamodb';
 import {
   BaseConfig,
   BasemapsConfigProvider,
@@ -8,7 +9,6 @@ import {
   ConfigTileSet,
   ConfigVectorStyle,
 } from '@basemaps/config';
-import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 
 import { ConfigDynamoBase } from './dynamo.config.base.js';
 import { ConfigDynamoCached } from './dynamo.config.cached.js';
