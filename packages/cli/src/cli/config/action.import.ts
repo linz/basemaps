@@ -8,12 +8,10 @@ import {
   ConfigPrefix,
   ConfigProviderMemory,
   ConfigTileSet,
-  standardizeLayerName,
 } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms, Projection, TileMatrixSet } from '@basemaps/geo';
-import { CogJobJson, Env, fsa, getDefaultConfig, LogConfig, LogType, setDefaultConfig } from '@basemaps/shared';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import { Env, fsa, getDefaultConfig, getPreviewUrl, LogConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { FeatureCollection } from 'geojson';
 import fetch from 'node-fetch';
 
 import { invalidateCache } from '../util.js';
@@ -353,28 +351,6 @@ export class CommandImport extends CommandLineAction {
     return;
   }
 
-  _jobs: Map<string, CogJobJson> = new Map<string, CogJobJson>();
-  async _loadJob(path: string): Promise<CogJobJson | undefined> {
-    const existing = this._jobs.get(path);
-    if (existing) return existing;
-    try {
-      const job = await fsa.readJson<CogJobJson>(path);
-      this._jobs.set(path, job);
-      return job;
-    } catch {
-      return;
-    }
-  }
-
-  _coverings: Map<string, FeatureCollection> = new Map<string, FeatureCollection>();
-  async _loadCovering(path: string): Promise<FeatureCollection> {
-    const existing = this._coverings.get(path);
-    if (existing) return existing;
-    const covering = await fsa.readJson<FeatureCollection>(path);
-    this._coverings.set(path, covering);
-    return covering;
-  }
-
   /**
    * Prepare QA urls with center location
    */
@@ -383,28 +359,13 @@ export class CommandImport extends CommandLineAction {
     mem: BasemapsConfigProvider,
     tileMatrix: TileMatrixSet,
   ): Promise<{ layer: string; tag: string }> {
-    const configImagey = await mem.Imagery.get(id);
-    if (configImagey == null) throw new Error(`Failed to find imagery config from config bundel file. Id: ${id}`);
-    let targetZoom;
-    const job = await this._loadJob(fsa.join(configImagey.uri, 'job.json'));
-    if (job) {
-      // Calculate target zoom from gsd
-      targetZoom = Math.max(tileMatrix.findBestZoom(job.output.gsd) - 12, 0);
-    } else {
-      // Get target zoom from covering
-      const covering = await this._loadCovering(fsa.join(configImagey.uri, 'covering.geojson'));
-      const zoomLevel = covering.features[0]?.properties?.['linz_basemaps:options'].zoomLevel;
-      targetZoom = Math.max(zoomLevel - 12, 0);
-    }
+    const configImagery = await mem.Imagery.get(id);
+    if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
 
-    const bounds = configImagey.bounds;
-    const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
-    const proj = Projection.get(configImagey.projection);
-    const centerLatLon = proj.toWgs84([center.x, center.y]).map((c) => c.toFixed(6));
-    const name = standardizeLayerName(configImagey.name);
+    const center = getPreviewUrl(configImagery);
     const urls = {
-      layer: `${PublicUrlBase}?config=${this.config.value}&i=${name}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
-      tag: `${PublicUrlBase}?config=${this.config.value}&p=${tileMatrix.identifier}&debug#@${centerLatLon[1]},${centerLatLon[0]},z${targetZoom}`,
+      layer: `${PublicUrlBase}?config=${this.config.value}&i=${center.name}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
+      tag: `${PublicUrlBase}?config=${this.config.value}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
     };
     return urls;
   }
