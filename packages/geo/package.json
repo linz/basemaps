@@ -32,7 +32,6 @@
     "@types/proj4": "^2.5.2"
   },
   "dependencies": {
-    "@chunkd/core": "^10.1.1",
     "@linzjs/tile-matrix-set": "^0.0.1",
     "proj4": "^2.8.0"
   }

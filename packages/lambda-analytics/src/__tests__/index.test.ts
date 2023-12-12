@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { afterEach, describe, it } from 'node:test';
 
-import { Env, fsa, LogConfig } from '@basemaps/shared';
+import { Env, LogConfig } from '@basemaps/shared';
 import PLimit from 'p-limit';
 import sinon from 'sinon';
 
