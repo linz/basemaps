@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import { afterEach, before, beforeEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { getDefaultConfig } from '@basemaps/shared';
@@ -19,11 +19,8 @@ describe('/v1/fonts', () => {
   const sandbox = createSandbox();
   const config = new ConfigProviderMemory();
 
-  before(() => {
-    fsa.register('memory://', memory);
-  });
-
   beforeEach(() => {
+    fsa.register('memory://', memory);
     config.assets = 'memory://';
     sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
   });
