@@ -18,7 +18,7 @@ describe('WMTSRouting', () => {
   beforeEach(() => {
     sandbox.stub(ConfigLoader, 'load').resolves(config);
     sandbox.stub(Env, 'get').callsFake((arg) => {
-      if (arg === Env.PublicUrlBase) return 'https://tiles.test'
+      if (arg === Env.PublicUrlBase) return 'https://tiles.test';
       return process.env[arg];
     });
 
