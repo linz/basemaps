@@ -6,7 +6,7 @@ import { GoogleTms, QuadKey } from '@basemaps/geo';
 import { addChildren, addSurrounding } from '../covering.js';
 
 describe('getChildren', () => {
-  o('should get children', () => {
+  it('should get children', () => {
     assert.deepEqual(addChildren({ z: 0, x: 0, y: 0 }), [
       { z: 1, x: 0, y: 0 },
       { z: 1, x: 1, y: 0 },
@@ -25,12 +25,12 @@ describe('getChildren', () => {
 });
 
 describe('SurroundingTiles', () => {
-  o('should not have surrounding tiles at z0', () => {
+  it('should not have surrounding tiles at z0', () => {
     const todo = addSurrounding({ z: 0, x: 0, y: 0 }, GoogleTms);
     assert.deepEqual(todo, []);
   });
 
-  o('should add all surrounding tiles', () => {
+  it('should add all surrounding tiles', () => {
     assert.deepEqual(addSurrounding({ z: 2, x: 1, y: 1 }, GoogleTms), [
       { z: 2, x: 1, y: 0 },
       { z: 2, x: 2, y: 1 },
@@ -39,7 +39,7 @@ describe('SurroundingTiles', () => {
     ]);
   });
 
-  o('should wrap at matrix extent', () => {
+  it('should wrap at matrix extent', () => {
     // Top left tile
     assert.deepEqual(addSurrounding({ z: 2, x: 0, y: 0 }, GoogleTms), [
       { z: 2, x: 0, y: 3 }, // North - Wrapping North to South
