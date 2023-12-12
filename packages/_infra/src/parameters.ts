@@ -35,7 +35,7 @@ export async function getParameters<T extends ParameterKeys>(
   const client = new CloudFormationClient({ region });
   const command = new DescribeStacksCommand({ StackName: stackName });
   const response = await client.send(command);
-  if (command == null) {
+  if (response == null) {
     console.error('Failed to lookup edge stack.. has it been deployed?');
     return null;
   }
