@@ -46,7 +46,7 @@
     ]
   },
   "scripts": {
-    "test": "npx tsx src/routes/__tests__/fonts.test.ts",
+    "test": "node --test",
     "bundle": "./bundle.sh"
   },
   "devDependencies": {
