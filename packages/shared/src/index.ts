@@ -1,8 +1,6 @@
 // Force aws-sdk connection reuse
 process.env['AWS_NODEJS_CONNECTION_REUSE_ENABLED'] = '1';
 export * from './api.js';
-export { AlignedLevel, CoveringFraction } from './cog/constants.js';
-export { CogBuilderMetadata, CogJob, CogJobJson, FeatureCollectionWithCrs, SourceMetadata } from './cog/types.js';
 export { CompositeError } from './composite.error.js';
 export { getDefaultConfig, setDefaultConfig } from './config.js';
 export { Const, Env } from './const.js';
