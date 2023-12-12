@@ -1,10 +1,10 @@
 import assert from 'node:assert';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 import { nameImageryTitle } from '../util.js';
 
 describe('util', () => {
-  o('nameImageryTitle', () => {
+  it('nameImageryTitle', () => {
     assert.equal(nameImageryTitle('Palmerston-north urban 2016-17 12.125m'), 'palmerston-north_urban_2016-17_12-125m');
     assert.equal(nameImageryTitle('Palmerston-north urban 2016-17 12-125'), 'palmerston-north_urban_2016-17_12-125');
     assert.equal(nameImageryTitle('Palmerston-north / urban 2016-17 12.125'), 'palmerston-north_urban_2016-17_12-125');

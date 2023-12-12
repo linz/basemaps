@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory } from '@basemaps/config';
+import { Env } from '@basemaps/shared';
 import { createSandbox } from 'sinon';
 
 import { Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
@@ -16,6 +17,10 @@ describe('WMTSRouting', () => {
 
   beforeEach(() => {
     sandbox.stub(ConfigLoader, 'load').resolves(config);
+    sandbox.stub(Env, 'get').callsFake((arg) => {
+      if (arg === Env.PublicUrlBase) return 'https://tiles.test'
+      return process.env[arg];
+    });
 
     imagery.set(Imagery3857.id, Imagery3857);
     imagery.set(Imagery2193.id, Imagery2193);

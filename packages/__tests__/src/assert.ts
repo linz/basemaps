@@ -1,4 +1,4 @@
-import o from 'ospec';
+import assert from 'node:assert';
 
 // Redefine these interfaces as we do not want a cyclic dependency on @basemaps/geo
 interface LatLon {
@@ -33,11 +33,11 @@ function prefix(base: string, prefixText?: string): string {
  */
 function approxEqual(numA: number | undefined, numB: number, text: string, variance = 0.001): void {
   if (numA == null) {
-    o(numA).notEquals(undefined)(`${text} should be approx equal to ${numB}`);
+    assert.notEqual(numA, undefined, `${text} should be approx equal to ${numB}`);
     return;
   }
   const diff = Math.abs(numA - numB);
-  o(diff <= variance).equals(true)(`${text} (${numA} vs ${numB}) should be less than ${variance}`);
+  assert.equal(diff <= variance, true, `${text} (${numA} vs ${numB}) should be less than ${variance}`);
 }
 
 function approxBounds(boundsA: Bounds | null | undefined, boundsB: Bounds, message?: string, variance?: number): void {

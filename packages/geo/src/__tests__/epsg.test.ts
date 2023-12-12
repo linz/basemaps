@@ -6,12 +6,12 @@ import { Nztm2000Tms } from '../tms/nztm2000.js';
 
 describe('Epsg', () => {
   it('should error on invalid epsg', () => {
-    assert.throws(() => Epsg.get(-1 as EpsgCode), 'Invalid EPSG:-1');
+    assert.throws(() => Epsg.get(-1 as EpsgCode));
   });
 
   it('should not allow duplicate EPSG codes', () => {
     assert.deepEqual(new Epsg(1 as EpsgCode).toJSON(), 1);
-    assert.throws(() => new Epsg(1 as EpsgCode), `Duplicate EPSG code created: 1`);
+    assert.throws(() => new Epsg(1 as EpsgCode));
   });
 
   it('should parse Epsg codes', () => {
