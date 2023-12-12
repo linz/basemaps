@@ -2,8 +2,8 @@ import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { BatchGetItemCommand, GetItemCommand } from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { ConfigImagery, ConfigTileSet } from '@basemaps/config';
-import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import { createSandbox } from 'sinon';
 
 import { ConfigDynamoCached } from '../dynamo.config.cached.js';
@@ -19,7 +19,7 @@ class FakeDynamoDb {
     const val = this.values.get(reqId);
     return {
       promise(): Promise<unknown> {
-        if (val) return Promise.resolve({ Item: DynamoDB.Converter.marshall(val) });
+        if (val) return Promise.resolve({ Item: marshall(val) });
         return Promise.resolve(null);
       },
     };
@@ -27,12 +27,12 @@ class FakeDynamoDb {
 
   batchGetItem(req: any): { promise(): unknown } {
     this.getAll.push(req);
-    const keys = req.RequestItems.Foo.Keys.map((c: any) => DynamoDB.Converter.unmarshall(c)['id']);
+    const keys = req.RequestItems.Foo.Keys.map((c: any) => unmarshall(c)['id']);
     const output = keys.map((c: string) => this.values.get(c)).filter((f: unknown) => f != null);
     return {
       promise(): Promise<unknown> {
         if (output.length === 0) return Promise.resolve({ Responses: {} });
-        return Promise.resolve({ Responses: { Foo: output.map((c: any) => DynamoDB.Converter.marshall(c)) } });
+        return Promise.resolve({ Responses: { Foo: output.map((c: any) => marshall(c)) } });
       },
     };
   }

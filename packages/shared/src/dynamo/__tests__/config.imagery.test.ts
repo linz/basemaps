@@ -1,9 +1,9 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
+import { BatchGetItemCommandOutput } from '@aws-sdk/client-dynamodb';
 import { ConfigId, ConfigImagery, ConfigPrefix, getAllImagery } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
@@ -65,7 +65,7 @@ describe('ConfigProvider.Imagery', () => {
       // Only return one element and label the rest as unprocessed
       const ret = keys.slice(0, 1);
       const rest = keys.slice(1);
-      const output: DynamoDB.BatchGetItemOutput = { Responses: { [provider.tableName]: ret } };
+      const output = { Responses: { [provider.tableName]: ret } } as BatchGetItemCommandOutput;
       if (rest.length > 0) output.UnprocessedKeys = { [provider.tableName]: { Keys: rest } };
       return Promise.resolve(output);
     });
