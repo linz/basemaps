@@ -1,8 +1,10 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { Epsg, GoogleTms, ImageFormat, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
 import { TestTiff } from '@basemaps/test';
 import { CompositionTiff, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
-import o from 'ospec';
 import * as path from 'path';
 import PixelMatch from 'pixelmatch';
 import { PNG } from 'pngjs';
@@ -30,51 +32,51 @@ function getExpectedTile(projection: Epsg, tileSize: number, tile: Tile): PNG {
   return PNG.sync.read(bytes);
 }
 
-o.spec('TileCreation', () => {
+describe('TileCreation', () => {
   // Ensure macosx has enough time to generate tiles
-  o.specTimeout(5000);
+  // o.specTimeout(5000);
 
-  o('should generate a tile', async () => {
+  it('should generate a tile', async () => {
     const tiff = await TestTiff.Google.init();
     const tiler = new Tiler(GoogleTms);
 
     const layer0 = (await tiler.tile([tiff], 0, 0, 0)) as CompositionTiff[];
     // There are 16 tiles in this tiff, all should be used
-    o(layer0.length).equals(16);
+    assert.equal(layer0.length, 16);
 
     const topLeft = layer0.find((f) => f.source.x === 0 && f.source.y === 0);
-    o(topLeft?.source).deepEquals({ x: 0, y: 0, imageId: 0, width: 16, height: 16 });
-    o(topLeft?.asset.source.uri).equals(tiff.source.uri);
-    o(topLeft?.resize).deepEquals({ width: 32, height: 32, scaleX: 2, scaleY: 2 });
-    o(topLeft?.x).equals(64);
-    o(topLeft?.y).equals(64);
+    assert.deepEqual(topLeft?.source, { x: 0, y: 0, imageId: 0, width: 16, height: 16 });
+    assert.equal(topLeft?.asset.source.uri, tiff.source.uri);
+    assert.deepEqual(topLeft?.resize, { width: 32, height: 32, scaleX: 2, scaleY: 2 });
+    assert.equal(topLeft?.x, 64);
+    assert.equal(topLeft?.y, 64);
     await tiff.close();
   });
 
-  o('should generate webp', async () => {
+  it('should generate webp', async () => {
     const tileMaker = new TileMakerSharp(256);
     const res = await tileMaker.compose({ layers: [], format: ImageFormat.Webp, background, resizeKernel });
     // Image format `R I F F <fileSize (int32)> W E B P`
     const magicBytes = res.buffer.slice(0, 4);
     const magicWebP = res.buffer.slice(8, 12);
-    o(magicBytes.toString()).equals('RIFF');
-    o(magicWebP.toString()).equals('WEBP');
+    assert.equal(magicBytes.toString(), 'RIFF');
+    assert.equal(magicWebP.toString(), 'WEBP');
   });
 
-  o('should generate jpeg', async () => {
+  it('should generate jpeg', async () => {
     const tileMaker = new TileMakerSharp(256);
     const res = await tileMaker.compose({ layers: [], format: ImageFormat.Jpeg, background, resizeKernel });
     const magicBytes = res.buffer.slice(0, 4);
-    o(magicBytes.toJSON().data).deepEquals([0xff, 0xd8, 0xff, 0xdb]);
+    assert.deepEqual(magicBytes.toJSON().data, [0xff, 0xd8, 0xff, 0xdb]);
   });
 
-  o('should error when provided invalid image formats', async () => {
+  it('should error when provided invalid image formats', async () => {
     const tileMaker = new TileMakerSharp(256);
     try {
       await tileMaker.compose({ layers: [], background } as any);
-      o(true).equals(false)('invalid format');
+      assert.equal(true, false, 'invalid format');
     } catch (e: any) {
-      o(e.message.includes('Invalid image')).equals(true);
+      assert.equal(e.message.includes('Invalid image'), true);
     }
   });
 
@@ -110,8 +112,8 @@ o.spec('TileCreation', () => {
   RenderTests.forEach(({ tileSize, tms, tile }) => {
     const projection = tms.projection;
     const tileText = `${tile.x}, ${tile.y} z${tile.z}`;
-    o(`should render a tile ${tileText} tile: ${tileSize} projection: ${projection}`, async () => {
-      o.timeout(30 * 1000);
+    it(`should render a tile ${tileText} tile: ${tileSize} projection: ${projection}`, async () => {
+      // o.timeout(30 * 1000);
 
       const timeStr = `RenderTests(${projection}): ${tileText} ${tileSize}x${tileSize}  time`;
       console.time(timeStr);
@@ -145,7 +147,7 @@ o.spec('TileCreation', () => {
         PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
         writeFileSync(fileName, PNG.sync.write(output));
       }
-      o(missMatchedPixels).equals(0);
+      assert.equal(missMatchedPixels, 0);
       console.timeEnd(timeStr);
       await tiff.close();
     });

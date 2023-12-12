@@ -1,7 +1,9 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding.js';
 import { BBox } from '@linzjs/geojson';
-import o from 'ospec';
 
 import { Bounds } from '../../bounds.js';
 import { QuadKey } from '../../quad.key.js';
@@ -29,135 +31,135 @@ function getPixelsFromTile(x: number, y: number): Bounds {
 }
 
 function isValidLatLong(x: LatLon): void {
-  o(x.lat <= 90).equals(true)(`lat: ${x.lat} <= 90`);
-  o(x.lat >= -90).equals(true)(`lat: ${x.lat} >= -90`);
+  assert.equal(x.lat <= 90, true, `lat: ${x.lat} <= 90`);
+  assert.equal(x.lat >= -90, true, `lat: ${x.lat} >= -90`);
 
-  o(x.lon <= 180).equals(true)(`lon: ${x.lon} <= 180`);
-  o(x.lon >= -180).equals(true)(`lon: ${x.lon} >= -180`);
+  assert.equal(x.lon <= 180, true, `lon: ${x.lon} <= 180`);
+  assert.equal(x.lon >= -180, true, `lon: ${x.lon} >= -180`);
 }
 
-o.spec('ProjectionTileMatrixSet', () => {
-  o('getTiffResZoom', () => {
-    o(Projection.getTiffResZoom(GoogleTms, 10)).equals(14);
-    o(Projection.getTiffResZoom(GoogleTms, 10 * 2)).equals(13);
-    o(Projection.getTiffResZoom(GoogleTms, 0.075)).equals(21);
-    o(Projection.getTiffResZoom(Nztm2000Tms, 10)).equals(10);
-    o(Projection.getTiffResZoom(Nztm2000Tms, 10 * 2)).equals(9);
-    o(Projection.getTiffResZoom(Nztm2000Tms, 0.075)).equals(16);
+describe('ProjectionTileMatrixSet', () => {
+  it('getTiffResZoom', () => {
+    assert.equal(Projection.getTiffResZoom(GoogleTms, 10), 14);
+    assert.equal(Projection.getTiffResZoom(GoogleTms, 10 * 2), 13);
+    assert.equal(Projection.getTiffResZoom(GoogleTms, 0.075), 21);
+    assert.equal(Projection.getTiffResZoom(Nztm2000Tms, 10), 10);
+    assert.equal(Projection.getTiffResZoom(Nztm2000Tms, 10 * 2), 9);
+    assert.equal(Projection.getTiffResZoom(Nztm2000Tms, 0.075), 16);
   });
 
   [Nztm2000QuadTms, GoogleTms].forEach((tms) => {
-    o(`should getTiffResZoom when floating errors happen (${tms.identifier})`, () => {
+    it(`should getTiffResZoom when floating errors happen (${tms.identifier})`, () => {
       // Shift the resolution  by a very small amount
       const shiftAmount = 1e-9;
       for (let i = 0; i < tms.maxZoom; i++) {
-        o(Projection.getTiffResZoom(tms, tms.pixelScale(i) - shiftAmount)).equals(i);
-        o(Projection.getTiffResZoom(tms, tms.pixelScale(i) + shiftAmount)).equals(i);
+        assert.equal(Projection.getTiffResZoom(tms, tms.pixelScale(i) - shiftAmount), i);
+        assert.equal(Projection.getTiffResZoom(tms, tms.pixelScale(i) + shiftAmount), i);
       }
     });
   });
 
-  o('getTileSize', async () => {
-    o(Projection.getImagePixelWidth(GoogleTms, { x: 0, y: 0, z: 5 }, 10)).equals(16384);
-    o(Projection.getImagePixelWidth(GoogleTms, { x: 0, y: 0, z: 13 }, 20)).equals(65536);
+  it('getTileSize', async () => {
+    assert.equal(Projection.getImagePixelWidth(GoogleTms, { x: 0, y: 0, z: 5 }, 10), 16384);
+    assert.equal(Projection.getImagePixelWidth(GoogleTms, { x: 0, y: 0, z: 13 }, 20), 65536);
 
-    o(Projection.getImagePixelWidth(Nztm2000Tms, { x: 0, y: 0, z: 5 }, 10)).equals(20480);
-    o(Projection.getImagePixelWidth(Nztm2000Tms, { x: 0, y: 0, z: 13 }, 16)).equals(5120);
+    assert.equal(Projection.getImagePixelWidth(Nztm2000Tms, { x: 0, y: 0, z: 5 }, 10), 20480);
+    assert.equal(Projection.getImagePixelWidth(Nztm2000Tms, { x: 0, y: 0, z: 13 }, 16), 5120);
   });
 
-  o('findAlignmentLevels', () => {
-    o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 5 }, 0.075)).equals(15);
-    o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 5 }, 0.5)).equals(13);
-    o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 3 }, 1)).equals(14);
-    o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 8 }, 10)).equals(5);
-    o(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 14 }, 10)).equals(0);
+  it('findAlignmentLevels', () => {
+    assert.equal(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 5 }, 0.075), 15);
+    assert.equal(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 5 }, 0.5), 13);
+    assert.equal(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 3 }, 1), 14);
+    assert.equal(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 8 }, 10), 5);
+    assert.equal(Projection.findAlignmentLevels(GoogleTms, { x: 2, y: 0, z: 14 }, 10), 0);
 
-    o(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 1 }, 0.075)).equals(14);
-    o(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 5 }, 0.5)).equals(8);
-    o(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 3 }, 7)).equals(6);
-    o(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 8 }, 14)).equals(0);
+    assert.equal(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 1 }, 0.075), 14);
+    assert.equal(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 5 }, 0.5), 8);
+    assert.equal(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 3 }, 7), 6);
+    assert.equal(Projection.findAlignmentLevels(Nztm2000Tms, { x: 2, y: 0, z: 8 }, 14), 0);
   });
 
-  o.spec('tileCenterToLatLon', () => {
-    o('should create centers for web mercator', () => {
+  describe('tileCenterToLatLon', () => {
+    it('should create centers for web mercator', () => {
       const center = Projection.tileCenterToLatLon(GoogleTms, QuadKey.toTile('3120123'));
       isValidLatLong(center);
-      o(round(center, 6)).deepEquals({
+      assert.deepEqual(round(center, 6), {
         lat: -47.989922,
         lon: 105.46875,
       });
     });
-    o('should create centers for NZTM', () => {
+    it('should create centers for NZTM', () => {
       const center = Projection.tileCenterToLatLon(Nztm2000Tms, { x: 2295, y: 5119, z: 10 });
       isValidLatLong(center);
 
       const centerB = Projection.tileCenterToLatLon(Nztm2000Tms, { x: 20, y: 20, z: 10 });
       isValidLatLong(centerB);
     });
-    o('should create centers for NZTMQuad', () => {
+    it('should create centers for NZTMQuad', () => {
       const center = Projection.tileCenterToLatLon(Nztm2000QuadTms, { x: 200, y: 500, z: 10 });
       isValidLatLong(center);
-      o(round(center, 7)).deepEquals({ lat: -35.7940688, lon: 141.3785792 });
+      assert.deepEqual(round(center, 7), { lat: -35.7940688, lon: 141.3785792 });
 
       const centerB = Projection.tileCenterToLatLon(Nztm2000QuadTms, { x: 1000, y: 1000, z: 10 });
       isValidLatLong(centerB);
     });
   });
-  o.spec('wrapLatLon', () => {
-    o('should wrap longitude', () => {
-      o(Projection.wrapLatLon(0, 1)).deepEquals({ lat: 0, lon: 1 });
-      o(Projection.wrapLatLon(0, 181)).deepEquals({ lat: 0, lon: -179 });
-      o(Projection.wrapLatLon(0, 271)).deepEquals({ lat: 0, lon: -89 });
-      o(Projection.wrapLatLon(0, 361)).deepEquals({ lat: 0, lon: 1 });
-      o(Projection.wrapLatLon(0, 631)).deepEquals({ lat: 0, lon: -89 });
-      o(Projection.wrapLatLon(0, 721)).deepEquals({ lat: 0, lon: 1 });
+  describe('wrapLatLon', () => {
+    it('should wrap longitude', () => {
+      assert.deepEqual(Projection.wrapLatLon(0, 1), { lat: 0, lon: 1 });
+      assert.deepEqual(Projection.wrapLatLon(0, 181), { lat: 0, lon: -179 });
+      assert.deepEqual(Projection.wrapLatLon(0, 271), { lat: 0, lon: -89 });
+      assert.deepEqual(Projection.wrapLatLon(0, 361), { lat: 0, lon: 1 });
+      assert.deepEqual(Projection.wrapLatLon(0, 631), { lat: 0, lon: -89 });
+      assert.deepEqual(Projection.wrapLatLon(0, 721), { lat: 0, lon: 1 });
 
-      o(Projection.wrapLatLon(0, -1)).deepEquals({ lat: 0, lon: -1 });
-      o(Projection.wrapLatLon(0, -181)).deepEquals({ lat: 0, lon: 179 });
-      o(Projection.wrapLatLon(0, -271)).deepEquals({ lat: 0, lon: 89 });
-      o(Projection.wrapLatLon(0, -361)).deepEquals({ lat: 0, lon: -1 });
-      o(Projection.wrapLatLon(0, -631)).deepEquals({ lat: 0, lon: 89 });
-      o(Projection.wrapLatLon(0, -721)).deepEquals({ lat: 0, lon: -1 });
+      assert.deepEqual(Projection.wrapLatLon(0, -1), { lat: 0, lon: -1 });
+      assert.deepEqual(Projection.wrapLatLon(0, -181), { lat: 0, lon: 179 });
+      assert.deepEqual(Projection.wrapLatLon(0, -271), { lat: 0, lon: 89 });
+      assert.deepEqual(Projection.wrapLatLon(0, -361), { lat: 0, lon: -1 });
+      assert.deepEqual(Projection.wrapLatLon(0, -631), { lat: 0, lon: 89 });
+      assert.deepEqual(Projection.wrapLatLon(0, -721), { lat: 0, lon: -1 });
     });
 
-    o('should wrap latitude', () => {
-      o(Projection.wrapLatLon(1, 0)).deepEquals({ lat: 1, lon: 0 });
-      o(Projection.wrapLatLon(91, 0)).deepEquals({ lat: 89, lon: 180 });
-      o(Projection.wrapLatLon(181, 0)).deepEquals({ lat: -1, lon: 180 });
-      o(Projection.wrapLatLon(271, 0)).deepEquals({ lat: -89, lon: 0 });
-      o(Projection.wrapLatLon(361, 0)).deepEquals({ lat: 1, lon: 0 });
-      o(Projection.wrapLatLon(631, 0)).deepEquals({ lat: -89, lon: 0 });
-      o(Projection.wrapLatLon(721, 0)).deepEquals({ lat: 1, lon: 0 });
+    it('should wrap latitude', () => {
+      assert.deepEqual(Projection.wrapLatLon(1, 0), { lat: 1, lon: 0 });
+      assert.deepEqual(Projection.wrapLatLon(91, 0), { lat: 89, lon: 180 });
+      assert.deepEqual(Projection.wrapLatLon(181, 0), { lat: -1, lon: 180 });
+      assert.deepEqual(Projection.wrapLatLon(271, 0), { lat: -89, lon: 0 });
+      assert.deepEqual(Projection.wrapLatLon(361, 0), { lat: 1, lon: 0 });
+      assert.deepEqual(Projection.wrapLatLon(631, 0), { lat: -89, lon: 0 });
+      assert.deepEqual(Projection.wrapLatLon(721, 0), { lat: 1, lon: 0 });
 
-      o(Projection.wrapLatLon(-1, 0)).deepEquals({ lat: -1, lon: 0 });
-      o(Projection.wrapLatLon(-91, 0)).deepEquals({ lat: -89, lon: 180 });
-      o(Projection.wrapLatLon(-181, 0)).deepEquals({ lat: 1, lon: 180 });
-      o(Projection.wrapLatLon(-271, 0)).deepEquals({ lat: 89, lon: 0 });
-      o(Projection.wrapLatLon(-361, 0)).deepEquals({ lat: -1, lon: 0 });
-      o(Projection.wrapLatLon(-631, 0)).deepEquals({ lat: 89, lon: 0 });
-      o(Projection.wrapLatLon(-721, 0)).deepEquals({ lat: -1, lon: 0 });
+      assert.deepEqual(Projection.wrapLatLon(-1, 0), { lat: -1, lon: 0 });
+      assert.deepEqual(Projection.wrapLatLon(-91, 0), { lat: -89, lon: 180 });
+      assert.deepEqual(Projection.wrapLatLon(-181, 0), { lat: 1, lon: 180 });
+      assert.deepEqual(Projection.wrapLatLon(-271, 0), { lat: 89, lon: 0 });
+      assert.deepEqual(Projection.wrapLatLon(-361, 0), { lat: -1, lon: 0 });
+      assert.deepEqual(Projection.wrapLatLon(-631, 0), { lat: 89, lon: 0 });
+      assert.deepEqual(Projection.wrapLatLon(-721, 0), { lat: -1, lon: 0 });
     });
   });
 
-  o.spec('tileToWgs84Bbox', () => {
-    o('should handle antimeridian', () => {
+  describe('tileToWgs84Bbox', () => {
+    it('should handle antimeridian', () => {
       const pt = Projection.tileToWgs84Bbox(Nztm2000Tms, { x: 2, y: 1, z: 1 });
 
-      o(round(pt)).deepEquals([170.05982382, -20.71836222, -179.34441047, -10.28396555]);
+      assert.deepEqual(round(pt), [170.05982382, -20.71836222, -179.34441047, -10.28396555]);
     });
 
-    o('should convert base tiles', () => {
+    it('should convert base tiles', () => {
       const pt = Projection.tileToWgs84Bbox(GoogleTms, { x: 0, y: 0, z: 0 });
-      o(round(pt)).deepEquals([-180, -85.05112878, 180, 85.05112878]);
+      assert.deepEqual(round(pt), [-180, -85.05112878, 180, 85.05112878]);
     });
   });
 
-  o.spec('TilingBounds', () => {
+  describe('TilingBounds', () => {
     // Approximate bounding box of new zealand
     const tifBoundingBox: BBox = [18494091.86765497, -6051366.655280836, 19986142.659781612, -4016307.214216303];
     const expectedBaseSize = Bounds.fromJson({ width: 9.53125, height: 13, y: 153.65625, x: 246.14062500000006 });
 
-    o('should tile 0,0,0', () => {
+    it('should tile 0,0,0', () => {
       const bounds = getPixelsBoundsFromMeters(tifBoundingBox, 0);
       Approx.bounds(bounds, expectedBaseSize);
 
@@ -167,7 +169,7 @@ o.spec('ProjectionTileMatrixSet', () => {
       Approx.bounds(intersection, expectedBaseSize);
     });
 
-    o('should tile 1,1,1', () => {
+    it('should tile 1,1,1', () => {
       const [x, y, z] = [1, 1, 1];
       const bounds = getPixelsBoundsFromMeters(tifBoundingBox, z);
       const expectedBaseSizeScaled = expectedBaseSize.scale(2, 2);
@@ -190,7 +192,7 @@ o.spec('ProjectionTileMatrixSet', () => {
      *  |  XXX  | 10
      *  |-------|
      */
-    o('should tile [15, 9, 4] & [15, 10, 4]', () => {
+    it('should tile [15, 9, 4] & [15, 10, 4]', () => {
       const [x, z] = [15, 4];
       const bounds = getPixelsBoundsFromMeters(tifBoundingBox, z);
       const expectedBaseSizeScaled = expectedBaseSize.scale(2 ** z, 2 ** z);
@@ -199,8 +201,8 @@ o.spec('ProjectionTileMatrixSet', () => {
 
       const screenBounds9 = getPixelsFromTile(x, 9);
       const screenBounds10 = getPixelsFromTile(x, 10);
-      o(screenBounds9.toJson()).deepEquals({ width: 256, height: 256, y: 2304, x: 3840 });
-      o(screenBounds10.toJson()).deepEquals({ width: 256, height: 256, y: 2560, x: 3840 });
+      assert.deepEqual(screenBounds9.toJson(), { width: 256, height: 256, y: 2304, x: 3840 });
+      assert.deepEqual(screenBounds10.toJson(), { width: 256, height: 256, y: 2560, x: 3840 });
 
       const intersection9 = bounds.intersection(screenBounds9);
       const intersection10 = bounds.intersection(screenBounds10);
@@ -210,11 +212,11 @@ o.spec('ProjectionTileMatrixSet', () => {
 
       // the image is split in two so the intersection should combine into the total height of the image
       const totalIntersectionHeight = intersection9.height + intersection10.height;
-      o(totalIntersectionHeight).equals(bounds.height);
+      assert.equal(totalIntersectionHeight, bounds.height);
 
       // The image is not split horizontally so the width should be the same for both intersections
-      o(intersection9.width).equals(bounds.width);
-      o(intersection10.width).equals(bounds.width);
+      assert.equal(intersection9.width, bounds.width);
+      assert.equal(intersection10.width, bounds.width);
 
       Approx.equal(intersection9.height, 101.5, 'height');
       Approx.equal(intersection10.height, 106.5, 'height');
@@ -231,7 +233,7 @@ o.spec('ProjectionTileMatrixSet', () => {
      *  |  XXXXX|XXXX   | 20
      *  |-------|-------|
      */
-    o('should tile [30, 19, 5], [31, 19, 5], [30, 20, 5], [31, 20, 5]', () => {
+    it('should tile [30, 19, 5], [31, 19, 5], [30, 20, 5], [31, 20, 5]', () => {
       const z = 5;
 
       const tileBounds = new Bounds(30, 19, 1, 1);
@@ -243,8 +245,8 @@ o.spec('ProjectionTileMatrixSet', () => {
       const screenTopLeft = getPixelsFromTile(tileBounds.x, tileBounds.y);
       const screenTopRight = getPixelsFromTile(tileBounds.right, tileBounds.y);
 
-      o(screenTopLeft.toJson()).deepEquals({ width: 256, height: 256, y: 4864, x: 7680 });
-      o(screenTopRight.toJson()).deepEquals({ width: 256, height: 256, y: 4864, x: 7936 });
+      assert.deepEqual(screenTopLeft.toJson(), { width: 256, height: 256, y: 4864, x: 7680 });
+      assert.deepEqual(screenTopRight.toJson(), { width: 256, height: 256, y: 4864, x: 7936 });
 
       const intersectionTopLeft = bounds.intersection(screenTopLeft);
       const intersectionTopRight = bounds.intersection(screenTopRight);
@@ -253,15 +255,15 @@ o.spec('ProjectionTileMatrixSet', () => {
       }
       // the image is split in two so the intersection should combine into the total width of the image
       const totalTopIntersectionWidth = intersectionTopLeft.width + intersectionTopRight.width;
-      o(totalTopIntersectionWidth).equals(bounds.width);
-      o(intersectionTopLeft.height).equals(203);
-      o(intersectionTopRight.height).equals(203);
+      assert.equal(totalTopIntersectionWidth, bounds.width);
+      assert.equal(intersectionTopLeft.height, 203);
+      assert.equal(intersectionTopRight.height, 203);
 
       const screenBottomLeft = getPixelsFromTile(tileBounds.x, tileBounds.bottom);
       const screenBottomRight = getPixelsFromTile(tileBounds.right, tileBounds.bottom);
 
-      o(screenBottomLeft.toJson()).deepEquals({ width: 256, height: 256, y: 5120, x: 7680 });
-      o(screenBottomRight.toJson()).deepEquals({ width: 256, height: 256, y: 5120, x: 7936 });
+      assert.deepEqual(screenBottomLeft.toJson(), { width: 256, height: 256, y: 5120, x: 7680 });
+      assert.deepEqual(screenBottomRight.toJson(), { width: 256, height: 256, y: 5120, x: 7936 });
 
       const intersectionBottomLeft = bounds.intersection(screenBottomLeft);
       const intersectionBottomRight = bounds.intersection(screenBottomRight);
@@ -270,14 +272,14 @@ o.spec('ProjectionTileMatrixSet', () => {
       }
       // the image is split in two so the intersection should combine into the total width of the image
       const totalBottomIntersectionWidth = intersectionBottomLeft.width + intersectionBottomRight.width;
-      o(totalBottomIntersectionWidth).equals(bounds.width);
+      assert.equal(totalBottomIntersectionWidth, bounds.width);
       Approx.equal(intersectionBottomLeft.height, 213, 'height');
       Approx.equal(intersectionBottomRight.height, 213, 'height');
 
       const totalLeftIntersectionHeight = intersectionTopLeft.height + intersectionBottomLeft.height;
       const totalRightIntersectionHeight = intersectionTopRight.height + intersectionBottomRight.height;
-      o(totalLeftIntersectionHeight).equals(bounds.height);
-      o(totalRightIntersectionHeight).equals(bounds.height);
+      assert.equal(totalLeftIntersectionHeight, bounds.height);
+      assert.equal(totalRightIntersectionHeight, bounds.height);
     });
   });
 });

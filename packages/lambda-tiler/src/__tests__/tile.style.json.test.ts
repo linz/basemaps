@@ -1,43 +1,45 @@
+import assert from 'node:assert';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+
 import { StyleJson } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
-import o from 'ospec';
 
 import { convertRelativeUrl, convertStyleJson } from '../routes/tile.style.json.js';
 
-o.spec('TileStyleJson', () => {
+describe('TileStyleJson', () => {
   const host = 'https://tiles.test';
   let originalHost: string | undefined;
-  o.beforeEach(() => {
+  beforeEach(() => {
     originalHost = process.env[Env.PublicUrlBase];
     process.env[Env.PublicUrlBase] = host;
   });
 
-  o.afterEach(() => {
+  afterEach(() => {
     process.env[Env.PublicUrlBase] = originalHost;
   });
 
-  o('should not convert empty urls', () => {
-    o(convertRelativeUrl()).equals('');
-    o(convertRelativeUrl('')).equals('');
-    o(convertRelativeUrl(undefined)).equals('');
+  it('should not convert empty urls', () => {
+    assert.equal(convertRelativeUrl(), '');
+    assert.equal(convertRelativeUrl(''), '');
+    assert.equal(convertRelativeUrl(undefined), '');
   });
 
-  o('should only convert relative urls', () => {
-    o(convertRelativeUrl('/foo')).equals('https://tiles.test/foo');
-    o(convertRelativeUrl('/bar/baz/')).equals('https://tiles.test/bar/baz/');
+  it('should only convert relative urls', () => {
+    assert.equal(convertRelativeUrl('/foo'), 'https://tiles.test/foo');
+    assert.equal(convertRelativeUrl('/bar/baz/'), 'https://tiles.test/bar/baz/');
   });
 
-  o('should only convert with api keys', () => {
-    o(convertRelativeUrl('/foo', 'abc')).equals('https://tiles.test/foo?api=abc');
-    o(convertRelativeUrl('/bar/baz/', 'abc')).equals('https://tiles.test/bar/baz/?api=abc');
+  it('should only convert with api keys', () => {
+    assert.equal(convertRelativeUrl('/foo', 'abc'), 'https://tiles.test/foo?api=abc');
+    assert.equal(convertRelativeUrl('/bar/baz/', 'abc'), 'https://tiles.test/bar/baz/?api=abc');
   });
 
-  o('should convert with other query params', () => {
-    o(convertRelativeUrl('/foo?bar=baz', 'abc')).equals('https://tiles.test/foo?bar=baz&api=abc');
+  it('should convert with other query params', () => {
+    assert.equal(convertRelativeUrl('/foo?bar=baz', 'abc'), 'https://tiles.test/foo?bar=baz&api=abc');
   });
 
-  o('should not convert full urls', () => {
-    o(convertRelativeUrl('https://foo.com/foo?bar=baz', 'abc')).equals('https://foo.com/foo?bar=baz');
+  it('should not convert full urls', () => {
+    assert.equal(convertRelativeUrl('https://foo.com/foo?bar=baz', 'abc'), 'https://foo.com/foo?bar=baz');
   });
 
   const baseStyleJson: StyleJson = {
@@ -54,57 +56,57 @@ o.spec('TileStyleJson', () => {
     sprite: '/v1/sprites',
   };
 
-  o('should not destroy the original configuration', () => {
+  it('should not destroy the original configuration', () => {
     const apiKey = 'abc123';
     const converted = convertStyleJson(baseStyleJson, apiKey, null);
 
-    o(converted.sources['vector']).deepEquals({
+    assert.deepEqual(converted.sources['vector'], {
       type: 'vector',
       url: 'https://tiles.test/v1/tiles/topographic/EPSG:3857/tile.json?api=abc123',
     });
-    o(converted.sources['raster']).deepEquals({
+    assert.deepEqual(converted.sources['raster'], {
       type: 'raster',
       tiles: ['https://tiles.test/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=abc123'],
     });
 
-    o(JSON.stringify(baseStyleJson).includes(apiKey)).equals(false);
+    assert.equal(JSON.stringify(baseStyleJson).includes(apiKey), false);
 
     const convertedB = convertStyleJson(baseStyleJson, '0x1234', null);
-    o(convertedB.sources['vector']).deepEquals({
+    assert.deepEqual(convertedB.sources['vector'], {
       type: 'vector',
       url: 'https://tiles.test/v1/tiles/topographic/EPSG:3857/tile.json?api=0x1234',
     });
-    o(convertedB.sources['raster']).deepEquals({
+    assert.deepEqual(convertedB.sources['raster'], {
       type: 'raster',
       tiles: ['https://tiles.test/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=0x1234'],
     });
 
-    o(JSON.stringify(baseStyleJson).includes('0x1234')).equals(false);
-    o(JSON.stringify(baseStyleJson).includes(apiKey)).equals(false);
-    o(JSON.stringify(baseStyleJson).includes('?api=')).equals(false);
+    assert.equal(JSON.stringify(baseStyleJson).includes('0x1234'), false);
+    assert.equal(JSON.stringify(baseStyleJson).includes(apiKey), false);
+    assert.equal(JSON.stringify(baseStyleJson).includes('?api='), false);
   });
 
-  o('should convert relative glyphs and sprites', () => {
+  it('should convert relative glyphs and sprites', () => {
     const apiKey = '0x9f9f';
     const converted = convertStyleJson(baseStyleJson, apiKey, null);
-    o(converted.sprite).equals('https://tiles.test/v1/sprites');
-    o(converted.glyphs).equals('https://tiles.test/v1/glyphs');
+    assert.equal(converted.sprite, 'https://tiles.test/v1/sprites');
+    assert.equal(converted.glyphs, 'https://tiles.test/v1/glyphs');
 
-    o(JSON.stringify(baseStyleJson).includes(apiKey)).equals(false);
-    o(JSON.stringify(baseStyleJson).includes('?api=')).equals(false);
+    assert.equal(JSON.stringify(baseStyleJson).includes(apiKey), false);
+    assert.equal(JSON.stringify(baseStyleJson).includes('?api='), false);
   });
 
-  o('should convert with config', () => {
+  it('should convert with config', () => {
     const apiKey = '0x9f9f';
     const converted = convertStyleJson(baseStyleJson, apiKey, 'config.json');
-    o(converted.sprite).equals('https://tiles.test/v1/sprites?config=config.json');
-    o(converted.glyphs).equals('https://tiles.test/v1/glyphs?config=config.json');
+    assert.equal(converted.sprite, 'https://tiles.test/v1/sprites?config=config.json');
+    assert.equal(converted.glyphs, 'https://tiles.test/v1/glyphs?config=config.json');
 
-    o(converted.sources['vector']).deepEquals({
+    assert.deepEqual(converted.sources['vector'], {
       type: 'vector',
       url: 'https://tiles.test/v1/tiles/topographic/EPSG:3857/tile.json?api=0x9f9f&config=config.json',
     });
-    o(converted.sources['raster']).deepEquals({
+    assert.deepEqual(converted.sources['raster'], {
       type: 'raster',
       tiles: ['https://tiles.test/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=0x9f9f&config=config.json'],
     });

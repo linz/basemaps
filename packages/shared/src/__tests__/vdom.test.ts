@@ -1,59 +1,60 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { V, VNode, VNodeElement, VNodeText } from '../vdom.js';
 
-o.spec('VDom', () => {
-  o('should create text nodes', () => {
+describe('VDom', () => {
+  it('should create text nodes', () => {
     const res = V('div', 'text');
 
-    o(res instanceof VNode).equals(true);
+    assert.equal(res instanceof VNode, true);
 
     const tn = res.children[0] as VNodeText;
 
-    o(tn.textContent).equals('text');
+    assert.equal(tn.textContent, 'text');
 
-    o(res.toString()).equals('<div>text</div>');
+    assert.equal(res.toString(), '<div>text</div>');
   });
 
-  o('should encode text nodes', () => {
+  it('should encode text nodes', () => {
     const res = V('div', 'text & ; < > &amp;');
 
-    o(res instanceof VNode).equals(true);
+    assert.equal(res instanceof VNode, true);
 
     const tn = res.children[0] as VNodeText;
 
-    o(tn.textContent).equals('text &amp; ; &lt; &gt; &amp;amp;');
+    assert.equal(tn.textContent, 'text &amp; ; &lt; &gt; &amp;amp;');
 
-    o(res.toString()).equals('<div>text &amp; ; &lt; &gt; &amp;amp;</div>');
+    assert.equal(res.toString(), '<div>text &amp; ; &lt; &gt; &amp;amp;</div>');
   });
 
-  o('should not encode valid utf8', () => {
+  it('should not encode valid utf8', () => {
     const res = V('div', 'Kaikōura 🦄 🌈');
 
-    o(res.textContent).equals('Kaikōura 🦄 🌈');
-    o(res.toString()).equals('<div>Kaikōura 🦄 🌈</div>');
+    assert.equal(res.textContent, 'Kaikōura 🦄 🌈');
+    assert.equal(res.toString(), '<div>Kaikōura 🦄 🌈</div>');
   });
 
-  o('should create nodes', () => {
+  it('should create nodes', () => {
     const res = V('div', {}, V('b', [V('span', { style: 'color:red' }, 'text')]));
-    o(res.toString()).equals('<div>\n  <b>\n    <span style="color:red">text</span>\n  </b>\n</div>');
+    assert.equal(res.toString(), '<div>\n  <b>\n    <span style="color:red">text</span>\n  </b>\n</div>');
   });
 
-  o('should get set textContent', () => {
+  it('should get set textContent', () => {
     const span = V('span', { style: 'color:red' }, 'in span');
     const res = V('div', {}, V('b', [span, 'more text', V('b')]));
-    o(span.textContent).equals('in span');
+    assert.equal(span.textContent, 'in span');
 
     span.textContent = 'changed';
-    o(res.textContent).equals('changedmore text');
+    assert.equal(res.textContent, 'changedmore text');
 
     res.textContent = 'replace';
-    o(res.textContent).equals('replace');
-    o(res.children.length).equals(1);
-    o(res.children[0] instanceof VNodeText).equals(true);
+    assert.equal(res.textContent, 'replace');
+    assert.equal(res.children.length, 1);
+    assert.equal(res.children[0] instanceof VNodeText, true);
   });
 
-  o.spec('find tags', () => {
+  describe('find tags', () => {
     const iNode = V('i', 'two');
     const res = V(
       'div',
@@ -61,16 +62,16 @@ o.spec('VDom', () => {
       V('b', [V('i', 'one'), V('span', { style: 'color:red' }, ['text', iNode]), V('b'), V('b')]),
     );
 
-    o('tags', () => {
+    it('tags', () => {
       const bees = Array.from(res.tags('b'));
-      o(bees.length).equals(3);
-      o((bees[0] as VNodeElement).children.length).equals(4);
+      assert.equal(bees.length, 3);
+      assert.equal((bees[0] as VNodeElement).children.length, 4);
     });
 
-    o('find', () => {
-      o(res.find('b', 'i', 'i')).equals(null);
-      o(res.find('b', 'span', 'i')).equals(iNode);
-      o(res.find('i')).notEquals(iNode);
+    it('find', () => {
+      assert.equal(res.find('b', 'i', 'i'), null);
+      assert.equal(res.find('b', 'span', 'i'), iNode);
+      assert.notEqual(res.find('i'), iNode);
     });
   });
 });

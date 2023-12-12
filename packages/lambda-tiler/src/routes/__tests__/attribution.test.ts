@@ -1,10 +1,12 @@
+import assert from 'node:assert';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+
 import { Attribution } from '@basemaps/attribution';
 import { ConfigProviderMemory } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, Projection } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { BBox } from '@linzjs/geojson';
 import { HttpHeader } from '@linzjs/lambda';
-import o from 'ospec';
 import sinon from 'sinon';
 
 import { FakeData, Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
@@ -281,11 +283,11 @@ import { createCoordinates } from '../attribution.js';
 //     updatedAt: Date.now(),
 //   };
 // }
-o.spec('/v1/attribution', () => {
+describe('/v1/attribution', () => {
   const config = new ConfigProviderMemory();
   const sandbox = sinon.createSandbox();
 
-  o.beforeEach(() => {
+  beforeEach(() => {
     LogConfig.get().level = 'silent';
     sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
 
@@ -297,107 +299,107 @@ o.spec('/v1/attribution', () => {
     config.put(Provider);
   });
 
-  o.afterEach(() => {
+  afterEach(() => {
     sandbox.restore();
   });
 
-  o('should notFound', async () => {
+  it('should notFound', async () => {
     const request = mockUrlRequest(`/v1/attribution/aerial/1234/summary.json`);
     const res = await handler.router.handle(request);
 
-    o(res.status).equals(404);
+    assert.equal(res.status, 404);
   });
 
-  o('should 304 with etag match', async () => {
+  it('should 304 with etag match', async () => {
     const request = mockUrlRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`, 'get', {
       [HttpHeader.IfNoneMatch]: 'E5HGpTqF8AiJ7VgGVKLehYnVfLN9jaVw8Sy6UafJRh2f',
     });
 
     const res = await handler.router.handle(request);
 
-    if (res.status === 200) o(res.header('etag')).equals('E5HGpTqF8AiJ7VgGVKLehYnVfLN9jaVw8Sy6UafJRh2f');
+    if (res.status === 200) assert.equal(res.header('etag'), 'E5HGpTqF8AiJ7VgGVKLehYnVfLN9jaVw8Sy6UafJRh2f');
 
     console.log(res.header('etag'));
-    o(res.status).equals(304);
+    assert.equal(res.status, 304);
   });
 
-  o('should parse attribution', async () => {
+  it('should parse attribution', async () => {
     const request = mockUrlRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`);
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
 
     const json = JSON.parse(res.body);
 
     const attr = Attribution.fromStac(json);
-    o(attr.attributions.length).equals(1);
-    o(attr.attributions[0].minZoom).equals(0);
-    o(attr.attributions[0].maxZoom).equals(32);
+    assert.equal(attr.attributions.length, 1);
+    assert.equal(attr.attributions[0].minZoom, 0);
+    assert.equal(attr.attributions[0].maxZoom, 32);
   });
 
-  o.spec('ImageryRules', () => {
+  describe('ImageryRules', () => {
     const fakeLayer = { [2193]: Imagery2193.id, name: 'image', minZoom: 9, maxZoom: 16, title: 'Image' };
     const ts = FakeData.tileSetRaster('fake');
 
-    o.beforeEach(() => {
+    beforeEach(() => {
       ts.layers = [fakeLayer];
       config.put(Imagery2193);
       config.put(ts);
     });
 
-    o('should generate for NZTM', async () => {
+    it('should generate for NZTM', async () => {
       const req = mockUrlRequest('/v1/tiles/fake/NZTM2000/attribution.json', '');
       const res = await handler.router.handle(req);
-      o(res.status).equals(200);
+      assert.equal(res.status, 200);
 
       const output = JSON.parse(res.body);
-      o(output.title).equals(ts.title);
-      o(output.collections[0].summaries['linz:zoom']).deepEquals({ min: 5, max: 11 });
+      assert.equal(output.title, ts.title);
+      assert.deepEqual(output.collections[0].summaries['linz:zoom'], { min: 5, max: 11 });
     });
 
-    o('should generate with correct zooms for NZTM2000Quad', async () => {
+    it('should generate with correct zooms for NZTM2000Quad', async () => {
       const req = mockUrlRequest('/v1/tiles/fake/NZTM2000Quad/attribution.json', '');
       const res = await handler.router.handle(req);
-      o(res.status).equals(200);
+      assert.equal(res.status, 200);
 
       const output = JSON.parse(res.body);
-      o(output.title).equals(ts.title);
-      o(output.collections[0].summaries['linz:zoom']).deepEquals({ min: 7, max: 14 });
+      assert.equal(output.title, ts.title);
+      assert.deepEqual(output.collections[0].summaries['linz:zoom'], { min: 7, max: 14 });
     });
 
-    o('should generate with correct zooms for gebco NZTM2000Quad', async () => {
+    it('should generate with correct zooms for gebco NZTM2000Quad', async () => {
       const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 15 };
       ts.layers = [fakeGebco];
 
       const req = mockUrlRequest('/v1/tiles/fake/NZTM2000Quad/attribution.json', '');
       const res = await handler.router.handle(req);
-      o(res.status).equals(200);
+      assert.equal(res.status, 200);
 
       const output = JSON.parse(res.body);
-      o(output.title).equals(ts.title);
-      o(output.collections[0].summaries['linz:zoom']).deepEquals({ min: 0, max: 13 });
+      assert.equal(output.title, ts.title);
+      assert.deepEqual(output.collections[0].summaries['linz:zoom'], { min: 0, max: 13 });
     });
 
-    o('should generate with correct zooms for nz sentinel NZTM2000Quad', async () => {
+    it('should generate with correct zooms for nz sentinel NZTM2000Quad', async () => {
       const fakeGebco = { ...fakeLayer, minZoom: 0, maxZoom: 32 };
       ts.layers = [fakeGebco];
 
       const req = mockUrlRequest('/v1/tiles/fake/NZTM2000Quad/attribution.json', '');
       const res = await handler.router.handle(req);
-      o(res.status).equals(200);
+      assert.equal(res.status, 200);
 
       const output = JSON.parse(res.body);
-      o(output.title).equals(ts.title);
-      o(output.collections[0].summaries['linz:zoom']).deepEquals({ min: 0, max: Nztm2000QuadTms.maxZoom });
+      assert.equal(output.title, ts.title);
+      assert.deepEqual(output.collections[0].summaries['linz:zoom'], { min: 0, max: Nztm2000QuadTms.maxZoom });
     });
   });
 
-  o('should create valid coordinates', async () => {
+  it('should create valid coordinates', async () => {
     //bbox: BBox, files: NamedBounds[], proj: Projection
     const bbox = [174.79248047, -38.21228805, 175.25939941, -37.99616268] as BBox;
     const proj = Projection.get(GoogleTms);
     const coordinates = createCoordinates(bbox, Imagery3857.files, proj);
     console.log(JSON.stringify(coordinates));
-    o(coordinates).deepEquals([
+    assert.deepEqual(coordinates, [
       [
         [
           [174.79247149, -38.09998972],

@@ -1,15 +1,16 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { Env } from '../const.js';
 
-o.spec('Environment', () => {
-  o('should load a number from environment var', () => {
+describe('Environment', () => {
+  it('should load a number from environment var', () => {
     process.env[Env.TiffConcurrency] = '5';
-    o(Env.getNumber(Env.TiffConcurrency, -1)).equals(5);
+    assert.equal(Env.getNumber(Env.TiffConcurrency, -1), 5);
   });
 
-  o('should default from environment var', () => {
+  it('should default from environment var', () => {
     delete process.env[Env.TiffConcurrency];
-    o(Env.getNumber(Env.TiffConcurrency, -1)).equals(-1);
+    assert.equal(Env.getNumber(Env.TiffConcurrency, -1), -1);
   });
 });

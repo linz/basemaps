@@ -1,14 +1,16 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { Approx, TestTiff } from '@basemaps/test';
-import o from 'ospec';
 
 import { CompositionTiff } from '../raster.js';
 import { Tiler } from '../tiler.js';
 
-o.spec('tiler.test', () => {
-  o.spec('getRasterTiffIntersection', () => {
-    o('should intersect google', async () => {
-      o.timeout(1_000);
+describe('tiler.test', () => {
+  describe('getRasterTiffIntersection', () => {
+    it('should intersect google', async () => {
+      // o.timeout(1_000);
 
       const tiff = await TestTiff.Google.init();
       const tiler = new Tiler(GoogleTms);
@@ -23,8 +25,8 @@ o.spec('tiler.test', () => {
 
     ['0', '1', '2', '3'].forEach((qk) => {
       // Since this tiff centered in the middle tile, all of these tiffs should have 1/4 of their image taken up by it
-      o(`should intersect google for qk:${qk}`, async () => {
-        o.timeout(1_000);
+      it(`should intersect google for qk:${qk}`, async () => {
+        // o.timeout(1_000);
 
         const tiff = await TestTiff.Google.init();
         const tiler = new Tiler(GoogleTms);
@@ -46,7 +48,7 @@ o.spec('tiler.test', () => {
     });
   });
 
-  o('createComposition should handle non square images', () => {
+  it('createComposition should handle non square images', () => {
     const tiler = new Tiler(Nztm2000Tms);
 
     const img = {
@@ -67,7 +69,7 @@ o.spec('tiler.test', () => {
     const ans = tiler.createComposition(img, 0, 0, 0.5, raster) as CompositionTiff;
     if (ans == null) throw new Error('Composition should return results');
     const { crop } = ans;
-    o(ans).deepEquals({
+    assert.deepEqual(ans, {
       type: 'tiff',
       asset: ans.asset,
       source: { x: 0, y: 0, imageId: 6, width: 512, height: 388 },
@@ -78,17 +80,17 @@ o.spec('tiler.test', () => {
       crop,
     });
 
-    o(crop).deepEquals(new Bounds(0, 64, 192, 130).toJson());
+    assert.deepEqual(crop, new Bounds(0, 64, 192, 130).toJson());
   });
 
-  o('should clamp required tiles', () => {
+  it('should clamp required tiles', () => {
     const bounds = new Bounds(0, 0, 1024, 1024);
     const tileCount = { x: 1, y: 1 };
     const tileSize = { width: 256, height: 256 };
-    o(Array.from(Tiler.getRequiredTiles(bounds, 1, tileSize, tileCount))).deepEquals([{ x: 0, y: 0 }]);
+    assert.deepEqual(Array.from(Tiler.getRequiredTiles(bounds, 1, tileSize, tileCount)), [{ x: 0, y: 0 }]);
 
     tileCount.y = 2;
-    o(Array.from(Tiler.getRequiredTiles(bounds, 1, tileSize, tileCount))).deepEquals([
+    assert.deepEqual(Array.from(Tiler.getRequiredTiles(bounds, 1, tileSize, tileCount)), [
       { x: 0, y: 0 },
       { x: 0, y: 1 },
     ]);

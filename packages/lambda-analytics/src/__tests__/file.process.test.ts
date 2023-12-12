@@ -1,5 +1,7 @@
+import assert from 'node:assert';
+import { afterEach, describe, it } from 'node:test';
+
 import { LogConfig } from '@basemaps/shared';
-import o from 'ospec';
 import { ulid } from 'ulid';
 
 import { FileProcess } from '../file.process.js';
@@ -41,49 +43,49 @@ export const CloudWatchIndexes = {
   },
 };
 
-o.spec('FileProcess', () => {
+describe('FileProcess', () => {
   const originalReader = FileProcess.reader;
-  o.afterEach(() => {
+  afterEach(() => {
     FileProcess.reader = originalReader;
     LogStats.ByDate.clear();
   });
-  o('should extract and track a api hit', async () => {
+  it('should extract and track a api hit', async () => {
     FileProcess.reader = lineReader([ExampleLogs[2]]);
     const logData = LogStats.getDate('2020-07-28T01:00:00.000Z');
     await FileProcess.process('Fake', logData, LogConfig.get());
-    o(LogStats.ByDate.size).equals(1);
-    o(logData.stats.size).equals(1);
+    assert.equal(LogStats.ByDate.size, 1);
+    assert.equal(logData.stats.size, 1);
     const apiStats = logData.getStats(DevApiKey, 'bar.com');
 
-    o(apiStats?.apiType).equals('d');
-    o(apiStats?.total).equals(1);
-    o(apiStats?.cache).deepEquals({ hit: 1, miss: 0 });
-    o(apiStats?.tileMatrix).deepEquals({ WebMercatorQuad: 1 });
+    assert.equal(apiStats?.apiType, 'd');
+    assert.equal(apiStats?.total, 1);
+    assert.deepEqual(apiStats?.cache, { hit: 1, miss: 0 });
+    assert.deepEqual(apiStats?.tileMatrix, { WebMercatorQuad: 1 });
   });
 
-  o('should extract and track a bunch of hits', async () => {
+  it('should extract and track a bunch of hits', async () => {
     const logData = LogStats.getDate('2020-07-28T01:00:00.000Z');
 
     FileProcess.reader = lineReader(ExampleLogs);
     await FileProcess.process('Fake', logData, LogConfig.get());
-    o(LogStats.ByDate.size).equals(1);
+    assert.equal(LogStats.ByDate.size, 1);
 
-    o(logData.stats.size).equals(2);
+    assert.equal(logData.stats.size, 2);
     const devStats = logData.getStats(DevApiKey, 'bar.com');
     const clientStats = logData.getStats(ClientApiKey, '');
 
-    o(devStats?.total).equals(3);
-    o(devStats?.apiType).equals('d');
-    o(devStats?.cache).deepEquals({ hit: 2, miss: 1 });
-    o(devStats?.tileMatrix).deepEquals({ WebMercatorQuad: 2, NZTM2000Quad: 1 });
-    o(devStats?.extension).deepEquals({ webp: 1, jpeg: 1, png: 1, wmts: 0, other: 0, pbf: 0 });
-    o(devStats?.tileSet).deepEquals({ aerial: 2, topo50: 1 });
+    assert.equal(devStats?.total, 3);
+    assert.equal(devStats?.apiType, 'd');
+    assert.deepEqual(devStats?.cache, { hit: 2, miss: 1 });
+    assert.deepEqual(devStats?.tileMatrix, { WebMercatorQuad: 2, NZTM2000Quad: 1 });
+    assert.deepEqual(devStats?.extension, { webp: 1, jpeg: 1, png: 1, wmts: 0, other: 0, pbf: 0 });
+    assert.deepEqual(devStats?.tileSet, { aerial: 2, topo50: 1 });
 
-    o(clientStats?.total).equals(3);
-    o(clientStats?.apiType).equals('c');
-    o(clientStats?.cache).deepEquals({ hit: 3, miss: 0 });
-    o(clientStats?.tileMatrix).deepEquals({ WebMercatorQuad: 1, NZTM2000: 1, NZTM2000Quad: 1 });
-    o(clientStats?.extension).deepEquals({ webp: 1, jpeg: 0, png: 0, wmts: 1, other: 0, pbf: 1 });
-    o(clientStats?.tileSet).deepEquals({ topo50: 2, 'antipodes-islands-satellite-2019-2020-0.5m': 1 });
+    assert.equal(clientStats?.total, 3);
+    assert.equal(clientStats?.apiType, 'c');
+    assert.deepEqual(clientStats?.cache, { hit: 3, miss: 0 });
+    assert.deepEqual(clientStats?.tileMatrix, { WebMercatorQuad: 1, NZTM2000: 1, NZTM2000Quad: 1 });
+    assert.deepEqual(clientStats?.extension, { webp: 1, jpeg: 0, png: 0, wmts: 1, other: 0, pbf: 1 });
+    assert.deepEqual(clientStats?.tileSet, { topo50: 2, 'antipodes-islands-satellite-2019-2020-0.5m': 1 });
   });
 });

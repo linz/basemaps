@@ -1,45 +1,46 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { Epsg, EpsgCode } from '../epsg.js';
 import { Nztm2000Tms } from '../tms/nztm2000.js';
 
-o.spec('Epsg', () => {
-  o('should error on invalid epsg', () => {
-    o(() => Epsg.get(-1 as EpsgCode)).throws('Invalid EPSG:-1');
+describe('Epsg', () => {
+  it('should error on invalid epsg', () => {
+    assert.throws(() => Epsg.get(-1 as EpsgCode));
   });
 
-  o('should not allow duplicate EPSG codes', () => {
-    o(new Epsg(1 as EpsgCode).toJSON()).deepEquals(1);
-    o(() => new Epsg(1 as EpsgCode)).throws(`Duplicate EPSG code created: 1`);
+  it('should not allow duplicate EPSG codes', () => {
+    assert.deepEqual(new Epsg(1 as EpsgCode).toJSON(), 1);
+    assert.throws(() => new Epsg(1 as EpsgCode));
   });
 
-  o('should parse Epsg codes', () => {
-    o(Epsg.parse('Gogle')).equals(null);
-    o(Epsg.parse('google')).equals(Epsg.Google);
-    o(Epsg.parse('3857')).equals(Epsg.Google);
-    o(Epsg.parse('urn:ogc:def:crs:Epsg::3857')).equals(Epsg.Google);
-    o(Epsg.parse('Epsg:3857')).equals(Epsg.Google);
-    o(Epsg.parse('global--mercator')).equals(Epsg.Google);
-    o(Epsg.parse('global_mercator')).equals(Epsg.Google);
+  it('should parse Epsg codes', () => {
+    assert.equal(Epsg.parse('Gogle'), null);
+    assert.equal(Epsg.parse('google'), Epsg.Google);
+    assert.equal(Epsg.parse('3857'), Epsg.Google);
+    assert.equal(Epsg.parse('urn:ogc:def:crs:Epsg::3857'), Epsg.Google);
+    assert.equal(Epsg.parse('Epsg:3857'), Epsg.Google);
+    assert.equal(Epsg.parse('global--mercator'), Epsg.Google);
+    assert.equal(Epsg.parse('global_mercator'), Epsg.Google);
 
-    o(Epsg.parse('wgs84')).equals(Epsg.Wgs84);
-    o(Epsg.parse('Epsg:4326')).equals(Epsg.Wgs84);
-    o(Epsg.parse('4326')).equals(Epsg.Wgs84);
+    assert.equal(Epsg.parse('wgs84'), Epsg.Wgs84);
+    assert.equal(Epsg.parse('Epsg:4326'), Epsg.Wgs84);
+    assert.equal(Epsg.parse('4326'), Epsg.Wgs84);
 
-    o(Epsg.parse('NZTM_2000')).equals(Epsg.Nztm2000);
-    o(Epsg.parse('nztm')).equals(Epsg.Nztm2000);
-    o(Epsg.parse('Epsg:2193')).equals(Epsg.Nztm2000);
-    o(Epsg.parse('2193')).equals(Epsg.Nztm2000);
+    assert.equal(Epsg.parse('NZTM_2000'), Epsg.Nztm2000);
+    assert.equal(Epsg.parse('nztm'), Epsg.Nztm2000);
+    assert.equal(Epsg.parse('Epsg:2193'), Epsg.Nztm2000);
+    assert.equal(Epsg.parse('2193'), Epsg.Nztm2000);
 
-    o(Epsg.parse('citm_2000')).equals(Epsg.Citm2000);
-    o(Epsg.parse('citm')).equals(Epsg.Citm2000);
-    o(Epsg.parse('Epsg:3793')).equals(Epsg.Citm2000);
-    o(Epsg.parse('3793')).equals(Epsg.Citm2000);
+    assert.equal(Epsg.parse('citm_2000'), Epsg.Citm2000);
+    assert.equal(Epsg.parse('citm'), Epsg.Citm2000);
+    assert.equal(Epsg.parse('Epsg:3793'), Epsg.Citm2000);
+    assert.equal(Epsg.parse('3793'), Epsg.Citm2000);
   });
 
-  o('should parse urls', () => {
-    o(Epsg.parse('https://www.opengis.net/def/crs/EPSG/0/2193')).equals(Epsg.Nztm2000);
-    o(Epsg.parse('https://www.opengis.net/def/crs/EPSG/0/3857')).equals(Epsg.Google);
-    o(Epsg.parse(Nztm2000Tms.def.supportedCRS)).equals(Epsg.Nztm2000);
+  it('should parse urls', () => {
+    assert.equal(Epsg.parse('https://www.opengis.net/def/crs/EPSG/0/2193'), Epsg.Nztm2000);
+    assert.equal(Epsg.parse('https://www.opengis.net/def/crs/EPSG/0/3857'), Epsg.Google);
+    assert.equal(Epsg.parse(Nztm2000Tms.def.supportedCRS), Epsg.Nztm2000);
   });
 });

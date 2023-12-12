@@ -1,16 +1,18 @@
+import assert from 'node:assert';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+
 import { ConfigProviderMemory } from '@basemaps/config';
 import { LocationUrl } from '@basemaps/geo';
 import { Env, fsa, LogConfig, V } from '@basemaps/shared';
 import { FsMemory } from '@chunkd/source-memory';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ALBEvent, Context } from 'aws-lambda';
-import o from 'ospec';
 
 import { FakeData } from '../../__tests__/config.data.js';
 import { loadAndServeIndexHtml, PreviewIndexGet, previewIndexGet } from '../preview.index.js';
 
-o.spec('/@*', async () => {
-  o.specTimeout(1000);
+describe('/@*', async () => {
+  // o.specTimeout(1000);
   const baseRequest: ALBEvent = {
     requestContext: null as any,
     httpMethod: 'get',
@@ -21,51 +23,51 @@ o.spec('/@*', async () => {
 
   const fsMem = new FsMemory();
   let lastLocation: string | undefined;
-  o.beforeEach(() => {
+  beforeEach(() => {
     fsa.register('memory://', fsMem);
     lastLocation = process.env[Env.StaticAssetLocation];
   });
-  o.afterEach(() => {
+  afterEach(() => {
     if (lastLocation == null) delete process.env[Env.StaticAssetLocation];
     else process.env[Env.StaticAssetLocation] = lastLocation;
   });
 
-  o('Should redirect on failure to load', async () => {
+  it('Should redirect on failure to load', async () => {
     const ctx: LambdaHttpRequest = new LambdaAlbRequest(baseRequest, {} as Context, LogConfig.get());
 
     const res = await loadAndServeIndexHtml(ctx);
-    o(res.status).equals(302);
-    o(res.header('location')).equals('/?');
+    assert.equal(res.status, 302);
+    assert.equal(res.header('location'), '/?');
   });
 
-  o('Should redirect with querystring on failure to load', async () => {
+  it('Should redirect with querystring on failure to load', async () => {
     const evt: ALBEvent = { ...baseRequest, queryStringParameters: { config: 'config-latest.json' } };
     const ctx: LambdaHttpRequest = new LambdaAlbRequest(evt, {} as Context, LogConfig.get());
 
     const res = await loadAndServeIndexHtml(ctx);
-    o(res.status).equals(302);
-    o(res.header('location')).equals('/?config=config-latest.json');
+    assert.equal(res.status, 302);
+    assert.equal(res.header('location'), '/?config=config-latest.json');
   });
 
-  o('Should redirect with querystring and location on failure to load', async () => {
+  it('Should redirect with querystring and location on failure to load', async () => {
     const evt: ALBEvent = { ...baseRequest, queryStringParameters: { config: 'config-latest.json' } };
     const loc = LocationUrl.fromSlug(evt.path);
     const ctx: LambdaHttpRequest = new LambdaAlbRequest(evt, {} as Context, LogConfig.get());
 
     const res = await loadAndServeIndexHtml(ctx, loc);
-    o(res.status).equals(302);
-    o(res.header('location')).equals('/?config=config-latest.json#@-41.8900012,174.0492432,z5');
+    assert.equal(res.status, 302);
+    assert.equal(res.header('location'), '/?config=config-latest.json#@-41.8900012,174.0492432,z5');
   });
 
-  o('should redirect on failure to load index.html', async () => {
+  it('should redirect on failure to load index.html', async () => {
     const ctx: LambdaHttpRequest = new LambdaAlbRequest(baseRequest, {} as Context, LogConfig.get());
     process.env[Env.StaticAssetLocation] = 'memory://assets/';
 
     const res = await loadAndServeIndexHtml(ctx);
-    o(res.status).equals(302);
+    assert.equal(res.status, 302);
   });
 
-  o('should redirect with new tags!', async () => {
+  it('should redirect with new tags!', async () => {
     const ctx = new LambdaAlbRequest(baseRequest, {} as Context, LogConfig.get());
     process.env[Env.StaticAssetLocation] = 'memory://assets/';
 
@@ -81,14 +83,14 @@ o.spec('/@*', async () => {
 
     // Pass back the body un altered
     const res = await loadAndServeIndexHtml(ctx);
-    o(getBody(res)?.toString()).equals(indexHtml);
+    assert.equal(getBody(res)?.toString(), indexHtml);
 
     // Replace og:title with a <fake tag />
     const resB = await loadAndServeIndexHtml(ctx, null, new Map([['og:title', '<fake tag />']]));
-    o(getBody(resB)?.toString().includes('<fake tag />')).equals(true);
+    assert.equal(getBody(resB)?.toString().includes('<fake tag />'), true);
   });
 
-  o('should include config url', async () => {
+  it('should include config url', async () => {
     const ctx = new LambdaAlbRequest(
       {
         ...baseRequest,
@@ -117,13 +119,14 @@ o.spec('/@*', async () => {
     await fsa.write('memory://assets/index.html', indexHtml);
 
     const res = await previewIndexGet(ctx);
-    o(res.status).equals(200);
+    assert.equal(res.status, 200);
 
     const ogImage = getBody(res)
       ?.toString()
       .split('\n')
       .find((f) => f.includes('og:image'));
-    o(ogImage).equals(
+    assert.equal(
+      ogImage,
       '<meta name="twitter:image" property="og:image" content="/v1/preview/imagery-name/WebMercatorQuad/5/174.0492432/-41.8900012?config=QzX7ZsK6qG6p42wHZaF9dhihsgprX942gAuKwfryknM429iqxdDiRSGu" />',
     );
   });

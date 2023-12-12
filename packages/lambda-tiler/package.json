@@ -46,7 +46,7 @@
     ]
   },
   "scripts": {
-    "test": "ospec --globs 'build/**/*.test.js'",
+    "test": "node --test",
     "bundle": "./bundle.sh"
   },
   "devDependencies": {

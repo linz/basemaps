@@ -1,19 +1,20 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { toQueryString } from '../url.js';
 
-o.spec('toQueryString', () => {
-  o('should create a  query string', () => {
-    o(toQueryString({ api: 'foo' })).equals('?api=foo');
+describe('toQueryString', () => {
+  it('should create a  query string', () => {
+    assert.equal(toQueryString({ api: 'foo' }), '?api=foo');
   });
 
-  o('should not create empty query strings', () => {
-    o(toQueryString({})).equals('');
-    o(toQueryString({ api: undefined } as any)).equals('');
-    o(toQueryString({ api: null } as any)).equals('');
+  it('should not create empty query strings', () => {
+    assert.equal(toQueryString({}), '');
+    assert.equal(toQueryString({ api: undefined } as any), '');
+    assert.equal(toQueryString({ api: null } as any), '');
   });
 
-  o('should sort keys', () => {
-    o(toQueryString({ z: 'z', a: 'a' })).equals('?a=a&z=z');
+  it('should sort keys', () => {
+    assert.equal(toQueryString({ z: 'z', a: 'a' }), '?a=a&z=z');
   });
 });

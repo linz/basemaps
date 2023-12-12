@@ -1,4 +1,5 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { ConfigDebug, DebugDefaults, DebugState } from '../config.debug.js';
 
@@ -8,18 +9,18 @@ function urlToString(o: Partial<DebugState>): string {
   return url.toString();
 }
 
-o.spec('ConfigDebug', () => {
-  o('should only serialize when not defaults', () => {
-    o(urlToString(DebugDefaults)).equals('');
+describe('ConfigDebug', () => {
+  it('should only serialize when not defaults', () => {
+    assert.equal(urlToString(DebugDefaults), '');
   });
 
-  o('should write to url', () => {
-    o(urlToString({ debug: true })).equals('debug=true');
-    o(urlToString({ debug: false })).equals('');
-    o(urlToString({ debug: true, 'debug.background': 'magenta' })).equals('debug=true&debug.background=magenta');
+  it('should write to url', () => {
+    assert.equal(urlToString({ debug: true }), 'debug=true');
+    assert.equal(urlToString({ debug: false }), '');
+    assert.equal(urlToString({ debug: true, 'debug.background': 'magenta' }), 'debug=true&debug.background=magenta');
   });
 
-  o('should round trip', () => {
+  it('should round trip', () => {
     const cfg = { ...DebugDefaults };
     cfg.debug = true;
     cfg['debug.background'] = 'magenta';
@@ -29,6 +30,6 @@ o.spec('ConfigDebug', () => {
     const url = urlToString(cfg);
     const newCfg = { ...DebugDefaults };
     ConfigDebug.fromUrl(newCfg, new URLSearchParams(`?${url}`));
-    o(newCfg).deepEquals(cfg);
+    assert.deepEqual(newCfg, cfg);
   });
 });

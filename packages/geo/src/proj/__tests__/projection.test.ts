@@ -1,48 +1,50 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { round } from '@basemaps/test/build/rounding.js';
 import { bboxToPolygon } from '@linzjs/geojson';
-import o from 'ospec';
 
 import { Epsg, EpsgCode } from '../../epsg.js';
 import { Projection } from '../projection.js';
 import { qkToNamedBounds } from './test.util.js';
 
-o.spec('Projection', () => {
+describe('Projection', () => {
   const googleProj = Projection.get(EpsgCode.Google);
   const nztmProj = Projection.get(EpsgCode.Nztm2000);
 
-  o('should convert to 2193', () => {
+  it('should convert to 2193', () => {
     if (nztmProj == null) {
       throw new Error('Failed to init proj:2193');
     }
     const output = nztmProj.toWgs84([1180000, 4758000]);
-    o(round(output, 6)).deepEquals([167.454458, -47.197075]);
+    assert.deepEqual(round(output, 6), [167.454458, -47.197075]);
 
     const reverse = nztmProj.fromWgs84(output);
-    o(round(reverse, 2)).deepEquals([1180000, 4758000]);
+    assert.deepEqual(round(reverse, 2), [1180000, 4758000]);
   });
 
-  o('tryGet should not throw if epsg is defined but projection is not', () => {
+  it('tryGet should not throw if epsg is defined but projection is not', () => {
     const count = Epsg.Codes.size;
     const epsg = new Epsg(Math.random());
 
-    o(Projection.tryGet(epsg)).equals(null);
+    assert.equal(Projection.tryGet(epsg), null);
 
     Epsg.Codes.delete(epsg.code);
-    o(Epsg.Codes.size).equals(count);
+    assert.equal(Epsg.Codes.size, count);
   });
 
-  o('toGeoJson', () => {
+  it('toGeoJson', () => {
     const geojson = googleProj.toGeoJson(qkToNamedBounds(['31', '33']));
 
     const { features } = geojson;
 
-    o(features.length).equals(2);
+    assert.equal(features.length, 2);
 
-    o(features[0].properties).deepEquals({ name: '2-3-2' });
-    o(features[1].properties).deepEquals({ name: '2-3-3' });
+    assert.deepEqual(features[0].properties, { name: '2-3-2' });
+    assert.deepEqual(features[1].properties, { name: '2-3-3' });
     const { geometry } = features[0]!;
     const coords = geometry.type === 'Polygon' ? geometry.coordinates : null;
-    o(round(coords![0], 8)).deepEquals([
+    assert.deepEqual(round(coords![0], 8), [
       [90, -66.51326044],
       [90, 0],
       [180, 0],
@@ -51,8 +53,8 @@ o.spec('Projection', () => {
     ]);
   });
 
-  o.spec('boundsToGeoJsonFeature', () => {
-    o('simple', () => {
+  describe('boundsToGeoJsonFeature', () => {
+    it('simple', () => {
       const ans = round(
         googleProj.boundsToGeoJsonFeature(
           {
@@ -65,7 +67,7 @@ o.spec('Projection', () => {
         ),
       );
 
-      o(ans).deepEquals({
+      assert.deepEqual(ans, {
         type: 'Feature',
         geometry: {
           type: 'Polygon',
@@ -84,13 +86,13 @@ o.spec('Projection', () => {
       });
     });
 
-    o('crosses antimeridian', () => {
+    it('crosses antimeridian', () => {
       const ans = round(
         nztmProj.boundsToGeoJsonFeature({ x: 1293760, y: 5412480, width: 1246880, height: 1146880 }, { name: '1-2-1' }),
         4,
       );
 
-      o(ans).deepEquals({
+      assert.deepEqual(ans, {
         type: 'Feature',
         geometry: {
           type: 'MultiPolygon',
@@ -121,18 +123,18 @@ o.spec('Projection', () => {
     });
   });
 
-  o('projectMultipolygon', () => {
+  it('projectMultipolygon', () => {
     const poly = [bboxToPolygon([18494091.86765497, -6051366.655280836, 19986142.659781612, -4016307.214216303])];
 
-    o(googleProj.projectMultipolygon(poly, googleProj)).equals(poly);
+    assert.equal(googleProj.projectMultipolygon(poly, googleProj), poly);
     const projected = round(googleProj.projectMultipolygon(poly, nztmProj), 4);
-    o(projected.length).equals(1);
-    o(projected[0].length).equals(1);
+    assert.equal(projected.length, 1);
+    assert.equal(projected[0].length, 1);
 
-    o(projected[0][0][0]).deepEquals([1084733.8969, 4698018.9435]);
-    o(projected[0][0][1]).deepEquals([2090794.1708, 4700144.6365]);
-    o(projected[0][0][2]).deepEquals([2204979.5628, 6228860.047]);
-    o(projected[0][0][3]).deepEquals([964788.1204, 6226878.2808]);
-    o(projected[0][0][4]).deepEquals([1084733.8969, 4698018.9435]);
+    assert.deepEqual(projected[0][0][0], [1084733.8969, 4698018.9435]);
+    assert.deepEqual(projected[0][0][1], [2090794.1708, 4700144.6365]);
+    assert.deepEqual(projected[0][0][2], [2204979.5628, 6228860.047]);
+    assert.deepEqual(projected[0][0][3], [964788.1204, 6226878.2808]);
+    assert.deepEqual(projected[0][0][4], [1084733.8969, 4698018.9435]);
   });
 });

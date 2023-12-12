@@ -1,5 +1,7 @@
+import assert from 'node:assert';
+import { afterEach, describe, it } from 'node:test';
+
 import { promises as fs } from 'fs';
-import o from 'ospec';
 import path from 'path';
 import url from 'url';
 
@@ -12,40 +14,40 @@ async function rmF(path: string): Promise<void> {
   } catch (_err) {}
 }
 
-o.spec('file.local', () => {
+describe('file.local', () => {
   const jsonFilePath = __dirname + '/testing.json';
   const jsonFilePathGz = jsonFilePath + '.gz';
 
-  o.afterEach(async () => {
+  afterEach(async () => {
     await Promise.all([rmF(jsonFilePathGz), rmF(jsonFilePath)]);
   });
 
-  o('readJson writeJson gzip', async () => {
+  it('readJson writeJson gzip', async () => {
     try {
       await fsa.writeJson(jsonFilePathGz, { json: '1'.repeat(1000) });
       const ans = await fsa.readJson(jsonFilePathGz);
       const stat = await fs.stat(jsonFilePathGz);
-      o(stat.size).equals(44);
-      o(ans).deepEquals({ json: '1'.repeat(1000) });
+      assert.equal(stat.size, 44);
+      assert.deepEqual(ans, { json: '1'.repeat(1000) });
     } catch (e) {
       console.log(e);
     }
   });
 
-  o('readJson writeJson', async () => {
+  it('readJson writeJson', async () => {
     await fsa.writeJson(jsonFilePath, { json: '1'.repeat(1000) });
     const ans = await fsa.readJson(jsonFilePath);
     const stat = await fs.stat(jsonFilePath);
 
-    o(stat.size).equals(1016);
-    o(ans).deepEquals({ json: '1'.repeat(1000) });
+    assert.equal(stat.size, 1016);
+    assert.deepEqual(ans, { json: '1'.repeat(1000) });
   });
 
-  o('should support reading relative paths', async () => {
+  it('should support reading relative paths', async () => {
     try {
       await fs.writeFile('foo.tmp', Buffer.from('hello world'));
       const res = await fsa.read('foo.tmp');
-      o(res.toString()).equals('hello world');
+      assert.equal(res.toString(), 'hello world');
     } finally {
       await fs.unlink('foo.tmp');
     }

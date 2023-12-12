@@ -1,10 +1,12 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { AttributionCollection, AttributionItem, AttributionStac } from '@basemaps/geo';
 import { BBox } from 'geojson';
-import o from 'ospec';
 
 import { Attribution } from '../attribution.js';
 
-o.spec('Attribution', () => {
+describe('Attribution', () => {
   const startDate = '2014-01-01T00:00:00Z';
   const endDate = '2015-01-01T00:00:00Z';
   const collection: AttributionCollection = {
@@ -197,29 +199,29 @@ o.spec('Attribution', () => {
   //     o(() => Attribution.fromStac(stacCopy)).throws(Error);
   // });
 
-  o('should find correct matches', () => {
+  it('should find correct matches', () => {
     const ab = Attribution.fromStac(stac);
 
     const r1 = ab.filter({
       extent: [-176.39344945738608, -44.83033160271776, -174.46936765305725, -44.180572883814044],
       zoom: 10,
     });
-    o(r1.length).equals(1);
+    assert.equal(r1.length, 1);
 
     const r2 = ab.filter({
       extent: [-176.51378610374528, -44.08586625766628, -174.58970429941644, -43.86880564285871],
       zoom: 10,
     });
-    o(r2.length).equals(1);
+    assert.equal(r2.length, 1);
 
     const r3 = ab.filter({
       extent: [-177.9303385717797, -43.746220943263886, -176.0062567674509, -43.52792030778592],
       zoom: 10,
     });
-    o(r3.length).equals(1);
+    assert.equal(r3.length, 1);
   });
 
-  o('should filter out inside bbox but outside individual polygons', () => {
+  it('should filter out inside bbox but outside individual polygons', () => {
     const ab = Attribution.fromStac(stac);
 
     /**
@@ -240,7 +242,7 @@ o.spec('Attribution', () => {
       extent: [-176.39158207569128, -44.149224068909994, -176.34407960782733, -44.12924725546014],
       zoom: 10,
     });
-    o(r2.length).equals(0);
+    assert.equal(r2.length, 0);
 
     /**
      * This target extent is slightly south east of the main polygon but north of the southern island so outside the bounds of the two polygons
@@ -257,47 +259,47 @@ o.spec('Attribution', () => {
       extent: [-176.39158207569128, -44.19922406890999, -176.34407960782733, -44.18924725546014],
       zoom: 10,
     });
-    o(r3.length).equals(0);
+    assert.equal(r3.length, 0);
   });
-  o('should filter out the dateRange', () => {
+  it('should filter out the dateRange', () => {
     const ab = Attribution.fromStac(stac);
 
     const extent: BBox = [-176.39344945738608, -44.83033160271776, -174.46936765305725, -44.180572883814044];
     const zoom = 10;
     const dateAfter = '2015-01-01T00:00:01Z'; // After the endDate
     const r1 = ab.filter({ extent, zoom, dateAfter });
-    o(r1.length).equals(0);
+    assert.equal(r1.length, 0);
 
     const dateBefore = '2013-01-01T00:00:00Z'; // Before the startDate
     const r2 = ab.filter({ extent, zoom, dateBefore });
-    o(r2.length).equals(0);
+    assert.equal(r2.length, 0);
 
     // In the scope
     const r3 = ab.filter({ extent, zoom, dateAfter: '2013-01-01T00:00:01Z', dateBefore: '2015-02-01T00:00:01Z' });
-    o(r3.length).equals(1);
+    assert.equal(r3.length, 1);
 
     // DateBefore < DateAfter
     const r4 = ab.filter({ extent, zoom, dateAfter: '2014-02-01T00:00:01Z', dateBefore: '2014-01-01T00:00:01Z' });
-    o(r4.length).equals(0);
+    assert.equal(r4.length, 0);
 
     //DateBore = DateAfter in scope
     const r5 = ab.filter({ extent, zoom, dateAfter: '2014-02-01T00:00:01Z', dateBefore: '2014-02-01T00:00:01Z' });
-    o(r5.length).equals(1);
+    assert.equal(r5.length, 1);
 
     //DateBore out scope
     const r6 = ab.filter({ extent, zoom, dateAfter: '2013-02-01T00:00:01Z', dateBefore: '2013-02-01T00:00:01Z' });
-    o(r6.length).equals(0);
+    assert.equal(r6.length, 0);
 
     //DateAfter out scope
     const r7 = ab.filter({ extent, zoom, dateAfter: '2017-02-01T00:00:01Z', dateBefore: '2017-02-01T00:00:01Z' });
-    o(r7.length).equals(0);
+    assert.equal(r7.length, 0);
 
     // Only year in dateRange
     const r8 = ab.filter({ extent, zoom, dateAfter: '2012', dateBefore: '2017' });
-    o(r8.length).equals(1);
+    assert.equal(r8.length, 1);
 
     // Wrong DateRange Format
     const r9 = ab.filter({ extent, zoom, dateAfter: 'wrong', dateBefore: '2017' });
-    o(r9.length).equals(0);
+    assert.equal(r9.length, 0);
   });
 });

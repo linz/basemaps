@@ -1,10 +1,12 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+
 import { round } from '@basemaps/test/build/rounding.js';
-import o from 'ospec';
 
 import { BBox, MultiPolygon } from '../../types.js';
 import { clipMultipolygon } from '../clipped.js';
 
-o.spec('clipped.multipolygon', () => {
+describe('clipped.multipolygon', () => {
   const polys: MultiPolygon = [
     [
       [
@@ -39,21 +41,21 @@ o.spec('clipped.multipolygon', () => {
     ],
   ];
 
-  o.spec('clipMultipolygon', () => {
-    o('disjoint with intersecting bounds', () => {
+  describe('clipMultipolygon', () => {
+    it('disjoint with intersecting bounds', () => {
       const bbox: BBox = [-2, -2, 1, 1];
 
       const cp = clipMultipolygon(polys, bbox);
 
-      o(cp).deepEquals([]);
+      assert.deepEqual(cp, []);
     });
 
-    o('intersect', () => {
+    it('intersect', () => {
       const bbox: BBox = [-3, -4, 4, 4];
 
       const cp = clipMultipolygon(polys, bbox);
 
-      o(round(cp, 2)).deepEquals([
+      assert.deepEqual(round(cp, 2), [
         [
           [
             [-3, -4],
@@ -107,8 +109,8 @@ o.spec('clipped.multipolygon', () => {
     });
   });
 
-  o.spec('removeDegenerateEdges', () => {
-    o('simple', () => {
+  describe('removeDegenerateEdges', () => {
+    it('simple', () => {
       const bbox: BBox = [-3, 1, 3, 3];
 
       const cp: MultiPolygon = [
@@ -127,7 +129,7 @@ o.spec('clipped.multipolygon', () => {
 
       const ans = clipMultipolygon(cp, bbox);
 
-      o(ans).deepEquals([
+      assert.deepEqual(ans, [
         [
           [
             [-2, 1],
@@ -147,7 +149,7 @@ o.spec('clipped.multipolygon', () => {
       ]);
     });
 
-    o('three bumps', () => {
+    it('three bumps', () => {
       const degen: MultiPolygon = [
         [
           [
@@ -178,7 +180,7 @@ o.spec('clipped.multipolygon', () => {
 
       const ans = clipMultipolygon(degen, bbox);
 
-      o(ans).deepEquals([
+      assert.deepEqual(ans, [
         [
           [
             [-2528, 0],
@@ -214,7 +216,7 @@ o.spec('clipped.multipolygon', () => {
       ]);
     });
 
-    o('loop', () => {
+    it('loop', () => {
       const bbox: BBox = [0, 3, 10, 8];
 
       const orig: MultiPolygon = [
@@ -235,7 +237,7 @@ o.spec('clipped.multipolygon', () => {
 
       const ans = clipMultipolygon(orig, bbox);
 
-      o(ans).deepEquals([
+      assert.deepEqual(ans, [
         [
           [
             [2, 3],
@@ -252,11 +254,11 @@ o.spec('clipped.multipolygon', () => {
       ]);
     });
 
-    o('complex', () => {
+    it('complex', () => {
       const bbox: BBox = [-3, -4, 4, 4];
       const ans = clipMultipolygon(polys, bbox);
 
-      o(round(ans, 2)).deepEquals([
+      assert.deepEqual(round(ans, 2), [
         [
           [
             [-3, -4],

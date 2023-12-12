@@ -19,7 +19,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "ospec --globs 'build/**/*.test.js'"
+    "test": "node --test"
   },
   "dependencies": {
     "@basemaps/geo": "^7.0.0",

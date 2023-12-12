@@ -1,8 +1,10 @@
+import assert from 'node:assert';
+import { afterEach, before, beforeEach, describe, it } from 'node:test';
+
 import { ConfigProviderMemory } from '@basemaps/config';
 import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
-import o from 'ospec';
 import sinon from 'sinon';
 
 import { FakeData } from '../../__tests__/config.data.js';
@@ -22,24 +24,23 @@ const ctx: LambdaHttpRequest = new LambdaAlbRequest(
   LogConfig.get(),
 );
 
-o.spec('/v1/health', async () => {
-  o.specTimeout(1000);
+describe('/v1/health', async () => {
   const sandbox = sinon.createSandbox();
   const config = new ConfigProviderMemory();
 
   const fakeTileSet = FakeData.tileSetRaster('health');
-  o.beforeEach(() => {
+  beforeEach(() => {
     config.objects.clear();
     sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
     config.put(fakeTileSet);
   });
 
-  o.afterEach(() => {
+  afterEach(() => {
     config.objects.clear();
     sandbox.restore();
   });
 
-  o('Should return bad response', async () => {
+  it('Should return bad response', async () => {
     // Given ... a bad get tile response
     const BadResponse = new LambdaHttpResponse(500, 'Can not get Tile Set.');
     sandbox.stub(TileXyzRaster, 'tile').resolves(BadResponse);
@@ -48,14 +49,14 @@ o.spec('/v1/health', async () => {
     const res = await healthGet(ctx);
 
     // Then ...
-    o(res.status).equals(500);
-    o(res.statusDescription).equals('Can not get Tile Set.');
+    assert.equal(res.status, 500);
+    assert.equal(res.statusDescription, 'Can not get Tile Set.');
   });
 
   const Response1 = new LambdaHttpResponse(200, 'ok');
   const Response2 = new LambdaHttpResponse(200, 'ok');
 
-  o.before(async () => {
+  before(async () => {
     const testTileFile1 = await getTestBuffer(TestTiles[0]);
     Response1.buffer(testTileFile1);
     const testTileFile2 = await getTestBuffer(TestTiles[1]);
@@ -63,7 +64,7 @@ o.spec('/v1/health', async () => {
   });
   // Prepare mock test tile response based on the static test tiles
 
-  o('Should give a 200 response', async () => {
+  it('Should give a 200 response', async () => {
     // Given ... a series good get tile response
     const callback = sandbox.stub(TileXyzRaster, 'tile');
     callback.onCall(0).resolves(Response1);
@@ -73,11 +74,11 @@ o.spec('/v1/health', async () => {
     const res = await healthGet(ctx);
 
     // Then ...
-    o(res.status).equals(200);
-    o(res.statusDescription).equals('ok');
+    assert.equal(res.status, 200);
+    assert.equal(res.statusDescription, 'ok');
   });
 
-  o('Should return mis-match tile response', async () => {
+  it('Should return mis-match tile response', async () => {
     // Given ... a bad get tile response for second get tile
     const callback = sandbox.stub(TileXyzRaster, 'tile');
     callback.onCall(0).resolves(Response1);
@@ -87,7 +88,7 @@ o.spec('/v1/health', async () => {
     const res = await healthGet(ctx);
 
     // Then ...
-    o(res.status).equals(500);
-    o(res.statusDescription).equals('TileSet does not match.');
+    assert.equal(res.status, 500);
+    assert.equal(res.statusDescription, 'TileSet does not match.');
   });
 });

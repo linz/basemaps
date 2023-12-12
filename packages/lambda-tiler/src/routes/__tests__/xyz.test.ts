@@ -1,7 +1,9 @@
+import assert from 'node:assert';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+
 import { ConfigProviderMemory } from '@basemaps/config';
 import { LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
-import o from 'ospec';
 import sinon from 'sinon';
 
 import { FakeData } from '../../__tests__/config.data.js';
@@ -13,10 +15,10 @@ import { Etag } from '../../util/etag.js';
 const sandbox = sinon.createSandbox();
 
 const TileSetNames = ['aerial', 'aerial:ōtorohanga_urban_2021_0-1m_RGB', '01FYWKAJ86W9P7RWM1VB62KD0H'];
-o.spec('/v1/tiles', () => {
+describe('/v1/tiles', () => {
   const config = new ConfigProviderMemory();
 
-  o.beforeEach(() => {
+  beforeEach(() => {
     LogConfig.get().level = 'silent';
     sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
     config.objects.clear();
@@ -26,97 +28,95 @@ o.spec('/v1/tiles', () => {
     sandbox.stub(Etag, 'key').returns('fakeEtag');
   });
 
-  o.afterEach(() => {
+  afterEach(() => {
     config.objects.clear();
     sandbox.restore();
   });
 
-  o('should export handler', async () => {
+  it('should export handler', async () => {
     const base = await import('../../index.js');
-    o(typeof base.handler).equals('function');
+    assert.equal(typeof base.handler, 'function');
   });
 
   TileSetNames.forEach((tileSetName) => {
-    o(`should generate a tile/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`, async () => {
+    it(`should generate a tile/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`, async () => {
       const request = mockRequest(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`, 'get', Api.header);
       const res = await handler.router.handle(request);
-      o(res.status).equals(200);
-      o(res.header('content-type')).equals('image/png');
-      o(res.header('eTaG')).equals('fakeEtag');
+      assert.equal(res.status, 200);
+      assert.equal(res.header('content-type'), 'image/png');
+      assert.equal(res.header('eTaG'), 'fakeEtag');
 
       // Validate the session information has been set correctly
-      o(request.logContext['tileSet']).equals(tileSetName);
-      o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
-      o(round(request.logContext['location'])).deepEquals({ lat: 0, lon: 0 });
+      assert.equal(request.logContext['tileSet'], tileSetName);
+      assert.deepEqual(request.logContext['xyz'], { x: 0, y: 0, z: 0 });
+      assert.deepEqual(round(request.logContext['location']), { lat: 0, lon: 0 });
     });
   });
 
-  o('should generate a tile 0,0,0 for webp', async () => {
+  it('should generate a tile 0,0,0 for webp', async () => {
     const request = mockRequest('/v1/tiles/aerial/3857/0/0/0.webp', 'get', Api.header);
     const res = await handler.router.handle(request);
-    o(res.status).equals(200);
-    o(res.header('content-type')).equals('image/webp');
-    o(res.header('eTaG')).equals('fakeEtag');
+    assert.equal(res.status, 200);
+    assert.equal(res.header('content-type'), 'image/webp');
+    assert.equal(res.header('eTaG'), 'fakeEtag');
     // o(res.body).equals(rasterMockBuffer.toString('base64'));
 
     // Validate the session information has been set correctly
-    o(request.logContext['xyz']).deepEquals({ x: 0, y: 0, z: 0 });
-    o(round(request.logContext['location'])).deepEquals({ lat: 0, lon: 0 });
+    assert.deepEqual(request.logContext['xyz'], { x: 0, y: 0, z: 0 });
+    assert.deepEqual(round(request.logContext['location']), { lat: 0, lon: 0 });
   });
 
   ['png', 'webp', 'jpeg', 'avif'].forEach((fmt) => {
-    o(`should 200 with empty ${fmt} if a tile is out of bounds`, async () => {
-      o.timeout(1_000);
-
+    it(`should 200 with empty ${fmt} if a tile is out of bounds`, async () => {
       const res = await handler.router.handle(
         mockRequest(`/v1/tiles/aerial/global-mercator/0/0/0.${fmt}`, 'get', Api.header),
       );
-      o(res.status).equals(200);
-      o(res.header('content-type')).equals(`image/${fmt}`);
-      o(res.header('etag')).notEquals(undefined);
-      o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
+      assert.equal(res.status, 200);
+      assert.equal(res.header('content-type'), `image/${fmt}`);
+      assert.notEqual(res.header('etag'), undefined);
+      assert.equal(res.header('cache-control'), 'public, max-age=604800, stale-while-revalidate=86400');
     });
   });
 
-  o('should 304 if a tile is not modified', async () => {
+  it('should 304 if a tile is not modified', async () => {
     const key = 'fakeEtag';
     const request = mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', {
       'if-none-match': key,
       ...Api.header,
     });
     const res = await handler.router.handle(request);
-    o(res.status).equals(304);
-    o(res.header('eTaG')).equals(undefined);
+    assert.equal(res.status, 304);
+    assert.equal(res.header('eTaG'), undefined);
 
-    o(request.logContext['cache']).deepEquals({ match: key, hit: true });
+    assert.deepEqual(request.logContext['cache'], { match: key, hit: true });
   });
 
-  o('should 404 if a tile is outside of the range', async () => {
+  it('should 404 if a tile is outside of the range', async () => {
     const res = await handler.router.handle(
       mockRequest('/v1/tiles/aerial/global-mercator/25/0/0.png', 'get', Api.header),
     );
-    o(res.status).equals(404);
+    assert.equal(res.status, 404);
 
     const resB = await handler.router.handle(mockRequest('/v1/tiles/aerial/2193/17/0/0.png', 'get', Api.header));
-    o(resB.status).equals(404);
+    assert.equal(resB.status, 404);
   });
 
-  o('should support utf8 tilesets', async () => {
+  it('should support utf8 tilesets', async () => {
     const fakeTileSet = FakeData.tileSetRaster('🦄 🌈');
     config.put(fakeTileSet);
     const req = mockRequest('/v1/tiles/🦄 🌈/global-mercator/0/0/0.png', 'get', Api.header);
-    o(req.path).equals('/v1/tiles/%F0%9F%A6%84%20%F0%9F%8C%88/global-mercator/0/0/0.png');
+    assert.equal(req.path, '/v1/tiles/%F0%9F%A6%84%20%F0%9F%8C%88/global-mercator/0/0/0.png');
     const res = await handler.router.handle(req);
-    o(res.status).equals(200);
-    o(res.header('content-type')).equals('image/png');
-    o(res.header('etag')).notEquals(undefined);
-    o(res.header('cache-control')).equals('public, max-age=604800, stale-while-revalidate=86400');
+    assert.equal(res.status, 200);
+    assert.equal(res.header('content-type'), 'image/png');
+    assert.notEqual(res.header('etag'), undefined);
+    assert.equal(res.header('cache-control'), 'public, max-age=604800, stale-while-revalidate=86400');
   });
 
   ['/favicon.ico', '/index.html', '/foo/bar'].forEach((path) => {
-    o('should 404 on invalid paths: ' + path, async () => {
+    it('should 404 on invalid paths: ' + path, async () => {
       const res = await handler.router.handle(mockRequest(path, 'get', Api.header));
-      o(res.status).equals(404);
+      assert.equal(res.status, 404);
     });
   });
 });

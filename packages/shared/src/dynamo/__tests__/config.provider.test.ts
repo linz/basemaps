@@ -1,13 +1,14 @@
-import o from 'ospec';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
-o.spec('ConfigProviderDynamo', () => {
+describe('ConfigProviderDynamo', () => {
   const Config = new ConfigProviderDynamo('table');
 
-  o.spec('id', () => {
-    o('should create ids', () => {
-      o(Config.Provider.id('linz')).equals('pv_linz');
+  describe('id', () => {
+    it('should create ids', () => {
+      assert.equal(Config.Provider.id('linz'), 'pv_linz');
     });
   });
 });
