@@ -1,18 +1,14 @@
 import assert from 'node:assert';
-import { afterEach, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 
 import { ConfigId, ConfigImagery, ConfigPrefix, getAllImagery } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
-import sinon from 'sinon';
 
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
 describe('ConfigProvider.Imagery', () => {
   const provider = new ConfigProviderDynamo('Foo');
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => sandbox.restore());
 
   const item: ConfigImagery = { id: 'im_foo', name: 'abc' } as any;
 
@@ -43,41 +39,39 @@ describe('ConfigProvider.Imagery', () => {
     }
   });
 
-  it('Should get all Imagery', async () => {
+  it('Should get all Imagery', async (t) => {
     const items = new Map();
     items.set('im_foo1', item);
     items.set('im_foo2', item);
     items.set('im_foo4', item);
-    const get = sandbox.stub(provider.Imagery, 'getAll').resolves(items);
+    const get = t.mock.method(provider.Imagery, 'getAll', () => Promise.resolve(items));
 
     const layers = [{ [3857]: 'foo1' }, { [3857]: 'im_foo2' }, { [2193]: 'foo3', [3857]: 'im_foo4' }] as any;
 
     const result = await getAllImagery(provider, layers, [Epsg.Google]);
-    assert.equal(get.callCount, 1);
-    assert.deepEqual([...get.firstCall.firstArg.keys()], ['im_foo1', 'im_foo2', 'im_foo4']);
+    const firstCall = get.mock.calls[0]?.arguments[0];
+    assert.equal(get.mock.callCount(), 1);
+    assert.deepEqual([...(firstCall?.keys() ?? [])], ['im_foo1', 'im_foo2', 'im_foo4']);
     assert.deepEqual(result.get('im_foo1'), item);
     assert.deepEqual(result.get('im_foo2'), item);
     assert.equal(result.get('im_foo3'), undefined);
     assert.deepEqual(result.get('im_foo4'), item);
   });
 
-  it('should handle unprocessed keys', async () => {
-    const bulk = sandbox.stub(provider.dynamo, 'batchGetItem').callsFake((req: any) => {
-      const keys = req.RequestItems[provider.tableName].Keys;
-      return {
-        promise() {
-          // Only return one element and label the rest as unprocessed
-          const ret = keys.slice(0, 1);
-          const rest = keys.slice(1);
-          const output: DynamoDB.BatchGetItemOutput = { Responses: { [provider.tableName]: ret } };
-          if (rest.length > 0) output.UnprocessedKeys = { [provider.tableName]: { Keys: rest } };
-          return Promise.resolve(output);
-        },
-      } as any;
+  it('should handle unprocessed keys', async (t) => {
+    const bulk = t.mock.method(provider.dynamo, 'send', (req: any) => {
+      const keys = req.input.RequestItems[provider.tableName].Keys;
+
+      // Only return one element and label the rest as unprocessed
+      const ret = keys.slice(0, 1);
+      const rest = keys.slice(1);
+      const output: DynamoDB.BatchGetItemOutput = { Responses: { [provider.tableName]: ret } };
+      if (rest.length > 0) output.UnprocessedKeys = { [provider.tableName]: { Keys: rest } };
+      return Promise.resolve(output);
     });
     const result = await provider.Provider.getAll(new Set(['pv_1234', 'pv_2345']));
 
-    assert.equal(bulk.callCount, 2);
+    assert.equal(bulk.mock.callCount(), 2);
     assert.equal(result.get('pv_1234')?.id, 'pv_1234');
     assert.equal(result.get('pv_2345')?.id, 'pv_2345');
   });

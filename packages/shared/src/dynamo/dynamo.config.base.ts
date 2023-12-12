@@ -1,6 +1,7 @@
 import {
   BatchGetItemCommand,
   BatchGetItemCommandInput,
+  BatchGetItemCommandOutput,
   DynamoDB,
   GetItemCommand,
   PutItemCommand,
@@ -63,9 +64,9 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
       const Keys = mappedKeys.length > 100 ? mappedKeys.slice(0, 100) : mappedKeys;
       mappedKeys = mappedKeys.length > 100 ? mappedKeys.slice(100) : [];
 
-      const req: BatchGetItemCommandInput = { RequestItems: { [this.cfg.tableName]: { Keys } } };
-      while (req != null && Object.keys(req).length > 0) {
-        const items = await this.db.send(new BatchGetItemCommand(req));
+      let RequestItems: BatchGetItemCommandInput['RequestItems'] = { [this.cfg.tableName]: { Keys } };
+      while (RequestItems != null && Object.keys(RequestItems).length > 0) {
+        const items: BatchGetItemCommandOutput = await this.db.send(new BatchGetItemCommand({ RequestItems }));
 
         const metadataItems = items.Responses?.[this.cfg.tableName];
         if (metadataItems == null) throw new Error('Failed to fetch from ' + this.cfg.tableName);
@@ -76,7 +77,7 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
         }
 
         // Sometimes not all results will be returned on the first request
-        req.RequestItems = items.UnprocessedKeys;
+        RequestItems = items.UnprocessedKeys;
       }
     }
 

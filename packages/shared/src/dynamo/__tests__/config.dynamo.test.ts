@@ -1,6 +1,7 @@
 import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
+import { BatchGetItemCommand, GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { ConfigImagery, ConfigTileSet } from '@basemaps/config';
 import DynamoDB from 'aws-sdk/clients/dynamodb.js';
 import { createSandbox } from 'sinon';
@@ -12,7 +13,7 @@ class FakeDynamoDb {
   values: Map<string, Record<string, unknown>> = new Map();
   get: unknown[] = [];
   getAll: { RequestItems: { Foo: { Keys: { id: { S: string } }[] } } }[] = [];
-  getItem(req: any): unknown {
+  getItem(req: any): { promise(): unknown } {
     this.get.push(req);
     const reqId = req.Key.id.S;
     const val = this.values.get(reqId);
@@ -24,7 +25,7 @@ class FakeDynamoDb {
     };
   }
 
-  batchGetItem(req: any): unknown {
+  batchGetItem(req: any): { promise(): unknown } {
     this.getAll.push(req);
     const keys = req.RequestItems.Foo.Keys.map((c: any) => DynamoDB.Converter.unmarshall(c)['id']);
     const output = keys.map((c: string) => this.values.get(c)).filter((f: unknown) => f != null);
@@ -34,6 +35,12 @@ class FakeDynamoDb {
         return Promise.resolve({ Responses: { Foo: output.map((c: any) => DynamoDB.Converter.marshall(c)) } });
       },
     };
+  }
+
+  send(req: any): unknown {
+    if (req instanceof BatchGetItemCommand) return this.batchGetItem(req.input).promise();
+    if (req instanceof GetItemCommand) return this.getItem(req.input).promise();
+    throw new Error('Failed to send request');
   }
 }
 
