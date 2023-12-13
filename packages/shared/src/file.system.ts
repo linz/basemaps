@@ -42,7 +42,7 @@ export const Fsa = fsa;
 fsa.middleware.push({
   name: 'logger',
   fetch(req, next) {
-    console.log(req);
+    console.log(req.source.url.href, '@', req.offset, '+', req.length);
     return next(req);
   },
 });

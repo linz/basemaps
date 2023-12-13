@@ -3,6 +3,7 @@ import { before, beforeEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory } from '@basemaps/config';
 import { fsa, FsMemory, SourceMemory, Tiff } from '@basemaps/shared';
+import { getTiffTagSize, TiffTag } from '@cogeotiff/core';
 
 import { getImageryName, initConfigFromUrls } from '../tiff.config.js';
 
@@ -32,18 +33,31 @@ describe('config import', () => {
     await fsa.write(new URL('memory://tiffs/tile-tiff-name/tiff-a.tiff'), buf);
     const tiff = await Tiff.create(new SourceMemory('memory://', buf));
 
-    // Fun tiff hacking, find all the tileOffset arrays and set them all to 0!
+    // Fun tiff hacking, find all the tileOffset and tileByteCount arrays and set them all to 0!
     const emptyTiff = Buffer.from(buf);
-    for (const img of tiff.images) {
-      const tileOffsets = img.tileOffset;
-      // Location in the file where this tag starts
-      const tagOffset = tileOffsets.tagOffset;
+    for (const tagId of [TiffTag.TileByteCounts, TiffTag.TileOffsets]) {
+      for (const img of tiff.images) {
+        await img.fetch(tagId);
+        const tagObj = img.tags.get(tagId);
+        if (tagObj == null) throw new Error('Failed to load tag: ' + tagId);
 
-      for (let i = 0; i < tileOffsets.count; i++) emptyTiff[tagOffset + i] = 0;
+        const dataSize = getTiffTagSize(tagObj.dataType);
+
+        const dataOffset = tagObj.type === 'offset' ? tagObj.dataOffset : tagObj.tagOffset + 4 + tiff.ifdConfig.pointer;
+
+        for (let i = 0; i < tagObj.count * dataSize; i++) emptyTiff[dataOffset + i] = 0;
+      }
+    }
+
+    const tiffB = await Tiff.create(new SourceMemory('memory://', emptyTiff));
+    // No images should have offsets
+    for (const img of tiffB.images) {
+      await img.fetch(TiffTag.TileOffsets);
+      const value = img.tileOffset.value.find((f) => f > 0);
+      assert.equal(value, undefined);
     }
 
     await fsa.write(new URL('memory://tiffs/tile-tiff-name/tiff-b.tiff'), emptyTiff);
-
     const cfg = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name')]);
 
