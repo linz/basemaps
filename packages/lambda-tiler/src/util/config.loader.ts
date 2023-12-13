@@ -13,7 +13,8 @@ const SafeBuckets = new Set([
   'linz-basemaps-staging',
   'linz-basemaps-scratch',
 ]);
-const SafeProtocols = new Set(['s3', 'memory']);
+
+const SafeProtocols = new Set([new URL('s3://foo').protocol, new URL('memory://foo.json').protocol]);
 
 export class ConfigLoader {
   /** Exposed for testing */

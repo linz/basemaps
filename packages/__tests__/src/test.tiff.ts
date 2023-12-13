@@ -1,4 +1,4 @@
-export const TestDataPath = new URL('../static', import.meta.url);
+export const TestDataPath = new URL('../static/', import.meta.url);
 
 const TiffGooglePath = new URL('rgba8.google.tiff', TestDataPath);
 const TiffNztm2000Path = new URL('rgba8.nztm2000.tiff', TestDataPath);
