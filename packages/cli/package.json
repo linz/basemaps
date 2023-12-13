@@ -45,6 +45,8 @@
     "@basemaps/shared": "^7.0.0",
     "@basemaps/tiler": "^7.0.0",
     "@basemaps/tiler-sharp": "^7.0.0",
+    "@cotar/builder": "^6.0.1",
+    "@cotar/tar": "^6.0.1",
     "@linzjs/geojson": "^7.0.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "ansi-colors": "^4.1.1",

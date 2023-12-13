@@ -2,7 +2,9 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
+import { fsa } from '@basemaps/shared';
 import { Approx, TestTiff } from '@basemaps/test';
+import { Tiff } from '@cogeotiff/core';
 
 import { CompositionTiff } from '../raster.js';
 import { Tiler } from '../tiler.js';
@@ -12,7 +14,7 @@ describe('tiler.test', () => {
     it('should intersect google', async () => {
       // o.timeout(1_000);
 
-      const tiff = await TestTiff.Google.init();
+      const tiff = await Tiff.create(fsa.source(TestTiff.Google));
       const tiler = new Tiler(GoogleTms);
       const screenPx = GoogleTms.tileToPixels(0, 0);
       const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, GoogleTms.tileSize, GoogleTms.tileSize);
@@ -28,7 +30,7 @@ describe('tiler.test', () => {
       it(`should intersect google for qk:${qk}`, async () => {
         // o.timeout(1_000);
 
-        const tiff = await TestTiff.Google.init();
+        const tiff = await Tiff.create(fsa.source(TestTiff.Google));
         const tiler = new Tiler(GoogleTms);
         const tile = QuadKey.toTile(qk);
 

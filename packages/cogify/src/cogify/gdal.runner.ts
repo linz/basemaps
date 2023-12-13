@@ -1,12 +1,12 @@
 import { sha256base58 } from '@basemaps/config';
-import { LogType } from '@basemaps/shared';
+import { LogType, urlToString } from '@basemaps/shared';
 import { spawn } from 'child_process';
 import { EventEmitter } from 'events';
 import { dirname } from 'path';
 
 export interface GdalCommand {
   /** Output file location */
-  output: string;
+  output: URL;
   /** GDAL command to use */
   command: 'gdalwarp' | 'gdalbuildvrt' | 'gdal_translate';
   /** GDAL arguments to use */
@@ -21,7 +21,7 @@ function getDockerContainer(): string {
 
 /** Convert a GDAL command to run using docker */
 function toDockerArgs(cmd: GdalCommand): string[] {
-  const dirName = dirname(cmd.output);
+  const dirName = dirname(urlToString(cmd.output));
 
   const args = ['run'];
   if (cmd.output) args.push(...['-v', `${dirName}:${dirName}`]);

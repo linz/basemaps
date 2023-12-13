@@ -1,6 +1,6 @@
-import { isEmptyTiff } from '@basemaps/config';
+import { isEmptyTiff } from '@basemaps/config-loader';
 import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogType, stringToUrlFolder, Tiff, urlToString } from '@basemaps/shared';
+import { fsa, LogType, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, option, optional, restPositionals } from 'cmd-ts';
@@ -9,6 +9,7 @@ import { tmpdir } from 'os';
 import pLimit from 'p-limit';
 import path from 'path';
 import { StacAsset, StacCollection } from 'stac-ts';
+import { pathToFileURL } from 'url';
 
 import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader } from '../../download.js';
@@ -134,7 +135,11 @@ export const BasemapsCogifyCreateCommand = command({
       }),
     );
 
-    const gdalVersion = await new GdalRunner({ command: 'gdal_translate', args: ['--version'], output: '' }).run();
+    const gdalVersion = await new GdalRunner({
+      command: 'gdal_translate',
+      args: ['--version'],
+      output: pathToFileURL('.'),
+    }).run();
 
     /** Limit the creation of COGs to concurrency at the same time */
     const Q = pLimit(args.concurrency);
@@ -171,7 +176,7 @@ export const BasemapsCogifyCreateCommand = command({
           return createCog({
             options,
             tempFolder: tmpFolder,
-            sourceFiles: sourceLocations.map((m) => urlToString(m)),
+            sourceFiles: sourceLocations,
             cutline,
             logger,
           });
@@ -242,7 +247,7 @@ export const BasemapsCogifyCreateCommand = command({
           );
         }
         // Write the STAC metadata
-        await fsa.write(urlToString(itemStacPath), JSON.stringify(item, null, 2));
+        await fsa.write(itemStacPath, JSON.stringify(item, null, 2));
         logger.info({ tileId, tiffPath, duration: metrics.end(tileId) }, 'Cog:Create:Done');
       });
 
@@ -270,9 +275,9 @@ export interface CogCreationContext {
   /** COG Creation options */
   options: CogifyCreationOptions;
   /** Location to store all the temporary files */
-  tempFolder: string;
+  tempFolder: URL;
   /** List of source tiffs paths needed for the cog */
-  sourceFiles: string[];
+  sourceFiles: URL[];
   /** Optional cutline to cut the imagery too */
   cutline: CutlineOptimizer;
   /** Optional logger */
@@ -280,7 +285,7 @@ export interface CogCreationContext {
 }
 
 /** Create a cog from the creation options */
-async function createCog(ctx: CogCreationContext): Promise<string> {
+async function createCog(ctx: CogCreationContext): Promise<URL> {
   const options = ctx.options;
   await ProjectionLoader.load(options.sourceEpsg);
   const tileId = TileId.fromTile(options.tile);
@@ -289,28 +294,24 @@ async function createCog(ctx: CogCreationContext): Promise<string> {
 
   logger?.info({ tileId }, 'Cog:Create');
 
-  // Path to store all the temporary files  generally `/tmp/:id/:tileId-*`
-  const tmpItemPath = fsa.join(ctx.tempFolder, tileId);
-
   const tileMatrix = TileMatrixSets.find(options.tileMatrix);
   if (tileMatrix == null) throw new Error('Failed to find tile matrix: ' + options.tileMatrix);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtSource');
   // Create the vrt of all the source files
-  const vrtSourceCommand = gdalBuildVrt(tmpItemPath + '-source', ctx.sourceFiles);
+  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles);
   await new GdalRunner(vrtSourceCommand).run(logger);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtWarp');
 
-  const cutlineProperties: { path: string | null; blend: number } = { path: null, blend: ctx.cutline.blend };
+  const cutlineProperties: { url: URL | null; blend: number } = { url: null, blend: ctx.cutline.blend };
   if (ctx.cutline.path) {
     logger?.debug('Cog:Cutline');
     const optimizedCutline = ctx.cutline.optimize(options.tile);
     if (optimizedCutline) {
-      cutlineProperties.path = tmpItemPath + '-cutline.geojson';
-      const cutlineData = JSON.stringify(optimizedCutline, null, 2);
-      await fsa.write(cutlineProperties.path, cutlineData);
-      logger?.info({ source: ctx.cutline.path, optimized: cutlineProperties.path }, 'Cog:Cutline');
+      cutlineProperties.url = new URL(`${tileId}-cutline.geojson`, ctx.tempFolder);
+      await fsa.write(cutlineProperties.url, JSON.stringify(optimizedCutline));
+      logger?.info({ source: ctx.cutline.path, optimized: cutlineProperties.url }, 'Cog:Cutline');
     } else {
       logger?.info('Cog:Cutline:Skipped');
     }
@@ -318,7 +319,7 @@ async function createCog(ctx: CogCreationContext): Promise<string> {
 
   // warp the source VRT into the output parameters
   const vrtWarpCommand = gdalBuildVrtWarp(
-    tmpItemPath + '-warp',
+    new URL(`${tileId}-${options.tileMatrix}-warp.vrt`, ctx.tempFolder),
     vrtSourceCommand.output,
     options.sourceEpsg,
     cutlineProperties,
@@ -328,7 +329,7 @@ async function createCog(ctx: CogCreationContext): Promise<string> {
 
   logger?.debug({ tileId }, 'Cog:Create:Tiff');
   // Create the COG from the warped vrt
-  const cogCreateCommand = gdalBuildCog(tmpItemPath, vrtWarpCommand.output, options);
+  const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtWarpCommand.output, options);
   await new GdalRunner(cogCreateCommand).run(logger);
   return cogCreateCommand.output;
 }
@@ -338,15 +339,15 @@ async function createCog(ctx: CogCreationContext): Promise<string> {
  * Just open it as a COG and ensure the metadata looks about  right
  */
 async function validateOutputTiff(url: URL, logger: LogType): Promise<void> {
-  logger.info({ path }, 'Cog:Validate');
+  logger.info({ url }, 'Cog:Validate');
   try {
-    const tiff = await new Tiff(fsa.source(path)).init(true);
+    const tiff = await Tiff.create(fsa.source(url));
     const tiffStats = tiff.images.map((t) => {
       return { id: t.id, ...t.size, tiles: t.tileCount };
     });
     logger.info({ path }, 'Cog:Validate:Ok');
     logger.info({ tiffStats }, 'Cog:Validate:Stats');
-    await tiff.close();
+    await tiff.source.close?.();
   } catch (err) {
     logger.error({ path, err }, 'Cog:ValidateFailed');
     throw err;

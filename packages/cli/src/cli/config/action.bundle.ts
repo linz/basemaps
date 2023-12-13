@@ -1,4 +1,4 @@
-import { ConfigJson } from '@basemaps/config';
+import { ConfigJson } from '@basemaps/config-loader';
 import { fsa, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 
@@ -38,13 +38,13 @@ export class CommandBundle extends CommandLineAction {
 
   async onExecute(): Promise<void> {
     const logger = LogConfig.get();
-    const config = this.config.value ?? DefaultConfig;
-    const bundle = this.output.value ?? DefaultOutput;
-    const mem = await ConfigJson.fromPath(config, logger);
+    const configUrl = fsa.toUrl(this.config.value ?? DefaultConfig);
+    const outputUrl = fsa.toUrl(this.output.value ?? DefaultOutput);
+    const mem = await ConfigJson.fromUrl(configUrl, logger);
     if (this.assets.value) mem.assets = this.assets.value;
     const configJson = mem.toJson();
-    await fsa.writeJson(bundle, configJson);
-    logger.info({ path: bundle }, 'ConfigBundled');
+    await fsa.write(outputUrl, JSON.stringify(configJson));
+    logger.info({ path: outputUrl }, 'ConfigBundled');
     return;
   }
 }

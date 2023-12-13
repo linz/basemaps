@@ -101,8 +101,8 @@ export class TileMakerSharp implements TileMaker {
     if (firstLayer.crop != null || firstLayer.extract != null || firstLayer.resize != null) return false;
 
     // Validate tile size is expected
-    const img = firstLayer.asset.getImage(firstLayer.source.imageId);
-    const tileSize = img.tileSize;
+    const img = firstLayer.asset.images[firstLayer.source.imageId];
+    const tileSize = img?.tileSize;
     if (tileSize.height !== this.height || tileSize.width !== this.width) return false;
 
     // Image format has to match
@@ -132,7 +132,10 @@ export class TileMakerSharp implements TileMaker {
     // If we are serving a single tile back to the user, sometimes we can serve the raw image buffer from the tiff
     if (this.isDirectImage(ctx)) {
       const firstLayer = ctx.layers[0] as CompositionTiff;
-      const buf = await firstLayer.asset.getTile(firstLayer.source.x, firstLayer.source.y, firstLayer.source.imageId);
+      const buf = await firstLayer.asset.images[firstLayer.source.imageId].getTile(
+        firstLayer.source.x,
+        firstLayer.source.y,
+      );
       metrics.end('compose:overlay');
 
       if (buf == null) return { buffer: await this.getEmptyImage(ctx.format, ctx.background), metrics, layers: 0 };
@@ -170,7 +173,7 @@ export class TileMakerSharp implements TileMaker {
   }
 
   async composeTileTiff(comp: CompositionTiff, resizeKernel: TileMakerResizeKernel): Promise<SharpOverlay | null> {
-    const tile = await comp.asset.getTile(comp.source.x, comp.source.y, comp.source.imageId);
+    const tile = await comp.asset.images[comp.source.imageId].getTile(comp.source.x, comp.source.y);
     if (tile == null) return null;
 
     const sharp = Sharp(Buffer.from(tile.bytes));

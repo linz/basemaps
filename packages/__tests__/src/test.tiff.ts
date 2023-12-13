@@ -1,20 +1,17 @@
-import { fsa } from '@chunkd/fs';
-import { CogTiff } from '@cogeotiff/core';
-import path, { join } from 'path';
 import url from 'url';
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const filePath = url.fileURLToPath(import.meta.url);
 
-export const TestDataPath = join(__dirname, '../static');
+export const TestDataPath = new URL('../static', filePath);
 
-const TiffGooglePath = join(TestDataPath, 'rgba8.google.tiff');
-const TiffNztm2000Path = join(TestDataPath, 'rgba8.nztm2000.tiff');
+const TiffGooglePath = new URL('rgba8.google.tiff', TestDataPath);
+const TiffNztm2000Path = new URL('rgba8.nztm2000.tiff', TestDataPath);
 
 export class TestTiff {
-  static get Nztm2000(): CogTiff {
-    return new CogTiff(fsa.source(TiffNztm2000Path));
+  static get Nztm2000(): URL {
+    return TiffNztm2000Path;
   }
 
-  static get Google(): CogTiff {
-    return new CogTiff(fsa.source(TiffGooglePath));
+  static get Google(): URL {
+    return TiffGooglePath;
   }
 }

@@ -67,7 +67,7 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
     return mem;
   }
 
-  const mem = await ConfigJson.fromPath(configPath, logger);
+  const mem = await ConfigJson.fromUrl(fsa.toUrl(configPath), logger);
   logger.info({ path: configPath, mode: 'config:json' }, 'Starting Server');
   mem.createVirtualTileSets();
   return mem;

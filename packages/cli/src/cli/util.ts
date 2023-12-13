@@ -104,7 +104,7 @@ const gzipPromise = promisify(gzip);
  * @returns whether the item was updated
  */
 export async function uploadStaticFile(
-  filePath: string,
+  filePath: URL,
   target: string,
   contentType: string,
   cacheControl: string,
