@@ -29,6 +29,7 @@
   ],
   "dependencies": {
     "@basemaps/config": "^7.0.0",
+    "@basemaps/geo": "^7.0.0",
     "@basemaps/shared": "^7.0.0"
   }
 }

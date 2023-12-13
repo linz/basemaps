@@ -14,7 +14,7 @@ import {
   StyleJson,
   TileSetType,
 } from '@basemaps/config';
-import { ConfigImageryOverview } from '@basemaps/config/src/config/imagery.js';
+import { ConfigImageryOverview } from '@basemaps/config';
 import {
   Bounds,
   GoogleTms,

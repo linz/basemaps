@@ -14,6 +14,7 @@ function getAllImports(path) {
 
   for (const line of data) {
     if (line.includes('require.resolve')) continue;
+    if (line.includes('__test')) continue; // ignore tests
     const pkgName = line.split(' ').pop().replace(/[';]/g, '').trim();
 
     if (pkgName.length > 0) allImports.add(pkgName);
@@ -28,6 +29,7 @@ async function main() {
   let hasFailures = false;
   for (const pkg of packages) {
     if (pkg === '__tests__') continue; // Ignore tests
+
     const pkgPath = `./packages/${pkg}`;
     const pkgJson = JSON.parse(await fs.readFile(`${pkgPath}/package.json`));
 

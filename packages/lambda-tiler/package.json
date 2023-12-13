@@ -23,6 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@basemaps/config": "^7.0.0",
+    "@basemaps/config-loader": "^7.0.0",
     "@basemaps/geo": "^7.0.0",
     "@basemaps/shared": "^7.0.0",
     "@basemaps/tiler": "^7.0.0",
