@@ -3,21 +3,19 @@ import { fileURLToPath } from 'node:url';
 import { S3Client } from '@aws-sdk/client-s3';
 import { FileSystem, fsa } from '@chunkd/fs';
 import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
+import type { RequestSigner } from '@smithy/types';
 
 import { Env } from './const.js';
 import { LogConfig } from './log.js';
 
 export const s3Fs = new FsAwsS3(new S3Client());
 
+// For public URLS use --no-sign-request
 export const s3FsPublic = new FsAwsS3(
   new S3Client({
-    // TODO need to fix this as it cannot find "HttpRequest"
-    //     signer: {
-    //       async sign(req: HttpRequest): Promise<HttpRequest> {
-    //         return req;
-    //       },
-    //     },
-    //   }),
+    signer: {
+      sign: async (req) => req,
+    } as RequestSigner,
   }),
 );
 
