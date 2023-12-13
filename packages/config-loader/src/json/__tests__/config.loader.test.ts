@@ -1,6 +1,5 @@
 import assert from 'node:assert';
 import { before, beforeEach, describe, it } from 'node:test';
-import {} from 'node:url';
 
 import { ConfigProviderMemory } from '@basemaps/config';
 import { fsa, FsMemory, SourceMemory, Tiff } from '@basemaps/shared';
