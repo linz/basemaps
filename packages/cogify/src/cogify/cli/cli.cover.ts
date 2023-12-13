@@ -1,5 +1,5 @@
 import { ConfigProviderMemory } from '@basemaps/config';
-import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
+import { initConfigFromUrls } from '@basemaps/config-loader';
 import { GoogleTms, Nztm2000QuadTms, TileId } from '@basemaps/geo';
 import { fsa, urlToString } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';

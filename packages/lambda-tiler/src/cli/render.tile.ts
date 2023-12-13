@@ -1,5 +1,5 @@
 import { ConfigProviderMemory } from '@basemaps/config';
-import { initConfigFromUrls } from '@basemaps/config/build/json/tiff.config.js';
+import { initConfigFromUrls } from '@basemaps/config-loader';
 import { ImageFormat, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';

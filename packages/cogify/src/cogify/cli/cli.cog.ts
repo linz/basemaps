@@ -70,6 +70,7 @@ export const BasemapsCogifyCreateCommand = command({
       defaultValue: () => 4,
       defaultValueIsSerializable: true,
     }),
+    docker: flag({ long: 'docker', description: 'Run GDAL inside docker container' }),
     fromFile: option({
       type: optional(UrlArrayJsonFile),
       long: 'from-file',
@@ -82,6 +83,8 @@ export const BasemapsCogifyCreateCommand = command({
   async handler(args) {
     const metrics = new Metrics();
     const logger = getLogger(this, args);
+
+    if (args.docker) process.env['GDAL_DOCKER'] = '1';
 
     const paths = args.fromFile != null ? args.path.concat(args.fromFile) : args.path;
 

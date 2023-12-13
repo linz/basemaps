@@ -1,4 +1,4 @@
-import { ConfigImageryTiff } from '@basemaps/config/build/json/tiff.config.js';
+import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';

@@ -1,5 +1,5 @@
 import { base58, ConfigProviderMemory } from '@basemaps/config';
-import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config/build/json/tiff.config.js';
+import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config-loader';
 import { Projection, TileMatrixSets } from '@basemaps/geo';
 import { fsa, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
