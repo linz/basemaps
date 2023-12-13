@@ -12,6 +12,7 @@ export { LoggerFatalError } from './logger.fatal.error.js';
 export { toQueryString } from './url.js';
 export * from './util.js';
 export { V, VNode, VNodeElement, VNodeText } from './vdom.js';
+export { FsMemory } from '@chunkd/fs';
 export { SourceMemory } from '@chunkd/source-memory';
 export { Tiff, TiffTag } from '@cogeotiff/core';
 export { Cotar } from '@cotar/core';
