@@ -38,6 +38,15 @@ fsa.register('s3://nz-imagery', s3FsPublic);
 
 export const Fsa = fsa;
 
+// Logging middleware
+fsa.middleware.push({
+  name: 'logger',
+  fetch(req, next) {
+    console.log(req);
+    return next(req);
+  },
+});
+
 // FIXME add middleware to cache requests
 
 // FIXME add tests / docs

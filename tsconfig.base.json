@@ -4,6 +4,7 @@
     "lib": ["ES2023"],
     "outDir": "build",
     // TODO turn this on, its a lot of changes though
-    "noUncheckedIndexedAccess": false
+    "noUncheckedIndexedAccess": false,
+    "sourceMap": true
   }
 }
