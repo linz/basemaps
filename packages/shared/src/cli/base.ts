@@ -1,5 +1,3 @@
-import 'source-map-support/register.js';
-
 import { CommandLineParser } from '@rushstack/ts-command-line';
 
 import { LogConfig } from '../log.js';

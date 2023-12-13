@@ -1,5 +1,3 @@
-import 'source-map-support/register.js';
-
 import { GoogleTms, ImageFormat } from '@basemaps/geo';
 import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';

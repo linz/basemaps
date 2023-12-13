@@ -38,6 +38,8 @@ fsa.register('s3://nz-imagery', s3FsPublic);
 
 export const Fsa = fsa;
 
+// FIXME add middleware to cache requests
+
 // FIXME add tests / docs
 /**
  * When chunkd moves to URLs this can be removed
