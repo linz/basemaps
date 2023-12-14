@@ -1,11 +1,10 @@
+import * as fs from 'node:fs';
+
 import { ConfigTileSetRaster } from '@basemaps/config';
 import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import * as fs from 'fs';
-import * as path from 'path';
 import PixelMatch from 'pixelmatch';
 import Sharp from 'sharp';
-import url from 'url';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { TileXyz } from '../util/validate.js';
