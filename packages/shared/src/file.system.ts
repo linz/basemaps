@@ -1,8 +1,11 @@
 import { fileURLToPath } from 'node:url';
 
 import { S3Client } from '@aws-sdk/client-s3';
+import { sha256base58 } from '@basemaps/config';
 import { FileSystem, fsa } from '@chunkd/fs';
 import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
+import { SourceCache, SourceChunk } from '@chunkd/middleware';
+import type { SourceCallback, SourceRequest } from '@chunkd/source';
 import type { RequestSigner } from '@smithy/types';
 
 import { Env } from './const.js';
@@ -36,14 +39,45 @@ fsa.register('s3://nz-imagery', s3FsPublic);
 
 export const Fsa = fsa;
 
+export const FsaChunk = new SourceChunk({ size: 128 * 1024 });
+fsa.middleware.push(FsaChunk);
+
+export const FsaCache = new SourceCache({ size: 256 * 1024 * 1024 }); // 256MB of cache
+fsa.middleware.push(FsaCache);
+
 // Logging middleware
-fsa.middleware.push({
+export const FsaLog = {
   name: 'logger',
-  fetch(req, next) {
-    LogConfig.get().trace({ source: req.source.url.href, offset: req.offset, length: req.length }, 'fetch');
-    return next(req);
+  count: 0,
+  requests: [] as string[],
+  async fetch(req: SourceRequest, next: SourceCallback): Promise<ArrayBuffer> {
+    this.count++;
+    const requestId = sha256base58(
+      JSON.stringify({ source: req.source.url.href, offset: req.offset, length: req.length }),
+    );
+    this.requests.push(requestId);
+    const startTime = performance.now();
+
+    const res = await next(req);
+    LogConfig.get().debug(
+      {
+        source: req.source.url.href,
+        offset: req.offset,
+        length: req.length,
+        requestId,
+        duration: performance.now() - startTime,
+      },
+      'fetch',
+    );
+    return res;
   },
-});
+
+  reset(): void {
+    this.count = 0;
+    this.requests = [];
+  },
+};
+fsa.middleware.push(FsaLog);
 
 // FIXME add middleware to cache requests
 

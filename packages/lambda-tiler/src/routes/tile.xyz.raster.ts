@@ -1,6 +1,6 @@
 import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
 import { Bounds, Epsg, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
-import { Cotar, Env, fsa, Tiff } from '@basemaps/shared';
+import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -68,7 +68,7 @@ export const TileXyzRaster = {
       }
       if (!bounds.intersects(Bounds.fromJson(img.bounds))) continue;
 
-      const imgUrl = fsa.toUrl(img.uri);
+      const imgUrl = stringToUrlFolder(img.uri);
       for (const c of img.files) {
         if (!bounds.intersects(Bounds.fromJson(c))) continue;
 
