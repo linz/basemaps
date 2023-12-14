@@ -10,7 +10,6 @@ import {
 } from '@basemaps/config';
 import { ImageFormat, VectorFormat } from '@basemaps/geo';
 import { fsa, FsMemory } from '@basemaps/shared';
-// import { FsMemory } from '@chunkd/fs';
 
 export const TileSetAerial: ConfigTileSetRaster = {
   id: 'ts_aerial',
