@@ -105,9 +105,9 @@ class CreateAction extends CommandLineAction {
 
       const srcPath = fsa.join(tmpFolder.sourcePath, String(FileType.Output));
 
-      for (const file of await fs.readdir(srcPath)) {
-        await fsa.write(fsa.join(outputPath, file), createReadStream(fsa.join(srcPath, file)));
-      }
+      await Promise.all(await fs.readdir(srcPath).map((file) => {
+        return fsa.write(fsa.join(outputPath, file), createReadStream(fsa.join(srcPath, file)));
+      }));
     } finally {
       await fs.rm(tmpFolder.sourcePath, { recursive: true });
     }

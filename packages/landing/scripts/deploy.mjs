@@ -70,8 +70,10 @@ async function deploy() {
           'public, max-age=60, stale-while-revalidate=300';
 
       if (targetKey.endsWith('index.html') && targetKey !== '/index.html') {
-        await uploadStaticFile(filePath, targetKey.replace('/index.html', ''), contentType, cacheControl);
-        await uploadStaticFile(filePath, targetKey.replace('/index.html', '/'), contentType, cacheControl);
+        await Promise.all([
+          uploadStaticFile(filePath, targetKey.replace('/index.html', ''), contentType, cacheControl),
+          uploadStaticFile(filePath, targetKey.replace('/index.html', '/'), contentType, cacheControl),
+        ]);
       }
 
       const isUploaded = await uploadStaticFile(filePath, targetKey, contentType, cacheControl);

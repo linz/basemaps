@@ -83,8 +83,10 @@ export async function buildSprites(
         outputPath = path.join(output, outputPath);
       }
 
-      await fs.writeFile(`${outputPath}.json`, JSON.stringify(res.layout, null, 2));
-      await fs.writeFile(`${outputPath}.png`, res.buffer);
+      await Promise.all([
+        fs.writeFile(`${outputPath}.json`, JSON.stringify(res.layout, null, 2)),
+        fs.writeFile(`${outputPath}.png`, res.buffer),
+      ]);
       stats.push({
         sheet: sheetName,
         path: outputPath,
