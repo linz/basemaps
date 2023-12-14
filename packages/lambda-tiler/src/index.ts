@@ -1,4 +1,4 @@
-import { LogConfig } from '@basemaps/shared';
+import { FsaCache, FsaLog, LogConfig } from '@basemaps/shared';
 import { LambdaHttpResponse, lf } from '@linzjs/lambda';
 
 import { tileAttributionGet } from './routes/attribution.js';
@@ -23,10 +23,13 @@ export const handler = lf.http(LogConfig.get());
 handler.router.timeoutEarlyMs = 1_000;
 
 handler.router.hook('request', (req) => {
+  FsaLog.reset();
   req.set('name', 'LambdaTiler');
 });
 
-handler.router.hook('response', (_req, res) => {
+handler.router.hook('response', (req, res) => {
+  req.set('requestCount', FsaLog.requests.length);
+  req.set('cacheSize', FsaCache.size);
   // Force access-control-allow-origin to everything
   res.header('access-control-allow-origin', '*');
 });
