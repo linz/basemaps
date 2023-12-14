@@ -1,14 +1,13 @@
 import { base58, ConfigProviderMemory } from '@basemaps/config';
-import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config/build/json/tiff.config.js';
+import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config-loader';
 import { Projection, TileMatrixSets } from '@basemaps/geo';
-import { fsa } from '@basemaps/shared';
+import { fsa, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, positional } from 'cmd-ts';
 import pLimit from 'p-limit';
 
 import { isArgo } from '../../argo.js';
-import { urlToString } from '../../download.js';
 import { getLogger, logArguments } from '../../log.js';
 import { UrlFolder } from '../parsers.js';
 
@@ -46,11 +45,11 @@ export const BasemapsCogifyConfigCommand = command({
     logger.info({ files: im.files.length, titles: im.title }, 'ImageryConfig:Loaded');
 
     const config = provider.toJson();
-    const outputPath = urlToString(new URL(`basemaps-config-${config.hash}.json.gz`, args.target ?? args.path));
+    const outputPath = new URL(`basemaps-config-${config.hash}.json.gz`, args.target ?? args.path);
     logger.info({ output: outputPath, hash: config.hash }, 'ImageryConfig:Write');
-    await fsa.writeJson(outputPath, config);
+    await fsa.write(outputPath, JSON.stringify(config));
 
-    const configPath = base58.encode(Buffer.from(outputPath));
+    const configPath = base58.encode(Buffer.from(outputPath.href));
     const location = getImageryCenterZoom(im);
     const targetZoom = location.zoom;
     const lat = location.lat.toFixed(7);
@@ -76,9 +75,9 @@ export const BasemapsCogifyConfigCommand = command({
 
     if (isArgo()) {
       // Path to where the config is located
-      await fsa.write('/tmp/cogify/config-path', outputPath);
+      await fsa.write(fsa.toUrl('/tmp/cogify/config-path'), urlToString(outputPath));
       // A URL to where the imagery can be viewed
-      await fsa.write('/tmp/cogify/config-url', url);
+      await fsa.write(fsa.toUrl('/tmp/cogify/config-url'), url);
     }
 
     logger.info({ metrics: metrics.metrics }, 'ImageryConfig:Metrics');

@@ -109,7 +109,7 @@ describe('/v1/styles', () => {
     const request = mockRequest('/v1/tiles/topographic/Google/style/topographic.json', 'get', Api.header);
 
     const res = await handler.router.handle(request);
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 200, res.statusDescription);
     assert.equal(res.header('content-type'), 'application/json');
     assert.equal(res.header('cache-control'), 'no-store');
 
@@ -142,7 +142,7 @@ describe('/v1/styles', () => {
     );
 
     const res = await handler.router.handle(request);
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 200, res.statusDescription);
     assert.equal(res.header('content-type'), 'application/json');
     assert.equal(res.header('cache-control'), 'no-store');
 
@@ -172,7 +172,7 @@ describe('/v1/styles', () => {
     const tileSet = FakeData.tileSetRaster('aerial');
     config.put(tileSet);
     const res = await handler.router.handle(request);
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 200, res.statusDescription);
 
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
 
@@ -190,7 +190,7 @@ describe('/v1/styles', () => {
     const tileSet = FakeData.tileSetRaster('aerial');
     config.put(tileSet);
     const res = await handler.router.handle(request);
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 200, res.statusDescription);
 
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
 
@@ -208,7 +208,7 @@ describe('/v1/styles', () => {
     const request = mockUrlRequest('/v1/styles/aerial.json', `?config=${configId}`, Api.header);
 
     const res = await handler.router.handle(request);
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 200, res.statusDescription);
 
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
 

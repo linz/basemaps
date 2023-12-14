@@ -39,7 +39,7 @@ export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<La
   const imagery = await config.Imagery.get(config.Imagery.id(req.params.imageryId));
   if (imagery == null) return NotFound();
 
-  const targetPath = fsa.join(imagery.uri, requestedFile);
+  const targetPath = new URL(requestedFile, fsa.toUrl(imagery.uri));
 
   try {
     const buf = await fsa.read(targetPath);

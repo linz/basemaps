@@ -1,13 +1,11 @@
 import { base58 } from '@basemaps/config';
-import { LogConfig, LogType } from '@basemaps/shared';
-import { SourceMemory } from '@chunkd/core';
-import { fsa } from '@chunkd/fs';
-import { CotarIndexBinary, CotarIndexBuilder, CotarIndexOptions, TarReader } from '@cotar/core';
+import { fsa, LogConfig, LogType, SourceMemory } from '@basemaps/shared';
+import { CotarIndexBuilder, TarReader } from '@cotar/builder';
+import { CotarIndex } from '@cotar/core';
 import { TarBuilder } from '@cotar/tar';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { createHash } from 'crypto';
 import { createReadStream, promises as fs } from 'fs';
-import * as path from 'path';
 import { Readable } from 'stream';
 
 const Packing = 25; // Packing factor for the hash map
@@ -52,11 +50,11 @@ export class CommandBundleAssets extends CommandLineAction {
     const logger = LogConfig.get();
     const assets = this.assets.value;
     const output = this.output.value;
-    if (assets == null || output == null) throw new Error('Please provide a input or ouput path');
+    if (assets == null || output == null) throw new Error('Please provide a input and output path');
     if (!output.endsWith('.tar.co')) throw new Error(`Invalid output, needs to be .tar.co :"${output}"`);
 
-    logger.info({ indput: assets }, 'BundleAssets:Start');
-    const tarFile = await this.buildTar(assets, output, logger);
+    logger.info({ input: assets }, 'BundleAssets:Start');
+    const tarFile = await this.buildTar(fsa.toUrl(assets), output, logger);
     const cotarFile = await this.buildTarCo(tarFile, output, logger);
     const cotarHash = await hashFile(createReadStream(cotarFile));
 
@@ -65,7 +63,7 @@ export class CommandBundleAssets extends CommandLineAction {
     logger.info({ output: cotarFile, hash: cotarHash }, 'BundleAssets:Finish');
   }
 
-  async buildTar(input: string, output: string, logger: LogType): Promise<string> {
+  async buildTar(input: URL, output: string, logger: LogType): Promise<string> {
     const startTime = Date.now();
     const outputTar = output.split('.co')[0];
 
@@ -73,12 +71,11 @@ export class CommandBundleAssets extends CommandLineAction {
 
     const files = await fsa.toArray(fsa.list(input));
     // Ensure files are put into the same order
-    files.sort((a, b) => a.localeCompare(b));
+    files.sort((a, b) => a.href.localeCompare(b.href));
     logger.info({ output: outputTar, files: files.length }, 'Tar:Create');
 
-    const basePath = path.resolve(input);
     for (const file of files) {
-      const filePath = file.replace(basePath, '').slice(1); // Remove the leading '/'
+      const filePath = file.href.replace(input.href, '').slice(1); // Remove the leading '/'
       await tarBuilder.write(filePath, await fsa.read(file));
     }
 
@@ -91,14 +88,12 @@ export class CommandBundleAssets extends CommandLineAction {
   async buildTarCo(input: string, output: string, logger: LogType): Promise<string> {
     logger.info({ output }, 'Cotar:Create');
 
-    const opts: CotarIndexOptions = { packingFactor: 1 + Packing / 100, maxSearch: MaxSearch };
-
     const indexFile = input + '.index';
 
     const startTime = Date.now();
-    const buf = await this.toTarIndex(input, indexFile, opts, logger);
+    const buf = await this.toTarIndex(input, indexFile, logger);
 
-    logger.info({ output }, 'Cotar:Craete:WriteTar');
+    logger.info({ output }, 'Cotar:Create:WriteTar');
     await fs.copyFile(input, output);
     await fs.appendFile(output, buf);
 
@@ -107,15 +102,18 @@ export class CommandBundleAssets extends CommandLineAction {
     return output;
   }
 
-  async toTarIndex(filename: string, indexFileName: string, opts: CotarIndexOptions, logger: LogType): Promise<Buffer> {
+  async toTarIndex(filename: string, indexFileName: string, logger: LogType): Promise<Buffer> {
     const fd = await fs.open(filename, 'r');
     logger.info({ index: indexFileName }, 'Cotar.Index:Start');
     const startTime = Date.now();
 
-    const { buffer, count } = await CotarIndexBuilder.create(fd, opts);
+    const { buffer, count } = await CotarIndexBuilder.create(fd, {
+      packingFactor: 1 + Packing / 100,
+      maxSearch: MaxSearch,
+    });
 
     logger.info({ count, size: buffer.length, duration: Date.now() - startTime }, 'Cotar.Index:Created');
-    const index = await CotarIndexBinary.create(new SourceMemory('index', buffer));
+    const index = await CotarIndex.create(new SourceMemory('index', buffer));
     await TarReader.validate(fd, index);
     await fd.close();
     return buffer;

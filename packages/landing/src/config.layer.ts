@@ -2,7 +2,6 @@ import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { TileMatrixSets } from '@basemaps/geo';
 import { Projection } from '@basemaps/geo';
-import { joinUri } from '@chunkd/core';
 import { BBoxFeatureCollection } from '@linzjs/geojson';
 
 import { WindowUrl } from './url.js';
@@ -48,7 +47,7 @@ export class ConfigData {
     for (const f of gj.features) {
       f.properties = f.properties ?? {};
       const fileName = f.properties['name'];
-      f.properties['location'] = joinUri(imagery.uri, f.properties['name']);
+      f.properties['location'] = new URL(f.properties['name'], imagery.uri).href;
       f.properties['epsg'] = imagery.projection;
       f.properties['tileMatrix'] = imagery.tileMatrix;
       const source = imagery.files.find((f) => f.name === fileName);

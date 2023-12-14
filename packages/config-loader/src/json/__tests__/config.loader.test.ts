@@ -1,12 +1,10 @@
 import assert from 'node:assert';
 import { before, beforeEach, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 
-import { fsa } from '@chunkd/fs';
-import { FsMemory, SourceMemory } from '@chunkd/source-memory';
-import { CogTiff } from '@cogeotiff/core';
+import { ConfigProviderMemory } from '@basemaps/config';
+import { fsa, FsMemory, SourceMemory, Tiff } from '@basemaps/shared';
+import { getTiffTagSize, TiffTag } from '@cogeotiff/core';
 
-import { ConfigProviderMemory } from '../../memory/memory.config.js';
 import { getImageryName, initConfigFromUrls } from '../tiff.config.js';
 
 const simpleTiff = new URL('../../../../__tests__/static/rgba8_tiled.tiff', import.meta.url);
@@ -14,19 +12,12 @@ const simpleTiff = new URL('../../../../__tests__/static/rgba8_tiled.tiff', impo
 describe('config import', () => {
   const fsMemory = new FsMemory();
 
-  // TODO SourceMemory adds `memory://` to every url even if it already has a `memory://` prefix
-  fsMemory.source = (filePath): SourceMemory => {
-    const bytes = fsMemory.files.get(filePath);
-    if (bytes == null) throw new Error('Failed to load file: ' + filePath);
-    return new SourceMemory(filePath.replace('memory://', ''), bytes.buffer);
-  };
-
   before(() => fsa.register('memory://', fsMemory));
   beforeEach(() => fsMemory.files.clear());
 
   it('should load tiff from filesystem', async () => {
-    const buf = await fsa.read(fileURLToPath(simpleTiff));
-    await fsa.write('memory://tiffs/tile-tiff-name/tiff-a.tiff', buf);
+    const buf = await fsa.read(simpleTiff);
+    await fsa.write(new URL('memory://tiffs/tile-tiff-name/tiff-a.tiff'), buf);
 
     const cfg = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name')]);
@@ -38,22 +29,35 @@ describe('config import', () => {
   });
 
   it('should skip empty tiffs from filesystem', async () => {
-    const buf = await fsa.read(fileURLToPath(simpleTiff));
-    await fsa.write('memory://tiffs/tile-tiff-name/tiff-a.tiff', buf);
-    const tiff = await CogTiff.create(new SourceMemory('memory://', buf));
+    const buf = await fsa.read(simpleTiff);
+    await fsa.write(new URL('memory://tiffs/tile-tiff-name/tiff-a.tiff'), buf);
+    const tiff = await Tiff.create(new SourceMemory('memory://', buf));
 
-    // Fun tiff hacking, find all the tileOffset arrays and set them all to 0!
+    // Fun tiff hacking, find all the tileOffset and tileByteCount arrays and set them all to 0!
     const emptyTiff = Buffer.from(buf);
-    for (const img of tiff.images) {
-      const tileOffsets = img.tileOffset;
-      // Location in the file where this tag starts
-      const tagOffset = tileOffsets.valuePointer;
+    for (const tagId of [TiffTag.TileByteCounts, TiffTag.TileOffsets]) {
+      for (const img of tiff.images) {
+        await img.fetch(tagId);
+        const tagObj = img.tags.get(tagId);
+        if (tagObj == null) throw new Error('Failed to load tag: ' + tagId);
 
-      for (let i = 0; i < tileOffsets.dataLength; i++) emptyTiff[tagOffset + i] = 0;
+        const dataSize = getTiffTagSize(tagObj.dataType);
+
+        const dataOffset = tagObj.type === 'offset' ? tagObj.dataOffset : tagObj.tagOffset + 4 + tiff.ifdConfig.pointer;
+
+        for (let i = 0; i < tagObj.count * dataSize; i++) emptyTiff[dataOffset + i] = 0;
+      }
     }
 
-    await fsa.write('memory://tiffs/tile-tiff-name/tiff-b.tiff', emptyTiff);
+    const tiffB = await Tiff.create(new SourceMemory('memory://', emptyTiff));
+    // No images should have offsets
+    for (const img of tiffB.images) {
+      await img.fetch(TiffTag.TileOffsets);
+      const value = img.tileOffset.value.find((f) => f > 0);
+      assert.equal(value, undefined);
+    }
 
+    await fsa.write(new URL('memory://tiffs/tile-tiff-name/tiff-b.tiff'), emptyTiff);
     const cfg = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name')]);
 
@@ -64,9 +68,9 @@ describe('config import', () => {
   });
 
   it('should create multiple imagery layers from multiple folders', async () => {
-    const buf = await fsa.read(fileURLToPath(simpleTiff));
-    await fsa.write('memory://tiffs/tile-tiff-a/tiff-a.tiff', buf);
-    await fsa.write('memory://tiffs/tile-tiff-b/tiff-b.tiff', buf);
+    const buf = await fsa.read(simpleTiff);
+    await fsa.write(new URL('memory://tiffs/tile-tiff-a/tiff-a.tiff'), buf);
+    await fsa.write(new URL('memory://tiffs/tile-tiff-b/tiff-b.tiff'), buf);
 
     const cfg = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(cfg, [
@@ -89,8 +93,8 @@ describe('config import', () => {
   });
 
   it('should load tiff from filesystem with projection and imagery type in name', async () => {
-    const buf = await fsa.read(fileURLToPath(simpleTiff));
-    await fsa.write('memory://tiffs/tile-tiff-name/2193/rgb/tiff-a.tiff', buf);
+    const buf = await fsa.read(simpleTiff);
+    await fsa.write(new URL('memory://tiffs/tile-tiff-name/2193/rgb/tiff-a.tiff'), buf);
 
     const cfg = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(cfg, [new URL('memory://tiffs/tile-tiff-name/2193/rgb/')]);

@@ -22,12 +22,11 @@
     "test": "node --test"
   },
   "dependencies": {
+    "@cogeotiff/core": "^9.0.1",
     "@basemaps/geo": "^7.0.0",
-    "@cogeotiff/core": "^7.2.0",
     "@linzjs/metrics": "^7.0.0"
   },
   "devDependencies": {
-    "@chunkd/fs": "^10.0.2",
     "@types/pixelmatch": "^5.2.3",
     "@types/pngjs": "^6.0.0",
     "pixelmatch": "^5.1.0",

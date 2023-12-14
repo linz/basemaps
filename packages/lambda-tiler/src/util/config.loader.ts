@@ -1,12 +1,11 @@
 import { base58, BasemapsConfigProvider, isBase58 } from '@basemaps/config';
-import { getDefaultConfig } from '@basemaps/shared';
-import { parseUri } from '@chunkd/core';
+import { fsa, getDefaultConfig } from '@basemaps/shared';
 import { LambdaHttpResponse } from '@linzjs/lambda';
 import { LambdaHttpRequest } from '@linzjs/lambda';
 
 import { CachedConfig } from './config.cache.js';
 
-// FIXME load this from process.env COG BUCKETS?
+// TODO load this from process.env COG BUCKETS?
 const SafeBuckets = new Set([
   'linz-workflows-scratch',
   'linz-workflow-artifacts',
@@ -14,7 +13,8 @@ const SafeBuckets = new Set([
   'linz-basemaps-staging',
   'linz-basemaps-scratch',
 ]);
-const SafeProtocols = new Set(['s3', 'memory']);
+
+const SafeProtocols = new Set([new URL('s3://foo').protocol, new URL('memory://foo.json').protocol]);
 
 export class ConfigLoader {
   /** Exposed for testing */
@@ -40,20 +40,19 @@ export class ConfigLoader {
     if (rawLocation == null) return this.getDefaultConfig();
 
     const configLocation = isBase58(rawLocation) ? Buffer.from(base58.decode(rawLocation)).toString() : rawLocation;
+    const configUrl = fsa.toUrl(configLocation);
 
-    const r = parseUri(configLocation);
-
-    if (r == null) throw new LambdaHttpResponse(400, 'Invalid config location');
-    if (!SafeProtocols.has(r.protocol)) {
-      throw new LambdaHttpResponse(400, `Invalid configuration location protocol:${r.protocol}`);
+    if (configUrl == null) throw new LambdaHttpResponse(400, 'Invalid config location');
+    if (!SafeProtocols.has(configUrl.protocol)) {
+      throw new LambdaHttpResponse(400, `Invalid configuration location protocol:${configUrl.protocol}`);
     }
-    if (!SafeBuckets.has(r.bucket)) {
-      throw new LambdaHttpResponse(400, `Bucket: "${r.bucket}" is not a allowed bucket location`);
+    if (!SafeBuckets.has(configUrl.hostname)) {
+      throw new LambdaHttpResponse(400, `Bucket: "${configUrl.hostname}" is not a allowed bucket location`);
     }
 
-    req.set('config', configLocation);
+    req.set('config', configUrl.href);
     req.timer.start('config:load');
-    return CachedConfig.get(configLocation).then((f) => {
+    return CachedConfig.get(configUrl).then((f) => {
       req.timer.end('config:load');
       if (f == null) throw new LambdaHttpResponse(400, `Invalid config location at ${configLocation}`);
       return f;

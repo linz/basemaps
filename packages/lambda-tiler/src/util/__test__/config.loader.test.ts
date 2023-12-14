@@ -3,7 +3,7 @@ import { afterEach, before, beforeEach, describe, it } from 'node:test';
 
 import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
-import { FsMemory } from '@chunkd/source-memory';
+import { FsMemory } from '@chunkd/fs';
 import { LambdaHttpResponse } from '@linzjs/lambda';
 import { createSandbox } from 'sinon';
 
@@ -46,7 +46,7 @@ describe('ConfigLoader', () => {
 
     assert.equal(error instanceof LambdaHttpResponse, true);
     assert.equal((error as LambdaHttpResponse).status, 400);
-    assert.equal((error as LambdaHttpResponse).statusDescription, 'Invalid config location');
+    assert.equal((error as LambdaHttpResponse).statusDescription, 'Invalid configuration location protocol:file:');
   });
 
   it('should Not working with wrong protocol', async () => {
@@ -58,7 +58,7 @@ describe('ConfigLoader', () => {
 
     assert.equal(error instanceof LambdaHttpResponse, true);
     assert.equal((error as LambdaHttpResponse).status, 400);
-    assert.equal((error as LambdaHttpResponse).statusDescription, 'Invalid configuration location protocol:memory1');
+    assert.equal((error as LambdaHttpResponse).statusDescription, 'Invalid configuration location protocol:memory1:');
   });
 
   it('should Not working with wrong s3 bucket', async () => {
@@ -76,7 +76,7 @@ describe('ConfigLoader', () => {
     );
   });
 
-  const location = 'memory://linz-basemaps/config.json';
+  const location = new URL('memory://linz-basemaps/config.json');
 
   it('should Not working with no file in the path', async () => {
     const error = await ConfigLoader.load(
@@ -110,7 +110,7 @@ describe('ConfigLoader', () => {
     const provider = await ConfigLoader.load(
       mockUrlRequest(
         '/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json',
-        `?config=${base58.encode(Buffer.from(location))}`,
+        `?config=${base58.encode(Buffer.from(location.href))}`,
         Api.header,
       ),
     );

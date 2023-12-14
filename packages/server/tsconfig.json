@@ -5,5 +5,5 @@
     "outDir": "./build"
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../lambda-tiler" }]
+  "references": [{ "path": "../lambda-tiler" }, { "path": "../config-loader" }]
 }

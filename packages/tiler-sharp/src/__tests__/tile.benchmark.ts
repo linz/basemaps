@@ -1,6 +1,5 @@
-import 'source-map-support/register.js';
-
 import { GoogleTms, ImageFormat } from '@basemaps/geo';
+import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
 import { Tiler } from '@basemaps/tiler';
 
@@ -25,13 +24,13 @@ async function main(): Promise<void> {
   for (let i = 0; i < RenderCount; i++) {
     const tiler = new Tiler(GoogleTms);
     const tileMaker = new TileMakerSharp(tileSize);
-    const tiff = await TestTiff.Google.init();
+    const tiff = await Tiff.create(fsa.source(TestTiff.Google));
 
     const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom);
 
     if (layers == null) throw new Error('Tile is null');
     await tileMaker.compose({ layers, format: ImageFormat.Png, background, resizeKernel });
-    await tiff.close();
+    await tiff.source.close?.();
   }
 }
 

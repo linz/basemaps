@@ -1,5 +1,5 @@
 import { ImageFormat, Point, Size } from '@basemaps/geo';
-import { CogTiff } from '@cogeotiff/core';
+import { Tiff } from '@cogeotiff/core';
 import { Cotar } from '@cotar/core';
 import { Metrics } from '@linzjs/metrics';
 
@@ -22,7 +22,7 @@ export type Composition = CompositionTiff | CompositionCotar;
 export interface CompositionTiff {
   type: 'tiff';
   /** Tiff */
-  asset: CogTiff;
+  asset: Tiff;
   /** Source tile used */
   source: {
     x: number;

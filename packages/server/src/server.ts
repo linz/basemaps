@@ -36,7 +36,7 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
   setDefaultConfig(cfg);
 
   if (opts.assets) {
-    const isExists = await fsa.exists(opts.assets);
+    const isExists = await fsa.exists(fsa.toUrl(opts.assets));
     if (!isExists) throw new Error(`--assets path "${opts.assets}" does not exist`);
     logger.info({ path: opts.assets }, 'Config:Assets');
     getDefaultConfig().assets = opts.assets;

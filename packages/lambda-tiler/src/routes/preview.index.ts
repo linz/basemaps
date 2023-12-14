@@ -45,8 +45,10 @@ export async function loadAndServeIndexHtml(
     });
   }
 
+  const staticUrl = fsa.toUrl(staticLocation);
+
   try {
-    let indexHtml = await fsa.read(fsa.join(staticLocation, 'index.html'));
+    let indexHtml = await fsa.read(new URL('index.html', staticUrl));
     if (isGzip(indexHtml)) indexHtml = await gunzipP(indexHtml);
 
     const res = new LambdaHttpResponse(200, 'ok');

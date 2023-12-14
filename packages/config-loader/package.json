@@ -1,10 +1,10 @@
 {
-  "name": "@basemaps/geo",
+  "name": "@basemaps/config-loader",
   "version": "7.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
-    "directory": "packages/geo"
+    "directory": "packages/config-loader"
   },
   "author": {
     "name": "Land Information New Zealand",
@@ -27,12 +27,9 @@
   "files": [
     "build/"
   ],
-  "devDependencies": {
-    "@types/geojson": "^7946.0.7",
-    "@types/proj4": "^2.5.2"
-  },
   "dependencies": {
-    "@linzjs/tile-matrix-set": "^0.0.1",
-    "proj4": "^2.8.0"
+    "@basemaps/config": "^7.0.0",
+    "@basemaps/geo": "^7.0.0",
+    "@basemaps/shared": "^7.0.0"
   }
 }

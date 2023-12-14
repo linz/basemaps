@@ -1,4 +1,3 @@
-import { CompositeError } from '@chunkd/core';
 import {
   BBox,
   BBoxFeature,
@@ -51,12 +50,8 @@ export class Projection {
     this.epsg = epsg;
     try {
       this.projection = Proj(epsg.toEpsgString(), Epsg.Wgs84.toEpsgString());
-    } catch (err) {
-      throw new CompositeError(
-        `Failed to create projection: ${epsg.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`,
-        500,
-        err,
-      );
+    } catch (cause) {
+      throw new Error(`Failed to create projection: ${epsg.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`, { cause });
     }
   }
 

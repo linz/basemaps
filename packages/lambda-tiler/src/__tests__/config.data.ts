@@ -9,8 +9,7 @@ import {
   TileSetType,
 } from '@basemaps/config';
 import { ImageFormat, VectorFormat } from '@basemaps/geo';
-import { fsa } from '@basemaps/shared';
-import { FsMemory } from '@chunkd/source-memory';
+import { fsa, FsMemory } from '@basemaps/shared';
 
 export const TileSetAerial: ConfigTileSetRaster = {
   id: 'ts_aerial',
@@ -277,7 +276,7 @@ export class FakeData {
     const fsMemory = new FsMemory();
 
     const configPath = `memory://linz-basemaps/${output.hash}.json`;
-    fsMemory.files.set(configPath, Buffer.from(JSON.stringify(output)));
+    fsMemory.files.set(configPath, { buffer: Buffer.from(JSON.stringify(output)) });
     fsa.register(configPath, fsMemory);
 
     return base58.encode(Buffer.from(configPath));

@@ -1,5 +1,5 @@
 import { Bounds, Point, Size, TileMatrixSet } from '@basemaps/geo';
-import { CogTiff, CogTiffImage } from '@cogeotiff/core';
+import { Tiff, TiffImage } from '@cogeotiff/core';
 import { Cotar } from '@cotar/core';
 
 import { Composition, CompositionTiff } from './raster.js';
@@ -18,9 +18,9 @@ export interface RasterPixelBounds {
 /** The amount to bias the Bounds.round function to cover a larger, rather than smaller, area. */
 const ROUND_BIAS = process.env['TILE_ROUNDING_BIAS'] ? Number(process.env['TILE_ROUNDING_BIAS']) : 0.1;
 
-export type CloudArchive = CogTiff | Cotar;
+export type CloudArchive = Tiff | Cotar;
 function isCotar(x: CloudArchive): x is Cotar {
-  return x.source.uri.endsWith('.tar.co') || x.source.uri.endsWith('.tar');
+  return x.source.url.pathname.endsWith('.tar.co') || x.source.url.pathname.endsWith('.tar');
 }
 
 export class Tiler {
@@ -72,7 +72,7 @@ export class Tiler {
    * @param screenBoundsPx Bounding box of the output image
    * @param zoom WebMercator zoom
    */
-  public getRasterTiffIntersection(tiff: CogTiff, screenBoundsPx: Bounds, zoom: number): RasterPixelBounds | null {
+  public getRasterTiffIntersection(tiff: Tiff, screenBoundsPx: Bounds, zoom: number): RasterPixelBounds | null {
     /** Raster pixels of the input geotiff */
     const bbox = tiff.images[0].bbox;
     const ul = this.tms.sourceToPixels(bbox[0], bbox[3], zoom);
@@ -88,7 +88,7 @@ export class Tiler {
   }
 
   createComposition(
-    img: CogTiffImage,
+    img: TiffImage,
     x: number,
     y: number,
     scaleFactor: number,
@@ -112,7 +112,7 @@ export class Tiler {
     const drawAtRegion = target.subtract(raster.tile);
     const composition: Composition = {
       type: 'tiff',
-      asset: img.tif,
+      asset: img.tiff,
       source: { x, y, imageId: img.id, width: source.width, height: source.height },
       y: Math.max(0, Math.round(drawAtRegion.y)),
       x: Math.max(0, Math.round(drawAtRegion.x)),
@@ -146,7 +146,7 @@ export class Tiler {
     return composition;
   }
 
-  public getTiles(tiff: CogTiff, bounds: Bounds, z: number): CompositionTiff[] | null {
+  public getTiles(tiff: Tiff, bounds: Bounds, z: number): CompositionTiff[] | null {
     const rasterBounds = this.getRasterTiffIntersection(tiff, bounds, z);
     if (rasterBounds == null) return null;
 

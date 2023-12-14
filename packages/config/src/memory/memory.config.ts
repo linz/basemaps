@@ -10,7 +10,7 @@ import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
-import { standardizeLayerName } from '../json/name.convertor.js';
+import { standardizeLayerName } from '../name.convertor.js';
 
 interface DuplicatedImagery {
   id: string;

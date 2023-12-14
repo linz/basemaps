@@ -51,6 +51,7 @@
   },
   "devDependencies": {
     "@basemaps/config": "^7.0.0",
+    "@basemaps/config-loader": "^7.0.0",
     "@basemaps/geo": "^7.0.0",
     "@basemaps/lambda-tiler": "^7.0.0",
     "@basemaps/landing": "^6.39.0",

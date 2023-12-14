@@ -44,7 +44,7 @@ export const UrlFolder: Type<string, URL> = {
  **/
 export const UrlArrayJsonFile: Type<string, URL[]> = {
   async from(str) {
-    const raw: { path: string }[] = await fsa.readJson(str);
+    const raw: { path: string }[] = await fsa.readJson(await Url.from(str));
     if (!Array.isArray(raw)) throw new Error('JSON does not contain an outer array');
     const urls = raw.map((f) => {
       if (!('path' in f)) throw new Error('Missing key "path"');

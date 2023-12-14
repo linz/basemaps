@@ -7,6 +7,7 @@
   "include": ["src/**/*"],
   "references": [
     { "path": "../config" },
+    { "path": "../config-loader/" },
     { "path": "../shared" },
     { "path": "../geo" },
     { "path": "../tiler" },

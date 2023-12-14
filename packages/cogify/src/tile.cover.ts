@@ -1,6 +1,6 @@
-import { ConfigImageryTiff } from '@basemaps/config/build/json/tiff.config.js';
+import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
-import { fsa, LogType } from '@basemaps/shared';
+import { fsa, LogType, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
@@ -15,7 +15,6 @@ import {
   createFileStats,
 } from './cogify/stac.js';
 import { CutlineOptimizer } from './cutline.js';
-import { urlToString } from './download.js';
 import { Presets } from './preset.js';
 
 export interface TileCoverContext {
@@ -206,11 +205,11 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   collection.links.unshift({ rel: 'self', href: './collection.json', type: 'application/json' });
   // Include a link back to the source collection
   if (ctx.imagery.collection) {
-    const target = fsa.join(ctx.imagery.uri, 'collection.json');
+    const target = new URL('collection.json', ctx.imagery.url);
     const stac = await fsa.read(target);
     collection.links.push({
       rel: 'linz_basemaps:source_collection',
-      href: fsa.join(ctx.imagery.uri, 'collection.json'),
+      href: target.href,
       type: 'application/json',
       ...createFileStats(stac),
     });

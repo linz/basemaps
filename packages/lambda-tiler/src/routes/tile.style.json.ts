@@ -1,7 +1,6 @@
 import { ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
 import { GoogleTms, ImageFormat, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
-import { fsa } from '@chunkd/fs';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { URL } from 'url';
 
@@ -21,7 +20,7 @@ export function convertRelativeUrl(url?: string, apiKey?: string, config?: strin
   if (url == null) return '';
   const host = Env.get(Env.PublicUrlBase) ?? '';
   if (!url.startsWith('/')) return url; // Not relative ignore
-  const fullUrl = new URL(fsa.join(host, url));
+  const fullUrl = new URL(url, host);
   if (apiKey) fullUrl.searchParams.set('api', apiKey);
   if (config) fullUrl.searchParams.set('config', config);
   return fullUrl.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
@@ -77,10 +76,10 @@ export async function tileSetToStyle(
   const configLocation = ConfigLoader.extract(req);
   const query = toQueryString({ config: configLocation, api: apiKey, ...getFilters(req) });
 
-  const tileUrl = fsa.join(
-    Env.get(Env.PublicUrlBase) ?? '',
-    `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`,
-  );
+  const tileUrl =
+    (Env.get(Env.PublicUrlBase) ?? '') +
+    `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`;
+
   const styleId = `basemaps-${tileSet.name}`;
   const style = {
     version: 8,

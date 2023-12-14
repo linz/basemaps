@@ -1,5 +1,4 @@
 import { extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { sha256base58 } from '@basemaps/config';
 import { fsa, LogType } from '@basemaps/shared';
@@ -12,9 +11,9 @@ export interface SourceFile {
   url: URL;
   /** List of items that need the source */
   items: string[];
-  /**  */
-  asset?: Promise<string>;
-
+  /** Location to the local file */
+  asset?: Promise<URL>;
+  /** Number of bytes in the file */
   size?: number;
   /** multihash of the file if it exists */
   hash?: string;
@@ -31,14 +30,14 @@ export class SourceDownloader {
   /** Mapping of source location to target location */
   items: Map<string, SourceFile>;
   /** Local cache location */
-  cachePath: string;
+  cachePath: URL;
 
   /**
    * Unique set of hosts eg "s3://linz-basemaps",
    * This has to be strings as each instance of a URL is unique.
    */
   hosts: Map<string, URL> = new Map();
-  constructor(cachePath: string) {
+  constructor(cachePath: URL) {
     this.cachePath = cachePath;
     this.Q = pLimit(10);
     this.items = new Map<string, SourceFile>();
@@ -77,7 +76,7 @@ export class SourceDownloader {
    *
    * This will start downloading the file into the temporary location
    */
-  get(url: URL, logger: LogType): Promise<string> {
+  get(url: URL, logger: LogType): Promise<URL> {
     const asset = this.items.get(url.href);
     if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + url);
     if (asset.asset) return asset.asset;
@@ -93,7 +92,7 @@ export class SourceDownloader {
     const host = url.hostname;
     let ret = this._checked.get(host);
     if (ret) return ret;
-    ret = fsa.head(urlToString(url)) as Promise<unknown>;
+    ret = fsa.head(url) as Promise<unknown>;
     this._checked.set(host, ret);
     return ret;
   }
@@ -107,14 +106,14 @@ export class SourceDownloader {
    * "/tmp/01H01JMN98AC36VVPNCYGQ8D5X/source/GnBQfpFe8QBTzJgHP9fXABBZR9xVEmPo87Zcec9n177S.tiff"
    * ```
    */
-  _downloadFile(asset: SourceFile, logger: LogType): Promise<string> {
+  _downloadFile(asset: SourceFile, logger: LogType): Promise<URL> {
     return this.Q(async () => {
       const newFileName = sha256base58(Buffer.from(asset.url.href)) + extname(asset.url.href);
-      const targetFile = fsa.joinAll(this.cachePath, 'source', newFileName);
+      const targetFile = new URL(`source/${newFileName}`, this.cachePath);
 
       await this._checkHost(asset.url);
       logger.trace({ source: asset.url, target: targetFile }, 'Cog:Source:Download');
-      const hashStream = fsa.stream(urlToString(asset.url)).pipe(new HashTransform('sha256'));
+      const hashStream = fsa.readStream(asset.url).pipe(new HashTransform('sha256'));
       const startTime = performance.now();
       await fsa.write(targetFile, hashStream);
       const duration = performance.now() - startTime;
@@ -137,15 +136,4 @@ export class SourceDownloader {
       return targetFile;
     });
   }
-}
-
-/**
- * When chunkd moves to URLs this can be removed
- *
- * But reading a file as a string with `file://....` does not work in node
- * it needs to be converted with `fileURLToPath`
- */
-export function urlToString(u: URL): string {
-  if (u.protocol === 'file:') return fileURLToPath(u);
-  return u.href;
 }

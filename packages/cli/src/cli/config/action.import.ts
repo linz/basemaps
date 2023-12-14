@@ -72,7 +72,7 @@ export class CommandImport extends CommandLineAction {
   async getConfig(logger: LogType): Promise<BasemapsConfigProvider> {
     if (this.target.value) {
       logger.info({ config: this.target.value }, 'Import:Target:Load');
-      const configJson = await fsa.readJson<ConfigBundled>(this.target.value);
+      const configJson = await fsa.readJson<ConfigBundled>(fsa.toUrl(this.target.value));
       const mem = ConfigProviderMemory.fromJson(configJson);
       mem.createVirtualTileSets();
 
@@ -92,6 +92,8 @@ export class CommandImport extends CommandLineAction {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
     }
 
+    const configUrl = fsa.toUrl(config);
+
     const cfg = await this.getConfig(logger);
 
     const HostPrefix = Env.isProduction() ? '' : 'dev.';
@@ -104,7 +106,7 @@ export class CommandImport extends CommandLineAction {
     }
 
     logger.info({ config }, 'Import:Load');
-    const configJson = await fsa.readJson<ConfigBundled>(config);
+    const configJson = await fsa.readJson<ConfigBundled>(configUrl);
     const mem = ConfigProviderMemory.fromJson(configJson);
     mem.createVirtualTileSets();
 
@@ -345,7 +347,7 @@ export class CommandImport extends CommandLineAction {
     if (styleUpdate.length > 0) md.push('# Vector Style Update', ...styleUpdate);
 
     if (md.length > 0) {
-      await fsa.write(output, md.join('\n'));
+      await fsa.write(fsa.toUrl(output), md.join('\n'));
     }
 
     return;

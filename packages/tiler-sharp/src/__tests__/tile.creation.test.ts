@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { Epsg, GoogleTms, ImageFormat, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
+import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
 import { CompositionTiff, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
@@ -37,7 +38,7 @@ describe('TileCreation', () => {
   // o.specTimeout(5000);
 
   it('should generate a tile', async () => {
-    const tiff = await TestTiff.Google.init();
+    const tiff = await Tiff.create(fsa.source(TestTiff.Google));
     const tiler = new Tiler(GoogleTms);
 
     const layer0 = (await tiler.tile([tiff], 0, 0, 0)) as CompositionTiff[];
@@ -46,11 +47,11 @@ describe('TileCreation', () => {
 
     const topLeft = layer0.find((f) => f.source.x === 0 && f.source.y === 0);
     assert.deepEqual(topLeft?.source, { x: 0, y: 0, imageId: 0, width: 16, height: 16 });
-    assert.equal(topLeft?.asset.source.uri, tiff.source.uri);
+    assert.equal(topLeft?.asset.source.url, tiff.source.url);
     assert.deepEqual(topLeft?.resize, { width: 32, height: 32, scaleX: 2, scaleY: 2 });
     assert.equal(topLeft?.x, 64);
     assert.equal(topLeft?.y, 64);
-    await tiff.close();
+    await tiff?.source.close?.();
   });
 
   it('should generate webp', async () => {
@@ -118,8 +119,8 @@ describe('TileCreation', () => {
       const timeStr = `RenderTests(${projection}): ${tileText} ${tileSize}x${tileSize}  time`;
       console.time(timeStr);
 
-      const tiff = projection === Epsg.Nztm2000 ? TestTiff.Nztm2000 : TestTiff.Google;
-      await tiff.init();
+      const url = projection === Epsg.Nztm2000 ? TestTiff.Nztm2000 : TestTiff.Google;
+      const tiff = await Tiff.create(fsa.source(url));
       const tiler = new Tiler(tms);
 
       const tileMaker = new TileMakerSharp(tileSize);
@@ -149,7 +150,7 @@ describe('TileCreation', () => {
       }
       assert.equal(missMatchedPixels, 0);
       console.timeEnd(timeStr);
-      await tiff.close();
+      await tiff.source.close?.();
     });
   });
 });
