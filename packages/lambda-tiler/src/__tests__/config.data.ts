@@ -277,7 +277,6 @@ export class FakeData {
     const fsMemory = new FsMemory();
 
     const configPath = `memory://linz-basemaps/${output.hash}.json`;
-    console.log(configPath);
     fsMemory.files.set(configPath, { buffer: Buffer.from(JSON.stringify(output)) });
     fsa.register(configPath, fsMemory);
 
