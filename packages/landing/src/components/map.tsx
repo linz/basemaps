@@ -28,7 +28,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   /** Ignore the location updates */
   ignoreNextLocationUpdate = false;
 
-  controlGeo?: maplibregl.GeolocateControl | null;
+  controlGeo: maplibregl.GeolocateControl | null = null;
+  controlScale: maplibre.ScaleControl | null = null;
 
   updateLocation = (): void => {
     if (this.ignoreNextLocationUpdate) {
@@ -72,12 +73,23 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   ensureGeoControl(): void {
     if (Config.map.debug['debug.screenshot']) return;
     if (Config.map.tileMatrix === GoogleTms) {
-      if (this.controlGeo != null) return;
-      this.controlGeo = new maplibre.GeolocateControl({});
-      this.map.addControl(this.controlGeo, 'top-left');
+      if (this.controlGeo == null) {
+        this.controlGeo = new maplibre.GeolocateControl({});
+        this.map.addControl(this.controlGeo, 'top-left');
+      }
+      if (this.controlScale == null) {
+        this.controlScale = new maplibre.ScaleControl({});
+        this.map.addControl(this.controlScale, 'bottom-right');
+      }
     } else {
-      if (this.controlGeo == null) return;
-      this.map.removeControl(this.controlGeo);
+      if (this.controlGeo != null) {
+        this.map.removeControl(this.controlGeo);
+        this.controlGeo = null;
+      }
+      if (this.controlScale != null) {
+        this.map.removeControl(this.controlScale);
+        this.controlScale = null;
+      }
     }
   }
 
@@ -168,9 +180,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       const nav = new maplibre.NavigationControl({ visualizePitch: true });
       this.map.addControl(nav, 'top-left');
       if (!Config.map.isDebug) this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
-
-      const scale = new maplibre.ScaleControl({});
-      this.map.addControl(scale, 'bottom-right');
     }
 
     this.map.on('render', this.onRender);
