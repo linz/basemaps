@@ -341,7 +341,6 @@ export class ConfigJson {
       projection: tileMatrix.projection.code,
       tileMatrix: tileMatrix.identifier,
       uri: url.href,
-      // url,
       bounds,
       files: imageList,
     };
