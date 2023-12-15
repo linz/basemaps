@@ -4,11 +4,11 @@ import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { LogConfig } from '@basemaps/shared/build/log.js';
 import mime from 'mime-types';
 import pLimit from 'p-limit';
-import { basename, extname, resolve } from 'path';
+import { basename, extname } from 'path';
 
 const Q = pLimit(10);
 
-const DistDir = './dist';
+const DistDir = fsa.toUrl('./dist/');
 
 const ignoredFiles = new Set(['.DS_Store']);
 
@@ -48,20 +48,18 @@ async function deploy() {
   logger.info({ package: CliInfo }, 'Deploy:Start');
   LogConfig.set(logger);
 
-  const basePath = resolve(DistDir);
-
   const invalidationPaths = new Set();
 
-  const fileList = await fsa.toArray(fsa.list(basePath));
+  const fileList = await fsa.toArray(fsa.list(DistDir));
   const promises = fileList.map((filePath) => {
     // Ignore the files that don't need to be deployed.
-    if (ignoredFiles.has(basename(filePath))) return;
+    if (ignoredFiles.has(basename(filePath.pathname))) return;
     // targetKey will always start with "/" eg: "/index.html" "/docs/index.html"
-    const targetKey = filePath.slice(basePath.length);
+    const targetKey = filePath.href.slice(DistDir.href.length);
 
     return Q(async () => {
-      const isVersioned = HasVersionRe.test(basename(filePath));
-      const contentType = mime.contentType(extname(filePath));
+      const isVersioned = HasVersionRe.test(basename(filePath.pathname));
+      const contentType = mime.contentType(extname(filePath.pathname));
 
       const cacheControl = isVersioned
         ? // Set cache control for versioned files to immutable
