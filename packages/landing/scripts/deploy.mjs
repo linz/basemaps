@@ -4,7 +4,7 @@ import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { LogConfig } from '@basemaps/shared/build/log.js';
 import mime from 'mime-types';
 import pLimit from 'p-limit';
-import { basename, extname, resolve } from 'path';
+import { basename, extname } from 'path';
 
 const Q = pLimit(10);
 
