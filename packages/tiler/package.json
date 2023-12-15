@@ -22,7 +22,7 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@cogeotiff/core": "^9.0.1",
+    "@cogeotiff/core": "^9.0.2",
     "@basemaps/geo": "^7.0.0",
     "@linzjs/metrics": "^7.0.0"
   },
