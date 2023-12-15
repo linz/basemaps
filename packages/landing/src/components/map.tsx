@@ -87,7 +87,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
     this.map.setStyle(style);
 
-    if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-180, -85.06, 180, 85.06]);
+    if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-179.9, -85, 179.9, 85]);
     else this.map.setMaxBounds();
     // TODO check and only update when Config.map.layer changes.
     this.forceUpdate();
