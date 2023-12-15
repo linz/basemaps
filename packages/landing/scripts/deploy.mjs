@@ -52,16 +52,16 @@ async function deploy() {
 
   const invalidationPaths = new Set();
 
-  const fileList = await fsa.toArray(fsa.list(basePath));
+  const fileList = await fsa.toArray(fsa.list(fsa.toUrl(basePath)));
   const promises = fileList.map((filePath) => {
     // Ignore the files that don't need to be deployed.
-    if (ignoredFiles.has(basename(filePath))) return;
+    if (ignoredFiles.has(basename(filePath.pathname))) return;
     // targetKey will always start with "/" eg: "/index.html" "/docs/index.html"
-    const targetKey = filePath.slice(basePath.length);
+    const targetKey = filePath.href.slice(basePath.length);
 
     return Q(async () => {
-      const isVersioned = HasVersionRe.test(basename(filePath));
-      const contentType = mime.contentType(extname(filePath));
+      const isVersioned = HasVersionRe.test(basename(filePath.pathname));
+      const contentType = mime.contentType(extname(filePath.pathname));
 
       const cacheControl = isVersioned
         ? // Set cache control for versioned files to immutable
