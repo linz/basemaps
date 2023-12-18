@@ -47,5 +47,16 @@ const lerc1mm: Preset = {
     overviewResampling: 'bilinear',
   },
 };
+const lerc1m: Preset = {
+  name: 'lerc_1m',
+  options: {
+    blockSize: 512,
+    compression: 'lerc',
+    maxZError: 1,
+    maxZErrorOverview: 4,
+    warpResampling: 'bilinear',
+    overviewResampling: 'bilinear',
+  },
+};
 
-export const Presets = { [webP.name]: webP, [lerc10mm.name]: lerc10mm, [lerc1mm.name]: lerc1mm };
+export const Presets = { [webP.name]: webP, [lerc10mm.name]: lerc10mm, [lerc1mm.name]: lerc1mm, [lerc1m.name]: lerc1m };
