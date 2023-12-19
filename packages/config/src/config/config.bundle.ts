@@ -10,3 +10,5 @@ export interface ConfigBundle extends BaseConfig {
   /** Path of the asset file */
   assets?: string;
 }
+
+const ConfigBundle = z.object('ConfigBundle');
