@@ -3,7 +3,7 @@ import { decodeTime, ulid } from 'ulid';
 
 import { BasemapsConfigObject, BasemapsConfigProvider, ConfigId } from '../base.config.js';
 import { sha256base58 } from '../base58.node.js';
-import { BaseConfig } from '../config/base.js';
+import { ConfigBase } from '../config/base.js';
 import { ConfigBundle } from '../config/config.bundle.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
@@ -32,7 +32,7 @@ export interface ConfigBundled {
   duplicateImagery: DuplicatedImagery[];
 }
 
-function isConfigImagery(i: BaseConfig): i is ConfigImagery {
+function isConfigImagery(i: ConfigBase): i is ConfigImagery {
   return ConfigId.getPrefix(i.id) === ConfigPrefix.Imagery;
 }
 
@@ -78,12 +78,12 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   ConfigBundle = new MemoryConfigObject<ConfigBundle>(this, ConfigPrefix.ConfigBundle);
 
   /** Memory cache of all objects */
-  objects = new Map<string, BaseConfig>();
+  objects = new Map<string, ConfigBase>();
 
   /** Catch configs with the same imagery that using the different imagery ids. */
   duplicateImagery: DuplicatedImagery[] = [];
 
-  put(obj: BaseConfig): void {
+  put(obj: ConfigBase): void {
     this.objects.set(obj.id, obj);
   }
 
@@ -233,7 +233,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   }
 }
 
-export class MemoryConfigObject<T extends BaseConfig> extends BasemapsConfigObject<T> {
+export class MemoryConfigObject<T extends ConfigBase> extends BasemapsConfigObject<T> {
   cfg: ConfigProviderMemory;
 
   constructor(cfg: ConfigProviderMemory, prefix: ConfigPrefix) {

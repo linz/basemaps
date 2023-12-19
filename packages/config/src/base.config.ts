@@ -1,6 +1,6 @@
 import { Epsg } from '@basemaps/geo';
 
-import { BaseConfig } from './config/base.js';
+import { ConfigBase } from './config/base.js';
 import { ConfigBundle } from './config/config.bundle.js';
 import { ConfigPrefix, ConfigPrefixes } from './config/prefix.js';
 import { ConfigLayer, ConfigTileSet } from './config/tile.set.js';
@@ -17,7 +17,7 @@ export abstract class BasemapsConfigProvider {
   abstract ConfigBundle: BasemapsConfigObject<ConfigBundle>;
 }
 
-export abstract class BasemapsConfigObject<T extends BaseConfig> {
+export abstract class BasemapsConfigObject<T extends ConfigBase> {
   prefix: ConfigPrefix;
 
   constructor(prefix: ConfigPrefix) {
@@ -43,7 +43,7 @@ export abstract class BasemapsConfigObject<T extends BaseConfig> {
     return `${this.prefix}_${name}`;
   }
   /** Is this object one of these objects */
-  is(obj?: BaseConfig | null): obj is T {
+  is(obj?: ConfigBase | null): obj is T {
     return obj != null && obj.id.startsWith(this.prefix);
   }
 
@@ -53,7 +53,7 @@ export abstract class BasemapsConfigObject<T extends BaseConfig> {
   abstract getAll(id: Set<string>): Promise<Map<string, T>>;
 }
 
-export interface BaseConfigWriteableObject<T extends BaseConfig> extends BasemapsConfigObject<T> {
+export interface BaseConfigWriteableObject<T extends ConfigBase> extends BasemapsConfigObject<T> {
   put(record: T): Promise<string>;
 }
 

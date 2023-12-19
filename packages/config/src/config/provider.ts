@@ -1,5 +1,5 @@
 import { WmtsProvider } from '@basemaps/geo';
 
-import { BaseConfig } from './base.js';
+import { ConfigBase } from './base.js';
 
-export type ConfigProvider = WmtsProvider & BaseConfig;
+export type ConfigProvider = WmtsProvider & ConfigBase;

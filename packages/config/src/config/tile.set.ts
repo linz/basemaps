@@ -1,6 +1,6 @@
 import { EpsgCode, ImageFormat, VectorFormat } from '@basemaps/geo';
 
-import { BaseConfig } from './base.js';
+import { ConfigBase } from './base.js';
 
 export enum TileSetType {
   Raster = 'raster',
@@ -31,7 +31,7 @@ export interface ConfigLayer extends Partial<Record<EpsgCode, string>> {
 
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
 
-export interface ConfigTileSetBase extends BaseConfig {
+export interface ConfigTileSetBase extends ConfigBase {
   /** Human friendly display name for the tileset */
   title: string;
 

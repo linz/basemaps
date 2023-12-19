@@ -4,7 +4,7 @@ import timers from 'node:timers/promises';
 
 import { ulid } from 'ulid';
 
-import { BaseConfig } from '../../config/base.js';
+import { ConfigBase } from '../../config/base.js';
 import { ConfigImagery } from '../../config/imagery.js';
 import { ConfigTileSetRaster } from '../../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory.config.js';
@@ -152,7 +152,7 @@ describe('MemoryConfig', () => {
           3857: `im_${idB}`,
         },
       ],
-    } as BaseConfig);
+    } as ConfigBase);
     config.put({ ...baseImg, id: `im_${idA}`, projection: 2193 } as ConfigImagery);
     config.put({ ...baseImg, id: `im_${idB}`, projection: 3857 } as ConfigImagery);
 

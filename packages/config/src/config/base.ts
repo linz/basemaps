@@ -12,7 +12,7 @@ export const IdParser = z.string().refine((r) => ConfigId.getPrefix(r) != null);
  *
  * all records should have these values.
  */
-export const BaseConfigParser = z.object({
+export const ConfigBase = z.object({
   /**
    * Primary key of the table
    *
@@ -39,4 +39,4 @@ export const BaseConfigParser = z.object({
   updatedAt: z.number().optional(),
 });
 
-export type BaseConfig = z.infer<typeof BaseConfigParser>;
+export type ConfigBase = z.infer<typeof ConfigBase>;
