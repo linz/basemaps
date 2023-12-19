@@ -55,6 +55,15 @@ export class SourceCache {
     this.cache.set(location.href, new LruStrutObj({ type: 'cotar', value }));
     return value;
   }
+
+  async clear(): Promise<void> {
+    await Promise.all(
+      [...this.cache.cacheA.values(), ...this.cache.cacheB.values()].map((m) => {
+        return m.ob.value.then((f) => f.source.close?.());
+      }),
+    );
+    this.cache.clear();
+  }
 }
 
 /** Cache the last 5,000 tiff/tar files accessed, generally it is only <100KB of memory used per tiff file so approx 50MB of cache */

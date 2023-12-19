@@ -168,7 +168,7 @@ export class ConfigJson {
     this.logger.info({ config: ts.id }, 'Config:Loaded:TileSet');
 
     const imageryFetch: Promise<ConfigImagery>[] = [];
-    if (ts.type === TileSetType.Raster) {
+    if (ts.type === TileSetType.Raster || ts.type === TileSetType.Computed) {
       for (const layer of ts.layers) {
         if (layer[2193] != null) {
           imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[2193]), Nztm2000QuadTms, layer.name, layer.title));
@@ -240,9 +240,11 @@ export class ConfigJson {
     }
 
     if (ts.format) {
-      tileSet.format = ts.format as ImageFormat | VectorFormat;
+      // FIXME
+      // tileSet.format = ts.format as ImageFormat | VectorFormat;
     } else {
-      tileSet.format = ts.type === TileSetType.Vector ? VectorFormat.MapboxVectorTiles : ImageFormat.Webp;
+      if (tileSet.type === TileSetType.Vector) tileSet.format = VectorFormat.MapboxVectorTiles;
+      if (tileSet.type === TileSetType.Raster) tileSet.format = ImageFormat.Webp;
     }
 
     return tileSet as ConfigTileSet;

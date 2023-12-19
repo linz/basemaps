@@ -3,7 +3,7 @@ import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
 import { Tiler } from '@basemaps/tiler';
 
-import { TileMakerSharp } from '../index.js';
+import { TileMakerSharp } from '../maker.js';
 
 const resizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 const RenderCount = 100;

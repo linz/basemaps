@@ -33,7 +33,7 @@
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.1.0",
     "pixelmatch": "^5.1.0",
-    "sharp": "^0.33.0"
+    "sharp": "^0.32.6"
   },
   "bundle": {
     "entry": "src/index.ts",
@@ -48,8 +48,8 @@
     "bundle": "./bundle.sh"
   },
   "devDependencies": {
-    "@chunkd/fs": "^11.2.0",
     "@basemaps/attribution": "^7.0.0",
+    "@chunkd/fs": "^11.2.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/pixelmatch": "^5.0.0",
     "pretty-json-log": "^1.0.0"

@@ -45,10 +45,10 @@ const calcMid = (a: number, b: number): number => normLon(a + (b < a ? b + 360 -
 
 export const Wgs84 = {
   /**
-     * Find the center longitude of a BBox. This handles a bbox that crosses the anti-meridian.
-
-     * @param a must be between -180 and 180
-     */
+   * Find the center longitude of a BBox. This handles a bbox that crosses the anti-meridian.
+   *
+   * @param a must be between -180 and 180
+   */
   boxLonCenter(a: BBox): number {
     return normLon(a[0] + 0.5 * (a[2] < a[0] ? 360 + a[2] - a[0] : a[2] - a[0]));
   },
@@ -56,6 +56,7 @@ export const Wgs84 = {
   delta,
 
   crossesAM(a: number, b: number): boolean {
+    // if (Math.abs(a - b) < 1e-10) return false;
     return Math.sign(delta(a, b)) !== Math.sign(b - a);
   },
 
@@ -70,13 +71,13 @@ export const Wgs84 = {
   },
 
   /**
-     * Union two GeoJSON bounding boxes. This handles bboxes that cross the anti-meridian (ie; east
-     * < west). If two boxes are disjoint then the union will span the east-west distance or
-     * west-east distance which ever is closer.
-
-     * @param a must be in WGS84 coordinates
-     * @param b must be in WGS84 coordinates
-     */
+   * Union two GeoJSON bounding boxes. This handles bboxes that cross the anti-meridian (ie; east
+   * < west). If two boxes are disjoint then the union will span the east-west distance or
+   * west-east distance which ever is closer.
+   *
+   * @param a must be in WGS84 coordinates
+   * @param b must be in WGS84 coordinates
+   */
   union(a: BBox, b: BBox | null | undefined): BBox {
     if (b == null) {
       return a.slice() as BBox;
@@ -102,11 +103,11 @@ export const Wgs84 = {
   },
 
   /**
-     * Do two GeoJSON bounding boxes intersect?
-
-     * @param a must be in WGS84 coordinates
-     * @param b must be in WGS84 coordinates
-     */
+   * Do two GeoJSON bounding boxes intersect?
+   *
+   * @param a must be in WGS84 coordinates
+   * @param b must be in WGS84 coordinates
+   */
   intersects(a: BBox, b: BBox): boolean {
     if (a[1] > b[3] || b[1] > a[3]) return false;
 
@@ -119,13 +120,13 @@ export const Wgs84 = {
   },
 
   /**
-     * Find the bounding box of a WGS84 `ring` taking into account the
-     * anti-meridian.
-
-     * @param ring and array of points.
-
-     * @return a GeoJSON compliant bounding box
-     */
+   * Find the bounding box of a WGS84 `ring` taking into account the
+   * anti-meridian.
+   *
+   * @param ring and array of points.
+   *
+   * @return a GeoJSON compliant bounding box
+   */
   ringToBbox(ring: Ring): BBox {
     if (ring.length < 3) {
       throw new Error('Invalid ring');
@@ -169,12 +170,12 @@ export const Wgs84 = {
   },
 
   /**
-     * Find the bounding box of a WGS84 `multipolygon` taking into account the anti-meridian
-
-     * @param multipolygon the coordinates of a compliant GeoJSON MultiPolygon
-
-     * @return a GeoJSON compliant bounding box
-     */
+   * Find the bounding box of a WGS84 `multipolygon` taking into account the anti-meridian
+   *
+   * @param multipolygon the coordinates of a compliant GeoJSON MultiPolygon
+   *
+   * @return a GeoJSON compliant bounding box
+   */
   multiPolygonToBbox(multipolygon: MultiPolygon): BBox {
     let ans: BBox | null = null;
     for (const poly of multipolygon) {
@@ -192,10 +193,10 @@ export const Wgs84 = {
   },
 
   /**
-     * Convert a WGS84 `bbox` to a GeoJSON MultiPolygon. Split at anti-meridian if necessary.
-
-     * @param bbox
-     */
+   * Convert a WGS84 `bbox` to a GeoJSON MultiPolygon. Split at anti-meridian if necessary.
+   *
+   * @param bbox
+   */
   bboxToMultiPolygon(bbox: BBox): MultiPolygon {
     const sw = [bbox[0], bbox[1]];
     const se = [bbox[2], bbox[1]];

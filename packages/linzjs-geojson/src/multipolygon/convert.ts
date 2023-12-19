@@ -54,6 +54,7 @@ export function multiPolygonToWgs84(multipoly: MultiPolygon, toWgs84: ConvertCoo
   let polyCrossesAM = false; // does any line cross antimeridian
   let crossing = false; // are we currently across the antimeridian
 
+  // console.log(JSON.stringify(multipoly));
   const result = multipoly.map((sPoly) =>
     sPoly.map((sRing) => {
       const wRing: Ring = []; // converted ring in Wgs84
@@ -70,6 +71,8 @@ export function multiPolygonToWgs84(multipoly: MultiPolygon, toWgs84: ConvertCoo
         // look for lines crossing antimeridian
         if (wPrev != null) {
           const lineCrosses = Wgs84.crossesAM(pLon, wLon);
+          // console.log(wPoint, { wLon, pLon }, lineCrosses);
+
           if (lineCrosses) {
             polyCrossesAM = true;
             crossing = !crossing;
@@ -100,6 +103,8 @@ export function multiPolygonToWgs84(multipoly: MultiPolygon, toWgs84: ConvertCoo
       return wRing;
     }),
   );
+
+  console.log({ polyCrossesAM, split });
 
   if (polyCrossesAM && split) {
     return splitWgs84MultiPolygon(result);

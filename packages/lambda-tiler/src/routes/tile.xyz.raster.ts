@@ -1,7 +1,8 @@
 import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
+import { ConfigTileSetComputed } from '@basemaps/config/src/config/tile.set.js';
 import { Bounds, Epsg, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
 import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
-import { Tiler } from '@basemaps/tiler';
+import { getImageFormat, Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import pLimit from 'p-limit';
@@ -39,7 +40,7 @@ export const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
 export const TileXyzRaster = {
   async getAssetsForBounds(
     req: LambdaHttpRequest,
-    tileSet: ConfigTileSetRaster,
+    tileSet: ConfigTileSetRaster | ConfigTileSetComputed,
     tileMatrix: TileMatrixSet,
     bounds: Bounds,
     zoom: number,
@@ -113,13 +114,20 @@ export const TileXyzRaster = {
     return (await Promise.all(toLoad)).filter((f) => f != null) as CloudArchive[];
   },
 
-  async getAssetsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<URL[]> {
+  async getAssetsForTile(
+    req: LambdaHttpRequest,
+    tileSet: ConfigTileSetRaster | ConfigTileSetComputed,
+    xyz: TileXyz,
+  ): Promise<URL[]> {
     const tileBounds = xyz.tileMatrix.tileToSourceBounds(xyz.tile);
     return TileXyzRaster.getAssetsForBounds(req, tileSet, xyz.tileMatrix, tileBounds, xyz.tile.z);
   },
 
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<LambdaHttpResponse> {
     if (xyz.tileType === VectorFormat.MapboxVectorTiles) return NotFound();
+
+    const tileType = getImageFormat(xyz.tileType);
+    if (tileType == null) return NotFound();
 
     const assetPaths = await this.getAssetsForTile(req, tileSet, xyz);
     const cacheKey = Etag.key(assetPaths);
@@ -132,7 +140,7 @@ export const TileXyzRaster = {
 
     const res = await TileComposer.compose({
       layers,
-      format: xyz.tileType,
+      format: tileType,
       background: tileSet.background ?? DefaultBackground,
       resizeKernel: tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,

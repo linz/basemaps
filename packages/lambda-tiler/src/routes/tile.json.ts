@@ -1,3 +1,4 @@
+import { TileSetType } from '@basemaps/config';
 import { GoogleTms, TileJson, TileMatrixSet } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -26,6 +27,7 @@ export async function tileJsonGet(req: LambdaHttpRequest<TileJsonGet>): Promise<
   const tileSet = await config.TileSet.get(config.TileSet.id(req.params.tileSet));
   req.timer.end('tileset:load');
   if (tileSet == null) return NotFound();
+  if (tileSet.type === TileSetType.Computed) throw new Error('Computed is not supported for tileJson');
 
   const format = Validate.getRequestedFormats(req) ?? [tileSet.format];
 

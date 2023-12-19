@@ -1,9 +1,11 @@
 import { EpsgCode, ImageFormat, VectorFormat } from '@basemaps/geo';
 
 import { BaseConfig } from './base.js';
+import { ConfigComputeFunction, ConfigComputeOutputFormat } from './compute/compute.function.js';
 
 export enum TileSetType {
   Raster = 'raster',
+  Computed = 'computed',
   Vector = 'vector',
 }
 
@@ -32,16 +34,28 @@ export interface ConfigLayer extends Partial<Record<EpsgCode, string>> {
 export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
 
 export interface ConfigTileSetBase extends BaseConfig {
-  /** Human friendly display name for the tileset */
+  /**
+   * Human friendly display name for the tileset
+   *
+   * @example
+   *
+   * "Taupō 0.075m Urban Aerial Photos (2023)"
+   */
   title: string;
 
-  /** Human friendly description of the tileset */
+  /**
+   * Human friendly description of the tileset
+   */
   description?: string;
 
   /**
    * Keywords used to categorize the tileset
+   *
    * @example
-   * - Basemap
+   * "Urban Aerial Photos"
+   * "Rural Aerial Photos"
+   * "Event"
+   *
    */
   category?: string;
 
@@ -53,11 +67,35 @@ export interface ConfigTileSetBase extends BaseConfig {
    */
   layers: ConfigLayer[];
 
-  /** Minimum zoom level for this tileSet @default 0 */
+  /**
+   * Minimum zoom level for this tileSet
+   *
+   * @default 0
+   */
   minZoom?: number;
 
-  /** Maximum zoom level for this tileSet @default 30 */
+  /**
+   * Maximum zoom level for this tileSet
+   *
+   * @default 30
+   */
   maxZoom?: number;
+}
+
+/**
+ * A tileset that has a number of outputs that are dynamically computed at run time from a collection of source layer
+ */
+export interface ConfigTileSetComputed extends ConfigTileSetBase {
+  type: TileSetType.Computed;
+  outputs: ConfigTileSetComputedOutput[];
+}
+
+export interface ConfigTileSetComputedOutput {
+  title: string;
+  extension: string;
+  resizeKernel?: { in: TileResizeKernel; out: TileResizeKernel };
+  pipeline: ConfigComputeFunction[];
+  output: ConfigComputeOutputFormat;
 }
 
 export interface ConfigTileSetRaster extends ConfigTileSetBase {
@@ -77,4 +115,4 @@ export interface ConfigTileSetVector extends ConfigTileSetBase {
   format: VectorFormat;
 }
 
-export type ConfigTileSet = ConfigTileSetVector | ConfigTileSetRaster;
+export type ConfigTileSet = ConfigTileSetVector | ConfigTileSetRaster | ConfigTileSetComputed;

@@ -9,7 +9,7 @@ export interface TileXyz {
   tile: { x: number; y: number; z: number };
   tileSet: string;
   tileMatrix: TileMatrixSet;
-  tileType: VectorFormat | ImageFormat;
+  tileType: string;
 }
 
 export interface TileMatrixRequest {
@@ -50,6 +50,7 @@ export const Validate = {
     return [...output.values()];
   },
 
+  // FIXME remove
   getTileFormat(tileType: string): ImageFormat | VectorFormat | null {
     const ext = getImageFormat(tileType);
     if (ext) return ext;
@@ -90,9 +91,7 @@ export const Validate = {
     req.set('tileMatrix', tileMatrix.identifier);
     req.set('projection', tileMatrix.projection.code);
 
-    const tileType = Validate.getTileFormat(req.params.tileType);
-    if (tileType == null) throw new LambdaHttpResponse(404, 'Tile extension not found');
-    req.set('extension', tileType);
+    req.set('extension', req.params.tileType);
 
     if (isNaN(z) || z > tileMatrix.maxZoom || z < 0) throw new LambdaHttpResponse(404, `Zoom not found: ${z}`);
 
@@ -100,7 +99,7 @@ export const Validate = {
     if (isNaN(x) || x < 0 || x > zoom.matrixWidth) throw new LambdaHttpResponse(404, `X not found: ${x}`);
     if (isNaN(y) || y < 0 || y > zoom.matrixHeight) throw new LambdaHttpResponse(404, `Y not found: ${y}`);
 
-    const xyzData = { tile: { x, y, z }, tileSet: req.params.tileSet, tileMatrix, tileType };
+    const xyzData = { tile: { x, y, z }, tileSet: req.params.tileSet, tileMatrix, tileType: req.params.tileType };
     req.set('xyz', xyzData.tile);
 
     const latLon = Projection.tileCenterToLatLon(tileMatrix, xyzData.tile);

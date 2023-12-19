@@ -4,6 +4,7 @@ import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ConfigLoader } from '../util/config.loader.js';
 import { NotFound } from '../util/response.js';
 import { Validate } from '../util/validate.js';
+import { TileXyzComputed } from './tile.xyz.computed.js';
 import { TileXyzRaster } from './tile.xyz.raster.js';
 import { tileXyzVector } from './tile.xyz.vector.js';
 
@@ -43,6 +44,9 @@ export async function tileXyzGet(req: LambdaHttpRequest<TileXyzGet>): Promise<La
       return tileXyzVector.tile(req, tileSet, xyzData);
     case TileSetType.Raster:
       return TileXyzRaster.tile(req, tileSet, xyzData);
+    case TileSetType.Computed:
+      return TileXyzComputed.tile(req, tileSet, xyzData);
+
     default:
       return new LambdaHttpResponse(400, 'Invalid tileset');
   }

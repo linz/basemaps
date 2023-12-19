@@ -155,6 +155,16 @@ export class Projection {
     const nw = [bounds.x, bounds.y + bounds.height];
     const ne = [bounds.x + bounds.width, bounds.y + bounds.height];
 
+    const sw84 = this.toWgs84(sw);
+    const se84 = this.toWgs84(se);
+
+    // If the bounds are not crossing the antimeridian
+    if (sw84[0] < se84[0]) {
+      const feature = toFeaturePolygon([[sw84, this.toWgs84(nw), this.toWgs84(ne), se84, sw84]]);
+      // feature.bbox = this.boundsToWgs84BoundingBox(bounds);
+      return feature as BBoxFeature;
+    }
+
     const coords = multiPolygonToWgs84([[[sw, nw, ne, se, sw]]] as MultiPolygon, this.toWgs84);
 
     const feature =

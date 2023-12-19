@@ -8,8 +8,35 @@ import {
   ConfigTileSetVector,
   TileSetType,
 } from '@basemaps/config';
+import { ConfigTileSetComputed } from '@basemaps/config/src/config/tile.set.js';
 import { ImageFormat, VectorFormat } from '@basemaps/geo';
 import { fsa, FsMemory } from '@basemaps/shared';
+
+export const TileSetElevation: ConfigTileSetComputed = {
+  id: 'ts_elevation',
+  name: 'elevation',
+  type: TileSetType.Computed,
+  description: 'elevation_description',
+  title: 'Elevation',
+  category: 'Elevation',
+  layers: [
+    {
+      2193: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
+      3857: 'im_01FYWKATAEK2ZTJQ2PX44Y0XNT',
+      title: 'Ōtorohanga 0.1m Urban Aerial Photos (2021)',
+      category: 'Urban Aerial Photos',
+      name: 'ōtorohanga_urban_2021_0-1m_RGB',
+    },
+  ],
+  outputs: [
+    {
+      title: 'Terrain RGB',
+      extension: 'terrain-rgb.webp',
+      pipeline: [{ function: 'terrain-rgb' }],
+      output: { type: 'webp', lossless: true, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+    },
+  ],
+};
 
 export const TileSetAerial: ConfigTileSetRaster = {
   id: 'ts_aerial',
@@ -253,6 +280,15 @@ export const Provider: ConfigProvider = {
 export class FakeData {
   static tileSetRaster(name: string): ConfigTileSetRaster {
     const tileSet = JSON.parse(JSON.stringify(TileSetAerial));
+
+    tileSet.name = name;
+    tileSet.id = `ts_${name}`;
+
+    return tileSet;
+  }
+
+  static tileSetComputed(name: string): ConfigTileSetComputed {
+    const tileSet = JSON.parse(JSON.stringify(TileSetElevation));
 
     tileSet.name = name;
     tileSet.id = `ts_${name}`;

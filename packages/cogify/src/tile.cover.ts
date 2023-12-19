@@ -2,8 +2,9 @@ import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
+import { intersection, MultiPolygon, toFeatureCollection, toFeatureMultiPolygon, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
+import { writeFileSync } from 'fs';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
 import { createCovering } from './cogify/covering.js';
@@ -65,11 +66,26 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   const optimalCoveringZoom = Math.max(1, targetBaseZoom - 7); // z12 from z19
   ctx.logger?.debug({ targetBaseZoom, cogOverZoom: optimalCoveringZoom }, 'Imagery:ZoomLevel');
 
-  const sourceBounds = projectPolygon(
-    polygonFromBounds(ctx.imagery.files),
-    ctx.imagery.projection,
-    ctx.tileMatrix.projection.code,
-  );
+  // Clamp the imagery polygon to the extent of the output tile matrix
+  const poly = polygonFromBounds(ctx.imagery.files, ctx.imagery.projection);
+  // ctx.tileMatrix.tile;
+
+  // const wgs84Extent = Projection.tileToWgs84Bbox(ctx.tileMatrix, { x: 0, y: 0, z: 0 });
+  const targetTileMatrixExtent = Projection.get(ctx.tileMatrix).boundsToGeoJsonFeature(ctx.tileMatrix.extent);
+  // console.log(targetTileMatrixExtent, poly, wgs84Extent);
+
+  writeFileSync('./_poly.geojson', JSON.stringify(toFeatureMultiPolygon(poly)));
+  writeFileSync('./_extent.geojson', JSON.stringify(targetTileMatrixExtent));
+
+  console.log(poly[0], targetTileMatrixExtent);
+
+  const clampedImagery = intersection(poly, targetTileMatrixExtent.geometry.coordinates as any);
+  writeFileSync('./_intersection.geojson', JSON.stringify(toFeatureMultiPolygon(clampedImagery)));
+
+  console.log(clampedImagery);
+
+  const sourceBounds = projectPolygon(clampedImagery, ctx.imagery.projection, ctx.tileMatrix.projection.code);
+
   ctx.logger?.debug('Cutline:Apply');
   ctx.metrics?.start('cutline:apply');
 
@@ -80,6 +96,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   const sourceGeoJson = ctx.imagery.files.map((file) => {
     return Projection.get(ctx.imagery.projection).boundsToGeoJsonFeature(file, { url: file.name });
   });
+
   ctx.logger?.info({ zoom: optimalCoveringZoom }, 'Imagery:Covering:Start');
 
   // Cover the source imagery in tiles
@@ -219,12 +236,20 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
 }
 
 /** Convert a list of bounding boxes into a multipolygon */
-function polygonFromBounds(bounds: BoundingBox[], scale: number = 1 + 1e-8): MultiPolygon {
+function polygonFromBounds(bounds: BoundingBox[], _projection: EpsgCode, scale: number = 1 + 1e-8): MultiPolygon {
+  // const proj = Projection.get(projection);
   const srcPoly: MultiPolygon = [];
 
   // merge imagery bounds
   for (const image of bounds) {
+    // const feature = proj.boundsToGeoJsonFeature(image);
+    // const scaled =
     srcPoly.push(Bounds.fromJson(image).scaleFromCenter(scale).toPolygon());
+    // if (feature.geometry.type === 'Polygon') {
+    //   srcPoly.push(feature.geometry.coordinates as any);
+    // } else {
+    //   srcPoly.push(...(feature.geometry.coordinates as any));
+    // }
   }
   return union(srcPoly);
 }

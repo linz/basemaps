@@ -11,7 +11,7 @@ import PixelMatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 import url from 'url';
 
-import { TileMakerSharp } from '../index.js';
+import { TileMakerSharp } from '../maker.js';
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;

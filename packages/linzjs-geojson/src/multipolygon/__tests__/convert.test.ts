@@ -39,6 +39,24 @@ describe('convert', () => {
       ]);
     });
 
+    it('should allow 3857 bounds', () => {
+      /**
+       * -20037508.34, -20048966.1, 20037508.34, 20048966.1
+       * -180.0, -85.06, 180.0, 85.06
+       */
+      // const poly: MultiPolygon = [
+      //   [
+      //     [
+      //       [0, 1],
+      //       [0, 0],
+      //       [100, 0],
+      //       [100, 1],
+      //       [0, 1],
+      //     ],
+      //   ],
+      // ];
+    });
+
     it('crosses antimeridian', () => {
       const poly: MultiPolygon = [
         [
