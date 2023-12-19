@@ -42,6 +42,17 @@ interface TiffSummary {
 export type ConfigImageryTiff = ConfigImagery & TiffSummary;
 
 /**
+ * Convert a degree (lat,lon) into a approximate metres
+ *
+ * @param deg Number of degrees per pixel
+ *
+ * @returns very rough approximation of the number of meters per degree
+ */
+function approxDegreeToMeter(deg: number): number {
+  return deg * 111139;
+}
+
+/**
  * Read all tiffs from a target path and ensure all tiffs contain the same GSD and EPSG code,
  * while computing bounding boxes for the entire imagery set
  *
@@ -72,7 +83,11 @@ function computeTiffSummary(target: URL, tiffs: Tiff[]): TiffSummary {
     }
 
     const gsdRound = Math.floor(gsd * 100) / 10000;
-    const bbox = firstImage.bbox.map((f) => Math.floor(f / gsdRound) * gsdRound);
+    const bbox = firstImage.bbox.map((f) => {
+      // prevent dividing by zero
+      if (f === 0 || gsdRound === 0) return f;
+      return Math.floor(f / gsdRound) * gsdRound;
+    });
     const imgBounds = Bounds.fromBbox(bbox);
 
     if (bounds == null) bounds = imgBounds;
@@ -83,6 +98,10 @@ function computeTiffSummary(target: URL, tiffs: Tiff[]): TiffSummary {
     const relativePath = toRelative(targetPath, tiff.source.url);
     res.files.push({ name: relativePath, ...imgBounds });
   }
+
+  // If the tiff is in EPSG:4326 then its resolution will be in degrees,
+  // We require a GSD in meters for all the math we do so calculate a approx meters
+  if (res.projection === 4326) res.gsd = res.gsd ? approxDegreeToMeter(res.gsd) : res.gsd;
   res.bounds = bounds?.toJson();
   if (res.bounds == null) throw new Error('Failed to extract imagery bounds from:' + target);
   if (res.projection == null) throw new Error('Failed to extract imagery epsg from:' + target);
