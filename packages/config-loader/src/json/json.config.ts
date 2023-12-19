@@ -73,7 +73,8 @@ export async function isEmptyTiff(toCheck: URL | Tiff): Promise<boolean> {
   // if the tiff contains data.
   for (let i = tiff.images.length - 1; i >= 0; i--) {
     const tileOffsets = await tiff.images[i].fetch(TiffTag.TileByteCounts);
-    if (tileOffsets == null) continue;
+    // Tiff is not tiled, so cannot know if its empty from tile offsets
+    if (tileOffsets == null) return false;
     // If any tile offset is above 0 then there is data at that offset.
     for (const offset of tileOffsets) {
       // There exists a tile that contains some data, so this tiff is not empty
