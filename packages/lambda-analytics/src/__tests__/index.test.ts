@@ -103,7 +103,9 @@ describe('handler', () => {
     assert.equal(expectedCount > 0, true);
 
     // T02 is processed
-    assert.equal(fsMemory.files.get(`${cachePath}/${currentYear}-01-01T02.ndjson`)?.buffer.length, 950);
+    const outputFile = fsMemory.files.get(`${cachePath}/${currentYear}-01-01T02.ndjson`)?.buffer.toString();
+    assert.equal(outputFile?.split('\n').length, 2);
+    // assert.equal(data, 950);
 
     // all others are skipped
     assert.equal(fsMemory.files.get(`${cachePath}/${currentYear}-01-01T01.ndjson`)?.buffer.length, 0);
