@@ -19,14 +19,14 @@ export const ConfigImageryOverviewParser = z
      *
      * @example 0
      */
-    minZoom: z.number().refine((r) => r > 0 && r < 32),
+    minZoom: z.number().refine((r) => r >= 0 && r <= 32),
     /**
      * Max zoom for the overview archive
      * 15 means tiles for z15 exist in this overview archive
      *
      * @example 15
      */
-    maxZoom: z.number().refine((r) => r > 0 && r < 32),
+    maxZoom: z.number().refine((r) => r >= 0 && r <= 32),
   })
   .refine((obj) => obj.minZoom < obj.maxZoom);
 
