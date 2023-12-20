@@ -1,4 +1,4 @@
-import { BaseConfig } from './base.js';
+import { ConfigBase } from './base.js';
 
 interface SourceVector {
   type: 'vector';
@@ -60,6 +60,6 @@ export interface StyleJson {
   layers: Layer[];
 }
 
-export interface ConfigVectorStyle extends BaseConfig {
+export interface ConfigVectorStyle extends ConfigBase {
   style: StyleJson;
 }

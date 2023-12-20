@@ -1,44 +1,117 @@
-import { BoundingBox, EpsgCode, NamedBounds } from '@basemaps/geo';
+import { EpsgCode } from '@basemaps/geo';
+import { z } from 'zod';
 
-import { BaseConfig } from './base.js';
+import { ConfigBase } from './base.js';
 
-export interface ConfigImagery extends BaseConfig {
-  projection: EpsgCode;
+export const ConfigImageryOverviewParser = z
+  .object({
+    /**
+     * Path to overview archive
+     *
+     * This is relative path to the {@link ConfigImagery.uri}
+     */
+    path: z.string(),
 
-  /** tileMatrix identifier */
-  tileMatrix: string;
+    /**
+     * Min zoom for the overview archive,
+     *
+     * 0 means tiles for z0 exist inside the archive
+     *
+     * @example 0
+     */
+    minZoom: z.number().refine((r) => r >= 0 && r <= 32),
+    /**
+     * Max zoom for the overview archive
+     * 15 means tiles for z15 exist in this overview archive
+     *
+     * @example 15
+     */
+    maxZoom: z.number().refine((r) => r >= 0 && r <= 32),
+  })
+  .refine((obj) => obj.minZoom < obj.maxZoom);
 
-  /** The tile for the imagery set and showing name if not defined */
-  title: string;
-
-  /** Categorize imagery into a group, eg Rural vs Urban vs Satellite vs DEM */
-  category?: string;
-
-  /** The location of the COGs like s3://basemaps-cogs/3857/aerial/jobId123 */
-  uri: string;
-
-  /** the bounding box of all the COGs */
-  bounds: BoundingBox;
-
-  /** list of file basenames and their bounding box */
-  files: NamedBounds[];
-
-  /** Separate overview cache */
-  overviews?: ConfigImageryOverview;
-}
-
-export interface ConfigImageryOverview {
-  /** Path to overview archive */
-  path: string;
+export const BoundingBoxParser = z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() });
+export const NamedBoundsParser = z.object({
   /**
-   * Minium zoom level of overviews
-   * @example 0 means tiles for z0 exist in this overview archive
-   */
-  minZoom: number;
-  /**
-   *  Maximum zoom level of overviews
+   *  Name of the file relative to the {@link ConfigImagery.uri}
    * @example
-   * 15 means tiles for z15 exist in this overview archive
+   * - "2-3-2.tiff"
    */
-  maxZoom: number;
-}
+  name: z.string(),
+  /**
+   * Origin X in meters
+   */
+  x: z.number(),
+  /**
+   * Origin Y in meters
+   */
+  y: z.number(),
+  /**
+   * width of the imagery in meters
+   */
+  width: z.number(),
+  /**
+   * Height of the imagery in meters
+   */
+  height: z.number(),
+});
+
+export type ConfigImageryOverview = z.infer<typeof ConfigImageryOverviewParser>;
+
+export const ConfigImageryParser = ConfigBase.extend({
+  /**
+   * Projection for the imagery
+   */
+  projection: z.nativeEnum(EpsgCode),
+
+  /**
+   * tileMatrix identifier
+   *
+   * @example
+   * - "WebMercatorQuad"
+   * - "NZTM2000Quad"
+   */
+  tileMatrix: z.string(),
+
+  /**
+   * Human friendly title for the imagery
+   *
+   */
+  title: z.string(),
+
+  /**
+   * Categorize imagery into a group, eg Rural vs Urban vs Satellite vs DEM
+   *
+   * @example
+   * - "Event"
+   * - "Rural Aerial Photos"
+   */
+  category: z.string().optional(),
+
+  /**
+   * The location of the COGs like
+   *
+   * This should be a URL with a trailing slash
+   *
+   * @example
+   * - s3://linz-basemaps/3857/aerial/jobId123/
+   */
+  uri: z.string(),
+
+  /**
+   * the bounding box of all the COGs
+   */
+  bounds: BoundingBoxParser,
+
+  /**
+   * list of files and their bounding box
+   */
+  files: z.array(NamedBoundsParser),
+
+  /**
+   * Separate overview cache
+   */
+  overviews: ConfigImageryOverviewParser.optional(),
+});
+
+export type ConfigImagery = z.infer<typeof ConfigImageryParser>;
