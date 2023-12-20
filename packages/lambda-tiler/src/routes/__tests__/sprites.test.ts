@@ -16,11 +16,11 @@ describe('/v1/sprites', () => {
   const config = new ConfigProviderMemory();
 
   before(() => {
-    fsa.register('memory://', memory);
+    fsa.register('fake-s3://assets/', memory);
   });
 
   beforeEach(() => {
-    config.assets = 'memory://';
+    config.assets = 'fake-s3://assets/';
     sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
   });
 
@@ -31,8 +31,8 @@ describe('/v1/sprites', () => {
 
   it('should fetch a json document', async () => {
     await Promise.all([
-      fsa.write(new URL('memory://sprites/topographic.json'), Buffer.from(JSON.stringify({ test: true }))),
-      fsa.write(new URL('memory://sprites/topographic.png'), Buffer.from('')),
+      fsa.write(new URL('fake-s3://assets/sprites/topographic.json'), Buffer.from(JSON.stringify({ test: true }))),
+      fsa.write(new URL('fake-s3://assets/sprites/topographic.png'), Buffer.from('')),
     ]);
     const res = await handler.router.handle(mockRequest('/v1/sprites/topographic.json'));
     assert.equal(res.status, 200);
@@ -46,8 +46,8 @@ describe('/v1/sprites', () => {
 
   it('should fetch a png', async () => {
     await Promise.all([
-      fsa.write(new URL('memory://sprites/topographic.json'), Buffer.from(JSON.stringify({ test: true }))),
-      fsa.write(new URL('memory://sprites/topographic@2x.png'), Buffer.from('')),
+      fsa.write(new URL('fake-s3://assets/sprites/topographic.json'), Buffer.from(JSON.stringify({ test: true }))),
+      fsa.write(new URL('fake-s3://assets/sprites/topographic@2x.png'), Buffer.from('')),
     ]);
     const res = await handler.router.handle(mockRequest('/v1/sprites/topographic@2x.png'));
     assert.equal(res.status, 200);
@@ -58,7 +58,10 @@ describe('/v1/sprites', () => {
 
   it('should detect gziped files and set content-encoding', async () => {
     await Promise.all([
-      fsa.write(new URL('memory://sprites/topographic.json'), gzipSync(Buffer.from(JSON.stringify({ test: true })))),
+      fsa.write(
+        new URL('fake-s3://assets/sprites/topographic.json'),
+        gzipSync(Buffer.from(JSON.stringify({ test: true }))),
+      ),
     ]);
     const res = await handler.router.handle(mockRequest('/v1/sprites/topographic.json'));
     assert.equal(res.status, 200);
