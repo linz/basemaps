@@ -40,12 +40,11 @@ export async function listCacheFolder(cachePath: URL): Promise<Set<string>> {
   const existingFiles: Set<string> = new Set();
   // Find where the last script finished processing
   const cachePathList = new URL(CacheFolder, cachePath);
-  if (cachePathList.href.startsWith('s3://') || (await fsa.exists(cachePathList))) {
-    for await (const file of fsa.list(cachePathList)) {
-      if (!file.pathname.endsWith(CacheExtension)) continue;
-      existingFiles.add(file.href.replace(cachePathList.href, '').replace(CacheExtension, ''));
-    }
+  for await (const file of fsa.list(cachePathList)) {
+    if (!file.pathname.endsWith(CacheExtension)) continue;
+    existingFiles.add(file.href.replace(cachePathList.href, '').replace(CacheExtension, ''));
   }
+
   return existingFiles;
 }
 
@@ -77,13 +76,15 @@ export async function handler(): Promise<void> {
     if (existingFiles.has(nextDateToProcess)) continue;
 
     const nextDateKey = nextDateToProcess.replace('T', '-');
-    const cacheKey = `${CacheFolder}/${nextDateToProcess}${CacheExtension}`;
+    const cacheKey = `${CacheFolder}${nextDateToProcess}${CacheExtension}`;
 
     processedCount++;
 
     const promise = Q.time(async () => {
       // Filter for files in the date range we are looking for
-      const todoFiles = await fsa.toArray(fsa.list(new URL(`${CloudFrontId}.${nextDateKey}`, SourceLocation)));
+      const listLoc = new URL(`${CloudFrontId}.${nextDateKey}`, SourceLocation);
+      const todoFiles = await fsa.toArray(fsa.list(listLoc));
+
       if (todoFiles.length === 0) {
         Logger.debug({ startAt }, 'Skipped');
 

@@ -1,16 +1,14 @@
 import assert from 'node:assert';
-import { afterEach, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
+import { gzipSync } from 'node:zlib';
 
 import { Env, fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import PLimit from 'p-limit';
-import sinon from 'sinon';
 
-import { FileProcess } from '../file.process.js';
 import { dateByHour, getMaxDate, handler, listCacheFolder, MaxToProcess, Q } from '../index.js';
-import { LogStartDate, RollupVersion } from '../stats.js';
-import { ExampleLogs, lineReader } from './file.process.test.js';
+import { CacheFolder, LogStartDate, RollupVersion } from '../stats.js';
+import { ExampleLogs } from './file.process.test.js';
 
-const sandbox = sinon.createSandbox();
 LogConfig.get().level = 'silent';
 const currentYear = new Date().getUTCFullYear();
 // Concurrency breaks the order of tests
@@ -59,61 +57,38 @@ describe('getStartDate', () => {
   });
 
   it('should not use the start date if files are found', async () => {
-    // fsa.write('');
-    // fsa.list = async function* listFiles(key: string): AsyncGenerator<string> {
-    //   yield `${key}baz.txt`;
-    //   yield `${key}2020-01-01T01.ndjson`;
-    // };
-    const cacheData = await listCacheFolder(new URL('s3://foo/bar/'));
+    await fsa.write(new URL(`s3://analytics-analyticcachebucketd96a8b35-11baj9/${CacheFolder}baz.txt`), '');
+    await fsa.write(
+      new URL(`s3://analytics-analyticcachebucketd96a8b35-11baj9/${CacheFolder}2020-01-01T01.ndjson`),
+      '',
+    );
+
+    const cacheData = await listCacheFolder(new URL('s3://analytics-analyticcachebucketd96a8b35-11baj9'));
     assert.equal(cacheData.size, 1);
     assert.equal(cacheData.has('2020-01-01T01'), true);
   });
 });
 
 describe('handler', () => {
-  const sourceBucket = `fake-s3://cloudfront-logs`;
+  const sourceBucket = `s3://cloudfront-logs`;
   const cloudFrontId = `E1WKYJII8YDTO0`;
 
   process.env[Env.Analytics.CloudFrontId] = cloudFrontId;
   process.env[Env.Analytics.CloudFrontSourceBucket] = sourceBucket;
-  process.env[Env.Analytics.CacheBucket] = `fake-s3://analytics-cache`;
+  process.env[Env.Analytics.CacheBucket] = `s3://analytics-cache`;
 
   const fsMemory = new FsMemory();
   before(() => {
-    fsa.register('fake-s3://', fsMemory);
-  });
-
-  afterEach(() => {
-    sandbox.restore();
+    fsa.register('s3://', fsMemory);
   });
 
   it('should list and process files', async () => {
-    const cachePath = `fake-s3://analytics-cache/RollUpV${RollupVersion}/${currentYear}`;
+    const cachePath = `s3://analytics-cache/RollUpV${RollupVersion}/${currentYear}`;
 
-    // const sourceFiles = [
-    //   `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-00.hash.gz`,
-    //   `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-01.hash.gz`,
-    //   `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-01.hashB.gz`,
-    //   `${sourceBucket}/${cloudFrontId}.${currentYear}-01-01-02.hash.gz`,
-    //   // Old
-    //   `${sourceBucket}/${cloudFrontId}.2019-07-28-02.hash.gz`,
-    // ];
-    sandbox.stub(FileProcess, 'reader').callsFake(lineReader(ExampleLogs, `${currentYear}-01-01T02`));
-    const writeStub = sandbox.stub(fsa, 'write');
-
-    // const listStub = sandbox.stub(fsa, 'list').callsFake(async function* ListFiles(
-    //   source: string,
-    // ): AsyncGenerator<string> {
-    //   if (source.startsWith(sourceBucket)) {
-    //     for (const filePath of sourceFiles) {
-    //       if (filePath.startsWith(source)) yield filePath;
-    //     }
-    //   }
-    //   if (source.startsWith(cachePath)) {
-    //     yield `${cachePath}/${currentYear}-01-01T00.ndjson`;
-    //     yield `${cachePath}/${currentYear}-01-01T03.ndjson`;
-    //   }
-    // });
+    await fsa.write(
+      new URL(`s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-02.abc123`),
+      gzipSync(ExampleLogs.join('\n').replaceAll('2020-07-28	01', `${currentYear}-01-01	02`)),
+    );
 
     await handler();
 
@@ -127,30 +102,12 @@ describe('handler', () => {
 
     assert.equal(expectedCount > 0, true);
 
-    // Two files are already processed
-    assert.equal(writeStub.callCount, Math.min(expectedCount - 1, MaxToProcess));
+    // T02 is processed
+    assert.equal(fsMemory.files.get(`${cachePath}/${currentYear}-01-01T02.ndjson`)?.buffer.length, 950);
 
-    assert.equal(writeStub.args[0][0], `${cachePath}/${currentYear}-01-01T01.ndjson`);
-    assert.equal(writeStub.args[0][1].toString(), '');
-
-    assert.equal(writeStub.args[1][0], `${cachePath}/${currentYear}-01-01T02.ndjson`);
-    assert.notEqual(writeStub.args[1][1].toString(), '');
-
-    // Should write empty files when data is not found
-    assert.equal(writeStub.args[2][0], `${cachePath}/${currentYear}-01-01T04.ndjson`);
-    assert.equal(writeStub.args[2][1].toString(), '');
-
-    assert.equal(writeStub.args[3][0], `${cachePath}/${currentYear}-01-01T05.ndjson`);
-    assert.equal(writeStub.args[3][1].toString(), '');
-
-    // Will do lots of lists upto todays date to find more data
-    // const minExpected = Math.min(expectedCount, 100);
-    // assert.equal(listStub.callCount >= minExpected, true);
-
-    // assert.equal(listStub.args[0][0], `s3://analytics-cache/RollUpV${RollupVersion}/${currentYear}/`);
-    // assert.equal(listStub.args[1][0], `s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-01`);
-    // assert.equal(listStub.args[2][0], `s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-02`);
-    // assert.equal(listStub.args[3][0], `s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-04`);
-    // assert.equal(listStub.args[4][0], `s3://cloudfront-logs/E1WKYJII8YDTO0.${currentYear}-01-01-05`);
+    // all others are skipped
+    assert.equal(fsMemory.files.get(`${cachePath}/${currentYear}-01-01T01.ndjson`)?.buffer.length, 0);
+    assert.equal(fsMemory.files.get(`${cachePath}/${currentYear}-01-01T03.ndjson`)?.buffer.length, 0);
+    assert.equal(fsMemory.files.get(`${cachePath}/${currentYear}-01-01T04.ndjson`)?.buffer.length, 0);
   });
 });
