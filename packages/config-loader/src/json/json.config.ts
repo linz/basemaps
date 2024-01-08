@@ -58,6 +58,7 @@ export function guessIdFromUri(uri: string): string | null {
   }
 }
 
+const IsEmptyCheckSizeBytes = 512 * 1024;
 /**
  * Check to see if this tiff has any data
  *
@@ -68,6 +69,10 @@ export function guessIdFromUri(uri: string): string | null {
  */
 export async function isEmptyTiff(toCheck: URL | Tiff): Promise<boolean> {
   const tiff = toCheck instanceof URL ? await Tiff.create(fsa.source(toCheck)) : toCheck;
+
+  // Only check the tiff for empty if the size is less than IsEmptyCheckSizeBytes
+  const tiffSize = tiff.source.metadata?.size ?? 0;
+  if (tiffSize > IsEmptyCheckSizeBytes) return false;
 
   // Starting the smallest tiff overview greatly reduces the amount of data needing to be read
   // if the tiff contains data.
