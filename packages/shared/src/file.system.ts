@@ -57,7 +57,6 @@ export const FsaLog = {
     );
     this.requests.push(requestId);
     const startTime = performance.now();
-
     const res = await next(req);
     LogConfig.get().debug(
       {
@@ -79,9 +78,6 @@ export const FsaLog = {
 };
 fsa.middleware.push(FsaLog);
 
-// FIXME add middleware to cache requests
-
-// FIXME add tests / docs
 /**
  * When chunkd moves to URLs this can be removed
  *
