@@ -32,7 +32,7 @@
     "@chunkd/fs": "^11.2.0",
     "@chunkd/fs-aws": "^11.2.1",
     "@chunkd/middleware": "^11.0.1",
-    "@cogeotiff/core": "^9.0.2",
+    "@cogeotiff/core": "^9.0.3",
     "@cotar/core": "^6.0.1",
     "@linzjs/geojson": "^7.0.0",
     "@linzjs/metrics": "^7.0.0",
