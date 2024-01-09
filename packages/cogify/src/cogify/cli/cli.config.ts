@@ -6,10 +6,14 @@ import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, positional } from 'cmd-ts';
 import pLimit from 'p-limit';
+import { promisify } from 'util';
+import { gzip } from 'zlib';
 
 import { isArgo } from '../../argo.js';
 import { getLogger, logArguments } from '../../log.js';
 import { UrlFolder } from '../parsers.js';
+
+const gzipPromise = promisify(gzip);
 
 export const BasemapsCogifyConfigCommand = command({
   name: 'cogify-config',
@@ -47,7 +51,7 @@ export const BasemapsCogifyConfigCommand = command({
     const config = provider.toJson();
     const outputPath = new URL(`basemaps-config-${config.hash}.json.gz`, args.target ?? args.path);
     logger.info({ output: outputPath, hash: config.hash }, 'ImageryConfig:Write');
-    await fsa.write(outputPath, JSON.stringify(config));
+    await fsa.write(outputPath, await gzipPromise(JSON.stringify(config)));
 
     const configPath = base58.encode(Buffer.from(outputPath.href));
     const location = getImageryCenterZoom(im);
