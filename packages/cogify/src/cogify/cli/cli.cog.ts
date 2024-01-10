@@ -97,6 +97,7 @@ export const BasemapsCogifyCreateCommand = command({
 
       const cogAsset = f.item.assets['cog'];
       if (cogAsset == null && invalidReason == null) return true;
+      const asset = cogAsset ? cogAsset['herl'] : 'null';
 
       // Force overwrite existing COGs
       if (args.force) {
@@ -106,11 +107,11 @@ export const BasemapsCogifyCreateCommand = command({
 
       // The cog was already created but deemed invalid
       if (invalidReason) {
-        logger.warn({ item: f.item.id, asset: cogAsset.href, reason: invalidReason }, 'Cog:Create:Exists:invalid');
+        logger.warn({ item: f.item.id, asset, reason: invalidReason }, 'Cog:Create:Exists:invalid');
         return false;
       }
 
-      logger.info({ item: f.item.id, asset: cogAsset.href }, 'Cog:Create:Exists');
+      logger.info({ item: f.item.id, asset }, 'Cog:Create:Exists');
       return false;
     }) as CogItem[];
 
