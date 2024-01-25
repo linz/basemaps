@@ -25,6 +25,8 @@ docker run
     --workdir $PWD ghcr.io/osgeo/gdal:ubuntu-small-3.8.3
     gdalwarp
     -of VRT
+    -r bilinear 
+    -ot float32
     -multi
     -s_srs EPSG:4326
     -t_srs EPSG:2193
