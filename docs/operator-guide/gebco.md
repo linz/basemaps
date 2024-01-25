@@ -33,7 +33,7 @@ docker run
 
 ```
 
-Gdal_translate to process the source file into 2193 cog within the [NZTM2000Quad Extents](https://github.com/linz/NZTM2000TileMatrixSet/blob/master/raw/NZTM2000Quad.json#L7)
+GDAL translate to process the source file into NZTM2000 (EPSG:2193) COG within the [NZTM2000Quad Extents](https://github.com/linz/NZTM2000TileMatrixSet/blob/master/raw/NZTM2000Quad.json#L7)
 
 ```bash
 docker run
