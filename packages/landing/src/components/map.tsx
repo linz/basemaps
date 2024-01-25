@@ -28,6 +28,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   /** Ignore the location updates */
   ignoreNextLocationUpdate = false;
 
+  controlScale?: maplibre.ScaleControl | null;
   controlGeo?: maplibregl.GeolocateControl | null;
 
   updateLocation = (): void => {
@@ -80,15 +81,34 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       this.map.removeControl(this.controlGeo);
     }
   }
+  /**
+   * Only show the scale on GoogleTMS
+   * As it does not work with the projection logic we are currently using
+   */
+  ensureScaleControl(): void {
+    if (Config.map.debug['debug.screenshot']) return;
+    if (Config.map.tileMatrix === GoogleTms) {
+      if (this.controlScale != null) return;
+      this.controlScale = new maplibre.ScaleControl({});
+      this.map.addControl(this.controlScale, 'bottom-right');
+    } else {
+      if (this.controlScale == null) return;
+      this.map.removeControl(this.controlScale);
+    }
+  }
 
   updateStyle = (): void => {
     this.ensureGeoControl();
+    this.ensureScaleControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
     const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
     this.map.setStyle(style);
 
-    if (Config.map.tileMatrix !== GoogleTms) this.map.setMaxBounds([-179.9, -85, 179.9, 85]);
-    else this.map.setMaxBounds();
+    if (Config.map.tileMatrix !== GoogleTms) {
+      this.map.setMaxBounds([-179.9, -85, 179.9, 85]);
+    } else {
+      this.map.setMaxBounds();
+    }
     // TODO check and only update when Config.map.layer changes.
     this.forceUpdate();
   };
@@ -169,8 +189,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       this.map.addControl(nav, 'top-left');
       if (!Config.map.isDebug) this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
 
-      const scale = new maplibre.ScaleControl({});
-      this.map.addControl(scale, 'bottom-right');
+      this.controlScale = new maplibre.ScaleControl({});
+      this.map.addControl(this.controlScale, 'bottom-right');
     }
 
     this.map.on('render', this.onRender);
