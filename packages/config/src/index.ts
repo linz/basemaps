@@ -17,6 +17,7 @@ export {
   ConfigLayer,
   ConfigTileSet,
   ConfigTileSetRaster,
+  ConfigTileSetRasterOutput,
   ConfigTileSetVector,
   TileResizeKernel,
   TileSetType,

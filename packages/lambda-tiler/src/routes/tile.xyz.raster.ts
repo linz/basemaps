@@ -1,7 +1,7 @@
-import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
-import { Bounds, Epsg, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
+import { ConfigTileSetRaster, ConfigTileSetRasterOutput, getAllImagery } from '@basemaps/config';
+import { Bounds, Epsg, ImageFormat, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
 import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
-import { Tiler } from '@basemaps/tiler';
+import { getImageFormat, Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import pLimit from 'p-limit';
@@ -121,6 +121,9 @@ export const TileXyzRaster = {
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<LambdaHttpResponse> {
     if (xyz.tileType === VectorFormat.MapboxVectorTiles) return NotFound();
 
+    const tileOutput = getTileSetOutput(tileSet, xyz.tileType);
+    if (tileOutput == null) return NotFound();
+
     const assetPaths = await this.getAssetsForTile(req, tileSet, xyz);
     const cacheKey = Etag.key(assetPaths);
     if (Etag.isNotModified(req, cacheKey)) return NotModified();
@@ -132,8 +135,8 @@ export const TileXyzRaster = {
 
     const res = await TileComposer.compose({
       layers,
-      format: xyz.tileType,
-      background: tileSet.background ?? DefaultBackground,
+      format: tileOutput.output.type,
+      background: tileOutput.output.background ?? tileSet.background ?? DefaultBackground,
       resizeKernel: tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
     });
@@ -144,7 +147,33 @@ export const TileXyzRaster = {
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
-    response.buffer(res.buffer, 'image/' + xyz.tileType);
+    response.buffer(res.buffer, 'image/' + tileOutput.output.type);
     return response;
   },
 };
+
+/**
+ * Lookup the raster configuration pipeline for a output tile type
+ *
+ * Defaults to standard image format output if no outputs are defined on the tileset
+ */
+function getTileSetOutput(tileSet: ConfigTileSetRaster, tileType: string): ConfigTileSetRasterOutput | null {
+  if (tileSet.outputs != null) {
+    for (const out of tileSet.outputs) {
+      if (out.extension === tileType) return out;
+    }
+    return null;
+  }
+
+  const img = getImageFormat(tileType);
+  if (img == null) return null;
+  return {
+    title: `Default ${tileType}`,
+    extension: tileType,
+    output: {
+      type: img,
+      lossless: img === ImageFormat.Png ? true : false,
+      background: tileSet.background,
+    },
+  } as ConfigTileSetRasterOutput;
+}

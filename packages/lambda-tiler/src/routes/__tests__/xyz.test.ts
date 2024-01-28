@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { ConfigProviderMemory } from '@basemaps/config';
 import { LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
-import sinon from 'sinon';
 
 import { FakeData } from '../../__tests__/config.data.js';
 import { Api, mockRequest } from '../../__tests__/xyz.util.js';
@@ -12,25 +11,17 @@ import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { Etag } from '../../util/etag.js';
 
-const sandbox = sinon.createSandbox();
-
 const TileSetNames = ['aerial', 'aerial:ōtorohanga_urban_2021_0-1m_RGB', '01FYWKAJ86W9P7RWM1VB62KD0H'];
 describe('/v1/tiles', () => {
   const config = new ConfigProviderMemory();
 
   beforeEach(() => {
     LogConfig.get().level = 'silent';
-    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
-    config.objects.clear();
-
     for (const tileSetName of TileSetNames) config.put(FakeData.tileSetRaster(tileSetName));
-
-    sandbox.stub(Etag, 'key').returns('fakeEtag');
   });
 
   afterEach(() => {
     config.objects.clear();
-    sandbox.restore();
   });
 
   it('should export handler', async () => {
@@ -39,7 +30,10 @@ describe('/v1/tiles', () => {
   });
 
   TileSetNames.forEach((tileSetName) => {
-    it(`should generate a tile/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`, async () => {
+    it(`should generate a tile/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`, async (t) => {
+      t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+      t.mock.method(Etag, 'key', () => 'fakeEtag');
+
       const request = mockRequest(`/v1/tiles/${tileSetName}/global-mercator/0/0/0.png`, 'get', Api.header);
       const res = await handler.router.handle(request);
       assert.equal(res.status, 200);
@@ -53,9 +47,13 @@ describe('/v1/tiles', () => {
     });
   });
 
-  it('should generate a tile 0,0,0 for webp', async () => {
+  it('should generate a tile 0,0,0 for webp', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+    t.mock.method(Etag, 'key', () => 'fakeEtag');
+
     const request = mockRequest('/v1/tiles/aerial/3857/0/0/0.webp', 'get', Api.header);
     const res = await handler.router.handle(request);
+    console.log(res.statusDescription);
     assert.equal(res.status, 200);
     assert.equal(res.header('content-type'), 'image/webp');
     assert.equal(res.header('eTaG'), 'fakeEtag');
@@ -67,7 +65,9 @@ describe('/v1/tiles', () => {
   });
 
   ['png', 'webp', 'jpeg', 'avif'].forEach((fmt) => {
-    it(`should 200 with empty ${fmt} if a tile is out of bounds`, async () => {
+    it(`should 200 with empty ${fmt} if a tile is out of bounds`, async (t) => {
+      t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
       const res = await handler.router.handle(
         mockRequest(`/v1/tiles/aerial/global-mercator/0/0/0.${fmt}`, 'get', Api.header),
       );
@@ -78,7 +78,10 @@ describe('/v1/tiles', () => {
     });
   });
 
-  it('should 304 if a tile is not modified', async () => {
+  it('should 304 if a tile is not modified', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+    t.mock.method(Etag, 'key', () => 'fakeEtag');
+
     const key = 'fakeEtag';
     const request = mockRequest('/v1/tiles/aerial/global-mercator/0/0/0.png', 'get', {
       'if-none-match': key,
@@ -91,7 +94,9 @@ describe('/v1/tiles', () => {
     assert.deepEqual(request.logContext['cache'], { match: key, hit: true });
   });
 
-  it('should 404 if a tile is outside of the range', async () => {
+  it('should 404 if a tile is outside of the range', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
     const res = await handler.router.handle(
       mockRequest('/v1/tiles/aerial/global-mercator/25/0/0.png', 'get', Api.header),
     );
@@ -101,7 +106,9 @@ describe('/v1/tiles', () => {
     assert.equal(resB.status, 404);
   });
 
-  it('should support utf8 tilesets', async () => {
+  it('should support utf8 tilesets', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
     const fakeTileSet = FakeData.tileSetRaster('🦄 🌈');
     config.put(fakeTileSet);
     const req = mockRequest('/v1/tiles/🦄 🌈/global-mercator/0/0/0.png', 'get', Api.header);
@@ -114,9 +121,31 @@ describe('/v1/tiles', () => {
   });
 
   ['/favicon.ico', '/index.html', '/foo/bar'].forEach((path) => {
-    it('should 404 on invalid paths: ' + path, async () => {
+    it('should 404 on invalid paths: ' + path, async (t) => {
+      t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
       const res = await handler.router.handle(mockRequest(path, 'get', Api.header));
       assert.equal(res.status, 404);
     });
+  });
+
+  it('should generate a terrain-rgb 11/2022/1283 in webp', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    const elevation = FakeData.tileSetRaster('elevation');
+
+    elevation.outputs = [
+      { title: 'Terrain RGB', extension: 'terrain-rgb.webp', output: { type: 'webp', lossless: true } },
+    ];
+    config.put(elevation);
+
+    const request = mockRequest('/v1/tiles/elevation/3857/11/2022/1283-terrain-rgb.webp', 'get', Api.header);
+
+    const res = await handler.router.handle(request);
+
+    assert.equal(res.status, 200);
+    // Validate the session information has been set correctly
+    assert.deepEqual(request.logContext['xyz'], { x: 2022, y: 1283, z: 11 });
+    assert.deepEqual(round(request.logContext['location']), { lat: -41.44272638, lon: 175.51757812 });
   });
 });
