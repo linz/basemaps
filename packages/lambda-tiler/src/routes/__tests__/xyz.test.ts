@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory } from '@basemaps/config';
+import { ImageFormat } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
 
@@ -135,7 +136,7 @@ describe('/v1/tiles', () => {
     const elevation = FakeData.tileSetRaster('elevation');
 
     elevation.outputs = [
-      { title: 'Terrain RGB', extension: 'terrain-rgb.webp', output: { type: 'webp', lossless: true } },
+      { title: 'Terrain RGB', extension: 'terrain-rgb.webp', output: { type: ImageFormat.Webp, lossless: true } },
     ];
     config.put(elevation);
 
