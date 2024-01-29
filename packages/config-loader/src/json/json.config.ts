@@ -117,7 +117,7 @@ export class ConfigJson {
 
     const todo = files.map(async (filePath) => {
       if (!filePath.pathname.endsWith('.json')) return;
-      const bc: BaseConfig = await fsa.readJson(filePath);
+      const bc: BaseConfig = await fsa.readJson<BaseConfig>(filePath);
       const prefix = ConfigId.getPrefix(bc.id);
       if (prefix) {
         log.debug({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
