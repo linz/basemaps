@@ -90,7 +90,7 @@ export const Validate = {
 
     if (req.params.tileType == null) throw new LambdaHttpResponse(404, 'Tile extension not found');
 
-    // trim ".webp" to "webp" and "-terrain-rgb.webp" to "terrain-rgb"
+    // trim ".webp" to "webp" and "-terrain-rgb.webp" to "terrain-rgb.webp"
     // so that it is easier to match latter
     if (req.params.tileType.startsWith('.') || req.params.tileType.startsWith('-')) {
       req.params.tileType = req.params.tileType.slice(1);
