@@ -9,6 +9,10 @@ Download the lastest [Gebco gridded bathymetry data](https://www.gebco.net/data_
 Build VRT first with the Gdal command.
 
 ```bash
+mkdir geotiff_output -p
+```
+
+```bash
 docker run \
     --rm -it -v $PWD:$PWD \
     --workdir $PWD ghcr.io/osgeo/gdal:ubuntu-small-3.8.3 \
@@ -20,17 +24,17 @@ docker run \
 Wrap VRT and re-project into 2193 projection
 
 ```bash
-docker run
-    --rm -it -v $PWD:$PWD
-    --workdir $PWD ghcr.io/osgeo/gdal:ubuntu-small-3.8.3
-    gdalwarp
-    -of VRT
-    -r bilinear 
-    -ot float32
-    -multi
-    -s_srs EPSG:4326
-    -t_srs EPSG:2193
-    geotiff_output/gebco_2023.vrt
+docker run \
+    --rm -it -v $PWD:$PWD \
+    --workdir $PWD ghcr.io/osgeo/gdal:ubuntu-small-3.8.3 \
+    gdalwarp \
+    -of VRT \
+    -r bilinear \
+    -ot float32 \
+    -multi \
+    -s_srs EPSG:4326 \
+    -t_srs EPSG:2193 \
+    geotiff_output/gebco_2023.vrt \
     geotiff_output/wrapped_gebco_2023.vrt
 
 ```
@@ -38,14 +42,14 @@ docker run
 GDAL translate to process the source file into NZTM2000 (EPSG:2193) COG within the [NZTM2000Quad Extents](https://github.com/linz/NZTM2000TileMatrixSet/blob/master/raw/NZTM2000Quad.json#L7)
 
 ```bash
-docker run
-    --rm -it -v $PWD:$PWD
-    --workdir $PWD ghcr.io/osgeo/gdal:ubuntu-small-3.8.3
-    gdal_translate
-    -of COG
-    -co TARGET_SRS=EPSG:2193
-    -co EXTENT=-3260586.7284,419435.9938,6758167.443,10438190.1652
-    geotiff_output/wrapped_gebco_2023.vrt
+docker run \
+    --rm -it -v $PWD:$PWD \
+    --workdir $PWD ghcr.io/osgeo/gdal:ubuntu-small-3.8.3 \
+    gdal_translate \
+    -of COG \
+    -co TARGET_SRS=EPSG:2193 \
+    -co EXTENT=-3260586.7284,419435.9938,6758167.443,10438190.1652 \
+    geotiff_output/wrapped_gebco_2023.vrt \
     geotiff_output/gebco_2023.tiff
 
 ```
