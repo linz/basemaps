@@ -1,4 +1,4 @@
-import { EpsgCode, ImageFormat, VectorFormat } from '@basemaps/geo';
+import { EpsgCode, ImageFormat } from '@basemaps/geo';
 
 import { ConfigBase } from './base.js';
 
@@ -62,8 +62,6 @@ export interface ConfigTileSetBase extends ConfigBase {
 
 export interface ConfigTileSetRaster extends ConfigTileSetBase {
   type: TileSetType.Raster;
-  /** Preferred imagery format to use */
-  format: ImageFormat;
 
   /** Background to render for areas where there is no data */
   background?: { r: number; g: number; b: number; alpha: number };
@@ -104,7 +102,6 @@ export interface ConfigTileSetRasterOutput {
 
 export interface ConfigTileSetVector extends ConfigTileSetBase {
   type: TileSetType.Vector;
-  format: VectorFormat;
 }
 
 export type ConfigTileSet = ConfigTileSetVector | ConfigTileSetRaster;

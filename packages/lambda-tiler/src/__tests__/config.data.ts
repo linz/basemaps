@@ -14,7 +14,6 @@ export const TileSetAerial: ConfigTileSetRaster = {
   id: 'ts_aerial',
   name: 'aerial',
   type: TileSetType.Raster,
-  format: 'webp',
   description: 'aerial__description',
   title: 'Aerial Imagery',
   category: 'Basemap',
@@ -35,7 +34,6 @@ export const TileSetVector: ConfigTileSetVector = {
   description: 'topotgrpahic__description',
   title: 'topotgrpahic Imagery',
   category: 'Basemap',
-  format: 'pbf',
   layers: [
     {
       3857: 's3://linz-basemaps/01G7WQMGHB7V946M0YWJJBZ6DW/topopgraphic.tar.co',
