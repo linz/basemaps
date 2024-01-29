@@ -3,6 +3,13 @@ import { z } from 'zod';
 
 import { ConfigBase } from './base.js';
 
+/**
+ * Taken from tiff's SampleFormat
+ *
+ * @link https://www.awaresystems.be/imaging/tiff/tifftags/sampleformat.html
+ */
+export type ImageryDataType = 'uint' | 'int' | 'float' | 'void' | 'unknown' | 'cint' | 'cfloat';
+
 export const ConfigImageryOverviewParser = z
   .object({
     /**
@@ -29,6 +36,21 @@ export const ConfigImageryOverviewParser = z
     maxZoom: z.number().refine((r) => r >= 0 && r <= 32),
   })
   .refine((obj) => obj.minZoom < obj.maxZoom);
+
+export const ImageryBandsParser = z.object({
+  /**
+   * Data type of the band
+   *
+   * @example "uint"
+   */
+  type: z.string(),
+  /**
+   * Number of bits used for the data type
+   *
+   * @example 32
+   */
+  bits: z.number(),
+});
 
 export const BoundingBoxParser = z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() });
 export const NamedBoundsParser = z.object({
@@ -102,6 +124,18 @@ export const ConfigImageryParser = ConfigBase.extend({
    * the bounding box of all the COGs
    */
   bounds: BoundingBoxParser,
+
+  /**
+   * Information about the common bands for the datasets
+   */
+  bands: z.array(ImageryBandsParser).optional(),
+
+  /**
+   * Optional noData value for the source
+   *
+   * @example -9999
+   */
+  noData: z.number().optional(),
 
   /**
    * list of files and their bounding box
