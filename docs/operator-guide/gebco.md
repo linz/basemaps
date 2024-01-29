@@ -45,7 +45,7 @@ docker run
     -of COG
     -co TARGET_SRS=EPSG:2193
     -co EXTENT=-3260586.7284,419435.9938,6758167.443,10438190.1652
-    geotiff_out/wrapped_gebco_2023.vrt
-    geotiff_out/gebco_2023.tiff
+    geotiff_output/wrapped_gebco_2023.vrt
+    geotiff_output/gebco_2023.tiff
 
 ```
