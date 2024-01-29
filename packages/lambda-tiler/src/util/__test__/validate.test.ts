@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { GoogleTms, ImageFormat, Nztm2000QuadTms, Nztm2000Tms, VectorFormat } from '@basemaps/geo';
+import { GoogleTms, ImageFormat, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { Validate } from '../validate.js';
@@ -56,22 +56,4 @@ describe('getTileMatrixSet', () => {
   it('should be case sensitive', () => {
     assert.equal(Validate.getTileMatrixSet('Nztm2000Quad')?.identifier, undefined);
   });
-});
-
-describe('getTileFormat', () => {
-  for (const ext of Object.values(ImageFormat)) {
-    it('should support image format:' + ext, () => {
-      assert.equal(Validate.getTileFormat(ext), ext);
-    });
-  }
-
-  it('should support vector format: mvt', () => {
-    assert.equal(Validate.getTileFormat('pbf'), VectorFormat.MapboxVectorTiles);
-  });
-
-  for (const fmt of ['FAKE', /* 'JPEG' // TODO should this be case sensitive ,*/ 'mvt', 'json']) {
-    it('should not support format:' + fmt, () => {
-      assert.equal(Validate.getTileFormat(fmt), null);
-    });
-  }
 });

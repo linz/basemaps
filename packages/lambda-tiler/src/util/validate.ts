@@ -1,4 +1,4 @@
-import { ImageFormat, LatLon, Projection, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
+import { ImageFormat, LatLon, Projection, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Const, isValidApiKey, truncateApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -6,10 +6,14 @@ import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { TileXyzGet } from '../routes/tile.xyz.js';
 
 export interface TileXyz {
+  /** Tile XYZ location */
   tile: { x: number; y: number; z: number };
+  /** Name of the tile set to use */
   tileSet: string;
+  /** TileMatrix that is requested */
   tileMatrix: TileMatrixSet;
-  tileType: VectorFormat | ImageFormat;
+  /** Output tile format */
+  tileType: string;
 }
 
 export interface TileMatrixRequest {
@@ -19,6 +23,7 @@ export interface TileMatrixRequest {
 export const Validate = {
   /**
    * Validate that the api key exists and is valid
+   *
    * @throws if api key is not valid
    */
   apiKey(req: LambdaHttpRequest): string {
@@ -48,13 +53,6 @@ export const Validate = {
     }
     if (output.size === 0) return null;
     return [...output.values()];
-  },
-
-  getTileFormat(tileType: string): ImageFormat | VectorFormat | null {
-    const ext = getImageFormat(tileType);
-    if (ext) return ext;
-    if (tileType === VectorFormat.MapboxVectorTiles) return VectorFormat.MapboxVectorTiles;
-    return null;
   },
 
   /** Validate that a lat and lon are between -90/90 and -180/180 */
@@ -90,9 +88,14 @@ export const Validate = {
     req.set('tileMatrix', tileMatrix.identifier);
     req.set('projection', tileMatrix.projection.code);
 
-    const tileType = Validate.getTileFormat(req.params.tileType);
-    if (tileType == null) throw new LambdaHttpResponse(404, 'Tile extension not found');
-    req.set('extension', tileType);
+    if (req.params.tileType == null) throw new LambdaHttpResponse(404, 'Tile extension not found');
+
+    // trim ".webp" to "webp" and "-terrain-rgb.webp" to "terrain-rgb.webp"
+    // so that it is easier to match latter
+    if (req.params.tileType.startsWith('.') || req.params.tileType.startsWith('-')) {
+      req.params.tileType = req.params.tileType.slice(1);
+    }
+    req.set('extension', req.params.tileType);
 
     if (isNaN(z) || z > tileMatrix.maxZoom || z < 0) throw new LambdaHttpResponse(404, `Zoom not found: ${z}`);
 
@@ -100,7 +103,7 @@ export const Validate = {
     if (isNaN(x) || x < 0 || x > zoom.matrixWidth) throw new LambdaHttpResponse(404, `X not found: ${x}`);
     if (isNaN(y) || y < 0 || y > zoom.matrixHeight) throw new LambdaHttpResponse(404, `Y not found: ${y}`);
 
-    const xyzData = { tile: { x, y, z }, tileSet: req.params.tileSet, tileMatrix, tileType };
+    const xyzData = { tile: { x, y, z }, tileSet: req.params.tileSet, tileMatrix, tileType: req.params.tileType };
     req.set('xyz', xyzData.tile);
 
     const latLon = Projection.tileCenterToLatLon(tileMatrix, xyzData.tile);

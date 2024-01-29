@@ -70,6 +70,36 @@ export interface ConfigTileSetRaster extends ConfigTileSetBase {
 
   /** When scaling tiles in the rendering process what kernel to use */
   resizeKernel?: { in: TileResizeKernel; out: TileResizeKernel };
+
+  /**
+   * Configure how the tile set is rendered,
+   * if this is not defined a default RGBA output will be generated
+   */
+  outputs?: ConfigTileSetRasterOutput[];
+}
+
+export interface ConfigTileSetRasterOutput {
+  /** Human friendly description of the output */
+  title: string;
+  /**
+   * URL extensions to separate this output from others, Must be unique per tile set.
+   *
+   * @example "terrain-rgb.webp"
+   */
+  extension: string;
+
+  /** Raster output format */
+  output: {
+    /** Output file format to use */
+    type: ImageFormat;
+    /** should the output be lossless */
+    lossless: boolean;
+    /**
+     *  Background to render for areas where there is no data, falls back to
+     *  {@link ConfigTileSetRaster.background} if not defined
+     */
+    background?: { r: number; g: number; b: number; alpha: number };
+  };
 }
 
 export interface ConfigTileSetVector extends ConfigTileSetBase {
