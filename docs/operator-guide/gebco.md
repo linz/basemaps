@@ -30,8 +30,8 @@ docker run
     -multi
     -s_srs EPSG:4326
     -t_srs EPSG:2193
-    geotiff_out/gebco_2023.vrt
-    geotiff_out/wrapped_gebco_2023.vrt
+    geotiff_output/gebco_2023.vrt
+    geotiff_output/wrapped_gebco_2023.vrt
 
 ```
 
