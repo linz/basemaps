@@ -117,7 +117,7 @@ export class ConfigJson {
 
     const todo = files.map(async (filePath) => {
       if (!filePath.pathname.endsWith('.json')) return;
-      const bc: BaseConfig = (await fsa.readJson(filePath)) as BaseConfig;
+      const bc: BaseConfig = await fsa.readJson(filePath);
       const prefix = ConfigId.getPrefix(bc.id);
       if (prefix) {
         log.debug({ path: filePath, type: prefix, config: bc.id }, 'Config:Load');
@@ -247,7 +247,7 @@ export class ConfigJson {
     if (ts.format) {
       tileSet.format = ts.format as ImageFormat | VectorFormat;
     } else {
-      tileSet.format = ts.type === TileSetType.Vector ? VectorFormat.MapboxVectorTiles : ImageFormat.Webp;
+      tileSet.format = ts.type === TileSetType.Vector ? 'pbf' : 'webp';
     }
 
     return tileSet as ConfigTileSet;

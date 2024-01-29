@@ -1,6 +1,6 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
-import { ImageFormat, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
@@ -11,7 +11,7 @@ const target = fsa.toUrl(`/home/blacha/tmp/basemaps/bm-724/test-north-island_202
 const location = { lat: -39.0852555, lon: 177.3998405 };
 const z = 12;
 
-const outputFormat = ImageFormat.Webp;
+const outputFormat = 'webp';
 let tileMatrix: TileMatrixSet | null = null;
 
 async function main(): Promise<void> {

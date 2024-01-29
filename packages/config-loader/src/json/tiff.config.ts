@@ -1,13 +1,5 @@
 import { ConfigImagery, ConfigProviderMemory, ConfigTileSetRaster, sha256base58, TileSetType } from '@basemaps/config';
-import {
-  BoundingBox,
-  Bounds,
-  EpsgCode,
-  ImageFormat,
-  NamedBounds,
-  Nztm2000QuadTms,
-  TileMatrixSets,
-} from '@basemaps/geo';
+import { BoundingBox, Bounds, EpsgCode, NamedBounds, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { fsa, Tiff } from '@basemaps/shared';
 import pLimit, { LimitFunction } from 'p-limit';
 import { basename } from 'path';
@@ -331,7 +323,7 @@ export async function initConfigFromUrls(
     title: 'Basemaps',
     category: 'Basemaps',
     type: TileSetType.Raster,
-    format: ImageFormat.Webp,
+    format: 'webp',
     layers: [],
   };
 

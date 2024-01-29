@@ -1,6 +1,6 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
-import { ImageFormat, Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
@@ -10,7 +10,7 @@ import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 const target = fsa.toUrl(`/home/blacha/tmp/imagery/southland-0.25-rural-2023/`);
 const tile = fromPath('/18/117833/146174.webp');
 
-const outputFormat = ImageFormat.Webp;
+const outputFormat = 'webp';
 let tileMatrix: TileMatrixSet | null = null;
 
 /** Convert a tile path /:z/:x/:y.png into a tile */

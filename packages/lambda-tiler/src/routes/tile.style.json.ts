@@ -1,5 +1,5 @@
 import { ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
-import { GoogleTms, ImageFormat, TileMatrixSets } from '@basemaps/geo';
+import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { URL } from 'url';
@@ -70,7 +70,7 @@ export async function tileSetToStyle(
 ): Promise<LambdaHttpResponse> {
   const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
   if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
-  const [tileFormat] = Validate.getRequestedFormats(req) ?? [ImageFormat.Webp];
+  const [tileFormat] = Validate.getRequestedFormats(req) ?? ['webp'];
   if (tileFormat == null) return new LambdaHttpResponse(400, 'Invalid image format');
 
   const configLocation = ConfigLoader.extract(req);

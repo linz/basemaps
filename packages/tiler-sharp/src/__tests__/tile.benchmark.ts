@@ -1,4 +1,4 @@
-import { GoogleTms, ImageFormat } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo';
 import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
 import { Tiler } from '@basemaps/tiler';
@@ -29,7 +29,7 @@ async function main(): Promise<void> {
     const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom);
 
     if (layers == null) throw new Error('Tile is null');
-    await tileMaker.compose({ layers, format: ImageFormat.Png, background, resizeKernel });
+    await tileMaker.compose({ layers, format: 'png', background, resizeKernel });
     await tiff.source.close?.();
   }
 }

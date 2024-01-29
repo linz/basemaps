@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { GoogleTms, ImageFormat, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { Validate } from '../validate.js';
@@ -10,7 +10,7 @@ describe('GetImageFormats', () => {
   it('should parse all formats', () => {
     const req = mockUrlRequest('/v1/blank', 'format=png&format=jpeg');
     const formats = Validate.getRequestedFormats(req);
-    assert.deepEqual(formats, [ImageFormat.Png, ImageFormat.Jpeg]);
+    assert.deepEqual(formats, ['png', 'jpeg']);
   });
 
   it('should ignore bad formats', () => {
@@ -22,19 +22,19 @@ describe('GetImageFormats', () => {
   it('should de-dupe formats', () => {
     const req = mockUrlRequest('/v1/blank', 'format=png&format=jpeg&format=png&format=jpeg&format=png&format=jpeg');
     const formats = Validate.getRequestedFormats(req);
-    assert.deepEqual(formats, [ImageFormat.Png, ImageFormat.Jpeg]);
+    assert.deepEqual(formats, ['png', 'jpeg']);
   });
 
   it('should support "tileFormat" Alias all formats', () => {
     const req = mockUrlRequest('/v1/blank', 'tileFormat=png&format=jpeg');
     const formats = Validate.getRequestedFormats(req);
-    assert.deepEqual(formats, [ImageFormat.Jpeg, ImageFormat.Png]);
+    assert.deepEqual(formats, ['jpeg', 'png']);
   });
 
   it('should not duplicate "tileFormat" alias all formats', () => {
     const req = mockUrlRequest('/v1/blank', 'tileFormat=jpeg&format=jpeg');
     const formats = Validate.getRequestedFormats(req);
-    assert.deepEqual(formats, [ImageFormat.Jpeg]);
+    assert.deepEqual(formats, ['jpeg']);
   });
 });
 

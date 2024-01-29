@@ -53,15 +53,15 @@ export interface CompositionCotar {
   path: string;
 }
 
-export const ImageFormatOrder = [ImageFormat.Jpeg, ImageFormat.Webp, ImageFormat.Png];
+export const ImageFormatOrder: ImageFormat[] = ['jpeg', 'webp', 'png'];
 
 /** Guess the image format based on the file extension */
 export function getImageFormat(ext?: string): ImageFormat | null {
   if (ext == null) return null;
   const search = ext.toLowerCase();
-  if (search === ImageFormat.Png) return ImageFormat.Png;
-  if (search === ImageFormat.Webp) return ImageFormat.Webp;
-  if (search === ImageFormat.Jpeg || search === 'jpg') return ImageFormat.Jpeg;
-  if (search === ImageFormat.Avif) return ImageFormat.Avif;
+  if (search === 'png') return 'png';
+  if (search === 'webp') return 'webp';
+  if (search === 'jpeg' || search === 'jpg') return 'jpeg';
+  if (search === 'avif') return 'avif';
   return null;
 }

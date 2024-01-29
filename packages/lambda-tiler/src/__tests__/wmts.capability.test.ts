@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { ConfigImagery } from '@basemaps/config';
-import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
 
@@ -32,7 +32,7 @@ describe('WmtsCapabilities', () => {
 
     wmts.addTileMatrix(GoogleTms);
     for (const im of allImagery.values()) wmts.addImagery(im);
-    wmts.addFormats(ImageFormat.Avif);
+    wmts.addFormats('avif');
     wmts.addProvider(Provider);
     wmts.addTileSet(TileSetAerial);
     const wmtsCapability = wmts.toVNode();
@@ -55,7 +55,7 @@ describe('WmtsCapabilities', () => {
 
     wmts.addTileMatrix(GoogleTms);
     for (const im of allImagery.values()) wmts.addImagery(im);
-    wmts.addFormats(ImageFormat.Avif);
+    wmts.addFormats('avif');
     wmts.addProvider(Provider);
     wmts.addTileSet(TileSetAerial);
     const wmtsCapability = wmts.toVNode();
@@ -80,7 +80,7 @@ describe('WmtsCapabilities', () => {
       tileMatrix: [GoogleTms],
       tileSet: TileSetAerial,
       imagery: allImagery,
-      formats: [ImageFormat.Avif],
+      formats: ['avif'],
     });
     const xml = wmts.toXml();
 
@@ -100,7 +100,7 @@ describe('WmtsCapabilities', () => {
 
     wmts.addTileMatrix(GoogleTms);
     for (const im of allImagery.values()) wmts.addImagery(im);
-    wmts.addFormats(ImageFormat.Avif);
+    wmts.addFormats('avif');
     wmts.addProvider(Provider);
     wmts.addTileSet(tileSet);
     const wmtsCapability = wmts.toVNode();
@@ -292,7 +292,7 @@ describe('WmtsCapabilities', () => {
       tileSet: TileSetAerial,
       imagery,
       layers: TileSetAerial.layers,
-      formats: [ImageFormat.Png],
+      formats: ['png'],
     });
 
     const raw = wmts.toVNode();
@@ -338,7 +338,7 @@ describe('WmtsCapabilities', () => {
       tileMatrix: [GoogleTms, Nztm2000QuadTms],
       tileSet: TileSetAerial,
       imagery: imagery,
-      formats: [ImageFormat.Png],
+      formats: ['png'],
     });
 
     const raw = wmts.toVNode();
@@ -404,7 +404,7 @@ describe('WmtsCapabilities', () => {
       tileMatrix: [Nztm2000QuadTms],
       tileSet: TileSetAerial,
       imagery: imagery,
-      formats: [ImageFormat.Png],
+      formats: ['png'],
       layers: TileSetAerial.layers,
     });
 
@@ -422,7 +422,7 @@ describe('WmtsCapabilities', () => {
       tileMatrix: [Nztm2000QuadTms],
       tileSet: TileSetAerial,
       imagery: imagery,
-      formats: [ImageFormat.Png],
+      formats: ['png'],
       layers: TileSetAerial.layers,
     });
 
@@ -458,7 +458,7 @@ describe('WmtsCapabilities', () => {
       tileMatrix: [GoogleTms],
       tileSet,
       imagery,
-      formats: [ImageFormat.Png],
+      formats: ['png'],
       layers: tileSet.layers,
     });
 
@@ -501,7 +501,7 @@ describe('WmtsCapabilities', () => {
       tileMatrix: [GoogleTms],
       tileSet,
       imagery,
-      formats: [ImageFormat.Png],
+      formats: ['png'],
       layers: tileSet.layers,
     });
 
