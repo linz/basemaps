@@ -1,5 +1,5 @@
 import { ConfigTileSetVector } from '@basemaps/config';
-import { GoogleTms, VectorFormat } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
@@ -12,7 +12,7 @@ import { TileXyz } from '../util/validate.js';
 export const tileXyzVector = {
   /** Serve a MVT vector tile */
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetVector, xyz: TileXyz): Promise<LambdaHttpResponse> {
-    if (xyz.tileType !== VectorFormat.MapboxVectorTiles) return NotFound();
+    if (xyz.tileType !== 'pbf') return NotFound();
     if (xyz.tileMatrix.identifier !== GoogleTms.identifier) return NotFound();
 
     if (tileSet.layers.length > 1) return new LambdaHttpResponse(500, 'Too many layers in tileset');

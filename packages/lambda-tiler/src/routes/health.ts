@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 
 import { ConfigTileSetRaster } from '@basemaps/config';
-import { GoogleTms, ImageFormat, Nztm2000QuadTms } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import PixelMatch from 'pixelmatch';
 import Sharp from 'sharp';
@@ -15,8 +15,8 @@ interface TestTile extends TileXyz {
 }
 
 export const TestTiles: TestTile[] = [
-  { tileSet: 'health', tileMatrix: GoogleTms, tileType: ImageFormat.Png, tile: { x: 252, y: 156, z: 8 } },
-  { tileSet: 'health', tileMatrix: Nztm2000QuadTms, tileType: ImageFormat.Png, tile: { x: 30, y: 33, z: 6 } },
+  { tileSet: 'health', tileMatrix: GoogleTms, tileType: 'png', tile: { x: 252, y: 156, z: 8 } },
+  { tileSet: 'health', tileMatrix: Nztm2000QuadTms, tileType: 'png', tile: { x: 30, y: 33, z: 6 } },
 ];
 const TileSize = 256;
 

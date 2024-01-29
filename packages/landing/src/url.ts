@@ -1,5 +1,5 @@
 import { base58, isBase58 } from '@basemaps/config/build/base58.js';
-import { GoogleTms, ImageFormat, TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, TileMatrixSet } from '@basemaps/geo';
 import { toQueryString } from '@basemaps/shared/build/url.js';
 
 import { Config } from './config.js';
@@ -71,7 +71,7 @@ export const WindowUrl = {
     if (params.urlType === MapOptionType.Style) {
       if (params.tileMatrix.identifier !== GoogleTms.identifier)
         queryParams.set('tileMatrix', params.tileMatrix.identifier);
-      if (WindowUrl.ImageFormat !== ImageFormat.Webp) queryParams.set('format', WindowUrl.ImageFormat);
+      if (WindowUrl.ImageFormat !== 'webp') queryParams.set('format', WindowUrl.ImageFormat);
     }
 
     const q = '?' + queryParams.toString();

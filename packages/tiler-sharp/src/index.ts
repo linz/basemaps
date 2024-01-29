@@ -62,13 +62,13 @@ export class TileMakerSharp implements TileMaker {
    */
   toImage(format: ImageFormat, pipeline: Sharp.Sharp): Promise<Buffer> {
     switch (format) {
-      case ImageFormat.Jpeg:
+      case 'jpeg':
         return pipeline.jpeg().toBuffer();
-      case ImageFormat.Png:
+      case 'png':
         return pipeline.png().toBuffer();
-      case ImageFormat.Webp:
+      case 'webp':
         return pipeline.webp().toBuffer();
-      case ImageFormat.Avif:
+      case 'avif':
         return pipeline.avif().toBuffer();
       default:
         throw new Error(`Invalid image format "${format}"`);
@@ -86,7 +86,7 @@ export class TileMakerSharp implements TileMaker {
     const firstLayer = ctx.layers[0];
     if (firstLayer.type !== 'cotar') return false;
     if (this.width !== 256 || this.height !== 256) return false; // TODO this should not be hard coded
-    if (ctx.format !== ImageFormat.Webp) return false; // TODO this should not be hard coded
+    if (ctx.format !== 'webp') return false; // TODO this should not be hard coded
     if (ctx.background.alpha !== 0) return false;
     return true;
   }

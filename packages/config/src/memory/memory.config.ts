@@ -1,4 +1,4 @@
-import { EpsgCode, ImageFormat } from '@basemaps/geo';
+import { EpsgCode } from '@basemaps/geo';
 import { decodeTime, ulid } from 'ulid';
 
 import { BasemapsConfigObject, BasemapsConfigProvider, ConfigId } from '../base.config.js';
@@ -154,7 +154,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       name: 'all',
       title: 'All Imagery',
       category: 'Basemaps',
-      format: ImageFormat.Webp,
+      format: 'webp',
       layers: Array.from(layerByName.values()).sort((a, b) => a.name.localeCompare(b.name)),
     };
     this.put(allTileset);
@@ -172,7 +172,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
         title: i.title,
         category: i.category,
         name: targetName,
-        format: ImageFormat.Webp,
+        format: 'webp',
         layers: [{ name: targetName, title: i.title, minZoom: 0, maxZoom: 32 }],
         background: { r: 0, g: 0, b: 0, alpha: 0 },
         updatedAt: Date.now(),
@@ -202,7 +202,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       id: ConfigId.prefix(ConfigPrefix.TileSet, ConfigId.unprefix(ConfigPrefix.Imagery, i.id)),
       name: i.name,
       title: i.title,
-      format: ImageFormat.Webp,
+      format: 'webp',
       layers: [{ [i.projection]: i.id, name: i.name, minZoom: 0, maxZoom: 32, title: i.title }],
       background: { r: 0, g: 0, b: 0, alpha: 0 },
       updatedAt: Date.now(),

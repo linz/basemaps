@@ -1,5 +1,5 @@
 import { ConfigTileSetRaster, ConfigTileSetRasterOutput, getAllImagery } from '@basemaps/config';
-import { Bounds, Epsg, ImageFormat, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
+import { Bounds, Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { getImageFormat, Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
@@ -119,8 +119,6 @@ export const TileXyzRaster = {
   },
 
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<LambdaHttpResponse> {
-    if (xyz.tileType === VectorFormat.MapboxVectorTiles) return NotFound();
-
     const tileOutput = getTileSetOutput(tileSet, xyz.tileType);
     if (tileOutput == null) return NotFound();
 
@@ -172,7 +170,7 @@ function getTileSetOutput(tileSet: ConfigTileSetRaster, tileType: string): Confi
     extension: tileType,
     output: {
       type: img,
-      lossless: img === ImageFormat.Png ? true : false,
+      lossless: img === 'png' ? true : false,
       background: tileSet.background,
     },
   } as ConfigTileSetRasterOutput;

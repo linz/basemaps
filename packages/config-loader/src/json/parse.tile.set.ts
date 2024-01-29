@@ -1,5 +1,4 @@
 import { parseRgba, TileSetType } from '@basemaps/config';
-import { ImageFormat, VectorFormat } from '@basemaps/geo';
 import { z } from 'zod';
 
 export function validateColor(str: string): boolean {
@@ -51,7 +50,7 @@ export const zTileSetConfig = z.object({
   layers: z.array(zLayerConfig),
   minZoom: zZoom.optional(),
   maxZoom: zZoom.optional(),
-  format: z.union([z.nativeEnum(ImageFormat), z.nativeEnum(VectorFormat)]).optional(),
+  format: z.string().optional(),
 });
 
 export type TileSetConfigSchemaLayer = z.infer<typeof zLayerConfig>;

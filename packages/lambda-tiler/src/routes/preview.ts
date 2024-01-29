@@ -24,7 +24,7 @@ export interface PreviewGet {
 const PreviewSize = { width: 1200, height: 630 };
 const TilerSharp = new TileMakerSharp(PreviewSize.width, PreviewSize.height);
 
-const OutputFormat = ImageFormat.Webp;
+const OutputFormat = 'webp';
 /** Slightly grey color for the checker background */
 const PreviewBackgroundFillColor = 0xef;
 /** Make th e checkered background 30x30px */
