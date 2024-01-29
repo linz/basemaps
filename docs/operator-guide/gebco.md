@@ -9,11 +9,11 @@ Download the lastest [Gebco gridded bathymetry data](https://www.gebco.net/data_
 Build VRT first with the Gdal command.
 
 ```bash
-docker run
-    --rm -it -v $PWD:$PWD
-    --workdir $PWD ghcr.io/osgeo/gdal:ubuntu-small-3.8.3
-    gdalbuildvrt
-    geotiff_output/gebco_2023.vrt
+docker run \
+    --rm -it -v $PWD:$PWD \
+    --workdir $PWD ghcr.io/osgeo/gdal:ubuntu-small-3.8.3 \
+    gdalbuildvrt \
+    geotiff_output/gebco_2023.vrt \
     gebco_2023_geotiff/*.tif
 ```
 
