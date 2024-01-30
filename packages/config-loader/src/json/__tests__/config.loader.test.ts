@@ -26,6 +26,15 @@ describe('config import', () => {
     const imagery = ret.imagery[0];
     assert.equal(imagery.name, 'tile-tiff-name');
     assert.deepEqual(imagery.files, [{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
+
+    assert.deepEqual(imagery.bands, [
+      { type: 'uint', bits: 8 },
+      { type: 'uint', bits: 8 },
+      { type: 'uint', bits: 8 },
+      { type: 'uint', bits: 8 },
+    ]);
+
+    assert.equal(imagery.noData, undefined);
   });
 
   it('should skip empty tiffs from filesystem', async () => {

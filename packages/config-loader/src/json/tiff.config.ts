@@ -1,6 +1,14 @@
-import { ConfigImagery, ConfigProviderMemory, ConfigTileSetRaster, sha256base58, TileSetType } from '@basemaps/config';
+import {
+  ConfigImagery,
+  ConfigProviderMemory,
+  ConfigTileSetRaster,
+  ImageryDataType,
+  sha256base58,
+  TileSetType,
+} from '@basemaps/config';
 import { BoundingBox, Bounds, EpsgCode, NamedBounds, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
-import { fsa, Tiff } from '@basemaps/shared';
+import { fsa, Tiff, TiffTag } from '@basemaps/shared';
+import { SampleFormat } from '@cogeotiff/core';
 import pLimit, { LimitFunction } from 'p-limit';
 import { basename } from 'path';
 import { StacCollection } from 'stac-ts';
@@ -15,6 +23,25 @@ function isTiff(f: URL): boolean {
   return lowered.endsWith('.tif') || lowered.endsWith('.tiff');
 }
 
+function getDataType(i: SampleFormat): ImageryDataType {
+  switch (i) {
+    case SampleFormat.Uint:
+      return 'uint';
+    case SampleFormat.Int:
+      return 'int';
+    case SampleFormat.Float:
+      return 'float';
+    case SampleFormat.Void:
+      return 'void';
+    case SampleFormat.ComplexFloat:
+      return 'cfloat';
+    case SampleFormat.ComplexInt:
+      return 'cint';
+    default:
+      return 'unknown';
+  }
+}
+
 /** Summary of a collection of tiffs */
 interface TiffSummary {
   /** List of tiffs and their extents */
@@ -25,10 +52,23 @@ interface TiffSummary {
   projection: number;
   /** Ground sample distance, number of meters per pixel */
   gsd: number;
+
+  /** no data value if present */
+  noData?: number;
+
   /** STAC collection if it was found with the imagery */
   collection?: StacCollection;
   /** URL to the base of the imagery */
   url: URL;
+
+  bands?: BandSummary[];
+}
+
+export interface BandSummary {
+  /*** Number of bits per sample */
+  bits: number;
+  /** data type stored inside the tiff */
+  type: ImageryDataType;
 }
 
 export type ConfigImageryTiff = ConfigImagery & TiffSummary;
@@ -45,16 +85,53 @@ function approxDegreeToMeter(deg: number): number {
 }
 
 /**
+ * Validate that the bands inside this tiff are similar to the exiting bands
+ *
+ * if no existing bands are found return the new bands
+ *
+ * This is not a exhaustive comparision
+ *
+ * @param tiff
+ * @param existingBands
+ * @param newBands
+ */
+function ensureBandsSimilar(
+  tiff: Tiff,
+  existingBands: BandSummary[] | undefined,
+  newBands: BandSummary[],
+): BandSummary[] {
+  // no bands to compare
+  if (existingBands == null) return newBands;
+
+  const maxBands = Math.max(existingBands.length, newBands.length);
+  for (let i = 0; i < maxBands; i++) {
+    const bA = existingBands[i];
+    const bB = newBands[i];
+    if (bA == null || bB == null) continue;
+    if (bA?.type !== bB?.type) {
+      throw new Error(`Band:${i} datatype mismatch: ${tiff.source.url.href} ${bA.type} vs ${bB.type}`);
+    }
+    if (bA?.bits !== bB?.bits) {
+      throw new Error(`Band:${i} bitCount mismatch: ${tiff.source.url.href} ${bA.bits} vs ${bB.bits}`);
+    }
+  }
+
+  if (existingBands.length >= newBands.length) return existingBands;
+  return newBands;
+}
+
+/**
  * Read all tiffs from a target path and ensure all tiffs contain the same GSD and EPSG code,
  * while computing bounding boxes for the entire imagery set
  *
  * @throws if any of the tiffs have differing EPSG or GSD
  **/
-function computeTiffSummary(target: URL, tiffs: Tiff[]): TiffSummary {
+async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSummary> {
   const res: Partial<TiffSummary> = { files: [] };
 
   const targetPath = target;
   let bounds: Bounds | undefined;
+
   for (const tiff of tiffs) {
     const firstImage = tiff.images[0];
 
@@ -67,11 +144,45 @@ function computeTiffSummary(target: URL, tiffs: Tiff[]): TiffSummary {
       throw new Error(`ESPG projection mismatch on imagery ${res.projection} vs ${epsg} source:` + tiff.source.url);
     }
 
+    // Validate the bands and data types of the tiff are somewhat consistent
+    const [dataType, bitsPerSample] = await Promise.all([
+      /** firstImage.fetch(TiffTag.Photometric), **/ // TODO enable RGB detection
+      firstImage.fetch(TiffTag.SampleFormat),
+      firstImage.fetch(TiffTag.BitsPerSample),
+    ]);
+
+    if (dataType == null || bitsPerSample == null) {
+      throw new Error('Failed to extract band information from : ' + tiff.source.url);
+    }
+
+    if (dataType.length !== bitsPerSample.length) {
+      throw new Error('Datatype and bits per sample miss match: ' + tiff.source.url);
+    }
+
+    const imageBands: BandSummary[] = [];
+    for (let i = 0; i < dataType.length; i++) {
+      const type = getDataType(dataType[i]);
+      const bits = bitsPerSample[i];
+      imageBands.push({ type: type, bits });
+    }
+
+    res.bands = ensureBandsSimilar(tiff, res.bands, imageBands);
+
+    // Validate NoData value is consistent across entire
+    const imageNoData = firstImage.noData;
+    if (res.noData != null && imageNoData !== res.noData) {
+      throw new Error(`NoData mismatch on ${imageNoData} vs ${res.noData} from: ${tiff.source.url.href}`);
+    }
+    if (imageNoData != null) {
+      res.noData = imageNoData;
+    }
+
+    // Validate image resolution
     const gsd = firstImage.resolution[0];
     if (res.gsd == null) res.gsd = gsd;
     else {
       const gsdDiff = Math.abs(res.gsd - gsd);
-      if (gsdDiff > 0.001) throw new Error(`GSD mismatch on imagery ${res.gsd} vs ${gsd}`);
+      if (gsdDiff > 0.001) throw new Error(`GSD mismatch on imagery ${res.gsd} vs ${gsd} from: ${tiff.source.url}`);
     }
 
     const gsdRound = Math.floor(gsd * 100) / 10000;
@@ -239,7 +350,7 @@ export async function initImageryFromTiffUrl(
   try {
     const stac = await loadStacFromURL(target);
     if (stac == null) log?.warn({ target: target }, 'Tiff:StacNotFound');
-    const params = computeTiffSummary(target, tiffs);
+    const params = await computeTiffSummary(target, tiffs);
 
     const imageryName = getImageryName(target);
     const title = stac?.title ?? imageryName;
@@ -257,6 +368,8 @@ export async function initImageryFromTiffUrl(
       uri: target.href,
       url: target,
       bounds: params.bounds,
+      bands: params.bands,
+      noData: params.noData,
       files: params.files,
       collection: stac ?? undefined,
     };
