@@ -323,7 +323,6 @@ export async function initConfigFromUrls(
     title: 'Basemaps',
     category: 'Basemaps',
     type: TileSetType.Raster,
-    format: 'webp',
     layers: [],
   };
 

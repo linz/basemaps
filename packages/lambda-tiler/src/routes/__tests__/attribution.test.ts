@@ -312,12 +312,12 @@ describe('/v1/attribution', () => {
 
   it('should 304 with etag match', async () => {
     const request = mockUrlRequest(`/v1/attribution/aerial/EPSG:3857/summary.json`, 'get', {
-      [HttpHeader.IfNoneMatch]: 'E5HGpTqF8AiJ7VgGVKLehYnVfLN9jaVw8Sy6UafJRh2f',
+      [HttpHeader.IfNoneMatch]: 'AFV7dcchHkfyFvmmyXwpkxuAPb5BuVXLkLzzYgeB3mFy',
     });
 
     const res = await handler.router.handle(request);
 
-    if (res.status === 200) assert.equal(res.header('etag'), 'E5HGpTqF8AiJ7VgGVKLehYnVfLN9jaVw8Sy6UafJRh2f');
+    if (res.status === 200) assert.equal(res.header('etag'), 'AFV7dcchHkfyFvmmyXwpkxuAPb5BuVXLkLzzYgeB3mFy');
 
     console.log(res.header('etag'));
     assert.equal(res.status, 304);

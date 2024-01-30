@@ -1,4 +1,5 @@
-import { GoogleTms, TileJson, TileMatrixSet } from '@basemaps/geo';
+import { ConfigTileSet, TileSetType } from '@basemaps/config';
+import { GoogleTms, OutputFormat, TileJson, TileMatrixSet } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
@@ -14,6 +15,11 @@ export interface TileJsonGet {
   };
 }
 
+function defaultOutputFormat(tileSet: ConfigTileSet): OutputFormat[] {
+  if (tileSet.type === TileSetType.Vector) return ['pbf'];
+  return ['webp'];
+}
+
 export async function tileJsonGet(req: LambdaHttpRequest<TileJsonGet>): Promise<LambdaHttpResponse> {
   const tileMatrix = Validate.getTileMatrixSet(req.params.tileMatrix);
   if (tileMatrix == null) return NotFound();
@@ -27,7 +33,7 @@ export async function tileJsonGet(req: LambdaHttpRequest<TileJsonGet>): Promise<
   req.timer.end('tileset:load');
   if (tileSet == null) return NotFound();
 
-  const format = Validate.getRequestedFormats(req) ?? [tileSet.format];
+  const format: OutputFormat[] = Validate.getRequestedFormats(req) ?? defaultOutputFormat(tileSet);
 
   const host = Env.get(Env.PublicUrlBase) ?? '';
 
