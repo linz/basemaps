@@ -59,25 +59,31 @@ const IsEmptyCheckSizeBytes = 512 * 1024;
  * @returns true if the tiff is empty, false otherwise
  */
 export async function isEmptyTiff(toCheck: URL | Tiff): Promise<boolean> {
-  const tiff = toCheck instanceof URL ? await Tiff.create(fsa.source(toCheck)) : toCheck;
+  const isUrl = toCheck instanceof URL;
+  const tiff = isUrl ? await Tiff.create(fsa.source(toCheck)) : toCheck;
 
-  // Only check the tiff for empty if the size is less than IsEmptyCheckSizeBytes
-  const tiffSize = tiff.source.metadata?.size ?? 0;
-  if (tiffSize > IsEmptyCheckSizeBytes) return false;
+  try {
+    // Only check the tiff for empty if the size is less than IsEmptyCheckSizeBytes
+    const tiffSize = tiff.source.metadata?.size ?? 0;
+    if (tiffSize > IsEmptyCheckSizeBytes) return false;
 
-  // Starting the smallest tiff overview greatly reduces the amount of data needing to be read
-  // if the tiff contains data.
-  for (let i = tiff.images.length - 1; i >= 0; i--) {
-    const tileOffsets = await tiff.images[i].fetch(TiffTag.TileByteCounts);
-    // Tiff is not tiled, so cannot know if its empty from tile offsets
-    if (tileOffsets == null) return false;
-    // If any tile offset is above 0 then there is data at that offset.
-    for (const offset of tileOffsets) {
-      // There exists a tile that contains some data, so this tiff is not empty
-      if (offset > 0) return false;
+    // Starting the smallest tiff overview greatly reduces the amount of data needing to be read
+    // if the tiff contains data.
+    for (let i = tiff.images.length - 1; i >= 0; i--) {
+      const tileOffsets = await tiff.images[i].fetch(TiffTag.TileByteCounts);
+      // Tiff is not tiled, so cannot know if its empty from tile offsets
+      if (tileOffsets == null) return false;
+      // If any tile offset is above 0 then there is data at that offset.
+      for (const offset of tileOffsets) {
+        // There exists a tile that contains some data, so this tiff is not empty
+        if (offset > 0) return false;
+      }
     }
+    return true;
+  } finally {
+    // If the tiff was created here, it needs to be closed
+    if (isUrl) await tiff.source.close?.();
   }
-  return true;
 }
 
 export class ConfigJson {
