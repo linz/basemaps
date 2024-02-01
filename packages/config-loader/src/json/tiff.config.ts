@@ -324,7 +324,7 @@ export async function loadTiffsFromPaths(sourceFiles: URL[], Q: LimitFunction): 
         Q(async () => {
           const tiff = await new Tiff(fsa.source(c)).init();
           if (await isEmptyTiff(tiff)) {
-            await tiff.source.close?.()
+            await tiff.source.close?.();
             return null;
           }
           return tiff;
