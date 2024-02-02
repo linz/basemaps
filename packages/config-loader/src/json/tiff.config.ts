@@ -323,7 +323,10 @@ export async function loadTiffsFromPaths(sourceFiles: URL[], Q: LimitFunction): 
       sourceFiles.filter(isTiff).map((c) =>
         Q(async () => {
           const tiff = await new Tiff(fsa.source(c)).init();
-          if (await isEmptyTiff(tiff)) return null;
+          if (await isEmptyTiff(tiff)) {
+            await tiff.source.close?.();
+            return null;
+          }
           return tiff;
         }),
       ),
