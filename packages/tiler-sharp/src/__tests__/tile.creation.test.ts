@@ -85,7 +85,7 @@ describe('TileCreation', () => {
   it('should error when provided invalid image formats', async () => {
     const tileMaker = new TileMakerSharp(256);
     try {
-      await tileMaker.compose({ layers: [], background } as any);
+      await tileMaker.compose({ layers: [], output: { output: {} }, background } as any);
       assert.equal(true, false, 'invalid format');
     } catch (e: any) {
       assert.equal(e.message.includes('Invalid image'), true);
