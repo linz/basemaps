@@ -1,5 +1,4 @@
-import { Tiff } from '@basemaps/shared';
-import { Compression } from '@cogeotiff/core';
+import { Compression, Tiff } from '@cogeotiff/core';
 import Lerc from 'lerc';
 
 import { DecompressedInterleaved, Decompressor } from './decompressor.js';
