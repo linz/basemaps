@@ -183,7 +183,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
         existing.outputs = [
           {
             title: 'Color ramp',
-            extension: 'color-ramp.webp',
+            name: 'color-ramp',
             pipeline: [{ type: 'color-ramp' }],
             output: { type: 'webp' },
           },
@@ -222,7 +222,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       ts.outputs = [
         {
           title: 'Color ramp',
-          extension: 'color-ramp.webp',
+          name: 'color-ramp',
           pipeline: [{ type: 'color-ramp' }],
           output: { type: 'webp' },
         },

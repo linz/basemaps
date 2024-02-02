@@ -1,4 +1,3 @@
-import { ConfigTileSetRasterOutput } from '@basemaps/config';
 import { ImageFormat } from '@basemaps/geo';
 import {
   Composition,
@@ -94,9 +93,9 @@ export class TileMakerSharp implements TileMaker {
     const todo: Promise<SharpOverlay | null>[] = [];
     for (const comp of ctx.layers) {
       if (this.isTooLarge(comp)) continue;
-      if (ctx.output.pipeline) {
-        if (comp.type === 'cotar') throw new Error('Cannot compose from cotar');
-        todo.push(this.composeTilePipeline(comp, ctx.output, ctx.resizeKernel));
+      if (ctx.pipeline) {
+        if (comp.type === 'cotar') throw new Error('Cannot use a composition pipeline from cotar');
+        todo.push(this.composeTilePipeline(comp, ctx));
       } else {
         todo.push(this.composeTile(comp, ctx.resizeKernel));
       }
@@ -105,7 +104,7 @@ export class TileMakerSharp implements TileMaker {
     metrics.end('compose:overlay');
 
     metrics.start('compose:compress');
-    const buffer = await this.getImageBuffer(overlays, ctx.output.output.type, ctx.background);
+    const buffer = await this.getImageBuffer(overlays, ctx.format, ctx.background);
     metrics.end('compose:compress');
 
     return { buffer, metrics, layers: overlays.length };
@@ -150,11 +149,7 @@ export class TileMakerSharp implements TileMaker {
     };
   }
 
-  async composeTilePipeline(
-    comp: CompositionTiff,
-    output: ConfigTileSetRasterOutput,
-    resizeKernel: TileMakerResizeKernel,
-  ): Promise<SharpOverlay | null> {
+  async composeTilePipeline(comp: CompositionTiff, ctx: TileMakerContext): Promise<SharpOverlay | null> {
     const tile = await comp.asset.images[comp.source.imageId].getTile(comp.source.x, comp.source.y);
     if (tile == null) return null;
 
@@ -162,9 +157,9 @@ export class TileMakerSharp implements TileMaker {
     if (bytes == null) throw new Error('Failed to decompress: ' + comp.asset.source.url);
 
     let result = bytes;
-    if (output.pipeline) {
-      for (const pipe of output.pipeline) {
-        result = await Pipelines[pipe.type]?.process(comp.asset, result, pipe);
+    if (ctx.pipeline) {
+      for (const pipe of ctx.pipeline) {
+        result = await Pipelines[pipe.type]?.process(comp.asset, result);
         if (result == null) throw new Error(`Failed to process pipeline:${pipe.type} on ${comp.asset.source.url}`);
       }
     }
@@ -181,7 +176,10 @@ export class TileMakerSharp implements TileMaker {
     if (extract) sharp.extract({ top: 0, left: 0, width: extract.width, height: extract.height });
 
     if (resize) {
-      const resizeOptions = { fit: Sharp.fit.cover, kernel: resize.scaleX > 1 ? resizeKernel.in : resizeKernel.out };
+      const resizeOptions = {
+        fit: Sharp.fit.cover,
+        kernel: resize.scaleX > 1 ? ctx.resizeKernel.in : ctx.resizeKernel.out,
+      };
       sharp.resize(resize.width, resize.height, resizeOptions);
     }
 

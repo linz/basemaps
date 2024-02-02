@@ -134,9 +134,7 @@ describe('/v1/tiles', () => {
 
     const elevation = FakeData.tileSetRaster('elevation');
 
-    elevation.outputs = [
-      { title: 'Terrain RGB', extension: 'terrain-rgb.webp', output: { type: 'webp', lossless: true } },
-    ];
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', output: { type: 'webp', lossless: true } }];
     config.put(elevation);
 
     const request = mockRequest('/v1/tiles/elevation/3857/11/2022/1283-terrain-rgb.webp', 'get', Api.header);

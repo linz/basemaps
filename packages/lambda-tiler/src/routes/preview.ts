@@ -9,7 +9,13 @@ import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
-import { DefaultResizeKernel, getTileSetOutput, isArchiveTiff, TileXyzRaster } from './tile.xyz.raster.js';
+import {
+  DefaultBackground,
+  DefaultResizeKernel,
+  getTileSetOutput,
+  isArchiveTiff,
+  TileXyzRaster,
+} from './tile.xyz.raster.js';
 
 export interface PreviewGet {
   Params: {
@@ -66,10 +72,11 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   if (tileSet.type !== 'raster') return new LambdaHttpResponse(404, 'Preview invalid tile set type');
 
   const outputFormat = req.params.outputType;
-  req.set('extension', outputFormat);
 
   const tileOutput = getTileSetOutput(tileSet, outputFormat);
   if (tileOutput == null) return new LambdaHttpResponse(404, `Output format: ${outputFormat} not found`);
+  req.set('extension', tileOutput.output.type);
+  req.set('pipeline', tileOutput.name ?? 'rgba');
 
   return renderPreview(req, { tileSet, tileMatrix, location, output: tileOutput, z });
 }
@@ -140,10 +147,18 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
     compositions.push(...result);
   }
 
+  const tileContext = {
+    layers: compositions,
+    format: ctx.output.output.type,
+    lossless: ctx.output.output.lossless,
+    background: ctx.output.output.background ?? ctx.tileSet.background ?? DefaultBackground,
+    resizeKernel: DefaultResizeKernel,
+  };
+
   // Load all the tiff tiles and resize/them into the correct locations
   req.timer.start('compose:overlay');
   const overlays = (await Promise.all(
-    compositions.map((comp) => TilerSharp.composeTilePipeline(comp, ctx.output, DefaultResizeKernel)),
+    compositions.map((comp) => TilerSharp.composeTilePipeline(comp, tileContext)),
   ).then((items) => items.filter((f) => f != null))) as SharpOverlay[];
   req.timer.end('compose:overlay');
 
@@ -163,7 +178,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   response.buffer(buf, 'image/' + ctx.output.output.type);
 
   const shortLocation = [ctx.location.lon.toFixed(7), ctx.location.lat.toFixed(7)].join('_');
-  const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}.${ctx.output.extension}`;
+  const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}-${ctx.output.name}.${ctx.output.output.type}`;
   response.header('Content-Disposition', `inline; filename=\"${suggestedFileName}\"`);
 
   return response;

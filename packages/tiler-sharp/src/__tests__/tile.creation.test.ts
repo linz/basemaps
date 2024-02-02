@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { ConfigTileSetRasterOutput } from '@basemaps/config';
 import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
 import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
@@ -59,7 +58,7 @@ describe('TileCreation', () => {
     const tileMaker = new TileMakerSharp(256);
     const res = await tileMaker.compose({
       layers: [],
-      output: { title: '', extension: '.webp', output: { type: 'webp' } },
+      format: 'webp',
       background,
       resizeKernel,
     });
@@ -74,7 +73,7 @@ describe('TileCreation', () => {
     const tileMaker = new TileMakerSharp(256);
     const res = await tileMaker.compose({
       layers: [],
-      output: { title: '', extension: '.jpeg', output: { type: 'jpeg' } },
+      format: 'jpeg',
       background,
       resizeKernel,
     });
@@ -85,7 +84,7 @@ describe('TileCreation', () => {
   it('should error when provided invalid image formats', async () => {
     const tileMaker = new TileMakerSharp(256);
     try {
-      await tileMaker.compose({ layers: [], output: { output: {} }, background } as any);
+      await tileMaker.compose({ layers: [], background } as any);
       assert.equal(true, false, 'invalid format');
     } catch (e: any) {
       assert.equal(e.message.includes('Invalid image'), true);
@@ -121,12 +120,6 @@ describe('TileCreation', () => {
     { tileSize: 256, tms: Nztm2000Tms, tile: { x: 6, y: 8, z: 2 } }, // Empty tile
   ];
 
-  const output: ConfigTileSetRasterOutput = {
-    title: 'Png',
-    output: { type: 'png', lossless: true },
-    extension: '.png',
-  };
-
   RenderTests.forEach(({ tileSize, tms, tile }) => {
     const projection = tms.projection;
     const tileText = `${tile.x}, ${tile.y} z${tile.z}`;
@@ -146,7 +139,7 @@ describe('TileCreation', () => {
 
       const png = await tileMaker.compose({
         layers,
-        output,
+        format: 'png',
         background,
         resizeKernel,
       });

@@ -121,6 +121,8 @@ export const TileXyzRaster = {
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<LambdaHttpResponse> {
     const tileOutput = getTileSetOutput(tileSet, xyz.tileType);
     if (tileOutput == null) return NotFound();
+    req.set('extension', tileOutput.output.type);
+    req.set('pipeline', tileOutput.name);
 
     const assetPaths = await this.getAssetsForTile(req, tileSet, xyz);
     const cacheKey = Etag.key(assetPaths);
@@ -133,7 +135,9 @@ export const TileXyzRaster = {
 
     const res = await TileComposer.compose({
       layers,
-      output: tileOutput,
+      pipeline: tileOutput.pipeline,
+      format: tileOutput.output.type,
+      lossless: tileOutput.output.lossless,
       background: tileOutput.output.background ?? tileSet.background ?? DefaultBackground,
       resizeKernel: tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
@@ -155,16 +159,22 @@ export const TileXyzRaster = {
  *
  * Defaults to standard image format output if no outputs are defined on the tileset
  */
-export function getTileSetOutput(tileSet: ConfigTileSetRaster, tileType?: string): ConfigTileSetRasterOutput | null {
+export function getTileSetOutput(
+  tileSet: ConfigTileSetRaster,
+  tileType?: string | null,
+): ConfigTileSetRasterOutput | null {
   if (tileSet.outputs != null) {
     // Default to the first output if no extension given
     if (tileType == null) return tileSet.outputs[0];
+    // const expectedTarget = ``
     for (const out of tileSet.outputs) {
-      if (out.extension === tileType) return out;
+      const targetName = `${out.name}.${out.output.type}`;
+      if (targetName === tileType) return out;
     }
 
+    // Find the first matching imagery type
     for (const out of tileSet.outputs) {
-      if (out.extension.endsWith(tileType)) return out;
+      if (out.output.type === tileType) return out;
     }
     return null;
   }
@@ -172,8 +182,8 @@ export function getTileSetOutput(tileSet: ConfigTileSetRaster, tileType?: string
   const img = getImageFormat(tileType ?? 'webp');
   if (img == null) return null;
   return {
-    title: `Default ${tileType}`,
-    extension: tileType,
+    title: `RGBA ${tileType}`,
+    name: 'rgba',
     output: {
       type: img,
       lossless: img === 'png' ? true : false,

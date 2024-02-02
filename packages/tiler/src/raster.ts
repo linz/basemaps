@@ -1,4 +1,3 @@
-import { ConfigTileSetRasterOutput } from '@basemaps/config';
 import { ImageFormat, Point, Size } from '@basemaps/geo';
 import { Tiff } from '@cogeotiff/core';
 import { Cotar } from '@cotar/core';
@@ -13,8 +12,15 @@ export type TileMakerResizeKernel = { in: ResizeKernelType; out: ResizeKernelTyp
 
 export interface TileMakerContext {
   layers: Composition[];
-  output: ConfigTileSetRasterOutput;
+  /** Apply a processing pipeline to each layer */
+  pipeline?: { type: string }[];
+  /** Image output format type */
+  format: ImageFormat;
+  /** Should the output image be lossless */
+  lossless?: boolean;
+  /** Default background to use */
   background: { r: number; g: number; b: number; alpha: number };
+  /** Default resize parameters */
   resizeKernel: TileMakerResizeKernel;
   metrics?: Metrics;
 }

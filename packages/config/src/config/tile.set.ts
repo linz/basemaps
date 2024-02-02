@@ -79,12 +79,13 @@ export interface ConfigTileSetRaster extends ConfigTileSetBase {
 export interface ConfigTileSetRasterOutput {
   /** Human friendly description of the output */
   title: string;
+
   /**
-   * URL extensions to separate this output from others, Must be unique per tile set.
+   * Common name for the configuration
    *
-   * @example "terrain-rgb.webp"
+   * @example "terrain-rgb", "color-ramp"
    */
-  extension: string;
+  name: string;
 
   /**
    * Raster processing pipeline, for configuration on how to convert the source into a RGBA output

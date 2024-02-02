@@ -453,13 +453,13 @@ export async function initConfigFromUrls(
     outputs: [
       {
         title: 'Color ramp',
-        extension: 'color-ramp.webp',
+        name: 'color-ramp',
         pipeline: [{ type: 'color-ramp' }],
         output: { type: 'webp' },
       },
       {
         title: 'TerrainRGB',
-        extension: 'terrain-rgb.webp',
+        name: 'terrain-rgb',
         pipeline: [{ type: 'terrain-rgb' }],
         output: { type: 'webp', lossless: true },
       },

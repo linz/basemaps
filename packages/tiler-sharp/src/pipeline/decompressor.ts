@@ -1,5 +1,4 @@
-import { ConfigRasterPipeline } from '@basemaps/config/build/config/tile.set.js';
-import { Tiff } from '@basemaps/shared';
+import { Tiff } from '@cogeotiff/core';
 
 export interface DecompressedInterleavedFloat {
   pixels: Float32Array;
@@ -27,9 +26,5 @@ export interface Decompressor {
 
 export interface Pipeline {
   type: string;
-  process(
-    source: Tiff,
-    bytes: DecompressedInterleaved,
-    pipeline: ConfigRasterPipeline,
-  ): Promise<DecompressedInterleaved> | DecompressedInterleaved;
+  process(source: Tiff, bytes: DecompressedInterleaved): Promise<DecompressedInterleaved> | DecompressedInterleaved;
 }

@@ -39,7 +39,7 @@ async function main(): Promise<void> {
     tileSet,
     location,
     z,
-    output: { title: outputFormat, output: { type: outputFormat }, extension: outputFormat },
+    output: { title: outputFormat, output: { type: outputFormat }, name: 'rgba' },
   });
   const previewFile = fsa.toUrl(`./z${z}_${location.lon}_${location.lat}.${outputFormat}`);
   await fsa.write(previewFile, Buffer.from(res.body, 'base64'));
