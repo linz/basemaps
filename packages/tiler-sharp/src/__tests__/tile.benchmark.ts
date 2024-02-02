@@ -1,3 +1,4 @@
+import { ConfigTileSetRasterOutput } from '@basemaps/config';
 import { GoogleTms } from '@basemaps/geo';
 import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
@@ -13,6 +14,7 @@ const Center = 2 ** Zoom;
 const CenterTile = Center / 2;
 
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
+const output: ConfigTileSetRasterOutput = { title: 'Png', output: { type: 'png', lossless: true }, extension: '.png' };
 
 async function main(): Promise<void> {
   const tileSize = Number(process.argv[process.argv.length - 1]);
@@ -29,7 +31,12 @@ async function main(): Promise<void> {
     const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom);
 
     if (layers == null) throw new Error('Tile is null');
-    await tileMaker.compose({ layers, format: 'png', background, resizeKernel });
+    await tileMaker.compose({
+      layers,
+      output,
+      background,
+      resizeKernel,
+    });
     await tiff.source.close?.();
   }
 }

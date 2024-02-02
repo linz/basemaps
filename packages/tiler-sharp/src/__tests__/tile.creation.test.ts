@@ -1,6 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
+import { ConfigTileSetRasterOutput } from '@basemaps/config';
 import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
 import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
@@ -56,7 +57,12 @@ describe('TileCreation', () => {
 
   it('should generate webp', async () => {
     const tileMaker = new TileMakerSharp(256);
-    const res = await tileMaker.compose({ layers: [], format: 'webp', background, resizeKernel });
+    const res = await tileMaker.compose({
+      layers: [],
+      output: { title: '', extension: '.webp', output: { type: 'webp' } },
+      background,
+      resizeKernel,
+    });
     // Image format `R I F F <fileSize (int32)> W E B P`
     const magicBytes = res.buffer.slice(0, 4);
     const magicWebP = res.buffer.slice(8, 12);
@@ -66,7 +72,12 @@ describe('TileCreation', () => {
 
   it('should generate jpeg', async () => {
     const tileMaker = new TileMakerSharp(256);
-    const res = await tileMaker.compose({ layers: [], format: 'jpeg', background, resizeKernel });
+    const res = await tileMaker.compose({
+      layers: [],
+      output: { title: '', extension: '.jpeg', output: { type: 'jpeg' } },
+      background,
+      resizeKernel,
+    });
     const magicBytes = res.buffer.slice(0, 4);
     assert.deepEqual(magicBytes.toJSON().data, [0xff, 0xd8, 0xff, 0xdb]);
   });
@@ -110,6 +121,12 @@ describe('TileCreation', () => {
     { tileSize: 256, tms: Nztm2000Tms, tile: { x: 6, y: 8, z: 2 } }, // Empty tile
   ];
 
+  const output: ConfigTileSetRasterOutput = {
+    title: 'Png',
+    output: { type: 'png', lossless: true },
+    extension: '.png',
+  };
+
   RenderTests.forEach(({ tileSize, tms, tile }) => {
     const projection = tms.projection;
     const tileText = `${tile.x}, ${tile.y} z${tile.z}`;
@@ -129,7 +146,7 @@ describe('TileCreation', () => {
 
       const png = await tileMaker.compose({
         layers,
-        format: 'png',
+        output,
         background,
         resizeKernel,
       });

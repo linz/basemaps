@@ -3,7 +3,8 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { fsa, FsMemory } from '@basemaps/shared';
 
-import { loadStacFromURL } from '../tiff.config.js';
+import { loadStacFromURL, isRgbOrRgba } from '../tiff.config.js';
+import { ConfigImagery } from '@basemaps/config';
 
 describe('loadStacFromURL', () => {
   const mem = new FsMemory();
@@ -37,3 +38,31 @@ describe('loadStacFromURL', () => {
     assert.deepEqual(result as unknown, { hello: 'world' });
   });
 });
+
+
+describe('isRgbOrRgba', () => {
+  const uint8 = { type: 'uint', bits: 8 };
+  it('should allow imagery with no band information', () => {
+    assert.equal(isRgbOrRgba({} as ConfigImagery), true);
+  })
+
+  it('should allow 3 or 4 band imagery', () => {
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8] } as ConfigImagery), true);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, uint8] } as ConfigImagery), true);
+  })
+
+  it('should not allow 1,2,5,6 band imagery', () => {
+    assert.equal(isRgbOrRgba({ bands: [uint8] } as ConfigImagery), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8] } as ConfigImagery), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, uint8, uint8] } as ConfigImagery), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, uint8, uint8, uint8] } as ConfigImagery), false);
+  })
+
+  it('should not allow float32 imagery', () => {
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, { type: 'float', bits: 32 }] } as ConfigImagery), false);
+  })
+
+  it('should not allow uint16', () => {
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, { type: 'uint', bits: 16 }] } as ConfigImagery), false);
+  })
+})

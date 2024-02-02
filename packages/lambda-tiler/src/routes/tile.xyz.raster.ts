@@ -133,7 +133,7 @@ export const TileXyzRaster = {
 
     const res = await TileComposer.compose({
       layers,
-      format: tileOutput.output.type,
+      output: tileOutput,
       background: tileOutput.output.background ?? tileSet.background ?? DefaultBackground,
       resizeKernel: tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
@@ -155,15 +155,21 @@ export const TileXyzRaster = {
  *
  * Defaults to standard image format output if no outputs are defined on the tileset
  */
-function getTileSetOutput(tileSet: ConfigTileSetRaster, tileType: string): ConfigTileSetRasterOutput | null {
+export function getTileSetOutput(tileSet: ConfigTileSetRaster, tileType?: string): ConfigTileSetRasterOutput | null {
   if (tileSet.outputs != null) {
+    // Default to the first output if no extension given
+    if (tileType == null) return tileSet.outputs[0];
     for (const out of tileSet.outputs) {
       if (out.extension === tileType) return out;
+    }
+
+    for (const out of tileSet.outputs) {
+      if (out.extension.endsWith(tileType)) return out;
     }
     return null;
   }
 
-  const img = getImageFormat(tileType);
+  const img = getImageFormat(tileType ?? 'webp');
   if (img == null) return null;
   return {
     title: `Default ${tileType}`,

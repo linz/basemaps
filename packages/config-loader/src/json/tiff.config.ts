@@ -378,6 +378,7 @@ export async function initImageryFromTiffUrl(
     };
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
     log?.info({ title, imageryName, files: imagery.files.length }, 'Tiff:Loaded');
+
     provider.put(imagery);
 
     return imagery;
@@ -442,16 +443,70 @@ export async function initConfigFromUrls(
     layers: [],
   };
 
+  const elevationTileSet: ConfigTileSetRaster = {
+    id: 'ts_elevation',
+    name: 'elevation',
+    title: 'Basemaps',
+    category: 'Basemaps',
+    type: TileSetType.Raster,
+    layers: [],
+    outputs: [
+      {
+        title: 'Color ramp',
+        extension: 'color-ramp.webp',
+        pipeline: [{ type: 'color-ramp' }],
+        output: { type: 'webp' },
+      },
+      {
+        title: 'TerrainRGB',
+        extension: 'terrain-rgb.webp',
+        pipeline: [{ type: 'terrain-rgb' }],
+        output: { type: 'webp', lossless: true },
+      },
+    ],
+  };
+
   provider.put(aerialTileSet);
   const configs = await Promise.all(imageryConfig);
   for (const cfg of configs) {
-    let existingLayer = aerialTileSet.layers.find((l) => l.title === cfg.title);
-    if (existingLayer == null) {
-      existingLayer = { name: cfg.name, title: cfg.title };
-      aerialTileSet.layers.push(existingLayer);
+    if (isRgbOrRgba(cfg)) {
+      let existingLayer = aerialTileSet.layers.find((l) => l.title === cfg.title);
+      if (existingLayer == null) {
+        existingLayer = { name: cfg.name, title: cfg.title };
+        aerialTileSet.layers.push(existingLayer);
+      }
+      existingLayer[cfg.projection] = cfg.id;
+    } else if (cfg.bands?.length === 1) {
+      let existingLayer = elevationTileSet.layers.find((l) => l.title === cfg.title);
+      if (existingLayer == null) {
+        existingLayer = { name: cfg.name, title: cfg.title };
+        elevationTileSet.layers.push(existingLayer);
+      }
+      existingLayer[cfg.projection] = cfg.id;
+      provider.put(elevationTileSet);
     }
-    existingLayer[cfg.projection] = cfg.id;
   }
-
+  // FIXME: this should return all the tile sets that were created
   return { tileSet: aerialTileSet, imagery: configs };
+}
+
+/**
+ * Attempt to guess if this configuration contains RGB or RGBA imagery
+ * by validating the image is either 3 or 4 band uint8
+ *
+ * @param img Imagery to check
+ * @returns true if imagery looks like rgb(a), false otherwise
+ */
+export function isRgbOrRgba(img: ConfigImagery): boolean {
+  // If no band information is provided assume its a RGBA image (TODO: is this actuallly expected)
+  if (img.bands == null) return true;
+  if (img.bands.length < 3) return false; // Not enough bands for RGB
+  if (img.bands.length > 4) return false; // Too many bands for RGBA
+
+  // RGB/RGBA is expected to be 3 or 4 band uint8
+  for (const b of img.bands) {
+    if (b.type !== 'uint') return false;
+    if (b.bits !== 8) return false;
+  }
+  return true;
 }
