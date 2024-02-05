@@ -1,5 +1,5 @@
-import { ConfigTileSetRaster } from '@basemaps/config';
-import { Bounds, ImageFormat, LatLon, Projection, TileMatrixSet } from '@basemaps/geo';
+import { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
+import { Bounds, LatLon, Projection, TileMatrixSet } from '@basemaps/geo';
 import { CompositionTiff, Tiler } from '@basemaps/tiler';
 import { SharpOverlay, TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -9,12 +9,19 @@ import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
-import { DefaultResizeKernel, isArchiveTiff, TileXyzRaster } from './tile.xyz.raster.js';
+import {
+  DefaultBackground,
+  DefaultResizeKernel,
+  getTileSetOutput,
+  isArchiveTiff,
+  TileXyzRaster,
+} from './tile.xyz.raster.js';
 
 export interface PreviewGet {
   Params: {
     tileSet: string;
     tileMatrix: string;
+    outputType?: string;
     lat: string;
     lon: string;
     z: string;
@@ -24,7 +31,6 @@ export interface PreviewGet {
 const PreviewSize = { width: 1200, height: 630 };
 const TilerSharp = new TileMakerSharp(PreviewSize.width, PreviewSize.height);
 
-const OutputFormat = 'webp';
 /** Slightly grey color for the checker background */
 const PreviewBackgroundFillColor = 0xef;
 /** Make th e checkered background 30x30px */
@@ -34,6 +40,7 @@ const PreviewBackgroundSizePx = 30;
  * Serve a preview of a imagery set
  *
  * /v1/preview/:tileSet/:tileMatrixSet/:z/:lon/:lat
+ * /v1/preview/:tileSet/:tileMatrixSet/:z/:lon/:lat/:outputType
  *
  * @example
  * Raster Tile `/v1/preview/aerial/WebMercatorQuad/12/177.3998405/-39.0852555`
@@ -47,7 +54,6 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   req.set('projection', tileMatrix.projection.code);
 
   // TODO we should detect the format based off the "Accept" header and maybe default back to webp
-  req.set('extension', OutputFormat);
 
   const location = Validate.getLocation(req.params.lon, req.params.lat);
   if (location == null) return new LambdaHttpResponse(404, 'Preview location not found');
@@ -65,7 +71,14 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   // Only raster previews are supported
   if (tileSet.type !== 'raster') return new LambdaHttpResponse(404, 'Preview invalid tile set type');
 
-  return renderPreview(req, { tileSet, tileMatrix, location, outputFormat: OutputFormat, z });
+  const outputFormat = req.params.outputType;
+
+  const tileOutput = getTileSetOutput(tileSet, outputFormat);
+  if (tileOutput == null) return new LambdaHttpResponse(404, `Output format: ${outputFormat} not found`);
+  req.set('extension', tileOutput.output.type);
+  req.set('pipeline', tileOutput.name ?? 'rgba');
+
+  return renderPreview(req, { tileSet, tileMatrix, location, output: tileOutput, z });
 }
 
 interface PreviewRenderContext {
@@ -75,8 +88,8 @@ interface PreviewRenderContext {
   tileMatrix: TileMatrixSet;
   /** Center point of the preview */
   location: LatLon;
-  /** Iamge format to render the preview as */
-  outputFormat: ImageFormat;
+  /** Image format to render the preview as */
+  output: ConfigTileSetRasterOutput;
   /** Zom level to be use, must be a integer */
   z: number;
 }
@@ -134,10 +147,18 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
     compositions.push(...result);
   }
 
+  const tileContext = {
+    layers: compositions,
+    format: ctx.output.output.type,
+    lossless: ctx.output.output.lossless,
+    background: ctx.output.output.background ?? ctx.tileSet.background ?? DefaultBackground,
+    resizeKernel: DefaultResizeKernel,
+  };
+
   // Load all the tiff tiles and resize/them into the correct locations
   req.timer.start('compose:overlay');
   const overlays = (await Promise.all(
-    compositions.map((comp) => TilerSharp.composeTileTiff(comp, DefaultResizeKernel)),
+    compositions.map((comp) => TilerSharp.composeTilePipeline(comp, tileContext)),
   ).then((items) => items.filter((f) => f != null))) as SharpOverlay[];
   req.timer.end('compose:overlay');
 
@@ -146,7 +167,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   img.composite(overlays);
 
   req.timer.start('compose:compress');
-  const buf = await TilerSharp.toImage(ctx.outputFormat, img);
+  const buf = await TilerSharp.toImage(ctx.output.output.type, img, ctx.output.output.lossless);
   req.timer.end('compose:compress');
 
   req.set('layersUsed', overlays.length);
@@ -154,10 +175,10 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   const response = new LambdaHttpResponse(200, 'ok');
   response.header(HttpHeader.ETag, cacheKey);
   response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
-  response.buffer(buf, 'image/' + ctx.outputFormat);
+  response.buffer(buf, 'image/' + ctx.output.output.type);
 
   const shortLocation = [ctx.location.lon.toFixed(7), ctx.location.lat.toFixed(7)].join('_');
-  const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}.${ctx.outputFormat}`;
+  const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}-${ctx.output.name}.${ctx.output.output.type}`;
   response.header('Content-Disposition', `inline; filename=\"${suggestedFileName}\"`);
 
   return response;

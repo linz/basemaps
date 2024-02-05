@@ -56,7 +56,12 @@ describe('TileCreation', () => {
 
   it('should generate webp', async () => {
     const tileMaker = new TileMakerSharp(256);
-    const res = await tileMaker.compose({ layers: [], format: 'webp', background, resizeKernel });
+    const res = await tileMaker.compose({
+      layers: [],
+      format: 'webp',
+      background,
+      resizeKernel,
+    });
     // Image format `R I F F <fileSize (int32)> W E B P`
     const magicBytes = res.buffer.slice(0, 4);
     const magicWebP = res.buffer.slice(8, 12);
@@ -66,7 +71,12 @@ describe('TileCreation', () => {
 
   it('should generate jpeg', async () => {
     const tileMaker = new TileMakerSharp(256);
-    const res = await tileMaker.compose({ layers: [], format: 'jpeg', background, resizeKernel });
+    const res = await tileMaker.compose({
+      layers: [],
+      format: 'jpeg',
+      background,
+      resizeKernel,
+    });
     const magicBytes = res.buffer.slice(0, 4);
     assert.deepEqual(magicBytes.toJSON().data, [0xff, 0xd8, 0xff, 0xdb]);
   });

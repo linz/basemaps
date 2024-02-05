@@ -95,6 +95,7 @@ export const Validate = {
     if (req.params.tileType.startsWith('.') || req.params.tileType.startsWith('-')) {
       req.params.tileType = req.params.tileType.slice(1);
     }
+
     req.set('extension', req.params.tileType);
 
     if (isNaN(z) || z > tileMatrix.maxZoom || z < 0) throw new LambdaHttpResponse(404, `Zoom not found: ${z}`);

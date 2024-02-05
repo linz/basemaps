@@ -34,7 +34,13 @@ async function main(): Promise<void> {
   if (tileMatrix == null) throw new Error('No tileMatrix found');
 
   const req = new LambdaUrlRequest({ headers: {} } as UrlEvent, {} as Context, LogConfig.get()) as LambdaHttpRequest;
-  const res = await renderPreview(req, { tileMatrix, tileSet, location, z, outputFormat });
+  const res = await renderPreview(req, {
+    tileMatrix,
+    tileSet,
+    location,
+    z,
+    output: { title: outputFormat, output: { type: outputFormat }, name: 'rgba' },
+  });
   const previewFile = fsa.toUrl(`./z${z}_${location.lon}_${location.lat}.${outputFormat}`);
   await fsa.write(previewFile, Buffer.from(res.body, 'base64'));
   log.info({ path: previewFile }, 'Tile:Write');

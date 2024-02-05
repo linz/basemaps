@@ -79,25 +79,45 @@ export interface ConfigTileSetRaster extends ConfigTileSetBase {
 export interface ConfigTileSetRasterOutput {
   /** Human friendly description of the output */
   title: string;
+
   /**
-   * URL extensions to separate this output from others, Must be unique per tile set.
+   * Common name for the configuration
    *
-   * @example "terrain-rgb.webp"
+   * @example "terrain-rgb", "color-ramp"
    */
-  extension: string;
+  name: string;
+
+  /**
+   * Raster processing pipeline, for configuration on how to convert the source into a RGBA output
+   */
+  pipeline?: ConfigRasterPipeline[];
 
   /** Raster output format */
   output: {
     /** Output file format to use */
     type: ImageFormat;
-    /** should the output be lossless */
-    lossless: boolean;
     /**
-     *  Background to render for areas where there is no data, falls back to
-     *  {@link ConfigTileSetRaster.background} if not defined
+     * should the output be lossless
+     *
+     * @default false
+     */
+    lossless?: boolean;
+    /**
+     * Background to render for areas where there is no data, falls back to
+     * {@link ConfigTileSetRaster.background} if not defined
      */
     background?: { r: number; g: number; b: number; alpha: number };
   };
+}
+
+export type ConfigRasterPipeline = ConfigRasterPipelineTerrainRgb | ConfigRasterPipelineColorRamp;
+
+export interface ConfigRasterPipelineTerrainRgb {
+  type: 'terrain-rgb';
+}
+
+export interface ConfigRasterPipelineColorRamp {
+  type: 'color-ramp';
 }
 
 export interface ConfigTileSetVector extends ConfigTileSetBase {

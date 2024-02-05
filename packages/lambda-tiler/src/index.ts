@@ -77,6 +77,8 @@ handler.router.get('/v1/tiles/:tileSet/:tileMatrix/:z(^\\d+)/:x(^\\d+)/:y(^\\d+)
 
 // Preview
 handler.router.get('/v1/preview/:tileSet/:tileMatrix/:z/:lon/:lat', tilePreviewGet);
+handler.router.get('/v1/preview/:tileSet/:tileMatrix/:z/:lon/:lat/:outputType', tilePreviewGet);
+
 handler.router.get('/v1/@:location', previewIndexGet);
 handler.router.get('/@:location', previewIndexGet);
 

@@ -8,7 +8,7 @@ import { ConfigBundle } from '../config/config.bundle.js';
 import { ConfigImagery } from '../config/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
-import { ConfigLayer, ConfigTileSet, TileSetType } from '../config/tile.set.js';
+import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
 import { standardizeLayerName } from '../name.convertor.js';
 
@@ -163,7 +163,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   imageryToTileSetByName(i: ConfigImagery): ConfigTileSet {
     const targetName = standardizeLayerName(i.name);
     const targetId = ConfigId.prefix(ConfigPrefix.TileSet, targetName);
-    let existing = this.objects.get(targetId) as ConfigTileSet;
+    let existing = this.objects.get(targetId) as ConfigTileSetRaster;
     if (existing == null) {
       existing = {
         type: TileSetType.Raster,
@@ -174,9 +174,21 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
         layers: [{ name: targetName, title: i.title, minZoom: 0, maxZoom: 32 }],
         background: { r: 0, g: 0, b: 0, alpha: 0 },
         updatedAt: Date.now(),
-      } as ConfigTileSet;
+      } as ConfigTileSetRaster;
       removeUndefined(existing);
       this.put(existing);
+
+      // FIXME: should we store output types here
+      if (i.bands?.length === 1) {
+        existing.outputs = [
+          {
+            title: 'Color ramp',
+            name: 'color-ramp',
+            pipeline: [{ type: 'color-ramp' }],
+            output: { type: 'webp' },
+          },
+        ];
+      }
     }
     // The latest imagery overwrite the earlier ones.
     const existingImageryId = existing.layers[0][i.projection];
@@ -195,7 +207,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   /** Create a tile set of direct to imagery name `ts_imageId */
   static imageryToTileSet(i: ConfigImagery): ConfigTileSet {
-    return {
+    const ts: ConfigTileSetRaster = {
       type: TileSetType.Raster,
       id: ConfigId.prefix(ConfigPrefix.TileSet, ConfigId.unprefix(ConfigPrefix.Imagery, i.id)),
       name: i.name,
@@ -204,6 +216,19 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       background: { r: 0, g: 0, b: 0, alpha: 0 },
       updatedAt: Date.now(),
     };
+
+    // FIXME: should we store output types here
+    if (i.bands?.length === 1) {
+      ts.outputs = [
+        {
+          title: 'Color ramp',
+          name: 'color-ramp',
+          pipeline: [{ type: 'color-ramp' }],
+          output: { type: 'webp' },
+        },
+      ];
+    }
+    return ts;
   }
 
   /** Load a bundled configuration creating virtual tilesets for all imagery */
