@@ -85,7 +85,7 @@ export const PipelineColorRamp: Pipeline = {
 
       const px = data.pixels[source];
 
-      if (noData && px === noData) continue;
+      if (noData != null && px === noData) continue;
 
       const target = i * 4;
 
