@@ -3,22 +3,13 @@ import Lerc from 'lerc';
 
 import { DecompressedInterleaved, Decompressor } from './decompressor.js';
 
-function lercDepth(s: string): string {
-  switch (s) {
-    case 'F32':
-      return 'float';
-    default:
-      throw new Error('Unknown LERC Byte depth: ' + s);
-  }
-}
-
 export const LercDecompressor: Decompressor = {
   type: 'application/lerc',
   async bytes(source: Tiff, tile: ArrayBuffer): Promise<DecompressedInterleaved> {
     await Lerc.load();
     const bytes = Lerc.decode(tile);
 
-    if (lercDepth(bytes.pixelType) !== 'float') {
+    if (bytes.pixelType !== 'F32') {
       throw new Error(`Lerc: Invalid output pixelType:${bytes.pixelType} from:${source.source.url}`);
     }
     if (bytes.depthCount !== 1) {
