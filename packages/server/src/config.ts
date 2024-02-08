@@ -28,7 +28,13 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
   if ('paths' in opts) {
     const mem = new ConfigProviderMemory();
     const ret = await initConfigFromUrls(mem, opts.paths);
-    logger.info({ tileSet: ret.tileSet.name, layers: ret.tileSet.layers.length }, 'TileSet:Loaded');
+    for (const ts of ret.tileSets) {
+      logger.info(
+        { tileSet: ts.name, layers: ts.layers.length, outputs: ts.outputs?.map((f) => f.name) },
+        'TileSet:Loaded',
+      );
+    }
+
     for (const im of ret.imagery) {
       logger.info(
         { imagery: im.uri, title: im.title, tileMatrix: im.tileMatrix, files: im.files.length },

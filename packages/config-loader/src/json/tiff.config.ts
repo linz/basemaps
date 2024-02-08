@@ -428,7 +428,7 @@ export async function initConfigFromUrls(
   targets: URL[],
   concurrency = 25,
   log?: LogType,
-): Promise<{ tileSet: ConfigTileSetRaster; imagery: ConfigImageryTiff[] }> {
+): Promise<{ tileSet: ConfigTileSetRaster; tileSets: ConfigTileSetRaster[]; imagery: ConfigImageryTiff[] }> {
   const q = pLimit(concurrency);
 
   const imageryConfig: Promise<ConfigImageryTiff>[] = [];
@@ -452,22 +452,28 @@ export async function initConfigFromUrls(
     layers: [],
     outputs: [
       {
+        title: 'TerrainRGB',
+        name: 'terrain-rgb',
+        pipeline: [{ type: 'terrain-rgb' }],
+        output: {
+          type: 'webp',
+          lossless: true,
+          background: { r: 1, g: 134, b: 160, alpha: 1 },
+          resizeKernel: { in: 'nearest', out: 'nearest' },
+        },
+      },
+      {
         title: 'Color ramp',
         name: 'color-ramp',
         pipeline: [{ type: 'color-ramp' }],
         output: { type: 'webp' },
-      },
-      {
-        title: 'TerrainRGB',
-        name: 'terrain-rgb',
-        pipeline: [{ type: 'terrain-rgb' }],
-        output: { type: 'webp', lossless: true },
       },
     ],
   };
 
   provider.put(aerialTileSet);
   const configs = await Promise.all(imageryConfig);
+  const tileSets = [aerialTileSet];
   for (const cfg of configs) {
     if (isRgbOrRgba(cfg)) {
       let existingLayer = aerialTileSet.layers.find((l) => l.title === cfg.title);
@@ -484,10 +490,11 @@ export async function initConfigFromUrls(
       }
       existingLayer[cfg.projection] = cfg.id;
       provider.put(elevationTileSet);
+      tileSets.push(elevationTileSet);
     }
   }
   // FIXME: this should return all the tile sets that were created
-  return { tileSet: aerialTileSet, imagery: configs };
+  return { tileSet: aerialTileSet, tileSets, imagery: configs };
 }
 
 /**

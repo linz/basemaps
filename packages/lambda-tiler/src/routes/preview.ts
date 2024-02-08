@@ -147,12 +147,14 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
     compositions.push(...result);
   }
 
+  const tileOutput = ctx.output;
   const tileContext = {
     layers: compositions,
-    format: ctx.output.output.type,
-    lossless: ctx.output.output.lossless,
-    background: ctx.output.output.background ?? ctx.tileSet.background ?? DefaultBackground,
-    resizeKernel: DefaultResizeKernel,
+    pipeline: tileOutput.pipeline,
+    format: tileOutput.output.type,
+    lossless: tileOutput.output.lossless,
+    background: tileOutput.output.background ?? ctx.tileSet.background ?? DefaultBackground,
+    resizeKernel: tileOutput.output.resizeKernel ?? ctx.tileSet.resizeKernel ?? DefaultResizeKernel,
   };
 
   // Load all the tiff tiles and resize/them into the correct locations
