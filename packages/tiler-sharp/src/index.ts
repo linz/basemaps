@@ -71,8 +71,8 @@ export class TileMakerSharp implements TileMaker {
       case 'png':
         return pipeline.png().toBuffer();
       case 'webp':
-        if (lossless) return pipeline.webp({ lossless: true, quality: 100, alphaQuality: 100 }).toBuffer();
-        return pipeline.webp({}).toBuffer();
+        // if (lossless) return pipeline.webp({ lossless: true, quality: 100, alphaQuality: 100 }).toBuffer();
+        return pipeline.webp().toBuffer();
       case 'avif':
         if (lossless) throw new Error('lossless avif is not defined');
         return pipeline.avif().toBuffer();
