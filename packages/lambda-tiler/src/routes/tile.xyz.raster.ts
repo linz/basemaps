@@ -139,7 +139,7 @@ export const TileXyzRaster = {
       format: tileOutput.output.type,
       lossless: tileOutput.output.lossless,
       background: tileOutput.output.background ?? tileSet.background ?? DefaultBackground,
-      resizeKernel: { in: 'nearest', out: 'nearest' },
+      resizeKernel: tileOutput.output.resizeKernel ?? tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
     });
 
