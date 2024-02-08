@@ -1,4 +1,4 @@
-import { Tiff } from '@basemaps/shared';
+import { Tiff } from '@cogeotiff/core';
 
 import { DecompressedInterleaved, Pipeline } from './decompressor.js';
 
