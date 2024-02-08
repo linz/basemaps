@@ -66,12 +66,12 @@ export class TileMakerSharp implements TileMaker {
   toImage(format: ImageFormat, pipeline: Sharp.Sharp, lossless?: boolean): Promise<Buffer> {
     switch (format) {
       case 'jpeg':
-        if (lossless) throw new Error('Jpeg is not lossless');
+        if (lossless) throw new Error('lossless jpeg is not defined');
         return pipeline.jpeg().toBuffer();
       case 'png':
         return pipeline.png().toBuffer();
       case 'webp':
-        // if (lossless) return pipeline.webp({ lossless: true, quality: 100, alphaQuality: 100 }).toBuffer();
+        if (lossless) return pipeline.webp({ lossless: true, quality: 100, alphaQuality: 100 }).toBuffer();
         return pipeline.webp().toBuffer();
       case 'avif':
         if (lossless) throw new Error('lossless avif is not defined');
