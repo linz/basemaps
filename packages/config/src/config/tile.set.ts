@@ -107,6 +107,13 @@ export interface ConfigTileSetRasterOutput {
      * {@link ConfigTileSetRaster.background} if not defined
      */
     background?: { r: number; g: number; b: number; alpha: number };
+
+    /**
+     * When scaling tiles in the rendering process what kernel to use
+     *
+     * will fall back to  {@link ConfigTileSetRaster.background} if not defined
+     */
+    resizeKernel?: { in: TileResizeKernel; out: TileResizeKernel };
   };
 }
 

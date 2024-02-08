@@ -66,21 +66,29 @@ export class TileMakerSharp implements TileMaker {
   toImage(format: ImageFormat, pipeline: Sharp.Sharp, lossless?: boolean): Promise<Buffer> {
     switch (format) {
       case 'jpeg':
+        if (lossless) throw new Error('Jpeg is not lossless');
         return pipeline.jpeg().toBuffer();
       case 'png':
         return pipeline.png().toBuffer();
       case 'webp':
-        return pipeline.webp({ lossless }).toBuffer();
+        if (lossless) return pipeline.webp({ lossless: true, quality: 100, alphaQuality: 100 }).toBuffer();
+        return pipeline.webp({}).toBuffer();
       case 'avif':
+        if (lossless) throw new Error('lossless avif is not defined');
         return pipeline.avif().toBuffer();
       default:
         throw new Error(`Invalid image format "${format}"`);
     }
   }
 
-  private async getImageBuffer(layers: SharpOverlay[], format: ImageFormat, background: Sharp.RGBA): Promise<Buffer> {
+  private async getImageBuffer(
+    layers: SharpOverlay[],
+    format: ImageFormat,
+    background: Sharp.RGBA,
+    lossless?: boolean,
+  ): Promise<Buffer> {
     if (layers.length === 0) return this.getEmptyImage(format, background);
-    return this.toImage(format, this.createImage(background).composite(layers));
+    return this.toImage(format, this.createImage(background).composite(layers), lossless);
   }
 
   public async compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics; layers: number }> {
@@ -104,7 +112,7 @@ export class TileMakerSharp implements TileMaker {
     metrics.end('compose:overlay');
 
     metrics.start('compose:compress');
-    const buffer = await this.getImageBuffer(overlays, ctx.format, ctx.background);
+    const buffer = await this.getImageBuffer(overlays, ctx.format, ctx.background, ctx.lossless);
     metrics.end('compose:compress');
 
     return { buffer, metrics, layers: overlays.length };
