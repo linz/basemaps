@@ -29,7 +29,7 @@
     "@basemaps/lambda-tiler": "^7.0.0",
     "@basemaps/shared": "^7.0.0",
     "aws-cdk": "2.114.x",
-    "aws-cdk-lib": "2.114.x",
+    "aws-cdk-lib": "2.128.x",
     "constructs": "^10.3.0"
   }
 }
