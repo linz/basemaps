@@ -74,9 +74,10 @@ export async function tileSetToStyle(
   if (tileFormat == null) return new LambdaHttpResponse(400, 'Invalid image format');
 
   const pipeline = Validate.pipeline(tileSet, tileFormat, req.query.get('pipeline'));
+  const pipelineName = pipeline?.name === 'rgba' ? undefined : pipeline?.name;
 
   const configLocation = ConfigLoader.extract(req);
-  const query = toQueryString({ config: configLocation, api: apiKey, ...getFilters(req), pipeline: pipeline?.name });
+  const query = toQueryString({ config: configLocation, api: apiKey, ...getFilters(req), pipeline: pipelineName });
 
   const tileUrl =
     (Env.get(Env.PublicUrlBase) ?? '') +
