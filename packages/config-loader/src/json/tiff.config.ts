@@ -2,6 +2,8 @@ import {
   ConfigImagery,
   ConfigProviderMemory,
   ConfigTileSetRaster,
+  DefaultColorRampOutput,
+  DefaultTerrainRgbOutput,
   ImageryDataType,
   sha256base58,
   TileSetType,
@@ -16,7 +18,6 @@ import { fileURLToPath } from 'url';
 
 import { ConfigJson, isEmptyTiff } from './json.config.js';
 import { LogType } from './log.js';
-import { DefaultColorRamp, DefaultTerrainRgb } from './tileset.output.js';
 
 /** Does a file look like a tiff, ending in .tif or .tiff */
 function isTiff(f: URL): boolean {
@@ -451,7 +452,7 @@ export async function initConfigFromUrls(
     category: 'Basemaps',
     type: TileSetType.Raster,
     layers: [],
-    outputs: [DefaultTerrainRgb, DefaultColorRamp],
+    outputs: [DefaultTerrainRgbOutput, DefaultColorRampOutput],
   };
 
   provider.put(aerialTileSet);
