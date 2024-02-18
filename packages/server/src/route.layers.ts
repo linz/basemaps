@@ -18,6 +18,7 @@ export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<str
   for (const img of layers) {
     let tileMatrix = TileMatrixSets.find(img.tileMatrix);
     if (tileMatrix == null) tileMatrix = GoogleTms;
+
     const ret = getPreviewUrl(img, previewSize);
 
     const els = [
@@ -32,7 +33,10 @@ export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<str
     cards.push(
       V(
         'a',
-        { class: `layer layer-${img.id}`, href: `/?p=${tileMatrix.projection.code}&i=${ret.name}#${ret.locationHash}` },
+        {
+          class: `layer layer-${img.id}`,
+          href: `/?tileMatrix=${tileMatrix.identifier}&style=${ret.name}#${ret.locationHash}`,
+        },
         els,
       ),
     );

@@ -1,7 +1,7 @@
-import { ConfigTileSetRaster, ConfigTileSetRasterOutput, getAllImagery } from '@basemaps/config';
-import { Bounds, Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
+import { Bounds, Epsg, ImageFormat, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
-import { getImageFormat, Tiler } from '@basemaps/tiler';
+import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import pLimit from 'p-limit';
@@ -11,7 +11,7 @@ import { Etag } from '../util/etag.js';
 import { filterLayers } from '../util/filter.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
-import { TileXyz } from '../util/validate.js';
+import { TileXyz, Validate } from '../util/validate.js';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
 
@@ -119,9 +119,8 @@ export const TileXyzRaster = {
   },
 
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<LambdaHttpResponse> {
-    const tileOutput = getTileSetOutput(tileSet, xyz.tileType);
+    const tileOutput = Validate.pipeline(tileSet, xyz.tileType, xyz.pipeline);
     if (tileOutput == null) return NotFound();
-    req.set('extension', tileOutput.output.type);
     req.set('pipeline', tileOutput.name);
 
     const assetPaths = await this.getAssetsForTile(req, tileSet, xyz);
@@ -136,10 +135,10 @@ export const TileXyzRaster = {
     const res = await TileComposer.compose({
       layers,
       pipeline: tileOutput.pipeline,
-      format: tileOutput.output.type,
-      lossless: tileOutput.output.lossless,
-      background: tileOutput.output.background ?? tileSet.background ?? DefaultBackground,
-      resizeKernel: tileOutput.output.resizeKernel ?? tileSet.resizeKernel ?? DefaultResizeKernel,
+      format: xyz.tileType as ImageFormat,
+      lossless: tileOutput.output?.lossless,
+      background: tileOutput.output?.background ?? tileSet.background ?? DefaultBackground,
+      resizeKernel: tileOutput.output?.resizeKernel ?? tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
     });
 
@@ -149,45 +148,7 @@ export const TileXyzRaster = {
     const response = new LambdaHttpResponse(200, 'ok');
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
-    response.buffer(res.buffer, 'image/' + tileOutput.output.type);
+    response.buffer(res.buffer, 'image/' + xyz.tileType);
     return response;
   },
 };
-
-/**
- * Lookup the raster configuration pipeline for a output tile type
- *
- * Defaults to standard image format output if no outputs are defined on the tileset
- */
-export function getTileSetOutput(
-  tileSet: ConfigTileSetRaster,
-  tileType?: string | null,
-): ConfigTileSetRasterOutput | null {
-  if (tileSet.outputs != null) {
-    // Default to the first output if no extension given
-    if (tileType == null) return tileSet.outputs[0];
-    // const expectedTarget = ``
-    for (const out of tileSet.outputs) {
-      const targetName = `${out.name}.${out.output.type}`;
-      if (targetName === tileType) return out;
-    }
-
-    // Find the first matching imagery type
-    for (const out of tileSet.outputs) {
-      if (out.output.type === tileType) return out;
-    }
-    return null;
-  }
-
-  const img = getImageFormat(tileType ?? 'webp');
-  if (img == null) return null;
-  return {
-    title: `RGBA ${tileType}`,
-    name: 'rgba',
-    output: {
-      type: img,
-      lossless: img === 'png' ? true : false,
-      background: tileSet.background,
-    },
-  } as ConfigTileSetRasterOutput;
-}

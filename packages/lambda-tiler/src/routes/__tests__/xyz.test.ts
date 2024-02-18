@@ -6,7 +6,7 @@ import { LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
 
 import { FakeData } from '../../__tests__/config.data.js';
-import { Api, mockRequest } from '../../__tests__/xyz.util.js';
+import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { Etag } from '../../util/etag.js';
@@ -53,8 +53,8 @@ describe('/v1/tiles', () => {
 
     const request = mockRequest('/v1/tiles/aerial/3857/0/0/0.webp', 'get', Api.header);
     const res = await handler.router.handle(request);
-    console.log(res.statusDescription);
-    assert.equal(res.status, 200);
+
+    assert.equal(res.status, 200, res.statusDescription);
     assert.equal(res.header('content-type'), 'image/webp');
     assert.equal(res.header('eTaG'), 'fakeEtag');
     // o(res.body).equals(rasterMockBuffer.toString('base64'));
@@ -68,13 +68,13 @@ describe('/v1/tiles', () => {
     it(`should 200 with empty ${fmt} if a tile is out of bounds`, async (t) => {
       t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
 
-      const res = await handler.router.handle(
-        mockRequest(`/v1/tiles/aerial/global-mercator/0/0/0.${fmt}`, 'get', Api.header),
-      );
-      assert.equal(res.status, 200);
+      const request = mockRequest(`/v1/tiles/aerial/global-mercator/0/0/0.${fmt}`, 'get', Api.header);
+      const res = await handler.router.handle(request);
+      assert.equal(res.status, 200, res.statusDescription);
       assert.equal(res.header('content-type'), `image/${fmt}`);
       assert.notEqual(res.header('etag'), undefined);
       assert.equal(res.header('cache-control'), 'public, max-age=604800, stale-while-revalidate=86400');
+      assert.deepEqual(request.logContext['pipeline'], 'rgba');
     });
   });
 
@@ -114,7 +114,7 @@ describe('/v1/tiles', () => {
     const req = mockRequest('/v1/tiles/🦄 🌈/global-mercator/0/0/0.png', 'get', Api.header);
     assert.equal(req.path, '/v1/tiles/%F0%9F%A6%84%20%F0%9F%8C%88/global-mercator/0/0/0.png');
     const res = await handler.router.handle(req);
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 200, res.statusDescription);
     assert.equal(res.header('content-type'), 'image/png');
     assert.notEqual(res.header('etag'), undefined);
     assert.equal(res.header('cache-control'), 'public, max-age=604800, stale-while-revalidate=86400');
@@ -129,21 +129,52 @@ describe('/v1/tiles', () => {
     });
   });
 
+  it('should 404 if pipelines are defined but one is not requested', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    const elevation = FakeData.tileSetRaster('elevation');
+
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', output: { lossless: true } }];
+    config.put(elevation);
+
+    const request = mockRequest('/v1/tiles/elevation/3857/11/2022/1283.webp', 'get', Api.header);
+
+    const res = await handler.router.handle(request);
+
+    assert.equal(res.status, 404, res.statusDescription);
+  });
+
   it('should generate a terrain-rgb 11/2022/1283 in webp', async (t) => {
     t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
 
     const elevation = FakeData.tileSetRaster('elevation');
 
-    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', output: { type: 'webp', lossless: true } }];
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', output: { lossless: true } }];
     config.put(elevation);
 
-    const request = mockRequest('/v1/tiles/elevation/3857/11/2022/1283-terrain-rgb.webp', 'get', Api.header);
+    const request = mockUrlRequest('/v1/tiles/elevation/3857/11/2022/1283.webp', '?pipeline=terrain-rgb', Api.header);
 
     const res = await handler.router.handle(request);
 
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 200, res.statusDescription);
     // Validate the session information has been set correctly
     assert.deepEqual(request.logContext['xyz'], { x: 2022, y: 1283, z: 11 });
+    assert.deepEqual(request.logContext['pipeline'], 'terrain-rgb');
     assert.deepEqual(round(request.logContext['location']), { lat: -41.44272638, lon: 175.51757812 });
+  });
+
+  it('should validate lossless if pipelines are defined but one is not requested', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    const elevation = FakeData.tileSetRaster('elevation');
+
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', output: { lossless: true } }];
+    config.put(elevation);
+
+    // JPEG is not lossless
+    const res = await handler.router.handle(
+      mockUrlRequest('/v1/tiles/elevation/3857/11/2022/1283.jpeg', '?pipeline=terrain-rgb', Api.header),
+    );
+    assert.equal(res.status, 400, res.statusDescription);
   });
 });

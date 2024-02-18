@@ -1,3 +1,4 @@
+import { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
 import { ImageFormat, LatLon, Projection, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Const, isValidApiKey, truncateApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
@@ -14,6 +15,8 @@ export interface TileXyz {
   tileMatrix: TileMatrixSet;
   /** Output tile format */
   tileType: string;
+  /** Optional processing pipeline to use */
+  pipeline?: string | null;
 }
 
 export interface TileMatrixRequest {
@@ -90,12 +93,6 @@ export const Validate = {
 
     if (req.params.tileType == null) throw new LambdaHttpResponse(404, 'Tile extension not found');
 
-    // trim ".webp" to "webp" and "-terrain-rgb.webp" to "terrain-rgb.webp"
-    // so that it is easier to match latter
-    if (req.params.tileType.startsWith('.') || req.params.tileType.startsWith('-')) {
-      req.params.tileType = req.params.tileType.slice(1);
-    }
-
     req.set('extension', req.params.tileType);
 
     if (isNaN(z) || z > tileMatrix.maxZoom || z < 0) throw new LambdaHttpResponse(404, `Zoom not found: ${z}`);
@@ -104,12 +101,58 @@ export const Validate = {
     if (isNaN(x) || x < 0 || x > zoom.matrixWidth) throw new LambdaHttpResponse(404, `X not found: ${x}`);
     if (isNaN(y) || y < 0 || y > zoom.matrixHeight) throw new LambdaHttpResponse(404, `Y not found: ${y}`);
 
-    const xyzData = { tile: { x, y, z }, tileSet: req.params.tileSet, tileMatrix, tileType: req.params.tileType };
+    const pipeline = req.query.get('pipeline');
+    if (pipeline) req.set('pipeline', pipeline);
+
+    const xyzData = {
+      tile: { x, y, z },
+      tileSet: req.params.tileSet,
+      tileMatrix,
+      tileType: req.params.tileType,
+      pipeline: req.query.get('pipeline'),
+    };
     req.set('xyz', xyzData.tile);
 
     const latLon = Projection.tileCenterToLatLon(tileMatrix, xyzData.tile);
     req.set('location', latLon);
 
     return xyzData;
+  },
+
+  /**
+   * Lookup the raster configuration pipeline for a output tile type
+   *
+   * Defaults to standard image format output if no outputs are defined on the tileset
+   */
+  pipeline(tileSet: ConfigTileSetRaster, tileType: string, pipeline?: string | null): ConfigTileSetRasterOutput | null {
+    if (pipeline != null && pipeline !== 'rgba') {
+      if (tileSet.outputs == null) throw new LambdaHttpResponse(404, 'TileSet has no pipelines');
+      const output = tileSet.outputs.find((f) => f.name === pipeline);
+      if (output == null) throw new LambdaHttpResponse(404, `TileSet has no pipeline named "${pipeline}"`);
+
+      // If lossless mode is needed validate that its either WebP or PNG
+      if (output.output?.lossless) {
+        if (tileType === 'webp' || tileType === 'png') return output;
+        throw new LambdaHttpResponse(400, 'Lossless output is required for pipeline:' + pipeline);
+      }
+      return output;
+    }
+    // If the tileset has pipelines defined the user MUST specify which one
+    if (tileSet.outputs) {
+      throw new LambdaHttpResponse(404, 'TileSet needs pipeline: ' + tileSet.outputs.map((f) => f.name));
+    }
+
+    // Generate a default RGBA configuration
+    const img = getImageFormat(tileType ?? 'webp');
+    if (img == null) return null;
+    return {
+      title: `RGBA ${tileType}`,
+      name: 'rgba',
+      output: {
+        type: [img],
+        lossless: img === 'png' ? true : false,
+        background: tileSet.background,
+      },
+    } as ConfigTileSetRasterOutput;
   },
 };

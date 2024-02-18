@@ -22,6 +22,7 @@ export function getImageryCenterZoom(im: ConfigImagery, previewSize: Size): { la
 export function getPreviewUrl(
   im: ConfigImagery,
   previewSize: Size = PreviewSize,
+  pipeline?: string,
 ): {
   url: string;
   name: string;
@@ -34,11 +35,13 @@ export function getPreviewUrl(
   const lon = location.lon.toFixed(7);
   const locationHash = `@${lat},${lon},z${location.zoom}`;
 
+  const query = pipeline ? `?pipeline=${pipeline}` : '';
+
   const name = standardizeLayerName(im.name);
   return {
     name,
     location,
     locationHash,
-    url: `/v1/preview/${name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}`,
+    url: `/v1/preview/${name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}${query}`,
   };
 }

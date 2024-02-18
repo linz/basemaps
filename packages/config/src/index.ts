@@ -22,6 +22,7 @@ export {
   TileResizeKernel,
   TileSetType,
 } from './config/tile.set.js';
+export { DefaultColorRampOutput, DefaultTerrainRgbOutput } from './config/tile.set.output.js';
 export { ConfigVectorStyle, Layer, Sources, StyleJson } from './config/vector.style.js';
 export { ConfigBundled, ConfigProviderMemory } from './memory/memory.config.js';
 export { standardizeLayerName } from './name.convertor.js';

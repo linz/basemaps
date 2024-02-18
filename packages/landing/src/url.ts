@@ -29,6 +29,7 @@ export interface TileUrlParams {
   layerId: string;
   style?: string | null;
   config?: string | null;
+  pipeline?: string | null;
   date?: FilterDate;
 }
 
@@ -66,6 +67,7 @@ export const WindowUrl = {
     const queryParams = new URLSearchParams();
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
     if (params.config != null) queryParams.set('config', ensureBase58(params.config));
+    if (params.pipeline != null) queryParams.set('pipeline', params.pipeline);
     if (params.date?.before != null) queryParams.set('date[before]', params.date.before);
 
     if (params.urlType === MapOptionType.Style) {

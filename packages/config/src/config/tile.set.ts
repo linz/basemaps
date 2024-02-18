@@ -92,10 +92,20 @@ export interface ConfigTileSetRasterOutput {
    */
   pipeline?: ConfigRasterPipeline[];
 
-  /** Raster output format */
-  output: {
-    /** Output file format to use */
-    type: ImageFormat;
+  /**
+   * Raster output format
+   * if none is provided it is assumed to be a RGBA output allowing all image formats
+   */
+  output?: {
+    /**
+     * Allowed output file format to use
+     *
+     * Will default to all image formats
+     * if "lossless" is set then lossless image formats
+     *
+     * @default ImageFormat[] - All Image formats
+     */
+    type?: ImageFormat[];
     /**
      * should the output be lossless
      *
@@ -111,7 +121,7 @@ export interface ConfigTileSetRasterOutput {
     /**
      * When scaling tiles in the rendering process what kernel to use
      *
-     * will fall back to  {@link ConfigTileSetRaster.background} if not defined
+     * will fall back to {@link ConfigTileSetRaster.background} if not defined
      */
     resizeKernel?: { in: TileResizeKernel; out: TileResizeKernel };
   };

@@ -103,7 +103,7 @@ export class EdgeStack extends cdk.Stack {
           forwardedValues: {
             /** Forward all query strings but do not use them for caching */
             queryString: true,
-            queryStringCacheKeys: ['config', 'exclude'].map(encodeURIComponent),
+            queryStringCacheKeys: ['config', 'exclude', 'pipeline'].map(encodeURIComponent),
           },
           lambdaFunctionAssociations: [],
         },
@@ -118,6 +118,7 @@ export class EdgeStack extends cdk.Stack {
               'exclude',
               'tileMatrix',
               'style',
+              'pipeline',
               // Deprecated single character query params for style and projection
               's',
               'p',

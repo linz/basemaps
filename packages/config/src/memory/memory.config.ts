@@ -10,6 +10,7 @@ import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
+import { DefaultColorRampOutput, DefaultTerrainRgbOutput } from '../index.js';
 import { standardizeLayerName } from '../name.convertor.js';
 
 interface DuplicatedImagery {
@@ -144,10 +145,15 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     const layerByName = new Map<string, ConfigLayer>();
     // Set all layers as minZoom:32
     for (const l of layers) {
+      // Ignore any tileset that has defined pipelines
+      const tileSet = this.objects.get(this.TileSet.id(l.name)) as ConfigTileSetRaster;
+      if (tileSet.outputs) continue;
+
       const newLayer = { ...l, minZoom: 32 };
       delete newLayer.maxZoom; // max zoom not needed when minzoom is 32
       layerByName.set(newLayer.name, { ...layerByName.get(l.name), ...newLayer });
     }
+
     const allTileset: ConfigTileSet = {
       type: TileSetType.Raster,
       id: 'ts_all',
@@ -180,14 +186,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
       // FIXME: should we store output types here
       if (i.bands?.length === 1) {
-        existing.outputs = [
-          {
-            title: 'Color ramp',
-            name: 'color-ramp',
-            pipeline: [{ type: 'color-ramp' }],
-            output: { type: 'webp' },
-          },
-        ];
+        existing.outputs = [DefaultTerrainRgbOutput, DefaultColorRampOutput];
       }
     }
     // The latest imagery overwrite the earlier ones.
@@ -219,14 +218,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
     // FIXME: should we store output types here
     if (i.bands?.length === 1) {
-      ts.outputs = [
-        {
-          title: 'Color ramp',
-          name: 'color-ramp',
-          pipeline: [{ type: 'color-ramp' }],
-          output: { type: 'webp' },
-        },
-      ];
+      ts.outputs = [DefaultTerrainRgbOutput, DefaultColorRampOutput];
     }
     return ts;
   }
