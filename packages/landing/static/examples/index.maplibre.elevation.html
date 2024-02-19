@@ -1,99 +1,99 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>Maplibre WGS84 Topographic Vector Basemaps Demo</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <script src="https://unpkg.com/maplibre-gl@4.0.1/dist/maplibre-gl.js"
-        integrity="sha384-QjD9FqfhisGHV+cOv+EZTmWGaKkTJgx6gRP7pgmyQns3aWACZb18pTpxTmRRAaDF"
-        crossorigin="anonymous"></script>
+    <script
+      src="https://unpkg.com/maplibre-gl@4.0.1/dist/maplibre-gl.js"
+      integrity="sha384-QjD9FqfhisGHV+cOv+EZTmWGaKkTJgx6gRP7pgmyQns3aWACZb18pTpxTmRRAaDF"
+      crossorigin="anonymous"
+    ></script>
     <link href="https://unpkg.com/maplibre-gl@4.0.1/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        margin: 0;
+        padding: 0;
+      }
 
-        #map {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 100%;
-        }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="map"></div>
     <script>
-        const apiKey = localStorage.getItem('api-key');
-        if (apiKey == null) throw new Error('Missing api-key in localStorage');
+      const apiKey = localStorage.getItem('api-key');
+      if (apiKey == null) throw new Error('Missing api-key in localStorage');
 
-        const startPos = [173, -40.5];
-        const startZoom = 6;
+      const startPos = [173, -40.5];
+      const startZoom = 6;
 
-        var map = new maplibregl.Map({
-            container: 'map', // container id
-            style: {
-                version: 8,
-                sources: {
-                    osm: {
-                        type: 'raster',
-                        tiles: ['/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=' + apiKey],
-                        tileSize: 256,
-                        maxzoom: 22
-                    },
-                    // Use a different source for terrain and hillshade layers, to improve render quality
-                    terrainSource: {
-                        type: 'raster-dem',
-                        tiles: ['/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?pipeline=terrain-rgb&api=' + apiKey],
-                        tileSize: 256
-                    },
-                    hillshadeSource: {
-                        type: 'raster-dem',
-                        tiles: ['/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?pipeline=terrain-rgb&api=' + apiKey],
-                        tileSize: 256
-                    }
-                },
-                layers: [
-                    {
-                        id: 'osm',
-                        type: 'raster',
-                        source: 'osm'
-                    },
-                    {
-                        id: 'hills',
-                        type: 'hillshade',
-                        source: 'hillshadeSource',
-                        layout: { visibility: 'visible' },
-                        paint: { 'hillshade-shadow-color': '#473B24' }
-                    }
-                ],
-                terrain: {
-                    source: 'terrainSource',
-                    exaggeration: 1
-                }
-            }, // style URL
-            hash: true,
-            center: startPos, // starting position [lng, lat]
-            zoom: startZoom, // starting zoom
-        });
-        map.addControl(
-            new maplibregl.NavigationControl({
-                visualizePitch: true,
-                showZoom: true,
-                showCompass: true
-            })
-        );
+      var map = new maplibregl.Map({
+        container: 'map', // container id
+        style: {
+          version: 8,
+          sources: {
+            osm: {
+              type: 'raster',
+              tiles: ['/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=' + apiKey],
+              tileSize: 256,
+              maxzoom: 22,
+            },
+            // Use a different source for terrain and hillshade layers, to improve render quality
+            terrainSource: {
+              type: 'raster-dem',
+              tiles: ['/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?pipeline=terrain-rgb&api=' + apiKey],
+              tileSize: 256,
+            },
+            hillshadeSource: {
+              type: 'raster-dem',
+              tiles: ['/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?pipeline=terrain-rgb&api=' + apiKey],
+              tileSize: 256,
+            },
+          },
+          layers: [
+            {
+              id: 'osm',
+              type: 'raster',
+              source: 'osm',
+            },
+            {
+              id: 'hills',
+              type: 'hillshade',
+              source: 'hillshadeSource',
+              layout: { visibility: 'visible' },
+              paint: { 'hillshade-shadow-color': '#473B24' },
+            },
+          ],
+          terrain: {
+            source: 'terrainSource',
+            exaggeration: 1,
+          },
+        }, // style URL
+        hash: true,
+        center: startPos, // starting position [lng, lat]
+        zoom: startZoom, // starting zoom
+      });
+      map.addControl(
+        new maplibregl.NavigationControl({
+          visualizePitch: true,
+          showZoom: true,
+          showCompass: true,
+        }),
+      );
 
-        map.addControl(
-            new maplibregl.TerrainControl({
-                source: 'terrainSource',
-                exaggeration: 1
-            })
-        );
+      map.addControl(
+        new maplibregl.TerrainControl({
+          source: 'terrainSource',
+          exaggeration: 1,
+        }),
+      );
     </script>
-</body>
-
+  </body>
 </html>
