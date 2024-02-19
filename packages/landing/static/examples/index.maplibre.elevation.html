@@ -31,11 +31,10 @@
       const apiKey = localStorage.getItem('api-key');
       if (apiKey == null) throw new Error('Missing api-key in localStorage');
 
-
       var map = new maplibregl.Map({
         hash: true,
-        center: [173, -40.5], 
-        zoom: 6, 
+        center: [173, -40.5],
+        zoom: 6,
         container: 'map', // container id
         style: {
           version: 8,
@@ -77,7 +76,6 @@
             exaggeration: 1,
           },
         },
-
       });
       map.addControl(
         new maplibregl.NavigationControl({
