@@ -2,6 +2,8 @@ import {
   ConfigImagery,
   ConfigProviderMemory,
   ConfigTileSetRaster,
+  DefaultColorRampOutput,
+  DefaultTerrainRgbOutput,
   ImageryDataType,
   sha256base58,
   TileSetType,
@@ -446,29 +448,11 @@ export async function initConfigFromUrls(
   const elevationTileSet: ConfigTileSetRaster = {
     id: 'ts_elevation',
     name: 'elevation',
-    title: 'Basemaps',
+    title: 'Elevation Basemap',
     category: 'Basemaps',
     type: TileSetType.Raster,
     layers: [],
-    outputs: [
-      {
-        title: 'TerrainRGB',
-        name: 'terrain-rgb',
-        pipeline: [{ type: 'terrain-rgb' }],
-        output: {
-          type: 'webp',
-          lossless: true,
-          background: { r: 1, g: 134, b: 160, alpha: 1 },
-          resizeKernel: { in: 'nearest', out: 'nearest' },
-        },
-      },
-      {
-        title: 'Color ramp',
-        name: 'color-ramp',
-        pipeline: [{ type: 'color-ramp' }],
-        output: { type: 'webp' },
-      },
-    ],
+    outputs: [DefaultTerrainRgbOutput, DefaultColorRampOutput],
   };
 
   provider.put(aerialTileSet);
@@ -489,11 +473,13 @@ export async function initConfigFromUrls(
         elevationTileSet.layers.push(existingLayer);
       }
       existingLayer[cfg.projection] = cfg.id;
-      provider.put(elevationTileSet);
-      tileSets.push(elevationTileSet);
+      if (!provider.objects.has(elevationTileSet.id)) {
+        provider.put(elevationTileSet);
+        tileSets.push(elevationTileSet);
+      }
     }
   }
-  // FIXME: this should return all the tile sets that were created
+  // FIXME: tileSet should be removed now that we are returning all tilesets
   return { tileSet: aerialTileSet, tileSets, imagery: configs };
 }
 

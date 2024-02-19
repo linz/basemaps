@@ -73,7 +73,7 @@ handler.router.get('/v1/tiles/:tileSet/:tileMatrix/style/:styleName.json', style
 handler.router.get('/v1/tiles/:tileSet/:tileMatrix/tile.json', tileJsonGet);
 
 // Tiles
-handler.router.get('/v1/tiles/:tileSet/:tileMatrix/:z(^\\d+)/:x(^\\d+)/:y(^\\d+):tileType', tileXyzGet);
+handler.router.get('/v1/tiles/:tileSet/:tileMatrix/:z/:x/:y.:tileType', tileXyzGet);
 
 // Preview
 handler.router.get('/v1/preview/:tileSet/:tileMatrix/:z/:lon/:lat', tilePreviewGet);

@@ -1,6 +1,6 @@
 import { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
 import { Bounds, LatLon, Projection, TileMatrixSet } from '@basemaps/geo';
-import { CompositionTiff, Tiler } from '@basemaps/tiler';
+import { CompositionTiff, TileMakerContext, Tiler } from '@basemaps/tiler';
 import { SharpOverlay, TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import sharp from 'sharp';
@@ -9,13 +9,7 @@ import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
-import {
-  DefaultBackground,
-  DefaultResizeKernel,
-  getTileSetOutput,
-  isArchiveTiff,
-  TileXyzRaster,
-} from './tile.xyz.raster.js';
+import { DefaultBackground, DefaultResizeKernel, isArchiveTiff, TileXyzRaster } from './tile.xyz.raster.js';
 
 export interface PreviewGet {
   Params: {
@@ -54,7 +48,6 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   req.set('projection', tileMatrix.projection.code);
 
   // TODO we should detect the format based off the "Accept" header and maybe default back to webp
-
   const location = Validate.getLocation(req.params.lon, req.params.lat);
   if (location == null) return new LambdaHttpResponse(404, 'Preview location not found');
   req.set('location', location);
@@ -71,11 +64,11 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   // Only raster previews are supported
   if (tileSet.type !== 'raster') return new LambdaHttpResponse(404, 'Preview invalid tile set type');
 
-  const outputFormat = req.params.outputType;
+  const outputFormat = req.params.outputType ?? 'webp';
 
-  const tileOutput = getTileSetOutput(tileSet, outputFormat);
+  const tileOutput = Validate.pipeline(tileSet, outputFormat, req.query.get('pipeline'));
   if (tileOutput == null) return new LambdaHttpResponse(404, `Output format: ${outputFormat} not found`);
-  req.set('extension', tileOutput.output.type);
+  req.set('extension', tileOutput.output?.type);
   req.set('pipeline', tileOutput.name ?? 'rgba');
 
   return renderPreview(req, { tileSet, tileMatrix, location, output: tileOutput, z });
@@ -148,13 +141,13 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   }
 
   const tileOutput = ctx.output;
-  const tileContext = {
+  const tileContext: TileMakerContext = {
     layers: compositions,
     pipeline: tileOutput.pipeline,
-    format: tileOutput.output.type,
-    lossless: tileOutput.output.lossless,
-    background: tileOutput.output.background ?? ctx.tileSet.background ?? DefaultBackground,
-    resizeKernel: tileOutput.output.resizeKernel ?? ctx.tileSet.resizeKernel ?? DefaultResizeKernel,
+    format: tileOutput.output?.type?.[0] ?? 'webp', // default to the first output format if defined or webp
+    lossless: tileOutput.output?.lossless,
+    background: tileOutput.output?.background ?? ctx.tileSet.background ?? DefaultBackground,
+    resizeKernel: tileOutput.output?.resizeKernel ?? ctx.tileSet.resizeKernel ?? DefaultResizeKernel,
   };
 
   // Load all the tiff tiles and resize/them into the correct locations
@@ -169,7 +162,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   img.composite(overlays);
 
   req.timer.start('compose:compress');
-  const buf = await TilerSharp.toImage(ctx.output.output.type, img, ctx.output.output.lossless);
+  const buf = await TilerSharp.toImage(tileContext.format, img, tileContext.lossless);
   req.timer.end('compose:compress');
 
   req.set('layersUsed', overlays.length);
@@ -177,10 +170,10 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   const response = new LambdaHttpResponse(200, 'ok');
   response.header(HttpHeader.ETag, cacheKey);
   response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
-  response.buffer(buf, 'image/' + ctx.output.output.type);
+  response.buffer(buf, 'image/' + tileContext.format);
 
   const shortLocation = [ctx.location.lon.toFixed(7), ctx.location.lat.toFixed(7)].join('_');
-  const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}-${ctx.output.name}.${ctx.output.output.type}`;
+  const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}-${ctx.output.name}.${tileContext.format}`;
   response.header('Content-Disposition', `inline; filename=\"${suggestedFileName}\"`);
 
   return response;
