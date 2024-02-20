@@ -6,6 +6,7 @@ import { fsa, FsMemory, SourceMemory, Tiff } from '@basemaps/shared';
 import { getTiffTagSize, TiffTag } from '@cogeotiff/core';
 
 import { getImageryName, initConfigFromUrls } from '../tiff.config.js';
+import { matchUri } from '../json.config.js';
 
 const simpleTiff = new URL('../../../../__tests__/static/rgba8_tiled.tiff', import.meta.url);
 
@@ -150,6 +151,21 @@ describe('config import', () => {
     assert.equal(
       getImageryName(new URL('s3://linz-workflows-scratch/2023-09/05-ecan-banks-peninsula-original-9mjdj/flat/')),
       '05-ecan-banks-peninsula-original-9mjdj',
+    );
+  });
+
+  it('should match uris with trailing slashes or macros', () => {
+    assert(
+      matchUri(
+        's3://linz-basemaps/3857/ōtorohanga_urban_2021_0-1m_RGB/01FYWKATAEK2ZTJQ2PX44Y0XNT/',
+        's3://linz-basemaps/3857/%C5%8Dtorohanga_urban_2021_0-1m_RGB/01FYWKATAEK2ZTJQ2PX44Y0XNT/',
+      ),
+    );
+    assert(
+      matchUri(
+        's3://linz-basemaps/3857/ōtorohanga_urban_2021_0-1m_RGB/01FYWKATAEK2ZTJQ2PX44Y0XNT/',
+        's3://linz-basemaps/3857/ōtorohanga_urban_2021_0-1m_RGB/01FYWKATAEK2ZTJQ2PX44Y0XNT',
+      ),
     );
   });
 });
