@@ -5,8 +5,8 @@ import { ConfigProviderMemory } from '@basemaps/config';
 import { fsa, FsMemory, SourceMemory, Tiff } from '@basemaps/shared';
 import { getTiffTagSize, TiffTag } from '@cogeotiff/core';
 
-import { getImageryName, initConfigFromUrls } from '../tiff.config.js';
 import { matchUri } from '../json.config.js';
+import { getImageryName, initConfigFromUrls } from '../tiff.config.js';
 
 const simpleTiff = new URL('../../../../__tests__/static/rgba8_tiled.tiff', import.meta.url);
 
