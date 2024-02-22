@@ -5,23 +5,24 @@ import ulid from 'ulid';
 
 const logger = LogConfig.get();
 /** Fresh API Key to use */
-const apiKey = 'c' + ulid.ulid().toLowerCase();
+const apiKey = 'c' + ulid.ulid().toLowerCase().slice(0, 22) + 'test';
 
 /** Http headers required to trigger CORS */
 const Cors = { origin: 'https://example.com' };
 
 /** Host that is being tested */
-let host = process.env['BASEMAPS_HOST'] || 'https://dev.basemaps.linz.govt.nz';
+const host = new URL(process.env['BASEMAPS_HOST'] || 'https://dev.basemaps.linz.govt.nz');
 
-if (!host.startsWith('http')) throw new Error(`Invalid host: ${host}`);
-if (host.endsWith('/')) host = host.slice(0, host.length - 1);
+if (!host.protocol.startsWith('http')) throw new Error(`Invalid host: ${host}`);
 
-/** Request a url with options
+/**
+ * Request a url with options
  *
  * @example
  * ```typescript
  * await req('/v1/version')
  * await req('/v1/version', { method: 'OPTIONS' })
+ * await req(`/v1/version?api=${ctx.apiKey}`)
  * ````
  */
 async function req(path: string, opts?: RequestInit): Promise<Response> {
@@ -29,10 +30,7 @@ async function req(path: string, opts?: RequestInit): Promise<Response> {
   logger.trace({ path, url: target.href }, 'Fetch');
   const startTime = performance.now();
   const res = await fetch(target, opts);
-  logger.info(
-    { path, url: target.href, status: res.status, ...opts, duration: performance.now() - startTime },
-    'Fetch:Done',
-  );
+  logger.info({ url: target.href, status: res.status, ...opts, duration: performance.now() - startTime }, 'Fetch:Done');
   return res;
 }
 
