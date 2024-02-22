@@ -34,6 +34,13 @@ function isTiff(u: URL): boolean {
   return filePath.endsWith('.tiff') || filePath.endsWith('.tif');
 }
 
+export function matchUri(a: string, b: string): boolean {
+  const UrlA = new URL(a.endsWith('/') ? a : a + '/');
+  const UrlB = new URL(b.endsWith('/') ? b : b + '/');
+  if (UrlA.href === UrlB.href) return true;
+  return false;
+}
+
 export function guessIdFromUri(uri: string): string | null {
   const parts = uri.split('/');
   const id = uri.endsWith('/') ? parts.at(-2) : parts.at(-1);
@@ -199,7 +206,7 @@ export class ConfigJson {
     ): string | undefined {
       if (uri == null) return uri;
       if (uri.startsWith(ConfigPrefix.Imagery)) return uri;
-      const record = imagery.find((f) => f.uri === uri); ///
+      const record = imagery.find((f) => matchUri(f.uri, uri)); ///
       if (record == null) throw new Error('Unable to find imagery id for uri:' + uri);
 
       if (record.title && record.title !== layer.title) {
