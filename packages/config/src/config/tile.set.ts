@@ -141,10 +141,10 @@ export interface ConfigTileSetVector extends ConfigTileSetBase {
   type: TileSetType.Vector;
 
   /**
-   * Vector output format
-   * Should be default to pbf format
+   * TODO: This is for supporting vector format with the new config Structure on Basemaps V7.
+   * We can remove this after release New Basemaps version.
    */
-  format: VectorFormat;
+  format?: VectorFormat;
 }
 
 export type ConfigTileSet = ConfigTileSetVector | ConfigTileSetRaster;
