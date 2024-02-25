@@ -1,4 +1,4 @@
-import { EpsgCode, ImageFormat } from '@basemaps/geo';
+import { EpsgCode, ImageFormat, VectorFormat } from '@basemaps/geo';
 
 import { ConfigBase } from './base.js';
 
@@ -139,6 +139,12 @@ export interface ConfigRasterPipelineColorRamp {
 
 export interface ConfigTileSetVector extends ConfigTileSetBase {
   type: TileSetType.Vector;
+
+  /**
+   * Vector output format
+   * Should be default to pbf format
+   */
+  format: VectorFormat;
 }
 
 export type ConfigTileSet = ConfigTileSetVector | ConfigTileSetRaster;
