@@ -15,7 +15,7 @@ import {
   StyleJson,
   TileSetType,
 } from '@basemaps/config';
-import { Bounds, GoogleTms, NamedBounds, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Bounds, GoogleTms, ImageFormat, NamedBounds, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
 import { Cotar, fsa, stringToUrlFolder, Tiff, TiffTag } from '@basemaps/shared';
 import PLimit from 'p-limit';
 import { basename } from 'path';
@@ -248,6 +248,12 @@ export class ConfigJson {
       tileSet.background = parseRgba(ts.background);
     }
 
+    if (ts.format) {
+      tileSet.format = ts.format as ImageFormat | VectorFormat;
+    } else {
+      tileSet.format = ts.type === TileSetType.Vector ? 'pbf' : 'webp';
+    }
+    
     return tileSet as ConfigTileSet;
   }
 

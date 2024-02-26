@@ -63,6 +63,12 @@ export interface ConfigTileSetBase extends ConfigBase {
 export interface ConfigTileSetRaster extends ConfigTileSetBase {
   type: TileSetType.Raster;
 
+  /** 
+   * TODO: This is for supporting vector format with the new config Structure on Basemaps V7. 
+   * We can remove this after release New Basemaps version.
+  */
+  format?: ImageFormat;
+
   /** Background to render for areas where there is no data */
   background?: { r: number; g: number; b: number; alpha: number };
 
