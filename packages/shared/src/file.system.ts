@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 
 import { S3Client } from '@aws-sdk/client-s3';
 import { sha256base58 } from '@basemaps/config';
-import { FileSystem, FsHttp, fsa } from '@chunkd/fs';
+import { FileSystem, fsa, FsHttp } from '@chunkd/fs';
 import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
 import { SourceCache, SourceChunk } from '@chunkd/middleware';
 import type { SourceCallback, SourceRequest } from '@chunkd/source';
