@@ -19,6 +19,9 @@ import { fileURLToPath } from 'url';
 import { ConfigJson, isEmptyTiff } from './json.config.js';
 import { LogType } from './log.js';
 
+// TODO make this configurable
+export const ConfigCache = fsa.toUrl('./cache');
+
 /** Does a file look like a tiff, ending in .tif or .tiff */
 function isTiff(f: URL): boolean {
   const lowered = f.pathname.toLocaleLowerCase();
@@ -349,8 +352,32 @@ export async function initImageryFromTiffUrl(
   Q: LimitFunction,
   log?: LogType,
 ): Promise<ConfigImageryTiff> {
-  const sourceFiles = await fsa.toArray(fsa.list(target));
-  const tiffs = await loadTiffsFromPaths(sourceFiles, Q);
+  const sourceFiles = await fsa.toArray(fsa.details(target));
+
+  const fileList = sourceFiles.map((m) => `${m.url.href}::${m.size}::${m.lastModified}`).join('\n');
+  const sourceHash = sha256base58(fileList);
+
+  // Read the last configuration from the cache, TODO configure cache location
+  const configCachePath = new URL(
+    `./im_${target.protocol.replace(':', '')}_${target.hostname}_${sourceHash}.json`,
+    ConfigCache,
+  );
+
+  // Because loading 100,000s remote cogs can take a very long time, see if we have already loaded the metadata
+  if (ConfigCache) {
+    try {
+      const cfg = await fsa.readJson(configCachePath);
+      log?.info({ target, cache: configCachePath }, 'Tiff:Config:CacheHit');
+      return cfg as ConfigImageryTiff;
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  const tiffs = await loadTiffsFromPaths(
+    sourceFiles.map((m) => m.url),
+    Q,
+  );
 
   try {
     const stac = await loadStacFromURL(target);
@@ -381,6 +408,9 @@ export async function initImageryFromTiffUrl(
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
     log?.info({ title, imageryName, files: imagery.files.length }, 'Tiff:Loaded');
 
+    if (ConfigCache) {
+      await fsa.write(configCachePath, JSON.stringify(imagery));
+    }
     provider.put(imagery);
 
     return imagery;

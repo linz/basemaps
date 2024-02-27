@@ -10,7 +10,24 @@ export function validateColor(str: string): boolean {
   }
 }
 
+const zResizeKernel = z.object({ in: z.string(), out: z.string() });
+
 const zBackground = z.string().refine(validateColor, { message: 'Invalid hex color' });
+const zBackgroundObject = z.object({ r: z.number(), g: z.number(), b: z.number(), alpha: z.number() });
+
+const zOutputs = z.object({
+  title: z.string(),
+  name: z.string(),
+  pipeline: z.array(z.object({ type: z.string() })),
+  output: z.optional(
+    z.object({
+      type: z.optional(z.string()),
+      lossless: z.optional(z.boolean()),
+      background: zBackgroundObject,
+      resizeKernel: z.optional(zResizeKernel),
+    }),
+  ),
+});
 
 export const ImageryConfigDefaults = {
   minZoom: 0,
@@ -51,6 +68,7 @@ export const zTileSetConfig = z.object({
   minZoom: zZoom.optional(),
   maxZoom: zZoom.optional(),
   format: z.string().optional(),
+  outputs: z.optional(z.array(zOutputs)),
 });
 
 export type TileSetConfigSchemaLayer = z.infer<typeof zLayerConfig>;

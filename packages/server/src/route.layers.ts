@@ -5,7 +5,7 @@ import { getPreviewUrl, V } from '@basemaps/shared';
 const previewSize = { width: 1200, height: 630 };
 
 export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<string> {
-  const allLayers = await mem.TileSet.get('ts_all');
+  const allLayers = await mem.TileSet.get('ts_elevation');
   if (allLayers == null) return 'No layers found.';
 
   const allImagery = await getAllImagery(mem, allLayers.layers, [...Epsg.Codes.values()]);
@@ -19,7 +19,7 @@ export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<str
     let tileMatrix = TileMatrixSets.find(img.tileMatrix);
     if (tileMatrix == null) tileMatrix = GoogleTms;
 
-    const ret = getPreviewUrl(img, previewSize);
+    const ret = getPreviewUrl(img, previewSize, 'color-ramp');
 
     const els = [
       V('div', { class: `layer-header`, style: 'display:flex; justify-content: space-around;' }, [

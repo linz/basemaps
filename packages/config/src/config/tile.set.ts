@@ -127,7 +127,7 @@ export interface ConfigTileSetRasterOutput {
   };
 }
 
-export type ConfigRasterPipeline = ConfigRasterPipelineTerrainRgb | ConfigRasterPipelineColorRamp;
+export type ConfigRasterPipeline = ConfigRasterPipelineTerrainRgb | ConfigRasterPipelineColorRamp | { type: string };
 
 export interface ConfigRasterPipelineTerrainRgb {
   type: 'terrain-rgb';
