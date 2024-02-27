@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 
 import { S3Client } from '@aws-sdk/client-s3';
 import { sha256base58 } from '@basemaps/config';
-import { FileSystem, fsa } from '@chunkd/fs';
+import { FileSystem, FsHttp, fsa } from '@chunkd/fs';
 import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
 import { SourceCache, SourceChunk } from '@chunkd/middleware';
 import type { SourceCallback, SourceRequest } from '@chunkd/source';
@@ -34,6 +34,7 @@ if (credentialPath) credentials.registerConfig(fsa.toUrl(credentialPath), s3Fs);
 
 s3Fs.credentials = credentials;
 
+fsa.register('https://', new FsHttp());
 fsa.register('s3://', s3Fs);
 fsa.register('s3://nz-imagery', s3FsPublic);
 
