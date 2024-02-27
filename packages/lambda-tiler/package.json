@@ -40,7 +40,8 @@
     "outdir": "dist/",
     "external": [
       "pino-pretty",
-      "sharp"
+      "sharp",
+      "lerc"
     ]
   },
   "scripts": {
