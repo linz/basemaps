@@ -75,8 +75,9 @@ export class CommandBundleAssets extends CommandLineAction {
     logger.info({ output: outputTar, files: files.length }, 'Tar:Create');
 
     for (const file of files) {
-      const filePath = file.href.replace(input.href, '').slice(1); // Remove the leading '/'
-      await tarBuilder.write(filePath, await fsa.read(file));
+      let filePath = file.href.replace(input.href, '');
+      if(filePath.startsWith('/')) filePath.slice(1); // Remove the leading '/'
+      await tarBuilder.write(decodeURI(filePath), await fsa.read(file));
     }
 
     await tarBuilder.close();
