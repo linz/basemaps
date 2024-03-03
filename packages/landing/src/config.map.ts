@@ -39,6 +39,7 @@ export interface MapConfigEvents {
   filter: [Filter];
   change: [];
   visibleLayers: [string];
+  pipeline: [string | null | undefined];
 }
 
 export class MapConfig extends Emitter<MapConfigEvents> {
@@ -49,6 +50,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   debug: DebugState = { ...DebugDefaults };
   visibleLayers: string | null = null;
   filter: Filter = { date: { before: undefined } };
+  pipeline: string | null = null;
 
   private _layers?: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -122,8 +124,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s') ?? urlParams.get('style');
     const config = urlParams.get('c') ?? urlParams.get('config');
-
     const layerId = urlParams.get('i') ?? 'aerial';
+    const pipeline = urlParams.get('pipeline');
     const date = this.getDateRangeFromUrl(urlParams);
     if (this.filter.date.before !== date.before) {
       this.filter.date = date;
@@ -144,10 +146,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
+    this.pipeline = pipeline;
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
     this.emit('tileMatrix', this.tileMatrix);
     this.emit('layer', this.layerId, this.style);
+    this.emit('pipeline', this.pipeline);
     if (previousUrl !== MapConfig.toUrl(this)) this.emit('change');
   }
 
@@ -157,6 +161,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('tileMatrix', opts.tileMatrix.identifier);
     // Config by far the longest so make it the last parameter
+    if (opts.pipeline) urlParams.append('pipeline', opts.pipeline);
     if (opts.config) urlParams.append('config', ensureBase58(opts.config));
 
     ConfigDebug.toUrl(opts.debug, urlParams);
@@ -170,8 +175,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     style = this.style,
     config = this.config,
     date = this.filter.date,
+    pipeline = this.pipeline,
   ): string {
-    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, date });
+    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, date, pipeline });
   }
 
   getLocation(map: maplibregl.Map): MapLocation {
@@ -218,6 +224,13 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   setDebug<T extends keyof DebugState>(key: T, value: DebugState[T] = DebugDefaults[key]): void {
     if (this.debug[key] === value) return;
     this.debug[key] = value;
+    this.emit('change');
+  }
+
+  setPipeline(pipeline: string): void {
+    if (this.pipeline === pipeline) return;
+    this.pipeline = pipeline;
+    this.emit('pipeline', this.pipeline);
     this.emit('change');
   }
 }

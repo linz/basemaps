@@ -1,5 +1,5 @@
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
-import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
+import maplibre, { RasterLayerSpecification, TerrainControl } from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
 
 import { MapAttribution } from '../attribution.js';
@@ -25,11 +25,13 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   map!: maplibregl.Map;
   el?: HTMLElement;
   mapAttr?: MapAttribution;
+
   /** Ignore the location updates */
   ignoreNextLocationUpdate = false;
 
   controlScale?: maplibre.ScaleControl | null;
   controlGeo?: maplibregl.GeolocateControl | null;
+  controlTerrain?: TerrainControl | null;
 
   updateLocation = (): void => {
     if (this.ignoreNextLocationUpdate) {
@@ -101,7 +103,13 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.ensureGeoControl();
     this.ensureScaleControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
+    const style = tileGrid.getStyle(
+      Config.map.layerId,
+      Config.map.style,
+      undefined,
+      Config.map.filter.date,
+      Config.map.pipeline,
+    );
     this.map.setStyle(style);
 
     if (Config.map.tileMatrix !== GoogleTms) {
@@ -128,6 +136,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
               layerId: Config.map.layerId,
               config: Config.map.config,
               date: Config.map.filter.date,
+              pipeline: Config.map.pipeline,
             }),
           ],
           tileSize: 256,
@@ -170,7 +179,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (this.el == null) throw new Error('Unable to find #map element');
     const cfg = Config.map;
     const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
-    const style = tileGrid.getStyle(cfg.layerId, cfg.style);
+    const style = tileGrid.getStyle(cfg.layerId, cfg.style, cfg.config, undefined, cfg.pipeline);
     const location = locationTransform(cfg.location, cfg.tileMatrix, GoogleTms);
 
     this.map = new maplibre.Map({
@@ -203,6 +212,13 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         Config.map.on('bounds', this.updateBounds),
         Config.map.on('visibleLayers', this.updateVisibleLayers),
       );
+
+      const terrain = this.map.getStyle().terrain;
+      console.log(terrain);
+      if (terrain != null) {
+        this.controlTerrain = new TerrainControl(terrain);
+        this.map.addControl(this.controlTerrain, 'top-left');
+      }
 
       this.updateStyle();
       // Need to ensure the debug layer has access to the map
