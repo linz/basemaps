@@ -1,5 +1,5 @@
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
-import maplibre, { RasterLayerSpecification, TerrainControl } from 'maplibre-gl';
+import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
 
 import { MapAttribution } from '../attribution.js';
@@ -109,7 +109,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         this.map.getSource(`basemaps-${Config.map.style}-terrain`) ?? this.map.getSource('elevation-terrain');
       if (this.controlTerrain != null) return;
       if (terrainSource != null) {
-        this.controlTerrain = new TerrainControl({
+        this.controlTerrain = new maplibre.TerrainControl({
           source: terrainSource.id,
           exaggeration: 1,
         });
