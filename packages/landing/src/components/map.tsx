@@ -31,7 +31,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
   controlScale?: maplibre.ScaleControl | null;
   controlGeo?: maplibregl.GeolocateControl | null;
-  controlTerrain?: TerrainControl | null;
+  controlTerrain?: maplibregl.TerrainControl | null;
 
   updateLocation = (): void => {
     if (this.ignoreNextLocationUpdate) {
@@ -99,6 +99,50 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     }
   }
 
+  /**
+   * Only enable terrain on debug mode
+   */
+  ensureTerrainControl(): void {
+    if (Config.map.debug['debug.screenshot']) return;
+    if (Config.map.debug) {
+      const terrain = this.map.getStyle().terrain ?? this.ensureElevationTerrain();
+      if (this.controlTerrain != null) return;
+      if (terrain != null) {
+        this.controlTerrain = new TerrainControl(terrain);
+        this.map.addControl(this.controlTerrain, 'top-left');
+      }
+    } else {
+      if (this.controlScale == null) return;
+      this.map.removeControl(this.controlScale);
+    }
+  }
+
+  /**
+   * Load elevation terrain for the aerial map in debug mode
+   */
+  ensureElevationTerrain(): maplibre.TerrainSpecification | undefined {
+    if (!Config.map.debug) return;
+    if (Config.map.style === 'aerial') {
+      // Add elevation into terrain for aerial map
+      this.map.addSource('elevation-terrain', {
+        type: 'raster-dem',
+        tiles: [WindowUrl.toTileUrl({
+          urlType: MapOptionType.TileRaster,
+          tileMatrix: Config.map.tileMatrix,
+          layerId: 'elevation',
+          config: Config.map.config,
+          pipeline: 'terrain-rgb',
+        }),],
+        tileSize: 256,
+      });
+      this.map.setTerrain({
+        source: 'elevation-terrain',
+        exaggeration: 1,
+      });
+    }
+    return this.map.getStyle().terrain;
+  }
+
   updateStyle = (): void => {
     this.ensureGeoControl();
     this.ensureScaleControl();
@@ -117,6 +161,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     } else {
       this.map.setMaxBounds();
     }
+
+    this.ensureTerrainControl();
     // TODO check and only update when Config.map.layer changes.
     this.forceUpdate();
   };
@@ -212,13 +258,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         Config.map.on('bounds', this.updateBounds),
         Config.map.on('visibleLayers', this.updateVisibleLayers),
       );
-
-      const terrain = this.map.getStyle().terrain;
-      console.log(terrain);
-      if (terrain != null) {
-        this.controlTerrain = new TerrainControl(terrain);
-        this.map.addControl(this.controlTerrain, 'top-left');
-      }
 
       this.updateStyle();
       // Need to ensure the debug layer has access to the map

@@ -1,4 +1,4 @@
-import { ConfigTileSet, ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
+import { ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -66,7 +66,6 @@ export interface StyleGet {
 export async function tileSetToStyle(
   req: LambdaHttpRequest<StyleGet>,
   tileSet: ConfigTileSetRaster,
-  tsElevation: ConfigTileSet | null,
   apiKey: string,
 ): Promise<LambdaHttpResponse> {
   const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
@@ -87,15 +86,16 @@ export async function tileSetToStyle(
   const styleId = `basemaps-${tileSet.name}`;
   let style;
 
-  if (tsElevation) {
-    const elevationUrl =
-    (Env.get(Env.PublicUrlBase) ?? '') +
-    `/v1/tiles/${tsElevation.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}&pipeline=terrain-rgb`;
+  if (pipelineName === 'terrain-rgb') {
     style = {
       version: 8,
       sources: {
         [styleId]: { type: 'raster', tiles: [tileUrl], tileSize: 256 },
-        [styleId + '-terrain']: { type: 'raster-dem', tiles: [elevationUrl], tileSize: 256 },
+        [styleId + '-terrain']: {
+          type: 'raster-dem',
+          tiles: [tileUrl],
+          tileSize: 256,
+        },
       },
       layers: [{ id: styleId, type: 'raster', source: styleId }],
       terrain: {
@@ -139,8 +139,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
     if (tileSet == null) return NotFound();
     if (tileSet.type !== TileSetType.Raster) return NotFound();
-    const tsElevation = await config.TileSet.get('ts_elevation');
-    return tileSetToStyle(req, tileSet, tsElevation, apiKey);
+    return tileSetToStyle(req, tileSet, apiKey);
   }
 
   // Prepare sources and add linz source
