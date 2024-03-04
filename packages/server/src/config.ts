@@ -1,7 +1,7 @@
 import { BasemapsConfigProvider, ConfigBundled, ConfigPrefix, ConfigProviderMemory } from '@basemaps/config';
 import { ConfigJson, initConfigFromUrls } from '@basemaps/config-loader';
 import { ConfigProviderDynamo, fsa, getDefaultConfig, LogType } from '@basemaps/shared';
-
+import pLimit from 'p-limit';
 export type ServerOptions = ServerOptionsTiffs | ServerOptionsConfig;
 
 /** Load configuration from folders */
@@ -72,7 +72,7 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
     return mem;
   }
 
-  const mem = await ConfigJson.fromUrl(fsa.toUrl(configPath), logger);
+  const mem = await ConfigJson.fromUrl(fsa.toUrl(configPath), pLimit(25), logger);
   logger.info({ path: configPath, mode: 'config:json' }, 'Starting Server');
   mem.createVirtualTileSets();
   return mem;

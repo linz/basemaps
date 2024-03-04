@@ -15,33 +15,16 @@ import {
   StyleJson,
   TileSetType,
 } from '@basemaps/config';
-import {
-  Bounds,
-  GoogleTms,
-  ImageFormat,
-  NamedBounds,
-  Nztm2000QuadTms,
-  TileMatrixSet,
-  TileMatrixSets,
-  VectorFormat,
-} from '@basemaps/geo';
+import { ImageFormat, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
 import { Cotar, fsa, stringToUrlFolder, Tiff, TiffTag } from '@basemaps/shared';
-import PLimit from 'p-limit';
-import { basename } from 'path';
+import { LimitFunction } from 'p-limit';
 import ulid from 'ulid';
 
 import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
-import { loadTiffsFromPaths } from './tiff.config.js';
-
-const Q = PLimit(10);
-
-function isTiff(u: URL): boolean {
-  const filePath = u.pathname.toLowerCase();
-  return filePath.endsWith('.tiff') || filePath.endsWith('.tif');
-}
+import { initImageryFromTiffUrl } from './tiff.config.js';
 
 export function matchUri(a: string, b: string): boolean {
   const UrlA = new URL(a.endsWith('/') ? a : a + '/');
@@ -107,15 +90,17 @@ export class ConfigJson {
   url: URL;
   cache: Map<string, Promise<ConfigImagery>> = new Map();
   logger: LogType;
+  Q: LimitFunction;
 
-  constructor(url: URL, log: LogType) {
+  constructor(url: URL, Q: LimitFunction, log: LogType) {
     this.url = url;
     this.mem = new ConfigProviderMemory();
     this.logger = log;
+    this.Q = Q;
   }
 
   /** Import configuration from a base path */
-  static async fromUrl(basePath: URL, log: LogType): Promise<ConfigProviderMemory> {
+  static async fromUrl(basePath: URL, Q: LimitFunction, log: LogType): Promise<ConfigProviderMemory> {
     if (basePath.pathname.endsWith('.json') || basePath.pathname.endsWith('.json.gz')) {
       const config = await fsa.readJson<BaseConfig>(basePath);
       if (config.id && config.id.startsWith('cb_')) {
@@ -124,7 +109,7 @@ export class ConfigJson {
       }
     }
 
-    const cfg = new ConfigJson(basePath, log);
+    const cfg = new ConfigJson(basePath, Q, log);
 
     const files = await fsa.toArray(fsa.list(basePath));
 
@@ -189,11 +174,11 @@ export class ConfigJson {
     if (ts.type === TileSetType.Raster) {
       for (const layer of ts.layers) {
         if (layer[2193] != null) {
-          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[2193]), Nztm2000QuadTms, layer.name, layer.title));
+          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[2193]), layer.name, layer.title));
         }
 
         if (layer[3857] != null) {
-          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[3857]), GoogleTms, layer.name, layer.title));
+          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[3857]), layer.name, layer.title));
         }
       }
     }
@@ -266,109 +251,32 @@ export class ConfigJson {
     return tileSet as ConfigTileSet;
   }
 
-  loadImagery(url: URL, tileMatrix: TileMatrixSet, name: string, title: string): Promise<ConfigImagery> {
+  loadImagery(url: URL, name: string, title: string): Promise<ConfigImagery> {
     let existing = this.cache.get(url.href);
     if (existing == null) {
-      existing = this._loadImagery(url, tileMatrix, name, title);
+      existing = this._loadImagery(url, name, title);
       this.cache.set(url.href, existing);
     }
     return existing;
   }
 
-  async _loadImagery(url: URL, tileMatrix: TileMatrixSet, name: string, title: string): Promise<ConfigImagery> {
+  async _loadImagery(url: URL, name: string, title: string): Promise<ConfigImagery> {
     // TODO is there a better way of guessing the imagery id & tile matrix?
     const imageId = guessIdFromUri(url.href) ?? sha256base58(url.href);
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ url: url.href, imageId: id }, 'Imagery:Fetch');
 
-    const fileList = await fsa.toArray(fsa.details(url));
-    const tiffFiles = fileList.filter((f) => isTiff(f.url));
+    const img = await initImageryFromTiffUrl(url, this.Q, this.logger);
+    img.id = id; // TODO could we use img.collection.id for this?
 
-    const tiffTiles = [];
-    // Files can be stored as `{z}-{x}-{y}.tiff`
-    // Check to see if all tiffs match the z-x-y format
-    for (const tiff of tiffFiles) {
-      const tileName = basename(tiff.url.pathname).replace('.tiff', '');
-      const [z, x, y] = tileName.split('-').map((f) => Number(f));
-      if (isNaN(x) || isNaN(y) || isNaN(z)) break;
+    // TODO should we be overwriting the name and title when it is loaded from the STAC metadata?
+    img.name = name;
+    img.title = title;
 
-      tiffTiles.push({ tiff, tile: { z, x, y } });
-    }
-
-    let bounds: Bounds | null = null;
-
-    const imageList: NamedBounds[] = [];
-    if (tiffTiles.length !== tiffFiles.length) {
-      // some of the tiffs are not named `{z}-{x}-{y}.tiff` so extract bounds from the tiff
-      const tiffs = await loadTiffsFromPaths(
-        tiffFiles.map((m) => m.url),
-        Q,
-      );
-
-      for (const tiff of tiffs) {
-        const gsd = tiff.images[0].resolution[0];
-
-        const gsdRound = Math.floor(gsd * 100) / 10000;
-        const bbox = tiff.images[0].bbox.map((f) => Math.floor(f / gsdRound) * gsdRound);
-        const imgBounds = Bounds.fromBbox(bbox);
-
-        if (bounds == null) bounds = imgBounds;
-        else bounds = bounds.union(imgBounds);
-
-        const tileName = basename(tiff.source.url.pathname);
-        imageList.push({ ...imgBounds, name: tileName });
-      }
-    } else {
-      for (const t of tiffTiles) {
-        // TODO add the .tiff extension back in once the new basemaps-config workflow has been merged
-        const tileName = basename(t.tiff.url.pathname).replace('.tiff', '');
-
-        const tile = tileMatrix.tileToSourceBounds(t.tile);
-        // Expand the total bounds to cover this tile
-        if (bounds == null) bounds = Bounds.fromJson(tile);
-        else bounds = bounds.union(Bounds.fromJson(tile));
-        imageList.push({ ...tile, name: tileName });
-      }
-    }
-
-    // Sort the files by Z, X, Y
-    imageList.sort((a, b): number => {
-      const widthSize = a.width - b.width;
-      if (widthSize !== 0) return widthSize;
-
-      const aXyz = a.name.split('-').map((f) => Number(f));
-      const bXyz = b.name.split('-').map((f) => Number(f));
-
-      const zDiff = aXyz[0] - bXyz[0];
-      if (zDiff !== 0) return zDiff;
-
-      const xDiff = aXyz[1] - bXyz[1];
-      if (xDiff !== 0) return xDiff;
-
-      return bXyz[2] - aXyz[2];
-    });
-
-    this.logger.debug({ url, imageId, files: imageList.length }, 'Imagery:Fetch:Done');
-
-    if (bounds == null) throw new Error('Failed to get bounds from URL: ' + url.href);
-    const now = Date.now();
-    const output: ConfigImagery = {
-      id,
-      name,
-      title,
-      updatedAt: now,
-      projection: tileMatrix.projection.code,
-      tileMatrix: tileMatrix.identifier,
-      uri: url.href,
-      bounds,
-      files: imageList,
-    };
-
-    output.overviews = await ConfigJson.findImageryOverviews(output);
-    this.mem.put(output);
-    // Ensure there is also a tile set for each imagery set
-    // this.mem.put(ConfigJson.imageryToTileSet(output));
-    return output;
+    // TODO should we store the STAC collection somewhere?
+    delete img.collection;
+    this.mem.put(img);
+    return img;
   }
 
   static async findImageryOverviews(cfg: ConfigImagery): Promise<ConfigImageryOverview | undefined> {

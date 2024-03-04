@@ -334,12 +334,7 @@ export async function loadTiffsFromPaths(sourceFiles: URL[], Q: LimitFunction): 
  *
  * @returns Imagery configuration generated from the path
  */
-export async function initImageryFromTiffUrl(
-  provider: ConfigProviderMemory,
-  target: URL,
-  Q: LimitFunction,
-  log?: LogType,
-): Promise<ConfigImageryTiff> {
+export async function initImageryFromTiffUrl(target: URL, Q: LimitFunction, log?: LogType): Promise<ConfigImageryTiff> {
   const sourceFiles = await fsa.toArray(fsa.list(target));
   const tiffs = await loadTiffsFromPaths(sourceFiles, Q);
 
@@ -354,7 +349,7 @@ export async function initImageryFromTiffUrl(
       params.projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.tryGet(params.projection);
 
     const imagery: ConfigImageryTiff = {
-      id: provider.Imagery.id(sha256base58(target.href)),
+      id: `im_${sha256base58(target.href)}`,
       name: imageryName,
       title,
       updatedAt: Date.now(),
@@ -371,8 +366,6 @@ export async function initImageryFromTiffUrl(
     };
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
     log?.info({ title, imageryName, files: imagery.files.length }, 'Tiff:Loaded');
-
-    provider.put(imagery);
 
     return imagery;
   } finally {
@@ -425,7 +418,7 @@ export async function initConfigFromUrls(
   const q = pLimit(concurrency);
 
   const imageryConfig: Promise<ConfigImageryTiff>[] = [];
-  for (const target of targets) imageryConfig.push(initImageryFromTiffUrl(provider, target, q, log));
+  for (const target of targets) imageryConfig.push(initImageryFromTiffUrl(target, q, log));
 
   const aerialTileSet: ConfigTileSetRaster = {
     id: 'ts_aerial',
@@ -450,6 +443,7 @@ export async function initConfigFromUrls(
   const configs = await Promise.all(imageryConfig);
   const tileSets = [aerialTileSet];
   for (const cfg of configs) {
+    provider.put(cfg);
     if (isRgbOrRgba(cfg)) {
       let existingLayer = aerialTileSet.layers.find((l) => l.title === cfg.title);
       if (existingLayer == null) {
