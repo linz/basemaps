@@ -238,8 +238,11 @@ export class ConfigJson {
     if (ts.category) tileSet.category = ts.category;
     if (ts.minZoom) tileSet.minZoom = ts.minZoom;
     if (ts.maxZoom) tileSet.maxZoom = ts.maxZoom;
-    if (ts.background && tileSet.type === TileSetType.Raster) {
-      tileSet.background = parseRgba(ts.background);
+    if (tileSet.type === TileSetType.Raster) {
+      if (ts.outputs) tileSet.outputs = ts.outputs;
+      if (ts.background) {
+        tileSet.background = parseRgba(ts.background);
+      }
     }
 
     if (ts.format) {

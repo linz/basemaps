@@ -134,7 +134,7 @@ describe('/v1/tiles', () => {
 
     const elevation = FakeData.tileSetRaster('elevation');
 
-    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', output: { lossless: true } }];
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb' }];
     config.put(elevation);
 
     const request = mockRequest('/v1/tiles/elevation/3857/11/2022/1283.webp', 'get', Api.header);
@@ -149,7 +149,7 @@ describe('/v1/tiles', () => {
 
     const elevation = FakeData.tileSetRaster('elevation');
 
-    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', output: { lossless: true } }];
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb' }];
     config.put(elevation);
 
     const request = mockUrlRequest('/v1/tiles/elevation/3857/11/2022/1283.webp', '?pipeline=terrain-rgb', Api.header);
@@ -168,7 +168,7 @@ describe('/v1/tiles', () => {
 
     const elevation = FakeData.tileSetRaster('elevation');
 
-    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', output: { lossless: true } }];
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb' }];
     config.put(elevation);
 
     // JPEG is not lossless

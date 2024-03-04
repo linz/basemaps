@@ -1,4 +1,4 @@
-import { parseRgba, TileSetType } from '@basemaps/config';
+import { ConfigTileSetOutputParser, parseRgba, TileSetType } from '@basemaps/config';
 import { z } from 'zod';
 
 export function validateColor(str: string): boolean {
@@ -51,6 +51,7 @@ export const zTileSetConfig = z.object({
   minZoom: zZoom.optional(),
   maxZoom: zZoom.optional(),
   format: z.string().optional(),
+  outputs: z.array(ConfigTileSetOutputParser).optional(),
 });
 
 export type TileSetConfigSchemaLayer = z.infer<typeof zLayerConfig>;

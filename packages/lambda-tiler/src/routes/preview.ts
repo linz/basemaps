@@ -68,7 +68,7 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
 
   const tileOutput = Validate.pipeline(tileSet, outputFormat, req.query.get('pipeline'));
   if (tileOutput == null) return new LambdaHttpResponse(404, `Output format: ${outputFormat} not found`);
-  req.set('extension', tileOutput.output?.type);
+  req.set('extension', outputFormat);
   req.set('pipeline', tileOutput.name ?? 'rgba');
 
   return renderPreview(req, { tileSet, tileMatrix, location, output: tileOutput, z });
@@ -144,10 +144,9 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   const tileContext: TileMakerContext = {
     layers: compositions,
     pipeline: tileOutput.pipeline,
-    format: tileOutput.output?.type?.[0] ?? 'webp', // default to the first output format if defined or webp
-    lossless: tileOutput.output?.lossless,
-    background: tileOutput.output?.background ?? ctx.tileSet.background ?? DefaultBackground,
-    resizeKernel: tileOutput.output?.resizeKernel ?? ctx.tileSet.resizeKernel ?? DefaultResizeKernel,
+    format: tileOutput.format?.[0] ?? 'webp', // default to the first output format if defined or webp
+    background: tileOutput.background ?? ctx.tileSet.background ?? DefaultBackground,
+    resizeKernel: tileOutput.resizeKernel ?? ctx.tileSet.resizeKernel ?? DefaultResizeKernel,
   };
 
   // Load all the tiff tiles and resize/them into the correct locations
