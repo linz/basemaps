@@ -105,10 +105,14 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   ensureTerrainControl(): void {
     if (Config.map.debug['debug.screenshot']) return;
     if (Config.map.debug) {
-      const terrain = this.map.getStyle().terrain ?? this.ensureElevationTerrain();
+      const terrainSource =
+        this.map.getSource(`basemaps-${Config.map.style}-terrain`) ?? this.map.getSource('elevation-terrain');
       if (this.controlTerrain != null) return;
-      if (terrain != null) {
-        this.controlTerrain = new TerrainControl(terrain);
+      if (terrainSource != null) {
+        this.controlTerrain = new TerrainControl({
+          source: terrainSource.id,
+          exaggeration: 1,
+        });
         this.map.addControl(this.controlTerrain, 'top-left');
       }
     } else {
@@ -120,7 +124,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   /**
    * Load elevation terrain for the aerial map in debug mode
    */
-  ensureElevationTerrain(): maplibre.TerrainSpecification | undefined {
+  ensureElevationTerrain(): void {
     if (!Config.map.debug) return;
     if (Config.map.style === 'aerial') {
       // Add elevation into terrain for aerial map
@@ -137,12 +141,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         ],
         tileSize: 256,
       });
-      this.map.setTerrain({
-        source: 'elevation-terrain',
-        exaggeration: 1,
-      });
     }
-    return this.map.getStyle().terrain;
   }
 
   updateStyle = (): void => {
@@ -157,7 +156,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       Config.map.pipeline,
     );
     this.map.setStyle(style);
-
     if (Config.map.tileMatrix !== GoogleTms) {
       this.map.setMaxBounds([-179.9, -85, 179.9, 85]);
     } else {
@@ -252,6 +250,18 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     this.map.on('render', this.onRender);
     this.map.on('idle', this.removeOldLayers);
+    this.map.on('style.load', () => {
+      // Reload dynamic layers since they are lost on style change
+      const waiting = () => {
+        if (!this.map.isStyleLoaded()) {
+          setTimeout(waiting, 200);
+        } else {
+          this.ensureElevationTerrain();
+        }
+      };
+      waiting();
+    });
+
     onMapLoaded(this.map, () => {
       this._events.push(
         Config.map.on('location', this.updateLocation),
