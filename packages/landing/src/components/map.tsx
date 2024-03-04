@@ -126,13 +126,15 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       // Add elevation into terrain for aerial map
       this.map.addSource('elevation-terrain', {
         type: 'raster-dem',
-        tiles: [WindowUrl.toTileUrl({
-          urlType: MapOptionType.TileRaster,
-          tileMatrix: Config.map.tileMatrix,
-          layerId: 'elevation',
-          config: Config.map.config,
-          pipeline: 'terrain-rgb',
-        }),],
+        tiles: [
+          WindowUrl.toTileUrl({
+            urlType: MapOptionType.TileRaster,
+            tileMatrix: Config.map.tileMatrix,
+            layerId: 'elevation',
+            config: Config.map.config,
+            pipeline: 'terrain-rgb',
+          }),
+        ],
         tileSize: 256,
       });
       this.map.setTerrain({
