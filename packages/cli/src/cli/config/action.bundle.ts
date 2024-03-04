@@ -1,6 +1,7 @@
 import { ConfigJson } from '@basemaps/config-loader';
 import { fsa, LogConfig } from '@basemaps/shared';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import pLimit from 'p-limit';
 
 export const DefaultConfig = 'config/';
 export const DefaultOutput = 'config/config.json';
@@ -40,7 +41,8 @@ export class CommandBundle extends CommandLineAction {
     const logger = LogConfig.get();
     const configUrl = fsa.toUrl(this.config.value ?? DefaultConfig);
     const outputUrl = fsa.toUrl(this.output.value ?? DefaultOutput);
-    const mem = await ConfigJson.fromUrl(configUrl, logger);
+    const q = pLimit(25);
+    const mem = await ConfigJson.fromUrl(configUrl, q, logger);
     if (this.assets.value) mem.assets = this.assets.value;
     const configJson = mem.toJson();
     await fsa.write(outputUrl, JSON.stringify(configJson));

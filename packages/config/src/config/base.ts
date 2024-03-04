@@ -37,6 +37,13 @@ export const ConfigBase = z.object({
    * Timestamp when this object was last modified
    */
   updatedAt: z.number().optional(),
+
+  /**
+   * Was this configuration object generated from another object
+   *
+   * @default undefined / false
+   */
+  virtual: z.boolean().optional(),
 });
 
 export type ConfigBase = z.infer<typeof ConfigBase>;

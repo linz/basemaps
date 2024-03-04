@@ -10,6 +10,15 @@ import { ConfigBase } from './base.js';
  */
 export type ImageryDataType = 'uint' | 'int' | 'float' | 'void' | 'unknown' | 'cint' | 'cfloat';
 
+// TODO add more band types
+export const ImageryBandParser = z.union([
+  z.literal('float16'),
+  z.literal('float32'),
+  z.literal('uint8'),
+  z.literal('uint16'),
+]);
+export type ImageryBandType = z.infer<typeof ImageryBandParser>;
+
 export const ConfigImageryOverviewParser = z
   .object({
     /**
@@ -36,21 +45,6 @@ export const ConfigImageryOverviewParser = z
     maxZoom: z.number().refine((r) => r >= 0 && r <= 32),
   })
   .refine((obj) => obj.minZoom < obj.maxZoom);
-
-export const ImageryBandsParser = z.object({
-  /**
-   * Data type of the band
-   *
-   * @example "uint"
-   */
-  type: z.string(),
-  /**
-   * Number of bits used for the data type
-   *
-   * @example 32
-   */
-  bits: z.number(),
-});
 
 export const BoundingBoxParser = z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() });
 export const NamedBoundsParser = z.object({
@@ -128,7 +122,7 @@ export const ConfigImageryParser = ConfigBase.extend({
   /**
    * Information about the common bands for the datasets
    */
-  bands: z.array(ImageryBandsParser).optional(),
+  bands: z.array(ImageryBandParser).optional(),
 
   /**
    * Optional noData value for the source
