@@ -7,19 +7,18 @@ import pLimit from 'p-limit';
 import { ConfigJson } from '../json.config.js';
 
 describe('tiff-loader', () => {
-  // Write some test tiffs
-  const mem = new FsMemory();
-  fsa.register('source://', mem);
-
-  const tmp = new FsMemory();
-  fsa.register('tmp://', tmp);
-
   const stac = {
     id: 'stac_id',
     title: 'stac_title',
   };
 
   before(async () => {
+    // Write some test tiffs
+    const mem = new FsMemory();
+    const tmp = new FsMemory();
+    fsa.register('source://', mem);
+    fsa.register('tmp://', tmp);
+
     const tiffA = new URL('../../../../__tests__/static/rgba8.google.tiff', import.meta.url);
     await fsa.write(new URL('source://source/rgba8/google.tiff'), await fsa.read(tiffA));
 
@@ -39,7 +38,7 @@ describe('tiff-loader', () => {
     await fsa.write(cfgUrl, JSON.stringify(ts));
 
     const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
-    assert.equal(cfg.objects.size, 2); // Should be a im_ and ts_
+    assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
     const tsGoogle = await cfg.TileSet.get('ts_google')!;
     assert.ok(tsGoogle);
@@ -76,7 +75,7 @@ describe('tiff-loader', () => {
 
     const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
 
-    assert.equal(cfg.objects.size, 2); // Should be a im_ and ts_
+    assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
     const tsGoogle = await cfg.TileSet.get('ts_google')!;
     assert.ok(tsGoogle);

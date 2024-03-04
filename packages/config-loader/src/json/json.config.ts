@@ -267,9 +267,15 @@ export class ConfigJson {
     this.logger.trace({ url: url.href, imageId: id }, 'Imagery:Fetch');
 
     const img = await initImageryFromTiffUrl(url, this.Q, this.logger);
-    img.id = id;
+    img.id = id; // TODO could we use img.collection.id for this?
+
+    // TODO should we be overwriting the name and title when it is loaded from the STAC metadata?
     img.name = name;
     img.title = title;
+
+    // TODO should we store the STAC collection somewhere?
+    delete img.collection;
+    this.mem.put(img);
     return img;
   }
 
