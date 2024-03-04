@@ -4,6 +4,7 @@ import {
   ConfigTileSetRaster,
   DefaultColorRampOutput,
   DefaultTerrainRgbOutput,
+  ImageryBandType,
   ImageryDataType,
   sha256base58,
   TileSetType,
@@ -63,14 +64,7 @@ interface TiffSummary {
   /** URL to the base of the imagery */
   url: URL;
 
-  bands?: BandSummary[];
-}
-
-export interface BandSummary {
-  /*** Number of bits per sample */
-  bits: number;
-  /** data type stored inside the tiff */
-  type: ImageryDataType;
+  bands?: ImageryBandType[];
 }
 
 export type ConfigImageryTiff = ConfigImagery & TiffSummary;
@@ -99,9 +93,9 @@ function approxDegreeToMeter(deg: number): number {
  */
 function ensureBandsSimilar(
   tiff: Tiff,
-  existingBands: BandSummary[] | undefined,
-  newBands: BandSummary[],
-): BandSummary[] {
+  existingBands: ImageryBandType[] | undefined,
+  newBands: ImageryBandType[],
+): ImageryBandType[] {
   // no bands to compare
   if (existingBands == null) return newBands;
 
@@ -110,11 +104,8 @@ function ensureBandsSimilar(
     const bA = existingBands[i];
     const bB = newBands[i];
     if (bA == null || bB == null) continue;
-    if (bA?.type !== bB?.type) {
-      throw new Error(`Band:${i} datatype mismatch: ${tiff.source.url.href} ${bA.type} vs ${bB.type}`);
-    }
-    if (bA?.bits !== bB?.bits) {
-      throw new Error(`Band:${i} bitCount mismatch: ${tiff.source.url.href} ${bA.bits} vs ${bB.bits}`);
+    if (bA !== bB) {
+      throw new Error(`Band:${i} datatype mismatch: ${tiff.source.url.href} ${bA} vs ${bB}`);
     }
   }
 
@@ -129,7 +120,7 @@ function ensureBandsSimilar(
  * @throws if any of the tiffs have differing EPSG or GSD
  **/
 async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSummary> {
-  const res: Partial<TiffSummary> = { files: [] };
+  const res: Partial<ConfigImageryTiff> = { files: [] };
 
   const targetPath = target;
   let bounds: Bounds | undefined;
@@ -161,11 +152,11 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
       throw new Error('Datatype and bits per sample miss match: ' + tiff.source.url);
     }
 
-    const imageBands: BandSummary[] = [];
+    const imageBands: ImageryBandType[] = [];
     for (let i = 0; i < dataType.length; i++) {
       const type = getDataType(dataType[i]);
       const bits = bitsPerSample[i];
-      imageBands.push({ type: type, bits });
+      imageBands.push(`${type}${bits}` as ImageryBandType);
     }
 
     res.bands = ensureBandsSimilar(tiff, res.bands, imageBands);
@@ -491,15 +482,14 @@ export async function initConfigFromUrls(
  * @returns true if imagery looks like rgb(a), false otherwise
  */
 export function isRgbOrRgba(img: ConfigImagery): boolean {
-  // If no band information is provided assume its a RGBA image (TODO: is this actuallly expected)
+  // If no band information is provided assume its a RGBA image (TODO: is this actually expected)
   if (img.bands == null) return true;
   if (img.bands.length < 3) return false; // Not enough bands for RGB
   if (img.bands.length > 4) return false; // Too many bands for RGBA
 
   // RGB/RGBA is expected to be 3 or 4 band uint8
   for (const b of img.bands) {
-    if (b.type !== 'uint') return false;
-    if (b.bits !== 8) return false;
+    if (b !== 'uint8') return false;
   }
   return true;
 }
