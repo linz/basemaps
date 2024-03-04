@@ -250,9 +250,9 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     this.map.on('render', this.onRender);
     this.map.on('idle', this.removeOldLayers);
-    this.map.on('style.load', () => {
+    this.map.on('style.load', (): void => {
       // Reload dynamic layers since they are lost on style change
-      const waiting = () => {
+      const waiting = (): void => {
         if (!this.map.isStyleLoaded()) {
           setTimeout(waiting, 200);
         } else {
