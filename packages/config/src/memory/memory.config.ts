@@ -156,6 +156,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
     const allTileset: ConfigTileSet = {
       type: TileSetType.Raster,
+      virtual: true,
       id: 'ts_all',
       name: 'all',
       title: 'All Imagery',
@@ -173,6 +174,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     if (existing == null) {
       existing = {
         type: TileSetType.Raster,
+        virtual: true,
         id: targetId,
         title: i.title,
         category: i.category,
@@ -208,6 +210,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   static imageryToTileSet(i: ConfigImagery): ConfigTileSet {
     const ts: ConfigTileSetRaster = {
       type: TileSetType.Raster,
+      virtual: true,
       id: ConfigId.prefix(ConfigPrefix.TileSet, ConfigId.unprefix(ConfigPrefix.Imagery, i.id)),
       name: i.name,
       title: i.title,

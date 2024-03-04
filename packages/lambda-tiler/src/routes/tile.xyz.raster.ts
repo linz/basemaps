@@ -136,9 +136,8 @@ export const TileXyzRaster = {
       layers,
       pipeline: tileOutput.pipeline,
       format: xyz.tileType as ImageFormat,
-      lossless: tileOutput.output?.lossless,
-      background: tileOutput.output?.background ?? tileSet.background ?? DefaultBackground,
-      resizeKernel: tileOutput.output?.resizeKernel ?? tileSet.resizeKernel ?? DefaultResizeKernel,
+      background: tileOutput.background ?? tileSet.background ?? DefaultBackground,
+      resizeKernel: tileOutput.resizeKernel ?? tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
     });
 

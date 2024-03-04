@@ -130,10 +130,9 @@ export const Validate = {
       const output = tileSet.outputs.find((f) => f.name === pipeline);
       if (output == null) throw new LambdaHttpResponse(404, `TileSet has no pipeline named "${pipeline}"`);
 
-      // If lossless mode is needed validate that its either WebP or PNG
-      if (output.output?.lossless) {
-        if (tileType === 'webp' || tileType === 'png') return output;
-        throw new LambdaHttpResponse(400, 'Lossless output is required for pipeline:' + pipeline);
+      const validFormats = output.format ?? ['webp', 'png', 'jpeg', 'avif'];
+      if (!validFormats.includes(tileType as ImageFormat)) {
+        throw new LambdaHttpResponse(400, `TileSet pipeline "${pipeline}" cannot be output as ${tileType}`);
       }
       return output;
     }
