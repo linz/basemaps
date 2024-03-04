@@ -149,7 +149,7 @@ describe('/v1/tiles', () => {
 
     const elevation = FakeData.tileSetRaster('elevation');
 
-    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb' }];
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', format: ['png', 'webp'] }];
     config.put(elevation);
 
     const request = mockUrlRequest('/v1/tiles/elevation/3857/11/2022/1283.webp', '?pipeline=terrain-rgb', Api.header);
@@ -168,7 +168,7 @@ describe('/v1/tiles', () => {
 
     const elevation = FakeData.tileSetRaster('elevation');
 
-    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb' }];
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb', format: ['png'] }];
     config.put(elevation);
 
     // JPEG is not lossless
@@ -176,5 +176,25 @@ describe('/v1/tiles', () => {
       mockUrlRequest('/v1/tiles/elevation/3857/11/2022/1283.jpeg', '?pipeline=terrain-rgb', Api.header),
     );
     assert.equal(res.status, 400, res.statusDescription);
+  });
+
+  it('should validate not allow random extensions', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    const elevation = FakeData.tileSetRaster('elevation');
+
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb' }];
+    config.put(elevation);
+
+    // JPEG is not lossless
+    const resPbf = await handler.router.handle(
+      mockUrlRequest('/v1/tiles/elevation/3857/11/2022/1283.pbf', '?pipeline=terrain-rgb', Api.header),
+    );
+    assert.equal(resPbf.status, 400, resPbf.statusDescription);
+
+    const resZz = await handler.router.handle(
+      mockUrlRequest('/v1/tiles/elevation/3857/11/2022/1283.zzz', '?pipeline=terrain-rgb', Api.header),
+    );
+    assert.equal(resZz.status, 400, resZz.statusDescription);
   });
 });

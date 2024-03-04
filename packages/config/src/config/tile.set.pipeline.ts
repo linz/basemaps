@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
-export const ConfigImageFormatParser = z.union([z.literal('webp'), z.literal('png'), z.literal('jpeg')]);
+export const ConfigImageFormatParser = z.union([
+  z.literal('webp'),
+  z.literal('png'),
+  z.literal('jpeg'),
+  z.literal('avif'),
+]);
 export const ConfigResizeKernelParser = z.union([z.literal('nearest'), z.literal('lanczos3'), z.literal('lanczos2')]);
 
 export const ConfigTileSetPipelineParser = z.object({

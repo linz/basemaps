@@ -129,6 +129,11 @@ export const Validate = {
       if (tileSet.outputs == null) throw new LambdaHttpResponse(404, 'TileSet has no pipelines');
       const output = tileSet.outputs.find((f) => f.name === pipeline);
       if (output == null) throw new LambdaHttpResponse(404, `TileSet has no pipeline named "${pipeline}"`);
+
+      const validFormats = output.format ?? ['webp', 'png', 'jpeg', 'avif'];
+      if (!validFormats.includes(tileType as ImageFormat)) {
+        throw new LambdaHttpResponse(400, `TileSet pipeline "${pipeline}" cannot be output as ${tileType}`);
+      }
       return output;
     }
     // If the tileset has pipelines defined the user MUST specify which one
