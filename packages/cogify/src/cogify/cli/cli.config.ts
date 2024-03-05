@@ -43,7 +43,7 @@ export const BasemapsCogifyConfigCommand = command({
     const q = pLimit(args.concurrency);
 
     metrics.start('imagery:load');
-    const im = await initImageryFromTiffUrl(args.path, q, logger);
+    const im = await initImageryFromTiffUrl(args.path, q, undefined, logger);
     provider.put(im);
     metrics.end('imagery:load');
 

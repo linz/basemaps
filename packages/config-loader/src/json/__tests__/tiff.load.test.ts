@@ -1,6 +1,5 @@
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
-import { gunzipSync } from 'node:zlib';
 
 import { DefaultTerrainRgbOutput } from '@basemaps/config';
 import { fsa, FsMemory, LogConfig } from '@basemaps/shared';

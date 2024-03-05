@@ -139,10 +139,11 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
     }
 
     // Validate the bands and data types of the tiff are somewhat consistent
-    const [dataType, bitsPerSample] = await Promise.all([
+    const [dataType, bitsPerSample, noData] = await Promise.all([
       /** firstImage.fetch(TiffTag.Photometric), **/ // TODO enable RGB detection
       firstImage.fetch(TiffTag.SampleFormat),
       firstImage.fetch(TiffTag.BitsPerSample),
+      firstImage.fetch(TiffTag.GdalNoData),
     ]);
 
     if (dataType == null || bitsPerSample == null) {
@@ -163,7 +164,7 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
     res.bands = ensureBandsSimilar(tiff, res.bands, imageBands);
 
     // Validate NoData value is consistent across entire
-    const imageNoData = firstImage.noData;
+    const imageNoData = noData ? Number(noData) : null;
     if (res.noData != null && imageNoData !== res.noData) {
       throw new Error(`NoData mismatch on ${imageNoData} vs ${res.noData} from: ${tiff.source.url.href}`);
     }
