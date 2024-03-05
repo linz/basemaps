@@ -1,11 +1,13 @@
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
+import { gunzipSync } from 'node:zlib';
 
 import { DefaultTerrainRgbOutput } from '@basemaps/config';
 import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import pLimit from 'p-limit';
 
 import { ConfigJson } from '../json.config.js';
+import { ConfigImageryTiff } from '../tiff.config.js';
 
 describe('tiff-loader', () => {
   const stac = {
@@ -162,5 +164,31 @@ describe('tiff-loader', () => {
     assert.ok(tsAll, 'ts_all');
     // DEM/DSM layers should not be present in `ts_all` (TODO: where should they be stored)
     assert.equal(tsAll.layers.length, 0, 'ts_all');
+  });
+
+  it('should load a with a cache', async () => {
+    const ts = {
+      id: 'ts_dem',
+      type: 'raster',
+      title: 'GoogleExample',
+      layers: [{ 3857: 'source://source/dem/', title: 'elevation-title', name: 'elevation-name' }],
+      outputs: [DefaultTerrainRgbOutput],
+    };
+
+    const cfgUrl = new URL('tmp://config/ts_google.json');
+    await fsa.write(cfgUrl, JSON.stringify(ts));
+
+    await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get(), new URL('tmp://cache/'));
+
+    const files = await fsa.toArray(fsa.details(fsa.toUrl('tmp://cache/')));
+    assert.equal(files.length, 1);
+
+    const data = await fsa.readJson<ConfigImageryTiff>(files[0].url);
+    assert.equal(data.name, 'dem');
+
+    await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get(), new URL('tmp://cache/'));
+
+    const filesB = await fsa.toArray(fsa.details(fsa.toUrl('tmp://cache/')));
+    assert.equal(filesB.length, 1);
   });
 });

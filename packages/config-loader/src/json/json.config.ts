@@ -91,16 +91,23 @@ export class ConfigJson {
   cache: Map<string, Promise<ConfigImagery>> = new Map();
   logger: LogType;
   Q: LimitFunction;
+  imageryConfigCache?: URL;
 
-  constructor(url: URL, Q: LimitFunction, log: LogType) {
+  constructor(url: URL, Q: LimitFunction, log: LogType, imageryConfigCache?: URL) {
     this.url = url;
     this.mem = new ConfigProviderMemory();
+    this.imageryConfigCache = imageryConfigCache;
     this.logger = log;
     this.Q = Q;
   }
 
   /** Import configuration from a base path */
-  static async fromUrl(basePath: URL, Q: LimitFunction, log: LogType): Promise<ConfigProviderMemory> {
+  static async fromUrl(
+    basePath: URL,
+    Q: LimitFunction,
+    log: LogType,
+    imageryConfigCache?: URL,
+  ): Promise<ConfigProviderMemory> {
     if (basePath.pathname.endsWith('.json') || basePath.pathname.endsWith('.json.gz')) {
       const config = await fsa.readJson<BaseConfig>(basePath);
       if (config.id && config.id.startsWith('cb_')) {
@@ -109,7 +116,7 @@ export class ConfigJson {
       }
     }
 
-    const cfg = new ConfigJson(basePath, Q, log);
+    const cfg = new ConfigJson(basePath, Q, log, imageryConfigCache);
 
     const files = await fsa.toArray(fsa.list(basePath));
 
@@ -269,7 +276,7 @@ export class ConfigJson {
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ url: url.href, imageId: id }, 'Imagery:Fetch');
 
-    const img = await initImageryFromTiffUrl(url, this.Q, this.logger);
+    const img = await initImageryFromTiffUrl(url, this.Q, this.imageryConfigCache, this.logger);
     img.id = id; // TODO could we use img.collection.id for this?
 
     // TODO should we be overwriting the name and title when it is loaded from the STAC metadata?
