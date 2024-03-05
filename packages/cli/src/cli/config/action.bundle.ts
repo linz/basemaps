@@ -37,9 +37,9 @@ export class CommandBundle extends CommandLineAction {
       description: 'Add assets location into the config bundle file',
     });
     this.configCache = this.defineStringParameter({
-      argumentName: 'ASSETS',
+      argumentName: 'CACHE',
       parameterLongName: '--cache',
-      description: 'Add assets location into the config bundle file',
+      description: 'Cache the imagery config to speed uploading',
     });
   }
 
