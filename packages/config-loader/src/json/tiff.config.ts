@@ -17,6 +17,7 @@ import { basename } from 'path';
 import { StacCollection } from 'stac-ts';
 import { fileURLToPath } from 'url';
 
+import { getCachedImageryConfig, writeCachedImageryConfig } from './imagery.config.cache.js';
 import { ConfigJson, isEmptyTiff } from './json.config.js';
 import { LogType } from './log.js';
 
@@ -138,10 +139,11 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
     }
 
     // Validate the bands and data types of the tiff are somewhat consistent
-    const [dataType, bitsPerSample] = await Promise.all([
+    const [dataType, bitsPerSample, noData] = await Promise.all([
       /** firstImage.fetch(TiffTag.Photometric), **/ // TODO enable RGB detection
       firstImage.fetch(TiffTag.SampleFormat),
       firstImage.fetch(TiffTag.BitsPerSample),
+      firstImage.fetch(TiffTag.GdalNoData),
     ]);
 
     if (dataType == null || bitsPerSample == null) {
@@ -162,7 +164,7 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
     res.bands = ensureBandsSimilar(tiff, res.bands, imageBands);
 
     // Validate NoData value is consistent across entire
-    const imageNoData = firstImage.noData;
+    const imageNoData = noData ? Number(noData) : null;
     if (res.noData != null && imageNoData !== res.noData) {
       throw new Error(`NoData mismatch on ${imageNoData} vs ${res.noData} from: ${tiff.source.url.href}`);
     }
@@ -331,12 +333,26 @@ export async function loadTiffsFromPaths(sourceFiles: URL[], Q: LimitFunction): 
  * Attempt to load all imagery inside of a path and create a configuration from it
  *
  * @param target path that contains the imagery
+ * @param Q limit the number of requests per second to the imagery
+ * @param configCache optional location to cache the configuration objects
  *
  * @returns Imagery configuration generated from the path
  */
-export async function initImageryFromTiffUrl(target: URL, Q: LimitFunction, log?: LogType): Promise<ConfigImageryTiff> {
-  const sourceFiles = await fsa.toArray(fsa.list(target));
-  const tiffs = await loadTiffsFromPaths(sourceFiles, Q);
+export async function initImageryFromTiffUrl(
+  target: URL,
+  Q: LimitFunction,
+  configCache?: URL,
+  log?: LogType,
+): Promise<ConfigImageryTiff> {
+  const sourceFiles = await fsa.toArray(fsa.details(target));
+
+  const prev = await getCachedImageryConfig(sourceFiles, configCache, log);
+  if (prev) return prev;
+
+  const tiffs = await loadTiffsFromPaths(
+    sourceFiles.map((m) => m.url),
+    Q,
+  );
 
   try {
     const stac = await loadStacFromURL(target);
@@ -366,6 +382,8 @@ export async function initImageryFromTiffUrl(target: URL, Q: LimitFunction, log?
     };
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
     log?.info({ title, imageryName, files: imagery.files.length }, 'Tiff:Loaded');
+
+    await writeCachedImageryConfig(sourceFiles, imagery, configCache);
 
     return imagery;
   } finally {
@@ -413,12 +431,13 @@ export async function initConfigFromUrls(
   provider: ConfigProviderMemory,
   targets: URL[],
   concurrency = 25,
+  configCache?: URL,
   log?: LogType,
 ): Promise<{ tileSet: ConfigTileSetRaster; tileSets: ConfigTileSetRaster[]; imagery: ConfigImageryTiff[] }> {
   const q = pLimit(concurrency);
 
   const imageryConfig: Promise<ConfigImageryTiff>[] = [];
-  for (const target of targets) imageryConfig.push(initImageryFromTiffUrl(target, q, log));
+  for (const target of targets) imageryConfig.push(initImageryFromTiffUrl(target, q, configCache, log));
 
   const aerialTileSet: ConfigTileSetRaster = {
     id: 'ts_aerial',

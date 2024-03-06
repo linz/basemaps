@@ -42,6 +42,11 @@ export const BasemapsServerCommand = command({
       long: 'assets',
       description: 'Where the assets (sprites, fonts) are located',
     }),
+    cache: option({
+      type: optional(Url),
+      long: 'cache',
+      description: 'Cache the metadata from loading of tiff files',
+    }),
     paths: restPositionals({ type: Url, displayName: 'path', description: 'Path to imagery' }),
   },
   handler: async (args) => {
@@ -56,8 +61,8 @@ export const BasemapsServerCommand = command({
     // Force a default url base so WMTS requests know their relative url
     process.env[Env.PublicUrlBase] = ServerUrl;
     const serverOptions = args.config
-      ? { assets: args.assets, config: args.config }
-      : { assets: args.assets, paths: args.paths };
+      ? { assets: args.assets, config: args.config, configCache: args.cache }
+      : { assets: args.assets, paths: args.paths, configCache: args.cache };
 
     const server = await createServer(serverOptions, logger);
 
