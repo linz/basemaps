@@ -40,7 +40,7 @@ export interface Layer {
   'source-layer'?: string;
 }
 
-type Source = SourceVector | SourceRaster | SourceRasterDem;
+export type Source = SourceVector | SourceRaster | SourceRasterDem;
 
 export type Sources = Record<string, Source>;
 

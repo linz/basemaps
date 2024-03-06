@@ -150,9 +150,8 @@ export async function tileSetOutputToStyle(
         id: `${styleId}-${output.name}`,
         type: 'raster',
         source: `${styleId}-${output.name}`,
-        layout: { visibility: layers.length === 0 ?  'visible' : 'none' },
+        layout: { visibility: layers.length === 0 ? 'visible' : 'none' },
       });
-    
     }
   }
 

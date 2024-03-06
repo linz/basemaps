@@ -1,5 +1,6 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
+import { Source } from '@basemaps/config/build/config/vector.style.js';
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
 import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
 
@@ -292,13 +293,17 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   renderOutputsDropdown(): ReactNode | null {
-    const layers = this.props.map.getStyle().layers;
+    const style = this.props.map.getStyle();
+    // Disable dropdown if only one layer
+    if (style.layers.length <= 1) return;
+    // Disable for vector map
+    if ((Object.values(style.sources) as unknown as Array<Source>).find((s) => s.type === 'vector')) return;
     return (
       <div className="debug__info">
         <label className="debug__label">Available Layers</label>
         <div className="debug__value">
           <select onChange={this.selectLayer}>
-            {layers.map((layer) => {
+            {style.layers.map((layer) => {
               return <option key={layer.id}>{layer.id}</option>;
             })}
           </select>
