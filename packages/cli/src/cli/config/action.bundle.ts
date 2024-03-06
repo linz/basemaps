@@ -39,7 +39,7 @@ export class CommandBundle extends CommandLineAction {
     this.configCache = this.defineStringParameter({
       argumentName: 'CACHE',
       parameterLongName: '--cache',
-      description: 'Cache the imagery config to speed uploading',
+      description: 'Location of the config cache to reduce number of requests needed to source file',
     });
   }
 
