@@ -102,6 +102,74 @@ export async function tileSetToStyle(
   return response;
 }
 
+export async function tileSetOutputToStyle(
+  req: LambdaHttpRequest<StyleGet>,
+  tileSet: ConfigTileSetRaster,
+  apiKey: string,
+): Promise<LambdaHttpResponse> {
+  const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
+  if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
+
+  const configLocation = ConfigLoader.extract(req);
+  const query = toQueryString({ config: configLocation, api: apiKey, ...getFilters(req) });
+
+  const styleId = `basemaps-${tileSet.name}`;
+  const sources: Sources = {};
+  const layers: Layer[] = [];
+
+  if (tileSet.outputs) {
+    //for loop output.
+    for (const output of tileSet.outputs) {
+      const format = output.format?.[0] ?? 'webp';
+      const urlBase = Env.get(Env.PublicUrlBase) ?? '';
+      const tileUrl = `${urlBase}/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${format}${query}`;
+
+      if (output.name === 'terrain-rgb') {
+        // Add both raster source and dem raster source for terrain-rgb output
+        sources[`${styleId}-${output.name}`] = {
+          type: 'raster',
+          tiles: [tileUrl + `&pipeline=${output.name}`],
+          tileSize: 256,
+        };
+        sources[`${styleId}-${output.name}-dem`] = {
+          type: 'raster-dem',
+          tiles: [tileUrl + `&pipeline=${output.name}`],
+          tileSize: 256,
+        };
+      } else {
+        // Add raster source other outputs
+        sources[`${styleId}-${output.name}`] = {
+          type: 'raster',
+          tiles: [tileUrl + `&pipeline=${output.name}`],
+          tileSize: 256,
+        };
+      }
+
+      // Add layer for each source and default to the first layer
+      layers.push({
+        id: `${styleId}-${output.name}`,
+        type: 'raster',
+        source: `${styleId}-${output.name}`,
+        layout: { visibility: layers.length === 0 ? 'visible' : 'none' },
+      });
+    }
+  }
+
+  const style = { version: 8, sources, layers };
+
+  const data = Buffer.from(JSON.stringify(style));
+
+  const cacheKey = Etag.key(data);
+  if (Etag.isNotModified(req, cacheKey)) return NotModified();
+
+  const response = new LambdaHttpResponse(200, 'ok');
+  response.header(HttpHeader.ETag, cacheKey);
+  response.header(HttpHeader.CacheControl, 'no-store');
+  response.buffer(data, 'application/json');
+  req.set('bytes', data.byteLength);
+  return response;
+}
+
 export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<LambdaHttpResponse> {
   const apiKey = Validate.apiKey(req);
   const styleName = req.params.styleName;
@@ -117,7 +185,8 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
     if (tileSet == null) return NotFound();
     if (tileSet.type !== TileSetType.Raster) return NotFound();
-    return tileSetToStyle(req, tileSet, apiKey);
+    if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, apiKey);
+    else return tileSetToStyle(req, tileSet, apiKey);
   }
 
   // Prepare sources and add linz source

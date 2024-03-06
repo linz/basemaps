@@ -31,6 +31,7 @@ export interface TileUrlParams {
   config?: string | null;
   pipeline?: string | null;
   date?: FilterDate;
+  imageFormat?: string;
 }
 
 export function ensureBase58(s: null): null;
@@ -65,29 +66,31 @@ export const WindowUrl = {
 
   toTileUrl(params: TileUrlParams): string {
     const queryParams = new URLSearchParams();
+
     if (Config.ApiKey != null && Config.ApiKey !== '') queryParams.set('api', Config.ApiKey);
     if (params.config != null) queryParams.set('config', ensureBase58(params.config));
     if (params.pipeline != null) queryParams.set('pipeline', params.pipeline);
     if (params.date?.before != null) queryParams.set('date[before]', params.date.before);
 
+    const imageFormat = params.imageFormat ?? WindowUrl.ImageFormat;
     if (params.urlType === MapOptionType.Style) {
       if (params.tileMatrix.identifier !== GoogleTms.identifier)
         queryParams.set('tileMatrix', params.tileMatrix.identifier);
-      if (WindowUrl.ImageFormat !== 'webp') queryParams.set('format', WindowUrl.ImageFormat);
+      if (imageFormat !== 'webp') queryParams.set('format', imageFormat);
     }
 
     const q = '?' + queryParams.toString();
 
     const baseTileUrl = `${this.baseUrl()}/v1/tiles/${params.layerId}/${params.tileMatrix.identifier}`;
 
-    if (params.urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${WindowUrl.ImageFormat}${q}`;
+    if (params.urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${imageFormat}${q}`;
     if (params.urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${q}`;
     if (params.urlType === MapOptionType.Style)
       return `${this.baseUrl()}/v1/styles/${params.style ?? params.layerId}.json${q}`;
     if (params.urlType === MapOptionType.Wmts) return `${baseTileUrl}/WMTSCapabilities.xml${q}`;
     if (params.urlType === MapOptionType.Attribution) return `${baseTileUrl}/attribution.json${q}`;
     if (params.urlType === MapOptionType.TileWmts) {
-      return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${WindowUrl.ImageFormat}${q}`;
+      return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${imageFormat}${q}`;
     }
 
     throw new Error('Unknown url type: ' + params.urlType);
