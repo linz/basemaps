@@ -120,7 +120,7 @@ export async function tileSetOutputToStyle(
   if (tileSet.outputs) {
     //for loop output.
     for (const output of tileSet.outputs) {
-      const format = output.format?.length ? output.format[0] : 'webp';
+      const format = output.format?.[0] ?? 'webp';
       const urlBase = Env.get(Env.PublicUrlBase) ?? '';
       const tileUrl = `${urlBase}/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${format}${query}`;
 
