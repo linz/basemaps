@@ -256,16 +256,16 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     aEl.remove();
   };
 
-  selectLayer = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  selectLayer = (event: React.ChangeEvent<HTMLSelectElement>): void => {
     const layerId = event.target.value;
     const layers = this.props.map.getStyle().layers;
 
     // Always Set visible layer first before set others invisible
     this.props.map.setLayoutProperty(layerId, 'visibility', 'visible');
-    
+
     // Disable other unselected layers
     for (const layer of layers) {
-      if (layer.id != layerId) this.props.map.setLayoutProperty(layer.id, 'visibility', 'none');
+      if (layer.id !== layerId) this.props.map.setLayoutProperty(layer.id, 'visibility', 'none');
     }
   };
 
@@ -291,7 +291,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
-  renderOutputsDropdown(): ReactNode {
+  renderOutputsDropdown(): ReactNode | null {
     const layers = this.props.map.getStyle().layers;
     return (
       <div className="debug__info">
