@@ -84,32 +84,87 @@ export async function tileSetToStyle(
     `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`;
 
   const styleId = `basemaps-${tileSet.name}`;
-  let style;
+  const style = {
+    version: 8,
+    sources: { [styleId]: { type: 'raster', tiles: [tileUrl], tileSize: 256 } },
+    layers: [{ id: styleId, type: 'raster', source: styleId }],
+  };
+  const data = Buffer.from(JSON.stringify(style));
 
-  if (pipelineName === 'terrain-rgb') {
-    style = {
-      version: 8,
-      sources: {
-        [styleId]: { type: 'raster', tiles: [tileUrl], tileSize: 256 },
-        [styleId + '-terrain']: {
-          type: 'raster-dem',
-          tiles: [tileUrl],
+  const cacheKey = Etag.key(data);
+  if (Etag.isNotModified(req, cacheKey)) return NotModified();
+
+  const response = new LambdaHttpResponse(200, 'ok');
+  response.header(HttpHeader.ETag, cacheKey);
+  response.header(HttpHeader.CacheControl, 'no-store');
+  response.buffer(data, 'application/json');
+  req.set('bytes', data.byteLength);
+  return response;
+}
+
+export async function tileSetOutputToStyle(
+  req: LambdaHttpRequest<StyleGet>,
+  tileSet: ConfigTileSetRaster,
+  apiKey: string,
+): Promise<LambdaHttpResponse> {
+  const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
+  if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
+
+  const configLocation = ConfigLoader.extract(req);
+  const query = toQueryString({ config: configLocation, api: apiKey, ...getFilters(req) });
+
+  const styleId = `basemaps-${tileSet.name}`;
+  const sources: Sources = {};
+  const layers: Layer[] = [];
+
+  if (tileSet.outputs) {
+    //for loop output.
+    for (const output of tileSet.outputs) {
+      const format = output.format?.length ? output.format[0] : 'webp';
+      const urlBase = Env.get(Env.PublicUrlBase) ?? '';
+      const tileUrl = `${urlBase}/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${format}${query}`;
+
+      if (output.name === 'terrain-rgb') {
+        // Add both raster source and dem raster source for terrain-rgb output
+        sources[`${styleId}-${output.name}`] = {
+          type: 'raster',
+          tiles: [tileUrl + `&pipeline=${output.name}`],
           tileSize: 256,
-        },
-      },
-      layers: [{ id: styleId, type: 'raster', source: styleId }],
-      terrain: {
-        source: styleId + '-terrain',
-        exaggeration: 1,
-      },
-    };
-  } else {
-    style = {
-      version: 8,
-      sources: { [styleId]: { type: 'raster', tiles: [tileUrl], tileSize: 256 } },
-      layers: [{ id: styleId, type: 'raster', source: styleId }],
-    };
+        };
+        sources[`${styleId}-${output.name}-dem`] = {
+          type: 'raster-dem',
+          tiles: [tileUrl + `&pipeline=${output.name}`],
+          tileSize: 256,
+        };
+      } else {
+        // Add raster source other outputs
+        sources[`${styleId}-${output.name}`] = {
+          type: 'raster',
+          tiles: [tileUrl + `&pipeline=${output.name}`],
+          tileSize: 256,
+        };
+      }
+
+      // Add layer for each source and default to the first layer
+      if (layers.length) {
+        layers.push({
+          id: `${styleId}-${output.name}`,
+          type: 'raster',
+          source: `${styleId}-${output.name}`,
+          layout: { visibility: 'none' },
+        });
+      } else {
+        layers.push({
+          id: `${styleId}-${output.name}`,
+          type: 'raster',
+          source: `${styleId}-${output.name}`,
+          layout: { visibility: 'visible' },
+        });
+      }
+    }
   }
+
+  const style = { version: 8, sources, layers };
 
   const data = Buffer.from(JSON.stringify(style));
 
@@ -139,7 +194,8 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
     if (tileSet == null) return NotFound();
     if (tileSet.type !== TileSetType.Raster) return NotFound();
-    return tileSetToStyle(req, tileSet, apiKey);
+    if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, apiKey);
+    else return tileSetToStyle(req, tileSet, apiKey);
   }
 
   // Prepare sources and add linz source

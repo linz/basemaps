@@ -105,8 +105,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   ensureTerrainControl(): void {
     if (Config.map.debug['debug.screenshot']) return;
     if (Config.map.debug) {
-      const terrainSource =
-        this.map.getSource(`basemaps-${Config.map.style}-terrain`) ?? this.map.getSource('elevation-terrain');
+      const terrainSource = this.map.getSource('elevation-terrain');
       if (this.controlTerrain != null) return;
       if (terrainSource != null) {
         this.controlTerrain = new maplibre.TerrainControl({
@@ -124,9 +123,9 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   /**
    * Load elevation terrain for the aerial map in debug mode
    */
-  ensureElevationTerrain(): void {
+  addElevationTerrain = (): void => {
     if (!Config.map.debug) return;
-    if (Config.map.style === 'aerial') {
+    if (Config.map.style === 'aerial' && this.map.getSource('elevation-terrain') == null) {
       // Add elevation into terrain for aerial map
       this.map.addSource('elevation-terrain', {
         type: 'raster-dem',
@@ -137,12 +136,13 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
             layerId: 'elevation',
             config: Config.map.config,
             pipeline: 'terrain-rgb',
+            imageFormat: 'png',
           }),
         ],
         tileSize: 256,
       });
     }
-  }
+  };
 
   updateStyle = (): void => {
     this.ensureGeoControl();
@@ -161,8 +161,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     } else {
       this.map.setMaxBounds();
     }
-
-    this.ensureTerrainControl();
     // TODO check and only update when Config.map.layer changes.
     this.forceUpdate();
   };
@@ -250,17 +248,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     this.map.on('render', this.onRender);
     this.map.on('idle', this.removeOldLayers);
-    this.map.on('style.load', (): void => {
-      // Reload dynamic layers since they are lost on style change
-      const waiting = (): void => {
-        if (!this.map.isStyleLoaded()) {
-          setTimeout(waiting, 200);
-        } else {
-          this.ensureElevationTerrain();
-        }
-      };
-      waiting();
-    });
+    this.map.on('sourcedata', this.addElevationTerrain);
 
     onMapLoaded(this.map, () => {
       this._events.push(
@@ -272,6 +260,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       );
 
       this.updateStyle();
+      this.ensureTerrainControl();
       // Need to ensure the debug layer has access to the map
       this.forceUpdate();
     });

@@ -165,6 +165,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         {this.renderCogToggle()}
         {this.renderSourceToggle()}
         {this.renderTileToggle()}
+        {this.renderOutputsDropdown()}
       </div>
     );
   }
@@ -255,6 +256,19 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     aEl.remove();
   };
 
+  selectLayer = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const layerId = event.target.value;
+    const layers = this.props.map.getStyle().layers;
+
+    // Always Set visible layer first before set others invisible
+    this.props.map.setLayoutProperty(layerId, 'visibility', 'visible');
+    
+    // Disable other unselected layers
+    for (const layer of layers) {
+      if (layer.id != layerId) this.props.map.setLayoutProperty(layer.id, 'visibility', 'none');
+    }
+  };
+
   renderSourceToggle(): ReactNode {
     if (this.state.imagery == null) return null;
     return (
@@ -274,6 +288,22 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           </div>
         )}
       </Fragment>
+    );
+  }
+
+  renderOutputsDropdown(): ReactNode {
+    const layers = this.props.map.getStyle().layers;
+    return (
+      <div className="debug__info">
+        <label className="debug__label">Available Layers</label>
+        <div className="debug__value">
+          <select onChange={this.selectLayer}>
+            {layers.map((layer) => {
+              return <option key={layer.id}>{layer.id}</option>;
+            })}
+          </select>
+        </div>
+      </div>
     );
   }
 
