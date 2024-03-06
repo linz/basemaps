@@ -146,21 +146,13 @@ export async function tileSetOutputToStyle(
       }
 
       // Add layer for each source and default to the first layer
-      if (layers.length) {
-        layers.push({
-          id: `${styleId}-${output.name}`,
-          type: 'raster',
-          source: `${styleId}-${output.name}`,
-          layout: { visibility: 'none' },
-        });
-      } else {
-        layers.push({
-          id: `${styleId}-${output.name}`,
-          type: 'raster',
-          source: `${styleId}-${output.name}`,
-          layout: { visibility: 'visible' },
-        });
-      }
+      layers.push({
+        id: `${styleId}-${output.name}`,
+        type: 'raster',
+        source: `${styleId}-${output.name}`,
+        layout: { visibility: layers.length === 0 ?  'visible' : 'none' },
+      });
+    
     }
   }
 
