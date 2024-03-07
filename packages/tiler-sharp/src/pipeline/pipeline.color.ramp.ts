@@ -41,10 +41,7 @@ export class ColorRamp {
   }
 }
 
-// Stolen from https://github.com/andrewharvey/srtm-stylesheets/blob/master/stylesheets/color-ramps/srtm-Australia-color-ramp.gdaldem.txt
 export const ramp = new ColorRamp(DefaultColorRamp);
-
-console.log(ramp.get(0));
 
 export const PipelineColorRamp: Pipeline = {
   type: 'color-ramp',
