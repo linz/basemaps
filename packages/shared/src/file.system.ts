@@ -60,7 +60,7 @@ export const FsaLog = {
     this.requests.push(requestId);
     const startTime = performance.now();
     const res = await next(req);
-    LogConfig.get().debug(
+    LogConfig.get().trace(
       {
         source: req.source.url.href,
         offset: req.offset,

@@ -139,6 +139,7 @@ export const TileXyzRaster = {
       background: tileOutput.background ?? tileSet.background ?? DefaultBackground,
       resizeKernel: tileOutput.resizeKernel ?? tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
+      log: req.log,
     });
 
     req.set('layersUsed', res.layers);

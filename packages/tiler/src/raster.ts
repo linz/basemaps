@@ -22,7 +22,14 @@ export interface TileMakerContext {
   background: { r: number; g: number; b: number; alpha: number };
   /** Default resize parameters */
   resizeKernel: TileMakerResizeKernel;
+  /** Optional metrics to track */
   metrics?: Metrics;
+
+  /** optional logger for trace level metrics */
+  log?: {
+    level: string;
+    trace: (rec: Record<string, unknown>, msg: string) => void;
+  };
 }
 export type Composition = CompositionTiff | CompositionCotar;
 

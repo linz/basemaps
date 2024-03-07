@@ -4,30 +4,35 @@ import { Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
+import { extname } from 'path';
 
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
-const target = fsa.toUrl(`/home/blacha/tmp/imagery/southland-0.25-rural-2023/`);
-const tile = fromPath('/18/117833/146174.webp');
-
-const outputFormat = 'webp';
+// Render configuration
+const source = fsa.toUrl(`/home/blacha/data/elevation/christchurch_2020-2021/`);
+const tile = fromPath('/14/7898/8615.webp');
+const pipeline: string | null = 'color-ramp';
 let tileMatrix: TileMatrixSet | null = null;
 
-/** Convert a tile path /:z/:x/:y.png into a tile */
-function fromPath(s: string): Tile {
+/** Convert a tile path /:z/:x/:y.png into a tile & extension */
+function fromPath(s: string): Tile & { extension: string } {
+  const ext = extname(s).slice(1);
   const parts = s.split('.')[0].split('/').map(Number);
   if (s.startsWith('/')) parts.shift();
   if (parts.length !== 3) throw new Error(`Invalid tile path ${s}`);
-  return { z: parts[0], x: parts[1], y: parts[2] };
+  return { z: parts[0], x: parts[1], y: parts[2], extension: ext };
 }
 
 async function main(): Promise<void> {
   const log = LogConfig.get();
+  log.level = 'trace';
   const provider = new ConfigProviderMemory();
   setDefaultConfig(provider);
-  const { tileSet, imagery } = await initConfigFromUrls(provider, [target]);
+  const { imagery, tileSets } = await initConfigFromUrls(provider, [source]);
 
-  if (tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + target);
+  const tileSet = tileSets.find((f) => f.layers.length > 0);
+
+  if (tileSet == null || tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + source);
   log.info({ tileSet: tileSet.name, layers: tileSet.layers.length }, 'TileSet:Loaded');
 
   for (const im of imagery) {
@@ -46,11 +51,16 @@ async function main(): Promise<void> {
     tile,
     tileMatrix,
     tileSet: tileSet.id,
-    tileType: outputFormat,
+    tileType: tile.extension,
+    pipeline,
   });
+  const pipelineName = pipeline ? `-${pipeline}` : '';
 
-  await fsa.write(fsa.toUrl(`./${tile.z}_${tile.x}_${tile.y}.${outputFormat}`), Buffer.from(res.body, 'base64'));
-  log.info({ path: `./${tile.z}_${tile.x}_${tile.y}.${outputFormat}` }, 'Tile:Write');
+  const fileName = `./render/${tile.z}_${tile.x}_${tile.y}${pipelineName}.${tile.extension}`;
+  await fsa.write(fsa.toUrl(fileName), Buffer.from(res.body, 'base64'));
+  log.info({ path: fileName, ...request.timer.metrics }, 'Tile:Write');
 }
 
-main();
+main().catch((e) => {
+  LogConfig.get().fatal({ err: e }, 'Cli:Failed');
+});
