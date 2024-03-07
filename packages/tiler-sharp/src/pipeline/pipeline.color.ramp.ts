@@ -21,10 +21,11 @@ export class ColorRamp {
 
     for (let i = 0; i < this.ramps.length - 1; i++) {
       const ramp = this.ramps[i];
-      const rampNext = this.ramps[i + 1];
-      if (num >= rampNext.v) continue;
       if (num < ramp.v) continue;
       if (ramp.v === num) return ramp.color;
+
+      const rampNext = this.ramps[i + 1];
+      if (num >= rampNext.v) continue;
 
       const range = rampNext.v - ramp.v;
       const offset = num - ramp.v;
