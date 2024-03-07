@@ -110,6 +110,7 @@ export class Tiler {
     }
 
     const drawAtRegion = target.subtract(raster.tile);
+
     const composition: Composition = {
       type: 'tiff',
       asset: img.tiff,
