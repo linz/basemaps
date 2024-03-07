@@ -1,5 +1,5 @@
 import { FsaCache, FsaLog, LogConfig } from '@basemaps/shared';
-import { LambdaHttpResponse, lf } from '@linzjs/lambda';
+import { LambdaHttpRequest, LambdaHttpResponse, lf } from '@linzjs/lambda';
 
 import { tileAttributionGet } from './routes/attribution.js';
 import { configImageryGet, configTileSetGet } from './routes/config.js';
@@ -22,8 +22,28 @@ export const handler = lf.http(LogConfig.get());
 /** If the request takes too long, respond with a 408 timeout when there is approx 1 second remaining */
 handler.router.timeoutEarlyMs = 1_000;
 
+function randomTrace(req: LambdaHttpRequest): void {
+  // If the env is set to trace level always trace requests
+  if (process.env['TRACE']) {
+    req.log.level = 'trace';
+    return;
+  }
+
+  // Set the logging level based off a percent
+  const rand = Math.random();
+  // 1% trace
+  if (rand < 0.01) req.log.level = 'trace';
+  // 5% debug
+  else if (rand < 0.04) req.log.level = 'debug';
+  // everything else info
+  else req.log.level = 'info';
+}
+
 handler.router.hook('request', (req) => {
   FsaLog.reset();
+
+  randomTrace(req);
+
   req.set('name', 'LambdaTiler');
 });
 
