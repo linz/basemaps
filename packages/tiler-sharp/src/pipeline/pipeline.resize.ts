@@ -1,5 +1,5 @@
-import { Tiff } from '@basemaps/shared';
 import { CompositionTiff } from '@basemaps/tiler';
+import { Tiff } from '@cogeotiff/core';
 
 import { DecompressedInterleaved } from './decompressor.js';
 
