@@ -105,15 +105,12 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   ensureTerrainControl(): void {
     if (Config.map.debug['debug.screenshot']) return;
     if (Config.map.debug) {
-      const sources = Object.entries(this.map.getStyle().sources);
-      const rasterDem = sources.find((e) => e[1].type === 'raster-dem');
-      // const terrainSource = this.map.getSource('elevation-terrain');
-      // console.log(this.map.getStyle().sources);
+      const terrainSource = this.map.getSource('elevation-terrain');
       if (this.controlTerrain != null) return;
-      if (rasterDem != null) {
+      if (terrainSource != null) {
         this.controlTerrain = new maplibre.TerrainControl({
-          source: rasterDem[0],
-          exaggeration: 2.2,
+          source: terrainSource.id,
+          exaggeration: 1,
         });
         this.map.addControl(this.controlTerrain, 'top-left');
       }
