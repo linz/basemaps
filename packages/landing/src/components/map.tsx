@@ -166,7 +166,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   };
 
   updateVisibleLayers = (newLayers: string): void => {
-    if (Config.map.layerId !== 'aerial') return;
     if (Config.map.visibleLayers == null) Config.map.visibleLayers = newLayers;
     if (newLayers !== Config.map.visibleLayers) {
       Config.map.visibleLayers = newLayers;
@@ -257,7 +256,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         Config.map.on('tileMatrix', this.updateStyle),
         Config.map.on('layer', this.updateStyle),
         Config.map.on('bounds', this.updateBounds),
-        Config.map.on('visibleLayers', this.updateVisibleLayers),
+        // TODO: Disable updateVisibleLayers for now before we need implement date range slider
+        // Config.map.on('visibleLayers', this.updateVisibleLayers),
       );
 
       this.updateStyle();

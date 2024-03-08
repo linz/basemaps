@@ -189,6 +189,19 @@ export class DebugMap {
     else document.body.style.backgroundColor = '';
   }
 
+  setTerrainShown(map: maplibregl.Map, terrainOn: boolean): void {
+    Config.map.setDebug('debug.terrain', terrainOn);
+    const terrainSource = map.getSource('elevation-terrain');
+    if (terrainSource) {
+      map.setTerrain({
+        source: terrainSource.id,
+        exaggeration: 1,
+      });
+    } else {
+      Config.map.setDebug('debug.terrain', false);
+    }
+  }
+
   getTileServerUrl(tileServer: 'osm' | 'linz-aerial'): string {
     if (tileServer === 'osm') return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
     if (tileServer === 'linz-aerial') {

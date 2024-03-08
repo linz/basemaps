@@ -94,6 +94,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
+    this.debugMap.setTerrainShown(this.props.map, Config.map.debug['debug.terrain']);
+    this.setVisibleLayer(Config.map.debug['debug.layer']);
     this.renderWMTS();
   }
 
@@ -257,8 +259,14 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     aEl.remove();
   };
 
-  selectLayer = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+  selectOutputLayer = (event: React.ChangeEvent<HTMLSelectElement>): void => {
     const layerId = event.target.value;
+    this.setVisibleLayer(layerId);
+  };
+
+  setVisibleLayer(layerId: string | null): void {
+    if (layerId == null) return;
+    Config.map.setDebug('debug.layer', layerId);
     const layers = this.props.map.getStyle().layers;
 
     // Always Set visible layer first before set others invisible
@@ -268,7 +276,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     for (const layer of layers) {
       if (layer.id !== layerId) this.props.map.setLayoutProperty(layer.id, 'visibility', 'none');
     }
-  };
+  }
 
   renderSourceToggle(): ReactNode {
     if (this.state.imagery == null) return null;
@@ -298,11 +306,12 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     if (style.layers.length <= 1) return;
     // Disable for vector map
     if ((Object.values(style.sources) as unknown as Array<Source>).find((s) => s.type === 'vector')) return;
+    const selectedLayer = Config.map.debug['debug.layer'] ? Config.map.debug['debug.layer'] : style.layers[0].id;
     return (
       <div className="debug__info">
         <label className="debug__label">Available Layers</label>
         <div className="debug__value">
-          <select onChange={this.selectLayer}>
+          <select onChange={this.selectOutputLayer} value={selectedLayer}>
             {style.layers.map((layer) => {
               return <option key={layer.id}>{layer.id}</option>;
             })}
