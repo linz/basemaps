@@ -112,14 +112,28 @@ function resizeBilinear(
       const minX = Math.floor(sourceX);
       const maxX = minX + 1;
 
+      const outPx = y * target.width + x;
+
       const minXMinY = data.pixels[minY * data.width + minX];
-      if (minXMinY === noData) continue;
+      if (minXMinY === noData) {
+        outputBuffer[outPx] = noData;
+        continue;
+      }
       const maxXMinY = data.pixels[minY * data.width + maxX];
-      if (maxXMinY === noData) continue;
+      if (maxXMinY === noData) {
+        outputBuffer[outPx] = noData;
+        continue;
+      }
       const minXMaxY = data.pixels[maxY * data.width + minX];
-      if (minXMaxY === noData) continue;
+      if (minXMaxY === noData) {
+        outputBuffer[outPx] = noData;
+        continue;
+      }
       const maxXMaxY = data.pixels[maxY * data.width + maxX];
-      if (maxXMaxY === noData) continue;
+      if (maxXMaxY === noData) {
+        outputBuffer[outPx] = noData;
+        continue;
+      }
 
       const xDiff = sourceX - minX;
       const yDiff = sourceY - minY;
@@ -128,9 +142,9 @@ function resizeBilinear(
       const weightC = (1 - xDiff) * yDiff;
       const weightD = xDiff * yDiff;
 
-      const py = minXMinY * weightA + maxXMinY * weightB + minXMaxY * weightC + maxXMaxY * weightD;
+      const pixel = minXMinY * weightA + maxXMinY * weightB + minXMaxY * weightC + maxXMaxY * weightD;
 
-      outputBuffer[y * target.width + x] = py;
+      outputBuffer[outPx] = pixel;
     }
   }
 

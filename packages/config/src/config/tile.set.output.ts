@@ -18,7 +18,7 @@ export const DefaultColorRampOutput: ConfigTileSetRasterOutput = {
   name: 'color-ramp',
   pipeline: [{ type: 'color-ramp' }],
   // Taken from 0 of DefaultColorRamp
-  background: { r: 167, g: 205, b: 228, alpha: 1 },
+  background: { r: 172, g: 204, b: 226, alpha: 1 },
 } as const;
 
 export const DefaultColorRamp = `-8764 0 0 0 255
