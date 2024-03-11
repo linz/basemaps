@@ -130,7 +130,7 @@ export class Tiler {
     if (source.width !== target.width || source.height !== target.height) {
       const scaleX = target.width / source.width;
       const scaleY = target.height / source.height;
-      composition.resize = { width: target.width, height: target.height, scaleX, scaleY };
+      composition.resize = { width: target.width, height: target.height, scaleX, scaleY, scale: scaleFactor };
     }
 
     // If the output XYZ tile needs a piece of a COG tile, extract the speicific
