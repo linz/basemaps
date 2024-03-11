@@ -11,7 +11,7 @@ import { Metrics } from '@linzjs/metrics';
 import Sharp from 'sharp';
 
 import { Decompressors } from './pipeline/decompressor.lerc.js';
-import { cropResizeNearest } from './pipeline/pipeline.resize.js';
+import { cropResize } from './pipeline/pipeline.resize.js';
 import { Pipelines } from './pipeline/pipelines.js';
 
 function notEmpty<T>(value: T | null | undefined): value is T {
@@ -168,7 +168,7 @@ export class TileMakerSharp implements TileMaker {
     let result = bytes;
     if (ctx.pipeline) {
       const resizePerf = performance.now();
-      result = cropResizeNearest(comp.asset, result, comp);
+      result = cropResize(comp.asset, result, comp, 'bilinear');
       ctx.log?.trace(
         {
           pipeline: 'resize',

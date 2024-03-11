@@ -55,6 +55,8 @@ export interface CompositionTiff {
     scaleX: number;
     /** Scale height  < 1 to zoom in, > 1 to zoom out */
     scaleY: number;
+    /** desired scale */
+    scale: number;
   };
   /** Crop after the resize */
   crop?: Size & Point;
