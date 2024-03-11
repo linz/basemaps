@@ -19,7 +19,7 @@ export interface DebugState {
   /** Should the date range slider be shown */
   'debug.date': boolean;
   /** Should the terrain ben shown */
-  'debug.terrain': boolean;
+  'debug.elevation': string | null;
   /** What layer should be visible only */
   'debug.layer': string | null;
 }
@@ -35,7 +35,7 @@ export const DebugDefaults: DebugState = {
   'debug.layer.linz-topographic': 0,
   'debug.layer.osm': 0,
   'debug.date': false,
-  'debug.terrain': false,
+  'debug.elevation': null,
   'debug.layer': null,
 };
 
@@ -73,7 +73,7 @@ export class ConfigDebug {
     isChanged = setNum(opt, 'debug.layer.linz-topographic', url.get('debug.layer.linz-topographic')) || isChanged;
     isChanged = setNum(opt, 'debug.layer.osm', url.get('debug.layer.osm')) || isChanged;
     isChanged = setKey(opt, 'debug.date', url.get('debug.date') != null) || isChanged;
-    isChanged = setKey(opt, 'debug.terrain', url.get('debug.terrain') != null) || isChanged;
+    isChanged = setKey(opt, 'debug.elevation', url.get('debug.elevation')) || isChanged;
     isChanged = setKey(opt, 'debug.layer', url.get('debug.layer')) || isChanged;
     return isChanged;
   }

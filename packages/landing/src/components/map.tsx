@@ -100,34 +100,13 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   }
 
   /**
-   * Only enable terrain on debug mode
-   */
-  ensureTerrainControl(): void {
-    if (Config.map.debug['debug.screenshot']) return;
-    if (Config.map.debug) {
-      const terrainSource = this.map.getSource('elevation-terrain');
-      if (this.controlTerrain != null) return;
-      if (terrainSource != null) {
-        this.controlTerrain = new maplibre.TerrainControl({
-          source: terrainSource.id,
-          exaggeration: 1,
-        });
-        this.map.addControl(this.controlTerrain, 'top-left');
-      }
-    } else {
-      if (this.controlScale == null) return;
-      this.map.removeControl(this.controlScale);
-    }
-  }
-
-  /**
    * Load elevation terrain for the aerial map in debug mode
    */
   addElevationTerrain = (): void => {
     if (!Config.map.debug) return;
-    if (Config.map.style === 'aerial' && this.map.getSource('elevation-terrain') == null) {
+    if (this.map.getSource('basemaps-elevation-terrain') == null) {
       // Add elevation into terrain for aerial map
-      this.map.addSource('elevation-terrain', {
+      this.map.addSource('basemaps-elevation-terrain', {
         type: 'raster-dem',
         tiles: [
           WindowUrl.toTileUrl({
@@ -261,7 +240,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       );
 
       this.updateStyle();
-      this.ensureTerrainControl();
       // Need to ensure the debug layer has access to the map
       this.forceUpdate();
     });
