@@ -48,7 +48,7 @@ describe('TileCreation', () => {
     const topLeft = layer0.find((f) => f.source.x === 0 && f.source.y === 0);
     assert.deepEqual(topLeft?.source, { x: 0, y: 0, imageId: 0, width: 16, height: 16 });
     assert.equal(topLeft?.asset.source.url, tiff.source.url);
-    assert.deepEqual(topLeft?.resize, { width: 32, height: 32, scaleX: 2, scaleY: 2 });
+    assert.deepEqual(topLeft?.resize, { width: 32, height: 32, scaleX: 2, scaleY: 2, scale: 1.9999999999999982 });
     assert.equal(topLeft?.x, 64);
     assert.equal(topLeft?.y, 64);
     await tiff?.source.close?.();

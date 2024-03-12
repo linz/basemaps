@@ -11,11 +11,21 @@ import type { RequestSigner } from '@smithy/types';
 import { Env } from './const.js';
 import { LogConfig } from './log.js';
 
-export const s3Fs = new FsAwsS3(new S3Client());
+export const s3Fs = new FsAwsS3(
+  new S3Client({
+    /**
+     * We buckets in multiple regions we do not know ahead of time which bucket is in what region
+     *
+     * So the S3 Client will have to follow the endpoints, this adds a bit of extra latency as requests have to be retried
+     */
+    followRegionRedirects: true,
+  }),
+);
 
 // For public URLS use --no-sign-request
 export const s3FsPublic = new FsAwsS3(
   new S3Client({
+    followRegionRedirects: true,
     signer: {
       sign: async (req) => req,
     } as RequestSigner,
@@ -60,7 +70,7 @@ export const FsaLog = {
     this.requests.push(requestId);
     const startTime = performance.now();
     const res = await next(req);
-    LogConfig.get().debug(
+    LogConfig.get().trace(
       {
         source: req.source.url.href,
         offset: req.offset,

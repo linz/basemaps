@@ -78,7 +78,7 @@ describe('tiler.test', () => {
       y: 0,
       x: 64,
       extract: { width: 512, height: 388 },
-      resize: { width: 256, height: 194, scaleX: 0.5, scaleY: 0.5 },
+      resize: { width: 256, height: 194, scaleX: 0.5, scaleY: 0.5, scale: 0.5 },
       crop,
     });
 

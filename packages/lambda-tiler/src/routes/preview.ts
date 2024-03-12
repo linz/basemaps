@@ -147,6 +147,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
     format: tileOutput.format?.[0] ?? 'webp', // default to the first output format if defined or webp
     background: tileOutput.background ?? ctx.tileSet.background ?? DefaultBackground,
     resizeKernel: tileOutput.resizeKernel ?? ctx.tileSet.resizeKernel ?? DefaultResizeKernel,
+    log: req.log,
   };
 
   // Load all the tiff tiles and resize/them into the correct locations

@@ -11,6 +11,7 @@ import { Metrics } from '@linzjs/metrics';
 import Sharp from 'sharp';
 
 import { Decompressors } from './pipeline/decompressor.lerc.js';
+import { cropResize } from './pipeline/pipeline.resize.js';
 import { Pipelines } from './pipeline/pipelines.js';
 
 function notEmpty<T>(value: T | null | undefined): value is T {
@@ -160,45 +161,51 @@ export class TileMakerSharp implements TileMaker {
   async composeTilePipeline(comp: CompositionTiff, ctx: TileMakerContext): Promise<SharpOverlay | null> {
     const tile = await comp.asset.images[comp.source.imageId].getTile(comp.source.x, comp.source.y);
     if (tile == null) return null;
-
+    const tiffTile = { imageId: comp.source.imageId, x: comp.source.x, y: comp.source.y };
     const bytes = await Decompressors[tile.compression]?.bytes(comp.asset, tile.bytes);
     if (bytes == null) throw new Error('Failed to decompress: ' + comp.asset.source.url);
 
     let result = bytes;
     if (ctx.pipeline) {
+      const resizePerf = performance.now();
+      result = cropResize(comp.asset, result, comp, 'bilinear');
+      ctx.log?.trace(
+        {
+          pipeline: 'resize',
+          source: comp.asset.source.url,
+          isCrop: comp.crop != null,
+          isResize: comp.resize != null,
+          isExtract: comp.extract != null,
+          tiffTile,
+          duration: performance.now() - resizePerf,
+        },
+        'pipeline:resize',
+      );
+
       for (const pipe of ctx.pipeline) {
+        const pipelineStart = performance.now();
         result = await Pipelines[pipe.type]?.process(comp.asset, result);
+        ctx.log?.trace(
+          {
+            pipeline: pipe.type,
+            source: comp.asset.source.url,
+            tiffTile,
+            duration: performance.now() - pipelineStart,
+          },
+          'pipeline:' + pipe.type,
+        );
+
         if (result == null) throw new Error(`Failed to process pipeline:${pipe.type} on ${comp.asset.source.url}`);
       }
     }
 
     if (result.depth !== 'uint8') throw new Error('Expected RGBA image output');
-    const sharp = Sharp(result.pixels, {
-      raw: { width: result.width, height: result.height, channels: result.channels as 4 },
-    });
 
-    // Extract the vars to make it easier to reference later
-    const { extract, resize, crop } = comp;
-
-    // FIXME: extract should be run before the pipelines
-    if (extract) sharp.extract({ top: 0, left: 0, width: extract.width, height: extract.height });
-
-    if (resize) {
-      const resizeOptions = {
-        fit: Sharp.fit.cover,
-        kernel: resize.scaleX > 1 ? ctx.resizeKernel.in : ctx.resizeKernel.out,
-      };
-      sharp.resize(resize.width, resize.height, resizeOptions);
-    }
-
-    if (crop) sharp.extract({ top: crop.y, left: crop.x, width: crop.width, height: crop.height });
-
-    const ret = await sharp.raw().toBuffer({ resolveWithObject: true });
     return {
-      input: ret.data,
+      input: Buffer.from(result.pixels),
       top: comp.y,
       left: comp.x,
-      raw: { width: ret.info.width, height: ret.info.height, channels: ret.info.channels },
+      raw: { width: result.width, height: result.height, channels: result.channels as 1 },
     };
   }
 
