@@ -11,6 +11,13 @@ export interface LonLatZoom extends LonLat {
   zoom: number;
 }
 
+export interface Camera {
+  bearing: number;
+  pitch: number;
+}
+
+export type MapPosition = LonLatZoom & Camera;
+
 export interface LocationQueryConfig {
   /**
    * Style name which is generally a `tileSetId`
@@ -61,8 +68,16 @@ export const LocationSlug = {
     };
   },
 
+  cameraStr(camera?: Camera): string {
+    let str = '';
+    if (camera == null) return str;
+    if (camera.bearing !== 0) str += `,b${camera.bearing}`;
+    if (camera.pitch !== 0) str += `,p${camera.pitch}`;
+    return str;
+  },
+
   /**
-   * Encode a location into the format `@${lat},${lon},z${zoom}`
+   * Encode a location into the format `@${lat},${lon},z${zoom},b${bearing},p${pitch}`
    *
    * This will truncate the lat, lon and zoom with {@link LocationSlug.truncateLatLon}
    *
@@ -72,9 +87,9 @@ export const LocationSlug = {
    * @-39.30426,174.07941,z13.5
    * ```
    */
-  toSlug(loc: LonLatZoom): string {
+  toSlug(loc: LonLatZoom, camera?: Camera): string {
     const fixed = LocationSlug.truncateLatLon(loc);
-    return `@${fixed.lat},${fixed.lon},z${fixed.zoom}`;
+    return `@${fixed.lat},${fixed.lon},z${fixed.zoom}${this.cameraStr(camera)}`;
   },
 
   /**
@@ -96,19 +111,23 @@ export const LocationSlug = {
    * - -90 <= lat <= 90
    * - -190 <= lon <= 180
    * - 0 <= zoom <= 32
+   * - 0 <= bearing <= 360
+   * - -60 <= pitch <= 60
    *
    * @example
    *
    * ```
-   * /@-39.3042625,174.0794181,z22
+   * /@-39.3042625,174.0794181,z22,b225,p12.5
    * #@-39.30426,174.07941,z13.5
    * ```
    *
    * @returns location if parsed and validates, null otherwise
    */
-  fromSlug(str: string): LonLatZoom | null {
-    const output: Partial<LonLatZoom> = {};
-    const [latS, lonS, zoomS] = removeLocationPrefix(str).split(',');
+  fromSlug(str: string): MapPosition | null {
+    const output: Partial<MapPosition> = {};
+    const splits = removeLocationPrefix(str).split(',');
+    const [latS, lonS, zoomS] = splits.slice(0, 3);
+    const camera = splits.slice(3);
 
     const lat = parseFloat(latS);
     if (isNaN(lat) || lat < -90 || lat > 90) return null;
@@ -122,7 +141,22 @@ export const LocationSlug = {
     if (zoom == null || isNaN(zoom) || zoom < 0 || zoom > 32) return null;
     output.zoom = zoom;
 
-    return output as LonLatZoom;
+    for (const c of camera) {
+      if (c.startsWith('b')) {
+        const bearing = parseFloat(c.slice(1));
+        if (isNaN(bearing) || bearing < 0 || bearing > 360) return null;
+        output.bearing = bearing;
+      } else if (c.startsWith('p')) {
+        const pitch = parseFloat(c.slice(1));
+        if (isNaN(pitch) || pitch < -60 || pitch > 60) return null;
+        output.pitch = pitch;
+      }
+    }
+
+    if (output.bearing == null) output.bearing = 0;
+    if (output.pitch == null) output.pitch = 0;
+
+    return output as MapPosition;
   },
 
   /*

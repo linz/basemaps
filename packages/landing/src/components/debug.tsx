@@ -62,7 +62,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     onMapLoaded(map, () => {
       Config.map.on('change', () => {
         if (this.props.map == null) return;
-        const loc = LocationUrl.toSlug(Config.map.getLocation(this.props.map));
+        const loc = LocationUrl.toSlug(Config.map.getLocation(this.props.map), Config.map.getCamera(this.props.map));
         const locationSearch = '?' + MapConfig.toUrl(Config.map);
         window.history.replaceState(null, '', loc + locationSearch);
         this.updateFromConfig();
@@ -347,7 +347,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     if (Config.map.isVector) return;
     // Disable dropdown if non dem source
     const sourceIds = this.getSourcesIds('raster-dem');
-    if (sourceIds.length == 0) return;
+    if (sourceIds.length === 0) return;
 
     // Default to turn off terrain dem
     const terrain = this.props.map.getTerrain();

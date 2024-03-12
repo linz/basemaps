@@ -32,6 +32,8 @@ export class MapSwitcher extends Component {
       style,
       center: [location.lon, location.lat], // starting position [lon, lat]
       zoom: location.zoom, // starting zoom
+      bearing: cfg.location.bearing,
+      pitch: cfg.location.pitch,
       attributionControl: false,
     });
 
@@ -76,6 +78,8 @@ export class MapSwitcher extends Component {
 
     this.map.setZoom(Math.max(location.zoom - 4, 0));
     this.map.setCenter([location.lon, location.lat]);
+    this.map.setBearing(Config.map.location.bearing);
+    this.map.setPitch(Config.map.location.pitch);
     this.forceUpdate();
   };
 

@@ -14,6 +14,13 @@ export interface MapLocation extends LonLat {
   zoom: number;
 }
 
+export interface MapCamera {
+  bearing: number;
+  pitch: number;
+}
+
+export type MapPosition = MapLocation & MapCamera;
+
 export const enum MapOptionType {
   TileRaster = 'raster',
   Style = 'style',

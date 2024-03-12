@@ -31,7 +31,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
   controlScale?: maplibre.ScaleControl | null;
   controlGeo?: maplibregl.GeolocateControl | null;
-  controlTerrain?: maplibregl.TerrainControl | null;
 
   updateLocation = (): void => {
     if (this.ignoreNextLocationUpdate) {
@@ -41,6 +40,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const location = Config.map.location;
     this.map.setZoom(location.zoom);
     this.map.setCenter([location.lon, location.lat]);
+    this.map.setBearing(location.bearing);
+    this.map.setPitch(location.pitch);
   };
 
   updateBounds = (bounds: maplibregl.LngLatBoundsLike): void => {
@@ -127,13 +128,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.ensureGeoControl();
     this.ensureScaleControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-    const style = tileGrid.getStyle(
-      Config.map.layerId,
-      Config.map.style,
-      undefined,
-      Config.map.filter.date,
-      Config.map.pipeline,
-    );
+    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
     this.map.setStyle(style);
     if (Config.map.tileMatrix !== GoogleTms) {
       this.map.setMaxBounds([-179.9, -85, 179.9, 85]);
@@ -159,7 +154,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
               layerId: Config.map.layerId,
               config: Config.map.config,
               date: Config.map.filter.date,
-              pipeline: Config.map.pipeline,
             }),
           ],
           tileSize: 256,
@@ -202,7 +196,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (this.el == null) throw new Error('Unable to find #map element');
     const cfg = Config.map;
     const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
-    const style = tileGrid.getStyle(cfg.layerId, cfg.style, cfg.config, undefined, cfg.pipeline);
+    const style = tileGrid.getStyle(cfg.layerId, cfg.style, cfg.config);
     const location = locationTransform(cfg.location, cfg.tileMatrix, GoogleTms);
 
     this.map = new maplibre.Map({
@@ -210,6 +204,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       style,
       center: [location.lon, location.lat], // starting position [lon, lat]
       zoom: location.zoom, // starting zoom
+      bearing: cfg.location.bearing,
+      pitch: cfg.location.pitch,
       attributionControl: false,
     });
 
@@ -278,11 +274,12 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   setLocationUrl(): void {
     this.updateUrlTimer = null;
     const location = Config.map.getLocation(this.map);
+    const camera = Config.map.getCamera(this.map);
 
     this.ignoreNextLocationUpdate = true;
-    Config.map.setLocation(location);
+    Config.map.setPosition({ ...location, ...camera });
 
-    const path = LocationUrl.toSlug(location);
+    const path = LocationUrl.toSlug(location, camera);
     const url = new URL(window.location.href);
     url.pathname = path;
     url.hash = ''; // Ensure the hash is removed, to ensure the redirect from #@location to /@location

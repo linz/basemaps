@@ -15,13 +15,13 @@ import { MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
-import { ensureBase58, MapLocation, MapOptionType, WindowUrl } from './url.js';
+import { ensureBase58, MapCamera, MapLocation, MapOptionType, MapPosition, WindowUrl } from './url.js';
 
 /** Default center point if none provided */
-const DefaultCenter: Record<string, MapLocation> = {
-  [GoogleTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 5 },
-  [Nztm2000Tms.identifier]: { lat: -41.277848, lon: 174.6763921, zoom: 3 },
-  [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 3 },
+const DefaultCenter: Record<string, MapPosition> = {
+  [GoogleTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 5, bearing: 0, pitch: 0 },
+  [Nztm2000Tms.identifier]: { lat: -41.277848, lon: 174.6763921, zoom: 3, bearing: 0, pitch: 0 },
+  [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 3, bearing: 0, pitch: 0 },
 };
 
 export interface FilterDate {
@@ -32,14 +32,13 @@ export interface Filter {
 }
 
 export interface MapConfigEvents {
-  location: [MapLocation];
+  location: [MapPosition];
   tileMatrix: [TileMatrixSet];
   layer: [string, string | null | undefined];
   bounds: [LngLatBoundsLike];
   filter: [Filter];
   change: [];
   visibleLayers: [string];
-  pipeline: [string | null | undefined];
 }
 
 export class MapConfig extends Emitter<MapConfigEvents> {
@@ -63,8 +62,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   }
 
   /** Map location in WGS84 */
-  _location?: MapLocation;
-  get location(): MapLocation {
+  _location?: MapPosition;
+  get location(): MapPosition {
     if (this._location == null) {
       window.addEventListener('popstate', () => {
         const location = {
@@ -74,7 +73,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
           ...LocationUrl.fromSlug(window.location.hash),
           ...LocationUrl.fromSlug(window.location.pathname),
         };
-        this.setLocation(location);
+        this.setPosition(location);
       });
       this.updateFromUrl();
       this._location = {
@@ -125,7 +124,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const style = urlParams.get('s') ?? urlParams.get('style');
     const config = urlParams.get('c') ?? urlParams.get('config');
     const layerId = urlParams.get('i') ?? 'aerial';
-    const pipeline = urlParams.get('pipeline');
     const date = this.getDateRangeFromUrl(urlParams);
     if (this.filter.date.before !== date.before) {
       this.filter.date = date;
@@ -146,12 +144,10 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
-    this.pipeline = pipeline;
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
     this.emit('tileMatrix', this.tileMatrix);
     this.emit('layer', this.layerId, this.style);
-    this.emit('pipeline', this.pipeline);
     if (previousUrl !== MapConfig.toUrl(this)) this.emit('change');
   }
 
@@ -161,7 +157,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('tileMatrix', opts.tileMatrix.identifier);
     // Config by far the longest so make it the last parameter
-    if (opts.pipeline) urlParams.append('pipeline', opts.pipeline);
     if (opts.config) urlParams.append('config', ensureBase58(opts.config));
 
     ConfigDebug.toUrl(opts.debug, urlParams);
@@ -187,6 +182,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return Config.map.transformLocation(center.lat, center.lng, zoom);
   }
 
+  getCamera(map: maplibregl.Map): MapCamera {
+    const bearing = map.getBearing();
+    const pitch = map.getPitch();
+    return { bearing, pitch };
+  }
+
   transformLocation(lat: number, lon: number, zoom: number): MapLocation {
     return locationTransform({ lat, lon, zoom }, GoogleTms, this.tileMatrix);
   }
@@ -196,6 +197,17 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.location.lat = l.lat;
     this.location.lon = l.lon;
     this.location.zoom = l.zoom;
+  }
+
+  setCamera(c: MapCamera): void {
+    if (c.bearing === this.location.bearing && c.pitch === this.location.pitch) return;
+    this.location.bearing = c.bearing;
+    this.location.pitch = c.pitch;
+  }
+
+  setPosition(p: MapPosition): void {
+    this.setLocation(p);
+    this.setCamera(p);
     this.emit('location', this.location);
     this.emit('change');
   }
@@ -226,13 +238,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.debug[key] = value;
     this.emit('change');
   }
-
-  setPipeline(pipeline: string): void {
-    if (this.pipeline === pipeline) return;
-    this.pipeline = pipeline;
-    this.emit('pipeline', this.pipeline);
-    this.emit('change');
-  }
 }
 
 export interface LayerInfo {
@@ -248,6 +253,7 @@ export interface LayerInfo {
   /** What projections are enabled for this layer */
   projections: Set<EpsgCode>;
 }
+
 async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
   const output: Map<string, LayerInfo> = new Map();
 
