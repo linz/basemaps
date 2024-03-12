@@ -1,5 +1,5 @@
 import { handler } from '@basemaps/lambda-tiler';
-import { fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
+import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
 import { LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
@@ -46,7 +46,8 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
   if (landingLocation == null) {
     logger.warn('Server:Landing:Failed');
   } else {
-    const root = path.join(path.dirname(landingLocation), '..', 'dist');
+    const root = path.join(path.dirname(landingLocation), '..', 'dist/');
+    if (process.env[Env.StaticAssetLocation] == null) process.env[Env.StaticAssetLocation] = root;
     logger.info({ path: root }, 'Server:Landing');
     BasemapsServer.register(fastifyStatic, { root });
   }
