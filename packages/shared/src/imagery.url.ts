@@ -15,33 +15,63 @@ export function getImageryCenterZoom(im: ConfigImagery, previewSize: Size): { la
   if (tms == null) throw new Error(`Failed to lookup tileMatrix: ${im.tileMatrix}`);
   const proj = Projection.get(tms);
   const centerLatLon = proj.toWgs84([center.x, center.y]);
-  const targetZoom = Math.max(tms.findBestZoom(bestAspect) - 7, 0);
+  const targetZoom = Math.max(tms.findBestZoom(bestAspect) - 12, 0);
   return { lat: centerLatLon[1], lon: centerLatLon[0], zoom: targetZoom };
 }
 
-export function getPreviewUrl(
-  im: ConfigImagery,
-  previewSize: Size = PreviewSize,
-  pipeline?: string,
-): {
+export interface PreviewConfig {
+  /** imagery to create a preview URL for */
+  imagery: ConfigImagery;
+  /** output preview size */
+  size?: Size;
+  /** optional configuration location */
+  config?: string;
+  /** optional pipeline to use */
+  pipeline?: string;
+}
+
+export interface PreviewResult {
+  /**
+   * relative URL to the preview location
+   *
+   * @example
+   *
+   * "/v1/preview/..."
+   */
   url: string;
+  /**
+   * standardized name of the layer
+   */
   name: string;
-  locationHash: string;
+  /**
+   * location slug useful for basemaps links
+   *
+   * @example "@-36.5518610,174.8770907,z8"
+   */
+  slug: string;
+  /**
+   * Components of the slug broken out into their parts
+   */
   location: { lat: number; lon: number; zoom: number };
-} {
-  const location = getImageryCenterZoom(im, previewSize);
+}
+
+export function getPreviewUrl(ctx: PreviewConfig): PreviewResult {
+  const location = getImageryCenterZoom(ctx.imagery, ctx.size ?? PreviewSize);
   const targetZoom = location.zoom;
   const lat = location.lat.toFixed(7);
   const lon = location.lon.toFixed(7);
-  const locationHash = `@${lat},${lon},z${location.zoom}`;
+  const slug = `@${lat},${lon},z${location.zoom}`;
 
-  const query = pipeline ? `?pipeline=${pipeline}` : '';
+  const urlSearch = new URLSearchParams();
+  if (ctx.config) urlSearch.set('config', ctx.config);
+  if (ctx.pipeline) urlSearch.set('pipeline', ctx.pipeline);
+  const query = urlSearch.size > 0 ? '?' + urlSearch.toString() : '';
 
-  const name = standardizeLayerName(im.name);
+  const name = standardizeLayerName(ctx.imagery.name);
   return {
     name,
     location,
-    locationHash,
-    url: `/v1/preview/${name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}${query}`,
+    slug,
+    url: `/v1/preview/${name}/${ctx.imagery.tileMatrix}/${targetZoom}/${lon}/${lat}${query}`,
   };
 }

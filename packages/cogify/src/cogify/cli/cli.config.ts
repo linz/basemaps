@@ -1,7 +1,6 @@
 import { base58, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
-import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config-loader';
-import { Projection, TileMatrixSets } from '@basemaps/geo';
-import { fsa, urlToString } from '@basemaps/shared';
+import { initImageryFromTiffUrl } from '@basemaps/config-loader';
+import { fsa, getPreviewUrl, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, positional } from 'cmd-ts';
@@ -51,9 +50,8 @@ export const BasemapsCogifyConfigCommand = command({
 
     metrics.start('imagery:load');
     const im = await initImageryFromTiffUrl(args.path, q, undefined, logger);
-    const ts = provider.imageryToTileSetByName(im) as ConfigTileSetRaster;
+    const ts = ConfigProviderMemory.imageryToTileSet(im) as ConfigTileSetRaster;
     provider.put(im);
-    provider.put(ts);
     metrics.end('imagery:load');
 
     logger.info({ files: im.files.length, titles: im.title }, 'ImageryConfig:Loaded');
@@ -64,27 +62,13 @@ export const BasemapsCogifyConfigCommand = command({
     await fsa.write(outputPath, await gzipPromise(JSON.stringify(config)));
 
     const configPath = base58.encode(Buffer.from(outputPath.href));
-    const location = getImageryCenterZoom(im);
-    const targetZoom = location.zoom;
-    const lat = location.lat.toFixed(7);
-    const lon = location.lon.toFixed(7);
-    const locationHash = `@${lat},${lon},z${location.zoom - 1}`;
-
-    const urlSearch = new URLSearchParams({ config: configPath });
 
     // previews default to webp, so find the first output that supports web to make our life easier
     const output = ts.outputs?.find((f) => f.format == null || f.format.includes('webp'));
-    if (output) urlSearch.set('pipeline', output.name);
+    const p = getPreviewUrl({ imagery: im, config: configPath, pipeline: output?.name });
 
-    const url = new URL(
-      `/${locationHash}?i=${ts.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`,
-      args.host,
-    );
-
-    const urlPreview = new URL(
-      `/v1/preview/${ts.name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}?${urlSearch.toString()}`,
-      args.host,
-    );
+    const url = new URL(`/${p.slug}?style=${p.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`, args.host);
+    const urlPreview = new URL(p.url, args.host);
 
     logger.info(
       {
@@ -110,13 +94,3 @@ export const BasemapsCogifyConfigCommand = command({
     logger.info({ metrics: metrics.metrics }, 'ImageryConfig:Metrics');
   },
 });
-
-function getImageryCenterZoom(im: ConfigImageryTiff): { lat: number; lon: number; zoom: number } {
-  const center = { x: im.bounds.x + im.bounds.width / 2, y: im.bounds.y + im.bounds.height / 2 };
-  const tms = TileMatrixSets.find(im.tileMatrix);
-  if (tms == null) throw new Error(`Failed to lookup tileMatrix: ${im.tileMatrix}`);
-  const proj = Projection.get(tms);
-  const centerLatLon = proj.toWgs84([center.x, center.y]);
-  const targetZoom = Math.max(tms.findBestZoom(im.gsd) - 12, 0);
-  return { lat: centerLatLon[1], lon: centerLatLon[0], zoom: targetZoom };
-}
