@@ -92,15 +92,17 @@ describe('LocationUrl', () => {
     });
   });
 
+  const lonLatZoom = { lat: -41.277848, lon: 174.7763921, zoom: 8 };
+
   it('should fail if bearing is outside of bounds', () => {
-    assert.notEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,b360'), null);
-    assert.equal(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,b360.01'), null);
-    assert.equal(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,b-0.00001'), null);
+    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,b360'), { ...lonLatZoom, bearing: 360 });
+    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,b360.01'), lonLatZoom);
+    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,b-0.00001'), lonLatZoom);
   });
 
   it('should fail if pitch is outside of bounds', () => {
-    assert.notEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p35'), null);
-    assert.equal(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p-60.1'), null);
-    assert.equal(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p70'), null);
+    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p35'), { ...lonLatZoom, pitch: 35 });
+    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p-60.1'), lonLatZoom);
+    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p70'), lonLatZoom);
   });
 });
