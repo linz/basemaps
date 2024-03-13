@@ -62,7 +62,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     onMapLoaded(map, () => {
       Config.map.on('change', () => {
         if (this.props.map == null) return;
-        const loc = LocationUrl.toSlug(Config.map.getLocation(this.props.map), Config.map.getCamera(this.props.map));
+        const loc = LocationUrl.toSlug(Config.map.getLocation(this.props.map));
         const locationSearch = '?' + MapConfig.toUrl(Config.map);
         window.history.replaceState(null, '', loc + locationSearch);
         this.updateFromConfig();
@@ -94,7 +94,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
-    this.setTerrainShown(Config.map.debug['debug.elevation']);
+    this.setTerrainShown(Config.map.debug['debug.terrain']);
     this.setVisibleSource(Config.map.debug['debug.layer']);
     this.renderWMTS();
   }
@@ -272,7 +272,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   setTerrainShown(sourceId: string | null): void {
     if (sourceId == null) return;
-    Config.map.setDebug('debug.elevation', sourceId);
+    Config.map.setDebug('debug.terrain', sourceId);
     if (sourceId === 'off') this.props.map.setTerrain(null);
     const terrainSource = this.props.map.getSource(sourceId);
     if (terrainSource) {
@@ -343,8 +343,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   renderDemSourceDropdown(): ReactNode | null {
-    // Disable for vector map
-    if (Config.map.isVector) return;
     // Disable dropdown if non dem source
     const sourceIds = this.getSourcesIds('raster-dem');
     if (sourceIds.length === 0) return;

@@ -15,13 +15,13 @@ import { MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
-import { ensureBase58, MapCamera, MapLocation, MapOptionType, MapPosition, WindowUrl } from './url.js';
+import { ensureBase58, MapLocation, MapOptionType, WindowUrl } from './url.js';
 
 /** Default center point if none provided */
-const DefaultCenter: Record<string, MapPosition> = {
-  [GoogleTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 5, bearing: 0, pitch: 0 },
-  [Nztm2000Tms.identifier]: { lat: -41.277848, lon: 174.6763921, zoom: 3, bearing: 0, pitch: 0 },
-  [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 3, bearing: 0, pitch: 0 },
+const DefaultCenter: Record<string, MapLocation> = {
+  [GoogleTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 5 },
+  [Nztm2000Tms.identifier]: { lat: -41.277848, lon: 174.6763921, zoom: 3 },
+  [Nztm2000QuadTms.identifier]: { lat: -41.88999621, lon: 174.04924373, zoom: 3 },
 };
 
 export interface FilterDate {
@@ -32,7 +32,7 @@ export interface Filter {
 }
 
 export interface MapConfigEvents {
-  location: [MapPosition];
+  location: [MapLocation];
   tileMatrix: [TileMatrixSet];
   layer: [string, string | null | undefined];
   bounds: [LngLatBoundsLike];
@@ -62,8 +62,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   }
 
   /** Map location in WGS84 */
-  _location?: MapPosition;
-  get location(): MapPosition {
+  _location?: MapLocation;
+  get location(): MapLocation {
     if (this._location == null) {
       window.addEventListener('popstate', () => {
         const location = {
@@ -73,7 +73,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
           ...LocationUrl.fromSlug(window.location.hash),
           ...LocationUrl.fromSlug(window.location.pathname),
         };
-        this.setPosition(location);
+        this.setLocation(location);
       });
       this.updateFromUrl();
       this._location = {
@@ -179,13 +179,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const center = map.getCenter();
     if (center == null) throw new Error('Invalid Map location');
     const zoom = Math.floor((map.getZoom() ?? 0) * 10e3) / 10e3;
-    return Config.map.transformLocation(center.lat, center.lng, zoom);
-  }
-
-  getCamera(map: maplibregl.Map): MapCamera {
+    const location = Config.map.transformLocation(center.lat, center.lng, zoom);
     const bearing = map.getBearing();
     const pitch = map.getPitch();
-    return { bearing, pitch };
+    if (bearing !== 0) location.bearing = bearing;
+    if (pitch !== 0) location.pitch = pitch;
+    return location;
   }
 
   transformLocation(lat: number, lon: number, zoom: number): MapLocation {
@@ -193,21 +192,20 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   }
 
   setLocation(l: MapLocation): void {
-    if (l.lat === this.location.lat && l.lon === this.location.lon && l.zoom === this.location.zoom) return;
+    if (
+      l.lat === this.location.lat &&
+      l.lon === this.location.lon &&
+      l.zoom === this.location.zoom &&
+      l.bearing === this.location.bearing &&
+      l.pitch === this.location.pitch
+    ) {
+      return;
+    }
     this.location.lat = l.lat;
     this.location.lon = l.lon;
     this.location.zoom = l.zoom;
-  }
-
-  setCamera(c: MapCamera): void {
-    if (c.bearing === this.location.bearing && c.pitch === this.location.pitch) return;
-    this.location.bearing = c.bearing;
-    this.location.pitch = c.pitch;
-  }
-
-  setPosition(p: MapPosition): void {
-    this.setLocation(p);
-    this.setCamera(p);
+    this.location.bearing = l.bearing;
+    this.location.pitch = l.pitch;
     this.emit('location', this.location);
     this.emit('change');
   }

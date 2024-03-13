@@ -40,8 +40,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const location = Config.map.location;
     this.map.setZoom(location.zoom);
     this.map.setCenter([location.lon, location.lat]);
-    this.map.setBearing(location.bearing);
-    this.map.setPitch(location.pitch);
+    if (location.bearing) this.map.setBearing(location.bearing);
+    if (location.pitch) this.map.setPitch(location.pitch);
   };
 
   updateBounds = (bounds: maplibregl.LngLatBoundsLike): void => {
@@ -204,8 +204,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       style,
       center: [location.lon, location.lat], // starting position [lon, lat]
       zoom: location.zoom, // starting zoom
-      bearing: cfg.location.bearing,
-      pitch: cfg.location.pitch,
+      bearing: cfg.location.bearing ?? 0,
+      pitch: cfg.location.pitch ?? 0,
       attributionControl: false,
     });
 
@@ -274,12 +274,11 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   setLocationUrl(): void {
     this.updateUrlTimer = null;
     const location = Config.map.getLocation(this.map);
-    const camera = Config.map.getCamera(this.map);
 
     this.ignoreNextLocationUpdate = true;
-    Config.map.setPosition({ ...location, ...camera });
+    Config.map.setLocation(location);
 
-    const path = LocationUrl.toSlug(location, camera);
+    const path = LocationUrl.toSlug(location);
     const url = new URL(window.location.href);
     url.pathname = path;
     url.hash = ''; // Ensure the hash is removed, to ensure the redirect from #@location to /@location

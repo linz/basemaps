@@ -20,8 +20,6 @@ describe('LocationUrl', () => {
       lat: -41.2890657,
       lon: 174.7769262,
       zoom: 16,
-      bearing: 0,
-      pitch: 0,
     });
   });
 
@@ -31,8 +29,6 @@ describe('LocationUrl', () => {
       lat: -41.277848,
       lon: 174.7763921,
       zoom: 8,
-      bearing: 0,
-      pitch: 0,
     });
   });
 
@@ -58,7 +54,7 @@ describe('LocationUrl', () => {
 
   it('should slug the bearing and pitch', () => {
     assert.equal(
-      LocationSlug.toSlug({ lat: -41.277848, lon: 174.7763921, zoom: 8 }, { bearing: 25.3, pitch: -35.722 }),
+      LocationSlug.toSlug({ lat: -41.277848, lon: 174.7763921, zoom: 8, bearing: 25.3, pitch: -35.722 }),
       `@-41.2778480,174.7763921,z8,b25.3,p-35.722`,
     );
     assert.deepEqual(LocationSlug.fromSlug(`@-41.2778480,174.7763921,z8,b25.3,p-35.722`), {
@@ -72,7 +68,7 @@ describe('LocationUrl', () => {
 
   it('should slug the bearing only when pitch is 0', () => {
     assert.equal(
-      LocationSlug.toSlug({ lat: -41.277848, lon: 174.7763921, zoom: 8 }, { bearing: 25.3, pitch: 0 }),
+      LocationSlug.toSlug({ lat: -41.277848, lon: 174.7763921, zoom: 8, bearing: 25.3 }),
       `@-41.2778480,174.7763921,z8,b25.3`,
     );
     assert.deepEqual(LocationSlug.fromSlug(`@-41.2778480,174.7763921,z8,b25.3`), {
@@ -80,20 +76,18 @@ describe('LocationUrl', () => {
       lon: 174.7763921,
       zoom: 8,
       bearing: 25.3,
-      pitch: 0,
     });
   });
 
   it('should slug the pitch only bearing pitch is 0', () => {
     assert.equal(
-      LocationSlug.toSlug({ lat: -41.277848, lon: 174.7763921, zoom: 8 }, { bearing: 0, pitch: -0.01 }),
+      LocationSlug.toSlug({ lat: -41.277848, lon: 174.7763921, zoom: 8, pitch: -0.01 }),
       `@-41.2778480,174.7763921,z8,p-0.01`,
     );
     assert.deepEqual(LocationSlug.fromSlug(`@-41.2778480,174.7763921,z8,p-0.01`), {
       lat: -41.277848,
       lon: 174.7763921,
       zoom: 8,
-      bearing: 0,
       pitch: -0.01,
     });
   });
