@@ -40,8 +40,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const location = Config.map.location;
     this.map.setZoom(location.zoom);
     this.map.setCenter([location.lon, location.lat]);
-    if (location.bearing) this.map.setBearing(location.bearing);
-    if (location.pitch) this.map.setPitch(location.pitch);
+    if (location.bearing != null) this.map.setBearing(location.bearing);
+    if (location.pitch != null) this.map.setPitch(location.pitch);
   };
 
   updateBounds = (bounds: maplibregl.LngLatBoundsLike): void => {
