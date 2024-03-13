@@ -1,4 +1,4 @@
-import { base58, ConfigProviderMemory } from '@basemaps/config';
+import { base58, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
 import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config-loader';
 import { Projection, TileMatrixSets } from '@basemaps/geo';
 import { fsa, urlToString } from '@basemaps/shared';
@@ -11,7 +11,7 @@ import { gzip } from 'zlib';
 
 import { isArgo } from '../../argo.js';
 import { getLogger, logArguments } from '../../log.js';
-import { UrlFolder } from '../parsers.js';
+import { Url, UrlFolder } from '../parsers.js';
 
 const gzipPromise = promisify(gzip);
 
@@ -33,6 +33,13 @@ export const BasemapsCogifyConfigCommand = command({
       defaultValue: () => 25,
       defaultValueIsSerializable: true,
     }),
+    host: option({
+      type: optional(Url),
+      long: 'host',
+      description: 'Which host to use as the base for for preview generation links',
+      defaultValue: () => new URL('https://basemaps.linz.govt.nz'),
+      defaultValueIsSerializable: true,
+    }),
     path: positional({ type: UrlFolder, displayName: 'path', description: 'Path to imagery' }),
   },
 
@@ -44,7 +51,9 @@ export const BasemapsCogifyConfigCommand = command({
 
     metrics.start('imagery:load');
     const im = await initImageryFromTiffUrl(args.path, q, undefined, logger);
+    const ts = provider.imageryToTileSetByName(im) as ConfigTileSetRaster;
     provider.put(im);
+    provider.put(ts);
     metrics.end('imagery:load');
 
     logger.info({ files: im.files.length, titles: im.title }, 'ImageryConfig:Loaded');
@@ -59,10 +68,23 @@ export const BasemapsCogifyConfigCommand = command({
     const targetZoom = location.zoom;
     const lat = location.lat.toFixed(7);
     const lon = location.lon.toFixed(7);
-    const locationHash = `@${lat},${lon},z${location.zoom}`;
+    const locationHash = `@${lat},${lon},z${location.zoom - 1}`;
 
-    const url = `https://basemaps.linz.govt.nz/${locationHash}?i=${im.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`;
-    const urlPreview = `https://basemaps.linz.govt.nz/v1/preview/${im.name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}?config=${configPath}`;
+    const urlSearch = new URLSearchParams({ config: configPath });
+
+    // previews default to webp, so find the first output that supports web to make our life easier
+    const output = ts.outputs?.find((f) => f.format == null || f.format.includes('webp'));
+    if (output) urlSearch.set('pipeline', output.name);
+
+    const url = new URL(
+      `/${locationHash}?i=${ts.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`,
+      args.host,
+    );
+
+    const urlPreview = new URL(
+      `/v1/preview/${ts.name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}?${urlSearch.toString()}`,
+      args.host,
+    );
 
     logger.info(
       {
@@ -82,7 +104,7 @@ export const BasemapsCogifyConfigCommand = command({
       // Path to where the config is located
       await fsa.write(fsa.toUrl('/tmp/cogify/config-path'), urlToString(outputPath));
       // A URL to where the imagery can be viewed
-      await fsa.write(fsa.toUrl('/tmp/cogify/config-url'), url);
+      await fsa.write(fsa.toUrl('/tmp/cogify/config-url'), urlToString(url));
     }
 
     logger.info({ metrics: metrics.metrics }, 'ImageryConfig:Metrics');
