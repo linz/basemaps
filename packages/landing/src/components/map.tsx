@@ -31,7 +31,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
   controlScale?: maplibre.ScaleControl | null;
   controlGeo?: maplibregl.GeolocateControl | null;
-  controlTerrain?: maplibregl.TerrainControl | null;
 
   updateLocation = (): void => {
     if (this.ignoreNextLocationUpdate) {
@@ -41,6 +40,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     const location = Config.map.location;
     this.map.setZoom(location.zoom);
     this.map.setCenter([location.lon, location.lat]);
+    if (location.bearing != null) this.map.setBearing(location.bearing);
+    if (location.pitch != null) this.map.setPitch(location.pitch);
   };
 
   updateBounds = (bounds: maplibregl.LngLatBoundsLike): void => {
@@ -100,34 +101,13 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   }
 
   /**
-   * Only enable terrain on debug mode
-   */
-  ensureTerrainControl(): void {
-    if (Config.map.debug['debug.screenshot']) return;
-    if (Config.map.debug) {
-      const terrainSource = this.map.getSource('elevation-terrain');
-      if (this.controlTerrain != null) return;
-      if (terrainSource != null) {
-        this.controlTerrain = new maplibre.TerrainControl({
-          source: terrainSource.id,
-          exaggeration: 1,
-        });
-        this.map.addControl(this.controlTerrain, 'top-left');
-      }
-    } else {
-      if (this.controlScale == null) return;
-      this.map.removeControl(this.controlScale);
-    }
-  }
-
-  /**
    * Load elevation terrain for the aerial map in debug mode
    */
   addElevationTerrain = (): void => {
     if (!Config.map.debug) return;
-    if (Config.map.style === 'aerial' && this.map.getSource('elevation-terrain') == null) {
+    if (this.map.getSource('basemaps-elevation-terrain') == null) {
       // Add elevation into terrain for aerial map
-      this.map.addSource('elevation-terrain', {
+      this.map.addSource('basemaps-elevation-terrain', {
         type: 'raster-dem',
         tiles: [
           WindowUrl.toTileUrl({
@@ -148,13 +128,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.ensureGeoControl();
     this.ensureScaleControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-    const style = tileGrid.getStyle(
-      Config.map.layerId,
-      Config.map.style,
-      undefined,
-      Config.map.filter.date,
-      Config.map.pipeline,
-    );
+    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
     this.map.setStyle(style);
     if (Config.map.tileMatrix !== GoogleTms) {
       this.map.setMaxBounds([-179.9, -85, 179.9, 85]);
@@ -166,7 +140,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   };
 
   updateVisibleLayers = (newLayers: string): void => {
-    if (Config.map.layerId !== 'aerial') return;
     if (Config.map.visibleLayers == null) Config.map.visibleLayers = newLayers;
     if (newLayers !== Config.map.visibleLayers) {
       Config.map.visibleLayers = newLayers;
@@ -181,7 +154,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
               layerId: Config.map.layerId,
               config: Config.map.config,
               date: Config.map.filter.date,
-              pipeline: Config.map.pipeline,
             }),
           ],
           tileSize: 256,
@@ -224,7 +196,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (this.el == null) throw new Error('Unable to find #map element');
     const cfg = Config.map;
     const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
-    const style = tileGrid.getStyle(cfg.layerId, cfg.style, cfg.config, undefined, cfg.pipeline);
+    const style = tileGrid.getStyle(cfg.layerId, cfg.style, cfg.config);
     const location = locationTransform(cfg.location, cfg.tileMatrix, GoogleTms);
 
     this.map = new maplibre.Map({
@@ -232,6 +204,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       style,
       center: [location.lon, location.lat], // starting position [lon, lat]
       zoom: location.zoom, // starting zoom
+      bearing: cfg.location.bearing ?? 0,
+      pitch: cfg.location.pitch ?? 0,
       attributionControl: false,
     });
 
@@ -257,11 +231,11 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         Config.map.on('tileMatrix', this.updateStyle),
         Config.map.on('layer', this.updateStyle),
         Config.map.on('bounds', this.updateBounds),
-        Config.map.on('visibleLayers', this.updateVisibleLayers),
+        // TODO: Disable updateVisibleLayers for now before we need implement date range slider
+        // Config.map.on('visibleLayers', this.updateVisibleLayers),
       );
 
       this.updateStyle();
-      this.ensureTerrainControl();
       // Need to ensure the debug layer has access to the map
       this.forceUpdate();
     });

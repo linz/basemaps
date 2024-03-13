@@ -18,7 +18,6 @@ export class TileGrid {
     style?: string | null,
     config = Config.map.config,
     date?: FilterDate,
-    pipeline?: string | null,
   ): StyleSpecification | string {
     return WindowUrl.toTileUrl({
       urlType: MapOptionType.Style,
@@ -27,7 +26,6 @@ export class TileGrid {
       style,
       config,
       date,
-      pipeline,
     });
   }
 }

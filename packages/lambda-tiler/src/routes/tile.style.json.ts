@@ -144,14 +144,18 @@ export async function tileSetOutputToStyle(
           tileSize: 256,
         };
       }
+    }
+  }
 
-      // Add layer for each source and default to the first layer
+  // Add first raster source as default layer
+  for (const source of Object.keys(sources)) {
+    if (sources[source].type === 'raster') {
       layers.push({
-        id: `${styleId}-${output.name}`,
+        id: styleId,
         type: 'raster',
-        source: `${styleId}-${output.name}`,
-        layout: { visibility: layers.length === 0 ? 'visible' : 'none' },
+        source,
       });
+      break;
     }
   }
 

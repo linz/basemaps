@@ -9,6 +9,8 @@ export interface LonLat {
 
 export interface LonLatZoom extends LonLat {
   zoom: number;
+  bearing?: number;
+  pitch?: number;
 }
 
 export interface LocationQueryConfig {
@@ -61,8 +63,15 @@ export const LocationSlug = {
     };
   },
 
+  cameraStr(loc: LonLatZoom): string {
+    let str = '';
+    if (loc.bearing && loc.bearing !== 0) str += `,b${loc.bearing}`;
+    if (loc.pitch && loc.pitch !== 0) str += `,p${loc.pitch}`;
+    return str;
+  },
+
   /**
-   * Encode a location into the format `@${lat},${lon},z${zoom}`
+   * Encode a location into the format `@${lat},${lon},z${zoom},b${bearing},p${pitch}`
    *
    * This will truncate the lat, lon and zoom with {@link LocationSlug.truncateLatLon}
    *
@@ -74,7 +83,7 @@ export const LocationSlug = {
    */
   toSlug(loc: LonLatZoom): string {
     const fixed = LocationSlug.truncateLatLon(loc);
-    return `@${fixed.lat},${fixed.lon},z${fixed.zoom}`;
+    return `@${fixed.lat},${fixed.lon},z${fixed.zoom}${this.cameraStr(loc)}`;
   },
 
   /**
@@ -96,11 +105,13 @@ export const LocationSlug = {
    * - -90 <= lat <= 90
    * - -190 <= lon <= 180
    * - 0 <= zoom <= 32
+   * - 0 <= bearing <= 360
+   * - -60 <= pitch <= 60
    *
    * @example
    *
    * ```
-   * /@-39.3042625,174.0794181,z22
+   * /@-39.3042625,174.0794181,z22,b225,p12.5
    * #@-39.30426,174.07941,z13.5
    * ```
    *
@@ -108,7 +119,7 @@ export const LocationSlug = {
    */
   fromSlug(str: string): LonLatZoom | null {
     const output: Partial<LonLatZoom> = {};
-    const [latS, lonS, zoomS] = removeLocationPrefix(str).split(',');
+    const [latS, lonS, zoomS, bearingPitchA, bearingPitchB] = removeLocationPrefix(str).split(',');
 
     const lat = parseFloat(latS);
     if (isNaN(lat) || lat < -90 || lat > 90) return null;
@@ -121,6 +132,19 @@ export const LocationSlug = {
     const zoom = LocationSlug.parseZoom(zoomS);
     if (zoom == null || isNaN(zoom) || zoom < 0 || zoom > 32) return null;
     output.zoom = zoom;
+
+    for (const c of [bearingPitchA, bearingPitchB]) {
+      if (c == null) continue;
+      if (c.startsWith('b')) {
+        const bearing = parseFloat(c.slice(1));
+        if (isNaN(bearing) || bearing < 0 || bearing > 360) continue;
+        else output.bearing = bearing;
+      } else if (c.startsWith('p')) {
+        const pitch = parseFloat(c.slice(1));
+        if (isNaN(pitch) || pitch < -60 || pitch > 60) continue;
+        else output.pitch = pitch;
+      }
+    }
 
     return output as LonLatZoom;
   },

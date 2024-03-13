@@ -1,7 +1,7 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
-import { Source } from '@basemaps/config/build/config/vector.style.js';
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
+import { RasterLayerSpecification } from 'maplibre-gl';
 import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
 
 import { MapAttrState } from '../attribution.js';
@@ -94,6 +94,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
+    this.setTerrainShown(Config.map.debug['debug.terrain']);
+    this.setVisibleSource(Config.map.debug['debug.layer']);
     this.renderWMTS();
   }
 
@@ -166,7 +168,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         {this.renderCogToggle()}
         {this.renderSourceToggle()}
         {this.renderTileToggle()}
-        {this.renderOutputsDropdown()}
+        {this.renderRasterSourceDropdown()}
+        {this.renderDemSourceDropdown()}
       </div>
     );
   }
@@ -257,18 +260,36 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     aEl.remove();
   };
 
-  selectLayer = (event: React.ChangeEvent<HTMLSelectElement>): void => {
-    const layerId = event.target.value;
-    const layers = this.props.map.getStyle().layers;
-
-    // Always Set visible layer first before set others invisible
-    this.props.map.setLayoutProperty(layerId, 'visibility', 'visible');
-
-    // Disable other unselected layers
-    for (const layer of layers) {
-      if (layer.id !== layerId) this.props.map.setLayoutProperty(layer.id, 'visibility', 'none');
-    }
+  selectRasterSource = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+    const sourceId = event.target.value;
+    this.setVisibleSource(sourceId);
   };
+
+  selectElevation = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+    const sourceId = event.target.value;
+    this.setTerrainShown(sourceId);
+  };
+
+  setTerrainShown(sourceId: string | null): void {
+    if (sourceId == null) return;
+    Config.map.setDebug('debug.terrain', sourceId);
+    if (sourceId === 'off') this.props.map.setTerrain(null);
+    const terrainSource = this.props.map.getSource(sourceId);
+    if (terrainSource) {
+      this.props.map.setTerrain({
+        source: terrainSource.id,
+        exaggeration: 1,
+      });
+    }
+  }
+
+  setVisibleSource(sourceId: string | null): void {
+    if (sourceId == null) return;
+    Config.map.setDebug('debug.layer', sourceId);
+    const layer = { id: Config.map.styleId, type: 'raster', source: sourceId } as RasterLayerSpecification;
+    this.props.map.removeLayer(Config.map.styleId);
+    this.props.map.addLayer(layer);
+  }
 
   renderSourceToggle(): ReactNode {
     if (this.state.imagery == null) return null;
@@ -292,19 +313,52 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
-  renderOutputsDropdown(): ReactNode | null {
+  getSourcesIds(type: string): string[] {
     const style = this.props.map.getStyle();
-    // Disable dropdown if only one layer
-    if (style.layers.length <= 1) return;
+    return Object.keys(style.sources).filter((id) => id.startsWith('basemaps') && style.sources[id].type === type);
+  }
+
+  renderRasterSourceDropdown(): ReactNode | null {
     // Disable for vector map
-    if ((Object.values(style.sources) as unknown as Array<Source>).find((s) => s.type === 'vector')) return;
+    if (Config.map.isVector) return;
+    // Disable dropdown if only one source
+    const sourceIds = this.getSourcesIds('raster');
+    if (sourceIds.length <= 1) return;
+    // Get default source
+    const selectedSource = this.props.map.getLayer(Config.map.styleId)?.source;
+    if (selectedSource == null) return;
+
     return (
       <div className="debug__info">
-        <label className="debug__label">Available Layers</label>
+        <label className="debug__label">Outputs</label>
         <div className="debug__value">
-          <select onChange={this.selectLayer}>
-            {style.layers.map((layer) => {
-              return <option key={layer.id}>{layer.id}</option>;
+          <select onChange={this.selectRasterSource} value={selectedSource}>
+            {sourceIds.map((id) => {
+              return <option key={id}>{id}</option>;
+            })}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  renderDemSourceDropdown(): ReactNode | null {
+    // Disable dropdown if non dem source
+    const sourceIds = this.getSourcesIds('raster-dem');
+    if (sourceIds.length === 0) return;
+
+    // Default to turn off terrain dem
+    const terrain = this.props.map.getTerrain();
+    const selectedTerrain = terrain ? terrain.source : 'off';
+
+    return (
+      <div className="debug__info">
+        <label className="debug__label">Elevations</label>
+        <div className="debug__value">
+          <select onChange={this.selectElevation} value={selectedTerrain}>
+            <option key="off">off</option>
+            {sourceIds.map((id) => {
+              return <option key={id}>{id}</option>;
             })}
           </select>
         </div>

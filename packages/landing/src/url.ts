@@ -12,6 +12,8 @@ export interface LonLat {
 
 export interface MapLocation extends LonLat {
   zoom: number;
+  bearing?: number;
+  pitch?: number;
 }
 
 export const enum MapOptionType {

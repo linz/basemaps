@@ -39,7 +39,6 @@ export interface MapConfigEvents {
   filter: [Filter];
   change: [];
   visibleLayers: [string];
-  pipeline: [string | null | undefined];
 }
 
 export class MapConfig extends Emitter<MapConfigEvents> {
@@ -109,7 +108,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
   /** Used as source and layer id in the Style JSON for a given layer ID */
   get styleId(): string {
-    return `basemaps-${Config.map.layerId}`;
+    return `basemaps-${Config.map.style}`;
   }
 
   getDateRangeFromUrl(urlParams: URLSearchParams): FilterDate {
@@ -125,7 +124,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const style = urlParams.get('s') ?? urlParams.get('style');
     const config = urlParams.get('c') ?? urlParams.get('config');
     const layerId = urlParams.get('i') ?? 'aerial';
-    const pipeline = urlParams.get('pipeline');
     const date = this.getDateRangeFromUrl(urlParams);
     if (this.filter.date.before !== date.before) {
       this.filter.date = date;
@@ -146,12 +144,10 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
-    this.pipeline = pipeline;
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
     this.emit('tileMatrix', this.tileMatrix);
     this.emit('layer', this.layerId, this.style);
-    this.emit('pipeline', this.pipeline);
     if (previousUrl !== MapConfig.toUrl(this)) this.emit('change');
   }
 
@@ -161,7 +157,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.layerId !== 'aerial') urlParams.append('i', opts.layerId);
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('tileMatrix', opts.tileMatrix.identifier);
     // Config by far the longest so make it the last parameter
-    if (opts.pipeline) urlParams.append('pipeline', opts.pipeline);
     if (opts.config) urlParams.append('config', ensureBase58(opts.config));
 
     ConfigDebug.toUrl(opts.debug, urlParams);
@@ -184,7 +179,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const center = map.getCenter();
     if (center == null) throw new Error('Invalid Map location');
     const zoom = Math.floor((map.getZoom() ?? 0) * 10e3) / 10e3;
-    return Config.map.transformLocation(center.lat, center.lng, zoom);
+    const location = Config.map.transformLocation(center.lat, center.lng, zoom);
+    const bearing = map.getBearing();
+    const pitch = map.getPitch();
+    if (bearing !== 0) location.bearing = bearing;
+    if (pitch !== 0) location.pitch = pitch;
+    return location;
   }
 
   transformLocation(lat: number, lon: number, zoom: number): MapLocation {
@@ -192,10 +192,20 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   }
 
   setLocation(l: MapLocation): void {
-    if (l.lat === this.location.lat && l.lon === this.location.lon && l.zoom === this.location.zoom) return;
+    if (
+      l.lat === this.location.lat &&
+      l.lon === this.location.lon &&
+      l.zoom === this.location.zoom &&
+      l.bearing === this.location.bearing &&
+      l.pitch === this.location.pitch
+    ) {
+      return;
+    }
     this.location.lat = l.lat;
     this.location.lon = l.lon;
     this.location.zoom = l.zoom;
+    this.location.bearing = l.bearing;
+    this.location.pitch = l.pitch;
     this.emit('location', this.location);
     this.emit('change');
   }
@@ -226,13 +236,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.debug[key] = value;
     this.emit('change');
   }
-
-  setPipeline(pipeline: string): void {
-    if (this.pipeline === pipeline) return;
-    this.pipeline = pipeline;
-    this.emit('pipeline', this.pipeline);
-    this.emit('change');
-  }
 }
 
 export interface LayerInfo {
@@ -248,6 +251,7 @@ export interface LayerInfo {
   /** What projections are enabled for this layer */
   projections: Set<EpsgCode>;
 }
+
 async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
   const output: Map<string, LayerInfo> = new Map();
 
