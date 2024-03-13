@@ -31,6 +31,15 @@ export interface LocationQueryConfig {
    * "NZTM2000Quad"
    */
   tileMatrix: string;
+
+  /**
+   * Optional configuration of how to render the imagery
+   *
+   * @example
+   * "terrain-rgb"
+   * "color-ramp"
+   */
+  pipeline?: string;
 }
 
 export const LocationSlug = {
@@ -159,6 +168,7 @@ export const LocationSlug = {
     return {
       /** Style ordering, falling back onto the deprecated `?i=:imageryId  if it exists otherwise a default of `aerial` */
       style: str.get('style') ?? str.get('s') ?? str.get('i') ?? 'aerial',
+      pipeline: str.get('pipeline') ?? undefined,
       tileMatrix: tms?.identifier ?? 'WebMercatorQuad',
     };
   },
