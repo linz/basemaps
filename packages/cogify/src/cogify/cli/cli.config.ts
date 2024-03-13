@@ -1,7 +1,6 @@
-import { base58, ConfigProviderMemory } from '@basemaps/config';
-import { ConfigImageryTiff, initImageryFromTiffUrl } from '@basemaps/config-loader';
-import { Projection, TileMatrixSets } from '@basemaps/geo';
-import { fsa, urlToString } from '@basemaps/shared';
+import { base58, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
+import { initImageryFromTiffUrl } from '@basemaps/config-loader';
+import { fsa, getPreviewUrl, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, positional } from 'cmd-ts';
@@ -11,7 +10,7 @@ import { gzip } from 'zlib';
 
 import { isArgo } from '../../argo.js';
 import { getLogger, logArguments } from '../../log.js';
-import { UrlFolder } from '../parsers.js';
+import { Url, UrlFolder } from '../parsers.js';
 
 const gzipPromise = promisify(gzip);
 
@@ -33,6 +32,13 @@ export const BasemapsCogifyConfigCommand = command({
       defaultValue: () => 25,
       defaultValueIsSerializable: true,
     }),
+    host: option({
+      type: optional(Url),
+      long: 'host',
+      description: 'Which host to use as the base for for preview generation links',
+      defaultValue: () => new URL('https://basemaps.linz.govt.nz'),
+      defaultValueIsSerializable: true,
+    }),
     path: positional({ type: UrlFolder, displayName: 'path', description: 'Path to imagery' }),
   },
 
@@ -44,6 +50,7 @@ export const BasemapsCogifyConfigCommand = command({
 
     metrics.start('imagery:load');
     const im = await initImageryFromTiffUrl(args.path, q, undefined, logger);
+    const ts = ConfigProviderMemory.imageryToTileSet(im) as ConfigTileSetRaster;
     provider.put(im);
     metrics.end('imagery:load');
 
@@ -55,14 +62,13 @@ export const BasemapsCogifyConfigCommand = command({
     await fsa.write(outputPath, await gzipPromise(JSON.stringify(config)));
 
     const configPath = base58.encode(Buffer.from(outputPath.href));
-    const location = getImageryCenterZoom(im);
-    const targetZoom = location.zoom;
-    const lat = location.lat.toFixed(7);
-    const lon = location.lon.toFixed(7);
-    const locationHash = `@${lat},${lon},z${location.zoom}`;
 
-    const url = `https://basemaps.linz.govt.nz/${locationHash}?i=${im.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`;
-    const urlPreview = `https://basemaps.linz.govt.nz/v1/preview/${im.name}/${im.tileMatrix}/${targetZoom}/${lon}/${lat}?config=${configPath}`;
+    // previews default to webp, so find the first output that supports web to make our life easier
+    const output = ts.outputs?.find((f) => f.format == null || f.format.includes('webp'));
+    const p = getPreviewUrl({ imagery: im, config: configPath, pipeline: output?.name });
+
+    const url = new URL(`/${p.slug}?style=${p.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`, args.host);
+    const urlPreview = new URL(p.url, args.host);
 
     logger.info(
       {
@@ -82,19 +88,9 @@ export const BasemapsCogifyConfigCommand = command({
       // Path to where the config is located
       await fsa.write(fsa.toUrl('/tmp/cogify/config-path'), urlToString(outputPath));
       // A URL to where the imagery can be viewed
-      await fsa.write(fsa.toUrl('/tmp/cogify/config-url'), url);
+      await fsa.write(fsa.toUrl('/tmp/cogify/config-url'), urlToString(url));
     }
 
     logger.info({ metrics: metrics.metrics }, 'ImageryConfig:Metrics');
   },
 });
-
-function getImageryCenterZoom(im: ConfigImageryTiff): { lat: number; lon: number; zoom: number } {
-  const center = { x: im.bounds.x + im.bounds.width / 2, y: im.bounds.y + im.bounds.height / 2 };
-  const tms = TileMatrixSets.find(im.tileMatrix);
-  if (tms == null) throw new Error(`Failed to lookup tileMatrix: ${im.tileMatrix}`);
-  const proj = Projection.get(tms);
-  const centerLatLon = proj.toWgs84([center.x, center.y]);
-  const targetZoom = Math.max(tms.findBestZoom(im.gsd) - 12, 0);
-  return { lat: centerLatLon[1], lon: centerLatLon[0], zoom: targetZoom };
-}

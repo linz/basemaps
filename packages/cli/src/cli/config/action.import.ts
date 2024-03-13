@@ -364,7 +364,7 @@ export class CommandImport extends CommandLineAction {
     const configImagery = await mem.Imagery.get(id);
     if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
 
-    const center = getPreviewUrl(configImagery);
+    const center = getPreviewUrl({ imagery: configImagery });
     const urls = {
       layer: `${PublicUrlBase}?config=${this.config.value}&i=${center.name}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
       tag: `${PublicUrlBase}?config=${this.config.value}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
