@@ -1,4 +1,3 @@
-import { GoogleTms } from '@basemaps/geo';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, number, option, restPositionals } from 'cmd-ts';
 import pLimit from 'p-limit';
@@ -20,15 +19,15 @@ export const BasemapsCogifyValidateCommand = command({
       defaultValue: () => 25,
       defaultValueIsSerializable: true,
     }),
-    path: restPositionals({ type: Url, displayName: 'path', description: 'COG to validate' }),
+    tiffs: restPositionals({ type: Url, displayName: 'paths', description: 'COG to validate' }),
   },
 
   async handler(args) {
     const logger = getLogger(this, args);
     const q = pLimit(args.concurrency);
 
-    const promises = args.path.map((path) => {
-      return q(() => validateOutputTiff(path, undefined, logger));
+    const promises = args.tiffs.map((tiff) => {
+      return q(() => validateOutputTiff(tiff, undefined, logger));
     });
 
     await Promise.allSettled(promises);

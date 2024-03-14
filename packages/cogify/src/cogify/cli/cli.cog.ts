@@ -366,7 +366,6 @@ export async function validateOutputTiff(
         resolution,
         zResolution: zoomScale,
         z: closestZoom,
-        // zResolution: zoomScale,
         isResolutionOk: zoomDiff < 1e-8,
       };
       logger.debug({ url, imageStats: obj }, 'Cog:Validate:Image');
