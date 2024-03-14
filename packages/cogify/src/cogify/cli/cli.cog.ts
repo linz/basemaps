@@ -348,11 +348,11 @@ async function validateOutputTiff(url: URL, logger: LogType): Promise<void> {
     const tiffStats = tiff.images.map((t) => {
       return { id: t.id, ...t.size, tiles: t.tileCount };
     });
-    logger.info({ path }, 'Cog:Validate:Ok');
-    logger.info({ tiffStats }, 'Cog:Validate:Stats');
+    logger.info({ url }, 'Cog:Validate:Ok');
+    logger.info({ url, tiffStats }, 'Cog:Validate:Stats');
     await tiff.source.close?.();
   } catch (err) {
-    logger.error({ path, err }, 'Cog:ValidateFailed');
+    logger.error({ url, err }, 'Cog:ValidateFailed');
     throw err;
   }
 }

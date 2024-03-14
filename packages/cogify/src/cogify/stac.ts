@@ -20,7 +20,7 @@ export interface CogifyCreationOptions {
    *
    * @default 'webp'
    */
-  compression?: 'webp' | 'jpeg' | 'lerc';
+  compression?: 'webp' | 'jpeg' | 'lerc' | 'zstd' | 'lzw';
 
   /**
    * Output tile size
