@@ -50,6 +50,12 @@ export const LocationSlug = {
   /** Number of decimal places to fix a location zoom too */
   ZoomFixed: 2,
 
+  /** Number of decimal places to fix a bearing */
+  BearingFixed: 1,
+
+  /** Number of decimal places to fix a pitch */
+  PitchFixed: 0,
+
   /**
    * Truncate a lat lon based on the zoom level
    *
@@ -63,7 +69,19 @@ export const LocationSlug = {
     };
   },
 
-  cameraStr(loc: LonLatZoom): string {
+  /**
+   * Truncate a bearing and pitch
+   *
+   * @param loc location to truncate
+   */
+  truncateBearingPitch(loc: LonLatZoom): Partial<LonLatZoom> {
+    return {
+      bearing: loc.bearing ? Number(loc.bearing.toFixed(LocationSlug.BearingFixed)) : undefined,
+      pitch: loc.pitch ? Number(loc.pitch.toFixed(LocationSlug.PitchFixed)) : undefined,
+    };
+  },
+
+  cameraStr(loc: Partial<LonLatZoom>): string {
     let str = '';
     if (loc.bearing && loc.bearing !== 0) str += `,b${loc.bearing}`;
     if (loc.pitch && loc.pitch !== 0) str += `,p${loc.pitch}`;
@@ -83,7 +101,7 @@ export const LocationSlug = {
    */
   toSlug(loc: LonLatZoom): string {
     const fixed = LocationSlug.truncateLatLon(loc);
-    return `@${fixed.lat},${fixed.lon},z${fixed.zoom}${this.cameraStr(loc)}`;
+    return `@${fixed.lat},${fixed.lon},z${fixed.zoom}${this.cameraStr(this.truncateBearingPitch(loc))}`;
   },
 
   /**
