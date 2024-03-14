@@ -118,7 +118,7 @@ export async function previewIndexGet(req: LambdaHttpRequest<PreviewIndexGet>): 
     ],
     [
       'og:image',
-      `<meta name="twitter:image" property="og:image" content="/v1/preview/${tileSet.name}/${tileMatrix.identifier}/${shortLocation}/png${queryParams}" />`,
+      `<meta name="twitter:image" property="og:image" content="/v1/preview/${tileSet.name}/${tileMatrix.identifier}/${shortLocation}${queryParams}" />`,
     ],
   ]);
 
