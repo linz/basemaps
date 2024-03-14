@@ -75,11 +75,10 @@ export const LocationSlug = {
    * @param loc location to truncate
    */
   truncateBearingPitch(loc: LonLatZoom): Partial<LonLatZoom> {
-    let bearing;
-    let pitch;
-    if (loc.bearing) bearing = Number(loc.bearing.toFixed(LocationSlug.BearingFixed));
-    if (loc.pitch) pitch = Number(loc.pitch.toFixed(LocationSlug.PitchFixed));
-    return { bearing, pitch };
+return {
+ bearing: loc.bearing ? Number(loc.bearing.toFixed(LocationSlug.BearingFixed)) : undefined,
+ pitch: loc.pitch ? Number(loc.pitch.toFixed(LocationSlug.PitchFixed)) : undefined
+ }
   },
 
   cameraStr(loc: Partial<LonLatZoom>): string {
