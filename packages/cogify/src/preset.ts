@@ -59,4 +59,20 @@ const lerc1m: Preset = {
   },
 };
 
-export const Presets = { [webP.name]: webP, [lerc10mm.name]: lerc10mm, [lerc1mm.name]: lerc1mm, [lerc1m.name]: lerc1m };
+const lzw: Preset = {
+  name: 'lzw',
+  options: {
+    blockSize: 512,
+    compression: 'lzw',
+    warpResampling: 'bilinear',
+    overviewResampling: 'bilinear',
+  },
+};
+
+export const Presets = {
+  [webP.name]: webP,
+  [lerc10mm.name]: lerc10mm,
+  [lerc1mm.name]: lerc1mm,
+  [lerc1m.name]: lerc1m,
+  [lzw.name]: lzw,
+};

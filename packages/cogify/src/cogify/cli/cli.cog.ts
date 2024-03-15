@@ -1,5 +1,5 @@
 import { isEmptyTiff } from '@basemaps/config-loader';
-import { ProjectionLoader, TileId, TileMatrixSets } from '@basemaps/geo';
+import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
@@ -231,7 +231,7 @@ export const BasemapsCogifyCreateCommand = command({
           // Upload the output COG into the target location
           const readStream = fsa.readStream(outputTiffPath).pipe(new HashTransform('sha256'));
           await fsa.write(tiffPath, readStream);
-          await validateOutputTiff(tiffPath, logger);
+          await validateOutputTiff(tiffPath, tileMatrix, logger);
 
           asset['file:checksum'] = readStream.multihash;
           asset['file:size'] = readStream.size;
@@ -341,18 +341,41 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
  * Very basic checking for the output tiff to ensure it was uploaded ok
  * Just open it as a COG and ensure the metadata looks about  right
  */
-async function validateOutputTiff(url: URL, logger: LogType): Promise<void> {
+export async function validateOutputTiff(
+  url: URL,
+  tileMatrix: TileMatrixSet | undefined,
+  logger: LogType,
+): Promise<void> {
   logger.info({ url }, 'Cog:Validate');
   try {
     const tiff = await Tiff.create(fsa.source(url));
+    const tms = tileMatrix ?? TileMatrixSets.tryGet(tiff.images[0].epsg);
+    if (tms == null) throw new Error('Unknown EPSG');
+
     const tiffStats = tiff.images.map((t) => {
-      return { id: t.id, ...t.size, tiles: t.tileCount };
+      // all internal images should be approximately aligned to a tile matrix
+      const resolution = t.resolution[0];
+      const closestZoom = Projection.getTiffResZoom(tms, resolution);
+      const zoomScale = tms.pixelScale(closestZoom);
+      const zoomDiff = Math.abs(zoomScale - resolution);
+
+      const obj = {
+        id: t.id,
+        ...t.size,
+        tiles: t.tileCount,
+        resolution,
+        zResolution: zoomScale,
+        z: closestZoom,
+        isResolutionOk: zoomDiff < 1e-8,
+      };
+      logger.debug({ url, imageStats: obj }, 'Cog:Validate:Image');
+      return obj;
     });
-    logger.info({ path }, 'Cog:Validate:Ok');
-    logger.info({ tiffStats }, 'Cog:Validate:Stats');
+    logger.info({ url }, 'Cog:Validate:Ok');
+    logger.info({ url, tiffStats }, 'Cog:Validate:Stats');
     await tiff.source.close?.();
   } catch (err) {
-    logger.error({ path, err }, 'Cog:ValidateFailed');
+    logger.error({ url, err }, 'Cog:ValidateFailed');
     throw err;
   }
 }

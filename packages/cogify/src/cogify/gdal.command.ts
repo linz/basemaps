@@ -7,7 +7,11 @@ import { CogifyCreationOptions } from './stac.js';
 
 export function gdalBuildVrt(targetVrt: URL, source: URL[]): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
-  return { output: targetVrt, command: 'gdalbuildvrt', args: [urlToString(targetVrt), ...source.map(urlToString)] };
+  return {
+    output: targetVrt,
+    command: 'gdalbuildvrt',
+    args: [urlToString(targetVrt), ...source.map(urlToString)],
+  };
 }
 
 export function gdalBuildVrtWarp(
@@ -19,16 +23,20 @@ export function gdalBuildVrtWarp(
 ): GdalCommand {
   const tileMatrix = TileMatrixSets.find(opt.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + opt.tileMatrix);
+  const targetResolution = tileMatrix.pixelScale(opt.zoomLevel);
 
   return {
     output: targetVrt,
     command: 'gdalwarp',
     args: [
-      ['-of', 'VRT'], // Output as a VRT
+      ['-of', 'vrt'], // Output as a VRT
+      // ['-co', 'compress=lzw'],
+      // ['-co', 'bigtiff=yes'],
       '-multi', // Mutithread IO
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
       ['-t_srs', tileMatrix.projection.toEpsgString()], // Target EPSG
+      ['-tr', targetResolution, targetResolution],
       opt.warpResampling ? ['-r', opt.warpResampling] : undefined,
       cutline.url ? ['-cutline', urlToString(cutline.url), '-cblend', cutline.blend] : undefined,
       urlToString(sourceVrt),
@@ -70,6 +78,7 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
        */
       ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
       ['-co', `BLOCKSIZE=${cfg.blockSize}`],
+      // ['-co', 'RESAMPLING=cubic'],
       ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
       ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
       ['-co', `COMPRESS=${cfg.compression}`],
