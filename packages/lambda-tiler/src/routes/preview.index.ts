@@ -2,7 +2,7 @@ import { promisify } from 'node:util';
 import { gunzip } from 'node:zlib';
 
 import { GoogleTms, LocationUrl, LonLatZoom, TileMatrixSets } from '@basemaps/geo';
-import { Env, fsa } from '@basemaps/shared';
+import { Env, fsa, getPreviewQuery } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';
@@ -104,7 +104,7 @@ export async function previewIndexGet(req: LambdaHttpRequest<PreviewIndexGet>): 
   const shortLocation = [short.zoom, short.lon, short.lat].join('/');
 
   const cfg = ConfigLoader.extract(req);
-  const queryParams = cfg == null ? '' : `?config=${cfg}`;
+  const queryParams = getPreviewQuery({ config: cfg, pipeline: query.pipeline ?? tileSet.outputs?.[0]?.name });
 
   // Include tile matrix name eg "[NZTM2000Quad]" in the title if its not WebMercatorQuad
   const tileMatrixId = tileMatrix.identifier === GoogleTms.identifier ? '' : ` [${tileMatrix.identifier}]`;

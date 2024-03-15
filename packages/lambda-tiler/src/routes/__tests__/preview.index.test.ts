@@ -1,13 +1,14 @@
 import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
-import { ConfigProviderMemory } from '@basemaps/config';
+import { ConfigProviderMemory, DefaultColorRampOutput, DefaultTerrainRgbOutput } from '@basemaps/config';
 import { LocationUrl } from '@basemaps/geo';
 import { Env, fsa, FsMemory, LogConfig, V } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { ALBEvent, Context } from 'aws-lambda';
 
 import { FakeData } from '../../__tests__/config.data.js';
+import { CachedConfig } from '../../util/config.cache.js';
 import { loadAndServeIndexHtml, PreviewIndexGet, previewIndexGet } from '../preview.index.js';
 
 describe('/@*', async () => {
@@ -22,8 +23,20 @@ describe('/@*', async () => {
 
   const fsMem = new FsMemory();
   let lastLocation: string | undefined;
-  beforeEach(() => {
+  beforeEach(async () => {
+    CachedConfig.cache.clear();
+
     fsa.register('memory://', fsMem);
+
+    const indexHtml = V('html', [
+      V('head', [
+        V('meta', { property: 'og:title', content: 'LINZ Basemaps' }),
+        V('meta', { property: 'og:image', content: '/basemaps-card.jpeg' }),
+        V('meta', { name: 'viewport' }),
+      ]),
+    ]).toString();
+    await fsa.write(new URL('memory://assets/index.html'), indexHtml);
+
     lastLocation = process.env[Env.StaticAssetLocation];
   });
   afterEach(() => {
@@ -60,7 +73,7 @@ describe('/@*', async () => {
 
   it('should redirect on failure to load index.html', async () => {
     const ctx: LambdaHttpRequest = new LambdaAlbRequest(baseRequest, {} as Context, LogConfig.get());
-    process.env[Env.StaticAssetLocation] = 'memory://assets/';
+    process.env[Env.StaticAssetLocation] = 'memory://assets-missing/';
 
     const res = await loadAndServeIndexHtml(ctx);
     assert.equal(res.status, 302);
@@ -90,6 +103,8 @@ describe('/@*', async () => {
   });
 
   it('should include config url', async () => {
+    process.env[Env.StaticAssetLocation] = 'memory://assets/';
+
     const ctx = new LambdaAlbRequest(
       {
         ...baseRequest,
@@ -100,22 +115,9 @@ describe('/@*', async () => {
     ) as unknown as LambdaHttpRequest<PreviewIndexGet>;
     ctx.params = { location: '@-41.8900012,174.0492432,z5' };
 
-    // Create a fake config to use
     const expectedConfig = new ConfigProviderMemory();
     expectedConfig.put(FakeData.tileSetRaster('imagery-name'));
     await fsa.write(new URL('memory://linz-basemaps/config-latest.json'), JSON.stringify(expectedConfig.toJson()));
-
-    process.env[Env.StaticAssetLocation] = 'memory://assets/';
-
-    const indexHtml = V('html', [
-      V('head', [
-        V('meta', { property: 'og:title', content: 'LINZ Basemaps' }),
-        V('meta', { property: 'og:image', content: '/basemaps-card.jepg' }),
-        V('meta', { name: 'viewport' }),
-      ]),
-    ]).toString();
-
-    await fsa.write(new URL('memory://assets/index.html'), indexHtml);
 
     const res = await previewIndexGet(ctx);
     assert.equal(res.status, 200);
@@ -127,6 +129,76 @@ describe('/@*', async () => {
     assert.equal(
       ogImage,
       '<meta name="twitter:image" property="og:image" content="/v1/preview/imagery-name/WebMercatorQuad/5/174.0492432/-41.8900012?config=QzX7ZsK6qG6p42wHZaF9dhihsgprX942gAuKwfryknM429iqxdDiRSGu" />',
+    );
+  });
+
+  it('should include default pipeline', { only: true }, async () => {
+    process.env[Env.StaticAssetLocation] = 'memory://assets/';
+
+    const ctx = new LambdaAlbRequest(
+      {
+        ...baseRequest,
+        queryStringParameters: { config: 'memory://linz-basemaps/config-latest.json', i: 'imagery-name' },
+      },
+      {} as Context,
+      LogConfig.get(),
+    ) as unknown as LambdaHttpRequest<PreviewIndexGet>;
+    ctx.params = { location: '@-41.8900012,174.0492432,z5' };
+
+    const expectedConfig = new ConfigProviderMemory();
+    const ts = FakeData.tileSetRaster('imagery-name');
+    ts.outputs = [DefaultTerrainRgbOutput, DefaultColorRampOutput];
+    expectedConfig.put(ts);
+    await fsa.write(new URL('memory://linz-basemaps/config-latest.json'), JSON.stringify(expectedConfig.toJson()));
+
+    const res = await previewIndexGet(ctx);
+    assert.equal(res.status, 200, res.statusDescription);
+
+    const ogImage = getBody(res)
+      ?.toString()
+      .split('\n')
+      .find((f) => f.includes('og:image'));
+
+    assert.equal(
+      ogImage,
+      '<meta name="twitter:image" property="og:image" content="/v1/preview/imagery-name/WebMercatorQuad/5/174.0492432/-41.8900012?config=QzX7ZsK6qG6p42wHZaF9dhihsgprX942gAuKwfryknM429iqxdDiRSGu&pipeline=terrain-rgb" />',
+    );
+  });
+
+  it('should include pipelines', async () => {
+    process.env[Env.StaticAssetLocation] = 'memory://assets/';
+
+    const ctx = new LambdaAlbRequest(
+      {
+        ...baseRequest,
+        queryStringParameters: {
+          config: 'memory://linz-basemaps/config-latest.json',
+          i: 'imagery-name',
+          pipeline: 'color-ramp',
+        },
+      },
+      {} as Context,
+      LogConfig.get(),
+    ) as unknown as LambdaHttpRequest<PreviewIndexGet>;
+    ctx.params = { location: '@-41.8900012,174.0492432,z5' };
+
+    const expectedConfig = new ConfigProviderMemory();
+    const ts = FakeData.tileSetRaster('imagery-name');
+    ts.outputs = [DefaultTerrainRgbOutput, DefaultColorRampOutput];
+    expectedConfig.put(ts);
+    await fsa.write(new URL('memory://linz-basemaps/config-latest.json'), JSON.stringify(expectedConfig.toJson()));
+
+    const res = await previewIndexGet(ctx);
+    assert.equal(res.status, 200, res.statusDescription);
+
+    const ogImage = getBody(res)
+      ?.toString()
+      .split('\n')
+      .find((f) => f.includes('og:image'));
+
+    assert.equal(
+      ogImage,
+      '<meta name="twitter:image" property="og:image" content="/v1/preview/imagery-name/WebMercatorQuad/5/174.0492432/-41.8900012?config=QzX7ZsK6qG6p42wHZaF9dhihsgprX942gAuKwfryknM429iqxdDiRSGu&pipeline=color-ramp" />',
     );
   });
 });

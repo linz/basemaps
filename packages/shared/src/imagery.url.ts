@@ -53,6 +53,14 @@ export interface PreviewResult {
    * Components of the slug broken out into their parts
    */
   location: { lat: number; lon: number; zoom: number };
+
+  /**
+   * Query string parameters for t he preview including config and pipeline if needed
+   *
+   * @example
+   * "?config=s3://...&pipeline=terrain-rgb"
+   */
+  query: string;
 }
 
 export function getPreviewUrl(ctx: PreviewConfig): PreviewResult {
@@ -62,16 +70,27 @@ export function getPreviewUrl(ctx: PreviewConfig): PreviewResult {
   const lon = location.lon.toFixed(7);
   const slug = `@${lat},${lon},z${location.zoom}`;
 
-  const urlSearch = new URLSearchParams();
-  if (ctx.config) urlSearch.set('config', ctx.config);
-  if (ctx.pipeline) urlSearch.set('pipeline', ctx.pipeline);
-  const query = urlSearch.size > 0 ? '?' + urlSearch.toString() : '';
-
   const name = standardizeLayerName(ctx.imagery.name);
+  const query = getPreviewQuery(ctx);
   return {
     name,
     location,
     slug,
+    query,
     url: `/v1/preview/${name}/${ctx.imagery.tileMatrix}/${targetZoom}/${lon}/${lat}${query}`,
   };
+}
+
+/**
+ * Create a query string for a preview URL using pipeline and configuration if they are needed
+ *
+ * @param ctx
+ * @returns a query string prefixed with `?` if it is needed, empty string otherwise
+ */
+export function getPreviewQuery(ctx: { config?: string | null; pipeline?: string | null }): string {
+  const urlSearch = new URLSearchParams();
+  if (ctx.config) urlSearch.set('config', ctx.config);
+  if (ctx.pipeline) urlSearch.set('pipeline', ctx.pipeline);
+  if (urlSearch.size === 0) return '';
+  return '?' + urlSearch.toString();
 }
