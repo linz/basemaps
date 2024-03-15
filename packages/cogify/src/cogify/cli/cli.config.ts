@@ -73,7 +73,7 @@ export const BasemapsCogifyConfigCommand = command({
     logger.info(
       {
         imageryId: im.id,
-        path: outputPath,
+        configUrl: outputPath,
         url,
         urlPreview,
         config: configPath,

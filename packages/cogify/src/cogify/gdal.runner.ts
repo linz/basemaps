@@ -45,7 +45,7 @@ export class GdalRunner {
    */
   async run(logger?: LogType): Promise<{ stdout: string; stderr: string; duration: number }> {
     const commandHash = sha256base58(JSON.stringify(this.cmd)); // Hash the arguments as the arguments can be way too big to log
-    logger?.debug({ command: this.cmd.command, args: this.cmd.args, hash: commandHash }, 'Gdal:Command');
+    logger?.debug({ command: this.cmd.command, gdalArgs: this.cmd.args, hash: commandHash }, 'Gdal:Command');
     logger?.info({ command: this.cmd.command, commandHash }, 'Gdal:Start');
 
     const cmd = this.cmd.command;
