@@ -284,7 +284,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
     const target = getTerrainForSource(sourceId, Config.map.tileMatrix.projection);
     // no changes
-    if ((currentTerrain?.source === sourceId, currentTerrain?.exaggeration === target.exaggeration)) return;
+    if (currentTerrain?.source === sourceId && currentTerrain?.exaggeration === target.exaggeration) return;
 
     const terrainSource = this.props.map.getSource(sourceId);
     if (terrainSource == null) {
