@@ -162,7 +162,10 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   // Load all the tiff tiles and resize/them into the correct locations
   req.timer.start('compose:overlay');
   const overlays = (await Promise.all(
-    compositions.map((comp) => TilerSharp.composeTilePipeline(comp, tileContext)),
+    compositions.map((comp) => {
+      if (tileContext.pipeline) return TilerSharp.composeTilePipeline(comp, tileContext);
+      return TilerSharp.composeTileTiff(comp, tileContext.resizeKernel);
+    }),
   ).then((items) => items.filter((f) => f != null))) as SharpOverlay[];
   req.timer.end('compose:overlay');
 
