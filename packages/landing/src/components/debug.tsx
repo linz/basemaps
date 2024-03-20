@@ -1,6 +1,6 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
-import { GoogleTms, LocationUrl } from '@basemaps/geo';
+import { Epsg, GoogleTms, LocationUrl } from '@basemaps/geo';
 import { RasterLayerSpecification } from 'maplibre-gl';
 import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
 
@@ -282,7 +282,9 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       return;
     }
 
-    if (currentTerrain?.source === sourceId) return;
+    const target = getTerrainForSource(sourceId, Config.map.tileMatrix.projection);
+    // no changes
+    if ((currentTerrain?.source === sourceId, currentTerrain?.exaggeration === target.exaggeration)) return;
 
     const terrainSource = this.props.map.getSource(sourceId);
     if (terrainSource == null) {
@@ -291,7 +293,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       return;
     }
 
-    this.props.map.setTerrain({ source: terrainSource.id, exaggeration: 1 });
+    this.props.map.setTerrain(target);
   }
 
   setVisibleSource(sourceId: string | null): void {
@@ -511,4 +513,20 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       });
     });
   }
+}
+
+/**
+ * Terrain needs to be exaggerated based on the tile matrix
+ *
+ * NZTM2000 offsets zoom levels by 2, which causes terrain to appear too flat
+ *
+ * @param sourceId maplibre source layer id
+ * @param projection current projection
+ * @returns
+ */
+function getTerrainForSource(sourceId: string, projection: Epsg): { source: string; exaggeration: number } {
+  return {
+    source: sourceId,
+    exaggeration: projection.code === Epsg.Nztm2000.code ? 4.4 : 1.1,
+  };
 }
