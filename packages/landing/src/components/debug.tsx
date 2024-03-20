@@ -271,22 +271,39 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   };
 
   setTerrainShown(sourceId: string | null): void {
-    if (sourceId == null) return;
     Config.map.setDebug('debug.terrain', sourceId);
-    if (sourceId === 'off') this.props.map.setTerrain(null);
-    const terrainSource = this.props.map.getSource(sourceId);
-    if (terrainSource) {
-      this.props.map.setTerrain({
-        source: terrainSource.id,
-        exaggeration: 1,
-      });
+
+    const map = this.props.map;
+    const isTurnOff = sourceId === 'off' || sourceId == null;
+
+    const currentTerrain = map.getTerrain();
+    if (isTurnOff) {
+      map.setTerrain(null);
+      return;
     }
+
+    if (currentTerrain?.source === sourceId) return;
+
+    const terrainSource = this.props.map.getSource(sourceId);
+    if (terrainSource == null) {
+      // Source cannot be found, config is invalid
+      Config.map.setDebug('debug.terrain', null);
+      return;
+    }
+
+    this.props.map.setTerrain({ source: terrainSource.id, exaggeration: 1 });
   }
 
   setVisibleSource(sourceId: string | null): void {
-    if (sourceId == null) return;
     Config.map.setDebug('debug.layer', sourceId);
-    const layer = { id: Config.map.styleId, type: 'raster', source: sourceId } as RasterLayerSpecification;
+
+    if (sourceId == null) return;
+    const map = this.props.map;
+    const currentLayer = map.getLayer(Config.map.styleId);
+
+    if (currentLayer?.source === sourceId) return;
+
+    const layer: RasterLayerSpecification = { id: Config.map.styleId, type: 'raster', source: sourceId };
     this.props.map.removeLayer(Config.map.styleId);
     this.props.map.addLayer(layer);
   }
