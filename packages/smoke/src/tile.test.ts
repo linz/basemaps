@@ -31,4 +31,12 @@ describe('tile', () => {
       assert.equal(res.headers.get('content-type'), `image/${ext}`);
     });
   }
+
+  it('should serve a preview', async () => {
+    const res = await ctx.req(`/v1/preview/aerial/WebMercatorQuad/7.25/175.4665236/-41.1619890`);
+    assert.equal(res.status, 200, res.statusText);
+
+    const body = Buffer.from(await res.arrayBuffer());
+    assert.equal(body.subarray(0, 4).toString(), 'RIFF');
+  });
 });
