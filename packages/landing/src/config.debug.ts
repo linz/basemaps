@@ -79,6 +79,8 @@ export class ConfigDebug {
     isChanged = setKey(opt, 'debug.date', url.get('debug.date') != null) || isChanged;
     isChanged = setKey(opt, 'debug.terrain', url.get('debug.terrain')) || isChanged;
     isChanged = setKey(opt, 'debug.layer', url.get('debug.layer')) || isChanged;
+    isChanged = setKey(opt, 'debug.hillshade', url.get('debug.hillshade')) || isChanged;
+
     return isChanged;
   }
 }

@@ -23,7 +23,10 @@ export interface DebugState {
   isCog?: boolean;
 }
 
-const HillshadeLayerId = 'debug-hillshade';
+/** Layer Id for the hillshade laer in the debug map */
+const HillShadeLayerId = 'debug-hillshade';
+/** dynamic hillshade sources are prefixed with this key */
+const HillShadePrefix = '__hillshade-';
 
 interface DropDownContext {
   /** Label for the drop down */
@@ -126,6 +129,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
     this.setTerrainShown(Config.map.debug['debug.terrain']);
+    this.setHillShadeShown(Config.map.debug['debug.hillshade']);
     this.setVisibleSource(Config.map.debug['debug.layer']);
     this.renderWMTS();
   }
@@ -315,18 +319,33 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     const map = this.props.map;
     const isTurnOff = sourceId === 'off' || sourceId == null;
 
-    const currentLayer = map.getLayer(HillshadeLayerId);
+    const currentLayer = map.getLayer(HillShadeLayerId);
     if (isTurnOff) {
-      if (currentLayer) map.removeLayer(HillshadeLayerId);
+      if (currentLayer) map.removeLayer(HillShadeLayerId);
       return;
     }
 
     if (currentLayer?.source === sourceId) return;
 
+    // Hillshading from an existing raster-dem source gives very mixed results and looks very blury
+    // so add a new source layer to generate from
+    const hillShadeSourceId = `${HillShadePrefix}${sourceId}`;
+    const existingSource = map.getSource(hillShadeSourceId);
+    if (existingSource == null) {
+      const source = map.getSource(sourceId);
+      if (source?.type !== 'raster-dem') {
+        // Source cannot be found, config is invalid
+        Config.map.setDebug('debug.hillshade', null);
+        return;
+      }
+      map.addSource(hillShadeSourceId, { ...source.serialize(), type: 'raster-dem', id: undefined });
+    }
+
+    if (currentLayer) map.removeLayer(HillShadeLayerId);
     map.addLayer({
-      id: HillshadeLayerId,
+      id: HillShadeLayerId,
       type: 'hillshade',
-      source: sourceId,
+      source: hillShadeSourceId,
       paint: { 'hillshade-shadow-color': '#040404' },
     });
   }
@@ -368,7 +387,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
     const layer: RasterLayerSpecification = { id: Config.map.styleId, type: 'raster', source: sourceId };
     map.removeLayer(Config.map.styleId);
-    map.addLayer(layer, map.getLayer(HillshadeLayerId) ? HillshadeLayerId : undefined);
+    map.addLayer(layer, map.getLayer(HillShadeLayerId) ? HillShadeLayerId : undefined);
   }
 
   renderSourceToggle(): ReactNode {
@@ -427,11 +446,12 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   renderDemHillShadeSourceDropdown(sourceIds: string[]): ReactNode | null {
+    console.log('renderHillShade', this.props.map.getLayer(HillShadeLayerId)?.source.replace(HillShadePrefix, ''));
     if (sourceIds.length === 0) return;
     return debugSourceDropdown({
       label: 'Hillshade',
       onChange: this.selectHillShade,
-      value: this.props.map.getLayer(HillshadeLayerId)?.source ?? 'off',
+      value: this.props.map.getLayer(HillShadeLayerId)?.source.replace(HillShadePrefix, '') ?? 'off',
       options: ['off', ...sourceIds],
     });
   }
