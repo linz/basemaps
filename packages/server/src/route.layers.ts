@@ -11,7 +11,7 @@ import { getPreviewUrl, V } from '@basemaps/shared';
 export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<string> {
   const allLayers = await Promise.all([mem.TileSet.get('ts_all'), mem.TileSet.get('ts_elevation')]);
 
-  const allSourceLayers = allLayers.flatMap((m) => m?.layers) as ConfigLayer[];
+  const allSourceLayers = allLayers.flatMap((m) => m?.layers).filter(Boolean) as ConfigLayer[];
   if (allSourceLayers == null) return 'No layers found.';
 
   const allImagery = await getAllImagery(mem, allSourceLayers, [...Epsg.Codes.values()]);
