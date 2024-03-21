@@ -338,6 +338,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         Config.map.setDebug('debug.hillshade', null);
         return;
       }
+
       map.addSource(hillShadeSourceId, { ...source.serialize(), type: 'raster-dem', id: undefined });
     }
 
@@ -446,7 +447,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   renderDemHillShadeSourceDropdown(sourceIds: string[]): ReactNode | null {
-    console.log('renderHillShade', this.props.map.getLayer(HillShadeLayerId)?.source.replace(HillShadePrefix, ''));
     if (sourceIds.length === 0) return;
     return debugSourceDropdown({
       label: 'Hillshade',
