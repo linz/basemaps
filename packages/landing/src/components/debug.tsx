@@ -23,7 +23,7 @@ export interface DebugState {
   isCog?: boolean;
 }
 
-/** Layer Id for the hillshade laer in the debug map */
+/** Layer Id for the hillshade layer in the debug map */
 const HillShadeLayerId = 'debug-hillshade';
 /** dynamic hillshade sources are prefixed with this key */
 const HillShadePrefix = '__hillshade-';
