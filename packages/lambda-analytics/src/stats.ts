@@ -31,6 +31,8 @@ export interface TileRequestStats {
   tileMatrix: Record<string, number>;
   /** Tilesets accessed */
   tileSet: Record<string, number>;
+  /** Pipelines used */
+  pipeline: Record<string, number>;
   /** Rough approximation of useragent user */
   userAgent: Record<string, number>;
   /** How was this rollup generated */
@@ -49,6 +51,7 @@ function newStat(timestamp: string, api: string, referer: string): TileRequestSt
     cache: { hit: 0, miss: 0 },
     extension: { webp: 0, jpeg: 0, png: 0, wmts: 0, pbf: 0, other: 0 },
     tileSet: {},
+    pipeline: {},
     userAgent: {},
     tileMatrix: {},
     generated: {
@@ -59,7 +62,14 @@ function newStat(timestamp: string, api: string, referer: string): TileRequestSt
   };
 }
 
-function track(stat: TileRequestStats, userAgent: string, uri: string, status: number, isHit: boolean): void {
+function track(
+  stat: TileRequestStats,
+  userAgent: string,
+  uri: string,
+  status: number,
+  isHit: boolean,
+  search: URLSearchParams,
+): void {
   stat.total++;
 
   if (isHit) stat.cache.hit++;
@@ -91,6 +101,9 @@ function track(stat: TileRequestStats, userAgent: string, uri: string, status: n
   // Tile set
   if (tileSet.startsWith('01')) stat.tileSet['byId'] = (stat.tileSet['byId'] ?? 0) + 1;
   else stat.tileSet[tileSet] = (stat.tileSet[tileSet] ?? 0) + 1;
+
+  const pipeline = search.get('pipeline');
+  if (pipeline) stat.pipeline[pipeline] = (stat.pipeline[tileSet] ?? 0) + 1;
 
   stat.userAgent[userAgent] = (stat.userAgent[userAgent] ?? 0) + 1;
 }
@@ -130,7 +143,15 @@ export class LogStats {
     return existing;
   }
 
-  track(apiKey: string, referer: string, userAgent: string, uri: string, status: number, isHit: boolean): void {
-    track(this.getStats(apiKey, referer), userAgent, uri, status, isHit);
+  track(
+    apiKey: string,
+    referer: string,
+    userAgent: string,
+    uri: string,
+    status: number,
+    isHit: boolean,
+    search: URLSearchParams,
+  ): void {
+    track(this.getStats(apiKey, referer), userAgent, uri, status, isHit, search);
   }
 }

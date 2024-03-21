@@ -38,7 +38,7 @@ export const FileProcess = {
       const apiKey = search.get('api');
       const apiValid = isValidApiKey(apiKey);
       if (apiValid.valid || apiValid.message === 'expired') {
-        stats.track(apiKey as string, referer ?? '', userAgent, uri.toLowerCase(), parseInt(status), hit);
+        stats.track(apiKey as string, referer ?? '', userAgent, uri.toLowerCase(), parseInt(status), hit, search);
       }
     }
   },
