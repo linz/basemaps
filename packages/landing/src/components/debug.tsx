@@ -354,7 +354,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       return;
     }
 
-    this.props.map.setTerrain(target);
+    map.setTerrain(target);
   }
 
   setVisibleSource(sourceId: string | null): void {
@@ -367,8 +367,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     if (currentLayer?.source === sourceId) return;
 
     const layer: RasterLayerSpecification = { id: Config.map.styleId, type: 'raster', source: sourceId };
-    this.props.map.removeLayer(Config.map.styleId);
-    this.props.map.addLayer(layer);
+    map.removeLayer(Config.map.styleId);
+    map.addLayer(layer, map.getLayer(HillshadeLayerId) ? HillshadeLayerId : undefined);
   }
 
   renderSourceToggle(): ReactNode {
