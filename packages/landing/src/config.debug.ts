@@ -22,6 +22,9 @@ export interface DebugState {
   'debug.terrain': string | null;
   /** What layer should be visible only */
   'debug.layer': string | null;
+
+  /** Should a hillshade be shown */
+  'debug.hillshade': string | null;
 }
 
 export const DebugDefaults: DebugState = {
@@ -37,6 +40,7 @@ export const DebugDefaults: DebugState = {
   'debug.date': false,
   'debug.terrain': null,
   'debug.layer': null,
+  'debug.hillshade': null,
 };
 
 export class ConfigDebug {
