@@ -153,8 +153,8 @@ button {
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 300px;
-  background-color: rgba(255, 255, 255, 0.87);
+  width: 360px;
+  background-color: rgba(255, 255, 255, 0.67);
   padding: 4px 8px;
 }
 

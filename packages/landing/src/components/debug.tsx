@@ -23,6 +23,40 @@ export interface DebugState {
   isCog?: boolean;
 }
 
+/** Layer Id for the hillshade layer in the debug map */
+const HillShadeLayerId = 'debug-hillshade';
+/** dynamic hillshade sources are prefixed with this key */
+const HillShadePrefix = '__hillshade-';
+
+interface DropDownContext {
+  /** Label for the drop down */
+  label: string;
+  /** callback for when the dropdown changes */
+  onChange: ChangeEventHandler<HTMLSelectElement>;
+  /** Current value */
+  value: string;
+  /** List of options */
+  options: string[];
+}
+function debugSourceDropdown(ctx: DropDownContext): ReactNode {
+  return (
+    <div className="debug__info">
+      <label className="debug__label">{ctx.label}</label>
+      <div className="debug__value">
+        <select onChange={ctx.onChange} value={ctx.value}>
+          {ctx.options.map((id) => {
+            return (
+              <option key={id} value={id}>
+                {id.replace('basemaps-', '')}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+    </div>
+  );
+}
+
 function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput: FormEventHandler): ReactNode {
   return (
     <input
@@ -95,6 +129,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
     this.setTerrainShown(Config.map.debug['debug.terrain']);
+    this.setHillShadeShown(Config.map.debug['debug.hillshade']);
     this.setVisibleSource(Config.map.debug['debug.layer']);
     this.renderWMTS();
   }
@@ -146,6 +181,9 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   override render(): ReactNode {
     if (Config.map.debug['debug.screenshot']) return null;
     const title = this.state.imagery?.title;
+
+    const demSources = this.getSourcesIds('raster-dem');
+
     return (
       <div className="debug">
         <div className="debug__info">
@@ -169,7 +207,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         {this.renderSourceToggle()}
         {this.renderTileToggle()}
         {this.renderRasterSourceDropdown()}
-        {this.renderDemSourceDropdown()}
+        {this.renderDemSourceDropdown(demSources)}
+        {this.renderDemHillShadeSourceDropdown(demSources)}
       </div>
     );
   }
@@ -270,6 +309,48 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.setTerrainShown(sourceId);
   };
 
+  selectHillShade = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+    const sourceId = event.target.value;
+    this.setHillShadeShown(sourceId);
+  };
+
+  setHillShadeShown(sourceId: string | null): void {
+    Config.map.setDebug('debug.hillshade', sourceId);
+    const map = this.props.map;
+    const isTurnOff = sourceId === 'off' || sourceId == null;
+
+    const currentLayer = map.getLayer(HillShadeLayerId);
+    if (isTurnOff) {
+      if (currentLayer) map.removeLayer(HillShadeLayerId);
+      return;
+    }
+
+    if (currentLayer?.source === sourceId) return;
+
+    // Hillshading from an existing raster-dem source gives very mixed results and looks very blury
+    // so add a new source layer to generate from
+    const hillShadeSourceId = `${HillShadePrefix}${sourceId}`;
+    const existingSource = map.getSource(hillShadeSourceId);
+    if (existingSource == null) {
+      const source = map.getSource(sourceId);
+      if (source?.type !== 'raster-dem') {
+        // Source cannot be found, config is invalid
+        Config.map.setDebug('debug.hillshade', null);
+        return;
+      }
+
+      map.addSource(hillShadeSourceId, { ...source.serialize(), type: 'raster-dem', id: undefined });
+    }
+
+    if (currentLayer) map.removeLayer(HillShadeLayerId);
+    map.addLayer({
+      id: HillShadeLayerId,
+      type: 'hillshade',
+      source: hillShadeSourceId,
+      paint: { 'hillshade-shadow-color': '#040404' },
+    });
+  }
+
   setTerrainShown(sourceId: string | null): void {
     Config.map.setDebug('debug.terrain', sourceId);
 
@@ -293,7 +374,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       return;
     }
 
-    this.props.map.setTerrain(target);
+    map.setTerrain(target);
   }
 
   setVisibleSource(sourceId: string | null): void {
@@ -306,8 +387,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     if (currentLayer?.source === sourceId) return;
 
     const layer: RasterLayerSpecification = { id: Config.map.styleId, type: 'raster', source: sourceId };
-    this.props.map.removeLayer(Config.map.styleId);
-    this.props.map.addLayer(layer);
+    map.removeLayer(Config.map.styleId);
+    map.addLayer(layer, map.getLayer(HillShadeLayerId) ? HillShadeLayerId : undefined);
   }
 
   renderSourceToggle(): ReactNode {
@@ -347,42 +428,32 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     const selectedSource = this.props.map.getLayer(Config.map.styleId)?.source;
     if (selectedSource == null) return;
 
-    return (
-      <div className="debug__info">
-        <label className="debug__label">Outputs</label>
-        <div className="debug__value">
-          <select onChange={this.selectRasterSource} value={selectedSource}>
-            {sourceIds.map((id) => {
-              return <option key={id}>{id}</option>;
-            })}
-          </select>
-        </div>
-      </div>
-    );
+    return debugSourceDropdown({
+      label: 'Layer',
+      onChange: this.selectRasterSource,
+      value: selectedSource,
+      options: sourceIds,
+    });
   }
 
-  renderDemSourceDropdown(): ReactNode | null {
-    // Disable dropdown if non dem source
-    const sourceIds = this.getSourcesIds('raster-dem');
+  renderDemSourceDropdown(sourceIds: string[]): ReactNode | null {
     if (sourceIds.length === 0) return;
+    return debugSourceDropdown({
+      label: 'Elevation',
+      onChange: this.selectElevation,
+      value: this.props.map.getTerrain()?.source ?? 'off',
+      options: ['off', ...sourceIds],
+    });
+  }
 
-    // Default to turn off terrain dem
-    const terrain = this.props.map.getTerrain();
-    const selectedTerrain = terrain ? terrain.source : 'off';
-
-    return (
-      <div className="debug__info">
-        <label className="debug__label">Elevations</label>
-        <div className="debug__value">
-          <select onChange={this.selectElevation} value={selectedTerrain}>
-            <option key="off">off</option>
-            {sourceIds.map((id) => {
-              return <option key={id}>{id}</option>;
-            })}
-          </select>
-        </div>
-      </div>
-    );
+  renderDemHillShadeSourceDropdown(sourceIds: string[]): ReactNode | null {
+    if (sourceIds.length === 0) return;
+    return debugSourceDropdown({
+      label: 'Hillshade',
+      onChange: this.selectHillShade,
+      value: this.props.map.getLayer(HillShadeLayerId)?.source.replace(HillShadePrefix, '') ?? 'off',
+      options: ['off', ...sourceIds],
+    });
   }
 
   renderSliders(): ReactNode | null {
