@@ -18,7 +18,7 @@ export const ExampleLogs = `#Version: 1.0
 2020-07-28	01:13:33	SYD4-C2	2588	255.255.255.128	GET	d1mez8rta20vo0.cloudfront.net	/v1/tiles/topo50/EPSG:3857/WMTSCapabilities.xml	200	-	Mozilla/5.0%20QGIS/31006	api=${ClientApiKey}	-	RefreshHit	oflBr-vO5caoVpi2S23hGh9YWMUca-McU_Fl5oN9fqW_H9ea_iS-Kg==	basemaps.linz.govt.nz	https	243	0.051	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	RefreshHit	HTTP/1.1	-	-	55515	0.050	RefreshHit	text/xml	-
 2020-07-28	01:13:33	SYD4-C2	2588	255.255.255.128	GET	d1mez8rta20vo0.cloudfront.net	/v1/tiles/topo50/EPSG:2193/18/257866/162011.pbf	200	-	Mozilla/5.0%20QGIS/31006	api=${ClientApiKey}	-	RefreshHit	oflBr-vO5caoVpi2S23hGh9YWMUca-McU_Fl5oN9fqW_H9ea_iS-Kg==	basemaps.linz.govt.nz	https	243	0.051	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	RefreshHit	HTTP/1.1	-	-	55515	0.050	RefreshHit	text/xml	-
 2020-07-28	01:13:33	SYD4-C2	2588	255.255.255.128	GET	d1mez8rta20vo0.cloudfront.net	/v1/tiles/antipodes-islands-satellite-2019-2020-0.5m/NZTM2000Quad/18/257866/162011.webp	200	-	Mozilla/5.0%20QGIS/31006	api=${ClientApiKey}	-	RefreshHit	oflBr-vO5caoVpi2S23hGh9YWMUca-McU_Fl5oN9fqW_H9ea_iS-Kg==	basemaps.linz.govt.nz	https	243	0.051	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	RefreshHit	HTTP/1.1	-	-	55515	0.050	RefreshHit	text/xml	-
-
+2020-07-28	01:13:33	SYD4-C2	2588	255.255.255.128	GET	d1mez8rta20vo0.cloudfront.net	/v1/tiles/elevation/WebMercatorQuad/18/257866/162011.png	200	-	Mozilla/5.0%20QGIS/31006	api=${ClientApiKey}&pipeline=terrain-rgb	-	RefreshHit	oflBr-vO5caoVpi2S23hGh9YWMUca-McU_Fl5oN9fqW_H9ea_iS-Kg==	basemaps.linz.govt.nz	https	243	0.051	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	RefreshHit	HTTP/1.1	-	-	55515	0.050	RefreshHit	text/xml	-
 `
   .trim()
   .split('\n');
@@ -81,11 +81,19 @@ describe('FileProcess', () => {
     assert.deepEqual(devStats?.extension, { webp: 1, jpeg: 1, png: 1, wmts: 0, other: 0, pbf: 0 });
     assert.deepEqual(devStats?.tileSet, { aerial: 2, topo50: 1 });
 
-    assert.equal(clientStats?.total, 3);
+    assert.equal(clientStats?.total, 4);
     assert.equal(clientStats?.apiType, 'c');
-    assert.deepEqual(clientStats?.cache, { hit: 3, miss: 0 });
-    assert.deepEqual(clientStats?.tileMatrix, { WebMercatorQuad: 1, NZTM2000: 1, NZTM2000Quad: 1 });
-    assert.deepEqual(clientStats?.extension, { webp: 1, jpeg: 0, png: 0, wmts: 1, other: 0, pbf: 1 });
-    assert.deepEqual(clientStats?.tileSet, { topo50: 2, 'antipodes-islands-satellite-2019-2020-0.5m': 1 });
+    assert.deepEqual(clientStats?.cache, { hit: 4, miss: 0 });
+    assert.deepEqual(clientStats?.tileMatrix, { WebMercatorQuad: 2, NZTM2000: 1, NZTM2000Quad: 1 });
+    assert.deepEqual(clientStats?.extension, { webp: 1, jpeg: 0, png: 1, wmts: 1, other: 0, pbf: 1 });
+    assert.deepEqual(clientStats?.tileSet, {
+      topo50: 2,
+      'antipodes-islands-satellite-2019-2020-0.5m': 1,
+      elevation: 1,
+    });
+
+    assert.deepEqual(clientStats?.pipeline, {
+      'terrain-rgb': 1,
+    });
   });
 });
