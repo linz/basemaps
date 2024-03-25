@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** allow .jpg for jpeg images ([#3206](https://github.com/linz/basemaps/issues/3206)) ([a23a63a](https://github.com/linz/basemaps/commit/a23a63a417a39e6c873c8d4d9c6206d9c845e57b))
+
+
+
+
+
 # [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
 
 
