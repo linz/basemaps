@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* **cli:** Fix the bundling asset that remove extra letter at path and decode font paths. ([#3154](https://github.com/linz/basemaps/issues/3154)) ([a437c1d](https://github.com/linz/basemaps/commit/a437c1d1dc5eda40ea3615cea0f992b5c17cce40))
+* **cli:** fix the error type for cdk v3 in the s3 hash object ([#3050](https://github.com/linz/basemaps/issues/3050)) ([fd55e6d](https://github.com/linz/basemaps/commit/fd55e6d6f4d0abd09d63f1d98bdb4ab6823d64bc))
+* **cli:** virtual tilesets are required for importing into dynamo ([#3022](https://github.com/linz/basemaps/issues/3022)) ([8bf9be9](https://github.com/linz/basemaps/commit/8bf9be9344856b12698ade1dc333d4c3b74e4e23))
+
+
+### Features
+
+* **cli:** compare config bundles using --target config.json ([#3016](https://github.com/linz/basemaps/issues/3016)) ([a8d9d7c](https://github.com/linz/basemaps/commit/a8d9d7c632d3fbe970ff55aecfd549b039b0ea51))
+* **cli:** show which layers are being deleted from the aerial config ([#3026](https://github.com/linz/basemaps/issues/3026)) ([82970b5](https://github.com/linz/basemaps/commit/82970b53cee5396abd1750d5055265dc3f7f9b19))
+* **cogify:** support config creation from tilesets with outputs ([#3186](https://github.com/linz/basemaps/issues/3186)) ([ee76662](https://github.com/linz/basemaps/commit/ee76662ad58c0eecbb9a72e10270fed56d5d8792))
+* **config-loader:** cache imagery configs to speed up loading times ([#3167](https://github.com/linz/basemaps/issues/3167)) ([21b3ed7](https://github.com/linz/basemaps/commit/21b3ed7b0e8e61a222520ba0601b75314b18f178))
+* **config:** use the same config loader for server and cli ([#3163](https://github.com/linz/basemaps/issues/3163)) ([72cb963](https://github.com/linz/basemaps/commit/72cb963c66ed1e392fc165946b5286d60095807b))
+* node 20 ([#3044](https://github.com/linz/basemaps/issues/3044)) ([b51cf7d](https://github.com/linz/basemaps/commit/b51cf7d48fe96f0a8dec9d2421a77e40087fae83))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

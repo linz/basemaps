@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Features
+
+* **geo:** Truncate bearing and pitch values in url. ([#3188](https://github.com/linz/basemaps/issues/3188)) ([fe5d23c](https://github.com/linz/basemaps/commit/fe5d23c491013330e97860833fafa5c6af564ada))
+* **lambda-tiler:** show the first pipeline as the preview instead of a broken image ([#3187](https://github.com/linz/basemaps/issues/3187)) ([3101ace](https://github.com/linz/basemaps/commit/3101aceed618d2f7ef48f3dadd226a58bcadf9d5))
+* **landing:** Add Config Debug for screenshot elevation data. ([#3174](https://github.com/linz/basemaps/issues/3174)) ([0ee360d](https://github.com/linz/basemaps/commit/0ee360de5181d60c9358e9a739f20503ed7c0ebd))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

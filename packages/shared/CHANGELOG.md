@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* **cli:** Update the chunkd verison for the fix, and allow trailing slash uri ([#3140](https://github.com/linz/basemaps/issues/3140)) ([a0b3d9e](https://github.com/linz/basemaps/commit/a0b3d9e5cb464c4d2bfcada1d0a27c06c2809893))
+* **cogify:** remove tiff caching while creating tile covering ([#3076](https://github.com/linz/basemaps/issues/3076)) ([31ac4bc](https://github.com/linz/basemaps/commit/31ac4bc4b30f6dfde745a9515d2a6ec7b7156767))
+* **shared:** allow reading of buckets from other regions ([#3180](https://github.com/linz/basemaps/issues/3180)) ([fd02b68](https://github.com/linz/basemaps/commit/fd02b68c163fd69745f4d59d0cc99f0fde51513f))
+* **tiler:** do not read past the end of a tiff BM-948 ([#3059](https://github.com/linz/basemaps/issues/3059)) ([cf03dba](https://github.com/linz/basemaps/commit/cf03dba035921166c1447d8f82d27f2ca7be3891))
+
+
+### Features
+
+* **cogify:** support config creation from tilesets with outputs ([#3186](https://github.com/linz/basemaps/issues/3186)) ([ee76662](https://github.com/linz/basemaps/commit/ee76662ad58c0eecbb9a72e10270fed56d5d8792))
+* **lambda-tiler:** show the first pipeline as the preview instead of a broken image ([#3187](https://github.com/linz/basemaps/issues/3187)) ([3101ace](https://github.com/linz/basemaps/commit/3101aceed618d2f7ef48f3dadd226a58bcadf9d5))
+* move to query parameters for pipeline selection ([#3136](https://github.com/linz/basemaps/issues/3136)) ([32c501c](https://github.com/linz/basemaps/commit/32c501c76301c69639eb412fac80f488f65ad3fb))
+* **shared:** Allow access to s3 nz-elevation public bucket. ([#3151](https://github.com/linz/basemaps/issues/3151)) ([e7d63cd](https://github.com/linz/basemaps/commit/e7d63cda166c17db71789bfde26abe8a64081a2f))
+* **shared:** Allow basemaps file systemt to access http files. ([#3152](https://github.com/linz/basemaps/issues/3152)) ([78e0f76](https://github.com/linz/basemaps/commit/78e0f76672da67bc789ef2aa4f3140b045eeb008))
+* **tiler-sharp:** directly resize/resample DEM inputs rather than RGBA outputs ([#3173](https://github.com/linz/basemaps/issues/3173)) ([b901f83](https://github.com/linz/basemaps/commit/b901f837757d59ddc8e1b8eb3beb87fa96dbc053))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

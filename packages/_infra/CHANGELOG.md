@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Features
+
+* move to query parameters for pipeline selection ([#3136](https://github.com/linz/basemaps/issues/3136)) ([32c501c](https://github.com/linz/basemaps/commit/32c501c76301c69639eb412fac80f488f65ad3fb))
+* node 20 ([#3044](https://github.com/linz/basemaps/issues/3044)) ([b51cf7d](https://github.com/linz/basemaps/commit/b51cf7d48fe96f0a8dec9d2421a77e40087fae83))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* **cli:** gzip the config before uploading to s3. ([#3079](https://github.com/linz/basemaps/issues/3079)) ([7a1c1e5](https://github.com/linz/basemaps/commit/7a1c1e5c150865ae4292379706654114da6d82b7))
+* **cogify:** Fix the broken log for invalid cog with no assets defined. ([#3084](https://github.com/linz/basemaps/issues/3084)) ([53c47c2](https://github.com/linz/basemaps/commit/53c47c25b821b9ed26f912abc753fb235bd839d8))
+* **cogify:** improve DEM quality when reprojecting and scaling BM-987 ([#3189](https://github.com/linz/basemaps/issues/3189)) ([fc1c609](https://github.com/linz/basemaps/commit/fc1c609dad7813ec2ba4e5b524eecb9c77f3f0b8))
+* **cogify:** log key collisions ([#3190](https://github.com/linz/basemaps/issues/3190)) ([2d14bf8](https://github.com/linz/basemaps/commit/2d14bf857afb937bc5708be72f1aa4dbeacbf970))
+* **cogify:** prevent empty tiffs from being stored ([#3018](https://github.com/linz/basemaps/issues/3018)) ([971600f](https://github.com/linz/basemaps/commit/971600fefc426ee599c1a31e21e7a06995a6ebf6))
+* **cogify:** remove tiff caching while creating tile covering ([#3076](https://github.com/linz/basemaps/issues/3076)) ([31ac4bc](https://github.com/linz/basemaps/commit/31ac4bc4b30f6dfde745a9515d2a6ec7b7156767))
+
+
+### Features
+
+* **cogify:** add 1m preset ([#3062](https://github.com/linz/basemaps/issues/3062)) ([898ce58](https://github.com/linz/basemaps/commit/898ce58cab68ace7b3adb50fb34e82ae8a3d7df4))
+* **cogify:** support config creation from tilesets with outputs ([#3186](https://github.com/linz/basemaps/issues/3186)) ([ee76662](https://github.com/linz/basemaps/commit/ee76662ad58c0eecbb9a72e10270fed56d5d8792))
+* **config-loader:** cache imagery configs to speed up loading times ([#3167](https://github.com/linz/basemaps/issues/3167)) ([21b3ed7](https://github.com/linz/basemaps/commit/21b3ed7b0e8e61a222520ba0601b75314b18f178))
+* **config:** use the same config loader for server and cli ([#3163](https://github.com/linz/basemaps/issues/3163)) ([72cb963](https://github.com/linz/basemaps/commit/72cb963c66ed1e392fc165946b5286d60095807b))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

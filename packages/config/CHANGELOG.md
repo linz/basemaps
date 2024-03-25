@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* **cli:** Fix the missing format for vector config with Basemaps v7. ([#3149](https://github.com/linz/basemaps/issues/3149)) ([26b9dd8](https://github.com/linz/basemaps/commit/26b9dd8e7cbb870a63a167adf0affa2ebf170224))
+* **cogify:** prevent empty tiffs from being stored ([#3018](https://github.com/linz/basemaps/issues/3018)) ([971600f](https://github.com/linz/basemaps/commit/971600fefc426ee599c1a31e21e7a06995a6ebf6))
+* **config:** prevent deadlocking of loading queue ([#3021](https://github.com/linz/basemaps/issues/3021)) ([c9099cf](https://github.com/linz/basemaps/commit/c9099cf2e66907c02cfbdc145a1a4757cfc27ac3))
+* **tiler-sharp:** resampling should set no-data ([#3177](https://github.com/linz/basemaps/issues/3177)) ([0432fa7](https://github.com/linz/basemaps/commit/0432fa7304fd44220f9108a575399e327d6382f8))
+
+
+### Features
+
+* allow configuration of output tile types base of tileset configuration BM-932 ([#3103](https://github.com/linz/basemaps/issues/3103)) ([808e554](https://github.com/linz/basemaps/commit/808e554a43c2a82ba6d5544a88fc6f84f3eac020))
+* **cli:** compare config bundles using --target config.json ([#3016](https://github.com/linz/basemaps/issues/3016)) ([a8d9d7c](https://github.com/linz/basemaps/commit/a8d9d7c632d3fbe970ff55aecfd549b039b0ea51))
+* **config:** convert configuration parsers from typescript to zod ([#3065](https://github.com/linz/basemaps/issues/3065)) ([4691764](https://github.com/linz/basemaps/commit/4691764e348b45b58ed635ae5a5b993df8f00a54))
+* **config:** disable the empty tiff checker ([#3023](https://github.com/linz/basemaps/issues/3023)) ([811bc79](https://github.com/linz/basemaps/commit/811bc791ded56d6ab3b7919cf4285c7f60867cd1))
+* **config:** extract band and no data information from tiffs BM-932 ([#3109](https://github.com/linz/basemaps/issues/3109)) ([2a824a6](https://github.com/linz/basemaps/commit/2a824a6b91c7511833e69fee78e1e9c5935dfad7))
+* **config:** improve the default color ramp with more color ranges ([#3172](https://github.com/linz/basemaps/issues/3172)) ([2c7b8e5](https://github.com/linz/basemaps/commit/2c7b8e5383527ba3c854790fbf27b99d54625b4e))
+* **config:** load DEMs and create default output piplines ([#3166](https://github.com/linz/basemaps/issues/3166)) ([fa08983](https://github.com/linz/basemaps/commit/fa08983049c999c7010313d6fb37f057025f31b8))
+* **config:** use shorter band names for band information ([#3162](https://github.com/linz/basemaps/issues/3162)) ([8ef8760](https://github.com/linz/basemaps/commit/8ef8760bef33314bd12dcb7095e8b419407a2c63))
+* **landing:** Enable elevation preview in the basemaps debug page ([#3161](https://github.com/linz/basemaps/issues/3161)) ([b902599](https://github.com/linz/basemaps/commit/b902599e0a574b71eb698287aeefc2cd5dd853d4))
+* move to query parameters for pipeline selection ([#3136](https://github.com/linz/basemaps/issues/3136)) ([32c501c](https://github.com/linz/basemaps/commit/32c501c76301c69639eb412fac80f488f65ad3fb))
+* **tiler-sharp:** allow outputs to customise how output is compressed ([#3126](https://github.com/linz/basemaps/issues/3126)) ([f13b8fb](https://github.com/linz/basemaps/commit/f13b8fb2aae7ad224c3fde6cfb4cd8f70d4f1f9e))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

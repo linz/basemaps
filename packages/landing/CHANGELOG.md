@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* **docs:** Ignore the .DS_Store file generated from swagger mkdocs plug in. ([#3025](https://github.com/linz/basemaps/issues/3025)) ([d3b1e6a](https://github.com/linz/basemaps/commit/d3b1e6a85df29f1a2075a96815c8404d4e827e4a))
+* **landing:** disable scale control for NZTM as it is wrong BM-394 ([#3101](https://github.com/linz/basemaps/issues/3101)) ([b9ffb46](https://github.com/linz/basemaps/commit/b9ffb46dec56e148452e19c2f6eda211f85b2126))
+* **landing:** do not remove and re-add the same layers ([#3198](https://github.com/linz/basemaps/issues/3198)) ([488307c](https://github.com/linz/basemaps/commit/488307c240f650756d7b1147eeff9fb5e1173a0a))
+* **landing:** reduce bounds for nztm BM-394 ([#3054](https://github.com/linz/basemaps/issues/3054)) ([ab1b232](https://github.com/linz/basemaps/commit/ab1b232011daea057471689cc9ac5cde61bdc1c6))
+* **landing:** use urls to upload files ([#3057](https://github.com/linz/basemaps/issues/3057)) ([bad67e4](https://github.com/linz/basemaps/commit/bad67e423ccf4a3cc8028447b7ad2c081d9ff13a))
+
+
+### Features
+
+* **landing:** Add Config Debug for screenshot elevation data. ([#3174](https://github.com/linz/basemaps/issues/3174)) ([0ee360d](https://github.com/linz/basemaps/commit/0ee360de5181d60c9358e9a739f20503ed7c0ebd))
+* **landing:** add dropdown to configure a hillshade BM-991 ([#3202](https://github.com/linz/basemaps/issues/3202)) ([d8e7459](https://github.com/linz/basemaps/commit/d8e7459f15fdc2eca5fa921f15188c1066aafa1b))
+* **landing:** add example of maplibre elevation with terrain-rgb ([#3137](https://github.com/linz/basemaps/issues/3137)) ([2c15510](https://github.com/linz/basemaps/commit/2c15510e42f8e418342270defa7db3578f5ed442))
+* **landing:** Enable elevation preview in the basemaps debug page ([#3161](https://github.com/linz/basemaps/issues/3161)) ([b902599](https://github.com/linz/basemaps/commit/b902599e0a574b71eb698287aeefc2cd5dd853d4))
+* **landing:** exaggerate the terrain when viewing in NZTM BM-983 ([#3199](https://github.com/linz/basemaps/issues/3199)) ([b65a695](https://github.com/linz/basemaps/commit/b65a695879d7a11e11ee4d327faca28c7863d05f))
+* **landing:** upgrade lui ([#3033](https://github.com/linz/basemaps/issues/3033)) ([47919bb](https://github.com/linz/basemaps/commit/47919bb224d7e3a49c40be0d1999ad768e343958))
+* **landing:** upgrade maplibre and include scale ([#3031](https://github.com/linz/basemaps/issues/3031)) ([fa3e663](https://github.com/linz/basemaps/commit/fa3e6632fe67ab67015aa375395ef74775753ee3))
+* move to query parameters for pipeline selection ([#3136](https://github.com/linz/basemaps/issues/3136)) ([32c501c](https://github.com/linz/basemaps/commit/32c501c76301c69639eb412fac80f488f65ad3fb))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* **tiler:** do not read past the end of a tiff BM-948 ([#3059](https://github.com/linz/basemaps/issues/3059)) ([cf03dba](https://github.com/linz/basemaps/commit/cf03dba035921166c1447d8f82d27f2ca7be3891))
+
+
+### Features
+
+* **tiler-sharp:** directly resize/resample DEM inputs rather than RGBA outputs ([#3173](https://github.com/linz/basemaps/issues/3173)) ([b901f83](https://github.com/linz/basemaps/commit/b901f837757d59ddc8e1b8eb3beb87fa96dbc053))
+* **tiler:** add bilinear resampler for DEM/DSM ([#3176](https://github.com/linz/basemaps/issues/3176)) ([c10c84a](https://github.com/linz/basemaps/commit/c10c84a06788e4e9bd7dbd54378666e680abf3ef))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

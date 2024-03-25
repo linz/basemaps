@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* **cli:** Update the chunkd verison for the fix, and allow trailing slash uri ([#3140](https://github.com/linz/basemaps/issues/3140)) ([a0b3d9e](https://github.com/linz/basemaps/commit/a0b3d9e5cb464c4d2bfcada1d0a27c06c2809893))
+* **lambda-tiler:** fixup up bundling of arm libvips ([#3043](https://github.com/linz/basemaps/issues/3043)) ([3214192](https://github.com/linz/basemaps/commit/3214192020a3a956468e51120721679ec2b313bc))
+* **lambda-tiler:** lerc needs to be external to allow wasm import ([#3153](https://github.com/linz/basemaps/issues/3153)) ([d27b61d](https://github.com/linz/basemaps/commit/d27b61d9ec00636011f9a6ea73b424a397a315df))
+* **lambda-tiler:** only use a compose pipeline if a pipeline is defined ([#3200](https://github.com/linz/basemaps/issues/3200)) ([dfd10d3](https://github.com/linz/basemaps/commit/dfd10d3a3c3ec008c2538794e45876116bd84359))
+* some tests commented out ([#3066](https://github.com/linz/basemaps/issues/3066)) ([9896308](https://github.com/linz/basemaps/commit/98963088aff978639c7721e493c63b5582f3686e))
+
+
+### Features
+
+* allow configuration of output tile types base of tileset configuration BM-932 ([#3103](https://github.com/linz/basemaps/issues/3103)) ([808e554](https://github.com/linz/basemaps/commit/808e554a43c2a82ba6d5544a88fc6f84f3eac020))
+* **config:** load DEMs and create default output piplines ([#3166](https://github.com/linz/basemaps/issues/3166)) ([fa08983](https://github.com/linz/basemaps/commit/fa08983049c999c7010313d6fb37f057025f31b8))
+* **lambda-tiler:** randomly sample requests with trace logging ([#3170](https://github.com/linz/basemaps/issues/3170)) ([ced60bc](https://github.com/linz/basemaps/commit/ced60bc694d703da516e524c843b07b01922eb2b))
+* **lambda-tiler:** show the first pipeline as the preview instead of a broken image ([#3187](https://github.com/linz/basemaps/issues/3187)) ([3101ace](https://github.com/linz/basemaps/commit/3101aceed618d2f7ef48f3dadd226a58bcadf9d5))
+* **landing:** Add Config Debug for screenshot elevation data. ([#3174](https://github.com/linz/basemaps/issues/3174)) ([0ee360d](https://github.com/linz/basemaps/commit/0ee360de5181d60c9358e9a739f20503ed7c0ebd))
+* **landing:** Enable elevation preview in the basemaps debug page ([#3161](https://github.com/linz/basemaps/issues/3161)) ([b902599](https://github.com/linz/basemaps/commit/b902599e0a574b71eb698287aeefc2cd5dd853d4))
+* move to query parameters for pipeline selection ([#3136](https://github.com/linz/basemaps/issues/3136)) ([32c501c](https://github.com/linz/basemaps/commit/32c501c76301c69639eb412fac80f488f65ad3fb))
+* **tiler-sharp:** allow outputs to customise how output is compressed ([#3126](https://github.com/linz/basemaps/issues/3126)) ([f13b8fb](https://github.com/linz/basemaps/commit/f13b8fb2aae7ad224c3fde6cfb4cd8f70d4f1f9e))
+* **tiler-sharp:** directly resize/resample DEM inputs rather than RGBA outputs ([#3173](https://github.com/linz/basemaps/issues/3173)) ([b901f83](https://github.com/linz/basemaps/commit/b901f837757d59ddc8e1b8eb3beb87fa96dbc053))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 
