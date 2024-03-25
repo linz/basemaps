@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** only use a compose pipeline if a pipeline is defined ([#3200](https://github.com/linz/basemaps/issues/3200)) ([dfd10d3](https://github.com/linz/basemaps/commit/dfd10d3a3c3ec008c2538794e45876116bd84359))
+* **shared:** allow reading of buckets from other regions ([#3180](https://github.com/linz/basemaps/issues/3180)) ([fd02b68](https://github.com/linz/basemaps/commit/fd02b68c163fd69745f4d59d0cc99f0fde51513f))
+
+
+### Features
+
+* **cogify:** support config creation from tilesets with outputs ([#3186](https://github.com/linz/basemaps/issues/3186)) ([ee76662](https://github.com/linz/basemaps/commit/ee76662ad58c0eecbb9a72e10270fed56d5d8792))
+* **config-loader:** cache imagery configs to speed up loading times ([#3167](https://github.com/linz/basemaps/issues/3167)) ([21b3ed7](https://github.com/linz/basemaps/commit/21b3ed7b0e8e61a222520ba0601b75314b18f178))
+* **config:** use the same config loader for server and cli ([#3163](https://github.com/linz/basemaps/issues/3163)) ([72cb963](https://github.com/linz/basemaps/commit/72cb963c66ed1e392fc165946b5286d60095807b))
+* **lambda-tiler:** show the first pipeline as the preview instead of a broken image ([#3187](https://github.com/linz/basemaps/issues/3187)) ([3101ace](https://github.com/linz/basemaps/commit/3101aceed618d2f7ef48f3dadd226a58bcadf9d5))
+* move to query parameters for pipeline selection ([#3136](https://github.com/linz/basemaps/issues/3136)) ([32c501c](https://github.com/linz/basemaps/commit/32c501c76301c69639eb412fac80f488f65ad3fb))
+* node 20 ([#3044](https://github.com/linz/basemaps/issues/3044)) ([b51cf7d](https://github.com/linz/basemaps/commit/b51cf7d48fe96f0a8dec9d2421a77e40087fae83))
+* **tiler-sharp:** allow outputs to customise how output is compressed ([#3126](https://github.com/linz/basemaps/issues/3126)) ([f13b8fb](https://github.com/linz/basemaps/commit/f13b8fb2aae7ad224c3fde6cfb4cd8f70d4f1f9e))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

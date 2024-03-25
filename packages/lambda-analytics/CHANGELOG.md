@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* some tests commented out ([#3066](https://github.com/linz/basemaps/issues/3066)) ([9896308](https://github.com/linz/basemaps/commit/98963088aff978639c7721e493c63b5582f3686e))
+
+
+### Features
+
+* **lambda-analytics:** track pipeline usage BM-964 ([#3203](https://github.com/linz/basemaps/issues/3203)) ([a97a4e4](https://github.com/linz/basemaps/commit/a97a4e49357e78dc7ea3dd9174c962859640501f))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

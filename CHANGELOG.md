@@ -3,6 +3,86 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* **cli:** Fix the bundling asset that remove extra letter at path and decode font paths. ([#3154](https://github.com/linz/basemaps/issues/3154)) ([a437c1d](https://github.com/linz/basemaps/commit/a437c1d1dc5eda40ea3615cea0f992b5c17cce40))
+* **cli:** fix the error type for cdk v3 in the s3 hash object ([#3050](https://github.com/linz/basemaps/issues/3050)) ([fd55e6d](https://github.com/linz/basemaps/commit/fd55e6d6f4d0abd09d63f1d98bdb4ab6823d64bc))
+* **cli:** Fix the missing format for vector config with Basemaps v7. ([#3149](https://github.com/linz/basemaps/issues/3149)) ([26b9dd8](https://github.com/linz/basemaps/commit/26b9dd8e7cbb870a63a167adf0affa2ebf170224))
+* **cli:** gzip the config before uploading to s3. ([#3079](https://github.com/linz/basemaps/issues/3079)) ([7a1c1e5](https://github.com/linz/basemaps/commit/7a1c1e5c150865ae4292379706654114da6d82b7))
+* **cli:** Update the chunkd verison for the fix, and allow trailing slash uri ([#3140](https://github.com/linz/basemaps/issues/3140)) ([a0b3d9e](https://github.com/linz/basemaps/commit/a0b3d9e5cb464c4d2bfcada1d0a27c06c2809893))
+* **cli:** virtual tilesets are required for importing into dynamo ([#3022](https://github.com/linz/basemaps/issues/3022)) ([8bf9be9](https://github.com/linz/basemaps/commit/8bf9be9344856b12698ade1dc333d4c3b74e4e23))
+* **cogify:** Fix the broken log for invalid cog with no assets defined. ([#3084](https://github.com/linz/basemaps/issues/3084)) ([53c47c2](https://github.com/linz/basemaps/commit/53c47c25b821b9ed26f912abc753fb235bd839d8))
+* **cogify:** improve DEM quality when reprojecting and scaling BM-987 ([#3189](https://github.com/linz/basemaps/issues/3189)) ([fc1c609](https://github.com/linz/basemaps/commit/fc1c609dad7813ec2ba4e5b524eecb9c77f3f0b8))
+* **cogify:** log key collisions ([#3190](https://github.com/linz/basemaps/issues/3190)) ([2d14bf8](https://github.com/linz/basemaps/commit/2d14bf857afb937bc5708be72f1aa4dbeacbf970))
+* **cogify:** prevent empty tiffs from being stored ([#3018](https://github.com/linz/basemaps/issues/3018)) ([971600f](https://github.com/linz/basemaps/commit/971600fefc426ee599c1a31e21e7a06995a6ebf6))
+* **cogify:** remove tiff caching while creating tile covering ([#3076](https://github.com/linz/basemaps/issues/3076)) ([31ac4bc](https://github.com/linz/basemaps/commit/31ac4bc4b30f6dfde745a9515d2a6ec7b7156767))
+* **config-loader:** close tiffs rather than letting the gc close them ([#3117](https://github.com/linz/basemaps/issues/3117)) ([479c3dd](https://github.com/linz/basemaps/commit/479c3dda7e4383c4022d8de12af7d478d9085d51))
+* **config-loader:** do not assumed nontiled tiffs are empty ([#3063](https://github.com/linz/basemaps/issues/3063)) ([dfd994b](https://github.com/linz/basemaps/commit/dfd994bc08b0452a8e8ff924f38617382ed788d2))
+* **config:** prevent deadlocking of loading queue ([#3021](https://github.com/linz/basemaps/issues/3021)) ([c9099cf](https://github.com/linz/basemaps/commit/c9099cf2e66907c02cfbdc145a1a4757cfc27ac3))
+* **docs:** Ignore the .DS_Store file generated from swagger mkdocs plug in. ([#3025](https://github.com/linz/basemaps/issues/3025)) ([d3b1e6a](https://github.com/linz/basemaps/commit/d3b1e6a85df29f1a2075a96815c8404d4e827e4a))
+* **lambda-tiler:** fixup up bundling of arm libvips ([#3043](https://github.com/linz/basemaps/issues/3043)) ([3214192](https://github.com/linz/basemaps/commit/3214192020a3a956468e51120721679ec2b313bc))
+* **lambda-tiler:** lerc needs to be external to allow wasm import ([#3153](https://github.com/linz/basemaps/issues/3153)) ([d27b61d](https://github.com/linz/basemaps/commit/d27b61d9ec00636011f9a6ea73b424a397a315df))
+* **lambda-tiler:** only use a compose pipeline if a pipeline is defined ([#3200](https://github.com/linz/basemaps/issues/3200)) ([dfd10d3](https://github.com/linz/basemaps/commit/dfd10d3a3c3ec008c2538794e45876116bd84359))
+* **landing:** disable scale control for NZTM as it is wrong BM-394 ([#3101](https://github.com/linz/basemaps/issues/3101)) ([b9ffb46](https://github.com/linz/basemaps/commit/b9ffb46dec56e148452e19c2f6eda211f85b2126))
+* **landing:** do not remove and re-add the same layers ([#3198](https://github.com/linz/basemaps/issues/3198)) ([488307c](https://github.com/linz/basemaps/commit/488307c240f650756d7b1147eeff9fb5e1173a0a))
+* **landing:** reduce bounds for nztm BM-394 ([#3054](https://github.com/linz/basemaps/issues/3054)) ([ab1b232](https://github.com/linz/basemaps/commit/ab1b232011daea057471689cc9ac5cde61bdc1c6))
+* **landing:** use urls to upload files ([#3057](https://github.com/linz/basemaps/issues/3057)) ([bad67e4](https://github.com/linz/basemaps/commit/bad67e423ccf4a3cc8028447b7ad2c081d9ff13a))
+* only allow f32 lerc ([#3124](https://github.com/linz/basemaps/issues/3124)) ([85ab67f](https://github.com/linz/basemaps/commit/85ab67f6d7f596c5391a56cac7d9d288cb575d4a))
+* **shared:** allow reading of buckets from other regions ([#3180](https://github.com/linz/basemaps/issues/3180)) ([fd02b68](https://github.com/linz/basemaps/commit/fd02b68c163fd69745f4d59d0cc99f0fde51513f))
+* some tests commented out ([#3066](https://github.com/linz/basemaps/issues/3066)) ([9896308](https://github.com/linz/basemaps/commit/98963088aff978639c7721e493c63b5582f3686e))
+* **tiler-sharp:** do not resample if its not needed ([#3179](https://github.com/linz/basemaps/issues/3179)) ([6e0752d](https://github.com/linz/basemaps/commit/6e0752d448ff4ae6e0e87d6fadd0a320d7c5d9a0))
+* **tiler-sharp:** resampling should set no-data ([#3177](https://github.com/linz/basemaps/issues/3177)) ([0432fa7](https://github.com/linz/basemaps/commit/0432fa7304fd44220f9108a575399e327d6382f8))
+* **tiler:** do not read past the end of a tiff BM-948 ([#3059](https://github.com/linz/basemaps/issues/3059)) ([cf03dba](https://github.com/linz/basemaps/commit/cf03dba035921166c1447d8f82d27f2ca7be3891))
+
+
+### Features
+
+* allow configuration of output tile types base of tileset configuration BM-932 ([#3103](https://github.com/linz/basemaps/issues/3103)) ([808e554](https://github.com/linz/basemaps/commit/808e554a43c2a82ba6d5544a88fc6f84f3eac020))
+* **cli:** compare config bundles using --target config.json ([#3016](https://github.com/linz/basemaps/issues/3016)) ([a8d9d7c](https://github.com/linz/basemaps/commit/a8d9d7c632d3fbe970ff55aecfd549b039b0ea51))
+* **cli:** show which layers are being deleted from the aerial config ([#3026](https://github.com/linz/basemaps/issues/3026)) ([82970b5](https://github.com/linz/basemaps/commit/82970b53cee5396abd1750d5055265dc3f7f9b19))
+* **cogify:** add 1m preset ([#3062](https://github.com/linz/basemaps/issues/3062)) ([898ce58](https://github.com/linz/basemaps/commit/898ce58cab68ace7b3adb50fb34e82ae8a3d7df4))
+* **cogify:** support config creation from tilesets with outputs ([#3186](https://github.com/linz/basemaps/issues/3186)) ([ee76662](https://github.com/linz/basemaps/commit/ee76662ad58c0eecbb9a72e10270fed56d5d8792))
+* **config-loader:** cache imagery configs to speed up loading times ([#3167](https://github.com/linz/basemaps/issues/3167)) ([21b3ed7](https://github.com/linz/basemaps/commit/21b3ed7b0e8e61a222520ba0601b75314b18f178))
+* **config-loader:** support loading tiffs not in meters ([#3064](https://github.com/linz/basemaps/issues/3064)) ([ab1b602](https://github.com/linz/basemaps/commit/ab1b602b09109a8b58d85dc72633383afa9e136e))
+* **config:** convert configuration parsers from typescript to zod ([#3065](https://github.com/linz/basemaps/issues/3065)) ([4691764](https://github.com/linz/basemaps/commit/4691764e348b45b58ed635ae5a5b993df8f00a54))
+* **config:** disable the empty tiff checker ([#3023](https://github.com/linz/basemaps/issues/3023)) ([811bc79](https://github.com/linz/basemaps/commit/811bc791ded56d6ab3b7919cf4285c7f60867cd1))
+* **config:** extract band and no data information from tiffs BM-932 ([#3109](https://github.com/linz/basemaps/issues/3109)) ([2a824a6](https://github.com/linz/basemaps/commit/2a824a6b91c7511833e69fee78e1e9c5935dfad7))
+* **config:** improve the default color ramp with more color ranges ([#3172](https://github.com/linz/basemaps/issues/3172)) ([2c7b8e5](https://github.com/linz/basemaps/commit/2c7b8e5383527ba3c854790fbf27b99d54625b4e))
+* **config:** load DEMs and create default output piplines ([#3166](https://github.com/linz/basemaps/issues/3166)) ([fa08983](https://github.com/linz/basemaps/commit/fa08983049c999c7010313d6fb37f057025f31b8))
+* **config:** use shorter band names for band information ([#3162](https://github.com/linz/basemaps/issues/3162)) ([8ef8760](https://github.com/linz/basemaps/commit/8ef8760bef33314bd12dcb7095e8b419407a2c63))
+* **config:** use the same config loader for server and cli ([#3163](https://github.com/linz/basemaps/issues/3163)) ([72cb963](https://github.com/linz/basemaps/commit/72cb963c66ed1e392fc165946b5286d60095807b))
+* **geo:** Truncate bearing and pitch values in url. ([#3188](https://github.com/linz/basemaps/issues/3188)) ([fe5d23c](https://github.com/linz/basemaps/commit/fe5d23c491013330e97860833fafa5c6af564ada))
+* **lambda-analytics:** track pipeline usage BM-964 ([#3203](https://github.com/linz/basemaps/issues/3203)) ([a97a4e4](https://github.com/linz/basemaps/commit/a97a4e49357e78dc7ea3dd9174c962859640501f))
+* **lambda-tiler:** randomly sample requests with trace logging ([#3170](https://github.com/linz/basemaps/issues/3170)) ([ced60bc](https://github.com/linz/basemaps/commit/ced60bc694d703da516e524c843b07b01922eb2b))
+* **lambda-tiler:** show the first pipeline as the preview instead of a broken image ([#3187](https://github.com/linz/basemaps/issues/3187)) ([3101ace](https://github.com/linz/basemaps/commit/3101aceed618d2f7ef48f3dadd226a58bcadf9d5))
+* **landing:** Add Config Debug for screenshot elevation data. ([#3174](https://github.com/linz/basemaps/issues/3174)) ([0ee360d](https://github.com/linz/basemaps/commit/0ee360de5181d60c9358e9a739f20503ed7c0ebd))
+* **landing:** add dropdown to configure a hillshade BM-991 ([#3202](https://github.com/linz/basemaps/issues/3202)) ([d8e7459](https://github.com/linz/basemaps/commit/d8e7459f15fdc2eca5fa921f15188c1066aafa1b))
+* **landing:** add example of maplibre elevation with terrain-rgb ([#3137](https://github.com/linz/basemaps/issues/3137)) ([2c15510](https://github.com/linz/basemaps/commit/2c15510e42f8e418342270defa7db3578f5ed442))
+* **landing:** Enable elevation preview in the basemaps debug page ([#3161](https://github.com/linz/basemaps/issues/3161)) ([b902599](https://github.com/linz/basemaps/commit/b902599e0a574b71eb698287aeefc2cd5dd853d4))
+* **landing:** exaggerate the terrain when viewing in NZTM BM-983 ([#3199](https://github.com/linz/basemaps/issues/3199)) ([b65a695](https://github.com/linz/basemaps/commit/b65a695879d7a11e11ee4d327faca28c7863d05f))
+* **landing:** upgrade lui ([#3033](https://github.com/linz/basemaps/issues/3033)) ([47919bb](https://github.com/linz/basemaps/commit/47919bb224d7e3a49c40be0d1999ad768e343958))
+* **landing:** upgrade maplibre and include scale ([#3031](https://github.com/linz/basemaps/issues/3031)) ([fa3e663](https://github.com/linz/basemaps/commit/fa3e6632fe67ab67015aa375395ef74775753ee3))
+* move to query parameters for pipeline selection ([#3136](https://github.com/linz/basemaps/issues/3136)) ([32c501c](https://github.com/linz/basemaps/commit/32c501c76301c69639eb412fac80f488f65ad3fb))
+* node 20 ([#3044](https://github.com/linz/basemaps/issues/3044)) ([b51cf7d](https://github.com/linz/basemaps/commit/b51cf7d48fe96f0a8dec9d2421a77e40087fae83))
+* **shared:** Allow access to s3 nz-elevation public bucket. ([#3151](https://github.com/linz/basemaps/issues/3151)) ([e7d63cd](https://github.com/linz/basemaps/commit/e7d63cda166c17db71789bfde26abe8a64081a2f))
+* **shared:** Allow basemaps file systemt to access http files. ([#3152](https://github.com/linz/basemaps/issues/3152)) ([78e0f76](https://github.com/linz/basemaps/commit/78e0f76672da67bc789ef2aa4f3140b045eeb008))
+* **smoke:** add check for preview generation ([#3201](https://github.com/linz/basemaps/issues/3201)) ([d902522](https://github.com/linz/basemaps/commit/d902522dc250e13e2791abd0963b3396c9763449))
+* **smoke:** add tests to validate tiles are served BM-975 ([#3139](https://github.com/linz/basemaps/issues/3139)) ([448e60f](https://github.com/linz/basemaps/commit/448e60fccb5a75f60baf309f9b939d6e33881da8))
+* **smoke:** basic wmts validation ([#3146](https://github.com/linz/basemaps/issues/3146)) ([48d0744](https://github.com/linz/basemaps/commit/48d07441aff7962a04dd025f130ebeb43b2b26fe))
+* **smoke:** smoke test preview index.html generation ([#3183](https://github.com/linz/basemaps/issues/3183)) ([b9ef334](https://github.com/linz/basemaps/commit/b9ef3344b24e5987cb62fb8f20a24e1c9fd64311))
+* **tiler-sharp:** add terrain-rgb pipeline ([#3125](https://github.com/linz/basemaps/issues/3125)) ([159d064](https://github.com/linz/basemaps/commit/159d0647af110788aedda710a53dfc856febab45))
+* **tiler-sharp:** allow outputs to customise how output is compressed ([#3126](https://github.com/linz/basemaps/issues/3126)) ([f13b8fb](https://github.com/linz/basemaps/commit/f13b8fb2aae7ad224c3fde6cfb4cd8f70d4f1f9e))
+* **tiler-sharp:** directly resize/resample DEM inputs rather than RGBA outputs ([#3173](https://github.com/linz/basemaps/issues/3173)) ([b901f83](https://github.com/linz/basemaps/commit/b901f837757d59ddc8e1b8eb3beb87fa96dbc053))
+* **tiler:** add bilinear resampler for DEM/DSM ([#3176](https://github.com/linz/basemaps/issues/3176)) ([c10c84a](https://github.com/linz/basemaps/commit/c10c84a06788e4e9bd7dbd54378666e680abf3ef))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 

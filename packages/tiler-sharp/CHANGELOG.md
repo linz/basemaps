@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* only allow f32 lerc ([#3124](https://github.com/linz/basemaps/issues/3124)) ([85ab67f](https://github.com/linz/basemaps/commit/85ab67f6d7f596c5391a56cac7d9d288cb575d4a))
+* **tiler-sharp:** do not resample if its not needed ([#3179](https://github.com/linz/basemaps/issues/3179)) ([6e0752d](https://github.com/linz/basemaps/commit/6e0752d448ff4ae6e0e87d6fadd0a320d7c5d9a0))
+* **tiler-sharp:** resampling should set no-data ([#3177](https://github.com/linz/basemaps/issues/3177)) ([0432fa7](https://github.com/linz/basemaps/commit/0432fa7304fd44220f9108a575399e327d6382f8))
+
+
+### Features
+
+* **config:** improve the default color ramp with more color ranges ([#3172](https://github.com/linz/basemaps/issues/3172)) ([2c7b8e5](https://github.com/linz/basemaps/commit/2c7b8e5383527ba3c854790fbf27b99d54625b4e))
+* **tiler-sharp:** add terrain-rgb pipeline ([#3125](https://github.com/linz/basemaps/issues/3125)) ([159d064](https://github.com/linz/basemaps/commit/159d0647af110788aedda710a53dfc856febab45))
+* **tiler-sharp:** allow outputs to customise how output is compressed ([#3126](https://github.com/linz/basemaps/issues/3126)) ([f13b8fb](https://github.com/linz/basemaps/commit/f13b8fb2aae7ad224c3fde6cfb4cd8f70d4f1f9e))
+* **tiler-sharp:** directly resize/resample DEM inputs rather than RGBA outputs ([#3173](https://github.com/linz/basemaps/issues/3173)) ([b901f83](https://github.com/linz/basemaps/commit/b901f837757d59ddc8e1b8eb3beb87fa96dbc053))
+* **tiler:** add bilinear resampler for DEM/DSM ([#3176](https://github.com/linz/basemaps/issues/3176)) ([c10c84a](https://github.com/linz/basemaps/commit/c10c84a06788e4e9bd7dbd54378666e680abf3ef))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
 # [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 
