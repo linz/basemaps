@@ -8,7 +8,6 @@ import pLimit from 'p-limit';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
-import { filterLayers } from '../util/filter.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
 import { TileXyz, Validate } from '../util/validate.js';
@@ -47,13 +46,12 @@ export const TileXyzRaster = {
   ): Promise<URL[]> {
     const config = await ConfigLoader.load(req);
     const imagery = await getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
-    const filteredLayers = filterLayers(req, tileSet.layers);
 
     const output: URL[] = [];
 
     // All zoom level config is stored as Google zoom levels
     const filterZoom = TileMatrixSet.convertZoomLevel(zoom, tileMatrix, TileMatrixSets.get(Epsg.Google));
-    for (const layer of filteredLayers) {
+    for (const layer of tileSet.layers) {
       if (layer.maxZoom != null && filterZoom > layer.maxZoom) continue;
       if (layer.minZoom != null && filterZoom < layer.minZoom) continue;
 

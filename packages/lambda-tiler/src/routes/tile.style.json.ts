@@ -6,7 +6,6 @@ import { URL } from 'url';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
-import { getFilters } from '../util/filter.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 
@@ -77,7 +76,7 @@ export async function tileSetToStyle(
   const pipelineName = pipeline?.name === 'rgba' ? undefined : pipeline?.name;
 
   const configLocation = ConfigLoader.extract(req);
-  const query = toQueryString({ config: configLocation, api: apiKey, ...getFilters(req), pipeline: pipelineName });
+  const query = toQueryString({ config: configLocation, api: apiKey, pipeline: pipelineName });
 
   const tileUrl =
     (Env.get(Env.PublicUrlBase) ?? '') +
@@ -111,7 +110,7 @@ export async function tileSetOutputToStyle(
   if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
 
   const configLocation = ConfigLoader.extract(req);
-  const query = toQueryString({ config: configLocation, api: apiKey, ...getFilters(req) });
+  const query = toQueryString({ config: configLocation, api: apiKey });
 
   const styleId = `basemaps-${tileSet.name}`;
   const sources: Sources = {};

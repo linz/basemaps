@@ -6,7 +6,6 @@ import { createHash } from 'crypto';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
-import { filterLayers, getFilters } from '../util/filter.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 import { WmtsCapabilities } from '../wmts.capability.js';
@@ -60,7 +59,6 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
     httpBase: host,
     apiKey,
     config: ConfigLoader.extract(req),
-    filters: getFilters(req),
   });
 
   wmts.fromParams({
@@ -69,7 +67,7 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
     tileMatrix,
     imagery,
     formats: Validate.getRequestedFormats(req) ?? [],
-    layers: req.params.tileMatrix == null ? filterLayers(req, tileSet.layers) : undefined,
+    layers: req.params.tileMatrix == null ? tileSet.layers : undefined,
   });
 
   const xml = wmts.toXml();
