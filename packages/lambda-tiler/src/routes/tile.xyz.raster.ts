@@ -1,7 +1,7 @@
 import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
 import { Bounds, Epsg, ImageFormat, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
-import { Tiler } from '@basemaps/tiler';
+import { getImageFormat, Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import pLimit from 'p-limit';
@@ -132,10 +132,13 @@ export const TileXyzRaster = {
     const tiler = new Tiler(xyz.tileMatrix);
     const layers = await tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z);
 
+    const format = getImageFormat(xyz.tileType);
+    if (format == null) return new LambdaHttpResponse(400, 'Invalid image format: ' + xyz.tileType);
+
     const res = await TileComposer.compose({
       layers,
       pipeline: tileOutput.pipeline,
-      format: xyz.tileType as ImageFormat,
+      format,
       background: tileOutput.background ?? tileSet.background ?? DefaultBackground,
       resizeKernel: tileOutput.resizeKernel ?? tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
