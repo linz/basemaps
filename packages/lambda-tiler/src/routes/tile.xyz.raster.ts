@@ -1,5 +1,5 @@
 import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
-import { Bounds, Epsg, ImageFormat, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Bounds, Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { getImageFormat, Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
