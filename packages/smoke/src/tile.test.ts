@@ -24,7 +24,7 @@ describe('tile', () => {
     assert.equal(res.status, 200, res.statusText);
   });
 
-  for (const ext of ['png', 'jpeg', 'avif']) {
+  for (const ext of ['png', 'jpeg', 'avif', 'jpg']) {
     it(`should serve a ${ext} tile`, async () => {
       const res = await ctx.req(`/v1/tiles/aerial/WebMercatorQuad/6/62/40.${ext}?api=${ctx.apiKey}`);
       assert.equal(res.status, 200);
