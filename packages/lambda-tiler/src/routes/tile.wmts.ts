@@ -43,7 +43,7 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
   req.timer.start('tileset:load');
   const tileSet = await config.TileSet.get(config.TileSet.id(tileSetName ?? 'aerial'));
   req.timer.end('tileset:load');
-  if (tileSet == null || tileSet.type !== TileSetType.Raster) return NotFound();
+  if (tileSet == null || tileSet.type !== TileSetType.Raster) return NotFound('Tileset not found');
 
   const provider = await config.Provider.get(config.Provider.id('linz'));
 
@@ -54,6 +54,7 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
     tileMatrix.map((tms) => tms.projection),
   );
   req.timer.end('imagery:load');
+  if (imagery.size === 0) return NotFound('No layers found for tile set: ' + tileSet.id);
 
   const wmts = new WmtsCapabilities({
     httpBase: host,
