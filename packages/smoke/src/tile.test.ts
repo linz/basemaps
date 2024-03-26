@@ -28,7 +28,7 @@ describe('tile', () => {
     it(`should serve a ${ext} tile`, async () => {
       const res = await ctx.req(`/v1/tiles/aerial/WebMercatorQuad/6/62/40.${ext}?api=${ctx.apiKey}`);
       assert.equal(res.status, 200);
-      assert.equal(res.headers.get('content-type'), `image/${ext}`);
+      assert.equal(res.headers.get('content-type'), `image/${ext === 'jpg' ? 'jpeg' : ext}`);
     });
   }
 
