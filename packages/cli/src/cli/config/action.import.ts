@@ -8,6 +8,7 @@ import {
   ConfigPrefix,
   ConfigProviderMemory,
   ConfigTileSet,
+  TileSetType,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, getDefaultConfig, getPreviewUrl, LogConfig, LogType, setDefaultConfig } from '@basemaps/shared';
@@ -31,8 +32,8 @@ export class CommandImport extends CommandLineAction {
   /** List of paths to invalidate at the end of the request */
   invalidations: string[] = [];
 
-  /** List of changed config ids */
-  changes: string[] = [];
+  /** List of changed config tilesets */
+  changes: ConfigTileSet[] = [];
 
   /** List of paths to invalidate at the end of the request */
   backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
@@ -170,7 +171,7 @@ export class CommandImport extends CommandLineAction {
 
       const hasChanges = await updater.reconcile();
       if (hasChanges) {
-        this.changes.push(config.id);
+        this.changes.push(config as ConfigTileSet);
         this.invalidations.push(updater.invalidatePath());
         const oldData = await updater.getOldData();
         if (oldData != null) this.backupConfig.put(oldData); // No need to backup anything if there is new insert
@@ -312,10 +313,11 @@ export class CommandImport extends CommandLineAction {
     const individualUpdates: string[] = [];
     for (const config of mem.objects.values()) {
       if (!config.id.startsWith(ConfigPrefix.TileSet)) continue;
-      if (config.id === 'ts_aerial' || config.id === 'ts_topographic') continue;
+      if (config.id === 'ts_aerial') continue;
 
       if (aerialLayers.has(config.name)) continue;
       const tileSet = config as ConfigTileSet;
+      if (tileSet.type === TileSetType.Vector) continue;
       if (tileSet.layers.length > 1) continue; // Not an individual layer
       const existing = await cfg.TileSet.get(config.id);
       const layer = tileSet.layers[0];
@@ -330,15 +332,16 @@ export class CommandImport extends CommandLineAction {
     const vectorUpdate = [];
     const styleUpdate = [];
     for (const change of this.changes) {
-      if (change === 'ts_topographic') {
+      if (change.type === TileSetType.Vector) {
+        const id = ConfigId.unprefix(ConfigPrefix.TileSet, change.id);
         for (const style of VectorStyles) {
           vectorUpdate.push(
-            `* [${style}](${PublicUrlBase}?config=${this.config.value}&i=topographic&s=${style}&debug)\n`,
+            `* [${style} - ${id}](${PublicUrlBase}?config=${this.config.value}&i=${id}&s=${style}&debug)\n`,
           );
         }
       }
-      if (change.startsWith(ConfigPrefix.Style)) {
-        const style = ConfigId.unprefix(ConfigPrefix.Style, change);
+      if (change.id.startsWith(ConfigPrefix.Style)) {
+        const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);
         styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${this.config.value}&i=topographic&s=${style}&debug)\n`);
       }
     }
