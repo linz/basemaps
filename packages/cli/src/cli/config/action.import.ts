@@ -171,7 +171,7 @@ export class CommandImport extends CommandLineAction {
 
       const hasChanges = await updater.reconcile();
       if (hasChanges) {
-        this.changes.push(config as BaseConfig);
+        this.changes.push(config);
         this.invalidations.push(updater.invalidatePath());
         const oldData = await updater.getOldData();
         if (oldData != null) this.backupConfig.put(oldData); // No need to backup anything if there is new insert
