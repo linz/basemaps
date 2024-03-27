@@ -7,7 +7,6 @@ import {
   ConfigLayer,
   ConfigPrefix,
   ConfigProviderMemory,
-  ConfigTileSet,
   TileSetType,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
@@ -312,15 +311,14 @@ export class CommandImport extends CommandLineAction {
     const individualInserts: string[] = [];
     const individualUpdates: string[] = [];
     for (const config of mem.objects.values()) {
-      if (!config.id.startsWith(ConfigPrefix.TileSet)) continue;
+      if (!mem.TileSet.is(config)) continue;
       if (config.id === 'ts_aerial') continue;
 
       if (aerialLayers.has(config.name)) continue;
-      const tileSet = config as ConfigTileSet;
-      if (tileSet.type === TileSetType.Vector) continue;
-      if (tileSet.layers.length > 1) continue; // Not an individual layer
+      if (config.type === TileSetType.Vector) continue;
+      if (config.layers.length > 1) continue; // Not an individual layer
       const existing = await cfg.TileSet.get(config.id);
-      const layer = tileSet.layers[0];
+      const layer = config.layers[0];
       if (existing) await this.outputUpdatedLayers(mem, layer, existing.layers[0], individualUpdates);
       else await this.outputNewLayers(mem, layer, individualInserts);
     }
@@ -332,7 +330,7 @@ export class CommandImport extends CommandLineAction {
     const vectorUpdate = [];
     const styleUpdate = [];
     for (const change of this.changes) {
-      if (change.id.startsWith(ConfigPrefix.TileSet) && (change as ConfigTileSet).type === TileSetType.Vector) {
+      if (mem.TileSet.is(change) && change.type === TileSetType.Vector) {
         const id = ConfigId.unprefix(ConfigPrefix.TileSet, change.id);
         for (const style of VectorStyles) {
           vectorUpdate.push(
@@ -340,7 +338,7 @@ export class CommandImport extends CommandLineAction {
           );
         }
       }
-      if (change.id.startsWith(ConfigPrefix.Style)) {
+      if (mem.Style.is(change)) {
         const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);
         styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${this.config.value}&i=topographic&s=${style}&debug)\n`);
       }
