@@ -18,7 +18,6 @@ import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambd
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
-import { filterLayers, yearRangeToInterval } from '../util/filter.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 
@@ -36,6 +35,16 @@ function roundNumber(n: number): number {
 
 function roundPair(p: Pair): Pair {
   return [roundNumber(p[0]), roundNumber(p[1])];
+}
+
+/**
+ * Convert the year range into full ISO date year range
+ *
+ * Expand to the full year of jan 1st 00:00 -> Dec 31st 23:59
+ */
+export function yearRangeToInterval(x: [number] | [number, number]): [Date, Date] {
+  if (x.length === 1) return [new Date(`${x[0]}-01-01T00:00:00.000Z`), new Date(`${x[0]}-12-31T23:59:59.999Z`)];
+  return [new Date(`${x[0]}-01-01T00:00:00.000Z`), new Date(`${x[1]}-12-31T23:59:59.999Z`)];
 }
 
 /**
@@ -84,11 +93,10 @@ async function tileSetAttribution(
 
   const config = await ConfigLoader.load(req);
   const imagery = await getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
-  const filteredLayers = filterLayers(req, tileSet.layers);
 
   const host = await config.Provider.get(config.Provider.id('linz'));
 
-  for (const layer of filteredLayers) {
+  for (const layer of tileSet.layers) {
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
     const im = imagery.get(imgId);
