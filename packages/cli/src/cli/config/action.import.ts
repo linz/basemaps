@@ -32,8 +32,8 @@ export class CommandImport extends CommandLineAction {
   /** List of paths to invalidate at the end of the request */
   invalidations: string[] = [];
 
-  /** List of changed config tilesets */
-  changes: ConfigTileSet[] = [];
+  /** List of changed config */
+  changes: BaseConfig[] = [];
 
   /** List of paths to invalidate at the end of the request */
   backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
@@ -171,7 +171,7 @@ export class CommandImport extends CommandLineAction {
 
       const hasChanges = await updater.reconcile();
       if (hasChanges) {
-        this.changes.push(config as ConfigTileSet);
+        this.changes.push(config as BaseConfig);
         this.invalidations.push(updater.invalidatePath());
         const oldData = await updater.getOldData();
         if (oldData != null) this.backupConfig.put(oldData); // No need to backup anything if there is new insert
@@ -332,7 +332,7 @@ export class CommandImport extends CommandLineAction {
     const vectorUpdate = [];
     const styleUpdate = [];
     for (const change of this.changes) {
-      if (change.type === TileSetType.Vector) {
+      if (change.id.startsWith(ConfigPrefix.TileSet) && (change as ConfigTileSet).type === TileSetType.Vector) {
         const id = ConfigId.unprefix(ConfigPrefix.TileSet, change.id);
         for (const style of VectorStyles) {
           vectorUpdate.push(
