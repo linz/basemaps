@@ -1,8 +1,17 @@
-import { LogType } from '@basemaps/shared';
+import { ConfigTileSet } from '@basemaps/config';
+import { Epsg, StacCollection, StacLink } from '@basemaps/geo';
+import { fsa, LogType } from '@basemaps/shared';
 import c from 'ansi-colors';
 import diff from 'deep-diff';
 
 export const IgnoredProperties = new Set(['id', 'createdAt', 'updatedAt', 'year', 'resolution']);
+
+interface StacLinkLds extends StacLink {
+  'lds:id': string;
+  'lds:name': string;
+  'lds:feature_count': number;
+  'lds:version': string;
+}
 
 export class ConfigDiff {
   static getDiff<T>(changes: diff.Diff<T, T>[]): string {
@@ -50,4 +59,101 @@ export class ConfigDiff {
     }
     return false;
   }
+}
+
+/**
+ * Given a old and new lds layer stac item and log the changes
+ */
+export function getVectorChanges(newLayer: StacLink | undefined, existingLayer: StacLink | undefined): string | null {
+  // Update Layer
+  if (newLayer != null && existingLayer != null) {
+    const featureChange = Number(newLayer['lds:feature_count']) - Number(existingLayer['lds:feature_count']);
+
+    if (newLayer['lds:version'] === existingLayer['lds:version'] && featureChange !== 0) {
+      // Alert if feature changed with no version bump.
+      return `🟥🟥🟥🟥 Feature Change Detected ${newLayer['lds:name']} - version: ${newLayer['lds:version']} features: ${newLayer['lds:feature_count']} (+${featureChange}) 🟥🟥🟥🟥`;
+    }
+
+    if (featureChange >= 0) {
+      // Add Features
+      return `🟦 ${newLayer['lds:name']} - version: ${newLayer['lds:version']} (from: ${existingLayer['lds:version']}) features: ${newLayer['lds:feature_count']} (+${featureChange})`;
+    } else {
+      // Remove Features
+      return `🟧 ${newLayer['lds:name']} - version: ${newLayer['lds:version']} (from: ${existingLayer['lds:version']}) features: ${newLayer['lds:feature_count']} (-${featureChange})`;
+    }
+  }
+
+  // Add new Layer
+  if (newLayer != null && existingLayer == null) {
+    return `🟩 ${newLayer['lds:name']} - version: ${newLayer['lds:version']} features: ${newLayer['lds:feature_count']}`;
+  }
+
+  // Remove Layer
+  if (newLayer == null && existingLayer != null) {
+    return `🟥 ${existingLayer['lds:name']} features: -${existingLayer['lds:feature_count']}`;
+  }
+
+  // No changes detected return null
+  return null;
+}
+
+/**
+ * Prepare and create pull request for the aerial tileset config
+ */
+export async function diffVectorUpdate(
+  tileSet: ConfigTileSet,
+  existingTileSet: ConfigTileSet | null,
+): Promise<string | undefined> {
+  // Vector layer only support for 3857 and only contain on layer inside
+  const changes: string[] = [];
+  const layer = tileSet.layers[0];
+  if (layer[Epsg.Google.code] == null) return;
+  const newCollectionPath = new URL('collection.json', layer[Epsg.Google.code]);
+  const newCollection = await fsa.readJson<StacCollection>(newCollectionPath);
+  if (newCollection == null) throw new Error(`Failed to get target collection json from ${newCollectionPath}.`);
+  const ldsLayers = newCollection.links.filter((f) => f.rel === 'lds:layer') as StacLinkLds[];
+
+  // Log all the new inserts for new tileset
+  if (existingTileSet == null) {
+    changes.push(`New TileSet ts_${layer.name} with layer ${layer.name}.\n`);
+    for (const l of ldsLayers) {
+      const change = getVectorChanges(l, undefined);
+      if (change != null) changes.push(change);
+    }
+    return changes.join('\n');
+  }
+
+  // Compare the different of existing tileset, we usually only have one layers in the vector tiles, so the loop won't fetch very much
+  for (const l of existingTileSet.layers) {
+    if (l[Epsg.Google.code] == null) continue;
+    if (l.name !== layer.name) continue;
+    changes.push(`Update for TileSet ${existingTileSet.id} layer ${layer.name}.`);
+    const existingCollectionPath = new URL('collection.json', l[Epsg.Google.code]);
+    const existingCollection = await fsa.readJson<StacCollection>(existingCollectionPath);
+    if (existingCollection == null) {
+      throw new Error(`Failed to get target collection json from ${existingCollectionPath}.`);
+    }
+
+    // Prepare existing lds layers as map
+    const existingLdsLayers = new Map<string, StacLinkLds>();
+    for (const item of existingCollection.links) {
+      if (item.rel === 'lds:layer') existingLdsLayers.set((item as StacLinkLds)['lds:id'], item as StacLinkLds);
+    }
+
+    // Find layer updates
+    for (const l of ldsLayers) {
+      const existingLayer = existingLdsLayers.get(l['lds:id']);
+      const change = getVectorChanges(l, undefined);
+      if (change != null) changes.push(change);
+      if (existingLayer != null) existingLdsLayers.delete(l['lds:id']);
+    }
+
+    // Remove the layers that not deleted from existingLdsLayers
+    for (const l of existingLdsLayers.values()) {
+      const change = getVectorChanges(l, undefined);
+      if (change != null) changes.push(change);
+    }
+  }
+
+  return changes.join('\n');
 }

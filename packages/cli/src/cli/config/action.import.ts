@@ -15,6 +15,7 @@ import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter
 import fetch from 'node-fetch';
 
 import { invalidateCache } from '../util.js';
+import { diffVectorUpdate } from './config.diff.js';
 import { Q, Updater } from './config.update.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
@@ -337,6 +338,9 @@ export class CommandImport extends CommandLineAction {
             `* [${style} - ${id}](${PublicUrlBase}?config=${this.config.value}&i=${id}&s=${style}&debug)\n`,
           );
         }
+        const existingTileSet = await cfg.TileSet.get(change.id);
+        const featureChanges = await diffVectorUpdate(change, existingTileSet);
+        if (featureChanges != null) vectorUpdate.push(featureChanges);
       }
       if (mem.Style.is(change)) {
         const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);
@@ -344,8 +348,8 @@ export class CommandImport extends CommandLineAction {
       }
     }
 
-    if (vectorUpdate.length > 0) md.push('# Vector Data Update', ...vectorUpdate);
     if (styleUpdate.length > 0) md.push('# Vector Style Update', ...styleUpdate);
+    if (vectorUpdate.length > 0) md.push('# Vector Data Update', ...vectorUpdate);
 
     if (md.length > 0) {
       await fsa.write(fsa.toUrl(output), md.join('\n'));
