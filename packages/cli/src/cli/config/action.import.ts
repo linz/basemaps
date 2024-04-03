@@ -332,6 +332,7 @@ export class CommandImport extends CommandLineAction {
     const styleUpdate = [];
     for (const change of this.changes) {
       if (mem.TileSet.is(change) && change.type === TileSetType.Vector) {
+        vectorUpdate.push(`## Vector data updates for ${change.id}`);
         const id = ConfigId.unprefix(ConfigPrefix.TileSet, change.id);
         for (const style of VectorStyles) {
           vectorUpdate.push(
@@ -340,9 +341,11 @@ export class CommandImport extends CommandLineAction {
         }
         const existingTileSet = await cfg.TileSet.get(change.id);
         const featureChanges = await diffVectorUpdate(change, existingTileSet);
-        vectorUpdate.push(featureChanges);
+        vectorUpdate.push(`## Feature updates for ${change.id}`);
+        vectorUpdate.push(...featureChanges);
       }
       if (mem.Style.is(change)) {
+        styleUpdate.push(`## Vector Style updated for ${change.id}`);
         const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);
         styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${this.config.value}&i=topographic&s=${style}&debug)\n`);
       }
