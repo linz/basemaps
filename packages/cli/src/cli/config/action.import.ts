@@ -340,7 +340,7 @@ export class CommandImport extends CommandLineAction {
         }
         const existingTileSet = await cfg.TileSet.get(change.id);
         const featureChanges = await diffVectorUpdate(change, existingTileSet);
-        if (featureChanges != null) vectorUpdate.push(featureChanges);
+        vectorUpdate.push(featureChanges);
       }
       if (mem.Style.is(change)) {
         const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);

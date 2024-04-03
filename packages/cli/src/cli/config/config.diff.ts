@@ -100,14 +100,11 @@ export function getVectorChanges(newLayer: StacLink | undefined, existingLayer: 
 /**
  * Prepare and create pull request for the aerial tileset config
  */
-export async function diffVectorUpdate(
-  tileSet: ConfigTileSet,
-  existingTileSet: ConfigTileSet | null,
-): Promise<string | undefined> {
+export async function diffVectorUpdate(tileSet: ConfigTileSet, existingTileSet: ConfigTileSet | null): Promise<string> {
   // Vector layer only support for 3857 and only contain on layer inside
   const changes: string[] = [];
   const layer = tileSet.layers[0];
-  if (layer[Epsg.Google.code] == null) return;
+  if (layer?.[Epsg.Google.code] == null) throw new Error(`Invalid layers in the vector tileSet ${tileSet.id}`);
   const newCollectionPath = new URL('collection.json', layer[Epsg.Google.code]);
   const newCollection = await fsa.readJson<StacCollection>(newCollectionPath);
   if (newCollection == null) throw new Error(`Failed to get target collection json from ${newCollectionPath}.`);
