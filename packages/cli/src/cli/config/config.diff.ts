@@ -100,7 +100,10 @@ export function getVectorChanges(newLayer: StacLink | undefined, existingLayer: 
 /**
  * Prepare and create pull request for the aerial tileset config
  */
-export async function diffVectorUpdate(tileSet: ConfigTileSet, existingTileSet: ConfigTileSet | null): Promise<string> {
+export async function diffVectorUpdate(
+  tileSet: ConfigTileSet,
+  existingTileSet: ConfigTileSet | null,
+): Promise<string[]> {
   // Vector layer only support for 3857 and only contain on layer inside
   const changes: string[] = [];
   const layer = tileSet.layers[0];
@@ -112,19 +115,17 @@ export async function diffVectorUpdate(tileSet: ConfigTileSet, existingTileSet: 
 
   // Log all the new inserts for new tileset
   if (existingTileSet == null) {
-    changes.push(`New TileSet ts_${layer.name} with layer ${layer.name}.\n`);
     for (const l of ldsLayers) {
       const change = getVectorChanges(l, undefined);
       if (change != null) changes.push(change);
     }
-    return changes.join('\n');
+    return changes;
   }
 
   // Compare the different of existing tileset, we usually only have one layers in the vector tiles, so the loop won't fetch very much
   for (const l of existingTileSet.layers) {
     if (l[Epsg.Google.code] == null) continue;
     if (l.name !== layer.name) continue;
-    changes.push(`Update for TileSet ${existingTileSet.id} layer ${layer.name}.`);
     const existingCollectionPath = new URL('collection.json', l[Epsg.Google.code]);
     const existingCollection = await fsa.readJson<StacCollection>(existingCollectionPath);
     if (existingCollection == null) {
@@ -152,5 +153,5 @@ export async function diffVectorUpdate(tileSet: ConfigTileSet, existingTileSet: 
     }
   }
 
-  return changes.join('\n');
+  return changes;
 }
