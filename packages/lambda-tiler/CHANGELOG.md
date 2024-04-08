@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** content type for jpg should be image/jpeg ([#3208](https://github.com/linz/basemaps/issues/3208)) ([26efdd5](https://github.com/linz/basemaps/commit/26efdd5732033235742a3148c63e4beff0a51cc8))
+* **lambda-tiler:** do not error when no layers are found ([#3209](https://github.com/linz/basemaps/issues/3209)) ([2e58255](https://github.com/linz/basemaps/commit/2e58255df9b22d525ee539aa8754fdb755ddc8c9))
+
+
+
+
+
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
 
