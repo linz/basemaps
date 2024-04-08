@@ -97,6 +97,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     } else {
       if (this.controlScale == null) return;
       this.map.removeControl(this.controlScale);
+      this.controlScale = null;
     }
   }
 
