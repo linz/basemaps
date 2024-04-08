@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
+
+
+### Bug Fixes
+
+* **cli:** Fix config import to prepare changes for individual vector config. ([#3210](https://github.com/linz/basemaps/issues/3210)) ([5d6b867](https://github.com/linz/basemaps/commit/5d6b8671468d6a70684403a707e5e1bcba4cf2d9))
+
+
+### Features
+
+* **cli:** Output the feature changes for the vector update ([#3214](https://github.com/linz/basemaps/issues/3214)) ([a41f1d3](https://github.com/linz/basemaps/commit/a41f1d3966f37bb356adec7824716adc555a9201))
+* **cli:** Update the changed format looks nicer in the github comment ([#3216](https://github.com/linz/basemaps/issues/3216)) ([bc60baa](https://github.com/linz/basemaps/commit/bc60baa49b6ec6372a7d9a5948b3d69f786fca10))
+
+
+
+
+
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
 **Note:** Version bump only for package @basemaps/cli

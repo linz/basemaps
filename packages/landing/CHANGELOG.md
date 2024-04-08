@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
+
+
+### Bug Fixes
+
+* **landing:** Fix the ensure scalecontrol for the NZTM2000quad projection. BM-1004 ([#3219](https://github.com/linz/basemaps/issues/3219)) ([d1d92e2](https://github.com/linz/basemaps/commit/d1d92e27149009bb4c39c737315457bd80a4ea4a))
+
+
+
+
+
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
 **Note:** Version bump only for package @basemaps/landing
