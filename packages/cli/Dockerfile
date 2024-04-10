@@ -20,8 +20,9 @@ RUN npm install sharp@0.33.0
 # Install the landing assets
 COPY ./basemaps-landing*.tgz /app/
 COPY ./basemaps-cogify*.tgz /app/
+COPY ./basemaps-smoke*.tgz /app/
 
-RUN npm install ./basemaps-landing*.tgz ./basemaps-cogify*.tgz
+RUN npm install ./basemaps-landing*.tgz ./basemaps-cogify*.tgz ./basemaps-smoke*.tgz
 
 COPY dist/index.cjs /app/
 
