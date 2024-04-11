@@ -69,9 +69,12 @@ export function getVectorChanges(newLayer: StacLink | undefined, existingLayer: 
   if (newLayer != null && existingLayer != null) {
     const featureChange = Number(newLayer['lds:feature_count']) - Number(existingLayer['lds:feature_count']);
 
-    if (newLayer['lds:version'] === existingLayer['lds:version'] && featureChange !== 0) {
+    if (newLayer['lds:version'] === existingLayer['lds:version']) {
       // Alert if feature changed with no version bump.
-      return `🟥🟥🟥🟥 Feature Change Detected ${newLayer['lds:name']} - version: ${newLayer['lds:version']} features: ${newLayer['lds:feature_count']} (+${featureChange}) 🟥🟥🟥🟥`;
+      if (featureChange !== 0) {
+        return `🟥🟥🟥🟥 Feature Change Detected ${newLayer['lds:name']} - version: ${newLayer['lds:version']} features: ${newLayer['lds:feature_count']} (+${featureChange}) 🟥🟥🟥🟥`;
+      }
+      return null;
     }
 
     if (featureChange >= 0) {
