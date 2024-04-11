@@ -141,7 +141,7 @@ export async function diffVectorUpdate(
     // Find layer updates
     for (const l of ldsLayers) {
       const existingLayer = existingLdsLayers.get(l['lds:id']);
-      const change = getVectorChanges(l, undefined);
+      const change = getVectorChanges(l, existingLayer);
       if (change != null) changes.push(change);
       if (existingLayer != null) existingLdsLayers.delete(l['lds:id']);
     }
