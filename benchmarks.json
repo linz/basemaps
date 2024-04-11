@@ -1,5 +1,35 @@
 [
   {
+    "hash": "e27cd124287a1d650249cb6accdcca21969edb90",
+    "createdAt": "2024-04-11T01:33:43.468Z",
+    "results": [
+      {
+        "name": "Tile 256x256",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 256",
+        "mean": 0.45785018867,
+        "stddev": 0.005467182249502178,
+        "median": 0.46064720247,
+        "user": 0.5295335499999999,
+        "system": 0.09533793499999998,
+        "min": 0.44752901947,
+        "max": 0.46301485247
+      },
+      {
+        "name": "Tile 512x512",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 512",
+        "mean": 0.4612477126150001,
+        "stddev": 0.003777001427238818,
+        "median": 0.4605147607150001,
+        "user": 0.5395149549999999,
+        "system": 0.086934375,
+        "min": 0.456690833715,
+        "max": 0.46890829771500003
+      }
+    ]
+  },
+  {
     "hash": "09567b623d61e434d44366777513d4099b1aec70",
     "createdAt": "2024-04-08T03:07:56.451Z",
     "results": [
@@ -14966,36 +14996,6 @@
         "system": 0.04903043,
         "min": 0.33070315962,
         "max": 0.34017039462
-      }
-    ]
-  },
-  {
-    "hash": "4cd49487dddc3a70123437d1644ff3e22d9dc12f",
-    "createdAt": "2022-05-31T21:33:09.603Z",
-    "results": [
-      {
-        "name": "Tile 256x256",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 256",
-        "mean": 0.41180792639,
-        "stddev": 0.015424394160398966,
-        "median": 0.41234867969,
-        "user": 0.430247935,
-        "system": 0.06219239499999999,
-        "min": 0.39297831019,
-        "max": 0.43575067419
-      },
-      {
-        "name": "Tile 512x512",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__test__/tile.benchmark.js 512",
-        "mean": 0.40241991788,
-        "stddev": 0.010444180943091595,
-        "median": 0.40227412518,
-        "user": 0.421602135,
-        "system": 0.060464050000000005,
-        "min": 0.38597990068,
-        "max": 0.41627751468
       }
     ]
   }
