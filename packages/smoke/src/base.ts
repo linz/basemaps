@@ -1,9 +1,7 @@
 import assert from 'node:assert';
 
-import { LogConfig } from '@basemaps/shared';
 import ulid from 'ulid';
 
-const logger = LogConfig.get();
 /** Fresh API Key to use */
 const apiKey = 'c' + ulid.ulid().toLowerCase().slice(0, 22) + 'test';
 
@@ -27,14 +25,16 @@ if (!host.protocol.startsWith('http')) throw new Error(`Invalid host: ${host}`);
  */
 async function req(path: string, opts?: RequestInit): Promise<Response> {
   const target = new URL(path, host);
-  logger.trace({ path, url: target.href }, 'Fetch');
+
   const startTime = performance.now();
   const res = await fetch(target, opts);
-  logger.info({ url: target.href, status: res.status, ...opts, duration: performance.now() - startTime }, 'Fetch:Done');
+
+  // eslint-disable-next-line no-console
+  console.log({ url: target.href, status: res.status, ...opts, duration: performance.now() - startTime }, 'Fetch:Done');
   return res;
 }
 
-export const ctx = { logger, host, Cors, apiKey, req };
+export const ctx = { host, Cors, apiKey, req };
 
 /** Validate that the response was not a cached response */
 export function assertCacheMiss(res: Response): void {
