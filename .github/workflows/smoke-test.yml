@@ -30,7 +30,7 @@ jobs:
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
 
-      - name: (Screenshot) Run Smoke Tests
+      - name: (Smoke) Run Smoke Tests
         run: |
           ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
 
