@@ -94,17 +94,25 @@ export class WmtsBuilder {
   }
 
   buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {
-    let bbox: BBox;
+    let bbox: BBox | null = null;
+
+    // console.log(layers);
     if (layers.length > 0) {
       let bounds = layers[0];
       for (let i = 1; i < layers.length; i++) {
         bounds = bounds.union(layers[i]);
       }
-      bbox = wgs84Extent(tms, bounds.toJson());
-    } else {
-      // No layers provided assume extent is the size of the tile matrix set :shrug: ?
-      bbox = wgs84Extent(tms, tms.extent);
+
+      // If imagery is outside of the bounds of the tileMatrix, fall back to the tileMatrix extent for the bounds
+      if (!tms.extent.containsBounds(bounds)) {
+        bbox = wgs84Extent(tms, tms.extent);
+      } else {
+        bbox = wgs84Extent(tms, bounds);
+      }
     }
+
+    // No layers provided assume extent is the size of the tile matrix set :shrug: ?
+    if (bbox == null) bbox = wgs84Extent(tms, tms.extent);
 
     // If east is less than west, then this has crossed the anti meridian, so cover the entire globe
     if (bbox[2] < bbox[0]) {
@@ -120,7 +128,7 @@ export class WmtsBuilder {
 
   /** Combine all the bounds of the imagery inside the layers into a extent for the imagery set */
   buildBoundingBoxFromImagery(tms: TileMatrixSet, layers: ConfigLayer[]): VNodeElement | null {
-    let bounds;
+    let bounds: Bounds | null = null;
     for (const layer of layers) {
       const imgId = layer[tms.projection.code];
       if (imgId == null) continue;
@@ -131,7 +139,11 @@ export class WmtsBuilder {
     }
     if (bounds == null) return null;
 
+    // If imagery is outside of the bounds of the tileMatrix, fall back to the tileMatrix extent for the bounds
+    if (!tms.extent.containsBounds(bounds)) bounds = tms.extent;
+
     const bbox = bounds.toBbox();
+
     return V('ows:BoundingBox', { crs: tms.projection.toUrn() }, [
       V('ows:LowerCorner', formatBbox(bbox[tms.indexX], bbox[tms.indexY], MeterPrecision)),
       V('ows:UpperCorner', formatBbox(bbox[tms.indexX + 2], bbox[tms.indexY + 2], MeterPrecision)),
