@@ -271,7 +271,6 @@ describe('WmtsCapabilities', () => {
     assert.equal(wgs84?.find('ows:LowerCorner')?.toString(), '<ows:LowerCorner>-180 -85.051129</ows:LowerCorner>');
     assert.equal(wgs84?.find('ows:UpperCorner')?.toString(), '<ows:UpperCorner>180 85.051129</ows:UpperCorner>');
 
-    console.log();
   });
 
   it('should limit a bounding box to the tileMatrix extent NZTM2000Quad', () => {
