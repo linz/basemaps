@@ -237,7 +237,7 @@ describe('WmtsCapabilities', () => {
       ...Imagery3857,
       bounds: {
         // These bounds are slightly outside the extent bounds of 3857 (approx 0.3m offset)
-        // {x: -20037508.34 y:-20037508.34, width: 40075016.6855784 , height: 40075016.6855784 }
+        // expected bounds: {x: -20037508.34 y:-20037508.34, width: 40075016.6855784 , height: 40075016.6855784 }
         x: -20037508.6276,
         y: -20037508.6276,
         width: 40075016.9626,
