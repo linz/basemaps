@@ -96,7 +96,6 @@ export class WmtsBuilder {
   buildWgs84BoundingBox(tms: TileMatrixSet, layers: Bounds[]): VNodeElement {
     let bbox: BBox | null = null;
 
-    // console.log(layers);
     if (layers.length > 0) {
       let bounds = layers[0];
       for (let i = 1; i < layers.length; i++) {
