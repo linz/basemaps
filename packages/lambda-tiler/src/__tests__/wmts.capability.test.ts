@@ -257,7 +257,6 @@ describe('WmtsCapabilities', () => {
     const wgs84 = raw.find('Contents', 'Layer', 'ows:WGS84BoundingBox');
     const epsg3857 = raw.find('Contents', 'Layer', 'ows:BoundingBox');
 
-    console.log(epsg3857?.toString());
     assert.equal(
       epsg3857?.find('ows:LowerCorner')?.toString(),
       `<ows:LowerCorner>-20037508.3428 -20037508.3428</ows:LowerCorner>`,
@@ -267,10 +266,8 @@ describe('WmtsCapabilities', () => {
       `<ows:UpperCorner>20037508.3428 20037508.3428</ows:UpperCorner>`,
     );
 
-    console.log(wgs84?.toString());
     assert.equal(wgs84?.find('ows:LowerCorner')?.toString(), '<ows:LowerCorner>-180 -85.051129</ows:LowerCorner>');
     assert.equal(wgs84?.find('ows:UpperCorner')?.toString(), '<ows:UpperCorner>180 85.051129</ows:UpperCorner>');
-
   });
 
   it('should limit a bounding box to the tileMatrix extent NZTM2000Quad', () => {
@@ -308,7 +305,6 @@ describe('WmtsCapabilities', () => {
       `<ows:UpperCorner>10438190.1652 6758167.443</ows:UpperCorner>`,
     );
 
-    console.log(wgs84?.toString());
     assert.equal(wgs84?.find('ows:LowerCorner')?.toString(), '<ows:LowerCorner>-180 -49.929855</ows:LowerCorner>');
     assert.equal(wgs84?.find('ows:UpperCorner')?.toString(), '<ows:UpperCorner>180 2.938603</ows:UpperCorner>');
   });
