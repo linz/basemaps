@@ -30,7 +30,19 @@ async function req(path: string, opts?: RequestInit): Promise<Response> {
   const res = await fetch(target, opts);
 
   // eslint-disable-next-line no-console
-  console.log({ url: target.href, status: res.status, ...opts, duration: performance.now() - startTime }, 'Fetch:Done');
+  console.log(
+    // Create a fake log line approximating the pino log format
+    JSON.stringify({
+      pid: 0,
+      time: new Date().toISOString(),
+      level: 30,
+      msg: 'Fetch:Done',
+      url: target.href,
+      status: res.status,
+      ...opts,
+      duration: performance.now() - startTime,
+    }),
+  );
   return res;
 }
 
