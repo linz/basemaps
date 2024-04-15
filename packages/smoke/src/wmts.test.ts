@@ -28,13 +28,23 @@ test(`GET /v1/tiles/aerial/WebMercatorQuad/WMTSCapabilities.xml`, async () => {
 
   assert.ok(
     xml.includes(
-      `<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::3857"><ows:LowerCorner>-20037508.3428 -20037508.3428</ows:LowerCorner><ows:UpperCorner>20037508.3428 20037508.3428</ows:UpperCorner></ows:BoundingBox>`,
+      [
+        `<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::3857">`,
+        `<ows:LowerCorner>-20037508.3428 -20037508.3428</ows:LowerCorner>`,
+        `<ows:UpperCorner>20037508.3428 20037508.3428</ows:UpperCorner>`,
+        `</ows:BoundingBox>`,
+      ].join(''),
     ),
   );
 
   assert.ok(
     xml.includes(
-      `<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84"><ows:LowerCorner>-180 -85.051129</ows:LowerCorner><ows:UpperCorner>180 85.051129</ows:UpperCorner></ows:WGS84BoundingBox>`,
+      [
+        `<ows:WGS84BoundingBox crs="urn:ogc:def:crs:OGC:2:84">`,
+        `<ows:LowerCorner>-180 -85.051129</ows:LowerCorner>`,
+        `<ows:UpperCorner>180 85.051129</ows:UpperCorner>`,
+        `</ows:WGS84BoundingBox>`,
+      ].join(''),
     ),
   );
 
