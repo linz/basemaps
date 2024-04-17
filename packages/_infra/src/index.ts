@@ -1,9 +1,11 @@
 import { ACMClient, ListCertificatesCommand } from '@aws-sdk/client-acm';
 import { Env } from '@basemaps/shared';
+import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
+import { Classification } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 
 import { EdgeAnalytics } from './analytics/edge.analytics.js';
-import { BaseMapsRegion, getConfig } from './config.js';
+import { BaseMapsRegion, getConfig, IsProduction } from './config.js';
 import { DeployEnv } from './deploy.env.js';
 import { EdgeStack } from './edge/index.js';
 import { getParameters, ParametersEdgeKeys, ParametersServeKeys } from './parameters.js';
@@ -19,6 +21,13 @@ async function findCertForDomain(region: string, domain: string): Promise<string
 
 async function main(): Promise<void> {
   const basemaps = new App();
+
+  const commonTags = {
+    application: 'basemaps',
+    environment: IsProduction ? 'prod' : 'nonprod',
+    group: 'li',
+    classification: SecurityClassification.Unclassified,
+  } as const;
 
   /** Using VPC lookups requires a hard coded AWS "account" */
   const account = Env.get(DeployEnv.CdkAccount);
@@ -47,11 +56,13 @@ async function main(): Promise<void> {
     cloudfrontCertificateArn,
     lambdaUrl: serveParams?.LambdaXyzUrl,
   });
+  applyTags(edge, commonTags);
 
   const serve = new ServeStack(basemaps, 'Serve', {
     env: { region: BaseMapsRegion, account },
     staticBucketName: edgeParams?.CloudFrontBucket,
   });
+  applyTags(serve, commonTags);
   edge.addDependency(serve);
 
   if (edgeParams != null) {
@@ -61,6 +72,7 @@ async function main(): Promise<void> {
       distributionId: edgeParams.CloudFrontDistributionId,
     });
     analytics.addDependency(edge);
+    applyTags(analytics, commonTags);
   }
 }
 

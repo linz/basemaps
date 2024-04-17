@@ -31,5 +31,8 @@
     "aws-cdk": "2.114.x",
     "aws-cdk-lib": "2.114.x",
     "constructs": "^10.3.0"
+  },
+  "dependencies": {
+    "@linzjs/cdk-tags": "^1.1.0"
   }
 }
