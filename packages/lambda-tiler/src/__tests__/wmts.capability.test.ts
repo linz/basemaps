@@ -229,6 +229,86 @@ describe('WmtsCapabilities', () => {
     );
   });
 
+  it('should limit a bounding box to the tileMatrix extent WebMercatorQuad', () => {
+    const wmts = new WmtsCapabilities({ httpBase: 'https://basemaps.test', apiKey });
+
+    const bigImagery = new Map();
+    bigImagery.set(Imagery3857.id, {
+      ...Imagery3857,
+      bounds: {
+        // These bounds are slightly outside the extent bounds of 3857 (approx 0.3m offset)
+        // expected bounds: {x: -20037508.34 y:-20037508.34, width: 40075016.6855784 , height: 40075016.6855784 }
+        x: -20037508.6276,
+        y: -20037508.6276,
+        width: 40075016.9626,
+        height: 40075014.197799996,
+      },
+    });
+
+    wmts.fromParams({
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet: TileSetAerial,
+      imagery: bigImagery,
+      formats: ['png'],
+    });
+    const raw = wmts.toVNode();
+
+    const wgs84 = raw.find('Contents', 'Layer', 'ows:WGS84BoundingBox');
+    const epsg3857 = raw.find('Contents', 'Layer', 'ows:BoundingBox');
+
+    assert.equal(
+      epsg3857?.find('ows:LowerCorner')?.toString(),
+      `<ows:LowerCorner>-20037508.3428 -20037508.3428</ows:LowerCorner>`,
+    );
+    assert.equal(
+      epsg3857?.find('ows:UpperCorner')?.toString(),
+      `<ows:UpperCorner>20037508.3428 20037508.3428</ows:UpperCorner>`,
+    );
+
+    assert.equal(wgs84?.find('ows:LowerCorner')?.toString(), '<ows:LowerCorner>-180 -85.051129</ows:LowerCorner>');
+    assert.equal(wgs84?.find('ows:UpperCorner')?.toString(), '<ows:UpperCorner>180 85.051129</ows:UpperCorner>');
+  });
+
+  it('should limit a bounding box to the tileMatrix extent NZTM2000Quad', () => {
+    const wmts = new WmtsCapabilities({ httpBase: 'https://basemaps.test', apiKey });
+    const bigImagery = new Map();
+
+    bigImagery.set(Imagery2193.id, {
+      ...Imagery2193,
+      bounds: {
+        // These bounds are slightly outside the extent bounds of NZTM2000Quad (approx 0.3m offset)
+        x: -3260586.9214,
+        y: 419435.7552,
+        width: 10018754.086099999,
+        height: 10018754.086099999,
+      },
+    });
+
+    wmts.fromParams({
+      provider: Provider,
+      tileMatrix: [Nztm2000QuadTms],
+      tileSet: TileSetAerial,
+      imagery: bigImagery,
+      formats: ['png'],
+    });
+    const raw = wmts.toVNode();
+
+    const wgs84 = raw.find('Contents', 'Layer', 'ows:WGS84BoundingBox');
+    const crsBounds = raw.find('Contents', 'Layer', 'ows:BoundingBox');
+    assert.equal(
+      crsBounds?.find('ows:LowerCorner')?.toString(),
+      `<ows:LowerCorner>419435.9938 -3260586.7284</ows:LowerCorner>`,
+    );
+    assert.equal(
+      crsBounds?.find('ows:UpperCorner')?.toString(),
+      `<ows:UpperCorner>10438190.1652 6758167.443</ows:UpperCorner>`,
+    );
+
+    assert.equal(wgs84?.find('ows:LowerCorner')?.toString(), '<ows:LowerCorner>-180 -49.929855</ows:LowerCorner>');
+    assert.equal(wgs84?.find('ows:UpperCorner')?.toString(), '<ows:UpperCorner>180 2.938603</ows:UpperCorner>');
+  });
+
   it('should include output the correct TileMatrix', () => {
     const wmts = new WmtsCapabilities({
       httpBase: 'https://basemaps.test',
@@ -512,11 +592,12 @@ describe('WmtsCapabilities', () => {
         .split('\n')
         .map((c) => c.trim()),
     );
+
     assert.deepEqual(boundingBox[0][1], '<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
-    assert.equal(boundingBox[0][2], '<ows:UpperCorner>180 0</ows:UpperCorner>');
+    assert.equal(boundingBox[0][2], '<ows:UpperCorner>180 85.0511</ows:UpperCorner>');
 
     assert.deepEqual(boundingBox[1][1], '<ows:LowerCorner>-180 -85.0511</ows:LowerCorner>');
-    assert.equal(boundingBox[1][2], '<ows:UpperCorner>180 0</ows:UpperCorner>');
+    assert.equal(boundingBox[1][2], '<ows:UpperCorner>180 85.0511</ows:UpperCorner>');
   });
 
   it('should work with NZTM2000Quad', () => {
