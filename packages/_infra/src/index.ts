@@ -2,7 +2,6 @@ import { ACMClient, ListCertificatesCommand } from '@aws-sdk/client-acm';
 import { Env } from '@basemaps/shared';
 import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
-import { Classification } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 
 import { EdgeAnalytics } from './analytics/edge.analytics.js';
 import { BaseMapsRegion, getConfig, IsProduction } from './config.js';
