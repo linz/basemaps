@@ -1,10 +1,12 @@
 Error.stackTraceLimit = 100;
 
-import { LogConfig } from '@basemaps/shared';
-import { fsa } from '@basemaps/shared';
+import { Fqdn, fsa, LogConfig } from '@basemaps/shared';
 import { run } from 'cmd-ts';
 
 import { CogifyCli } from './cogify/cli.js';
+
+// Force Fully qualified domain names to reduce DNS lookups
+Fqdn.isForcedFqdn = true;
 
 // remove the source caching / chunking as it is not needed for cogify, cogify only reads tiffs once so caching the result is not helpful
 fsa.middleware = fsa.middleware.filter((f) => f.name !== 'source:chunk');
