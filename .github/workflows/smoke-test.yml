@@ -39,3 +39,5 @@ jobs:
           timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
 
           BASEMAPS_HOST=http://localhost:5000 node --test packages/smoke/build/*.test.js
+        env:
+          GIT_VERSION: 'dev'
