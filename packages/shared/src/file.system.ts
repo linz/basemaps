@@ -9,6 +9,7 @@ import type { SourceCallback, SourceRequest } from '@chunkd/source';
 import type { RequestSigner } from '@smithy/types';
 
 import { Env } from './const.js';
+import { Fqdn } from './file.system.middleware.js';
 import { LogConfig } from './log.js';
 
 export const s3Fs = new FsAwsS3(
@@ -32,10 +33,20 @@ export const s3FsPublic = new FsAwsS3(
   }),
 );
 
+/** Ensure middleware are added to all s3 clients that are created */
+function applyS3MiddleWare(fs: FsAwsS3): void {
+  if (fs.s3 == null) return;
+  fs.s3.middlewareStack.add(Fqdn.middleware, { name: 'FQDN', step: 'finalizeRequest' });
+}
+
+applyS3MiddleWare(s3FsPublic);
+applyS3MiddleWare(s3Fs);
+
 const credentials = new AwsS3CredentialProvider();
 
 credentials.onFileSystemCreated = (acc: AwsCredentialConfig, fs: FileSystem): void => {
   LogConfig.get().debug({ prefix: acc.prefix, roleArn: acc.roleArn }, 'FileSystem:Register');
+  applyS3MiddleWare(fs as FsAwsS3);
   fsa.register(acc.prefix, fs);
 };
 
