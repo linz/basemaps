@@ -34,8 +34,10 @@ export const BaseMapsDevConfig: BaseMapsConfig = {
   PublicUrlBase: 'https://dev.basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
 };
+/** Is this deployment intended for production */
+export const IsProduction = process.env['NODE_ENV'] === 'production';
 
 export function getConfig(): BaseMapsConfig {
-  if (process.env['NODE_ENV'] === 'production') return BaseMapsProdConfig;
+  if (IsProduction) return BaseMapsProdConfig;
   return BaseMapsDevConfig;
 }
