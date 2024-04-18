@@ -32,6 +32,7 @@ jobs:
 
       - name: (Smoke) Run Smoke Tests
         run: |
+          # Copy the static files for v1/health check
           cp -r packages/lambda-tiler/static/ .
           ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
 
@@ -40,4 +41,5 @@ jobs:
 
           BASEMAPS_HOST=http://localhost:5000 node --test packages/smoke/build/*.test.js
         env:
-          GIT_VERSION: 'dev'
+          GIT_VERSION: $(git describe --tags --always --match 'v*')
+          GIT_HASH: $(git rev-parse HEAD)
