@@ -30,7 +30,7 @@
     "@basemaps/shared": "^7.1.0",
     "@linzjs/cdk-tags": "^1.1.0",
     "aws-cdk": "2.114.x",
-    "aws-cdk-lib": "2.114.x",
+    "aws-cdk-lib": "2.137.x",
     "constructs": "^10.3.0"
   }
 }
