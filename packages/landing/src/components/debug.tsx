@@ -432,7 +432,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       label: 'Layer',
       onChange: this.selectRasterSource,
       value: selectedSource,
-      options: sourceIds,
+      options: [...sourceIds, 'off'],
     });
   }
 
