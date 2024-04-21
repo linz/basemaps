@@ -108,7 +108,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
   /** Used as source and layer id in the Style JSON for a given layer ID */
   get styleId(): string {
-    return `basemaps-${Config.map.style}`;
+    return Config.map.style == null ? `basemaps-${Config.map.layerId}` : `basemaps-${Config.map.style}`;
   }
 
   getDateRangeFromUrl(urlParams: URLSearchParams): FilterDate {

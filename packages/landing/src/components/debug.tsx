@@ -425,8 +425,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     const sourceIds = this.getSourcesIds('raster');
     if (sourceIds.length <= 1) return;
     // Get default source
-    const selectedSource = this.props.map.getLayer(Config.map.styleId)?.source;
-    if (selectedSource == null) return;
+    let selectedSource = this.props.map.getLayer(Config.map.styleId)?.source;
+    if (selectedSource == null) selectedSource = 'off';
 
     return debugSourceDropdown({
       label: 'Layer',
