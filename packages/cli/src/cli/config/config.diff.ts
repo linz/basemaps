@@ -114,11 +114,16 @@ export async function diffVectorUpdate(
   const newCollectionPath = new URL('collection.json', layer[Epsg.Google.code]);
   const newCollection = await fsa.readJson<StacCollection>(newCollectionPath);
   if (newCollection == null) throw new Error(`Failed to get target collection json from ${newCollectionPath}.`);
-  const ldsLayers = newCollection.links.filter((f) => f.rel === 'lds:layer') as StacLinkLds[];
+
+  // Prepare new lds layers as map
+  const ldsLayers = new Map<string, StacLinkLds>();
+  for (const item of newCollection.links) {
+    if (item.rel === 'lds:layer') ldsLayers.set((item as StacLinkLds)['lds:id'], item as StacLinkLds);
+  } 
 
   // Log all the new inserts for new tileset
   if (existingTileSet == null) {
-    for (const l of ldsLayers) {
+    for (const l of ldsLayers.values()) {
       const change = getVectorChanges(l, undefined);
       if (change != null) changes.push(change);
     }
@@ -142,7 +147,7 @@ export async function diffVectorUpdate(
     }
 
     // Find layer updates
-    for (const l of ldsLayers) {
+    for (const l of ldsLayers.values()) {
       const existingLayer = existingLdsLayers.get(l['lds:id']);
       const change = getVectorChanges(l, existingLayer);
       if (change != null) changes.push(change);
