@@ -119,7 +119,7 @@ export async function diffVectorUpdate(
   const ldsLayers = new Map<string, StacLinkLds>();
   for (const item of newCollection.links) {
     if (item.rel === 'lds:layer') ldsLayers.set((item as StacLinkLds)['lds:id'], item as StacLinkLds);
-  } 
+  }
 
   // Log all the new inserts for new tileset
   if (existingTileSet == null) {
