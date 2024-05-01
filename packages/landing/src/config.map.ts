@@ -123,7 +123,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s') ?? urlParams.get('style');
     const config = urlParams.get('c') ?? urlParams.get('config');
-    const layerId = urlParams.get('i') ?? 'aerial';
+    const layerId = urlParams.get('i') ?? style ?? 'aerial';
     const date = this.getDateRangeFromUrl(urlParams);
     if (this.filter.date.before !== date.before) {
       this.filter.date = date;
