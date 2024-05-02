@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+
+### Bug Fixes
+
+* **cli:** Fix the check vector diff outputs. BM-1013 ([#3230](https://github.com/linz/basemaps/issues/3230)) ([e27cd12](https://github.com/linz/basemaps/commit/e27cd124287a1d650249cb6accdcca21969edb90))
+* **cli:** Should skip if no lds version for the feature changes. ([#3231](https://github.com/linz/basemaps/issues/3231)) ([955ffb9](https://github.com/linz/basemaps/commit/955ffb9cd8fc42dd588e6ff13b3e950e0a849276))
+* **lambda-tiler:** ensure wmts limits extent to the bounding box of the tile matrix extent BM-1012 ([#3235](https://github.com/linz/basemaps/issues/3235)) ([b8d56cd](https://github.com/linz/basemaps/commit/b8d56cdbbf2cb08f1ef96bc6de82ce94563da945))
+* **landing:** ensure the layer dropdown always showing for all outputs. BM-1001 ([#3241](https://github.com/linz/basemaps/issues/3241)) ([766f92b](https://github.com/linz/basemaps/commit/766f92bdfaf73747de0b64b36990f06aa57b2ff0))
+* **landing:** Fix the set the tileset id same as style when only style parameter been set. ([#3249](https://github.com/linz/basemaps/issues/3249)) ([af643d6](https://github.com/linz/basemaps/commit/af643d6b4f00b609328b5fb93fd7a8e6286a1430))
+
+
+### Features
+
+* apply common aws cicd tags across basemaps infra ([#3237](https://github.com/linz/basemaps/issues/3237)) ([babb2dd](https://github.com/linz/basemaps/commit/babb2ddf0f6d67883c5f5952d819b9334a00ac3e))
+* **cli:** expose the smoke checker in the CLI container so linz/basemaps-config can use it BM-1010 ([#3229](https://github.com/linz/basemaps/issues/3229)) ([3d504b3](https://github.com/linz/basemaps/commit/3d504b324ce2636c969b6afd5b850597fb275644))
+* **cogify:** force fully qualified domain names for s3 to reduce DNS load TDE-1084 ([#3223](https://github.com/linz/basemaps/issues/3223)) ([95addbb](https://github.com/linz/basemaps/commit/95addbb8cc636fbd0be292fa7aa6f1d6e2a33b15))
+* **landing:** Add off for the dem/dsm layer dropdown in debug page. BM-1019 ([#3240](https://github.com/linz/basemaps/issues/3240)) ([0f81ac3](https://github.com/linz/basemaps/commit/0f81ac36bc1abeb78daa8604a4db639ac655d6a4))
+
+
+
+
+
 # [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
 
 

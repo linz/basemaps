@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+
+### Features
+
+* **cogify:** force fully qualified domain names for s3 to reduce DNS load TDE-1084 ([#3223](https://github.com/linz/basemaps/issues/3223)) ([95addbb](https://github.com/linz/basemaps/commit/95addbb8cc636fbd0be292fa7aa6f1d6e2a33b15))
+
+
+
+
+
 # [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
 
 **Note:** Version bump only for package @basemaps/cogify

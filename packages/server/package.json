@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/server",
-  "version": "7.2.0",
+  "version": "7.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -51,11 +51,11 @@
   },
   "devDependencies": {
     "@basemaps/config": "^7.1.0",
-    "@basemaps/config-loader": "^7.1.0",
+    "@basemaps/config-loader": "^7.3.0",
     "@basemaps/geo": "^7.1.0",
-    "@basemaps/lambda-tiler": "^7.2.0",
+    "@basemaps/lambda-tiler": "^7.3.0",
     "@basemaps/landing": "^6.39.0",
-    "@basemaps/shared": "^7.1.0",
+    "@basemaps/shared": "^7.3.0",
     "@fastify/formbody": "^7.0.1",
     "@fastify/static": "^6.5.0",
     "cmd-ts": "^0.12.1",

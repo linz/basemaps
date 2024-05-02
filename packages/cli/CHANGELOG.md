@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+
+### Bug Fixes
+
+* **cli:** Fix the check vector diff outputs. BM-1013 ([#3230](https://github.com/linz/basemaps/issues/3230)) ([e27cd12](https://github.com/linz/basemaps/commit/e27cd124287a1d650249cb6accdcca21969edb90))
+* **cli:** Should skip if no lds version for the feature changes. ([#3231](https://github.com/linz/basemaps/issues/3231)) ([955ffb9](https://github.com/linz/basemaps/commit/955ffb9cd8fc42dd588e6ff13b3e950e0a849276))
+
+
+### Features
+
+* **cli:** expose the smoke checker in the CLI container so linz/basemaps-config can use it BM-1010 ([#3229](https://github.com/linz/basemaps/issues/3229)) ([3d504b3](https://github.com/linz/basemaps/commit/3d504b324ce2636c969b6afd5b850597fb275644))
+
+
+
+
+
 # [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
 
 
