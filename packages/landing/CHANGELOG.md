@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+
+### Bug Fixes
+
+* **landing:** ensure the layer dropdown always showing for all outputs. BM-1001 ([#3241](https://github.com/linz/basemaps/issues/3241)) ([766f92b](https://github.com/linz/basemaps/commit/766f92bdfaf73747de0b64b36990f06aa57b2ff0))
+* **landing:** Fix the set the tileset id same as style when only style parameter been set. ([#3249](https://github.com/linz/basemaps/issues/3249)) ([af643d6](https://github.com/linz/basemaps/commit/af643d6b4f00b609328b5fb93fd7a8e6286a1430))
+
+
+### Features
+
+* **landing:** Add off for the dem/dsm layer dropdown in debug page. BM-1019 ([#3240](https://github.com/linz/basemaps/issues/3240)) ([0f81ac3](https://github.com/linz/basemaps/commit/0f81ac36bc1abeb78daa8604a4db639ac655d6a4))
+
+
+
+
+
 # [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
 
 

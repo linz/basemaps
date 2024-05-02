@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+
+### Features
+
+* apply common aws cicd tags across basemaps infra ([#3237](https://github.com/linz/basemaps/issues/3237)) ([babb2dd](https://github.com/linz/basemaps/commit/babb2ddf0f6d67883c5f5952d819b9334a00ac3e))
+
+
+
+
+
 # [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
 
 **Note:** Version bump only for package @basemaps/infra

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** ensure wmts limits extent to the bounding box of the tile matrix extent BM-1012 ([#3235](https://github.com/linz/basemaps/issues/3235)) ([b8d56cd](https://github.com/linz/basemaps/commit/b8d56cdbbf2cb08f1ef96bc6de82ce94563da945))
+
+
+
+
+
 # [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
 
 
