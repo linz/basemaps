@@ -23,5 +23,8 @@
   "files": [
     "build/",
     "bin/"
-  ]
+  ],
+  "dependencies": {
+    "ulid": "^2.3.0"
+  }
 }
