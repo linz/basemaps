@@ -50,6 +50,7 @@ jobs:
           # Files are packed into the base directory
           cp *.tgz packages/server/
           cp *.tgz packages/cli/
+          cp -r packages/lambda-tiler/static/ packages/cli/
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
