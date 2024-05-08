@@ -9,6 +9,7 @@ import {
   ConfigTileSet,
   ConfigVectorStyle,
 } from '@basemaps/config';
+import { ConfiguredRetryStrategy } from '@smithy/util-retry';
 
 import { ConfigDynamoBase } from './dynamo.config.base.js';
 import { ConfigDynamoCached } from './dynamo.config.cached.js';
@@ -28,7 +29,13 @@ export class ConfigProviderDynamo extends BasemapsConfigProvider {
 
   constructor(tableName: string) {
     super();
-    this.dynamo = new DynamoDB({ region: 'ap-southeast-2' });
+    this.dynamo = new DynamoDB({
+      region: 'ap-southeast-2',
+      retryStrategy: new ConfiguredRetryStrategy(
+        5, // max attempts.
+        (attempt: number) => 100 + attempt * 250, // 100, 350, 600, 850, 1100ms
+      ),
+    });
     this.tableName = tableName;
   }
 
