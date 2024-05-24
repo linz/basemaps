@@ -69,8 +69,31 @@ describe('TerrainRgb', () => {
       channels: 1,
     });
 
-    // valid value should not have alpha
     assert.equal(output.pixels[3], 0);
+  });
+
+  it('should not encode values outside the range of terrainrgb', async () => {
+    const maxValue = decodeTerrainRgb([255, 255, 255, 255]);
+    const minValue = decodeTerrainRgb([0, 0, 0, 255]); // -10_000
+    assert.equal(minValue, -10_000);
+    assert.equal(maxValue, 1667721.5);
+    assert.equal(minValue, PipelineTerrainRgb.MinValue);
+    assert.equal(maxValue, PipelineTerrainRgb.MaxValue);
+
+    console.log(maxValue, minValue);
+    const output = await PipelineTerrainRgb.process(FakeTiff, {
+      pixels: new Float32Array([minValue, -10_001, maxValue, maxValue + 1]),
+      depth: 'float32',
+      width: 4,
+      height: 1,
+      channels: 1,
+    });
+
+    assert.equal(decodeTerrainRgb(output.pixels, 0), minValue);
+    assert.equal(decodeTerrainRgb(output.pixels, 4), minValue);
+
+    assert.equal(decodeTerrainRgb(output.pixels, 8), maxValue);
+    assert.equal(decodeTerrainRgb(output.pixels, 12), maxValue);
   });
 
   it('should encode every possible value', async () => {
