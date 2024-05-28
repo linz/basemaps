@@ -36,25 +36,13 @@ const lerc1mm: Preset = {
   },
 };
 
-const lerc1cm: Preset = {
-  name: 'lerc_1cm',
+const lerc10mm: Preset = {
+  name: 'lerc_10mm',
   options: {
     blockSize: 512,
     compression: 'lerc',
-    maxZError: 0.1,
-    maxZErrorOverview: 0.2,
-    warpResampling: 'bilinear',
-    overviewResampling: 'bilinear',
-  },
-};
-
-const lerc1m: Preset = {
-  name: 'lerc_1m',
-  options: {
-    blockSize: 512,
-    compression: 'lerc',
-    maxZError: 1,
-    maxZErrorOverview: 2,
+    maxZError: 0.01,
+    maxZErrorOverview: 0.02,
     warpResampling: 'bilinear',
     overviewResampling: 'bilinear',
   },
@@ -73,7 +61,6 @@ const lzw: Preset = {
 export const Presets = {
   [webP.name]: webP,
   [lerc1mm.name]: lerc1mm,
-  [lerc1cm.name]: lerc1cm,
-  [lerc1m.name]: lerc1m,
+  [lerc10mm.name]: lerc10mm,
   [lzw.name]: lzw,
 };
