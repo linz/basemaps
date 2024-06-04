@@ -184,7 +184,7 @@ export class TileMakerSharp implements TileMaker {
 
       for (const pipe of ctx.pipeline) {
         const pipelineStart = performance.now();
-        result = await Pipelines[pipe.type]?.process(comp.asset, result);
+        result = await Pipelines[pipe.type]?.process(comp, result);
         ctx.log?.trace(
           {
             pipeline: pipe.type,

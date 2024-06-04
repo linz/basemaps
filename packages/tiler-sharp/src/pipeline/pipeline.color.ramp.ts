@@ -1,5 +1,5 @@
 import { DefaultColorRamp } from '@basemaps/config';
-import { Tiff } from '@cogeotiff/core';
+import { CompositionTiff } from '@basemaps/tiler';
 
 import { DecompressedInterleaved, Pipeline } from './decompressor.js';
 
@@ -46,7 +46,7 @@ export const ramp = new ColorRamp(DefaultColorRamp);
 
 export const PipelineColorRamp: Pipeline = {
   type: 'color-ramp',
-  process(source: Tiff, data: DecompressedInterleaved): DecompressedInterleaved {
+  process(comp: CompositionTiff, data: DecompressedInterleaved): DecompressedInterleaved {
     const raw = new Uint8ClampedArray(data.width * data.height * 4);
     const output: DecompressedInterleaved = {
       pixels: raw,
@@ -57,7 +57,7 @@ export const PipelineColorRamp: Pipeline = {
     };
 
     const size = data.width * data.height;
-    const noData = source.images[0].noData;
+    const noData = comp.asset.images[0].noData;
 
     for (let i = 0; i < size; i++) {
       const source = i * data.channels;

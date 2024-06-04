@@ -1,3 +1,4 @@
+import { CompositionTiff } from '@basemaps/tiler';
 import { Tiff } from '@cogeotiff/core';
 
 export interface DecompressedInterleavedFloat {
@@ -26,5 +27,8 @@ export interface Decompressor {
 
 export interface Pipeline {
   type: string;
-  process(source: Tiff, bytes: DecompressedInterleaved): Promise<DecompressedInterleaved> | DecompressedInterleaved;
+  process(
+    source: CompositionTiff,
+    bytes: DecompressedInterleaved,
+  ): Promise<DecompressedInterleaved> | DecompressedInterleaved;
 }
