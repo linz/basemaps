@@ -76,7 +76,17 @@ export const BasemapsCogifyCoverCommand = command({
 
     const res = await createTileCover(ctx);
 
-    const targetPath = new URL(`${tms.projection.code}/${im.name}/${CliId}/`, args.target);
+    // Find the dem/dsm prefix for the nz-elevation bucket source
+    let prefix;
+    if (im.url.hostname === 'nz-elevation') {
+      prefix = im.url.pathname.split('/')[3];
+      if (!(prefix.includes('dem') || prefix.includes('dsm'))) {
+        throw new Error(`Invalid source path from nz-elevation bucket: ${im.url.href}`);
+      }
+    }
+
+    const fullName = prefix ? `${im.name}_${prefix}` : im.name;
+    const targetPath = new URL(`${tms.projection.code}/${fullName}/${CliId}/`, args.target);
 
     const sourcePath = new URL('source.geojson', targetPath);
     const sourceData = JSON.stringify(res.source, null, 2);
