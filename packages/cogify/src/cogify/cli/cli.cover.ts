@@ -80,7 +80,8 @@ export const BasemapsCogifyCoverCommand = command({
     if (im.collection != null) {
       const geoCategory = im.collection['linz:geospatial_category'];
       if (geoCategory === 'dem' || geoCategory === 'dsm') {
-        im.name = `${im.name}_${geoCategory}_${im.gsd}m`;
+        im.name = `${im.name}_${geoCategory}_${parseFloat(im.gsd.toFixed(3))}m`; //Round gsd to 3 decimals without trailing zero
+        args.target = new URL('elevation/', args.target);
       }
     }
 
