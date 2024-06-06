@@ -16,6 +16,13 @@ import { createFileStats } from '../stac.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
+// Round gsd to 3 decimals without trailing zero, or integer if larger than 1
+function gsdToMeter(gsd: number): number {
+  if (gsd > 1) return Math.round(gsd);
+  if (gsd < 0.001) return 0.001;
+  return parseFloat(gsd.toFixed(3));
+}
+
 export const BasemapsCogifyCoverCommand = command({
   name: 'cogify-cover',
   version: CliInfo.version,
@@ -80,7 +87,7 @@ export const BasemapsCogifyCoverCommand = command({
     if (im.collection != null) {
       const geoCategory = im.collection['linz:geospatial_category'];
       if (geoCategory === 'dem' || geoCategory === 'dsm') {
-        im.name = `${im.name}_${geoCategory}_${parseFloat(im.gsd.toFixed(3))}m`; //Round gsd to 3 decimals without trailing zero
+        im.name = `${im.name}_${geoCategory}_${gsdToMeter(im.gsd)}m`;
         args.target = new URL('elevation/', args.target);
       }
     }
