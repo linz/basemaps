@@ -16,6 +16,13 @@ import { createFileStats } from '../stac.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
+// Round gsd to 3 decimals without trailing zero, or integer if larger than 1
+export function gsdToMeter(gsd: number): number {
+  if (gsd > 1) return Math.round(gsd);
+  if (gsd < 0.001) return 0.001;
+  return parseFloat(gsd.toFixed(3));
+}
+
 export const BasemapsCogifyCoverCommand = command({
   name: 'cogify-cover',
   version: CliInfo.version,
@@ -75,6 +82,15 @@ export const BasemapsCogifyCoverCommand = command({
     };
 
     const res = await createTileCover(ctx);
+
+    // Find the dem/dsm prefix for the nz-elevation bucket source and update imagery name to include prefix
+    if (im.collection != null) {
+      const geoCategory = im.collection['linz:geospatial_category'];
+      if (geoCategory === 'dem' || geoCategory === 'dsm') {
+        im.name = `${im.name}_${geoCategory}_${gsdToMeter(im.gsd)}m`;
+        args.target = new URL('elevation/', args.target);
+      }
+    }
 
     const targetPath = new URL(`${tms.projection.code}/${im.name}/${CliId}/`, args.target);
 
