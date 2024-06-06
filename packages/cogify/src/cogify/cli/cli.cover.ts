@@ -77,13 +77,13 @@ export const BasemapsCogifyCoverCommand = command({
     const res = await createTileCover(ctx);
 
     // Find the dem/dsm prefix for the nz-elevation bucket source and update imagery name to include prefix
-    if (im.url.hostname === 'nz-elevation') {
-      const prefix = im.url.pathname.split('/')[3];
-      if (!(prefix.includes('dem') || prefix.includes('dsm'))) {
-        throw new Error(`Invalid source path from nz-elevation bucket: ${im.url.href}`);
+    if (im.collection != null) {
+      const geoCategory = im.collection['linz:geospatial_category'];
+      if (geoCategory === 'dem' || geoCategory === 'dsm') {
+        im.name = `${im.name}_${geoCategory}_${im.gsd}m`;
       }
-      im.name = `${im.name}_${prefix}`;
     }
+
     const targetPath = new URL(`${tms.projection.code}/${im.name}/${CliId}/`, args.target);
 
     const sourcePath = new URL('source.geojson', targetPath);
