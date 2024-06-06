@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import { GoogleTms, QuadKey } from '@basemaps/geo';
 
 import { addChildren, addSurrounding } from '../covering.js';
+import { gsdToMeter } from '../cli/cli.cover.js';
 
 describe('getChildren', () => {
   it('should get children', () => {
@@ -55,5 +56,17 @@ describe('SurroundingTiles', () => {
       { z: 2, x: 3, y: 0 }, // South -- Wrapping South to NOrth
       { z: 2, x: 2, y: 3 }, // West
     ]);
+  });
+
+  describe('gsdToMeter', () => {
+    it('Should convert gsd to correct meter', () => {
+      assert.equal(gsdToMeter(1), 1);
+      assert.equal(gsdToMeter(305.223), 305);
+      assert.equal(gsdToMeter(8.01), 8);
+      assert.equal(gsdToMeter(0.1), 0.1);
+      assert.equal(gsdToMeter(0.1001), 0.1);
+      assert.equal(gsdToMeter(0.2005), 0.201);
+      assert.equal(gsdToMeter(0.0005), 0.001);
+    });
   });
 });

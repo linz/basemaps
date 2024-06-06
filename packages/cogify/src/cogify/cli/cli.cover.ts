@@ -17,7 +17,7 @@ import { createFileStats } from '../stac.js';
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
 // Round gsd to 3 decimals without trailing zero, or integer if larger than 1
-function gsdToMeter(gsd: number): number {
+export function gsdToMeter(gsd: number): number {
   if (gsd > 1) return Math.round(gsd);
   if (gsd < 0.001) return 0.001;
   return parseFloat(gsd.toFixed(3));
