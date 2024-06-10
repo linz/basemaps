@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { StyleJson } from '@basemaps/config';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 
 import { convertRelativeUrl, convertStyleJson } from '../routes/tile.style.json.js';
@@ -30,16 +31,28 @@ describe('TileStyleJson', () => {
   });
 
   it('should only convert with api keys', () => {
-    assert.equal(convertRelativeUrl('/foo', 'abc'), 'https://tiles.test/foo?api=abc');
-    assert.equal(convertRelativeUrl('/bar/baz/', 'abc'), 'https://tiles.test/bar/baz/?api=abc');
+    assert.equal(convertRelativeUrl('/foo', undefined, 'abc'), 'https://tiles.test/foo?api=abc');
+    assert.equal(convertRelativeUrl('/bar/baz/', undefined, 'abc'), 'https://tiles.test/bar/baz/?api=abc');
   });
 
   it('should convert with other query params', () => {
-    assert.equal(convertRelativeUrl('/foo?bar=baz', 'abc'), 'https://tiles.test/foo?bar=baz&api=abc');
+    assert.equal(convertRelativeUrl('/foo?bar=baz', undefined, 'abc'), 'https://tiles.test/foo?bar=baz&api=abc');
   });
 
   it('should not convert full urls', () => {
-    assert.equal(convertRelativeUrl('https://foo.com/foo?bar=baz', 'abc'), 'https://foo.com/foo?bar=baz');
+    assert.equal(convertRelativeUrl('https://foo.com/foo?bar=baz', undefined, 'abc'), 'https://foo.com/foo?bar=baz');
+  });
+
+  it('should update tileMatrix if exists', () => {
+    assert.equal(
+      convertRelativeUrl('/{tileMatrix}/{z}/{x}/{y}.webp', GoogleTms),
+      'https://tiles.test/EPSG:3857/{z}/{x}/{y}.webp',
+    );
+    assert.equal(
+      convertRelativeUrl('/{tileMatrix}/{z}/{x}/{y}.webp', Nztm2000QuadTms),
+      'https://tiles.test/EPSG:2193/{z}/{x}/{y}.webp',
+    );
+    assert.equal(convertRelativeUrl('/EPSG:3857/{z}/{x}/{y}.webp'), 'https://tiles.test/EPSG:3857/{z}/{x}/{y}.webp');
   });
 
   const baseStyleJson: StyleJson = {
@@ -47,8 +60,9 @@ describe('TileStyleJson', () => {
     id: 'style.id',
     name: 'style.name',
     sources: {
-      vector: { type: 'vector', url: '/v1/tiles/topographic/EPSG:3857/tile.json' },
-      raster: { type: 'raster', tiles: ['/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp'] },
+      vector: { type: 'vector', url: '/v1/tiles/topographic/{tileMatrix}/tile.json' },
+      raster: { type: 'raster', tiles: ['/v1/tiles/aerial/{tileMatrix}/{z}/{x}/{y}.webp'] },
+      terrain: { type: 'raster-dem', tiles: ['/v1/tiles/elevation/{tileMatrix}/{z}/{x}/{y}.png'] },
     },
     layers: [],
     metadata: {},
@@ -58,7 +72,7 @@ describe('TileStyleJson', () => {
 
   it('should not destroy the original configuration', () => {
     const apiKey = 'abc123';
-    const converted = convertStyleJson(baseStyleJson, apiKey, null);
+    const converted = convertStyleJson(baseStyleJson, GoogleTms, apiKey, null);
 
     assert.deepEqual(converted.sources['vector'], {
       type: 'vector',
@@ -68,17 +82,25 @@ describe('TileStyleJson', () => {
       type: 'raster',
       tiles: ['https://tiles.test/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=abc123'],
     });
+    assert.deepEqual(converted.sources['terrain'], {
+      type: 'raster-dem',
+      tiles: ['https://tiles.test/v1/tiles/elevation/EPSG:3857/{z}/{x}/{y}.png?api=abc123'],
+    });
 
     assert.equal(JSON.stringify(baseStyleJson).includes(apiKey), false);
 
-    const convertedB = convertStyleJson(baseStyleJson, '0x1234', null);
+    const convertedB = convertStyleJson(baseStyleJson, Nztm2000QuadTms, '0x1234', null);
     assert.deepEqual(convertedB.sources['vector'], {
       type: 'vector',
-      url: 'https://tiles.test/v1/tiles/topographic/EPSG:3857/tile.json?api=0x1234',
+      url: 'https://tiles.test/v1/tiles/topographic/EPSG:2193/tile.json?api=0x1234',
     });
     assert.deepEqual(convertedB.sources['raster'], {
       type: 'raster',
-      tiles: ['https://tiles.test/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=0x1234'],
+      tiles: ['https://tiles.test/v1/tiles/aerial/EPSG:2193/{z}/{x}/{y}.webp?api=0x1234'],
+    });
+    assert.deepEqual(convertedB.sources['terrain'], {
+      type: 'raster-dem',
+      tiles: ['https://tiles.test/v1/tiles/elevation/EPSG:2193/{z}/{x}/{y}.png?api=0x1234'],
     });
 
     assert.equal(JSON.stringify(baseStyleJson).includes('0x1234'), false);
@@ -88,7 +110,7 @@ describe('TileStyleJson', () => {
 
   it('should convert relative glyphs and sprites', () => {
     const apiKey = '0x9f9f';
-    const converted = convertStyleJson(baseStyleJson, apiKey, null);
+    const converted = convertStyleJson(baseStyleJson, GoogleTms, apiKey, null);
     assert.equal(converted.sprite, 'https://tiles.test/v1/sprites');
     assert.equal(converted.glyphs, 'https://tiles.test/v1/glyphs');
 
@@ -98,7 +120,7 @@ describe('TileStyleJson', () => {
 
   it('should convert with config', () => {
     const apiKey = '0x9f9f';
-    const converted = convertStyleJson(baseStyleJson, apiKey, 'config.json');
+    const converted = convertStyleJson(baseStyleJson, GoogleTms, apiKey, 'config.json');
     assert.equal(converted.sprite, 'https://tiles.test/v1/sprites?config=config.json');
     assert.equal(converted.glyphs, 'https://tiles.test/v1/glyphs?config=config.json');
 
