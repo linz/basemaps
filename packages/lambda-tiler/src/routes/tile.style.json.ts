@@ -22,7 +22,7 @@ export function convertRelativeUrl(
   config?: string | null,
 ): string {
   if (url == null) return '';
-  if (tileMatrix) url = url.replace('\{tileMatrix\}', tileMatrix.projection.toEpsgString());
+  if (tileMatrix) url = url.replace('{tileMatrix}', tileMatrix.projection.toEpsgString());
   const host = Env.get(Env.PublicUrlBase) ?? '';
   if (!url.startsWith('/')) return url; // Not relative ignore
   const fullUrl = new URL(url, host);
