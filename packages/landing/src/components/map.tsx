@@ -90,7 +90,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
    * Only show the elevation on GoogleTMS, as there is no data for other projections yet
    */
   ensureElevationControl(): void {
-    // if (Config.map.isDebug) return;
+    if (Config.map.debug['debug.screenshot']) return;
+    if (Config.map.isDebug) return;
     if (Config.map.tileMatrix === GoogleTms) {
       if (this.controlTerrain != null) return;
       // Ensure the elevation source exists
