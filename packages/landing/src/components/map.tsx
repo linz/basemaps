@@ -30,6 +30,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   ignoreNextLocationUpdate = false;
 
   controlScale?: maplibre.ScaleControl | null;
+  controlTerrain?: maplibre.TerrainControl | null;
   controlGeo?: maplibregl.GeolocateControl | null;
 
   updateLocation = (): void => {
@@ -84,6 +85,28 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       this.map.removeControl(this.controlGeo);
     }
   }
+
+  /**
+   * Only show the elevation on GoogleTMS, as there is no data for other projections yet
+   */
+  ensureElevationControl(): void {
+    if (Config.map.debug['debug.screenshot']) return;
+    if (Config.map.isDebug) return;
+    if (Config.map.tileMatrix === GoogleTms) {
+      if (this.controlTerrain != null) return;
+      // Ensure the elevation source exists
+      this.addElevationTerrain();
+      this.controlTerrain = new maplibre.TerrainControl({
+        source: 'basemaps-elevation-terrain', // TODO why is this name hard coded
+        exaggeration: 1.2,
+      });
+      this.map.addControl(this.controlTerrain, 'top-left');
+    } else {
+      if (this.controlTerrain == null) return;
+      this.map.removeControl(this.controlTerrain);
+      this.controlTerrain = null;
+    }
+  }
   /**
    * Only show the scale on GoogleTMS
    * As it does not work with the projection logic we are currently using
@@ -105,7 +128,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
    * Load elevation terrain for the aerial map in debug mode
    */
   addElevationTerrain = (): void => {
-    if (!Config.map.debug) return;
     if (this.map.getSource('basemaps-elevation-terrain') == null) {
       // Add elevation into terrain for aerial map
       this.map.addSource('basemaps-elevation-terrain', {
@@ -121,6 +143,10 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
           }),
         ],
         tileSize: 256,
+        // TODO should this be hard coded here
+        // Max zoom of 18 prevents the tile server from overzooming the browser
+        // does a better job of the resizing
+        maxzoom: 18,
       });
     }
   };
@@ -128,6 +154,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   updateStyle = (): void => {
     this.ensureGeoControl();
     this.ensureScaleControl();
+    this.ensureElevationControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
     const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
     this.map.setStyle(style);
