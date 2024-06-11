@@ -1,5 +1,5 @@
 import { ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
-import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
+import { GoogleTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { URL } from 'url';
@@ -15,8 +15,14 @@ import { Validate } from '../util/validate.js';
  * @param apiKey ApiKey to append with ?api= if required
  * @returns Updated Url or empty string if url is empty
  */
-export function convertRelativeUrl(url?: string, apiKey?: string, config?: string | null): string {
+export function convertRelativeUrl(
+  url?: string,
+  tileMatrix?: TileMatrixSet,
+  apiKey?: string,
+  config?: string | null,
+): string {
   if (url == null) return '';
+  if (tileMatrix) url = url.replace('{tileMatrix}', tileMatrix.identifier);
   const host = Env.get(Env.PublicUrlBase) ?? '';
   if (!url.startsWith('/')) return url; // Not relative ignore
   const fullUrl = new URL(url, host);
@@ -31,14 +37,21 @@ export function convertRelativeUrl(url?: string, apiKey?: string, config?: strin
  * @param apiKey api key to inject
  * @returns new stylejson
  */
-export function convertStyleJson(style: StyleJson, apiKey: string, config: string | null, layers?: Layer[]): StyleJson {
+export function convertStyleJson(
+  style: StyleJson,
+  tileMatrix: TileMatrixSet,
+  apiKey: string,
+  config: string | null,
+  layers?: Layer[],
+): StyleJson {
   const sources: Sources = JSON.parse(JSON.stringify(style.sources));
   for (const [key, value] of Object.entries(sources)) {
     if (value.type === 'vector') {
-      value.url = convertRelativeUrl(value.url, apiKey, config);
-    } else if (value.type === 'raster' && Array.isArray(value.tiles)) {
+      if (tileMatrix !== GoogleTms) throw new Error(`TileMatrix is not supported for the vector source ${value.url}.`);
+      value.url = convertRelativeUrl(value.url, tileMatrix, apiKey, config);
+    } else if ((value.type === 'raster' || value.type === 'raster-dem') && Array.isArray(value.tiles)) {
       for (let i = 0; i < value.tiles.length; i++) {
-        value.tiles[i] = convertRelativeUrl(value.tiles[i], apiKey, config);
+        value.tiles[i] = convertRelativeUrl(value.tiles[i], tileMatrix, apiKey, config);
       }
     }
     sources[key] = value;
@@ -51,8 +64,8 @@ export function convertStyleJson(style: StyleJson, apiKey: string, config: strin
     sources,
     layers: layers ? layers : style.layers,
     metadata: style.metadata ?? {},
-    glyphs: convertRelativeUrl(style.glyphs, undefined, config),
-    sprite: convertRelativeUrl(style.sprite, undefined, config),
+    glyphs: convertRelativeUrl(style.glyphs, undefined, undefined, config),
+    sprite: convertRelativeUrl(style.sprite, undefined, undefined, config),
   } as StyleJson;
 }
 
@@ -65,10 +78,9 @@ export interface StyleGet {
 export async function tileSetToStyle(
   req: LambdaHttpRequest<StyleGet>,
   tileSet: ConfigTileSetRaster,
+  tileMatrix: TileMatrixSet,
   apiKey: string,
 ): Promise<LambdaHttpResponse> {
-  const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
-  if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
   const [tileFormat] = Validate.getRequestedFormats(req) ?? ['webp'];
   if (tileFormat == null) return new LambdaHttpResponse(400, 'Invalid image format');
 
@@ -104,11 +116,9 @@ export async function tileSetToStyle(
 export async function tileSetOutputToStyle(
   req: LambdaHttpRequest<StyleGet>,
   tileSet: ConfigTileSetRaster,
+  tileMatrix: TileMatrixSet,
   apiKey: string,
 ): Promise<LambdaHttpResponse> {
-  const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
-  if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
-
   const configLocation = ConfigLoader.extract(req);
   const query = toQueryString({ config: configLocation, api: apiKey });
 
@@ -178,6 +188,8 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const styleName = req.params.styleName;
   const excludeLayers = req.query.getAll('exclude');
   const excluded = new Set(excludeLayers.map((l) => l.toLowerCase()));
+  const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
+  if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
@@ -188,13 +200,14 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
     if (tileSet == null) return NotFound();
     if (tileSet.type !== TileSetType.Raster) return NotFound();
-    if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, apiKey);
-    else return tileSetToStyle(req, tileSet, apiKey);
+    if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey);
+    else return tileSetToStyle(req, tileSet, tileMatrix, apiKey);
   }
 
   // Prepare sources and add linz source
   const style = convertStyleJson(
     styleConfig.style,
+    tileMatrix,
     apiKey,
     ConfigLoader.extract(req),
     styleConfig.style.layers.filter((f) => !excluded.has(f.id.toLowerCase())),
