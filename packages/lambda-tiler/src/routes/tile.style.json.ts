@@ -22,7 +22,7 @@ export function convertRelativeUrl(
   config?: string | null,
 ): string {
   if (url == null) return '';
-  if (tileMatrix) url = url.replace('{tileMatrix}', tileMatrix.projection.toEpsgString());
+  if (tileMatrix) url = url.replace('{tileMatrix}', tileMatrix.identifier);
   const host = Env.get(Env.PublicUrlBase) ?? '';
   if (!url.startsWith('/')) return url; // Not relative ignore
   const fullUrl = new URL(url, host);
@@ -47,6 +47,7 @@ export function convertStyleJson(
   const sources: Sources = JSON.parse(JSON.stringify(style.sources));
   for (const [key, value] of Object.entries(sources)) {
     if (value.type === 'vector') {
+      if (tileMatrix !== GoogleTms) throw new Error(`TileMatrix is not supported for the vector source ${value.url}.`);
       value.url = convertRelativeUrl(value.url, tileMatrix, apiKey, config);
     } else if ((value.type === 'raster' || value.type === 'raster-dem') && Array.isArray(value.tiles)) {
       for (let i = 0; i < value.tiles.length; i++) {
