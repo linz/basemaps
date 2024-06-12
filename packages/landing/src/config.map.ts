@@ -15,7 +15,7 @@ import { MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
-import { MapLocation, MapOptionType, WindowUrl, ensureBase58 } from './url.js';
+import { ensureBase58, MapLocation, MapOptionType, WindowUrl } from './url.js';
 
 /** Default center point if none provided */
 const DefaultCenter: Record<string, MapLocation> = {
