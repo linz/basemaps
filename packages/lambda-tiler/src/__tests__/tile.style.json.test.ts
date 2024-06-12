@@ -111,6 +111,26 @@ describe('TileStyleJson', () => {
     assert.equal(JSON.stringify(baseStyleJson).includes('?api='), false);
   });
 
+  const rasterStyleJson: StyleJson = {
+    version: 8,
+    id: 'style.id',
+    name: 'style.name',
+    sources: {
+      raster: { type: 'raster', tiles: ['/v1/tiles/aerial/{tileMatrix}/{z}/{x}/{y}.webp'] },
+      terrain: { type: 'raster-dem', tiles: ['/v1/tiles/elevation/{tileMatrix}/{z}/{x}/{y}.png'] },
+    },
+    layers: [],
+  };
+
+  it('should cover raster style Json without metadata, sprite and glyphs', () => {
+    const apiKey = 'abc123';
+    const converted = convertStyleJson(rasterStyleJson, GoogleTms, apiKey, null);
+
+    assert.equal(converted.metadata, null);
+    assert.equal(converted.sprite, null);
+    assert.equal(converted.sprite, null);
+  });
+
   it('should cover for raster styles for NZTM2000Quad', () => {
     const rasterStyleJson: StyleJson = {
       ...baseStyleJson,

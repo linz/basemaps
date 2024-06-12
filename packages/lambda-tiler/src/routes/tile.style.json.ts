@@ -57,16 +57,19 @@ export function convertStyleJson(
     sources[key] = value;
   }
 
-  return {
+  const styleJson: StyleJson = {
     version: 8,
     id: style.id,
     name: style.name,
     sources,
     layers: layers ? layers : style.layers,
-    metadata: style.metadata ?? {},
-    glyphs: convertRelativeUrl(style.glyphs, undefined, undefined, config),
-    sprite: convertRelativeUrl(style.sprite, undefined, undefined, config),
-  } as StyleJson;
+  };
+
+  if (style.metadata) styleJson.metadata = style.metadata;
+  if (style.glyphs) styleJson.glyphs = convertRelativeUrl(style.glyphs, undefined, undefined, config);
+  if (style.sprite) styleJson.sprite = convertRelativeUrl(style.sprite, undefined, undefined, config);
+
+  return styleJson;
 }
 
 export interface StyleGet {
