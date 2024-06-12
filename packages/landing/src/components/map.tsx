@@ -95,13 +95,14 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (Config.map.tileMatrix === GoogleTms) {
       if (this.controlTerrain != null) return;
       // Try to find terrain source and add to the control
-      for (const [key, source] of Object.entries(this.map.getStyle())) {
+      for (const [key, source] of Object.entries(this.map.getStyle().sources)) {
         if (source.type === 'raster-dem') {
           this.controlTerrain = new maplibre.TerrainControl({
             source: key,
             exaggeration: 1.2,
           });
           this.map.addControl(this.controlTerrain, 'top-left');
+          break;
         }
       }
     } else {
