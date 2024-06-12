@@ -94,13 +94,16 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (Config.map.isDebug) return;
     if (Config.map.tileMatrix === GoogleTms) {
       if (this.controlTerrain != null) return;
-      // Ensure the elevation source exists
-      this.addElevationTerrain();
-      this.controlTerrain = new maplibre.TerrainControl({
-        source: 'basemaps-elevation-terrain', // TODO why is this name hard coded
-        exaggeration: 1.2,
-      });
-      this.map.addControl(this.controlTerrain, 'top-left');
+      // Try to find terrain source and add to the control
+      for (const [key, source] of Object.entries(this.map.getStyle())) {
+        if (source.type === 'raster-dem') {
+          this.controlTerrain = new maplibre.TerrainControl({
+            source: key,
+            exaggeration: 1.2,
+          });
+          this.map.addControl(this.controlTerrain, 'top-left');
+        }
+      }
     } else {
       if (this.controlTerrain == null) return;
       this.map.removeControl(this.controlTerrain);
@@ -123,33 +126,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       this.controlScale = null;
     }
   }
-
-  /**
-   * Load elevation terrain for the aerial map in debug mode
-   */
-  addElevationTerrain = (): void => {
-    if (this.map.getSource('basemaps-elevation-terrain') == null) {
-      // Add elevation into terrain for aerial map
-      this.map.addSource('basemaps-elevation-terrain', {
-        type: 'raster-dem',
-        tiles: [
-          WindowUrl.toTileUrl({
-            urlType: MapOptionType.TileRaster,
-            tileMatrix: Config.map.tileMatrix,
-            layerId: 'elevation',
-            config: Config.map.config,
-            pipeline: 'terrain-rgb',
-            imageFormat: 'png',
-          }),
-        ],
-        tileSize: 256,
-        // TODO should this be hard coded here
-        // Max zoom of 18 prevents the tile server from overzooming the browser
-        // does a better job of the resizing
-        maxzoom: 18,
-      });
-    }
-  };
 
   updateStyle = (): void => {
     this.ensureGeoControl();
@@ -251,7 +227,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     this.map.on('render', this.onRender);
     this.map.on('idle', this.removeOldLayers);
-    this.map.on('sourcedata', this.addElevationTerrain);
 
     onMapLoaded(this.map, () => {
       this._events.push(
