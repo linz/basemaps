@@ -46,12 +46,35 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
   override componentDidMount(): void {
     this.setState({ zoomToExtent: true, currentLayer: Config.map.layerKey });
 
-    Config.map.layers.then((layers) => this.setState({ layers }));
+    Config.map.layers.then((layers) => {
+      this.setState({ layers });
+      // This needs to run on next tick or the sate will not have updated
+      setTimeout(() => this.ensurePipelineSet(), 10);
+    });
 
     this._events.push(
-      Config.map.on('layer', () => this.setState({ currentLayer: Config.map.layerKey })),
+      Config.map.on('layer', () => {
+        this.setState({ currentLayer: Config.map.layerKey });
+        // This needs to run on next tick or the sate will not have updated
+        setTimeout(() => this.ensurePipelineSet(), 10);
+      }),
       Config.map.on('tileMatrix', () => this.forceUpdate()),
     );
+  }
+
+  /**
+   * When the layers list load it contains more information like the default pipeline which is needed to create the tile XYZ url
+   * so if the pipeline exists and its not set to the currently selected one update it
+   */
+  ensurePipelineSet(): void {
+    const currentLayer = this.state.currentLayer;
+    if (currentLayer == null) return;
+
+    const layer = this.getLayer(currentLayer);
+    if (layer?.pipeline) {
+      const [layerId, style] = currentLayer.split('::');
+      Config.map.setLayerId(layerId, style, layer.pipeline);
+    }
   }
 
   override componentWillUnmount(): void {
@@ -59,10 +82,24 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     this._events = [];
   }
 
+  /**
+   * lookup a layer from the liast of layers used to render the dropdown
+   * @param layerId
+   * @returns the layer or null if its not found
+   */
+  getLayer(layerId: string): LayerInfo | null {
+    if (this.state.layers == null) return null;
+    for (const layer of this.state.layers.values()) {
+      if (layer.id === layerId) return layer;
+    }
+    return null;
+  }
+
   onLayerChange = (opt: Option | null): void => {
     if (opt == null) return;
+    const layer = this.getLayer(opt.value);
     const [layerId, style] = opt.value.split('::');
-    Config.map.setLayerId(layerId, style);
+    Config.map.setLayerId(layerId, style, layer?.pipeline);
     gaEvent(GaEvent.Ui, 'layer:' + opt.value);
 
     // Configure the bounds of the map to match the new layer

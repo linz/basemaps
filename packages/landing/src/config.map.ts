@@ -34,7 +34,12 @@ export interface Filter {
 export interface MapConfigEvents {
   location: [MapLocation];
   tileMatrix: [TileMatrixSet];
-  layer: [string, string | null | undefined];
+
+  /** Layer information was changed
+   *
+   * [ LayerId, Style?, Pipeline? ]
+   */
+  layer: [string, string | null | undefined, string | null | undefined];
   bounds: [LngLatBoundsLike];
   filter: [Filter];
   change: [];
@@ -147,7 +152,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
     this.emit('tileMatrix', this.tileMatrix);
-    this.emit('layer', this.layerId, this.style);
+    this.emit('layer', this.layerId, this.style, this.pipeline);
     if (previousUrl !== MapConfig.toUrl(this)) this.emit('change');
   }
 
@@ -223,11 +228,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('change');
   }
 
-  setLayerId(layer: string, style?: string | null): void {
-    if (this.layerId === layer && this.style === style) return;
+  setLayerId(layer: string, style: string | null = null, pipeline: string | null = null): void {
+    if (this.layerId === layer && this.style === style && this.pipeline === pipeline) return;
     this.layerId = layer;
-    this.style = style ?? null;
-    this.emit('layer', this.layerId, this.style);
+    this.style = style;
+    this.pipeline = pipeline;
+    this.emit('layer', this.layerId, this.style, this.pipeline);
     this.emit('change');
   }
 
@@ -250,6 +256,8 @@ export interface LayerInfo {
   lowerRight?: [number, number];
   /** What projections are enabled for this layer */
   projections: Set<EpsgCode>;
+  /** Is a pipeline required for the layer */
+  pipeline?: string;
 }
 
 async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
@@ -325,6 +333,14 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
       name: 'Topographic',
       projections: new Set([EpsgCode.Google]),
       category: 'Basemaps',
+    },
+
+    {
+      id: 'elevation',
+      name: 'Elevation',
+      projections: new Set([EpsgCode.Google]),
+      category: 'Basemaps',
+      pipeline: 'terrain-rgb',
     },
 
     {
