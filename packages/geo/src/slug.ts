@@ -65,6 +65,9 @@ export const LocationSlug = {
   /** Number of decimal places to fix a pitch */
   PitchFixed: 0,
 
+  /** Max number of degrees of pitch */
+  PitchMaxDegrees: 80,
+
   /**
    * Truncate a lat lon based on the zoom level
    *
@@ -168,7 +171,7 @@ export const LocationSlug = {
         else output.bearing = bearing;
       } else if (c.startsWith('p')) {
         const pitch = parseFloat(c.slice(1));
-        if (isNaN(pitch) || pitch < -60 || pitch > 60) continue;
+        if (isNaN(pitch) || pitch < -LocationSlug.PitchMaxDegrees || pitch > LocationSlug.PitchMaxDegrees) continue;
         else output.pitch = pitch;
       }
     }
