@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* **cli:** Copy static files into cli container for health smoke test. ([#3257](https://github.com/linz/basemaps/issues/3257)) ([9396f60](https://github.com/linz/basemaps/commit/9396f606d626f1f478de676a04736ac19a691903))
+* **cogify:** Fix the elevation target path to include dem/dsm. BM-1040 ([#3277](https://github.com/linz/basemaps/issues/3277)) ([2482ebb](https://github.com/linz/basemaps/commit/2482ebbbb33fe67973f9739d1ed810b173315ebb))
+* **lambda-tiler:** Remove the stylejson metadata, sprite, glphys if no required. ([#3280](https://github.com/linz/basemaps/issues/3280)) ([edaf034](https://github.com/linz/basemaps/commit/edaf03413eafabd7330bccd228956d678a5de95f))
+* **shared:** retry dynamodb queries more times BM-1008 ([#3254](https://github.com/linz/basemaps/issues/3254)) ([534f197](https://github.com/linz/basemaps/commit/534f19725d064beb7c99fe07e1fb7e8cdd5e7ec8))
+* **smoke:** Smoke test is missing ulid dependency to running inside the container. ([#3255](https://github.com/linz/basemaps/issues/3255)) ([f14d0ba](https://github.com/linz/basemaps/commit/f14d0bab2e523bbfbb5739691144f8d5e34e6632))
+* **tiler-sharp:** clamp elevation to the bounds of terrain rgb BM-1028 ([#3274](https://github.com/linz/basemaps/issues/3274)) ([c1d3746](https://github.com/linz/basemaps/commit/c1d37469f054cb5fb854f2f3ac69ea651c0577eb))
+
+
+### Features
+
+* add elevation control to landing page BM-993 ([#3278](https://github.com/linz/basemaps/issues/3278)) ([9d9cd27](https://github.com/linz/basemaps/commit/9d9cd27784f4656adfae3ecb848628c36bec5d91))
+* **cogify:** Update the configs for lerc presets to include 1cm/2cm lerc. BM-1035 ([#3275](https://github.com/linz/basemaps/issues/3275)) ([49f9d53](https://github.com/linz/basemaps/commit/49f9d5339b2eda7ac235189df55e70ccc5cfa526))
+* **lambda-tiler:** Update the tileMatrix from stylejson source if exists. ([#3279](https://github.com/linz/basemaps/issues/3279)) ([07ee06c](https://github.com/linz/basemaps/commit/07ee06c9fdc8ab8ced4e8b327767cd2a77cfee63))
+* **landing:** add elevation terrain-rgb to layer drop down BM-993 ([#3281](https://github.com/linz/basemaps/issues/3281)) ([8820217](https://github.com/linz/basemaps/commit/8820217e60baa17b39391385f3871e763042012a))
+* **landing:** allow more tilting so users can see more of the horizon BM-993 ([#3283](https://github.com/linz/basemaps/issues/3283)) ([e0d9bb2](https://github.com/linz/basemaps/commit/e0d9bb2070ca151a6b7aca4c9c7f76bf93b93782))
+* **tiler-sharp:** reducde the z precision of terrain-rgb to generate much smaller tiles for low z levels BM-1002 ([#3276](https://github.com/linz/basemaps/issues/3276)) ([0d14986](https://github.com/linz/basemaps/commit/0d149865b867783c4c09574ae6cb408ce9cf52bf))
+
+
+
+
+
 # [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
 
 

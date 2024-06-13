@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Features
+
+* **landing:** allow more tilting so users can see more of the horizon BM-993 ([#3283](https://github.com/linz/basemaps/issues/3283)) ([e0d9bb2](https://github.com/linz/basemaps/commit/e0d9bb2070ca151a6b7aca4c9c7f76bf93b93782))
+
+
+
+
+
 # [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
 
 

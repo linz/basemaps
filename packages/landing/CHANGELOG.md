@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Features
+
+* add elevation control to landing page BM-993 ([#3278](https://github.com/linz/basemaps/issues/3278)) ([9d9cd27](https://github.com/linz/basemaps/commit/9d9cd27784f4656adfae3ecb848628c36bec5d91))
+* **landing:** add elevation terrain-rgb to layer drop down BM-993 ([#3281](https://github.com/linz/basemaps/issues/3281)) ([8820217](https://github.com/linz/basemaps/commit/8820217e60baa17b39391385f3871e763042012a))
+* **landing:** allow more tilting so users can see more of the horizon BM-993 ([#3283](https://github.com/linz/basemaps/issues/3283)) ([e0d9bb2](https://github.com/linz/basemaps/commit/e0d9bb2070ca151a6b7aca4c9c7f76bf93b93782))
+
+
+
+
+
 # [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
 
 

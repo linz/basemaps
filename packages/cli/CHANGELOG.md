@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* **cli:** Copy static files into cli container for health smoke test. ([#3257](https://github.com/linz/basemaps/issues/3257)) ([9396f60](https://github.com/linz/basemaps/commit/9396f606d626f1f478de676a04736ac19a691903))
+
+
+
+
+
 # [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
 
 

@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Remove the stylejson metadata, sprite, glphys if no required. ([#3280](https://github.com/linz/basemaps/issues/3280)) ([edaf034](https://github.com/linz/basemaps/commit/edaf03413eafabd7330bccd228956d678a5de95f))
+
+
+### Features
+
+* **lambda-tiler:** Update the tileMatrix from stylejson source if exists. ([#3279](https://github.com/linz/basemaps/issues/3279)) ([07ee06c](https://github.com/linz/basemaps/commit/07ee06c9fdc8ab8ced4e8b327767cd2a77cfee63))
+
+
+
+
+
 # [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
 
 
