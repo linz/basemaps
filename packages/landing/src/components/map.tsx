@@ -230,6 +230,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.map = new maplibre.Map({
       container: this.el,
       style,
+      maxPitch: LocationUrl.PitchMaxDegrees, // allow users to see more of the horizon, above 60 is experimental
       center: [location.lon, location.lat], // starting position [lon, lat]
       zoom: location.zoom, // starting zoom
       bearing: cfg.location.bearing ?? 0,

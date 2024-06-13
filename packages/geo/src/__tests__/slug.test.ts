@@ -102,8 +102,8 @@ describe('LocationUrl', () => {
 
   it('should fail if pitch is outside of bounds', () => {
     assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p35'), { ...lonLatZoom, pitch: 35 });
-    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p-60.1'), lonLatZoom);
-    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p70'), lonLatZoom);
+    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p-80.1'), lonLatZoom);
+    assert.deepEqual(LocationSlug.fromSlug('@-41.2778480,174.7763921,z8,p81'), lonLatZoom);
   });
 
   it('toSlug should truncate bearing and pitch', () => {
