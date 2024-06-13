@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* **cogify:** Fix the elevation target path to include dem/dsm. BM-1040 ([#3277](https://github.com/linz/basemaps/issues/3277)) ([2482ebb](https://github.com/linz/basemaps/commit/2482ebbbb33fe67973f9739d1ed810b173315ebb))
+
+
+### Features
+
+* **cogify:** Update the configs for lerc presets to include 1cm/2cm lerc. BM-1035 ([#3275](https://github.com/linz/basemaps/issues/3275)) ([49f9d53](https://github.com/linz/basemaps/commit/49f9d5339b2eda7ac235189df55e70ccc5cfa526))
+
+
+
+
+
 # [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
 
 

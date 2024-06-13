@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/shared",
-  "version": "7.3.0",
+  "version": "7.4.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -26,9 +26,9 @@
     "@aws-sdk/client-dynamodb": "^3.470.0",
     "@aws-sdk/client-s3": "^3.472.0",
     "@aws-sdk/util-dynamodb": "^3.470.0",
-    "@basemaps/config": "^7.1.0",
-    "@basemaps/geo": "^7.1.0",
-    "@basemaps/tiler": "^7.1.0",
+    "@basemaps/config": "^7.4.0",
+    "@basemaps/geo": "^7.4.0",
+    "@basemaps/tiler": "^7.4.0",
     "@chunkd/fs": "^11.2.0",
     "@chunkd/fs-aws": "^11.2.2",
     "@chunkd/middleware": "^11.1.0",

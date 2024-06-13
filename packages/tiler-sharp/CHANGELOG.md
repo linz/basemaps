@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* **tiler-sharp:** clamp elevation to the bounds of terrain rgb BM-1028 ([#3274](https://github.com/linz/basemaps/issues/3274)) ([c1d3746](https://github.com/linz/basemaps/commit/c1d37469f054cb5fb854f2f3ac69ea651c0577eb))
+
+
+### Features
+
+* **tiler-sharp:** reducde the z precision of terrain-rgb to generate much smaller tiles for low z levels BM-1002 ([#3276](https://github.com/linz/basemaps/issues/3276)) ([0d14986](https://github.com/linz/basemaps/commit/0d149865b867783c4c09574ae6cb408ce9cf52bf))
+
+
+
+
+
 # [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
 
 

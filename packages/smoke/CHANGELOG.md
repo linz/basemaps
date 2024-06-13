@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* **smoke:** Smoke test is missing ulid dependency to running inside the container. ([#3255](https://github.com/linz/basemaps/issues/3255)) ([f14d0ba](https://github.com/linz/basemaps/commit/f14d0bab2e523bbfbb5739691144f8d5e34e6632))
+
+
+
+
+
 # [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
 
 
