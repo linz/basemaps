@@ -136,7 +136,7 @@ export const LocationSlug = {
    * - -190 <= lon <= 180
    * - 0 <= zoom <= 32
    * - 0 <= bearing <= 360
-   * - -60 <= pitch <= 60
+   * - -PitchMaxDegrees <= pitch <= PitchMaxDegrees
    *
    * @example
    *
