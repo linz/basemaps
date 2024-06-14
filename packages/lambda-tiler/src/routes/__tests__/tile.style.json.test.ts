@@ -5,7 +5,7 @@ import { ConfigProviderMemory, StyleJson } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import { createSandbox } from 'sinon';
 
-import { FakeData } from '../../__tests__/config.data.js';
+import { FakeData, TileSetElevation } from '../../__tests__/config.data.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
@@ -219,5 +219,38 @@ describe('/v1/styles', () => {
     ]);
     assert.deepEqual(body.sources['basemaps-aerial'].tileSize, 256);
     assert.deepEqual(body.layers, [{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
+  });
+
+  it('should create individual raster styles with terrain', async () => {
+    const configId = FakeData.bundle([FakeData.tileSetRaster('christchurch-urban-2020-2021-0.075m'), TileSetElevation]);
+    const request = mockUrlRequest(
+      '/v1/styles/christchurch-urban-2020-2021-0.075m.json',
+      `?config=${configId}`,
+      Api.header,
+    );
+
+    const res = await handler.router.handle(request);
+    assert.equal(res.status, 200, res.statusDescription);
+
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+
+    assert.equal(body.version, 8);
+    assert.deepEqual(body.sources['basemaps-christchurch-urban-2020-2021-0.075m'].type, 'raster');
+    assert.deepEqual(body.sources['basemaps-christchurch-urban-2020-2021-0.075m'].tiles, [
+      `https://tiles.test/v1/tiles/christchurch-urban-2020-2021-0.075m/WebMercatorQuad/{z}/{x}/{y}.webp?api=${Api.key}&config=${configId}`,
+    ]);
+    assert.deepEqual(body.sources['basemaps-christchurch-urban-2020-2021-0.075m'].tileSize, 256);
+    assert.deepEqual(body.layers, [
+      {
+        id: 'basemaps-christchurch-urban-2020-2021-0.075m',
+        type: 'raster',
+        source: 'basemaps-christchurch-urban-2020-2021-0.075m',
+      },
+    ]);
+
+    assert.deepEqual(body.sources['basemaps-elevation'].type, 'raster-dem');
+    assert.deepEqual(body.sources['basemaps-elevation'].tiles, [
+      `https://tiles.test/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?api=${Api.key}&config=${configId}&pipeline=terrain-rgb`,
+    ]);
   });
 });

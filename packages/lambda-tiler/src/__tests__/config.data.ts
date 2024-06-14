@@ -6,6 +6,8 @@ import {
   ConfigProviderMemory,
   ConfigTileSetRaster,
   ConfigTileSetVector,
+  DefaultColorRampOutput,
+  DefaultTerrainRgbOutput,
   TileSetType,
 } from '@basemaps/config';
 import { fsa, FsMemory } from '@basemaps/shared';
@@ -27,6 +29,24 @@ export const TileSetAerial: ConfigTileSetRaster = {
     },
   ],
 };
+
+export const TileSetElevation: ConfigTileSetRaster = {
+  id: 'ts_elevation',
+  name: 'elevation',
+  type: TileSetType.Raster,
+  description: 'elevation__description',
+  title: 'Elevation',
+  category: 'Elevation',
+  layers: [
+    {
+      3857: 'im_01FYWKATAEK2ZTJQ2PX44Y0XNT',
+      title: 'New Zealand 8m DEM (2012)',
+      name: 'new-zealand_2012_dem_8m',
+    },
+  ],
+  outputs: [DefaultTerrainRgbOutput, DefaultColorRampOutput],
+};
+
 export const TileSetVector: ConfigTileSetVector = {
   id: 'ts_topographic',
   type: TileSetType.Vector,

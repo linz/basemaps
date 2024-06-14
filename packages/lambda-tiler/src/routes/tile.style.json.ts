@@ -103,6 +103,22 @@ export async function tileSetToStyle(
     sources: { [styleId]: { type: 'raster', tiles: [tileUrl], tileSize: 256 } },
     layers: [{ id: styleId, type: 'raster', source: styleId }],
   };
+
+  // Add terrain source if elevation tileset exists in the config.
+  const config = await ConfigLoader.load(req);
+  const tsElevation = await config.TileSet.get('ts_elevation');
+  if (tsElevation) {
+    const elevationQuery = toQueryString({ config: configLocation, api: apiKey, pipeline: 'terrain-rgb' });
+    const elevationUrl =
+      (Env.get(Env.PublicUrlBase) ?? '') +
+      `/v1/tiles/${tsElevation.name}/${tileMatrix.identifier}/{z}/{x}/{y}.png${elevationQuery}`;
+    style.sources[`basemaps-${tsElevation.name}`] = {
+      type: 'raster-dem',
+      tiles: [elevationUrl],
+      tileSize: 256,
+    };
+  }
+
   const data = Buffer.from(JSON.stringify(style));
 
   const cacheKey = Etag.key(data);
