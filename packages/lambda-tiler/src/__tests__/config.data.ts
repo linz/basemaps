@@ -277,15 +277,6 @@ export class FakeData {
     return tileSet;
   }
 
-  static tileSetTerrain(name: string): ConfigTileSetRaster {
-    const tileSet = JSON.parse(JSON.stringify(TileSetAerial));
-
-    tileSet.name = name;
-    tileSet.id = `ts_${name}`;
-
-    return tileSet;
-  }
-
   static tileSetVector(name: string): ConfigTileSetVector {
     const tileSet = JSON.parse(JSON.stringify(TileSetVector));
 
