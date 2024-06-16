@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
 
 import { DefaultTerrainRgbOutput } from '@basemaps/config';
-import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
+import { fsa, FsMemory, LogConfig, SourceMemory, Tiff, TiffTag } from '@basemaps/shared';
 import pLimit from 'p-limit';
 
 import { ConfigJson } from '../json.config.js';
@@ -40,6 +40,56 @@ describe('tiff-loader', () => {
       type: 'raster',
       title: 'GoogleExample',
       layers: [{ 3857: 'source://source/rgba8/', title: 'google_title', name: 'google_name' }],
+    };
+
+    const cfgUrl = new URL('tmp://config/ts_google.json');
+    await fsa.write(cfgUrl, JSON.stringify(ts));
+
+    const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
+    assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
+
+    const tsGoogle = await cfg.TileSet.get('ts_google')!;
+    assert.ok(tsGoogle);
+
+    assert.equal(tsGoogle.title, 'GoogleExample');
+    assert.equal(tsGoogle.format, 'webp');
+    assert.equal(tsGoogle.layers.length, 1);
+
+    const layerOne = tsGoogle?.layers[0];
+    assert.ok(layerOne);
+
+    const imgId = layerOne[3857];
+    assert.ok(imgId);
+
+    const img = await cfg.Imagery.get(imgId);
+
+    assert.ok(img);
+    assert.equal(img.files.length, 1);
+    assert.deepEqual(img.bands, ['uint8', 'uint8', 'uint8', 'uint8']);
+  });
+
+  it('should default to uint if data type is missing', async () => {
+    const rgbaTiff = new URL('../../../../__tests__/static/rgba8.google.tiff', import.meta.url);
+    const bytes = await fsa.read(rgbaTiff);
+    const tiff = await Tiff.create(new SourceMemory(`memory://rgbaTiff`, bytes));
+    // find the offset for the tag then overwrite the data
+    const bytesTag = tiff.images[0].tags.get(TiffTag.SampleFormat);
+    if (bytesTag == null) throw new Error('Unable to destroy tag information');
+    // rename the tag to UserComment
+    bytes.writeUint16LE(TiffTag.UserComment, bytesTag.tagOffset);
+
+    // check to ensure that the tag was properly destroyed
+    const tiffB = await Tiff.create(new SourceMemory(`memory://rgbaTiff`, bytes));
+    assert.ok(tiffB.images[0].tags.get(TiffTag.SampleFormat) == null);
+    assert.ok(tiffB.images[0].tags.get(TiffTag.UserComment));
+
+    await fsa.write(new URL('source://source/rgba-missing-datatype/google.tiff'), bytes);
+
+    const ts = {
+      id: 'ts_google',
+      type: 'raster',
+      title: 'GoogleExample',
+      layers: [{ 3857: 'source://source/rgba-missing-datatype/', title: 'google_title', name: 'google_name' }],
     };
 
     const cfgUrl = new URL('tmp://config/ts_google.json');
