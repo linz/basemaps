@@ -248,7 +248,7 @@ export class ConfigJson {
     if (tileSet.type === TileSetType.Raster) {
       if (ts.outputs) tileSet.outputs = ts.outputs;
       if (ts.background) {
-        tileSet.background = parseRgba(ts.background);
+        tileSet.background = typeof ts.background === 'string' ? parseRgba(ts.background) : ts.background;
       }
     }
 

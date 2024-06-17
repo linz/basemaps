@@ -10,7 +10,20 @@ export function validateColor(str: string): boolean {
   }
 }
 
-const zBackground = z.string().refine(validateColor, { message: 'Invalid hex color' });
+/**
+ * parse a RGB alpha object
+ *
+ * Current {@link parseRgba} defaults all values to 0 if they do not exist
+ */
+const rgbaObject = z.object({
+  r: z.number(),
+  g: z.number(),
+  b: z.number(),
+  alpha: z.number(),
+});
+const hexColorString = z.string().refine(validateColor, { message: 'Invalid hex color' });
+
+const zBackground = z.union([hexColorString, rgbaObject]);
 
 export const ImageryConfigDefaults = {
   minZoom: 0,
