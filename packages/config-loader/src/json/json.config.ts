@@ -10,7 +10,6 @@ import {
   ConfigProviderMemory,
   ConfigTileSet,
   ConfigVectorStyle,
-  parseRgba,
   sha256base58,
   StyleJson,
   TileSetType,
@@ -247,9 +246,7 @@ export class ConfigJson {
     if (ts.maxZoom) tileSet.maxZoom = ts.maxZoom;
     if (tileSet.type === TileSetType.Raster) {
       if (ts.outputs) tileSet.outputs = ts.outputs;
-      if (ts.background) {
-        tileSet.background = parseRgba(ts.background);
-      }
+      if (ts.background) tileSet.background = ts.background;
     }
 
     if (ts.format) {

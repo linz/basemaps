@@ -1,11 +1,12 @@
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
 
-import { DefaultTerrainRgbOutput } from '@basemaps/config';
+import { ConfigTileSetRaster, DefaultTerrainRgbOutput, TileSetType } from '@basemaps/config';
 import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import pLimit from 'p-limit';
 
 import { ConfigJson } from '../json.config.js';
+import { TileSetConfigSchema } from '../parse.tile.set.js';
 import { ConfigImageryTiff } from '../tiff.config.js';
 
 describe('tiff-loader', () => {
@@ -189,5 +190,30 @@ describe('tiff-loader', () => {
 
     const filesB = await fsa.toArray(fsa.details(fsa.toUrl('tmp://cache/')));
     assert.equal(filesB.length, 1);
+  });
+
+  it('should support rgba color objects ', async () => {
+    const ts: TileSetConfigSchema = {
+      id: 'ts_dem',
+      type: TileSetType.Raster,
+      title: 'GoogleExample',
+      layers: [{ 3857: 'source://source/dem/', title: 'elevation-title', name: 'elevation-name' }],
+      background: { r: 255, g: 0, b: 255, alpha: 1 },
+      outputs: [DefaultTerrainRgbOutput],
+    };
+
+    const cfgUrl = new URL('tmp://config/ts_google.json');
+    await fsa.write(cfgUrl, JSON.stringify(ts));
+
+    const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get(), new URL('tmp://cache/'));
+    const tsOut = (await cfg.TileSet.get('ts_dem')) as ConfigTileSetRaster;
+    assert.deepEqual(tsOut.background, { r: 255, g: 0, b: 255, alpha: 1 });
+
+    (ts as any).background = '#ff00ffff';
+    await fsa.write(cfgUrl, JSON.stringify(ts));
+
+    const cfgStr = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get(), new URL('tmp://cache/'));
+    const tsOutStr = (await cfgStr.TileSet.get('ts_dem')) as ConfigTileSetRaster;
+    assert.deepEqual(tsOutStr.background, { r: 255, g: 0, b: 255, alpha: 255 });
   });
 });
