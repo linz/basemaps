@@ -146,17 +146,17 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
       firstImage.fetch(TiffTag.GdalNoData),
     ]);
 
-    if (dataType == null || bitsPerSample == null) {
+    if (bitsPerSample == null) {
       throw new Error('Failed to extract band information from : ' + tiff.source.url);
     }
 
-    if (dataType.length !== bitsPerSample.length) {
+    if (dataType && dataType.length !== bitsPerSample.length) {
       throw new Error('Datatype and bits per sample miss match: ' + tiff.source.url);
     }
 
     const imageBands: ImageryBandType[] = [];
-    for (let i = 0; i < dataType.length; i++) {
-      const type = getDataType(dataType[i]);
+    for (let i = 0; i < bitsPerSample.length; i++) {
+      const type = getDataType(dataType ? dataType[i] : SampleFormat.Uint);
       const bits = bitsPerSample[i];
       imageBands.push(`${type}${bits}` as ImageryBandType);
     }
