@@ -11,9 +11,9 @@ export function validateColor(str: string): boolean {
 }
 
 /**
- * parse a RGB alpha object
+ * parse a RGB alpha color object
  *
- * Current {@link parseRgba} defaults all values to 0 if they do not exist
+ * TODO: Current {@link parseRgba} defaults all values to 0 if they do not exist, this expects all values to exist
  */
 const rgbaObject = z.object({
   r: z.number(),
@@ -21,7 +21,11 @@ const rgbaObject = z.object({
   b: z.number(),
   alpha: z.number(),
 });
-const hexColorString = z.string().refine(validateColor, { message: 'Invalid hex color' });
+
+const hexColorString = z
+  .string()
+  .refine(validateColor, { message: 'Invalid hex color' })
+  .transform((f) => parseRgba(f));
 
 const zBackground = z.union([hexColorString, rgbaObject]);
 

@@ -209,7 +209,7 @@ describe('tiff-loader', () => {
     const tsOut = (await cfg.TileSet.get('ts_dem')) as ConfigTileSetRaster;
     assert.deepEqual(tsOut.background, { r: 255, g: 0, b: 255, alpha: 1 });
 
-    ts.background = '#ff00ffff';
+    (ts as any).background = '#ff00ffff';
     await fsa.write(cfgUrl, JSON.stringify(ts));
 
     const cfgStr = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get(), new URL('tmp://cache/'));
