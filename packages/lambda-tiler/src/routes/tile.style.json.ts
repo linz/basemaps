@@ -47,7 +47,9 @@ export function convertStyleJson(
   const sources: Sources = JSON.parse(JSON.stringify(style.sources));
   for (const [key, value] of Object.entries(sources)) {
     if (value.type === 'vector') {
-      if (tileMatrix !== GoogleTms) throw new Error(`TileMatrix is not supported for the vector source ${value.url}.`);
+      if (tileMatrix !== GoogleTms) {
+        throw new LambdaHttpResponse(400, `TileMatrix is not supported for the vector source ${value.url}.`);
+      }
       value.url = convertRelativeUrl(value.url, tileMatrix, apiKey, config);
     } else if ((value.type === 'raster' || value.type === 'raster-dem') && Array.isArray(value.tiles)) {
       for (let i = 0; i < value.tiles.length; i++) {
