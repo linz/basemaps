@@ -8,6 +8,7 @@ import { getTileGrid, locationTransform } from '../tile.matrix.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
+import { MapConfig } from '../config.map.js';
 
 const LayerFadeTime = 750;
 
@@ -42,6 +43,16 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.map.setCenter([location.lon, location.lat]);
     if (location.bearing != null) this.map.setBearing(location.bearing);
     if (location.pitch != null) this.map.setPitch(location.pitch);
+  };
+
+  updateTerrainFromEvent = (): void => {
+    const terrain = this.map.getTerrain();
+    if (terrain) {
+      Config.map.terrain = terrain.source;
+    } else {
+      Config.map.terrain = null;
+    }
+    window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   };
 
   updateBounds = (bounds: maplibregl.LngLatBoundsLike): void => {
@@ -101,6 +112,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
             exaggeration: 1.2,
           });
           this.map.addControl(this.controlTerrain, 'top-left');
+          if (Config.map.terrain === key) this.map.setTerrain(this.controlTerrain.options);
           break;
         }
       }
@@ -110,6 +122,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       this.controlTerrain = null;
     }
   }
+
   /**
    * Only show the scale on GoogleTMS
    * As it does not work with the projection logic we are currently using
@@ -228,6 +241,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     this.map.on('render', this.onRender);
     this.map.on('idle', this.removeOldLayers);
+    this.map.on('terrain', this.updateTerrainFromEvent);
 
     onMapLoaded(this.map, () => {
       this._events.push(

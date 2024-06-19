@@ -53,6 +53,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   debug: DebugState = { ...DebugDefaults };
   visibleLayers: string | null = null;
   filter: Filter = { date: { before: undefined } };
+  terrain: string | null = null;
   pipeline: string | null = null;
 
   private _layers?: Promise<Map<string, LayerInfo>>;
@@ -135,6 +136,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
+    this.terrain = terrain;
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
     this.emit('tileMatrix', this.tileMatrix);
@@ -149,6 +151,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('tileMatrix', opts.tileMatrix.identifier);
     // Config by far the longest so make it the last parameter
     if (opts.config) urlParams.append('config', ensureBase58(opts.config));
+    if (opts.terrain) urlParams.append('terrain', opts.terrain);
 
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
