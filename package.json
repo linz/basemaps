@@ -22,7 +22,6 @@
     "node": ">=16.0.0"
   },
   "devDependencies": {
-    "@linzjs/style": "^5.1.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/geojson": "^7946.0.7",
     "@types/node": "^20.10.4",
@@ -50,5 +49,8 @@
     "trim-newlines": ">=3.0.1 <4.0.0",
     "normalize-url": ">=4.5.1 <5.0.0",
     "ansi-regex": ">=5.0.1 <6.0.0"
+  },
+  "dependencies": {
+    "@linzjs/style": "^5.4.0"
   }
 }
