@@ -6,7 +6,6 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { ConfigImagery, ConfigTileSet } from '@basemaps/config';
 import { createSandbox } from 'sinon';
 
-import { ConfigDynamoCached } from '../dynamo.config.cached.js';
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
 class FakeDynamoDb {
@@ -123,7 +122,7 @@ describe('ConfigDynamo', () => {
       fakeDynamo.values.set('im_abc123', { id: 'im_abc123' });
       fakeDynamo.values.set('im_abc456', { id: 'im_abc456' });
 
-      const cached = provider.Imagery as ConfigDynamoCached<ConfigImagery>;
+      const cached = provider.Imagery;
       cached.cache.set('im_abc123', { id: 'im_abc123' } as ConfigImagery);
       const ret = await provider.Imagery.getAll(new Set(['im_abc123', 'im_abc456']));
 
@@ -134,7 +133,7 @@ describe('ConfigDynamo', () => {
     it('should get with cache', async () => {
       fakeDynamo.values.set('im_abc123', { id: 'im_abc123' });
 
-      const cached = provider.Imagery as ConfigDynamoCached<ConfigImagery>;
+      const cached = provider.Imagery;
       cached.cache.set('im_abc123', { id: 'im_abc123' } as ConfigImagery);
       const ret = await provider.Imagery.get('im_abc123');
 

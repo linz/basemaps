@@ -42,7 +42,7 @@ describe('Projection', () => {
 
     assert.deepEqual(features[0].properties, { name: '2-3-2' });
     assert.deepEqual(features[1].properties, { name: '2-3-3' });
-    const { geometry } = features[0]!;
+    const { geometry } = features[0];
     const coords = geometry.type === 'Polygon' ? geometry.coordinates : null;
     assert.deepEqual(round(coords![0], 8), [
       [90, -66.51326044],

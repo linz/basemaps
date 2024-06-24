@@ -49,7 +49,7 @@ describe('tiff-loader', () => {
     const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
     assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
-    const tsGoogle = await cfg.TileSet.get('ts_google')!;
+    const tsGoogle = await cfg.TileSet.get('ts_google');
     assert.ok(tsGoogle);
 
     assert.equal(tsGoogle.title, 'GoogleExample');
@@ -99,7 +99,7 @@ describe('tiff-loader', () => {
     const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
     assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
-    const tsGoogle = await cfg.TileSet.get('ts_google')!;
+    const tsGoogle = await cfg.TileSet.get('ts_google');
     assert.ok(tsGoogle);
 
     assert.equal(tsGoogle.title, 'GoogleExample');
@@ -136,7 +136,7 @@ describe('tiff-loader', () => {
 
     assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
-    const tsGoogle = await cfg.TileSet.get('ts_google')!;
+    const tsGoogle = await cfg.TileSet.get('ts_google');
     assert.ok(tsGoogle);
 
     assert.equal(tsGoogle.title, 'GoogleExample');
@@ -173,7 +173,7 @@ describe('tiff-loader', () => {
 
     assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
-    const tsGoogle = await cfg.TileSet.get('ts_dem')!;
+    const tsGoogle = await cfg.TileSet.get('ts_dem');
     assert.ok(tsGoogle);
 
     assert.equal(tsGoogle.title, 'GoogleExample');
@@ -206,8 +206,14 @@ describe('tiff-loader', () => {
       assert.ok(tsIm.type === 'raster', id);
       assert.ok(tsIm.virtual, id);
       assert.equal(tsIm.outputs?.length, 2, id);
-      assert.ok(tsIm.outputs?.find((f) => f.name === 'terrain-rgb'), id);
-      assert.ok(tsIm.outputs?.find((f) => f.name === 'color-ramp'), id);
+      assert.ok(
+        tsIm.outputs?.find((f) => f.name === 'terrain-rgb'),
+        id,
+      );
+      assert.ok(
+        tsIm.outputs?.find((f) => f.name === 'color-ramp'),
+        id,
+      );
     }
 
     const tsAll = await cfg.TileSet.get('ts_all');

@@ -48,7 +48,7 @@ export class SourceCache {
     const existing = this.cache.get(location.href)?.ob;
 
     if (existing != null) {
-      if (existing.type === 'cotar') return existing.value as Promise<Cotar>;
+      if (existing.type === 'cotar') return existing.value;
       throw new Error(`Existing object of type: ${existing.type} made for location: ${location}`);
     }
     const value = Cotar.fromTar(fsa.source(location));

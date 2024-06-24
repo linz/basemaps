@@ -108,7 +108,7 @@ export const TileXyzRaster = {
       );
     }
 
-    return (await Promise.all(toLoad)).filter((f) => f != null) as CloudArchive[];
+    return (await Promise.all(toLoad)).filter((f) => f != null);
   },
 
   async getAssetsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<URL[]> {

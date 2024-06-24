@@ -326,7 +326,7 @@ export async function loadTiffsFromPaths(sourceFiles: URL[], Q: LimitFunction): 
         }),
       ),
     )
-  ).filter((f) => f != null) as Tiff[];
+  ).filter((f) => f != null);
 }
 
 /**

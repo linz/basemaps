@@ -427,20 +427,23 @@ describe('WmtsCapabilities', () => {
     const layer = layers[0];
 
     // ensure order is valid
-    assert.deepEqual(layer?.children.map((c) => (c instanceof VNodeElement ? c.tag : null)), [
-      'ows:Title',
-      'ows:Abstract',
-      'ows:Identifier',
-      'ows:Keywords',
-      'ows:BoundingBox',
-      'ows:BoundingBox',
-      'ows:WGS84BoundingBox',
-      'Style',
-      'Format',
-      'TileMatrixSetLink',
-      'TileMatrixSetLink',
-      'ResourceURL',
-    ]);
+    assert.deepEqual(
+      layer?.children.map((c) => (c instanceof VNodeElement ? c.tag : null)),
+      [
+        'ows:Title',
+        'ows:Abstract',
+        'ows:Identifier',
+        'ows:Keywords',
+        'ows:BoundingBox',
+        'ows:BoundingBox',
+        'ows:WGS84BoundingBox',
+        'Style',
+        'Format',
+        'TileMatrixSetLink',
+        'TileMatrixSetLink',
+        'ResourceURL',
+      ],
+    );
 
     assert.equal(layer.find('ows:Title')?.textContent, 'Aerial Imagery');
     assert.equal(
@@ -470,7 +473,10 @@ describe('WmtsCapabilities', () => {
 
     const wgs84 = layer.find('ows:WGS84BoundingBox');
     assert.equal(wgs84?.attrs['crs'], 'urn:ogc:def:crs:OGC:2:84');
-    assert.deepEqual(wgs84?.children.map((c) => c.textContent), ['174.79248 -38.212288', '175.259399 -37.996163']);
+    assert.deepEqual(
+      wgs84?.children.map((c) => c.textContent),
+      ['174.79248 -38.212288', '175.259399 -37.996163'],
+    );
   });
 
   it('should only output imagery if exists', () => {

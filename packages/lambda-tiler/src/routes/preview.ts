@@ -1,7 +1,7 @@
 import { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
 import { Bounds, LatLon, Projection, TileMatrixSet } from '@basemaps/geo';
 import { CompositionTiff, TileMakerContext, Tiler } from '@basemaps/tiler';
-import { SharpOverlay, TileMakerSharp } from '@basemaps/tiler-sharp';
+import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import sharp from 'sharp';
 
@@ -161,12 +161,12 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
 
   // Load all the tiff tiles and resize/them into the correct locations
   req.timer.start('compose:overlay');
-  const overlays = (await Promise.all(
+  const overlays = await Promise.all(
     compositions.map((comp) => {
       if (tileContext.pipeline) return TilerSharp.composeTilePipeline(comp, tileContext);
       return TilerSharp.composeTileTiff(comp, tileContext.resizeKernel);
     }),
-  ).then((items) => items.filter((f) => f != null))) as SharpOverlay[];
+  ).then((items) => items.filter((f) => f != null));
   req.timer.end('compose:overlay');
 
   // Create the output image and render all the individual pieces into them
