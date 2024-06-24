@@ -24,6 +24,17 @@ const webP: Preset = {
   },
 };
 
+const webP80: Preset = {
+  name: 'webp_80',
+  options: {
+    blockSize: CogifyDefaults.blockSize,
+    compression: CogifyDefaults.compression,
+    quality: 80,
+    warpResampling: CogifyDefaults.warpResampling,
+    overviewResampling: CogifyDefaults.overviewResampling,
+  },
+};
+
 const lerc1mm: Preset = {
   name: 'lerc_1mm',
   options: {
@@ -60,6 +71,7 @@ const lzw: Preset = {
 
 export const Presets = {
   [webP.name]: webP,
+  [webP80.name]: webP80,
   [lerc1mm.name]: lerc1mm,
   [lerc10mm.name]: lerc10mm,
   [lzw.name]: lzw,

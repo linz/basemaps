@@ -20,32 +20,22 @@
   },
   "scripts": {
     "build": "tsc",
-    "bundle": "../../scripts/bundle.mjs package.json",
     "test": "node --test"
   },
-  "bundle": [
-    {
-      "entry": "src/bin.ts",
-      "minify": false,
-      "outfile": "dist/index.cjs",
-      "external": [
-        "sharp",
-        "pino-pretty"
-      ]
-    }
-  ],
   "type": "module",
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
-  "devDependencies": {
+  "dependencies": {
     "@basemaps/cli": "^7.4.0",
     "@basemaps/config": "^7.4.0",
     "@basemaps/config-loader": "^7.4.0",
     "@basemaps/geo": "^7.4.0",
     "@basemaps/shared": "^7.4.0",
     "cmd-ts": "^0.12.1",
-    "p-limit": "^4.0.0",
+    "p-limit": "^4.0.0"
+  },
+  "devDependencies": {
     "stac-ts": "^1.0.0"
   },
   "publishConfig": {
