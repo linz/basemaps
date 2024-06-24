@@ -50,6 +50,12 @@ export const BasemapsCogifyCoverCommand = command({
       long: 'tile-matrix',
       description: `Output TileMatrix to use [${SupportedTileMatrix.map((f) => f.identifier).join(', ')}]`,
     }),
+    baseZoomOffset: option({
+      type: optional(number),
+      long: 'base-zoom-offset',
+      description:
+        'Adjust the base zoom level of the output COGS, "-1" reduce the target output resolution by one zoom level',
+    }),
   },
   async handler(args) {
     const metrics = new Metrics();
@@ -79,6 +85,7 @@ export const BasemapsCogifyCoverCommand = command({
       metrics,
       cutline,
       preset: args.preset,
+      targetZoomOffset: args.baseZoomOffset,
     };
 
     const res = await createTileCover(ctx);

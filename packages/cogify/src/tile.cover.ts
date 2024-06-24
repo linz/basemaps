@@ -32,6 +32,10 @@ export interface TileCoverContext {
   logger?: LogType;
   /** GDAL configuration preset */
   preset: string;
+  /**
+   * Override the base zoom to store the output COGS as
+   */
+  targetZoomOffset?: number;
 }
 export interface TileCoverResult {
   /** Stac collection for the imagery */
@@ -51,12 +55,31 @@ function getDateTime(ctx: TileCoverContext): { start: string | null; end: string
   return { start: null, end: null };
 }
 
+/**
+ * Find a zoom level in the target tile matrix that is at least as good as resolution as `resolution`
+ *
+ * for some imagery sets this can mean a large difference in the source to target for example 1M resolution source imagery
+ * is resampled to 0.59m (z18) rather than the closer 1.19m (z17) `targetZoomOffset` can adjust the resolution
+ * to a nearer value using `-1` will convert a 1M target from 0.59m (z18) to 1.19m (z17)
+ *
+ * This can greatly reduce the size of output tiles
+ *
+ * @param tileMatrix target tile tile matrix to use
+ * @param resolution target resolution
+ * @param targetZoomOffset override the target base zoom, for instance -1 turns a z18 into z17
+ * @returns
+ */
+function getTargetBaseZoom(tileMatrix: TileMatrixSet, resolution: number, targetZoomOffset?: number): number {
+  if (targetZoomOffset == null) return Projection.getTiffResZoom(tileMatrix, resolution);
+  return Projection.getTiffResZoom(tileMatrix, resolution) + targetZoomOffset;
+}
+
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
   // Ensure we have the projection loaded for the source imagery
   await ProjectionLoader.load(ctx.imagery.projection);
 
   // Find the zoom level that is at least as good as the source imagery
-  const targetBaseZoom = Projection.getTiffResZoom(ctx.tileMatrix, ctx.imagery.gsd);
+  const targetBaseZoom = getTargetBaseZoom(ctx.tileMatrix, ctx.imagery.gsd, ctx.targetZoomOffset);
 
   // The base zoom is 256x256 pixels at its resolution, we are trying to find a image that is <32k pixels wide/high
   // zooming out 7 levels converts a 256x256 image into 32k x 32k image
