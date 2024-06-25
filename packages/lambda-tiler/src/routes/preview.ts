@@ -162,7 +162,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   // Load all the tiff tiles and resize/them into the correct locations
   req.timer.start('compose:overlay');
   // Remove with typescript >=5.5.0
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
   const overlays = (await Promise.all(
     compositions.map((comp) => {
       if (tileContext.pipeline) return TilerSharp.composeTilePipeline(comp, tileContext);

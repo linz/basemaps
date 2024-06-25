@@ -109,7 +109,7 @@ export const TileXyzRaster = {
     }
 
     // Remove with typescript >=5.5.0
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
     return (await Promise.all(toLoad)).filter((f) => f != null) as CloudArchive[];
   },
 
