@@ -1,9 +1,14 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./build"
+    "outDir": "./build",
+    "rootDir": "./src"
   },
-  "include": ["src/**/*"],
-  "references": [{ "path": "../__tests__" }, { "path": "../shared" }]
+  "include": ["src"],
+  "references": [
+    { "path": "../__tests__/tsconfig.json" },
+    { "path": "../linzjs-metrics/tsconfig.json" },
+    { "path": "../shared/tsconfig.json" },
+    { "path": "../geo/tsconfig.json" }
+  ]
 }

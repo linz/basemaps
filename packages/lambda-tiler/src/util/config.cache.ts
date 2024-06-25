@@ -1,5 +1,6 @@
 import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
+import { FsError } from '@chunkd/fs';
 
 import { SwappingLru } from './swapping.lru.js';
 
@@ -15,7 +16,7 @@ class LruConfig {
         return configProvider;
       })
       .catch((e) => {
-        if (e.code === 404) return null;
+        if ((e as FsError).code === 404) return null;
         throw e;
       });
   }

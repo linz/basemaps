@@ -49,11 +49,11 @@ describe('MemoryConfig', () => {
     assert.deepEqual(res, [null, null, null, null]);
   });
 
-  it('should searialize to json', async () => {
+  it('should searialize to json', () => {
     config.put(baseTs);
     config.put(baseImg);
 
-    const json = await config.toJson();
+    const json = config.toJson();
 
     assert.equal(json.imagery.length, 1);
     assert.equal(json.imagery[0].id, baseImg.id);
@@ -65,7 +65,7 @@ describe('MemoryConfig', () => {
     assert.equal(json.provider.length, 0);
   });
 
-  it('should generate virtual tilesets', async () => {
+  it('should generate virtual tilesets', () => {
     config.put(baseImg);
     assert.equal(config.toJson().tileSet.length, 0);
 

@@ -19,7 +19,7 @@ export const Q = PLimit(10);
 export class Updater<S extends BaseConfig = BaseConfig> {
   config: S;
   _oldData?: Promise<ConfigImagery | ConfigTileSet | ConfigProvider | ConfigVectorStyle | null>;
-  prefix: string;
+  prefix: ConfigPrefix;
   isCommit: boolean;
   logger: LogType;
   cfg: BasemapsConfigProvider;
@@ -51,7 +51,7 @@ export class Updater<S extends BaseConfig = BaseConfig> {
     if (this.prefix === ConfigPrefix.TileSet) return this.config as unknown as ConfigTileSet;
     if (this.prefix === ConfigPrefix.Provider) return this.config as unknown as ConfigProvider;
     if (this.prefix === ConfigPrefix.Style) return this.config as unknown as ConfigVectorStyle;
-    throw Error(`Failed to cast the config ${this.config}`);
+    throw Error(`Failed to cast the config ${this.prefix}`);
   }
 
   invalidatePath(): string {

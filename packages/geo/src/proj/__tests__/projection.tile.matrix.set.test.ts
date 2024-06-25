@@ -59,7 +59,7 @@ describe('ProjectionTileMatrixSet', () => {
     });
   });
 
-  it('getTileSize', async () => {
+  it('getTileSize', () => {
     assert.equal(Projection.getImagePixelWidth(GoogleTms, { x: 0, y: 0, z: 5 }, 10), 16384);
     assert.equal(Projection.getImagePixelWidth(GoogleTms, { x: 0, y: 0, z: 13 }, 20), 65536);
 

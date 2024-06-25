@@ -1,6 +1,7 @@
 import { promisify } from 'node:util';
 import { gunzip } from 'node:zlib';
 
+import { TileSetType } from '@basemaps/config';
 import { GoogleTms, LocationUrl, LonLatZoom, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, getPreviewQuery } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -95,7 +96,7 @@ export async function previewIndexGet(req: LambdaHttpRequest<PreviewIndexGet>): 
   const tileSet = await config.TileSet.get(config.TileSet.id(query.style));
   req.timer.end('tileset:load');
   if (tileSet == null) return loadAndServeIndexHtml(req, loc);
-  if (tileSet.type !== 'raster') return loadAndServeIndexHtml(req, loc);
+  if (tileSet.type !== TileSetType.Raster) return loadAndServeIndexHtml(req, loc);
 
   let tileMatrix = TileMatrixSets.find(query.tileMatrix);
   if (tileMatrix == null) tileMatrix = GoogleTms;

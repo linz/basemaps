@@ -21,7 +21,7 @@ describe('health', () => {
     assert.equal(res.status, 200);
     assertCacheMiss(res);
 
-    const data = await res.json();
+    const data = (await res.json()) as { version: string; hash: string };
 
     assert.equal(typeof data.version, 'string');
     assert.ok(data.version);

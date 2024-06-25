@@ -20,14 +20,14 @@ class Page extends Component {
   }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const canUseWebp = await isWebpSupported();
-  if (await canUseWebp) WindowUrl.ImageFormat = 'webp';
+document.addEventListener('DOMContentLoaded', () => {
+  void isWebpSupported().then(() => {
+    WindowUrl.ImageFormat = 'webp';
+    Config.map.updateFromUrl();
 
-  Config.map.updateFromUrl();
-
-  const mainEl = document.getElementById('main');
-  if (mainEl == null) throw new Error('Missing #main');
-  const root = createRoot(mainEl);
-  root.render(<Page />);
+    const mainEl = document.getElementById('main');
+    if (mainEl == null) throw new Error('Missing #main');
+    const root = createRoot(mainEl);
+    root.render(<Page />);
+  });
 });

@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { V, VNode, VNodeElement, VNodeText } from '../vdom.js';
+import { V, VNode, VNodeText } from '../vdom.js';
 
 describe('VDom', () => {
   it('should create text nodes', () => {
@@ -65,7 +65,7 @@ describe('VDom', () => {
     it('tags', () => {
       const bees = Array.from(res.tags('b'));
       assert.equal(bees.length, 3);
-      assert.equal((bees[0] as VNodeElement).children.length, 4);
+      assert.equal(bees[0].children.length, 4);
     });
 
     it('find', () => {

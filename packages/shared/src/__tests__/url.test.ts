@@ -10,8 +10,8 @@ describe('toQueryString', () => {
 
   it('should not create empty query strings', () => {
     assert.equal(toQueryString({}), '');
-    assert.equal(toQueryString({ api: undefined } as any), '');
-    assert.equal(toQueryString({ api: null } as any), '');
+    assert.equal(toQueryString({ api: undefined }), '');
+    assert.equal(toQueryString({ api: null }), '');
   });
 
   it('should sort keys', () => {

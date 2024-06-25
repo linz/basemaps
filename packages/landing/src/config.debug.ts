@@ -63,7 +63,7 @@ export class ConfigDebug {
     if (isDebug === false) {
       // Debug is off reset to default
       for (const [key, value] of Object.entries(DebugDefaults)) {
-        isChanged = setKey(opt, key as keyof DebugState, value) || isChanged;
+        isChanged = setKey(opt, key as keyof DebugState, value as string) || isChanged;
       }
       return isChanged;
     }

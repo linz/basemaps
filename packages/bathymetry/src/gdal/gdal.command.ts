@@ -33,9 +33,9 @@ export interface GdalCredentials {
 
 export abstract class GdalCommand {
   parser?: GdalProgressParser;
-  protected child: ChildProcessWithoutNullStreams;
+  protected child?: ChildProcessWithoutNullStreams;
   protected promise?: Promise<{ stdout: string; stderr: string }>;
-  protected startTime: number;
+  protected startTime?: number;
 
   /** AWS Access  */
   protected credentials?: GdalCredentials;
@@ -89,7 +89,7 @@ export abstract class GdalCommand {
       child.on('exit', (code: number) => {
         const stdout = outputBuff.join('').trim();
         const stderr = errBuff.join('').trim();
-        const duration = Date.now() - this.startTime;
+        const duration = Date.now() - this.startTime!;
 
         if (code !== 0) {
           log.error({ code, stdout, stderr, duration }, 'GdalFailed');
@@ -104,7 +104,7 @@ export abstract class GdalCommand {
       child.on('error', (error: Error) => {
         const stdout = outputBuff.join('').trim();
         const stderr = errBuff.join('').trim();
-        const duration = Date.now() - this.startTime;
+        const duration = Date.now() - this.startTime!;
 
         log.error({ stdout, stderr, duration }, 'GdalFailed');
         this.promise = undefined;

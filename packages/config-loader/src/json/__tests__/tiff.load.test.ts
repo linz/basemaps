@@ -49,7 +49,7 @@ describe('tiff-loader', () => {
     const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
     assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
-    const tsGoogle = await cfg.TileSet.get('ts_google')!;
+    const tsGoogle = await cfg.TileSet.get('ts_google');
     assert.ok(tsGoogle);
 
     assert.equal(tsGoogle.title, 'GoogleExample');
@@ -99,7 +99,7 @@ describe('tiff-loader', () => {
     const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
     assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
-    const tsGoogle = await cfg.TileSet.get('ts_google')!;
+    const tsGoogle = await cfg.TileSet.get('ts_google');
     assert.ok(tsGoogle);
 
     assert.equal(tsGoogle.title, 'GoogleExample');
@@ -136,7 +136,7 @@ describe('tiff-loader', () => {
 
     assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
-    const tsGoogle = await cfg.TileSet.get('ts_google')!;
+    const tsGoogle = await cfg.TileSet.get('ts_google');
     assert.ok(tsGoogle);
 
     assert.equal(tsGoogle.title, 'GoogleExample');
@@ -173,13 +173,13 @@ describe('tiff-loader', () => {
 
     assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
 
-    const tsGoogle = await cfg.TileSet.get('ts_dem')!;
+    const tsGoogle = await cfg.TileSet.get('ts_dem');
     assert.ok(tsGoogle);
 
     assert.equal(tsGoogle.title, 'GoogleExample');
     assert.equal(tsGoogle.format, 'webp');
     assert.equal(tsGoogle.layers.length, 1);
-    assert.ok(tsGoogle.type === 'raster');
+    assert.ok(tsGoogle.type === TileSetType.Raster);
     assert.equal(tsGoogle.outputs?.length, 1);
     assert.deepEqual(tsGoogle.outputs, [DefaultTerrainRgbOutput]);
 
@@ -203,11 +203,17 @@ describe('tiff-loader', () => {
       // Virtual tilesets should have outputs generated
       const tsIm = await cfg.TileSet.get(id);
       assert.ok(tsIm, id);
-      assert.ok(tsIm.type === 'raster', id);
+      assert.ok(tsIm.type === TileSetType.Raster, id);
       assert.ok(tsIm.virtual, id);
       assert.equal(tsIm.outputs?.length, 2, id);
-      assert.ok(tsIm.outputs?.find((f) => f.name === 'terrain-rgb'), id);
-      assert.ok(tsIm.outputs?.find((f) => f.name === 'color-ramp'), id);
+      assert.ok(
+        tsIm.outputs?.find((f) => f.name === 'terrain-rgb'),
+        id,
+      );
+      assert.ok(
+        tsIm.outputs?.find((f) => f.name === 'color-ramp'),
+        id,
+      );
     }
 
     const tsAll = await cfg.TileSet.get('ts_all');
@@ -259,6 +265,7 @@ describe('tiff-loader', () => {
     const tsOut = (await cfg.TileSet.get('ts_dem')) as ConfigTileSetRaster;
     assert.deepEqual(tsOut.background, { r: 255, g: 0, b: 255, alpha: 1 });
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     (ts as any).background = '#ff00ffff';
     await fsa.write(cfgUrl, JSON.stringify(ts));
 

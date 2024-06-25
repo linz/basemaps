@@ -44,7 +44,7 @@ export function convertStyleJson(
   config: string | null,
   layers?: Layer[],
 ): StyleJson {
-  const sources: Sources = JSON.parse(JSON.stringify(style.sources));
+  const sources = JSON.parse(JSON.stringify(style.sources)) as Sources;
   for (const [key, value] of Object.entries(sources)) {
     if (value.type === 'vector') {
       if (tileMatrix !== GoogleTms) {
@@ -134,7 +134,7 @@ export async function tileSetToStyle(
   return response;
 }
 
-export async function tileSetOutputToStyle(
+export function tileSetOutputToStyle(
   req: LambdaHttpRequest<StyleGet>,
   tileSet: ConfigTileSetRaster,
   tileMatrix: TileMatrixSet,
@@ -194,14 +194,14 @@ export async function tileSetOutputToStyle(
   const data = Buffer.from(JSON.stringify(style));
 
   const cacheKey = Etag.key(data);
-  if (Etag.isNotModified(req, cacheKey)) return NotModified();
+  if (Etag.isNotModified(req, cacheKey)) return Promise.resolve(NotModified());
 
   const response = new LambdaHttpResponse(200, 'ok');
   response.header(HttpHeader.ETag, cacheKey);
   response.header(HttpHeader.CacheControl, 'no-store');
   response.buffer(data, 'application/json');
   req.set('bytes', data.byteLength);
-  return response;
+  return Promise.resolve(response);
 }
 
 export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<LambdaHttpResponse> {

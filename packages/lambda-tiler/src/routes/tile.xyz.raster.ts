@@ -95,18 +95,20 @@ export const TileXyzRaster = {
       toLoad.push(
         LoadingQueue((): Promise<CloudArchive | null> => {
           if (assetPath.pathname.endsWith('.tar.co')) {
-            return CoSources.getCotar(assetPath).catch((error) => {
-              req.log.warn({ error, tiff: assetPath }, 'Load:Cotar:Failed');
+            return CoSources.getCotar(assetPath).catch((err: unknown) => {
+              req.log.warn({ err, tiff: assetPath }, 'Load:Cotar:Failed');
               return null;
             });
           }
-          return CoSources.getCog(assetPath).catch((error) => {
-            req.log.warn({ error, tiff: assetPath }, 'Load:Tiff:Failed');
+          return CoSources.getCog(assetPath).catch((err: unknown) => {
+            req.log.warn({ err, tiff: assetPath }, 'Load:Tiff:Failed');
             return null;
           });
         }),
       );
     }
+
+    // Remove with typescript >=5.5.0
 
     return (await Promise.all(toLoad)).filter((f) => f != null) as CloudArchive[];
   },
@@ -128,7 +130,7 @@ export const TileXyzRaster = {
     const assets = await TileXyzRaster.loadAssets(req, assetPaths);
 
     const tiler = new Tiler(xyz.tileMatrix);
-    const layers = await tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z);
+    const layers = tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z);
 
     const format = getImageFormat(xyz.tileType);
     if (format == null) return new LambdaHttpResponse(400, 'Invalid image format: ' + xyz.tileType);

@@ -11,7 +11,7 @@ const Cors = { origin: 'https://example.com' };
 /** Host that is being tested */
 const host = new URL(process.env['BASEMAPS_HOST'] || 'https://dev.basemaps.linz.govt.nz');
 
-if (!host.protocol.startsWith('http')) throw new Error(`Invalid host: ${host}`);
+if (!host.protocol.startsWith('http')) throw new Error(`Invalid host: ${host.href}`);
 
 /**
  * Request a url with options

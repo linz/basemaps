@@ -42,11 +42,11 @@ describe('ConfigLoader', () => {
       mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=notapath`, Api.header),
     )
       .then(() => null)
-      .catch((e) => e);
+      .catch((e) => e as LambdaHttpResponse);
 
     assert.equal(error instanceof LambdaHttpResponse, true);
-    assert.equal((error as LambdaHttpResponse).status, 400);
-    assert.equal((error as LambdaHttpResponse).statusDescription, 'Invalid configuration location protocol:file:');
+    assert.equal(error?.status, 400);
+    assert.equal(error?.statusDescription, 'Invalid configuration location protocol:file:');
   });
 
   it('should Not working with wrong protocol', async () => {
@@ -54,11 +54,11 @@ describe('ConfigLoader', () => {
       mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=memory1://linz-basemaps/config`, Api.header),
     )
       .then(() => null)
-      .catch((e) => e);
+      .catch((e) => e as LambdaHttpResponse);
 
     assert.equal(error instanceof LambdaHttpResponse, true);
-    assert.equal((error as LambdaHttpResponse).status, 400);
-    assert.equal((error as LambdaHttpResponse).statusDescription, 'Invalid configuration location protocol:memory1:');
+    assert.equal(error?.status, 400);
+    assert.equal(error?.statusDescription, 'Invalid configuration location protocol:memory1:');
   });
 
   it('should Not working with wrong s3 bucket', async () => {
@@ -66,28 +66,25 @@ describe('ConfigLoader', () => {
       mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=s3://wrong-bucket/config`, Api.header),
     )
       .then(() => null)
-      .catch((e) => e);
+      .catch((e) => e as LambdaHttpResponse);
 
     assert.equal(error instanceof LambdaHttpResponse, true);
-    assert.equal((error as LambdaHttpResponse).status, 400);
-    assert.equal(
-      (error as LambdaHttpResponse).statusDescription,
-      'Bucket: "wrong-bucket" is not a allowed bucket location',
-    );
+    assert.equal(error?.status, 400);
+    assert.equal(error?.statusDescription, 'Bucket: "wrong-bucket" is not a allowed bucket location');
   });
 
   const location = new URL('memory://linz-basemaps/config.json');
 
   it('should Not working with no file in the path', async () => {
     const error = await ConfigLoader.load(
-      mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${location}`, Api.header),
+      mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${location.href}`, Api.header),
     )
       .then(() => null)
-      .catch((e) => e);
+      .catch((e) => e as LambdaHttpResponse);
 
     assert.equal(error instanceof LambdaHttpResponse, true);
-    assert.equal((error as LambdaHttpResponse).status, 400);
-    assert.equal((error as LambdaHttpResponse).statusDescription, `Invalid config location at ${location}`);
+    assert.equal(error?.status, 400);
+    assert.equal(error?.statusDescription, `Invalid config location at ${location.href}`);
   });
 
   it('should get expected config file', async () => {
@@ -96,7 +93,7 @@ describe('ConfigLoader', () => {
     await fsa.write(location, Buffer.from(JSON.stringify(expectedConfig.toJson())));
 
     const provider = await ConfigLoader.load(
-      mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${location}`, Api.header),
+      mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${location.href}`, Api.header),
     );
 
     assert.deepEqual(await provider.Imagery.get('aerial'), await expectedConfig.Imagery.get('aerial'));
@@ -124,10 +121,10 @@ describe('ConfigLoader', () => {
       mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${deletedLocation}`, Api.header),
     )
       .then(() => null)
-      .catch((e) => e);
+      .catch((e) => e as LambdaHttpResponse);
 
     assert.equal(error instanceof LambdaHttpResponse, true);
-    assert.equal((error as LambdaHttpResponse).status, 400);
-    assert.equal((error as LambdaHttpResponse).statusDescription, `Invalid config location at ${deletedLocation}`);
+    assert.equal(error?.status, 400);
+    assert.equal(error?.statusDescription, `Invalid config location at ${deletedLocation}`);
   });
 });

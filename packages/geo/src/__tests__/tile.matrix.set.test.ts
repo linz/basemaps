@@ -127,7 +127,7 @@ describe('TileMatrixSet', () => {
 
   [Nztm2000Tms, GoogleTms].forEach((tms) => {
     tms.def.tileMatrix.slice(0, 2).forEach((tm, z) => {
-      it(`should sourceToPixels -> pixelsToSource ${tms.projection} z:${tm.identifier}`, () => {
+      it(`should sourceToPixels -> pixelsToSource ${tms.projection.toString()} z:${tm.identifier}`, () => {
         const startX = tm.topLeftCorner[tms.indexX];
         const startY = tm.topLeftCorner[tms.indexY];
         const scale = tms.pixelScale(z) * tm.tileWidth;

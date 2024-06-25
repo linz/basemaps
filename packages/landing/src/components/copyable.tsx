@@ -37,7 +37,7 @@ export class Copyable extends Component<CopyableProps, { copied: boolean }> {
      * @example `copy:aerial:wmts:nztm2000quad`
      */
     gaEvent(GaEvent.Ui, 'copy:' + Config.map.layerKey + ':' + this.props.header.replace(/ /g, '').toLowerCase());
-    navigator.clipboard.writeText(this.props.value);
+    void navigator.clipboard.writeText(this.props.value);
     this.setState({ copied: true });
     if (this._copyTimeout != null) clearTimeout(this._copyTimeout);
     this._copyTimeout = setTimeout(() => this.setState({ copied: false }), 1_000);

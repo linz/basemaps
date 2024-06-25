@@ -46,8 +46,8 @@ export class ConfigData {
     // Improve the GeoJSON with some attributes that are useful
     for (const f of gj.features) {
       f.properties = f.properties ?? {};
-      const fileName = f.properties['name'];
-      f.properties['location'] = new URL(f.properties['name'], imagery.uri).href;
+      const fileName = f.properties['name'] as string;
+      f.properties['location'] = new URL(fileName, imagery.uri).href;
       f.properties['epsg'] = imagery.projection;
       f.properties['tileMatrix'] = imagery.tileMatrix;
       const source = imagery.files.find((f) => f.name === fileName);

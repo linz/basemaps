@@ -46,7 +46,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
   override componentDidMount(): void {
     this.setState({ zoomToExtent: true, currentLayer: Config.map.layerKey });
 
-    Config.map.layers.then((layers) => {
+    void Config.map.layers.then((layers) => {
       this.setState({ layers });
       // This needs to run on next tick or the sate will not have updated
       setTimeout(() => this.ensurePipelineSet(), 10);
@@ -104,7 +104,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
     // Configure the bounds of the map to match the new layer
     if (this.state.zoomToExtent) {
-      Config.map.layers.then((f) => {
+      void Config.map.layers.then((f) => {
         const layer = f.get(layerId);
         if (layer == null) return;
         if (layer.upperLeft == null || layer.lowerRight == null) return;

@@ -27,7 +27,7 @@ export class Header extends Component<unknown, HeaderState> {
     this._events.push(Config.map.on('filter', () => this.renderLinksTiles()));
 
     // If individual layers are on, we need the layer info to determine if they can use NZTM2000Quad WMTS
-    Config.map.layers.then((layers) => this.setState({ layers }));
+    void Config.map.layers.then((layers) => this.setState({ layers }));
   }
   override componentWillUnmount(): void {
     for (const e of this._events) e();

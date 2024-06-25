@@ -138,7 +138,7 @@ export const Validate = {
     }
     // If the tileset has pipelines defined the user MUST specify which one
     if (tileSet.outputs) {
-      throw new LambdaHttpResponse(404, 'TileSet needs pipeline: ' + tileSet.outputs.map((f) => f.name));
+      throw new LambdaHttpResponse(404, 'TileSet needs pipeline: ' + tileSet.outputs.map((f) => f.name).join(', '));
     }
 
     // Generate a default RGBA configuration

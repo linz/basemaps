@@ -1,6 +1,6 @@
 import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
-export async function versionGet(): Promise<LambdaHttpResponse> {
+export function versionGet(): Promise<LambdaHttpResponse> {
   const response = new LambdaHttpResponse(200, 'ok');
   response.header(HttpHeader.CacheControl, 'no-store');
   response.json({
@@ -20,5 +20,5 @@ export async function versionGet(): Promise<LambdaHttpResponse> {
      */
     buildId: process.env['BUILD_ID'],
   });
-  return response;
+  return Promise.resolve(response);
 }

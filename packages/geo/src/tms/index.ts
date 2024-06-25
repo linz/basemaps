@@ -19,7 +19,7 @@ export const TileMatrixSets = {
    */
   get(epsg: Epsg | EpsgCode): TileMatrixSet {
     const tms = this.tryGet(epsg);
-    if (tms == null) throw new Error('Failed to lookup TileMatrixSet: ' + epsg);
+    if (tms == null) throw new Error('Failed to lookup TileMatrixSet: ' + String(epsg));
     return tms;
   },
 

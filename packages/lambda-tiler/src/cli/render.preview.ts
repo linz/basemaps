@@ -20,7 +20,7 @@ async function main(): Promise<void> {
   setDefaultConfig(provider);
   const { tileSet, imagery } = await initConfigFromUrls(provider, [target]);
 
-  if (tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + target);
+  if (tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + target.href);
   log.info({ tileSet: tileSet.name, layers: tileSet.layers.length }, 'TileSet:Loaded');
 
   for (const im of imagery) {
@@ -46,4 +46,7 @@ async function main(): Promise<void> {
   log.info({ path: previewFile }, 'Tile:Write');
 }
 
-main();
+main().catch((err: unknown) => {
+  LogConfig.get().fatal({ err }, 'Cli:Failed');
+  throw err;
+});

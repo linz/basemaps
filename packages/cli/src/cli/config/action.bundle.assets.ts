@@ -4,7 +4,7 @@ import { CotarIndexBuilder, TarReader } from '@cotar/builder';
 import { CotarIndex } from '@cotar/core';
 import { TarBuilder } from '@cotar/tar';
 import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { createHash } from 'crypto';
+import { BinaryLike, createHash } from 'crypto';
 import { createReadStream, promises as fs } from 'fs';
 import { Readable } from 'stream';
 
@@ -14,7 +14,7 @@ const MaxSearch = 50; // Max search factor
 export async function hashFile(stream: Readable): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = createHash('sha256');
-    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('data', (chunk: BinaryLike) => hash.update(chunk));
     stream.on('end', () => resolve(base58.encode(hash.digest())));
     stream.on('error', (err) => reject(err));
   });

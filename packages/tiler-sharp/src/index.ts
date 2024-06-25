@@ -78,7 +78,7 @@ export class TileMakerSharp implements TileMaker {
         if (lossless) throw new Error('lossless avif is not defined');
         return pipeline.avif().toBuffer();
       default:
-        throw new Error(`Invalid image format "${format}"`);
+        throw new Error(`Invalid image format`);
     }
   }
 
@@ -163,7 +163,7 @@ export class TileMakerSharp implements TileMaker {
     if (tile == null) return null;
     const tiffTile = { imageId: comp.source.imageId, x: comp.source.x, y: comp.source.y };
     const bytes = await Decompressors[tile.compression]?.bytes(comp.asset, tile.bytes);
-    if (bytes == null) throw new Error('Failed to decompress: ' + comp.asset.source.url);
+    if (bytes == null) throw new Error(`Failed to decompress: ${comp.asset.source.url.href}`);
 
     let result = bytes;
     if (ctx.pipeline) {
@@ -195,7 +195,7 @@ export class TileMakerSharp implements TileMaker {
           'pipeline:' + pipe.type,
         );
 
-        if (result == null) throw new Error(`Failed to process pipeline:${pipe.type} on ${comp.asset.source.url}`);
+        if (result == null) throw new Error(`Failed to process pipeline:${pipe.type} on ${comp.asset.source.url.href}`);
       }
     }
 

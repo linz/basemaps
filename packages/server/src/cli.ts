@@ -14,6 +14,7 @@ const DefaultPort = 5000;
  * if it looks like a file path convert it using `pathToFileURL`
  **/
 export const Url: Type<string, URL> = {
+  // eslint-disable-next-line @typescript-eslint/require-await
   async from(str) {
     try {
       return new URL(str);

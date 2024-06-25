@@ -5,6 +5,7 @@ import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import * as os from 'os';
+import path from 'path';
 import * as ulid from 'ulid';
 
 import { BathyMaker } from './bathy.maker.js';
@@ -14,10 +15,10 @@ import { FilePath, FileType } from './file.js';
 const GoodZoom = GoogleTms.def.tileMatrix[4];
 
 class CreateAction extends CommandLineAction {
-  private inputPath: CommandLineStringParameter;
-  private outputPath: CommandLineStringParameter;
-  private docker: CommandLineFlagParameter;
-  private tileMatrix: CommandLineStringParameter;
+  private inputPath?: CommandLineStringParameter;
+  private outputPath?: CommandLineStringParameter;
+  private docker?: CommandLineFlagParameter;
+  private tileMatrix?: CommandLineStringParameter;
 
   public constructor() {
     super({
@@ -57,8 +58,8 @@ class CreateAction extends CommandLineAction {
   }
 
   async onExecute(): Promise<void> {
-    const isDocker = !!this.docker.value;
-    const pathToFile = this.inputPath.value!;
+    const isDocker = !!this.docker?.value;
+    const pathToFile = this.inputPath?.value as string;
 
     if (isDocker) {
       process.env[Env.Gdal.UseDocker] = 'true';
@@ -66,7 +67,7 @@ class CreateAction extends CommandLineAction {
         process.env[Env.Gdal.DockerContainerTag] = 'ubuntu-full-latest';
       }
     }
-    const tileMatrixInput = this.tileMatrix.value ?? GoogleTms.identifier;
+    const tileMatrixInput = this.tileMatrix?.value ?? GoogleTms.identifier;
     const tileMatrix = TileMatrixSets.find(tileMatrixInput);
     if (tileMatrix == null) {
       throw new Error(
@@ -84,7 +85,7 @@ class CreateAction extends CommandLineAction {
     const tmpFolder = new FilePath(await makeTempFolder(`bathymetry-${ulid.ulid()}`));
 
     try {
-      const outputPath = this.outputPath.value!;
+      const outputPath = this.outputPath?.value as string;
 
       /** Find a decent zoom level that is close to the good zoom at google's scale */
       let bestZ = tileMatrix.findBestZoom(GoodZoom.scaleDenominator + 1);
@@ -94,7 +95,7 @@ class CreateAction extends CommandLineAction {
 
       const bathy = new BathyMaker({
         id: ulid.ulid(),
-        inputPath: this.inputPath.value!,
+        inputPath: this.inputPath?.value as string,
         outputPath,
         tmpFolder,
         tileMatrix,
@@ -103,10 +104,10 @@ class CreateAction extends CommandLineAction {
       });
       await bathy.render(logger);
 
-      const srcPath = fsa.join(tmpFolder.sourcePath, String(FileType.Output));
+      const srcPath = path.join(tmpFolder.sourcePath, String(FileType.Output));
 
       for (const file of await fs.readdir(srcPath)) {
-        await fsa.write(fsa.join(outputPath, file), createReadStream(fsa.join(srcPath, file)));
+        await fsa.write(fsa.toUrl(path.join(outputPath, file)), createReadStream(path.join(srcPath, file)));
       }
     } finally {
       await fs.rm(tmpFolder.sourcePath, { recursive: true });

@@ -9,9 +9,9 @@ export function makeRound(z = 8): (n: number) => number {
 /**
  * Round any thing. round any numbers found in `thing` to z decimal places
  */
-export function round(thing: any, z = 8): any {
+export function round<T>(thing: T, z = 8): T {
   const r = makeRound(z);
-  const recurse = (obj: any): any => {
+  const recurse = (obj: unknown): unknown => {
     if (typeof obj === 'number') {
       return r(obj);
     }
@@ -25,13 +25,15 @@ export function round(thing: any, z = 8): any {
     }
     if (obj == null || obj.constructor !== Object) return obj;
 
-    const ans = Object.assign({}, obj);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const ans = Object.assign({}, obj) as any;
     for (const key in ans) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       ans[key] = recurse(ans[key]);
     }
     return ans;
   };
-  return recurse(thing);
+  return recurse(thing) as T;
 }
 
 /**

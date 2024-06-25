@@ -146,7 +146,7 @@ export class Attribution {
   static async load(url: string): Promise<Attribution> {
     const resp = await fetch(url);
     if (resp.ok) {
-      const attributionStac = await resp.json();
+      const attributionStac = (await resp.json()) as AttributionStac;
       return Attribution.fromStac(attributionStac);
     }
 

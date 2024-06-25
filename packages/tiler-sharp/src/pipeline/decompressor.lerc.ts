@@ -10,13 +10,13 @@ export const LercDecompressor: Decompressor = {
     const bytes = Lerc.decode(tile);
 
     if (bytes.pixelType !== 'F32') {
-      throw new Error(`Lerc: Invalid output pixelType:${bytes.pixelType} from:${source.source.url}`);
+      throw new Error(`Lerc: Invalid output pixelType:${bytes.pixelType} from:${source.source.url.href}`);
     }
     if (bytes.depthCount !== 1) {
-      throw new Error(`Lerc: Invalid output depthCount:${bytes.depthCount} from:${source.source.url}`);
+      throw new Error(`Lerc: Invalid output depthCount:${bytes.depthCount} from:${source.source.url.href}`);
     }
     if (bytes.pixels.length !== 1) {
-      throw new Error(`Lerc: Invalid output bandCount:${bytes.pixels.length} from:${source.source.url}`);
+      throw new Error(`Lerc: Invalid output bandCount:${bytes.pixels.length} from:${source.source.url.href}`);
     }
 
     return {

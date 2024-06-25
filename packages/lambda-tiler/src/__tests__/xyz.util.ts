@@ -1,13 +1,13 @@
 import { LogConfig } from '@basemaps/shared';
-import { LambdaAlbRequest, LambdaHttpRequest, LambdaUrlRequest } from '@linzjs/lambda';
-import { Context } from 'aws-lambda';
+import { LambdaAlbRequest, LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
+import { ALBEventRequestContext, Context } from 'aws-lambda';
 
 export function mockRequest(path: string, method = 'get', headers: Record<string, string> = {}): LambdaHttpRequest {
   const log = LogConfig.get();
   log.level = 'silent';
   return new LambdaAlbRequest(
     {
-      requestContext: null as any,
+      requestContext: null as unknown as ALBEventRequestContext,
       httpMethod: method.toUpperCase(),
       path: encodeURI(path),
       headers,
@@ -34,7 +34,7 @@ export function mockUrlRequest(
       rawPath: encodeURI(path),
       rawQueryString: query,
       isBase64Encoded: false,
-    } as any,
+    } as unknown as UrlEvent,
     {} as Context,
     log,
   );

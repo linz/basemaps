@@ -1,3 +1,5 @@
+// Fastfiy uses a lot of floating promises
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { handler } from '@basemaps/lambda-tiler';
 import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';

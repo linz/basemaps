@@ -9,7 +9,8 @@ import {
   Tile,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { CompositeError, extractYearRangeFromName, fsa, LogType, titleizeImageryName } from '@basemaps/shared';
+import { extractYearRangeFromName, fsa, LogType, titleizeImageryName } from '@basemaps/shared';
+import { FsError } from '@chunkd/fs';
 import * as cp from 'child_process';
 import { readFileSync } from 'fs';
 import path, { basename } from 'path';
@@ -20,7 +21,13 @@ import { FileType } from './file.js';
 import { Hash } from './hash.js';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-const packageJson = JSON.parse(readFileSync(path.join(__dirname, '../package.json')).toString());
+
+interface BasicPackageJson {
+  version: string;
+  gitHead?: string;
+  repository: { url: string };
+}
+const packageJson = JSON.parse(readFileSync(path.join(__dirname, '../package.json')).toString()) as BasicPackageJson;
 
 function getCommitHash(): string {
   return packageJson.gitHead ?? cp.execSync('git rev-parse HEAD').toString().trim();
@@ -84,7 +91,7 @@ async function createCollection(
   const links: StacLink[] = [
     {
       rel: 'self',
-      href: fsa.join(bm.outputPath, bm.tmpFolder.basename(FileType.Stac, 'collection')),
+      href: new URL(bm.tmpFolder.basename(FileType.Stac, 'collection'), bm.outputPath).href,
     },
     {
       rel: 'derived_from',
@@ -108,14 +115,14 @@ async function createCollection(
   ];
   const interval: [string, string][] = [];
   try {
-    const sourceCollectionPath = fsa.join(bm.inputFolder, 'collection.json');
+    const sourceCollectionPath = new URL('collection.json', bm.inputPath);
     sourceStac = await fsa.readJson<StacCollection>(sourceCollectionPath);
     description = sourceStac.description;
     interval.push(...(sourceStac.extent?.temporal?.interval ?? []));
-    links.push({ href: sourceCollectionPath, rel: 'sourceImagery', type: 'application/json' });
+    links.push({ href: sourceCollectionPath.href, rel: 'sourceImagery', type: 'application/json' });
     if (sourceStac.providers != null) providers.push(...sourceStac.providers);
   } catch (err) {
-    if (!CompositeError.isCompositeError(err) || err.code !== 404) {
+    if ((err as FsError).code !== 404) {
       throw err;
     }
   }

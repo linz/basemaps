@@ -31,6 +31,8 @@ function isWebpImageSupported(): Promise<boolean> {
 export function isWebpSupported(): Promise<boolean> {
   return new Promise((resolve) => {
     if (isCanvasWebpSupported()) return resolve(true);
-    isWebpImageSupported().then(resolve);
+    isWebpImageSupported()
+      .then(resolve)
+      .catch(() => resolve(false));
   });
 }

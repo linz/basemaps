@@ -32,7 +32,7 @@ async function main(): Promise<void> {
 
   const tileSet = tileSets.find((f) => f.layers.length > 0);
 
-  if (tileSet == null || tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + source);
+  if (tileSet == null || tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + source.href);
   log.info({ tileSet: tileSet.name, layers: tileSet.layers.length }, 'TileSet:Loaded');
 
   for (const im of imagery) {

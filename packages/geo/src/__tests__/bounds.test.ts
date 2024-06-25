@@ -126,12 +126,10 @@ describe('Bounds', () => {
   });
 
   it('compareArea', () => {
-    const { compareArea } = Bounds;
-    assert.equal(compareArea(new Bounds(4, 5, 1, 1), new Bounds(4, 5, 1, 1)), 0);
-    assert.equal(compareArea(new Bounds(3, 5, 1, 1), new Bounds(4, 5, 1, 1)), -1);
-    assert.equal(compareArea(new Bounds(4, 5, 1, 1), new Bounds(4, 4, 1, 1)), 1);
-
-    assert.equal(compareArea(new Bounds(3, 5, 1, 1), new Bounds(3, 5, 2, 5)), -9);
+    assert.equal(Bounds.compareArea(new Bounds(4, 5, 1, 1), new Bounds(4, 5, 1, 1)), 0);
+    assert.equal(Bounds.compareArea(new Bounds(3, 5, 1, 1), new Bounds(4, 5, 1, 1)), -1);
+    assert.equal(Bounds.compareArea(new Bounds(4, 5, 1, 1), new Bounds(4, 4, 1, 1)), 1);
+    assert.equal(Bounds.compareArea(new Bounds(3, 5, 1, 1), new Bounds(3, 5, 2, 5)), -9);
   });
 
   it('fromMultiPolygon', () => {

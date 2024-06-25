@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
-import { GoogleTms, StacCollection } from '@basemaps/geo';
-import { LogConfig, LogType } from '@basemaps/shared';
-import { mockFileOperator } from '@basemaps/shared/build/file/__tests__/file.operator.test.helper.js';
+import { GoogleTms } from '@basemaps/geo';
+import { fsa, FsMemory, LogConfig, LogType } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
-import { dirname } from 'path';
+import { basename, dirname } from 'path';
 
 import { FilePath } from '../file.js';
 import { Hash } from '../hash.js';
@@ -14,32 +16,33 @@ import { Stac } from '../stac.js';
 describe('stac', () => {
   const origHash = Hash.hash;
 
-  const mockFs = mockFileOperator();
-
-  beforeEach(mockFs.setup);
+  const fsMemory = new FsMemory();
+  beforeEach(() => {
+    fsa.register('memory://', fsMemory);
+  });
 
   afterEach(() => {
     Hash.hash = origHash;
-    mockFs.teardown();
+    fsMemory.files.clear();
   });
 
   it('createItem', async () => {
-    (Hash as any).hash = (v: string): string => 'hash' + v;
+    (Hash as any).hash = (v: string): string => 'hash_' + basename(v);
 
     const bm = {
       id: 'id123',
       tileMatrix: GoogleTms,
-      inputPath: 's3://test-source-bucket/gebco-2020',
-      outputPath: 's3://test-bucket/bathy-2020',
+      inputPath: 's3://test-source-bucket/gebco-2020/',
+      outputPath: 's3://test-bucket/bathy-2020/',
       tmpFolder: new FilePath('/tmp/path'),
     } as any;
     bm.config = bm;
 
     const now = Date.now();
 
-    const stac = round((await Stac.createItem(bm, { x: 22, y: 33, z: 13 })) as any);
+    const stac = round(await Stac.createItem(bm, { x: 22, y: 33, z: 13 }));
 
-    const date = Date.parse(stac.properties.datetime);
+    const date = Date.parse(stac.properties['datetime'] as string);
 
     assert.equal(date >= now && date < now + 2000, true);
 
@@ -63,8 +66,8 @@ describe('stac', () => {
         ],
       },
       properties: {
-        datetime: stac.properties.datetime,
-        'checksum:multihash': 'hash/tmp/path/output/13-22-33.tiff',
+        datetime: stac.properties['datetime'] as string,
+        'checksum:multihash': 'hash_13-22-33.tiff',
         'proj:epsg': 3857,
         'linz:gdal:version': undefined,
         'linz:tile_matrix_set': 'WebMercatorQuad',
@@ -87,8 +90,8 @@ describe('stac', () => {
     const bm = {
       id: 'id123',
       tileMatrix: GoogleTms,
-      inputPath: 's3://test-source-bucket/gebco-2020/gebco_2020.nc',
-      outputPath: 's3://test-bucket/bathy-2020',
+      inputPath: 'memory://test-source-bucket/gebco-2020/gebco_2020.nc',
+      outputPath: 'memory://test-bucket/bathy-2020/',
       tmpFolder: new FilePath('/tmp/path'),
       createSourceHash(l: LogType) {
         return 'multihashResult' + (l === logger);
@@ -132,15 +135,18 @@ describe('stac', () => {
     });
 
     it('createCollection with source collection.json', async () => {
-      mockFs.jsStore['s3://test-source-bucket/gebco-2020/collection.json'] = {
-        title: 'fancy title',
-        description: 'collection description',
-        providers: [{ name: 'source provider', roles: ['source'] }],
-        extent: {
-          spatial: { bbox: [[-180, 84, -178, 85]] },
-          temporal: { interval: [['2020-01-01T00:00:00Z', '2020-10-12T01:02:03Z']] },
-        },
-      } as StacCollection;
+      await fsa.write(
+        fsa.toUrl('memory://test-source-bucket/gebco-2020/collection.json'),
+        JSON.stringify({
+          title: 'fancy title',
+          description: 'collection description',
+          providers: [{ name: 'source provider', roles: ['source'] }],
+          extent: {
+            spatial: { bbox: [[-180, 84, -178, 85]] },
+            temporal: { interval: [['2020-01-01T00:00:00Z', '2020-10-12T01:02:03Z']] },
+          },
+        }),
+      );
 
       const bounds = GoogleTms.tileToSourceBounds({ x: 22, y: 33, z: 13 });
 
@@ -150,7 +156,7 @@ describe('stac', () => {
       const gitHubLink = stac.links[2];
       assert.equal(gitHubLink.href.startsWith('https://github.com/linz/basemaps.git'), true);
       assert.equal(gitHubLink.rel, 'derived_from');
-      assert.equal(/^\d+\.\d+\.\d+$/.test(gitHubLink.version as any), true);
+      assert.equal(/^\d+\.\d+\.\d+$/.test(gitHubLink['version'] as string), true);
 
       assert.deepEqual(round(stac, 4), {
         stac_version: Stac.Version,
@@ -166,11 +172,11 @@ describe('stac', () => {
         links: [
           {
             rel: 'self',
-            href: 's3://test-bucket/bathy-2020/collection.json',
+            href: 'memory://test-bucket/bathy-2020/collection.json',
           },
           {
             rel: 'derived_from',
-            href: 's3://test-source-bucket/gebco-2020/gebco_2020.nc',
+            href: 'memory://test-source-bucket/gebco-2020/gebco_2020.nc',
             'checksum:multihash': 'multihashResulttrue',
           },
           gitHubLink,
@@ -178,7 +184,7 @@ describe('stac', () => {
           { rel: 'item', href: '13-22-33.json', type: 'application/geo+json' },
           { rel: 'item', href: '13-22-34.json', type: 'application/geo+json' },
           {
-            href: 's3://test-source-bucket/gebco-2020/collection.json',
+            href: 'memory://test-source-bucket/gebco-2020/collection.json',
             rel: 'sourceImagery',
             type: 'application/json',
           },

@@ -1,12 +1,12 @@
 import { ConfigBase } from './base.js';
 
-interface SourceVector {
+export interface SourceVector {
   type: 'vector';
   url: string;
   attribution?: string;
 }
 
-interface SourceRaster {
+export interface SourceRaster {
   type: 'raster';
   tiles: string[];
   tileSize?: number;
@@ -15,7 +15,7 @@ interface SourceRaster {
   attribution?: string;
 }
 
-interface SourceRasterDem {
+export interface SourceRasterDem {
   type: 'raster-dem';
   tiles: string[];
   tileSize?: number;

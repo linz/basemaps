@@ -6,6 +6,10 @@
     "outDir": "./build",
     "lib": ["DOM"]
   },
-  "include": ["src/**/*"],
-  "references": [{ "path": "../config" }, { "path": "../geo" }, { "path": "../shared" }]
+  "include": ["src"],
+  "references": [
+    { "path": "../config/tsconfig.json" },
+    { "path": "../geo/tsconfig.json" },
+    { "path": "../shared/tsconfig.json" }
+  ]
 }

@@ -5,7 +5,7 @@ import { GoogleTms, Nztm2000QuadTms, Projection } from '@basemaps/geo';
 
 import { projectGeoJson } from '../tile.matrix.js';
 
-/** This feautre is located in tile x:237, y:278, z:9 of NZTM2000Quad see ./NZTMTileLocation.png for a reference picture  */
+/** This feature is located in tile x:237, y:278, z:9 of NZTM2000Quad see ./NZTMTileLocation.png for a reference picture  */
 const feature = {
   type: 'FeatureCollection',
   features: [
@@ -33,10 +33,11 @@ const feature = {
 
 describe('GeoJSONTransform', () => {
   it('should convert to the right tile location', () => {
-    const newFeatures = JSON.parse(JSON.stringify(feature));
+    const newFeatures = JSON.parse(JSON.stringify(feature)) as GeoJSON.FeatureCollection;
     projectGeoJson(newFeatures, Nztm2000QuadTms);
 
-    const firstPoint = newFeatures.features[0].geometry.coordinates[0][0];
+    const firstPoint = (newFeatures.features[0] as GeoJSON.Feature<GeoJSON.Polygon>).geometry
+      .coordinates[0][0] as number[];
 
     // find the target tile that will be used by this location
     const proj = Projection.get(GoogleTms).fromWgs84(firstPoint);

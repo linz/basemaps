@@ -10,4 +10,4 @@ async function main(): Promise<void> {
   console.log(resLocal.command.toCommand(), { duration: resLocal.duration });
 }
 
-main();
+main().catch((e) => console.log(e));

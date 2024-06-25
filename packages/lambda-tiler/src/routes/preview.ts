@@ -1,4 +1,4 @@
-import { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
+import { ConfigTileSetRaster, ConfigTileSetRasterOutput, TileSetType } from '@basemaps/config';
 import { Bounds, LatLon, Projection, TileMatrixSet } from '@basemaps/geo';
 import { CompositionTiff, TileMakerContext, Tiler } from '@basemaps/tiler';
 import { SharpOverlay, TileMakerSharp } from '@basemaps/tiler-sharp';
@@ -62,7 +62,7 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   req.timer.end('tileset:load');
   if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset not found');
   // Only raster previews are supported
-  if (tileSet.type !== 'raster') return new LambdaHttpResponse(404, 'Preview invalid tile set type');
+  if (tileSet.type !== TileSetType.Raster) return new LambdaHttpResponse(404, 'Preview invalid tile set type');
 
   const pipeline = req.query.get('pipeline');
 
@@ -161,6 +161,8 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
 
   // Load all the tiff tiles and resize/them into the correct locations
   req.timer.start('compose:overlay');
+  // Remove with typescript >=5.5.0
+
   const overlays = (await Promise.all(
     compositions.map((comp) => {
       if (tileContext.pipeline) return TilerSharp.composeTilePipeline(comp, tileContext);

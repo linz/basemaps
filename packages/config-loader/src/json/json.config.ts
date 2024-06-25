@@ -146,30 +146,30 @@ export class ConfigJson {
     return cfg.mem;
   }
 
-  async provider(obj: unknown): Promise<ConfigProvider> {
+  provider(obj: unknown): Promise<ConfigProvider> {
     const pv = zProviderConfig.parse(obj);
     this.logger.info({ config: pv.id }, 'Config:Loaded:Provider');
 
-    return {
+    return Promise.resolve({
       id: pv.id,
       name: ConfigId.unprefix(ConfigPrefix.Provider, pv.id),
       serviceIdentification: pv.serviceIdentification,
       serviceProvider: pv.serviceProvider,
       updatedAt: Date.now(),
       version: 1,
-    };
+    });
   }
 
-  async style(obj: unknown): Promise<ConfigVectorStyle> {
+  style(obj: unknown): Promise<ConfigVectorStyle> {
     const st = zStyleJson.parse(obj);
     this.logger.info({ config: st.id }, 'Config:Loaded:Style');
 
-    return {
+    return Promise.resolve({
       id: st.id,
       name: st.name,
       style: st as StyleJson,
       updatedAt: Date.now(),
-    };
+    });
   }
 
   async tileSet(obj: unknown): Promise<ConfigTileSet> {

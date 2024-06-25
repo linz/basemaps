@@ -28,7 +28,7 @@ export const s3FsPublic = new FsAwsS3(
   new S3Client({
     followRegionRedirects: true,
     signer: {
-      sign: async (req) => req,
+      sign: (req) => Promise.resolve(req),
     } as RequestSigner,
   }),
 );

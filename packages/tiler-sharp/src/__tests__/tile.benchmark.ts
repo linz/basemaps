@@ -26,7 +26,7 @@ async function main(): Promise<void> {
     const tileMaker = new TileMakerSharp(tileSize);
     const tiff = await Tiff.create(fsa.source(TestTiff.Google));
 
-    const layers = await tiler.tile([tiff], CenterTile, CenterTile, Zoom);
+    const layers = tiler.tile([tiff], CenterTile, CenterTile, Zoom);
 
     if (layers == null) throw new Error('Tile is null');
     await tileMaker.compose({

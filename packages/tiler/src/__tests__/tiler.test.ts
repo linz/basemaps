@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { Approx, TestTiff } from '@basemaps/test';
-import { Tiff } from '@cogeotiff/core';
+import { Tiff, TiffImage } from '@cogeotiff/core';
 
 import { CompositionTiff } from '../raster.js';
 import { Tiler } from '../tiler.js';
@@ -60,7 +60,7 @@ describe('tiler.test', () => {
       },
       tif: { source: { name: '15-32295-20496.tiff' } },
       tileSize: { width: 512, height: 512 },
-    } as any;
+    } as unknown as TiffImage;
 
     const raster = {
       tiff: new Bounds(4133696, 2623424, 256, 192),

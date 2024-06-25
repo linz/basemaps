@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { Attribution } from '@basemaps/attribution';
 import { ConfigProviderMemory } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms, Projection } from '@basemaps/geo';
+import { AttributionStac, GoogleTms, Nztm2000QuadTms, Projection } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import { BBox } from '@linzjs/geojson';
 import { HttpHeader } from '@linzjs/lambda';
@@ -328,7 +328,7 @@ describe('/v1/attribution', () => {
     const res = await handler.router.handle(request);
     assert.equal(res.status, 200);
 
-    const json = JSON.parse(res.body);
+    const json = JSON.parse(res.body) as AttributionStac;
 
     const attr = Attribution.fromStac(json);
     assert.equal(attr.attributions.length, 1);
@@ -351,7 +351,7 @@ describe('/v1/attribution', () => {
       const res = await handler.router.handle(req);
       assert.equal(res.status, 200);
 
-      const output = JSON.parse(res.body);
+      const output = JSON.parse(res.body) as AttributionStac;
       assert.equal(output.title, ts.title);
       assert.deepEqual(output.collections[0].summaries['linz:zoom'], { min: 5, max: 11 });
     });
@@ -361,7 +361,7 @@ describe('/v1/attribution', () => {
       const res = await handler.router.handle(req);
       assert.equal(res.status, 200);
 
-      const output = JSON.parse(res.body);
+      const output = JSON.parse(res.body) as AttributionStac;
       assert.equal(output.title, ts.title);
       assert.deepEqual(output.collections[0].summaries['linz:zoom'], { min: 7, max: 14 });
     });
@@ -374,7 +374,7 @@ describe('/v1/attribution', () => {
       const res = await handler.router.handle(req);
       assert.equal(res.status, 200);
 
-      const output = JSON.parse(res.body);
+      const output = JSON.parse(res.body) as AttributionStac;
       assert.equal(output.title, ts.title);
       assert.deepEqual(output.collections[0].summaries['linz:zoom'], { min: 0, max: 13 });
     });
@@ -387,13 +387,13 @@ describe('/v1/attribution', () => {
       const res = await handler.router.handle(req);
       assert.equal(res.status, 200);
 
-      const output = JSON.parse(res.body);
+      const output = JSON.parse(res.body) as AttributionStac;
       assert.equal(output.title, ts.title);
       assert.deepEqual(output.collections[0].summaries['linz:zoom'], { min: 0, max: Nztm2000QuadTms.maxZoom });
     });
   });
 
-  it('should create valid coordinates', async () => {
+  it('should create valid coordinates', () => {
     //bbox: BBox, files: NamedBounds[], proj: Projection
     const bbox = [174.79248047, -38.21228805, 175.25939941, -37.99616268] as BBox;
     const proj = Projection.get(GoogleTms);

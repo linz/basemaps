@@ -24,7 +24,7 @@ export class MapAttributionState {
     if (attrs == null) {
       attrs = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
       this._attrs.set(cacheKey, attrs);
-      attrs.then((a) => {
+      void attrs.then((a) => {
         if (a == null) return;
         a.isIgnored = this.isIgnored;
         this._attrsSync.set(Config.map.layerKeyTms, a);
@@ -149,7 +149,7 @@ export class MapAttribution implements maplibre.IControl {
       return this.setAttribution('© Toitū Te Whenua');
     }
     const loader = MapAttrState.getCurrentAttribution();
-    loader.then(() => this.scheduleRender());
+    void loader.then(() => this.scheduleRender());
   };
 
   /**

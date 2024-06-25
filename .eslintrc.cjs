@@ -3,6 +3,11 @@ const cfg = {
 };
 
 cfg.rules['no-console'] = ['error', { allow: ['warn', 'error'] }];
+
+// Disable no floating promises in tests until https://github.com/nodejs/node/issues/51292 is solved
+const testOverrides = cfg.overrides.find((ovr) => ovr.files.find((f) => f.includes('.test.ts')));
+testOverrides.rules['@typescript-eslint/no-floating-promises'] = 'off';
+
 // Allow console.log in tests and scripts
 cfg.overrides.push({
   files: ['**/*.mjs', '**/__tests__/**/*.ts'],

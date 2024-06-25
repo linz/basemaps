@@ -11,7 +11,6 @@ import {
 import { Emitter } from '@servie/events';
 import { LngLatBoundsLike } from 'maplibre-gl';
 
-import { MaxDate, MinDate } from './components/daterange.js';
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
 import { locationTransform } from './tile.matrix.js';
@@ -116,24 +115,11 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     return Config.map.style == null ? `basemaps-${Config.map.layerId}` : `basemaps-${Config.map.style}`;
   }
 
-  getDateRangeFromUrl(urlParams: URLSearchParams): FilterDate {
-    let before = urlParams.get('date[before]') ?? undefined;
-
-    // Limit the dateRange to be valid
-    if (before) before = before > MaxDate || before < MinDate ? undefined : before;
-    return { before };
-  }
-
   updateFromUrl(search: string = window.location.search): void {
     const urlParams = new URLSearchParams(search);
     const style = urlParams.get('s') ?? urlParams.get('style');
     const config = urlParams.get('c') ?? urlParams.get('config');
     const layerId = urlParams.get('i') ?? style ?? 'aerial';
-    const date = this.getDateRangeFromUrl(urlParams);
-    if (this.filter.date.before !== date.before) {
-      this.filter.date = date;
-      this.emit('filter', this.filter);
-    }
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
