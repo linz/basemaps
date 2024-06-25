@@ -1,20 +1,23 @@
 import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
-import { BatchGetItemCommand, GetItemCommand } from '@aws-sdk/client-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { BatchGetItemCommand, DynamoDB, GetItemCommand, GetItemCommandInput } from '@aws-sdk/client-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
 import { ConfigImagery, ConfigTileSet } from '@basemaps/config';
 import { createSandbox } from 'sinon';
 
 import { ConfigProviderDynamo } from '../dynamo.config.js';
 
+interface GetAllFoo {
+  RequestItems: { Foo: { Keys: { id: { S: string } }[] } };
+}
 class FakeDynamoDb {
   values: Map<string, Record<string, unknown>> = new Map();
   get: unknown[] = [];
-  getAll: { RequestItems: { Foo: { Keys: { id: { S: string } }[] } } }[] = [];
-  getItem(req: any): { promise(): unknown } {
+  getAll: GetAllFoo[] = [];
+  getItem(req: GetItemCommandInput): { promise(): unknown } {
     this.get.push(req);
-    const reqId = req.Key.id.S;
+    const reqId = req.Key?.['id'].S as string;
     const val = this.values.get(reqId);
     return {
       promise(): Promise<unknown> {
@@ -24,9 +27,9 @@ class FakeDynamoDb {
     };
   }
 
-  batchGetItem(req: any): { promise(): unknown } {
+  batchGetItem(req: GetAllFoo): { promise(): unknown } {
     this.getAll.push(req);
-    const keys = req.RequestItems.Foo.Keys.map((c: any) => unmarshall(c)['id']);
+    const keys = req.RequestItems.Foo.Keys.map((c) => c.id.S);
     const output = keys.map((c: string) => this.values.get(c)).filter((f: unknown) => f != null);
     return {
       promise(): Promise<unknown> {
@@ -36,8 +39,8 @@ class FakeDynamoDb {
     };
   }
 
-  send(req: any): unknown {
-    if (req instanceof BatchGetItemCommand) return this.batchGetItem(req.input).promise();
+  send(req: BatchGetItemCommand | GetItemCommand): unknown {
+    if (req instanceof BatchGetItemCommand) return this.batchGetItem(req.input as GetAllFoo).promise();
     if (req instanceof GetItemCommand) return this.getItem(req.input).promise();
     throw new Error('Failed to send request');
   }
@@ -52,7 +55,7 @@ describe('ConfigDynamo', () => {
   beforeEach(() => {
     provider = new ConfigProviderDynamo('Foo');
     fakeDynamo = new FakeDynamoDb();
-    provider.dynamo = fakeDynamo as any;
+    provider.dynamo = fakeDynamo as unknown as DynamoDB;
   });
 
   afterEach(() => sandbox.restore());
@@ -86,7 +89,7 @@ describe('ConfigDynamo', () => {
 
   it('should throw without prefix', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
-    const ret = await provider.TileSet.get('abc123').catch((e) => e);
+    const ret = await provider.TileSet.get('abc123').catch((e) => String(e));
 
     assert.deepEqual(fakeDynamo.get, []);
     assert.deepEqual(String(ret), 'Error: Trying to query "abc123" expected prefix of ts');
@@ -103,7 +106,7 @@ describe('ConfigDynamo', () => {
   });
 
   it('should throw if on wrong prefix', async () => {
-    const ret = await provider.TileSet.get('im_abc123').catch((e) => e);
+    const ret = await provider.TileSet.get('im_abc123').catch((e) => String(e));
     assert.deepEqual(fakeDynamo.get, []);
     assert.deepEqual(String(ret), 'Error: Trying to query "im_abc123" expected prefix of ts');
   });
@@ -112,7 +115,7 @@ describe('ConfigDynamo', () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
 
     const ret = provider.TileSet.getAll(new Set(['abc123', 'ts_abc123']));
-    const err = await ret.then(() => null).catch((e) => e);
+    const err = await ret.then(() => null).catch((e) => String(e));
     assert.equal(String(err), 'Error: Trying to query "abc123" expected prefix of ts');
     assert.deepEqual(fakeDynamo.getAll, []);
   });

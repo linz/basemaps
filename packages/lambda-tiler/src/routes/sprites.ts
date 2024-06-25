@@ -10,7 +10,7 @@ interface SpriteGet {
   };
 }
 
-const Extensions = new Map();
+const Extensions = new Map<string, string>();
 Extensions.set('.png', 'image/png');
 Extensions.set('.json', 'application/json');
 

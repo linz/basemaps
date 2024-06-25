@@ -44,9 +44,8 @@ export class Tiler {
    * @param x WebMercator X
    * @param y WebMercator Y
    * @param zoom WebMercator Zoom
-   * @param logger
    */
-  public async tile(assets: CloudArchive[], x: number, y: number, zoom: number): Promise<Composition[]> {
+  public tile(assets: CloudArchive[], x: number, y: number, zoom: number): Composition[] {
     let layers: Composition[] = [];
     /** Raster pixels of the output tile */
     const screenPx = this.tms.tileToPixels(x, y);

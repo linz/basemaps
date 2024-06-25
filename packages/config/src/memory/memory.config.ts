@@ -101,7 +101,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     };
 
     for (const val of this.objects.values()) {
-      const prefix = val.id.slice(0, val.id.indexOf('_'));
+      const prefix = val.id.slice(0, val.id.indexOf('_')) as ConfigPrefix;
       delete val.updatedAt;
       switch (prefix) {
         case ConfigPrefix.Imagery:
@@ -258,10 +258,10 @@ export class MemoryConfigObject<T extends ConfigBase> extends BasemapsConfigObje
     this.cfg = cfg;
   }
 
-  async get(id: string): Promise<T | null> {
+  get(id: string): Promise<T | null> {
     const obj = this.cfg.objects.get(this.id(id));
-    if (this.is(obj)) return obj;
-    return null;
+    if (this.is(obj)) return Promise.resolve(obj);
+    return Promise.resolve(null);
   }
 
   async getAll(ids: Set<string>): Promise<Map<string, T>> {

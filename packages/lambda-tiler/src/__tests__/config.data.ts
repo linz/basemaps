@@ -269,7 +269,7 @@ export const Provider: ConfigProvider = {
 
 export class FakeData {
   static tileSetRaster(name: string): ConfigTileSetRaster {
-    const tileSet = JSON.parse(JSON.stringify(TileSetAerial));
+    const tileSet = JSON.parse(JSON.stringify(TileSetAerial)) as ConfigTileSetRaster;
 
     tileSet.name = name;
     tileSet.id = `ts_${name}`;
@@ -278,7 +278,7 @@ export class FakeData {
   }
 
   static tileSetVector(name: string): ConfigTileSetVector {
-    const tileSet = JSON.parse(JSON.stringify(TileSetVector));
+    const tileSet = JSON.parse(JSON.stringify(TileSetVector)) as ConfigTileSetVector;
 
     tileSet.name = name;
     tileSet.id = `ts_${name}`;

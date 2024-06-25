@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { afterEach, before, beforeEach, describe, it } from 'node:test';
 
-import { ConfigProviderMemory, StyleJson } from '@basemaps/config';
+import { ConfigProviderMemory, SourceRaster, StyleJson } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 import { createSandbox } from 'sinon';
 
@@ -174,14 +174,16 @@ describe('/v1/styles', () => {
     const res = await handler.router.handle(request);
     assert.equal(res.status, 200, res.statusDescription);
 
-    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
 
     assert.equal(body.version, 8);
-    assert.deepEqual(body.sources['basemaps-aerial'].type, 'raster');
-    assert.deepEqual(body.sources['basemaps-aerial'].tiles, [
+
+    const aerialSource = body.sources['basemaps-aerial'] as SourceRaster;
+    assert.deepEqual(aerialSource.type, 'raster');
+    assert.deepEqual(aerialSource.tiles, [
       `https://tiles.test/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=${Api.key}`,
     ]);
-    assert.deepEqual(body.sources['basemaps-aerial'].tileSize, 256);
+    assert.deepEqual(aerialSource.tileSize, 256);
     assert.deepEqual(body.layers, [{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
   });
 
@@ -192,14 +194,16 @@ describe('/v1/styles', () => {
     const res = await handler.router.handle(request);
     assert.equal(res.status, 200, res.statusDescription);
 
-    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
 
     assert.equal(body.version, 8);
-    assert.deepEqual(body.sources['basemaps-aerial'].type, 'raster');
-    assert.deepEqual(body.sources['basemaps-aerial'].tiles, [
+    const aerialSource = body.sources['basemaps-aerial'] as unknown as SourceRaster;
+
+    assert.deepEqual(aerialSource.type, 'raster');
+    assert.deepEqual(aerialSource.tiles, [
       `https://tiles.test/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.jpeg?api=${Api.key}`,
     ]);
-    assert.deepEqual(body.sources['basemaps-aerial'].tileSize, 256);
+    assert.deepEqual(aerialSource.tileSize, 256);
     assert.deepEqual(body.layers, [{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
   });
 
@@ -210,14 +214,17 @@ describe('/v1/styles', () => {
     const res = await handler.router.handle(request);
     assert.equal(res.status, 200, res.statusDescription);
 
-    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
+    body.sources['basemaps-aerial'];
+    body.sources['basemaps-aerial'];
+    body.sources['basemaps-aerial'];
+    const aerialSource = body.sources['basemaps-aerial'] as unknown as SourceRaster;
 
-    assert.equal(body.version, 8);
-    assert.deepEqual(body.sources['basemaps-aerial'].type, 'raster');
-    assert.deepEqual(body.sources['basemaps-aerial'].tiles, [
+    assert.deepEqual(aerialSource.type, 'raster');
+    assert.deepEqual(aerialSource.tiles, [
       `https://tiles.test/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.webp?api=${Api.key}&config=${configId}`,
     ]);
-    assert.deepEqual(body.sources['basemaps-aerial'].tileSize, 256);
+    assert.deepEqual(aerialSource.tileSize, 256);
     assert.deepEqual(body.layers, [{ id: 'basemaps-aerial', type: 'raster', source: 'basemaps-aerial' }]);
   });
 
@@ -232,14 +239,16 @@ describe('/v1/styles', () => {
     const res = await handler.router.handle(request);
     assert.equal(res.status, 200, res.statusDescription);
 
-    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
 
     assert.equal(body.version, 8);
-    assert.deepEqual(body.sources['basemaps-christchurch-urban-2020-2021-0.075m'].type, 'raster');
-    assert.deepEqual(body.sources['basemaps-christchurch-urban-2020-2021-0.075m'].tiles, [
+    const rasterSource = body.sources['basemaps-christchurch-urban-2020-2021-0.075m'] as unknown as SourceRaster;
+
+    assert.deepEqual(rasterSource.type, 'raster');
+    assert.deepEqual(rasterSource.tiles, [
       `https://tiles.test/v1/tiles/christchurch-urban-2020-2021-0.075m/WebMercatorQuad/{z}/{x}/{y}.webp?api=${Api.key}&config=${configId}`,
     ]);
-    assert.deepEqual(body.sources['basemaps-christchurch-urban-2020-2021-0.075m'].tileSize, 256);
+    assert.deepEqual(rasterSource.tileSize, 256);
     assert.deepEqual(body.layers, [
       {
         id: 'basemaps-christchurch-urban-2020-2021-0.075m',
@@ -248,8 +257,10 @@ describe('/v1/styles', () => {
       },
     ]);
 
-    assert.deepEqual(body.sources['basemaps-elevation'].type, 'raster-dem');
-    assert.deepEqual(body.sources['basemaps-elevation'].tiles, [
+    const rasterDemSource = body.sources['basemaps-elevation'] as unknown as SourceRaster;
+
+    assert.deepEqual(rasterDemSource.type, 'raster-dem');
+    assert.deepEqual(rasterDemSource.tiles, [
       `https://tiles.test/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?api=${Api.key}&config=${configId}&pipeline=terrain-rgb`,
     ]);
   });

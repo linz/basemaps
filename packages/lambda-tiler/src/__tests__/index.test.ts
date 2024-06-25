@@ -38,11 +38,10 @@ describe('LambdaXyz index', () => {
 
       const response = await handler.router.handle(mockRequest('/v1/version'));
 
-      const body = JSON.parse(response.body);
       assert.equal(response.status, 200);
       assert.equal(response.statusDescription, 'ok');
       assert.equal(response.header('cache-control'), 'no-store');
-      assert.deepEqual(body, {
+      assert.deepEqual(JSON.parse(response.body), {
         version: '1.2.3',
         buildId: '1658821493-3',
       });

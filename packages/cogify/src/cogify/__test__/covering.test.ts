@@ -19,7 +19,7 @@ describe('getChildren', () => {
   ['', '3', '310', '013', '3100123', '3103123231312301'].map((qk) => {
     it('should match QuadKey: ' + qk, () => {
       const tileChildren = addChildren(QuadKey.toTile(qk));
-      const qkChildren = QuadKey.children(qk).map(QuadKey.toTile);
+      const qkChildren = QuadKey.children(qk).map((qk) => QuadKey.toTile(qk));
       assert.deepEqual(tileChildren, qkChildren);
     });
   });

@@ -88,7 +88,9 @@ export class DebugMap {
       map.addSource('LINZ Basemaps', source);
       map.setStyle({ ...map.getStyle(), glyphs: styleJson.glyphs, sprite: styleJson.sprite });
       // Setting glyphs/sprites forces a full map refresh, wait for the refresh before adjusting the style
-      map.once('style.load', () => this.adjustVector(map, value));
+      void map.once('style.load', () => {
+        void this.adjustVector(map, value);
+      });
       return;
     }
 

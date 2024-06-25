@@ -12,7 +12,7 @@ export class GdalDocker extends GdalCommand {
     this.mounts = [];
   }
 
-  mount(filePath: string): void {
+  override mount(filePath: string): void {
     if (filePath.startsWith('s3://')) return;
 
     const basePath = path.dirname(filePath);
@@ -78,7 +78,7 @@ export class GdalDocker extends GdalCommand {
     return args.map((c) => c.replace(cred.secretAccessKey, '****').replace(cred.sessionToken, '****'));
   }
 
-  async run(cmd: string, args: string[], log: LogType): Promise<{ stdout: string; stderr: string }> {
+  override async run(cmd: string, args: string[], log: LogType): Promise<{ stdout: string; stderr: string }> {
     const dockerArgs = await this.getDockerArgs();
     log.debug(
       {

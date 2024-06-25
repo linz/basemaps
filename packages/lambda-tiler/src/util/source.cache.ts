@@ -20,7 +20,9 @@ class LruStrutObj<T extends LruStrut> {
   ob: T;
   constructor(ob: T) {
     this.ob = ob;
-    if (this.ob._value == null) this.ob.value.then((c) => (this.ob._value = c));
+    if (this.ob._value == null) {
+      void this.ob.value.then((c) => (this.ob._value = c));
+    }
   }
 
   size = 1;
@@ -37,7 +39,7 @@ export class SourceCache {
 
     if (existing != null) {
       if (existing.type === 'cog') return existing.value;
-      throw new Error(`Existing object of type: ${existing.type} made for location: ${location}`);
+      throw new Error(`Existing object of type: ${existing.type} made for location: ${location.href}`);
     }
     const value = Tiff.create(fsa.source(location));
     this.cache.set(location.href, new LruStrutObj({ type: 'cog', value }));
@@ -49,7 +51,7 @@ export class SourceCache {
 
     if (existing != null) {
       if (existing.type === 'cotar') return existing.value;
-      throw new Error(`Existing object of type: ${existing.type} made for location: ${location}`);
+      throw new Error(`Existing object of type: ${existing.type} made for location: ${location.href}`);
     }
     const value = Cotar.fromTar(fsa.source(location));
     this.cache.set(location.href, new LruStrutObj({ type: 'cotar', value }));

@@ -25,6 +25,7 @@ export const ExampleLogs = `#Version: 1.0
 
 export function lineReader(lines: string[], date?: string): () => AsyncGenerator<string> {
   const dateStr = date == null ? '2020-07-28	01' : date.slice(0, 13).replace('T', '	');
+  // eslint-disable-next-line @typescript-eslint/require-await
   return async function* lineByLine(): AsyncGenerator<string> {
     for (const line of lines) {
       if (line.startsWith('#')) yield line;
@@ -44,6 +45,7 @@ export const CloudWatchIndexes = {
 };
 
 describe('FileProcess', () => {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const originalReader = FileProcess.reader;
   afterEach(() => {
     FileProcess.reader = originalReader;

@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
 import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
-import { CompositionTiff, Tiler } from '@basemaps/tiler';
+import { CompositionTiff, TileMakerContext, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import PixelMatch from 'pixelmatch';
@@ -41,7 +41,7 @@ describe('TileCreation', () => {
     const tiff = await Tiff.create(fsa.source(TestTiff.Google));
     const tiler = new Tiler(GoogleTms);
 
-    const layer0 = (await tiler.tile([tiff], 0, 0, 0)) as CompositionTiff[];
+    const layer0 = tiler.tile([tiff], 0, 0, 0) as CompositionTiff[];
     // There are 16 tiles in this tiff, all should be used
     assert.equal(layer0.length, 16);
 
@@ -77,17 +77,17 @@ describe('TileCreation', () => {
       background,
       resizeKernel,
     });
-    const magicBytes = res.buffer.slice(0, 4);
+    const magicBytes = res.buffer.subarray(0, 4);
     assert.deepEqual(magicBytes.toJSON().data, [0xff, 0xd8, 0xff, 0xdb]);
   });
 
   it('should error when provided invalid image formats', async () => {
     const tileMaker = new TileMakerSharp(256);
     try {
-      await tileMaker.compose({ layers: [], background } as any);
+      await tileMaker.compose({ layers: [], background } as unknown as TileMakerContext);
       assert.equal(true, false, 'invalid format');
-    } catch (e: any) {
-      assert.equal(e.message.includes('Invalid image'), true);
+    } catch (e) {
+      assert.equal((e as Error).message.includes('Invalid image'), true);
     }
   });
 
@@ -123,10 +123,10 @@ describe('TileCreation', () => {
   RenderTests.forEach(({ tileSize, tms, tile }) => {
     const projection = tms.projection;
     const tileText = `${tile.x}, ${tile.y} z${tile.z}`;
-    it(`should render a tile ${tileText} tile: ${tileSize} projection: ${projection}`, async () => {
+    it(`should render a tile ${tileText} tile: ${tileSize} projection: ${projection.toString()}`, async () => {
       // o.timeout(30 * 1000);
 
-      const timeStr = `RenderTests(${projection}): ${tileText} ${tileSize}x${tileSize}  time`;
+      const timeStr = `RenderTests(${projection.toString()}): ${tileText} ${tileSize}x${tileSize}  time`;
       console.time(timeStr);
 
       const url = projection === Epsg.Nztm2000 ? TestTiff.Nztm2000 : TestTiff.Google;
@@ -135,7 +135,7 @@ describe('TileCreation', () => {
 
       const tileMaker = new TileMakerSharp(tileSize);
 
-      const layers = await tiler.tile([tiff], tile.x, tile.y, tile.z);
+      const layers = tiler.tile([tiff], tile.x, tile.y, tile.z);
 
       const png = await tileMaker.compose({
         layers,
@@ -149,7 +149,7 @@ describe('TileCreation', () => {
         writeFileSync(fileName, png.buffer);
       }
 
-      const oldImage = await getExpectedTile(projection, tileSize, tile);
+      const oldImage = getExpectedTile(projection, tileSize, tile);
 
       const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
       if (missMatchedPixels > 0) {

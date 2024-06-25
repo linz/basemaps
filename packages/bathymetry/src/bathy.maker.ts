@@ -49,7 +49,7 @@ export class BathyMaker {
   config: BathyMakerContext & typeof BathyMakerContextDefault;
 
   /** Current gdal version @see Gdal.version */
-  gdalVersion: Promise<string>;
+  gdalVersion?: Promise<string>;
   /** Concurrent limiting queue, all work should be done inside the queue */
   q: LimitFunction;
 
@@ -135,7 +135,7 @@ export class BathyMaker {
 
   /** Create a multi hash of the source file  */
   async createSourceHash(logger: LogType): Promise<string> {
-    const hashPath = this.tmpFolder.name(FileType.Hash);
+    const hashPath = fsa.toUrl(this.tmpFolder.name(FileType.Hash));
     if (await fsa.exists(hashPath)) return (await fsa.read(hashPath)).toString();
     logger.info({ hashPath }, 'CreateHash');
 
@@ -183,7 +183,7 @@ export class BathyMaker {
   async createTile(tile: Tile, logger: LogType): Promise<void> {
     const tileId = TileMatrixSet.tileToName(tile);
     const warpedPath = this.tmpFolder.name(FileType.Warped, tileId);
-    if (await fsa.exists(warpedPath)) return;
+    if (await fsa.exists(fsa.toUrl(warpedPath))) return;
 
     const tms = this.config.tileMatrix;
 
@@ -216,7 +216,7 @@ export class BathyMaker {
     const warped = this.tmpFolder.name(FileType.Warped, tileId);
     const target = this.tmpFolder.name(FileType.HillShade, tileId);
 
-    if (await fsa.exists(target)) return;
+    if (await fsa.exists(fsa.toUrl(target))) return;
 
     logger.trace({ file: target }, 'Shading');
 
@@ -230,7 +230,7 @@ export class BathyMaker {
 
     const renderedPath = await MapnikRender.render(this, tile, logger);
     const outputPath = this.tmpFolder.name(FileType.Output, tileId);
-    if (await fsa.exists(outputPath)) return;
+    if (await fsa.exists(fsa.toUrl(outputPath))) return;
 
     const gdal = createMountedGdal(this.tmpFolder.sourcePath);
     const tileMatrix = this.config.tileMatrix;
@@ -263,13 +263,13 @@ export class BathyMaker {
     const output = await Stac.createItem(this, tile);
     const tileId = TileMatrixSet.tileToName(tile);
     const stacOutputPath = this.tmpFolder.name(FileType.Stac, tileId);
-    await fsa.writeJson(stacOutputPath, output);
+    await fsa.write(fsa.toUrl(stacOutputPath), JSON.stringify(output, null, 2));
     return basename(stacOutputPath);
   }
 
   async createMetadata(bounds: Bounds, itemPaths: string[], logger: LogType): Promise<void> {
     const output = await Stac.createCollection(this, bounds, itemPaths, logger);
     const stacOutputPath = this.tmpFolder.name(FileType.Stac, 'collection');
-    await fsa.writeJson(stacOutputPath, output);
+    await fsa.write(fsa.toUrl(stacOutputPath), JSON.stringify(output, null, 2));
   }
 }

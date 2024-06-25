@@ -38,7 +38,7 @@ async function loadItem(url: URL, logger: LogType): Promise<CogItem | null> {
     return null;
   }
   const collectionLink = item.links.find((f) => f.rel === 'collection');
-  if (collectionLink == null) throw new Error(`Unable to find collection for ${url}`);
+  if (collectionLink == null) throw new Error(`Unable to find collection for ${url.href}`);
 
   const collectionPath = new URL(collectionLink.href, url);
   const collectionPathHref = collectionPath.href;
@@ -49,7 +49,9 @@ async function loadItem(url: URL, logger: LogType): Promise<CogItem | null> {
   const collection = await collectionFetch;
 
   if (collection.stac_version !== '1.0.0') {
-    throw new Error(`Invalid Collection JSON: ${item.id} stac version number mismatch ${collection.stac_version}`);
+    throw new Error(
+      `Invalid Collection JSON: ${item.id} stac version number mismatch ${String(collection.stac_version)}`,
+    );
   }
 
   return { url: url, item, collection };

@@ -20,7 +20,7 @@ function listTag(node: VNodeElement | null | undefined, tag: string): string[] {
 describe('WmtsCapabilities', () => {
   const apiKey = 'secret1234';
 
-  const allImagery = new Map();
+  const allImagery = new Map<string, ConfigImagery>();
   allImagery.set(Imagery2193.id, Imagery2193);
   allImagery.set(Imagery3857.id, Imagery3857);
 
@@ -135,7 +135,7 @@ describe('WmtsCapabilities', () => {
     imageryB.name = 'bbbb';
     imageryB.title = 'bbbb';
 
-    const imagery = new Map();
+    const imagery = new Map<string, ConfigImagery>();
     imagery.set(Imagery3857.id, Imagery3857);
     imagery.set(imageryB.id, imageryB);
     imagery.set(imageryA.id, imageryA);
@@ -167,7 +167,7 @@ describe('WmtsCapabilities', () => {
   });
 
   it('should build capability xml for tileSet and projection', () => {
-    const imagery = new Map();
+    const imagery = new Map<string, ConfigImagery>();
     imagery.set(Imagery3857.id, Imagery3857);
 
     const wmts = new WmtsCapabilities({
@@ -232,7 +232,7 @@ describe('WmtsCapabilities', () => {
   it('should limit a bounding box to the tileMatrix extent WebMercatorQuad', () => {
     const wmts = new WmtsCapabilities({ httpBase: 'https://basemaps.test', apiKey });
 
-    const bigImagery = new Map();
+    const bigImagery = new Map<string, ConfigImagery>();
     bigImagery.set(Imagery3857.id, {
       ...Imagery3857,
       bounds: {
@@ -272,7 +272,7 @@ describe('WmtsCapabilities', () => {
 
   it('should limit a bounding box to the tileMatrix extent NZTM2000Quad', () => {
     const wmts = new WmtsCapabilities({ httpBase: 'https://basemaps.test', apiKey });
-    const bigImagery = new Map();
+    const bigImagery = new Map<string, ConfigImagery>();
 
     bigImagery.set(Imagery2193.id, {
       ...Imagery2193,
@@ -427,23 +427,20 @@ describe('WmtsCapabilities', () => {
     const layer = layers[0];
 
     // ensure order is valid
-    assert.deepEqual(
-      layer?.children.map((c) => (c instanceof VNodeElement ? c.tag : null)),
-      [
-        'ows:Title',
-        'ows:Abstract',
-        'ows:Identifier',
-        'ows:Keywords',
-        'ows:BoundingBox',
-        'ows:BoundingBox',
-        'ows:WGS84BoundingBox',
-        'Style',
-        'Format',
-        'TileMatrixSetLink',
-        'TileMatrixSetLink',
-        'ResourceURL',
-      ],
-    );
+    assert.deepEqual(layer?.children.map((c) => (c instanceof VNodeElement ? c.tag : null)) as string[], [
+      'ows:Title',
+      'ows:Abstract',
+      'ows:Identifier',
+      'ows:Keywords',
+      'ows:BoundingBox',
+      'ows:BoundingBox',
+      'ows:WGS84BoundingBox',
+      'Style',
+      'Format',
+      'TileMatrixSetLink',
+      'TileMatrixSetLink',
+      'ResourceURL',
+    ]);
 
     assert.equal(layer.find('ows:Title')?.textContent, 'Aerial Imagery');
     assert.equal(
@@ -473,10 +470,10 @@ describe('WmtsCapabilities', () => {
 
     const wgs84 = layer.find('ows:WGS84BoundingBox');
     assert.equal(wgs84?.attrs['crs'], 'urn:ogc:def:crs:OGC:2:84');
-    assert.deepEqual(
-      wgs84?.children.map((c) => c.textContent),
-      ['174.79248 -38.212288', '175.259399 -37.996163'],
-    );
+    assert.deepEqual(wgs84?.children.map((c) => c.textContent) as string[], [
+      '174.79248 -38.212288',
+      '175.259399 -37.996163',
+    ]);
   });
 
   it('should only output imagery if exists', () => {
@@ -521,7 +518,7 @@ describe('WmtsCapabilities', () => {
     const halfSize = GoogleTms.extent.width / 2;
     // Create two fake imagery adds one covers tile z1 x0 y0 another covers tile z1 x1 y1
     // so the entire bounding box should be tile z0 x0 y0 or the full extent
-    const imagery = new Map();
+    const imagery = new Map<string, ConfigImagery>();
     const imageTopLeft = { ...Imagery3857, id: 'im_top_left', name: 'top_left' };
     imageTopLeft.bounds = { x: -halfSize, y: 0, width: halfSize, height: halfSize };
     imagery.set(imageTopLeft.id, imageTopLeft);
@@ -569,7 +566,7 @@ describe('WmtsCapabilities', () => {
   it('should work when crossing anti meridian', () => {
     const halfSize = GoogleTms.extent.width / 2;
 
-    const imagery = new Map();
+    const imagery = new Map<string, ConfigImagery>();
     // This image covers z1 x1.5 y1 to z1 x0.5 y1
     // which cross the AM and covers half the width of two tiles
     const imageBottomRight = { ...Imagery3857, id: 'im_bottom_right', name: 'bottom_right' };
@@ -607,7 +604,7 @@ describe('WmtsCapabilities', () => {
   });
 
   it('should work with NZTM2000Quad', () => {
-    const wmts = new WmtsCapabilities({ tileMatrix: [] } as any);
+    const wmts = new WmtsCapabilities({ httpBase: '' });
 
     // Full NZTM200Quad coverage
     const bbox = wmts.buildWgs84BoundingBox(Nztm2000QuadTms, []);

@@ -149,7 +149,7 @@ describe('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
     const res = await handler.router.handle(request);
     assert.equal(res.status, 200);
 
-    const body = JSON.parse(Buffer.from(res.body, 'base64').toString());
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as { tiles: string[] };
     assert.equal(body.tiles[0].includes(`config=${configLocation}`), true);
   });
 

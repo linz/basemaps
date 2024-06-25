@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { BatchGetItemCommandOutput } from '@aws-sdk/client-dynamodb';
+import { BatchGetItemCommandInput, BatchGetItemCommandOutput } from '@aws-sdk/client-dynamodb';
 import { ConfigId, ConfigImagery, ConfigPrefix, getAllImagery } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
 
@@ -10,7 +10,7 @@ import { ConfigProviderDynamo } from '../dynamo.config.js';
 describe('ConfigProvider.Imagery', () => {
   const provider = new ConfigProviderDynamo('Foo');
 
-  const item: ConfigImagery = { id: 'im_foo', name: 'abc' } as any;
+  const item = { id: 'im_foo', name: 'abc' } as unknown as ConfigImagery;
 
   it('isWriteable', () => {
     assert.equal(provider.Imagery.isWriteable(), true);
@@ -33,7 +33,7 @@ describe('ConfigProvider.Imagery', () => {
 
   it('is', () => {
     assert.equal(provider.Imagery.is(item), true);
-    assert.equal(provider.Imagery.is({ id: 'ts_foo' } as any), false);
+    assert.equal(provider.Imagery.is({ id: 'ts_foo' } as unknown as ConfigImagery), false);
     if (provider.Imagery.is(item)) {
       assert.equal(item.name, 'abc'); // tests compiler
     }
@@ -46,7 +46,11 @@ describe('ConfigProvider.Imagery', () => {
     items.set('im_foo4', item);
     const get = t.mock.method(provider.Imagery, 'getAll', () => Promise.resolve(items));
 
-    const layers = [{ [3857]: 'foo1' }, { [3857]: 'im_foo2' }, { [2193]: 'foo3', [3857]: 'im_foo4' }] as any;
+    const layers = [
+      { [3857]: 'foo1' },
+      { [3857]: 'im_foo2' },
+      { [2193]: 'foo3', [3857]: 'im_foo4' },
+    ] as unknown as ConfigImagery[];
 
     const result = await getAllImagery(provider, layers, [Epsg.Google]);
     const firstCall = get.mock.calls[0]?.arguments[0];
@@ -59,8 +63,8 @@ describe('ConfigProvider.Imagery', () => {
   });
 
   it('should handle unprocessed keys', async (t) => {
-    const bulk = t.mock.method(provider.dynamo, 'send', (req: any) => {
-      const keys = req.input.RequestItems[provider.tableName].Keys;
+    const bulk = t.mock.method(provider.dynamo, 'send', (req: { input: BatchGetItemCommandInput }) => {
+      const keys = req.input.RequestItems?.[provider.tableName]?.Keys ?? [];
 
       // Only return one element and label the rest as unprocessed
       const ret = keys.slice(0, 1);

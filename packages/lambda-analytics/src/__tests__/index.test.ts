@@ -21,7 +21,7 @@ describe('hourByHour', () => {
     const startDate = LogStartDate.getTime();
     const iter = dateByHour(startDate);
     for (let i = 0; i < 5; i++) {
-      assert.equal(firstLogHour(i), new Date(iter.next().value).toISOString());
+      assert.equal(firstLogHour(i), new Date(iter.next().value as string).toISOString());
     }
   });
 
@@ -33,7 +33,7 @@ describe('hourByHour', () => {
     // Loop over the next 10,000 hours and verify we always increase by one UTC hour
     // I have manually run this for 10,000,000 hours and seems to work (about 1000 years)
     for (let i = 0; i < 10000; i++) {
-      const nextDate = new Date(iter.next().value);
+      const nextDate = new Date(iter.next().value as string);
       const timeInc = nextDate.getTime() - lastDate;
       lastDate = nextDate.getTime();
 

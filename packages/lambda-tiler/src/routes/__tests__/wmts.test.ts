@@ -68,8 +68,6 @@ describe('WMTSRouting', () => {
 
     config.put({ ...TileSetAerial, id: 'ts_all', name: 'all', layers: [] } as ConfigTileSetRaster);
 
-    config.createVirtualTileSets;
-
     const req = mockUrlRequest(
       '/v1/tiles/all/WMTSCapabilities.xml',
       `format=png&api=${Api.key}&config=s3://linz-basemaps/config.json`,

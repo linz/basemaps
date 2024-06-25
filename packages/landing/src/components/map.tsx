@@ -6,7 +6,6 @@ import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
 import { MapOptionType, WindowUrl } from '../url.js';
-import { DateRange } from './daterange.js';
 import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
 
@@ -261,15 +260,12 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         <div id="map" style={{ width: '100%', height: '100%' }} />
 
         {this.map && Config.map.isDebug ? <Debug map={this.map} /> : undefined}
-        {this.map && Config.map.isDebug && !Config.map.debug['debug.screenshot'] && Config.map.debug['debug.date'] ? (
-          <DateRange map={this.map} />
-        ) : undefined}
         {isLayerSwitcherEnabled ? <MapSwitcher /> : undefined}
       </div>
     );
   }
 
-  updateUrlTimer: unknown | null = null;
+  updateUrlTimer: unknown = null;
   onRender = (): void => {
     if (this.updateUrlTimer != null) return;
     this.updateUrlTimer = setTimeout(() => this.setLocationUrl(), 1000);

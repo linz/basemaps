@@ -14,7 +14,7 @@ describe('ApiKey', () => {
   beforeEach(() => {
     localStorage.getItem = (): string | null => null;
     localStorage.setItem = (): void => undefined;
-    global.localStorage = localStorage as any;
+    global.localStorage = localStorage;
   });
   afterEach(() => {
     delete global.localStorage;

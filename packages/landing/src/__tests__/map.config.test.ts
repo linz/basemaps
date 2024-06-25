@@ -72,22 +72,6 @@ describe('WindowUrl', () => {
     assert.equal(mc.tileMatrix, Nztm2000QuadTms);
   });
 
-  it('should extract dateRange', () => {
-    mc.updateFromUrl('?i=abc123&p=nztm2000&d=true&debug=yes&date[before]=1975-12-31T23:59:59.999Z');
-    assert.equal(mc.filter.date.before, '1975-12-31T23:59:59.999Z');
-    mc.updateFromUrl('?date[after]=1952-01-01T00:00:00.000Z&date[before]=1975-12-31T23:59:59.999Z');
-    assert.equal(mc.filter.date.before, '1975-12-31T23:59:59.999Z');
-    mc.updateFromUrl('?date%5Bafter%5D=1952-01-01T00%3A00%3A00.000Z&date%5Bbefore%5D=1975-12-31T23%3A59%3A59.999Z');
-    assert.equal(mc.filter.date.before, '1975-12-31T23:59:59.999Z');
-  });
-
-  it('should resolve the invalid dateRange', () => {
-    mc.updateFromUrl('?i=abc123&p=nztm2000&d=true&debug=yes&date[before]=1949-12-31T23:59:59.999Z');
-    assert.equal(mc.filter.date.before, undefined);
-    mc.updateFromUrl('?date[before]=2099-12-31T23:59:59.999Z');
-    assert.equal(mc.filter.date.before, undefined);
-  });
-
   it('should convert to a url', () => {
     const apiKey = Config.ApiKey;
     mc.updateFromUrl('');

@@ -9,11 +9,11 @@ import { Type } from 'cmd-ts';
  * If it looks like a file path, it will be converted using `pathToFileURL`.
  **/
 export const Url: Type<string, URL> = {
-  async from(str) {
+  from(str) {
     try {
-      return new URL(str);
+      return Promise.resolve(new URL(str));
     } catch (e) {
-      return pathToFileURL(str);
+      return Promise.resolve(pathToFileURL(str));
     }
   },
 };

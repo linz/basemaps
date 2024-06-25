@@ -53,7 +53,7 @@ interface TiffSummary {
   /** Overall bounding box */
   bounds: BoundingBox;
   /** EpsgCode for the tiffs */
-  projection: number;
+  projection: EpsgCode;
   /** Ground sample distance, number of meters per pixel */
   gsd: number;
 
@@ -129,13 +129,15 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
   for (const tiff of tiffs) {
     const firstImage = tiff.images[0];
 
-    const epsg = firstImage.epsg;
-    if (epsg == null) throw new Error(`No ESPG projection found. source:` + tiff.source.url);
+    const epsg = firstImage.epsg as EpsgCode;
+    if (epsg == null) throw new Error(`No ESPG projection found. source: ${tiff.source.url.href}`);
 
     // Validate all EPSG codes are the same for each imagery set
     if (res.projection == null) res.projection = epsg;
     else if (res.projection !== epsg) {
-      throw new Error(`ESPG projection mismatch on imagery ${res.projection} vs ${epsg} source:` + tiff.source.url);
+      throw new Error(
+        `ESPG projection mismatch on imagery ${res.projection} vs ${epsg} source: ${tiff.source.url.href}`,
+      );
     }
 
     // Validate the bands and data types of the tiff are somewhat consistent
@@ -147,11 +149,11 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
     ]);
 
     if (bitsPerSample == null) {
-      throw new Error('Failed to extract band information from : ' + tiff.source.url);
+      throw new Error(`Failed to extract band information from : ${tiff.source.url.href}`);
     }
 
     if (dataType && dataType.length !== bitsPerSample.length) {
-      throw new Error('Datatype and bits per sample miss match: ' + tiff.source.url);
+      throw new Error(`Datatype and bits per sample miss match: ${tiff.source.url.href}`);
     }
 
     const imageBands: ImageryBandType[] = [];
@@ -177,7 +179,9 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
     if (res.gsd == null) res.gsd = gsd;
     else {
       const gsdDiff = Math.abs(res.gsd - gsd);
-      if (gsdDiff > 0.001) throw new Error(`GSD mismatch on imagery ${res.gsd} vs ${gsd} from: ${tiff.source.url}`);
+      if (gsdDiff > 0.001) {
+        throw new Error(`GSD mismatch on imagery ${res.gsd} vs ${gsd} from: ${tiff.source.url.href}`);
+      }
     }
 
     const gsdRound = Math.floor(gsd * 100) / 10000;
@@ -199,11 +203,11 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
 
   // If the tiff is in EPSG:4326 then its resolution will be in degrees,
   // We require a GSD in meters for all the math we do so calculate a approx meters
-  if (res.projection === 4326) res.gsd = res.gsd ? approxDegreeToMeter(res.gsd) : res.gsd;
+  if (res.projection === EpsgCode.Wgs84) res.gsd = res.gsd ? approxDegreeToMeter(res.gsd) : res.gsd;
   res.bounds = bounds?.toJson();
-  if (res.bounds == null) throw new Error('Failed to extract imagery bounds from:' + target);
-  if (res.projection == null) throw new Error('Failed to extract imagery epsg from:' + target);
-  if (res.files == null || res.files.length === 0) throw new Error('Failed to extract imagery from:' + target);
+  if (res.bounds == null) throw new Error(`Failed to extract imagery bounds from: ${target.href}`);
+  if (res.projection == null) throw new Error(`Failed to extract imagery epsg from: ${target.href}`);
+  if (res.files == null || res.files.length === 0) throw new Error(`Failed to extract imagery from: ${target.href}`);
   return res as TiffSummary;
 }
 

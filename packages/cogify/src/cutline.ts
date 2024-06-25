@@ -16,13 +16,13 @@ export async function loadCutline(path: URL): Promise<{ polygon: MultiPolygon; p
   const buf = await fsa.read(path);
 
   if (path.pathname.endsWith('.geojson') || path.pathname.endsWith('.json')) {
-    const data = JSON.parse(buf.toString());
+    const data = JSON.parse(buf.toString()) as FeatureCollectionWithCrs;
     const projection = Epsg.parseCode(data.crs?.properties?.name ?? '') ?? EpsgCode.Wgs84;
     const polygon = featuresToMultiPolygon(data.features, true).coordinates as MultiPolygon;
     return { polygon, projection };
   }
 
-  throw new Error('Unknown cutline type: ' + path);
+  throw new Error('Unknown cutline type: ' + path.href);
 }
 
 export class CutlineOptimizer {

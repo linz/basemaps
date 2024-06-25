@@ -1,7 +1,7 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { Epsg, GoogleTms, LocationUrl } from '@basemaps/geo';
-import { RasterLayerSpecification } from 'maplibre-gl';
+import { RasterLayerSpecification, SourceSpecification } from 'maplibre-gl';
 import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
 
 import { MapAttrState } from '../attribution.js';
@@ -102,8 +102,9 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         this.updateFromConfig();
       });
       this.updateFromConfig();
+
       if (Config.map.debug['debug.screenshot']) {
-        map.once('idle', async () => {
+        async function addLoadedDiv(): Promise<void> {
           // Ensure the attribution data has loaded
           await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
@@ -113,6 +114,9 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           loadedDiv.style.width = '1px';
           loadedDiv.style.height = '1px';
           document.body.appendChild(loadedDiv);
+        }
+        void map.once('idle', () => {
+          void addLoadedDiv();
         });
       }
     });
@@ -125,7 +129,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.debugMap.setPurple(Config.map.debug['debug.background'] === 'magenta');
     this.debugMap.adjustRaster(this.props.map, 'osm', Config.map.debug['debug.layer.osm']);
     this.debugMap.adjustRaster(this.props.map, 'linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
-    this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
+    void this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
     this.setVectorShown(Config.map.debug['debug.source'], 'source');
     this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
     this.setTerrainShown(Config.map.debug['debug.terrain']);
@@ -168,7 +172,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       const imageryId = tileSet.layers[0][projectionCode];
       if (imageryId == null) return;
 
-      this.debugMap.fetchSourceLayer(imageryId, 'cog').then((cog) => {
+      void this.debugMap.fetchSourceLayer(imageryId, 'cog').then((cog) => {
         this.setState({ isCog: cog != null });
       });
 
@@ -283,7 +287,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
-  downloadSource = async (): Promise<void> => {
+  downloadSource = (): void => {
     const im = this.state.imagery;
     if (im == null) return;
     const geoJson = ConfigData.getGeoJson(im);
@@ -339,7 +343,11 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         return;
       }
 
-      map.addSource(hillShadeSourceId, { ...source.serialize(), type: 'raster-dem', id: undefined });
+      map.addSource(hillShadeSourceId, {
+        ...source.serialize(),
+        type: 'raster-dem',
+        id: undefined,
+      } as SourceSpecification);
     }
 
     if (currentLayer) map.removeLayer(HillShadeLayerId);
@@ -500,10 +508,10 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       if (features == null || features.length === 0) return;
       const firstFeature = features[0];
 
-      const location = firstFeature.properties?.['location'] ?? firstFeature.properties?.['name'];
+      const location = (firstFeature?.properties?.['location'] ?? firstFeature.properties?.['name']) as string;
       if (location == null) return;
 
-      navigator.clipboard.writeText(location).then(() => {
+      void navigator.clipboard.writeText(location).then(() => {
         const div = document.createElement('div');
         div.innerText = `Copied ${location}`;
         div.className = 'toast-message';
@@ -523,7 +531,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       lastFeatureId = firstFeature.id;
       this.setState({
         [`${stateName}Id`]: lastFeatureId,
-        [`${stateName}Name`]: firstFeature.properties?.['name'],
+        [`${stateName}Name`]: firstFeature.properties?.['name'] as string,
       } as DebugState);
       map.setFeatureState({ source: sourceId, id: lastFeatureId }, { hover: true });
     });
@@ -557,7 +565,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     const color = type === 'source' ? '#ff00ff' : '#ff0000';
 
     if (this.state.imagery == null) return;
-    this.debugMap.loadSourceLayer(this.props.map, layerId, this.state.imagery, type).then(() => {
+    void this.debugMap.loadSourceLayer(this.props.map, layerId, this.state.imagery, type).then(() => {
       if (map.getLayer(layerLineId) != null) return;
       // Fill is needed to make the mouse move work even though it has opacity 0
       map.addLayer({

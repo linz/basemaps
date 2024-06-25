@@ -1,4 +1,4 @@
-import { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
+import { ConfigTileSetRaster, ConfigTileSetRasterOutput, TileSetType } from '@basemaps/config';
 import { Bounds, LatLon, Projection, TileMatrixSet } from '@basemaps/geo';
 import { CompositionTiff, TileMakerContext, Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
@@ -62,7 +62,7 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   req.timer.end('tileset:load');
   if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset not found');
   // Only raster previews are supported
-  if (tileSet.type !== 'raster') return new LambdaHttpResponse(404, 'Preview invalid tile set type');
+  if (tileSet.type !== TileSetType.Raster) return new LambdaHttpResponse(404, 'Preview invalid tile set type');
 
   const pipeline = req.query.get('pipeline');
 

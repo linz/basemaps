@@ -95,7 +95,7 @@ export const WindowUrl = {
       return `${baseTileUrl}/{TileMatrix}/{TileCol}/{TileRow}.${imageFormat}${q}`;
     }
 
-    throw new Error('Unknown url type: ' + params.urlType);
+    throw new Error('Unknown url type: ' + String(params.urlType));
   },
 
   toConfigUrl(layerId: string, config: string | null = Config.map.config): string {

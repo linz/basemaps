@@ -5,16 +5,16 @@ import { ConfigProviderMemory, DefaultColorRampOutput, DefaultTerrainRgbOutput }
 import { LocationUrl } from '@basemaps/geo';
 import { Env, fsa, FsMemory, LogConfig, V } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { ALBEvent, Context } from 'aws-lambda';
+import { ALBEvent, ALBEventRequestContext, Context } from 'aws-lambda';
 
 import { FakeData } from '../../__tests__/config.data.js';
 import { CachedConfig } from '../../util/config.cache.js';
 import { loadAndServeIndexHtml, PreviewIndexGet, previewIndexGet } from '../preview.index.js';
 
-describe('/@*', async () => {
+describe('/@*', () => {
   // o.specTimeout(1000);
   const baseRequest: ALBEvent = {
-    requestContext: null as any,
+    requestContext: null as unknown as ALBEventRequestContext,
     httpMethod: 'get',
     path: '/@-41.8900012,174.0492432,z5',
     body: null,

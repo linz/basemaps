@@ -10,6 +10,6 @@ describe('ImageryRoute', () => {
     assert.equal(isAllowedFile('foo.tiff'), false);
     assert.equal(isAllowedFile('foo'), false);
     assert.equal(isAllowedFile(''), false);
-    assert.equal(isAllowedFile(null as any), false);
+    assert.equal(isAllowedFile(null as unknown as string), false);
   });
 });

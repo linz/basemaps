@@ -4,7 +4,7 @@ import { afterEach, before, beforeEach, describe, it } from 'node:test';
 import { ConfigProviderMemory } from '@basemaps/config';
 import { LogConfig } from '@basemaps/shared';
 import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { Context } from 'aws-lambda';
+import { ALBEventRequestContext, Context } from 'aws-lambda';
 import sinon from 'sinon';
 
 import { FakeData } from '../../__tests__/config.data.js';
@@ -14,7 +14,7 @@ import { TileXyzRaster } from '../tile.xyz.raster.js';
 
 const ctx: LambdaHttpRequest = new LambdaAlbRequest(
   {
-    requestContext: null as any,
+    requestContext: null as unknown as ALBEventRequestContext,
     httpMethod: 'get',
     path: '/v1/tiles/health',
     body: null,
@@ -24,7 +24,7 @@ const ctx: LambdaHttpRequest = new LambdaAlbRequest(
   LogConfig.get(),
 );
 
-describe('/v1/health', async () => {
+describe('/v1/health', () => {
   const sandbox = sinon.createSandbox();
   const config = new ConfigProviderMemory();
 

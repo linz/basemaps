@@ -6,7 +6,7 @@ import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { NotFound, NotModified } from '../util/response.js';
 
-async function sendJson(req: LambdaHttpRequest, toSend: unknown): Promise<LambdaHttpResponse> {
+function sendJson(req: LambdaHttpRequest, toSend: unknown): LambdaHttpResponse {
   const data = Buffer.from(JSON.stringify(toSend));
 
   const cacheKey = Etag.key(data);

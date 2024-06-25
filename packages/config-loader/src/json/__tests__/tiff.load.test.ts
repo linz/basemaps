@@ -179,7 +179,7 @@ describe('tiff-loader', () => {
     assert.equal(tsGoogle.title, 'GoogleExample');
     assert.equal(tsGoogle.format, 'webp');
     assert.equal(tsGoogle.layers.length, 1);
-    assert.ok(tsGoogle.type === 'raster');
+    assert.ok(tsGoogle.type === TileSetType.Raster);
     assert.equal(tsGoogle.outputs?.length, 1);
     assert.deepEqual(tsGoogle.outputs, [DefaultTerrainRgbOutput]);
 
@@ -203,7 +203,7 @@ describe('tiff-loader', () => {
       // Virtual tilesets should have outputs generated
       const tsIm = await cfg.TileSet.get(id);
       assert.ok(tsIm, id);
-      assert.ok(tsIm.type === 'raster', id);
+      assert.ok(tsIm.type === TileSetType.Raster, id);
       assert.ok(tsIm.virtual, id);
       assert.equal(tsIm.outputs?.length, 2, id);
       assert.ok(
@@ -265,6 +265,7 @@ describe('tiff-loader', () => {
     const tsOut = (await cfg.TileSet.get('ts_dem')) as ConfigTileSetRaster;
     assert.deepEqual(tsOut.background, { r: 255, g: 0, b: 255, alpha: 1 });
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     (ts as any).background = '#ff00ffff';
     await fsa.write(cfgUrl, JSON.stringify(ts));
 

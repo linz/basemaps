@@ -127,7 +127,7 @@ export class GdalRunner {
 /**
  * Emit a "progress" event every time a "." is recorded in the output
  */
-export class GdalProgressParser extends EventEmitter {
+export class GdalProgressParser extends EventEmitter<{ progress: [number] }> {
   // Progress starts with "Input file size is .., ..\n"
   waitNewLine = true;
   dotCount = 0;

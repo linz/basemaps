@@ -58,7 +58,7 @@ export class SourceDownloader {
   /** Once a item is done with a asset clean it up if no other items need it */
   async done(url: URL, itemId: string, logger: LogType): Promise<boolean> {
     const asset = this.items.get(url.href);
-    if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + url);
+    if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + url.href);
 
     // Remove the itemId
     asset.items = asset.items.filter((f) => f !== itemId);
@@ -78,7 +78,7 @@ export class SourceDownloader {
    */
   get(url: URL, logger: LogType): Promise<URL> {
     const asset = this.items.get(url.href);
-    if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + url);
+    if (asset == null) throw new Error('Asset was not registered to be downloaded: ' + url.href);
     if (asset.asset) return asset.asset;
 
     asset.asset = this._downloadFile(asset, logger);

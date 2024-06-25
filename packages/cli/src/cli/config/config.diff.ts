@@ -64,7 +64,10 @@ export class ConfigDiff {
 /**
  * Given a old and new lds layer stac item and log the changes
  */
-export function getVectorChanges(newLayer: StacLink | undefined, existingLayer: StacLink | undefined): string | null {
+export function getVectorChanges(
+  newLayer: StacLinkLds | undefined,
+  existingLayer: StacLinkLds | undefined,
+): string | null {
   // Update Layer
   if (newLayer != null && existingLayer != null) {
     const featureChange = Number(newLayer['lds:feature_count']) - Number(existingLayer['lds:feature_count']);
@@ -113,7 +116,7 @@ export async function diffVectorUpdate(
   if (layer?.[Epsg.Google.code] == null) throw new Error(`Invalid layers in the vector tileSet ${tileSet.id}`);
   const newCollectionPath = new URL('collection.json', layer[Epsg.Google.code]);
   const newCollection = await fsa.readJson<StacCollection>(newCollectionPath);
-  if (newCollection == null) throw new Error(`Failed to get target collection json from ${newCollectionPath}.`);
+  if (newCollection == null) throw new Error(`Failed to get target collection json from ${newCollectionPath.href}.`);
   const ldsLayers = newCollection.links.filter((f) => f.rel === 'lds:layer') as StacLinkLds[];
 
   // Log all the new inserts for new tileset
@@ -132,7 +135,7 @@ export async function diffVectorUpdate(
     const existingCollectionPath = new URL('collection.json', l[Epsg.Google.code]);
     const existingCollection = await fsa.readJson<StacCollection>(existingCollectionPath);
     if (existingCollection == null) {
-      throw new Error(`Failed to get target collection json from ${existingCollectionPath}.`);
+      throw new Error(`Failed to get target collection json from ${existingCollectionPath.href}.`);
     }
 
     // Prepare existing lds layers as map
