@@ -2,7 +2,6 @@
   "extends": "@linzjs/style/tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2023"],
-    "outDir": "build",
     // TODO turn this on, its a lot of changes though
     "noUncheckedIndexedAccess": false,
     "sourceMap": true

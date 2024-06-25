@@ -1,9 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./build"
-  },
-  "include": ["src/**/*"],
+
+  "include": ["src"],
   "references": [{ "path": "../config" }, { "path": "../geo" }, { "path": "../shared" }]
 }

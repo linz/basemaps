@@ -1,17 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "outDir": "./build",
     "rootDir": "./src",
-    "outDir": "./build"
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "references": [
-    { "path": "../config" },
-    { "path": "../config-loader/" },
-    { "path": "../shared" },
-    { "path": "../geo" },
-    { "path": "../tiler" },
-    { "path": "../tiler-sharp" },
-    { "path": "../attribution" }
+    { "path": "../config/tsconfig.json" },
+    { "path": "../config-loader/tsconfig.json" },
+    { "path": "../shared/tsconfig.json" },
+    { "path": "../geo/tsconfig.json" },
+    { "path": "../tiler/tsconfig.json" },
+    { "path": "../tiler-sharp/tsconfig.json" },
+    { "path": "../attribution/tsconfig.json" }
   ]
 }

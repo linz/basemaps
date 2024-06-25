@@ -1,9 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
+
   "compilerOptions": {
+    "outDir": "./build",
     "rootDir": "./src",
-    "outDir": "./build"
   },
-  "include": ["src/**/*"],
-  "references": [{ "path": "../lambda-tiler" }, { "path": "../config-loader" }]
+  "include": ["src"],
+  "references": [{ "path": "../lambda-tiler/tsconfig.json" }, { "path": "../config-loader/tsconfig.json" }]
 }

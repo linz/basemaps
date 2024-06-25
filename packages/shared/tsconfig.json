@@ -5,6 +5,6 @@
     "rootDir": "./src",
     "outDir": "./build"
   },
-  "include": ["src/**/*"],
-  "references": [{ "path": "../config" }]
+  "include": ["src"],
+  "references": [{ "path": "../config/tsconfig.json" }]
 }

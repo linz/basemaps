@@ -159,7 +159,7 @@ describe('stac', () => {
       const gitHubLink = stac.links[2];
       assert.equal(gitHubLink.href.startsWith('https://github.com/linz/basemaps.git'), true);
       assert.equal(gitHubLink.rel, 'derived_from');
-      assert.equal(/^\d+\.\d+\.\d+$/.test(gitHubLink['version'] as any), true);
+      assert.equal(/^\d+\.\d+\.\d+$/.test(gitHubLink['version'] as string), true);
 
       writeFileSync('./output', JSON.stringify(stac, null, 2));
 

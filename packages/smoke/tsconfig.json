@@ -1,10 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["DOM"],
+    "lib": ["DOM"]
+  },
+  "compilerOptions": {
+    "outDir": "./build",
     "rootDir": "./src",
-    "outDir": "./build"
   },
   "include": ["src"],
-  "references": [{ "path": "../shared" }]
+  "references": [{ "path": "../shared/tsconfig.json" }]
 }

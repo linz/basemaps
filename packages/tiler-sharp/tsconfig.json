@@ -1,9 +1,14 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./build"
+    "outDir": "./build",
+    "rootDir": "./src/"
   },
-  "include": ["src/**/*"],
-  "references": [{ "path": "../tiler" }]
+  "include": ["src"],
+  "references": [
+    { "path": "../__tests__/tsconfig.json" },
+    { "path": "../linzjs-metrics/tsconfig.json" },
+    { "path": "../config/tsconfig.json" },
+    { "path": "../tiler/tsconfig.json" }
+  ]
 }

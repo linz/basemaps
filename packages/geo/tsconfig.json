@@ -1,9 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
+
   "compilerOptions": {
+    "outDir": "./build",
     "rootDir": "./src",
-    "outDir": "./build"
   },
-  "include": ["src/**/*"],
-  "references": [{ "path": "../__tests__" }]
+  "include": ["src"],
+  "references": [{ "path": "../__tests__/tsconfig.json" }, { "path": "../linzjs-geojson/tsconfig.json" }]
 }
