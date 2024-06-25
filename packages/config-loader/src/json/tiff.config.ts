@@ -317,7 +317,7 @@ export function getImageryName(target: URL): string {
 
 export async function loadTiffsFromPaths(sourceFiles: URL[], Q: LimitFunction): Promise<Tiff[]> {
   // Load metadata about all the tiffs ignoring any empty sparse tiffs
-  return (
+  const tiffs: (Tiff | null)[] = (
     await Promise.all(
       sourceFiles.filter(isTiff).map((c) =>
         Q(async () => {
@@ -331,6 +331,7 @@ export async function loadTiffsFromPaths(sourceFiles: URL[], Q: LimitFunction): 
       ),
     )
   ).filter((f) => f != null);
+  return tiffs as Tiff[]; // TODO: remove with Typescript >=v5.5.x
 }
 
 /**
