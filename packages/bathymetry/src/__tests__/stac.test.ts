@@ -2,13 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import assert from 'node:assert';
-import { writeFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { GoogleTms } from '@basemaps/geo';
 import { fsa, FsMemory, LogConfig, LogType } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
-import { dirname } from 'path';
+import { basename, dirname } from 'path';
 
 import { FilePath } from '../file.js';
 import { Hash } from '../hash.js';
@@ -16,8 +15,6 @@ import { Stac } from '../stac.js';
 
 describe('stac', () => {
   const origHash = Hash.hash;
-
-  // const mockFs = mockFileOperator();
 
   const fsMemory = new FsMemory();
   beforeEach(() => {
@@ -30,7 +27,7 @@ describe('stac', () => {
   });
 
   it('createItem', async () => {
-    (Hash as any).hash = (v: string): string => 'hash' + v;
+    (Hash as any).hash = (v: string): string => 'hash_' + basename(v);
 
     const bm = {
       id: 'id123',
@@ -70,7 +67,7 @@ describe('stac', () => {
       },
       properties: {
         datetime: stac.properties['datetime'] as string,
-        'checksum:multihash': 'hash/tmp/path/output/13-22-33.tiff',
+        'checksum:multihash': 'hash_13-22-33.tiff',
         'proj:epsg': 3857,
         'linz:gdal:version': undefined,
         'linz:tile_matrix_set': 'WebMercatorQuad',
@@ -160,8 +157,6 @@ describe('stac', () => {
       assert.equal(gitHubLink.href.startsWith('https://github.com/linz/basemaps.git'), true);
       assert.equal(gitHubLink.rel, 'derived_from');
       assert.equal(/^\d+\.\d+\.\d+$/.test(gitHubLink['version'] as string), true);
-
-      writeFileSync('./output', JSON.stringify(stac, null, 2));
 
       assert.deepEqual(round(stac, 4), {
         stac_version: Stac.Version,
