@@ -3,8 +3,8 @@
 
   "compilerOptions": {
     "outDir": "./build",
-    "rootDir": "./src",
+    "rootDir": "./src"
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "references": [{ "path": "../shared/tsconfig.json" }]
 }

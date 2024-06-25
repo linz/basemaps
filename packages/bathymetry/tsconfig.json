@@ -3,9 +3,9 @@
 
   "compilerOptions": {
     "outDir": "./build",
-    "rootDir": "./src",
+    "rootDir": "./src"
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "references": [
     { "path": "../__tests__/tsconfig.json" },
     { "path": "../shared/tsconfig.json" },

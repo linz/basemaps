@@ -3,8 +3,8 @@
 
   "compilerOptions": {
     "outDir": "./build",
-    "rootDir": "./src",
+    "rootDir": "./src"
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "references": [{ "path": "../lambda-tiler/tsconfig.json" }, { "path": "../config-loader/tsconfig.json" }]
 }

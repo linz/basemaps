@@ -2,9 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./build",
-    "rootDir": "./src/"
+    "rootDir": "./src"
   },
-  "include": ["src/**/*"],
+  "include": ["src"],
   "references": [
     { "path": "../__tests__/tsconfig.json" },
     { "path": "../linzjs-metrics/tsconfig.json" },

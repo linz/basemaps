@@ -33,7 +33,7 @@
     "lerna": "^8.0.0",
     "rimraf": "^5.0.5",
     "sinon": "^17.0.1",
-    "typescript": "^5.6.0-dev.20240624"
+    "typescript": "5.4"
   },
   "workspaces": {
     "packages": [
