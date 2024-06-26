@@ -143,7 +143,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
     this.emit('tileMatrix', this.tileMatrix);
-    this.emit('layer', this.layerId, this.style, this.pipeline);
+    this.emit('layer', this.layerId, this.style, this.pipeline, this.imageFormat);
     if (previousUrl !== MapConfig.toUrl(this)) this.emit('change');
   }
 
@@ -233,7 +233,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     layer: string,
     style: string | null = null,
     pipeline: string | null = null,
-    imageFormat: string | null = null,
+    imageFormat: ImageFormat | null = null,
   ): void {
     if (
       this.layerId === layer &&
@@ -247,7 +247,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style;
     this.imageFormat = imageFormat;
     this.pipeline = pipeline;
-    console.log('set-layer', { layer, style, pipeline, imageFormat });
     this.emit('layer', this.layerId, this.style, this.pipeline, this.imageFormat);
     this.emit('change');
   }
@@ -274,7 +273,7 @@ export interface LayerInfo {
   /** Is a pipeline required for the layer */
   pipeline?: string;
   /** Is a image format required for the layer */
-  imageFormat?: string;
+  imageFormat?: ImageFormat;
 }
 
 async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
