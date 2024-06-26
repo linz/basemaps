@@ -206,6 +206,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('change');
   }
 
+  setTerrain(terrain: string | null): void {
+    if (this.terrain === terrain) return;
+    this.terrain = terrain;
+    this.emit('change');
+  }
+
   setTileMatrix(tms: TileMatrixSet): void {
     if (this.tileMatrix.identifier === tms.identifier) return;
     this.emit('tileMatrix', this.tileMatrix);

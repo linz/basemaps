@@ -47,11 +47,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
   updateTerrainFromEvent = (): void => {
     const terrain = this.map.getTerrain();
-    if (terrain) {
-      Config.map.terrain = terrain.source;
-    } else {
-      Config.map.terrain = null;
-    }
+    Config.map.setTerrain(terrain?.source ?? null);
     window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   };
 

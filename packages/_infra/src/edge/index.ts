@@ -119,10 +119,12 @@ export class EdgeStack extends cdk.Stack {
               'tileMatrix',
               'style',
               'pipeline',
+              'terrain',
               // Deprecated single character query params for style and projection
               's',
               'p',
               'i', // ?i=:imageryId is deprecated and should be removed at some point
+              't',
             ].map(encodeURIComponent),
           },
           lambdaFunctionAssociations: [],
