@@ -139,6 +139,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.ensureElevationControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
     const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
+    console.log('set-style', style);
     this.map.setStyle(style);
     if (Config.map.tileMatrix !== GoogleTms) {
       this.map.setMaxBounds([-179.9, -85, 179.9, 85]);

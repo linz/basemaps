@@ -2,6 +2,7 @@ import {
   Epsg,
   EpsgCode,
   GoogleTms,
+  ImageFormat,
   LocationUrl,
   Nztm2000QuadTms,
   Nztm2000Tms,
@@ -38,7 +39,7 @@ export interface MapConfigEvents {
    *
    * [ LayerId, Style?, Pipeline? ]
    */
-  layer: [string, string | null | undefined, string | null | undefined];
+  layer: [string, string | null, string | null, string | null];
   bounds: [LngLatBoundsLike];
   filter: [Filter];
   change: [];
@@ -55,6 +56,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   filter: Filter = { date: { before: undefined } };
   terrain: string | null = null;
   pipeline: string | null = null;
+  imageFormat: ImageFormat | null = null;
 
   private _layers?: Promise<Map<string, LayerInfo>>;
   get layers(): Promise<Map<string, LayerInfo>> {
@@ -167,8 +169,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     date = this.filter.date,
     pipeline = this.pipeline,
     terrain = this.terrain,
+    imageFormat = this.imageFormat,
   ): string {
-    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, date, pipeline, terrain });
+    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, date, pipeline, terrain, imageFormat });
   }
 
   getLocation(map: maplibregl.Map): MapLocation {
@@ -226,12 +229,26 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.emit('change');
   }
 
-  setLayerId(layer: string, style: string | null = null, pipeline: string | null = null): void {
-    if (this.layerId === layer && this.style === style && this.pipeline === pipeline) return;
+  setLayerId(
+    layer: string,
+    style: string | null = null,
+    pipeline: string | null = null,
+    imageFormat: string | null = null,
+  ): void {
+    if (
+      this.layerId === layer &&
+      this.style === style &&
+      this.pipeline === pipeline &&
+      this.imageFormat === imageFormat
+    ) {
+      return;
+    }
     this.layerId = layer;
     this.style = style;
+    this.imageFormat = imageFormat;
     this.pipeline = pipeline;
-    this.emit('layer', this.layerId, this.style, this.pipeline);
+    console.log('set-layer', { layer, style, pipeline, imageFormat });
+    this.emit('layer', this.layerId, this.style, this.pipeline, this.imageFormat);
     this.emit('change');
   }
 
@@ -256,6 +273,8 @@ export interface LayerInfo {
   projections: Set<EpsgCode>;
   /** Is a pipeline required for the layer */
   pipeline?: string;
+  /** Is a image format required for the layer */
+  imageFormat?: string;
 }
 
 async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
@@ -339,6 +358,7 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
       projections: new Set([EpsgCode.Google]),
       category: 'Basemaps',
       pipeline: 'terrain-rgb',
+      imageFormat: 'png',
     },
 
     {
