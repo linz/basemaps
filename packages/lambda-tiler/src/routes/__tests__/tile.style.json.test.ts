@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { afterEach, before, beforeEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory, SourceRaster, StyleJson } from '@basemaps/config';
+import { Terrain } from '@basemaps/config/src/config/vector.style.js';
 import { Env } from '@basemaps/shared';
 import { createSandbox } from 'sinon';
 
@@ -9,7 +10,6 @@ import { FakeData, TileSetAerial, TileSetElevation } from '../../__tests__/confi
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
-import { Terrain } from '@basemaps/config/src/config/vector.style.js';
 
 describe('/v1/styles', () => {
   const host = 'https://tiles.test';

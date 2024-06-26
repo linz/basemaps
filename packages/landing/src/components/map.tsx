@@ -47,8 +47,11 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
   updateTerrainFromEvent = (): void => {
     const terrain = this.map.getTerrain();
-    if (terrain?.source) Config.map.setTerrain(terrain.source);
-    Config.map.setTerrain(terrain?.source ?? null);
+    if (terrain) {
+      Config.map.terrain = terrain.source;
+    } else {
+      Config.map.terrain = null;
+    }
     window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   };
 
@@ -149,17 +152,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       this.map.setMaxBounds();
     }
     // TODO check and only update when Config.map.layer changes.
-    this.updateTerrain();
     this.forceUpdate();
-  };
-
-  updateTerrain = (): void => {
-    if (this.controlTerrain == null) return;
-    if (Config.map.terrain === this.controlTerrain.options.source) {
-      this.map.setTerrain(this.controlTerrain.options);
-    } else {
-      this.map.setTerrain(null);
-    }
   };
 
   updateVisibleLayers = (newLayers: string): void => {
@@ -254,7 +247,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         Config.map.on('tileMatrix', this.updateStyle),
         Config.map.on('layer', this.updateStyle),
         Config.map.on('bounds', this.updateBounds),
-        Config.map.on('terrain', this.updateTerrain),
         // TODO: Disable updateVisibleLayers for now before we need implement date range slider
         // Config.map.on('visibleLayers', this.updateVisibleLayers),
       );

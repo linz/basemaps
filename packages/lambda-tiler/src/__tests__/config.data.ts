@@ -6,6 +6,8 @@ import {
   ConfigProviderMemory,
   ConfigTileSetRaster,
   ConfigTileSetVector,
+  DefaultColorRampOutput,
+  DefaultTerrainRgbOutput,
   TileSetType,
 } from '@basemaps/config';
 import { fsa, FsMemory } from '@basemaps/shared';
@@ -59,6 +61,7 @@ export const TileSetElevation: ConfigTileSetRaster = {
       name: 'new-zealand_2012_dem_8m',
     },
   ],
+  outputs: [DefaultTerrainRgbOutput, DefaultColorRampOutput],
 };
 
 export const Imagery2193: ConfigImagery = {

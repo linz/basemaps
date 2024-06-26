@@ -43,7 +43,6 @@ export interface MapConfigEvents {
   filter: [Filter];
   change: [];
   visibleLayers: [string];
-  terrain: [string | null];
 }
 
 export class MapConfig extends Emitter<MapConfigEvents> {
@@ -123,7 +122,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const config = urlParams.get('c') ?? urlParams.get('config');
     const layerId = urlParams.get('i') ?? style ?? 'aerial';
     const terrain = urlParams.get('t') ?? urlParams.get('terrain');
-    this.setTerrain(terrain);
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
@@ -136,6 +134,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const previousUrl = MapConfig.toUrl(this);
 
     this.config = config;
+    this.terrain = terrain;
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
@@ -210,13 +209,6 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   setTileMatrix(tms: TileMatrixSet): void {
     if (this.tileMatrix.identifier === tms.identifier) return;
     this.emit('tileMatrix', this.tileMatrix);
-    this.emit('change');
-  }
-
-  setTerrain(terrain: string | null): void {
-    if (this.terrain === terrain) return;
-    this.terrain = terrain;
-    this.emit('terrain', this.terrain);
     this.emit('change');
   }
 
