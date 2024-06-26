@@ -34,6 +34,7 @@ export interface TileUrlParams {
   pipeline?: string | null;
   date?: FilterDate;
   imageFormat?: string;
+  terrain?: string | null;
 }
 
 export function ensureBase58(s: null): null;
@@ -73,6 +74,7 @@ export const WindowUrl = {
     if (params.config != null) queryParams.set('config', ensureBase58(params.config));
     if (params.pipeline != null) queryParams.set('pipeline', params.pipeline);
     if (params.date?.before != null) queryParams.set('date[before]', params.date.before);
+    if (params.terrain != null) queryParams.set('terrain', params.terrain);
 
     const imageFormat = params.imageFormat ?? WindowUrl.ImageFormat;
     if (params.urlType === MapOptionType.Style) {

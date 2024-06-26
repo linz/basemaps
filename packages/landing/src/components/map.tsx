@@ -4,11 +4,11 @@ import { Component, ReactNode } from 'react';
 
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
+import { MapConfig } from '../config.map.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { Debug } from './debug.js';
 import { MapSwitcher } from './map.switcher.js';
-import { MapConfig } from '../config.map.js';
 
 const LayerFadeTime = 750;
 
@@ -47,11 +47,8 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
   updateTerrainFromEvent = (): void => {
     const terrain = this.map.getTerrain();
-    if (terrain) {
-      Config.map.terrain = terrain.source;
-    } else {
-      Config.map.terrain = null;
-    }
+    if (terrain?.source) Config.map.setTerrain(terrain.source);
+    Config.map.setTerrain(terrain?.source ?? null);
     window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   };
 
@@ -112,7 +109,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
             exaggeration: 1.2,
           });
           this.map.addControl(this.controlTerrain, 'top-left');
-          if (Config.map.terrain === key) this.map.setTerrain(this.controlTerrain.options);
           break;
         }
       }
@@ -153,7 +149,17 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       this.map.setMaxBounds();
     }
     // TODO check and only update when Config.map.layer changes.
+    this.updateTerrain();
     this.forceUpdate();
+  };
+
+  updateTerrain = (): void => {
+    if (this.controlTerrain == null) return;
+    if (Config.map.terrain === this.controlTerrain.options.source) {
+      this.map.setTerrain(this.controlTerrain.options);
+    } else {
+      this.map.setTerrain(null);
+    }
   };
 
   updateVisibleLayers = (newLayers: string): void => {
@@ -241,7 +247,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     this.map.on('render', this.onRender);
     this.map.on('idle', this.removeOldLayers);
-    this.map.on('terrain', this.updateTerrainFromEvent);
 
     onMapLoaded(this.map, () => {
       this._events.push(
@@ -249,9 +254,11 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         Config.map.on('tileMatrix', this.updateStyle),
         Config.map.on('layer', this.updateStyle),
         Config.map.on('bounds', this.updateBounds),
+        Config.map.on('terrain', this.updateTerrain),
         // TODO: Disable updateVisibleLayers for now before we need implement date range slider
         // Config.map.on('visibleLayers', this.updateVisibleLayers),
       );
+      this.map.on('terrain', this.updateTerrainFromEvent);
 
       this.updateStyle();
       // Need to ensure the debug layer has access to the map

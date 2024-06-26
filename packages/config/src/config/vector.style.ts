@@ -40,6 +40,11 @@ export interface Layer {
   'source-layer'?: string;
 }
 
+export interface Terrain {
+  source: string;
+  exaggeration: number;
+}
+
 export type Source = SourceVector | SourceRaster | SourceRasterDem;
 
 export type Sources = Record<string, Source>;
@@ -67,6 +72,9 @@ export interface StyleJson {
 
   /** Layers will be drawn in the order of this array. */
   layers: Layer[];
+
+  /** OPTIONAL - A global modifier that elevates layers and markers based on a DEM data source */
+  terrain?: Terrain;
 }
 
 export interface ConfigVectorStyle extends ConfigBase {

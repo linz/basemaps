@@ -1,4 +1,4 @@
-import { ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
+import { ConfigId, ConfigPrefix, ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
 import { GoogleTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -80,11 +80,41 @@ export interface StyleGet {
   };
 }
 
+function setStyleTerrain(style: StyleJson, terrain: string): void {
+  const source = Object.keys(style.sources).find((s) => s === terrain);
+  if (source == null) throw new LambdaHttpResponse(400, `Terrain: ${terrain} is not exists in the style source.`);
+  style.terrain = {
+    source,
+    exaggeration: 1.2,
+  };
+}
+
+async function ensureTerrain(
+  req: LambdaHttpRequest<StyleGet>,
+  tileMatrix: TileMatrixSet,
+  apiKey: string,
+  style: StyleJson,
+): Promise<void> {
+  const config = await ConfigLoader.load(req);
+  const terrain = await config.TileSet.get('ts_elevation');
+  if (terrain) {
+    const configLocation = ConfigLoader.extract(req);
+    const elevationQuery = toQueryString({ config: configLocation, api: apiKey, pipeline: 'terrain-rgb' });
+    style.sources['LINZ-Terrain'] = {
+      type: 'raster-dem',
+      tileSize: 256,
+      maxzoom: 18,
+      tiles: [convertRelativeUrl(`/v1/tiles/elevation/${tileMatrix.identifier}/{z}/{x}/{y}.png${elevationQuery}`)],
+    };
+  }
+}
+
 export async function tileSetToStyle(
   req: LambdaHttpRequest<StyleGet>,
   tileSet: ConfigTileSetRaster,
   tileMatrix: TileMatrixSet,
   apiKey: string,
+  terrain?: string,
 ): Promise<LambdaHttpResponse> {
   const [tileFormat] = Validate.getRequestedFormats(req) ?? ['webp'];
   if (tileFormat == null) return new LambdaHttpResponse(400, 'Invalid image format');
@@ -100,26 +130,19 @@ export async function tileSetToStyle(
     `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`;
 
   const styleId = `basemaps-${tileSet.name}`;
-  const style = {
+  const style: StyleJson = {
+    id: ConfigId.prefix(ConfigPrefix.Style, tileSet.name),
+    name: tileSet.name,
     version: 8,
     sources: { [styleId]: { type: 'raster', tiles: [tileUrl], tileSize: 256 } },
     layers: [{ id: styleId, type: 'raster', source: styleId }],
   };
 
-  // Add terrain source if elevation tileset exists in the config.
-  const config = await ConfigLoader.load(req);
-  const tsElevation = await config.TileSet.get('ts_elevation');
-  if (tsElevation) {
-    const elevationQuery = toQueryString({ config: configLocation, api: apiKey, pipeline: 'terrain-rgb' });
-    const elevationUrl =
-      (Env.get(Env.PublicUrlBase) ?? '') +
-      `/v1/tiles/${tsElevation.name}/${tileMatrix.identifier}/{z}/{x}/{y}.png${elevationQuery}`;
-    style.sources[`basemaps-${tsElevation.name}`] = {
-      type: 'raster-dem',
-      tiles: [elevationUrl],
-      tileSize: 256,
-    };
-  }
+  // Ensure elevation for individual tilesets
+  await ensureTerrain(req, tileMatrix, apiKey, style);
+
+  // Add terrain in style
+  if (terrain) setStyleTerrain(style, terrain);
 
   const data = Buffer.from(JSON.stringify(style));
 
@@ -139,6 +162,7 @@ export function tileSetOutputToStyle(
   tileSet: ConfigTileSetRaster,
   tileMatrix: TileMatrixSet,
   apiKey: string,
+  terrain?: string,
 ): Promise<LambdaHttpResponse> {
   const configLocation = ConfigLoader.extract(req);
   const query = toQueryString({ config: configLocation, api: apiKey });
@@ -189,7 +213,16 @@ export function tileSetOutputToStyle(
     }
   }
 
-  const style = { version: 8, sources, layers };
+  const style: StyleJson = {
+    id: ConfigId.prefix(ConfigPrefix.Style, tileSet.name),
+    name: tileSet.name,
+    version: 8,
+    sources,
+    layers,
+  };
+
+  // Add terrain in style
+  if (terrain) setStyleTerrain(style, terrain);
 
   const data = Buffer.from(JSON.stringify(style));
 
@@ -211,6 +244,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const excluded = new Set(excludeLayers.map((l) => l.toLowerCase()));
   const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
   if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
+  const terrain = req.query.get('terrain') ?? undefined;
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
@@ -221,8 +255,8 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
     if (tileSet == null) return NotFound();
     if (tileSet.type !== TileSetType.Raster) return NotFound();
-    if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey);
-    else return tileSetToStyle(req, tileSet, tileMatrix, apiKey);
+    if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey, terrain);
+    else return tileSetToStyle(req, tileSet, tileMatrix, apiKey, terrain);
   }
 
   // Prepare sources and add linz source
@@ -233,6 +267,10 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     ConfigLoader.extract(req),
     styleConfig.style.layers.filter((f) => !excluded.has(f.id.toLowerCase())),
   );
+
+  // Add terrain in style
+  if (terrain) setStyleTerrain(style, terrain);
+
   const data = Buffer.from(JSON.stringify(style));
 
   const cacheKey = Etag.key(data);

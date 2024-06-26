@@ -6,8 +6,6 @@ import {
   ConfigProviderMemory,
   ConfigTileSetRaster,
   ConfigTileSetVector,
-  DefaultColorRampOutput,
-  DefaultTerrainRgbOutput,
   TileSetType,
 } from '@basemaps/config';
 import { fsa, FsMemory } from '@basemaps/shared';
@@ -30,23 +28,6 @@ export const TileSetAerial: ConfigTileSetRaster = {
   ],
 };
 
-export const TileSetElevation: ConfigTileSetRaster = {
-  id: 'ts_elevation',
-  name: 'elevation',
-  type: TileSetType.Raster,
-  description: 'elevation__description',
-  title: 'Elevation',
-  category: 'Elevation',
-  layers: [
-    {
-      3857: 'im_01FYWKATAEK2ZTJQ2PX44Y0XNT',
-      title: 'New Zealand 8m DEM (2012)',
-      name: 'new-zealand_2012_dem_8m',
-    },
-  ],
-  outputs: [DefaultTerrainRgbOutput, DefaultColorRampOutput],
-};
-
 export const TileSetVector: ConfigTileSetVector = {
   id: 'ts_topographic',
   type: TileSetType.Vector,
@@ -60,6 +41,22 @@ export const TileSetVector: ConfigTileSetVector = {
       title: 'Vector tiles',
       category: 'Vector Tiles',
       name: 'Vector tiles',
+    },
+  ],
+};
+export const TileSetElevation: ConfigTileSetRaster = {
+  id: 'ts_elevation',
+  name: 'elevation',
+  type: TileSetType.Raster,
+  description: 'elevation__description',
+  title: 'Elevation Imagery',
+  category: 'Elevation',
+  layers: [
+    {
+      2193: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
+      3857: 'im_01FYWKATAEK2ZTJQ2PX44Y0XNT',
+      title: 'New Zealand 8m DEM (2012)',
+      name: 'new-zealand_2012_dem_8m',
     },
   ],
 };
@@ -279,6 +276,15 @@ export class FakeData {
 
   static tileSetVector(name: string): ConfigTileSetVector {
     const tileSet = JSON.parse(JSON.stringify(TileSetVector)) as ConfigTileSetVector;
+
+    tileSet.name = name;
+    tileSet.id = `ts_${name}`;
+
+    return tileSet;
+  }
+
+  static tileSetElevation(name: string): ConfigTileSetRaster {
+    const tileSet = JSON.parse(JSON.stringify(TileSetElevation)) as ConfigTileSetRaster;
 
     tileSet.name = name;
     tileSet.id = `ts_${name}`;
