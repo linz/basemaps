@@ -269,6 +269,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   );
 
   // Ensure elevation for style json config
+  // TODO: We should remove this after adding terrain source into style configs. PR-916
   await ensureTerrain(req, tileMatrix, apiKey, style);
 
   // Add terrain in style
