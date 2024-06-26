@@ -210,6 +210,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (this.terrain === terrain) return;
     this.terrain = terrain;
     window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
+    this.emit('change');
   }
 
   setTileMatrix(tms: TileMatrixSet): void {
