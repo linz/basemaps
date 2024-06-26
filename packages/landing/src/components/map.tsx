@@ -44,6 +44,11 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (location.pitch != null) this.map.setPitch(location.pitch);
   };
 
+  updateTerrainFromEvent = (): void => {
+    const terrain = this.map.getTerrain();
+    Config.map.setTerrain(terrain?.source ?? null);
+  };
+
   updateBounds = (bounds: maplibregl.LngLatBoundsLike): void => {
     if (Config.map.tileMatrix !== GoogleTms) {
       // Transform bounds to current tileMatrix
@@ -110,6 +115,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       this.controlTerrain = null;
     }
   }
+
   /**
    * Only show the scale on GoogleTMS
    * As it does not work with the projection logic we are currently using
@@ -238,6 +244,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
         // TODO: Disable updateVisibleLayers for now before we need implement date range slider
         // Config.map.on('visibleLayers', this.updateVisibleLayers),
       );
+      this.map.on('terrain', this.updateTerrainFromEvent);
 
       this.updateStyle();
       // Need to ensure the debug layer has access to the map

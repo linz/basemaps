@@ -53,6 +53,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   debug: DebugState = { ...DebugDefaults };
   visibleLayers: string | null = null;
   filter: Filter = { date: { before: undefined } };
+  terrain: string | null = null;
   pipeline: string | null = null;
 
   private _layers?: Promise<Map<string, LayerInfo>>;
@@ -120,6 +121,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const style = urlParams.get('s') ?? urlParams.get('style');
     const config = urlParams.get('c') ?? urlParams.get('config');
     const layerId = urlParams.get('i') ?? style ?? 'aerial';
+    const terrain = urlParams.get('t') ?? urlParams.get('terrain');
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
@@ -132,6 +134,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const previousUrl = MapConfig.toUrl(this);
 
     this.config = config;
+    this.terrain = terrain;
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
@@ -149,6 +152,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('tileMatrix', opts.tileMatrix.identifier);
     // Config by far the longest so make it the last parameter
     if (opts.config) urlParams.append('config', ensureBase58(opts.config));
+    if (opts.terrain) urlParams.append('terrain', opts.terrain);
 
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
@@ -162,8 +166,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     config = this.config,
     date = this.filter.date,
     pipeline = this.pipeline,
+    terrain = this.terrain,
   ): string {
-    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, date, pipeline });
+    return WindowUrl.toTileUrl({ urlType, tileMatrix, layerId, style, config, date, pipeline, terrain });
   }
 
   getLocation(map: maplibregl.Map): MapLocation {
@@ -198,6 +203,13 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.location.bearing = l.bearing;
     this.location.pitch = l.pitch;
     this.emit('location', this.location);
+    this.emit('change');
+  }
+
+  setTerrain(terrain: string | null): void {
+    if (this.terrain === terrain) return;
+    this.terrain = terrain;
+    window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
     this.emit('change');
   }
 

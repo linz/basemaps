@@ -2,10 +2,11 @@ import assert from 'node:assert';
 import { afterEach, before, beforeEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory, SourceRaster, StyleJson } from '@basemaps/config';
+import { Terrain } from '@basemaps/config/src/config/vector.style.js';
 import { Env } from '@basemaps/shared';
 import { createSandbox } from 'sinon';
 
-import { FakeData, TileSetElevation } from '../../__tests__/config.data.js';
+import { FakeData, TileSetAerial, TileSetElevation } from '../../__tests__/config.data.js';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
@@ -47,6 +48,10 @@ describe('/v1/styles', () => {
       basemaps_raster_encode: {
         type: 'raster',
         tiles: [`/raster/{z}/{x}/{y}.webp`], // Shouldn't encode the {}
+      },
+      basemaps_terrain: {
+        type: 'raster-dem',
+        tiles: [`/elevation/{z}/{x}/{y}.png?pipeline=terrain-rgb`],
       },
       test_vector: {
         type: 'vector',
@@ -125,6 +130,11 @@ describe('/v1/styles', () => {
     fakeStyle.sources['basemaps_raster_encode'] = {
       type: 'raster',
       tiles: [`${host}/raster/{z}/{x}/{y}.webp?api=${Api.key}`],
+    };
+
+    fakeStyle.sources['basemaps_terrain'] = {
+      type: 'raster-dem',
+      tiles: [`${host}/elevation/{z}/{x}/{y}.png?pipeline=terrain-rgb&api=${Api.key}`],
     };
 
     fakeStyle.sprite = `${host}/sprite`;
@@ -257,11 +267,70 @@ describe('/v1/styles', () => {
       },
     ]);
 
-    const rasterDemSource = body.sources['basemaps-elevation'] as unknown as SourceRaster;
+    const rasterDemSource = body.sources['LINZ-Terrain'] as unknown as SourceRaster;
 
     assert.deepEqual(rasterDemSource.type, 'raster-dem');
     assert.deepEqual(rasterDemSource.tiles, [
       `https://tiles.test/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?api=${Api.key}&config=${configId}&pipeline=terrain-rgb`,
     ]);
+  });
+
+  const fakeStyleConfig = {
+    id: 'test',
+    name: 'test',
+    sources: {
+      basemaps_raster: {
+        type: 'raster',
+        tiles: [`/raster/{z}/{x}/{y}.webp`],
+      },
+      basemaps_terrain: {
+        type: 'raster-dem',
+        tiles: [`/elevation/{z}/{x}/{y}.png?pipeline=terrain-rgb`],
+      },
+    },
+    layers: [
+      {
+        layout: {
+          visibility: 'visible',
+        },
+        paint: {
+          'background-color': 'rgba(206, 229, 242, 1)',
+        },
+        id: 'Background1',
+        type: 'background',
+        minzoom: 0,
+      },
+    ],
+  };
+
+  const fakeAerialRecord = {
+    id: 'st_aerial',
+    name: 'aerial',
+    style: fakeStyleConfig,
+  };
+
+  it('should set terrain via parameter for style config', async () => {
+    const request = mockUrlRequest('/v1/styles/aerial.json', '?terrain=basemaps_terrain', Api.header);
+    config.put(fakeAerialRecord);
+    const res = await handler.router.handle(request);
+    assert.equal(res.status, 200, res.statusDescription);
+
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
+    const terrain = body.terrain as unknown as Terrain;
+    assert.deepEqual(terrain.source, 'basemaps_terrain');
+    assert.deepEqual(terrain.exaggeration, 1.2);
+  });
+
+  it('should set terrain via parameter for tileSet config', async () => {
+    config.put(TileSetAerial);
+    config.put(TileSetElevation);
+    const request = mockUrlRequest('/v1/styles/aerial.json', `?terrain=LINZ-Terrain`, Api.header);
+    const res = await handler.router.handle(request);
+    assert.equal(res.status, 200, res.statusDescription);
+
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
+    const terrain = body.terrain as unknown as Terrain;
+    assert.deepEqual(terrain.source, 'LINZ-Terrain');
+    assert.deepEqual(terrain.exaggeration, 1.2);
   });
 });
