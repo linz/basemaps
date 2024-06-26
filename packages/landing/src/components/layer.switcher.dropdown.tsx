@@ -73,7 +73,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     const layer = this.getLayer(currentLayer);
     if (layer?.pipeline) {
       const [layerId, style] = currentLayer.split('::');
-      Config.map.setLayerId(layerId, style, layer.pipeline);
+      Config.map.setLayerId(layerId, style, layer.pipeline, layer.imageFormat);
     }
   }
 
@@ -99,7 +99,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     if (opt == null) return;
     const layer = this.getLayer(opt.value);
     const [layerId, style] = opt.value.split('::');
-    Config.map.setLayerId(layerId, style, layer?.pipeline);
+    Config.map.setLayerId(layerId, style, layer?.pipeline, layer?.imageFormat);
     gaEvent(GaEvent.Ui, 'layer:' + opt.value);
 
     // Configure the bounds of the map to match the new layer

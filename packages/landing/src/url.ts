@@ -33,7 +33,7 @@ export interface TileUrlParams {
   config?: string | null;
   pipeline?: string | null;
   date?: FilterDate;
-  imageFormat?: string;
+  imageFormat?: string | null;
   terrain?: string | null;
 }
 
@@ -82,6 +82,10 @@ export const WindowUrl = {
         queryParams.set('tileMatrix', params.tileMatrix.identifier);
       if (imageFormat !== 'webp') queryParams.set('format', imageFormat);
     }
+
+    // If a image format is directly requested ensure it is passed through to the WMTS
+    // only some layers like terrain-rgb need a forced image format
+    if (params.imageFormat && MapOptionType.Wmts) queryParams.set('format', params.imageFormat);
 
     const q = '?' + queryParams.toString();
 
