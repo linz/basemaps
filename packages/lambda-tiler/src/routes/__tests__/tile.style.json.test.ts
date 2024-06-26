@@ -275,7 +275,54 @@ describe('/v1/styles', () => {
     ]);
   });
 
-  const fakeStyleConfig = {
+  const fakeVectorStyleConfig = {
+    id: 'test',
+    name: 'test',
+    sources: {
+      basemaps_vector: {
+        type: 'vector',
+        url: `/vector`,
+      },
+    },
+    layers: [
+      {
+        layout: {
+          visibility: 'visible',
+        },
+        paint: {
+          'background-color': 'rgba(206, 229, 242, 1)',
+        },
+        id: 'Background1',
+        type: 'background',
+        minzoom: 0,
+      },
+    ],
+  };
+
+  const fakeVectorRecord = {
+    id: 'st_topolite',
+    name: 'topolite',
+    style: fakeVectorStyleConfig,
+  };
+
+  it('should ensure terrain for all style config', async () => {
+    const request = mockUrlRequest('/v1/styles/topolite.json', '?terrain=LINZ-Terrain', Api.header);
+    config.put(fakeVectorRecord);
+    config.put(TileSetElevation);
+
+    const res = await handler.router.handle(request);
+    assert.equal(res.status, 200, res.statusDescription);
+
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
+    const rasterDemSource = body.sources['LINZ-Terrain'] as unknown as SourceRaster;
+
+    assert.deepEqual(rasterDemSource.type, 'raster-dem');
+    assert.deepEqual(rasterDemSource.tiles, [
+      `https://tiles.test/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?api=${Api.key}&pipeline=terrain-rgb`,
+    ]);
+  });
+
+  const fakeAerialStyleConfig = {
     id: 'test',
     name: 'test',
     sources: {
@@ -306,7 +353,7 @@ describe('/v1/styles', () => {
   const fakeAerialRecord = {
     id: 'st_aerial',
     name: 'aerial',
-    style: fakeStyleConfig,
+    style: fakeAerialStyleConfig,
   };
 
   it('should set terrain via parameter for style config', async () => {

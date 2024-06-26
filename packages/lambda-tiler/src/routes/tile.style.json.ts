@@ -268,6 +268,9 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     styleConfig.style.layers.filter((f) => !excluded.has(f.id.toLowerCase())),
   );
 
+  // Ensure elevation for style json config
+  await ensureTerrain(req, tileMatrix, apiKey, style);
+
   // Add terrain in style
   if (terrain) setStyleTerrain(style, terrain);
 
