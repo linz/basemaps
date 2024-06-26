@@ -4,7 +4,7 @@ import { GoogleTms, Nztm2000QuadTms, TileId } from '@basemaps/geo';
 import { fsa, urlToString } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
-import { command, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
+import { command, flag, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 
 import { isArgo } from '../../argo.js';
 import { CutlineOptimizer } from '../../cutline.js';
@@ -56,6 +56,12 @@ export const BasemapsCogifyCoverCommand = command({
       description:
         'Adjust the base zoom level of the output COGS, "-1" reduce the target output resolution by one zoom level',
     }),
+    requireStacCollection: flag({
+      long: 'require-stac-collection',
+      description: 'Require the source dataset to have a STAC collection.json',
+      defaultValue: () => false,
+      defaultValueIsSerializable: true,
+    }),
   },
   async handler(args) {
     const metrics = new Metrics();
@@ -68,6 +74,10 @@ export const BasemapsCogifyCoverCommand = command({
     if (cfg.imagery.length === 0) throw new Error('No imagery found');
     const im = cfg.imagery[0];
     logger.info({ files: im.files.length, title: im.title, duration: imageryLoadTime }, 'Imagery:Loaded');
+
+    if (im.collection == null && args.requireStacCollection) {
+      throw new Error(`No collection.json found with imagery: ${im.url.href}`);
+    }
 
     const tms = SupportedTileMatrix.find((f) => f.identifier.toLowerCase() === args.tileMatrix.toLowerCase());
     if (tms == null) throw new Error('--tile-matrix: ' + args.tileMatrix + ' not found');
