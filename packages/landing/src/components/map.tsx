@@ -4,7 +4,6 @@ import { Component, ReactNode } from 'react';
 
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
-import { MapConfig } from '../config.map.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { Debug } from './debug.js';
@@ -48,7 +47,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   updateTerrainFromEvent = (): void => {
     const terrain = this.map.getTerrain();
     Config.map.setTerrain(terrain?.source ?? null);
-    window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   };
 
   updateBounds = (bounds: maplibregl.LngLatBoundsLike): void => {

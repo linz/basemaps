@@ -209,7 +209,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   setTerrain(terrain: string | null): void {
     if (this.terrain === terrain) return;
     this.terrain = terrain;
-    this.emit('change');
+    window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   }
 
   setTileMatrix(tms: TileMatrixSet): void {
