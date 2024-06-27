@@ -4,7 +4,7 @@ import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 import lf from 'aws-cdk-lib/aws-lambda';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 const CODE_PATH = '../lambda-analytics/dist';
@@ -27,7 +27,10 @@ export class EdgeAnalytics extends Stack {
 
     const logBucket = Bucket.fromBucketName(this, 'EdgeLogBucket', logBucketName);
 
-    const cacheBucket = new Bucket(this, 'AnalyticCacheBucket');
+    const cacheBucket = new Bucket(this, 'AnalyticCacheBucket', {
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+    });
+
     this.lambda = new lf.Function(this, 'AnalyticLambda', {
       runtime: lf.Runtime.NODEJS_18_X,
       memorySize: 2048,
