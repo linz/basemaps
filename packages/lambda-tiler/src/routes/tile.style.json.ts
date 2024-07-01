@@ -157,7 +157,7 @@ export async function tileSetToStyle(
   return response;
 }
 
-export function tileSetOutputToStyle(
+export async function tileSetOutputToStyle(
   req: LambdaHttpRequest<StyleGet>,
   tileSet: ConfigTileSetRaster,
   tileMatrix: TileMatrixSet,
@@ -221,6 +221,9 @@ export function tileSetOutputToStyle(
     layers,
   };
 
+  // Ensure elevation for style json config
+  await ensureTerrain(req, tileMatrix, apiKey, style);
+
   // Add terrain in style
   if (terrain) setStyleTerrain(style, terrain);
 
@@ -255,8 +258,8 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
     const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
     if (tileSet == null) return NotFound();
     if (tileSet.type !== TileSetType.Raster) return NotFound();
-    if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey, terrain);
-    else return tileSetToStyle(req, tileSet, tileMatrix, apiKey, terrain);
+    if (tileSet.outputs) return await tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey, terrain);
+    else return await tileSetToStyle(req, tileSet, tileMatrix, apiKey, terrain);
   }
 
   // Prepare sources and add linz source
