@@ -38,14 +38,15 @@ export interface WmtsBuilderParams {
   apiKey?: string;
   /** Config location */
   config?: string | null;
-  /** Specific DateRange filter for the wmts layers */
-  filters?: Record<string, string | undefined>;
+  /** Default pipeline to use */
+  pipeline?: string;
 }
 
 export class WmtsBuilder {
   httpBase: string;
   apiKey?: string;
   config?: string | null;
+  pipeline?: string;
   filters?: Record<string, string | undefined>;
 
   /** All the imagery used by the tileSet and tileMatrixes */
@@ -58,7 +59,7 @@ export class WmtsBuilder {
     this.httpBase = params.httpBase;
     this.apiKey = params.apiKey;
     this.config = params.config;
-    this.filters = params.filters;
+    this.pipeline = params.pipeline;
   }
 
   addImagery(...imagery: ConfigImagery[]): void {
@@ -153,17 +154,17 @@ export class WmtsBuilder {
     return V('Style', { isDefault: 'true' }, [V('ows:Title', 'Default Style'), V('ows:Identifier', 'default')]);
   }
 
-  buildResourceUrl(tileSetId: string, suffix: string, addFilter = false): VNodeElement {
+  buildResourceUrl(tileSetId: string, suffix: string): VNodeElement {
     return V('ResourceURL', {
       format: 'image/' + suffix,
       resourceType: 'tile',
-      template: this.buildTileUrl(tileSetId, suffix, addFilter),
+      template: this.buildTileUrl(tileSetId, suffix),
     });
   }
 
-  buildTileUrl(tileSetId: string, suffix: string, addFilter = false): string {
-    let query = { api: this.apiKey, config: this.config };
-    if (addFilter) query = { api: this.apiKey, config: this.config, ...this.filters };
+  buildTileUrl(tileSetId: string, suffix: string): string {
+    // TODO this should restrict the output formats to supported formats in pipelines
+    const query = { api: this.apiKey, config: this.config, pipeline: this.pipeline };
 
     return [
       this.httpBase,
@@ -239,6 +240,8 @@ export interface WmtsCapabilitiesParams {
   formats: ImageFormat[];
   /** Specific layers to add to the WMTS */
   layers?: ConfigLayer[];
+  /** Default output pipeline to use */
+  pipeline?: string | null;
 }
 
 /**
@@ -275,6 +278,10 @@ export class WmtsCapabilities extends WmtsBuilder {
 
   addProvider(provider?: WmtsProvider): void {
     this.provider = provider;
+  }
+
+  addPipeline(pipeline: string): void {
+    this.pipeline = pipeline;
   }
 
   toProviderVNode(provider?: WmtsProvider): VNodeElement[] | [] {
@@ -338,7 +345,7 @@ export class WmtsCapabilities extends WmtsBuilder {
       this.buildStyle(),
       ...this.buildFormats(),
       ...this.buildTileMatrixLink(tileSet),
-      ...this.getFormats().map((fmt) => this.buildResourceUrl(layerNameId, fmt, true)),
+      ...this.getFormats().map((fmt) => this.buildResourceUrl(layerNameId, fmt)),
     ]);
   }
 
@@ -408,5 +415,6 @@ export class WmtsCapabilities extends WmtsBuilder {
     this.addTileSet(params.tileSet);
     this.addLayers(params.layers);
     this.addProvider(params.provider);
+    if (params.pipeline) this.addPipeline(params.pipeline);
   }
 }

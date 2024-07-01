@@ -69,6 +69,7 @@ export async function wmtsCapabilitiesGet(req: LambdaHttpRequest<WmtsCapabilitie
     imagery,
     formats: Validate.getRequestedFormats(req) ?? [],
     layers: req.params.tileMatrix == null ? tileSet.layers : undefined,
+    pipeline: req.query.get('pipeline'),
   });
 
   const xml = wmts.toXml();
