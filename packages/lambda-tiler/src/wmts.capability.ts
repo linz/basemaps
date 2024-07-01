@@ -241,7 +241,7 @@ export interface WmtsCapabilitiesParams {
   /** Specific layers to add to the WMTS */
   layers?: ConfigLayer[];
   /** Default output pipeline to use */
-  pipeline?: string;
+  pipeline?: string | null;
 }
 
 /**
@@ -280,7 +280,7 @@ export class WmtsCapabilities extends WmtsBuilder {
     this.provider = provider;
   }
 
-  addPipeline(pipeline?: string): void {
+  addPipeline(pipeline: string): void {
     this.pipeline = pipeline;
   }
 
@@ -415,6 +415,6 @@ export class WmtsCapabilities extends WmtsBuilder {
     this.addTileSet(params.tileSet);
     this.addLayers(params.layers);
     this.addProvider(params.provider);
-    this.addPipeline(params.pipeline);
+    if (params.pipeline) this.addPipeline(params.pipeline);
   }
 }
