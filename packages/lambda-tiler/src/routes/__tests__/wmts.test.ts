@@ -47,8 +47,6 @@ describe('WMTSRouting', () => {
     assert.ok(resourceUrl);
     assert.ok(resourceUrl.includes('amp;pipeline=terrain-rgb'), `includes pipeline=terrain-rgb in ${resourceUrl}`);
     assert.ok(resourceUrl.includes('.png'), `includes .png in ${resourceUrl}`);
-    // assert;
-    console.log(resourceUrl);
   });
 
   it('should default to the aerial layer', async (t) => {
