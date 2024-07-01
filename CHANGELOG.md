@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+
+### Bug Fixes
+
+* **cogify:** correct loading path for "cogify" bin ([#3294](https://github.com/linz/basemaps/issues/3294)) ([cd67004](https://github.com/linz/basemaps/commit/cd67004589d4a0da85422ba7d8b765c6845ed714))
+* **config-loader:** allow rgb color objects ([#3288](https://github.com/linz/basemaps/issues/3288)) ([23df7de](https://github.com/linz/basemaps/commit/23df7debe6638946631d10d53bc809c53afa92f6)), closes [#ff00](https://github.com/linz/basemaps/issues/ff00)
+* **config-loader:** data type is optional for tiffs ([#3287](https://github.com/linz/basemaps/issues/3287)) ([388d31b](https://github.com/linz/basemaps/commit/388d31b5a47719baed63a9a7c7ef7124836f0fe8))
+* **infra:** force block public access on s3 buckets TDE-1207 ([#3301](https://github.com/linz/basemaps/issues/3301)) ([c35e14e](https://github.com/linz/basemaps/commit/c35e14e55aeea46f70233daa722e8ce8b946f1cd))
+* **lambda-tiler:** Fix the missing LINZ-terrain source for the elevation layer. ([#3302](https://github.com/linz/basemaps/issues/3302)) ([ef8b0f3](https://github.com/linz/basemaps/commit/ef8b0f3d40d90594864834c0a7beb40f6a9ef2b6))
+* **lambda-tiler:** tile matrix not supported is a 400 not 500 ([#3285](https://github.com/linz/basemaps/issues/3285)) ([310290c](https://github.com/linz/basemaps/commit/310290c27ced47d69ada72ff9b966d6cf62e6886))
+* **lambda-tiler:** wmts should support tile pipelines ([#3305](https://github.com/linz/basemaps/issues/3305)) ([3ff3f7f](https://github.com/linz/basemaps/commit/3ff3f7f1115d14bb97109b1ed92df586d403dd96))
+* **landing:** only force wmts to have tileFormat BM-1041 ([#3303](https://github.com/linz/basemaps/issues/3303)) ([7d44492](https://github.com/linz/basemaps/commit/7d444923eadbb82548e37aa2f2c243acf91502c9))
+* **landing:** use png for terrain-rgb xyz links BM-1041 ([#3300](https://github.com/linz/basemaps/issues/3300)) ([52fbf80](https://github.com/linz/basemaps/commit/52fbf808165bfd8e2596db68e40a3fb2a46d1658))
+
+
+### Features
+
+* **cogify:** error early if no source collection.json is found BM-1047 ([#3296](https://github.com/linz/basemaps/issues/3296)) ([aecb5e6](https://github.com/linz/basemaps/commit/aecb5e65e6dea474db7c5a5876364e8b034ee181))
+* **cogify:** set zoom offsets for cogify to create smaller output files ([#3293](https://github.com/linz/basemaps/issues/3293)) ([259e4f4](https://github.com/linz/basemaps/commit/259e4f4aa7359f7d88977404efc4b178ee638a0a))
+* **infra:** Add terrain cache key into cloud-front. ([#3298](https://github.com/linz/basemaps/issues/3298)) ([1befe76](https://github.com/linz/basemaps/commit/1befe7643ad504607b35e6636c3a39745e0cf03a))
+* **lambda-tile:** Enable elevation source in the individual raster style json. ([#3286](https://github.com/linz/basemaps/issues/3286)) ([a0b6c0c](https://github.com/linz/basemaps/commit/a0b6c0c230819b2ee665845338ef0147bb6a67c3))
+* **lambda-tiler:** Ensure terrain source for all style json configs. ([#3299](https://github.com/linz/basemaps/issues/3299)) ([13aedf8](https://github.com/linz/basemaps/commit/13aedf8944adda80d985a7e642c4408788369497))
+* **landing:** add elevation example ([#3291](https://github.com/linz/basemaps/issues/3291)) ([591e42d](https://github.com/linz/basemaps/commit/591e42dff70c3c1883fc34ef1b8aa38e3187f2f8))
+* **landing:** Add terrain parameter in the url ([#3292](https://github.com/linz/basemaps/issues/3292)) ([781bbe8](https://github.com/linz/basemaps/commit/781bbe8c009c287f4eff64f81e673a52931b6011))
+* **landing:** Get the terrain source from aerial style json. ([#3282](https://github.com/linz/basemaps/issues/3282)) ([cde0fe6](https://github.com/linz/basemaps/commit/cde0fe669b234d7d27d6414b7e4b298769229284))
+
+
+
+
+
 # [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
 
 

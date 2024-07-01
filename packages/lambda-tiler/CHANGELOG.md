@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Fix the missing LINZ-terrain source for the elevation layer. ([#3302](https://github.com/linz/basemaps/issues/3302)) ([ef8b0f3](https://github.com/linz/basemaps/commit/ef8b0f3d40d90594864834c0a7beb40f6a9ef2b6))
+* **lambda-tiler:** tile matrix not supported is a 400 not 500 ([#3285](https://github.com/linz/basemaps/issues/3285)) ([310290c](https://github.com/linz/basemaps/commit/310290c27ced47d69ada72ff9b966d6cf62e6886))
+* **lambda-tiler:** wmts should support tile pipelines ([#3305](https://github.com/linz/basemaps/issues/3305)) ([3ff3f7f](https://github.com/linz/basemaps/commit/3ff3f7f1115d14bb97109b1ed92df586d403dd96))
+
+
+### Features
+
+* **lambda-tile:** Enable elevation source in the individual raster style json. ([#3286](https://github.com/linz/basemaps/issues/3286)) ([a0b6c0c](https://github.com/linz/basemaps/commit/a0b6c0c230819b2ee665845338ef0147bb6a67c3))
+* **lambda-tiler:** Ensure terrain source for all style json configs. ([#3299](https://github.com/linz/basemaps/issues/3299)) ([13aedf8](https://github.com/linz/basemaps/commit/13aedf8944adda80d985a7e642c4408788369497))
+* **landing:** Add terrain parameter in the url ([#3292](https://github.com/linz/basemaps/issues/3292)) ([781bbe8](https://github.com/linz/basemaps/commit/781bbe8c009c287f4eff64f81e673a52931b6011))
+
+
+
+
+
 # [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
 
 
