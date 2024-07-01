@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 
-import { Imagery2193, Imagery3857, Provider, TileSetAerial } from '../../__tests__/config.data.js';
+import { Imagery2193, Imagery3857, Provider, TileSetAerial, TileSetElevation } from '../../__tests__/config.data.js';
 import { Api, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
@@ -25,6 +25,30 @@ describe('WMTSRouting', () => {
 
   afterEach(() => {
     config.objects.clear();
+  });
+
+  it('should support pipeline', async (t) => {
+    t.mock.method(Env, 'get', (arg: string) => {
+      if (arg === Env.PublicUrlBase) return 'https://tiles.test';
+      return process.env[arg];
+    });
+    config.put(TileSetElevation);
+    t.mock.method(ConfigLoader, 'load', () => Promise.resolve(config));
+    const req = mockUrlRequest(
+      '/v1/tiles/elevation/WebMercatorQuad/WMTSCapabilities.xml',
+      `tileFormat=png&api=${Api.key}&config=s3://linz-basemaps/config.json&pipeline=terrain-rgb`,
+    );
+    const res = await handler.router.handle(req);
+
+    assert.equal(res.status, 200);
+    const lines = Buffer.from(res.body, 'base64').toString().split('\n');
+    const resourceUrl = lines.find((f) => f.includes('ResourceURL'))?.trim();
+
+    assert.ok(resourceUrl);
+    assert.ok(resourceUrl.includes('amp;pipeline=terrain-rgb'), `includes pipeline=terrain-rgb in ${resourceUrl}`);
+    assert.ok(resourceUrl.includes('.png'), `includes .png in ${resourceUrl}`);
+    // assert;
+    console.log(resourceUrl);
   });
 
   it('should default to the aerial layer', async (t) => {
