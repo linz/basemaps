@@ -85,7 +85,7 @@ export const WindowUrl = {
 
     // If a image format is directly requested ensure it is passed through to the WMTS
     // only some layers like terrain-rgb need a forced image format
-    if (params.imageFormat && MapOptionType.Wmts) queryParams.set('format', params.imageFormat);
+    if (params.imageFormat && params.urlType === MapOptionType.Wmts) queryParams.set('tileFormat', params.imageFormat);
 
     const q = '?' + queryParams.toString();
 
