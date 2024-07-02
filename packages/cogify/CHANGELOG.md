@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+
+### Bug Fixes
+
+* **cogify:** correct loading path for "cogify" bin ([#3294](https://github.com/linz/basemaps/issues/3294)) ([cd67004](https://github.com/linz/basemaps/commit/cd67004589d4a0da85422ba7d8b765c6845ed714))
+
+
+### Features
+
+* **cogify:** error early if no source collection.json is found BM-1047 ([#3296](https://github.com/linz/basemaps/issues/3296)) ([aecb5e6](https://github.com/linz/basemaps/commit/aecb5e65e6dea474db7c5a5876364e8b034ee181))
+* **cogify:** set zoom offsets for cogify to create smaller output files ([#3293](https://github.com/linz/basemaps/issues/3293)) ([259e4f4](https://github.com/linz/basemaps/commit/259e4f4aa7359f7d88977404efc4b178ee638a0a))
+
+
+
+
+
 # [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
 
 

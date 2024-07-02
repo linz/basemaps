@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+
+### Bug Fixes
+
+* **infra:** force block public access on s3 buckets TDE-1207 ([#3301](https://github.com/linz/basemaps/issues/3301)) ([c35e14e](https://github.com/linz/basemaps/commit/c35e14e55aeea46f70233daa722e8ce8b946f1cd))
+
+
+### Features
+
+* **infra:** Add terrain cache key into cloud-front. ([#3298](https://github.com/linz/basemaps/issues/3298)) ([1befe76](https://github.com/linz/basemaps/commit/1befe7643ad504607b35e6636c3a39745e0cf03a))
+* **landing:** Add terrain parameter in the url ([#3292](https://github.com/linz/basemaps/issues/3292)) ([781bbe8](https://github.com/linz/basemaps/commit/781bbe8c009c287f4eff64f81e673a52931b6011))
+
+
+
+
+
 # [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
 
 **Note:** Version bump only for package @basemaps/infra

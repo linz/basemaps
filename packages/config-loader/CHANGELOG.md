@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+
+### Bug Fixes
+
+* **config-loader:** allow rgb color objects ([#3288](https://github.com/linz/basemaps/issues/3288)) ([23df7de](https://github.com/linz/basemaps/commit/23df7debe6638946631d10d53bc809c53afa92f6)), closes [#ff00](https://github.com/linz/basemaps/issues/ff00)
+* **config-loader:** data type is optional for tiffs ([#3287](https://github.com/linz/basemaps/issues/3287)) ([388d31b](https://github.com/linz/basemaps/commit/388d31b5a47719baed63a9a7c7ef7124836f0fe8))
+
+
+
+
+
 # [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
 
 **Note:** Version bump only for package @basemaps/config-loader

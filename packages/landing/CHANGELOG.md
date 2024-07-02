@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+
+### Bug Fixes
+
+* **landing:** only force wmts to have tileFormat BM-1041 ([#3303](https://github.com/linz/basemaps/issues/3303)) ([7d44492](https://github.com/linz/basemaps/commit/7d444923eadbb82548e37aa2f2c243acf91502c9))
+* **landing:** use png for terrain-rgb xyz links BM-1041 ([#3300](https://github.com/linz/basemaps/issues/3300)) ([52fbf80](https://github.com/linz/basemaps/commit/52fbf808165bfd8e2596db68e40a3fb2a46d1658))
+
+
+### Features
+
+* **landing:** add elevation example ([#3291](https://github.com/linz/basemaps/issues/3291)) ([591e42d](https://github.com/linz/basemaps/commit/591e42dff70c3c1883fc34ef1b8aa38e3187f2f8))
+* **landing:** Add terrain parameter in the url ([#3292](https://github.com/linz/basemaps/issues/3292)) ([781bbe8](https://github.com/linz/basemaps/commit/781bbe8c009c287f4eff64f81e673a52931b6011))
+* **landing:** Get the terrain source from aerial style json. ([#3282](https://github.com/linz/basemaps/issues/3282)) ([cde0fe6](https://github.com/linz/basemaps/commit/cde0fe669b234d7d27d6414b7e4b298769229284))
+
+
+
+
+
 # [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
 
 
