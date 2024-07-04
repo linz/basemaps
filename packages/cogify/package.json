@@ -39,14 +39,16 @@
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
-  "devDependencies": {
+  "dependencies": {
     "@basemaps/cli": "^7.5.0",
     "@basemaps/config": "^7.5.0",
     "@basemaps/config-loader": "^7.5.0",
     "@basemaps/geo": "^7.5.0",
     "@basemaps/shared": "^7.5.0",
     "cmd-ts": "^0.12.1",
-    "p-limit": "^4.0.0",
+    "p-limit": "^4.0.0"
+  },
+  "devDependencies": {
     "stac-ts": "^1.0.0"
   },
   "publishConfig": {
