@@ -80,10 +80,18 @@ export function locationTransform(
  *
  * *Warning* This will overwrite the existing object
  */
-export function projectGeoJson(g: GeoJSON.FeatureCollection, targetTileMatrix: TileMatrixSet): void {
-  for (const f of g.features) {
-    if (f.geometry.type !== 'Polygon') throw new Error('Only polygons supported');
+export function projectGeoJson(g: GeoJSON.FeatureCollection | GeoJSON.Feature, targetTileMatrix: TileMatrixSet): void {
+  if (g.type === 'FeatureCollection') {
+    for (const f of g.features) {
+      projectFeature(f, targetTileMatrix);
+    }
+  } else if (g.type === 'Feature') {
+    projectFeature(g, targetTileMatrix);
+  }
+}
 
+function projectFeature(f: GeoJSON.Feature, targetTileMatrix: TileMatrixSet): void {
+  if (f.geometry.type === 'Polygon') {
     for (const poly of f.geometry.coordinates) {
       for (const coord of poly) {
         const output = locationTransform(
@@ -95,5 +103,21 @@ export function projectGeoJson(g: GeoJSON.FeatureCollection, targetTileMatrix: T
         coord[1] = output.lat;
       }
     }
+  } else if (f.geometry.type === 'MultiPolygon') {
+    for (const multiPoly of f.geometry.coordinates) {
+      for (const poly of multiPoly) {
+        for (const coord of poly) {
+          const output = locationTransform(
+            { lat: coord[1], lon: coord[0], zoom: targetTileMatrix.maxZoom },
+            targetTileMatrix,
+            GoogleTms,
+          );
+          coord[0] = output.lon;
+          coord[1] = output.lat;
+        }
+      }
+    }
+  } else{
+    throw new Error(`Geometry feature type: ${f.geometry.type} not supported`);
   }
 }
