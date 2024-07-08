@@ -1,5 +1,6 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { GoogleTms } from '@basemaps/geo';
+import { BBoxFeature } from '@linzjs/geojson';
 import { BBoxFeatureCollection } from '@linzjs/geojson/build/types.js';
 import { StyleSpecification } from 'maplibre-gl';
 import { FormEventHandler } from 'react';
@@ -8,7 +9,6 @@ import { Config } from './config.js';
 import { ConfigData } from './config.layer.js';
 import { projectGeoJson } from './tile.matrix.js';
 import { MapOptionType, WindowUrl } from './url.js';
-import { BBoxFeature } from '@linzjs/geojson';
 
 export interface DebugType {
   name: string;
@@ -40,12 +40,7 @@ export const debugTypes = {
 
 export class DebugMap {
   _layerLoading: Map<string, Promise<void>> = new Map();
-  loadSourceLayer(
-    map: maplibregl.Map,
-    layerId: string,
-    imagery: ConfigImagery,
-    type: DebugType,
-  ): Promise<void> {
+  loadSourceLayer(map: maplibregl.Map, layerId: string, imagery: ConfigImagery, type: DebugType): Promise<void> {
     const layerKey = `${layerId}-${type.name}`;
     let existing = this._layerLoading.get(layerKey);
     if (existing == null) {
@@ -55,12 +50,7 @@ export class DebugMap {
     return existing;
   }
 
-  async _loadSourceLayer(
-    map: maplibregl.Map,
-    layerId: string,
-    imagery: ConfigImagery,
-    type: DebugType,
-  ): Promise<void> {
+  async _loadSourceLayer(map: maplibregl.Map, layerId: string, imagery: ConfigImagery, type: DebugType): Promise<void> {
     const sourceId = `${layerId}_${type.name}`;
     const layerFillId = `${sourceId}_fill`;
     if (map.getLayer(layerFillId) != null) return;

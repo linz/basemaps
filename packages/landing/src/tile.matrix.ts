@@ -117,7 +117,7 @@ function projectFeature(f: GeoJSON.Feature, targetTileMatrix: TileMatrixSet): vo
         }
       }
     }
-  } else{
+  } else {
     throw new Error(`Geometry feature type: ${f.geometry.type} not supported`);
   }
 }
