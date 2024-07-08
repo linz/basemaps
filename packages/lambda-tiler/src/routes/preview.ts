@@ -163,12 +163,12 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   req.timer.start('compose:overlay');
   // Remove with typescript >=5.5.0
 
-  const overlays = (await Promise.all(
+  const overlays = await Promise.all(
     compositions.map((comp) => {
       if (tileContext.pipeline) return TilerSharp.composeTilePipeline(comp, tileContext);
       return TilerSharp.composeTileTiff(comp, tileContext.resizeKernel);
     }),
-  ).then((items) => items.filter((f) => f != null))) as SharpOverlay[];
+  ).then((items) => items.filter((f) => f != null));
   req.timer.end('compose:overlay');
 
   // Create the output image and render all the individual pieces into them
