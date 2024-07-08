@@ -1,7 +1,7 @@
 import { ConfigTileSetRaster, ConfigTileSetRasterOutput, TileSetType } from '@basemaps/config';
 import { Bounds, LatLon, Projection, TileMatrixSet } from '@basemaps/geo';
 import { CompositionTiff, TileMakerContext, Tiler } from '@basemaps/tiler';
-import { SharpOverlay, TileMakerSharp } from '@basemaps/tiler-sharp';
+import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import sharp from 'sharp';
 
