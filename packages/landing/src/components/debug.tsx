@@ -8,7 +8,7 @@ import { MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
 import { MapConfig } from '../config.map.js';
-import { DebugMap } from '../debug.map.js';
+import { DebugMap, DebugType, debugTypes } from '../debug.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { onMapLoaded } from './map.js';
 
@@ -130,32 +130,40 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.debugMap.adjustRaster(this.props.map, 'osm', Config.map.debug['debug.layer.osm']);
     this.debugMap.adjustRaster(this.props.map, 'linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
     void this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
-    this.setVectorShown(Config.map.debug['debug.source'], 'source');
-    this.setVectorShown(Config.map.debug['debug.cog'], 'cog');
+    this.setVectorShown(Config.map.debug['debug.source'], debugTypes.source);
+    this.setVectorShown(Config.map.debug['debug.cog'], debugTypes.cog);
+    this.setVectorShown(Config.map.debug['debug.capture-area'], debugTypes['capture-area']);
     this.setTerrainShown(Config.map.debug['debug.terrain']);
     this.setHillShadeShown(Config.map.debug['debug.hillshade']);
     this.setVisibleSource(Config.map.debug['debug.layer']);
     this.renderWMTS();
   }
 
-  /** Show the source bounding box ont he map */
+  /** Show the source bounding box on the map */
   toggleTileBoundary: ChangeEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.tile', target.checked);
   };
 
-  /** Show the source bounding box ont he map */
+  /** Show the source bounding box on the map */
   toggleCogs: ChangeEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.cog', target.checked);
-    this.setVectorShown(target.checked, 'cog');
+    this.setVectorShown(target.checked, debugTypes.cog);
   };
 
-  /** Show the source bounding box ont he map */
+  /** Show the source bounding box on the map */
   toggleSource: ChangeEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
     Config.map.setDebug('debug.source', target.checked);
-    this.setVectorShown(target.checked, 'source');
+    this.setVectorShown(target.checked, debugTypes.source);
+  };
+
+  /** Show the capture area on the map */
+  toggleCaptureArea: ChangeEventHandler = (e) => {
+    const target = e.target as HTMLInputElement;
+    Config.map.setDebug('debug.capture-area', target.checked);
+    this.setVectorShown(target.checked, debugTypes['capture-area']);
   };
 
   _loadingConfig: Promise<void> = Promise.resolve();
@@ -172,7 +180,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       const imageryId = tileSet.layers[0][projectionCode];
       if (imageryId == null) return;
 
-      void this.debugMap.fetchSourceLayer(imageryId, 'cog').then((cog) => {
+      void this.debugMap.fetchSourceLayer(imageryId, debugTypes.cog).then((cog) => {
         this.setState({ isCog: cog != null });
       });
 
@@ -209,6 +217,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         {this.renderPurple()}
         {this.renderCogToggle()}
         {this.renderSourceToggle()}
+        {this.renderCaptureAreaToggle()}
         {this.renderTileToggle()}
         {this.renderRasterSourceDropdown()}
         {this.renderDemSourceDropdown(demSources)}
@@ -256,7 +265,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   renderCogToggle(): ReactNode {
     if (this.state.imagery == null) return null;
-    const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'covering.geojson');
+    const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, debugTypes.cog.file);
     if (!this.state.isCog) return;
     return (
       <Fragment>
@@ -421,6 +430,23 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
+  renderCaptureAreaToggle(): ReactNode {
+    if (this.state.imagery == null) return null;
+    const location = WindowUrl.toImageryUrl(this.state.imagery.id, debugTypes['capture-area'].file);
+    return (
+      <Fragment>
+        <div className="debug__info">
+          <label className="debug__label">
+            <a href={location} title="Capture Area geojson">
+              Capture Area
+            </a>
+          </label>
+          <input type="checkbox" onChange={this.toggleCaptureArea} checked={Config.map.debug['debug.capture-area']} />
+        </div>
+      </Fragment>
+    );
+  }
+
   getSourcesIds(type: string): string[] {
     const style = this.props.map.getStyle();
     return Object.keys(style.sources).filter((id) => id.startsWith('basemaps') && style.sources[id].type === type);
@@ -494,13 +520,13 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
-  trackMouseMove(layerId: string, type: 'source' | 'cog'): void {
-    const sourceId = `${layerId}_${type}`;
+  trackMouseMove(layerId: string, type: DebugType): void {
+    const sourceId = `${layerId}_${type.name}`;
     const layerFillId = `${sourceId}_fill`;
     const map = this.props.map;
 
     let lastFeatureId: string | number | undefined;
-    const stateName = type === 'source' ? `featureSource` : `featureCog`;
+    const stateName = type.name === `feature-${type.name}`;
 
     // Onclick copy the location into the clipboard
     map.on('click', layerFillId, (e) => {
@@ -544,51 +570,74 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     });
   }
 
-  setVectorShown(isShown: boolean, type: 'source' | 'cog'): void {
+  setVectorShown(isShown: boolean, type: DebugType): void {
     const map = this.props.map;
 
     map.showTileBoundaries = Config.map.debug['debug.tile'];
 
     const layerId = Config.map.layerId;
-    const sourceId = `${layerId}_${type}`;
+    const sourceId = `${layerId}_${type.name}`;
     const layerFillId = `${sourceId}_fill`;
     const layerLineId = `${sourceId}_line`;
+    const layerLineBlack = `${sourceId}_line_black`;
     if (isShown === false) {
-      if (map.getLayer(layerFillId) == null) return;
+      if (map.getLayer(layerLineId) == null) return;
       map.removeLayer(layerFillId);
       map.removeLayer(layerLineId);
+      map.removeLayer(layerLineBlack);
       return;
     }
 
     if (map.getLayer(layerLineId) != null) return;
 
-    const color = type === 'source' ? '#ff00ff' : '#ff0000';
-
     if (this.state.imagery == null) return;
     void this.debugMap.loadSourceLayer(this.props.map, layerId, this.state.imagery, type).then(() => {
       if (map.getLayer(layerLineId) != null) return;
       // Fill is needed to make the mouse move work even though it has opacity 0
-      map.addLayer({
-        id: layerFillId,
-        type: 'fill',
-        source: sourceId,
-        paint: {
-          'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.25, 0],
-          'fill-color': color,
-        },
-      });
-      this.trackMouseMove(layerId, type);
+      if (type.fill) {
+        // fillable line polygons
+        map.addLayer({
+          id: layerFillId,
+          type: 'fill',
+          source: sourceId,
+          paint: {
+            'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.25, 0],
+            'fill-color': type.color,
+          },
+        });
+        this.trackMouseMove(layerId, type);
+        map.addLayer({
+          id: layerLineId,
+          type: 'line',
+          source: sourceId,
+          paint: {
+            'line-color': type.color,
+            'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5],
+            'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 1],
+          },
+        });
+      } else {
+        // Add a black double weighted line behind the layer line
+        map.addLayer({
+          id: layerLineBlack,
+          type: 'line',
+          source: sourceId,
+          paint: {
+            'line-color': '#000000',
+            'line-width': 4,
+          },
+        });
 
-      map.addLayer({
-        id: layerLineId,
-        type: 'line',
-        source: sourceId,
-        paint: {
-          'line-color': color,
-          'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5],
-          'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 1],
-        },
-      });
+        map.addLayer({
+          id: layerLineId,
+          type: 'line',
+          source: sourceId,
+          paint: {
+            'line-color': type.color,
+            'line-width': 2,
+          },
+        });
+      }
     });
   }
 }
