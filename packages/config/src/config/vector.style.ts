@@ -1,4 +1,14 @@
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+
 import { ConfigBase } from './base.js';
+
+/**
+ * Default Terrain exaggeration settings for different projection
+ */
+export const DefaultExaggeration = {
+  [Nztm2000QuadTms.identifier]: 4.4,
+  [GoogleTms.identifier]: 1.2,
+};
 
 export interface SourceVector {
   type: 'vector';

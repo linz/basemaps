@@ -1,4 +1,5 @@
 import { ConfigId, ConfigPrefix, ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
+import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
 import { GoogleTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -80,12 +81,12 @@ export interface StyleGet {
   };
 }
 
-function setStyleTerrain(style: StyleJson, terrain: string): void {
+function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: TileMatrixSet): void {
   const source = Object.keys(style.sources).find((s) => s === terrain);
   if (source == null) throw new LambdaHttpResponse(400, `Terrain: ${terrain} is not exists in the style source.`);
   style.terrain = {
     source,
-    exaggeration: 1.2,
+    exaggeration: DefaultExaggeration[tileMatrix.identifier] ?? DefaultExaggeration[GoogleTms.identifier],
   };
 }
 
@@ -142,7 +143,7 @@ export async function tileSetToStyle(
   await ensureTerrain(req, tileMatrix, apiKey, style);
 
   // Add terrain in style
-  if (terrain) setStyleTerrain(style, terrain);
+  if (terrain) setStyleTerrain(style, terrain, tileMatrix);
 
   const data = Buffer.from(JSON.stringify(style));
 
@@ -225,7 +226,7 @@ export async function tileSetOutputToStyle(
   await ensureTerrain(req, tileMatrix, apiKey, style);
 
   // Add terrain in style
-  if (terrain) setStyleTerrain(style, terrain);
+  if (terrain) setStyleTerrain(style, terrain, tileMatrix);
 
   const data = Buffer.from(JSON.stringify(style));
 
@@ -276,7 +277,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   await ensureTerrain(req, tileMatrix, apiKey, style);
 
   // Add terrain in style
-  if (terrain) setStyleTerrain(style, terrain);
+  if (terrain) setStyleTerrain(style, terrain, tileMatrix);
 
   const data = Buffer.from(JSON.stringify(style));
 

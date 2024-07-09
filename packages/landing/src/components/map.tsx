@@ -1,3 +1,4 @@
+import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
 import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
@@ -96,24 +97,23 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   ensureElevationControl(): void {
     if (Config.map.debug['debug.screenshot']) return;
     if (Config.map.isDebug) return;
-    if (Config.map.tileMatrix === GoogleTms) {
-      if (this.controlTerrain != null) return;
-      // Try to find terrain source and add to the control
-      for (const [key, source] of Object.entries(this.map.getStyle().sources)) {
-        if (source.type === 'raster-dem') {
-          this.controlTerrain = new maplibre.TerrainControl({
-            source: key,
-            exaggeration: 1.2,
-          });
-          this.map.addControl(this.controlTerrain, 'top-left');
-          break;
-        }
+    if (this.controlTerrain != null) return;
+    // Try to find terrain source and add to the control
+    for (const [key, source] of Object.entries(this.map.getStyle().sources)) {
+      if (source.type === 'raster-dem') {
+        this.controlTerrain = new maplibre.TerrainControl({
+          source: key,
+          exaggeration:
+            DefaultExaggeration[Config.map.tileMatrix.identifier] ?? DefaultExaggeration[GoogleTms.identifier],
+        });
+        this.map.addControl(this.controlTerrain, 'top-left');
+        return;
       }
-    } else {
-      if (this.controlTerrain == null) return;
-      this.map.removeControl(this.controlTerrain);
-      this.controlTerrain = null;
     }
+
+    if (this.controlTerrain == null) return;
+    this.map.removeControl(this.controlTerrain);
+    this.controlTerrain = null;
   }
 
   /**
