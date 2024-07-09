@@ -21,6 +21,7 @@ export interface DebugState {
   imagery?: ConfigImagery | null;
   config?: string | null;
   isCog?: boolean;
+  hasCaptureArea?: boolean;
 }
 
 /** Layer Id for the hillshade layer in the debug map */
@@ -184,6 +185,10 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         this.setState({ isCog: cog != null });
       });
 
+      void this.debugMap.fetchSourceLayer(imageryId, debugTypes['capture-area']).then((c) => {
+        this.setState({ hasCaptureArea: c != null });
+      });
+
       return ConfigData.getImagery(tileSetId, imageryId).then((imagery) => {
         this.setState({ imagery, config: Config.map.config });
       });
@@ -260,30 +265,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           checked={Config.map.debug['debug.background'] === 'magenta'}
         />
       </div>
-    );
-  }
-
-  renderCogToggle(): ReactNode {
-    if (this.state.imagery == null) return null;
-    const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, debugTypes.cog.file);
-    if (!this.state.isCog) return;
-    return (
-      <Fragment>
-        <div className="debug__info">
-          <label className="debug__label">
-            <a href={cogLocation} title="Source geojson">
-              Cogs
-            </a>
-          </label>
-          <input type="checkbox" onChange={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
-        </div>
-        {this.state.featureCogId == null ? null : (
-          <div className="debug__info" title={String(this.state.featureCogName)}>
-            <label className="debug__label">CogId</label>
-            {String(this.state.featureCogName).split('/').pop()}
-          </div>
-        )}
-      </Fragment>
     );
   }
 
@@ -430,9 +411,34 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
+  renderCogToggle(): ReactNode {
+    if (this.state.imagery == null) return null;
+    const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, debugTypes.cog.file);
+    if (!this.state.isCog) return;
+    return (
+      <Fragment>
+        <div className="debug__info">
+          <label className="debug__label">
+            <a href={cogLocation} title="Source geojson">
+              Cogs
+            </a>
+          </label>
+          <input type="checkbox" onChange={this.toggleCogs} checked={Config.map.debug['debug.cog']} />
+        </div>
+        {this.state.featureCogId == null ? null : (
+          <div className="debug__info" title={String(this.state.featureCogName)}>
+            <label className="debug__label">CogId</label>
+            {String(this.state.featureCogName).split('/').pop()}
+          </div>
+        )}
+      </Fragment>
+    );
+  }
+
   renderCaptureAreaToggle(): ReactNode {
     if (this.state.imagery == null) return null;
     const location = WindowUrl.toImageryUrl(this.state.imagery.id, debugTypes['capture-area'].file);
+    if (!this.state.hasCaptureArea) return;
     return (
       <Fragment>
         <div className="debug__info">
