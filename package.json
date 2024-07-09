@@ -32,8 +32,7 @@
     "esbuild": "^0.19.8",
     "lerna": "^8.0.0",
     "rimraf": "^5.0.5",
-    "sinon": "^17.0.1",
-    "typescript": "5.4.x"
+    "sinon": "^17.0.1"
   },
   "workspaces": {
     "packages": [

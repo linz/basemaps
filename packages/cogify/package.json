@@ -53,6 +53,7 @@
     "access": "public"
   },
   "files": [
-    "build/"
+    "build/",
+    "dist/"
   ]
 }
