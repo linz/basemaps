@@ -265,7 +265,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   renderCogToggle(): ReactNode {
     if (this.state.imagery == null) return null;
-    const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, 'covering.geojson');
+    const cogLocation = WindowUrl.toImageryUrl(this.state.imagery.id, debugTypes.cog.file);
     if (!this.state.isCog) return;
     return (
       <Fragment>
@@ -432,7 +432,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   renderCaptureAreaToggle(): ReactNode {
     if (this.state.imagery == null) return null;
-    const location = WindowUrl.toImageryUrl(this.state.imagery.id, 'capture-area.geojson');
+    const location = WindowUrl.toImageryUrl(this.state.imagery.id, debugTypes['capture-area'].file);
     return (
       <Fragment>
         <div className="debug__info">
@@ -617,9 +617,9 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           },
         });
       } else {
-        // Two color with black dashed type lines
+        // Add a black double weighted line behind the layer line
         map.addLayer({
-          id: layerLineId,
+          id: layerLineBlack,
           type: 'line',
           source: sourceId,
           paint: {
@@ -629,11 +629,11 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         });
 
         map.addLayer({
-          id: layerLineBlack,
+          id: layerLineId,
           type: 'line',
           source: sourceId,
           paint: {
-            'line-color': '#FF7500',
+            'line-color': type.color,
             'line-width': 2,
           },
         });

@@ -33,7 +33,7 @@ export const debugTypes = {
   'capture-area': {
     name: 'capture-area',
     file: 'capture-area.geojson',
-    color: '#00FFFF',
+    color: '#FF7500',
     fill: false,
   },
 };
