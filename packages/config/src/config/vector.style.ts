@@ -4,6 +4,7 @@ import { ConfigBase } from './base.js';
 
 /**
  * Default Terrain exaggeration settings for different projection
+ * NZTM terrain is too flat, it offsets the zoom level by 2 which means everything is approx 4x smaller than Google.
  */
 export const DefaultExaggeration = {
   [Nztm2000QuadTms.identifier]: 4.4,
