@@ -40,6 +40,24 @@ export interface Layer {
   'source-layer'?: string;
 }
 
+/** Sky MapLibre Style Spec, all valuables support interpolate expressions, as unknown format */
+export interface Sky {
+  /** The base color for the sky. Optional Defaults to #88C6FC */
+  'sky-color'?: unknown;
+  /** The base color at the horizon. Optional Defaults to #ffffff */
+  'horizon-color'?: unknown;
+  /** The base color for the fog. Requires 3D terrain. Optional Defaults to #ffffff */
+  'fog-color'?: unknown;
+  /** How to blend the fog over the 3D terrain. Optional number in range [0, 1]. Defaults to 0.5 */
+  'fog-ground-blend'?: unknown;
+  /** How to blend the fog color and the horizon color. Optional number in range [0, 1]. Defaults to 0.8. */
+  'horizon-fog-blend'?: unknown;
+  /** How to blend the the sky color and the horizon color. Optional number in range [0, 1]. Defaults to 0.8. */
+  'sky-horizon-blend'?: unknown;
+  /** How to blend the atmosphere. Optional number in range [0, 1]. Defaults to 0.8. */
+  'atmosphere-blend'?: unknown;
+}
+
 export interface Terrain {
   source: string;
   exaggeration: number;
@@ -72,6 +90,9 @@ export interface StyleJson {
 
   /** Layers will be drawn in the order of this array. */
   layers: Layer[];
+
+  /** The map's sky configuration */
+  sky?: Sky;
 
   /** OPTIONAL - A global modifier that elevates layers and markers based on a DEM data source */
   terrain?: Terrain;

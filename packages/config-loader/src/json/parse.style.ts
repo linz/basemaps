@@ -11,6 +11,7 @@ export const zStyleJson = z.object({
 
   // TODO it would be good to actually validate all the styles
   layers: z.array(z.unknown()),
+  sky: z.unknown(),
 });
 
 export type StyleJsonConfigSchema = z.infer<typeof zStyleJson>;
