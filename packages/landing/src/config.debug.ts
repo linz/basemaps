@@ -6,6 +6,8 @@ export interface DebugState {
   'debug.source': boolean;
   /** Should the cog outlines be shown */
   'debug.cog': boolean;
+  /** Should the capture area be shown */
+  'debug.capture-area': boolean;
   /** Should the map tile boundaries be shown */
   'debug.tile': boolean;
   /** Should things be hidden to make a better screenshot */
@@ -32,6 +34,7 @@ export const DebugDefaults: DebugState = {
   'debug.source': false,
   'debug.tile': false,
   'debug.cog': false,
+  'debug.capture-area': false,
   'debug.screenshot': false,
   'debug.layer.linz-aerial': 0,
   'debug.layer.linz-topographic': 0,
@@ -71,6 +74,7 @@ export class ConfigDebug {
     isChanged = setKey(opt, 'debug.tile', url.get('debug.tile') != null) || isChanged;
     isChanged = setKey(opt, 'debug.source', url.get('debug.source') != null) || isChanged;
     isChanged = setKey(opt, 'debug.cog', url.get('debug.cog') != null) || isChanged;
+    isChanged = setKey(opt, 'debug.capture-area', url.get('debug.capture-area') != null) || isChanged;
     isChanged = setKey(opt, 'debug.screenshot', url.get('debug.screenshot') != null) || isChanged;
     isChanged = setNum(opt, 'debug.layer.linz-aerial', url.get('debug.layer.linz-aerial')) || isChanged;
     isChanged = setNum(opt, 'debug.layer.linz-topographic', url.get('debug.layer.linz-topographic')) || isChanged;

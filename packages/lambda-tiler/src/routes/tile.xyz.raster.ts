@@ -110,7 +110,7 @@ export const TileXyzRaster = {
 
     // Remove with typescript >=5.5.0
 
-    return (await Promise.all(toLoad)).filter((f) => f != null) as CloudArchive[];
+    return (await Promise.all(toLoad)).filter((f) => f != null);
   },
 
   async getAssetsForTile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<URL[]> {
