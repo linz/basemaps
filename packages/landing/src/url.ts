@@ -64,7 +64,8 @@ export const WindowUrl = {
   },
 
   toImageryUrl(layerId: string, imageryType: string): string {
-    return `${this.baseUrl()}/v1/imagery/${layerId}/${imageryType}`;
+    const query = toQueryString({ config: ensureBase58(Config.map.config) });
+    return `${this.baseUrl()}/v1/imagery/${layerId}/${imageryType}${query}`;
   },
 
   toTileUrl(params: TileUrlParams): string {
