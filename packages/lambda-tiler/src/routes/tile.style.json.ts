@@ -70,6 +70,7 @@ export function convertStyleJson(
   if (style.metadata) styleJson.metadata = style.metadata;
   if (style.glyphs) styleJson.glyphs = convertRelativeUrl(style.glyphs, undefined, undefined, config);
   if (style.sprite) styleJson.sprite = convertRelativeUrl(style.sprite, undefined, undefined, config);
+  if (style.sky) styleJson.sky = style.sky;
 
   return styleJson;
 }
