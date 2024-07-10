@@ -43,19 +43,19 @@ export interface Layer {
 /** Sky MapLibre Style Spec, all valuables support interpolate expressions, as unknown format */
 export interface Sky {
   /** The base color for the sky. Optional Defaults to #88C6FC */
-  'sky-color'?: unknown;
+  'sky-color'?: string | unknown[];
   /** The base color at the horizon. Optional Defaults to #ffffff */
-  'horizon-color'?: unknown;
+  'horizon-color'?: string | unknown[];
   /** The base color for the fog. Requires 3D terrain. Optional Defaults to #ffffff */
-  'fog-color'?: unknown;
+  'fog-color'?: string | unknown[];
   /** How to blend the fog over the 3D terrain. Optional number in range [0, 1]. Defaults to 0.5 */
-  'fog-ground-blend'?: unknown;
+  'fog-ground-blend'?: number | unknown[];
   /** How to blend the fog color and the horizon color. Optional number in range [0, 1]. Defaults to 0.8. */
-  'horizon-fog-blend'?: unknown;
+  'horizon-fog-blend'?: number | unknown[];
   /** How to blend the the sky color and the horizon color. Optional number in range [0, 1]. Defaults to 0.8. */
-  'sky-horizon-blend'?: unknown;
+  'sky-horizon-blend'?: number | unknown[];
   /** How to blend the atmosphere. Optional number in range [0, 1]. Defaults to 0.8. */
-  'atmosphere-blend'?: unknown;
+  'atmosphere-blend'?: number | unknown[];
 }
 
 export interface Terrain {
