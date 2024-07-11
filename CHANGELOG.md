@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+
+### Bug Fixes
+
+* **cogify:** publish dist folder ([#3309](https://github.com/linz/basemaps/issues/3309)) ([6610322](https://github.com/linz/basemaps/commit/6610322a12b89c20060346b24763c62e0225e3bf))
+* compiler issue with typescript v5.5.x ([#3310](https://github.com/linz/basemaps/issues/3310)) ([2734115](https://github.com/linz/basemaps/commit/2734115cae3377348484f15c27fd4efdb079dcc5))
+* **landing:** Need to pass config parameter into imagery api ([#3313](https://github.com/linz/basemaps/issues/3313)) ([ab711d6](https://github.com/linz/basemaps/commit/ab711d66b103aa0fc252c08c1636c0c94a645b0f))
+
+
+### Features
+
+* **config:** Update the config to support sky in the style json. BM-1052 ([#3314](https://github.com/linz/basemaps/issues/3314)) ([60db515](https://github.com/linz/basemaps/commit/60db515cab6619302c1bda25023007d433f1a408))
+* **landing:** Add capture area into debug page. BM-1048 ([#3311](https://github.com/linz/basemaps/issues/3311)) ([07b8aeb](https://github.com/linz/basemaps/commit/07b8aebd6dbc25045647739999f2d3e5f2602106))
+* **landing:** Disable capture area checkbox if capture-area.geojson not exists. ([#3312](https://github.com/linz/basemaps/issues/3312)) ([5a1d633](https://github.com/linz/basemaps/commit/5a1d633875daac1c2a112958687bb72b193f0437))
+
+
+
+
+
 # [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
 
 

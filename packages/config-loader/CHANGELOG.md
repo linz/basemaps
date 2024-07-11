@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+
+### Features
+
+* **config:** Update the config to support sky in the style json. BM-1052 ([#3314](https://github.com/linz/basemaps/issues/3314)) ([60db515](https://github.com/linz/basemaps/commit/60db515cab6619302c1bda25023007d433f1a408))
+
+
+
+
+
 # [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
 
 

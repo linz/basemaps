@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+
+### Bug Fixes
+
+* compiler issue with typescript v5.5.x ([#3310](https://github.com/linz/basemaps/issues/3310)) ([2734115](https://github.com/linz/basemaps/commit/2734115cae3377348484f15c27fd4efdb079dcc5))
+
+
+
+
+
 # [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
 
 **Note:** Version bump only for package @basemaps/shared
