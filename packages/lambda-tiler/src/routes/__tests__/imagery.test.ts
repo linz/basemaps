@@ -4,7 +4,7 @@ import { before, beforeEach, describe, it } from 'node:test';
 import { ConfigProviderMemory } from '@basemaps/config';
 import { fsa, FsMemory } from '@chunkd/fs';
 
-import { FakeData, Imagery3857 } from '../../__tests__/config.data.js';
+import { Imagery3857 } from '../../__tests__/config.data.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
