@@ -457,7 +457,9 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   getSourcesIds(type: string): string[] {
     const style = this.props.map.getStyle();
     if (type === 'raster-dem') {
-      return Object.keys(style.sources).filter((id) => !id.startsWith(HillShadePrefix) && style.sources[id].type === type);
+      return Object.keys(style.sources).filter(
+        (id) => !id.startsWith(HillShadePrefix) && style.sources[id].type === type,
+      );
     } else if (type === 'raster') {
       return Object.keys(style.sources).filter((id) => id.startsWith('basemaps') && style.sources[id].type === type);
     } else throw new Error('Only support to get raster or raster-dem sources for debug dropdown.');
