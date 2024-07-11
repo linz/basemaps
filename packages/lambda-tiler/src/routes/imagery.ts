@@ -51,6 +51,10 @@ export async function imageryGet(req: LambdaHttpRequest<ImageryGet>): Promise<La
     response.header(HttpHeader.ETag, cacheKey);
     response.header(HttpHeader.ContentEncoding, 'gzip');
     response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
+    // Force geojson files to be downloaded
+    if (requestedFile.endsWith('.geojson')) {
+      response.header('Content-Disposition', 'attachment');
+    }
     response.buffer(isGzip(buf) ? buf : await gzipP(buf), 'application/json');
     req.set('bytes', buf.byteLength);
     return response;
