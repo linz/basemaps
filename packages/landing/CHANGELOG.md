@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+
+### Bug Fixes
+
+* **landing:** Need to pass config parameter into imagery api ([#3313](https://github.com/linz/basemaps/issues/3313)) ([ab711d6](https://github.com/linz/basemaps/commit/ab711d66b103aa0fc252c08c1636c0c94a645b0f))
+
+
+### Features
+
+* **landing:** Add capture area into debug page. BM-1048 ([#3311](https://github.com/linz/basemaps/issues/3311)) ([07b8aeb](https://github.com/linz/basemaps/commit/07b8aebd6dbc25045647739999f2d3e5f2602106))
+* **landing:** Disable capture area checkbox if capture-area.geojson not exists. ([#3312](https://github.com/linz/basemaps/issues/3312)) ([5a1d633](https://github.com/linz/basemaps/commit/5a1d633875daac1c2a112958687bb72b193f0437))
+
+
+
+
+
 # [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
 
 
