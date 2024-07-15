@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+
+### Bug Fixes
+
+* **cogify:** publish dist folder ([#3309](https://github.com/linz/basemaps/issues/3309)) ([6610322](https://github.com/linz/basemaps/commit/6610322a12b89c20060346b24763c62e0225e3bf))
+
+
+
+
+
 # [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
 
 
