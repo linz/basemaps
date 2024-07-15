@@ -24,7 +24,6 @@ export interface DebugState {
   'debug.terrain': string | null;
   /** What layer should be visible only */
   'debug.layer': string | null;
-
   /** Should a hillshade be shown */
   'debug.hillshade': string | null;
 }
