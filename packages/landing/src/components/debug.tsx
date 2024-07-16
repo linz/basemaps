@@ -454,7 +454,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
-  getSourcesIds(type: string): string[] {
+  getSourcesIds(type: 'raster' | 'raster-dem'): string[] {
     const style = this.props.map.getStyle();
     if (type === 'raster-dem') {
       return Object.keys(style.sources).filter(
