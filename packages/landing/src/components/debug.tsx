@@ -107,6 +107,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
       if (Config.map.debug['debug.screenshot']) {
         async function addLoadedDiv(): Promise<void> {
+          if (!map.loaded()) return;
           // Ensure the attribution data has loaded
           await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
@@ -117,7 +118,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           loadedDiv.style.height = '1px';
           document.body.appendChild(loadedDiv);
         }
-        void map.once('idle', () => {
+        void map.on('idle', () => {
           void addLoadedDiv();
         });
       }
