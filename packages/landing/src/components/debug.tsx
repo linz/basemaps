@@ -111,6 +111,10 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           if (Config.map.debug['debug.hillshade']) {
             if (!map.isSourceLoaded(`${HillShadePrefix}${Config.map.debug['debug.hillshade']}`)) return;
           }
+          // Ensure terrain source is loaded
+          if (Config.map.debug['debug.terrain']) {
+            if (!map.isSourceLoaded(Config.map.debug['debug.terrain'])) return;
+          }
           // Ensure the attribution data has loaded
           await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
@@ -121,10 +125,16 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           loadedDiv.style.height = '1px';
           document.body.appendChild(loadedDiv);
         }
+
         void map.on('sourcedata', (e) => {
+          if (e.source.type !== 'raster-dem') return;
           if (e.isSourceLoaded) {
             void addLoadedDiv();
           }
+        });
+
+        void map.on('idle', () => {
+          void addLoadedDiv();
         });
       }
     });
