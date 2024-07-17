@@ -121,8 +121,10 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           loadedDiv.style.height = '1px';
           document.body.appendChild(loadedDiv);
         }
-        void map.on('idle', () => {
-          void addLoadedDiv();
+        void map.on('sourcedata', (e) => {
+          if (e.isSourceLoaded) {
+            void addLoadedDiv();
+          }
         });
       }
     });
