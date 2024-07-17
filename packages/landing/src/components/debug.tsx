@@ -107,7 +107,10 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
       if (Config.map.debug['debug.screenshot']) {
         async function addLoadedDiv(): Promise<void> {
-          if (!map.loaded()) return;
+          // Ensure hillshade source is loaded
+          if (Config.map.debug['debug.hillshade']) {
+            if (!map.isSourceLoaded(`${HillShadePrefix}${Config.map.debug['debug.hillshade']}`)) return;
+          }
           // Ensure the attribution data has loaded
           await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
