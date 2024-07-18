@@ -25,6 +25,7 @@ async function main(): Promise<void> {
     application: 'basemaps',
     environment: IsProduction ? 'prod' : 'nonprod',
     group: 'li',
+    impact: 'moderate',
     classification: SecurityClassification.Unclassified,
   } as const;
 
@@ -71,7 +72,7 @@ async function main(): Promise<void> {
       distributionId: edgeParams.CloudFrontDistributionId,
     });
     analytics.addDependency(edge);
-    applyTags(analytics, commonTags);
+    applyTags(analytics, { ...commonTags, impact: 'minor' });
   }
 }
 
