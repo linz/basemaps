@@ -107,18 +107,18 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
       if (Config.map.debug['debug.screenshot']) {
         async function addLoadedDiv(): Promise<void> {
-          // Ensure hillshade source is loaded
-          const hillShadeSourceId = `${HillShadePrefix}${Config.map.debug['debug.hillshade']}`;
-          if (Config.map.debug['debug.hillshade']) {
-            if (map.getSource(hillShadeSourceId) == null) return;
-            if (!map.isSourceLoaded(hillShadeSourceId)) return;
-          }
-          // Ensure terrain source is loaded
-          if (Config.map.debug['debug.terrain']) {
-            if (map.getSource(Config.map.debug['debug.terrain']) == null) return;
-            if (!map.isSourceLoaded(Config.map.debug['debug.terrain'])) return;
-          }
-          // Ensure the attribution data has loaded
+          // // Ensure hillshade source is loaded
+          // const hillShadeSourceId = `${HillShadePrefix}${Config.map.debug['debug.hillshade']}`;
+          // if (Config.map.debug['debug.hillshade']) {
+          //   if (map.getSource(hillShadeSourceId) == null) return;
+          //   if (!map.isSourceLoaded(hillShadeSourceId)) return;
+          // }
+          // // Ensure terrain source is loaded
+          // if (Config.map.debug['debug.terrain']) {
+          //   if (map.getSource(Config.map.debug['debug.terrain']) == null) return;
+          //   if (!map.isSourceLoaded(Config.map.debug['debug.terrain'])) return;
+          // }
+          // // Ensure the attribution data has loaded
           await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
           // Jam a div into the page once the map has loaded so tools like playwright can see the map has finished loading
@@ -129,12 +129,13 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           document.body.appendChild(loadedDiv);
         }
 
-        void map.on('sourcedata', (e) => {
-          if (e.source.type !== 'raster-dem') return;
-          void addLoadedDiv();
-        });
+        // void map.on('sourcedata', (e) => {
+        //   if (e.source.type !== 'raster-dem') return;
+        //   void addLoadedDiv();
+        // });
 
-        void map.on('idle', () => {
+        void map.once('idle', () => {
+          // Ensure hillshade and terrain source is loaded
           this.updateFromConfig();
           void addLoadedDiv();
         });
