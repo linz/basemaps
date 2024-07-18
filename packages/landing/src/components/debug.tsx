@@ -108,11 +108,14 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       if (Config.map.debug['debug.screenshot']) {
         async function addLoadedDiv(): Promise<void> {
           // Ensure hillshade source is loaded
+          const hillShadeSourceId = `${HillShadePrefix}${Config.map.debug['debug.hillshade']}`;
           if (Config.map.debug['debug.hillshade']) {
-            if (!map.isSourceLoaded(`${HillShadePrefix}${Config.map.debug['debug.hillshade']}`)) return;
+            if (map.getSource(hillShadeSourceId) == null) return;
+            if (!map.isSourceLoaded(hillShadeSourceId)) return;
           }
           // Ensure terrain source is loaded
           if (Config.map.debug['debug.terrain']) {
+            if (map.getSource(Config.map.debug['debug.terrain']) == null) return;
             if (!map.isSourceLoaded(Config.map.debug['debug.terrain'])) return;
           }
           // Ensure the attribution data has loaded
@@ -128,12 +131,11 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
         void map.on('sourcedata', (e) => {
           if (e.source.type !== 'raster-dem') return;
-          if (e.isSourceLoaded) {
-            void addLoadedDiv();
-          }
+          void addLoadedDiv();
         });
 
         void map.on('idle', () => {
+          this.updateFromConfig();
           void addLoadedDiv();
         });
       }
@@ -364,6 +366,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       source: hillShadeSourceId,
       paint: { 'hillshade-shadow-color': '#040404' },
     });
+    map;
   }
 
   setTerrainShown(sourceId: string | null): void {
