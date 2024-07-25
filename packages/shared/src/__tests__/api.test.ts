@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { decodeTime, encodeTime, ulid } from 'ulid';
 
-import { getApiKey, OneDayMs, truncateApiKey } from '../api.js';
+import { getApiKey, isValidApiKey, OneDayMs, truncateApiKey } from '../api.js';
 
 declare const global: {
   localStorage?: { getItem: (a: string) => string | null; setItem: (k: string, v: string) => void };
@@ -36,6 +36,11 @@ describe('ApiKey', () => {
     const newKey = 'c' + ulid().toLowerCase();
     currentValue = newKey;
     assert.equal(getApiKey(), newKey);
+  });
+
+  it('should allow api keys that are very old', () => {
+    const fakeUlid = 'c' + encodeTime(new Date('2020-01-01T00:00:00.000Z').getTime(), 10) + ulid().slice(10);
+    assert.deepEqual(isValidApiKey(fakeUlid), { valid: true, key: fakeUlid });
   });
 
   it('should generate new keys after they expire', (t) => {

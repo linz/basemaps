@@ -4,7 +4,7 @@ const hasLocalStorage = (): boolean => typeof localStorage !== 'undefined';
 export const OneDayMs = 24 * 60 * 60 * 1000;
 /** Generate a new api key for the user every 30 days */
 const ApiKeyExpireMs = 30 * OneDayMs;
-const ApiKeyMaxAgeMs = 91 * OneDayMs;
+export const ApiKeyMaxAgeMs = 91 * OneDayMs;
 
 function newApiKey(): string {
   const newKey = 'c' + ulid().toLowerCase();
@@ -46,10 +46,11 @@ export function isValidApiKey(apiKey?: string | null): ApiKeyStatus {
   if (!apiKey.startsWith('c') && !apiKey.startsWith('d')) return { valid: false, message: 'malformed' };
   const ulidId = apiKey.slice(1).toUpperCase();
   try {
-    const ulidTime = decodeTime(ulidId);
+    decodeTime(ulidId); // validate the key looks valid
     if (apiKey.startsWith('d')) return { valid: true, key: apiKey };
 
-    if (Date.now() - ulidTime > ApiKeyMaxAgeMs) return { valid: false, message: 'expired' };
+    // Re-enable to disable older api keys
+    // if (Date.now() - ulidTime > ApiKeyMaxAgeMs) return { valid: false, message: 'expired' };
   } catch (e) {
     return { valid: false, message: 'malformed' };
   }
