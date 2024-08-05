@@ -107,6 +107,10 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
       if (Config.map.debug['debug.screenshot']) {
         async function addLoadedDiv(): Promise<void> {
+          // Skip if map-loaded exists
+          const id = 'map-loaded';
+          const existingDiv = document.getElementById(id);
+          if (existingDiv) return;
           // Ensure the attribution data has loaded
           await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
@@ -118,7 +122,19 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           document.body.appendChild(loadedDiv);
         }
 
-        void map.once('idle', () => {
+        async function removeLoadedDiv(): Promise<void> {
+          // Check map-loaded div and remove if exists
+          const id = 'map-loaded';
+          const loadedDiv = document.getElementById(id);
+          if (loadedDiv) loadedDiv.remove();
+        }
+
+        void map.on('data', () => {
+          // Remove the map-loaded div if exists
+          void removeLoadedDiv();
+        });
+
+        void map.on('idle', () => {
           // Ensure hillshade and terrain source is loaded
           this.updateFromConfig();
           void addLoadedDiv();
