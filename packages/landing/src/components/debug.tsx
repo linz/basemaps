@@ -122,7 +122,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           document.body.appendChild(loadedDiv);
         }
 
-        async function removeLoadedDiv(): Promise<void> {
+        function removeLoadedDiv(): void {
           // Check map-loaded div and remove if exists
           const id = 'map-loaded';
           const loadedDiv = document.getElementById(id);
