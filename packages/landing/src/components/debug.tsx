@@ -29,6 +29,8 @@ export interface DebugState {
 const HillShadeLayerId = 'debug-hillshade';
 /** dynamic hillshade sources are prefixed with this key */
 const HillShadePrefix = '__hillshade-';
+/** dynamic linz-elevation source key */
+const elevationPrefixedId = '__terrain-linz-elevation';
 
 interface DropDownContext {
   /** Label for the drop down */
@@ -168,6 +170,13 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.setVectorShown(target.checked, debugTypes['capture-area']);
   };
 
+  /** Show LINZ Elevation Terrain on the map */
+  toggleElevation: ChangeEventHandler = (e) => {
+    const target = e.target as HTMLInputElement;
+    const sourceId = target.checked ? elevationPrefixedId : null;
+    this.setTerrainShown(sourceId);
+  };
+
   _loadingConfig: Promise<void> = Promise.resolve();
   async loadConfig(): Promise<void> {
     const tileSetId = Config.map.layerId;
@@ -224,6 +233,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         {this.renderCogToggle()}
         {this.renderSourceToggle()}
         {this.renderCaptureAreaToggle()}
+        {this.renderElevationToggle()}
         {this.renderTileToggle()}
         {this.renderRasterSourceDropdown()}
         {this.renderDemSourceDropdown(demSources)}
@@ -352,10 +362,26 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
   setTerrainShown(sourceId: string | null): void {
     Config.map.setDebug('debug.terrain', sourceId);
-
     const map = this.props.map;
-    const isTurnOff = sourceId === 'off' || sourceId == null;
+    if (sourceId === elevationPrefixedId) {
+      // Enable default linz-elevation terrain
+      if (map.getSource(sourceId) == null) {
+        const url = WindowUrl.toTileUrl({
+          urlType: MapOptionType.TileRaster,
+          tileMatrix: Config.map.tileMatrix,
+          layerId: 'elevation',
+          pipeline: 'terrain-rgb',
+          imageFormat: 'png',
+        });
+        map.addSource(sourceId, {
+          type: 'raster-dem',
+          tiles: [url],
+          tileSize: 256,
+        });
+      }
+    }
 
+    const isTurnOff = sourceId === 'off' || sourceId == null;
     const currentTerrain = map.getTerrain();
     if (isTurnOff) {
       map.setTerrain(null);
@@ -454,11 +480,26 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
+  renderElevationToggle(): ReactNode {
+    return (
+      <Fragment>
+        <div className="debug__info">
+          <label className="debug__label">LINZ Elevation</label>
+          <input
+            type="checkbox"
+            onChange={this.toggleElevation}
+            checked={Config.map.debug['debug.terrain'] === elevationPrefixedId}
+          />
+        </div>
+      </Fragment>
+    );
+  }
+
   getSourcesIds(type: string): string[] {
     const style = this.props.map.getStyle();
     if (type === 'raster-dem') {
       return Object.keys(style.sources).filter(
-        (id) => !id.startsWith(HillShadePrefix) && style.sources[id].type === type,
+        (id) => !id.startsWith(HillShadePrefix) && id !== elevationPrefixedId && style.sources[id].type === type,
       );
     } else if (type === 'raster') {
       return Object.keys(style.sources).filter((id) => id.startsWith('basemaps') && style.sources[id].type === type);
