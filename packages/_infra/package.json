@@ -28,7 +28,7 @@
     "@aws-sdk/client-cloudformation": "^3.470.0",
     "@basemaps/lambda-tiler": "^7.7.0",
     "@basemaps/shared": "^7.7.0",
-    "@linzjs/cdk-tags": "^1.6.0",
+    "@linzjs/cdk-tags": "^1.7.0",
     "aws-cdk": "2.114.x",
     "aws-cdk-lib": "2.114.x",
     "constructs": "^10.3.0"

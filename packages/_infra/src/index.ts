@@ -1,6 +1,6 @@
 import { ACMClient, ListCertificatesCommand } from '@aws-sdk/client-acm';
 import { Env } from '@basemaps/shared';
-import { applyTags, SecurityClassification } from '@linzjs/cdk-tags';
+import { applyTags, SecurityClassification, TagsBase } from '@linzjs/cdk-tags';
 import { App } from 'aws-cdk-lib';
 
 import { EdgeAnalytics } from './analytics/edge.analytics.js';
@@ -21,13 +21,14 @@ async function findCertForDomain(region: string, domain: string): Promise<string
 async function main(): Promise<void> {
   const basemaps = new App();
 
-  const commonTags = {
+  const commonTags: TagsBase = {
     application: 'basemaps',
     environment: IsProduction ? 'prod' : 'nonprod',
     group: 'li',
     impact: 'moderate',
     classification: SecurityClassification.Unclassified,
-  } as const;
+    responderTeam: 'LINZ - Basemaps',
+  };
 
   /** Using VPC lookups requires a hard coded AWS "account" */
   const account = Env.get(DeployEnv.CdkAccount);
