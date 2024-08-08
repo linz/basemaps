@@ -154,7 +154,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.tileMatrix.identifier !== GoogleTms.identifier) urlParams.append('tileMatrix', opts.tileMatrix.identifier);
     // Config by far the longest so make it the last parameter
     if (opts.config) urlParams.append('config', ensureBase58(opts.config));
-    if (opts.terrain) urlParams.append('terrain', opts.terrain);
+    // We don't need to set terrain parameter for debug, as we got debug.terrain parameter to replace
+    if (opts.terrain && !opts.isDebug) urlParams.append('terrain', opts.terrain);
 
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
