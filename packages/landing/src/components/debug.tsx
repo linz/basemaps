@@ -107,10 +107,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
 
       if (Config.map.debug['debug.screenshot']) {
         async function addLoadedDiv(): Promise<void> {
-          // Skip if map-loaded exists
-          const id = 'map-loaded';
-          const existingDiv = document.getElementById(id);
-          if (existingDiv) return;
           // Ensure the attribution data has loaded
           await MapAttrState.getCurrentAttribution();
           await new Promise((r) => setTimeout(r, 250));
@@ -122,22 +118,14 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           document.body.appendChild(loadedDiv);
         }
 
-        function removeLoadedDiv(): void {
-          // Check map-loaded div and remove if exists
-          const id = 'map-loaded';
-          const loadedDiv = document.getElementById(id);
-          if (loadedDiv) loadedDiv.remove();
-        }
-
-        void map.on('data', () => {
-          // Remove the map-loaded div if exists
-          void removeLoadedDiv();
-        });
-
-        void map.on('idle', () => {
-          // Ensure hillshade and terrain source is loaded
-          this.updateFromConfig();
-          void addLoadedDiv();
+        void map.once('idle', () => {
+          if (Config.map.debug['debug.terrain'] || Config.map.debug['debug.hillshade']) {
+            // Ensure hillshade and terrain source is loaded and wait for 2s
+            this.updateFromConfig();
+            setTimeout(() => void addLoadedDiv(), 2000);
+          } else {
+            void addLoadedDiv();
+          }
         });
       }
     });
@@ -329,16 +317,16 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   };
 
   setHillShadeShown(sourceId: string | null): void {
-    Config.map.setDebug('debug.hillshade', sourceId);
     const map = this.props.map;
     const isTurnOff = sourceId === 'off' || sourceId == null;
 
     const currentLayer = map.getLayer(HillShadeLayerId);
     if (isTurnOff) {
+      Config.map.setDebug('debug.hillshade', null);
       if (currentLayer) map.removeLayer(HillShadeLayerId);
       return;
     }
-
+    Config.map.setDebug('debug.hillshade', sourceId);
     if (currentLayer?.source === sourceId) return;
 
     // Hillshading from an existing raster-dem source gives very mixed results and looks very blury
@@ -370,16 +358,16 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   setTerrainShown(sourceId: string | null): void {
-    Config.map.setDebug('debug.terrain', sourceId);
-
     const map = this.props.map;
     const isTurnOff = sourceId === 'off' || sourceId == null;
-
     const currentTerrain = map.getTerrain();
     if (isTurnOff) {
+      Config.map.setDebug('debug.terrain', null);
       map.setTerrain(null);
       return;
     }
+
+    Config.map.setDebug('debug.terrain', sourceId);
 
     const target = getTerrainForSource(sourceId, Config.map.tileMatrix);
     // no changes
