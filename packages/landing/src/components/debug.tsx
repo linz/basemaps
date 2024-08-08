@@ -30,7 +30,7 @@ const HillShadeLayerId = 'debug-hillshade';
 /** dynamic hillshade sources are prefixed with this key */
 const HillShadePrefix = '__hillshade-';
 /** dynamic linz-elevation source key */
-const elevationProdId = 'linz-elevation-prod';
+const elevationProdId = 'LINZ-Terrain-Prod';
 
 interface DropDownContext {
   /** Label for the drop down */
