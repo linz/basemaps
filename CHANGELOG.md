@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.8.0](https://github.com/linz/basemaps/compare/v7.7.0...v7.8.0) (2024-08-11)
+
+
+### Features
+
+* **infra:** add responder team tag ([#3322](https://github.com/linz/basemaps/issues/3322)) ([b69942d](https://github.com/linz/basemaps/commit/b69942d324a6d0cc3ecd86c5d1824bc70dba00c8))
+
+
+
+
+
+# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** prefer geojson files to be downloaded  BM-1048 ([#3316](https://github.com/linz/basemaps/issues/3316)) ([8391416](https://github.com/linz/basemaps/commit/8391416d89ab597c8fc16a7f4ee304b45ea3f619))
+* **landing:** Support Terrain for NZTM and add default LINZ-Terrain into debug ([#3307](https://github.com/linz/basemaps/issues/3307)) ([15a1aba](https://github.com/linz/basemaps/commit/15a1abaaa6255fd8edbc4e1ddfcdb22571ce6dc5))
+
+
+### Features
+
+* **shared:** allow old api keys BM-1057 ([#3320](https://github.com/linz/basemaps/issues/3320)) ([2ca23f7](https://github.com/linz/basemaps/commit/2ca23f76a69697983f16dc4911c7551d6b5ee131))
+
+
+
+
+
 # [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
 
 

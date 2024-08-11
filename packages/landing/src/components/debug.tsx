@@ -29,6 +29,8 @@ export interface DebugState {
 const HillShadeLayerId = 'debug-hillshade';
 /** dynamic hillshade sources are prefixed with this key */
 const HillShadePrefix = '__hillshade-';
+/** dynamic linz-elevation source key */
+const elevationProdId = 'LINZ-Terrain-Prod';
 
 interface DropDownContext {
   /** Label for the drop down */
@@ -357,8 +359,34 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     });
   }
 
-  setTerrainShown(sourceId: string | null): void {
+  /**
+   * Add a terrain source that points to production elevation data for debug
+   */
+  ensureElevationProd(): void {
     const map = this.props.map;
+    // Enable default linz-elevation terrain
+    if (map.getSource(elevationProdId) == null) {
+      const url = WindowUrl.toTileUrl({
+        urlType: MapOptionType.TileRaster,
+        tileMatrix: Config.map.tileMatrix,
+        layerId: 'elevation',
+        pipeline: 'terrain-rgb',
+        imageFormat: 'png',
+      });
+      map.addSource(elevationProdId, {
+        type: 'raster-dem',
+        tiles: [url],
+        tileSize: 256,
+      });
+    }
+  }
+
+  setTerrainShown(sourceId: string | null): void {
+    this.ensureElevationProd();
+    // Avoid to set debug.terrain for dynamic source, this will return null from the getStyle API with random terrain parameter
+    Config.map.setDebug('debug.terrain', sourceId);
+    const map = this.props.map;
+
     const isTurnOff = sourceId === 'off' || sourceId == null;
     const currentTerrain = map.getTerrain();
     if (isTurnOff) {

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+
+
+### Features
+
+* **shared:** allow old api keys BM-1057 ([#3320](https://github.com/linz/basemaps/issues/3320)) ([2ca23f7](https://github.com/linz/basemaps/commit/2ca23f76a69697983f16dc4911c7551d6b5ee131))
+
+
+
+
+
 # [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
 
 

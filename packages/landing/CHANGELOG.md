@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.8.0](https://github.com/linz/basemaps/compare/v7.7.0...v7.8.0) (2024-08-11)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+
+
+### Bug Fixes
+
+* **landing:** Support Terrain for NZTM and add default LINZ-Terrain into debug ([#3307](https://github.com/linz/basemaps/issues/3307)) ([15a1aba](https://github.com/linz/basemaps/commit/15a1abaaa6255fd8edbc4e1ddfcdb22571ce6dc5))
+
+
+
+
+
 # [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
 
 
