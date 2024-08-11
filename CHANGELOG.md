@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.8.0](https://github.com/linz/basemaps/compare/v7.7.0...v7.8.0) (2024-08-11)
+
+
+### Features
+
+* **infra:** add responder team tag ([#3322](https://github.com/linz/basemaps/issues/3322)) ([b69942d](https://github.com/linz/basemaps/commit/b69942d324a6d0cc3ecd86c5d1824bc70dba00c8))
+
+
+
+
+
 # [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
 
 
