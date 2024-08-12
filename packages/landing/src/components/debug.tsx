@@ -61,6 +61,11 @@ function debugSourceDropdown(ctx: DropDownContext): ReactNode {
   );
 }
 
+/** Upper case the first character of the string */
+function upperCaseFirstChar(c: string): string {
+  return c[0].toUpperCase() + c.slice(1);
+}
+
 function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput: FormEventHandler): ReactNode {
   return (
     <input
@@ -564,7 +569,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     const map = this.props.map;
 
     let lastFeatureId: string | number | undefined;
-    const stateName = type.name === `feature-${type.name}`;
+    // State names are `featureSource` or `featureCog` etc.
+    const stateName = `feature${upperCaseFirstChar(type.name)}`;
 
     // Onclick copy the location into the clipboard
     map.on('click', layerFillId, (e) => {
