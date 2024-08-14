@@ -78,8 +78,8 @@ export class MapSwitcher extends Component {
 
     this.map.setZoom(Math.max(location.zoom - 4, 0));
     this.map.setCenter([location.lon, location.lat]);
-    if (Config.map.location.bearing != null) this.map.setBearing(Config.map.location.bearing);
-    if (Config.map.location.pitch != null) this.map.setPitch(Config.map.location.pitch);
+    this.map.setBearing(Config.map.location.bearing ?? 0);
+    this.map.setPitch(Config.map.location.pitch ?? 0);
     this.forceUpdate();
   };
 
