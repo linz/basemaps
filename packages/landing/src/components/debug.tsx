@@ -124,8 +124,17 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           loadedDiv.style.height = '1px';
           document.body.appendChild(loadedDiv);
         }
+
         void map.once('idle', () => {
-          void addLoadedDiv();
+          const isTerrainOn = Config.map.debug['debug.terrain'] != null && Config.map.debug['debug.terrain'] !== 'off';
+          const isHSOn = Config.map.debug['debug.hillshade'] != null && Config.map.debug['debug.hillshade'] !== 'off';
+          if (isTerrainOn || isHSOn) {
+            // Ensure hillshade and terrain source is loaded and wait for 2s
+            this.updateFromConfig();
+            setTimeout(() => void addLoadedDiv(), 2000);
+          } else {
+            void addLoadedDiv();
+          }
         });
       }
     });
@@ -326,7 +335,6 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       if (currentLayer) map.removeLayer(HillShadeLayerId);
       return;
     }
-
     if (currentLayer?.source === sourceId) return;
 
     // Hillshading from an existing raster-dem source gives very mixed results and looks very blury
@@ -484,7 +492,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     );
   }
 
-  getSourcesIds(type: string): string[] {
+  getSourcesIds(type: 'raster' | 'raster-dem'): string[] {
     const style = this.props.map.getStyle();
     if (type === 'raster-dem') {
       return Object.keys(style.sources).filter(
