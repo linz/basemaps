@@ -83,7 +83,7 @@ docker run --rm \
 ```
 
 !!! note
-Basemaps logs into structured JSON log format it can be useful to run a pretty printer over it such as [pretty-json-log](https://www.npmjs.com/package/pretty-json-log)
+    Basemaps logs into structured JSON log format it can be useful to run a pretty printer over it such as [pretty-json-log](https://www.npmjs.com/package/pretty-json-log)
 
     ```bash
     docker run --rm \
