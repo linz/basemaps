@@ -1,6 +1,6 @@
 import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
 import { Bounds, Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Cotar, Env, LogConfig, stringToUrlFolder, Tiff } from '@basemaps/shared';
+import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { getImageFormat, Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -109,7 +109,6 @@ export const TileXyzRaster = {
     }
 
     // Remove with typescript >=5.5.0
-
     return (await Promise.all(toLoad)).filter((f) => f != null);
   },
 
