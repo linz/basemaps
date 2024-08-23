@@ -7,54 +7,42 @@ export type LruStrut = LruStrutCotar | LruStrutCog;
 export interface LruStrutCotar {
   type: 'cotar';
   value: Promise<Cotar>;
-  _value?: Cotar;
+  size: number;
 }
 
 export interface LruStrutCog {
   type: 'cog';
   value: Promise<Tiff>;
-  _value?: Tiff;
-}
-
-class LruStrutObj<T extends LruStrut> {
-  ob: T;
-  constructor(ob: T) {
-    this.ob = ob;
-    if (this.ob._value == null) {
-      void this.ob.value.then((c) => (this.ob._value = c));
-    }
-  }
-
-  size = 1;
+  size: number;
 }
 
 export class SourceCache {
-  cache: SwappingLru<LruStrutObj<LruStrutCotar | LruStrutCog>>;
+  cache: SwappingLru<LruStrut>;
   constructor(maxSize: number) {
-    this.cache = new SwappingLru<LruStrutObj<LruStrut>>(maxSize);
+    this.cache = new SwappingLru<LruStrut>(maxSize);
   }
 
   getCog(location: URL): Promise<Tiff> {
-    const existing = this.cache.get(location.href)?.ob;
+    const existing = this.cache.get(location.href);
 
     if (existing != null) {
       if (existing.type === 'cog') return existing.value;
       throw new Error(`Existing object of type: ${existing.type} made for location: ${location.href}`);
     }
     const value = Tiff.create(fsa.source(location));
-    this.cache.set(location.href, new LruStrutObj({ type: 'cog', value }));
+    this.cache.set(location.href, { type: 'cog', value, size: 1 });
     return value;
   }
 
   getCotar(location: URL): Promise<Cotar> {
-    const existing = this.cache.get(location.href)?.ob;
+    const existing = this.cache.get(location.href);
 
     if (existing != null) {
       if (existing.type === 'cotar') return existing.value;
       throw new Error(`Existing object of type: ${existing.type} made for location: ${location.href}`);
     }
     const value = Cotar.fromTar(fsa.source(location));
-    this.cache.set(location.href, new LruStrutObj({ type: 'cotar', value }));
+    this.cache.set(location.href, { type: 'cotar', value, size: 1 });
     return value;
   }
 }

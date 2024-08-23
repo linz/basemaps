@@ -109,7 +109,6 @@ export const TileXyzRaster = {
     }
 
     // Remove with typescript >=5.5.0
-
     return (await Promise.all(toLoad)).filter((f) => f != null);
   },
 
