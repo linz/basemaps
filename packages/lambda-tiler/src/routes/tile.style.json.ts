@@ -69,6 +69,7 @@ export function convertStyleJson(
   if (style.glyphs) styleJson.glyphs = convertRelativeUrl(style.glyphs, undefined, undefined, config);
   if (style.sprite) styleJson.sprite = convertRelativeUrl(style.sprite, undefined, undefined, config);
   if (style.sky) styleJson.sky = style.sky;
+  if (style.terrain) styleJson.terrain = style.terrain;
 
   return styleJson;
 }
@@ -98,6 +99,7 @@ function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: TileMatr
 async function setStyleLabels(req: LambdaHttpRequest<StyleGet>, style: StyleJson): Promise<void> {
   const config = await ConfigLoader.load(req);
   const labels = await config.Style.get('labels');
+
   if (labels == null) {
     req.log.warn('LabelsStyle:Missing');
     return;
@@ -277,6 +279,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const config = await ConfigLoader.load(req);
   const dbId = config.Style.id(styleName);
   const styleConfig = await config.Style.get(dbId);
+
   if (styleConfig == null) {
     // Were we given a tileset name instead, generated
     const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
@@ -301,6 +304,7 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
 
   // Add terrain in style
   if (terrain) setStyleTerrain(style, terrain, tileMatrix);
+  if (labels) await setStyleLabels(req, style);
 
   const data = Buffer.from(JSON.stringify(style));
 

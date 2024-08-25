@@ -380,4 +380,24 @@ describe('/v1/styles', () => {
     assert.deepEqual(terrain.source, 'LINZ-Terrain');
     assert.deepEqual(terrain.exaggeration, 1.2);
   });
+
+  it('should set labels via parameter', async () => {
+    config.put(TileSetAerial);
+    config.put(TileSetElevation);
+
+    const fakeStyle = { id: 'st_labels', name: 'labels', style: fakeVectorStyleConfig };
+    config.put(fakeStyle);
+
+    const request = mockUrlRequest('/v1/styles/aerial.json', `?terrain=LINZ-Terrain&labels=true`, Api.header);
+    const res = await handler.router.handle(request);
+    assert.equal(res.status, 200, res.statusDescription);
+
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
+    const terrain = body.terrain as unknown as Terrain;
+    assert.deepEqual(terrain.source, 'LINZ-Terrain');
+    assert.deepEqual(terrain.exaggeration, 1.2);
+
+    assert.equal(body.sources['basemaps_vector']?.type, 'vector');
+    assert.equal(body.layers.length, 2);
+  });
 });
