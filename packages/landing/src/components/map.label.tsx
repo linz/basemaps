@@ -27,8 +27,6 @@ export class MapLabelControl implements IControl {
     this.button.appendChild(this.buttonIcon);
     this.container.appendChild(this.button);
 
-    // this.button.innerHTML = `<i class="material-icons  material-icons-outlined">more</span>`;
-
     this.events.push(Config.map.on('labels', this.updateLabelIcon));
     this.events.push(Config.map.on('layer', this.updateLabelIcon));
 
