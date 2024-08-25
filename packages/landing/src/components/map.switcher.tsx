@@ -24,7 +24,7 @@ export class MapSwitcher extends Component {
     const target = this.getStyleType();
     this.currentStyle = `${target.layerId}::${target.style}`;
 
-    const style = tileGrid.getStyle(target.layerId, target.style);
+    const style = tileGrid.getStyle({ layerId: target.layerId, style: target.style });
     const location = cfg.transformedLocation;
 
     this.map = new maplibre.Map({
@@ -71,7 +71,7 @@ export class MapSwitcher extends Component {
     const styleId = `${target.layerId}::${target.style}`;
     if (this.currentStyle !== styleId) {
       const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-      const style = tileGrid.getStyle(target.layerId, target.style);
+      const style = tileGrid.getStyle({ layerId: target.layerId, style: target.style });
       this.currentStyle = styleId;
       this.map.setStyle(style);
     }

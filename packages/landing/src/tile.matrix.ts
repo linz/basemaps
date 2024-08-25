@@ -2,8 +2,15 @@ import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Projection, TileMatrixSet } fr
 import { StyleSpecification } from 'maplibre-gl';
 
 import { Config } from './config.js';
-import { FilterDate } from './config.map.js';
 import { MapLocation, MapOptionType, WindowUrl } from './url.js';
+
+export interface TileGridStyle {
+  layerId: string;
+  style?: string | null;
+  config?: string | null;
+  terrain?: string | null;
+  labels?: boolean | null;
+}
 
 export class TileGrid {
   tileMatrix: TileMatrixSet;
@@ -13,21 +20,15 @@ export class TileGrid {
     this.extraZoomLevels = extraZoomLevels;
   }
 
-  getStyle(
-    layerId: string,
-    style?: string | null,
-    config = Config.map.config,
-    date?: FilterDate,
-    terrain = Config.map.terrain,
-  ): StyleSpecification | string {
+  getStyle(cfg: TileGridStyle): StyleSpecification | string {
     return WindowUrl.toTileUrl({
       urlType: MapOptionType.Style,
       tileMatrix: this.tileMatrix,
-      layerId,
-      style,
-      config,
-      date,
-      terrain,
+      layerId: cfg.layerId,
+      style: cfg.style,
+      config: cfg.config ?? Config.map.config,
+      terrain: cfg.terrain ?? Config.map.terrain,
+      labels: cfg.labels ?? Config.map.labels,
     });
   }
 }

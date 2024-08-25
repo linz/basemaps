@@ -222,3 +222,25 @@ have higher specifity than the default styles of the react-select component
 .LuiHeaderV2-menu-icon {
   padding-right: 8px;
 }
+
+
+/** Label control **/
+.maplibregl-ctrl-group .maplibregl-ctrl-labels {
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.maplibregl-ctrl-group .maplibregl-ctrl-labels-enabled {
+  color: #33b5e5;
+}
+
+.maplibregl-ctrl-labels i {
+  font-size: 20px;
+}
+
+
+.display-none {
+  display: none!important;
+}
