@@ -280,6 +280,8 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const dbId = config.Style.id(styleName);
   const styleConfig = await config.Style.get(dbId);
 
+  req.set('styleConfig', { terrain, labels });
+
   if (styleConfig == null) {
     // Were we given a tileset name instead, generated
     const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
