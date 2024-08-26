@@ -31,6 +31,7 @@ export class SourceCache {
     }
     const value = Tiff.create(fsa.source(location));
     this.cache.set(location.href, { type: 'cog', value, size: 1 });
+    value.catch(() => this.cache.delete(location.href));
     return value;
   }
 
@@ -43,6 +44,7 @@ export class SourceCache {
     }
     const value = Cotar.fromTar(fsa.source(location));
     this.cache.set(location.href, { type: 'cotar', value, size: 1 });
+    value.catch(() => this.cache.delete(location.href));
     return value;
   }
 }
