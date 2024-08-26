@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
+
+
+### Bug Fixes
+
+* **infra:** reduce cache keys below 10 to prevent deployment errors ([#3332](https://github.com/linz/basemaps/issues/3332)) ([49524c0](https://github.com/linz/basemaps/commit/49524c0dd62d60652e22c8e60e67936b69dd6abb))
+
+
+### Features
+
+* **landing:** show labels on landing page ([#3330](https://github.com/linz/basemaps/issues/3330)) ([b9fe33f](https://github.com/linz/basemaps/commit/b9fe33f05168f0ca6945bf5a3773ab5efe162fdd))
+
+
+
+
+
 # [7.8.0](https://github.com/linz/basemaps/compare/v7.7.0...v7.8.0) (2024-08-11)
 
 

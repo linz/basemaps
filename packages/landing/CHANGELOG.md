@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** do not join layers where ids would be duplicated ([#3334](https://github.com/linz/basemaps/issues/3334)) ([c2d51f2](https://github.com/linz/basemaps/commit/c2d51f270eae7d87d9656fa7cb47b6b96c31b3e4))
+* **landing:** Fix the map switcher that setting bearing and pitch to 0. BM-1063 ([#3326](https://github.com/linz/basemaps/issues/3326)) ([47304ff](https://github.com/linz/basemaps/commit/47304ff1f40b90352c4d4b2fad8000e93e8def2e))
+* **landing:** Only pass terrain request parameter to get style json api. BM-1068 ([#3327](https://github.com/linz/basemaps/issues/3327)) ([1dfb33a](https://github.com/linz/basemaps/commit/1dfb33aea90f2465383f96414c51a3a41d38d79a))
+* **landing:** put back the sourceId tracking logic BM-1062 ([#3325](https://github.com/linz/basemaps/issues/3325)) ([c25486c](https://github.com/linz/basemaps/commit/c25486c2d376bfe804e74143f79e2065a9f82f68)), closes [/github.com/linz/basemaps/commit/07b8aebd6dbc25045647739999f2d3e5f2602106#diff-935afb39a4daeb9c30850cda3e20eecf1fb8f5086b9172fef9a5e8539e5e99f5R529](https://github.com//github.com/linz/basemaps/commit/07b8aebd6dbc25045647739999f2d3e5f2602106/issues/diff-935afb39a4daeb9c30850cda3e20eecf1fb8f5086b9172fef9a5e8539e5e99f5R529)
+
+
+### Features
+
+* **landing:** Add LINZ-Terrain-Prod for debug 3d map with production elevation data. BM-1058 ([#3323](https://github.com/linz/basemaps/issues/3323)) ([6ff7d14](https://github.com/linz/basemaps/commit/6ff7d14e47534994796e15e64ec1df1fcf6cbe62))
+* **landing:** show labels on landing page ([#3330](https://github.com/linz/basemaps/issues/3330)) ([b9fe33f](https://github.com/linz/basemaps/commit/b9fe33f05168f0ca6945bf5a3773ab5efe162fdd))
+* **landing:** track label button clicks BM-1066 ([#3335](https://github.com/linz/basemaps/issues/3335)) ([555f8b5](https://github.com/linz/basemaps/commit/555f8b59f9b55dc80b8063629e33e1eea4a93937))
+
+
+
+
+
 # [7.8.0](https://github.com/linz/basemaps/compare/v7.7.0...v7.8.0) (2024-08-11)
 
 **Note:** Version bump only for package @basemaps/landing
