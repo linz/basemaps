@@ -27,7 +27,7 @@ export class ConfigDynamoBase<T extends BaseConfig = BaseConfig> extends Basemap
   /** Ensure the ID is prefixed before querying */
   ensureId(id: string): string {
     if (id.startsWith(this.prefix + '_')) return id;
-    throw new Error(`Trying to query "${id}" expected prefix of ${this.prefix}`);
+    return `${this.prefix}_${id}`;
   }
 
   private get db(): DynamoDB {
