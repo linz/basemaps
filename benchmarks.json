@@ -1,5 +1,35 @@
 [
   {
+    "hash": "89e72ead8553481f8d11936d56ec0b20b24ceb61",
+    "createdAt": "2024-08-26T02:16:01.007Z",
+    "results": [
+      {
+        "name": "Tile 256x256",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 256",
+        "mean": 0.44917667729,
+        "stddev": 0.005122004008091137,
+        "median": 0.44967929099000004,
+        "user": 0.528704495,
+        "system": 0.08511123000000001,
+        "min": 0.44038448549000003,
+        "max": 0.45716788049
+      },
+      {
+        "name": "Tile 512x512",
+        "count": 10,
+        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 512",
+        "mean": 0.45189175840000007,
+        "stddev": 0.00501884448118964,
+        "median": 0.4507116888,
+        "user": 0.5316063049999998,
+        "system": 0.08792725499999998,
+        "min": 0.44598545330000006,
+        "max": 0.46149520630000007
+      }
+    ]
+  },
+  {
     "hash": "b9fe33f05168f0ca6945bf5a3773ab5efe162fdd",
     "createdAt": "2024-08-26T02:09:35.831Z",
     "results": [
@@ -14966,36 +14996,6 @@
         "system": 0.041613323333333334,
         "min": 0.24447772127500003,
         "max": 0.262713083275
-      }
-    ]
-  },
-  {
-    "hash": "f458132d8c0cdf93e1e2ddb9d9d7638fff18c141",
-    "createdAt": "2022-07-18T22:05:51.823Z",
-    "results": [
-      {
-        "name": "Tile 256x256",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 256",
-        "mean": 0.306410333065,
-        "stddev": 0.006849905760839213,
-        "median": 0.306869819365,
-        "user": 0.30896222,
-        "system": 0.042820484999999985,
-        "min": 0.290977247365,
-        "max": 0.314798830365
-      },
-      {
-        "name": "Tile 512x512",
-        "count": 10,
-        "command": "node packages/tiler-sharp/build/__tests__/tile.benchmark.js 512",
-        "mean": 0.30475666418,
-        "stddev": 0.006516226969689944,
-        "median": 0.30435331818,
-        "user": 0.30499821499999996,
-        "system": 0.05020156,
-        "min": 0.29443919268,
-        "max": 0.31473604068000005
       }
     ]
   }
