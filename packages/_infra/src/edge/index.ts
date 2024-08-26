@@ -120,6 +120,7 @@ export class EdgeStack extends cdk.Stack {
               'style',
               'pipeline',
               'terrain',
+              'labels',
               // Deprecated single character query params for style and projection
               's',
               'p',

@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { StyleJson } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
-import { LambdaHttpResponse } from '@linzjs/lambda';
 
 import { convertRelativeUrl, convertStyleJson } from '../routes/tile.style.json.js';
 
@@ -151,12 +150,6 @@ describe('TileStyleJson', () => {
       type: 'raster-dem',
       tiles: ['https://tiles.test/v1/tiles/elevation/NZTM2000Quad/{z}/{x}/{y}.png?api=abc123'],
     });
-  });
-
-  it('should thrown error for NZTM2000Quad with vector source', () => {
-    const converted = (): StyleJson => convertStyleJson(baseStyleJson, Nztm2000QuadTms, 'abc123', null);
-
-    assert.throws(converted, LambdaHttpResponse);
   });
 
   it('should convert relative glyphs and sprites', () => {

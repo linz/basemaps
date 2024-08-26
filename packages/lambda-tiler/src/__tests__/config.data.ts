@@ -33,9 +33,9 @@ export const TileSetAerial: ConfigTileSetRaster = {
 export const TileSetVector: ConfigTileSetVector = {
   id: 'ts_topographic',
   type: TileSetType.Vector,
-  name: 'topotgrpahic',
-  description: 'topotgrpahic__description',
-  title: 'topotgrpahic Imagery',
+  name: 'topographic',
+  description: 'topographic__description',
+  title: 'topographic Imagery',
   category: 'Basemap',
   layers: [
     {

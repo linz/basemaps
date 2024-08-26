@@ -40,6 +40,8 @@ export interface MapConfigEvents {
    * [ LayerId, Style?, Pipeline? ]
    */
   layer: [string, string | null, string | null, string | null];
+  /** should labels be shown */
+  labels: [boolean];
   bounds: [LngLatBoundsLike];
   filter: [Filter];
   change: [];
@@ -55,6 +57,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   visibleLayers: string | null = null;
   filter: Filter = { date: { before: undefined } };
   terrain: string | null = null;
+  /** Should labels be added to the current layer */
+  labels: boolean = false;
   pipeline: string | null = null;
   imageFormat: ImageFormat | null = null;
 
@@ -124,6 +128,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const config = urlParams.get('c') ?? urlParams.get('config');
     const layerId = urlParams.get('i') ?? style ?? 'aerial';
     const terrain = urlParams.get('t') ?? urlParams.get('terrain');
+    const labels = Boolean(urlParams.get('labels'));
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
@@ -140,6 +145,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
+    this.labels = labels;
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
     this.emit('tileMatrix', this.tileMatrix);
@@ -156,6 +162,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (opts.config) urlParams.append('config', ensureBase58(opts.config));
     // We don't need to set terrain parameter for debug, as we got debug.terrain parameter to replace
     if (opts.terrain && !opts.isDebug) urlParams.append('terrain', opts.terrain);
+    if (opts.labels) urlParams.append('labels', 'true');
 
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
@@ -227,6 +234,14 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     if (this.filter.date === dateRange) return;
     this.filter.date = dateRange;
     this.emit('filter', this.filter);
+    this.emit('change');
+  }
+
+  setLabels(labels: boolean): void {
+    if (this.labels === labels) return;
+    this.labels = labels;
+    window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
+    this.emit('labels', this.labels);
     this.emit('change');
   }
 

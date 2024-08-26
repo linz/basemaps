@@ -1,16 +1,14 @@
 import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
 import { GoogleTms, LocationUrl } from '@basemaps/geo';
-import maplibre, { RasterLayerSpecification } from 'maplibre-gl';
+import maplibre from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
 
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
 import { getTileGrid, locationTransform } from '../tile.matrix.js';
-import { MapOptionType, WindowUrl } from '../url.js';
 import { Debug } from './debug.js';
+import { MapLabelControl } from './map.label.js';
 import { MapSwitcher } from './map.switcher.js';
-
-const LayerFadeTime = 750;
 
 /**
  * Map loading in maplibre is weird, the on('load') event is different to 'loaded'
@@ -138,7 +136,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.ensureScaleControl();
     this.ensureElevationControl();
     const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-    const style = tileGrid.getStyle(Config.map.layerId, Config.map.style, undefined, Config.map.filter.date);
+    const style = tileGrid.getStyle(Config.map);
     this.map.setStyle(style);
     if (Config.map.tileMatrix !== GoogleTms) {
       this.map.setMaxBounds([-179.9, -85, 179.9, 85]);
@@ -149,55 +147,6 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.forceUpdate();
   };
 
-  updateVisibleLayers = (newLayers: string): void => {
-    if (Config.map.visibleLayers == null) Config.map.visibleLayers = newLayers;
-    if (newLayers !== Config.map.visibleLayers) {
-      Config.map.visibleLayers = newLayers;
-      const newStyleId = `${Config.map.styleId}` + `before=${Config.map.filter.date.before?.slice(0, 4)}`;
-      if (this.map.getSource(newStyleId) == null) {
-        this.map.addSource(newStyleId, {
-          type: 'raster',
-          tiles: [
-            WindowUrl.toTileUrl({
-              urlType: MapOptionType.TileRaster,
-              tileMatrix: Config.map.tileMatrix,
-              layerId: Config.map.layerId,
-              config: Config.map.config,
-              date: Config.map.filter.date,
-            }),
-          ],
-          tileSize: 256,
-        });
-        this.map.addLayer({
-          id: newStyleId,
-          type: 'raster',
-          source: newStyleId,
-          paint: { 'raster-opacity': 0 },
-        });
-        this.map.moveLayer(newStyleId); // Move to front
-        this.map.setPaintProperty(newStyleId, 'raster-opacity-transition', { duration: LayerFadeTime });
-        this.map.setPaintProperty(newStyleId, 'raster-opacity', 1);
-      }
-    }
-  };
-
-  removeOldLayers = (): void => {
-    const filteredLayers = this.map
-      ?.getStyle()
-      .layers.filter((layer) => layer.id.startsWith(Config.map.styleId)) as RasterLayerSpecification[];
-    if (filteredLayers == null) return;
-    // The last item in the array is the top layer, we pop that to ensure it isn't removed
-    filteredLayers.pop();
-    for (const layer of filteredLayers) {
-      this.map.setPaintProperty(layer.id, 'raster-opacity-transition', { duration: LayerFadeTime });
-      this.map.setPaintProperty(layer.id, 'raster-opacity', 0);
-      setTimeout(() => {
-        this.map.removeLayer(layer.id);
-        this.map.removeSource(layer.source);
-      }, LayerFadeTime);
-    }
-  };
-
   override componentDidMount(): void {
     // Force the URL to be read before loading the map
     Config.map.updateFromUrl();
@@ -206,7 +155,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (this.el == null) throw new Error('Unable to find #map element');
     const cfg = Config.map;
     const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
-    const style = tileGrid.getStyle(cfg.layerId, cfg.style, cfg.config);
+    const style = tileGrid.getStyle(Config.map);
     const location = locationTransform(cfg.location, cfg.tileMatrix, GoogleTms);
 
     this.map = new maplibre.Map({
@@ -227,22 +176,21 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
       const nav = new maplibre.NavigationControl({ visualizePitch: true });
       this.map.addControl(nav, 'top-left');
       if (!Config.map.isDebug) this.map.addControl(new maplibre.FullscreenControl({ container: this.el }));
+      this.map.addControl(new MapLabelControl(), 'top-left');
 
       this.controlScale = new maplibre.ScaleControl({});
       this.map.addControl(this.controlScale, 'bottom-right');
     }
 
     this.map.on('render', this.onRender);
-    this.map.on('idle', this.removeOldLayers);
 
     onMapLoaded(this.map, () => {
       this._events.push(
         Config.map.on('location', this.updateLocation),
         Config.map.on('tileMatrix', this.updateStyle),
         Config.map.on('layer', this.updateStyle),
+        Config.map.on('labels', this.updateStyle),
         Config.map.on('bounds', this.updateBounds),
-        // TODO: Disable updateVisibleLayers for now before we need implement date range slider
-        // Config.map.on('visibleLayers', this.updateVisibleLayers),
       );
       this.map.on('terrain', this.updateTerrainFromEvent);
 
