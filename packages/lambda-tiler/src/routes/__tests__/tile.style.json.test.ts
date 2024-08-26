@@ -400,4 +400,15 @@ describe('/v1/styles', () => {
     assert.equal(body.sources['basemaps_vector']?.type, 'vector');
     assert.equal(body.layers.length, 2);
   });
+
+  it('should error when joining layers with duplicate ids', async () => {
+    const fakeStyle = { id: 'st_labels', name: 'labels', style: fakeVectorStyleConfig };
+    config.put(fakeStyle);
+    config.put(TileSetAerial);
+
+    const request = mockUrlRequest('/v1/styles/labels.json', `?labels=true`, Api.header);
+    const res = await handler.router.handle(request);
+    assert.equal(res.status, 400, res.statusDescription);
+    assert.equal(res.statusDescription.includes('Background1'), true);
+  });
 });

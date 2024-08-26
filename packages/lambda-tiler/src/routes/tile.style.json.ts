@@ -105,6 +105,15 @@ async function setStyleLabels(req: LambdaHttpRequest<StyleGet>, style: StyleJson
     return;
   }
 
+  const layerId = new Set<string>();
+  for (const l of style.layers) layerId.add(l.id);
+
+  for (const newLayers of labels.style.layers) {
+    if (layerId.has(newLayers.id)) {
+      throw new LambdaHttpResponse(400, 'Cannot merge styles with duplicate layerIds: ' + newLayers.id);
+    }
+  }
+
   if (style.glyphs == null) style.glyphs = labels.style.glyphs;
   if (style.sprite == null) style.sprite = labels.style.sprite;
   if (style.sky == null) style.sky = labels.style.sky;
