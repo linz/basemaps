@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
+
+
+### Bug Fixes
+
+* **shared:** allow unprefixed query keys ([#3333](https://github.com/linz/basemaps/issues/3333)) ([42c2279](https://github.com/linz/basemaps/commit/42c22794350e5d0685bcace61ae50fcbf6d8e7aa))
+
+
+
+
+
 # [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
 
 

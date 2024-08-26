@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** do not join layers where ids would be duplicated ([#3334](https://github.com/linz/basemaps/issues/3334)) ([c2d51f2](https://github.com/linz/basemaps/commit/c2d51f270eae7d87d9656fa7cb47b6b96c31b3e4))
+* **lambda-tiler:** do not keep failed tiffs in memory ([#3331](https://github.com/linz/basemaps/issues/3331)) ([89e72ea](https://github.com/linz/basemaps/commit/89e72ead8553481f8d11936d56ec0b20b24ceb61))
+* **lambda-tiler:** prevent unhandled promise rejections when the rejection is handled BM-1067 ([#3329](https://github.com/linz/basemaps/issues/3329)) ([445da7f](https://github.com/linz/basemaps/commit/445da7fcd6829cde9f18e1130a31a97a32097466))
+
+
+### Features
+
+* **landing:** show labels on landing page ([#3330](https://github.com/linz/basemaps/issues/3330)) ([b9fe33f](https://github.com/linz/basemaps/commit/b9fe33f05168f0ca6945bf5a3773ab5efe162fdd))
+* **landing:** track label button clicks BM-1066 ([#3335](https://github.com/linz/basemaps/issues/3335)) ([555f8b5](https://github.com/linz/basemaps/commit/555f8b59f9b55dc80b8063629e33e1eea4a93937))
+
+
+
+
+
 # [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
 
 
