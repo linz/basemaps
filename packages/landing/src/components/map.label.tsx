@@ -1,6 +1,6 @@
 import { IControl } from 'maplibre-gl';
 
-import { Config } from '../config.js';
+import { Config, GaEvent, gaEvent } from '../config.js';
 
 const LabelsDisabledLayers = new Set(['topographic', 'topolite']);
 
@@ -42,7 +42,9 @@ export class MapLabelControl implements IControl {
   }
 
   toggleLabels = (): void => {
-    Config.map.setLabels(!Config.map.labels);
+    const labelState = !Config.map.labels;
+    gaEvent(GaEvent.Ui, `labels:${labelState}`);
+    Config.map.setLabels(labelState);
   };
 
   updateLabelIcon = (): void => {
