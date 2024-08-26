@@ -89,10 +89,8 @@ describe('ConfigDynamo', () => {
 
   it('should throw without prefix', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
-    const ret = await provider.TileSet.get('abc123').catch((e) => String(e));
-
-    assert.deepEqual(fakeDynamo.get, []);
-    assert.deepEqual(String(ret), 'Error: Trying to query "abc123" expected prefix of ts');
+    const ret = await provider.TileSet.get('abc123');
+    assert.equal(ret?.id, 'ts_abc123');
   });
 
   it('should get-all partial', async () => {
@@ -105,19 +103,21 @@ describe('ConfigDynamo', () => {
     assert.deepEqual([...ret.values()], [...fakeDynamo.values.values()] as any);
   });
 
-  it('should throw if on wrong prefix', async () => {
-    const ret = await provider.TileSet.get('im_abc123').catch((e) => String(e));
-    assert.deepEqual(fakeDynamo.get, []);
-    assert.deepEqual(String(ret), 'Error: Trying to query "im_abc123" expected prefix of ts');
+  it('should not throw if on wrong prefix', async () => {
+    fakeDynamo.values.set('im_abc123', { id: 'im_abc123' });
+
+    const ret = await provider.TileSet.get('im_abc123');
+    assert.equal(ret, undefined); // Query will be for ts_im_abc123
   });
 
-  it('should throw on prefixed and un-prefixed', async () => {
+  it('should not on prefixed and un-prefixed', async () => {
     fakeDynamo.values.set('ts_abc123', { id: 'ts_abc123' });
 
-    const ret = provider.TileSet.getAll(new Set(['abc123', 'ts_abc123']));
-    const err = await ret.then(() => null).catch((e) => String(e));
-    assert.equal(String(err), 'Error: Trying to query "abc123" expected prefix of ts');
-    assert.deepEqual(fakeDynamo.getAll, []);
+    await provider.TileSet.getAll(new Set(['abc123', 'ts_abc123']));
+    assert.deepEqual(fakeDynamo.getAll[0].RequestItems.Foo.Keys, [
+      { id: { S: 'ts_abc123' } },
+      { id: { S: 'ts_abc123' } },
+    ]);
   });
 
   describe('DynamoCached', () => {
