@@ -97,36 +97,30 @@ export class EdgeStack extends cdk.Stack {
         originProtocolPolicy: cf.OriginProtocolPolicy.HTTPS_ONLY,
       },
       behaviors: [
+        // Configuration for all lambda requests
+        // Only the tiles themselves are cached so only things affecting tile rendering should be a cacheKey
         {
           pathPattern: '/v1*',
           allowedMethods: cf.CloudFrontAllowedMethods.ALL,
           forwardedValues: {
             /** Forward all query strings but do not use them for caching */
             queryString: true,
-            queryStringCacheKeys: ['config', 'exclude', 'pipeline', 'terrain'].map(encodeURIComponent),
+            // queryStringCacheKeys are limited to a max of 10
+            queryStringCacheKeys: ['config', 'exclude', 'pipeline'].map(encodeURIComponent),
           },
           lambdaFunctionAssociations: [],
         },
+        // Configuration for static landing page, used when rendering preview images for things like slack
         {
           pathPattern: '/@*',
           allowedMethods: cf.CloudFrontAllowedMethods.ALL,
           forwardedValues: {
             /** Forward all query strings but do not use them for caching */
             queryString: true,
-            queryStringCacheKeys: [
-              'config',
-              'exclude',
-              'tileMatrix',
-              'style',
-              'pipeline',
-              'terrain',
-              'labels',
-              // Deprecated single character query params for style and projection
-              's',
-              'p',
-              'i', // ?i=:imageryId is deprecated and should be removed at some point
-              't',
-            ].map(encodeURIComponent),
+            // queryStringCacheKeys are limited to a max of 10
+            queryStringCacheKeys: ['config', 'exclude', 'tileMatrix', 'style', 'pipeline', 'terrain'].map(
+              encodeURIComponent,
+            ),
           },
           lambdaFunctionAssociations: [],
         },
