@@ -41,6 +41,11 @@ export class SwappingLru<T extends { size: number }> {
     this.clears++;
   }
 
+  delete(id: string): void {
+    this.cacheA.delete(id);
+    this.cacheB.delete(id);
+  }
+
   set(id: string, tiff: T): void {
     this.cacheA.set(id, tiff);
     this.check();
