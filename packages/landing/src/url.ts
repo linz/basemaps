@@ -2,6 +2,7 @@ import { base58, isBase58 } from '@basemaps/config/build/base58.js';
 import { GoogleTms, TileMatrixSet } from '@basemaps/geo';
 import { toQueryString } from '@basemaps/shared/build/url.js';
 
+import { LabelsDisabledLayers } from './components/map.label.js';
 import { Config } from './config.js';
 import { FilterDate } from './config.map.js';
 
@@ -77,7 +78,10 @@ export const WindowUrl = {
     if (params.pipeline != null) queryParams.set('pipeline', params.pipeline);
     if (params.date?.before != null) queryParams.set('date[before]', params.date.before);
     if (params.terrain != null && params.urlType === MapOptionType.Style) queryParams.set('terrain', params.terrain);
-    if (params.labels && params.urlType === MapOptionType.Style) queryParams.set('labels', String(params.labels));
+    if (params.labels && params.urlType === MapOptionType.Style) {
+      // Some layers have the label option disabled, do not append the labels request to those layers.
+      if (!LabelsDisabledLayers.has(params.style ?? '')) queryParams.set('labels', String(params.labels));
+    }
 
     const imageFormat = params.imageFormat ?? WindowUrl.ImageFormat;
     if (params.urlType === MapOptionType.Style) {
