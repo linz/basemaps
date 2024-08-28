@@ -1,20 +1,41 @@
-import { ConfigId, ConfigPrefix, ConfigTileSetRaster, Layer, Sources, StyleJson, TileSetType } from '@basemaps/config';
+import {
+  BasemapsConfigProvider,
+  ConfigId,
+  ConfigPrefix,
+  ConfigTileSetRaster,
+  Layer,
+  Sources,
+  StyleJson,
+  TileSetType,
+} from '@basemaps/config';
 import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
-import { GoogleTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { URL } from 'url';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
+import { convertStyleToNztmStyle } from '../util/nztm.style.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
 
 /**
- * Convert relative URLS into a full hostname url
+ * Convert relative URL into a full hostname URL, converting {tileMatrix} into the provided tileMatrix
+ *
+ * Will also add query parameters of apiKey and configuration if provided
+ *
+ * @example
+ * ```typescript
+ * convertRelativeUrl("/v1/tiles/aerial/{tileMatrix}/{z}/{x}/{y}.webp", NZTM2000Quad)
+ * "https://basemaps.linz.govt.nz/v1/tiles/aerial/NZTM2000Quad/{z}/{x}/{y}.webp?api=c..."
+ * ```
+ *
  * @param url possible url to update
  * @param apiKey ApiKey to append with ?api= if required
- * @returns Updated Url or empty string if url is empty
+ * @param tileMatrix replace {tileMatrix} with the tile matrix
+ *
+ * @returns Updated URL or empty string if url is empty
  */
 export function convertRelativeUrl(
   url?: string,
@@ -33,10 +54,14 @@ export function convertRelativeUrl(
 }
 
 /**
- * Create a new style json that has absolute urls to the current host and  API Keys where required
+ * Create a new style JSON that has absolute urls to the current host and API Keys where required
+ *
  * @param style style to update
+ * @param tileMatrix convert the tile matrix to the target tile matrix
  * @param apiKey api key to inject
- * @returns new stylejson
+ * @param config optional configuration url to use
+ * @param layers replace the layers in the style json
+ * @returns new style JSON
  */
 export function convertStyleJson(
   style: StyleJson,
@@ -45,8 +70,8 @@ export function convertStyleJson(
   config: string | null,
   layers?: Layer[],
 ): StyleJson {
-  const sources = JSON.parse(JSON.stringify(style.sources)) as Sources;
-  for (const [key, value] of Object.entries(sources)) {
+  const styleJson = structuredClone(style);
+  for (const [key, value] of Object.entries(styleJson.sources)) {
     if (value.type === 'vector') {
       value.url = convertRelativeUrl(value.url, tileMatrix, apiKey, config);
     } else if ((value.type === 'raster' || value.type === 'raster-dem') && Array.isArray(value.tiles)) {
@@ -54,30 +79,16 @@ export function convertStyleJson(
         value.tiles[i] = convertRelativeUrl(value.tiles[i], tileMatrix, apiKey, config);
       }
     }
-    sources[key] = value;
+    styleJson.sources[key] = value;
   }
+  if (layers) styleJson.layers = layers;
 
-  const styleJson: StyleJson = {
-    version: 8,
-    id: style.id,
-    name: style.name,
-    sources,
-    layers: layers ? layers : style.layers,
-  };
-
-  if (style.metadata) styleJson.metadata = style.metadata;
   if (style.glyphs) styleJson.glyphs = convertRelativeUrl(style.glyphs, undefined, undefined, config);
   if (style.sprite) styleJson.sprite = convertRelativeUrl(style.sprite, undefined, undefined, config);
-  if (style.sky) styleJson.sky = style.sky;
-  if (style.terrain) styleJson.terrain = style.terrain;
+
+  if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return convertStyleToNztmStyle(styleJson);
 
   return styleJson;
-}
-
-export interface StyleGet {
-  Params: {
-    styleName: string;
-  };
 }
 
 export interface StyleConfig {
@@ -87,15 +98,21 @@ export interface StyleConfig {
   labels: boolean;
 }
 
+/**
+ * Turn on the terrain setting in the style json
+ */
 function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: TileMatrixSet): void {
   const source = Object.keys(style.sources).find((s) => s === terrain);
-  if (source == null) throw new LambdaHttpResponse(400, `Terrain: ${terrain} is not exists in the style source.`);
+  if (source == null) throw new LambdaHttpResponse(400, `Terrain: ${terrain} does not exists in the style source.`);
   style.terrain = {
     source,
     exaggeration: DefaultExaggeration[tileMatrix.identifier] ?? DefaultExaggeration[GoogleTms.identifier],
   };
 }
 
+/**
+ * Merge the "labels" layer into the output style
+ */
 async function setStyleLabels(req: LambdaHttpRequest<StyleGet>, style: StyleJson): Promise<void> {
   const config = await ConfigLoader.load(req);
   const labels = await config.Style.get('labels');
@@ -122,6 +139,9 @@ async function setStyleLabels(req: LambdaHttpRequest<StyleGet>, style: StyleJson
   style.layers = style.layers.concat(labels.style.layers);
 }
 
+/**
+ * Ensure that a "LINZ-Terrain" layer is force added into the output styleJSON source
+ */
 async function ensureTerrain(
   req: LambdaHttpRequest<StyleGet>,
   tileMatrix: TileMatrixSet,
@@ -136,20 +156,26 @@ async function ensureTerrain(
   style.sources['LINZ-Terrain'] = {
     type: 'raster-dem',
     tileSize: 256,
-    maxzoom: 18,
+    maxzoom: 18, // TODO: this should be configurable based on the elevation layer
     tiles: [convertRelativeUrl(`/v1/tiles/elevation/${tileMatrix.identifier}/{z}/{x}/{y}.png${elevationQuery}`)],
   };
 }
 
-export async function tileSetToStyle(
+/**
+ * Generate a StyleJSON from a tileset
+ * @returns
+ */
+export function tileSetToStyle(
   req: LambdaHttpRequest<StyleGet>,
   tileSet: ConfigTileSetRaster,
   tileMatrix: TileMatrixSet,
   apiKey: string,
-  cfg: StyleConfig,
-): Promise<LambdaHttpResponse> {
+): StyleJson {
+  // If the style has outputs defined it has a different process for generating the stylejson
+  if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey);
+
   const [tileFormat] = Validate.getRequestedFormats(req) ?? ['webp'];
-  if (tileFormat == null) return new LambdaHttpResponse(400, 'Invalid image format');
+  if (tileFormat == null) throw new LambdaHttpResponse(400, 'Invalid image format');
 
   const pipeline = Validate.pipeline(tileSet, tileFormat, req.query.get('pipeline'));
   const pipelineName = pipeline?.name === 'rgba' ? undefined : pipeline?.name;
@@ -162,151 +188,123 @@ export async function tileSetToStyle(
     `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`;
 
   const styleId = `basemaps-${tileSet.name}`;
-  const style: StyleJson = {
+  return {
     id: ConfigId.prefix(ConfigPrefix.Style, tileSet.name),
     name: tileSet.name,
     version: 8,
     sources: { [styleId]: { type: 'raster', tiles: [tileUrl], tileSize: 256 } },
     layers: [{ id: styleId, type: 'raster', source: styleId }],
   };
-
-  // Ensure elevation for individual tilesets
-  await ensureTerrain(req, tileMatrix, apiKey, style);
-
-  // Add terrain in style
-  if (cfg.terrain) setStyleTerrain(style, cfg.terrain, tileMatrix);
-  if (cfg.labels) await setStyleLabels(req, style);
-
-  const data = Buffer.from(JSON.stringify(convertStyleJson(style, tileMatrix, apiKey, configLocation)));
-
-  const cacheKey = Etag.key(data);
-  if (Etag.isNotModified(req, cacheKey)) return NotModified();
-
-  const response = new LambdaHttpResponse(200, 'ok');
-  response.header(HttpHeader.ETag, cacheKey);
-  response.header(HttpHeader.CacheControl, 'no-store');
-  response.buffer(data, 'application/json');
-  req.set('bytes', data.byteLength);
-  return response;
 }
 
-export async function tileSetOutputToStyle(
+/**
+ * generate a style from a tile set which has a output
+ */
+export function tileSetOutputToStyle(
   req: LambdaHttpRequest<StyleGet>,
   tileSet: ConfigTileSetRaster,
   tileMatrix: TileMatrixSet,
   apiKey: string,
-  cfg: StyleConfig,
-): Promise<LambdaHttpResponse> {
+): StyleJson {
+  if (tileSet.outputs == null) throw new LambdaHttpResponse(400, 'TileSet does not have any outputs to generate');
   const configLocation = ConfigLoader.extract(req);
-  const query = toQueryString({ config: configLocation, api: apiKey });
 
   const styleId = `basemaps-${tileSet.name}`;
   const sources: Sources = {};
   const layers: Layer[] = [];
 
-  if (tileSet.outputs) {
-    //for loop output.
-    for (const output of tileSet.outputs) {
-      const format = output.format?.[0] ?? 'webp';
-      const urlBase = Env.get(Env.PublicUrlBase) ?? '';
-      const tileUrl = `${urlBase}/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${format}${query}`;
+  for (const output of tileSet.outputs) {
+    const format = output.format?.[0] ?? 'webp';
+    const urlBase = Env.get(Env.PublicUrlBase) ?? '';
+    const query = toQueryString({ config: configLocation, api: apiKey, pipeline: output.name });
 
-      if (output.name === 'terrain-rgb') {
-        // Add both raster source and dem raster source for terrain-rgb output
-        sources[`${styleId}-${output.name}`] = {
-          type: 'raster',
-          tiles: [tileUrl + `&pipeline=${output.name}`],
-          tileSize: 256,
-        };
-        sources[`${styleId}-${output.name}-dem`] = {
-          type: 'raster-dem',
-          tiles: [tileUrl + `&pipeline=${output.name}`],
-          tileSize: 256,
-        };
-      } else {
-        // Add raster source other outputs
-        sources[`${styleId}-${output.name}`] = {
-          type: 'raster',
-          tiles: [tileUrl + `&pipeline=${output.name}`],
-          tileSize: 256,
-        };
-      }
+    const tileUrl = `${urlBase}/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${format}${query}`;
+
+    if (output.name === 'terrain-rgb') {
+      // Add both raster source and dem raster source for terrain-rgb output
+      sources[`${styleId}-${output.name}`] = { type: 'raster', tiles: [tileUrl], tileSize: 256 };
+      sources[`${styleId}-${output.name}-dem`] = { type: 'raster-dem', tiles: [tileUrl], tileSize: 256 };
+    } else {
+      // Add raster source other outputs
+      sources[`${styleId}-${output.name}`] = { type: 'raster', tiles: [tileUrl], tileSize: 256 };
     }
   }
 
   // Add first raster source as default layer
   for (const source of Object.keys(sources)) {
     if (sources[source].type === 'raster') {
-      layers.push({
-        id: styleId,
-        type: 'raster',
-        source,
-      });
+      layers.push({ id: styleId, type: 'raster', source });
       break;
     }
   }
 
-  const style: StyleJson = {
+  return {
     id: ConfigId.prefix(ConfigPrefix.Style, tileSet.name),
     name: tileSet.name,
     version: 8,
     sources,
     layers,
   };
+}
 
-  // Ensure elevation for style json config
-  await ensureTerrain(req, tileMatrix, apiKey, style);
+async function generateStyleFromTileSet(
+  req: LambdaHttpRequest<StyleGet>,
+  config: BasemapsConfigProvider,
+  tileSetName: string,
+  tileMatrix: TileMatrixSet,
+  apiKey: string,
+): Promise<StyleJson> {
+  const tileSet = await config.TileSet.get(tileSetName);
+  if (tileSet == null) throw NotFound();
+  if (tileSet.type !== TileSetType.Raster) {
+    throw new LambdaHttpResponse(400, 'Only raster tile sets can generate style JSON');
+  }
+  if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey);
+  else return tileSetToStyle(req, tileSet, tileMatrix, apiKey);
+}
 
-  // Add terrain in style
-  if (cfg.terrain) setStyleTerrain(style, cfg.terrain, tileMatrix);
-  if (cfg.labels) await setStyleLabels(req, style);
-
-  const data = Buffer.from(JSON.stringify(convertStyleJson(style, tileMatrix, apiKey, configLocation)));
-
-  const cacheKey = Etag.key(data);
-  if (Etag.isNotModified(req, cacheKey)) return Promise.resolve(NotModified());
-
-  const response = new LambdaHttpResponse(200, 'ok');
-  response.header(HttpHeader.ETag, cacheKey);
-  response.header(HttpHeader.CacheControl, 'no-store');
-  response.buffer(data, 'application/json');
-  req.set('bytes', data.byteLength);
-  return Promise.resolve(response);
+export interface StyleGet {
+  Params: {
+    styleName: string;
+  };
 }
 
 export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<LambdaHttpResponse> {
   const apiKey = Validate.apiKey(req);
   const styleName = req.params.styleName;
-  const excludeLayers = req.query.getAll('exclude');
-  const excluded = new Set(excludeLayers.map((l) => l.toLowerCase()));
+
   const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
   if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
+
+  // Remove layers from the output style json
+  const excludeLayers = req.query.getAll('exclude');
+  const excluded = new Set(excludeLayers.map((l) => l.toLowerCase()));
+  if (excluded.size > 0) req.set('excludedLayers', [...excluded]);
+
+  /**
+   * Configuration options used for the landing page:
+   * "terrain" - force add a terrain layer
+   * "labels" - merge the labels style with the current style
+   *
+   * TODO: (2024-08) this is not a very scalable way of configuring styles, it would be good to provide a styleJSON merge
+   */
   const terrain = req.query.get('terrain') ?? undefined;
   const labels = Boolean(req.query.get('labels') ?? false);
+  req.set('styleConfig', { terrain, labels });
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
-  const dbId = config.Style.id(styleName);
-  const styleConfig = await config.Style.get(dbId);
+  const styleConfig = await config.Style.get(styleName);
+  const styleSource =
+    styleConfig?.style ?? (await generateStyleFromTileSet(req, config, styleName, tileMatrix, apiKey));
 
-  req.set('styleConfig', { terrain, labels });
-
-  if (styleConfig == null) {
-    // Were we given a tileset name instead, generated
-    const tileSet = await config.TileSet.get(config.TileSet.id(styleName));
-    if (tileSet == null) return NotFound();
-    if (tileSet.type !== TileSetType.Raster) return NotFound();
-    if (tileSet.outputs) return await tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey, { terrain, labels });
-    else return await tileSetToStyle(req, tileSet, tileMatrix, apiKey, { terrain, labels });
-  }
-
-  // Prepare sources and add linz source
+  // convert sources to full URLS and convert style between projections
   const style = convertStyleJson(
-    styleConfig.style,
+    styleSource,
     tileMatrix,
     apiKey,
     ConfigLoader.extract(req),
-    styleConfig.style.layers.filter((f) => !excluded.has(f.id.toLowerCase())),
+    excluded.size > 0 ? styleSource.layers.filter((f) => !excluded.has(f.id.toLowerCase())) : undefined,
   );
 
   // Ensure elevation for style json config
