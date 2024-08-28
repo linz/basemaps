@@ -1,5 +1,4 @@
 import { ConfigTileSetVector } from '@basemaps/config';
-import { GoogleTms } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
@@ -13,12 +12,17 @@ export const tileXyzVector = {
   /** Serve a MVT vector tile */
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetVector, xyz: TileXyz): Promise<LambdaHttpResponse> {
     if (xyz.tileType !== 'pbf') return NotFound();
-    if (xyz.tileMatrix.identifier !== GoogleTms.identifier) return NotFound();
 
-    if (tileSet.layers.length > 1) return new LambdaHttpResponse(500, 'Too many layers in tileset');
-    const [layer] = tileSet.layers;
-    const layerId = layer[3857];
-    if (layerId == null) return new LambdaHttpResponse(500, 'Layer url not found from tileset Config');
+    // Vector tiles cannot be merged (yet!)
+    if (tileSet.layers.length > 1) {
+      return new LambdaHttpResponse(500, `Too many layers in vector tileset ${tileSet.layers.length}`);
+    }
+
+    const epsgCode = xyz.tileMatrix.projection.code;
+    const layerId = tileSet.layers[0][epsgCode];
+    if (layerId == null) {
+      return new LambdaHttpResponse(404, `No data found for tile matrix: ${xyz.tileMatrix.identifier}`);
+    }
 
     // Flip Y coordinate because MBTiles files are TMS.
     const y = (1 << xyz.tile.z) - 1 - xyz.tile.y;
