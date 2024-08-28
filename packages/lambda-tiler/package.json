@@ -30,8 +30,10 @@
     "@basemaps/tiler-sharp": "^7.7.0",
     "@linzjs/geojson": "^7.5.0",
     "@linzjs/lambda": "^4.0.0",
+    "@mapbox/vector-tile": "^2.0.3",
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.1.0",
+    "pbf": "^4.0.1",
     "pixelmatch": "^5.1.0",
     "sharp": "^0.33.0"
   },
