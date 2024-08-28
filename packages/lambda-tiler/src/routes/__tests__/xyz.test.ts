@@ -10,6 +10,7 @@ import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { Etag } from '../../util/etag.js';
+import { CoSources } from '../../util/source.cache.js';
 
 const TileSetNames = ['aerial', 'aerial:ōtorohanga_urban_2021_0-1m_RGB', '01FYWKAJ86W9P7RWM1VB62KD0H'];
 describe('/v1/tiles', () => {
@@ -196,5 +197,22 @@ describe('/v1/tiles', () => {
       mockUrlRequest('/v1/tiles/elevation/3857/11/2022/1283.zzz', '?pipeline=terrain-rgb', Api.header),
     );
     assert.equal(resZz.status, 400, resZz.statusDescription);
+  });
+
+  it('should support NZTM2000Quad vector tiles', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    // Force resolve a basic tile
+    const mockGetTile = t.mock.fn(() => Promise.resolve(Buffer.from('ABC123')));
+    t.mock.method(CoSources, 'getCotar', () => Promise.resolve({ get: mockGetTile }));
+
+    const topographic = FakeData.tileSetVector('topographic');
+    topographic.layers[0][2193] = 'memory://fake-tiles.tar.co';
+    config.put(topographic);
+    const resPbf = await handler.router.handle(
+      mockUrlRequest('/v1/tiles/topographic/NZTM2000Quad/11/2022/1283.pbf', 'get', Api.header),
+    );
+    assert.equal(resPbf.status, 200);
+    assert.equal(resPbf.body, Buffer.from('ABC123').toString('base64'));
   });
 });
