@@ -17,6 +17,19 @@ describe('NZTM2000QuadStyle', () => {
     metadata: { id: 'test' },
   };
 
+  it('should not modify the source style', () => {
+    const baseStyle = {
+      ...fakeStyle,
+      terrain: { exaggeration: 1.1, source: 'abc' },
+    };
+
+    convertStyleToNztmStyle(baseStyle);
+    assert.equal(baseStyle.terrain?.exaggeration, 1.1);
+
+    convertStyleToNztmStyle(baseStyle, false);
+    assert.equal(baseStyle.terrain?.exaggeration, 4.4);
+  });
+
   it('should convert min/maxzooms', () => {
     const newStyle = convertStyleToNztmStyle({
       ...fakeStyle,

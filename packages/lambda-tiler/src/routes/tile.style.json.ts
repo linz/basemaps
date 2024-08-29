@@ -54,7 +54,7 @@ export function convertRelativeUrl(
 }
 
 /**
- * Create a new style JSON that has absolute urls to the current host and API Keys where required
+ * Update the style JSON to have absolute urls to the current host and API Keys where required
  *
  * @param style style to update
  * @param tileMatrix convert the tile matrix to the target tile matrix
@@ -99,7 +99,7 @@ function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: TileMatr
 }
 
 /**
- * Merge the "labels" layer into the output style
+ * Merge the "labels" layer into the style json
  */
 async function setStyleLabels(req: LambdaHttpRequest<StyleGet>, style: StyleJson): Promise<void> {
   const config = await ConfigLoader.load(req);
