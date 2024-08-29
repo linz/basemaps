@@ -114,7 +114,7 @@ async function validateRasterTile(
   return;
 }
 
-function assertLayer(tile: VectorTile, testFeature: TestFeature): boolean {
+function checkFeatureExists(tile: VectorTile, testFeature: TestFeature): boolean {
   const layer = tile.layers[testFeature.layer];
   for (let i = 0; i < layer.length; i++) {
     const feature = layer.feature(i);
@@ -126,14 +126,14 @@ function assertLayer(tile: VectorTile, testFeature: TestFeature): boolean {
 /**
  * Check the existence of a feature property in side the vector tile
  */
-function featureCheck(tile: VectorTile, testTile: TestTile): LambdaHttpResponse | undefined {
-  if (testTile.testFeatures == null) return;
+function featureCheck(tile: VectorTile, testTile: TestTile): undefined {
+  const testTileName = `${testTile.tileSet}-${testTile.tile.x}/${testTile.tile.y}/z${testTile.tile.z}`;
+  if (testTile.testFeatures == null)
+    throw new LambdaHttpResponse(500, `No test feature found from testTile: ${testTileName}`);
   for (const testFeature of testTile.testFeatures) {
-    if (!assertLayer(tile, testFeature))
-      throw new LambdaHttpResponse(
-        500,
-        `Failed to validate test vector tile: ${testTile.tile.x}/${testTile.tile.y}/z${testTile.tile.z} for layer: ${testFeature.layer}.`,
-      );
+    if (!checkFeatureExists(tile, testFeature)) {
+      throw new LambdaHttpResponse(500, `Failed to validate tile: ${testTileName} for layer: ${testFeature.layer}.`);
+    }
   }
   return;
 }
