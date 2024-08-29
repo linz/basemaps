@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import { ConfigTileSetRaster, ConfigTileSetVector, TileSetType } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { VectorTile, VectorTileLayer } from '@mapbox/vector-tile';
+import { VectorTile } from '@mapbox/vector-tile';
 import Protobuf from 'pbf';
 import PixelMatch from 'pixelmatch';
 import Sharp from 'sharp';
@@ -15,9 +15,18 @@ import { TileXyz } from '../util/validate.js';
 import { TileXyzRaster } from './tile.xyz.raster.js';
 import { tileXyzVector } from './tile.xyz.vector.js';
 
+/**
+ * Vector feature that need to check existence
+ */
+interface TestFeature {
+  layer: string;
+  property: string;
+  value: string;
+}
+
 interface TestTile extends TileXyz {
   buf?: Buffer;
-  location?: string;
+  testFeatures?: TestFeature[];
 }
 
 export const TestTiles: TestTile[] = [
@@ -28,14 +37,28 @@ export const TestTiles: TestTile[] = [
     tileMatrix: GoogleTms,
     tileType: 'pbf',
     tile: { x: 1009, y: 641, z: 10 },
-    location: 'Wellington',
+    testFeatures: [
+      { layer: 'aeroway', property: 'name', value: 'Wellington Airport' },
+      { layer: 'place', property: 'name', value: 'Wellington' },
+      { layer: 'coastline', property: 'class', value: 'coastline' },
+      { layer: 'landcover', property: 'class', value: 'grass' },
+      { layer: 'poi', property: 'name', value: 'Seatoun Wharf' },
+      { layer: 'transportation', property: 'name', value: 'Mt Victoria Tunnel' },
+    ],
   },
   {
     tileSet: 'topographic',
     tileMatrix: GoogleTms,
     tileType: 'pbf',
     tile: { x: 62, y: 40, z: 6 },
-    location: 'South Island',
+    testFeatures: [
+      { layer: 'landuse', property: 'name', value: 'Queenstown' },
+      { layer: 'place', property: 'name', value: 'Christchurch' },
+      { layer: 'water', property: 'name', value: 'Tasman Lake' },
+      { layer: 'coastline', property: 'class', value: 'coastline' },
+      { layer: 'landcover', property: 'class', value: 'wood' },
+      { layer: 'transportation', property: 'name', value: 'STATE HIGHWAY 6' },
+    ],
   },
 ];
 
@@ -61,6 +84,9 @@ export async function updateExpectedTile(test: TestTile, newTileData: Buffer, di
   await fs.promises.writeFile(`${expectedFileName}.diff.png`, imgPng);
 }
 
+/**
+ * Compare and validate the raster test tile from server with pixel match
+ */
 async function validateRasterTile(
   tileSet: ConfigTileSetRaster,
   test: TestTile,
@@ -88,78 +114,33 @@ async function validateRasterTile(
   return;
 }
 
-function propertyCheck(layer: VectorTileLayer, key: string, value: string): boolean {
+function assertLayer(tile: VectorTile, testFeature: TestFeature): boolean {
+  const layer = tile.layers[testFeature.layer];
   for (let i = 0; i < layer.length; i++) {
     const feature = layer.feature(i);
-    if (feature.properties[key] === value) return true;
+    if (feature.properties[testFeature.property] === testFeature.value) return true;
   }
   return false;
 }
 
-function validateWellingtonTile(tile: VectorTile): LambdaHttpResponse | undefined {
-  // Validate Airport Label
-  if (!propertyCheck(tile.layers['aeroway'], 'name', 'Wellington Airport')) {
-    return new LambdaHttpResponse(500, 'Failed to find Wellington Airport from test tile.');
-  }
-  // Validate Place Label
-  if (!propertyCheck(tile.layers['place'], 'name', 'Wellington')) {
-    return new LambdaHttpResponse(500, 'Failed to find Wellington label from test tile.');
-  }
-
-  // Validate Coastline Exists
-  if (!propertyCheck(tile.layers['coastline'], 'class', 'coastline')) {
-    return new LambdaHttpResponse(500, 'Failed to find Coastline from test tile.');
-  }
-
-  // Validate Transportation
-  if (!propertyCheck(tile.layers['landcover'], 'class', 'grass')) {
-    return new LambdaHttpResponse(500, 'Failed to find grass landcover from test tile.');
-  }
-
-  // Validate Poi
-  if (!propertyCheck(tile.layers['poi'], 'name', 'Seatoun Wharf')) {
-    return new LambdaHttpResponse(500, 'Failed to find Seatoun Wharf Poi from test tile.');
-  }
-
-  // Validate Landcover
-  if (!propertyCheck(tile.layers['transportation'], 'name', 'Mt Victoria Tunnel')) {
-    return new LambdaHttpResponse(500, 'Failed to find grass Mt Victoria Tunnel from test tile.');
+/**
+ * Check the existence of a feature property in side the vector tile
+ */
+function featureCheck(tile: VectorTile, testTile: TestTile): LambdaHttpResponse | undefined {
+  if (testTile.testFeatures == null) return;
+  for (const testFeature of testTile.testFeatures) {
+    if (!assertLayer(tile, testFeature))
+      throw new LambdaHttpResponse(
+        500,
+        `Failed to validate test vector tile: ${testTile.tile.x}/${testTile.tile.y}/z${testTile.tile.z} for layer: ${testFeature.layer}.`,
+      );
   }
   return;
 }
 
-function validateSouthIslandTile(tile: VectorTile): LambdaHttpResponse | undefined {
-  // Validate landuse
-  if (!propertyCheck(tile.layers['landuse'], 'name', 'Queenstown')) {
-    return new LambdaHttpResponse(500, 'Failed to find Wellington Airport from test tile.');
-  }
-  // Validate Place Label
-  if (!propertyCheck(tile.layers['place'], 'name', 'Christchurch')) {
-    return new LambdaHttpResponse(500, 'Failed to find Christchurch label from test tile.');
-  }
-
-  // Validate Water
-  if (!propertyCheck(tile.layers['water'], 'name', 'Tasman Lake')) {
-    return new LambdaHttpResponse(500, 'Failed to find Tasman Lake from test tile.');
-  }
-
-  // Validate Coastline Exists
-  if (!propertyCheck(tile.layers['coastline'], 'class', 'coastline')) {
-    return new LambdaHttpResponse(500, 'Failed to find Coastline from test tile.');
-  }
-
-  // Validate LandCover
-  if (!propertyCheck(tile.layers['landcover'], 'class', 'wood')) {
-    return new LambdaHttpResponse(500, 'Failed to find grass landcover from test tile.');
-  }
-
-  // Validate Transportation
-  if (!propertyCheck(tile.layers['transportation'], 'name', 'STATE HIGHWAY 6')) {
-    return new LambdaHttpResponse(500, 'Failed to find grass STATE HIGHWAY 6 from test tile.');
-  }
-  return;
-}
-
+/**
+ * Health check the test vector tiles that contains all the expected features.
+ */
 async function validateVectorTile(
   tileSet: ConfigTileSetVector,
   test: TestTile,
@@ -171,9 +152,7 @@ async function validateVectorTile(
   if (!Buffer.isBuffer(response._body)) throw new LambdaHttpResponse(500, 'Not a Buffer response content.');
   const buffer = isGzip(response._body) ? gunzipSync(response._body) : response._body;
   const tile = new VectorTile(new Protobuf(buffer));
-  if (test.location === 'Wellington') return validateWellingtonTile(tile);
-  if (test.location === 'South Island') return validateSouthIslandTile(tile);
-  return;
+  return featureCheck(tile, test);
 }
 
 /**
