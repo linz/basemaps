@@ -411,4 +411,64 @@ describe('/v1/styles', () => {
     assert.equal(res.status, 400, res.statusDescription);
     assert.equal(res.statusDescription.includes('Background1'), true);
   });
+
+  it('should convert NZTM2000Quad styles', async () => {
+    const fakeStyle = {
+      id: 'st_labels',
+      name: 'source',
+      style: {
+        layers: [
+          {
+            minzoom: 5,
+            maxzoom: 5,
+            layout: {
+              'line-width': {
+                stops: [
+                  [16, 0.75],
+                  [24, 1.5],
+                ],
+              },
+            },
+
+            paint: {
+              'line-width': {
+                stops: [
+                  [16, 0.75],
+                  [24, 1.5],
+                ],
+              },
+            },
+          },
+        ],
+        terrain: {
+          exaggeration: 1.1,
+        },
+      },
+    };
+    config.put(fakeStyle);
+
+    const request = mockUrlRequest('/v1/styles/labels.json', `?tileMatrix=NZTM2000Quad`, Api.header);
+    const res = await handler.router.handle(request);
+    assert.equal(res.status, 200, res.statusDescription);
+    const style = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
+    assert.equal(style.layers[0].minzoom, 3);
+    assert.equal(style.layers[0].maxzoom, 3);
+    assert.equal(style.terrain?.exaggeration, 4.4);
+    assert.deepEqual(style.layers[0].layout, {
+      'line-width': {
+        stops: [
+          [14, 0.75],
+          [22, 1.5],
+        ],
+      },
+    });
+    assert.deepEqual(style.layers[0].paint, {
+      'line-width': {
+        stops: [
+          [14, 0.75],
+          [22, 1.5],
+        ],
+      },
+    });
+  });
 });

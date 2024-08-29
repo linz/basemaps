@@ -5,7 +5,7 @@ import { StyleJson } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 
-import { convertRelativeUrl, convertStyleJson } from '../routes/tile.style.json.js';
+import { convertRelativeUrl, setStyleUrls } from '../routes/tile.style.json.js';
 
 describe('TileStyleJson', () => {
   const host = 'https://tiles.test';
@@ -75,7 +75,8 @@ describe('TileStyleJson', () => {
 
   it('should not destroy the original configuration', () => {
     const apiKey = 'abc123';
-    const converted = convertStyleJson(baseStyleJson, GoogleTms, apiKey, null);
+    const converted = structuredClone(baseStyleJson);
+    setStyleUrls(converted, GoogleTms, apiKey, null);
 
     assert.deepEqual(converted.sources['vector'], {
       type: 'vector',
@@ -92,7 +93,9 @@ describe('TileStyleJson', () => {
 
     assert.equal(JSON.stringify(baseStyleJson).includes(apiKey), false);
 
-    const convertedB = convertStyleJson(baseStyleJson, GoogleTms, '0x1234', null);
+    const convertedB = structuredClone(baseStyleJson);
+
+    setStyleUrls(convertedB, GoogleTms, '0x1234', null);
     assert.deepEqual(convertedB.sources['vector'], {
       type: 'vector',
       url: 'https://tiles.test/v1/tiles/topographic/WebMercatorQuad/tile.json?api=0x1234',
@@ -124,7 +127,8 @@ describe('TileStyleJson', () => {
 
   it('should cover raster style Json without metadata, sprite and glyphs', () => {
     const apiKey = 'abc123';
-    const converted = convertStyleJson(rasterStyleJson, GoogleTms, apiKey, null);
+    const converted = structuredClone(rasterStyleJson);
+    setStyleUrls(rasterStyleJson, GoogleTms, apiKey, null);
 
     assert.equal(converted.metadata, null);
     assert.equal(converted.sprite, null);
@@ -140,7 +144,8 @@ describe('TileStyleJson', () => {
       },
     };
 
-    const converted = convertStyleJson(rasterStyleJson, Nztm2000QuadTms, 'abc123', null);
+    const converted = structuredClone(rasterStyleJson);
+    setStyleUrls(rasterStyleJson, Nztm2000QuadTms, 'abc123', null);
 
     assert.deepEqual(converted.sources['raster'], {
       type: 'raster',
@@ -154,7 +159,9 @@ describe('TileStyleJson', () => {
 
   it('should convert relative glyphs and sprites', () => {
     const apiKey = '0x9f9f';
-    const converted = convertStyleJson(baseStyleJson, GoogleTms, apiKey, null);
+    const converted = structuredClone(baseStyleJson);
+
+    setStyleUrls(baseStyleJson, GoogleTms, apiKey, null);
     assert.equal(converted.sprite, 'https://tiles.test/v1/sprites');
     assert.equal(converted.glyphs, 'https://tiles.test/v1/glyphs');
 
@@ -164,7 +171,9 @@ describe('TileStyleJson', () => {
 
   it('should convert with config', () => {
     const apiKey = '0x9f9f';
-    const converted = convertStyleJson(baseStyleJson, GoogleTms, apiKey, 'config.json');
+    const converted = structuredClone(baseStyleJson);
+
+    setStyleUrls(baseStyleJson, GoogleTms, apiKey, 'config.json');
     assert.equal(converted.sprite, 'https://tiles.test/v1/sprites?config=config.json');
     assert.equal(converted.glyphs, 'https://tiles.test/v1/glyphs?config=config.json');
 

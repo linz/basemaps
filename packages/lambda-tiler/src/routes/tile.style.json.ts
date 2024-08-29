@@ -63,15 +63,8 @@ export function convertRelativeUrl(
  * @param layers replace the layers in the style json
  * @returns new style JSON
  */
-export function convertStyleJson(
-  style: StyleJson,
-  tileMatrix: TileMatrixSet,
-  apiKey: string,
-  config: string | null,
-  layers?: Layer[],
-): StyleJson {
-  const styleJson = structuredClone(style);
-  for (const [key, value] of Object.entries(styleJson.sources)) {
+export function setStyleUrls(style: StyleJson, tileMatrix: TileMatrixSet, apiKey: string, config: string | null): void {
+  for (const [key, value] of Object.entries(style.sources ?? {})) {
     if (value.type === 'vector') {
       value.url = convertRelativeUrl(value.url, tileMatrix, apiKey, config);
     } else if ((value.type === 'raster' || value.type === 'raster-dem') && Array.isArray(value.tiles)) {
@@ -79,16 +72,11 @@ export function convertStyleJson(
         value.tiles[i] = convertRelativeUrl(value.tiles[i], tileMatrix, apiKey, config);
       }
     }
-    styleJson.sources[key] = value;
+    style.sources[key] = value;
   }
-  if (layers) styleJson.layers = layers;
 
-  if (style.glyphs) styleJson.glyphs = convertRelativeUrl(style.glyphs, undefined, undefined, config);
-  if (style.sprite) styleJson.sprite = convertRelativeUrl(style.sprite, undefined, undefined, config);
-
-  if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return convertStyleToNztmStyle(styleJson);
-
-  return styleJson;
+  if (style.glyphs) style.glyphs = convertRelativeUrl(style.glyphs, undefined, undefined, config);
+  if (style.sprite) style.sprite = convertRelativeUrl(style.sprite, undefined, undefined, config);
 }
 
 export interface StyleConfig {
@@ -298,24 +286,24 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   const styleSource =
     styleConfig?.style ?? (await generateStyleFromTileSet(req, config, styleName, tileMatrix, apiKey));
 
-  // convert sources to full URLS and convert style between projections
-  const style = convertStyleJson(
-    styleSource,
-    tileMatrix,
-    apiKey,
-    ConfigLoader.extract(req),
-    excluded.size > 0 ? styleSource.layers.filter((f) => !excluded.has(f.id.toLowerCase())) : undefined,
-  );
-
+  const targetStyle = structuredClone(styleSource);
   // Ensure elevation for style json config
   // TODO: We should remove this after adding terrain source into style configs. PR-916
-  await ensureTerrain(req, tileMatrix, apiKey, style);
+  await ensureTerrain(req, tileMatrix, apiKey, targetStyle);
 
   // Add terrain in style
-  if (terrain) setStyleTerrain(style, terrain, tileMatrix);
-  if (labels) await setStyleLabels(req, style);
+  if (terrain) setStyleTerrain(targetStyle, terrain, tileMatrix);
+  if (labels) await setStyleLabels(req, targetStyle);
 
-  const data = Buffer.from(JSON.stringify(style));
+  // convert sources to full URLS and convert style between projections
+  setStyleUrls(targetStyle, tileMatrix, apiKey, ConfigLoader.extract(req));
+
+  if (tileMatrix.identifier === Nztm2000QuadTms.identifier) convertStyleToNztmStyle(targetStyle, false);
+
+  // filter out any excluded layers
+  if (excluded.size > 0) targetStyle.layers = targetStyle.layers.filter((f) => !excluded.has(f.id.toLowerCase()));
+
+  const data = Buffer.from(JSON.stringify(targetStyle));
 
   const cacheKey = Etag.key(data);
   if (Etag.isNotModified(req, cacheKey)) return NotModified();

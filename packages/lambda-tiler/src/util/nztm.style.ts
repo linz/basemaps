@@ -15,10 +15,11 @@ function hasStops(x: unknown): x is { stops: [number, unknown][] } {
  * NZTM2000Quad is offset from WebMercatorQuad by two zoom levels
  *
  * @param inputStyle style to convert
+ * @param clone Should the input style be cloned or modified
  * @returns a new style converted into NZTM2000Quad zooms
  */
-export function convertStyleToNztmStyle(inputStyle: StyleJson): StyleJson {
-  const style = structuredClone(inputStyle);
+export function convertStyleToNztmStyle(inputStyle: StyleJson, clone: boolean = true): StyleJson {
+  const style = clone ? structuredClone(inputStyle) : inputStyle;
 
   for (const layer of style.layers) {
     // Adjust the min/max zoom
