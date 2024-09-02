@@ -125,34 +125,34 @@ function checkFeatureExists(tile: VectorTile, testFeature: TestFeature): boolean
 
 /**
  * Check the existence of a feature property in side the vector tile
+ *
+ * @throws LambdaHttpResponse if any test feature not found from vector tile
  */
-function featureCheck(tile: VectorTile, testTile: TestTile): undefined {
+function featureCheck(tile: VectorTile, testTile: TestTile): void {
   const testTileName = `${testTile.tileSet}-${testTile.tile.x}/${testTile.tile.y}/z${testTile.tile.z}`;
-  if (testTile.testFeatures == null)
+  if (testTile.testFeatures == null) {
     throw new LambdaHttpResponse(500, `No test feature found from testTile: ${testTileName}`);
+  }
   for (const testFeature of testTile.testFeatures) {
     if (!checkFeatureExists(tile, testFeature)) {
       throw new LambdaHttpResponse(500, `Failed to validate tile: ${testTileName} for layer: ${testFeature.layer}.`);
     }
   }
-  return;
 }
 
 /**
  * Health check the test vector tiles that contains all the expected features.
+ *
+ * @throws LambdaHttpResponse if test tiles not returned or features not exists
  */
-async function validateVectorTile(
-  tileSet: ConfigTileSetVector,
-  test: TestTile,
-  req: LambdaHttpRequest,
-): Promise<LambdaHttpResponse | undefined> {
+async function validateVectorTile(tileSet: ConfigTileSetVector, test: TestTile, req: LambdaHttpRequest): Promise<void> {
   // Get the parse response tile to raw buffer
   const response = await tileXyzVector.tile(req, tileSet, test);
-  if (response.status !== 200) return new LambdaHttpResponse(500, response.statusDescription);
+  if (response.status !== 200) throw new LambdaHttpResponse(500, response.statusDescription);
   if (!Buffer.isBuffer(response._body)) throw new LambdaHttpResponse(500, 'Not a Buffer response content.');
   const buffer = isGzip(response._body) ? gunzipSync(response._body) : response._body;
   const tile = new VectorTile(new Protobuf(buffer));
-  return featureCheck(tile, test);
+  featureCheck(tile, test);
 }
 
 /**
