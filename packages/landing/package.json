@@ -33,7 +33,7 @@
     "@basemaps/geo": "^7.5.0",
     "@basemaps/infra": "^7.9.0",
     "@basemaps/shared": "^7.9.0",
-    "@linzjs/lui": "^21.12.1",
+    "@linzjs/lui": "^21.44.4",
     "@servie/events": "^3.0.0",
     "@types/proj4": "^2.5.2",
     "@types/react-dom": "^18.0.6",
