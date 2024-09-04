@@ -18,9 +18,9 @@ import { tileXyzVector } from './tile.xyz.vector.js';
 /**
  * Vector feature that need to check existence
  */
-interface TestFeature {
+export interface TestFeature {
   layer: string;
-  property: string;
+  key: string;
   value: string;
 }
 
@@ -38,12 +38,12 @@ export const TestTiles: TestTile[] = [
     tileType: 'pbf',
     tile: { x: 1009, y: 641, z: 10 },
     testFeatures: [
-      { layer: 'aeroway', property: 'name', value: 'Wellington Airport' },
-      { layer: 'place', property: 'name', value: 'Wellington' },
-      { layer: 'coastline', property: 'class', value: 'coastline' },
-      { layer: 'landcover', property: 'class', value: 'grass' },
-      { layer: 'poi', property: 'name', value: 'Seatoun Wharf' },
-      { layer: 'transportation', property: 'name', value: 'Mt Victoria Tunnel' },
+      { layer: 'aeroway', key: 'name', value: 'Wellington Airport' },
+      { layer: 'place', key: 'name', value: 'Wellington' },
+      { layer: 'coastline', key: 'class', value: 'coastline' },
+      { layer: 'landcover', key: 'class', value: 'grass' },
+      { layer: 'poi', key: 'name', value: 'Seatoun Wharf' },
+      { layer: 'transportation', key: 'name', value: 'Mt Victoria Tunnel' },
     ],
   },
   {
@@ -52,12 +52,12 @@ export const TestTiles: TestTile[] = [
     tileType: 'pbf',
     tile: { x: 62, y: 40, z: 6 },
     testFeatures: [
-      { layer: 'landuse', property: 'name', value: 'Queenstown' },
-      { layer: 'place', property: 'name', value: 'Christchurch' },
-      { layer: 'water', property: 'name', value: 'Tasman Lake' },
-      { layer: 'coastline', property: 'class', value: 'coastline' },
-      { layer: 'landcover', property: 'class', value: 'wood' },
-      { layer: 'transportation', property: 'name', value: 'STATE HIGHWAY 6' },
+      { layer: 'landuse', key: 'name', value: 'Queenstown' },
+      { layer: 'place', key: 'name', value: 'Christchurch' },
+      { layer: 'water', key: 'name', value: 'Tasman Lake' },
+      { layer: 'coastline', key: 'class', value: 'coastline' },
+      { layer: 'landcover', key: 'class', value: 'wood' },
+      { layer: 'transportation', key: 'name', value: 'STATE HIGHWAY 6' },
     ],
   },
 ];
@@ -87,14 +87,10 @@ export async function updateExpectedTile(test: TestTile, newTileData: Buffer, di
 /**
  * Compare and validate the raster test tile from server with pixel match
  */
-async function validateRasterTile(
-  tileSet: ConfigTileSetRaster,
-  test: TestTile,
-  req: LambdaHttpRequest,
-): Promise<LambdaHttpResponse | undefined> {
+async function validateRasterTile(tileSet: ConfigTileSetRaster, test: TestTile, req: LambdaHttpRequest): Promise<void> {
   // Get the parse response tile to raw buffer
   const response = await TileXyzRaster.tile(req, tileSet, test);
-  if (response.status !== 200) return new LambdaHttpResponse(500, response.statusDescription);
+  if (response.status !== 200) throw new LambdaHttpResponse(500, response.statusDescription);
   if (!Buffer.isBuffer(response._body)) throw new LambdaHttpResponse(500, 'Not a Buffer response content.');
   const resImgBuffer = await Sharp(response._body).raw().toBuffer();
 
@@ -109,16 +105,15 @@ async function validateRasterTile(
     /** Uncomment this to overwite the expected files */
     // await updateExpectedTile(test, response._body as Buffer, outputBuffer);
     req.log.error({ missMatchedPixels, projection: test.tileMatrix.identifier, xyz: test.tile }, 'Health:MissMatch');
-    return new LambdaHttpResponse(500, 'TileSet does not match.');
+    throw new LambdaHttpResponse(500, 'TileSet does not match.');
   }
-  return;
 }
 
 function checkFeatureExists(tile: VectorTile, testFeature: TestFeature): boolean {
   const layer = tile.layers[testFeature.layer];
   for (let i = 0; i < layer.length; i++) {
     const feature = layer.feature(i);
-    if (feature.properties[testFeature.property] === testFeature.value) return true;
+    if (feature.properties[testFeature.key] === testFeature.value) return true;
   }
   return false;
 }
@@ -168,11 +163,9 @@ export async function healthGet(req: LambdaHttpRequest): Promise<LambdaHttpRespo
     const tileSet = await config.TileSet.get(config.TileSet.id(test.tileSet));
     if (tileSet == null) throw new LambdaHttpResponse(500, `TileSet: ${test.tileSet} not found`);
     if (tileSet.type === TileSetType.Raster) {
-      const response = await validateRasterTile(tileSet, test, req);
-      if (response) return response;
+      await validateRasterTile(tileSet, test, req);
     } else if (tileSet.type === TileSetType.Vector) {
-      const response = await validateVectorTile(tileSet, test, req);
-      if (response) return response;
+      await validateVectorTile(tileSet, test, req);
     } else {
       throw new LambdaHttpResponse(500, `Invalid TileSet type for tileSet ${test.tileSet}`);
     }
