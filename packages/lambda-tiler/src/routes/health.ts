@@ -119,6 +119,20 @@ function checkFeatureExists(tile: VectorTile, testFeature: TestFeature): boolean
 }
 
 /**
+ * Fetch vector tile and decode into mapbox VectorTile
+ */
+export const VectorTileProvider = {
+  async getVectorTile(tileSet: ConfigTileSetVector, test: TestTile, req: LambdaHttpRequest): Promise<VectorTile> {
+    // Get the parse response tile to raw buffer
+    const response = await tileXyzVector.tile(req, tileSet, test);
+    if (response.status !== 200) throw new LambdaHttpResponse(500, response.statusDescription);
+    if (!Buffer.isBuffer(response._body)) throw new LambdaHttpResponse(500, 'Not a Buffer response content.');
+    const buffer = isGzip(response._body) ? gunzipSync(response._body) : response._body;
+    return new VectorTile(new Protobuf(buffer));
+  },
+};
+
+/**
  * Check the existence of a feature property in side the vector tile
  *
  * @throws LambdaHttpResponse if any test feature not found from vector tile
@@ -142,11 +156,7 @@ function featureCheck(tile: VectorTile, testTile: TestTile): void {
  */
 async function validateVectorTile(tileSet: ConfigTileSetVector, test: TestTile, req: LambdaHttpRequest): Promise<void> {
   // Get the parse response tile to raw buffer
-  const response = await tileXyzVector.tile(req, tileSet, test);
-  if (response.status !== 200) throw new LambdaHttpResponse(500, response.statusDescription);
-  if (!Buffer.isBuffer(response._body)) throw new LambdaHttpResponse(500, 'Not a Buffer response content.');
-  const buffer = isGzip(response._body) ? gunzipSync(response._body) : response._body;
-  const tile = new VectorTile(new Protobuf(buffer));
+  const tile = await VectorTileProvider.getVectorTile(tileSet, test, req);
   featureCheck(tile, test);
 }
 
