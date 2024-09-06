@@ -20,20 +20,20 @@ export function iterate(feature: GeoJSON.Feature, cb: (pt: [number, number]) => 
 }
 
 // Iteration functions for three levels of nested positions commonly used in geojson
-function iteratePosition3(f: GeoJSON.Position[][][], cb: (pt: [number, number]) => void): void {
-  for (const outer of f) {
+function iteratePosition3(coords: GeoJSON.Position[][][], cb: (pt: [number, number]) => void): void {
+  for (const outer of coords) {
     for (const poly of outer) {
       for (const pt of poly) cb(pt as [number, number]);
     }
   }
 }
 
-function iteratePosition2(f: GeoJSON.Position[][], cb: (pt: [number, number]) => void): void {
-  for (const poly of f) {
+function iteratePosition2(coords: GeoJSON.Position[][], cb: (pt: [number, number]) => void): void {
+  for (const poly of coords) {
     for (const pt of poly) cb(pt as [number, number]);
   }
 }
 
-function iteratePosition(f: GeoJSON.Position[], cb: (pt: [number, number]) => void): void {
-  for (const pt of f) cb(pt as [number, number]);
+function iteratePosition(coords: GeoJSON.Position[], cb: (pt: [number, number]) => void): void {
+  for (const pt of coords) cb(pt as [number, number]);
 }
