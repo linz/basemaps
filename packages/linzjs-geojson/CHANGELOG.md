@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
+
+
+### Features
+
+* **linzjs-geojson:** add iterate and truncate utilities for geojson ([#3340](https://github.com/linz/basemaps/issues/3340)) ([406b3eb](https://github.com/linz/basemaps/commit/406b3ebbe1f7101b7f64ed090abc52d3c9aea7c9))
+
+
+
+
+
 # [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
 
 **Note:** Version bump only for package @linzjs/geojson

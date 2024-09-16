@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/attribution",
-  "version": "7.5.0",
+  "version": "7.10.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -31,7 +31,7 @@
   ],
   "dependencies": {
     "@basemaps/geo": "^7.5.0",
-    "@linzjs/geojson": "^7.5.0"
+    "@linzjs/geojson": "^7.10.0"
   },
   "bundle": {
     "entry": "src/attribution.index.ts",

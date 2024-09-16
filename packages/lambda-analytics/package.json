@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-analytics",
-  "version": "7.9.0",
+  "version": "7.10.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
   "dependencies": {
     "@basemaps/config": "^7.7.0",
     "@basemaps/geo": "^7.5.0",
-    "@basemaps/shared": "^7.9.0",
+    "@basemaps/shared": "^7.10.0",
     "ua-parser-js": "^1.0.2"
   },
   "scripts": {
