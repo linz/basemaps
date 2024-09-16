@@ -52,7 +52,7 @@ export class MapLabelControl implements IControl {
     // Most vector styles have overlaps with the labels and make them useless
     if (Config.map.style && LabelsDisabledLayers.has(Config.map.style)) return true;
     // Labels use the merge style feature and need the production configuration to work
-    if (Config.map.config) return true;
+    if (Config.map.isDebug && Config.map.config) return true;
 
     return false;
   }
