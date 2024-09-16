@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
+
+**Note:** Version bump only for package @basemaps/shared
+
+
+
+
+
 # [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
 
 

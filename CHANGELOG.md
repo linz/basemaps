@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
+
+
+### Bug Fixes
+
+* **landing:** hide label button on debug page as its broken BM-20 ([#3341](https://github.com/linz/basemaps/issues/3341)) ([f1424a0](https://github.com/linz/basemaps/commit/f1424a0741281c812e665ddc7c4f9577ba8d8cb9))
+
+
+### Features
+
+* **lambda-tiler:** Add vector test tiles for the health endpoint. BM-1061 ([#3337](https://github.com/linz/basemaps/issues/3337)) ([74119c0](https://github.com/linz/basemaps/commit/74119c044f94d3e53f2c4717781266b1aba23bad))
+* **lambda-tiler:** automatically rescale style JSON's into NZTM2000Quad when requests ([#3339](https://github.com/linz/basemaps/issues/3339)) ([960b926](https://github.com/linz/basemaps/commit/960b92652da686c18712fa566e63c7eb6453a2f7))
+* **lambda-tiler:** remove restrictions on 3857 from vector tiles ([#3338](https://github.com/linz/basemaps/issues/3338)) ([8eede97](https://github.com/linz/basemaps/commit/8eede97676c8a905468b4a133b98c44e10873d3b))
+* **linzjs-geojson:** add iterate and truncate utilities for geojson ([#3340](https://github.com/linz/basemaps/issues/3340)) ([406b3eb](https://github.com/linz/basemaps/commit/406b3ebbe1f7101b7f64ed090abc52d3c9aea7c9))
+
+
+
+
+
 # [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
 
 

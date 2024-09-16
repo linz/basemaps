@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
+
+
+### Bug Fixes
+
+* **landing:** hide label button on debug page as its broken BM-20 ([#3341](https://github.com/linz/basemaps/issues/3341)) ([f1424a0](https://github.com/linz/basemaps/commit/f1424a0741281c812e665ddc7c4f9577ba8d8cb9))
+
+
+
+
+
 # [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
 
 
