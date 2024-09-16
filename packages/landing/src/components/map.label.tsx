@@ -47,12 +47,22 @@ export class MapLabelControl implements IControl {
     Config.map.setLabels(labelState);
   };
 
+  /** Is the label button hidden from view */
+  isDisabled(): boolean {
+    // Most vector styles have overlaps with the labels and make them useless
+    if (Config.map.style && LabelsDisabledLayers.has(Config.map.style)) return true;
+    // Labels use the merge style feature and need the production configuration to work
+    if (Config.map.config) return true;
+
+    return false;
+  }
+
   updateLabelIcon = (): void => {
     if (this.button == null) return;
     this.button.classList.remove('maplibregl-ctrl-labels-enabled');
 
     // Topographic style disables the button
-    if (Config.map.style && LabelsDisabledLayers.has(Config.map.style)) {
+    if (this.isDisabled()) {
       this.button.classList.add('display-none');
       this.button.title = 'Topographic style does not support layers';
       return;
