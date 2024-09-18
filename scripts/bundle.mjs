@@ -89,6 +89,7 @@ function bundleJs(basePath, cfg, outfile, isJsx = false) {
     buildCmd.push('--loader:.svg=dataurl');
     buildCmd.push('--jsx=automatic');
     // buildCmd.push('--jsx-fragment=Fragment');
+    buildCmd.push(`--inject:${joinPath(basePath, 'polyfills.js')}`);
   }
   if (cfg.executable) {
     buildCmd.push('--banner:js=#!/usr/bin/env node');

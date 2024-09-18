@@ -1,3 +1,4 @@
+import { LuiBanner } from '@linzjs/lui';
 import { Component, ReactNode } from 'react';
 
 import { Config } from '../config.js';
@@ -14,23 +15,6 @@ export class Banner extends Component {
 
   override render(): ReactNode {
     if (Config.map.isDebug) return;
-    return (
-      <div className="LuiBannerV2 has-level ic_info_outline">
-        <div className="info">
-          {/* <span
-            ref={ref}
-            className="LuiBannerV2-Icon"
-            data-icon={name}
-            title={title}
-            aria-label={alt}
-            {...spanProps}
-            style={customStyle}
-          >
-            {iconSVG}
-          </span> */}
-          <div>Basemaps Release Info ....</div>
-        </div>
-      </div>
-    );
+    return <LuiBanner level="info">This is a info message</LuiBanner>;
   }
 }

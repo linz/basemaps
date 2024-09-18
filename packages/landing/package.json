@@ -37,11 +37,14 @@
     "@servie/events": "^3.0.0",
     "@types/proj4": "^2.5.2",
     "@types/react-dom": "^18.0.6",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
     "maplibre-gl": "^4.5.0",
     "mime-types": "^2.1.35",
     "proj4": "^2.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "stream-browserify": "^3.0.0",
     "ulid": "^2.3.0"
   },
   "publishConfig": {
