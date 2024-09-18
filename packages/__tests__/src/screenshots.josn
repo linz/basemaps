@@ -116,7 +116,7 @@
     "location": { "lat": -39.2934958, "lng": 174.072223, "z": 12 },
     "tileSet": "aerial",
     "style": "aerial",
-    "terrain": "LINZ-Terrain",
+    "terrain": "LINZ-Terrain"
   },
   {
     "name": "topographic-3857-terrain-hillshade-z12",
