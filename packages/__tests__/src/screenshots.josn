@@ -111,13 +111,12 @@
     "hillshade": "LINZ-Terrain"
   },
   {
-    "name": "aerial-3857-mount-taranaki-terrain-hillshade-z14",
+    "name": "aerial-3857-mount-taranaki-terrain-z14",
     "tileMatrix": "WebMercatorQuad",
     "location": { "lat": -39.2934958, "lng": 174.072223, "z": 12 },
     "tileSet": "aerial",
     "style": "aerial",
     "terrain": "LINZ-Terrain",
-    "hillshade": "LINZ-Terrain"
   },
   {
     "name": "topographic-3857-terrain-hillshade-z12",
