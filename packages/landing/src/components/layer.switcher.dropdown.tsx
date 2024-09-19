@@ -30,7 +30,9 @@ export interface Option {
 
 export interface LayerSwitcherDropdownState {
   layers?: Map<string, LayerInfo>;
+  /** Should the map be zoomed to the extent of the layer when the layer is changed */
   zoomToExtent: boolean;
+  /** Should the drop down be limited to the approximate extent of the map */
   limitToExtent: boolean;
   currentLayer: string;
 }
@@ -198,13 +200,13 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 /**
  * Determine if the bounds in EPSG:3857 intersects the provided layer
  *
- * TODO: It would be good to then use a more comprehensinve intersection if the bounding box intersects,
+ * TODO: It would be good to then use a more comprehensive intersection if the bounding box intersects,
  * there are complex polygons inside the attribution layer that could be used but they do not have all
  * the polygons
  *
  * @param bounds Bounding box in EPSG:3857
  * @param layer layer to check
- * @returns true if it intesects, false otherwise
+ * @returns true if it intersects, false otherwise
  */
 function doesLayerIntersect(bounds: Bounds, layer: LayerInfo): boolean {
   // No layer information assume it intersects
