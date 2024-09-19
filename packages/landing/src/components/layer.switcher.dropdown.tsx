@@ -161,7 +161,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onFilterExtentChange} checked={this.state.filterToExtent} />
             <label title="Filter the layer list to approximately the current map extent">
-              Filter by map view{' '}
+              Filter by map view
               {ret.hidden > 0 ? (
                 <p>
                   <b>{ret.hidden}</b> layers hidden
