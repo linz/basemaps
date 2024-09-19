@@ -1,8 +1,11 @@
+import { Bounds, GoogleTms, Projection } from '@basemaps/geo';
+import { Point } from 'maplibre-gl';
 import { ChangeEventHandler, Component, ReactNode } from 'react';
 import Select from 'react-select';
 
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
+import { MapLocation } from '../url.js';
 
 type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;
 
@@ -30,6 +33,7 @@ export interface Option {
 export interface LayerSwitcherDropdownState {
   layers?: Map<string, LayerInfo>;
   zoomToExtent: boolean;
+  limitToExtent: boolean;
   currentLayer: string;
 }
 
@@ -40,7 +44,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
   constructor(p: unknown) {
     super(p);
-    this.state = { zoomToExtent: true, currentLayer: 'unknown' };
+    this.state = { zoomToExtent: true, currentLayer: 'unknown', limitToExtent: false };
   }
 
   override componentDidMount(): void {
@@ -120,6 +124,11 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     this.setState({ zoomToExtent: target.checked });
   };
 
+  onLimitToExtent: ChangeEventHandler<unknown> = (e) => {
+    const target = e.target as HTMLInputElement;
+    this.setState({ limitToExtent: target.checked });
+  };
+
   override render(): ReactNode {
     const ret = this.makeOptions();
 
@@ -133,10 +142,14 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
           classNamePrefix="layer-selector"
           id="layer-selector"
         />
-        <div className="lui-input-group-wrapper">
+        <div className="lui-input-group-wrapper" style={{ display: 'flex', justifyContent: 'space-around' }}>
+          <div className="lui-checkbox-container">
+            <input type="checkbox" onChange={this.onLimitToExtent} checked={this.state.limitToExtent} />
+            <label title="Limit the layer list to approximately the current map extent">Limit to Extent</label>
+          </div>
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onZoomExtentChange} checked={this.state.zoomToExtent} />
-            <label>Zoom to Extent</label>
+            <label title="On layer change zoom to the extent of the layer">Zoom to Extent</label>
           </div>
         </div>
       </div>
@@ -147,11 +160,21 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     if (this.state.layers == null || this.state.layers.size === 0) return { options: [], current: null };
     const categories: CategoryMap = new Map();
     const currentLayer = this.state.currentLayer;
+    const limitExtent = this.state.limitToExtent;
+
+    const location = Config.map.location;
+    const loc3857 = Projection.get(GoogleTms).fromWgs84([location.lon, location.lat]);
+    const tileSize = GoogleTms.tileSize * GoogleTms.pixelScale(Math.floor(location.zoom)); // width of 1 tile
+    // Assume the current bounds are 3x3 tiles, todo would be more correct to use the map's bounding box but we dont have access to it here
+    const bounds = new Bounds(loc3857[0], loc3857[1], 1, 1).scaleFromCenter(3 * tileSize, 3 * tileSize);
+
     let current: Option | null = null;
 
     for (const layer of this.state.layers.values()) {
       if (ignoredLayers.has(layer.id)) continue;
       if (!layer.projections.has(Config.map.tileMatrix.projection.code)) continue;
+      if (limitExtent && !doesLayerIntersect(bounds, layer)) continue;
+
       const layerId = layer.category ?? 'Unknown';
       const layerCategory = categories.get(layerId) ?? { label: layerId, options: [] };
       const opt = { value: layer.id, label: layer.name.replace(` ${layer.category}`, '') };
@@ -170,4 +193,28 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     );
     return { options: [...orderedCategories.values()], current: current };
   }
+}
+
+/**
+ * Determine if the bounds in EPSG:3857 intersects the provided layer
+ *
+ * TODO: It would be good to then use a more comprehensinve intersection if the bounding box intersects,
+ * there are complex polygons inside the attribution layer that could be used but they do not have all
+ * the polygons
+ *
+ * @param bounds Bounding box in EPSG:3857
+ * @param layer layer to check
+ * @returns true if it intesects, false otherwise
+ */
+function doesLayerIntersect(bounds: Bounds, layer: LayerInfo): boolean {
+  // No layer information assume it intersects
+  if (layer.lowerRight == null || layer.upperLeft == null) return true;
+
+  // It is somewhat easier to find intersections in EPSG:3857
+  const ul3857 = Projection.get(GoogleTms).fromWgs84(layer.upperLeft);
+  const lr3857 = Projection.get(GoogleTms).fromWgs84(layer.lowerRight);
+
+  const layerBounds = Bounds.fromBbox([ul3857[0], ul3857[1], lr3857[0], lr3857[1]]);
+
+  return bounds.intersects(layerBounds);
 }
