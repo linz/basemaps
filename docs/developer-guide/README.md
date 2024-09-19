@@ -2,7 +2,7 @@
 
 Documentation of the Basemaps codebase for developers
 
-- How to build
+- [How to build](./running-basemaps-locally.md)
 - Contributing guidelines
 - TypeDoc API docs
 
