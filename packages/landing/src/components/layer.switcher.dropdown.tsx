@@ -145,11 +145,11 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
         <div className="lui-input-group-wrapper" style={{ display: 'flex', justifyContent: 'space-around' }}>
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onFilterExtentChange} checked={this.state.filterToExtent} />
-            <label title="Filter the layer list to approximately the current map extent">Filter to Extent</label>
+            <label title="Filter the layer list to approximately the current map extent">Filter by map view</label>
           </div>
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onZoomExtentChange} checked={this.state.zoomToExtent} />
-            <label title="On layer change zoom to the extent of the layer">Zoom to Extent</label>
+            <label title="On layer change zoom to the extent of the layer">Zoom to layer</label>
           </div>
         </div>
       </div>
