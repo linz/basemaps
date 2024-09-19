@@ -1,11 +1,9 @@
 import { Bounds, GoogleTms, Projection } from '@basemaps/geo';
-import { Point } from 'maplibre-gl';
 import { ChangeEventHandler, Component, ReactNode } from 'react';
 import Select from 'react-select';
 
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
-import { MapLocation } from '../url.js';
 
 type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;
 
