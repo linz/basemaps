@@ -129,12 +129,24 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     this.setState({ filterToExtent: e.target.checked });
   };
 
+  renderTotal(total: number, hidden: number): ReactNode | null {
+    if (total === 0) return null;
+    if (hidden > 0) {
+      return (
+        <p title={`${hidden} layers hidden by filter`}>
+          {total - hidden} / {total}
+        </p>
+      );
+    }
+    return <p title={`${total} layers`}>{total}</p>;
+  }
+
   override render(): ReactNode {
     const ret = this.makeOptions();
 
     return (
       <div className="LuiDeprecatedForms">
-        <h6>Layers</h6>
+        <h6 className="layers-title">Layers {this.renderTotal(ret.total, ret.hidden)}</h6>
         <Select
           options={ret.options}
           onChange={this.onLayerChange}
@@ -142,10 +154,20 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
           classNamePrefix="layer-selector"
           id="layer-selector"
         />
-        <div className="lui-input-group-wrapper" style={{ display: 'flex', justifyContent: 'space-around' }}>
+        <div
+          className="lui-input-group-wrapper"
+          style={{ display: 'flex', justifyContent: 'space-around', height: 48 }}
+        >
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onFilterExtentChange} checked={this.state.filterToExtent} />
-            <label title="Filter the layer list to approximately the current map extent">Filter by map view</label>
+            <label title="Filter the layer list to approximately the current map extent">
+              Filter by map view{' '}
+              {ret.hidden > 0 ? (
+                <p>
+                  <b>{ret.hidden}</b> layers hidden
+                </p>
+              ) : null}
+            </label>
           </div>
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onZoomExtentChange} checked={this.state.zoomToExtent} />
@@ -156,8 +178,10 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     );
   }
 
-  makeOptions(): { options: GroupedOptions[]; current: Option | null } {
-    if (this.state.layers == null || this.state.layers.size === 0) return { options: [], current: null };
+  makeOptions(): { options: GroupedOptions[]; current: Option | null; hidden: number; total: number } {
+    let hidden = 0;
+    let total = 0;
+    if (this.state.layers == null || this.state.layers.size === 0) return { options: [], current: null, hidden, total };
     const categories: CategoryMap = new Map();
     const currentLayer = this.state.currentLayer;
     const filterToExtent = this.state.filterToExtent;
@@ -173,11 +197,14 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     for (const layer of this.state.layers.values()) {
       if (ignoredLayers.has(layer.id)) continue;
       if (!layer.projections.has(Config.map.tileMatrix.projection.code)) continue;
-
+      total++;
       // Always show the current layer
       if (layer.id !== currentLayer) {
         // Limit all other layers to the extent if requested
-        if (filterToExtent && !doesLayerIntersect(bounds, layer)) continue;
+        if (filterToExtent && !doesLayerIntersect(bounds, layer)) {
+          hidden++;
+          continue;
+        }
       }
 
       const layerId = layer.category ?? 'Unknown';
@@ -196,7 +223,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
         return 1;
       }),
     );
-    return { options: [...orderedCategories.values()], current: current };
+    return { options: [...orderedCategories.values()], current, hidden, total };
   }
 }
 
