@@ -33,7 +33,7 @@ export interface LayerSwitcherDropdownState {
   /** Should the map be zoomed to the extent of the layer when the layer is changed */
   zoomToExtent: boolean;
   /** Should the drop down be limited to the approximate extent of the map */
-  limitToExtent: boolean;
+  filterToExtent: boolean;
   currentLayer: string;
 }
 
@@ -44,7 +44,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
   constructor(p: unknown) {
     super(p);
-    this.state = { zoomToExtent: true, currentLayer: 'unknown', limitToExtent: false };
+    this.state = { zoomToExtent: true, currentLayer: 'unknown', filterToExtent: false };
   }
 
   override componentDidMount(): void {
@@ -119,16 +119,14 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   };
 
-  onZoomExtentChange: ChangeEventHandler<unknown> = (e) => {
-    const target = e.target as HTMLInputElement;
-    gaEvent(GaEvent.Ui, 'layer-list:zoomToExtent:' + target.checked);
-    this.setState({ zoomToExtent: target.checked });
+  onZoomExtentChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    gaEvent(GaEvent.Ui, 'layer-list:zoomToExtent:' + e.target.checked);
+    this.setState({ zoomToExtent: e.target.checked });
   };
 
-  onLimitToExtent: ChangeEventHandler<unknown> = (e) => {
-    const target = e.target as HTMLInputElement;
-    gaEvent(GaEvent.Ui, 'layer-list:limitToExtent:' + target.checked);
-    this.setState({ limitToExtent: target.checked });
+  onFilterExtentChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    gaEvent(GaEvent.Ui, 'layer-list:filterToExtent:' + e.target.checked);
+    this.setState({ filterToExtent: e.target.checked });
   };
 
   override render(): ReactNode {
@@ -146,8 +144,8 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
         />
         <div className="lui-input-group-wrapper" style={{ display: 'flex', justifyContent: 'space-around' }}>
           <div className="lui-checkbox-container">
-            <input type="checkbox" onChange={this.onLimitToExtent} checked={this.state.limitToExtent} />
-            <label title="Limit the layer list to approximately the current map extent">Limit to Extent</label>
+            <input type="checkbox" onChange={this.onFilterExtentChange} checked={this.state.filterToExtent} />
+            <label title="Filter the layer list to approximately the current map extent">Filter to Extent</label>
           </div>
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onZoomExtentChange} checked={this.state.zoomToExtent} />
@@ -162,7 +160,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     if (this.state.layers == null || this.state.layers.size === 0) return { options: [], current: null };
     const categories: CategoryMap = new Map();
     const currentLayer = this.state.currentLayer;
-    const limitExtent = this.state.limitToExtent;
+    const filterToExtent = this.state.filterToExtent;
 
     const location = Config.map.location;
     const loc3857 = Projection.get(GoogleTms).fromWgs84([location.lon, location.lat]);
@@ -175,7 +173,12 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     for (const layer of this.state.layers.values()) {
       if (ignoredLayers.has(layer.id)) continue;
       if (!layer.projections.has(Config.map.tileMatrix.projection.code)) continue;
-      if (limitExtent && !doesLayerIntersect(bounds, layer)) continue;
+
+      // Always show the current layer
+      if (layer.id !== currentLayer) {
+        // Limit all other layers to the extent if requested
+        if (filterToExtent && !doesLayerIntersect(bounds, layer)) continue;
+      }
 
       const layerId = layer.category ?? 'Unknown';
       const layerCategory = categories.get(layerId) ?? { label: layerId, options: [] };
