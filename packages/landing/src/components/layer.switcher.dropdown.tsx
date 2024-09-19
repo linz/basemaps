@@ -121,11 +121,13 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
   onZoomExtentChange: ChangeEventHandler<unknown> = (e) => {
     const target = e.target as HTMLInputElement;
+    gaEvent(GaEvent.Ui, 'layer-list:zoomToExtent:' + target.checked);
     this.setState({ zoomToExtent: target.checked });
   };
 
   onLimitToExtent: ChangeEventHandler<unknown> = (e) => {
     const target = e.target as HTMLInputElement;
+    gaEvent(GaEvent.Ui, 'layer-list:limitToExtent:' + target.checked);
     this.setState({ limitToExtent: target.checked });
   };
 
