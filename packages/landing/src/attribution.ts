@@ -17,20 +17,24 @@ export class MapAttributionState {
   /** Rendering process needs synch access */
   _attrsSync: Map<string, Attribution> = new Map();
 
+  getAttribution(layerKey: string, loadUrl: string): Promise<Attribution | null> {
+    const attrs = this._attrs.get(layerKey);
+    if (attrs) return attrs;
+    const attrLoad = Attribution.load(loadUrl)
+      .then((a) => {
+        if (a == null) return null;
+        a.isIgnored = this.isIgnored;
+        this._attrsSync.set(layerKey, a);
+        return a;
+      })
+      .catch(() => null);
+    this._attrs.set(layerKey, attrLoad);
+    return attrLoad;
+  }
+
   /** Load a attribution from a url, return a cached copy if we have one */
   getCurrentAttribution(): Promise<Attribution | null> {
-    const cacheKey = Config.map.layerKeyTms;
-    let attrs = this._attrs.get(cacheKey);
-    if (attrs == null) {
-      attrs = Attribution.load(Config.map.toTileUrl(MapOptionType.Attribution)).catch(() => null);
-      this._attrs.set(cacheKey, attrs);
-      void attrs.then((a) => {
-        if (a == null) return;
-        a.isIgnored = this.isIgnored;
-        this._attrsSync.set(Config.map.layerKeyTms, a);
-      });
-    }
-    return attrs;
+    return this.getAttribution(Config.map.layerKeyTms, Config.map.toTileUrl(MapOptionType.Attribution));
   }
 
   /** Filter the attribution to the map bounding box */

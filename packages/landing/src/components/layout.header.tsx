@@ -22,7 +22,7 @@ export class Header extends Component<unknown, HeaderState> {
   }
 
   override componentDidMount(): void {
-    this.setState({ isMenuOpen: false });
+    this.setState({ isMenuOpen: true });
     this._events.push(Config.map.on('change', () => this.forceUpdate()));
     this._events.push(Config.map.on('filter', () => this.renderLinksTiles()));
 

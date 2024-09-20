@@ -275,10 +275,16 @@ export class MapConfig extends Emitter<MapConfigEvents> {
 }
 
 export interface LayerInfo {
-  /** Layer id to use when fetching tiles */
+  /**
+   * URL friendly Layer id to use when fetching tiles
+   * @example "scanned-aerial-imagery-post-1989-12-31"
+   */
   id: string;
-  /** Layer name */
-  name: string;
+  /**
+   * Human friendly name of the layer,
+   * @example "Scanned Aerial Imagery post 31 December 1989"
+   */
+  title: string;
   /** Layer category */
   category?: string;
   /* Bounding box */
@@ -331,7 +337,7 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
     if (upperLeft == null || lowerRight == null || upperLeft.length !== 2) continue;
     allLayers.push({
       id,
-      name: title.replace('aerial ', ''),
+      title: title.replace('aerial ', ''),
       upperLeft,
       lowerRight,
       projections,
@@ -339,7 +345,7 @@ async function loadAllLayers(): Promise<Map<string, LayerInfo>> {
     } as LayerInfo);
   }
 
-  allLayers.sort((a, b) => a.name.localeCompare(b.name));
+  allLayers.sort((a, b) => a.title.localeCompare(b.title));
   addDefaultLayers(output);
   for (const l of allLayers) output.set(l.id, l);
   return output;
@@ -355,21 +361,21 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
   const layers: LayerInfo[] = [
     {
       id: 'aerial',
-      name: 'Aerial Imagery',
+      title: 'Aerial Imagery',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Basemaps',
     },
 
     {
       id: 'topographic::topographic',
-      name: 'Topographic',
+      title: 'Topographic',
       projections: new Set([EpsgCode.Google]),
       category: 'Basemaps',
     },
 
     {
       id: 'elevation',
-      name: 'Elevation',
+      title: 'Elevation',
       projections: new Set([EpsgCode.Google]),
       category: 'Basemaps',
       pipeline: 'terrain-rgb',
@@ -378,14 +384,14 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
 
     {
       id: 'scanned-aerial-imagery-pre-1990-01-01',
-      name: 'Scanned Aerial Imagery pre 1 January 1990',
+      title: 'Scanned Aerial Imagery pre 1 January 1990',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Scanned Aerial Imagery Basemaps',
     },
 
     {
       id: 'scanned-aerial-imagery-post-1989-12-31',
-      name: 'Scanned Aerial Imagery post 31 December 1989',
+      title: 'Scanned Aerial Imagery post 31 December 1989',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Scanned Aerial Imagery Basemaps',
     },

@@ -1,9 +1,12 @@
 import { Bounds, GoogleTms, Projection } from '@basemaps/geo';
+import { Wgs84 } from '@linzjs/geojson';
 import { ChangeEventHandler, Component, ReactNode } from 'react';
 import Select from 'react-select';
 
+import { MapAttrState } from '../attribution.js';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
+import { MapOptionType } from '../url.js';
 
 type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;
 
@@ -48,7 +51,12 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
   }
 
   override componentDidMount(): void {
-    this.setState({ zoomToExtent: true, currentLayer: Config.map.layerKey });
+    this.setState({ zoomToExtent: false, currentLayer: Config.map.layerKey, filterToExtent: true });
+    // Trigger a map load
+    void MapAttrState.getAttribution(
+      'all',
+      Config.map.toTileUrl(MapOptionType.Attribution, GoogleTms, 'all', undefined),
+    ).then(() => this.forceUpdate());
 
     void Config.map.layers.then((layers) => {
       this.setState({ layers });
@@ -194,6 +202,8 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
     let current: Option | null = null;
 
+    const allLayers = MapAttrState._attrsSync.get('all');
+
     for (const layer of this.state.layers.values()) {
       if (ignoredLayers.has(layer.id)) continue;
       if (!layer.projections.has(Config.map.tileMatrix.projection.code)) continue;
@@ -201,15 +211,26 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
       // Always show the current layer
       if (layer.id !== currentLayer) {
         // Limit all other layers to the extent if requested
-        if (filterToExtent && !doesLayerIntersect(bounds, layer)) {
-          hidden++;
-          continue;
+        if (filterToExtent) {
+          if (!doesLayerIntersect(bounds, layer)) {
+            hidden++;
+            continue;
+          }
+          if (allLayers) {
+            const currentLayer = allLayers.attributions.filter((f) => f.collection.title === layer.title);
+            const latLng = Projection.get(GoogleTms).boundsToWgs84BoundingBox(bounds);
+            // console.log(latLng, Wgs84.bboxToMultiPolygon(latLng));
+            if (currentLayer.length === 1 && !currentLayer[0].intersection(Wgs84.bboxToMultiPolygon(latLng))) {
+              hidden++;
+              continue;
+            }
+          }
         }
       }
 
       const layerId = layer.category ?? 'Unknown';
       const layerCategory = categories.get(layerId) ?? { label: layerId, options: [] };
-      const opt = { value: layer.id, label: layer.name.replace(` ${layer.category}`, '') };
+      const opt = { value: layer.id, label: layer.title.replace(` ${layer.category}`, '') };
       layerCategory.options.push(opt);
       categories.set(layerId, layerCategory);
       if (layer.id === currentLayer) current = opt;
