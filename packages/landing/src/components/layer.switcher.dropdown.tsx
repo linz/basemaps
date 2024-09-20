@@ -1,3 +1,4 @@
+import { Bounds, GoogleTms, Projection } from '@basemaps/geo';
 import { ChangeEventHandler, Component, ReactNode } from 'react';
 import Select from 'react-select';
 
@@ -29,7 +30,10 @@ export interface Option {
 
 export interface LayerSwitcherDropdownState {
   layers?: Map<string, LayerInfo>;
+  /** Should the map be zoomed to the extent of the layer when the layer is changed */
   zoomToExtent: boolean;
+  /** Should the drop down be limited to the approximate extent of the map */
+  filterToExtent: boolean;
   currentLayer: string;
 }
 
@@ -40,7 +44,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
   constructor(p: unknown) {
     super(p);
-    this.state = { zoomToExtent: true, currentLayer: 'unknown' };
+    this.state = { zoomToExtent: true, currentLayer: 'unknown', filterToExtent: false };
   }
 
   override componentDidMount(): void {
@@ -115,17 +119,34 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     window.history.pushState(null, '', `?${MapConfig.toUrl(Config.map)}`);
   };
 
-  onZoomExtentChange: ChangeEventHandler<unknown> = (e) => {
-    const target = e.target as HTMLInputElement;
-    this.setState({ zoomToExtent: target.checked });
+  onZoomExtentChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    gaEvent(GaEvent.Ui, 'layer-list:zoomToExtent:' + e.target.checked);
+    this.setState({ zoomToExtent: e.target.checked });
   };
+
+  onFilterExtentChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    gaEvent(GaEvent.Ui, 'layer-list:filterToExtent:' + e.target.checked);
+    this.setState({ filterToExtent: e.target.checked });
+  };
+
+  renderTotal(total: number, hidden: number): ReactNode | null {
+    if (total === 0) return null;
+    if (hidden > 0) {
+      return (
+        <p title={`${hidden} layers hidden by filter`}>
+          {total - hidden} / {total}
+        </p>
+      );
+    }
+    return <p title={`${total} layers`}>{total}</p>;
+  }
 
   override render(): ReactNode {
     const ret = this.makeOptions();
 
     return (
       <div className="LuiDeprecatedForms">
-        <h6>Layers</h6>
+        <h6 className="layers-title">Layers {this.renderTotal(ret.total, ret.hidden)}</h6>
         <Select
           options={ret.options}
           onChange={this.onLayerChange}
@@ -133,25 +154,59 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
           classNamePrefix="layer-selector"
           id="layer-selector"
         />
-        <div className="lui-input-group-wrapper">
+        <div
+          className="lui-input-group-wrapper"
+          style={{ display: 'flex', justifyContent: 'space-around', height: 48 }}
+        >
+          <div className="lui-checkbox-container">
+            <input type="checkbox" onChange={this.onFilterExtentChange} checked={this.state.filterToExtent} />
+            <label title="Filter the layer list to approximately the current map extent">
+              Filter by map view
+              {ret.hidden > 0 ? (
+                <p>
+                  <b>{ret.hidden}</b> layers hidden
+                </p>
+              ) : null}
+            </label>
+          </div>
           <div className="lui-checkbox-container">
             <input type="checkbox" onChange={this.onZoomExtentChange} checked={this.state.zoomToExtent} />
-            <label>Zoom to Extent</label>
+            <label title="On layer change zoom to the extent of the layer">Zoom to layer</label>
           </div>
         </div>
       </div>
     );
   }
 
-  makeOptions(): { options: GroupedOptions[]; current: Option | null } {
-    if (this.state.layers == null || this.state.layers.size === 0) return { options: [], current: null };
+  makeOptions(): { options: GroupedOptions[]; current: Option | null; hidden: number; total: number } {
+    let hidden = 0;
+    let total = 0;
+    if (this.state.layers == null || this.state.layers.size === 0) return { options: [], current: null, hidden, total };
     const categories: CategoryMap = new Map();
     const currentLayer = this.state.currentLayer;
+    const filterToExtent = this.state.filterToExtent;
+
+    const location = Config.map.location;
+    const loc3857 = Projection.get(GoogleTms).fromWgs84([location.lon, location.lat]);
+    const tileSize = GoogleTms.tileSize * GoogleTms.pixelScale(Math.floor(location.zoom)); // width of 1 tile
+    // Assume the current bounds are 3x3 tiles, todo would be more correct to use the map's bounding box but we dont have access to it here
+    const bounds = new Bounds(loc3857[0], loc3857[1], 1, 1).scaleFromCenter(3 * tileSize, 3 * tileSize);
+
     let current: Option | null = null;
 
     for (const layer of this.state.layers.values()) {
       if (ignoredLayers.has(layer.id)) continue;
       if (!layer.projections.has(Config.map.tileMatrix.projection.code)) continue;
+      total++;
+      // Always show the current layer
+      if (layer.id !== currentLayer) {
+        // Limit all other layers to the extent if requested
+        if (filterToExtent && !doesLayerIntersect(bounds, layer)) {
+          hidden++;
+          continue;
+        }
+      }
+
       const layerId = layer.category ?? 'Unknown';
       const layerCategory = categories.get(layerId) ?? { label: layerId, options: [] };
       const opt = { value: layer.id, label: layer.name.replace(` ${layer.category}`, '') };
@@ -168,6 +223,30 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
         return 1;
       }),
     );
-    return { options: [...orderedCategories.values()], current: current };
+    return { options: [...orderedCategories.values()], current, hidden, total };
   }
+}
+
+/**
+ * Determine if the bounds in EPSG:3857 intersects the provided layer
+ *
+ * TODO: It would be good to then use a more comprehensive intersection if the bounding box intersects,
+ * there are complex polygons inside the attribution layer that could be used but they do not have all
+ * the polygons
+ *
+ * @param bounds Bounding box in EPSG:3857
+ * @param layer layer to check
+ * @returns true if it intersects, false otherwise
+ */
+function doesLayerIntersect(bounds: Bounds, layer: LayerInfo): boolean {
+  // No layer information assume it intersects
+  if (layer.lowerRight == null || layer.upperLeft == null) return true;
+
+  // It is somewhat easier to find intersections in EPSG:3857
+  const ul3857 = Projection.get(GoogleTms).fromWgs84(layer.upperLeft);
+  const lr3857 = Projection.get(GoogleTms).fromWgs84(layer.lowerRight);
+
+  const layerBounds = Bounds.fromBbox([ul3857[0], ul3857[1], lr3857[0], lr3857[1]]);
+
+  return bounds.intersects(layerBounds);
 }

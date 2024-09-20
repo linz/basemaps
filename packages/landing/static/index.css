@@ -45,6 +45,19 @@ button {
   margin-top: 8px;
 }
 
+.layers-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.layers-title p {
+  margin: 0;
+}
+
+.lui-menu-drawer .lui-checkbox-container p {
+  margin-top: 2px;
+}
+
 .lui-menu-drawer .about-links {
   list-style: none;
   padding: 0;
@@ -74,6 +87,7 @@ button {
 .lui-menu-drawer h6 {
   border-bottom: 1px solid #eaeaea;
   padding-bottom: 4px;
+  margin-top: 24px;
   margin-bottom: 8px;
 }
 
