@@ -1,12 +1,11 @@
 import { Attribution } from '@basemaps/attribution';
 import { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
-import { GoogleTms, Stac, TileMatrixSet } from '@basemaps/geo';
-import { BBox } from '@linzjs/geojson';
+import { Stac } from '@basemaps/geo';
 import * as maplibre from 'maplibre-gl';
 
 import { onMapLoaded } from './components/map.js';
 import { Config } from './config.js';
-import { locationTransform } from './tile.matrix.js';
+import { mapToBoundingBox } from './tile.matrix.js';
 import { MapOptionType } from './url.js';
 
 const Copyright = `© ${Stac.License} LINZ`;
@@ -39,7 +38,7 @@ export class MapAttributionState {
     // Note that Mapbox rendering 512×512 image tiles are offset by one zoom level compared to 256×256 tiles.
     // For example, 512×512 tiles at zoom level 4 are equivalent to 256×256 tiles at zoom level 5.
     zoom += 1;
-    const extent = MapAttributionState.mapboxBoundToBbox(map.getBounds(), zoom, Config.map.tileMatrix);
+    const extent = mapToBoundingBox(map, zoom, Config.map.tileMatrix);
     return attr.filter({
       extent,
       zoom: zoom,
@@ -62,17 +61,6 @@ export class MapAttributionState {
     return attrsByYear;
   }
 
-  /**
-   * Covert Mapbox Bounds to tileMatrix BBox
-   */
-  static mapboxBoundToBbox(bounds: maplibre.LngLatBounds, zoom: number, tileMatrix: TileMatrixSet): BBox {
-    const swLocation = { lon: bounds.getWest(), lat: bounds.getSouth(), zoom: zoom };
-    const neLocation = { lon: bounds.getEast(), lat: bounds.getNorth(), zoom: zoom };
-    const swCoord = locationTransform(swLocation, GoogleTms, tileMatrix);
-    const neCoord = locationTransform(neLocation, GoogleTms, tileMatrix);
-    const bbox: BBox = [swCoord.lon, swCoord.lat, neCoord.lon, neCoord.lat];
-    return bbox;
-  }
 
   // Ignore DEMS from the attribution list
   isIgnored = (attr: AttributionBounds): boolean => {

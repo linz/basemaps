@@ -14,7 +14,7 @@ import { LngLatBoundsLike } from 'maplibre-gl';
 
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
-import { locationTransform } from './tile.matrix.js';
+import { locationTransform, mapToBoundingBox } from './tile.matrix.js';
 import { ensureBase58, MapLocation, MapOptionType, WindowUrl } from './url.js';
 
 /** Default center point if none provided */
@@ -191,6 +191,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const pitch = map.getPitch();
     if (bearing !== 0) location.bearing = bearing;
     if (pitch !== 0) location.pitch = pitch;
+
+    const bounds = mapToBoundingBox(map, zoom, Config.map.tileMatrix);
+    location.extent = bounds;
     return location;
   }
 
@@ -204,7 +207,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
       l.lon === this.location.lon &&
       l.zoom === this.location.zoom &&
       l.bearing === this.location.bearing &&
-      l.pitch === this.location.pitch
+      l.pitch === this.location.pitch &&
+      sameExtent(l, this.location)
     ) {
       return;
     }
@@ -213,6 +217,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.location.zoom = l.zoom;
     this.location.bearing = l.bearing;
     this.location.pitch = l.pitch;
+    this.location.extent = l.extent;
     this.emit('location', this.location);
     this.emit('change');
   }
@@ -272,6 +277,23 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.debug[key] = value;
     this.emit('change');
   }
+}
+
+/**
+ * Are two location's extents the same
+ * @param a location A
+ * @param b location B
+ * @returns true if the extents are exactly the same false otherwise
+ */
+function sameExtent(a: MapLocation, b: MapLocation): boolean {
+  if (a.extent == null && b.extent == null) return true;
+  if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+  return false;
 }
 
 export interface LayerInfo {

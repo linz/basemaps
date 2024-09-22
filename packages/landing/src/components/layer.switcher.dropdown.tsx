@@ -1,4 +1,5 @@
 import { Bounds, GoogleTms, Projection } from '@basemaps/geo';
+import { intersection, MultiPolygon, truncate, Wgs84 } from '@linzjs/geojson';
 import { ChangeEventHandler, Component, ReactNode } from 'react';
 import Select from 'react-select';
 
@@ -187,11 +188,11 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
     const filterToExtent = this.state.filterToExtent;
 
     const location = Config.map.location;
-    const loc3857 = Projection.get(GoogleTms).fromWgs84([location.lon, location.lat]);
-    const tileSize = GoogleTms.tileSize * GoogleTms.pixelScale(Math.floor(location.zoom)); // width of 1 tile
-    // Assume the current bounds are 3x3 tiles, todo would be more correct to use the map's bounding box but we dont have access to it here
-    const bounds = new Bounds(loc3857[0], loc3857[1], 1, 1).scaleFromCenter(3 * tileSize, 3 * tileSize);
+    if (location == null || location.extent == null) return { options: [], current: null, hidden, total };
 
+    const mapExtent = Wgs84.bboxToMultiPolygon(location.extent);
+
+    truncate;
     let current: Option | null = null;
 
     for (const layer of this.state.layers.values()) {
@@ -201,7 +202,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
       // Always show the current layer
       if (layer.id !== currentLayer) {
         // Limit all other layers to the extent if requested
-        if (filterToExtent && !doesLayerIntersect(bounds, layer)) {
+        if (filterToExtent && !doesLayerIntersect(mapExtent, layer)) {
           hidden++;
           continue;
         }
@@ -228,25 +229,22 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 }
 
 /**
- * Determine if the bounds in EPSG:3857 intersects the provided layer
+ * Determine if the polygon intersects the provided layer
  *
- * TODO: It would be good to then use a more comprehensive intersection if the bounding box intersects,
- * there are complex polygons inside the attribution layer that could be used but they do not have all
- * the polygons
- *
- * @param bounds Bounding box in EPSG:3857
+ * @param bounds polygon to check
  * @param layer layer to check
  * @returns true if it intersects, false otherwise
  */
-function doesLayerIntersect(bounds: Bounds, layer: LayerInfo): boolean {
+function doesLayerIntersect(bounds: MultiPolygon, layer: LayerInfo): boolean {
   // No layer information assume it intersects
   if (layer.lowerRight == null || layer.upperLeft == null) return true;
 
-  // It is somewhat easier to find intersections in EPSG:3857
-  const ul3857 = Projection.get(GoogleTms).fromWgs84(layer.upperLeft);
-  const lr3857 = Projection.get(GoogleTms).fromWgs84(layer.lowerRight);
+  const poly = Wgs84.bboxToMultiPolygon([
+    layer.lowerRight[0],
+    layer.upperLeft[1],
+    layer.upperLeft[0],
+    layer.lowerRight[1],
+  ]);
 
-  const layerBounds = Bounds.fromBbox([ul3857[0], ul3857[1], lr3857[0], lr3857[1]]);
-
-  return bounds.intersects(layerBounds);
+  return intersection(bounds, poly).length > 0;
 }
