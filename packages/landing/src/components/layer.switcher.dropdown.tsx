@@ -1,7 +1,8 @@
-import { intersection, MultiPolygon, truncate, Wgs84 } from '@linzjs/geojson';
+import { intersection, MultiPolygon, Wgs84 } from '@linzjs/geojson';
 import { ChangeEventHandler, Component, ReactNode } from 'react';
 import Select from 'react-select';
 
+import { MapAttrState } from '../attribution.js';
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { LayerInfo, MapConfig } from '../config.map.js';
 
@@ -49,6 +50,8 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
   override componentDidMount(): void {
     this.setState({ zoomToExtent: true, currentLayer: Config.map.layerKey });
+
+    void MapAttrState.getAll().then(() => this.forceUpdate());
 
     void Config.map.layers.then((layers) => {
       this.setState({ layers });
@@ -191,7 +194,6 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
     const mapExtent = Wgs84.bboxToMultiPolygon(location.extent);
 
-    truncate;
     let current: Option | null = null;
 
     for (const layer of this.state.layers.values()) {
@@ -209,7 +211,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
 
       const layerId = layer.category ?? 'Unknown';
       const layerCategory = categories.get(layerId) ?? { label: layerId, options: [] };
-      const opt = { value: layer.id, label: layer.name.replace(` ${layer.category}`, '') };
+      const opt = { value: layer.id, label: layer.title.replace(` ${layer.category}`, '') };
       layerCategory.options.push(opt);
       categories.set(layerId, layerCategory);
       if (layer.id === currentLayer) current = opt;
@@ -245,5 +247,16 @@ function doesLayerIntersect(bounds: MultiPolygon, layer: LayerInfo): boolean {
     layer.lowerRight[1],
   ]);
 
-  return intersection(bounds, poly).length > 0;
+  const inter = intersection(bounds, poly);
+  if (inter == null || inter.length === 0) return false;
+
+  // No attribution state loaded, assume it intersects
+  const attrs = MapAttrState.attrsSync.get('all');
+  if (attrs == null) return true;
+
+  const attrLayer = attrs.attributions.filter((f) => f.collection.title === layer.title);
+  // Could not find a exact layer match in the attribution
+  if (attrLayer.length !== 1) return true;
+
+  return attrLayer[0].intersection(bounds);
 }
