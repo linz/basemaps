@@ -61,7 +61,6 @@ export class MapAttributionState {
     return attrsByYear;
   }
 
-
   // Ignore DEMS from the attribution list
   isIgnored = (attr: AttributionBounds): boolean => {
     const title = attr.collection.title.toLowerCase();

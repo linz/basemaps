@@ -1,4 +1,3 @@
-import { Bounds, GoogleTms, Projection } from '@basemaps/geo';
 import { intersection, MultiPolygon, truncate, Wgs84 } from '@linzjs/geojson';
 import { ChangeEventHandler, Component, ReactNode } from 'react';
 import Select from 'react-select';

@@ -62,6 +62,7 @@ export interface TileUrlParams {
   style?: string | null;
   config?: string | null;
   pipeline?: string | null;
+  date?: FilterDate;
   imageFormat?: string | null;
   terrain?: string | null;
   labels?: boolean | null;

@@ -1,4 +1,4 @@
-import { BoundingBox, Bounds, GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Projection, TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Projection, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
 import { StyleSpecification } from 'maplibre-gl';
 
