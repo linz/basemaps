@@ -1,4 +1,5 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Projection, TileMatrixSet } from '@basemaps/geo';
+import { BBox } from '@linzjs/geojson';
 import { StyleSpecification } from 'maplibre-gl';
 
 import { Config } from './config.js';
@@ -74,6 +75,25 @@ export function locationTransform(
   const lonLat = Projection.get(targetTileMatrix).toWgs84([source.x, source.y]);
 
   return { lon: Math.round(lonLat[0] * 1e8) / 1e8, lat: Math.round(lonLat[1] * 1e8) / 1e8, zoom: location.zoom };
+}
+
+/**
+ * Covert map Bounds to tileMatrix BBox
+ */
+export function mapToBoundingBox(map: maplibregl.Map, zoom: number, tileMatrix: TileMatrixSet): BBox {
+  const bounds = map.getBounds();
+  const swLocation = { lon: bounds.getWest(), lat: bounds.getSouth(), zoom: zoom };
+  const neLocation = { lon: bounds.getEast(), lat: bounds.getNorth(), zoom: zoom };
+  const swCoord = locationTransform(swLocation, GoogleTms, tileMatrix);
+  const neCoord = locationTransform(neLocation, GoogleTms, tileMatrix);
+  // Truncate all coordiantes to 8 DP (~1mm)
+  const bbox: BBox = [
+    Math.round(swCoord.lon * 1e8) / 1e8,
+    Math.round(swCoord.lat * 1e8) / 1e8,
+    Math.round(neCoord.lon * 1e8) / 1e8,
+    Math.round(neCoord.lat * 1e8) / 1e8,
+  ];
+  return bbox;
 }
 
 /**

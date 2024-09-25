@@ -1,6 +1,7 @@
 import { base58, isBase58 } from '@basemaps/config/build/base58.js';
 import { GoogleTms, TileMatrixSet } from '@basemaps/geo';
 import { toQueryString } from '@basemaps/shared/build/url.js';
+import { BBox } from '@linzjs/geojson';
 
 import { LabelsDisabledLayers } from './components/map.label.js';
 import { Config } from './config.js';
@@ -12,9 +13,37 @@ export interface LonLat {
 }
 
 export interface MapLocation extends LonLat {
+  /**
+   * Current map zoom
+   *
+   * @example 11.94
+   */
   zoom: number;
+
+  /**
+   * Current map bearing in degrees
+   *
+   * Between -180 and 180
+   *
+   * @default 0
+   * @example -43.7
+   */
   bearing?: number;
+
+  /**
+   * Current map pitch in degrees
+   *
+   * Between 0 and {@link LocationUrl.PitchMaxDegrees}
+   *
+   * @default 0
+   * @example 12.7
+   */
   pitch?: number;
+
+  /**
+   * Optional bounding box of the map's view
+   */
+  extent?: BBox;
 }
 
 export const enum MapOptionType {

@@ -99,10 +99,13 @@ async function tileSetAttribution(
   for (const layer of tileSet.layers) {
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
+
     const im = imagery.get(imgId);
     if (im == null) continue;
+
     const title = im.title;
     const years = extractYearRangeFromTitle(im.title) ?? extractYearRangeFromName(im.name);
+
     if (years == null) continue;
     const interval = yearRangeToInterval(years);
 
