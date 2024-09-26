@@ -35,7 +35,8 @@
       "executable": true,
       "external": [
         "pino-pretty",
-        "sharp"
+        "sharp",
+        "lerc"
       ]
     }
   ],
