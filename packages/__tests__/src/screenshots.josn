@@ -113,7 +113,7 @@
   {
     "name": "aerial-3857-mount-taranaki-terrain-z14",
     "tileMatrix": "WebMercatorQuad",
-    "location": location: { lat: -39.3031717, lng: 174.0585208, z: 14, p: 43  },
+    "location": { lat: -39.3031717, lng: 174.0585208, z: 14, p: 43  },
     "tileSet": "aerial",
     "style": "aerial",
     "terrain": "LINZ-Terrain"
