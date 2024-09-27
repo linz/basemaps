@@ -10,10 +10,10 @@ type CategoryMap = Map<string, { label: string; options: { label: string; value:
 
 const Categories = [
   'Basemaps',
+  'Scanned Aerial Imagery Basemaps',
   'Satellite Imagery',
   'Urban Aerial Photos',
   'Rural Aerial Photos',
-  'Scanned Aerial Imagery Basemaps',
   'Scanned Aerial Imagery',
   'Event',
   'Bathymetry',
@@ -225,6 +225,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
         return 1;
       }),
     );
+
     return { options: [...orderedCategories.values()], current, hidden, total };
   }
 }
