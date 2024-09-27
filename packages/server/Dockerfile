@@ -12,8 +12,6 @@ WORKDIR /app/basemaps
 COPY ./basemaps-landing*.tgz /app/basemaps/
 COPY ./basemaps-server*.tgz /app/basemaps/
 
-RUN npm install lerc@^4.0.4
-
 RUN npm install ./basemaps-landing*.tgz
 RUN npm install ./basemaps-server*.tgz
 
