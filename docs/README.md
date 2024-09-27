@@ -2,7 +2,7 @@
 
 [LINZ Basemaps](https://basemaps.linz.govt.nz) is a collection of tools to create and serve vector and raster basemaps using open source and open standards. It is designed to be light weight, cost efficient and fast.
 
-Basemaps currently supports both [Imagery](#aerial--satellite-imagery) and [Vector data](#vector-data)
+Basemaps currently supports both [Imagery](#aerial--satellite-imagery-processing) and [Vector data](#vector-data)
 
 ## Background
 

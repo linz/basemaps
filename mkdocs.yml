@@ -68,6 +68,12 @@ markdown_extensions:
   # https://facelessuser.github.io/pymdown-extensions/extensions/details/
   - pymdownx.details
 
+  # Allows grouping content snippets under labelled tabs
+  #
+  # https://facelessuser.github.io/pymdown-extensions/extensions/tabbed/
+  - pymdownx.tabbed:
+      alternate_style: true
+
 # Load google analytics from the $GOOGLE_ANALYTICS environment var
 extra:
   analytics:
