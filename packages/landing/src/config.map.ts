@@ -394,6 +394,13 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
     },
 
     {
+      id: 'topographic::topolite',
+      title: 'Topolite',
+      projections: new Set([EpsgCode.Google]),
+      category: 'Basemaps',
+    },
+
+    {
       id: 'elevation',
       title: 'Elevation',
       projections: new Set([EpsgCode.Google]),
