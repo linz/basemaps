@@ -10,4 +10,4 @@ There are three separate quick start guides for these users.
 
 - [User Quick Start](./user-guide/quick-start.md)
 - [Operator Quick Start](./operator-guide/quick-start.md)
-- [Developer Quick Start](./developer-guide/quick-startm.md)
+- [Developer Quick Start](./developer-guide/quick-start.md)
