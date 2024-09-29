@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+
+
+### Bug Fixes
+
+* **server:** Add lerc external into server package. ([#3348](https://github.com/linz/basemaps/issues/3348)) ([2aea3c7](https://github.com/linz/basemaps/commit/2aea3c7ee5acaf2c1a4219fd0fe375688b429124))
+
+
+
+
+
 # [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
 
 **Note:** Version bump only for package @basemaps/cli

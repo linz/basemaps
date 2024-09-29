@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+
+
+### Bug Fixes
+
+* **server:** Add lerc external into server package. ([#3348](https://github.com/linz/basemaps/issues/3348)) ([2aea3c7](https://github.com/linz/basemaps/commit/2aea3c7ee5acaf2c1a4219fd0fe375688b429124))
+* **server:** Copy the static health check files into server container ([#3351](https://github.com/linz/basemaps/issues/3351)) ([ecfee1d](https://github.com/linz/basemaps/commit/ecfee1d60a574784235834b160b602de8cff6d27))
+
+
+### Features
+
+* **landing:** adjust layers dropdown BM-1079 ([#3349](https://github.com/linz/basemaps/issues/3349)) ([0759c54](https://github.com/linz/basemaps/commit/0759c540d0a19e69573c48b71fd5fda5327740e7))
+* **landing:** store the maps bounds to provide a better bounding box intersection ([#3346](https://github.com/linz/basemaps/issues/3346)) ([a420f57](https://github.com/linz/basemaps/commit/a420f57b2d21354c3fbf1a1be2e01a66d5c38d76))
+* **layer:** add option to limit layer list by extent BM-883 ([#3344](https://github.com/linz/basemaps/issues/3344)) ([4bc33ff](https://github.com/linz/basemaps/commit/4bc33ff1a487f5894f4ca0c4607f146cf4e01096))
+
+
+
+
+
 # [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
 
 

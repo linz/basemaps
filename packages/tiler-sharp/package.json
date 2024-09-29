@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/tiler-sharp",
-  "version": "7.7.0",
+  "version": "7.11.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -22,9 +22,9 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@basemaps/config": "^7.7.0",
-    "@basemaps/geo": "^7.5.0",
-    "@basemaps/tiler": "^7.5.0",
+    "@basemaps/config": "^7.11.0",
+    "@basemaps/geo": "^7.11.0",
+    "@basemaps/tiler": "^7.11.0",
     "@linzjs/metrics": "^7.5.0",
     "lerc": "^4.0.4"
   },
