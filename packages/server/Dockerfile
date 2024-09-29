@@ -12,6 +12,9 @@ WORKDIR /app/basemaps
 COPY ./basemaps-landing*.tgz /app/basemaps/
 COPY ./basemaps-server*.tgz /app/basemaps/
 
+# Copy the static files for v1/health check
+COPY ./static/ /app/static/
+
 RUN npm install ./basemaps-landing*.tgz
 RUN npm install ./basemaps-server*.tgz
 
