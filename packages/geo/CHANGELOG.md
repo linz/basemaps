@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+
+
+### Features
+
+* **landing:** store the maps bounds to provide a better bounding box intersection ([#3346](https://github.com/linz/basemaps/issues/3346)) ([a420f57](https://github.com/linz/basemaps/commit/a420f57b2d21354c3fbf1a1be2e01a66d5c38d76))
+
+
+
+
+
 # [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
 
 **Note:** Version bump only for package @basemaps/geo
