@@ -30,7 +30,8 @@
       "outfile": "dist/index.cjs",
       "external": [
         "sharp",
-        "pino-pretty"
+        "pino-pretty",
+        "lerc"
       ]
     }
   ],

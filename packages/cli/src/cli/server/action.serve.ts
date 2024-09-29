@@ -9,6 +9,7 @@ import {
 
 const DefaultPort = 5000;
 
+/** @deprecated 2024-09 Use the basemaps/server container directly now, and deprecate this later. */
 export class CommandServe extends CommandLineAction {
   config!: CommandLineStringParameter;
   assets!: CommandLineStringParameter;
