@@ -1,5 +1,6 @@
 // Fastfiy uses a lot of floating promises
 /* eslint-disable @typescript-eslint/no-floating-promises */
+import { Epsg } from '@basemaps/geo';
 import { handler } from '@basemaps/lambda-tiler';
 import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
@@ -14,6 +15,7 @@ import { URL } from 'url';
 
 import { loadConfig, ServerOptions } from './config.js';
 import { createLayersHtml } from './route.layers.js';
+import { getTileSetPath } from './route.link.js';
 
 const instanceId = ulid.ulid();
 
@@ -93,6 +95,27 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
     res.status(200);
     res.header('Content-Type', 'text/html');
     res.send(doc);
+  });
+
+  /**
+   * @route GET /link/:tileSetId
+   * 
+   * @example /link/ashburton-2023-0.1m
+   * 
+   * @description If a tileset layer of the given id and 3857 projection exists, the server redirects the client to a Basemaps
+   * URL that is already zoomed to the extent of the layer. Otherwise, the server returns an 'HTTP 404 Not found' status code.
+   * 
+   */
+  BasemapsServer.get('/link/:tileSetId', async (req: FastifyRequest<{ Params: { tileSetId: string } }>, res: FastifyReply) => {
+    const { tileSetId } = req.params
+
+    const path = await getTileSetPath(cfg, tileSetId, Epsg.Google);
+
+    if (path) {
+      res.redirect(`/${path}`)
+    } else {
+      res.status(404)
+    }
   });
 
   return BasemapsServer;
