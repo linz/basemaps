@@ -50,10 +50,23 @@ jobs:
           # Files are packed into the base directory
           cp *.tgz packages/server/
           cp *.tgz packages/cli/
+          cp -r packages/lambda-tiler/static/ packages/server/
           cp -r packages/lambda-tiler/static/ packages/cli/
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: '@basemaps/cli - Build and export to Docker'
+        uses: docker/build-push-action@v5
+        with:
+          load: true
+          tags: |
+            ghcr.io/linz/basemaps/cli:latest
+            ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }}
+
+      - name: Test
+        run: |
+          docker run --rm ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }}
 
       - name: '@basemaps/cli - Build and push'
         uses: docker/build-push-action@v5
@@ -76,7 +89,6 @@ jobs:
             ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version_major }}
             ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version_major_minor }}
             ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }}
-
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')}}
 
       - name: '@basemaps/server - Build and push'
@@ -101,3 +113,4 @@ jobs:
             ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version_major_minor }}
             ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }}
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')}}
+          
