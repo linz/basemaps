@@ -67,7 +67,7 @@ jobs:
 
       - name: '@basemaps/cli - Test'
         run: |
-          docker run --rm ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }} --version
+          docker run --rm ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }} --help
 
       - name: '@basemaps/cli - Build and push'
         uses: docker/build-push-action@v5
