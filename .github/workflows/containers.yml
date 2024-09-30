@@ -59,6 +59,7 @@ jobs:
       - name: '@basemaps/cli - Build and export to Docker'
         uses: docker/build-push-action@v5
         with:
+          context: packages/cli
           load: true
           tags: |
             ghcr.io/linz/basemaps/cli:latest
