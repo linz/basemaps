@@ -6,6 +6,7 @@ import { configImageryGet, configTileSetGet } from './routes/config.js';
 import { fontGet, fontList } from './routes/fonts.js';
 import { healthGet } from './routes/health.js';
 import { imageryGet } from './routes/imagery.js';
+import { linkGet } from './routes/link.js';
 import { pingGet } from './routes/ping.js';
 import { previewIndexGet } from './routes/preview.index.js';
 import { tilePreviewGet } from './routes/preview.js';
@@ -101,6 +102,9 @@ handler.router.get('/v1/preview/:tileSet/:tileMatrix/:z/:lon/:lat/:outputType', 
 
 handler.router.get('/v1/@:location', previewIndexGet);
 handler.router.get('/@:location', previewIndexGet);
+
+// Link
+handler.router.get('/v1/link/:tileSet', linkGet);
 
 // Attribution
 handler.router.get('/v1/tiles/:tileSet/:tileMatrix/attribution.json', tileAttributionGet);
