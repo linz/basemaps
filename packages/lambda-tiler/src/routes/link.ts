@@ -1,3 +1,4 @@
+import { TileSetType } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
 import { getPreviewUrl } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
@@ -11,11 +12,14 @@ export interface LinkGet {
 }
 
 /**
- * Given a tileset, this function redirects the client to a Basemaps URL that is already zoomed to
- * the extent of the tileset's imagery. Otherwise, this function returns an 4xx status and message.
+ * Redirect the client to a Basemaps URL that is already zoomed to the extent of the tileset's imagery.
  *
- * @param tileSet - The id of the tileset.
- * @example "ashburton-2023-0.1m"
+ * /v1/link/:tileSet
+ *
+ * @example
+ * '/v1/link/ashburton-2023-0.1m'
+ *
+ * @returns on success, 302 redirect response. on failure, 4xx status code response.
  */
 export async function linkGet(req: LambdaHttpRequest<LinkGet>): Promise<LambdaHttpResponse> {
   const config = await ConfigLoader.load(req);
@@ -27,6 +31,10 @@ export async function linkGet(req: LambdaHttpRequest<LinkGet>): Promise<LambdaHt
   req.timer.end('tileset:load');
 
   if (tileSet == null) return new LambdaHttpResponse(404, 'Tileset not found');
+
+  if (tileSet.type !== TileSetType.Raster) return new LambdaHttpResponse(400, 'Tileset must be raster type');
+
+  // TODO: add support for 'aerial' and 'elevation' multi-layer tilesets
   if (tileSet.layers.length !== 1) return new LambdaHttpResponse(400, 'Too many layers');
 
   // get imagery

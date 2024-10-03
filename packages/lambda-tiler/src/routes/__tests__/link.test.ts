@@ -1,25 +1,17 @@
 import { strictEqual } from 'node:assert';
-import { afterEach, before, describe, test } from 'node:test';
+import { afterEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
-import { createSandbox } from 'sinon';
 
 import { FakeData, Imagery3857 } from '../../__tests__/config.data.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 
-const NAME = 'tileset';
-const PATH = `/v1/link/${NAME}`;
-
 describe('/v1/link/:tileSet', () => {
+  const FakeTileSetName = 'tileset';
   const config = new ConfigProviderMemory();
-  const sandbox = createSandbox();
-
-  before(() => {
-    sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
-  });
 
   afterEach(() => {
     config.objects.clear();
@@ -29,12 +21,14 @@ describe('/v1/link/:tileSet', () => {
    * 3xx status responses
    */
 
-  // tileset found, has one layer, has '3857' entry, imagery found > 302 response
-  test('success: redirect to pre-zoomed imagery', async () => {
-    config.put(FakeData.tileSetRaster(NAME));
+  // tileset found, is raster type, has one layer, has '3857' entry, imagery found > 302 response
+  it('success: redirect to pre-zoomed imagery', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    config.put(FakeData.tileSetRaster(FakeTileSetName));
     config.put(Imagery3857);
 
-    const req = mockRequest(PATH);
+    const req = mockRequest(`/v1/link/${FakeTileSetName}`);
     const res = await handler.router.handle(req);
 
     strictEqual(res.status, 302);
@@ -46,51 +40,72 @@ describe('/v1/link/:tileSet', () => {
    */
 
   // tileset not found > 404 response
-  test('failure: tileset not found', async () => {
-    const req = mockRequest(PATH);
+  it('failure: tileset not found', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    const req = mockRequest(`/v1/link/${FakeTileSetName}`);
     const res = await handler.router.handle(req);
 
     strictEqual(res.status, 404);
     strictEqual(res.statusDescription, 'Tileset not found');
   });
 
-  // tileset found, has more than one layer > 400 response
-  test('failure: too many layers', async () => {
-    const tileSet = FakeData.tileSetRaster(NAME);
+  // tileset found, not raster type > 400 response
+  it('failure: tileset must be raster type', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    config.put(FakeData.tileSetVector(FakeTileSetName));
+
+    const req = mockRequest(`/v1/link/${FakeTileSetName}`);
+    const res = await handler.router.handle(req);
+
+    strictEqual(res.status, 400);
+    strictEqual(res.statusDescription, 'Tileset must be raster type');
+  });
+
+  // tileset found, is raster type, has more than one layer > 400 response
+  it('failure: too many layers', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    const tileSet = FakeData.tileSetRaster(FakeTileSetName);
 
     // add another layer
     tileSet.layers.push(tileSet.layers[0]);
 
     config.put(tileSet);
 
-    const req = mockRequest(PATH);
+    const req = mockRequest(`/v1/link/${FakeTileSetName}`);
     const res = await handler.router.handle(req);
 
     strictEqual(res.status, 400);
     strictEqual(res.statusDescription, 'Too many layers');
   });
 
-  // tileset found, has one layer, no '3857' entry > 400 response
-  test("failure: no imagery for '3857' projection", async () => {
-    const tileSet = FakeData.tileSetRaster(NAME);
+  // tileset found, is raster type, has one layer, no '3857' entry > 400 response
+  it("failure: no imagery for '3857' projection", async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    const tileSet = FakeData.tileSetRaster(FakeTileSetName);
 
     // delete '3857' entry
     delete tileSet.layers[0][Epsg.Google.code];
 
     config.put(tileSet);
 
-    const req = mockRequest(PATH);
+    const req = mockRequest(`/v1/link/${FakeTileSetName}`);
     const res = await handler.router.handle(req);
 
     strictEqual(res.status, 400);
     strictEqual(res.statusDescription, "No imagery for '3857' projection");
   });
 
-  // tileset found, has one layer, has '3857' entry, imagery not found > 400 response
-  test('failure: imagery not found', async () => {
-    config.put(FakeData.tileSetRaster(NAME));
+  // tileset found, is raster type, has one layer, has '3857' entry, imagery not found > 400 response
+  it('failure: imagery not found', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
 
-    const req = mockRequest(PATH);
+    config.put(FakeData.tileSetRaster(FakeTileSetName));
+
+    const req = mockRequest(`/v1/link/${FakeTileSetName}`);
     const res = await handler.router.handle(req);
 
     strictEqual(res.status, 400);
