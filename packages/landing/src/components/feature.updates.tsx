@@ -27,10 +27,16 @@ type FeatureUpdatesState = {
   showModal: boolean;
 };
 
+/**
+ * FeatureUpdates is a re-implementation of @linzjs/lui -> LuiUpdatesSplashModal module,
+ * This use to enable a one off pop up screen for introduce new feature of the recent release.
+ *
+ */
 export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdatesState> {
   constructor(props: FeatureUpdatesProps) {
     super(props);
     const currentVersion = window.localStorage.getItem(this.props.id);
+
     this.state = {
       showModal: this.props.enabled && this.props.releaseVersion.trim() !== currentVersion,
     };
@@ -85,25 +91,6 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
     );
   }
 
-  WhatsNewIcon(): ReactNode {
-    return (
-      <span
-        className={'LuiIcon LuiIcon--md lui-feature-title-icon '}
-        data-icon={'ic_whats_new_updates'}
-        aria-label={'whats_new_icon'}
-      >
-        <img src="assets/whats_new_updates.svg" alt="whats_new_icon" className="LuiIcon__image" />
-      </span>
-    );
-  }
-  ClearIcon(): ReactNode {
-    return (
-      <span className="LuiIcon LuiIcon--md LuiIcon--interactive" data-icon="ic_clear" aria-label="cross_icon">
-        <img src="/assets/clear.svg" alt="cross_icon" />
-      </span>
-    );
-  }
-
   FeatureImages(bigImage: string, smallImage: string): ReactNode {
     return (
       <div className="lui-feature-img">
@@ -126,6 +113,28 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
           {...iFrameProps}
         ></iframe>
       </div>
+    );
+  }
+
+  // @linzjs/lui whats_new_icon re-implementation
+  WhatsNewIcon(): ReactNode {
+    return (
+      <span
+        className={'LuiIcon LuiIcon--md lui-feature-title-icon '}
+        data-icon={'ic_whats_new_updates'}
+        aria-label={'whats_new_icon'}
+      >
+        <img src="assets/whats_new_updates.svg" alt="whats_new_icon" className="LuiIcon__image" />
+      </span>
+    );
+  }
+
+  // @linzjs/lui cross_icon re-implementation
+  ClearIcon(): ReactNode {
+    return (
+      <span className="LuiIcon LuiIcon--md LuiIcon--interactive" data-icon="ic_clear" aria-label="cross_icon">
+        <img src="/assets/clear.svg" alt="cross_icon" />
+      </span>
     );
   }
 }
