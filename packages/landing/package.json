@@ -63,6 +63,14 @@
       "outfile": "dist/assets/logo-linz.svg"
     },
     {
+      "entry": "../../node_modules/@linzjs/lui/dist/assets/icons/whats_new_updates.svg",
+      "outfile": "dist/assets/whats_new_updates.svg"
+    },
+    {
+      "entry": "../../node_modules/@linzjs/lui/dist/assets/icons/clear.svg",
+      "outfile": "dist/assets/clear.svg"
+    },
+    {
       "entry": "../../node_modules/@linzjs/lui/dist/assets/fonts",
       "outfile": "dist/assets/fonts"
     },

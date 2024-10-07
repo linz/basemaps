@@ -44,10 +44,10 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
   renderFeatureMedia(): ReactNode {
     const { bigImage, smallImage, iframe } = this.props;
     if (iframe) {
-      return <FeatureIFrame iframeConfig={iframe} />;
+      return this.FeatureIFrame(iframe);
     }
     if (bigImage && smallImage) {
-      return <FeatureImages bigImage={bigImage} smallImage={smallImage} />;
+      return this.FeatureImages(bigImage, smallImage);
     }
     return null; // Return null if no media is available
   }
@@ -71,11 +71,11 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
         <div className={clsx('lui-large-feature-notification', wrapperClass)}>
           <div className="lui-feature-header">
             <div className="lui-feature-title-wrapper">
-              {/* <Icon alt="whats_new_icon" name="ic_whats_new_updates" size="lg" className="lui-feature-title-icon" /> */}
+              {this.WhatsNewIcon()}
               <h1>{header}</h1>
             </div>
             <button aria-label="Close dialog" onClick={this.handleClose}>
-              {/* <Icon alt="cross_icon" name="ic_clear" status="interactive" size="md" /> */}
+              {this.ClearIcon()}
             </button>
           </div>
           {this.renderFeatureMedia()}
@@ -84,27 +84,48 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
       </ReactModal>
     );
   }
+
+  WhatsNewIcon(): ReactNode {
+    return (
+      <span
+        className={'LuiIcon LuiIcon--md lui-feature-title-icon '}
+        data-icon={'ic_whats_new_updates'}
+        aria-label={'whats_new_icon'}
+      >
+        <img src="assets/whats_new_updates.svg" alt="whats_new_icon" className="LuiIcon__image" />
+      </span>
+    );
+  }
+  ClearIcon(): ReactNode {
+    return (
+      <span className="LuiIcon LuiIcon--md LuiIcon--interactive" data-icon="ic_clear" aria-label="cross_icon">
+        <img src="/assets/clear.svg" alt="cross_icon" />
+      </span>
+    );
+  }
+
+  FeatureImages(bigImage: string, smallImage: string): ReactNode {
+    return (
+      <div className="lui-feature-img">
+        <img className="lui-hide-xs lui-hide-sm" alt={"What's new"} src={bigImage} />
+        <img className="lui-hide-md lui-hide-lg lui-hide-xl" alt={"What's new"} src={smallImage} />
+      </div>
+    );
+  }
+
+  FeatureIFrame(iframeConfig: IFrameConfig): ReactNode {
+    const wrapperClass = iframeConfig.iframeWrapperClass || 'iframe-wrapper';
+    const iFrameProps = iframeConfig.iFrameProps || {};
+    return (
+      <div className={wrapperClass}>
+        <iframe
+          width={iframeConfig.width}
+          height={iframeConfig.height}
+          src={iframeConfig.url}
+          title={iframeConfig.title}
+          {...iFrameProps}
+        ></iframe>
+      </div>
+    );
+  }
 }
-
-const FeatureImages = ({ bigImage, smallImage }: { bigImage: string; smallImage: string }): ReactNode => (
-  <div className="lui-feature-img">
-    <img className="lui-hide-xs lui-hide-sm" alt={"What's new"} src={bigImage} />
-    <img className="lui-hide-md lui-hide-lg lui-hide-xl" alt={"What's new"} src={smallImage} />
-  </div>
-);
-
-const FeatureIFrame = ({ iframeConfig }: { iframeConfig: IFrameConfig }): ReactNode => {
-  const wrapperClass = iframeConfig.iframeWrapperClass || 'iframe-wrapper';
-  const iFrameProps = iframeConfig.iFrameProps || {};
-  return (
-    <div className={wrapperClass}>
-      <iframe
-        width={iframeConfig.width}
-        height={iframeConfig.height}
-        src={iframeConfig.url}
-        title={iframeConfig.title}
-        {...iFrameProps}
-      ></iframe>
-    </div>
-  );
-};

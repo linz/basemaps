@@ -1,10 +1,10 @@
 import { Component, Fragment, ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { NewFeature } from './components/features/new.feature.js';
 import { Footer } from './components/layout.footer.js';
 import { Header } from './components/layout.header.js';
 import { Basemaps } from './components/map.js';
+import { NewFeature } from './components/new.feature.js';
 import { Config } from './config.js';
 import { WindowUrl } from './url.js';
 import { isWebpSupported } from './webp.js';

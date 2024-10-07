@@ -258,3 +258,7 @@ have higher specifity than the default styles of the react-select component
 .display-none {
   display: none!important;
 }
+
+.lui-feature-img img {
+  padding: 20px;
+}
