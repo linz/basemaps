@@ -21,11 +21,12 @@ RUN npm install sharp@0.33.0
 COPY ./basemaps-landing*.tgz /app/
 COPY ./basemaps-cogify*.tgz /app/
 COPY ./basemaps-smoke*.tgz /app/
+COPY ./basemaps-server*.tgz /app/
 
 # Copy the static files for v1/health check
 COPY ./static/ /app/static/
 
-RUN npm install ./basemaps-landing*.tgz ./basemaps-cogify*.tgz ./basemaps-smoke*.tgz
+RUN npm install ./basemaps-landing*.tgz ./basemaps-cogify*.tgz ./basemaps-smoke*.tgz ./basemaps-server*.tgz
 
 COPY dist/index.cjs /app/
 

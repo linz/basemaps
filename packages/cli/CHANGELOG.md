@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.11.1](https://github.com/linz/basemaps/compare/v7.11.0...v7.11.1) (2024-10-01)
+
+
+### Bug Fixes
+
+* **cli:** Install server package in the cli container to inlcude lerc. ([#3353](https://github.com/linz/basemaps/issues/3353)) ([9b2b785](https://github.com/linz/basemaps/commit/9b2b785deaa87c94f1ec2254b91c1ed8993a72f3))
+
+
+
+
+
 # [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
 
 

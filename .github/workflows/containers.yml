@@ -56,6 +56,19 @@ jobs:
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
+      - name: '@basemaps/cli - Build and export to Docker'
+        uses: docker/build-push-action@v5
+        with:
+          context: packages/cli
+          load: true
+          tags: |
+            ghcr.io/linz/basemaps/cli:latest
+            ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }}
+
+      - name: '@basemaps/cli - Test'
+        run: |
+          docker run --rm ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }} --help
+
       - name: '@basemaps/cli - Build and push'
         uses: docker/build-push-action@v5
         with:
@@ -77,8 +90,20 @@ jobs:
             ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version_major }}
             ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version_major_minor }}
             ghcr.io/linz/basemaps/cli:${{ steps.version.outputs.version }}
-
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')}}
+
+      - name: '@basemaps/server - Build and export to Docker'
+        uses: docker/build-push-action@v5
+        with:
+          context: packages/server
+          load: true
+          tags: |
+            ghcr.io/linz/basemaps/server:latest
+            ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }}
+  
+      - name: '@basemaps/server - Test'
+        run: |
+          docker run --rm ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }} --version
 
       - name: '@basemaps/server - Build and push'
         uses: docker/build-push-action@v5
@@ -102,3 +127,4 @@ jobs:
             ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version_major_minor }}
             ghcr.io/linz/basemaps/server:${{ steps.version.outputs.version }}
           push: ${{github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')}}
+          
