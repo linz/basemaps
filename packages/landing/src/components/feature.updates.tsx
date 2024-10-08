@@ -8,7 +8,7 @@ type FeatureUpdatesProps = {
   header: string;
   wrapperClass?: string;
   id: string;
-  releaseVersion: string;
+  dismissedKey: string;
   closingDate: Date;
   enabled: boolean;
   children?: ReactNode;
@@ -27,30 +27,16 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
   constructor(props: FeatureUpdatesProps) {
     super(props);
 
-    this.state = {
-      showModal: this.showModal(),
-    };
-  }
-
-  showModal(): boolean {
-    if (!this.props.enabled) return false;
-    // Disable after closing date
-    if (this.props.closingDate < new Date()) return false;
-    // Disable if dismissed
     const id = window.localStorage.getItem(this.props.id);
-    const releaseVersion = this.props.releaseVersion.trim();
-    if (releaseVersion === id) return false;
-    // Disable if not same release version
-    const currentVersion = Config.Version.trim();
-    if (Config.Version === '' || currentVersion.length <= releaseVersion.length) return false;
-    const versionMatch = currentVersion.slice(0, releaseVersion.length);
-    if (versionMatch !== releaseVersion) return false;
-    return true;
+
+    this.state = {
+      showModal: this.props.enabled && this.props.dismissedKey !== id && this.props.closingDate >= new Date(),
+    };
   }
 
   handleClose = (): void => {
     this.setState({ showModal: false });
-    window.localStorage.setItem(this.props.id, this.props.releaseVersion);
+    window.localStorage.setItem(this.props.id, this.props.dismissedKey);
   };
 
   override render(): ReactNode {

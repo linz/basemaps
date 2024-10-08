@@ -11,8 +11,8 @@ const baseUrl = WindowUrl.baseUrl();
 const bigImage = new URL('assets/Lg+3D+Maps+splash.gif', baseUrl).href; // Large gif file location
 const smallImage = new URL('assets/Sml+3D+map+splash.gif', baseUrl).href; // Small gif file location
 const closingDate = new Date('2024-10-30'); // End date for pop up screen
-const dismissedKey = `DISMISSED_MODALS_LINZ_Basemaps_3D_Map`; // Optional to set as Config.Version to disable Modal as default
-const releaseVersion = 'v7'; // Feature released version can both been major version or minor version
+const id = `LINZ_Basemaps_3D_Map`; // Optional to set as Config.Version to disable Modal as default
+const dismissedKey = 'DISMISSED_MODALS_2024_10_3d_map'; // Feature released version can both been major version or minor version
 const recentUpdates = {
   children: (
     <>
@@ -34,9 +34,9 @@ export class NewFeature extends Component {
   override render(): ReactNode {
     return (
       <FeatureUpdates
-        id={dismissedKey}
+        id={id}
         header="What's new"
-        releaseVersion={releaseVersion}
+        dismissedKey={dismissedKey}
         closingDate={closingDate}
         bigImage={recentUpdates.bigImage}
         smallImage={recentUpdates.smallImage}
