@@ -2,26 +2,17 @@ import { clsx } from 'clsx';
 import { Component, ReactNode } from 'react';
 import ReactModal from 'react-modal';
 
-interface IFrameConfig {
-  url: string;
-  width: number;
-  height: number;
-  title: string;
-  iframeWrapperClass?: string;
-  iFrameProps?: Partial<JSX.IntrinsicElements['iframe']>;
-}
+import { Config } from '../config.js';
 
 type FeatureUpdatesProps = {
   header: string;
   wrapperClass?: string;
   id: string;
   releaseVersion: string;
+  closingDate: Date;
   enabled: boolean;
   children?: ReactNode;
-} & (
-  | { bigImage: string; smallImage: string; iframe?: never }
-  | { bigImage?: never; smallImage?: never; iframe: IFrameConfig }
-);
+} & { bigImage: string; smallImage: string; iframe?: never };
 
 type FeatureUpdatesState = {
   showModal: boolean;
@@ -35,11 +26,26 @@ type FeatureUpdatesState = {
 export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdatesState> {
   constructor(props: FeatureUpdatesProps) {
     super(props);
-    const currentVersion = window.localStorage.getItem(this.props.id);
 
     this.state = {
-      showModal: this.props.enabled && this.props.releaseVersion.trim() !== currentVersion,
+      showModal: this.showModal(),
     };
+  }
+
+  showModal(): boolean {
+    if (!this.props.enabled) return false;
+    // Disable after closing date
+    if (this.props.closingDate < new Date()) return false;
+    // Disable if dismissed
+    const id = window.localStorage.getItem(this.props.id);
+    const releaseVersion = this.props.releaseVersion.trim();
+    if (releaseVersion === id) return false;
+    // Disable if not same release version
+    const currentVersion = Config.Version.trim();
+    if (Config.Version === '' || currentVersion.length <= releaseVersion.length) return false;
+    const versionMatch = currentVersion.slice(0, releaseVersion.length);
+    if (versionMatch !== releaseVersion) return false;
+    return true;
   }
 
   handleClose = (): void => {
@@ -47,22 +53,12 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
     window.localStorage.setItem(this.props.id, this.props.releaseVersion);
   };
 
-  renderFeatureMedia(): ReactNode {
-    const { bigImage, smallImage, iframe } = this.props;
-    if (iframe) {
-      return this.FeatureIFrame(iframe);
-    }
-    if (bigImage && smallImage) {
-      return this.FeatureImages(bigImage, smallImage);
-    }
-    return null; // Return null if no media is available
-  }
-
   override render(): ReactNode {
-    const { header, wrapperClass, children } = this.props;
+    const { header, wrapperClass, children, bigImage, smallImage } = this.props;
     const { showModal } = this.state;
 
     if (!showModal) return null;
+    if (Config.map.isDebug) return;
 
     return (
       <ReactModal
@@ -84,7 +80,7 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
               {this.ClearIcon()}
             </button>
           </div>
-          {this.renderFeatureMedia()}
+          {this.FeatureImages(bigImage, smallImage)}
           <div className="lui-feature-text">{children}</div>
         </div>
       </ReactModal>
@@ -96,22 +92,6 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
       <div className="lui-feature-img">
         <img className="lui-hide-xs lui-hide-sm" alt={"What's new"} src={bigImage} />
         <img className="lui-hide-md lui-hide-lg lui-hide-xl" alt={"What's new"} src={smallImage} />
-      </div>
-    );
-  }
-
-  FeatureIFrame(iframeConfig: IFrameConfig): ReactNode {
-    const wrapperClass = iframeConfig.iframeWrapperClass || 'iframe-wrapper';
-    const iFrameProps = iframeConfig.iFrameProps || {};
-    return (
-      <div className={wrapperClass}>
-        <iframe
-          width={iframeConfig.width}
-          height={iframeConfig.height}
-          src={iframeConfig.url}
-          title={iframeConfig.title}
-          {...iFrameProps}
-        ></iframe>
       </div>
     );
   }
