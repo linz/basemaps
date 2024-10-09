@@ -55,6 +55,7 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
         contentLabel="Recent updates"
         className="lui-splash-content lui-box-shadow"
         overlayClassName="splash_overlay"
+        appElement={document.getElementById('main') || undefined}
       >
         <div className={clsx('lui-large-feature-notification', wrapperClass)}>
           <div className="lui-feature-header">

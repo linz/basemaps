@@ -16,7 +16,7 @@ const dismissedKey = 'DISMISSED_MODALS_2024_10_3d_map'; // Feature released vers
 const recentUpdates = {
   children: (
     <>
-      <h5 className="RecentUpdatesHeading">Basemaps are now viewable in 3D!</h5>
+      <h2>Basemaps are now viewable in 3D!</h2>
       <p>
         To activate this function, click the mountains icon on the left-hand side then hold right-click to change your
         viewpoint.
