@@ -91,7 +91,7 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
         data-icon={'ic_whats_new_updates'}
         aria-label={'whats_new_icon'}
       >
-        <img src="assets/whats_new_updates.svg" alt="whats_new_icon" className="LuiIcon__image" />
+        <img src="assets/whats_new_updates.svg" alt="whats_new_icon" />
       </span>
     );
   }
