@@ -46,6 +46,12 @@ export const ConfigImageryOverviewParser = z
   })
   .refine((obj) => obj.minZoom < obj.maxZoom);
 
+export const ProvidersParser = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  roles: z.array(z.string()).optional(),
+  url: z.string().optional(),
+});
 export const BoundingBoxParser = z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() });
 export const NamedBoundsParser = z.object({
   /**
@@ -140,6 +146,11 @@ export const ConfigImageryParser = ConfigBase.extend({
    * Separate overview cache
    */
   overviews: ConfigImageryOverviewParser.optional(),
+
+  /**
+   * list of providers and their metadata
+   */
+  providers: z.array(ProvidersParser).optional(),
 });
 
 export type ConfigImagery = z.infer<typeof ConfigImageryParser>;
