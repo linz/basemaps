@@ -317,6 +317,20 @@
               "example": "topographic"
             },
             "required": true
+          },
+          {
+            "name": "exclude",
+            "in": "query",
+            "description": "Exclude the Layer in style by LayerId",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "example": ["Background", "hillshade"]
           }
         ],
         "responses": {
