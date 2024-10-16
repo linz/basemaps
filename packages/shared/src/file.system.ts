@@ -45,7 +45,7 @@ applyS3MiddleWare(s3Fs);
 const credentials = new AwsS3CredentialProvider();
 
 credentials.onFileSystemCreated = (acc: AwsCredentialConfig, fs: FileSystem): void => {
-  LogConfig.get().debug({ prefix: acc.prefix, roleArn: acc.roleArn }, 'FileSystem:Register');
+  LogConfig.get().info({ prefix: acc.prefix, roleArn: acc.roleArn }, 'FileSystem:Register');
   applyS3MiddleWare(fs as FsAwsS3);
   fsa.register(acc.prefix, fs);
 };
@@ -81,9 +81,10 @@ export const FsaLog = {
     this.requests.push(requestId);
     const startTime = performance.now();
     const res = await next(req);
-    LogConfig.get().trace(
+    LogConfig.get().debug(
       {
         source: req.source.url.href,
+        sourceHost: req.source.url.hostname,
         offset: req.offset,
         length: req.length,
         requestId,

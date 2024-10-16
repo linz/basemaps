@@ -1,4 +1,4 @@
-import { FsaCache, FsaLog, LogConfig } from '@basemaps/shared';
+import { FsaCache, FsaLog, LogConfig, LogStorage } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaHttpResponse, lf } from '@linzjs/lambda';
 
 import { tileAttributionGet } from './routes/attribution.js';
@@ -35,12 +35,13 @@ function randomTrace(req: LambdaHttpRequest): void {
   // 1% trace
   if (rand < 0.01) req.log.level = 'trace';
   // 5% debug
-  else if (rand < 0.04) req.log.level = 'debug';
+  else if (rand < 0.25) req.log.level = 'debug';
   // everything else info
   else req.log.level = 'info';
 }
 
 handler.router.hook('request', (req) => {
+  LogStorage.enterWith({ log: req.log });
   FsaLog.reset();
 
   randomTrace(req);
@@ -49,7 +50,8 @@ handler.router.hook('request', (req) => {
 });
 
 handler.router.hook('response', (req, res) => {
-  req.set('requestCount', FsaLog.requests.length);
+  req.set('fetchCount', FsaLog.count);
+  req.set('fetches', FsaLog.requests);
   req.set('cacheSize', FsaCache.size);
   // Force access-control-allow-origin to everything
   res.header('access-control-allow-origin', '*');

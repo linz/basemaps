@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
+
 import pino from 'pino';
 import { PrettyTransform } from 'pretty-json-log';
 
@@ -29,6 +31,9 @@ const defaultOpts = { level: 'debug' };
 export const LogConfig = {
   /** Get the currently configured logger */
   get(): LogType {
+    const localStorage = LogStorage.getStore()?.log;
+    if (localStorage) return localStorage;
+
     if (currentLog == null) {
       currentLog = process.stdout.isTTY
         ? pino.default(defaultOpts, PrettyTransform.stream())
@@ -46,3 +51,5 @@ export const LogConfig = {
     LogConfig.get().level = 'silent';
   },
 };
+
+export const LogStorage = new AsyncLocalStorage<{ log: LogType }>();
