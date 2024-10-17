@@ -34,7 +34,7 @@ function randomTrace(req: LambdaHttpRequest): void {
   const rand = Math.random();
   // 1% trace
   if (rand < 0.01) req.log.level = 'trace';
-  // 5% debug
+  // 25% debug
   else if (rand < 0.25) req.log.level = 'debug';
   // everything else info
   else req.log.level = 'info';
