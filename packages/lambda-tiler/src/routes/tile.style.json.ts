@@ -1,6 +1,7 @@
 import {
   BasemapsConfigProvider,
   ConfigId,
+  ConfigImagery,
   ConfigPrefix,
   ConfigTileSetRaster,
   Layer,
@@ -9,7 +10,7 @@ import {
   TileSetType,
 } from '@basemaps/config';
 import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
-import { GoogleTms, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Epsg, GoogleTms, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { URL } from 'url';
@@ -153,12 +154,13 @@ async function ensureTerrain(
  * Generate a StyleJSON from a tileset
  * @returns
  */
-export function tileSetToStyle(
+export async function tileSetToStyle(
   req: LambdaHttpRequest<StyleGet>,
+  config: BasemapsConfigProvider,
   tileSet: ConfigTileSetRaster,
   tileMatrix: TileMatrixSet,
   apiKey: string,
-): StyleJson {
+): Promise<StyleJson> {
   // If the style has outputs defined it has a different process for generating the stylejson
   if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey);
 
@@ -175,12 +177,32 @@ export function tileSetToStyle(
     (Env.get(Env.PublicUrlBase) ?? '') +
     `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`;
 
+  // attempt to load the tileset's imagery
+  const imagery = await (function (): Promise<ConfigImagery | null> {
+    if (tileSet.layers.length !== 1) return Promise.resolve(null);
+
+    const imageryId = tileSet.layers[0][Epsg.Nztm2000.code];
+    if (imageryId === undefined) return Promise.resolve(null);
+
+    return config.Imagery.get(imageryId);
+  })();
+
+  // attempt to extract a licensor from the imagery's providers
+  const licensor = imagery?.providers?.find((p) => p?.roles?.includes('licensor'))?.name;
+
   const styleId = `basemaps-${tileSet.name}`;
   return {
     id: ConfigId.prefix(ConfigPrefix.Style, tileSet.name),
     name: tileSet.name,
     version: 8,
-    sources: { [styleId]: { type: 'raster', tiles: [tileUrl], tileSize: 256 } },
+    sources: {
+      [styleId]: {
+        type: 'raster',
+        tiles: [tileUrl],
+        tileSize: 256,
+        attribution: licensor ?? undefined,
+      },
+    },
     layers: [{ id: styleId, type: 'raster', source: styleId }],
   };
 }
@@ -248,7 +270,7 @@ async function generateStyleFromTileSet(
     throw new LambdaHttpResponse(400, 'Only raster tile sets can generate style JSON');
   }
   if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey);
-  else return tileSetToStyle(req, tileSet, tileMatrix, apiKey);
+  return tileSetToStyle(req, config, tileSet, tileMatrix, apiKey);
 }
 
 export interface StyleGet {

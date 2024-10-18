@@ -8,7 +8,7 @@ import { Config } from './config.js';
 import { mapToBoundingBox } from './tile.matrix.js';
 import { MapOptionType } from './url.js';
 
-const Copyright = `© ${Stac.License} LINZ`;
+const Copyright = `© ${Stac.License}`;
 
 export class MapAttributionState {
   /** Cache the loading of attribution */
@@ -168,11 +168,18 @@ export class MapAttribution implements maplibre.IControl {
     const filteredLayerIds = filtered.map((x) => x.collection.id).join('_');
     Config.map.emit('visibleLayers', filteredLayerIds);
 
+    const licensor = (function (): string | null {
+      const providers = filtered[0].collection.providers;
+      if (providers === undefined) return null;
+
+      return providers.find((p) => p.roles.some((r) => r === 'licensor'))?.name ?? null;
+    })();
+
     let attributionHTML = attr.renderList(filtered);
     if (attributionHTML === '') {
-      attributionHTML = Copyright;
+      attributionHTML = `${Copyright} ${licensor ?? 'LINZ'}`;
     } else {
-      attributionHTML = Copyright + ' - ' + attributionHTML;
+      attributionHTML = `${Copyright} ${licensor ?? 'LINZ'} - ${attributionHTML}`;
     }
 
     this.setAttribution(attributionHTML);
