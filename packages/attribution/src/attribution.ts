@@ -1,6 +1,8 @@
 import { AttributionCollection, AttributionStac } from '@basemaps/geo';
 import { BBox, intersection, MultiPolygon, Ring, Wgs84 } from '@linzjs/geojson';
 
+import { createLicensorAttribution } from './utils/utils.js';
+
 export interface AttributionFilter {
   extent: BBox;
   zoom: number;
@@ -181,20 +183,66 @@ export class Attribution {
   isIgnored?: (attr: AttributionBounds) => boolean;
 
   /**
-   * Render the filtered attributions as a simple string suitable to display as attribution
+   * Parse the filtered list of attributions into a formatted string comprising license information.
    *
-   * @param list the filtered list of attributions
+   * @param filtered The filtered list of attributions.
+   *
+   * @returns A formatted license string.
+   *
+   * @example
+   * if (filtered[0] contains no providers or licensors):
+   * return "CC BY 4.0 LINZ - Otago 0.3 Rural Aerial Photos (2017-2019)"
+   *
+   * @example
+   * if (filtered[0] contains licensors):
+   * return "CC BY 4.0 Otago Regional Council - Otago 0.3 Rural Aerial Photos (2017-2019)"
    */
-  renderList(list: AttributionBounds[]): string {
-    if (list.length === 0) return '';
-    let result = escapeHtml(list[0].collection.title);
-    if (list.length > 1) {
-      if (list.length === 2) {
-        result += ` & ${escapeHtml(list[1].collection.title)}`;
+  renderLicense(filtered: AttributionBounds[]): string {
+    const providers = filtered[0]?.collection.providers;
+    const attribution = createLicensorAttribution(providers);
+    const list = this.renderList(filtered);
+
+    if (list.length) {
+      return `${attribution} - ${list}`;
+    } else {
+      return attribution;
+    }
+  }
+
+  /**
+   * Render the filtered attributions as a simple string suitable to display as attribution.
+   *
+   * @param filtered The filtered list of attributions.
+   *
+   * @returns {string} An empty string, if the filtered list is empty.
+   * Otherwise, a formatted string comprising attribution details.
+   *
+   * @example
+   * if (filtered.length === 0):
+   * return ""
+   *
+   * @example
+   * if (filtered.length === 1):
+   * return "Ashburton 0.1m Urban Aerial Photos (2023)"
+   *
+   * @example
+   * if (filtered.length === 2):
+   * return "Wellington 0.3m Rural Aerial Photos (2021) & New Zealand 10m Satellite Imagery (2023-2024)"
+   *
+   * @example
+   * if (filtered.length > 2):
+   * return "Canterbury 0.2 Rural Aerial Photos (2020-2021) & others 2012-2024"
+   */
+  renderList(filtered: AttributionBounds[]): string {
+    if (filtered.length === 0) return '';
+    let result = escapeHtml(filtered[0].collection.title);
+    if (filtered.length > 1) {
+      if (filtered.length === 2) {
+        result += ` & ${escapeHtml(filtered[1].collection.title)}`;
       } else {
-        let [minYear, maxYear] = getYears(list[1].collection);
-        for (let i = 1; i < list.length; ++i) {
-          const [a, b] = getYears(list[i].collection);
+        let [minYear, maxYear] = getYears(filtered[1].collection);
+        for (let i = 1; i < filtered.length; ++i) {
+          const [a, b] = getYears(filtered[i].collection);
           if (a !== -1 && (minYear === -1 || a < minYear)) minYear = a;
           if (b !== -1 && (maxYear === -1 || b > maxYear)) maxYear = b;
         }

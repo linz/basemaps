@@ -136,14 +136,13 @@ async function tileSetAttribution(
 
     items.push(item);
 
-    const providers = im.providers?.map((p) => ({ ...p, roles: p.roles ?? [] })) ?? getHost(host);
     const zoomMin = TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true);
     const zoomMax = TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true);
     cols.push({
       stac_version: Stac.Version,
       license: Stac.License,
       id: im.id,
-      providers,
+      providers: im.providers ?? getHost(host),
       title,
       description: 'No description',
       extent,

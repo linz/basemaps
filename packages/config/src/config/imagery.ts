@@ -46,12 +46,34 @@ export const ConfigImageryOverviewParser = z
   })
   .refine((obj) => obj.minZoom < obj.maxZoom);
 
+/**
+ * Provides information about a provider.
+ *
+ * @link https://github.com/radiantearth/stac-spec/blob/master/commons/common-metadata.md#provider
+ */
 export const ProvidersParser = z.object({
+  /**
+   * The name of the organization or the individual.
+   */
   name: z.string(),
+
+  /**
+   * Multi-line description to add further provider information such as processing details
+   * for processors and producers, hosting details for hosts or basic contact information.
+   */
   description: z.string().optional(),
+
+  /**
+   * Roles of the provider. Any of `licensor`, `producer`, `processor` or `host`.
+   */
   roles: z.array(z.string()).optional(),
+
+  /**
+   * Homepage on which the provider describes the dataset and publishes contact information.
+   */
   url: z.string().optional(),
 });
+
 export const BoundingBoxParser = z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() });
 export const NamedBoundsParser = z.object({
   /**

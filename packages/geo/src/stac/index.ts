@@ -21,9 +21,31 @@ export interface StacAsset {
   description?: string;
 }
 
+/**
+ * Provides information about a provider.
+ *
+ * @link https://github.com/radiantearth/stac-spec/blob/master/commons/common-metadata.md#provider
+ */
 export interface StacProvider {
+  /**
+   * The name of the organization or the individual.
+   */
   name: string;
-  roles: string[];
+
+  /**
+   * Multi-line description to add further provider information such as processing details
+   * for processors and producers, hosting details for hosts or basic contact information.
+   */
+  description?: string;
+
+  /**
+   * Roles of the provider. Any of `licensor`, `producer`, `processor` or `host`.
+   */
+  roles?: string[];
+
+  /**
+   * Homepage on which the provider describes the dataset and publishes contact information.
+   */
   url?: string;
 }
 

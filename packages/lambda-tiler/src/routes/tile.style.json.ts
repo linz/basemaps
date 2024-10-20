@@ -1,7 +1,7 @@
+import { getTileSetAttribution } from '@basemaps/attribution/build/utils/utils.js';
 import {
   BasemapsConfigProvider,
   ConfigId,
-  ConfigImagery,
   ConfigPrefix,
   ConfigTileSetRaster,
   Layer,
@@ -10,7 +10,7 @@ import {
   TileSetType,
 } from '@basemaps/config';
 import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
-import { Epsg, GoogleTms, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { URL } from 'url';
@@ -177,18 +177,7 @@ export async function tileSetToStyle(
     (Env.get(Env.PublicUrlBase) ?? '') +
     `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`;
 
-  // attempt to load the tileset's imagery
-  const imagery = await (function (): Promise<ConfigImagery | null> {
-    if (tileSet.layers.length !== 1) return Promise.resolve(null);
-
-    const imageryId = tileSet.layers[0][Epsg.Nztm2000.code];
-    if (imageryId === undefined) return Promise.resolve(null);
-
-    return config.Imagery.get(imageryId);
-  })();
-
-  // attempt to extract a licensor from the imagery's providers
-  const licensor = imagery?.providers?.find((p) => p?.roles?.includes('licensor'))?.name;
+  const attribution = await getTileSetAttribution(config, tileSet, tileMatrix.projection);
 
   const styleId = `basemaps-${tileSet.name}`;
   return {
@@ -200,7 +189,7 @@ export async function tileSetToStyle(
         type: 'raster',
         tiles: [tileUrl],
         tileSize: 256,
-        attribution: licensor ?? undefined,
+        attribution,
       },
     },
     layers: [{ id: styleId, type: 'raster', source: styleId }],
