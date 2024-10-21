@@ -1,7 +1,7 @@
 import { AttributionCollection, AttributionStac } from '@basemaps/geo';
 import { BBox, intersection, MultiPolygon, Ring, Wgs84 } from '@linzjs/geojson';
 
-import { createLicensorAttribution } from './utils/utils.js';
+import { createLicensorAttribution } from './utils.js';
 
 export interface AttributionFilter {
   extent: BBox;

@@ -1,9 +1,11 @@
-import { ConfigProvider, ConfigTileSet, getAllImagery, TileSetType } from '@basemaps/config';
+import { createLicensorAttribution } from '@basemaps/attribution/build/utils.js';
+import { BasemapsConfigProvider, ConfigProvider, ConfigTileSet, getAllImagery, TileSetType } from '@basemaps/config';
 import {
   AttributionCollection,
   AttributionItem,
   AttributionStac,
   Bounds,
+  Epsg,
   GoogleTms,
   NamedBounds,
   Projection,
@@ -93,10 +95,11 @@ async function tileSetAttribution(
 
   const config = await ConfigLoader.load(req);
   const imagery = await getAllImagery(config, tileSet.layers, [tileMatrix.projection]);
-
   const host = await config.Provider.get(config.Provider.id('linz'));
 
-  for (const layer of tileSet.layers) {
+  for (let i = 0; i < tileSet.layers.length; i++) {
+    const layer = tileSet.layers[i];
+
     const imgId = layer[proj.epsg.code];
     if (imgId == null) continue;
 
@@ -138,6 +141,7 @@ async function tileSetAttribution(
 
     const zoomMin = TileMatrixSet.convertZoomLevel(layer.minZoom ? layer.minZoom : 0, GoogleTms, tileMatrix, true);
     const zoomMax = TileMatrixSet.convertZoomLevel(layer.maxZoom ? layer.maxZoom : 32, GoogleTms, tileMatrix, true);
+
     cols.push({
       stac_version: Stac.Version,
       license: Stac.License,
@@ -150,10 +154,11 @@ async function tileSetAttribution(
       summaries: {
         'linz:category': im.category,
         'linz:zoom': { min: zoomMin, max: zoomMax },
-        'linz:priority': [1000 + tileSet.layers.indexOf(layer)],
+        'linz:priority': [1000 + i],
       },
     });
   }
+
   return {
     id: tileSet.id,
     type: 'FeatureCollection',
@@ -204,4 +209,44 @@ export async function tileAttributionGet(req: LambdaHttpRequest<TileAttributionG
   response.header(HttpHeader.CacheControl, 'public, max-age=604800, stale-while-revalidate=86400');
   response.json(attributions);
   return response;
+}
+
+/**
+ * Construct a licensor attribution for a given tileSet.
+ *
+ * @param provider The BasemapsConfigProvider object.
+ * @param tileSet The tileset from which to build the attribution.
+ * @param projection The projection to consider.
+ *
+ * @returns A default attribution, if the tileset has more than one layer or no such imagery for the given projection exists.
+ * Otherwise, a copyright string comprising the names of the tileset's licensors.
+ *
+ * @example
+ * "CC BY 4.0 LINZ"
+ *
+ * @example
+ * "CC BY 4.0 Nelson City Council, Tasman District Council, Waka Kotahi"
+ */
+export async function createTileSetAttribution(
+  provider: BasemapsConfigProvider,
+  tileSet: ConfigTileSet,
+  projection: Epsg,
+): Promise<string> {
+  // ensure the tileset has exactly one layer
+  if (tileSet.layers.length > 1 || tileSet.layers[0] == null) {
+    return createLicensorAttribution();
+  }
+
+  // ensure imagery exist for the given projection
+  const imgId = tileSet.layers[0][projection.code];
+  if (imgId === undefined) return '';
+
+  // attempt to load the imagery
+  const imagery = await provider.Imagery.get(imgId);
+  if (imagery == null || imagery.providers == null) {
+    return createLicensorAttribution();
+  }
+
+  // return a licensor attribution string
+  return createLicensorAttribution(imagery.providers);
 }

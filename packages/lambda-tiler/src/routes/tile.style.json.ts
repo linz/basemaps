@@ -1,4 +1,3 @@
-import { getTileSetAttribution } from '@basemaps/attribution/build/utils/utils.js';
 import {
   BasemapsConfigProvider,
   ConfigId,
@@ -20,6 +19,7 @@ import { Etag } from '../util/etag.js';
 import { convertStyleToNztmStyle } from '../util/nztm.style.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
+import { createTileSetAttribution } from './attribution.js';
 
 /**
  * Convert relative URL into a full hostname URL, converting {tileMatrix} into the provided tileMatrix
@@ -177,7 +177,7 @@ export async function tileSetToStyle(
     (Env.get(Env.PublicUrlBase) ?? '') +
     `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`;
 
-  const attribution = await getTileSetAttribution(config, tileSet, tileMatrix.projection);
+  const attribution = await createTileSetAttribution(config, tileSet, tileMatrix.projection);
 
   const styleId = `basemaps-${tileSet.name}`;
   return {
