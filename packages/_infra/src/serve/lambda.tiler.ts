@@ -54,6 +54,7 @@ export class LambdaTiler extends Construct {
       architecture: lambda.Architecture.ARM_64,
       environment,
       logRetention: RetentionDays.ONE_MONTH,
+      logFormat: lambda.LogFormat.JSON,
     });
 
     this.functionUrl = new lambda.FunctionUrl(this, 'LambdaCogUrl', {
