@@ -1,7 +1,7 @@
 import assert, { strictEqual } from 'node:assert';
 import { afterEach, before, describe, it } from 'node:test';
 
-import { copyright, createLicensorAttribution } from '@basemaps/attribution/build/utils/utils.js';
+import { copyright, createLicensorAttribution } from '@basemaps/attribution/build/utils.js';
 import { ConfigProviderMemory, StyleJson } from '@basemaps/config';
 import { StacProvider } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
