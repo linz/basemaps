@@ -239,11 +239,11 @@ export async function createTileSetAttribution(
 
   // ensure imagery exist for the given projection
   const imgId = tileSet.layers[0][projection.code];
-  if (imgId === undefined) return '';
+  if (imgId == null) return '';
 
   // attempt to load the imagery
   const imagery = await provider.Imagery.get(imgId);
-  if (imagery == null || imagery.providers == null) {
+  if (imagery?.providers == null) {
     return createLicensorAttribution();
   }
 

@@ -167,7 +167,7 @@ export class MapAttribution implements maplibre.IControl {
     Config.map.emit('visibleLayers', filteredLayerIds);
 
     const attributionHTML = attr.renderLicense(filtered);
-    this.setAttribution(attributionHTML ?? '');
+    this.setAttribution(attributionHTML);
   };
 
   setAttribution(text: string): void {

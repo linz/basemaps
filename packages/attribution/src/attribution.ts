@@ -202,7 +202,7 @@ export class Attribution {
     const attribution = createLicensorAttribution(providers);
     const list = this.renderList(filtered);
 
-    if (list.length) {
+    if (list.length > 0) {
       return `${attribution} - ${list}`;
     } else {
       return attribution;
