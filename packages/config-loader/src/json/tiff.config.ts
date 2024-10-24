@@ -384,6 +384,7 @@ export async function initImageryFromTiffUrl(
       noData: params.noData,
       files: params.files,
       collection: stac ?? undefined,
+      providers: stac?.providers,
     };
     imagery.overviews = await ConfigJson.findImageryOverviews(imagery);
     log?.info({ title, imageryName, files: imagery.files.length }, 'Tiff:Loaded');
