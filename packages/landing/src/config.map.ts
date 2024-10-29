@@ -128,7 +128,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const config = urlParams.get('c') ?? urlParams.get('config');
     const layerId = urlParams.get('i') ?? style ?? 'aerial';
     const terrain = urlParams.get('t') ?? urlParams.get('terrain');
-    const labels = Boolean(urlParams.get('labels'));
+    const labels = urlParams.get('labels');
 
     const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
@@ -145,7 +145,11 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
-    this.labels = labels;
+    if (labels == null) {
+      this.labels = layerId === 'aerial' && !this.debug.debug;
+    } else {
+      this.labels = labels === 'true';
+    }
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
     this.emit('tileMatrix', this.tileMatrix);
