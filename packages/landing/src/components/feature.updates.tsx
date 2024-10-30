@@ -2,7 +2,7 @@ import { clsx } from 'clsx';
 import { Component, ReactNode } from 'react';
 import ReactModal from 'react-modal';
 
-import { Config } from '../config.js';
+import { Config, GaEvent, gaEvent } from '../config.js';
 
 type FeatureUpdatesProps = {
   header: string;
@@ -37,6 +37,7 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
   handleClose = (): void => {
     this.setState({ showModal: false });
     window.localStorage.setItem(this.props.id, this.props.dismissedKey);
+    gaEvent(GaEvent.Ui, `news:${this.props.id.toLowerCase()}:close`);
   };
 
   override render(): ReactNode {
@@ -46,6 +47,7 @@ export class FeatureUpdates extends Component<FeatureUpdatesProps, FeatureUpdate
     if (!showModal) return null;
     if (Config.map.isDebug) return;
 
+    gaEvent(GaEvent.Ui, `news:${this.props.id.toLowerCase()}:open`);
     return (
       <ReactModal
         isOpen={showModal}
