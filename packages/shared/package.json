@@ -29,7 +29,7 @@
     "@basemaps/config": "^7.11.0",
     "@basemaps/geo": "^7.11.0",
     "@chunkd/fs": "^11.2.0",
-    "@chunkd/fs-aws": "^11.2.2",
+    "@chunkd/fs-aws": "^11.3.0",
     "@chunkd/middleware": "^11.1.0",
     "@cogeotiff/core": "^9.0.3",
     "@cotar/core": "^6.0.1",
