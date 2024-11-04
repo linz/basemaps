@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 
 import { S3Client } from '@aws-sdk/client-s3';
 import { sha256base58 } from '@basemaps/config';
-import { FileSystem, fsa, FsHttp } from '@chunkd/fs';
+import { fsa, FsHttp } from '@chunkd/fs';
 import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
 import { SourceCache, SourceChunk } from '@chunkd/middleware';
 import type { SourceCallback, SourceRequest } from '@chunkd/source';
@@ -44,9 +44,10 @@ applyS3MiddleWare(s3Fs);
 
 const credentials = new AwsS3CredentialProvider();
 
-credentials.onFileSystemCreated = (acc: AwsCredentialConfig, fs: FileSystem): void => {
-  LogConfig.get().info({ prefix: acc.prefix, roleArn: acc.roleArn }, 'FileSystem:Register');
-  applyS3MiddleWare(fs as FsAwsS3);
+credentials.onFileSystemFound = (acc: AwsCredentialConfig, fs?: FsAwsS3, path?: URL): void => {
+  if (fs == null) return;
+  LogConfig.get().info({ prefix: acc.prefix, roleArn: acc.roleArn, path: path?.href }, 'FileSystem:Register');
+  applyS3MiddleWare(fs);
   fsa.register(acc.prefix, fs);
 };
 
