@@ -36,7 +36,10 @@ export const s3FsPublic = new FsAwsS3(
 /** Ensure middleware are added to all s3 clients that are created */
 function applyS3MiddleWare(fs: FsAwsS3): void {
   if (fs.s3 == null) return;
-  fs.s3.middlewareStack.add(Fqdn.middleware, { name: 'FQDN', step: 'finalizeRequest' });
+  const stacks = fs.s3.middlewareStack.identify();
+  if (stacks.find((f) => f.startsWith('FQDN - ')) == null) {
+    fs.s3.middlewareStack.add(Fqdn.middleware, { name: 'FQDN', step: 'finalizeRequest' });
+  }
 }
 
 applyS3MiddleWare(s3FsPublic);
