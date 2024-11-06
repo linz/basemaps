@@ -32,10 +32,10 @@ Clone the [**linz/basemaps-config**][bm_config_repo] repository to your machine.
     gh repo clone linz/basemaps-config
     ```
 
-!!! abstract "Path"
+!!! abstract "Paths"
 
     This guide uses variables as shorthand to reference key directories and files. On your machine, note the following paths:
-    
+
     === "`BM_CONFIG_REPO`"
 
         The path to the **basemaps-config** repository folder on your machine.

@@ -13,7 +13,7 @@ The **basemaps/server** package requires a collection of GeoTIFF files from whic
     === "`IMAGERY_DIR`"
 
         The path to the root folder of your GeoTIFF file collection.
-            
+
         ```bash
         $IMAGERY_DIR = {path_to_imagery_directory}
         ```
