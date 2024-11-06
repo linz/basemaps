@@ -81,12 +81,6 @@ node $BM_CLI_BIN/bmc.js bundle \
 
     Specifies the location of the cache directory. This parameter is optional but recommended to reduce the time needed to construct the config file.
 
-<!-- internal links -->
-
-[running-basemaps-locally]: ../running-basemaps-locally.md
-[configuring-the-basemapsserver-package]: ../running-basemaps-locally.md#2-configuring-the-basemapsserver-package
-[path-to-json-config-file]: ../Server%20Methods/json-config-file.md
-
 <!-- external links -->
 
 [bm_config_repo]: https://github.com/linz/basemaps-config

@@ -39,8 +39,3 @@ Use the following command to run the **Basemaps** system:
 ```bash
 node $BM_SERVER_BIN/basemaps-server.cjs $IMAGERY_DIR
 ```
-
-<!-- internal links -->
-
-[running-basemaps-locally]: ../running-basemaps-locally.md
-[configuring-the-basemapsserver-package]: ../running-basemaps-locally.md#2-configuring-the-basemapsserver-package

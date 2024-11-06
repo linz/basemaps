@@ -70,6 +70,4 @@ node $BM_SERVER_BIN/basemaps-server.cjs --config $CONFIG_FILE
 
 <!-- internal links -->
 
-[running-basemaps-locally]: ../running-basemaps-locally.md
-[configuring-the-basemapsserver-package]: ../running-basemaps-locally.md#2-configuring-the-basemapsserver-package
 [bundle-the-basemaps-config-file]: ../cli-methods/bundle-the-basemaps-config-file.md
