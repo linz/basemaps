@@ -63,7 +63,7 @@ Use the following command to bundle the `basemaps` config file:
 ```bash
 node $BM_CLI_BUILD/bin.js bundle \
     --config $BM_CONFIG_REPO/config \
-    --output $BM_REPO/config/config.bundle.json \
+    --output config.bundle.json \
     --cache s3://linz-basemaps-staging/basemaps-config/cache/
 ```
 
@@ -75,7 +75,7 @@ node $BM_CLI_BUILD/bin.js bundle \
 
 === "`--output`"
 
-    Specifies where to save the bundled config file. You can specify a location of your choice. This guide specifies the `basemaps` repository for convenience.
+    Specifies where to save the bundled config file, relative to the location from which you execute the command. You can specify a location and filename of your choice.
 
 === "`--cache`"
 
