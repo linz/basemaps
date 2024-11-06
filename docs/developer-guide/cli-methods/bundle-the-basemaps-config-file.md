@@ -44,14 +44,14 @@ Clone the [**linz/basemaps-config**][bm_config_repo] repository to your machine.
         $BM_CONFIG_REPO = {path_to}/basemaps-config
         ```
 
-    === "`BM_CLI_BIN`"
+    === "`BM_CLI_BUILD`"
 
         The **basemaps/cli** package provides a **bundle** function we can use to generate a bundled config file.
 
-        The path to the **bin** folder of the **basemaps/cli** package.
+        The path to the **build** folder of the **basemaps/cli** package.
 
         ```bash
-        $BM_CLI_BIN = $BM_REPO/packages/cli/bin
+        $BM_CLI_BUILD = $BM_REPO/packages/cli/build/cli
         ```
 
 ## Run the `basemaps/cli` package
@@ -61,7 +61,7 @@ Clone the [**linz/basemaps-config**][bm_config_repo] repository to your machine.
 Use the following command to bundle the `basemaps` config file:
 
 ```bash
-node $BM_CLI_BIN/bmc.js bundle \
+node $BM_CLI_BUILD/bin.js bundle \
     --config $BM_CONFIG_REPO/config \
     --output $BM_REPO/config/config.bundle.json \
     --cache s3://linz-basemaps-staging/basemaps-config/cache/

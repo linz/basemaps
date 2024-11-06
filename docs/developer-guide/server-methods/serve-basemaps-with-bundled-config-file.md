@@ -46,12 +46,12 @@ At this stage, you should have a path to a config file. Either, to that which yo
 
     The **basemaps/server** package provides a default function to serve the **basemaps** system. Take note of the following path:
 
-    === "`BM_SERVER_BIN`"
+    === "`BM_SERVER_BUILD`"
 
-        The path to the **bin** folder of the **basemaps/server** package.
-            
+        The path to the **build** folder of the **basemaps/server** package.
+
         ```bash
-        $BM_SERVER_BIN = $BM_REPO/packages/server/bin
+        $BM_SERVER_BUILD = $BM_REPO/packages/server/build
         ```
 
 ### Command
@@ -59,7 +59,7 @@ At this stage, you should have a path to a config file. Either, to that which yo
 Use the following command to run the **basemaps** system:
 
 ```bash
-node $BM_SERVER_BIN/basemaps-server.cjs --config $CONFIG_FILE
+    node $BM_SERVER_BUILD/bin.js --config $CONFIG_FILE
 ```
 
 ### Parameters

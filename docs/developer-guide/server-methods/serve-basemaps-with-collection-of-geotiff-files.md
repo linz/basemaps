@@ -24,12 +24,12 @@ The **basemaps/server** package requires a collection of GeoTIFF files from whic
 
     The **basemaps/server** package provides a default function to serve the **basemaps** system. Note the following path:
 
-    === "`BM_SERVER_BIN`"
+    === "`BM_SERVER_BUILD`"
 
-        The path to the **bin** folder of the **basemaps/server** package.
-            
+        The path to the **build** folder of the **basemaps/server** package.
+
         ```bash
-        $BM_SERVER_BIN = $BM_REPO/packages/server/bin
+        $BM_SERVER_BUILD = $BM_REPO/packages/server/build
         ```
 
 ### Command
@@ -37,5 +37,5 @@ The **basemaps/server** package requires a collection of GeoTIFF files from whic
 Use the following command to run the **Basemaps** system:
 
 ```bash
-node $BM_SERVER_BIN/basemaps-server.cjs $IMAGERY_DIR
+node $BM_SERVER_BUILD/bin.js $IMAGERY_DIR
 ```
