@@ -4,8 +4,8 @@ This guide shows you how to set up and run a local instance of the **basemaps** 
 
 - build the **basemaps** packages
 - configure and run the **basemaps/server** package:
-    - using LINZ's imagery
-    - using your own imagery
+  - using LINZ's imagery
+  - using your own imagery
 
 !!! note
 
@@ -56,7 +56,7 @@ Clone the [**linz/basemaps**][bm_repo] repository to your machine.
 !!! abstract "Path"
 
     This guide uses variables as shorthand to reference key directories and files. On your machine, consider the following path:
-    
+
     === "`BM_REPO`"
 
         The path to the **basemaps** repository folder on your machine.
