@@ -23,6 +23,10 @@ jobs:
     steps:
       - uses: linz/action-typescript@v3
 
+      - name: Bunlde
+        run: |
+          npx lerna run bundle --stream
+
       # TODO: running a giant copy command to import CSS and SVG files into the docs file in not super ideal
       - name: Build docs
         run: |
@@ -40,10 +44,6 @@ jobs:
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.mjs
-
-      - name: Bunlde
-        run: |
-          npx lerna run bundle --stream
 
       - name: (Prod) Create tag
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
