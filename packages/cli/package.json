@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "7.11.1",
+  "version": "7.12.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -40,13 +40,13 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "@basemaps/config": "^7.11.0",
-    "@basemaps/config-loader": "^7.11.0",
-    "@basemaps/geo": "^7.11.0",
-    "@basemaps/server": "^7.11.0",
-    "@basemaps/shared": "^7.11.0",
-    "@basemaps/tiler": "^7.11.0",
-    "@basemaps/tiler-sharp": "^7.11.0",
+    "@basemaps/config": "^7.12.0",
+    "@basemaps/config-loader": "^7.12.0",
+    "@basemaps/geo": "^7.12.0",
+    "@basemaps/server": "^7.12.0",
+    "@basemaps/shared": "^7.12.0",
+    "@basemaps/tiler": "^7.12.0",
+    "@basemaps/tiler-sharp": "^7.12.0",
     "@chunkd/source-memory": "^11.0.2",
     "@cotar/builder": "^6.0.1",
     "@cotar/tar": "^6.0.1",

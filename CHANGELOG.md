@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** correctly log fetch requests ([#3359](https://github.com/linz/basemaps/issues/3359)) ([9fa3681](https://github.com/linz/basemaps/commit/9fa3681acc2ce25037c5d6e0326255aad9815b7d))
+* **landing:** Fix debug hillshade infinite loading. BM-1110 ([#3360](https://github.com/linz/basemaps/issues/3360)) ([6655441](https://github.com/linz/basemaps/commit/6655441e48fd226f81daeb98987a95dd649128a7))
+* register file systems correctly when using duplicate roleArns BM-1055 ([#3367](https://github.com/linz/basemaps/issues/3367)) ([385971d](https://github.com/linz/basemaps/commit/385971dc23c0b1cd9c354c5028d47d01ab5ae584))
+
+
+### Features
+
+* **lambda-tiler:** update imagery layer attributions to show licensor details BM-897 ([#3357](https://github.com/linz/basemaps/issues/3357)) ([e702c7e](https://github.com/linz/basemaps/commit/e702c7e53d28aaa8db9d624acab048f8ec3a2309))
+* **landing:** Add new features pop up to alert users for recent releases. BM-1064 ([#3356](https://github.com/linz/basemaps/issues/3356)) ([a61b652](https://github.com/linz/basemaps/commit/a61b652d80efd29acc198cc52456b5a28a65d09c))
+* **landing:** enable labels upon first visit BM-1101 ([#3364](https://github.com/linz/basemaps/issues/3364)) ([af656bf](https://github.com/linz/basemaps/commit/af656bfe72e8afb3b072cf18d2dbbb538709127c))
+* **landing:** Update new feature pop ups to include google analytics. BM-1113 ([#3363](https://github.com/linz/basemaps/issues/3363)) ([dcc8a9b](https://github.com/linz/basemaps/commit/dcc8a9b8af50e7ab3e5fc53e081ed7954b3b26ea))
+* **server:** add redirect route to pre-zoomed tileset BM-1076 ([#3354](https://github.com/linz/basemaps/issues/3354)) ([5b207de](https://github.com/linz/basemaps/commit/5b207de92b76e0d445a41ef8e1e9b9b91e5363c6))
+
+
+
+
+
 ## [7.11.1](https://github.com/linz/basemaps/compare/v7.11.0...v7.11.1) (2024-10-01)
 
 

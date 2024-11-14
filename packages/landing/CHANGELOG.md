@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+
+### Bug Fixes
+
+* **landing:** Fix debug hillshade infinite loading. BM-1110 ([#3360](https://github.com/linz/basemaps/issues/3360)) ([6655441](https://github.com/linz/basemaps/commit/6655441e48fd226f81daeb98987a95dd649128a7))
+
+
+### Features
+
+* **lambda-tiler:** update imagery layer attributions to show licensor details BM-897 ([#3357](https://github.com/linz/basemaps/issues/3357)) ([e702c7e](https://github.com/linz/basemaps/commit/e702c7e53d28aaa8db9d624acab048f8ec3a2309))
+* **landing:** Add new features pop up to alert users for recent releases. BM-1064 ([#3356](https://github.com/linz/basemaps/issues/3356)) ([a61b652](https://github.com/linz/basemaps/commit/a61b652d80efd29acc198cc52456b5a28a65d09c))
+* **landing:** enable labels upon first visit BM-1101 ([#3364](https://github.com/linz/basemaps/issues/3364)) ([af656bf](https://github.com/linz/basemaps/commit/af656bfe72e8afb3b072cf18d2dbbb538709127c))
+* **landing:** Update new feature pop ups to include google analytics. BM-1113 ([#3363](https://github.com/linz/basemaps/issues/3363)) ([dcc8a9b](https://github.com/linz/basemaps/commit/dcc8a9b8af50e7ab3e5fc53e081ed7954b3b26ea))
+
+
+
+
+
 # [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
 
 
