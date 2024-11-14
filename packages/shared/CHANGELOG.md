@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** correctly log fetch requests ([#3359](https://github.com/linz/basemaps/issues/3359)) ([9fa3681](https://github.com/linz/basemaps/commit/9fa3681acc2ce25037c5d6e0326255aad9815b7d))
+* register file systems correctly when using duplicate roleArns BM-1055 ([#3367](https://github.com/linz/basemaps/issues/3367)) ([385971d](https://github.com/linz/basemaps/commit/385971dc23c0b1cd9c354c5028d47d01ab5ae584))
+
+
+
+
+
 # [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
 
 **Note:** Version bump only for package @basemaps/shared

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+
+### Features
+
+* **lambda-tiler:** update imagery layer attributions to show licensor details BM-897 ([#3357](https://github.com/linz/basemaps/issues/3357)) ([e702c7e](https://github.com/linz/basemaps/commit/e702c7e53d28aaa8db9d624acab048f8ec3a2309))
+
+
+
+
+
 # [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
 
 **Note:** Version bump only for package @basemaps/config
