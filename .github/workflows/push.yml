@@ -41,6 +41,10 @@ jobs:
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.mjs
 
+      - name: Bunlde
+        run: |
+          npx lerna run bundle --stream
+
       - name: (Prod) Create tag
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: |
