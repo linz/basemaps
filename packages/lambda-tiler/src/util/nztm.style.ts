@@ -37,8 +37,5 @@ export function convertStyleToNztmStyle(inputStyle: StyleJson, clone: boolean = 
     }
   }
 
-  /** Based on {@link DefaultExaggeration} offsetting by 2 two levels changes the exaggeration needed by approx 4x */
-  if (style.terrain) style.terrain.exaggeration = style.terrain.exaggeration * 4;
-
   return style;
 }
