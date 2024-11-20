@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: linz/action-typescript@v3
 
-      - name: Bunlde
+      - name: Bundle
         run: |
           npx lerna run bundle --stream
 
