@@ -90,7 +90,7 @@ export interface StyleConfig {
 /**
  * Turn on the terrain setting in the style json
  */
-function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: TileMatrixSet): void {
+export function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: TileMatrixSet): void {
   const source = Object.keys(style.sources).find((s) => s === terrain);
   if (source == null) throw new LambdaHttpResponse(400, `Terrain: ${terrain} does not exists in the style source.`);
   style.terrain = {
