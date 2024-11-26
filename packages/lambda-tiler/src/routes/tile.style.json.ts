@@ -19,6 +19,7 @@ import { Etag } from '../util/etag.js';
 import { convertStyleToNztmStyle } from '../util/nztm.style.js';
 import { NotFound, NotModified } from '../util/response.js';
 import { Validate } from '../util/validate.js';
+import { createTileSetAttribution } from './attribution.js';
 
 /**
  * Convert relative URL into a full hostname URL, converting {tileMatrix} into the provided tileMatrix
@@ -89,7 +90,7 @@ export interface StyleConfig {
 /**
  * Turn on the terrain setting in the style json
  */
-function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: TileMatrixSet): void {
+export function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: TileMatrixSet): void {
   const source = Object.keys(style.sources).find((s) => s === terrain);
   if (source == null) throw new LambdaHttpResponse(400, `Terrain: ${terrain} does not exists in the style source.`);
   style.terrain = {
@@ -153,12 +154,13 @@ async function ensureTerrain(
  * Generate a StyleJSON from a tileset
  * @returns
  */
-export function tileSetToStyle(
+export async function tileSetToStyle(
   req: LambdaHttpRequest<StyleGet>,
+  config: BasemapsConfigProvider,
   tileSet: ConfigTileSetRaster,
   tileMatrix: TileMatrixSet,
   apiKey: string,
-): StyleJson {
+): Promise<StyleJson> {
   // If the style has outputs defined it has a different process for generating the stylejson
   if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey);
 
@@ -175,12 +177,21 @@ export function tileSetToStyle(
     (Env.get(Env.PublicUrlBase) ?? '') +
     `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`;
 
+  const attribution = await createTileSetAttribution(config, tileSet, tileMatrix.projection);
+
   const styleId = `basemaps-${tileSet.name}`;
   return {
     id: ConfigId.prefix(ConfigPrefix.Style, tileSet.name),
     name: tileSet.name,
     version: 8,
-    sources: { [styleId]: { type: 'raster', tiles: [tileUrl], tileSize: 256 } },
+    sources: {
+      [styleId]: {
+        type: 'raster',
+        tiles: [tileUrl],
+        tileSize: 256,
+        attribution,
+      },
+    },
     layers: [{ id: styleId, type: 'raster', source: styleId }],
   };
 }
@@ -248,7 +259,7 @@ async function generateStyleFromTileSet(
     throw new LambdaHttpResponse(400, 'Only raster tile sets can generate style JSON');
   }
   if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey);
-  else return tileSetToStyle(req, tileSet, tileMatrix, apiKey);
+  return tileSetToStyle(req, config, tileSet, tileMatrix, apiKey);
 }
 
 export interface StyleGet {

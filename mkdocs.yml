@@ -74,6 +74,12 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
 
+  # Overrides indent required for sublist items
+  #
+  # https://github.com/radude/mdx_truly_sane_lists
+  - mdx_truly_sane_lists:
+      nested_indent: 2
+
 # Load google analytics from the $GOOGLE_ANALYTICS environment var
 extra:
   analytics:

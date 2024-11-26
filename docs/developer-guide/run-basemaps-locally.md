@@ -4,8 +4,8 @@ This guide shows you how to set up and run a local instance of the **basemaps** 
 
 - build the **basemaps** packages
 - configure and run the **basemaps/server** package:
-    - using LINZ's imagery
-    - using your own imagery
+  - using LINZ's imagery
+  - using your own imagery
 
 !!! note
 

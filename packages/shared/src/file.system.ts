@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 
 import { S3Client } from '@aws-sdk/client-s3';
 import { sha256base58 } from '@basemaps/config';
-import { FileSystem, fsa, FsHttp } from '@chunkd/fs';
+import { fsa, FsHttp } from '@chunkd/fs';
 import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
 import { SourceCache, SourceChunk } from '@chunkd/middleware';
 import type { SourceCallback, SourceRequest } from '@chunkd/source';
@@ -36,7 +36,10 @@ export const s3FsPublic = new FsAwsS3(
 /** Ensure middleware are added to all s3 clients that are created */
 function applyS3MiddleWare(fs: FsAwsS3): void {
   if (fs.s3 == null) return;
-  fs.s3.middlewareStack.add(Fqdn.middleware, { name: 'FQDN', step: 'finalizeRequest' });
+  const stacks = fs.s3.middlewareStack.identify();
+  if (stacks.find((f) => f.startsWith('FQDN - ')) == null) {
+    fs.s3.middlewareStack.add(Fqdn.middleware, { name: 'FQDN', step: 'finalizeRequest' });
+  }
 }
 
 applyS3MiddleWare(s3FsPublic);
@@ -44,9 +47,10 @@ applyS3MiddleWare(s3Fs);
 
 const credentials = new AwsS3CredentialProvider();
 
-credentials.onFileSystemCreated = (acc: AwsCredentialConfig, fs: FileSystem): void => {
-  LogConfig.get().debug({ prefix: acc.prefix, roleArn: acc.roleArn }, 'FileSystem:Register');
-  applyS3MiddleWare(fs as FsAwsS3);
+credentials.onFileSystemFound = (acc: AwsCredentialConfig, fs?: FsAwsS3, path?: URL): void => {
+  if (fs == null) return;
+  LogConfig.get().info({ prefix: acc.prefix, roleArn: acc.roleArn, path: path?.href }, 'FileSystem:Register');
+  applyS3MiddleWare(fs);
   fsa.register(acc.prefix, fs);
 };
 
@@ -81,9 +85,10 @@ export const FsaLog = {
     this.requests.push(requestId);
     const startTime = performance.now();
     const res = await next(req);
-    LogConfig.get().trace(
+    LogConfig.get().debug(
       {
         source: req.source.url.href,
+        sourceHost: req.source.url.hostname,
         offset: req.offset,
         length: req.length,
         requestId,

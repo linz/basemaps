@@ -2,7 +2,8 @@ import assert from 'node:assert';
 import { afterEach, before, beforeEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory, SourceRaster, StyleJson } from '@basemaps/config';
-import { Terrain } from '@basemaps/config/src/config/vector.style.js';
+import { DefaultExaggeration, Terrain } from '@basemaps/config/build/config/vector.style.js';
+import { Nztm2000QuadTms } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 import { createSandbox } from 'sinon';
 
@@ -441,7 +442,7 @@ describe('/v1/styles', () => {
           },
         ],
         terrain: {
-          exaggeration: 1.1,
+          exaggeration: DefaultExaggeration[Nztm2000QuadTms.identifier],
         },
       },
     };

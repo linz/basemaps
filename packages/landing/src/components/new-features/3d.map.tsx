@@ -10,7 +10,7 @@ const baseUrl = WindowUrl.baseUrl();
  */
 const bigImage = new URL('assets/Lg+3D+Maps+splash.gif', baseUrl).href; // Large gif file location
 const smallImage = new URL('assets/Sml+3D+map+splash.gif', baseUrl).href; // Small gif file location
-const closingDate = new Date('2024-10-30'); // End date for pop up screen
+const closingDate = new Date('2025-01-31'); // End date for pop up screen
 const id = `LINZ_Basemaps_3D_Map`; // Optional to set as Config.Version to disable Modal as default
 const dismissedKey = 'DISMISSED_MODALS_2024_10_3d_map'; // Feature released version can both been major version or minor version
 const recentUpdates = {

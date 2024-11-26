@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** correctly log fetch requests ([#3359](https://github.com/linz/basemaps/issues/3359)) ([9fa3681](https://github.com/linz/basemaps/commit/9fa3681acc2ce25037c5d6e0326255aad9815b7d))
+
+
+### Features
+
+* **lambda-tiler:** update imagery layer attributions to show licensor details BM-897 ([#3357](https://github.com/linz/basemaps/issues/3357)) ([e702c7e](https://github.com/linz/basemaps/commit/e702c7e53d28aaa8db9d624acab048f8ec3a2309))
+* **server:** add redirect route to pre-zoomed tileset BM-1076 ([#3354](https://github.com/linz/basemaps/issues/3354)) ([5b207de](https://github.com/linz/basemaps/commit/5b207de92b76e0d445a41ef8e1e9b9b91e5363c6))
+
+
+
+
+
 # [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
 
 

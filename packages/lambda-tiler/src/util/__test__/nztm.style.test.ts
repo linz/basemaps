@@ -2,7 +2,9 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { StyleJson } from '@basemaps/config';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 
+import { setStyleTerrain } from '../../routes/tile.style.json.js';
 import { convertStyleToNztmStyle } from '../nztm.style.js';
 
 describe('NZTM2000QuadStyle', () => {
@@ -25,9 +27,6 @@ describe('NZTM2000QuadStyle', () => {
 
     convertStyleToNztmStyle(baseStyle);
     assert.equal(baseStyle.terrain?.exaggeration, 1.1);
-
-    convertStyleToNztmStyle(baseStyle, false);
-    assert.equal(baseStyle.terrain?.exaggeration, 4.4);
   });
 
   it('should convert min/maxzooms', () => {
@@ -39,13 +38,24 @@ describe('NZTM2000QuadStyle', () => {
     assert.deepEqual(newStyle.layers[0], { minzoom: 3, maxzoom: 8, id: 'something', type: '' });
   });
 
-  it('should offset terrain', () => {
-    const newStyle = convertStyleToNztmStyle({
+  it('should not offset terrain for WebMecator', () => {
+    const testStyle: StyleJson = {
       ...fakeStyle,
-      terrain: { exaggeration: 1.1, source: 'abc' },
-    });
+      sources: { 'LINZ-Terrain': { type: 'raster-dem', tiles: ['https://example.com/{z}/{x}/{y}.png'] } },
+    };
+    setStyleTerrain(testStyle, 'LINZ-Terrain', GoogleTms);
 
-    assert.deepEqual(newStyle.terrain, { exaggeration: 4.4, source: 'abc' });
+    assert.deepEqual(testStyle.terrain, { exaggeration: 1.2, source: 'LINZ-Terrain' });
+  });
+
+  it('should offset terrain for NZTM', () => {
+    const testStyle: StyleJson = {
+      ...fakeStyle,
+      sources: { 'LINZ-Terrain': { type: 'raster-dem', tiles: ['https://example.com/{z}/{x}/{y}.png'] } },
+    };
+    setStyleTerrain(testStyle, 'LINZ-Terrain', Nztm2000QuadTms);
+
+    assert.deepEqual(testStyle.terrain, { exaggeration: 4.4, source: 'LINZ-Terrain' });
   });
 
   it('should convert stops inside of paint and layout', () => {

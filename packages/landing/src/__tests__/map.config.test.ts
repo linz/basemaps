@@ -174,4 +174,50 @@ describe('WindowUrl', () => {
     mc.updateFromUrl('i=01EDA2YFXH2JN264VG1HKBT625');
     assert.equal(mc.layerId, '01EDA2YFXH2JN264VG1HKBT625');
   });
+
+  it('should enable labels by default', () => {
+    // aerial layer & debug disabled
+    mc.updateFromUrl('');
+    assert.equal(mc.layerId, 'aerial');
+    assert.equal(mc.isDebug, false);
+    assert.equal(mc.labels, true);
+
+    // aerial layer, labels enabled & debug disabled
+    mc.updateFromUrl('?labels=true');
+    assert.equal(mc.layerId, 'aerial');
+    assert.equal(mc.isDebug, false);
+    assert.equal(mc.labels, true);
+  });
+
+  it('should not enable labels by default', () => {
+    // aerial layer, but labels disabled
+    mc.updateFromUrl('?labels=false');
+    assert.equal(mc.layerId, 'aerial');
+    assert.equal(mc.isDebug, false);
+    assert.equal(mc.labels, false);
+
+    // aerial layer, but debug enabled
+    mc.updateFromUrl('?debug');
+    assert.equal(mc.layerId, 'aerial');
+    assert.equal(mc.isDebug, true);
+    assert.equal(mc.labels, false);
+
+    // aerial layer, labels disabled & debug enabled
+    mc.updateFromUrl('?labels=false&debug');
+    assert.equal(mc.layerId, 'aerial');
+    assert.equal(mc.isDebug, true);
+    assert.equal(mc.labels, false);
+
+    // debug disabled, but individual layer
+    mc.updateFromUrl('i=abc123');
+    assert.equal(mc.layerId, 'abc123');
+    assert.equal(mc.isDebug, false);
+    assert.equal(mc.labels, false);
+
+    // individual layer & debug enabled
+    mc.updateFromUrl('i=abc123&debug');
+    assert.equal(mc.layerId, 'abc123');
+    assert.equal(mc.isDebug, true);
+    assert.equal(mc.labels, false);
+  });
 });

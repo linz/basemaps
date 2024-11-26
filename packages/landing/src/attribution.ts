@@ -1,14 +1,12 @@
 import { Attribution } from '@basemaps/attribution';
 import { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
-import { GoogleTms, Stac } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo';
 import * as maplibre from 'maplibre-gl';
 
 import { onMapLoaded } from './components/map.js';
 import { Config } from './config.js';
 import { mapToBoundingBox } from './tile.matrix.js';
 import { MapOptionType } from './url.js';
-
-const Copyright = `© ${Stac.License} LINZ`;
 
 export class MapAttributionState {
   /** Cache the loading of attribution */
@@ -168,13 +166,7 @@ export class MapAttribution implements maplibre.IControl {
     const filteredLayerIds = filtered.map((x) => x.collection.id).join('_');
     Config.map.emit('visibleLayers', filteredLayerIds);
 
-    let attributionHTML = attr.renderList(filtered);
-    if (attributionHTML === '') {
-      attributionHTML = Copyright;
-    } else {
-      attributionHTML = Copyright + ' - ' + attributionHTML;
-    }
-
+    const attributionHTML = attr.renderLicense(filtered);
     this.setAttribution(attributionHTML);
   };
 

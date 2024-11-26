@@ -335,11 +335,12 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
       if (currentLayer) map.removeLayer(HillShadeLayerId);
       return;
     }
-    if (currentLayer?.source === sourceId) return;
+
+    const hillShadeSourceId = `${HillShadePrefix}${sourceId}`;
+    if (currentLayer?.source === hillShadeSourceId) return;
 
     // Hillshading from an existing raster-dem source gives very mixed results and looks very blury
     // so add a new source layer to generate from
-    const hillShadeSourceId = `${HillShadePrefix}${sourceId}`;
     const existingSource = map.getSource(hillShadeSourceId);
     if (existingSource == null) {
       const source = map.getSource(sourceId);
