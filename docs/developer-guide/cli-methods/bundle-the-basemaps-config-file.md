@@ -32,10 +32,10 @@ Clone the [**linz/basemaps-config**][bm_config_repo] repository to your machine.
     gh repo clone linz/basemaps-config
     ```
 
-!!! abstract "Path"
+!!! abstract "Paths"
 
     This guide uses variables as shorthand to reference key directories and files. On your machine, note the following paths:
-    
+
     === "`BM_CONFIG_REPO`"
 
         The path to the **basemaps-config** repository folder on your machine.
@@ -44,14 +44,14 @@ Clone the [**linz/basemaps-config**][bm_config_repo] repository to your machine.
         $BM_CONFIG_REPO = {path_to}/basemaps-config
         ```
 
-    === "`BM_CLI_BIN`"
+    === "`BM_CLI_BUILD`"
 
         The **basemaps/cli** package provides a **bundle** function we can use to generate a bundled config file.
 
-        The path to the **bin** folder of the **basemaps/cli** package.
+        The path to the **build** folder of the **basemaps/cli** package.
 
         ```bash
-        $BM_CLI_BIN = $BM_REPO/packages/cli/bin
+        $BM_CLI_BUILD = $BM_REPO/packages/cli/build/cli
         ```
 
 ## Run the `basemaps/cli` package
@@ -61,9 +61,9 @@ Clone the [**linz/basemaps-config**][bm_config_repo] repository to your machine.
 Use the following command to bundle the `basemaps` config file:
 
 ```bash
-node $BM_CLI_BIN/bmc.js bundle \
+node $BM_CLI_BUILD/bin.js bundle \
     --config $BM_CONFIG_REPO/config \
-    --output $BM_REPO/config/config.bundle.json \
+    --output config.bundle.json \
     --cache s3://linz-basemaps-staging/basemaps-config/cache/
 ```
 
@@ -75,17 +75,11 @@ node $BM_CLI_BIN/bmc.js bundle \
 
 === "`--output`"
 
-    Specifies where to save the bundled config file. You can specify a location of your choice. This guide specifies the `basemaps` repository for convenience.
+    Specifies where to save the bundled config file, relative to the location from which you execute the command. You can specify a location and filename of your choice.
 
 === "`--cache`"
 
     Specifies the location of the cache directory. This parameter is optional but recommended to reduce the time needed to construct the config file.
-
-<!-- internal links -->
-
-[running-basemaps-locally]: ../running-basemaps-locally.md
-[configuring-the-basemapsserver-package]: ../running-basemaps-locally.md#2-configuring-the-basemapsserver-package
-[path-to-json-config-file]: ../Server%20Methods/json-config-file.md
 
 <!-- external links -->
 

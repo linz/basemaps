@@ -80,6 +80,15 @@ npm run build
 npm run test
 ```
 
+!!! tip
+
+    You can build the `basemaps` packages in [watch mode][tsc_watch] so that they recompile anytime you modify the source code. In a terminal, navigate to `BM_REPO` and run the following command:
+
+    ```bash
+    # Generate the <package_name>/build for each package (watch mode)
+    npm run build -- --watch
+    ```
+
 ## Configure the `basemaps/server` package
 
 There are two main ways you can configure and run the **basemaps/server** package:
@@ -103,3 +112,4 @@ There are two main ways you can configure and run the **basemaps/server** packag
 [configuration]: https://github.com/linz/basemaps/blob/master/docs/configuration.md
 [contributing]: https://github.com/linz/basemaps/blob/master/CONTRIBUTING.md
 [stac]: https://github.com/radiantearth/stac-spec/blob/master/overview.md
+[tsc_watch]: https://www.typescriptlang.org/docs/handbook/project-references.html#tsc--b-commandline
