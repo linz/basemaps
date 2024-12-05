@@ -247,6 +247,7 @@ export class ConfigJson {
     if (tileSet.type === TileSetType.Raster) {
       if (ts.outputs) tileSet.outputs = ts.outputs;
       if (ts.background) tileSet.background = ts.background;
+      if (ts.resizeKernel) tileSet.resizeKernel = ts.resizeKernel;
     }
 
     if (ts.format) {
