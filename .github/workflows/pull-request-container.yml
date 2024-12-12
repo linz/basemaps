@@ -2,6 +2,9 @@ name: Pull Request Containers
 
 on:
   pull_request:
+    branches:
+      - master
+    types: [labeled, synchronize, opened]
 
 jobs:
   containers:
