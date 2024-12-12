@@ -73,6 +73,11 @@ export const BasemapsCogifyCoverCommand = command({
       defaultValue: () => false,
       defaultValueIsSerializable: true,
     }),
+    name: option({
+      type: optional(string),
+      long: 'name',
+      description: 'Define the name of the output imagery',
+    }),
     background: option({
       type: optional(string),
       long: 'background',
@@ -86,7 +91,7 @@ export const BasemapsCogifyCoverCommand = command({
     const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');
     const background = args.background ? parseBackgroud(args.background) : undefined;
-    const cfg = await initConfigFromUrls(mem, args.paths);
+    const cfg = await initConfigFromUrls(mem, args.paths, args.name);
     const imageryLoadTime = metrics.end('imagery:load');
     if (cfg.imagery.length === 0) throw new Error('No imagery found');
     const im = cfg.imagery[0];

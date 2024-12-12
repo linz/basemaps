@@ -30,6 +30,7 @@ describe('cli.cover', () => {
     extraVerbose: false,
     requireStacCollection: false,
     background: undefined,
+    name: undefined,
   };
 
   it('should generate a covering', async () => {
