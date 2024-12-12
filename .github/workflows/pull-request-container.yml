@@ -2,8 +2,7 @@ name: Pull Request Containers
 
 on:
   pull_request:
-    branches:
-      - master
+
 jobs:
   containers:
     name: Create containers
