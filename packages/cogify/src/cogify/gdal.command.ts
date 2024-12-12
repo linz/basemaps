@@ -97,3 +97,29 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
       .map(String),
   };
 }
+
+export function gdalCreate(targetTiff: URL, opt: CogifyCreationOptions): GdalCommand {
+  const cfg = { ...Presets[opt.preset], ...opt };
+  const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
+  if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
+
+  const bounds = tileMatrix.tileToSourceBounds({ x: 0, y: 0, z: 0 });
+
+  return {
+    command: 'gdal_create',
+    output: targetTiff,
+    args: [
+      ['-of', 'GTiff'],
+      ['-outsize', 20, 20],
+      ['-bands', '4'],
+      ['-burn', '208 231 244 255'], // this is the color
+      ['-a_srs', tileMatrix.projection.toEpsgString()],
+      ['-a_ullr', bounds.x, bounds.bottom, bounds.right, bounds.y],
+      ['-co', 'COMPRESS=LZW'],
+      urlToString(targetTiff),
+    ]
+      .filter((f) => f != null)
+      .flat()
+      .map(String),
+  };
+}

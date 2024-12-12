@@ -15,7 +15,7 @@ import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader } from '../../download.js';
 import { HashTransform } from '../../hash.stream.js';
 import { getLogger, logArguments } from '../../log.js';
-import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.command.js';
+import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp, gdalCreate } from '../gdal.command.js';
 import { GdalRunner } from '../gdal.runner.js';
 import { Url, UrlArrayJsonFile } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
@@ -332,10 +332,21 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   );
   await new GdalRunner(vrtWarpCommand).run(logger);
 
-  logger?.debug({ tileId }, 'Cog:Create:Tiff');
+  // Create a tiff file covering the whole world in sea blue
+  const gdalCreateCommand = gdalCreate(new URL(`${tileId}-bg.tiff`, ctx.tempFolder), options);
+  await new GdalRunner(gdalCreateCommand).run(logger);
+
+  // Create a vrt layering with the sea blue behind the warp VRT
+  const vrtMergeCommand = gdalBuildVrt(new URL(`${tileId}-merged.vrt`, ctx.tempFolder), [
+    gdalCreateCommand.output,
+    vrtWarpCommand.output,
+  ]);
+  await new GdalRunner(vrtMergeCommand).run(logger);
+
   // Create the COG from the warped vrt
-  const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtWarpCommand.output, options);
+  const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtMergeCommand.output, options);
   await new GdalRunner(cogCreateCommand).run(logger);
+
   return cogCreateCommand.output;
 }
 
