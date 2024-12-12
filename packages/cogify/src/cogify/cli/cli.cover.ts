@@ -12,7 +12,7 @@ import { getLogger, logArguments } from '../../log.js';
 import { Presets } from '../../preset.js';
 import { createTileCover, TileCoverContext } from '../../tile.cover.js';
 import { Url, UrlFolder } from '../parsers.js';
-import { createFileStats } from '../stac.js';
+import { Background, createFileStats } from '../stac.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
 
@@ -21,6 +21,17 @@ export function gsdToMeter(gsd: number): number {
   if (gsd > 1) return Math.round(gsd);
   if (gsd < 0.001) return 0.001;
   return parseFloat(gsd.toFixed(3));
+}
+
+// parse background color from string "r,g,b,a"
+function parseBackgroud(background: string): Background {
+  const parts = background.split(',').map((f) => {
+    const value = parseInt(f);
+    if (value < 0 || value > 255) throw new Error('Invalid rgba number');
+    return value;
+  });
+  if (parts.length !== 4) throw new Error('Invalid background format');
+  return { r: parts[0], g: parts[1], b: parts[2], alpha: parts[3] };
 }
 
 export const BasemapsCogifyCoverCommand = command({
@@ -62,6 +73,11 @@ export const BasemapsCogifyCoverCommand = command({
       defaultValue: () => false,
       defaultValueIsSerializable: true,
     }),
+    background: option({
+      type: optional(string),
+      long: 'background',
+      description: 'Background rbga color to fill empty space in the COG' + 'Format: "r,g,b,a" eg "255,0,0,0.5"',
+    }),
   },
   async handler(args) {
     const metrics = new Metrics();
@@ -69,6 +85,7 @@ export const BasemapsCogifyCoverCommand = command({
 
     const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');
+    const background = args.background ? parseBackgroud(args.background) : undefined;
     const cfg = await initConfigFromUrls(mem, args.paths);
     const imageryLoadTime = metrics.end('imagery:load');
     if (cfg.imagery.length === 0) throw new Error('No imagery found');
@@ -95,6 +112,7 @@ export const BasemapsCogifyCoverCommand = command({
       metrics,
       cutline,
       preset: args.preset,
+      background,
       targetZoomOffset: args.baseZoomOffset,
     };
 

@@ -23,13 +23,13 @@ describe('cli.cover', () => {
     target: new URL('memory://target/'),
     preset: 'webp',
     tileMatrix: 'WebMercatorQuad',
-
     cutline: undefined,
     cutlineBlend: 20,
     baseZoomOffset: undefined,
     verbose: false,
     extraVerbose: false,
     requireStacCollection: false,
+    background: undefined,
   };
 
   it('should generate a covering', async () => {
@@ -50,7 +50,6 @@ describe('cli.cover', () => {
       paths: [new URL('memory://source/')],
       target: new URL('memory://target/'),
       preset: 'webp',
-
       requireStacCollection: true,
       tileMatrix: 'WebMercatorQuad',
     }).catch((e) => String(e));

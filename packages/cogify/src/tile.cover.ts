@@ -8,6 +8,7 @@ import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
 import { createCovering } from './cogify/covering.js';
 import {
+  Background,
   CogifyLinkCutline,
   CogifyLinkSource,
   CogifyStacCollection,
@@ -32,6 +33,8 @@ export interface TileCoverContext {
   logger?: LogType;
   /** GDAL configuration preset */
   preset: string;
+  /** Optional configuration for adding background for the target cog */
+  background?: Background;
   /**
    * Override the base zoom to store the output COGS as
    */
@@ -179,6 +182,9 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
       },
       assets: {},
     };
+
+    // Add background if exists
+    if (ctx.background) item.properties['linz_basemaps:options'].background = ctx.background;
 
     // Add the source imagery as a STAC Link
     for (const src of source) {
