@@ -54,6 +54,8 @@ export const Env = {
     CloudFrontId: 'ANALYTICS_CLOUD_FRONT_ID',
     CloudFrontSourceBucket: 'ANALYTICS_CLOUD_FRONT_SOURCE_BUCKET',
     CacheBucket: 'ANALYTICS_CACHE_BUCKET',
+    /** Max number of records to process in the analytics process */
+    MaxRecords: 'ANALYTICS_MAX_RECORDS',
   },
 
   /** Load a environment var defaulting to defaultOutput if it does not exist  */
