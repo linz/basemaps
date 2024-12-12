@@ -53,8 +53,13 @@ jobs:
           cp -r packages/lambda-tiler/static/ packages/server/
           cp -r packages/lambda-tiler/static/ packages/cli/
 
-      - name: Log in to registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: '@basemaps/cli - Build and export to Docker'
         uses: docker/build-push-action@v5
