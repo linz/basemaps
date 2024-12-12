@@ -2,18 +2,15 @@ name: Pull Request Containers
 
 on:
   pull_request:
-    types:
-      - labeled
+    branches:
+      - master
 jobs:
   containers:
     name: Create containers
     runs-on: ubuntu-latest
 
     if: |
-      github.event.label.name == 'container'
-
-    environment:
-      name: dev
+      contains(github.event.pull_request.labels.*.name, 'container')
 
     permissions:
       id-token: write
@@ -27,8 +24,6 @@ jobs:
         run: |
             npx lerna run bundle --stream
             npm pack --workspaces
-        env:
-          NODE_ENV: 'dev'
 
       - name: Set up Docker Qemu
         id: qemu
@@ -46,15 +41,19 @@ jobs:
           cp -r packages/lambda-tiler/static/ packages/server/
           cp -r packages/lambda-tiler/static/ packages/cli/
      
-      - name: Log in to registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: '@basemaps/cli - Build and push cli PR container'
         uses: docker/build-push-action@v5
         with:
           context: packages/cli
           platforms: linux/arm64,linux/amd64
-          tags: 'ghcr.io/linz/basemaps/cli:pr-${{ github.event.number }}'
+          tags: 'ghcr.io/${{ github.repository }}/cli:pr-${{ github.event.number }}'
           push: true
 
       - name: '@basemaps/server - Build and push server PR container'
@@ -62,5 +61,5 @@ jobs:
         with:
           context: packages/server
           platforms: linux/arm64,linux/amd64
-          tags: ghcr.io/linz/basemaps/server:pr-${{ github.event.number }}
+          tags: ghcr.io/${{ github.repository }}/server:pr-${{ github.event.number }}
           push: true
