@@ -2,6 +2,12 @@ import { createHash } from 'node:crypto';
 
 import { Tile } from '@basemaps/geo';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
+export interface Background {
+  r: number;
+  g: number;
+  b: number;
+  alpha: number;
+}
 
 export interface CogifyCreationOptions {
   /** Preset GDAL config to use */
@@ -56,7 +62,13 @@ export interface CogifyCreationOptions {
    * @default 'lanczos'
    */
   overviewResampling?: GdalResampling;
+
+  /**
+   * Background to fill the cog empty space with alpha 0
+   */
+  background?: Background;
 }
+
 export type GdalResampling = 'nearest' | 'bilinear' | 'cubic' | 'cubicspline' | 'lanczos' | 'average' | 'mode';
 
 export type CogifyStacCollection = StacCollection;

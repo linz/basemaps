@@ -3,7 +3,7 @@ import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets } f
 import { fsa, LogType, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
-import { command, flag, number, option, optional, restPositionals } from 'cmd-ts';
+import { command, flag, number, option, optional, restPositionals, string } from 'cmd-ts';
 import { mkdir, rm } from 'fs/promises';
 import { tmpdir } from 'os';
 import pLimit from 'p-limit';
@@ -18,10 +18,20 @@ import { getLogger, logArguments } from '../../log.js';
 import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp, gdalCreate } from '../gdal.command.js';
 import { GdalRunner } from '../gdal.runner.js';
 import { Url, UrlArrayJsonFile } from '../parsers.js';
-import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
+import { Background, CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 
 function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
   return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => new URL(link.href, baseUrl));
+}
+
+function parseBackgroud(background: string): Background {
+  const parts = background.split(',').map((f) => {
+    const value = parseInt(f);
+    if (value < 0 || value > 255) throw new Error('Invalid rgba number');
+    return value;
+  });
+  if (parts.length !== 4) throw new Error('Invalid background format');
+  return { r: parts[0], g: parts[1], b: parts[2], alpha: parts[3] };
 }
 
 const Collections = new Map<string, Promise<StacCollection>>();
@@ -72,6 +82,11 @@ export const BasemapsCogifyCreateCommand = command({
       defaultValue: () => 4,
       defaultValueIsSerializable: true,
     }),
+    background: option({
+      type: optional(string),
+      long: 'background',
+      description: 'Background rbga color to fill empty space in the COG' + 'Format: "r,g,b,a" eg "255,0,0,0.5"',
+    }),
     docker: flag({ long: 'docker', description: 'Run GDAL inside docker container' }),
     fromFile: option({
       type: optional(UrlArrayJsonFile),
@@ -87,7 +102,7 @@ export const BasemapsCogifyCreateCommand = command({
     const logger = getLogger(this, args);
 
     if (args.docker) process.env['GDAL_DOCKER'] = '1';
-
+    const background = args.background ? parseBackgroud(args.background) : undefined;
     const paths = args.fromFile != null ? args.path.concat(args.fromFile) : args.path;
 
     const toCreate = await Promise.all(paths.map(async (p) => loadItem(p, logger)));
@@ -157,6 +172,9 @@ export const BasemapsCogifyCreateCommand = command({
         const cutlineLink = getCutline(item.links);
         const options = item.properties['linz_basemaps:options'];
         const tileId = TileId.fromTile(options.tile);
+
+        // Forces background if defined.
+        if (background) options.background = background;
 
         // Location to where the tiff should be stored
         const tiffPath = new URL(tileId + '.tiff', url);
@@ -332,22 +350,28 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   );
   await new GdalRunner(vrtWarpCommand).run(logger);
 
-  // Create a tiff file covering the whole world in sea blue
-  const gdalCreateCommand = gdalCreate(new URL(`${tileId}-bg.tiff`, ctx.tempFolder), options);
-  await new GdalRunner(gdalCreateCommand).run(logger);
+  if (options.background) {
+    // Create a tiff with background to fill the empty space in the target cog
+    const gdalCreateCommand = gdalCreate(new URL(`${tileId}-bg.tiff`, ctx.tempFolder), options);
+    await new GdalRunner(gdalCreateCommand).run(logger);
 
-  // Create a vrt layering with the sea blue behind the warp VRT
-  const vrtMergeCommand = gdalBuildVrt(new URL(`${tileId}-merged.vrt`, ctx.tempFolder), [
-    gdalCreateCommand.output,
-    vrtWarpCommand.output,
-  ]);
-  await new GdalRunner(vrtMergeCommand).run(logger);
+    // Create a vrt layering with the backgroud tiff
+    const vrtMergeCommand = gdalBuildVrt(new URL(`${tileId}-merged.vrt`, ctx.tempFolder), [
+      gdalCreateCommand.output,
+      vrtWarpCommand.output,
+    ]);
+    await new GdalRunner(vrtMergeCommand).run(logger);
 
-  // Create the COG from the warped vrt
-  const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtMergeCommand.output, options);
-  await new GdalRunner(cogCreateCommand).run(logger);
-
-  return cogCreateCommand.output;
+    // Create the COG from the merged Vrt with background
+    const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtMergeCommand.output, options);
+    await new GdalRunner(cogCreateCommand).run(logger);
+    return cogCreateCommand.output;
+  } else {
+    // Create the COG from the warped vrt without background
+    const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtWarpCommand.output, options);
+    await new GdalRunner(cogCreateCommand).run(logger);
+    return cogCreateCommand.output;
+  }
 }
 
 /**

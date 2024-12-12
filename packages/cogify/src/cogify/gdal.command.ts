@@ -104,6 +104,8 @@ export function gdalCreate(targetTiff: URL, opt: CogifyCreationOptions): GdalCom
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
 
   const bounds = tileMatrix.tileToSourceBounds({ x: 0, y: 0, z: 0 });
+  const bg = opt.background;
+  if (bg == null) throw new Error('Background color is required');
 
   return {
     command: 'gdal_create',
@@ -112,7 +114,7 @@ export function gdalCreate(targetTiff: URL, opt: CogifyCreationOptions): GdalCom
       ['-of', 'GTiff'],
       ['-outsize', 20, 20],
       ['-bands', '4'],
-      ['-burn', '208 231 244 255'], // this is the color
+      ['-burn', `${bg.r} ${bg.g} ${bg.b} ${bg.alpha}`], // this is the color
       ['-a_srs', tileMatrix.projection.toEpsgString()],
       ['-a_ullr', bounds.x, bounds.bottom, bounds.right, bounds.y],
       ['-co', 'COMPRESS=LZW'],
