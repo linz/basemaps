@@ -138,7 +138,7 @@ export async function handler(): Promise<void> {
     if (Elastic.errors.length > 0) {
       const errorLocation = new URL(`./errors-${new Date().toISOString()}.json`, CacheLocation);
       logger.fatal({ errorLocation: errorLocation.href }, 'log:index:failed');
-      await fsa.write(errorLocation, JSON.stringify(rets));
+      await fsa.write(errorLocation, JSON.stringify(Elastic.errors));
     }
 
     let failed = false;

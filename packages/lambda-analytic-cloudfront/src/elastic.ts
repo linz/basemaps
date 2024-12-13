@@ -8,6 +8,15 @@ export class ElasticClient {
   /** Between index requests delay this amount */
   indexDelay: number = 200;
 
+  /**
+   * Do not index analytics for buckets that contain less than this number of total requests
+   *
+   * @example
+   * `1` - drop all requests where total requests <= 1
+   *
+   */
+  minRequestCount: number = 1;
+
   get client(): Client {
     if (this._client != null) return this._client;
 
@@ -44,7 +53,7 @@ export class ElasticClient {
       const ret = await client.bulk({ operations });
 
       if (ret.errors) {
-        errors.push(ret);
+        errors.push({ prefix, errors: ret.errors });
         throw new Error('Failed to index: ' + prefix);
       }
       // Give it a little bit of time to index
@@ -53,7 +62,8 @@ export class ElasticClient {
     }
 
     for (const rec of combined) {
-      if (rec.total < 1) {
+      // skip over roll ups that are less than
+      if (rec.total <= this.minRequestCount) {
         skipHits++;
         continue;
       }

@@ -22,7 +22,8 @@ describe('analytic lambda', () => {
     fsa.register('mem://', memory);
     memory.files.clear();
 
-    Elastic.indexDelay = 1;
+    Elastic.indexDelay = 1; // do not wait between requests
+    Elastic.minRequestCount = 1; // index everything
     Elastic._client = undefined;
   });
 
@@ -111,9 +112,9 @@ describe('analytic lambda', () => {
     const files = [...memory.files.keys()];
     assert.equal(files.length, 2); // two files one input one output
 
-    assert.ok(
-      files[1].startsWith(`mem://cache/errors-${new Date().toISOString().slice(0, 12)}`),
-      //  ${shortDate.slice(0, 4)}/${shortDate.slice(5, 7)}/${shortDate}.ndjson.gz`,
-    );
+    assert.ok(files[1].startsWith(`mem://cache/errors-${new Date().toISOString().slice(0, 12)}`));
+
+    const data = await fsa.read(new URL(files[1]));
+    assert.ok(data.toString().includes(JSON.stringify('Hello')));
   });
 });
