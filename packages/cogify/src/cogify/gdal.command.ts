@@ -112,7 +112,7 @@ export function gdalCreate(targetTiff: URL, opt: CogifyCreationOptions): GdalCom
     output: targetTiff,
     args: [
       ['-of', 'GTiff'],
-      ['-outsize', 32, 32],
+      ['-outsize', 512, 512],
       ['-bands', '4'],
       ['-burn', `${bg.r} ${bg.g} ${bg.b} ${bg.alpha}`], // this is the color
       ['-a_srs', tileMatrix.projection.toEpsgString()],
