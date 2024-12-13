@@ -66,8 +66,8 @@ export class EdgeAnalytics extends Stack {
         [Env.Analytics.CacheBucket]: `s3://${cacheBucket.bucketName}`,
         [Env.Analytics.CloudFrontSourceBucket]: `s3://${logBucket.bucketName}`,
         [Env.Analytics.MaxRecords]: String(24 * 7 * 4),
-        [Env.Analytics.ElasticId]: Env.get(Env.Analytics.ElasticId),
-        [Env.Analytics.ElasticApiKey]: Env.get(Env.Analytics.ElasticApiKey),
+        [Env.Analytics.ElasticId]: Env.get(Env.Analytics.ElasticId) ?? '',
+        [Env.Analytics.ElasticApiKey]: Env.get(Env.Analytics.ElasticApiKey) ?? '',
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       },
       logRetention: RetentionDays.ONE_MONTH,
@@ -78,7 +78,7 @@ export class EdgeAnalytics extends Stack {
     logBucket.grantRead(v2Lambda);
 
     // Run this lambda function every hour
-    new Rule(this, 'AnalyticRule', { schedule: Schedule.rate(Duration.hours(1)) }).addTarget(
+    new Rule(this, 'AnalyticV2Rule', { schedule: Schedule.rate(Duration.hours(1)) }).addTarget(
       new LambdaFunction(v2Lambda),
     );
   }
