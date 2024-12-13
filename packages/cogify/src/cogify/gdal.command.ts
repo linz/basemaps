@@ -103,7 +103,7 @@ export function gdalCreate(targetTiff: URL, opt: CogifyCreationOptions): GdalCom
   const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
 
-  const bounds = tileMatrix.tileToSourceBounds({ x: 0, y: 0, z: 0 });
+  const bounds = tileMatrix.tileToSourceBounds(opt.tile);
   const bg = opt.background;
   if (bg == null) throw new Error('Background color is required');
 
