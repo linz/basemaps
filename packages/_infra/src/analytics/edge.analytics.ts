@@ -7,7 +7,8 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
-const CODE_PATH = '../lambda-analytics/dist';
+const CodePath = '../lambda-analytics/dist';
+const CodePathV2 = '../lambda-analytics-cloudfront/dist';
 
 export interface EdgeAnalyticsProps extends StackProps {
   distributionId: string;
@@ -36,7 +37,7 @@ export class EdgeAnalytics extends Stack {
       memorySize: 2048,
       timeout: Duration.minutes(10),
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(CODE_PATH),
+      code: lambda.Code.fromAsset(CodePath),
       environment: {
         [Env.Analytics.CloudFrontId]: distributionId,
         [Env.Analytics.CacheBucket]: `s3://${cacheBucket.bucketName}`,
@@ -53,5 +54,32 @@ export class EdgeAnalytics extends Stack {
     // Run this lambda function every hour
     const rule = new Rule(this, 'AnalyticRule', { schedule: Schedule.rate(Duration.hours(1)) });
     rule.addTarget(new LambdaFunction(this.lambda));
+
+    const v2Lambda = new lambda.Function(this, 'AnalyticV2Lambda', {
+      runtime: lambda.Runtime.NODEJS_LATEST,
+      memorySize: 2048,
+      timeout: Duration.minutes(10),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(CodePathV2),
+      environment: {
+        [Env.Analytics.CloudFrontId]: distributionId,
+        [Env.Analytics.CacheBucket]: `s3://${cacheBucket.bucketName}`,
+        [Env.Analytics.CloudFrontSourceBucket]: `s3://${logBucket.bucketName}`,
+        [Env.Analytics.MaxRecords]: String(24 * 7 * 4),
+        [Env.Analytics.ElasticId]: Env.get(Env.Analytics.ElasticId),
+        [Env.Analytics.ElasticApiKey]: Env.get(Env.Analytics.ElasticApiKey),
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      },
+      logRetention: RetentionDays.ONE_MONTH,
+      loggingFormat: lambda.LoggingFormat.JSON,
+    });
+
+    cacheBucket.grantReadWrite(v2Lambda);
+    logBucket.grantRead(v2Lambda);
+
+    // Run this lambda function every hour
+    new Rule(this, 'AnalyticRule', { schedule: Schedule.rate(Duration.hours(1)) }).addTarget(
+      new LambdaFunction(v2Lambda),
+    );
   }
 }

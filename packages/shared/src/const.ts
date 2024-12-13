@@ -53,10 +53,18 @@ export const Env = {
   Analytics: {
     CloudFrontId: 'ANALYTICS_CLOUD_FRONT_ID',
     CloudFrontSourceBucket: 'ANALYTICS_CLOUD_FRONT_SOURCE_BUCKET',
+
+    /** Where to store the analytic cache data */
     CacheBucket: 'ANALYTICS_CACHE_BUCKET',
+
     /** Max number of records to process in the analytics process */
     MaxRecords: 'ANALYTICS_MAX_RECORDS',
-  },
+
+    /** Elastic server Id */
+    ElasticId: 'ELASTIC_ID',
+    /** ElasticSearch's API key */
+    ElasticApiKey: 'ELASTIC_API_KEY',
+  } as const,
 
   /** Load a environment var defaulting to defaultOutput if it does not exist  */
   get(envName: string): string | undefined {
