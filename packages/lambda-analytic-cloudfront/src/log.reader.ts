@@ -58,7 +58,7 @@ function hideApiKey(str: string): string {
 }
 
 const empty: Record<string, number> = { webp: 0, png: 0, jpeg: 0 };
-function toFullDate(x: string): string {
+export function toFullDate(x: string): string {
   if (x.length === IsoDateMonth) return `${x}-01T00:00:00.000Z`;
   if (x.length === IsoDateDay) return `${x}T00:00:00.000Z`;
   if (x.length === IsoDateHour) return `${x}:00:00.000Z`;

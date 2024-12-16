@@ -8,7 +8,7 @@ import { basename } from 'path';
 
 import { byDay, getYesterday } from './date.js';
 import { Elastic } from './elastic.js';
-import { FileProcess } from './log.reader.js';
+import { FileProcess, toFullDate } from './log.reader.js';
 import { LogStats } from './log.stats.js';
 
 const gzipPromise = promisify(gzip);
@@ -58,9 +58,13 @@ export async function main(req: LambdaRequest): Promise<void> {
     for (let hour = 23; hour >= 0; hour--) {
       processedCount++;
       if (processedCount > MaxToProcess) break;
-
       const hourOfDay = String(hour).padStart(2, '0');
       const prefix = `${prefixByDay}-${hourOfDay}`;
+
+      const targetDate = new Date(toFullDate(prefixByDay + 'T' + hourOfDay));
+      const dateDiff = Date.now() - targetDate.getTime();
+      // Do not process anything within a hour of the current time as some logs take a while to propagate into the bucket
+      if (dateDiff < 60 * 60 * 1000) continue;
 
       // Create a folder structure of /YYYY/MM/
       const cacheFolderParts = prefix.slice(0, 7).replace('-', '/');
