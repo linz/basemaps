@@ -7,6 +7,8 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
+import { getConfig } from '../config.js';
+
 const CodePath = '../lambda-analytics/dist';
 const CodePathV2 = '../lambda-analytics-cloudfront/dist';
 
@@ -68,6 +70,7 @@ export class EdgeAnalytics extends Stack {
         [Env.Analytics.MaxRecords]: String(24 * 7 * 4),
         [Env.Analytics.ElasticId]: Env.get(Env.Analytics.ElasticId) ?? '',
         [Env.Analytics.ElasticApiKey]: Env.get(Env.Analytics.ElasticApiKey) ?? '',
+        [Env.Analytics.ElasticIndexName]: getConfig().ElasticHistoryIndexName,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       },
       logRetention: RetentionDays.ONE_MONTH,

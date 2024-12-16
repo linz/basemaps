@@ -64,6 +64,8 @@ export const Env = {
     ElasticId: 'ELASTIC_ID',
     /** ElasticSearch's API key */
     ElasticApiKey: 'ELASTIC_API_KEY',
+    /** Index to use for storing analytic data */
+    ElasticIndexName: 'ELASTIC_INDEX_NAME',
   } as const,
 
   /** Load a environment var defaulting to defaultOutput if it does not exist  */

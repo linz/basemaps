@@ -17,6 +17,12 @@ export class ElasticClient {
    */
   minRequestCount: number = 1;
 
+  get indexName(): string {
+    const indexName = Env.get(Env.Analytics.ElasticIndexName);
+    if (indexName == null) throw new Error(`$${Env.Analytics.ElasticIndexName} is unset`);
+    return indexName;
+  }
+
   get client(): Client {
     if (this._client != null) return this._client;
 
@@ -46,6 +52,7 @@ export class ElasticClient {
 
     const errors = this.errors;
     const indexDelay = this.indexDelay;
+    const indexName = this.indexName;
 
     async function doInsert(): Promise<void> {
       inserts += operations.length / 2;
@@ -67,7 +74,7 @@ export class ElasticClient {
         skipHits++;
         continue;
       }
-      operations.push({ index: { _index: 'basemaps-history-' + rec['@timestamp'].slice(0, 4), _id: rec.id } }, rec);
+      operations.push({ index: { _index: indexName + '-' + rec['@timestamp'].slice(0, 4), _id: rec.id } }, rec);
       if (operations.length > 50_000) await doInsert();
     }
 
