@@ -52,8 +52,8 @@ const IsoDateHour = 13; // 2023-06-12:T01
  * Hide the full API key from the log analytics
  */
 function hideApiKey(str: string): string {
-  if (str.startsWith('d')) return 'd..' + str.slice(str.length - 6);
-  if (str.startsWith('c')) return 'c..' + str.slice(str.length - 6);
+  if (str.startsWith('d')) return 'd' + str.slice(str.length - 6);
+  if (str.startsWith('c')) return 'c' + str.slice(str.length - 6);
   return str;
 }
 
