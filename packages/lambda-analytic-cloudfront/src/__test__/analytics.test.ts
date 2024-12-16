@@ -1,9 +1,11 @@
 import assert from 'node:assert';
-import { beforeEach, describe, it, TestContext } from 'node:test';
+import { afterEach, beforeEach, describe, it, TestContext } from 'node:test';
 import { gzipSync } from 'node:zlib';
 
-import { Env, fsa, FsMemory } from '@basemaps/shared';
+import { Env, fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import { Client } from '@elastic/elasticsearch';
+import { LambdaRequest } from '@linzjs/lambda';
+import { Context } from 'aws-lambda';
 
 import { getYesterday } from '../date.js';
 import { Elastic } from '../elastic.js';
@@ -16,6 +18,12 @@ interface IndexOperation {
 }
 type BulkOperation = (IndexOperation | LogStats)[];
 
+export class FakeLambdaRequest extends LambdaRequest {
+  constructor() {
+    super({}, {} as Context, LogConfig.get());
+  }
+}
+
 describe('analytic lambda', () => {
   const memory = new FsMemory();
   beforeEach(() => {
@@ -23,8 +31,13 @@ describe('analytic lambda', () => {
     memory.files.clear();
 
     Elastic.indexDelay = 1; // do not wait between requests
-    Elastic.minRequestCount = 1; // index everything
+    Elastic.minRequestCount = 0; // index everything
     Elastic._client = undefined;
+    LogConfig.get().level = 'silent';
+  });
+
+  afterEach(() => {
+    LogConfig.get().level = 'info';
   });
 
   function setupEnv(t: TestContext): void {
@@ -37,7 +50,7 @@ describe('analytic lambda', () => {
         case Env.Analytics.CloudFrontId:
           return 'cfid';
         case Env.Analytics.MaxRecords:
-          return '30';
+          return '1';
       }
       throw new Error(`Invalid test process.env access ${key}`);
     });
@@ -59,7 +72,7 @@ describe('analytic lambda', () => {
 
     await fsa.write(new URL(`mem://source/cfid.${shortDate}/data.txt.gz`), gzipSync(LogData));
 
-    await main();
+    await main(new FakeLambdaRequest());
 
     // One call to insert
     assert.equal(operations.length, 1);
@@ -105,7 +118,7 @@ describe('analytic lambda', () => {
 
     await fsa.write(new URL(`mem://source/cfid.${shortDate}/data.txt.gz`), gzipSync(LogData));
 
-    const ret = await main().catch((e: Error) => e);
+    const ret = await main(new FakeLambdaRequest()).catch((e: Error) => e);
 
     assert.equal(String(ret), 'Error: Failed to index');
 

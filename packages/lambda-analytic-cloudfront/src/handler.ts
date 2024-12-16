@@ -1,7 +1,7 @@
 import { promisify } from 'node:util';
 import { gzip } from 'node:zlib';
 
-import { Env, fsa, LogConfig } from '@basemaps/shared';
+import { Env, fsa } from '@basemaps/shared';
 import { LambdaRequest } from '@linzjs/lambda';
 import pLimit from 'p-limit';
 import { basename } from 'path';
