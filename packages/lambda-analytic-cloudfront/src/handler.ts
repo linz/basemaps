@@ -2,6 +2,7 @@ import { promisify } from 'node:util';
 import { gzip } from 'node:zlib';
 
 import { Env, fsa, LogConfig } from '@basemaps/shared';
+import { LambdaRequest } from '@linzjs/lambda';
 import pLimit from 'p-limit';
 import { basename } from 'path';
 
@@ -31,15 +32,14 @@ function getEnvUrl(env: string): URL {
   }
 }
 
-export async function handler(): Promise<void> {
+export async function main(req: LambdaRequest): Promise<void> {
   const SourceLocation = getEnvUrl(Env.Analytics.CloudFrontSourceBucket);
   const CacheLocation = getEnvUrl(Env.Analytics.CacheBucket);
   const CloudFrontId = Env.get(Env.Analytics.CloudFrontId);
 
   const MaxToProcess = Env.getNumber(Env.Analytics.MaxRecords, 24 * 7 * 4); // Process 4 weeks of logs by default
-  const logger = LogConfig.get();
 
-  logger.info(
+  req.log.info(
     { source: SourceLocation.href, cacheLocation: CacheLocation.href, cloudFrontId: CloudFrontId },
     'log:index:start',
   );
@@ -70,19 +70,19 @@ export async function handler(): Promise<void> {
       const promise = hourQ(async () => {
         // Cache file exists skip processing
         if (await fsa.exists(cacheUrl)) {
-          logger.debug({ prefix }, 'log:prefix:skip');
+          req.log.debug({ prefix }, 'log:prefix:skip');
           return;
         }
 
         const startTime = performance.now();
-        logger.trace({ prefix }, 'log:prefix:start');
+        req.log.trace({ prefix }, 'log:prefix:start');
         const logPrefix = new URL(`${CloudFrontId}.${prefix}`, SourceLocation);
 
         const stats = new Map<string, LogStats>();
 
         const logFiles = await fsa.toArray(fsa.list(logPrefix));
         if (logFiles.length === 0) {
-          logger.info({ prefix }, 'log:prefix:no-files');
+          req.log.info({ prefix }, 'log:prefix:no-files');
           return;
         }
 
@@ -93,7 +93,7 @@ export async function handler(): Promise<void> {
             const fileStartTime = performance.now();
 
             const fileLines = await FileProcess.process(lf, stats);
-            logger.trace(
+            req.log.trace(
               {
                 prefix: prefix,
                 file: basename(lf.pathname),
@@ -113,11 +113,11 @@ export async function handler(): Promise<void> {
 
         // Extrac thte values
         const allStats = [...stats.values()];
-        await Elastic.insert(prefix, allStats, logger);
+        await Elastic.insert(prefix, allStats, req.log);
         // Ensure everything is indexed into elasticsearch before writing the cache to disk
         await fsa.write(cacheUrl, await gzipPromise(JSON.stringify(allStats)));
 
-        logger.info(
+        req.log.info(
           {
             prefix: prefix,
             files: logFiles.length,
@@ -134,17 +134,17 @@ export async function handler(): Promise<void> {
 
     const rets = await Promise.allSettled(todo);
 
-    // If anythign fails to index write the errors out to a log file at the cache location
+    // If anything fails to index write the errors out to a log file at the cache location
     if (Elastic.errors.length > 0) {
       const errorLocation = new URL(`./errors-${new Date().toISOString()}.json`, CacheLocation);
-      logger.fatal({ errorLocation: errorLocation.href }, 'log:index:failed');
+      req.log.fatal({ errorLocation: errorLocation.href }, 'log:index:failed');
       await fsa.write(errorLocation, JSON.stringify(Elastic.errors));
     }
 
     let failed = false;
     for (const ret of rets) {
       if (ret.status !== 'rejected') continue;
-      logger.fatal({ err: ret.reason }, 'log:index:failed');
+      req.log.fatal({ err: ret.reason }, 'log:index:failed');
       failed = true;
     }
     if (failed) throw new Error('Failed to index');

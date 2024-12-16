@@ -7,7 +7,7 @@ import { Client } from '@elastic/elasticsearch';
 
 import { getYesterday } from '../date.js';
 import { Elastic } from '../elastic.js';
-import { handler } from '../handler.js';
+import { main } from '../handler.js';
 import { LogStats } from '../log.stats.js';
 import { LogData } from './log.data.js';
 
@@ -59,7 +59,7 @@ describe('analytic lambda', () => {
 
     await fsa.write(new URL(`mem://source/cfid.${shortDate}/data.txt.gz`), gzipSync(LogData));
 
-    await handler();
+    await main();
 
     // One call to insert
     assert.equal(operations.length, 1);
@@ -105,7 +105,7 @@ describe('analytic lambda', () => {
 
     await fsa.write(new URL(`mem://source/cfid.${shortDate}/data.txt.gz`), gzipSync(LogData));
 
-    const ret = await handler().catch((e: Error) => e);
+    const ret = await main().catch((e: Error) => e);
 
     assert.equal(String(ret), 'Error: Failed to index');
 
