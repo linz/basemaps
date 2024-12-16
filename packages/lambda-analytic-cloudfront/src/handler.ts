@@ -55,7 +55,7 @@ export async function main(req: LambdaRequest): Promise<void> {
     if (processedCount > MaxToProcess) break;
     const todo = [];
 
-    for (let hour = 0; hour < 24; hour++) {
+    for (let hour = 23; hour >= 0; hour--) {
       processedCount++;
       if (processedCount > MaxToProcess) break;
 
