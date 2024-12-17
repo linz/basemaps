@@ -7,7 +7,7 @@ export interface TileMaker {
   compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics }>;
 }
 
-export type ResizeKernelType = 'nearest' | 'mitchell' | 'lanczos3' | 'lanczos2';
+export type ResizeKernelType = 'nearest' | 'lanczos3' | 'lanczos2';
 export type TileMakerResizeKernel = { in: ResizeKernelType; out: ResizeKernelType };
 
 export interface TileMakerContext {
