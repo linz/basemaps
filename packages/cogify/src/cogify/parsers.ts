@@ -5,9 +5,9 @@ import { fsa } from '@basemaps/shared';
 import { Type } from 'cmd-ts';
 
 /**
- * Parse a input parameter as a URL.
+ * Parse an input RGBA hexstring as an RGBA object.
  *
- * If it looks like a file path, it will be converted using `pathToFileURL`.
+ * Throws an error if the RGBA hexstring is invalid.
  **/
 export const Rgba: Type<string, RGBA> = {
   from(str) {
@@ -16,7 +16,7 @@ export const Rgba: Type<string, RGBA> = {
 };
 
 /**
- * Parse a input parameter as a URL.
+ * Parse an input parameter as a URL.
  *
  * If it looks like a file path, it will be converted using `pathToFileURL`.
  **/
@@ -31,7 +31,7 @@ export const Url: Type<string, URL> = {
 };
 
 /**
- * Parse a input parameter as a URL which represents a folder.
+ * Parse an input parameter as a URL which represents a folder.
  *
  * If it looks like a file path, it will be converted using `pathToFileURL`.
  * Any search parameters or hash will be removed, and a trailing slash added
