@@ -8,7 +8,7 @@ export interface GdalCommand {
   /** Output file location */
   output: URL;
   /** GDAL command to use */
-  command: 'gdalwarp' | 'gdalbuildvrt' | 'gdal_translate';
+  command: 'gdal_create' | 'gdalwarp' | 'gdalbuildvrt' | 'gdal_translate';
   /** GDAL arguments to use */
   args: string[];
 }
