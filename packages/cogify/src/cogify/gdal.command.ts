@@ -1,3 +1,4 @@
+import { RGBA } from '@basemaps/config/src/color.js';
 import { Epsg, EpsgCode, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
@@ -98,23 +99,39 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
   };
 }
 
-export function gdalCreate(targetTiff: URL, opt: CogifyCreationOptions): GdalCommand {
+/**
+ * Creates an empty tiff where all pixel values are set to the given color.
+ * Used to force a background so that there are no empty pixels in the final COG.
+ *
+ * @param targetTiff the file path and name for the created tiff
+ * @param color the color to set all pixel values
+ * @param opt a CogifyCreationOptions object
+ *
+ * @returns a 'gdal_create' GdalCommand object
+ */
+export function gdalCreate(targetTiff: URL, color: RGBA, opt: CogifyCreationOptions): GdalCommand {
   const cfg = { ...Presets[opt.preset], ...opt };
+
   const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
 
-  const bounds = tileMatrix.tileToSourceBounds(opt.tile);
-  const bg = opt.background;
-  if (bg == null) throw new Error('Background color is required');
+  const bounds = tileMatrix.tileToSourceBounds(cfg.tile);
+  const pixelScale = tileMatrix.pixelScale(cfg.zoomLevel);
+  const size = Math.round(bounds.width / pixelScale);
+
+  // if the value of 'size' is not a power of 2
+  if ((Math.log(size) / Math.log(size)) % 1 !== 0) {
+    throw new Error('Size did not compute to a power of 2');
+  }
 
   return {
     command: 'gdal_create',
     output: targetTiff,
     args: [
       ['-of', 'GTiff'],
-      ['-outsize', 4096, 4096],
+      ['-outsize', size, size], // set the size to match that of the final COG
       ['-bands', '4'],
-      ['-burn', `${bg.r} ${bg.g} ${bg.b} ${bg.alpha}`], // this is the color
+      ['-burn', `${color.r} ${color.g} ${color.b} ${color.alpha}`], // set all pixel values to the given color
       ['-a_srs', tileMatrix.projection.toEpsgString()],
       ['-a_ullr', bounds.x, bounds.bottom, bounds.right, bounds.y],
       ['-co', 'COMPRESS=LZW'],

@@ -1,3 +1,4 @@
+import { RGBA } from '@basemaps/config/src/color.js';
 import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
@@ -8,7 +9,6 @@ import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
 import { createCovering } from './cogify/covering.js';
 import {
-  Background,
   CogifyLinkCutline,
   CogifyLinkSource,
   CogifyStacCollection,
@@ -33,8 +33,8 @@ export interface TileCoverContext {
   logger?: LogType;
   /** GDAL configuration preset */
   preset: string;
-  /** Optional configuration for adding background for the target cog */
-  background?: Background;
+  /** Optional color with which to replace all transparent COG pixels */
+  background?: RGBA;
   /**
    * Override the base zoom to store the output COGS as
    */
@@ -183,7 +183,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
       assets: {},
     };
 
-    // Add background if exists
+    // Add the background color if it exists
     if (ctx.background) item.properties['linz_basemaps:options'].background = ctx.background;
 
     // Add the source imagery as a STAC Link

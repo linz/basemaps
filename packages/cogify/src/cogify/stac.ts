@@ -1,13 +1,8 @@
 import { createHash } from 'node:crypto';
 
+import { RGBA } from '@basemaps/config/src/color.js';
 import { Tile } from '@basemaps/geo';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
-export interface Background {
-  r: number;
-  g: number;
-  b: number;
-  alpha: number;
-}
 
 export interface CogifyCreationOptions {
   /** Preset GDAL config to use */
@@ -63,10 +58,8 @@ export interface CogifyCreationOptions {
    */
   overviewResampling?: GdalResampling;
 
-  /**
-   * Background to fill the cog empty space with alpha 0
-   */
-  background?: Background;
+  /** Color with which to replace all transparent COG pixels */
+  background?: RGBA;
 }
 
 export type GdalResampling = 'nearest' | 'bilinear' | 'cubic' | 'cubicspline' | 'lanczos' | 'average' | 'mode';

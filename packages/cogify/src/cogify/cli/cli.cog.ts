@@ -332,24 +332,24 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   await new GdalRunner(vrtWarpCommand).run(logger);
 
   if (options.background == null) {
-    // Create the COG from the warped vrt without background
+    // Create the COG from the warped vrt without a forced background
     const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtWarpCommand.output, options);
     await new GdalRunner(cogCreateCommand).run(logger);
     return cogCreateCommand.output;
   }
 
-  // Create a tiff with background to fill the empty space in the target cog
-  const gdalCreateCommand = gdalCreate(new URL(`${tileId}-bg.tiff`, ctx.tempFolder), options);
+  // Create a colored background tiff to fill the empty space in the target cog
+  const gdalCreateCommand = gdalCreate(new URL(`${tileId}-bg.tiff`, ctx.tempFolder), options.background, options);
   await new GdalRunner(gdalCreateCommand).run(logger);
 
-  // Create a vrt layering with the background tiff
+  // Create a vrt with the background tiff behind the source file vrt
   const vrtMergeCommand = gdalBuildVrt(new URL(`${tileId}-merged.vrt`, ctx.tempFolder), [
     gdalCreateCommand.output,
     vrtWarpCommand.output,
   ]);
   await new GdalRunner(vrtMergeCommand).run(logger);
 
-  // Create the COG from the merged Vrt with background
+  // Create the COG from the merged vrt with a forced background
   const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtMergeCommand.output, options);
   await new GdalRunner(cogCreateCommand).run(logger);
   return cogCreateCommand.output;

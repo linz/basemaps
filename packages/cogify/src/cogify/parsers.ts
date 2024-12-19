@@ -1,7 +1,19 @@
 import { pathToFileURL } from 'node:url';
 
+import { parseRgba, RGBA } from '@basemaps/config/src/color.js';
 import { fsa } from '@basemaps/shared';
 import { Type } from 'cmd-ts';
+
+/**
+ * Parse a input parameter as a URL.
+ *
+ * If it looks like a file path, it will be converted using `pathToFileURL`.
+ **/
+export const Rgba: Type<string, RGBA> = {
+  from(str) {
+    return Promise.resolve(parseRgba(str));
+  },
+};
 
 /**
  * Parse a input parameter as a URL.
