@@ -16,6 +16,7 @@ const Categories = [
   'Rural Aerial Photos',
   'Scanned Aerial Imagery',
   'Event',
+  'Topographic',
   'Bathymetry',
   'Elevation',
 ];
