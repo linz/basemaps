@@ -15,7 +15,7 @@ import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader } from '../../download.js';
 import { HashTransform } from '../../hash.stream.js';
 import { getLogger, logArguments } from '../../log.js';
-import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp } from '../gdal.command.js';
+import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp, gdalCreate } from '../gdal.command.js';
 import { GdalRunner } from '../gdal.runner.js';
 import { Url, UrlArrayJsonFile } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
@@ -87,7 +87,6 @@ export const BasemapsCogifyCreateCommand = command({
     const logger = getLogger(this, args);
 
     if (args.docker) process.env['GDAL_DOCKER'] = '1';
-
     const paths = args.fromFile != null ? args.path.concat(args.fromFile) : args.path;
 
     const toCreate = await Promise.all(paths.map(async (p) => loadItem(p, logger)));
@@ -332,9 +331,26 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   );
   await new GdalRunner(vrtWarpCommand).run(logger);
 
-  logger?.debug({ tileId }, 'Cog:Create:Tiff');
-  // Create the COG from the warped vrt
-  const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtWarpCommand.output, options);
+  if (options.background == null) {
+    // Create the COG from the warped vrt without a forced background
+    const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtWarpCommand.output, options);
+    await new GdalRunner(cogCreateCommand).run(logger);
+    return cogCreateCommand.output;
+  }
+
+  // Create a colored background tiff to fill the empty space in the target cog
+  const gdalCreateCommand = gdalCreate(new URL(`${tileId}-bg.tiff`, ctx.tempFolder), options.background, options);
+  await new GdalRunner(gdalCreateCommand).run(logger);
+
+  // Create a vrt with the background tiff behind the source file vrt
+  const vrtMergeCommand = gdalBuildVrt(new URL(`${tileId}-merged.vrt`, ctx.tempFolder), [
+    gdalCreateCommand.output,
+    vrtWarpCommand.output,
+  ]);
+  await new GdalRunner(vrtMergeCommand).run(logger);
+
+  // Create the COG from the merged vrt with a forced background
+  const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtMergeCommand.output, options);
   await new GdalRunner(cogCreateCommand).run(logger);
   return cogCreateCommand.output;
 }
