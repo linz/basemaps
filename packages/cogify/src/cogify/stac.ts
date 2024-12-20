@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import { RGBA } from '@basemaps/config/src/color.js';
+import { RGBA } from '@basemaps/config';
 import { Tile } from '@basemaps/geo';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 

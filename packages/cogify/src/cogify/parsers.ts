@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
 
-import { parseRgba, RGBA } from '@basemaps/config/src/color.js';
+import { parseRgba, RGBA } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
 import { Type } from 'cmd-ts';
 

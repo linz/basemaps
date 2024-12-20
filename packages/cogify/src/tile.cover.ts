@@ -1,4 +1,4 @@
-import { RGBA } from '@basemaps/config/src/color.js';
+import { RGBA } from '@basemaps/config';
 import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';

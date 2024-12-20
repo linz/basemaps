@@ -1,4 +1,4 @@
-import { RGBA } from '@basemaps/config/src/color.js';
+import { RGBA } from '@basemaps/config';
 import { Epsg, EpsgCode, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
