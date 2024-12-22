@@ -11,7 +11,7 @@ export function parseHex(str: string): number {
   return val;
 }
 
-export interface RGBA {
+export interface Rgba {
   r: number;
   g: number;
   b: number;
@@ -24,7 +24,7 @@ export interface RGBA {
  * Defaults to 0 if missing values
  * @param str string to parse
  */
-export function parseRgba(str: string): RGBA {
+export function parseRgba(str: string): Rgba {
   if (str.startsWith('0x')) str = str.slice(2);
   else if (str.startsWith('#')) str = str.slice(1);
   if (str.length !== 6 && str.length !== 8) {

@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
 
-import { parseRgba, RGBA } from '@basemaps/config';
+import { parseRgba, Rgba } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
 import { Type } from 'cmd-ts';
 
@@ -9,7 +9,7 @@ import { Type } from 'cmd-ts';
  *
  * Throws an error if the RGBA hexstring is invalid.
  **/
-export const Rgba: Type<string, RGBA> = {
+export const RgbaType: Type<string, Rgba> = {
   from(str) {
     return Promise.resolve(parseRgba(str));
   },

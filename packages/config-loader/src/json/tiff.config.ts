@@ -346,7 +346,6 @@ export async function loadTiffsFromPaths(sourceFiles: URL[], Q: LimitFunction): 
 export async function initImageryFromTiffUrl(
   target: URL,
   Q: LimitFunction,
-  name?: string,
   configCache?: URL,
   log?: LogType,
 ): Promise<ConfigImageryTiff> {
@@ -365,7 +364,7 @@ export async function initImageryFromTiffUrl(
     if (stac == null) log?.warn({ target: target }, 'Tiff:StacNotFound');
     const params = await computeTiffSummary(target, tiffs);
 
-    const imageryName = name ? name : getImageryName(target);
+    const imageryName = getImageryName(target);
     const title = stac?.title ?? imageryName;
     const tileMatrix =
       params.projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.tryGet(params.projection);
@@ -437,7 +436,6 @@ export async function initImageryFromTiffUrl(
 export async function initConfigFromUrls(
   provider: ConfigProviderMemory,
   targets: URL[],
-  name?: string,
   concurrency = 25,
   configCache?: URL,
   log?: LogType,
@@ -445,7 +443,7 @@ export async function initConfigFromUrls(
   const q = pLimit(concurrency);
 
   const imageryConfig: Promise<ConfigImageryTiff>[] = [];
-  for (const target of targets) imageryConfig.push(initImageryFromTiffUrl(target, q, name, configCache, log));
+  for (const target of targets) imageryConfig.push(initImageryFromTiffUrl(target, q, configCache, log));
 
   const aerialTileSet: ConfigTileSetRaster = {
     id: 'ts_aerial',

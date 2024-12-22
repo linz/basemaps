@@ -11,7 +11,7 @@ import { CutlineOptimizer } from '../../cutline.js';
 import { getLogger, logArguments } from '../../log.js';
 import { Presets } from '../../preset.js';
 import { createTileCover, TileCoverContext } from '../../tile.cover.js';
-import { Rgba, Url, UrlFolder } from '../parsers.js';
+import { RgbaType, Url, UrlFolder } from '../parsers.js';
 import { createFileStats } from '../stac.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
@@ -62,13 +62,8 @@ export const BasemapsCogifyCoverCommand = command({
       defaultValue: () => false,
       defaultValueIsSerializable: true,
     }),
-    name: option({
-      type: optional(string),
-      long: 'name',
-      description: 'Define the name of the output imagery',
-    }),
     background: option({
-      type: optional(Rgba),
+      type: optional(RgbaType),
       long: 'background',
       description: 'Replace all transparent COG pixels with this RGBA hexstring color',
     }),
@@ -79,7 +74,7 @@ export const BasemapsCogifyCoverCommand = command({
 
     const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');
-    const cfg = await initConfigFromUrls(mem, args.paths, args.name);
+    const cfg = await initConfigFromUrls(mem, args.paths);
     const imageryLoadTime = metrics.end('imagery:load');
     if (cfg.imagery.length === 0) throw new Error('No imagery found');
     const im = cfg.imagery[0];

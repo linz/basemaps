@@ -49,7 +49,7 @@ export const BasemapsCogifyConfigCommand = command({
     const q = pLimit(args.concurrency);
 
     metrics.start('imagery:load');
-    const im = await initImageryFromTiffUrl(args.path, q, undefined, undefined, logger);
+    const im = await initImageryFromTiffUrl(args.path, q, undefined, logger);
     const ts = ConfigProviderMemory.imageryToTileSet(im) as ConfigTileSetRaster;
     provider.put(im);
     metrics.end('imagery:load');

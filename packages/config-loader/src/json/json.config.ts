@@ -274,7 +274,7 @@ export class ConfigJson {
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ url: url.href, imageId: id }, 'Imagery:Fetch');
 
-    const img = await initImageryFromTiffUrl(url, this.Q, undefined, this.imageryConfigCache, this.logger);
+    const img = await initImageryFromTiffUrl(url, this.Q, this.imageryConfigCache, this.logger);
     img.id = id; // TODO could we use img.collection.id for this?
 
     // TODO should we be overwriting the name and title when it is loaded from the STAC metadata?

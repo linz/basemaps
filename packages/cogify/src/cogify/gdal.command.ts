@@ -1,10 +1,12 @@
-import { RGBA } from '@basemaps/config';
+import { Rgba } from '@basemaps/config';
 import { Epsg, EpsgCode, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
 import { Presets } from '../preset.js';
 import { GdalCommand } from './gdal.runner.js';
 import { CogifyCreationOptions } from './stac.js';
+
+const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
 
 export function gdalBuildVrt(targetVrt: URL, source: URL[]): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
@@ -109,7 +111,7 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
  *
  * @returns a 'gdal_create' GdalCommand object
  */
-export function gdalCreate(targetTiff: URL, color: RGBA, opt: CogifyCreationOptions): GdalCommand {
+export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOptions): GdalCommand {
   const cfg = { ...Presets[opt.preset], ...opt };
 
   const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
@@ -120,9 +122,7 @@ export function gdalCreate(targetTiff: URL, color: RGBA, opt: CogifyCreationOpti
   const size = Math.round(bounds.width / pixelScale);
 
   // if the value of 'size' is not a power of 2
-  if ((Math.log(size) / Math.log(size)) % 1 !== 0) {
-    throw new Error('Size did not compute to a power of 2');
-  }
+  if (!isPowerOfTwo(size)) throw new Error('Size did not compute to a power of 2');
 
   return {
     command: 'gdal_create',

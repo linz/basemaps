@@ -29,7 +29,7 @@ export async function loadConfig(opts: ServerOptions, logger: LogType): Promise<
   // Load the config directly from the source tiff files
   if ('paths' in opts) {
     const mem = new ConfigProviderMemory();
-    const ret = await initConfigFromUrls(mem, opts.paths, undefined, TiffLoadConcurrency, opts.configCache, logger);
+    const ret = await initConfigFromUrls(mem, opts.paths, TiffLoadConcurrency, opts.configCache, logger);
     for (const ts of ret.tileSets) {
       logger.info(
         { tileSet: ts.name, layers: ts.layers.length, outputs: ts.outputs?.map((f) => f.name) },

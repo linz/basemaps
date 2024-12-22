@@ -1,4 +1,4 @@
-import { RGBA } from '@basemaps/config';
+import { Rgba } from '@basemaps/config';
 import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
@@ -34,7 +34,7 @@ export interface TileCoverContext {
   /** GDAL configuration preset */
   preset: string;
   /** Optional color with which to replace all transparent COG pixels */
-  background?: RGBA;
+  background?: Rgba;
   /**
    * Override the base zoom to store the output COGS as
    */
