@@ -1,4 +1,4 @@
-import { ConfigTileSetOutputParser, parseRgba, TileResizeKernel, TileSetType } from '@basemaps/config';
+import { ConfigTileSetOutputParser, parseRgba, TileSetType } from '@basemaps/config';
 import { z } from 'zod';
 
 export function validateColor(str: string): boolean {
@@ -57,8 +57,6 @@ const zLayerConfig = z
     },
   );
 
-const TileResizeKernel = z.enum(['nearest', 'mitchell', 'lanczos3', 'lanczos2']);
-
 export const zTileSetConfig = z.object({
   type: z.nativeEnum(TileSetType),
   id: z.string(),
@@ -70,7 +68,6 @@ export const zTileSetConfig = z.object({
   minZoom: zZoom.optional(),
   maxZoom: zZoom.optional(),
   format: z.string().optional(),
-  resizeKernel: z.object({ in: TileResizeKernel, out: TileResizeKernel }).optional(),
   outputs: z.array(ConfigTileSetOutputParser).optional(),
 });
 

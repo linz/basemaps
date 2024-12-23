@@ -31,7 +31,7 @@ export interface ConfigLayer extends Partial<Record<EpsgCode, string>> {
   maxZoom?: number;
 }
 
-export type TileResizeKernel = 'nearest' | 'mitchell' | 'lanczos3' | 'lanczos2';
+export type TileResizeKernel = 'nearest' | 'lanczos3' | 'lanczos2';
 
 export interface ConfigTileSetBase extends ConfigBase {
   /** Human friendly display name for the tileset */

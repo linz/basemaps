@@ -144,12 +144,7 @@ export class TileMakerSharp implements TileMaker {
 
     if (resize) {
       const resizeOptions = { fit: Sharp.fit.cover, kernel: resize.scaleX > 1 ? resizeKernel.in : resizeKernel.out };
-      if (resize.scale <= 0.1251) {
-        // If the scale is less than 0.125, we need to disable fastShrinkOnLoad to prevent edge artifacts for topo raster map
-        sharp.resize(resize.width, resize.height, { ...resizeOptions, fastShrinkOnLoad: false });
-      } else {
-        sharp.resize(resize.width, resize.height, resizeOptions);
-      }
+      sharp.resize(resize.width, resize.height, resizeOptions);
     }
 
     if (crop) sharp.extract({ top: crop.y, left: crop.x, width: crop.width, height: crop.height });
