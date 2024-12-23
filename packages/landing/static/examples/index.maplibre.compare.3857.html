@@ -60,16 +60,16 @@
             }
 
             // vector layers
-            const styleUrl =
-                'https://basemaps.linz.govt.nz/v1/tiles/topographic/EPSG:3857/style/topographic.json?api=' + apiKey;
+            const url512 =
+                '/v1/tiles/aerial/EPSG:3857/style/{z}/{x}/{y}@2x.webp?api=' + apiKey;
 
             // Raster layers
-            const url = 'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=' + apiKey;
+            const url = '/v1/tiles/aerial/EPSG:3857/{z}/{x}/{y}.webp?api=' + apiKey;
 
             const startPos = [173, -40.5];
             const startZoom = 6;
 
-            var raster = new maplibregl.Map({
+            var raster256 = new maplibregl.Map({
                 container: 'raster', // Container ID
                 style: {
                     version: 8,
@@ -91,7 +91,28 @@
                 center: startPos,
                 zoom: startZoom,
             });
-
+            var raster512 = new maplibregl.Map({
+                container: 'raster', // Container ID
+                style: {
+                    version: 8,
+                    sources: {
+                        'raster-tiles': {
+                            type: 'raster',
+                            tiles: [url512],
+                            tileSize: 512,
+                        },
+                    },
+                    layers: [
+                        {
+                            id: 'LINZ Raster Basemaps',
+                            type: 'raster',
+                            source: 'raster-tiles',
+                        },
+                    ],
+                },
+                center: startPos,
+                zoom: startZoom,
+            });
             var vector = new maplibregl.Map({
                 container: 'vector', // Container ID
                 style: styleUrl,
@@ -102,7 +123,7 @@
             // A selector or reference to HTML element
             var container = '#comparison-container';
 
-            new mapboxgl.Compare(raster, vector, container, {
+            new mapboxgl.Compare(raster, raster512, container, {
                 mousemove: true, // Optional. Set to true to enable swiping during cursor movement.
                 orientation: 'vertical', // Optional. Sets the orientation of swiper to horizontal or vertical, defaults to vertical
             });

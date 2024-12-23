@@ -30,7 +30,8 @@ export function isArchiveTiff(x: CloudArchive): x is Tiff {
   return false;
 }
 
-export const TileComposer = new TileMakerSharp(256);
+export const TileComposer256 = new TileMakerSharp(256);
+export const TileComposer512 = new TileMakerSharp(512);
 
 export const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 export const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
@@ -117,6 +118,17 @@ export const TileXyzRaster = {
     return TileXyzRaster.getAssetsForBounds(req, tileSet, xyz.tileMatrix, tileBounds, xyz.tile.z);
   },
 
+  /**
+   * Lookup a tile composer based off the provided scale
+   *
+   * @param scale tile scale generally undefined or 2
+   * @returns
+   */
+  getComposer(scale?: number): TileMakerSharp {
+    if (scale === 2) return TileComposer512;
+    return TileComposer256;
+  },
+
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<LambdaHttpResponse> {
     const tileOutput = Validate.pipeline(tileSet, xyz.tileType, xyz.pipeline);
     if (tileOutput == null) return NotFound();
@@ -128,13 +140,13 @@ export const TileXyzRaster = {
 
     const assets = await TileXyzRaster.loadAssets(req, assetPaths);
 
-    const tiler = new Tiler(xyz.tileMatrix);
+    const tiler = new Tiler(xyz.tileMatrix, xyz.scale);
     const layers = tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z);
 
     const format = getImageFormat(xyz.tileType);
     if (format == null) return new LambdaHttpResponse(400, 'Invalid image format: ' + xyz.tileType);
 
-    const res = await TileComposer.compose({
+    const res = await this.getComposer(xyz.scale).compose({
       layers,
       pipeline: tileOutput.pipeline,
       format,

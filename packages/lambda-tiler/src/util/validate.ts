@@ -9,6 +9,12 @@ import { TileXyzGet } from '../routes/tile.xyz.js';
 export interface TileXyz {
   /** Tile XYZ location */
   tile: { x: number; y: number; z: number };
+  /**
+   * Output scale
+   *
+   * @default 1
+   */
+  scale?: number;
   /** Name of the tile set to use */
   tileSet: string;
   /** TileMatrix that is requested */
@@ -66,6 +72,25 @@ export const Validate = {
     if (isNaN(lat) || lat < -90 || lat > 90) return null;
     return { lon, lat };
   },
+
+  /**
+   * Parse a scale component from z
+   *
+   * @example
+   * ```typescript
+   * parseScale("3272@2x") // {y: 3272, scale: 2}
+   * parseScale("3272") // {y:3272}
+   * ```
+   *
+   * @param s string to parse
+   * @returns scale and component if the scale exists
+   */
+  getScale(s: string): { y: number; scale?: number } {
+    const [yPart, scalePart] = s.split('@');
+    if (scalePart == null) return { y: parseInt(yPart, 10) };
+
+    return { y: parseInt(yPart, 10), scale: parseInt(scalePart.replace('x', ''), 10) };
+  },
   /**
    * Validate that the tile request is somewhat valid
    * - Valid projection
@@ -81,8 +106,9 @@ export const Validate = {
 
     req.set('tileSet', req.params.tileSet);
 
+    const { y, scale } = Validate.getScale(req.params.y);
+
     const x = parseInt(req.params.x, 10);
-    const y = parseInt(req.params.y, 10);
     const z = parseInt(req.params.z, 10);
 
     const tileMatrix = Validate.getTileMatrixSet(req.params.tileMatrix);
@@ -104,8 +130,16 @@ export const Validate = {
     const pipeline = req.query.get('pipeline');
     if (pipeline) req.set('pipeline', pipeline);
 
+    if (scale != null) {
+      if (isNaN(scale)) throw new LambdaHttpResponse(400, 'Invalid scale');
+      if (scale !== 2) throw new LambdaHttpResponse(400, 'Only 2x scale is supported');
+
+      req.set('scale', scale);
+    }
+
     const xyzData = {
       tile: { x, y, z },
+      scale,
       tileSet: req.params.tileSet,
       tileMatrix,
       tileType: req.params.tileType,

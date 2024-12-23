@@ -26,6 +26,7 @@ function isCotar(x: CloudArchive): x is Cotar {
 export class Tiler {
   /** Tile size for the tiler and sub objects */
   public readonly tms: TileMatrixSet;
+  scale: number;
 
   /**
    * Tiler for a TileMatrixSet
@@ -33,8 +34,9 @@ export class Tiler {
    * @param tms
    * @param convertZ override the default convertZ
    */
-  public constructor(tms: TileMatrixSet) {
+  public constructor(tms: TileMatrixSet, scale: number = 1) {
     this.tms = tms;
+    this.scale = scale;
   }
 
   /**
@@ -49,6 +51,8 @@ export class Tiler {
     let layers: Composition[] = [];
     /** Raster pixels of the output tile */
     const screenPx = this.tms.tileToPixels(x, y);
+
+    // console.log(this.tms);
     const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, this.tms.tileSize, this.tms.tileSize);
 
     for (const asset of assets) {
@@ -101,6 +105,7 @@ export class Tiler {
     // Validate that the requested COG tile actually intersects with the output raster
     const tileIntersection = target.intersection(raster.tile);
     if (tileIntersection == null) return null;
+    console.log({ source, target, tile: raster.tile, scaleFactor, scale: this.scale });
 
     // If the output tile bounds are less than a pixel there is not much point rendering them
     const tileBounds = tileIntersection.subtract(target);
@@ -108,7 +113,7 @@ export class Tiler {
       return null;
     }
 
-    const drawAtRegion = target.subtract(raster.tile);
+    const drawAtRegion = target.subtract(raster.tile).scale(this.scale);
 
     const composition: Composition = {
       type: 'tiff',
@@ -126,7 +131,7 @@ export class Tiler {
 
     // Often COG tiles do not align to the same size as XYZ Tiles
     // This will scale the COG tile to the same size as a XYZ
-    if (source.width !== target.width || source.height !== target.height) {
+    if (source.width !== drawAtRegion.width || source.height !== drawAtRegion.height) {
       const scaleX = target.width / source.width;
       const scaleY = target.height / source.height;
       composition.resize = { width: target.width, height: target.height, scaleX, scaleY, scale: scaleFactor };
@@ -152,7 +157,7 @@ export class Tiler {
 
     // Find the best internal overview tiff to use with the desired XYZ resolution
     const targetResolution = this.tms.pixelScale(z);
-    const img = tiff.getImageByResolution(targetResolution);
+    const img = tiff.getImageByResolution(this.tms.pixelScale(z + (this.scale - 1)));
     // Often the overviews do not align to the actual resolution we want so we will need to scale the overview to the correct resolution
     const pixelScale = targetResolution / img.resolution[0];
 
