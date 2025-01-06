@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** NZTM terrain been multiplied twice. BM-1122 ([#3373](https://github.com/linz/basemaps/issues/3373)) ([5d2d9c6](https://github.com/linz/basemaps/commit/5d2d9c6069ce31bd22539fa41e9b41cc2aa53947))
+
+
+
+
+
 # [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
 
 

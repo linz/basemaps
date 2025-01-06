@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** NZTM terrain been multiplied twice. BM-1122 ([#3373](https://github.com/linz/basemaps/issues/3373)) ([5d2d9c6](https://github.com/linz/basemaps/commit/5d2d9c6069ce31bd22539fa41e9b41cc2aa53947))
+* **landing:** Fix the zoom to extend by using maplibre to adjust AntiMeridian. BM-1155 ([#3384](https://github.com/linz/basemaps/issues/3384)) ([bd6f001](https://github.com/linz/basemaps/commit/bd6f001d50af23743d19c444cdb003a88f630be1)), closes [/github.com/maplibre/maplibre-gl-js/blob/87486a5ef2085e600e8fa4e31252629dd8488dcd/src/geo/lng_lat_bounds.ts#L342](https://github.com//github.com/maplibre/maplibre-gl-js/blob/87486a5ef2085e600e8fa4e31252629dd8488dcd/src/geo/lng_lat_bounds.ts/issues/L342)
+* **server:** Bundle the the bin file before publish NPM. BM-1083 ([#3375](https://github.com/linz/basemaps/issues/3375)) ([5ce567f](https://github.com/linz/basemaps/commit/5ce567f5e8cc281fc8cd691d00e8b17a687ee514))
+
+
+### Features
+
+* **config:** Add resizeKernel into the config tileset then disable fastShrinkOnLoad. BM-1146 ([#3377](https://github.com/linz/basemaps/issues/3377)) ([bd3357e](https://github.com/linz/basemaps/commit/bd3357e5c6dee34a6e458a2ac956643468f8fb2c))
+* **landing:** Add topo-raster into layer dropdown. BM-1153 ([#3382](https://github.com/linz/basemaps/issues/3382)) ([7f4d1f7](https://github.com/linz/basemaps/commit/7f4d1f788895b7b5c520f7a3c717e38c4ccaaa03))
+* **landing:** insert the 'topographic' category and layers between the 'event' and 'bathymetry' categories. BM-1119 ([#3385](https://github.com/linz/basemaps/issues/3385)) ([8072eb9](https://github.com/linz/basemaps/commit/8072eb9355786308db2a2727cac51c67779cfe6d))
+* support custom indent sublists BM-1120 ([#3371](https://github.com/linz/basemaps/issues/3371)) ([bc334d4](https://github.com/linz/basemaps/commit/bc334d4f0c36425c3f9d3bd33b1cd338f26c0690))
+
+
+### Reverts
+
+* **config:** Add resizeKernel into the config tileset then disable fastShrinkOnLoad. ([#3383](https://github.com/linz/basemaps/issues/3383)) ([45c3611](https://github.com/linz/basemaps/commit/45c36111f2e743065f50b53b8ecf1ab28a0228c4)), closes [#3379](https://github.com/linz/basemaps/issues/3379)
+
+
+
+
+
 # [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
 
 
