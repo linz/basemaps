@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
 # [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
 
 **Note:** Version bump only for package @basemaps/infra

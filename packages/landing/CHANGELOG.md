@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
+
+
+### Bug Fixes
+
+* **landing:** Fix the zoom to extend by using maplibre to adjust AntiMeridian. BM-1155 ([#3384](https://github.com/linz/basemaps/issues/3384)) ([bd6f001](https://github.com/linz/basemaps/commit/bd6f001d50af23743d19c444cdb003a88f630be1)), closes [/github.com/maplibre/maplibre-gl-js/blob/87486a5ef2085e600e8fa4e31252629dd8488dcd/src/geo/lng_lat_bounds.ts#L342](https://github.com//github.com/maplibre/maplibre-gl-js/blob/87486a5ef2085e600e8fa4e31252629dd8488dcd/src/geo/lng_lat_bounds.ts/issues/L342)
+
+
+### Features
+
+* **landing:** Add topo-raster into layer dropdown. BM-1153 ([#3382](https://github.com/linz/basemaps/issues/3382)) ([7f4d1f7](https://github.com/linz/basemaps/commit/7f4d1f788895b7b5c520f7a3c717e38c4ccaaa03))
+* **landing:** insert the 'topographic' category and layers between the 'event' and 'bathymetry' categories. BM-1119 ([#3385](https://github.com/linz/basemaps/issues/3385)) ([8072eb9](https://github.com/linz/basemaps/commit/8072eb9355786308db2a2727cac51c67779cfe6d))
+
+
+
+
+
 # [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
 
 
