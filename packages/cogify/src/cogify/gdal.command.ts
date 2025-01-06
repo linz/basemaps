@@ -1,9 +1,12 @@
+import { Rgba } from '@basemaps/config';
 import { Epsg, EpsgCode, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
 import { Presets } from '../preset.js';
 import { GdalCommand } from './gdal.runner.js';
 import { CogifyCreationOptions } from './stac.js';
+
+const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
 
 export function gdalBuildVrt(targetVrt: URL, source: URL[]): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
@@ -90,6 +93,48 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
       ['-co', `EXTENT=${tileExtent.join(',')},`],
       ['-tr', targetResolution, targetResolution],
       urlToString(sourceVrt),
+      urlToString(targetTiff),
+    ]
+      .filter((f) => f != null)
+      .flat()
+      .map(String),
+  };
+}
+
+/**
+ * Creates an empty tiff where all pixel values are set to the given color.
+ * Used to force a background so that there are no empty pixels in the final COG.
+ *
+ * @param targetTiff the file path and name for the created tiff
+ * @param color the color to set all pixel values
+ * @param opt a CogifyCreationOptions object
+ *
+ * @returns a 'gdal_create' GdalCommand object
+ */
+export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOptions): GdalCommand {
+  const cfg = { ...Presets[opt.preset], ...opt };
+
+  const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
+  if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
+
+  const bounds = tileMatrix.tileToSourceBounds(cfg.tile);
+  const pixelScale = tileMatrix.pixelScale(cfg.zoomLevel);
+  const size = Math.round(bounds.width / pixelScale);
+
+  // if the value of 'size' is not a power of 2
+  if (!isPowerOfTwo(size)) throw new Error('Size did not compute to a power of 2');
+
+  return {
+    command: 'gdal_create',
+    output: targetTiff,
+    args: [
+      ['-of', 'GTiff'],
+      ['-outsize', size, size], // set the size to match that of the final COG
+      ['-bands', '4'],
+      ['-burn', `${color.r} ${color.g} ${color.b} ${color.alpha}`], // set all pixel values to the given color
+      ['-a_srs', tileMatrix.projection.toEpsgString()],
+      ['-a_ullr', bounds.x, bounds.bottom, bounds.right, bounds.y],
+      ['-co', 'COMPRESS=LZW'],
       urlToString(targetTiff),
     ]
       .filter((f) => f != null)

@@ -11,7 +11,7 @@ import { CutlineOptimizer } from '../../cutline.js';
 import { getLogger, logArguments } from '../../log.js';
 import { Presets } from '../../preset.js';
 import { createTileCover, TileCoverContext } from '../../tile.cover.js';
-import { Url, UrlFolder } from '../parsers.js';
+import { RgbaType, Url, UrlFolder } from '../parsers.js';
 import { createFileStats } from '../stac.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
@@ -62,6 +62,11 @@ export const BasemapsCogifyCoverCommand = command({
       defaultValue: () => false,
       defaultValueIsSerializable: true,
     }),
+    background: option({
+      type: optional(RgbaType),
+      long: 'background',
+      description: 'Replace all transparent COG pixels with this RGBA hexstring color',
+    }),
   },
   async handler(args) {
     const metrics = new Metrics();
@@ -95,6 +100,7 @@ export const BasemapsCogifyCoverCommand = command({
       metrics,
       cutline,
       preset: args.preset,
+      background: args.background,
       targetZoomOffset: args.baseZoomOffset,
     };
 

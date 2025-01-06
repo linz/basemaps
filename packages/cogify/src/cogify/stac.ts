@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 
+import { Rgba } from '@basemaps/config';
 import { Tile } from '@basemaps/geo';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 
@@ -56,7 +57,11 @@ export interface CogifyCreationOptions {
    * @default 'lanczos'
    */
   overviewResampling?: GdalResampling;
+
+  /** Color with which to replace all transparent COG pixels */
+  background?: Rgba;
 }
+
 export type GdalResampling = 'nearest' | 'bilinear' | 'cubic' | 'cubicspline' | 'lanczos' | 'average' | 'mode';
 
 export type CogifyStacCollection = StacCollection;

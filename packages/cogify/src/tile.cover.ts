@@ -1,3 +1,4 @@
+import { Rgba } from '@basemaps/config';
 import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
@@ -32,6 +33,8 @@ export interface TileCoverContext {
   logger?: LogType;
   /** GDAL configuration preset */
   preset: string;
+  /** Optional color with which to replace all transparent COG pixels */
+  background?: Rgba;
   /**
    * Override the base zoom to store the output COGS as
    */
@@ -179,6 +182,9 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
       },
       assets: {},
     };
+
+    // Add the background color if it exists
+    if (ctx.background) item.properties['linz_basemaps:options'].background = ctx.background;
 
     // Add the source imagery as a STAC Link
     for (const src of source) {

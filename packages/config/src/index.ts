@@ -7,7 +7,7 @@ export {
 } from './base.config.js';
 export { base58, isBase58 } from './base58.js';
 export { ensureBase58, sha256base58 } from './base58.node.js';
-export { parseHex, parseRgba } from './color.js';
+export { parseHex, parseRgba, Rgba } from './color.js';
 export { ConfigBase as BaseConfig } from './config/base.js';
 export { ConfigBundle } from './config/config.bundle.js';
 export { ConfigImagery, ConfigImageryOverview, ImageryBandType, ImageryDataType } from './config/imagery.js';
