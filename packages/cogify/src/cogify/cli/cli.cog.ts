@@ -1,5 +1,5 @@
 import { isEmptyTiff } from '@basemaps/config-loader';
-import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Projection, ProjectionLoader, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
@@ -155,7 +155,7 @@ export const BasemapsCogifyCreateCommand = command({
         const { item, url } = f;
         const cutlineLink = getCutline(item.links);
         const options = item.properties['linz_basemaps:options'];
-        const tileId = TileId.fromTile(options.tile);
+        const tileId = options.tileId;
 
         // Location to where the tiff should be stored
         const tiffPath = new URL(tileId + '.tiff', url);
@@ -268,7 +268,7 @@ export const BasemapsCogifyCreateCommand = command({
       {
         count: toCreate.length,
         created: filtered.length,
-        files: filtered.map((f) => TileId.fromTile(f.item.properties['linz_basemaps:options'].tile)),
+        files: filtered.map((f) => f.item.properties['linz_basemaps:options'].tileId),
       },
       'Cog:Done',
     );
@@ -292,7 +292,7 @@ export interface CogCreationContext {
 async function createCog(ctx: CogCreationContext): Promise<URL> {
   const options = ctx.options;
   await ProjectionLoader.load(options.sourceEpsg);
-  const tileId = TileId.fromTile(options.tile);
+  const tileId = options.tileId;
 
   const logger = ctx.logger?.child({ tileId });
 
@@ -303,13 +303,13 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
 
   logger?.debug({ tileId }, 'Cog:Create:VrtSource');
   // Create the vrt of all the source files
-  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles);
+  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles, options);
   await new GdalRunner(vrtSourceCommand).run(logger);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtWarp');
 
   const cutlineProperties: { url: URL | null; blend: number } = { url: null, blend: ctx.cutline.blend };
-  if (ctx.cutline.path) {
+  if (ctx.cutline.path && options.tile) {
     logger?.debug('Cog:Cutline');
     const optimizedCutline = ctx.cutline.optimize(options.tile);
     if (optimizedCutline) {
@@ -321,19 +321,23 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
     }
   }
 
-  // warp the source VRT into the output parameters
-  const vrtWarpCommand = gdalBuildVrtWarp(
-    new URL(`${tileId}-${options.tileMatrix}-warp.vrt`, ctx.tempFolder),
-    vrtSourceCommand.output,
-    options.sourceEpsg,
-    cutlineProperties,
-    options,
-  );
-  await new GdalRunner(vrtWarpCommand).run(logger);
+  let vrtOutput = vrtSourceCommand.output;
+  if (!options.noReprojecting) {
+    // warp the source VRT into the output parameters
+    const vrtWarpCommand = gdalBuildVrtWarp(
+      new URL(`${tileId}-${options.tileMatrix}-warp.vrt`, ctx.tempFolder),
+      vrtSourceCommand.output,
+      options.sourceEpsg,
+      cutlineProperties,
+      options,
+    );
+    await new GdalRunner(vrtWarpCommand).run(logger);
+    vrtOutput = vrtWarpCommand.output;
+  }
 
   if (options.background == null) {
     // Create the COG from the warped vrt without a forced background
-    const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtWarpCommand.output, options);
+    const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtOutput, options);
     await new GdalRunner(cogCreateCommand).run(logger);
     return cogCreateCommand.output;
   }
@@ -345,7 +349,7 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   // Create a vrt with the background tiff behind the source file vrt
   const vrtMergeCommand = gdalBuildVrt(new URL(`${tileId}-merged.vrt`, ctx.tempFolder), [
     gdalCreateCommand.output,
-    vrtWarpCommand.output,
+    vrtOutput,
   ]);
   await new GdalRunner(vrtMergeCommand).run(logger);
 

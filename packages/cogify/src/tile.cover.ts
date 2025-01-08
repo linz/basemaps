@@ -168,6 +168,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
         'linz_basemaps:options': {
           preset: ctx.preset,
           ...Presets[ctx.preset].options,
+          tileId: TileId.fromTile(tile),
           tile,
           tileMatrix: ctx.tileMatrix.identifier,
           sourceEpsg: ctx.imagery.projection,
@@ -225,7 +226,9 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
       temporal: { interval: dateTime.start ? [[dateTime.start, dateTime.end]] : [[cliDate, null]] },
     },
     links: items.map((item) => {
-      const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
+      const tile = item.properties['linz_basemaps:options'].tile;
+      if (tile == null) throw new Error('Tile missing from item');
+      const tileId = TileId.fromTile(tile);
       return { href: `./${tileId}.json`, rel: 'item', type: 'application/json' };
     }),
   };
