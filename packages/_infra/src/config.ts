@@ -12,6 +12,9 @@ export interface BaseMapsConfig {
 
   /** AWS role config bucket */
   AwsRoleConfigBucket: string;
+
+  /** Elastic Index to use for basemaps history data */
+  ElasticHistoryIndexName: string;
 }
 
 export const BaseMapsProdConfig: BaseMapsConfig = {
@@ -26,6 +29,7 @@ export const BaseMapsProdConfig: BaseMapsConfig = {
   CloudFrontDns: ['basemaps.linz.govt.nz', 'tiles.basemaps.linz.govt.nz'],
   PublicUrlBase: 'https://basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
+  ElasticHistoryIndexName: 'basemaps-history',
 };
 
 export const BaseMapsDevConfig: BaseMapsConfig = {
@@ -33,6 +37,7 @@ export const BaseMapsDevConfig: BaseMapsConfig = {
   CloudFrontDns: ['dev.basemaps.linz.govt.nz', 'tiles.dev.basemaps.linz.govt.nz'],
   PublicUrlBase: 'https://dev.basemaps.linz.govt.nz',
   AwsRoleConfigBucket: 'linz-bucket-config',
+  ElasticHistoryIndexName: 'nonprod-basemaps-history',
 };
 /** Is this deployment intended for production */
 export const IsProduction = process.env['NODE_ENV'] === 'production';
