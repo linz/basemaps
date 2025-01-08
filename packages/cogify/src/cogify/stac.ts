@@ -8,8 +8,11 @@ export interface CogifyCreationOptions {
   /** Preset GDAL config to use */
   preset: string;
 
+  /** Tile Id to be created */
+  tileId: string;
+
   /** Tile to be created */
-  tile: Tile;
+  tile?: Tile;
 
   /** Tile matrix to create the tiles against */
   tileMatrix: string;
@@ -58,8 +61,36 @@ export interface CogifyCreationOptions {
    */
   overviewResampling?: GdalResampling;
 
+  /**
+   * compression method for overview
+   */
+  overviewCompress?: string;
+
+  /**
+   * JPEG/WEBP quality setting for overviews range from 1 to 100
+   */
+  overviewQuality?: number;
+
   /** Color with which to replace all transparent COG pixels */
   background?: Rgba;
+
+  /** Adds an alpha mask band to the VRT when the source raster have none. */
+  addalpha?: boolean;
+
+  /** Stop to reproject the imagery by gdalwarp*/
+  noReprojecting?: boolean;
+
+  /**
+   * External overviews can be created in the BigTIFF format
+   *
+   * @default IF_NEEDED
+   */
+  bigTIFF?: 'YES' | 'NO' | 'IF_NEEDED' | 'IF_SAFER';
+
+  /**
+   * Selects a subwindow from the source image for copying based on pixel/line location.
+   */
+  srcwin?: number[];
 }
 
 export type GdalResampling = 'nearest' | 'bilinear' | 'cubic' | 'cubicspline' | 'lanczos' | 'average' | 'mode';

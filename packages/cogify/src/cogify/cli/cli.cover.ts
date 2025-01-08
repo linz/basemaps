@@ -144,11 +144,13 @@ export const BasemapsCogifyCoverCommand = command({
     const items = [];
     const tilesByZoom: number[] = [];
     for (const item of res.items) {
-      const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
+      const tile = item.properties['linz_basemaps:options'].tile;
+      if (tile == null) throw new Error('Tile not found in item');
+      const tileId = TileId.fromTile(tile);
       const itemPath = new URL(`${tileId}.json`, targetPath);
       items.push({ path: itemPath });
       await fsa.write(itemPath, JSON.stringify(item, null, 2));
-      const z = item.properties['linz_basemaps:options'].tile.z;
+      const z = tile.z;
       tilesByZoom[z] = (tilesByZoom[z] ?? 0) + 1;
       ctx.logger?.trace({ path: itemPath }, 'Imagery:Stac:Item:Write');
     }
