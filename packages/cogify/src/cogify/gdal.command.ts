@@ -20,7 +20,7 @@ function getTargetOptions(opt: CogifyCreationOptions): TargetOptions {
   if (opt.tileMatrix) {
     const tileMatrix = TileMatrixSets.find(opt.tileMatrix);
     if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + opt.tileMatrix);
-    targetOpts.targetSrs = tileMatrix.projection.toEpsgString();
+    if (opt.noReprojecting == null) targetOpts.targetSrs = tileMatrix.projection.toEpsgString();
 
     if (opt.tile) {
       const bounds = tileMatrix.tileToSourceBounds(opt.tile);
