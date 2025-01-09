@@ -15,7 +15,7 @@ export interface CogifyCreationOptions {
   tile?: Tile;
 
   /** Tile matrix to create the tiles against */
-  tileMatrix: string;
+  tileMatrix?: string;
 
   /** Projection of source imagery */
   sourceEpsg: number;
