@@ -68,8 +68,6 @@ export function gdalBuildVrtWarp(
     command: 'gdalwarp',
     args: [
       ['-of', 'vrt'], // Output as a VRT
-      // ['-co', 'compress=lzw'],
-      // ['-co', 'bigtiff=yes'],
       '-multi', // Mutithread IO
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
@@ -96,10 +94,10 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
     output: targetTiff,
     args: [
       ['-of', 'COG'],
-      ['-co', 'NUM_THREADS=ALL_CPUS'], // Use all CPUS
-      ['--config', 'GDAL_NUM_THREADS', 'all_cpus'], // Also required to NUM_THREADS till gdal 3.7.x
       cfg.srcwin ? ['-srcwin', cfg.srcwin[0], cfg.srcwin[1], cfg.srcwin[2], cfg.srcwin[3]] : undefined,
       cfg.bigTIFF ? ['-co', `BIGTIFF=${cfg.bigTIFF}`] : ['-co', 'BIGTIFF=IF_NEEDED'], // BigTiff is somewhat slower and most (All?) of the COGS should be well below 4GB
+      ['-co', 'NUM_THREADS=ALL_CPUS'], // Use all CPUS
+      ['--config', 'GDAL_NUM_THREADS', 'all_cpus'], // Also required to NUM_THREADS till gdal 3.7.x
       ['-co', 'ADD_ALPHA=YES'],
       ['-co', `BLOCKSIZE=${cfg.blockSize}`],
       /**
@@ -119,6 +117,7 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
       targetOpts.targetSrs ? ['-co', `TARGET_SRS=${targetOpts.targetSrs}`] : undefined,
       targetOpts.extent ? ['-co', `EXTENT=${targetOpts.extent.join(',')},`] : undefined,
       targetOpts.targetResolution ? ['-tr', targetOpts.targetResolution, targetOpts.targetResolution] : undefined,
+      cfg.noReprojecting ? ['-a_srs', `EPSG:${cfg.sourceEpsg}`] : undefined,
       urlToString(sourceVrt),
       urlToString(targetTiff),
     ]
