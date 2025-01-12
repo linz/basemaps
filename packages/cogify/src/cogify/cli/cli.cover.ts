@@ -84,8 +84,8 @@ export const BasemapsCogifyCoverCommand = command({
       throw new Error(`No collection.json found with imagery: ${im.url.href}`);
     }
 
-const slug = im.collection?.['linz:slug']
-if (slug != null) im.name = slug
+    const slug = im.collection?.['linz:slug'];
+    if (slug != null) im.name = slug as string;
 
     const tms = SupportedTileMatrix.find((f) => f.identifier.toLowerCase() === args.tileMatrix.toLowerCase());
     if (tms == null) throw new Error('--tile-matrix: ' + args.tileMatrix + ' not found');
