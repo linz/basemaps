@@ -150,6 +150,7 @@ export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOpti
 export function gdalBuildTopoRasterCommands(
   targetTiff: URL,
   sourceVrt: URL,
+  opt: CogifyCreationOptions,
   width: number,
   height: number,
 ): GdalCommand {
@@ -161,6 +162,7 @@ export function gdalBuildTopoRasterCommands(
       ['-stats'], // Force stats (re)computation
       ['-of', 'COG'], // Output format
       ['-srcwin', '0', '0', `${width - DEFAULT_TRIM_PIXEL_RIGHT}`, `${height}`],
+      ['-a_srs', `EPSG:${opt.sourceEpsg}`],
 
       // https://gdal.org/en/latest/drivers/raster/cog.html#creation-options
       ['-co', 'BIGTIFF=NO'],
