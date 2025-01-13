@@ -53,7 +53,7 @@ export class UserAgentParsers {
     const parsedName = decodeURI(userAgent);
     const lowered = parsedName.toLowerCase();
 
-    // Is there a customer parser for the user agent string
+    // Is there a custom parser for the user agent string
     const parsers = this.parsers.get(lowered[0]) ?? [];
     for (const parser of parsers) {
       if (lowered.startsWith(parser.name)) return { value: parser.create?.(lowered), parser, hit: 0 };

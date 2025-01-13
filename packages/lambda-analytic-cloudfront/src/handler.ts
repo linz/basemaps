@@ -115,7 +115,7 @@ export async function main(req: LambdaRequest): Promise<void> {
         // Process all the log files
         await Promise.all(filePromises);
 
-        // Extrac thte values
+        // Extract the values
         const allStats = [...stats.values()];
         await Elastic.insert(prefix, allStats, req.log);
         // Ensure everything is indexed into elasticsearch before writing the cache to disk
