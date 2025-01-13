@@ -399,6 +399,7 @@ async function createTopoCog(ctx: CogCreationContext): Promise<URL> {
   const cogCreateCommand = gdalBuildTopoRasterCommands(
     new URL(`${tileId}.tiff`, ctx.tempFolder),
     vrtSourceCommand.output,
+    options,
     ctx.size?.width,
     ctx.size?.height,
   );
