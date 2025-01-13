@@ -168,7 +168,6 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
         'linz_basemaps:options': {
           preset: ctx.preset,
           ...Presets[ctx.preset].options,
-          tileId: TileId.fromTile(tile),
           tile,
           tileMatrix: ctx.tileMatrix.identifier,
           sourceEpsg: ctx.imagery.projection,
