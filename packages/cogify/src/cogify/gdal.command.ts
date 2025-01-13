@@ -147,10 +147,15 @@ export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOpti
   };
 }
 
-export function gdalBuildTopoRasterCommands(input: URL, output: URL, width: number, height: number): GdalCommand {
+export function gdalBuildTopoRasterCommands(
+  targetTiff: URL,
+  sourceVrt: URL,
+  width: number,
+  height: number,
+): GdalCommand {
   const command: GdalCommand = {
-    output,
     command: 'gdal_translate',
+    output: targetTiff,
     args: [
       ['-q'], // Supress non-error output
       ['-stats'], // Force stats (re)computation
@@ -171,9 +176,8 @@ export function gdalBuildTopoRasterCommands(input: URL, output: URL, width: numb
 
       // https://gdal.org/en/latest/drivers/raster/cog.html#reprojection-related-creation-options
       ['-co', 'ADD_ALPHA=YES'],
-
-      urlToString(input),
-      urlToString(output),
+      urlToString(sourceVrt),
+      urlToString(targetTiff),
     ]
       .filter((f) => f != null)
       .flat()
