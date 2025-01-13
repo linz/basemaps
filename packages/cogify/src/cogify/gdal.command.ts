@@ -7,44 +7,14 @@ import { GdalCommand } from './gdal.runner.js';
 import { CogifyCreationOptions } from './stac.js';
 
 const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
+const DEFAULT_TRIM_PIXEL_RIGHT = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
 
-interface TargetOptions {
-  targetSrs?: string;
-  extent?: number[];
-  targetResolution?: number;
-}
-
-function getTargetOptions(opt: CogifyCreationOptions): TargetOptions {
-  const targetOpts: TargetOptions = {};
-
-  if (opt.tileMatrix) {
-    const tileMatrix = TileMatrixSets.find(opt.tileMatrix);
-    if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + opt.tileMatrix);
-    if (opt.noReprojecting == null) targetOpts.targetSrs = tileMatrix.projection.toEpsgString();
-
-    if (opt.tile) {
-      const bounds = tileMatrix.tileToSourceBounds(opt.tile);
-      targetOpts.extent = [
-        Math.min(bounds.x, bounds.right),
-        Math.min(bounds.y, bounds.bottom),
-        Math.max(bounds.x, bounds.right),
-        Math.max(bounds.y, bounds.bottom),
-      ];
-    }
-
-    if (opt.zoomLevel) {
-      targetOpts.targetResolution = tileMatrix.pixelScale(opt.zoomLevel);
-    }
-  }
-  return targetOpts;
-}
-
-export function gdalBuildVrt(targetVrt: URL, source: URL[], opt?: CogifyCreationOptions): GdalCommand {
+export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha?: boolean): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
   return {
     output: targetVrt,
     command: 'gdalbuildvrt',
-    args: [opt && opt.addalpha ? ['-addalpha'] : undefined, urlToString(targetVrt), ...source.map(urlToString)]
+    args: [addalpha ? ['-addalpha'] : undefined, urlToString(targetVrt), ...source.map(urlToString)]
       .filter((f) => f != null)
       .flat()
       .map(String),
@@ -60,7 +30,6 @@ export function gdalBuildVrtWarp(
 ): GdalCommand {
   const tileMatrix = TileMatrixSets.find(opt.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + opt.tileMatrix);
-  if (opt.zoomLevel == null) throw new Error('Unable to find zoomLevel');
   const targetResolution = tileMatrix.pixelScale(opt.zoomLevel);
 
   return {
@@ -68,6 +37,8 @@ export function gdalBuildVrtWarp(
     command: 'gdalwarp',
     args: [
       ['-of', 'vrt'], // Output as a VRT
+      // ['-co', 'compress=lzw'],
+      // ['-co', 'bigtiff=yes'],
       '-multi', // Mutithread IO
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
@@ -86,38 +57,45 @@ export function gdalBuildVrtWarp(
 
 export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreationOptions): GdalCommand {
   const cfg = { ...Presets[opt.preset], ...opt };
+  const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
+  if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
 
-  const targetOpts = getTargetOptions(cfg);
+  const bounds = tileMatrix.tileToSourceBounds(cfg.tile);
+  const tileExtent = [
+    Math.min(bounds.x, bounds.right),
+    Math.min(bounds.y, bounds.bottom),
+    Math.max(bounds.x, bounds.right),
+    Math.max(bounds.y, bounds.bottom),
+  ];
+
+  const targetResolution = tileMatrix.pixelScale(cfg.zoomLevel);
 
   return {
     command: 'gdal_translate',
     output: targetTiff,
     args: [
       ['-of', 'COG'],
-      cfg.srcwin ? ['-srcwin', cfg.srcwin[0], cfg.srcwin[1], cfg.srcwin[2], cfg.srcwin[3]] : undefined,
-      cfg.bigTIFF ? ['-co', `BIGTIFF=${cfg.bigTIFF}`] : ['-co', 'BIGTIFF=IF_NEEDED'], // BigTiff is somewhat slower and most (All?) of the COGS should be well below 4GB
       ['-co', 'NUM_THREADS=ALL_CPUS'], // Use all CPUS
       ['--config', 'GDAL_NUM_THREADS', 'all_cpus'], // Also required to NUM_THREADS till gdal 3.7.x
+      ['-co', 'BIGTIFF=IF_NEEDED'], // BigTiff is somewhat slower and most (All?) of the COGS should be well below 4GB
       ['-co', 'ADD_ALPHA=YES'],
-      ['-co', `BLOCKSIZE=${cfg.blockSize}`],
       /**
        *  GDAL will recompress existing overviews if they exist which will compound
        *  any lossly compression on the overview, so compute new overviews instead
        */
       ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
-      cfg.overviewCompress ? ['-co', `OVERVIEW_COMPRESS=${cfg.overviewCompress}`] : undefined,
-      cfg.overviewQuality ? ['-co', `OVERVIEW_QUALITY=${cfg.overviewQuality}`] : undefined,
-      cfg.warpResampling ? ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`] : undefined,
-      cfg.overviewResampling ? ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`] : undefined,
+      ['-co', `BLOCKSIZE=${cfg.blockSize}`],
+      // ['-co', 'RESAMPLING=cubic'],
+      ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
+      ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
       ['-co', `COMPRESS=${cfg.compression}`],
       cfg.quality ? ['-co', `QUALITY=${cfg.quality}`] : undefined,
       cfg.maxZError ? ['-co', `MAX_Z_ERROR=${cfg.maxZError}`] : undefined,
       cfg.maxZErrorOverview ? ['-co', `MAX_Z_ERROR_OVERVIEW=${cfg.maxZErrorOverview}`] : undefined,
       ['-co', 'SPARSE_OK=YES'],
-      targetOpts.targetSrs ? ['-co', `TARGET_SRS=${targetOpts.targetSrs}`] : undefined,
-      targetOpts.extent ? ['-co', `EXTENT=${targetOpts.extent.join(',')},`] : undefined,
-      targetOpts.targetResolution ? ['-tr', targetOpts.targetResolution, targetOpts.targetResolution] : undefined,
-      cfg.noReprojecting ? ['-a_srs', `EPSG:${cfg.sourceEpsg}`] : undefined,
+      ['-co', `TARGET_SRS=${tileMatrix.projection.toEpsgString()}`],
+      ['-co', `EXTENT=${tileExtent.join(',')},`],
+      ['-tr', targetResolution, targetResolution],
       urlToString(sourceVrt),
       urlToString(targetTiff),
     ]
@@ -143,8 +121,8 @@ export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOpti
   const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
 
-  const bounds = tileMatrix.tileToSourceBounds(cfg.tile ?? { x: 0, y: 0, z: 0 });
-  const pixelScale = tileMatrix.pixelScale(cfg.zoomLevel ?? 0);
+  const bounds = tileMatrix.tileToSourceBounds(cfg.tile);
+  const pixelScale = tileMatrix.pixelScale(cfg.zoomLevel);
   const size = Math.round(bounds.width / pixelScale);
 
   // if the value of 'size' is not a power of 2
@@ -167,4 +145,40 @@ export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOpti
       .flat()
       .map(String),
   };
+}
+
+export function gdalBuildTopoRasterCommands(input: URL, output: URL, width: number, height: number): GdalCommand {
+  const command: GdalCommand = {
+    output,
+    command: 'gdal_translate',
+    args: [
+      ['-q'], // Supress non-error output
+      ['-stats'], // Force stats (re)computation
+      ['-of', 'COG'], // Output format
+      ['-srcwin', '0', '0', `${width - DEFAULT_TRIM_PIXEL_RIGHT}`, `${height}`],
+
+      // https://gdal.org/en/latest/drivers/raster/cog.html#creation-options
+      ['-co', 'BIGTIFF=NO'],
+      ['-co', 'BLOCKSIZE=512'],
+      ['-co', 'COMPRESS=WEBP'],
+      ['-co', 'NUM_THREADS=ALL_CPUS'], // Use all CPUS
+      ['-co', 'OVERVIEW_COMPRESS=WEBP'],
+      ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
+      ['-co', 'OVERVIEW_QUALITY=90'],
+      ['-co', 'OVERVIEW_RESAMPLING=LANCZOS'],
+      ['-co', 'QUALITY=100'],
+      ['-co', 'SPARSE_OK=TRUE'], // Allow for sparse writes
+
+      // https://gdal.org/en/latest/drivers/raster/cog.html#reprojection-related-creation-options
+      ['-co', 'ADD_ALPHA=YES'],
+
+      urlToString(input),
+      urlToString(output),
+    ]
+      .filter((f) => f != null)
+      .flat()
+      .map(String),
+  };
+
+  return command;
 }

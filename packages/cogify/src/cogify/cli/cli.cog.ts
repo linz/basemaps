@@ -1,5 +1,5 @@
 import { isEmptyTiff } from '@basemaps/config-loader';
-import { Projection, ProjectionLoader, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
@@ -15,7 +15,13 @@ import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader } from '../../download.js';
 import { HashTransform } from '../../hash.stream.js';
 import { getLogger, logArguments } from '../../log.js';
-import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp, gdalCreate } from '../gdal.command.js';
+import {
+  gdalBuildCog,
+  gdalBuildTopoRasterCommands,
+  gdalBuildVrt,
+  gdalBuildVrtWarp,
+  gdalCreate,
+} from '../gdal.command.js';
 import { GdalRunner } from '../gdal.runner.js';
 import { Url, UrlArrayJsonFile } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
@@ -65,6 +71,7 @@ export const BasemapsCogifyCreateCommand = command({
     ...logArguments,
     path: restPositionals({ type: Url, displayName: 'path', description: 'Path to covering configuration' }),
     force: flag({ long: 'force', description: 'Overwrite existing tiff files' }),
+    topo: flag({ long: 'topo', description: 'Standardize topo raster map' }),
     concurrency: option({
       type: number,
       long: 'concurrency',
@@ -155,7 +162,7 @@ export const BasemapsCogifyCreateCommand = command({
         const { item, url } = f;
         const cutlineLink = getCutline(item.links);
         const options = item.properties['linz_basemaps:options'];
-        const tileId = options.tileId;
+        const tileId = args.topo ? item.id : TileId.fromTile(options.tile);
 
         // Location to where the tiff should be stored
         const tiffPath = new URL(tileId + '.tiff', url);
@@ -173,11 +180,24 @@ export const BasemapsCogifyCreateCommand = command({
         // Create the tiff concurrently
         const outputTiffPath = await Q(async () => {
           metrics.start(tileId); // Only start the timer when the cog is actually being processed
-
-          const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
           const sourceLocations = await Promise.all(sourceFiles.map((f) => sources.get(f, logger)));
+          const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
+          if (args.topo) {
+            const width = item.properties['source.width'] as number;
+            const height = item.properties['source.height'] as number;
+            return createTopoCog({
+              tileId,
+              options,
+              tempFolder: tmpFolder,
+              sourceFiles: sourceLocations,
+              cutline,
+              size: { width, height },
+              logger,
+            });
+          }
 
           return createCog({
+            tileId,
             options,
             tempFolder: tmpFolder,
             sourceFiles: sourceLocations,
@@ -268,7 +288,9 @@ export const BasemapsCogifyCreateCommand = command({
       {
         count: toCreate.length,
         created: filtered.length,
-        files: filtered.map((f) => f.item.properties['linz_basemaps:options'].tileId),
+        files: filtered.map((f) => {
+          return args.topo ? f.item.id : TileId.fromTile(f.item.properties['linz_basemaps:options'].tile);
+        }),
       },
       'Cog:Done',
     );
@@ -276,6 +298,8 @@ export const BasemapsCogifyCreateCommand = command({
 });
 
 export interface CogCreationContext {
+  /** TileId for the file name */
+  tileId: string;
   /** COG Creation options */
   options: CogifyCreationOptions;
   /** Location to store all the temporary files */
@@ -284,6 +308,8 @@ export interface CogCreationContext {
   sourceFiles: URL[];
   /** Optional cutline to cut the imagery too */
   cutline: CutlineOptimizer;
+  /** Optional Source imagery size for topo raster trim pixel */
+  size?: { width: number; height: number };
   /** Optional logger */
   logger?: LogType;
 }
@@ -292,7 +318,7 @@ export interface CogCreationContext {
 async function createCog(ctx: CogCreationContext): Promise<URL> {
   const options = ctx.options;
   await ProjectionLoader.load(options.sourceEpsg);
-  const tileId = options.tileId;
+  const tileId = ctx.tileId;
 
   const logger = ctx.logger?.child({ tileId });
 
@@ -303,13 +329,13 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
 
   logger?.debug({ tileId }, 'Cog:Create:VrtSource');
   // Create the vrt of all the source files
-  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles, options);
+  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles);
   await new GdalRunner(vrtSourceCommand).run(logger);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtWarp');
 
   const cutlineProperties: { url: URL | null; blend: number } = { url: null, blend: ctx.cutline.blend };
-  if (ctx.cutline.path && options.tile) {
+  if (ctx.cutline) {
     logger?.debug('Cog:Cutline');
     const optimizedCutline = ctx.cutline.optimize(options.tile);
     if (optimizedCutline) {
@@ -321,23 +347,19 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
     }
   }
 
-  let vrtOutput = vrtSourceCommand.output;
-  if (!options.noReprojecting) {
-    // warp the source VRT into the output parameters
-    const vrtWarpCommand = gdalBuildVrtWarp(
-      new URL(`${tileId}-${options.tileMatrix}-warp.vrt`, ctx.tempFolder),
-      vrtSourceCommand.output,
-      options.sourceEpsg,
-      cutlineProperties,
-      options,
-    );
-    await new GdalRunner(vrtWarpCommand).run(logger);
-    vrtOutput = vrtWarpCommand.output;
-  }
+  // warp the source VRT into the output parameters
+  const vrtWarpCommand = gdalBuildVrtWarp(
+    new URL(`${tileId}-${options.tileMatrix}-warp.vrt`, ctx.tempFolder),
+    vrtSourceCommand.output,
+    options.sourceEpsg,
+    cutlineProperties,
+    options,
+  );
+  await new GdalRunner(vrtWarpCommand).run(logger);
 
   if (options.background == null) {
     // Create the COG from the warped vrt without a forced background
-    const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtOutput, options);
+    const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtWarpCommand.output, options);
     await new GdalRunner(cogCreateCommand).run(logger);
     return cogCreateCommand.output;
   }
@@ -349,12 +371,37 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   // Create a vrt with the background tiff behind the source file vrt
   const vrtMergeCommand = gdalBuildVrt(new URL(`${tileId}-merged.vrt`, ctx.tempFolder), [
     gdalCreateCommand.output,
-    vrtOutput,
+    vrtWarpCommand.output,
   ]);
   await new GdalRunner(vrtMergeCommand).run(logger);
 
   // Create the COG from the merged vrt with a forced background
   const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtMergeCommand.output, options);
+  await new GdalRunner(cogCreateCommand).run(logger);
+  return cogCreateCommand.output;
+}
+
+/** Create a cog from the creation options */
+async function createTopoCog(ctx: CogCreationContext): Promise<URL> {
+  const options = ctx.options;
+  await ProjectionLoader.load(options.sourceEpsg);
+  const tileId = ctx.tileId;
+
+  const logger = ctx.logger?.child({ tileId });
+
+  logger?.debug({ tileId }, 'TopoCog:Create:VrtSource');
+  // Create the vrt of all the source files
+  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles, true);
+  await new GdalRunner(vrtSourceCommand).run(logger);
+
+  // Create the COG from the vrt file
+  if (ctx.size == null) throw new Error('TopoCog: Source image size is required for pixel trim');
+  const cogCreateCommand = gdalBuildTopoRasterCommands(
+    new URL(`${tileId}.tiff`, ctx.tempFolder),
+    vrtSourceCommand.output,
+    ctx.size?.width,
+    ctx.size?.height,
+  );
   await new GdalRunner(cogCreateCommand).run(logger);
   return cogCreateCommand.output;
 }
