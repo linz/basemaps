@@ -41,6 +41,7 @@ export interface TileUrlInfo {
   /** closes zoom level in web mercator quad  */
   webMercatorZoom: number;
 }
+
 export function parseTileUrl(status: number, url: string): TileUrlInfo | undefined {
   if (!url.startsWith('/v1/tiles')) return;
   if (status > 399) return;

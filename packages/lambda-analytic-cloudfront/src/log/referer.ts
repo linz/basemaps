@@ -12,7 +12,6 @@ export function getUrlHost(ref: string): string {
 export function _getUrlHost(ref: string): string {
   if (ref == null) return 'unknown';
   if (ref === '-') return 'unknown';
-  // console.log(ref)
 
   try {
     const { hostname } = new URL(ref);

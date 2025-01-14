@@ -31,7 +31,7 @@ export interface LogStats {
   tileSet: string;
 
   /**
-   * zoom level of the request served
+   * zoom level of the request served in WebMercatorQuad zoom scales
    */
   z: number;
 
