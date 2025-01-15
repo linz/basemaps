@@ -1,0 +1,42 @@
+{
+  "name": "@basemaps/lambda-analytic-cloudfront",
+  "version": "7.11.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/lambda-analytic-cloudfront"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@basemaps/config": "^7.11.0",
+    "@basemaps/geo": "^7.11.0",
+    "@basemaps/shared": "^7.11.0",
+    "@elastic/elasticsearch": "^8.16.2",
+    "@linzjs/lambda": "^4.0.0",
+    "ua-parser-js": "^1.0.39"
+  },
+  "scripts": {
+    "test": "node --test",
+    "bundle": "../../scripts/bundle.mjs package.json"
+  },
+  "devDependencies": {
+    "@types/ua-parser-js": "^0.7.36"
+  },
+  "bundle": {
+    "entry": "src/index.ts",
+    "outdir": "dist/",
+    "external": [
+      "pino-pretty"
+    ]
+  }
+}
