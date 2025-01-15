@@ -1,6 +1,7 @@
 export function getYesterday(): Date {
   // Process up to about a day ago
   const maxDate = new Date();
+  maxDate.setUTCHours(0);
   maxDate.setUTCMinutes(0);
   maxDate.setUTCSeconds(0);
   maxDate.setUTCMilliseconds(0);

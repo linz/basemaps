@@ -43,6 +43,8 @@ describe('analytic lambda', () => {
   function setupEnv(t: TestContext): void {
     t.mock.method(Env, 'get', (key: string): string => {
       switch (key) {
+        case Env.Analytics.ElasticIndexName:
+          return 'basemaps-history';
         case Env.Analytics.CacheBucket:
           return 'mem://cache/';
         case Env.Analytics.CloudFrontSourceBucket:
@@ -68,8 +70,7 @@ describe('analytic lambda', () => {
     } as unknown as Client;
 
     const YesterDay = getYesterday();
-    const shortDate = YesterDay.toISOString().slice(0, 13).replace('T', '-');
-
+    const shortDate = YesterDay.toISOString().slice(0, 10) + '-23';
     await fsa.write(new URL(`mem://source/cfid.${shortDate}/data.txt.gz`), gzipSync(LogData));
 
     await main(new FakeLambdaRequest());
@@ -114,8 +115,7 @@ describe('analytic lambda', () => {
     } as unknown as Client;
 
     const YesterDay = getYesterday();
-    const shortDate = YesterDay.toISOString().slice(0, 13).replace('T', '-');
-
+    const shortDate = YesterDay.toISOString().slice(0, 10) + '-23';
     await fsa.write(new URL(`mem://source/cfid.${shortDate}/data.txt.gz`), gzipSync(LogData));
 
     const ret = await main(new FakeLambdaRequest()).catch((e: Error) => e);
