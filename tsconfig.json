@@ -18,6 +18,7 @@
     { "path": "./packages/shared/tsconfig.json" },
     { "path": "./packages/lambda-tiler/tsconfig.json" },
     { "path": "./packages/lambda-analytics/tsconfig.json" },
+    { "path": "./packages/lambda-analytic-cloudfront/tsconfig.json" },
     { "path": "./packages/attribution/tsconfig.json" },
     { "path": "./packages/landing/tsconfig.json" },
     { "path": "./packages/server/tsconfig.json" },
