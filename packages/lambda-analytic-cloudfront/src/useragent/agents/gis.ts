@@ -4,6 +4,7 @@ import { isValidOs, UserAgentOs, UserAgentParser } from '../parser.types.js';
 function guessQgisOs(ua: string): UserAgentOs | undefined {
   if (ua.includes('/windows')) return 'windows';
   if (ua.includes('/mac')) return 'macos';
+  return;
 }
 
 const ArcGis: Record<string, UserAgentParser> = {
